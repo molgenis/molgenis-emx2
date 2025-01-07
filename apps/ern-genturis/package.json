@@ -2,6 +2,8 @@
   "name": "ern-genturis",
   "version": "0.1.0",
   "private": true,
+  "main": "dist/index",
+  "types": "dist/index",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -14,13 +16,13 @@
     "graphql-request": "5.2.0",
     "molgenis-components": "*",
     "molgenis-viz": "*",
-    "vue": "3.4.37",
+    "vue": "3.5.6",
     "vue-router": "4.4.3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.6.2",
     "prettier": "2.8.8",
-    "vite": "4.5.3"
+    "vite": "5.4.6"
   },
   "browserslist": [
     "> 1%",

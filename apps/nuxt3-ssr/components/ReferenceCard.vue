@@ -50,7 +50,7 @@ withDefaults(
         </header>
 
         <p class="text-body-base my-5 hidden sm:block">
-          <ContentReadMore :value="description" />
+          <ContentReadMore :text="description" />
         </p>
 
         <a

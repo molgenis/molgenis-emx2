@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ISectionField } from "~/interfaces/types";
+import type { ISectionField } from "~/types/types";
 const String = resolveComponent("ContentTypeString");
 const Text = resolveComponent("ContentTypeText");
 const OntologyArray = resolveComponent("ContentTypeOntologyArray");

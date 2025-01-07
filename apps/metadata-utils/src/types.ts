@@ -7,7 +7,9 @@ export interface ISetting {
   value: string;
 }
 
-export type ColumnType =
+type HeadingType = "HEADING";
+
+export type CellValueType =
   | "BOOL"
   | "BOOL_ARRAY"
   | "UUID"
@@ -28,8 +30,7 @@ export type ColumnType =
   | "DATETIME"
   | "DATETIME_ARRAY"
   | "PERIOD"
-  | "JSONB"
-  | "JSONB_ARRAY"
+  | "JSON"
   | "REF"
   | "REF_ARRAY"
   | "REFBACK"
@@ -42,9 +43,10 @@ export type ColumnType =
   | "HYPERLINK"
   | "HYPERLINK_ARRAY";
 
+export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
   columnType: ColumnType;
-  id: string;
+  id: columnId;
   label: string;
   computed?: string;
   conditions?: string[];
@@ -84,4 +86,15 @@ export interface ISchemaMetaData {
   label: string;
   description?: string;
   tables: ITableMetaData[];
+}
+
+export interface IFieldError {
+  message: string;
+}
+
+export type columnId = string;
+export type columnValue = string | number | boolean | columnValueObject;
+
+interface columnValueObject {
+  [x: string]: columnValue;
 }

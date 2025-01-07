@@ -34,7 +34,7 @@ describe("isConditionFilter", () => {
       config: {
         label: "Search in cohorts",
         type: "SEARCH",
-        searchTables: ["collectionEvents", "subcohorts"],
+        searchTables: ["collectionEvents", "subpopulations"],
         initialCollapsed: false,
       },
       search: "",
@@ -51,7 +51,7 @@ describe("toPathQueryConditions", () => {
         config: {
           label: "Search in cohorts",
           type: "SEARCH",
-          searchTables: ["collectionEvents", "subcohorts"],
+          searchTables: ["collectionEvents", "subpopulations"],
           initialCollapsed: false,
         },
         search: "",
@@ -80,7 +80,7 @@ describe("toPathQueryConditions", () => {
         config: {
           label: "Search in cohorts",
           type: "SEARCH",
-          searchTables: ["collectionEvents", "subcohorts"],
+          searchTables: ["collectionEvents", "subpopulations"],
           initialCollapsed: false,
         },
         search: "foobar",

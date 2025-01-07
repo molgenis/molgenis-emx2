@@ -38,15 +38,7 @@ import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
 import { defineEmits, ref } from "vue";
 
-const {
-  isClearBtnShown,
-  id,
-  label,
-  description,
-  errorMessage,
-  modelValue,
-  placeholder,
-} = withDefaults(
+const props = withDefaults(
   defineProps<{
     modelValue: string;
     isClearBtnShown?: boolean;
@@ -59,7 +51,7 @@ const {
   { isClearBtnShown: false, placeholder: "Search" }
 );
 
-const input = ref<string>(modelValue || "");
+const input = ref<string>(props.modelValue || "");
 
 const emit = defineEmits(["update:modelValue"]);
 

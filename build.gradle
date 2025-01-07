@@ -120,20 +120,6 @@ jar {
     }
 }
 
-task cleandb(type: JavaExec) {
-    group = "Execution"
-    description = "Clean database. Carefull, will delete all MOLGENIS stuff"
-    classpath = sourceSets.main.runtimeClasspath
-    main = "org.molgenis.emx2.AToolToCleanDatabase"
-}
-
-task generateTypes(type: JavaExec) {
-    group = "Execution"
-    description = "Generated type-script interfaces from schema metadata"
-    classpath = sourceSets.main.runtimeClasspath
-    main = "org.molgenis.emx2.AToolToGenerateTypeScriptTypes"
-}
-
 //task to install pre-commit hook that applies formatting
 task installPreCommitGitFormatApplyHook(type: Copy) {
     from new File(rootProject.rootDir, 'pre-commit-format-apply')

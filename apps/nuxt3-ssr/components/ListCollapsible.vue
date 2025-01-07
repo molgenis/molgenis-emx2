@@ -26,7 +26,7 @@ const columnCountClass = computed(() => {
 <template>
   <section>
     <h3 class="mb-2.5 font-bold">{{ title }}</h3>
-    <div class="grid gap-6" :class="columnCountClass">
+    <div class="grid gap-6 pl-2" :class="columnCountClass">
       <slot></slot>
     </div>
   </section>

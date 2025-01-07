@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const ariaId = useId();
 interface PropType {
   maximumButtonShown?: number;
   invert?: boolean;
@@ -33,6 +34,7 @@ const active = "underline";
     </a>
 
     <VMenu
+      :aria-id="ariaId"
       placement="bottom-end"
       :distance="-1"
       v-if="subButtons.length > 0 && showMoreButton"

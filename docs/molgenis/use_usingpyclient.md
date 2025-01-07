@@ -55,6 +55,17 @@ or
 client = Client('https://example.molgeniscloud.org', schema='My Schema', token=token)
 ```
 
+### Scripts and Jobs
+When using the client in a script that runs as part of a job via the [Task API](use_scripts_jobs.md), it is essential
+to provide the job identifier to the client. This identifier allows the backend to associate its actions with the
+specific job execution.
+
+The job identifier can be passed into the script using `${jobId}`. To initialize the client with the job identifier,
+the code should be structured as follows:
+```python
+Client('https://example.molgeniscloud.org', schema='My Schema', job='${jobId}')
+```
+
 ## Methods and properties
 This section outlines some of the methods that are supported by the Pyclient.
 The results of these methods depend on the permission level the user has on the schemas involved in the method.
@@ -94,7 +105,7 @@ Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ p
 
 | parameter | type | description          | required | default |
 |-----------|------|----------------------|----------|---------|
-| name      | str  | the name of a schema | True     |         |
+| `name`    | str  | the name of a schema | True     |         |
 
 ### set_token
 ```python
@@ -106,7 +117,7 @@ Raises the `TokenSigninException` when the client is already signed in with a us
 
 | parameter | type | description | required | default |
 |-----------|------|-------------|----------|---------|
-| token     | str  | the token   | True     |         |
+| `token`   | str  | the token   | True     |         |
 
 
 ### get
@@ -131,13 +142,33 @@ Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ p
 Throws the `NoSuchColumnException` if the query filter contains a column id that is not present in the table.
 
 
-| parameter    | type  | description                                                                    | required | default |
-|--------------|-------|--------------------------------------------------------------------------------|----------|---------|
-| table        | str   | the name of a table                                                            | True     | None    |
-| schema       | str   | the name of a schema                                                           | False    | None    |
-| query_filter | str   | a string to filter the results on                                              | False    | None    |
-| as_df        | bool  | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False   |
+| parameter      | type | description                                                                    | required | default |
+|----------------|------|--------------------------------------------------------------------------------|----------|---------|
+| `table`        | str  | the name of a table                                                            | True     | None    |
+| `schema`       | str  | the name of a schema                                                           | False    | None    |
+| `query_filter` | str  | a string to filter the results on                                              | False    | None    |
+| `as_df`        | bool | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False   |
 
+##### examples
+```python
+# Get all entries for the table 'Collections' on the schema 'MySchema'
+table_data = client.get(table='Collections', schema='MySchema')
+
+# Set the default schema to 'MySchema'
+client.set_schema('MySchema')
+# Get the same entries and return them as pandas DataFrame
+table_data = client.get(table='Collections', as_df=True)
+
+# Get the entries where the value of a particular column 'number of participants' is greater than 10000
+table_data = client.get(table='Collections', query_filter='numberOfParticipants > 10000')
+
+# Get the entries where 'number of participants' is greater than 10000 and the cohort type is a 'Population cohort'
+# Store the information in variables, first
+min_subcohorts = 10000
+cohort_type = 'Population cohort'
+table_data = client.get(table='Collections', query_filter=f'numberOfParticipants > {min_subcohorts}'
+                                                          f'and cohortType == {cohort_type}')
+```
 
 ### get_schema_metadata
 ```python
@@ -150,7 +181,7 @@ See the description of the [Schema](use_usingpyclient.md#schema) metadata object
 
 | parameter | type | description            | required | default |
 |-----------|------|------------------------|----------|---------|
-| name      | str  | the name of the schema | True     | None    |
+| `name`    | str  | the name of the schema | True     | None    |
 
 
 ### export
@@ -158,19 +189,35 @@ See the description of the [Schema](use_usingpyclient.md#schema) metadata object
 async def export(self, 
                  schema: str = None, 
                  table: str = None, 
-                 fmt: OutputFormat = 'csv'):
+                 filename: str = None,
+                 as_excel: bool = False) -> BytesIO:
     ...
 ```
-Asynchronously exports data from a schema to a file in the desired format.
+Asynchronously exports data from a schema to a file in the desired format and in a `BytesIO` object in memory.
 If the table is specified, only data from that table is exported, otherwise the export contains all tables on the schema.
-If all tables from a schema are exported with given format `csv`, the data is exported as a zip file containing a csv file of each table.
+
+The name of the file to which the data is exported can be specified in the `filename` parameter.
+If no file name is given a single table is by default exported using the _csv API_ and the collection of tables on the schema using the _zip API_.
+The `as_excel` parameter specifies whether to export the data in Excel format. This is ignored if a filename is given.
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
 
-| parameter | type | description                               | required | default               |
-|-----------|------|-------------------------------------------|----------|-----------------------|
-| table     | str  | the name of a table                       | False    | None                  |
-| schema    | str  | the name of a schema                      | False    | client.default_schema |
-| fmt       | str  | the output format, either `csv` or `xlsx` | False    | `csv`                 |
+| parameter  | type | description                                | required | default               |
+|------------|------|--------------------------------------------|----------|-----------------------|
+| `table`    | str  | the name of a table                        | False    | None                  |
+| `schema`   | str  | the name of a schema                       | False    | client.default_schema |
+| `filename` | str  | the name of the file to export the data to | False    | None                  |
+| `as_excel` | bool | whether to return the data in Excel format | False    | False                 |
+
+
+##### examples
+```python
+
+# Export the table 'Collections' on the schema 'MySchema' from the CSV API to a BytesIO object 
+collections_raw: BytesIO = await client.export(schema='MySchema', table='Collections')  
+
+# Export 'Collections' from the Excel API to the file 'Collections-export.xlsx' 
+await client.export(schema='MySchema', table='Collections', filename='Collections-export.xlsx')
+```
 
 
 ### save_schema
@@ -180,7 +227,6 @@ def save_schema(self,
                 name: str = None, 
                 file: str = None, 
                 data: list | pandas.DataFrame = None):
-    
 ```
 Imports or updates records in a table of a named schema.
 The data either originates from a file on the disk, or is supplied by the user after, for example, preprocessing.
@@ -190,11 +236,20 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 | parameter | type | description                                        | required | default               |
 |-----------|------|----------------------------------------------------|----------|-----------------------|
-| table     | str  | the name of a table                                | True     |                       |
-| schema    | str  | the name of a schema                               | False    | client.default_schema |
-| file      | str  | the location of a `csv` file with data             | False    | None                  |
-| data      | list | data as a list of dictionaries or pandas DataFrame | False    | None                  |
+| `table`   | str  | the name of a table                                | True     |                       |
+| `schema`  | str  | the name of a schema                               | False    | client.default_schema |
+| `file`    | str  | the location of a `csv` file with data             | False    | None                  |
+| `data`    | list | data as a list of dictionaries or pandas DataFrame | False    | None                  |
 
+##### examples
+```python
+# Save an edited table with Collections data from a CSV file to the Collections table
+client.save_schema(table='Collections', file='Collections-edited.csv')
+
+# Save an edited table with Collections data from memory to the Collections table
+collections: pandas.DataFrame = ...
+client.save_schema(table='Collections', data=collections)
+```
 
 ### upload_file
 ```python
@@ -207,10 +262,22 @@ When uploading multiple `csv` files it is recommended to archive them into a `zi
 Throws the `PermissionDeniedException` if the user does not have at least _editor_ permissions for this schema.
 Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
-| parameter | type | description          | required | default               |
-|-----------|------|----------------------|----------|-----------------------|
-| file_path | str  | the name of a table  | True     |                       |
-| schema    | str  | the name of a schema | False    | client.default_schema |
+| parameter   | type | description          | required | default               |
+|-------------|------|----------------------|----------|-----------------------|
+| `file_path` | str  | the name of a table  | True     |                       |
+| `schema`    | str  | the name of a schema | False    | client.default_schema |
+
+##### examples
+```python
+# Upload a file containing Collections data to a schema
+await client.upload_file(file_path='data/Collections.csv')
+
+# Upload a file containing members information to a schema
+await client.upload_file(file_path='molgenis_members.csv', schema='MySchema')
+
+# Upload a zipped file containing multiple tables to a schema
+await client.upload_file(file_path='schema data.zip', schema='MySchema')
+```
 
 
 ### delete_records
@@ -223,7 +290,8 @@ def delete_records(self,
     ...
 ```
 Deletes data records from a table.
-As in the `save_schema` method, the data either originates from disk or the program.
+The records that are to be deleted are specified in either a CSV file, or in a list of primary key values, 
+or a pandas DataFrame representing the table on the schema.
 Throws the `PermissionDeniedException` if the user does not have at least _editor_ permissions.
 Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
@@ -231,11 +299,24 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 | parameter | type | description                                        | required | default               |
 |-----------|------|----------------------------------------------------|----------|-----------------------|
-| table     | str  | the name of a table                                | True     |                       |
-| schema    | str  | the name of a schema                               | False    | client.default_schema |
-| file      | str  | the location of a `csv` file with data             | False    | None                  |
-| data      | list | data as a list of dictionaries or pandas DataFrame | False    | None                  |
+| `table`   | str  | the name of a table                                | True     |                       |
+| `schema`  | str  | the name of a schema                               | False    | client.default_schema |
+| `file`    | str  | the location of a `csv` file with data             | False    | None                  |
+| `data`    | list | data as a list of dictionaries or pandas DataFrame | False    | None                  |
 
+##### examples
+```python
+# Delete cohorts from a list of ids
+cohorts = [{'name': 'Cohort 1', 'name': 'Cohort 2'}]
+client.delete_records(schema='MySchema', table='Cohorts', data=cohorts)
+
+# Delete cohorts from pandas DataFrame
+cohorts_df = pandas.DataFrame(data=cohorts)
+client.delete_records(schema='MySchema', table='Cohorts', data=cohorts_df)
+
+# Delete cohorts from entries in a CSV file
+client.delete_records(schema='MySchema', table='Cohorts', file='Cohorts-to-delete.csv')
+```
 
 ### create_schema
 ```python
@@ -250,45 +331,23 @@ Creates a new schema on the server.
 If no template is selected, an empty schema is created.
 Only users with _admin_ privileges are able to perform this action.
 
-| argument          | type | description                   | required | default |
-|-------------------|------|-------------------------------|----------|---------|
-| name              | str  | the name of the new schema    | True     |         |
-| description       | str  | description of the new schema | False    | None    |
-| template          | str  | the template for this schema  | False    | None    |
-| include_demo_data | bool | whether to include demo data  | False    | False   |
+| parameter           | type | description                   | required | default |
+|---------------------|------|-------------------------------|----------|---------|
+| `name`              | str  | the name of the new schema    | True     |         |
+| `description`       | str  | description of the new schema | False    | None    |
+| `template`          | str  | the template for this schema  | False    | None    |
+| `include_demo_data` | bool | whether to include demo data  | False    | False   |
 
-[//]: # (The available templates are)
+##### examples
+```python
+# Create a schema without specifying a template
+await client.create_schema(name='New schema', description='My new schema')
 
-[//]: # ()
-[//]: # (| template                       | description                                                   |)
+# Create a new catalogue schema with demo data
+await client.create_schema(name='New catalogue', description='My new catalogue',
+                           template='DATA_CATALOGUE', include_demo_data=True)
+```
 
-[//]: # (|--------------------------------|---------------------------------------------------------------|)
-
-[//]: # (| PET_STORE                      | example template                                              |)
-
-[//]: # (| FAIR_DATA_HUB                  | see [FAIR Data Point]&#40;dev_fairdatapoint.md&#41;                   |)
-
-[//]: # (| DATA_CATALOGUE                 | see [Data Catalogue]&#40;../catalogue/cat_cohort-data-manager.md&#41; |)
-
-[//]: # (| DATA_CATALOGUE_COHORT_STAGING  | see [Data Catalogue]&#40;../catalogue/cat_cohort-data-manager.md&#41; |)
-
-[//]: # (| DATA_CATALOGUE_NETWORK_STAGING | see [Data Catalogue]&#40;../catalogue/cat_cohort-data-manager.md&#41; |)
-
-[//]: # (| RD3                            |                                                               |)
-
-[//]: # (| JRC_COMMON_DATA_ELEMENTS       |                                                               | )
-
-[//]: # (| FAIR_GENOMES                   |                                                               |)
-
-[//]: # (| BEACON_V2                      | see [Beacon v2]&#40;dev_beaconv2.md&#41;                              |)
-
-[//]: # (| ERN_DASHBOARD                  |                                                               |)
-
-[//]: # (| ERN_CRANIO                     |                                                               |)
-
-[//]: # (| BIOBANK_DIRECTORY              |                                                               |)
-
-[//]: # (| SHARED_STAGING                 |                                                               |)
 
 ### delete_schema
 ```python
@@ -302,10 +361,15 @@ Throws the `PermissionDeniedException` if execution of the method is attempted w
 Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 
-| argument          | type | description                      | required | default |
-|-------------------|------|----------------------------------|----------|---------|
-| name              | str  | the name of the schema to delete | True     |         | 
+| parameter | type | description                      | required | default |
+|-----------|------|----------------------------------|----------|---------|
+| `name`    | str  | the name of the schema to delete | True     |         | 
 
+##### examples
+```python
+# Delete a schema
+await client.delete_schema('MySchema')
+```
 
 ### update_schema
 ```python
@@ -317,10 +381,17 @@ Only users with _admin_ privileges are able to perform this action.
 Throws the `PermissionDeniedException` if execution of the method is attempted without _admin_ privileges.
 Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
-| argument          | type | description             | required | default |
-|-------------------|------|-------------------------|----------|---------|
-| name              | str  | the name of the schema  | True     |         |
-| description       | str  | the updated description | True     |         |
+| parameter     | type | description             | required | default |
+|---------------|------|-------------------------|----------|---------|
+| `name`        | str  | the name of the schema  | True     |         |
+| `description` | str  | the updated description | True     |         |
+
+##### examples
+```python
+# Update the description of a schema
+client.update_schema(name='MySchema', description='The new description')
+```
+
 
 ### recreate_schema
 ```python
@@ -338,13 +409,20 @@ Only users with _admin_ privileges are able to perform this action.
 Throws the `PermissionDeniedException` if execution of the method is attempted without _admin_ privileges.
 Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
-| argument          | type | description                   | required | default |
-|-------------------|------|-------------------------------|----------|---------|
-| name              | str  | the name of the schema        | True     |         |
-| description       | str  | new description of the schema | False    | None    |
-| template          | str  | the template for this schema  | False    | None    |
-| include_demo_data | bool | whether to include demo data  | False    | False   |
+| parameter           | type | description                   | required | default |
+|---------------------|------|-------------------------------|----------|---------|
+| `name`              | str  | the name of the schema        | True     |         |
+| `description`       | str  | new description of the schema | False    | None    |
+| `template`          | str  | the template for this schema  | False    | None    |
+| `include_demo_data` | bool | whether to include demo data  | False    | False   |
 
+##### examples
+```python
+# Recreate a schema, replacing its content with a template and demo data
+await client.recreate_schema(name='MySchema', description='An ',
+                             template='DATA_CATALOGUE', include_demo_data=True)
+
+```
 
 ## Additional classes
 In addition to the Client class, the package contains classes to access metadata on the column, table, and schema level.
@@ -440,7 +518,7 @@ schema = Schema(name='My schema', description='This is my schema!',
 ```
 
 ```python
-schema_data = {'name': 'My schema', description: 'This is my schema!',
+schema_data = {'name': 'My schema', 'description': 'This is my schema!',
                'tables': [
                    {'name': 'My table', 'description': 'My table contains some data.',
                     'columns': [
@@ -481,7 +559,7 @@ Raises a NoSuchTableException if the table could not be found.
 
 #### get_tables
 ```python
-table.get_tables(by='inheritName', value='Resources')
+schema.get_tables(by='inheritName', value='Resources')
 ```
 Gets the table of which an attribute matches a particular value.
 It is possible to filter the tables by multiple conditions, the attributes and values are then supplied as lists. 

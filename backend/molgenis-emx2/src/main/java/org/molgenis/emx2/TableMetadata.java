@@ -15,7 +15,9 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     implements Comparable {
 
   public static final String TABLE_NAME_MESSAGE =
-      ": Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_ ]*. Maximum length: 31 characters (so it fits in Excel sheet names)";
+      ": Table name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
+  public static final String SCHEMA_NAME_MESSAGE =
+      ": Schema name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
   // if a table extends another table (optional)
   public String inheritName = null;
   // to allow indicate that a table should be dropped
@@ -62,16 +64,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   private String validateName(String tableName) {
     // max length 31 because of Excel
     // we allow only graphql compatible names PLUS spaces
-    if (!tableName.matches("[a-zA-Z][a-zA-Z0-9_ ]*")) {
+    if (!tableName.matches(Constants.TABLE_NAME_REGEX)) {
       throw new MolgenisException("Invalid table name '" + tableName + TABLE_NAME_MESSAGE);
-    }
-    if (tableName.length() > 31) {
-      throw new MolgenisException(
-          "Table name '" + tableName + "' is too long" + TABLE_NAME_MESSAGE);
-    }
-    if (tableName.contains("_ ") || tableName.contains(" _")) {
-      throw new MolgenisException(
-          "Invalid table name '" + tableName + "': table names cannot contain '_ ' or '_ '");
     }
     return tableName.trim();
   }
@@ -262,7 +256,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
 
   public List<Column> getStoredColumns() {
     return getLocalColumns().stream()
-        .filter(c -> !HEADING.equals(c.getColumnType()))
+        .filter(c -> !HEADING.equals(c.getColumnType()) && !c.isRefback())
         .collect(Collectors.toList());
   }
 

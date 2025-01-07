@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { title, collectionEvents, columnCount, category } = withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string;
     category: string;
@@ -85,13 +85,13 @@ function getCategoriesOf(
 
 let treeItems: ICollectionEventCategorySet[][];
 watch(
-  collectionEvents,
+  props.collectionEvents,
   () => {
     treeItems = [];
-    const allCategories = getCategoriesOf(category, collectionEvents);
-    if (allCategories.length > columnCount) {
-      const pageSize = allCategories.length / columnCount;
-      for (let column = 1; column < columnCount + 1; column++) {
+    const allCategories = getCategoriesOf(props.category, collectionEvents);
+    if (allCategories.length > props.columnCount) {
+      const pageSize = allCategories.length / props.columnCount;
+      for (let column = 1; column < props.columnCount + 1; column++) {
         treeItems.push(
           allCategories.slice((column - 1) * pageSize, column * pageSize)
         );

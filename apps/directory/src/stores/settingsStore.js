@@ -1,16 +1,21 @@
-import { computed, ref } from "vue";
+import { QueryEMX2 } from "molgenis-components";
 import { defineStore } from "pinia";
-import { i18n } from "../i18n/i18n";
+import { computed, ref } from "vue";
+import useErrorHandler from "../composables/errorHandler";
 import { initialFilterFacets } from "../filter-config/initialFilterFacets";
-import initialCollectionColumns from "../property-config/initialCollectionColumns";
+import { i18n } from "../i18n/i18n";
 import initialBiobankColumns from "../property-config/initialBiobankColumns";
 import initialBiobankReportColumns from "../property-config/initialBiobankReportColumns";
+import initialCollectionColumns from "../property-config/initialCollectionColumns";
 import initialLandingpage from "../property-config/initialLandingpage";
-import { QueryEMX2 } from "molgenis-components";
+import initialStudyColumns from "../property-config/initialStudyColumns";
 /**
  * Settings store is where all the configuration of the application is handled.
  * This means that user config from the database is merged with the defaults here.
  */
+
+const { setError } = useErrorHandler();
+
 export const useSettingsStore = defineStore("settingsStore", () => {
   let session = ref({});
   let configUpdateStatus = ref(0);
@@ -27,6 +32,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     biobankColumns: initialBiobankColumns,
     biobankReportColumns: initialBiobankReportColumns,
     collectionColumns: initialCollectionColumns,
+    studyColumns: initialStudyColumns,
     filterFacets: initialFilterFacets,
     filterMenuInitiallyFolded: false,
     biobankCardShowCollections: true,
@@ -37,10 +43,16 @@ export const useSettingsStore = defineStore("settingsStore", () => {
   });
 
   async function initializeConfig() {
-    const response = await new QueryEMX2(config.value.graphqlEndpoint)
-      .table("_settings")
-      .select(["key", "value"])
-      .execute();
+    let response;
+    try {
+      response = await new QueryEMX2(config.value.graphqlEndpoint)
+        .table("_settings")
+        .select(["key", "value"])
+        .execute();
+    } catch (error) {
+      setError(error);
+      return;
+    }
 
     const savedDirectoryConfig = response._settings.find(
       (setting) => setting.key === "directory"

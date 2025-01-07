@@ -6,6 +6,7 @@ import static org.molgenis.emx2.utils.URIUtils.*;
 
 import graphql.ExecutionResult;
 import graphql.GraphQL;
+import io.javalin.http.Context;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.*;
@@ -21,7 +22,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.utils.TypeUtils;
-import spark.Request;
 
 public class FAIRDataPointCatalog {
 
@@ -84,9 +84,9 @@ public class FAIRDataPointCatalog {
     }
   }
 
-  public FAIRDataPointCatalog(Request request, Table fdpCatalogTable) throws Exception {
+  public FAIRDataPointCatalog(Context ctx, Table fdpCatalogTable) throws Exception {
 
-    String id = request.params("id");
+    String id = ctx.pathParam("id");
     Schema schema = fdpCatalogTable.getSchema();
 
     List<Map<String, Object>> catalogsFromJSON = getFDPCatalogRecords(schema, id);
@@ -120,13 +120,13 @@ public class FAIRDataPointCatalog {
     }
 
     // reconstruct server:port URL to prevent problems with double encoding of schema/table names
-    URI requestURI = getURI(request.url());
+    URI requestURI = getURI(ctx.url());
     String host = extractHost(requestURI);
     String apiFdp = host + "/api/fdp";
     String apiFdpDataset = apiFdp + "/dataset";
     String apiFdpCatalogProfile = apiFdp + "/catalog/profile";
 
-    IRI reqUrl = iri(request.url()); // escaping/encoding seems OK
+    IRI reqUrl = iri(ctx.url()); // escaping/encoding seems OK
     IRI apiFdpEnc = encodedIRI(apiFdp);
     IRI apiFdpDatasetEnc = encodedIRI(apiFdpDataset);
     IRI apiFdpCatalogProfileEnc = encodedIRI(apiFdpCatalogProfile);
@@ -143,8 +143,11 @@ public class FAIRDataPointCatalog {
     builder.add(reqUrl, DCTERMS.LICENSE, iri(TypeUtils.toString(catalogFromJSON.get("license"))));
     builder.add(reqUrl, DCTERMS.CONFORMS_TO, apiFdpCatalogProfileEnc);
     builder.add(reqUrl, DCTERMS.IS_PART_OF, apiFdpEnc);
-    builder.add(
-        reqUrl, DCAT.THEME_TAXONOMY, iri(TypeUtils.toString(catalogFromJSON.get("themeTaxonomy"))));
+    List<IRI> themeList =
+        convertHyperlinkListToIRIs((ArrayList<String>) catalogFromJSON.get("themeTaxonomy"));
+    for (IRI theme : themeList) {
+      builder.add(reqUrl, DCAT.THEME_TAXONOMY, theme);
+    }
     builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#metadataIdentifier"), reqUrl);
 
     builder.add(
@@ -194,7 +197,11 @@ public class FAIRDataPointCatalog {
       for (String propertyValue : (List<String>) catalogFromJSON.get("propertyValue")) {
         String[] propertyValueSplit = propertyValue.split(" ", -1);
         nullCheckOnPropVal(propertyValueSplit);
-        builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        if (propertyValueSplit[1].startsWith("http")) {
+          builder.add(reqUrl, iri(propertyValueSplit[0]), iri(propertyValueSplit[1]));
+        } else {
+          builder.add(reqUrl, iri(propertyValueSplit[0]), propertyValueSplit[1]);
+        }
       }
     }
 

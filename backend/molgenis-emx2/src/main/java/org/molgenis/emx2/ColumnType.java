@@ -20,6 +20,7 @@ public enum ColumnType {
   STRING_ARRAY(String[].class, STRING_OPERATORS),
   TEXT(String.class, STRING_OPERATORS),
   TEXT_ARRAY(String[].class, STRING_OPERATORS),
+  JSON(org.jooq.JSONB.class, STRING_OPERATORS),
 
   // NUMERIC
   INT(Integer.class, ORDINAL_OPERATORS),
@@ -34,10 +35,6 @@ public enum ColumnType {
   DATETIME_ARRAY(LocalDateTime[].class, ORDINAL_OPERATORS),
   PERIOD(Period.class, ORDINAL_OPERATORS),
   PERIOD_ARRAY(Period[].class, ORDINAL_OPERATORS),
-
-  // COMPOSITE
-  JSONB(org.jooq.JSONB.class),
-  JSONB_ARRAY(org.jooq.JSONB[].class),
 
   // RELATIONSHIP
   REF(Object.class),

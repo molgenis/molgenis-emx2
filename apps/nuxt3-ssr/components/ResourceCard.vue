@@ -1,32 +1,23 @@
 <script setup lang="ts">
-import type { ContentReadMore } from "#build/components";
-
-let truncate = ref(true);
+import dateUtils from "~/utils/dateUtils";
+import type { IResources } from "~/interfaces/catalogue";
 const cutoff = 250;
+
+const route = useRoute();
 
 const props = withDefaults(
   defineProps<{
-    resource: any;
+    resource: IResources;
     schema: string;
-    tableId: string;
     compact?: boolean;
-    resourceId: Record<string, string>;
+    catalogue?: string;
   }>(),
   {
     compact: false,
   }
 );
 
-const route = useRoute();
-const catalogue = route.params.catalogue || "all";
-
-const resourceIdPath = computed(() => {
-  return (
-    buildValueKey(props.resourceId) +
-    "?keys=" +
-    JSON.stringify(props.resourceId)
-  );
-});
+const startEndYear = dateUtils.startEndYear;
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
@@ -55,7 +46,7 @@ const iconStarClasses = computed(() => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/ssr-catalogue/${catalogue}/${tableId}/${resourceIdPath}`"
+            :to="`/${schema}/ssr-catalogue/${catalogue}/${route.params.resourceType}/${resource.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ resource?.acronym || resource?.name }}
@@ -68,14 +59,14 @@ const iconStarClasses = computed(() => {
       </div>
       <div class="flex">
         <!--
-            <IconButton
-              icon="star"
-              :class="iconStarClasses"
-              class="text-blue-500 xl:justify-end"
-            />
-            -->
+        <IconButton
+          icon="star"
+          :class="iconStarClasses"
+          class="text-blue-500 xl:justify-end"
+        />
+        -->
         <NuxtLink
-          :to="`/${schema}/ssr-catalogue/${catalogue}/${tableId}/${resourceIdPath}`"
+          :to="`/${schema}/ssr-catalogue/${catalogue}/resources/${resource.id}`"
         >
           <IconButton
             icon="arrow-right"
@@ -86,12 +77,9 @@ const iconStarClasses = computed(() => {
     </header>
 
     <div v-if="!compact">
-      <template v-if="resource.description">
-        <ContentReadMore :text="resource.description" />
-      </template>
+      <ContentReadMore :text="resource.description" :cutoff="cutoff" />
 
-      <!-- TODO think about generic way to add additional context -->
-      <!-- <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
+      <dl class="hidden xl:flex gap-5 xl:gap-14 text-body-base">
         <div>
           <dt class="flex-auto block text-gray-600">Type</dt>
           <dd>{{ resource?.type?.map((type) => type.name).join(",") }}</dd>
@@ -107,17 +95,15 @@ const iconStarClasses = computed(() => {
         <div>
           <dt class="flex-auto block text-gray-600">Duration</dt>
           <dd>
-            {{ startEndYear(resource?.startYear, resource?.endYear) }}
+            {{
+              startEndYear(
+                resource?.startYear?.toString(),
+                resource?.endYear?.toString()
+              )
+            }}
           </dd>
         </div>
-      </dl> -->
-      <template
-        v-if="!resource.acronym && !resource.name && !resource.description"
-      >
-        <div>{{ resource }}</div>
-        <hr class="m-3" />
-        <div>{{ resourceId }}</div>
-      </template>
+      </dl>
     </div>
   </article>
 </template>

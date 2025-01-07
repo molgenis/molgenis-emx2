@@ -8,10 +8,7 @@ export default gql`
         id
         label
         tableType
-        descriptions {
-          locale
-          value
-        }
+        description
         schemaId
         semantics
         columns {
@@ -28,10 +25,7 @@ export default gql`
           required
           readonly
           semantics
-          descriptions {
-            locale
-            value
-          }
+          description
           position
           computed
           visible

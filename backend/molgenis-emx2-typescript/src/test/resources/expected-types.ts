@@ -10,7 +10,9 @@ export interface IFile {
 export interface ITreeNode {
   name: string;
   children?: ITreeNode[];
-  parent?: string;
+  parent?: {
+    name: string;
+  };
 }
 
 export interface IOntologyNode extends ITreeNode {
@@ -47,6 +49,7 @@ export interface ITag {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ITag;
   codesystem?: string;
   code?: string;

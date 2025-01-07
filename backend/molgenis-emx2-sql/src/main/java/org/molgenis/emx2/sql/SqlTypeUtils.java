@@ -9,12 +9,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
-import org.molgenis.emx2.utils.generator.IdGenerator;
-import org.molgenis.emx2.utils.generator.IdGeneratorImpl;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 public class SqlTypeUtils extends TypeUtils {
-
-  public static final IdGenerator idGenerator = new IdGeneratorImpl();
 
   private SqlTypeUtils() {
     // to hide the public constructor
@@ -34,7 +31,7 @@ public class SqlTypeUtils extends TypeUtils {
         row.setString(
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else if (AUTO_ID.equals(c.getColumnType())) {
-        applyAutoid(c, row);
+        applyAutoId(c, row);
       } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
         if (c.getDefaultValue().startsWith("=")) {
           try {
@@ -79,16 +76,15 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  private static void applyAutoid(Column c, Row row) {
+  private static void applyAutoId(Column c, Row row) {
     if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
+      String id = SnowflakeIdGenerator.getInstance().generateId();
       // do we use a template containing ${mg_autoid} for pre/postfixing ?
       if (c.getComputed() != null) {
-        row.set(
-            c.getName(),
-            c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, idGenerator.generateId()));
+        row.set(c.getName(), c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, id));
       }
       // otherwise simply put the id
-      else row.set(c.getName(), idGenerator.generateId());
+      else row.set(c.getName(), id);
     }
   }
 
@@ -183,8 +179,7 @@ public class SqlTypeUtils extends TypeUtils {
       case DATETIME_ARRAY -> row.getDateTimeArray(name);
       case PERIOD -> row.getPeriod(name);
       case PERIOD_ARRAY -> row.getPeriodArray(name);
-      case JSONB -> row.getJsonb(name);
-      case JSONB_ARRAY -> row.getJsonbArray(name);
+      case JSON -> row.getJsonb(name);
       default ->
           throw new UnsupportedOperationException(
               "Unsupported columnType found:" + c.getColumnType());
@@ -213,7 +208,7 @@ public class SqlTypeUtils extends TypeUtils {
       case DATE_ARRAY -> "date[]";
       case DATETIME -> "timestamp without time zone";
       case DATETIME_ARRAY -> "timestamp without time zone[]";
-      case JSONB -> "jsonb";
+      case JSON -> "jsonb";
       default ->
           throw new MolgenisException(
               "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
@@ -283,7 +278,7 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   static Map<String, Object> convertRowToMap(List<Column> columns, Row row) {
-    Map<String, Object> map = new LinkedHashMap<>(row.getValueMap());
+    Map<String, Object> map = new LinkedHashMap<>();
     for (Column c : columns) {
       if (c.isReference()) {
         map.put(c.getIdentifier(), getRefFromRow(row, c));

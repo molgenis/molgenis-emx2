@@ -63,32 +63,6 @@ public class TestRefBack {
         .getMetadata()
         .add(column("products").setType(REFBACK).setRefTable("Products").setRefBack("parts"));
 
-    // use refback to update indirectly
-    parts.save(new Row().set("partname", "bigscreen").set("products", "bigphone"));
-
-    // so now bigphone.parts = [bigscreen]
-    assertEquals(
-        "bigscreen",
-        products
-            .query()
-            .where(f("productname", EQUALS, "bigphone"))
-            .retrieveRows()
-            .get(0)
-            .getStringArray("parts")[0]);
-
-    // if refback is not updated then nothing happens
-    parts.save(new Row().set("partname", "bigscreen"));
-
-    // so now bigphone.parts = [bigscreen]
-    assertEquals(
-        "bigscreen",
-        products
-            .query()
-            .where(f("productname", EQUALS, "bigphone"))
-            .retrieveRows()
-            .get(0)
-            .getStringArray("parts")[0]);
-
     // if refback is set to null all are remove
     parts.save(new Row().set("partname", "bigscreen").set("products", null));
 
@@ -117,12 +91,9 @@ public class TestRefBack {
     List<Row> pTest = products.query().orderBy("productname").retrieveRows();
 
     assertEquals(2, pTest.size());
-
     assertEquals("bigphone", pTest.get(0).getString("productname"));
-    assertEquals(3, pTest.get(0).getStringArray("parts").length);
-
     assertEquals("smallphone", pTest.get(1).getString("productname"));
-    assertEquals(4, pTest.get(1).getStringArray("parts").length);
+    assertEquals(2, pTest.get(1).getStringArray("parts").length);
 
     Query query =
         products.select(s("productname"), s("parts", s("partname")), s("parts_agg", s("count")));
@@ -140,19 +111,13 @@ public class TestRefBack {
 
     query = products.select(s("parts_agg", s("count"))).where(f("productname", EQUALS, "bigphone"));
 
-    assertTrue(query.retrieveJSON().contains("\"count\": 3"));
-
-    query = parts.select(s("products_agg", s("count"))).where(f("partname", EQUALS, "battery"));
-
-    assertTrue(query.retrieveJSON().contains("\"count\": 2"));
-
     query = products.select(s("parts", s("partname")));
     System.out.println(query.retrieveJSON());
 
     // delete
     parts.delete(new Row().set("partname", "headphones"));
     assertEquals(
-        3,
+        2,
         products
             .query()
             .orderBy("productname")
@@ -189,25 +154,12 @@ public class TestRefBack {
     schema.getTable("Tags").insert(new Row().set("name", "green"));
     posts.insert(new Row().set("title", "joes post").set("user", "joe").set("tags", "green"));
 
-    // now the magic, using refback update posts.user => 'jack'
-    users.save(new Row().set("username", "jack").set("posts", "joes post"));
-
-    // check via query we have now post for jack
-    assertEquals(
-        "joes post",
-        posts
-            .query()
-            .where(f("user", f("username", EQUALS, "jack")))
-            .retrieveRows()
-            .get(0)
-            .getString("title"));
-
     // add another post for jack, should result in 'posts(user=jack,title=jacks post)
     posts.insert(new Row().set("title", "jacks post").set("user", "jack"));
 
     // check select on posts
     assertEquals(
-        2, // expect two posts, 'joes post' and 'jacks post'
+        1, // expect 'jacks post'
         users
             .query()
             .select(s("username"), s("posts"))
@@ -286,9 +238,5 @@ public class TestRefBack {
                 .setRefBack("partOfSubject"));
     schema.getTable("subject").insert(row("id", "s1"));
     schema.getTable("treatmentxyz").insert(row("id", "t1"));
-    schema.getTable("subject").update(row("id", "s1", "treatxyz", "t1"));
-    // verify the reference has indeed been updated.
-    assertEquals(
-        "s1", schema.getTable("treatmentxyz").retrieveRows().get(0).getString("partOfSubject"));
   }
 }

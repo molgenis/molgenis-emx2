@@ -4,6 +4,7 @@ defineProps<{
   title?: string;
   image?: string;
   items: { label: string; id: string }[];
+  headerTarget?: string;
 }>();
 function setSideMenuStyle(hash: string) {
   return hash == route.hash
@@ -17,18 +18,26 @@ function setSideMenuStyle(hash: string) {
     class="text-body-base bg-white rounded-t-3px rounded-b-50px px-12 py-16 shadow-primary"
   >
     <div v-if="title || image" class="mb-6 font-display text-heading-4xl">
-      <img v-if="image" :src="image" />
-      <h2 v-else if="title">{{ title }}</h2>
+      <NuxtLink
+        v-if="image"
+        :to="{ ...route, hash: headerTarget }"
+        :src="image"
+      >
+        <img :src="image" :alt="title" />
+      </NuxtLink>
+      <NuxtLink v-else :to="{ ...route, hash: headerTarget }">
+        {{ title }}
+      </NuxtLink>
     </div>
     <ul>
       <li v-for="item in items">
-        <a
+        <NuxtLink
           class="capitalize"
-          :href="'#' + item.id"
+          :to="{ ...route, hash: '#' + item.id }"
           :class="setSideMenuStyle('#' + item.id)"
         >
           {{ item.label }}
-        </a>
+        </NuxtLink>
       </li>
     </ul>
   </nav>

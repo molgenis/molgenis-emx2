@@ -118,6 +118,7 @@ function isAFilterSet(filters: IFilter[]) {
         </VDropdown>
       </template>
       <Button
+        id="fiter-well-clear-all"
         icon="trash"
         icon-position="right"
         size="tiny"

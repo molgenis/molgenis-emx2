@@ -3,13 +3,13 @@ import type { IVariableBase } from "~/interfaces/types";
 export const getKey = (variable: IVariableBase) => {
   return {
     name: variable.name,
-    collection: {
-      id: variable.collection.id,
+    resource: {
+      id: variable.resource.id,
     },
     dataset: {
       name: variable.dataset.name,
-      collection: {
-        id: variable.dataset.collection.id,
+      resource: {
+        id: variable.dataset.resource.id,
       },
     },
   };

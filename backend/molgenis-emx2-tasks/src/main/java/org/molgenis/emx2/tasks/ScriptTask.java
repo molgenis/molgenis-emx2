@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 public class ScriptTask extends Task {
   private static Logger logger = LoggerFactory.getLogger(ScriptTask.class);
   private String name;
+  private ScriptType type;
   private String script;
   private String outputFileExtension;
   private String parameters;
@@ -41,7 +42,8 @@ public class ScriptTask extends Task {
 
   public ScriptTask(Row scriptMetadata) {
     this(scriptMetadata.getString("name"));
-    this.script(scriptMetadata.getString("script"))
+    this.type(ScriptType.valueOf(scriptMetadata.getString("type").toUpperCase()))
+        .script(scriptMetadata.getString("script"))
         .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
         .dependencies(scriptMetadata.getString("dependencies"))
         .cronExpression(scriptMetadata.getString("cron"))
@@ -69,42 +71,21 @@ public class ScriptTask extends Task {
     try {
       try {
         // create tmp directory
-        tempDir = Files.createTempDirectory("python"); // NOSONAR
+        tempDir = Files.createTempDirectory("script_tasks"); // NOSONAR
         this.addSubTask("Created temp directory").complete();
 
-        // paste the script to a file into temp dir
-        Path tempScriptFile = Files.createFile(tempDir.resolve("script.py"));
-        Files.writeString(tempScriptFile, this.script);
-        Path requirementsFile = Files.createFile(tempDir.resolve("requirements.txt"));
-        Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
-
-        // define commands (given tempDir as working directory)
-        String createVenvCommand = "python3 -m venv venv";
-        String activateCommand = "source venv/bin/activate";
-        String pipUpgradeCommand = "pip3 install --upgrade pip";
-        String installRequirementsCommand =
-            "pip3 install -r requirements.txt"; // don't check upgrade
-        String runScriptCommand = "python3 -u script.py";
-        String escapedParameters = " " + escapeXSI(this.parameters);
+        String command =
+            switch (type) {
+              case PYTHON -> createShellScriptToExecutePythonScript(tempDir);
+              case BASH -> this.script;
+            };
 
         // define outputFile and inputJson
         Path tempOutputFile = Files.createTempFile(tempDir, "output", "." + outputFileExtension);
         // start the script
         ProcessBuilder builder =
-            new ProcessBuilder(
-                    "bash", // NOSONAR
-                    "-c",
-                    createVenvCommand
-                        + " && "
-                        + activateCommand
-                        + " && "
-                        + pipUpgradeCommand
-                        + " && "
-                        + installRequirementsCommand
-                        + " && "
-                        + runScriptCommand
-                        + escapedParameters)
-                .directory(tempDir.toFile());
+            new ProcessBuilder("bash", "-c", command).directory(tempDir.toFile()); // NOSONAR
+
         if (token != null) {
           builder.environment().put("MOLGENIS_TOKEN", token); // token for security use
         }
@@ -113,6 +94,7 @@ public class ScriptTask extends Task {
             .put(
                 "OUTPUT_FILE",
                 tempOutputFile.toAbsolutePath().toString()); // in case of an output file
+
         process = builder.start();
         this.addSubTask("Script started: " + process.info().commandLine().orElse("")).complete();
 
@@ -166,6 +148,34 @@ public class ScriptTask extends Task {
     }
   }
 
+  private String createShellScriptToExecutePythonScript(Path tempDir) throws IOException {
+    // paste the script to a file into temp dir
+    Path tempScriptFile = Files.createFile(tempDir.resolve("script.py"));
+    script = script.replace("${jobId}", this.getId());
+    Files.writeString(tempScriptFile, this.script);
+    Path requirementsFile = Files.createFile(tempDir.resolve("requirements.txt"));
+    Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
+
+    // define commands (given tempDir as working directory)
+    String createVenvCommand = "python3 -m venv venv";
+    String activateCommand = "source venv/bin/activate";
+    String pipUpgradeCommand = "pip3 install --upgrade pip";
+    String installRequirementsCommand = "pip3 install -r requirements.txt"; // don't check upgrade
+    String runScriptCommand = "python3 -u script.py";
+    String escapedParameters = " " + escapeXSI(this.parameters);
+
+    return createVenvCommand
+        + " && "
+        + activateCommand
+        + " && "
+        + pipUpgradeCommand
+        + " && "
+        + installRequirementsCommand
+        + " && "
+        + runScriptCommand
+        + escapedParameters;
+  }
+
   private void sendFailureMail() {
     if (this.getFailureAddress() != null && !this.getFailureAddress().isEmpty()) {
       EmailService emailService = new EmailService();
@@ -186,6 +196,15 @@ public class ScriptTask extends Task {
 
   public String getName() {
     return name;
+  }
+
+  public ScriptTask type(ScriptType type) {
+    this.type = type;
+    return this;
+  }
+
+  public ScriptType getType() {
+    return type;
   }
 
   public String getScript() {
@@ -241,11 +260,14 @@ public class ScriptTask extends Task {
   }
 
   private String getJobUrl() {
-    return this.serverUrl.toExternalForm()
-        + "/"
-        + Constants.SYSTEM_SCHEMA
-        + "/tasks/#/jobs?id="
-        + this.getId();
+    if (serverUrl != null) {
+      return this.serverUrl.toExternalForm()
+          + "/"
+          + Constants.SYSTEM_SCHEMA
+          + "/tasks/#/jobs?id="
+          + this.getId();
+    }
+    return null;
   }
 
   public ScriptTask setServerUrl(URL url) {

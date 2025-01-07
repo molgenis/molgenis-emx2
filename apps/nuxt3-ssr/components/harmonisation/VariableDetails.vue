@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type {
-  ICollection,
   IVariable,
   IVariableBase,
   IVariableMappings,

@@ -90,8 +90,8 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
     ]"
   >
     <li v-for="node in nodes" :key="node.name" class="mt-2.5 relative">
-      <span class="flex items-center">
-        <span
+      <div class="flex items-center">
+        <button
           v-if="node.children?.length"
           @click.stop="toggleExpand(node.name)"
           class="-left-[11px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
@@ -105,11 +105,12 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
         >
           <BaseIcon
             :name="
-              expandedNodes.includes(node.name) ? 'caret-down' : 'caret-up'
+              expandedNodes.includes(node.name) ? 'caret-down' : 'caret-right'
             "
             :width="20"
           />
-        </span>
+          <span class="sr-only">expand {{ node.name }}</span>
+        </button>
         <template v-if="!isRoot">
           <BaseIcon
             v-if="node.children?.length"
@@ -124,25 +125,42 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
             class="text-blue-200 absolute -top-[9px]"
           />
         </template>
-      </span>
-      <div class="flex items-start ml-4">
-        <div class="flex items-center">
-          <input
-            type="checkbox"
+      </div>
+      <div class="flex justify-start items-center ml-4">
+        <input
+          type="checkbox"
+          :indeterminate="
+            node.children?.some((c) => modelValue.includes(c.name)) &&
+            !node.children?.every((c) => modelValue.includes(c.name))
+          "
+          :id="node.name"
+          :name="node.name"
+          :checked="modelValue.includes(node.name)"
+          @click.stop="toggleSelect(node)"
+          class="sr-only"
+        />
+        <InputLabel
+          :for="node.name"
+          class="flex justify-center items-start hover:cursor-pointer"
+        >
+          <InputCheckboxIcon
             :indeterminate="
               node.children?.some((c) => modelValue.includes(c.name)) &&
               !node.children?.every((c) => modelValue.includes(c.name))
             "
-            :id="node.name"
-            :name="node.name"
-            :checked="modelValue.includes(node.name)"
-            @click.stop="toggleSelect(node)"
-            class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 indeterminate:accent-yellow-500 border border-checkbox hover:cursor-pointer"
+            :checked="
+              modelValue.includes(node.name) &&
+              node.children?.every((c) => modelValue.includes(c.name))
+            "
+            class="w-[20px] ml-[-6px]"
+            :class="{
+              '[&>rect]:stroke-gray-400': inverted,
+            }"
           />
-        </div>
-        <label :for="node.name" class="hover:cursor-pointer text-body-sm group">
-          <span class="group-hover:underline">{{ node.name }}</span>
-        </label>
+          <span class="block w-[calc(100%-20px)] text-body-sm leading-normal">{{
+            node.name
+          }}</span>
+        </InputLabel>
         <div class="inline-flex items-center whitespace-nowrap">
           <div class="inline-block pl-1">
             <CustomTooltip
@@ -154,7 +172,6 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
           </div>
         </div>
       </div>
-
       <Tree
         v-if="node.children.length"
         v-show="expandedNodes.includes(node.name)"

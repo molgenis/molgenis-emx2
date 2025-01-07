@@ -16,10 +16,10 @@ import "@fortawesome/fontawesome-free/css/all.css";
 import "@fortawesome/fontawesome-free/js/all.js";
 
 //load the components
-const components = import.meta.globEager("./components/**/*.vue");
-const generatedDocumentComponents = import.meta.globEager(
-  "../gen-docs/**/*.vue"
-);
+const components = import.meta.glob("./components/**/*.vue", { eager: true });
+const generatedDocumentComponents = import.meta.glob("../gen-docs/**/*.vue", {
+  eager: true,
+});
 
 let docsMap = {};
 

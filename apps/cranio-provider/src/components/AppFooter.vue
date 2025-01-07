@@ -38,7 +38,7 @@
             <li id="project-logo-link">
               <a :href="`/${publicSchema}/cranio-public/#/`">
                 <img
-                  src="/ern-cranio-logo.png"
+                  src="/img/ern-cranio-logo.png"
                   alt="ERN CRANIO: European Reference Network for rare and/or complex craniofacial anomalies and ear, nose and throat (ENT) disorders"
                 />
               </a>
@@ -50,7 +50,7 @@
                 </span>
                 <li>
                   <img
-                    src="/molgenis-logo-blue-text.png"
+                    src="/img/molgenis-logo-blue-text.png"
                     class="molgenis-logo"
                     alt="molgenis open source data platform"
                   />

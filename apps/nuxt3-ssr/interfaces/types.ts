@@ -1,84 +1,4 @@
 import type { INode } from "../../tailwind-components/types/types";
-export interface ICollection {
-  id: string;
-  pid: string;
-  name: string;
-  acronym?: string;
-  description?: string;
-  website?: string;
-  logo?: IUrlObject;
-  contactEmail?: string;
-  organisationsInvolved?: IOrganisation[];
-  institution?: {
-    acronym: string;
-  };
-  type: INameObject[];
-  typeOther?: string;
-  cohortType: INameObject[];
-  networkType: INameObject[];
-  clinicalStudyType: INameObject[];
-  rWDType: INameObject[];
-  keywords?: string;
-  externalIdentifiers?: [
-    {
-      identifier: string;
-      externalIdentifierType: INameObject;
-    }
-  ];
-  dateEstablished?: string;
-  startDataCollection?: string;
-  endDataCollection?: string;
-  license?: string;
-  populationAgeGroups?: IOntologyNode[];
-  countries: {
-    name: string;
-    order: number;
-  }[];
-  regions: {
-    name: string;
-    order: number;
-  }[];
-  numberOfParticipants: number;
-  numberOfParticipantsWithSamples?: number;
-  designDescription: string;
-  designSchematic: IFile;
-  designType: {
-    definition: string;
-    name: string;
-  };
-  dataCollectionType?: {
-    definition: string;
-    name: string;
-  }[];
-  dataCollectionDescription?: string;
-  reasonSustained?: string;
-  unitOfObservation?: string;
-  recordTrigger?: string;
-  designPaper?: {
-    title: string;
-    doi: string;
-  }[];
-  inclusionCriteria?: IOntologyNode[];
-  otherInclusionCriteria?: string;
-  collectionEvents: ICollectionEvent[];
-  peopleInvolved: IContributor[];
-  networks: INetwork[];
-  publications: IPublication[];
-  releaseDescription?: string;
-  linkageOptions?: string;
-  dataAccessConditionsDescription?: string;
-  dataAccessConditions?: { name: string }[];
-  prelinked?: boolean;
-  releaseType?: boolean;
-  fundingStatement?: string;
-  acknowledgements?: string;
-  documentation?: IDocumentation[];
-  datasets: { name: string }[];
-  populationOncologyTopology?: IOntologyNode[];
-  populationOncologyMorphology?: IOntologyNode[];
-  subcohorts: any[];
-  partOfCollections: ICollection[];
-}
 
 export interface IPublication {
   doi: string;
@@ -92,16 +12,17 @@ export interface IPublication {
   publisher?: string;
   school?: string;
   abstract?: string;
+  isDesignPublication: boolean;
 }
 
 export interface IVariableBase {
   name: string;
-  collection: {
+  resource: {
     id: string;
   };
   dataset: {
     name: string;
-    collection: {
+    resource: {
       id: string;
     };
   };
@@ -125,20 +46,6 @@ export interface IVariableMappings {
 export type IVariable = IVariableBase & IVariableDetails;
 export type IVariableWithMappings = IVariable & IVariableMappings;
 
-export interface IFile {
-  id?: string;
-  size?: number;
-  extension?: string;
-  url?: string;
-}
-
-export interface IDocumentation {
-  name: string;
-  description: string;
-  url: string;
-  file: IFile;
-}
-
 export interface IOrganisation extends IPartner {
   email: string;
   type: {
@@ -151,7 +58,9 @@ export interface IOrganisation extends IPartner {
   expertise: string;
   country: {
     name: string;
-  };
+  }[];
+  isLeadOrganisation: boolean;
+  role: IOntologyNode[];
 }
 
 export interface IPartner {
@@ -181,23 +90,6 @@ export interface INameObject {
 
 export interface IUrlObject {
   url: string;
-}
-
-export interface ICollectionEvent {
-  name: string;
-  description: string;
-  startYear: INameObject;
-  endYear: number;
-  numberOfParticipants: number;
-  ageGroups: INameObject[];
-  definition: string;
-  dataCategories: ICollectionEventCategory[];
-  sampleCategories: ICollectionEventCategory[];
-  areasOfInformation: ICollectionEventCategory[];
-  standardizedTools: ICollectionEventCategory[];
-  standardizedToolsOther: string;
-  subcohorts: INameObject[];
-  coreVariables: string[];
 }
 
 export interface ICollectionEventCategory {
@@ -262,15 +154,6 @@ export type INotificationType =
   | "warning"
   | "info";
 
-export interface ISectionField {
-  meta: IColumn;
-  value: any;
-}
-
-export interface ISection {
-  meta: IColumn;
-  fields: ISectionField[];
-}
 export interface IMapping {
   syntax: string;
   description: string;
@@ -284,7 +167,7 @@ export interface IMapping {
   };
   repeats: string;
   sourceDataset: {
-    collection: {
+    resource: {
       id: string;
     };
     name: string;
@@ -399,6 +282,7 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   type: "ONTOLOGY";
   ontologyTableId: string;
   ontologySchema: string;
+  filter: Record<string, IFilter>;
   columnId: string;
   refFields?: filterRefField;
 }
@@ -488,3 +372,10 @@ export interface IOrganization {
 }
 
 export type linkTarget = "_self" | "_blank" | "_parent" | "_top";
+
+export interface UIResource {
+  id: string;
+  logo: { url: string };
+}
+
+export type analyticsSericves = "siteimprove" | "google-analytics";

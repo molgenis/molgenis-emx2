@@ -65,24 +65,25 @@ Alternatively you can run inside [IntelliJ IDEA](https://www.jetbrains.com/idea/
 * Right click on `RunMolgenisEmx2Full` and select 'run'
 
 ## Build one 'app'
+Usefull for app development without need to rebuild all apps all the time.
 
-Requires only [docker compose](https://docs.docker.com/compose/) and [yarn 1.x](https://yarnpkg.com/)
+Requires postgresql, gradle and [yarn 1.x](https://yarnpkg.com/)
 
-* Start molgenis using docker-compose
+* Build the app workspace as a whole (once)
   ```console
-  cd molgenis-emx2
-  docker-compose up
-  ```
-  You can verify that it's running by looking at http://localhost:8080
-* Build the app workspace as a whole
-  ```console
-  cd apps
+  cd molgenis-emx2/apps
   yarn install
   ```
+* Start molgenis 'headless' (i.e. without apps) using gradle (restart on java changes)
+  ```console
+  cd molgenis-emx2
+  ./gradlew dev
+  ```
+  You can verify that it's running by looking at http://localhost:8080
 * Serve only the app you want to look at
   ```console
-  cd <yourapp>
-  yarn serve
+  cd molgenis-emx2/apps/<yourapp>
+  yarn dev
   ```
   Typically the app is then served at http://localhost:9090 (look at the console to see actual port number)
 

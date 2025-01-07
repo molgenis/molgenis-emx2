@@ -5,4 +5,12 @@ dependencies {
     testImplementation project(':backend:molgenis-emx2')
     testImplementation project(':backend:molgenis-emx2-datamodels')
     testImplementation project(':backend:molgenis-emx2-tasks')
+    testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.7';
+}
+
+//tool should be here otherwise requires build of unnecessary modules
+task cleandb(type: JavaExec) {
+    group = 'application'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'org.molgenis.emx2.sql.AToolToCleanDatabase'
 }

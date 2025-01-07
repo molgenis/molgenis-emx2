@@ -64,13 +64,15 @@ def create_schema():
             $name: String,
             $description: String,
             $template: String,
-            $includeDemoData: Boolean
+            $includeDemoData: Boolean,
+            $parentJob: String
         ) {
             createSchema(
                 name: $name,
                 description: $description,
                 template: $template,
-                includeDemoData: $includeDemoData
+                includeDemoData: $includeDemoData,
+                parentJob: $parentJob
               ) {
                   status
                   message

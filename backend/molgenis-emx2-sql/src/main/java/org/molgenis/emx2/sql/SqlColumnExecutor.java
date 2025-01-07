@@ -8,8 +8,6 @@ import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.createRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.removeRefArrayConstraints;
-import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.createRefBackColumnConstraints;
-import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.removeRefBackConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
@@ -30,9 +28,7 @@ public class SqlColumnExecutor {
 
   public static void executeSetRequired(DSLContext jooq, Column column) {
     boolean isRequired = column.isRequired();
-    if (column.isRefback()) {
-      isRequired = false;
-    } else if (column.isReference()) {
+    if (column.isReference()) {
       isRequired = column.getReferences().stream().allMatch(Reference::isRequired) && isRequired;
     } else
     // if has default, we will first update all 'null' to default
@@ -205,34 +201,11 @@ public class SqlColumnExecutor {
     }
   }
 
-  static void reapplyRefbackContraints(Column oldColumn, Column newColumn) {
-    if ((oldColumn.isRef() || oldColumn.isRefArray())
-        && (newColumn.isRef() || newColumn.isRefArray())) {
-      for (Column check : newColumn.getRefTable().getNonInheritedColumns()) {
-        if (check.isRefback() && oldColumn.getName().equals(check.getRefBack())) {
-          check.getTable().dropColumn(check.getName());
-          check.getTable().add(check);
-        }
-      }
-    }
-  }
-
-  static void executeRemoveRefback(Column oldColumn, Column newColumn) {
-    if ((oldColumn.isRef() || oldColumn.isRefArray())
-        && !(newColumn.isRef() || newColumn.isRefArray())) {
-      for (Column check : oldColumn.getRefTable().getColumns()) {
-        if (check.isRefback() && oldColumn.getName().equals(check.getRefBack())) {
-          check.getTable().dropColumn(check.getName());
-        }
-      }
-    }
-  }
-
   static void executeCreateColumn(DSLContext jooq, Column column) {
     String current = column.getName(); // for composite ref errors
     try {
       // create the column
-      if (column.isReference()) {
+      if (column.isReference() && !column.isRefback()) {
         if (column.isOntology()) {
           createOntologyTable(column);
         }
@@ -256,7 +229,7 @@ public class SqlColumnExecutor {
         for (Field<?> f : column.getJooqFileFields()) {
           jooq.alterTable(column.getJooqTable()).addColumn(f).execute();
         }
-      } else if (!column.isHeading()) {
+      } else if (!column.isHeading() && !column.isRefback()) {
         jooq.alterTable(column.getJooqTable()).addColumn(column.getJooqField()).execute();
         executeSetDefaultValue(jooq, column);
 
@@ -338,6 +311,9 @@ public class SqlColumnExecutor {
                 // constraint so we can ensure unique labels on each level
                 .setDescription("User-friendly label for this term. Should be unique in parent")
                 .setSemantics("http://purl.obolibrary.org/obo/NCIT_C45561"),
+            column("tags")
+                .setType(STRING_ARRAY)
+                .setDescription("Any tags that you might need to slice and dice the ontology"),
             column("parent")
                 // .setKey(2)  when we upgrade to psql 15 so we can allow parent == null in
                 // constraint
@@ -386,11 +362,33 @@ public class SqlColumnExecutor {
               + c.getName()
               + "' failed: When key spans multiple columns, none of the columns can be nullable");
     }
+    if (c.isRefback() && c.getRefBack() == null) {
+      throw new MolgenisException(
+          "Refback is null for column " + c.getTableName() + "." + c.getName());
+    }
+    if (c.isRefback() && c.getRefBackColumn() == null) {
+      throw new MolgenisException(
+          "Refback '"
+              + c.getRefBack()
+              + "' could not be found for column "
+              + c.getTableName()
+              + "."
+              + c.getName());
+    }
     if (c.isReference() && !c.isOntology() && c.getRefTable() == null) {
       throw new MolgenisException(
           String.format(
               "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK (tried to find: %s:%s)",
               c.getTableName(), c.getName(), c.getRefSchemaName(), c.getRefTableName()));
+    }
+    if (c.getRefTableName() != null && !c.isReference()) {
+      throw new MolgenisException(
+          "Cannot set refTable '"
+              + c.getRefTableName()
+              + "' for column '"
+              + c.getName()
+              + "': is not a reference but a "
+              + c.getColumnType());
     }
     if (c.getRefLink() != null) {
       if (c.getTable().getColumn(c.getRefLink()) == null) {
@@ -445,7 +443,7 @@ public class SqlColumnExecutor {
     } else if (column.isRefArray()) {
       createRefArrayConstraints(jooq, column);
     } else if (column.isRefback()) {
-      createRefBackColumnConstraints(jooq, column);
+      // no triggers
     }
   }
 
@@ -457,7 +455,17 @@ public class SqlColumnExecutor {
             .dropColumnIfExists(f)
             .execute();
       }
-    } else if (column.isReference()) {
+    } else if (column.isRef() || column.isRefArray()) {
+      // if has refback also drop that automatically
+      if (column.getReferenceRefback() != null) {
+        SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
+        column
+            .getTable()
+            .getSchema()
+            .getDatabase()
+            .getListener()
+            .schemaChanged(column.getReferenceRefback().getSchemaName());
+      }
       for (Reference ref : column.getReferences()) {
         // check if reference name already exists, composite ref may reuse columns
         // either other column, or a part of a reference
@@ -479,7 +487,7 @@ public class SqlColumnExecutor {
     } else if (column.isRefArray()) {
       removeRefArrayConstraints(jooq, column);
     } else if (column.isRefback()) {
-      removeRefBackConstraints(jooq, column);
+      // no triggers
     }
   }
 

@@ -37,13 +37,16 @@ const items = computed(() => [
   },
   {
     label: "Repeated for",
-    content: variable.value?.repeatUnit?.name
-      ? variable.value?.repeatUnit?.name +
-        " " +
-        variable.value?.repeatMin +
-        "-" +
-        variable.value?.repeatMax
-      : undefined,
+    content:
+      variable.value?.repeatUnit?.name ||
+      variable.value?.repeatMin ||
+      variable.value?.repeatMax
+        ? variable.value?.repeatUnit?.name +
+          " " +
+          variable.value?.repeatMin +
+          "-" +
+          variable.value?.repeatMax
+        : undefined,
   },
 ]);
 </script>

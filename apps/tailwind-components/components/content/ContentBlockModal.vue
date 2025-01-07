@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { INotificationType } from "~/interfaces/types";
+import type { INotificationType } from "~/types/types";
 
-const { title, subTitle, description, type } = withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string;
     description?: string;
@@ -14,7 +14,7 @@ const { title, subTitle, description, type } = withDefaults(
 );
 
 const bgClass = computed(() => {
-  switch (type) {
+  switch (props.type) {
     case "light":
       return "bg-white";
     case "dark":

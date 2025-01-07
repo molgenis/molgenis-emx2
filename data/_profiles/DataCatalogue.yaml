@@ -4,7 +4,7 @@ description: "This catalogue contains metadata on cohorts/data sources, the vari
 
 profileTags: DataCatalogueFlat
 
-demoData: _demodata/applications/datacatalogue_flat
+demoData: _demodata/applications/datacatalogue
 
 settings: _settings/datacatalogue
 

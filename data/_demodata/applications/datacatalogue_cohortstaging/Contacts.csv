@@ -1,2 +1,2 @@
-resource,role,first name,last name,prefix,initials,title,organisation,email,orcid,homepage,photo,expertise
-testCohort,"Principal Investigator,Primary contact",Morris,Swertz,,,,UMCG,m.a.swertz@rug.nl,0000-0002-0979-3401,https://www.rug.nl/staff/m.a.swertz/,,edit
+resource,role,first name,last name,prefix,initials,title,organisation,email,orcid,homepage,photo,photo_filename,expertise,statement of consent personal data,statement of consent email
+testCohort,"Principal Investigator,Primary contact",Morris,Swertz,,,,UMCG,m.a.swertz@rug.nl,0000-0002-0979-3401,https://www.rug.nl/staff/m.a.swertz/,,,edit,TRUE,TRUE

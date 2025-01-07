@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import type { ICollection, IVariableWithMappings } from "~/interfaces/types";
+import type { IResources } from "~/interfaces/catalogue";
+import type { IVariableWithMappings } from "~/interfaces/types";
 import { getKey } from "~/utils/variableUtils";
 const route = useRoute();
 
 const props = defineProps<{
   variables: IVariableWithMappings[];
-  collections: ICollection[];
+  resources: IResources[];
 }>();
 
 const statusMap = computed(() =>
-  calcAggregatedHarmonisationStatus(props.variables, props.collections)
+  calcAggregatedHarmonisationStatus(props.variables, props.resources)
 );
 
 let activeRowIndex = ref(-1);
@@ -34,7 +35,7 @@ let activeVariablePath = computed(() =>
     <HarmonisationLegendMatrix size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
       <TableSticky
-        :columns="collections"
+        :columns="resources"
         :rows="variables"
         class="h-screen overflow-auto"
       >

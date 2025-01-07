@@ -92,6 +92,7 @@
 import { request } from "graphql-request";
 
 import {
+  constants,
   ButtonAction,
   ButtonDanger,
   ButtonAlt,
@@ -140,7 +141,11 @@ export default {
         "DATA_CATALOGUE",
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
+        "UMCG_COHORT_STAGING",
+        "UMCU_COHORTS_STAGING",
+        "INTEGRATE_COHORTS_STAGING",
         "RD3",
+        "RD3_V2",
         "JRC_COMMON_DATA_ELEMENTS",
         "FAIR_GENOMES",
         "DCAT",
@@ -167,7 +172,7 @@ export default {
   },
   methods: {
     validate(name) {
-      const simpleName = /^[a-zA-Z][-a-zA-Z0-9_ ]*$/;
+      const simpleName = constants.SCHEMA_NAME_REGEX;
       if (name === null) {
         return undefined;
       }
@@ -178,7 +183,7 @@ export default {
       ) {
         return undefined;
       } else {
-        return "Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters";
+        return "Table name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
       }
     },
     executeCreateSchema() {

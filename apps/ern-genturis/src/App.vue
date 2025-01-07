@@ -30,7 +30,7 @@
         <li id="genturis-logo-link">
           <a href="https://www.genturis.eu/">
             <img
-              src="/genturis-registry-logo.png"
+              src="/img/genturis-registry-logo.png"
               class="genturis-logo logo-small"
               alt="registry for the european reference network on genetic tumour risk syndromes"
             />
@@ -38,7 +38,7 @@
         </li>
         <li id="genturis-funding-logo">
           <img
-            src="/ern-funded-by-eu.svg"
+            src="/img/ern-funded-by-eu.svg"
             alt="european reference network funded by the european union"
           />
         </li>

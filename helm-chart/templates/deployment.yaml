@@ -23,6 +23,11 @@ spec:
         - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           name: {{ .Chart.Name }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            limits:
+              memory: "2Gi"
+            requests:
+              memory: "256Mi"
           ports:
             - containerPort: 8080
           env:
@@ -67,6 +72,11 @@ spec:
             - shared_buffers=256MB
             - -c
             - max_locks_per_transaction=1024
+          resources:
+            limits:
+              memory: "512Mi"
+            requests:
+              memory: "128Mi"
           env:
             - name: POSTGRES_DB
               value: {{ .Values.postgres.name }}
@@ -90,6 +100,11 @@ spec:
         - image: "{{ .Values.ssrCatalogue.image.repository }}:{{ .Values.image.tag }}"
           name: ssr-catalogue
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            limits:
+              memory: "128Mi"
+            requests:
+              memory: "64Mi"
           ports:
             - containerPort: 3000
           env:

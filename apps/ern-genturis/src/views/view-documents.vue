@@ -4,7 +4,7 @@
       class="genturis-header"
       title="ERN Genturis Registry"
       subtitle="Download documents"
-      imageSrc="genturis-carousel.jpg"
+      imageSrc="img/genturis-carousel.jpg"
       titlePositionX="center"
       titlePositionY="center"
     />
@@ -22,6 +22,7 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection, FileList } from "molgenis-viz";
 </script>

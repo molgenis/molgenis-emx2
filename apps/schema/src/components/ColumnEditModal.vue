@@ -267,6 +267,7 @@
 
 <script lang="ts">
 import {
+  constants,
   //@ts-ignore
   ButtonAction, //@ts-ignore
   ButtonAlt, //@ts-ignore
@@ -445,8 +446,8 @@ export default {
       if (this.column.name === undefined || this.column.name === "") {
         return "Name is required";
       }
-      if (!this.column.name.match(/^[a-zA-Z][a-zA-Z0-9_ ]+$/)) {
-        return "Name should start with letter, followed by letter, number, whitespace or underscore ([a-zA-Z][a-zA-Z0-9_ ]*)";
+      if (!this.column.name.match(constants.COLUMN_NAME_REGEX)) {
+        return "Name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63.";
       }
       if (
         (this.modelValue === undefined ||

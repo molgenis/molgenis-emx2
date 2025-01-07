@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IMgError } from "~~/interfaces/types";
+import type { ISetting } from "../../../../../metadata-utils/src/types";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -17,9 +17,9 @@ const cohortOnly = computed(() => {
 });
 
 //networksfilter retrieves the catalogues
-//collections are within the current catalogue
-const query = `query CataloguePage($networksFilter:CollectionsFilter,$variablesFilter:VariablesFilter,$cohortsFilter:CollectionsFilter){
-        Collections(filter:$networksFilter) {
+//resources are within the current catalogue
+const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFilter:VariablesFilter,$collectionsFilter:ResourcesFilter,$networkFilter:ResourcesFilter){
+        Resources(filter:$networksFilter) {
               id,
               acronym,
               name,
@@ -29,18 +29,21 @@ const query = `query CataloguePage($networksFilter:CollectionsFilter,$variablesF
         Variables_agg(filter:$variablesFilter) {
           count
         }
-        Collections_agg(filter:$cohortsFilter) {
+        Collections_agg: Resources_agg(filter:$collectionsFilter) {
           count
           _sum {
             numberOfParticipants
             numberOfParticipantsWithSamples
           }
         }
-        Collections_groupBy(filter:$cohortsFilter) {
-          type{name,definition}
+        Networks_agg: Resources_agg(filter:$networkFilter) {
           count
         }
-        CollectionSubcohorts_agg(filter:{collection: $cohortsFilter}) {
+        Design_groupBy: Resources_groupBy(filter:$collectionsFilter) {
+          design{name}
+          count
+        }
+        Subpopulations_agg(filter:{resource: $collectionsFilter}) {
           count
         }
         _settings (keys: [
@@ -61,8 +64,8 @@ const query = `query CataloguePage($networksFilter:CollectionsFilter,$variablesF
           "CATALOGUE_LANDING_SAMPLES_TEXT"
           "CATALOGUE_LANDING_DESIGN_LABEL"
           "CATALOGUE_LANDING_DESIGN_TEXT"
-          "CATALOGUE_LANDING_SUBCOHORTS_LABEL"
-          "CATALOGUE_LANDING_SUBCOHORTS_TEXT"
+          "CATALOGUE_LANDING_SUBPOPULATIONS_LABEL"
+          "CATALOGUE_LANDING_SUBPOPULATIONS_TEXT"
         ]){
           key
           value
@@ -73,65 +76,85 @@ const networksFilter = scoped
   ? { id: { equals: catalogueRouteParam } }
   : undefined;
 
-const cohortsFilter = scoped
+const collectionsFilter = scoped
   ? {
-      _or: [
-        { partOfCollections: { id: { equals: catalogueRouteParam } } },
+      _and: [
+        { type: { tags: { equals: "collection" } } },
         {
-          partOfCollections: {
-            partOfCollections: { id: { equals: catalogueRouteParam } },
-          },
-        },
-      ],
-    }
-  : undefined;
-
-const { data, error } = await useAsyncData<any, IMgError>(
-  `lading-page-${catalogueRouteParam}`,
-  async () => {
-    const variablesFilter = scoped
-      ? {
           _or: [
-            { collection: { id: { equals: catalogueRouteParam } } },
-            //also include network of networks
+            { partOfResources: { id: { equals: catalogueRouteParam } } },
             {
-              collection: {
-                type: { name: { equals: "Network" } },
-                partOfCollections: { id: { equals: catalogueRouteParam } },
+              partOfResources: {
+                partOfResources: { id: { equals: catalogueRouteParam } },
               },
             },
           ],
-        }
-      : //should only include harmonised variables
-        { collection: { type: { name: { equals: "Network" } } } };
-
-    return $fetch(`/${route.params.schema}/graphql`, {
-      method: "POST",
-      body: {
-        query,
-        variables: {
-          networksFilter,
-          variablesFilter,
-          cohortsFilter,
         },
-      },
-    });
-  }
-);
+      ],
+    }
+  : { type: { tags: { equals: "collection" } } };
+
+const networkFilter = scoped
+  ? {
+      _and: [
+        { type: { tags: { equals: "network" } } },
+        {
+          _or: [
+            { partOfResources: { id: { equals: catalogueRouteParam } } },
+            {
+              partOfResources: {
+                partOfResources: { id: { equals: catalogueRouteParam } },
+              },
+            },
+          ],
+        },
+      ],
+    }
+  : { type: { tags: { equals: "network" } } };
+
+const { data, error } = await useFetch(`/${route.params.schema}/graphql`, {
+  method: "POST",
+  key: `lading-page-${catalogueRouteParam}`,
+  body: {
+    query,
+    variables: {
+      networksFilter,
+      collectionsFilter,
+      networkFilter,
+      variablesFilter: scoped
+        ? {
+            _or: [
+              { resource: { id: { equals: catalogueRouteParam } } },
+              //also include network of networks
+              {
+                resource: {
+                  type: { name: { equals: "Network" } },
+                  partOfResources: { id: { equals: catalogueRouteParam } },
+                },
+              },
+            ],
+          }
+        : //should only include harmonised variables
+          { resource: { type: { name: { equals: "Network" } } } },
+    },
+  },
+});
 
 if (error.value) {
   const contextMsg = "Error on landing-page data fetch";
-  logError(error.value, contextMsg);
+  if (error.value.data) {
+    logError(error.value.data, contextMsg);
+  }
   throw new Error(contextMsg);
 }
 
 function percentageLongitudinal(
-  cohortsGroupBy: { count: number; designType: { name: string } }[],
+  subpopulationsGroupBy: { count: number; design: { name: string } }[],
   total: number
 ) {
-  const nLongitudinal = cohortsGroupBy.reduce(
+  const nLongitudinal = subpopulationsGroupBy.reduce(
     (accum, group) =>
-      group?.designType?.name === "Longitudinal" ? accum + group.count : accum,
+      group?.design?.name === "Longitudinal" ? accum + group.count : accum,
     0
   );
 
@@ -149,7 +172,7 @@ const settings = computed(() => {
 });
 
 const network = computed(() => {
-  return data.value.data?.Collections[0];
+  return data.value.data?.Resources[0];
 });
 
 const title = computed(() => {
@@ -170,11 +193,14 @@ const description = computed(() => {
   }
 });
 
+const collectionCount = computed(() => data.value.data?.Collections_agg?.count);
+const networkCount = computed(() => data.value.data?.Networks_agg?.count);
+
 const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
 </script>
 
 <template>
-  <LayoutsLandingPage class="w-10/12 pt-8">
+  <LayoutsLandingPage>
     <PageHeader class="mx-auto lg:w-7/12 text-center" :title="title">
       <template v-if="scoped" v-slot:description
         >Welcome to the catalogue of
@@ -190,32 +216,37 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
     </PageHeader>
     <LandingPrimary>
       <LandingCardPrimary
-        v-for="collection in data.data.Collections_groupBy"
-        :image="
-          getCollectionMetadataForType(collection.type.name).image ||
-          'image-link'
-        "
-        :title="
-          getCollectionMetadataForType(collection.type.name)?.plural ||
-          collection.type.name
-        "
+        v-if="collectionCount"
+        image="image-link"
+        title="Collections"
         :description="
           getSettingValue('CATALOGUE_LANDING_COHORTS_TEXT', settings) ||
-          getCollectionMetadataForType(collection.type.name).description ||
-          'Cohorts &amp; Biobanks'
+          'Data &amp; sample collections'
         "
         :callToAction="
-          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', settings)
+          getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', settings) ||
+          'Collections'
         "
-        :count="collection.count"
-        :link="
-          `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/` +
-          (getCollectionMetadataForType(collection.type.name).path ||
-            'collections')
-        "
+        :count="collectionCount"
+        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`"
       />
       <LandingCardPrimary
-        v-if="data.data.Variables_agg.count > 0 && !cohortOnly"
+        v-if="networkCount && !cohortOnly"
+        image="image-diagram"
+        title="Networks"
+        :description="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_TEXT', settings) ||
+          'Networks &amp; Consortia'
+        "
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', settings) ||
+          'Networks'
+        "
+        :count="networkCount"
+        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
+      />
+      <LandingCardPrimary
+        v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
         image="image-diagram-2"
         title="Variables"
         :description="
@@ -228,9 +259,8 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         "
         :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
       />
-
       <LandingCardPrimary
-        v-if="network.id === 'FORCE-NEN collections'"
+        v-if="!cohortOnly && network.id === 'FORCE-NEN collections'"
         image="image-data-warehouse"
         title="Aggregates"
         callToAction="Aggregates"
@@ -257,7 +287,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         </b>
         <br />{{
           getSettingValue("CATALOGUE_LANDING_PARTICIPANTS_TEXT", settings) ||
-          "The cumulative number of participants of all (sub)cohorts combined."
+          "The cumulative number of participants"
         }}
       </LandingCardSecondary>
 
@@ -278,13 +308,13 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         >
         <br />{{
           getSettingValue("CATALOGUE_LANDING_SAMPLES_TEXT", settings) ||
-          "The cumulative number of participants with samples collected of all (sub)cohorts combined"
+          "The cumulative number of participants with samples"
         }}
       </LandingCardSecondary>
 
       <LandingCardSecondary
         icon="schedule"
-        v-if="data.data.Cohorts_groupBy && data.data.Cohorts_agg.count"
+        v-if="data.data.Design_groupBy && data.data.Collections_agg"
       >
         <b
           >{{
@@ -293,32 +323,33 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           }}
           {{
             percentageLongitudinal(
-              data.data.Collections_groupBy,
+              data.data.Design_groupBy,
               data.data.Collections_agg.count
             )
           }}%</b
         ><br />{{
           getSettingValue("CATALOGUE_LANDING_DESIGN_TEXT", settings) ||
-          "Percentage of longitudinal datasets. The remaining datasets are"
+          "Percentage of longitudinal datasets"
         }}
-        cross-sectional.
       </LandingCardSecondary>
 
       <LandingCardSecondary
         icon="viewTable"
-        v-if="data.data.CollectionSubcohorts_agg.count"
+        v-if="data.data.Subpopulations_agg"
       >
         <b>
-          {{ data.data.CollectionSubcohorts_agg.count }}
+          {{ data.data.Subpopulations_agg.count }}
           {{
-            getSettingValue("CATALOGUE_LANDING_SUBCOHORTS_LABEL", settings) ||
-            "Subcohorts"
+            getSettingValue(
+              "CATALOGUE_LANDING_SUBPOPULATIONS_LABEL",
+              settings
+            ) || "Subpopulations"
           }}
         </b>
         <br />
         {{
-          getSettingValue("CATALOGUE_LANDING_SUBCOHORTS_TEXT", settings) ||
-          "The total number of subcohorts included"
+          getSettingValue("CATALOGUE_LANDING_SUBPOPULATIONS_TEXT", settings) ||
+          "The total number of subpopulations included"
         }}
       </LandingCardSecondary>
     </LandingSecondary>

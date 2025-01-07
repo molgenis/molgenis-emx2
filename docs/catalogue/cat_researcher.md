@@ -2,30 +2,29 @@
 
 ## Catalogue
 
-When you have defined a research question it is time to find the relevant variables to answer it. You can use
-the [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/) to compose your dataset.
-The Data Catalogue only describes the variables, it does **not** contain the actual data values.
+When you have defined a research question it is time to find the relevant data to answer it. You can use
+the [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/) to compose your dataset. Upon entering the Data Catalogue, 
+you can choose to either search all harmonised variables (by clicking on 'All variables' in the menu), or search the harmonised variables within a project, such as the EUChildNetwork. The Data Catalogue only describes the harmonized variables, it does **not** contain the actual data values.
 
-### Find variables
+![Go to variables](../img/cat-homepage-variables.png)
 
-You can use the filters and search bar to subset variables. In the example below, four filters are used, one network
-filter and three topic filters.
 
-![Variable explorer filters](../img/cat_variable-explorer.png)
+### Find harmonised variables
 
-You can search on variables (for example: `agebirth`) with filters already set in place.
+You can use the search bar and filters to subset the harmonised variables. In the example below, we searched for harmonised variables concerning 'diabetes'. Additionally, you may filter on topics or on cohorts that mapped to these variables.
 
-![Variable explorer search](../img/cat_search-variables.png)
+[Variable explorer search bar](../img/cat-variables-search-bar.png)
 
-*In the future you will be able to use the shopping cart to select all variables of interest and create an overview.*
+
+*In the future you will be able to use a shopping cart to select all variables of interest and create an overview.*
 
 ### Find harmonisation details
 
-The harmonisation view allows you to see which cohorts have (partially) harmonised your variable of interest and thus
-have that variable available for analysis.
+The harmonisation view allows you to see which cohorts have (partially) harmonised your variables of interest and thus
+have those variables available for analysis.
 
 ![Variable explorer harmonisation specifications](../img/cat_harmonisation-specifications.png)
 
-You can view how a specific cohort has harmonised a specific variable.
+When you click on a variable of interest, you can go to a detailed harmonisation overview for this variable. When you scroll down, you see more harmonisation details per cohort
 
-![Variable explorer cohort harmonisation specification](../img/cat_cohort-harmonised-variable.png)
+![Detail variable harmonisation](../img/cat-detailed-harmonised-variable-view.png)

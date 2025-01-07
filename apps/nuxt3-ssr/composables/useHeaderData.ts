@@ -1,100 +1,104 @@
-import type { IMgError } from "../interfaces/types";
+import type { UIResource } from "~/interfaces/types";
 
-const method = "POST";
+interface Resp<T> {
+  data: T;
+  error?: any;
+}
 
-const modelQuery = `
-      query Collections($networksFilter:CollectionsFilter) {
-        Collections(filter:$networksFilter){ datasets { name } }
-      }`;
-
-const headerQuery = `
-      query HeaderQuery($networksFilter:CollectionsFilter, $variablesFilter:VariablesFilter) {
-        Collections(filter:$networksFilter) {
-          id,
-          collections_agg { count }
-          collections_groupBy { count , type {name}}
-          logo { url }
-       }
-       Variables_agg(filter:$variablesFilter) {
-          count
-       }
-    }`;
+interface IHeaderQuery {
+  Resources: UIResource[];
+  Variables_agg: { count: number };
+  Collections_agg: { count: number };
+  Networks_agg: { count: number };
+}
 
 export async function useHeaderData() {
   const route = useRoute();
+  const scoped = route.params.catalogue !== "all";
+  const catalogueRouteParam = route.params.catalogue;
 
-  const apiPath = `/${route.params.schema}/graphql`;
-
-  const { data, error } = await useAsyncData<any, IMgError>(
-    `catalogue-${route.params.catalogue}`,
-    async () => {
-      let variables:
-        | {
-            networksFilter: { id: { equals: string | string[] } };
-            variablesFilter?: {
-              collection: { id: { equals: string | string[] } };
-            };
-          }
-        | undefined;
-      const scoped = route.params.catalogue !== "all";
-      const catalogueRouteParam = route.params.catalogue;
-      const networksFilter = scoped
-        ? { id: { equals: catalogueRouteParam } }
-        : undefined;
-      const datasets = await $fetch(`/${route.params.schema}/graphql`, {
-        method: "POST",
-        body: {
-          query: `
-            query CollectionDatasets($filter:CollectionDatasetsFilter) {
-              CollectionDatasets(filter:$filter){name}
+  const { data, error } = await $fetch<Resp<IHeaderQuery>>(
+    `/${route.params.schema}/graphql`,
+    {
+      method: "POST",
+      body: {
+        query: `
+            query HeaderQuery($collectionsFilter:ResourcesFilter, $variablesFilter:VariablesFilter, $networksFilter:ResourcesFilter,$networkFilter:ResourcesFilter) {
+              Resources(filter:$networksFilter) {
+                id,
+                logo { url }
+              }
+              Variables_agg(filter:$variablesFilter) {
+                  count
+              }
+              Collections_agg: Resources_agg(filter:$collectionsFilter) {
+                  count
+              }
+              Networks_agg: Resources_agg(filter:$networkFilter) {
+                  count
+              }
             }`,
-          variables: {
-            filter: {
-              _or: [
-                { collection: networksFilter },
-                { collection: { partOfCollections: networksFilter } },
-              ],
-            },
-          },
+        variables: {
+          networksFilter: scoped
+            ? { id: { equals: catalogueRouteParam } }
+            : undefined,
+          collectionsFilter: scoped
+            ? {
+                type: { tags: { equals: "collection" } },
+                _or: [
+                  { partOfResources: { id: { equals: catalogueRouteParam } } },
+                  {
+                    partOfResources: {
+                      partOfResources: { id: { equals: catalogueRouteParam } },
+                    },
+                  },
+                ],
+              }
+            : { type: { tags: { equals: "collection" } } },
+          networkFilter: scoped
+            ? {
+                type: { tags: { equals: "network" } },
+                _or: [
+                  { partOfResources: { id: { equals: catalogueRouteParam } } },
+                  {
+                    partOfResources: {
+                      partOfResources: { id: { equals: catalogueRouteParam } },
+                    },
+                  },
+                ],
+              }
+            : { type: { tags: { equals: "network" } } },
+          variablesFilter: scoped
+            ? {
+                _or: [
+                  { resource: { id: { equals: catalogueRouteParam } } },
+                  //also include network of networks
+                  {
+                    resource: {
+                      type: { name: { equals: "Network" } },
+                      partOfResources: {
+                        id: { equals: catalogueRouteParam },
+                      },
+                    },
+                  },
+                ],
+              }
+            : //should only include harmonised variables
+              { resource: { type: { name: { equals: "Network" } } } },
         },
-      });
-      const variablesFilter = scoped
-        ? {
-            collection: { id: { equals: catalogueRouteParam } },
-            dataset: {
-              name: {
-                equals: datasets.data.CollectionDatasets?.map(
-                  (d: { name: string }) => d.name
-                ).flat(),
-              },
-            },
-          }
-        : { collection: { type: { name: { equals: "Network" } } } };
-
-      return $fetch(apiPath, {
-        key: `header-${route.params.catalogue}`,
-        method,
-        body: {
-          query: headerQuery,
-          variables: {
-            networksFilter,
-            variablesFilter,
-          },
-        },
-      });
+      },
     }
   );
 
-  if (error.value) {
+  if (error) {
     const contextMsg = "Error on fetching page header data";
-    logError(error.value, contextMsg);
+    logError(error, contextMsg);
     throw new Error(contextMsg);
   }
 
-  const catalogue = data.value.data?.Collections
-    ? data.value.data?.Collections[0]
-    : null;
-  const variableCount = data.value.data?.Variables_agg.count || 0;
-
-  return { catalogue, variableCount };
+  const catalogue = data.Resources ? data.Resources[0] : undefined;
+  const variableCount = data.Variables_agg.count || 0;
+  const collectionCount = data.Collections_agg.count || 0;
+  const networkCount = data.Networks_agg.count || 0;
+  return { catalogue, variableCount, collectionCount, networkCount };
 }

@@ -28,7 +28,9 @@ export interface IFile {
   export interface ITreeNode {
     name: string;
     children?: ITreeNode[];
-    parent?: string;
+    parent?: {
+      name: string;
+    };
   }
 
   export interface IOntologyNode extends ITreeNode {

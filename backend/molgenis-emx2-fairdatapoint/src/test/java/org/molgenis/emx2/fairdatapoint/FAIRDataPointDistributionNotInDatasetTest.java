@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.DCAT;
 
+import io.javalin.http.Context;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-import spark.Request;
 
 /**
  * FDP Distribution must be referenced as a table name by at least 1 FDP Dataset. If not, this
@@ -36,13 +36,13 @@ public class FAIRDataPointDistributionNotInDatasetTest {
   @Disabled
   public void FDPBadDistribution() throws Exception {
     // request a distribution that is okay to retrieve
-    Request request = mock(Request.class);
+    Context request = mock(Context.class);
     when(request.url())
         .thenReturn(
             "http://localhost:8080/api/fdp/distribution/fairDataHub_distribnotindataset/Analyses/jsonld");
-    when(request.params("schema")).thenReturn("fairDataHub_distribnotindataset");
-    when(request.params("distribution")).thenReturn("Analyses");
-    when(request.params("format")).thenReturn("jsonld");
+    when(request.pathParam("schema")).thenReturn("fairDataHub_distribnotindataset");
+    when(request.pathParam("distribution")).thenReturn("Analyses");
+    when(request.pathParam("format")).thenReturn("jsonld");
     FAIRDataPointDistribution fairDataPointDistribution =
         new FAIRDataPointDistribution(request, database);
     String result = fairDataPointDistribution.getResult();
@@ -51,14 +51,14 @@ public class FAIRDataPointDistributionNotInDatasetTest {
             "dcat:downloadURL <http://localhost:8080/fairDataHub_distribnotindataset/api/jsonld/Analyses>;"));
 
     // request a distribution that does not exist at all
-    request = mock(Request.class);
+    request = mock(Context.class);
     when(request.url())
         .thenReturn(
             "http://localhost:8080/api/fdp/distribution/fairDataHub_distribnotindataset/something_quite_wrong/jsonld");
-    when(request.params("schema")).thenReturn("fairDataHub_distribnotindataset");
-    when(request.params("distribution")).thenReturn("something_quite_wrong");
-    when(request.params("format")).thenReturn("jsonld");
-    Request finalRequest2 = request;
+    when(request.pathParam("schema")).thenReturn("fairDataHub_distribnotindataset");
+    when(request.pathParam("distribution")).thenReturn("something_quite_wrong");
+    when(request.pathParam("format")).thenReturn("jsonld");
+    Context finalRequest2 = request;
     Exception exception2 =
         assertThrows(
             Exception.class,

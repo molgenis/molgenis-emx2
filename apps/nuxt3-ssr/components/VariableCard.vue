@@ -14,6 +14,17 @@ const props = withDefaults(
 const variableKey = computed(() => getKey(props.variable));
 
 const resourcePathId = resourceIdPath(variableKey.value);
+
+const repeats = computed(() =>
+  props.variable.repeatMax
+    ? "repeated for " +
+      props.variable.repeatUnit?.name.toLowerCase() +
+      " " +
+      props.variable.repeatMin +
+      "-" +
+      props.variable.repeatMax
+    : undefined
+);
 </script>
 
 <template>
@@ -27,18 +38,13 @@ const resourcePathId = resourceIdPath(variableKey.value);
           >
             {{ variable?.name }}
           </NuxtLink>
-          <span
-            v-if="variable.repeats?.length"
-            v-tooltip="{
-              content:
-                variable.repeats.length +
-                (variable.repeats.length === 1 ? ' repeat' : 'repeats'),
-            }"
-            class="ml-1 bg-blue-50 text-title-contrast justify-center rounded-full px-2 py-1 font-bold text-heading-sm hover:cursor-help"
+          <div
+            v-if="repeats"
+            class="bg-blue-50 text-title-contrast justify-center rounded-full px-2 py-1 font-bold text-heading-sm hover:cursor-help"
             style="display: inline-flex; flex-wrap: wrap"
           >
-            + {{ variable.repeats?.length }}
-          </span>
+            {{ repeats }}
+          </div>
         </h2>
       </div>
       <div class="hidden md:flex md:basis-3/5">
@@ -50,7 +56,7 @@ const resourcePathId = resourceIdPath(variableKey.value);
         <NuxtLink
           :to="`/${schema}/ssr-catalogue/${catalogue}/variables/${resourcePathId}`"
         >
-          <icons-arrow-right width="24" class="text-blue-500" />
+          <ArrowRight width="24" class="text-blue-500" />
           <span class="sr-only">go to page on {{ variable.name }}</span>
         </NuxtLink>
       </div>

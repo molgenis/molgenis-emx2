@@ -4,7 +4,7 @@
       class="app-page-header"
       title="ERN ReCONNET"
       subtitle="European Reference Network on Rare and Complex Connective Tissue and Musculoskeletal Diseases"
-      :imageSrc="ProjectBannerImage"
+      imageSrc="img/ern-reconnet-header.jpg"
     />
     <PageSection aria-labelledby="welcome-title" :verticalPadding="2">
       <h2 id="welcome-title">Welcome to the ERN ReCONNET registry!</h2>
@@ -33,13 +33,22 @@
     >
       <h2 class="visually-hidden" id="quicklinks-card-title">quick links</h2>
       <div class="quicklink-cards">
-        <LinkCard id="quicklinks-about" :imageSrc="AboutImage">
+        <LinkCard
+          id="quicklinks-about"
+          imageSrc="img/ern-reconnet-about-header.jpg"
+        >
           <router-link :to="{ name: 'about-us' }">About Us</router-link>
         </LinkCard>
-        <LinkCard id="quicklink-documents" :imageSrc="DocumentsImage">
+        <LinkCard
+          id="quicklink-documents"
+          imageSrc="img/ern-reconnet-docs-header.jpg"
+        >
           <router-link :to="{ name: 'documents' }">Documents</router-link>
         </LinkCard>
-        <LinkCard id="quicklink-dashboard" :imageSrc="DashboardImage">
+        <LinkCard
+          id="quicklink-dashboard"
+          imageSrc="img/ern-reconnet-dashboard-header.jpg"
+        >
           <router-link :to="{ name: 'dashboard' }">Dashboard</router-link>
         </LinkCard>
       </div>
@@ -80,12 +89,9 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
-import ProjectBannerImage from "../assets/ern-reconnet-header.jpg";
-import AboutImage from "../assets/ern-reconnet-about-header.jpg";
-import DocumentsImage from "../assets/ern-reconnet-docs-header.jpg";
-import DashboardImage from "../assets/ern-reconnet-dashboard-header.jpg";
 </script>
 
 <style lang="scss">
@@ -112,6 +118,11 @@ import DashboardImage from "../assets/ern-reconnet-dashboard-header.jpg";
     .link-card {
       height: 10em;
       flex-grow: 1;
+      border-radius: 0;
+
+      .card-background-filter {
+        border-radius: 0;
+      }
 
       &:nth-child(1) {
         .card-background-filter {

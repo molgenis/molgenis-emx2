@@ -75,11 +75,11 @@ const pageFilterTemplate: IFilter[] = [
     conditions: [],
   },
   {
-    id: "collections",
+    id: "resources",
     config: {
-      label: "Collections",
+      label: "Sources",
       type: "REF_ARRAY",
-      refTableId: "Collections",
+      refTableId: "Resources",
       initialCollapsed: false,
       buildFilterFunction: (
         filterBuilder: Record<string, Record<string, any>>,
@@ -100,18 +100,18 @@ const pageFilterTemplate: IFilter[] = [
         description: "name",
       },
     },
-    options: fetchCollectionOptions,
+    options: fetchResourceOptions,
     conditions: [],
   },
 ];
 
-async function fetchCollectionOptions(): Promise<INode[]> {
+async function fetchResourceOptions(): Promise<INode[]> {
   const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
     method: "POST",
     body: {
       query: `
-            query Collections($collectionsFilter: CollectionsFilter) {
-              Collections(filter: $collectionsFilter, orderby: { id: ASC }) {
+            query Resources($resourcesFilter: ResourcesFilter) {
+              Resources(filter: $resourcesFilter, orderby: { id: ASC }) {
                 id
                 name
               }
@@ -119,15 +119,15 @@ async function fetchCollectionOptions(): Promise<INode[]> {
           `,
       variables: scoped
         ? {
-            collectionsFilter: {
+            resourcesFilter: {
               _or: [
                 {
-                  partOfCollections: { equals: [{ id: catalogueRouteParam }] },
+                  partOfResources: { equals: [{ id: catalogueRouteParam }] },
                 },
                 {
-                  partOfCollections: {
+                  partOfResources: {
                     type: { name: { equals: "Network" } },
-                    partOfCollections: {
+                    partOfResources: {
                       equals: [{ id: catalogueRouteParam }],
                     },
                   },
@@ -135,11 +135,11 @@ async function fetchCollectionOptions(): Promise<INode[]> {
               ],
             },
           }
-        : { collection: { type: { name: { equals: "Network" } } } },
+        : { resource: { type: { name: { equals: "Network" } } } },
     },
   });
 
-  return data.Collections.map((option: { id: string; name?: string }) => {
+  return data.Resources.map((option: { id: string; name?: string }) => {
     return {
       name: option.id,
       description: option.name,
@@ -164,26 +164,31 @@ const query = computed(() => {
   return `
   query VariablesPage(
     $variablesFilter:VariablesFilter,
-    $collectionsFilter:CollectionsFilter,
+    $resourcesFilter:ResourcesFilter,
   ){
     Variables(limit: ${pageSize} offset: ${
     offset.value
   } filter:$variablesFilter  orderby: { name: ASC }) {
       name
-      collection {
+      resource {
         id
       }
       dataset {
         name
-        collection {
+        resource {
           id
         }
       }
+      repeatUnit {name}
+      repeatMin
+      repeatMax
       label
       description
-      mappings ${moduleToString(mappingsFragment)}
+      mappings(filter:{match:{name:{equals:["complete","partial"]}}}) ${moduleToString(
+        mappingsFragment
+      )}
     }
-    Collections(filter: $collectionsFilter, orderby: { id: ASC }) {
+    Resources(filter: $resourcesFilter, orderby: { id: ASC }) {
       id
     }
     Variables_agg (filter:$variablesFilter){
@@ -204,30 +209,31 @@ const filter = computed(() => {
 });
 
 const fetchData = async () => {
-  let collectionsFilter: any = {};
+  let resourcesFilter: any = {};
   if (scoped) {
-    collectionsFilter.partOfCollections = {
+    resourcesFilter.partOfResources = {
       _or: [
         { equals: [{ id: catalogueRouteParam }] },
-        { partOfCollections: { equals: [{ id: catalogueRouteParam }] } },
+        { partOfResources: { equals: [{ id: catalogueRouteParam }] } },
       ],
     };
   }
 
-  // add 'special' filter for harmonisation x-axis if 'collections' filter is set
-  const collectionConditions = (
-    filters.value.find((f) => f.id === "collections") as IRefArrayFilter
+  // add 'special' filter for harmonisation x-axis if 'resources' filter is set
+  const resourceConditions = (
+    filters.value.find((f) => f.id === "resources") as IRefArrayFilter
   )?.conditions;
-  if (collectionConditions.length) {
-    collectionsFilter = {
-      ...collectionsFilter,
-      equals: collectionConditions.map((c) => ({ id: c.name })),
+  if (resourceConditions.length) {
+    resourcesFilter = {
+      ...resourcesFilter,
+      equals: resourceConditions.map((c) => ({ id: c.name })),
     };
   }
-  const variableCollectionFilter = collectionConditions.length
+  const variableResourceFilter = resourceConditions.length
     ? {
         mappings: {
-          source: { id: { equals: collectionConditions.map((c) => c.name) } },
+          source: { id: { equals: resourceConditions.map((c) => c.name) } },
+          match: { name: { equals: ["complete", "partial"] } },
         },
       }
     : undefined;
@@ -235,28 +241,42 @@ const fetchData = async () => {
     ? {
         variablesFilter: {
           ...filter.value,
-          ...variableCollectionFilter,
+          ...variableResourceFilter,
           ...{
             _or: [
-              { collection: { id: { equals: catalogueRouteParam } } },
+              { resource: { id: { equals: catalogueRouteParam } } },
               {
-                collection: {
+                resource: {
                   type: { name: { equals: "Network" } },
-                  partOfCollections: { id: { equals: catalogueRouteParam } },
+                  partOfResources: { id: { equals: catalogueRouteParam } },
+                },
+              },
+              {
+                reusedInResources: {
+                  _or: [
+                    { resource: { id: { equals: catalogueRouteParam } } },
+                    {
+                      resource: {
+                        partOfResources: {
+                          id: { equals: catalogueRouteParam },
+                        },
+                      },
+                    },
+                  ],
                 },
               },
             ],
           },
         },
-        collectionsFilter,
+        resourcesFilter,
       }
     : {
         variablesFilter: {
           ...filter.value,
-          ...variableCollectionFilter,
-          ...{ collection: { type: { name: { equals: "Network" } } } },
+          ...variableResourceFilter,
+          ...{ resource: { type: { name: { equals: "Network" } } } },
         },
-        collectionsFilter,
+        resourcesFilter,
       };
 
   return $fetch(graphqlURL.value, {
@@ -391,7 +411,7 @@ crumbs[
             <HarmonisationTable
               v-else
               :variables="data?.data?.Variables"
-              :collections="data?.data?.Collections"
+              :resources="data?.data?.Resources"
             >
             </HarmonisationTable>
           </SearchResultsList>

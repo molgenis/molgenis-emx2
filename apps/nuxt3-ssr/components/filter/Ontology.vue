@@ -6,6 +6,7 @@ import type { IFilterCondition, IOntologyRespItem } from "~/interfaces/types";
 const props = withDefaults(
   defineProps<{
     tableId: string;
+    filter: Record<String, Filter>;
     modelValue: IFilterCondition[];
     options?: IOntologyRespItem[];
     isMultiSelect?: boolean;
@@ -21,7 +22,9 @@ const props = withDefaults(
 const emit = defineEmits(["update:modelValue"]);
 
 const data = !props.options
-  ? (await fetchOntology(props.tableId)).data[props.tableId]
+  ? (await fetchOntology(props.tableId, { filter: props.filter })).data[
+      props.tableId
+    ]
   : props.options;
 
 const showSearch = computed(() => data?.length > 10);
@@ -136,7 +139,11 @@ function clearAll() {
 
     <Modal ref="modal" title="Search" :subtitle="filterLabel">
       <template #header>
-        <FilterSearch v-model="optionsFilter" :inverted="true"></FilterSearch>
+        <FilterSearch
+          v-model="optionsFilter"
+          :inverted="true"
+          placeholder="search for options"
+        ></FilterSearch>
 
         <div v-if="selectedNodesNames.length" class="py-2 text-gray-900">
           <div class="flex flex-wrap gap-3 content-around p-3">

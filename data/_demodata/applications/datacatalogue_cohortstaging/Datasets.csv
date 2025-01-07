@@ -5,3 +5,4 @@ testCohort,growth,growth data,1.0,,person,,data collected on child's growth,200
 testCohort,psychological,psychological measurements,1.0,,person,,child's psychological outcomes,203
 testCohort,household,household characteristics,1.0,,person,,child's household characteristics,42
 testCohort,mother,data from mother,1.0,,person,,data collected from mother,42
+testCohort,testDataset,,,,,,,
