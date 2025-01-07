@@ -376,19 +376,21 @@ class Client:
 
     def get(self,
             table: str,
-            columns: list = None,
+            columns: list[str] = None,
             query_filter: str = None,
             schema: str = None,
             as_df: bool = False) -> list | pd.DataFrame:
         """Retrieves data from a schema and returns as a list of dictionaries or as
         a pandas DataFrame (as pandas is used to parse the response).
 
-        :param schema: name of a schema
-        :type schema: str
-        :param query_filter: the query to filter the output
-        :type query_filter: str
         :param table: the name of the table
         :type table: str
+        :param columns: list of column names to filter on
+        :type columns: list
+        :param query_filter: the query to filter the output, optional
+        :type query_filter: str
+        :param schema: name of a schema, default self.default_schema
+        :type schema: str
         :param as_df: if True, the response will be returned as a
                       pandas DataFrame. Otherwise, a recordset will be returned.
         :type as_df: bool
@@ -412,6 +414,8 @@ class Client:
         filter_part = self._prepare_filter(query_filter, table, schema)
 
         if as_df:
+            if filter_part:
+                filter_part = "?filter=" + json.dumps(filter_part)
             query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
             response = self.session.get(url=query_url)
             self._validate_graphql_response(response=response,
@@ -432,7 +436,7 @@ class Client:
             query_url = f"{self.url}/{current_schema}/graphql"
             query = self._parse_get_table_query(table_id, columns)
             response = self.session.post(url=query_url,
-                                        json={"query": query})
+                                        json={"query": query, "variables": {"filter": filter_part}})
             self._validate_graphql_response(response=response,
                                             fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                    f"{table!r}.\nStatus code: {response.status_code}.")
@@ -713,10 +717,10 @@ class Client:
         metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
-    def _prepare_filter(self, expr: str, _table: str, _schema: str) -> str:
+    def _prepare_filter(self, expr: str, _table: str, _schema: str) -> dict | None:
         """Prepares a GraphQL filter based on the expression passed into `get`."""
         if expr in [None, ""]:
-            return ""
+            return None
         statements = expr.split(' and ')
         _filter = dict()
         for stmt in statements:
@@ -734,7 +738,7 @@ class Client:
                 raise ValueError(f"Cannot process statement {stmt!r}, "
                                  f"ensure specifying one of the operators '==', '>', '<', '!=', 'between' "
                                  f"in your statement.")
-        return "?filter=" + json.dumps(_filter)
+        return _filter
 
     def __prepare_equals_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on equality."""
@@ -1072,7 +1076,9 @@ class Client:
         schema_metadata: Schema = self.get_schema_metadata()
         table_metadata: Table = schema_metadata.get_table('id', table_id)
 
-        query = f"{{\n  {table_id} {{\n"
+        query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
+                 f"  {table_id}(filter: $filter) {{\n")
+        # query = f"{{\n  {table_id} {{\n"
         for col in table_metadata.columns:
             if columns is not None and (col.id not in columns and col.name not in columns):
                 continue

@@ -11,13 +11,30 @@ SCHEMA = "catalogue"
 
 def get_data() -> list:
     """Fetches data."""
-
+    participant_range = [10_000, 20_000]
     with Client(url=URL, schema=SCHEMA) as client:
-        resources = client.get(table='Resources', columns=['name', 'description', 'subpopulations'], as_df=False)
+        subpop = client.get(table='Subpopulations', columns=['name', 'resource', 'numberOfParticipants'],
+                               query_filter=f'`numberOfParticipants` between {participant_range}',
+                               as_df=False)
+
+        pprint(subpop)
+
+        excluded_countries = ["Denmark", "France"]
+        resources = client.get(table="Resources",
+                               columns=["name", "id"],
+                               query_filter=f"subpopulations.countries.name != {excluded_countries}",
+                               as_df=False)
+        pprint(resources)
+        print(len(resources))
+        resources = client.get(table="Resources",
+                               columns=["name", "id"],
+                               query_filter=f"subpopulations.countries.name != {excluded_countries}",
+                               as_df=True)
+        print(resources.to_string())
+        print(len(resources.index))
 
 
-
-    return resources
+    return subpop
 
 
 
