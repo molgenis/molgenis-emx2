@@ -124,14 +124,13 @@
             left: patientsByCountryChart?.leftMargin,
           }"
         />
-        <!-- ["#4269d0","#efb118","#ff725c","#6cc5b0","#3ca951","#ff8ab7","#a463f2","#97bbf5","#9c6b4e","#9498a0"] -->
       </DashboardChart>
     </DashboardRow>
   </ProviderDashboard>
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from "vue";
+import { ref, onMounted } from "vue";
 import {
   DashboardRow,
   DashboardChart,
@@ -291,7 +290,7 @@ function setAgeGroupFilter() {
   selectedAgeGroup.value = ageGroups.value[0];
 }
 
-onBeforeMount(async () => {
+onMounted(() => {
   getPageData()
     .then(() => {
       setAgeGroupFilter();

@@ -37,6 +37,21 @@ export function sum(data: any, key: string): number {
 }
 
 /**
+ * @name sumObject
+ * @description calculate the sum of values in an object
+ *
+ * @param data input dataset; an object containing one or more key-value pairs
+ *
+ * @returns number
+ */
+export function sumObjectValues(data: IKeyValuePair): number {
+  const values: number[] = Object.keys(data).map((key: string) =>
+    parseInt(data[key])
+  );
+  return values.reduce((acc, value) => acc + value, 0);
+}
+
+/**
  * @name uniqueValues
  * @description Return an array of unique values from a specific property in a dataset
  *
@@ -57,6 +72,10 @@ export function uniqueValues(data: any, key: string): string[] {
   return Array.from(new Set(values)).sort() as string[];
 }
 
+/**
+ * @name ernCenterPalette
+ * @description color palette for charts that show ERN and center comparisons
+ */
 export const ernCenterPalette: IKeyValuePair = {
   ERN: "#66c2a4",
   "Your center": "#3f6597",

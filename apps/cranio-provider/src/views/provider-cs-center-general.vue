@@ -100,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from "vue";
+import { ref, onMounted } from "vue";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import {
   DashboardRow,
@@ -120,7 +120,6 @@ import type { IAppPage } from "../types/app";
 const props = defineProps<IAppPage>();
 
 const loading = ref<boolean>(true);
-const error = ref<string>();
 const ageGroups = ref<string[]>();
 const selectedAgeGroup = ref<string>();
 const cranioTypeChart = ref<ICharts>();
@@ -229,17 +228,17 @@ function setAgeGroupFilter() {
   selectedAgeGroup.value = ageGroups.value[0];
 }
 
-onBeforeMount(async () => {
-  try {
-    await getPageData();
-    setAgeGroupFilter();
-    updateCranioTypesChart();
-    updateAffectedSutureChart();
-    updateMultipeSuturesChart();
-  } catch (err) {
-    error.value = `${err}`;
-  } finally {
-    loading.value = false;
-  }
+onMounted(() => {
+  getPageData()
+    .then(() => {
+      setAgeGroupFilter();
+      updateCranioTypesChart();
+      updateAffectedSutureChart();
+      updateMultipeSuturesChart();
+    })
+    .catch((err) => {
+      throw new Error(err);
+    })
+    .finally(() => (loading.value = false));
 });
 </script>

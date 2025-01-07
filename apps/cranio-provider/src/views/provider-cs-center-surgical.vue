@@ -19,6 +19,12 @@
     <DashboardRow :columns="1">
       <DashboardChart>
         <LoadingScreen v-if="loading" style="height: 200px" />
+        <MessageBox
+          v-else-if="!loading && !hasComplicationsData"
+          type="warning"
+        >
+          <span>Not enough data to show chart</span>
+        </MessageBox>
         <GroupedColumnChart
           v-else
           :chartId="complicationsChart?.chartId"
@@ -96,6 +102,9 @@
     <DashboardRow :columns="1">
       <DashboardChart>
         <LoadingScreen v-if="loading" style="height: 225px" />
+        <MessageBox v-else-if="!loading && !hasSurgeryAgeData" type="warning">
+          <span>Not enough data to show chart</span>
+        </MessageBox>
         <GroupedColumnChart
           v-else
           :chartId="surgeryAgeChart?.chartId"
@@ -141,7 +150,13 @@ import {
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 
 import { generateAxisTickData } from "../utils/generateAxisTicks";
-import { asKeyValuePairs, uniqueValues, ernCenterPalette } from "../utils";
+import {
+  asKeyValuePairs,
+  uniqueValues,
+  sum,
+  sumObjectValues,
+  ernCenterPalette,
+} from "../utils";
 import { getDashboardChart } from "../utils/getDashboardData";
 
 import type { ICharts, IChartData } from "../types/schema";
@@ -156,11 +171,13 @@ const diagnoses = ref<string[]>();
 const selectedDiagnosis = ref<string>();
 const complicationsChart = ref<ICharts>();
 const complicationsChartData = ref<IChartData[]>();
+const hasComplicationsData = ref<boolean>(false);
 const interventionsChart = ref<ICharts>();
 const interventionsChartData = ref<IKeyValuePair>();
 const hasInterventionsData = ref<boolean>(false);
 const surgeryAgeChart = ref<ICharts>();
 const surgeryAgeChartData = ref<IChartData[]>();
+const hasSurgeryAgeData = ref<boolean>(false);
 
 async function getPageData() {
   const centerComplicationsResponse = await getDashboardChart(
@@ -224,6 +241,9 @@ function updateComplicationsChart() {
   );
   (complicationsChart.value as ICharts).yAxisMaxValue = chartAxis.limit;
   (complicationsChart.value as ICharts).yAxisTicks = chartAxis.ticks;
+
+  hasComplicationsData.value =
+    sum(complicationsChartData.value, "dataPointValue") > 0;
 }
 
 function updateInterventionsChart() {
@@ -239,10 +259,7 @@ function updateInterventionsChart() {
     "dataPointValue"
   );
 
-  const values: number[] = Object.keys(interventionsChartData.value).map(
-    (key: string) => parseInt(interventionsChartData.value![key])
-  );
-  const sum: number = values.reduce((acc, value) => acc + value, 0);
+  const sum: number = sumObjectValues(interventionsChartData.value);
   hasInterventionsData.value = sum > 0;
 }
 
@@ -261,6 +278,9 @@ function updateSurgeryAgeChart() {
 
   (surgeryAgeChart.value as ICharts).yAxisMaxValue = chartAxis.limit;
   (surgeryAgeChart.value as ICharts).yAxisTicks = chartAxis.ticks;
+
+  const total: number = sum(surgeryAgeChartData.value, "dataPointValue");
+  hasSurgeryAgeData.value = total > 0;
 }
 
 onMounted(() => {

@@ -99,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, computed } from "vue";
+import { ref, onMounted, computed } from "vue";
 import {
   DashboardRow,
   DashboardChart,
@@ -213,7 +213,7 @@ function updateCharts() {
   updateGenderChart();
 }
 
-onBeforeMount(() => {
+onMounted(() => {
   getPageData()
     .then(() => {
       const distinctAgeRanges = uniqueValues(
@@ -248,7 +248,9 @@ onBeforeMount(() => {
     .then(() => {
       updateCharts();
     })
-    .catch((err) => {})
+    .catch((err) => {
+      throw new Error(err);
+    })
     .finally(() => {
       loading.value = false;
     });

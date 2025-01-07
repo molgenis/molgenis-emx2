@@ -33,7 +33,10 @@
     </DashboardRow>
     <DashboardRow :columns="2">
       <DashboardChart id="provider-overview-patients-by-workstream">
-        <LoadingScreen v-if="loading" />
+        <LoadingScreen v-if="loading" style="height: 215px" />
+        <MessageBox v-else-if="!loading && numberOfPatientsSubmitted === 0">
+          <span>Not enough data to show chart</span>
+        </MessageBox>
         <PieChart2
           v-else
           :chartId="patientsByWorkstreamChart?.chartId"
@@ -72,13 +75,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount } from "vue";
+import { ref, onMounted } from "vue";
 import { UserCircleIcon } from "@heroicons/vue/24/outline";
 import {
   DashboardRow,
   DashboardChart,
   PieChart2,
   LoadingScreen,
+  MessageBox,
   // @ts-ignore
 } from "molgenis-viz";
 
@@ -105,68 +109,36 @@ const sexByWorkstreamChartData = ref<IKeyValuePair>();
 const sexByWorkstreamPalette = ref<IKeyValuePair>();
 const selectedWorkstream = ref<string>();
 
-async function getSubmissionData() {
-  const patientSubmissions = await getDashboardChart(
+async function getPageData() {
+  const submissionsResponse = await getDashboardChart(
     props.api.graphql.current,
     "patients-total"
   );
-  const data = patientSubmissions[0];
-  if (data.dataPoints) {
-    numberOfPatientsSubmitted.value = data.dataPoints[0].dataPointValue!;
-  }
-}
 
-async function getAverageData() {
-  const avgData = await getDashboardChart(
+  const monthlySubmissionResponse = await getDashboardChart(
     props.api.graphql.current,
     "patients-per-month"
   );
 
-  const data = avgData[0];
-  if (data.dataPoints) {
-    monthlyAverageOfSubmissions.value = data.dataPoints[0].dataPointValue!;
-  }
-}
-
-async function getPatientsByWorkstream() {
-  const data = await getDashboardChart(
+  const patientsByWorkstreamResponse = await getDashboardChart(
     props.api.graphql.current,
     "patients-by-workstream"
   );
-  patientsByWorkstreamChart.value = data[0];
-  const chartDataPoints = data[0].dataPoints as IChartData[];
 
-  patientsByWorkstreamChart.value.dataPoints = chartDataPoints.sort(
-    (current, next) => {
-      return next.dataPointValue! - current.dataPointValue!;
-    }
-  );
-
-  const workstreamData = asKeyValuePairs(
-    chartDataPoints,
-    "dataPointName",
-    "dataPointValue"
-  );
-
-  patientsByWorkstreamPalette.value = generateColorPalette(
-    Object.keys(workstreamData).sort()
-  );
-
-  patientsByWorkstreamChartData.value = workstreamData;
-}
-
-async function getSexByWorksteam() {
-  const data = await getDashboardChart(
+  const sexByWorkstreamResponse = await getDashboardChart(
     props.api.graphql.current,
     "patients-by-sex-at-birth-and-workstream"
   );
-  sexByWorkstreamChart.value = data[0];
 
-  const categories = uniqueValues(
-    sexByWorkstreamChart.value?.dataPoints,
-    "dataPointName"
-  );
-  sexByWorkstreamPalette.value = generateColorPalette(categories);
+  patientsByWorkstreamChart.value = patientsByWorkstreamResponse[0];
+  sexByWorkstreamChart.value = sexByWorkstreamResponse[0];
+
+  const submissionsData = submissionsResponse[0];
+  const monthlySubmissionsData = monthlySubmissionResponse[0];
+  numberOfPatientsSubmitted.value =
+    submissionsData.dataPoints![0].dataPointValue!;
+  monthlyAverageOfSubmissions.value =
+    monthlySubmissionsData.dataPoints![0].dataPointValue!;
 }
 
 function updateSexByWorkstream(value: string) {
@@ -186,16 +158,37 @@ function updateSexByWorkstream(value: string) {
   );
 }
 
-onBeforeMount(async () => {
-  try {
-    await getSubmissionData();
-    await getAverageData();
-    await getPatientsByWorkstream();
-    await getSexByWorksteam();
-  } catch (error) {
-    console.error(error);
-  } finally {
-    loading.value = false;
-  }
+onMounted(() => {
+  getPageData()
+    .then(() => {
+      // prepare workstream charts
+      patientsByWorkstreamChart.value!.dataPoints =
+        patientsByWorkstreamChart.value?.dataPoints?.sort(
+          (a: IChartData, b: IChartData) => {
+            return (b.dataPointValue as number) - (a.dataPointValue as number);
+          }
+        );
+      patientsByWorkstreamChartData.value = asKeyValuePairs(
+        patientsByWorkstreamChart.value?.dataPoints,
+        "dataPointName",
+        "dataPointValue"
+      );
+      patientsByWorkstreamPalette.value = generateColorPalette(
+        Object.keys(patientsByWorkstreamChartData.value).sort()
+      );
+
+      // prepare sex at birth chart
+      const uniqueSexAtBirthCategories = uniqueValues(
+        sexByWorkstreamChart.value?.dataPoints,
+        "dataPointName"
+      );
+      sexByWorkstreamPalette.value = generateColorPalette(
+        uniqueSexAtBirthCategories
+      );
+    })
+    .catch((err) => {
+      throw new Error(err);
+    })
+    .finally(() => (loading.value = false));
 });
 </script>
