@@ -255,7 +255,7 @@ jobs:
           command: yarn install
           working_directory: apps
       - run:
-          name: Wait for e2e test data to be loaded, poll every 10 seconds
+          name: Wait for catalogue e2e test data to be loaded, poll every 10 seconds
           command: |
             GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/ssr-catalogue/testNetwork1"           
             while true; 
@@ -266,7 +266,7 @@ jobs:
                         echo "test data is loaded";
                         break; 
                     else 
-                        echo "test data is not ready yet, waiting 10 seconds...";
+                        echo "catalogue test data is not ready yet, waiting 10 seconds...";
                     fi; 
                     sleep 10; 
                 done
@@ -278,15 +278,44 @@ jobs:
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
             yarn e2e
-          working_directory: apps/nuxt3-ssr          
+          working_directory: apps/nuxt3-ssr
       - run:
-          name: Run non ssr e2e tests
+          name: Wait for directory e2e test data to be loaded, poll every 10 seconds
           command: |
-            npx playwright install chrome
+            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/directory-demo/directory/"           
+            while true; 
+                do 
+                    STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
+                    echo ${STATUS} ${GETURL}
+                    if [[ "$STATUS" == "200" ]]; then 
+                        echo "test data is loaded";
+                        break; 
+                    else 
+                        echo "directory test data is not ready yet, waiting 10 seconds...";
+                    fi; 
+                    sleep 10; 
+                done
+      - run:
+          name: Directory e2e tests
+          command: |
+            yarn playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            npx playwright test --config e2e e2e/tests
+            yarn e2e
+          working_directory: apps/directory
+      - run:
+            name: Run non ssr e2e tests
+            command: |
+              npx playwright install chrome
+              echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+              export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+              echo $E2E_BASE_URL
+              npx playwright test --config e2e e2e/tests
+      - run:
+            name: Save test results for stats
+            command: |
+                find . -type f -regex ".*/e2e/test-results/.*xml" -exec cp {} /root/project/e2e \;
       - store_test_results:
          path: /root/project/e2e
       - store_artifacts:
