@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/* Possible future enhancements
+- split the search out to a wrapping component
+ */
+
 import type { ITreeNode, ITreeNodeState } from "~/types/types";
 import TreeNode from "./TreeNode.vue";
 
@@ -14,7 +18,7 @@ const props = withDefaults(
     /* whether colors should be inverted */
     inverted?: boolean;
     /* whether to include/exclude children of selected nodes in emit */
-    emitSelectedChildren: boolean;
+    emitSelectedChildren?: boolean;
   }>(),
   {
     isMultiSelect: true,
@@ -138,6 +142,10 @@ function toggleSelect(name: string) {
 
   //emit the selected node names
   //optionally excluding selected childnodes
+  emitSelection();
+}
+
+function emitSelection() {
   emit(
     "update:modelValue",
     Object.values(nodeMap.value)
