@@ -19,7 +19,7 @@ from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninE
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException,
                          NoSuchColumnException)
 from .metadata import Schema, Table
-from .utils import parse_nested_pkeys
+from .utils import parse_nested_pkeys, convert_dtypes
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -409,7 +409,8 @@ class Client:
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
-        table_id = schema_metadata.get_table(by='name', value=table).id
+        table_meta = schema_metadata.get_table(by='name', value=table)
+        table_id = table_meta.id
 
         filter_part = self._prepare_filter(query_filter, table, schema)
 
@@ -422,7 +423,12 @@ class Client:
                                             fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                    f"{table!r}.\nStatus code: {response.status_code}.")
 
-            response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False)
+            response_data = pd.read_csv(BytesIO(response.content), keep_default_na=True)
+            dtypes = {c: t for (c, t) in convert_dtypes(table_meta).items() if c in response_data.columns}
+            bool_columns = [c for (c, t) in dtypes.items() if t == 'bool']
+            response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
+            response_data = response_data.astype(dtypes)
+
             if columns:
                 try:
                     response_data = response_data[columns]

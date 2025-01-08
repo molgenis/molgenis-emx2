@@ -3,6 +3,10 @@ Utility functions for the Molgenis EMX2 Pyclient package
 """
 import logging
 
+from .constants import INT, FLOAT, DATETIME, BOOL
+
+from .metadata import Table
+
 
 def read_file(file_path: str) -> str:
     """Reads and imports data from a file.
@@ -38,3 +42,18 @@ def parse_nested_pkeys(pkeys: list) -> str:
              logging.warning(f"Unexpected data type encountered: {type(pk)!r}.")
 
     return " ".join(converted_pkeys)
+
+def convert_dtypes(table_meta: Table) -> dict:
+    """Parses column metadata of a table to a dictionary of column ids to pandas dtypes."""
+
+    type_map = {INT: 'Int64',
+                FLOAT: 'Float64',
+                DATETIME: 'datetime64[ns]',
+                BOOL: 'bool'
+                }
+
+    dtypes = {}
+    for col in table_meta.columns:
+        dtypes[col.name] = type_map.get(col.get('columnType'), 'object')
+
+    return dtypes
