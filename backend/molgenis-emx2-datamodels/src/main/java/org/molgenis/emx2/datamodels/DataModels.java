@@ -49,7 +49,6 @@ public class DataModels {
 
   public enum Regular {
     DIRECTORY(DirectoryLoader::new),
-    PET_STORE(PetStoreLoader::new),
     ERN_DASHBOARD(DashboardLoader::new),
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),

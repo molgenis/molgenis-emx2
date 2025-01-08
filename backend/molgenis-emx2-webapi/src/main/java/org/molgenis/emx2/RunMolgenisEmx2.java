@@ -5,7 +5,6 @@ import static org.molgenis.emx2.ColumnType.INT;
 
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
@@ -50,7 +49,7 @@ public class RunMolgenisEmx2 {
 
           if (!EXCLUDE_PETSTORE_DEMO && db.getSchema("pet store") == null) {
             Schema schema = db.createSchema("pet store");
-            new PetStoreLoader(schema, true).run();
+            DataModels.Profile.PET_STORE.getImportTask(schema, true).run();
           }
 
           if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
