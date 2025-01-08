@@ -49,7 +49,6 @@ spec:
               value: {{ .Values.catalogue.includeCatalogueDemo | quote }}
             - name: MOLGENIS_INCLUDE_DIRECTORY_DEMO
               value: {{ .Values.directory.includeDirectoryDemo | quote }}
-{{- if .Values.oidc.enabled  }}
             - name: MOLGENIS_OIDC_CLIENT_ID
               value: {{ .Values.oidc.client_id }}
             - name: MOLGENIS_OIDC_CLIENT_SECRET
@@ -63,7 +62,6 @@ spec:
               value: {{ .Values.oidc.discovery_url }}
             - name: MOLGENIS_OIDC_CALLBACK_URL
               value: {{ .Values.oidc.callback_url }}
-{{- end }}
         - image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
           name: postgres
           imagePullPolicy: {{ .Values.image.pullPolicy }}
