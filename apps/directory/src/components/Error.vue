@@ -4,7 +4,10 @@
       v-if="error"
       class="border border-danger justify-content-between bd-highligh p-2 align-middle"
     >
-      <span style="color: red">
+      <span v-if="typeof error === `string`" style="color: red">
+        {{ error }}
+      </span>
+      <span v-else style="color: red">
         An error occurred while loading the data. Please, try a different
         search. If this error persists, please contact our helpdesk.
       </span>
