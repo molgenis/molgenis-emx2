@@ -141,9 +141,8 @@ public class GraphqlDatabaseFieldFactory {
             dataFetchingEnvironment -> {
               final List<String> selectedKeys =
                   dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
-              var filtered = new HashMap<String, String>();
-              for (var setting : database.getSettings().entrySet()) {
-                System.out.println(setting.getKey() + " : " + setting.getValue());
+              Map<String, String> filtered = new HashMap<>();
+              for (Map.Entry<String, String> setting : database.getSettings().entrySet()) {
                 if (selectedKeys.isEmpty() || selectedKeys.contains(setting.getKey())) {
                   filtered.put(setting.getKey(), setting.getValue());
                 }
