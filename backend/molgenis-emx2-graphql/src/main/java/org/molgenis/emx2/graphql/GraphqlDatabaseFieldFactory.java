@@ -12,9 +12,6 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 import graphql.Scalars;
 import graphql.schema.*;
 import java.util.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.tasks.Task;
@@ -144,21 +141,16 @@ public class GraphqlDatabaseFieldFactory {
             dataFetchingEnvironment -> {
               final List<String> selectedKeys =
                   dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
-              Set<Map.Entry<String, String>> entries = database.getSettings().entrySet();
-              Stream<Map.Entry<String, String>> entryStream =
-                  entries.stream()
-                      .filter(
-                          setting ->
-                              selectedKeys.isEmpty() || selectedKeys.contains(setting.getKey()));
-              Collector<Map.Entry<String, String>, ?, Map<String, String>> map =
-                  Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
-              assert entryStream != null;
-              assert map != null;
+              var filtered = new HashMap<String, String>();
+              for (var setting : database.getSettings().entrySet()) {
+                System.out.println(setting.getKey() + " : " + setting.getValue());
+                if (selectedKeys.isEmpty() || selectedKeys.contains(setting.getKey())) {
+                  filtered.put(setting.getKey(), setting.getValue());
+                }
+              }
+              filtered.put(Constants.IS_OIDC_ENABLED, String.valueOf(database.isOidcEnabled()));
 
-              Map<String, String> selectedSettings = entryStream.collect(map);
-              selectedSettings.put(
-                  Constants.IS_OIDC_ENABLED, String.valueOf(database.isOidcEnabled()));
-              return mapSettingsToGraphql(selectedSettings);
+              return mapSettingsToGraphql(filtered);
             });
   }
 
