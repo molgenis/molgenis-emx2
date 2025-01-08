@@ -1,7 +1,9 @@
 tableName;tableExtends;columnName;columnType;key;required;refSchema;refTable;refLink;refBack;validation;semantics;description;profiles
 Individual observations;;;;;;;;;;;http://purl.obolibrary.org/obo/NCIT_C25398;Findings and circumstances relating to the examination and treatment of a individual;FAIR Genomes, JRC-CDE,RD3
-Individual observations;;individual;ref;1;TRUE;;Individuals;;;;http://purl.obolibrary.org/obo/IAO_0000136;A reference to the individual whom this clinical information is about;FAIR Genomes, JRC-CDE, RD3
-Individual observations;;date of observation;date;1;TRUE;;;;;;http://purl.obolibrary.org/obo/NCIT_C119798;The date on which the clinical assement was made;RD3
+Individual observations;;id;auto_id;1;TRUE;;;;;;;;
+Individual observations;;individual;ref;;TRUE;;Individuals;;;;http://purl.obolibrary.org/obo/IAO_0000136;A reference to the individual whom this clinical information is about;FAIR Genomes, JRC-CDE, RD3
+Individual observations;;date saved in database;date;;;;;;;;;;
+Individual observations;;date of observation;date;;;;;;;;http://purl.obolibrary.org/obo/NCIT_C119798;The date on which the clinical assement was made;RD3
 Individual observations;;age at observation;period;;;;;;;;http://purl.obolibrary.org/obo/NCIT_C192236;"The age of the individual at the time of observation (e.g., ""P55Y8M12D"")";Beacon v2,RD3
 Individual observations;;type of visit;ontology;;;;Visit type;;;;http://purl.obolibrary.org/obo/NCIT_C103165;The kind of visit undertaken by the individual within a study, such as inpatient, outpatient, telephone, baseline, follow up, etc.;FAIR Genomes, JRC-CDE, RD3
 Clinical observations;Individual observations;;;;;;;;;;http://purl.obolibrary.org/obo/NCIT_C87853;This table extends observations with clinical details compatible with phenopacket;RD3
