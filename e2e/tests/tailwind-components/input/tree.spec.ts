@@ -41,3 +41,14 @@ test('should expand the the de-selection down if expand selection is set to true
   await page.locator('label').filter({ hasText: 'Node 0' }).first().locator('rect').click();
   await expect(page.getByText('Number off selected nodes: 0')).toBeVisible();
 });
+
+test('should disable selection of nodes with invisible children in case of search', async ({ page }) => {
+  await page.goto(route);
+  await page.getByRole('link', { name: 'InputTree' }).click();
+  await page.getByRole('button', { name: 'Search for options'}).click();
+  //can't get below to work, but recording gives this only
+  // await page.getByPlaceholder('Type to search in options...').click();
+  // await page.getByPlaceholder('Type to search in options...').fill('0.0.0.1');
+  // await expect(page.getByText('Node 0.0', { exact: true })).toBeVisible();
+  // await expect(page.getByText('Node 1', { exact: true })).not.toBeVisible();
+});

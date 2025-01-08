@@ -74,6 +74,7 @@ function toggleExpand(name: string) {
       </div>
       <div class="flex justify-start items-center ml-4">
         <input
+          v-if="node.selectable"
           type="checkbox"
           :indeterminate="node.selected === 'intermediate'"
           :id="node.name"
@@ -87,6 +88,7 @@ function toggleExpand(name: string) {
           class="flex justify-center items-start hover:cursor-pointer"
         >
           <InputCheckboxIcon
+            v-if="node.selectable"
             :indeterminate="node.selected === 'intermediate'"
             :checked="node.selected === 'selected'"
             class="w-[20px] ml-[-6px]"
@@ -94,9 +96,11 @@ function toggleExpand(name: string) {
               '[&>rect]:stroke-gray-400': inverted,
             }"
           />
-          <span class="block w-[calc(100%-20px)] text-body-sm leading-normal">{{
-            node.name
-          }}</span>
+          <span
+            :class="{ 'w-[calc(100%-20px)]': node.selectable }"
+            class="block text-body-sm leading-normal"
+            >{{ node.name }}</span
+          >
         </InputLabel>
         <div class="inline-flex items-center whitespace-nowrap">
           <div class="inline-block pl-1">
