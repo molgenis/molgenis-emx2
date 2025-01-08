@@ -23,19 +23,19 @@ test("visibleExpressionDECIMAL", async ({ page }) => {
   await page.getByRole("link", { name: "Tables" }).click();
   await page.getByRole("link", { name: "Order" }).click();
   await page.getByRole("button", { name: "" }).click();
-  await page.getByRole("spinbutton").click();
-  await page.getByRole("spinbutton").fill("8");
-  await page.getByLabel("true").check();
+  await page.locator("input#Pet-edit-modal-weight").click();
+  await page.locator("input#Pet-edit-modal-weight").fill("8");
+  await page.locator("input#Pet-edit-modal-weight").check();
   await expect(
     page.locator("#Order-edit-modal-complete").getByText("complete")
   ).toBeVisible();
   await expect(page.locator("#Order-edit-modal-complete")).toContainText(
-    "true"
+    "Yes"
   );
   await page.getByRole("button", { name: "Save Order" }).click();
   await page.getByRole("button", { name: "" }).click();
-  await page.getByRole("spinbutton").click();
-  await page.getByRole("spinbutton").fill("7");
+  await page.locator("input#Pet-edit-modal-weight").click();
+  await page.locator("input#Pet-edit-modal-weight").fill("7");
   await expect(
     page.locator("#Order-edit-modal-complete").getByText("complete")
   ).toBeHidden();
@@ -137,8 +137,8 @@ test("visibleExpressionONTOLOGY_ARRAY", async ({ page }) => {
     .filter({ hasText: "status" })
     .locator("#Pet-edit-modal-status")
     .fill("2");
-  await page.getByRole("spinbutton").click();
-  await page.getByRole("spinbutton").fill("2");
+  await page.locator("input#Pet-edit-modal-weight").click();
+  await page.locator("input#Pet-edit-modal-weight").fill("2");
   await page.getByRole("button", { name: "Save Pet" }).click();
   await page.getByRole("button", { name: "" }).click();
   await page
@@ -164,8 +164,8 @@ test("visibleExpressionONTOLOGY_ARRAY", async ({ page }) => {
   await expect(page.getByRole("dialog").getByText("status")).toBeHidden();
   await page.locator(".overflow-auto").first().click();
   await page.getByText("Chaptersnamedetails").click();
-  await page.getByRole("spinbutton").click();
-  await page.getByRole("spinbutton").fill("2");
-  await page.getByRole("spinbutton").click();
+  await page.locator("input#Pet-edit-modal-weight").click();
+  await page.locator("input#Pet-edit-modal-weight").fill("2");
+  await page.locator("input#Pet-edit-modal-weight").click();
   await page.getByRole("button", { name: "Save Pet" }).click();
 });

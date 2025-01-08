@@ -11,7 +11,7 @@ test("computedExpressionCONCAT", async ({ page }) => {
   await page.getByLabel("name").click();
   await page.getByLabel("name").fill("computedTest");
   await page.getByLabel("template").selectOption("PET_STORE");
-  await page.getByLabel("true").check();
+  await page.getByLabel("Yes").check();
   await page.getByRole("button", { name: "Create database" }).click();
   await page.getByText("Close").click();
   //create computedExpression concat string and REF
@@ -60,8 +60,8 @@ test("computedExpressionCONCAT", async ({ page }) => {
     .filter({ hasText: "status" })
     .locator("#Pet-edit-modal-status")
     .click();
-  await page.getByRole("spinbutton").click();
-  await page.getByRole("spinbutton").fill("1");
+  await page.locator("input#Pet-edit-modal-weight").click();
+  await page.locator("input#Pet-edit-modal-weight").fill("1");
   await page.getByRole("button", { name: "Save Pet" }).click();
   await page.getByRole("button", { name: "filters " }).click();
   await page.getByLabel("name").check();
@@ -110,7 +110,7 @@ test("computedExpressionComplex", async ({ page }) => {
     .locator("#Tag-edit-modal-label")
     .fill("test1");
   await page.getByRole("button", { name: "Save Tag" }).click();
-  await page.getByRole("button", { name: "" }).click();
+  await page.locator('#Tag-edit-modal-tags').getByRole("button", { name: "" }).click();
   await page
     .locator("span")
     .filter({ hasText: "name (required) name is" })

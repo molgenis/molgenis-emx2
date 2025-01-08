@@ -9,6 +9,7 @@
   },
   "scripts": {
     "e2e": "playwright test",
+    "debug": "playwright test --ui",
     "codegen": "playwright codegen",
     "test:tw": "playwright test --grep '@tw-components' --reporter=line",
     "test:tw-forms": "playwright test --grep '@tw-forms' --reporter=line"

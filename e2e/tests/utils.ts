@@ -39,7 +39,7 @@ export async function createDatabase(
   await page.getByLabel("name").fill(databaseName);
   await page.getByLabel("template").selectOption(template);
   if (useDemoData) {
-    await page.getByLabel("true").check();
+    await page.getByLabel("Yes").check();
   }
   await page.getByRole("button", { name: "Create database" }).click();
   await page.getByText("Close").click();
