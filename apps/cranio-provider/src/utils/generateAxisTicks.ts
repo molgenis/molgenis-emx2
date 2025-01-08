@@ -63,7 +63,7 @@ export function seqAlongBy(
  * @returns a number
  */
 export function calculateInterval(value: number): number {
-  if (value > 2500) {
+  if (value > 5000) {
     return 1000;
   } else if (value > 1500 && value < 5000) {
     return 500;

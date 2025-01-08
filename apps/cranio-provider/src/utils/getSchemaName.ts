@@ -1,6 +1,6 @@
 // import gql from "graphql-tag";
 import { request, gql } from "graphql-request";
-import type { ISchemaResponse, ISchema } from "../interfaces/index";
+import type { ISchemaResponse, ISchema } from "../types/index";
 
 export async function getSchemaName(): Promise<string> {
   const query = gql`

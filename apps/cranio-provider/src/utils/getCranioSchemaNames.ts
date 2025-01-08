@@ -4,7 +4,7 @@ import type {
   ISettings,
   ISettingsResponse,
   ICranioSchemas,
-} from "../interfaces/index";
+} from "../types/index";
 
 /**
 @name getCranioSchemas
