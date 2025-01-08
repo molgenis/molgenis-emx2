@@ -152,6 +152,9 @@ public class GraphqlDatabaseFieldFactory {
                               selectedKeys.isEmpty() || selectedKeys.contains(setting.getKey()));
               Collector<Map.Entry<String, String>, ?, Map<String, String>> map =
                   Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue);
+              assert entryStream != null;
+              assert map != null;
+
               Map<String, String> selectedSettings = entryStream.collect(map);
               selectedSettings.put(
                   Constants.IS_OIDC_ENABLED, String.valueOf(database.isOidcEnabled()));
