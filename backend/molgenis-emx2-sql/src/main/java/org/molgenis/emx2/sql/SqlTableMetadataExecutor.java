@@ -7,7 +7,6 @@ import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.sql.ChangeLogExecutor.disableChangeLog;
 import static org.molgenis.emx2.sql.MetadataUtils.saveColumnMetadata;
 import static org.molgenis.emx2.sql.SqlColumnExecutor.*;
-import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.getPermissionPrefix;
 import static org.molgenis.emx2.utils.ColumnSort.sortColumnsByDependency;
 
 import java.util.ArrayList;
@@ -32,45 +31,6 @@ class SqlTableMetadataExecutor {
     Table jooqTable = table.getJooqTable();
     jooq.execute("CREATE TABLE {0}()", jooqTable);
     MetadataUtils.saveTableMetadata(jooq, table);
-
-    // create permission types
-
-    // select
-    jooq.execute(
-        "CREATE ROLE {0}", name(getPermissionPrefix(table) + Privileges.SELECT_ALL.toString()));
-
-    // can select records you created
-    jooq.execute(
-        "CREATE ROLE {0}", name(getPermissionPrefix(table) + Privileges.SELECT_OWNER.toString()));
-
-    // can select rerocds if owned by a group you are part of
-    jooq.execute(
-        "CREATE ROLE {0}", name(getPermissionPrefix(table) + Privileges.SELECT_GROUP.toString()));
-
-    // can create rows
-    jooq.execute(
-        "CREATE ROLE {0}", name(getPermissionPrefix(table) + Privileges.INSERT.toString()));
-
-    // can edit rows
-    jooq.execute(
-        "CREATE ROLE {0}", name(getPermissionPrefix(table) + Privileges.EDIT_ALL.toString()));
-
-    // can edit 'own' rows
-    jooq.execute(
-        "CREATE ROLE {0}", name(getPermissionPrefix(table) + Privileges.EDIT_AS_OWNER.toString()));
-
-    // can edit rows when you are part of this group/role
-    jooq.execute(
-        "CREATE ROLE {0}", name(getPermissionPrefix(table) + Privileges.EDIT_AS_GROUP.toString()));
-
-    // manager can change owners and groups
-    jooq.execute(
-        "CREATE ROLE {0}", name(getPermissionPrefix(table) + Privileges.MANAGER.toString()));
-
-    // view
-    jooq.execute(
-        "GRANT SELECT ON {0} TO {1}",
-        jooqTable, name(getPermissionPrefix(table) + Privileges.EXISTS.toString()));
 
     // grant rights to schema manager, editor and viewer role
     jooq.execute(
@@ -353,10 +313,6 @@ class SqlTableMetadataExecutor {
 
   private static String getRolePrefix(TableMetadata table) {
     return SqlSchemaMetadataExecutor.getRolePrefix(table.getSchema().getName());
-  }
-
-  private static String getPermissionPrefix(TableMetadata table) {
-    return SqlSchemaMetadataExecutor.getPermissionPrefix(table.getSchema().getName());
   }
 
   static String updateSearchIndexTriggerFunction(
