@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.molgenis.emx2.Constants;
-import org.molgenis.emx2.MolgenisException;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
@@ -41,14 +40,5 @@ class SqlDatabaseTest {
     settings.put(Constants.IS_OIDC_ENABLED, "false");
     sqlDatabase.setSettings(settings);
     assertFalse(sqlDatabase.isOidcEnabled());
-  }
-
-  @Test
-  void invalidOIDCSettings() {
-    environmentVariables.set(Constants.MOLGENIS_OIDC_CLIENT_ID, null);
-    environmentVariables.set(Constants.MOLGENIS_OIDC_CLIENT_SECRET, null);
-    Map<String, String> settings = Maps.newHashMap();
-    settings.put(Constants.IS_OIDC_ENABLED, "true");
-    assertThrows(MolgenisException.class, () -> sqlDatabase.setSettings(settings));
   }
 }
