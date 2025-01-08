@@ -225,7 +225,6 @@ export interface IOntologyRespItem {
   parent: {
     name: string;
   };
-  selectable: boolean;
 }
 
 export type ButtonType =

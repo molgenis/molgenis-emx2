@@ -128,7 +128,6 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
       </div>
       <div class="flex justify-start items-center ml-4">
         <input
-          v-if="node.selectable"
           type="checkbox"
           :indeterminate="
             node.children?.some((c) => modelValue.includes(c.name)) &&
@@ -145,7 +144,6 @@ function handleChildSelect(selected: string[], parent: ITreeNode) {
           class="flex justify-center items-start hover:cursor-pointer"
         >
           <InputCheckboxIcon
-            v-if="node.selectable"
             :indeterminate="
               node.children?.some((c) => modelValue.includes(c.name)) &&
               !node.children?.every((c) => modelValue.includes(c.name))

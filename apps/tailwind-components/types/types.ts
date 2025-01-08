@@ -15,8 +15,8 @@ export interface INode {
 }
 
 export interface ITreeNode extends INode {
-  children: ITreeNode[];
-  selectable: true;
+  children: 
+  ITreeNode[];
 }
 
 export type ButtonType =

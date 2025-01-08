@@ -36,7 +36,6 @@ function listToTree(list: IOntologyRespItem[]): ITreeNode[] {
       description: repsElement.definition,
       parent: repsElement.parent?.name,
       children: [] as ITreeNode[],
-      selectable: repsElement.selectable,
     };
   });
 
@@ -53,19 +52,7 @@ function listToTree(list: IOntologyRespItem[]): ITreeNode[] {
   return allNodes.filter((n) => !n.parent);
 }
 
-const rootNodes = computed(() =>
-  listToTree(
-    data.map((repsElement) => {
-      return {
-        name: repsElement.name,
-        description: repsElement.definition,
-        parent: repsElement.parent,
-        children: repsElement.children,
-        selectable: true,
-      };
-    })
-  )
-);
+const rootNodes = computed(() => listToTree(data));
 
 const selectedNodesNames = computed({
   get() {
@@ -95,21 +82,7 @@ const filteredNodes = computed(() => {
     }
   }
 
-  function addChildren(
-    node: IOntologyRespItem,
-    children: Set<IOntologyRespItem>
-  ) {
-    const myChildren = data.filter((n) => n.parent?.name === node.name);
-    myChildren?.forEach((child: IOntologyRespItem) => {
-      child.selectable = true;
-      addChildren(child, children);
-      children.add(child);
-    });
-  }
   const parents: Set<IOntologyRespItem> = new Set();
-  const children: Set<IOntologyRespItem> = new Set();
-
-  data.forEach((node) => (node.selectable = false));
 
   const filteredNodes = data.filter((node) => {
     const searchValue = optionsFilter.value.toLowerCase();
@@ -118,14 +91,12 @@ const filteredNodes = computed(() => {
       node.name.toLowerCase().includes(searchValue) ||
       node.definition?.toLowerCase().includes(searchValue)
     ) {
-      node.selectable = true;
       addParents(node, parents);
-      addChildren(node, children);
       return true;
     }
   });
 
-  return Array.from(new Set([...parents, ...children, ...filteredNodes]));
+  return Array.from(new Set([...parents, ...filteredNodes]));
 });
 
 const filteredTree = computed(() => listToTree(filteredNodes.value));
