@@ -6,7 +6,7 @@
     >
       <Spinner />
     </div>
-    <div v-else class="container-fluid">
+    <div v-else-if="study" class="container-fluid">
       <div class="row">
         <div class="col my-3 shadow-sm d-flex p-2 align-items-center bg-white">
           <Breadcrumb
@@ -42,20 +42,22 @@
 
 <script setup>
 import { Breadcrumb, Spinner } from "molgenis-components";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import ReportStudyDetails from "../components/report-components/ReportStudyDetails.vue";
-import StudyReportInfoCard from "../components/report-components/StudyReportInfoCard.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
+import StudyReportInfoCard from "../components/report-components/StudyReportInfoCard.vue";
+import useErrorHandler from "../composables/errorHandler";
 import { getStudyReportInformation } from "../functions/viewmodelMapper";
-import { useStudyStore } from "../stores/studyStore";
 import { useSettingsStore } from "../stores/settingsStore";
+import { useStudyStore } from "../stores/studyStore";
 
 const settingsStore = useSettingsStore();
 const studyStore = useStudyStore();
 
 const route = useRoute();
-const study = ref({});
+const { setError } = useErrorHandler();
+const study = ref();
 
 let loaded = ref(false);
 
@@ -70,7 +72,11 @@ const info = computed(() => {
 function loadStudyReport(id) {
   loaded.value = false;
   studyStore.getStudyReport(id).then((result) => {
-    study.value = result.Studies.length ? result.Studies[0] : {};
+    if (result.Studies?.length) {
+      study.value = result.Studies[0];
+    } else {
+      setError("Study not found");
+    }
     loaded.value = true;
   });
 }
