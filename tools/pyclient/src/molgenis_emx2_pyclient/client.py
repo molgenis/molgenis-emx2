@@ -2,14 +2,12 @@ import csv
 import json
 import logging
 import pathlib
-import sys
 import time
 from functools import cache
 from io import BytesIO
 
 import pandas as pd
 import requests
-from molgenis_emx2_pyclient.exceptions import NoSuchColumnException
 from requests import Response
 
 from . import graphql_queries as queries
@@ -18,11 +16,13 @@ from .constants import HEADING, LOGO, NONREFS
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
-                         PermissionDeniedException, TokenSigninException, NonExistentTemplateException)
+                         PermissionDeniedException, TokenSigninException, NonExistentTemplateException,
+                         NoSuchColumnException)
 from .metadata import Schema, Table
 from .utils import parse_nested_pkeys
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
 
@@ -432,6 +432,7 @@ class Client:
                     else:
                         raise NoSuchColumnException(f"Columns {e.args[0].split('Index(')[1].split(', dtype')}"
                                                     f" not in index.")
+                response_data = response_data.drop_duplicates(keep='first').reset_index(drop=True)
         else:
             query_url = f"{self.url}/{current_schema}/graphql"
             query = self._parse_get_table_query(table_id, columns)
@@ -854,16 +855,21 @@ class Client:
 
         return {col.id: {'between': val}}
 
-    @staticmethod
-    def __prepare_nested_filter(columns: str, value: str | int | float | list, comparison: str):
+    def __prepare_nested_filter(self, columns: str, value: str | int | float | list, comparison: str):
         _filter = {}
         current = _filter
         for (i, segment) in enumerate(columns.split('.')[:-1]):
             current[segment] = {}
             current = current[segment]
         last_segment = columns.split('.')[-1]
-        current[last_segment] = {comparison: value}
+        current[last_segment] = {comparison: self.__prepare_value(value)}
         return _filter
+
+    @staticmethod
+    def __prepare_value(value: str):
+        if value.startswith('[') and value.endswith(']'):
+            return json.loads(value.replace('\'', '"'))
+        return value
 
     @staticmethod
     def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:

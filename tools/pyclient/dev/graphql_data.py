@@ -9,7 +9,7 @@ URL = "https://emx2.dev.molgenis.org"
 SCHEMA = "catalogue"
 
 
-def get_data() -> list:
+def get_data():
     """Fetches data."""
     participant_range = [10_000, 20_000]
     with Client(url=URL, schema=SCHEMA) as client:
@@ -21,26 +21,20 @@ def get_data() -> list:
 
         excluded_countries = ["Denmark", "France"]
         resources = client.get(table="Resources",
-                               columns=["name", "id"],
+                               columns=["id", "name"],
                                query_filter=f"subpopulations.countries.name != {excluded_countries}",
                                as_df=False)
         pprint(resources)
         print(len(resources))
+
         resources = client.get(table="Resources",
-                               columns=["name", "id"],
+                               columns=["id", "name"],
                                query_filter=f"subpopulations.countries.name != {excluded_countries}",
                                as_df=True)
         print(resources.to_string())
         print(len(resources.index))
 
 
-    return subpop
-
-
 
 if __name__ == '__main__':
-    data = get_data()
-    if isinstance(data, list):
-        pprint(data)
-    else:
-        print(data)
+    get_data()
