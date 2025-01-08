@@ -22,6 +22,8 @@ definitions:
   build_config: &build_config
     docker:
     - image: molgenis/ci-build:1.2.4
+      environment:
+        MOLGENIS_OIDC_CLIENT_SECRET: ${KV_OIDC_CLIENT_SECRET}
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -32,9 +34,7 @@ definitions:
     docker:
     - image: molgenis/ci-build:1.2.4
       environment:
-        MOLGENIS_OIDC_CLIENT_ID: "emx2-previews"
         MOLGENIS_OIDC_CLIENT_SECRET: ${KV_OIDC_CLIENT_SECRET}
-        MOLGENIS_OIDC_DISCOVERY_URI: "https://auth1.molgenis.net/realms/Molgenis/.well-known/openid-configuration"
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres

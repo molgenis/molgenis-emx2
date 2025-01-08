@@ -42,7 +42,10 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set ssrCatalogue.environment.siteTitle="Preview Catalogue" \
 --set ssrCatalogue.environment.apiBase=https://${NAME}.dev.molgenis.org/ \
 --set catalogue.includeCatalogueDemo=true \
---set directory.includeDirectoryDemo=true
+--set directory.includeDirectoryDemo=true \
+--set oidc.enabled=false \
+--set oidc.clientId="emx2-previews" \
+--set oidc.d="https://auth1.molgenis.net/realms/Molgenis/.well-known/openid-configuration"
 
 rm /tmp/cert_key
 rm /tmp/cert_pem

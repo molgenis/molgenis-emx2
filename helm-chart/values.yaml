@@ -15,11 +15,8 @@ database:
 
 oidc:
   enabled: false
-#  client_id:
-#  client_secret:
-#  client_name: "MolgenisAuth"
-#  discovery_url: "https://auth.molgenis.org/.well-known/openid-configuration/"
-#  callback_url:
+  client_id: "emx2-previews"
+  discovery_url: "https://auth1.molgenis.net/realms/Molgenis/.well-known/openid-configuration"
 
 service:
   type: ClusterIP
