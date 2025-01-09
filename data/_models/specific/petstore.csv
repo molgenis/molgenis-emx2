@@ -14,6 +14,7 @@ Pet,,,name,,1,true,,,,,,,,,,,Petstore,,the name
 Pet,,,category,ref,,true,,Category,,,,,,,,,Petstore,,
 Pet,,,photoUrls,string_array,,,,,,,,,,,,,Petstore,,
 Pet,,,details,heading,,,,,,,,,,,,,Petstore,,Details
+Pet,,,status,,,,,,,,,,,,,,Petstore,,
 Pet,,,tags,ontology_array,,,,Tag,,,,,,,,,Petstore,,
 Pet,,,weight,decimal,,true,,,,,,,,,,,Petstore,,
 Pet,,,Heading2,heading,,,,,,,,,,,,,Petstore,,

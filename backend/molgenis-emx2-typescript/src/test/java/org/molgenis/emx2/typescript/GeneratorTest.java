@@ -30,7 +30,7 @@ class GeneratorTest {
     File f = new File(this.getClass().getClassLoader().getResource("generateTypes.ts").getFile());
     Schema schema = db.dropCreateSchema(GeneratorTest.class.getSimpleName() + "-PetStore");
 
-    DataModels.Regular.PET_STORE.getImportTask(schema, false).run();
+    DataModels.Profile.PET_STORE.getImportTask(schema, false).run();
     new Generator().generate(schema, f.getPath());
 
     // now compare generated with expected
