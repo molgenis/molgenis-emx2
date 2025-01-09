@@ -58,9 +58,10 @@ export function createUser(newUserName: string, newPassword: string) {
 export async function getRoles(schemas: ISchemaInfo[]): Promise<string[]> {
   if (!schemas.length) return [];
 
+  const gqlUrl = "../../" + schemas[0].id + GRAPHQL;
   return $fetch<{
     data: { _schema: { roles: { name: string }[] } };
-  }>("../" + schemas[0].id + GRAPHQL, {
+  }>(gqlUrl, {
     method: "post",
     body: { query: "{_schema{roles{name}}}" },
   })
