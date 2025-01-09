@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -37,6 +36,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFTest {
@@ -89,8 +89,8 @@ public class RDFTest {
     database = TestDatabaseFactory.getTestDatabase();
     petStore_nr1 = database.dropCreateSchema("petStoreNr1");
     petStore_nr2 = database.dropCreateSchema("petStoreNr2");
-    PET_STORE.getImportTask(petStore_nr1, true).run();
-    PET_STORE.getImportTask(petStore_nr2, true).run();
+    DataModels.Profile.PET_STORE.getImportTask(petStore_nr1, false).run();
+    DataModels.Profile.PET_STORE.getImportTask(petStore_nr2, false).run();
     petStoreSchemas = List.of(petStore_nr1, petStore_nr2);
 
     // Test schema for composite keys
