@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
@@ -40,8 +41,32 @@ public class TestGraphqlSchemaFields {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    final String shopviewer = "shopviewer";
+    final String shopmanager = "shopmanager";
+    final String shopowner = "shopowner";
+    final String costumer = "costumer";
+
+    // initialize users
+    if (!database.hasUser(shopmanager)) {
+      database.setUserPassword(shopmanager, shopmanager);
+    }
+    if (!database.hasUser(shopviewer)) {
+      database.setUserPassword(shopviewer, shopviewer);
+    }
+    if (!database.hasUser(shopowner)) {
+      database.setUserPassword(shopowner, shopowner);
+    }
+    if (!database.hasUser(costumer)) {
+      database.setUserPassword(costumer, costumer);
+    }
     schema = database.dropCreateSchema(schemaName);
-    PET_STORE.getImportTask(schema, true).run();
+    schema.addMember(shopmanager, "Manager");
+    schema.addMember(shopviewer, "Viewer");
+    schema.addMember(shopowner, "Owner");
+    schema.addMember(costumer, "Range");
+    DataModels.getImportTask(schema, PET_STORE.name(), true).run();
+    schema = database.getSchema(schemaName);
+
     taskService = new TaskServiceInMemory();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
   }
