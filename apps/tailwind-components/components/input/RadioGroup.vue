@@ -1,10 +1,6 @@
 <template>
   <div :id="`${id}-radio-group`">
-    <div
-      class="flex justify-start align-center"
-      v-for="option in radioOptions"
-      :key="JSON.stringify(option.value)"
-    >
+    <div v-for="option in radioOptions" class="flex justify-start align-center">
       <InputRadio
         :id="`${id}-radio-group-${option.value}`"
         class="sr-only"
