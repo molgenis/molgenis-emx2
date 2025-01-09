@@ -3,7 +3,7 @@ Utility functions for the Molgenis EMX2 Pyclient package
 """
 import logging
 
-from .constants import INT, FLOAT, DATETIME, BOOL
+from .constants import INT, DECIMAL, DATETIME, BOOL
 
 from .metadata import Table
 
@@ -47,7 +47,7 @@ def convert_dtypes(table_meta: Table) -> dict:
     """Parses column metadata of a table to a dictionary of column ids to pandas dtypes."""
 
     type_map = {INT: 'Int64',
-                FLOAT: 'Float64',
+                DECIMAL: 'Float64',
                 DATETIME: 'datetime64[ns]',
                 BOOL: 'bool'
                 }
