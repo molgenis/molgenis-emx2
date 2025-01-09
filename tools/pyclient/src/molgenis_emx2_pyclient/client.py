@@ -303,6 +303,38 @@ class Client:
         # Report on task progress
         await self._report_task_progress(process_id)
 
+    def truncate(self, table: str, schema: str):
+        """Truncates the table.
+
+        :param table: the name of the table
+        :type table: str
+        :param schema: name of a schema
+        :type schema: str
+        """
+        current_schema = schema
+        if current_schema is None:
+            current_schema = self.default_schema
+
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+
+        if not self._table_in_schema(table, current_schema):
+            raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
+
+        table_id = self.get_schema_metadata(current_schema).get_table(by='name', value=table).id
+        query = queries.truncate()
+
+        response = self.session.post(
+            url=self.api_graphql,
+            json={"query": query, "variables": {"table": table_id}}
+        )
+
+        self._validate_graphql_response(response, mutation='truncate',
+                                        fallback_error_message=f"Failed to truncate table {current_schema}::{table}.")
+        log.info(f"Truncated table {table!r}.")
+
+
+
     def _upload_csv(self, file_path: pathlib.Path, schema: str) -> str:
         """Uploads the CSV file from the filename to the schema. Returns the success or error message."""
         file_name = file_path.name
@@ -332,10 +364,10 @@ class Client:
     def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
 
-        :param schema: name of a schema
-        :type schema: str
         :param table: the name of the table
         :type table: str
+        :param schema: name of a schema
+        :type schema: str
         :param file: location of the file containing records to import or update
         :type file: str
         :param data: a dataset containing records to delete (list of dictionaries)

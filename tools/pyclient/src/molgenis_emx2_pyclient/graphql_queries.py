@@ -133,6 +133,10 @@ def update_schema():
         }
     """
 
+def truncate():
+    """GraphQL query to truncate a table."""
+    return """mutation($table: String) {truncate(tables: [$table]) {message}}"""
+
 
 def list_schemas():
     """GraphQL query to view all available schemas."""
