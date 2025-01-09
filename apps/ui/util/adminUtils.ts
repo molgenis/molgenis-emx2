@@ -3,7 +3,7 @@ const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
 
 export async function deleteUser(user: IUser) {
-  useFetch(API_GRAPHQL, {
+  $fetch(API_GRAPHQL, {
     method: "post",
     body: {
       query: `mutation{removeUser(email: "${user.email}"){status,message}}`,
@@ -16,7 +16,7 @@ export async function deleteUser(user: IUser) {
 
 export async function updateUser(user: IUser) {
   const updateUser = createUpdateUser(user);
-  return useFetch(GRAPHQL, {
+  return $fetch(GRAPHQL, {
     method: "post",
     body: {
       query: `mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}`,
@@ -45,7 +45,7 @@ function createUpdateUser(user: IUser) {
 export function createUser(newUserName: string, newPassword: string) {
   if (!newUserName || !newPassword) return;
 
-  return useFetch(GRAPHQL, {
+  return $fetch(GRAPHQL, {
     method: "post",
     body: {
       query: `mutation{changePassword(email: "${newUserName}", password: "${newPassword}"){status,message}}`,
@@ -58,51 +58,57 @@ export function createUser(newUserName: string, newPassword: string) {
 export async function getRoles(schemas: ISchemaInfo[]): Promise<string[]> {
   if (!schemas.length) return [];
 
-  const { data, error } = await useFetch<{
+  return $fetch<{
     data: { _schema: { roles: { name: string }[] } };
   }>("../" + schemas[0].id + GRAPHQL, {
     method: "post",
     body: { query: "{_schema{roles{name}}}" },
-  });
-
-  if (error.value) {
-    handleError("Error getting roles: ", error);
-  }
-
-  return (
-    data.value?.data._schema.roles.map((role: { name: string }) => role.name) ||
-    []
-  );
+  })
+    .then((response) => {
+      return (
+        response.data._schema.roles.map(
+          (role: { name: string }) => role.name
+        ) || []
+      );
+    })
+    .catch((error) => {
+      handleError("Error getting roles: ", error);
+      return [];
+    });
 }
 
-export async function getSchemas() {
-  const { data } = await useFetch<{ data: { _schemas: ISchemaInfo[] } }>(
-    GRAPHQL,
-    {
-      method: "post",
-      body: {
-        query: "{_schemas{id,label}}",
-      },
-    }
-  );
-  return data.value?.data._schemas || [];
+export function getSchemas() {
+  return $fetch<{ data: { _schemas: ISchemaInfo[] } }>(GRAPHQL, {
+    method: "post",
+    body: {
+      query: "{_schemas{id,label}}",
+    },
+  })
+    .then((response) => {
+      return response.data._schemas || [];
+    })
+    .catch((error) => {
+      handleError("Error getting schemas: ", error);
+      return [];
+    });
 }
 
 export async function getUsers() {
-  const { data, error } = await useFetch<IAdminResponse>(API_GRAPHQL, {
+  return $fetch<IAdminResponse>(API_GRAPHQL, {
     method: "post",
     body: {
       query: `{ _admin { users { email, settings, {key, value}, enabled, roles { schemaId, role } } userCount } }`,
     },
-  });
-
-  if (error.value) {
-    handleError("Error loading users: ", error.value);
-  }
-
-  const newUsers = buildUsers(data.value?.data._admin.users || []);
-  const newUserCount = data.value?.data._admin.userCount ?? 0;
-  return { newUsers, newUserCount };
+  })
+    .then((response) => {
+      const users = buildUsers(response?.data._admin.users || []);
+      const userCount = response?.data._admin.userCount ?? 0;
+      return { newUsers: users, newUserCount: userCount };
+    })
+    .catch((error) => {
+      handleError("Error loading users: ", error.value);
+      return { newUsers: [], newUserCount: 0 };
+    });
 }
 
 function buildUsers(dataUsers: IUser[]) {

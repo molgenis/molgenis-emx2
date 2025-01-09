@@ -76,34 +76,11 @@ import {
 } from "~/util/adminUtils";
 
 /**
- * Component wish list:
- *  Settings icon
- *  Edit icon
- *  Admin icon
- *  Buttongroup
- *  Disabled buttons are not greyed out
- *  Icon button with tooltip
- *  Wider modal
- *  Modal without background scrolling
- *  Modal where I can set the close function as a prop
- *  Generic table components
- *  Password input
- *  Select with more complex objects
- *  RadioGroup with more complex objects
- */
-
-/**
- *  Todos (might be other stories)
- *  Do certain actions need confirmation dialog? -> yes
- *  Does password creating/changing need a double input? -> yes
- *  Search bar for users (scale: 100s of users)
- */
-
-/**
- * Todo list
- * make buttons double click safe
- * put component in right place
- * make stuff look better
+ * Todo:
+ *
+ * Add confirmation dialog to delete user / updating of passwords
+ * Add search bar for users
+ * Make buttons double click safe
  */
 
 definePageMeta({
