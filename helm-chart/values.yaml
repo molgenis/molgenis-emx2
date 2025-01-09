@@ -14,7 +14,6 @@ database:
   password: molgenis
 
 oidc:
-  enabled: false
   client_id: "emx2-previews"
   discovery_url: "https://auth1.molgenis.net/realms/Molgenis/.well-known/openid-configuration"
 
