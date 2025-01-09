@@ -3,8 +3,8 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
-import static org.molgenis.emx2.utils.URIUtils.extractHost;
 import static org.molgenis.emx2.web.FileApi.addFileColumnToResponse;
+import static org.molgenis.emx2.web.MolgenisWebservice.hostUrl;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import org.molgenis.emx2.*;
@@ -24,10 +22,11 @@ import org.molgenis.emx2.tasks.*;
 public class TaskApi {
 
   // todo, make jobs private to the user?
-  public static TaskService taskService = new TaskServiceInDatabase(SYSTEM_SCHEMA);
+  public static final TaskService taskService = new TaskServiceInDatabase(SYSTEM_SCHEMA, hostUrl);
   // to schedule jobs, see MolgenisSessionManager how we keep this in sync with Database using a
   // TableListener
-  public static TaskServiceScheduler taskSchedulerService = new TaskServiceScheduler(taskService);
+  public static final TaskServiceScheduler taskSchedulerService =
+      new TaskServiceScheduler(taskService);
 
   public static void create(Javalin app) {
     app.get("/api/tasks", TaskApi::listTasks);
@@ -72,7 +71,7 @@ public class TaskApi {
     ctx.json(new ObjectMapper().writeValueAsString(taskSchedulerService.scheduledTaskNames()));
   }
 
-  private static void postScript(Context ctx) throws MalformedURLException {
+  private static void postScript(Context ctx) {
     MolgenisSession session = sessionManager.getSession(ctx.req());
     String user = session.getSessionUser();
     if (!"admin".equals(user)) {
@@ -81,8 +80,7 @@ public class TaskApi {
     String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
     String parameters = ctx.body();
 
-    URL host = new URL(extractHost(ctx.url()));
-    String id = taskService.submitTaskFromName(name, parameters, host);
+    String id = taskService.submitTaskFromName(name, parameters);
     ctx.json(new TaskReference(id));
   }
 
@@ -99,16 +97,28 @@ public class TaskApi {
             : null;
     String id = taskService.submitTaskFromName(name, parameters);
     // wait until done or timeout
-    int timeout = 0;
     Task task = taskService.getTask(id);
-    // timeout a minute for these I would say?
-    while (task.isRunning() && timeout < 120) {
+    int maxTimeout = 120;
+    int stepSizeInMs = 500;
+    int timeout = 0;
+    while (task.isRunning() && timeout < maxTimeout) {
       task = taskService.getTask(id);
       timeout++;
-      Thread.sleep(500);
+      Thread.sleep(stepSizeInMs);
     }
-    // get the output as bytes
-    ctx.result(((ScriptTask) task).getOutput());
+    if (task.isRunning()) {
+      throw new MolgenisException(
+          "Task timed out after " + (maxTimeout * stepSizeInMs / 1000) + "s");
+    }
+    if (!task.getStatus().equals(TaskStatus.COMPLETED)) {
+      throw new MolgenisException("Task failed with status " + task.getStatus());
+    }
+    byte[] outputFileBytes = ((ScriptTask) task).getOutput();
+    if (outputFileBytes != null) {
+      ctx.result(outputFileBytes);
+    } else {
+      ctx.result("Task succeeded with no output file");
+    }
   }
 
   private static void getTaskOutput(Context ctx) throws IOException {

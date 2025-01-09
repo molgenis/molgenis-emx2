@@ -1,0 +1,11 @@
+[
+  {
+    "id": "bbmri-eric:factID:NL_valid-factID",
+    "collection": "bbmri-eric:ID:NL_valid-collectionID-1"
+  },
+  {
+    "id": "bbmri-eric:NL_invalid:factsID",
+    "collection": "bbmri-eric:ID:NL_valid:collectionID-2"
+  }
+
+]

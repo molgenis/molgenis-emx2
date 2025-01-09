@@ -57,7 +57,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 43 | Use the browser's ⬅️ button | The user goes back to [/ssr-catalogue/all/variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables) | | |
 | 44 | Hover over the `VARIABLES` button | `VARIABLES` underlined | | |
 | 45 | Click on the `VARIABLES` button | The page is reloaded | | |
-| 46 | Hover over `MORE` | A drop-down menu with `Networks`, `Other catalogues` and `Upload data` presented as options | | |
+| 46 | Hover over `MORE` | A drop-down menu with `Other catalogues` and `Upload data` presented as options | | |
 | 47 | Click on `Networks` | The user goes to [/ssr-catalogue/all/networks](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/networks) | | |
 | 48 | Use the browser's ⬅️ button | The user goes back to [/ssr-catalogue/all/variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables) | | |
 | 48b | Hover over `MORE` | A drop-down menu is presented with `Other catalogues` and `Upload data` as options | | |
@@ -115,7 +115,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 99b | Use the browser's ⬅️ button | The user goes back to [/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | | |
 | 100a | Click on **OOM** under *Project Catalogues* | The user goes to [/ssr-catalogue/OOM](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/OOM). | | |
 | 100b | | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `ABOUT`, `MORE` | | |
-| 101 | Hover on `MORE` | 4 options are provided: `Other catalogues`, `Upload data` | | |
+| 101 | Hover on `MORE` | 2 options are provided: `Other catalogues`, `Upload data` | | |
 | 102 | Click on `Other Catalogues` | The user goes to [/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | | |
 | | [THIS EXTRA TEST STEP CAN BE RENDERED INVALID BY PRODUCTION DATA FOR LONGITOOLS BEING COPIED INTO ACC - SEE IT AS A BONUS STEP!] | | | |
 | 103a | Click on **LongITools** under *Project Catalogues* | The user goes to [/ssr-catalogue/LongITools](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/LongITools). | | |
