@@ -12,7 +12,7 @@ from requests import Response
 
 from . import graphql_queries as queries
 from . import utils
-from .constants import HEADING, LOGO, NONREFS
+from .constants import HEADING, LOGO
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
@@ -1090,14 +1090,12 @@ class Client:
 
         query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
                  f"  {table_id}(filter: $filter) {{\n")
-        # query = f"{{\n  {table_id} {{\n"
+
         for col in table_metadata.columns:
             if columns is not None and (col.id not in columns and col.name not in columns):
                 continue
             if col.get('columnType') in [HEADING, LOGO]:
                 continue
-            elif col.get('columnType') in NONREFS:
-                query += f"    {col.get('id')}\n"
             elif col.get('columnType').startswith('ONTOLOGY'):
                 query += f"    {col.get('id')} {{name}}\n"
             elif col.get('columnType').startswith('REF'):
@@ -1106,7 +1104,7 @@ class Client:
                 query += parse_nested_pkeys(pkeys)
                 query += "}\n"
             else:
-                log.warning(f"Caught column type {col.get('columnType')!r}.")
+                query += f"    {col.get('id')}\n"
         query += "  }\n"
         query += "}"
 
