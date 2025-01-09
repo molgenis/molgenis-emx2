@@ -110,7 +110,8 @@ test("computedExpressionComplex", async ({ page }) => {
     .locator("#Tag-edit-modal-label")
     .fill("test1");
   await page.getByRole("button", { name: "Save Tag" }).click();
-  await page.locator('#Tag-edit-modal-tags').getByRole("button", { name: "" }).click();
+  await page.getByRole('columnheader', { name: '# ' }).getByRole('button').click();
+  
   await page
     .locator("span")
     .filter({ hasText: "name (required) name is" })

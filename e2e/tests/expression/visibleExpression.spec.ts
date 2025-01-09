@@ -23,9 +23,9 @@ test("visibleExpressionDECIMAL", async ({ page }) => {
   await page.getByRole("link", { name: "Tables" }).click();
   await page.getByRole("link", { name: "Order" }).click();
   await page.getByRole("button", { name: "" }).click();
-  await page.locator("input#Pet-edit-modal-weight").click();
-  await page.locator("input#Pet-edit-modal-weight").fill("8");
-  await page.locator("input#Pet-edit-modal-weight").check();
+  await page.locator('input#Order-edit-modal-price').click();
+  await page.locator('input#Order-edit-modal-price').fill("8");
+  await page.getByLabel("Yes").check();
   await expect(
     page.locator("#Order-edit-modal-complete").getByText("complete")
   ).toBeVisible();
@@ -34,8 +34,8 @@ test("visibleExpressionDECIMAL", async ({ page }) => {
   );
   await page.getByRole("button", { name: "Save Order" }).click();
   await page.getByRole("button", { name: "" }).click();
-  await page.locator("input#Pet-edit-modal-weight").click();
-  await page.locator("input#Pet-edit-modal-weight").fill("7");
+  await page.locator("input#Order-edit-modal-price").click();
+  await page.locator("input#Order-edit-modal-price").fill("7");
   await expect(
     page.locator("#Order-edit-modal-complete").getByText("complete")
   ).toBeHidden();
