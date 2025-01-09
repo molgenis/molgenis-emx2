@@ -47,18 +47,11 @@ public class TestGraphqlSchemaFields {
     final String costumer = "costumer";
 
     // initialize users
-    if (!database.hasUser(shopmanager)) {
-      database.setUserPassword(shopmanager, shopmanager);
-    }
-    if (!database.hasUser(shopviewer)) {
-      database.setUserPassword(shopviewer, shopviewer);
-    }
-    if (!database.hasUser(shopowner)) {
-      database.setUserPassword(shopowner, shopowner);
-    }
-    if (!database.hasUser(costumer)) {
-      database.setUserPassword(costumer, costumer);
-    }
+    database.setUserPassword(shopmanager, shopmanager);
+    database.setUserPassword(shopviewer, shopviewer);
+    database.setUserPassword(shopowner, shopowner);
+    database.setUserPassword(costumer, costumer);
+
     schema = database.dropCreateSchema(schemaName);
     schema.addMember(shopmanager, "Manager");
     schema.addMember(shopviewer, "Viewer");
