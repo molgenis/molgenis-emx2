@@ -40,7 +40,7 @@ class Client:
         self._token = token
         self._job = job
 
-        self.url: str = url
+        self.url: str = url if not url.endswith('/') else url[:-1]
         self.api_graphql = self.url + "/api/graphql"
 
         self.signin_status: str = 'unknown'
@@ -417,6 +417,8 @@ class Client:
         if as_df:
             if filter_part:
                 filter_part = "?filter=" + json.dumps(filter_part)
+            else:
+                filter_part = ""
             query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
             response = self.session.get(url=query_url)
             self._validate_graphql_response(response=response,
