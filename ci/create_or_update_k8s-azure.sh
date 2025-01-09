@@ -44,9 +44,9 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set catalogue.includeCatalogueDemo=true \
 --set directory.includeDirectoryDemo=true \
 --set oidc.enabled=false \
---set oidc.clientId="emx2-previews" \
+--set oidc.client_id="emx2-previews" \
 --set oidc.discovery_url="https://auth1.molgenis.net/realms/Molgenis/.well-known/openid-configuration" \
---set oidc.clientSecret=${OIDC_SECRET}
+--set oidc.client_secret=${OIDC_SECRET}
 
 rm /tmp/cert_key
 rm /tmp/cert_pem
