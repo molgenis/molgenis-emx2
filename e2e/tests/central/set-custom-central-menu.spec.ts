@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('test set custom database level menu', async ({ page }) => {
-  await page.goto('http://localhost:8080/apps/central/');
+  await page.goto('/apps/central/');
   await page.getByRole('button', { name: 'Sign in' }).click();
   await page.getByPlaceholder('Enter username').click();
   await page.getByPlaceholder('Enter username').fill('admin');
