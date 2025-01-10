@@ -43,6 +43,8 @@ export async function getDashboardPage(
             dataPointSeries
             dataPointPrimaryCategory
             dataPointSecondaryCategory
+            dataPointPrimaryCategoryLabel
+            dataPointSecondaryCategoryLabel
             dataPointTime
             dataPointTimeUnit
             dataPointColor
@@ -99,6 +101,8 @@ export async function getDashboardChart(
           dataPointSeries
           dataPointPrimaryCategory
           dataPointSecondaryCategory
+          dataPointPrimaryCategoryLabel
+          dataPointSecondaryCategoryLabel
           dataPointTime
           dataPointTimeUnit
           dataPointColor

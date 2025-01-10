@@ -67,8 +67,8 @@
             updateSurgeryAgeChart();
           "
         >
-          <option v-for="diagnosis in diagnoses" :value="diagnosis">
-            {{ diagnosis }}
+          <option v-for="diagnosis in diagnoses" :value="diagnosis.value">
+            {{ diagnosis.label }}
           </option>
         </select>
       </DashboardChart>
@@ -289,11 +289,21 @@ onMounted(() => {
       selectedSurgeryType.value = surgeryTypesChartData.value![0].dataPointName;
 
       // set diagnoses and starting value
-      diagnoses.value = uniqueValues(
-        interventionsChart.value?.dataPoints,
-        "dataPointPrimaryCategory"
+      const allDiagnoses = interventionsChart.value.dataPoints?.map(
+        (row: IChartData) => {
+          return {
+            value: row.dataPointPrimaryCategory,
+            label:
+              row.dataPointPrimaryCategoryLabel || row.dataPointPrimaryCategory,
+          };
+        }
       );
-      selectedDiagnosis.value = "ORPHA:87";
+
+      diagnoses.value = [
+        ...new Map(allDiagnoses.map((row) => [row["label"], row])).values(),
+      ].sort((a, b) => a.label.localeCompare(b.label));
+
+      selectedDiagnosis.value = diagnoses.value[0].value;
     })
     .then(() => {
       updateComplicationsChart();

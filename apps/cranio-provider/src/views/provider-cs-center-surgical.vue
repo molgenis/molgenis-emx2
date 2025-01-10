@@ -62,8 +62,8 @@
             updateSurgeryAgeChart();
           "
         >
-          <option v-for="diagnosis in diagnoses" :value="diagnosis">
-            {{ diagnosis }}
+          <option v-for="diagnosis in diagnoses" :value="diagnosis.value">
+            {{ diagnosis.label }}
           </option>
         </select>
       </DashboardChart>
@@ -167,7 +167,7 @@ const props = defineProps<IAppPage>();
 const loading = ref<boolean>(true);
 const surgeryTypes = ref<string[]>();
 const selectedSurgeryType = ref<string>();
-const diagnoses = ref<string[]>();
+const diagnoses = ref<IKeyValuePair[]>();
 const selectedDiagnosis = ref<string>();
 const complicationsChart = ref<ICharts>();
 const complicationsChartData = ref<IChartData[]>();
@@ -311,11 +311,21 @@ onMounted(() => {
       selectedSurgeryType.value = surgeryTypes.value[0];
 
       // set diagnoses and set starting value
-      diagnoses.value = uniqueValues(
-        (interventionsChart.value as ICharts).dataPoints,
-        "dataPointPrimaryCategory"
+      const allDiagnoses = interventionsChart.value.dataPoints?.map(
+        (row: IChartData) => {
+          return {
+            value: row.dataPointPrimaryCategory,
+            label:
+              row.dataPointPrimaryCategoryLabel || row.dataPointPrimaryCategory,
+          };
+        }
       );
-      selectedDiagnosis.value = "ORPHA:87";
+
+      diagnoses.value = [
+        ...new Map(allDiagnoses.map((row) => [row["label"], row])).values(),
+      ].sort((a, b) => a.label.localeCompare(b.label));
+
+      selectedDiagnosis.value = diagnoses.value[0].value;
     })
     .then(() => {
       updateComplicationsChart();

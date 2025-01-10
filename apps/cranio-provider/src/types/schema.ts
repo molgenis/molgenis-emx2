@@ -30,6 +30,8 @@ export interface IChartData {
   dataPointSeries?: string;
   dataPointPrimaryCategory?: string;
   dataPointSecondaryCategory?: string;
+  dataPointPrimaryCategoryLabel?: string;
+  dataPointSecondaryCategoryLabel?: string;
   dataPointTime?: string | number;
   dataPointTimeUnit?: string;
   dataPointColor?: string;
