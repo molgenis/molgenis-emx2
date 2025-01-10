@@ -10,7 +10,7 @@ test('test set custom database level menu', async ({ page }) => {
   await page.getByRole('dialog').getByRole('button', { name: 'Sign in' }).click();
   await page.getByRole('link', { name: 'Admin' }).click();
   await page.getByRole('link', { name: 'Settings' }).click();
-  await page.getByRole('button', { name: '' }).click();
+  await page.getByLabel('Add').click();
   await page.locator('input[type="text"]').click();
   await page.locator('input[type="text"]').fill('menu');
   await page.locator('textarea').click();
@@ -34,7 +34,7 @@ test('test set custom database level menu', async ({ page }) => {
   await page.getByRole('dialog').getByRole('button', { name: 'Sign in' }).click();
   await page.getByRole('link', { name: 'Admin' }).click();
   await page.getByRole('link', { name: 'Settings' }).click();
-  await page.getByRole('row', { name: '  menu [{"label":"Blabla","' }).getByRole('button').nth(1).click();
+  await page.getByLabel('Edit-meu').click();
   await page.getByRole('button', { name: 'Delete Setting' }).click();
   await page.getByRole('button', { name: 'Sign out' }).click();
 });
