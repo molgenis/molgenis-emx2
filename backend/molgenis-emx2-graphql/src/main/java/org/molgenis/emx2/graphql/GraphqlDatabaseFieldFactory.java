@@ -148,8 +148,6 @@ public class GraphqlDatabaseFieldFactory {
                   filtered.put(setting.getKey(), setting.getValue());
                 }
               }
-              filtered.put(Constants.IS_OIDC_ENABLED, String.valueOf(database.isOidcEnabled()));
-
               return mapSettingsToGraphql(filtered);
             });
   }

@@ -179,9 +179,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       clearCache();
 
       if (!this.getSettings().containsKey(Constants.IS_OIDC_ENABLED)) {
-        this.setSetting(
-            Constants.IS_OIDC_ENABLED,
-            (String) EnvironmentProperty.getParameter(MOLGENIS_OIDC_CLIENT_ID, "false", STRING));
+        String oidc_client_id =
+            (String) EnvironmentProperty.getParameter(MOLGENIS_OIDC_CLIENT_ID, null, STRING);
+        this.setSetting(Constants.IS_OIDC_ENABLED, String.valueOf(oidc_client_id != null));
       }
 
       String instanceId = getSetting(Constants.MOLGENIS_INSTANCE_ID);
