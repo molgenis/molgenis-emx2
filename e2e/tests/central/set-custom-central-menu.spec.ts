@@ -18,11 +18,10 @@ test('test set custom database level menu', async ({ page }) => {
   await page.locator('textarea').fill('[{"label":"Blabla","href":"https://google.com"}]');
   await page.getByRole('button', { name: 'Create Setting' }).click();
   await page.getByRole('button', { name: 'Sign out' }).click();
-  await page.getByLabel('Close').click();
-  await page.getByRole('link', { name: 'brand-logo' }).click();
 
 
   // test menu item is shown
+  await page.goto('/apps/central/');
   await expect(page.getByRole('listitem')).toContainText('Blabla');
 
   // cleanup
@@ -34,7 +33,7 @@ test('test set custom database level menu', async ({ page }) => {
   await page.getByRole('dialog').getByRole('button', { name: 'Sign in' }).click();
   await page.getByRole('link', { name: 'Admin' }).click();
   await page.getByRole('link', { name: 'Settings' }).click();
-  await page.getByLabel('Edit-meu').click();
+  await page.getByLabel('Remove-menu').click();
   await page.getByRole('button', { name: 'Delete Setting' }).click();
   await page.getByRole('button', { name: 'Sign out' }).click();
 });
