@@ -61,6 +61,10 @@ function toggleLayout () {
             </label>
           </div>
           <div class="px-1">
+            <input class="hover:cursor-pointer mr-2" id="molgenis-theme" type="radio" v-model="theme" value="molgenis" />
+            <label class="hover:cursor-pointer" for="molgenis-theme"> Molgenis </label>
+          </div>
+          <div class="px-1">
             <input class="hover:cursor-pointer mr-2" id="umcg-theme" type="radio" v-model="theme" value="umcg" />
             <label class="hover:cursor-pointer" for="umcg-theme"> UMCG </label>
           </div>
