@@ -167,12 +167,10 @@ const metadataQuery = `{
   _schema {
     id,
     tables {
-      schemaId,
       id,
       label, 
       description,
       tableType,
-      schemaId,
       semantics,
       columns {
         id,

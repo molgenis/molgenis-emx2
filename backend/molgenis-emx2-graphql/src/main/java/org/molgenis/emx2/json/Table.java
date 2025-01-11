@@ -17,8 +17,6 @@ public class Table {
   private String inheritName;
   private List<LanguageValue> labels = new ArrayList<>();
   private List<LanguageValue> descriptions = new ArrayList<>();
-  private String schemaName;
-  private String schemaId;
   private Collection<String[]> unique = new ArrayList<>();
   private Collection<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
@@ -132,14 +130,6 @@ public class Table {
     this.settings = settings;
   }
 
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
-  }
-
   public String[] getSemantics() {
     return semantics;
   }
@@ -202,14 +192,6 @@ public class Table {
 
   public void setDescription(String description) {
     this.description = description;
-  }
-
-  public String getSchemaId() {
-    return schemaId;
-  }
-
-  public void setSchemaId(String schemaId) {
-    this.schemaId = schemaId;
   }
 
   public String[] getProfiles() {

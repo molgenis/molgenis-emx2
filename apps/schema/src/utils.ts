@@ -11,7 +11,6 @@ export const schemaQuery = gql`
       name
       tables {
         name
-        schemaName
         tableType
         inheritName
         labels {
@@ -199,7 +198,6 @@ export function addTableIdsLabelsDescription(originalTable: ITableMetaData) {
   table.id = convertToPascalCase(table.name);
   table.label = getLocalizedLabel(table);
   table.description = getLocalizedDescription(table, "en");
-  table.schemaId = table.schemaName;
   table.inheritId = convertToPascalCase(table.inheritName);
   table.columns = table.columns.map((column) => {
     column.id = convertToCamelCase(column.name);
