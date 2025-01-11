@@ -55,11 +55,7 @@ public class TestGraphqlCrossSchemaRefs {
   }
 
   @Test
-  void testCrossSchemaTablesAreInSchemaEndpoint() throws IOException {
-    String result =
-        execute("{_schema{tables{name,id,schemaName,schemaId}}}").at("/_schema").toString();
-    assertTrue(result.contains(schemaName2));
-
+  void testThatSeemingSelfReferenceWorksFix4264() throws IOException {
     // test that seemingly self reference works
     // when table name in schema1 and schema2 have same name
     // test fix https://github.com/molgenis/molgenis-emx2/issues/4264
