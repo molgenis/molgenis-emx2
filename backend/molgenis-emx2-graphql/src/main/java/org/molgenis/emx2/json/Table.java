@@ -41,6 +41,7 @@ public class Table {
     this.description = tableMetadata.getDescription();
     this.labels =
         tableMetadata.getLabels().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.id = tableMetadata.getIdentifier();
@@ -52,6 +53,7 @@ public class Table {
     }
     this.descriptions =
         tableMetadata.getDescriptions().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics = tableMetadata.getSemantics();
@@ -59,8 +61,6 @@ public class Table {
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
-    this.schemaName = tableMetadata.getSchemaName();
-    this.schemaId = tableMetadata.getSchema().getName(); // todo? getIdentifier?
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
       this.columns.add(new Column(column, tableMetadata, minimal));
     }

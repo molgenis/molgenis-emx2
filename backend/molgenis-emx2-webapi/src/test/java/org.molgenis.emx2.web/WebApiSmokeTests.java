@@ -46,6 +46,8 @@ public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
+  public static final String PET_SHOP_VIEWER = "shopviewer";
+  public static final String PET_SHOP_MANAGER = "shopmanager";
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
   public static final String TABLE_WITH_SPACES = "table with spaces";
   public static final String PET_STORE_SCHEMA = "pet store";
@@ -91,6 +93,11 @@ public class WebApiSmokeTests {
     PET_STORE.getImportTask(schema, true).run();
 
     // grant a user permission
+    db.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
+    db.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
+    db.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER);
+    schema.addMember(PET_SHOP_MANAGER, Privileges.MANAGER.toString());
+    schema.addMember(PET_SHOP_VIEWER, Privileges.VIEWER.toString());
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
@@ -108,7 +115,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testApiRoot() {
     String result =
         given()
@@ -123,7 +129,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testCsvApi_zipUploadDownload() throws IOException {
     // get original schema
     String schemaCsv =
@@ -160,7 +165,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testReports() throws IOException {
     // create a new schema for report
     Schema schema = db.dropCreateSchema("pet store reports");
@@ -251,7 +255,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testCsvApi_csvTableMetadataUpdate() throws IOException {
 
     // fresh schema for testing
@@ -322,7 +325,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testCsvApi_csvUploadDownload() throws IOException {
     // create a new schema for complete csv data round trip
     db.dropCreateSchema(CSV_TEST_SCHEMA);
@@ -392,7 +394,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testCsvApi_tableFilter() {
     String result =
         given()
@@ -445,7 +446,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testJsonYamlApi() {
     String schemaJson = given().sessionId(SESSION_ID).when().get("/pet store/api/json").asString();
 
@@ -502,7 +502,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testExcelApi() throws IOException, InterruptedException {
 
     // download json schema
@@ -586,7 +585,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testCsvApi_tableCsvUploadDownload() {
 
     String path = "/pet store/api/csv/Tag";
@@ -607,7 +605,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testGraphqlApi() {
     String path = "/api/graphql";
 
@@ -718,7 +715,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testBootstrapThemeService() {
     // should success
     String css = given().when().get("/pet store/tables/theme.css?primaryColor=123123").asString();
@@ -730,7 +726,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testMolgenisWebservice_redirectToFirstMenuItem() {
     given()
         .redirects()
@@ -790,7 +785,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testTokenBasedAuth() throws JsonProcessingException {
 
     // check if we can use temporary token
@@ -875,13 +869,11 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   public void testMolgenisWebservice_robotsDotTxt() {
     when().get("/robots.txt").then().statusCode(200).body(equalTo("User-agent: *\nAllow: /"));
   }
 
   @Test
-  @Disabled
   public void testRdfApiRequest() {
     final String urlPrefix = "http://localhost:" + PORT;
 
@@ -928,7 +920,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled
   void testRdfApiContent() {
     // Output from global API call.
     String resultBase =
