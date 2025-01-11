@@ -63,10 +63,7 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
     //normal tables
     let tables = !schema.tables
       ? []
-      : schema.tables.filter(
-          (table) =>
-            table.tableType !== "ONTOLOGIES" && table.schemaName === schema.name
-        );
+      : schema.tables.filter((table) => table.tableType !== "ONTOLOGIES");
     tables.forEach((t) => {
       t.oldName = t.name;
       if (t.columns) {
@@ -83,10 +80,7 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
     });
     schema.ontologies = !schema.tables
       ? []
-      : schema.tables.filter(
-          (table) =>
-            table.tableType === "ONTOLOGIES" && table.schemaName === schema.name
-        );
+      : schema.tables.filter((table) => table.tableType === "ONTOLOGIES");
     //set old name so we can delete them properly
     schema.ontologies.forEach((o) => {
       o.oldName = o.name;
