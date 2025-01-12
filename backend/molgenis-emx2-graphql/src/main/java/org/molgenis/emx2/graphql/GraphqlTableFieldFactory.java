@@ -429,7 +429,12 @@ public class GraphqlTableFieldFactory {
       if (TableType.ONTOLOGIES.equals(table.getTableType())) {
         filterBuilder.field(
             GraphQLInputObjectField.newInputObjectField()
-                .name(MATCH_ANY_IN_SUBTREE)
+                .name(MATCH_INCLUDING_CHILDREN)
+                .type(GraphQLList.list(Scalars.GraphQLString))
+                .build());
+        filterBuilder.field(
+            GraphQLInputObjectField.newInputObjectField()
+                .name(MATCH_INCLUDING_PARENTS)
                 .type(GraphQLList.list(Scalars.GraphQLString))
                 .build());
       }
@@ -571,7 +576,8 @@ public class GraphqlTableFieldFactory {
                   ((List<Map<String, Object>>) entry.getValue())
                       .stream().map(v -> createKeyFilter(table, v)).collect(Collectors.toList())));
         }
-      } else if (entry.getKey().equals(MATCH_ANY_IN_SUBTREE)) {
+      } else if (entry.getKey().equals(MATCH_INCLUDING_CHILDREN)
+          || entry.getKey().equals(MATCH_INCLUDING_PARENTS)) {
         // skip, handled on parent column. Need re-architecture in next major release.
       } else {
         // find column by escaped name
@@ -588,13 +594,21 @@ public class GraphqlTableFieldFactory {
         Column c = optional.get();
         Map value = (Map) entry.getValue();
         // although nested, this should apply on this level, not sublevel
-        if (value.containsKey(MATCH_ANY_IN_SUBTREE)) {
+        if (value.containsKey(MATCH_INCLUDING_CHILDREN)) {
           subFilters.add(
               f(
                   c.getName(),
-                  Operator.MATCH_ANY_IN_SUBTREE,
-                  ((List) value.get(MATCH_ANY_IN_SUBTREE)).toArray(new String[0])));
-          value.remove(MATCH_ANY_IN_SUBTREE);
+                  Operator.MATCH_INCLUDING_CHILDREN,
+                  ((List) value.get(MATCH_INCLUDING_CHILDREN)).toArray(new String[0])));
+          value.remove(MATCH_INCLUDING_CHILDREN);
+        }
+        if (value.containsKey(MATCH_INCLUDING_PARENTS)) {
+          subFilters.add(
+              f(
+                  c.getName(),
+                  Operator.MATCH_INCLUDING_PARENTS,
+                  ((List) value.get(MATCH_INCLUDING_PARENTS)).toArray(new String[0])));
+          value.remove(MATCH_INCLUDING_PARENTS);
         }
         if (value.size() == 0) continue;
         if (c.isReference()) {

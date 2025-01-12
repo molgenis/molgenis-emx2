@@ -41,7 +41,8 @@ public class FilterBean implements Filter {
   }
 
   public static Filter f(Operator operator, Object... values) {
-    if (Operator.MATCH_ANY_IN_SUBTREE.equals(operator)) {
+    if (Operator.MATCH_INCLUDING_CHILDREN.equals(operator)
+        || Operator.MATCH_INCLUDING_PARENTS.equals(operator)) {
       return new FilterBean(operator.getName(), operator, values);
     }
     // this will translate to search

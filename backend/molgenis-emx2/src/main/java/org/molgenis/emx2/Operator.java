@@ -16,9 +16,12 @@ public enum Operator {
   TEXT_SEARCH("text_search", "Uses to_tsquery('value:*') text search operator"), // text search
   TRIGRAM_SEARCH("trigram_search", "Uses WORD_SIMILARITY operator based on trigram matches"),
   // ontology
-  MATCH_ANY_IN_SUBTREE(
-      "match_any_in_subtree",
-      "Can be used for ontology(array) to find if (any of) the term exists in ontology subtree including itself");
+  MATCH_INCLUDING_CHILDREN(
+      "match_including_children",
+      "Can be used for ontology(array) to find if (any of) the term exists in ontology subtree including itself"),
+  MATCH_INCLUDING_PARENTS(
+      "match_including_parents",
+      "Can be used for ontology(array) to find if (any of) the term exists in ontology parents including itself");
 
   private String name;
   private String description;

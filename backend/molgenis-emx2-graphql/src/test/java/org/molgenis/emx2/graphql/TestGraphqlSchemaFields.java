@@ -47,14 +47,22 @@ public class TestGraphqlSchemaFields {
   }
 
   @Test
-  void testMatchAnyInSubtree() throws IOException {
+  void testMatchInParentsAndChildren() throws IOException {
+    // just to check syntax works, the real tests live in sql
     String result =
-        execute("{Pet(filter:{tags:{match_any_in_subtree:\"colors\"}}){name}}").toString();
+        execute("{Pet(filter:{tags:{match_including_children:\"colors\"}}){name}}").toString();
     assertTrue(result.contains("tom"));
     assertFalse(result.contains("pooky")); // poor pooky has no color
 
     result =
-        execute("{Pet(filter:{tags:{match_any_in_subtree:[\"green\",\"blue\"]}}){name}}")
+        execute("{Pet(filter:{tags:{match_including_children:[\"green\",\"blue\"]}}){name}}")
+            .toString();
+    assertTrue(result.contains("jerry"));
+    assertTrue(result.contains("spike"));
+    assertFalse(result.contains("tom")); // tom is red
+
+    result =
+        execute("{Pet(filter:{tags:{match_including_parents:[\"green\",\"blue\"]}}){name}}")
             .toString();
     assertTrue(result.contains("jerry"));
     assertTrue(result.contains("spike"));

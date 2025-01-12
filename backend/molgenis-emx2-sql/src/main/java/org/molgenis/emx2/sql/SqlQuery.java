@@ -435,12 +435,20 @@ public class SqlQuery extends QueryBean {
           Column c = getColumnByName(table, f.getColumn());
           if (c.isReference()) {
             SelectSelectStep<?> subQuery = null;
-            if (MATCH_ANY_IN_SUBTREE.equals(f.getOperator())) {
+            if (MATCH_INCLUDING_CHILDREN.equals(f.getOperator())) {
               // for future refactoring, try to apply this to the ref instead of ontology pkey
               subQuery =
                   DSL.select(
                       field(
-                          "\"MOLGENIS\".get_expanded_ontology_terms({0},{1},{2})",
+                          "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
+                          c.getRefTable().getSchemaName(),
+                          c.getRefTable().getTableName(),
+                          TypeUtils.toStringArray(f.getValues())));
+            } else if (MATCH_INCLUDING_PARENTS.equals(f.getOperator())) {
+              subQuery =
+                  DSL.select(
+                      field(
+                          "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
                           c.getRefTable().getSchemaName(),
                           c.getRefTable().getTableName(),
                           TypeUtils.toStringArray(f.getValues())));
