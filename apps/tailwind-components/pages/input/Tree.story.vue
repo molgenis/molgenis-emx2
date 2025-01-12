@@ -20,7 +20,7 @@ const width = 2;
 const depth = 3;
 const nodes = generateTreeData(width, depth);
 
-const selectedNodesNames: Ref<string[]> = ref(["Node 0"]);
+const selectedNodesNames: Ref<string[]> = ref([]);
 
 const clearSelection = () => {
   selectedNodesNames.value = [];

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+/* Possible future enhancements
+- split the search out to a wrapping component
+ */
+
 import type { ITreeNode, ITreeNodeState } from "~/types/types";
 import TreeNode from "./TreeNode.vue";
 
@@ -14,7 +18,7 @@ const props = withDefaults(
     /* whether colors should be inverted */
     inverted?: boolean;
     /* whether to include/exclude children of selected nodes in emit */
-    emitSelectedChildren: boolean;
+    emitSelectedChildren?: boolean;
   }>(),
   {
     isMultiSelect: true,
@@ -51,6 +55,7 @@ function clone(node: ITreeNode): ITreeNodeState {
     children: [] as ITreeNodeState[],
     selection: "unselected",
     expanded: false,
+    selectable: true,
   };
   node.children?.forEach((child) => {
     const copy = clone(child);
@@ -138,6 +143,10 @@ function toggleSelect(name: string) {
 
   //emit the selected node names
   //optionally excluding selected childnodes
+  emitSelection();
+}
+
+function emitSelection() {
   emit(
     "update:modelValue",
     Object.values(nodeMap.value)
@@ -167,6 +176,7 @@ watch(optionsSearch, (newValue, oldValue) => {
       Object.values(nodeMap.value).forEach((node) => {
         node.visible = false;
         node.expanded = false;
+        node.selectable = false;
       });
       const searchValue = optionsSearch.value.toLowerCase();
       rootNodes.value.forEach((node) => {
@@ -184,6 +194,7 @@ watch(optionsSearch, (newValue, oldValue) => {
       Object.values(nodeMap.value).forEach((node) => {
         node.visible = true;
         node.expanded = false;
+        node.selectable = true;
       });
     }
   }
@@ -195,9 +206,17 @@ function applySearch(searchValue: string, node: ITreeNodeState) {
     node.description?.toLowerCase().includes(searchValue)
   ) {
     node.visible = true;
-    getAllChildren(node).forEach((child) => (child.visible = true));
+    node.selectable = true;
+    getAllChildren(node).forEach((child) => {
+      child.visible = true;
+      child.selectable = true;
+    });
     getAllParents(node).forEach((parent) => {
       parent.visible = true;
+      //parents not selectable because might be incomplete, unless all children are visible
+      if (!parent.children.some((child) => !child.visible)) {
+        parent.selectable = true;
+      }
     });
   } else {
     node.children.forEach((child) => applySearch(searchValue, child));
