@@ -4,7 +4,7 @@ import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
-import static org.molgenis.emx2.sql.SqlDatabase.TEN_SECONDS;
+import static org.molgenis.emx2.sql.SqlDatabase.MAX_EXECUTION_TIME_IN_SECONDS;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.MG_TABLECLASS_UPDATE;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.updateSearchIndexTriggerFunction;
 
@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public class Migrations {
   // version the current software needs to work
   private static final int SOFTWARE_DATABASE_VERSION = 24;
-  public static final int THREE_MINUTES = 180;
+  public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -225,14 +225,14 @@ public class Migrations {
   static void executeMigrationFile(Database db, String sqlFile, String message) {
     DSLContext jooq = ((SqlDatabase) db).getJooq();
     try {
-      jooq.settings().setQueryTimeout(THREE_MINUTES);
+      jooq.settings().setQueryTimeout(MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS);
       String sql = new String(Migrations.class.getResourceAsStream(sqlFile).readAllBytes());
       jooq.execute(sql);
       logger.debug(message + "(file = " + sqlFile);
     } catch (IOException e) {
       throw new MolgenisException("Execute migration failed", e);
     } finally {
-      jooq.settings().setQueryTimeout(TEN_SECONDS);
+      jooq.settings().setQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
     }
   }
 
