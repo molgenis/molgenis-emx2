@@ -1,5 +1,6 @@
 const initialLandingpage = {
   enabled: false,
+  headerText: "Search the BBMRI-ERIC Directory by category",
   page_header: "BBMRI-ERIC Directory",
   goto_catalogue_link: "Browse the catalogue",
   page_search: {
