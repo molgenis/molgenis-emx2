@@ -12,15 +12,10 @@ export function fetchOntology(
     {
       ${tableId}( filter:$filter, limit:100000,  offset:0, orderby:$orderby )
         {
-          order
           name
-          code
           parent { name }
-          ontologyTermURI
           definition
-          children { name }
         }
-      ${tableId}_agg( filter:$filter ) { count }
       }
   `;
 
