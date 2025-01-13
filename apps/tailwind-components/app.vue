@@ -57,7 +57,13 @@ function toggleLayout () {
           <div class="px-1">
             <input class="hover:cursor-pointer mr-2" id="default-theme" type="radio" v-model="theme" value="" />
             <label class="hover:cursor-pointer" for="default-theme">
-              Default
+              Light
+            </label>
+          </div>
+          <div class="px-1">
+            <input class="hover:cursor-pointer mr-2" id="dark-theme" type="radio" v-model="theme" value="dark" />
+            <label class="hover:cursor-pointer" for="dark-theme">
+              Dark
             </label>
           </div>
           <div class="px-1">
