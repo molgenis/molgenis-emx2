@@ -20,6 +20,7 @@
     --color-blue-500: #017FFD;
     --color-blue-700: #1D4ED8;
     --color-blue-800: #014F9E;
+    --color-grey-50: #F9F9F9;
     --color-gray-100: #F4F4F4;
     --color-gray-200: #E2E2E2;
     --color-gray-400: #C0C0C0;
@@ -42,7 +43,7 @@
     --box-shadow-search-input: none;
     --box-shadow-pagination-gray: 0px 10px 20px rgba(0, 0, 0, 0.1);
 
-    --background-image-sidebar-gradient: linear-gradient(180deg, #FFFFFF -24.76%, #FFFFFF 86.02%);
+    --background-image-sidebar-gradient: linear-gradient(180deg, var(--color-gray-50) -24.76%, var(--color-gray-50) 86.02%);
     --background-image-base-gradient: linear-gradient(180deg, #FFFFFF, #FFFFFF 133.81%);
 
     --opacity-background-gradient: 0;

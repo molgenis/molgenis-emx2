@@ -1,6 +1,8 @@
 :root[data-theme="dark"] {
-    --background-image-sidebar-gradient: linear-gradient(180deg, var(--color-gray-800) -24.76%, var(--color-gray-800) 86.02%);
+    --background-image-sidebar-gradient: linear-gradient(180deg, var(--color-gray-600) -24.76%, var(--color-gray-600) 86.02%);
     --background-image-base-gradient: linear-gradient(180deg, var(--color-gray-800), var(--color-gray-800) 133.81%);
 
     --opacity-background-gradient: 0;
+
+    --text-color-title: var(--color-white);
 }    
