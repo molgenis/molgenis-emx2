@@ -6,11 +6,13 @@ import { getPropertyByPath } from "../functions/getPropertyByPath";
 import { useCollectionStore } from "./collectionStore";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
+import useErrorHandler from "../composables/errorHandler";
 
 export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
   const collectionStore = useCollectionStore();
   const filtersStore = useFiltersStore();
+  const { setError } = useErrorHandler();
 
   const biobankReportColumns = settingsStore.config.biobankReportColumns;
   const biobankColumns = settingsStore.config.biobankColumns;
@@ -122,7 +124,12 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       const requestTime = Date.now();
       lastRequestTime = requestTime;
 
-      const biobankResult = await baseQuery.execute();
+      let biobankResult = [];
+      try {
+        biobankResult = await baseQuery.execute();
+      } catch (error) {
+        setError(error);
+      }
 
       /* Update biobankCards only if the result is the most recent one*/
       if (requestTime === lastRequestTime) {
@@ -150,8 +157,12 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       .orderBy("collections", "id", "asc")
       .where("id")
       .equals(id);
-
-    return await biobankReportQuery.execute();
+    try {
+      return await biobankReportQuery.execute();
+    } catch (error) {
+      setError(error);
+      return null;
+    }
   }
 
   function getPresentFilterOptions(facetIdentifier) {
