@@ -91,8 +91,8 @@
     --text-color-menu: var(--color-blue-800);
     --text-color-sub-menu: var(--color-blue-500);
     --text-color-sub-menu-hover: var(--color-blue-700);
-    --text-color-breadcrumb-arrow: var(--color-blue-800);
-    --text-color-breadcrumb: var(--color-blue-50);
+    --text-color-breadcrumb-arrow: var(--color-gray-400);
+    --text-color-breadcrumb: var(--color-blue-500);
     --text-color-title: var(--color-blue-800);
     --text-color-title-contrast: var(--color-blue-500);
     --text-color-sub-title-contrast: var(--color-black);
