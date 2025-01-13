@@ -147,6 +147,7 @@ def add_to_array(array: str, item: str):
 
 def apply_mapping(column, mapping):
     """Apply the given mapping to the given column containing arrays in string format"""
+    # FIXME: Is this way of splitting okay? Seems like it only applies quotes when necessary
     return column.map(
         lambda l: ",".join({f'"{mapping[x]}"' for x in l.split(",") if l})
     )
