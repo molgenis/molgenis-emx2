@@ -47,7 +47,7 @@ function validate(value: columnValue) {
         >Required</span
       >
     </div>
-    <div class="text-blue-800 text-body-sm" v-if="column.description">
+    <div class="text-input-description text-body-sm" v-if="column.description">
       {{ column.description }}
     </div>
     <div>

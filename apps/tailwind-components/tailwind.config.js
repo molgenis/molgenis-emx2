@@ -200,6 +200,8 @@ module.exports = {
         "pagination-hover": "var(--text-color-pagination-hover)",
         "footer-link": "var(--text-color-footer-link)",
         "table-column-header": "var(--text-color-table-column-header)",
+        "form-header": "var(--text-color-form-header)",
+        "input-description": "var(--text-color-input-description)",
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",
         "disabled": "var(--text-color-disabled)",
@@ -238,6 +240,7 @@ module.exports = {
       borderRadius: {
         "3px": "var(--border-radius-3px)",
         "50px": "var(--border-radius-50px)",
+        "input": "var(--border-radius-input)",
         "textarea-input": "var(--border-radius-textarea-input)",
         "search-input": "var(--border-radius-search-input)",
         "search-button": "var(--border-radius-search-button)",

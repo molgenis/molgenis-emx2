@@ -147,6 +147,8 @@
     --text-color-pagination-hover: var(--color-blue-800);
     --text-color-footer-link: var(--color-yellow-500);
     --text-color-table-column-header: var(--color-gray-600);
+    --text-color-form-header: var(--color-blue-800);
+    --text-color-input-description: var(--color-blue-800);
     
     --text-color-invalid: var(--color-red-500);
     --text-color-valid: var(--color-green-800);
@@ -175,6 +177,7 @@
 
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
+    --border-radius-input: 3px;
     --border-radius-textarea-input: 20px;
     --border-radius-search-input: 9999px;
     --border-radius-search-button: 9999px;
@@ -303,6 +306,7 @@
 
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
+    --border-radius-input: 50px;
     --border-radius-textarea-input: 20px;
     --border-radius-search-input: 9999px;
     --border-radius-search-button: 9999px;
