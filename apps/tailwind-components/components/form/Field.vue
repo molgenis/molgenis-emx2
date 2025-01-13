@@ -43,9 +43,11 @@ function validate(value: columnValue) {
       <label :for="column.id" class="capitalize text-title font-bold">{{
         column.label
       }}</label>
-      <span class="text-disabled ml-3" v-show="column.required">Required</span>
+      <span class="text-disabled text-body-sm ml-3" v-show="column.required"
+        >Required</span
+      >
     </div>
-    <div class="text-title" v-if="column.description">
+    <div class="text-blue-800 text-body-sm" v-if="column.description">
       {{ column.description }}
     </div>
     <div>
