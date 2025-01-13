@@ -1,188 +1,280 @@
 <script setup lang="ts">
-import type { ITreeNode } from "../../types/types";
-import BaseIcon from "../BaseIcon.vue";
-import CustomTooltip from "../CustomTooltip.vue";
+/* Possible future enhancements
+- split the search out to a wrapping component
+ */
+
+import type { ITreeNode, ITreeNodeState } from "~/types/types";
+import TreeNode from "./TreeNode.vue";
 
 const props = withDefaults(
   defineProps<{
+    /* tree model to be rendered */
     nodes: ITreeNode[];
     modelValue: string[];
+    /* single vs multi select */
     isMultiSelect?: boolean;
+    /* whether nodes should expand when selected */
     expandSelected?: boolean;
-    isRoot?: boolean;
+    /* whether colors should be inverted */
     inverted?: boolean;
+    /* whether to include/exclude children of selected nodes in emit */
+    emitSelectedChildren?: boolean;
   }>(),
   {
     isMultiSelect: true,
     expandSelected: false,
-    isRoot: true,
     inverted: false,
+    emitSelectedChildren: true,
   }
 );
 
-// expand status is internally controlled by the component
-// whereas the selected status is controlled by the parent
-const expandedNodes = ref<string[]>([]);
-
 const emit = defineEmits(["update:modelValue"]);
 
-function toggleExpand(nameName: string) {
-  const index = expandedNodes.value.indexOf(nameName);
-  if (index > -1) {
-    expandedNodes.value.splice(index, 1);
-  } else {
-    expandedNodes.value.push(nameName);
+/* create node map for fast internal state management from props.nodes */
+const nodeMap = ref({} as Record<string, ITreeNodeState>);
+createNodeMap(props.nodes);
+watch(
+  () => props.nodes,
+  (newValue) => {
+    nodeMap.value = {};
+    createNodeMap(newValue);
   }
+);
+
+function createNodeMap(nodes: ITreeNode[]) {
+  nodes.forEach((node) => {
+    nodeMap.value[node.name] = clone(node);
+  });
 }
 
-function expandSelection(node: ITreeNode) {
-  let selection: string[] = [];
-  node.children.forEach((child) => {
-    selection.push(child.name);
-    if (child.children) {
-      selection = [...selection, ...expandSelection(child)];
-    }
+function clone(node: ITreeNode): ITreeNodeState {
+  const result = {
+    name: node.name,
+    description: node.description,
+    visible: true,
+    children: [] as ITreeNodeState[],
+    selection: "unselected",
+    expanded: false,
+    selectable: true,
+  };
+  node.children?.forEach((child) => {
+    const copy = clone(child);
+    copy.parent = node.name;
+    nodeMap.value[child.name] = copy;
+    result.children.push(copy);
+  });
+  return result;
+}
+
+/* manage selection */
+
+applyModelValueChangeToSelection(props.modelValue);
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    applyModelValueChangeToSelection(newValue);
+  }
+);
+
+function applyModelValueChangeToSelection(selection: string[]) {
+  Object.values(nodeMap.value).forEach(
+    (node) => (node.selected = "unselected")
+  );
+  selection.forEach((name) => {
+    const node = nodeMap.value[name];
+    node.selected = "selected";
+    processSelectionChangeToParentAndChildNodes(node);
+  });
+}
+
+function processSelectionChangeToParentAndChildNodes(node: ITreeNodeState) {
+  //make child selection match selection state
+  getAllChildren(node).forEach((child) => {
+    child.selected = node.selected;
+    child.visible = true; //in search you want to see effect of selecting
   });
 
-  return selection;
+  //update parents selection state to either selected, unselected, intermediate
+  getAllParents(node).forEach((parent) => {
+    const allSelected = parent.children?.every(
+      (child) => child.selected === "selected"
+    );
+    const allUnselected = parent.children?.every(
+      (child) => child.selected === "unselected"
+    );
+    if (allUnselected) {
+      parent.selected = "unselected";
+    } else if (allSelected) {
+      parent.selected = "selected";
+    } else {
+      parent.selected = "intermediate";
+    }
+  });
 }
 
-function toggleSelect(node: ITreeNode) {
-  if (props.modelValue.includes(node.name)) {
-    // remove node(s) from selected nodes and emit new model
-    let deSelectionList = [node.name];
-    if (props.expandSelected) {
-      deSelectionList = deSelectionList.concat(expandSelection(node));
+function getAllChildren(node: ITreeNodeState): ITreeNodeState[] {
+  return [node, ...(node.children || []).flatMap(getAllChildren)];
+}
+
+function getAllParents(node: ITreeNodeState): ITreeNodeState[] {
+  return node.parent
+    ? [nodeMap.value[node.parent], ...getAllParents(nodeMap.value[node.parent])]
+    : [];
+}
+
+function toggleSelect(name: string) {
+  //toggle select of the named node
+  const node = nodeMap.value[name];
+  const previousState = node.selected;
+  if (node) {
+    if (previousState !== "selected") {
+      node.selected = "selected";
+    } else {
+      node.selected = "unselected";
     }
-    const newSelection = props.modelValue.filter(
-      (n) => !deSelectionList.includes(n)
-    );
-    emit("update:modelValue", newSelection);
+  }
+
+  processSelectionChangeToParentAndChildNodes(node);
+
+  //expand selected
+  if (props.expandSelected && node.selected === "selected") {
+    node.expanded = true;
+  }
+
+  //emit the selected node names
+  //optionally excluding selected childnodes
+  emitSelection();
+}
+
+function emitSelection() {
+  emit(
+    "update:modelValue",
+    Object.values(nodeMap.value)
+      .filter(
+        (node) =>
+          node.selected === "selected" &&
+          (props.emitSelectedChildren ||
+            !node.parent ||
+            nodeMap.value[node.parent].selected !== "selected")
+      )
+      .map((node) => node.name)
+  );
+}
+
+/* manage expand */
+function toggleExpand(name: string) {
+  nodeMap.value[name].expanded = nodeMap.value[name].expanded !== true;
+}
+
+/* manage search */
+const showOptionsSearch = ref(false); //if the search for options input should be shown
+const optionsSearch = ref(""); //to store the value of the search
+watch(optionsSearch, (newValue, oldValue) => {
+  if (newValue !== oldValue) {
+    if (newValue) {
+      //hide all and then make matches visible
+      Object.values(nodeMap.value).forEach((node) => {
+        node.visible = false;
+        node.expanded = false;
+        node.selectable = false;
+      });
+      const searchValue = optionsSearch.value.toLowerCase();
+      rootNodes.value.forEach((node) => {
+        applySearch(searchValue, node);
+        //expand unless too many hits
+        if (node.children.filter((child) => child.visible).length === 1)
+          node.expanded = true;
+        getAllChildren(node).forEach((child) => {
+          if (child.children.filter((child2) => child2.visible).length === 1)
+            child.expanded = true;
+        });
+      });
+    } else {
+      showOptionsSearch.value = false;
+      Object.values(nodeMap.value).forEach((node) => {
+        node.visible = true;
+        node.expanded = false;
+        node.selectable = true;
+      });
+    }
+  }
+});
+
+function applySearch(searchValue: string, node: ITreeNodeState) {
+  if (
+    node.name.toLowerCase().includes(searchValue) ||
+    node.description?.toLowerCase().includes(searchValue)
+  ) {
+    node.visible = true;
+    node.selectable = true;
+    getAllChildren(node).forEach((child) => {
+      child.visible = true;
+      child.selectable = true;
+    });
+    getAllParents(node).forEach((parent) => {
+      parent.visible = true;
+      //parents not selectable because might be incomplete, unless all children are visible
+      if (!parent.children.some((child) => !child.visible)) {
+        parent.selectable = true;
+      }
+    });
   } else {
-    let currnetSelection = [...props.modelValue, node.name];
-    if (props.expandSelected) {
-      currnetSelection = [...currnetSelection, ...expandSelection(node)];
-    }
-    const deduplicated = [...new Set(currnetSelection)];
-    // clone model and add new before emitting
-    emit("update:modelValue", deduplicated);
+    node.children.forEach((child) => applySearch(searchValue, child));
   }
 }
 
-function handleChildSelect(selected: string[], parent: ITreeNode) {
-  const siblingNames = parent.children.map((n) => n.name);
-  const selectParent =
-    siblingNames.some((siblingName) => selected.includes(siblingName)) &&
-    siblingNames.every((siblingName) => selected.includes(siblingName));
-  const updatedSelection = selectParent ? [...selected, parent.name] : selected;
-
-  const deduplicated = [...new Set(updatedSelection)];
-  emit("update:modelValue", deduplicated);
+function toggleSearch() {
+  showOptionsSearch.value = !showOptionsSearch.value;
 }
+
+let timeoutID: number | NodeJS.Timeout | undefined = undefined;
+function handleSearchInput(input: string) {
+  clearTimeout(timeoutID);
+  timeoutID = setTimeout(() => {
+    optionsSearch.value = input;
+  }, 500);
+}
+
+/* provide root nodes to be rendered */
+const rootNodes = computed(() => {
+  return Object.values(nodeMap.value).filter((node) => !node.parent);
+});
 </script>
 
 <template>
-  <ul
-    :class="[
-      inverted
-        ? 'text-search-filter-group-title-inverted'
-        : 'text-search-filter-group-title',
-    ]"
+  <button
+    v-if="!showOptionsSearch"
+    class="flex items-center ml-6"
+    @click="toggleSearch"
   >
-    <li v-for="node in nodes" :key="node.name" class="mt-2.5 relative">
-      <div class="flex items-center">
-        <button
-          v-if="node.children?.length"
-          @click.stop="toggleExpand(node.name)"
-          class="-left-[11px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
-          :class="[
-            inverted
-              ? 'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted'
-              : 'text-search-filter-group-toggle hover:bg-search-filter-group-toggle',
-          ]"
-          :aria-expanded="expandedNodes.includes(node.name)"
-          :aria-controls="node.name"
-        >
-          <BaseIcon
-            :name="
-              expandedNodes.includes(node.name) ? 'caret-down' : 'caret-right'
-            "
-            :width="20"
-          />
-          <span class="sr-only">expand {{ node.name }}</span>
-        </button>
-        <template v-if="!isRoot">
-          <BaseIcon
-            v-if="node.children?.length"
-            name="collapsible-list-item-sub"
-            :width="20"
-            class="text-blue-200 absolute -top-[9px]"
-          />
-          <BaseIcon
-            v-else
-            name="collapsible-list-item"
-            :width="20"
-            class="text-blue-200 absolute -top-[9px]"
-          />
-        </template>
-      </div>
-      <div class="flex justify-start items-center ml-4">
-        <input
-          type="checkbox"
-          :indeterminate="
-            node.children?.some((c) => modelValue.includes(c.name)) &&
-            !node.children?.every((c) => modelValue.includes(c.name))
-          "
-          :id="node.name"
-          :name="node.name"
-          :checked="modelValue.includes(node.name)"
-          @click.stop="toggleSelect(node)"
-          class="sr-only"
-        />
-        <InputLabel
-          :for="node.name"
-          class="flex justify-center items-start hover:cursor-pointer"
-        >
-          <InputCheckboxIcon
-            :indeterminate="
-              node.children?.some((c) => modelValue.includes(c.name)) &&
-              !node.children?.every((c) => modelValue.includes(c.name))
-            "
-            :checked="
-              modelValue.includes(node.name) &&
-              node.children?.every((c) => modelValue.includes(c.name))
-            "
-            class="w-[20px] ml-[-6px]"
-            :class="{
-              '[&>rect]:stroke-gray-400': inverted,
-            }"
-          />
-          <span class="block w-[calc(100%-20px)] text-body-sm leading-normal">{{
-            node.name
-          }}</span>
-        </InputLabel>
-        <div class="inline-flex items-center whitespace-nowrap">
-          <div class="inline-block pl-1">
-            <CustomTooltip
-              v-if="node.description"
-              label="Read more"
-              :hoverColor="inverted ? 'none' : 'white'"
-              :content="node.description"
-            />
-          </div>
-        </div>
-      </div>
-      <Tree
-        v-if="node.children.length"
-        v-show="expandedNodes.includes(node.name)"
-        class="ml-[31px]"
-        :nodes="node.children"
-        :modelValue="modelValue"
-        :expandSelected="expandSelected"
-        :isRoot="false"
-        @update:modelValue="handleChildSelect($event, node)"
-        :inverted="inverted"
-      />
-    </li>
-  </ul>
+    <BaseIcon
+      name="search"
+      :class="`text-search-filter-expand${inverted ? '-mobile' : ''}`"
+      :width="18"
+    />
+    <span
+      class="ml-2 text-body-sm hover:underline"
+      :class="`text-search-filter-expand${inverted ? '-mobile' : ''}`"
+    >
+      Search for options
+    </span>
+  </button>
+  <input
+    v-else
+    :value="optionsSearch"
+    @input="(event) => handleSearchInput((event.target as HTMLInputElement).value)"
+    type="search"
+    class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
+    placeholder="Type to search in options..."
+  />
+  <span v-if="rootNodes.filter((node) => node.visible).length === 0"
+    >no results found</span
+  >
+  <TreeNode
+    :nodes="rootNodes"
+    :inverted="inverted"
+    :isRoot="true"
+    @toggleSelect="toggleSelect"
+    @toggleExpand="toggleExpand"
+  />
 </template>
