@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.IsNullOrNotNull.NOT_NULL;
+import static org.molgenis.emx2.IsNullOrNotNull.NULL;
+import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.Serializable;
@@ -177,11 +179,13 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     String aKey = columnType + "Key";
     String aColumn = columnType + "Col";
+    String aNillableColumn = columnType + "Col" + "Nillable";
     Table aTable =
         schema.create(
             table("A")
                 .add(column(aKey).setType(columnType).setPkey())
-                .add(column(aColumn).setType(columnType)));
+                .add(column(aColumn).setType(columnType).setRequired(true))
+                .add(column(aNillableColumn).setType(columnType)));
 
     Row aRow = new Row().set(aKey, values[0]).set(aColumn, values[0]);
     Row aRow2 = new Row().set(aKey, values[1]).set(aColumn, values[1]);
@@ -200,6 +204,16 @@ public class TestCreateBasicDataColumnTypeColumns {
     for (Row r : result) {
       System.out.println(r);
     }
+
+    result = aTable.query().where(f(aColumn, IS, NULL)).retrieveRows();
+    assertEquals(0, result.size());
+    result = aTable.query().where(f(aNillableColumn, IS, NULL)).retrieveRows();
+    assertEquals(2, result.size());
+
+    result = aTable.query().where(f(aColumn, IS, NOT_NULL)).retrieveRows();
+    assertEquals(2, result.size());
+    result = aTable.query().where(f(aNillableColumn, IS, NOT_NULL)).retrieveRows();
+    assertEquals(0, result.size());
 
     // delete
     aTable.delete(aRow, aRow2);

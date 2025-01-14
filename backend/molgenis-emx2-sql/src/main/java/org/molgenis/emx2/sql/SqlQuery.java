@@ -433,7 +433,20 @@ public class SqlQuery extends QueryBean {
               jsonSearchConditions(table, subAlias, TypeUtils.toStringArray(f.getValues())));
         } else {
           Column c = getColumnByName(table, f.getColumn());
-          if (c.isReference()) {
+          if (IS.equals(f.getOperator()) && c.isReference()) {
+            conditions.add(
+                and(
+                    c.getReferences().stream()
+                        .map(
+                            ref ->
+                                whereCondition(
+                                    subAlias,
+                                    ref.getName(),
+                                    ref.getPrimitiveType().getBaseType(),
+                                    f.getOperator(),
+                                    f.getValues()))
+                        .toList()));
+          } else if (c.isReference()) {
             SelectSelectStep<?> subQuery = null;
             if (MATCH_INCLUDING_CHILDREN.equals(f.getOperator())) {
               // for future refactoring, try to apply this to the ref instead of ontology pkey
@@ -1120,10 +1133,24 @@ public class SqlQuery extends QueryBean {
       if (column.isReference()
           && column.getReferences().size() > 1
           && filters.getSubfilters().isEmpty()) {
-        throw new MolgenisException(
-            "Filter of '"
-                + column.getName()
-                + " not supported for compound key, use individual elements or nested filters.");
+        if ((IS.equals(filters.getOperator())) && (column.isRef() || column.isRefArray())) {
+          column
+              .getReferences()
+              .forEach(
+                  ref ->
+                      conditions.add(
+                          whereCondition(
+                              tableAlias,
+                              ref.getName(),
+                              ref.getPrimitiveType(),
+                              getFilter().getOperator(),
+                              getFilter().getValues())));
+        } else {
+          throw new MolgenisException(
+              "Filter of '"
+                  + column.getName()
+                  + " not supported for compound key, use individual elements or nested filters.");
+        }
       }
       if (!filters.getSubfilters().isEmpty()) {
         for (Filter subfilter : filters.getSubfilters()) {
@@ -1160,6 +1187,21 @@ public class SqlQuery extends QueryBean {
       org.molgenis.emx2.Operator operator,
       Object[] values) {
     Name name = name(alias(tableAlias), columnName);
+    if (IS.equals(operator)) {
+      if (type.isArray()) {
+        if (IsNullOrNotNull.NULL.equals(values[0])) {
+          return condition("({0} IS NULL OR {0} = '{}')", field(name));
+        } else {
+          return condition("({0} IS NOT NULL AND {0} <> '{}')", field(name));
+        }
+      } else {
+        if (IsNullOrNotNull.NULL.equals(values[0])) {
+          return field(name).isNull();
+        } else {
+          return field(name).isNotNull();
+        }
+      }
+    }
     return switch (type) {
       case TEXT, STRING, FILE, JSON -> whereConditionText(name, operator, toStringArray(values));
       case BOOL -> whereConditionEquals(name, operator, toBoolArray(values));

@@ -73,11 +73,13 @@ public class Constants {
   public static final String LOCALES_DEFAULT = "[\"en\"]";
 
   protected static final Operator[] EXISTS_OPERATIONS = {};
-  protected static final Operator[] ORDINAL_OPERATORS = {EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN};
-  protected static final Operator[] STRING_OPERATORS = {
-    EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH
+  protected static final Operator[] ORDINAL_OPERATORS = {
+    EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN, IS
   };
-  protected static final Operator[] EQUALITY_OPERATORS = {EQUALS, NOT_EQUALS};
+  protected static final Operator[] STRING_OPERATORS = {
+    EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH, IS
+  };
+  protected static final Operator[] EQUALITY_OPERATORS = {EQUALS, NOT_EQUALS, IS};
 
   // n.b. we allow _SYSTEM_
   protected static final String SCHEMA_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,62}$";

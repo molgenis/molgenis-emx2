@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static graphql.scalars.ExtendedScalars.GraphQLLong;
 import static org.molgenis.emx2.FilterBean.*;
+import static org.molgenis.emx2.Operator.IS;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableType.ONTOLOGIES;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
@@ -25,6 +26,12 @@ public class GraphqlTableFieldFactory {
           .name("MolgenisOrderByEnum")
           .value(Order.ASC.name(), Order.ASC)
           .value(Order.DESC.name(), Order.DESC)
+          .build();
+  private static final GraphQLEnumType isNullOrNotNullEnum =
+      GraphQLEnumType.newEnum()
+          .name("MolgenisIsNotNullEnum")
+          .value(IsNullOrNotNull.NULL.name(), IsNullOrNotNull.NULL)
+          .value(IsNullOrNotNull.NOT_NULL.name(), IsNullOrNotNull.NOT_NULL)
           .build();
   private static GraphQLObjectType fileDownload =
       GraphQLObjectType.newObject()
@@ -460,6 +467,12 @@ public class GraphqlTableFieldFactory {
                   .name(col.getIdentifier())
                   .type(getTableFilterInputType(col.getRefTable()))
                   .build());
+          // prefix _is to ensure we can't clash with column named 'is'
+          filterBuilder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(FILTER_IS)
+                  .type(isNullOrNotNullEnum)
+                  .build());
         } else if (col.getColumnType().getOperators().length > 0) {
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
@@ -503,10 +516,17 @@ public class GraphqlTableFieldFactory {
       GraphQLInputObjectType.Builder builder =
           GraphQLInputObjectType.newInputObject().name("Molgenis" + typeName + FILTER);
       for (Operator operator : type.getOperators()) {
-        builder.field(
-            GraphQLInputObjectField.newInputObjectField()
-                .name(operator.getName())
-                .type(GraphQLList.list(graphQLTypeOf(column))));
+        if (IS.equals(operator)) {
+          builder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(operator.getName())
+                  .type(isNullOrNotNullEnum));
+        } else {
+          builder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(operator.getName())
+                  .type(GraphQLList.list(graphQLTypeOf(column))));
+        }
       }
       columnFilterInputTypes.put(type, builder.build());
     }
@@ -577,7 +597,8 @@ public class GraphqlTableFieldFactory {
                       .stream().map(v -> createKeyFilter(table, v)).collect(Collectors.toList())));
         }
       } else if (entry.getKey().equals(MATCH_INCLUDING_CHILDREN)
-          || entry.getKey().equals(MATCH_INCLUDING_PARENTS)) {
+          || entry.getKey().equals(MATCH_INCLUDING_PARENTS)
+          || entry.getKey().equals(FILTER_IS)) {
         // skip, handled on parent column. Need re-architecture in next major release.
       } else {
         // find column by escaped name
@@ -601,15 +622,18 @@ public class GraphqlTableFieldFactory {
                   Operator.MATCH_INCLUDING_CHILDREN,
                   ((List) value.get(MATCH_INCLUDING_CHILDREN)).toArray(new String[0])));
           value.remove(MATCH_INCLUDING_CHILDREN);
-        }
-        if (value.containsKey(MATCH_INCLUDING_PARENTS)) {
+        } else if (value.containsKey(MATCH_INCLUDING_PARENTS)) {
           subFilters.add(
               f(
                   c.getName(),
                   Operator.MATCH_INCLUDING_PARENTS,
                   ((List) value.get(MATCH_INCLUDING_PARENTS)).toArray(new String[0])));
           value.remove(MATCH_INCLUDING_PARENTS);
+        } else if (value.containsKey(FILTER_IS)) {
+          subFilters.add(f(c.getName(), IS, value.get(FILTER_IS)));
+          value.remove(FILTER_IS);
         }
+
         if (value.size() == 0) continue;
         if (c.isReference()) {
           subFilters.add(

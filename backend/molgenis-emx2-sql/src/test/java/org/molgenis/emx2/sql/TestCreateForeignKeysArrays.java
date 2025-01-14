@@ -1,13 +1,18 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.IsNullOrNotNull.NOT_NULL;
+import static org.molgenis.emx2.IsNullOrNotNull.NULL;
+import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -79,12 +84,14 @@ public class TestCreateForeignKeysArrays {
     aTable.insert(aRow, aRow2);
 
     String refToA = columnType + "RefToA";
+    String refToANillable = refToA + "Nullable";
+
     Table bTable =
         schema.create(
             table("B")
                 .add(column("id").setPkey())
                 .add(column(refToA).setType(REF_ARRAY).setRefTable("A").setRequired(true))
-                .add(column(refToA + "Nullable").setType(REF_ARRAY).setRefTable("A")));
+                .add(column(refToANillable).setType(REF_ARRAY).setRefTable("A")));
 
     // error on insert of faulty fkey
     Row bErrorRow = new Row().set("id", 1).set(refToA, Arrays.copyOfRange(testValues, 1, 3));
@@ -129,6 +136,17 @@ public class TestCreateForeignKeysArrays {
     } catch (Exception e) {
       System.out.println("delete exception correct because of " + testValues[0] + ": \n" + e);
     }
+
+    // filter on null/not null
+    List<Row> result = bTable.where(f(refToA, IS, NULL)).retrieveRows();
+    assertEquals(0, result.size());
+    result = bTable.where(f(refToANillable, IS, NULL)).retrieveRows();
+    assertEquals(1, result.size());
+
+    result = bTable.where(f(refToA, IS, NOT_NULL)).retrieveRows();
+    assertEquals(1, result.size());
+    result = bTable.where(f(refToANillable, IS, NOT_NULL)).retrieveRows();
+    assertEquals(0, result.size());
 
     // should be okay
     bTable.delete(bRow);
