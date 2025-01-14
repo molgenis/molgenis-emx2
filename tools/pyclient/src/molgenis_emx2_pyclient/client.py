@@ -321,11 +321,12 @@ class Client:
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
+        query_url = f"{self.url}/{current_schema}/graphql"
         table_id = self.get_schema_metadata(current_schema).get_table(by='name', value=table).id
         query = queries.truncate()
 
         response = self.session.post(
-            url=self.api_graphql,
+            url=query_url,
             json={"query": query, "variables": {"table": table_id}}
         )
 
