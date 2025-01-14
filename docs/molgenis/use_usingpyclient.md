@@ -124,22 +124,24 @@ Raises the `TokenSigninException` when the client is already signed in with a us
 ```python
 def get(self, 
         table: str, 
+        columns: list[str] = None,
         query_filter: str = None, 
         schema: str = None, 
         as_df: bool = False) -> list | pandas.DataFrame:
     ...
 ```
 Retrieves data from a table on a schema and returns the result either as a list of dictionaries or as a pandas DataFrame.
+Use the `columns` parameter to specify which columns to retrieve. Note that in case `as_df=True` the column _names_ should be supplied, otherwise the column _ids_.
 Use the `query_filter` parameter to filter the results based on filters applied to the columns.
 This query requires a special syntax. 
-Columns can be filtered on equality `==`, inequality `!=`, greater `>` and smaller `<` than.
+Values in columns can be filtered on equality `==`, inequality `!=`, greater `>` and smaller `<` than.
 Values within an interval can also be filtered by using the operand `between`, followed by list of the upper bound and lower bound.
 The values of reference and ontology columns can also be filtered by joining the column id of the table with the column id of the reference/ontology table by a dot, as in the example `countries.name`, where `countries` is a column in the table `My table` and `name` is the column id of the referenced table specifying the names of countries. 
 It is possible to add filters on multiple columns by separating the filter statements with _' and '_.
 It is recommended to supply the filters that are compared as variables passed in an f-string.
 
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
-Throws the `NoSuchColumnException` if the query filter contains a column id that is not present in the table.
+Throws the `NoSuchColumnException` if the `columns` argument or query filter contains a column that is not present in the table.
 
 
 | parameter      | type | description                                                                    | required | default |
@@ -317,6 +319,15 @@ client.delete_records(schema='MySchema', table='Cohorts', data=cohorts_df)
 # Delete cohorts from entries in a CSV file
 client.delete_records(schema='MySchema', table='Cohorts', file='Cohorts-to-delete.csv')
 ```
+
+### truncate
+```python
+client.truncate(table='My table', schema='My Schema')
+```
+Truncates the table and removes all its contents.
+This will fail if entries in the table are referenced from other tables.
+
+Throws the `ReferenceException` if entries in the table are referenced in other tables.
 
 ### create_schema
 ```python

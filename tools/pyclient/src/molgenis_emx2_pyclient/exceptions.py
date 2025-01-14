@@ -59,3 +59,6 @@ class TokenSigninException(PyclientException):
 
 class NonExistentTemplateException(PyclientException):
     """Thrown when creation of schema with non-existent template is attempted."""
+
+class ReferenceException(PyclientException):
+    """Thrown when update or deletion of an entry that is referenced in another table is attempted."""

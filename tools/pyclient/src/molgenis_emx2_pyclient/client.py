@@ -17,7 +17,7 @@ from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninE
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException,
-                         NoSuchColumnException)
+                         NoSuchColumnException, ReferenceException)
 from .metadata import Schema, Table
 from .utils import parse_nested_pkeys, convert_dtypes
 
@@ -1033,6 +1033,11 @@ class Client:
                 msg = response.json().get("errors", [])[0].get('message')
                 log.error(msg)
                 raise GraphQLException(msg)
+            if "violates foreign key constraint" in response.text:
+                msg = response.json().get("errors", [])[0].get('message', '')
+                log.error(msg)
+                raise ReferenceException(msg)
+
             msg = response.json().get("errors", [])[0].get('message', '')
             log.error(msg)
             raise PyclientException("An unknown error occurred when trying to reach this server.")
