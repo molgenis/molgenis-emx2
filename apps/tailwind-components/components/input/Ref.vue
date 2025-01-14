@@ -164,10 +164,6 @@ function loadMore() {
   >
     <ButtonFilterWell
       v-for="label in isArray ? selection : [selection]"
-      size="tiny"
-      type="filterWell"
-      icon="cross"
-      icon-position="right"
       @click="deselect(label as string)"
     >
       {{ label }}

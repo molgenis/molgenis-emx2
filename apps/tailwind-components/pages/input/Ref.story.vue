@@ -21,6 +21,7 @@ const value2 = ref([{ name: "spike" }]);
   </div>
   <div>
     <h3>Ref example</h3>
+    <InputLabel for="story-ref"> Select pets by name </InputLabel>
     <InputRef
       id="story-ref"
       v-model="value2"
