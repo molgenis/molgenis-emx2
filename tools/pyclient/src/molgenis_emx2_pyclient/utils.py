@@ -4,7 +4,6 @@ Utility functions for the Molgenis EMX2 Pyclient package
 import logging
 
 from .constants import INT, DECIMAL, DATETIME, BOOL
-
 from .metadata import Table
 
 

@@ -4,7 +4,6 @@ Classes for the data types Schema, Table and Column.
 from itertools import starmap
 from typing import Literal
 
-from .constants import STRING
 from .exceptions import NoSuchColumnException, NoSuchTableException
 
 
