@@ -845,7 +845,7 @@ function graphqlFilter(
           filter[col.id] = { equals: conditions };
         } else if (col.columnType.startsWith("ONTOLOGY")) {
           filter[col.id] = {
-            match_any_in_subtree: conditions.map((term) => term.name),
+            match_including_children: conditions.map((term) => term.name),
           };
         } else if (
           [
