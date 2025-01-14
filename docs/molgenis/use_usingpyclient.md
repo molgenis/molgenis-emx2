@@ -152,24 +152,25 @@ Throws the `NoSuchColumnException` if the `columns` argument or query filter con
 | `as_df`        | bool | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False   |
 
 ##### examples
+
 ```python
-# Get all entries for the table 'Collections' on the schema 'MySchema'
-table_data = client.get(table='Collections', schema='MySchema')
+# Get all entries for the table 'Resources' on the schema 'MySchema'
+table_data = client.get(table='Resources', schema='MySchema')
 
 # Set the default schema to 'MySchema'
 client.set_schema('MySchema')
 # Get the same entries and return them as pandas DataFrame
-table_data = client.get(table='Collections', as_df=True)
+table_data = client.get(table='Resources', as_df=True)
 
 # Get the entries where the value of a particular column 'number of participants' is greater than 10000
-table_data = client.get(table='Collections', query_filter='numberOfParticipants > 10000')
+table_data = client.get(table='Resources', query_filter='numberOfParticipants > 10000')
 
-# Get the entries where 'number of participants' is greater than 10000 and the cohort type is a 'Population cohort'
+# Get the entries where 'number of participants' is greater than 10000 and the resource type is a 'Population cohort'
 # Store the information in variables, first
-min_subcohorts = 10000
+min_subpop = 10000
 cohort_type = 'Population cohort'
-table_data = client.get(table='Collections', query_filter=f'numberOfParticipants > {min_subcohorts}'
-                                                          f'and cohortType == {cohort_type}')
+table_data = client.get(table='Resources', query_filter=f'numberOfParticipants > {min_subpop}'
+                                                        f'and cohortType == {cohort_type}')
 ```
 
 ### get_schema_metadata
@@ -214,11 +215,11 @@ Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ p
 ##### examples
 ```python
 
-# Export the table 'Collections' on the schema 'MySchema' from the CSV API to a BytesIO object 
-collections_raw: BytesIO = await client.export(schema='MySchema', table='Collections')  
+# Export the table 'Resources' on the schema 'MySchema' from the CSV API to a BytesIO object 
+resources_raw: BytesIO = await client.export(schema='MySchema', table='Resources')  
 
-# Export 'Collections' from the Excel API to the file 'Collections-export.xlsx' 
-await client.export(schema='MySchema', table='Collections', filename='Collections-export.xlsx')
+# Export 'Resources' from the Excel API to the file 'Resources-export.xlsx' 
+await client.export(schema='MySchema', table='Resources', filename='Resources-export.xlsx')
 ```
 
 
@@ -245,12 +246,12 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 ##### examples
 ```python
-# Save an edited table with Collections data from a CSV file to the Collections table
-client.save_schema(table='Collections', file='Collections-edited.csv')
+# Save an edited table with Resources data from a CSV file to the Resources table
+client.save_schema(table='Resources', file='Resources-edited.csv')
 
-# Save an edited table with Collections data from memory to the Collections table
-collections: pandas.DataFrame = ...
-client.save_schema(table='Collections', data=collections)
+# Save an edited table with Resources data from memory to the Resources table
+resources: pandas.DataFrame = ...
+client.save_schema(table='Resources', data=resources)
 ```
 
 ### upload_file
@@ -271,8 +272,8 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 ##### examples
 ```python
-# Upload a file containing Collections data to a schema
-await client.upload_file(file_path='data/Collections.csv')
+# Upload a file containing Resources data to a schema
+await client.upload_file(file_path='data/Resources.csv')
 
 # Upload a file containing members information to a schema
 await client.upload_file(file_path='molgenis_members.csv', schema='MySchema')
@@ -308,16 +309,16 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 ##### examples
 ```python
-# Delete cohorts from a list of ids
-cohorts = [{'name': 'Cohort 1', 'name': 'Cohort 2'}]
-client.delete_records(schema='MySchema', table='Cohorts', data=cohorts)
+# Delete resources from a list of ids
+resources = [{'name': 'Resource 1', 'name': 'Resource 2'}]
+client.delete_records(schema='MySchema', table='Resources', data=resources)
 
-# Delete cohorts from pandas DataFrame
-cohorts_df = pandas.DataFrame(data=cohorts)
-client.delete_records(schema='MySchema', table='Cohorts', data=cohorts_df)
+# Delete resources from pandas DataFrame
+resources_df = pandas.DataFrame(data=resources)
+client.delete_records(schema='MySchema', table='Resources', data=resources_df)
 
-# Delete cohorts from entries in a CSV file
-client.delete_records(schema='MySchema', table='Cohorts', file='Cohorts-to-delete.csv')
+# Delete resources from entries in a CSV file
+client.delete_records(schema='MySchema', table='Resources', file='Resources-to-delete.csv')
 ```
 
 ### truncate
