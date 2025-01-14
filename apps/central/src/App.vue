@@ -62,9 +62,11 @@ export default {
         }
       `
     );
-    if (resp?._settings[0]?.key === "menu") {
+    if (resp?._settings.map((s) => s.key).includes("menu")) {
       try {
-        this.menu = JSON.parse(resp._settings[0].value);
+        this.menu = JSON.parse(
+          resp._settings.find((s) => s.key === "menu").value
+        );
       } catch (error) {
         console.log("Error parsing menu", error);
       }

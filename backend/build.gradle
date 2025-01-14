@@ -101,7 +101,7 @@ subprojects {
     }
 
     test {
-        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED")
+        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "-XX:+EnableDynamicAgentLoading")
         useJUnitPlatform()
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"
