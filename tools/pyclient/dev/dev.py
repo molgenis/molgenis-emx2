@@ -2,7 +2,7 @@
 # FILE: dev.py
 # AUTHOR: David Ruvolo, Ype Zijlstra
 # CREATED: 2023-05-22
-# MODIFIED: 2024-09-11
+# MODIFIED: 2025-01-14
 # PURPOSE: development script for initial testing of the py-client
 # STATUS: ongoing
 # PACKAGES: pandas, python-dotenv
@@ -24,7 +24,8 @@ from dotenv import load_dotenv
 
 from tools.pyclient.src.molgenis_emx2_pyclient import Client
 from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import (NoSuchSchemaException, NoSuchTableException,
-                                                                  GraphQLException, PermissionDeniedException)
+                                                                  GraphQLException, PermissionDeniedException,
+                                                                  ReferenceException)
 
 
 async def main():
@@ -234,6 +235,23 @@ async def main():
         try:
             schema_create = asyncio.create_task(client.create_schema(name='myNewSchema'))
             print(client.schema_names)
+
+            # Import the pet store data, downloaded earlier
+            await schema_create
+            upload_task = asyncio.create_task(client.upload_file(schema='myNewSchema', file_path='pet store.zip'))
+
+            # Truncate the 'Pet' table
+            await upload_task
+            try:
+                client.truncate(table='Pet', schema='myNewSchema')
+            except ReferenceException:
+                print("Could not truncate table 'Pet', as it is referenced to in another table.")
+
+            try:
+                client.truncate(table='User', schema='myNewSchema')
+            except ReferenceException:
+                print("This cannot happen, as table 'User' is not referenced to by other tables.")
+
         except (GraphQLException, PermissionDeniedException) as e:
             print(e)
 
@@ -241,15 +259,12 @@ async def main():
         try:
             await schema_create
             client.update_schema(name='myNewSchema', description='I forgot the description')
-            print(client.schema_names)
-            print(client.schemas)
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
         # Recreate the schema: delete and create
         try:
             await client.recreate_schema(name='myNewSchema')
-            print(client.schema_names)
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
@@ -257,40 +272,32 @@ async def main():
         try:
             await schema_create
             await asyncio.create_task(client.delete_schema(name='myNewSchema'))
-            print(client.schema_names)
         except (GraphQLException, NoSuchSchemaException) as e:
             print(e)
 
-    print("\n\n")
 
-    # Use the Schema, Table, and Column classes
+    # //////////////////////////////////////////////////////////////////////////////////////////
+    # Examples for using the Schema, Table, and Column classes
+    # Get the metadata for the 'catalogue' schema
     catalogue_schema = Client('https://emx2.dev.molgenis.org/').get_schema_metadata('catalogue')
 
-    # Find the tables inheriting from the 'Resources' table
-    resource_children = catalogue_schema.get_tables(by='inheritName', value='Resources')
-
-    print("Tables in the schema inheriting from the 'Resources' table.")
-    for res_chi in resource_children:
-        print(f"{res_chi!s}\n{res_chi!r}")
-    print("\n")
-
-    # Find the  table
+    # Get the metadata for the Resources table
     resources_meta = catalogue_schema.get_table(by='name', value='Resources')
     print(resources_meta)
 
-    # Find the columns in the Resources table referencing the Organisations table
-    orgs_refs = resources_meta.get_columns(by='refTableName', value='Organisations')
-    print(orgs_refs)
+    # Find the columns in the Resources table referencing entries in the Resources table
+    resources_refs = resources_meta.get_columns(by='refTableName', value='Resources')
+    print(resources_refs)
 
-    # Find the columns in the Resources table referencing the Organisations table in a reference array
-    orgs_array_refs = resources_meta.get_columns(by=['columnType', 'refTableName'],
-                                                   value=['REF_ARRAY', 'Organisations'])
-    print(orgs_array_refs)
+    # Find the columns in the Resources table referencing the Resources table in a reference array
+    res_arrays_refs = resources_meta.get_columns(by=['columnType', 'refTableName'],
+                                                   value=['REF_ARRAY', 'Resources'])
+    print(res_arrays_refs)
 
     # Print the __str__ and __repr__ representations of these columns
-    print("Columns in the Resources table referencing the Organisations table in an array.")
-    for orgs_ref in orgs_array_refs:
-        print(f"{orgs_ref!s}\n{orgs_ref!r}\n")
+    print("Columns in the Resources table referencing the Resources table in an array.")
+    for res_ref in res_arrays_refs:
+        print(f"{res_ref!s}\n{res_ref!r}\n")
 
 if __name__ == '__main__':
     asyncio.run(main())
