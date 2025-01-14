@@ -17,6 +17,7 @@ Therefore, releases of the Pyclient are less frequent than those of EMX2 and the
 - Added: feature 'truncate' to remove all entries from a table
 - Added: option to filter results of `get` method by columns
 - Improved: results returned from `get` with `as_df=False` by implementing the GraphQL API
+- Improved: added additional parsing for data returned from the CSV API to pandas DataFrame in `get` method 
 - Fixed: log level was set to `DEBUG` without possibility to change this. The user can now set the log level again at their preferred level
 
 #### 11.23.0
