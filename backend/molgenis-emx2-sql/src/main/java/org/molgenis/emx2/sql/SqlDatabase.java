@@ -252,15 +252,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         });
   }
 
-  private boolean isValidOidcSettings() {
-    Object oidcClientId =
-        EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING);
-    Object clientSecret =
-        EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, null, STRING);
-
-    return clientSecret != null && oidcClientId != null;
-  }
-
   @Override
   public void setListener(DatabaseListener listener) {
     this.listener = listener;
