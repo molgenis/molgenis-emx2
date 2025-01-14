@@ -158,11 +158,11 @@ function loadMore() {
 </script>
 
 <template>
-  <!-- <div
+  <div
     class="flex flex-wrap gap-2 mb-2"
     v-if="isArray ? selection.length : selection"
   >
-    <Button
+    <ButtonFilterWell
       v-for="label in isArray ? selection : [selection]"
       size="tiny"
       type="filterWell"
@@ -171,8 +171,8 @@ function loadMore() {
       @click="deselect(label as string)"
     >
       {{ label }}
-    </Button>
-  </div> -->
+    </ButtonFilterWell>
+  </div>
   <div class="flex flex-wrap gap-2 mb-2">
     <ButtonText
       @click="toggleSearch"
