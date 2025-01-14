@@ -2,7 +2,7 @@
 import type { ITableDataResponse } from "~/composables/fetchTableData";
 import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQueryMetaData.ts";
 import type { columnValueObject } from "../../../metadata-utils/src/types";
-import type { SelectOption } from "~/types/types";
+import type { IValueLabel } from "~/types/types";
 
 const props = withDefaults(
   defineProps<{
@@ -26,20 +26,30 @@ const props = withDefaults(
     inverted: false,
   }
 );
+
 const modelValue = defineModel<columnValueObject[] | columnValueObject | "">(); //empty string might happen
 const emit = defineEmits(["update:modelValue"]);
 const optionMap: Ref<Record<string, columnValueObject>> = ref({});
 const selectionMap: Ref<Record<string, columnValueObject>> = ref({});
-const initialCount = ref(0);
-const count = ref(0);
-const offset = ref(0);
-const showSearch = ref(false);
+const initialCount = ref<number>(0);
+const count = ref<number>(0);
+const offset = ref<number>(0);
+const showSearch = ref<boolean>(false);
 const searchTerms: Ref<string> = ref("");
+const hasNoResults = ref<boolean>(true);
+
+const columnName = computed<string>(() => {
+  return props.refLabel.replace(/[\{\}\$]/g, "");
+});
+
+const entitiesLeftToLoad = computed<number>(() => {
+  return Math.min(count.value - offset.value - props.limit, props.limit);
+});
 
 //computed elements to translate to CheckboxGroup or
 const listOptions = computed(() => {
   return Object.keys(optionMap.value).map((label) => {
-    return { value: label } as SelectOption;
+    return { value: label } as IValueLabel;
   });
 });
 const selection = computed(() =>
@@ -60,9 +70,12 @@ onMounted(async () => {
       props.refTableId,
       { filter: { equals: modelValue.value } }
     );
-    data.rows?.forEach(
-      (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
-    );
+    if (data.rows) {
+      hasNoResults.value = false;
+      data.rows?.forEach(
+        (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
+      );
+    }
   }
 
   //then we load the options for the first time
@@ -78,15 +91,22 @@ function applyTemplate(template: string, row: Record<string, any>): string {
 }
 
 async function loadOptions(filter: IQueryMetaData) {
+  hasNoResults.value = true;
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
     props.refTableId,
     filter
   );
-  data.rows.forEach(
-    (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
-  );
-  count.value = data.count;
+
+  if (data.rows) {
+    hasNoResults.value = false;
+    data.rows.forEach(
+      (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
+    );
+    count.value = data.count;
+  } else {
+    hasNoResults.value = true;
+  }
 }
 
 function toggleSearch() {
@@ -98,9 +118,6 @@ function updateSearch(newSearchTerms: string) {
   optionMap.value = {};
   offset.value = 0;
   searchTerms.value = newSearchTerms;
-  if (searchTerms.value === "") {
-    showSearch.value = false;
-  }
   loadOptions({ limit: props.limit, searchTerms: searchTerms.value });
 }
 
@@ -141,7 +158,7 @@ function loadMore() {
 </script>
 
 <template>
-  <div
+  <!-- <div
     class="flex flex-wrap gap-2 mb-2"
     v-if="isArray ? selection.length : selection"
   >
@@ -152,51 +169,61 @@ function loadMore() {
       icon="cross"
       icon-position="right"
       @click="deselect(label as string)"
-      >{{ label }}</Button
     >
+      {{ label }}
+    </Button>
+  </div> -->
+  <div class="flex flex-wrap gap-2 mb-2">
     <ButtonText
-      v-if="Object.keys(selectionMap).length > 0"
-      @click="clearSelection"
+      @click="toggleSearch"
       :inverted="inverted"
-      >clear selection</ButtonText
+      :aria-controls="`search-for-${id}`"
     >
+      Search
+    </ButtonText>
+    <ButtonText @click="clearSelection" :inverted="inverted">
+      Clear all
+    </ButtonText>
   </div>
-  <template v-if="initialCount > limit">
-    <template v-if="showSearch">
-      <InputSearch
-        :id="`search-for-${id}`"
-        :modelValue="searchTerms"
-        @update:modelValue="updateSearch"
-      />
-      <ButtonText icon="search" @click="toggleSearch" :inverted="inverted"
-        >found {{ count }} of {{ initialCount }} (clear)</ButtonText
-      >
-    </template>
-    <ButtonText v-else icon="search" @click="toggleSearch" :inverted="inverted"
-      >search in {{ initialCount }} options</ButtonText
-    >
+  <template v-if="showSearch && initialCount > limit">
+    <InputLabel :for="`search-for-${id}`" class="sr-only">
+      search in {{ columnName }}
+    </InputLabel>
+    <InputSearch
+      :id="`search-for-${id}`"
+      :modelValue="searchTerms"
+      @update:modelValue="updateSearch"
+      class="mb-2"
+      :placeholder="`Search in ${columnName}`"
+      :aria-hidden="!showSearch"
+    />
   </template>
-  <InputCheckboxGroup
-    v-if="isArray"
-    :id="id"
-    :options="listOptions"
-    :modelValue="selection as string[]"
-    @select="select"
-    @deselect="deselect"
-    :inverted="inverted"
-  />
-  <InputRadioGroup
-    v-else
-    :id="id"
-    :options="listOptions"
-    :modelValue="selection as string"
-    @select="select"
-    @deselect="deselect"
-    :inverted="inverted"
-  />
-  <div class="flex gap-2 mt-3">
-    <Button size="tiny" @click="loadMore" v-if="offset + limit < count"
-      >load {{ Math.min(count - offset - limit, limit) }} more ...</Button
+  <template v-if="!hasNoResults">
+    <InputCheckboxGroup
+      v-if="isArray"
+      :id="id"
+      :options="listOptions"
+      :modelValue="(selection as string[])"
+      @select="select"
+      @deselect="deselect"
+      :inverted="inverted"
+    />
+    <InputRadioGroup
+      v-else
+      :id="id"
+      :options="listOptions"
+      :modelValue="(selection as string)"
+      @select="select"
+      @deselect="deselect"
+      :inverted="inverted"
+    />
+    <ButtonText
+      @click="loadMore"
+      v-if="offset + limit < count"
+      :inverted="inverted"
     >
-  </div>
+      load {{ entitiesLeftToLoad }} more
+    </ButtonText>
+  </template>
+  <span v-else>No results found</span>
 </template>

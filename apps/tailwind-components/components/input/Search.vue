@@ -28,14 +28,14 @@ function handleInput(input: string) {
     <div
       class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
     >
-      <BaseIcon name="search" />
+      <BaseIcon name="search" class="text-gray-400" />
     </div>
     <input
       :id="id"
       type="search"
       :value="modelValue"
       @input="(event) => handleInput((event.target as HTMLInputElement).value)"
-      class="w-full pr-4 font-sans text-black text-gray-300 bg-white outline-none rounded-search-input h-10 ring-red-500 pl-10 shadow-search-input focus:shadow-search-input hover:shadow-search-input"
+      class="w-full pr-4 font-sans text-black bg-white outline-none rounded-search-input h-10 ring-red-500 pl-10 shadow-search-input focus:shadow-search-input hover:shadow-search-input"
       :class="[
         inverted
           ? 'border-search-input-mobile border'

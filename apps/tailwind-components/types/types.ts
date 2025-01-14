@@ -14,7 +14,7 @@ export interface INode {
   description?: string;
 }
 
-export interface SelectOption {
+export interface IValueLabel {
   value: any;
   label?: string;
 }

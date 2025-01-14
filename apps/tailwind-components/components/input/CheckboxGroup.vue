@@ -38,12 +38,12 @@
 </template>
 
 <script lang="ts" setup>
-import type { SelectOption } from "~/types/types";
+import type { IValueLabel } from "~/types/types";
 
 withDefaults(
   defineProps<{
     id: string;
-    options: SelectOption[];
+    options: IValueLabel[];
     showClearButton?: boolean;
   }>(),
   {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const inverted = ref(false);
-const searchValue = ref("");
+const inverted = ref<boolean>(false);
+const searchValue = ref<sring>("");
 </script>
 
 <template>
