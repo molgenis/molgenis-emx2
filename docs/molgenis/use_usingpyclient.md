@@ -147,6 +147,7 @@ Throws the `NoSuchColumnException` if the `columns` argument or query filter con
 | parameter      | type | description                                                                    | required | default |
 |----------------|------|--------------------------------------------------------------------------------|----------|---------|
 | `table`        | str  | the name of a table                                                            | True     | None    |
+| `columns`      | list | a list of column names or ids to filter on                                     | False    | None    |
 | `schema`       | str  | the name of a schema                                                           | False    | None    |
 | `query_filter` | str  | a string to filter the results on                                              | False    | None    |
 | `as_df`        | bool | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False   |
@@ -155,12 +156,12 @@ Throws the `NoSuchColumnException` if the `columns` argument or query filter con
 
 ```python
 # Get all entries for the table 'Resources' on the schema 'MySchema'
-table_data = client.get(table='Resources', schema='MySchema')
+table_data = client.get(table='Resources', schema='MySchema', columns=['name', 'collectionEvents'])
 
 # Set the default schema to 'MySchema'
 client.set_schema('MySchema')
 # Get the same entries and return them as pandas DataFrame
-table_data = client.get(table='Resources', as_df=True)
+table_data = client.get(table='Resources', columns=['name', 'collection events'], as_df=True)
 
 # Get the entries where the value of a particular column 'number of participants' is greater than 10000
 table_data = client.get(table='Resources', query_filter='numberOfParticipants > 10000')
