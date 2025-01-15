@@ -4,5 +4,13 @@
 
     --opacity-background-gradient: 0;
 
+    --backgroud-color-button-primary: var(--color-green-500);
+    --backgroud-color-button-primary-hover: var(--color-white);
+
+    --text-color-button-primary: var(--color-gray-800);
+    --text-color-button-primary-hover: var(--color-gray-800);
     --text-color-title: var(--color-white);
+
+    --border-color-button-primary: var(--color-green-500);
+    --border-color-button-primary-hover: var(--color-white);
 }    
