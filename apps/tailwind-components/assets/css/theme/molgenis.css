@@ -1,62 +1,19 @@
-@import url('./plugins/tailwind.css');
-@import url('./plugins/font.css');
-
-@import url('./theme/dark.css');
-@import url('./theme/molgenis.css'); 
-@import url('./theme/umcg.css');
-@import url('./theme/aumc.css');
-@import url('./plugins/popper.css');
-
-@layer components {
-  :root {
-    --color-current: currentColor;
-    --color-black: #333;
-    --color-white: #fff;
-    --color-transparent: transparent;
-    --color-blue-50: #E1F0FF;
-    --color-blue-100: #ADD6FF;
-    --color-blue-200: #8BC5FF;
-    --color-blue-300: #53A9FF;
-    --color-blue-500: #0173E4;
-    --color-blue-700: #015CB6;
-    --color-blue-800: #014F9E;
-    --color-blue-900: #013F7E;
-    --color-grey-50: #F9F9F9;
-    --color-gray-100: #F4F4F4;
-    --color-gray-200: #E2E2E2;
-    --color-gray-400: #C0C0C0;
-    --color-gray-600: #6D6D6D;
-    --color-gray-700: #414141;
-    --color-gray-800: #1E1E1E;
-    --color-gray-900: #1D1D1D;
-    --color-yellow-200: #FFF4CB;
-    --color-yellow-500: #FFF500;
-    --color-yellow-800: #C89B00;
-    --color-green-200: #C7FFE2;
-    --color-green-500: #72F6B2;
-    --color-green-800: #349D63;
-    --color-orange-500: #E1B53E;
-    --color-red-200: #FCECEF;
-    --color-red-500: #E14F62;
-    --color-gradient1: #0062C6;
-    --color-gradient2: #0072E4;
-
-
+:root[data-theme="molgenis"] {
     --box-shadow-primary: 0px 10px 20px rgba(0, 0, 0, 0.1);
     --box-shadow-search-input: none;
     --box-shadow-pagination-gray: 0px 10px 20px rgba(0, 0, 0, 0.1);
 
-    --background-image-sidebar-gradient: linear-gradient(180deg, var(--color-gray-50) -24.76%, var(--color-gray-50) 86.02%);
-    --background-image-base-gradient: linear-gradient(180deg, #FFFFFF, #FFFFFF 133.81%);
+    --background-image-sidebar-gradient: linear-gradient(180deg, #0164C7 0%, rgba(1, 100, 199, 0) 86.02%);
+    --background-image-base-gradient: linear-gradient(180deg, #017FFD 0%, #0163C6 133.81%);
 
-    --opacity-background-gradient: 0;
+    --opacity-background-gradient: 100;
 
-    --backgroud-color-button-primary: var(--color-blue-500);
-    --backgroud-color-button-primary-hover: var(--color-blue-700);
-    --backgroud-color-button-secondary: var(--color-white);
-    --backgroud-color-button-secondary-hover: var(--color-blue-50);
-    --backgroud-color-button-tertiary: var(--color-white);
-    --backgroud-color-button-tertiary-hover: var(--color-white);
+    --backgroud-color-button-primary: var(--color-yellow-500);
+    --backgroud-color-button-primary-hover: var(--color-yellow-200);
+    --backgroud-color-button-secondary: var(--color-blue-800);
+    --backgroud-color-button-secondary-hover: var(--color-blue-300);
+    --backgroud-color-button-tertiary: var(--color-blue-500);
+    --backgroud-color-button-tertiary-hover: var(--color-blue-300);
     --backgroud-color-button-outline: var(--color-white);
     --backgroud-color-button-outline-hover: var(--color-blue-50);
     --backgroud-color-button-disabled: var(--color-gray-100);
@@ -81,68 +38,66 @@
     --background-color-table: var(--color-white);
 
 
-    --text-color-button-primary: var(--color-white);
-    --text-color-button-primary-hover: var(--color-white);
-    --text-color-button-secondary: var(--color-blue-500);
-    --text-color-button-secondary-hover: var(--color-blue-500);
-    --text-color-button-tertiary: var(--color-blue-500);
-    --text-color-button-tertiary-hover: var(--color-blue-800);
+    --text-color-button-primary: var(--color-gray-900);
+    --text-color-button-primary-hover: var(--color-gray-900);
+    --text-color-button-secondary: var(--color-white);
+    --text-color-button-secondary-hover: var(--color-white);
+    --text-color-button-tertiary: var(--color-white);
+    --text-color-button-tertiary-hover: var(--color-white);
     --text-color-button-outline: var(--color-blue-500);
     --text-color-button-outline-hover: var(--color-blue-700);
     --text-color-button-disabled: var(--color-gray-600);
     --text-color-button-disabled-hover: var(--color-gray-600);
-    --text-color-menu: var(--color-blue-800);
+    --text-color-menu: var(--color-white);
     --text-color-sub-menu: var(--color-blue-500);
     --text-color-sub-menu-hover: var(--color-blue-700);
-    --text-color-breadcrumb-arrow: var(--color-gray-400);
-    --text-color-breadcrumb: var(--color-blue-500);
-    --text-color-title: var(--color-blue-800);
+    --text-color-breadcrumb-arrow: var(--color-white);
+    --text-color-breadcrumb: var(--color-blue-50);
+    --text-color-title: var(--color-white);
     --text-color-title-contrast: var(--color-blue-500);
     --text-color-sub-title-contrast: var(--color-black);
     --text-color-search-button: var(--text-blue-500);
     --text-color-search-button-hover: var(--text-blue-800);
-    --text-color-favorite: var(--color-blue-800);
-    --text-color-favorite-hover: var(--color-blue-800);
+    --text-color-favorite: var(--color-white);
+    --text-color-favorite-hover: var(--color-white);
     --text-color-search-button: var(--color-blue-500);
     --text-color-search-button-hover: var(--color-blue-800);
     --text-color-search-results-view-tabs: var(--color-blue-500);
     --text-color-search-results-view-tabs-hover: var(--color-blue-800);
-    --text-color-search-filter-title: var(--text-color-title);
+    --text-color-search-filter-title: var(--color-white);
     --text-color-search-filter-expand: var(--color-yellow-500);
-    --text-color-search-filter-expand-mobile: var(--text-color-title);
-    --text-color-search-filter-group-title: var(--text-color-title);
+    --text-color-search-filter-expand-mobile: var(--color-blue-800);
+    --text-color-search-filter-group-title: var(--color-white);
     --text-color-search-filter-group-title-mobile: var(--color-black);
     --text-color-search-filter-group-checkbox: var(--color-yellow-500);
-    --text-color-search-filter-group-toggle: var(--text-color-title);
+    --text-color-search-filter-group-toggle: var(--color-white);
     --text-color-search-filter-title-inverted: var(--color-back);
     --text-color-search-filter-expand-inverted: var(--color-yellow-500);
     --text-color-search-filter-group-title-inverted: var(--color-black);
     --text-color-search-filter-group-checkbox-inverted: var(--color-yellow-500);
     --text-color-search-filter-group-toggle-inverted: var(--color-black);
     --text-color-tooltip-hover-dark: var(--color-blue-500);
-    --text-color-tooltip-hover-light: var(--color-blue-800);
-    --text-color-pagination: var(--text-color-title);
+    --text-color-tooltip-hover-light: var(--color-white);
+    --text-color-pagination: var(--color-white);
     --text-color-pagination-inverted: var(--color-gray-400);
-    --text-color-pagination-input: var(--text-color-title);
-    --text-color-pagination-hover: var(--text-color-title);
+    --text-color-pagination-input: var(--color-blue-800);
+    --text-color-pagination-hover: var(--color-white);
     --text-color-footer-link: var(--color-yellow-500);
     --text-color-table-column-header: var(--color-gray-600);
-    --text-color-form-header: var(--color-blue-800);
-    --text-color-input-description: var(--color-blue-800);
     
     --text-color-invalid: var(--color-red-500);
     --text-color-valid: var(--color-green-800);
-    --text-color-disabled: var(--color-gray-600);
+    --text-color-disabled: var(--color-gray-400);
     --text-color-required: var(--color-red-500);
     
     --text-content-required: "*";
 
-    --border-color-button-primary: var(--color-blue-500);
-    --border-color-button-primary-hover: var(--color-blue-700);
-    --border-color-button-secondary: var(--color-white);
-    --border-color-button-secondary-hover: var(--color-blue-50);
-    --border-color-button-tertiary: var(--color-gray-200);
-    --border-color-button-tertiary-hover: var(--color-blue-800);
+    --border-color-button-primary: var(--color-yellow-500);
+    --border-color-button-primary-hover: var(--color-yellow-200);
+    --border-color-button-secondary: var(--color-blue-800);
+    --border-color-button-secondary-hover: var(--color-blue-300);
+    --border-color-button-tertiary: var(--color-blue-500);
+    --border-color-button-tertiary-hover: var(--color-blue-300);
     --border-color-button-outline: var(--color-blue-500);
     --border-color-button-outline-hover: var(--color-blue-700);
     --border-color-button-disabled: var(--color-gray-100);
@@ -152,12 +107,12 @@
     --border-color-search-input: var(--color-white);
     --border-color-search-input-mobile: var(--color-gray-100);
     --border-color-pagination: var(--color-transparent);
-    --border-color-input: #C0C0C0;
+    --border-color-input: var(--color-transparent);
     --border-color-input-inverted: var(--color-gray-600);
 
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
-    --border-radius-input: 3px;
+    --border-radius-input: 50px;
     --border-radius-textarea-input: 20px;
     --border-radius-search-input: 9999px;
     --border-radius-search-button: 9999px;
@@ -169,8 +124,4 @@
     --border-color-disabled: var(--color-gray-400);
 
     --outline-color-select: var(--color-gray-200);
-
   }
-
-  
-}
