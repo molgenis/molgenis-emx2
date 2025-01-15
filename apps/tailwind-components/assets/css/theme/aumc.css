@@ -31,6 +31,7 @@
     --text-color-search-results-view-tabs:  var(--color-blue-300);
     --text-color-search-results-view-tabs-hover: var(--color-blue-800);
     --text-color-search-filter-group-title: var(--text-color-title);
+    --text-color-pagination-input: var(--color-blue-800);
 
     --border-radius-input: var(--border-radius-50px);
   }

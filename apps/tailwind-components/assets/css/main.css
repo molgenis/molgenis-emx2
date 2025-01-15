@@ -121,10 +121,10 @@
     --text-color-search-filter-group-toggle-inverted: var(--color-black);
     --text-color-tooltip-hover-dark: var(--color-blue-500);
     --text-color-tooltip-hover-light: var(--color-blue-800);
-    --text-color-pagination: var(--color-blue-800);
+    --text-color-pagination: var(--text-color-title);
     --text-color-pagination-inverted: var(--color-gray-400);
-    --text-color-pagination-input: var(--color-blue-800);
-    --text-color-pagination-hover: var(--color-blue-800);
+    --text-color-pagination-input: var(--text-color-title);
+    --text-color-pagination-hover: var(--text-color-title);
     --text-color-footer-link: var(--color-yellow-500);
     --text-color-table-column-header: var(--color-gray-600);
     --text-color-form-header: var(--color-blue-800);
