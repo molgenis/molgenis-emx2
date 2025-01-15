@@ -43,11 +43,19 @@ const chapters = computed(() => {
 });
 
 const dataMap = reactive(
-  Object.fromEntries(props.metadata.columns.map((column) => [column.id, ""]))
+  Object.fromEntries(
+    props.metadata.columns
+      .filter((column) => column.columnType !== "HEADING")
+      .map((column) => [column.id, ""])
+  )
 );
 
 const errorMap = reactive(
-  Object.fromEntries(props.metadata.columns.map((column) => [column.id, []]))
+  Object.fromEntries(
+    props.metadata.columns
+      .filter((column) => column.columnType !== "HEADING")
+      .map((column) => [column.id, []])
+  )
 );
 
 const numberOffFieldsWithErrors = computed(() =>
