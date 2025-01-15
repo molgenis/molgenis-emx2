@@ -17,9 +17,10 @@
     --color-blue-100: #ADD6FF;
     --color-blue-200: #8BC5FF;
     --color-blue-300: #53A9FF;
-    --color-blue-500: #017FFD;
-    --color-blue-700: #1D4ED8;
+    --color-blue-500: #0173E4;
+    --color-blue-700: #015CB6;
     --color-blue-800: #014F9E;
+    --color-blue-900: #013F7E;
     --color-grey-50: #F9F9F9;
     --color-gray-100: #F4F4F4;
     --color-gray-200: #E2E2E2;
@@ -48,8 +49,8 @@
 
     --opacity-background-gradient: 0;
 
-    --backgroud-color-button-primary: var(--color-yellow-500);
-    --backgroud-color-button-primary-hover: var(--color-yellow-200);
+    --backgroud-color-button-primary: var(--color-blue-500);
+    --backgroud-color-button-primary-hover: var(--color-blue-700);
     --backgroud-color-button-secondary: var(--color-blue-800);
     --backgroud-color-button-secondary-hover: var(--color-blue-300);
     --backgroud-color-button-tertiary: var(--color-blue-500);
@@ -78,8 +79,8 @@
     --background-color-table: var(--color-white);
 
 
-    --text-color-button-primary: var(--color-gray-900);
-    --text-color-button-primary-hover: var(--color-gray-900);
+    --text-color-button-primary: var(--color-white);
+    --text-color-button-primary-hover: var(--color-white);
     --text-color-button-secondary: var(--color-blue-800);
     --text-color-button-secondary-hover: var(--color-blue-800);
     --text-color-button-tertiary: var(--color-blue-800);
@@ -134,8 +135,8 @@
     
     --text-content-required: "*";
 
-    --border-color-button-primary: var(--color-yellow-500);
-    --border-color-button-primary-hover: var(--color-yellow-200);
+    --border-color-button-primary: var(--color-blue-500);
+    --border-color-button-primary-hover: var(--color-blue-700);
     --border-color-button-secondary: var(--color-blue-800);
     --border-color-button-secondary-hover: var(--color-blue-300);
     --border-color-button-tertiary: var(--color-blue-500);
