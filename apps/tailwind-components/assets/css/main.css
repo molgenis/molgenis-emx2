@@ -55,8 +55,8 @@
     --backgroud-color-button-primary-hover: var(--color-blue-700);
     --backgroud-color-button-secondary: var(--color-white);
     --backgroud-color-button-secondary-hover: var(--color-blue-50);
-    --backgroud-color-button-tertiary: var(--color-blue-500);
-    --backgroud-color-button-tertiary-hover: var(--color-blue-300);
+    --backgroud-color-button-tertiary: var(--color-white);
+    --backgroud-color-button-tertiary-hover: var(--color-white);
     --backgroud-color-button-outline: var(--color-white);
     --backgroud-color-button-outline-hover: var(--color-blue-50);
     --backgroud-color-button-disabled: var(--color-gray-100);
@@ -85,7 +85,7 @@
     --text-color-button-primary-hover: var(--color-white);
     --text-color-button-secondary: var(--color-blue-500);
     --text-color-button-secondary-hover: var(--color-blue-500);
-    --text-color-button-tertiary: var(--color-blue-800);
+    --text-color-button-tertiary: var(--color-blue-500);
     --text-color-button-tertiary-hover: var(--color-blue-800);
     --text-color-button-outline: var(--color-blue-500);
     --text-color-button-outline-hover: var(--color-blue-700);
@@ -141,8 +141,8 @@
     --border-color-button-primary-hover: var(--color-blue-700);
     --border-color-button-secondary: var(--color-white);
     --border-color-button-secondary-hover: var(--color-blue-50);
-    --border-color-button-tertiary: var(--color-blue-500);
-    --border-color-button-tertiary-hover: var(--color-blue-300);
+    --border-color-button-tertiary: var(--color-gray-200);
+    --border-color-button-tertiary-hover: var(--color-blue-800);
     --border-color-button-outline: var(--color-blue-500);
     --border-color-button-outline-hover: var(--color-blue-700);
     --border-color-button-disabled: var(--color-gray-100);
