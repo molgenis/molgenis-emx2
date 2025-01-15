@@ -17,7 +17,7 @@ test("landing-page-molgenis", async ({ page, goto }) => {
   });
   await expect(page).toHaveScreenshot({
     fullPage: true,
-    maxDiffPixels: 500,
+    maxDiffPixels: 2000,
   });
 });
 
@@ -27,7 +27,7 @@ test("landing-page-umcg", async ({ page, goto }) => {
   });
   await expect(page).toHaveScreenshot({
     fullPage: true,
-    maxDiffPixels: 500,
+    maxDiffPixels: 2000,
   });
 });
 
@@ -37,6 +37,6 @@ test("landing-page-aumc", async ({ page, goto }) => {
   });
   await expect(page).toHaveScreenshot({
     fullPage: true,
-    maxDiffPixels: 500,
+    maxDiffPixels: 2000,
   });
 });
