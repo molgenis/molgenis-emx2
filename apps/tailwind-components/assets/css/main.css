@@ -71,29 +71,30 @@
 
     --opacity-background-gradient: 100;
 
-    --backgroud-color-button-primary: var(--color-yellow-500);
-    --backgroud-color-button-primary-hover: var(--color-yellow-200);
-    --backgroud-color-button-secondary: var(--color-blue-800);
-    --backgroud-color-button-secondary-hover: var(--color-blue-300);
-    --backgroud-color-button-tertiary: var(--color-blue-500);
-    --backgroud-color-button-tertiary-hover: var(--color-blue-300);
-    --backgroud-color-button-outline: var(--color-white);
-    --backgroud-color-button-outline-hover: var(--color-blue-50);
-    --backgroud-color-button-disabled: var(--color-gray-100);
-    --backgroud-color-button-disabled-hover: var(--color-gray-100);
-    --backgroud-color-search-button: var(--color-blue-50);
-    --backgroud-color-search-button-hover: var(--color-blue-700);
-    --backgroud-color-navigation: rgba(0, 0, 0, .2);
-    --backgroud-color-search-results-view-tabs: var(--color-blue-800);
-    --backgroud-color-search-filter-group-toggle: var(--color-blue-800);
-    --backgroud-color-app-wrapper: var(--color-black);
-    --backgroud-color-pagination: var(--color-blue-800);
-    --backgroud-color-pagination-hover: var(--color-blue-900);
-    --backgroud-color-footer: var(--color-blue-800);
-    --backgroud-color-modal-footer: var(--color-blue-800);
-    --backgroud-color-tab: var(--color-blue-50);
-    --backgroud-color-tab-hover: var(--color-blue-500);
-    --backgroud-color-tab-active: var(--color-blue-500);
+    --background-color-button-primary: var(--color-yellow-500);
+    --background-color-button-primary-hover: var(--color-yellow-200);
+    --background-color-button-secondary: var(--color-blue-800);
+    --background-color-button-secondary-hover: var(--color-blue-300);
+    --background-color-button-tertiary: var(--color-blue-500);
+    --background-color-button-tertiary-hover: var(--color-blue-300);
+    --background-color-button-outline: var(--color-white);
+    --background-color-button-outline-hover: var(--color-blue-50);
+    --background-color-button-disabled: var(--color-gray-100);
+    --background-color-button-disabled-hover: var(--color-gray-100);
+    --background-color-button-filter-well: var(--color-blue-50);
+    --background-color-search-button: var(--color-blue-50);
+    --background-color-search-button-hover: var(--color-blue-700);
+    --background-color-navigation: rgba(0, 0, 0, .2);
+    --background-color-search-results-view-tabs: var(--color-blue-800);
+    --background-color-search-filter-group-toggle: var(--color-blue-800);
+    --background-color-app-wrapper: var(--color-black);
+    --background-color-pagination: var(--color-blue-800);
+    --background-color-pagination-hover: var(--color-blue-900);
+    --background-color-footer: var(--color-blue-800);
+    --background-color-modal-footer: var(--color-blue-800);
+    --background-color-tab: var(--color-blue-50);
+    --background-color-tab-hover: var(--color-blue-500);
+    --background-color-tab-active: var(--color-blue-500);
     --background-color-disabled: var(--color-gray-200);
     --background-color-invalid: var(--color-red-200);
     --background-color-input: var(--color-white);
@@ -111,6 +112,7 @@
     --text-color-button-outline-hover: var(--color-blue-700);
     --text-color-button-disabled: var(--color-gray-600);
     --text-color-button-disabled-hover: var(--color-gray-600);
+    --text-color-button-filter-well: var(--color-blue-500);
     --text-color-menu: var(--color-white);
     --text-color-sub-menu: var(--color-blue-500);
     --text-color-sub-menu-hover: var(--color-blue-700);
@@ -205,25 +207,26 @@
 
     --opacity-background-gradient: 0;
 
-    --backgroud-color-button-primary: var(--color-orange-500);
-    --backgroud-color-button-primary-hover: var(--white);
-    --backgroud-color-button-secondary: var(--color-orange-500);
-    --backgroud-color-button-secondary-hover: var(--color-orange-200);
-    --backgroud-color-button-tertiary: var(--color-umcg-light-blue);
-    --backgroud-color-button-tertiary-hover: var(--color-umcg-light-blue);
-    --backgroud-color-button-outline: var(--color-white);
-    --backgroud-color-button-outline-hover: var(--color-white);
-    --backgroud-color-button-disabled: var(--color-gray-100);
-    --backgroud-color-button-disabled-hover: var(--color-gray-100);
-    --backgroud-color-search-button: var(--color-white);
-    --backgroud-color-navigation: var(--color-white);
-    --backgroud-color-search-results-view-tabs: var(--color-umcg-dark-blue);
-    --backgroud-color-search-filter-group-toggle: #bdcce4;
-    --backgroud-color-app-wrapper: var(--color-transparent);
-    --backgroud-color-pagination: var(--color-transparent);
-    --backgroud-color-pagination-hover: var(--color-umcg-dark-blue);
-    --backgroud-color-footer: var(--color-white);
-    --backgroud-color-modal-footer: #E3EFF8;
+    --background-color-button-primary: var(--color-orange-500);
+    --background-color-button-primary-hover: var(--white);
+    --background-color-button-secondary: var(--color-orange-500);
+    --background-color-button-secondary-hover: var(--color-orange-200);
+    --background-color-button-tertiary: var(--color-umcg-light-blue);
+    --background-color-button-tertiary-hover: var(--color-umcg-light-blue);
+    --background-color-button-outline: var(--color-white);
+    --background-color-button-outline-hover: var(--color-white);
+    --background-color-button-disabled: var(--color-gray-100);
+    --background-color-button-disabled-hover: var(--color-gray-100);
+    --background-color-button-filter-well: var(--color-white);
+    --background-color-search-button: var(--color-white);
+    --background-color-navigation: var(--color-white);
+    --background-color-search-results-view-tabs: var(--color-umcg-dark-blue);
+    --background-color-search-filter-group-toggle: #bdcce4;
+    --background-color-app-wrapper: var(--color-transparent);
+    --background-color-pagination: var(--color-transparent);
+    --background-color-pagination-hover: var(--color-umcg-dark-blue);
+    --background-color-footer: var(--color-white);
+    --background-color-modal-footer: #E3EFF8;
 
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-orange-500);
@@ -316,11 +319,11 @@
     --color-gradient2: #337588;
     --text-color-search-results-view-tabs:  var(--color-blue-300);
     --text-color-search-results-view-tabs-hover: var(--color-blue-800);
-    --backgroud-color-search-results-view-tabs: var(--color-blue-300);
+    --background-color-search-results-view-tabs: var(--color-blue-300);
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-black);
-    --backgroud-color-button-primary: var(--color-orange-500);
-    --backgroud-color-button-primary-hover: var(--color-orange-200);
+    --background-color-button-primary: var(--color-orange-500);
+    --background-color-button-primary-hover: var(--color-orange-200);
   }
 
   .v-popper--theme-tooltip {
