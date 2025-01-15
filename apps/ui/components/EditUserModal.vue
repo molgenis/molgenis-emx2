@@ -78,7 +78,7 @@
     </div>
 
     <template #footer>
-      <Button @click="saveUser()" :disabled="isValidUser()">Save</Button>
+      <Button @click="saveUser()" :disabled="!isValidUser()">Save</Button>
       <Button @click="closeEditUserModal">Close</Button>
     </template>
   </Modal>

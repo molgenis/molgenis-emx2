@@ -25,7 +25,7 @@
     <template #footer>
       <Button
         @click="addUser(username, password, password2)"
-        :disabled="isValidUser()"
+        :disabled="!isValidUser()"
       >
         Add user
       </Button>
