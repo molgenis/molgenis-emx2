@@ -12,15 +12,24 @@
     --color-orange-500: #d14200;
     --color-orange-800: #d14200;
 
-    --background-image-sidebar-gradient: linear-gradient(180deg, #21515f 0%, #21515f 86.02%);
-    --background-image-base-gradient: linear-gradient(180deg, #337588 0%, #337588 133.81%);
     --color-gradient1: #21515f;
     --color-gradient2: #337588;
-    --text-color-search-results-view-tabs:  var(--color-blue-300);
-    --text-color-search-results-view-tabs-hover: var(--color-blue-800);
-    --backgroud-color-search-results-view-tabs: var(--color-blue-300);
-    --text-color-button-primary: var(--color-white);
-    --text-color-button-primary-hover: var(--color-black);
+
+    --background-image-sidebar-gradient: linear-gradient(180deg, var(--color-gradient1) 0%, var(--color-gradient1) 86.02%);
+    --background-image-base-gradient: linear-gradient(180deg, var(--color-gradient2) 0%, var(--color-gradient2) 133.81%);
+
     --backgroud-color-button-primary: var(--color-orange-500);
     --backgroud-color-button-primary-hover: var(--color-orange-200);
+    --backgroud-color-search-results-view-tabs: var(--color-blue-300);
+
+    --text-color-button-primary: var(--color-white);
+    --text-color-button-primary-hover: var(--color-black);
+    --text-color-title: var(--color-white);
+    --text-color-form-header: var(--text-color-title);
+    --text-color-breadcrumb: var(--text-color-title);
+    --text-color-breadcrumb-arrow: var(--text-color-title);
+    --text-color-search-results-view-tabs:  var(--color-blue-300);
+    --text-color-search-results-view-tabs-hover: var(--color-blue-800);
+
+    --border-radius-input: var(--border-radius-50px);
   }

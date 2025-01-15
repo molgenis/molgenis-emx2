@@ -14,6 +14,7 @@
     --text-color-button-secondary: var(--color-green-500);
     --text-color-button-secondary-hover: var(--color-green-200);
     --text-color-title: var(--color-white);
+    --text-color-title-contrast: var(--color-blue-500);
 
     --border-color-button-primary: var(--color-green-500);
     --border-color-button-primary-hover: var(--color-white);
