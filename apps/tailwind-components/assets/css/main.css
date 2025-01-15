@@ -26,11 +26,13 @@
     --color-gray-200: #E2E2E2;
     --color-gray-400: #C0C0C0;
     --color-gray-600: #6D6D6D;
+    --color-gray-700: #414141;
     --color-gray-800: #1E1E1E;
     --color-gray-900: #1D1D1D;
     --color-yellow-200: #FFF4CB;
     --color-yellow-500: #FFF500;
     --color-yellow-800: #C89B00;
+    --color-green-200: #C7FFE2;
     --color-green-500: #72F6B2;
     --color-green-800: #349D63;
     --color-orange-500: #E1B53E;
@@ -51,8 +53,8 @@
 
     --backgroud-color-button-primary: var(--color-blue-500);
     --backgroud-color-button-primary-hover: var(--color-blue-700);
-    --backgroud-color-button-secondary: var(--color-blue-800);
-    --backgroud-color-button-secondary-hover: var(--color-blue-300);
+    --backgroud-color-button-secondary: var(--color-white);
+    --backgroud-color-button-secondary-hover: var(--color-blue-50);
     --backgroud-color-button-tertiary: var(--color-blue-500);
     --backgroud-color-button-tertiary-hover: var(--color-blue-300);
     --backgroud-color-button-outline: var(--color-white);
@@ -81,8 +83,8 @@
 
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-white);
-    --text-color-button-secondary: var(--color-blue-800);
-    --text-color-button-secondary-hover: var(--color-blue-800);
+    --text-color-button-secondary: var(--color-blue-500);
+    --text-color-button-secondary-hover: var(--color-blue-500);
     --text-color-button-tertiary: var(--color-blue-800);
     --text-color-button-tertiary-hover: var(--color-blue-800);
     --text-color-button-outline: var(--color-blue-500);
@@ -137,8 +139,8 @@
 
     --border-color-button-primary: var(--color-blue-500);
     --border-color-button-primary-hover: var(--color-blue-700);
-    --border-color-button-secondary: var(--color-blue-800);
-    --border-color-button-secondary-hover: var(--color-blue-300);
+    --border-color-button-secondary: var(--color-white);
+    --border-color-button-secondary-hover: var(--color-blue-50);
     --border-color-button-tertiary: var(--color-blue-500);
     --border-color-button-tertiary-hover: var(--color-blue-300);
     --border-color-button-outline: var(--color-blue-500);

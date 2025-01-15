@@ -6,11 +6,17 @@
 
     --backgroud-color-button-primary: var(--color-green-500);
     --backgroud-color-button-primary-hover: var(--color-white);
+    --backgroud-color-button-secondary: var(--color-gray-700);
+    --backgroud-color-button-secondary-hover: var(--color-gray-700);
 
     --text-color-button-primary: var(--color-gray-800);
     --text-color-button-primary-hover: var(--color-gray-800);
+    --text-color-button-secondary: var(--color-green-500);
+    --text-color-button-secondary-hover: var(--color-green-200);
     --text-color-title: var(--color-white);
 
     --border-color-button-primary: var(--color-green-500);
     --border-color-button-primary-hover: var(--color-white);
+    --border-color-button-secondary: var(--color-gray-600);
+    --border-color-button-secondary-hover: var(--color-green-200);
 }    
