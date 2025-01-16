@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -8,13 +7,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -48,6 +46,8 @@ public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
+  public static final String PET_SHOP_VIEWER = "shopviewer";
+  public static final String PET_SHOP_MANAGER = "shopmanager";
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
   public static final String TABLE_WITH_SPACES = "table with spaces";
   public static final String PET_STORE_SCHEMA = "pet store";
@@ -64,9 +64,7 @@ public class WebApiSmokeTests {
     db = TestDatabaseFactory.getTestDatabase();
 
     // start web service for testing, including env variables
-    withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
-        // disable because of parallelism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
-        .execute(() -> RunMolgenisEmx2.main(new String[] {}));
+    RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
 
     // set default rest assured settings
     RestAssured.port = PORT;
@@ -95,6 +93,11 @@ public class WebApiSmokeTests {
     PET_STORE.getImportTask(schema, true).run();
 
     // grant a user permission
+    db.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
+    db.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
+    db.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER);
+    schema.addMember(PET_SHOP_MANAGER, Privileges.MANAGER.toString());
+    schema.addMember(PET_SHOP_VIEWER, Privileges.VIEWER.toString());
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
@@ -169,7 +172,7 @@ public class WebApiSmokeTests {
 
     // check if reports work
     byte[] zipContents =
-        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=0");
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=report1");
     File zipFile = createTempFile(zipContents, ".zip");
     TableStore store = new TableStoreForCsvInZipFile(zipFile.toPath());
     store.containsTable("pet report");
@@ -177,58 +180,78 @@ public class WebApiSmokeTests {
     // check if reports work with parameters
     zipContents =
         getContentAsByteArray(
-            ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=1&name=spike,pooky");
+            ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=report2&name=spike,pooky");
     zipFile = createTempFile(zipContents, ".zip");
     store = new TableStoreForCsvInZipFile(zipFile.toPath());
     store.containsTable("pet report with parameters");
 
     // check if reports work
     byte[] excelContents =
-        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=0");
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=report1");
     File excelFile = createTempFile(excelContents, ".xlsx");
     store = new TableStoreForXlsxFile(excelFile.toPath());
-    assertTrue(store.containsTable("pet report"));
+    assertTrue(store.containsTable("report1"));
 
     // check if reports work with parameters
     excelContents =
         getContentAsByteArray(
-            ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=1&name=spike,pooky");
+            ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=report2&name=spike,pooky");
     excelFile = createTempFile(excelContents, ".xlsx");
     store = new TableStoreForXlsxFile(excelFile.toPath());
-    assertTrue(store.containsTable("pet report with parameters"));
+    assertTrue(store.containsTable("report2"));
     assertTrue(excelContents.length > 0);
 
     // test json report api
     String jsonResults =
-        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=0").asString();
-    assertFalse(jsonResults.contains("pet report"), "single result should not include report name");
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report1")
+            .asString();
+    assertFalse(
+        jsonResults.contains("report1"),
+        "single result should not include report name"); // are we sure about this?
     jsonResults =
         given()
             .sessionId(SESSION_ID)
-            .get("/pet store reports/api/reports/json?id=0,1&name=pooky")
+            .get("/pet store reports/api/reports/json?id=report1,report2&name=pooky")
             .asString();
     assertTrue(
-        jsonResults.contains("pet report"),
+        jsonResults.contains("report1"),
         "multiple results should use the report name to nest results");
+    // check that id is for keys
     jsonResults =
         given()
             .sessionId(SESSION_ID)
-            .get("/pet store reports/api/reports/json?id=1&name=spike,pooky")
+            .get("/pet store reports/api/reports/json?id=report1,report2&name=pooky")
+            .asString();
+    assertTrue(jsonResults.contains("report1"), "should use report id as key");
+    assertTrue(jsonResults.contains("report2"), "should use report id as key");
+
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report2&name=spike,pooky")
             .asString();
     assertTrue(jsonResults.contains("pooky"));
 
     // test report using jsonb_agg
     jsonResults =
-        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=2").asString();
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report3")
+            .asString();
     ObjectMapper objectMapper = new ObjectMapper();
     List<Object> jsonbResult = objectMapper.readValue(jsonResults, List.class);
     assertTrue(jsonbResult.get(0).toString().contains("pooky"));
 
     // test report using jsonb rows
     jsonResults =
-        given().sessionId(SESSION_ID).get("/pet store reports/api/reports/json?id=3").asString();
-    jsonbResult = objectMapper.readValue(jsonResults, List.class);
-    assertTrue(jsonbResult.get(0).toString().contains("pooky"));
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report4")
+            .asString();
+    Object result = objectMapper.readValue(jsonResults, Object.class);
+    assertTrue(result.toString().contains("pooky"));
   }
 
   @Test

@@ -45,9 +45,11 @@
         ref="listbox-li"
         :id="option.elemId"
         role="option"
-        class="flex justify-start items-center gap-3 pl-3 py-1 text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-hover focus:text-listbox focus:ring-blue-300"
+        class="flex justify-start items-center gap-3 pl-3 py-1 bg-listbox text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-hover focus:text-listbox focus:ring-blue-300"
         :class="{
-          '!border-2 !border-blue-300': isSelected(option.value),
+          '!bg-listbox-selected !text-listbox-selected': isSelected(
+            option.value
+          ),
         }"
         :aria-selected="isSelected(option.value)"
         @click="onListboxOptionClick(option)"
@@ -56,8 +58,10 @@
       >
         <BaseIcon
           name="Check"
-          class="text-listbox"
-          :class="isSelected(option.value) ? 'visible' : 'invisible'"
+          class="fill-listbox-selected invisible"
+          :class="{
+            '!visible': isSelected(option.value),
+          }"
           :width="18"
         />
         <span v-if="option.label">

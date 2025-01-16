@@ -17,7 +17,6 @@ useHead({
   },
 });
 
-const isExpanded = ref<boolean>(false);
 const isFocusLayout = ref<boolean>(false);
 
 function toggleLayout () {
@@ -45,35 +44,42 @@ function toggleLayout () {
       <Button type="outline" size="small" @click="toggleLayout">{{ isFocusLayout ? "show side": "focus"}}</Button>
     </div>
     
-    <div class="w-[150px] relative">
-      <button id="theme-selector-toggle" aria-controls="theme-selector" :aria-expanded="isExpanded"
-        @click="isExpanded = !isExpanded">
-        <span>Theme</span>
-        <CaretDown class="w-5 inline-block" />
-      </button>
-      <div class="absolute mt-2 z-50 bg-white py-2 px-4 rounded shadow-sm border" v-show="isExpanded">
-        <fieldset class="mb-2">
-          <legend class="text-current text-body-sm">Select a theme</legend>
+    <div class=" ">
+        <fieldset class="flex pr-2">
+          <div>
+            <legend class="text-current">Theme:</legend>
+          </div>
+          
           <div class="px-1">
-            <input class="hover:cursor-pointer mr-2" id="default-theme" type="radio" v-model="theme" value="" />
+            <input class="hover:cursor-pointer ml-1" id="default-theme" type="radio" v-model="theme" value="" />
             <label class="hover:cursor-pointer" for="default-theme">
-              Default
+              Light
             </label>
           </div>
           <div class="px-1">
-            <input class="hover:cursor-pointer mr-2" id="umcg-theme" type="radio" v-model="theme" value="umcg" />
+            <input class="hover:cursor-pointer ml-1" id="dark-theme" type="radio" v-model="theme" value="dark" />
+            <label class="hover:cursor-pointer" for="dark-theme">
+              Dark
+            </label>
+          </div>
+          <div class="px-1">
+            <input class="hover:cursor-pointer ml-1" id="molgenis-theme" type="radio" v-model="theme" value="molgenis" />
+            <label class="hover:cursor-pointer" for="molgenis-theme"> Molgenis </label>
+          </div>
+          <div class="px-1">
+            <input class="hover:cursor-pointer ml-1" id="umcg-theme" type="radio" v-model="theme" value="umcg" />
             <label class="hover:cursor-pointer" for="umcg-theme"> UMCG </label>
           </div>
           <div class="px-1">
-            <input class="hover:cursor-pointer mr-2" id="aumc-theme" type="radio" v-model="theme" value="aumc" />
+            <input class="hover:cursor-pointer ml-1" id="aumc-theme" type="radio" v-model="theme" value="aumc" />
             <label class="hover:cursor-pointer" for="aumc-theme"> AUMC </label>
           </div>
         </fieldset>
-      </div>
+     
     </div>
   </nav>
             
-  <NuxtLayout @click="isExpanded = false">
+  <NuxtLayout>
     <NuxtPage  />
   </NuxtLayout>     
 

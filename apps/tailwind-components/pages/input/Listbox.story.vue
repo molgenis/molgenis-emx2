@@ -72,12 +72,12 @@
           :showClearButton="true"
         />
       </div>
-    </div>
-    <div class="bg-white p-2 grow">
-      <InputLabel for="listbox-placeholder">
-        Change the default placeholder text
-      </InputLabel>
-      <InputString id="listbox-placeholder" v-model="listboxPlaceholder" />
+      <div class="bg-white p-2 grow">
+        <InputLabel for="listbox-placeholder">
+          Change the default placeholder text
+        </InputLabel>
+        <InputString id="listbox-placeholder" v-model="listboxPlaceholder" />
+      </div>
     </div>
   </form>
   <div class="mb-6 bg-white rounded px-6 py-8">
@@ -98,12 +98,12 @@
       :hasError="listboxState === 'error'"
       :disabled="listboxState === 'disabled'"
       :placeholder="listboxPlaceholder"
-      @update:model-value="(value) => (listboxSelection = value)"
+      @update:model-value="(value) => (modelValue = value)"
     />
     <output class="block w-full mt-6 bg-gray-100 py-3 px-2 pl-6">
       <code
         >Output {{ listboxDataType === "true" ? "Value" : "Object" }}:
-        {{ listboxSelection }}</code
+        {{ modelValue }}</code
       >
     </output>
   </div>
@@ -124,6 +124,8 @@
 import { ref, computed } from "vue";
 import type { IListboxValue, IListboxOption } from "../../types/listbox";
 
+const modelValue = defineModel<IListboxValue | IListboxOption | null>();
+
 const letters: string[] = [...Array(26).keys()].map((num) =>
   String.fromCharCode(num + 65)
 );
@@ -133,9 +135,9 @@ const lettersWithLabels: IListboxOption[] = letters.map((letter: string) => {
 });
 
 const listboxState = ref<string>("");
-const listboxSelection = ref<IListboxValue | IListboxOption>("");
 const listboxPlaceholder = ref<string>("Select an option");
 const listboxDataType = ref<string>("string");
+const hasStartingValue = ref<boolean>(false);
 
 const listboxData = computed<IListboxOption[] | IListboxValue[]>(() => {
   if (listboxDataType.value === "string") {
