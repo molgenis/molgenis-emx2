@@ -268,6 +268,11 @@ public class ColumnTypeRdfMapper {
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+        final TableMetadata target = column.getRefTable();
+        final String rootTableName =
+            UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
+        final Namespace ns = getSchemaNamespace(baseURL, target.getRootTable().getSchema());
+
         String[] names =
             (column.isArray()
                 ? row.getStringArray(column.getName())
@@ -275,17 +280,24 @@ public class ColumnTypeRdfMapper {
         Filter[] filters =
             Arrays.stream(names).map(i -> f("name", EQUALS, i)).toArray(Filter[]::new);
 
-        List<Row> rows =
+        List<Row> refRows =
             column
                 .getRefTable()
                 .getTable()
                 .query()
-                .select(s("ontologyTermURI"))
+                .select(s("name"), s("ontologyTermURI"))
                 .where(or(filters))
                 .retrieveRows();
 
         final Set<Value> values = new HashSet<>();
-        rows.forEach(i -> values.add(Values.iri(i.getString("ontologyTermURI"))));
+        for (Row refRow : refRows) {
+          String ontologyTermUri = refRow.getString("ontologyTermURI");
+          if (ontologyTermUri != null) {
+            values.add(Values.iri(ontologyTermUri));
+          } else {
+            values.add(Values.iri(ns, rootTableName + "?name=" + refRow.getString("name")));
+          }
+        }
         return Set.copyOf(values);
       }
     },

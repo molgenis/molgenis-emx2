@@ -90,7 +90,7 @@ class ColumnTypeRdfMapperTest {
         .insert(
             row("name", "aa", "ontologyTermURI", "http://example.com/aa"),
             row("name", "bb", "ontologyTermURI", "http://example.com/bb"),
-            row("name", "cc", "ontologyTermURI", "http://example.com/cc"));
+            row("name", "cc"));
 
     allColumnTypes.getTable(REF_TABLE).insert(row("id", "1"), row("id", "2"), row("id", "3"));
 
@@ -403,7 +403,9 @@ class ColumnTypeRdfMapperTest {
                 retrieveValues(ColumnType.ONTOLOGY.name())),
         () ->
             Assertions.assertEquals(
-                Set.of(Values.iri("http://example.com/bb"), Values.iri("http://example.com/cc")),
+                Set.of(
+                    Values.iri("http://example.com/bb"),
+                    Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=cc")),
                 retrieveValues(ColumnType.ONTOLOGY_ARRAY.name())),
         () ->
             Assertions.assertEquals(
