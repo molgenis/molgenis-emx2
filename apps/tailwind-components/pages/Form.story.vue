@@ -64,7 +64,7 @@ function onErrors(newErrors: Record<string, IFieldError[]>) {
     ></FormFields>
 
     <div class="basis-1/2">
-      <div>Demo controles:</div>
+      <div>Demo controls, settings and status:</div>
 
       <div class="p-4 border-2 mb-2">
         <select
