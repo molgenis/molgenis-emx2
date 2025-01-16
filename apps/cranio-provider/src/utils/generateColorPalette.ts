@@ -1,4 +1,5 @@
 import { schemeTableau10 } from "d3";
+import type { IKeyValuePair } from "../types";
 
 /**
  * @name generateColorPalette
@@ -9,7 +10,7 @@ import { schemeTableau10 } from "d3";
  *
  * @returns object containing one or more key value pairs where each key is a label and the value is a color.
  */
-export function generateColorPalette(labels: string[]) {
+export function generateColorPalette(labels: string[]): IKeyValuePair {
   const colors = labels.map((label: string, index: number) => {
     return [label, schemeTableau10[index]];
   });

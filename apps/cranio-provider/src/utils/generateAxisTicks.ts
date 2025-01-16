@@ -1,4 +1,5 @@
-import type { IAxisTickData } from "../types/index";
+import type { IAxisTickData, IKeyValuePair } from "../types/index";
+import type { IChartData } from "../types/schema"; 
 
 /**
  * @name generateAxisTicks
@@ -9,8 +10,11 @@ import type { IAxisTickData } from "../types/index";
  *
  * @returns an object containing the limit (i.e., max value) and ticks
  */
-export function generateAxisTickData(data: any, key: string): IAxisTickData {
-  const max = Math.max(...data.map((row: any) => row[key]));
+export function generateAxisTickData(
+  data: IChartData[],
+  key: string
+): IAxisTickData {
+  const max = Math.max(...data.map((row: IChartData) => row[key]));
   const limit = max < 10 ? 10 : max;
   const interval = calculateInterval(limit);
   const limitAdjusted = Math.ceil(limit / interval) * interval;

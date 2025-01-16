@@ -31,7 +31,8 @@ export function asKeyValuePairs(
  */
 export function sum(data: any, key: string): number {
   return data.reduce(
-    (sum: number, row: Record<string, any>) => sum + row[key],
+    (sum: number, row: Record<string, any>) =>
+      row[key] !== null || row[key] !== "" ? sum + row[key] : null,
     0
   );
 }
@@ -45,10 +46,12 @@ export function sum(data: any, key: string): number {
  * @returns number
  */
 export function sumObjectValues(data: IKeyValuePair): number {
-  const values: number[] = Object.keys(data).map((key: string) =>
-    parseInt(data[key])
-  );
-  return values.reduce((acc, value) => acc + value, 0);
+  const values: number[] = Object.keys(data).map((key: string) =>{
+    if (data[key] !== null || data[key] !== "") {
+      return parseInt(data[key])
+    }
+  });
+  return values.reduce((acc: number, value: number) => acc + value, 0);
 }
 
 /**

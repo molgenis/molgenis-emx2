@@ -129,7 +129,7 @@ const selectedAgeGroup = ref<string>();
 const totalNumberOfPatients = ref<number>(0);
 const patientsByPhenotypeChart = ref<ICharts>();
 const patientsByPhenotypeChartData = ref<IChartData[]>();
-const patientsByPhenotypePalette = ref<IChartData[]>();
+const patientsByPhenotypePalette = ref<IKeyValuePair>();
 const patientsByGenderChart = ref<ICharts>();
 const patientsByGenderChartData = ref<IKeyValuePair>();
 const patientsByGenderPalette = ref<IKeyValuePair>();
@@ -178,7 +178,7 @@ function updatePhenotypesChart() {
     });
 
   const chartTicks = generateAxisTickData(
-    patientsByPhenotypeChartData.value,
+    patientsByPhenotypeChartData.value!,
     "dataPointValue"
   );
   if (patientsByPhenotypeChart.value) {

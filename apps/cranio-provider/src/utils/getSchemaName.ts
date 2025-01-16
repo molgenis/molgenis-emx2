@@ -1,4 +1,3 @@
-// import gql from "graphql-tag";
 import { request, gql } from "graphql-request";
 import type { ISchemaResponse, ISchema } from "../types/index";
 

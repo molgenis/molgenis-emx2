@@ -10,10 +10,10 @@
       <div v-else>
         <PageHeader
           title="ERN CRANIO Registry"
-          :subtitle="currentOrganisation?.name"
+          :subtitle="currentOrganisation.name"
           :imageSrc="
-            currentOrganisation?.image
-              ? `${currentOrganisation?.image?.url}`
+            currentOrganisation.image
+              ? `${currentOrganisation.image.url}`
               : 'img/banner-diagnoses.jpg'
           "
         />
@@ -24,9 +24,9 @@
             :schemaNames="cranioSchemas"
             :api="{
               graphql: {
-                current: `/${currentOrganisation?.schemaName}/api/graphql`,
-                public: `/${cranioSchemas?.CRANIO_PUBLIC_SCHEMA}/api/graphql`,
-                providers: `/${cranioSchemas?.CRANIO_PROVIDER_SCHEMA}/api/graphql`,
+                current: `/${currentOrganisation.schemaName}/api/graphql`,
+                public: `/${cranioSchemas.CRANIO_PUBLIC_SCHEMA}/api/graphql`,
+                providers: `/${cranioSchemas.CRANIO_PROVIDER_SCHEMA}/api/graphql`,
               },
             }"
           ></router-view>
