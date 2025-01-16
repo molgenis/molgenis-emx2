@@ -247,6 +247,7 @@ public class ColumnTypeRdfMapper {
 
       @Override
       boolean isEmpty(Row row, Column column) {
+        // Composite key requires all fields to be filled. If one is null, all should be null.
         String colName =
             (column.getRefTable().getPrimaryKeyColumns().size() > 1
                 ? column.getName()
