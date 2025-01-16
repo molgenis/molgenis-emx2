@@ -194,6 +194,14 @@ class ColumnTypeRdfMapperTest {
         firstRow, allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName));
   }
 
+  private Set<Value> retrieveValuesCustom(
+      String columnName, ColumnTypeRdfMapper.RdfColumnType rdfColumnType) {
+    return mapper.retrieveValues(
+        firstRow,
+        allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName),
+        rdfColumnType);
+  }
+
   private Value retrieveFirstValue(String columnName) {
     return retrieveValues(columnName).stream().findFirst().get();
   }
@@ -391,13 +399,11 @@ class ColumnTypeRdfMapperTest {
                     .matches("[0-9a-zA-Z]+")),
         () ->
             Assertions.assertEquals(
-                Set.of(Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=aa")),
+                Set.of(Values.iri("http://example.com/aa")),
                 retrieveValues(ColumnType.ONTOLOGY.name())),
         () ->
             Assertions.assertEquals(
-                Set.of(
-                    Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=bb"),
-                    Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=cc")),
+                Set.of(Values.iri("http://example.com/bb"), Values.iri("http://example.com/cc")),
                 retrieveValues(ColumnType.ONTOLOGY_ARRAY.name())),
         () ->
             Assertions.assertEquals(
@@ -416,6 +422,27 @@ class ColumnTypeRdfMapperTest {
             Assertions.assertEquals(
                 Set.of(
                     Values.iri("https://molgenis.org"), Values.iri("https://github.com/molgenis")),
-                retrieveValues(ColumnType.HYPERLINK_ARRAY.name())));
+                retrieveValues(ColumnType.HYPERLINK_ARRAY.name())),
+
+        // Overriding default behaviour
+        // ontology as reference (key=1 instead of ontologyTermURI)
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=aa")),
+                retrieveValuesCustom(
+                    ColumnType.ONTOLOGY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
+        () ->
+            Assertions.assertEquals(
+                Set.of(
+                    Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=bb"),
+                    Values.iri(rdfApiUrlPrefix + ONT_TABLE + "?name=cc")),
+                retrieveValuesCustom(
+                    ColumnType.ONTOLOGY_ARRAY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
+        // email as regular string
+        () ->
+            Assertions.assertEquals(
+                Set.of(Values.literal("aap@example.com")),
+                retrieveValuesCustom(
+                    ColumnType.EMAIL.name(), ColumnTypeRdfMapper.RdfColumnType.STRING)));
   }
 }

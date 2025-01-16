@@ -2,6 +2,10 @@ package org.molgenis.emx2.rdf;
 
 import static java.util.Map.entry;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.FilterBean.or;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.SelectColumn.s;
 
 import com.google.common.net.UrlEscapers;
 import java.time.LocalDateTime;
@@ -108,13 +112,27 @@ public class ColumnTypeRdfMapper {
    * </ul>
    */
   public Set<Value> retrieveValues(final Row row, final Column column) {
+    return retrieveValues(row, column, mapping.get(column.getColumnType()));
+  }
+
+  /**
+   * Same as {@link #retrieveValues(Row, Column)}, except manually defining which {@link
+   * RdfColumnType} should be used.
+   *
+   * <p>It is suggested to only use this method if really needed (for example if needing an email as
+   * a string literal in RDF instead of default behavior which creates a {@code mailto:} IRI).
+   *
+   * @see #retrieveValues(Row, Column)
+   */
+  public Set<Value> retrieveValues(
+      final Row row, final Column column, final RdfColumnType rdfColumnType) {
     if (row.getString(column.getName()) == null) {
       return Set.of();
     }
-    return mapping.get(column.getColumnType()).retrieveValues(baseURL, row, column);
+    return rdfColumnType.retrieveValues(baseURL, row, column);
   }
 
-  private enum RdfColumnType {
+  public enum RdfColumnType {
     BOOLEAN(CoreDatatype.XSD.BOOLEAN) {
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
@@ -248,10 +266,27 @@ public class ColumnTypeRdfMapper {
       }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
-      // TODO: Implement Ontology behavior where it also returns ontologyTermURI as Value.
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
-        return RdfColumnType.REFERENCE.retrieveValues(baseURL, row, column);
+        String[] names =
+            (column.isArray()
+                ? row.getStringArray(column.getName())
+                : new String[] {row.getString(column.getName())});
+        Filter[] filters =
+            Arrays.stream(names).map(i -> f("name", EQUALS, i)).toArray(Filter[]::new);
+
+        List<Row> rows =
+            column
+                .getRefTable()
+                .getTable()
+                .query()
+                .select(s("ontologyTermURI"))
+                .where(or(filters))
+                .retrieveRows();
+
+        final Set<Value> values = new HashSet<>();
+        rows.forEach(i -> values.add(Values.iri(i.getString("ontologyTermURI"))));
+        return Set.copyOf(values);
       }
     },
     SKIP(CoreDatatype.XSD.STRING) {
