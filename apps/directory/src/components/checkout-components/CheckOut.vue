@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      class="btn btn-primary"
+      class="btn btn-primary text-nowrap"
       @click="showCart = !showCart"
       :disabled="disableButton"
     >

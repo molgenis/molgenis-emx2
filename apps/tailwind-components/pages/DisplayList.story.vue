@@ -20,26 +20,29 @@ const numberOfDemoItems = ref(3);
       <fieldset class="border border-gray-900 mb-2">
         <legend class="m-2 px-2">Props</legend>
         <div class="mb-2">
-          <label class="ml-1 hover:cursor-pointer" for="display-list-title">
+          <label
+            class="ml-1 text-title hover:cursor-pointer"
+            for="display-list-title"
+          >
             title
           </label>
           <input
             id="display-list-title"
-            class="ml-2 hover:cursor-pointer"
+            class="ml-2 text-title hover:cursor-pointer"
             type="text"
             v-model="title"
           />
         </div>
         <div class="mb-2">
           <label
-            class="ml-1 hover:cursor-pointer"
+            class="ml-1 text-title hover:cursor-pointer"
             for="display-list-column-count"
           >
             columnCount
           </label>
           <input
             id="display-list-column-count"
-            class="ml-2 hover:cursor-pointer"
+            class="ml-2 text-title hover:cursor-pointer"
             type="number"
             min="0"
             max="3"
@@ -53,7 +56,9 @@ const numberOfDemoItems = ref(3);
             value="standard"
             v-model="type"
           />
-          <label class="mr-3" for="display-list-type-standard">standard</label>
+          <label class="mr-3 text-title" for="display-list-type-standard"
+            >standard</label
+          >
 
           <input
             type="radio"
@@ -61,13 +66,13 @@ const numberOfDemoItems = ref(3);
             value="link"
             v-model="type"
           />
-          <label for="display-list-type-link">link</label>
+          <label class="text-title" for="display-list-type-link">link</label>
         </div>
       </fieldset>
 
       <hr />
 
-      <div class="mb-2">
+      <div class="mb-2 text-title">
         Number of demo items:
         <input type="number" v-model="numberOfDemoItems" />
       </div>

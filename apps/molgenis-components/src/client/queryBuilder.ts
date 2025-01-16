@@ -57,8 +57,6 @@ const getColumns = (
   tableId: string,
   tableStore: ITableMetaData[]
 ) => {
-  const result = tableStore.find(
-    (table) => table.id === tableId && table.schemaId === schemaId
-  );
+  const result = tableStore.find((table) => table.id === tableId);
   return result?.columns || [];
 };
