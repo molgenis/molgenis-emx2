@@ -13,5 +13,5 @@ test("it should update the model value when a field is filled out", async ({ pag
   await page.goto(`${route}Form.story`);
   await page.getByLabel('name').click();
   await page.getByLabel('name').fill('test');
-  await expect(page.getByRole('main')).toContainText('dataMap: { "name": "test", "category": "", "photoUrls": "", "status": "", "tags": "", "weight": "", "orders": "", "mg_draft": "", "mg_insertedBy": "", "mg_insertedOn": "", "mg_updatedBy": "", "mg_updatedOn": "" } errorMap: { "name": [], "category": [], "photoUrls": [], "status": [], "tags": [], "weight": [], "orders": [], "mg_draft": [], "mg_insertedBy": [], "mg_insertedOn": [], "mg_updatedBy": [], "mg_updatedOn": [] }');
+  await expect(page.getByRole('main')).toContainText('{ "bool": "", "boolarray": "", "date": "", "name": "test", "category": "", "photoUrls": "", "tags": "", "weight": "", "orders": "", "autoid": "", "mg_draft": "", "mg_insertedBy": "", "mg_insertedOn": "", "mg_updatedBy": "", "mg_updatedOn": "" }');
 });
