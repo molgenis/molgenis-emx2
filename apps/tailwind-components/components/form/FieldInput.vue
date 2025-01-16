@@ -44,6 +44,7 @@ function validate(value: columnValue) {
   <LazyInputString
     v-if="type === 'STRING'"
     ref="input"
+    class="h-[56px]"
     :id="id"
     :label="label"
     :required="required"

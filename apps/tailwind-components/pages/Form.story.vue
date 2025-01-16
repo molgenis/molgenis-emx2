@@ -2,6 +2,7 @@
 import type { FormFields } from "#build/components";
 import type {
   columnValue,
+  IFieldError,
   ISchemaMetaData,
   ITableMetaData,
 } from "../../metadata-utils/src/types";
@@ -36,37 +37,66 @@ function refetch() {
 const data = ref([] as Record<string, columnValue>[]);
 
 const formFields = ref<InstanceType<typeof FormFields>>();
+
+const formValues = ref<Record<string, columnValue>>({});
+
+function onModelUpdate(value: Record<string, columnValue>) {
+  formValues.value = value;
+}
+
+const errors = ref<Record<string, IFieldError[]>>({});
+
+function onErrors(newErrors: Record<string, IFieldError[]>) {
+  errors.value = newErrors;
+}
 </script>
 
 <template>
-  <div>Demo controles:</div>
+  <div class="flex flex-row">
+    <FormFields
+      v-if="tableMeta && status == 'success'"
+      ref="formFields"
+      class="basis-1/2 p-8"
+      :metadata="tableMeta"
+      :data="data"
+      @update:model-value="onModelUpdate"
+      @error="onErrors"
+    ></FormFields>
 
-  <div class="p-4 border-2 mb-2">
-    <select
-      @change="refetch()"
-      v-model="sampleType"
-      class="border-1 border-black"
-    >
-      <option value="simple">Simple form example</option>
-      <option value="complex">Complex form example</option>
-    </select>
+    <div class="basis-1/2">
+      <div>Demo controles:</div>
 
-    <div>schema id = {{ schemaId }}</div>
-    <div>table id = {{ tableId }}</div>
+      <div class="p-4 border-2 mb-2">
+        <select
+          @change="refetch()"
+          v-model="sampleType"
+          class="border-1 border-black"
+        >
+          <option value="simple">Simple form example</option>
+          <option value="complex">Complex form example</option>
+        </select>
 
-    <button
-      class="border-gray-900 border-[1px] p-2 bg-gray-200"
-      @click="formFields?.validate"
-    >
-      External Validate
-    </button>
+        <div>schema id = {{ schemaId }}</div>
+        <div>table id = {{ tableId }}</div>
+
+        <button
+          class="border-gray-900 border-[1px] p-2 bg-gray-200"
+          @click="formFields?.validate"
+        >
+          External Validate
+        </button>
+
+        <div class="mt-4 flex flex-row">
+          <div>
+            <h3 class="text-label">Values</h3>
+            <pre>{{ formValues }}</pre>
+          </div>
+          <div>
+            <h3 class="text-label">Errors</h3>
+            <pre>{{ errors }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <FormFields
-    v-if="tableMeta && status == 'success'"
-    class="p-8"
-    :metadata="tableMeta"
-    :data="data"
-    ref="formFields"
-  ></FormFields>
 </template>
