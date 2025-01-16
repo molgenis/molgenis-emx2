@@ -87,13 +87,24 @@ function onErrors(newErrors: Record<string, IFieldError[]>) {
         </button>
 
         <div class="mt-4 flex flex-row">
-          <div>
+          <div v-if="Object.keys(formValues).length" class="basis-1/2">
             <h3 class="text-label">Values</h3>
-            <pre>{{ formValues }}</pre>
+            <dl class="flex">
+              <template v-for="(value, key) in formValues">
+                <dt v-if="value" class="font-bold">{{ key }}:</dt>
+                <dd v-if="value" class="ml-1">{{ value }}</dd>
+              </template>
+            </dl>
           </div>
-          <div>
+          <div v-if="Object.keys(errors).length" class="basis-1/2">
             <h3 class="text-label">Errors</h3>
-            <pre>{{ errors }}</pre>
+
+            <dl class="flex">
+              <template v-for="(value, key) in errors">
+                <dt v-if="value.length" class="font-bold">{{ key }}:</dt>
+                <dd v-if="value.length" class="ml-1">{{ value }}</dd>
+              </template>
+            </dl>
           </div>
         </div>
       </div>
