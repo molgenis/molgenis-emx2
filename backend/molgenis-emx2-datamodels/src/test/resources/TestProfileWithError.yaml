@@ -1,0 +1,8 @@
+---
+name: TestProfileError
+description: "Test profile with error"
+
+profileTags: DataCatalogue
+
+demoData: _demodata/application/imagetest
+
