@@ -57,7 +57,7 @@
       </Table>
     </div>
 
-    <div v-if="userTokens.length">
+    <!-- <div v-if="userTokens.length">
       <b>Tokens</b>
       <Table>
         <template #head>
@@ -75,9 +75,15 @@
           </TableRow>
         </template>
       </Table>
-    </div>
+    </div> -->
 
     <template #footer>
+      <div>
+        <div v-if="password !== password2">Passwords do not match</div>
+        <div v-if="password.length < 8">
+          Password must be at least 8 characters
+        </div>
+      </div>
       <Button @click="saveUser()" :disabled="!isValidUser()">Save</Button>
       <Button @click="closeEditUserModal">Close</Button>
     </template>
@@ -133,9 +139,9 @@ function removeRole(role: IRole) {
   delete userRoles.value[role.schemaId];
 }
 
-function removeToken(token: string) {
-  userTokens.value = _.reject(userTokens.value, (tok) => tok === token);
-}
+// function removeToken(token: string) {
+//   userTokens.value = _.reject(userTokens.value, (tok) => tok === token);
+// }
 
 function showModal(selectedUser: IUser) {
   if (selectedUser) {

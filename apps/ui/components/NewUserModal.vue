@@ -22,7 +22,15 @@
       :hasError="password !== password2"
       type="password"
     />
+
     <template #footer>
+      <div>
+        <div v-if="isDuplicateName">Username already exists</div>
+        <div v-if="password !== password2">Passwords do not match</div>
+        <div v-if="password.length < 8">
+          Password must be at least 8 characters
+        </div>
+      </div>
       <Button
         @click="addUser(username, password, password2)"
         :disabled="!isValidUser()"

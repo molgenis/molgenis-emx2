@@ -144,6 +144,10 @@ function editUser(user: IUser) {
 }
 
 function canDelete(user: IUser) {
-  return user.email !== "anonymous" && user.email !== "admin";
+  return (
+    user.email !== "anonymous" &&
+    user.email !== "admin" &&
+    user.email !== "user"
+  );
 }
 </script>
