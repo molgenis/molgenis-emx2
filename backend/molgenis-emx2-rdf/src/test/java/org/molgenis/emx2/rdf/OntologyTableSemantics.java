@@ -1,7 +1,7 @@
 package org.molgenis.emx2.rdf;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;

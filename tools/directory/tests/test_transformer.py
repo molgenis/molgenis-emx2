@@ -95,6 +95,7 @@ def test_transformer_quality(node_data, transformer):
         biobank_levels={},
         collections={"bbmri-eric:ID:NL_bb1:collection:test_quality1": ["quality1"]},
         collection_levels={},
+        services={},
     )
     transformer.node_data = node_data
     transformer.quality = q_info
@@ -251,6 +252,7 @@ def test_transformer_combined_quality(node_data, transformer):
             "bbmri-eric:ID:NL_bb1:collection:test_quality2": ["level_col2"],
             "bbmri-eric:ID:NL_bb3:collection:test_quality3": ["level_bio_col"],
         },
+        services={},
     )
     transformer.node_data = node_data
     transformer.quality = q_info

@@ -9,19 +9,21 @@ const inverted = ref(false);
 
   <div class="mt-4">
     <hr />
-    <p>Search value: {{ searchValue }}</p>
-    <span> (note: the search inout has a fixed 500ms update delay)</span>
+    <p class="text-title">Search value: {{ searchValue }}</p>
+    <span class="text-title">
+      (note: the search inout has a fixed 500ms update delay)</span
+    >
     <div class="mt-4">
       <button
         @click="searchValue = ''"
-        class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded"
+        class="bg-blue-500 hover:bg-blue-700 text-title py-2 px-4 rounded"
       >
         clear value
       </button>
     </div>
     <div>
       <input id="inverted" type="checkbox" v-model="inverted" />
-      <label class="ml-1" for="inverted">inverted colors</label>
+      <label class="ml-1 text-title" for="inverted">inverted colors</label>
     </div>
   </div>
 </template>

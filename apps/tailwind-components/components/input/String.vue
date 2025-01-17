@@ -46,7 +46,7 @@ function onInput(event: Event) {
     :required="required"
     :placeholder="placeholder"
     :disabled="disabled"
-    class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
+    class="w-full pr-4 font-sans text-black text-gray-300 outline-none h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border border-solid rounded-input"
     :class="{
       'border-invalid text-invalid': hasError,
       'border-valid text-valid': valid,

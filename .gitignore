@@ -67,3 +67,4 @@ venv
 requirements.txt
 e2e/.auth
 e2e/e2e/.auth
+e2e/test-results/

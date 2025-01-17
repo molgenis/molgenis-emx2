@@ -164,10 +164,10 @@ public class TestLoaders {
     assertEquals(94, schema.getTableNames().size());
   }
 
-    @Test
-    void test19MigrationTestLoader() {
-        Schema schema = database.dropCreateSchema("MigrationTest");
-        DataModels.Profile.TEST_PROFILE_MIGRATION.getImportTask(schema, true).run();
-        assertEquals(1, schema.getTableNames().size());
-    }
+  @Test
+  void test19MigrationTestLoader() {
+    Schema schema = database.dropCreateSchema("MigrationTest");
+    DataModels.Profile.TEST_PROFILE_MIGRATION.getImportTask(schema, true).run();
+    assertEquals(1, schema.getTableNames().size());
+  }
 }

@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      emx2Theme: "",
+      emx2Theme: "molgenis",
       emx2Logo: "",
       siteTitle: "MOLGENIS",
       analyticsKey: "",
