@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -8,13 +7,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -48,6 +46,8 @@ public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
+  public static final String PET_SHOP_VIEWER = "shopviewer";
+  public static final String PET_SHOP_MANAGER = "shopmanager";
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
   public static final String TABLE_WITH_SPACES = "table with spaces";
   public static final String PET_STORE_SCHEMA = "pet store";
@@ -64,9 +64,7 @@ public class WebApiSmokeTests {
     db = TestDatabaseFactory.getTestDatabase();
 
     // start web service for testing, including env variables
-    withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
-        // disable because of parallelism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
-        .execute(() -> RunMolgenisEmx2.main(new String[] {}));
+    RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
 
     // set default rest assured settings
     RestAssured.port = PORT;
@@ -95,6 +93,11 @@ public class WebApiSmokeTests {
     PET_STORE.getImportTask(schema, true).run();
 
     // grant a user permission
+    db.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
+    db.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
+    db.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER);
+    schema.addMember(PET_SHOP_MANAGER, Privileges.MANAGER.toString());
+    schema.addMember(PET_SHOP_VIEWER, Privileges.VIEWER.toString());
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
