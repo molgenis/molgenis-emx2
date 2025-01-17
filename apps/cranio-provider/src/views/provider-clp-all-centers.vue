@@ -93,6 +93,8 @@ import ProviderDashboard from "../components/ProviderDashboard.vue";
 import { generateAxisTickData } from "../utils/generateAxisTicks";
 import { uniqueValues } from "../utils";
 import { getDashboardChart } from "../utils/getDashboardData";
+import { getUniqueAgeRanges } from "../utils/clpUtils";
+import { sortByDataPointName } from "../utils";
 
 import type { ICharts, IChartData } from "../types/schema";
 import type { IKeyValuePair } from "../types";
@@ -194,25 +196,15 @@ onMounted(() => {
   getPageData()
     .then(() => {
       if (icsOutcomesChart.value?.dataPoints) {
-        icsOutcomesChart.value.dataPoints =
-          icsOutcomesChart.value?.dataPoints.sort(
-            (a: IChartData, b: IChartData) => {
-              return a.dataPointName?.localeCompare(
-                b.dataPointName as string
-              ) as number;
-            }
-          );
+        icsOutcomesChart.value.dataPoints = sortByDataPointName(
+          icsOutcomesChart.value.dataPoints
+        );
       }
 
       if (cleftqOutcomesChart.value?.dataPoints) {
-        cleftqOutcomesChart.value.dataPoints =
-          cleftqOutcomesChart.value.dataPoints.sort(
-            (a: IChartData, b: IChartData) => {
-              return a.dataPointName?.localeCompare(
-                b.dataPointName as string
-              ) as number;
-            }
-          );
+        cleftqOutcomesChart.value.dataPoints = sortByDataPointName(
+          cleftqOutcomesChart.value.dataPoints
+        );
       }
 
       const distinctGroups = uniqueValues(
@@ -237,24 +229,11 @@ onMounted(() => {
         );
       }
 
-      const distinctIcsAges = uniqueValues(
-        icsOutcomesChart.value?.dataPoints,
-        "dataPointPrimaryCategory"
-      );
-      const distinctCleftqAges = uniqueValues(
-        cleftqOutcomesChart.value?.dataPoints,
-        "dataPointPrimaryCategory"
-      );
-      const ageRanges = [...distinctCleftqAges, ...distinctIcsAges]
-        .map((value: string) => {
-          return {
-            num: parseInt(value.split(/(-)/)[0] as string),
-            label: value,
-          };
-        })
-        .sort((a, b) => a.num - b.num);
-
-      ageGroups.value = ageRanges.map((row) => row.label);
+      const allData = [
+        ...icsOutcomesChart.value?.dataPoints!,
+        ...cleftqOutcomesChart.value?.dataPoints!,
+      ];
+      ageGroups.value = getUniqueAgeRanges(allData, "dataPointPrimaryCategory");
       selectedAgeGroup.value = ageGroups.value[0];
     })
     .then(() => {

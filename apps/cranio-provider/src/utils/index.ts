@@ -1,4 +1,5 @@
 import type { IKeyValuePair } from "../types/index";
+import type { IChartData } from "../types/schema";
 
 /**
  * @name asKeyValuePairs
@@ -83,3 +84,15 @@ export const ernCenterPalette: IKeyValuePair = {
   ERN: "#66c2a4",
   "Your center": "#3f6597",
 };
+
+/**
+ * @name sortByDataPointName
+ *
+ * @param data dataset to sort (IChartData[] from ICharts)
+ * @returns sorted dataset by "dataPointName" column
+ */
+export function sortByDataPointName(data: IChartData[]) {
+  return data.sort((a: IChartData, b: IChartData) => {
+    return a.dataPointName?.localeCompare(b.dataPointName as string) as number;
+  });
+}

@@ -117,6 +117,7 @@ import { generateAxisTickData } from "../utils/generateAxisTicks";
 import { asKeyValuePairs, sum, uniqueValues } from "../utils";
 import { generateColorPalette } from "../utils/generateColorPalette";
 import { getDashboardChart } from "../utils/getDashboardData";
+import { getUniqueAgeRanges } from "../utils/clpUtils";
 
 import type { ICharts, IChartData } from "../types/schema";
 import type { IAppPage } from "../types/app";
@@ -216,20 +217,10 @@ function updateCharts() {
 onMounted(() => {
   getPageData()
     .then(() => {
-      const distinctAgeRanges = uniqueValues(
-        patientsByPhenotypeChart.value?.dataPoints,
+      ageGroups.value = getUniqueAgeRanges(
+        patientsByPhenotypeChart.value?.dataPoints!,
         "dataPointPrimaryCategory"
       );
-      const ageRanges = distinctAgeRanges
-        .map((value: string) => {
-          return {
-            num: parseInt(value.split(/(-)/)[0] as string),
-            label: value,
-          };
-        })
-        .sort((a, b) => a.num - b.num);
-
-      ageGroups.value = ageRanges.map((row) => row.label);
       selectedAgeGroup.value = ageGroups.value[0];
 
       const phenotypeCategories = uniqueValues(
