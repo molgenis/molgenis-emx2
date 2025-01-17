@@ -504,7 +504,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     long start = System.currentTimeMillis();
     if (user.equals("admin")) throw new MolgenisException("You can't remove admin");
     if (user.equals("anonymous")) throw new MolgenisException("You can't remove anonymous");
-    if(user.equals("user")) throw new MolgenisException("You can't remove user");
+    if (user.equals("user")) throw new MolgenisException("You can't remove user");
 
     if (!hasUser(user))
       throw new MolgenisException(
