@@ -289,9 +289,9 @@ class Source(Enum):
 
 @dataclass
 class DirectoryData(ABC):
-    """Abstract base class for containers storing rows from the seven Directory tables:
-    persons, networks, also_known_in, biobanks, services, collections, facts and
-    studies."""
+    """Abstract base class for containers storing rows from the Directory tables:
+    persons, also_known_in, networks, biobanks, services, studies, collections,
+    and facts."""
 
     source: Source
     persons: Table
