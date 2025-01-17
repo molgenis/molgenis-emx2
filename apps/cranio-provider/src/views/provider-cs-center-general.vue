@@ -116,6 +116,7 @@ import { generateColorPalette } from "../utils/generateColorPalette";
 import { uniqueValues } from "../utils";
 
 import type { ICharts, IChartData } from "../types/schema";
+import type { IKeyValuePair } from "../types/index";
 import type { IAppPage } from "../types/app";
 const props = defineProps<IAppPage>();
 
@@ -124,13 +125,13 @@ const ageGroups = ref<string[]>();
 const selectedAgeGroup = ref<string>();
 const cranioTypeChart = ref<ICharts>();
 const cranioTypeChartData = ref<IChartData[]>();
-const cranioTypeChartPalette = ref<string[]>();
+const cranioTypeChartPalette = ref<IKeyValuePair>();
 const affectedSutureChart = ref<ICharts>();
 const affectedSutureChartData = ref<IChartData[]>();
-const affectedSutureChartPalette = ref<string[]>();
+const affectedSutureChartPalette = ref<IKeyValuePair>();
 const multipleSutureChart = ref<ICharts>();
 const multipleSutureChartData = ref<IChartData[]>();
-const multipleSuturePalette = ref<string[]>();
+const multipleSuturePalette = ref<IKeyValuePair>();
 
 async function getPageData() {
   const csTypes = await getDashboardChart(
@@ -175,7 +176,7 @@ function updateCranioTypesChart() {
     });
 
   const cranioTypeTicks = generateAxisTickData(
-    cranioTypeChartData.value,
+    cranioTypeChartData.value!,
     "dataPointValue"
   );
 
@@ -193,7 +194,7 @@ function updateAffectedSutureChart() {
   );
 
   const affectedSutureTicks = generateAxisTickData(
-    affectedSutureChartData.value,
+    affectedSutureChartData.value!,
     "dataPointValue"
   );
 
@@ -211,7 +212,7 @@ function updateMultipeSuturesChart() {
   );
 
   const multipleSutureTicks = generateAxisTickData(
-    multipleSutureChartData.value,
+    multipleSutureChartData.value!,
     "dataPointValue"
   );
   if (multipleSutureChart.value) {

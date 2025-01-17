@@ -152,21 +152,20 @@ import type { IAppPage } from "../types/app";
 const props = defineProps<IAppPage>();
 
 const loading = ref<boolean>(true);
-const error = ref<string>();
 const ageGroups = ref<string[]>();
 const selectedAgeGroup = ref<string>();
 const cranioTypeChart = ref<ICharts>();
 const cranioTypeChartData = ref<IChartData[]>();
-const cranioTypeChartPalette = ref<string[]>();
+const cranioTypeChartPalette = ref<IKeyValuePair>();
 const affectedSutureChart = ref<ICharts>();
 const affectedSutureChartData = ref<IChartData[]>();
-const affectedSutureChartPalette = ref<string[]>();
+const affectedSutureChartPalette = ref<IKeyValuePair>();
 const multipleSutureChart = ref<ICharts>();
 const multipleSutureChartData = ref<IChartData[]>();
-const multipleSuturePalette = ref<string[]>();
+const multipleSuturePalette = ref<IKeyValuePair>();
 const patientsByCountryChart = ref<ICharts>();
 const patientsByCountryChartData = ref<IChartData[]>();
-const patientsByCountryPalette = ref<string[]>();
+const patientsByCountryPalette = ref<IKeyValuePair>();
 
 async function getPageData() {
   const csTypes = await getDashboardChart(
@@ -195,7 +194,7 @@ async function getPageData() {
   patientsByCountryChart.value = patientCountry[0];
 
   cranioTypeChartPalette.value = generateColorPalette(
-    uniqueValues(cranioTypeChart.value?.dataPoints, "dataPointName")
+    uniqueValues(cranioTypeChart.value.dataPoints, "dataPointName")
   );
 
   affectedSutureChartPalette.value = generateColorPalette(
@@ -221,7 +220,7 @@ function updateCranioTypesChart() {
     });
 
   const cranioTypeTicks = generateAxisTickData(
-    cranioTypeChartData.value,
+    cranioTypeChartData.value!,
     "dataPointValue"
   );
 
@@ -239,7 +238,7 @@ function updateAffectedSutureChart() {
   );
 
   const affectedSutureTicks = generateAxisTickData(
-    affectedSutureChartData.value,
+    affectedSutureChartData.value!,
     "dataPointValue"
   );
 
@@ -257,7 +256,7 @@ function updateMultipeSuturesChart() {
   );
 
   const multipleSutureTicks = generateAxisTickData(
-    multipleSutureChartData.value,
+    multipleSutureChartData.value!,
     "dataPointValue"
   );
   if (multipleSutureChart.value) {

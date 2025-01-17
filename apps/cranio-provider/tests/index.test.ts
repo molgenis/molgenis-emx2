@@ -27,14 +27,13 @@ describe("sum", () => {
   });
 });
 
-
 describe("sumObjectValues", () => {
   test("Sum on objects are calculated correctly", () => {
     expect(sumObjectValues(dataObject)).toBe(73);
   });
 });
 
-describe("uniqueValues", ()=> {
+describe("uniqueValues", () => {
   test("Unique values are extracted from a column in a dataset", () => {
     const data = [
       { value: "cat" },
@@ -45,4 +44,3 @@ describe("uniqueValues", ()=> {
     expect(uniqueValues(data, "value")).toStrictEqual(["cat", "dog", "mouse"]);
   });
 });
-

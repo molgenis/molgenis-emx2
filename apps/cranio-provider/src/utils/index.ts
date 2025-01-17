@@ -46,11 +46,11 @@ export function sum(data: any, key: string): number {
  * @returns number
  */
 export function sumObjectValues(data: IKeyValuePair): number {
-  const values: number[] = Object.keys(data).map((key: string) =>{
+  const values: number[] = Object.keys(data).map((key: string) => {
     if (data[key] !== null || data[key] !== "") {
-      return parseInt(data[key])
+      return parseInt(data[key]);
     }
-  });
+  }) as number[];
   return values.reduce((acc: number, value: number) => acc + value, 0);
 }
 

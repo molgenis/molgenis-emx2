@@ -6,6 +6,7 @@
     "isolatedModules": true,
     "moduleResolution": "node",
     "types": ["vite/client"],
-    "lib": ["es2022", "dom"]
+    "lib": ["es2022", "dom"],
+    "downlevelIteration": true,
   }
 }

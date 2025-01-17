@@ -38,3 +38,8 @@ export interface IAxisTickData {
   limit: number;
   ticks: number[];
 }
+
+export interface IValueLabel {
+  value: string;
+  label: string;
+}

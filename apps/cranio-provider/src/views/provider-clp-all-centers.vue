@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import {
   DashboardRow,
   DashboardChart,
@@ -107,13 +107,9 @@ const icsOutcomesChartData = ref<IChartData[]>();
 const cleftqOutcomesChart = ref<ICharts>();
 const cleftqOutcomesChartData = ref<IChartData[]>();
 const chartColorPalette = ref<IKeyValuePair>();
-const currentVisibleChart = computed<string>(() => {
-  if (["3-4 years", "5-6 years"].includes(selectedAgeGroup.value as string)) {
-    return "ics";
-  } else {
-    return "cleftq";
-  }
-});
+
+type chartTypes = "ics" | "cleftq";
+const currentVisibleChart = ref<chartTypes>("ics");
 
 async function getPageData() {
   const icsCenterResponse = await getDashboardChart(
@@ -157,7 +153,7 @@ function updateIcsChart() {
   );
 
   const chartTicks = generateAxisTickData(
-    icsOutcomesChartData.value,
+    icsOutcomesChartData.value!,
     "dataPointValue"
   );
 
@@ -174,7 +170,7 @@ function updateCleftqChart() {
     }
   );
   const chartTicks = generateAxisTickData(
-    cleftqOutcomesChartData.value,
+    cleftqOutcomesChartData.value!,
     "dataPointValue"
   );
 
@@ -185,10 +181,12 @@ function updateCleftqChart() {
 }
 
 function updateCharts() {
-  if (currentVisibleChart.value === "cleftq") {
-    updateCleftqChart();
-  } else {
+  if (["3-4 years", "5-6 years"].includes(selectedAgeGroup.value as string)) {
     updateIcsChart();
+    currentVisibleChart.value = "ics";
+  } else {
+    updateCleftqChart();
+    currentVisibleChart.value = "cleftq";
   }
 }
 

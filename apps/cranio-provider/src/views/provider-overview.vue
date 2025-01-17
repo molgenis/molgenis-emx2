@@ -160,7 +160,9 @@ function updateSexByWorkstream(value: string) {
       return row.dataPointPrimaryCategory === selection.dataPointName;
     })
     .sort((current, next) => {
-      return (next.dataPointValue as number) - (current.dataPointValue as number);
+      return (
+        (next.dataPointValue as number) - (current.dataPointValue as number)
+      );
     });
 
   sexByWorkstreamChartData.value = asKeyValuePairs(
@@ -173,20 +175,25 @@ function updateSexByWorkstream(value: string) {
 onMounted(() => {
   getPageData()
     .then(() => {
-      
       // prepare workstream data
-      patientsByWorkstreamChartData.value = patientsByWorkstreamChart.value!.dataPoints?.
-        sort((a: IChartData, b: IChartData) => (a.dataPointOrder as number) - (b.dataPointOrder as number));
+      patientsByWorkstreamChartData.value =
+        patientsByWorkstreamChart.value!.dataPoints?.sort(
+          (a: IChartData, b: IChartData) =>
+            (a.dataPointOrder as number) - (b.dataPointOrder as number)
+        );
 
-      const workstreams = uniqueValues(patientsByWorkstreamChartData.value, "dataPointName");
-      patientsByWorkstreamPalette.value = generateColorPalette(workstreams);
-      
-      const chartTicks = generateAxisTickData(
+      const workstreams = uniqueValues(
         patientsByWorkstreamChartData.value,
+        "dataPointName"
+      );
+      patientsByWorkstreamPalette.value = generateColorPalette(workstreams);
+
+      const chartTicks = generateAxisTickData(
+        patientsByWorkstreamChartData.value!,
         "dataPointValue"
       );
-      patientsByWorkstreamChart.value.yAxisMaxValue = chartTicks.limit;
-      patientsByWorkstreamChart.value.yAxisTicks = chartTicks.ticks;
+      patientsByWorkstreamChart.value!.yAxisMaxValue = chartTicks.limit;
+      patientsByWorkstreamChart.value!.yAxisTicks = chartTicks.ticks;
 
       // prepare sex at birth chart
       const uniqueSexAtBirthCategories = uniqueValues(

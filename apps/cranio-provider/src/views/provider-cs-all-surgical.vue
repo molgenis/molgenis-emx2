@@ -61,6 +61,7 @@
         <InputLabel id="diagnosisInput" label="Select a diagnosis" />
         <select
           id="diagnosisInput"
+          class="inputs select"
           v-model="selectedDiagnosis"
           @change="
             updateInterventionsChart();
@@ -151,20 +152,24 @@ import {
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 
 import { generateAxisTickData } from "../utils/generateAxisTicks";
-import { asKeyValuePairs, uniqueValues, sum, sumObjectValues } from "../utils";
+import { asKeyValuePairs, sum, sumObjectValues } from "../utils";
 import { getDashboardChart } from "../utils/getDashboardData";
 import { generateColorPalette } from "../utils/generateColorPalette";
+import {
+  filterAgeAtSurgeryData,
+  prepareDiagnosisFilters,
+} from "../utils/csSurgicalUtils";
 
 import type { ICharts, IChartData } from "../types/schema";
 import type { IAppPage } from "../types/app";
-import type { IKeyValuePair } from "../types/index";
+import type { IKeyValuePair, IValueLabel } from "../types/index";
 const props = defineProps<IAppPage>();
 
 const loading = ref<boolean>(true);
 const surgeryTypesChart = ref<ICharts>();
 const surgeryTypesChartData = ref<IChartData[]>();
 const selectedSurgeryType = ref<string>();
-const diagnoses = ref<string[]>();
+const diagnoses = ref<IValueLabel[]>();
 const complicationsChart = ref<ICharts>();
 const complicationsChartData = ref<IKeyValuePair>();
 const complicationsChartPalette = ref<IKeyValuePair>();
@@ -248,23 +253,21 @@ function updateInterventionsChart() {
 }
 
 function updateSurgeryAgeChart() {
-  surgeryAgeChartData.value = surgeryAgeChart.value?.dataPoints
-    ?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedDiagnosis.value;
-    })
-    .sort((a: IChartData, b: IChartData) => {
-      return (a.dataPointTime as number) - (b.dataPointTime as number);
-    });
+  surgeryAgeChartData.value = filterAgeAtSurgeryData(
+    surgeryAgeChart.value?.dataPoints!,
+    selectedDiagnosis.value!
+  );
 
   const chartAxis = generateAxisTickData(
-    surgeryAgeChartData.value,
+    surgeryAgeChartData.value!,
     "dataPointValue"
   );
 
   (surgeryAgeChart.value as ICharts).yAxisMaxValue = chartAxis.limit;
   (surgeryAgeChart.value as ICharts).yAxisTicks = chartAxis.ticks;
-  hasSurgeryAgeData.value =
-    sum(surgeryAgeChartData.value, "dataPointValue") > 0;
+
+  const total: number = sum(surgeryAgeChartData.value, "dataPointValue");
+  hasSurgeryAgeData.value = total > 0;
 }
 
 onMounted(() => {
@@ -278,7 +281,7 @@ onMounted(() => {
       );
 
       const surgeryTypesAxis = generateAxisTickData(
-        surgeryTypesChartData.value,
+        surgeryTypesChartData.value!,
         "dataPointValue"
       );
 
@@ -288,21 +291,9 @@ onMounted(() => {
 
       selectedSurgeryType.value = surgeryTypesChartData.value![0].dataPointName;
 
-      // set diagnoses and starting value
-      const allDiagnoses = interventionsChart.value.dataPoints?.map(
-        (row: IChartData) => {
-          return {
-            value: row.dataPointPrimaryCategory,
-            label:
-              row.dataPointPrimaryCategoryLabel || row.dataPointPrimaryCategory,
-          };
-        }
+      diagnoses.value = prepareDiagnosisFilters(
+        interventionsChart.value?.dataPoints!
       );
-
-      diagnoses.value = [
-        ...new Map(allDiagnoses.map((row) => [row["label"], row])).values(),
-      ].sort((a, b) => a.label.localeCompare(b.label));
-
       selectedDiagnosis.value = diagnoses.value[0].value;
     })
     .then(() => {
