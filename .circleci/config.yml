@@ -255,7 +255,7 @@ jobs:
           command: yarn install
           working_directory: apps
       - run:
-          name: Test nuxt ssr catalogue tests
+          name: Test tailwind components
           command: |
             yarn playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
