@@ -1,10 +1,6 @@
 <template>
   <div :id="`${id}-radio-group`">
-    <div
-      class="flex justify-start align-center"
-      v-for="option in radioOptions"
-      :key="option.value"
-    >
+    <div v-for="option in radioOptions" class="flex justify-start align-center">
       <InputRadio
         :id="`${id}-radio-group-${option.value}`"
         class="sr-only"
@@ -41,7 +37,7 @@
 
 <script lang="ts" setup>
 interface RadioOptionsDataIF {
-  value: string;
+  value: string | boolean;
   label?: string;
   checked?: boolean | undefined;
 }
@@ -57,9 +53,9 @@ withDefaults(
   }
 );
 
-const modelValue = defineModel<string>();
+const modelValue = defineModel<string | boolean>();
 
 function resetModelValue() {
-  modelValue.value = "";
+  modelValue.value = undefined;
 }
 </script>
