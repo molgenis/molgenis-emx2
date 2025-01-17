@@ -246,7 +246,7 @@ jobs:
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.49.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.49.1-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
@@ -254,6 +254,15 @@ jobs:
           name: Install dependencies
           command: yarn install
           working_directory: apps
+      - run:
+          name: Test tailwind components
+          command: |
+            yarn playwright install chrome
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            echo $E2E_BASE_URL
+            yarn e2e
+          working_directory: apps/tailwind-components
       - run:
           name: Wait for catalogue e2e test data to be loaded, poll every 10 seconds
           command: |
@@ -312,6 +321,10 @@ jobs:
               export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
               echo $E2E_BASE_URL
               npx playwright test --config e2e e2e/tests
+      - run:
+            name: Save test results for stats
+            command: |
+                find . -type f -regex ".*/e2e/test-results/.*xml" -exec cp {} /root/project/e2e \;
       - store_test_results:
          path: /root/project/e2e
       - store_artifacts:

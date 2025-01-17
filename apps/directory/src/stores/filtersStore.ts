@@ -1,16 +1,19 @@
 import { defineStore } from "pinia";
-import { computed, ref, unref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { createFilters } from "../filter-config/facetConfigurator";
 import { applyFiltersToQuery } from "../functions/applyFiltersToQuery";
-import { useBiobanksStore } from "./biobanksStore";
-import { useSettingsStore } from "./settingsStore";
-import { useCheckoutStore } from "./checkoutStore";
 import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
+import { useBiobanksStore } from "./biobanksStore";
+import { useCheckoutStore } from "./checkoutStore";
+import { useSettingsStore } from "./settingsStore";
+import * as _ from "lodash";
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
+import useErrorHandler from "../composables/errorHandler";
 import { IFilterOption, IOntologyItem } from "../interfaces/interfaces";
-import * as _ from "lodash";
 import router from "../router";
+
+const { setError } = useErrorHandler();
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
@@ -256,13 +259,18 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     const ontologyResults = [];
 
     for (const codeBlock of codesToQuery) {
-      const ontologyResult = await new QueryEMX2(graphqlEndpointOntologyFilter)
-        .table(sourceTable)
-        .select(attributes)
-        .orWhere("code")
-        .in(codeBlock)
-        .orderBy(sourceTable, sortColumn, sortDirection)
-        .execute();
+      let ontologyResult;
+      try {
+        ontologyResult = await new QueryEMX2(graphqlEndpointOntologyFilter)
+          .table(sourceTable)
+          .select(attributes)
+          .orWhere("code")
+          .in(codeBlock)
+          .orderBy(sourceTable, sortColumn, sortDirection)
+          .execute();
+      } catch (error) {
+        setError(error);
+      }
 
       if (ontologyResult && ontologyResult[sourceTable]) {
         ontologyResults.push(...ontologyResult[sourceTable]);

@@ -53,7 +53,7 @@ ssrCatalogue:
     pullPolicy: IfNotPresent
   environment:
     apiBase: ""
-    theme: ""
+    theme: "molgenis"
     logo: ""
     siteTitle: "Data catalogue"
     analyticsKey: "6005657"
