@@ -75,10 +75,10 @@ public class CsvTableReader {
             }
 
             public Row next() {
-              HashMap<String, String> next = (HashMap<String, String>) it.next();
+              HashMap<String, Object> next = (HashMap<String, Object>) it.next();
               boolean isEmpty = next.values().stream().allMatch(Objects::isNull);
               while (isEmpty && it.hasNext()) {
-                next = (HashMap<String, String>) it.next();
+                next = (HashMap<String, Object>) it.next();
                 isEmpty = next.values().stream().allMatch(Objects::isNull);
               }
               return new Row(next);

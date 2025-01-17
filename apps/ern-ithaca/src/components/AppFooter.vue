@@ -37,7 +37,7 @@
               <router-link :to="{ name: 'home' }">
                 <!-- insert project logo here -->
                 <img
-                  src="/ern-ithaca-logo.png"
+                  src="/img/ern-ithaca-logo.png"
                   class="project-logo"
                   alt="ERN Ithaca: an international library of intellectual disability and anomalies of development"
                 />
@@ -50,7 +50,7 @@
                 </span>
                 <li>
                   <img
-                    src="/molgenis-logo-blue-text.png"
+                    src="/img/molgenis-logo-blue-text.png"
                     class="molgenis-logo"
                     alt="molgenis open source data platform"
                   />
@@ -64,7 +64,8 @@
   </PageFooter>
 </template>
 
-<script setup>
+<script setup lang="ts">
+//@ts-ignore
 import { PageFooter, UnorderedList } from "molgenis-viz";
 </script>
 

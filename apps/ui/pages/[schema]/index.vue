@@ -26,7 +26,7 @@ const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
   key: "databases",
   method: "POST",
   body: {
-    query: `{_schema{id,label,tables{id,label,tableType,schemaId,description}}}`,
+    query: `{_schema{id,label,tables{id,label,tableType,description}}}`,
   },
 });
 

@@ -4,21 +4,27 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Triple;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleNamespace;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
@@ -30,6 +36,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFTest {
@@ -44,6 +51,8 @@ public class RDFTest {
   /** Advanced setting field for adding custom RDF to the API. */
   private static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
+  static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
+
   static Database database;
   static List<Schema> petStoreSchemas;
   static final String RDF_API_LOCATION = "/api/rdf";
@@ -51,6 +60,10 @@ public class RDFTest {
   static Schema petStore_nr2;
   static Schema compositeKeyTest;
   static Schema ontologyTest;
+  static Schema tableInherTest;
+  static Schema tableInherExtTest;
+  static Schema fileTest;
+  static Schema refBackTest;
 
   final Set<Namespace> DEFAULT_NAMESPACES =
       new HashSet<>() {
@@ -76,8 +89,8 @@ public class RDFTest {
     database = TestDatabaseFactory.getTestDatabase();
     petStore_nr1 = database.dropCreateSchema("petStoreNr1");
     petStore_nr2 = database.dropCreateSchema("petStoreNr2");
-    PET_STORE.getImportTask(petStore_nr1, true).run();
-    PET_STORE.getImportTask(petStore_nr2, true).run();
+    DataModels.Profile.PET_STORE.getImportTask(petStore_nr1, false).run();
+    DataModels.Profile.PET_STORE.getImportTask(petStore_nr2, false).run();
     petStoreSchemas = List.of(petStore_nr1, petStore_nr2);
 
     // Test schema for composite keys
@@ -162,6 +175,99 @@ public class RDFTest {
                 "C00-C75 Malignant neoplasms, stated or presumed to be primary, of specified sites, except of lymphoid, haematopoietic and related tissue",
                 "code",
                 "C00-C14"));
+
+    // Test table inheritance
+    // Use example from the catalogue schema since this has all the different issues.
+    tableInherTest = database.dropCreateSchema("tableInheritanceTest");
+    tableInherTest.create(
+        table(
+            "Root",
+            column("id", ColumnType.STRING).setKey(1),
+            column("rootColumn", ColumnType.STRING)));
+    tableInherTest.create(table("Child", column("childColumn")).setInheritName("Root"));
+    // Same column name but not in shared parent, so test how this is handled.
+    tableInherTest.create(
+        table("GrandchildTypeA", column("grandchildColumn")).setInheritName("Child"));
+    tableInherTest.create(
+        table("GrandchildTypeB", column("grandchildColumn")).setInheritName("Child"));
+    tableInherTest.getTable("Root").insert(row("id", "1", "rootColumn", "id1 data"));
+    tableInherTest.getTable("Child").insert(row("id", "2", "childColumn", "id2 data"));
+    tableInherTest
+        .getTable("GrandchildTypeA")
+        .insert(row("id", "3", "grandchildColumn", "id3 data"));
+    tableInherTest
+        .getTable("GrandchildTypeB")
+        .insert(
+            row(
+                "id",
+                "4",
+                "rootColumn",
+                "id4 data for rootColumn",
+                "childColumn",
+                "id4 data for childColumn",
+                "grandchildColumn",
+                "id4 data"));
+
+    // Test for table that extends table from different schema
+    tableInherExtTest = database.createSchema("tableInheritanceExternalSchemaTest");
+    tableInherExtTest.create(
+        table("ExternalChild", column("externalChildColumn"))
+            .setImportSchema(tableInherTest.getName())
+            .setInheritName("Root"));
+    tableInherExtTest.create(
+        table("ExternalGrandchild", column("externalGrandchildColumn"))
+            .setInheritName("ExternalChild"));
+    tableInherExtTest.create(
+        table(
+            "ExternalUnrelated",
+            column("id", ColumnType.STRING).setKey(1),
+            column("externalUnrelatedColumn")));
+    tableInherExtTest
+        .getTable("ExternalChild")
+        .insert(row("id", "5", "externalChildColumn", "id5 data"));
+    tableInherExtTest
+        .getTable("ExternalGrandchild")
+        .insert(row("id", "6", "externalGrandchildColumn", "id6 data"));
+    tableInherExtTest
+        .getTable("ExternalUnrelated")
+        .insert(row("id", "a", "externalUnrelatedColumn", "unrelated data"));
+
+    // Test FILE
+    fileTest = database.dropCreateSchema("fileTest");
+    fileTest.create(
+        table(
+            "myFiles",
+            column("id").setType(ColumnType.STRING).setPkey(),
+            column("file").setType(ColumnType.FILE)));
+
+    fileTest
+        .getTable("myFiles")
+        .insert(
+            row(
+                "id",
+                "1",
+                "file",
+                new File(classLoader.getResource("testfiles/molgenis.png").getFile())));
+
+    // Refback test (petstore refback uses auto id)
+    refBackTest = database.dropCreateSchema("refBackTest");
+    refBackTest.create(
+        table(
+            "tableRef",
+            column("id").setType(ColumnType.STRING).setPkey(),
+            column("link").setType(ColumnType.REF).setRefTable("tableRefBack")),
+        table("tableRefBack", column("id").setType(ColumnType.STRING).setPkey()));
+    refBackTest
+        .getTable("tableRefBack")
+        .getMetadata()
+        .add(
+            column("backlink")
+                .setType(ColumnType.REFBACK)
+                .setRefTable("tableRef")
+                .setRefBack("link"));
+
+    refBackTest.getTable("tableRefBack").insert(row("id", "a"));
+    refBackTest.getTable("tableRef").insert(row("id", "1", "link", "a"));
   }
 
   @AfterAll
@@ -171,6 +277,10 @@ public class RDFTest {
     database.dropSchema(petStore_nr2.getName());
     database.dropSchema(compositeKeyTest.getName());
     database.dropSchema(ontologyTest.getName());
+    database.dropSchema(tableInherExtTest.getName());
+    database.dropSchema(tableInherTest.getName());
+    database.dropSchema(fileTest.getName());
+    database.dropSchema(refBackTest.getName());
   }
 
   @Test
@@ -431,58 +541,316 @@ public class RDFTest {
   }
 
   @Test
-  void testThatSameColumnIRIisAlwaysUsed() throws IOException {
-    // Use example from the catalogue schema since this has all the different issues.
-    var schema = database.dropCreateSchema("iriTest");
-    schema.create(
-        table(
-            "Resources",
-            column("id", ColumnType.STRING).setKey(1),
-            column("website", ColumnType.HYPERLINK)));
-    schema.create(table("Extended Resources").setInheritName("Resources"));
-    Table dataResources =
-        schema.create(table("Data Resources", column("data")).setInheritName("Extended Resources"));
-
+  void testTableInheritanceAlwaysSamePredicate() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(schema), handler);
-    // The table Data Resources extends Extended Resources, which extends Resources.
-    // Resources defines the column website. There should only be one predicate for
-    // Resources/column/website and the other tables should use this predicate.
-    var websitePredicate =
-        Values.iri("http://localhost:8080/iriTest/api/rdf/Resources/column/website");
-    var websitePredicateER =
-        Values.iri("http://localhost:8080/iriTest/api/rdf/ExtendedResources/column/website");
-    var websitePredicateDR =
-        Values.iri("http://localhost:8080/iriTest/api/rdf/DataResources/column/website");
+    getAndParseRDF(Selection.of(tableInherTest, tableInherExtTest), handler);
+    // All should use the same predicate for rootColumn:
+    // Root (is root of all inheritance)
+    // Child extends Root
+    // GrandChildTypeA extends Child
+    // GrandChildTypeB extends Child
+    // ExternalChild extends Root
+    // ExternalGrandchild extends ExternalChild
+    assertAll(
+        () ->
+            assertTrue(
+                handler.resources.containsKey(
+                    Values.iri(
+                        "http://localhost:8080/tableInheritanceTest/api/rdf/Root/column/rootColumn")),
+                "There should be a predicate for the rootColumn in the Root table"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(
+                    Values.iri(
+                        "http://localhost:8080/tableInheritanceTest/api/rdf/Child/column/rootColumn")),
+                "There should not be a predicate for the rootColumn in the Child table"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(
+                    Values.iri(
+                        "http://localhost:8080/tableInheritanceTest/api/rdf/GrandchildTypeA/column/rootColumn")),
+                "There should not be a predicate for the rootColumn in the GrandchildTypeA table"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(
+                    Values.iri(
+                        "http://localhost:8080/tableInheritanceTest/api/rdf/GrandchildTypeB/column/rootColumn")),
+                "There should not be a predicate for the rootColumn in the GrandchildTypeB table"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(
+                    Values.iri(
+                        "http://localhost:8080/tableInheritanceTest/api/rdf/ExternalChild/column/rootColumn")),
+                "There should not be a predicate for the rootColumn in the ExternalChild table"),
+        () ->
+            assertFalse(
+                handler.resources.containsKey(
+                    Values.iri(
+                        "http://localhost:8080/tableInheritanceTest/api/rdf/ExternalGrandchild/column/rootColumn")),
+                "There should not be a predicate for the rootColumn in the ExternalGrandchild table"));
+  }
 
-    assertTrue(
-        handler.resources.containsKey(websitePredicate),
-        "There should be a predicate for the column in the Resources (base) table");
-    assertFalse(
-        handler.resources.containsKey(websitePredicateER),
-        "There should not be a predicate for the column in the Extended Resources table");
-    assertFalse(
-        handler.resources.containsKey(websitePredicateDR),
-        "There should not be a predicate for the column in the Data Resources table");
+  @Test
+  void testTableInheritanceRetrieveData() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInherTest), handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, true),
+            Map.entry(ValidationTriple.ID2, true),
+            Map.entry(ValidationTriple.ID3, true),
+            Map.entry(ValidationTriple.ID4, true),
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID5, false), // different schema
+            Map.entry(ValidationTriple.ID6, false), // different schema
+            Map.entry(ValidationTriple.UNRELATED, false) // different schema
+            ));
+  }
 
-    dataResources.insert(row("id", "demo1", "data", "my data"));
-    getAndParseRDF(Selection.ofRow(schema, "Resources", "id=demo1"), handler);
-    var columnPredicate =
-        Values.iri("http://localhost:8080/iriTest/api/rdf/DataResources/column/data");
-    assertTrue(
-        handler.resources.containsKey(columnPredicate), "should include the subclass column");
-    var dataValue =
-        ((Literal)
-                handler
-                    .resources
-                    .get(Values.iri("http://localhost:8080/iriTest/api/rdf/Resources?id=demo1"))
-                    .get(
-                        Values.iri(
-                            "http://localhost:8080/iriTest/api/rdf/DataResources/column/data"))
-                    .toArray()[0])
-            .stringValue();
-    assertEquals("my data", dataValue);
-    database.dropSchema(schema.getName());
+  @Test
+  void testTableInheritanceRetrieveDataWithTableRoot() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInherTest, "Root"), handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, true),
+            Map.entry(ValidationTriple.ID2, true),
+            Map.entry(ValidationTriple.ID3, true),
+            Map.entry(ValidationTriple.ID4, true),
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID5, false), // different schema
+            Map.entry(ValidationTriple.ID6, false), // different schema
+            Map.entry(ValidationTriple.UNRELATED, false) // different schema
+            ));
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataWithTableChild() throws IOException {
+    // All subjects still use Root IRIs but offers a way to "filter out parent triples".
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInherTest, "Child"), handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, false), // parent of selected table
+            Map.entry(ValidationTriple.ID2, true),
+            Map.entry(ValidationTriple.ID3, true), // child
+            Map.entry(ValidationTriple.ID4, true), // child
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true), // child
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true), // child
+            Map.entry(ValidationTriple.ID5, false), // different schema
+            Map.entry(ValidationTriple.ID6, false), // different schema
+            Map.entry(ValidationTriple.UNRELATED, false) // different schema
+            ));
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataWithTableGrandchildTypeA() throws IOException {
+    // All subjects still use Root IRIs but offers a way to "filter out parent triples".
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInherTest, "GrandchildTypeA"), handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, false), // grandparent of selected table
+            Map.entry(ValidationTriple.ID2, false), // parent of selected table
+            Map.entry(ValidationTriple.ID3, true),
+            Map.entry(ValidationTriple.ID4, false), // sibling of selected table
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // sibling of selected table
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // sibling of selected table
+            Map.entry(ValidationTriple.ID5, false), // different schema
+            Map.entry(ValidationTriple.ID6, false), // different schema
+            Map.entry(ValidationTriple.UNRELATED, false) // different schema
+            ));
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataWithTableGrandchildTypeB() throws IOException {
+    // All subjects still use Root IRIs but offers a way to "filter out parent triples".
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInherTest, "GrandchildTypeB"), handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, false), // grandparent of selected table
+            Map.entry(ValidationTriple.ID2, false), // parent of selected table
+            Map.entry(ValidationTriple.ID3, false), // sibling of selected table
+            Map.entry(ValidationTriple.ID4, true),
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID5, false), // different schema
+            Map.entry(ValidationTriple.ID6, false), // different schema
+            Map.entry(ValidationTriple.UNRELATED, false) // different schema
+            ));
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataWithRowId() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.ofRow(tableInherTest, "Root", "id=4"), handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, false), // not selected
+            Map.entry(ValidationTriple.ID2, false), // not selected
+            Map.entry(ValidationTriple.ID3, false), // not selected
+            Map.entry(ValidationTriple.ID4, true),
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID5, false), // not selected
+            Map.entry(ValidationTriple.ID6, false), // not selected
+            Map.entry(ValidationTriple.UNRELATED, false) // not selected
+            ));
+  }
+
+  @Test
+  void testTableInheritanceExternalSchemaRetrieveData() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInherExtTest), handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, false), // different schema
+            Map.entry(ValidationTriple.ID2, false), // different schema
+            Map.entry(ValidationTriple.ID3, false), // different schema
+            Map.entry(ValidationTriple.ID4, false), // different schema
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // different schema
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // different schema
+            Map.entry(ValidationTriple.ID5, true),
+            Map.entry(ValidationTriple.ID6, true),
+            Map.entry(ValidationTriple.UNRELATED, true)));
+  }
+
+  @Test
+  void testTableInheritanceExternalSchemaDataWithTableExternalChild() throws IOException {
+    // Note that even though the subject has an ID IRI based on table Root, this table is not part
+    // of the selected scheme so this table cannot be selected:
+    // `tableInherExtTest.getTable("Root")` == `null`
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInherExtTest, "ExternalChild"), handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, false), // different schema
+            Map.entry(ValidationTriple.ID2, false), // different schema
+            Map.entry(ValidationTriple.ID3, false), // different schema
+            Map.entry(ValidationTriple.ID4, false), // different schema
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // different schema
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // different schema
+            Map.entry(ValidationTriple.ID5, true),
+            Map.entry(ValidationTriple.ID6, true),
+            Map.entry(ValidationTriple.UNRELATED, false))); // not part of inheritance
+  }
+
+  @Test
+  void testTableInheritanceExternalSchemaDataWithRowId() throws IOException {
+    // Note that even though the subject has an ID IRI based on table Root, this table is not part
+    // of the selected scheme so this table cannot be selected:
+    // `tableInherExtTest.getTable("Root")` == `null`
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.ofRow(tableInherExtTest, "ExternalChild", "id=5"), handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, false), // not selected
+            Map.entry(ValidationTriple.ID2, false), // not selected
+            Map.entry(ValidationTriple.ID3, false), // not selected
+            Map.entry(ValidationTriple.ID4, false), // not selected
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // not selected
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // not selected
+            Map.entry(ValidationTriple.ID5, true),
+            Map.entry(ValidationTriple.ID6, false), // not selected
+            Map.entry(ValidationTriple.UNRELATED, false) // not selected
+            ));
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataMultiSchema() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(tableInherTest, tableInherExtTest), handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, true),
+            Map.entry(ValidationTriple.ID2, true),
+            Map.entry(ValidationTriple.ID3, true),
+            Map.entry(ValidationTriple.ID4, true),
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID5, true),
+            Map.entry(ValidationTriple.ID6, true),
+            Map.entry(ValidationTriple.UNRELATED, true)));
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataMultiSchemaWithTableRoot() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(
+        Selection.of(
+            new Schema[] {tableInherTest, tableInherExtTest}, tableInherTest.getTable("Root")),
+        handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, true),
+            Map.entry(ValidationTriple.ID2, true),
+            Map.entry(ValidationTriple.ID3, true),
+            Map.entry(ValidationTriple.ID4, true),
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID5, true),
+            Map.entry(ValidationTriple.ID6, true),
+            Map.entry(ValidationTriple.UNRELATED, false))); // not part of inheritance
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataMultiSchemaWithRowId() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(
+        Selection.ofRow(
+            new Schema[] {tableInherTest, tableInherExtTest},
+            tableInherTest.getTable("Root"),
+            "id=4"),
+        handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, false), // not selected
+            Map.entry(ValidationTriple.ID2, false), // not selected
+            Map.entry(ValidationTriple.ID3, false), // not selected
+            Map.entry(ValidationTriple.ID4, true),
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
+            Map.entry(ValidationTriple.ID5, false), // not selected
+            Map.entry(ValidationTriple.ID6, false), // not selected
+            Map.entry(ValidationTriple.UNRELATED, false))); // not selected
+  }
+
+  @Test
+  void testTableInheritanceRetrieveDataMultiSchemaWithExternalRowId() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(
+        Selection.ofRow(
+            new Schema[] {tableInherTest, tableInherExtTest},
+            tableInherTest.getTable("Root"),
+            "id=5"),
+        handler);
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            Map.entry(ValidationTriple.ID1, false), // not selected
+            Map.entry(ValidationTriple.ID2, false), // not selected
+            Map.entry(ValidationTriple.ID3, false), // not selected
+            Map.entry(ValidationTriple.ID4, false), // not selected
+            Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // not selected
+            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // not selected
+            Map.entry(ValidationTriple.ID5, true),
+            Map.entry(ValidationTriple.ID6, false), // not selected
+            Map.entry(ValidationTriple.UNRELATED, false))); // not selected
   }
 
   @Test
@@ -835,6 +1203,49 @@ public class RDFTest {
     validateNamespaces(handler, "RdfcustomOrEmpty", expectedNamespaces, customRdf1, customRdf2);
   }
 
+  @Test
+  void testFileMetadataTriples() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(fileTest), handler);
+
+    Set<Value> files =
+        handler
+            .resources
+            .get(Values.iri("http://localhost:8080/fileTest/api/rdf/MyFiles?id=1"))
+            .get(Values.iri("http://localhost:8080/fileTest/api/rdf/MyFiles/column/file"));
+
+    IRI fileIRI = (IRI) files.stream().findFirst().get();
+
+    Set<Value> fileNames = handler.resources.get(fileIRI).get(DCTERMS.TITLE);
+    Set<Value> fileFormats = handler.resources.get(fileIRI).get(DCTERMS.FORMAT);
+
+    assertAll(
+        () -> assertEquals(1, files.size()),
+        () -> assertEquals(1, fileNames.size()),
+        () -> assertEquals(Values.literal("molgenis.png"), fileNames.stream().findFirst().get()),
+        () -> assertEquals(1, fileFormats.size()),
+        () ->
+            assertEquals(
+                Values.iri("http://www.iana.org/assignments/media-types/image/png"),
+                fileFormats.stream().findFirst().get()));
+  }
+
+  @Test
+  void refBackInRdf() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(refBackTest), handler);
+
+    Set<Value> refBacks =
+        handler
+            .resources
+            .get(Values.iri("http://localhost:8080/refBackTest/api/rdf/TableRefBack?id=a"))
+            .get(
+                Values.iri(
+                    "http://localhost:8080/refBackTest/api/rdf/TableRefBack/column/backlink"));
+    assertEquals(
+        Set.of(Values.iri("http://localhost:8080/refBackTest/api/rdf/TableRef?id=1")), refBacks);
+  }
+
   /**
    * Helper test method to compare namespaces of 2 schemas.
    *
@@ -900,6 +1311,12 @@ public class RDFTest {
       return selection;
     }
 
+    static Selection of(Schema[] schema, Table table) {
+      var selection = Selection.of(schema);
+      selection.table = table;
+      return selection;
+    }
+
     static Selection of(Schema schema, String table, String columnName) {
       var selection = Selection.of(schema, table);
       selection.columnName = columnName;
@@ -910,6 +1327,112 @@ public class RDFTest {
       var selection = Selection.of(schema, table);
       selection.rowId = rowId;
       return selection;
+    }
+
+    static Selection ofRow(Schema[] schema, Table table, String rowId) {
+      var selection = Selection.of(schema, table);
+      selection.rowId = rowId;
+      return selection;
+    }
+  }
+
+  void assertPresence(InMemoryRDFHandler handler, Map<ValidationTriple, Boolean> presenceMap) {
+    // Tracks errors.
+    List<String> errors = new ArrayList<>();
+
+    for (ValidationTriple triple : presenceMap.keySet()) {
+      Map<IRI, Set<Value>> predicates = handler.resources.get(triple.getSubject());
+      // If Triple should be present in handler.
+      if (presenceMap.get(triple)) {
+        if (predicates == null) {
+          errors.add("Missing predicates for subject: " + triple.getSubject());
+          continue;
+        }
+        Set<Value> objects = predicates.get(triple.getPredicate());
+        if (objects == null) {
+          errors.add("Missing objects for predicate: " + triple.getPredicate());
+          continue;
+        }
+        if (objects.size() != 1) {
+          errors.add("Only 1 object should be present for: " + triple.getPredicate());
+        }
+        Object firstObject = objects.toArray()[0];
+        if (!triple.getObject().equals(firstObject)) {
+          errors.add(
+              "First object not equal to expected value. Found \""
+                  + firstObject
+                  + "\", but should be \""
+                  + triple.getObject()
+                  + "\"");
+        }
+      } // If Triple should not be present in handler.
+      else {
+        if (predicates != null)
+          errors.add("Found predicates while expecting none for subject: " + triple.getSubject());
+      }
+    }
+
+    // Compares error ArrayList to empty one so actual messages are shown if any are found.
+    assertEquals(new ArrayList<>(), errors);
+  }
+
+  private enum ValidationTriple {
+    ID1(
+        "http://localhost:8080/tableInheritanceTest/api/rdf/Root?id=1",
+        "http://localhost:8080/tableInheritanceTest/api/rdf/Root/column/rootColumn",
+        "id1 data"),
+    ID2(
+        "http://localhost:8080/tableInheritanceTest/api/rdf/Root?id=2",
+        "http://localhost:8080/tableInheritanceTest/api/rdf/Child/column/childColumn",
+        "id2 data"),
+    ID3(
+        "http://localhost:8080/tableInheritanceTest/api/rdf/Root?id=3",
+        "http://localhost:8080/tableInheritanceTest/api/rdf/GrandchildTypeA/column/grandchildColumn",
+        "id3 data"),
+    ID4(
+        "http://localhost:8080/tableInheritanceTest/api/rdf/Root?id=4",
+        "http://localhost:8080/tableInheritanceTest/api/rdf/GrandchildTypeB/column/grandchildColumn",
+        "id4 data"),
+    ID4_GRANDPARENT_FIELD(
+        "http://localhost:8080/tableInheritanceTest/api/rdf/Root?id=4",
+        "http://localhost:8080/tableInheritanceTest/api/rdf/Root/column/rootColumn",
+        "id4 data for rootColumn"),
+    ID4_PARENT_FIELD(
+        "http://localhost:8080/tableInheritanceTest/api/rdf/Root?id=4",
+        "http://localhost:8080/tableInheritanceTest/api/rdf/Child/column/childColumn",
+        "id4 data for childColumn"),
+    ID5(
+        "http://localhost:8080/tableInheritanceTest/api/rdf/Root?id=5",
+        "http://localhost:8080/tableInheritanceExternalSchemaTest/api/rdf/ExternalChild/column/externalChildColumn",
+        "id5 data"),
+    ID6(
+        "http://localhost:8080/tableInheritanceTest/api/rdf/Root?id=6",
+        "http://localhost:8080/tableInheritanceExternalSchemaTest/api/rdf/ExternalGrandchild/column/externalGrandchildColumn",
+        "id6 data"),
+    UNRELATED(
+        "http://localhost:8080/tableInheritanceExternalSchemaTest/api/rdf/ExternalUnrelated?id=a",
+        "http://localhost:8080/tableInheritanceExternalSchemaTest/api/rdf/ExternalUnrelated/column/externalUnrelatedColumn",
+        "unrelated data");
+
+    private final Triple triple;
+
+    public Resource getSubject() {
+      return triple.getSubject();
+    }
+
+    public IRI getPredicate() {
+      return triple.getPredicate();
+    }
+
+    public Value getObject() {
+      return triple.getObject();
+    }
+
+    ValidationTriple(String subjectUrl, String predicateUrl, String objectString) {
+      this.triple =
+          SimpleValueFactory.getInstance()
+              .createTriple(
+                  Values.iri(subjectUrl), Values.iri(predicateUrl), Values.literal(objectString));
     }
   }
 }

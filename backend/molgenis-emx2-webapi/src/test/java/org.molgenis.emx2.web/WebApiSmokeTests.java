@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -8,13 +7,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.*;
@@ -31,10 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
@@ -51,6 +46,8 @@ public class WebApiSmokeTests {
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
+  public static final String PET_SHOP_VIEWER = "shopviewer";
+  public static final String PET_SHOP_MANAGER = "shopmanager";
   public static final String SYSTEM_PREFIX = "/" + SYSTEM_SCHEMA;
   public static final String TABLE_WITH_SPACES = "table with spaces";
   public static final String PET_STORE_SCHEMA = "pet store";
@@ -67,9 +64,7 @@ public class WebApiSmokeTests {
     db = TestDatabaseFactory.getTestDatabase();
 
     // start web service for testing, including env variables
-    withEnvironmentVariable(MOLGENIS_HTTP_PORT, "" + PORT)
-        // disable because of parallelism issues .and(MOLGENIS_INCLUDE_CATALOGUE_DEMO, "true")
-        .execute(() -> RunMolgenisEmx2.main(new String[] {}));
+    RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
 
     // set default rest assured settings
     RestAssured.port = PORT;
@@ -98,6 +93,11 @@ public class WebApiSmokeTests {
     PET_STORE.getImportTask(schema, true).run();
 
     // grant a user permission
+    db.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
+    db.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
+    db.setUserPassword(PET_SHOP_MANAGER, PET_SHOP_MANAGER);
+    schema.addMember(PET_SHOP_MANAGER, Privileges.MANAGER.toString());
+    schema.addMember(PET_SHOP_VIEWER, Privileges.VIEWER.toString());
     schema.addMember(PET_SHOP_OWNER, Privileges.OWNER.toString());
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
     db.grantCreateSchema(PET_SHOP_OWNER);
@@ -172,7 +172,7 @@ public class WebApiSmokeTests {
 
     // check if reports work
     byte[] zipContents =
-        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=0");
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=report1");
     File zipFile = createTempFile(zipContents, ".zip");
     TableStore store = new TableStoreForCsvInZipFile(zipFile.toPath());
     store.containsTable("pet report");
@@ -180,26 +180,78 @@ public class WebApiSmokeTests {
     // check if reports work with parameters
     zipContents =
         getContentAsByteArray(
-            ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=1&name=spike,pooky");
+            ACCEPT_ZIP, "/pet store reports/api/reports/zip?id=report2&name=spike,pooky");
     zipFile = createTempFile(zipContents, ".zip");
     store = new TableStoreForCsvInZipFile(zipFile.toPath());
     store.containsTable("pet report with parameters");
 
     // check if reports work
     byte[] excelContents =
-        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=0");
+        getContentAsByteArray(ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=report1");
     File excelFile = createTempFile(excelContents, ".xlsx");
     store = new TableStoreForXlsxFile(excelFile.toPath());
-    assertTrue(store.containsTable("pet report"));
+    assertTrue(store.containsTable("report1"));
 
     // check if reports work with parameters
     excelContents =
         getContentAsByteArray(
-            ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=1&name=spike,pooky");
+            ACCEPT_ZIP, "/pet store reports/api/reports/excel?id=report2&name=spike,pooky");
     excelFile = createTempFile(excelContents, ".xlsx");
     store = new TableStoreForXlsxFile(excelFile.toPath());
-    assertTrue(store.containsTable("pet report with parameters"));
+    assertTrue(store.containsTable("report2"));
     assertTrue(excelContents.length > 0);
+
+    // test json report api
+    String jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report1")
+            .asString();
+    assertFalse(
+        jsonResults.contains("report1"),
+        "single result should not include report name"); // are we sure about this?
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report1,report2&name=pooky")
+            .asString();
+    assertTrue(
+        jsonResults.contains("report1"),
+        "multiple results should use the report name to nest results");
+    // check that id is for keys
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report1,report2&name=pooky")
+            .asString();
+    assertTrue(jsonResults.contains("report1"), "should use report id as key");
+    assertTrue(jsonResults.contains("report2"), "should use report id as key");
+
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report2&name=spike,pooky")
+            .asString();
+    assertTrue(jsonResults.contains("pooky"));
+
+    // test report using jsonb_agg
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report3")
+            .asString();
+    ObjectMapper objectMapper = new ObjectMapper();
+    List<Object> jsonbResult = objectMapper.readValue(jsonResults, List.class);
+    assertTrue(jsonbResult.get(0).toString().contains("pooky"));
+
+    // test report using jsonb rows
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report4")
+            .asString();
+    Object result = objectMapper.readValue(jsonResults, Object.class);
+    assertTrue(result.toString().contains("pooky"));
   }
 
   @Test
@@ -538,7 +590,7 @@ public class WebApiSmokeTests {
     String path = "/pet store/api/csv/Tag";
 
     String result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("green,,colors"));
+    assertTrue(result.contains("green,,,colors"));
 
     String update = "name,parent\r\nyellow,colors\r\n";
     given().sessionId(SESSION_ID).body(update).when().post(path).then().statusCode(200);
@@ -549,7 +601,7 @@ public class WebApiSmokeTests {
     given().sessionId(SESSION_ID).body(update).when().delete(path).then().statusCode(200);
 
     result = given().sessionId(SESSION_ID).accept(ACCEPT_CSV).when().get(path).asString();
-    assertTrue(result.contains("green,,colors"));
+    assertTrue(result.contains("green,,,colors"));
   }
 
   @Test
@@ -822,7 +874,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testRdfApi() {
+  public void testRdfApiRequest() {
     final String urlPrefix = "http://localhost:" + PORT;
 
     final String defaultContentType = "text/turtle";
@@ -865,16 +917,40 @@ public class WebApiSmokeTests {
         .head(urlPrefix + "/pet store/api/jsonld");
     rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
         .head(urlPrefix + "/pet store/api/ttl");
+  }
 
-    // Validate actual output.
-    String result =
+  @Test
+  void testRdfApiContent() {
+    // Output from global API call.
+    String resultBase =
         given()
             .sessionId(SESSION_ID)
             .when()
             .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
             .getBody()
             .asString();
-    assertFalse(result.contains("CatalogueOntologies"));
+
+    // Output schema API call.
+    String resultSchema =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .get("http://localhost:" + PORT + "/pet store/api/rdf")
+            .getBody()
+            .asString();
+
+    assertAll(
+        // Validate base API.
+        () -> assertFalse(resultBase.contains("CatalogueOntologies")),
+        () ->
+            assertTrue(
+                resultBase.contains(
+                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
+        // Validate schema API.
+        () ->
+            assertTrue(
+                resultSchema.contains(
+                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")));
   }
 
   /**
@@ -1232,6 +1308,102 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
     assertTrue(result.contains("[]"), "script should be unscheduled");
+  }
+
+  @Test
+  @Disabled("unstable; fails on CI around 50% of the time")
+  // todo update / rewrite test to be more stable in CI env
+  public void testExecuteSubtaskInScriptTask()
+      throws JsonProcessingException, InterruptedException {
+    String parentJobName = "parentJobTest";
+    Table jobs = db.getSchema(SYSTEM_SCHEMA).getTable("Scripts");
+    jobs.delete(row("name", parentJobName));
+    db.dropSchemaIfExists("ScriptWithFileUpload");
+    String script =
+        """
+import asyncio
+import logging
+import os
+from molgenis_emx2_pyclient import Client
+
+async def main():
+    logging.basicConfig(level='INFO')
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+    async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
+        await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
+                    template="PET_STORE", include_demo_data=False)
+
+if __name__ == '__main__':
+    asyncio.run(main())
+
+""";
+    jobs.insert(
+        row(
+            "name",
+            parentJobName,
+            "type",
+            "python",
+            "script",
+            script,
+            "dependencies",
+            "--extra-index-url https://test.pypi.org/simple/\n"
+                + "molgenis-emx2-pyclient>=11.22.0"));
+    String result =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .post("/api/scripts/" + parentJobName)
+            .getBody()
+            .asString();
+
+    String url = new ObjectMapper().readTree(result).at("/url").textValue();
+    assertTrue(testJobSuccess(url));
+
+    String failingJobName = "failingJobTest";
+    jobs.delete(row("name", failingJobName));
+    db.dropSchemaIfExists("ScriptWithFileUpload");
+    String scriptFail = script.replace("PET_STORE", "PET_STORES");
+    jobs.insert(
+        row(
+            "name",
+            failingJobName,
+            "type",
+            "python",
+            "script",
+            scriptFail,
+            "dependencies",
+            "--extra-index-url https://test.pypi.org/simple/\n"
+                + "molgenis-emx2-pyclient>=11.22.0"));
+
+    result =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .post("/api/scripts/" + failingJobName)
+            .getBody()
+            .asString();
+
+    url = new ObjectMapper().readTree(result).at("/url").textValue();
+    assertFalse(testJobSuccess(url));
+  }
+
+  private static boolean testJobSuccess(String url)
+      throws InterruptedException, JsonProcessingException {
+    String result = given().sessionId(SESSION_ID).get(url).asString();
+
+    String status = "WAITING";
+    int count = 0;
+    while (!result.contains("ERROR") && !"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      if (count++ > 30) {
+        throw new MolgenisException("failed: polling took too long, result is: " + result);
+      }
+      Thread.sleep(1000);
+      result = given().sessionId(SESSION_ID).get(url).asString();
+      status = new ObjectMapper().readTree(result).at("/status").textValue();
+    }
+    return !status.equals("ERROR");
   }
 
   private static String getToken(String email, String password) throws JsonProcessingException {

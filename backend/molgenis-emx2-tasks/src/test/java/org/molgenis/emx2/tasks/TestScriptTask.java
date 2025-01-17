@@ -2,6 +2,8 @@ package org.molgenis.emx2.tasks;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.tasks.ScriptType.BASH;
+import static org.molgenis.emx2.tasks.ScriptType.PYTHON;
 import static org.molgenis.emx2.tasks.TaskStatus.COMPLETED;
 import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
 
@@ -19,6 +21,7 @@ public class TestScriptTask {
     System.out.println("first");
     ScriptTask r1 =
         new ScriptTask("hello")
+            .type(PYTHON)
             .dependencies("numpy==1.23.4")
             // example with some characters that need escaping
             .parameters("\"netherlands & world\"")
@@ -47,6 +50,7 @@ print('Complete')
     System.out.println("\nsecond");
     ScriptTask r2 =
         new ScriptTask("error")
+            .type(PYTHON)
             .script(
                 """
 import sys
@@ -57,9 +61,25 @@ print('Error message', file=sys.stderr)
   }
 
   @Test
+  public void testBashScript() {
+    Task bashTask =
+        new ScriptTask("bashTest")
+            .type(BASH)
+            .script(
+                """
+echo "hello world"
+ls -la
+echo "bey"
+""");
+    bashTask.run();
+    assertEquals(bashTask.getStatus(), COMPLETED);
+  }
+
+  @Test
   public void testPythonScript_shouldFail() throws MalformedURLException {
     Task task =
         new ScriptTask("error")
+            .type(PYTHON)
             .script(
                 """
 import sys

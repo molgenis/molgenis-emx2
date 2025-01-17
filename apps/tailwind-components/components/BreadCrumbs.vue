@@ -14,38 +14,45 @@ withDefaults(
 </script>
 
 <template>
-  <div class="flex justify-between xl:hidden text-menu">
-    <NuxtLink :to="Object.values(crumbs).slice(-1)[0]">
-      <span class="sr-only">Go up one level</span>
-      <BaseIcon name="arrow-left" />
-    </NuxtLink>
-    <!-- <a href="#">
-      <span class="sr-only">Favorite</span>
-      <BaseIcon name="star" />
-    </a> -->
-  </div>
-  <nav
-    class="items-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"
-    :class="{ 'justify-center': align === 'center' }"
-  >
-    <template v-for="(url, label, index) in crumbs" :key="label">
-      <NuxtLink :to="url" class="text-breadcrumb hover:underline">{{
-        label
-      }}</NuxtLink>
-      <span
-        v-if="index < Object.keys(crumbs).length - 1"
-        class="text-breadcrumb-arrow"
+  <nav aria-label="breadcrumb">
+    <ol class="flex justify-between xl:hidden text-menu">
+      <li>
+        <NuxtLink :to="Object.values(crumbs).slice(-1)[0]">
+          <span class="sr-only">Go back one page</span>
+          <BaseIcon name="arrow-left" />
+        </NuxtLink>
+      </li>
+    </ol>
+
+    <ol
+      class="items-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"
+      :class="{ 'justify-center': align === 'center' }"
+    >
+      <li
+        v-for="(url, label, index) in crumbs"
+        :key="label"
+        class="flex justify-center items-center gap-3"
       >
-        <BaseIcon name="caret-right" :width="12" />
-      </span>
-    </template>
-    <template v-if="current">
-      <BaseIcon
-        v-if="Object.keys(crumbs).length > 0"
-        name="caret-right"
-        :width="12"
-        class="text-breadcrumb-arrow"
-      /><a class="text-breadcrumb"> {{ current }}</a>
-    </template>
+        <NuxtLink :to="url" class="text-breadcrumb hover:underline">
+          {{ label }}
+        </NuxtLink>
+        <span
+          class="text-breadcrumb-arrow"
+          v-if="index < Object.keys(crumbs).length - 1 || current"
+        >
+          <BaseIcon name="caret-right" :width="12" />
+        </span>
+      </li>
+      <li v-if="current && !Object.keys(crumbs).includes(current)">
+        <a
+          href=""
+          class="text-breadcrumb hover:underline"
+          aria-current="page"
+          @click.prevent
+        >
+          {{ current }}
+        </a>
+      </li>
+    </ol>
   </nav>
 </template>

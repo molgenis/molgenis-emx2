@@ -2,7 +2,6 @@
   "private": true,
   "workspaces": [
     "metadata-utils",
-    "catalogue",
     "directory",
     "settings",
     "central",
@@ -33,9 +32,6 @@
     "emx2-analytics",
     "ui"
   ],
-  "devDependencies": {
-    "nuxt": "3.13.2"
-  },
   "scripts": {
     "build:libs": "yarn workspace molgenis-components run build && yarn workspace molgenis-viz run build"
   }

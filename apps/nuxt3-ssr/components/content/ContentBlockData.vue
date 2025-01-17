@@ -35,14 +35,20 @@ const areasOfInformation = collectionEvents
         title="Data categories"
         :collapse-all="false"
       >
-        <ContentOntology :tree="buildTree(dataCategories)"></ContentOntology>
+        <ContentOntology
+          :tree="buildTree(dataCategories)"
+          :inverted="true"
+        ></ContentOntology>
       </ListCollapsible>
       <ListCollapsible
         v-if="sampleCategories?.length"
         title="Sample categories"
         :collapse-all="false"
       >
-        <ContentOntology :tree="buildTree(sampleCategories)"></ContentOntology>
+        <ContentOntology
+          :tree="buildTree(sampleCategories)"
+          :inverted="true"
+        ></ContentOntology>
       </ListCollapsible>
       <ListCollapsible
         v-if="areasOfInformation?.length"
@@ -51,6 +57,7 @@ const areasOfInformation = collectionEvents
       >
         <ContentOntology
           :tree="buildTree(areasOfInformation)"
+          :inverted="true"
         ></ContentOntology>
       </ListCollapsible>
     </div>

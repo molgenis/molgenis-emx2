@@ -44,7 +44,7 @@ const offset = computed(
   () => (currentPage.value - 1) * tableSettings.value.pageSize
 );
 
-const { data, status, error } = await useLazyAsyncData(
+const { data, error } = await useLazyAsyncData(
   "table explorer data",
   async () => {
     const metaData = fetchTableMetadata(schemaId, tableId);
@@ -103,20 +103,16 @@ const current = computed(
         <BreadCrumbs :align="'left'" :crumbs="crumbs" :current="current" />
       </template>
     </PageHeader>
-
-    <ContentBlock>
-      <div v-if="status === 'pending'">Loading...</div>
-      <div v-if="error">Error: {{ error }}</div>
-      <!-- <pre v-if="data">{{ tableMetaData }}</pre> -->
-      <!-- <pre>{{ tableData}}</pre> -->
-      <TableEMX2
-        :table-id="tableId"
-        :columns="dataColumns"
-        :rows="rows"
-        :count="numberOfRows"
-        :settings="tableSettings"
-        @update:settings="handleSettingsUpdate"
-      />
-    </ContentBlock>
+    <div v-if="error">Error: {{ error }}</div>
+    <!-- <pre v-if="data">{{ tableMetaData }}</pre> -->
+    <!-- <pre>{{ tableData}}</pre> -->
+    <TableEMX2
+      :table-id="tableId"
+      :columns="dataColumns"
+      :rows="rows"
+      :count="numberOfRows"
+      :settings="tableSettings"
+      @update:settings="handleSettingsUpdate"
+    />
   </Container>
 </template>

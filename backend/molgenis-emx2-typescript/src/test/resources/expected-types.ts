@@ -49,6 +49,7 @@ export interface ITag {
   order?: number;
   name: string;
   label?: string;
+  tags?: string[];
   parent?: ITag;
   codesystem?: string;
   code?: string;

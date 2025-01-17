@@ -30,8 +30,7 @@ export type CellValueType =
   | "DATETIME"
   | "DATETIME_ARRAY"
   | "PERIOD"
-  | "JSONB"
-  | "JSONB_ARRAY"
+  | "JSON"
   | "REF"
   | "REF_ARRAY"
   | "REFBACK"
@@ -77,7 +76,6 @@ export interface ITableMetaData {
   description?: string;
   tableType: string;
   columns: IColumn[];
-  schemaId: string;
   semantics?: string[];
   settings?: ISetting[];
 }

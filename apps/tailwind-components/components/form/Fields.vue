@@ -43,11 +43,19 @@ const chapters = computed(() => {
 });
 
 const dataMap = reactive(
-  Object.fromEntries(props.metadata.columns.map((column) => [column.id, ""]))
+  Object.fromEntries(
+    props.metadata.columns
+      .filter((column) => column.columnType !== "HEADING")
+      .map((column) => [column.id, ""])
+  )
 );
 
 const errorMap = reactive(
-  Object.fromEntries(props.metadata.columns.map((column) => [column.id, []]))
+  Object.fromEntries(
+    props.metadata.columns
+      .filter((column) => column.columnType !== "HEADING")
+      .map((column) => [column.id, []])
+  )
 );
 
 const numberOffFieldsWithErrors = computed(() =>
@@ -86,7 +94,7 @@ defineExpose({ validate });
     </div>
     <div class="first:pt-0 pt-10" v-for="chapter in chapters">
       <h2
-        class="font-display md:text-heading-5xl text-heading-5xl text-title-contrast pb-8"
+        class="font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
         v-if="chapter.title !== '_NO_CHAPTERS'"
       >
         {{ chapter.title }}

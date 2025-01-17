@@ -107,8 +107,39 @@ if (subpopulation?.countries) {
 
 if (subpopulation?.inclusionCriteria) {
   items.push({
+    label: "Inclusion criteria",
+    content: renderList(
+      subpopulation.inclusionCriteria.sort(
+        (a, b) => (b.order ?? 0) - (a.order ?? 0)
+      ),
+      toName
+    ),
+  });
+}
+
+if (subpopulation?.otherInclusionCriteria) {
+  items.push({
     label: "Other inclusion criteria",
-    content: subpopulation.inclusionCriteria,
+    content: subpopulation.otherInclusionCriteria,
+  });
+}
+
+if (subpopulation?.exclusionCriteria) {
+  items.push({
+    label: "Exclusion criteria",
+    content: renderList(
+      subpopulation.exclusionCriteria.sort(
+        (a, b) => (b.order ?? 0) - (a.order ?? 0)
+      ),
+      toName
+    ),
+  });
+}
+
+if (subpopulation?.otherExclusionCriteria) {
+  items.push({
+    label: "Other exclusion criteria",
+    content: subpopulation.otherExclusionCriteria,
   });
 }
 

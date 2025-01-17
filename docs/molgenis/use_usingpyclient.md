@@ -55,6 +55,17 @@ or
 client = Client('https://example.molgeniscloud.org', schema='My Schema', token=token)
 ```
 
+### Scripts and Jobs
+When using the client in a script that runs as part of a job via the [Task API](use_scripts_jobs.md), it is essential
+to provide the job identifier to the client. This identifier allows the backend to associate its actions with the
+specific job execution.
+
+The job identifier can be passed into the script using `${jobId}`. To initialize the client with the job identifier,
+the code should be structured as follows:
+```python
+Client('https://example.molgeniscloud.org', schema='My Schema', job='${jobId}')
+```
+
 ## Methods and properties
 This section outlines some of the methods that are supported by the Pyclient.
 The results of these methods depend on the permission level the user has on the schemas involved in the method.

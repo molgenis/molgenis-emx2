@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { IResource, IVariableWithMappings } from "~/interfaces/types";
+import type { IResources } from "~/interfaces/catalogue";
+import type { IVariableWithMappings } from "~/interfaces/types";
 import { getKey } from "~/utils/variableUtils";
 const route = useRoute();
 
 const props = defineProps<{
   variables: IVariableWithMappings[];
-  resources: IResource[];
+  resources: IResources[];
 }>();
 
 const statusMap = computed(() =>

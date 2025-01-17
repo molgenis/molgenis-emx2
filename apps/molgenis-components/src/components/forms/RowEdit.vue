@@ -5,6 +5,7 @@
       :key="JSON.stringify(column)"
       :id="`${id}-${column.id}`"
       :modelValue="internalValues[column.id]"
+      :expressionData="internalValues"
       :columnType="column.columnType"
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
@@ -120,9 +121,7 @@ export default {
   },
   methods: {
     showColumn(column: IColumn) {
-      if (column.columnType === AUTO_ID) {
-        return this.pkey;
-      } else if (column.refLinkId) {
+      if (column.refLinkId) {
         return this.internalValues[column.refLinkId];
       } else {
         const isColumnVisible = this.visibleColumns
@@ -189,7 +188,7 @@ export default {
               equals: await convertRowToPrimaryKey(
                 this.internalValues[changedColumn.id],
                 overlappingKey.refTableId,
-                overlappingKey.refSchemaId
+                overlappingKey.refSchemaId || this.schemaMetaData.schemaId
               ),
             },
           };
