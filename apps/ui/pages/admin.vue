@@ -20,7 +20,7 @@
             <TableHead>Name / Email</TableHead>
             <TableHead>Enabled</TableHead>
             <TableHead>Roles</TableHead>
-            <TableHead>Tokens</TableHead>
+            <!-- <TableHead>Tokens</TableHead> -->
           </TableHeadRow>
         </template>
         <template #body>
@@ -42,7 +42,7 @@
                 {{ role.schemaId }} ({{ role.role }})
               </div>
             </TableCell>
-            <TableCell> Tokens: {{ user.tokens?.length }} </TableCell>
+            <!-- <TableCell> Tokens: {{ user.tokens?.length }} </TableCell> -->
           </TableRow>
         </template>
       </Table>
