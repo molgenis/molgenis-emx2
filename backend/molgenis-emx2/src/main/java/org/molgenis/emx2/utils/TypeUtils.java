@@ -476,10 +476,22 @@ public class TypeUtils {
     }
   }
 
-  public static Iterable<Row> convertToRows(TableMetadata metadata, List<Map<String, Object>> map) {
+  public static List<Row> convertToRows(TableMetadata metadata, List<Map<String, Object>> map) {
+    return convertToRows(metadata, map, false);
+  }
+
+  public static List<Row> convertToPrimaryKeyRows(
+      TableMetadata metadata, List<Map<String, Object>> map) {
+    return convertToRows(metadata, map, true);
+  }
+
+  private static List<Row> convertToRows(
+      TableMetadata metadata, List<Map<String, Object>> map, boolean primaryKeyOnly) {
     List<Row> rows = new ArrayList<>();
     for (Map<String, Object> field : map) {
       Row row = new Row();
+      List<Column> columns =
+          primaryKeyOnly ? metadata.getPrimaryKeyColumns() : metadata.getColumns();
       for (Column column : metadata.getColumns()) {
         if (field.containsKey(column.getIdentifier())) {
           Object fieldValue = field.get(column.getIdentifier());

@@ -125,6 +125,7 @@ public class TestCreateArrayDataTypes {
       }
     }
 
+    // IS filters
     result = tableA.query().where(f(aFieldName, IS, NULL)).retrieveRows();
     assertEquals(0, result.size());
     result = tableA.query().where(f(aNillableFieldName, IS, NULL)).retrieveRows();

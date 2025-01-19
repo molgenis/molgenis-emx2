@@ -11,6 +11,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutation
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlCustomTypes.GraphQLJsonAsString;
 import static org.molgenis.emx2.sql.SqlQuery.*;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPrimaryKeyRows;
 
 import graphql.Scalars;
 import graphql.schema.*;
@@ -473,6 +474,16 @@ public class GraphqlTableFieldFactory {
                   .name(FILTER_IS)
                   .type(isNullOrNotNullEnum)
                   .build());
+          filterBuilder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(FILTER_CONTAINS_ALL)
+                  .type(GraphQLList.list(getPrimaryKeyInput(table)))
+                  .build());
+          filterBuilder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(FILTER_CONTAINS_ANY)
+                  .type(GraphQLList.list(getPrimaryKeyInput(table)))
+                  .build());
         } else if (col.getColumnType().getOperators().length > 0) {
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
@@ -598,7 +609,8 @@ public class GraphqlTableFieldFactory {
         }
       } else if (entry.getKey().equals(MATCH_INCLUDING_CHILDREN)
           || entry.getKey().equals(MATCH_INCLUDING_PARENTS)
-          || entry.getKey().equals(FILTER_IS)) {
+          || entry.getKey().equals(FILTER_IS)
+          || entry.getKey().equals(FILTER_CONTAINS_ALL)) {
         // skip, handled on parent column. Need re-architecture in next major release.
       } else {
         // find column by escaped name
@@ -632,6 +644,19 @@ public class GraphqlTableFieldFactory {
         } else if (value.containsKey(FILTER_IS)) {
           subFilters.add(f(c.getName(), IS, value.get(FILTER_IS)));
           value.remove(FILTER_IS);
+        } else if (value.containsKey(FILTER_CONTAINS_ALL)) {
+          //  complex filter, should be an list of maps per graphql contract
+          if (entry.getValue() != null) {
+            subFilters.add(
+                f(
+                    c.getName(),
+                    Operator.CONTAINS_ALL,
+                    convertToPrimaryKeyRows(
+                            c.getRefTable(),
+                            (List<Map<String, Object>>) value.get(FILTER_CONTAINS_ALL))
+                        .toArray()));
+          }
+          value.remove(FILTER_CONTAINS_ALL);
         }
 
         if (value.size() == 0) continue;
