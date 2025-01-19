@@ -569,27 +569,6 @@ public class SqlQuery extends QueryBean {
                   .toList();
 
           Table<?> compositeKeysTable =
-              DSL.select(
-                      Arrays.stream(filter.getValues())
-                          .flatMap(
-                              value ->
-                                  contains_column.getReferences().stream()
-                                      .map(
-                                          ref ->
-                                              val(
-                                                      ((Row) value)
-                                                          .get(
-                                                              ref.getTargetColumn(),
-                                                              contains_column
-                                                                  .getRefTable()
-                                                                  .getColumn(ref.getTargetColumn())
-                                                                  .getPrimitiveColumnType()),
-                                                      ref.getJooqType().getArrayBaseDataType())
-                                                  .as(ref.getTargetColumn())))
-                          .toArray(Field[]::new))
-                  .asTable(subAlias + "_" + contains_column.getName() + "_values");
-
-          compositeKeysTable =
               Arrays.stream(filter.getValues())
                   .map(
                       value ->
@@ -612,28 +591,6 @@ public class SqlQuery extends QueryBean {
                   .orElse(DSL.select())
                   .asTable(subAlias + "_" + contains_column.getName() + "_values");
 
-          //          List<org.jooq.RowN> compositeKeyValues =
-          //              contains_column.getReferences().size() == 1
-          //                  ? null
-          //                  : Arrays.stream(filter.getValues())
-          //                      .filter(Row.class::isInstance)
-          //                      .map(
-          //                          value ->
-          //                              DSL.row(
-          //                                  contains_column.getReferences().stream()
-          //                                      .map(
-          //                                          ref ->
-          //                                              ((Row) value)
-          //                                                  .get(
-          //                                                      ref.getTargetColumn(),
-          //                                                      contains_column
-          //                                                          .getRefTable()
-          //
-          // .getColumn(ref.getTargetColumn())
-          //                                                          .getPrimitiveColumnType()))
-          //                                      .toArray()))
-          //                      .toList();
-
           // ref
           if (contains_column.isRef()) {
             if (CONTAINS_ALL.equals(filter.getOperator())) {
@@ -655,51 +612,6 @@ public class SqlQuery extends QueryBean {
                   name(contains_column.getName()), operator, filter.getValues());
             } else {
               if (CONTAINS_ALL.equals(filter.getOperator())) {
-                //                                return notExists(
-                //                                        selectOne()
-                //                                                .from(
-                //
-                // contains_column.getReferences().stream()
-                //                                                                .map(
-                //                                                                        ref ->
-                //
-                // unnest(field(name(ref.getName()),
-                //
-                //      ref.getJooqType()))
-                //
-                //      .withOrdinality()
-                //
-                //      .as(
-                //
-                //              subAlias + "_" + ref.getName() +
-                //
-                //                      "_unnested",
-                //
-                //              "unnested_" + ref.getName(),
-                //
-                //              "ordinality"))
-                //                                                                .reduce((table1,
-                // table2) ->
-                //
-                // table1.naturalJoin(table2))
-                //                                                                .orElseThrow(
-                //                                                                        () -> new
-                // IllegalStateException("No references available"))
-                //
-                // .where(
-                //
-                //      row(contains_column.getReferences().stream()
-                //
-                //              .map(ref -> field(name("unnested_" +
-                //
-                //                      ref.getName())))
-                //
-                //              .toArray(Field[]::new))
-                //
-                //              .notIn(compositeKeyValues))));
-
-                // Dynamic construction of the query
-
                 Table<Record> combinedUnnestedTable =
                     contains_column.getReferences().stream()
                         .map(
