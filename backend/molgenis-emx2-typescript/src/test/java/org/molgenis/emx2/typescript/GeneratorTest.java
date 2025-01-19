@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.datamodels.test.ProductComponentPartsExample;
 import org.molgenis.emx2.datamodels.test.SimpleTypeTestExample;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -30,8 +30,7 @@ class GeneratorTest {
     File f = new File(this.getClass().getClassLoader().getResource("generateTypes.ts").getFile());
     Schema schema = db.dropCreateSchema(GeneratorTest.class.getSimpleName() + "-PetStore");
 
-    PetStoreLoader petStoreLoader = new PetStoreLoader(schema, false);
-    petStoreLoader.run();
+    DataModels.Profile.PET_STORE.getImportTask(schema, false).run();
     new Generator().generate(schema, f.getPath());
 
     // now compare generated with expected

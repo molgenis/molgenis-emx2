@@ -6,7 +6,7 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
@@ -40,8 +41,25 @@ public class TestGraphqlSchemaFields {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    final String shopviewer = "shopviewer";
+    final String shopmanager = "shopmanager";
+    final String shopowner = "shopowner";
+    final String costumer = "costumer";
+
+    // initialize users
+    database.setUserPassword(shopmanager, shopmanager);
+    database.setUserPassword(shopviewer, shopviewer);
+    database.setUserPassword(shopowner, shopowner);
+    database.setUserPassword(costumer, costumer);
+
     schema = database.dropCreateSchema(schemaName);
-    PET_STORE.getImportTask(schema, true).run();
+    schema.addMember(shopmanager, "Manager");
+    schema.addMember(shopviewer, "Viewer");
+    schema.addMember(shopowner, "Owner");
+    schema.addMember(costumer, "Range");
+    DataModels.getImportTask(schema, PET_STORE.name(), true).run();
+    schema = database.getSchema(schemaName);
+
     taskService = new TaskServiceInMemory();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
   }
