@@ -132,9 +132,9 @@ class Transform:
                                                     'collection type': 'data collection type',
                                                     'inclusion criteria other': 'other inclusion criteria'})
             # infer resource type from cohort type
-            df_cohorts['type'] = df_cohorts['cohort type'].apply(get_resource_type)
+            df_cohorts['type'] = df_cohorts['cohort type'].apply(get_resource_type, original_table='Cohorts')
             # delete cohort type 'Study', 'Registry', 'Clinical trial' and 'Biobank'
-            df_cohorts.loc[:, 'cohort type'] = df_cohorts['cohort type'].apply(get_cohort_type)
+            df_cohorts.loc[:, 'cohort type'] = df_cohorts['cohort type'].apply(get_other_type)
             # reformat keywords
             df_cohorts.loc[:, 'keywords'] = df_cohorts['keywords'].apply(reformat_keywords)
             # get resources that are part of network
@@ -175,12 +175,15 @@ class Transform:
                                             'type other': 'RWD type other',
                                             'areas of information': 'areas of information rwd',
                                             'informed consent': 'informed consent required'}, inplace=True)
+            # infer resource type from RWD type
+            df_data_sources['type'] = df_data_sources['RWD type'].apply(get_resource_type, original_table='Data sources')
+            # delete RWD type 'Biobank'
+            df_data_sources.loc[:, 'RWD type'] = df_data_sources['RWD type'].apply(get_other_type)
             # transform dates to years
             df_data_sources.loc[:, 'start year'] = df_data_sources['date established'].apply(get_year_from_date)
             df_data_sources.loc[:, 'end year'] = df_data_sources['end data collection'].apply(get_year_from_date)
             # transform keywords
             df_data_sources.loc[:, 'keywords'] = df_data_sources['keywords'].apply(reformat_keywords)
-            df_data_sources['type'] = 'Data source'
             # transform regions
             df_data_sources.loc[:, 'regions'] = df_data_sources['regions'].apply(remove_all_regions)
             # transform datasource types
@@ -193,12 +196,15 @@ class Transform:
                                          'areas of information': 'areas of information rwd',
                                          'informed consent': 'informed consent required'}, inplace=True)
 
+            # infer resource type from RWD type
+            df_databanks['type'] = df_databanks['RWD type'].apply(get_resource_type, original_table='Databanks')
+            # delete RWD type 'Biobank'
+            df_databanks.loc[:, 'RWD type'] = df_databanks['RWD type'].apply(get_other_type)
             # transform dates to years
             df_databanks.loc[:, 'start year'] = df_databanks['date established'].apply(get_year_from_date)
             df_databanks.loc[:, 'end year'] = df_databanks['end data collection'].apply(get_year_from_date)
             # transform keywords
             df_databanks.loc[:, 'keywords'] = df_databanks['keywords'].apply(reformat_keywords)
-            df_databanks['type'] = 'Databank'
             # transform regions
             df_databanks.loc[:, 'regions'] = df_databanks['regions'].apply(remove_all_regions)
             # transform datasource types
@@ -711,35 +717,42 @@ def reformat_keywords(keywords):
     return keywords
 
 
-def get_resource_type(cohort_type):
+def get_resource_type(other_type, original_table):
     resource_type = []
-    if not pd.isna(cohort_type):
-        if any(c in cohort_type for c in ['Clinical trial', 'Study']):
+    if original_table == 'Data sources':
+        resource_type.append('Data source')
+    if original_table == 'Databanks':
+        resource_type.append('Databank')
+    if not pd.isna(other_type):
+        if any(t in other_type for t in ['Clinical trial', 'Study']):
             resource_type.append('Clinical trial')
-        if 'Registry' in cohort_type:
+        if any(t in other_type for t in ['Registry', 'registry']):
             resource_type.append('Registry')
-        if 'Biobank' in cohort_type:
+        if 'Biobank' in other_type:
             resource_type.append('Biobank')
-        if any(c in cohort_type for c in ['Birth cohort', 'Clinical cohort', 'Case-control', 'Case only', 'Population cohort']):
+        if any(t in other_type for t in ['Birth cohort', 'Clinical cohort', 'Case-control', 'Case only', 'Population cohort']):
             resource_type.append('Cohort study')
+        if 'Primary care medical records' in other_type:
+            resource_type.append('Health records')
     else:
-        resource_type.append('Cohort study')
+        if original_table == 'Cohorts':
+            resource_type.append('Cohort study')
 
     resource_type = ','.join(resource_type)
 
     return resource_type
 
 
-def get_cohort_type(cohort_type):
-    if not pd.isna(cohort_type):
-        cohort_type = cohort_type.replace('Biobank', '')
-        cohort_type = cohort_type.replace('Clinical trial', '')
-        cohort_type = cohort_type.replace('Registry', '')
-        cohort_type = cohort_type.replace('Study', '')
-        cohort_type = cohort_type.replace(',,', ',')
-        cohort_type = cohort_type.strip(',')
+def get_other_type(other_type):
+    if not pd.isna(other_type):
+        other_type = other_type.replace('Biobank', '')
+        other_type = other_type.replace('Clinical trial', '')
+        other_type = other_type.replace('Registry', '')
+        other_type = other_type.replace('Study', '')
+        other_type = other_type.replace(',,', ',')
+        other_type = other_type.strip(',')
 
-    return cohort_type
+    return other_type
 
 
 def remove_all_regions(regions):
