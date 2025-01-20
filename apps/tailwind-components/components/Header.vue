@@ -9,6 +9,8 @@
           <!-- <SearchBar /> -->
         </div>
 
+        <slot name="admin" />
+
         <slot name="account">
           <!-- <HeaderButton label="Favorites" icon="star" /> -->
           <HeaderButton label="Account" icon="user" />
