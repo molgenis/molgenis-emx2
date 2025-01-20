@@ -1,6 +1,6 @@
 <template>
-  <nav class="py-4">
-    <h2 class="text-disabled mt-8 mb-4 p-4 ml-2">Jump to</h2>
+  <nav class="pt-4 pb-8">
+    <h2 class="text-disabled p-4 ml-1">Jump to</h2>
     <ul class="list-none space-y-3">
       <li
         v-for="section in sections"
@@ -8,11 +8,11 @@
         @click="emit('gotoSection', section)"
       >
         <div
-          class="h-[24px] w-2 min-w-2 group-hover:bg-button-primary"
+          class="h-[24px] w-1 group-hover:bg-button-primary"
           :class="{ 'bg-button-primary': section.isActive }"
         />
         <a
-          class="pl-4 text-title"
+          class="pl-4 text-title capitalize"
           :class="{ 'font-bold': section.isActive }"
           :href="`#${section.domId}`"
           >{{ section.label }}</a

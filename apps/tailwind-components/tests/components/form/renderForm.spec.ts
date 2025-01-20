@@ -5,8 +5,12 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
   : "/apps/tailwind-components/#/";
 
-test("it should render the form", async ({ page }) => {
+test.beforeEach(async ({ page }) => {
   await page.goto(`${route}Form.story`);
+  await page.getByLabel("name").click({ delay: 500 }); // wait for hydration to complete
+});
+
+test("it should render the form", async ({ page }) => {
   await page.goto(
     "https://emx2.dev.molgenis.org/apps/tailwind-components/#/Form.story"
   );
@@ -22,10 +26,24 @@ test("it should render the form", async ({ page }) => {
 });
 
 test("it should handle input", async ({ page }) => {
-  await page.goto(`${route}Form.story`);
-  await page.getByLabel("name").click({ delay: 500 }); // wait for hydration to complete
   await page.getByLabel("name").pressSequentially("test");
   await expect(page.getByLabel("name")).toHaveValue("test");
   await page.getByRole("heading", { name: "Values" }).click();
   await expect(page.getByRole("definition")).toContainText("test");
+});
+
+test("it should show the chapters in the legend", async ({ page }) => {
+  await expect(page.getByRole("link", { name: "details" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Heading2" })).toBeVisible();
+});
+
+test("the legend should show number of errors per chapter (if any)", async ({
+  page,
+}) => {
+  await page.getByLabel("Demo data").selectOption("complex", { force: true });
+  // touch the form
+  await page.getByLabel("name", { exact: true }).click();
+  // skipe a required field
+  await page.getByLabel("name", { exact: true }).press("Tab");
+  await expect(page.locator("a").filter({ hasText: /^1$/ })).toBeVisible();
 });
