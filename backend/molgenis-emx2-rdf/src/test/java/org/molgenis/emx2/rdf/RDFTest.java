@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf;
 
+import static java.util.Map.entry;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
@@ -18,7 +19,6 @@ import java.util.Objects;
 import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
-import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Triple;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleNamespace;
@@ -49,6 +49,7 @@ public class RDFTest {
   public static final String POOKY_ROWID = "name=pooky";
 
   static final String BASE_URL = "http://localhost:8080/";
+  static final String RDF_API_LOCATION = "/api/rdf";
 
   /** Advanced setting field for adding custom RDF to the API. */
   private static final String SETTING_CUSTOM_RDF = "custom_rdf";
@@ -57,7 +58,6 @@ public class RDFTest {
 
   static Database database;
   static List<Schema> petStoreSchemas;
-  static final String RDF_API_LOCATION = "/api/rdf";
   static Schema petStore_nr1;
   static Schema petStore_nr2;
   static Schema compositeKeyTest;
@@ -98,30 +98,51 @@ public class RDFTest {
     // Test schema for composite keys
     compositeKeyTest = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_compositeKey");
     compositeKeyTest.create(
-        table("Patients", column("firstName").setPkey(), column("lastName").setPkey()),
         table(
-            "Samples",
-            column("patient").setType(ColumnType.REF).setRefTable("Patients").setPkey(),
-            column("id").setPkey(),
-            column("someNonKeyRef").setType(ColumnType.REF_ARRAY).setRefTable("Samples")));
-    compositeKeyTest.getTable("Patients").insert(row("firstName", "Donald", "lastName", "Duck"));
+            "table1",
+            column("id1a").setPkey(),
+            column("id1b").setType(ColumnType.REF).setRefTable("table2").setPkey()),
+        table(
+            "table2",
+            column("id2a").setPkey(),
+            column("id2b").setType(ColumnType.REF).setRefTable("table3").setPkey(),
+            column("refback1")
+                .setType(ColumnType.REFBACK)
+                .setRefTable("table1")
+                .setRefBack("id1b")),
+        table(
+            "table3",
+            column("id3a").setPkey(),
+            column("id3b").setPkey(),
+            column("refback2")
+                .setType(ColumnType.REFBACK)
+                .setRefTable("table2")
+                .setRefBack("id2b")));
+
     compositeKeyTest
-        .getTable("Samples")
+        .getTable("table3")
         .insert(
-            row("patient.firstName", "Donald", "patient.lastName", "Duck", "id", "sample1"),
+            row("id3a", "id3a_first", "id3b", "id3b_first"),
+            row("id3a", "id3a_second", "id3b", "id3b_second"));
+
+    compositeKeyTest
+        .getTable("table2")
+        .insert(
+            row("id2a", "id2_first", "id2b.id3a", "id3a_first", "id2b.id3b", "id3b_first"),
+            row("id2a", "id2_second", "id2b.id3a", "id3a_first", "id2b.id3b", "id3b_first"));
+
+    compositeKeyTest
+        .getTable("table1")
+        .insert(
             row(
-                "patient.firstName",
-                "Donald",
-                "patient.lastName",
-                "Duck",
-                "id",
-                "sample2",
-                "someNonKeyRef.patient.firstName",
-                "Donald",
-                "someNonKeyRef.patient.lastName",
-                "Duck",
-                "someNonKeyRef.id",
-                "sample1"));
+                "id1a",
+                "id1_first",
+                "id1b.id2a",
+                "id2_second",
+                "id1b.id2b.id3a",
+                "id3a_first",
+                "id1b.id2b.id3b",
+                "id3b_first"));
 
     // Test schema for ontologies
     ontologyTest = database.dropCreateSchema("OntologyTest");
@@ -272,6 +293,10 @@ public class RDFTest {
     refBackTest.getTable("tableRef").insert(row("id", "1", "link", "a"));
   }
 
+  private String getApi(Schema schema) {
+    return BASE_URL + compositeKeyTest.getName() + RDF_API_LOCATION + "/";
+  }
+
   @AfterAll
   public static void tearDown() {
     database = TestDatabaseFactory.getTestDatabase();
@@ -395,6 +420,46 @@ public class RDFTest {
               + allowedTypes.stream().map(Objects::toString)
               + "]");
     }
+  }
+
+  @Test
+  void testCompositeKeys() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(compositeKeyTest), handler);
+
+    assertPresence(
+        handler,
+        Map.ofEntries(
+            entry(
+                ValidationTriple.createWithIri(
+                    getApi(compositeKeyTest)
+                        + "Table1?id1a=id1_first&id1b.id2a=id2_second&id1b.id2b.id3a=id3a_first&id1b.id2b.id3b=id3b_first",
+                    getApi(compositeKeyTest) + "Table1/column/id1b",
+                    getApi(compositeKeyTest)
+                        + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first"),
+                true),
+            entry(
+                ValidationTriple.createWithIri(
+                    getApi(compositeKeyTest)
+                        + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first",
+                    getApi(compositeKeyTest) + "Table2/column/id2b",
+                    getApi(compositeKeyTest) + "Table3?id3a=id3a_first&id3b=id3b_first"),
+                true),
+            entry(
+                ValidationTriple.createWithIri(
+                    getApi(compositeKeyTest) + "Table3?id3a=id3a_first&id3b=id3b_first",
+                    getApi(compositeKeyTest) + "Table3/column/refback2",
+                    getApi(compositeKeyTest)
+                        + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first"),
+                true),
+            entry(
+                ValidationTriple.createWithIri(
+                    getApi(compositeKeyTest)
+                        + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first",
+                    getApi(compositeKeyTest) + "Table2/column/refback1",
+                    getApi(compositeKeyTest)
+                        + "Table1?id1a=id1_first&id1b.id2a=id2_second&id1b.id2b.id3a=id3a_first&id1b.id2b.id3b=id3b_first"),
+                true)));
   }
 
   @Test
@@ -601,15 +666,15 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, true),
-            Map.entry(ValidationTriple.ID2, true),
-            Map.entry(ValidationTriple.ID3, true),
-            Map.entry(ValidationTriple.ID4, true),
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID5, false), // different schema
-            Map.entry(ValidationTriple.ID6, false), // different schema
-            Map.entry(ValidationTriple.UNRELATED, false) // different schema
+            entry(ValidationTriple.ID1.getTriple(), true),
+            entry(ValidationTriple.ID2.getTriple(), true),
+            entry(ValidationTriple.ID3.getTriple(), true),
+            entry(ValidationTriple.ID4.getTriple(), true),
+            entry(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID5.getTriple(), false), // different schema
+            entry(ValidationTriple.ID6.getTriple(), false), // different schema
+            entry(ValidationTriple.UNRELATED.getTriple(), false) // different schema
             ));
   }
 
@@ -620,15 +685,15 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, true),
-            Map.entry(ValidationTriple.ID2, true),
-            Map.entry(ValidationTriple.ID3, true),
-            Map.entry(ValidationTriple.ID4, true),
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID5, false), // different schema
-            Map.entry(ValidationTriple.ID6, false), // different schema
-            Map.entry(ValidationTriple.UNRELATED, false) // different schema
+            entry(ValidationTriple.ID1.getTriple(), true),
+            entry(ValidationTriple.ID2.getTriple(), true),
+            entry(ValidationTriple.ID3.getTriple(), true),
+            entry(ValidationTriple.ID4.getTriple(), true),
+            entry(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID5.getTriple(), false), // different schema
+            entry(ValidationTriple.ID6.getTriple(), false), // different schema
+            entry(ValidationTriple.UNRELATED.getTriple(), false) // different schema
             ));
   }
 
@@ -640,15 +705,15 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, false), // parent of selected table
-            Map.entry(ValidationTriple.ID2, true),
-            Map.entry(ValidationTriple.ID3, true), // child
-            Map.entry(ValidationTriple.ID4, true), // child
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true), // child
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true), // child
-            Map.entry(ValidationTriple.ID5, false), // different schema
-            Map.entry(ValidationTriple.ID6, false), // different schema
-            Map.entry(ValidationTriple.UNRELATED, false) // different schema
+            entry(ValidationTriple.ID1.getTriple(), false), // parent of selected table
+            entry(ValidationTriple.ID2.getTriple(), true),
+            entry(ValidationTriple.ID3.getTriple(), true), // child
+            entry(ValidationTriple.ID4.getTriple(), true), // child
+            entry(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true), // child
+            entry(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true), // child
+            entry(ValidationTriple.ID5.getTriple(), false), // different schema
+            entry(ValidationTriple.ID6.getTriple(), false), // different schema
+            entry(ValidationTriple.UNRELATED.getTriple(), false) // different schema
             ));
   }
 
@@ -660,15 +725,18 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, false), // grandparent of selected table
-            Map.entry(ValidationTriple.ID2, false), // parent of selected table
-            Map.entry(ValidationTriple.ID3, true),
-            Map.entry(ValidationTriple.ID4, false), // sibling of selected table
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // sibling of selected table
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // sibling of selected table
-            Map.entry(ValidationTriple.ID5, false), // different schema
-            Map.entry(ValidationTriple.ID6, false), // different schema
-            Map.entry(ValidationTriple.UNRELATED, false) // different schema
+            entry(ValidationTriple.ID1.getTriple(), false), // grandparent of selected table
+            entry(ValidationTriple.ID2.getTriple(), false), // parent of selected table
+            entry(ValidationTriple.ID3.getTriple(), true),
+            entry(ValidationTriple.ID4.getTriple(), false), // sibling of selected table
+            entry(
+                ValidationTriple.ID4_PARENT_FIELD.getTriple(), false), // sibling of selected table
+            entry(
+                ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(),
+                false), // sibling of selected table
+            entry(ValidationTriple.ID5.getTriple(), false), // different schema
+            entry(ValidationTriple.ID6.getTriple(), false), // different schema
+            entry(ValidationTriple.UNRELATED.getTriple(), false) // different schema
             ));
   }
 
@@ -680,15 +748,15 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, false), // grandparent of selected table
-            Map.entry(ValidationTriple.ID2, false), // parent of selected table
-            Map.entry(ValidationTriple.ID3, false), // sibling of selected table
-            Map.entry(ValidationTriple.ID4, true),
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID5, false), // different schema
-            Map.entry(ValidationTriple.ID6, false), // different schema
-            Map.entry(ValidationTriple.UNRELATED, false) // different schema
+            entry(ValidationTriple.ID1.getTriple(), false), // grandparent of selected table
+            entry(ValidationTriple.ID2.getTriple(), false), // parent of selected table
+            entry(ValidationTriple.ID3.getTriple(), false), // sibling of selected table
+            entry(ValidationTriple.ID4.getTriple(), true),
+            entry(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID5.getTriple(), false), // different schema
+            entry(ValidationTriple.ID6.getTriple(), false), // different schema
+            entry(ValidationTriple.UNRELATED.getTriple(), false) // different schema
             ));
   }
 
@@ -699,15 +767,15 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, false), // not selected
-            Map.entry(ValidationTriple.ID2, false), // not selected
-            Map.entry(ValidationTriple.ID3, false), // not selected
-            Map.entry(ValidationTriple.ID4, true),
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID5, false), // not selected
-            Map.entry(ValidationTriple.ID6, false), // not selected
-            Map.entry(ValidationTriple.UNRELATED, false) // not selected
+            entry(ValidationTriple.ID1.getTriple(), false), // not selected
+            entry(ValidationTriple.ID2.getTriple(), false), // not selected
+            entry(ValidationTriple.ID3.getTriple(), false), // not selected
+            entry(ValidationTriple.ID4.getTriple(), true),
+            entry(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID5.getTriple(), false), // not selected
+            entry(ValidationTriple.ID6.getTriple(), false), // not selected
+            entry(ValidationTriple.UNRELATED.getTriple(), false) // not selected
             ));
   }
 
@@ -718,15 +786,15 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, false), // different schema
-            Map.entry(ValidationTriple.ID2, false), // different schema
-            Map.entry(ValidationTriple.ID3, false), // different schema
-            Map.entry(ValidationTriple.ID4, false), // different schema
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // different schema
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // different schema
-            Map.entry(ValidationTriple.ID5, true),
-            Map.entry(ValidationTriple.ID6, true),
-            Map.entry(ValidationTriple.UNRELATED, true)));
+            entry(ValidationTriple.ID1.getTriple(), false), // different schema
+            entry(ValidationTriple.ID2.getTriple(), false), // different schema
+            entry(ValidationTriple.ID3.getTriple(), false), // different schema
+            entry(ValidationTriple.ID4.getTriple(), false), // different schema
+            entry(ValidationTriple.ID4_PARENT_FIELD.getTriple(), false), // different schema
+            entry(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), false), // different schema
+            entry(ValidationTriple.ID5.getTriple(), true),
+            entry(ValidationTriple.ID6.getTriple(), true),
+            entry(ValidationTriple.UNRELATED.getTriple(), true)));
   }
 
   @Test
@@ -739,15 +807,15 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, false), // different schema
-            Map.entry(ValidationTriple.ID2, false), // different schema
-            Map.entry(ValidationTriple.ID3, false), // different schema
-            Map.entry(ValidationTriple.ID4, false), // different schema
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // different schema
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // different schema
-            Map.entry(ValidationTriple.ID5, true),
-            Map.entry(ValidationTriple.ID6, true),
-            Map.entry(ValidationTriple.UNRELATED, false))); // not part of inheritance
+            entry(ValidationTriple.ID1.getTriple(), false), // different schema
+            entry(ValidationTriple.ID2.getTriple(), false), // different schema
+            entry(ValidationTriple.ID3.getTriple(), false), // different schema
+            entry(ValidationTriple.ID4.getTriple(), false), // different schema
+            entry(ValidationTriple.ID4_PARENT_FIELD.getTriple(), false), // different schema
+            entry(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), false), // different schema
+            entry(ValidationTriple.ID5.getTriple(), true),
+            entry(ValidationTriple.ID6.getTriple(), true),
+            entry(ValidationTriple.UNRELATED.getTriple(), false))); // not part of inheritance
   }
 
   @Test
@@ -760,15 +828,15 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, false), // not selected
-            Map.entry(ValidationTriple.ID2, false), // not selected
-            Map.entry(ValidationTriple.ID3, false), // not selected
-            Map.entry(ValidationTriple.ID4, false), // not selected
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // not selected
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // not selected
-            Map.entry(ValidationTriple.ID5, true),
-            Map.entry(ValidationTriple.ID6, false), // not selected
-            Map.entry(ValidationTriple.UNRELATED, false) // not selected
+            entry(ValidationTriple.ID1.getTriple(), false), // not selected
+            entry(ValidationTriple.ID2.getTriple(), false), // not selected
+            entry(ValidationTriple.ID3.getTriple(), false), // not selected
+            entry(ValidationTriple.ID4.getTriple(), false), // not selected
+            entry(ValidationTriple.ID4_PARENT_FIELD.getTriple(), false), // not selected
+            entry(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), false), // not selected
+            entry(ValidationTriple.ID5.getTriple(), true),
+            entry(ValidationTriple.ID6.getTriple(), false), // not selected
+            entry(ValidationTriple.UNRELATED.getTriple(), false) // not selected
             ));
   }
 
@@ -779,15 +847,15 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, true),
-            Map.entry(ValidationTriple.ID2, true),
-            Map.entry(ValidationTriple.ID3, true),
-            Map.entry(ValidationTriple.ID4, true),
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID5, true),
-            Map.entry(ValidationTriple.ID6, true),
-            Map.entry(ValidationTriple.UNRELATED, true)));
+            entry(ValidationTriple.ID1.getTriple(), true),
+            entry(ValidationTriple.ID2.getTriple(), true),
+            entry(ValidationTriple.ID3.getTriple(), true),
+            entry(ValidationTriple.ID4.getTriple(), true),
+            entry(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID5.getTriple(), true),
+            entry(ValidationTriple.ID6.getTriple(), true),
+            entry(ValidationTriple.UNRELATED.getTriple(), true)));
   }
 
   @Test
@@ -800,15 +868,15 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, true),
-            Map.entry(ValidationTriple.ID2, true),
-            Map.entry(ValidationTriple.ID3, true),
-            Map.entry(ValidationTriple.ID4, true),
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID5, true),
-            Map.entry(ValidationTriple.ID6, true),
-            Map.entry(ValidationTriple.UNRELATED, false))); // not part of inheritance
+            entry(ValidationTriple.ID1.getTriple(), true),
+            entry(ValidationTriple.ID2.getTriple(), true),
+            entry(ValidationTriple.ID3.getTriple(), true),
+            entry(ValidationTriple.ID4.getTriple(), true),
+            entry(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID5.getTriple(), true),
+            entry(ValidationTriple.ID6.getTriple(), true),
+            entry(ValidationTriple.UNRELATED.getTriple(), false))); // not part of inheritance
   }
 
   @Test
@@ -823,15 +891,15 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, false), // not selected
-            Map.entry(ValidationTriple.ID2, false), // not selected
-            Map.entry(ValidationTriple.ID3, false), // not selected
-            Map.entry(ValidationTriple.ID4, true),
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, true),
-            Map.entry(ValidationTriple.ID5, false), // not selected
-            Map.entry(ValidationTriple.ID6, false), // not selected
-            Map.entry(ValidationTriple.UNRELATED, false))); // not selected
+            entry(ValidationTriple.ID1.getTriple(), false), // not selected
+            entry(ValidationTriple.ID2.getTriple(), false), // not selected
+            entry(ValidationTriple.ID3.getTriple(), false), // not selected
+            entry(ValidationTriple.ID4.getTriple(), true),
+            entry(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true),
+            entry(ValidationTriple.ID5.getTriple(), false), // not selected
+            entry(ValidationTriple.ID6.getTriple(), false), // not selected
+            entry(ValidationTriple.UNRELATED.getTriple(), false))); // not selected
   }
 
   @Test
@@ -846,15 +914,15 @@ public class RDFTest {
     assertPresence(
         handler,
         Map.ofEntries(
-            Map.entry(ValidationTriple.ID1, false), // not selected
-            Map.entry(ValidationTriple.ID2, false), // not selected
-            Map.entry(ValidationTriple.ID3, false), // not selected
-            Map.entry(ValidationTriple.ID4, false), // not selected
-            Map.entry(ValidationTriple.ID4_PARENT_FIELD, false), // not selected
-            Map.entry(ValidationTriple.ID4_GRANDPARENT_FIELD, false), // not selected
-            Map.entry(ValidationTriple.ID5, true),
-            Map.entry(ValidationTriple.ID6, false), // not selected
-            Map.entry(ValidationTriple.UNRELATED, false))); // not selected
+            entry(ValidationTriple.ID1.getTriple(), false), // not selected
+            entry(ValidationTriple.ID2.getTriple(), false), // not selected
+            entry(ValidationTriple.ID3.getTriple(), false), // not selected
+            entry(ValidationTriple.ID4.getTriple(), false), // not selected
+            entry(ValidationTriple.ID4_PARENT_FIELD.getTriple(), false), // not selected
+            entry(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), false), // not selected
+            entry(ValidationTriple.ID5.getTriple(), true),
+            entry(ValidationTriple.ID6.getTriple(), false), // not selected
+            entry(ValidationTriple.UNRELATED.getTriple(), false))); // not selected
   }
 
   @Test
@@ -1313,11 +1381,11 @@ public class RDFTest {
     }
   }
 
-  void assertPresence(InMemoryRDFHandler handler, Map<ValidationTriple, Boolean> presenceMap) {
+  void assertPresence(InMemoryRDFHandler handler, Map<Triple, Boolean> presenceMap) {
     // Tracks errors.
     List<String> errors = new ArrayList<>();
 
-    for (ValidationTriple triple : presenceMap.keySet()) {
+    for (Triple triple : presenceMap.keySet()) {
       Map<IRI, Set<Value>> predicates = handler.resources.get(triple.getSubject());
       // If Triple should be present in handler.
       if (presenceMap.get(triple)) {
@@ -1333,6 +1401,7 @@ public class RDFTest {
         if (objects.size() != 1) {
           errors.add("Only 1 object should be present for: " + triple.getPredicate());
         }
+        // todo: fix code to allow for more subjects for a predicate!!!
         Object firstObject = objects.toArray()[0];
         if (!triple.getObject().equals(firstObject)) {
           errors.add(
@@ -1396,23 +1465,25 @@ public class RDFTest {
 
     private final Triple triple;
 
-    public Resource getSubject() {
-      return triple.getSubject();
-    }
-
-    public IRI getPredicate() {
-      return triple.getPredicate();
-    }
-
-    public Value getObject() {
-      return triple.getObject();
+    public Triple getTriple() {
+      return triple;
     }
 
     ValidationTriple(String subjectUrl, String predicateUrl, String objectString) {
-      this.triple =
-          SimpleValueFactory.getInstance()
-              .createTriple(
-                  Values.iri(subjectUrl), Values.iri(predicateUrl), Values.literal(objectString));
+      this.triple = createWithLiteral(subjectUrl, predicateUrl, objectString);
+    }
+
+    public static Triple createWithLiteral(
+        String subjectUrl, String predicateUrl, String objectString) {
+      return SimpleValueFactory.getInstance()
+          .createTriple(
+              Values.iri(subjectUrl), Values.iri(predicateUrl), Values.literal(objectString));
+    }
+
+    public static Triple createWithIri(
+        String subjectUrl, String predicateUrl, String objectString) {
+      return SimpleValueFactory.getInstance()
+          .createTriple(Values.iri(subjectUrl), Values.iri(predicateUrl), Values.iri(objectString));
     }
   }
 }

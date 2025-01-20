@@ -2,6 +2,7 @@ package org.molgenis.emx2.rdf;
 
 import static java.util.Map.entry;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
 import static org.molgenis.emx2.Constants.SUBSELECT_SEPARATOR;
 
 import com.google.common.net.UrlEscapers;
@@ -226,23 +227,37 @@ public class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         Map<String, String> colNameToRefTableColName = new HashMap<>();
-
-        if (column.getRefTable().getPrimaryKeyColumns().size() > 1) {
-          column
-              .getRefTable()
-              .getPrimaryKeyColumns()
-              .forEach(
-                  i ->
-                      colNameToRefTableColName.put(
-                          column.getName() + SUBSELECT_SEPARATOR + i.getName(), i.getName()));
-
-        } else {
-          colNameToRefTableColName.put(
-              column.getName(), column.getRefTable().getPrimaryKeyColumns().get(0).getName());
-        }
+        refBackSubColumns(colNameToRefTableColName, column, "", "");
 
         return RdfColumnType.retrieveReferenceValues(
             baseURL, row, column, colNameToRefTableColName);
+      }
+
+      private void refBackSubColumns(
+          Map<String, String> colNameToRefTableColName,
+          Column column,
+          String colPrefix,
+          String refPrefix) {
+        if (column.getRefTable().getPrimaryKeyColumns().size() == 1) {
+          colNameToRefTableColName.put(
+              colPrefix + column.getName(),
+              refPrefix + column.getRefTable().getPrimaryKeyColumns().get(0).getName());
+          return;
+        }
+
+        for (Column subColumn : column.getRefTable().getPrimaryKeyColumns()) {
+          if (subColumn.isRef() || subColumn.isRefArray()) {
+            refBackSubColumns(
+                colNameToRefTableColName,
+                subColumn,
+                colPrefix + column.getName() + SUBSELECT_SEPARATOR,
+                refPrefix + subColumn.getName() + COMPOSITE_REF_SEPARATOR);
+          } else {
+            colNameToRefTableColName.put(
+                colPrefix + column.getName() + SUBSELECT_SEPARATOR + subColumn.getName(),
+                refPrefix + subColumn.getName());
+          }
+        }
       }
 
       @Override

@@ -601,10 +601,8 @@ public class RDFService {
         selectColumns.add(s(c.getName(), s("id"), s("filename"), s("mimetype")));
       } else if (c.isRef() || c.isRefArray()) {
         c.getReferences().forEach(i -> selectColumns.add(s(i.getName())));
-      } else if (c.isRefback() && c.getRefTable().getPrimaryKeyColumns().size() > 1) {
-        List<SelectColumn> subSelects = new ArrayList<>();
-        c.getRefTable().getPrimaryKeyColumns().forEach(i -> subSelects.add(s(i.getName())));
-        selectColumns.add(s(c.getName(), subSelects.toArray(SelectColumn[]::new)));
+      } else if (c.isRefback()) {
+        selectColumns.add(refBackSelect(c));
       } else {
         selectColumns.add(s(c.getName()));
       }
@@ -629,6 +627,22 @@ public class RDFService {
       }
       return query.select(selectArray).retrieveRows();
     }
+  }
+
+  private SelectColumn refBackSelect(Column column) {
+    if (column.getRefTable().getPrimaryKeyColumns().size() == 1) {
+      return s(column.getName());
+    }
+
+    List<SelectColumn> subSelects = new ArrayList<>();
+    for (Column subColumn : column.getRefTable().getPrimaryKeyColumns()) {
+      if (subColumn.isRef() || subColumn.isRefArray()) {
+        subSelects.add(refBackSelect(subColumn));
+      } else {
+        subSelects.add(s(subColumn.getName()));
+      }
+    }
+    return s(column.getName(), subSelects.toArray(SelectColumn[]::new));
   }
 
   private IRI getIriForRow(final Row row, final Table table) {
