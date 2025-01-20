@@ -402,7 +402,7 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(compositeKeyTest), handler);
     var subjectWithCompositeKey =
-        BASE_URL + ""
+        BASE_URL
             + compositeKeyTest.getName()
             + "/api/rdf/Samples?id=sample1&patient.firstName=Donald&patient.lastName=Duck";
     var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
@@ -535,7 +535,8 @@ public class RDFTest {
     getAndParseRDF(Selection.of(ontologyTest, "Diseases"), handler);
     var subject =
         Values.iri(
-            BASE_URL + "OntologyTest/api/rdf/Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx");
+            BASE_URL
+                + "OntologyTest/api/rdf/Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx");
 
     var parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
     assertEquals(
@@ -557,26 +558,26 @@ public class RDFTest {
         () ->
             assertTrue(
                 handler.resources.containsKey(
-                    Values.iri(
-                        BASE_URL + "tableInheritanceTest/api/rdf/Root/column/rootColumn")),
+                    Values.iri(BASE_URL + "tableInheritanceTest/api/rdf/Root/column/rootColumn")),
                 "There should be a predicate for the rootColumn in the Root table"),
         () ->
             assertFalse(
                 handler.resources.containsKey(
-                    Values.iri(
-                        BASE_URL + "tableInheritanceTest/api/rdf/Child/column/rootColumn")),
+                    Values.iri(BASE_URL + "tableInheritanceTest/api/rdf/Child/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the Child table"),
         () ->
             assertFalse(
                 handler.resources.containsKey(
                     Values.iri(
-                        BASE_URL + "tableInheritanceTest/api/rdf/GrandchildTypeA/column/rootColumn")),
+                        BASE_URL
+                            + "tableInheritanceTest/api/rdf/GrandchildTypeA/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the GrandchildTypeA table"),
         () ->
             assertFalse(
                 handler.resources.containsKey(
                     Values.iri(
-                        BASE_URL + "tableInheritanceTest/api/rdf/GrandchildTypeB/column/rootColumn")),
+                        BASE_URL
+                            + "tableInheritanceTest/api/rdf/GrandchildTypeB/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the GrandchildTypeB table"),
         () ->
             assertFalse(
@@ -588,7 +589,8 @@ public class RDFTest {
             assertFalse(
                 handler.resources.containsKey(
                     Values.iri(
-                        BASE_URL + "tableInheritanceTest/api/rdf/ExternalGrandchild/column/rootColumn")),
+                        BASE_URL
+                            + "tableInheritanceTest/api/rdf/ExternalGrandchild/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the ExternalGrandchild table"));
   }
 
@@ -911,12 +913,8 @@ public class RDFTest {
     Table child = schema.create(table("child", column("name")).setInheritName("root"));
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(schema, child.getName()), handler);
-    var rootIRI =
-        Values.iri(
-            BASE_URL + schema.getName() + "/api/rdf/" + root.getIdentifier());
-    var childIRI =
-        Values.iri(
-            BASE_URL + schema.getName() + "/api/rdf/" + child.getIdentifier());
+    var rootIRI = Values.iri(BASE_URL + schema.getName() + "/api/rdf/" + root.getIdentifier());
+    var childIRI = Values.iri(BASE_URL + schema.getName() + "/api/rdf/" + child.getIdentifier());
     var cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
     var subclasses = handler.resources.get(childIRI).get(RDFS.SUBCLASSOF);
     assertEquals(
@@ -941,12 +939,8 @@ public class RDFTest {
     Table child = schema.create(table("child", column("name")).setInheritName("root"));
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(schema, root.getName()), handler);
-    var rootIRI =
-        Values.iri(
-            BASE_URL + schema.getName() + "/api/rdf/" + root.getIdentifier());
-    var childIRI =
-        Values.iri(
-            BASE_URL + schema.getName() + "/api/rdf/" + child.getIdentifier());
+    var rootIRI = Values.iri(BASE_URL + schema.getName() + "/api/rdf/" + root.getIdentifier());
+    var childIRI = Values.iri(BASE_URL + schema.getName() + "/api/rdf/" + child.getIdentifier());
     var cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
     var subclasses = handler.resources.get(rootIRI).get(RDFS.SUBCLASSOF);
     assertEquals(
@@ -969,9 +963,7 @@ public class RDFTest {
     final Set<Namespace> defaultNamespaces =
         new HashSet<>() {
           {
-            add(
-                new SimpleNamespace(
-                    "CustomRdfEdit", BASE_URL + "CustomRdfEdit/api/rdf/"));
+            add(new SimpleNamespace("CustomRdfEdit", BASE_URL + "CustomRdfEdit/api/rdf/"));
             addAll(DEFAULT_NAMESPACES);
           }
         };
@@ -979,9 +971,7 @@ public class RDFTest {
     final Set<Namespace> customNamespaces =
         new HashSet<>() {
           {
-            add(
-                new SimpleNamespace(
-                    "CustomRdfEdit", BASE_URL + "CustomRdfEdit/api/rdf/"));
+            add(new SimpleNamespace("CustomRdfEdit", BASE_URL + "CustomRdfEdit/api/rdf/"));
             add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
           }
         };
@@ -1115,12 +1105,8 @@ public class RDFTest {
     final Set<Namespace> expectedNamespace =
         new HashSet<>() {
           {
-            add(
-                new SimpleNamespace(
-                    "RdfPrefixUrl1", BASE_URL + "RdfPrefixUrl1/api/rdf/"));
-            add(
-                new SimpleNamespace(
-                    "RdfPrefixUrl2", BASE_URL + "RdfPrefixUrl2/api/rdf/"));
+            add(new SimpleNamespace("RdfPrefixUrl1", BASE_URL + "RdfPrefixUrl1/api/rdf/"));
+            add(new SimpleNamespace("RdfPrefixUrl2", BASE_URL + "RdfPrefixUrl2/api/rdf/"));
             add(new SimpleNamespace("name", "http://www.w3.org/2000/01/rdf-schema#"));
           }
         };
@@ -1159,12 +1145,8 @@ public class RDFTest {
     final Set<Namespace> expectedNamespaces =
         new HashSet<>() {
           {
-            add(
-                new SimpleNamespace(
-                    "RdfPartlyCustom1", BASE_URL + "RdfPartlyCustom1/api/rdf/"));
-            add(
-                new SimpleNamespace(
-                    "RdfPartlyCustom2", BASE_URL + "RdfPartlyCustom2/api/rdf/"));
+            add(new SimpleNamespace("RdfPartlyCustom1", BASE_URL + "RdfPartlyCustom1/api/rdf/"));
+            add(new SimpleNamespace("RdfPartlyCustom2", BASE_URL + "RdfPartlyCustom2/api/rdf/"));
             add(new SimpleNamespace("ncit", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#"));
             addAll(DEFAULT_NAMESPACES);
           }
@@ -1184,12 +1166,8 @@ public class RDFTest {
     final Set<Namespace> expectedNamespaces =
         new HashSet<>() {
           {
-            add(
-                new SimpleNamespace(
-                    "RdfcustomOrEmpty1", BASE_URL + "RdfcustomOrEmpty1/api/rdf/"));
-            add(
-                new SimpleNamespace(
-                    "RdfcustomOrEmpty2", BASE_URL + "RdfcustomOrEmpty2/api/rdf/"));
+            add(new SimpleNamespace("RdfcustomOrEmpty1", BASE_URL + "RdfcustomOrEmpty1/api/rdf/"));
+            add(new SimpleNamespace("RdfcustomOrEmpty2", BASE_URL + "RdfcustomOrEmpty2/api/rdf/"));
             add(new SimpleNamespace("ncit", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#"));
           }
         };
@@ -1241,11 +1219,8 @@ public class RDFTest {
         handler
             .resources
             .get(Values.iri(BASE_URL + "refBackTest/api/rdf/TableRefBack?id=a"))
-            .get(
-                Values.iri(
-                    BASE_URL + "refBackTest/api/rdf/TableRefBack/column/backlink"));
-    assertEquals(
-        Set.of(Values.iri(BASE_URL + "refBackTest/api/rdf/TableRef?id=1")), refBacks);
+            .get(Values.iri(BASE_URL + "refBackTest/api/rdf/TableRefBack/column/backlink"));
+    assertEquals(Set.of(Values.iri(BASE_URL + "refBackTest/api/rdf/TableRef?id=1")), refBacks);
   }
 
   /**
@@ -1405,15 +1380,18 @@ public class RDFTest {
         "id4 data for childColumn"),
     ID5(
         BASE_URL + "tableInheritanceTest/api/rdf/Root?id=5",
-        BASE_URL + "tableInheritanceExternalSchemaTest/api/rdf/ExternalChild/column/externalChildColumn",
+        BASE_URL
+            + "tableInheritanceExternalSchemaTest/api/rdf/ExternalChild/column/externalChildColumn",
         "id5 data"),
     ID6(
         BASE_URL + "tableInheritanceTest/api/rdf/Root?id=6",
-        BASE_URL + "tableInheritanceExternalSchemaTest/api/rdf/ExternalGrandchild/column/externalGrandchildColumn",
+        BASE_URL
+            + "tableInheritanceExternalSchemaTest/api/rdf/ExternalGrandchild/column/externalGrandchildColumn",
         "id6 data"),
     UNRELATED(
         BASE_URL + "tableInheritanceExternalSchemaTest/api/rdf/ExternalUnrelated?id=a",
-        BASE_URL + "tableInheritanceExternalSchemaTest/api/rdf/ExternalUnrelated/column/externalUnrelatedColumn",
+        BASE_URL
+            + "tableInheritanceExternalSchemaTest/api/rdf/ExternalUnrelated/column/externalUnrelatedColumn",
         "unrelated data");
 
     private final Triple triple;
