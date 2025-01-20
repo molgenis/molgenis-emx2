@@ -12,7 +12,7 @@ import org.jooq.Result;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.datamodels.DataModels;
 
 public class TestOntologyQueries {
 
@@ -22,7 +22,7 @@ public class TestOntologyQueries {
   public void setUp() {
     Database database = TestDatabaseFactory.getTestDatabase();
     schema = (SqlSchema) database.dropCreateSchema(TestOntologyQueries.class.getSimpleName());
-    new PetStoreLoader(schema, true).run();
+    DataModels.Profile.PET_STORE.getImportTask(schema, true).run();
   }
 
   @Test
