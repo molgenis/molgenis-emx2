@@ -1,46 +1,39 @@
 <template>
   <div class="w-full relative">
-    <button
+    <inputListboxToggle
       :id="id"
       ref="listbox-button"
-      role="combobox"
-      :disabled="disabled"
-      aria-haspopup="listbox"
       :aria-controls="`listbox-${id}-options`"
-      :aria-required="required"
-      :aria-expanded="isExpanded"
+      :required="required"
+      :isExpanded="isExpanded"
+      :disabled="disabled"
       :aria-labelledby="labelId"
-      class="flex justify-start items-center h-10 w-full text-left pl-11 border bg-input rounded-search-input text-button-input-toggle focus:ring-blue-300"
-      :class="{
-        'border-disabled text-disabled bg-disabled': disabled,
-        'border-invalid text-invalid': hasError,
-      }"
       @click.prevent="openCloseListbox"
       @keydown="onListboxButtonKeyDown"
     >
       <span class="w-full">
         {{ displayText }}
       </span>
-      <div class="w-[60px] flex flex-col">
-        <BaseIcon :width="18" name="caret-up" class="mx-auto -my-1" />
-        <BaseIcon :width="18" name="caret-down" class="mx-auto -my-1" />
-      </div>
-    </button>
+    </inputListboxToggle>
 
-    <ul
-      :id="`listbox-${id}-options`"
-      role="listbox"
+    <inputListboxList
       ref="listbox-ul"
-      :aria-expanded="isExpanded"
-      class="absolute b-0 w-full overflow-y-scroll z-10 bg-listbox border"
-      :class="{
-        hidden: !isExpanded,
-        'h-44': isExpanded && listboxOptions.length > 5,
-        'shadow-inner': isExpanded,
-      }"
+      :id="`listbox-${id}-options`"
+      :isExpanded="isExpanded"
+      :hasFixedHeight="listboxOptions.length > 5"
       @keydown.prevent="onListboxKeyDown"
     >
-      <li
+      <InputListboxListItem
+        v-for="option in listboxOptions"
+        ref="listbox-li"
+        :id="option.elemId"
+        :isSelected="isSelected(option.value)"
+        :label="option.label || (option.value as string)"
+        @click="onListboxOptionClick(option)"
+        @blur="blurListOption(option)"
+        @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
+      />
+      <!-- <li
         v-for="option in listboxOptions"
         ref="listbox-li"
         :id="option.elemId"
@@ -70,8 +63,9 @@
         <span v-else>
           {{ option.value }}
         </span>
-      </li>
-    </ul>
+      </li> -->
+    </inputListboxList>
+    <!-- </ul> -->
   </div>
 </template>
 
@@ -85,6 +79,9 @@ import type {
   IListboxValue,
   IListboxOption,
   IInternalListboxOption,
+  IListboxUlRef,
+  IListboxButtonef,
+  IListboxLiRef,
 } from "../../types/listbox";
 
 const props = withDefaults(
@@ -122,9 +119,9 @@ const sourceData = ref<IListboxOption[]>();
 const focusCounter = ref<number>(0);
 const isExpanded = ref<boolean>(false);
 const modelValue = defineModel<IListboxOption | IListboxValue | null>();
-const ulElemRef = useTemplateRef<HTMLUListElement>("listbox-ul");
-const olElemRefs = useTemplateRef<HTMLOptionElement[]>("listbox-li");
-const btnElemRef = useTemplateRef<HTMLButtonElement>("listbox-button");
+const ulElemRef = useTemplateRef<IListboxUlRef>("listbox-ul");
+const liElemRefs = useTemplateRef<IListboxLiRef[]>("listbox-li");
+const btnElemRef = useTemplateRef<IListboxButtonef>("listbox-button");
 const displayText = ref<string>(props.placeholder);
 const startingCounter = ref<number>(0);
 
@@ -204,8 +201,8 @@ function updateCounter(value: number) {
 
 function focusListOption() {
   nextTick(() => {
-    if (olElemRefs.value) {
-      const targetElem = olElemRefs.value[focusCounter.value];
+    if (liElemRefs.value) {
+      const targetElem = liElemRefs.value[focusCounter.value].li;
       targetElem.setAttribute("tabindex", "0");
       targetElem.focus();
     }
@@ -214,8 +211,8 @@ function focusListOption() {
 
 function blurListOption(option: IInternalListboxOption) {
   nextTick(() => {
-    if (olElemRefs.value) {
-      const targetElem = olElemRefs.value[option.index];
+    if (liElemRefs.value) {
+      const targetElem = liElemRefs.value[option.index].li;
       targetElem.setAttribute("tabindex", "-1");
       targetElem.blur();
     }
@@ -233,7 +230,7 @@ function updateModelValue(
   selection: IInternalListboxOption,
   enableToggling: boolean = true
 ) {
-  btnElemRef.value?.setAttribute("aria-activedescendant", selection.elemId);
+  btnElemRef.value!.button.setAttribute("aria-activedescendant", selection.elemId);
   focusCounter.value = selection.index;
   startingCounter.value = selection.index;
 
@@ -248,7 +245,7 @@ function updateModelValue(
 
     modelValue.value = selectedOption;
   } else {
-    modelValue.value = selection.value as IListboxValue;
+    modelValue.value = (selection.value as IListboxValue);
     displayText.value = updateDisplayText(selection.value as string);
   }
 
@@ -283,13 +280,13 @@ function focusNextOption(by: number = 1) {
 }
 
 function focusListboxButton() {
-  btnElemRef.value?.focus();
+  btnElemRef.value?.button.focus();
 }
 
 function openCloseListbox() {
   isExpanded.value = !isExpanded.value;
   if (isExpanded.value) {
-    ulElemRef.value?.setAttribute("tabindex", "0");
+    ulElemRef.value?.ul.setAttribute("tabindex", "0");
     if (modelValue.value) {
       updateCounter(startingCounter.value);
     } else {
@@ -297,7 +294,7 @@ function openCloseListbox() {
     }
     focusListOption();
   } else {
-    ulElemRef.value?.setAttribute("tabindex", "-1");
+    ulElemRef.value?.ul.setAttribute("tabindex", "-1");
     focusListboxButton();
   }
 }
