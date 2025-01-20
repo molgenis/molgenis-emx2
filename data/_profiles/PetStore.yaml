@@ -10,6 +10,3 @@ settings: _settings/petstore
 
 # special options
 setViewPermission: anonymous
-profileMigration:
-  profile: PetStore
-  step: 3

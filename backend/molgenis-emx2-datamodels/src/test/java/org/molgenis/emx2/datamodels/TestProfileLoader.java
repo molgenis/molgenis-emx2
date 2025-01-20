@@ -74,6 +74,7 @@ public class TestProfileLoader {
     var task = new ImportProfileTask(testProfileSchema, "TestProfileMigration.yaml", true);
     task.run();
     assertEquals(TaskStatus.COMPLETED, task.getStatus());
-    assertEquals(Profile.PET_STORE, database.getSchema(TEST_PROFILE).getMetadata().getProfile());
+    assertEquals(
+        Profile.MIGRATION_TEST, database.getSchema(TEST_PROFILE).getMetadata().getProfile());
   }
 }

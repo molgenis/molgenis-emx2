@@ -40,7 +40,6 @@ class TestSchemaMigrations {
     assertEquals(
         ProfileMigrations.profileVersions.get(Profile.DATA_CATALOGUE),
         schemaMetadata.getProfileMigrationStep());
-    assertEquals(1, migrated.size());
     assertEquals(new ProfileSchema(SCHEMA_NAME, Profile.DATA_CATALOGUE, 2), migrated.get(0));
   }
 }

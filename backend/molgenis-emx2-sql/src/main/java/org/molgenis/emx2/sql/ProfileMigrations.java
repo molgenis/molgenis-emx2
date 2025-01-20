@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class ProfileMigrations {
   private static final Integer DATA_CATALOGUE_CURRENT_PROFILE_STEP = 2;
   private static final Integer DCAT_CURRENT_PROFILE_STEP = 0;
-  private static final Integer PET_STORE_CURRENT_PROFILE_STEP = 0;
+  private static final Integer MIGRATION_TEST_CURRENT_PROFILE_STEP = 0;
 
   public static final ImmutableMap<Profile, Integer> profileVersions =
       ImmutableMap.of(
@@ -27,8 +27,8 @@ public class ProfileMigrations {
           DATA_CATALOGUE_CURRENT_PROFILE_STEP,
           Profile.DCAT,
           DCAT_CURRENT_PROFILE_STEP,
-          Profile.PET_STORE,
-          PET_STORE_CURRENT_PROFILE_STEP);
+          Profile.MIGRATION_TEST,
+          MIGRATION_TEST_CURRENT_PROFILE_STEP);
   private static final Logger log = LoggerFactory.getLogger(ProfileMigrations.class);
 
   public List<ProfileSchema> runAppSchemaMigrations(SqlDatabase db) {
