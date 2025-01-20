@@ -105,7 +105,7 @@ function chapterErrorCount(chapterId: string) {
 
       <FormFields
         v-if="tableMeta && status == 'success'"
-        class="basis-2/3 p-8 border-l"
+        class="basis-2/3 p-8 border-l overflow-y-auto h-screen"
         ref="formFields"
         :metadata="tableMeta"
         :data="data"
