@@ -23,7 +23,9 @@ test("it should render the form", async ({ page }) => {
 
 test("it should handle input", async ({ page }) => {
   await page.goto(`${route}Form.story`);
-  await page.getByLabel("name").click();
-  await page.getByLabel("name").fill("test");
+  await page.getByLabel("name").click({ delay: 500 }); // wait for hydration to complete
+  await page.getByLabel("name").pressSequentially("test");
   await expect(page.getByLabel("name")).toHaveValue("test");
+  await page.getByRole("heading", { name: "Values" }).click();
+  await expect(page.getByRole("definition")).toContainText("test");
 });
