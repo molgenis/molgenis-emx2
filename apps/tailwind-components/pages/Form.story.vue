@@ -2,6 +2,7 @@
 import type { FormFields } from "#build/components";
 import type {
   columnValue,
+  IFieldError,
   ISchemaMetaData,
   ITableMetaData,
 } from "../../metadata-utils/src/types";
@@ -43,39 +44,78 @@ function refetch(value: IListboxOption) {
 const data = ref([] as Record<string, columnValue>[]);
 
 const formFields = ref<InstanceType<typeof FormFields>>();
+
+const formValues = ref<Record<string, columnValue>>({});
+
+function onModelUpdate(value: Record<string, columnValue>) {
+  console.log("story update", value);
+  formValues.value = value;
+}
+
+const errors = ref<Record<string, IFieldError[]>>({});
+
+function onErrors(newErrors: Record<string, IFieldError[]>) {
+  errors.value = newErrors;
+}
 </script>
 
 <template>
-  <div>Demo controles:</div>
+  <div class="flex flex-row">
+    <FormFields
+      v-if="tableMeta && status == 'success'"
+      ref="formFields"
+      class="basis-1/2 p-8"
+      :metadata="tableMeta"
+      :data="data"
+      @update:model-value="onModelUpdate"
+      @error="onErrors($event)"
+    ></FormFields>
 
-  <div class="p-4 border-2 mb-2">
-    <InputLabel for="form-example" id="form-example-title">
-      Select a form to display
-    </InputLabel>
-    <InputListbox
-      id="form-example"
-      label-id="form-example-title"
-      @update:modelValue="(value) => refetch(value as IListboxOption)"
-      :options="exampleForms"
-      placeholder="Select a form type"
-    />
+    <div class="basis-1/2">
+      <div>Demo controls, settings and status:</div>
 
-    <div>schema id = {{ schemaId }}</div>
-    <div>table id = {{ tableId }}</div>
+      <div class="p-4 border-2 mb-2">
+        <select
+          @change="refetch()"
+          v-model="sampleType"
+          class="border-1 border-black"
+        >
+          <option value="simple">Simple form example</option>
+          <option value="complex">Complex form example</option>
+        </select>
 
-    <button
-      class="border-gray-900 border-[1px] p-2 bg-gray-200"
-      @click="formFields?.validate"
-    >
-      External Validate
-    </button>
+        <div>schema id = {{ schemaId }}</div>
+        <div>table id = {{ tableId }}</div>
+
+        <button
+          class="border-gray-900 border-[1px] p-2 bg-gray-200"
+          @click="formFields?.validate"
+        >
+          External Validate
+        </button>
+
+        <div class="mt-4 flex flex-row">
+          <div v-if="Object.keys(formValues).length" class="basis-1/2">
+            <h3 class="text-label">Values</h3>
+            <dl class="flex">
+              <template v-for="(value, key) in formValues">
+                <dt v-if="value" class="font-bold">{{ key }}:</dt>
+                <dd v-if="value" class="ml-1">{{ value }}</dd>
+              </template>
+            </dl>
+          </div>
+          <div v-if="Object.keys(errors).length" class="basis-1/2">
+            <h3 class="text-label">Errors</h3>
+
+            <dl class="flex">
+              <template v-for="(value, key) in errors">
+                <dt v-if="value.length" class="font-bold">{{ key }}:</dt>
+                <dd v-if="value.length" class="ml-1">{{ value }}</dd>
+              </template>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <FormFields
-    v-if="tableMeta && status == 'success'"
-    class="p-8"
-    :metadata="tableMeta"
-    :data="data"
-    ref="formFields"
-  ></FormFields>
 </template>

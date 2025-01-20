@@ -21,7 +21,7 @@
     --color-blue-700: #015CB6;
     --color-blue-800: #014F9E;
     --color-blue-900: #013F7E;
-    --color-grey-50: #F9F9F9;
+    --color-gray-50: #F9F9F9;
     --color-gray-100: #F4F4F4;
     --color-gray-200: #E2E2E2;
     --color-gray-400: #C0C0C0;
@@ -94,7 +94,7 @@
     --text-color-button-outline-hover: var(--color-blue-700);
     --text-color-button-disabled: var(--color-gray-600);
     --text-color-button-disabled-hover: var(--color-gray-600);
-    --text-color-menu: var(--color-blue-800);
+    --text-color-menu: var(--text-color-title);
     --text-color-sub-menu: var(--color-blue-500);
     --text-color-sub-menu-hover: var(--color-blue-700);
     --text-color-breadcrumb-arrow: var(--color-gray-400);
