@@ -17,8 +17,9 @@ from .utils import (find_cohort_references, construct_delete_variables, has_stat
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
 SchemaType: TypeAlias = Literal['source', 'target']
+
 PUBLICATIONS = "Publications"
-SHAREDSTAGING= "SharedStaging"
+RESOURCES = "Resources"
 
 
 class StagingMigrator(Client):
@@ -30,13 +31,14 @@ class StagingMigrator(Client):
     def __init__(self, url: str,
                  staging_area: str = None,
                  catalogue: str = 'catalogue',
-                 table: str = 'Cohorts', token: str = None):
+                 table: str = 'Resources', token: str = None):
         """Sets up the StagingMigrator by logging in to the client."""
         super().__init__(url=url, token=token)
         self.staging_area = staging_area
         self.catalogue = catalogue
+        self._verify_schemas()
         self.table = table
-        self.extra_tables: list[str] = [PUBLICATIONS] if self.table in ['Cohorts', 'Resources'] else []
+        self.extra_tables: list[str] = [PUBLICATIONS] if self.table == RESOURCES else []
 
     def __repr__(self):
         class_name = type(self).__name__
@@ -200,6 +202,9 @@ class StagingMigrator(Client):
             raise NoSuchSchemaException(f"Schema {self.catalogue!r} not found on server."
                                         f" Available schemas: {', '.join(self.schema_names)}.")
 
+        if self.staging_area == self.catalogue:
+            raise NoSuchSchemaException(f"Catalogue schema must be different from staging area schema.")
+
     def _create_upload_zip(self) -> BytesIO:
         """Combines the relevant tables of the staging area into a zipfile."""
         tables_to_sync = find_cohort_references(self.get_schema_metadata(self.staging_area),
@@ -303,7 +308,7 @@ class StagingMigrator(Client):
             # Raise new error
             raise NoSuchTableException(f"Table {self.table!r} not found on schema {self.staging_area!r}.")
 
-        # Return only if there is exactly one id/cohort in the Cohorts table
+        # Return only if there is exactly one id/cohort in the Resources table
         if table_id in response_data.keys():
             if len(response_data[table_id]) < 1:
                 raise ValueError(
