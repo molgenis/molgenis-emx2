@@ -5,7 +5,6 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.CONTAINS_ALL;
 import static org.molgenis.emx2.Operator.CONTAINS_ANY;
 import static org.molgenis.emx2.Row.row;
-import static org.molgenis.emx2.datamodels.PetStoreLoader.PET;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.datamodels.DataModels;
 
 public class TestSqlQueryContainsOperator {
   private static Database db;
@@ -23,7 +22,7 @@ public class TestSqlQueryContainsOperator {
   public static void setUp() {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestSqlQueryContainsOperator.class.getSimpleName());
-    new PetStoreLoader(schema, true).run();
+    DataModels.Profile.PET_STORE.getImportTask(schema, true).run();
     schema
         .getTable("Pet")
         .insert(row("name", "mickey", "photoUrls", "foo", "category", "dog", "weight", 1));
@@ -46,18 +45,18 @@ public class TestSqlQueryContainsOperator {
     // string array
     List<Row> result =
         schema
-            .query(PET)
+            .query("Pet")
             .where(f("photoUrls", CONTAINS_ANY, "aap", "noot", "mies", "foo"))
             .retrieveRows();
     assertEquals(2, result.size());
-    result = schema.query(PET).where(f("photoUrls", CONTAINS_ALL, "foo", "bar")).retrieveRows();
+    result = schema.query("Pet").where(f("photoUrls", CONTAINS_ALL, "foo", "bar")).retrieveRows();
     assertEquals(1, result.size());
 
     // single column ref
-    result = schema.query(PET).where(f("tags", CONTAINS_ANY, "red", "green")).retrieveRows();
+    result = schema.query("Pet").where(f("tags", CONTAINS_ANY, "red", "green")).retrieveRows();
     assertEquals(5, result.size());
 
-    result = schema.query(PET).where(f("tags", CONTAINS_ALL, "red", "green")).retrieveRows();
+    result = schema.query("Pet").where(f("tags", CONTAINS_ALL, "red", "green")).retrieveRows();
     assertEquals(2, result.size());
   }
 }
