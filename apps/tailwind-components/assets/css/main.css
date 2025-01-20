@@ -38,6 +38,7 @@
     --color-orange-500: #E1B53E;
     --color-red-200: #FCECEF;
     --color-red-500: #E14F62;
+    --color-red-700: #AE2A3F;
     --color-gradient1: #0062C6;
     --color-gradient2: #0072E4;
 
@@ -79,6 +80,7 @@
     --background-color-input: var(--color-white);
     --background-color-input-checked: var(--color-yellow-500);
     --background-color-table: var(--color-white);
+    --background-color-notification: var(--color-red-700);
 
 
     --text-color-button-primary: var(--color-white);
@@ -129,6 +131,7 @@
     --text-color-table-column-header: var(--color-gray-600);
     --text-color-form-header: var(--color-blue-800);
     --text-color-input-description: var(--color-blue-800);
+    --text-color-legend-error-count: var(--color-white);
     
     --text-color-invalid: var(--color-red-500);
     --text-color-valid: var(--color-green-800);
