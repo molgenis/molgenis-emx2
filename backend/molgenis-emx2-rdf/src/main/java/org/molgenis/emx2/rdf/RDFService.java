@@ -599,8 +599,12 @@ public class RDFService {
     for (Column c : table.getMetadata().getColumns()) {
       if (c.isFile()) {
         selectColumns.add(s(c.getName(), s("id"), s("filename"), s("mimetype")));
-      } else if (c.isReference()) {
+      } else if (c.isRef() || c.isRefArray()) {
         c.getReferences().forEach(i -> selectColumns.add(s(i.getName())));
+      } else if (c.isRefback() && c.getRefTable().getPrimaryKeyColumns().size() > 1) {
+        List<SelectColumn> subSelects = new ArrayList<>();
+        c.getRefTable().getPrimaryKeyColumns().forEach(i -> subSelects.add(s(i.getName())));
+        selectColumns.add(s(c.getName(), subSelects.toArray(SelectColumn[]::new)));
       } else {
         selectColumns.add(s(c.getName()));
       }
