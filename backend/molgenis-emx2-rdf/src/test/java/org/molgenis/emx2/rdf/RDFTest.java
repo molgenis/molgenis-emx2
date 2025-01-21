@@ -576,8 +576,8 @@ public class RDFTest {
     getAndParseRDF(Selection.of(ontologyTest, "Diseases"), handler);
     var subject =
         Values.iri(
-            BASE_URL
-                + "OntologyTest/api/rdf/Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx");
+            getApi(ontologyTest)
+                + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx");
 
     var parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
     assertEquals(
@@ -599,39 +599,32 @@ public class RDFTest {
         () ->
             assertTrue(
                 handler.resources.containsKey(
-                    Values.iri(BASE_URL + "tableInheritanceTest/api/rdf/Root/column/rootColumn")),
+                    Values.iri(getApi(tableInherTest) + "Root/column/rootColumn")),
                 "There should be a predicate for the rootColumn in the Root table"),
         () ->
             assertFalse(
                 handler.resources.containsKey(
-                    Values.iri(BASE_URL + "tableInheritanceTest/api/rdf/Child/column/rootColumn")),
+                    Values.iri(getApi(tableInherTest) + "Child/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the Child table"),
         () ->
             assertFalse(
                 handler.resources.containsKey(
-                    Values.iri(
-                        BASE_URL
-                            + "tableInheritanceTest/api/rdf/GrandchildTypeA/column/rootColumn")),
+                    Values.iri(getApi(tableInherTest) + "GrandchildTypeA/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the GrandchildTypeA table"),
         () ->
             assertFalse(
                 handler.resources.containsKey(
-                    Values.iri(
-                        BASE_URL
-                            + "tableInheritanceTest/api/rdf/GrandchildTypeB/column/rootColumn")),
+                    Values.iri(getApi(tableInherTest) + "GrandchildTypeB/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the GrandchildTypeB table"),
         () ->
             assertFalse(
                 handler.resources.containsKey(
-                    Values.iri(
-                        BASE_URL + "tableInheritanceTest/api/rdf/ExternalChild/column/rootColumn")),
+                    Values.iri(getApi(tableInherTest) + "ExternalChild/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the ExternalChild table"),
         () ->
             assertFalse(
                 handler.resources.containsKey(
-                    Values.iri(
-                        BASE_URL
-                            + "tableInheritanceTest/api/rdf/ExternalGrandchild/column/rootColumn")),
+                    Values.iri(getApi(tableInherTest) + "ExternalGrandchild/column/rootColumn")),
                 "There should not be a predicate for the rootColumn in the ExternalGrandchild table"));
   }
 
@@ -937,8 +930,8 @@ public class RDFTest {
     Table child = schema.create(table("child", column("name")).setInheritName("root"));
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(schema, child.getName()), handler);
-    var rootIRI = Values.iri(BASE_URL + schema.getName() + "/api/rdf/" + root.getIdentifier());
-    var childIRI = Values.iri(BASE_URL + schema.getName() + "/api/rdf/" + child.getIdentifier());
+    var rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
+    var childIRI = Values.iri(getApi(schema) + child.getIdentifier());
     var cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
     var subclasses = handler.resources.get(childIRI).get(RDFS.SUBCLASSOF);
     assertEquals(
@@ -963,8 +956,8 @@ public class RDFTest {
     Table child = schema.create(table("child", column("name")).setInheritName("root"));
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(schema, root.getName()), handler);
-    var rootIRI = Values.iri(BASE_URL + schema.getName() + "/api/rdf/" + root.getIdentifier());
-    var childIRI = Values.iri(BASE_URL + schema.getName() + "/api/rdf/" + child.getIdentifier());
+    var rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
+    var childIRI = Values.iri(getApi(schema) + child.getIdentifier());
     var cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
     var subclasses = handler.resources.get(rootIRI).get(RDFS.SUBCLASSOF);
     assertEquals(
@@ -1215,8 +1208,8 @@ public class RDFTest {
     Set<Value> files =
         handler
             .resources
-            .get(Values.iri(BASE_URL + "fileTest/api/rdf/MyFiles?id=1"))
-            .get(Values.iri(BASE_URL + "fileTest/api/rdf/MyFiles/column/file"));
+            .get(Values.iri(getApi(fileTest) + "MyFiles?id=1"))
+            .get(Values.iri(getApi(fileTest) + "MyFiles/column/file"));
 
     IRI fileIRI = (IRI) files.stream().findFirst().get();
 
@@ -1242,9 +1235,9 @@ public class RDFTest {
     Set<Value> refBacks =
         handler
             .resources
-            .get(Values.iri(BASE_URL + "refBackTest/api/rdf/TableRefBack?id=a"))
-            .get(Values.iri(BASE_URL + "refBackTest/api/rdf/TableRefBack/column/backlink"));
-    assertEquals(Set.of(Values.iri(BASE_URL + "refBackTest/api/rdf/TableRef?id=1")), refBacks);
+            .get(Values.iri(getApi(refBackTest) + "TableRefBack?id=a"))
+            .get(Values.iri(getApi(refBackTest) + "TableRefBack/column/backlink"));
+    assertEquals(Set.of(Values.iri(getApi(refBackTest) + "TableRef?id=1")), refBacks);
   }
 
   /**
