@@ -42,22 +42,23 @@
 
     <h2 class="text-2xl text-title">Icons</h2>
     <div class="flex gap-4">
-      <Button type="primary" size="medium" icon="filter" iconPosition="left"
-        >Filter</Button
-      >
-      <Button type="primary" size="small" icon="filter" iconPosition="right"
-        >Filter</Button
-      >
-      <Button type="secondary" size="small" icon="star" iconPosition="left"
-        >Star</Button
-      >
+      <Button type="primary" size="medium" icon="filter" iconPosition="left">
+        Filter
+      </Button>
+      <Button type="primary" size="small" icon="filter" iconPosition="right">
+        Filter
+      </Button>
+      <Button type="secondary" size="small" icon="star" iconPosition="left">
+        Star
+      </Button>
       <Button
         type="secondary"
         size="small"
         icon="CaretDown"
         iconPosition="right"
-        >CaretDown</Button
       >
+        CaretDown
+      </Button>
     </div>
   </div>
 </template>

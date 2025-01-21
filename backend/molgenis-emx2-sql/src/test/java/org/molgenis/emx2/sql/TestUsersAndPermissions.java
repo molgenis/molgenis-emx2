@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 
 public class TestUsersAndPermissions {
+  public static final String ADMIN = "admin";
+  public static final String ANONYMOUS = "anonymous";
+  public static final String USER = "user";
   static Database database;
   private static final String TEST_ENABLE_USERS = "TestEnableUser";
   private static final String TEST_INITIALLY_ENABLE_USERS = "TestInitiallyEnableUser";
@@ -105,7 +108,7 @@ public class TestUsersAndPermissions {
   @Test
   public void testDisableAdmin() {
     try {
-      database.setEnabledUser("admin", false);
+      database.setEnabledUser(ADMIN, false);
       fail("should have failed");
     } catch (Exception e) {
       // ok
@@ -115,7 +118,7 @@ public class TestUsersAndPermissions {
   @Test
   public void testDisableAnonymous() {
     try {
-      database.setEnabledUser("anonymous", false);
+      database.setEnabledUser(ANONYMOUS, false);
       fail("should have failed");
     } catch (Exception e) {
       // ok
@@ -125,7 +128,7 @@ public class TestUsersAndPermissions {
   @Test
   public void testRemoveAdmin() {
     try {
-      database.removeUser("admin");
+      database.removeUser(ADMIN);
       fail("should have failed");
     } catch (Exception e) {
       // ok
@@ -135,7 +138,17 @@ public class TestUsersAndPermissions {
   @Test
   public void testRemoveAnonymous() {
     try {
-      database.removeUser("anonymous");
+      database.removeUser(ANONYMOUS);
+      fail("should have failed");
+    } catch (Exception e) {
+      // ok
+    }
+  }
+
+  @Test
+  public void testRemoveUser() {
+    try {
+      database.removeUser(USER);
       fail("should have failed");
     } catch (Exception e) {
       // ok
