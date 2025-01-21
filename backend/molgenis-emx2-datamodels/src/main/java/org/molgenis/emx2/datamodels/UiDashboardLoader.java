@@ -27,7 +27,7 @@ public class UiDashboardLoader extends ImportDataModelTask {
       this.complete();
     } catch (Exception e) {
       this.completeWithError(e.getMessage());
-      throw new MolgenisException("Create profile failed", e);
+      throw new MolgenisException("Failed to create schema", e);
     }
   }
 }
