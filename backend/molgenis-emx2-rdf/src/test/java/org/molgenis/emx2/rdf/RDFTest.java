@@ -103,7 +103,8 @@ public class RDFTest {
             "table2",
             column("id2a").setPkey(),
             column("id2b").setType(ColumnType.REF).setRefTable("table3").setPkey(),
-            column("refback1")
+            column("ref").setType(ColumnType.REF).setRefTable("table3"),
+            column("refback2")
                 .setType(ColumnType.REFBACK)
                 .setRefTable("table1")
                 .setRefBack("id1b")),
@@ -111,7 +112,7 @@ public class RDFTest {
             "table3",
             column("id3a").setPkey(),
             column("id3b").setPkey(),
-            column("refback2")
+            column("refback3")
                 .setType(ColumnType.REFBACK)
                 .setRefTable("table2")
                 .setRefBack("id2b")));
@@ -126,7 +127,18 @@ public class RDFTest {
         .getTable("table2")
         .insert(
             row("id2a", "id2_first", "id2b.id3a", "id3a_first", "id2b.id3b", "id3b_first"),
-            row("id2a", "id2_second", "id2b.id3a", "id3a_first", "id2b.id3b", "id3b_first"));
+            row("id2a", "id2_second", "id2b.id3a", "id3a_first", "id2b.id3b", "id3b_first"),
+            row(
+                "id2a",
+                "id2_third",
+                "id2b.id3a",
+                "id3a_second",
+                "id2b.id3b",
+                "id3b_second",
+                "ref.id3a",
+                "id3a_first",
+                "ref.id3b",
+                "id3b_first"));
 
     compositeKeyTest
         .getTable("table1")
@@ -290,8 +302,8 @@ public class RDFTest {
     refBackTest.getTable("tableRef").insert(row("id", "1", "link", "a"));
   }
 
-  private String getApi(Schema schema) {
-    return BASE_URL + compositeKeyTest.getName() + RDF_API_LOCATION + "/";
+  private static String getApi(Schema schema) {
+    return BASE_URL + schema.getName() + RDF_API_LOCATION + "/";
   }
 
   @AfterAll
@@ -420,70 +432,37 @@ public class RDFTest {
   }
 
   @Test
-  void testCompositeKeys() throws IOException {
+  void testCompositeKeysPresenceOnFullSchema() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(compositeKeyTest), handler);
 
     new RdfValidator()
-        .add(
-            getApi(compositeKeyTest)
-                + "Table1?id1a=id1_first&id1b.id2a=id2_second&id1b.id2b.id3a=id3a_first&id1b.id2b.id3b=id3b_first",
-            getApi(compositeKeyTest) + "Table1/column/id1b",
-            getApi(compositeKeyTest)
-                + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first",
-            true,
-            true)
-        .add(
-            getApi(compositeKeyTest)
-                + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first",
-            getApi(compositeKeyTest) + "Table2/column/id2b",
-            getApi(compositeKeyTest) + "Table3?id3a=id3a_first&id3b=id3b_first",
-            true,
-            true)
-        .add(
-            getApi(compositeKeyTest) + "Table3?id3a=id3a_first&id3b=id3b_first",
-            getApi(compositeKeyTest) + "Table3/column/refback2",
-            getApi(compositeKeyTest)
-                + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first",
-            true,
-            true)
-        .add(
-            getApi(compositeKeyTest)
-                + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first",
-            getApi(compositeKeyTest) + "Table2/column/refback1",
-            getApi(compositeKeyTest)
-                + "Table1?id1a=id1_first&id1b.id2a=id2_second&id1b.id2b.id3a=id3a_first&id1b.id2b.id3b=id3b_first",
-            true,
-            true)
+        .add(ValidationTriple.COMP_TABLE1_KEY_REF.getTriple(), true)
+        .add(ValidationTriple.COMP_TABLE2_1_KEY_REF.getTriple(), true)
+        .add(ValidationTriple.COMP_TABLE2_1_REFBACK.getTriple(), true)
+        .add(ValidationTriple.COMP_TABLE2_2_KEY_REF.getTriple(), true)
+        .add(ValidationTriple.COMP_TABLE2_2_NON_KEY_REF.getTriple(), true)
+        .add(ValidationTriple.COMP_TABLE3_REFBACK.getTriple(), true)
         .validate(handler);
   }
 
   @Test
-  void testThatCompositeKeysReferToDatabaseFields() throws IOException {
+  void testCompositeKeysRowSelection() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(compositeKeyTest), handler);
-    var subjectWithCompositeKey =
-        BASE_URL
-            + compositeKeyTest.getName()
-            + "/api/rdf/Samples?id=sample1&patient.firstName=Donald&patient.lastName=Duck";
-    var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
-    assertTrue(
-        iris.contains(subjectWithCompositeKey),
-        "A Sample resource should have a key based on patient.firstName, patient.lastName and id");
-  }
-
-  @Test
-  void testThatRowCanBeFetchedByCompositeKey() throws IOException {
-    var handler = new InMemoryRDFHandler() {};
-    // Encoded version of patient.firstName=Donald & patient.lastName=Duck & id=sample1
-    var rowId = "id=sample2&patient.firstName=Donald&patient.lastName=Duck";
-    getAndParseRDF(Selection.ofRow(compositeKeyTest, "Samples", rowId), handler);
-    var subjectWithCompositeKey =
-        BASE_URL + compositeKeyTest.getName() + "/api/rdf/Samples?" + rowId;
-    var iris = handler.resources.keySet().stream().map(Objects::toString).toList();
-    assertTrue(
-        iris.contains(subjectWithCompositeKey),
-        "A Sample resource should have a key based on patient.firstName, patient.lastName and id");
+    getAndParseRDF(
+        Selection.ofRow(
+            compositeKeyTest,
+            "Table2",
+            "id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first"),
+        handler);
+    new RdfValidator()
+        .add(ValidationTriple.COMP_TABLE1_KEY_REF.getTriple(), false)
+        .add(ValidationTriple.COMP_TABLE2_1_KEY_REF.getTriple(), true)
+        .add(ValidationTriple.COMP_TABLE2_1_REFBACK.getTriple(), true)
+        .add(ValidationTriple.COMP_TABLE2_2_KEY_REF.getTriple(), false)
+        .add(ValidationTriple.COMP_TABLE2_2_NON_KEY_REF.getTriple(), false)
+        .add(ValidationTriple.COMP_TABLE3_REFBACK.getTriple(), false)
+        .validate(handler);
   }
 
   @Test
@@ -660,15 +639,15 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInherTest), handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), true)
-        .add(ValidationTriple.ID2.getTriple(), true)
-        .add(ValidationTriple.ID3.getTriple(), true)
-        .add(ValidationTriple.ID4.getTriple(), true)
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID5.getTriple(), false) // different schema
-        .add(ValidationTriple.ID6.getTriple(), false) // different schema
-        .add(ValidationTriple.UNRELATED.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID1.getTriple(), true)
+        .add(ValidationTriple.INHER_ID2.getTriple(), true)
+        .add(ValidationTriple.INHER_ID3.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID5.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID6.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), false) // different schema
         .validate(handler);
   }
 
@@ -677,15 +656,15 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInherTest, "Root"), handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), true)
-        .add(ValidationTriple.ID2.getTriple(), true)
-        .add(ValidationTriple.ID3.getTriple(), true)
-        .add(ValidationTriple.ID4.getTriple(), true)
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID5.getTriple(), false) // different schema
-        .add(ValidationTriple.ID6.getTriple(), false) // different schema
-        .add(ValidationTriple.UNRELATED.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID1.getTriple(), true)
+        .add(ValidationTriple.INHER_ID2.getTriple(), true)
+        .add(ValidationTriple.INHER_ID3.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID5.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID6.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), false) // different schema
         .validate(handler);
   }
 
@@ -695,15 +674,15 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInherTest, "Child"), handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), false) // parent of selected table
-        .add(ValidationTriple.ID2.getTriple(), true)
-        .add(ValidationTriple.ID3.getTriple(), true) // child
-        .add(ValidationTriple.ID4.getTriple(), true) // child
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true) // child
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true) // child
-        .add(ValidationTriple.ID5.getTriple(), false) // different schema
-        .add(ValidationTriple.ID6.getTriple(), false) // different schema
-        .add(ValidationTriple.UNRELATED.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID1.getTriple(), false) // parent of selected table
+        .add(ValidationTriple.INHER_ID2.getTriple(), true)
+        .add(ValidationTriple.INHER_ID3.getTriple(), true) // child
+        .add(ValidationTriple.INHER_ID4.getTriple(), true) // child
+        .add(ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), true) // child
+        .add(ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(), true) // child
+        .add(ValidationTriple.INHER_ID5.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID6.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), false) // different schema
         .validate(handler);
   }
 
@@ -713,15 +692,18 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInherTest, "GrandchildTypeA"), handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), false) // grandparent of selected table
-        .add(ValidationTriple.ID2.getTriple(), false) // parent of selected table
-        .add(ValidationTriple.ID3.getTriple(), true)
-        .add(ValidationTriple.ID4.getTriple(), false) // sibling of selected table
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), false) // sibling of selected table
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), false) // sibling of selected table
-        .add(ValidationTriple.ID5.getTriple(), false) // different schema
-        .add(ValidationTriple.ID6.getTriple(), false) // different schema
-        .add(ValidationTriple.UNRELATED.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID1.getTriple(), false) // grandparent of selected table
+        .add(ValidationTriple.INHER_ID2.getTriple(), false) // parent of selected table
+        .add(ValidationTriple.INHER_ID3.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4.getTriple(), false) // sibling of selected table
+        .add(
+            ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), false) // sibling of selected table
+        .add(
+            ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(),
+            false) // sibling of selected table
+        .add(ValidationTriple.INHER_ID5.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID6.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), false) // different schema
         .validate(handler);
   }
 
@@ -731,15 +713,15 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInherTest, "GrandchildTypeB"), handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), false) // grandparent of selected table
-        .add(ValidationTriple.ID2.getTriple(), false) // parent of selected table
-        .add(ValidationTriple.ID3.getTriple(), false) // sibling of selected table
-        .add(ValidationTriple.ID4.getTriple(), true)
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID5.getTriple(), false) // different schema
-        .add(ValidationTriple.ID6.getTriple(), false) // different schema
-        .add(ValidationTriple.UNRELATED.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID1.getTriple(), false) // grandparent of selected table
+        .add(ValidationTriple.INHER_ID2.getTriple(), false) // parent of selected table
+        .add(ValidationTriple.INHER_ID3.getTriple(), false) // sibling of selected table
+        .add(ValidationTriple.INHER_ID4.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID5.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID6.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), false) // different schema
         .validate(handler);
   }
 
@@ -748,15 +730,15 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.ofRow(tableInherTest, "Root", "id=4"), handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), false) // not selected
-        .add(ValidationTriple.ID2.getTriple(), false) // not selected
-        .add(ValidationTriple.ID3.getTriple(), false) // not selected
-        .add(ValidationTriple.ID4.getTriple(), true)
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID5.getTriple(), false) // not selected
-        .add(ValidationTriple.ID6.getTriple(), false) // not selected
-        .add(ValidationTriple.UNRELATED.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID1.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID2.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID3.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID4.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID5.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID6.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), false) // not selected
         .validate(handler);
   }
 
@@ -765,15 +747,15 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInherExtTest), handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), false) // different schema
-        .add(ValidationTriple.ID2.getTriple(), false) // different schema
-        .add(ValidationTriple.ID3.getTriple(), false) // different schema
-        .add(ValidationTriple.ID4.getTriple(), false) // different schema
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), false) // different schema
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), false) // different schema
-        .add(ValidationTriple.ID5.getTriple(), true)
-        .add(ValidationTriple.ID6.getTriple(), true)
-        .add(ValidationTriple.UNRELATED.getTriple(), true)
+        .add(ValidationTriple.INHER_ID1.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID2.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID3.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID4.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID5.getTriple(), true)
+        .add(ValidationTriple.INHER_ID6.getTriple(), true)
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), true)
         .validate(handler);
   }
 
@@ -785,15 +767,15 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInherExtTest, "ExternalChild"), handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), false) // different schema
-        .add(ValidationTriple.ID2.getTriple(), false) // different schema
-        .add(ValidationTriple.ID3.getTriple(), false) // different schema
-        .add(ValidationTriple.ID4.getTriple(), false) // different schema
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), false) // different schema
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), false) // different schema
-        .add(ValidationTriple.ID5.getTriple(), true)
-        .add(ValidationTriple.ID6.getTriple(), true)
-        .add(ValidationTriple.UNRELATED.getTriple(), false) // not part of inheritance
+        .add(ValidationTriple.INHER_ID1.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID2.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID3.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID4.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(), false) // different schema
+        .add(ValidationTriple.INHER_ID5.getTriple(), true)
+        .add(ValidationTriple.INHER_ID6.getTriple(), true)
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), false) // not part of inheritance
         .validate(handler);
   }
 
@@ -805,15 +787,15 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.ofRow(tableInherExtTest, "ExternalChild", "id=5"), handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), false) // not selected
-        .add(ValidationTriple.ID2.getTriple(), false) // not selected
-        .add(ValidationTriple.ID3.getTriple(), false) // not selected
-        .add(ValidationTriple.ID4.getTriple(), false) // not selected
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), false) // not selected
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), false) // not selected
-        .add(ValidationTriple.ID5.getTriple(), true)
-        .add(ValidationTriple.ID6.getTriple(), false) // not selected
-        .add(ValidationTriple.UNRELATED.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID1.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID2.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID3.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID4.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID5.getTriple(), true)
+        .add(ValidationTriple.INHER_ID6.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), false) // not selected
         .validate(handler);
   }
 
@@ -822,15 +804,15 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(tableInherTest, tableInherExtTest), handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), true)
-        .add(ValidationTriple.ID2.getTriple(), true)
-        .add(ValidationTriple.ID3.getTriple(), true)
-        .add(ValidationTriple.ID4.getTriple(), true)
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID5.getTriple(), true)
-        .add(ValidationTriple.ID6.getTriple(), true)
-        .add(ValidationTriple.UNRELATED.getTriple(), true)
+        .add(ValidationTriple.INHER_ID1.getTriple(), true)
+        .add(ValidationTriple.INHER_ID2.getTriple(), true)
+        .add(ValidationTriple.INHER_ID3.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID5.getTriple(), true)
+        .add(ValidationTriple.INHER_ID6.getTriple(), true)
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), true)
         .validate(handler);
   }
 
@@ -842,15 +824,15 @@ public class RDFTest {
             new Schema[] {tableInherTest, tableInherExtTest}, tableInherTest.getTable("Root")),
         handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), true)
-        .add(ValidationTriple.ID2.getTriple(), true)
-        .add(ValidationTriple.ID3.getTriple(), true)
-        .add(ValidationTriple.ID4.getTriple(), true)
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID5.getTriple(), true)
-        .add(ValidationTriple.ID6.getTriple(), true)
-        .add(ValidationTriple.UNRELATED.getTriple(), false) // not part of inheritance
+        .add(ValidationTriple.INHER_ID1.getTriple(), true)
+        .add(ValidationTriple.INHER_ID2.getTriple(), true)
+        .add(ValidationTriple.INHER_ID3.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID5.getTriple(), true)
+        .add(ValidationTriple.INHER_ID6.getTriple(), true)
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), false) // not part of inheritance
         .validate(handler);
   }
 
@@ -864,15 +846,15 @@ public class RDFTest {
             "id=4"),
         handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), false) // not selected
-        .add(ValidationTriple.ID2.getTriple(), false) // not selected
-        .add(ValidationTriple.ID3.getTriple(), false) // not selected
-        .add(ValidationTriple.ID4.getTriple(), true)
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), true)
-        .add(ValidationTriple.ID5.getTriple(), false) // not selected
-        .add(ValidationTriple.ID6.getTriple(), false) // not selected
-        .add(ValidationTriple.UNRELATED.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID1.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID2.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID3.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID4.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(), true)
+        .add(ValidationTriple.INHER_ID5.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID6.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), false) // not selected
         .validate(handler);
   }
 
@@ -886,15 +868,15 @@ public class RDFTest {
             "id=5"),
         handler);
     new RdfValidator()
-        .add(ValidationTriple.ID1.getTriple(), false) // not selected
-        .add(ValidationTriple.ID2.getTriple(), false) // not selected
-        .add(ValidationTriple.ID3.getTriple(), false) // not selected
-        .add(ValidationTriple.ID4.getTriple(), false) // not selected
-        .add(ValidationTriple.ID4_PARENT_FIELD.getTriple(), false) // not selected
-        .add(ValidationTriple.ID4_GRANDPARENT_FIELD.getTriple(), false) // not selected
-        .add(ValidationTriple.ID5.getTriple(), true)
-        .add(ValidationTriple.ID6.getTriple(), false) // not selected
-        .add(ValidationTriple.UNRELATED.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID1.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID2.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID3.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID4.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID4_PARENT_FIELD.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID4_GRANDPARENT_FIELD.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_ID5.getTriple(), true)
+        .add(ValidationTriple.INHER_ID6.getTriple(), false) // not selected
+        .add(ValidationTriple.INHER_UNRELATED.getTriple(), false) // not selected
         .validate(handler);
   }
 
@@ -1355,45 +1337,80 @@ public class RDFTest {
   }
 
   private enum ValidationTriple {
-    ID1(
-        BASE_URL + "tableInheritanceTest/api/rdf/Root?id=1",
-        BASE_URL + "tableInheritanceTest/api/rdf/Root/column/rootColumn",
-        "id1 data"),
-    ID2(
-        BASE_URL + "tableInheritanceTest/api/rdf/Root?id=2",
-        BASE_URL + "tableInheritanceTest/api/rdf/Child/column/childColumn",
-        "id2 data"),
-    ID3(
-        BASE_URL + "tableInheritanceTest/api/rdf/Root?id=3",
-        BASE_URL + "tableInheritanceTest/api/rdf/GrandchildTypeA/column/grandchildColumn",
-        "id3 data"),
-    ID4(
-        BASE_URL + "tableInheritanceTest/api/rdf/Root?id=4",
-        BASE_URL + "tableInheritanceTest/api/rdf/GrandchildTypeB/column/grandchildColumn",
-        "id4 data"),
-    ID4_GRANDPARENT_FIELD(
-        BASE_URL + "tableInheritanceTest/api/rdf/Root?id=4",
-        BASE_URL + "tableInheritanceTest/api/rdf/Root/column/rootColumn",
-        "id4 data for rootColumn"),
-    ID4_PARENT_FIELD(
-        BASE_URL + "tableInheritanceTest/api/rdf/Root?id=4",
-        BASE_URL + "tableInheritanceTest/api/rdf/Child/column/childColumn",
-        "id4 data for childColumn"),
-    ID5(
-        BASE_URL + "tableInheritanceTest/api/rdf/Root?id=5",
-        BASE_URL
-            + "tableInheritanceExternalSchemaTest/api/rdf/ExternalChild/column/externalChildColumn",
-        "id5 data"),
-    ID6(
-        BASE_URL + "tableInheritanceTest/api/rdf/Root?id=6",
-        BASE_URL
-            + "tableInheritanceExternalSchemaTest/api/rdf/ExternalGrandchild/column/externalGrandchildColumn",
-        "id6 data"),
-    UNRELATED(
-        BASE_URL + "tableInheritanceExternalSchemaTest/api/rdf/ExternalUnrelated?id=a",
-        BASE_URL
-            + "tableInheritanceExternalSchemaTest/api/rdf/ExternalUnrelated/column/externalUnrelatedColumn",
-        "unrelated data");
+    // Inheritance testing
+    INHER_ID1(
+        getApi(tableInherTest) + "Root?id=1",
+        getApi(tableInherTest) + "Root/column/rootColumn",
+        Values.literal("id1 data")),
+    INHER_ID2(
+        getApi(tableInherTest) + "Root?id=2",
+        getApi(tableInherTest) + "Child/column/childColumn",
+        Values.literal("id2 data")),
+    INHER_ID3(
+        getApi(tableInherTest) + "Root?id=3",
+        getApi(tableInherTest) + "GrandchildTypeA/column/grandchildColumn",
+        Values.literal("id3 data")),
+    INHER_ID4(
+        getApi(tableInherTest) + "Root?id=4",
+        getApi(tableInherTest) + "GrandchildTypeB/column/grandchildColumn",
+        Values.literal("id4 data")),
+    INHER_ID4_GRANDPARENT_FIELD(
+        getApi(tableInherTest) + "Root?id=4",
+        getApi(tableInherTest) + "Root/column/rootColumn",
+        Values.literal("id4 data for rootColumn")),
+    INHER_ID4_PARENT_FIELD(
+        getApi(tableInherTest) + "Root?id=4",
+        getApi(tableInherTest) + "Child/column/childColumn",
+        Values.literal("id4 data for childColumn")),
+    INHER_ID5(
+        getApi(tableInherTest) + "Root?id=5",
+        getApi(tableInherExtTest) + "ExternalChild/column/externalChildColumn",
+        Values.literal("id5 data")),
+    INHER_ID6(
+        getApi(tableInherTest) + "Root?id=6",
+        getApi(tableInherExtTest) + "ExternalGrandchild/column/externalGrandchildColumn",
+        Values.literal("id6 data")),
+    INHER_UNRELATED(
+        getApi(tableInherExtTest) + "ExternalUnrelated?id=a",
+        getApi(tableInherExtTest) + "ExternalUnrelated/column/externalUnrelatedColumn",
+        Values.literal("unrelated data")),
+
+    // Composite testing
+    COMP_TABLE1_KEY_REF(
+        getApi(compositeKeyTest)
+            + "Table1?id1a=id1_first&id1b.id2a=id2_second&id1b.id2b.id3a=id3a_first&id1b.id2b.id3b=id3b_first",
+        getApi(compositeKeyTest) + "Table1/column/id1b",
+        Values.iri(
+            getApi(compositeKeyTest)
+                + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first")),
+    COMP_TABLE2_1_KEY_REF(
+        getApi(compositeKeyTest)
+            + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first",
+        getApi(compositeKeyTest) + "Table2/column/id2b",
+        Values.iri(getApi(compositeKeyTest) + "Table3?id3a=id3a_first&id3b=id3b_first")),
+    COMP_TABLE2_1_REFBACK(
+        getApi(compositeKeyTest)
+            + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first",
+        getApi(compositeKeyTest) + "Table2/column/refback2",
+        Values.iri(
+            getApi(compositeKeyTest)
+                + "Table1?id1a=id1_first&id1b.id2a=id2_second&id1b.id2b.id3a=id3a_first&id1b.id2b.id3b=id3b_first")),
+    COMP_TABLE2_2_KEY_REF(
+        getApi(compositeKeyTest)
+            + "Table2?id2a=id2_third&id2b.id3a=id3a_second&id2b.id3b=id3b_second",
+        getApi(compositeKeyTest) + "Table2/column/id2b",
+        Values.iri(getApi(compositeKeyTest) + "Table3?id3a=id3a_second&id3b=id3b_second")),
+    COMP_TABLE2_2_NON_KEY_REF(
+        getApi(compositeKeyTest)
+            + "Table2?id2a=id2_third&id2b.id3a=id3a_second&id2b.id3b=id3b_second",
+        getApi(compositeKeyTest) + "Table2/column/ref",
+        Values.iri(getApi(compositeKeyTest) + "Table3?id3a=id3a_first&id3b=id3b_first")),
+    COMP_TABLE3_REFBACK(
+        getApi(compositeKeyTest) + "Table3?id3a=id3a_first&id3b=id3b_first",
+        getApi(compositeKeyTest) + "Table3/column/refback3",
+        Values.iri(
+            getApi(compositeKeyTest)
+                + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first"));
 
     private final Triple triple;
 
@@ -1401,11 +1418,10 @@ public class RDFTest {
       return triple;
     }
 
-    ValidationTriple(String subjectUrl, String predicateUrl, String objectString) {
+    ValidationTriple(String subjectUrl, String predicateUrl, Value object) {
       this.triple =
           SimpleValueFactory.getInstance()
-              .createTriple(
-                  Values.iri(subjectUrl), Values.iri(predicateUrl), Values.literal(objectString));
+              .createTriple(Values.iri(subjectUrl), Values.iri(predicateUrl), object);
     }
   }
 }
