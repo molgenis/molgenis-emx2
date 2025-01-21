@@ -38,6 +38,7 @@
       >
         <div v-show="selectedOntology === ontologyId" class="w-100">
           <div v-if="displayOptions.length">
+            <MessageWarning class="mx-3" v-if="facetIdentifier === 'Diagnosisavailable' && filtersStore.filters['Diagnosisavailable']?.length >=50">Please don't select more than 50 items in this filter</MessageWarning>
             <TreeComponent
               :options="displayOptions"
               :filter="ontologyQuery"
@@ -61,6 +62,7 @@ import TreeComponent from "./base/TreeComponent.vue";
 import { Spinner } from "../../../../molgenis-components";
 import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
 import * as _ from "lodash";
+import { MessageWarning } from "molgenis-components";
 
 const filtersStore = useFiltersStore();
 

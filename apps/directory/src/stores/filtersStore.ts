@@ -223,17 +223,27 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   function addOntologyOptions(filterName: string, value: IOntologyItem[]) {
+    /// Temporary fix for issue #906 
+    const DiagnosisavailableCount = filters.value.Diagnosisavailable?.length?filters.value.Diagnosisavailable?.length:0;
+    const limit = 50;
+    var ontologySet = value;
+    const slotsRemaining = limit - DiagnosisavailableCount
+    if(filterName === "Diagnosisavailable"){
+      ontologySet = ontologySet.slice(0, slotsRemaining);
+    }  
+    ///
+
     if (filters.value[filterName]) {
       const existingValues = filters.value[filterName].map(
         (option: IOntologyItem) => option.name
       );
-      const filterOptionsToAdd = value.filter(
+      var filterOptionsToAdd = ontologySet.filter(
         (newValue: IOntologyItem) => !existingValues.includes(newValue.name)
       );
       filters.value[filterName] =
         filters.value[filterName].concat(filterOptionsToAdd);
     } else {
-      filters.value[filterName] = value;
+      filters.value[filterName] = ontologySet;
     }
   }
 
