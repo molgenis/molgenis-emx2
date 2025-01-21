@@ -1,4 +1,4 @@
-data point id,data point name,data point value,data point value label,data point series,data point primary category,data point secondary category,data point primary category label,data point secondary category label,data point time,data point time unit,data point color,data point description,data point order,included in chart
+id,name,value,value label,series,primary category,secondary category,primary category label,secondary category label,time value,time unit,color,description,sort order,included in chart
 recruitment-count-control,Healthy Controls,30,,,,,,,,,,Number of Healthy Controls patients recruited,2,recruitment-count
 recruitment-count-intervention,Intervention,30,,,,,,,,,,Number of Intervention patients recruited,0,recruitment-count
 recruitment-count-placebo,Placebo,30,,,,,,,,,,Number of Placebo patients recruited,1,recruitment-count
