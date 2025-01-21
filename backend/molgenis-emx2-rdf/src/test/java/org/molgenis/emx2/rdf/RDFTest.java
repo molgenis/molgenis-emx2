@@ -210,6 +210,7 @@ public class RDFTest {
 
     // Test table inheritance
     // Use example from the catalogue schema since this has all the different issues.
+    database.dropSchemaIfExists("tableInheritanceExternalSchemaTest"); // in case tearDown fails
     tableInherTest = database.dropCreateSchema("tableInheritanceTest");
     tableInherTest.create(
         table(
