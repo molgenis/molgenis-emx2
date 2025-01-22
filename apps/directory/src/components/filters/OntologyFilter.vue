@@ -44,7 +44,8 @@
                 facetIdentifier === 'Diagnosisavailable' &&
                 filtersStore.filters['Diagnosisavailable']?.length >= 50
               "
-              >You can only select 50 items at the same time</MessageWarning
+              >You can only select 50 items at the same time, additional items
+              are ignored.</MessageWarning
             >
             <TreeComponent
               :options="displayOptions"
@@ -69,6 +70,7 @@ import TreeComponent from "./base/TreeComponent.vue";
 import { Spinner } from "../../../../molgenis-components";
 import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
 import * as _ from "lodash";
+//@ts-ignore
 import { MessageWarning } from "molgenis-components";
 
 const filtersStore = useFiltersStore();

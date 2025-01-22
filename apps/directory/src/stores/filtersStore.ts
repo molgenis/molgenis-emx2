@@ -223,7 +223,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   function addOntologyOptions(filterName: string, value: IOntologyItem[]) {
-    /// Temporary fix for issue #906
     const diagnosisavailableCount = filters.value.Diagnosisavailable?.length
       ? filters.value.Diagnosisavailable.length
       : 0;
@@ -233,7 +232,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     if (filterName === "Diagnosisavailable") {
       ontologySet = ontologySet.slice(0, slotsRemaining);
     }
-    ///
 
     if (filters.value[filterName]) {
       const existingValues = filters.value[filterName].map(
