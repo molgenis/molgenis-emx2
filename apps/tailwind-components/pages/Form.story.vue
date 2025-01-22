@@ -94,7 +94,6 @@ function setUpChapterIsInViewObserver() {
       (entries) => {
         entries.forEach((entry) => {
           const id = entry.target.getAttribute("id");
-          console.log("entry", id, entry.intersectionRatio);
           if (id && entry.intersectionRatio > 0) {
             currentSectionDomId.value = id;
           }

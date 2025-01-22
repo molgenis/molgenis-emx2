@@ -13,7 +13,6 @@
 import type { IFormLegendSection } from "../../metadata-utils/src/types";
 
 function handleGotoRequest(section: IFormLegendSection) {
-  console.log("Goto request for section", section);
   sections.value.forEach((s) => {
     if (s.domId === section.domId) {
       s.isActive = true;
