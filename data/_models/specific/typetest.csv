@@ -1,0 +1,4 @@
+tableName,tableExtends,columnName,description,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,profiles
+Type test small,,id,,auto_id,1,true,,,,,,,,TypeTest
+Type test small,,string,field of type string,string,,,,,,,,,,TypeTest
+Type test small,,boolean,field of type boolean,boolean,,,,,,,,,,TypeTest
