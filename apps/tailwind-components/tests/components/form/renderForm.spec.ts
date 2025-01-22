@@ -47,3 +47,10 @@ test("the legend should show number of errors per chapter (if any)", async ({
   await page.getByLabel("name", { exact: true }).press("Tab");
   await expect(page.locator("a").filter({ hasText: /^1$/ })).toBeVisible();
 });
+
+test("clicking on the chapter should scroll to the chapter", async ({
+  page,
+}) => {
+  await page.getByText("Heading2", { exact: true }).click();
+  await expect(page.getByRole("heading", { name: "heading2" })).toBeVisible();
+});

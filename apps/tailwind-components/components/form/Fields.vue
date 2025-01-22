@@ -102,12 +102,14 @@ defineExpose({ validate });
     <div class="first:pt-0 pt-10" v-for="chapter in chapters">
       <h2
         class="font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
+        :id="`${chapter.title}-chapter-title`"
         v-if="chapter.title !== '_NO_CHAPTERS'"
       >
         {{ chapter.title }}
       </h2>
       <div class="pb-8" v-for="column in chapter.columns">
         <FormField
+          :id="`${column.id}-form-field`"
           :column="column"
           :data="dataMap[column.id]"
           :errors="errorMap[column.id]"

@@ -5,17 +5,16 @@
       <li
         v-for="section in sections"
         class="group felx flex items-center"
-        @click="emit('gotoSection', section)"
+        @click="handleGotoRequest(section)"
       >
         <div
           class="h-[24px] w-1 group-hover:bg-button-primary"
           :class="{ 'bg-button-primary': section.isActive }"
         />
-        <a
+        <span
           class="pl-4 text-title capitalize"
           :class="{ 'font-bold': section.isActive }"
-          :href="`#${section.domId}`"
-          >{{ section.label }}</a
+          >{{ section.label }}</span
         >
         <span v-if="(section.errorCount ?? 0) > 0" class="ml-2">
           <a :href="`#${section.domId}`">
@@ -51,4 +50,13 @@ defineProps<{
 }>();
 
 const emit = defineEmits(["gotoSection"]);
+
+function handleGotoRequest(section: IFormLegendSection) {
+  document.getElementById(`${section.domId}-chapter-title`)?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+
+  emit("gotoSection", section);
+}
 </script>
