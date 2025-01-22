@@ -43,7 +43,6 @@ const formFields = ref<InstanceType<typeof FormFields>>();
 const formValues = ref<Record<string, columnValue>>({});
 
 function onModelUpdate(value: Record<string, columnValue>) {
-  console.log("story update", value);
   formValues.value = value;
 }
 
@@ -51,23 +50,6 @@ const errors = ref<Record<string, IFieldError[]>>({});
 
 function onErrors(newErrors: Record<string, IFieldError[]>) {
   errors.value = newErrors;
-}
-
-const sections = computed(() => {
-  return tableMeta.value.columns
-    .filter((column: IColumn) => column.columnType == "HEADING")
-    .map((column: IColumn) => {
-      return {
-        label: column.label,
-        domId: column.id,
-        isActive: false,
-        errorCount: chapterErrorCount(column.id),
-      };
-    });
-});
-
-function handleGotoRequest(section: IFormLegendSection) {
-  console.log("Goto request for section", section);
 }
 
 function chapterFieldIds(chapterId: string) {
@@ -90,6 +72,57 @@ function chapterErrorCount(chapterId: string) {
     return acc + (errors.value[fieldId]?.length ?? 0);
   }, 0);
 }
+
+const currentSectionDomId = ref("");
+
+const sections = computed(() => {
+  return tableMeta.value?.columns
+    .filter((column: IColumn) => column.columnType == "HEADING")
+    .map((column: IColumn) => {
+      return {
+        label: column.label,
+        domId: column.id,
+        isActive: currentSectionDomId.value.startsWith(column.id),
+        errorCount: chapterErrorCount(column.id),
+      };
+    });
+});
+
+function setUpChapterIsInViewObserver() {
+  console.log("setting up observer for chapters in table " + tableId.value);
+  if (import.meta.client) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const id = entry.target.getAttribute("id");
+          console.log("entry", id, entry.intersectionRatio);
+          if (id && entry.intersectionRatio > 0) {
+            currentSectionDomId.value = id;
+          }
+        });
+      },
+      {
+        root: formFields.value?.$el,
+        rootMargin: "0px",
+        threshold: 0.5,
+      }
+    );
+
+    document.querySelectorAll("[id$=chapter-title]").forEach((section) => {
+      observer.observe(section);
+    });
+  }
+}
+
+setUpChapterIsInViewObserver();
+
+watch(
+  () => tableMeta.value,
+  async () => {
+    await nextTick();
+    setUpChapterIsInViewObserver();
+  }
+);
 </script>
 
 <template>
@@ -97,9 +130,9 @@ function chapterErrorCount(chapterId: string) {
     <div id="mock-form-contaner" class="basis-2/3 flex flex-row border">
       <div class="basis-1/3">
         <FormLegend
+          v-if="sections"
           class="bg-sidebar-gradient mx-4"
           :sections="sections"
-          @goto-section="handleGotoRequest"
         />
       </div>
 
