@@ -48,7 +48,7 @@
     "floating-vue": "5.2.2",
     "metadata-utils": "*",
     "nuxt-gtag": "3.0.1",
-    "vite": "5.4.6",
+    "vite": "5.4.12",
     "vue": "3.5.13"
   }
 }
