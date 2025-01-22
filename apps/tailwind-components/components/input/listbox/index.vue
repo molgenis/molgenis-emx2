@@ -2,13 +2,12 @@
   <div class="w-full relative">
     <InputListboxToggle
       :id="id"
-      ref="listbox-button"
+      ref="btnElemRef"
       :aria-controls="`listbox-${id}-options`"
       :required="required"
-      :isExpanded="isExpanded"
       :disabled="disabled"
       :aria-labelledby="labelId"
-      @click.prevent="openCloseListbox"
+      :selected-element-id="selectedElementId"
       @keydown="onListboxButtonKeyDown"
     >
       <span class="w-full">
@@ -16,7 +15,6 @@
       </span>
     </InputListboxToggle>
     <InputListboxList
-      ref="listbox-ul"
       :id="`listbox-${id}-options`"
       :isExpanded="isExpanded"
       :hasFixedHeight="listboxOptions.length > 5"
@@ -46,10 +44,10 @@ import type {
 } from "../../../../metadata-utils/src/types";
 import type {
   IInternalListboxOption,
-  IListboxUlRef,
-  IListboxButtonef,
   IListboxLiRef,
 } from "../../../types/listbox";
+
+import { InputListboxToggle } from "#components";
 
 const props = withDefaults(
   defineProps<{
@@ -84,13 +82,16 @@ defineExpose({
 const sourceDataType = ref<string>("");
 const sourceData = ref<IInputValueLabel[]>();
 const focusCounter = ref<number>(0);
-const isExpanded = ref<boolean>(false);
 const modelValue = defineModel<IInputValue | IInputValueLabel | null>();
-const ulElemRef = useTemplateRef<IListboxUlRef>("listbox-ul");
 const liElemRefs = useTemplateRef<IListboxLiRef[]>("listbox-li");
-const btnElemRef = useTemplateRef<IListboxButtonef>("listbox-button");
+const btnElemRef = ref<InstanceType<typeof InputListboxToggle>>();
 const displayText = ref<string>(props.placeholder);
 const startingCounter = ref<number>(0);
+const selectedElementId = ref<string>("");
+
+const isExpanded = computed<boolean>(() => {
+  return btnElemRef.value?.expanded as boolean;
+});
 
 onMounted(() => {
   if (props.value && listboxOptions.value) {
@@ -195,10 +196,6 @@ function updateModelValue(
   selection: IInternalListboxOption,
   enableToggling: boolean = true
 ) {
-  btnElemRef.value!.button.setAttribute(
-    "aria-activedescendant",
-    selection.elemId
-  );
   focusCounter.value = selection.index;
   startingCounter.value = selection.index;
 
@@ -216,7 +213,7 @@ function updateModelValue(
     modelValue.value = selection.value as IInputValue;
     displayText.value = updateDisplayText(selection.value as string);
   }
-
+  selectedElementId.value = selection.elemId;
   emit("update:modelValue", modelValue.value);
 
   if (enableToggling) {
@@ -248,13 +245,12 @@ function focusNextOption(by: number = 1) {
 }
 
 function focusListboxButton() {
-  btnElemRef.value?.button.focus();
+  btnElemRef.value?.button?.focus();
 }
 
 function openCloseListbox() {
-  isExpanded.value = !isExpanded.value;
+  btnElemRef.value!.expanded = !btnElemRef.value!.expanded;
   if (isExpanded.value) {
-    ulElemRef.value?.ul.setAttribute("tabindex", "0");
     if (modelValue.value) {
       updateCounter(startingCounter.value);
     } else {
@@ -262,7 +258,6 @@ function openCloseListbox() {
     }
     focusListOption();
   } else {
-    ulElemRef.value?.ul.setAttribute("tabindex", "-1");
     focusListboxButton();
   }
 }

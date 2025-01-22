@@ -9,6 +9,7 @@
       'h-44': isExpanded && hasFixedHeight,
       'shadow-inner': isExpanded,
     }"
+    :tabindex="isExpanded ? 1 : 0"
   >
     <slot></slot>
   </ul>

@@ -6,13 +6,6 @@ export interface IInternalListboxOption extends IInputValueLabel {
   elemId: string;
 }
 
-export interface IListboxUlRef {
-  ul: HTMLUListElement;
-}
-
-export interface IListboxButtonef {
-  button: HTMLButtonElement;
-}
 export interface IListboxLiRef {
   li: HTMLLIElement;
 }

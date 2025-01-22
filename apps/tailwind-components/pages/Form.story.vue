@@ -5,15 +5,15 @@ import type {
   IFieldError,
   ISchemaMetaData,
   ITableMetaData,
+  IInputValueLabel,
 } from "../../metadata-utils/src/types";
-import type { IListboxOption, IListboxValue } from "../types/listbox";
 
-const exampleForms: IListboxOption[] = [
+const exampleForms: IInputValueLabel[] = [
   { value: "simple", label: "Simple form example" },
   { value: "complex", label: "Complex form example" },
 ];
 
-const formType = ref<IListboxOption>(exampleForms[0]);
+const formType = ref<IInputValueLabel>(exampleForms[0]);
 
 // just assuming that the table is there for the demo
 const schemaId = computed(() =>
@@ -36,7 +36,7 @@ const tableMeta = computed(
     ) as ITableMetaData
 );
 
-function refetch(value: IListboxOption) {
+function refetch(value: IInputValueLabel) {
   formType.value = value;
   refetchMetadata();
 }
@@ -75,14 +75,14 @@ function onErrors(newErrors: Record<string, IFieldError[]>) {
       <div>Demo controls, settings and status:</div>
 
       <div class="p-4 border-2 mb-2">
-        <select
-          @change="refetch()"
-          v-model="sampleType"
-          class="border-1 border-black"
-        >
-          <option value="simple">Simple form example</option>
-          <option value="complex">Complex form example</option>
-        </select>
+        <InputLabel for="form-example"> Select a form to display </InputLabel>
+        <InputListbox
+          id="form-example"
+          label-id="form-example-title"
+          :options="exampleForms"
+          :value="formType"
+          @update:model-value="(value) => refetch(value as IInputValueLabel)"
+        />
 
         <div>schema id = {{ schemaId }}</div>
         <div>table id = {{ tableId }}</div>

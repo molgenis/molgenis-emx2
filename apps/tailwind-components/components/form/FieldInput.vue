@@ -9,9 +9,8 @@ import type {
   columnId,
   columnValue,
   CellValueType,
+  IInputValueLabel,
 } from "../../../metadata-utils/src/types";
-
-import type { IListboxValue } from "~/types/listbox";
 
 type inputComponent =
   | InstanceType<typeof InputString>
@@ -25,7 +24,7 @@ defineProps<{
   label: string;
   required: boolean;
   data: columnValue;
-  options?: IListboxValue[];
+  options?: IInputValueLabel[];
 }>();
 
 defineEmits(["focus", "error", "update:modelValue"]);

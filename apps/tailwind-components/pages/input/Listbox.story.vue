@@ -122,7 +122,10 @@
 
 <script lang="ts" setup>
 import { ref, computed } from "vue";
-import type { IInputValue, IInputValueLabel } from "../../../metadata-utils/src/types";
+import type {
+  IInputValue,
+  IInputValueLabel,
+} from "../../../metadata-utils/src/types";
 
 const modelValue = defineModel<IInputValue | IInputValueLabel>();
 const letters: string[] = [...Array(26).keys()].map((num) =>
