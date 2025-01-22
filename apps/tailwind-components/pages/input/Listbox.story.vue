@@ -122,28 +122,26 @@
 
 <script lang="ts" setup>
 import { ref, computed } from "vue";
-import type { IListboxValue, IListboxOption } from "../../types/listbox";
+import type { IInputValue, IInputValueLabel } from "../../../metadata-utils/src/types";
 
-const modelValue = defineModel<IListboxValue | IListboxOption | null>();
-
+const modelValue = defineModel<IInputValue | IInputValueLabel>();
 const letters: string[] = [...Array(26).keys()].map((num) =>
   String.fromCharCode(num + 65)
 );
 
-const lettersWithLabels: IListboxOption[] = letters.map((letter: string) => {
+const lettersWithLabels: IInputValueLabel[] = letters.map((letter: string) => {
   return { value: letter, label: `Group ${letter}` };
 });
 
 const listboxState = ref<string>("");
 const listboxPlaceholder = ref<string>("Select an option");
 const listboxDataType = ref<string>("string");
-const hasStartingValue = ref<boolean>(false);
 
-const listboxData = computed<IListboxOption[] | IListboxValue[]>(() => {
+const listboxData = computed<IInputValue[] | IInputValueLabel[]>(() => {
   if (listboxDataType.value === "string") {
-    return letters as IListboxValue[];
+    return letters as IInputValue[];
   } else {
-    return lettersWithLabels as IListboxOption[];
+    return lettersWithLabels as IInputValueLabel[];
   }
 });
 </script>

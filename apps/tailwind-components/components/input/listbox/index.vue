@@ -26,7 +26,7 @@
         v-for="option in listboxOptions"
         ref="listbox-li"
         :id="option.elemId"
-        :isSelected="isSelected(option.value)"
+        :isSelected="isSelected(option.value as IInputValue)"
         :label="option.label || (option.value as string)"
         @click="onListboxOptionClick(option)"
         @blur="blurListOption(option)"
@@ -41,22 +41,22 @@ import { ref, useTemplateRef, nextTick, watch, onMounted } from "vue";
 import type {
   columnValue,
   IFieldError,
-} from "../../../metadata-utils/src/types";
+  IInputValue,
+  IInputValueLabel,
+} from "../../../../metadata-utils/src/types";
 import type {
-  IListboxValue,
-  IListboxOption,
   IInternalListboxOption,
   IListboxUlRef,
   IListboxButtonef,
   IListboxLiRef,
-} from "../../types/listbox";
+} from "../../../types/listbox";
 
 const props = withDefaults(
   defineProps<{
     id: string;
     labelId: string;
-    options: IListboxOption[] | IListboxValue[];
-    value?: IListboxOption | IListboxValue;
+    options: IInputValue[] | IInputValueLabel[];
+    value?: IInputValue | IInputValueLabel;
     required?: boolean;
     hasError?: boolean;
     placeholder?: string;
@@ -71,7 +71,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  (e: "update:modelValue", value: IListboxOption | IListboxValue | null): void;
+  (e: "update:modelValue", value: IInputValue | IInputValueLabel): void;
   (e: "error", value: IFieldError[]): void;
   (e: "blur", value: null): void;
   (e: "focus", value: null): void;
@@ -82,10 +82,10 @@ defineExpose({
 });
 
 const sourceDataType = ref<string>("");
-const sourceData = ref<IListboxOption[]>();
+const sourceData = ref<IInputValueLabel[]>();
 const focusCounter = ref<number>(0);
 const isExpanded = ref<boolean>(false);
-const modelValue = defineModel<IListboxOption | IListboxValue | null>();
+const modelValue = defineModel<IInputValue | IInputValueLabel | null>();
 const ulElemRef = useTemplateRef<IListboxUlRef>("listbox-ul");
 const liElemRefs = useTemplateRef<IListboxLiRef[]>("listbox-li");
 const btnElemRef = useTemplateRef<IListboxButtonef>("listbox-button");
@@ -97,8 +97,8 @@ onMounted(() => {
     const initalValue: IInternalListboxOption[] = listboxOptions.value.filter(
       (row: IInternalListboxOption) => {
         return (
-          row.value === (props.value as IListboxOption).value ||
-          row.value === (props.value as IListboxValue)
+          row.value === (props.value as IInputValueLabel).value ||
+          row.value === (props.value as IInputValue)
         );
       }
     );
@@ -118,32 +118,32 @@ function counterIsInRange(value: number) {
 }
 
 const listboxOptions = computed<IInternalListboxOption[]>(() => {
-  const testDataValue: IListboxOption | IListboxValue = props.options[0];
+  const testDataValue: IInputValue | IInputValueLabel = props.options[0];
   if (
     typeof testDataValue === "object" &&
-    Object.hasOwn(testDataValue as IListboxOption, "value")
+    Object.hasOwn(testDataValue as IInputValueLabel, "value")
   ) {
     sourceDataType.value = "ListboxOptions";
-    sourceData.value = props.options as IListboxOption[];
+    sourceData.value = props.options as IInputValueLabel[];
   } else {
     sourceDataType.value = "ListboxValue";
-    const inputData = props.options as IListboxValue[];
+    const inputData = props.options as IInputValue[];
     const processedData = inputData.map(
-      (value: IListboxValue): IListboxOption => {
+      (value: IInputValue): IInputValueLabel => {
         return { value: value };
       }
     );
-    sourceData.value = processedData as IListboxOption[];
+    sourceData.value = processedData as IInputValueLabel[];
   }
 
-  const defaultOption: IListboxOption = {
-    value: null,
+  const defaultOption: IInputValueLabel = {
+    value: "",
     label: props.placeholder,
   };
-  const inputData = sourceData.value as IListboxOption[];
-  const data: IListboxOption[] = [defaultOption, ...inputData];
+  const inputData = sourceData.value as IInputValueLabel[];
+  const data: IInputValueLabel[] = [defaultOption, ...inputData];
 
-  return data.map((option: IListboxOption, index: number) => {
+  return data.map((option: IInputValueLabel, index: number) => {
     return {
       ...option,
       index: index,
@@ -203,7 +203,7 @@ function updateModelValue(
   startingCounter.value = selection.index;
 
   if (sourceDataType.value === "ListboxOptions") {
-    const selectedOption: IListboxOption = { value: selection.value };
+    const selectedOption: IInputValueLabel = { value: selection.value };
     if (Object.hasOwn(selection, "label")) {
       selectedOption.label = selection.label;
       displayText.value = updateDisplayText(selectedOption.label);
@@ -213,7 +213,7 @@ function updateModelValue(
 
     modelValue.value = selectedOption;
   } else {
-    modelValue.value = selection.value as IListboxValue;
+    modelValue.value = selection.value as IInputValue;
     displayText.value = updateDisplayText(selection.value as string);
   }
 
@@ -224,11 +224,11 @@ function updateModelValue(
   }
 }
 
-function isSelected(value: IListboxValue): boolean {
+function isSelected(value: IInputValue): boolean {
   if (modelValue.value) {
     return (
-      value === (modelValue.value as IInternalListboxOption).value ||
-      value === (modelValue.value as IListboxValue)
+      value === (modelValue.value as IInputValueLabel).value ||
+      value === (modelValue.value as IInputValue)
     );
   } else {
     return value === null;

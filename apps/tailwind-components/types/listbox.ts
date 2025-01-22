@@ -1,12 +1,7 @@
 
-export type IListboxValue = string | number | boolean | undefined | null;
+import type { IInputValueLabel } from "../../metadata-utils/src/types"; 
 
-export interface IListboxOption {
-  value: IListboxValue;
-  label?: string;
-}
-
-export interface IInternalListboxOption extends IListboxOption {
+export interface IInternalListboxOption extends IInputValueLabel {
   index: number;
   elemId: string;
 }
