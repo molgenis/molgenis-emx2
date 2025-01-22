@@ -75,14 +75,15 @@ public class ExcelApi {
     boolean includeSystemColumns = includeSystemColumns(ctx);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
-    try (OutputStream outputStream = ctx.res().getOutputStream()) {
-      Path excelFile = tempDir.resolve("download.xlsx");
-      if (ctx.queryParam("emx1") != null) {
-        MolgenisIO.toEmx1ExcelFile(excelFile, schema);
-      } else {
-        MolgenisIO.toExcelFile(excelFile, schema, includeSystemColumns);
-      }
 
+    Path excelFile = tempDir.resolve("download.xlsx");
+    if (ctx.queryParam("emx1") != null) {
+      MolgenisIO.toEmx1ExcelFile(excelFile, schema);
+    } else {
+      MolgenisIO.toExcelFile(excelFile, schema, includeSystemColumns);
+    }
+
+    try (OutputStream outputStream = ctx.outputStream()) {
       ctx.contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       ctx.header(
           "Content-Disposition",
