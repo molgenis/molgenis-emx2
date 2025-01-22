@@ -33,8 +33,10 @@ test("it should handle input", async ({ page }) => {
 });
 
 test("it should show the chapters in the legend", async ({ page }) => {
-  await expect(page.getByRole("link", { name: "details" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Heading2" })).toBeVisible();
+  await expect(
+    page.locator("span").filter({ hasText: "details" })
+  ).toBeVisible();
+  await expect(page.getByText("Heading2", { exact: true })).toBeVisible();
 });
 
 test("the legend should show number of errors per chapter (if any)", async ({
