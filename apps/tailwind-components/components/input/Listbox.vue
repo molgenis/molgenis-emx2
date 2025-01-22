@@ -1,6 +1,6 @@
 <template>
   <div class="w-full relative">
-    <inputListboxToggle
+    <InputListboxToggle
       :id="id"
       ref="listbox-button"
       :aria-controls="`listbox-${id}-options`"
@@ -14,9 +14,8 @@
       <span class="w-full">
         {{ displayText }}
       </span>
-    </inputListboxToggle>
-
-    <inputListboxList
+    </InputListboxToggle>
+    <InputListboxList
       ref="listbox-ul"
       :id="`listbox-${id}-options`"
       :isExpanded="isExpanded"
@@ -33,39 +32,7 @@
         @blur="blurListOption(option)"
         @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
       />
-      <!-- <li
-        v-for="option in listboxOptions"
-        ref="listbox-li"
-        :id="option.elemId"
-        role="option"
-        class="flex justify-start items-center gap-3 pl-3 py-1 bg-listbox text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-hover focus:text-listbox focus:ring-blue-300"
-        :class="{
-          '!bg-listbox-selected !text-listbox-selected': isSelected(
-            option.value
-          ),
-        }"
-        :aria-selected="isSelected(option.value)"
-        @click="onListboxOptionClick(option)"
-        @blur="blurListOption(option)"
-        @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
-      >
-        <BaseIcon
-          name="Check"
-          class="fill-listbox-selected invisible"
-          :class="{
-            '!visible': isSelected(option.value),
-          }"
-          :width="18"
-        />
-        <span v-if="option.label">
-          {{ option.label }}
-        </span>
-        <span v-else>
-          {{ option.value }}
-        </span>
-      </li> -->
-    </inputListboxList>
-    <!-- </ul> -->
+    </InputListboxList>
   </div>
 </template>
 
@@ -143,9 +110,7 @@ onMounted(() => {
 
 watch(
   () => props.placeholder,
-  () => {
-    displayText.value = props.placeholder;
-  }
+  () => (displayText.value = props.placeholder)
 );
 
 function counterIsInRange(value: number) {
@@ -230,7 +195,10 @@ function updateModelValue(
   selection: IInternalListboxOption,
   enableToggling: boolean = true
 ) {
-  btnElemRef.value!.button.setAttribute("aria-activedescendant", selection.elemId);
+  btnElemRef.value!.button.setAttribute(
+    "aria-activedescendant",
+    selection.elemId
+  );
   focusCounter.value = selection.index;
   startingCounter.value = selection.index;
 
@@ -245,7 +213,7 @@ function updateModelValue(
 
     modelValue.value = selectedOption;
   } else {
-    modelValue.value = (selection.value as IListboxValue);
+    modelValue.value = selection.value as IListboxValue;
     displayText.value = updateDisplayText(selection.value as string);
   }
 

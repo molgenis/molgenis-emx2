@@ -10,7 +10,7 @@
       'border-disabled text-disabled bg-disabled': disabled,
       'border-invalid text-invalid': hasError,
     }"
-    >
+  >
     <slot></slot>
     <div class="w-[60px] flex flex-col">
       <BaseIcon :width="18" name="caret-up" class="mx-auto -my-1" />
@@ -20,11 +20,10 @@
 </template>
 
 <script lang="ts" setup>
-
 withDefaults(
   defineProps<{
     isExpanded: boolean;
-    required?: boolean;  
+    required?: boolean;
     disabled?: boolean;
     hasError?: boolean;
   }>(),
@@ -34,11 +33,10 @@ withDefaults(
     disabled: false,
     hasError: false,
   }
-)
+);
 
 const button = useTemplateRef<HTMLButtonElement>("button");
 defineExpose({
-  button
+  button,
 });
-
 </script>

@@ -33,6 +33,6 @@ withDefaults(
 
 const li = useTemplateRef<HTMLLIElement>("li");
 defineExpose({
-  li
+  li,
 });
 </script>
