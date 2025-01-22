@@ -98,10 +98,9 @@ interface columnValueObject {
   [x: string]: columnValue;
 }
 
-
 export type IInputValue = string | number | boolean;
 
 export type IInputValueLabel = {
   value: IInputValue | IInputValue[];
   label?: string;
-}
+};
