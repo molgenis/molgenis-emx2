@@ -25,7 +25,7 @@ public class TestProfileMigrationLoader {
     SchemaFromProfile petStoreProfile = new SchemaFromProfile("TestProfileMigration.yaml");
     assertEquals("Test Profile Migration", petStoreProfile.getProfiles().getName());
     assertEquals(
-        Profile.PET_STORE, petStoreProfile.getProfiles().getProfileMigration().getProfile());
+        Profile.MIGRATION_TEST, petStoreProfile.getProfiles().getProfileMigration().getProfile());
     assertEquals(3, petStoreProfile.getProfiles().getProfileMigration().getStep());
   }
 }
