@@ -158,7 +158,7 @@
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
     --border-radius-input: 3px;
-    --border-radius-textarea-input: 20px;
+    --border-radius-textarea-input: var(--border-radius-input);
     --border-radius-search-input: 9999px;
     --border-radius-search-button: 9999px;
     --border-radius-pagination: 9999px;
