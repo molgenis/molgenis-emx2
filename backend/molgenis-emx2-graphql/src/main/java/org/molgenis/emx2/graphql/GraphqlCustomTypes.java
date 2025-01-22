@@ -1,13 +1,17 @@
 package org.molgenis.emx2.graphql;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import graphql.language.StringValue;
 import graphql.schema.*;
 import jakarta.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.BinaryFileWrapper;
+import org.molgenis.emx2.Profile;
 import org.molgenis.emx2.utils.MolgenisObjectMapper;
 
 public class GraphqlCustomTypes {
@@ -100,6 +104,39 @@ public class GraphqlCustomTypes {
                 public BinaryFileWrapper parseLiteral(Object input) {
                   throw new CoercingParseLiteralException(
                       "Must use variables to specify Upload values");
+                }
+              })
+          .build();
+
+  public static final GraphQLScalarType GraphQLProfileType =
+      GraphQLScalarType.newScalar()
+          .name("Profile")
+          .description(
+              "A string representing a profile, one of the following: "
+                  + Arrays.stream(Profile.values())
+                      .map(Profile::name)
+                      .collect(Collectors.joining(", ")))
+          .coercing(
+              new Coercing<Profile, String>() {
+                @Override
+                public String serialize(Object dataFetcherResult) {
+                  return ((Profile) dataFetcherResult).name();
+                }
+
+                @Override
+                public Profile parseValue(Object input) {
+                  return (Profile) input;
+                }
+
+                @Override
+                public Profile parseLiteral(Object input) {
+                  try {
+                    StringValue stringValue = (StringValue) input;
+                    String value = stringValue.getValue();
+                    return Profile.valueOf(value);
+                  } catch (Exception e) {
+                    throw new CoercingSerializeException("Invalid profile", e);
+                  }
                 }
               })
           .build();

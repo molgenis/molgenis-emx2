@@ -6,7 +6,9 @@ import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGr
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
+import static org.molgenis.emx2.graphql.GraphqlConstants.KEY;
 import static org.molgenis.emx2.graphql.GraphqlConstants.TASK_ID;
+import static org.molgenis.emx2.graphql.GraphqlCustomTypes.GraphQLProfileType;
 import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 
 import graphql.Scalars;
@@ -51,6 +53,11 @@ public class GraphqlDatabaseFieldFactory {
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(DESCRIPTION)
                   .type(Scalars.GraphQLString))
+          .field(GraphQLFieldDefinition.newFieldDefinition().name(PROFILE).type(GraphQLProfileType))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(PROFILE_MIGRATION_STEP)
+                  .type(Scalars.GraphQLInt))
           .build();
 
   public GraphqlDatabaseFieldFactory() {
@@ -123,7 +130,7 @@ public class GraphqlDatabaseFieldFactory {
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument(NAME);
-              String description = dataFetchingEnvironment.getArgument(Constants.DESCRIPTION);
+              String description = dataFetchingEnvironment.getArgument(DESCRIPTION);
               database.updateSchema(name, description);
               return new GraphqlApiMutationResult(SUCCESS, "Schema %s updated", name);
             });
@@ -159,15 +166,21 @@ public class GraphqlDatabaseFieldFactory {
         .name("_schemas")
         .dataFetcher(
             dataFetchingEnvironment -> {
-              List<Map<String, String>> result = new ArrayList<>();
+              List<Map<String, Object>> result = new ArrayList<>();
               for (SchemaInfo schemaInfo : database.getSchemaInfos()) {
-                HashMap<String, String> fields = new HashMap<>();
-                fields.put("id", schemaInfo.tableSchema()); // todo if we want identifier here
+                HashMap<String, Object> fields = new HashMap<>();
+                fields.put(ID, schemaInfo.tableSchema()); // todo if we want identifier here
                 fields.put(
-                    "label", schemaInfo.tableSchema()); // todo if we want something else than name
-                fields.put("name", schemaInfo.tableSchema());
+                    LABEL, schemaInfo.tableSchema()); // todo if we want something else than name
+                fields.put(NAME, schemaInfo.tableSchema());
                 if (!Objects.isNull(schemaInfo.description())) {
-                  fields.put("description", schemaInfo.description());
+                  fields.put(DESCRIPTION, schemaInfo.description());
+                }
+                if (!Objects.isNull(schemaInfo.profile())) {
+                  fields.put(PROFILE, schemaInfo.profile());
+                }
+                if (!Objects.isNull(schemaInfo.profileStep())) {
+                  fields.put(PROFILE_MIGRATION_STEP, schemaInfo.profileStep());
                 }
                 result.add(fields);
               }

@@ -1,3 +1,4 @@
 package org.molgenis.emx2;
 
-public record SchemaInfo(String tableSchema, String description) {}
+public record SchemaInfo(
+    String tableSchema, String description, Profile profile, Integer profileStep) {}

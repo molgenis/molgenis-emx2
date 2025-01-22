@@ -106,7 +106,6 @@ public class GraphqlAdminFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("removeUser")
         .type(typeForMutationResult)
-        .argument(GraphQLArgument.newArgument().name(EMAIL).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String email = dataFetchingEnvironment.getArgument(EMAIL);

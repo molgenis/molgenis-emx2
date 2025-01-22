@@ -7,6 +7,7 @@ import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
+import graphql.ExecutionResult;
 import graphql.GraphQL;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -31,6 +33,11 @@ public class TestGraphqlAdminFields {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+  }
+
+  @AfterAll
+  public static void afterAll() {
+    database.dropSchemaIfExists("testQueryProfileMigration");
   }
 
   @Test
@@ -108,6 +115,24 @@ public class TestGraphqlAdminFields {
             throw new RuntimeException(e);
           }
         });
+  }
+
+  @Test
+  void testQueryProfileMigration() {
+
+    database.becomeAdmin();
+
+    database.dropCreateSchema("testQueryProfileMigration");
+    Schema schema = database.getSchema("testQueryProfileMigration");
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    String query =
+        "mutation { setMigration(profile: \"PET_STORE\", profileMigrationStep: 45) { message  } }";
+
+    ExecutionResult executed = grapql.execute(query);
+
+    assertEquals(
+        "{setMigration={message=Migration success Set migration to, profile: PET_STORE step: 45}}",
+        executed.getData().toString());
   }
 
   @NotNull

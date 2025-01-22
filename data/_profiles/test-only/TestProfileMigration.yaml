@@ -1,0 +1,11 @@
+---
+name: Test Profile Migration
+description: "the profile to test profile migration"
+
+profileTags: MigrationTest
+
+# special options
+setViewPermission: anonymous
+profileMigration:
+  profile: MigrationTest
+  step: 5
