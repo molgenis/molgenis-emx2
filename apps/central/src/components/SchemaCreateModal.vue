@@ -152,6 +152,7 @@ export default {
         "FAIR_DATA_POINT",
         "BEACON_V2",
         "ERN_DASHBOARD",
+        "UI_DASHBOARD",
         "BIOBANK_DIRECTORY",
         "BIOBANK_DIRECTORY_STAGING",
         "SHARED_STAGING",
