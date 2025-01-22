@@ -6,7 +6,7 @@
     "graphql-playground-react": "1.7.28"
   },
   "devDependencies": {
-    "vite": "5.4.12",
+    "vite": "6.0.9",
     "prettier": "2.8.8"
   },
   "scripts": {
