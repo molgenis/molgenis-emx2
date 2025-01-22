@@ -120,11 +120,11 @@ public class TableStoreForXlsxFile implements TableStore {
           excelRow.createCell(entry.getValue()).setCellValue(row.getString(entry.getKey()));
         } catch (IllegalArgumentException e) {
           throw new MolgenisException(
-              "Error writing table "
+              "Error writing table '"
                   + name
-                  + ", column "
+                  + "', column '"
                   + entry.getKey()
-                  + ", row "
+                  + "', at row "
                   + rowNum
                   + ": "
                   + e.getMessage());

@@ -100,11 +100,11 @@ public class ExcelApi {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
+    Path excelFile = tempDir.resolve("download.xlsx");
+    TableStore excelStore = new TableStoreForXlsxFile(excelFile);
+    excelStore.writeTable(
+        table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
     try (OutputStream outputStream = ctx.res().getOutputStream()) {
-      Path excelFile = tempDir.resolve("download.xlsx");
-      TableStore excelStore = new TableStoreForXlsxFile(excelFile);
-      excelStore.writeTable(
-          table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
       ctx.contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       ctx.header(
           "Content-Disposition",
@@ -122,10 +122,10 @@ public class ExcelApi {
   static void getExcelReport(Context ctx) throws IOException {
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
+    Path excelFile = tempDir.resolve("download.xlsx");
+    TableStore excelStore = new TableStoreForXlsxFile(excelFile);
+    generateReportsToStore(ctx, excelStore);
     try (OutputStream outputStream = ctx.res().getOutputStream()) {
-      Path excelFile = tempDir.resolve("download.xlsx");
-      TableStore excelStore = new TableStoreForXlsxFile(excelFile);
-      generateReportsToStore(ctx, excelStore);
       ctx.contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       ctx.header("Content-Disposition", "attachment; filename=report.xlsx");
       outputStream.write(Files.readAllBytes(excelFile));
