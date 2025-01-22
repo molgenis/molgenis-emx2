@@ -101,7 +101,7 @@ defineExpose({ validate });
   <div>
     <div class="first:pt-0 pt-10" v-for="chapter in chapters">
       <h2
-        class="font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
+        class="font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8 scroll-mt-20"
         :id="`${chapter.title}-chapter-title`"
         v-if="chapter.title !== '_NO_CHAPTERS'"
       >

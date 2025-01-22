@@ -4,7 +4,7 @@
     <ul class="list-none space-y-3">
       <li
         v-for="section in sections"
-        class="group felx flex items-center"
+        class="group felx flex items-center cursor-pointer"
         @click="handleGotoRequest(section)"
       >
         <div
@@ -54,7 +54,7 @@ const emit = defineEmits(["gotoSection"]);
 function handleGotoRequest(section: IFormLegendSection) {
   document.getElementById(`${section.domId}-chapter-title`)?.scrollIntoView({
     behavior: "smooth",
-    block: "center",
+    block: "start",
   });
 
   emit("gotoSection", section);

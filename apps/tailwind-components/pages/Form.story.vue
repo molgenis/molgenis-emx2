@@ -89,7 +89,6 @@ const sections = computed(() => {
 });
 
 function setUpChapterIsInViewObserver() {
-  console.log("setting up observer for chapters in table " + tableId.value);
   if (import.meta.client) {
     const observer = new IntersectionObserver(
       (entries) => {
