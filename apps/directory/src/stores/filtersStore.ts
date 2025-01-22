@@ -223,14 +223,16 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   function addOntologyOptions(filterName: string, value: IOntologyItem[]) {
-    /// Temporary fix for issue #906 
-    const DiagnosisavailableCount = filters.value.Diagnosisavailable?.length?filters.value.Diagnosisavailable?.length:0;
+    /// Temporary fix for issue #906
+    const diagnosisavailableCount = filters.value.Diagnosisavailable?.length
+      ? filters.value.Diagnosisavailable?.length
+      : 0;
     const limit = 50;
     var ontologySet = value;
-    const slotsRemaining = limit - DiagnosisavailableCount
-    if(filterName === "Diagnosisavailable"){
+    const slotsRemaining = limit - diagnosisavailableCount;
+    if (filterName === "Diagnosisavailable") {
       ontologySet = ontologySet.slice(0, slotsRemaining);
-    }  
+    }
     ///
 
     if (filters.value[filterName]) {

@@ -38,7 +38,14 @@
       >
         <div v-show="selectedOntology === ontologyId" class="w-100">
           <div v-if="displayOptions.length">
-            <MessageWarning class="mx-3" v-if="facetIdentifier === 'Diagnosisavailable' && filtersStore.filters['Diagnosisavailable']?.length >=50">You can only select 50 items at the same time</MessageWarning>
+            <MessageWarning
+              class="mx-3"
+              v-if="
+                facetIdentifier === 'Diagnosisavailable' &&
+                filtersStore.filters['Diagnosisavailable']?.length >= 50
+              "
+              >You can only select 50 items at the same time</MessageWarning
+            >
             <TreeComponent
               :options="displayOptions"
               :filter="ontologyQuery"
