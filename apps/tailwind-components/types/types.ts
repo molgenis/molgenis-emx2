@@ -91,4 +91,10 @@ export interface IDocumentation {
   file: IFile;
 }
 
+export interface RadioOptionsDataIF {
+  value: string | boolean;
+  label?: string;
+  checked?: boolean | undefined;
+}
+
   

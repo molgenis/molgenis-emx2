@@ -9,8 +9,8 @@
 
 <script lang="ts" setup>
 defineProps<{
-  value?: string | boolean;
+  value?: string | boolean | null;
 }>();
 
-const modelValue = defineModel<string | boolean>();
+const modelValue = defineModel<string | boolean | null>();
 </script>
