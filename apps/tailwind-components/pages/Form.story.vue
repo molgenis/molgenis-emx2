@@ -111,7 +111,7 @@ function setUpChapterIsInViewObserver() {
   }
 }
 
-setUpChapterIsInViewObserver();
+onMounted(() => setUpChapterIsInViewObserver());
 
 watch(
   () => tableMeta.value,
