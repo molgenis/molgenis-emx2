@@ -14,9 +14,7 @@ test("it should render the form", async ({ page }) => {
   await expect(page.getByRole("main")).toContainText("name");
   await expect(page.getByRole("main")).toContainText("the name");
   await expect(page.getByRole("main")).toContainText("date");
-  await expect(page.getByRole("main")).toContainText("name");
   await expect(page.getByRole("main")).toContainText("Required");
-  await expect(page.getByRole("main")).toContainText("the name");
   await expect(page.getByLabel("name")).toBeVisible();
 });
 
