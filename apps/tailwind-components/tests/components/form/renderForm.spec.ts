@@ -11,13 +11,8 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("it should render the form", async ({ page }) => {
-  await page.goto(
-    "https://emx2.dev.molgenis.org/apps/tailwind-components/#/Form.story"
-  );
-  await expect(page.getByRole("main")).toContainText("bool");
-  await expect(page.getByRole("main")).toContainText(
-    "place holder for field type BOOL"
-  );
+  await expect(page.getByRole("main")).toContainText("name");
+  await expect(page.getByRole("main")).toContainText("the name");
   await expect(page.getByRole("main")).toContainText("date");
   await expect(page.getByRole("main")).toContainText("name");
   await expect(page.getByRole("main")).toContainText("Required");
