@@ -630,10 +630,6 @@ public class RDFService {
   }
 
   private SelectColumn refBackSelect(Column column) {
-    if (column.getRefTable().getPrimaryKeyColumns().size() == 1) {
-      return s(column.getName());
-    }
-
     List<SelectColumn> subSelects = new ArrayList<>();
     for (Column subColumn : column.getRefTable().getPrimaryKeyColumns()) {
       if (subColumn.isRef() || subColumn.isRefArray()) {

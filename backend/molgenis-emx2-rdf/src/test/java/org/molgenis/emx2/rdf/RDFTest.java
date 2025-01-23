@@ -4,6 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_CHILD1_FIRST;
+import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_CHILD1_SECOND;
+import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_GRANDCHILD1_FIRST;
+import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_GRANDCHILD1_SECOND;
+import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_ROOT1_FIRST;
+import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_ROOT2_FIRST;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -16,6 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Triple;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleNamespace;
@@ -95,63 +102,72 @@ public class RDFTest {
     // Test schema for composite keys
     compositeKeyTest = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_compositeKey");
     compositeKeyTest.create(
+        table("root1", column("r1").setType(ColumnType.REF).setRefTable("child1").setPkey()),
         table(
-            "table1",
-            column("id1a").setPkey(),
-            column("id1b").setType(ColumnType.REF).setRefTable("table2").setPkey()),
+            "root2",
+            column("r2a").setPkey(),
+            column("r2b").setType(ColumnType.REF).setRefTable("child1").setPkey()),
         table(
-            "table2",
-            column("id2a").setPkey(),
-            column("id2b").setType(ColumnType.REF).setRefTable("table3").setPkey(),
-            column("ref").setType(ColumnType.REF).setRefTable("table3"),
-            column("refback2")
+            "child1",
+            column("c1a").setPkey(),
+            column("c1b").setType(ColumnType.REF).setRefTable("grandchild1").setPkey(),
+            column("grandchild1ref").setType(ColumnType.REF).setRefTable("grandchild1"),
+            column("root1refback")
                 .setType(ColumnType.REFBACK)
-                .setRefTable("table1")
-                .setRefBack("id1b")),
-        table(
-            "table3",
-            column("id3a").setPkey(),
-            column("id3b").setPkey(),
-            column("refback3")
+                .setRefTable("root1")
+                .setRefBack("r1"),
+            column("root2refback")
                 .setType(ColumnType.REFBACK)
-                .setRefTable("table2")
-                .setRefBack("id2b")));
+                .setRefTable("root2")
+                .setRefBack("r2b")),
+        table(
+            "grandchild1",
+            column("gc1a").setPkey(),
+            column("gc1b").setPkey(),
+            column("child1refback")
+                .setType(ColumnType.REFBACK)
+                .setRefTable("child1")
+                .setRefBack("c1b")));
 
     compositeKeyTest
-        .getTable("table3")
+        .getTable("grandchild1")
         .insert(
-            row("id3a", "id3a_first", "id3b", "id3b_first"),
-            row("id3a", "id3a_second", "id3b", "id3b_second"));
+            row("gc1a", "gc1a_first", "gc1b", "gc1b_first"),
+            row("gc1a", "gc1a_second", "gc1b", "gc1b_second"));
 
     compositeKeyTest
-        .getTable("table2")
+        .getTable("child1")
         .insert(
-            row("id2a", "id2_first", "id2b.id3a", "id3a_first", "id2b.id3b", "id3b_first"),
-            row("id2a", "id2_second", "id2b.id3a", "id3a_first", "id2b.id3b", "id3b_first"),
+            row("c1a", "c1a_first", "c1b.gc1a", "gc1a_first", "c1b.gc1b", "gc1b_first"),
             row(
-                "id2a",
-                "id2_third",
-                "id2b.id3a",
-                "id3a_second",
-                "id2b.id3b",
-                "id3b_second",
-                "ref.id3a",
-                "id3a_first",
-                "ref.id3b",
-                "id3b_first"));
+                "c1a",
+                "c1a_second",
+                "c1b.gc1a",
+                "gc1a_first",
+                "c1b.gc1b",
+                "gc1b_first",
+                "grandchild1ref.gc1a",
+                "gc1a_second",
+                "grandchild1ref.gc1b",
+                "gc1b_second"));
 
     compositeKeyTest
-        .getTable("table1")
+        .getTable("root1")
+        .insert(
+            row("r1.c1a", "c1a_first", "r1.c1b.gc1a", "gc1a_first", "r1.c1b.gc1b", "gc1b_first"));
+
+    compositeKeyTest
+        .getTable("root2")
         .insert(
             row(
-                "id1a",
-                "id1_first",
-                "id1b.id2a",
-                "id2_second",
-                "id1b.id2b.id3a",
-                "id3a_first",
-                "id1b.id2b.id3b",
-                "id3b_first"));
+                "r2a",
+                "r2a_first",
+                "r2b.c1a",
+                "c1a_second",
+                "r2b.c1b.gc1a",
+                "gc1a_first",
+                "r2b.c1b.gc1b",
+                "gc1b_first"));
 
     // Test schema for ontologies
     ontologyTest = database.dropCreateSchema("OntologyTest");
@@ -438,12 +454,15 @@ public class RDFTest {
     getAndParseRDF(Selection.of(compositeKeyTest), handler);
 
     new RdfValidator()
-        .add(ValidationTriple.COMP_TABLE1_KEY_REF.getTriple(), true)
-        .add(ValidationTriple.COMP_TABLE2_1_KEY_REF.getTriple(), true)
-        .add(ValidationTriple.COMP_TABLE2_1_REFBACK.getTriple(), true)
-        .add(ValidationTriple.COMP_TABLE2_2_KEY_REF.getTriple(), true)
-        .add(ValidationTriple.COMP_TABLE2_2_NON_KEY_REF.getTriple(), true)
-        .add(ValidationTriple.COMP_TABLE3_REFBACK.getTriple(), true)
+        .add(ValidationTriple.COMP_ROOT1_KEY_REF.getTriple(), true)
+        .add(ValidationTriple.COMP_ROOT2_KEY_REF.getTriple(), true)
+        .add(ValidationTriple.COMP_CHILD1_FIRST_KEY_REF.getTriple(), true)
+        .add(ValidationTriple.COMP_CHILD1_FIRST_REFBACK_ROOT1.getTriple(), true)
+        .add(ValidationTriple.COMP_CHILD1_SECOND_KEY_REF.getTriple(), true)
+        .add(ValidationTriple.COMP_CHILD1_SECOND_REFBACK_ROOT2.getTriple(), true)
+        .add(ValidationTriple.COMP_CHILD1_SECOND_NON_KEY_REF.getTriple(), true)
+        .add(ValidationTriple.COMP_GRANDCHILD_REFBACK_1.getTriple(), true)
+        .add(ValidationTriple.COMP_GRANDCHILD_REFBACK_2.getTriple(), true)
         .validate(handler);
   }
 
@@ -452,17 +471,18 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(
         Selection.ofRow(
-            compositeKeyTest,
-            "Table2",
-            "id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first"),
+            compositeKeyTest, "Child1", "c1a=c1a_second&c1b.gc1a=gc1a_first&c1b.gc1b=gc1b_first"),
         handler);
     new RdfValidator()
-        .add(ValidationTriple.COMP_TABLE1_KEY_REF.getTriple(), false)
-        .add(ValidationTriple.COMP_TABLE2_1_KEY_REF.getTriple(), true)
-        .add(ValidationTriple.COMP_TABLE2_1_REFBACK.getTriple(), true)
-        .add(ValidationTriple.COMP_TABLE2_2_KEY_REF.getTriple(), false)
-        .add(ValidationTriple.COMP_TABLE2_2_NON_KEY_REF.getTriple(), false)
-        .add(ValidationTriple.COMP_TABLE3_REFBACK.getTriple(), false)
+        .add(ValidationTriple.COMP_ROOT1_KEY_REF.getTriple(), false)
+        .add(ValidationTriple.COMP_ROOT2_KEY_REF.getTriple(), false)
+        .add(ValidationTriple.COMP_CHILD1_FIRST_KEY_REF.getTriple(), false)
+        .add(ValidationTriple.COMP_CHILD1_FIRST_REFBACK_ROOT1.getTriple(), false)
+        .add(ValidationTriple.COMP_CHILD1_SECOND_KEY_REF.getTriple(), true)
+        .add(ValidationTriple.COMP_CHILD1_SECOND_REFBACK_ROOT2.getTriple(), true)
+        .add(ValidationTriple.COMP_CHILD1_SECOND_NON_KEY_REF.getTriple(), true)
+        .add(ValidationTriple.COMP_GRANDCHILD_REFBACK_1.getTriple(), false)
+        .add(ValidationTriple.COMP_GRANDCHILD_REFBACK_2.getTriple(), false)
         .validate(handler);
   }
 
@@ -1370,41 +1390,42 @@ public class RDFTest {
         Values.literal("unrelated data")),
 
     // Composite testing
-    COMP_TABLE1_KEY_REF(
-        getApi(compositeKeyTest)
-            + "Table1?id1a=id1_first&id1b.id2a=id2_second&id1b.id2b.id3a=id3a_first&id1b.id2b.id3b=id3b_first",
-        getApi(compositeKeyTest) + "Table1/column/id1b",
-        Values.iri(
-            getApi(compositeKeyTest)
-                + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first")),
-    COMP_TABLE2_1_KEY_REF(
-        getApi(compositeKeyTest)
-            + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first",
-        getApi(compositeKeyTest) + "Table2/column/id2b",
-        Values.iri(getApi(compositeKeyTest) + "Table3?id3a=id3a_first&id3b=id3b_first")),
-    COMP_TABLE2_1_REFBACK(
-        getApi(compositeKeyTest)
-            + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first",
-        getApi(compositeKeyTest) + "Table2/column/refback2",
-        Values.iri(
-            getApi(compositeKeyTest)
-                + "Table1?id1a=id1_first&id1b.id2a=id2_second&id1b.id2b.id3a=id3a_first&id1b.id2b.id3b=id3b_first")),
-    COMP_TABLE2_2_KEY_REF(
-        getApi(compositeKeyTest)
-            + "Table2?id2a=id2_third&id2b.id3a=id3a_second&id2b.id3b=id3b_second",
-        getApi(compositeKeyTest) + "Table2/column/id2b",
-        Values.iri(getApi(compositeKeyTest) + "Table3?id3a=id3a_second&id3b=id3b_second")),
-    COMP_TABLE2_2_NON_KEY_REF(
-        getApi(compositeKeyTest)
-            + "Table2?id2a=id2_third&id2b.id3a=id3a_second&id2b.id3b=id3b_second",
-        getApi(compositeKeyTest) + "Table2/column/ref",
-        Values.iri(getApi(compositeKeyTest) + "Table3?id3a=id3a_first&id3b=id3b_first")),
-    COMP_TABLE3_REFBACK(
-        getApi(compositeKeyTest) + "Table3?id3a=id3a_first&id3b=id3b_first",
-        getApi(compositeKeyTest) + "Table3/column/refback3",
-        Values.iri(
-            getApi(compositeKeyTest)
-                + "Table2?id2a=id2_second&id2b.id3a=id3a_first&id2b.id3b=id3b_first"));
+    COMP_ROOT1_KEY_REF(
+        COMP_ROOT1_FIRST.get(),
+        getApi(compositeKeyTest) + "Root1/column/r1",
+        COMP_CHILD1_FIRST.get()),
+    COMP_ROOT2_KEY_REF(
+        COMP_ROOT2_FIRST.get(),
+        getApi(compositeKeyTest) + "Root2/column/r2b",
+        COMP_CHILD1_SECOND.get()),
+    COMP_CHILD1_FIRST_KEY_REF(
+        COMP_CHILD1_FIRST.get(),
+        getApi(compositeKeyTest) + "Child1/column/c1b",
+        COMP_GRANDCHILD1_FIRST.get()),
+    COMP_CHILD1_FIRST_REFBACK_ROOT1(
+        COMP_CHILD1_FIRST.get(),
+        getApi(compositeKeyTest) + "Child1/column/root1refback",
+        COMP_ROOT1_FIRST.get()),
+    COMP_CHILD1_SECOND_KEY_REF(
+        COMP_CHILD1_SECOND.get(),
+        getApi(compositeKeyTest) + "Child1/column/c1b",
+        COMP_GRANDCHILD1_FIRST.get()),
+    COMP_CHILD1_SECOND_REFBACK_ROOT2(
+        COMP_CHILD1_SECOND.get(),
+        getApi(compositeKeyTest) + "Child1/column/root2refback",
+        COMP_ROOT2_FIRST.get()),
+    COMP_CHILD1_SECOND_NON_KEY_REF(
+        COMP_CHILD1_SECOND.get(),
+        getApi(compositeKeyTest) + "Child1/column/grandchild1ref",
+        COMP_GRANDCHILD1_SECOND.get()),
+    COMP_GRANDCHILD_REFBACK_1(
+        COMP_GRANDCHILD1_FIRST.get(),
+        getApi(compositeKeyTest) + "Grandchild1/column/child1refback",
+        COMP_CHILD1_FIRST.get()),
+    COMP_GRANDCHILD_REFBACK_2(
+        COMP_GRANDCHILD1_FIRST.get(),
+        getApi(compositeKeyTest) + "Grandchild1/column/child1refback",
+        COMP_CHILD1_FIRST.get());
 
     private final Triple triple;
 
@@ -1413,9 +1434,33 @@ public class RDFTest {
     }
 
     ValidationTriple(String subjectUrl, String predicateUrl, Value object) {
+      this(Values.iri(subjectUrl), predicateUrl, object);
+    }
+
+    ValidationTriple(Value subject, String predicateUrl, Value object) {
       this.triple =
           SimpleValueFactory.getInstance()
-              .createTriple(Values.iri(subjectUrl), Values.iri(predicateUrl), object);
+              .createTriple((Resource) subject, Values.iri(predicateUrl), object);
+    }
+  }
+
+  enum ValidationSubjects {
+    COMP_ROOT1_FIRST("Root1?r1.c1a=c1a_first&r1.c1b.gc1a=gc1a_first&r1.c1b.gc1b=gc1b_first"),
+    COMP_ROOT2_FIRST(
+        "Root2?r2a=r2a_first&r2b.c1a=c1a_second&r2b.c1b.gc1a=gc1a_first&r2b.c1b.gc1b=gc1b_first"),
+    COMP_CHILD1_FIRST("Child1?c1a=c1a_first&c1b.gc1a=gc1a_first&c1b.gc1b=gc1b_first"),
+    COMP_CHILD1_SECOND("Child1?c1a=c1a_second&c1b.gc1a=gc1a_first&c1b.gc1b=gc1b_first"),
+    COMP_GRANDCHILD1_FIRST("Grandchild1?gc1a=gc1a_first&gc1b=gc1b_first"),
+    COMP_GRANDCHILD1_SECOND("Grandchild1?gc1a=gc1a_second&gc1b=gc1b_second");
+
+    Value value;
+
+    public Value get() {
+      return value;
+    }
+
+    ValidationSubjects(String resource) {
+      this.value = Values.iri(getApi(compositeKeyTest) + resource);
     }
   }
 }

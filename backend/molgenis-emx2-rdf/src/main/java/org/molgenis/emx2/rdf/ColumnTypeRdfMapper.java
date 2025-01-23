@@ -238,13 +238,6 @@ public class ColumnTypeRdfMapper {
           Column column,
           String colPrefix,
           String refPrefix) {
-        if (column.getRefTable().getPrimaryKeyColumns().size() == 1) {
-          colNameToRefTableColName.put(
-              colPrefix + column.getName(),
-              refPrefix + column.getRefTable().getPrimaryKeyColumns().get(0).getName());
-          return;
-        }
-
         for (Column subColumn : column.getRefTable().getPrimaryKeyColumns()) {
           if (subColumn.isRef() || subColumn.isRefArray()) {
             refBackSubColumns(
@@ -264,11 +257,11 @@ public class ColumnTypeRdfMapper {
       boolean isEmpty(Row row, Column column) {
         // Composite key requires all fields to be filled. If one is null, all should be null.
         String colName =
-            (column.getRefTable().getPrimaryKeyColumns().size() > 1
-                ? column.getName()
-                    + SUBSELECT_SEPARATOR
-                    + column.getRefTable().getPrimaryKeyColumns().get(0).getName()
-                : column.getName());
+            row.getColumnNames().stream()
+                .filter(i -> i.startsWith(column.getName() + SUBSELECT_SEPARATOR))
+                .findFirst()
+                .get();
+
         return row.getString(colName) == null;
       }
     },
