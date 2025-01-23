@@ -24,3 +24,28 @@ test("it should handle input", async ({ page }) => {
   await page.getByRole("heading", { name: "Values" }).click();
   await expect(page.getByRole("definition")).toContainText("test");
 });
+
+test("it should show the chapters in the legend", async ({ page }) => {
+  await expect(
+    page.locator("span").filter({ hasText: "details" })
+  ).toBeVisible();
+  await expect(page.getByText("Heading2", { exact: true })).toBeVisible();
+});
+
+test("the legend should show number of errors per chapter (if any)", async ({
+  page,
+}) => {
+  await page.getByLabel("Demo data").selectOption("complex", { force: true });
+  // touch the form
+  await page.getByLabel("name", { exact: true }).click();
+  // skip a required field
+  await page.getByLabel("name", { exact: true }).press("Tab");
+  await expect(page.locator("span").filter({ hasText: /^2$/ })).toBeVisible();
+});
+
+test("clicking on the chapter should scroll to the chapter", async ({
+  page,
+}) => {
+  await page.getByText("Heading2", { exact: true }).click();
+  await expect(page.getByRole("heading", { name: "heading2" })).toBeVisible();
+});
