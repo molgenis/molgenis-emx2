@@ -482,7 +482,7 @@ class Client:
             self._validate_graphql_response(response=response,
                                             fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                    f"{table!r}.\nStatus code: {response.status_code}.")
-            response_data = response.json().get('data').get(table_id)
+            response_data = response.json().get('data').get(table_id, [])
             response_data = parse_ontology(response_data, table_id, schema_metadata)
 
 
