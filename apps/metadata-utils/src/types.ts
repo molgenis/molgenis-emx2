@@ -76,7 +76,6 @@ export interface ITableMetaData {
   description?: string;
   tableType: string;
   columns: IColumn[];
-  schemaId: string;
   semantics?: string[];
   settings?: ISetting[];
 }
