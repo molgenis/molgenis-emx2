@@ -87,7 +87,7 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
     backward_refs = {
         tab.name: [c.id for c in tab.get_columns(by='refSchemaName', value=schema_name)
                    if c.get('refTableName') in inheritance.keys() and c.get('columnType') != 'REFBACK']
-        for tab in schema_schema.get_tables(by='schemaName', value=schema_name)
+        for tab in schema_schema.tables
     }
     backward_refs[base_table] = 'id'
 
@@ -95,7 +95,7 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
         tab.name: {c.id: c.get('refTableName')
                    for c in [*tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF', schema_name]),
                              *tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF_ARRAY', schema_name])]}
-        for tab in schema_schema.get_tables(by='schemaName', value=schema_name)
+        for tab in schema_schema.tables
     }
 
     # Add columns referencing the base table indirectly to the backward_refs dictionary
