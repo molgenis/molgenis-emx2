@@ -1134,7 +1134,7 @@ class Client:
         for col in table_metadata.columns:
             if columns is not None and (col.id not in columns and col.name not in columns):
                 continue
-            if col.get('columnType') in [HEADING, LOGO]:
+            if col.get('columnType') in [HEADING]:
                 continue
             elif col.get('columnType').startswith('ONTOLOGY'):
                 query += f"    {col.get('id')} {{name}}\n"
@@ -1143,6 +1143,8 @@ class Client:
                 pkeys = schema_metadata.get_pkeys(col.get('refTableId'))
                 query += parse_nested_pkeys(pkeys)
                 query += "}\n"
+            elif col.get('columnType').startswith('FILE'):
+                query += f"    {col.get('id')} {{id}}\n"
             else:
                 query += f"    {col.get('id')}\n"
         query += "  }\n"
