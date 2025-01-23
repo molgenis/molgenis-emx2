@@ -17,25 +17,11 @@
           >{{ section.label }}</span
         >
         <span v-if="(section.errorCount ?? 0) > 0" class="ml-2">
-          <a :href="`#${section.domId}`">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-[20px] w-[20] inline-block"
-              viewBox="0 0 20 20"
-            >
-              <circle cx="10" cy="10" r="10" class="fill-notification" />
-              <text
-                x="10"
-                y="10"
-                font-size="smaller"
-                text-anchor="middle"
-                alignment-baseline="central"
-                class="stroke-notification-text fill-notification-text"
-              >
-                {{ section.errorCount }}
-              </text>
-            </svg>
-          </a>
+          <div
+            class="flex h-5 w-5 shrink-0 grow-0 items-center justify-center rounded-full bg-notification text-legend-error-count"
+          >
+            {{ section.errorCount }}
+          </div>
         </span>
       </li>
     </ul>
