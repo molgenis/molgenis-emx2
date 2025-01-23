@@ -45,7 +45,7 @@ test("the legend should show number of errors per chapter (if any)", async ({
   await page.getByLabel("Demo data").selectOption("complex", { force: true });
   // touch the form
   await page.getByLabel("name", { exact: true }).click();
-  // skipe a required field
+  // skip a required field
   await page.getByLabel("name", { exact: true }).press("Tab");
   await expect(page.locator("span").filter({ hasText: /^2$/ })).toBeVisible();
 });
