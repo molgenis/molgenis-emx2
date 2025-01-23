@@ -42,7 +42,8 @@
               class="mx-3"
               v-if="
                 facetIdentifier === 'Diagnosisavailable' &&
-                filtersStore.filters['Diagnosisavailable']?.length >= 50
+                filtersStore.filters['Diagnosisavailable']?.length >= 50 &&
+                filtersStore.getFilterType('Diagnosisavailable') === 'all'
               "
               >You can only select 50 items at the same time, additional items
               are ignored.</MessageWarning

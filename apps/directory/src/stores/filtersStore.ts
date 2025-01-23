@@ -229,7 +229,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     const limit = 50;
     let ontologySet = value;
     const slotsRemaining = limit - diagnosisavailableCount;
-    if (filterName === "Diagnosisavailable") {
+    if (
+      filterName === "Diagnosisavailable" &&
+      getFilterType("Diagnosisavailable") === "all"
+    ) {
       ontologySet = ontologySet.slice(0, slotsRemaining);
     }
 
