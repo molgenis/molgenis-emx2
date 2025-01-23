@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-row">
     <div class="basis-1/2 bg-sidebar-gradient">
-      <FormLegend :sections="sections" @goto-section="handleGotoRequest" />
+      <FormLegend :sections="sections" @go-to-section="handleGotoRequest" />
     </div>
     <div class="basis-1/2 text-title p-4">
       <h3>Active section: {{ sections.find((s) => s.isActive) }}</h3>

@@ -49,7 +49,7 @@ defineProps<{
   sections: IFormLegendSection[];
 }>();
 
-const emit = defineEmits(["gotoSection"]);
+const emit = defineEmits(["goToSection"]);
 
 function handleGotoRequest(section: IFormLegendSection) {
   document.getElementById(`${section.domId}-chapter-title`)?.scrollIntoView({
@@ -57,6 +57,6 @@ function handleGotoRequest(section: IFormLegendSection) {
     block: "start",
   });
 
-  emit("gotoSection", section);
+  emit("goToSection", section);
 }
 </script>
