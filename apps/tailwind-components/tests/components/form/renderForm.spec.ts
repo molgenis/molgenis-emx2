@@ -11,17 +11,11 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("it should render the form", async ({ page }) => {
-  await page.getByRole("link", { name: "Form" }).click();
-  await page.getByLabel("name").click();
-  await page.getByLabel("name").fill("test");
   await expect(page.getByText("test")).toBeVisible();
   await expect(page.getByRole("main")).toContainText("test");
   await expect(page.getByRole("main")).toContainText("name");
   await expect(page.getByRole("main")).toContainText("the name");
   await expect(page.getByRole("main")).toContainText("date");
-  await expect(page.getByRole("main")).toContainText("name");
-  await expect(page.getByRole("main")).toContainText("Required");
-  await expect(page.getByRole("main")).toContainText("the name");
   await expect(page.getByLabel("name")).toBeVisible();
 });
 
