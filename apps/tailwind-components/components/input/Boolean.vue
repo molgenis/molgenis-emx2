@@ -2,15 +2,13 @@
   <InputRadioGroup
     :id="id"
     :modelValue="props.modelValue"
+    :radioOptions="radioOptions"
+    :showClearButton="true"
+    align="horizontal"
     @update:modelValue="onInput"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
-    :radioOptions="radioOptions"
-    align="horizontal"
-    :showClearButton="true"
   />
-
-  {{ modelValue }}
 </template>
 
 <script lang="ts" setup>
@@ -26,16 +24,26 @@ const props = withDefaults(
     required?: boolean;
     valid?: boolean;
     hasError?: boolean;
+    trueLabel?: string;
+    falseLabel?: string;
   }>(),
   {
     disabled: false,
     required: false,
     hasError: false,
     valid: false,
+    trueLabel: "True",
+    falseLabel: "False",
   }
 );
 
-const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
+const emit = defineEmits([
+  "focus",
+  "blur",
+  "error",
+  "update:modelValue",
+  "input",
+]);
 defineExpose({ validate });
 
 function validate(value: boolean | null) {
@@ -49,8 +57,8 @@ function validate(value: boolean | null) {
 }
 
 const radioOptions = ref<RadioOptionsDataIF[]>([
-  { value: true, label: "True" },
-  { value: false, label: "False" },
+  { value: true, label: props.trueLabel },
+  { value: false, label: props.falseLabel },
 ]);
 
 const modelValue = ref<boolean | undefined>(undefined);

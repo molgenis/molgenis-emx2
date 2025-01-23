@@ -10,10 +10,19 @@
   <InputBoolean id="boolean-story-id3" v-model="modelValue3" />
 
   <div class="my-4">init false: {{ modelValue3 }}</div>
+
+  <InputBoolean
+    id="boolean-story-id4"
+    v-model="politeBoolean"
+    true-label="Yes please !"
+    false-label="No thank you"
+  />
+  <div class="my-4">Be polite: {{ modelValue3 }}</div>
 </template>
 
 <script lang="ts" setup>
-const modelValue1 = ref<boolean | undefined>(null);
-const modelValue2 = ref<boolean | undefined>(true);
-const modelValue3 = ref<boolean | undefined>(false);
+const modelValue1 = ref<null>(null);
+const modelValue2 = ref<boolean>(true);
+const modelValue3 = ref<boolean>(false);
+const politeBoolean = ref<boolean>(false);
 </script>

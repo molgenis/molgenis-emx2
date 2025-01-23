@@ -69,7 +69,7 @@ function validate(value: columnValue) {
     :id="id"
     :label="label"
     :required="required"
-    :modelValue="data as boolean"
+    :modelValue="data === true || data === false ? data : null"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
