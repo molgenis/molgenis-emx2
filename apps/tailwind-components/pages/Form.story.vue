@@ -4,7 +4,6 @@ import type {
   columnValue,
   IColumn,
   IFieldError,
-  IFormLegendSection,
   ISchemaMetaData,
   ITableMetaData,
 } from "../../metadata-utils/src/types";
@@ -135,7 +134,7 @@ watch(
       </div>
 
       <FormFields
-        v-if="tableMeta && status == 'success'"
+        v-if="tableMeta && status === 'success'"
         class="basis-2/3 p-8 border-l overflow-y-auto h-screen"
         ref="formFields"
         :metadata="tableMeta"
