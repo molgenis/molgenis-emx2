@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;

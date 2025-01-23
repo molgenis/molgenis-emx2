@@ -1,7 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.util.List;
 import java.util.Map;

@@ -5,7 +5,6 @@ import static org.molgenis.emx2.ColumnType.INT;
 
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
@@ -31,8 +30,18 @@ public class RunMolgenisEmx2 {
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
 
-    Integer port =
-        (Integer) EnvironmentProperty.getParameter(Constants.MOLGENIS_HTTP_PORT, "8080", INT);
+    Integer port = 8080;
+    if (args.length >= 1) {
+      try {
+        port = Integer.parseInt(args[0]);
+      } catch (NumberFormatException e) {
+        logger.error("Port number should be an integer, but was: " + args[0]);
+        System.exit(1);
+      }
+    } else {
+      port = (Integer) EnvironmentProperty.getParameter(Constants.MOLGENIS_HTTP_PORT, "8080", INT);
+    }
+
     logger.info(
         "with "
             + org.molgenis.emx2.Constants.MOLGENIS_HTTP_PORT
@@ -50,7 +59,7 @@ public class RunMolgenisEmx2 {
 
           if (!EXCLUDE_PETSTORE_DEMO && db.getSchema("pet store") == null) {
             Schema schema = db.createSchema("pet store");
-            new PetStoreLoader(schema, true).run();
+            DataModels.Profile.PET_STORE.getImportTask(schema, true).run();
           }
 
           if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {

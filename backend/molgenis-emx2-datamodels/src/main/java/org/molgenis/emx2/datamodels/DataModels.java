@@ -25,7 +25,8 @@ public class DataModels {
     BEACON_V2("_profiles/BeaconV2.yaml"),
     GDI("_profiles/GDI.yaml"),
     SHARED_STAGING("_profiles/SharedStaging.yaml"),
-    IMAGE_TEST("_profiles/ImageTest.yaml");
+    IMAGE_TEST("_profiles/ImageTest.yaml"),
+    PET_STORE("_profiles/PetStore.yaml");
 
     public static boolean hasProfile(String nameOther) {
       return Arrays.stream(values()).anyMatch(profile -> profile.name().equals(nameOther));
@@ -48,8 +49,8 @@ public class DataModels {
 
   public enum Regular {
     DIRECTORY(DirectoryLoader::new),
-    PET_STORE(PetStoreLoader::new),
     ERN_DASHBOARD(DashboardLoader::new),
+    UI_DASHBOARD(UiDashboardLoader::new),
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
     RD3_V2(RD3v2Loader::new),

@@ -17,6 +17,7 @@ class TableType(Enum):
     ALSO_KNOWN = "also_known_in"
     NETWORKS = "networks"
     BIOBANKS = "biobanks"
+    SERVICES = "services"
     STUDIES = "studies"
     COLLECTIONS = "collections"
     FACTS = "facts"
@@ -208,6 +209,7 @@ class Node:
         TableType.NETWORKS: "networkID",
         TableType.ALSO_KNOWN: "akiID",
         TableType.BIOBANKS: "ID",
+        TableType.SERVICES: "serviceID",
         TableType.STUDIES: "studyID",
         TableType.COLLECTIONS: "ID",
         TableType.FACTS: "factID",
@@ -287,14 +289,16 @@ class Source(Enum):
 
 @dataclass
 class DirectoryData(ABC):
-    """Abstract base class for containers storing rows from the seven Directory tables:
-    persons, networks, also_known_in, biobanks, collections, facts and studies."""
+    """Abstract base class for containers storing rows from the Directory tables:
+    persons, also_known_in, networks, biobanks, services, studies, collections,
+    and facts."""
 
     source: Source
     persons: Table
     also_known_in: Table
     networks: Table
     biobanks: Table
+    services: Table
     studies: Table
     collections: Table
     facts: Table
@@ -306,6 +310,7 @@ class DirectoryData(ABC):
             TableType.NETWORKS: self.networks,
             TableType.ALSO_KNOWN: self.also_known_in,
             TableType.BIOBANKS: self.biobanks,
+            TableType.SERVICES: self.services,
             TableType.STUDIES: self.studies,
             TableType.COLLECTIONS: self.collections,
             TableType.FACTS: self.facts,
@@ -318,6 +323,7 @@ class DirectoryData(ABC):
             self.networks,
             self.also_known_in,
             self.biobanks,
+            self.services,
             self.studies,
             self.collections,
             self.facts,
@@ -367,6 +373,7 @@ class MixedData(DirectoryData):
         self.networks.rows_by_id.update(other_data.networks.rows_by_id)
         self.also_known_in.rows_by_id.update(other_data.also_known_in.rows_by_id)
         self.biobanks.rows_by_id.update(other_data.biobanks.rows_by_id)
+        self.services.rows_by_id.update(other_data.services.rows_by_id)
         self.studies.rows_by_id.update(other_data.studies.rows_by_id)
         self.collections.rows_by_id.update(other_data.collections.rows_by_id)
         self.facts.rows_by_id.update(other_data.facts.rows_by_id)
@@ -385,6 +392,7 @@ class MixedData(DirectoryData):
             networks=Table.of_empty(TableType.NETWORKS, self.networks.meta),
             also_known_in=Table.of_empty(TableType.ALSO_KNOWN, self.also_known_in.meta),
             biobanks=Table.of_empty(TableType.BIOBANKS, self.biobanks.meta),
+            services=Table.of_empty(TableType.SERVICES, self.services.meta),
             studies=Table.of_empty(TableType.STUDIES, self.studies.meta),
             collections=Table.of_empty(TableType.COLLECTIONS, self.collections.meta),
             facts=Table.of_empty(TableType.FACTS, self.facts.meta),
@@ -394,7 +402,7 @@ class MixedData(DirectoryData):
 @dataclass(frozen=True)
 class QualityInfo:
     """
-    Stores the quality information for biobanks and collections.
+    Stores the quality information for biobanks, collections and services
     """
 
     biobanks: Dict[str, List[str]]
@@ -409,11 +417,16 @@ class QualityInfo:
     collection_levels: Dict[str, List[str]]
     """Dictionary of collection ids and their assessment levels"""
 
+    services: Dict[str, List[str]]
+    """Dictionary of service ids and their quality ids"""
+
     def get_qualities(self, table_type: TableType) -> Dict[str, List[str]]:
         if table_type == TableType.BIOBANKS:
             return self.biobanks
         elif table_type == TableType.COLLECTIONS:
             return self.collections
+        elif table_type == TableType.SERVICES:
+            return self.services
         else:
             return dict()
 

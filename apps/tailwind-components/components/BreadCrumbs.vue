@@ -37,7 +37,7 @@ withDefaults(
           {{ label }}
         </NuxtLink>
         <span
-          class="text-breadcrumb"
+          class="text-breadcrumb-arrow"
           v-if="index < Object.keys(crumbs).length - 1 || current"
         >
           <BaseIcon name="caret-right" :width="12" />
