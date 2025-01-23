@@ -63,11 +63,18 @@ def parse_ontology(data: list, table_id: str, schema: Schema) -> list:
     for row in data:
         parsed_row = {}
         for (col, value) in row.items():
-            match table_meta.get_column('id', col).get('columnType'):
+            column_meta = table_meta.get_column('id', col)
+            match column_meta.get('columnType'):
                 case "ONTOLOGY":
                     parsed_row[col] = value['name']
                 case "ONTOLOGY_ARRAY":
                     parsed_row[col] = [val['name'] for val in value]
+                case "REF":
+                    parsed_row[col] = parse_ontology([value], column_meta.get('refTableId'), schema)[0]
+                case "REF_ARRAY":
+                    parsed_row[col] = parse_ontology(value, column_meta.get('refTableId'), schema)
+                case "REFBACK":
+                    parsed_row[col] = parse_ontology(value, column_meta.get('refTableId'), schema)
                 case _:
                     parsed_row[col] = value
         parsed_data.append(parsed_row)
