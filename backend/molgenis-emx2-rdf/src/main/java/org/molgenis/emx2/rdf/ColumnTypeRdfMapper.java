@@ -227,7 +227,13 @@ public class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
         Map<String, String> colNameToRefTableColName = new HashMap<>();
-        refBackSubColumns(colNameToRefTableColName, column, "", "");
+        if (row.getString(column.getName()) != null) {
+          colNameToRefTableColName.put(
+              column.getName(), column.getRefTable().getPrimaryKeyColumns().get(0).getName());
+        } else {
+          refBackSubColumns(
+              colNameToRefTableColName, column, column.getName() + SUBSELECT_SEPARATOR, "");
+        }
 
         return RdfColumnType.retrieveReferenceValues(
             baseURL, row, column, colNameToRefTableColName);
@@ -238,31 +244,31 @@ public class ColumnTypeRdfMapper {
           Column column,
           String colPrefix,
           String refPrefix) {
-        for (Column subColumn : column.getRefTable().getPrimaryKeyColumns()) {
-          if (subColumn.isRef() || subColumn.isRefArray()) {
+        for (Column refPrimaryKey : column.getRefTable().getPrimaryKeyColumns()) {
+          if (refPrimaryKey.isRef() || refPrimaryKey.isRefArray()) {
             refBackSubColumns(
                 colNameToRefTableColName,
-                subColumn,
-                colPrefix + column.getName() + SUBSELECT_SEPARATOR,
-                refPrefix + subColumn.getName() + COMPOSITE_REF_SEPARATOR);
+                refPrimaryKey,
+                colPrefix + refPrimaryKey.getName() + SUBSELECT_SEPARATOR,
+                refPrefix + refPrimaryKey.getName() + COMPOSITE_REF_SEPARATOR);
           } else {
             colNameToRefTableColName.put(
-                colPrefix + column.getName() + SUBSELECT_SEPARATOR + subColumn.getName(),
-                refPrefix + subColumn.getName());
+                colPrefix + refPrimaryKey.getName(), refPrefix + refPrimaryKey.getName());
           }
         }
       }
 
       @Override
       boolean isEmpty(Row row, Column column) {
+        if (row.getString(column.getName()) != null) return false;
+
         // Composite key requires all fields to be filled. If one is null, all should be null.
-        String colName =
+        Optional<String> firstMatch =
             row.getColumnNames().stream()
                 .filter(i -> i.startsWith(column.getName() + SUBSELECT_SEPARATOR))
-                .findFirst()
-                .get();
+                .findFirst();
 
-        return row.getString(colName) == null;
+        return firstMatch.isEmpty() || row.getString(firstMatch.get()) == null;
       }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
