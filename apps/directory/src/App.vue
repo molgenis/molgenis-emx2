@@ -61,6 +61,7 @@ watch(
   { immediate: true, deep: true }
 );
 onMounted(async () => {
+  changeFavicon();
   const settingsStore = useSettingsStore();
   await settingsStore.initializeConfig();
 
@@ -81,6 +82,25 @@ function closeAllDropdownButtons(event) {
     for (const dropdownButton of allDropdownButtons) {
       dropdownButton.removeAttribute("open");
     }
+  }
+}
+
+function changeFavicon() {
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  let faviconUrl = ''
+
+  if (window.location.href.includes('bbmri')) {
+    faviconUrl = isDark ? '/bbmri-darkmode-favicon.ico' : '/bbmri-lightmode-favicon.ico'
+  }
+
+  const link = document.querySelector("link[rel~='icon']")
+  if (!link) {
+    const newLink = document.createElement('link')
+    newLink.rel = 'icon'
+    newLink.href = faviconUrl
+    document.head.appendChild(newLink)
+  } else {
+    link.href = faviconUrl
   }
 }
 </script>
