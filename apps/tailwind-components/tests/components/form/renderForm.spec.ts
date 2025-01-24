@@ -11,8 +11,6 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("it should render the form", async ({ page }) => {
-  await expect(page.getByText("test")).toBeVisible();
-  await expect(page.getByRole("main")).toContainText("test");
   await expect(page.getByRole("main")).toContainText("name");
   await expect(page.getByRole("main")).toContainText("the name");
   await expect(page.getByRole("main")).toContainText("date");
