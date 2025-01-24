@@ -542,7 +542,7 @@ export default {
         this.column = { table: this.tableName, columnType: "STRING" };
       }
       //if reference to external schema
-      if (this.column.refSchema != undefined) {
+      if (this.column.refSchemaName != undefined) {
         this.loadRefSchema();
       }
       this.setupRequiredSelect();

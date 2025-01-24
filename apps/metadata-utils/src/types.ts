@@ -72,6 +72,7 @@ export interface IColumn {
 
 export interface ITableMetaData {
   id: string;
+  name?: string;
   label: string;
   description?: string;
   tableType: string;
