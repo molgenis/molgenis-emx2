@@ -4,29 +4,28 @@
     :label="label"
     :placeholder="placeholder"
     :valid="valid"
-    :hasError="hasError || !valid"
+    :hasError="hasError"
     :required="required"
     :disabled="disabled"
-    :model-value="modelValue"
-    @update:model-value="validateInput"
+    :value="modelValue"
+    @update:modelValue="validateInput"
   />
 </template>
 
 <script setup lang="ts">
-import InputString from "./String.vue";
-import { constants } from "molgenis-components";
+const HYPERLINK_REGEX =
+  /^((https?):\/\/)(www.)?[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%._\\+~#?&//=()]*)\/?$|^$/;
 
-const { HYPERLINK_REGEX } = constants;
-
-withDefaults(
+const props = withDefaults(
   defineProps<{
     id: string;
+    modelValue: string;
     label?: string;
     placeholder?: string;
-    modelValue: string;
     disabled?: boolean;
     required?: boolean;
     hasError?: boolean;
+    valid?: boolean;
   }>(),
   {
     disabled: false,
@@ -35,17 +34,23 @@ withDefaults(
   }
 );
 
-const valid = ref(false);
+const { modelValue } = toRefs(props);
+const emit = defineEmits(["update:modelValue", "error"]);
 
 function validateInput(value: string) {
-  if (HYPERLINK_REGEX.test(value)) {
-    valid.value = true;
+  emit("update:modelValue", value);
+  validate();
+}
+
+function validate() {
+  if (HYPERLINK_REGEX.test(modelValue.value)) {
+    emit("error", []);
   } else {
-    valid.value = false;
+    emit("error", [{ message: "Invalid hyperlink" }]);
   }
 }
 
 defineExpose({
-  valid,
+  validate,
 });
 </script>
