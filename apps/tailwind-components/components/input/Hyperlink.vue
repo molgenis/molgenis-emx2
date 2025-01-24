@@ -1,5 +1,6 @@
 <template>
   <InputString
+    ref="inputString"
     :id="id"
     :label="label"
     :placeholder="placeholder"
@@ -13,8 +14,12 @@
 </template>
 
 <script setup lang="ts">
+import type { InputString } from "#build/components";
+
 const HYPERLINK_REGEX =
   /^((https?):\/\/)(www.)?[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%._\\+~#?&//=()]*)\/?$|^$/;
+
+const inputString = ref<InstanceType<typeof InputString>>();
 
 const props = withDefaults(
   defineProps<{
@@ -34,23 +39,21 @@ const props = withDefaults(
   }
 );
 
-const { modelValue } = toRefs(props);
 const emit = defineEmits(["update:modelValue", "error"]);
+
+defineExpose({ validate });
 
 function validateInput(value: string) {
   emit("update:modelValue", value);
-  validate();
+  validate(value);
 }
 
-function validate() {
-  if (HYPERLINK_REGEX.test(modelValue.value)) {
-    emit("error", []);
+function validate(value: string) {
+  const stringErrors = inputString.value?.validate(value) || [];
+  if (HYPERLINK_REGEX.test(value)) {
+    emit("error", stringErrors);
   } else {
-    emit("error", [{ message: "Invalid hyperlink" }]);
+    emit("error", [{ message: "Invalid hyperlink" }, ...stringErrors]);
   }
 }
-
-defineExpose({
-  validate,
-});
 </script>

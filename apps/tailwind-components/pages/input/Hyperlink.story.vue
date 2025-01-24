@@ -21,7 +21,7 @@
         :hasError="error.length > 0"
         @error="handleError"
       />
-      <div>Error: {{ error[0].message }}</div>
+      <div>Error: {{ error[0]?.message }}</div>
     </div>
   </div>
 </template>
