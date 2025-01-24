@@ -68,6 +68,15 @@
                       ? 'Referenced table is required'
                       : undefined
                   "
+                  :noOptionsProvidedMessage="
+                    'No ' +
+                    (column.columnType.includes('ONTOLOGY')
+                      ? 'ontology'
+                      : 'table') +
+                    ' found in schema \'' +
+                    (column.refSchemaName || schema.name) +
+                    '\''
+                  "
                   :options="tableNames"
                   label="refTable"
                 />
@@ -418,7 +427,7 @@ export default {
     },
     //listing of all tables, used for refs
     tableNames() {
-      if (this.refSchema !== undefined) {
+      if (this.column.refSchemaName && this.refSchema.tables) {
         if (
           this.column.columnType === "ONTOLOGY" ||
           this.column.columnType === "ONTOLOGY_ARRAY"

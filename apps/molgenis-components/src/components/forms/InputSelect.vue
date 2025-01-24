@@ -7,7 +7,7 @@
     :errorMessage="errorMessage"
   >
     <MessageError v-if="!options || !options.length">
-      No options provided
+      {{ noOptionsProvidedMessage }}
     </MessageError>
     <select
       v-else-if="!readonly"
@@ -56,6 +56,7 @@ export default {
   },
   props: {
     options: { type: Array, required: true },
+    noOptionsProvidedMessage: { type: String, default: "No options provided" },
   },
   methods: {
     updateModelValue: function (value) {
