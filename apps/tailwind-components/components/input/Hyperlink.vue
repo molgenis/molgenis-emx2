@@ -10,6 +10,8 @@
     :disabled="disabled"
     :value="modelValue"
     @update:modelValue="validateInput"
+    @focus="$emit('focus')"
+    @blur="$emit('blur')"
   />
 </template>
 
@@ -21,7 +23,7 @@ const HYPERLINK_REGEX =
 
 const inputString = ref<InstanceType<typeof InputString>>();
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     id: string;
     modelValue: string;
@@ -39,7 +41,7 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits(["update:modelValue", "error"]);
+const emit = defineEmits(["update:modelValue", "error", "focus", "blur"]);
 
 defineExpose({ validate });
 
