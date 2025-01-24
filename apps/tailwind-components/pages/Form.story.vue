@@ -41,7 +41,6 @@ const formFields = ref<InstanceType<typeof FormFields>>();
 const formValues = ref<Record<string, columnValue>>({});
 
 function onModelUpdate(value: Record<string, columnValue>) {
-  console.log("story update", value);
   formValues.value = value;
 }
 

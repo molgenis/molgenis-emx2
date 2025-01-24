@@ -26,7 +26,7 @@ const inputString = ref<InstanceType<typeof InputString>>();
 withDefaults(
   defineProps<{
     id: string;
-    modelValue: string;
+    modelValue?: string;
     label?: string;
     placeholder?: string;
     disabled?: boolean;
