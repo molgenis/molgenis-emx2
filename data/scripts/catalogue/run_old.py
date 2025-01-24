@@ -134,7 +134,7 @@ if SERVER_TYPE in ['data_catalogue', 'cohort_catalogue']:
         if SERVER_TYPE == 'data_catalogue':
             update = Transform(database_name=cohort, database_type='cohort')
         elif SERVER_TYPE == 'cohort_catalogue':
-            update = Transform(database_name=cohort, database_type='cohort_UMCU')
+            update = Transform(database_name=cohort, database_type='cohort_AUMC')
 
         zip_handling.remove_unzipped_data()
         zip_handling.unzip_data()
@@ -243,19 +243,19 @@ if SERVER_TYPE == 'data_catalogue':
         # create network schema on target server
         session.create_database(database_name=network, database_description=schema_description)
 
-# # ---------------------------------------------------------------
-# # print('------------------------')
-#
-# # upload catalogue data to target server
-# # sign in to target server
-# for catalogue in CATALOGUES:
-#     print('Sign in to target server: ' + TARGET_SERVER_URL)
-#     session = Session(
-#         url=TARGET_SERVER_URL,
-#         email=TARGET_SERVER_USERNAME,
-#         password=TARGET_SERVER_PASSWORD
-#     )
-#     session.upload_zip(database_name=catalogue, data_to_upload=catalogue)
+# ---------------------------------------------------------------
+# print('------------------------')
+
+# upload catalogue data to target server
+# sign in to target server
+for catalogue in CATALOGUES:
+    print('Sign in to target server: ' + TARGET_SERVER_URL)
+    session = Session(
+        url=TARGET_SERVER_URL,
+        email=TARGET_SERVER_USERNAME,
+        password=TARGET_SERVER_PASSWORD
+    )
+    session.upload_zip(database_name=catalogue, data_to_upload=catalogue)
 
 # ----------------------------------------------------------------------
 
