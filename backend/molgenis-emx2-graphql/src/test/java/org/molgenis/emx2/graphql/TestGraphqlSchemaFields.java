@@ -6,7 +6,7 @@ import static org.molgenis.emx2.ColumnType.REF;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskService;
@@ -40,8 +41,25 @@ public class TestGraphqlSchemaFields {
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
+    final String shopviewer = "shopviewer";
+    final String shopmanager = "shopmanager";
+    final String shopowner = "shopowner";
+    final String costumer = "costumer";
+
+    // initialize users
+    database.setUserPassword(shopmanager, shopmanager);
+    database.setUserPassword(shopviewer, shopviewer);
+    database.setUserPassword(shopowner, shopowner);
+    database.setUserPassword(costumer, costumer);
+
     schema = database.dropCreateSchema(schemaName);
-    PET_STORE.getImportTask(schema, true).run();
+    schema.addMember(shopmanager, "Manager");
+    schema.addMember(shopviewer, "Viewer");
+    schema.addMember(shopowner, "Owner");
+    schema.addMember(costumer, "Range");
+    DataModels.getImportTask(schema, PET_STORE.name(), true).run();
+    schema = database.getSchema(schemaName);
+
     taskService = new TaskServiceInMemory();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
   }
@@ -740,6 +758,48 @@ public class TestGraphqlSchemaFields {
   }
 
   @Test
+  public void testJsonType() throws IOException {
+    try {
+      Schema myschema = database.dropCreateSchema("testJsonType");
+      myschema.create(
+          table("TestJson", column("name").setPkey(), column("json").setType(ColumnType.JSON)));
+
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
+
+      Table table = myschema.getTable("TestJson");
+      String value = "{\"name\":\"bofke\"}";
+      table.insert(row("name", "test", "json", value));
+
+      assertEquals(value, execute("{TestJson{json}}").at("/TestJson/0/json").asText());
+
+      String value2 = "{\"name\":\"bofke2\"}";
+      Map data = new LinkedHashMap();
+      data.put("name", "test");
+      data.put("json", value2);
+      grapql.execute(
+          new ExecutionInput.Builder()
+              .query("mutation update($value:[TestJsonInput]){update(TestJson:$value){message}}")
+              .variables(Map.of("value", data))
+              .build());
+
+      assertEquals(value2, execute("{TestJson{json}}").at("/TestJson/0/json").asText());
+      assertEquals(
+          value2,
+          execute(
+                  "{TestJson(filter:{json:{equals:\"{\\\"name\\\": \\\"bofke2\\\"}\"}}){json}}") // notice the extra space!
+              .at("/TestJson/0/json")
+              .asText());
+      assertEquals(
+          value2,
+          execute("{TestJson(filter:{json:{like:\"bofke2\"}}){json}}") // more useful
+              .at("/TestJson/0/json")
+              .asText());
+    } finally {
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
+    }
+  }
+
+  @Test
   public void testFileType() throws IOException {
     try {
       Schema myschema = database.dropCreateSchema("testFileType");
@@ -833,12 +893,21 @@ public class TestGraphqlSchemaFields {
     schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
     grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
-    JsonNode result = execute("{_reports(id:0){data,count}}");
+    JsonNode result = execute("{_reports(id:\"report1\"){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
     assertEquals(8, result.at("/_reports/count").intValue());
 
-    // report 1 has parameters
-    result = execute("{_reports(id:1,parameters:{key:\"name\", value:\"spike\"}){data,count}}");
+    // report 2 has parameters
+    result =
+        execute(
+            "{_reports(id:\"report2\",parameters:{key:\"name\", value:\"spike\"}){data,count}}");
+    assertTrue(result.at("/_reports/data").textValue().contains("spike"));
+    assertEquals(1, result.at("/_reports/count").intValue());
+
+    // report by id=report1
+    result =
+        execute(
+            "{_reports(id:\"report2\",parameters:{key:\"name\", value:\"spike\"}){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("spike"));
     assertEquals(1, result.at("/_reports/count").intValue());
   }

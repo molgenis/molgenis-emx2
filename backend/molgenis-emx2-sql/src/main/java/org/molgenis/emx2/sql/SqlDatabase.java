@@ -1,8 +1,10 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
@@ -32,9 +34,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
   public static final String WITH = "with {} = {} ";
-  public static final int TEN_SECONDS = 10;
+  public static final int MAX_EXECUTION_TIME_IN_SECONDS = 10;
   private static final Settings DEFAULT_JOOQ_SETTINGS =
-      new Settings().withQueryTimeout(TEN_SECONDS);
+      new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
   private static final Random random = new SecureRandom();
 
   // shared between all instances
@@ -48,11 +50,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
-  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
       (String)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
-  private Boolean isOidcEnabled = false;
+
   private static String postgresUser =
       (String)
           EnvironmentProperty.getParameter(
@@ -168,17 +170,16 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
 
-      this.tx(
-          tdb -> {
-            if (!this.hasSchema(SYSTEM_SCHEMA)) {
-              this.createSchema(SYSTEM_SCHEMA);
-            }
-          });
+      initSystemSchema();
 
       // get the settings
       clearCache();
 
-      initOidc();
+      if (!this.getSettings().containsKey(Constants.IS_OIDC_ENABLED)) {
+        this.setSetting(
+            Constants.IS_OIDC_ENABLED,
+            (String) EnvironmentProperty.getParameter(MOLGENIS_OIDC_CLIENT_ID, "false", STRING));
+      }
 
       String instanceId = getSetting(Constants.MOLGENIS_INSTANCE_ID);
       if (instanceId == null) {
@@ -226,36 +227,29 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
   }
 
-  private void initOidc() {
-    // oidc settings takes priority over env variables
-    String isOidcEnabledSetting = getSetting(Constants.IS_OIDC_ENABLED);
-    if (isOidcEnabledSetting != null) {
-      this.isOidcEnabled = Boolean.parseBoolean(isOidcEnabledSetting);
-    } else {
-      Object envSetting =
-          EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING);
-      if (envSetting != null) {
-        this.setSetting(Constants.IS_OIDC_ENABLED, "true");
-        this.isOidcEnabled = true;
-      }
-    }
-    if (!this.isOidcEnabled) return;
+  private void initSystemSchema() {
+    this.tx(
+        tdb -> {
+          if (!this.hasSchema(SYSTEM_SCHEMA)) {
+            this.createSchema(SYSTEM_SCHEMA);
+          }
 
-    // check if OIDC settings are complete otherwise log error and set to false
-    if (!isValidOidcSettings()) {
-      setSetting(
-          Constants.IS_OIDC_ENABLED,
-          "error: Environment OIDC settings are incomplete. Fix and then set again to true");
-    }
-  }
+          Schema schema;
+          if (!this.hasSchema(SYSTEM_SCHEMA)) {
+            schema = this.createSchema(SYSTEM_SCHEMA);
+          } else {
+            schema = this.getSchema(SYSTEM_SCHEMA);
+          }
 
-  private boolean isValidOidcSettings() {
-    Object oidcClientId =
-        EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING);
-    Object clientSecret =
-        EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, null, STRING);
-
-    return clientSecret != null && oidcClientId != null;
+          if (!schema.getTableNames().contains("Templates")) {
+            schema.create(
+                table(
+                    "Templates",
+                    column("endpoint").setPkey(),
+                    column("schema").setPkey(),
+                    column("template").setType(ColumnType.TEXT)));
+          }
+        });
   }
 
   @Override
@@ -433,18 +427,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (!isAdmin()) {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
-    if (settings.containsKey(Constants.IS_OIDC_ENABLED)) {
-      String isOidcEnabledSetting = settings.get(Constants.IS_OIDC_ENABLED);
-      if (Boolean.parseBoolean(isOidcEnabledSetting) && !isValidOidcSettings()) {
-        throw new MolgenisException("OIDC environment setting are incomplete");
-      }
-    }
-
     super.setSettings(settings);
     MetadataUtils.saveDatabaseSettings(jooq, getSettings());
     // force all sessions to reload
     this.listener.afterCommit();
-
     return this;
   }
 
@@ -516,8 +502,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void removeUser(String user) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin")) throw new MolgenisException("You cant remove admin");
-    if (user.equals("anonymous")) throw new MolgenisException("You cant remove anonymous");
+    if (user.equals("admin")) throw new MolgenisException("You can't remove admin");
+    if (user.equals("anonymous")) throw new MolgenisException("You can't remove anonymous");
+    if (user.equals("user")) throw new MolgenisException("You can't remove user");
 
     if (!hasUser(user))
       throw new MolgenisException(
@@ -739,7 +726,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         connectionProvider.setActiveUser(user);
       }
     } else {
-      final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
+      final Settings settings = new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
       SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
       adminProvider.setActiveUser(ADMIN_USER);
       DSLContext adminJooq = DSL.using(adminProvider, SQLDialect.POSTGRES, settings);
@@ -782,7 +769,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public boolean isOidcEnabled() {
-    return this.isOidcEnabled;
+    return this.getSettings().containsKey(Constants.IS_OIDC_ENABLED)
+        && Boolean.parseBoolean(this.getSettings().get(Constants.IS_OIDC_ENABLED));
   }
 
   @Override

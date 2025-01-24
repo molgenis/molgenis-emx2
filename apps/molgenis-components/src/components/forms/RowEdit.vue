@@ -5,6 +5,7 @@
       :key="JSON.stringify(column)"
       :id="`${id}-${column.id}`"
       :modelValue="internalValues[column.id]"
+      :expressionData="internalValues"
       :columnType="column.columnType"
       :description="column.description"
       :errorMessage="errorPerColumn[column.id]"
@@ -187,7 +188,7 @@ export default {
               equals: await convertRowToPrimaryKey(
                 this.internalValues[changedColumn.id],
                 overlappingKey.refTableId,
-                overlappingKey.refSchemaId
+                overlappingKey.refSchemaId || this.schemaMetaData.schemaId
               ),
             },
           };

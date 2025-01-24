@@ -9,7 +9,6 @@ export default gql`
         label
         tableType
         description
-        schemaId
         semantics
         columns {
           id

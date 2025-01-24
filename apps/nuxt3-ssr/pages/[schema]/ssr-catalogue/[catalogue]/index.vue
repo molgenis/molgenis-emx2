@@ -132,6 +132,20 @@ const { data, error } = await useFetch(`/${route.params.schema}/graphql`, {
                   partOfResources: { id: { equals: catalogueRouteParam } },
                 },
               },
+              {
+                reusedInResources: {
+                  _or: [
+                    { resource: { id: { equals: catalogueRouteParam } } },
+                    {
+                      resource: {
+                        partOfResources: {
+                          id: { equals: catalogueRouteParam },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
             ],
           }
         : //should only include harmonised variables
@@ -287,7 +301,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         </b>
         <br />{{
           getSettingValue("CATALOGUE_LANDING_PARTICIPANTS_TEXT", settings) ||
-          "The cumulative number of participants."
+          "The cumulative number of participants"
         }}
       </LandingCardSecondary>
 
@@ -329,7 +343,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           }}%</b
         ><br />{{
           getSettingValue("CATALOGUE_LANDING_DESIGN_TEXT", settings) ||
-          "Percentage of longitudinal datasets."
+          "Percentage of longitudinal datasets"
         }}
       </LandingCardSecondary>
 

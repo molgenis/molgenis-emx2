@@ -52,7 +52,7 @@ function onInput(event: Event) {
     :required="required"
     :placeholder="placeholder"
     :disabled="disabled"
-    class="w-full pr-16 font-sans text-black text-gray-300 outline-none rounded-textarea-input h-60 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border py-2"
+    class="w-full pr-16 font-sans text-black text-gray-300 h-[112px] outline-none rounded-textarea-input pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border py-2"
     :class="{
       'border-invalid text-invalid': hasError,
       'border-valid text-valid': valid,

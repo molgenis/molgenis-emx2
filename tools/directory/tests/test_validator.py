@@ -21,52 +21,60 @@ def test_validate_id(node_data):
     assert warnings == [
         DirectoryWarning(
             message="bbmri-eric:ID:NL_invalid_person_classifier in entity: "
-            "eu_bbmri_eric_NL_persons does not start with "
+            "Persons does not start with "
             "bbmri-eric:contactID:NL_ or bbmri-eric:contactID:EU_"
         ),
         DirectoryWarning(
             message="bbmri-eric:contactID:NL_invalid_illegal_characters#$& in entity: "
-            "eu_bbmri_eric_NL_persons contains invalid characters. Only "
+            "Persons contains invalid characters. Only "
             "alphanumerics and -_: are allowed."
         ),
         DirectoryWarning(
             message="bbmri-eric:ID:NL_invalid_network_classifier in entity: "
-            "eu_bbmri_eric_NL_networks does not start with "
+            "Networks does not start with "
             "bbmri-eric:networkID:NL_ or bbmri-eric:networkID:EU_"
         ),
         DirectoryWarning(
             message="bbmri-eric:networkID:BE_invalid_node_code in entity: "
-            "eu_bbmri_eric_NL_networks does not start with "
+            "Networks does not start with "
             "bbmri-eric:networkID:NL_ or bbmri-eric:networkID:EU_"
         ),
         DirectoryWarning(
             message="bbmri-eric:akiID:BE_invalid_node_code in entity: "
-            "eu_bbmri_eric_NL_also_known_in does not start with "
+            "AlsoKnownIn does not start with "
             "bbmri-eric:akiID:NL_"
         ),
         DirectoryWarning(
             message="bbmri-eric:test:NL_invalid_biobank_classifier in entity: "
-            "eu_bbmri_eric_NL_biobanks does not start with bbmri-eric:ID:NL_"
+            "Biobanks does not start with bbmri-eric:ID:NL_"
         ),
         DirectoryWarning(
             message="bbmri-eric:ID:BE_invalid_node_code in entity: "
-            "eu_bbmri_eric_NL_biobanks does not start with bbmri-eric:ID:NL_"
+            "Biobanks does not start with bbmri-eric:ID:NL_"
         ),
         DirectoryWarning(
             message="Biobank bbmri-eric:ID:NL_valid:biobankID-2 has an invalid url: "
             "www.invalid@url.nl"
         ),
         DirectoryWarning(
+            message="bbmri-eric:NL_invalid:serviceID in entity: "
+            "Services does not start with bbmri-eric:serviceID:NL_"
+        ),
+        DirectoryWarning(
+            message="bbmri-eric:NL_invalid:studiesID in entity: "
+            "Studies does not start with bbmri-eric:studyID:NL_"
+        ),
+        DirectoryWarning(
             message="bbmri-eric:collection:NL_invalid_collection_classifier in entity: "
-            "eu_bbmri_eric_NL_collections does not start with bbmri-eric:ID:NL_"
+            "Collections does not start with bbmri-eric:ID:NL_"
         ),
         DirectoryWarning(
             message="bbmri-eric:ID:BE_invalid_node_code:collectionID in entity: "
-            "eu_bbmri_eric_NL_collections does not start with bbmri-eric:ID:NL_"
+            "Collections does not start with bbmri-eric:ID:NL_"
         ),
         DirectoryWarning(
             message="bbmri-eric:NL_invalid:factsID in entity: "
-            "eu_bbmri_eric_NL_facts does not start with bbmri-eric:factID:NL_"
+            "CollectionFacts does not start with bbmri-eric:factID:NL_"
         ),
         DirectoryWarning(
             message="bbmri-eric:networkID:NL_valid:networkID-2 references invalid id: "
