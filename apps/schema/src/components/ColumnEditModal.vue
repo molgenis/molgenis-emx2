@@ -71,8 +71,8 @@
                   :noOptionsProvidedMessage="
                     'No ' +
                     (column.columnType.includes('ONTOLOGY')
-                      ? 'ontology'
-                      : 'table') +
+                      ? 'ontology table'
+                      : 'data table') +
                     ' found in schema \'' +
                     (column.refSchemaName || schema.name) +
                     '\''
