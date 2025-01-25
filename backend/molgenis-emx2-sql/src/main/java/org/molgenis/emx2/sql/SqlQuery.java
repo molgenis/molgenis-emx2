@@ -1,7 +1,6 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
-import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Privileges.*;
@@ -11,6 +10,7 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.Table;
@@ -40,12 +40,11 @@ public class SqlQuery extends QueryBean {
   private static final String ROW_TO_JSON_SQL = "to_jsonb(item)";
   private static final String ITEM = "item";
   private static final String OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE =
-      "Operator %s is not support for column '%s'";
+      "Operator %s is not supported for column '%s'";
   private static final String BETWEEN_ERROR_MESSAGE =
       "Operator BETWEEEN a AND b expects even number of parameters to define each pair of a,b. Found: %s";
 
   private static final Logger logger = LoggerFactory.getLogger(SqlQuery.class);
-  public static final String ANY_1 = "{0} = ANY({1})";
 
   private final SqlSchemaMetadata schema;
   private final List<String> tableAliasList = new LinkedList<>();
@@ -568,28 +567,31 @@ public class SqlQuery extends QueryBean {
                           field(name(ref.getTargetColumn()), ref.getJooqType().getArrayBaseType()))
                   .toList();
 
-          Table<?> compositeKeysTable =
-              Arrays.stream(filter.getValues())
-                  .map(
-                      value ->
-                          DSL.select(
-                              contains_column.getReferences().stream()
-                                  .map(
-                                      ref ->
-                                          val(
-                                                  ((Row) value)
-                                                      .get(
-                                                          ref.getTargetColumn(),
-                                                          contains_column
-                                                              .getRefTable()
-                                                              .getColumn(ref.getTargetColumn())
-                                                              .getPrimitiveColumnType()),
-                                                  ref.getJooqType().getArrayBaseDataType())
-                                              .as(ref.getTargetColumn()))
-                                  .toArray(Field[]::new)))
-                  .reduce((select1, select2) -> (SelectSelectStep<Record>) select1.union(select2))
-                  .orElse(DSL.select())
-                  .asTable(subAlias + "_" + contains_column.getName() + "_values");
+          Table<Record> compositeKeysTable =
+              DSL.values(
+                      Arrays.stream(filter.getValues())
+                          .map(
+                              value ->
+                                  row(
+                                      contains_column.getReferences().stream()
+                                          .map(
+                                              ref ->
+                                                  val(
+                                                      ((Row) value)
+                                                          .get(
+                                                              ref.getTargetColumn(),
+                                                              contains_column
+                                                                  .getRefTable()
+                                                                  .getColumn(ref.getTargetColumn())
+                                                                  .getPrimitiveColumnType()),
+                                                      ref.getJooqType().getArrayBaseDataType()))
+                                          .toArray(Field[]::new)))
+                          .toArray(org.jooq.RowN[]::new))
+                  .as(
+                      subAlias + "_" + contains_column.getName() + "_values",
+                      contains_column.getReferences().stream()
+                          .map(ref -> ref.getTargetColumn())
+                          .toArray(String[]::new));
 
           // ref
           if (contains_column.isRef()) {
@@ -600,7 +602,10 @@ public class SqlQuery extends QueryBean {
             if (contains_column.getReferences().size() == 1) {
               return contains_column.getJooqField().in(filter.getValues());
             } else {
-              return row(compositeKeyFields).in(selectFrom(compositeKeysTable));
+              return row(contains_column.getReferences().stream()
+                      .map(ref -> field(name(subAlias, ref.getName())))
+                      .toList())
+                  .in(selectFrom(compositeKeysTable));
             }
 
             // ref_array
@@ -611,29 +616,28 @@ public class SqlQuery extends QueryBean {
                   "{0} {1} ARRAY({2})",
                   name(contains_column.getName()), operator, filter.getValues());
             } else {
+              List<Field> unnestedFields =
+                  contains_column.getReferences().stream()
+                      .map(
+                          ref ->
+                              field(
+                                  name("unnested_" + ref.getName()),
+                                  ref.getJooqType().getArrayBaseType()))
+                      .toList();
+
+              Table<Record> combinedUnnestedTable =
+                  contains_column.getReferences().stream()
+                      .map(
+                          ref ->
+                              unnest(field(name(ref.getName()), ref.getJooqType()))
+                                  .withOrdinality()
+                                  .as(
+                                      subAlias + "_" + ref.getName() + "_unnested",
+                                      "unnested_" + ref.getName(),
+                                      "ordinality"))
+                      .reduce((table1, table2) -> table1.naturalJoin(table2))
+                      .orElseThrow(() -> new IllegalStateException("No references available"));
               if (CONTAINS_ALL.equals(filter.getOperator())) {
-                Table<Record> combinedUnnestedTable =
-                    contains_column.getReferences().stream()
-                        .map(
-                            ref ->
-                                unnest(field(name(ref.getName()), ref.getJooqType()))
-                                    .withOrdinality()
-                                    .as(
-                                        subAlias + "_" + ref.getName() + "_unnested",
-                                        "unnested_" + ref.getName(),
-                                        "ordinality"))
-                        .reduce((table1, table2) -> table1.naturalJoin(table2))
-                        .orElseThrow(() -> new IllegalStateException("No references available"));
-
-                List<Field> unnestedFields =
-                    contains_column.getReferences().stream()
-                        .map(
-                            ref ->
-                                field(
-                                    name("unnested_" + ref.getName()),
-                                    ref.getJooqType().getArrayBaseType()))
-                        .toList();
-
                 return notExists(
                     selectOne()
                         .from(compositeKeysTable)
@@ -642,10 +646,9 @@ public class SqlQuery extends QueryBean {
                                 .notIn(DSL.select(unnestedFields).from(combinedUnnestedTable))));
 
               } else { // CONTAINS_ANY
-                return row(contains_column.getReferences().stream()
-                        .map(ref -> unnest(ref.getJooqField()))
-                        .toList())
-                    .in(selectFrom(compositeKeysTable));
+                return exists(
+                    selectFrom(combinedUnnestedTable)
+                        .where(row(unnestedFields).in(selectFrom(compositeKeysTable))));
               }
             }
 
@@ -1215,7 +1218,7 @@ public class SqlQuery extends QueryBean {
         // simple array comparison
         foreignKeyMatch.add(
             condition(
-                ANY_1,
+                ANY_SQL,
                 name(alias(subAlias), ref.getRefTo()),
                 name(alias(tableAlias), ref.getName())));
       } else {
@@ -1360,52 +1363,167 @@ public class SqlQuery extends QueryBean {
       org.molgenis.emx2.Operator operator,
       Object[] values) {
     Name name = name(alias(tableAlias), columnName);
-    if (IS.equals(operator)) {
-      if (type.isArray()) {
-        if (IsNullOrNotNull.NULL.equals(values[0])) {
-          return condition("({0} IS NULL OR {0} = '{}')", field(name));
-        } else {
-          return condition("({0} IS NOT NULL AND {0} <> '{}')", field(name));
-        }
-      } else {
-        if (IsNullOrNotNull.NULL.equals(values[0])) {
-          return field(name).isNull();
-        } else {
-          return field(name).isNotNull();
-        }
-      }
+    if (!List.of(type.getOperators()).contains(operator)) {
+      throw new MolgenisException(
+          "Operator="
+              + operator
+              + " not supported for columnType="
+              + type
+              + ". Condition: "
+              + tableAlias
+              + "."
+              + columnName
+              + " "
+              + operator
+              + " "
+              + values);
     }
-    return switch (type) {
-      case TEXT, STRING, FILE, JSON -> whereConditionText(name, operator, toStringArray(values));
-      case BOOL -> whereConditionEquals(name, operator, toBoolArray(values));
-      case UUID -> whereConditionEquals(name, operator, toUuidArray(values));
-      case INT -> whereConditionOrdinal(name, operator, toIntArray(values));
-      case LONG -> whereConditionOrdinal(name, operator, toLongArray(values));
-      case DECIMAL -> whereConditionOrdinal(name, operator, toDecimalArray(values));
-      case DATE -> whereConditionOrdinal(name, operator, toDateArray(values));
-      case DATETIME -> whereConditionOrdinal(name, operator, toDateTimeArray(values));
-      case PERIOD -> whereConditionOrdinal(name, operator, toYearToSecondArray(values));
-      case STRING_ARRAY, TEXT_ARRAY ->
-          whereConditionTextArray(name, operator, toStringArray(values));
-      case BOOL_ARRAY -> whereConditionArrayEquals(name, operator, toBoolArray(values));
-      case UUID_ARRAY -> whereConditionArrayEquals(name, operator, toUuidArray(values));
-      case INT_ARRAY -> whereConditionArrayEquals(name, operator, toIntArray(values));
-      case LONG_ARRAY -> whereConditionArrayEquals(name, operator, toLongArray(values));
-      case DECIMAL_ARRAY -> whereConditionArrayEquals(name, operator, toDecimalArray(values));
-      case DATE_ARRAY -> whereConditionArrayEquals(name, operator, toDateArray(values));
-      case DATETIME_ARRAY -> whereConditionArrayEquals(name, operator, toDateTimeArray(values));
-      case PERIOD_ARRAY -> whereConditionArrayEquals(name, operator, toYearToSecondArray(values));
-      case REF -> whereConditionRefEquals(name, operator, values);
-      default ->
-          throw new SqlQueryException(
-              SqlQuery.QUERY_FAILED
-                  + "Filter of '"
-                  + name
-                  + " failed: operator "
-                  + operator
-                  + " not supported for type "
-                  + type);
-    };
+    // cast value to the column type
+    if (values.length > 0 && !(values[0] instanceof IsNullOrNotNull)) {
+      values =
+          (Object[])
+              (type.isArray()
+                  ? getTypedValue(values, type)
+                  : getTypedValue(values, getArrayType(type)));
+    }
+    switch (operator) {
+      case CONTAINS_ANY, EQUALS:
+        if (type.isArray()) {
+          return condition("{0} && {1}", field(name), values);
+        } else {
+          return condition(ANY_SQL, field(name), values);
+        }
+      case CONTAINS_NONE, NOT_EQUALS:
+        if (type.isArray()) {
+          return not(condition("{0} && {1}", field(name), values));
+        } else {
+          return not(condition(ANY_SQL, field(name), values));
+        }
+      case CONTAINS_ALL:
+        if (type.isArray()) {
+          return condition("{0} <@ {1}", values, field(name));
+        } else {
+          throw new MolgenisException("Can apply CONTAINS_ALL only to array columns");
+        }
+      case IS:
+        if (type.isArray()) {
+          if (IsNullOrNotNull.NULL.equals(values[0])) {
+            return condition("({0} IS NULL OR {0} = '{}')", field(name));
+          } else {
+            return condition("({0} IS NOT NULL AND {0} <> '{}')", field(name));
+          }
+        } else {
+          if (IsNullOrNotNull.NULL.equals(values[0])) {
+            return field(name).isNull();
+          } else {
+            return field(name).isNotNull();
+          }
+        }
+      case NOT_LIKE:
+        if (type.isArray()) {
+          //          return
+          //                  not(or(Arrays.stream(values).map(value ->
+          //                  condition(
+          //                          "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE v ILIKE
+          // {0})",
+          //                          "%" + value + "%", field(name))).toList()));
+          return not(
+              or(
+                  Arrays.stream(values)
+                      .map(value -> condition("{0} ILIKE ANY({1})", "%" + value + "%", field(name)))
+                      .toList()));
+        } else {
+          return not(
+              or(
+                  Arrays.stream(values)
+                      .map(value -> field(name).likeIgnoreCase("%" + value + "%"))
+                      .toList()));
+        }
+      case LIKE:
+        if (type.isArray()) {
+          //          return
+          //                  or(Arrays.stream(values).map(value ->
+          //                  condition(
+          //                          "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE v ILIKE
+          // {0})",
+          //                          "%" + value + "%", field(name))).toList());
+          return or(
+              Arrays.stream(values)
+                  .map(value -> condition("{0} ILIKE ANY({1})", "%" + value + "%", field(name)))
+                  .toList());
+        } else {
+          return or(
+              Arrays.stream(values)
+                  .map(value -> field(name).likeIgnoreCase("%" + value + "%"))
+                  .toList());
+        }
+      case TRIGRAM_SEARCH:
+        if (type.isArray()) {
+          return or(
+              Arrays.stream(values)
+                  .map(
+                      value ->
+                          condition(
+                              "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE word_similarity({0},v) > 0.6",
+                              value, field(name)))
+                  .toList());
+        } else {
+          return or(
+              Arrays.stream(values)
+                  .map(
+                      value ->
+                          ((String) value).length() > 2
+                              ? condition("word_similarity({0},{1}) > 0.6", value, field(name))
+                              : field(name).likeIgnoreCase("%" + value + "%"))
+                  .toList());
+        }
+      case TEXT_SEARCH:
+        if (type.isArray()) {
+          return or(
+              Arrays.stream((String[]) values)
+                  .map(
+                      value ->
+                          condition(
+                              "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE to_tsquery({0}) @@ to_tsvector(v)",
+                              value.trim().replaceAll("\\s+", ":* & ") + ":*", field(name)))
+                  .toList());
+        } else {
+          // NOTE WE ONLY SEARCH ON LONGER STRINGS
+          return or(
+              Arrays.stream((String[]) values)
+                  .map(
+                      value ->
+                          value.length() > 2
+                              ? condition(
+                                  "to_tsquery({0}) @@ to_tsvector({1})",
+                                  value.trim().replaceAll("\\s+", ":* & ") + ":*", field(name))
+                              : field(name).likeIgnoreCase("%" + value + "%"))
+                  .toList());
+        }
+      default:
+        return switch (type) {
+          case INT -> whereConditionOrdinal(name, operator, toIntArray(values));
+          case LONG -> whereConditionOrdinal(name, operator, toLongArray(values));
+          case DECIMAL -> whereConditionOrdinal(name, operator, toDecimalArray(values));
+          case DATE -> whereConditionOrdinal(name, operator, toDateArray(values));
+          case DATETIME -> whereConditionOrdinal(name, operator, toDateTimeArray(values));
+          case PERIOD -> whereConditionOrdinal(name, operator, toYearToSecondArray(values));
+          case REF -> whereConditionRefEquals(name, operator, values);
+          default ->
+              throw new SqlQueryException(
+                  SqlQuery.QUERY_FAILED
+                      + "Filter of '"
+                      + name
+                      + " failed: operator "
+                      + operator
+                      + " not supported for type "
+                      + type);
+        };
+    }
+  }
+
+  private static @NotNull Condition getCondition(ColumnType type, Object[] values, Name name) {
+    return field(name).in(getTypedValue(values, getArrayType(type)));
   }
 
   private Condition whereConditionRefEquals(Name columnName, Operator operator, Object[] values) {
@@ -1437,145 +1555,12 @@ public class SqlQuery extends QueryBean {
             + " not supported for REF.");
   }
 
-  private static Condition whereConditionEquals(
-      Name columnName, org.molgenis.emx2.Operator operator, Object[] values) {
-    if (EQUALS.equals(operator)) {
-      return field(columnName).in(values);
-    } else if (NOT_EQUALS.equals(operator)) {
-      return not(field(columnName).in(values));
-    } else {
-      throw new SqlQueryException(
-          SqlQuery.QUERY_FAILED + SqlQuery.OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE, columnName);
-    }
-  }
-
-  private static Condition whereConditionArrayEquals(
-      Name columnName, org.molgenis.emx2.Operator operator, Object[] values) {
-    List<Condition> conditions = new ArrayList<>();
-    boolean not = false;
-    switch (operator) {
-      case EQUALS, CONTAINS_ANY:
-        conditions.add(condition("{0} && {1}", values, field(columnName)));
-        break;
-      case NOT_EQUALS, CONTAINS_NONE:
-        not = true;
-        conditions.add(condition("{0} && {1}", values, field(columnName)));
-        break;
-      case CONTAINS_ALL:
-        conditions.add(condition("{0} <@ {1}", values, field(columnName)));
-        break;
-      default:
-        throw new SqlQueryException(
-            SqlQuery.QUERY_FAILED + SqlQuery.OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE,
-            operator,
-            columnName);
-    }
-    if (not) return not(or(conditions));
-    else return or(conditions);
-  }
-
-  private static Condition whereConditionTextArray(
-      Name columnName, org.molgenis.emx2.Operator operator, String[] values) {
-    List<Condition> conditions = new ArrayList<>();
-    boolean not = false;
-    if (List.of(EQUALS, CONTAINS_ANY, NOT_EQUALS, CONTAINS_NONE, CONTAINS_ALL).contains(operator)) {
-      return whereConditionArrayEquals(columnName, operator, values);
-    }
-    for (String value : values) {
-      switch (operator) {
-        case NOT_LIKE:
-          not = true;
-          conditions.add(
-              condition(
-                  "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE v ILIKE {0})",
-                  "%" + value + "%", field(columnName)));
-          break;
-        case LIKE:
-          conditions.add(
-              condition(
-                  "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE v ILIKE {0})",
-                  "%" + value + "%", field(columnName)));
-          break;
-        case TRIGRAM_SEARCH:
-          conditions.add(
-              condition(
-                  "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE word_similarity({0},v) > 0.6",
-                  value, field(columnName)));
-          break;
-        case TEXT_SEARCH:
-          conditions.add(
-              condition(
-                  "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE to_tsquery({0}) @@ to_tsvector(v)",
-                  value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)));
-          break;
-        default:
-          throw new SqlQueryException(
-              SqlQuery.QUERY_FAILED + SqlQuery.OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE,
-              operator,
-              columnName);
-      }
-    }
-    if (not) return not(or(conditions));
-    else return or(conditions);
-  }
-
-  private static Condition whereConditionText(
-      Name columnName, org.molgenis.emx2.Operator operator, String[] values) {
-    List<Condition> conditions = new ArrayList<>();
-    boolean not = false;
-    for (String value : values) {
-      switch (operator) {
-        case EQUALS:
-          conditions.add(field(columnName).cast(VARCHAR).eq(value)); // cast is for the json
-          break;
-        case NOT_EQUALS:
-          not = true;
-          conditions.add(field(columnName).eq(value));
-          break;
-        case NOT_LIKE:
-          not = true;
-          conditions.add(field(columnName).likeIgnoreCase("%" + value + "%"));
-          break;
-        case LIKE:
-          conditions.add(field(columnName).likeIgnoreCase("%" + value + "%"));
-          break;
-        case TRIGRAM_SEARCH:
-          if (value.length() > 2) {
-            conditions.add(condition("word_similarity({0},{1}) > 0.6", value, field(columnName)));
-          } else {
-            conditions.add(field(columnName).likeIgnoreCase("%" + value + "%"));
-          }
-          break;
-        case TEXT_SEARCH:
-          // NOTE WE ONLY SEARCH ON LONGER STRINGS
-          if (value.length() > 2) {
-            conditions.add(
-                condition(
-                    "to_tsquery({0}) @@ to_tsvector({1})",
-                    value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)));
-          } else {
-            conditions.add(field(columnName).likeIgnoreCase("%" + value + "%"));
-          }
-          break;
-        default:
-          throw new SqlQueryException(
-              SqlQuery.QUERY_FAILED + SqlQuery.OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE,
-              operator,
-              columnName);
-      }
-    }
-    if (not) return not(or(conditions));
-    else return or(conditions);
-  }
-
   private static Condition whereConditionOrdinal(
       Name columnName, org.molgenis.emx2.Operator operator, Object[] values) {
     List<Condition> conditions = new ArrayList<>();
     boolean not = false;
     for (int i = 0; i < values.length; i++) {
       switch (operator) {
-        case EQUALS, NOT_EQUALS:
-          return whereConditionEquals(columnName, operator, values);
         case NOT_BETWEEN:
           not = true;
           if (i + 1 > values.length)

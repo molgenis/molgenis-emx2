@@ -274,6 +274,10 @@ public class TypeUtils {
     throw new ClassCastException("Cannot cast '" + v.toString() + "' to JSONB");
   }
 
+  public static JSONB[] toJsonbArray(Object v) {
+    return (JSONB[]) processArray(v, TypeUtils::toJsonb, JSONB[]::new, JSONB.class);
+  }
+
   public static String toText(Object v) {
     if (v == null) return null;
     if (v instanceof String) {
@@ -307,11 +311,13 @@ public class TypeUtils {
       case STRING -> ColumnType.STRING_ARRAY;
       case BOOL -> ColumnType.BOOL_ARRAY;
       case INT -> ColumnType.INT_ARRAY;
+      case LONG -> ColumnType.LONG_ARRAY;
       case DECIMAL -> ColumnType.DECIMAL_ARRAY;
       case TEXT -> ColumnType.TEXT_ARRAY;
       case DATE -> ColumnType.DATE_ARRAY;
       case DATETIME -> ColumnType.DATETIME_ARRAY;
       case PERIOD -> ColumnType.PERIOD_ARRAY;
+      case JSON -> ColumnType.JSON_ARRAY;
       default ->
           throw new UnsupportedOperationException(
               "Unsupported array columnType found:" + columnType);
@@ -383,6 +389,8 @@ public class TypeUtils {
       case PERIOD_ARRAY ->
           SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter()).getArrayDataType();
       case JSON -> SQLDataType.JSONB;
+      case JSON_ARRAY -> SQLDataType.JSONB.getArrayBaseDataType();
+
       default ->
           // should never happen
           throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
@@ -412,6 +420,7 @@ public class TypeUtils {
       case PERIOD -> TypeUtils.toPeriod(v);
       case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
       case JSON -> TypeUtils.toJsonb(v);
+      case JSON_ARRAY -> TypeUtils.toJsonbArray(v);
 
       default ->
           throw new UnsupportedOperationException(

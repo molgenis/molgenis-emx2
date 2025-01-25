@@ -474,15 +474,20 @@ public class GraphqlTableFieldFactory {
                   .name(FILTER_IS)
                   .type(isNullOrNotNullEnum)
                   .build());
+          // in case of single primary key we don't need nested filter object
+          GraphQLInputType refType =
+              col.getReferences().size() == 1
+                  ? getGraphQLInputType(col.getReferences().get(0).getPrimitiveType())
+                  : getPrimaryKeyInput(table);
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(FILTER_CONTAINS_ALL)
-                  .type(GraphQLList.list(getPrimaryKeyInput(table)))
+                  .type(GraphQLList.list(refType))
                   .build());
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(FILTER_CONTAINS_ANY)
-                  .type(GraphQLList.list(getPrimaryKeyInput(table)))
+                  .type(GraphQLList.list(refType))
                   .build());
         } else if (col.getColumnType().getOperators().length > 0) {
           filterBuilder.field(
@@ -646,7 +651,7 @@ public class GraphqlTableFieldFactory {
           value.remove(FILTER_IS);
         } else if (value.containsKey(FILTER_CONTAINS_ALL)) {
           //  complex filter, should be an list of maps per graphql contract
-          if (entry.getValue() != null) {
+          if (entry.getValue() != null && c.getReferences().size() > 1) {
             subFilters.add(
                 f(
                     c.getName(),
@@ -655,6 +660,12 @@ public class GraphqlTableFieldFactory {
                             c.getRefTable(),
                             (List<Map<String, Object>>) value.get(FILTER_CONTAINS_ALL))
                         .toArray()));
+          } else if (entry.getValue() != null) {
+            subFilters.add(
+                f(
+                    c.getName(),
+                    Operator.CONTAINS_ALL,
+                    (List<Object>) value.get(FILTER_CONTAINS_ALL)));
           }
           value.remove(FILTER_CONTAINS_ALL);
         }

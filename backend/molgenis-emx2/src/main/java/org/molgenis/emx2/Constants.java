@@ -2,6 +2,9 @@ package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Operator.*;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 public class Constants {
 
   public static final String SYS_COLUMN_NAME_PREFIX = "mg_";
@@ -73,13 +76,29 @@ public class Constants {
   public static final String LOCALES_DEFAULT = "[\"en\"]";
 
   protected static final Operator[] EXISTS_OPERATIONS = {};
+
   protected static final Operator[] ORDINAL_OPERATORS = {
-    EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN, IS
+    EQUALS, NOT_EQUALS, CONTAINS_ANY, BETWEEN, NOT_BETWEEN, IS, CONTAINS_NONE
   };
+  protected static final Operator[] ORDINAL_ARRAY_OPERATORS =
+      Stream.concat(Arrays.stream(ORDINAL_OPERATORS), Stream.of(CONTAINS_ALL))
+          .toArray(Operator[]::new);
+
   protected static final Operator[] STRING_OPERATORS = {
-    EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH, IS
+    EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH, IS, CONTAINS_ANY, CONTAINS_NONE
   };
-  protected static final Operator[] EQUALITY_OPERATORS = {EQUALS, NOT_EQUALS, IS};
+
+  protected static final Operator[] STRING_ARRAY_OPERATORS =
+      Stream.concat(Arrays.stream(STRING_OPERATORS), Stream.of(CONTAINS_ALL))
+          .toArray(Operator[]::new);
+
+  protected static final Operator[] EQUALITY_OPERATORS = {
+    EQUALS, NOT_EQUALS, IS, CONTAINS_ANY, CONTAINS_NONE
+  };
+
+  protected static final Operator[] EQUALITY_ARRAY_OPERATORS =
+      Stream.concat(Arrays.stream(EQUALITY_OPERATORS), Stream.of(CONTAINS_ALL))
+          .toArray(Operator[]::new);
 
   // n.b. we allow _SYSTEM_
   protected static final String SCHEMA_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,62}$";

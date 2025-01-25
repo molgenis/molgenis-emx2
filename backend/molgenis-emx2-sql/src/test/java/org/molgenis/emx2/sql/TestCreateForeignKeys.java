@@ -1,13 +1,12 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.IsNullOrNotNull.NOT_NULL;
 import static org.molgenis.emx2.IsNullOrNotNull.NULL;
-import static org.molgenis.emx2.Operator.IS;
+import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
@@ -126,6 +125,9 @@ public class TestCreateForeignKeys {
     assertEquals(1, result.size());
     result = bTable.where(f(refFromBToANillable, IS, NOT_NULL)).retrieveRows();
     assertEquals(0, result.size());
+
+    result = bTable.where(f(refFromBToA, CONTAINS_ANY, insertValue, updateValue)).retrieveRows();
+    assertEquals(1, result.size());
 
     bTable.delete(bRow);
     aTable.delete(aRow);

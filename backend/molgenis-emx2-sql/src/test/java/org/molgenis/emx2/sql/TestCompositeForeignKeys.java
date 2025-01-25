@@ -5,7 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.*;
-import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.*;
+import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -167,6 +168,25 @@ public class TestCompositeForeignKeys {
     List<Row> rows = q.retrieveRows(); // test that nested queries also work
     assertEquals(3, rows.size());
 
+    assertTrue(
+        p.query()
+            .select(s("firstName"), s("lastName"), s("uncle", s("firstName"), s("lastName")))
+            .where(f("uncle", CONTAINS_ANY, row("firstName", "Mickey", "lastName", "Mouse")))
+            .retrieveJSON()
+            .contains("Person\": null"));
+
+    assertTrue(
+        p.query()
+            .select(s("firstName"), s("lastName"), s("uncle", s("firstName"), s("lastName")))
+            .where(
+                f(
+                    "uncle",
+                    CONTAINS_ANY,
+                    row("firstName", "Kwik", "lastName", "Duck"),
+                    row("firstName", "Donald", "lastName", "Duck")))
+            .retrieveJSON()
+            .contains("{\"uncle\": {\"lastName\": \"Duck\", \"firstName\": \"Kwik\"}"));
+
     // refback
     schema
         .getTable("Person")
@@ -293,6 +313,60 @@ public class TestCompositeForeignKeys {
                     .retrieveRows()
                     .get(0) //
                     .getStringArray("cousins-firstName")) // TODO should be array?
+            .contains("Kwik"));
+
+    assertTrue(
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("cousins", s("firstName"), s("lastName")),
+                s("uncles", s("firstName"), s("lastName")))
+            .where(
+                f(
+                    "cousins",
+                    CONTAINS_ANY,
+                    row("firstName", "Kwik", "lastName", "Duck"),
+                    row("firstName", "Mickey", "Mouse", "Duck")))
+            .retrieveJSON()
+            .contains("Kwik"));
+
+    assertTrue(
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("cousins", s("firstName"), s("lastName")),
+                s("uncles", s("firstName"), s("lastName")))
+            .where(f("cousins", CONTAINS_ANY, row("firstName", "Mickey", "Mouse", "Duck")))
+            .retrieveJSON()
+            .contains("Person\": null"));
+
+    assertFalse(
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("cousins", s("firstName"), s("lastName")),
+                s("uncles", s("firstName"), s("lastName")))
+            .where(
+                f(
+                    "cousins",
+                    CONTAINS_ALL,
+                    row("firstName", "Kwik", "lastName", "Duck"),
+                    row("firstName", "Mickey", "lastName", "Mouse")))
+            .retrieveJSON()
+            .contains("Kwik"));
+
+    assertTrue(
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("cousins", s("firstName"), s("lastName")),
+                s("uncles", s("firstName"), s("lastName")))
+            .where(f("cousins", CONTAINS_ALL, row("firstName", "Kwik", "lastName", "Duck")))
+            .retrieveJSON()
             .contains("Kwik"));
 
     // check we can sort on ref_array
