@@ -567,6 +567,7 @@ public class GraphqlTableFieldFactory {
           STRING,
           TEXT,
           UUID,
+          FILE,
           DATE_ARRAY,
           DATETIME_ARRAY,
           PERIOD_ARRAY,
