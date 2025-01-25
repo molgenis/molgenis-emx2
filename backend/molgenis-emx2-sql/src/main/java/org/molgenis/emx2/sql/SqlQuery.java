@@ -10,7 +10,6 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.Table;
@@ -1379,7 +1378,9 @@ public class SqlQuery extends QueryBean {
               + values);
     }
     // cast value to the column type
-    if (values.length > 0 && !(values[0] instanceof IsNullOrNotNull)) {
+    if (type.isFile()) {
+      values = toStringArray(values);
+    } else if (values.length > 0 && !(values[0] instanceof IsNullOrNotNull)) {
       values =
           (Object[])
               (type.isArray()
@@ -1421,12 +1422,6 @@ public class SqlQuery extends QueryBean {
         }
       case NOT_LIKE:
         if (type.isArray()) {
-          //          return
-          //                  not(or(Arrays.stream(values).map(value ->
-          //                  condition(
-          //                          "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE v ILIKE
-          // {0})",
-          //                          "%" + value + "%", field(name))).toList()));
           return not(
               or(
                   Arrays.stream(values)
@@ -1441,12 +1436,6 @@ public class SqlQuery extends QueryBean {
         }
       case LIKE:
         if (type.isArray()) {
-          //          return
-          //                  or(Arrays.stream(values).map(value ->
-          //                  condition(
-          //                          "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE v ILIKE
-          // {0})",
-          //                          "%" + value + "%", field(name))).toList());
           return or(
               Arrays.stream(values)
                   .map(value -> condition("{0} ILIKE ANY({1})", "%" + value + "%", field(name)))
@@ -1507,10 +1496,6 @@ public class SqlQuery extends QueryBean {
       default:
         throw new MolgenisException("Unknown operator: " + operator);
     }
-  }
-
-  private static @NotNull Condition getCondition(ColumnType type, Object[] values, Name name) {
-    return field(name).in(getTypedValue(values, getArrayType(type)));
   }
 
   private static Condition betweenCondition(Name columnName, Object[] values) {
