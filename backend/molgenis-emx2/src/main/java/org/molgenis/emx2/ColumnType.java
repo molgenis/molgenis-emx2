@@ -21,7 +21,6 @@ public enum ColumnType {
   TEXT(String.class, STRING_OPERATORS),
   TEXT_ARRAY(String[].class, STRING_ARRAY_OPERATORS),
   JSON(org.jooq.JSONB.class, STRING_OPERATORS),
-  JSON_ARRAY(org.jooq.JSONB[].class, STRING_ARRAY_OPERATORS),
 
   // NUMERIC
   INT(Integer.class, ORDINAL_OPERATORS),

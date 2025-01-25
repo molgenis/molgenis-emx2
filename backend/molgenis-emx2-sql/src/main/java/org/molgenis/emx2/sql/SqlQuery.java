@@ -1378,9 +1378,13 @@ public class SqlQuery extends QueryBean {
               + values);
     }
     // cast value to the column type
-    if (type.isFile()) {
+    if ((values[0] instanceof IsNullOrNotNull)) {
+      // skip
+    } else if (type.isFile()) {
       values = toStringArray(values);
-    } else if (values.length > 0 && !(values[0] instanceof IsNullOrNotNull)) {
+    } else if (ColumnType.JSON.equals(type)) {
+      values = toJsonbArray(values);
+    } else if (values.length > 0) {
       values =
           (Object[])
               (type.isArray()

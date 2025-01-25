@@ -317,7 +317,7 @@ public class TypeUtils {
       case DATE -> ColumnType.DATE_ARRAY;
       case DATETIME -> ColumnType.DATETIME_ARRAY;
       case PERIOD -> ColumnType.PERIOD_ARRAY;
-      case JSON -> ColumnType.JSON_ARRAY;
+      case JSON -> ColumnType.STRING_ARRAY; // only used for filters
       default ->
           throw new UnsupportedOperationException(
               "Unsupported array columnType found:" + columnType);
@@ -389,7 +389,6 @@ public class TypeUtils {
       case PERIOD_ARRAY ->
           SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter()).getArrayDataType();
       case JSON -> SQLDataType.JSONB;
-      case JSON_ARRAY -> SQLDataType.JSONB.getArrayBaseDataType();
 
       default ->
           // should never happen
@@ -420,7 +419,6 @@ public class TypeUtils {
       case PERIOD -> TypeUtils.toPeriod(v);
       case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
       case JSON -> TypeUtils.toJsonb(v);
-      case JSON_ARRAY -> TypeUtils.toJsonbArray(v);
 
       default ->
           throw new UnsupportedOperationException(
