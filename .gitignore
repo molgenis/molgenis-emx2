@@ -68,3 +68,4 @@ requirements.txt
 e2e/.auth
 e2e/e2e/.auth
 e2e/test-results/
+apps/tailwind-components/test-results/.last-run.json
