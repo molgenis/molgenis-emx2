@@ -277,7 +277,7 @@ public class TestGraphqlSchemaFields {
 
     // between int one sided
     assertEquals(
-        "pooky",
+        "spike",
         execute("{Order(filter:{quantity:{not_between:[null,3]}}){quantity,pet{name}}}")
             .at("/Order/0/pet/name")
             .textValue());

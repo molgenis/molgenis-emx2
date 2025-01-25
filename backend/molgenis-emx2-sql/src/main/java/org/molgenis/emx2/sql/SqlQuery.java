@@ -1500,25 +1500,12 @@ public class SqlQuery extends QueryBean {
                               : field(name).likeIgnoreCase("%" + value + "%"))
                   .toList());
         }
+      case NOT_BETWEEN:
+        return not(betweenCondition(name, values));
+      case BETWEEN:
+        return betweenCondition(name, values);
       default:
-        return switch (type) {
-          case INT -> whereConditionOrdinal(name, operator, toIntArray(values));
-          case LONG -> whereConditionOrdinal(name, operator, toLongArray(values));
-          case DECIMAL -> whereConditionOrdinal(name, operator, toDecimalArray(values));
-          case DATE -> whereConditionOrdinal(name, operator, toDateArray(values));
-          case DATETIME -> whereConditionOrdinal(name, operator, toDateTimeArray(values));
-          case PERIOD -> whereConditionOrdinal(name, operator, toYearToSecondArray(values));
-          case REF -> whereConditionRefEquals(name, operator, values);
-          default ->
-              throw new SqlQueryException(
-                  SqlQuery.QUERY_FAILED
-                      + "Filter of '"
-                      + name
-                      + " failed: operator "
-                      + operator
-                      + " not supported for type "
-                      + type);
-        };
+        throw new MolgenisException("Unknown operator: " + operator);
     }
   }
 
@@ -1526,81 +1513,24 @@ public class SqlQuery extends QueryBean {
     return field(name).in(getTypedValue(values, getArrayType(type)));
   }
 
-  private Condition whereConditionRefEquals(Name columnName, Operator operator, Object[] values) {
-    if (EQUALS.equals(operator)) {
-      if (values.length == 1) {
-        return field(columnName).eq(values[0]);
-      } else {
-        throw new SqlQueryException(
-            SqlQuery.QUERY_FAILED
-                + "Filter of '"
-                + columnName
-                + " failed: operator "
-                + operator
-                + " not supported for multiple values.");
-      }
-    } else if (NOT_EQUALS.equals(operator)) {
-      List<Condition> conditions = new ArrayList<>();
-      for (var value : values) {
-        conditions.add(field(columnName).ne(value));
-      }
-      return and(conditions);
-    }
-    throw new SqlQueryException(
-        SqlQuery.QUERY_FAILED
-            + "Filter of '"
-            + columnName
-            + " failed: operator "
-            + operator
-            + " not supported for REF.");
-  }
-
-  private static Condition whereConditionOrdinal(
-      Name columnName, org.molgenis.emx2.Operator operator, Object[] values) {
+  private static Condition betweenCondition(Name columnName, Object[] values) {
     List<Condition> conditions = new ArrayList<>();
-    boolean not = false;
     for (int i = 0; i < values.length; i++) {
-      switch (operator) {
-        case NOT_BETWEEN:
-          not = true;
-          if (i + 1 > values.length)
-            throw new SqlQueryException(
-                SqlQuery.QUERY_FAILED + SqlQuery.BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
-          if (values[i] != null && values[i + 1] != null) {
-            conditions.add(field(columnName).notBetween(values[i], values[i + 1]));
-          } else if (values[i] != null && values[i + 1] == null) {
-            conditions.add(field(columnName).lessOrEqual(values[i]));
-          } else if (values[i] == null && values[i + 1] != null) {
-            conditions.add(field(columnName).greaterOrEqual(values[i + 1]));
-          } else {
-            // nothing to do
-          }
-          i++; // NOSONAR
-          break;
-        case BETWEEN:
-          if (i + 1 > values.length)
-            throw new SqlQueryException(
-                SqlQuery.QUERY_FAILED + SqlQuery.BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
-          if (values[i] != null && values[i + 1] != null) {
-            conditions.add(field(columnName).between(values[i], values[i + 1]));
-          } else if (values[i] != null && values[i + 1] == null) {
-            conditions.add(field(columnName).greaterOrEqual(values[i]));
-          } else if (values[i] == null && values[i + 1] != null) {
-            conditions.add(field(columnName).lessOrEqual(values[i + 1]));
-          } else {
-            // nothing to do
-          }
-          i++; // NOSONAR
-          break;
-        default:
-          throw new SqlQueryException(
-              SqlQuery.QUERY_FAILED + SqlQuery.OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE,
-              operator,
-              columnName);
+      if (i + 1 > values.length)
+        throw new SqlQueryException(
+            SqlQuery.QUERY_FAILED + SqlQuery.BETWEEN_ERROR_MESSAGE, TypeUtils.toString(values));
+      if (values[i] != null && values[i + 1] != null) {
+        conditions.add(field(columnName).between(values[i], values[i + 1]));
+      } else if (values[i] != null && values[i + 1] == null) {
+        conditions.add(field(columnName).greaterOrEqual(values[i]));
+      } else if (values[i] == null && values[i + 1] != null) {
+        conditions.add(field(columnName).lessOrEqual(values[i + 1]));
+      } else {
+        // nothing to do
       }
+      i++; // NOSONAR
     }
-    if (not) return not(or(conditions));
-    else return or(conditions);
+    return or(conditions);
   }
 
   private Condition whereConditionSearch(
