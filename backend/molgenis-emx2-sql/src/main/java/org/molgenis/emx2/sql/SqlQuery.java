@@ -1307,25 +1307,10 @@ public class SqlQuery extends QueryBean {
       if (column.isReference()
           && column.getReferences().size() > 1
           && filters.getSubfilters().isEmpty()) {
-        if ((IS.equals(filters.getOperator())) && (column.isRef() || column.isRefArray())) {
-          column
-              .getReferences()
-              .forEach(
-                  ref ->
-                      conditions.add(
-                          // delegate to whereCondition
-                          whereCondition(
-                              tableAlias,
-                              ref.getName(),
-                              ref.getPrimitiveType(),
-                              getFilter().getOperator(),
-                              getFilter().getValues())));
-        } else {
-          throw new MolgenisException(
-              "Filter of '"
-                  + column.getName()
-                  + " not supported for compound key, use individual elements or nested filters.");
-        }
+        throw new MolgenisException(
+            "Filter of '"
+                + column.getName()
+                + " not supported for compound key, use individual elements or nested filters.");
       }
       if (!filters.getSubfilters().isEmpty()) {
         for (Filter subfilter : filters.getSubfilters()) {
