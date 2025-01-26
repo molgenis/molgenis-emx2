@@ -1,11 +1,14 @@
 package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.Operator.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public enum ColumnType {
   // SIMPLE
@@ -37,17 +40,17 @@ public enum ColumnType {
   PERIOD_ARRAY(Period[].class, ORDINAL_ARRAY_OPERATORS),
 
   // RELATIONSHIP
-  REF(Object.class),
-  REF_ARRAY(Object[].class),
-  REFBACK(Object[].class),
+  REF(Object.class, CONTAINS_ANY, EQUALS, CONTAINS_NONE, IS),
+  REF_ARRAY(Object[].class, CONTAINS_ANY, CONTAINS_ALL, EQUALS, CONTAINS_NONE, IS),
+  REFBACK(Object[].class, REF_ARRAY.operators), // same as ref_array
 
   // LAYOUT and other constants
   HEADING(String.class), // use for layout elements or constant values
 
   // format flavors that extend a baseType
   AUTO_ID(STRING),
-  ONTOLOGY(REF),
-  ONTOLOGY_ARRAY(REF_ARRAY),
+  ONTOLOGY(REF, MATCH_INCLUDING_CHILDREN, MATCH_INCLUDING_PARENTS),
+  ONTOLOGY_ARRAY(REF_ARRAY, MATCH_INCLUDING_CHILDREN, MATCH_INCLUDING_PARENTS),
   EMAIL(STRING, EMAIL_REGEX),
   EMAIL_ARRAY(STRING_ARRAY, EMAIL_REGEX),
   HYPERLINK(STRING, HYPERLINK_REGEX),
@@ -63,14 +66,18 @@ public enum ColumnType {
     this.operators = operators;
   }
 
-  ColumnType(ColumnType baseType) {
+  ColumnType(ColumnType baseType, Operator... operators) {
     if (this.baseType != null) throw new RuntimeException("Cannot extend an extended type");
     this.baseType = baseType; // use to extend a base type
+    this.operators =
+        Stream.concat(Arrays.stream(baseType.operators), Arrays.stream(operators))
+            .toArray(Operator[]::new);
   }
 
   ColumnType(ColumnType baseType, String validationRegexp) {
     if (this.baseType != null) throw new RuntimeException("Cannot extend an extended type");
     this.baseType = baseType; // use to extend a base type
+    this.operators = this.baseType.operators;
     this.validationRegexp = validationRegexp;
   }
 
@@ -87,11 +94,7 @@ public enum ColumnType {
   }
 
   public Operator[] getOperators() {
-    if (baseType != null) {
-      return this.baseType.getOperators();
-    } else {
-      return this.operators;
-    }
+    return this.operators;
   }
 
   /** throws exception when invalid */

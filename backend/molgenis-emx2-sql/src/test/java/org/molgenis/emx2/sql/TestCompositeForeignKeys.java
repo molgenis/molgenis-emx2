@@ -203,6 +203,46 @@ public class TestCompositeForeignKeys {
         .orderBy("nephew")
         .retrieveJSON();
 
+    // filter by refback
+    result =
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("nephew", s("firstName"), s("lastName")),
+                s("uncle", s("firstName"), s("lastName")))
+            .where(f("nephew", CONTAINS_ANY, row("firstName", "Kwik", "lastName", "Duck")))
+            .retrieveJSON();
+    assertTrue(result.contains("Donald"));
+
+    result =
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("nephew", s("firstName"), s("lastName")),
+                s("uncle", s("firstName"), s("lastName")))
+            .where(
+                f(
+                    "nephew",
+                    CONTAINS_ALL,
+                    row("firstName", "Kwik", "lastName", "Duck"),
+                    row("firstName", "Kwek", "lastName", "Duck")))
+            .retrieveJSON();
+    assertTrue(result.contains("Donald"));
+
+    // empty
+    result =
+        p.query()
+            .select(
+                s("firstName"),
+                s("lastName"),
+                s("nephew", s("firstName"), s("lastName")),
+                s("uncle", s("firstName"), s("lastName")))
+            .where(f("nephew", CONTAINS_ANY, row("firstName", "Donald", "lastName", "Duck")))
+            .retrieveJSON();
+    assertFalse(result.contains("Kwik"));
+
     // test group by ref
     // Kwik = Katrien
     // Kwek, Kwak = Donald

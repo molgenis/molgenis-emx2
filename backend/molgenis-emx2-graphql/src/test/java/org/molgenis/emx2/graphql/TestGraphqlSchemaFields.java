@@ -230,6 +230,7 @@ public class TestGraphqlSchemaFields {
     assertEquals(
         "pooky",
         execute("{Pet(filter:{name:{like:\"oky\"}}){name}}").at("/Pet/0/name").textValue());
+
     // not like text
     assertEquals(
         "spike",

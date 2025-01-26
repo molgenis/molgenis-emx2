@@ -10,6 +10,8 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.Table;
@@ -38,8 +40,6 @@ public class SqlQuery extends QueryBean {
   private static final String JSON_AGG_SQL = "jsonb_agg(item)";
   private static final String ROW_TO_JSON_SQL = "to_jsonb(item)";
   private static final String ITEM = "item";
-  private static final String OPERATOR_NOT_SUPPORTED_ERROR_MESSAGE =
-      "Operator %s is not supported for column '%s'";
   private static final String BETWEEN_ERROR_MESSAGE =
       "Operator BETWEEEN a AND b expects even number of parameters to define each pair of a,b. Found: %s";
 
@@ -118,10 +118,10 @@ public class SqlQuery extends QueryBean {
     from = refJoins(table, tableAlias, from, filter, select, new ArrayList<>());
 
     // where
-    Condition condition = whereConditions(table, tableAlias, filter, searchTerms);
+    Condition condition = rowFilterConditions(table, tableAlias, filter, searchTerms);
     SelectConnectByStep<org.jooq.Record> where = condition != null ? from.where(condition) : from;
     SelectConnectByStep<org.jooq.Record> query =
-        limitOffsetOrderBy(table, select, where, tableAlias);
+        applyLimitOffsetOrderBy(table, select, where, tableAlias);
 
     // execute
     try {
@@ -137,111 +137,6 @@ public class SqlQuery extends QueryBean {
     } catch (Exception e) {
       throw new SqlMolgenisException(QUERY_FAILED, e);
     }
-  }
-
-  private void checkHasViewPermission(SqlTableMetadata table) {
-    if (!table.getTableType().equals(TableType.ONTOLOGIES)
-        && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
-      throw new MolgenisException("Cannot retrieve rows: requires VIEWER permission");
-    }
-  }
-
-  private List<Field<?>> rowSelectFields(
-      TableMetadata table, String tableAlias, String prefix, SelectColumn selection) {
-
-    List<Field<?>> fields = new ArrayList<>();
-    for (SelectColumn select : selection.getSubselect()) {
-      Column column = getColumnByName(table, select.getColumn());
-      String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
-      if (column.isFile()) {
-        // check what they want to get, contents, mimetype, size, filename and/or extension
-        if (select.getSubselect().isEmpty() || select.has("id")) {
-          fields.add(field(name(column.getName())));
-        }
-        if (select.has("contents")) {
-          fields.add(field(name(column.getName() + "_contents")));
-        }
-        if (select.has("size")) {
-          fields.add(field(name(column.getName() + "_size")));
-        }
-        if (select.has("mimetype")) {
-          fields.add(field(name(column.getName() + "_mimetype")));
-        }
-        if (select.has("filename")) {
-          fields.add(field(name(column.getName() + "_filename")));
-        }
-        if (select.has("extension")) {
-          fields.add(field(name(column.getName() + "_extension")));
-        }
-      } else if (column.isReference()
-          // if subselection, then we will add it as subselect
-          && !select.getSubselect().isEmpty()) {
-        fields.addAll(
-            rowSelectFields(
-                column.getRefTable(),
-                tableAlias + "-" + column.getName(),
-                columnAlias,
-                selection.getSubselect(column.getName())));
-      } else if (column.isRefback()) {
-        fields.add(
-            field("array({0})", rowBackrefSubselect(column, tableAlias)).as(column.getName()));
-      } else if (column.isReference()) { // REF and REF_ARRAY
-        // might be composite column with same name
-        Reference ref = null;
-        for (Reference r : column.getReferences()) {
-          if (r.getName().equals(column.getName())) {
-            ref = r;
-          }
-        }
-        if (ref == null) {
-          throw new MolgenisException(
-              "Select of column '"
-                  + column.getName()
-                  + "' failed: composite foreign key requires subselection or explicit naming of underlying fields");
-        } else {
-          fields.add(
-              field(name(alias(tableAlias), column.getName()), ref.getJooqType()).as(columnAlias));
-        }
-      } else if (!column.isHeading()) {
-        fields.add(
-            field(name(alias(tableAlias), column.getName()), column.getJooqType()).as(columnAlias));
-      }
-    }
-    return fields;
-  }
-
-  private Field<String> intervalField(String tableAlias, Column column) {
-    Field<?> intervalField = field(name(alias(tableAlias), column.getName()));
-    Field<String> functionCallField =
-        function("\"MOLGENIS\".interval_to_iso8601", String.class, intervalField);
-    return functionCallField.as(name(column.getIdentifier()));
-  }
-
-  private SelectConditionStep<org.jooq.Record> rowBackrefSubselect(
-      Column column, String tableAlias) {
-    Column refBack = column.getRefBackColumn();
-    List<Condition> where = new ArrayList<>();
-
-    // might be composite
-    for (Reference ref : refBack.getReferences()) {
-      if (refBack.isRef()) {
-        where.add(
-            field(name(refBack.getTable().getTableName(), ref.getName()))
-                .eq(field(name(alias(tableAlias), ref.getRefTo()))));
-      } else if (refBack.isRefArray()) {
-        where.add(
-            condition(
-                ANY_SQL,
-                field(name(alias(tableAlias), ref.getRefTo())),
-                field(name(refBack.getTable().getTableName(), ref.getName()))));
-      } else {
-        throw new MolgenisException(
-            "Internal error: Refback for type not matched for column " + column.getName());
-      }
-    }
-    return DSL.select(column.getRefTable().getPrimaryKeyFields())
-        .from(name(refBack.getSchemaName(), refBack.getTableName()))
-        .where(where);
   }
 
   @Override
@@ -302,6 +197,97 @@ public class SqlQuery extends QueryBean {
     return result;
   }
 
+  private List<Field<?>> rowSelectFields(
+      TableMetadata table, String tableAlias, String prefix, SelectColumn selection) {
+
+    List<Field<?>> fields = new ArrayList<>();
+    for (SelectColumn select : selection.getSubselect()) {
+      Column column = getColumnByName(table, select.getColumn());
+      String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
+      if (column.isFile()) {
+        // check what they want to get, contents, mimetype, size, filename and/or extension
+        if (select.getSubselect().isEmpty() || select.has("id")) {
+          fields.add(field(name(column.getName())));
+        }
+        if (select.has("contents")) {
+          fields.add(field(name(column.getName() + "_contents")));
+        }
+        if (select.has("size")) {
+          fields.add(field(name(column.getName() + "_size")));
+        }
+        if (select.has("mimetype")) {
+          fields.add(field(name(column.getName() + "_mimetype")));
+        }
+        if (select.has("filename")) {
+          fields.add(field(name(column.getName() + "_filename")));
+        }
+        if (select.has("extension")) {
+          fields.add(field(name(column.getName() + "_extension")));
+        }
+      } else if (column.isReference()
+          // if subselection, then we will add it as subselect
+          && !select.getSubselect().isEmpty()) {
+        fields.addAll(
+            rowSelectFields(
+                column.getRefTable(),
+                tableAlias + "-" + column.getName(),
+                columnAlias,
+                selection.getSubselect(column.getName())));
+      } else if (column.isRefback()) {
+        fields.add(
+            field("array({0})", rowRefbackSubselect(column, tableAlias)).as(column.getName()));
+      } else if (column.isReference()) { // REF and REF_ARRAY
+        // might be composite column with same name
+        Reference ref = null;
+        for (Reference r : column.getReferences()) {
+          if (r.getName().equals(column.getName())) {
+            ref = r;
+          }
+        }
+        if (ref == null) {
+          throw new MolgenisException(
+              "Select of column '"
+                  + column.getName()
+                  + "' failed: composite foreign key requires subselection or explicit naming of underlying fields");
+        } else {
+          fields.add(
+              field(name(alias(tableAlias), column.getName()), ref.getJooqType()).as(columnAlias));
+        }
+      } else if (!column.isHeading()) {
+        fields.add(
+            field(name(alias(tableAlias), column.getName()), column.getJooqType()).as(columnAlias));
+      }
+    }
+    return fields;
+  }
+
+  private SelectConditionStep<org.jooq.Record> rowRefbackSubselect(
+      Column column, String tableAlias) {
+    Column refBack = column.getRefBackColumn();
+    List<Condition> where = new ArrayList<>();
+
+    // might be composite
+    for (Reference ref : refBack.getReferences()) {
+      if (refBack.isRef()) {
+        where.add(
+            field(name(refBack.getTable().getTableName(), ref.getName()))
+                .eq(field(name(alias(tableAlias), ref.getRefTo()))));
+      } else if (refBack.isRefArray()) {
+        where.add(
+            condition(
+                ANY_SQL,
+                field(name(alias(tableAlias), ref.getRefTo())),
+                field(name(refBack.getTable().getTableName(), ref.getName()))));
+      } else {
+        throw new MolgenisException(
+            "Internal error: Refback for type not matched for column " + column.getName());
+      }
+    }
+    return DSL.select(column.getRefTable().getPrimaryKeyFields())
+        .from(name(refBack.getSchemaName(), refBack.getTableName()))
+        .where(where);
+  }
+
   private Field<?> jsonSubselect(
       SqlTableMetadata table,
       Column parentColumn,
@@ -332,7 +318,7 @@ public class SqlQuery extends QueryBean {
     SelectConnectByStep<org.jooq.Record> filterQuery =
         jsonFilterQuery(
             table, List.of(asterisk()), column, tableAlias, subAlias, filters, searchTerms);
-    filterQuery = limitOffsetOrderBy(table, select, filterQuery, subAlias);
+    filterQuery = applyLimitOffsetOrderBy(table, select, filterQuery, subAlias);
 
     // use filtered/sorted/limited/offsetted to produce json including only the joins needed
     SelectConnectByStep<org.jooq.Record> from =
@@ -382,10 +368,10 @@ public class SqlQuery extends QueryBean {
     if (filters != null) {
       conditions.addAll(
           // column should be null when nesting (is only used for refJoinCondition)
-          jsonFilterQueryConditions(table, null, tableAlias, filterAlias, filters, searchTerms));
+          whereTableFilters(table, null, tableAlias, filterAlias, filters, searchTerms));
     }
     if (searchTerms.length > 0) {
-      conditions.add(jsonSearchConditions(table, filterAlias, searchTerms));
+      conditions.add(whereTableSearch(table, filterAlias, searchTerms));
     }
     if (column != null) {
       conditions.add(refJoinCondition(column, tableAlias, filterAlias));
@@ -407,7 +393,7 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private List<Condition> jsonFilterQueryConditions(
+  private List<Condition> whereTableFilters(
       SqlTableMetadata table,
       Column column,
       String tableAlias,
@@ -421,11 +407,10 @@ public class SqlQuery extends QueryBean {
           // continue
         } else if (filter.getOperator() != null) {
           conditions.add(
-              getJsonFilterCondition(table, column, tableAlias, subAlias, searchTerms, filter));
+              whereTableFilter(table, column, tableAlias, subAlias, searchTerms, filter));
         } else {
           // nested query
           Column c = getColumnByName(table, filter.getColumn());
-          DSLContext jooq = table.getJooq();
           SelectSelectStep subQuery =
               (SelectSelectStep<?>)
                   jsonFilterQuery(
@@ -435,14 +420,14 @@ public class SqlQuery extends QueryBean {
                       subAlias,
                       filter,
                       new String[0]);
-          conditions.add(whereInSubqueryCondition(c, subQuery, jooq));
+          conditions.add(whereColumnInSubquery(c, subQuery));
         }
       }
     }
     return conditions;
   }
 
-  private Condition whereInSubqueryCondition(Column c, SelectSelectStep subQuery, DSLContext jooq) {
+  private Condition whereColumnInSubquery(Column c, SelectSelectStep subQuery) {
     if (c.isRefArray()) {
       // if not composite it is simple array overlap
       if (c.getReferences().size() == 1) {
@@ -458,7 +443,7 @@ public class SqlQuery extends QueryBean {
                             : field(UNNEST_0, name(ref.getName())).as(name(ref.getRefTo())))
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        return exists(selectFrom(jooq.select(unnest).asTable().naturalJoin(subQuery)));
+        return exists(selectFrom(DSL.select(unnest).asTable().naturalJoin(subQuery)));
       }
     } else if (c.isRefback()) {
       Column refBack = c.getRefBackColumn();
@@ -472,7 +457,7 @@ public class SqlQuery extends QueryBean {
         // pkey in (backref from refBack table where backrefKey in subquery)
         return row(pkey)
             .in(
-                jooq.select(backRef)
+                DSL.select(backRef)
                     .from(c.getRefTable().getJooqTable())
                     .where(row(backRefKey).in(subQuery)));
       } else {
@@ -480,7 +465,7 @@ public class SqlQuery extends QueryBean {
         // pkey in (unnest(backref) from mappedByTable where backrefKey in subquery)
         return row(pkey)
             .in(
-                jooq.select(
+                DSL.select(
                         c.getRefBackColumn().getReferences().stream()
                             .map(
                                 bref ->
@@ -499,236 +484,33 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private Condition getJsonFilterCondition(
+  private Condition whereTableFilter(
       SqlTableMetadata table,
       Column column,
       String tableAlias,
       String subAlias,
       String[] searchTerms,
       Filter filter) {
-    DSLContext jooq = table.getJooq();
     if (filter.getOperator() != null)
       switch (filter.getOperator()) {
         case OR:
-          return or(
-              jsonFilterQueryConditions(table, column, tableAlias, subAlias, filter, searchTerms));
-
+          return or(whereTableFilters(table, column, tableAlias, subAlias, filter, searchTerms));
         case AND:
-          return and(
-              jsonFilterQueryConditions(table, column, tableAlias, subAlias, filter, searchTerms));
-
+          return and(whereTableFilters(table, column, tableAlias, subAlias, filter, searchTerms));
         case TRIGRAM_SEARCH, TEXT_SEARCH:
-          return jsonSearchConditions(table, subAlias, TypeUtils.toStringArray(filter.getValues()));
-
-        case IS:
-          Column is_column = getColumnByName(table, filter.getColumn());
-          return and(
-              is_column.getReferences().stream()
-                  .map(
-                      ref ->
-                          whereCondition(
-                              subAlias,
-                              ref.getName(),
-                              ref.getPrimitiveType().getBaseType(),
-                              filter.getOperator(),
-                              filter.getValues()))
-                  .toList());
-
-        case MATCH_ALL_INCLUDING_CHILDREN, MATCH_INCLUDING_PARENTS, MATCH_INCLUDING_CHILDREN:
-          if (MATCH_ALL_INCLUDING_CHILDREN.equals(filter.getOperator())) {
-            throw new MolgenisException(
-                MATCH_ALL_INCLUDING_CHILDREN.getName() + " not supported yet");
-          }
-          String function =
-              MATCH_INCLUDING_PARENTS.equals(filter.getOperator())
-                  ? "get_terms_including_parents"
-                  : "get_terms_including_children";
-          Column match_column = getColumnByName(table, filter.getColumn());
-          SelectSelectStep subQuery =
-              DSL.select(
-                  field(
-                      "\"MOLGENIS\".{0}({1},{2},{3})",
-                      keyword(function),
-                      match_column.getRefTable().getSchemaName(),
-                      match_column.getRefTable().getTableName(),
-                      TypeUtils.toStringArray(filter.getValues())));
-          return whereInSubqueryCondition(match_column, subQuery, jooq);
-
-        case CONTAINS_ALL, CONTAINS_ANY:
-          Column contains_column = getColumnByName(table, filter.getColumn());
-          Column refBack = contains_column.getRefBackColumn();
-          List<Field<?>> pkey = contains_column.getTable().getPrimaryKeyFields().stream().toList();
-
-          List<Field> compositeKeyFields =
-              contains_column.getReferences().stream()
-                  .map(
-                      ref ->
-                          field(name(ref.getTargetColumn()), ref.getJooqType().getArrayBaseType()))
-                  .toList();
-
-          Table<Record> compositeKeysTable =
-              DSL.values(
-                      Arrays.stream(filter.getValues())
-                          .map(
-                              value ->
-                                  row(
-                                      contains_column.getReferences().stream()
-                                          .map(
-                                              ref ->
-                                                  val(
-                                                      ((Row) value)
-                                                          .get(
-                                                              ref.getTargetColumn(),
-                                                              contains_column
-                                                                  .getRefTable()
-                                                                  .getColumn(ref.getTargetColumn())
-                                                                  .getPrimitiveColumnType()),
-                                                      ref.getJooqType().getArrayBaseDataType()))
-                                          .toArray(Field[]::new)))
-                          .toArray(org.jooq.RowN[]::new))
-                  .as(
-                      subAlias + "_" + contains_column.getName() + "_values",
-                      contains_column.getReferences().stream()
-                          .map(ref -> ref.getTargetColumn())
-                          .toArray(String[]::new));
-
-          // ref
-          if (contains_column.isRef()) {
-            if (CONTAINS_ALL.equals(filter.getOperator())) {
-              throw new MolgenisException(
-                  "CONTAINS_ALL not supported for ref, only for ref_array and ref_back");
-            }
-            if (contains_column.getReferences().size() == 1) {
-              return contains_column.getJooqField().in(filter.getValues());
-            } else {
-              return row(contains_column.getReferences().stream()
-                      .map(ref -> field(name(subAlias, ref.getName())))
-                      .toList())
-                  .in(selectFrom(compositeKeysTable));
-            }
-
-            // ref_array
-          } else if (contains_column.isRefArray()) {
-            if (contains_column.getReferences().size() == 1) {
-              String operator = CONTAINS_ALL.equals(filter.getOperator()) ? "<&" : "&&";
-              return condition(
-                  "{0} {1} ARRAY({2})",
-                  name(contains_column.getName()), operator, filter.getValues());
-            } else {
-              List<Field> unnestedFields =
-                  contains_column.getReferences().stream()
-                      .map(
-                          ref ->
-                              field(
-                                  name("unnested_" + ref.getName()),
-                                  ref.getJooqType().getArrayBaseType()))
-                      .toList();
-
-              Table<Record> combinedUnnestedTable =
-                  contains_column.getReferences().stream()
-                      .map(
-                          ref ->
-                              unnest(field(name(ref.getName()), ref.getJooqType()))
-                                  .withOrdinality()
-                                  .as(
-                                      subAlias + "_" + ref.getName() + "_unnested",
-                                      "unnested_" + ref.getName(),
-                                      "ordinality"))
-                      .reduce((table1, table2) -> table1.naturalJoin(table2))
-                      .orElseThrow(() -> new IllegalStateException("No references available"));
-              if (CONTAINS_ALL.equals(filter.getOperator())) {
-                return notExists(
-                    selectOne()
-                        .from(compositeKeysTable)
-                        .where(
-                            row(compositeKeyFields)
-                                .notIn(DSL.select(unnestedFields).from(combinedUnnestedTable))));
-
-              } else { // CONTAINS_ANY
-                return exists(
-                    selectFrom(combinedUnnestedTable)
-                        .where(row(unnestedFields).in(selectFrom(compositeKeysTable))));
-              }
-            }
-
-            // refback
-          } else if (contains_column.isRefback()) {
-            List<Field> backRef =
-                contains_column.getRefBackColumn().getReferences().stream()
-                    .map(Reference::getJooqField)
-                    .toList();
-            List<Field<?>> backRefKey =
-                contains_column.getRefBackColumn().getTable().getPrimaryKeyFields().stream()
-                    .toList();
-
-            if (CONTAINS_ALL.equals(filter.getOperator())) {
-              throw new MolgenisException("contains_all not yet implemented for refback");
-            }
-
-            if (refBack.isRef()) {
-              if (contains_column.getReferences().size() == 1) {
-                return row(pkey)
-                    .in(
-                        jooq.select(backRef)
-                            .from(contains_column.getRefTable().getJooqTable())
-                            .where(
-                                contains_column
-                                    .getRefBackColumn()
-                                    .getJooqField()
-                                    .in(filter.getValues())));
-              } else {
-                return row(pkey)
-                    .in(
-                        jooq.select(backRef)
-                            .from(contains_column.getRefTable().getJooqTable())
-                            .where(row(backRefKey).in(selectFrom(compositeKeysTable))));
-              }
-            } else if (refBack.isRefArray()) {
-              if (contains_column.getReferences().size() == 1) {
-                return row(pkey)
-                    .in(
-                        jooq.select(
-                                contains_column.getRefBackColumn().getReferences().stream()
-                                    .map(
-                                        bref ->
-                                            bref.isOverlappingRef()
-                                                ? field(name(bref.getName()))
-                                                : field(UNNEST_0, name(bref.getName()))
-                                                    .as(name(bref.getName())))
-                                    .toList())
-                            .from(contains_column.getRefTable().getJooqTable())
-                            .where(condition("{0} && ARRAY({1})", backRefKey, filter.getValues())));
-              } else {
-                return row(pkey)
-                    .in(
-                        jooq.select(
-                                contains_column.getRefBackColumn().getReferences().stream()
-                                    .map(
-                                        bref ->
-                                            bref.isOverlappingRef()
-                                                ? field(name(bref.getName()))
-                                                : field(UNNEST_0, name(bref.getName()))
-                                                    .as(name(bref.getName())))
-                                    .toList())
-                            .from(contains_column.getRefTable().getJooqTable())
-                            .where(condition(row(backRefKey).in(selectFrom(compositeKeysTable)))));
-              }
-            }
-          }
+          return whereTableSearch(table, subAlias, TypeUtils.toStringArray(filter.getValues()));
         default:
-          // simply a nested equals filter???
-          Column c = getColumnByName(table, filter.getColumn());
-          return whereCondition(
+          // then it must be a column filter
+          return whereColumn(
               subAlias,
-              c.getName(),
-              c.getColumnType().getBaseType(),
+              getColumnByName(table, filter.getColumn()),
               filter.getOperator(),
               filter.getValues());
       }
     throw new MolgenisException("Unkown exception");
   }
 
-  private Condition jsonSearchConditions(
+  private Condition whereTableSearch(
       SqlTableMetadata table, String subAlias, String[] searchTerms) {
     // create search
     List<Condition> searchCondition = new ArrayList<>();
@@ -1271,7 +1053,7 @@ public class SqlQuery extends QueryBean {
     return and(foreignKeyMatch);
   }
 
-  private Condition whereConditions(
+  private Condition rowFilterConditions(
       TableMetadata table, String tableAlias, Filter filter, String[] searchTerms) {
     Condition searchCondition = whereConditionSearch(table, tableAlias, searchTerms);
     Condition filterCondition = whereConditionsFilter(table, tableAlias, filter);
@@ -1328,166 +1110,285 @@ public class SqlQuery extends QueryBean {
           }
         }
       } else {
-        conditions.add(
-            whereCondition(
-                tableAlias,
-                column.getName(),
-                column.getColumnType().getBaseType(),
-                filters.getOperator(),
-                filters.getValues()));
+        conditions.add(whereColumn(tableAlias, column, filters.getOperator(), filters.getValues()));
       }
     }
     return conditions.isEmpty() ? null : and(conditions);
   }
 
-  private Condition whereCondition(
-      String tableAlias,
-      String columnName,
-      ColumnType type,
-      org.molgenis.emx2.Operator operator,
-      Object[] values) {
-    Name name = name(alias(tableAlias), columnName);
-    if (!List.of(type.getOperators()).contains(operator)) {
+  /** Wrapper around all column conditions */
+  private Condition whereColumn(
+      String tableAlias, Column column, org.molgenis.emx2.Operator operator, Object[] values) {
+    Name columnName = name(alias(tableAlias), column.getName());
+    ColumnType columnType = column.getColumnType();
+    if (!List.of(columnType.getOperators()).contains(operator)) {
       throw new MolgenisException(
           "Operator="
               + operator
               + " not supported for columnType="
-              + type
+              + columnType
               + ". Condition: "
               + tableAlias
               + "."
-              + columnName
+              + column.getName()
               + " "
               + operator
               + " "
               + values);
     }
-    // cast value to the column type
-    if ((values[0] instanceof IsNullOrNotNull)) {
-      // skip
-    } else if (type.isFile()) {
+    // cast value to match the column type
+    if ((values[0] instanceof IsNullOrNotNull) || columnType.isReference()) {
+      // type casting is handled below
+    } else if (columnType.isFile()) {
       values = toStringArray(values);
-    } else if (ColumnType.JSON.equals(type)) {
-      values = toJsonbArray(values);
+    } else if (ColumnType.JSON.equals(columnType)) {
+      values = toJsonbArray(values); // doesn't have a array type
     } else if (values.length > 0) {
       values =
           (Object[])
-              (type.isArray()
-                  ? getTypedValue(values, type)
-                  : getTypedValue(values, getArrayType(type)));
+              (columnType.isArray()
+                  ? getTypedValue(values, columnType)
+                  : getTypedValue(values, getArrayType(columnType)));
     }
     switch (operator) {
-      case CONTAINS_ANY, EQUALS:
-        if (type.isArray()) {
-          return condition("{0} && {1}", field(name), values);
-        } else {
-          return condition(ANY_SQL, field(name), values);
-        }
-      case CONTAINS_NONE, NOT_EQUALS:
-        if (type.isArray()) {
-          return not(condition("{0} && {1}", field(name), values));
-        } else {
-          return not(condition(ANY_SQL, field(name), values));
-        }
+      case CONTAINS_ANY, EQUALS: // equals to be deprecated for ref columns,
+        return whereColumnEqualsOrContainsAny(tableAlias, columnName, column, values);
+      case CONTAINS_NONE, NOT_EQUALS: // non_equals to be deprecated for ref columns,
+        return not(whereColumnEqualsOrContainsAny(tableAlias, columnName, column, values));
       case CONTAINS_ALL:
-        if (type.isArray()) {
-          return condition("{0} <@ {1}", values, field(name));
-        } else {
-          throw new MolgenisException("Can apply CONTAINS_ALL only to array columns");
-        }
+        return whereColumnContainsAll(tableAlias, columnName, column, values);
       case IS:
-        if (type.isArray()) {
-          if (IsNullOrNotNull.NULL.equals(values[0])) {
-            return condition("({0} IS NULL OR {0} = '{}')", field(name));
-          } else {
-            return condition("({0} IS NOT NULL AND {0} <> '{}')", field(name));
-          }
-        } else {
-          if (IsNullOrNotNull.NULL.equals(values[0])) {
-            return field(name).isNull();
-          } else {
-            return field(name).isNotNull();
-          }
-        }
-      case NOT_LIKE:
-        if (type.isArray()) {
-          return not(
-              or(
-                  Arrays.stream(values)
-                      .map(value -> condition("{0} ILIKE ANY({1})", "%" + value + "%", field(name)))
-                      .toList()));
-        } else {
-          return not(
-              or(
-                  Arrays.stream(values)
-                      .map(value -> field(name).likeIgnoreCase("%" + value + "%"))
-                      .toList()));
-        }
+        return whereColumnIsNullOrNotNull(tableAlias, columnName, column, values);
       case LIKE:
-        if (type.isArray()) {
-          return or(
-              Arrays.stream(values)
-                  .map(value -> condition("{0} ILIKE ANY({1})", "%" + value + "%", field(name)))
-                  .toList());
-        } else {
-          return or(
-              Arrays.stream(values)
-                  .map(value -> field(name).likeIgnoreCase("%" + value + "%"))
-                  .toList());
-        }
+        return whereColumnLike(columnName, columnType.isArray(), values);
+      case NOT_LIKE:
+        return not(whereColumnLike(columnName, columnType.isArray(), values));
       case TRIGRAM_SEARCH:
-        if (type.isArray()) {
-          return or(
-              Arrays.stream(values)
-                  .map(
-                      value ->
-                          condition(
-                              "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE word_similarity({0},v) > 0.6",
-                              value, field(name)))
-                  .toList());
-        } else {
-          return or(
-              Arrays.stream(values)
-                  .map(
-                      value ->
-                          ((String) value).length() > 2
-                              ? condition("word_similarity({0},{1}) > 0.6", value, field(name))
-                              : field(name).likeIgnoreCase("%" + value + "%"))
-                  .toList());
-        }
+        return whereColumnTrigramSearch(columnName, columnType.isArray(), values);
       case TEXT_SEARCH:
-        if (type.isArray()) {
-          return or(
-              Arrays.stream((String[]) values)
-                  .map(
-                      value ->
-                          condition(
-                              "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE to_tsquery({0}) @@ to_tsvector(v)",
-                              value.trim().replaceAll("\\s+", ":* & ") + ":*", field(name)))
-                  .toList());
-        } else {
-          // NOTE WE ONLY SEARCH ON LONGER STRINGS
-          return or(
-              Arrays.stream((String[]) values)
-                  .map(
-                      value ->
-                          value.length() > 2
-                              ? condition(
-                                  "to_tsquery({0}) @@ to_tsvector({1})",
-                                  value.trim().replaceAll("\\s+", ":* & ") + ":*", field(name))
-                              : field(name).likeIgnoreCase("%" + value + "%"))
-                  .toList());
-        }
+        return whereColumnTextSearch(columnName, columnType.isArray(), (String[]) values);
       case NOT_BETWEEN:
-        return not(betweenCondition(name, values));
+        return not(whereColumnBetween(columnName, values));
       case BETWEEN:
-        return betweenCondition(name, values);
+        return whereColumnBetween(columnName, values);
+      case MATCH_INCLUDING_PARENTS:
+        return whereColumnInSubquery(
+            column,
+            DSL.select(
+                field(
+                    "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
+                    column.getRefTable().getSchemaName(),
+                    column.getRefTable().getTableName(),
+                    TypeUtils.toStringArray(values))));
+      case MATCH_INCLUDING_CHILDREN:
+        return whereColumnInSubquery(
+            column,
+            DSL.select(
+                field(
+                    "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
+                    column.getRefTable().getSchemaName(),
+                    column.getRefTable().getTableName(),
+                    TypeUtils.toStringArray(values))));
       default:
         throw new MolgenisException("Unknown operator: " + operator);
     }
   }
 
-  private static Condition betweenCondition(Name columnName, Object[] values) {
+  private static @NotNull Condition whereColumnContainsAll(
+      String tableAlias, Name columnName, Column columnMetadata, Object[] values) {
+    ColumnType type = columnMetadata.getColumnType().getBaseType();
+    if (type.isRefArray()) {
+      List<Field> compositeKeyFields =
+          columnMetadata.getReferences().stream()
+              .map(ref -> field(name(ref.getTargetColumn()), ref.getJooqType().getArrayBaseType()))
+              .toList();
+      return notExists(
+          selectOne()
+              .from(getCompositeKeyValuesAsTempTable(tableAlias, columnMetadata, values))
+              .where(
+                  row(compositeKeyFields)
+                      .notIn(
+                          DSL.select(getUnnestedRefArrayFields(columnMetadata))
+                              .from(getUnnestedRefArrayAsTable(tableAlias, columnMetadata)))));
+    } else if (type.isRefback()) {
+      if (columnMetadata.getReferences().size() == 1) {
+        return row(columnMetadata.getTable().getPrimaryKeyFields())
+            .in(
+                getRefBackSelect(columnMetadata)
+                    .where(
+                        condition(
+                            ANY_SQL,
+                            field(name(columnMetadata.getRefTable().getPrimaryKeys().get(0))),
+                            getTypedValue(values, columnMetadata.getPrimitiveColumnType()))));
+      } else {
+        return row(columnMetadata.getTable().getPrimaryKeyFields())
+            .in(
+                getRefBackSelect(columnMetadata)
+                    .where(
+                        row(columnMetadata.getRefBackColumn().getTable().getPrimaryKeyFields())
+                            .in(
+                                selectFrom(
+                                    getCompositeKeyValuesAsTempTable(
+                                        tableAlias, columnMetadata, values)))));
+      }
+    } else if (type.isArray()) {
+      return condition("{0} <@ {1}", values, field(columnName));
+    } else {
+      throw new MolgenisException("Can apply CONTAINS_ALL only to array columns");
+    }
+  }
+
+  private static @NotNull Condition whereColumnTextSearch(
+      Name columnName, boolean isArray, String[] values) {
+    if (isArray) {
+      return or(
+          Arrays.stream(values)
+              .map(
+                  value ->
+                      condition(
+                          "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE to_tsquery({0}) @@ to_tsvector(v)",
+                          value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName)))
+              .toList());
+    } else {
+      // NOTE WE ONLY SEARCH ON LONGER STRINGS
+      return or(
+          Arrays.stream(values)
+              .map(
+                  value ->
+                      value.length() > 2
+                          ? condition(
+                              "to_tsquery({0}) @@ to_tsvector({1})",
+                              value.trim().replaceAll("\\s+", ":* & ") + ":*", field(columnName))
+                          : field(columnName).likeIgnoreCase("%" + value + "%"))
+              .toList());
+    }
+  }
+
+  private static @NotNull Condition whereColumnTrigramSearch(
+      Name columnName, boolean isArray, Object[] values) {
+    if (isArray) {
+      return or(
+          Arrays.stream(values)
+              .map(
+                  value ->
+                      condition(
+                          "0 < ( SELECT COUNT(*) FROM unnest({1}) AS v WHERE word_similarity({0},v) > 0.6",
+                          value, field(columnName)))
+              .toList());
+    } else {
+      return or(
+          Arrays.stream(values)
+              .map(
+                  value ->
+                      ((String) value).length() > 2
+                          ? condition("word_similarity({0},{1}) > 0.6", value, field(columnName))
+                          : field(columnName).likeIgnoreCase("%" + value + "%"))
+              .toList());
+    }
+  }
+
+  private static @Nullable Condition whereColumnIsNullOrNotNull(
+      String tableAlias, Name columnName, Column columnMetadata, Object[] values) {
+    ColumnType type = columnMetadata.getColumnType().getBaseType();
+    if (type.isRefback()) {
+      // check if any reference (not)exist
+    } else if (type.isArray()) {
+      String sqlTemplate =
+          IsNullOrNotNull.NULL.equals(values[0])
+              ? "({0} IS NULL OR {0} = '{}')"
+              : "({0} IS NOT NULL AND {0} <> '{}')";
+      if (type.isReference() && columnMetadata.getReferences().size() > 1) {
+        return and(
+            columnMetadata.getReferences().stream()
+                .map(ref -> condition(sqlTemplate, field(name(tableAlias, ref.getName()))))
+                .toList());
+      } else {
+        return condition(sqlTemplate, field(columnName));
+      }
+    } else {
+      if (IsNullOrNotNull.NULL.equals(values[0])) {
+        return field(columnName).isNull();
+      } else {
+        return field(columnName).isNotNull();
+      }
+    }
+    return null;
+  }
+
+  private static @NotNull Condition whereColumnLike(
+      Name columnName, boolean isArray, Object[] values) {
+    if (isArray) {
+      return or(
+          Arrays.stream(values)
+              .map(value -> condition("{0} ILIKE ANY({1})", "%" + value + "%", field(columnName)))
+              .toList());
+    } else {
+      return or(
+          Arrays.stream(values)
+              .map(value -> field(columnName).likeIgnoreCase("%" + value + "%"))
+              .toList());
+    }
+  }
+
+  private static @NotNull Condition whereColumnEqualsOrContainsAny(
+      String tableAlias, Name columnName, Column columnDefinition, Object[] values) {
+    ColumnType type = columnDefinition.getColumnType().getBaseType();
+    if (type.isRef()) {
+      if (columnDefinition.getReferences().size() == 1) {
+        return columnDefinition.getJooqField().in(values);
+      } else {
+        Table<Record> compositeKeyValuesTempTable =
+            getCompositeKeyValuesAsTempTable(tableAlias, columnDefinition, values);
+        return row(columnDefinition.getReferences().stream()
+                .map(ref -> field(name(tableAlias, ref.getName())))
+                .toList())
+            .in(selectFrom(compositeKeyValuesTempTable));
+      }
+    } else if (type.isRefArray()) {
+      if (columnDefinition.getReferences().size() == 1) {
+        return condition(
+            "{0} && {1}",
+            field(columnName), getTypedValue(values, columnDefinition.getPrimitiveColumnType()));
+      } else {
+        // when size == 1 then use same as array below
+        return exists(
+            selectFrom(getUnnestedRefArrayAsTable(tableAlias, columnDefinition))
+                .where(
+                    row(getUnnestedRefArrayFields(columnDefinition))
+                        .in(
+                            selectFrom(
+                                getCompositeKeyValuesAsTempTable(
+                                    tableAlias, columnDefinition, values)))));
+      }
+    } else if (type.isRefback()) {
+      if (columnDefinition.getReferences().size() == 1) {
+        return row(columnDefinition.getTable().getPrimaryKeyFields())
+            .in(
+                getRefBackSelect(columnDefinition)
+                    .where(
+                        condition(
+                            ANY_SQL,
+                            field(name(columnDefinition.getRefTable().getPrimaryKeys().get(0))),
+                            getTypedValue(values, columnDefinition.getPrimitiveColumnType()))));
+      } else {
+        return row(columnDefinition.getTable().getPrimaryKeyFields())
+            .in(
+                getRefBackSelect(columnDefinition)
+                    .where(
+                        row(columnDefinition.getRefBackColumn().getTable().getPrimaryKeyFields())
+                            .in(
+                                selectFrom(
+                                    getCompositeKeyValuesAsTempTable(
+                                        tableAlias, columnDefinition, values)))));
+      }
+    } else if (type.isArray()) {
+      return condition("{0} && {1}", field(columnName), values);
+    } else {
+      return condition(ANY_SQL, field(columnName), values);
+    }
+  }
+
+  private static Condition whereColumnBetween(Name columnName, Object[] values) {
     List<Condition> conditions = new ArrayList<>();
     for (int i = 0; i < values.length; i++) {
       if (i + 1 > values.length)
@@ -1530,7 +1431,7 @@ public class SqlQuery extends QueryBean {
     return searchConditions.isEmpty() ? null : and(searchConditions);
   }
 
-  private static SelectJoinStep<org.jooq.Record> limitOffsetOrderBy(
+  private static SelectJoinStep<org.jooq.Record> applyLimitOffsetOrderBy(
       TableMetadata table,
       SelectColumn select,
       SelectConnectByStep<org.jooq.Record> query,
@@ -1543,6 +1444,88 @@ public class SqlQuery extends QueryBean {
       query = (SelectConditionStep) query.offset(select.getOffset());
     }
     return (SelectJoinStep<org.jooq.Record>) query;
+  }
+
+  private static @NotNull SelectJoinStep<Record> getRefBackSelect(Column column) {
+    SelectJoinStep<Record> refBackSelect =
+        DSL.select(
+                column.getRefBackColumn().getReferences().stream()
+                    .map(
+                        bref ->
+                            bref.isArray()
+                                ? field(UNNEST_0, name(bref.getName())).as(name(bref.getName()))
+                                : field(name(bref.getName())))
+                    .toList())
+            .from(column.getRefTable().getJooqTable());
+    return refBackSelect;
+  }
+
+  private static Table<Record> getUnnestedRefArrayAsTable(String subAlias, Column contains_column) {
+    Table<Record> unnestedRefArrayAsTable =
+        contains_column.getReferences().stream()
+            .map(
+                ref ->
+                    unnest(field(name(ref.getName()), ref.getJooqType()))
+                        .withOrdinality()
+                        .as(
+                            subAlias + "_" + ref.getName() + "_unnested",
+                            "unnested_" + ref.getName(),
+                            "ordinality"))
+            .reduce((table1, table2) -> table1.naturalJoin(table2))
+            .orElseThrow(() -> new IllegalStateException("No references available"));
+    return unnestedRefArrayAsTable;
+  }
+
+  private static @NotNull List<Field> getUnnestedRefArrayFields(Column contains_column) {
+    List<Field> unnestedRefArrayFields =
+        contains_column.getReferences().stream()
+            .map(
+                ref ->
+                    field(name("unnested_" + ref.getName()), ref.getJooqType().getArrayBaseType()))
+            .toList();
+    return unnestedRefArrayFields;
+  }
+
+  private static @NotNull Table<Record> getCompositeKeyValuesAsTempTable(
+      String subAlias, Column refColumn, Object[] values) {
+    return DSL.values(
+            Arrays.stream(values)
+                .map(
+                    value ->
+                        row(
+                            refColumn.getReferences().stream()
+                                .map(
+                                    ref ->
+                                        val(
+                                            ((Row) value)
+                                                .get(
+                                                    ref.getTargetColumn(),
+                                                    refColumn
+                                                        .getRefTable()
+                                                        .getColumn(ref.getTargetColumn())
+                                                        .getPrimitiveColumnType()),
+                                            ref.getJooqType().getArrayBaseDataType()))
+                                .toArray(Field[]::new)))
+                .toArray(RowN[]::new))
+        .as(
+            subAlias + "_" + refColumn.getName() + "_values",
+            refColumn.getReferences().stream()
+                .map(ref -> ref.getTargetColumn())
+                .toArray(String[]::new));
+  }
+
+  private void checkHasViewPermission(SqlTableMetadata table) {
+    if (!table.getTableType().equals(TableType.ONTOLOGIES)
+        && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
+      throw new MolgenisException("Cannot retrieve rows: requires VIEWER permission");
+    }
+  }
+
+  private Field<String> intervalField(String tableAlias, Column column) {
+    Field<?> intervalField = field(name(alias(tableAlias), column.getName()));
+    Field<String> functionCallField =
+        function("\"MOLGENIS\".interval_to_iso8601", String.class, intervalField);
+    return functionCallField.as(name(column.getIdentifier()));
   }
 
   private static Column getColumnByName(TableMetadata table, String columnName) {

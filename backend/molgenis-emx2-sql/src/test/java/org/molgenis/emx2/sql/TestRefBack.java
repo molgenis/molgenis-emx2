@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
@@ -28,11 +28,6 @@ public class TestRefBack {
   public void testRefArrayBack() {
     execute(REF_ARRAY);
   }
-
-  //  @Test
-  //  public void testMrefBack() {
-  //    execute(MREF);
-  //  }
 
   public void execute(ColumnType refArrayOrMref) {
 
@@ -75,6 +70,30 @@ public class TestRefBack {
             .get(0)
             .getStringArray("parts"),
         "bigscreen");
+
+    // contains_any
+    String result =
+        products
+            .select(s("productname"), s("parts", s("partname")))
+            .where(f("parts", CONTAINS_ANY, "smallscreen"))
+            .retrieveJSON();
+    assertTrue(result.contains("smallphone"));
+    assertFalse(result.contains("bigphone"));
+
+    result =
+        parts
+            .select(s("partname"), s("products", s("productname")))
+            .where(f("products", CONTAINS_ANY, "smallphone"))
+            .retrieveJSON();
+    assertTrue(result.contains("smallscreen"));
+    assertFalse(result.contains("bigscreen"));
+
+    result =
+        parts
+            .select(s("partname"), s("products", s("productname")))
+            .where(f("products", CONTAINS_ANY, "bigphone"))
+            .retrieveJSON();
+    assertTrue(result.contains("null"));
 
     // now multiple
     parts.update(
@@ -172,6 +191,20 @@ public class TestRefBack {
     // check filter on posts
     assertEquals(
         1, users.query().where(f("posts", f("title", EQUALS, "jacks post"))).retrieveRows().size());
+
+    String result =
+        users
+            .select(s("username"), s("posts", s("title")))
+            .where(f("posts", CONTAINS_ANY, "jacks post"))
+            .retrieveJSON();
+    assertTrue(result.contains("jacks"));
+
+    //    result =
+    //        users
+    //            .select(s("username"), s("posts", s("title")))
+    //            .where(f("posts", CONTAINS_ALL, "jacks post"))
+    //            .retrieveJSON();
+    //    assertTrue(result.contains("jacks"));
 
     // check graph query
     Query query = users.agg(s("count"));
