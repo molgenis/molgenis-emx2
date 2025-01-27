@@ -13,7 +13,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 class RdfUtilsTest {
   static final String TEST_SCHEMA = "TestRdfUtils";
   static final String BASE_URL = "http://molgenis.org/";
-  static final String RDF_API_URL_PREFIX = BASE_URL + TEST_SCHEMA + "/api/rdf/";
+  static final String NAMESPACE_IRI = BASE_URL + TEST_SCHEMA + "/api/rdf/";
 
   static Database database;
   static Schema rdfUtilsTest;
@@ -32,7 +32,7 @@ class RdfUtilsTest {
 
   @Test
   void testSchemaNamespaceRetrieval() {
-    Namespace expected = Values.namespace(TEST_SCHEMA, RDF_API_URL_PREFIX);
+    Namespace expected = Values.namespace(TEST_SCHEMA, NAMESPACE_IRI);
 
     Assertions.assertAll(
         () ->
