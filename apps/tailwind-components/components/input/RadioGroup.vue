@@ -10,7 +10,7 @@
     <div v-for="option in radioOptions" class="flex justify-start align-center">
       <InputRadio
         :id="`${id}-radio-group-${option.value}`"
-        class="sr-only"
+        class="sr-only fixed"
         :name="id"
         :value="option.value"
         :modelValue="props.modelValue"

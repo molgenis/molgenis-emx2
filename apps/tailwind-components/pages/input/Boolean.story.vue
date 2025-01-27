@@ -17,7 +17,7 @@
     true-label="Yes please !"
     false-label="No thank you"
   />
-  <div class="my-4">Be polite: {{ modelValue3 }}</div>
+  <div class="my-4">Be polite: {{ politeBoolean }}</div>
 </template>
 
 <script lang="ts" setup>
