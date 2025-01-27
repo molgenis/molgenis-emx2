@@ -1,7 +1,7 @@
 <template>
   <ProviderDashboard>
     <h2 class="dashboard-h2">
-      Overview of patients {{ ageGroupFilter }} years old (n={{ totalCases }})
+      Overview of patients {{ selectedAgeGroup }} of age
     </h2>
     <DashboardRow :columns="1">
       <DashboardChart>
@@ -14,103 +14,236 @@
         <select
           class="inputs select"
           id="yearOfBirthFilter"
-          @change="onYearOfBirthFilter"
+          v-model="selectedAgeGroup"
+          @change="updateCharts"
         >
-          <option value="3-4" selected>3-4 years</option>
-          <option value="5-6">5-6 years</option>
-          <option value="8-9">8-9 years</option>
-          <option value="10-12">10-12 years</option>
-          <option value="18+">18+ years</option>
+          <option v-for="age in ageGroups" :value="age">{{ age }}</option>
         </select>
       </DashboardChart>
     </DashboardRow>
     <DashboardRow :columns="1">
-      <DashboardChart id="clp-outcome-cleft-q" v-if="showCleftOutcomes">
+      <DashboardChart v-if="currentVisibleChart === 'cleftq'">
+        <LoadingScreen v-if="loading" />
         <GroupedColumnChart
-          chartId="clp-outcome-cleft-q-hcp-ern"
-          title="Cleft-Q Outcomes"
-          :chartData="cleftOutcomes"
-          group="group"
-          xvar="category"
-          yvar="value"
-          :yMax="100"
-          :yTickValues="[0, 25, 50, 75, 100]"
-          :columnColorPalette="colors"
+          v-else
+          :chartId="cleftqOutcomesChart?.chartId"
+          :title="cleftqOutcomesChart?.chartTitle"
+          :description="cleftqOutcomesChart?.chartSubtitle"
+          :chartData="cleftqOutcomesChartData"
+          xvar="dataPointSecondaryCategory"
+          yvar="dataPointValue"
+          group="dataPointName"
+          :xAxisLabel="cleftqOutcomesChart?.xAxisLabel"
+          :yAxisLabel="cleftqOutcomesChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="cleftqOutcomesChart?.yAxisMaxValue"
+          :yTickValues="cleftqOutcomesChart?.yAxisTicks"
+          :columnColorPalette="chartColorPalette"
           :chartHeight="250"
+          :chartMagins="{
+            top: cleftqOutcomesChart?.topMargin,
+            right: cleftqOutcomesChart?.rightMargin,
+            bottom: cleftqOutcomesChart?.bottomMargin,
+            left: cleftqOutcomesChart?.leftMargin,
+          }"
         />
       </DashboardChart>
-      <DashboardChart id="clp-outcome-cleft-q" v-if="showIcsOutcomes">
+      <DashboardChart v-else>
+        <LoadingScreen v-if="loading" />
         <GroupedColumnChart
-          chartId="clp-outcome-ics-hcp-ern"
-          title="ICS Outcomes"
-          :chartData="icsOutcomes"
-          group="group"
-          xvar="category"
-          yvar="value"
-          :yMax="10"
-          :yTickValues="[0, 5, 10]"
-          :columnColorPalette="colors"
+          v-else
+          :chartId="icsOutcomesChart?.chartId"
+          :title="icsOutcomesChart?.chartTitle"
+          :description="icsOutcomesChart?.chartSubtitle"
+          :chartData="icsOutcomesChartData"
+          xvar="dataPointSecondaryCategory"
+          yvar="dataPointValue"
+          group="dataPointName"
+          :xAxis="icsOutcomesChart?.xAxisLabel"
+          :yAxis="icsOutcomesChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="icsOutcomesChart?.yAxisMaxValue"
+          :yTickValues="icsOutcomesChart?.yAxisTicks"
+          :columnColorPalette="chartColorPalette"
           :chartHeight="250"
+          :chartMagins="{
+            top: icsOutcomesChart?.topMargin,
+            right: icsOutcomesChart?.rightMargin,
+            bottom: icsOutcomesChart?.bottomMargin,
+            left: icsOutcomesChart?.leftMargin,
+          }"
         />
       </DashboardChart>
     </DashboardRow>
   </ProviderDashboard>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
 import {
   DashboardRow,
   DashboardChart,
   GroupedColumnChart,
   InputLabel,
+  LoadingScreen,
+  // @ts-expect-error
 } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 
-// generate random data for display purposes
-import { randomGroupDataset } from "../utils/devtools";
-let cleftOutcomes = ref([]);
-let icsOutcomes = ref([]);
-let showCleftOutcomes = ref(false);
-let showIcsOutcomes = ref(true);
-let ageGroupFilter = ref("3-4");
-let totalCases = ref(0);
+import { generateAxisTickData } from "../utils/generateAxisTicks";
+import { uniqueValues } from "../utils";
+import { getDashboardChart } from "../utils/getDashboardData";
+import { getUniqueAgeRanges } from "../utils/clpUtils";
+import { sortByDataPointName } from "../utils";
 
-const colors = { "Your Center": "#66c2a4", "ERN Average": "#9f6491" };
+import type { ICharts, IChartData } from "../types/schema";
+import type { IKeyValuePair } from "../types";
+import type { IAppPage } from "../types/app";
+const props = defineProps<IAppPage>();
 
-function setOutcomesData() {
-  cleftOutcomes.value = randomGroupDataset(
-    ["Your Center", "ERN Average"],
-    ["Jaw", "Lip", "School", "Social", "Speech"],
-    5,
-    100
+const loading = ref<boolean>(true);
+const ageGroups = ref<string[]>();
+const selectedAgeGroup = ref<string>();
+const icsOutcomesChart = ref<ICharts>();
+const icsOutcomesChartData = ref<IChartData[]>();
+const cleftqOutcomesChart = ref<ICharts>();
+const cleftqOutcomesChartData = ref<IChartData[]>();
+const chartColorPalette = ref<IKeyValuePair>();
+
+type chartTypes = "ics" | "cleftq";
+const currentVisibleChart = ref<chartTypes>("ics");
+
+async function getPageData() {
+  const icsCenterResponse = await getDashboardChart(
+    props.api.graphql.current,
+    "clp-all-centers-ics-results"
   );
 
-  icsOutcomes.value = randomGroupDataset(
-    ["Your Center", "ERN Average"],
-    ["Average total score", "Total score"],
-    1,
-    10
+  const icsErnResponse = await getDashboardChart(
+    props.api.graphql.providers,
+    "clp-all-centers-ics-results"
   );
 
-  if (showCleftOutcomes.value) {
-    totalCases.value = cleftOutcomes.value
-      .map((row) => row.value)
-      .reduce((sum, value) => sum + value, 0);
-  } else {
-    totalCases.value = icsOutcomes.value
-      .map((row) => row.value)
-      .reduce((sum, value) => sum + value, 0);
+  const cleftqCenterResponse = await getDashboardChart(
+    props.api.graphql.current,
+    "clp-all-centers-cleft-q-outcomes"
+  );
+
+  const cleftqErnResponse = await getDashboardChart(
+    props.api.graphql.providers,
+    "clp-all-centers-cleft-q-outcomes"
+  );
+
+  icsOutcomesChart.value = icsCenterResponse[0];
+  cleftqOutcomesChart.value = cleftqCenterResponse[0];
+  icsOutcomesChart.value.dataPoints = [
+    ...(icsCenterResponse[0].dataPoints as IChartData[]),
+    ...(icsErnResponse[0].dataPoints as IChartData[]),
+  ] as IChartData[];
+
+  cleftqOutcomesChart.value.dataPoints = [
+    ...(cleftqCenterResponse[0].dataPoints as IChartData[]),
+    ...(cleftqErnResponse[0].dataPoints as IChartData[]),
+  ];
+}
+
+function updateIcsChart() {
+  icsOutcomesChartData.value = icsOutcomesChart.value?.dataPoints?.filter(
+    (row: IChartData) => {
+      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+    }
+  );
+
+  const chartTicks = generateAxisTickData(
+    icsOutcomesChartData.value!,
+    "dataPointValue"
+  );
+
+  if (icsOutcomesChart.value) {
+    icsOutcomesChart.value.yAxisMaxValue = chartTicks.limit;
+    icsOutcomesChart.value.yAxisTicks = chartTicks.ticks;
   }
 }
 
-function onYearOfBirthFilter(event) {
-  const ageGroup = event.target.value;
-  ageGroupFilter.value = ageGroup;
-  showCleftOutcomes.value = ["8-9", "10-12", "18+"].includes(ageGroup);
-  showIcsOutcomes.value = ["3-4", "5-6"].includes(ageGroup);
-  setOutcomesData();
+function updateCleftqChart() {
+  cleftqOutcomesChartData.value = cleftqOutcomesChart.value?.dataPoints?.filter(
+    (row: IChartData) => {
+      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+    }
+  );
+  const chartTicks = generateAxisTickData(
+    cleftqOutcomesChartData.value!,
+    "dataPointValue"
+  );
+
+  if (cleftqOutcomesChart.value) {
+    cleftqOutcomesChart.value.yAxisMaxValue = chartTicks.limit;
+    cleftqOutcomesChart.value.yAxisTicks = chartTicks.ticks;
+  }
 }
 
-setOutcomesData();
+function updateCharts() {
+  if (["3-4 years", "5-6 years"].includes(selectedAgeGroup.value as string)) {
+    updateIcsChart();
+    currentVisibleChart.value = "ics";
+  } else {
+    updateCleftqChart();
+    currentVisibleChart.value = "cleftq";
+  }
+}
+
+onMounted(() => {
+  getPageData()
+    .then(() => {
+      if (icsOutcomesChart.value?.dataPoints) {
+        icsOutcomesChart.value.dataPoints = sortByDataPointName(
+          icsOutcomesChart.value.dataPoints
+        );
+      }
+
+      if (cleftqOutcomesChart.value?.dataPoints) {
+        cleftqOutcomesChart.value.dataPoints = sortByDataPointName(
+          cleftqOutcomesChart.value.dataPoints
+        );
+      }
+
+      const distinctGroups = uniqueValues(
+        [
+          ...(cleftqOutcomesChart.value?.dataPoints as IChartData[]),
+          ...(icsOutcomesChart.value?.dataPoints as IChartData[]),
+        ],
+        "dataPointSecondaryCategory"
+      );
+
+      if (distinctGroups.length > 2) {
+        throw new Error(
+          "For chart groupings, the number of groups cannot be more than 2."
+        );
+      } else {
+        const colors = ["#9f6491", "#66c2a4"]; // purple, green
+        chartColorPalette.value = Object.fromEntries(
+          distinctGroups.map((value: string, index: number) => [
+            value,
+            colors[index],
+          ])
+        );
+      }
+
+      const allData = [
+        ...icsOutcomesChart.value?.dataPoints!,
+        ...cleftqOutcomesChart.value?.dataPoints!,
+      ];
+      ageGroups.value = getUniqueAgeRanges(allData, "dataPointPrimaryCategory");
+      selectedAgeGroup.value = ageGroups.value[0];
+    })
+    .then(() => {
+      updateCharts();
+    })
+    .catch((err) => {
+      throw new Error(err);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+});
 </script>
