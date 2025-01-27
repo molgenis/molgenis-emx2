@@ -80,6 +80,7 @@ module.exports = {
       },
       red: {
         500: "#E14F62",
+        700: "#AE2A3F",
       },
     },
     extend: {
@@ -154,6 +155,7 @@ module.exports = {
         "invalid": "var(--background-color-invalid)",
         "input": "var(--background-color-input)",
         "table": "var(--background-color-table)",
+        "notification": "var(--background-color-notification)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -206,6 +208,7 @@ module.exports = {
         "valid": "var(--text-color-valid)",
         "disabled": "var(--text-color-disabled)",
         "required": "var(--text-color-required)",
+        "legend-error-count": "var(--text-color-legend-error-count)",
       }),
       borderColor: ({ theme }) => ({
         "button-primary": "var(--border-color-button-primary)",
@@ -232,10 +235,13 @@ module.exports = {
       }),
       stroke: ({ theme }) => ({
         "input": "var(--border-color-input)",
+        "notification-text": "var(--text-color-legend-error-count)",
       }),
       fill: ({ theme }) => ({
         "input": "var(--background-color-input)",
         "input-checked": "var(--background-color-input-checked)",
+        "notification": "var(--background-color-notification)",
+        "notification-text": "var(--text-color-legend-error-count)",
       }),
       borderRadius: {
         "3px": "var(--border-radius-3px)",
