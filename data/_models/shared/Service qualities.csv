@@ -1,0 +1,8 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+Service qualities,,,,,,,,,,,,Quality information for services,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Service qualities,,sample collection,ref,1,TRUE,,Services,,,,,Service the quality information pertains to,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Service qualities,,quality standard,ontology,1,TRUE,CatalogueOntologies,Quality standards,,,,,Quality standard,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Service qualities,,assessment level,ontology,,TRUE,CatalogueOntologies,Assessment levels,,,,,Assessment level,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Service qualities,,certification number,text,,FALSE,,,,,,,Certification Number,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Service qualities,,certification report,hyperlink,,FALSE,,,,,,,Certification Report,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
+Service qualities,,certification image url,hyperlink,,FALSE,,,,,,,Certification Image,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",
