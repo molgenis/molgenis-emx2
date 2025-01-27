@@ -5,7 +5,7 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   : "/apps/tailwind-components/#/";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto(`${route}/input/Hyperlink.story`);
+  await page.goto(`${route}input/Hyperlink.story`);
   await page
     .getByRole("textbox", { name: "Input a hyperlink" })
     .click({ delay: 500 });
