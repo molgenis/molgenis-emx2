@@ -13,6 +13,8 @@ const props = withDefaults(
     icon?: string;
     iconPosition?: ButtonIconPosition;
     disabled?: boolean;
+    iconOnly?: boolean;
+    tooltip?: string;
   }>(),
   {
     type: "primary",
@@ -20,6 +22,7 @@ const props = withDefaults(
     label: "",
     iconPosition: "left",
     disabled: false,
+    iconOnly: false,
   }
 );
 
@@ -55,22 +58,27 @@ const colorClasses = computed(() => {
 });
 
 const sizeClasses = computed(() => {
-  return SIZE_MAPPING[props.size];
+  return props.iconOnly ? "p-[8px]" : SIZE_MAPPING[props.size];
 });
 
 const iconPositionClass = computed(() => {
   return ICON_POSITION_MAPPING[props.iconPosition];
 });
+
+const tooltipText = computed(() => {
+  return props.tooltip || props.iconOnly ? props.label : "";
+});
 </script>
 
 <template>
   <button
+    v-tooltip.bottom="tooltipText"
     class="flex items-center border rounded-input group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input"
     :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
   >
     <span v-if="icon">
       <BaseIcon :name="icon" />
     </span>
-    <span>{{ label }}<slot /></span>
+    <span :class="{ 'sr-only': iconOnly }">{{ label }}<slot /></span>
   </button>
 </template>
