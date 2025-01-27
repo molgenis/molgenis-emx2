@@ -80,6 +80,7 @@ module.exports = {
       },
       red: {
         500: "#E14F62",
+        700: "#AE2A3F",
       },
     },
     extend: {
@@ -157,6 +158,7 @@ module.exports = {
         "listbox-hover": "var(--background-color-listbox-hover)",
         "listbox-selected": "var(--background-color-listbox-selected)",
         "table": "var(--background-color-table)",
+        "notification": "var(--background-color-notification)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -213,6 +215,7 @@ module.exports = {
         "listbox-hover": "var(--text-color-listbox-hover)",
         "listbox-selected": "var(--text-color-listbox-selected)",
         "button-input-toggle": "var(--text-color-button-input-toggle)",
+        "legend-error-count": "var(--text-color-legend-error-count)",
       }),
       borderColor: ({ theme }) => ({
         "button-primary": "var(--border-color-button-primary)",
@@ -241,11 +244,14 @@ module.exports = {
       }),
       stroke: ({ theme }) => ({
         "input": "var(--border-color-input)",
+        "notification-text": "var(--text-color-legend-error-count)",
       }),
       fill: ({ theme }) => ({
         "input": "var(--background-color-input)",
         "input-checked": "var(--background-color-input-checked)",
         "listbox-selected": "var(--text-color-listbox-selected)",
+        "notification": "var(--background-color-notification)",
+        "notification-text": "var(--text-color-legend-error-count)",
       }),
       borderRadius: {
         "3px": "var(--border-radius-3px)",

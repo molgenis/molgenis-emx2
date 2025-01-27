@@ -91,6 +91,13 @@ export interface IFieldError {
   message: string;
 }
 
+export interface IFormLegendSection {
+  label: string;
+  domId: string;
+  isActive?: boolean;
+  errorCount?: number;
+}
+
 export type columnId = string;
 export type columnValue = string | number | boolean | columnValueObject;
 
