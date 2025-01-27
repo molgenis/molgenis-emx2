@@ -51,7 +51,7 @@ function validate(value: columnValue) {
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
-  ></LazyInputString>
+  />
   <LazyInputTextArea
     v-else-if="type === 'TEXT'"
     ref="input"
@@ -62,6 +62,17 @@ function validate(value: columnValue) {
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
-  ></LazyInputTextArea>
+  />
+  <LazyInputHyperlink
+    v-else-if="type === 'HYPERLINK'"
+    ref="input"
+    :id="id"
+    :label="label"
+    :required="required"
+    :value="data as string"
+    @focus="$emit('focus')"
+    @update:modelValue="$emit('update:modelValue', $event)"
+    @error="$emit('error', $event)"
+  />
   <LazyInputPlaceHolder v-else ref="input" :type="type" />
 </template>
