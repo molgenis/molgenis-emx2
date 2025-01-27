@@ -2,6 +2,7 @@ package org.molgenis.emx2.rdf;
 
 import static java.util.Map.entry;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.molgenis.emx2.Constants.API_FILE;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 
 import com.google.common.net.UrlEscapers;
@@ -200,7 +201,8 @@ public class ColumnTypeRdfMapper {
             Values.iri(
                 baseURL
                     + schemaPath
-                    + "/api/file/"
+                    + API_FILE
+                    + "/"
                     + tablePath
                     + "/"
                     + columnPath

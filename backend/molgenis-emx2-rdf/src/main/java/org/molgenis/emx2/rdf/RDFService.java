@@ -55,7 +55,8 @@ public class RDFService {
   public static final IRI IRI_CONTROLLED_VOCABULARY =
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C48697");
 
-  private static final String SETTING_CUSTOM_RDF = "custom_rdf";
+  // Advanced setting containing valid Turtle-formatted RDF.
+  public static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
   /**
    * SIO:001055 = observing (definition: observing is a process of passive interaction in which one
