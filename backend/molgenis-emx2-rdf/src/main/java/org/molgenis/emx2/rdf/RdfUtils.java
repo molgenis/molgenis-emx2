@@ -9,7 +9,7 @@ import org.molgenis.emx2.utils.TypeUtils;
 
 abstract class RdfUtils {
   private static final String RDF_API_LOCATION = "/api/rdf/";
-  
+
   /**
    * Get the namespace for a schema
    *
