@@ -4,9 +4,14 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
   : "/apps/tailwind-components/#/";
 
-test("the inputHyperLink", async ({ page }) => {
+test.beforeEach(async ({ page }) => {
   await page.goto(`${route}/input/Hyperlink.story`);
-  await page.waitForTimeout(500); // wait for hydration to complete
+  await page
+    .getByRole("textbox", { name: "Input a hyperlink" })
+    .click({ delay: 500 });
+});
+
+test("the inputHyperLink", async ({ page }) => {
   await expect(page.getByText("Error:")).not.toContainText(
     "Error: Invalid hyperlink"
   );
