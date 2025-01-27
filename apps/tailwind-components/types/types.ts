@@ -1,4 +1,5 @@
 import type { IColumn } from "../../metadata-utils/dist";
+import type { columnValue } from "../../metadata-utils/src/types";
 
 export type Resp<T> = {
   data: Record<string, T[]>;
@@ -91,8 +92,8 @@ export interface IDocumentation {
   file: IFile;
 }
 
-export interface RadioOptionsDataIF {
-  value: string | boolean;
+export interface IRadioOptionsData {
+  value: columnValue;
   label?: string;
   checked?: boolean | undefined;
 }

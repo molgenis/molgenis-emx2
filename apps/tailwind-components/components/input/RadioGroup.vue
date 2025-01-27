@@ -32,12 +32,7 @@
     </div>
 
     <button
-      v-show="
-        showClearButton &&
-        (modelValue === true ||
-          modelValue === false ||
-          (typeof modelValue === 'string' && modelValue.length > 0))
-      "
+      v-show="isClearBtnShow"
       class="ml-2 w-8 text-center text-button-outline hover:text-button-outline hover:underline"
       :class="{ 'ml-2': align === 'horizontal', 'mt-2': align === 'vertical' }"
       type="reset"
@@ -51,13 +46,13 @@
 </template>
 
 <script lang="ts" setup>
-import type { RadioOptionsDataIF } from "~/types/types";
+import type { IRadioOptionsData } from "~/types/types";
 
 const props = withDefaults(
   defineProps<{
     id: string;
     modelValue: boolean | string | null;
-    radioOptions: RadioOptionsDataIF[];
+    radioOptions: IRadioOptionsData[];
     showClearButton?: boolean;
     align?: "horizontal" | "vertical";
   }>(),
@@ -72,4 +67,13 @@ const emit = defineEmits(["update:modelValue"]);
 function resetModelValue() {
   emit("update:modelValue", null);
 }
+
+const isClearBtnShow = computed(() => {
+  return (
+    props.showClearButton &&
+    (props.modelValue === true ||
+      props.modelValue === false ||
+      (typeof props.modelValue === "string" && props.modelValue.length > 0))
+  );
+});
 </script>

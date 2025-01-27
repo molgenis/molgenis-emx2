@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { RadioOptionsDataIF } from "~/types/types";
+import type { IRadioOptionsData } from "~/types/types";
 
 const props = withDefaults(
   defineProps<{
@@ -56,16 +56,28 @@ function validate(value: boolean | null) {
   }
 }
 
-const radioOptions = ref<RadioOptionsDataIF[]>([
+const radioOptions = ref<IRadioOptionsData[]>([
   { value: true, label: props.trueLabel },
   { value: false, label: props.falseLabel },
 ]);
 
 const modelValue = ref<boolean | undefined>(undefined);
 
-function onInput(value: string | boolean) {
-  const booleanValue =
-    value === "true" ? true : value === "false" ? false : null;
+function toBoolean(value: string) {
+  switch (value) {
+    case "true":
+      return true;
+
+    case "false":
+      return false;
+
+    default:
+      return null;
+  }
+}
+
+function onInput(value: string) {
+  const booleanValue = toBoolean(value);
   emit("update:modelValue", booleanValue);
   validate(booleanValue);
 }
