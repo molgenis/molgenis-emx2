@@ -8,6 +8,8 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.utils.TypeUtils;
 
 abstract class RdfUtils {
+  private static final String RDF_API_LOCATION = "/api/rdf/";
+  
   /**
    * Get the namespace for a schema
    *
@@ -17,7 +19,7 @@ abstract class RdfUtils {
    */
   static Namespace getSchemaNamespace(final String baseURL, final SchemaMetadata schema) {
     final String schemaName = UrlEscapers.urlPathSegmentEscaper().escape(schema.getName());
-    final String url = baseURL + schemaName + "/api/rdf/";
+    final String url = baseURL + schemaName + RDF_API_LOCATION;
     final String prefix = TypeUtils.convertToPascalCase(schema.getName());
     return Values.namespace(prefix, url);
   }
