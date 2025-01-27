@@ -6,6 +6,7 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test("the inputHyperLink", async ({ page }) => {
   await page.goto(`${route}/input/Hyperlink.story`);
+  await page.getByPlaceholder("https://example.com").click({ delay: 500 }); // wait for hydration to complete
   await expect(page.getByText("Error:")).not.toContainText(
     "Error: Invalid hyperlink"
   );
