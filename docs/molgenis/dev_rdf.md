@@ -19,7 +19,7 @@ When this advanced setting is set, it will result in the following:
 
 Some notes on multi-schema API calls:
 * The triples in `custom_rdf` of all selected schema's will be combined.
-* If any of them does not have a `custom_rdf`, the default namespaces will be included as well.
+* If any of the schemas does not have a `custom_rdf`, the default namespaces will be included as well.
 * Conflicts in namespaces will not break the RDF output but might result in unexpected behaviour. Examples include:
   * If 2 different namespaces use the same prefix, only one of them will use that prefix while the other simply returns full IRIs in the API output.
   * If 2 identical namespaces exist with a different prefix, only one of the prefixes will be used for all IRIs belonging to that namespace.
