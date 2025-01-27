@@ -63,6 +63,17 @@ function validate(value: columnValue) {
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
   />
+  <LazyInputHyperlink
+    v-else-if="type === 'HYPERLINK'"
+    ref="input"
+    :id="id"
+    :label="label"
+    :required="required"
+    :value="data as string"
+    @focus="$emit('focus')"
+    @update:modelValue="$emit('update:modelValue', $event)"
+    @error="$emit('error', $event)"
+  />
   <LazyInputBoolean
     v-else-if="type === 'BOOL'"
     ref="input"
