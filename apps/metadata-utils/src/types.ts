@@ -108,6 +108,6 @@ interface columnValueObject {
 export type IInputValue = string | number | boolean;
 
 export type IInputValueLabel = {
-  value: IInputValue | IInputValue[];
+  value: IInputValue | IInputValue[] | null;
   label?: string;
 };

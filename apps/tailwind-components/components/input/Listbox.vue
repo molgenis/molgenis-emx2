@@ -1,4 +1,5 @@
 <template>
+  model: {{ modelValue }}
   <div class="w-full relative">
     <InputListboxToggle
       :id="id"
@@ -24,8 +25,8 @@
         v-for="option in listboxOptions"
         ref="listbox-li"
         :id="option.elemId"
-        :isSelected="isSelected(option.value as IInputValue)"
-        :label="option.label || (option.value as string)"
+        :isSelected="option.value === '' || isSelected(option.value as IInputValue)"
+        :label="(option.label as string) || (option.value as string)"
         @click="onListboxOptionClick(option)"
         @blur="blurListOption(option)"
         @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
@@ -41,11 +42,11 @@ import type {
   IFieldError,
   IInputValue,
   IInputValueLabel,
-} from "../../../../metadata-utils/src/types";
+} from "../../../metadata-utils/src/types";
 import type {
   IInternalListboxOption,
   IListboxLiRef,
-} from "../../../types/listbox";
+} from "../../types/listbox";
 
 import { InputListboxToggle } from "#components";
 
@@ -138,7 +139,7 @@ const listboxOptions = computed<IInternalListboxOption[]>(() => {
   }
 
   const defaultOption: IInputValueLabel = {
-    value: "",
+    value: null,
     label: props.placeholder,
   };
   const inputData = sourceData.value as IInputValueLabel[];
@@ -186,6 +187,7 @@ function blurListOption(option: IInternalListboxOption) {
 }
 
 function updateDisplayText(text: string | undefined | null): string {
+  console.log(text);
   if (typeof text === "undefined" || text === null) {
     return props.placeholder;
   }
