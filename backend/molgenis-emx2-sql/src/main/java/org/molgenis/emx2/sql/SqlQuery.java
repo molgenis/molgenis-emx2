@@ -115,7 +115,7 @@ public class SqlQuery extends QueryBean {
             .from(tableWithInheritanceJoin(table).as(alias(tableAlias)));
 
     // joins, only filtered tables
-    from = applyRefJoins(table, tableAlias, from, filter, select, new ArrayList<>());
+    from = refJoins(table, tableAlias, from, filter, select, new ArrayList<>());
 
     // where
     Condition condition = rowConditions(table, tableAlias, filter, searchTerms);
@@ -833,7 +833,7 @@ public class SqlQuery extends QueryBean {
     return result;
   }
 
-  private SelectJoinStep<org.jooq.Record> applyRefJoins(
+  private SelectJoinStep<org.jooq.Record> refJoins(
       TableMetadata table,
       String tableAlias,
       SelectJoinStep<org.jooq.Record> join,
@@ -845,7 +845,7 @@ public class SqlQuery extends QueryBean {
     if (filters != null) {
       for (Filter filter : filters.getSubfilters()) {
         if (OR.equals(filter.getOperator()) || AND.equals(filter.getOperator())) {
-          join = applyRefJoins(table, tableAlias, join, filter, selection, aliasList);
+          join = refJoins(table, tableAlias, join, filter, selection, aliasList);
         } else {
           Column column = getColumnByName(table, filter.getColumn());
           if (column.isReference() && !filter.getSubfilters().isEmpty()) {
@@ -858,7 +858,7 @@ public class SqlQuery extends QueryBean {
                   .on(refJoinCondition(column, tableAlias, subAlias));
               // recurse
               join =
-                  applyRefJoins(
+                  refJoins(
                       column.getRefTable(),
                       subAlias,
                       join,
@@ -884,7 +884,7 @@ public class SqlQuery extends QueryBean {
                 .on(refJoinCondition(column, tableAlias, subAlias));
             // recurse
             join =
-                applyRefJoins(
+                refJoins(
                     column.getRefTable(),
                     subAlias,
                     join,
