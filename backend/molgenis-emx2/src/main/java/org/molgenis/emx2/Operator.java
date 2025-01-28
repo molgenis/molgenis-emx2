@@ -10,7 +10,7 @@ public enum Operator {
       "Uses '=' operator. In case of arrays '= ANY'. Will be deprecated for arrays, use CONTAINS_ANY."),
   CONTAINS_ANY(
       "contains_any", "For arrays if there is any overlap with column values. Used to be 'equals'"),
-  CONTAINS_ALL("contains_any", "For arrays if all values are included in the column value"),
+  // CONTAINS_ALL("contains_any", "For arrays if all values are included in the column value"),
   CONTAINS_NONE("contains_none", "For arrays to check if none of the values are include"),
   NOT_EQUALS(
       "not_equals",
