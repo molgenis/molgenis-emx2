@@ -167,6 +167,7 @@ const metadataQuery = `{
     id,
     tables {
       id,
+      name,
       label, 
       description,
       tableType,
