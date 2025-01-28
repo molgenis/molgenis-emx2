@@ -476,7 +476,7 @@ class Client:
                 response_data = response_data.drop_duplicates(keep='first').reset_index(drop=True)
         else:
             query_url = f"{self.url}/{current_schema}/graphql"
-            query = self._parse_get_table_query(table_id, columns)
+            query = self._parse_get_table_query(table_id, current_schema, columns)
             response = self.session.post(url=query_url,
                                         json={"query": query, "variables": {"filter": filter_part}})
             self._validate_graphql_response(response=response,
@@ -1123,11 +1123,11 @@ class Client:
             raise ServerNotFoundError(f"Invalid URL {self.url!r}. "
                                       f"Perhaps you meant 'https://{self.url}'?")
 
-    def _parse_get_table_query(self, table_id: str, columns: list = None) -> str:
+    def _parse_get_table_query(self, table_id: str, schema: str, columns: list = None) -> str:
         """Gathers a table's metadata and parses it to a GraphQL query
         for querying the table's contents.
         """
-        schema_metadata: Schema = self.get_schema_metadata()
+        schema_metadata: Schema = self.get_schema_metadata(schema)
         table_metadata: Table = schema_metadata.get_table('id', table_id)
 
         query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
@@ -1141,8 +1141,12 @@ class Client:
             elif col.get('columnType').startswith('ONTOLOGY'):
                 query += f"    {col.get('id')} {{name}}\n"
             elif col.get('columnType').startswith('REF'):
+                if (ref_schema := col.get('refSchemaName', schema)) == schema:
+                    pkeys = schema_metadata.get_pkeys(col.get('refTableId'))
+                else:
+                    ref_schema_meta = self.get_schema_metadata(ref_schema)
+                    pkeys = ref_schema_meta.get_pkeys(col.get('refTableId'))
                 query += f"    {col.get('id')} {{"
-                pkeys = schema_metadata.get_pkeys(col.get('refTableId'))
                 query += parse_nested_pkeys(pkeys)
                 query += "}\n"
             elif col.get('columnType').startswith('FILE'):
