@@ -1,5 +1,4 @@
 <template>
-  model: {{ modelValue }}
   <div class="w-full relative">
     <InputListboxToggle
       :id="id"
