@@ -4,6 +4,8 @@ import static java.util.Map.entry;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
 import static org.molgenis.emx2.Constants.SUBSELECT_SEPARATOR;
+import static org.molgenis.emx2.Constants.API_FILE;
+import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 
 import com.google.common.net.UrlEscapers;
 import java.time.LocalDateTime;
@@ -16,7 +18,6 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.eclipse.rdf4j.model.util.Values;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.utils.URIUtils;
 
 /**
@@ -199,7 +200,8 @@ public class ColumnTypeRdfMapper {
             Values.iri(
                 baseURL
                     + schemaPath
-                    + "/api/file/"
+                    + API_FILE
+                    + "/"
                     + tablePath
                     + "/"
                     + columnPath
@@ -296,14 +298,6 @@ public class ColumnTypeRdfMapper {
 
     RdfColumnType(CoreDatatype.XSD coreDatatype) {
       this.coreDatatype = coreDatatype;
-    }
-
-    // TODO: Fix code duplicity with RDFService.
-    private static Namespace getSchemaNamespace(final String baseURL, final SchemaMetadata schema) {
-      final String schemaName = UrlEscapers.urlPathSegmentEscaper().escape(schema.getName());
-      final String url = baseURL + schemaName + "/api/rdf/";
-      final String prefix = TypeUtils.convertToPascalCase(schema.getName());
-      return Values.namespace(prefix, url);
     }
 
     /**

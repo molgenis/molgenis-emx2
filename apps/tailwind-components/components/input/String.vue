@@ -25,11 +25,14 @@ defineExpose({ validate });
 
 function validate(value: columnValue) {
   if (props.required && value === "") {
-    emit("error", [
+    const errors = [
       { message: `${props.label || props.id} required to complete the form` },
-    ]);
+    ];
+    emit("error", errors);
+    return errors;
   } else {
     emit("error", []);
+    return [];
   }
 }
 

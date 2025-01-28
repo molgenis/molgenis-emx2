@@ -115,6 +115,11 @@ public class Constants {
   public static final String CONTACT_RECIPIENTS_QUERY_SETTING_KEY = "contactRecipientsQuery";
   public static final String CONTACT_BCC_ADDRESS = "contactBccAddress";
 
+  public static final String API_RDF = "/api/rdf";
+  public static final String API_TTL = "/api/ttl";
+  public static final String API_JSONLD = "/api/jsonld";
+  public static final String API_FILE = "/api/file";
+
   private Constants() {
     // hide constructor
   }
