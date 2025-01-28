@@ -362,8 +362,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     if (
       filterName === "Diagnosisavailable" &&
       value === "all" &&
-      (filterType.value[filterName] === "any" || filterType.value[filterName] === undefined) &&
-      filters.value["Diagnosisavailable"].length>50
+      (filterType.value[filterName] === "any" ||
+        filterType.value[filterName] === undefined) &&
+      filters.value["Diagnosisavailable"].length > 50
     ) {
       filters.value["Diagnosisavailable"] = filters.value[
         "Diagnosisavailable"
