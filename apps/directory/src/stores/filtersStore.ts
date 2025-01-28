@@ -361,10 +361,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   function updateFilterType(filterName: string, value: any, fromBookmark: any) {
     if (
       filterName === "Diagnosisavailable" &&
-      value === "all" &&
       (filterType.value[filterName] === "any" ||
         filterType.value[filterName] === undefined) &&
-      filters.value["Diagnosisavailable"].length > 50
+      filters.value["Diagnosisavailable"]?.length > 50
     ) {
       filters.value["Diagnosisavailable"] = filters.value[
         "Diagnosisavailable"
