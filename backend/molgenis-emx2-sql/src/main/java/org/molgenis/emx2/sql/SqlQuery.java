@@ -1297,7 +1297,60 @@ public class SqlQuery extends QueryBean {
                                 .from(getUnnestedRefArrayAsTable(tableAlias, columnMetadata)))));
       }
     } else if (type.isRefback()) {
-      throw new MolgenisException("CONTAINS_ALL not implemented yet for refback");
+      // complex, both the refback as well as id of target can have multiple columns
+      // moreover the ref could be a single value or an array
+      // first simplest implementation is to convert to temp table in all cases
+      // might not be efficient
+      // so select from refTable where values in compositeKeyTable and then check there is none that
+      Column refBack = columnMetadata.getRefBackColumn();
+      Condition refBackFilter =
+          refBack.isRef()
+              ?
+              // refback is simple ref so just equals on all columns
+              and(
+                  refBack.getReferences().stream()
+                      .map(
+                          ref ->
+                              field(name(ref.getName()))
+                                  .eq(field(name(tableAlias, ref.getTargetColumn()))))
+                      .toList())
+              // refBack is an array so unnest
+              : row(refBack.getReferences().stream()
+                      .map(ref -> field(name(tableAlias, ref.getTargetColumn())))
+                      .toList())
+                  .in(
+                      DSL.select(getUnnestedRefArrayFields(refBack))
+                          .from(getUnnestedRefArrayAsTable(tableAlias, refBack)));
+
+      SelectConditionStep<Record> refBackSelect =
+          DSL.select(
+                  refBack.getTable().getPrimaryKeyColumns().stream()
+                      .map(
+                          ref ->
+                              ref.isArray()
+                                  ? field(UNNEST_0, name(ref.getName())).as(name(ref.getName()))
+                                  : field(name(ref.getName())))
+                      .toList())
+              .from(refBack.getJooqTable())
+              .where(refBackFilter);
+
+      if (columnMetadata.getReferences().size() == 1) {
+        // will be value array
+        return condition(
+            "{0} <@ {1}",
+            getTypedValue(values, columnMetadata.getPrimitiveColumnType()), array(refBackSelect));
+      } else {
+        // will be rows in compsite key values temp table
+        List<Field> compositeKeyFields =
+            columnMetadata.getReferences().stream()
+                .map(
+                    ref -> field(name(ref.getTargetColumn()), ref.getJooqType().getArrayBaseType()))
+                .toList();
+        return notExists(
+            selectOne()
+                .from(getCompositeKeyValuesAsTempTable(tableAlias, columnMetadata, values))
+                .where(row(compositeKeyFields).notIn(refBackSelect)));
+      }
     } else if (type.isArray()) {
       return condition("{0} <@ {1}", values, field(columnName));
     } else {

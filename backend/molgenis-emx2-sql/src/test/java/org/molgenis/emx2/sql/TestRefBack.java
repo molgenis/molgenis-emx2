@@ -121,14 +121,14 @@ public class TestRefBack {
     query =
         parts.select(s("partname"), s("products", s("productname")), s("products_agg", s("count")));
 
-    // todo implement contains_all
-    //    result =
-    //        parts
-    //            .select(s("partname"), s("products", s("productname")))
-    //            .where(f("products", CONTAINS_ALL, "smallphone", "bigphone"))
-    //            .retrieveJSON();
-    //    assertTrue(result.contains("battery"));
-    //    assertFalse(result.contains("bigscreen"));
+    result =
+        parts
+            .select(s("partname"), s("products", s("productname")))
+            .where(f("products", CONTAINS_ALL, "smallphone"))
+            .retrieveJSON();
+    assertTrue(result.contains("smallscreen"));
+    assertTrue(result.contains("smallbutton"));
+    assertFalse(result.contains("battery"));
 
     System.out.println(query.retrieveJSON());
 
@@ -209,12 +209,12 @@ public class TestRefBack {
             .retrieveJSON();
     assertTrue(result.contains("jacks"));
 
-    //    result =
-    //        users
-    //            .select(s("username"), s("posts", s("title")))
-    //            .where(f("posts", CONTAINS_ALL, "jacks post"))
-    //            .retrieveJSON();
-    //    assertTrue(result.contains("jacks"));
+    result =
+        users
+            .select(s("username"), s("posts", s("title")))
+            .where(f("posts", CONTAINS_ALL, "jacks post"))
+            .retrieveJSON();
+    assertTrue(result.contains("jacks"));
 
     // check graph query
     Query query = users.agg(s("count"));
