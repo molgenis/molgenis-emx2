@@ -27,7 +27,7 @@ async def main():
     load_dotenv()
     token = os.environ.get('MG_TOKEN')
 
-    with Client(url="https://emx2.dev.molgenis.org/", schema="directory-demo") as client:
+    with Client(url="http://localhost:8080", schema="directory-demo") as client:
         collections = client.get(table="Collections", as_df=False)
 
         pprint(collections)

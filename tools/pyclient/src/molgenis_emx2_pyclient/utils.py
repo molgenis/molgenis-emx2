@@ -55,27 +55,3 @@ def convert_dtypes(table_meta: Table) -> dict:
         dtypes[col.name] = type_map.get(col.get('columnType'), 'object')
 
     return dtypes
-
-def parse_ontology(data: list, table_id: str, schema: Schema) -> list:
-    """Parses the ontology columns from a GraphQL response."""
-    table_meta = schema.get_table('id', table_id)
-    parsed_data = []
-    for row in data:
-        parsed_row = {}
-        for (col, value) in row.items():
-            column_meta = table_meta.get_column('id', col)
-            match column_meta.get('columnType'):
-                case "ONTOLOGY":
-                    parsed_row[col] = value['name']
-                case "ONTOLOGY_ARRAY":
-                    parsed_row[col] = [val['name'] for val in value]
-                case "REF":
-                    parsed_row[col] = parse_ontology([value], column_meta.get('refTableId'), schema)[0]
-                case "REF_ARRAY":
-                    parsed_row[col] = parse_ontology(value, column_meta.get('refTableId'), schema)
-                case "REFBACK":
-                    parsed_row[col] = parse_ontology(value, column_meta.get('refTableId'), schema)
-                case _:
-                    parsed_row[col] = value
-        parsed_data.append(parsed_row)
-    return parsed_data

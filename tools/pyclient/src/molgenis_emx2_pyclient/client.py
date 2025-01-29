@@ -19,7 +19,7 @@ from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninE
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException,
                          NoSuchColumnException, ReferenceException)
 from .metadata import Schema, Table
-from .utils import parse_nested_pkeys, convert_dtypes, parse_ontology
+from .utils import parse_nested_pkeys, convert_dtypes
 
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -483,7 +483,7 @@ class Client:
                                             fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                    f"{table!r}.\nStatus code: {response.status_code}.")
             response_data = response.json().get('data').get(table_id, [])
-            response_data = parse_ontology(response_data, table_id, schema_metadata)
+            response_data = self._parse_ontology(response_data, table_id, schema)
 
 
         return response_data
@@ -1157,4 +1157,32 @@ class Client:
         query += "}"
 
         return query
+
+    def _parse_ontology(self, data: list, table_id: str, schema: str) -> list:
+        """Parses the ontology columns from a GraphQL response."""
+        schema_meta = self.get_schema_metadata(schema)
+        table_meta = schema_meta.get_table('id', table_id)
+        parsed_data = []
+        for row in data:
+            parsed_row = {}
+            for (col, value) in row.items():
+                column_meta = table_meta.get_column('id', col)
+                match column_meta.get('columnType'):
+                    case "ONTOLOGY":
+                        parsed_row[col] = value['name']
+                    case "ONTOLOGY_ARRAY":
+                        parsed_row[col] = [val['name'] for val in value]
+                    case "REF":
+                        _schema = column_meta.get('refSchemaName', schema)
+                        parsed_row[col] = self._parse_ontology([value], column_meta.get('refTableId'), _schema)[0]
+                    case "REF_ARRAY":
+                        _schema = column_meta.get('refSchemaName', schema)
+                        parsed_row[col] = self._parse_ontology(value, column_meta.get('refTableId'), _schema)
+                    case "REFBACK":
+                        _schema = column_meta.get('refSchemaName', schema)
+                        parsed_row[col] = self._parse_ontology(value, column_meta.get('refTableId'), _schema)
+                    case _:
+                        parsed_row[col] = value
+            parsed_data.append(parsed_row)
+        return parsed_data
 
