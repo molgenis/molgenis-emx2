@@ -9,6 +9,7 @@ import type {
   columnId,
   columnValue,
   CellValueType,
+  columnValueObject,
 } from "../../../metadata-utils/src/types";
 
 type inputComponent =
@@ -90,5 +91,16 @@ function validate(value: columnValue) {
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
   />
+  <LazyInputRef
+    v-else-if="type === 'REF_ARRAY' || type === 'REF'"
+    :id="id"
+    :modelValue="data as columnValueObject | columnValueObject[]"
+    :refSchemaId="refSchemaId as string"
+    :refTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    :isArray="type === 'REF_ARRAY'"
+    @update:modelValue="$emit('update:modelValue', $event)"
+  >
+  </LazyInputRef>
   <LazyInputPlaceHolder v-else ref="input" :type="type" />
 </template>

@@ -18,8 +18,9 @@ const value2 = ref([{ name: "spike" }]);
       :limit="5"
       :refLabel="labelTemplate"
     />
+    <div class="pt-5">value selected: {{ value }}</div>
   </div>
-  <div>
+  <div class="pt-5">
     <h3>Ref example</h3>
     <InputLabel for="story-ref"> Select pets by name </InputLabel>
     <InputRef
@@ -32,4 +33,5 @@ const value2 = ref([{ name: "spike" }]);
       :isArray="false"
     />
   </div>
+  <div class="pt-5">value selected: {{ value2 }}</div>
 </template>

@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import type { ITableDataResponse } from "~/composables/fetchTableData";
 import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQueryMetaData.ts";
-import type { columnValueObject } from "../../../metadata-utils/src/types";
+import type {
+  columnValue,
+  columnValueObject,
+} from "../../../metadata-utils/src/types";
 import type { IValueLabel } from "~/types/types";
+import type { ITableMetaData } from "metadata-utils";
 
 const props = withDefaults(
   defineProps<{
     id: string;
+    label?: string;
     refSchemaId: string;
     refTableId: string;
     refLabel: string;
@@ -28,7 +33,8 @@ const props = withDefaults(
 );
 
 const modelValue = defineModel<columnValueObject[] | columnValueObject | "">(); //empty string might happen
-const emit = defineEmits(["update:modelValue"]);
+const tableMetadata = ref<ITableMetaData>;
+const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
 const optionMap: Ref<Record<string, columnValueObject>> = ref({});
 const selectionMap: Ref<Record<string, columnValueObject>> = ref({});
 const initialCount = ref<number>(0);
@@ -37,6 +43,20 @@ const offset = ref<number>(0);
 const showSearch = ref<boolean>(false);
 const searchTerms: Ref<string> = ref("");
 const hasNoResults = ref<boolean>(true);
+defineExpose({ validate });
+
+function validate(value: columnValue) {
+  if (props.required && !modelValue.value) {
+    const errors = [
+      { message: `${props.label || props.id} required to complete the form` },
+    ];
+    emit("error", errors);
+    return errors;
+  } else {
+    emit("error", []);
+    return [];
+  }
+}
 
 const columnName = computed<string>(() => {
   return props.refLabel.replace(/[\{\}\$]/g, "");
@@ -59,6 +79,10 @@ const selection = computed(() =>
 );
 
 onMounted(async () => {
+  tableMetadata.value = await fetchTableMetadata(
+    props.refSchemaId,
+    props.refTableId
+  );
   //first we need to retrieve all selected items so are sure we have all for the template
   if (
     modelValue.value && Array.isArray(modelValue.value)
@@ -129,15 +153,33 @@ function select(label: string) {
   selectionMap.value[label] = optionMap.value[label];
   emit(
     "update:modelValue",
-    props.isArray ? Object.values(selectionMap.value) : optionMap.value[label]
+    props.isArray
+      ? Object.values(selectionMap.value).map((value) =>
+          extractPrimaryKey(value)
+        )
+      : extractPrimaryKey(optionMap.value[label])
   );
+}
+
+function extractPrimaryKey(value: any) {
+  const result = {} as columnValueObject;
+  tableMetadata.value.columns
+    .filter((column) => column.key === 1)
+    .forEach((column) => {
+      result[column.id] = value[column.id];
+    });
+  return result;
 }
 
 function deselect(label: string) {
   delete selectionMap.value[label];
   emit(
     "update:modelValue",
-    props.isArray ? Object.values(selectionMap.value) : undefined
+    props.isArray
+      ? Object.values(selectionMap.value).map((value) =>
+          extractPrimaryKey(value)
+        )
+      : undefined
   );
 }
 
@@ -225,5 +267,5 @@ function loadMore() {
       load {{ entitiesLeftToLoad }} more
     </ButtonText>
   </template>
-  <span v-else>No results found</span>
+  <ButtonText v-else>No results found</ButtonText>
 </template>

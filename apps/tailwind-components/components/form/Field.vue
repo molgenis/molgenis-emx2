@@ -7,6 +7,7 @@ import type {
 } from "../../../metadata-utils/src/types";
 
 const props = defineProps<{
+  schemaId: string;
   column: IColumn;
   data: columnValue;
   errors: IFieldError[];
@@ -55,7 +56,7 @@ function validate(value: columnValue) {
         :type="column.columnType"
         :id="column.id"
         :label="column.label"
-        :refSchemaId="column.refSchemaId"
+        :refSchemaId="column.refSchemaId || schemaId"
         :refTableId="column.refTableId"
         :refLabel="column.refLabel || column.refLabelDefault"
         :data="data"

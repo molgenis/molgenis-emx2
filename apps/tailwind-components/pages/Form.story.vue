@@ -12,16 +12,16 @@ const exampleName = ref("simple");
 
 const exampleMap = ref({
   simple: {
-    schema: "pet store",
-    table: "Pet",
+    schemaId: "pet store",
+    tableId: "Pet",
   },
   "pet store user": {
-    schema: "pet store",
-    table: "User",
+    schemaId: "pet store",
+    tableId: "User",
   },
   complex: {
-    schema: "catalogue-demo",
-    table: "Resources",
+    schemaId: "catalogue-demo",
+    tableId: "Resources",
   },
 });
 
@@ -33,13 +33,13 @@ const {
   refresh: refetchMetadata,
   status,
 } = await useAsyncData("form sample", () =>
-  fetchMetadata(exampleConfig.value.schema)
+  fetchMetadata(exampleConfig.value.schemaId)
 );
 
 const tableMeta = computed(
   () =>
     (schemaMeta.value as ISchemaMetaData)?.tables.find(
-      (table) => table.id === exampleConfig.value.table
+      (table) => table.id === exampleConfig.value.tableId
     ) as ITableMetaData
 );
 
@@ -135,29 +135,6 @@ watch(
 </script>
 
 <template>
-  <div>Demo controles:</div>
-
-  <div class="p-4 border-2 mb-2">
-    <select
-      @change="refetch()"
-      v-model="exampleName"
-      class="border-1 border-black"
-    >
-      <option value="simple">Simple form example</option>
-      <option value="complex">Complex form example</option>
-      <option value="pet store user">Pet store user</option>
-    </select>
-
-    <div>schema id = {{ exampleConfig.schema }}</div>
-    <div>table id = {{ exampleConfig.table }}</div>
-
-    <button
-      class="border-gray-900 border-[1px] p-2 bg-gray-200"
-      @click="formFields?.validate"
-    >
-      External Validate
-    </button>
-  </div>
   <div class="flex flex-row">
     <div id="mock-form-contaner" class="basis-2/3 flex flex-row border">
       <div class="basis-1/3">
@@ -169,9 +146,11 @@ watch(
       </div>
 
       <FormFields
+        :key="exampleName"
         v-if="tableMeta && status === 'success'"
         class="basis-2/3 p-8 border-l overflow-y-auto h-screen"
         ref="formFields"
+        :schemaId="exampleConfig.schemaId"
         :metadata="tableMeta"
         :data="data"
         @update:model-value="onModelUpdate"
@@ -187,15 +166,16 @@ watch(
         <select
           id="table-select"
           @change="refetch()"
-          v-model="sampleType"
+          v-model="exampleName"
           class="border-1 border-black"
         >
           <option value="simple">Simple form example</option>
           <option value="complex">Complex form example</option>
+          <option value="pet store user">Pet store user</option>
         </select>
 
-        <div>schema id = {{ schemaId }}</div>
-        <div>table id = {{ tableId }}</div>
+        <div>schema id = {{ exampleConfig.schemaId }}</div>
+        <div>table id = {{ exampleConfig.tableId }}</div>
 
         <button
           class="border-gray-900 border-[1px] p-2 bg-gray-200"
