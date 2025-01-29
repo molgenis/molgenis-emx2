@@ -63,20 +63,16 @@ export default {
       }
       if (this.search && this.search.trim().length > 0) {
         let terms = this.search.toLowerCase().split(" ");
-        return this.schema.tables
-          .filter((table) => table.schemaId === this.schema.id)
-          .filter((table) =>
-            terms.every(
-              (term) =>
-                table.label.toLowerCase().includes(term) ||
-                (table.description &&
-                  table.description.toLowerCase().includes(term))
-            )
-          );
-      } else {
-        return this.schema.tables.filter(
-          (table) => table.schemaId === this.schema.id
+        return this.schema.tables.filter((table) =>
+          terms.every(
+            (term) =>
+              table.label.toLowerCase().includes(term) ||
+              (table.description &&
+                table.description.toLowerCase().includes(term))
+          )
         );
+      } else {
+        return this.schema.tables;
       }
     },
     tables() {

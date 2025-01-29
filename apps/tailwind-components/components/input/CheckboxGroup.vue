@@ -50,6 +50,7 @@ withDefaults(
     showClearButton: false,
   }
 );
+
 const modelValue = defineModel<string[]>();
 const emit = defineEmits(["update:modelValue", "select", "deselect"]);
 

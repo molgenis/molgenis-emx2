@@ -1,0 +1,29 @@
+@font-face {
+    font-family: "Bebas Neue";
+    src: url("../../fonts/BebasNeue-Regular.woff2");
+  }
+  
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-weight: 400;
+    src: url("../../fonts/IBMPlexSans-Regular.woff2");
+  }
+  
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-weight: 700;
+    src: url("../../fonts/IBMPlexSans-Bold.woff2");
+  }
+  
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-weight: 700;
+    font-style: italic;
+    src: url("../../fonts/IBMPlexSans-BoldItalic.woff2");
+  }
+  
+  @font-face {
+    font-family: "IBM Plex Sans";
+    font-style: italic;
+    src: url("../../fonts/IBMPlexSans-Italic.woff2");
+  }

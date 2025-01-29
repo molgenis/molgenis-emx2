@@ -1,6 +1,6 @@
 export default defineNuxtPlugin(() => {
     if (process.client) {
         sessionStorage.clear();
-        console.log('Session storage cleared on app start');
+        console.log('Session storage cleared on app start. Removed caches of getSchema');
     }
 });

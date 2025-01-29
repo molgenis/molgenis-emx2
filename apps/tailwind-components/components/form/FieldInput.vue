@@ -53,32 +53,43 @@ function validate(value: columnValue) {
     :id="id"
     :label="label"
     :required="required"
-    :value="(data as string)"
+    :value="data as string"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
-  ></LazyInputString>
+  />
   <LazyInputTextArea
     v-else-if="type === 'TEXT'"
     ref="input"
     :id="id"
     :label="label"
     :required="required"
-    :value="(data as string)"
+    :value="data as string"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
-  ></LazyInputTextArea>
-  <LazyInputRef
-    v-else-if="type === 'REF_ARRAY' || type === 'REF'"
+  />
+  <LazyInputHyperlink
+    v-else-if="type === 'HYPERLINK'"
+    ref="input"
     :id="id"
-    :modelValue="(data as columnValueObject | columnValueObject[])"
-    :refSchemaId="(refSchemaId as string)"
-    :refTableId="(refTableId as string)"
-    :refLabel="(refLabel as string)"
-    :isArray="type === 'REF_ARRAY'"
+    :label="label"
+    :required="required"
+    :value="data as string"
+    @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
-  >
-  </LazyInputRef>
+    @error="$emit('error', $event)"
+  />
+  <LazyInputBoolean
+    v-else-if="type === 'BOOL'"
+    ref="input"
+    :id="id"
+    :label="label"
+    :required="required"
+    :modelValue="data === true || data === false ? data : null"
+    @focus="$emit('focus')"
+    @update:modelValue="$emit('update:modelValue', $event)"
+    @error="$emit('error', $event)"
+  />
   <LazyInputPlaceHolder v-else ref="input" :type="type" />
 </template>

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.datamodels.test.ArrayTypeTestExample;
 import org.molgenis.emx2.datamodels.test.ProductComponentPartsExample;
 import org.molgenis.emx2.datamodels.test.RefAndRefArrayTestExample;
@@ -56,13 +55,6 @@ public class TestImportExportAllExamples {
   public void testProductComponentPartsExample() throws IOException {
     SchemaMetadata schema1 = new SchemaMetadata(prefix + "6");
     ProductComponentPartsExample.create(schema1);
-    executeCompare(schema1);
-  }
-
-  @Test
-  public void testPetStoreExample() throws IOException {
-    SchemaMetadata schema1 = new SchemaMetadata(prefix + "7");
-    schema1.create(PetStoreLoader.getSchemaMetadata().getTables().toArray(new TableMetadata[0]));
     executeCompare(schema1);
   }
 

@@ -183,60 +183,16 @@ public class SqlSchema implements Schema {
 
   @Override
   public void discard(SchemaMetadata discardSchema) {
-    // check if all tables and columns are known
-    List<String> errors = new ArrayList<>();
-    for (TableMetadata discardTable : discardSchema.getTables()) {
-      TableMetadata existingTable = getMetadata().getTableMetadata(discardTable.getTableName());
-      if (existingTable == null) {
-        errors.add("Table '" + discardTable.getTableName() + " not found");
-      } else {
-        for (String discardColumn : discardTable.getLocalColumnNames()) {
-          if (!existingTable.getLocalColumnNames().contains(discardColumn))
-            errors.add(
-                "Column '" + discardTable.getTableName() + "." + discardColumn + " not found");
-        }
-      }
-    }
-    if (!errors.isEmpty()) {
-      throw new MolgenisException(
-          "Discard failed: Discard of tables out of schema "
-              + getMetadata().getName()
-              + " failed: "
-              + String.join("\n", errors));
-    }
-
-    // get all tables, sorted and use that as scaffold
-    tx(db -> discardTransaction((SqlDatabase) db, discardSchema.getName()));
-    this.getDatabase().getListener().schemaChanged(this.getName());
-  }
-
-  private static void discardTransaction(SqlDatabase db, String schemaName) {
-    Schema schema = db.getSchema(schemaName);
-    SchemaMetadata schemaMetadata = db.getSchema(schemaName).getMetadata();
-    List<TableMetadata> tables = schemaMetadata.getTables();
-    Collections.reverse(tables);
-
-    // remove whole tables unless columns attached
-    for (TableMetadata existingTable : tables) {
-      // if no coluns then we delete whole table
-      if (schemaMetadata.getTableMetadata(existingTable.getTableName()) != null) {
-        TableMetadata discardTable = schemaMetadata.getTableMetadata(existingTable.getTableName());
-        if (discardTable.getLocalColumnNames().isEmpty()
-            || discardTable
-                .getLocalColumnNames()
-                .containsAll(existingTable.getLocalColumnNames())) {
-          schema.dropTable(existingTable.getTableName());
-          MetadataUtils.deleteTable(db.getJooq(), existingTable);
-        } else {
-          // or column names
-          for (String discardColumn : discardTable.getLocalColumnNames()) {
-            Column existingColumn = existingTable.getColumn(discardColumn);
-            existingTable.dropColumn(discardColumn);
-            MetadataUtils.deleteColumn(db.getJooq(), existingColumn);
-          }
-        }
-      }
-    }
+    // use migrate
+    SchemaMetadata mergeSchema = new SchemaMetadata(discardSchema);
+    mergeSchema
+        .getTables()
+        .forEach(
+            t -> {
+              t.drop();
+              t.getColumns().forEach(c -> c.drop());
+            });
+    migrate(mergeSchema);
   }
 
   @Override

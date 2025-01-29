@@ -188,7 +188,6 @@ export default {
         }
       });
       tables.forEach((table) => {
-        delete table.schemaId;
         table.columns = table.columns
           ? table.columns.filter((column) => column.table === table.name)
           : [];

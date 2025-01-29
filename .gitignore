@@ -41,6 +41,7 @@ release.properties
 tls
 **/**/bin/
 .venv
+.vscode/
 
 yarn_error.log
 .nyc_output
@@ -67,3 +68,5 @@ venv
 requirements.txt
 e2e/.auth
 e2e/e2e/.auth
+e2e/test-results/
+apps/tailwind-components/test-results/.last-run.json

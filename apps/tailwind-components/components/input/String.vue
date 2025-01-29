@@ -4,7 +4,7 @@ import type { columnValue } from "../../../metadata-utils/src/types";
 const props = withDefaults(
   defineProps<{
     id: string;
-    label?: string; //todo: remove?
+    label?: string;
     modelValue?: string;
     placeholder?: string;
     disabled?: boolean;
@@ -25,11 +25,14 @@ defineExpose({ validate });
 
 function validate(value: columnValue) {
   if (props.required && value === "") {
-    emit("error", [
+    const errors = [
       { message: `${props.label || props.id} required to complete the form` },
-    ]);
+    ];
+    emit("error", errors);
+    return errors;
   } else {
     emit("error", []);
+    return [];
   }
 }
 
@@ -46,7 +49,7 @@ function onInput(event: Event) {
     :required="required"
     :placeholder="placeholder"
     :disabled="disabled"
-    class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
+    class="w-full h-[56px] pr-4 font-sans text-black text-gray-300 outline-none ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border border-solid rounded-input"
     :class="{
       'border-invalid text-invalid': hasError,
       'border-valid text-valid': valid,

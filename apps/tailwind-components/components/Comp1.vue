@@ -1,3 +1,3 @@
 <template>
-  <h1>My comp 1</h1>
+  <h1 class="text-title">My comp 1</h1>
 </template>

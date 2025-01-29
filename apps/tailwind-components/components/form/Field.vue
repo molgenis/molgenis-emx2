@@ -21,7 +21,7 @@ const dirty = computed(() => !pristine.value);
 const touched = ref(false);
 const untouched = computed(() => !touched.value);
 
-const hasError = computed(() => props.errors?.length > 0);
+const hasError = computed(() => props.errors.length > 0);
 
 const formFieldInput = ref<InstanceType<typeof FormFieldInput>>();
 
@@ -43,9 +43,11 @@ function validate(value: columnValue) {
       <label :for="column.id" class="capitalize text-title font-bold">{{
         column.label
       }}</label>
-      <span class="text-disabled ml-3" v-show="column.required">Required</span>
+      <span class="text-disabled text-body-sm ml-3" v-show="column.required"
+        >Required</span
+      >
     </div>
-    <div class="text-title" v-if="column.description">
+    <div class="text-input-description text-body-sm" v-if="column.description">
       {{ column.description }}
     </div>
     <div>

@@ -8,9 +8,11 @@
 </template>
 
 <script lang="ts" setup>
+import type { columnValue } from "../../../metadata-utils/src/types";
+
 defineProps<{
-  value: any;
+  value?: columnValue;
 }>();
 
-const modelValue = defineModel<any>();
+const modelValue = defineModel<columnValue>();
 </script>
