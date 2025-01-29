@@ -181,7 +181,7 @@ function setSelectedOntology(ontologyId: string) {
   width: 100%;
 }
 
-.warning-padding{
-  padding-top:4rem;
+.warning-padding {
+  padding-top: 4rem;
 }
 </style>
