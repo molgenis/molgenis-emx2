@@ -309,10 +309,8 @@ jobs:
           command: |
             yarn playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            export MOLGENIS_APPS_HOST=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
-            export MOLGENIS_APPS_SCHEMA=directory-demo
-            echo $MOLGENIS_APPS_HOST
-            echo $MOLGENIS_APPS_SCHEMA
+            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            echo $E2E_BASE_URL
             yarn e2e
           working_directory: apps/directory
       - run:
