@@ -536,7 +536,6 @@ def main():
             # Map Biobanks to Resources
             print('Get and map Biobanks...')
             biobanks = client.get("Biobanks", as_df=True)
-            # Unnecessary copy?
             mapped_biobanks = map_biobanks_to_resources(biobanks.copy())
             resources = pd.concat([resources, mapped_biobanks.reindex(columns=mapped_columns)])
             # Map DiseaseTypes to Diseases
@@ -548,11 +547,11 @@ def main():
             print('Get and map Collections...')
             collections = client.get("Collections", as_df=True)
             mapped_collections = map_collections_to_samples(
-                collections.copy(), disease_mapping)  # Unnecessary copy?
+                collections.copy(), disease_mapping)
             # Map CollectionFacts to Sample collection counts
             print('Get and map CollectionFacts...')
             facts = client.get("CollectionFacts", as_df=True)
-            mapped_facts = map_facts_to_counts(facts.copy(), mapped_collections, disease_mapping) # Unnecessary copy?
+            mapped_facts = map_facts_to_counts(facts.copy(), mapped_collections, disease_mapping)
             mapped_facts = mapped_facts.reindex(
                 columns = [
                     "resource",
@@ -571,7 +570,6 @@ def main():
             # Map Networks to Resources
             print('Get and map Networks...')
             networks = client.get("Networks", as_df=True)
-            # Unnecessary copy?
             mapped_networks = map_networks_to_resources(networks.copy(), biobanks)
             resources = pd.concat([resources, mapped_networks.reindex(columns=mapped_columns)])
             # Create BBMRI-ERIC network, add all top-level networks as sub-networks
@@ -593,7 +591,7 @@ def main():
             persons = client.get("Persons", as_df=True)
             mapped_contacts = map_persons_to_contacts(
                 persons.copy(), mapped_collections, mapped_biobanks, mapped_networks, resources
-            )  # Unnecessary copy?
+            )
             mapped_contacts = mapped_contacts.reindex(
                 columns=[
                     "resource",
