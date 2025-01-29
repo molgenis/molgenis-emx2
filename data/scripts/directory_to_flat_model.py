@@ -509,20 +509,18 @@ def main():
         help="URL of server to upload transformed data to",
     )
     parser.add_argument(
-        "-target-pw",
+        "-target-token",
         type=str,
-        dest="target_password",
-        required=False,
-        help="Password for target server access",
+        dest="target_token",
+        required=True,
+        help="Token for target server access",
     )
     args = parser.parse_args()
     # Connect to source server
-    with molgenis_emx2_pyclient.Client(args.source_server) as client:
+    with molgenis_emx2_pyclient.Client(url=args.source_server) as client:
         client.set_schema("ERIC")
         # Connect to target server
-        with molgenis_emx2_pyclient.Client(args.target_server) as catalogue_client:
-            if args.target_password:
-                catalogue_client.signin("admin", args.target_password)
+        with molgenis_emx2_pyclient.Client(url=args.target_server, token=args.target_token) as catalogue_client:
             catalogue_client.set_schema("catalogue-BBMRI")
             # Initialise Resources table
             mapped_columns = [
