@@ -6,22 +6,16 @@ import type {
   IFieldError,
   ISchemaMetaData,
   ITableMetaData,
-  IInputValueLabel,
 } from "../../metadata-utils/src/types";
 
-const exampleForms: IInputValueLabel[] = [
-  { value: "simple", label: "Simple form example" },
-  { value: "complex", label: "Complex form example" },
-];
-
-const formType = ref<IInputValueLabel>(exampleForms[0]);
+const sampleType = ref("simple");
 
 // just assuming that the table is there for the demo
 const schemaId = computed(() =>
-  formType.value.value === "simple" ? "pet store" : "catalogue-demo"
+  sampleType.value === "simple" ? "pet store" : "catalogue-demo"
 );
 const tableId = computed(() =>
-  formType.value.value === "simple" ? "Pet" : "Resources"
+  sampleType.value === "simple" ? "Pet" : "Resources"
 );
 
 const {
@@ -37,8 +31,7 @@ const tableMeta = computed(
     ) as ITableMetaData
 );
 
-function refetch(value: IInputValueLabel) {
-  formType.value = value;
+function refetch() {
   refetchMetadata();
 }
 
@@ -179,19 +172,21 @@ watch(
         <div class="mt-4 flex flex-row">
           <div v-if="Object.keys(formValues).length" class="basis-1/2">
             <h3 class="text-label">Values</h3>
-            <dl class="flex">
+            <dl class="flex flex-col">
               <template v-for="(value, key) in formValues">
-                <dt v-if="value" class="font-bold">{{ key }}:</dt>
-                <dd v-if="value" class="ml-1">{{ value }}</dd>
+                <dt class="font-bold">{{ key }}:</dt>
+                <dd v-if="value !== null && value !== undefined" class="pl-3">
+                  {{ value }}
+                </dd>
               </template>
             </dl>
           </div>
           <div v-if="Object.keys(errors).length" class="basis-1/2">
             <h3 class="text-label">Errors</h3>
 
-            <dl class="flex">
+            <dl class="flex flex-col">
               <template v-for="(value, key) in errors">
-                <dt v-if="value.length" class="font-bold">{{ key }}:</dt>
+                <dt class="font-bold">{{ key }}:</dt>
                 <dd v-if="value.length" class="ml-1">{{ value }}</dd>
               </template>
             </dl>
