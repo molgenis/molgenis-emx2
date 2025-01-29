@@ -1,6 +1,7 @@
 <template>
   <InputString
     ref="inputString"
+    type="email"
     :id="id"
     :label="label"
     :placeholder="placeholder"
