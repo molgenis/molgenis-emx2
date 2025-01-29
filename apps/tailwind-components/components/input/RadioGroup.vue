@@ -1,12 +1,4 @@
 <template>
-<<<<<<< HEAD
-  <div :id="`${id}-radio-group`">
-    <div
-      class="flex justify-start align-center"
-      v-for="option in options"
-      :key="option.value"
-    >
-=======
   <div
     :id="`${id}-radio-group`"
     class="flex gap-1"
@@ -55,7 +47,7 @@
 
 <script lang="ts" setup>
 import type { IValueLabel } from "~/types/types";
-import type {columnValue} from "metadata-utils/src/types";
+import type { columnValue } from "metadata-utils/src/types";
 
 const props = withDefaults(
   defineProps<{
@@ -89,7 +81,7 @@ const isClearBtnShow = computed(() => {
   return (
     props.showClearButton &&
     (modelValue.value === true ||
-       modelValue.value === false ||
+      modelValue.value === false ||
       (modelValue.value && modelValue.value !== ""))
   );
 });
