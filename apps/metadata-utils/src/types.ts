@@ -105,10 +105,3 @@ export type columnValue = string | number | boolean | columnValueObject;
 interface columnValueObject {
   [x: string]: columnValue;
 }
-
-export type IInputValue = string | number | boolean;
-
-export type IInputValueLabel = {
-  value: IInputValue | IInputValue[] | null;
-  label?: string;
-};
