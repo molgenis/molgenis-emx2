@@ -15,7 +15,7 @@
       'flex-col': align === 'vertical',
     }"
   >
-    <div v-for="option in radioOptions" class="flex justify-start align-center">
+    <div v-for="option in options" class="flex justify-start align-center">
       <InputRadio
         :id="`${id}-radio-group-${option.value}`"
         class="sr-only fixed"
