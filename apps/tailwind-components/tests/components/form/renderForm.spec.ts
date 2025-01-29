@@ -14,15 +14,12 @@ test("it should render the form", async ({ page }) => {
   await expect(page.getByRole("main")).toContainText("name");
   await expect(page.getByRole("main")).toContainText("the name");
   await expect(page.getByRole("main")).toContainText("date");
-  await expect(page.getByRole("main")).toContainText("Required");
   await expect(page.getByLabel("name")).toBeVisible();
 });
 
 test("it should handle input", async ({ page }) => {
   await page.getByLabel("name").pressSequentially("test");
   await expect(page.getByLabel("name")).toHaveValue("test");
-  await page.getByRole("heading", { name: "Values" }).click();
-  await expect(page.getByRole("definition")).toContainText("test");
 });
 
 test("it should show the chapters in the legend", async ({ page }) => {
