@@ -39,16 +39,13 @@
         <div v-show="selectedOntology === ontologyId" class="w-100">
           <div v-if="displayOptions.length">
             <MessageWarning
-              class="mx-3"
-              v-if="
-                facetIdentifier === 'Diagnosisavailable' &&
-                filtersStore.filters['Diagnosisavailable']?.length >= 50 &&
-                filtersStore.getFilterType('Diagnosisavailable') === 'all'
-              "
-              >You can only select 50 items at the same time, additional items
-              are ignored.</MessageWarning
+              class="mx-3 position-absolute"
+              v-if="selectionOverflow"
+              >You can only select 50 items at a time under 'Match All'. Please
+              adjust your query.</MessageWarning
             >
             <TreeComponent
+              :class="{ 'warning-padding': selectionOverflow }"
               :options="displayOptions"
               :filter="ontologyQuery"
               :facetIdentifier="facetIdentifier"
@@ -95,6 +92,14 @@ options()
   .catch((error: any) => {
     console.log(`Error resolving ontology facet options: ${error}`);
   });
+
+let selectionOverflow = computed(() => {
+  return (
+    facetIdentifier === "Diagnosisavailable" &&
+    filtersStore.filters["Diagnosisavailable"]?.length >= 50 &&
+    filtersStore.getFilterType("Diagnosisavailable") === "all"
+  );
+});
 
 let displayOptions = computed(() => {
   if (!resolvedOptions.value) return [];
@@ -174,5 +179,9 @@ function setSelectedOntology(ontologyId: string) {
 
 .ontology-search {
   width: 100%;
+}
+
+.warning-padding{
+  padding-top:4rem;
 }
 </style>
