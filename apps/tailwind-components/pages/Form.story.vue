@@ -6,16 +6,22 @@ import type {
   IFieldError,
   ISchemaMetaData,
   ITableMetaData,
+  IInputValueLabel,
 } from "../../metadata-utils/src/types";
 
-const sampleType = ref("simple");
+const exampleForms: IInputValueLabel[] = [
+  { value: "simple", label: "Simple form example" },
+  { value: "complex", label: "Complex form example" },
+];
+
+const formType = ref<IInputValueLabel>(exampleForms[0]);
 
 // just assuming that the table is there for the demo
 const schemaId = computed(() =>
-  sampleType.value === "simple" ? "pet store" : "catalogue-demo"
+  formType.value.value === "simple" ? "pet store" : "catalogue-demo"
 );
 const tableId = computed(() =>
-  sampleType.value === "simple" ? "Pet" : "Resources"
+  formType.value.value === "simple" ? "Pet" : "Resources"
 );
 
 const {
@@ -31,7 +37,8 @@ const tableMeta = computed(
     ) as ITableMetaData
 );
 
-function refetch() {
+function refetch(value: IInputValueLabel) {
+  formType.value = value;
   refetchMetadata();
 }
 

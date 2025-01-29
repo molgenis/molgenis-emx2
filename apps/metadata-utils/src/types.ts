@@ -72,6 +72,7 @@ export interface IColumn {
 
 export interface ITableMetaData {
   id: string;
+  name?: string;
   label: string;
   description?: string;
   tableType: string;
@@ -104,3 +105,10 @@ export type columnValue = string | number | boolean | null | columnValueObject;
 interface columnValueObject {
   [x: string]: columnValue;
 }
+
+export type IInputValue = string | number | boolean;
+
+export type IInputValueLabel = {
+  value: IInputValue | IInputValue[] | null;
+  label?: string;
+};
