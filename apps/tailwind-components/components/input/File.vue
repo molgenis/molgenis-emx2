@@ -78,11 +78,11 @@ defineExpose({ validate });
 function onChange(event: Event) {
   const files = (event.target as HTMLInputElement)?.files;
   if (files) {
-    filesToImport.value = [...files].map(file=> {
+    filesToImport.value = [...files].map((file) => {
       return {
         name: file.name,
-        file: file
-      }
+        file: file,
+      };
     });
   }
 
