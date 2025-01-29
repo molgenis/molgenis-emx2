@@ -311,8 +311,8 @@ jobs:
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export MOLGENIS_APPS_HOST=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             export MOLGENIS_APPS_SCHEMA=directory-demo
-            echo "e2e test host: ${$MOLGENIS_APPS_HOST}"
-            echo "e2e test schema: ${$MOLGENIS_APPS_SCHEMA}"
+            echo $MOLGENIS_APPS_HOST
+            echo $MOLGENIS_APPS_SCHEMA
             yarn e2e
           working_directory: apps/directory
       - run:
