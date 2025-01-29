@@ -65,8 +65,8 @@ const iconPositionClass = computed(() => {
 
 <template>
   <button
+    class="flex items-center border rounded-input group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input"
     :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
-    class="flex items-center border rounded-full"
   >
     <span v-if="icon">
       <BaseIcon :name="icon" />

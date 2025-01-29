@@ -60,6 +60,7 @@ public class Column {
     this.name = column.getName();
     this.labels =
         column.getLabels().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.oldName = column.getOldName();
@@ -70,11 +71,13 @@ public class Column {
     }
     if (column.isReference()) {
       if (column.getSchema().getDatabase() != null) {
+        if (!column.getRefSchemaName().equals(column.getSchemaName())) {
+          this.refSchemaId = column.getRefSchemaName();
+          this.refSchemaName = column.getRefSchemaName();
+        }
         this.refTableId = column.getRefTable().getIdentifier();
         this.refLabelDefault = column.getRefLabelDefault();
       }
-      this.refSchemaId = column.getRefSchemaName();
-      this.refSchemaName = column.getRefSchemaName();
       this.refTableName = column.getRefTableName();
       if (column.getRefLinkColumn() != null) {
         if (column.getTable().getSchema().getDatabase() != null) {
@@ -101,6 +104,7 @@ public class Column {
     this.defaultValue = column.getDefaultValue();
     this.descriptions =
         column.getDescriptions().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics = column.getSemantics();
@@ -141,6 +145,7 @@ public class Column {
     c.setVisible(visible);
     c.setComputed(computed);
     c.setReadonly(readonly);
+    c.setProfiles(profiles);
 
     // ignore inherited
     return c;

@@ -1,23 +1,27 @@
 <template>
-  <div :id="`${id}-radio-group`">
-    <div
-      class="flex justify-start align-center"
-      v-for="option in radioOptions"
-      :key="option.value"
-    >
+  <div
+    :id="`${id}-radio-group`"
+    class="flex gap-1"
+    :class="{
+      'flex-row': align === 'horizontal',
+      'flex-col': align === 'vertical',
+    }"
+  >
+    <div v-for="option in radioOptions" class="flex justify-start align-center">
       <InputRadio
         :id="`${id}-radio-group-${option.value}`"
-        class="sr-only"
+        class="sr-only fixed"
         :name="id"
         :value="option.value"
-        v-model="modelValue"
-        :checked="option.value === modelValue"
+        :modelValue="props.modelValue"
+        @input="$emit('update:modelValue', $event.target.value)"
+        :checked="option.value === props.modelValue"
       />
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
-        class="hover:cursor-pointer flex flex-row gap-1"
+        class="hover:cursor-pointer flex flex-row gap-1 text-title"
       >
-        <InputRadioIcon :checked="modelValue === option.value" class="mr-2.5" />
+        <InputRadioIcon :checked="modelValue === option.value" class="mr-1" />
         <template v-if="option.label">
           {{ option.label }}
         </template>
@@ -26,40 +30,50 @@
         </template>
       </InputLabel>
     </div>
-    <div class="mt-2" v-if="showClearButton">
-      <button
-        type="reset"
-        :id="`${id}-radio-group-clear`"
-        :form="`${id}-radio-group`"
-        @click.prevent="resetModelValue"
-      >
-        Clear
-      </button>
-    </div>
+
+    <button
+      v-show="isClearBtnShow"
+      class="ml-2 w-8 text-center text-button-outline hover:text-button-outline hover:underline"
+      :class="{ 'ml-2': align === 'horizontal', 'mt-2': align === 'vertical' }"
+      type="reset"
+      :id="`${id}-radio-group-clear`"
+      :form="`${id}-radio-group`"
+      @click.prevent="resetModelValue"
+    >
+      Clear
+    </button>
   </div>
 </template>
 
 <script lang="ts" setup>
-interface RadioOptionsDataIF {
-  value: string;
-  label?: string;
-  checked?: boolean | undefined;
-}
+import type { IRadioOptionsData } from "~/types/types";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     id: string;
-    radioOptions: RadioOptionsDataIF[];
+    modelValue: boolean | string | null;
+    radioOptions: IRadioOptionsData[];
     showClearButton?: boolean;
+    align?: "horizontal" | "vertical";
   }>(),
   {
     showClearButton: false,
+    align: "vertical",
   }
 );
 
-const modelValue = defineModel<string>();
+const emit = defineEmits(["update:modelValue"]);
 
 function resetModelValue() {
-  modelValue.value = "";
+  emit("update:modelValue", null);
 }
+
+const isClearBtnShow = computed(() => {
+  return (
+    props.showClearButton &&
+    (props.modelValue === true ||
+      props.modelValue === false ||
+      (typeof props.modelValue === "string" && props.modelValue.length > 0))
+  );
+});
 </script>

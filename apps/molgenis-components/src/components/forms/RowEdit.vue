@@ -188,7 +188,7 @@ export default {
               equals: await convertRowToPrimaryKey(
                 this.internalValues[changedColumn.id],
                 overlappingKey.refTableId,
-                overlappingKey.refSchemaId
+                overlappingKey.refSchemaId || this.schemaMetaData.schemaId
               ),
             },
           };

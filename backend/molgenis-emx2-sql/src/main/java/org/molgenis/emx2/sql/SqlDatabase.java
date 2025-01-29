@@ -1,8 +1,10 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
@@ -168,12 +170,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
 
-      this.tx(
-          tdb -> {
-            if (!this.hasSchema(SYSTEM_SCHEMA)) {
-              this.createSchema(SYSTEM_SCHEMA);
-            }
-          });
+      initSystemSchema();
 
       // get the settings
       clearCache();
@@ -228,6 +225,31 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         throw e;
       }
     }
+  }
+
+  private void initSystemSchema() {
+    this.tx(
+        tdb -> {
+          if (!this.hasSchema(SYSTEM_SCHEMA)) {
+            this.createSchema(SYSTEM_SCHEMA);
+          }
+
+          Schema schema;
+          if (!this.hasSchema(SYSTEM_SCHEMA)) {
+            schema = this.createSchema(SYSTEM_SCHEMA);
+          } else {
+            schema = this.getSchema(SYSTEM_SCHEMA);
+          }
+
+          if (!schema.getTableNames().contains("Templates")) {
+            schema.create(
+                table(
+                    "Templates",
+                    column("endpoint").setPkey(),
+                    column("schema").setPkey(),
+                    column("template").setType(ColumnType.TEXT)));
+          }
+        });
   }
 
   @Override
@@ -480,8 +502,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void removeUser(String user) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin")) throw new MolgenisException("You cant remove admin");
-    if (user.equals("anonymous")) throw new MolgenisException("You cant remove anonymous");
+    if (user.equals("admin")) throw new MolgenisException("You can't remove admin");
+    if (user.equals("anonymous")) throw new MolgenisException("You can't remove anonymous");
+    if (user.equals("user")) throw new MolgenisException("You can't remove user");
 
     if (!hasUser(user))
       throw new MolgenisException(

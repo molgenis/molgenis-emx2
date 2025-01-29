@@ -72,11 +72,11 @@ export interface IColumn {
 
 export interface ITableMetaData {
   id: string;
+  name?: string;
   label: string;
   description?: string;
   tableType: string;
   columns: IColumn[];
-  schemaId: string;
   semantics?: string[];
   settings?: ISetting[];
 }
@@ -92,9 +92,23 @@ export interface IFieldError {
   message: string;
 }
 
+export interface IFormLegendSection {
+  label: string;
+  domId: string;
+  isActive?: boolean;
+  errorCount?: number;
+}
+
 export type columnId = string;
-export type columnValue = string | number | boolean | columnValueObject;
+export type columnValue = string | number | boolean | null | columnValueObject;
 
 interface columnValueObject {
   [x: string]: columnValue;
 }
+
+export type IInputValue = string | number | boolean;
+
+export type IInputValueLabel = {
+  value: IInputValue | IInputValue[] | null;
+  label?: string;
+};
