@@ -9,7 +9,6 @@ import type {
   columnId,
   columnValue,
   CellValueType,
-  columnValueObject,
 } from "../../../metadata-utils/src/types";
 
 type inputComponent =

@@ -162,12 +162,16 @@ function loadMore() {
     class="flex flex-wrap gap-2 mb-2"
     v-if="isArray ? selection.length : selection"
   >
-    <ButtonFilterWell
+    <Button
       v-for="label in isArray ? selection : [selection]"
+      icon="cross"
+      iconPosition="right"
+      type="filterWell"
+      size="tiny"
       @click="deselect(label as string)"
     >
       {{ label }}
-    </ButtonFilterWell>
+    </Button>
   </div>
   <div class="flex flex-wrap gap-2 mb-2">
     <ButtonText
