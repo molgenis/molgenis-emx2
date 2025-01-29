@@ -35,54 +35,30 @@ function validate(value: columnValue) {
 
   formFieldInput.value.validate(value);
 }
-
-const refData = ref();
-
-onMounted(async () => {
-  if (["ONTOLOGY", "ONTOLOGY_ARRAY"].includes(props.column.columnType)) {
-    const response = await fetchTableData(
-      props.column.refSchemaId as string,
-      props.column.refTableId as string
-    );
-    refData.value = response.rows.map((row) => row.name);
-  }
-});
 </script>
 
 <template>
   <div class="flex flex-col gap-1">
     <div>
-      <label
-        :id="`${column.id}-label`"
-        :for="column.id"
-        class="capitalize text-title font-bold"
-        >{{ column.label }}</label
-      >
+      <label :for="column.id" class="capitalize text-title font-bold">{{
+        column.label
+      }}</label>
       <span class="text-disabled text-body-sm ml-3" v-show="column.required"
         >Required</span
       >
     </div>
-    <span
-      :id="`${column.id}-description`"
-      class="text-input-description text-body-sm"
-      v-if="column.description"
-    >
+    <div class="text-input-description text-body-sm" v-if="column.description">
       {{ column.description }}
-    </span>
+    </div>
     <div>
       <FormFieldInput
         :type="column.columnType"
         :id="column.id"
         :label="column.label"
         :data="data"
-        :options="refData ? refData : null"
         :required="!!column.required"
         :aria-invalid="hasError"
-        :aria-desribedBy="
-          column.description
-            ? `${column.id}-description ${column.id}-input-error`
-            : `${column.id}-input-error`
-        "
+        :aria-desribedBy="`${column.id}-input-error`"
         @focus="touched = true"
         @input="pristine = false"
         @update:modelValue="$emit('update:modelValue', $event)"
