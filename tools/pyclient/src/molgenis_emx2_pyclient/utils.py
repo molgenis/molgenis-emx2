@@ -48,7 +48,7 @@ def convert_dtypes(table_meta: Table) -> dict:
     type_map = {INT: 'Int64',
                 DECIMAL: 'Float64',
                 DATETIME: 'datetime64[ns]',
-                BOOL: 'bool'}
+                BOOL: 'boolean'}
 
     dtypes = {}
     for col in table_meta.columns:

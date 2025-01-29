@@ -6,6 +6,7 @@ import time
 from functools import cache
 from io import BytesIO
 
+import numpy as np
 import pandas as pd
 import requests
 from requests import Response
@@ -460,9 +461,9 @@ class Client:
 
             response_data = pd.read_csv(BytesIO(response.content), keep_default_na=True)
             dtypes = {c: t for (c, t) in convert_dtypes(table_meta).items() if c in response_data.columns}
-            bool_columns = [c for (c, t) in dtypes.items() if t == 'bool']
+            bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
             response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
-            response_data = response_data.astype(dtypes)
+            response_data = response_data.astype(dtypes).fillna(np.nan)
 
             if columns:
                 try:
