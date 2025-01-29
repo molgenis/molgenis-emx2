@@ -8,6 +8,7 @@ import type {
   columnId,
   columnValue,
   CellValueType,
+  IInputValueLabel,
 } from "../../../metadata-utils/src/types";
 
 type inputComponent =
@@ -21,6 +22,7 @@ defineProps<{
   label: string;
   required: boolean;
   data: columnValue;
+  options?: IInputValueLabel[];
 }>();
 
 defineEmits(["focus", "error", "update:modelValue"]);
@@ -47,13 +49,24 @@ function validate(value: columnValue) {
     :id="id"
     :label="label"
     :required="required"
-    :value="data as string"
+    :value="(data as string)"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
-  ></LazyInputString>
+  />
   <LazyInputTextArea
     v-else-if="type === 'TEXT'"
+    ref="input"
+    :id="id"
+    :label="label"
+    :required="required"
+    :value="(data as string)"
+    @focus="$emit('focus')"
+    @update:modelValue="$emit('update:modelValue', $event)"
+    @error="$emit('error', $event)"
+  />
+  <LazyInputHyperlink
+    v-else-if="type === 'HYPERLINK'"
     ref="input"
     :id="id"
     :label="label"
@@ -62,6 +75,6 @@ function validate(value: columnValue) {
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
-  ></LazyInputTextArea>
+  />
   <LazyInputPlaceHolder v-else ref="input" :type="type" />
 </template>
