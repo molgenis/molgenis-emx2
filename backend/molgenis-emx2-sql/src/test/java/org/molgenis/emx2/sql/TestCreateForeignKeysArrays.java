@@ -149,11 +149,11 @@ public class TestCreateForeignKeysArrays {
     assertEquals(0, result.size());
 
     // contains
-    result = bTable.where(f(refToA, CONTAINS_ANY, testValues[0], testValues[2])).retrieveRows();
+    result = bTable.where(f(refToA, MATCH_ANY, testValues[0], testValues[2])).retrieveRows();
     assertEquals(1, result.size());
-    result = bTable.where(f(refToA, CONTAINS_ALL, testValues[0], testValues[1])).retrieveRows();
+    result = bTable.where(f(refToA, MATCH_ALL, testValues[0], testValues[1])).retrieveRows();
     assertEquals(1, result.size());
-    result = bTable.where(f(refToA, CONTAINS_ALL, testValues[0], testValues[2])).retrieveRows();
+    result = bTable.where(f(refToA, MATCH_ALL, testValues[0], testValues[2])).retrieveRows();
     assertEquals(0, result.size());
 
     // should be okay

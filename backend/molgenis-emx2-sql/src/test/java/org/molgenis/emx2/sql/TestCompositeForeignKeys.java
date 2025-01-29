@@ -171,7 +171,7 @@ public class TestCompositeForeignKeys {
     assertTrue(
         p.query()
             .select(s("firstName"), s("lastName"), s("uncle", s("firstName"), s("lastName")))
-            .where(f("uncle", CONTAINS_ANY, row("firstName", "Mickey", "lastName", "Mouse")))
+            .where(f("uncle", MATCH_ANY, row("firstName", "Mickey", "lastName", "Mouse")))
             .retrieveJSON()
             .contains("Person\": null"));
 
@@ -181,7 +181,7 @@ public class TestCompositeForeignKeys {
             .where(
                 f(
                     "uncle",
-                    CONTAINS_ANY,
+                    MATCH_ANY,
                     row("firstName", "Kwik", "lastName", "Duck"),
                     row("firstName", "Donald", "lastName", "Duck")))
             .retrieveJSON()
@@ -211,7 +211,7 @@ public class TestCompositeForeignKeys {
                 s("lastName"),
                 s("nephew", s("firstName"), s("lastName")),
                 s("uncle", s("firstName"), s("lastName")))
-            .where(f("nephew", CONTAINS_ANY, row("firstName", "Kwik", "lastName", "Duck")))
+            .where(f("nephew", MATCH_ANY, row("firstName", "Kwik", "lastName", "Duck")))
             .retrieveJSON();
     assertTrue(result.contains("Donald"));
 
@@ -225,7 +225,7 @@ public class TestCompositeForeignKeys {
             .where(
                 f(
                     "nephew",
-                    CONTAINS_ALL,
+                    MATCH_ALL,
                     row("firstName", "Kwik", "lastName", "Duck"),
                     row("firstName", "Kwek", "lastName", "Duck")))
             .retrieveJSON();
@@ -239,7 +239,7 @@ public class TestCompositeForeignKeys {
                 s("lastName"),
                 s("nephew", s("firstName"), s("lastName")),
                 s("uncle", s("firstName"), s("lastName")))
-            .where(f("nephew", CONTAINS_ANY, row("firstName", "Donald", "lastName", "Duck")))
+            .where(f("nephew", MATCH_ANY, row("firstName", "Donald", "lastName", "Duck")))
             .retrieveJSON();
     assertFalse(result.contains("Kwik"));
 
@@ -365,7 +365,7 @@ public class TestCompositeForeignKeys {
             .where(
                 f(
                     "cousins",
-                    CONTAINS_ANY,
+                    MATCH_ANY,
                     row("firstName", "Kwik", "lastName", "Duck"),
                     row("firstName", "Mickey", "Mouse", "Duck")))
             .retrieveJSON()
@@ -378,7 +378,7 @@ public class TestCompositeForeignKeys {
                 s("lastName"),
                 s("cousins", s("firstName"), s("lastName")),
                 s("uncles", s("firstName"), s("lastName")))
-            .where(f("cousins", CONTAINS_ANY, row("firstName", "Mickey", "Mouse", "Duck")))
+            .where(f("cousins", MATCH_ANY, row("firstName", "Mickey", "Mouse", "Duck")))
             .retrieveJSON()
             .contains("Person\": null"));
 
@@ -392,7 +392,7 @@ public class TestCompositeForeignKeys {
             .where(
                 f(
                     "cousins",
-                    CONTAINS_ALL,
+                    MATCH_ALL,
                     row("firstName", "Kwik", "lastName", "Duck"),
                     row("firstName", "Mickey", "lastName", "Mouse")))
             .retrieveJSON()
@@ -405,7 +405,7 @@ public class TestCompositeForeignKeys {
                 s("lastName"),
                 s("cousins", s("firstName"), s("lastName")),
                 s("uncles", s("firstName"), s("lastName")))
-            .where(f("cousins", CONTAINS_ALL, row("firstName", "Kwik", "lastName", "Duck")))
+            .where(f("cousins", MATCH_ALL, row("firstName", "Kwik", "lastName", "Duck")))
             .retrieveJSON()
             .contains("Kwik"));
 

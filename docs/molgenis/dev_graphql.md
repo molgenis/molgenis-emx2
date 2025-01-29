@@ -638,7 +638,12 @@ the following function are available:
 - textSearch(value)
 - between(value)
 - notBetween(value)
-- _match_any_in_subtree(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
+- _is(null|not_null)
+- _match_any(value)
+- _match_all(value)
+- _match_none(value)
+- _match_any_including_children(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
+- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
 
 If you want to filter a ref/mref/categorial or any other 'nested' table result, use:
 

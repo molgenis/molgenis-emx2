@@ -2,8 +2,8 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.CONTAINS_ALL;
-import static org.molgenis.emx2.Operator.CONTAINS_ANY;
+import static org.molgenis.emx2.Operator.MATCH_ALL;
+import static org.molgenis.emx2.Operator.MATCH_ANY;
 import static org.molgenis.emx2.Row.row;
 
 import java.util.List;
@@ -46,17 +46,17 @@ public class TestSqlQueryContainsOperator {
     List<Row> result =
         schema
             .query("Pet")
-            .where(f("photoUrls", CONTAINS_ANY, "aap", "noot", "mies", "foo"))
+            .where(f("photoUrls", MATCH_ANY, "aap", "noot", "mies", "foo"))
             .retrieveRows();
     assertEquals(2, result.size());
-    result = schema.query("Pet").where(f("photoUrls", CONTAINS_ALL, "foo", "bar")).retrieveRows();
+    result = schema.query("Pet").where(f("photoUrls", MATCH_ALL, "foo", "bar")).retrieveRows();
     assertEquals(1, result.size());
 
     // single column ref
-    result = schema.query("Pet").where(f("tags", CONTAINS_ANY, "red", "green")).retrieveRows();
+    result = schema.query("Pet").where(f("tags", MATCH_ANY, "red", "green")).retrieveRows();
     assertEquals(5, result.size());
 
-    result = schema.query("Pet").where(f("tags", CONTAINS_ALL, "red", "green")).retrieveRows();
+    result = schema.query("Pet").where(f("tags", MATCH_ALL, "red", "green")).retrieveRows();
     assertEquals(2, result.size());
   }
 }

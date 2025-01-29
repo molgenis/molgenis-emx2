@@ -1082,11 +1082,11 @@ public class SqlQuery extends QueryBean {
                   : getTypedValue(values, getArrayType(columnType)));
     }
     switch (operator) {
-      case CONTAINS_ANY, EQUALS: // equals to be deprecated for ref columns,
+      case MATCH_ANY, EQUALS: // equals to be deprecated for ref columns,
         return whereContainsAnyOrEquals(tableAlias, columnName, column, values);
-      case CONTAINS_NONE, NOT_EQUALS: // non_equals to be deprecated for ref columns,
+      case MATCH_NONE, NOT_EQUALS: // non_equals to be deprecated for ref columns,
         return not(whereContainsAnyOrEquals(tableAlias, columnName, column, values));
-      case CONTAINS_ALL:
+      case MATCH_ALL:
         return whereColumnContainsAll(tableAlias, columnName, column, values);
       case IS:
         return whereColumnIsNullOrNotNull(tableAlias, columnName, column, values);
@@ -1102,7 +1102,7 @@ public class SqlQuery extends QueryBean {
         return not(whereColumnBetween(columnName, values));
       case BETWEEN:
         return whereColumnBetween(columnName, values);
-      case MATCH_INCLUDING_PARENTS:
+      case MATCH_ANY_INCLUDING_PARENTS:
         return whereColumnInSubquery(
             column,
             DSL.select(
@@ -1111,7 +1111,7 @@ public class SqlQuery extends QueryBean {
                     column.getRefTable().getSchemaName(),
                     column.getRefTable().getTableName(),
                     TypeUtils.toStringArray(values))));
-      case MATCH_INCLUDING_CHILDREN:
+      case MATCH_ANY_INCLUDING_CHILDREN:
         return whereColumnInSubquery(
             column,
             DSL.select(

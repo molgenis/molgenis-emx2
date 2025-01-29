@@ -68,19 +68,19 @@ public class TestGraphqlSchemaFields {
   void testMatchInParentsAndChildren() throws IOException {
     // just to check syntax works, the real tests live in sql
     String result =
-        execute("{Pet(filter:{tags:{match_including_children:\"colors\"}}){name}}").toString();
+        execute("{Pet(filter:{tags:{_match_any_including_children:\"colors\"}}){name}}").toString();
     assertTrue(result.contains("tom"));
     assertFalse(result.contains("pooky")); // poor pooky has no color
 
     result =
-        execute("{Pet(filter:{tags:{match_including_children:[\"green\",\"blue\"]}}){name}}")
+        execute("{Pet(filter:{tags:{_match_any_including_children:[\"green\",\"blue\"]}}){name}}")
             .toString();
     assertTrue(result.contains("jerry"));
     assertTrue(result.contains("spike"));
     assertFalse(result.contains("tom")); // tom is red
 
     result =
-        execute("{Pet(filter:{tags:{match_including_parents:[\"green\",\"blue\"]}}){name}}")
+        execute("{Pet(filter:{tags:{_match_any_including_parents:[\"green\",\"blue\"]}}){name}}")
             .toString();
     assertTrue(result.contains("jerry"));
     assertTrue(result.contains("spike"));
@@ -230,7 +230,6 @@ public class TestGraphqlSchemaFields {
     assertEquals(
         "pooky",
         execute("{Pet(filter:{name:{like:\"oky\"}}){name}}").at("/Pet/0/name").textValue());
-
     // not like text
     assertEquals(
         "spike",
@@ -825,6 +824,7 @@ public class TestGraphqlSchemaFields {
                   "{TestJson(filter:{json:{equals:\"{\\\"name\\\": \\\"bofke2\\\"}\"}}){json}}") // notice the extra space!
               .at("/TestJson/0/json")
               .asText());
+      // disabled because like doesn't make sense like this. we should revisit json queries.
       //      assertEquals(
       //          value2,
       //          execute("{TestJson(filter:{json:{like:\"bofke2\"}}){json}}") // more useful but

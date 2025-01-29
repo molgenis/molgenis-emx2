@@ -126,7 +126,7 @@ public class TestCreateForeignKeys {
     result = bTable.where(f(refFromBToANillable, IS, NOT_NULL)).retrieveRows();
     assertEquals(0, result.size());
 
-    result = bTable.where(f(refFromBToA, CONTAINS_ANY, insertValue, updateValue)).retrieveRows();
+    result = bTable.where(f(refFromBToA, MATCH_ANY, insertValue, updateValue)).retrieveRows();
     assertEquals(1, result.size());
 
     bTable.delete(bRow);

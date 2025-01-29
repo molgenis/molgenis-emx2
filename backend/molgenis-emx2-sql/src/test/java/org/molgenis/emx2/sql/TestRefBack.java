@@ -75,7 +75,7 @@ public class TestRefBack {
     String result =
         products
             .select(s("productname"), s("parts", s("partname")))
-            .where(f("parts", CONTAINS_ANY, "smallscreen"))
+            .where(f("parts", MATCH_ANY, "smallscreen"))
             .retrieveJSON();
     assertTrue(result.contains("smallphone"));
     assertFalse(result.contains("bigphone"));
@@ -83,7 +83,7 @@ public class TestRefBack {
     result =
         parts
             .select(s("partname"), s("products", s("productname")))
-            .where(f("products", CONTAINS_ANY, "smallphone"))
+            .where(f("products", MATCH_ANY, "smallphone"))
             .retrieveJSON();
     assertTrue(result.contains("smallscreen"));
     assertTrue(result.contains("smallbutton"));
@@ -92,7 +92,7 @@ public class TestRefBack {
     result =
         parts
             .select(s("partname"), s("products", s("productname")))
-            .where(f("products", CONTAINS_ANY, "bigphone"))
+            .where(f("products", MATCH_ANY, "bigphone"))
             .retrieveJSON();
     assertTrue(result.contains("null"));
 
@@ -124,7 +124,7 @@ public class TestRefBack {
     result =
         parts
             .select(s("partname"), s("products", s("productname")))
-            .where(f("products", CONTAINS_ALL, "smallphone"))
+            .where(f("products", MATCH_ALL, "smallphone"))
             .retrieveJSON();
     assertTrue(result.contains("smallscreen"));
     assertTrue(result.contains("smallbutton"));
@@ -205,14 +205,14 @@ public class TestRefBack {
     String result =
         users
             .select(s("username"), s("posts", s("title")))
-            .where(f("posts", CONTAINS_ANY, "jacks post"))
+            .where(f("posts", MATCH_ANY, "jacks post"))
             .retrieveJSON();
     assertTrue(result.contains("jacks"));
 
     result =
         users
             .select(s("username"), s("posts", s("title")))
-            .where(f("posts", CONTAINS_ALL, "jacks post"))
+            .where(f("posts", MATCH_ALL, "jacks post"))
             .retrieveJSON();
     assertTrue(result.contains("jacks"));
 

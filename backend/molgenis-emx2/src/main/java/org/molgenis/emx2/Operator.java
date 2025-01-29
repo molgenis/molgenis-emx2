@@ -8,10 +8,10 @@ public enum Operator {
   EQUALS(
       "equals",
       "Uses '=' operator. In case of arrays '= ANY'. Will be deprecated for arrays, use CONTAINS_ANY."),
-  CONTAINS_ANY(
-      "contains_any", "For arrays if there is any overlap with column values. Used to be 'equals'"),
-  CONTAINS_ALL("contains_any", "For arrays if all values are included in the column value"),
-  CONTAINS_NONE("contains_none", "For arrays to check if none of the values are include"),
+  MATCH_ANY(
+      "match_any", "For arrays if there is any overlap with column values. Used to be 'equals'"),
+  MATCH_ALL("match_all", "For arrays if all values are included in the column value"),
+  MATCH_NONE("match_none", "For arrays to check if none of the values are include"),
   NOT_EQUALS(
       "not_equals",
       "Uses != operator. In case of array 'NOT (= ANY)'. Will be deprecated for arrays, use CONTAINS_NONE"),
@@ -25,14 +25,14 @@ public enum Operator {
   TEXT_SEARCH("text_search", "Uses to_tsquery('value:*') text search operator"), // text search
   TRIGRAM_SEARCH("trigram_search", "Uses WORD_SIMILARITY operator based on trigram matches"),
   // ontology
-  MATCH_INCLUDING_CHILDREN(
-      "match_including_children",
+  MATCH_ANY_INCLUDING_CHILDREN(
+      "match_any_including_children",
       "Can be used for ontology(array) to find if (any of) the term exists in ontology subtree including itself"),
   MATCH_ALL_INCLUDING_CHILDREN(
       "match_all_including_children",
       "Same as match_including_children but then requiring all column values to match each term or one of its children"),
-  MATCH_INCLUDING_PARENTS(
-      "match_including_parents",
+  MATCH_ANY_INCLUDING_PARENTS(
+      "match_any_including_parents",
       "Can be used for ontology(array) to find if (any of) the term exists in ontology parents including itself");
 
   private String name;

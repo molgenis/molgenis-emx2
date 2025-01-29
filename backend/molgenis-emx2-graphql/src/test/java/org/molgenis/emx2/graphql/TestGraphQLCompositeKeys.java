@@ -119,7 +119,7 @@ public class TestGraphQLCompositeKeys {
 
     result =
         execute(
-            "{RefTable(filter:{ref:{_contains_all:[{firstName:\"Katrien\",lastName:\"Duck\"}]}}){id1,id2,ref{firstName,lastName}}}");
+            "{RefTable(filter:{ref:{_match_all:[{firstName:\"Katrien\",lastName:\"Duck\"}]}}){id1,id2,ref{firstName,lastName}}}");
     System.out.println(result.toPrettyString());
     assertEquals(2, result.get("RefTable").size());
     assertEquals("Katrien", result.at("/RefTable/0/ref/0/firstName").asText());
@@ -129,7 +129,7 @@ public class TestGraphQLCompositeKeys {
 
     result =
         execute(
-            "{RefTable(filter:{ref:{_contains_all:[{firstName:\"Katrien\",lastName:\"Mouse\"},{firstName:\"Donald\",lastName:\"Duck\"}]}}){id1,id2,ref{firstName,lastName}}}");
+            "{RefTable(filter:{ref:{_match_all:[{firstName:\"Katrien\",lastName:\"Mouse\"},{firstName:\"Donald\",lastName:\"Duck\"}]}}){id1,id2,ref{firstName,lastName}}}");
     System.out.println(result.toPrettyString());
     assertEquals(1, result.get("RefTable").size());
     assertEquals("Donald", result.at("/RefTable/0/ref/0/firstName").asText());

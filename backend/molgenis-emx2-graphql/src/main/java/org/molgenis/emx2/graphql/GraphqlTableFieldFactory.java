@@ -637,14 +637,14 @@ public class GraphqlTableFieldFactory {
           subFilters.add(
               f(
                   c.getName(),
-                  Operator.MATCH_INCLUDING_CHILDREN,
+                  Operator.MATCH_ANY_INCLUDING_CHILDREN,
                   ((List) value.get(MATCH_INCLUDING_CHILDREN)).toArray(new String[0])));
           value.remove(MATCH_INCLUDING_CHILDREN);
         } else if (value.containsKey(MATCH_INCLUDING_PARENTS)) {
           subFilters.add(
               f(
                   c.getName(),
-                  Operator.MATCH_INCLUDING_PARENTS,
+                  Operator.MATCH_ANY_INCLUDING_PARENTS,
                   ((List) value.get(MATCH_INCLUDING_PARENTS)).toArray(new String[0])));
           value.remove(MATCH_INCLUDING_PARENTS);
         } else if (value.containsKey(FILTER_IS)) {
@@ -656,17 +656,14 @@ public class GraphqlTableFieldFactory {
             subFilters.add(
                 f(
                     c.getName(),
-                    Operator.CONTAINS_ALL,
+                    Operator.MATCH_ALL,
                     convertToPrimaryKeyRows(
                             c.getRefTable(),
                             (List<Map<String, Object>>) value.get(FILTER_CONTAINS_ALL))
                         .toArray()));
           } else if (entry.getValue() != null) {
             subFilters.add(
-                f(
-                    c.getName(),
-                    Operator.CONTAINS_ALL,
-                    (List<Object>) value.get(FILTER_CONTAINS_ALL)));
+                f(c.getName(), Operator.MATCH_ALL, (List<Object>) value.get(FILTER_CONTAINS_ALL)));
           }
           value.remove(FILTER_CONTAINS_ALL);
         }
