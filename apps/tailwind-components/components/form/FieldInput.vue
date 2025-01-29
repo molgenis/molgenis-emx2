@@ -8,6 +8,7 @@ import type {
   columnId,
   columnValue,
   CellValueType,
+  IInputValueLabel,
 } from "../../../metadata-utils/src/types";
 
 type inputComponent =
@@ -21,6 +22,7 @@ defineProps<{
   label: string;
   required: boolean;
   data: columnValue;
+  options?: IInputValueLabel[];
 }>();
 
 defineEmits(["focus", "error", "update:modelValue"]);
@@ -47,7 +49,7 @@ function validate(value: columnValue) {
     :id="id"
     :label="label"
     :required="required"
-    :value="data as string"
+    :value="(data as string)"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
@@ -58,7 +60,7 @@ function validate(value: columnValue) {
     :id="id"
     :label="label"
     :required="required"
-    :value="data as string"
+    :value="(data as string)"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
