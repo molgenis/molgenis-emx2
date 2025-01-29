@@ -1,7 +1,7 @@
 <template>
   <label
     :for="`${id}-file-input`"
-    class="inline-flex justify-center items-center h-14 px-7.5 text-heading-xl tracking-widest uppercase font-display bg-button-secondary text-button-secondary border-button-secondary hover:bg-button-secondary-hover hover:text-button-secondary-hover hover:border-button-secondary-hover"
+    class="inline-flex justify-center items-center gap-1 h-14 px-7.5 text-heading-xl tracking-widest uppercase font-display border rounded-input bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover"
     :class="{
       'border-invalid text-invalid': hasError,
       'border-valid text-valid': valid,
@@ -22,19 +22,21 @@
       @focus="$emit('focus')"
       @blur="$emit('blur')"
     />
-    <span>{{ placeholder }}</span>
+    <BaseIcon name="upload-file" class="ml-1" />
+    <span>{{ label }}</span>
   </label>
-  <div v-if="filesToImport" class="mt-2">
+  <div v-if="filesToImport" class="flex flex-row flex-wrap gap-2 mt-2">
     <Button
       v-for="file in filesToImport"
       type="filterWell"
       size="tiny"
       icon="Trash"
       iconPosition="right"
-      class="mt-2 [&_svg]:w-5"
+      class="[&_svg]:w-4"
       :data-filename="file.name"
       @click="onFilterWellClick"
     >
+      <span class="sr-only fixed">remove file</span>
       {{ file.name }}
     </Button>
   </div>
@@ -48,7 +50,6 @@ const props = withDefaults(
     id: string;
     label?: string;
     modelValue?: string;
-    placeholder?: string;
     disabled?: boolean;
     required?: boolean;
     valid?: boolean;
@@ -56,7 +57,7 @@ const props = withDefaults(
     multiple?: boolean;
   }>(),
   {
-    placeholder: "Upload file",
+    label: "Upload file",
     disabled: false,
     required: false,
     hasError: false,
@@ -67,19 +68,22 @@ const props = withDefaults(
 
 interface IFile {
   name: string;
-  lastModified: string;
-  size: number;
-  type: string;
+  file: File;
 }
 
-const filesToImport = ref();
+const filesToImport = ref<IFile[]>();
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
 defineExpose({ validate });
 
 function onChange(event: Event) {
   const files = (event.target as HTMLInputElement)?.files;
   if (files) {
-    filesToImport.value = Array.from(files);
+    filesToImport.value = [...files].map(file=> {
+      return {
+        name: file.name,
+        file: file
+      }
+    });
   }
 
   emit("update:modelValue", filesToImport.value);
@@ -93,7 +97,7 @@ function onFilterWellClick(event: Event) {
       "button"
     ) as HTMLButtonElement;
     const filename = button.dataset.filename;
-    filesToImport.value = filesToImport.value.filter(
+    filesToImport.value = filesToImport.value?.filter(
       (file: IFile) => file.name !== filename
     );
   }
