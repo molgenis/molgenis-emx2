@@ -26,6 +26,12 @@ const props = withDefaults(
   }
 );
 
+watchEffect(() => {
+  if (props.iconOnly && (props.label === "" || props.label === undefined)) {
+    console.error("Icon only buttons must have a label");
+  }
+});
+
 const COLOR_MAPPING = {
   primary:
     "tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover",

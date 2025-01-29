@@ -98,6 +98,16 @@
         <Button iconOnly icon="caret-down" label="next" type="disabled" />
         <Button iconOnly icon="caret-down" label="next" type="filterWell" />
       </div>
+
+      <!-- do not render by default to avoid errors on clean load-->
+      <div v-if="route.query.showError" class="flex gap-4">
+        <!-- this should result in an error ( due to missing label)-->
+        <Button iconOnly icon="plus"></Button>
+      </div>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+const route = useRoute();
+</script>
