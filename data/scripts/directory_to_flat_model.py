@@ -3,9 +3,9 @@ Script to convert the BBMRI-ERIC directory data to the flat model
 """
 
 import argparse
+import difflib
 import molgenis_emx2_pyclient
 import pandas as pd
-import difflib
 
 # Map SexTypes (partly MIABIS v2) to Sex types (MIABIS v3)
 sex_mapping = {
@@ -502,13 +502,6 @@ def main():
         help="URL of server to get source data from",
     )
     parser.add_argument(
-        "-source-pw",
-        type=str,
-        dest="source_password",
-        required=False,
-        help="Password for source server access",
-    )
-    parser.add_argument(
         "-target-url",
         type=str,
         required=True,
@@ -525,8 +518,6 @@ def main():
     args = parser.parse_args()
     # Connect to source server
     with molgenis_emx2_pyclient.Client(args.source_server) as client:
-        if args.source_password:
-            client.signin("admin", args.source_password)
         client.set_schema("ERIC")
         # Connect to target server
         with molgenis_emx2_pyclient.Client(args.target_server) as catalogue_client:
