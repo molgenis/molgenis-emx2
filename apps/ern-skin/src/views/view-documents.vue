@@ -16,15 +16,13 @@
     >
       <h2 id="section-documents-title">Documents</h2>
       <p>Download additional information about the ERRAS Registry.</p>
-      <MessageBox class="page-warning" type="warning">
-        <p>This page is under construction.</p>
-      </MessageBox>
+      <FileList table="Files" labelsColumn="name" fileColumn="file" />
     </PageSection>
   </Page>
 </template>
 
 <script setup lang="ts">
 // @ts-ignore
-import { Page, PageSection, MessageBox } from "molgenis-viz";
+import { Page, PageSection, FileList } from "molgenis-viz";
 import CustomPageHeader from "../components/CustomPageHeader.vue";
 </script>
