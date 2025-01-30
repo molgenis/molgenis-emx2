@@ -396,13 +396,14 @@ class SqlTableMetadataExecutor {
             .setType(DATETIME)
             .setPosition(-3)
             .setSemantics(
-                "https://w3id.org/fdp/fdp-o#metadataIssued", "http://purl.org/dc/terms/issued"));
+                "<https://w3id.org/fdp/fdp-o#metadataIssued>",
+                "<http://purl.org/dc/terms/issued>"));
     table.add(column(MG_UPDATEDBY).setPosition(-2));
     table.add(
         column(MG_UPDATEDON)
             .setType(DATETIME)
             .setPosition(-1)
-            .setSemantics("https://w3id.org/fdp/fdp-o#metadataModified"));
+            .setSemantics("<https://w3id.org/fdp/fdp-o#metadataModified>"));
   }
 
   private static void executeRemoveMetaColumns(DSLContext jooq, TableMetadata table) {
