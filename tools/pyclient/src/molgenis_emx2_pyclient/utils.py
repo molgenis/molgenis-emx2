@@ -3,8 +3,8 @@ Utility functions for the Molgenis EMX2 Pyclient package
 """
 import logging
 
-from .constants import INT, DECIMAL, DATETIME, BOOL, ONTOLOGY
-from .metadata import Table, Schema
+from .constants import INT, DECIMAL, DATETIME, BOOL, LONG, STRING
+from .metadata import Table
 
 
 def read_file(file_path: str) -> str:
@@ -45,10 +45,14 @@ def parse_nested_pkeys(pkeys: list) -> str:
 def convert_dtypes(table_meta: Table) -> dict:
     """Parses column metadata of a table to a dictionary of column ids to pandas dtypes."""
 
-    type_map = {INT: 'Int64',
-                DECIMAL: 'Float64',
-                DATETIME: 'datetime64[ns]',
-                BOOL: 'boolean'}
+    type_map = {
+        STRING: 'string',
+        INT: 'Int64',
+        LONG: 'Int64',
+        DECIMAL: 'Float64',
+        DATETIME: 'datetime64[ns]',
+        BOOL: 'boolean'
+    }
 
     dtypes = {}
     for col in table_meta.columns:

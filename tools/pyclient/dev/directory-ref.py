@@ -32,6 +32,14 @@ def get_orders():
 
         print(orders.to_string())
 
+def get_longlat():
+    """Gets long/lat info from directory-demo::Biobanks"""
+    with Client(url="http://localhost:8080", schema="directory-demo") as client:
+        biobanks = client.get(table="Biobanks", as_df=True)
+
+    print(biobanks.to_string())
+    print(biobanks.dtypes)
+
 
 
 async def main():
@@ -44,7 +52,7 @@ async def main():
     load_dotenv()
     token = os.environ.get('MG_TOKEN')
 
-    get_orders()
+    get_longlat()
 
 
 if __name__ == '__main__':

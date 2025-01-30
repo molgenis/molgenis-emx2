@@ -463,7 +463,7 @@ class Client:
             dtypes = {c: t for (c, t) in convert_dtypes(table_meta).items() if c in response_data.columns}
             bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
             response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
-            response_data = response_data.astype(dtypes).fillna(np.nan)
+            response_data = response_data.astype(dtypes)
 
             if columns:
                 try:
