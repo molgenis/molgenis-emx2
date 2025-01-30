@@ -1103,26 +1103,38 @@ public class SqlQuery extends QueryBean {
       case BETWEEN:
         return whereColumnBetween(columnName, values);
       case MATCH_ANY_INCLUDING_PARENTS:
-        return whereColumnInSubquery(
-            column,
-            DSL.select(
-                field(
-                    "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
-                    column.getRefTable().getSchemaName(),
-                    column.getRefTable().getTableName(),
-                    TypeUtils.toStringArray(values))));
+        return whereColumnMatchAnyIncludingParents(column, values);
       case MATCH_ANY_INCLUDING_CHILDREN:
-        return whereColumnInSubquery(
-            column,
-            DSL.select(
-                field(
-                    "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
-                    column.getRefTable().getSchemaName(),
-                    column.getRefTable().getTableName(),
-                    TypeUtils.toStringArray(values))));
+        return whereColumnMatchAnyIcludingChilderen(column, values);
+      case MATCH_PATH:
+        return or(
+            whereColumnMatchAnyIncludingParents(column, values),
+            whereColumnMatchAnyIcludingChilderen(column, values));
       default:
         throw new MolgenisException("Unknown operator: " + operator);
     }
+  }
+
+  private Condition whereColumnMatchAnyIcludingChilderen(Column column, Object[] values) {
+    return whereColumnInSubquery(
+        column,
+        DSL.select(
+            field(
+                "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
+                column.getRefTable().getSchemaName(),
+                column.getRefTable().getTableName(),
+                TypeUtils.toStringArray(values))));
+  }
+
+  private Condition whereColumnMatchAnyIncludingParents(Column column, Object[] values) {
+    return whereColumnInSubquery(
+        column,
+        DSL.select(
+            field(
+                "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
+                column.getRefTable().getSchemaName(),
+                column.getRefTable().getTableName(),
+                TypeUtils.toStringArray(values))));
   }
 
   private static @NotNull Condition whereColumnTextSearch(

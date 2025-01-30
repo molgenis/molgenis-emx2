@@ -28,13 +28,12 @@ public enum Operator {
   MATCH_ANY_INCLUDING_CHILDREN(
       "match_any_including_children",
       "Can be used for ontology(array) to find if (any of) the term exists in ontology subtree including itself"),
-  MATCH_ALL_INCLUDING_CHILDREN(
-      "match_all_including_children",
-      "Same as match_including_children but then requiring all column values to match each term or one of its children"),
   MATCH_ANY_INCLUDING_PARENTS(
       "match_any_including_parents",
-      "Can be used for ontology(array) to find if (any of) the term exists in ontology parents including itself");
-
+      "Can be used for ontology(array) to find if (any of) the term exists in ontology parents including itself"),
+  MATCH_PATH(
+      "match_path",
+      "Can be used for ontology(array), is match_any_including_children OR match_any_including_parents");
   private String name;
   private String description;
 

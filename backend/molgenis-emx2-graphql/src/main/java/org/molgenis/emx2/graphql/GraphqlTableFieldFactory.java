@@ -445,6 +445,11 @@ public class GraphqlTableFieldFactory {
                 .name(MATCH_INCLUDING_PARENTS)
                 .type(GraphQLList.list(Scalars.GraphQLString))
                 .build());
+        filterBuilder.field(
+            GraphQLInputObjectField.newInputObjectField()
+                .name(MATCH_PATH)
+                .type(GraphQLList.list(Scalars.GraphQLString))
+                .build());
       }
       filterBuilder.field(
           GraphQLInputObjectField.newInputObjectField()
@@ -615,6 +620,7 @@ public class GraphqlTableFieldFactory {
         }
       } else if (entry.getKey().equals(MATCH_INCLUDING_CHILDREN)
           || entry.getKey().equals(MATCH_INCLUDING_PARENTS)
+          || entry.getKey().equals(MATCH_PATH)
           || entry.getKey().equals(FILTER_IS)
           || entry.getKey().equals(FILTER_CONTAINS_ALL)) {
         // skip, handled on parent column. Need re-architecture in next major release.
@@ -647,6 +653,13 @@ public class GraphqlTableFieldFactory {
                   Operator.MATCH_ANY_INCLUDING_PARENTS,
                   ((List) value.get(MATCH_INCLUDING_PARENTS)).toArray(new String[0])));
           value.remove(MATCH_INCLUDING_PARENTS);
+        } else if (value.containsKey(MATCH_PATH)) {
+          subFilters.add(
+              f(
+                  c.getName(),
+                  Operator.MATCH_PATH,
+                  ((List) value.get(MATCH_PATH)).toArray(new String[0])));
+          value.remove(MATCH_PATH);
         } else if (value.containsKey(FILTER_IS)) {
           subFilters.add(f(c.getName(), IS, value.get(FILTER_IS)));
           value.remove(FILTER_IS);

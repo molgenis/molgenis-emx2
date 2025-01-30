@@ -4,8 +4,7 @@ import static org.jooq.impl.DSL.field;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.MATCH_ANY_INCLUDING_CHILDREN;
-import static org.molgenis.emx2.Operator.MATCH_ANY_INCLUDING_PARENTS;
+import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Row.row;
 
 import org.jooq.Result;
@@ -62,6 +61,12 @@ public class TestOntologyQueries {
             .query("Pet")
             .where(f("tags", MATCH_ANY_INCLUDING_CHILDREN, "purple", "blue"))
             .retrieveJSON();
+    assertTrue(jsonResult.contains("sylvester")); // is 'purple'
+    assertTrue(jsonResult.contains("jerry")); // is 'blue'
+    assertFalse(jsonResult.contains("tom")); // is 'red'
+
+    // expect to work for normal colors too
+    jsonResult = schema.query("Pet").where(f("tags", MATCH_PATH, "purple", "blue")).retrieveJSON();
     assertTrue(jsonResult.contains("sylvester")); // is 'purple'
     assertTrue(jsonResult.contains("jerry")); // is 'blue'
     assertFalse(jsonResult.contains("tom")); // is 'red'

@@ -85,6 +85,11 @@ public class TestGraphqlSchemaFields {
     assertTrue(result.contains("jerry"));
     assertTrue(result.contains("spike"));
     assertFalse(result.contains("tom")); // tom is red
+
+    result = execute("{Pet(filter:{tags:{_match_path:[\"green\",\"blue\"]}}){name}}").toString();
+    assertTrue(result.contains("jerry"));
+    assertTrue(result.contains("spike"));
+    assertFalse(result.contains("tom")); // tom is red
   }
 
   @Test
