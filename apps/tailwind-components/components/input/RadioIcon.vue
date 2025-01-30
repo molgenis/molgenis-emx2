@@ -12,7 +12,7 @@
       r="9"
       stroke-width="1"
       fill="none"
-      class="stroke-gray-600"
+      class="stroke-current"
       :class="{
         'fill-input hover:fill-input-checked hover:stroke-none focus:fill-input-checked focus:stroke-none':
           !checked,

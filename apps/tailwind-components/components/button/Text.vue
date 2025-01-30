@@ -11,17 +11,9 @@ withDefaults(
 </script>
 
 <template>
-  <button class="flex items-center">
-    <BaseIcon
-      v-if="icon"
-      :name="icon"
-      :class="`text-search-filter-expand${inverted ? '-mobile' : ''}`"
-      :width="18"
-    />
-    <span
-      class="ml-2 text-body-sm hover:underline"
-      :class="`text-search-filter-expand${inverted ? '-mobile' : ''}`"
-    >
+  <button class="flex items-center text-button-text">
+    <BaseIcon v-if="icon" :name="icon" :width="18" />
+    <span class="ml-2 text-body-sm hover:underline">
       <slot />
     </span>
   </button>

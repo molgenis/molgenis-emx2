@@ -158,7 +158,7 @@ watch(
       />
     </div>
 
-    <div class="basis-1/3 ml-2">
+    <div class="basis-1/3 ml-2 h-screen overflow-y-scroll">
       <h2>Demo controls, settings and status</h2>
 
       <div class="p-4 border-2 mb-2">
