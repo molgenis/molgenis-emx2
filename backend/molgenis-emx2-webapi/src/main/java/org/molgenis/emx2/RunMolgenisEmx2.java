@@ -33,13 +33,14 @@ public class RunMolgenisEmx2 {
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
 
-    Integer port = 8080;
+    Integer port;
     if (args.length >= 1) {
       try {
         port = Integer.parseInt(args[0]);
       } catch (NumberFormatException e) {
-        logger.error("Port number should be an integer, but was: " + args[0]);
-        System.exit(1);
+        logger.warn("Port number should be an integer, but was: {}", args[0]);
+        port =
+            (Integer) EnvironmentProperty.getParameter(Constants.MOLGENIS_HTTP_PORT, "8080", INT);
       }
     } else {
       port = (Integer) EnvironmentProperty.getParameter(Constants.MOLGENIS_HTTP_PORT, "8080", INT);
