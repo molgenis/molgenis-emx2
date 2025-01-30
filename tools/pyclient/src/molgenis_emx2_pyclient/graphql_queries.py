@@ -167,8 +167,6 @@ def list_schema_meta():
                     value
                 }
                 id
-                schemaName
-                schemaId
                 inheritName
                 inheritId
                 descriptions {

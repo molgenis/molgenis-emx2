@@ -53,9 +53,11 @@
     --text-color-sub-menu-hover: var(--color-blue-700);
     --text-color-breadcrumb-arrow: var(--color-white);
     --text-color-breadcrumb: var(--color-blue-50);
-    --text-color-title: var(--color-white);
+    --text-color-title: var(--color-gray-900);
     --text-color-title-contrast: var(--color-blue-500);
+    --text-color-input-description: var(--color-gray-900);
     --text-color-sub-title-contrast: var(--color-black);
+    --text-color-form-header: var(--color-gray-900);
     --text-color-search-button: var(--text-blue-500);
     --text-color-search-button-hover: var(--text-blue-800);
     --text-color-favorite: var(--color-white);
