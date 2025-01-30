@@ -459,8 +459,10 @@ class Client:
                                             fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                    f"{table!r}.\nStatus code: {response.status_code}.")
 
-            response_data = pd.read_csv(BytesIO(response.content), keep_default_na=True)
-            dtypes = {c: t for (c, t) in convert_dtypes(table_meta).items() if c in response_data.columns}
+            response_columns = pd.read_csv(BytesIO(response.content)).columns
+            dtypes = {c: t for (c, t) in convert_dtypes(table_meta).items() if c in response_columns}
+            response_data = pd.read_csv(BytesIO(response.content),  keep_default_na=True, dtype=dtypes)
+
             bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
             response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
             response_data = response_data.astype(dtypes)
