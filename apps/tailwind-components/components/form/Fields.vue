@@ -120,10 +120,13 @@ defineExpose({ validate });
         ></FormField>
       </div>
     </div>
-    <div class="bg-red-500 p-3 font-bold">
-      {{ numberOffFieldsWithErrors }} fields require your attention before you
-      can save this {{ recordLabel }} ( temporary section for dev)
-    </div>
+
+    <FormError
+      v-if="numberOffFieldsWithErrors > 0"
+      :message="`${numberOffFieldsWithErrors} ${
+        numberOffFieldsWithErrors > 1 ? 'fields' : 'field'
+      } require your attention before you can save this ${metadata.label}`"
+    />
     <div class="bg-gray-200 p-3">
       {{ numberOfRequiredFieldsWithData }} /
       {{ numberOfRequiredFields }} required fields left ( temporary section for

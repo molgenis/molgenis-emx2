@@ -140,7 +140,7 @@
     --text-color-input-description: var(--color-blue-800);
     --text-color-legend-error-count: var(--color-white);
     
-    --text-color-invalid: var(--color-red-500);
+    --text-color-invalid: var(--color-red-700);
     --text-color-valid: var(--color-green-800);
     --text-color-disabled: var(--color-gray-600);
     --text-color-required: var(--color-red-500);
