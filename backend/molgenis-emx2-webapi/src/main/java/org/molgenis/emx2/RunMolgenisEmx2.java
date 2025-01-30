@@ -26,17 +26,21 @@ public class RunMolgenisEmx2 {
   public static final boolean EXCLUDE_PETSTORE_DEMO =
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_EXCLUDE_PETSTORE_DEMO, false, BOOL);
+  public static final boolean INCLUDE_TYPE_TEST_DEMO =
+      (Boolean)
+          EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_TYPE_TEST_DEMO, false, BOOL);
 
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
 
-    Integer port = 8080;
+    Integer port;
     if (args.length >= 1) {
       try {
         port = Integer.parseInt(args[0]);
       } catch (NumberFormatException e) {
-        logger.error("Port number should be an integer, but was: " + args[0]);
-        System.exit(1);
+        logger.warn("Port number should be an integer, but was: {}", args[0]);
+        port =
+            (Integer) EnvironmentProperty.getParameter(Constants.MOLGENIS_HTTP_PORT, "8080", INT);
       }
     } else {
       port = (Integer) EnvironmentProperty.getParameter(Constants.MOLGENIS_HTTP_PORT, "8080", INT);
@@ -60,6 +64,11 @@ public class RunMolgenisEmx2 {
           if (!EXCLUDE_PETSTORE_DEMO && db.getSchema("pet store") == null) {
             Schema schema = db.createSchema("pet store");
             DataModels.Profile.PET_STORE.getImportTask(schema, true).run();
+          }
+
+          if (INCLUDE_TYPE_TEST_DEMO && db.getSchema("type test") == null) {
+            Schema schema = db.createSchema("type test");
+            DataModels.Profile.TYPE_TEST.getImportTask(schema, true).run();
           }
 
           if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
