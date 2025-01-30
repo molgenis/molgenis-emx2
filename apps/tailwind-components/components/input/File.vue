@@ -1,14 +1,31 @@
 <template>
-  <label
-    :for="`${id}-file-input`"
-    class="inline-flex justify-center items-center gap-1 h-14 px-7.5 text-heading-xl tracking-widest uppercase font-display border rounded-input bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover"
-    :class="{
-      'border-invalid text-invalid': hasError,
-      'border-valid text-valid': valid,
-      'border-disabled text-disabled bg-disabled': disabled,
-      'bg-white': !disabled,
-    }"
-  >
+  <div class="flex justify-end items-center border border-input py-2 px-4">
+    <div class="">
+      <Button
+        v-if="fileToImport"
+        type="filterWell"
+        size="small"
+        icon="Trash"
+        iconPosition="right"
+        class="[&_svg]:w-4"
+        @click="onFilterWellClick"
+      >
+        <span class="sr-only fixed">remove file</span>
+        {{ fileToImport.name }}
+      </Button>
+    </div>
+    <label
+      :for="`${id}-file-input`"
+      class="py-5 px-7.5 text-heading-xl tracking-widest uppercase font-display border rounded-input bg-button-outline text-button-outline border-button-outline hover:bg-button-primary hover:text-button-primary"
+      :class="{
+        'border-invalid text-invalid': hasError,
+        'border-valid text-valid': valid,
+        'border-disabled text-disabled bg-disabled': disabled,
+        'bg-white': !disabled,
+      }"
+    >
+      {{ label }}
+    </label>
     <input
       :id="`${id}-file-input`"
       class="sr-only"
@@ -16,29 +33,11 @@
       :name="id"
       :required="required"
       :disabled="disabled"
-      :multiple="multiple"
       :value="modelValue"
       @change="onChange"
       @focus="$emit('focus')"
       @blur="$emit('blur')"
     />
-    <BaseIcon name="upload-file" class="ml-1" />
-    <span>{{ label }}</span>
-  </label>
-  <div v-if="filesToImport" class="flex flex-row flex-wrap gap-2 mt-2">
-    <Button
-      v-for="file in filesToImport"
-      type="filterWell"
-      size="tiny"
-      icon="Trash"
-      iconPosition="right"
-      class="[&_svg]:w-4"
-      :data-filename="file.name"
-      @click="onFilterWellClick"
-    >
-      <span class="sr-only fixed">remove file</span>
-      {{ file.name }}
-    </Button>
   </div>
 </template>
 
@@ -54,15 +53,12 @@ const props = withDefaults(
     required?: boolean;
     valid?: boolean;
     hasError?: boolean;
-    multiple?: boolean;
   }>(),
   {
-    label: "Upload file",
+    label: "Browse",
     disabled: false,
     required: false,
     hasError: false,
-    valid: false,
-    multiple: true,
   }
 );
 
@@ -71,38 +67,23 @@ interface IFile {
   file: File;
 }
 
-const filesToImport = ref<IFile[]>();
+const fileToImport = ref<IFile>();
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
 defineExpose({ validate });
 
 function onChange(event: Event) {
   const files = (event.target as HTMLInputElement)?.files;
+  console.log(files.item(0))
   if (files) {
-    filesToImport.value = [...files].map((file) => {
-      return {
-        name: file.name,
-        file: file,
-      };
-    });
+    fileToImport.value = { name: files.item(0).name, file: files.item(0) };
   }
 
-  emit("update:modelValue", filesToImport.value);
+  emit("update:modelValue", fileToImport.value);
 }
 
 function onFilterWellClick(event: Event) {
-  if (filesToImport.value?.length === 1) {
-    filesToImport.value = [];
-  } else {
-    const button = (event.target as HTMLElement).closest(
-      "button"
-    ) as HTMLButtonElement;
-    const filename = button.dataset.filename;
-    filesToImport.value = filesToImport.value?.filter(
-      (file: IFile) => file.name !== filename
-    );
-  }
-
-  emit("update:modelValue", filesToImport.value);
+  fileToImport.value = null;
+  emit("update:modelValue", fileToImport.value);
 }
 
 function validate(value: columnValue) {
