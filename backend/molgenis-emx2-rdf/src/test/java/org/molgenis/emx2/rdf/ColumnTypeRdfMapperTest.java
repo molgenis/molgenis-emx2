@@ -357,7 +357,6 @@ class ColumnTypeRdfMapperTest {
                             // Not sure how to retrieve more directly as changes everytime
                             + testRows.get(0).getString(ColumnType.FILE.name()))),
                 retrieveValues(ColumnType.FILE.name())),
-
         // STRING
         () ->
             assertEquals(
@@ -446,7 +445,6 @@ class ColumnTypeRdfMapperTest {
             assertEquals(
                 Set.of(Values.iri(RDF_API_URL_PREFIX + REFBACK_TABLE + "?id=1")),
                 retrieveValues(ColumnType.REFBACK.name())),
-
         // LAYOUT and other constants -> should return empty sets as they should be excluded
         () -> assertEquals(Set.of(), retrieveValues(ColumnType.HEADING.name())),
         // format flavors that extend a baseType

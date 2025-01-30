@@ -1,22 +1,22 @@
 <template>
-  <h2>Hyperlink component</h2>
+  <h2>Email component</h2>
   <p>
-    The <code>Hyperlink Component</code> enables you to use the String component
-    with the added validation of the input being a hyperlink.
+    The <code>Email Component</code> enables you to use the String component
+    with the added validation of the input being a email.
   </p>
 
   <div
     class="grid grid-cols-2 gap-6 my-5 [&>div]:bg-white [&>div]:p-4 [&_h3]:font-semibold [&_h3]:my-2"
   >
     <div>
-      <h3>Input Hyperlink: (model value: {{ demoValue }})</h3>
-      <InputLabel for="input-hyperlink">
+      <h3>Input email: (model value: {{ demoValue }})</h3>
+      <InputLabel for="input-email">
         {{ label }}
       </InputLabel>
-      <InputHyperlink
-        id="input-hyperlink"
+      <InputEmail
+        id="input-email"
         v-model="demoValue"
-        ref="input-hyperlink"
+        ref="input-email"
         :placeholder="placeholder"
         :hasError="error.length > 0"
         @error="handleError"
@@ -29,8 +29,8 @@
 <script setup lang="ts">
 import type { IFieldError } from "../../../metadata-utils/src/types";
 
-const label = "Input a hyperlink";
-const placeholder = "https://example.com";
+const label = "Input an email address";
+const placeholder = "example@molgenis.net";
 const demoValue = ref("");
 const error = ref<IFieldError[]>([]);
 
