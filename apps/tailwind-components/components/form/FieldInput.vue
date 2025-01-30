@@ -74,5 +74,16 @@ function validate(value: columnValue) {
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
   />
+  <LazyInputBoolean
+    v-else-if="type === 'BOOL'"
+    ref="input"
+    :id="id"
+    :label="label"
+    :required="required"
+    :modelValue="data === true || data === false ? data : null"
+    @focus="$emit('focus')"
+    @update:modelValue="$emit('update:modelValue', $event)"
+    @error="$emit('error', $event)"
+  />
   <LazyInputPlaceHolder v-else ref="input" :type="type" />
 </template>
