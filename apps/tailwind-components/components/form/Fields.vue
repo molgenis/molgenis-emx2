@@ -95,6 +95,31 @@ function onErrors(column: IColumn, $event: IFieldError[]) {
   emit("error", errorMap);
 }
 
+const currentError = ref<string | null>(null);
+
+function handleGotoNextError() {
+  const errorFieldIds: string[] = [];
+  Object.entries(errorMap).forEach(([id, errors]) => {
+    if (errors.length > 0) {
+      errorFieldIds.push(id + "-form-field");
+    }
+  });
+  if (currentError.value === null) {
+    currentError.value = errorFieldIds[0];
+  } else {
+    const currentIndex = errorFieldIds.indexOf(currentError.value);
+    if (currentIndex < errorFieldIds.length - 1) {
+      currentError.value = errorFieldIds[currentIndex + 1];
+    } else {
+      currentError.value = errorFieldIds[0];
+    }
+  }
+  document.getElementById(currentError.value)?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}
+
 defineExpose({ validate });
 </script>
 <template>
@@ -107,9 +132,10 @@ defineExpose({ validate });
       >
         {{ chapter.title }}
       </h2>
-      <div class="pb-8" v-for="column in chapter.columns">
+      <div class="pb-8 snap-y" v-for="column in chapter.columns">
         <FormField
           :id="`${column.id}-form-field`"
+          class="scroll-mt-20"
           :column="column"
           :data="dataMap[column.id]"
           :errors="errorMap[column.id]"
@@ -122,10 +148,14 @@ defineExpose({ validate });
     </div>
 
     <FormError
+      @error-next="handleGotoNextError"
+      @error-prev="handleGotoNextError"
       v-if="numberOffFieldsWithErrors > 0"
       :message="`${numberOffFieldsWithErrors} ${
         numberOffFieldsWithErrors > 1 ? 'fields' : 'field'
-      } require your attention before you can save this ${metadata.label}`"
+      } ${
+        numberOffFieldsWithErrors > 1 ? 'require' : 'requires'
+      } your attention before you can save this ${metadata.label}`"
     />
     <div class="bg-gray-200 p-3">
       {{ numberOfRequiredFieldsWithData }} /
