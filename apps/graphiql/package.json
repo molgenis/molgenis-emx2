@@ -1,0 +1,33 @@
+{
+  "name": "example-graphiql-create-react-app",
+  "version": "0.0.0",
+  "private": true,
+  "homepage": ".",
+  "dependencies": {
+    "graphiql": "^3.4.0",
+    "graphql": "^16.9.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "dev": "react-scripts start",
+    "format": "echo 'skip format'",
+    "build": "BUILD_PATH='./dist' react-scripts build"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "eslint-config-react-app": "^7.0.1"
+  }
+}
