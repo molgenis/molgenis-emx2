@@ -6,7 +6,7 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   : "/apps/tailwind-components/#/";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto(`${route}Form.story?schema=catalogue&table=Resources`);
+  await page.goto(`${route}Form.story?schema=catalogue-demo&table=Resources`);
   await page.getByText("Jump to", { exact: true }).click({ delay: 300 });
 });
 
