@@ -60,6 +60,7 @@ public class MessageApi {
       ctx.status(422);
       String msg = "Error parsing request: " + e.getMessage();
       logger.error(msg);
+      ctx.result(msg);
       return msg;
     }
 
@@ -86,6 +87,7 @@ public class MessageApi {
       String msg =
           "Error validating message receivers: " + executionResult.getErrors().get(0).getMessage();
       logger.error(msg);
+      ctx.result(msg);
       return msg;
     }
     Map<String, Object> resultMap = executionResult.toSpecification();
@@ -97,6 +99,7 @@ public class MessageApi {
       ctx.status(500);
       String msg = "Error validating message receivers: " + e.getMessage();
       logger.error(msg);
+      ctx.result(msg);
       return msg;
     }
 
@@ -104,6 +107,7 @@ public class MessageApi {
       ctx.status(500);
       String msg = "No recipients found for given filter";
       logger.error(msg);
+      ctx.result(msg);
       return msg;
     }
 
@@ -133,6 +137,7 @@ public class MessageApi {
           sendMessageAction.subject(),
           sendMessageAction.body());
     }
+    ctx.result(String.valueOf(sendResult));
     return String.valueOf(sendResult);
   }
 

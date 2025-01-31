@@ -12,9 +12,11 @@
       r="9"
       stroke-width="1"
       fill="none"
-      class="stroke-gray-600"
+      class="stroke-current"
       :class="{
-        'fill-yellow-500 stroke-none': checked,
+        'fill-input hover:fill-input-checked hover:stroke-none focus:fill-input-checked focus:stroke-none':
+          !checked,
+        'fill-input-checked stroke-none': checked,
       }"
     />
     <circle
@@ -23,10 +25,10 @@
       r="3"
       stroke-width="1"
       stroke="none"
+      class="fill-transparent"
       :class="{
-        'fill-gray-900': checked,
+        '!fill-gray-900': checked,
       }"
-      v-if="checked"
     />
   </svg>
 </template>

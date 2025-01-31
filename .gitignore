@@ -41,6 +41,7 @@ release.properties
 tls
 **/**/bin/
 .venv
+.vscode/
 
 yarn_error.log
 .nyc_output
