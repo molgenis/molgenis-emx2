@@ -11,14 +11,12 @@
       :verticalPadding="2"
     >
       <h2 id="section-temp-message">Documents</h2>
-      <MessageBox type="warning">
-        <p>This page is under construction.</p>
-      </MessageBox>
+      <FileList table="Files" labelsColumn="name" fileColumn="file" />
     </PageSection>
   </Page>
 </template>
 
 <script setup lang="ts">
 // @ts-ignore
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
+import { Page, PageHeader, PageSection, FileList } from "molgenis-viz";
 </script>
