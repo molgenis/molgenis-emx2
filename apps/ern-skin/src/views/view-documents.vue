@@ -3,6 +3,7 @@
     <CustomPageHeader
       class="erras-header"
       title="ERN-Skin Registry"
+      subtitle="Download Documents"
       imageSrc="img/erras-header.jpg"
       height="xlarge"
       title-position-x="center"
@@ -13,7 +14,7 @@
       aria-labelledby="section-documents-title"
       :verticalPadding="2"
     >
-      <h2 id="section-documents-title">Download Documents</h2>
+      <h2 id="section-documents-title"></h2>
       <p>Download additional information about the ERRAS Registry.</p>
       <FileList table="Files" labelsColumn="name" fileColumn="file" />
     </PageSection>
