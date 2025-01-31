@@ -10,7 +10,8 @@
       aria-labelledby="section-temp-message"
       :verticalPadding="2"
     >
-      <h2 id="section-temp-message">Documents</h2>
+      <h2 id="section-temp-message">Download Documents</h2>
+      <p>Download additional information about the ILIAD Registry.</p>
       <FileList table="Files" labelsColumn="name" fileColumn="file" />
     </PageSection>
   </Page>

@@ -6,7 +6,8 @@
       imageSrc="img/ern-reconnet-header.jpg"
     />
     <PageSection aria-labelledby="welcome-title">
-      <h2 id="welcome-title">ERN ReCONNET registry Documents</h2>
+      <h2 id="welcome-title">Download Documents</h2>
+      <p>Download additional information about the ReCONNECT Registry.</p>
       <FileList table="Files" labelsColumn="name" fileColumn="file" />
     </PageSection>
   </Page>
