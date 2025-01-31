@@ -47,7 +47,8 @@ const hasNoResults = ref<boolean>(true);
 defineExpose({ validate });
 
 function validate(value: columnValue) {
-  if (props.required && !modelValue.value) {
+  console.log(value);
+  if (props.required && !value) {
     const errors = [
       { message: `${props.label || props.id} required to complete the form` },
     ];
