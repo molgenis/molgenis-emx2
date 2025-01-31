@@ -102,7 +102,7 @@ export interface IFormLegendSection {
 export type columnId = string;
 export type columnValue = string | number | boolean | null | columnValueObject;
 
-export interface columnValueObject {
+interface columnValueObject {
   [x: string]: columnValue;
 }
 

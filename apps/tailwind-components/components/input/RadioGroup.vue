@@ -7,15 +7,15 @@
       'flex-col': align === 'vertical',
     }"
   >
-    <div v-for="option in options" class="flex justify-start align-center">
+    <div v-for="option in radioOptions" class="flex justify-start align-center">
       <InputRadio
         :id="`${id}-radio-group-${option.value}`"
         class="sr-only fixed"
         :name="id"
         :value="option.value"
-        v-model="modelValue"
-        @input="toggleSelect"
-        :checked="option.value === modelValue"
+        :modelValue="props.modelValue"
+        @input="$emit('update:modelValue', $event.target.value)"
+        :checked="option.value === props.modelValue"
       />
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
@@ -46,13 +46,13 @@
 </template>
 
 <script lang="ts" setup>
-import type { IValueLabel } from "~/types/types";
-import type { columnValue } from "metadata-utils/src/types";
+import type { IRadioOptionsData } from "~/types/types";
 
 const props = withDefaults(
   defineProps<{
     id: string;
-    options: IValueLabel[];
+    modelValue: boolean | string | null;
+    radioOptions: IRadioOptionsData[];
     showClearButton?: boolean;
     align?: "horizontal" | "vertical";
   }>(),
@@ -61,28 +61,19 @@ const props = withDefaults(
     align: "vertical",
   }
 );
-const modelValue = defineModel<columnValue>();
-const emit = defineEmits(["update:modelValue", "select", "deselect"]);
 
-function toggleSelect(event: Event) {
-  const target = event.target as HTMLInputElement;
-  if (target.checked) {
-    emit("select", target.value);
-  } else {
-    emit("deselect", target.value);
-  }
-}
+const emit = defineEmits(["update:modelValue"]);
 
 function resetModelValue() {
-  modelValue.value = undefined;
+  emit("update:modelValue", null);
 }
 
 const isClearBtnShow = computed(() => {
   return (
     props.showClearButton &&
-    (modelValue.value === true ||
-      modelValue.value === false ||
-      (modelValue.value && modelValue.value !== ""))
+    (props.modelValue === true ||
+      props.modelValue === false ||
+      (typeof props.modelValue === "string" && props.modelValue.length > 0))
   );
 });
 </script>

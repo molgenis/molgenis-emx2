@@ -15,11 +15,6 @@ export interface INode {
   description?: string;
 }
 
-export interface IValueLabel {
-  value: any;
-  label?: string;
-}
-
 export interface ITreeNode extends INode {
   children:
   ITreeNode[];

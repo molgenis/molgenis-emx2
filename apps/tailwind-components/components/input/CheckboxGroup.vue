@@ -1,6 +1,6 @@
 <template>
   <div :id="`${id}-checkbox-group`">
-    <div class="flex flex-row" v-for="option in options">
+    <div class="flex flex-row" v-for="option in checkboxOptions">
       <input
         type="checkbox"
         :id="`${id}-${option.value}`"
@@ -8,7 +8,6 @@
         :value="option.value"
         v-model="modelValue"
         :checked="modelValue!.includes(option.value)"
-        @input="toggleSelect"
         class="sr-only"
       />
       <InputLabel
@@ -38,12 +37,15 @@
 </template>
 
 <script lang="ts" setup>
-import type { IValueLabel } from "~/types/types";
-
+interface checkboxDataIF {
+  value: string;
+  label?: string;
+  checked?: boolean | undefined;
+}
 withDefaults(
   defineProps<{
     id: string;
-    options: IValueLabel[];
+    checkboxOptions: checkboxDataIF[];
     showClearButton?: boolean;
   }>(),
   {
@@ -52,16 +54,6 @@ withDefaults(
 );
 
 const modelValue = defineModel<string[]>();
-const emit = defineEmits(["update:modelValue", "select", "deselect"]);
-
-function toggleSelect(event: Event) {
-  const target = event.target as HTMLInputElement;
-  if (target.checked) {
-    emit("select", target.value);
-  } else {
-    emit("deselect", target.value);
-  }
-}
 
 function resetModelValue() {
   modelValue.value = [];

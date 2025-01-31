@@ -53,12 +53,6 @@ const SIZE_MAPPING = {
   medium: "h-14 px-7.5 text-heading-xl gap-4",
   large: "h-18 px-8.75 text-heading-xl gap-5",
 };
-const ICON_SIZE_MAPPING = {
-  tiny: 12,
-  small: 18,
-  medium: 24,
-  large: 36,
-};
 
 const ICON_POSITION_MAPPING = {
   left: "",
@@ -77,9 +71,6 @@ const iconPositionClass = computed(() => {
   return ICON_POSITION_MAPPING[props.iconPosition];
 });
 
-const iconSize = computed(() => {
-  return ICON_SIZE_MAPPING[props.size];
-});
 const tooltipText = computed(() => {
   return props.tooltip || props.iconOnly ? props.label : "";
 });
@@ -91,7 +82,8 @@ const tooltipText = computed(() => {
     class="flex items-center border rounded-input group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input"
     :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
   >
-    <BaseIcon v-if="icon" :name="icon" :width="iconSize" />
+    <BaseIcon v-if="icon" :name="icon" />
+
     <span :class="{ 'sr-only': iconOnly }">{{ label }}<slot /></span>
   </button>
 </template>

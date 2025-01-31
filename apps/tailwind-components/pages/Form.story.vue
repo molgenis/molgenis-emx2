@@ -8,38 +8,26 @@ import type {
   ITableMetaData,
 } from "../../metadata-utils/src/types";
 
-const exampleName = ref("simple");
-
-const exampleMap = ref({
-  simple: {
-    schemaId: "pet store",
-    tableId: "Pet",
-  },
-  "pet store user": {
-    schemaId: "pet store",
-    tableId: "User",
-  },
-  complex: {
-    schemaId: "catalogue-demo",
-    tableId: "Resources",
-  },
-});
+const sampleType = ref("simple");
 
 // just assuming that the table is there for the demo
-const exampleConfig = computed(() => exampleMap.value[exampleName.value]);
+const schemaId = computed(() =>
+  sampleType.value === "simple" ? "pet store" : "catalogue-demo"
+);
+const tableId = computed(() =>
+  sampleType.value === "simple" ? "Pet" : "Resources"
+);
 
 const {
   data: schemaMeta,
   refresh: refetchMetadata,
   status,
-} = await useAsyncData("form sample", () =>
-  fetchMetadata(exampleConfig.value.schemaId)
-);
+} = await useAsyncData("form sample", () => fetchMetadata(schemaId.value));
 
 const tableMeta = computed(
   () =>
     (schemaMeta.value as ISchemaMetaData)?.tables.find(
-      (table) => table.id === exampleConfig.value.tableId
+      (table) => table.id === tableId.value
     ) as ITableMetaData
 );
 
@@ -146,11 +134,9 @@ watch(
       </div>
 
       <FormFields
-        :key="exampleName"
         v-if="tableMeta && status === 'success'"
         class="basis-2/3 p-8 border-l overflow-y-auto h-screen"
         ref="formFields"
-        :schemaId="exampleConfig.schemaId"
         :metadata="tableMeta"
         :data="data"
         @update:model-value="onModelUpdate"
@@ -158,7 +144,7 @@ watch(
       />
     </div>
 
-    <div class="basis-1/3 ml-2 h-screen overflow-y-scroll">
+    <div class="basis-1/3 ml-2">
       <h2>Demo controls, settings and status</h2>
 
       <div class="p-4 border-2 mb-2">
@@ -166,16 +152,15 @@ watch(
         <select
           id="table-select"
           @change="refetch()"
-          v-model="exampleName"
+          v-model="sampleType"
           class="border-1 border-black"
         >
           <option value="simple">Simple form example</option>
           <option value="complex">Complex form example</option>
-          <option value="pet store user">Pet store user</option>
         </select>
 
-        <div>schema id = {{ exampleConfig.schemaId }}</div>
-        <div>table id = {{ exampleConfig.tableId }}</div>
+        <div>schema id = {{ schemaId }}</div>
+        <div>table id = {{ tableId }}</div>
 
         <button
           class="border-gray-900 border-[1px] p-2 bg-gray-200"

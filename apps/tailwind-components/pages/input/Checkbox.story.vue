@@ -81,7 +81,7 @@ const toppingsSelection = ref<string[]>(["tomatoes", "basil"]);
       <InputCheckboxGroup
         id="example-4"
         v-model="toppingsSelection"
-        :options="[
+        :checkboxOptions="[
           {
             value: 'tomatoes',
             label: 'Roma tomatoes',

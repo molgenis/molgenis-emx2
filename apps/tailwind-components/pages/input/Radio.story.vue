@@ -26,7 +26,7 @@
       </legend>
       <InputRadioGroup
         id="example-1"
-        :options="[{ value: 'no' }, { value: 'yes' }]"
+        :radioOptions="[{ value: 'no' }, { value: 'yes' }]"
         v-model="question1Response"
       />
       <output>
@@ -40,7 +40,7 @@
       <InputRadioGroup
         id="example-2"
         v-model="question2Response"
-        :options="[
+        :radioOptions="[
           { value: 'level-1', label: 'Level 1 (A)' },
           { value: 'level-2', label: 'Level 2 (AA)' },
           { value: 'level-3', label: 'Level 3 (AAA)' },
@@ -58,7 +58,7 @@
       <InputRadioGroup
         id="example-3"
         v-model="question3Response"
-        :options="[
+        :radioOptions="[
           { value: 'control', label: 'Healthy controls' },
           {
             value: 'intervention',
