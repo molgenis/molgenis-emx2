@@ -5,23 +5,16 @@
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     </div>
-    <div
-      v-if="
-        session &&
-        (session.email == 'admin' ||
-          (session.roles && session.roles.length > 0))
-      "
-    >
+    <div v-if="session?.email === 'admin' || session?.roles?.length">
       <h5 class="card-title">Manage members</h5>
       <p>Use table below to add, edit or remove members</p>
       <form v-if="canEdit" class="form-inline">
-        <InputEmail
+        <InputString
           id="member-email"
           class="mb-2 mr-2 mr-sm-4 email-input"
           v-model="editMember['email']"
-          placeholder="email address"
+          placeholder="email or username"
           label="Email:"
-          :additionalValidValidationStrings="['user', 'anonymous']"
         >
           <template v-slot:prepend>
             <Info class="mr-1">
@@ -29,7 +22,7 @@
               or 'anonymous'
             </Info>
           </template>
-        </InputEmail>
+        </InputString>
         <InputSelect
           id="member-role"
           class="mb-2 mr-sm-4"
@@ -69,7 +62,6 @@ import {
   InputFile,
   InputSelect,
   InputString,
-  InputEmail,
   LayoutCard,
   MessageError,
   MessageSuccess,
@@ -90,7 +82,6 @@ export default {
     Info,
     InputCheckbox,
     InputString,
-    InputEmail,
     InputSelect,
   },
   props: {
@@ -109,13 +100,11 @@ export default {
       loading: false,
     };
   },
-
   computed: {
     canEdit() {
       return (
-        this.session != null &&
-        (this.session.email == "admin" ||
-          this.session.roles.includes("Manager"))
+        this.session?.email === "admin" ||
+        this.session?.roles.includes("Manager")
       );
     },
   },
@@ -130,7 +119,7 @@ export default {
         `mutation drop($member:[String]){drop(members:$member){message}}`,
         { member: name }
       )
-        .then((data) => {
+        .then(() => {
           this.loadMembers();
         })
         .catch((error) => {

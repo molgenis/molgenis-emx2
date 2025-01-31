@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { IContributor } from "~/interfaces/types";
+import type { IContacts } from "~/interfaces/catalogue";
 
 defineProps<{
-  contact: IContributor;
+  contact: IContacts;
 }>();
 </script>
 

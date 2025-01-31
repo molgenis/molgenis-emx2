@@ -109,3 +109,10 @@ The label shown on landing CTA element for each of the main sections
 
 A Themed favicon is set by placing a [theme].icon file in the public/img folder. At runtime the [theme] is replaced by the value as set in ```NUXT_PUBLIC_EMX2_THEME``` environment setting. If no theme is set, the default molgenis favicon is show. 
 
+## Analytics
+
+Analytics can be enabled by setting the following environment variables:
+
+```NUXT_PUBLIC_ANALYTICS_KEY``` : The analytics measurement id
+
+```NUXT_PUBLIC_ANALYTICS_PROVIDER``` : specfied the analytics provider ( either [siteimprove](https://www.siteimprove.com/) or [google-analytics](https://marketingplatform.google.com/about/analytics/) ), defaults to "siteimprove"

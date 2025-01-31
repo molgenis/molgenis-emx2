@@ -100,11 +100,11 @@ In the apps folder, there are several core frontend applications (e.g., settings
 docker-compose up
 ```
 
-The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use yarn serve. For example, to preview the app `apps/schema`, run the following command.
+The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use `yarn dev`. For example, to preview the app `apps/schema`, run the following command.
 
 ```bash
 cd apps/schema
-yarn serve
+yarn dev
 ```
 
 ## Deploying your application

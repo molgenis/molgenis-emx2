@@ -3,13 +3,14 @@
     <DashboardRow :columns="1">
       <DashboardChart id="provider-overview-welcome">
         <h2 class="dashboard-title">
-          Welcome to <span>{{ providerName }}'s</span> dashboard!
+          Welcome to <span>{{ organisation?.name }}'s</span> dashboard!
         </h2>
         <p>
-          Pages are grouped by workstream. You can view an overview of patients
-          your centre has submitted to the ERN Cranio registry, and you can
-          compare the results of your centre against the entire registry. On the
-          current page, you will find a snapshot of your centre as of today.
+          Here you can view an overview of patients your centre has submitted to
+          the ERN Cranio registry and compare the results of your centre against
+          the entire registry. On the current page, you will find a snapshot of
+          your centre and the patients submitted as of today. All visualisations
+          are updated daily.
         </p>
       </DashboardChart>
     </DashboardRow>
@@ -18,9 +19,11 @@
         id="provider-overview-patients-submitted"
         class="center-showcase"
       >
+        <LoadingScreen v-if="loading" style="height: auto" />
         <ValueShowcase
-          :title="`${totPatientsSubmitted} patients submitted`"
-          :description="`Your center has submitted on average ${avgPatientsSubmitted} patients per month`"
+          v-else
+          :title="`${numberOfPatientsSubmitted} patients submitted`"
+          :description="`Your center has submitted on average ${monthlyAverageOfSubmissions} patients per month`"
         >
           <template v-slot:icon>
             <UserCircleIcon />
@@ -30,126 +33,180 @@
     </DashboardRow>
     <DashboardRow :columns="2">
       <DashboardChart id="provider-overview-patients-by-workstream">
-        <PieChart2
-          chartId="patientsByWorkstream"
-          title="Patients by workstream"
-          description="Click a workstream to patients by sex at birth"
-          :chartData="numPatientsByWorkstream"
-          :chartHeight="215"
-          :asDonutChart="true"
-          :chartColors="workstreamColors"
-          :enableLegendHovering="true"
-          legendPosition="bottom"
-          :chartScale="0.85"
-          :valuesArePercents="false"
+        <LoadingScreen v-if="loading" style="height: 215px" />
+        <MessageBox v-else-if="!loading && numberOfPatientsSubmitted === 0">
+          <span>Not enough data to show chart</span>
+        </MessageBox>
+        <ColumnChart
+          v-else-if="patientsByWorkstreamChart"
+          :chartId="patientsByWorkstreamChart.chartId"
+          :title="patientsByWorkstreamChart.chartTitle"
+          :description="patientsByWorkstreamChart.chartSubtitle"
+          :chartData="patientsByWorkstreamChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="patientsByWorkstreamChart.xAxisLabel"
+          :yAxisLabel="patientsByWorkstreamChart.yAxisLabel"
+          :yMin="0"
+          :yMax="patientsByWorkstreamChart.yAxisMaxValue"
+          :yTickValues="patientsByWorkstreamChart.yAxisTicks"
+          xAxisLineBreaker=" "
+          :columnColorPalette="patientsByWorkstreamPalette"
+          :chartHeight="275"
+          :chartMargins="{
+            top: patientsByWorkstreamChart.topMargin,
+            right: patientsByWorkstreamChart.rightMargin,
+            bottom: patientsByWorkstreamChart.bottomMargin,
+            left: patientsByWorkstreamChart.leftMargin,
+          }"
           :enableClicks="true"
-          @slice-clicked="updateSelection"
+          @columnClicked="updateSexByWorkstream"
         />
       </DashboardChart>
-      <DashboardChart
-        id="provider-overview-patients-by-sex-at-birth"
-        v-if="showSexAtBirth"
-      >
+      <DashboardChart v-if="selectedWorkstream">
         <PieChart2
-          chartId="sexAtBirth"
-          :title="sexAtBirthTitle"
-          :chartData="sexAtBirth"
-          :chartHeight="215"
+          :chartId="sexByWorkstreamChart?.chartId"
+          :title="`${sexByWorkstreamChart?.chartTitle} for ${selectedWorkstream.dataPointName} patients`"
+          :description="sexByWorkstreamChart?.chartSubtitle"
+          :chartData="sexByWorkstreamChartData"
+          :chartColors="sexByWorkstreamPalette"
+          :valuesArePercents="false"
           :asDonutChart="true"
           :enableLegendHovering="true"
-          :chartColors="genderColors"
           legendPosition="bottom"
+          :enableClicks="true"
+          :chartHeight="215"
           :chartScale="0.85"
-          :valuesArePercents="false"
         />
       </DashboardChart>
     </DashboardRow>
   </ProviderDashboard>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
 import { UserCircleIcon } from "@heroicons/vue/24/outline";
-import { DashboardRow, DashboardChart, PieChart2 } from "molgenis-viz";
+import {
+  DashboardRow,
+  DashboardChart,
+  PieChart2,
+  ColumnChart,
+  LoadingScreen,
+  MessageBox,
+  // @ts-ignore
+} from "molgenis-viz";
 
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 import ValueShowcase from "../components/ValueShowcase.vue";
 
-import viewProps from "../data/props";
-const props = defineProps(viewProps);
+import { asKeyValuePairs, uniqueValues } from "../utils";
+import { generateColorPalette } from "../utils/generateColorPalette";
+import { getDashboardChart } from "../utils/getDashboardData";
+import { generateAxisTickData } from "../utils/generateAxisTicks";
 
-import { randomInt } from "d3";
-import generateColors from "../utils/palette.js";
+import type { ICharts, IChartData } from "../types/schema";
+import type { IAppPage } from "../types/app";
+import type { IKeyValuePair } from "../types/index";
+const props = defineProps<IAppPage>();
 
-// generate random data for display purposes
-let totPatientsSubmitted = ref(0);
-let avgPatientsSubmitted = ref(0);
-let numPatientsByWorkstream = ref({
-  "Cleft lip and palate": 0,
-  Craniosynostosis: 0,
-  "Genetic Deafness": 0,
-  Larynxcleft: 0,
-});
-let showSexAtBirth = ref(false);
-let sexAtBirth = ref({
-  Female: 0,
-  Male: 0,
-  Undetermined: 0,
-});
+const loading = ref<boolean>(true);
+const numberOfPatientsSubmitted = ref<number>(0);
+const monthlyAverageOfSubmissions = ref<number>(0);
+const patientsByWorkstreamChart = ref<ICharts>();
+const patientsByWorkstreamChartData = ref<IChartData[]>();
+const patientsByWorkstreamPalette = ref<IKeyValuePair>();
+const sexByWorkstreamChart = ref<ICharts>();
+const sexByWorkstreamChartData = ref<IKeyValuePair>();
+const sexByWorkstreamPalette = ref<IKeyValuePair>();
+const selectedWorkstream = ref<IChartData>();
 
-let sexAtBirthTitle = ref(null);
-let patientsSexByWorkstream = ref([]);
-
-const workstreamColors = generateColors(
-  Object.keys(numPatientsByWorkstream.value)
-);
-const genderColors = generateColors(Object.keys(sexAtBirth.value));
-
-function generatePatients() {
-  const workstreams = Object.keys(numPatientsByWorkstream.value);
-  const sexAtBirthGroups = Object.keys(sexAtBirth.value);
-  const patientsByWorkstream = workstreams.map((value) => [
-    value,
-    randomInt(25, 225)(),
-  ]);
-
-  numPatientsByWorkstream.value = Object.fromEntries(
-    patientsByWorkstream.sort((a, b) => (a[1] < b[1] ? 1 : -1))
+async function getPageData() {
+  const submissionsResponse = await getDashboardChart(
+    props.api.graphql.current,
+    "patients-total"
   );
-  totPatientsSubmitted.value = patientsByWorkstream
-    .map((arr) => arr[1])
-    .reduce((sum, value) => sum + value, 0);
 
-  avgPatientsSubmitted.value = Math.round(totPatientsSubmitted.value / 12);
+  const monthlySubmissionResponse = await getDashboardChart(
+    props.api.graphql.current,
+    "patients-per-month"
+  );
 
-  patientsSexByWorkstream.value = workstreams.map((workstream) => {
-    let currentTotal = numPatientsByWorkstream.value[workstream];
-    const sexByWorkstream = sexAtBirthGroups.map((group, i) => {
-      const randomValue =
-        i === sexAtBirthGroups.length - 1
-          ? currentTotal
-          : randomInt(1, currentTotal)();
-      const row = [group, randomValue];
-      currentTotal -= randomValue;
-      return row;
+  const patientsByWorkstreamResponse = await getDashboardChart(
+    props.api.graphql.current,
+    "patients-by-workstream"
+  );
+
+  const sexByWorkstreamResponse = await getDashboardChart(
+    props.api.graphql.current,
+    "patients-by-sex-at-birth-and-workstream"
+  );
+
+  patientsByWorkstreamChart.value = patientsByWorkstreamResponse[0];
+  sexByWorkstreamChart.value = sexByWorkstreamResponse[0];
+
+  const submissionsData = submissionsResponse[0];
+  const monthlySubmissionsData = monthlySubmissionResponse[0];
+  numberOfPatientsSubmitted.value =
+    submissionsData.dataPoints![0].dataPointValue!;
+  monthlyAverageOfSubmissions.value =
+    monthlySubmissionsData.dataPoints![0].dataPointValue!;
+}
+
+function updateSexByWorkstream(value: string) {
+  const selection = JSON.parse(value);
+  selectedWorkstream.value = selection;
+  const filteredData = sexByWorkstreamChart.value?.dataPoints
+    ?.filter((row: IChartData) => {
+      return row.dataPointPrimaryCategory === selection.dataPointName;
+    })
+    .sort((current, next) => {
+      return (
+        (next.dataPointValue as number) - (current.dataPointValue as number)
+      );
     });
-    return {
-      workstream: workstream,
-      data: Object.fromEntries(
-        sexByWorkstream.sort((a, b) => (a[1] < b[1] ? 1 : -1))
-      ),
-    };
-  });
+
+  sexByWorkstreamChartData.value = asKeyValuePairs(
+    filteredData,
+    "dataPointName",
+    "dataPointValue"
+  );
 }
 
-generatePatients();
+onMounted(() => {
+  getPageData()
+    .then(() => {
+      // prepare workstream data
+      patientsByWorkstreamChartData.value =
+        patientsByWorkstreamChart.value!.dataPoints?.sort(
+          (a: IChartData, b: IChartData) =>
+            (a.dataPointOrder as number) - (b.dataPointOrder as number)
+        );
 
-function updateSelection(value) {
-  const workstream = Object.keys(value)[0];
-  sexAtBirthTitle.value = `Sex at birth for ${workstream} patients`;
-  sexAtBirth.value = patientsSexByWorkstream.value.filter(
-    (row) => row.workstream === workstream
-  )[0].data;
-  showSexAtBirth.value = true;
-}
+      const workstreams = uniqueValues(
+        patientsByWorkstreamChartData.value,
+        "dataPointName"
+      );
+      patientsByWorkstreamPalette.value = generateColorPalette(workstreams);
+
+      const chartTicks = generateAxisTickData(
+        patientsByWorkstreamChartData.value!,
+        "dataPointValue"
+      );
+      patientsByWorkstreamChart.value!.yAxisMaxValue = chartTicks.limit;
+      patientsByWorkstreamChart.value!.yAxisTicks = chartTicks.ticks;
+
+      // prepare sex at birth chart
+      const uniqueSexAtBirthCategories = uniqueValues(
+        sexByWorkstreamChart.value?.dataPoints,
+        "dataPointName"
+      );
+      sexByWorkstreamPalette.value = generateColorPalette(
+        uniqueSexAtBirthCategories
+      );
+    })
+    .catch((err) => {
+      throw new Error(err);
+    })
+    .finally(() => (loading.value = false));
+});
 </script>

@@ -1,0 +1,38 @@
+:root[data-theme="aumc"] {
+    --color-black: #003944;
+    --color-blue-50: #F0F5F5;
+    --color-blue-100: #F0F5F5;
+    --color-blue-200: #459ab1;
+    --color-blue-300: #459ab1;
+    --color-blue-500: #337588;
+    --color-blue-700: #337588;
+    --color-blue-800: #21515f;
+    --color-blue-900: #21515f;
+    --color-orange-200: rgb(245,151,148);
+    --color-orange-500: #d14200;
+    --color-orange-800: #d14200;
+
+    --color-gradient1: #21515f;
+    --color-gradient2: #337588;
+
+    --background-image-sidebar-gradient: linear-gradient(180deg, var(--color-gradient1) 0%, var(--color-gradient1) 86.02%);
+    --background-image-base-gradient: linear-gradient(180deg, var(--color-gradient2) 0%, var(--color-gradient2) 133.81%);
+
+    --backgroud-color-button-primary: var(--color-orange-500);
+    --backgroud-color-button-primary-hover: var(--color-orange-200);
+    --backgroud-color-search-results-view-tabs: var(--color-blue-300);
+
+    --text-color-button-primary: var(--color-white);
+    --text-color-button-primary-hover: var(--color-black);
+    --text-color-button-text: var(--color-white);
+    --text-color-title: var(--color-white);
+    --text-color-form-header: var(--text-color-title);
+    --text-color-breadcrumb: var(--text-color-title);
+    --text-color-breadcrumb-arrow: var(--text-color-title);
+    --text-color-search-results-view-tabs:  var(--color-blue-300);
+    --text-color-search-results-view-tabs-hover: var(--color-blue-800);
+    --text-color-search-filter-group-title: var(--text-color-title);
+    --text-color-pagination-input: var(--color-blue-800);
+
+    --border-radius-input: var(--border-radius-50px);
+  }

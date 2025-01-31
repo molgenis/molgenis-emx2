@@ -40,6 +40,8 @@ mvnw.cmd
 release.properties
 tls
 **/**/bin/
+.venv
+.vscode/
 
 yarn_error.log
 .nyc_output
@@ -59,5 +61,12 @@ apps/nuxt3-ssr/utils/fingerprint.js
 #playwright
 playwright-report
 CHANGELOG.md
+e2e/.auth/
+
+# python
+venv
+requirements.txt
 e2e/.auth
 e2e/e2e/.auth
+e2e/test-results/
+apps/tailwind-components/test-results/.last-run.json

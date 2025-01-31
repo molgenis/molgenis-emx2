@@ -1,10 +1,14 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Constants.API_JSONLD;
+import static org.molgenis.emx2.Constants.API_RDF;
+import static org.molgenis.emx2.Constants.API_TTL;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,13 +19,11 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.utils.URLUtils;
 
 public class RDFApi {
   public static final String FORMAT = "format";
   private static MolgenisSessionManager sessionManager;
-  public static final String RDF_API_LOCATION = "/api/rdf";
-  public static final String TTL_API_LOCATION = "/api/ttl";
-  public static final String JSONLD_API_LOCATION = "/api/jsonld";
 
   private static final List<RDFFormat> acceptedRdfFormats =
       List.of(
@@ -39,9 +41,9 @@ public class RDFApi {
     // created on-the-fly, there is no way of knowing (or is there?)
     sessionManager = sm;
 
-    defineApiRoutes(app, RDF_API_LOCATION, null);
-    defineApiRoutes(app, TTL_API_LOCATION, RDFFormat.TURTLE);
-    defineApiRoutes(app, JSONLD_API_LOCATION, RDFFormat.JSONLD);
+    defineApiRoutes(app, API_RDF, null);
+    defineApiRoutes(app, API_TTL, RDFFormat.TURTLE);
+    defineApiRoutes(app, API_JSONLD, RDFFormat.JSONLD);
   }
 
   private static void defineApiRoutes(Javalin app, String apiLocation, RDFFormat format) {
@@ -58,12 +60,11 @@ public class RDFApi {
     app.head("{schema}" + apiLocation + "/{table}column/{column}/", (ctx) -> rdfHead(ctx, format));
   }
 
-  private static String rdfHead(Context ctx, RDFFormat format) {
+  private static void rdfHead(Context ctx, RDFFormat format) {
     ctx.contentType(selectFormat(ctx, format).getDefaultMIMEType());
-    return "";
   }
 
-  private static int rdfForDatabase(Context ctx, RDFFormat format) throws IOException {
+  private static void rdfForDatabase(Context ctx, RDFFormat format) throws IOException {
     format = selectFormat(ctx, format); // defines format if null
 
     Database db = sessionManager.getSession(ctx.req()).getDatabase();
@@ -84,7 +85,7 @@ public class RDFApi {
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
 
-    final String baseURL = extractBaseURL(ctx);
+    final String baseURL = URLUtils.extractBaseURL(ctx);
 
     final RDFService rdf = new RDFService(ctx.url().split("/api/")[0], baseURL, format);
     ctx.contentType(rdf.getMimeType());
@@ -99,29 +100,27 @@ public class RDFApi {
 
     outputStream.flush();
     outputStream.close();
-    return 200;
   }
 
-  private static int rdfForSchema(Context ctx, RDFFormat format) throws IOException {
+  private static void rdfForSchema(Context ctx, RDFFormat format) throws IOException {
     format = selectFormat(ctx, format); // defines format if null
 
     Schema schema = getSchema(ctx);
     if (schema == null) {
       throw new MolgenisException("Schema " + ctx.pathParam("schema") + " was not found");
     }
-    final String baseURL = extractBaseURL(ctx);
+    final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
+    RDFService rdf = new RDFService(baseURL, API_RDF, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
     rdf.describeAsRDF(outputStream, null, null, null, schema);
     outputStream.flush();
     outputStream.close();
-    return 200;
   }
 
-  private static int rdfForTable(Context ctx, RDFFormat format) throws IOException {
+  private static void rdfForTable(Context ctx, RDFFormat format) throws IOException {
     format = selectFormat(ctx, format); // defines format if null
 
     Table table = getTableByIdOrName(ctx);
@@ -129,73 +128,47 @@ public class RDFApi {
     if (ctx.queryString() != null && !ctx.queryString().isBlank()) {
       rowId = ctx.queryString();
     }
-    final String baseURL = extractBaseURL(ctx);
+    final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
+    RDFService rdf = new RDFService(baseURL, API_RDF, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
     rdf.describeAsRDF(outputStream, table, rowId, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
-    return 200;
   }
 
-  private static int rdfForRow(Context ctx, RDFFormat format) throws IOException {
+  private static void rdfForRow(Context ctx, RDFFormat format) throws IOException {
     format = selectFormat(ctx, format); // defines format if null
     Table table = getTableByIdOrName(ctx);
     String rowId = sanitize(ctx.pathParam("row"));
 
-    final String baseURL = extractBaseURL(ctx);
-    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
+    final String baseURL = URLUtils.extractBaseURL(ctx);
+    RDFService rdf = new RDFService(baseURL, API_RDF, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
     rdf.describeAsRDF(outputStream, table, rowId, null, table.getSchema());
     outputStream.flush();
     outputStream.close();
-    return 200;
   }
 
-  private static int rdfForColumn(Context ctx, RDFFormat format) throws IOException {
+  private static void rdfForColumn(Context ctx, RDFFormat format) throws IOException {
     format = selectFormat(ctx, format); // defines format if null
 
     Table table = getTableByIdOrName(ctx);
     String columnName = sanitize(ctx.pathParam("column"));
 
-    final String baseURL = extractBaseURL(ctx);
+    final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
+    RDFService rdf = new RDFService(baseURL, API_RDF, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
     rdf.describeAsRDF(outputStream, table, null, columnName, table.getSchema());
     outputStream.flush();
     outputStream.close();
-    return 200;
-  }
-
-  private static String extractBaseURL(Context ctx) {
-    // NOTE: The request.host() already includes the server port!
-    String scheme = ctx.scheme();
-    String port = null;
-    var parts = ctx.host().split(":", 2);
-    String host = parts[0];
-    if (parts.length == 2) {
-      if (!isWellKnownPort(scheme, parts[1])) {
-        port = parts[1];
-      }
-    }
-    return scheme
-        + "://"
-        + host
-        + (port != null ? ":" + port : "")
-        + (!ctx.path().isEmpty() ? "/" + ctx.path() + "/" : "/");
-  }
-
-  private static boolean isWellKnownPort(String scheme, String port) {
-    return (scheme.equals("http") && port.equals("80"))
-        || (scheme.equals("https") && port.equals("443"));
   }
 
   private static RDFFormat selectFormat(Context ctx, RDFFormat format) {

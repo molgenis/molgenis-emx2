@@ -32,16 +32,27 @@ public class ImportProfileTask extends Task {
   @Override
   public void run() {
     this.start();
+    Task commitTask = new Task();
     try {
       schema.tx(
           db -> {
             Schema s = db.getSchema(schema.getName());
             load(s);
+            this.addSubTask(commitTask);
+            commitTask.setDescription("Committing");
           });
     } catch (Exception e) {
-      this.completeWithError(e.getMessage());
-      throw (e);
+      try {
+        commitTask.completeWithError("CommitTask failed: " + e.getMessage());
+      } catch (MolgenisException e2) {
+        try {
+          this.completeWithError("ImportProfileTask  failed: " + e2.getMessage());
+        } catch (Exception e3) {
+          throw (e3);
+        }
+      }
     }
+    commitTask.complete();
     this.complete();
   }
 
@@ -51,7 +62,12 @@ public class ImportProfileTask extends Task {
     Profiles profiles = getProfiles(schema, schemaFromProfile);
 
     // create the schema using the selected profile tags within the big model
-    SchemaMetadata schemaMetadata = schemaFromProfile.create();
+    SchemaMetadata schemaMetadata = null;
+    try {
+      schemaMetadata = schemaFromProfile.create();
+    } catch (Exception e) {
+      throw new MolgenisException("Failed to create schema from profile: " + e.getMessage(), e);
+    }
 
     // special option: fixed schema import location for ontologies (not schema or data)
     Schema ontologySchema;

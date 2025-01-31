@@ -1,6 +1,6 @@
 <template>
   <span>
-    <a :href="`/${lastUpdate.schema}/settings/#/changelog`">
+    <a :href="`/${lastUpdate.schemaName}/settings/#/changelog`">
       {{ timeStamp }} ({{ lastUpdate.tableName }})
     </a>
   </span>
@@ -11,9 +11,11 @@ import { computed } from "vue";
 
 const props = defineProps<{
   lastUpdate: {
-    stamp: number;
+    stamp: string;
     tableName: string;
-    schema: string;
+    schemaName: string;
+    userId: string;
+    operation: string;
   };
 }>();
 

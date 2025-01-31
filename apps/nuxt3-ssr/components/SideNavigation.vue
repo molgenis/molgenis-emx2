@@ -19,18 +19,15 @@ function setSideMenuStyle(hash: string) {
   >
     <div v-if="title || image" class="mb-6 font-display text-heading-4xl">
       <NuxtLink
-        :to="{ ...route, hash: headerTarget }"
-        tag="img"
         v-if="image"
-        :src="image"
-      />
-      <NuxtLink
         :to="{ ...route, hash: headerTarget }"
-        tag="h2"
-        v-else
-        if="title"
-        >{{ title }}</NuxtLink
+        :src="image"
       >
+        <img :src="image" :alt="title" />
+      </NuxtLink>
+      <NuxtLink v-else :to="{ ...route, hash: headerTarget }">
+        {{ title }}
+      </NuxtLink>
     </div>
     <ul>
       <li v-for="item in items">

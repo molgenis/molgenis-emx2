@@ -43,8 +43,6 @@ const cohortOnly = computed(() => {
   return routeSetting === "true" || config.public.cohortOnly;
 });
 
-const resourceType = usePathResourceType();
-
 const pageCrumbs: any = {};
 
 pageCrumbs[
@@ -52,7 +50,7 @@ pageCrumbs[
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
 
 pageCrumbs[
-  resourceType.plural
+  route.params.resourceType as string
 ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}`;
 
 pageCrumbs[

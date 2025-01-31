@@ -2,7 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.DESCRIPTION;
 import static org.molgenis.emx2.Constants.SETTINGS;
-import static org.molgenis.emx2.graphql.GraphlAdminFieldFactory.mapSettingsToGraphql;
+import static org.molgenis.emx2.graphql.GraphqlAdminFieldFactory.mapSettingsToGraphql;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -83,11 +83,14 @@ public class GraphqlDatabaseFieldFactory {
             GraphQLArgument.newArgument()
                 .name(Constants.INCLUDE_DEMO_DATA)
                 .type(Scalars.GraphQLBoolean))
+        .argument(
+            GraphQLArgument.newArgument().name(Constants.PARENT_JOB).type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
               String name = dataFetchingEnvironment.getArgument(NAME);
               String description = dataFetchingEnvironment.getArgument(DESCRIPTION);
               String template = dataFetchingEnvironment.getArgument(Constants.TEMPLATE);
+              String parentTaskId = dataFetchingEnvironment.getArgument(Constants.PARENT_JOB);
               Boolean includeDemoData =
                   dataFetchingEnvironment.getArgument(Constants.INCLUDE_DEMO_DATA);
 
@@ -97,6 +100,10 @@ public class GraphqlDatabaseFieldFactory {
               Schema schema = database.createSchema(name, description);
               if (template != null) {
                 Task task = DataModels.getImportTask(schema, template, includeDemoData);
+                if (parentTaskId != null) {
+                  Task parentTask = taskService.getTask(parentTaskId);
+                  task.setParentTask(parentTask);
+                }
                 String id = taskService.submit(task);
                 result.setTaskId(id);
               } else {
@@ -130,39 +137,20 @@ public class GraphqlDatabaseFieldFactory {
                 .name(GraphqlConstants.KEYS)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .type(GraphQLList.list(outputSettingsType))
-        .dataFetcher(dataFetchingEnvironment -> mapSettingsToGraphql(database.getSettings()));
-  }
-
-  public GraphQLFieldDefinition.Builder createSettingsMutation(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name(("createSetting"))
-        .type(typeForMutationResult)
-        .argument(
-            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
-        .argument(
-            GraphQLArgument.newArgument()
-                .name(Constants.SETTINGS_VALUE)
-                .type(Scalars.GraphQLString))
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
-              String value = dataFetchingEnvironment.getArgument(Constants.SETTINGS_VALUE);
-              database.setSetting(key, value);
-              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s created", key);
-            });
-  }
+              final List<String> selectedKeys =
+                  dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
 
-  public GraphQLFieldDefinition.Builder deleteSettingsMutation(Database database) {
-    return GraphQLFieldDefinition.newFieldDefinition()
-        .name(("deleteSetting"))
-        .type(typeForMutationResult)
-        .argument(
-            GraphQLArgument.newArgument().name(Constants.SETTINGS_NAME).type(Scalars.GraphQLString))
-        .dataFetcher(
-            dataFetchingEnvironment -> {
-              String key = dataFetchingEnvironment.getArgument(Constants.SETTINGS_NAME);
-              database.removeSetting(key);
-              return new GraphqlApiMutationResult(SUCCESS, "Database setting %s deleted", key);
+              Map<String, String> filtered = new HashMap<>();
+              for (Map.Entry<String, String> setting : database.getSettings().entrySet()) {
+                if (selectedKeys.isEmpty() || selectedKeys.contains(setting.getKey())) {
+                  filtered.put(setting.getKey(), setting.getValue());
+                }
+              }
+              filtered.put(Constants.IS_OIDC_ENABLED, String.valueOf(database.isOidcEnabled()));
+
+              return mapSettingsToGraphql(filtered);
             });
   }
 

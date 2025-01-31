@@ -23,6 +23,7 @@ import org.molgenis.emx2.io.ImportExcelTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
+import org.molgenis.emx2.tasks.Task;
 
 public class ExcelApi {
   private ExcelApi() {
@@ -45,7 +46,7 @@ public class ExcelApi {
   }
 
   static void postExcel(Context ctx) throws IOException, ServletException {
-    Long start = System.currentTimeMillis();
+    long start = System.currentTimeMillis();
     Schema schema = getSchema(ctx);
 
     // get uploaded file
@@ -58,8 +59,10 @@ public class ExcelApi {
       Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
     if (ctx.queryParam("async") != null) {
-      String id = TaskApi.submit(new ImportExcelTask(tempFile.toPath(), schema, false));
-      ctx.json(new TaskReference(id, schema));
+      Task task = new ImportExcelTask(tempFile.toPath(), schema, false);
+      String parentTaskId = ctx.queryParam("parentJob");
+      String taskId = TaskApi.submit(task, parentTaskId);
+      ctx.json(new TaskReference(taskId, schema));
     } else {
       MolgenisIO.importFromExcelFile(tempFile.toPath(), schema, false);
       ctx.status(200);
@@ -72,14 +75,15 @@ public class ExcelApi {
     boolean includeSystemColumns = includeSystemColumns(ctx);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
-    try (OutputStream outputStream = ctx.res().getOutputStream()) {
-      Path excelFile = tempDir.resolve("download.xlsx");
-      if (ctx.queryParam("emx1") != null) {
-        MolgenisIO.toEmx1ExcelFile(excelFile, schema);
-      } else {
-        MolgenisIO.toExcelFile(excelFile, schema, includeSystemColumns);
-      }
 
+    Path excelFile = tempDir.resolve("download.xlsx");
+    if (ctx.queryParam("emx1") != null) {
+      MolgenisIO.toEmx1ExcelFile(excelFile, schema);
+    } else {
+      MolgenisIO.toExcelFile(excelFile, schema, includeSystemColumns);
+    }
+
+    try (OutputStream outputStream = ctx.outputStream()) {
       ctx.contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       ctx.header(
           "Content-Disposition",
@@ -96,11 +100,11 @@ public class ExcelApi {
     Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
+    Path excelFile = tempDir.resolve("download.xlsx");
+    TableStore excelStore = new TableStoreForXlsxFile(excelFile);
+    excelStore.writeTable(
+        table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
     try (OutputStream outputStream = ctx.res().getOutputStream()) {
-      Path excelFile = tempDir.resolve("download.xlsx");
-      TableStore excelStore = new TableStoreForXlsxFile(excelFile);
-      excelStore.writeTable(
-          table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
       ctx.contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       ctx.header(
           "Content-Disposition",
@@ -118,10 +122,10 @@ public class ExcelApi {
   static void getExcelReport(Context ctx) throws IOException {
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
+    Path excelFile = tempDir.resolve("download.xlsx");
+    TableStore excelStore = new TableStoreForXlsxFile(excelFile);
+    generateReportsToStore(ctx, excelStore);
     try (OutputStream outputStream = ctx.res().getOutputStream()) {
-      Path excelFile = tempDir.resolve("download.xlsx");
-      TableStore excelStore = new TableStoreForXlsxFile(excelFile);
-      generateReportsToStore(ctx, excelStore);
       ctx.contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       ctx.header("Content-Disposition", "attachment; filename=report.xlsx");
       outputStream.write(Files.readAllBytes(excelFile));

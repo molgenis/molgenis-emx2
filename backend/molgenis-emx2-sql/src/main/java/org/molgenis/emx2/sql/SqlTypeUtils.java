@@ -179,8 +179,7 @@ public class SqlTypeUtils extends TypeUtils {
       case DATETIME_ARRAY -> row.getDateTimeArray(name);
       case PERIOD -> row.getPeriod(name);
       case PERIOD_ARRAY -> row.getPeriodArray(name);
-      case JSONB -> row.getJsonb(name);
-      case JSONB_ARRAY -> row.getJsonbArray(name);
+      case JSON -> row.getJsonb(name);
       default ->
           throw new UnsupportedOperationException(
               "Unsupported columnType found:" + c.getColumnType());
@@ -209,7 +208,7 @@ public class SqlTypeUtils extends TypeUtils {
       case DATE_ARRAY -> "date[]";
       case DATETIME -> "timestamp without time zone";
       case DATETIME_ARRAY -> "timestamp without time zone[]";
-      case JSONB -> "jsonb";
+      case JSON -> "jsonb";
       default ->
           throw new MolgenisException(
               "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
@@ -279,7 +278,7 @@ public class SqlTypeUtils extends TypeUtils {
   }
 
   static Map<String, Object> convertRowToMap(List<Column> columns, Row row) {
-    Map<String, Object> map = new LinkedHashMap<>(row.getValueMap());
+    Map<String, Object> map = new LinkedHashMap<>();
     for (Column c : columns) {
       if (c.isReference()) {
         map.put(c.getIdentifier(), getRefFromRow(row, c));

@@ -38,15 +38,17 @@ const stories = Object.keys(modules)
       <main class="mb-auto">
         <div id="header-place-holder"></div>
         <div class="xl:flex">
-          <aside class="xl:min-w-95 xl:w-95 hidden xl:block pl-6">
-            <h2 class="text-2xl font-bold my-5">Theme Styles</h2>
-            <NuxtLink class="hover:underline" to="/Styles.other"
+          <aside
+            class="xl:min-w-95 xl:w-95 hidden xl:block pl-6 bg-sidebar-gradient"
+          >
+            <h2 class="text-2xl text-title font-bold my-5">Theme Styles</h2>
+            <NuxtLink class="hover:underline text-title" to="/Styles.other"
               >Theme styles</NuxtLink
             >
-            <h2 class="text-2xl font-bold my-5">Components</h2>
+            <h2 class="text-2xl text-title font-bold my-5">Components</h2>
             <ul class="list-none">
               <li class="py-2" v-for="story in stories">
-                <NuxtLink class="hover:underline" :to="story.path">{{
+                <NuxtLink class="hover:underline text-title" :to="story.path">{{
                   story.name
                 }}</NuxtLink>
               </li>
@@ -55,8 +57,8 @@ const stories = Object.keys(modules)
             <div class="pr-6 my-6">
               <hr />
             </div>
-            <h2 class="text-2xl font-bold my-5">Other</h2>
-            <NuxtLink class="hover:underline" to="/DataFetch.other"
+            <h2 class="text-2xl text-title font-bold my-5">Other</h2>
+            <NuxtLink class="hover:underline text-title" to="/DataFetch.other"
               >Data fetching</NuxtLink
             >
           </aside>

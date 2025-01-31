@@ -56,7 +56,7 @@ public class TestCreateForeignKeys {
 
   @Test
   public void testJSON() {
-    executeTest(JSONB, "{\"key\": \"value1\"}", "{\"key\": \"value2\"}");
+    executeTest(JSON, "{\"key\": \"value1\"}", "{\"key\": \"value2\"}");
   }
 
   private void executeTest(ColumnType columnType, Object insertValue, Object updateValue) {

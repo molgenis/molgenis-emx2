@@ -2,7 +2,6 @@
 const config = useRuntimeConfig();
 const route = useRoute();
 const { data: session } = await useSession();
-console.log("session form defaiult layout: ", session.value);
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
@@ -11,16 +10,18 @@ const faviconHref = config.public.emx2Theme
 useHead({
   htmlAttrs: {
     "data-theme":
-      (route.query.theme as string) || config.public.emx2Theme || "",
+      (route.query.theme as string) ||
+      (config.public.emx2Theme as string) ||
+      "",
   },
   link: [{ rel: "icon", href: faviconHref }],
-  titleTemplate: (titleChunk) => {
+  titleTemplate: (titleChunk: string | undefined): string | null => {
     if (titleChunk && config.public.siteTitle) {
       return `${titleChunk} | ${config.public.siteTitle}`;
     } else if (titleChunk) {
       return titleChunk;
     } else if (config.public.siteTitle) {
-      return config.public.siteTitle;
+      return config.public.siteTitle as string;
     } else {
       return "Emx2";
     }
@@ -63,6 +64,13 @@ const navigation = computed(() => {
         </template>
         <template #nav>
           <Navigation :navigation="navigation" />
+        </template>
+        <template #admin v-if="isAdmin">
+          <HeaderButton
+            label="Admin"
+            icon="Database"
+            @click="navigateTo({ path: '/admin/' })"
+          />
         </template>
         <template #account>
           <HeaderButton

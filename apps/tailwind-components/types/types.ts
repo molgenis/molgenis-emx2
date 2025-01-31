@@ -1,13 +1,46 @@
 import type { IColumn } from "../../metadata-utils/dist";
+import type { columnValue } from "../../metadata-utils/src/types";
+
+export type Resp<T> = {
+  data: Record<string, T[]>;
+};
+
+export interface Schema {
+  id: string;
+  label: string;
+  description: string;
+}
 export interface INode {
   name: string;
   description?: string;
 }
 
+export interface IValueLabel {
+  value: any;
+  label?: string;
+}
+
 export interface ITreeNode extends INode {
-  children: 
+  children:
   ITreeNode[];
 }
+
+export interface ITreeNodeState extends ITreeNode {
+  /* if a node should be shown, used for search filter */
+  visible?: boolean;
+  /* if a node is selected, intermediate or unselected*/
+  selected?: SelectionState; //'unselected','selected','intermediate'
+  /* if a node should be shown expanded */
+  expanded?: boolean;
+  /* helper to quickly navigate to parent node */
+  parent?: string;
+  /* extension of children */
+  children: ITreeNodeState[];
+  /* if a node is selectable */
+  selectable: boolean
+}
+
+export type SelectionState = "selected" | "intermediate" | "unselected";
 
 export type ButtonType =
   | "primary"
@@ -62,6 +95,12 @@ export interface IDocumentation {
   description: string;
   url: string;
   file: IFile;
+}
+
+export interface IRadioOptionsData {
+  value: columnValue;
+  label?: string;
+  checked?: boolean | undefined;
 }
 
   

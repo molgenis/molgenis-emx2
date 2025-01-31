@@ -55,6 +55,17 @@ or
 client = Client('https://example.molgeniscloud.org', schema='My Schema', token=token)
 ```
 
+### Scripts and Jobs
+When using the client in a script that runs as part of a job via the [Task API](use_scripts_jobs.md), it is essential
+to provide the job identifier to the client. This identifier allows the backend to associate its actions with the
+specific job execution.
+
+The job identifier can be passed into the script using `${jobId}`. To initialize the client with the job identifier,
+the code should be structured as follows:
+```python
+Client('https://example.molgeniscloud.org', schema='My Schema', job='${jobId}')
+```
+
 ## Methods and properties
 This section outlines some of the methods that are supported by the Pyclient.
 The results of these methods depend on the permission level the user has on the schemas involved in the method.
@@ -113,50 +124,54 @@ Raises the `TokenSigninException` when the client is already signed in with a us
 ```python
 def get(self, 
         table: str, 
+        columns: list[str] = None,
         query_filter: str = None, 
         schema: str = None, 
         as_df: bool = False) -> list | pandas.DataFrame:
     ...
 ```
 Retrieves data from a table on a schema and returns the result either as a list of dictionaries or as a pandas DataFrame.
+Use the `columns` parameter to specify which columns to retrieve. Note that in case `as_df=True` the column _names_ should be supplied, otherwise the column _ids_.
 Use the `query_filter` parameter to filter the results based on filters applied to the columns.
 This query requires a special syntax. 
-Columns can be filtered on equality `==`, inequality `!=`, greater `>` and smaller `<` than.
+Values in columns can be filtered on equality `==`, inequality `!=`, greater `>` and smaller `<` than.
 Values within an interval can also be filtered by using the operand `between`, followed by list of the upper bound and lower bound.
 The values of reference and ontology columns can also be filtered by joining the column id of the table with the column id of the reference/ontology table by a dot, as in the example `countries.name`, where `countries` is a column in the table `My table` and `name` is the column id of the referenced table specifying the names of countries. 
 It is possible to add filters on multiple columns by separating the filter statements with _' and '_.
 It is recommended to supply the filters that are compared as variables passed in an f-string.
 
 Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
-Throws the `NoSuchColumnException` if the query filter contains a column id that is not present in the table.
+Throws the `NoSuchColumnException` if the `columns` argument or query filter contains a column that is not present in the table.
 
 
 | parameter      | type | description                                                                    | required | default |
 |----------------|------|--------------------------------------------------------------------------------|----------|---------|
 | `table`        | str  | the name of a table                                                            | True     | None    |
+| `columns`      | list | a list of column names or ids to filter on                                     | False    | None    |
 | `schema`       | str  | the name of a schema                                                           | False    | None    |
 | `query_filter` | str  | a string to filter the results on                                              | False    | None    |
 | `as_df`        | bool | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False   |
 
 ##### examples
+
 ```python
-# Get all entries for the table 'Collections' on the schema 'MySchema'
-table_data = client.get(table='Collections', schema='MySchema')
+# Get all entries for the table 'Resources' on the schema 'MySchema'
+table_data = client.get(table='Resources', schema='MySchema', columns=['name', 'collectionEvents'])
 
 # Set the default schema to 'MySchema'
 client.set_schema('MySchema')
 # Get the same entries and return them as pandas DataFrame
-table_data = client.get(table='Collections', as_df=True)
+table_data = client.get(table='Resources', columns=['name', 'collection events'], as_df=True)
 
 # Get the entries where the value of a particular column 'number of participants' is greater than 10000
-table_data = client.get(table='Collections', query_filter='numberOfParticipants > 10000')
+table_data = client.get(table='Resources', query_filter='numberOfParticipants > 10000')
 
-# Get the entries where 'number of participants' is greater than 10000 and the cohort type is a 'Population cohort'
+# Get the entries where 'number of participants' is greater than 10000 and the resource type is a 'Population cohort'
 # Store the information in variables, first
-min_subcohorts = 10000
+min_subpop = 10000
 cohort_type = 'Population cohort'
-table_data = client.get(table='Collections', query_filter=f'numberOfParticipants > {min_subcohorts}'
-                                                          f'and cohortType == {cohort_type}')
+table_data = client.get(table='Resources', query_filter=f'numberOfParticipants > {min_subpop}'
+                                                        f'and cohortType == {cohort_type}')
 ```
 
 ### get_schema_metadata
@@ -201,11 +216,11 @@ Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ p
 ##### examples
 ```python
 
-# Export the table 'Collections' on the schema 'MySchema' from the CSV API to a BytesIO object 
-collections_raw: BytesIO = await client.export(schema='MySchema', table='Collections')  
+# Export the table 'Resources' on the schema 'MySchema' from the CSV API to a BytesIO object 
+resources_raw: BytesIO = await client.export(schema='MySchema', table='Resources')  
 
-# Export 'Collections' from the Excel API to the file 'Collections-export.xlsx' 
-await client.export(schema='MySchema', table='Collections', filename='Collections-export.xlsx')
+# Export 'Resources' from the Excel API to the file 'Resources-export.xlsx' 
+await client.export(schema='MySchema', table='Resources', filename='Resources-export.xlsx')
 ```
 
 
@@ -232,12 +247,12 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 ##### examples
 ```python
-# Save an edited table with Collections data from a CSV file to the Collections table
-client.save_schema(table='Collections', file='Collections-edited.csv')
+# Save an edited table with Resources data from a CSV file to the Resources table
+client.save_schema(table='Resources', file='Resources-edited.csv')
 
-# Save an edited table with Collections data from memory to the Collections table
-collections: pandas.DataFrame = ...
-client.save_schema(table='Collections', data=collections)
+# Save an edited table with Resources data from memory to the Resources table
+resources: pandas.DataFrame = ...
+client.save_schema(table='Resources', data=resources)
 ```
 
 ### upload_file
@@ -258,8 +273,8 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 ##### examples
 ```python
-# Upload a file containing Collections data to a schema
-await client.upload_file(file_path='data/Collections.csv')
+# Upload a file containing Resources data to a schema
+await client.upload_file(file_path='data/Resources.csv')
 
 # Upload a file containing members information to a schema
 await client.upload_file(file_path='molgenis_members.csv', schema='MySchema')
@@ -295,17 +310,26 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 
 ##### examples
 ```python
-# Delete cohorts from a list of ids
-cohorts = [{'name': 'Cohort 1', 'name': 'Cohort 2'}]
-client.delete_records(schema='MySchema', table='Cohorts', data=cohorts)
+# Delete resources from a list of ids
+resources = [{'name': 'Resource 1', 'name': 'Resource 2'}]
+client.delete_records(schema='MySchema', table='Resources', data=resources)
 
-# Delete cohorts from pandas DataFrame
-cohorts_df = pandas.DataFrame(data=cohorts)
-client.delete_records(schema='MySchema', table='Cohorts', data=cohorts_df)
+# Delete resources from pandas DataFrame
+resources_df = pandas.DataFrame(data=resources)
+client.delete_records(schema='MySchema', table='Resources', data=resources_df)
 
-# Delete cohorts from entries in a CSV file
-client.delete_records(schema='MySchema', table='Cohorts', file='Cohorts-to-delete.csv')
+# Delete resources from entries in a CSV file
+client.delete_records(schema='MySchema', table='Resources', file='Resources-to-delete.csv')
 ```
+
+### truncate
+```python
+client.truncate(table='My table', schema='My Schema')
+```
+Truncates the table and removes all its contents.
+This will fail if entries in the table are referenced from other tables.
+
+Throws the `ReferenceException` if entries in the table are referenced in other tables.
 
 ### create_schema
 ```python

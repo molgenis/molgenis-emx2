@@ -3,7 +3,7 @@
     <PageHeader
       title="molgenis-viz"
       subtitle="Pie Chart 2"
-      imageSrc="pie-chart-header.jpg"
+      imageSrc="img/pie-chart-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">

@@ -26,7 +26,7 @@ const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
   key: "databases",
   method: "POST",
   body: {
-    query: `{_schema{id,label,tables{id,label,tableType,schemaId,description}}}`,
+    query: `{_schema{id,label,tables{id,label,tableType,description}}}`,
   },
 });
 
@@ -46,14 +46,9 @@ const ontologies = computed(
 </script>
 <template>
   <Container>
-    <PageHeader :title="`Tables in ${data?.data._schema.label}`">
+    <PageHeader :title="`Tables in ${data?.data._schema.label}`" align="left">
       <template #prefix>
-        <BreadCrumbs
-          :crumbs="{
-            databases: '/',
-            tables: `/${schema}`,
-          }"
-        />
+        <BreadCrumbs align="left" :current="data?.data._schema.label" />
       </template>
     </PageHeader>
 

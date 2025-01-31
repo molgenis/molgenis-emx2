@@ -3,7 +3,7 @@
     <PageHeader
       title="GDI Local Portal"
       subtitle="Search for datasets"
-      imageSrc="bkg-datasets.jpg"
+      imageSrc="img/bkg-datasets.jpg"
       titlePositionX="center"
       height="large"
     />

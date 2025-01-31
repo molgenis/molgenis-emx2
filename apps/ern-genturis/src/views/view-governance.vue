@@ -4,7 +4,7 @@
       class="genturis-header"
       title="ERN Genturis"
       subtitle="Goverance of the GENTURIS Registry"
-      imageSrc="genturis-carousel.jpg"
+      imageSrc="img/genturis-carousel.jpg"
       titlePositionX="center"
       titlePositionY="center"
     />
@@ -14,23 +14,20 @@
       :verticalPadding="2"
       width="large"
     >
-      <h2 id="genturis-section-governance-title">
-        The Registry Steering Committee
-      </h2>
+      <h2 id="genturis-section-governance-title">The Registry Working Group</h2>
       <p>
         The GENTURIS registry is embedded in the organisational structure of the
         European Reference Network for all patients with one of the genetic
         tumour risk syndromes (ERN GENTURIS).
       </p>
       <p>
-        The GENTURIS registry steering committee is responsible for the daily
+        The GENTURIS registry working group is responsible for the daily
         management of the GENTURIS registry. The GENTURIS registry coordinator
-        chairs the GENTURIS registry steering committee and the coordinator of
-        ERN GENTURIS governs the GENTURIS registry.
+        chairs the GENTURIS registry working group and the coordinator of ERN
+        GENTURIS governs the GENTURIS registry.
       </p>
       <p>
-        The GENTURIS registry steering committee consists of the following
-        members.
+        The GENTURIS registry working group consists of the following members.
       </p>
       <ul>
         <li>The coordinator of ERN GENTURIS</li>
@@ -68,7 +65,7 @@
       <p>
         ERN GENTURIS Task Force 5 Research is closely involved in the
         development of the GENTURIS registry. They are the general management
-        and sounding board of the GENTURIS registry steering committee.
+        and sounding board of the GENTURIS registry working group.
       </p>
     </PageSection>
     <PageSection
@@ -81,11 +78,11 @@
       <p>
         The Data Access Committee (DAC) is closely involved in the procedure of
         requesting access to the GENTURIS registry data. The DAC reviews data
-        requests and access and advises the GENTURIS registry steering committee
-        as stipulated in the GENTURIS registry Data Access Policy (DAP). The DAC
-        is composed of qualified health professionals and a patient
-        representative. One or more of these committee members has also relevant
-        legal and ethical expertise.
+        requests and access and advises the GENTURIS registry working group as
+        stipulated in the GENTURIS registry Data Access Policy (DAP). The DAC is
+        composed of qualified health professionals and a patient representative.
+        One or more of these committee members has also relevant legal and
+        ethical expertise.
       </p>
       <p>The DAC consists of:</p>
       <ul>
@@ -104,6 +101,7 @@
   </Page>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection } from "molgenis-viz";
 </script>

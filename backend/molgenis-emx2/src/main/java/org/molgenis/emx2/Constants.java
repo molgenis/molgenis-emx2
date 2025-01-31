@@ -25,6 +25,7 @@ public class Constants {
   public static final String IS_CHANGELOG_ENABLED = "isChangelogEnabled";
   public static final String TEMPLATE = "template";
   public static final String INCLUDE_DEMO_DATA = "includeDemoData";
+  public static final String PARENT_JOB = "parentJob";
   public static final String SEMANTICS = "semantics";
   public static final String ROLE = "role";
   public static final String KEY = "key";
@@ -61,6 +62,7 @@ public class Constants {
   public static final String MOLGENIS_INCLUDE_CATALOGUE_DEMO = "MOLGENIS_INCLUDE_CATALOGUE_DEMO";
   public static final String MOLGENIS_INCLUDE_DIRECTORY_DEMO = "MOLGENIS_INCLUDE_DIRECTORY_DEMO";
   public static final String MOLGENIS_EXCLUDE_PETSTORE_DEMO = "MOLGENIS_EXCLUDE_PETSTORE_DEMO";
+  public static final String MOLGENIS_INCLUDE_TYPE_TEST_DEMO = "MOLGENIS_INCLUDE_TYPE_TEST_DEMO";
 
   public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
 
@@ -77,6 +79,9 @@ public class Constants {
     EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH
   };
   protected static final Operator[] EQUALITY_OPERATORS = {EQUALS, NOT_EQUALS};
+
+  // n.b. we allow _SYSTEM_
+  protected static final String SCHEMA_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,62}$";
 
   protected static final String TABLE_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$";
 
@@ -109,6 +114,11 @@ public class Constants {
 
   public static final String CONTACT_RECIPIENTS_QUERY_SETTING_KEY = "contactRecipientsQuery";
   public static final String CONTACT_BCC_ADDRESS = "contactBccAddress";
+
+  public static final String API_RDF = "/api/rdf";
+  public static final String API_TTL = "/api/ttl";
+  public static final String API_JSONLD = "/api/jsonld";
+  public static final String API_FILE = "/api/file";
 
   private Constants() {
     // hide constructor

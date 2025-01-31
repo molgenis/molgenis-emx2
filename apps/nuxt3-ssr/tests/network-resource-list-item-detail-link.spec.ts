@@ -15,7 +15,7 @@ test("network detail resource listing resource detail should show the resoource 
   page,
   goto,
 }) => {
-  await goto("/catalogue-demo/ssr-catalogue/testNetwork1/cohorts", {
+  await goto("/catalogue-demo/ssr-catalogue/testNetwork1/collections", {
     waitUntil: "hydration",
   });
   await page.getByText("acronym for test cohort 1").click();

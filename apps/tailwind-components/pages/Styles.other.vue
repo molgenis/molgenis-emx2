@@ -1,9 +1,9 @@
 <template>
-  <h1 class="text-heading-3xl">Theme Styles</h1>
+  <h1 class="text-heading-3xl text-title">Theme Styles</h1>
 
-  <h2 class="text-heading-2xl py-4">Colors</h2>
+  <h2 class="text-heading-2xl text-title py-4">Colors</h2>
 
-  <h3 class="text-heading-1xl py-3">blue</h3>
+  <h3 class="text-heading-1xl text-title py-3">blue</h3>
   <ol class="flex flex-wrap mb-4 mt-6">
     <li>
       <ColorTile color="blue-50" type="background" />
@@ -28,7 +28,7 @@
     </li>
   </ol>
 
-  <h3 class="text-heading-1xl py-3">gray</h3>
+  <h3 class="text-heading-1xl text-title py-3">gray</h3>
   <ol class="flex flex-wrap mb-4 mt-6">
     <li>
       <ColorTile color="gray-100" type="background" />
@@ -47,7 +47,7 @@
     </li>
   </ol>
 
-  <h3 class="text-heading-1xl py-3">gray</h3>
+  <h3 class="text-heading-1xl text-title py-3">gray</h3>
   <ol class="flex flex-wrap mb-4 mt-6">
     <li>
       <ColorTile color="gray-100" type="background" />
@@ -66,7 +66,7 @@
     </li>
   </ol>
 
-  <h3 class="text-heading-1xl py-3">yellow</h3>
+  <h3 class="text-heading-1xl text-title py-3">yellow</h3>
   <ol class="flex flex-wrap mb-4 mt-6">
     <li>
       <ColorTile color="yellow-200" type="background" />
@@ -79,7 +79,7 @@
     </li>
   </ol>
 
-  <h3 class="text-heading-1xl py-3">green</h3>
+  <h3 class="text-heading-1xl text-title py-3">green</h3>
   <ol class="flex flex-wrap mb-4 mt-6">
     <li>
       <ColorTile color="green-500" type="background" />
@@ -89,21 +89,21 @@
     </li>
   </ol>
 
-  <h3 class="text-heading-1xl py-3">orange</h3>
+  <h3 class="text-heading-1xl text-title py-3">orange</h3>
   <ol class="flex flex-wrap mb-4 mt-6">
     <li>
       <ColorTile color="orange-500" type="background" />
     </li>
   </ol>
 
-  <h3 class="text-heading-1xl py-3">red</h3>
+  <h3 class="text-heading-1xl text-title py-3">red</h3>
   <ol class="flex flex-wrap mb-4 mt-6">
     <li>
       <ColorTile color="red-500" type="background" />
     </li>
   </ol>
 
-  <h3 class="text-heading-1xl py-3">Background colors</h3>
+  <h3 class="text-heading-1xl text-title py-3">Background colors</h3>
   <ol class="flex flex-wrap mb-4 mt-6">
     <li>
       <ColorTile color="button-primary" type="background" />
@@ -185,7 +185,7 @@
     </li>
   </ol>
 
-  <h3 class="text-heading-1xl py-3">Text colors</h3>
+  <h3 class="text-heading-1xl text-title py-3">Text colors</h3>
   <ol class="flex flex-wrap mb-4 mt-6">
     <li>
       <ColorTile color="button-primary" type="text" />
@@ -314,6 +314,9 @@
       <ColorTile color="footer-link" type="text" />
     </li>
     <li>
+      <ColorTile color="table-column-header" type="text" />
+    </li>
+    <li>
       <ColorTile color="invalid" type="text" />
     </li>
     <li>
@@ -327,7 +330,7 @@
     </li>
   </ol>
 
-  <h3 class="text-heading-1xl py-3">Border colors</h3>
+  <h3 class="text-heading-1xl text-title py-3">Border colors</h3>
   <ol class="flex flex-wrap mb-4 mt-6">
     <li>
       <ColorTile color="button-primary" type="border" />
@@ -388,7 +391,7 @@
     </li>
   </ol>
 
-  <h3 class="text-heading-1xl py-3">Border radius</h3>
+  <h3 class="text-heading-1xl text-title py-3">Border radius</h3>
   <ol class="flex flex-wrap mb-4 mt-6">
     <li>
       <ColorTile color="button-primary" type="radius" />

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.DATA_CATALOGUE;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.SHARED_STAGING;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -23,17 +25,20 @@ public class TestLoaders {
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
   public static final String DCAT = "DCATTest";
+  public static final String PORTAL_TEST = "PortalTest";
   public static final String FAIR_DATA_POINT = "FAIRDataPointTest";
   public static final String DCAT_BASIC = "DCATBasicTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
+  public static final String DASHBOARD_TEST = "UiDashboardTest";
   static Database database;
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     // prevent previous dangling test results
+    database.dropSchemaIfExists(PORTAL_TEST);
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);
     database.dropSchemaIfExists(DATA_CATALOGUE);
@@ -53,6 +58,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(FAIR_DATA_POINT);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(PROJECT_MANAGER);
+    database.dropSchemaIfExists(DASHBOARD_TEST);
     // delete ontologies last
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
@@ -71,29 +77,29 @@ public class TestLoaders {
   void test06DataCatalogueLoader() {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     DataModels.Profile.DATA_CATALOGUE.getImportTask(dataCatalogue, true).run();
-    assertEquals(22, dataCatalogue.getTableNames().size());
+    assertEquals(23, dataCatalogue.getTableNames().size());
   }
 
   @Test
   public void test07DataCatalogueCohortStagingLoader() {
     Schema cohortStaging = database.createSchema(COHORT_STAGING);
     DataModels.Profile.DATA_CATALOGUE_COHORT_STAGING.getImportTask(cohortStaging, true).run();
-    assertEquals(17, cohortStaging.getTableNames().size());
+    assertEquals(18, cohortStaging.getTableNames().size());
   }
 
   @Disabled
   @Test
   public void test08DataCatalogueNetworkStagingLoader() {
     Schema networkStaging = database.createSchema(NETWORK_STAGING);
-    DataModels.Regular.DATA_CATALOGUE_NETWORK_STAGING.getImportTask(networkStaging, true).run();
-    assertEquals(16, networkStaging.getTableNames().size());
+    DataModels.Profile.DATA_CATALOGUE_NETWORK_STAGING.getImportTask(networkStaging, true).run();
+    assertEquals(15, networkStaging.getTableNames().size());
   }
 
   @Test
   public void test09DirectoryLoader() {
     Schema directory = database.createSchema(DIRECTORY_TEST);
     DataModels.Regular.BIOBANK_DIRECTORY.getImportTask(directory, true).run();
-    assertEquals(10, directory.getTableNames().size());
+    assertEquals(13, directory.getTableNames().size());
   }
 
   @Test
@@ -135,7 +141,7 @@ public class TestLoaders {
   void test15DirectoryStagingLoader() {
     Schema directoryStaging = database.createSchema(DIRECTORY_STAGING);
     DataModels.Regular.BIOBANK_DIRECTORY_STAGING.getImportTask(directoryStaging, false).run();
-    assertEquals(6, directoryStaging.getTableNames().size());
+    assertEquals(8, directoryStaging.getTableNames().size());
   }
 
   @Test
@@ -150,5 +156,20 @@ public class TestLoaders {
     Schema FDPSchema = database.createSchema(FAIR_DATA_POINT);
     DataModels.Profile.FAIR_DATA_POINT.getImportTask(FDPSchema, true).run();
     assertEquals(25, FDPSchema.getTableNames().size());
+  }
+
+  @Test
+  void test18PortalLoader() throws URISyntaxException, IOException {
+    // depends on catalogue test above
+    Schema schema = database.dropCreateSchema(PORTAL_TEST);
+    DataModels.Regular.RD3_V2.getImportTask(schema, false).run();
+    assertEquals(96, schema.getTableNames().size());
+  }
+
+  @Test
+  public void dashboardTestLoader() {
+    Schema schema = database.dropCreateSchema(DASHBOARD_TEST);
+    DataModels.Regular.UI_DASHBOARD.getImportTask(schema, true).run();
+    assertEquals(6, schema.getTableNames().size());
   }
 }

@@ -5,7 +5,7 @@ useHead({ title: "Health Data and Samples Catalogue" });
 //add redirect middleware for cohortOnly to skip this page
 definePageMeta({
   middleware: [
-    function (to, from) {
+    function (to) {
       const cohortOnly =
         to.query["cohort-only"] === "true" ||
         useRuntimeConfig().public.cohortOnly;
@@ -43,13 +43,42 @@ const query = computed(() => {
   `;
 });
 
+interface Catalogue {
+  network: {
+    id: string;
+    name: string;
+    acronym: string;
+    description: string;
+    logo: {
+      id: string;
+      size: number;
+      extension: string;
+      url: string;
+    };
+  };
+  type: {
+    name: string;
+  };
+}
+
+interface Catalogues_agg {
+  count: number;
+}
+
+interface Resp<T, U> {
+  data: Record<string, T[]>;
+  data_agg: Record<string, U>;
+}
+
 let graphqlURL = computed(() => `/${route.params.schema}/graphql`);
-const { data, pending, error, refresh } = await useFetch(graphqlURL.value, {
-  key: "catalogues",
-  method: "POST",
-  body: { query },
-});
-let activeName = ref("compact");
+const { data } = await useFetch<Resp<Catalogue, Catalogues_agg>>(
+  graphqlURL.value,
+  {
+    key: "catalogues",
+    method: "POST",
+    body: { query },
+  }
+);
 
 const thematicCatalogues = computed(() => {
   let result = data?.value?.data?.Catalogues

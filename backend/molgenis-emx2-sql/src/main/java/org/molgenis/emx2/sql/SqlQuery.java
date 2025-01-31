@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.*;
+import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Privileges.*;
@@ -1139,10 +1140,9 @@ public class SqlQuery extends QueryBean {
       Object[] values) {
     Name name = name(alias(tableAlias), columnName);
     return switch (type) {
-      case TEXT, STRING, FILE -> whereConditionText(name, operator, toStringArray(values));
+      case TEXT, STRING, FILE, JSON -> whereConditionText(name, operator, toStringArray(values));
       case BOOL -> whereConditionEquals(name, operator, toBoolArray(values));
       case UUID -> whereConditionEquals(name, operator, toUuidArray(values));
-      case JSONB -> whereConditionEquals(name, operator, toJsonbArray(values));
       case INT -> whereConditionOrdinal(name, operator, toIntArray(values));
       case LONG -> whereConditionOrdinal(name, operator, toLongArray(values));
       case DECIMAL -> whereConditionOrdinal(name, operator, toDecimalArray(values));
@@ -1159,7 +1159,6 @@ public class SqlQuery extends QueryBean {
       case DATE_ARRAY -> whereConditionArrayEquals(name, operator, toDateArray(values));
       case DATETIME_ARRAY -> whereConditionArrayEquals(name, operator, toDateTimeArray(values));
       case PERIOD_ARRAY -> whereConditionArrayEquals(name, operator, toYearToSecondArray(values));
-      case JSONB_ARRAY -> whereConditionArrayEquals(name, operator, toJsonbArray(values));
       case REF -> whereConditionRefEquals(name, operator, values);
       default ->
           throw new SqlQueryException(
@@ -1292,7 +1291,7 @@ public class SqlQuery extends QueryBean {
     for (String value : values) {
       switch (operator) {
         case EQUALS:
-          conditions.add(field(columnName).eq(value));
+          conditions.add(field(columnName).cast(VARCHAR).eq(value)); // cast is for the json
           break;
         case NOT_EQUALS:
           not = true;
