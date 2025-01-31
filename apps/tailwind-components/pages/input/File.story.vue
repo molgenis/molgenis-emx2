@@ -33,7 +33,6 @@ const state = ref<string>();
   <form @submit.prevent>
     <InputFile
       id="file-input-demo"
-      label="Import file"
       :disabled="state === 'disabled'"
       :hasError="state === 'error'"
       @update:model-value="(value) => (file = value)"

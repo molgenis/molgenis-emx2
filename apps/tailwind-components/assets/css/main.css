@@ -44,6 +44,7 @@
 
 
     --box-shadow-primary: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    --box-shadow-input-hover: inset 0 0 1px 1px var(--color-blue-700);
     --box-shadow-search-input: none;
     --box-shadow-pagination-gray: 0px 10px 20px rgba(0, 0, 0, 0.1);
 
@@ -64,6 +65,8 @@
     --backgroud-color-button-disabled-hover: var(--color-gray-100);
     --backgroud-color-search-button: var(--color-blue-50);
     --backgroud-color-search-button-hover: var(--color-blue-700);
+    --background-color-button-filter: var(--color-blue-50);
+    --background-color-button-filter-hover: var(--color-white);
     --backgroud-color-navigation: rgba(0, 0, 0, .2);
     --backgroud-color-search-results-view-tabs: var(--color-blue-800);
     --backgroud-color-search-filter-group-toggle: var(--color-blue-800);
@@ -96,6 +99,7 @@
     --text-color-button-outline-hover: var(--color-blue-700);
     --text-color-button-disabled: var(--color-gray-600);
     --text-color-button-disabled-hover: var(--color-gray-600);
+    --text-color-button-filter: var(--color-blue-500);
     --text-color-menu: var(--text-color-title);
     --text-color-sub-menu: var(--color-blue-500);
     --text-color-sub-menu-hover: var(--color-blue-700);
@@ -157,12 +161,15 @@
     --border-color-button-outline-hover: var(--color-blue-700);
     --border-color-button-disabled: var(--color-gray-100);
     --border-color-button-disabled-hover: var(--color-gray-100);
+    --border-color-button-filter: var(--color-blue-50);
+    --border-color-button-filter-hover: var(--color-blue-700);
     --border-color-menu-active: var(--color-blue-500);
     --border-color-search-button: var(--color-white);
     --border-color-search-input: var(--color-white);
     --border-color-search-input-mobile: var(--color-gray-100);
     --border-color-pagination: var(--color-transparent);
     --border-color-input: #C0C0C0;
+    --border-color-input-hover: var(--color-blue-500);
     --border-color-input-inverted: var(--color-gray-600);
     --border-color-listbox-option: var(--color-gray-100);
     --border-color-listbox: var(--border-color-input);

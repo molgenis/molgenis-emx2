@@ -35,7 +35,7 @@ const COLOR_MAPPING = {
   disabled:
     "tracking-widest uppercase font-display bg-button-disabled text-button-disabled border-button-disabled hover:bg-button-disabled-hover hover:text-button-disabled-hover hover:border-button-disabled-hover",
   filterWell:
-    "whitespace-nowrap bg-blue-50 text-blue-500 border-blue-50 hover:bg-white hover:border-white",
+    "whitespace-nowrap bg-button-filter text-button-filter border-button-filter hover:bg-button-filter-hover hover:border-button-filter-hover",
 };
 
 const SIZE_MAPPING = {
@@ -65,7 +65,7 @@ const iconPositionClass = computed(() => {
 
 <template>
   <button
-    class="flex items-center border rounded-input group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input"
+    class="flex items-center border rounded-input group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input duration-default ease-in-out"
     :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
   >
     <span v-if="icon">
