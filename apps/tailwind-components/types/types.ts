@@ -1,4 +1,5 @@
 import type { IColumn } from "../../metadata-utils/dist";
+import type { columnValue } from "../../metadata-utils/src/types";
 
 export type Resp<T> = {
   data: Record<string, T[]>;
@@ -12,6 +13,11 @@ export interface Schema {
 export interface INode {
   name: string;
   description?: string;
+}
+
+export interface IValueLabel {
+  value: any;
+  label?: string;
 }
 
 export interface ITreeNode extends INode {
@@ -89,6 +95,12 @@ export interface IDocumentation {
   description: string;
   url: string;
   file: IFile;
+}
+
+export interface IRadioOptionsData {
+  value: columnValue;
+  label?: string;
+  checked?: boolean | undefined;
 }
 
   

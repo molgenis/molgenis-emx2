@@ -6,39 +6,44 @@ import type {
   IFieldError,
   ISchemaMetaData,
   ITableMetaData,
-  IInputValueLabel,
 } from "../../metadata-utils/src/types";
 
-const exampleForms: IInputValueLabel[] = [
-  { value: "simple", label: "Simple form example" },
-  { value: "complex", label: "Complex form example" },
-];
+const exampleName = ref("simple");
 
-const formType = ref<IInputValueLabel>(exampleForms[0]);
+const exampleMap = ref({
+  simple: {
+    schemaId: "pet store",
+    tableId: "Pet",
+  },
+  "pet store user": {
+    schemaId: "pet store",
+    tableId: "User",
+  },
+  complex: {
+    schemaId: "catalogue-demo",
+    tableId: "Resources",
+  },
+});
 
 // just assuming that the table is there for the demo
-const schemaId = computed(() =>
-  formType.value.value === "simple" ? "pet store" : "catalogue-demo"
-);
-const tableId = computed(() =>
-  formType.value.value === "simple" ? "Pet" : "Resources"
-);
+const exampleConfig = computed(() => exampleMap.value[exampleName.value]);
 
 const {
   data: schemaMeta,
   refresh: refetchMetadata,
   status,
-} = await useAsyncData("form sample", () => fetchMetadata(schemaId.value));
+} = await useAsyncData("form sample", () =>
+  fetchMetadata(exampleConfig.value.schemaId)
+);
 
 const tableMeta = computed(
   () =>
     (schemaMeta.value as ISchemaMetaData)?.tables.find(
-      (table) => table.id === tableId.value
+      (table) => table.id === exampleConfig.value.tableId
     ) as ITableMetaData
 );
 
-function refetch(value: IInputValueLabel) {
-  formType.value = value;
+function refetch() {
   refetchMetadata();
 }
 
@@ -141,9 +146,11 @@ watch(
       </div>
 
       <FormFields
+        :key="exampleName"
         v-if="tableMeta && status === 'success'"
         class="basis-2/3 p-8 border-l overflow-y-auto h-screen"
         ref="formFields"
+        :schemaId="exampleConfig.schemaId"
         :metadata="tableMeta"
         :data="data"
         @update:model-value="onModelUpdate"
@@ -151,7 +158,7 @@ watch(
       />
     </div>
 
-    <div class="basis-1/3 ml-2">
+    <div class="basis-1/3 ml-2 h-screen overflow-y-scroll">
       <h2>Demo controls, settings and status</h2>
 
       <div class="p-4 border-2 mb-2">
@@ -159,15 +166,16 @@ watch(
         <select
           id="table-select"
           @change="refetch()"
-          v-model="sampleType"
+          v-model="exampleName"
           class="border-1 border-black"
         >
           <option value="simple">Simple form example</option>
           <option value="complex">Complex form example</option>
+          <option value="pet store user">Pet store user</option>
         </select>
 
-        <div>schema id = {{ schemaId }}</div>
-        <div>table id = {{ tableId }}</div>
+        <div>schema id = {{ exampleConfig.schemaId }}</div>
+        <div>table id = {{ exampleConfig.tableId }}</div>
 
         <button
           class="border-gray-900 border-[1px] p-2 bg-gray-200"
@@ -179,19 +187,21 @@ watch(
         <div class="mt-4 flex flex-row">
           <div v-if="Object.keys(formValues).length" class="basis-1/2">
             <h3 class="text-label">Values</h3>
-            <dl class="flex">
+            <dl class="flex flex-col">
               <template v-for="(value, key) in formValues">
-                <dt v-if="value" class="font-bold">{{ key }}:</dt>
-                <dd v-if="value" class="ml-1">{{ value }}</dd>
+                <dt class="font-bold">{{ key }}:</dt>
+                <dd v-if="value !== null && value !== undefined" class="pl-3">
+                  {{ value }}
+                </dd>
               </template>
             </dl>
           </div>
           <div v-if="Object.keys(errors).length" class="basis-1/2">
             <h3 class="text-label">Errors</h3>
 
-            <dl class="flex">
+            <dl class="flex flex-col">
               <template v-for="(value, key) in errors">
-                <dt v-if="value.length" class="font-bold">{{ key }}:</dt>
+                <dt class="font-bold">{{ key }}:</dt>
                 <dd v-if="value.length" class="ml-1">{{ value }}</dd>
               </template>
             </dl>

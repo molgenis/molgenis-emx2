@@ -2,18 +2,20 @@
 import type {
   InputString,
   InputTextArea,
+  InputRef,
   InputPlaceHolder,
 } from "#build/components";
 import type {
   columnId,
   columnValue,
   CellValueType,
-  IInputValueLabel,
+  columnValueObject,
 } from "../../../metadata-utils/src/types";
 
 type inputComponent =
   | InstanceType<typeof InputString>
   | InstanceType<typeof InputTextArea>
+  | InstanceType<typeof InputRef>
   | InstanceType<typeof InputPlaceHolder>;
 
 defineProps<{
@@ -22,7 +24,9 @@ defineProps<{
   label: string;
   required: boolean;
   data: columnValue;
-  options?: IInputValueLabel[];
+  refSchemaId?: string;
+  refTableId?: string;
+  refLabel?: string;
 }>();
 
 defineEmits(["focus", "error", "update:modelValue"]);
@@ -49,7 +53,7 @@ function validate(value: columnValue) {
     :id="id"
     :label="label"
     :required="required"
-    :value="(data as string)"
+    :value="data as string"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
@@ -60,7 +64,7 @@ function validate(value: columnValue) {
     :id="id"
     :label="label"
     :required="required"
-    :value="(data as string)"
+    :value="data as string"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
@@ -76,5 +80,27 @@ function validate(value: columnValue) {
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
   />
+  <LazyInputBoolean
+    v-else-if="type === 'BOOL'"
+    ref="input"
+    :id="id"
+    :label="label"
+    :required="required"
+    :modelValue="data === true || data === false ? data : null"
+    @focus="$emit('focus')"
+    @update:modelValue="$emit('update:modelValue', $event)"
+    @error="$emit('error', $event)"
+  />
+  <LazyInputRef
+    v-else-if="type === 'REF_ARRAY' || type === 'REF'"
+    :id="id"
+    :modelValue="data as columnValueObject | columnValueObject[]"
+    :refSchemaId="refSchemaId as string"
+    :refTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    :isArray="type === 'REF_ARRAY'"
+    @update:modelValue="$emit('update:modelValue', $event)"
+  >
+  </LazyInputRef>
   <LazyInputPlaceHolder v-else ref="input" :type="type" />
 </template>
