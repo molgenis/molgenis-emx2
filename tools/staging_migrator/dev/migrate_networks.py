@@ -29,7 +29,7 @@ def main(args):
 
     staging_areas = args[-1].split(',')
 
-    with StagingMigrator(url=server_url, token=token, catalogue=CATALOGUE, table='Networks') as migrator:
+    with StagingMigrator(url=server_url, token=token, catalogue=CATALOGUE, table='Resources') as migrator:
 
         for sa in staging_areas:
             migrator.set_staging_area(sa)
@@ -38,4 +38,8 @@ def main(args):
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    if len(sys.argv) > 1:
+        main(sys.argv)
+    else:
+        networks = ['ATHLETE']
+        main(networks)

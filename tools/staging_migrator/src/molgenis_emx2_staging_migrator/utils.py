@@ -9,6 +9,8 @@ import pandas as pd
 from molgenis_emx2_pyclient.exceptions import NoSuchTableException
 from molgenis_emx2_pyclient.metadata import Schema, Table, Column
 
+from tools.pyclient.src.molgenis_emx2_pyclient.constants import REF, REF_ARRAY
+
 log = logging.getLogger(__name__)
 
 
@@ -78,23 +80,21 @@ def find_cohort_references(schema_schema: Schema, schema_name: str, base_table: 
         inherit = schema_schema.get_table(by='name', value=str(table_name)).get('inheritName')
         inheritance.update({table_name: inherit})
 
-    forward_refs = {
-        c.id: c.get('refTableName')
-        for c in schema_schema.get_table('name', base_table).get_columns(by='refSchemaName', value=schema_name)
-        if c.get('columnType') != 'REFBACK'
-    }
+    table_meta = schema_schema.get_table(by='name', value=str(table_name))
 
     backward_refs = {
-        tab.name: [c.id for c in tab.get_columns(by='refSchemaName', value=schema_name)
+        tab.name: [c.id for c in tab.columns
                    if c.get('refTableName') in inheritance.keys() and c.get('columnType') != 'REFBACK']
         for tab in schema_schema.tables
     }
-    backward_refs[base_table] = 'id'
+
+    backward_refs[base_table] = [c.id for c in table_meta.get_columns(by='key', value=1)]
 
     table_references = {
         tab.name: {c.id: c.get('refTableName')
-                   for c in [*tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF', schema_name]),
-                             *tab.get_columns(by=['columnType', 'refSchemaName'], value=['REF_ARRAY', schema_name])]}
+                   for c in [*tab.get_columns(by=['columnType'], value=['REF']),
+                             *tab.get_columns(by=['columnType'], value=['REF_ARRAY'])]
+                   if not c.get('refSchemaName')}
         for tab in schema_schema.tables
     }
 
