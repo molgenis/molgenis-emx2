@@ -37,7 +37,7 @@ class StagingMigrator(Client):
         self.staging_area = staging_area
         self.catalogue = catalogue
         self._verify_schemas()
-        self.table = table
+        self.table = self.get_schema_metadata(catalogue).get_table('name', table).id
         self.extra_tables: list[str] = [PUBLICATIONS] if self.table == RESOURCES else []
 
     def __repr__(self):
@@ -107,42 +107,34 @@ class StagingMigrator(Client):
         """
 
         # Gather the tables to delete from the target catalogue
-        tables_to_delete = find_cohort_references(self.get_schema_metadata(self.catalogue),
-                                                  self.catalogue, self.table)
+        tables_to_delete = find_cohort_references(self.get_schema_metadata(self.catalogue), self.table)
 
         cohort_ids = self._get_table_pkey_values()
-        metadata: Schema = self.get_schema_metadata(self.catalogue)
-        for table_name, ref_cols in tables_to_delete.items():
+        for table_id, ref_cols in tables_to_delete.items():
             # Iterate over the tables that reference the core table of the staging area
             # Check if any row matches this core table
-            table_meta = metadata.get_table(by='name', value=table_name)
-            table_id = table_meta.id
 
-            delete_rows = self._query_delete_rows(table_name, ref_cols, cohort_ids)
+            delete_rows = self._query_delete_rows(table_id, ref_cols, cohort_ids)
 
             if len(delete_rows) == 0:
                 continue
-            if not self._cohorts_in_ref_array(table_name):
-                log.debug(f"Deleting in table {table_name!r} row(s) with primary keys {delete_rows.get(table_id)}.")
+            log.debug(f"Deleting in table {table_id!r} row(s) with primary keys {delete_rows.get(table_id)}.")
 
-                # Delete the matching rows from the target catalogue table
-                self._delete_table_entries(table_id=table_id,
-                                           pkeys=delete_rows.get(table_id))
-            else:
-                log.debug(f"Updating row(s) with primary keys {delete_rows.get(table_id)}"
-                          f"\n in table {table_name}. (Not yet implemented)")
+            # Delete the matching rows from the target catalogue table
+            self._delete_table_entries(table_id=table_id,
+                                       pkeys=delete_rows.get(table_id))
 
-    def _query_delete_rows(self, table_name: str, ref_cols: str | list,
+    def _query_delete_rows(self, table_id: str, ref_cols: str | list,
                            cohort_ids: list) -> dict:
         """Queries the rows to be deleted from a table."""
         schema_meta: Schema = self.get_schema_metadata(self.catalogue)
-        query = self.__construct_pkey_query(schema_meta, table_name)
+        query = self.__construct_pkey_query(schema_meta, table_id)
         if isinstance(ref_cols, str):
             ref_cols = [ref_cols]
         data = dict()
         for ref_col in ref_cols:
             variables = construct_delete_variables(self.get_schema_metadata(self.catalogue),
-                                                   cohort_ids, table_name, ref_col)
+                                                   cohort_ids, table_id, ref_col)
 
             response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
                                          json={"query": query, "variables": variables},
@@ -184,13 +176,13 @@ class StagingMigrator(Client):
             else:
                 log.info(response.json().get('data').get('delete').get('message'))
 
-    def _cohorts_in_ref_array(self, _table_name: str) -> bool:
+    def _cohorts_in_ref_array(self, _table_id: str) -> bool:
         """Returns True if cohorts are referenced in a referenced array in any column in this table."""
         try:
-            _table_schema: Table = self.get_schema_metadata(self.catalogue).get_table(by='name', value=_table_name)
+            _table_schema: Table = self.get_schema_metadata(self.catalogue).get_table(by='id', value=_table_id)
         except ValueError:
-            raise NoSuchTableException(f"No table {_table_name!r} in schema {self.catalogue!r}.")
-        return len(_table_schema.get_columns(by=['columnType', 'refTable'], value=['REF_ARRAY', self.table])) > 0
+            raise NoSuchTableException(f"No table with id {_table_id!r} in schema {self.catalogue!r}.")
+        return len(_table_schema.get_columns(by=['columnType', 'refTableId'], value=['REF_ARRAY', self.table])) > 0
 
     def _verify_schemas(self):
         """Ensures the staging area and catalogue are available."""
@@ -207,8 +199,7 @@ class StagingMigrator(Client):
 
     def _create_upload_zip(self) -> BytesIO:
         """Combines the relevant tables of the staging area into a zipfile."""
-        tables_to_sync = find_cohort_references(self.get_schema_metadata(self.staging_area),
-                                                self.staging_area, self.table)
+        tables_to_sync = find_cohort_references(self.get_schema_metadata(self.staging_area), self.table)
 
         source_file_path = self._download_schema_zip(schema=self.staging_area, schema_type='source',
                                                      include_system_columns=False)
@@ -291,14 +282,13 @@ class StagingMigrator(Client):
         """Fetches the primary key values associated with the staging area's table."""
 
         staging_schema = self.get_schema_metadata(self.staging_area)
-        table_id = staging_schema.get_table(by='name', value=self.table).id
 
         # Query server for resource id
-        pkeys = [prepare_pkey(schema=staging_schema, table_name=self.table, col_id=col)
-                 for col in prepare_pkey(schema=staging_schema, table_name=self.table)]
+        pkeys = [prepare_pkey(schema=staging_schema, table_id=self.table, col_id=col)
+                 for col in prepare_pkey(schema=staging_schema, table_id=self.table)]
         pkey_print = query_columns_string(pkeys, indent=2)
         query = """{{\n  {} {{\n  {}\n  }}\n}}""".format(self.table, pkey_print)
-        # query = """{{\n  {} {{\n    id\n    name\n  }}\n}}""".format(table_id)
+
         staging_url = f"{self.url}/{self.staging_area}/graphql"
         response = self.session.post(url=staging_url,
                                      headers={'x-molgenis-token': self.token},
@@ -309,11 +299,11 @@ class StagingMigrator(Client):
             raise NoSuchTableException(f"Table {self.table!r} not found on schema {self.staging_area!r}.")
 
         # Return only if there is exactly one id/cohort in the Resources table
-        if table_id in response_data.keys():
-            if len(response_data[table_id]) < 1:
+        if self.table in response_data.keys():
+            if len(response_data[self.table]) < 1:
                 raise ValueError(
                     f"Expected a value in table {self.table!r} in staging area {self.staging_area!r}"
-                    f" but found {len(response_data[table_id])!r}"
+                    f" but found {len(response_data[self.table])!r}"
                 )
         else:
             raise ValueError(
@@ -321,7 +311,7 @@ class StagingMigrator(Client):
                 f" but found none."
             )
 
-        return [resource[pkeys[0]] for resource in response_data[table_id]]
+        return [resource[pkeys[0]] for resource in response_data[self.table]]
 
     def last_change(self, staging_area: str = None) -> datetime | None:
         """Retrieves the datetime of the latest change made on the staging area.
@@ -350,14 +340,14 @@ class StagingMigrator(Client):
                 Path(filename).unlink()
 
     @staticmethod
-    def __construct_pkey_query(db_schema: Schema, table_name: str, all_columns: bool = False):
+    def __construct_pkey_query(db_schema: Schema, table_id: str, all_columns: bool = False):
         """Constructs a GraphQL query for finding the primary key values in a table."""
-        table_schema: Table = db_schema.get_table(by='name', value=table_name)
+        table_schema: Table = db_schema.get_table(by='id', value=table_id)
         if all_columns:
-            pkeys = [prepare_pkey(db_schema, table_name, col.id) for col in table_schema.columns]
+            pkeys = [prepare_pkey(db_schema, table_id, col.id) for col in table_schema.columns]
             pkeys = [pk for pk in pkeys if pk is not None]
         else:
-            pkeys = [prepare_pkey(db_schema, table_name, col.id) for col in table_schema.get_columns(by='key', value=1)]
+            pkeys = [prepare_pkey(db_schema, table_id, col.id) for col in table_schema.get_columns(by='key', value=1)]
         table_id = table_schema.id
         pkeys_print = query_columns_string(pkeys, indent=4)
         _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
