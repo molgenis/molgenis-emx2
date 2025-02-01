@@ -9,7 +9,7 @@ import type {
 const props = defineProps<{
   schemaId: string;
   column: IColumn;
-  data: columnValue;
+  value: columnValue;
   errors: IFieldError[];
 }>();
 
@@ -59,7 +59,7 @@ function validate(value: columnValue) {
         :refSchemaId="column.refSchemaId || schemaId"
         :refTableId="column.refTableId"
         :refLabel="column.refLabel || column.refLabelDefault"
-        :data="data"
+        :value="value"
         :required="!!column.required"
         :aria-invalid="hasError"
         :aria-desribedBy="`${column.id}-input-error`"

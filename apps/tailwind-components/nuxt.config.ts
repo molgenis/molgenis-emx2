@@ -1,7 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import fs from 'fs';
+import { resolve } from 'path';
+
+// Path to the generated sourceCodeMap.json file
+const sourceCodeMapPath = resolve("./sourceCodeMap.json");
+
+// Read the file contents
+const sourceCodeMap = JSON.parse(fs.readFileSync(sourceCodeMapPath, 'utf-8'));
+
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ["@nuxtjs/tailwindcss", "@nuxt/test-utils/module"],
+  modules: [
+      "@nuxtjs/tailwindcss",
+    "@nuxt/test-utils/module",
+  ],
   tailwindcss: {
     cssPath: "~/assets/css/main.css",
     configPath: "~/tailwind.config.js",
@@ -47,6 +59,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: "https://emx2.dev.molgenis.org/",
+      sourceCodeMap
     },
   },
 

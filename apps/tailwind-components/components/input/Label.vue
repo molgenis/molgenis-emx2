@@ -1,16 +1,13 @@
 <script setup lang="ts">
+import {type InputProps, InputPropsDefaults} from "~/types/types";
+
 withDefaults(
-  defineProps<{
-    disabled?: boolean;
-    valid?: boolean;
-    hasError?: boolean;
+  defineProps<InputProps & {
     required?: boolean;
     hideLabel?: boolean;
   }>(),
   {
-    disabled: false,
-    hasError: false,
-    valid: false,
+    ...InputPropsDefaults,
     hideLabel: false,
   }
 );
@@ -22,7 +19,7 @@ withDefaults(
     :class="{
       'sr-only': hideLabel,
       'text-disabled': disabled,
-      'text-invalid': hasError,
+      'text-invalid': error,
       'text-valid': valid,
       'after:content-required after:text-required': required,
     }"

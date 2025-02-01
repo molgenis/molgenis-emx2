@@ -4,9 +4,10 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "generate-source-map": "node generateSourceMap.js",
     "build": "nuxt build",
     "build-showcase": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
-    "dev": "nuxt dev",
+    "dev": "yarn generate-source-map && nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
@@ -23,7 +24,8 @@
     "consola": "3.2.3",
     "floating-vue": "5.2.2",
     "vue":"3.5.13",
-    "vue-router": "4.4.3"
+    "vue-router": "4.4.3",
+    "highlight.js": "^11.9.0"
   },
   "devDependencies": {
     "@nuxt/test-utils": "3.12.1",

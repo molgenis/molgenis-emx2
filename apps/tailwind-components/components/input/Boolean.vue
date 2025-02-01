@@ -1,84 +1,36 @@
 <template>
   <InputRadioGroup
-    :id="id"
-    :modelValue="props.modelValue"
-    :radioOptions="radioOptions"
+      v-bind="$props"
+      :options="options"
     :showClearButton="true"
+    v-model="modelValue"
     align="horizontal"
-    @update:modelValue="onInput"
-    @focus="$emit('focus')"
-    @blur="$emit('blur')"
   />
 </template>
 
 <script lang="ts" setup>
-import type { IRadioOptionsData } from "~/types/types";
-
+import type {InputProps, IRadioOptionsData} from "~/types/types";
+import {InputPropsDefaults} from "~/types/types";
 const props = withDefaults(
-  defineProps<{
-    id: string;
-    label?: string;
-    modelValue: boolean | null;
-    placeholder?: string;
-    disabled?: boolean;
-    required?: boolean;
-    valid?: boolean;
-    hasError?: boolean;
+  defineProps<InputProps &{
     trueLabel?: string;
     falseLabel?: string;
   }>(),
   {
-    disabled: false,
-    required: false,
-    hasError: false,
-    valid: false,
+    ...InputPropsDefaults,
     trueLabel: "True",
     falseLabel: "False",
   }
 );
-
+const modelValue = defineModel<true | false | null>();
 const emit = defineEmits([
   "focus",
   "blur",
-  "error",
   "update:modelValue",
-  "input",
 ]);
-defineExpose({ validate });
 
-function validate(value: boolean | null) {
-  if (props.required && value === null) {
-    emit("error", [
-      { message: `${props.label || props.id} required to complete the form` },
-    ]);
-  } else {
-    emit("error", []);
-  }
-}
-
-const radioOptions = ref<IRadioOptionsData[]>([
+const options = ref<IRadioOptionsData[]>([
   { value: true, label: props.trueLabel },
   { value: false, label: props.falseLabel },
 ]);
-
-const modelValue = ref<boolean | undefined>(undefined);
-
-function toBoolean(value: string) {
-  switch (value) {
-    case "true":
-      return true;
-
-    case "false":
-      return false;
-
-    default:
-      return null;
-  }
-}
-
-function onInput(value: string) {
-  const booleanValue = toBoolean(value);
-  emit("update:modelValue", booleanValue);
-  validate(booleanValue);
-}
 </script>

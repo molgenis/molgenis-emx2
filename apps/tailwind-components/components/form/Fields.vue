@@ -113,7 +113,7 @@ defineExpose({ validate });
           :id="`${column.id}-form-field`"
           :schemaId="schemaId"
           :column="column"
-          :data="dataMap[column.id]"
+          :value="dataMap[column.id]"
           :errors="errorMap[column.id]"
           @update:modelValue="onUpdate(column, $event)"
           @error="onErrors(column, $event)"

@@ -48,22 +48,16 @@ import type {
 } from "../../types/listbox";
 
 import { InputListboxToggle } from "#components";
+import {type InputProps, InputPropsDefaults} from "~/types/types";
 
 const props = withDefaults(
-  defineProps<{
-    id: string;
+  defineProps<InputProps & {
     labelId: string;
     options: IInputValue[] | IInputValueLabel[];
     value?: IInputValue | IInputValueLabel;
-    required?: boolean;
-    hasError?: boolean;
-    placeholder?: string;
-    disabled?: boolean;
   }>(),
   {
-    disabled: false,
-    required: false,
-    hasError: false,
+    ...InputPropsDefaults,
     placeholder: "Select an option",
   }
 );

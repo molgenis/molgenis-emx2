@@ -22,8 +22,7 @@ defineProps<{
   type: CellValueType;
   id: columnId;
   label: string;
-  required: boolean;
-  data: columnValue;
+  value: columnValue;
   refSchemaId?: string;
   refTableId?: string;
   refLabel?: string;
@@ -46,14 +45,15 @@ function validate(value: columnValue) {
 }
 </script>
 
+//I fi
+
 <template>
   <LazyInputString
     v-if="type === 'STRING'"
     ref="input"
     :id="id"
     :label="label"
-    :required="required"
-    :value="data as string"
+    :value="value as string"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
@@ -63,8 +63,7 @@ function validate(value: columnValue) {
     ref="input"
     :id="id"
     :label="label"
-    :required="required"
-    :value="data as string"
+    :value="value as string"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
@@ -74,8 +73,7 @@ function validate(value: columnValue) {
     ref="input"
     :id="id"
     :label="label"
-    :required="required"
-    :value="data as string"
+    :value="value as string"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
@@ -85,8 +83,7 @@ function validate(value: columnValue) {
     ref="input"
     :id="id"
     :label="label"
-    :required="required"
-    :modelValue="data === true || data === false ? data : null"
+    :modelValue="value === true || value === false ? value : null"
     @focus="$emit('focus')"
     @update:modelValue="$emit('update:modelValue', $event)"
     @error="$emit('error', $event)"
@@ -94,7 +91,7 @@ function validate(value: columnValue) {
   <LazyInputRef
     v-else-if="type === 'REF_ARRAY' || type === 'REF'"
     :id="id"
-    :modelValue="data as columnValueObject | columnValueObject[]"
+    :modelValue="value as columnValueObject | columnValueObject[]"
     :refSchemaId="refSchemaId as string"
     :refTableId="refTableId as string"
     :refLabel="refLabel as string"

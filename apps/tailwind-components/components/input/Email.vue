@@ -1,15 +1,8 @@
 <template>
   <InputString
-    ref="inputString"
     type="email"
-    :id="id"
-    :label="label"
-    :placeholder="placeholder"
-    :valid="valid"
-    :hasError="hasError"
-    :required="required"
-    :disabled="disabled"
-    :value="modelValue"
+    v-bind="$props"
+    v-model="modelValue"
     @update:modelValue="validateInput"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
@@ -18,27 +11,17 @@
 
 <script setup lang="ts">
 import type { InputString } from "#build/components";
+import {type InputProps, InputPropsDefaults} from "~/types/types";
 
 const EMAIL_REGEX =
   /^(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$|^$/;
 
 const inputString = ref<InstanceType<typeof InputString>>();
-
+const modelValue = defineModel<string>();
 withDefaults(
-  defineProps<{
-    id: string;
-    modelValue?: string;
-    label?: string;
-    placeholder?: string;
-    disabled?: boolean;
-    required?: boolean;
-    hasError?: boolean;
-    valid?: boolean;
-  }>(),
+  defineProps<InputProps>(),
   {
-    disabled: false,
-    required: false,
-    hasError: false,
+    ...InputPropsDefaults
   }
 );
 

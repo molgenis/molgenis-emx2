@@ -103,4 +103,18 @@ export interface IRadioOptionsData {
   checked?: boolean | undefined;
 }
 
+export type InputProps = {
+  id: string;
+  placeholder?: string;
+  error?: boolean;
+  valid?: boolean;
+  disabled?: boolean;
+};
+
+export const InputPropsDefaults = {
+  error: false,
+  valid: false,
+  disabled: false,
+  placeholder: ""
+}
   
