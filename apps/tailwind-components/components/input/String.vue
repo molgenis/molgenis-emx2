@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import type {InputProps} from "~/types/types";
-import {InputPropsDefaults} from "~/types/types";
-withDefaults(
-    defineProps<InputProps>(),(InputPropsDefaults),
-);
+import type { InputProps } from "~/types/types";
+import { InputPropsDefaults } from "~/types/types";
+withDefaults(defineProps<InputProps>(), InputPropsDefaults);
 const modelValue = defineModel<string | number>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 </script>

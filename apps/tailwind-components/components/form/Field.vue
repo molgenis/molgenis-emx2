@@ -12,7 +12,7 @@ const props = defineProps<{
   value: columnValue;
   errors: IFieldError[];
 }>();
-
+const modelValue = defineModel<columnValue>();
 defineEmits(["error", "update:modelValue", "blur"]);
 defineExpose({ validate, id: props.column.id });
 
@@ -53,6 +53,7 @@ function validate(value: columnValue) {
     </div>
     <div>
       <FormFieldInput
+        v-model="modelValue"
         :type="column.columnType"
         :id="column.id"
         :label="column.label"

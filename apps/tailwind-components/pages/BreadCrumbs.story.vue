@@ -1,5 +1,7 @@
 <template>
-  <p class="pb-3 text-title">Default breadcrumbs, with 3 items, aligns middle</p>
+  <p class="pb-3 text-title">
+    Default breadcrumbs, with 3 items, aligns middle
+  </p>
   <div>
     <BreadCrumbs :crumbs="crumbs" />
   </div>

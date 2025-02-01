@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed } from "vue";
+import { useRoute } from "vue-router";
 
 const modules = import.meta.glob("../**/*.story.vue", {
   import: "default",
@@ -23,7 +23,7 @@ const stories = Object.keys(modules)
         : nameCleaned,
       dir: dir,
       path: path.replace(".vue", ""),
-      source: source
+      source: source,
     };
   })
   .sort((current: Record<string, any>, next: Record<string, any>) => {
@@ -32,17 +32,16 @@ const stories = Object.keys(modules)
 
 const route = useRoute();
 const storyName = computed(() => {
-  const pathParts = route.path.split('/').filter(Boolean); // Split and remove empty parts
+  const pathParts = route.path.split("/").filter(Boolean); // Split and remove empty parts
   // Capitalize the first character of each part except the last
-  const capitalizedParts = pathParts.map(part =>
-      part.charAt(0).toUpperCase() + part.slice(1) // Capitalize first letter
+  const capitalizedParts = pathParts.map(
+    (part) => part.charAt(0).toUpperCase() + part.slice(1) // Capitalize first letter
   );
   // Join the capitalized parts back together
-  return capitalizedParts.join('').replace(".story","");
+  return capitalizedParts.join("").replace(".story", "");
 });
 
-const {$sourceCodeMap} = useNuxtApp()
-
+const { $sourceCodeMap } = useNuxtApp();
 </script>
 
 <template>
@@ -86,8 +85,8 @@ const {$sourceCodeMap} = useNuxtApp()
             <Story :title="storyName">
               <slot></slot>
             </Story>
-            <div  class="mt-4">Source code:</div>
-            <SourceCode class="mt-4"/>
+            <div class="mt-4">Source code:</div>
+            <SourceCode class="mt-4" />
           </div>
         </div>
       </main>

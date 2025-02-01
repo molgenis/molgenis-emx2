@@ -8,10 +8,8 @@
       'border-invalid text-invalid': error,
       'border-valid text-valid': valid,
       'border-disabled bg-disabled': disabled,
-      'bg-white': !disabled,
     }"
   >
-    {{error}}
     <div v-for="option in options" class="flex justify-start align-center">
       <InputRadio
         :id="`${id}-radio-group-${option.value}`"
@@ -31,8 +29,7 @@
           'border-invalid text-invalid': error,
           'border-valid text-valid': valid,
           'border-disabled text-disabled bg-disabled': disabled,
-          'bg-white': !disabled,
-    }"
+        }"
       >
         <InputRadioIcon :checked="modelValue === option.value" class="mr-1" />
         <template v-if="option.label">
@@ -59,15 +56,21 @@
 </template>
 
 <script lang="ts" setup>
-import {type InputProps, InputPropsDefaults, type IValueLabel} from "~/types/types";
+import {
+  type InputProps,
+  InputPropsDefaults,
+  type IValueLabel,
+} from "~/types/types";
 import type { columnValue } from "metadata-utils/src/types";
 
 const props = withDefaults(
-  defineProps<InputProps & {
-    options: IValueLabel[];
-    showClearButton?: boolean;
-    align?: "horizontal" | "vertical";
-  }>(),
+  defineProps<
+    InputProps & {
+      options: IValueLabel[];
+      showClearButton?: boolean;
+      align?: "horizontal" | "vertical";
+    }
+  >(),
   {
     ...InputPropsDefaults,
     showClearButton: false,

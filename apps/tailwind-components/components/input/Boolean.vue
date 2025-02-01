@@ -1,21 +1,28 @@
 <template>
-  <InputRadioGroup
-      v-bind="$props"
-      :options="options"
-    :showClearButton="true"
-    v-model="modelValue"
-    align="horizontal"
-  />
+  <div>
+    <InputRadioGroup
+      :id="id"
+      :disabled="disabled"
+      :error="error"
+      :valid="valid"
+      :options="yesNoOption"
+      :showClearButton="true"
+      v-model="modelValue"
+      align="horizontal"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>
-import type {InputProps, IRadioOptionsData} from "~/types/types";
-import {InputPropsDefaults} from "~/types/types";
+import type { InputProps, IRadioOptionsData } from "~/types/types";
+import { InputPropsDefaults } from "~/types/types";
 const props = withDefaults(
-  defineProps<InputProps &{
-    trueLabel?: string;
-    falseLabel?: string;
-  }>(),
+  defineProps<
+    InputProps & {
+      trueLabel?: string;
+      falseLabel?: string;
+    }
+  >(),
   {
     ...InputPropsDefaults,
     trueLabel: "True",
@@ -23,13 +30,9 @@ const props = withDefaults(
   }
 );
 const modelValue = defineModel<true | false | null>();
-const emit = defineEmits([
-  "focus",
-  "blur",
-  "update:modelValue",
-]);
+const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
-const options = ref<IRadioOptionsData[]>([
+const yesNoOption = ref<IRadioOptionsData[]>([
   { value: true, label: props.trueLabel },
   { value: false, label: props.falseLabel },
 ]);

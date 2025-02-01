@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import {type InputProps, InputPropsDefaults} from "~/types/types";
+import { type InputProps, InputPropsDefaults } from "~/types/types";
 
 withDefaults(
-  defineProps<InputProps & {
-    required?: boolean;
-    hideLabel?: boolean;
-  }>(),
+  defineProps<
+    InputProps & {
+      required?: boolean;
+      hideLabel?: boolean;
+    }
+  >(),
   {
     ...InputPropsDefaults,
     hideLabel: false,

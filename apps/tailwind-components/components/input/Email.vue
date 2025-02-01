@@ -11,19 +11,16 @@
 
 <script setup lang="ts">
 import type { InputString } from "#build/components";
-import {type InputProps, InputPropsDefaults} from "~/types/types";
+import { type InputProps, InputPropsDefaults } from "~/types/types";
 
 const EMAIL_REGEX =
   /^(([^<>()\\[\]\\.,;:\s@"]+(\.[^<>()\\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$|^$/;
 
 const inputString = ref<InstanceType<typeof InputString>>();
 const modelValue = defineModel<string>();
-withDefaults(
-  defineProps<InputProps>(),
-  {
-    ...InputPropsDefaults
-  }
-);
+withDefaults(defineProps<InputProps>(), {
+  ...InputPropsDefaults,
+});
 
 const emit = defineEmits(["update:modelValue", "error", "focus", "blur"]);
 

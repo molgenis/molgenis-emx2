@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed } from "vue";
+import { useRoute } from "vue-router";
 const route = useRoute();
 const currentRouteName = computed(() => route.name);
 </script>
 <template>
-  <h1>Component: {{currentRouteName}}</h1>
+  <h1>Component: {{ currentRouteName }}</h1>
   <div
     class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden pt-15"
   >

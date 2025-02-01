@@ -1,22 +1,44 @@
 <script setup lang="ts">
 const placeholder = ref("");
-const state = ref('neutral');
+const state = ref("default");
 </script>
 
 <template>
   <div class="flex">
-  <div class="flex-1 "><slot :error="state == 'error'" :placeholder="placeholder" :valid="state == 'valid'" :disabled="state == 'disabled'"></slot></div>
-    <div class="flex-1 bg-white ml-2">
-      <h2>Standard input test settings: </h2>
-      Placeholder: <input type="text"  v-model="placeholder"/>
-      <br/>
-      state is neutral:  <input type="radio" value="neutral" v-model="state" />
-      <br/>
-       state has error:  <input type="radio" value="error" v-model="state" />
-      <br/>
-      state is valid:  <input type="radio" value="valid" v-model="state" />
-      <br/>
-      state is disabled:  <input type="radio" value="disabled"  v-model="state" />
+    <div class="flex-1">
+      <slot
+        name="default"
+        :error="state == 'error'"
+        :placeholder="placeholder"
+        :valid="state == 'valid'"
+        :disabled="state == 'disabled'"
+      ></slot>
+    </div>
+    <div class="flex-1 pl-20">
+      <FieldSet label="settings">
+        <Input
+          type="string"
+          id="test-placeholder"
+          v-model="placeholder"
+          label="Placeholder"
+          description="Placeholder of the input, if applicable"
+        />
+        <Input
+          type="radio"
+          id="test-state"
+          v-model="state"
+          label="state"
+          description="State of the input"
+          class="mt-4"
+          :options="[
+            { value: 'default', label: 'default' },
+            { value: 'error', label: 'Error' },
+            { value: 'valid', label: 'Valid' },
+            { value: 'disabled', label: 'Disabled' },
+          ]"
+        />
+        <slot name="settings"></slot>
+      </FieldSet>
     </div>
   </div>
 </template>

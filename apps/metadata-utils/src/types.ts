@@ -112,3 +112,7 @@ export type IInputValueLabel = {
   value: IInputValue | IInputValue[] | null;
   label?: string;
 };
+
+export enum ColumnType2 {
+  STRING,
+}
