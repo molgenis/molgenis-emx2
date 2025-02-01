@@ -14,6 +14,7 @@
             :errorMessage="errorMessage || null"
             :options="demoOptions"
             :label="'Demo input for type=' + type"
+            :required="required"
             refSchemaId="pet store"
             refTableId="Pet"
             refLabel="${name}"
@@ -29,6 +30,13 @@
         v-model="errorMessage"
         id="test-container-error-message"
         description="Type here an error message to see how that looks"
+      />
+      <Input
+        type="bool"
+        label="required"
+        v-model="required"
+        id="test-container-required"
+        description="set to true to show required tags"
       />
     </template>
   </InputTestContainer>
@@ -47,6 +55,8 @@ const demoValue: Record<string, any> = ref({
 });
 
 const errorMessage = ref("");
+
+const required = ref(false);
 
 const demoOptions = ref([
   { label: "option1", value: 1 },

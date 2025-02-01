@@ -13,7 +13,7 @@
     <div
       v-if="errorMessage"
       :id="`${id}-input-error`"
-      class="bg-invalid text-required p-3 font-bold flex items-center"
+      class="bg-invalid text-required p-3 font-bold flex items-center rounded-input"
     >
       <BaseIcon name="info"></BaseIcon>{{ errorMessage }}
     </div>

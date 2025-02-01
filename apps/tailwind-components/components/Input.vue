@@ -4,6 +4,7 @@
     :label="label"
     :errorMessage="errorMessage"
     :description="description"
+    :required="required"
   >
     <component
       v-model="modelValue"

@@ -20,7 +20,7 @@
     <path
       v-if="checked"
       d="M5,10 L 9,14 L 16,6"
-      class="stroke-gray-900"
+      class="stroke-check"
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"

@@ -78,7 +78,7 @@
     --background-color-disabled: var(--color-gray-200);
     --background-color-invalid: var(--color-red-200);
     --background-color-input: var(--color-white);
-    --background-color-input-checked: var(--color-yellow-500);
+    --background-color-input-checked: var(--color-blue-500);
     --background-color-listbox: var(--color-white);
     --background-color-listbox-hover: var(--color-gray-100);
     --background-color-listbox-selected: var(--color-blue-500);
@@ -182,6 +182,7 @@
     --border-color-disabled: var(--color-gray-400);
 
     --outline-color-select: var(--color-gray-200);
+    --check-color: var(--color-white)
 
   }
 

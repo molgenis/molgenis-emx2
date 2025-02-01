@@ -27,7 +27,7 @@
       stroke="none"
       class="fill-transparent"
       :class="{
-        '!fill-gray-900': checked,
+        '!fill-check': checked,
       }"
     />
   </svg>
