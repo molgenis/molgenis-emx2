@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { InputState } from "~/types/types";
+
 withDefaults(
   defineProps<{
     state?: InputState;
@@ -14,8 +16,8 @@ withDefaults(
 
 <template>
   <label
-    :for="for"
     class="pl-3 text-body-base"
+    :for="for"
     :class="{
       'sr-only': hideLabel,
       'text-disabled': state === 'disabled',

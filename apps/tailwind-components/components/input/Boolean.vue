@@ -1,14 +1,14 @@
 <template>
-  <div>
-    <InputRadioGroup
-      :id="id"
-      :state="state"
-      :options="yesNoOption"
-      :showClearButton="true"
-      v-model="modelValue"
-      align="horizontal"
-    />
-  </div>
+  <InputRadioGroup
+    :id="id"
+    v-model="modelValue"
+    :options="yesNoOption"
+    :showClearButton="true"
+    align="horizontal"
+    :state="state"
+    @focus="$emit('focus')"
+    @blur="$emit('blur')"
+  />
 </template>
 
 <script lang="ts" setup>

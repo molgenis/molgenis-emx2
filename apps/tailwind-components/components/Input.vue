@@ -33,6 +33,7 @@ import {
   InputRef,
   InputString,
   InputTextArea,
+  InputPlaceHolder,
 } from "#components";
 const modelValue = defineModel<any>();
 const props = withDefaults(
@@ -55,45 +56,30 @@ const props = withDefaults(
   }
 );
 
-const typeToInputMap: Record<CellValueType, any> = {
-  // AUTO_ID: InputString,
-  //HEADING: InputHeading,
-  // EMAIL: InputEmail,
-  // HYPERLINK: InputHyperlink,
-  STRING: InputString,
-  CHECKBOX: InputCheckboxGroup,
-  RADIO: InputRadioGroup,
-  SELECT: InputListbox,
-  TEXT: InputTextArea,
-  REF: InputRef,
-  // JSON: InputJson,
-  // INT: InputInt,
-  // LONG: InputLong,
-  // DECIMAL: InputDecimal,
-  BOOL: InputBoolean,
-  // DATE: InputDate,
-  // REF: InputRefSelect,
-  // REFBACK: InputRefBack,
-  // FILE: InputFile,
-  // DATETIME: InputDateTime,
-  // PERIOD: InputString,
-  // ONTOLOGY: InputOntology,
-  // EMAIL_ARRAY: ArrayInput,
-  // BOOL_ARRAY: ArrayInput,
-  // DATE_ARRAY: ArrayInput,
-  // DATETIME_ARRAY: ArrayInput,
-  // PERIOD_ARRAY: ArrayInput,
-  // DECIMAL_ARRAY: ArrayInput,
-  // HYPERLINK_ARRAY: ArrayInput,
-  // INT_ARRAY: ArrayInput,
-  // LONG_ARRAY: ArrayInput,
-  // ONTOLOGY_ARRAY: InputOntology,
-  // REF_ARRAY: InputRefList,
-  // STRING_ARRAY: ArrayInput,
-  // TEXT_ARRAY: ArrayInput,
-};
+function typeToInputMap(type: CellValueType) {
+  switch (type) {
+    case "AUTO_ID":
+    case "STRING":
+    case "LONG":
+      return InputString;
+    case "CHECKBOX":
+      return InputCheckboxGroup;
+    case "RADIO":
+      return InputRadioGroup;
+    case "SELECT":
+      return InputListbox;
+    case "TEXT":
+      return InputTextArea;
+    case "REF":
+      return InputRef;
+    case "BOOL":
+      return InputBoolean;
+    default:
+      return InputPlaceHolder;
+  }
+}
 
 const inputComponent = computed(() => {
-  return typeToInputMap[props.type.toUpperCase()];
+  return typeToInputMap(props.type.toUpperCase());
 });
 </script>

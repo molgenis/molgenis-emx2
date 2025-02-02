@@ -30,6 +30,8 @@ export type CellValueType =
   | "DATETIME"
   | "DATETIME_ARRAY"
   | "PERIOD"
+  | "PERIOD"
+  | "PERIOD_ARRAY"
   | "JSON"
   | "REF"
   | "REF_ARRAY"
@@ -59,8 +61,8 @@ export interface IColumn {
   refLabelDefault?: string;
   refLinkId?: string;
   refSchemaId?: string;
-  refTableId?: string;
-  required?: string | boolean;
+  refTableId?: string | boolean;
+  required?: boolean;
   semantics?: string[];
   validation?: string;
   visible?: string;
@@ -100,7 +102,13 @@ export interface IFormLegendSection {
 }
 
 export type columnId = string;
-export type columnValue = string | number | boolean | null | columnValueObject;
+export type columnValue =
+  | string
+  | number
+  | boolean
+  | null
+  | columnValueObject
+  | columnValue[];
 
 export interface columnValueObject {
   [x: string]: columnValue;
@@ -112,7 +120,3 @@ export type IInputValueLabel = {
   value: IInputValue | IInputValue[] | null;
   label?: string;
 };
-
-export enum ColumnType2 {
-  STRING,
-}

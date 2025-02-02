@@ -3,8 +3,8 @@
     <div v-if="label">
       <label :for="id" class="text-title font-bold">{{ label }}</label>
       <span class="text-disabled text-body-sm ml-3" v-show="required"
-        >Required</span
-      >
+        >Required
+      </span>
     </div>
     <div v-if="description" class="text-input-description text-body-sm">
       {{ description }}

@@ -15,9 +15,9 @@ const exampleMap = ref({
     schemaId: "pet store",
     tableId: "Pet",
   },
-  "pet store user": {
+  "pet store order": {
     schemaId: "pet store",
-    tableId: "User",
+    tableId: "Order",
   },
   complex: {
     schemaId: "catalogue-demo",
@@ -171,7 +171,7 @@ watch(
         >
           <option value="simple">Simple form example</option>
           <option value="complex">Complex form example</option>
-          <option value="pet store user">Pet store user</option>
+          <option value="pet store order">Pet store order</option>
         </select>
 
         <div>schema id = {{ exampleConfig.schemaId }}</div>

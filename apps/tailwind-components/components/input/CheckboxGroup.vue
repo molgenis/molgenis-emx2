@@ -10,7 +10,6 @@
         :checked="modelValue!.includes(option.value)"
         @input="toggleSelect"
         @focus="$emit('focus')"
-        @blur="$emit('blur')"
         class="sr-only"
       />
       <InputLabel
@@ -88,5 +87,6 @@ function toggleSelect(event: Event) {
 
 function resetModelValue() {
   modelValue.value = [];
+  emit("blur");
 }
 </script>
