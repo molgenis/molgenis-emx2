@@ -10,5 +10,8 @@
 <script setup>
 const sourceCodeMap = useRuntimeConfig().public.sourceCodeMap;
 const route = useRoute();
-const sourceCode = computed(() => sourceCodeMap[route.path + ".vue"] || "");
+
+const sourceCode = computed(() => {
+  return sourceCodeMap[route.path + ".vue"] || "";
+});
 </script>

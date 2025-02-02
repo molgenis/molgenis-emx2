@@ -11,10 +11,10 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
     :v-bind="$props"
     class="w-full h-[56px] pr-4 font-sans text-black text-gray-300 outline-none ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border border-solid rounded-input"
     :class="{
-      'border-invalid text-invalid': error,
-      'border-valid text-valid': valid,
-      'border-disabled text-disabled bg-disabled': disabled,
-      'bg-white': !disabled,
+      'border-invalid text-invalid': state == 'invalid',
+      'border-valid text-valid': state == 'valid',
+      'border-disabled text-disabled bg-disabled': state == 'disabled',
+      'bg-white': state != 'disabled',
     }"
     v-model="modelValue"
     @focus="$emit('focus')"

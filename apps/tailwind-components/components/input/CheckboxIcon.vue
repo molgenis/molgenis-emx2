@@ -14,11 +14,11 @@
       :class="{
         'fill-input': !checked && !indeterminate,
         'fill-input-checked': checked || indeterminate,
-        'fill-invalid': checked && error,
-        'fill-valid': checked && valid,
-        'stroke-current': !valid && !error,
-        'stroke-valid': valid,
-        'stroke-invalid': error,
+        'fill-invalid': checked && state == 'invalid',
+        'fill-valid': checked && state == 'valid',
+        'stroke-current': !state,
+        'stroke-valid': state == 'valid',
+        'stroke-invalid': state == 'invalid',
       }"
     />
     <path
@@ -43,12 +43,13 @@
 </template>
 
 <script lang="ts" setup>
+import type { InputState } from "~/types/types";
+
 withDefaults(
   defineProps<{
     checked?: boolean;
     indeterminate?: boolean;
-    error?: boolean;
-    valid?: boolean;
+    state?: InputState;
   }>(),
   {
     checked: false,

@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { type InputProps, InputPropsDefaults } from "~/types/types";
-
 withDefaults(
-  defineProps<
-    InputProps & {
-      required?: boolean;
-      hideLabel?: boolean;
-    }
-  >(),
+  defineProps<{
+    state?: InputState;
+    required?: boolean;
+    hideLabel?: boolean;
+    for: string;
+  }>(),
   {
-    ...InputPropsDefaults,
     hideLabel: false,
   }
 );
@@ -17,12 +14,13 @@ withDefaults(
 
 <template>
   <label
+    :for="for"
     class="pl-3 text-body-base"
     :class="{
       'sr-only': hideLabel,
-      'text-disabled': disabled,
-      'text-invalid': error,
-      'text-valid': valid,
+      'text-disabled': state === 'disabled',
+      'text-invalid': state === 'invalid',
+      'text-valid': state === 'valid',
       'after:content-required after:text-required': required,
     }"
   >

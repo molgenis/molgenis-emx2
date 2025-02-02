@@ -5,9 +5,9 @@
     :class="{
       'flex-row': align === 'horizontal',
       'flex-col': align === 'vertical',
-      'border-invalid text-invalid': error,
-      'border-valid text-valid': valid,
-      'border-disabled bg-disabled': disabled,
+      'border-invalid text-invalid': state === 'invalid',
+      'border-valid text-valid': state === 'valid',
+      'border-disabled bg-disabled': state === 'disabled',
     }"
   >
     <div v-for="option in options" class="flex justify-start align-center">
@@ -19,23 +19,21 @@
         v-model="modelValue"
         @input="toggleSelect"
         :checked="option.value === modelValue"
-        :error="error"
-        :disabled="disabled"
+        :state="state"
       />
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
         class="hover:cursor-pointer flex flex-row gap-1 text-title"
         :class="{
-          'border-invalid text-invalid': error,
-          'border-valid text-valid': valid,
-          'border-disabled text-disabled bg-disabled': disabled,
+          'border-invalid text-invalid': state === 'invalid',
+          'border-valid text-valid': state === 'valid',
+          'border-disabled text-disabled bg-disabled': state === 'disabled',
         }"
       >
         <InputRadioIcon
           :checked="modelValue === option.value"
           class="mr-1"
-          :error="error"
-          :valid="valid"
+          :state="state"
         />
         <template v-if="option.label">
           {{ option.label }}
@@ -83,15 +81,25 @@ const props = withDefaults(
   }
 );
 const modelValue = defineModel<columnValue>();
-const emit = defineEmits(["update:modelValue", "select", "deselect"]);
+const emit = defineEmits([
+  "update:modelValue",
+  "select",
+  "deselect",
+  "blur",
+  "focus",
+]);
 
 function toggleSelect(event: Event) {
+  console.log("haat");
   const target = event.target as HTMLInputElement;
   if (target.checked) {
+    console.log("huh1");
     emit("select", target.value);
   } else {
+    console.log("huh2");
     emit("deselect", target.value);
   }
+  console.log("huh");
 }
 
 function resetModelValue() {

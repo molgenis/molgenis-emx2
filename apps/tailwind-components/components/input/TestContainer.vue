@@ -1,21 +1,17 @@
 <script setup lang="ts">
+import type { InputState } from "~/types/types";
+
 const placeholder = ref("");
-const state = ref("default");
+const state = ref<InputState>(null);
 </script>
 
 <template>
-  <div class="flex">
-    <div class="flex-1">
-      <slot
-        name="default"
-        :error="state == 'error'"
-        :placeholder="placeholder"
-        :valid="state == 'valid'"
-        :disabled="state == 'disabled'"
-      ></slot>
+  <div class="flex flex-col md:flex-row">
+    <div class="md:w-2/3 p-4">
+      <slot name="default" :state="state" :placeholder="placeholder"></slot>
     </div>
-    <div class="flex-1 pl-20">
-      <FieldSet label="settings">
+    <div class="md:w-1/3 p-4 sticky top-0">
+      <FieldSet label="input prop settings">
         <Input
           type="string"
           id="test-placeholder"
@@ -31,7 +27,7 @@ const state = ref("default");
           description="State of the input"
           class="mt-4"
           :options="[
-            { value: 'default', label: 'default' },
+            { value: null, label: 'default' },
             { value: 'error', label: 'Error' },
             { value: 'valid', label: 'Valid' },
             { value: 'disabled', label: 'Disabled' },

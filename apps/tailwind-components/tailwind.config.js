@@ -153,6 +153,7 @@ module.exports = {
         "tab-active": "var(--backgroud-color-tab-active)",
         "disabled": "var(--background-color-disabled)",
         "invalid": "var(--background-color-invalid)",
+        "valid": "var(--background-color-valid)",
         "input": "var(--background-color-input)",
         "listbox": "var(--background-color-listbox)",
         "listbox-hover": "var(--background-color-listbox-hover)",
@@ -246,7 +247,7 @@ module.exports = {
       stroke: ({ theme }) => ({
         "input": "var(--border-color-input)",
         "notification-text": "var(--text-color-legend-error-count)",
-        "check": "var(--check-color)",
+        "check": "var(--text-color-button-primary)",
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",
       }),
@@ -256,7 +257,7 @@ module.exports = {
         "listbox-selected": "var(--text-color-listbox-selected)",
         "notification": "var(--background-color-notification)",
         "notification-text": "var(--text-color-legend-error-count)",
-        "check": "var(--check-color)",
+        "check": "var(--text-color-button-primary)",
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",
         "fill-checkbox-invalid": "var(--background-color-invalid)"

@@ -28,10 +28,10 @@ const emit = defineEmits([
     :placeholder="placeholder"
     class="w-full pr-16 font-sans text-black text-gray-300 h-[112px] outline-none rounded-textarea-input pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border py-2"
     :class="{
-      'border-invalid text-invalid': error,
-      'border-valid text-valid': valid,
-      'border-disabled text-disabled bg-disabled': disabled,
-      'bg-white': !disabled,
+      'border-invalid text-invalid': state === 'invalid',
+      'border-valid text-valid': state === 'valid',
+      'border-disabled text-disabled bg-disabled': state === 'disabled',
+      'bg-white': state !== 'disabled',
     }"
     :value="modelValue"
     @input="onInput"

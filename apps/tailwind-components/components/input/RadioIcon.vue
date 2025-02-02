@@ -15,12 +15,13 @@
       :class="{
         'fill-input hover:fill-input-checked hover:stroke-none focus:fill-input-checked focus:stroke-none':
           !checked,
-        'fill-input-checked stroke-none': checked && !error && !valid,
-        'fill-invalid': checked && error,
-        'fill-valid': checked && valid,
-        'stroke-current ': !error && !valid,
-        'stroke-invalid': error,
-        'stroke-valid': valid,
+        'fill-input-checked stroke-none':
+          checked && state !== 'valid' && state !== 'invalid',
+        'fill-invalid': checked && state == 'invalid',
+        'fill-valid': checked && state == 'valid',
+        'stroke-current ': state != 'valid' && state != 'invalid',
+        'stroke-invalid': state == 'invalid',
+        'stroke-valid': state == 'valid',
       }"
     />
     <circle
@@ -38,9 +39,10 @@
 </template>
 
 <script lang="ts" setup>
+import type { InputState } from "~/types/types";
+
 defineProps<{
   checked?: boolean;
-  error?: boolean;
-  valid?: boolean;
+  state?: InputState;
 }>();
 </script>

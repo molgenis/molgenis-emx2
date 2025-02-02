@@ -4,7 +4,7 @@
     :value="value"
     v-model="modelValue"
     type="radio"
-    :disabled="disabled"
+    :disabled="state === 'disabled'"
     class="w-5 h-5 ml-[6px] mr-2.5 mt-0.5 hover:cursor-pointer"
   />
 </template>

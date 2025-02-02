@@ -11,8 +11,9 @@
       v-if="inputComponent"
       :is="inputComponent"
       v-bind="$props"
-      :error="error || !!errorMessage"
       :description="description"
+      @blur="$emit('blur')"
+      @focus="$emit('focus')"
     />
   </InputGroup>
 </template>

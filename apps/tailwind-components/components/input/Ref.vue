@@ -41,20 +41,6 @@ const offset = ref<number>(0);
 const showSearch = ref<boolean>(false);
 const searchTerms: Ref<string> = ref("");
 const hasNoResults = ref<boolean>(true);
-defineExpose({ validate });
-
-function validate(value: columnValue) {
-  if (props.required && !modelValue.value) {
-    const errors = [
-      { message: `${props.label || props.id} required to complete the form` },
-    ];
-    emit("error", errors);
-    return errors;
-  } else {
-    emit("error", []);
-    return [];
-  }
-}
 
 const columnName = computed<string>(() => {
   return props.refLabel.replace(/[\{\}\$]/g, "");
@@ -157,6 +143,7 @@ function select(label: string) {
         )
       : extractPrimaryKey(optionMap.value[label])
   );
+  emit("blur");
 }
 
 function extractPrimaryKey(value: any) {
@@ -179,12 +166,14 @@ function deselect(label: string) {
         )
       : undefined
   );
+  emit("blur");
 }
 
 function clearSelection() {
   selectionMap.value = {};
   emit("update:modelValue", props.isArray ? [] : undefined);
   updateSearch(""); //reset
+  emit("blur");
 }
 
 function loadMore() {
@@ -214,19 +203,13 @@ function loadMore() {
     </Button>
   </div>
   <div class="flex flex-wrap gap-2 mb-2">
-    <ButtonText
-      @click="toggleSearch"
-      :inverted="inverted"
-      :aria-controls="`search-for-${id}`"
-    >
+    <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
       Search
     </ButtonText>
-    <ButtonText @click="clearSelection" :inverted="inverted">
-      Clear all
-    </ButtonText>
+    <ButtonText @click="clearSelection"> Clear all </ButtonText>
   </div>
   <template v-if="showSearch && initialCount > limit">
-    <InputLabel :for="`search-for-${id}`" class="sr-only">
+    <InputLabel :id="`search-for-${id}`" class="sr-only">
       search in {{ columnName }}
     </InputLabel>
     <InputSearch
@@ -246,9 +229,8 @@ function loadMore() {
       :modelValue="(selection as string[])"
       @select="select"
       @deselect="deselect"
-      :inverted="inverted"
-      :error="error"
-      :valid="valid"
+      :state="state"
+      @focus="$emit('focus')"
     />
     <InputRadioGroup
       v-else
@@ -257,15 +239,10 @@ function loadMore() {
       :modelValue="(selection as string)"
       @select="select"
       @deselect="deselect"
-      :inverted="inverted"
-      :error="error"
-      :valid="valid"
+      :state="state"
+      @focus="$emit('focus')"
     />
-    <ButtonText
-      @click="loadMore"
-      v-if="offset + limit < count"
-      :inverted="inverted"
-    >
+    <ButtonText @click="loadMore" v-if="offset + limit < count">
       load {{ entitiesLeftToLoad }} more
     </ButtonText>
   </template>

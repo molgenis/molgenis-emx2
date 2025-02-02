@@ -36,6 +36,7 @@ const scanDir = async (dir) => {
                 }
             }
         }
+        console.log('✅ Source map generated ...');
     } catch (err) {
         console.error(`Error reading directory ${dir}:`, err);
     }
@@ -44,7 +45,7 @@ const scanDir = async (dir) => {
 // Run the file scanning and write the map to a JSON file
 const generateSourceMap = async () => {
     await scanDir(pagesDir);
-    console.log('✅ Source map generated, writing to file...');
+    console.log('✅ Writing to file...');
     try {
         await fs.writeFile(outputFile, JSON.stringify(sourceCodeMap, null, 2));
         console.log('✅ Source code map written to sourceCodeMap.json');

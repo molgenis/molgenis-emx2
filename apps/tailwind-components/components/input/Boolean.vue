@@ -2,9 +2,7 @@
   <div>
     <InputRadioGroup
       :id="id"
-      :disabled="disabled"
-      :error="error"
-      :valid="valid"
+      :state="state"
       :options="yesNoOption"
       :showClearButton="true"
       v-model="modelValue"

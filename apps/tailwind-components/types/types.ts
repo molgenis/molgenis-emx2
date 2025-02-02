@@ -106,15 +106,13 @@ export interface IRadioOptionsData {
 export type InputProps = {
   id: string;
   placeholder?: string;
-  error?: boolean;
-  valid?: boolean;
-  disabled?: boolean;
+  state?: InputState
 };
 
+export type InputState = 'invalid' | 'valid' | 'disabled' | null;
+
 export const InputPropsDefaults = {
-  error: false,
-  valid: false,
-  disabled: false,
+  state: null,
   placeholder: ""
 }
   

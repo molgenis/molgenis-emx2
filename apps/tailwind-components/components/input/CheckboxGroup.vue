@@ -9,21 +9,22 @@
         v-model="modelValue"
         :checked="modelValue!.includes(option.value)"
         @input="toggleSelect"
+        @focus="$emit('focus')"
+        @blur="$emit('blur')"
         class="sr-only"
       />
       <InputLabel
         :for="`${id}-${option.value}`"
         class="hover:cursor-pointer flex justify-start items-center"
         :class="{
-          'border-invalid text-invalid': error,
-          'border-valid text-valid': valid,
-          'border-disabled text-disabled bg-disabled': disabled,
+          'border-invalid text-invalid': state === 'invalid',
+          'border-valid text-valid': state === 'valid',
+          'border-disabled text-disabled bg-disabled': state === 'disabled',
         }"
       >
         <InputCheckboxIcon
           :checked="modelValue!.includes(option.value)"
-          :error="error"
-          :valid="valid"
+          :state="state"
         />
         <span class="block" v-if="option.label">
           {{ option.label }}
@@ -67,7 +68,13 @@ withDefaults(
 );
 
 const modelValue = defineModel<string[]>();
-const emit = defineEmits(["update:modelValue", "select", "deselect"]);
+const emit = defineEmits([
+  "update:modelValue",
+  "select",
+  "deselect",
+  "blur",
+  "focus",
+]);
 
 function toggleSelect(event: Event) {
   const target = event.target as HTMLInputElement;
@@ -76,6 +83,7 @@ function toggleSelect(event: Event) {
   } else {
     emit("deselect", target.value);
   }
+  emit("blur");
 }
 
 function resetModelValue() {

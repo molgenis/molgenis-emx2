@@ -81,13 +81,9 @@ const { $sourceCodeMap } = useNuxtApp();
               >Data fetching</NuxtLink
             >
           </aside>
-          <div class="xl:pl-7.5 grow p-6">
-            <Story :title="storyName">
-              <slot></slot>
-            </Story>
-            <div class="mt-4">Source code:</div>
-            <SourceCode class="mt-4" />
-          </div>
+          <Story :title="storyName">
+            <slot></slot>
+          </Story>
         </div>
       </main>
     </div>

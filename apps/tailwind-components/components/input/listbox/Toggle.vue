@@ -8,8 +8,8 @@
     :aria-activedescendant="selectedElementId"
     class="flex justify-start items-center h-10 w-full text-left pl-11 border bg-input rounded-search-input text-button-input-toggle focus:ring-blue-300"
     :class="{
-      'border-disabled text-disabled bg-disabled': disabled,
-      'border-invalid text-invalid': hasError,
+      'border-disabled text-disabled bg-disabled': state === 'disabled',
+      'border-invalid text-invalid': state === 'invalid',
     }"
     @click="onClick()"
   >
@@ -22,17 +22,16 @@
 </template>
 
 <script lang="ts" setup>
+import type { InputState } from "~/types/types";
+
 withDefaults(
   defineProps<{
     required?: boolean;
-    disabled?: boolean;
-    hasError?: boolean;
+    state?: InputState;
     selectedElementId?: string;
   }>(),
   {
     required: false,
-    disabled: false,
-    hasError: false,
   }
 );
 

@@ -4,10 +4,10 @@ import { resolve } from 'path';
 
 // Path to the generated sourceCodeMap.json file
 
-const sourceCodeMapPath = resolve("~/sourceCodeMap.json");
+const sourceCodeMapPath = resolve("./sourceCodeMap.json");
 
 // Read the file contents
-const sourceCodeMap = fs.existsSync(sourceCodeMapPath) ? JSON.parse(fs.readFileSync(sourceCodeMapPath, 'utf-8')) : {};
+const sourceCodeMap = fs.existsSync(sourceCodeMapPath) ? JSON.parse(fs.readFileSync(sourceCodeMapPath, 'utf-8')) : {'none':'none'};
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
@@ -60,7 +60,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: "https://emx2.dev.molgenis.org/",
-      sourceCodeMap
+      sourceCodeMap: sourceCodeMap
     },
   },
 
