@@ -246,7 +246,9 @@ module.exports = {
       stroke: ({ theme }) => ({
         "input": "var(--border-color-input)",
         "notification-text": "var(--text-color-legend-error-count)",
-        "check": "var(--check-color)"
+        "check": "var(--check-color)",
+        "invalid": "var(--text-color-invalid)",
+        "valid": "var(--text-color-valid)",
       }),
       fill: ({ theme }) => ({
         "input": "var(--background-color-input)",
@@ -254,7 +256,10 @@ module.exports = {
         "listbox-selected": "var(--text-color-listbox-selected)",
         "notification": "var(--background-color-notification)",
         "notification-text": "var(--text-color-legend-error-count)",
-        "check": "var(--check-color)"
+        "check": "var(--check-color)",
+        "invalid": "var(--text-color-invalid)",
+        "valid": "var(--text-color-valid)",
+        "fill-checkbox-invalid": "var(--background-color-invalid)"
       }),
       borderRadius: {
         "3px": "var(--border-radius-3px)",

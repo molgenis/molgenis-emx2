@@ -5,31 +5,28 @@ import type {
   columnValue,
   columnValueObject,
 } from "../../../metadata-utils/src/types";
-import type { IValueLabel } from "~/types/types";
+import {
+  type InputProps,
+  InputPropsDefaults,
+  type IValueLabel,
+} from "~/types/types";
 import type { ITableMetaData } from "metadata-utils";
 
 const props = withDefaults(
-  defineProps<{
-    id: string;
-    label?: string;
-    refSchemaId: string;
-    refTableId: string;
-    refLabel: string;
-    //todo, replace isArray with type="select"|"radio"|"checkbox"|"multiselect" and also enable this in emx2 metadata model
-    isArray?: boolean;
-    limit?: number;
-    inverted?: boolean;
-    //todo implement use of hasError, valid, disabled states?
-    required?: boolean;
-    valid?: boolean;
-    hasError?: boolean;
-  }>(),
+  defineProps<
+    InputProps & {
+      refSchemaId: string;
+      refTableId: string;
+      refLabel: string;
+      //todo, replace isArray with type="select"|"radio"|"checkbox"|"multiselect" and also enable this in emx2 metadata model
+      isArray?: boolean;
+      limit?: number;
+    }
+  >(),
   {
+    ...InputPropsDefaults,
     isArray: true,
-    required: false,
-    hasError: false,
     limit: 10,
-    inverted: false,
   }
 );
 
@@ -250,6 +247,8 @@ function loadMore() {
       @select="select"
       @deselect="deselect"
       :inverted="inverted"
+      :error="error"
+      :valid="valid"
     />
     <InputRadioGroup
       v-else
@@ -259,6 +258,8 @@ function loadMore() {
       @select="select"
       @deselect="deselect"
       :inverted="inverted"
+      :error="error"
+      :valid="valid"
     />
     <ButtonText
       @click="loadMore"

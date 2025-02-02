@@ -11,10 +11,14 @@
     <rect
       width="20"
       height="20"
-      class="stroke-current"
       :class="{
         'fill-input': !checked && !indeterminate,
         'fill-input-checked': checked || indeterminate,
+        'fill-invalid': checked && error,
+        'fill-valid': checked && valid,
+        'stroke-current': !valid && !error,
+        'stroke-valid': valid,
+        'stroke-invalid': error,
       }"
     />
     <path
@@ -43,6 +47,8 @@ withDefaults(
   defineProps<{
     checked?: boolean;
     indeterminate?: boolean;
+    error?: boolean;
+    valid?: boolean;
   }>(),
   {
     checked: false,

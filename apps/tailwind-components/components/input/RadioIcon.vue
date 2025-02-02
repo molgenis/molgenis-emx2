@@ -12,11 +12,15 @@
       r="9"
       stroke-width="1"
       fill="none"
-      class="stroke-current"
       :class="{
         'fill-input hover:fill-input-checked hover:stroke-none focus:fill-input-checked focus:stroke-none':
           !checked,
-        'fill-input-checked stroke-none': checked,
+        'fill-input-checked stroke-none': checked && !error && !valid,
+        'fill-invalid': checked && error,
+        'fill-valid': checked && valid,
+        'stroke-current ': !error && !valid,
+        'stroke-invalid': error,
+        'stroke-valid': valid,
       }"
     />
     <circle
@@ -36,5 +40,7 @@
 <script lang="ts" setup>
 defineProps<{
   checked?: boolean;
+  error?: boolean;
+  valid?: boolean;
 }>();
 </script>

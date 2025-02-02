@@ -14,8 +14,17 @@
       <InputLabel
         :for="`${id}-${option.value}`"
         class="hover:cursor-pointer flex justify-start items-center"
+        :class="{
+          'border-invalid text-invalid': error,
+          'border-valid text-valid': valid,
+          'border-disabled text-disabled bg-disabled': disabled,
+        }"
       >
-        <InputCheckboxIcon :checked="modelValue!.includes(option.value)" />
+        <InputCheckboxIcon
+          :checked="modelValue!.includes(option.value)"
+          :error="error"
+          :valid="valid"
+        />
         <span class="block" v-if="option.label">
           {{ option.label }}
         </span>
@@ -38,15 +47,21 @@
 </template>
 
 <script lang="ts" setup>
-import type { IValueLabel } from "~/types/types";
+import {
+  type InputProps,
+  InputPropsDefaults,
+  type IValueLabel,
+} from "~/types/types";
 
 withDefaults(
-  defineProps<{
-    id: string;
-    options: IValueLabel[];
-    showClearButton?: boolean;
-  }>(),
+  defineProps<
+    InputProps & {
+      options: IValueLabel[];
+      showClearButton?: boolean;
+    }
+  >(),
   {
+    ...InputPropsDefaults,
     showClearButton: false,
   }
 );

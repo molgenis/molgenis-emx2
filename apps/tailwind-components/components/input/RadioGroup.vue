@@ -31,7 +31,12 @@
           'border-disabled text-disabled bg-disabled': disabled,
         }"
       >
-        <InputRadioIcon :checked="modelValue === option.value" class="mr-1" />
+        <InputRadioIcon
+          :checked="modelValue === option.value"
+          class="mr-1"
+          :error="error"
+          :valid="valid"
+        />
         <template v-if="option.label">
           {{ option.label }}
         </template>
