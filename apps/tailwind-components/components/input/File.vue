@@ -3,7 +3,8 @@
     class="flex items-center border border-input p-2"
     :class="{
       'cursor-pointer duration-default ease-in-out hover:border-input-hover hover:shadow-input-hover focus:border-input-hover focus:shadow-input-hover focus-within:border-input-hover focus-within:shadow-input-hover':
-        !disabled,
+        !disabled && !hasError,
+      'border-invalid': hasError,
     }"
   >
     <div class="grow">
@@ -23,10 +24,10 @@
     <div class="flex-none">
       <label
         :for="`${id}-file-input`"
-        class="flex justify-center items-center h-10 px-5 text-heading-xl tracking-widest uppercase font-display duration-default ease-in-out border rounded-input bg-button-filter text-button-filter border-button-filter"
+        class="flex justify-center items-center h-10 px-5 cursor-pointer text-heading-xl tracking-widest uppercase font-display duration-default ease-in-out border rounded-input bg-button-filter text-button-filter border-button-filter"
         :class="{
-          'border-invalid text-invalid': hasError,
-          'text-disabled bg-disabled': disabled,
+          'border-invalid text-invalid bg-invalid': hasError,
+          'text-disabled bg-disabled hover:text-disabled': disabled,
           'hover:bg-button-primary hover:text-button-primary': !disabled,
         }"
       >
@@ -73,14 +74,14 @@ interface IFile {
   file: File;
 }
 
-const fileToImport = ref<IFile>();
+const fileToImport = ref<IFile | null>();
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
 
 function onChange(event: Event) {
   const files = (event.target as HTMLInputElement)?.files;
-  console.log(files.item(0));
   if (files) {
-    fileToImport.value = { name: files.item(0).name, file: files.item(0) };
+    const selectedFile = files.item(0) as File;
+    fileToImport.value = { name: selectedFile.name, file: selectedFile };
   }
 
   emit("update:modelValue", fileToImport.value);
