@@ -26,13 +26,13 @@ const props = defineProps<{
           :key="catalogue.network.id"
           @click="
             navigateTo(
-              `/${route.params.schema}/ssr-catalogue/${catalogue.network.id}`
+              `/${route.params.schema}/catalogue/${catalogue.network.id}`
             )
           "
         >
           <TableCell class="hidden sm:table-cell">
             <NuxtLink
-              :to="`/${route.params.schema}/ssr-catalogue/${catalogue.network.id}`"
+              :to="`/${route.params.schema}/catalogue/${catalogue.network.id}`"
             >
               <div class="items-center flex justify-center w-32">
                 <img :src="catalogue.network?.logo?.url" />
@@ -41,7 +41,7 @@ const props = defineProps<{
           </TableCell>
           <TableCell>
             <NuxtLink
-              :to="`/${route.params.schema}/ssr-catalogue/${catalogue.network.id}`"
+              :to="`/${route.params.schema}/catalogue/${catalogue.network.id}`"
             >
               <span
                 class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
@@ -51,14 +51,14 @@ const props = defineProps<{
           </TableCell>
           <TableCell class="hidden sm:table-cell">
             <NuxtLink
-              :to="`/${route.params.schema}/ssr-catalogue/${catalogue.network.id}`"
+              :to="`/${route.params.schema}/catalogue/${catalogue.network.id}`"
             >
               {{ catalogue.network?.name }}
             </NuxtLink>
           </TableCell>
           <TableCell>
             <NuxtLink
-              :to="`/${route.params.schema}/ssr-catalogue/${catalogue.network.id}`"
+              :to="`/${route.params.schema}/catalogue/${catalogue.network.id}`"
             >
               <IconButton icon="arrow-right" class="text-blue-500" />
             </NuxtLink>

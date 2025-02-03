@@ -23,50 +23,50 @@ const menu: { label: string; link: string }[] = [];
 // the variable route does not set the resourceType param, therefore check the route name
 if (
   route.params.resourceType ||
-  route.name === "schema-ssr-catalogue-catalogue-variables"
+  route.name === "schema-catalogue-catalogue-variables"
 ) {
   menu.push({
     label: "overview",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`,
+    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}`,
   });
 }
 
 if (props.collectionCount > 0) {
   menu.push({
     label: "Collections",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`,
+    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/collections`,
   });
 }
 
 if (props.networkCount > 0 && !cohortOnly.value) {
   menu.push({
     label: "Networks",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`,
+    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/networks`,
   });
 }
 
 if (props.variableCount > 0 && !cohortOnly.value)
   menu.push({
     label: "Variables",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
+    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/variables`,
   });
 
 if (cohortOnly.value) {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about`,
+    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/about`,
   });
 } else if (catalogueRouteParam && catalogueRouteParam !== "all") {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/about/${catalogueRouteParam}`,
+    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/about/${catalogueRouteParam}`,
   });
 }
 
 if (!cohortOnly.value) {
   menu.push({
     label: "Other catalogues",
-    link: `/${route.params.schema}/ssr-catalogue`,
+    link: `/${route.params.schema}/catalogue`,
   });
   menu.push({
     label: "Upload data",
@@ -84,7 +84,7 @@ if (!cohortOnly.value) {
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
-          :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`"
+          :link="`/${route.params.schema}/catalogue/${catalogueRouteParam}`"
           :image="
             catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
           "
@@ -103,7 +103,7 @@ if (!cohortOnly.value) {
           <HamburgerMenu :navigation="menu" />
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile
-              :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}`"
+              :link="`/${route.params.schema}/catalogue/${catalogueRouteParam}`"
               :image="
                 catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
               "

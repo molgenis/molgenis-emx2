@@ -10,7 +10,7 @@ definePageMeta({
         to.query["cohort-only"] === "true" ||
         useRuntimeConfig().public.cohortOnly;
       if (cohortOnly) {
-        return navigateTo(`/${to.params.schema}/ssr-catalogue/all`, {
+        return navigateTo(`/${to.params.schema}/catalogue/all`, {
           replace: true,
         });
       }
@@ -108,7 +108,7 @@ const projectCatalogues = computed(() => {
           class="relative justify-center flex flex-col md:flex-row text-title"
         >
           <div class="flex flex-col items-center max-w-sm lg:mt-5">
-            <NuxtLink :to="`/${route.params.schema}/ssr-catalogue/all`">
+            <NuxtLink :to="`/${route.params.schema}/catalogue/all`">
               <Button label="Search all" />
             </NuxtLink>
             <p

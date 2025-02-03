@@ -47,15 +47,15 @@ const pageCrumbs: any = {};
 
 pageCrumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
 
 pageCrumbs[
   route.params.resourceType as string
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}`;
+] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
 
 pageCrumbs[
   route.params.resource as string
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`;
+] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);

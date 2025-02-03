@@ -46,7 +46,7 @@ const iconStarClasses = computed(() => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/ssr-catalogue/${catalogue}/${route.params.resourceType}/${resource.id}`"
+            :to="`/${schema}/catalogue/${catalogue}/${route.params.resourceType}/${resource.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ resource?.acronym || resource?.name }}
@@ -66,7 +66,7 @@ const iconStarClasses = computed(() => {
         />
         -->
         <NuxtLink
-          :to="`/${schema}/ssr-catalogue/${catalogue}/resources/${resource.id}`"
+          :to="`/${schema}/catalogue/${catalogue}/resources/${resource.id}`"
         >
           <IconButton
             icon="arrow-right"

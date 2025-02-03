@@ -41,7 +41,7 @@ const databases = computed(
         <template #body>
           <TableRow
             v-for="database in databases"
-            @click="navigateTo(`/${database.id}/ssr-catalogue`)"
+            @click="navigateTo(`/${database.id}/catalogue`)"
           >
             <TableCell>{{ database.label }}</TableCell>
             <TableCell>{{ database.description }}</TableCell>

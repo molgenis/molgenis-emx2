@@ -12,7 +12,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 });
 
 test("navigate-to-next-page-on-cohorts-list-page", async ({ page, goto }) => {
-  await goto("/catalogue-demo/ssr-catalogue/ATHLETE", {
+  await goto("/catalogue-demo/catalogue/ATHLETE", {
     waitUntil: "hydration",
   });
   await page.getByRole("button", { name: "Collections" }).click();

@@ -16,7 +16,7 @@ test("go back from details, filter should stil be active", async ({
   goto,
 }) => {
   await goto(
-    "/catalogue-demo/ssr-catalogue/testNetworkofNetworks/collections",
+    "/catalogue-demo/catalogue/testNetworkofNetworks/collections",
     {
       waitUntil: "hydration",
     }

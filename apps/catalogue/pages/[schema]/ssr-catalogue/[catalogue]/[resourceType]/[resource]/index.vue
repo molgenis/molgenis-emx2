@@ -239,7 +239,7 @@ function collectionEventMapper(item: any) {
     })(),
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/collection-events/${item.name}`,
+    _path: `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/collection-events/${item.name}`,
   };
 }
 
@@ -261,7 +261,7 @@ function subpopulationMapper(subpopulation: any) {
     description: subpopulation.description,
     numberOfParticipants: subpopulation.numberOfParticipants,
     _renderComponent: "SubpopulationDisplay",
-    _path: `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/subpopulations/${subpopulation.name}`,
+    _path: `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/subpopulations/${subpopulation.name}`,
   };
 }
 
@@ -507,18 +507,18 @@ const crumbs: any = {};
 if (route.params.catalogue) {
   crumbs[
     cohortOnly.value ? "home" : (route.params.catalogue as string)
-  ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+  ] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
   if (route.params.resourceType !== "about")
     crumbs[
       route.params.resourceType as string
-    ] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/${route.params.resourceType}`;
+    ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
 } else {
-  crumbs["Home"] = `/${route.params.schema}/ssr-catalogue/`;
-  crumbs["Browse"] = `/${route.params.schema}/ssr-catalogue/all`;
+  crumbs["Home"] = `/${route.params.schema}/catalogue/`;
+  crumbs["Browse"] = `/${route.params.schema}/catalogue/all`;
   if (route.params.resourceType !== "about")
     crumbs[
       route.params.resourceType as string
-    ] = `/${route.params.schema}/ssr-catalogue/all/${route.params.resourceType}`;
+    ] = `/${route.params.schema}/catalogue/all/${route.params.resourceType}`;
 }
 
 const peopleInvolvedSortedByRoleAndName = computed(() =>

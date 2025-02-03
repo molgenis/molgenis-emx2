@@ -39,10 +39,10 @@ const isRepeating = computed(() => variable.value.repeatUnit?.name);
 let crumbs: any = {};
 crumbs[
   `${route.params.catalogue}`
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
 crumbs[
   "variables"
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}/variables`;
+] = `/${route.params.schema}/catalogue/${route.params.catalogue}/variables`;
 
 const resourcesWithMapping = computed(() => {
   if (!resources.value) return [];

@@ -12,7 +12,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 });
 
 test("filter variables by cohort", async ({ page, goto }) => {
-  await goto("/catalogue-demo/ssr-catalogue/testNetwork1/variables", {
+  await goto("/catalogue-demo/catalogue/testNetwork1/variables", {
     waitUntil: "hydration",
   });
   await expect(

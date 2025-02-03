@@ -28,7 +28,7 @@ test("validate collection search result counts @collection-view @search-result-c
   page,
   goto,
 }) => {
-  await goto("/catalogue-demo/ssr-catalogue/all/collections", {
+  await goto("/catalogue-demo/catalogue/all/collections", {
     waitUntil: "hydration",
   });
 
@@ -40,7 +40,7 @@ test("validate networks sources search result counts @networks-view @search-resu
   page,
   goto,
 }) => {
-  await goto("/catalogue-demo/ssr-catalogue/all/networks", {
+  await goto("/catalogue-demo/catalogue/all/networks", {
     waitUntil: "hydration",
   });
 
@@ -52,7 +52,7 @@ test("validate variables in cohorts counts are shown", async ({
   page,
   goto,
 }) => {
-  await goto("/catalogue-demo/ssr-catalogue/all/variables", {
+  await goto("/catalogue-demo/catalogue/all/variables", {
     waitUntil: "hydration",
   });
 

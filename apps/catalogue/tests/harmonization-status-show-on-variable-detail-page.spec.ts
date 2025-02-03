@@ -15,7 +15,7 @@ test("test hamonisation status is show in varaible on variable detail page", asy
   page,
   goto,
 }) => {
-  await goto("/catalogue-demo/ssr-catalogue/", { waitUntil: "hydration" });
+  await goto("/catalogue-demo/catalogue/", { waitUntil: "hydration" });
   await page
     .getByRole("row", { name: "ATHLETE Advancing Tools for" })
     .getByRole("button")

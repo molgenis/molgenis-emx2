@@ -12,7 +12,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 });
 
 test("catalogue description should be shown", async ({ page, goto }) => {
-  await goto("/catalogue-demo/ssr-catalogue/all", { waitUntil: "hydration" });
+  await goto("/catalogue-demo/catalogue/all", { waitUntil: "hydration" });
   await expect(page.getByRole("main")).toContainText(
     "Select one of the content categories listed below."
   );

@@ -57,14 +57,14 @@ function percentageLongitudinal(
         title="Catalogues"
         description="Browse selected resources per network, topic, study or organisation."
         :count="data.data.Networks_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/catalogues`"
+        :link="`/${route.params.schema}/catalogue/catalogues`"
       />
       <LandingCardPrimary
         image="patient-list"
         title="Resources"
         description="Browse in all resources: cohorts, biobanks and databanks"
         :count="data.data.DataResources_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/all`"
+        :link="`/${route.params.schema}/catalogue/all`"
       />
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
@@ -72,7 +72,7 @@ function percentageLongitudinal(
         title="Variables"
         description="A listing of all collected, harmonised and standard variables."
         :count="data.data.Variables_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/all/variables`"
+        :link="`/${route.params.schema}/catalogue/all/variables`"
       />
     </LandingPrimary>
     <LandingSecondary>
@@ -80,50 +80,50 @@ function percentageLongitudinal(
         icon="demography"
         title="Cohort studies"
         :count="data.data.Cohorts_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/all/cohorts`"
+        :link="`/${route.params.schema}/catalogue/all/cohorts`"
       />
       <LandingCardSecondary
         icon="database"
         title="Data sources"
         :count="data.data.DataSources_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/all/datasources`"
+        :link="`/${route.params.schema}/catalogue/all/datasources`"
       />
       <LandingCardSecondary
         icon="hub"
         title="Networks"
         :count="data.data.Networks_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/all/networks`"
+        :link="`/${route.params.schema}/catalogue/all/networks`"
       />
       <LandingCardSecondary
         icon="institution"
         title="Organisations"
         :count="data.data.Organisations_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/all/organisations`"
+        :link="`/${route.params.schema}/catalogue/all/organisations`"
       />
       <LandingCardSecondary
         icon="dataset"
         title="Datasets"
         :count="data.data.Cohorts_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/all/datasets`"
+        :link="`/${route.params.schema}/catalogue/all/datasets`"
       />
       <LandingCardSecondary
         icon="list"
         title="Collected variables"
         :count="data.data.Networks_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/all/variables`"
+        :link="`/${route.params.schema}/catalogue/all/variables`"
       />
       <!-- todo must split in collected and harmonised -->
       <LandingCardSecondary
         icon="harmonized-variables"
         title="Harmonised variables"
         :count="data.data.Organisations_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/all/variables`"
+        :link="`/${route.params.schema}/catalogue/all/variables`"
       />
       <LandingCardSecondary
         icon="dataset-linked"
         title="Standards"
         :count="data.data.Models_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/all/models`"
+        :link="`/${route.params.schema}/catalogue/all/models`"
       />
       <LandingCardSecondary
         icon="person"

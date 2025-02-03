@@ -5,24 +5,24 @@ if (useRoute) {
   schema = useRoute().params.schema;
 }
 const menu = [
-  { label: "Home", link: `/${schema}/ssr-catalogue` },
+  { label: "Home", link: `/${schema}/catalogue` },
   config.public.cohortOnly
-    ? { label: "Cohorts", link: `/${schema}/ssr-catalogue/all/cohorts` }
+    ? { label: "Cohorts", link: `/${schema}/catalogue/all/cohorts` }
     : {
         label: "All collections",
-        link: `/${schema}/ssr-catalogue/all/collections`,
+        link: `/${schema}/catalogue/all/collections`,
       },
   config.public.cohortOnly
     ? undefined
     : {
         label: "All variables",
-        link: `/${schema}/ssr-catalogue/all/variables`,
+        link: `/${schema}/catalogue/all/variables`,
       },
   config.public.cohortOnly
     ? undefined
     : {
         label: "All networks",
-        link: `/${schema}/ssr-catalogue/all/networks`,
+        link: `/${schema}/catalogue/all/networks`,
       },
   {
     label: "Upload data",
@@ -37,7 +37,7 @@ const menu = [
   // { label: "Tables", link: "#" },
   // { label: "Manuals", link: "#" },
   config.public.cohortOnly
-    ? { label: "About", link: `/${schema}/ssr-catalogue/all/about` }
+    ? { label: "About", link: `/${schema}/catalogue/all/about` }
     : undefined,
 ].filter((item) => item !== undefined);
 </script>
@@ -46,7 +46,7 @@ const menu = [
   <header class="antialiased px-5 lg:px-0 xl:bg-navigation">
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
-        <Logo :link="`/${schema}/ssr-catalogue`" />
+        <Logo :link="`/${schema}/catalogue`" />
         <MainNavigation :navigation="menu" />
         <!--  <div class="w-[450px]">
            <SearchBar />
@@ -61,7 +61,7 @@ const menu = [
           <HamburgerMenu :navigation="menu" />
 
           <div class="absolute -translate-x-1/2 left-1/2">
-            <LogoMobile :link="`/${schema}/ssr-catalogue`" />
+            <LogoMobile :link="`/${schema}/catalogue`" />
           </div>
 
           <div class="flex gap-3">

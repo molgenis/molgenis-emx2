@@ -309,7 +309,7 @@ function onFilterChange(filters: IFilter[]) {
 let crumbs: any = {};
 crumbs[
   `${route.params.catalogue}`
-] = `/${route.params.schema}/ssr-catalogue/${route.params.catalogue}`;
+] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
 </script>
 
 <template>

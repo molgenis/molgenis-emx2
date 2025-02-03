@@ -106,7 +106,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
         "
         :count="data.data.Cohorts_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/cohorts/`"
+        :link="`/${route.params.schema}/catalogue/cohorts/`"
       />
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
@@ -123,7 +123,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', data.data._settings)
         "
         :count="data.data.Networks_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/networks/`"
+        :link="`/${route.params.schema}/catalogue/networks/`"
       />
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
@@ -142,7 +142,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           )
         "
         :count="data.data.Variables_agg.count"
-        :link="`/${route.params.schema}/ssr-catalogue/variables/`"
+        :link="`/${route.params.schema}/catalogue/variables/`"
       />
     </div>
 

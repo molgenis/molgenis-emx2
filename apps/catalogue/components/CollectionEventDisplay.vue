@@ -37,12 +37,12 @@ const collectionEvent: any = computed(
 );
 
 const pageCrumbs: any = {
-  Resource: `/${route.params.schema}/ssr-catalogue`,
+  Resource: `/${route.params.schema}/catalogue`,
 };
 
 pageCrumbs[
   route.params.resource as string
-] = `/${route.params.schema}/ssr-catalogue/resources/${route.params.resource}`;
+] = `/${route.params.schema}/catalogue/resources/${route.params.resource}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);

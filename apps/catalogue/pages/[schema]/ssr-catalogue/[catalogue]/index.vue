@@ -210,7 +210,7 @@ const description = computed(() => {
 const collectionCount = computed(() => data.value.data?.Collections_agg?.count);
 const networkCount = computed(() => data.value.data?.Networks_agg?.count);
 
-const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
+const aboutLink = `/${route.params.schema}/catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
 </script>
 
 <template>
@@ -242,7 +242,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           'Collections'
         "
         :count="collectionCount"
-        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/collections`"
+        :link="`/${route.params.schema}/catalogue/${catalogueRouteParam}/collections`"
       />
       <LandingCardPrimary
         v-if="networkCount && !cohortOnly"
@@ -257,7 +257,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
           'Networks'
         "
         :count="networkCount"
-        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`"
+        :link="`/${route.params.schema}/catalogue/${catalogueRouteParam}/networks`"
       />
       <LandingCardPrimary
         v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
@@ -271,7 +271,7 @@ const aboutLink = `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/
         :callToAction="
           getSettingValue('CATALOGUE_LANDING_VARIABLES_CTA', settings)
         "
-        :link="`/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`"
+        :link="`/${route.params.schema}/catalogue/${catalogueRouteParam}/variables`"
       />
       <LandingCardPrimary
         v-if="!cohortOnly && network.id === 'FORCE-NEN collections'"
