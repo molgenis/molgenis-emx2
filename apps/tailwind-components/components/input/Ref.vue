@@ -79,10 +79,6 @@ onMounted(async () => {
       );
     }
   }
-
-  //then we load the options for the first time
-  await loadOptions({ limit: props.limit });
-  initialCount.value = count.value;
 });
 
 function applyTemplate(template: string, row: Record<string, any>): string {
@@ -176,10 +172,18 @@ function loadMore() {
     searchTerms: searchTerms.value,
   });
 }
+
+async function loadOptionsWhenInView() {
+  if (!initialCount.value) {
+    await loadOptions({ limit: props.limit });
+    initialCount.value = count.value;
+  }
+}
 </script>
 
 <template>
   <div
+    v-when-in-view="loadOptionsWhenInView"
     class="flex flex-wrap gap-2 mb-2"
     v-if="isArray ? selection.length : selection"
   >
