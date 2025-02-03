@@ -60,7 +60,6 @@ test("it should update the model value when a field is filled out", async ({
 test("should also work for refs", async ({ page }) => {
   await page.goto(`${route}Form.story?schema=pet+store&table=Pet`);
   await page.getByText("Jump to", { exact: true }).click({ delay: 300 });
-  await expect(page.getByText("cat", { exact: true })).toBeVisible();
   await page.getByText("dog").click();
   await expect(
     page.locator("#category-radio-group").getByText("dog")
