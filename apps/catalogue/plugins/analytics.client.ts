@@ -1,5 +1,6 @@
 import { defineNuxtPlugin } from "#imports";
-import { setupAnalytics } from "@molgenis/emx2-analytics";
+import { setupAnalytics } from "../../emx2-analytics/src/lib/analytics";
+import type { Provider } from "../../emx2-analytics/src/types/Provider";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.hook("page:loading:end", () => {
@@ -7,7 +8,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     const analyticsKey = nuxtApp.$config.public.analyticsKey;
     if (schema && analyticsKey) {
       console.log("Setup Analytics for: " + schema);
-      const providers = [{ id: "site-improve", options: { analyticsKey } }];
+      const providers: Provider[] = [
+        { id: "site-improve", options: { analyticsKey } },
+      ];
       setupAnalytics(schema, providers);
     }
   });
