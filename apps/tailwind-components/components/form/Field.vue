@@ -61,6 +61,8 @@ function typeToInputMap(type: CellValueType) {
     case "AUTO_ID":
     case "STRING":
     case "LONG":
+    case "EMAIL":
+    case "HYPERLINK":
       return InputString;
     case "CHECKBOX":
       return InputCheckboxGroup;

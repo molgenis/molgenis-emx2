@@ -144,7 +144,7 @@ function onUpdate(column: IColumn, $event: columnValue) {
         class="pb-8"
         v-for="column in chapter.columns.filter((c) => !c.id.startsWith('mg_'))"
       >
-        <Input
+        <FormField
           v-model="dataMap[column.id]"
           :id="`${column.id}-form-field`"
           :schemaId="schemaId"
