@@ -11,16 +11,11 @@
 
 <script lang="ts" setup>
 import type { columnValue } from "../../../metadata-utils/src/types";
-import { type InputProps, InputPropsDefaults } from "~/types/types";
-withDefaults(
-  defineProps<
-    InputProps & {
-      value: columnValue;
-    }
-  >(),
-  {
-    ...InputPropsDefaults,
+import { type InputProps } from "~/types/types";
+defineProps<
+  InputProps & {
+    value: columnValue;
   }
-);
+>();
 const modelValue = defineModel<columnValue>();
 </script>

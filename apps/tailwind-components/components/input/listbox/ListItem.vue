@@ -24,7 +24,7 @@
 withDefaults(
   defineProps<{
     isSelected: boolean;
-    label: string | number | boolean;
+    label: string | number | boolean | null;
   }>(),
   {
     isSelected: false,

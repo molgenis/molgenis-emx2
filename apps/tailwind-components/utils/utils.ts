@@ -174,7 +174,7 @@ export function applyJsTemplate(
 /** horrible that this is not standard, found this here https://dmitripavlutin.com/how-to-compare-objects-in-javascript/#4-deep-equality*/
 export function deepEqual(
   object1: Record<string, any>,
-  object2: Record<string, any>
+  object2: Record<stroing, any>
 ): boolean {
   const keys1 = Object.keys(object1);
   const keys2 = Object.keys(object2);

@@ -5,7 +5,6 @@
       ref="btnElemRef"
       :aria-controls="`listbox-${id}-options`"
       :state="state"
-      :aria-labelledby="labelId"
       :selected-element-id="selectedElementId"
       @keydown="onListboxButtonKeyDown"
     >
@@ -52,7 +51,6 @@ import { type InputProps, InputPropsDefaults } from "~/types/types";
 const props = withDefaults(
   defineProps<
     InputProps & {
-      labelId: string;
       options: IInputValue[] | IInputValueLabel[];
       value?: IInputValue | IInputValueLabel;
     }

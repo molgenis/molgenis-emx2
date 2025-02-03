@@ -1,20 +1,6 @@
 <script lang="ts" setup>
-import {
-  type InputProps,
-  InputPropsDefaults,
-  type IValueLabel,
-} from "~/types/types";
+import { type InputProps, type IValueLabel } from "~/types/types";
 import type { CellValueType } from "metadata-utils/src/types";
-import {
-  InputBoolean,
-  InputCheckboxGroup,
-  InputListbox,
-  InputRadioGroup,
-  InputRef,
-  InputString,
-  InputTextArea,
-  InputPlaceHolder,
-} from "#components";
 const modelValue = defineModel<any>();
 const props = withDefaults(
   defineProps<
@@ -31,57 +17,87 @@ const props = withDefaults(
     }
   >(),
   {
-    ...InputPropsDefaults,
     required: false,
   }
 );
-
-function typeToInputMap(type: CellValueType) {
-  switch (type) {
-    case "AUTO_ID":
-    case "STRING":
-    case "LONG":
-    case "EMAIL":
-    case "HYPERLINK":
-      return InputString;
-    case "CHECKBOX":
-      return InputCheckboxGroup;
-    case "RADIO":
-      return InputRadioGroup;
-    case "SELECT":
-      return InputListbox;
-    case "TEXT":
-      return InputTextArea;
-    case "REF":
-      return InputRef;
-    case "BOOL":
-      return InputBoolean;
-    default:
-      return InputPlaceHolder;
-  }
-}
-
-const inputComponent = computed(() => {
-  return typeToInputMap(props.type.toUpperCase());
-});
+const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+const TYPE = computed(() => props.type.toUpperCase());
 </script>
 
 <template>
-  <InputGroup
-    :id="id"
-    :label="label"
-    :errorMessage="errorMessage"
-    :description="description"
-    :required="required"
-  >
-    <component
-      v-model="modelValue"
-      v-if="inputComponent"
-      :is="inputComponent"
-      v-bind="$props"
-      :description="description"
-      @blur="$emit('blur')"
-      @focus="$emit('focus')"
+  <div>
+    <template v-if="label">
+      <label :for="id"
+        ><span class="text-title font-bold">{{ label }}</span>
+        <span class="text-disabled text-body-sm ml-3" v-show="required">
+          Required
+        </span>
+      </label>
+    </template>
+    <p
+      :id="`${id}-input-description`"
+      v-if="description"
+      class="text-input-description text-body-sm"
+    >
+      {{ description }}
+    </p>
+    <LazyInputString
+      v-if="['STRING', 'AUTO_ID', 'LONG'].includes(TYPE)"
+      :id="id"
+      :modelValue="modelValue"
+      :state="state"
+      :describedBy="`${id}-description ${id}-input-error`"
+      :placeholder="placeholder"
+      @update:modelValue="emit('update:modelValue', $event)"
+      @blur="emit('blur')"
     />
-  </InputGroup>
+    <LazyInputTextArea
+      v-else-if="['TEXT'].includes(TYPE)"
+      v-model="modelValue"
+      :id="id"
+      :state="state"
+      :describedBy="`${id}-description ${id}-input-error`"
+      :placeholder="placeholder"
+      @update:modelValue="emit('update:modelValue', $event)"
+      @blur="emit('blur')"
+    />
+    <LazyInputRadioGroup
+      v-else-if="['RADIO'].includes(TYPE)"
+      v-model="modelValue"
+      :id="id"
+      :state="state"
+      :describedBy="`${id}-description ${id}-input-error`"
+      :placeholder="placeholder"
+      :options="options as IValueLabel[]"
+      @update:modelValue="emit('update:modelValue', $event)"
+      @blur="emit('blur')"
+    />
+    <LazyInputCheckboxGroup
+      v-else-if="['CHECKBOX'].includes(TYPE)"
+      v-model="modelValue"
+      :id="id"
+      :state="state"
+      :describedBy="`${id}-description ${id}-input-error`"
+      :placeholder="placeholder"
+      :options="options as IValueLabel[]"
+      @update:modelValue="emit('update:modelValue', $event)"
+      @blur="emit('blur')"
+    />
+    <LazyInputRef
+      v-else-if="['REF'].includes(TYPE)"
+      v-model="modelValue"
+      :id="id"
+      :state="state"
+      :describedBy="`${id}-description ${id}-input-error`"
+      :placeholder="placeholder"
+      :refSchemaId="refSchemaId as string"
+      :refTableId="refTableId as string"
+      :refLabel="refLabel as string"
+      @update:modelValue="emit('update:modelValue', $event)"
+      @blur="emit('blur')"
+    />
+    <Message v-if="errorMessage" type="invalid" id="`${id}-input-error`">{{
+      errorMessage
+    }}</Message>
+  </div>
 </template>

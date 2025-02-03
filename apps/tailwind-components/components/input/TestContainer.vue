@@ -2,7 +2,7 @@
 import type { InputState } from "~/types/types";
 
 const placeholder = ref("");
-const state = ref<InputState>(null);
+const state = ref<InputState>("default");
 </script>
 
 <template>
@@ -25,9 +25,8 @@ const state = ref<InputState>(null);
           v-model="state"
           label="state"
           description="State of the input"
-          class="mt-4"
           :options="[
-            { value: null, label: 'default' },
+            { value: 'default', label: 'default' },
             { value: 'invalid', label: 'invalid' },
             { value: 'valid', label: 'valid' },
             { value: 'disabled', label: 'disabled' },

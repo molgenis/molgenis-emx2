@@ -5,11 +5,7 @@ import type {
   columnValue,
   columnValueObject,
 } from "../../../metadata-utils/src/types";
-import {
-  type InputProps,
-  InputPropsDefaults,
-  type IValueLabel,
-} from "~/types/types";
+import { type InputProps, type IValueLabel } from "~/types/types";
 import type { ITableMetaData } from "metadata-utils";
 
 const props = withDefaults(
@@ -24,7 +20,6 @@ const props = withDefaults(
     }
   >(),
   {
-    ...InputPropsDefaults,
     isArray: true,
     limit: 10,
   }
@@ -129,7 +124,6 @@ function updateSearch(newSearchTerms: string) {
 }
 
 function select(label: string) {
-  console.log("select " + label);
   if (!props.isArray) {
     selectionMap.value = {};
   }
@@ -172,7 +166,6 @@ function clearSelection() {
   selectionMap.value = {};
   emit("update:modelValue", props.isArray ? [] : undefined);
   updateSearch(""); //reset
-  emit("blur");
 }
 
 function loadMore() {

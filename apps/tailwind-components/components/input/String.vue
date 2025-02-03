@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { InputProps } from "~/types/types";
 import { InputPropsDefaults } from "~/types/types";
-withDefaults(defineProps<InputProps>(), InputPropsDefaults);
+defineProps<InputProps>();
 const modelValue = defineModel<string | number>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 </script>
@@ -9,6 +9,7 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 <template>
   <input
     :v-bind="$props"
+    :aria-describedby="describedBy"
     class="w-full h-[56px] pr-4 font-sans text-black text-gray-300 outline-none ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border border-solid rounded-input"
     :class="{
       'border-invalid text-invalid': state == 'invalid',

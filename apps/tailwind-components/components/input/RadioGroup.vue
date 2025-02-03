@@ -1,6 +1,7 @@
 <template>
   <div
     :id="`${id}-radio-group`"
+    :aria-describedby="describedBy"
     class="flex gap-1"
     :class="{
       'flex-row': align === 'horizontal',
@@ -75,7 +76,6 @@ const props = withDefaults(
     }
   >(),
   {
-    ...InputPropsDefaults,
     showClearButton: false,
     align: "vertical",
   }

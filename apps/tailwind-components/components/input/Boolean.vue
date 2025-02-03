@@ -2,6 +2,7 @@
   <InputRadioGroup
     :id="id"
     v-model="modelValue"
+    :aria-describedby="describedBy"
     :options="yesNoOption"
     :showClearButton="true"
     align="horizontal"

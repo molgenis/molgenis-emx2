@@ -1,5 +1,5 @@
 <template>
-  <div :id="`${id}-checkbox-group`">
+  <div :id="`${id}-checkbox-group`" :aria-describedby="describedBy">
     <div class="flex flex-row" v-for="option in options">
       <input
         type="checkbox"
@@ -47,11 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  type InputProps,
-  InputPropsDefaults,
-  type IValueLabel,
-} from "~/types/types";
+import { type InputProps, type IValueLabel } from "~/types/types";
 
 withDefaults(
   defineProps<
@@ -61,7 +57,6 @@ withDefaults(
     }
   >(),
   {
-    ...InputPropsDefaults,
     showClearButton: false,
   }
 );

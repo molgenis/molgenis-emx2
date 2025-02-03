@@ -82,10 +82,13 @@ const previousFocus = ref<IColumn>();
 //when we focus we check validation of that column while keeping the validation of previous one
 //when we blur we keep previous error
 /** this is called on every touch of a column. Before submit of a form we need to validate everything but that can be done by the container of this */
-function validateColumn(column: IColumn, onBlur: boolean) {
-  console.log(onBlur ? "blur " + column.id : "focus " + column.id);
+function validateColumn(column: IColumn) {
+  console.log(
+    "validate " + column.id + "=" + JSON.stringify(dataMap[column.id])
+  );
+  delete errorMap[column.id];
 
-  //on blur we check if required was filled in
+  //validate required
   if (isRequired(column.required) && isMissingValue(dataMap[column.id])) {
     errorMap[column.id] = column.label + " is required";
   }
@@ -101,23 +104,18 @@ function validateColumn(column: IColumn, onBlur: boolean) {
   //todo only for visible columns!
   //todo make regexp, might lead to false hits if column id is subset of another column id
   else {
-    if (isMissingValue(dataMap[column.id])) {
-      delete errorMap[column.id];
-    } else {
-      errorMap[column.id] = props.metadata.columns
-        .filter((c) => c.validation?.includes(column.id))
-        .map((c) => {
-          const result = getColumnValidationError(
-            c.validation as string,
-            dataMap,
-            props.schemaId,
-            props.metadata
-          );
-          console.log("hallo " + result);
-          return result;
-        })
-        .join("");
-    }
+    errorMap[column.id] = props.metadata.columns
+      .filter((c) => c.validation?.includes(column.id))
+      .map((c) => {
+        const result = getColumnValidationError(
+          c.validation as string,
+          dataMap,
+          props.schemaId,
+          props.metadata
+        );
+        return result;
+      })
+      .join("");
   }
 
   //todo: need also to updated visible and computed if related
@@ -125,7 +123,9 @@ function validateColumn(column: IColumn, onBlur: boolean) {
 
 function onUpdate(column: IColumn, $event: columnValue) {
   dataMap[column.id] = $event;
-  validateColumn(column, false);
+  if (errorMap[column.id]) {
+    validateColumn(column);
+  }
   emit("update:modelValue", dataMap);
 }
 </script>
@@ -147,7 +147,6 @@ function onUpdate(column: IColumn, $event: columnValue) {
         <FormField
           v-model="dataMap[column.id]"
           :id="`${column.id}-form-field`"
-          :schemaId="schemaId"
           :type="column.columnType"
           :label="column.label"
           :description="column.description"
@@ -156,10 +155,9 @@ function onUpdate(column: IColumn, $event: columnValue) {
           :ref-schema-id="column.refSchemaId || schemaId"
           :ref-table-id="column.refTableId"
           :ref-label="column.refLabel || column.refLabelDefault"
-          :state="errorMap[column.id] ? 'invalid' : null"
+          :state="errorMap[column.id] ? 'invalid' : 'default'"
           @update:modelValue="onUpdate(column, $event)"
-          @blur="validateColumn(column, true)"
-          @focus="validateColumn(column, false)"
+          @blur="validateColumn(column)"
         />
       </div>
     </div>
