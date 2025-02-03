@@ -2,7 +2,7 @@
   <InputTestContainer>
     <template v-slot:default="{ placeholder, state }">
       <template v-for="type in Object.keys(demoValue)">
-        <Input
+        <FormField
           :type="type"
           v-model="demoValue[type]"
           :id="'input-' + type"
