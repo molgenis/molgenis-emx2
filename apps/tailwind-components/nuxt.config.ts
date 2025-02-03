@@ -2,11 +2,7 @@
 import fs from 'fs';
 import { resolve } from 'path';
 
-// Path to the generated sourceCodeMap.json file
-
 const sourceCodeMapPath = resolve("./sourceCodeMap.json");
-
-// Read the file contents
 const sourceCodeMap = fs.existsSync(sourceCodeMapPath) ? JSON.parse(fs.readFileSync(sourceCodeMapPath, 'utf-8')) : {'none':'none'};
 
 export default defineNuxtConfig({

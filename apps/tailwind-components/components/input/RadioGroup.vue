@@ -90,16 +90,13 @@ const emit = defineEmits([
 ]);
 
 function toggleSelect(event: Event) {
-  console.log("haat");
   const target = event.target as HTMLInputElement;
   if (target.checked) {
-    console.log("huh1");
     emit("select", target.value);
   } else {
-    console.log("huh2");
     emit("deselect", target.value);
   }
-  console.log("huh");
+  emit("blur");
 }
 
 function resetModelValue() {

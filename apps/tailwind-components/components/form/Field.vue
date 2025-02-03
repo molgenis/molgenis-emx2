@@ -1,23 +1,3 @@
-<template>
-  <InputGroup
-    :id="id"
-    :label="label"
-    :errorMessage="errorMessage"
-    :description="description"
-    :required="required"
-  >
-    <component
-      v-model="modelValue"
-      v-if="inputComponent"
-      :is="inputComponent"
-      v-bind="$props"
-      :description="description"
-      @blur="$emit('blur')"
-      @focus="$emit('focus')"
-    />
-  </InputGroup>
-</template>
-
 <script lang="ts" setup>
 import {
   type InputProps,
@@ -85,3 +65,23 @@ const inputComponent = computed(() => {
   return typeToInputMap(props.type.toUpperCase());
 });
 </script>
+
+<template>
+  <InputGroup
+    :id="id"
+    :label="label"
+    :errorMessage="errorMessage"
+    :description="description"
+    :required="required"
+  >
+    <component
+      v-model="modelValue"
+      v-if="inputComponent"
+      :is="inputComponent"
+      v-bind="$props"
+      :description="description"
+      @blur="$emit('blur')"
+      @focus="$emit('focus')"
+    />
+  </InputGroup>
+</template>
