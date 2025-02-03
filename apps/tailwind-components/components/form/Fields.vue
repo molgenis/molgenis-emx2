@@ -133,15 +133,16 @@ function onUpdate(column: IColumn, $event: columnValue) {
         dataMap,
         props.schemaId,
         props.metadata
-      );
-      console.log("refreshing visibility for " + c.id + "=" + visibleMap[c.id]);
+      )
+        ? true
+        : false;
+      console.log("updating visibility for " + c.id + "=" + visibleMap[c.id]);
     });
   emit("update:modelValue", dataMap);
 }
 
 function checkVisibleExpression(column: IColumn) {
   //while not stable lets keep these logs, is there a log framework we can use to switch this of in prod?
-  console.log("checking visibility of " + column.id);
   //when input becomes into view port
   if (
     !column.visible ||
@@ -151,6 +152,9 @@ function checkVisibleExpression(column: IColumn) {
   } else {
     visibleMap[column.id] = false;
   }
+  console.log(
+    "checking visibility of " + column.id + "=" + visibleMap[column.id]
+  );
 }
 </script>
 <template>

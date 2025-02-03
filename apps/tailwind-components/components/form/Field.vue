@@ -96,6 +96,7 @@ const TYPE = computed(() => props.type.toUpperCase());
       @update:modelValue="emit('update:modelValue', $event)"
       @blur="emit('blur')"
     />
+    <LazyInputPlaceHolder v-else v-model="modelValue" :type="TYPE" />
     <Message v-if="errorMessage" type="invalid" id="`${id}-input-error`">{{
       errorMessage
     }}</Message>
