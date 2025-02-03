@@ -46,3 +46,22 @@ test("clicking on the chapter should scroll to the chapter", async ({
   await page.getByText("population", { exact: true }).first().click();
   await expect(page.getByRole("heading", { name: "population" })).toBeVisible();
 });
+
+test("it should update the model value when a field is filled out", async ({
+  page,
+}) => {
+  await page.goto(`${route}Form.story?schema=pet+store&table=Pet`);
+  await page.getByLabel("name", { exact: true }).click();
+  await page.getByLabel("name", { exact: true }).fill("test");
+  await expect(page.getByLabel("name", { exact: true })).toHaveValue("test");
+});
+
+test("should also work for refs", async ({ page }) => {
+  await page.goto(`${route}Form.story?schema=pet+store&table=Pet`);
+  await expect(page.getByText("cat", { exact: true })).toBeVisible();
+  await page.getByText("dog").click();
+  await expect(
+    page.locator("#category-radio-group").getByText("dog")
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "dog" })).toBeVisible();
+});
