@@ -178,6 +178,7 @@ module.exports = {
         "button-disabled": "var(--text-color-button-disabled)",
         "button-disabled-hover": "var(--text-color-button-disabled-hover)",
         "button-filter": "var(--text-color-button-filter)",
+        "button-text": "var(--text-color-button-text)",
         "menu": "var(--text-color-menu)",
         "sub-menu": "var(--text-color-sub-menu)",
         "sub-menu-hover": "var(--text-color-sub-menu-hover)",
