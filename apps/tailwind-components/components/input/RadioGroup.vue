@@ -7,15 +7,15 @@
       'flex-col': align === 'vertical',
     }"
   >
-    <div v-for="option in radioOptions" class="flex justify-start align-center">
+    <div v-for="option in options" class="flex justify-start align-center">
       <InputRadio
         :id="`${id}-radio-group-${option.value}`"
         class="sr-only fixed"
         :name="id"
         :value="option.value"
-        :modelValue="props.modelValue"
-        @input="$emit('update:modelValue', $event.target.value)"
-        :checked="option.value === props.modelValue"
+        v-model="modelValue"
+        @input="toggleSelect"
+        :checked="option.value === modelValue"
       />
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
@@ -46,13 +46,13 @@
 </template>
 
 <script lang="ts" setup>
-import type { IRadioOptionsData } from "~/types/types";
+import type { IValueLabel } from "~/types/types";
+import type { columnValue } from "metadata-utils/src/types";
 
 const props = withDefaults(
   defineProps<{
     id: string;
-    modelValue: boolean | string | null;
-    radioOptions: IRadioOptionsData[];
+    options: IValueLabel[];
     showClearButton?: boolean;
     align?: "horizontal" | "vertical";
   }>(),
@@ -61,19 +61,28 @@ const props = withDefaults(
     align: "vertical",
   }
 );
+const modelValue = defineModel<columnValue>();
+const emit = defineEmits(["update:modelValue", "select", "deselect"]);
 
-const emit = defineEmits(["update:modelValue"]);
+function toggleSelect(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target.checked) {
+    emit("select", target.value);
+  } else {
+    emit("deselect", target.value);
+  }
+}
 
 function resetModelValue() {
-  emit("update:modelValue", null);
+  modelValue.value = undefined;
 }
 
 const isClearBtnShow = computed(() => {
   return (
     props.showClearButton &&
-    (props.modelValue === true ||
-      props.modelValue === false ||
-      (typeof props.modelValue === "string" && props.modelValue.length > 0))
+    (modelValue.value === true ||
+      modelValue.value === false ||
+      (modelValue.value && modelValue.value !== ""))
   );
 });
 </script>

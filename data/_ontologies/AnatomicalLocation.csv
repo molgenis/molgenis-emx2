@@ -1,6 +1,6 @@
 name,label,codesystem,code,ontologyTermURI
 106004,Structure of posterior carpal region,SNOMED CT,106004,http://purl.bioontology.org/ontology/SNOMEDCT/106004
-110001,"Structure of visceral layer of Bowman's capsule",SNOMED CT,110001,http://purl.bioontology.org/ontology/SNOMEDCT/110001
+110001,Structure of visceral layer of Bowman's capsule,SNOMED CT,110001,http://purl.bioontology.org/ontology/SNOMEDCT/110001
 111002,Parathyroid structure,SNOMED CT,111002,http://purl.bioontology.org/ontology/SNOMEDCT/111002
 116007,Subcutaneous tissue structure of medial surface of index finger,SNOMED CT,116007,http://purl.bioontology.org/ontology/SNOMEDCT/116007
 124002,Structure of coronoid process of mandible,SNOMED CT,124002,http://purl.bioontology.org/ontology/SNOMEDCT/124002
@@ -213,7 +213,7 @@ name,label,codesystem,code,ontologyTermURI
 2675006,Structure of anterior ethmoidal artery,SNOMED CT,2675006,http://purl.bioontology.org/ontology/SNOMEDCT/2675006
 2682005,Structure of mucous membrane of urinary bladder,SNOMED CT,2682005,http://purl.bioontology.org/ontology/SNOMEDCT/2682005
 2686008,Structure of medial olfactory gyrus,SNOMED CT,2686008,http://purl.bioontology.org/ontology/SNOMEDCT/2686008
-2687004,"Structure of Bowman's space",SNOMED CT,2687004,http://purl.bioontology.org/ontology/SNOMEDCT/2687004
+2687004,Structure of Bowman's space,SNOMED CT,2687004,http://purl.bioontology.org/ontology/SNOMEDCT/2687004
 2695000,Left maxillary sinus structure,SNOMED CT,2695000,http://purl.bioontology.org/ontology/SNOMEDCT/2695000
 2712006,Structure of capsule of ankle joint,SNOMED CT,2712006,http://purl.bioontology.org/ontology/SNOMEDCT/2712006
 2718005,Structure of apical foramen of tooth,SNOMED CT,2718005,http://purl.bioontology.org/ontology/SNOMEDCT/2718005
@@ -724,7 +724,7 @@ name,label,codesystem,code,ontologyTermURI
 8560002,Structure of interclavicular ligament,SNOMED CT,8560002,http://purl.bioontology.org/ontology/SNOMEDCT/8560002
 8568009,Abdominal lymph node structure,SNOMED CT,8568009,http://purl.bioontology.org/ontology/SNOMEDCT/8568009
 8590009,Neck of sixteenth rib,SNOMED CT,8590009,http://purl.bioontology.org/ontology/SNOMEDCT/8590009
-8595004,"Structure of Meissner's plexus",SNOMED CT,8595004,http://purl.bioontology.org/ontology/SNOMEDCT/8595004
+8595004,Structure of Meissner's plexus,SNOMED CT,8595004,http://purl.bioontology.org/ontology/SNOMEDCT/8595004
 8598002,Vestibulocochlear nerve structure,SNOMED CT,8598002,http://purl.bioontology.org/ontology/SNOMEDCT/8598002
 8600008,Cricoid cartilage structure,SNOMED CT,8600008,http://purl.bioontology.org/ontology/SNOMEDCT/8600008
 8603005,Adductor hallucis muscle structure,SNOMED CT,8603005,http://purl.bioontology.org/ontology/SNOMEDCT/8603005
@@ -787,7 +787,7 @@ name,label,codesystem,code,ontologyTermURI
 9262003,Pelvic fascia structure,SNOMED CT,9262003,http://purl.bioontology.org/ontology/SNOMEDCT/9262003
 9290004,Structure of posterior intraoccipital synchondrosis,SNOMED CT,9290004,http://purl.bioontology.org/ontology/SNOMEDCT/9290004
 9305001,Structure of labial vein,SNOMED CT,9305001,http://purl.bioontology.org/ontology/SNOMEDCT/9305001
-9317004,"Merkel's tactile disc",SNOMED CT,9317004,http://purl.bioontology.org/ontology/SNOMEDCT/9317004
+9317004,Merkel's tactile disc,SNOMED CT,9317004,http://purl.bioontology.org/ontology/SNOMEDCT/9317004
 9320007,Structure of subtendinous iliac bursa,SNOMED CT,9320007,http://purl.bioontology.org/ontology/SNOMEDCT/9320007
 9325002,Structure of interdental papilla of gingiva,SNOMED CT,9325002,http://purl.bioontology.org/ontology/SNOMEDCT/9325002
 9332006,Structure of lateral ligament of temporomandibular joint,SNOMED CT,9332006,http://purl.bioontology.org/ontology/SNOMEDCT/9332006
@@ -1085,7 +1085,7 @@ name,label,codesystem,code,ontologyTermURI
 12844004,Inferior frontomarginal sulcus,SNOMED CT,12844004,http://purl.bioontology.org/ontology/SNOMEDCT/12844004
 12850009,Structure of inferior brachium of corpora quadrigemina,SNOMED CT,12850009,http://purl.bioontology.org/ontology/SNOMEDCT/12850009
 12857007,Structure of ependyma of third ventricle,SNOMED CT,12857007,http://purl.bioontology.org/ontology/SNOMEDCT/12857007
-12858002,"Bonnet's plexus",SNOMED CT,12858002,http://purl.bioontology.org/ontology/SNOMEDCT/12858002
+12858002,Bonnet's plexus,SNOMED CT,12858002,http://purl.bioontology.org/ontology/SNOMEDCT/12858002
 12872006,Head of rib structure,SNOMED CT,12872006,http://purl.bioontology.org/ontology/SNOMEDCT/12872006
 12880004,Structure of posterior meniscofemoral ligament,SNOMED CT,12880004,http://purl.bioontology.org/ontology/SNOMEDCT/12880004
 12881000,Bone structure of proximal radius,SNOMED CT,12881000,http://purl.bioontology.org/ontology/SNOMEDCT/12881000
@@ -1473,7 +1473,7 @@ name,label,codesystem,code,ontologyTermURI
 17847004,Structure of nucleus pulposus of intervertebral disc of third cervical vertebra,SNOMED CT,17847004,http://purl.bioontology.org/ontology/SNOMEDCT/17847004
 17856007,Structure of palatine portion of dorsum of tongue,SNOMED CT,17856007,http://purl.bioontology.org/ontology/SNOMEDCT/17856007
 17858008,Entire angle of eleventh rib,SNOMED CT,17858008,http://purl.bioontology.org/ontology/SNOMEDCT/17858008
-17861009,"Waldeyer's ring structure",SNOMED CT,17861009,http://purl.bioontology.org/ontology/SNOMEDCT/17861009
+17861009,Waldeyer's ring structure,SNOMED CT,17861009,http://purl.bioontology.org/ontology/SNOMEDCT/17861009
 17864001,Subserosal tissue of liver,SNOMED CT,17864001,http://purl.bioontology.org/ontology/SNOMEDCT/17864001
 17879008,Habenula structure,SNOMED CT,17879008,http://purl.bioontology.org/ontology/SNOMEDCT/17879008
 17911004,Cranial thoracic air sac,SNOMED CT,17911004,http://purl.bioontology.org/ontology/SNOMEDCT/17911004
@@ -1542,7 +1542,7 @@ name,label,codesystem,code,ontologyTermURI
 18770002,Short sesamoidean ligament of forelimb,SNOMED CT,18770002,http://purl.bioontology.org/ontology/SNOMEDCT/18770002
 18782006,Structure of cavernous sinus,SNOMED CT,18782006,http://purl.bioontology.org/ontology/SNOMEDCT/18782006
 18787000,Structure of anti-mesenteric border of small intestine,SNOMED CT,18787000,http://purl.bioontology.org/ontology/SNOMEDCT/18787000
-18812005,"Structure of Held's space",SNOMED CT,18812005,http://purl.bioontology.org/ontology/SNOMEDCT/18812005
+18812005,Structure of Held's space,SNOMED CT,18812005,http://purl.bioontology.org/ontology/SNOMEDCT/18812005
 18855009,Right lacrimal gland structure,SNOMED CT,18855009,http://purl.bioontology.org/ontology/SNOMEDCT/18855009
 18882001,Entire costal groove of first rib,SNOMED CT,18882001,http://purl.bioontology.org/ontology/SNOMEDCT/18882001
 18930002,Structure of phalanx of great toe,SNOMED CT,18930002,http://purl.bioontology.org/ontology/SNOMEDCT/18930002
@@ -1796,7 +1796,7 @@ name,label,codesystem,code,ontologyTermURI
 21671001,Structure of mid thigh region,SNOMED CT,21671001,http://purl.bioontology.org/ontology/SNOMEDCT/21671001
 21672008,Skin of parietal region,SNOMED CT,21672008,http://purl.bioontology.org/ontology/SNOMEDCT/21672008
 21684005,Structure of ureteral plexus,SNOMED CT,21684005,http://purl.bioontology.org/ontology/SNOMEDCT/21684005
-21694000,"Henle's loop structure",SNOMED CT,21694000,http://purl.bioontology.org/ontology/SNOMEDCT/21694000
+21694000,Henle's loop structure,SNOMED CT,21694000,http://purl.bioontology.org/ontology/SNOMEDCT/21694000
 21696003,Entire costal groove of eighth rib,SNOMED CT,21696003,http://purl.bioontology.org/ontology/SNOMEDCT/21696003
 21699005,Dewclaw of hindlimb,SNOMED CT,21699005,http://purl.bioontology.org/ontology/SNOMEDCT/21699005
 21740000,Trigonal structure,SNOMED CT,21740000,http://purl.bioontology.org/ontology/SNOMEDCT/21740000
@@ -1878,7 +1878,7 @@ name,label,codesystem,code,ontologyTermURI
 22560007,Dense fibrous connective tissue,SNOMED CT,22560007,http://purl.bioontology.org/ontology/SNOMEDCT/22560007
 22565002,Bone structure of ninth rib,SNOMED CT,22565002,http://purl.bioontology.org/ontology/SNOMEDCT/22565002
 22577007,Posterior abdominal wall structure,SNOMED CT,22577007,http://purl.bioontology.org/ontology/SNOMEDCT/22577007
-22578002,"Structure of Huxley's layer",SNOMED CT,22578002,http://purl.bioontology.org/ontology/SNOMEDCT/22578002
+22578002,Structure of Huxley's layer,SNOMED CT,22578002,http://purl.bioontology.org/ontology/SNOMEDCT/22578002
 22586002,Entire tendon of ring finger,SNOMED CT,22586002,http://purl.bioontology.org/ontology/SNOMEDCT/22586002
 22593003,Talotibial joint structure,SNOMED CT,22593003,http://purl.bioontology.org/ontology/SNOMEDCT/22593003
 22599004,Skin structure of all fingers,SNOMED CT,22599004,http://purl.bioontology.org/ontology/SNOMEDCT/22599004
@@ -1919,7 +1919,7 @@ name,label,codesystem,code,ontologyTermURI
 23090001,Structure of capsule of carpometacarpal joint,SNOMED CT,23090001,http://purl.bioontology.org/ontology/SNOMEDCT/23090001
 23094005,Structure of capsule of proximal interphalangeal joint of little finger,SNOMED CT,23094005,http://purl.bioontology.org/ontology/SNOMEDCT/23094005
 23114008,Structure of gum of maxilla,SNOMED CT,23114008,http://purl.bioontology.org/ontology/SNOMEDCT/23114008
-23127007,"Structure of Bruch's basal membrane",SNOMED CT,23127007,http://purl.bioontology.org/ontology/SNOMEDCT/23127007
+23127007,Structure of Bruch's basal membrane,SNOMED CT,23127007,http://purl.bioontology.org/ontology/SNOMEDCT/23127007
 23153004,Ileocecal valve structure,SNOMED CT,23153004,http://purl.bioontology.org/ontology/SNOMEDCT/23153004
 23158008,Lamina of sixth lumbar vertebra,SNOMED CT,23158008,http://purl.bioontology.org/ontology/SNOMEDCT/23158008
 23161009,Structure of angle of mouth,SNOMED CT,23161009,http://purl.bioontology.org/ontology/SNOMEDCT/23161009
@@ -1927,7 +1927,7 @@ name,label,codesystem,code,ontologyTermURI
 23194007,Entire left commissure of pulmonic valve,SNOMED CT,23194007,http://purl.bioontology.org/ontology/SNOMEDCT/23194007
 23198005,Structure of medial lacunar lymph node,SNOMED CT,23198005,http://purl.bioontology.org/ontology/SNOMEDCT/23198005
 23215003,Bone structure of T12,SNOMED CT,23215003,http://purl.bioontology.org/ontology/SNOMEDCT/23215003
-23220003,"Structure of Fleischmann's bursa",SNOMED CT,23220003,http://purl.bioontology.org/ontology/SNOMEDCT/23220003
+23220003,Structure of Fleischmann's bursa,SNOMED CT,23220003,http://purl.bioontology.org/ontology/SNOMEDCT/23220003
 23224007,Structure of zygomatic process of maxilla,SNOMED CT,23224007,http://purl.bioontology.org/ontology/SNOMEDCT/23224007
 23226009,Structure of maxillary left second premolar tooth,SNOMED CT,23226009,http://purl.bioontology.org/ontology/SNOMEDCT/23226009
 23230007,Intestinal villus,SNOMED CT,23230007,http://purl.bioontology.org/ontology/SNOMEDCT/23230007
@@ -2002,7 +2002,7 @@ name,label,codesystem,code,ontologyTermURI
 24136001,Hip joint structure,SNOMED CT,24136001,http://purl.bioontology.org/ontology/SNOMEDCT/24136001
 24142002,Nipple structure,SNOMED CT,24142002,http://purl.bioontology.org/ontology/SNOMEDCT/24142002
 24160002,Structure of head of skeletal muscle,SNOMED CT,24160002,http://purl.bioontology.org/ontology/SNOMEDCT/24160002
-24166008,"Krause's end bulb",SNOMED CT,24166008,http://purl.bioontology.org/ontology/SNOMEDCT/24166008
+24166008,Krause's end bulb,SNOMED CT,24166008,http://purl.bioontology.org/ontology/SNOMEDCT/24166008
 24170000,Structure of paraumbilical vein,SNOMED CT,24170000,http://purl.bioontology.org/ontology/SNOMEDCT/24170000
 24176006,Structure of plantar interosseous muscle of foot,SNOMED CT,24176006,http://purl.bioontology.org/ontology/SNOMEDCT/24176006
 24201007,All ribs,SNOMED CT,24201007,http://purl.bioontology.org/ontology/SNOMEDCT/24201007
@@ -2143,7 +2143,7 @@ name,label,codesystem,code,ontologyTermURI
 25758003,Left nasolacrimal duct structure,SNOMED CT,25758003,http://purl.bioontology.org/ontology/SNOMEDCT/25758003
 25763004,Skin of anterior surface of lower leg,SNOMED CT,25763004,http://purl.bioontology.org/ontology/SNOMEDCT/25763004
 25768008,Rostral frontal sinus,SNOMED CT,25768008,http://purl.bioontology.org/ontology/SNOMEDCT/25768008
-25776005,"Entire Forel's H2 bundle",SNOMED CT,25776005,http://purl.bioontology.org/ontology/SNOMEDCT/25776005
+25776005,Entire Forel's H2 bundle,SNOMED CT,25776005,http://purl.bioontology.org/ontology/SNOMEDCT/25776005
 25794004,Omohyoid muscle structure,SNOMED CT,25794004,http://purl.bioontology.org/ontology/SNOMEDCT/25794004
 25805003,Subcutaneous tissue structure of palmar area of hand,SNOMED CT,25805003,http://purl.bioontology.org/ontology/SNOMEDCT/25805003
 25866004,Structure of temporal operculum,SNOMED CT,25866004,http://purl.bioontology.org/ontology/SNOMEDCT/25866004
@@ -2524,7 +2524,7 @@ name,label,codesystem,code,ontologyTermURI
 30216009,Structure of accessory nerve nucleus,SNOMED CT,30216009,http://purl.bioontology.org/ontology/SNOMEDCT/30216009
 30220008,Right dorsal colon,SNOMED CT,30220008,http://purl.bioontology.org/ontology/SNOMEDCT/30220008
 30241002,Arch of eighteenth thoracic vertebra,SNOMED CT,30241002,http://purl.bioontology.org/ontology/SNOMEDCT/30241002
-30249000,"Structure of parietal layer of Bowman's capsule",SNOMED CT,30249000,http://purl.bioontology.org/ontology/SNOMEDCT/30249000
+30249000,Structure of parietal layer of Bowman's capsule,SNOMED CT,30249000,http://purl.bioontology.org/ontology/SNOMEDCT/30249000
 30267007,Structure of ostium of inferior vena cava,SNOMED CT,30267007,http://purl.bioontology.org/ontology/SNOMEDCT/30267007
 30282002,Structure of inferior tarsal plate,SNOMED CT,30282002,http://purl.bioontology.org/ontology/SNOMEDCT/30282002
 30284001,Subcutaneous tissue structure of toe,SNOMED CT,30284001,http://purl.bioontology.org/ontology/SNOMEDCT/30284001
@@ -2730,7 +2730,7 @@ name,label,codesystem,code,ontologyTermURI
 32672002,Structure of descending thoracic aorta,SNOMED CT,32672002,http://purl.bioontology.org/ontology/SNOMEDCT/32672002
 32679006,Lateral malleolar arterial network structure,SNOMED CT,32679006,http://purl.bioontology.org/ontology/SNOMEDCT/32679006
 32696007,Structure of right lower leg,SNOMED CT,32696007,http://purl.bioontology.org/ontology/SNOMEDCT/32696007
-32704008,"Structure of Hesselbach's triangle",SNOMED CT,32704008,http://purl.bioontology.org/ontology/SNOMEDCT/32704008
+32704008,Structure of Hesselbach's triangle,SNOMED CT,32704008,http://purl.bioontology.org/ontology/SNOMEDCT/32704008
 32713005,Cecum structure,SNOMED CT,32713005,http://purl.bioontology.org/ontology/SNOMEDCT/32713005
 32731006,Structure of subfascial bursa,SNOMED CT,32731006,http://purl.bioontology.org/ontology/SNOMEDCT/32731006
 32742002,Structure of medial arch of foot (instep),SNOMED CT,32742002,http://purl.bioontology.org/ontology/SNOMEDCT/32742002
@@ -2870,7 +2870,7 @@ name,label,codesystem,code,ontologyTermURI
 34190003,Subcutaneous tissue structure of wrist,SNOMED CT,34190003,http://purl.bioontology.org/ontology/SNOMEDCT/34190003
 34201000,Structure of soft tissues of head and neck,SNOMED CT,34201000,http://purl.bioontology.org/ontology/SNOMEDCT/34201000
 34202007,Aortic valve structure,SNOMED CT,34202007,http://purl.bioontology.org/ontology/SNOMEDCT/34202007
-34223001,"Hassal's corpuscle",SNOMED CT,34223001,http://purl.bioontology.org/ontology/SNOMEDCT/34223001
+34223001,Hassal's corpuscle,SNOMED CT,34223001,http://purl.bioontology.org/ontology/SNOMEDCT/34223001
 34260002,Structure of superficial head of flexor pollicis brevis muscle,SNOMED CT,34260002,http://purl.bioontology.org/ontology/SNOMEDCT/34260002
 34265007,Structure of subcutaneous vein of abdomen,SNOMED CT,34265007,http://purl.bioontology.org/ontology/SNOMEDCT/34265007
 34269001,Entire articular part of tubercle of twelfth rib,SNOMED CT,34269001,http://purl.bioontology.org/ontology/SNOMEDCT/34269001
@@ -3109,7 +3109,7 @@ name,label,codesystem,code,ontologyTermURI
 37047006,Structure of supramammillary decussation,SNOMED CT,37047006,http://purl.bioontology.org/ontology/SNOMEDCT/37047006
 37065005,Periventricular white matter,SNOMED CT,37065005,http://purl.bioontology.org/ontology/SNOMEDCT/37065005
 37072006,Pedicle of eighteenth thoracic vertebra,SNOMED CT,37072006,http://purl.bioontology.org/ontology/SNOMEDCT/37072006
-37074007,"Structure of Luschka's ducts",SNOMED CT,37074007,http://purl.bioontology.org/ontology/SNOMEDCT/37074007
+37074007,Structure of Luschka's ducts,SNOMED CT,37074007,http://purl.bioontology.org/ontology/SNOMEDCT/37074007
 37108007,Skin structure of nasolabial fold,SNOMED CT,37108007,http://purl.bioontology.org/ontology/SNOMEDCT/37108007
 37111008,Hair shaft structure,SNOMED CT,37111008,http://purl.bioontology.org/ontology/SNOMEDCT/37111008
 37117007,Right inguinal region structure,SNOMED CT,37117007,http://purl.bioontology.org/ontology/SNOMEDCT/37117007
@@ -3469,7 +3469,7 @@ name,label,codesystem,code,ontologyTermURI
 41346001,Circular sinus,SNOMED CT,41346001,http://purl.bioontology.org/ontology/SNOMEDCT/41346001
 41347005,Structure of subcutaneous lateral malleolar bursa,SNOMED CT,41347005,http://purl.bioontology.org/ontology/SNOMEDCT/41347005
 41376008,Structure of terminal hair,SNOMED CT,41376008,http://purl.bioontology.org/ontology/SNOMEDCT/41376008
-41421000,"Meissner's corpuscle",SNOMED CT,41421000,http://purl.bioontology.org/ontology/SNOMEDCT/41421000
+41421000,Meissner's corpuscle,SNOMED CT,41421000,http://purl.bioontology.org/ontology/SNOMEDCT/41421000
 41425009,Structure of anterior wall of stomach,SNOMED CT,41425009,http://purl.bioontology.org/ontology/SNOMEDCT/41425009
 41442003,Structure of reflected head of rectus femoris muscle,SNOMED CT,41442003,http://purl.bioontology.org/ontology/SNOMEDCT/41442003
 41474005,Harderian gland,SNOMED CT,41474005,http://purl.bioontology.org/ontology/SNOMEDCT/41474005
@@ -3602,7 +3602,7 @@ name,label,codesystem,code,ontologyTermURI
 42977008,Structure of crura membranacea of membranous labyrinth,SNOMED CT,42977008,http://purl.bioontology.org/ontology/SNOMEDCT/42977008
 42978003,Colonic epithelium,SNOMED CT,42978003,http://purl.bioontology.org/ontology/SNOMEDCT/42978003
 42981008,Structure of mammillary peduncle,SNOMED CT,42981008,http://purl.bioontology.org/ontology/SNOMEDCT/42981008
-42983006,"Structure of Descemet's membrane",SNOMED CT,42983006,http://purl.bioontology.org/ontology/SNOMEDCT/42983006
+42983006,Structure of Descemet's membrane,SNOMED CT,42983006,http://purl.bioontology.org/ontology/SNOMEDCT/42983006
 42991002,Medulla oblongata internal arcuate fibers,SNOMED CT,42991002,http://purl.bioontology.org/ontology/SNOMEDCT/42991002
 43015003,Lateral ear canal,SNOMED CT,43015003,http://purl.bioontology.org/ontology/SNOMEDCT/43015003
 43022006,Skin structure of dorsal surface of fifth toe,SNOMED CT,43022006,http://purl.bioontology.org/ontology/SNOMEDCT/43022006
@@ -4499,7 +4499,7 @@ name,label,codesystem,code,ontologyTermURI
 53123009,Structure of transverse muscle of tongue,SNOMED CT,53123009,http://purl.bioontology.org/ontology/SNOMEDCT/53123009
 53134007,Structure of paraurethral ducts,SNOMED CT,53134007,http://purl.bioontology.org/ontology/SNOMEDCT/53134007
 53135008,Subcutaneous tissue structure of crura of antihelix,SNOMED CT,53135008,http://purl.bioontology.org/ontology/SNOMEDCT/53135008
-53140000,"Ruffini's corpuscle",SNOMED CT,53140000,http://purl.bioontology.org/ontology/SNOMEDCT/53140000
+53140000,Ruffini's corpuscle,SNOMED CT,53140000,http://purl.bioontology.org/ontology/SNOMEDCT/53140000
 53154008,Structure of ductus reuniens,SNOMED CT,53154008,http://purl.bioontology.org/ontology/SNOMEDCT/53154008
 53159003,Articular part of tubercle of fourteenth rib,SNOMED CT,53159003,http://purl.bioontology.org/ontology/SNOMEDCT/53159003
 53170005,Right nasolacrimal duct structure,SNOMED CT,53170005,http://purl.bioontology.org/ontology/SNOMEDCT/53170005
@@ -4639,7 +4639,7 @@ name,label,codesystem,code,ontologyTermURI
 54815004,Teat,SNOMED CT,54815004,http://purl.bioontology.org/ontology/SNOMEDCT/54815004
 54827001,Arch of sixth lumbar vertebra,SNOMED CT,54827001,http://purl.bioontology.org/ontology/SNOMEDCT/54827001
 54829003,Salivary gland interstitial tissue,SNOMED CT,54829003,http://purl.bioontology.org/ontology/SNOMEDCT/54829003
-54833005,"Structure of Fontana's spaces",SNOMED CT,54833005,http://purl.bioontology.org/ontology/SNOMEDCT/54833005
+54833005,Structure of Fontana's spaces,SNOMED CT,54833005,http://purl.bioontology.org/ontology/SNOMEDCT/54833005
 54834004,Structure of posterior spinal artery,SNOMED CT,54834004,http://purl.bioontology.org/ontology/SNOMEDCT/54834004
 54863001,Structure of base of phalanx of fourth toe,SNOMED CT,54863001,http://purl.bioontology.org/ontology/SNOMEDCT/54863001
 54881003,Structure of common tendon sheath of peroneal muscle,SNOMED CT,54881003,http://purl.bioontology.org/ontology/SNOMEDCT/54881003
@@ -4661,7 +4661,7 @@ name,label,codesystem,code,ontologyTermURI
 55097004,Structure of ulnar branch of medial antebrachial cutaneous nerve,SNOMED CT,55097004,http://purl.bioontology.org/ontology/SNOMEDCT/55097004
 55111001,Structure of paranasal sinus cavity,SNOMED CT,55111001,http://purl.bioontology.org/ontology/SNOMEDCT/55111001
 55139000,Sympathetic ganglion structure,SNOMED CT,55139000,http://purl.bioontology.org/ontology/SNOMEDCT/55139000
-55143001,"Structure of Bowman's layer",SNOMED CT,55143001,http://purl.bioontology.org/ontology/SNOMEDCT/55143001
+55143001,Structure of Bowman's layer,SNOMED CT,55143001,http://purl.bioontology.org/ontology/SNOMEDCT/55143001
 55155007,Structure of anterior cerebral vein,SNOMED CT,55155007,http://purl.bioontology.org/ontology/SNOMEDCT/55155007
 55173005,Structure of apex of thoracic spinal cord posterior horn,SNOMED CT,55173005,http://purl.bioontology.org/ontology/SNOMEDCT/55173005
 55190004,Structure of long head of biceps femoris muscle,SNOMED CT,55190004,http://purl.bioontology.org/ontology/SNOMEDCT/55190004
@@ -4758,7 +4758,7 @@ name,label,codesystem,code,ontologyTermURI
 56399000,Structure of collateral radial ligament of elbow,SNOMED CT,56399000,http://purl.bioontology.org/ontology/SNOMEDCT/56399000
 56400007,Structure of renal vein,SNOMED CT,56400007,http://purl.bioontology.org/ontology/SNOMEDCT/56400007
 56401006,Bone structure of T5,SNOMED CT,56401006,http://purl.bioontology.org/ontology/SNOMEDCT/56401006
-56411004,"Entire Waldeyer's ring",SNOMED CT,56411004,http://purl.bioontology.org/ontology/SNOMEDCT/56411004
+56411004,Entire Waldeyer's ring,SNOMED CT,56411004,http://purl.bioontology.org/ontology/SNOMEDCT/56411004
 56439003,Structure of right gastroepiploic artery,SNOMED CT,56439003,http://purl.bioontology.org/ontology/SNOMEDCT/56439003
 56450000,Entire crest of head of eighth rib,SNOMED CT,56450000,http://purl.bioontology.org/ontology/SNOMEDCT/56450000
 56459004,Foot structure,SNOMED CT,56459004,http://purl.bioontology.org/ontology/SNOMEDCT/56459004
@@ -5208,7 +5208,7 @@ name,label,codesystem,code,ontologyTermURI
 61787008,Structure of subcapital part of humerus,SNOMED CT,61787008,http://purl.bioontology.org/ontology/SNOMEDCT/61787008
 61791003,Subcutaneous tissue structure of lateral region of trunk,SNOMED CT,61791003,http://purl.bioontology.org/ontology/SNOMEDCT/61791003
 61840008,Structure of endocardium of atrium,SNOMED CT,61840008,http://purl.bioontology.org/ontology/SNOMEDCT/61840008
-61847006,"Structure of Reil's limiting sulcus",SNOMED CT,61847006,http://purl.bioontology.org/ontology/SNOMEDCT/61847006
+61847006,Structure of Reil's limiting sulcus,SNOMED CT,61847006,http://purl.bioontology.org/ontology/SNOMEDCT/61847006
 61853006,Spinal canal structure,SNOMED CT,61853006,http://purl.bioontology.org/ontology/SNOMEDCT/61853006
 61868007,Structure of deciduous mandibular right second molar tooth,SNOMED CT,61868007,http://purl.bioontology.org/ontology/SNOMEDCT/61868007
 61878005,Structure of subarachnoid cistern,SNOMED CT,61878005,http://purl.bioontology.org/ontology/SNOMEDCT/61878005
@@ -5900,7 +5900,7 @@ name,label,codesystem,code,ontologyTermURI
 69833005,Structure of right femoral artery,SNOMED CT,69833005,http://purl.bioontology.org/ontology/SNOMEDCT/69833005
 69838001,Right external ear structure,SNOMED CT,69838001,http://purl.bioontology.org/ontology/SNOMEDCT/69838001
 69842003,Structure of left lobe of liver,SNOMED CT,69842003,http://purl.bioontology.org/ontology/SNOMEDCT/69842003
-69854003,"Structure of Auerbach's plexus",SNOMED CT,69854003,http://purl.bioontology.org/ontology/SNOMEDCT/69854003
+69854003,Structure of Auerbach's plexus,SNOMED CT,69854003,http://purl.bioontology.org/ontology/SNOMEDCT/69854003
 69856001,Structure of transverse process of axis,SNOMED CT,69856001,http://purl.bioontology.org/ontology/SNOMEDCT/69856001
 69857005,Structure of superior thalamic radiation of internal capsule,SNOMED CT,69857005,http://purl.bioontology.org/ontology/SNOMEDCT/69857005
 69898003,Structure of medial head of triceps brachii muscle,SNOMED CT,69898003,http://purl.bioontology.org/ontology/SNOMEDCT/69898003
@@ -6523,7 +6523,7 @@ name,label,codesystem,code,ontologyTermURI
 76986006,Structure of distal phalanx of second toe,SNOMED CT,76986006,http://purl.bioontology.org/ontology/SNOMEDCT/76986006
 76990008,Bronchiole structure of caudal lobe,SNOMED CT,76990008,http://purl.bioontology.org/ontology/SNOMEDCT/76990008
 76993005,Enamel structure,SNOMED CT,76993005,http://purl.bioontology.org/ontology/SNOMEDCT/76993005
-77011004,"Tenon's capsule structure",SNOMED CT,77011004,http://purl.bioontology.org/ontology/SNOMEDCT/77011004
+77011004,Tenon's capsule structure,SNOMED CT,77011004,http://purl.bioontology.org/ontology/SNOMEDCT/77011004
 77024004,Structure of free margin of eyelid,SNOMED CT,77024004,http://purl.bioontology.org/ontology/SNOMEDCT/77024004
 77030004,Structure of ligament of midcarpal joint,SNOMED CT,77030004,http://purl.bioontology.org/ontology/SNOMEDCT/77030004
 77052008,Structure of body of ilium,SNOMED CT,77052008,http://purl.bioontology.org/ontology/SNOMEDCT/77052008
@@ -6657,7 +6657,7 @@ name,label,codesystem,code,ontologyTermURI
 78464007,Retrocecal tissue,SNOMED CT,78464007,http://purl.bioontology.org/ontology/SNOMEDCT/78464007
 78472009,Serrated suture structure,SNOMED CT,78472009,http://purl.bioontology.org/ontology/SNOMEDCT/78472009
 78480002,Structure of right pulmonary artery,SNOMED CT,78480002,http://purl.bioontology.org/ontology/SNOMEDCT/78480002
-78486008,"Structure of descending limb of Henle's loop",SNOMED CT,78486008,http://purl.bioontology.org/ontology/SNOMEDCT/78486008
+78486008,Structure of descending limb of Henle's loop,SNOMED CT,78486008,http://purl.bioontology.org/ontology/SNOMEDCT/78486008
 78492002,Structure of midshaft of tibia,SNOMED CT,78492002,http://purl.bioontology.org/ontology/SNOMEDCT/78492002
 78497008,Structure of external sheath of optic nerve,SNOMED CT,78497008,http://purl.bioontology.org/ontology/SNOMEDCT/78497008
 78501003,Structure of inner part of cartilaginous portion of auditory canal,SNOMED CT,78501003,http://purl.bioontology.org/ontology/SNOMEDCT/78501003
@@ -6921,7 +6921,7 @@ name,label,codesystem,code,ontologyTermURI
 81606001,Structure of anterior portion of interventricular septum,SNOMED CT,81606001,http://purl.bioontology.org/ontology/SNOMEDCT/81606001
 81623005,Visceral pleura structure,SNOMED CT,81623005,http://purl.bioontology.org/ontology/SNOMEDCT/81623005
 81628001,Entire neck of fourth rib,SNOMED CT,81628001,http://purl.bioontology.org/ontology/SNOMEDCT/81628001
-81636005,"Structure of Henle's layer",SNOMED CT,81636005,http://purl.bioontology.org/ontology/SNOMEDCT/81636005
+81636005,Structure of Henle's layer,SNOMED CT,81636005,http://purl.bioontology.org/ontology/SNOMEDCT/81636005
 81657002,Structure of inferior margin of lung,SNOMED CT,81657002,http://purl.bioontology.org/ontology/SNOMEDCT/81657002
 81661008,Structure of anterior ethmoidal nerve,SNOMED CT,81661008,http://purl.bioontology.org/ontology/SNOMEDCT/81661008
 81668002,Structure of malleolar articular facet of fibula,SNOMED CT,81668002,http://purl.bioontology.org/ontology/SNOMEDCT/81668002
@@ -7030,8 +7030,8 @@ name,label,codesystem,code,ontologyTermURI
 82858008,Skin structure of fossa triangularis of ear,SNOMED CT,82858008,http://purl.bioontology.org/ontology/SNOMEDCT/82858008
 82859000,Macula lutea structure,SNOMED CT,82859000,http://purl.bioontology.org/ontology/SNOMEDCT/82859000
 82875002,Structure of third metatarsal articular facet of second metatarsal bone,SNOMED CT,82875002,http://purl.bioontology.org/ontology/SNOMEDCT/82875002
-82880006,"Structure of Broca's area",SNOMED CT,82880006,http://purl.bioontology.org/ontology/SNOMEDCT/82880006
-82881005,"Structure of Roller's nucleus",SNOMED CT,82881005,http://purl.bioontology.org/ontology/SNOMEDCT/82881005
+82880006,Structure of Broca's area,SNOMED CT,82880006,http://purl.bioontology.org/ontology/SNOMEDCT/82880006
+82881005,Structure of Roller's nucleus,SNOMED CT,82881005,http://purl.bioontology.org/ontology/SNOMEDCT/82881005
 82905002,Structure of lateral crus of superficial inguinal ring,SNOMED CT,82905002,http://purl.bioontology.org/ontology/SNOMEDCT/82905002
 82910003,Structure of dorsal surface of fourth toe,SNOMED CT,82910003,http://purl.bioontology.org/ontology/SNOMEDCT/82910003
 82925003,Structure of apex of arytenoid cartilage,SNOMED CT,82925003,http://purl.bioontology.org/ontology/SNOMEDCT/82925003
@@ -7095,7 +7095,7 @@ name,label,codesystem,code,ontologyTermURI
 83693006,Entire superior pancreatic lymph node,SNOMED CT,83693006,http://purl.bioontology.org/ontology/SNOMEDCT/83693006
 83697007,Entire under border of third rib,SNOMED CT,83697007,http://purl.bioontology.org/ontology/SNOMEDCT/83697007
 83708004,Structure of capsule of midcarpal joint,SNOMED CT,83708004,http://purl.bioontology.org/ontology/SNOMEDCT/83708004
-83711003,"Structure of ascending limb of Henle's loop",SNOMED CT,83711003,http://purl.bioontology.org/ontology/SNOMEDCT/83711003
+83711003,Structure of ascending limb of Henle's loop,SNOMED CT,83711003,http://purl.bioontology.org/ontology/SNOMEDCT/83711003
 83713000,Subcutaneous tissue structure of interscapular region of back,SNOMED CT,83713000,http://purl.bioontology.org/ontology/SNOMEDCT/83713000
 83730003,Oblique sesamoidean ligament of forelimb,SNOMED CT,83730003,http://purl.bioontology.org/ontology/SNOMEDCT/83730003
 83738005,Index finger structure,SNOMED CT,83738005,http://purl.bioontology.org/ontology/SNOMEDCT/83738005
@@ -7153,7 +7153,7 @@ name,label,codesystem,code,ontologyTermURI
 84421000,Structure of abdominal vein,SNOMED CT,84421000,http://purl.bioontology.org/ontology/SNOMEDCT/84421000
 84441005,Structure of bifurcated ligament,SNOMED CT,84441005,http://purl.bioontology.org/ontology/SNOMEDCT/84441005
 84462006,Structure of spinous process of seventh thoracic vertebra,SNOMED CT,84462006,http://purl.bioontology.org/ontology/SNOMEDCT/84462006
-84465008,"Structure of Kerckring's valve",SNOMED CT,84465008,http://purl.bioontology.org/ontology/SNOMEDCT/84465008
+84465008,Structure of Kerckring's valve,SNOMED CT,84465008,http://purl.bioontology.org/ontology/SNOMEDCT/84465008
 84507004,Skin structure of popliteal fossa,SNOMED CT,84507004,http://purl.bioontology.org/ontology/SNOMEDCT/84507004
 84522009,Structure of arch of cervical vertebra,SNOMED CT,84522009,http://purl.bioontology.org/ontology/SNOMEDCT/84522009
 84526007,Structure of uvula of bladder,SNOMED CT,84526007,http://purl.bioontology.org/ontology/SNOMEDCT/84526007
@@ -7328,7 +7328,7 @@ name,label,codesystem,code,ontologyTermURI
 86682003,Structure of ceruminous gland,SNOMED CT,86682003,http://purl.bioontology.org/ontology/SNOMEDCT/86682003
 86689007,Bursa of Fabricius,SNOMED CT,86689007,http://purl.bioontology.org/ontology/SNOMEDCT/86689007
 86690003,Greater occipital nerve,SNOMED CT,86690003,http://purl.bioontology.org/ontology/SNOMEDCT/86690003
-86718003,"Structure of Nuel's space",SNOMED CT,86718003,http://purl.bioontology.org/ontology/SNOMEDCT/86718003
+86718003,Structure of Nuel's space,SNOMED CT,86718003,http://purl.bioontology.org/ontology/SNOMEDCT/86718003
 86719006,Skin structure of preauricular region,SNOMED CT,86719006,http://purl.bioontology.org/ontology/SNOMEDCT/86719006
 86721001,Structure of labrum glenoidale,SNOMED CT,86721001,http://purl.bioontology.org/ontology/SNOMEDCT/86721001
 86722008,Entire interosseous talocalcaneal ligament,SNOMED CT,86722008,http://purl.bioontology.org/ontology/SNOMEDCT/86722008
@@ -7387,7 +7387,7 @@ name,label,codesystem,code,ontologyTermURI
 87483006,Tunica intima of vessel,SNOMED CT,87483006,http://purl.bioontology.org/ontology/SNOMEDCT/87483006
 87488002,Structure of inferior mesenteric ganglion,SNOMED CT,87488002,http://purl.bioontology.org/ontology/SNOMEDCT/87488002
 87497003,Structure of acromial facet of clavicle,SNOMED CT,87497003,http://purl.bioontology.org/ontology/SNOMEDCT/87497003
-87501008,"Entire His' perivascular space",SNOMED CT,87501008,http://purl.bioontology.org/ontology/SNOMEDCT/87501008
+87501008,Entire His' perivascular space,SNOMED CT,87501008,http://purl.bioontology.org/ontology/SNOMEDCT/87501008
 87508002,Entire dorsal tarsometatarsal ligament,SNOMED CT,87508002,http://purl.bioontology.org/ontology/SNOMEDCT/87508002
 87516006,Extrapyramidal tract structure,SNOMED CT,87516006,http://purl.bioontology.org/ontology/SNOMEDCT/87516006
 87517002,Structure of hilum of olivary nucleus,SNOMED CT,87517002,http://purl.bioontology.org/ontology/SNOMEDCT/87517002
@@ -7873,7 +7873,7 @@ name,label,codesystem,code,ontologyTermURI
 105584000,Interphalangeal toe joint structure,SNOMED CT,105584000,http://purl.bioontology.org/ontology/SNOMEDCT/105584000
 105585004,Interarytenoid fold structure,SNOMED CT,105585004,http://purl.bioontology.org/ontology/SNOMEDCT/105585004
 105586003,Femoropopliteal vein,SNOMED CT,105586003,http://purl.bioontology.org/ontology/SNOMEDCT/105586003
-105587007,"Zymbal's gland",SNOMED CT,105587007,http://purl.bioontology.org/ontology/SNOMEDCT/105587007
+105587007,Zymbal's gland,SNOMED CT,105587007,http://purl.bioontology.org/ontology/SNOMEDCT/105587007
 108348009,Spinal cord root AND/OR ganglion,SNOMED CT,108348009,http://purl.bioontology.org/ontology/SNOMEDCT/108348009
 108350001,"Abdomen, excluding retroperitoneal region",SNOMED CT,108350001,http://purl.bioontology.org/ontology/SNOMEDCT/108350001
 108371006,Bone structure of tarsus,SNOMED CT,108371006,http://purl.bioontology.org/ontology/SNOMEDCT/108371006
@@ -8552,11 +8552,11 @@ name,label,codesystem,code,ontologyTermURI
 128530007,Entire bony skeleton,SNOMED CT,128530007,http://purl.bioontology.org/ontology/SNOMEDCT/128530007
 128546004,Perforating vein structure of lower extremity,SNOMED CT,128546004,http://purl.bioontology.org/ontology/SNOMEDCT/128546004
 128547008,Retro-tibial perforating vein of lower extremity,SNOMED CT,128547008,http://purl.bioontology.org/ontology/SNOMEDCT/128547008
-128548003,"Boyd's perforating vein",SNOMED CT,128548003,http://purl.bioontology.org/ontology/SNOMEDCT/128548003
-128549006,"Cockett's perforating vein",SNOMED CT,128549006,http://purl.bioontology.org/ontology/SNOMEDCT/128549006
+128548003,Boyd's perforating vein,SNOMED CT,128548003,http://purl.bioontology.org/ontology/SNOMEDCT/128548003
+128549006,Cockett's perforating vein,SNOMED CT,128549006,http://purl.bioontology.org/ontology/SNOMEDCT/128549006
 128550006,Ventro-lateral perforating vein,SNOMED CT,128550006,http://purl.bioontology.org/ontology/SNOMEDCT/128550006
 128553008,Structure of antecubital vein,SNOMED CT,128553008,http://purl.bioontology.org/ontology/SNOMEDCT/128553008
-128554002,"Dodd's perforating vein",SNOMED CT,128554002,http://purl.bioontology.org/ontology/SNOMEDCT/128554002
+128554002,Dodd's perforating vein,SNOMED CT,128554002,http://purl.bioontology.org/ontology/SNOMEDCT/128554002
 128559007,Structure of genicular artery,SNOMED CT,128559007,http://purl.bioontology.org/ontology/SNOMEDCT/128559007
 128560002,Hunterian perforating vein,SNOMED CT,128560002,http://purl.bioontology.org/ontology/SNOMEDCT/128560002
 128564006,Structure of apex of left ventricle,SNOMED CT,128564006,http://purl.bioontology.org/ontology/SNOMEDCT/128564006
@@ -10373,7 +10373,7 @@ name,label,codesystem,code,ontologyTermURI
 243973003,Greater sac of peritoneum,SNOMED CT,243973003,http://purl.bioontology.org/ontology/SNOMEDCT/243973003
 243974009,Subphrenic space,SNOMED CT,243974009,http://purl.bioontology.org/ontology/SNOMEDCT/243974009
 243975005,Suprahepatic area,SNOMED CT,243975005,http://purl.bioontology.org/ontology/SNOMEDCT/243975005
-243977002,"Rutherford Morrison's pouch",SNOMED CT,243977002,http://purl.bioontology.org/ontology/SNOMEDCT/243977002
+243977002,Rutherford Morrison's pouch,SNOMED CT,243977002,http://purl.bioontology.org/ontology/SNOMEDCT/243977002
 243979004,Paracolic region,SNOMED CT,243979004,http://purl.bioontology.org/ontology/SNOMEDCT/243979004
 243980001,Paracolic gutter,SNOMED CT,243980001,http://purl.bioontology.org/ontology/SNOMEDCT/243980001
 243981002,Supracolic region,SNOMED CT,243981002,http://purl.bioontology.org/ontology/SNOMEDCT/243981002
@@ -10484,7 +10484,7 @@ name,label,codesystem,code,ontologyTermURI
 244090002,Entire skin of tip of nose,SNOMED CT,244090002,http://purl.bioontology.org/ontology/SNOMEDCT/244090002
 244091003,Skin of external naris,SNOMED CT,244091003,http://purl.bioontology.org/ontology/SNOMEDCT/244091003
 244092005,Entire skin of lip,SNOMED CT,244092005,http://purl.bioontology.org/ontology/SNOMEDCT/244092005
-244093000,"Entire visceral layer of Bowman's capsule",SNOMED CT,244093000,http://purl.bioontology.org/ontology/SNOMEDCT/244093000
+244093000,Entire visceral layer of Bowman's capsule,SNOMED CT,244093000,http://purl.bioontology.org/ontology/SNOMEDCT/244093000
 244094006,Entire skin of philtrum,SNOMED CT,244094006,http://purl.bioontology.org/ontology/SNOMEDCT/244094006
 244095007,Entire skin of jaw,SNOMED CT,244095007,http://purl.bioontology.org/ontology/SNOMEDCT/244095007
 244096008,Skin of side of jaw,SNOMED CT,244096008,http://purl.bioontology.org/ontology/SNOMEDCT/244096008
@@ -10601,7 +10601,7 @@ name,label,codesystem,code,ontologyTermURI
 244259008,Right dominant posterior descending artery,SNOMED CT,244259008,http://purl.bioontology.org/ontology/SNOMEDCT/244259008
 244260003,Extended left ventricular branch artery,SNOMED CT,244260003,http://purl.bioontology.org/ontology/SNOMEDCT/244260003
 244261004,Abdominal visceral artery,SNOMED CT,244261004,http://purl.bioontology.org/ontology/SNOMEDCT/244261004
-244284006,"Entire Bowman's space",SNOMED CT,244284006,http://purl.bioontology.org/ontology/SNOMEDCT/244284006
+244284006,Entire Bowman's space,SNOMED CT,244284006,http://purl.bioontology.org/ontology/SNOMEDCT/244284006
 244286008,Anterior abdominal wall artery,SNOMED CT,244286008,http://purl.bioontology.org/ontology/SNOMEDCT/244286008
 244289001,Superficial inferior epigastric artery,SNOMED CT,244289001,http://purl.bioontology.org/ontology/SNOMEDCT/244289001
 244291009,Anterior division of internal iliac artery,SNOMED CT,244291009,http://purl.bioontology.org/ontology/SNOMEDCT/244291009
@@ -11256,7 +11256,7 @@ name,label,codesystem,code,ontologyTermURI
 245347004,Entire superior mesenteric lymph node,SNOMED CT,245347004,http://purl.bioontology.org/ontology/SNOMEDCT/245347004
 245348009,Entire inferior mesenteric lymph node,SNOMED CT,245348009,http://purl.bioontology.org/ontology/SNOMEDCT/245348009
 245349001,Entire pararectal lymph node,SNOMED CT,245349001,http://purl.bioontology.org/ontology/SNOMEDCT/245349001
-245350001,"Entire descending limb of Henle's loop",SNOMED CT,245350001,http://purl.bioontology.org/ontology/SNOMEDCT/245350001
+245350001,Entire descending limb of Henle's loop,SNOMED CT,245350001,http://purl.bioontology.org/ontology/SNOMEDCT/245350001
 245351002,Mesorectal node,SNOMED CT,245351002,http://purl.bioontology.org/ontology/SNOMEDCT/245351002
 245353004,Common iliac node,SNOMED CT,245353004,http://purl.bioontology.org/ontology/SNOMEDCT/245353004
 245354005,Posterior common iliac node,SNOMED CT,245354005,http://purl.bioontology.org/ontology/SNOMEDCT/245354005
@@ -11295,7 +11295,7 @@ name,label,codesystem,code,ontologyTermURI
 245390003,Entire lesser duodenal papilla,SNOMED CT,245390003,http://purl.bioontology.org/ontology/SNOMEDCT/245390003
 245391004,Entire fundus of gallbladder,SNOMED CT,245391004,http://purl.bioontology.org/ontology/SNOMEDCT/245391004
 245392006,Entire body of gallbladder,SNOMED CT,245392006,http://purl.bioontology.org/ontology/SNOMEDCT/245392006
-245393001,"Hartmann's pouch",SNOMED CT,245393001,http://purl.bioontology.org/ontology/SNOMEDCT/245393001
+245393001,Hartmann's pouch,SNOMED CT,245393001,http://purl.bioontology.org/ontology/SNOMEDCT/245393001
 245394007,Entire neck of gallbladder,SNOMED CT,245394007,http://purl.bioontology.org/ontology/SNOMEDCT/245394007
 245395008,Proximal third of main bile duct,SNOMED CT,245395008,http://purl.bioontology.org/ontology/SNOMEDCT/245395008
 245396009,Middle third of main bile duct,SNOMED CT,245396009,http://purl.bioontology.org/ontology/SNOMEDCT/245396009
@@ -11329,7 +11329,7 @@ name,label,codesystem,code,ontologyTermURI
 245431002,Supra-ampullary part of rectum,SNOMED CT,245431002,http://purl.bioontology.org/ontology/SNOMEDCT/245431002
 245432009,Entire rectal ampulla,SNOMED CT,245432009,http://purl.bioontology.org/ontology/SNOMEDCT/245432009
 245433004,Flexure of rectum,SNOMED CT,245433004,http://purl.bioontology.org/ontology/SNOMEDCT/245433004
-245434005,"Entire ascending limb of Henle's loop",SNOMED CT,245434005,http://purl.bioontology.org/ontology/SNOMEDCT/245434005
+245434005,Entire ascending limb of Henle's loop,SNOMED CT,245434005,http://purl.bioontology.org/ontology/SNOMEDCT/245434005
 245435006,Entire sacral flexure of rectum,SNOMED CT,245435006,http://purl.bioontology.org/ontology/SNOMEDCT/245435006
 245436007,Entire perineal flexure of rectum,SNOMED CT,245436007,http://purl.bioontology.org/ontology/SNOMEDCT/245436007
 245437003,Lateral flexure of rectum,SNOMED CT,245437003,http://purl.bioontology.org/ontology/SNOMEDCT/245437003
@@ -11902,7 +11902,7 @@ name,label,codesystem,code,ontologyTermURI
 251302002,Entire rectovesical septum,SNOMED CT,251302002,http://purl.bioontology.org/ontology/SNOMEDCT/251302002
 254198003,Lymph nodes of multiple sites,SNOMED CT,254198003,http://purl.bioontology.org/ontology/SNOMEDCT/254198003
 255416003,Entire capillary blood vessel (organ),SNOMED CT,255416003,http://purl.bioontology.org/ontology/SNOMEDCT/255416003
-255571004,"Little's area",SNOMED CT,255571004,http://purl.bioontology.org/ontology/SNOMEDCT/255571004
+255571004,Little's area,SNOMED CT,255571004,http://purl.bioontology.org/ontology/SNOMEDCT/255571004
 256423008,Structure of hair of skin region,SNOMED CT,256423008,http://purl.bioontology.org/ontology/SNOMEDCT/256423008
 256583008,Structure of neuromyoarterial glomus,SNOMED CT,256583008,http://purl.bioontology.org/ontology/SNOMEDCT/256583008
 256661003,Entire pectineal ligament,SNOMED CT,256661003,http://purl.bioontology.org/ontology/SNOMEDCT/256661003
@@ -11993,7 +11993,7 @@ name,label,codesystem,code,ontologyTermURI
 262408004,Entire serous layer of visceral peritoneum,SNOMED CT,262408004,http://purl.bioontology.org/ontology/SNOMEDCT/262408004
 262511001,Entire peritoneal mesothelium,SNOMED CT,262511001,http://purl.bioontology.org/ontology/SNOMEDCT/262511001
 262586001,Entire serous capsule of liver,SNOMED CT,262586001,http://purl.bioontology.org/ontology/SNOMEDCT/262586001
-262666009,"Entire Luschka's ducts",SNOMED CT,262666009,http://purl.bioontology.org/ontology/SNOMEDCT/262666009
+262666009,Entire Luschka's ducts,SNOMED CT,262666009,http://purl.bioontology.org/ontology/SNOMEDCT/262666009
 262753003,Entire serous coat of spleen,SNOMED CT,262753003,http://purl.bioontology.org/ontology/SNOMEDCT/262753003
 262844004,Entire subserous tissue of parietal peritoneum,SNOMED CT,262844004,http://purl.bioontology.org/ontology/SNOMEDCT/262844004
 262929001,Entire subserous tissue of visceral peritoneum,SNOMED CT,262929001,http://purl.bioontology.org/ontology/SNOMEDCT/262929001
@@ -12370,9 +12370,9 @@ name,label,codesystem,code,ontologyTermURI
 267281000,Entire mesenteric border of small intestine,SNOMED CT,267281000,http://purl.bioontology.org/ontology/SNOMEDCT/267281000
 267378008,Entire anti-mesenteric border of small intestine,SNOMED CT,267378008,http://purl.bioontology.org/ontology/SNOMEDCT/267378008
 267457009,Entire small intestinal lumen,SNOMED CT,267457009,http://purl.bioontology.org/ontology/SNOMEDCT/267457009
-267547005,"Entire Kerckring's valve",SNOMED CT,267547005,http://purl.bioontology.org/ontology/SNOMEDCT/267547005
+267547005,Entire Kerckring's valve,SNOMED CT,267547005,http://purl.bioontology.org/ontology/SNOMEDCT/267547005
 267632005,Entire sympathetic enteric plexus,SNOMED CT,267632005,http://purl.bioontology.org/ontology/SNOMEDCT/267632005
-267716001,"Entire Auerbach's plexus",SNOMED CT,267716001,http://purl.bioontology.org/ontology/SNOMEDCT/267716001
+267716001,Entire Auerbach's plexus,SNOMED CT,267716001,http://purl.bioontology.org/ontology/SNOMEDCT/267716001
 267901006,Entire lymphatic vessel of stomach,SNOMED CT,267901006,http://purl.bioontology.org/ontology/SNOMEDCT/267901006
 268168004,Entire angular incisure of stomach,SNOMED CT,268168004,http://purl.bioontology.org/ontology/SNOMEDCT/268168004
 268250007,Entire cardiac incisure of stomach,SNOMED CT,268250007,http://purl.bioontology.org/ontology/SNOMEDCT/268250007
@@ -12851,7 +12851,7 @@ name,label,codesystem,code,ontologyTermURI
 278826002,Body internal region,SNOMED CT,278826002,http://purl.bioontology.org/ontology/SNOMEDCT/278826002
 278827006,Superior lumbar triangle,SNOMED CT,278827006,http://purl.bioontology.org/ontology/SNOMEDCT/278827006
 278828001,Inferior lumbar triangle,SNOMED CT,278828001,http://purl.bioontology.org/ontology/SNOMEDCT/278828001
-278829009,"Entire Hesselbach's triangle",SNOMED CT,278829009,http://purl.bioontology.org/ontology/SNOMEDCT/278829009
+278829009,Entire Hesselbach's triangle,SNOMED CT,278829009,http://purl.bioontology.org/ontology/SNOMEDCT/278829009
 278830004,Entire inguinal ring,SNOMED CT,278830004,http://purl.bioontology.org/ontology/SNOMEDCT/278830004
 278831000,Entire deep inguinal ring,SNOMED CT,278831000,http://purl.bioontology.org/ontology/SNOMEDCT/278831000
 278842009,Third of esophagus,SNOMED CT,278842009,http://purl.bioontology.org/ontology/SNOMEDCT/278842009
@@ -13053,8 +13053,8 @@ name,label,codesystem,code,ontologyTermURI
 279254007,Vestibular area,SNOMED CT,279254007,http://purl.bioontology.org/ontology/SNOMEDCT/279254007
 279255008,Auditory area of cortex,SNOMED CT,279255008,http://purl.bioontology.org/ontology/SNOMEDCT/279255008
 279256009,Taste area,SNOMED CT,279256009,http://purl.bioontology.org/ontology/SNOMEDCT/279256009
-279257000,"Entire Broca's area",SNOMED CT,279257000,http://purl.bioontology.org/ontology/SNOMEDCT/279257000
-279258005,"Wernicke's area",SNOMED CT,279258005,http://purl.bioontology.org/ontology/SNOMEDCT/279258005
+279257000,Entire Broca's area,SNOMED CT,279257000,http://purl.bioontology.org/ontology/SNOMEDCT/279257000
+279258005,Wernicke's area,SNOMED CT,279258005,http://purl.bioontology.org/ontology/SNOMEDCT/279258005
 279259002,Sensory speech area,SNOMED CT,279259002,http://purl.bioontology.org/ontology/SNOMEDCT/279259002
 279260007,Entire inferior sagittal sinus,SNOMED CT,279260007,http://purl.bioontology.org/ontology/SNOMEDCT/279260007
 279261006,Entire straight sinus,SNOMED CT,279261006,http://purl.bioontology.org/ontology/SNOMEDCT/279261006
@@ -13128,7 +13128,7 @@ name,label,codesystem,code,ontologyTermURI
 279344005,Entire superior temporal sulcus,SNOMED CT,279344005,http://purl.bioontology.org/ontology/SNOMEDCT/279344005
 279345006,Entire middle temporal sulcus,SNOMED CT,279345006,http://purl.bioontology.org/ontology/SNOMEDCT/279345006
 279346007,Entire inferior temporal sulcus,SNOMED CT,279346007,http://purl.bioontology.org/ontology/SNOMEDCT/279346007
-279347003,"Entire Reil's limiting sulcus",SNOMED CT,279347003,http://purl.bioontology.org/ontology/SNOMEDCT/279347003
+279347003,Entire Reil's limiting sulcus,SNOMED CT,279347003,http://purl.bioontology.org/ontology/SNOMEDCT/279347003
 279348008,Central sulcus of insula,SNOMED CT,279348008,http://purl.bioontology.org/ontology/SNOMEDCT/279348008
 279349000,Callosal sulcus,SNOMED CT,279349000,http://purl.bioontology.org/ontology/SNOMEDCT/279349000
 279350000,Entire cingulate sulcus,SNOMED CT,279350000,http://purl.bioontology.org/ontology/SNOMEDCT/279350000
@@ -13648,7 +13648,7 @@ name,label,codesystem,code,ontologyTermURI
 280198003,Inferior vagus ganglion,SNOMED CT,280198003,http://purl.bioontology.org/ontology/SNOMEDCT/280198003
 280205004,Entire superior branch of oculomotor nerve,SNOMED CT,280205004,http://purl.bioontology.org/ontology/SNOMEDCT/280205004
 280206003,Entire inferior branch of oculomotor nerve,SNOMED CT,280206003,http://purl.bioontology.org/ontology/SNOMEDCT/280206003
-280207007,"Killian's dehiscence",SNOMED CT,280207007,http://purl.bioontology.org/ontology/SNOMEDCT/280207007
+280207007,Killian's dehiscence,SNOMED CT,280207007,http://purl.bioontology.org/ontology/SNOMEDCT/280207007
 280208002,Motor root of ciliary ganglion,SNOMED CT,280208002,http://purl.bioontology.org/ontology/SNOMEDCT/280208002
 280209005,Division of trigeminal nerve,SNOMED CT,280209005,http://purl.bioontology.org/ontology/SNOMEDCT/280209005
 280210000,Entire ophthalmic nerve,SNOMED CT,280210000,http://purl.bioontology.org/ontology/SNOMEDCT/280210000
@@ -14020,7 +14020,7 @@ name,label,codesystem,code,ontologyTermURI
 280649008,Valve of medial palpebral ligament,SNOMED CT,280649008,http://purl.bioontology.org/ontology/SNOMEDCT/280649008
 280650008,Entire posterior part of uveal tract,SNOMED CT,280650008,http://purl.bioontology.org/ontology/SNOMEDCT/280650008
 280651007,Valve of Huscke,SNOMED CT,280651007,http://purl.bioontology.org/ontology/SNOMEDCT/280651007
-280652000,"Entire Bruch's basal membrane",SNOMED CT,280652000,http://purl.bioontology.org/ontology/SNOMEDCT/280652000
+280652000,Entire Bruch's basal membrane,SNOMED CT,280652000,http://purl.bioontology.org/ontology/SNOMEDCT/280652000
 280653005,Valve of Beraud,SNOMED CT,280653005,http://purl.bioontology.org/ontology/SNOMEDCT/280653005
 280654004,Valve of Taillefer,SNOMED CT,280654004,http://purl.bioontology.org/ontology/SNOMEDCT/280654004
 280655003,Valve of Hasner,SNOMED CT,280655003,http://purl.bioontology.org/ontology/SNOMEDCT/280655003
@@ -14032,7 +14032,7 @@ name,label,codesystem,code,ontologyTermURI
 280661000,Entire posterior pole of eye,SNOMED CT,280661000,http://purl.bioontology.org/ontology/SNOMEDCT/280661000
 280662007,Entire retinal pigment epithelium,SNOMED CT,280662007,http://purl.bioontology.org/ontology/SNOMEDCT/280662007
 280663002,Structure of conjunctival zone,SNOMED CT,280663002,http://purl.bioontology.org/ontology/SNOMEDCT/280663002
-280664008,"Henle's fiber layer",SNOMED CT,280664008,http://purl.bioontology.org/ontology/SNOMEDCT/280664008
+280664008,Henle's fiber layer,SNOMED CT,280664008,http://purl.bioontology.org/ontology/SNOMEDCT/280664008
 280665009,Nuclear layer of retina,SNOMED CT,280665009,http://purl.bioontology.org/ontology/SNOMEDCT/280665009
 280666005,Entire palpebral conjunctiva,SNOMED CT,280666005,http://purl.bioontology.org/ontology/SNOMEDCT/280666005
 280667001,Limiting membrane of retina,SNOMED CT,280667001,http://purl.bioontology.org/ontology/SNOMEDCT/280667001
@@ -14047,12 +14047,12 @@ name,label,codesystem,code,ontologyTermURI
 280677004,Internal limiting membrane of retina,SNOMED CT,280677004,http://purl.bioontology.org/ontology/SNOMEDCT/280677004
 280678009,Entire outer nuclear layer of retina,SNOMED CT,280678009,http://purl.bioontology.org/ontology/SNOMEDCT/280678009
 280679001,Structure of conjunctival fold,SNOMED CT,280679001,http://purl.bioontology.org/ontology/SNOMEDCT/280679001
-280680003,"Stieda's conjunctival groove",SNOMED CT,280680003,http://purl.bioontology.org/ontology/SNOMEDCT/280680003
+280680003,Stieda's conjunctival groove,SNOMED CT,280680003,http://purl.bioontology.org/ontology/SNOMEDCT/280680003
 280681004,Conjunctival papilla,SNOMED CT,280681004,http://purl.bioontology.org/ontology/SNOMEDCT/280681004
 280682006,Entire inner plexiform layer of retina,SNOMED CT,280682006,http://purl.bioontology.org/ontology/SNOMEDCT/280682006
 280683001,Structure of subtarsal fold of conjunctiva,SNOMED CT,280683001,http://purl.bioontology.org/ontology/SNOMEDCT/280683001
 280684007,Entire outer plexiform layer of retina,SNOMED CT,280684007,http://purl.bioontology.org/ontology/SNOMEDCT/280684007
-280685008,"Structure of Stieda's conjunctival fold",SNOMED CT,280685008,http://purl.bioontology.org/ontology/SNOMEDCT/280685008
+280685008,Structure of Stieda's conjunctival fold,SNOMED CT,280685008,http://purl.bioontology.org/ontology/SNOMEDCT/280685008
 280686009,Entire semilunar fold of conjunctiva,SNOMED CT,280686009,http://purl.bioontology.org/ontology/SNOMEDCT/280686009
 280687000,Smooth part of ciliary body,SNOMED CT,280687000,http://purl.bioontology.org/ontology/SNOMEDCT/280687000
 280688005,Corneal surface zone,SNOMED CT,280688005,http://purl.bioontology.org/ontology/SNOMEDCT/280688005
@@ -14212,13 +14212,13 @@ name,label,codesystem,code,ontologyTermURI
 280864005,Epichoroidal star of ciliary muscle,SNOMED CT,280864005,http://purl.bioontology.org/ontology/SNOMEDCT/280864005
 280865006,Entire meridional fibers of ciliary muscle,SNOMED CT,280865006,http://purl.bioontology.org/ontology/SNOMEDCT/280865006
 280866007,Entire circular fibers of ciliary muscle,SNOMED CT,280866007,http://purl.bioontology.org/ontology/SNOMEDCT/280866007
-280867003,"Muller's ciliary muscle",SNOMED CT,280867003,http://purl.bioontology.org/ontology/SNOMEDCT/280867003
+280867003,Muller's ciliary muscle,SNOMED CT,280867003,http://purl.bioontology.org/ontology/SNOMEDCT/280867003
 280868008,Ciliary stroma,SNOMED CT,280868008,http://purl.bioontology.org/ontology/SNOMEDCT/280868008
 280869000,Ciliary epithelium structure,SNOMED CT,280869000,http://purl.bioontology.org/ontology/SNOMEDCT/280869000
 280870004,Entire ciliary epithelium,SNOMED CT,280870004,http://purl.bioontology.org/ontology/SNOMEDCT/280870004
 280872007,Inner layer of ciliary epithelium,SNOMED CT,280872007,http://purl.bioontology.org/ontology/SNOMEDCT/280872007
 280873002,Entire pigmented layer of ciliary body,SNOMED CT,280873002,http://purl.bioontology.org/ontology/SNOMEDCT/280873002
-280874008,"Ciliary part of Bruch's membrane",SNOMED CT,280874008,http://purl.bioontology.org/ontology/SNOMEDCT/280874008
+280874008,Ciliary part of Bruch's membrane,SNOMED CT,280874008,http://purl.bioontology.org/ontology/SNOMEDCT/280874008
 280875009,Internal limiting membrane of ciliary body,SNOMED CT,280875009,http://purl.bioontology.org/ontology/SNOMEDCT/280875009
 280876005,Iridociliary junction,SNOMED CT,280876005,http://purl.bioontology.org/ontology/SNOMEDCT/280876005
 280877001,Zone of iris,SNOMED CT,280877001,http://purl.bioontology.org/ontology/SNOMEDCT/280877001
@@ -14239,7 +14239,7 @@ name,label,codesystem,code,ontologyTermURI
 280897006,Layer of large choroidal vessels,SNOMED CT,280897006,http://purl.bioontology.org/ontology/SNOMEDCT/280897006
 280898001,Layer of medium vessels,SNOMED CT,280898001,http://purl.bioontology.org/ontology/SNOMEDCT/280898001
 280899009,Entire lamina choroidocapillaris,SNOMED CT,280899009,http://purl.bioontology.org/ontology/SNOMEDCT/280899009
-280900004,"Choroidal part of Bruch's membrane",SNOMED CT,280900004,http://purl.bioontology.org/ontology/SNOMEDCT/280900004
+280900004,Choroidal part of Bruch's membrane,SNOMED CT,280900004,http://purl.bioontology.org/ontology/SNOMEDCT/280900004
 280903002,Pulp of finger,SNOMED CT,280903002,http://purl.bioontology.org/ontology/SNOMEDCT/280903002
 280904008,Pulp of thumb,SNOMED CT,280904008,http://purl.bioontology.org/ontology/SNOMEDCT/280904008
 280908006,Entire skin of supraclavicular region of neck,SNOMED CT,280908006,http://purl.bioontology.org/ontology/SNOMEDCT/280908006
@@ -14276,8 +14276,8 @@ name,label,codesystem,code,ontologyTermURI
 281070008,Gland of Zeis,SNOMED CT,281070008,http://purl.bioontology.org/ontology/SNOMEDCT/281070008
 281073005,Junction of small intestine,SNOMED CT,281073005,http://purl.bioontology.org/ontology/SNOMEDCT/281073005
 281074004,Duodenojejunal junction,SNOMED CT,281074004,http://purl.bioontology.org/ontology/SNOMEDCT/281074004
-281075003,"Entire Bowman's layer",SNOMED CT,281075003,http://purl.bioontology.org/ontology/SNOMEDCT/281075003
-281076002,"Entire Descemet's membrane",SNOMED CT,281076002,http://purl.bioontology.org/ontology/SNOMEDCT/281076002
+281075003,Entire Bowman's layer,SNOMED CT,281075003,http://purl.bioontology.org/ontology/SNOMEDCT/281075003
+281076002,Entire Descemet's membrane,SNOMED CT,281076002,http://purl.bioontology.org/ontology/SNOMEDCT/281076002
 281079009,Superior division of central artery of retina,SNOMED CT,281079009,http://purl.bioontology.org/ontology/SNOMEDCT/281079009
 281081006,Inferior division of central artery of retina,SNOMED CT,281081006,http://purl.bioontology.org/ontology/SNOMEDCT/281081006
 281082004,Macular arteriole,SNOMED CT,281082004,http://purl.bioontology.org/ontology/SNOMEDCT/281082004
@@ -15803,8 +15803,8 @@ name,label,codesystem,code,ontologyTermURI
 319024007,Entire hair matrix,SNOMED CT,319024007,http://purl.bioontology.org/ontology/SNOMEDCT/319024007
 319123004,Entire hair papilla,SNOMED CT,319123004,http://purl.bioontology.org/ontology/SNOMEDCT/319123004
 319224003,Entire outer root sheath,SNOMED CT,319224003,http://purl.bioontology.org/ontology/SNOMEDCT/319224003
-319322001,"Entire Henle's layer",SNOMED CT,319322001,http://purl.bioontology.org/ontology/SNOMEDCT/319322001
-319423007,"Entire Huxley's layer",SNOMED CT,319423007,http://purl.bioontology.org/ontology/SNOMEDCT/319423007
+319322001,Entire Henle's layer,SNOMED CT,319322001,http://purl.bioontology.org/ontology/SNOMEDCT/319322001
+319423007,Entire Huxley's layer,SNOMED CT,319423007,http://purl.bioontology.org/ontology/SNOMEDCT/319423007
 319522000,Entire infundibulum of hair follicle,SNOMED CT,319522000,http://purl.bioontology.org/ontology/SNOMEDCT/319522000
 319622005,Entire infundibular canal of hair follicle,SNOMED CT,319622005,http://purl.bioontology.org/ontology/SNOMEDCT/319622005
 319720006,Entire vellus hair,SNOMED CT,319720006,http://purl.bioontology.org/ontology/SNOMEDCT/319720006
@@ -15833,7 +15833,7 @@ name,label,codesystem,code,ontologyTermURI
 322050006,Entire appendicular skeleton,SNOMED CT,322050006,http://purl.bioontology.org/ontology/SNOMEDCT/322050006
 322151008,Entire venous network,SNOMED CT,322151008,http://purl.bioontology.org/ontology/SNOMEDCT/322151008
 322249004,Entire gastrointestinal mucous membrane,SNOMED CT,322249004,http://purl.bioontology.org/ontology/SNOMEDCT/322249004
-322349001,"Entire Meissner's plexus",SNOMED CT,322349001,http://purl.bioontology.org/ontology/SNOMEDCT/322349001
+322349001,Entire Meissner's plexus,SNOMED CT,322349001,http://purl.bioontology.org/ontology/SNOMEDCT/322349001
 322449002,Entire gastrointestinal serosa,SNOMED CT,322449002,http://purl.bioontology.org/ontology/SNOMEDCT/322449002
 322548008,Entire gastrointestinal subserosa,SNOMED CT,322548008,http://purl.bioontology.org/ontology/SNOMEDCT/322548008
 322648002,Entire esophageal lumen,SNOMED CT,322648002,http://purl.bioontology.org/ontology/SNOMEDCT/322648002
@@ -15848,10 +15848,10 @@ name,label,codesystem,code,ontologyTermURI
 323810003,Entire parasympathetic fibers to bladder,SNOMED CT,323810003,http://purl.bioontology.org/ontology/SNOMEDCT/323810003
 323907009,Entire parasympathetic fibers to external genitalia,SNOMED CT,323907009,http://purl.bioontology.org/ontology/SNOMEDCT/323907009
 323998008,Entire medial root of optic tract,SNOMED CT,323998008,http://purl.bioontology.org/ontology/SNOMEDCT/323998008
-324097006,"Entire Held's space",SNOMED CT,324097006,http://purl.bioontology.org/ontology/SNOMEDCT/324097006
+324097006,Entire Held's space,SNOMED CT,324097006,http://purl.bioontology.org/ontology/SNOMEDCT/324097006
 324194002,Entire meningeal spaces,SNOMED CT,324194002,http://purl.bioontology.org/ontology/SNOMEDCT/324194002
 324289009,Entire virchow-Robin space,SNOMED CT,324289009,http://purl.bioontology.org/ontology/SNOMEDCT/324289009
-324385000,"Structure of His' perivascular space",SNOMED CT,324385000,http://purl.bioontology.org/ontology/SNOMEDCT/324385000
+324385000,Structure of His' perivascular space,SNOMED CT,324385000,http://purl.bioontology.org/ontology/SNOMEDCT/324385000
 324478000,Entire sympathetic trunk ganglia,SNOMED CT,324478000,http://purl.bioontology.org/ontology/SNOMEDCT/324478000
 324571009,Structure of sympathetic trunk intermediate ganglia,SNOMED CT,324571009,http://purl.bioontology.org/ontology/SNOMEDCT/324571009
 324663003,Entire ganglion terminale of cephalic portion of sympathetic nervous system,SNOMED CT,324663003,http://purl.bioontology.org/ontology/SNOMEDCT/324663003
@@ -16395,7 +16395,7 @@ name,label,codesystem,code,ontologyTermURI
 361331000,Entire glomerular capsule,SNOMED CT,361331000,http://purl.bioontology.org/ontology/SNOMEDCT/361331000
 361332007,Entire renal tubule,SNOMED CT,361332007,http://purl.bioontology.org/ontology/SNOMEDCT/361332007
 361333002,Entire convoluted renal tubule,SNOMED CT,361333002,http://purl.bioontology.org/ontology/SNOMEDCT/361333002
-361335009,"Entire henle's loop",SNOMED CT,361335009,http://purl.bioontology.org/ontology/SNOMEDCT/361335009
+361335009,Entire henle's loop,SNOMED CT,361335009,http://purl.bioontology.org/ontology/SNOMEDCT/361335009
 361336005,Entire distal convoluted renal tubule,SNOMED CT,361336005,http://purl.bioontology.org/ontology/SNOMEDCT/361336005
 361337001,Entire nephron,SNOMED CT,361337001,http://purl.bioontology.org/ontology/SNOMEDCT/361337001
 361339003,Entire endocrine pancreas,SNOMED CT,361339003,http://purl.bioontology.org/ontology/SNOMEDCT/361339003
@@ -16471,7 +16471,7 @@ name,label,codesystem,code,ontologyTermURI
 361572002,Entire medial lemniscus in pons,SNOMED CT,361572002,http://purl.bioontology.org/ontology/SNOMEDCT/361572002
 361573007,Lateral lemniscus of pons,SNOMED CT,361573007,http://purl.bioontology.org/ontology/SNOMEDCT/361573007
 361574001,Entire diencephalic periventricular fibers,SNOMED CT,361574001,http://purl.bioontology.org/ontology/SNOMEDCT/361574001
-361575000,"Entire luys' nucleus",SNOMED CT,361575000,http://purl.bioontology.org/ontology/SNOMEDCT/361575000
+361575000,Entire luys' nucleus,SNOMED CT,361575000,http://purl.bioontology.org/ontology/SNOMEDCT/361575000
 361576004,Entire rhinencephalon,SNOMED CT,361576004,http://purl.bioontology.org/ontology/SNOMEDCT/361576004
 361579006,Entire corpora quadrigemina,SNOMED CT,361579006,http://purl.bioontology.org/ontology/SNOMEDCT/361579006
 361586003,Rubro-olivary tract,SNOMED CT,361586003,http://purl.bioontology.org/ontology/SNOMEDCT/361586003
@@ -16979,7 +16979,7 @@ name,label,codesystem,code,ontologyTermURI
 362215008,Entire area cribrosa of renal papilla,SNOMED CT,362215008,http://purl.bioontology.org/ontology/SNOMEDCT/362215008
 362216009,Entire perirenal tissue,SNOMED CT,362216009,http://purl.bioontology.org/ontology/SNOMEDCT/362216009
 362217000,Entire glomerulus,SNOMED CT,362217000,http://purl.bioontology.org/ontology/SNOMEDCT/362217000
-362218005,"Entire parietal layer of Bowman's capsule",SNOMED CT,362218005,http://purl.bioontology.org/ontology/SNOMEDCT/362218005
+362218005,Entire parietal layer of Bowman's capsule,SNOMED CT,362218005,http://purl.bioontology.org/ontology/SNOMEDCT/362218005
 362219002,Entire juxtaglomerular apparatus,SNOMED CT,362219002,http://purl.bioontology.org/ontology/SNOMEDCT/362219002
 362220008,Entire proximal convoluted renal tubule,SNOMED CT,362220008,http://purl.bioontology.org/ontology/SNOMEDCT/362220008
 362221007,Entire renal pelvis,SNOMED CT,362221007,http://purl.bioontology.org/ontology/SNOMEDCT/362221007
@@ -18520,7 +18520,7 @@ name,label,codesystem,code,ontologyTermURI
 368822003,Entire corneal spaces,SNOMED CT,368822003,http://purl.bioontology.org/ontology/SNOMEDCT/368822003
 368825001,All corneal epithelium,SNOMED CT,368825001,http://purl.bioontology.org/ontology/SNOMEDCT/368825001
 368827009,Entire corneal endothelium,SNOMED CT,368827009,http://purl.bioontology.org/ontology/SNOMEDCT/368827009
-368828004,"Entire Fontana's spaces",SNOMED CT,368828004,http://purl.bioontology.org/ontology/SNOMEDCT/368828004
+368828004,Entire Fontana's spaces,SNOMED CT,368828004,http://purl.bioontology.org/ontology/SNOMEDCT/368828004
 368830002,Entire pars plana,SNOMED CT,368830002,http://purl.bioontology.org/ontology/SNOMEDCT/368830002
 368832005,Entire lamina basalis of ciliary body,SNOMED CT,368832005,http://purl.bioontology.org/ontology/SNOMEDCT/368832005
 368834006,Entire pigmented layer of iris,SNOMED CT,368834006,http://purl.bioontology.org/ontology/SNOMEDCT/368834006
@@ -18641,7 +18641,7 @@ name,label,codesystem,code,ontologyTermURI
 368962003,Entire pectinate zone of organ of Corti,SNOMED CT,368962003,http://purl.bioontology.org/ontology/SNOMEDCT/368962003
 368963008,Entire vas spirale of cochlea,SNOMED CT,368963008,http://purl.bioontology.org/ontology/SNOMEDCT/368963008
 368964002,Entire habenula perforata of organ of Corti,SNOMED CT,368964002,http://purl.bioontology.org/ontology/SNOMEDCT/368964002
-368965001,"Entire Nuel's space",SNOMED CT,368965001,http://purl.bioontology.org/ontology/SNOMEDCT/368965001
+368965001,Entire Nuel's space,SNOMED CT,368965001,http://purl.bioontology.org/ontology/SNOMEDCT/368965001
 368966000,Entire reticular membrane of cochlear duct,SNOMED CT,368966000,http://purl.bioontology.org/ontology/SNOMEDCT/368966000
 368967009,Entire tight junction of cochlear duct,SNOMED CT,368967009,http://purl.bioontology.org/ontology/SNOMEDCT/368967009
 368968004,Entire intermediary junction of cochlear duct,SNOMED CT,368968004,http://purl.bioontology.org/ontology/SNOMEDCT/368968004
@@ -18726,7 +18726,7 @@ name,label,codesystem,code,ontologyTermURI
 369072005,Entire nucleus cuneatus,SNOMED CT,369072005,http://purl.bioontology.org/ontology/SNOMEDCT/369072005
 369073000,Structure of accessory cuneate nucleus,SNOMED CT,369073000,http://purl.bioontology.org/ontology/SNOMEDCT/369073000
 369075007,Entire medulla oblongata lateral nucleus,SNOMED CT,369075007,http://purl.bioontology.org/ontology/SNOMEDCT/369075007
-369076008,"Entire Roller's nucleus",SNOMED CT,369076008,http://purl.bioontology.org/ontology/SNOMEDCT/369076008
+369076008,Entire Roller's nucleus,SNOMED CT,369076008,http://purl.bioontology.org/ontology/SNOMEDCT/369076008
 369077004,Entire nucleus intercalatus,SNOMED CT,369077004,http://purl.bioontology.org/ontology/SNOMEDCT/369077004
 369078009,Entire nucleus prepositus,SNOMED CT,369078009,http://purl.bioontology.org/ontology/SNOMEDCT/369078009
 369079001,Entire fasciculus gracilis,SNOMED CT,369079001,http://purl.bioontology.org/ontology/SNOMEDCT/369079001
@@ -18835,7 +18835,7 @@ name,label,codesystem,code,ontologyTermURI
 369187003,Entire subthalamic fasciculus,SNOMED CT,369187003,http://purl.bioontology.org/ontology/SNOMEDCT/369187003
 369188008,Structure of ansa lenticularis,SNOMED CT,369188008,http://purl.bioontology.org/ontology/SNOMEDCT/369188008
 369189000,Structure of lenticular fasciculus,SNOMED CT,369189000,http://purl.bioontology.org/ontology/SNOMEDCT/369189000
-369190009,"Structure of Forel's H2 bundle",SNOMED CT,369190009,http://purl.bioontology.org/ontology/SNOMEDCT/369190009
+369190009,Structure of Forel's H2 bundle,SNOMED CT,369190009,http://purl.bioontology.org/ontology/SNOMEDCT/369190009
 369191008,Structure of nucleus of the tegmented field of Forel,SNOMED CT,369191008,http://purl.bioontology.org/ontology/SNOMEDCT/369191008
 369192001,Structure of endopeduncular nucleus,SNOMED CT,369192001,http://purl.bioontology.org/ontology/SNOMEDCT/369192001
 369193006,Entire subcommissural organ,SNOMED CT,369193006,http://purl.bioontology.org/ontology/SNOMEDCT/369193006
@@ -19359,7 +19359,7 @@ name,label,codesystem,code,ontologyTermURI
 386059001,Guinea-pig hair,SNOMED CT,386059001,http://purl.bioontology.org/ontology/SNOMEDCT/386059001
 386060006,Hamster hair,SNOMED CT,386060006,http://purl.bioontology.org/ontology/SNOMEDCT/386060006
 386061005,Mouse hair,SNOMED CT,386061005,http://purl.bioontology.org/ontology/SNOMEDCT/386061005
-386062003,"Pig's bristles",SNOMED CT,386062003,http://purl.bioontology.org/ontology/SNOMEDCT/386062003
+386062003,Pig's bristles,SNOMED CT,386062003,http://purl.bioontology.org/ontology/SNOMEDCT/386062003
 386063008,Rabbit hair,SNOMED CT,386063008,http://purl.bioontology.org/ontology/SNOMEDCT/386063008
 386064002,Rat hair,SNOMED CT,386064002,http://purl.bioontology.org/ontology/SNOMEDCT/386064002
 386096005,Foot joint synovium,SNOMED CT,386096005,http://purl.bioontology.org/ontology/SNOMEDCT/386096005
