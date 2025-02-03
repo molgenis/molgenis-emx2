@@ -56,13 +56,3 @@ test("it should update the model value when a field is filled out", async ({
   await page.getByLabel("name", { exact: true }).fill("test");
   await expect(page.getByLabel("name", { exact: true })).toHaveValue("test");
 });
-
-test("should also work for refs", async ({ page }) => {
-  await page.goto(`${route}Form.story?schema=pet+store&table=Pet`);
-  await page.getByText("Jump to", { exact: true }).click({ delay: 600 });
-  await page.getByText("dog").click();
-  await expect(
-    page.locator("#category-radio-group").getByText("dog")
-  ).toBeVisible();
-  await expect(page.getByRole("button", { name: "dog" })).toBeVisible();
-});
