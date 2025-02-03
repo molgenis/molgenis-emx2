@@ -6,7 +6,6 @@ import type {
   columnValueObject,
 } from "../../../metadata-utils/src/types";
 import type { IValueLabel } from "~/types/types";
-import type { ITableMetaData } from "metadata-utils";
 
 const props = withDefaults(
   defineProps<{
@@ -34,7 +33,7 @@ const props = withDefaults(
 );
 
 const modelValue = defineModel<columnValueObject[] | columnValueObject | "">(); //empty string might happen
-const tableMetadata = ref<ITableMetaData>;
+
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
 const optionMap: Ref<Record<string, columnValueObject>> = ref({});
 const selectionMap: Ref<Record<string, columnValueObject>> = ref({});
@@ -79,34 +78,32 @@ const selection = computed(() =>
     : (Object.keys(selectionMap.value)[0] as string)
 );
 
-onMounted(async () => {
-  tableMetadata.value = await fetchTableMetadata(
+const tableMetadata = await fetchTableMetadata(
+  props.refSchemaId,
+  props.refTableId
+);
+//first we need to retrieve all selected items so are sure we have all for the template
+if (
+  modelValue.value && Array.isArray(modelValue.value)
+    ? modelValue.value.length > 0
+    : modelValue.value
+) {
+  const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
-    props.refTableId
+    props.refTableId,
+    { filter: { equals: modelValue.value } }
   );
-  //first we need to retrieve all selected items so are sure we have all for the template
-  if (
-    modelValue.value && Array.isArray(modelValue.value)
-      ? modelValue.value.length > 0
-      : modelValue.value
-  ) {
-    const data: ITableDataResponse = await fetchTableData(
-      props.refSchemaId,
-      props.refTableId,
-      { filter: { equals: modelValue.value } }
+  if (data.rows) {
+    hasNoResults.value = false;
+    data.rows?.forEach(
+      (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
     );
-    if (data.rows) {
-      hasNoResults.value = false;
-      data.rows?.forEach(
-        (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
-      );
-    }
   }
+}
 
-  //then we load the options for the first time
-  await loadOptions({ limit: props.limit });
-  initialCount.value = count.value;
-});
+//then we load the options for the first time
+await loadOptions({ limit: props.limit });
+initialCount.value = count.value;
 
 function applyTemplate(template: string, row: Record<string, any>): string {
   const ids = Object.keys(row);
@@ -147,7 +144,6 @@ function updateSearch(newSearchTerms: string) {
 }
 
 function select(label: string) {
-  console.log("select " + label);
   if (!props.isArray) {
     selectionMap.value = {};
   }
@@ -164,7 +160,7 @@ function select(label: string) {
 
 function extractPrimaryKey(value: any) {
   const result = {} as columnValueObject;
-  tableMetadata.value.columns
+  tableMetadata.columns
     .filter((column) => column.key === 1)
     .forEach((column) => {
       result[column.id] = value[column.id];

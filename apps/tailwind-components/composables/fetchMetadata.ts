@@ -25,16 +25,9 @@ export default async (schemaId: string): Promise<ISchemaMetaData> => {
       });
     });
 
-    
-    console.log(`Fetching metadata for schema ${schemaId}`);
-
-
-
     // Update the cache
     cached.value = data._schema;
-  } else {
-    console.log(`Getting value from cache for schema ${schemaId}`);
-  }
+  } 
 
   return cached.value;
 };

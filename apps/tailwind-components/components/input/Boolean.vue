@@ -2,7 +2,7 @@
   <InputRadioGroup
     :id="id"
     :modelValue="props.modelValue"
-    :radioOptions="radioOptions"
+    :options="radioOptions"
     :showClearButton="true"
     align="horizontal"
     @update:modelValue="onInput"

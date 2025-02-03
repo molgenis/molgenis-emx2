@@ -45,8 +45,6 @@ const emitSelectedChildren = ref(true);
         :nodes="nodes"
         v-model="selectedNodesNames"
         :expandSelected="expandSelected"
-        class="p-4"
-        :class="inverted ? 'bg-white' : 'bg-sidebar-gradient'"
         :inverted="inverted"
         :emitSelectedChildren="emitSelectedChildren"
       />
@@ -64,17 +62,6 @@ const emitSelectedChildren = ref(true);
           />
           <label class="ml-1 hover:cursor-pointer" for="tree-expand-selected">
             expandSelected
-          </label>
-        </div>
-        <div class="mb-2">
-          <input
-            id="tree-inverted"
-            class="ml-2 hover:cursor-pointer"
-            type="checkbox"
-            v-model="inverted"
-          />
-          <label class="ml-1 hover:cursor-pointer" for="tree-inverted">
-            inverted
           </label>
         </div>
         <div class="mb-2">

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    inverted: boolean;
+    inverted?: boolean;
     icon?: string;
   }>(),
   {

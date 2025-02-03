@@ -9,7 +9,7 @@
         v-model="modelValue"
         :checked="modelValue!.includes(option.value)"
         @input="toggleSelect"
-        class="sr-only"
+        class="sr-only fixed"
       />
       <InputLabel
         :for="`${id}-${option.value}`"
