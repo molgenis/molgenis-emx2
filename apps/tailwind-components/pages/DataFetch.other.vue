@@ -1,59 +1,49 @@
 <script setup lang="ts">
+import type { Schema } from "~/types/types";
+import type { ISchemaMetaData } from "../../metadata-utils/src/types";
+
 type Resp<T> = {
   data: Record<string, T[]>;
 };
 
-interface Schema {
-  id: string;
-  label: string;
-  description: string;
-}
+const route = useRoute();
+const schemaId = ref((route.query.schema as string) ?? "pet store");
+const tableId = ref((route.query.table as string) ?? "Pet");
 
-const { data } = await useFetch<Resp<Schema>>("/graphql", {
-  key: "databases",
+const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
+  key: "schemas",
   method: "POST",
   body: { query: `{ _schemas { id,label,description } }` },
 });
 
-const databases = computed(
+const schemaIds = computed(
   () =>
-    data.value?.data?._schemas.sort((a, b) => a.label.localeCompare(b.label)) ??
-    []
+    schemas.value?.data?._schemas
+      .sort((a, b) => a.label.localeCompare(b.label))
+      .map((s) => s.id) ?? []
 );
 
-const schemaId = ref(
-  databases.value.find((d) => d.label === "pet store" || d.id === "catalogue")
-    ?.id || ""
+const { data: schemaMeta } = await useAsyncData("form sample", () =>
+  fetchMetadata(schemaId.value)
 );
 
-const schemaOptions = computed(() =>
-  databases.value.map((schema) => schema.id)
+const schemaTablesIds = computed(() =>
+  (schemaMeta.value as ISchemaMetaData)?.tables.map((table) => table.id)
 );
 
 const {
   data: metadata,
-  pending: metadataPending,
   error: metadataError,
   refresh: refetchMetadata,
 } = await useLazyAsyncData("my meta data", () => fetchMetadata(schemaId.value));
-
-const tableId = ref("");
 
 if (metadata.value) {
   tableId.value = metadata.value.tables[0].id;
 }
 
-const tableOptions = computed(() => {
-  if (metadata.value) {
-    return metadata.value.tables.map((table) => table.id);
-  } else {
-    return [];
-  }
-});
-
 const {
   data: tableData,
-  pending,
+  status,
   error,
   refresh: refetchTableData,
 } = await useLazyAsyncData("my data", () =>
@@ -76,27 +66,27 @@ watch(tableId, async () => {
 
 <template>
   <h1>Data and Meta data</h1>
-  <div class="h-12 mt-4 mb-16">
-    <h3 class="text-heading-lg">Params</h3>
-    <div class="m-2">
-      <label for="schema-id-input">schema id: </label>
-      <select id="table-id-select" v-model="schemaId">
-        <option v-for="option in schemaOptions" :value="option">
-          {{ option }}
+  <div class="p-4 border-2 mb-2 flex flex-col gap-4">
+    <div class="flex flex-col">
+      <label for="table-select" class="text-title font-bold">Schema: </label>
+      <select id="table-select" v-model="schemaId" class="border border-black">
+        <option v-for="schemaId in schemaIds" :value="schemaId">
+          {{ schemaId }}
         </option>
       </select>
     </div>
-    <div class="m-2">
-      <label for="table-id-select">table id: </label>
-      <select id="table-id-select" v-model="tableId">
-        <option v-for="option in tableOptions" :value="option">
-          {{ option }}
+
+    <div class="flex flex-col">
+      <label for="table-select" class="text-title font-bold">Table: </label>
+      <select id="table-select" v-model="tableId" class="border border-black">
+        <option v-for="tableId in schemaTablesIds" :value="tableId">
+          {{ tableId }}
         </option>
       </select>
     </div>
   </div>
 
-  <div v-if="pending">Loading...</div>
+  <div v-if="status === 'pending'">Loading...</div>
   <div v-if="error">Error: {{ error }}</div>
   <div v-if="metadataError">Meta data Error: {{ metadataError }}</div>
 
