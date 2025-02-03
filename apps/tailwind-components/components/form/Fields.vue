@@ -9,6 +9,7 @@ import type {
 } from "../../../metadata-utils/src/types";
 
 const props = defineProps<{
+  schemaId: string;
   metadata: ITableMetaData;
   data: Record<columnId, columnValue>[];
 }>();
@@ -136,6 +137,7 @@ defineExpose({ validate });
         <FormField
           :id="`${column.id}-form-field`"
           class="scroll-mt-20"
+          :schemaId="schemaId"
           :column="column"
           :data="dataMap[column.id]"
           :errors="errorMap[column.id]"
