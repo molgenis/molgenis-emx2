@@ -25,8 +25,43 @@ const emit = defineEmits(["error", "update:modelValue"]);
 
 interface IChapter {
   title: string | "_NO_CHAPTERS";
+  id: string;
   columns: IColumn[];
 }
+
+const dataMap = reactive<Record<columnId, columnValue>>(
+  Object.fromEntries(
+    props.metadata.columns
+      .filter((column) => column.columnType !== "HEADING")
+      .map((column) => [column.id, ""])
+  )
+);
+const visibleMap = reactive<Record<columnId, boolean>>({});
+const errorMap = reactive<Record<columnId, string>>({});
+
+//initialize visiblity for headers
+props.metadata.columns
+  .filter((column) => column.columnType === "HEADING")
+  .forEach((column) => {
+    console.log(
+      isColumnVisible(column, dataMap, props.schemaId, props.metadata)
+    );
+    visibleMap[column.id] =
+      !column.visible ||
+      isColumnVisible(column, dataMap, props.schemaId, props.metadata)
+        ? true
+        : false;
+    console.log(
+      "check heading " +
+        column.id +
+        "=" +
+        visibleMap[column.id] +
+        " expression " +
+        column.visible
+    );
+  });
+
+//todo, chapters should be rendered in this component so they can account for visibility
 
 const chapters = computed(() => {
   return props.metadata.columns.reduce((acc, column) => {
@@ -40,6 +75,7 @@ const chapters = computed(() => {
       if (acc.length === 0) {
         acc.push({
           title: "_NO_CHAPTERS",
+          id: "_NO_CHAPTERS",
           columns: [],
         });
       }
@@ -48,17 +84,6 @@ const chapters = computed(() => {
     return acc;
   }, [] as IChapter[]);
 });
-
-const dataMap = reactive<Record<columnId, columnValue>>(
-  Object.fromEntries(
-    props.metadata.columns
-      .filter((column) => column.columnType !== "HEADING")
-      .map((column) => [column.id, ""])
-  )
-);
-
-const errorMap = reactive<Record<columnId, string>>({});
-const visibleMap = reactive<Record<columnId, boolean>>({});
 
 const numberOffFieldsWithErrors = computed(
   () => Object.values(errorMap).filter((value) => value).length
@@ -76,8 +101,6 @@ const numberOfRequiredFieldsWithData = computed(
 );
 
 const recordLabel = computed(() => props.metadata.label);
-
-const previousFocus = ref<IColumn>();
 
 //todo specify exact validation behavior
 //made som optimization to not validate all fields all the time in this phase
@@ -159,11 +182,11 @@ function checkVisibleExpression(column: IColumn) {
 </script>
 <template>
   <div>
-    <div class="first:pt-0 pt-10" v-for="chapter in chapters">
+    <template v-for="chapter in chapters">
       <h2
-        class="font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8 scroll-mt-20"
+        class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8 scroll-mt-20"
         :id="`${chapter.id}-chapter-title`"
-        v-if="chapter.title !== '_NO_CHAPTERS'"
+        v-if="chapter.title !== '_NO_CHAPTERS' && visibleMap[chapter.id]"
       >
         {{ chapter.title }}
       </h2>
@@ -193,7 +216,7 @@ function checkVisibleExpression(column: IColumn) {
           @blur="validateColumn(column)"
         />
       </template>
-    </div>
+    </template>
     <div class="bg-red-500 p-3 font-bold">
       {{ numberOffFieldsWithErrors }} fields require your attention before you
       can save this {{ recordLabel }} ( temporary section for dev)

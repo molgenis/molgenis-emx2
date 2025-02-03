@@ -177,7 +177,7 @@ const fieldsKey = computed(() => `${schemaId.value}-${tableId.value}-fields`);
 
 <template>
   <div class="flex flex-row">
-    <div id="mock-form-contaner" class="basis-2/3 flex flex-row border">
+    <div id="mock-form-container" class="basis-2/3 flex flex-row border">
       <div class="basis-1/3">
         <FormLegend
           v-if="sections && sections.length"
