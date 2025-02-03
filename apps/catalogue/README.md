@@ -82,4 +82,4 @@ for example ```.../catalogue-demo/ssr-catalogue?cohort-only=true&theme=umcg&logo
 
 ### generate types
 
-gradle generateTypes --args='catalogue apps/nuxt3-ssr/interfaces/catalogue.ts'
+gradle generateTypes --args='catalogue apps/catalogue/interfaces/catalogue.ts'
