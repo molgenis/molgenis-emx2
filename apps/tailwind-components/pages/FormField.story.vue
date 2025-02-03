@@ -22,14 +22,14 @@
       </template>
     </template>
     <template #settings>
-      <Input
+      <FormField
         type="string"
         label="errorMessage"
         v-model="errorMessage"
         id="test-container-error-message"
         description="Type here an error message to see how that looks"
       />
-      <Input
+      <FormField
         type="bool"
         label="required"
         v-model="required"

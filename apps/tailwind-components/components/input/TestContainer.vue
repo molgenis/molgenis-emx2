@@ -12,14 +12,14 @@ const state = ref<InputState>(null);
     </div>
     <div class="md:w-1/3 p-4 sticky top-0">
       <FieldSet label="input prop settings">
-        <Input
+        <FormField
           type="string"
           id="test-placeholder"
           v-model="placeholder"
           label="Placeholder"
           description="Placeholder of the input, if applicable"
         />
-        <Input
+        <FormField
           type="radio"
           id="test-state"
           v-model="state"
@@ -28,9 +28,9 @@ const state = ref<InputState>(null);
           class="mt-4"
           :options="[
             { value: null, label: 'default' },
-            { value: 'error', label: 'Error' },
-            { value: 'valid', label: 'Valid' },
-            { value: 'disabled', label: 'Disabled' },
+            { value: 'invalid', label: 'invalid' },
+            { value: 'valid', label: 'valid' },
+            { value: 'disabled', label: 'disabled' },
           ]"
         />
         <slot name="settings"></slot>
