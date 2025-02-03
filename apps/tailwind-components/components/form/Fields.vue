@@ -8,8 +8,10 @@ import type {
 import {
   executeExpression,
   getColumnValidationError,
+  isColumnVisible,
   isMissingValue,
 } from "~/utils/formUtils";
+import metadata from "nuxt3-ssr/gql/metadata";
 
 //todo: don't forget about reflinks
 
@@ -83,9 +85,6 @@ const previousFocus = ref<IColumn>();
 //when we blur we keep previous error
 /** this is called on every touch of a column. Before submit of a form we need to validate everything but that can be done by the container of this */
 function validateColumn(column: IColumn) {
-  console.log(
-    "validate " + column.id + "=" + JSON.stringify(dataMap[column.id])
-  );
   delete errorMap[column.id];
 
   //validate required
@@ -126,7 +125,32 @@ function onUpdate(column: IColumn, $event: columnValue) {
   if (errorMap[column.id]) {
     validateColumn(column);
   }
+  props.metadata.columns
+    .filter((c) => c.visible?.includes(column.id))
+    .forEach((c) => {
+      visibleMap[c.id] = isColumnVisible(
+        c,
+        dataMap,
+        props.schemaId,
+        props.metadata
+      );
+      console.log("refreshing visibility for " + c.id + "=" + visibleMap[c.id]);
+    });
   emit("update:modelValue", dataMap);
+}
+
+function checkVisibleExpression(column: IColumn) {
+  //while not stable lets keep these logs, is there a log framework we can use to switch this of in prod?
+  console.log("checking visibility of " + column.id);
+  //when input becomes into view port
+  if (
+    !column.visible ||
+    isColumnVisible(column, dataMap, props.schemaId, props.metadata)
+  ) {
+    visibleMap[column.id] = true;
+  } else {
+    visibleMap[column.id] = false;
+  }
 }
 </script>
 <template>
@@ -140,11 +164,16 @@ function onUpdate(column: IColumn, $event: columnValue) {
         {{ chapter.title }}
       </h2>
       <!-- todo filter invisible -->
-      <div
-        class="pb-8"
+      <template
         v-for="column in chapter.columns.filter((c) => !c.id.startsWith('mg_'))"
       >
+        <div
+          style="height: 0"
+          v-when-in-view="() => checkVisibleExpression(column)"
+        ></div>
         <FormField
+          class="pb-8"
+          v-show="visibleMap[column.id] !== false"
           v-model="dataMap[column.id]"
           :id="`${column.id}-form-field`"
           :type="column.columnType"
@@ -159,7 +188,7 @@ function onUpdate(column: IColumn, $event: columnValue) {
           @update:modelValue="onUpdate(column, $event)"
           @blur="validateColumn(column)"
         />
-      </div>
+      </template>
     </div>
     <div class="bg-red-500 p-3 font-bold">
       {{ numberOffFieldsWithErrors }} fields require your attention before you

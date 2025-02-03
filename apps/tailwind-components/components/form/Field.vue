@@ -42,7 +42,7 @@ const TYPE = computed(() => props.type.toUpperCase());
       {{ description }}
     </p>
     <LazyInputString
-      v-if="['STRING', 'AUTO_ID', 'LONG'].includes(TYPE)"
+      v-if="['STRING', 'AUTO_ID', 'LONG', 'EMAIL', 'INT'].includes(TYPE)"
       :id="id"
       :modelValue="modelValue"
       :state="state"
