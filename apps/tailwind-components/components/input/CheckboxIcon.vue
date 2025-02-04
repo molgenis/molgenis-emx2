@@ -44,16 +44,9 @@
 
 <script lang="ts" setup>
 import type { InputState } from "~/types/types";
-
-withDefaults(
-  defineProps<{
-    checked?: boolean;
-    indeterminate?: boolean;
-    state?: InputState;
-  }>(),
-  {
-    checked: false,
-    indeterminate: false,
-  }
-);
+defineProps<{
+  checked?: boolean;
+  indeterminate?: boolean;
+  state?: InputState;
+}>();
 </script>

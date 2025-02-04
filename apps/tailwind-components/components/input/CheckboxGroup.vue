@@ -15,11 +15,6 @@
       <InputLabel
         :for="`${id}-${option.value}`"
         class="hover:cursor-pointer flex justify-start items-center"
-        :class="{
-          'border-invalid text-invalid': state === 'invalid',
-          'border-valid text-valid': state === 'valid',
-          'border-disabled text-disabled bg-disabled': state === 'disabled',
-        }"
       >
         <InputCheckboxIcon
           :checked="modelValue!.includes(option.value)"
@@ -77,11 +72,9 @@ function toggleSelect(event: Event) {
   } else {
     emit("deselect", target.value);
   }
-  emit("blur");
 }
 
 function resetModelValue() {
   modelValue.value = [];
-  emit("blur");
 }
 </script>

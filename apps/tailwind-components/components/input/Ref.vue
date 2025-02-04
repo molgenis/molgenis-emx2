@@ -79,6 +79,10 @@ onMounted(async () => {
       );
     }
   }
+
+  //then we load the options for the first time
+  await loadOptions({ limit: props.limit });
+  initialCount.value = count.value;
 });
 
 function applyTemplate(template: string, row: Record<string, any>): string {
@@ -89,6 +93,7 @@ function applyTemplate(template: string, row: Record<string, any>): string {
 }
 
 async function loadOptions(filter: IQueryMetaData) {
+  //keep until done testing with lazy loading
   hasNoResults.value = true;
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
@@ -105,6 +110,7 @@ async function loadOptions(filter: IQueryMetaData) {
   } else {
     hasNoResults.value = true;
   }
+  console.log("loaded options for " + props.id);
 }
 
 function toggleSearch() {
@@ -132,7 +138,6 @@ function select(label: string) {
         )
       : extractPrimaryKey(optionMap.value[label])
   );
-  emit("blur");
 }
 
 function extractPrimaryKey(value: any) {
@@ -155,7 +160,6 @@ function deselect(label: string) {
         )
       : undefined
   );
-  emit("blur");
 }
 
 function clearSelection() {
@@ -172,18 +176,11 @@ function loadMore() {
     searchTerms: searchTerms.value,
   });
 }
-
-async function loadOptionsWhenInView() {
-  if (!initialCount.value) {
-    await loadOptions({ limit: props.limit });
-    initialCount.value = count.value;
-  }
-}
 </script>
 
 <template>
   <div
-    v-when-in-view="loadOptionsWhenInView"
+    v-on-first-view="onFirstView"
     class="flex flex-wrap gap-2 mb-2"
     v-if="isArray ? selection.length : selection"
   >

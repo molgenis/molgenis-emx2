@@ -4,7 +4,7 @@ import { type DirectiveBinding } from 'vue'
 type LazyLoadBindingValue = () => Promise<void> | void
 
 export default defineNuxtPlugin((nuxtApp) => {
-    nuxtApp.vueApp.directive('when-in-view', {
+    nuxtApp.vueApp.directive('on-first-view', {
         mounted(el: HTMLElement, binding: DirectiveBinding<LazyLoadBindingValue>) {
             const options: IntersectionObserverInit = {
                 root: null,

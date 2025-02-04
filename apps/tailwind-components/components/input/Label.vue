@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import type { InputState } from "~/types/types";
 
-withDefaults(
-  defineProps<{
-    state?: InputState;
-    required?: boolean;
-    hideLabel?: boolean;
-    for: string;
-  }>(),
-  {
-    hideLabel: false,
-  }
-);
+defineProps<{
+  state?: InputState;
+  required?: boolean;
+  hideLabel?: boolean;
+  for: string;
+}>();
 </script>
 
 <template>

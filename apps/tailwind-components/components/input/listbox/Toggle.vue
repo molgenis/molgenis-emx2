@@ -24,16 +24,11 @@
 <script lang="ts" setup>
 import type { InputState } from "~/types/types";
 
-withDefaults(
-  defineProps<{
-    required?: boolean;
-    state?: InputState;
-    selectedElementId?: string;
-  }>(),
-  {
-    required: false,
-  }
-);
+defineProps<{
+  required?: boolean;
+  state?: InputState;
+  selectedElementId?: string;
+}>();
 
 const isExpanded = ref<boolean>(false);
 

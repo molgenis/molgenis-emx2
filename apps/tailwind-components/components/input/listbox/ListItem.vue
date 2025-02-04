@@ -16,7 +16,7 @@
       }"
       :width="18"
     />
-    <span>{{ label }}</span>
+    <span v-if="label">{{ label }}</span>
   </li>
 </template>
 
@@ -24,7 +24,7 @@
 withDefaults(
   defineProps<{
     isSelected: boolean;
-    label: string | number | boolean | null;
+    label?: string | number | boolean;
   }>(),
   {
     isSelected: false,

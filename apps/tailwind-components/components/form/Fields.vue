@@ -6,12 +6,10 @@ import type {
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import {
-  executeExpression,
   getColumnValidationError,
   isColumnVisible,
   isMissingValue,
 } from "~/utils/formUtils";
-import metadata from "nuxt3-ssr/gql/metadata";
 
 //todo: don't forget about reflinks
 
@@ -27,6 +25,7 @@ interface IChapter {
   title: string | "_NO_CHAPTERS";
   id: string;
   columns: IColumn[];
+  errorCount?: number;
 }
 
 const dataMap = reactive<Record<columnId, columnValue>>(
@@ -38,6 +37,7 @@ const dataMap = reactive<Record<columnId, columnValue>>(
 );
 const visibleMap = reactive<Record<columnId, boolean>>({});
 const errorMap = reactive<Record<columnId, string>>({});
+const previousColumn = ref<IColumn>();
 
 //initialize visiblity for headers
 props.metadata.columns
@@ -108,6 +108,7 @@ const recordLabel = computed(() => props.metadata.label);
 //when we blur we keep previous error
 /** this is called on every touch of a column. Before submit of a form we need to validate everything but that can be done by the container of this */
 function validateColumn(column: IColumn) {
+  console.log("validate " + column.id);
   delete errorMap[column.id];
 
   //validate required
@@ -164,6 +165,15 @@ function onUpdate(column: IColumn, $event: columnValue) {
   emit("update:modelValue", dataMap);
 }
 
+function onFocus(column: IColumn) {
+  console.log("focus " + column.id);
+  //will validate previous column, because checkbox, radio don't have 'blur'
+  if (previousColumn.value) {
+    validateColumn(previousColumn.value);
+  }
+  previousColumn.value = column;
+}
+
 function checkVisibleExpression(column: IColumn) {
   //while not stable lets keep these logs, is there a log framework we can use to switch this of in prod?
   //when input becomes into view port
@@ -195,18 +205,19 @@ function checkVisibleExpression(column: IColumn) {
         v-for="column in chapter.columns.filter((c) => !c.id.startsWith('mg_'))"
       >
         <div
-          style="height: 0"
-          v-when-in-view="() => checkVisibleExpression(column)"
+          style="height: 500px"
+          v-on-first-view="() => checkVisibleExpression(column)"
+          v-if="visibleMap[column.id] === undefined"
         ></div>
         <FormField
           class="pb-8"
-          v-show="visibleMap[column.id] !== false"
+          v-else-if="visibleMap[column.id] === true"
           v-model="dataMap[column.id]"
           :id="`${column.id}-form-field`"
           :type="column.columnType"
           :label="column.label"
           :description="column.description"
-          :required="column.required === true || column.required == 'true'"
+          :required="isRequired(column.required)"
           :error-message="errorMap[column.id]"
           :ref-schema-id="column.refSchemaId || schemaId"
           :ref-table-id="column.refTableId"
@@ -214,6 +225,7 @@ function checkVisibleExpression(column: IColumn) {
           :state="errorMap[column.id] ? 'invalid' : 'default'"
           @update:modelValue="onUpdate(column, $event)"
           @blur="validateColumn(column)"
+          @focus="onFocus(column)"
         />
       </template>
     </template>
@@ -222,7 +234,7 @@ function checkVisibleExpression(column: IColumn) {
       can save this {{ recordLabel }} ( temporary section for dev)
     </div>
     <div class="bg-gray-200 p-3">
-      {{ numberOfRequiredFieldsWithData }} /
+      {{ numberOfRequiredFields - numberOfRequiredFieldsWithData }} /
       {{ numberOfRequiredFields }} required fields left ( temporary section for
       dev)
     </div>

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { InputState } from "~/types/types";
-
+defineProps<{
+  showState?: boolean;
+  showPlaceholder?: boolean;
+}>();
 const placeholder = ref("");
 const state = ref<InputState>("default");
 </script>
@@ -13,6 +16,7 @@ const state = ref<InputState>("default");
     <div class="md:w-1/3 p-4 sticky top-0">
       <FieldSet label="input prop settings">
         <FormField
+          v-if="showPlaceholder"
           type="string"
           id="test-placeholder"
           v-model="placeholder"
@@ -20,6 +24,7 @@ const state = ref<InputState>("default");
           description="Placeholder of the input, if applicable"
         />
         <FormField
+          v-if="showState"
           type="radio"
           id="test-state"
           v-model="state"

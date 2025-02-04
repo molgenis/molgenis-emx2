@@ -6,9 +6,6 @@
     :class="{
       'flex-row': align === 'horizontal',
       'flex-col': align === 'vertical',
-      'border-invalid text-invalid': state === 'invalid',
-      'border-valid text-valid': state === 'valid',
-      'border-disabled bg-disabled': state === 'disabled',
     }"
   >
     <div v-for="option in options" class="flex justify-start align-center">
@@ -25,11 +22,6 @@
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
         class="hover:cursor-pointer flex flex-row gap-1 text-title"
-        :class="{
-          'border-invalid text-invalid': state === 'invalid',
-          'border-valid text-valid': state === 'valid',
-          'border-disabled text-disabled bg-disabled': state === 'disabled',
-        }"
       >
         <InputRadioIcon
           :checked="modelValue === option.value"
@@ -60,11 +52,7 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  type InputProps,
-  InputPropsDefaults,
-  type IValueLabel,
-} from "~/types/types";
+import { type InputProps, type IValueLabel } from "~/types/types";
 import type { columnValue } from "metadata-utils/src/types";
 
 const props = withDefaults(
@@ -76,7 +64,6 @@ const props = withDefaults(
     }
   >(),
   {
-    showClearButton: false,
     align: "vertical",
   }
 );
@@ -96,7 +83,6 @@ function toggleSelect(event: Event) {
   } else {
     emit("deselect", target.value);
   }
-  emit("blur");
 }
 
 function resetModelValue() {

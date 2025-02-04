@@ -1,12 +1,12 @@
 <template>
-  <InputTestContainer v-slot:default="{ error }">
-    <InputBoolean id="boolean-story-id" v-model="modelValue1" :error="error" />
+  <InputTestContainer showState v-slot:default="{ state }">
+    <InputBoolean id="boolean-story-id" v-model="modelValue1" :state="state" />
     <div class="my-4">intit empty: {{ modelValue1 }}</div>
 
-    <InputBoolean id="boolean-story-id2" v-model="modelValue2" :error="error" />
+    <InputBoolean id="boolean-story-id2" v-model="modelValue2" :state="state" />
     <div class="my-4">init true: {{ modelValue2 }}</div>
 
-    <InputBoolean id="boolean-story-id3" v-model="modelValue3" :error="error" />
+    <InputBoolean id="boolean-story-id3" v-model="modelValue3" :state="state" />
     <div class="my-4">init false: {{ modelValue3 }}</div>
 
     <InputBoolean
@@ -14,7 +14,7 @@
       v-model="politeBoolean"
       true-label="Yes please !"
       false-label="No thank you"
-      :error="error"
+      :state="state"
     />
   </InputTestContainer>
   <div class="my-4">Be polite: {{ politeBoolean }}</div>

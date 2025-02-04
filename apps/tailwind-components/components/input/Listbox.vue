@@ -56,7 +56,6 @@ const props = withDefaults(
     }
   >(),
   {
-    ...InputPropsDefaults,
     placeholder: "Select an option",
   }
 );

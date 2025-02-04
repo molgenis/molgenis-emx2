@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type InputProps, InputPropsDefaults } from "~/types/types";
+import { type InputProps } from "~/types/types";
 
 withDefaults(
   defineProps<
@@ -9,7 +9,6 @@ withDefaults(
     }
   >(),
   {
-    ...InputPropsDefaults,
     placeholder: "Select an option",
   }
 );

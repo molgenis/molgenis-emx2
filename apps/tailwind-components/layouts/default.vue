@@ -15,7 +15,6 @@ const stories = Object.keys(modules)
       .split("/")
       .filter((path: string) => path !== "" && path !== name)[0];
     const nameCleaned: string = name.replace(".story.vue", "");
-    const fullName: string = "";
     const source: string = module;
     return {
       name: dir

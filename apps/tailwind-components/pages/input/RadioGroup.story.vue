@@ -1,5 +1,5 @@
 <template>
-  <InputTestContainer v-slot="{ state }">
+  <InputTestContainer showState v-slot="{ state }">
     <p>
       There are multiple ways to create radio buttons using the tailwind
       component libray. You can either create them manually using the

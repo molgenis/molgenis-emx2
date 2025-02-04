@@ -14,7 +14,6 @@
 
 <script lang="ts" setup>
 import type { InputProps, IRadioOptionsData } from "~/types/types";
-import { InputPropsDefaults } from "~/types/types";
 const props = withDefaults(
   defineProps<
     InputProps & {
@@ -23,7 +22,6 @@ const props = withDefaults(
     }
   >(),
   {
-    ...InputPropsDefaults,
     trueLabel: "True",
     falseLabel: "False",
   }
