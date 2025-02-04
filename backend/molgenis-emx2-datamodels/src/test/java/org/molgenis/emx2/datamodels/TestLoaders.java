@@ -163,7 +163,7 @@ public class TestLoaders {
     // depends on catalogue test above
     Schema schema = database.dropCreateSchema(PORTAL_TEST);
     DataModels.Regular.RD3_V2.getImportTask(schema, false).run();
-    assertEquals(94, schema.getTableNames().size());
+    assertEquals(96, schema.getTableNames().size());
   }
 
   @Test

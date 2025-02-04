@@ -38,6 +38,7 @@
     --color-orange-500: #E1B53E;
     --color-red-200: #FCECEF;
     --color-red-500: #E14F62;
+    --color-red-700: #AE2A3F;
     --color-gradient1: #0062C6;
     --color-gradient2: #0072E4;
 
@@ -78,7 +79,11 @@
     --background-color-invalid: var(--color-red-200);
     --background-color-input: var(--color-white);
     --background-color-input-checked: var(--color-yellow-500);
+    --background-color-listbox: var(--color-white);
+    --background-color-listbox-hover: var(--color-gray-100);
+    --background-color-listbox-selected: var(--color-blue-500);
     --background-color-table: var(--color-white);
+    --background-color-notification: var(--color-red-700);
 
 
     --text-color-button-primary: var(--color-white);
@@ -103,6 +108,7 @@
     --text-color-search-button-hover: var(--text-blue-800);
     --text-color-favorite: var(--color-blue-800);
     --text-color-favorite-hover: var(--color-blue-800);
+    --text-color-button-text: var(--color-blue-800);
     --text-color-search-button: var(--color-blue-500);
     --text-color-search-button-hover: var(--color-blue-800);
     --text-color-search-results-view-tabs: var(--color-blue-500);
@@ -126,9 +132,14 @@
     --text-color-pagination-input: var(--text-color-title);
     --text-color-pagination-hover: var(--text-color-title);
     --text-color-footer-link: var(--color-yellow-500);
+    --text-color-listbox: var(--color-black);
+    --text-color-listbox-hover: var(--color-black);
+    --text-color-listbox-selected: var(--color-blue-50);
+    --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);
     --text-color-form-header: var(--color-blue-800);
     --text-color-input-description: var(--color-blue-800);
+    --text-color-legend-error-count: var(--color-white);
     
     --text-color-invalid: var(--color-red-500);
     --text-color-valid: var(--color-green-800);
@@ -154,11 +165,13 @@
     --border-color-pagination: var(--color-transparent);
     --border-color-input: #C0C0C0;
     --border-color-input-inverted: var(--color-gray-600);
+    --border-color-listbox-option: var(--color-gray-100);
+    --border-color-listbox: var(--border-color-input);
 
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
     --border-radius-input: 3px;
-    --border-radius-textarea-input: 20px;
+    --border-radius-textarea-input: var(--border-radius-input);
     --border-radius-search-input: 9999px;
     --border-radius-search-button: 9999px;
     --border-radius-pagination: 9999px;

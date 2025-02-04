@@ -36,11 +36,11 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set image.tag=${TAG_NAME} \
 --set image.repository=${REPO} \
 --set image.pullPolicy=Always \
---set catalogue.includeCatalogueDemo=true \
 --set ssrCatalogue.image.tag=$TAG_NAME \
 --set ssrCatalogue.image.repository=$REPO2 \
 --set ssrCatalogue.environment.siteTitle="Preview Catalogue" \
 --set ssrCatalogue.environment.apiBase=https://${NAME}.dev.molgenis.org/ \
+--set includeTypeTestDemo=true \
 --set catalogue.includeCatalogueDemo=true \
 --set directory.includeDirectoryDemo=true \
 --set oidc.enabled=true \

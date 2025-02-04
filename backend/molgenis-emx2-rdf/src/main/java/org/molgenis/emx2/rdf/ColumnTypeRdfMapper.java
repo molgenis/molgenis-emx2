@@ -6,6 +6,10 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.Constants.API_FILE;
+import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
+import static org.molgenis.emx2.Constants.SUBSELECT_SEPARATOR;
+import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 
 import com.google.common.net.UrlEscapers;
 import java.time.LocalDateTime;
@@ -13,13 +17,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.eclipse.rdf4j.model.util.Values;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.TypeUtils;
 import org.molgenis.emx2.utils.URIUtils;
 
 /**
@@ -70,7 +72,7 @@ public class ColumnTypeRdfMapper {
           // RELATIONSHIP
           entry(ColumnType.REF, RdfColumnType.REFERENCE),
           entry(ColumnType.REF_ARRAY, RdfColumnType.REFERENCE),
-          entry(ColumnType.REFBACK, RdfColumnType.REFERENCE),
+          entry(ColumnType.REFBACK, RdfColumnType.REFBACK),
 
           // LAYOUT and other constants
           entry(ColumnType.HEADING, RdfColumnType.SKIP), // Should not be in RDF output.
@@ -112,7 +114,8 @@ public class ColumnTypeRdfMapper {
    * </ul>
    */
   public Set<Value> retrieveValues(final Row row, final Column column) {
-    return retrieveValues(row, column, mapping.get(column.getColumnType()));
+    RdfColumnType mapper = mapping.get(column.getColumnType());
+    return (mapper.isEmpty(row, column) ? Set.of() : mapper.retrieveValues(baseURL, row, column));
   }
 
   /**
@@ -218,7 +221,8 @@ public class ColumnTypeRdfMapper {
             Values.iri(
                 baseURL
                     + schemaPath
-                    + "/api/file/"
+                    + API_FILE
+                    + "/"
                     + tablePath
                     + "/"
                     + columnPath
@@ -229,40 +233,65 @@ public class ColumnTypeRdfMapper {
     REFERENCE(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
-        final TableMetadata target = column.getRefTable();
-        final String rootTableName =
-            UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
-        final Namespace ns = getSchemaNamespace(baseURL, target.getRootTable().getSchema());
+        Map<String, String> colNameToRefTableColName =
+            column.getReferences().stream()
+                .collect(Collectors.toMap(Reference::getName, Reference::getRefTo));
+        return RdfColumnType.retrieveReferenceValues(
+            baseURL, row, column, colNameToRefTableColName);
+      }
 
-        final Set<IRI> iris = new HashSet<>();
-        final Map<Integer, Map<String, String>> items = new HashMap<>();
-        for (final Reference reference : column.getReferences()) {
-          final String localColumn = reference.getName();
-          final String targetColumn = reference.getRefTo();
-          if (column.isArray()) {
-            final String[] values = row.getStringArray(localColumn);
-            if (values != null) {
-              for (int i = 0; i < values.length; i++) {
-                var keyValuePairs = items.getOrDefault(i, new LinkedHashMap<>());
-                keyValuePairs.put(targetColumn, values[i]);
-                items.put(i, keyValuePairs);
-              }
-            }
+      @Override
+      boolean isEmpty(Row row, Column column) {
+        // Composite key requires all fields to be filled. If one is null, all should be null.
+        return row.getString(column.getReferences().get(0).getName()) == null;
+      }
+    },
+    REFBACK(CoreDatatype.XSD.ANYURI) {
+      @Override
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+        Map<String, String> colNameToRefTableColName = new HashMap<>();
+        if (row.getString(column.getName()) != null) {
+          colNameToRefTableColName.put(
+              column.getName(), column.getRefTable().getPrimaryKeyColumns().get(0).getName());
+        } else {
+          refBackSubColumns(
+              colNameToRefTableColName, column, column.getName() + SUBSELECT_SEPARATOR, "");
+        }
+
+        return RdfColumnType.retrieveReferenceValues(
+            baseURL, row, column, colNameToRefTableColName);
+      }
+
+      private void refBackSubColumns(
+          Map<String, String> colNameToRefTableColName,
+          Column column,
+          String colPrefix,
+          String refPrefix) {
+        for (Column refPrimaryKey : column.getRefTable().getPrimaryKeyColumns()) {
+          if (refPrimaryKey.isRef() || refPrimaryKey.isRefArray()) {
+            refBackSubColumns(
+                colNameToRefTableColName,
+                refPrimaryKey,
+                colPrefix + refPrimaryKey.getName() + SUBSELECT_SEPARATOR,
+                refPrefix + refPrimaryKey.getName() + COMPOSITE_REF_SEPARATOR);
           } else {
-            final String value = row.getString(localColumn);
-            if (value != null) {
-              var keyValuePairs = items.getOrDefault(0, new LinkedHashMap<>());
-              keyValuePairs.put(targetColumn, value);
-              items.put(0, keyValuePairs);
-            }
+            colNameToRefTableColName.put(
+                colPrefix + refPrimaryKey.getName(), refPrefix + refPrimaryKey.getName());
           }
         }
+      }
 
-        for (final var item : items.values()) {
-          PrimaryKey key = new PrimaryKey(item);
-          iris.add(Values.iri(ns, rootTableName + "?" + key.getEncodedValue()));
-        }
-        return Set.copyOf(iris);
+      @Override
+      boolean isEmpty(Row row, Column column) {
+        if (row.getString(column.getName()) != null) return false;
+
+        // Composite key requires all fields to be filled. If one is null, all should be null.
+        Optional<String> firstMatch =
+            row.getColumnNames().stream()
+                .filter(i -> i.startsWith(column.getName() + SUBSELECT_SEPARATOR))
+                .findFirst();
+
+        return firstMatch.isEmpty() || row.getString(firstMatch.get()) == null;
       }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
@@ -321,14 +350,6 @@ public class ColumnTypeRdfMapper {
       this.coreDatatype = coreDatatype;
     }
 
-    // TODO: Fix code duplicity with RDFService.
-    private static Namespace getSchemaNamespace(final String baseURL, final SchemaMetadata schema) {
-      final String schemaName = UrlEscapers.urlPathSegmentEscaper().escape(schema.getName());
-      final String url = baseURL + schemaName + "/api/rdf/";
-      final String prefix = TypeUtils.convertToPascalCase(schema.getName());
-      return Values.namespace(prefix, url);
-    }
-
     /**
      * Generic retrieval function. Can be used for {@link Values#literal(Object)} or any custom
      * function which outputs a {@link Value}.
@@ -336,7 +357,7 @@ public class ColumnTypeRdfMapper {
     private static Set<Value> basicRetrieval(Object[] object, Function<Object, Value> function) {
       return Arrays.stream(object)
           .map(value -> (Value) function.apply(value))
-          .collect(Collectors.toSet());
+          .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -352,9 +373,47 @@ public class ColumnTypeRdfMapper {
         String[] object, Function<String, Value> function) {
       return Arrays.stream(object)
           .map(value -> (Value) function.apply(value))
-          .collect(Collectors.toSet());
+          .collect(Collectors.toUnmodifiableSet());
     }
 
     abstract Set<Value> retrieveValues(final String baseURL, final Row row, final Column column);
+
+    boolean isEmpty(final Row row, final Column column) {
+      return row.getString(column.getName()) == null;
+    }
+
+    private static Set<Value> retrieveReferenceValues(
+        final String baseURL,
+        final Row row,
+        final Column tableColumn,
+        final Map<String, String> colNameToRefTableColName) {
+      final TableMetadata target = tableColumn.getRefTable();
+      final String rootTableName =
+          UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
+      final Namespace ns = getSchemaNamespace(baseURL, target.getRootTable().getSchema());
+
+      final Map<Integer, Map<String, String>> items = new HashMap<>();
+      for (final String colName : colNameToRefTableColName.keySet()) {
+        final String[] values =
+            (tableColumn.isArray()
+                ? row.getStringArray(colName)
+                : new String[] {row.getString(colName)});
+
+        if (values == null) continue;
+
+        for (int i = 0; i < values.length; i++) {
+          Map<String, String> keyValuePairs = items.getOrDefault(i, new LinkedHashMap<>());
+          keyValuePairs.put(colNameToRefTableColName.get(colName), values[i]);
+          items.put(i, keyValuePairs);
+        }
+      }
+
+      final Set<Value> values = new HashSet<>();
+      for (final Map<String, String> item : items.values()) {
+        PrimaryKey key = new PrimaryKey(item);
+        values.add(Values.iri(ns, rootTableName + "?" + key.getEncodedValue()));
+      }
+      return Set.copyOf(values);
+    }
   }
 }
