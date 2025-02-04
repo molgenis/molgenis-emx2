@@ -38,14 +38,14 @@ if (props.collectionCount > 0) {
   });
 }
 
-if (props.networkCount > 0) {
+if (props.networkCount > 0 && !cohortOnly.value) {
   menu.push({
     label: "Networks",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/networks`,
   });
 }
 
-if (!cohortOnly.value && props.variableCount > 0)
+if (props.variableCount > 0 && !cohortOnly.value)
   menu.push({
     label: "Variables",
     link: `/${route.params.schema}/ssr-catalogue/${catalogueRouteParam}/variables`,
@@ -71,6 +71,10 @@ if (!cohortOnly.value) {
   menu.push({
     label: "Upload data",
     link: "/apps/central/#/",
+  });
+  menu.push({
+    label: "Manuals",
+    link: "/apps/docs/#/catalogue/",
   });
 }
 </script>

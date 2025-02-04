@@ -30,8 +30,7 @@ export type CellValueType =
   | "DATETIME"
   | "DATETIME_ARRAY"
   | "PERIOD"
-  | "JSONB"
-  | "JSONB_ARRAY"
+  | "JSON"
   | "REF"
   | "REF_ARRAY"
   | "REFBACK"
@@ -73,11 +72,11 @@ export interface IColumn {
 
 export interface ITableMetaData {
   id: string;
+  name?: string;
   label: string;
   description?: string;
   tableType: string;
   columns: IColumn[];
-  schemaId: string;
   semantics?: string[];
   settings?: ISetting[];
 }
@@ -93,9 +92,23 @@ export interface IFieldError {
   message: string;
 }
 
-export type columnId = string;
-export type columnValue = string | number | boolean | columnValueObject;
+export interface IFormLegendSection {
+  label: string;
+  domId: string;
+  isActive?: boolean;
+  errorCount?: number;
+}
 
-interface columnValueObject {
+export type columnId = string;
+export type columnValue = string | number | boolean | null | columnValueObject;
+
+export interface columnValueObject {
   [x: string]: columnValue;
 }
+
+export type IInputValue = string | number | boolean;
+
+export type IInputValueLabel = {
+  value: IInputValue | IInputValue[] | null;
+  label?: string;
+};

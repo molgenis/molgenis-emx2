@@ -3,7 +3,6 @@
     <PageHeader
       class="genturis-header"
       title="ERN Genturis Registry"
-      subtitle="Download documents"
       imageSrc="img/genturis-carousel.jpg"
       titlePositionX="center"
       titlePositionY="center"
@@ -15,9 +14,9 @@
       :verticalPadding="2"
       width="large"
     >
-      <h2 id="genturis-section-documents-title">Documents</h2>
+      <h2 id="genturis-section-documents-title">Download Documents</h2>
       <p>Download additional information about the GENTURIS Registry.</p>
-      <FileList table="Files" filename="name" path="path" />
+      <FileList table="Files" labelsColumn="name" fileColumn="file" />
     </PageSection>
   </Page>
 </template>

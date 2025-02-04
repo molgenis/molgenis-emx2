@@ -12,8 +12,10 @@ import io.javalin.http.Context;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +31,9 @@ public class MolgenisWebservice {
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
   private static final String ROBOTS_TXT = "robots.txt";
   private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
-  static MolgenisSessionManager sessionManager;
-  static OIDCController oidcController;
+  public static MolgenisSessionManager sessionManager;
+  public static OIDCController oidcController;
+  static URL hostUrl;
 
   private MolgenisWebservice() {
     // hide constructor
@@ -39,7 +42,7 @@ public class MolgenisWebservice {
   public static void start(int port) {
 
     sessionManager = new MolgenisSessionManager();
-    oidcController = new OIDCController(sessionManager, new SecurityConfigFactory().build());
+    oidcController = new OIDCController();
     Javalin app =
         Javalin.create(
                 config -> {
@@ -50,6 +53,12 @@ public class MolgenisWebservice {
                       handler -> handler.setSessionHandler(sessionManager.getSessionHandler()));
                 })
             .start(port);
+
+    try {
+      hostUrl = new URL(URIUtils.extractHost(app.jettyServer().server().getURI()));
+    } catch (Exception ignored) {
+      // should we handle this?
+    }
 
     MessageApi.create(app);
 

@@ -2,15 +2,18 @@ import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 import { createFilters } from "../filter-config/facetConfigurator";
 import { applyFiltersToQuery } from "../functions/applyFiltersToQuery";
-import { useBiobanksStore } from "./biobanksStore";
-import { useSettingsStore } from "./settingsStore";
-import { useCheckoutStore } from "./checkoutStore";
 import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
+import { useBiobanksStore } from "./biobanksStore";
+import { useCheckoutStore } from "./checkoutStore";
+import { useSettingsStore } from "./settingsStore";
+import * as _ from "lodash";
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
-import { convertArrayToChunks } from "../functions/arrayUtilities";
-import { IOntologyItem } from "../interfaces/interfaces";
-import * as _ from "lodash";
+import useErrorHandler from "../composables/errorHandler";
+import { IFilterOption, IOntologyItem } from "../interfaces/interfaces";
+import router from "../router";
+
+const { setError } = useErrorHandler();
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
@@ -32,7 +35,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   let filters = ref<Record<string, any>>({});
   let filterType = ref<Record<string, any>>({});
-  let filterOptionsCache = ref<Record<string, any>>({});
+
+  let filterOptionsCache = ref<Record<string, IFilterOption[]>>({});
   let filterFacets = ref<any[]>([]);
   const facetDetailsDictionary = ref<Record<string, any>>({});
 
@@ -97,9 +101,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   });
 
   watch(filtersReady, (filtersReady) => {
+    const route = router.currentRoute.value;
     if (filtersReady) {
       const waitForStore = setTimeout(() => {
-        applyBookmark();
+        if (route.query) {
+          applyBookmark(route.query as Record<string, string>);
+        }
+
         clearTimeout(waitForStore);
       }, 350);
     }
@@ -215,17 +223,30 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   function addOntologyOptions(filterName: string, value: IOntologyItem[]) {
+    const diagnosisavailableCount = filters.value.Diagnosisavailable?.length
+      ? filters.value.Diagnosisavailable.length
+      : 0;
+    const limit = 50;
+    let ontologySet = value;
+    const slotsRemaining = limit - diagnosisavailableCount;
+    if (
+      filterName === "Diagnosisavailable" &&
+      getFilterType("Diagnosisavailable") === "all"
+    ) {
+      ontologySet = ontologySet.slice(0, slotsRemaining);
+    }
+
     if (filters.value[filterName]) {
       const existingValues = filters.value[filterName].map(
         (option: IOntologyItem) => option.name
       );
-      const filterOptionsToAdd = value.filter(
+      const filterOptionsToAdd = ontologySet.filter(
         (newValue: IOntologyItem) => !existingValues.includes(newValue.name)
       );
       filters.value[filterName] =
         filters.value[filterName].concat(filterOptionsToAdd);
     } else {
-      filters.value[filterName] = value;
+      filters.value[filterName] = ontologySet;
     }
   }
 
@@ -242,7 +263,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   async function getOntologyOptionsForCodes(
     filterFacet: Record<string, any>,
-    codes: any[][]
+    codes: any[]
   ) {
     const { sourceTable, sortColumn, sortDirection } = filterFacet;
     const attributes = getOntologyAttributes(filterFacet);
@@ -251,13 +272,18 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     const ontologyResults = [];
 
     for (const codeBlock of codesToQuery) {
-      const ontologyResult = await new QueryEMX2(graphqlEndpointOntologyFilter)
-        .table(sourceTable)
-        .select(attributes)
-        .orWhere("code")
-        .in(codeBlock)
-        .orderBy(sourceTable, sortColumn, sortDirection)
-        .execute();
+      let ontologyResult;
+      try {
+        ontologyResult = await new QueryEMX2(graphqlEndpointOntologyFilter)
+          .table(sourceTable)
+          .select(attributes)
+          .orWhere("code")
+          .in(codeBlock)
+          .orderBy(sourceTable, sortColumn, sortDirection)
+          .execute();
+      } catch (error) {
+        setError(error);
+      }
 
       if (ontologyResult && ontologyResult[sourceTable]) {
         ontologyResults.push(...ontologyResult[sourceTable]);
@@ -297,32 +323,34 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function clearAllFilters() {
     filters.value = {};
-    createBookmark(filters.value, checkoutStore.selectedCollections);
+    createBookmark(
+      filters.value,
+      checkoutStore.selectedCollections,
+      checkoutStore.selectedServices
+    );
   }
 
-  function updateFilter(filterName: string, value: any, fromBookmark: any) {
-    bookmarkTriggeredFilter.value = fromBookmark;
+  function updateFilter(
+    filterName: string,
+    value?: IFilterOption[] | string | boolean,
+    fromBookmark?: boolean
+  ) {
+    bookmarkTriggeredFilter.value = fromBookmark ?? false;
 
-    /** filter reset, so delete */
-    if (
-      value === null ||
-      value === "" ||
-      value === undefined ||
-      value.length === 0
-    ) {
+    if (typeof value === "string" || typeof value === "boolean") {
+      filters.value[filterName] = value;
+      checkoutStore.setSearchHistory(`${filterName} filtered on ${value}`);
+    } else if (Array.isArray(value) && value.length) {
+      filters.value[filterName] = value;
+
+      checkoutStore.setSearchHistory(
+        `${filterName} filtered on ${value
+          .map((v: Record<string, any>) => v.text)
+          .join(", ")}`
+      );
+    } else {
       delete filters.value[filterName];
       checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
-    } else {
-      filters.value[filterName] = value;
-      if (typeof value === "string" || typeof value === "boolean") {
-        checkoutStore.setSearchHistory(`${filterName} filtered on ${value}`);
-      } else {
-        checkoutStore.setSearchHistory(
-          `${filterName} filtered on ${value
-            .map((v: Record<string, any>) => v.text)
-            .join(", ")}`
-        );
-      }
     }
   }
 
@@ -331,10 +359,20 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   function updateFilterType(filterName: string, value: any, fromBookmark: any) {
+    if (
+      filterName === "Diagnosisavailable" &&
+      (filterType.value[filterName] === "any" ||
+        filterType.value[filterName] === undefined) &&
+      filters.value["Diagnosisavailable"]?.length > 50
+    ) {
+      filters.value["Diagnosisavailable"] = filters.value[
+        "Diagnosisavailable"
+      ].slice(0, 50);
+    }
+
     bookmarkTriggeredFilter.value = fromBookmark;
 
     if (value === "" || value === undefined || value.length === 0) {
-      /** filter reset, so delete */
       delete filterType.value[filterName];
     } else {
       filterType.value[filterName] = value;
@@ -357,9 +395,40 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     );
 
     if (!bookmarkTriggeredFilter.value) {
-      createBookmark(newFilters, checkoutStore.selectedCollections);
+      createBookmark(
+        newFilters,
+        checkoutStore.selectedCollections,
+        checkoutStore.selectedServices
+      );
     }
     bookmarkTriggeredFilter.value = false;
+  }
+
+  /**
+   * returns for given input: ([11], 5): [[5],[5],[1]]
+   */
+  function convertArrayToChunks(fullArray: any[], chunkSize = 100) {
+    let chunkArray = [];
+    const arrayLength = fullArray.length;
+
+    let chunk = [];
+    if (fullArray.length > 20) {
+      for (let index = 0; index < arrayLength; index++) {
+        chunk.push(fullArray[index]);
+        if (chunk.length === chunkSize) {
+          chunkArray.push(chunk);
+          chunk = [];
+        }
+      }
+      if (chunk.length) {
+        chunkArray.push(chunk);
+        chunk = [];
+      }
+    } else {
+      chunkArray = [fullArray];
+    }
+
+    return chunkArray;
   }
 
   return {

@@ -57,7 +57,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 43 | Use the browser's ⬅️ button | The user goes back to [/ssr-catalogue/all/variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables) | | |
 | 44 | Hover over the `VARIABLES` button | `VARIABLES` underlined | | |
 | 45 | Click on the `VARIABLES` button | The page is reloaded | | |
-| 46 | Hover over `MORE` | A drop-down menu with `Networks`, `Other catalogues` and `Upload data` presented as options | | |
+| 46 | Hover over `MORE` | A drop-down menu with `Other catalogues` and `Upload data` presented as options | | |
 | 47 | Click on `Networks` | The user goes to [/ssr-catalogue/all/networks](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/networks) | | |
 | 48 | Use the browser's ⬅️ button | The user goes back to [/ssr-catalogue/all/variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables) | | |
 | 48b | Hover over `MORE` | A drop-down menu is presented with `Other catalogues` and `Upload data` as options | | |

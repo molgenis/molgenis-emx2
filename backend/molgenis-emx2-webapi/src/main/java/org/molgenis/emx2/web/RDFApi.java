@@ -1,5 +1,8 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Constants.API_JSONLD;
+import static org.molgenis.emx2.Constants.API_RDF;
+import static org.molgenis.emx2.Constants.API_TTL;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 
 import io.javalin.Javalin;
@@ -21,9 +24,6 @@ import org.molgenis.emx2.utils.URLUtils;
 public class RDFApi {
   public static final String FORMAT = "format";
   private static MolgenisSessionManager sessionManager;
-  public static final String RDF_API_LOCATION = "/api/rdf";
-  public static final String TTL_API_LOCATION = "/api/ttl";
-  public static final String JSONLD_API_LOCATION = "/api/jsonld";
 
   private static final List<RDFFormat> acceptedRdfFormats =
       List.of(
@@ -41,9 +41,9 @@ public class RDFApi {
     // created on-the-fly, there is no way of knowing (or is there?)
     sessionManager = sm;
 
-    defineApiRoutes(app, RDF_API_LOCATION, null);
-    defineApiRoutes(app, TTL_API_LOCATION, RDFFormat.TURTLE);
-    defineApiRoutes(app, JSONLD_API_LOCATION, RDFFormat.JSONLD);
+    defineApiRoutes(app, API_RDF, null);
+    defineApiRoutes(app, API_TTL, RDFFormat.TURTLE);
+    defineApiRoutes(app, API_JSONLD, RDFFormat.JSONLD);
   }
 
   private static void defineApiRoutes(Javalin app, String apiLocation, RDFFormat format) {
@@ -111,7 +111,7 @@ public class RDFApi {
     }
     final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
+    RDFService rdf = new RDFService(baseURL, API_RDF, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
@@ -130,7 +130,7 @@ public class RDFApi {
     }
     final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
+    RDFService rdf = new RDFService(baseURL, API_RDF, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
@@ -145,7 +145,7 @@ public class RDFApi {
     String rowId = sanitize(ctx.pathParam("row"));
 
     final String baseURL = URLUtils.extractBaseURL(ctx);
-    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
+    RDFService rdf = new RDFService(baseURL, API_RDF, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
@@ -162,7 +162,7 @@ public class RDFApi {
 
     final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    RDFService rdf = new RDFService(baseURL, RDF_API_LOCATION, format);
+    RDFService rdf = new RDFService(baseURL, API_RDF, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();

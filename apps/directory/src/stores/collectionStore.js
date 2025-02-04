@@ -1,16 +1,15 @@
-import { defineStore } from "pinia";
 import { QueryEMX2 } from "molgenis-components";
-import { useSettingsStore } from "./settingsStore";
-import { ref } from "vue";
+import { defineStore } from "pinia";
+import useErrorHandler from "../composables/errorHandler";
 import { useCheckoutStore } from "./checkoutStore";
+import { useSettingsStore } from "./settingsStore";
 
+const { setError } = useErrorHandler();
 export const useCollectionStore = defineStore("collectionStore", () => {
   const settingsStore = useSettingsStore();
 
   const collectionColumns = settingsStore.config.collectionColumns;
   const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
-
-  const commercialAvailableCollections = ref([]);
 
   function getCollectionColumns() {
     const properties = collectionColumns
@@ -59,35 +58,17 @@ export const useCollectionStore = defineStore("collectionStore", () => {
         .select(["id", "name", "biobank.name", "also_known.url"])
         .where("id")
         .orLike(idsMissing);
-      const result = await missingCollectionQuery.execute();
 
-      return result.Collections;
+      try {
+        const result = await missingCollectionQuery.execute();
+        return result.Collections;
+      } catch (error) {
+        setError(error);
+        return {};
+      }
     } else {
       return {};
     }
-  }
-
-  async function getCommercialAvailableCollections() {
-    if (!commercialAvailableCollections.value.length) {
-      const commercialCollectionQuery = new QueryEMX2(graphqlEndpoint)
-        .table("Collections")
-        .select("id")
-        .where("commercial_use")
-        .equals(true);
-      const commercialAvailableCollectionsResponse =
-        await commercialCollectionQuery.execute();
-      if (
-        commercialAvailableCollectionsResponse.Collections &&
-        commercialAvailableCollectionsResponse.Collections.length
-      ) {
-        commercialAvailableCollections.value =
-          commercialAvailableCollectionsResponse.Collections.map(
-            (collection) => collection.id
-          );
-      }
-    }
-
-    return commercialAvailableCollections.value;
   }
 
   async function getCollectionReport(id) {
@@ -98,7 +79,12 @@ export const useCollectionStore = defineStore("collectionStore", () => {
       .where("id")
       .equals(id);
 
-    const reportResults = await collectionReportQuery.execute();
+    let reportResults = [];
+    try {
+      reportResults = await collectionReportQuery.execute();
+    } catch (error) {
+      setError(error);
+    }
 
     const factQuery = new QueryEMX2(graphqlEndpoint)
       .table("CollectionFacts")
@@ -115,7 +101,13 @@ export const useCollectionStore = defineStore("collectionStore", () => {
       .where("collection.id")
       .like(id);
 
-    const factResults = await factQuery.execute();
+    let factResults = [];
+    try {
+      factResults = await factQuery.execute();
+    } catch (error) {
+      setError(error);
+    }
+
     reportResults.CollectionFacts = factResults.CollectionFacts;
     return reportResults;
   }
@@ -124,6 +116,5 @@ export const useCollectionStore = defineStore("collectionStore", () => {
     getCollectionColumns,
     getMissingCollectionInformation,
     getCollectionReport,
-    getCommercialAvailableCollections,
   };
 });

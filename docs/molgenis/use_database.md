@@ -12,9 +12,9 @@ If you have admin permissions you can create new databases using the '+' sign.
 ### Naming requirements
 Each database name must be unique (among the database names on the server).
 
-It must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.
+It must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.
 
-Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$`
+Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,30}$`
 
 Some examples:
 

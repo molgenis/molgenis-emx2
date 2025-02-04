@@ -8,8 +8,10 @@ import io.javalin.http.Context;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
+import org.molgenis.emx2.beaconv2.Templates;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
+import org.molgenis.emx2.sql.SqlDatabase;
 
 public class BeaconApi {
 
@@ -21,6 +23,12 @@ public class BeaconApi {
     defineRoutes(app, "/{schema}/api/beacon_vp");
     defineRoutes(app, "/api/beacon");
     defineRoutes(app, "/api/beacon_vp");
+    createTemplates();
+  }
+
+  private static void createTemplates() {
+    Database database = new SqlDatabase(false);
+    Templates.addTemplatesToDb(database);
   }
 
   private static void defineRoutes(Javalin app, String basePath) {

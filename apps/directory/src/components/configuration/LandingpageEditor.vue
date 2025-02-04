@@ -1,16 +1,34 @@
 <template>
   <!-- todo: break this into components or something. -->
   <div class="container-fluid p-0 landingpage-editor" v-if="newConfigReady">
-    <div class="d-flex">
-      <label
-        ><input
+    <form>
+      <div class="form-group form-check">
+        <input
           type="checkbox"
-          class="mr-2"
-          v-model="newConfig.landingpage.enabled"
+          class="form-check-input"
+          id="landingpageEnabled"
           @change="save"
-        />Landingpage enabled</label
-      >
-    </div>
+          v-model="newConfig.landingpage.enabled"
+        />
+        <label class="form-check-label" for="landingpageEnabled"
+          >Landingpage enabled</label
+        >
+      </div>
+      <div class="form-group">
+        <label for="landingpageHeaderInput">Landingpage header</label>
+        <input
+          class="form-control"
+          id="landingpageHeaderInput"
+          aria-describedby="landing page header"
+          v-model="newConfig.landingpage.headerText"
+          @input="save"
+        />
+        <small id="emailHelp" class="form-text text-muted"
+          >Main landing page header</small
+        >
+      </div>
+    </form>
+
     <div>
       <landingpage :key="revision" editable @open="openModal" />
     </div>
@@ -352,6 +370,7 @@ export default {
       this.editorOpen = true;
     },
     save() {
+      console.log("saving", this.newConfig);
       this.settingsStore.UpdateConfig(this.newConfig);
       this.$emit("save", JSON.stringify(this.newConfig));
       this.editorOpen = false;
@@ -384,11 +403,12 @@ export default {
   position: relative;
 }
 
-label {
+dialog label {
   display: flex;
   justify-content: space-between;
 }
-input,
+
+dialog input,
 textarea {
   margin-left: 1rem;
 }
