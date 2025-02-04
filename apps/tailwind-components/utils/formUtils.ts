@@ -104,7 +104,7 @@ function getColumnError(
 }
 
 export function isMissingValue(value: any): boolean {
-  console.log(JSON.stringify(value))
+  console.log('checking as missing value: ');
   if (Array.isArray(value)) {
     return value.length === 0 || value.some((element) => isMissingValue(element));
   } else {

@@ -3,18 +3,19 @@
     <div class="flex flex-row" v-for="option in options">
       <input
         type="checkbox"
-        :id="`${id}-${option.value}`"
+        :id="`${id}-checkbox-group-${option.value}`"
         :name="id"
         :value="option.value"
         v-model="modelValue"
         :checked="modelValue!.includes(option.value)"
-        @input="toggleSelect"
+        :disabled="state === 'disabled'"
+        @change="toggleSelect"
         @focus="$emit('focus')"
-        class="sr-only"
+        class="sr-only fixed"
       />
       <InputLabel
-        :for="`${id}-${option.value}`"
-        class="hover:cursor-pointer flex justify-start items-center"
+        :for="`${id}-checkbox-group-${option.value}`"
+        class="hover:cursor-pointer flex justify-start items-center text-title"
       >
         <InputCheckboxIcon
           :checked="modelValue!.includes(option.value)"

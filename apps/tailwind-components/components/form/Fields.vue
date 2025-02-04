@@ -11,10 +11,12 @@ import {
   isMissingValue,
 } from "~/utils/formUtils";
 import type { IFormLegendSection } from "metadata-utils/dist/src/types";
+import { scrollToElementInside } from "~/utils/scrollTools";
 
 //todo: don't forget about reflinks
 
 const props = defineProps<{
+  id: string;
   schemaId: string;
   metadata: ITableMetaData;
   data: Record<columnId, columnValue>[];
@@ -33,7 +35,7 @@ const visibleMap = reactive<Record<columnId, boolean>>({});
 const errorMap = reactive<Record<columnId, string>>({});
 const previousColumn = ref<IColumn>();
 
-//initialize visiblity for headers
+//initialize visibility for headers
 props.metadata.columns
   .filter((column) => column.columnType === "HEADING")
   .forEach((column) => {
@@ -66,16 +68,19 @@ const chapters = computed(() => {
         id: column.id,
         columns: [],
         isActive: column.id === activeChapterId.value,
+        errorCount: 0,
       });
     } else {
       if (acc.length === 0) {
         acc.push({
-          title: "_NO_CHAPTERS",
-          id: "_NO_CHAPTERS",
+          title: "_top",
+          id: "_scroll_to_top",
           columns: [],
+          isActive: "_scroll_to_top" === activeChapterId.value,
         });
       }
       acc[acc.length - 1].columns.push(column);
+      if (errorMap[column.id]) acc[acc.length - 1].errorCount++;
     }
     return acc;
   }, [] as IFormLegendSection[]);
@@ -158,16 +163,21 @@ function onUpdate(column: IColumn, $event: columnValue) {
         : false;
       console.log("updating visibility for " + c.id + "=" + visibleMap[c.id]);
     });
+  previousColumn.value = column;
   emit("update:modelValue", dataMap);
 }
 
 function onFocus(column: IColumn) {
-  console.log("focus " + column.id);
+  console.log("focus " + column.id + " previous " + previousColumn.value);
   //will validate previous column, because checkbox, radio don't have 'blur'
   if (previousColumn.value) {
     validateColumn(previousColumn.value);
   }
   previousColumn.value = column;
+}
+function onBlur(column: IColumn) {
+  previousColumn.value = column;
+  validateColumn(column);
 }
 
 function checkVisibleExpression(column: IColumn) {
@@ -187,28 +197,40 @@ function checkVisibleExpression(column: IColumn) {
 }
 
 function updateActiveChapter(chapterId: string) {
-  console.log("active header = " + chapterId);
   activeChapterId.value = chapterId;
+}
+function goToSection(headerId: string) {
+  //requires all elements before id to have check visibility so we know their sizes
+  //todo: loading animation this might take while
+  //todo: next to visibility we also need to wait until all have retrieved options or ensure refs have fixed size
+  for (let i = 0; i < props.metadata.columns.length; i++) {
+    const column = props.metadata.columns[i];
+    if (visibleMap[column.id] === undefined) checkVisibleExpression(column);
+    if (column.id === props.id) break;
+  }
+  scrollToElementInside(props.id + "-fields-container", headerId);
 }
 </script>
 <template>
-  <div id="mock-form-container" class="basis-2/3 flex flex-row border">
-    <div class="basis-1/3">
-      <FormLegend
-        :sections="
-          chapters.filter((chapter) => chapter.title !== '_NO_CHAPTERS')
-        "
-      />
+  <div id="mock-form-container" class="flex flex-row border">
+    <div v-if="chapters.length > 1" class="basis-1/3">
+      <FormLegend :sections="chapters" @go-to-section="goToSection" />
     </div>
-    <div class="basis-2/3 h-screen overflow-y-scroll">
+    <div
+      class="h-screen overflow-y-scroll"
+      :class="{ 'basis-2/3': chapters.length > 1 }"
+      :id="id + '-fields-container'"
+    >
       <div
         v-for="chapter in chapters"
         :id="chapter.id"
-        v-when-in-view="() => updateActiveChapter(chapter.id)"
+        v-when-overlaps-with-top-of-container="
+          () => updateActiveChapter(chapter.id)
+        "
       >
         <h2
           class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8 scroll-mt-20"
-          v-if="chapter.title !== '_NO_CHAPTERS' && visibleMap[chapter.id]"
+          v-if="chapter.title !== '_scroll_to_top' && visibleMap[chapter.id]"
         >
           {{ chapter.title }}
         </h2>
@@ -219,7 +241,7 @@ function updateActiveChapter(chapterId: string) {
           )"
         >
           <div
-            style="height: 500px"
+            style="height: 100px"
             v-on-first-view="() => checkVisibleExpression(column)"
             v-if="visibleMap[column.id] === undefined"
           ></div>
@@ -238,7 +260,7 @@ function updateActiveChapter(chapterId: string) {
             :ref-label="column.refLabel || column.refLabelDefault"
             :state="errorMap[column.id] ? 'invalid' : 'default'"
             @update:modelValue="onUpdate(column, $event)"
-            @blur="validateColumn(column)"
+            @blur="onBlur(column)"
             @focus="onFocus(column)"
           />
         </template>
@@ -252,6 +274,10 @@ function updateActiveChapter(chapterId: string) {
         {{ numberOfRequiredFields }} required fields left ( temporary section
         for dev)
       </div>
+      <div
+        id="spacer-so-we-can-scroll-each-chapter-to-top-if-requested"
+        class="h-screen"
+      />
     </div>
   </div>
 </template>

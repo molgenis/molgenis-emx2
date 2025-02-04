@@ -4,8 +4,8 @@
     <ul class="list-none space-y-3">
       <li
         v-for="section in sections"
-        class="group felx flex items-center cursor-pointer"
-        @click="handleGotoRequest(section)"
+        class="group flex items-center cursor-pointer"
+        @click="emit('goToSection', section.id)"
       >
         <div
           class="h-[24px] w-1 group-hover:bg-button-primary"
@@ -14,7 +14,8 @@
         <span
           class="pl-4 text-title capitalize"
           :class="{ 'font-bold': section.isActive }"
-          >{{ section.title }}</span
+        >
+          {{ section.title }}</span
         >
         <span v-if="(section.errorCount ?? 0) > 0" class="ml-2">
           <div
@@ -30,19 +31,8 @@
 
 <script lang="ts" setup>
 import type { IFormLegendSection } from "../../../metadata-utils/src/types";
-
 defineProps<{
   sections: IFormLegendSection[];
 }>();
-
 const emit = defineEmits(["goToSection"]);
-
-function handleGotoRequest(section: IFormLegendSection) {
-  document.getElementById(`${section.id}`)?.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-  });
-
-  emit("goToSection", section);
-}
 </script>

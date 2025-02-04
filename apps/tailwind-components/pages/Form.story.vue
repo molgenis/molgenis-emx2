@@ -138,6 +138,7 @@ const fieldsKey = computed(() => `${schemaId.value}-${tableId.value}-fields`);
   <div class="flex flex-row">
     <div class="2/3 p-8 border-l">
       <FormFields
+        id="forms-story"
         :key="fieldsKey"
         v-if="schemaId && tableMeta && status === 'success'"
         ref="formFields"

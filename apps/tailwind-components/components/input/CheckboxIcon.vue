@@ -11,6 +11,7 @@
     <rect
       width="20"
       height="20"
+      :style="{ 'stroke-width': state == 'invalid' ? 4 : 1 }"
       :class="{
         'fill-input': !checked && !indeterminate,
         'fill-input-checked': checked || indeterminate,

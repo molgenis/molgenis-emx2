@@ -10,7 +10,7 @@
       cx="10"
       cy="10"
       r="9"
-      stroke-width="1"
+      :style="{ 'stroke-width': state == 'invalid' ? 2 : 1 }"
       fill="none"
       :class="{
         'fill-input hover:fill-input-checked hover:stroke-none focus:fill-input-checked focus:stroke-none':

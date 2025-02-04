@@ -180,7 +180,6 @@ function loadMore() {
 
 <template>
   <div
-    v-on-first-view="onFirstView"
     class="flex flex-wrap gap-2 mb-2"
     v-if="isArray ? selection.length : selection"
   >

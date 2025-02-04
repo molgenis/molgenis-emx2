@@ -18,6 +18,7 @@
         @input="toggleSelect"
         :checked="option.value === modelValue"
         :state="state"
+        @focus="$emit('focus')"
       />
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
