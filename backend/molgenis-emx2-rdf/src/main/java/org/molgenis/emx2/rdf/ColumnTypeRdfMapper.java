@@ -2,13 +2,13 @@ package org.molgenis.emx2.rdf;
 
 import static java.util.Map.entry;
 import static org.eclipse.rdf4j.model.util.Values.literal;
+import static org.molgenis.emx2.Constants.API_FILE;
+import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
+import static org.molgenis.emx2.Constants.SUBSELECT_SEPARATOR;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
-import static org.molgenis.emx2.Constants.API_FILE;
-import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
-import static org.molgenis.emx2.Constants.SUBSELECT_SEPARATOR;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 
 import com.google.common.net.UrlEscapers;
