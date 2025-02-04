@@ -6,7 +6,9 @@ const state = ref<string>();
 <template>
   <h2 class="text-heading-2xl">File input Eample</h2>
   <form @submit.prevent>
-    <InputLabel> Select one or more files to import. </InputLabel>
+    <label for="file-input-demo" class="block mb-2">
+      Select one or more files to import.
+    </label>
     <InputFile
       id="file-input-demo"
       @update:model-value="(value) => (file = value)"
