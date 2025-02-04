@@ -116,7 +116,19 @@ public class TableStoreForXlsxFile implements TableStore {
       // write a contents row
       org.apache.poi.ss.usermodel.Row excelRow = sheet.createRow(rowNum);
       for (Map.Entry<String, Integer> entry : columnNameIndexMap.entrySet()) {
-        excelRow.createCell(entry.getValue()).setCellValue(row.getString(entry.getKey()));
+        try {
+          excelRow.createCell(entry.getValue()).setCellValue(row.getString(entry.getKey()));
+        } catch (IllegalArgumentException e) {
+          throw new MolgenisException(
+              "Error writing table '"
+                  + name
+                  + "', column '"
+                  + entry.getKey()
+                  + "', at row "
+                  + rowNum
+                  + ": "
+                  + e.getMessage());
+        }
       }
       rowNum++;
     }

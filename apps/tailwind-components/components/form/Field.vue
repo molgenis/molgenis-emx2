@@ -7,6 +7,7 @@ import type {
 } from "../../../metadata-utils/src/types";
 
 const props = defineProps<{
+  schemaId: string;
   column: IColumn;
   data: columnValue;
   errors: IFieldError[];
@@ -43,9 +44,11 @@ function validate(value: columnValue) {
       <label :for="column.id" class="capitalize text-title font-bold">{{
         column.label
       }}</label>
-      <span class="text-disabled ml-3" v-show="column.required">Required</span>
+      <span class="text-disabled text-body-sm ml-3" v-show="column.required"
+        >Required</span
+      >
     </div>
-    <div class="text-title" v-if="column.description">
+    <div class="text-input-description text-body-sm" v-if="column.description">
       {{ column.description }}
     </div>
     <div>
@@ -53,6 +56,9 @@ function validate(value: columnValue) {
         :type="column.columnType"
         :id="column.id"
         :label="column.label"
+        :refSchemaId="column.refSchemaId || schemaId"
+        :refTableId="column.refTableId"
+        :refLabel="column.refLabel || column.refLabelDefault"
         :data="data"
         :required="!!column.required"
         :aria-invalid="hasError"

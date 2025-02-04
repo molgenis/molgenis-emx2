@@ -1,7 +1,6 @@
 <template>
   <div class="edit-mode">
     <div style="display: flex; gap: 10px">
-      <strong>{{ type }} Module </strong>
       <InputSelect
         id="EditBlock"
         style="margin: 0"
