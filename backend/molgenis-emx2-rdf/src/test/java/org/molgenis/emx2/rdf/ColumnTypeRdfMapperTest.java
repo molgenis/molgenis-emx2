@@ -261,7 +261,7 @@ class ColumnTypeRdfMapperTest {
   private Set<Value> retrieveValuesCustom(
       String columnName, ColumnTypeRdfMapper.RdfColumnType rdfColumnType) {
     return mapper.retrieveValues(
-        firstRow,
+        testRows.get(0),
         allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName),
         rdfColumnType);
   }
@@ -464,7 +464,7 @@ class ColumnTypeRdfMapperTest {
                     .stringValue()
                     .matches("[0-9a-zA-Z]+")),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.iri("http://example.com/aa")),
                 retrieveValues(ColumnType.ONTOLOGY.name())),
         () ->
@@ -511,12 +511,12 @@ class ColumnTypeRdfMapperTest {
         // Overriding default behaviour
         // ontology as reference (key=1 instead of ontologyTermURI)
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=aa")),
                 retrieveValuesCustom(
                     ColumnType.ONTOLOGY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(
                     Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=bb"),
                     Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=cc")),
@@ -524,7 +524,7 @@ class ColumnTypeRdfMapperTest {
                     ColumnType.ONTOLOGY_ARRAY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
         // email as regular string
         () ->
-            Assertions.assertEquals(
+            assertEquals(
                 Set.of(Values.literal("aap@example.com")),
                 retrieveValuesCustom(
                     ColumnType.EMAIL.name(), ColumnTypeRdfMapper.RdfColumnType.STRING)));

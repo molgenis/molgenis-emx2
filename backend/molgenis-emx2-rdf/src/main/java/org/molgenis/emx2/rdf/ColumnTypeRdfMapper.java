@@ -114,8 +114,7 @@ public class ColumnTypeRdfMapper {
    * </ul>
    */
   public Set<Value> retrieveValues(final Row row, final Column column) {
-    RdfColumnType mapper = mapping.get(column.getColumnType());
-    return (mapper.isEmpty(row, column) ? Set.of() : mapper.retrieveValues(baseURL, row, column));
+    return retrieveValues(row, column, mapping.get(column.getColumnType()));
   }
 
   /**
@@ -129,10 +128,7 @@ public class ColumnTypeRdfMapper {
    */
   public Set<Value> retrieveValues(
       final Row row, final Column column, final RdfColumnType rdfColumnType) {
-    if (row.getString(column.getName()) == null) {
-      return Set.of();
-    }
-    return rdfColumnType.retrieveValues(baseURL, row, column);
+    return (rdfColumnType.isEmpty(row, column) ? Set.of() : rdfColumnType.retrieveValues(baseURL, row, column));
   }
 
   public enum RdfColumnType {
