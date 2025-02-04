@@ -128,7 +128,9 @@ public class ColumnTypeRdfMapper {
    */
   public Set<Value> retrieveValues(
       final Row row, final Column column, final RdfColumnType rdfColumnType) {
-    return (rdfColumnType.isEmpty(row, column) ? Set.of() : rdfColumnType.retrieveValues(baseURL, row, column));
+    return (rdfColumnType.isEmpty(row, column)
+        ? Set.of()
+        : rdfColumnType.retrieveValues(baseURL, row, column));
   }
 
   public enum RdfColumnType {
