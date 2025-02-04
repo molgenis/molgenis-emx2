@@ -32,7 +32,7 @@ public class QueryEntryType {
   private final Granularity granularity;
   private final IncludedResultsetResponses includeStrategy;
 
-  private final ObjectMapper mapper = new ObjectMapper();
+  private static final ObjectMapper mapper = new ObjectMapper();
   private Database database;
   private Schema schema;
 
