@@ -67,47 +67,7 @@ function onErrors(newErrors: Record<string, IFieldError[]>) {
   errors.value = newErrors;
 }
 
-function chapterFieldIds(chapterId: string) {
-  const chapterFieldIds = [];
-  let inChapter = false;
-  const columns = tableMeta.value ? tableMeta.value.columns : [];
-
-  for (const column of columns) {
-    if (column.columnType === "HEADING" && column.id === chapterId) {
-      inChapter = true;
-    } else if (column.columnType === "HEADING" && column.id !== chapterId) {
-      inChapter = false;
-    } else if (inChapter) {
-      chapterFieldIds.push(column.id);
-    }
-  }
-  return chapterFieldIds;
-}
-
-function chapterErrorCount(chapterId: string) {
-  const counted = chapterFieldIds(chapterId).reduce((acc, fieldId) => {
-    return acc + (errors.value[fieldId]?.length ?? 0);
-  }, 0);
-  return counted;
-}
-
 const currentSectionDomId = ref("");
-
-const sections = computed(() => {
-  return tableMeta.value
-    ? tableMeta.value.columns
-        .filter((column: IColumn) => column.columnType == "HEADING")
-        .map((column: IColumn) => {
-          return {
-            label: column.label,
-            domId: column.id,
-            isActive: currentSectionDomId.value.startsWith(column.id),
-            errorCount: chapterErrorCount(column.id),
-          };
-        })
-    : [];
-});
-
 function setUpChapterIsInViewObserver() {
   if (import.meta.client) {
     const observer = new IntersectionObserver(
@@ -131,7 +91,6 @@ function setUpChapterIsInViewObserver() {
     });
   }
 }
-
 onMounted(() => setUpChapterIsInViewObserver());
 
 watch(
@@ -177,19 +136,10 @@ const fieldsKey = computed(() => `${schemaId.value}-${tableId.value}-fields`);
 
 <template>
   <div class="flex flex-row">
-    <div id="mock-form-container" class="basis-2/3 flex flex-row border">
-      <div class="basis-1/3">
-        <FormLegend
-          v-if="sections && sections.length"
-          class="bg-sidebar-gradient mx-4"
-          :sections="sections"
-        />
-      </div>
-
+    <div class="2/3 p-8 border-l">
       <FormFields
         :key="fieldsKey"
         v-if="schemaId && tableMeta && status === 'success'"
-        class="basis-2/3 p-8 border-l overflow-y-auto h-screen"
         ref="formFields"
         :schemaId="schemaId"
         :metadata="tableMeta"
@@ -198,8 +148,7 @@ const fieldsKey = computed(() => `${schemaId.value}-${tableId.value}-fields`);
         @error="onErrors($event)"
       />
     </div>
-
-    <div class="basis-1/3 ml-2 h-screen overflow-y-scroll">
+    <div class="basis-1/3 ml-2 h-screen">
       <h2>Demo controls, settings and status</h2>
 
       <div class="p-4 border-2 mb-2 flex flex-col gap-4">

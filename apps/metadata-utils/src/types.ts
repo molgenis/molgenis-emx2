@@ -94,8 +94,8 @@ export interface IFieldError {
 }
 
 export interface IFormLegendSection {
-  label: string;
-  domId: string;
+  title: string;
+  id: string;
   isActive?: boolean;
   errorCount?: number;
 }

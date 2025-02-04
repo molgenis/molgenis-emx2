@@ -10,6 +10,7 @@ import {
   isColumnVisible,
   isMissingValue,
 } from "~/utils/formUtils";
+import type { IFormLegendSection } from "metadata-utils/dist/src/types";
 
 //todo: don't forget about reflinks
 
@@ -20,13 +21,6 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(["error", "update:modelValue"]);
-
-interface IChapter {
-  title: string | "_NO_CHAPTERS";
-  id: string;
-  columns: IColumn[];
-  errorCount?: number;
-}
 
 const dataMap = reactive<Record<columnId, columnValue>>(
   Object.fromEntries(
@@ -63,6 +57,7 @@ props.metadata.columns
 
 //todo, chapters should be rendered in this component so they can account for visibility
 
+const activeChapterId: Ref<string | null> = ref(null);
 const chapters = computed(() => {
   return props.metadata.columns.reduce((acc, column) => {
     if (column.columnType === "HEADING") {
@@ -70,6 +65,7 @@ const chapters = computed(() => {
         title: column.label,
         id: column.id,
         columns: [],
+        isActive: column.id === activeChapterId.value,
       });
     } else {
       if (acc.length === 0) {
@@ -82,7 +78,7 @@ const chapters = computed(() => {
       acc[acc.length - 1].columns.push(column);
     }
     return acc;
-  }, [] as IChapter[]);
+  }, [] as IFormLegendSection[]);
 });
 
 const numberOffFieldsWithErrors = computed(
@@ -189,54 +185,73 @@ function checkVisibleExpression(column: IColumn) {
     "checking visibility of " + column.id + "=" + visibleMap[column.id]
   );
 }
+
+function updateActiveChapter(chapterId: string) {
+  console.log("active header = " + chapterId);
+  activeChapterId.value = chapterId;
+}
 </script>
 <template>
-  <div>
-    <template v-for="chapter in chapters">
-      <h2
-        class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8 scroll-mt-20"
-        :id="`${chapter.id}-chapter-title`"
-        v-if="chapter.title !== '_NO_CHAPTERS' && visibleMap[chapter.id]"
-      >
-        {{ chapter.title }}
-      </h2>
-      <!-- todo filter invisible -->
-      <template
-        v-for="column in chapter.columns.filter((c) => !c.id.startsWith('mg_'))"
-      >
-        <div
-          style="height: 500px"
-          v-on-first-view="() => checkVisibleExpression(column)"
-          v-if="visibleMap[column.id] === undefined"
-        ></div>
-        <FormField
-          class="pb-8"
-          v-else-if="visibleMap[column.id] === true"
-          v-model="dataMap[column.id]"
-          :id="`${column.id}-form-field`"
-          :type="column.columnType"
-          :label="column.label"
-          :description="column.description"
-          :required="isRequired(column.required)"
-          :error-message="errorMap[column.id]"
-          :ref-schema-id="column.refSchemaId || schemaId"
-          :ref-table-id="column.refTableId"
-          :ref-label="column.refLabel || column.refLabelDefault"
-          :state="errorMap[column.id] ? 'invalid' : 'default'"
-          @update:modelValue="onUpdate(column, $event)"
-          @blur="validateColumn(column)"
-          @focus="onFocus(column)"
-        />
-      </template>
-    </template>
-    <div class="bg-red-500 p-3 font-bold">
-      {{ numberOffFieldsWithErrors }} fields require your attention before you
-      can save this {{ recordLabel }} ( temporary section for dev)
+  <div id="mock-form-container" class="basis-2/3 flex flex-row border">
+    <div class="basis-1/3">
+      <FormLegend
+        :sections="
+          chapters.filter((chapter) => chapter.title !== '_NO_CHAPTERS')
+        "
+      />
     </div>
-    <div class="bg-gray-200 p-3">
-      {{ numberOfRequiredFields - numberOfRequiredFieldsWithData }} /
-      {{ numberOfRequiredFields }} required fields left ( temporary section for
-      dev)
+    <div class="basis-2/3 h-screen overflow-y-scroll">
+      <div
+        v-for="chapter in chapters"
+        :id="chapter.id"
+        v-when-in-view="() => updateActiveChapter(chapter.id)"
+      >
+        <h2
+          class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8 scroll-mt-20"
+          v-if="chapter.title !== '_NO_CHAPTERS' && visibleMap[chapter.id]"
+        >
+          {{ chapter.title }}
+        </h2>
+        <!-- todo filter invisible -->
+        <template
+          v-for="column in chapter.columns.filter(
+            (c) => !c.id.startsWith('mg_')
+          )"
+        >
+          <div
+            style="height: 500px"
+            v-on-first-view="() => checkVisibleExpression(column)"
+            v-if="visibleMap[column.id] === undefined"
+          ></div>
+          <FormField
+            class="pb-8"
+            v-else-if="visibleMap[column.id] === true"
+            v-model="dataMap[column.id]"
+            :id="`${column.id}-form-field`"
+            :type="column.columnType"
+            :label="column.label"
+            :description="column.description"
+            :required="isRequired(column.required)"
+            :error-message="errorMap[column.id]"
+            :ref-schema-id="column.refSchemaId || schemaId"
+            :ref-table-id="column.refTableId"
+            :ref-label="column.refLabel || column.refLabelDefault"
+            :state="errorMap[column.id] ? 'invalid' : 'default'"
+            @update:modelValue="onUpdate(column, $event)"
+            @blur="validateColumn(column)"
+            @focus="onFocus(column)"
+          />
+        </template>
+      </div>
+      <div class="bg-red-500 p-3 font-bold">
+        {{ numberOffFieldsWithErrors }} fields require your attention before you
+        can save this {{ recordLabel }} ( temporary section for dev)
+      </div>
+      <div class="bg-gray-200 p-3">
+        {{ numberOfRequiredFields - numberOfRequiredFieldsWithData }} /
+        {{ numberOfRequiredFields }} required fields left ( temporary section
+        for dev)
+      </div>
     </div>
   </div>
 </template>

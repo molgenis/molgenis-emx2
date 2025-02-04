@@ -14,7 +14,7 @@
         <span
           class="pl-4 text-title capitalize"
           :class="{ 'font-bold': section.isActive }"
-          >{{ section.label }}</span
+          >{{ section.title }}</span
         >
         <span v-if="(section.errorCount ?? 0) > 0" class="ml-2">
           <div
@@ -38,7 +38,7 @@ defineProps<{
 const emit = defineEmits(["goToSection"]);
 
 function handleGotoRequest(section: IFormLegendSection) {
-  document.getElementById(`${section.domId}-chapter-title`)?.scrollIntoView({
+  document.getElementById(`${section.id}`)?.scrollIntoView({
     behavior: "smooth",
     block: "start",
   });
