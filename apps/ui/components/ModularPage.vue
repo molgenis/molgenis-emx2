@@ -9,6 +9,19 @@
         :editMode="editMode"
         :page="page"
       />
+      <div v-if="editMode" class="border-2 border-dashed p-3 bg-yellow-200 ">
+        <InputLabel for="input-name" class="whitespace-nowrap">
+        Page name
+      </InputLabel>
+      <div  class="flex">
+        <InputString
+          id="input-name"
+          modelValue="my ern preview page"
+        />
+        <Button type="primary" @click="" label="Save" />
+      </div>
+    </div>
+
     </div>
     <div v-else v-html="localContent"></div>
   </Page>

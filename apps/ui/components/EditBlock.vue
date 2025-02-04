@@ -1,20 +1,38 @@
 <template>
-  <div class="edit-mode">
-    <div style="display: flex; gap: 10px">
-      <InputSelect
-        id="EditBlock"
-        style="margin: 0"
-        :modelValue="type"
-        :options="['Html', 'Header', 'Section', 'PieChart']"
-        :required="true"
-      />
-      <Button type="primary" size="tiny" @click="$emit('action', 'up')"><BaseIcon name="ArrowUp"/></Button>
-      <Button type="primary" size="tiny" @click="$emit('action', 'down')"><BaseIcon name="ArrowDown"/></Button>
-      <Button type="primary" size="tiny" @click="$emit('action', 'add')"><BaseIcon name="Plus"/></Button>
-      <Button type="primary" size="tiny" @click="$emit('action', 'delete')"><BaseIcon name="Trash"/></Button>
+  <div class="border-t-2 border-dashed bg-yellow-200">
+    <div v-if="!show">
+      <div class="float-right -mt-12 flex">
+        <Button  type="primary" size="small" class="mr-2" @click="show = true" label="Edit" />
+        <ButtonBar class="mr-4">
+          <Button type="primary" size="small" @click="$emit('action', 'up')" iconOnly icon="caret-up" label="Move up" />
+          <Button type="primary" size="small" @click="$emit('action', 'down')" iconOnly icon="caret-down" label="Move down" />
+          <Button type="primary" size="small" @click="$emit('action', 'add')" iconOnly icon="plus" label="Add above" />
+          <Button type="primary" size="small" @click="$emit('action', 'delete')" iconOnly  icon="trash" label="Remove" />
+        </ButtonBar>
+      </div>
     </div>
-    <hr />
+
+    <div v-else class="border-b-2 border-dashed  p-3">
+      <div class="mb-3 flex gap-[0.5rem]">
+        <InputSelect
+          id="EditBlock"
+          style="margin: 0"
+          :modelValue="type"
+          :options="['Html', 'Header', 'Section', 'PieChart']"
+          :required="true"
+        />
+        <Button type="primary" size="small" @click="show = false" label="hide" />
+        <ButtonBar class="">
+          <Button type="primary" size="small" @click="$emit('action', 'up')" iconOnly icon="caret-up" label="Move up" />
+          <Button type="primary" size="small" @click="$emit('action', 'down')" iconOnly icon="caret-down" label="Move down" />
+          <Button type="primary" size="small" @click="$emit('action', 'add')" iconOnly icon="plus" label="Add" />
+          <Button type="primary" size="small" @click="$emit('action', 'delete')" iconOnly  icon="trash" label="Remove" />
+        </ButtonBar>
+
+      </div>
+      <hr />
     <slot></slot>
+    </div>
   </div>
 </template>
 
@@ -23,12 +41,5 @@ let props = defineProps<{
   type?: string;
 }>();
 defineEmits(['action']);
-
+let show = ref(false);
 </script>
-
-<style lang="css">
-.edit-mode {
-  padding: 1em;
-  background-color: rgb(255, 242, 188);
-}
-</style>

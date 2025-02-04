@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-html="localContent.html"></div>
+    <div class="min-h-12" v-html="localContent.html"></div>
     <EditBlock v-if="editMode" type="Html" @action="$emit('action', $event)">
       <InputTextArea
         id="html input"

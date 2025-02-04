@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     cssPath: '../tailwind-components/assets/css/main.css',
     configPath: '../tailwind-components/tailwind.config.js'
   },
+  css: ["molgenis-viz/dist/style.css"],
 
   // runtimeConfig: {
   //   public: {

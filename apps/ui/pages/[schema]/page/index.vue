@@ -1,14 +1,20 @@
 <template>
-  <div>
-    <p>Create new page</p>
-    <InputString></InputString>
-    <InputSelect
-      required
-      :options="['html', 'text page', 'ern page', 'dashboard']"
-    />
-
+  <div class="m-3">
+    <h3>Create new page</h3>
+    <div class="flex gap-1">
+      <Button
+        type="primary"
+        @click=""
+        size="small"
+        label="Html Page"
+        class="gap-1"
+      />
+      <Button type="primary" @click="" size="small" label="Text Page" />
+      <Button type="primary" @click="" size="small" label="Ern page" />
+      <Button type="primary" @click="" size="small" label="Ern Dashboard" />
+    </div>
     <br />
-    <p>view all pages</p>
+    <h3>Edit page</h3>
     {{ pages }}
   </div>
 </template>
