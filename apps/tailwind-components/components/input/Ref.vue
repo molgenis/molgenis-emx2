@@ -2,11 +2,10 @@
 import type { ITableDataResponse } from "~/composables/fetchTableData";
 import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQueryMetaData.ts";
 import type {
-  columnValue,
+  ITableMetaData,
   columnValueObject,
 } from "../../../metadata-utils/src/types";
 import { type IInputProps, type IValueLabel } from "~/types/types";
-import type { ITableMetaData } from "metadata-utils";
 
 const props = withDefaults(
   defineProps<
@@ -218,7 +217,7 @@ function loadMore() {
       v-if="isArray"
       :id="id"
       :options="listOptions"
-      :modelValue="(selection as string[])"
+      v-model="(selection as string[])"
       @select="select"
       @deselect="deselect"
       :invalid="invalid"
@@ -230,7 +229,7 @@ function loadMore() {
       v-else
       :id="id"
       :options="listOptions"
-      :modelValue="(selection as string)"
+      v-model="(selection as string)"
       @select="select"
       @deselect="deselect"
       :invalid="invalid"

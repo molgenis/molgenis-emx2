@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { IInputProps } from "~/types/types";
-const props = defineProps<
+const modelValue = defineModel<string | number>();
+defineProps<
   IInputProps & {
     modelValue: string | number;
   }
@@ -19,8 +20,7 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
       'border-disabled text-disabled bg-disabled': disabled,
       'bg-white': !disabled,
     }"
-    :modelValue="modelValue"
-    @update:modelValue="emit('update:modelValue')"
+    v-model="modelValue"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
   />

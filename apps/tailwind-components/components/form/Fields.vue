@@ -258,7 +258,7 @@ function goToSection(headerId: string) {
             :ref-schema-id="column.refSchemaId || schemaId"
             :ref-table-id="column.refTableId"
             :ref-label="column.refLabel || column.refLabelDefault"
-            :state="errorMap[column.id] ? 'invalid' : 'default'"
+            :invalid="errorMap[column.id]"
             @update:modelValue="onUpdate(column, $event)"
             @blur="onBlur(column)"
             @focus="onFocus(column)"

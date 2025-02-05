@@ -1,8 +1,7 @@
 <template>
   <InputRadioGroup
     :id="id"
-    :modelValue="modelValue"
-    @update:modelValue="emit('update:modelValue')"
+    v-model="modelValue"
     :aria-describedby="describedBy"
     :options="yesNoOption"
     :showClearButton="true"
@@ -30,6 +29,7 @@ const props = withDefaults(
     falseLabel: "False",
   }
 );
+const modelValue = defineModel<true | false | null>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
 const yesNoOption = ref<IRadioOptionsData[]>([
