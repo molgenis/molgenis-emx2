@@ -12,6 +12,7 @@ import {
 } from "~/utils/formUtils";
 import type { IFormLegendSection } from "../../../metadata-utils/src/types";
 import { scrollToElementInside } from "~/utils/scrollTools";
+import logger from "@/utils/logger";
 
 //todo: don't forget about reflinks
 
@@ -39,7 +40,7 @@ const previousColumn = ref<IColumn>();
 props.metadata.columns
   .filter((column) => column.columnType === "HEADING")
   .forEach((column) => {
-    console.log(
+    logger.debug(
       isColumnVisible(column, dataMap, props.schemaId, props.metadata)
     );
     visibleMap[column.id] =
@@ -47,7 +48,7 @@ props.metadata.columns
       isColumnVisible(column, dataMap, props.schemaId, props.metadata)
         ? true
         : false;
-    console.log(
+    logger.debug(
       "check heading " +
         column.id +
         "=" +
@@ -109,7 +110,7 @@ const recordLabel = computed(() => props.metadata.label);
 //when we blur we keep previous error
 /** this is called on every touch of a column. Before submit of a form we need to validate everything but that can be done by the container of this */
 function validateColumn(column: IColumn) {
-  console.log("validate " + column.id);
+  logger.debug("validate " + column.id);
   delete errorMap[column.id];
 
   //validate required
@@ -161,14 +162,14 @@ function onUpdate(column: IColumn, $event: columnValue) {
       )
         ? true
         : false;
-      console.log("updating visibility for " + c.id + "=" + visibleMap[c.id]);
+      logger.debug("updating visibility for " + c.id + "=" + visibleMap[c.id]);
     });
   previousColumn.value = column;
   emit("update:modelValue", dataMap);
 }
 
 function onFocus(column: IColumn) {
-  console.log("focus " + column.id + " previous " + previousColumn.value);
+  logger.debug("focus " + column.id + " previous " + previousColumn.value);
   //will validate previous column, because checkbox, radio don't have 'blur'
   if (previousColumn.value) {
     validateColumn(previousColumn.value);
@@ -191,7 +192,7 @@ function checkVisibleExpression(column: IColumn) {
   } else {
     visibleMap[column.id] = false;
   }
-  console.log(
+  logger.debug(
     "checking visibility of " + column.id + "=" + visibleMap[column.id]
   );
 }
