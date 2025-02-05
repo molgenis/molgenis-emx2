@@ -5,7 +5,7 @@ const file = ref();
 <template>
   <h2 class="text-heading-2xl">File input Eample</h2>
   <form @submit.prevent>
-    <p class="block mb-2">Select one or more files to import.</p>
+    <p class="block mb-2">Select a one file to import.</p>
     <InputFile
       id="file-input-demo"
       @update:model-value="(value) => (file = value)"
