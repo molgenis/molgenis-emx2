@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Schema } from "~/types/types";
-import type { ISchemaMetaData } from "../../metadata-utils/src/types";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -23,45 +22,57 @@ const schemaIds = computed(
       .map((s) => s.id) ?? []
 );
 
-const { data: schemaMeta } = await useAsyncData("form sample", () =>
-  fetchMetadata(schemaId.value)
-);
-
-const schemaTablesIds = computed(() =>
-  (schemaMeta.value as ISchemaMetaData)?.tables.map((table) => table.id)
-);
-
 const {
   data: metadata,
   error: metadataError,
   refresh: refetchMetadata,
-} = await useLazyAsyncData("my meta data", () => fetchMetadata(schemaId.value));
+} = await useAsyncData("my meta data", () => fetchMetadata(schemaId.value));
 
-if (metadata.value) {
-  tableId.value = metadata.value.tables[0].id;
-}
+const schemaTablesIds = computed(() =>
+  metadata.value?.tables.map((table) => table.id)
+);
 
 const {
   data: tableData,
   status,
   error,
   refresh: refetchTableData,
-} = await useLazyAsyncData("my data", () =>
+} = await useAsyncData("my data", () =>
   fetchTableData(schemaId.value, tableId.value)
 );
 
-watch(schemaId, async () => {
-  refetchMetadata().then(() => {
+watch(
+  () => schemaId.value,
+  async () => {
     if (metadata.value) {
+      await refetchMetadata();
+      await refetchTableData();
       tableId.value = metadata.value.tables[0].id;
-      refetchTableData();
+      useRouter().push({
+        query: {
+          ...useRoute().query,
+          schema: schemaId.value,
+          table: tableId.value,
+        },
+      });
     }
-  });
-});
+  }
+);
 
-watch(tableId, async () => {
-  refetchTableData();
-});
+watch(
+  () => tableId.value,
+  async () => {
+    console.log("tableID", tableId.value);
+    await refetchTableData();
+    useRouter().push({
+      query: {
+        ...useRoute().query,
+        schema: schemaId.value,
+        table: tableId.value,
+      },
+    });
+  }
+);
 </script>
 
 <template>
