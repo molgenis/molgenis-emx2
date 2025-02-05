@@ -15,12 +15,9 @@ test("go back from details, filter should stil be active", async ({
   page,
   goto,
 }) => {
-  await goto(
-    "/catalogue-demo/catalogue/testNetworkofNetworks/collections",
-    {
-      waitUntil: "hydration",
-    }
-  );
+  await goto("/catalogue-demo/catalogue/testNetworkofNetworks/collections", {
+    waitUntil: "hydration",
+  });
 
   //TODO unclear what it should do exactly
 
