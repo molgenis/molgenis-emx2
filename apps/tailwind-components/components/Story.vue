@@ -11,7 +11,7 @@ defineProps<{
     </h1>
     <p class="mt-2" v-if="description">{{ description }}</p>
     <slot></slot>
-    <div class="mt-4">Source code:</div>
+    <h2 class="mt-4">Source code:</h2>
     <SourceCode class="mt-4" />
   </div>
 </template>
