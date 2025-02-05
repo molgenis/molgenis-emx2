@@ -7,7 +7,6 @@ import type {
 } from "../../../metadata-utils/src/types";
 import {
   isColumnVisible,
-  isMissingValue,
   getColumnError,
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
@@ -15,7 +14,7 @@ import type { IFormLegendSection } from "../../../metadata-utils/src/types";
 import { scrollToElementInside } from "~/utils/scrollTools";
 import logger from "@/utils/logger";
 
-//todo: don't forget about reflinks
+//todo: don't forget about default values for reflinks
 
 const props = defineProps<{
   id: string;
@@ -55,8 +54,6 @@ props.metadata.columns
         column.visible
     );
   });
-
-//todo, chapters should be rendered in this component so they can account for visibility
 
 const activeChapterId: Ref<string | null> = ref(null);
 const chapters = computed(() => {
@@ -102,13 +99,6 @@ const numberOfRequiredFieldsWithData = computed(
 
 const recordLabel = computed(() => props.metadata.label);
 
-function validateRequired(column: IColumn, data: Record<string, columnValue>) {
-  //simple required
-  if (isRequired(column.required) && isMissingValue(data[column.id])) {
-    return column.label + " is required";
-  }
-}
-
 function validateColumn(column: IColumn) {
   logger.debug("validate " + column.id);
   delete errorMap[column.id];
@@ -127,6 +117,17 @@ function validateColumn(column: IColumn) {
       })
       .join("");
   }
+}
+
+function checkVisibleExpression(column: IColumn) {
+  if (!column.visible || isColumnVisible(column, dataMap, props.metadata)) {
+    visibleMap[column.id] = true;
+  } else {
+    visibleMap[column.id] = false;
+  }
+  logger.debug(
+    "checking visibility of " + column.id + "=" + visibleMap[column.id]
+  );
 }
 
 function onUpdate(column: IColumn, $event: columnValue) {
@@ -154,27 +155,16 @@ function onFocus(column: IColumn) {
   }
   previousColumn.value = column;
 }
+
 function onBlur(column: IColumn) {
   previousColumn.value = column;
   validateColumn(column);
 }
 
-function checkVisibleExpression(column: IColumn) {
-  //while not stable lets keep these logs, is there a log framework we can use to switch this of in prod?
-  //when input becomes into view port
-  if (!column.visible || isColumnVisible(column, dataMap, props.metadata)) {
-    visibleMap[column.id] = true;
-  } else {
-    visibleMap[column.id] = false;
-  }
-  logger.debug(
-    "checking visibility of " + column.id + "=" + visibleMap[column.id]
-  );
-}
-
 function updateActiveChapter(chapterId: string) {
   activeChapterId.value = chapterId;
 }
+
 function goToSection(headerId: string) {
   //requires all elements before id to have check visibility so we know their sizes
   //todo: loading animation this might take while
@@ -188,7 +178,7 @@ function goToSection(headerId: string) {
 }
 </script>
 <template>
-  <div id="mock-form-container" class="flex flex-row border">
+  <div class="flex flex-row border">
     <div v-if="chapters.length > 1" class="basis-1/3">
       <FormLegend :sections="chapters" @go-to-section="goToSection" />
     </div>

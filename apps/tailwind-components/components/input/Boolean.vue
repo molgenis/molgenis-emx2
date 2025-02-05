@@ -19,7 +19,6 @@ import type { IInputProps, IRadioOptionsData } from "~/types/types";
 const props = withDefaults(
   defineProps<
     IInputProps & {
-      modelValue: true | false | null;
       trueLabel?: string;
       falseLabel?: string;
     }

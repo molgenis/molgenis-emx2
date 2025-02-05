@@ -21,15 +21,10 @@
 </template>
 
 <script lang="ts" setup>
-withDefaults(
-  defineProps<{
-    isSelected: boolean;
-    label?: string | number | boolean;
-  }>(),
-  {
-    isSelected: false,
-  }
-);
+defineProps<{
+  isSelected?: boolean;
+  label: string | number | boolean;
+}>();
 
 const li = useTemplateRef<HTMLLIElement>("li");
 defineExpose({

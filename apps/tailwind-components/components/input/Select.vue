@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { type IInputProps } from "~/types/types";
-
+import type { columnValue } from "metadata-utils/src/types";
+const modelValue = defineModel<columnValue>();
 withDefaults(
   defineProps<
     IInputProps & {
-      modelValue: string | number;
       options: string[] | number[];
     }
   >(),
@@ -25,7 +25,7 @@ const emit = defineEmits(["update:modelValue", "focus"]);
     "
     :id="id"
     class="w-full pr-16 font-sans text-black text-gray-300 bg-white rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border border-transparent border-r-8 outline outline-1 outline-select"
-    :class="{ 'border-red-500 text-red-500': state == 'invalid' }"
+    :class="{ 'border-red-500 text-red-500': invalid }"
   >
     <option disabled value="" :selected="modelValue === ''">
       {{ placeholder }}

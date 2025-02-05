@@ -6,6 +6,7 @@ import type {
   columnValueObject,
 } from "../../../metadata-utils/src/types";
 import { type IInputProps, type IValueLabel } from "~/types/types";
+import logger from "@/utils/logger";
 
 const props = withDefaults(
   defineProps<
@@ -92,7 +93,6 @@ function applyTemplate(template: string, row: Record<string, any>): string {
 }
 
 async function loadOptions(filter: IQueryMetaData) {
-  //keep until done testing with lazy loading
   hasNoResults.value = true;
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
@@ -109,7 +109,7 @@ async function loadOptions(filter: IQueryMetaData) {
   } else {
     hasNoResults.value = true;
   }
-  console.log("loaded options for " + props.id);
+  logger.debug("loaded options for " + props.id);
 }
 
 function toggleSearch() {

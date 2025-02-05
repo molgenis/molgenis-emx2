@@ -2,25 +2,27 @@ import { fileURLToPath } from 'url';
 import { resolve, join } from 'path';
 import fs from 'fs/promises';
 
-// Get the directory name for the current module using import.meta.url
-const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const __dirname: string = fileURLToPath(new URL('.', import.meta.url));
+const srcDir: string = resolve(__dirname, '.');
+const pagesDir: string = join(srcDir, 'pages');
+const outputFile: string = resolve(__dirname, 'sourceCodeMap.json');
 
-const srcDir = resolve(__dirname, '.'); // Adjust this path to your `srcDir`
-const pagesDir = join(srcDir, 'pages'); // Adjust this path to your `pages` directory
-const outputFile = resolve(__dirname, 'sourceCodeMap.json'); // Output path for the generated map
+interface SourceCodeMap {
+    [relativePath: string]: string;
+}
 
-const sourceCodeMap = {};
+const sourceCodeMap: SourceCodeMap = {};
 
 // Scan files in the directory and generate source map
-const scanDir = async (dir) => {
+const scanDir = async (dir: string): Promise<void> => {
     try {
-        const files = await fs.readdir(dir);
+        const files: string[] = await fs.readdir(dir);
         for (const file of files) {
-            const filePath = join(dir, file);
-            let stat;
+            const filePath: string = join(dir, file);
+            let stat: fs.stat;
             try {
                 stat = await fs.stat(filePath);
-            } catch (statError) {
+            } catch (statError: any) {
                 console.error(`Error getting stats for ${filePath}:`, statError);
                 continue;
             }
@@ -28,28 +30,28 @@ const scanDir = async (dir) => {
                 await scanDir(filePath);
             } else if (file.endsWith('.vue')) {
                 try {
-                    const fileContent = await fs.readFile(filePath, 'utf-8');
-                    const relativePath = filePath.replace(pagesDir, '');
+                    const fileContent: string = await fs.readFile(filePath, 'utf-8');
+                    const relativePath: string = filePath.replace(pagesDir, '');
                     sourceCodeMap[relativePath] = fileContent;
-                } catch (readError) {
+                } catch (readError: any) {
                     console.error(`Error reading file ${filePath}:`, readError);
                 }
             }
         }
         console.log('✅ Source map generated ...');
-    } catch (err) {
+    } catch (err: any) {
         console.error(`Error reading directory ${dir}:`, err);
     }
 };
 
 // Run the file scanning and write the map to a JSON file
-const generateSourceMap = async () => {
+const generateSourceMap = async (): Promise<void> => {
     await scanDir(pagesDir);
     console.log('✅ Writing to file...');
     try {
         await fs.writeFile(outputFile, JSON.stringify(sourceCodeMap, null, 2));
         console.log('✅ Source code map written to sourceCodeMap.json');
-    } catch (err) {
+    } catch (err: any) {
         console.error('❌ Error writing source code map to file:', err);
     }
 };
