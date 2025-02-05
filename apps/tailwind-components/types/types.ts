@@ -107,7 +107,7 @@ export interface IInputProps {
   id: string;
   placeholder?: string;
   describedBy?: string;
-  invalid?: boolean | undefined;
+  invalid?: boolean;
   valid?: boolean | undefined;
   disabled?: boolean | undefined;
 }

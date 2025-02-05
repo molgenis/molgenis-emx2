@@ -96,8 +96,6 @@ watch(
     });
   }
 );
-
-const fieldsKey = computed(() => `${schemaId.value}-${tableId.value}-fields`);
 </script>
 
 <template>
@@ -105,7 +103,6 @@ const fieldsKey = computed(() => `${schemaId.value}-${tableId.value}-fields`);
     <div class="2/3 p-8 border-l">
       <FormFields
         id="forms-story"
-        :key="fieldsKey"
         v-if="schemaId && tableMeta && status === 'success'"
         ref="formFields"
         :schemaId="schemaId"
@@ -146,13 +143,6 @@ const fieldsKey = computed(() => `${schemaId.value}-${tableId.value}-fields`);
             </option>
           </select>
         </div>
-
-        <button
-          class="border-gray-900 border-[1px] p-2 bg-gray-200"
-          @click="formFields?.validate"
-        >
-          External Validate
-        </button>
 
         <div class="mt-4 flex flex-row">
           <div v-if="Object.keys(formValues).length" class="basis-1/2">

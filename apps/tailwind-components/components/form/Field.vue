@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 import { type IInputProps, type IValueLabel } from "~/types/types";
-import { type CellValueType, columnValue } from "metadata-utils/src/types";
+import type {
+  CellValueType,
+  columnValue,
+} from "../../../metadata-utils/src/types";
 const modelValue = defineModel<columnValue>();
 defineProps<
   IInputProps & {
@@ -52,7 +55,7 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
       @blur="emit('blur')"
       @focus="emit('focus')"
     />
-    <Message v-if="errorMessage" type="invalid" id="`${id}-input-error`">{{
+    <Message v-if="errorMessage" invalid id="`${id}-input-error`">{{
       errorMessage
     }}</Message>
   </div>

@@ -43,7 +43,7 @@ const disabled = computed(() => state.value.includes("disabled"));
           id="test-state"
           v-model="state"
           label="state"
-          description="if the boolean prop is set"
+          description="additional boolean props you can test"
           :options="[
             { value: 'invalid', label: 'invalid' },
             { value: 'valid', label: 'valid' },

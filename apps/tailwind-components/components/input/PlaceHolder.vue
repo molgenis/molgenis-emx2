@@ -7,6 +7,6 @@
 <script setup lang="ts">
 import type { CellValueType } from "../../../metadata-utils/src/types";
 defineProps<{
-  type: CellValueType;
+  type: string;
 }>();
 </script>

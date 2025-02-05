@@ -10,7 +10,7 @@ import {
   isColumnVisible,
   isMissingValue,
 } from "~/utils/formUtils";
-import type { IFormLegendSection } from "metadata-utils/dist/src/types";
+import type { IFormLegendSection } from "../../../metadata-utils/src/types";
 import { scrollToElementInside } from "~/utils/scrollTools";
 
 //todo: don't forget about reflinks
@@ -83,7 +83,7 @@ const chapters = computed(() => {
       if (errorMap[column.id]) acc[acc.length - 1].errorCount++;
     }
     return acc;
-  }, [] as IFormLegendSection[]);
+  }, [] as (IFormLegendSection & { columns: IColumn[] })[]);
 });
 
 const numberOffFieldsWithErrors = computed(
@@ -230,9 +230,9 @@ function goToSection(headerId: string) {
       >
         <h2
           class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8 scroll-mt-20"
-          v-if="chapter.title !== '_scroll_to_top' && visibleMap[chapter.id]"
+          v-if="chapter.label !== '_scroll_to_top' && visibleMap[chapter.id]"
         >
-          {{ chapter.title }}
+          {{ chapter.label }}
         </h2>
         <!-- todo filter invisible -->
         <template
@@ -258,7 +258,7 @@ function goToSection(headerId: string) {
             :ref-schema-id="column.refSchemaId || schemaId"
             :ref-table-id="column.refTableId"
             :ref-label="column.refLabel || column.refLabelDefault"
-            :invalid="errorMap[column.id]"
+            :invalid="errorMap[column.id]?.length > 0"
             @update:modelValue="onUpdate(column, $event)"
             @blur="onBlur(column)"
             @focus="onFocus(column)"
