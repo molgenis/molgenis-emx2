@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { type IInputProps, type IValueLabel } from "~/types/types";
-import type { CellValueType } from "metadata-utils/src/types";
-const modelValue = defineModel<any>();
-defineProps<
+import { type CellValueType, columnValue } from "metadata-utils/src/types";
+const props = defineProps<
   IInputProps & {
+    modelValue: columnValue;
     type: CellValueType;
     label?: string;
     description?: string | null;
@@ -36,16 +36,18 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
       {{ description }}
     </p>
     <Input
-      v-model="modelValue"
       :id="id"
       :type="type"
-      :state="state"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
       :describedBy="`${id}-description ${id}-input-error`"
       :placeholder="placeholder"
       :options="options"
       :refSchemaId="refSchemaId as string"
       :refTableId="refTableId as string"
       :refLabel="refLabel as string"
+      :modelValue="props.modelValue"
       @update:modelValue="emit('update:modelValue', $event)"
       @blur="emit('blur')"
       @focus="emit('focus')"
