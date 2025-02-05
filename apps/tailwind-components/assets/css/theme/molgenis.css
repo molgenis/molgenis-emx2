@@ -21,6 +21,7 @@
     --backgroud-color-search-button: var(--color-blue-50);
     --backgroud-color-search-button-hover: var(--color-blue-700);
     --backgroud-color-navigation: rgba(0, 0, 0, .2);
+    --backgroud-color-navigation-sticky: var(--color-blue-800);
     --backgroud-color-search-results-view-tabs: var(--color-blue-800);
     --backgroud-color-search-filter-group-toggle: var(--color-blue-800);
     --backgroud-color-app-wrapper: var(--color-black);
