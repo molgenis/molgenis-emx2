@@ -15,11 +15,11 @@
       :class="{
         'fill-input': !checked && !indeterminate,
         'fill-input-checked': checked || indeterminate,
-        'fill-invalid': checked && state == 'invalid',
-        'fill-valid': checked && state == 'valid',
+        'fill-invalid': checked && state === 'invalid',
+        'fill-valid': checked && state === 'valid',
         'stroke-current': !state,
-        'stroke-valid': state == 'valid',
-        'stroke-invalid': state == 'invalid',
+        'stroke-valid': state === 'valid',
+        'stroke-invalid': state === 'invalid',
       }"
     />
     <path
