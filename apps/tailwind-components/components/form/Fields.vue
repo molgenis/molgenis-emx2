@@ -64,7 +64,7 @@ const chapters = computed(() => {
   return props.metadata.columns.reduce((acc, column) => {
     if (column.columnType === "HEADING") {
       acc.push({
-        title: column.label,
+        label: column.label,
         id: column.id,
         columns: [],
         isActive: column.id === activeChapterId.value,
@@ -73,7 +73,7 @@ const chapters = computed(() => {
     } else {
       if (acc.length === 0) {
         acc.push({
-          title: "_top",
+          label: "_top",
           id: "_scroll_to_top",
           columns: [],
           isActive: "_scroll_to_top" === activeChapterId.value,
