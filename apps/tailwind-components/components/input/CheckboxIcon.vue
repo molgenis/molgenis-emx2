@@ -11,9 +11,10 @@
     <rect
       width="20"
       height="20"
+      class="stroke-current"
       :class="{
         'fill-input': !checked && !indeterminate,
-        'fill-input-checked stroke-none': checked || indeterminate,
+        'fill-input-checked': checked || indeterminate,
       }"
     />
     <path

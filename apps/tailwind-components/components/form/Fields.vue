@@ -9,6 +9,7 @@ import type {
 } from "../../../metadata-utils/src/types";
 
 const props = defineProps<{
+  schemaId: string;
   metadata: ITableMetaData;
   data: Record<columnId, columnValue>[];
 }>();
@@ -110,6 +111,7 @@ defineExpose({ validate });
       <div class="pb-8" v-for="column in chapter.columns">
         <FormField
           :id="`${column.id}-form-field`"
+          :schemaId="schemaId"
           :column="column"
           :data="dataMap[column.id]"
           :errors="errorMap[column.id]"

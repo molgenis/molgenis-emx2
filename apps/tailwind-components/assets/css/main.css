@@ -64,7 +64,7 @@
     --backgroud-color-button-disabled-hover: var(--color-gray-100);
     --backgroud-color-search-button: var(--color-blue-50);
     --backgroud-color-search-button-hover: var(--color-blue-700);
-    --backgroud-color-navigation: rgba(0, 0, 0, .2);
+    --backgroud-color-navigation: var(--color-white);
     --backgroud-color-search-results-view-tabs: var(--color-blue-800);
     --backgroud-color-search-filter-group-toggle: var(--color-blue-800);
     --backgroud-color-app-wrapper: var(--color-black);
@@ -79,6 +79,9 @@
     --background-color-invalid: var(--color-red-200);
     --background-color-input: var(--color-white);
     --background-color-input-checked: var(--color-yellow-500);
+    --background-color-listbox: var(--color-white);
+    --background-color-listbox-hover: var(--color-gray-100);
+    --background-color-listbox-selected: var(--color-blue-500);
     --background-color-table: var(--color-white);
     --background-color-notification: var(--color-red-700);
 
@@ -105,6 +108,7 @@
     --text-color-search-button-hover: var(--text-blue-800);
     --text-color-favorite: var(--color-blue-800);
     --text-color-favorite-hover: var(--color-blue-800);
+    --text-color-button-text: var(--color-blue-800);
     --text-color-search-button: var(--color-blue-500);
     --text-color-search-button-hover: var(--color-blue-800);
     --text-color-search-results-view-tabs: var(--color-blue-500);
@@ -128,6 +132,10 @@
     --text-color-pagination-input: var(--text-color-title);
     --text-color-pagination-hover: var(--text-color-title);
     --text-color-footer-link: var(--color-yellow-500);
+    --text-color-listbox: var(--color-black);
+    --text-color-listbox-hover: var(--color-black);
+    --text-color-listbox-selected: var(--color-blue-50);
+    --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);
     --text-color-form-header: var(--color-blue-800);
     --text-color-input-description: var(--color-blue-800);
@@ -157,6 +165,8 @@
     --border-color-pagination: var(--color-transparent);
     --border-color-input: #C0C0C0;
     --border-color-input-inverted: var(--color-gray-600);
+    --border-color-listbox-option: var(--color-gray-100);
+    --border-color-listbox: var(--border-color-input);
 
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
