@@ -463,9 +463,11 @@ def map_biobanks_to_resources(biobanks):
     # Rename and create columns
     biobanks = biobanks.rename(columns={"url": "website"})
     biobanks["resources"] = ""
-    # Create a unique name
-    biobanks["name"] = biobanks["name"] + " (id: " + biobanks["id"] + ")"
-    # Add default type 'Biobank
+    # Filter out withdrawn biobanks
+    biobanks = biobanks.loc[~biobanks['withdrawn']] # FIXME: withdrawn biobanks can have non-withdrawn collections, take this into account in the collections mapping function
+    # Add BBMRI ID suffix in case of duplicate names
+    biobanks.loc[biobanks['name'].duplicated(keep=False), 'name'] = biobanks['name'] + ' (' + biobanks['id'].str.split('bbmri-eric:ID:').str.get(-1) + ')'
+    # Add default type 'Biobank'
     biobanks["type"] = "Biobank"
     return biobanks
 
