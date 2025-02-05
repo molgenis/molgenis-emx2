@@ -19,7 +19,7 @@ const scanDir = async (dir: string): Promise<void> => {
         const files: string[] = await fs.readdir(dir);
         for (const file of files) {
             const filePath: string = join(dir, file);
-            let stat: fs.stat;
+            let stat;
             try {
                 stat = await fs.stat(filePath);
             } catch (statError: any) {
