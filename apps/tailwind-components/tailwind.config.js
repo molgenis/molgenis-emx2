@@ -141,6 +141,7 @@ module.exports = {
         "search-button": "var(--backgroud-color-search-button)",
         "search-button-hover": "var(--backgroud-color-search-button-hover)",
         "navigation": "var(--backgroud-color-navigation)",
+        "navigation-sticky": "var(--backgroud-color-navigation-sticky)",
         "search-results-view-tabs": "var(--backgroud-color-search-results-view-tabs)",
         "search-filter-group-toggle": "var(--backgroud-color-search-filter-group-toggle)",
         "app-wrapper": "var(--backgroud-color-app-wrapper)",

@@ -34,7 +34,7 @@ function toggleLayout () {
 
 
 <template>
-  <nav class=" text-title fixed top-0 w-[100%] z-50 p-2 flex flex-row justify-start items-center gap-2 shadow-sm">
+  <nav class=" text-title bg-navigation-sticky fixed top-0 w-[100%] z-50 p-2 flex flex-row justify-start items-center gap-2 shadow-sm">
     <div class="grow flex gap-4">
       <NuxtLink class="hover:underline" to="/">
         <img format="svg" src="~/assets/img/molgenis-logo-blue-small.svg" alt="molgenis, open source software"
