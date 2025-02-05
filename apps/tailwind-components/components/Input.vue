@@ -1,35 +1,30 @@
 <script setup lang="ts">
 import type { IInputProps, IValueLabel } from "~/types/types";
-import type { CellValueType } from "../../metadata-utils/src/types";
-const modelValue = defineModel<any>();
-const props = withDefaults(
-  defineProps<
-    IInputProps & {
-      type: CellValueType;
-      label?: string;
-      description?: string | null;
-      describedBy?: string;
-      required?: boolean;
-      errorMessage?: string | null;
-      refSchemaId?: string;
-      refTableId?: string;
-      refLabel?: string;
-      options?: IValueLabel[];
-    }
-  >(),
-  {
-    required: false,
+import type {
+  CellValueType,
+  columnValue,
+  columnValueObject,
+} from "../../metadata-utils/src/types";
+const props = defineProps<
+  IInputProps & {
+    type: CellValueType;
+    modelValue: columnValue;
+    describedBy?: string;
+    refSchemaId?: string;
+    refTableId?: string;
+    refLabel?: string;
+    options?: IValueLabel[];
   }
-);
+>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
-const TYPE = computed(() => props.type.toUpperCase());
+const typeUpperCase = computed(() => props.type.toUpperCase());
 </script>
 
 <template>
   <LazyInputString
-    v-if="['STRING', 'AUTO_ID', 'LONG', 'EMAIL', 'INT'].includes(TYPE)"
+    v-if="['STRING', 'AUTO_ID', 'LONG', 'EMAIL', 'INT'].includes(typeUpperCase)"
     :id="id"
-    :modelValue="modelValue"
+    :modelValue="modelValue as string | number"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
@@ -40,9 +35,9 @@ const TYPE = computed(() => props.type.toUpperCase());
     @blur="emit('blur')"
   />
   <LazyInputBoolean
-    v-else-if="['BOOL'].includes(TYPE)"
+    v-else-if="['BOOL'].includes(typeUpperCase)"
     :id="id"
-    :modelValue="modelValue"
+    :modelValue="modelValue as boolean"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
@@ -52,8 +47,8 @@ const TYPE = computed(() => props.type.toUpperCase());
     @blur="emit('blur')"
   />
   <LazyInputTextArea
-    v-else-if="['TEXT'].includes(TYPE)"
-    v-model="modelValue"
+    v-else-if="['TEXT'].includes(typeUpperCase)"
+    :modelValue="modelValue as string"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -65,8 +60,8 @@ const TYPE = computed(() => props.type.toUpperCase());
     @blur="emit('blur')"
   />
   <LazyInputRadioGroup
-    v-else-if="['RADIO'].includes(TYPE)"
-    v-model="modelValue"
+    v-else-if="['RADIO'].includes(typeUpperCase)"
+    :modelValue="modelValue as columnValue"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -79,8 +74,8 @@ const TYPE = computed(() => props.type.toUpperCase());
     @blur="emit('blur')"
   />
   <LazyInputCheckboxGroup
-    v-else-if="['CHECKBOX'].includes(TYPE)"
-    v-model="modelValue"
+    v-else-if="['CHECKBOX'].includes(typeUpperCase)"
+    :modelValue="modelValue as columnValue[]"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -93,8 +88,8 @@ const TYPE = computed(() => props.type.toUpperCase());
     @blur="emit('blur')"
   />
   <InputRef
-    v-else-if="['REF', 'ONTOLOGY'].includes(TYPE)"
-    v-model="modelValue"
+    v-else-if="['REF', 'ONTOLOGY'].includes(typeUpperCase)"
+    :modelValue="modelValue as columnValueObject"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -110,8 +105,8 @@ const TYPE = computed(() => props.type.toUpperCase());
     :is-array="false"
   />
   <InputRef
-    v-else-if="['REF_ARRAY', 'ONTOLOGY_ARRAY'].includes(TYPE)"
-    v-model="modelValue"
+    v-else-if="['REF_ARRAY', 'ONTOLOGY_ARRAY'].includes(typeUpperCase)"
+    :modelValue="modelValue as columnValueObject[]"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -126,5 +121,5 @@ const TYPE = computed(() => props.type.toUpperCase());
     @blur="emit('blur')"
     :is-array="true"
   />
-  <LazyInputPlaceHolder v-else v-model="modelValue" :type="TYPE" />
+  <LazyInputPlaceHolder v-else v-model="modelValue" :type="typeUpperCase" />
 </template>
