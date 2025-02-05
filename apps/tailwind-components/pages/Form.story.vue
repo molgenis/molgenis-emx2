@@ -67,40 +67,6 @@ function onErrors(newErrors: Record<string, IFieldError[]>) {
   errors.value = newErrors;
 }
 
-const currentSectionDomId = ref("");
-function setUpChapterIsInViewObserver() {
-  if (import.meta.client) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const id = entry.target.getAttribute("id");
-          if (id && entry.intersectionRatio > 0) {
-            currentSectionDomId.value = id;
-          }
-        });
-      },
-      {
-        root: formFields.value?.$el,
-        rootMargin: "0px",
-        threshold: 0.5,
-      }
-    );
-
-    document.querySelectorAll("[id$=chapter-title]").forEach((section) => {
-      observer.observe(section);
-    });
-  }
-}
-onMounted(() => setUpChapterIsInViewObserver());
-
-watch(
-  () => tableMeta.value,
-  async () => {
-    await nextTick();
-    setUpChapterIsInViewObserver();
-  }
-);
-
 watch(
   () => schemaId.value,
   async () => {

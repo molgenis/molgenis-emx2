@@ -10,18 +10,17 @@
       cx="10"
       cy="10"
       r="9"
-      :style="{ 'stroke-width': state == 'invalid' ? 2 : 1 }"
+      :style="{ 'stroke-width': invalid ? 2 : 1 }"
       fill="none"
       :class="{
         'fill-input hover:fill-input-checked hover:stroke-none focus:fill-input-checked focus:stroke-none':
           !checked,
-        'fill-input-checked stroke-none':
-          checked && state !== 'valid' && state !== 'invalid',
-        'fill-invalid': checked && state == 'invalid',
-        'fill-valid': checked && state == 'valid',
-        'stroke-current ': state != 'valid' && state != 'invalid',
-        'stroke-invalid': state == 'invalid',
-        'stroke-valid': state == 'valid',
+        'fill-input-checked stroke-none': checked && !invalid && !valid,
+        'fill-invalid': checked && invalid,
+        'fill-valid': checked && valid,
+        'stroke-current ': valid,
+        'stroke-invalid': invalid,
+        'stroke-valid': valid,
       }"
     />
     <circle
@@ -39,10 +38,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { InputState } from "~/types/types";
-
 defineProps<{
   checked?: boolean;
-  state?: InputState;
+  invalid?: boolean;
+  valid?: boolean;
+  disabled?: boolean;
 }>();
 </script>

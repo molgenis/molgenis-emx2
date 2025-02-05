@@ -11,15 +11,15 @@
     <rect
       width="20"
       height="20"
-      :style="{ 'stroke-width': state == 'invalid' ? 4 : 1 }"
+      :style="{ 'stroke-width': invalid ? 4 : 1 }"
       :class="{
         'fill-input': !checked && !indeterminate,
         'fill-input-checked': checked || indeterminate,
-        'fill-invalid': checked && state === 'invalid',
-        'fill-valid': checked && state === 'valid',
-        'stroke-current': !state,
-        'stroke-valid': state === 'valid',
-        'stroke-invalid': state === 'invalid',
+        'fill-invalid': checked && invalid,
+        'fill-valid': checked && valid,
+        'stroke-current': !disabled,
+        'stroke-valid': valid,
+        'stroke-invalid': invalid,
       }"
     />
     <path
@@ -44,10 +44,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { InputState } from "~/types/types";
 defineProps<{
   checked?: boolean;
   indeterminate?: boolean;
-  state?: InputState;
+  invalid?: boolean;
+  valid?: boolean;
+  disabled?: boolean;
 }>();
 </script>

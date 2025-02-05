@@ -106,14 +106,8 @@ export interface IRadioOptionsData {
 export interface IInputProps {
   id: string;
   placeholder?: string;
-  state?: InputState;
   describedBy?: string;
-};
-
-export type InputState = 'invalid' | 'valid' | 'disabled' | 'default';
-
-export const InputPropsDefaults = {
-  placeholder: "",
-  state: 'default',
+  invalid?: boolean;
+  valid?: boolean;
+  disabled?: boolean;
 }
-  

@@ -4,7 +4,9 @@
       :id="id"
       ref="btnElemRef"
       :aria-controls="`listbox-${id}-options`"
-      :state="state"
+      :invalid="invalid"
+      :valid="valid"
+      :disabled="disabled"
       :selected-element-id="selectedElementId"
       @keydown="onListboxButtonKeyDown"
     >
@@ -46,7 +48,7 @@ import type {
 } from "../../types/listbox";
 
 import { InputListboxToggle } from "#components";
-import { type IInputProps, InputPropsDefaults } from "~/types/types";
+import { type IInputProps } from "~/types/types";
 
 const props = withDefaults(
   defineProps<
@@ -66,10 +68,6 @@ const emit = defineEmits<{
   (e: "blur", value: null): void;
   (e: "focus", value: null): void;
 }>();
-
-defineExpose({
-  validate,
-});
 
 const sourceDataType = ref<string>("");
 const sourceData = ref<IInputValueLabel[]>();
@@ -350,13 +348,5 @@ function onListboxOptionKeyDown(
 
 function onListboxOptionClick(option: IInternalListboxOption) {
   updateModelValue(option);
-}
-
-function validate(value: columnValue) {
-  if (props.required && value === "") {
-    emit("error", [{ message: `${props.id} required to complete the form` }]);
-  } else {
-    emit("error", []);
-  }
 }
 </script>

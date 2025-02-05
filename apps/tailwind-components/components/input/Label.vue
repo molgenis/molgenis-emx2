@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { InputState } from "~/types/types";
-
 defineProps<{
-  state?: InputState;
+  invalid?: boolean;
+  valid?: boolean;
+  disabled?: boolean;
   required?: boolean;
   hideLabel?: boolean;
   for: string;
@@ -15,9 +15,9 @@ defineProps<{
     :for="for"
     :class="{
       'sr-only': hideLabel,
-      'text-disabled': state === 'disabled',
-      'text-invalid': state === 'invalid',
-      'text-valid': state === 'valid',
+      'text-disabled': disabled,
+      'text-invalid': invalid,
+      'text-valid': valid,
       'after:content-required after:text-required': required,
     }"
   >

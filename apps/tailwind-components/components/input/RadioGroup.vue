@@ -17,7 +17,9 @@
         v-model="modelValue"
         @input="toggleSelect"
         :checked="option.value === modelValue"
-        :state="state"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
         @focus="$emit('focus')"
       />
       <InputLabel
@@ -27,7 +29,9 @@
         <InputRadioIcon
           :checked="modelValue === option.value"
           class="mr-1"
-          :state="state"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
         />
         <template v-if="option.label">
           {{ option.label }}

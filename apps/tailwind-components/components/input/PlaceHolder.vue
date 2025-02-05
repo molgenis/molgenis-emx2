@@ -9,9 +9,4 @@ import type { CellValueType } from "../../../metadata-utils/src/types";
 defineProps<{
   type: CellValueType;
 }>();
-defineExpose({ validate });
-
-function validate() {
-  // do nothing, its just a place holder for unkown types
-}
 </script>

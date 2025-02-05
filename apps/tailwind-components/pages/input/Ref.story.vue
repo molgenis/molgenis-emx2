@@ -7,7 +7,7 @@ const value2 = ref([{ name: "spike" }]);
 </script>
 
 <template>
-  <InputTestContainer show-state v-slot="{ state }">
+  <InputTestContainer show-state v-slot="{ invalid, valid, disabled }">
     <div>
       <h3>Ref array example</h3>
       <InputLabel for="story-ref-array"> Select pets by name </InputLabel>
@@ -18,7 +18,9 @@ const value2 = ref([{ name: "spike" }]);
         :refTableId="tableId"
         :limit="5"
         :refLabel="labelTemplate"
-        :state="state"
+        :valid="valid"
+        :invalid="invalid"
+        :disabled="disabled"
       />
       <div class="pt-5">value selected: {{ value }}</div>
     </div>
@@ -33,7 +35,9 @@ const value2 = ref([{ name: "spike" }]);
         :limit="5"
         :refLabel="labelTemplate"
         :isArray="false"
-        :state="state"
+        :valid="valid"
+        :invalid="invalid"
+        :disabled="disabled"
       />
     </div>
     <div class="pt-5">value selected: {{ value2 }}</div>

@@ -7,12 +7,14 @@ const fieldValue = ref<string>("");
   <InputTestContainer
     show-placeholder
     show-state
-    v-slot="{ placeholder, state }"
+    v-slot="{ placeholder, valid, invalid, disabled }"
   >
     <InputTextArea
       :id="id"
       v-model="fieldValue"
-      :state="state"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
       :placeholder="placeholder"
     />
   </InputTestContainer>

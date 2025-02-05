@@ -221,7 +221,9 @@ function loadMore() {
       :modelValue="(selection as string[])"
       @select="select"
       @deselect="deselect"
-      :state="state"
+      :invalid="invalid"
+      :valid="valid"
+      :disabled="disabled"
       @focus="$emit('focus')"
     />
     <InputRadioGroup
@@ -231,7 +233,9 @@ function loadMore() {
       :modelValue="(selection as string)"
       @select="select"
       @deselect="deselect"
-      :state="state"
+      :invalid="invalid"
+      :valid="valid"
+      :disabled="disabled"
       @focus="$emit('focus')"
     />
     <ButtonText @click="loadMore" v-if="offset + limit < count">

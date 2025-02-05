@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { InputState } from "~/types/types";
 defineProps<{
   showState?: boolean;
   showPlaceholder?: boolean;
@@ -7,9 +6,12 @@ defineProps<{
   showErrorMessage?: boolean;
 }>();
 const placeholder = ref("");
-const state = ref<InputState>("default");
+const state = ref([] as string[]);
 const errorMessage = ref("");
 const required = ref(false);
+const valid = computed(() => state.value.includes("valid"));
+const invalid = computed(() => state.value.includes("invalid"));
+const disabled = computed(() => state.value.includes("disabled"));
 </script>
 
 <template>
@@ -17,7 +19,9 @@ const required = ref(false);
     <div class="w-2/3 p-4">
       <slot
         name="default"
-        :state="state"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
         :placeholder="placeholder"
         :required="required"
         :errorMessage="errorMessage"
@@ -35,13 +39,12 @@ const required = ref(false);
         />
         <FormField
           v-if="showState"
-          type="radio"
+          type="checkbox"
           id="test-state"
           v-model="state"
           label="state"
-          description="State of the input"
+          description="if the boolean prop is set"
           :options="[
-            { value: 'default', label: 'default' },
             { value: 'invalid', label: 'invalid' },
             { value: 'valid', label: 'valid' },
             { value: 'disabled', label: 'disabled' },

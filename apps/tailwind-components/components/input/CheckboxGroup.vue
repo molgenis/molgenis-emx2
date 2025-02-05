@@ -8,7 +8,7 @@
         :value="option.value"
         v-model="modelValue"
         :checked="modelValue!.includes(option.value)"
-        :disabled="state === 'disabled'"
+        :disabled="disabled"
         @change="toggleSelect"
         @focus="$emit('focus')"
         class="sr-only fixed"
@@ -19,7 +19,9 @@
       >
         <InputCheckboxIcon
           :checked="modelValue!.includes(option.value)"
-          :state="state"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
         />
         <span class="block" v-if="option.label">
           {{ option.label }}

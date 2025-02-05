@@ -1,12 +1,15 @@
 <template>
   <InputRadioGroup
     :id="id"
-    v-model="modelValue"
+    :modelValue="modelValue"
+    @update:modelValue="emit('update:modelValue')"
     :aria-describedby="describedBy"
     :options="yesNoOption"
     :showClearButton="true"
     align="horizontal"
-    :state="state"
+    :invalid="invalid"
+    :valid="valid"
+    :disabled="disabled"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
   />
@@ -17,6 +20,7 @@ import type { IInputProps, IRadioOptionsData } from "~/types/types";
 const props = withDefaults(
   defineProps<
     IInputProps & {
+      modelValue: true | false | null;
       trueLabel?: string;
       falseLabel?: string;
     }
@@ -26,7 +30,6 @@ const props = withDefaults(
     falseLabel: "False",
   }
 );
-const modelValue = defineModel<true | false | null>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
 const yesNoOption = ref<IRadioOptionsData[]>([

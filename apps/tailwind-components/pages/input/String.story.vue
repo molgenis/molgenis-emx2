@@ -6,13 +6,15 @@ const demoValue = ref("test");
   <InputTestContainer
     show-placeholder
     show-state
-    v-slot="{ placeholder, state }"
+    v-slot="{ placeholder, valid, invalid, disabled }"
   >
     <InputString
       id="input-string-default"
       v-model="demoValue"
       :placeholder="placeholder"
-      :state="state"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
     />
   </InputTestContainer>
 </template>

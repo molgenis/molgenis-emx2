@@ -5,14 +5,25 @@
     show-required
     show-error-message
   >
-    <template v-slot:default="{ placeholder, state, required, errorMessage }">
+    <template
+      v-slot:default="{
+        placeholder,
+        valid,
+        invalid,
+        disabled,
+        required,
+        errorMessage,
+      }"
+    >
       <template v-for="type in Object.keys(demoValue)">
         <FormField
           :type="type"
           v-model="demoValue[type]"
           :id="'input-' + type"
           :placeholder="placeholder"
-          :state="state"
+          :valid="valid"
+          :invalid="invalid"
+          :disabled="disabled"
           :errorMessage="errorMessage || null"
           :options="demoOptions"
           :label="'Demo input for type=' + type"
