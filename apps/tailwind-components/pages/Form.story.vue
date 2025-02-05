@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import type { FormFields } from "#build/components";
 import type {
   columnValue,
-  IColumn,
   IFieldError,
   ISchemaMetaData,
 } from "../../metadata-utils/src/types";

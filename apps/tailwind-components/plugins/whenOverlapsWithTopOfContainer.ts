@@ -1,39 +1,7 @@
-// plugins/overlapping-block-handler.ts
 import { type DirectiveBinding } from 'vue';
-
 type LazyLoadBindingValue = () => Promise<void> | void
 
-function isScrollable(element: HTMLElement): boolean {
-    const style = getComputedStyle(element);
-    const overflowY = style.overflowY;
-    return (overflowY === 'auto' || overflowY === 'scroll');
-}
-
-function findScrollableContainer(element: HTMLElement): HTMLElement | null {
-    let currentElement = element.parentElement as HTMLElement;
-    while (currentElement) {
-        if (isScrollable(currentElement)) { // Check for scrollability
-            return currentElement;
-        }
-        currentElement = currentElement.parentElement as HTMLElement;
-    }
-    return null;
-};
-
-function calculateDynamicThreshold(element: HTMLElement, container: HTMLElement): number {
-    let threshold = 0;
-    let currentElement: HTMLElement | null = element;
-
-    while (currentElement && currentElement !== container) {
-        const style = getComputedStyle(currentElement);
-        threshold += parseFloat(style.marginTop) || 0;
-        threshold += parseFloat(style.paddingTop) || 0;
-        currentElement = currentElement.parentElement as HTMLElement;
-    }
-
-    return threshold;
-}
-
+//this directive will fire when the top of an element scrolls to/over the top of a scrollable container
 export default defineNuxtPlugin((nuxtApp) => {
     nuxtApp.vueApp.directive('when-overlaps-with-top-of-container', {
         mounted(el: HTMLElement, binding: DirectiveBinding<LazyLoadBindingValue>) {
@@ -75,3 +43,34 @@ export default defineNuxtPlugin((nuxtApp) => {
         },
     });
 });
+
+function isScrollable(element: HTMLElement): boolean {
+    const style = getComputedStyle(element);
+    const overflowY = style.overflowY;
+    return (overflowY === 'auto' || overflowY === 'scroll');
+}
+
+function findScrollableContainer(element: HTMLElement): HTMLElement | null {
+    let currentElement = element.parentElement as HTMLElement;
+    while (currentElement) {
+        if (isScrollable(currentElement)) { // Check for scrollability
+            return currentElement;
+        }
+        currentElement = currentElement.parentElement as HTMLElement;
+    }
+    return null;
+};
+
+function calculateDynamicThreshold(element: HTMLElement, container: HTMLElement): number {
+    let threshold = 0;
+    let currentElement: HTMLElement | null = element;
+
+    while (currentElement && currentElement !== container) {
+        const style = getComputedStyle(currentElement);
+        threshold += parseFloat(style.marginTop) || 0;
+        threshold += parseFloat(style.paddingTop) || 0;
+        currentElement = currentElement.parentElement as HTMLElement;
+    }
+
+    return threshold;
+}

@@ -6,10 +6,11 @@ import type {
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import {
-  getColumnValidationError,
   isColumnVisible,
   isMissingValue,
-} from "~/utils/formUtils";
+  getColumnError,
+  isRequired,
+} from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import type { IFormLegendSection } from "../../../metadata-utils/src/types";
 import { scrollToElementInside } from "~/utils/scrollTools";
 import logger from "@/utils/logger";
@@ -40,12 +41,9 @@ const previousColumn = ref<IColumn>();
 props.metadata.columns
   .filter((column) => column.columnType === "HEADING")
   .forEach((column) => {
-    logger.debug(
-      isColumnVisible(column, dataMap, props.schemaId, props.metadata)
-    );
+    logger.debug(isColumnVisible(column, dataMap, props.metadata));
     visibleMap[column.id] =
-      !column.visible ||
-      isColumnVisible(column, dataMap, props.schemaId, props.metadata)
+      !column.visible || isColumnVisible(column, dataMap, props.metadata)
         ? true
         : false;
     logger.debug(
@@ -87,7 +85,7 @@ const chapters = computed(() => {
   }, [] as (IFormLegendSection & { columns: IColumn[] })[]);
 });
 
-const numberOffFieldsWithErrors = computed(
+const numberOfFieldsWithErrors = computed(
   () => Object.values(errorMap).filter((value) => value).length
 );
 
@@ -104,46 +102,31 @@ const numberOfRequiredFieldsWithData = computed(
 
 const recordLabel = computed(() => props.metadata.label);
 
-//todo specify exact validation behavior
-//made som optimization to not validate all fields all the time in this phase
-//when we focus we check validation of that column while keeping the validation of previous one
-//when we blur we keep previous error
-/** this is called on every touch of a column. Before submit of a form we need to validate everything but that can be done by the container of this */
+function validateRequired(column: IColumn, data: Record<string, columnValue>) {
+  //simple required
+  if (isRequired(column.required) && isMissingValue(data[column.id])) {
+    return column.label + " is required";
+  }
+}
+
 function validateColumn(column: IColumn) {
   logger.debug("validate " + column.id);
   delete errorMap[column.id];
-
-  //validate required
-  if (isRequired(column.required) && isMissingValue(dataMap[column.id])) {
-    errorMap[column.id] = column.label + " is required";
-  }
-
-  //validate type specific regexp
-  else if (column.columnType == "HYPERLINK") {
-    errorMap[column.id] =
-      column.label + " is not a valid " + column.columnType.toLowerCase();
-    return;
-  }
-
-  //validate all expressions that include current column id
-  //todo only for visible columns!
-  //todo make regexp, might lead to false hits if column id is subset of another column id
+  const error = getColumnError(column, dataMap, props.metadata);
+  if (error) errorMap[column.id] = error;
   else {
     errorMap[column.id] = props.metadata.columns
       .filter((c) => c.validation?.includes(column.id))
       .map((c) => {
-        const result = getColumnValidationError(
+        const result = getColumnError(
           c.validation as string,
           dataMap,
-          props.schemaId,
           props.metadata
         );
         return result;
       })
       .join("");
   }
-
-  //todo: need also to updated visible and computed if related
 }
 
 function onUpdate(column: IColumn, $event: columnValue) {
@@ -154,12 +137,7 @@ function onUpdate(column: IColumn, $event: columnValue) {
   props.metadata.columns
     .filter((c) => c.visible?.includes(column.id))
     .forEach((c) => {
-      visibleMap[c.id] = isColumnVisible(
-        c,
-        dataMap,
-        props.schemaId,
-        props.metadata
-      )
+      visibleMap[c.id] = isColumnVisible(c, dataMap, props.metadata)
         ? true
         : false;
       logger.debug("updating visibility for " + c.id + "=" + visibleMap[c.id]);
@@ -184,10 +162,7 @@ function onBlur(column: IColumn) {
 function checkVisibleExpression(column: IColumn) {
   //while not stable lets keep these logs, is there a log framework we can use to switch this of in prod?
   //when input becomes into view port
-  if (
-    !column.visible ||
-    isColumnVisible(column, dataMap, props.schemaId, props.metadata)
-  ) {
+  if (!column.visible || isColumnVisible(column, dataMap, props.metadata)) {
     visibleMap[column.id] = true;
   } else {
     visibleMap[column.id] = false;
@@ -267,7 +242,7 @@ function goToSection(headerId: string) {
         </template>
       </div>
       <div class="bg-red-500 p-3 font-bold">
-        {{ numberOffFieldsWithErrors }} fields require your attention before you
+        {{ numberOfFieldsWithErrors }} fields require your attention before you
         can save this {{ recordLabel }} ( temporary section for dev)
       </div>
       <div class="bg-gray-200 p-3">

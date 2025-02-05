@@ -1,9 +1,9 @@
-// plugins/lazy-load-directive.client.ts
 import { type DirectiveBinding } from 'vue'
 
 type LazyLoadBindingValue = () => Promise<void> | void
 
 export default defineNuxtPlugin((nuxtApp) => {
+    //will fire as about half is shown
     nuxtApp.vueApp.directive('when-in-view', {
         mounted(el: HTMLElement, binding: DirectiveBinding<LazyLoadBindingValue>) {
             const options: IntersectionObserverInit = {

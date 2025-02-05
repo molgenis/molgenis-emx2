@@ -60,8 +60,8 @@
     --text-color-input-description: var(--color-white);
     --text-color-sub-title-contrast: var(--color-black);
     --text-color-form-header: var(--color-white);
-    --text-color-search-button: var(--text-blue-500);
-    --text-color-search-button-hover: var(--text-blue-800);
+    --text-color-search-button: var(--color-blue-500);
+    --text-color-search-button-hover: var(--color-blue-800);
     --text-color-favorite: var(--color-white);
     --text-color-favorite-hover: var(--color-white);
     --text-color-search-button: var(--color-blue-500);

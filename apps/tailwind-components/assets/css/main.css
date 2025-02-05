@@ -106,8 +106,8 @@
     --text-color-title: var(--color-blue-800);
     --text-color-title-contrast: var(--color-blue-500);
     --text-color-sub-title-contrast: var(--color-black);
-    --text-color-search-button: var(--text-blue-500);
-    --text-color-search-button-hover: var(--text-blue-800);
+    --text-color-search-button: var(--color-blue-500);
+    --text-color-search-button-hover: var(--color-blue-800);
     --text-color-favorite: var(--color-blue-800);
     --text-color-favorite-hover: var(--color-blue-800);
     --text-color-button-text: var(--color-blue-800);
