@@ -37,23 +37,26 @@ const {
   status,
   error,
   refresh: refetchTableData,
-} = await useAsyncData("my data", () =>
-  fetchTableData(schemaId.value, tableId.value)
-);
+} = await useAsyncData("my data", () => {
+  console.log("data fetch data handler for: ", tableId.value);
+  return fetchTableData(schemaId.value, tableId.value);
+});
 
 watch(
   () => schemaId.value,
   async () => {
     if (metadata.value) {
       await refetchMetadata();
-      tableId.value = metadata.value.tables[0].id;
-      useRouter().push({
-        query: {
-          ...useRoute().query,
-          schema: schemaId.value,
-          table: tableId.value,
-        },
-      });
+      if (metadata.value.tables.length > 0) {
+        tableId.value = metadata.value.tables[0].id;
+      } else {
+        useRouter().push({
+          query: {
+            ...useRoute().query,
+            schema: schemaId.value,
+          },
+        });
+      }
     }
   }
 );
