@@ -87,7 +87,7 @@ function onChange(event: Event) {
   emit("update:modelValue", fileToImport.value);
 }
 
-function onFilterWellClick(event: Event) {
+function onFilterWellClick() {
   fileToImport.value = null;
   emit("update:modelValue", fileToImport.value);
 }

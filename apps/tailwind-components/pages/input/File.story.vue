@@ -1,14 +1,11 @@
 <script setup lang="ts">
 const file = ref();
-const state = ref<string>();
 </script>
 
 <template>
   <h2 class="text-heading-2xl">File input Eample</h2>
   <form @submit.prevent>
-    <label for="file-input-demo" class="block mb-2">
-      Select one or more files to import.
-    </label>
+    <p class="block mb-2">Select one or more files to import.</p>
     <InputFile
       id="file-input-demo"
       @update:model-value="(value) => (file = value)"
