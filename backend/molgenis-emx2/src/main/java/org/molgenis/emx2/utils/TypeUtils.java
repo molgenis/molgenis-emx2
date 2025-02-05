@@ -511,7 +511,7 @@ public class TypeUtils {
 
   protected static void convertRefArrayToRow(
       List<Map<String, Object>> list, Row row, Column column) {
-
+    if(list == null) return;
     List<Reference> refs = column.getReferences();
     for (Reference ref : refs) {
       if (!ref.isOverlapping()) {

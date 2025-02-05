@@ -60,5 +60,54 @@
         CaretDown
       </Button>
     </div>
+
+    <h2 class="text-2xl text-title">Icon only</h2>
+    <div class="flex flex-col gap-4">
+      <div class="flex gap-4">
+        <Button iconOnly icon="plus" label="add" />
+        <Button iconOnly icon="plus" label="add" type="secondary" />
+        <Button iconOnly icon="plus" label="add" type="tertiary" />
+        <Button iconOnly icon="plus" label="add" type="outline" />
+        <Button iconOnly icon="plus" label="add" type="disabled" />
+        <Button iconOnly icon="plus" label="add" type="filterWell" />
+      </div>
+
+      <div class="flex gap-4">
+        <Button iconOnly icon="trash" label="Remove" />
+        <Button iconOnly icon="trash" label="Remove" type="secondary" />
+        <Button iconOnly icon="trash" label="Remove" type="tertiary" />
+        <Button iconOnly icon="trash" label="Remove" type="outline" />
+        <Button iconOnly icon="trash" label="Remove" type="disabled" />
+        <Button iconOnly icon="trash" label="Remove" type="filterWell" />
+      </div>
+
+      <div class="flex gap-4">
+        <Button iconOnly icon="caret-up" label="previous" />
+        <Button iconOnly icon="caret-up" label="previous" type="secondary" />
+        <Button iconOnly icon="caret-up" label="previous" type="tertiary" />
+        <Button iconOnly icon="caret-up" label="previous" type="outline" />
+        <Button iconOnly icon="caret-up" label="previous" type="disabled" />
+        <Button iconOnly icon="caret-up" label="previous" type="filterWell" />
+      </div>
+
+      <div class="flex gap-4">
+        <Button iconOnly icon="caret-down" label="next" />
+        <Button iconOnly icon="caret-down" label="next" type="secondary" />
+        <Button iconOnly icon="caret-down" label="next" type="tertiary" />
+        <Button iconOnly icon="caret-down" label="next" type="outline" />
+        <Button iconOnly icon="caret-down" label="next" type="disabled" />
+        <Button iconOnly icon="caret-down" label="next" type="filterWell" />
+      </div>
+
+      <!-- do not render by default to avoid errors on clean load-->
+      <div v-if="route.query.showError" class="flex gap-4">
+        <!-- this should result in an error ( due to missing label)-->
+        <Button iconOnly icon="plus"></Button>
+      </div>
+    </div>
   </div>
 </template>
+
+<script setup lang="ts">
+const route = useRoute();
+</script>

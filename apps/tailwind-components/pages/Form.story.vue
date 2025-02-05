@@ -5,35 +5,51 @@ import type {
   IColumn,
   IFieldError,
   ISchemaMetaData,
-  ITableMetaData,
 } from "../../metadata-utils/src/types";
+import { useRoute } from "#app/composables/router";
 
-const sampleType = ref("simple");
+type Resp<T> = {
+  data: Record<string, T[]>;
+};
 
-// just assuming that the table is there for the demo
-const schemaId = computed(() =>
-  sampleType.value === "simple" ? "pet store" : "catalogue-demo"
-);
-const tableId = computed(() =>
-  sampleType.value === "simple" ? "Pet" : "Resources"
+interface Schema {
+  id: string;
+  label: string;
+  description: string;
+}
+
+const route = useRoute();
+const schemaId = ref((route.query.schema as string) ?? "pet store");
+const tableId = ref((route.query.table as string) ?? "Pet");
+
+const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
+  key: "schemas",
+  method: "POST",
+  body: { query: `{ _schemas { id,label,description } }` },
+});
+
+const schemaIds = computed(
+  () =>
+    schemas.value?.data?._schemas
+      .sort((a, b) => a.label.localeCompare(b.label))
+      .map((s) => s.id) ?? []
 );
 
 const {
   data: schemaMeta,
-  refresh: refetchMetadata,
+  refresh,
   status,
 } = await useAsyncData("form sample", () => fetchMetadata(schemaId.value));
 
-const tableMeta = computed(
-  () =>
-    (schemaMeta.value as ISchemaMetaData)?.tables.find(
-      (table) => table.id === tableId.value
-    ) as ITableMetaData
+const schemaTablesIds = computed(() =>
+  (schemaMeta.value as ISchemaMetaData)?.tables.map((table) => table.id)
 );
 
-function refetch() {
-  refetchMetadata();
-}
+const tableMeta = computed(() => {
+  return schemaMeta.value === null
+    ? null
+    : schemaMeta.value.tables.find((table) => table.id === tableId.value);
+});
 
 const data = ref([] as Record<string, columnValue>[]);
 
@@ -54,7 +70,9 @@ function onErrors(newErrors: Record<string, IFieldError[]>) {
 function chapterFieldIds(chapterId: string) {
   const chapterFieldIds = [];
   let inChapter = false;
-  for (const column of tableMeta.value.columns) {
+  const columns = tableMeta.value ? tableMeta.value.columns : [];
+
+  for (const column of columns) {
     if (column.columnType === "HEADING" && column.id === chapterId) {
       inChapter = true;
     } else if (column.columnType === "HEADING" && column.id !== chapterId) {
@@ -67,24 +85,27 @@ function chapterFieldIds(chapterId: string) {
 }
 
 function chapterErrorCount(chapterId: string) {
-  return chapterFieldIds(chapterId).reduce((acc, fieldId) => {
+  const counted = chapterFieldIds(chapterId).reduce((acc, fieldId) => {
     return acc + (errors.value[fieldId]?.length ?? 0);
   }, 0);
+  return counted;
 }
 
 const currentSectionDomId = ref("");
 
 const sections = computed(() => {
-  return tableMeta.value?.columns
-    .filter((column: IColumn) => column.columnType == "HEADING")
-    .map((column: IColumn) => {
-      return {
-        label: column.label,
-        domId: column.id,
-        isActive: currentSectionDomId.value.startsWith(column.id),
-        errorCount: chapterErrorCount(column.id),
-      };
-    });
+  return tableMeta.value
+    ? tableMeta.value.columns
+        .filter((column: IColumn) => column.columnType == "HEADING")
+        .map((column: IColumn) => {
+          return {
+            label: column.label,
+            domId: column.id,
+            isActive: currentSectionDomId.value.startsWith(column.id),
+            errorCount: chapterErrorCount(column.id),
+          };
+        })
+    : [];
 });
 
 function setUpChapterIsInViewObserver() {
@@ -120,6 +141,38 @@ watch(
     setUpChapterIsInViewObserver();
   }
 );
+
+watch(
+  () => schemaId.value,
+  async () => {
+    if (schemaMeta.value) {
+      await refresh();
+      tableId.value = schemaMeta.value.tables[0].id;
+      useRouter().push({
+        query: {
+          ...useRoute().query,
+          schema: schemaId.value,
+          table: tableId.value,
+        },
+      });
+    }
+  }
+);
+
+watch(
+  () => tableId.value,
+  async () => {
+    useRouter().push({
+      query: {
+        ...useRoute().query,
+        schema: schemaId.value,
+        table: tableId.value,
+      },
+    });
+  }
+);
+
+const fieldsKey = computed(() => `${schemaId.value}-${tableId.value}-fields`);
 </script>
 
 <template>
@@ -127,16 +180,18 @@ watch(
     <div id="mock-form-contaner" class="basis-2/3 flex flex-row border">
       <div class="basis-1/3">
         <FormLegend
-          v-if="sections"
+          v-if="sections && sections.length"
           class="bg-sidebar-gradient mx-4"
           :sections="sections"
         />
       </div>
 
       <FormFields
-        v-if="tableMeta && status === 'success'"
+        :key="fieldsKey"
+        v-if="schemaId && tableMeta && status === 'success'"
         class="basis-2/3 p-8 border-l overflow-y-auto h-screen"
         ref="formFields"
+        :schemaId="schemaId"
         :metadata="tableMeta"
         :data="data"
         @update:model-value="onModelUpdate"
@@ -144,23 +199,37 @@ watch(
       />
     </div>
 
-    <div class="basis-1/3 ml-2">
+    <div class="basis-1/3 ml-2 h-screen overflow-y-scroll">
       <h2>Demo controls, settings and status</h2>
 
-      <div class="p-4 border-2 mb-2">
-        <label for="table-select">Demo data</label>
-        <select
-          id="table-select"
-          @change="refetch()"
-          v-model="sampleType"
-          class="border-1 border-black"
-        >
-          <option value="simple">Simple form example</option>
-          <option value="complex">Complex form example</option>
-        </select>
+      <div class="p-4 border-2 mb-2 flex flex-col gap-4">
+        <div class="flex flex-col">
+          <label for="table-select" class="text-title font-bold"
+            >Schema:
+          </label>
+          <select
+            id="table-select"
+            v-model="schemaId"
+            class="border border-black"
+          >
+            <option v-for="schemaId in schemaIds" :value="schemaId">
+              {{ schemaId }}
+            </option>
+          </select>
+        </div>
 
-        <div>schema id = {{ schemaId }}</div>
-        <div>table id = {{ tableId }}</div>
+        <div class="flex flex-col">
+          <label for="table-select" class="text-title font-bold">Table: </label>
+          <select
+            id="table-select"
+            v-model="tableId"
+            class="border border-black"
+          >
+            <option v-for="tableId in schemaTablesIds" :value="tableId">
+              {{ tableId }}
+            </option>
+          </select>
+        </div>
 
         <button
           class="border-gray-900 border-[1px] p-2 bg-gray-200"
@@ -172,19 +241,21 @@ watch(
         <div class="mt-4 flex flex-row">
           <div v-if="Object.keys(formValues).length" class="basis-1/2">
             <h3 class="text-label">Values</h3>
-            <dl class="flex">
+            <dl class="flex flex-col">
               <template v-for="(value, key) in formValues">
-                <dt v-if="value" class="font-bold">{{ key }}:</dt>
-                <dd v-if="value" class="ml-1">{{ value }}</dd>
+                <dt class="font-bold">{{ key }}:</dt>
+                <dd v-if="value !== null && value !== undefined" class="pl-3">
+                  {{ value }}
+                </dd>
               </template>
             </dl>
           </div>
           <div v-if="Object.keys(errors).length" class="basis-1/2">
             <h3 class="text-label">Errors</h3>
 
-            <dl class="flex">
+            <dl class="flex flex-col">
               <template v-for="(value, key) in errors">
-                <dt v-if="value.length" class="font-bold">{{ key }}:</dt>
+                <dt class="font-bold">{{ key }}:</dt>
                 <dd v-if="value.length" class="ml-1">{{ value }}</dd>
               </template>
             </dl>

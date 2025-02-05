@@ -159,6 +159,7 @@ export default {
         "PROJECTMANAGER",
         "GDI",
         "DATA_CATALOGUE_AGGREGATES",
+        "TYPE_TEST",
       ],
       includeDemoData: false,
     };
