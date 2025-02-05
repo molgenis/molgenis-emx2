@@ -25,7 +25,7 @@
     --color-gray-100: #F4F4F4;
     --color-gray-200: #E2E2E2;
     --color-gray-400: #C0C0C0;
-    --color-gray-600: #6D6D6D;
+    --color-gray-600: #2C2C2C;
     --color-gray-700: #414141;
     --color-gray-800: #1E1E1E;
     --color-gray-900: #1D1D1D;
@@ -65,6 +65,7 @@
     --backgroud-color-search-button: var(--color-blue-50);
     --backgroud-color-search-button-hover: var(--color-blue-700);
     --backgroud-color-navigation: var(--color-white);
+    --backgroud-color-navigation-sticky: var(--backgroud-color-navigation);
     --backgroud-color-search-results-view-tabs: var(--color-blue-800);
     --backgroud-color-search-filter-group-toggle: var(--color-blue-800);
     --backgroud-color-app-wrapper: var(--color-black);
