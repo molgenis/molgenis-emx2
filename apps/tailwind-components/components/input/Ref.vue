@@ -26,7 +26,7 @@ const props = withDefaults(
 );
 
 const modelValue = defineModel<columnValueObject[] | columnValueObject | "">(); //empty string might happen
-const tableMetadata = ref<ITableMetaData>;
+const tableMetadata = ref<ITableMetaData>();
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
 const optionMap: Ref<Record<string, columnValueObject>> = ref({});
 const selectionMap: Ref<Record<string, columnValueObject>> = ref({});
@@ -200,7 +200,7 @@ function loadMore() {
     <ButtonText @click="clearSelection"> Clear all </ButtonText>
   </div>
   <template v-if="showSearch && initialCount > limit">
-    <InputLabel :id="`search-for-${id}`" class="sr-only">
+    <InputLabel :for="`search-for-${id}`" class="sr-only">
       search in {{ columnName }}
     </InputLabel>
     <InputSearch

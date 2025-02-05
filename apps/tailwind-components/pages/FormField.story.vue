@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-const demoValue: Record<string, any> = ref({
+const demoValue = ref<string, any>({
   string: "test string",
   checkbox: [1],
   radio: 1,
@@ -58,8 +58,6 @@ const demoValue: Record<string, any> = ref({
 
 const focusCount = ref(0);
 const blurCount = ref(0);
-const errorMessage = ref("");
-const required = ref(false);
 
 const demoOptions = ref([
   { label: "option1", value: 1 },
