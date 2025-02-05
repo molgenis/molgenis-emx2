@@ -5,12 +5,12 @@ import type {
   columnValue,
   columnValueObject,
 } from "../../../metadata-utils/src/types";
-import { type InputProps, type IValueLabel } from "~/types/types";
+import { type IInputProps, type IValueLabel } from "~/types/types";
 import type { ITableMetaData } from "metadata-utils";
 
 const props = withDefaults(
   defineProps<
-    InputProps & {
+    IInputProps & {
       refSchemaId: string;
       refTableId: string;
       refLabel: string;

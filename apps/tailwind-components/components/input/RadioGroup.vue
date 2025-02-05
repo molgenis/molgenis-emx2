@@ -53,12 +53,12 @@
 </template>
 
 <script lang="ts" setup>
-import { type InputProps, type IValueLabel } from "~/types/types";
+import { type IInputProps, type IValueLabel } from "~/types/types";
 import type { columnValue } from "metadata-utils/src/types";
 
 const props = withDefaults(
   defineProps<
-    InputProps & {
+    IInputProps & {
       options: IValueLabel[];
       showClearButton?: boolean;
       align?: "horizontal" | "vertical";

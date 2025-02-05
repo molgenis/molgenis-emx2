@@ -80,7 +80,7 @@ const { $sourceCodeMap } = useNuxtApp();
               >Data fetching</NuxtLink
             >
           </aside>
-          <Story :title="storyName">
+          <Story :title="storyName" class="border-2 grow">
             <slot></slot>
           </Story>
         </div>

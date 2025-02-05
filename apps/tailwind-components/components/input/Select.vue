@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { type InputProps } from "~/types/types";
+import { type IInputProps } from "~/types/types";
 
 withDefaults(
   defineProps<
-    InputProps & {
+    IInputProps & {
       modelValue: string | number;
       options: string[] | number[];
     }
@@ -13,7 +13,7 @@ withDefaults(
   }
 );
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue", "focus"]);
 </script>
 
 <template>

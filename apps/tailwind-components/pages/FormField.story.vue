@@ -1,6 +1,11 @@
 <template>
-  <InputTestContainer>
-    <template v-slot:default="{ placeholder, state }">
+  <InputTestContainer
+    show-placeholder
+    show-state
+    show-required
+    show-error-message
+  >
+    <template v-slot:default="{ placeholder, state, required, errorMessage }">
       <template v-for="type in Object.keys(demoValue)">
         <FormField
           :type="type"
@@ -22,20 +27,6 @@
       </template>
     </template>
     <template #settings>
-      <FormField
-        type="string"
-        label="errorMessage"
-        v-model="errorMessage"
-        id="test-container-error-message"
-        description="Type here an error message to see how that looks"
-      />
-      <FormField
-        type="bool"
-        label="required"
-        v-model="required"
-        id="test-container-required"
-        description="set to true to show required tags"
-      />
       <div class="mt-4">blurCount: {{ blurCount }}</div>
       <div class="mt-4">focusCount: {{ focusCount }}</div>
       <div class="mt-4">value: {{ demoValue }}</div>

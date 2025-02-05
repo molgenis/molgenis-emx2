@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { InputProps, IValueLabel } from "~/types/types";
+import type { IInputProps, IValueLabel } from "~/types/types";
 import type { CellValueType } from "metadata-utils/src/types";
 const modelValue = defineModel<any>();
 const props = withDefaults(
   defineProps<
-    InputProps & {
+    IInputProps & {
       type: CellValueType;
       label?: string;
       description?: string | null;
@@ -33,6 +33,16 @@ const TYPE = computed(() => props.type.toUpperCase());
     :state="state"
     :describedBy="describedBy"
     :placeholder="placeholder"
+    @update:modelValue="emit('update:modelValue', $event)"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <LazyInputBoolean
+    v-else-if="['BOOL'].includes(TYPE)"
+    :id="id"
+    :modelValue="modelValue"
+    :state="state"
+    :describedBy="describedBy"
     @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"

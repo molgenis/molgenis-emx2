@@ -12,9 +12,9 @@
 <script lang="ts" setup>
 import type { IFormLegendSection } from "../../metadata-utils/src/types";
 
-function handleGoToRequest(section: IFormLegendSection) {
+function handleGoToRequest(id: string) {
   sections.value.forEach((s) => {
-    if (s.domId === section.domId) {
+    if (s.id === id) {
       s.isActive = true;
     } else {
       s.isActive = false;
@@ -24,27 +24,27 @@ function handleGoToRequest(section: IFormLegendSection) {
 
 const sections = ref<IFormLegendSection[]>([
   {
-    label: "Overview",
-    domId: "overview",
+    title: "Overview",
+    id: "overview",
     isActive: true,
     errorCount: 1,
   },
   {
-    label: "Population",
-    domId: "population",
+    title: "Population",
+    id: "population",
     errorCount: 2,
   },
   {
-    label: "Contents",
-    domId: "contents",
+    title: "Contents",
+    id: "contents",
   },
   {
-    label: "Access",
-    domId: "access",
+    title: "Access",
+    id: "access",
   },
   {
-    label: "Information",
-    domId: "information",
+    title: "Information",
+    id: "information",
   },
 ]);
 </script>

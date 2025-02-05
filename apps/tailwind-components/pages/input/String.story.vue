@@ -3,14 +3,16 @@ const demoValue = ref("test");
 </script>
 
 <template>
-  <InputTestContainer v-slot="{ placeholder, valid, error, disabled }">
+  <InputTestContainer
+    show-placeholder
+    show-state
+    v-slot="{ placeholder, state }"
+  >
     <InputString
       id="input-string-default"
       v-model="demoValue"
       :placeholder="placeholder"
-      :disabled="disabled"
-      :error="error"
-      :valid="valid"
+      :state="state"
     />
   </InputTestContainer>
 </template>

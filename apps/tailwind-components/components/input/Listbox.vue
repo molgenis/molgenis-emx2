@@ -46,11 +46,11 @@ import type {
 } from "../../types/listbox";
 
 import { InputListboxToggle } from "#components";
-import { type InputProps, InputPropsDefaults } from "~/types/types";
+import { type IInputProps, InputPropsDefaults } from "~/types/types";
 
 const props = withDefaults(
   defineProps<
-    InputProps & {
+    IInputProps & {
       options: IInputValue[] | IInputValueLabel[];
       value?: IInputValue | IInputValueLabel;
     }

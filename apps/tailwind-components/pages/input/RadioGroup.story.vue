@@ -2,7 +2,7 @@
   <InputTestContainer showState v-slot="{ state }">
     <p>
       There are multiple ways to create radio buttons using the tailwind
-      component libray. You can either create them manually using the
+      component library. You can either create them manually using the
       <code>InputRadio</code> and <code>InputLabel</code> components, but this
       requires a but more work to link form elements to ensure they are part of
       the same group. The examples below demonstrate the three different ways to

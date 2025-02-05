@@ -13,10 +13,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { InputProps, IRadioOptionsData } from "~/types/types";
+import type { IInputProps, IRadioOptionsData } from "~/types/types";
 const props = withDefaults(
   defineProps<
-    InputProps & {
+    IInputProps & {
       trueLabel?: string;
       falseLabel?: string;
     }

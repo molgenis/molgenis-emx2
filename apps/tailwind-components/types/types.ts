@@ -103,7 +103,7 @@ export interface IRadioOptionsData {
   checked?: boolean | undefined;
 }
 
-export type InputProps = {
+export interface IInputProps {
   id: string;
   placeholder?: string;
   state?: InputState;

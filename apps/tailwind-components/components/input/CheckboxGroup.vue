@@ -43,11 +43,11 @@
 </template>
 
 <script lang="ts" setup>
-import { type InputProps, type IValueLabel } from "~/types/types";
+import { type IInputProps, type IValueLabel } from "~/types/types";
 
 withDefaults(
   defineProps<
-    InputProps & {
+    IInputProps & {
       options: IValueLabel[];
       showClearButton?: boolean;
     }
