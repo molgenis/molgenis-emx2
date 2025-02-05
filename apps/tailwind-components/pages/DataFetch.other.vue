@@ -46,7 +46,6 @@ watch(
   async () => {
     if (metadata.value) {
       await refetchMetadata();
-      await refetchTableData();
       tableId.value = metadata.value.tables[0].id;
       useRouter().push({
         query: {
@@ -62,7 +61,6 @@ watch(
 watch(
   () => tableId.value,
   async () => {
-    console.log("tableID", tableId.value);
     await refetchTableData();
     useRouter().push({
       query: {
