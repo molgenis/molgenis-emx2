@@ -1,6 +1,6 @@
 """
-Script to migrate Cohort staging areas to a catalogue using the StagingMigrator class.
-Supply the cohorts to be migrated as command line arguments.
+Script to publish staging areas Resources to a catalogue using the StagingMigrator class.
+Supply the names of the staging areas to be published as command line arguments.
 """
 
 
@@ -12,8 +12,9 @@ from dotenv import load_dotenv
 
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
-
 CATALOGUE = 'catalogue'
+
+log = logging.getLogger('resource-deleter')
 
 
 def main(args):
@@ -32,8 +33,8 @@ def main(args):
     with StagingMigrator(url=server_url, token=token, catalogue=CATALOGUE) as migrator:
 
         for sa in staging_areas:
+            log.info(f"\nPublishing resources in staging area {sa!r} to {CATALOGUE!r}.")
             migrator.set_staging_area(sa)
-
             migrator.migrate()
 
 
