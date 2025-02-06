@@ -41,7 +41,7 @@ async def main():
     async with Client('https://emx2.dev.molgenis.org/', schema='catalogue') as client:
 
         participant_range = [10_000, 20_000]
-        subpopulations = client.get(table='Subpopulations',
+        subpopulations = client.get_graphql(table='Subpopulations',
                                     query_filter=f'`numberOfParticipants` between {participant_range}',
                                     columns=['name', 'description', 'numberOfParticipants'],
                                     as_df=False)

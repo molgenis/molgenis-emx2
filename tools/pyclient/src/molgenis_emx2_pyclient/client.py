@@ -448,46 +448,83 @@ class Client:
 
         filter_part = self._prepare_filter(query_filter, table, schema)
 
-        if as_df:
-            if filter_part:
-                filter_part = "?filter=" + json.dumps(filter_part)
-            else:
-                filter_part = ""
-            query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
-            response = self.session.get(url=query_url)
-            self._validate_graphql_response(response=response,
-                                            fallback_error_message=f"Failed to retrieve data from {current_schema}::"
-                                                                   f"{table!r}.\nStatus code: {response.status_code}.")
-
-            response_columns = pd.read_csv(BytesIO(response.content)).columns
-            dtypes = {c: t for (c, t) in convert_dtypes(table_meta).items() if c in response_columns}
-            response_data = pd.read_csv(BytesIO(response.content),  keep_default_na=True, dtype=dtypes)
-
-            bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
-            response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
-            response_data = response_data.astype(dtypes)
-
-            if columns:
-                try:
-                    response_data = response_data[columns]
-                except KeyError as e:
-                    if "not in index" in e.args[0]:
-                        raise NoSuchColumnException(f"Columns {e.args[0]}")
-                    else:
-                        raise NoSuchColumnException(f"Columns {e.args[0].split('Index(')[1].split(', dtype')}"
-                                                    f" not in index.")
-                response_data = response_data.drop_duplicates(keep='first').reset_index(drop=True)
+        if filter_part:
+            filter_part = "?filter=" + json.dumps(filter_part)
         else:
-            query_url = f"{self.url}/{current_schema}/graphql"
-            query = self._parse_get_table_query(table_id, current_schema, columns)
-            response = self.session.post(url=query_url,
-                                        json={"query": query, "variables": {"filter": filter_part}})
-            self._validate_graphql_response(response=response,
-                                            fallback_error_message=f"Failed to retrieve data from {current_schema}::"
-                                                                   f"{table!r}.\nStatus code: {response.status_code}.")
-            response_data = response.json().get('data').get(table_id, [])
-            response_data = self._parse_ontology(response_data, table_id, schema)
+            filter_part = ""
+        query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
+        response = self.session.get(url=query_url)
+        self._validate_graphql_response(response=response,
+                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+                                                               f"{table!r}.\nStatus code: {response.status_code}.")
 
+        response_columns = pd.read_csv(BytesIO(response.content)).columns
+        dtypes = {c: t for (c, t) in convert_dtypes(table_meta).items() if c in response_columns}
+        response_data = pd.read_csv(BytesIO(response.content),  keep_default_na=True, dtype=dtypes)
+
+        bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
+        response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
+        response_data = response_data.astype(dtypes)
+
+        if columns:
+            try:
+                response_data = response_data[columns]
+            except KeyError as e:
+                if "not in index" in e.args[0]:
+                    raise NoSuchColumnException(f"Columns {e.args[0]}")
+                else:
+                    raise NoSuchColumnException(f"Columns {e.args[0].split('Index(')[1].split(', dtype')}"
+                                                f" not in index.")
+            response_data = response_data.drop_duplicates(keep='first').reset_index(drop=True)
+        if not as_df:
+            response_data = response_data.to_dict('records')
+
+        return response_data
+
+    def get_graphql(self,
+                    table: str,
+                    columns: list[str] = None,
+                    query_filter: str = None,
+                    schema: str = None):
+        """Retrieves data from a schema using the GraphQL API and returns as a list of dictionaries.
+
+        :param table: the name of the table
+        :type table: str
+        :param columns: list of column names to filter on
+        :type columns: list
+        :param query_filter: the query to filter the output, optional
+        :type query_filter: str
+        :param schema: name of a schema, default self.default_schema
+        :type schema: str
+
+        :returns: list of records
+        :rtype: list[dict]"""
+
+        current_schema = schema
+        if current_schema is None:
+            current_schema = self.default_schema
+
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+
+        if not self._table_in_schema(table, current_schema):
+            raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
+
+        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        table_meta = schema_metadata.get_table(by='name', value=table)
+        table_id = table_meta.id
+
+        filter_part = self._prepare_filter(query_filter, table, schema)
+        query_url = f"{self.url}/{current_schema}/graphql"
+
+        query = self._parse_get_table_query(table_id, current_schema, columns)
+        response = self.session.post(url=query_url,
+                                    json={"query": query, "variables": {"filter": filter_part}})
+        self._validate_graphql_response(response=response,
+                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+                                                               f"{table!r}.\nStatus code: {response.status_code}.")
+        response_data = response.json().get('data').get(table_id, [])
+        response_data = self._parse_ontology(response_data, table_id, schema)
 
         return response_data
 
