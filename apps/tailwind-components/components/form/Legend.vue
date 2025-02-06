@@ -17,14 +17,13 @@
           @click.prevent="emit('goToSection', section.id)"
         >
           {{ section.label }}
-          <span v-if="(section.errorCount ?? 0) > 0" class="ml-2">
-            <div
-              class="flex h-5 w-5 shrink-0 grow-0 items-center justify-center rounded-full bg-notification text-legend-error-count"
-            >
-              {{ section.errorCount }}
-            </div>
-          </span>
         </a>
+        <span
+          v-if="(section.errorCount ?? 0) > 0"
+          class="ml-2 flex h-5 w-5 shrink-0 grow-0 items-center justify-center rounded-full bg-notification text-legend-error-count"
+        >
+          {{ section.errorCount }}
+        </span>
       </li>
     </ul>
   </nav>
@@ -32,6 +31,7 @@
 
 <script lang="ts" setup>
 import type { IFormLegendSection } from "../../../metadata-utils/src/types";
+
 defineProps<{
   sections: IFormLegendSection[];
 }>();

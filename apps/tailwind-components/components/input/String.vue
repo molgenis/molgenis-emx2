@@ -11,7 +11,7 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
 <template>
   <input
-    :v-bind="$props"
+    :id="id"
     :aria-describedby="describedBy"
     :type="type || 'text'"
     :placeholder="placeholder"
