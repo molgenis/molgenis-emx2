@@ -1284,7 +1284,8 @@ public class RDFTest {
   @Test
   void testRefLinkWorks() throws IOException {
     var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(refLinkTest), handler);
+    assertDoesNotThrow(() -> getAndParseRDF(Selection.of(refLinkTest), handler));
+
   }
 
   /**
