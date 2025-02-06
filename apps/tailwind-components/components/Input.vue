@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { IInputProps, IValueLabel } from "~/types/types";
-import type { CellValueType } from "../../metadata-utils/src/types";
-const modelValue = defineModel<any>();
+import type {
+  CellValueType,
+  columnValue,
+} from "../../metadata-utils/src/types";
+const modelValue = defineModel<columnValue>();
 const props = defineProps<
   IInputProps & {
     type: CellValueType;
