@@ -18,7 +18,7 @@ const typeUpperCase = computed(() => props.type.toUpperCase());
 
 <template>
   <LazyInputString
-    v-if="['STRING', 'AUTO_ID', 'LONG', 'EMAIL', 'INT'].includes(typeUpperCase)"
+    v-if="['STRING', 'AUTO_ID', 'LONG', 'INT'].includes(typeUpperCase)"
     :id="id"
     v-model="modelValue"
     :valid="valid"
@@ -26,6 +26,34 @@ const typeUpperCase = computed(() => props.type.toUpperCase());
     :disabled="disabled"
     :describedBy="describedBy"
     :placeholder="placeholder"
+    @update:modelValue="emit('update:modelValue', $event)"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <LazyInputString
+    v-else-if="'EMAIL' === typeUpperCase"
+    :id="id"
+    v-model="modelValue"
+    type="email"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    placeholder="Input an email address"
+    @update:modelValue="emit('update:modelValue', $event)"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <LazyInputString
+    v-else-if="'HYPERLINK' === typeUpperCase"
+    :id="id"
+    v-model="modelValue"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    placeholder="Input a hyperlink"
     @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
