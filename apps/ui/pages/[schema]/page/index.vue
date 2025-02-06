@@ -15,7 +15,9 @@
     </div>
     <br />
     <h3>Edit page</h3>
-    {{ pages }}
+    <div class="flex gap-1">
+      <Button v-for="page in pages" type="primary" @click="" size="small" :label="page" />
+    </div>
   </div>
 </template>
 
