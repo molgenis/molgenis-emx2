@@ -94,6 +94,7 @@ function validate(value: columnValue) {
   <LazyInputRef
     v-else-if="type === 'REF_ARRAY' || type === 'REF'"
     :id="id"
+    ref="input"
     :modelValue="data as columnValueObject | columnValueObject[]"
     :refSchemaId="refSchemaId as string"
     :refTableId="refTableId as string"
