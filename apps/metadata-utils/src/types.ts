@@ -61,7 +61,7 @@ export interface IColumn {
   refLinkId?: string;
   refSchemaId?: string;
   refTableId?: string;
-  required?: string;
+  required?: string | boolean;
   semantics?: string[];
   validation?: string;
   visible?: string;
