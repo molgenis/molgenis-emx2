@@ -50,7 +50,6 @@ def convert_dtypes(table_meta: Table) -> dict:
         INT: 'Int64',
         LONG: 'Int64',
         DECIMAL: 'Float64',
-        DATETIME: 'datetime64[ns]',
         BOOL: 'boolean'
     }
 

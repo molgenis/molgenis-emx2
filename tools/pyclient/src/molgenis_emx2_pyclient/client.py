@@ -6,14 +6,13 @@ import time
 from functools import cache
 from io import BytesIO
 
-import numpy as np
 import pandas as pd
 import requests
 from requests import Response
 
 from . import graphql_queries as queries
 from . import utils
-from .constants import HEADING, LOGO
+from .constants import HEADING, DATE, DATETIME
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
@@ -460,9 +459,13 @@ class Client:
 
         response_columns = pd.read_csv(BytesIO(response.content)).columns
         dtypes = {c: t for (c, t) in convert_dtypes(table_meta).items() if c in response_columns}
-        response_data = pd.read_csv(BytesIO(response.content),  keep_default_na=True, dtype=dtypes)
 
         bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
+        # date_columns = [c for (c, t) in dtypes.items() if t in ('datetime64[ns]')]
+        date_columns = [c.name for c in table_meta.columns
+                        if c.get('columnType') in (DATE, DATETIME) and c.name in response_columns]
+        response_data = pd.read_csv(BytesIO(response.content),  keep_default_na=True, dtype=dtypes, parse_dates=date_columns)
+
         response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
         response_data = response_data.astype(dtypes)
 
