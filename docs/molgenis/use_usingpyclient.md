@@ -130,7 +130,7 @@ def get(self,
         as_df: bool = False) -> list | pandas.DataFrame:
     ...
 ```
-Retrieves data from a table on a schema and returns the result either as a list of dictionaries or as a pandas DataFrame.
+Retrieves data from a table on a schema using the CSV API and returns the result either as a list of dictionaries or as a pandas DataFrame.
 Use the `columns` parameter to specify which columns to retrieve. Note that in case `as_df=True` the column _names_ should be supplied, otherwise the column _ids_.
 Use the `query_filter` parameter to filter the results based on filters applied to the columns.
 This query requires a special syntax. 
@@ -173,6 +173,54 @@ cohort_type = 'Population cohort'
 table_data = client.get(table='Resources', query_filter=f'numberOfParticipants > {min_subpop}'
                                                         f'and cohortType == {cohort_type}')
 ```
+
+
+### get_graphql
+```python
+def get_graphql(self, 
+        table: str, 
+        columns: list[str] = None,
+        query_filter: str = None, 
+        schema: str = None) -> list:
+    ...
+```
+Retrieves data from a table on a schema using the GraphQL API and returns the result either as a list of dictionaries.
+This method and its parameters behave similarly to `get` with option `as_df=False`. 
+The results are returned in a slightly different way, however.
+`get` retains the column _names_, whereas `get_graphql` returns column _id_s, which are in lower camel case.
+Furthermore, the `get` method will return the values in columns with a reference type, while the results of `get_graphql` will also contain the primary keys for those columns.  
+
+Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
+Throws the `NoSuchColumnException` if the `columns` argument or query filter contains a column that is not present in the table.
+
+
+| parameter      | type | description                                                                    | required | default |
+|----------------|------|--------------------------------------------------------------------------------|----------|---------|
+| `table`        | str  | the name of a table                                                            | True     | None    |
+| `columns`      | list | a list of column names or ids to filter on                                     | False    | None    |
+| `schema`       | str  | the name of a schema                                                           | False    | None    |
+| `query_filter` | str  | a string to filter the results on                                              | False    | None    |
+
+##### examples
+
+```python
+# Get all entries for the table 'Resources' on the schema 'MySchema'
+table_data = client.get_graphql(table='Resources', schema='MySchema', columns=['name', 'collectionEvents'])
+
+# Set the default schema to 'MySchema'
+client.set_schema('MySchema')
+
+# Get the entries where the value of a particular column 'number of participants' is greater than 10000
+table_data = client.get_graphql(table='Resources', query_filter='numberOfParticipants > 10000')
+
+# Get the entries where 'number of participants' is greater than 10000 and the resource type is a 'Population cohort'
+# Store the information in variables, first
+min_subpop = 10000
+cohort_type = 'Population cohort'
+table_data = client.get_graphql(table='Resources', query_filter=f'numberOfParticipants > {min_subpop}'
+                                                        f'and cohortType == {cohort_type}')
+```
+
 
 ### get_schema_metadata
 ```python
