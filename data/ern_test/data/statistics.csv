@@ -1,26 +1,26 @@
 id,label,value,valueOrder,component,description
 age-group-5,Adults < 40,0.0,5,age,18-40 y
 age-group-6,Adults < 60,0.0,6,age,40-60 y
-enrollment-1,Autoimmune Bullous diseases (AIBD),0.0,0,enrolment,
-enrollment-2,Mendelian connective tissue disorders (Mendel),0.0,1,enrolment,
-enrollment-3,Severe cutaneous drug reactions (ToxiTEN),0.0,2,enrolment,
-enrollment-4,Epidermolysis Bullosa (EB),0.0,3,enrolment,
-sex-male,Male,0.0,2,sex,
-enrollment-5,Ichthyosis and Palmoplantar Keratoderma (IPPK),0.0,4,enrolment,
-enrollment-6,Cutaneous diseases related to DNA repair disorders (DNA),0.0,5,enrolment,
-enrollment-8,Ectodermal Dysplasias including Incontinentia Pigmenti and P63- associated disorders (ED),0.0,7,enrolment,
-age-group-0,Newborn,0.0,0,age,0-3 m
-highlights-0,Patients,0.0,1,highlights,Total number of patients in the ERRAS Registry
-highlights-1,Member countries,0.0,2,highlights,Total number of countries where active health care providers are located
-highlights-2,Healthcare providers,0.0,3,highlights,Total number of healthcare providers that have submitted data
-sex-female,Female,0.0,0,sex,
-sex-undetermined,Undetermined,0.0,3,sex,
-age-group-2,Todler,0.0,2,age,1-5 y
+enrollment-1,Autoimmune Bullous diseases (AIBD),1.0,0,enrolment,
+enrollment-2,Mendelian connective tissue disorders (Mendel),4.0,1,enrolment,
+enrollment-3,Severe cutaneous drug reactions (ToxiTEN),3.0,2,enrolment,
+enrollment-4,Epidermolysis Bullosa (EB),1.0,3,enrolment,
+sex-male,Male,17.14,2,sex,
+enrollment-5,Ichthyosis and Palmoplantar Keratoderma (IPPK),3.0,4,enrolment,
+enrollment-6,Cutaneous diseases related to DNA repair disorders (DNA),13.0,5,enrolment,
+enrollment-8,Ectodermal Dysplasias including Incontinentia Pigmenti and P63- associated disorders (ED),4.0,7,enrolment,
+age-group-0,Newborn,13.0,0,age,0-3 m
+highlights-0,Patients,35.0,1,highlights,Total number of patients in the ERRAS Registry
+highlights-1,Member countries,3.0,2,highlights,Total number of countries where active health care providers are located
+highlights-2,Healthcare providers,6.0,3,highlights,Total number of healthcare providers that have submitted data
+sex-female,Female,45.71,0,sex,
+sex-undetermined,Undetermined,8.57,3,sex,
+age-group-2,Todler,5.0,2,age,1-5 y
 age-group-4,Teenagers,0.0,4,age,13-18 y
-age-group-1,Infant,0.0,1,age,3-12 m
-age-group-3,Kids,0.0,3,age,5-13 y
-age-group-7,Elderly persons,0.0,7,age,+60 y
-enrollment-7,"Cutaneous Mosaic Disorders Naevi & Naevoid skin disorders, complex vascular malformations and vascular tumors (Mosaic)",0.0,6,enrolment,
-enrollment-9,Acquired immunologicaL LOw prevalence and Complex AdulT diseases of thE SKIN (ALLOCATE),0.0,8,enrolment,
-enrollment-10,Other Genodermatosis,0.0,9,enrolment,
-sex-intersex,Intersex,0.0,1,sex,
+age-group-1,Infant,1.0,1,age,3-12 m
+age-group-3,Kids,3.0,3,age,5-13 y
+age-group-7,Elderly persons,13.0,7,age,+60 y
+enrollment-7,"Cutaneous Mosaic Disorders Naevi & Naevoid skin disorders, complex vascular malformations and vascular tumors (Mosaic)",2.0,6,enrolment,
+enrollment-9,Acquired immunologicaL LOw prevalence and Complex AdulT diseases of thE SKIN (ALLOCATE),2.0,8,enrolment,
+enrollment-10,Other Genodermatosis,2.0,9,enrolment,
+sex-intersex,Intersex,28.57,1,sex,

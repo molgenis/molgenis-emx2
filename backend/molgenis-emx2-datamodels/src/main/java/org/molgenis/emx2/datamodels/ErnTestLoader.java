@@ -17,11 +17,17 @@ public class ErnTestLoader extends ImportDataModelTask {
   public void run() {
     this.start();
     try {
+      createSchema(getSchema(), "dashboard/molgenis.csv");
       createSchema(getSchema(), "ern_test/molgenis.csv");
       getSchema().addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
-      MolgenisIO.fromClasspathDirectory("ern_test/molgenis", getSchema(), false);
       MolgenisIO.fromClasspathDirectory("ern_test/ontologies", getSchema(), false);
+
+      if (isIncludeDemoData()) {
+        MolgenisIO.fromClasspathDirectory("ern_test/data", getSchema(), false);
+      }
+
       this.complete();
+
     } catch (Exception e) {
       this.completeWithError(e.getMessage());
       throw new MolgenisException("Failed to create schema", e);

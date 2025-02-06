@@ -1,8 +1,0 @@
----
-name: Ern Test
-description: "a schema for testing of complex data models"
-
-profileTags: ErnTest
-
-# special options
-setViewPermission: anonymous

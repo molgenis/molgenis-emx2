@@ -5,7 +5,7 @@ IT27,ASL Tuscan Centre,false
 IT33,Foundation polyclinic University A. Gemelli - Rome,false
 IT34,Foundation IRCCS CA'Granda Ospedale Maggiore polyclinic - Milan,false
 IT53,AOU Meyer - Florence,false
-BE06,University Hospital Ghent,false
+BE06,University Hospital Ghent,true
 IT39,IRCCS IDI foundation Luigi Maria Monti - Rome,false
 BE04,Hôpital Universitaire de Bruxelles(HUDERF-Erasme),true
 BE10,University Hospital Leuven,true
@@ -31,7 +31,7 @@ DK04,Zealand University Hospital,false
 ES08,Sant Joan de Déu Hospital,false
 FI01,Helsinki University Hospital (HUS),false
 FR22,CHU de Bordeaux,false
-FR09,"Assistance Publique-Hôpitaux de Paris, Hôpital Necker-Enfants Malades",false
+FR09,"Assistance Publique-Hôpitaux de Paris, Hôpital Necker-Enfants Malades",true
 FR15,"Assistance Publique-Hôpitaux de Paris, Hôpital Henri-Mondor",false
 FR28,CHU de Nice,false
 FR31,CHU de Rouen,false

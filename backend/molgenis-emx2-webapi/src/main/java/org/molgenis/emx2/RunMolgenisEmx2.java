@@ -5,6 +5,7 @@ import static org.molgenis.emx2.ColumnType.INT;
 
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
+import org.molgenis.emx2.datamodels.ErnTestLoader;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
@@ -86,7 +87,7 @@ public class RunMolgenisEmx2 {
 
           if (INCLUDE_ERN_TEST_DEMO && db.getSchema("ern test") == null) {
             Schema schema = db.createSchema("ern test");
-            DataModels.Profile.ERN_TEST.getImportTask(schema, true).run();
+            new ErnTestLoader(schema, true).run();
           }
         });
 
