@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import type { CellValueType } from "../../../metadata-utils/src/types";
 defineProps<{
   type: string;
 }>();

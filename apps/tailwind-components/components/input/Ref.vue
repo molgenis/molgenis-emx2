@@ -25,7 +25,7 @@ const props = withDefaults(
   }
 );
 
-const modelValue = defineModel<columnValueObject[] | columnValueObject | "">(); //empty string might happen
+const modelValue = defineModel<columnValueObject[] | columnValueObject>();
 const tableMetadata = ref<ITableMetaData>();
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
 const optionMap: Ref<Record<string, columnValueObject>> = ref({});
@@ -141,7 +141,7 @@ function select(label: string) {
 
 function extractPrimaryKey(value: any) {
   const result = {} as columnValueObject;
-  tableMetadata.value.columns
+  tableMetadata.value?.columns
     .filter((column) => column.key === 1)
     .forEach((column) => {
       result[column.id] = value[column.id];
@@ -217,7 +217,7 @@ function loadMore() {
       v-if="isArray"
       :id="id"
       :options="listOptions"
-      v-model="(selection as string[])"
+      :modelValue="(selection as string[])"
       @select="select"
       @deselect="deselect"
       :invalid="invalid"
@@ -229,7 +229,7 @@ function loadMore() {
       v-else
       :id="id"
       :options="listOptions"
-      v-model="(selection as string)"
+      :modelValue="(selection as string)"
       @select="select"
       @deselect="deselect"
       :invalid="invalid"
