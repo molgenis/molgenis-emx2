@@ -6,6 +6,7 @@ import ViewPage from "./components/ViewPage.vue";
 import EditPage from "./components/EditPage.vue";
 
 import "molgenis-components/dist/style.css";
+import "molgenis-viz/dist/style.css";
 
 const router = createRouter({
   history: createWebHashHistory(),
