@@ -132,6 +132,20 @@ const { data, error } = await useFetch(`/${route.params.schema}/graphql`, {
                   partOfResources: { id: { equals: catalogueRouteParam } },
                 },
               },
+              {
+                reusedInResources: {
+                  _or: [
+                    { resource: { id: { equals: catalogueRouteParam } } },
+                    {
+                      resource: {
+                        partOfResources: {
+                          id: { equals: catalogueRouteParam },
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
             ],
           }
         : //should only include harmonised variables

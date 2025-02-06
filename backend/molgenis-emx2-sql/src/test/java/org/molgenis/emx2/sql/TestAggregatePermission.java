@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
 import static org.molgenis.emx2.SelectColumn.s;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

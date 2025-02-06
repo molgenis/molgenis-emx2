@@ -13,6 +13,7 @@
     "format": "prettier components pages tests layouts --write --config ../.prettierrc.js",
     "checkFormat": "prettier components pages tests --check --config ../.prettierrc.js",
     "test": "vitest",
+    "e2e": "playwright test",
     "a11y:test": "pa11y-ci",
     "a11y:serve": "http-server .reports/ -p 1234",
     "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./assets/icons -o ./assets/minified-icons --config ./svgo.config.js && node ./scripts/create_vue_components_from_icons.js",
@@ -21,7 +22,7 @@
   "dependencies": {
     "consola": "3.2.3",
     "floating-vue": "5.2.2",
-    "vue": "3.5.6",
+    "vue":"3.5.13",
     "vue-router": "4.4.3"
   },
   "devDependencies": {
@@ -34,11 +35,12 @@
     "if-env": "1.0.4",
     "pa11y-ci": "^3.1.0",
     "pa11y-ci-reporter-html": "^7.0.0",
-    "playwright-core": "1.48.0",
+    "playwright-core": "1.50.0",
     "prettier": "2.8.8",
     "svgo": "2.8.0",
     "typescript": "5.6.2",
-    "vitest": "1.3.1",
+    "nuxt": "3.14.1592",
+    "vitest": "1.6.1",
     "vue-tsc": "2.1.6"
   }
 }

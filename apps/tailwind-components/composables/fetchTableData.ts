@@ -69,7 +69,7 @@ export const getColumnIds = async (
   const metaData = await fetchMetadata(schemaId);
  
   const columns = metaData.tables.find(
-    (table) => table.id === tableId && table.schemaId === schemaId
+    (table) => table.id === tableId
   )?.columns || [];
 
   let gqlFields = "";

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "bbmri-eric:serviceID:NL_valid-serviceID",
+    "biobank": "bbmri-eric:ID:NL_valid-biobankID-1"
+  },
+  {
+    "id": "bbmri-eric:NL_invalid:serviceID",
+    "biobank": "bbmri-eric:ID:NL_valid:biobankID-2"
+  }
+
+]
