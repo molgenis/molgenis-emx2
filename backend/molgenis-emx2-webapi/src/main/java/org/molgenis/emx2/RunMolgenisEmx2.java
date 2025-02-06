@@ -5,7 +5,7 @@ import static org.molgenis.emx2.ColumnType.INT;
 
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
-import org.molgenis.emx2.datamodels.ErnTestLoader;
+import org.molgenis.emx2.datamodels.PatientRegistryDemoLoader;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
@@ -31,9 +31,10 @@ public class RunMolgenisEmx2 {
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_TYPE_TEST_DEMO, false, BOOL);
 
-  public static final boolean INCLUDE_ERN_TEST_DEMO =
+  public static final boolean INCLUDE_PATIENT_REGISTRY_DEMO =
       (Boolean)
-          EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_ERN_TEST_DEMO, false, BOOL);
+          EnvironmentProperty.getParameter(
+              Constants.MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO, false, BOOL);
 
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
@@ -85,9 +86,9 @@ public class RunMolgenisEmx2 {
             new BiobankDirectoryLoader(schema, true).setStaging(false).run();
           }
 
-          if (INCLUDE_ERN_TEST_DEMO && db.getSchema("ern test") == null) {
+          if (INCLUDE_PATIENT_REGISTRY_DEMO && db.getSchema("ern test") == null) {
             Schema schema = db.createSchema("ern test");
-            new ErnTestLoader(schema, true).run();
+            new PatientRegistryDemoLoader(schema, true).run();
           }
         });
 

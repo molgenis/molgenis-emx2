@@ -52,7 +52,7 @@ public class DataModels {
     DIRECTORY(DirectoryLoader::new),
     ERN_DASHBOARD(DashboardLoader::new),
     UI_DASHBOARD(UiDashboardLoader::new),
-    ERN_TEST(ErnTestLoader::new),
+    PATIENT_REGISTRY_DEMO(PatientRegistryDemoLoader::new),
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
     RD3_V2(RD3v2Loader::new),

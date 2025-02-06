@@ -7,9 +7,9 @@ import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.sql.SqlDatabase;
 
-public class ErnTestLoader extends ImportDataModelTask {
+public class PatientRegistryDemoLoader extends ImportDataModelTask {
 
-  public ErnTestLoader(Schema schema, Boolean includeDemoData) {
+  public PatientRegistryDemoLoader(Schema schema, Boolean includeDemoData) {
     super(schema, includeDemoData);
   }
 
@@ -18,12 +18,12 @@ public class ErnTestLoader extends ImportDataModelTask {
     this.start();
     try {
       createSchema(getSchema(), "dashboard/molgenis.csv");
-      createSchema(getSchema(), "ern_test/molgenis.csv");
+      createSchema(getSchema(), "patient_registry_demo/molgenis.csv");
       getSchema().addMember(SqlDatabase.ANONYMOUS, Privileges.VIEWER.toString());
-      MolgenisIO.fromClasspathDirectory("ern_test/ontologies", getSchema(), false);
+      MolgenisIO.fromClasspathDirectory("patient_registry_demo/ontologies", getSchema(), false);
 
       if (isIncludeDemoData()) {
-        MolgenisIO.fromClasspathDirectory("ern_test/data", getSchema(), false);
+        MolgenisIO.fromClasspathDirectory("patient_registry_demo/data", getSchema(), false);
       }
 
       this.complete();
