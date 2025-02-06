@@ -4,9 +4,9 @@ import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQu
 import type {
   columnValue,
   columnValueObject,
+  ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import type { IValueLabel } from "~/types/types";
-import type { ITableMetaData } from "metadata-utils";
 
 const props = withDefaults(
   defineProps<{
@@ -34,7 +34,7 @@ const props = withDefaults(
 );
 
 const modelValue = defineModel<columnValueObject[] | columnValueObject | "">(); //empty string might happen
-const tableMetadata = ref<ITableMetaData>;
+const tableMetadata = ref<ITableMetaData | null>(null);
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
 const optionMap: Ref<Record<string, columnValueObject>> = ref({});
 const selectionMap: Ref<Record<string, columnValueObject>> = ref({});
@@ -164,7 +164,7 @@ function select(label: string) {
 
 function extractPrimaryKey(value: any) {
   const result = {} as columnValueObject;
-  tableMetadata.value.columns
+  tableMetadata.value?.columns
     .filter((column) => column.key === 1)
     .forEach((column) => {
       result[column.id] = value[column.id];
@@ -268,5 +268,5 @@ function loadMore() {
       load {{ entitiesLeftToLoad }} more
     </ButtonText>
   </template>
-  <ButtonText v-else>No results found</ButtonText>
+  <ButtonText v-else :inverted="inverted">No results found</ButtonText>
 </template>

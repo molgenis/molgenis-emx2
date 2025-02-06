@@ -47,7 +47,7 @@
 
 <script lang="ts" setup>
 import type { IValueLabel } from "~/types/types";
-import type { columnValue } from "metadata-utils/src/types";
+import type { columnValue } from "../../../metadata-utils/src/types";
 
 const props = withDefaults(
   defineProps<{
