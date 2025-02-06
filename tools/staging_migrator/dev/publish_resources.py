@@ -14,7 +14,7 @@ from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMig
 
 CATALOGUE = 'catalogue'
 
-log = logging.getLogger('resource-deleter')
+log = logging.getLogger('publisher')
 
 
 def main(args):
