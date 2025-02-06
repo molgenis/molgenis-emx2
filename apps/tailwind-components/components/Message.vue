@@ -1,23 +1,38 @@
 <template>
   <div
     role="alertdialog"
-    :aria-labelledby="invalid ? id + '-error-state' : ''"
-    class="p-3 font-bold flex items-center rounded-input bg-default'"
+    :aria-labelledby="`${id}-state-context`"
+    class="p-3 font-bold flex items-center rounded-input bg-default"
     :class="{
-      'bg-invalid text-required': invalid,
-      'bg-valid text-valid': valid,
+      'bg-invalid text-required fill-invalid': invalid,
+      'bg-valid text-valid fill-valid': valid,
     }"
   >
-    <span v-if="invalid" :id="`${id}-error-state`" class="sr-only">error</span>
-    <BaseIcon name="info"></BaseIcon>
+    <template v-if="invalid">
+      <span :id="`${id}-state-context`" class="sr-only">error</span>
+      <BaseIcon name="exclamation" />
+    </template>
+    <template v-else-if="valid">
+      <span :id="`${id}-state-context`" class="sr-only">success</span>
+      <BaseIcon name="check" />
+    </template>
+    <template v-else>
+      <BaseIcon name="info" />
+    </template>
     <slot></slot>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  id: string;
-  invalid?: boolean;
-  valid?: boolean;
-}>();
+withDefaults(
+  defineProps<{
+    id: string;
+    invalid?: boolean;
+    valid?: boolean;
+  }>(),
+  {
+    invalid: false,
+    valid: false,
+  }
+);
 </script>
