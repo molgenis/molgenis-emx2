@@ -1,0 +1,18 @@
+table,key,value
+,menu,"[{""label"":""Dashboard"",""href"":""ern-skin/#/dashboard"",""key"":""h6r69"",""submenu"":[],""role"":""Viewer""},{""label"":""Select HCP"",""href"":""/apps/central/#/"",""key"":""0doifr"",""submenu"":[],""role"":""Signed in""},{""label"":""About us"",""href"":""ern-skin/#/about"",""key"":""0vhp73"",""submenu"":[],""role"":""Viewer""},{""label"":""Documents"",""href"":""ern-skin/#/documents"",""key"":""0lpton"",""submenu"":[],""role"":""Viewer""},{""label"":""Scientific Studies"",""href"":"""",""key"":""h21k1v"",""submenu"":[{""label"":""RDEB Cardiomyopathy"",""href"":"""",""key"":""47ipu"",""role"":""Viewer""}],""role"":""Signed in""},{""label"":""Up/Download"",""href"":""updownload"",""role"":""Editor"",""key"":""tk6rda"",""submenu"":[]},{""label"":""Admin"",""href"":"""",""key"":""pv4bpq"",""submenu"":[{""label"":""Tables"",""href"":""tables"",""role"":""Editor"",""key"":""0filqf""},{""label"":""Schema"",""href"":""schema"",""role"":""Manager"",""key"":""40z2jf""},{""label"":""Graphql"",""href"":""graphql-playground"",""role"":""Editor"",""key"":""8jdyx6""},{""label"":""Settings"",""href"":""settings"",""role"":""Manager"",""key"":""va77y""}],""role"":""Manager""},{""label"":""Help"",""href"":""docs"",""role"":""Viewer"",""key"":""93edzc"",""submenu"":[]}]"
+,logoURL,https://ern-skin.eu/wp-content/uploads/2019/04/xLOGO-SKIN-V2-ret.png.pagespeed.ic.JDfgVrOR42.webp
+,cssURL,theme.css?primaryColor=fb8c00
+,additionalCss,"nav[aria-label=""breadcrumb""] {
+  display: none;
+}
+
+/* Adjusts the margin for ordered lists with the ""breadcrumb"" class */
+.breadcrumb {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+nav.navbar button.btn.border-0.btn-outline-light{
+ display:none;
+}"
+,reports,"[{""id"":""uniqueid"",""description"":""new report"",""sql"":""""}]"

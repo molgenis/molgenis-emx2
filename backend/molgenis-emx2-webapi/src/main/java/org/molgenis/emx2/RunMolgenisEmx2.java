@@ -30,6 +30,10 @@ public class RunMolgenisEmx2 {
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_TYPE_TEST_DEMO, false, BOOL);
 
+  public static final boolean INCLUDE_ERN_TEST_DEMO =
+      (Boolean)
+          EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_ERN_TEST_DEMO, false, BOOL);
+
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
 
@@ -78,6 +82,11 @@ public class RunMolgenisEmx2 {
           if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
             Schema schema = db.createSchema(DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo");
             new BiobankDirectoryLoader(schema, true).setStaging(false).run();
+          }
+
+          if (INCLUDE_ERN_TEST_DEMO && db.getSchema("ern test") == null) {
+            Schema schema = db.createSchema("ern test");
+            DataModels.Profile.ERN_TEST.getImportTask(schema, true).run();
           }
         });
 

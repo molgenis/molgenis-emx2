@@ -27,7 +27,8 @@ public class DataModels {
     SHARED_STAGING("_profiles/SharedStaging.yaml"),
     IMAGE_TEST("_profiles/ImageTest.yaml"),
     PET_STORE("_profiles/PetStore.yaml"),
-    TYPE_TEST("_profiles/TypeTest.yaml");
+    TYPE_TEST("_profiles/TypeTest.yaml"),
+    ERN_TEST("_profiles/ErnTest.yaml");
 
     public static boolean hasProfile(String nameOther) {
       return Arrays.stream(values()).anyMatch(profile -> profile.name().equals(nameOther));
@@ -52,6 +53,7 @@ public class DataModels {
     DIRECTORY(DirectoryLoader::new),
     ERN_DASHBOARD(DashboardLoader::new),
     UI_DASHBOARD(UiDashboardLoader::new),
+    ERN_TEST(ErnTestLoader::new),
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
     RD3_V2(RD3v2Loader::new),

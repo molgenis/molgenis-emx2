@@ -1,0 +1,2 @@
+label,belongsToSubject,hgnc,otherGene,refseq,hgvs,proteinDescription,typeMutation,allelicState,acmg,inheritance,id
+,test3,A2M,,NM_004006.2,,,jj,Heterozygous,Pathogenic,mat,6V3sZa9IsC
