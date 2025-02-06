@@ -331,7 +331,7 @@ public class RDFTest {
         table(
             "table3",
             column("p1").setPkey().setType(ColumnType.REF).setRefTable("table1"),
-            column("p2").setType(ColumnType.REF).setRefTable("table2").setRefLink("p1"),
+            column("p2").setPkey().setType(ColumnType.REF).setRefTable("table2").setRefLink("p1"),
             column("ref").setType(ColumnType.REF).setRefTable("table2").setRefLink("p1")));
 
     refLinkTest.getTable("table1").insert(row("id", "t1First"));
