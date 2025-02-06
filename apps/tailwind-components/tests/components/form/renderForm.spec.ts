@@ -14,7 +14,7 @@ test("it should render the form", async ({ page }) => {
   await expect(page.getByRole("main")).toContainText("id");
   await expect(page.getByRole("main")).toContainText("pid");
   await expect(page.getByRole("main")).toContainText("Name");
-  await expect(page.getByLabel("id", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Id", { exact: true })).toBeVisible();
 });
 
 test("it should handle input", async ({ page }) => {
@@ -34,7 +34,7 @@ test("it should show the chapters in the legend", async ({ page }) => {
 test("the legend should show number of errors per chapter (if any)", async ({
   page,
 }) => {
-  await page.getByLabel("name", { exact: true }).click();
+  await page.getByLabel("Name", { exact: true }).click();
   // skip a required field
   await page.getByLabel("name", { exact: true }).press("Tab");
   await expect(page.locator("span").filter({ hasText: /^2$/ })).toBeVisible();

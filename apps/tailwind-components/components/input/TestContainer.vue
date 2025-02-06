@@ -1,19 +1,3 @@
-<script setup lang="ts">
-defineProps<{
-  showState?: boolean;
-  showPlaceholder?: boolean;
-  showRequired?: boolean;
-  showErrorMessage?: boolean;
-}>();
-const placeholder = ref("");
-const state = ref([] as string[]);
-const errorMessage = ref("");
-const required = ref(false);
-const valid = computed(() => state.value.includes("valid"));
-const invalid = computed(() => state.value.includes("invalid"));
-const disabled = computed(() => state.value.includes("disabled"));
-</script>
-
 <template>
   <div class="flex flex-row flex-grow">
     <div class="w-2/3 p-4">
@@ -31,7 +15,7 @@ const disabled = computed(() => state.value.includes("disabled"));
       <FieldSet label="input prop settings">
         <FormField
           v-if="showPlaceholder"
-          type="string"
+          type="STRING"
           id="test-placeholder"
           v-model="placeholder"
           label="Placeholder"
@@ -39,7 +23,7 @@ const disabled = computed(() => state.value.includes("disabled"));
         />
         <FormField
           v-if="showState"
-          type="checkbox"
+          type="CHECKBOX"
           id="test-state"
           v-model="state"
           label="state"
@@ -52,7 +36,7 @@ const disabled = computed(() => state.value.includes("disabled"));
         />
         <FormField
           v-if="showErrorMessage"
-          type="string"
+          type="STRING"
           label="errorMessage"
           v-model="errorMessage"
           id="test-container-error-message"
@@ -60,9 +44,11 @@ const disabled = computed(() => state.value.includes("disabled"));
         />
         <FormField
           v-if="showRequired"
-          type="bool"
+          type="BOOL"
           label="required"
           v-model="required"
+          trueLabel="Required is true"
+          falseLabel="Required is false"
           id="test-container-required"
           description="set to true to show required tags"
         />
@@ -71,3 +57,19 @@ const disabled = computed(() => state.value.includes("disabled"));
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+defineProps<{
+  showState?: boolean;
+  showPlaceholder?: boolean;
+  showRequired?: boolean;
+  showErrorMessage?: boolean;
+}>();
+const placeholder = ref("");
+const state = ref([] as string[]);
+const errorMessage = ref("");
+const required = ref(false);
+const valid = computed(() => state.value.includes("valid"));
+const invalid = computed(() => state.value.includes("invalid"));
+const disabled = computed(() => state.value.includes("disabled"));
+</script>

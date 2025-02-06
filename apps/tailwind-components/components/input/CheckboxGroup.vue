@@ -10,8 +10,7 @@
         :checked="modelValue!.includes(option.value)"
         :disabled="disabled"
         @change="toggleSelect"
-        @focus="$emit('focus')"
-        class="sr-only fixed"
+        class="absolute ml-4 mt-2 opacity-0"
       />
       <InputLabel
         :for="`${id}-checkbox-group-${option.value}`"
@@ -46,6 +45,7 @@
 
 <script lang="ts" setup>
 import { type IInputProps, type IValueLabel } from "~/types/types";
+import type { columnValue } from "../../../metadata-utils/src/types";
 
 withDefaults(
   defineProps<
@@ -59,7 +59,7 @@ withDefaults(
   }
 );
 
-const modelValue = defineModel<string[]>();
+const modelValue = defineModel<columnValue[]>();
 const emit = defineEmits([
   "update:modelValue",
   "select",
@@ -75,6 +75,7 @@ function toggleSelect(event: Event) {
   } else {
     emit("deselect", target.value);
   }
+  emit("focus");
 }
 
 function resetModelValue() {

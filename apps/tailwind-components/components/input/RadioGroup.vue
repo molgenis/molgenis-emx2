@@ -11,8 +11,7 @@
     <div v-for="option in options" class="flex justify-start align-center">
       <InputRadio
         :id="`${id}-radio-group-${option.value}`"
-        class="sr-only fixed"
-        :name="id"
+        class="opacity-0 absolute mt-1"
         :value="option.value"
         v-model="modelValue"
         @input="toggleSelect"
@@ -20,7 +19,6 @@
         :invalid="invalid"
         :valid="valid"
         :disabled="disabled"
-        @focus="$emit('focus')"
       />
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
@@ -88,6 +86,7 @@ function toggleSelect(event: Event) {
   } else {
     emit("deselect", target.value);
   }
+  emit("focus");
 }
 
 function resetModelValue() {

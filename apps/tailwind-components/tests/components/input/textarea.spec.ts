@@ -6,26 +6,24 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   : "/apps/tailwind-components/#/";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto(`${route}input/TextArea.story`);
-  await page
-    .getByText("Textarea options", { exact: true })
-    .first()
-    .click({ delay: 300 });
+  await page.goto(`${route}/FormField.story`);
 });
 
 test("InputTextArea: error is properly indicated @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
-  await page.getByLabel("Show error").check();
+  await page.getByLabel("invalid").check();
+  expect(await page.getByLabel("invalid")).toBeChecked();
   const InputTextAreaClass = await page
-    .getByPlaceholder("This is placeholder text")
+    .getByLabel("Demo input for type=text")
     .getAttribute("class");
-  await expect(InputTextAreaClass).toContain("border-invalid text-invalid");
+  await expect(InputTextAreaClass).toContain("invalid");
 });
 
 test("InputTextArea: required state is properly indicated @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
+  await page.locator("label", { hasText: "True" }).check();
   await page.getByLabel("Required").check();
   await expect(
     page.getByPlaceholder("This is placeholder text")

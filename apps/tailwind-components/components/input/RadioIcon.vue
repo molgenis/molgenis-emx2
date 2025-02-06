@@ -12,6 +12,7 @@
       r="9"
       :style="{ 'stroke-width': invalid ? 2 : 1 }"
       fill="none"
+      class="stroke-current"
       :class="{
         'fill-input hover:fill-input-checked hover:stroke-none focus:fill-input-checked focus:stroke-none':
           !checked,

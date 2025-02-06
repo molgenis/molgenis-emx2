@@ -16,6 +16,8 @@ defineProps<
     refTableId?: string;
     refLabel?: string;
     options?: IValueLabel[];
+    trueLabel?: string;
+    falseLabel?: string;
   }
 >();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
@@ -51,6 +53,8 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
       :refSchemaId="refSchemaId as string"
       :refTableId="refTableId as string"
       :refLabel="refLabel as string"
+      :trueLabel="trueLabel"
+      :falseLabel="falseLabel"
       @update:modelValue="emit('update:modelValue', $event)"
       @blur="emit('blur')"
       @focus="emit('focus')"
