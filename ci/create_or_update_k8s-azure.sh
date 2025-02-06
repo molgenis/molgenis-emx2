@@ -43,6 +43,7 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set includeTypeTestDemo=true \
 --set catalogue.includeCatalogueDemo=true \
 --set directory.includeDirectoryDemo=true \
+--set directory.includeErnTestDemo=true \
 --set oidc.enabled=true \
 --set oidc.client_id=${OIDC_CLIENTID} \
 --set oidc.client_secret=${OIDC_SECRET} \
