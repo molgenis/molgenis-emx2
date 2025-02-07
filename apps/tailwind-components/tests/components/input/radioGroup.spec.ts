@@ -6,9 +6,9 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   : "/apps/tailwind-components/#/";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto(`${route}input/Radio.story`);
+  await page.goto(`${route}input/RadioGroup.story`);
   await page
-    .getByText("Radio Component", { exact: true })
+    .getByText("InputRadioGroup", { exact: true })
     .first()
     .click({ delay: 300 });
 });
