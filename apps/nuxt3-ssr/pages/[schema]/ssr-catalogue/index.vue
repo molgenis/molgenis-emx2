@@ -94,6 +94,11 @@ const projectCatalogues = computed(() => {
   result.sort((a, b) => a.network.id.localeCompare(b.network.id));
   return result;
 });
+
+import flatPickr from "vue-flatpickr-component";
+import "flatpickr/dist/flatpickr.css";
+
+const date = ref(null);
 </script>
 
 <template>
@@ -104,6 +109,9 @@ const projectCatalogues = computed(() => {
       :truncate="false"
     >
       <template #suffix>
+        <h1>Date</h1>
+        <flat-pickr v-model="date" class="border bottom-1" />
+        <p>Selected date: {{ date }}</p>
         <div
           class="relative justify-center flex flex-col md:flex-row text-title"
         >

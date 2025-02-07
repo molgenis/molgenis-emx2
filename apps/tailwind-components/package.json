@@ -22,7 +22,8 @@
   "dependencies": {
     "consola": "3.2.3",
     "floating-vue": "5.2.2",
-    "vue":"3.5.13",
+    "vue": "3.5.13",
+    "vue-flatpickr-component": "^11.0.5",
     "vue-router": "4.4.3"
   },
   "devDependencies": {
@@ -33,13 +34,13 @@
     "happy-dom": "15.10.2",
     "http-server": "^14.1.1",
     "if-env": "1.0.4",
+    "nuxt": "3.14.1592",
     "pa11y-ci": "^3.1.0",
     "pa11y-ci-reporter-html": "^7.0.0",
     "playwright-core": "1.50.0",
     "prettier": "2.8.8",
     "svgo": "2.8.0",
     "typescript": "5.6.2",
-    "nuxt": "3.14.1592",
     "vitest": "1.6.1",
     "vue-tsc": "2.1.6"
   }
