@@ -9,7 +9,7 @@ All inputs should have the following props:
 
 - id
 - modelValue
-- inverted
+- inverted <= do we need this?
 
 All inputs could have the following props:
 
@@ -24,3 +24,7 @@ N.B. the following files are not inputs and should be moved elsewhere
 
 - Label
 - Placeholder
+
+Questions:
+
+- do we need required on input atoms? I would expect the form to handle this

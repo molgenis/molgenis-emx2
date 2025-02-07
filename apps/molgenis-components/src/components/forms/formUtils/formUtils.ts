@@ -22,7 +22,7 @@ export function getRowErrors(
   );
 }
 
-function getColumnError(
+export function getColumnError(
   column: IColumn,
   rowData: Record<string, any>,
   tableMetaData: ITableMetaData
