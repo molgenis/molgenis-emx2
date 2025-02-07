@@ -6,7 +6,7 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   : "/apps/tailwind-components/#/";
 
 test.beforeEach(async ({ page }) => {
-  await page.goto(`${route}/FormField.story`);
+  await page.goto(`${route}FormField.story`);
   await page.getByRole("heading", { name: "FormField" }).click({ delay: 300 });
 });
 

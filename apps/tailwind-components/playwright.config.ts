@@ -23,7 +23,7 @@ export default defineConfig<ConfigOptions>({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     nuxt: {
-      host: process.env.E2E_BASE_URL || "https://preview-emx2-pr-4664.dev.molgenis.org/",
+      host: process.env.E2E_BASE_URL || "http://localhost:3000/",
       build: false
     }
   },
