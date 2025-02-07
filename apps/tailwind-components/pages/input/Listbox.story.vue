@@ -46,7 +46,7 @@
         <InputRadioGroup
           id="listbox-data-type"
           v-model="listboxDataType"
-          :radio-options="[
+          :options="[
             { value: 'string', label: 'String array' },
             { value: 'array', label: 'Array of options' },
           ]"
@@ -59,7 +59,7 @@
         <InputRadioGroup
           id="listbox-component-state"
           v-model="listboxState"
-          :radioOptions="[
+          :options="[
             {
               value: 'disabled',
               label: 'Disabled: disable interactivity with the component',

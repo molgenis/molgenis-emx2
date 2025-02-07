@@ -4,9 +4,10 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
+    "generate-source-map": "node ./utils/generateSourceMap.js",
+    "build": "yarn generate-source-map && nuxt build",
     "build-showcase": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
-    "dev": "nuxt dev",
+    "dev": "yarn generate-source-map && nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
