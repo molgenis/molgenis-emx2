@@ -86,8 +86,8 @@ public class RunMolgenisEmx2 {
             new BiobankDirectoryLoader(schema, true).setStaging(false).run();
           }
 
-          if (INCLUDE_PATIENT_REGISTRY_DEMO && db.getSchema("ern test") == null) {
-            Schema schema = db.createSchema("ern test");
+          if (INCLUDE_PATIENT_REGISTRY_DEMO && db.getSchema("patient registry demo") == null) {
+            Schema schema = db.createSchema("patient registry demo");
             new PatientRegistryDemoLoader(schema, true).run();
           }
         });
