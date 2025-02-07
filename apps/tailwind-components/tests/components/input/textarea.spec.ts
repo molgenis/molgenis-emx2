@@ -14,7 +14,7 @@ test("InputTextArea: invalid is properly indicated @tw-components @tw-forms @inp
   page,
 }) => {
   await page.getByLabel("invalid").check();
-  expect(await page.getByLabel("invalid")).toBeChecked();
+  await expect(page.getByLabel("invalid")).toBeChecked();
   const InputTextAreaClass = await page
     .getByLabel("Demo input for type=text")
     .getAttribute("class");
@@ -54,13 +54,13 @@ test("InputTextArea: component properly displays placeholder @tw-components @tw-
   page,
 }) => {
   await page.getByLabel("Demo input for type=text").clear();
-  const newPlaceholder: string =
-    "This is a new placeholder for the textarea component";
-  await page.getByLabel("Placeholder").fill(newPlaceholder);
-  await expect(await page.getByLabel("Placeholder")).toHaveValue(
-    newPlaceholder
+  await page
+    .getByLabel("Placeholder")
+    .fill("This is a new placeholder for the textarea component");
+  await expect(page.getByLabel("Placeholder")).toHaveValue(
+    "This is a new placeholder for the textarea component"
   );
-  await expect(
-    await page.getByLabel("Demo input for type=text")
-  ).toHaveAttribute("placeholder");
+  await expect(page.getByLabel("Demo input for type=text")).toHaveAttribute(
+    "placeholder"
+  );
 });
