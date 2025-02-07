@@ -12,16 +12,15 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("the inputEmail", async ({ page }) => {
-  await expect(page.getByText("Error:")).not.toContainText(
-    "Error: Invalid email"
-  );
-  await page.fill("#input-email", "blaat");
-  await expect(page.getByText("Error: Invalid email")).toContainText(
-    "Error: Invalid email"
-  );
-  await page.getByPlaceholder("example@molgenis.net").clear();
-  await page.fill("#input-email", "test@molgenis.net");
-  await expect(page.getByText("Error:")).not.toContainText(
-    "Error: Invalid email"
-  );
+  await page
+    .getByRole("textbox", { name: "Input an email address" })
+    .fill("test");
+  await page.getByRole("textbox", { name: "Input an email address" }).blur();
+  await expect(page.getByText("Invalid email address")).toBeVisible();
+  await page.getByPlaceholder("Input an email address").clear();
+  await page
+    .getByRole("textbox", { name: "Input an email address" })
+    .fill("test@molgenis.net");
+  await page.getByRole("textbox", { name: "Input an email address" }).blur();
+  await expect(page.getByText("Invalid email address")).not.toBeVisible();
 });

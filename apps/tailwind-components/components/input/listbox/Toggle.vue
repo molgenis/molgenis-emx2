@@ -9,7 +9,7 @@
     class="flex justify-start items-center h-10 w-full text-left pl-11 border bg-input rounded-search-input text-button-input-toggle focus:ring-blue-300"
     :class="{
       'border-disabled text-disabled bg-disabled': disabled,
-      'border-invalid text-invalid': hasError,
+      'border-invalid text-invalid': invalid,
     }"
     @click="onClick()"
   >
@@ -22,19 +22,12 @@
 </template>
 
 <script lang="ts" setup>
-withDefaults(
-  defineProps<{
-    required?: boolean;
-    disabled?: boolean;
-    hasError?: boolean;
-    selectedElementId?: string;
-  }>(),
-  {
-    required: false,
-    disabled: false,
-    hasError: false,
-  }
-);
+defineProps<{
+  required?: boolean;
+  invalid?: boolean;
+  disabled?: boolean;
+  selectedElementId?: string;
+}>();
 
 const isExpanded = ref<boolean>(false);
 

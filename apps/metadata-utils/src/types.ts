@@ -30,6 +30,7 @@ export type CellValueType =
   | "DATETIME"
   | "DATETIME_ARRAY"
   | "PERIOD"
+  | "PERIOD_ARRAY"
   | "JSON"
   | "REF"
   | "REF_ARRAY"
@@ -94,13 +95,19 @@ export interface IFieldError {
 
 export interface IFormLegendSection {
   label: string;
-  domId: string;
+  id: string;
   isActive?: boolean;
   errorCount?: number;
 }
 
 export type columnId = string;
-export type columnValue = string | number | boolean | null | columnValueObject;
+export type columnValue =
+  | string
+  | number
+  | boolean
+  | null
+  | columnValueObject
+  | columnValue[];
 
 export interface columnValueObject {
   [x: string]: columnValue;
