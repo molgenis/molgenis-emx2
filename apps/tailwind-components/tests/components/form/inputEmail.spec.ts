@@ -17,7 +17,6 @@ test("the inputEmail", async ({ page }) => {
     .fill("test");
   await page.getByRole("textbox", { name: "Input an email address" }).blur();
   await expect(page.getByText("Invalid email address")).toBeVisible();
-  await page.goto("http://localhost:3000/input/Email.story");
   await page.getByPlaceholder("Input an email address").clear();
   await page
     .getByRole("textbox", { name: "Input an email address" })

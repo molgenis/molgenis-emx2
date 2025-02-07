@@ -7,6 +7,7 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}/FormField.story`);
+  await page.getByRole("heading", { name: "FormField" }).click({ delay: 300 });
 });
 
 test("InputTextArea: invalid is properly indicated @tw-components @tw-forms @input-textarea", async ({
@@ -56,8 +57,10 @@ test("InputTextArea: component properly displays placeholder @tw-components @tw-
   const newPlaceholder: string =
     "This is a new placeholder for the textarea component";
   await page.getByLabel("Placeholder").fill(newPlaceholder);
-  expect(await page.getByLabel("Placeholder")).toHaveValue(newPlaceholder);
-  expect(await page.getByLabel("Demo input for type=text")).toHaveAttribute(
-    "placeholder"
+  await expect(await page.getByLabel("Placeholder")).toHaveValue(
+    newPlaceholder
   );
+  await expect(
+    await page.getByLabel("Demo input for type=text")
+  ).toHaveAttribute("placeholder");
 });
