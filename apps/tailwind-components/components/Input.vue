@@ -1,5 +1,5 @@
 <template>
-  <LazyInputString
+  <InputString
     v-if="['STRING', 'AUTO_ID', 'LONG', 'INT'].includes(typeUpperCase)"
     :id="id"
     v-model="modelValue as string | number | undefined"
@@ -12,7 +12,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
-  <LazyInputString
+  <InputString
     v-else-if="'EMAIL' === typeUpperCase"
     :id="id"
     v-model="modelValue as string"
@@ -26,7 +26,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
-  <LazyInputString
+  <InputString
     v-else-if="'HYPERLINK' === typeUpperCase"
     :id="id"
     v-model="modelValue as string"
@@ -40,7 +40,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
-  <LazyInputBoolean
+  <InputBoolean
     v-else-if="['BOOL'].includes(typeUpperCase)"
     :id="id"
     v-model="modelValue as boolean"
@@ -54,7 +54,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
-  <LazyInputTextArea
+  <InputTextArea
     v-else-if="['TEXT'].includes(typeUpperCase)"
     v-model="modelValue as string | undefined"
     :id="id"
@@ -67,7 +67,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
-  <LazyInputRadioGroup
+  <InputRadioGroup
     v-else-if="['RADIO'].includes(typeUpperCase)"
     v-model="modelValue as columnValue"
     :id="id"
@@ -81,7 +81,7 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
-  <LazyInputCheckboxGroup
+  <InputCheckboxGroup
     v-else-if="['CHECKBOX'].includes(typeUpperCase)"
     v-model="modelValue as columnValue[]"
     :id="id"
@@ -129,7 +129,7 @@
     @blur="emit('blur')"
     :is-array="true"
   />
-  <LazyInputPlaceHolder v-else :type="typeUpperCase as string" />
+  <InputPlaceHolder v-else :type="typeUpperCase as string" />
 </template>
 
 <script setup lang="ts">

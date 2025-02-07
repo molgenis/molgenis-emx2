@@ -56,5 +56,7 @@ test("it should update the model value when a field is filled out", async ({
   await page.getByText("Jump to", { exact: true }).click({ delay: 300 });
   await page.getByLabel("name Required", { exact: true }).click();
   await page.getByLabel("name Required", { exact: true }).fill("test");
-  await expect(page.getByLabel("name", { exact: true })).toHaveValue("test");
+  await expect(page.getByLabel("name Required", { exact: true })).toHaveValue(
+    "test"
+  );
 });

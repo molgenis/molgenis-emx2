@@ -19,12 +19,16 @@ export default defineConfig<ConfigOptions>({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.E2E_BASE_URL || "http://localhost:3000/", // change to specific http://localhost:*/, preview, etc.
+    headless: process.env.CI ? true : false, // Run headless in CI, headed locally
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     nuxt: {
       host: process.env.E2E_BASE_URL || "http://localhost:3000/",
       build: false
+    },
+    launchOptions: {
+      slowMo: process.env.CI ? 0 : 500 // Slow down headless mode slightly
     }
   },
 

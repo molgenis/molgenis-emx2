@@ -28,7 +28,7 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
     <template v-if="label">
       <label :for="id">
         <span class="text-title font-bold">{{ label }}</span>
-        <span class="text-disabled text-body-sm ml-3" v-show="required">
+        <span class="text-disabled text-body-sm ml-3" v-if="required">
           Required
         </span>
       </label>
@@ -55,7 +55,6 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
       :refLabel="refLabel as string"
       :trueLabel="trueLabel"
       :falseLabel="falseLabel"
-      @update:modelValue="emit('update:modelValue', $event)"
       @blur="emit('blur')"
       @focus="emit('focus')"
     />

@@ -16,7 +16,7 @@
       }"
       :width="18"
     />
-    <span v-if="label">{{ label }}</span>
+    <span>{{ label }}</span>
   </li>
 </template>
 

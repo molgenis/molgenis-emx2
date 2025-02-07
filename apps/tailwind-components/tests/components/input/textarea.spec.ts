@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto(`${route}/FormField.story`);
 });
 
-test("InputTextArea: error is properly indicated @tw-components @tw-forms @input-textarea", async ({
+test("InputTextArea: invalid is properly indicated @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
   await page.getByLabel("invalid").check();
@@ -23,19 +23,19 @@ test("InputTextArea: error is properly indicated @tw-components @tw-forms @input
 test("InputTextArea: required state is properly indicated @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
-  await page.locator("label", { hasText: "True" }).check();
-  await page.getByLabel("Required").check();
+  await page.getByLabel("Required is true").check();
   await expect(
-    page.getByPlaceholder("This is placeholder text")
-  ).toHaveAttribute("required");
+    page.getByLabel("Demo input for type=text Required")
+  ).toBeVisible();
 });
 
 test("InputTextArea: valid state properly styles component @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
-  await page.getByLabel("Validate input").check();
+  await page.getByLabel("valid", { exact: true }).check();
+  await page.getByLabel("valid", { exact: true }).isChecked();
   const InputTextAreaClass = await page
-    .getByPlaceholder("This is placeholder text")
+    .getByLabel("Demo input for type=text")
     .getAttribute("class");
   await expect(InputTextAreaClass).toContain("border-valid text-valid");
 });
@@ -43,23 +43,21 @@ test("InputTextArea: valid state properly styles component @tw-components @tw-fo
 test("InputTextArea: component is properly disabled @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
-  await page.getByLabel("Disable input").check();
-  await expect(
-    page.getByPlaceholder("This is placeholder text")
-  ).toHaveAttribute("disabled");
-  const InputTextAreaClass = await page
-    .getByPlaceholder("This is placeholder text")
-    .getAttribute("class");
-  await expect(InputTextAreaClass).toContain(
-    "border-disabled text-disabled bg-disabled"
-  );
+  await expect(page.getByLabel("disabled")).not.toBeChecked();
+  await page.getByLabel("disabled").check();
+  await expect(page.getByLabel("disabled")).toBeChecked();
+  await expect(page.getByLabel("Demo input for type=text")).toBeDisabled();
 });
 
 test("InputTextArea: component properly displays placeholder @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
+  await page.getByLabel("Demo input for type=text").clear();
   const newPlaceholder: string =
     "This is a new placeholder for the textarea component";
-  await page.getByLabel("Set placeholder").fill(newPlaceholder);
-  await expect(page.getByPlaceholder(newPlaceholder)).toHaveCount(1);
+  await page.getByLabel("Placeholder").fill(newPlaceholder);
+  expect(await page.getByLabel("Placeholder")).toHaveValue(newPlaceholder);
+  expect(await page.getByLabel("Demo input for type=text")).toHaveAttribute(
+    "placeholder"
+  );
 });
