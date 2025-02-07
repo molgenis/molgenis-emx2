@@ -5,13 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import type { CellValueType } from "../../../metadata-utils/src/types";
 defineProps<{
-  type: CellValueType;
+  type: string;
 }>();
-defineExpose({ validate });
-
-function validate() {
-  // do nothing, its just a place holder for unkown types
-}
 </script>
