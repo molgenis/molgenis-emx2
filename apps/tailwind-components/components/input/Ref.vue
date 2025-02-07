@@ -4,7 +4,6 @@ import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQu
 import type {
   ITableMetaData,
   columnValueObject,
-  ITableMetaData,
 } from "../../../metadata-utils/src/types";
 
 import { type IInputProps, type IValueLabel } from "~/types/types";
