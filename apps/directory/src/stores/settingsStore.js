@@ -39,7 +39,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     landingpage: initialLandingpage,
     pageSize: 12,
     i18n,
-    banner: undefined, //"<div style='background-color: #72f6b2; padding: 10px; text-align: center;'>I am in a banner</div>"
+    banner: ``,
   });
 
   async function initializeConfig() {
