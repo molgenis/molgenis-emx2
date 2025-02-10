@@ -25,7 +25,7 @@
     --color-gray-100: #F4F4F4;
     --color-gray-200: #E2E2E2;
     --color-gray-400: #C0C0C0;
-    --color-gray-600: #6D6D6D;
+    --color-gray-600: #2C2C2C;
     --color-gray-700: #414141;
     --color-gray-800: #1E1E1E;
     --color-gray-900: #1D1D1D;
@@ -64,7 +64,8 @@
     --backgroud-color-button-disabled-hover: var(--color-gray-100);
     --backgroud-color-search-button: var(--color-blue-50);
     --backgroud-color-search-button-hover: var(--color-blue-700);
-    --backgroud-color-navigation: rgba(0, 0, 0, .2);
+    --backgroud-color-navigation: var(--color-white);
+    --backgroud-color-navigation-sticky: var(--backgroud-color-navigation);
     --backgroud-color-search-results-view-tabs: var(--color-blue-800);
     --backgroud-color-search-filter-group-toggle: var(--color-blue-800);
     --backgroud-color-app-wrapper: var(--color-black);
@@ -77,8 +78,9 @@
     --backgroud-color-tab-active: var(--color-blue-500);
     --background-color-disabled: var(--color-gray-200);
     --background-color-invalid: var(--color-red-200);
+    --background-color-valid: var(--color-green-200);
     --background-color-input: var(--color-white);
-    --background-color-input-checked: var(--color-yellow-500);
+    --background-color-input-checked: var(--color-blue-500);
     --background-color-listbox: var(--color-white);
     --background-color-listbox-hover: var(--color-gray-100);
     --background-color-listbox-selected: var(--color-blue-500);
@@ -104,8 +106,8 @@
     --text-color-title: var(--color-blue-800);
     --text-color-title-contrast: var(--color-blue-500);
     --text-color-sub-title-contrast: var(--color-black);
-    --text-color-search-button: var(--text-blue-500);
-    --text-color-search-button-hover: var(--text-blue-800);
+    --text-color-search-button: var(--color-blue-500);
+    --text-color-search-button-hover: var(--color-blue-800);
     --text-color-favorite: var(--color-blue-800);
     --text-color-favorite-hover: var(--color-blue-800);
     --text-color-button-text: var(--color-blue-800);
@@ -182,8 +184,5 @@
     --border-color-disabled: var(--color-gray-400);
 
     --outline-color-select: var(--color-gray-200);
-
   }
-
-  
 }

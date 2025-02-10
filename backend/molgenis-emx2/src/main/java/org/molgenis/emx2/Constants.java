@@ -10,6 +10,7 @@ public class Constants {
   public static final String MG_USER_PREFIX = "MG_USER_";
 
   public static final String COMPOSITE_REF_SEPARATOR = ".";
+  public static final String SUBSELECT_SEPARATOR = "-";
   public static final String REF_LINK = "refLink";
   public static final String REF_LABEL = "refLabel";
   public static final String REF_LABEL_DEFAULT = "refLabelDefault";
@@ -63,6 +64,8 @@ public class Constants {
   public static final String MOLGENIS_INCLUDE_DIRECTORY_DEMO = "MOLGENIS_INCLUDE_DIRECTORY_DEMO";
   public static final String MOLGENIS_EXCLUDE_PETSTORE_DEMO = "MOLGENIS_EXCLUDE_PETSTORE_DEMO";
   public static final String MOLGENIS_INCLUDE_TYPE_TEST_DEMO = "MOLGENIS_INCLUDE_TYPE_TEST_DEMO";
+  public static final String MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO =
+      "MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO";
 
   public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
 
