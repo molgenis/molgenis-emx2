@@ -15,6 +15,11 @@ export interface INode {
   description?: string;
 }
 
+export interface IValueLabel {
+  value: any;
+  label?: string;
+}
+
 export interface ITreeNode extends INode {
   children:
   ITreeNode[];
@@ -98,4 +103,11 @@ export interface IRadioOptionsData {
   checked?: boolean | undefined;
 }
 
-  
+export interface IInputProps {
+  id: string;
+  placeholder?: string;
+  describedBy?: string;
+  invalid?: boolean;
+  valid?: boolean | undefined;
+  disabled?: boolean | undefined;
+}

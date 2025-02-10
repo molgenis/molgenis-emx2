@@ -24,6 +24,7 @@
 
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-black);
+    --text-color-button-text: var(--color-white);
     --text-color-title: var(--color-white);
     --text-color-form-header: var(--text-color-title);
     --text-color-breadcrumb: var(--text-color-title);
@@ -33,5 +34,14 @@
     --text-color-search-filter-group-title: var(--text-color-title);
     --text-color-pagination-input: var(--color-blue-800);
 
-    --border-radius-input: var(--border-radius-50px);
-  }
+    --border-radius-3px: 3px;
+    --border-radius-50px: 50px;
+    --border-radius-input: 50px;
+    --border-radius-textarea-input: 20px;
+    --border-radius-search-input: 9999px;
+    --border-radius-search-button: 9999px;
+    --border-radius-pagination: 9999px;
+    --border-radius-landing: 50px;
+    --text-color-input-description: var(--color-white);
+
+}

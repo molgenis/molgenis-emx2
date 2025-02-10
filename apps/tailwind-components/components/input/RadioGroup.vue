@@ -1,27 +1,36 @@
 <template>
   <div
     :id="`${id}-radio-group`"
+    :aria-describedby="describedBy"
     class="flex gap-1"
     :class="{
       'flex-row': align === 'horizontal',
       'flex-col': align === 'vertical',
     }"
   >
-    <div v-for="option in radioOptions" class="flex justify-start align-center">
+    <div v-for="option in options" class="flex justify-start align-center">
       <InputRadio
         :id="`${id}-radio-group-${option.value}`"
-        class="sr-only fixed"
-        :name="id"
+        class="opacity-0 absolute mt-1"
         :value="option.value"
-        :modelValue="props.modelValue"
-        @input="$emit('update:modelValue', $event.target.value)"
-        :checked="option.value === props.modelValue"
+        v-model="modelValue"
+        @input="toggleSelect"
+        :checked="option.value === modelValue"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
       />
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
         class="hover:cursor-pointer flex flex-row gap-1 text-title"
       >
-        <InputRadioIcon :checked="modelValue === option.value" class="mr-1" />
+        <InputRadioIcon
+          :checked="modelValue === option.value"
+          class="mr-1"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
+        />
         <template v-if="option.label">
           {{ option.label }}
         </template>
@@ -46,34 +55,50 @@
 </template>
 
 <script lang="ts" setup>
-import type { IRadioOptionsData } from "~/types/types";
+import { type IInputProps, type IValueLabel } from "~/types/types";
+import type { columnValue } from "metadata-utils/src/types";
 
 const props = withDefaults(
-  defineProps<{
-    id: string;
-    modelValue: boolean | string | null;
-    radioOptions: IRadioOptionsData[];
-    showClearButton?: boolean;
-    align?: "horizontal" | "vertical";
-  }>(),
+  defineProps<
+    IInputProps & {
+      options: IValueLabel[];
+      showClearButton?: boolean;
+      align?: "horizontal" | "vertical";
+    }
+  >(),
   {
-    showClearButton: false,
     align: "vertical",
   }
 );
+const modelValue = defineModel<columnValue>();
+const emit = defineEmits([
+  "update:modelValue",
+  "select",
+  "deselect",
+  "blur",
+  "focus",
+]);
 
-const emit = defineEmits(["update:modelValue"]);
+function toggleSelect(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target.checked) {
+    emit("select", target.value);
+  } else {
+    emit("deselect", target.value);
+  }
+  emit("focus");
+}
 
 function resetModelValue() {
-  emit("update:modelValue", null);
+  modelValue.value = undefined;
 }
 
 const isClearBtnShow = computed(() => {
   return (
     props.showClearButton &&
-    (props.modelValue === true ||
-      props.modelValue === false ||
-      (typeof props.modelValue === "string" && props.modelValue.length > 0))
+    (modelValue.value === true ||
+      modelValue.value === false ||
+      (modelValue.value && modelValue.value !== ""))
   );
 });
 </script>
