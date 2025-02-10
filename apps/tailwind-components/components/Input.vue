@@ -129,6 +129,20 @@
     @blur="emit('blur')"
     :is-array="true"
   />
+  <InputDate
+    v-else-if="'DATE' === typeUpperCase"
+    :id="id"
+    v-model="modelValue as string"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    placeholder="Input a hyperlink"
+    @update:modelValue="emit('update:modelValue', $event)"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
   <InputPlaceHolder v-else :type="typeUpperCase as string" />
 </template>
 
