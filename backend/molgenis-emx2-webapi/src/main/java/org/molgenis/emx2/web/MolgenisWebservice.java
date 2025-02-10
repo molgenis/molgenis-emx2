@@ -115,6 +115,11 @@ public class MolgenisWebservice {
     app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
+    // redirect legacy app
+    app.get(
+        "/{schema}/graphql-playground/",
+        ctx -> ctx.redirect("/" + ctx.pathParam("schema") + "/graphiql"));
+
     // greedy proxy stuff, always put last!
     StaticFileMapper.create(app);
 

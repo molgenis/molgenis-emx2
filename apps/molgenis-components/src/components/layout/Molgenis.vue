@@ -87,7 +87,7 @@ const defaultSchemaMenuItems = [
   },
   {
     label: "Graphql",
-    href: "graphql-playground",
+    href: "graphiql",
     role: "Viewer",
   },
   {
