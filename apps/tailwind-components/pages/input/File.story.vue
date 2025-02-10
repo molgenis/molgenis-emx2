@@ -9,6 +9,9 @@ const file = ref();
     >
     <InputFile
       id="file-input-demo"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
       @update:modelValue="(value) => (file = value)"
     />
   </InputTestContainer>
