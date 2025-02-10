@@ -229,6 +229,8 @@ Therefore, `p2` in table1 can set a `refLink(p1)` to indicate parts of table 2 a
 This way, only `id2` from table 2 needs to be specified during data processing.
 Note that table 2 requires a non-ref column for this to function properly.
 
+?> Want to try out the example above? Download the schema [here](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/reflink_example.csv) and upload it to a database without a schema.
+
 ## Ontologies
 
 Schema allows for some magic for columns of type 'ontology' and 'ontology_array'. For these columns, the referred table is automatically created, using refTable

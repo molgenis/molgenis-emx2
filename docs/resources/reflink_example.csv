@@ -1,0 +1,9 @@
+tableName,columnName,columnType,key,required,refTable,refLink
+"table 1",,,,,,
+"table 1",p1,ref,1,TRUE,"table 3",
+"table 1",p2,ref,1,TRUE,"table 2",p1
+"table 2",,,,,,
+"table 2",id1,ref,1,TRUE,"table 3",
+"table 2",id2,string,1,TRUE,,
+"table 3",,,,,,
+"table 3",id,string,1,TRUE,,
