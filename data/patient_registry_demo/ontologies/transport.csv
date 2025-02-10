@@ -1,0 +1,6 @@
+order,name,label,tags,parent,codesystem,code,ontologyTermURI,definition
+2,taxi,Taxi,,,,,,
+3,schoolBus,School Bus,,,,,,
+4,publicTransport,Public transport,,,,,,
+5,other,Other,,,,,,
+1,car,Family car,,,,,,
