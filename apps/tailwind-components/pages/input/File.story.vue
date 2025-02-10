@@ -3,14 +3,16 @@ const file = ref();
 </script>
 
 <template>
-  <h2 class="text-heading-2xl">File input Eample</h2>
-  <form @submit.prevent>
-    <p class="block mb-2">Select a one file to import.</p>
+  <InputTestContainer show-state v-slot="{ valid, invalid, disabled }">
+    <label for="file-input-demo-file-input" class="block mb-2"
+      >Select a file to import.</label
+    >
     <InputFile
       id="file-input-demo"
-      @update:model-value="(value) => (file = value)"
+      @update:modelValue="(value) => (file = value)"
     />
-  </form>
+  </InputTestContainer>
+  <form @submit.prevent></form>
   <h3 class="text-heading-lg my-2">Data output</h3>
   <output
     class="block w-full mt-2 bg-gray-100 py-3 px-2 pl-6 h-30 overflow-y-scroll shadow-inner"

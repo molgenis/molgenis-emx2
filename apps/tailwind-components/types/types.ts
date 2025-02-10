@@ -110,4 +110,5 @@ export interface IInputProps {
   invalid?: boolean;
   valid?: boolean | undefined;
   disabled?: boolean | undefined;
+  required?: boolean | undefined;
 }
