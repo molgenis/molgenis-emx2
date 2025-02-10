@@ -1,0 +1,5 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,mat,Maternal,,,,,
+2,pat,Paternal,,,,,
+3,unk,Unknown,,,,,
+4,de_novo,De Novo,,,,,

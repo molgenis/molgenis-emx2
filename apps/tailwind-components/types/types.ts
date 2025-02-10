@@ -103,4 +103,11 @@ export interface IRadioOptionsData {
   checked?: boolean | undefined;
 }
 
-  
+export interface IInputProps {
+  id: string;
+  placeholder?: string;
+  describedBy?: string;
+  invalid?: boolean;
+  valid?: boolean | undefined;
+  disabled?: boolean | undefined;
+}

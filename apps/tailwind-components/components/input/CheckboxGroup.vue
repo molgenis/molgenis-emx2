@@ -1,21 +1,27 @@
 <template>
-  <div :id="`${id}-checkbox-group`">
+  <div :id="`${id}-checkbox-group`" :aria-describedby="describedBy">
     <div class="flex flex-row" v-for="option in options">
       <input
         type="checkbox"
-        :id="`${id}-${option.value}`"
+        :id="`${id}-checkbox-group-${option.value}`"
         :name="id"
         :value="option.value"
         v-model="modelValue"
         :checked="modelValue!.includes(option.value)"
-        @input="toggleSelect"
-        class="sr-only"
+        :disabled="disabled"
+        @change="toggleSelect"
+        class="absolute ml-4 mt-2 opacity-0"
       />
       <InputLabel
-        :for="`${id}-${option.value}`"
-        class="hover:cursor-pointer flex justify-start items-center"
+        :for="`${id}-checkbox-group-${option.value}`"
+        class="hover:cursor-pointer flex justify-start items-center text-title"
       >
-        <InputCheckboxIcon :checked="modelValue!.includes(option.value)" />
+        <InputCheckboxIcon
+          :checked="modelValue!.includes(option.value)"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
+        />
         <span class="block" v-if="option.label">
           {{ option.label }}
         </span>
@@ -38,21 +44,29 @@
 </template>
 
 <script lang="ts" setup>
-import type { IValueLabel } from "~/types/types";
+import { type IInputProps, type IValueLabel } from "~/types/types";
+import type { columnValue } from "../../../metadata-utils/src/types";
 
 withDefaults(
-  defineProps<{
-    id: string;
-    options: IValueLabel[];
-    showClearButton?: boolean;
-  }>(),
+  defineProps<
+    IInputProps & {
+      options: IValueLabel[];
+      showClearButton?: boolean;
+    }
+  >(),
   {
     showClearButton: false,
   }
 );
 
-const modelValue = defineModel<string[]>();
-const emit = defineEmits(["update:modelValue", "select", "deselect"]);
+const modelValue = defineModel<columnValue[]>();
+const emit = defineEmits([
+  "update:modelValue",
+  "select",
+  "deselect",
+  "blur",
+  "focus",
+]);
 
 function toggleSelect(event: Event) {
   const target = event.target as HTMLInputElement;
@@ -61,6 +75,7 @@ function toggleSelect(event: Event) {
   } else {
     emit("deselect", target.value);
   }
+  emit("focus");
 }
 
 function resetModelValue() {

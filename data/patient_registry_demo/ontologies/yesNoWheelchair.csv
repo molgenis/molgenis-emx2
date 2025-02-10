@@ -1,0 +1,4 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,1,Yes,,,,,
+2,0,No,,,,,
+3,2,Wheelchair-bound,,,,,
