@@ -13,6 +13,16 @@ pip install molgenis-emx2-pyclient
 Releases of the Molgenis EMX2 Pyclient follow the release number of the accompanying release of the Molgenis EMX2 software.
 Therefore, releases of the Pyclient are less frequent than those of EMX2 and the latest version of the Pyclient may differ from the latest version of Molgenis EMX2.
 
+#### 11.56.2
+- Added: feature 'truncate' to remove all entries from a table
+- Added: option to filter results of `get` method by columns
+- Added: method `get_graphql` implements the GraphQL API
+- Improved: added additional parsing for data returned from the CSV API to pandas DataFrame in `get` method 
+- Fixed: log level was set to `DEBUG` without possibility to change this. The user can now set the log level again at their preferred level
+
+#### 11.47.1
+Fixed: updated GraphQL queries to be in line with EMX2 database metadata
+
 #### 11.23.0
 Added: an optional `job` argument to the `Client` initialization, allowing the Pyclient to run asynchronous methods within a job in EMX2."
 
