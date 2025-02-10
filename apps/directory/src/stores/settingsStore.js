@@ -17,14 +17,11 @@ import initialStudyColumns from "../property-config/initialStudyColumns";
 const { setError } = useErrorHandler();
 
 export const useSettingsStore = defineStore("settingsStore", () => {
-  let session = ref({});
-  let configUpdateStatus = ref(0);
-
+  const session = ref({});
+  const configUpdateStatus = ref(0);
   const currentPage = ref(1);
-
-  let configurationFetched = ref(false);
-
-  let config = ref({
+  const configurationFetched = ref(false);
+  const config = ref({
     language: "en",
     graphqlEndpoint: "graphql",
     negotiatorType: "eric-negotiator",
@@ -41,6 +38,14 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     i18n,
     banner: ``,
     footer: ``,
+  });
+
+  const showSettings = computed(async () => {
+    return session.value.roles?.includes("Manager");
+  });
+
+  const uiText = computed(() => {
+    return config.value.i18n[config.value.language];
   });
 
   initializeConfig();
@@ -75,14 +80,6 @@ export const useSettingsStore = defineStore("settingsStore", () => {
   function setSessionInformation(newSession) {
     session.value = newSession;
   }
-
-  const showSettings = computed(() => {
-    return session.value.roles?.includes("Manager");
-  });
-
-  const uiText = computed(() => {
-    return config.value.i18n[config.value.language];
-  });
 
   async function SaveApplicationConfiguration(configuration) {
     configUpdateStatus.value = 0;

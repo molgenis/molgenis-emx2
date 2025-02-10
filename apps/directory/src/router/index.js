@@ -49,7 +49,6 @@ const router = createRouter({
       component: ConfigurationScreen,
       beforeEnter: async (_to, _from, next) => {
         const settingsStore = useSettingsStore();
-        await settingsStore.initializeConfig();
         if (settingsStore.showSettings) {
           next();
         } else {
