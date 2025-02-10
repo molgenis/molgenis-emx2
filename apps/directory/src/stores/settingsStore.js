@@ -93,6 +93,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
 
     configUpdateStatus.value = updateResult.includes("success") ? 204 : 401;
   }
+
   async function UpdateConfig(newConfig) {
     config.value = newConfig;
   }
