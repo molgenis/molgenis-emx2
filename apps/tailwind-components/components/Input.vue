@@ -141,6 +141,34 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
+  <InputDate
+    v-else-if="'DATE' === typeUpperCase"
+    :id="id"
+    v-model="modelValue as string"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    placeholder="Input a date"
+    @update:modelValue="emit('update:modelValue', $event)"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <InputDateTime
+    v-else-if="'DATETIME' === typeUpperCase"
+    :id="id"
+    v-model="modelValue as string"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    placeholder="Input a date and time"
+    @update:modelValue="emit('update:modelValue', $event)"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
   <InputPlaceHolder v-else :type="typeUpperCase as string" />
 </template>
 
