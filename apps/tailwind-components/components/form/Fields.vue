@@ -113,11 +113,7 @@ function validateColumn(column: IColumn) {
     errorMap[column.id] = props.metadata.columns
       .filter((c) => c.validation?.includes(column.id))
       .map((c) => {
-        const result = getColumnError(
-          c.validation as string,
-          dataMap,
-          props.metadata
-        );
+        const result = getColumnError(c, dataMap, props.metadata);
         return result;
       })
       .join("");

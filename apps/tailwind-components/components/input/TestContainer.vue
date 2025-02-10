@@ -23,7 +23,7 @@
         />
         <FormField
           v-if="showState"
-          type="CHECKBOX"
+          type="REF"
           id="test-state"
           v-model="state"
           label="state"
