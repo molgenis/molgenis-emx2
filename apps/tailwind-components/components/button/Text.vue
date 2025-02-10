@@ -1,13 +1,7 @@
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    inverted: boolean;
-    icon?: string;
-  }>(),
-  {
-    inverted: false,
-  }
-);
+defineProps<{
+  icon?: string;
+}>();
 </script>
 
 <template>

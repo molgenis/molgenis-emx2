@@ -11,7 +11,7 @@ const inverted = ref(false);
     <hr />
     <p class="text-title">Search value: {{ searchValue }}</p>
     <span class="text-title">
-      (note: the search inout has a fixed 500ms update delay)</span
+      (note: the search input has a fixed 500ms update delay)</span
     >
     <div class="mt-4">
       <button
