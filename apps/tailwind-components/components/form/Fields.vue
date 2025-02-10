@@ -76,7 +76,12 @@ const chapters = computed(() => {
         });
       }
       acc[acc.length - 1].columns.push(column);
-      if (errorMap[column.id]) acc[acc.length - 1].errorCount++;
+      if (errorMap[column.id]) {
+        const lastChapter = acc[acc.length - 1];
+        if (lastChapter && lastChapter.errorCount) {
+          lastChapter.errorCount++;
+        }
+      }
     }
     return acc;
   }, [] as (IFormLegendSection & { columns: IColumn[] })[]);
@@ -219,7 +224,7 @@ function goToSection(headerId: string) {
             :type="column.columnType"
             :label="column.label"
             :description="column.description"
-            :required="isRequired(column.required)"
+            :required="isRequired(column.required ?? false)"
             :error-message="errorMap[column.id]"
             :ref-schema-id="column.refSchemaId || schemaId"
             :ref-table-id="column.refTableId"

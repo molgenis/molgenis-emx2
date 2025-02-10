@@ -243,5 +243,5 @@ function loadMore() {
       load {{ entitiesLeftToLoad }} more
     </ButtonText>
   </template>
-  <ButtonText v-else :inverted="inverted">No results found</ButtonText>
+  <ButtonText v-else>No results found</ButtonText>
 </template>
