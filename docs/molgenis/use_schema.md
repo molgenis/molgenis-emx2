@@ -188,6 +188,45 @@ refTable that is of columnType=ref or columnType=ref_array and refers to this ta
 or many_to_one, depending on whether the refback is ref or ref_array. Refback columns are read-only (i.e. you cannot insert/update data in these columns). See
 the example below.
 
+### refLink
+
+When dealing with a design where a composite key indirectly refers to the same table through multiple layers,
+one can use `refLink` to simplify the data processing. This way, complex duplicate mentioning of the same "final table"
+is unneeded and only the additional primary keys still need to be mentioned for the in-between tables.
+
+For example, imagine the following schema with 3 tables:
+```mermaid
+---
+config:
+    markdownAutoWrap: false
+---
+flowchart LR
+  t1["`**table 1**
+      p1: key=1 ref(table3)
+      p2: key=1 ref(table2) refLink(p1)
+    `"]
+    
+  t2["`**table 2**
+      id1: key=1 ref(table3)
+      id2: key=1 string
+    `"]
+    
+  t3["`**table 3**
+      id: key=1 string
+    `"]
+  
+  t1-->|p2|t2
+  t1-->|p1|t3
+  t2-->|id1|t3
+  
+  classDef default text-align:left;
+```
+Here, we have table 1 that has a composite key that refers to both table 2 and table 3.
+As table 2 also has a composite key with a reference to table 3, table 1 indirectly refers to table 3 twice.
+Therefore, `p2` in table1 can set a `refLink(p1)` to indicate parts of table 2 are identical to `p1` from table 1.
+This way, only `id2` from table 2 needs to be specified during data processing.
+Note that table 2 requires a non-ref column for this to function properly.
+
 ## Ontologies
 
 Schema allows for some magic for columns of type 'ontology' and 'ontology_array'. For these columns, the referred table is automatically created, using refTable
