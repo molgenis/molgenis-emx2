@@ -5,6 +5,7 @@ import static org.molgenis.emx2.ColumnType.INT;
 
 import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
+import org.molgenis.emx2.datamodels.PatientRegistryDemoLoader;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
@@ -29,6 +30,11 @@ public class RunMolgenisEmx2 {
   public static final boolean INCLUDE_TYPE_TEST_DEMO =
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_TYPE_TEST_DEMO, false, BOOL);
+
+  public static final boolean INCLUDE_PATIENT_REGISTRY_DEMO =
+      (Boolean)
+          EnvironmentProperty.getParameter(
+              Constants.MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO, false, BOOL);
 
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
@@ -78,6 +84,11 @@ public class RunMolgenisEmx2 {
           if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
             Schema schema = db.createSchema(DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo");
             new BiobankDirectoryLoader(schema, true).setStaging(false).run();
+          }
+
+          if (INCLUDE_PATIENT_REGISTRY_DEMO && db.getSchema("patient registry demo") == null) {
+            Schema schema = db.createSchema("patient registry demo");
+            new PatientRegistryDemoLoader(schema, true).run();
           }
         });
 

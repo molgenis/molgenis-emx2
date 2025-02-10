@@ -4,18 +4,32 @@ The MOLGENIS EMX2 Python client allows the user to retrieve, create, update and 
 
 ## Installation
 The releases of the package are hosted at [PyPI](https://pypi.org/project/molgenis-emx2-pyclient/).
-The recommended way to install the latest
+The recommended way to install the latest version is through _pip_:
 
 ```commandline
 pip install molgenis-emx2-pyclient
 ```
 
 ## Setting up the client
-The Python client can be integrated in scripts authorized by either a username/password combination or a temporary token.
-URLs of EMX2 servers on remote servers are required to start with `https://`.
+The Python client can be integrated in scripts authorized by either a temporary token or a username/password combination.
+URLs of EMX2 instances on remote servers must start with `https://`.
 It is possible to use the Pyclient on a server running on a local machine. The URL should then be passed as `http://localhost:PORT`.
 
-Signing in with a username/password combination requires using the client as context manager:
+The recommended method for authorization in the Pyclient is with tokens, which can be generated in the UI following the instructions [here](use_tokens.md).
+In the initialization of the Client object the token can then be passed as an argument.
+It is recommended that the token be stored as an environment variable such that it can be read in and used as follows:
+```python
+import os
+from molgenis_emx2_pyclient import Client
+
+token = os.environ.get("MOLGENIS_TOKEN")
+
+with Client(url='https://example.molgeniscloud.org', token=token) as client:
+    # Perform tasks
+    ...
+
+```
+Signing in with a username/password combination is done using the `signin` method:
 ```python
 from molgenis_emx2_pyclient import Client
 
@@ -31,28 +45,12 @@ with Client(url='https://example.molgeniscloud.org') as client:
     ...
 ```
 
-Before using the Pyclient with a token, this token should be generated in the UI, see [Tokens](use_tokens.md).
-Using the Pyclient with a token requires supplying the token in the initialization of the Client object:
-```python
-from molgenis_emx2_pyclient import Client
-
-token = '********************************'
-
-client = Client(url='https://example.molgeniscloud.org', token=token)
-    
-# Perform other tasks
-...
-
-```
+If the client is only to be used for retrieving information from publicly viewable schemas no authorization is needed.
 
 Additionally, if the Pyclient is to be used on a particular schema, this schema can be supplied in the initialization of the client, alongside the server URL:
 ```python
 with Client('https://example.molgeniscloud.org', schema='My Schema') as client:
     ...
-```
-or 
-```python
-client = Client('https://example.molgeniscloud.org', schema='My Schema', token=token)
 ```
 
 ### Scripts and Jobs
@@ -130,8 +128,8 @@ def get(self,
         as_df: bool = False) -> list | pandas.DataFrame:
     ...
 ```
-Retrieves data from a table on a schema and returns the result either as a list of dictionaries or as a pandas DataFrame.
-Use the `columns` parameter to specify which columns to retrieve. Note that in case `as_df=True` the column _names_ should be supplied, otherwise the column _ids_.
+Retrieves data from a table on a schema using the CSV API and returns the result either as a list of dictionaries or as a pandas DataFrame.
+Use the `columns` parameter to specify which columns to retrieve. By default all columns are returned
 Use the `query_filter` parameter to filter the results based on filters applied to the columns.
 This query requires a special syntax. 
 Values in columns can be filtered on equality `==`, inequality `!=`, greater `>` and smaller `<` than.
@@ -147,7 +145,7 @@ Throws the `NoSuchColumnException` if the `columns` argument or query filter con
 | parameter      | type | description                                                                    | required | default |
 |----------------|------|--------------------------------------------------------------------------------|----------|---------|
 | `table`        | str  | the name of a table                                                            | True     | None    |
-| `columns`      | list | a list of column names or ids to filter on                                     | False    | None    |
+| `columns`      | list | a list of column names to return                                               | False    | None    |
 | `schema`       | str  | the name of a schema                                                           | False    | None    |
 | `query_filter` | str  | a string to filter the results on                                              | False    | None    |
 | `as_df`        | bool | if true: returns data as pandas DataFrame <br/> else as a list of dictionaries | False    | False   |
@@ -173,6 +171,54 @@ cohort_type = 'Population cohort'
 table_data = client.get(table='Resources', query_filter=f'numberOfParticipants > {min_subpop}'
                                                         f'and cohortType == {cohort_type}')
 ```
+
+
+### get_graphql
+```python
+def get_graphql(self, 
+        table: str, 
+        columns: list[str] = None,
+        query_filter: str = None, 
+        schema: str = None) -> list:
+    ...
+```
+Retrieves data from a table on a schema using the GraphQL API and returns the result as a list of dictionaries.
+This method and its parameters behave similarly to `get` with option `as_df=False`. 
+The results are returned in a slightly different way, however.
+`get` retains the column _names_, whereas `get_graphql` returns column _id_s, which are in lower camel case.
+Furthermore, the `get` method will return the values in columns with a reference type, while the results of `get_graphql` will also contain the primary keys for those columns.  
+
+Throws the `NoSuchSchemaException` if the user does not have at least _viewer_ permissions or if the schema does not exist.
+Throws the `NoSuchColumnException` if the `columns` argument or query filter contains a column that is not present in the table.
+
+
+| parameter      | type | description                       | required | default |
+|----------------|------|-----------------------------------|----------|---------|
+| `table`        | str  | the name of a table               | True     | None    |
+| `columns`      | list | a list of column ids to filter on | False    | None    |
+| `schema`       | str  | the name of a schema              | False    | None    |
+| `query_filter` | str  | a string to filter the results on | False    | None    |
+
+##### examples
+
+```python
+# Get all entries for the table 'Resources' on the schema 'MySchema'
+table_data = client.get_graphql(table='Resources', schema='MySchema', columns=['name', 'collectionEvents'])
+
+# Set the default schema to 'MySchema'
+client.set_schema('MySchema')
+
+# Get the entries where the value of a particular column 'number of participants' is greater than 10000
+table_data = client.get_graphql(table='Resources', query_filter='numberOfParticipants > 10000')
+
+# Get the entries where 'number of participants' is greater than 10000 and the resource type is a 'Population cohort'
+# Store the information in variables, first
+min_subpop = 10000
+cohort_type = 'Population cohort'
+table_data = client.get_graphql(table='Resources', query_filter=f'numberOfParticipants > {min_subpop}'
+                                                        f'and cohortType == {cohort_type}')
+```
+
 
 ### get_schema_metadata
 ```python

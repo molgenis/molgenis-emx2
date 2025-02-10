@@ -1,0 +1,8 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,acne,Acne,,,,,
+2,psoriasis,Psoriasis,,,,,
+3,crohnsDisease,Crohn’s disease,,,,,
+4,ulcerativeColitis,Ulcerative colitis,,,,,
+5,rheumatoidArthritis,Rheumatoid arthritis,,,,,
+6,ankylosingSpondylitis,Ankylosing spondylitis,,,,,
+7,pyodermaGangrenosum,Pyoderma gangrenosum,,,,,
