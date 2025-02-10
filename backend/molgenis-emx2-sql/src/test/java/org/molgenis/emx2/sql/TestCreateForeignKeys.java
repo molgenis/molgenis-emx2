@@ -1,10 +1,15 @@
 package org.molgenis.emx2.sql;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.IsNullOrNotNull.NOT_NULL;
+import static org.molgenis.emx2.IsNullOrNotNull.NULL;
+import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
@@ -70,11 +75,13 @@ public class TestCreateForeignKeys {
     aTable.insert(aRow);
 
     String refFromBToA = "RefToAKeyOf" + columnType;
+    String refFromBToANillable = refFromBToA + "Nilable";
     Table bTable =
         schema.create(
             table("B")
                 .add(column("ID").setType(INT).setPkey())
-                .add(column(refFromBToA).setType(REF).setRefTable("A").setRequired(true)));
+                .add(column(refFromBToA).setType(REF).setRefTable("A").setRequired(true))
+                .add(column(refFromBToANillable).setType(REF).setRefTable("A")));
     Row bRow = new Row().setInt("ID", 2).set(refFromBToA, insertValue);
     bTable.insert(bRow);
 
@@ -107,6 +114,20 @@ public class TestCreateForeignKeys {
     } catch (Exception e) {
       System.out.println("insert exception correct: \n" + e);
     }
+
+    // filter on null/not null
+    List<Row> result = bTable.where(f(refFromBToA, IS, NULL)).retrieveRows();
+    assertEquals(0, result.size());
+    result = bTable.where(f(refFromBToANillable, IS, NULL)).retrieveRows();
+    assertEquals(1, result.size());
+
+    result = bTable.where(f(refFromBToA, IS, NOT_NULL)).retrieveRows();
+    assertEquals(1, result.size());
+    result = bTable.where(f(refFromBToANillable, IS, NOT_NULL)).retrieveRows();
+    assertEquals(0, result.size());
+
+    result = bTable.where(f(refFromBToA, MATCH_ANY, insertValue, updateValue)).retrieveRows();
+    assertEquals(1, result.size());
 
     bTable.delete(bRow);
     aTable.delete(aRow);

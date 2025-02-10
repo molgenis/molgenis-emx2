@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static graphql.scalars.ExtendedScalars.GraphQLLong;
 import static org.molgenis.emx2.FilterBean.*;
+import static org.molgenis.emx2.Operator.IS;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableType.ONTOLOGIES;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
@@ -10,6 +11,7 @@ import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutation
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
 import static org.molgenis.emx2.graphql.GraphqlCustomTypes.GraphQLJsonAsString;
 import static org.molgenis.emx2.sql.SqlQuery.*;
+import static org.molgenis.emx2.utils.TypeUtils.convertToPrimaryKeyRows;
 
 import graphql.Scalars;
 import graphql.schema.*;
@@ -25,6 +27,12 @@ public class GraphqlTableFieldFactory {
           .name("MolgenisOrderByEnum")
           .value(Order.ASC.name(), Order.ASC)
           .value(Order.DESC.name(), Order.DESC)
+          .build();
+  private static final GraphQLEnumType isNullOrNotNullEnum =
+      GraphQLEnumType.newEnum()
+          .name("MolgenisIsNotNullEnum")
+          .value(IsNullOrNotNull.NULL.name(), IsNullOrNotNull.NULL)
+          .value(IsNullOrNotNull.NOT_NULL.name(), IsNullOrNotNull.NOT_NULL)
           .build();
   private static GraphQLObjectType fileDownload =
       GraphQLObjectType.newObject()
@@ -426,6 +434,23 @@ public class GraphqlTableFieldFactory {
                 .type(GraphQLList.list(getPrimaryKeyInput(table)))
                 .build());
       }
+      if (TableType.ONTOLOGIES.equals(table.getTableType())) {
+        filterBuilder.field(
+            GraphQLInputObjectField.newInputObjectField()
+                .name(MATCH_INCLUDING_CHILDREN)
+                .type(GraphQLList.list(Scalars.GraphQLString))
+                .build());
+        filterBuilder.field(
+            GraphQLInputObjectField.newInputObjectField()
+                .name(MATCH_INCLUDING_PARENTS)
+                .type(GraphQLList.list(Scalars.GraphQLString))
+                .build());
+        filterBuilder.field(
+            GraphQLInputObjectField.newInputObjectField()
+                .name(MATCH_PATH)
+                .type(GraphQLList.list(Scalars.GraphQLString))
+                .build());
+      }
       filterBuilder.field(
           GraphQLInputObjectField.newInputObjectField()
               .name(FILTER_SEARCH)
@@ -447,6 +472,27 @@ public class GraphqlTableFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(col.getIdentifier())
                   .type(getTableFilterInputType(col.getRefTable()))
+                  .build());
+          // prefix _is to ensure we can't clash with column named 'is'
+          filterBuilder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(FILTER_IS)
+                  .type(isNullOrNotNullEnum)
+                  .build());
+          // in case of single primary key we don't need nested filter object
+          GraphQLInputType refType =
+              col.getReferences().size() == 1
+                  ? getGraphQLInputType(col.getReferences().get(0).getPrimitiveType())
+                  : getPrimaryKeyInput(table);
+          filterBuilder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(FILTER_CONTAINS_ALL)
+                  .type(GraphQLList.list(refType))
+                  .build());
+          filterBuilder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(FILTER_CONTAINS_ANY)
+                  .type(GraphQLList.list(refType))
                   .build());
         } else if (col.getColumnType().getOperators().length > 0) {
           filterBuilder.field(
@@ -491,10 +537,17 @@ public class GraphqlTableFieldFactory {
       GraphQLInputObjectType.Builder builder =
           GraphQLInputObjectType.newInputObject().name("Molgenis" + typeName + FILTER);
       for (Operator operator : type.getOperators()) {
-        builder.field(
-            GraphQLInputObjectField.newInputObjectField()
-                .name(operator.getName())
-                .type(GraphQLList.list(graphQLTypeOf(column))));
+        if (IS.equals(operator)) {
+          builder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(operator.getName())
+                  .type(isNullOrNotNullEnum));
+        } else {
+          builder.field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(operator.getName())
+                  .type(GraphQLList.list(graphQLTypeOf(column))));
+        }
       }
       columnFilterInputTypes.put(type, builder.build());
     }
@@ -519,6 +572,7 @@ public class GraphqlTableFieldFactory {
           STRING,
           TEXT,
           UUID,
+          FILE,
           DATE_ARRAY,
           DATETIME_ARRAY,
           PERIOD_ARRAY,
@@ -564,6 +618,12 @@ public class GraphqlTableFieldFactory {
                   ((List<Map<String, Object>>) entry.getValue())
                       .stream().map(v -> createKeyFilter(table, v)).collect(Collectors.toList())));
         }
+      } else if (entry.getKey().equals(MATCH_INCLUDING_CHILDREN)
+          || entry.getKey().equals(MATCH_INCLUDING_PARENTS)
+          || entry.getKey().equals(MATCH_PATH)
+          || entry.getKey().equals(FILTER_IS)
+          || entry.getKey().equals(FILTER_CONTAINS_ALL)) {
+        // skip, handled on parent column. Need re-architecture in next major release.
       } else {
         // find column by escaped name
         Optional<Column> optional =
@@ -577,6 +637,51 @@ public class GraphqlTableFieldFactory {
                   + " unknown in table "
                   + table.getTableName());
         Column c = optional.get();
+        Map value = (Map) entry.getValue();
+        // although nested, this should apply on this level, not sublevel
+        if (value.containsKey(MATCH_INCLUDING_CHILDREN)) {
+          subFilters.add(
+              f(
+                  c.getName(),
+                  Operator.MATCH_ANY_INCLUDING_CHILDREN,
+                  ((List) value.get(MATCH_INCLUDING_CHILDREN)).toArray(new String[0])));
+          value.remove(MATCH_INCLUDING_CHILDREN);
+        } else if (value.containsKey(MATCH_INCLUDING_PARENTS)) {
+          subFilters.add(
+              f(
+                  c.getName(),
+                  Operator.MATCH_ANY_INCLUDING_PARENTS,
+                  ((List) value.get(MATCH_INCLUDING_PARENTS)).toArray(new String[0])));
+          value.remove(MATCH_INCLUDING_PARENTS);
+        } else if (value.containsKey(MATCH_PATH)) {
+          subFilters.add(
+              f(
+                  c.getName(),
+                  Operator.MATCH_PATH,
+                  ((List) value.get(MATCH_PATH)).toArray(new String[0])));
+          value.remove(MATCH_PATH);
+        } else if (value.containsKey(FILTER_IS)) {
+          subFilters.add(f(c.getName(), IS, value.get(FILTER_IS)));
+          value.remove(FILTER_IS);
+        } else if (value.containsKey(FILTER_CONTAINS_ALL)) {
+          //  complex filter, should be an list of maps per graphql contract
+          if (entry.getValue() != null && c.getReferences().size() > 1) {
+            subFilters.add(
+                f(
+                    c.getName(),
+                    Operator.MATCH_ALL,
+                    convertToPrimaryKeyRows(
+                            c.getRefTable(),
+                            (List<Map<String, Object>>) value.get(FILTER_CONTAINS_ALL))
+                        .toArray()));
+          } else if (entry.getValue() != null) {
+            subFilters.add(
+                f(c.getName(), Operator.MATCH_ALL, (List<Object>) value.get(FILTER_CONTAINS_ALL)));
+          }
+          value.remove(FILTER_CONTAINS_ALL);
+        }
+
+        if (value.size() == 0) continue;
         if (c.isReference()) {
           subFilters.add(
               f(
@@ -588,7 +693,7 @@ public class GraphqlTableFieldFactory {
                           .getSchema(c.getRefTable().getSchemaName())
                           .getTable(c.getRefTableName())
                           .getMetadata(),
-                      (Map) entry.getValue())));
+                      value)));
         } else {
           subFilters.add(convertMapToFilter(c.getName(), (Map<String, Object>) entry.getValue()));
         }

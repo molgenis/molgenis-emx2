@@ -1,6 +1,7 @@
 package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
+import static org.molgenis.emx2.Operator.IS;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +42,10 @@ public class FilterBean implements Filter {
   }
 
   public static Filter f(Operator operator, Object... values) {
+    if (Operator.MATCH_ANY_INCLUDING_CHILDREN.equals(operator)
+        || Operator.MATCH_ANY_INCLUDING_PARENTS.equals(operator)) {
+      return new FilterBean(operator.getName(), operator, values);
+    }
     // this will translate to search
     if (!Operator.TEXT_SEARCH.equals(operator)
         && !Operator.TRIGRAM_SEARCH.equals(operator)
@@ -55,6 +60,10 @@ public class FilterBean implements Filter {
   }
 
   public FilterBean(String columnName, Operator operator, Object[] values) {
+    if (IS.equals(operator)) {
+      if (values.length != 1 || !(values[0] instanceof IsNullOrNotNull))
+        throw new MolgenisException("IS operator requires as value either Is.NULL or Is.NOT_NULL");
+    }
     this.column = columnName;
     this.operator = operator;
     this.values = values;

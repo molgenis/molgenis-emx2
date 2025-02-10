@@ -117,6 +117,26 @@ public class TestGraphQLCompositeKeys {
     assertEquals("Donald", result.at("/TargetTable/0/firstName").asText());
     assertEquals("Duck", result.at("/TargetTable/0/lastName").asText());
 
+    result =
+        execute(
+            "{RefTable(filter:{ref:{_match_all:[{firstName:\"Katrien\",lastName:\"Duck\"}]}}){id1,id2,ref{firstName,lastName}}}");
+    System.out.println(result.toPrettyString());
+    assertEquals(2, result.get("RefTable").size());
+    assertEquals("Katrien", result.at("/RefTable/0/ref/0/firstName").asText());
+    assertEquals("Duck", result.at("/RefTable/0/ref/0/lastName").asText());
+    assertEquals("Katrien", result.at("/RefTable/1/ref/0/firstName").asText());
+    assertEquals("Duck", result.at("/RefTable/1/ref/0/lastName").asText());
+
+    result =
+        execute(
+            "{RefTable(filter:{ref:{_match_all:[{firstName:\"Katrien\",lastName:\"Mouse\"},{firstName:\"Donald\",lastName:\"Duck\"}]}}){id1,id2,ref{firstName,lastName}}}");
+    System.out.println(result.toPrettyString());
+    assertEquals(1, result.get("RefTable").size());
+    assertEquals("Donald", result.at("/RefTable/0/ref/0/firstName").asText());
+    assertEquals("Duck", result.at("/RefTable/0/ref/0/lastName").asText());
+    assertEquals("Katrien", result.at("/RefTable/0/ref/1/firstName").asText());
+    assertEquals("Mouse", result.at("/RefTable/0/ref/1/lastName").asText());
+
     String filter_agg =
         "filter:{equals:[{firstName:\"Donald\",lastName:\"Duck\"},{firstName:\"Katrien\",lastName:\"Mouse\"}]}";
     filter = "orderby:{firstName:ASC}" + filter_agg;
