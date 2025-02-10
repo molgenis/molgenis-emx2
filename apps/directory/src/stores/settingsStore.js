@@ -40,6 +40,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     pageSize: 12,
     i18n,
     banner: ``,
+    footer: ``,
   });
 
   async function initializeConfig() {
