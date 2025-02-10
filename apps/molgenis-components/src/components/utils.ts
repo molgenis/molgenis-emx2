@@ -2,7 +2,10 @@ import type { IRow } from "../Interfaces/IRow";
 import constants from "./constants";
 import Client from "../client/client";
 import { executeExpression } from "./forms/formUtils/formUtils";
-import type { IColumn, ITableMetaData } from "../../../metadata-utils/src/types";
+import type {
+  IColumn,
+  ITableMetaData,
+} from "../../../metadata-utils/src/types";
 
 const { CODE_0, CODE_9, CODE_PERIOD, MIN_LONG, MAX_LONG, AUTO_ID } = constants;
 

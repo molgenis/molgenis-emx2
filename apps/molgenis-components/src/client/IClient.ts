@@ -1,5 +1,8 @@
 import { Axios } from "axios";
-import type { ISetting, ITableMetaData } from "../../../metadata-utils/src/types";
+import type {
+  ISetting,
+  ITableMetaData,
+} from "../../../metadata-utils/src/types";
 import type { IRow } from "../Interfaces/IRow";
 import type { IQueryMetaData } from "./IQueryMetaData";
 

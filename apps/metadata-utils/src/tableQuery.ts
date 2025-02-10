@@ -4,7 +4,12 @@ import {
   isArrayType,
   isFileType,
 } from "./fieldHelpers";
-import type { ISchemaMetaData, ITableMetaData, IColumn, KeyObject } from "./types";
+import type {
+  ISchemaMetaData,
+  ITableMetaData,
+  IColumn,
+  KeyObject,
+} from "./types";
 
 const FILE_FRAGMENT = "{ id, size, filename, extension, url }";
 
