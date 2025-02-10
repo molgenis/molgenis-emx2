@@ -32,6 +32,7 @@ public class TestLoaders {
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
   public static final String DASHBOARD_TEST = "UiDashboardTest";
+  public static final String PATIENT_REGISTRY_DEMO = "patientRegistryDemo";
   static Database database;
 
   @BeforeAll
@@ -171,5 +172,12 @@ public class TestLoaders {
     Schema schema = database.dropCreateSchema(DASHBOARD_TEST);
     DataModels.Regular.UI_DASHBOARD.getImportTask(schema, true).run();
     assertEquals(6, schema.getTableNames().size());
+  }
+
+  @Test
+  public void patientRegistryDemoTestLoader() {
+    Schema schema = database.dropCreateSchema(PATIENT_REGISTRY_DEMO);
+    DataModels.Regular.PATIENT_REGISTRY_DEMO.getImportTask(schema, true).run();
+    assertEquals(86, schema.getTableNames().size());
   }
 }
