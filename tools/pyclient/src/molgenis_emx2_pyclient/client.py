@@ -413,13 +413,13 @@ class Client:
             query_filter: str = None,
             schema: str = None,
             as_df: bool = False) -> list | pd.DataFrame:
-        """Retrieves data from a schema and returns as a list of dictionaries or as
-        a pandas DataFrame (as pandas is used to parse the response).
+        """Retrieves data from a table using the EMX2 CSV API and
+        returns as a list of dictionaries or a pandas DataFrame.
 
         :param table: the name of the table
         :type table: str
-        :param columns: list of column names to filter on
-        :type columns: list
+        :param columns: list of column names to return, optional, default all columns
+        :type columns: list[str]
         :param query_filter: the query to filter the output, optional
         :type query_filter: str
         :param schema: name of a schema, default self.default_schema
@@ -428,7 +428,7 @@ class Client:
                       pandas DataFrame. Otherwise, a recordset will be returned.
         :type as_df: bool
 
-        :returns: list of dictionaries, status message or data frame
+        :returns: list of dictionaries or pandas DataFrame
         :rtype: list | pd.DataFrame
         """
         current_schema = schema
@@ -461,7 +461,6 @@ class Client:
         dtypes = {c: t for (c, t) in convert_dtypes(table_meta).items() if c in response_columns}
 
         bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
-        # date_columns = [c for (c, t) in dtypes.items() if t in ('datetime64[ns]')]
         date_columns = [c.name for c in table_meta.columns
                         if c.get('columnType') in (DATE, DATETIME) and c.name in response_columns]
         response_data = pd.read_csv(BytesIO(response.content),  keep_default_na=True, dtype=dtypes, parse_dates=date_columns)
@@ -493,8 +492,8 @@ class Client:
 
         :param table: the name of the table
         :type table: str
-        :param columns: list of column names to filter on
-        :type columns: list
+        :param columns: list of column ids to return, optional, default all columns
+        :type columns: list[str]
         :param query_filter: the query to filter the output, optional
         :type query_filter: str
         :param schema: name of a schema, default self.default_schema
