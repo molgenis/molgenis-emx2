@@ -43,10 +43,14 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     footer: ``,
   });
 
+  initializeConfig();
+
   async function initializeConfig() {
-    let response;
+    if (configurationFetched.value) return;
+
+    let configPromise;
     try {
-      response = await new QueryEMX2(config.value.graphqlEndpoint)
+      configPromise = new QueryEMX2(config.value.graphqlEndpoint)
         .table("_settings")
         .select(["key", "value"])
         .execute();
@@ -55,18 +59,19 @@ export const useSettingsStore = defineStore("settingsStore", () => {
       return;
     }
 
+    const response = await configPromise;
+
     const savedDirectoryConfig = response._settings.find(
       (setting) => setting.key === "directory"
     );
 
-    if (savedDirectoryConfig && savedDirectoryConfig.value) {
+    if (savedDirectoryConfig?.value) {
       config.value = JSON.parse(decodeURI(savedDirectoryConfig.value));
     }
 
     configurationFetched.value = true;
   }
 
-  /** for when user logs-in / out */
   function setSessionInformation(newSession) {
     session.value = newSession;
   }
@@ -79,11 +84,6 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     return config.value.i18n[config.value.language];
   });
 
-  async function GetApplicationConfiguration() {
-    /** Fetch the latest config, if applicable */
-    await initializeConfig();
-    return config.value;
-  }
   async function SaveApplicationConfiguration(configuration) {
     configUpdateStatus.value = 0;
 
@@ -100,14 +100,13 @@ export const useSettingsStore = defineStore("settingsStore", () => {
   return {
     config,
     configurationFetched,
-    currentPage,
-    initializeConfig,
-    UpdateConfig,
-    GetApplicationConfiguration,
-    setSessionInformation,
-    showSettings,
-    SaveApplicationConfiguration,
     configUpdateStatus,
+    currentPage,
+    showSettings,
     uiText,
+    initializeConfig,
+    setSessionInformation,
+    SaveApplicationConfiguration,
+    UpdateConfig,
   };
 });
