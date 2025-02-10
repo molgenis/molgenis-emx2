@@ -98,7 +98,7 @@ export interface IFormLegendSection {
   label: string;
   id: string;
   isActive?: boolean;
-  errorCount?: number;
+  errorCount: number;
 }
 
 export type columnId = string;
