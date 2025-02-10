@@ -190,6 +190,8 @@ the example below.
 
 ### refLink
 
+!> This functionality is currently not configurable through the web interface.
+
 When dealing with a design where a composite key indirectly refers to the same table through multiple layers,
 one can use `refLink` to simplify the data processing. This way, complex duplicate mentioning of the same "final table"
 is unneeded and only the additional primary keys still need to be mentioned for the in-between tables.
