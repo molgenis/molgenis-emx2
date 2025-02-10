@@ -35,6 +35,7 @@
     --color-green-200: #C7FFE2;
     --color-green-500: #72F6B2;
     --color-green-800: #349D63;
+    --color-green-900: #075F32;
     --color-orange-500: #E1B53E;
     --color-red-200: #FCECEF;
     --color-red-500: #E14F62;
@@ -143,8 +144,8 @@
     --text-color-input-description: var(--color-blue-800);
     --text-color-legend-error-count: var(--color-white);
     
-    --text-color-invalid: var(--color-red-500);
-    --text-color-valid: var(--color-green-800);
+    --text-color-invalid: var(--color-red-700);
+    --text-color-valid: var(--color-green-900);
     --text-color-disabled: var(--color-gray-600);
     --text-color-required: var(--color-red-500);
     
@@ -179,8 +180,8 @@
     --border-radius-pagination: 9999px;
     --border-radius-landing: 50px;
     
-    --border-color-invalid: var(--color-red-500);
-    --border-color-valid: var(--color-green-800);
+    --border-color-invalid: var(--color-red-700);
+    --border-color-valid: var(--color-green-900);
     --border-color-disabled: var(--color-gray-400);
 
     --outline-color-select: var(--color-gray-200);
