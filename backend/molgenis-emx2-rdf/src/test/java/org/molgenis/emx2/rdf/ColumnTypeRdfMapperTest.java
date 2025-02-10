@@ -246,6 +246,11 @@ class ColumnTypeRdfMapperTest {
     return retrieveValues(columnName, 0);
   }
 
+  private Set<Value> retrieveValues(String columnName, int row) {
+    return mapper.retrieveValues(
+        testRows.get(row), allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName));
+  }
+
   /** Only primary key & AUTO_ID is filled. */
   private Set<Value> retrieveEmptyValues(String columnName) {
     // REFBACK causes duplicate row (with only REFBACK values being different).
@@ -253,15 +258,14 @@ class ColumnTypeRdfMapperTest {
     return retrieveValues(columnName, 2);
   }
 
-  private Set<Value> retrieveValues(String columnName, int row) {
-    return mapper.retrieveValues(
-        testRows.get(row), allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName));
+  private Set<Value> retrieveValuesCustom(String columnName, ColumnTypeRdfMapper.RdfColumnType rdfColumnType) {
+    return retrieveValuesCustom(columnName, 0, rdfColumnType);
   }
 
   private Set<Value> retrieveValuesCustom(
-      String columnName, ColumnTypeRdfMapper.RdfColumnType rdfColumnType) {
+      String columnName, int row, ColumnTypeRdfMapper.RdfColumnType rdfColumnType) {
     return mapper.retrieveValues(
-        testRows.get(0),
+        testRows.get(row),
         allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName),
         rdfColumnType);
   }
@@ -550,7 +554,7 @@ class ColumnTypeRdfMapperTest {
 
   @Test
   void validateUnmodifiable() {
-    allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns().stream()
+    allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns()
         .forEach(
             c -> {
               assertThrows(
