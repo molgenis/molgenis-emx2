@@ -229,16 +229,16 @@ Therefore, `p2` in table1 can set a `refLink(p1)` to indicate parts of table 2 a
 This way, only `id2` from table 2 needs to be specified during data processing.
 Note that table 2 requires a non-ref column for this to function properly.
 
-While table 2 and table 3 stay identical no matter if a `refLink` is used, table 1 will be simplified by using a `refLink`. For this example, these differences are explained in the table below:
+For a data export, table 2 and table 3 stay identical no matter if a `refLink` is used. However, table 1 will be simplified by using a `refLink`, as explained in the table below:
 
 | column | without refLink | with refLink | explanation                                                                  | 
 |--------|-----------------|--------------|------------------------------------------------------------------------------|
 | p1     | p1              | p1           | stays identical                                                              |
-| p2     | p2.id1          |              | refLink makes this unnesecary                                                |
+| p2     | p2.id1          |              | refLink makes this unnecessary                                                |
 | p2     | p2.id2          | p2           | column name can be simplified as only 1 remaining column needs to be defined |
 
 
-?> Want to try out the example above? Download it [here](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/reflink_example_with.zip.csv) and upload it to a database without a schema. For comparison, an almost identical version only without the `refLink` can be found [here](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/reflink_example1739203151994.zip).
+?> Want to try out the example above? Download it [here](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/reflink_example1739203151994.zip) and upload it to a database without a schema.
 
 ## Ontologies
 
