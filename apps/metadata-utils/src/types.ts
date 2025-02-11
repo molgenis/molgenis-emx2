@@ -35,6 +35,8 @@ export type CellValueType =
   | "REF"
   | "REF_ARRAY"
   | "REFBACK"
+  | "CHECKBOX" //planned future extensions are CHECKBOX and RADIO
+  | "RADIO"
   | "HEADING"
   | "AUTO_ID"
   | "ONTOLOGY"
