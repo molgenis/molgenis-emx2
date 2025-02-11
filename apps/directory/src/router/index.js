@@ -47,7 +47,7 @@ const router = createRouter({
     {
       path: "/configuration",
       component: ConfigurationScreen,
-      beforeEnter: async (_to, _from, next) => {
+      beforeEnter: (_to, _from, next) => {
         const settingsStore = useSettingsStore();
         if (settingsStore.showSettings) {
           next();

@@ -40,7 +40,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     footer: ``,
   });
 
-  const showSettings = computed(async () => {
+  const showSettings = computed(() => {
     return session.value.roles?.includes("Manager");
   });
 
@@ -52,6 +52,12 @@ export const useSettingsStore = defineStore("settingsStore", () => {
 
   async function initializeConfig() {
     if (configurationFetched.value) return;
+
+    await loadConfig();
+  }
+
+  async function loadConfig() {
+    configurationFetched.value = false;
 
     let configPromise;
     try {
@@ -89,6 +95,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     ).saveSetting("directory", configuration);
 
     configUpdateStatus.value = updateResult.includes("success") ? 204 : 401;
+    loadConfig();
   }
 
   async function UpdateConfig(newConfig) {
