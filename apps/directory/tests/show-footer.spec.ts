@@ -21,7 +21,7 @@ test("test", async ({ page }) => {
     .filter({ hasText: '"language": "en"' })
     .nth(4)
     .click();
-  await page.keyboard.type('footer: "Very pretty footer",');
+  await page.keyboard.type('"footer": "Very pretty footer",');
   await page.getByRole("button", { name: "Save changes" }).click();
   await expect(page.getByRole("contentinfo")).toContainText(
     "Very pretty footer"
