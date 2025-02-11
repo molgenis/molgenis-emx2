@@ -160,6 +160,7 @@ export default {
         "GDI",
         "DATA_CATALOGUE_AGGREGATES",
         "TYPE_TEST",
+        "PATIENT_REGISTRY_DEMO",
       ],
       includeDemoData: false,
     };

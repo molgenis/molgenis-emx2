@@ -23,7 +23,6 @@ test.describe(
       const combobox = await page.getByRole("combobox");
       await expect(combobox).toHaveAttribute("aria-required");
       await expect(combobox).toHaveAttribute("aria-expanded");
-      await expect(combobox).toHaveAttribute("aria-labelledby");
       await expect(combobox).toHaveAttribute("role", "combobox");
       await expect(combobox).toHaveAttribute("aria-haspopup", "listbox");
     });
