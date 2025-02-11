@@ -59,6 +59,9 @@ public class RDFTest {
   private static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
   static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
+  static final String TEST_FILE_NAME = "molgenis.png";
+  static final File TEST_FILE =
+      new File(classLoader.getResource("testfiles/" + TEST_FILE_NAME).getFile());
 
   static Database database;
   static List<Schema> petStoreSchemas;
@@ -288,16 +291,14 @@ public class RDFTest {
         table(
             "myFiles",
             column("id").setType(ColumnType.STRING).setPkey(),
+            column("ref").setType(ColumnType.REF).setRefTable("myFiles"),
+            // If disabling line below, issue disappears
+            column("refback").setType(ColumnType.REFBACK).setRefTable("myFiles").setRefBack("ref"),
             column("file").setType(ColumnType.FILE)));
 
     fileTest
         .getTable("myFiles")
-        .insert(
-            row(
-                "id",
-                "1",
-                "file",
-                new File(classLoader.getResource("testfiles/molgenis.png").getFile())));
+        .insert(row("id", "1", "ref", "2", "file", TEST_FILE), row("id", "2", "file", TEST_FILE));
 
     // Refback test (petstore refback uses auto id)
     refBackTest = database.dropCreateSchema("refBackTest");
@@ -1260,7 +1261,7 @@ public class RDFTest {
     assertAll(
         () -> assertEquals(1, files.size()),
         () -> assertEquals(1, fileNames.size()),
-        () -> assertEquals(Values.literal("molgenis.png"), fileNames.stream().findFirst().get()),
+        () -> assertEquals(Values.literal(TEST_FILE_NAME), fileNames.stream().findFirst().get()),
         () -> assertEquals(1, fileFormats.size()),
         () ->
             assertEquals(
@@ -1285,7 +1286,6 @@ public class RDFTest {
   void testRefLinkWorks() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     assertDoesNotThrow(() -> getAndParseRDF(Selection.of(refLinkTest), handler));
-
   }
 
   /**
