@@ -1,9 +1,9 @@
-import router from "../router";
-import { useFiltersStore } from "../stores/filtersStore";
-import { useCollectionStore } from "../stores/collectionStore";
-import { labelValuePair, useCheckoutStore } from "../stores/checkoutStore";
-import useErrorHandler from "../composables/errorHandler";
 import { LocationQuery } from "vue-router";
+import useErrorHandler from "../composables/errorHandler";
+import router from "../router";
+import { labelValuePair, useCheckoutStore } from "../stores/checkoutStore";
+import { useCollectionStore } from "../stores/collectionStore";
+import { useFiltersStore } from "../stores/filtersStore";
 let bookmarkApplied = false;
 
 const { setError } = useErrorHandler();
