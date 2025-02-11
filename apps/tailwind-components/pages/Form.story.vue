@@ -17,8 +17,8 @@ interface Schema {
 }
 
 const route = useRoute();
-const schemaId = ref((route.query.schema as string) ?? "pet store");
-const tableId = ref((route.query.table as string) ?? "Pet");
+const schemaId = ref((route.query.schema as string) ?? "type test");
+const tableId = ref((route.query.table as string) ?? "Types");
 
 const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   key: "schemas",
