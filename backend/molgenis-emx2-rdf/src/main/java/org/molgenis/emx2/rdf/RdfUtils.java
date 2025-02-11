@@ -61,7 +61,6 @@ abstract class RdfUtils {
     return namespaceMap;
   }
 
-
   /**
    * @param namespaces Schema name -> Namespace prefix -> Namespace
    */
