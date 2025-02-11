@@ -71,6 +71,7 @@ public class RDFTest {
   static Schema fileTest;
   static Schema refBackTest;
   static Schema refLinkTest;
+  static Schema semanticTest;
 
   final Set<Namespace> DEFAULT_NAMESPACES =
       new HashSet<>() {
@@ -337,6 +338,35 @@ public class RDFTest {
     refLinkTest.getTable("table1").insert(row("id", "t1First"));
     refLinkTest.getTable("table2").insert(row("id1", "t1First", "id2", "t2First"));
     refLinkTest.getTable("table3").insert(row("p1", "t1First", "p2", "t2First"));
+
+    // semantic test
+    semanticTest = database.dropCreateSchema("semanticTest");
+
+    semanticTest.create(
+        table(
+            "valid",
+            column("id").setType(ColumnType.STRING).setPkey(),
+            column("title")
+                .setType(ColumnType.STRING)
+                .setSemantics("<http://purl.org/dc/terms/title>"),
+            column("description").setType(ColumnType.STRING).setSemantics("dcterms:description")),
+        table(
+            "missingNamespace",
+            column("id").setType(ColumnType.STRING).setPkey(),
+            column("theme").setType(ColumnType.STRING).setSemantics("dcat:theme")),
+        table(
+            "iriAsPrefixedName",
+            column("id").setType(ColumnType.STRING).setPkey(),
+            // might cause unexpected behavior if IRI scheme is also used as a namespace prefix
+            column("tag").setType(ColumnType.STRING).setSemantics("tag:molgenis.org,2020:1")));
+
+    semanticTest.getTable("valid").insert(row("id", "1", "title", "test", "description", "test2"));
+    semanticTest.getTable("missingNamespace").insert(row("id", "2", "tag", "test3"));
+    semanticTest.getTable("iriAsPrefixedName").insert(row("id", "3", "theme", "test4"));
+
+    semanticTest
+        .getMetadata()
+        .setSetting(SETTING_CUSTOM_RDF, "@prefix dcterms: <http://purl.org/dc/terms/> .");
   }
 
   private static String getApi(Schema schema) {
@@ -355,6 +385,7 @@ public class RDFTest {
     database.dropSchema(fileTest.getName());
     database.dropSchema(refBackTest.getName());
     database.dropSchema(refLinkTest.getName());
+    database.dropSchema(semanticTest.getName());
   }
 
   @Test
@@ -1285,7 +1316,30 @@ public class RDFTest {
   void testRefLinkWorks() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     assertDoesNotThrow(() -> getAndParseRDF(Selection.of(refLinkTest), handler));
+  }
 
+  @Test
+  void prefixedNames() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(semanticTest, "valid"), handler);
+
+    Set<IRI> expectedPredicates =
+        Set.of(
+            Values.iri("http://purl.org/dc/terms/title"),
+            Values.iri("http://purl.org/dc/terms/description"));
+    Set<IRI> actualPredicates =
+        handler.resources.get(Values.iri(getApi(semanticTest) + "Valid?id=1")).keySet();
+
+    assertAll(
+        () -> assertTrue(actualPredicates.containsAll(expectedPredicates)),
+        () ->
+            assertThrows(
+                MolgenisException.class,
+                () -> getAndParseRDF(Selection.of(semanticTest, "missingNamespace"), handler)),
+        () ->
+            assertThrows(
+                MolgenisException.class,
+                () -> getAndParseRDF(Selection.of(semanticTest, "iriAsPrefixedName"), handler)));
   }
 
   /**
