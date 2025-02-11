@@ -13,7 +13,7 @@ const defaultMenuItems = [
   { label: "Databases", href: "/apps/central/", active: true },
   {
     label: "GraphQL API",
-    href: "/apps/graphql-playground/",
+    href: "/apps/graphiql/",
   },
   {
     label: "Components (for developers)",
