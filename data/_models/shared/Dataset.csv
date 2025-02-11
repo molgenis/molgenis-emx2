@@ -1,33 +1,33 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Dataset,,,,,,,,,,,http://www.w3.org/ns/dcat#Dataset,DCAT v2 dataset entries.,DCAT
-Dataset,,id,string,1,TRUE,,,,,,"http://purl.org/dc/terms/identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT
-Dataset,,title,string,,TRUE,,,,,,http://purl.org/dc/terms/title,A name given to the record.,DCAT
-Dataset,,description,string,,TRUE,,,,,,http://purl.org/dc/terms/description,A free-text account of the item.,DCAT
-Dataset,,belongsToCatalog,ref_array,,TRUE,,Catalog,,,,http://www.w3.org/ns/dcat#Catalog,Reference back to any catalogs that contain this dataset.,DCAT
-Dataset,,distribution,refBack,,,,Distribution,,belongsToDataset,,http://purl.org/dc/terms/distribution,"Reference to one or more Distributions to make table data and/or remote file(s) metadata available in the FDP.",DCAT
-Dataset,,accrualPeriodicity,string,,,,,,,,http://purl.org/dc/terms/accrualPeriodicity,The frequency at which dataset is published.,DCAT
-Dataset,,spatial,ontology_array,,,,Countries,,,,http://purl.org/dc/terms/spatial,The geographical area covered by the dataset.,DCAT
-Dataset,,spatialResolutionInMeters,decimal,,,,,,,,http://purl.org/dc/terms/spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT
-Dataset,,temporal,string,,,,,,,,http://purl.org/dc/terms/temporal,The temporal period that the dataset covers.,DCAT
-Dataset,,temporalResolution,string,,,,,,,,http://purl.org/dc/terms/temporalResolution,Minimum time period resolvable in the dataset.,DCAT
-Dataset,,wasGeneratedBy,string,,,,,,,,http://www.w3.org/ns/prov#wasGeneratedBy,"An activity that generated, or provides the business context for, the creation of the dataset.",DCAT
-Dataset,,accessRights,string,,,,,,,,http://purl.org/dc/terms/accessRights,Information about who can access the resource or an indication of its security status.,DCAT
-Dataset,,contactPoint,ref,,,,ContactPersons,,,,http://purl.org/dc/terms/contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT
-Dataset,,creator,ref_array,,,,ContactPersons,,,,http://purl.org/dc/terms/creator,The entity responsible for producing the resource.,DCAT
-Dataset,,hasPolicy,string,,,,,,,,http://www.w3.org/ns/odrl/2/hasPolicy,An ODRL conformant policy expressing the rights associated with the resource.,DCAT
-Dataset,,identifier,string,,,,,,,,http://purl.org/dc/terms/identifier,A unique identifier of the item.,DCAT
-Dataset,,isReferencedBy,string,,,,,,,,http://purl.org/dc/terms/isReferencedBy,"A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.",DCAT
-Dataset,,keyword,string_array,,,,,,,,http://purl.org/dc/terms/keyword,A keyword or tag describing the resource.,DCAT
-Dataset,,landingPage,string,,,,,,,,http://purl.org/dc/terms/landingPage,"A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.",DCAT
-Dataset,,license,hyperlink,,,,,,,,http://purl.org/dc/terms/license,A legal document under which the resource is made available.,DCAT
-Dataset,,language,ontology_array,,,,Languages,,,,http://purl.org/dc/terms/language,"A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.",DCAT
-Dataset,,relation,ref_array,,,,Studies,,,,http://purl.org/dc/terms/relation,A resource with an unspecified relationship to the cataloged item.,DCAT
-Dataset,,rights,string,,,,,,,,http://purl.org/dc/terms/rights,"A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",DCAT
-Dataset,,qualifiedRelation,string,,,,,,,,http://purl.org/dc/terms/qualifiedRelation,Link to a description of a relationship with another resource.,DCAT
-Dataset,,publisher,ref,,,,Agent,,,,http://purl.org/dc/terms/publisher,The entity responsible for making the item available.,DCAT
-Dataset,,theme,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,DCAT
-Dataset,,type,hyperlink,,,,,,,,http://purl.org/dc/terms/type,The nature or genre of the resource.,DCAT
-Dataset,,qualifiedAttribution,string,,,,,,,,http://www.w3.org/ns/prov#qualifiedAttribution,Link to an Agent having some form of responsibility for the resource,DCAT
+Dataset,,,,,,,,,,,dcat:Dataset,DCAT v2 dataset entries.,DCAT
+Dataset,,id,string,1,TRUE,,,,,,"dcterms:identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT
+Dataset,,title,string,,TRUE,,,,,,dcterms:title,A name given to the record.,DCAT
+Dataset,,description,string,,TRUE,,,,,,dcterms:description,A free-text account of the item.,DCAT
+Dataset,,belongsToCatalog,ref_array,,TRUE,,Catalog,,,,dcat:Catalog,Reference back to any catalogs that contain this dataset.,DCAT
+Dataset,,distribution,refBack,,,,Distribution,,belongsToDataset,,dcterms:distribution,"Reference to one or more Distributions to make table data and/or remote file(s) metadata available in the FDP.",DCAT
+Dataset,,accrualPeriodicity,string,,,,,,,,dcterms:accrualPeriodicity,The frequency at which dataset is published.,DCAT
+Dataset,,spatial,ontology_array,,,,Countries,,,,dcterms:spatial,The geographical area covered by the dataset.,DCAT
+Dataset,,spatialResolutionInMeters,decimal,,,,,,,,dcterms:spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT
+Dataset,,temporal,string,,,,,,,,dcterms:temporal,The temporal period that the dataset covers.,DCAT
+Dataset,,temporalResolution,string,,,,,,,,dcterms:temporalResolution,Minimum time period resolvable in the dataset.,DCAT
+Dataset,,wasGeneratedBy,string,,,,,,,,prov:wasGeneratedBy,"An activity that generated, or provides the business context for, the creation of the dataset.",DCAT
+Dataset,,accessRights,string,,,,,,,,dcterms:accessRights,Information about who can access the resource or an indication of its security status.,DCAT
+Dataset,,contactPoint,ref,,,,ContactPersons,,,,dcterms:contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT
+Dataset,,creator,ref_array,,,,ContactPersons,,,,dcterms:creator,The entity responsible for producing the resource.,DCAT
+Dataset,,hasPolicy,string,,,,,,,,odrl:hasPolicy,An ODRL conformant policy expressing the rights associated with the resource.,DCAT
+Dataset,,identifier,string,,,,,,,,dcterms:identifier,A unique identifier of the item.,DCAT
+Dataset,,isReferencedBy,string,,,,,,,,dcterms:isReferencedBy,"A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.",DCAT
+Dataset,,keyword,string_array,,,,,,,,dcterms:keyword,A keyword or tag describing the resource.,DCAT
+Dataset,,landingPage,string,,,,,,,,dcterms:landingPage,"A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.",DCAT
+Dataset,,license,hyperlink,,,,,,,,dcterms:license,A legal document under which the resource is made available.,DCAT
+Dataset,,language,ontology_array,,,,Languages,,,,dcterms:language,"A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.",DCAT
+Dataset,,relation,ref_array,,,,Studies,,,,dcterms:relation,A resource with an unspecified relationship to the cataloged item.,DCAT
+Dataset,,rights,string,,,,,,,,dcterms:rights,"A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",DCAT
+Dataset,,qualifiedRelation,string,,,,,,,,dcterms:qualifiedRelation,Link to a description of a relationship with another resource.,DCAT
+Dataset,,publisher,ref,,,,Agent,,,,dcterms:publisher,The entity responsible for making the item available.,DCAT
+Dataset,,theme,hyperlink_array,,,,,,,,dcat:theme,A main category of the resource. A resource can have multiple themes.,DCAT
+Dataset,,type,hyperlink,,,,,,,,dcterms:type,The nature or genre of the resource.,DCAT
+Dataset,,qualifiedAttribution,string,,,,,,,,prov:qualifiedAttribution,Link to an Agent having some form of responsibility for the resource,DCAT
 Dataset,,propertyValue,string_array,,,,,,,,https://schema.org/PropertyValue,"A property-value pair, e.g. representing a feature of a product or place.",DCAT
 datareleases,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172217,"The act of making data or other structured information accessible to the public or to the user group of a database.",RD3
 datareleases,,name,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing.",RD3
