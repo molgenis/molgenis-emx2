@@ -1,0 +1,8 @@
+---
+name: Type Test
+description: "a schema for testing the available column types"
+
+profileTags: TypeTest
+
+# special options
+setViewPermission: anonymous

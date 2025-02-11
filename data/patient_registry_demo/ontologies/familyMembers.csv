@@ -1,0 +1,13 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,mother,Mother,,NCIT,C96580,http://purl.obolibrary.org/obo/NCIT_C96580,A female who contributes to the genetic makeup of her offspring from the fertilization of her ovum.
+2,maternalGrandparents,Maternal Grandparents,,,,,
+3,paternalGrandparents,Paternal Grandparents,,,,,
+4,father,Father,,NCIT,C96572,http://purl.obolibrary.org/obo/NCIT_C96572,A male who contributes to the genetic makeup of his offspring through the fertilization of an ovum by his sperm.
+5,sister,Sister,,NCIT,C111202,http://purl.obolibrary.org/obo/NCIT_C111202,A female who shares with her sibling the genetic makeup inherited from both of the biological parents.
+6,brother,Brother,,NCIT,C111201,http://purl.obolibrary.org/obo/NCIT_C111201,A male who shares with his sibling the genetic makeup inherited from both of the biological parents.
+7,daughter,Daughter,,NCIT,C150887,http://purl.obolibrary.org/obo/NCIT_C150887,A female progeny with genetic makeup inherited from the parent.
+8,son,Son,,NCIT,C150888,http://purl.obolibrary.org/obo/NCIT_C150888,A male progeny with genetic makeup inherited from the parent.
+9,aunt,Aunt,,,,,
+10,uncle,Uncle,,,,,
+11,cousin,Cousin,,,,,
+12,other,Other Relative,,,,,

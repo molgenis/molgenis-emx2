@@ -21,11 +21,11 @@
     --color-blue-700: #015CB6;
     --color-blue-800: #014F9E;
     --color-blue-900: #013F7E;
-    --color-grey-50: #F9F9F9;
+    --color-gray-50: #F9F9F9;
     --color-gray-100: #F4F4F4;
     --color-gray-200: #E2E2E2;
     --color-gray-400: #C0C0C0;
-    --color-gray-600: #6D6D6D;
+    --color-gray-600: #2C2C2C;
     --color-gray-700: #414141;
     --color-gray-800: #1E1E1E;
     --color-gray-900: #1D1D1D;
@@ -35,9 +35,11 @@
     --color-green-200: #C7FFE2;
     --color-green-500: #72F6B2;
     --color-green-800: #349D63;
+    --color-green-900: #075F32;
     --color-orange-500: #E1B53E;
     --color-red-200: #FCECEF;
     --color-red-500: #E14F62;
+    --color-red-700: #AE2A3F;
     --color-gradient1: #0062C6;
     --color-gradient2: #0072E4;
 
@@ -63,7 +65,8 @@
     --backgroud-color-button-disabled-hover: var(--color-gray-100);
     --backgroud-color-search-button: var(--color-blue-50);
     --backgroud-color-search-button-hover: var(--color-blue-700);
-    --backgroud-color-navigation: rgba(0, 0, 0, .2);
+    --backgroud-color-navigation: var(--color-white);
+    --backgroud-color-navigation-sticky: var(--backgroud-color-navigation);
     --backgroud-color-search-results-view-tabs: var(--color-blue-800);
     --backgroud-color-search-filter-group-toggle: var(--color-blue-800);
     --backgroud-color-app-wrapper: var(--color-black);
@@ -76,9 +79,14 @@
     --backgroud-color-tab-active: var(--color-blue-500);
     --background-color-disabled: var(--color-gray-200);
     --background-color-invalid: var(--color-red-200);
+    --background-color-valid: var(--color-green-200);
     --background-color-input: var(--color-white);
-    --background-color-input-checked: var(--color-yellow-500);
+    --background-color-input-checked: var(--color-blue-500);
+    --background-color-listbox: var(--color-white);
+    --background-color-listbox-hover: var(--color-gray-100);
+    --background-color-listbox-selected: var(--color-blue-500);
     --background-color-table: var(--color-white);
+    --background-color-notification: var(--color-red-700);
 
 
     --text-color-button-primary: var(--color-white);
@@ -91,7 +99,7 @@
     --text-color-button-outline-hover: var(--color-blue-700);
     --text-color-button-disabled: var(--color-gray-600);
     --text-color-button-disabled-hover: var(--color-gray-600);
-    --text-color-menu: var(--color-blue-800);
+    --text-color-menu: var(--text-color-title);
     --text-color-sub-menu: var(--color-blue-500);
     --text-color-sub-menu-hover: var(--color-blue-700);
     --text-color-breadcrumb-arrow: var(--color-gray-400);
@@ -99,10 +107,11 @@
     --text-color-title: var(--color-blue-800);
     --text-color-title-contrast: var(--color-blue-500);
     --text-color-sub-title-contrast: var(--color-black);
-    --text-color-search-button: var(--text-blue-500);
-    --text-color-search-button-hover: var(--text-blue-800);
+    --text-color-search-button: var(--color-blue-500);
+    --text-color-search-button-hover: var(--color-blue-800);
     --text-color-favorite: var(--color-blue-800);
     --text-color-favorite-hover: var(--color-blue-800);
+    --text-color-button-text: var(--color-blue-800);
     --text-color-search-button: var(--color-blue-500);
     --text-color-search-button-hover: var(--color-blue-800);
     --text-color-search-results-view-tabs: var(--color-blue-500);
@@ -126,12 +135,17 @@
     --text-color-pagination-input: var(--text-color-title);
     --text-color-pagination-hover: var(--text-color-title);
     --text-color-footer-link: var(--color-yellow-500);
+    --text-color-listbox: var(--color-black);
+    --text-color-listbox-hover: var(--color-black);
+    --text-color-listbox-selected: var(--color-blue-50);
+    --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);
     --text-color-form-header: var(--color-blue-800);
     --text-color-input-description: var(--color-blue-800);
+    --text-color-legend-error-count: var(--color-white);
     
-    --text-color-invalid: var(--color-red-500);
-    --text-color-valid: var(--color-green-800);
+    --text-color-invalid: var(--color-red-700);
+    --text-color-valid: var(--color-green-900);
     --text-color-disabled: var(--color-gray-600);
     --text-color-required: var(--color-red-500);
     
@@ -154,23 +168,22 @@
     --border-color-pagination: var(--color-transparent);
     --border-color-input: #C0C0C0;
     --border-color-input-inverted: var(--color-gray-600);
+    --border-color-listbox-option: var(--color-gray-100);
+    --border-color-listbox: var(--border-color-input);
 
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
     --border-radius-input: 3px;
-    --border-radius-textarea-input: 20px;
+    --border-radius-textarea-input: var(--border-radius-input);
     --border-radius-search-input: 9999px;
     --border-radius-search-button: 9999px;
     --border-radius-pagination: 9999px;
     --border-radius-landing: 50px;
     
-    --border-color-invalid: var(--color-red-500);
-    --border-color-valid: var(--color-green-800);
+    --border-color-invalid: var(--color-red-700);
+    --border-color-valid: var(--color-green-900);
     --border-color-disabled: var(--color-gray-400);
 
     --outline-color-select: var(--color-gray-200);
-
   }
-
-  
 }

@@ -48,6 +48,8 @@ async def test_publish(async_publisher, async_session):
             networks=Table.of_empty(TableType.NETWORKS, MagicMock()),
             also_known_in=Table.of_empty(TableType.ALSO_KNOWN, MagicMock()),
             biobanks=Table.of_empty(TableType.BIOBANKS, MagicMock()),
+            services=Table.of_empty(TableType.BIOBANKS, MagicMock()),
+            studies=Table.of_empty(TableType.BIOBANKS, MagicMock()),
             collections=Table.of_empty(TableType.COLLECTIONS, MagicMock()),
             facts=Table.of_empty(TableType.FACTS, MagicMock()),
         ),
@@ -67,6 +69,8 @@ async def test_publish(async_publisher, async_session):
         mock.call(
             state.data_to_publish.collections, state.existing_data.collections, state
         ),
+        mock.call(state.data_to_publish.studies, state.existing_data.studies, state),
+        mock.call(state.data_to_publish.services, state.existing_data.services, state),
         mock.call(state.data_to_publish.biobanks, state.existing_data.biobanks, state),
         mock.call(
             state.data_to_publish.also_known_in,
@@ -101,6 +105,7 @@ def test_delete_rows(publisher, pid_service, node_data: NodeData, session):
         collections={},
         biobank_levels={},
         collection_levels={},
+        services={},
     )
 
     state.report = ErrorReport([node_data.node])

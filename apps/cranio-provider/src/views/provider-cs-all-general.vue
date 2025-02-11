@@ -10,212 +10,297 @@
         <select
           class="inputs select"
           id="yearOfBirthFilter"
-          @change="onYearOfBirthFilter"
+          @change="updateCranioTypesChart"
         >
-          <option value="all">All Patients</option>
-          <option value="2023" selected>2023</option>
+          <option v-for="ageGroup in ageGroups" :value="ageGroup">
+            {{ ageGroup }}
+          </option>
         </select>
       </DashboardChart>
     </DashboardRow>
     <DashboardRow :columns="1">
       <DashboardChart id="type-of-craniosynostosis">
+        <LoadingScreen v-if="loading" />
         <ColumnChart
-          chartId="craniosynostosis-types"
-          title="Type of craniosynostosis"
-          :chartData="craniosynostosisTypes"
-          xvar="type"
-          yvar="count"
-          :columnColorPalette="colors.craniosynostosis"
+          v-else
+          :chartId="cranioTypeChart?.chartId"
+          :title="cranioTypeChart?.chartTitle"
+          :description="cranioTypeChart?.chartSubtitle"
+          :chartData="cranioTypeChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :yMax="cranioTypeChart?.yAxisMaxValue"
+          :yTickValues="cranioTypeChart?.yAxisTicks"
+          :xAxisLabel="cranioTypeChart?.xAxisLabel"
+          :yAxisLAbel="cranioTypeChart?.yAxisLabel"
+          :columnColorPalette="cranioTypeChartPalette"
           :chartHeight="225"
+          :chartMargins="{
+            top: cranioTypeChart?.topMargin,
+            right: cranioTypeChart?.rightMargin,
+            bottom: cranioTypeChart?.bottomMargin,
+            left: cranioTypeChart?.leftMargin,
+          }"
         />
       </DashboardChart>
     </DashboardRow>
     <h3 class="dashboard-h3">Suture Overview</h3>
-    <p class="dashboard-text">
-      Click a category in the "Affected suture" chart to view more information.
-    </p>
     <DashboardRow :columns="2">
       <DashboardChart>
+        <LoadingScreen v-if="loading" />
         <ColumnChart
-          chartId="craniosynostosis-affected-sutures"
-          title="Affected suture"
+          v-else
           class="chart-axis-x-angled-text"
-          :chartData="affectedSuture"
-          xvar="category"
-          yvar="count"
-          :yMax="50"
-          :yTickValues="[0, 10, 20, 30, 40, 50]"
-          :columnColorPalette="colors.affectedSuture"
+          :chartId="affectedSutureChart?.chartId"
+          :title="affectedSutureChart?.chartTitle"
+          :description="affectedSutureChart?.chartSubtitle"
+          :chartData="affectedSutureChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :yMin="0"
+          :yMax="affectedSutureChart?.yAxisMaxValue"
+          :yTickValues="affectedSutureChart?.yAxisTicks"
+          :xAxisLabel="affectedSutureChart?.xAxisLabel"
+          :yAxisLabel="affectedSutureChart?.yAxisLabel"
+          :columnColorPalette="affectedSutureChartPalette"
           :chartHeight="275"
-          :enableClicks="true"
-          @column-clicked="updateSutureTypes"
-          :chartMargins="{ top: 20, right: 10, bottom: 85, left: 60 }"
+          :chartMargins="{
+            top: affectedSutureChart?.topMargin,
+            right: affectedSutureChart?.rightMargin,
+            bottom: affectedSutureChart?.bottomMargin,
+            left: affectedSutureChart?.leftMargin,
+          }"
         />
       </DashboardChart>
-      <DashboardChart v-if="showSutureTypes">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" />
         <ColumnChart
-          chartId="suture-types"
+          v-else
+          :chartId="multipleSutureChart?.chartId"
           class="chart-axis-x-angled-text"
-          title="Multiple suture synostosis"
-          :chartData="sutureTypes"
-          xvar="type"
-          yvar="count"
-          :columnColorPalette="colors.sutureType"
+          :title="multipleSutureChart?.chartTitle"
+          :description="multipleSutureChart?.chartSubtitle"
+          :chartData="multipleSutureChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="multipleSutureChart?.xAxisLabel"
+          :yAxisLabel="multipleSutureChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="multipleSutureChart?.yAxisMaxValue"
+          :yTickValues="multipleSutureChart?.yAxisTicks"
+          :columnColorPalette="multipleSuturePalette"
           :chartHeight="275"
-          :chartMargins="{ top: 20, right: 10, bottom: 85, left: 60 }"
+          :chartMargins="{
+            top: multipleSutureChart?.topMargin,
+            right: multipleSutureChart?.rightMargin,
+            bottom: multipleSutureChart?.bottomMargin,
+            left: multipleSutureChart?.leftMargin,
+          }"
         />
       </DashboardChart>
     </DashboardRow>
     <h3 class="dashboard-h3">Patients Overview</h3>
     <DashboardRow :columns="1">
       <DashboardChart>
+        <LoadingScreen v-if="loading" />
         <ColumnChart
-          chartId="countryOfResidence"
-          title="Patients by country of residence"
-          description="Total number of patients residing in each country"
-          :chartData="countryOfResidence"
-          xvar="country"
-          yvar="value"
-          :yMax="100"
-          :yTickValues="[0, 25, 50, 75, 100]"
-          :chartHeight="225"
-          :columnColorPalette="colors.countries"
+          v-else
+          :chartId="patientsByCountryChart?.chartId"
+          :title="patientsByCountryChart?.chartTitle"
+          :description="patientsByCountryChart?.chartSubtitle"
+          :chartData="patientsByCountryChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="patientsByCountryChart?.xAxisLabel"
+          :yAxisLabel="patientsByCountryChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="patientsByCountryChart?.yAxisMaxValue"
+          :columnColorPalette="patientsByCountryPalette"
+          :chartHeight="275"
+          :chartMargins="{
+            top: patientsByCountryChart?.topMargin,
+            right: patientsByCountryChart?.rightMargin,
+            bottom: patientsByCountryChart?.bottomMargin,
+            left: patientsByCountryChart?.leftMargin,
+          }"
         />
       </DashboardChart>
     </DashboardRow>
   </ProviderDashboard>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
 import {
   DashboardRow,
   DashboardChart,
-  InputLabel,
   ColumnChart,
+  InputLabel,
+  LoadingScreen,
+  // @ts-expect-error
 } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 
-const props = defineProps({
-  user: String,
-  organization: Object,
-});
+import { generateAxisTickData } from "../utils/generateAxisTicks";
+import { getDashboardChart } from "../utils/getDashboardData";
+import { generateColorPalette } from "../utils/generateColorPalette";
+import { uniqueValues } from "../utils";
 
-// generate random data
-import { randomInt } from "d3";
-import generateColors from "../utils/palette";
+import type { ICharts, IChartData } from "../types/schema";
+import type { IKeyValuePair } from "../types";
+import type { IAppPage } from "../types/app";
+const props = defineProps<IAppPage>();
 
-let craniosynostosisTypes = ref([]);
-let countryOfResidence = ref([]);
-let affectedSuture = ref([]);
-let sutureTypes = ref([]);
-let showSutureTypes = ref(false);
+const loading = ref<boolean>(true);
+const ageGroups = ref<string[]>();
+const selectedAgeGroup = ref<string>();
+const cranioTypeChart = ref<ICharts>();
+const cranioTypeChartData = ref<IChartData[]>();
+const cranioTypeChartPalette = ref<IKeyValuePair>();
+const affectedSutureChart = ref<ICharts>();
+const affectedSutureChartData = ref<IChartData[]>();
+const affectedSutureChartPalette = ref<IKeyValuePair>();
+const multipleSutureChart = ref<ICharts>();
+const multipleSutureChartData = ref<IChartData[]>();
+const multipleSuturePalette = ref<IKeyValuePair>();
+const patientsByCountryChart = ref<ICharts>();
+const patientsByCountryChartData = ref<IChartData[]>();
+const patientsByCountryPalette = ref<IKeyValuePair>();
 
-let colors = ref({
-  craniosynostosis: {},
-  affectedSuture: {},
-  sutureType: {},
-  countries: {},
-});
+async function getPageData() {
+  const csTypes = await getDashboardChart(
+    props.api.graphql.providers,
+    "cs-all-centers-type-of-craniosynostosis"
+  );
 
-/// generate random data for craniosynostosis types
-function setCraniosynostosisTypes() {
-  const types = [
-    "Familial",
-    "Iatrogenic",
-    "Metabolic",
-    "Non-syndromic",
-    "Syndromic",
-  ];
-  colors.value.craniosynostosis = generateColors(types);
-  craniosynostosisTypes.value = types.map((type) => {
-    return { type: type, count: randomInt(10, 42)() };
-  });
+  const affectedSutures = await getDashboardChart(
+    props.api.graphql.providers,
+    "cs-all-centers-affected-sutures"
+  );
+
+  const multiSutures = await getDashboardChart(
+    props.api.graphql.providers,
+    "cs-all-centers-mutiple-suture-synostosis"
+  );
+
+  const patientCountry = await getDashboardChart(
+    props.api.graphql.providers,
+    "cs-all-centers-patients-by-country"
+  );
+
+  cranioTypeChart.value = csTypes[0];
+  affectedSutureChart.value = affectedSutures[0];
+  multipleSutureChart.value = multiSutures[0];
+  patientsByCountryChart.value = patientCountry[0];
+
+  cranioTypeChartPalette.value = generateColorPalette(
+    uniqueValues(cranioTypeChart.value.dataPoints, "dataPointName")
+  );
+
+  affectedSutureChartPalette.value = generateColorPalette(
+    uniqueValues(affectedSutureChart.value?.dataPoints, "dataPointName")
+  );
+
+  multipleSuturePalette.value = generateColorPalette(
+    uniqueValues(multipleSutureChart.value?.dataPoints, "dataPointName")
+  );
+
+  patientsByCountryPalette.value = generateColorPalette(
+    uniqueValues(patientsByCountryChart.value.dataPoints, "dataPointName")
+  );
 }
 
-// generate random data for affected suture
-function setAffectedSuture() {
-  const types = [
-    "Frontosphenoidal",
-    "Metopic",
-    "Multiple",
-    "Sagittal",
-    "Unicoronal",
-    "Unilambdoid",
-  ];
-  colors.value.affectedSuture = generateColors(types);
-  affectedSuture.value = types.map((category) => {
-    return { category: category, count: randomInt(10, 50)() };
-  });
-}
-
-function setSutureTypes() {
-  const types = [
-    "bicoronal",
-    "bilambdoid",
-    "bilambdoid+sagittal",
-    "pansynostosis",
-    "other",
-  ];
-  colors.value.sutureType = generateColors(types);
-  sutureTypes.value = types.map((type) => {
-    return { type: type, count: randomInt(3, 27)() };
-  });
-}
-
-// generate random data for "country of residence"
-function setCountryOfResidence() {
-  const types = ["NL", "FR", "GE", "ES", "PO", "SE"];
-  colors.value.countries = generateColors(types);
-  countryOfResidence.value = types
-    .map((country) => {
-      return { country: country, value: randomInt(10, 100)() };
+function updateCranioTypesChart() {
+  cranioTypeChartData.value = cranioTypeChart.value?.dataPoints
+    ?.filter((row: IChartData) => {
+      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
     })
-    .sort((a, b) => (a.country < b.country ? -1 : 1));
-}
+    .sort((current, next) => {
+      return current.dataPointOrder! - next.dataPointOrder!;
+    });
 
-// set update sutute type selection
-function updateSutureTypes(value) {
-  const total = JSON.parse(value).count;
-  const types = sutureTypes.value.map((entry) => entry.type);
-  let currentTotal = total;
-  sutureTypes.value = types.map((type, i) => {
-    const randomValue =
-      i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
-    currentTotal -= randomValue;
-    return { type: type, count: randomValue };
-  });
-  console.log(sutureTypes.value);
-  showSutureTypes.value = true;
-}
+  const cranioTypeTicks = generateAxisTickData(
+    cranioTypeChartData.value!,
+    "dataPointValue"
+  );
 
-setCraniosynostosisTypes();
-setAffectedSuture();
-setCountryOfResidence();
-setSutureTypes();
-
-function onYearOfBirthFilter() {
-  setCraniosynostosisTypes();
-  setAffectedSuture();
-  setCountryOfResidence();
-  setSutureTypes();
-}
-</script>
-
-<style lang="scss">
-.chart-axis-x-angled-text {
-  .chart-axes {
-    .chart-axis-x {
-      .tick {
-        text {
-          @media (min-width: 835px) {
-            transform: rotate(-20deg);
-            transform-origin: 0 -10%;
-            text-anchor: end;
-          }
-        }
-      }
-    }
+  if (cranioTypeChart.value) {
+    cranioTypeChart.value.yAxisMaxValue = cranioTypeTicks.limit;
+    cranioTypeChart.value.yAxisTicks = cranioTypeTicks.ticks;
   }
 }
-</style>
+
+function updateAffectedSutureChart() {
+  affectedSutureChartData.value = affectedSutureChart.value?.dataPoints?.sort(
+    (current, next) => {
+      return current.dataPointOrder! - next.dataPointOrder!;
+    }
+  );
+
+  const affectedSutureTicks = generateAxisTickData(
+    affectedSutureChartData.value!,
+    "dataPointValue"
+  );
+
+  if (affectedSutureChart.value) {
+    affectedSutureChart.value.yAxisMaxValue = affectedSutureTicks.limit;
+    affectedSutureChart.value.yAxisTicks = affectedSutureTicks.ticks;
+  }
+}
+
+function updateMultipeSuturesChart() {
+  multipleSutureChartData.value = multipleSutureChart.value?.dataPoints?.sort(
+    (current, next) => {
+      return current.dataPointOrder! - next.dataPointOrder!;
+    }
+  );
+
+  const multipleSutureTicks = generateAxisTickData(
+    multipleSutureChartData.value!,
+    "dataPointValue"
+  );
+  if (multipleSutureChart.value) {
+    multipleSutureChart.value.yAxisMaxValue = multipleSutureTicks.limit;
+    multipleSutureChart.value.yAxisTicks = multipleSutureTicks.ticks;
+  }
+}
+
+function updatePatientsByCountryChart() {
+  patientsByCountryChartData.value =
+    patientsByCountryChart.value?.dataPoints?.sort((current, next) => {
+      return current.dataPointName?.localeCompare(
+        next.dataPointName as string
+      ) as number;
+    });
+
+  const countries: string[] = uniqueValues(
+    patientsByCountryChartData.value,
+    "dataPointName"
+  );
+  const colors = countries.map((key: string) => [key, "#3f6597"]);
+  patientsByCountryPalette.value = Object.fromEntries(colors);
+}
+
+function setAgeGroupFilter() {
+  ageGroups.value = uniqueValues(
+    cranioTypeChart.value?.dataPoints,
+    "dataPointPrimaryCategory"
+  );
+  selectedAgeGroup.value = ageGroups.value[0];
+}
+
+onMounted(() => {
+  getPageData()
+    .then(() => {
+      setAgeGroupFilter();
+      updateCranioTypesChart();
+      updateAffectedSutureChart();
+      updateMultipeSuturesChart();
+      updatePatientsByCountryChart();
+    })
+    .catch((err) => {
+      throw new Error(err);
+    })
+    .finally(() => (loading.value = false));
+});
+</script>

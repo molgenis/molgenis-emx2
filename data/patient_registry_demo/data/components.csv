@@ -1,0 +1,5 @@
+order,name,label,tags,parent,codesystem,code,ontologyTermURI,definition
+,enrolment,Enrolment by thematic disease group,,,,table,,Number of patients per disease group (see erras_diseasegroup)
+,highlights,Data Highlights,,,,highlights,,Current state of the ERRAS Registry
+,sex,Sex at birth,,,,pie,,Number of patients by reported sex at birth
+,age,Age at ...,,,,column,,Age at ...

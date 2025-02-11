@@ -223,17 +223,30 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   function addOntologyOptions(filterName: string, value: IOntologyItem[]) {
+    const diagnosisavailableCount = filters.value.Diagnosisavailable?.length
+      ? filters.value.Diagnosisavailable.length
+      : 0;
+    const limit = 50;
+    let ontologySet = value;
+    const slotsRemaining = limit - diagnosisavailableCount;
+    if (
+      filterName === "Diagnosisavailable" &&
+      getFilterType("Diagnosisavailable") === "all"
+    ) {
+      ontologySet = ontologySet.slice(0, slotsRemaining);
+    }
+
     if (filters.value[filterName]) {
       const existingValues = filters.value[filterName].map(
         (option: IOntologyItem) => option.name
       );
-      const filterOptionsToAdd = value.filter(
+      const filterOptionsToAdd = ontologySet.filter(
         (newValue: IOntologyItem) => !existingValues.includes(newValue.name)
       );
       filters.value[filterName] =
         filters.value[filterName].concat(filterOptionsToAdd);
     } else {
-      filters.value[filterName] = value;
+      filters.value[filterName] = ontologySet;
     }
   }
 
@@ -346,6 +359,17 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   function updateFilterType(filterName: string, value: any, fromBookmark: any) {
+    if (
+      filterName === "Diagnosisavailable" &&
+      (filterType.value[filterName] === "any" ||
+        filterType.value[filterName] === undefined) &&
+      filters.value["Diagnosisavailable"]?.length > 50
+    ) {
+      filters.value["Diagnosisavailable"] = filters.value[
+        "Diagnosisavailable"
+      ].slice(0, 50);
+    }
+
     bookmarkTriggeredFilter.value = fromBookmark;
 
     if (value === "" || value === undefined || value.length === 0) {

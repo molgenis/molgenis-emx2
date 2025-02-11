@@ -6,15 +6,14 @@
       imageSrc="img/ern-reconnet-header.jpg"
     />
     <PageSection aria-labelledby="welcome-title">
-      <h2 id="welcome-title">ERN ReCONNET registry Documents</h2>
-      <MessageBox>
-        <p>This page is under construction.</p>
-      </MessageBox>
+      <h2 id="welcome-title">Download Documents</h2>
+      <p>Download additional information about the ReCONNECT Registry.</p>
+      <FileList table="Files" labelsColumn="name" fileColumn="file" />
     </PageSection>
   </Page>
 </template>
 
 <script setup lang="ts">
 // @ts-ignore
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
+import { Page, PageHeader, PageSection, FileList } from "molgenis-viz";
 </script>

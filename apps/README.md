@@ -1,17 +1,17 @@
 # Developer notes
 
-- we use yarn workspaces
-- copy 'helloworld' to create a new app
-- at first run 'yarn' in 'apps', this will download all dependencies
-- then you can simply run 'yarn dev' inside your app folder, e.g. cd to 'helloworld' and run 'yarn dev'
+- We use yarn workspaces
+- Copy 'helloworld' to create a new app
+- At first run 'yarn' in 'apps', this will download all dependencies
+- Then you can simply run 'yarn dev' inside your app folder, e.g. cd to 'helloworld' and run 'yarn dev'
 
-we also have component library in molgenis-components, which can be linked into your app
+We also have component library in molgenis-components, which can be linked into your app
 
-- when making changes to molgenis-components you have to run 'yarn build' to get your changes available in your app also
+- When making changes to molgenis-components you have to run 'yarn build' to get your changes available in your app also
 
-we use nx to build the workspace. If you don't want to use gradle:
+We use nx to build the workspace. If you don't want to use gradle:
 
-install dependencies first (or when you change package.json files)
+Install dependencies first (or when you change package.json files)
 
 ```
 yarn install

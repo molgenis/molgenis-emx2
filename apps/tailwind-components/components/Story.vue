@@ -5,8 +5,13 @@ defineProps<{
 }>();
 </script>
 <template>
-  <h1>{{ title }}</h1>
-  <p v-if="description">{{ description }}</p>
-  <hr />
-  <slot></slot>
+  <div>
+    <h1 class="text-heading-6xl text-favorite hover:text-favorite-hover">
+      {{ title }}
+    </h1>
+    <p class="mt-2" v-if="description">{{ description }}</p>
+    <slot></slot>
+    <h2 class="mt-4">Source code:</h2>
+    <SourceCode class="mt-4" />
+  </div>
 </template>

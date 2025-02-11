@@ -1,0 +1,5 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,basalCellCarcinoma,Basal cell carcinoma,,,,,
+2,squamousCellCarcinoma,Squamous cell carcinoma,,,,,
+3,melanoma,Melanoma,,,,,
+4,otherSkinCancer,Other Skin Cancer,,,,,

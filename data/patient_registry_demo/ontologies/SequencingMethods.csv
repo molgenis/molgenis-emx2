@@ -1,0 +1,7 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,sanger,Sanger,,NCIT,C19641,http://purl.obolibrary.org/obo/NCIT_C19641,Sanger: Dideoxy Chain Termination DNA Sequencing
+2,ngsTargetedPanel,NGS targeted panel,,NCIT,C130177,http://purl.obolibrary.org/obo/NCIT_C130177,Next Generation Targeted Sequencing
+3,wesOpen,WES open,,NCIT,C101295,http://purl.obolibrary.org/obo/NCIT_C101295,Whole Exome Sequencing Open
+4,wesPanel,WES panel,,NCIT,C101295,http://purl.obolibrary.org/obo/NCIT_C101295,Whole Exome Sequencing Panel
+5,wgs,WGS,,NCIT,C101294,http://purl.obolibrary.org/obo/NCIT_C101294,Whole Genome Sequencing
+6,other,Other,,,,,

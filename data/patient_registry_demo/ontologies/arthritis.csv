@@ -1,0 +1,11 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,rheumatoidArthritis,Rheumatoid arthritis,,,,,
+2,ankylosingSpondylitis,Ankylosing spondylitis,,,,,
+3,osteoarthritis,Osteoarthritis,,,,,
+4,gout,Gout,,,,,
+5,tendinitis,Tendinitis,,,,,
+6,lumbago,Lumbago/rachialgia,,,,,
+7,dactylitis,Dactylitis,,,,,
+8,adamantiadesDisease,Adamantiades-Behçet's disease,,,,,
+9,sarcoidosis,Sarcoidosis,,,,,
+10,other,Other,,,,,

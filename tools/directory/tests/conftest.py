@@ -27,11 +27,11 @@ def get_data(table_type) -> List[dict]:
 @pytest.fixture
 def node_data() -> NodeData:
     """
-    Reads json files with the six data sources and
+    Reads json files with the eight data sources and
     returns NodeData to test with.
     """
     persons_meta = MagicMock()
-    persons_meta.id = "eu_bbmri_eric_NL_persons"
+    persons_meta.id = "Persons"
     persons_meta.id_attribute = "id"
     persons = Table.of(
         TableType.PERSONS,
@@ -40,7 +40,7 @@ def node_data() -> NodeData:
     )
 
     networks_meta = MagicMock()
-    networks_meta.id = "eu_bbmri_eric_NL_networks"
+    networks_meta.id = "Networks"
     networks_meta.id_attribute = "id"
     networks = Table.of(
         TableType.NETWORKS,
@@ -49,7 +49,7 @@ def node_data() -> NodeData:
     )
 
     also_known_meta = MagicMock()
-    also_known_meta.id = "eu_bbmri_eric_NL_also_known_in"
+    also_known_meta.id = "AlsoKnownIn"
     also_known_meta.id_attribute = "id"
     also_known = Table.of(
         TableType.ALSO_KNOWN,
@@ -58,7 +58,7 @@ def node_data() -> NodeData:
     )
 
     biobanks_meta = MagicMock()
-    biobanks_meta.id = "eu_bbmri_eric_NL_biobanks"
+    biobanks_meta.id = "Biobanks"
     biobanks_meta.id_attribute = "id"
     biobanks_meta.hyperlinks = ["url"]
     biobanks = Table.of(
@@ -67,8 +67,28 @@ def node_data() -> NodeData:
         get_data("biobanks"),
     )
 
+    services_meta = MagicMock()
+    services_meta.id = "Services"
+    services_meta.id_attribute = "id"
+    services_meta.hyperlinks = ["url"]
+    services = Table.of(
+        TableType.SERVICES,
+        services_meta,
+        get_data("services"),
+    )
+
+    studies_meta = MagicMock()
+    studies_meta.id = "Studies"
+    studies_meta.id_attribute = "id"
+    studies_meta.hyperlinks = ["url"]
+    studies = Table.of(
+        TableType.STUDIES,
+        studies_meta,
+        get_data("studies"),
+    )
+
     collection_meta = MagicMock()
-    collection_meta.id = "eu_bbmri_eric_NL_collections"
+    collection_meta.id = "Collections"
     collection_meta.id_attribute = "id"
     collections = Table.of(
         TableType.COLLECTIONS,
@@ -77,7 +97,7 @@ def node_data() -> NodeData:
     )
 
     facts_meta = MagicMock()
-    facts_meta.id = "eu_bbmri_eric_NL_facts"
+    facts_meta.id = "CollectionFacts"
     facts_meta.id_attribute = "id"
     facts = Table.of(
         TableType.FACTS,
@@ -93,6 +113,8 @@ def node_data() -> NodeData:
             TableType.NETWORKS.value: networks,
             TableType.ALSO_KNOWN.value: also_known,
             TableType.BIOBANKS.value: biobanks,
+            TableType.SERVICES.value: services,
+            TableType.STUDIES.value: studies,
             TableType.COLLECTIONS.value: collections,
             TableType.FACTS.value: facts,
         },

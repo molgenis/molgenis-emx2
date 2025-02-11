@@ -7,6 +7,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-expect-error
 import { MessageBox } from "molgenis-viz";
 </script>

@@ -1,0 +1,11 @@
+order,name,label,tags,parent,codesystem,code,ontologyTermURI,definition
+1,aibd,Autoimmune Bullous diseases (AIBD),,,,,https://ern-skin.eu/thematic-groups/thematic-group-autoimmune-bullous-diseases/,
+2,mendel,Mendelian connective tissue disorders (Mendel),,,,,https://ern-skin.eu/thematic-groups/thematic-group-mendelian-connective-tissue-disorders/,
+3,toxiten,Severe cutaneous drug reactions (ToxiTEN),,,,,https://ern-skin.eu/thematic-groups/thematic-group-severe-cutaneous-drug-reactions/,
+4,eb,Epidermolysis Bullosa (EB),,,,,https://ern-skin.eu/thematic-groups/thematic-group-epidermolysis-bullosa/,
+5,ippk,Ichthyosis and Palmoplantar Keratoderma (IPPK),,,,,,
+6,mosaic,"Cutaneous Mosaic Disorders Naevi & Naevoid skin disorders, complex vascular malformations and vascular tumors (Mosaic)",,,,,,
+7,ed,Ectodermal Dysplasias including Incontinentia Pigmenti and P63- associated disorders (ED),,,,,,
+8,allocate,Acquired immunologicaL LOw prevalence and Complex AdulT diseases of thE SKIN (ALLOCATE),,,,,https://ern-skin.eu/thematic-groups/thematic-group-hidradenitis-suppurativa-related-syndromes/,
+9,dna,Cutaneous diseases related to DNA repair disorders (DNA),,,,,,
+10,other,Other Genodermatosis,,,,,,

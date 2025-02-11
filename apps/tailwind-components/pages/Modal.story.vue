@@ -8,6 +8,7 @@ function showModal() {
 
 let sectionCount = ref(0);
 </script>
+
 <template>
   <button
     @click="showModal"

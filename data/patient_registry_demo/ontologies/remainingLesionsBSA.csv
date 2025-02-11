@@ -1,0 +1,4 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,scarring,Scarring,,,,,
+2,atrophy,Atrophy,,,,,
+3,pigmentAnomalies,Pigment anomalies,,,,,

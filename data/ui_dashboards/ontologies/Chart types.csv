@@ -1,0 +1,10 @@
+order,name,label,tags,parent,codesystem,code,ontologyTermURI,definition
+,data highlight,,,,,,,
+,horizontal bar chart,,,,SIO,SIO:000444,http://semanticscience.org/resource/SIO_000444,
+,line graph,,,,SIO,SIO:000442,http://semanticscience.org/resource/SIO_000442,
+,map,,,,SIO,SIO:000906,http://semanticscience.org/resource/SIO_000906,
+,pie chart,,,,SIO,SIO:000929,http://semanticscience.org/resource/SIO_000929,
+,progress meter,,,,,,,
+,scatterplot,,,,SIO,SIO:000423,http://semanticscience.org/resource/SIO_000423,
+,table,,,,SIO,SIO:000419,http://semanticscience.org/resource/SIO_000419,
+,vertical bar chart,,,,SIO,SIO:000445,http://semanticscience.org/resource/SIO_000445,

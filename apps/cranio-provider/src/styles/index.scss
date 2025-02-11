@@ -164,3 +164,19 @@
     }
   }
 }
+
+.chart-axis-x-angled-text {
+  .chart-axes {
+    .chart-axis-x {
+      .tick {
+        text {
+          @media (min-width: 835px) {
+            transform: rotate(-20deg);
+            transform-origin: 0 -10%;
+            text-anchor: end;
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,33 +4,54 @@
     <h3 class="dashboard-h3">Overview of all surgical interventions</h3>
     <DashboardRow :columns="2" class="dashboard-boxes-width-2-1">
       <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
         <ColumnChart
-          chartId="cs-all-surgical-type-of-surgery"
-          title="Type of surgery"
-          description="Click a type of surgery to view complications"
-          :chartData="typeOfSurgery"
-          xvar="type"
-          yvar="count"
-          :yTickValues="[0, 25, 50, 75, 100]"
-          :yMax="100"
-          :columnColorPalette="surgeryTypeColors"
+          v-else
+          :chartId="surgeryTypesChart?.chartId"
+          :title="surgeryTypesChart?.chartTitle"
+          :description="surgeryTypesChart?.chartSubtitle"
+          :chartData="surgeryTypesChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="surgeryTypesChart?.xAxisLabel"
+          :yAxisLabel="surgeryTypesChart?.yAxisLabel"
           xAxisLineBreaker=" "
-          :chartHeight="200"
+          :yMin="0"
+          :yMax="surgeryTypesChart?.yAxisMaxValue"
+          :yTickValues="surgeryTypesChart?.yAxisTicks"
+          :chartHeight="250"
+          :chartMargins="{
+            top: surgeryTypesChart?.topMargin,
+            right: surgeryTypesChart?.rightMargin,
+            bottom: surgeryTypesChart?.bottomMargin,
+            left: surgeryTypesChart?.leftMargin,
+          }"
+          :enableClicks="true"
+          @column-clicked="onSurgeryTypesChartClick"
         />
       </DashboardChart>
       <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <MessageBox
+          v-else-if="!loading && !hasComplicationsData"
+          type="warning"
+        >
+          <span>Not enough data to show chart</span>
+        </MessageBox>
         <PieChart2
-          chartId="cs-all-surgical-complications"
-          :title="surgicalComplicationsTitle"
-          :chartData="surgicalComplications"
-          :chartColors="complicationColors"
+          v-else
+          :chartId="complicationsChart?.chartId"
+          :title="`${selectedSurgeryType?.split(' ')[0]} complications`"
+          :description="complicationsChart?.chartSubtitle"
+          :chartData="complicationsChartData"
+          :chartColors="complicationsChartPalette"
+          :valuesArePercents="false"
           :asDonutChart="true"
           :enableLegendHovering="true"
           legendPosition="bottom"
-          :stackLegend="true"
+          :enableClicks="true"
           :chartHeight="200"
-          :chartScale="0.9"
-          :valuesArePercents="false"
+          :chartScale="0.85"
         />
       </DashboardChart>
     </DashboardRow>
@@ -38,189 +59,251 @@
       <h2 class="dashboard-h2">Surgical interventions by diagnosis</h2>
       <DashboardChart>
         <InputLabel id="diagnosisInput" label="Select a diagnosis" />
-        <select id="diagnosisInput" @change="onDiagnosisInput">
-          <option value="ORPHA:87">Apert syndrome</option>
-          <option value="ORPHA:207">Crouzon syndrome</option>
-          <option value="ORPHA:93262">
-            Crouzon syndrome-acanthosis nigricans syndrome
-          </option>
-          <option value="OSNEW1">ERF-related craniosynostosis syndrome</option>
-          <option value="ORPHA:53271">Muenke syndrome</option>
-          <option value="ORPHA:3366">
-            Non-syndromic metopic craniosynostosis
-          </option>
-          <option value="ORPHA:35093">
-            Non-syndromic sagittal craniosynostosis
-          </option>
-          <option value="ORPHA:620102">
-            Non-syndromic unicoronal craniosynostosis
-          </option>
-          <option value="ORPHA:620113">
-            Non-syndromic unilambdoid craniosynostosis
-          </option>
-          <option value="ORPHA:794">Saethre-Chotzen syndrome</option>
-          <option value="OSNEW5">TCF12-related craniosynostosis</option>
-          <option value="ORPHA:620198">
-            non-syndromic multistural craniosynostosis
+        <select
+          id="diagnosisInput"
+          class="inputs select"
+          v-model="selectedDiagnosis"
+          @change="
+            updateInterventionsChart();
+            updateSurgeryAgeChart();
+          "
+        >
+          <option v-for="diagnosis in diagnoses" :value="diagnosis.value">
+            {{ diagnosis.label }}
           </option>
         </select>
       </DashboardChart>
     </DashboardRow>
     <DashboardRow :columns="2">
       <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 215px" />
+        <MessageBox
+          v-else-if="!loading && !hasInterventionsData"
+          type="warning"
+        >
+          <span>Not enough data to show chart</span>
+        </MessageBox>
         <PieChart2
-          chartId="cs-all-surgical-interventions"
-          title="Surgical Interventions"
-          :chartData="surgicalInterventions"
-          :chartColors="surgicalInterventionColors"
+          v-else
+          :chartId="interventionsChart?.chartId"
+          :title="interventionsChart?.chartTitle"
+          :description="interventionsChart?.chartSubtitle"
+          :chartData="interventionsChartData"
+          :chartColors="{
+            'First surgery': '#4e79a7',
+            'Additional planned surgery according to protocol': '#f28e2c',
+            'Unwanted reoperation due to complications': '#e15759',
+          }"
+          :valuesArePercents="false"
           :asDonutChart="true"
           :enableLegendHovering="true"
-          :stackLegend="true"
           legendPosition="bottom"
+          :stackLegend="true"
+          :enableClicks="true"
           :chartHeight="200"
-          :chartScale="0.9"
-          :valuesArePercents="false"
+          :chartScale="0.85"
         />
       </DashboardChart>
       <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 215px" />
+        <MessageBox v-else-if="!loading && !hasSurgeryAgeData" type="warning">
+          <span>Not enough data to show chart</span>
+        </MessageBox>
         <ColumnChart
-          chartId="cd-all-surgical-age-at-surgery"
-          title="Age at first surgery"
-          description="Number of patients by age (months)"
-          :chartData="ageAtFirstSurgery"
-          xvar="age"
-          yvar="value"
-          xAxisLabel="Age (months)"
-          yAxisLabel="Number of patients"
-          :yMax="200"
-          :yTickValues="[0, 25, 50, 75, 100, 125, 150, 175, 200]"
-          :chartHeight="280"
+          v-else
+          :chartId="surgeryAgeChart?.chartId"
+          :title="surgeryAgeChart?.chartTitle"
+          :description="surgeryAgeChart?.chartSubtitle"
+          :chartData="surgeryAgeChartData"
+          xvar="dataPointTime"
+          yvar="dataPointValue"
+          :xAxisLabel="surgeryAgeChart?.xAxisLabel"
+          :yAxisLabel="surgeryAgeChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="surgeryAgeChart?.yAxisMaxValue"
+          :yTickValues="surgeryAgeChart?.yAxisTicks"
           columnFill="#2a8f64"
           columnHoverFill="#ed7b23"
+          :chartHeight="275"
+          :chartMargins="{
+            top: surgeryAgeChart?.topMargin,
+            right: surgeryAgeChart?.rightMargin,
+            bottom: surgeryAgeChart?.bottomMargin,
+            left: surgeryAgeChart?.leftMargin,
+          }"
         />
       </DashboardChart>
     </DashboardRow>
   </ProviderDashboard>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
 import {
   DashboardRow,
   DashboardChart,
   PieChart2,
   ColumnChart,
   InputLabel,
+  LoadingScreen,
+  MessageBox,
+  // @ts-expect-error
 } from "molgenis-viz";
 import ProviderDashboard from "../components/ProviderDashboard.vue";
 
-// create random datasets for demo purposes
-import { randomInt } from "d3";
-import generateColors from "../utils/palette.js";
-import { seq } from "../utils/devtools.js";
+import { generateAxisTickData } from "../utils/generateAxisTicks";
+import { asKeyValuePairs, sum, sumObjectValues } from "../utils";
+import { getDashboardChart } from "../utils/getDashboardData";
+import { generateColorPalette } from "../utils/generateColorPalette";
+import {
+  filterAgeAtSurgeryData,
+  prepareDiagnosisFilters,
+} from "../utils/csSurgicalUtils";
 
-let typeOfSurgery = ref({
-  "Extracranial procedures": 0,
-  Hydrocephalus: 0,
-  Midface: 0,
-  Vault: 0,
-});
-let totalCases = ref(0);
-let surgicalComplications = ref({
-  Complications: 0,
-  "No complications": 0,
-});
-let surgicalComplicationsTitle = ref("All surgical complications");
-let surgicalInterventions = ref({
-  "Additional planned surgery according to protocol": 0,
-  "First surgery": 0,
-  "Unwanted reoperation due to complications": 0,
-});
+import type { ICharts, IChartData } from "../types/schema";
+import type { IAppPage } from "../types/app";
+import type { IKeyValuePair, IValueLabel } from "../types/index";
+const props = defineProps<IAppPage>();
 
-let ageAtFirstSurgery = ref([]);
+const loading = ref<boolean>(true);
+const surgeryTypesChart = ref<ICharts>();
+const surgeryTypesChartData = ref<IChartData[]>();
+const selectedSurgeryType = ref<string>();
+const diagnoses = ref<IValueLabel[]>();
+const complicationsChart = ref<ICharts>();
+const complicationsChartData = ref<IKeyValuePair>();
+const complicationsChartPalette = ref<IKeyValuePair>();
+const hasComplicationsData = ref<boolean>(false);
+const selectedDiagnosis = ref<string>();
+const interventionsChart = ref<ICharts>();
+const interventionsChartData = ref<IKeyValuePair>();
+const hasInterventionsData = ref<boolean>(false);
+const surgeryAgeChart = ref<ICharts>();
+const surgeryAgeChartData = ref<IChartData[]>();
+const hasSurgeryAgeData = ref<boolean>(false);
 
-let surgeryTypeColors = ref({});
-const complicationColors = generateColors(
-  Object.keys(surgicalComplications.value)
-);
-const surgicalInterventionColors = generateColors(
-  Object.keys(surgicalInterventions.value)
-);
+async function getPageData() {
+  const surgeryTypesResponse = await getDashboardChart(
+    props.api.graphql.providers,
+    "cs-all-centers-type-of-surgery"
+  );
 
-function setTypeOfSurgery() {
-  const types = [
-    "Extracranial procedures",
-    "Hydrocephalus",
-    "Midface",
-    "Vault",
-  ];
-  surgeryTypeColors.value = generateColors(types);
-  typeOfSurgery.value = types.map((type) => {
-    return { type: type, count: randomInt(1, 100)() };
-  });
+  const complicationsResponse = await getDashboardChart(
+    props.api.graphql.providers,
+    "cs-all-centers-surgical-complications"
+  );
 
-  totalCases.value = typeOfSurgery.value
-    .map((row) => row.count)
-    .reduce((sum, value) => sum + value, 0);
+  const interventionsResponse = await getDashboardChart(
+    props.api.graphql.providers,
+    "cs-all-centers-surgical-interventions"
+  );
+
+  const surgeryAgeResponse = await getDashboardChart(
+    props.api.graphql.providers,
+    "cs-all-centers-age-at-first-surgery"
+  );
+
+  surgeryTypesChart.value = surgeryTypesResponse[0];
+  complicationsChart.value = complicationsResponse[0];
+  interventionsChart.value = interventionsResponse[0];
+  surgeryAgeChart.value = surgeryAgeResponse[0];
 }
 
-function setSurgicalComplications(total) {
-  const types = Object.keys(surgicalComplications.value);
-  let currentTotal = total;
-  const data = types
-    .map((type, i) => {
-      const randomValue =
-        i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
-      const row = [type, randomValue];
-      currentTotal -= randomValue;
-      return row;
+function onSurgeryTypesChartClick(value: string) {
+  selectedSurgeryType.value = JSON.parse(value).dataPointName!;
+  updateComplicationsChart();
+}
+
+function updateComplicationsChart() {
+  const filteredData = complicationsChart.value?.dataPoints?.filter(
+    (row: IChartData) => {
+      return row.dataPointPrimaryCategory === selectedSurgeryType.value;
+    }
+  );
+
+  complicationsChartData.value = asKeyValuePairs(
+    filteredData,
+    "dataPointName",
+    "dataPointValue"
+  );
+
+  complicationsChartPalette.value = generateColorPalette(
+    Object.keys(complicationsChartData.value)
+  );
+
+  const sum: number = sumObjectValues(complicationsChartData.value);
+  hasComplicationsData.value = sum > 0;
+}
+
+function updateInterventionsChart() {
+  const filteredData = interventionsChart.value?.dataPoints!.filter(
+    (row: IChartData) => {
+      return row.dataPointPrimaryCategory === selectedDiagnosis.value;
+    }
+  );
+
+  interventionsChartData.value = asKeyValuePairs(
+    filteredData,
+    "dataPointValueLabel",
+    "dataPointValue"
+  );
+
+  const sum: number = sumObjectValues(interventionsChartData.value);
+  hasInterventionsData.value = sum > 0;
+}
+
+function updateSurgeryAgeChart() {
+  surgeryAgeChartData.value = filterAgeAtSurgeryData(
+    surgeryAgeChart.value?.dataPoints!,
+    selectedDiagnosis.value!
+  );
+
+  const chartAxis = generateAxisTickData(
+    surgeryAgeChartData.value!,
+    "dataPointValue"
+  );
+
+  (surgeryAgeChart.value as ICharts).yAxisMaxValue = chartAxis.limit;
+  (surgeryAgeChart.value as ICharts).yAxisTicks = chartAxis.ticks;
+
+  const total: number = sum(surgeryAgeChartData.value, "dataPointValue");
+  hasSurgeryAgeData.value = total > 0;
+}
+
+onMounted(() => {
+  getPageData()
+    .then(() => {
+      // set surgery types data
+      surgeryTypesChartData.value = surgeryTypesChart.value?.dataPoints?.sort(
+        (a, b) => {
+          return a.dataPointOrder! - b.dataPointOrder!;
+        }
+      );
+
+      const surgeryTypesAxis = generateAxisTickData(
+        surgeryTypesChartData.value!,
+        "dataPointValue"
+      );
+
+      (surgeryTypesChart.value as ICharts).yAxisMaxValue =
+        surgeryTypesAxis.limit;
+      (surgeryTypesChart.value as ICharts).yAxisTicks = surgeryTypesAxis.ticks;
+
+      selectedSurgeryType.value = surgeryTypesChartData.value![0].dataPointName;
+
+      diagnoses.value = prepareDiagnosisFilters(
+        interventionsChart.value?.dataPoints!
+      );
+      selectedDiagnosis.value = diagnoses.value[0].value;
     })
-    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
-  surgicalComplications.value = Object.fromEntries(data);
-}
-
-function updateSurgicalComplications(value) {
-  const title = Object.keys(value);
-  surgicalComplicationsTitle.value = `${title} surgical complications`;
-  const total = value[Object.keys(value)];
-  setSurgicalComplications(total);
-}
-
-function setSurgicalInterventions() {
-  const types = Object.keys(surgicalInterventions.value);
-  let currentTotal = totalCases.value;
-  const data = types
-    .map((type, i) => {
-      const randomValue =
-        i === types.length - 1 ? currentTotal : randomInt(1, currentTotal)();
-      const row = [type, randomValue];
-      currentTotal -= randomValue;
-      return row;
+    .then(() => {
+      updateComplicationsChart();
+      updateInterventionsChart();
+      updateSurgeryAgeChart();
     })
-    .sort((current, next) => (current[1] < next[1] ? 1 : -1));
-  surgicalInterventions.value = Object.fromEntries(data);
-}
-
-function setAgeAtFirstSurgery() {
-  const ages = seq(0, 14, 2);
-  let currentTotal = totalCases.value;
-  const data = ages.map((age, i) => {
-    const randomValue =
-      i === ages.length - 1 ? currentTotal : randomInt(1, currentTotal)();
-    const row = { age: `${age}`, value: randomValue };
-    currentTotal -= randomValue;
-    return row;
-  });
-  ageAtFirstSurgery.value = data;
-}
-
-function onDiagnosisInput() {
-  setSurgicalInterventions();
-  setAgeAtFirstSurgery();
-}
-
-setTypeOfSurgery();
-setSurgicalComplications(totalCases.value);
-setSurgicalInterventions();
-setAgeAtFirstSurgery();
+    .catch((err) => {
+      throw new Error(err);
+    })
+    .finally(() => (loading.value = false));
+});
 </script>

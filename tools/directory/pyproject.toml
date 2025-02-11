@@ -7,3 +7,11 @@ build-backend = "setuptools.build_meta"
 # See configuration details in https://github.com/pypa/setuptools_scm
 root = "../../"
 version_scheme = "no-guess-dev"
+
+[tool.black]
+exclude = '''
+(
+  setup.py
+  init.py
+)
+'''
