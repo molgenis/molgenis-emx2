@@ -86,6 +86,7 @@ export interface ISection {
 export interface IFile {
   id?: string;
   size?: number;
+  filename?: string;
   extension?: string;
   url?: string;
 }
