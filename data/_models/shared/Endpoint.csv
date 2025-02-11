@@ -17,7 +17,7 @@ Endpoint,,url,hyperlink,,,,,,,,dcat:endpointURL,The root location or primary end
 Endpoint,,endPointDescription,hyperlink_array,,,,,,,,dcat:endPointDescription,"A description of the service end-point, including its operations, parameters etc.",FAIRDataPoint
 Endpoint,,metadataIdentifier,hyperlink,,,,,,,,https://w3id.org/fdp/fdp-o#metadataIdentifier,Identifier of the metadata entry.,FAIRDataPoint
 Endpoint,,metadataCatalog,ref_array,,,,Catalog,,,,https://w3id.org/fdp/fdp-o#metadataCatalog,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",FAIRDataPoint
-Endpoint,,organisation,ontology,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,Name of the organisation. E.g. University Medical Center Groningen,Beacon v2
+Endpoint,,organisation,ontology,,,,Organisations,,,,obo:NCIT_C25412,Name of the organisation. E.g. University Medical Center Groningen,Beacon v2
 Endpoint,,alternativeUrl,,,,,,,,,"dcterms:alternative, http://schema.org/url",Alternative endpoint URL.,Beacon v2
 Endpoint,,EJP_RD_personalData,bool,,,,,,,,https://w3id.org/ejp-rd/vocabulary#personalData,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false.",FAIRDataPoint
 Endpoint,,EJP_RD_vpConnection,hyperlink,,,,,,,,https://w3id.org/ejp-rd/vocabulary#vpConnection,"This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.",FAIRDataPoint

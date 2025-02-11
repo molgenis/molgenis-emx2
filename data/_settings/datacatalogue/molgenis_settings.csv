@@ -19,4 +19,5 @@ custom_rdf,"# DCAT-v3: https://www.w3.org/TR/vocab-dcat-3/#normative-namespaces
 @prefix time: <http://www.w3.org/2006/time#> .
 @prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-# Add custom namespaces below"
+# Add custom namespaces below
+@prefix obo: <http://purl.obolibrary.org/obo/> ."
