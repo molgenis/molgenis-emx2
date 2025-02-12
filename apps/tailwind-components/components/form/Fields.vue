@@ -13,6 +13,7 @@ import {
 import type { IFormLegendSection } from "../../../metadata-utils/src/types";
 import { scrollToElementInside } from "~/utils/scrollTools";
 import logger from "@/utils/logger";
+import consola from "consola";
 
 //todo: don't forget about default values for reflinks
 
@@ -20,18 +21,34 @@ const props = defineProps<{
   id: string;
   schemaId: string;
   metadata: ITableMetaData;
-  data: Record<columnId, columnValue>[];
 }>();
 
-const emit = defineEmits(["error", "update:modelValue"]);
+const modelValue = defineModel<Record<string, columnValue>>();
 
-const dataMap = reactive<Record<columnId, columnValue>>(
-  Object.fromEntries(
-    props.metadata.columns
+const emit = defineEmits(["error"]);
+
+const dataMap = computed({
+  get() {
+    return props.metadata.columns
       .filter((column) => column.columnType !== "HEADING")
-      .map((column) => [column.id, ""])
-  )
-);
+      .map((column) => {
+        const value = modelValue.value[column.id];
+        consola.info("col", column.id, "value", value);
+        return [column.id, modelValue.value[column.id]];
+      })
+      .reduce((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {} as Record<columnId, columnValue>);
+  },
+  set(newValue) {
+    consola.info("new value", newValue);
+    Object.keys(newValue).forEach((key) => {
+      modelValue.value[key] = newValue[key];
+    });
+  },
+});
+
 const visibleMap = reactive<Record<columnId, boolean>>({});
 const errorMap = reactive<Record<columnId, string>>({});
 const previousColumn = ref<IColumn>();
@@ -130,23 +147,6 @@ function checkVisibleExpression(column: IColumn) {
   );
 }
 
-function onUpdate(column: IColumn, $event: columnValue) {
-  dataMap[column.id] = $event;
-  if (errorMap[column.id]) {
-    validateColumn(column);
-  }
-  props.metadata.columns
-    .filter((c) => c.visible?.includes(column.id))
-    .forEach((c) => {
-      visibleMap[c.id] = isColumnVisible(c, dataMap, props.metadata)
-        ? true
-        : false;
-      logger.debug("updating visibility for " + c.id + "=" + visibleMap[c.id]);
-    });
-  previousColumn.value = column;
-  emit("update:modelValue", dataMap);
-}
-
 function onFocus(column: IColumn) {
   logger.debug("focus " + column.id + " previous " + previousColumn.value);
   //will validate previous column, because checkbox, radio don't have 'blur'
@@ -182,6 +182,7 @@ function goToSection(headerId: string) {
     <div v-if="chapters.length > 1" class="basis-1/3">
       <FormLegend :sections="chapters" @go-to-section="goToSection" />
     </div>
+
     <div
       class="h-screen overflow-y-scroll"
       :class="{ 'basis-2/3': chapters.length > 1 }"
@@ -225,7 +226,6 @@ function goToSection(headerId: string) {
             :ref-table-id="column.refTableId"
             :ref-label="column.refLabel || column.refLabelDefault"
             :invalid="errorMap[column.id]?.length > 0"
-            @update:modelValue="onUpdate(column, $event)"
             @blur="onBlur(column)"
             @focus="onFocus(column)"
           />
