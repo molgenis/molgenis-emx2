@@ -37,10 +37,12 @@ const sections = ref<IFormLegendSection[]>([
   {
     label: "Contents",
     id: "contents",
+    errorCount: 0,
   },
   {
     label: "Access",
     id: "access",
+    errorCount: 0,
   },
   {
     label: "Registration",
@@ -50,6 +52,7 @@ const sections = ref<IFormLegendSection[]>([
   {
     label: "Information",
     id: "information",
+    errorCount: 0,
   },
 ]);
 </script>
