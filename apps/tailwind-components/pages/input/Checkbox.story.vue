@@ -53,37 +53,39 @@ const toppingsSelection = ref<string[]>(["tomatoes", "basil"]);
     </div>
     <div>
       <h3>Checkbox group example</h3>
-      <legend class="text-title">
-        Which toppings would you like on your pizza? You may select more than
-        one.
-      </legend>
-      <InputCheckboxGroup
-        id="example-4"
-        v-model="toppingsSelection"
-        :options="[
-          {
-            value: 'tomatoes',
-            label: 'Roma tomatoes',
-          },
-          {
-            value: 'pepperoni',
-            label: 'Pepperoni',
-          },
-          {
-            value: 'mozzerella',
-            label: 'Fresh mozzerella',
-          },
-          {
-            value: 'chillies',
-            label: 'Chillies',
-          },
-          {
-            value: 'basil',
-            label: 'Fresh basil',
-          },
-        ]"
-        :showClearButton="true"
-      />
+      <fieldset>
+        <legend class="text-title">
+          Which toppings would you like on your pizza? You may select more than
+          one.
+        </legend>
+        <InputCheckboxGroup
+          id="example-4"
+          v-model="toppingsSelection"
+          :options="[
+            {
+              value: 'tomatoes',
+              label: 'Roma tomatoes',
+            },
+            {
+              value: 'pepperoni',
+              label: 'Pepperoni',
+            },
+            {
+              value: 'mozzerella',
+              label: 'Fresh mozzerella',
+            },
+            {
+              value: 'chillies',
+              label: 'Chillies',
+            },
+            {
+              value: 'basil',
+              label: 'Fresh basil',
+            },
+          ]"
+          :showClearButton="true"
+        />
+      </fieldset>
       <output>
         <span>Selection: {{ toppingsSelection }}</span>
       </output>

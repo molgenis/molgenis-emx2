@@ -1,21 +1,21 @@
 <template>
   <div :id="`${id}-checkbox-group`" :aria-describedby="describedBy">
-    <div class="flex flex-row" v-for="option in options">
-      <input
-        type="checkbox"
-        :id="`${id}-checkbox-group-${option.value}`"
-        :name="id"
-        :value="option.value"
-        v-model="modelValue"
-        :checked="modelValue!.includes(option.value)"
-        :disabled="disabled"
-        @change="toggleSelect"
-        class="absolute ml-4 mt-2 opacity-0"
-      />
+    <div class="group flex flex-row" v-for="option in options">
       <InputLabel
         :for="`${id}-checkbox-group-${option.value}`"
-        class="hover:cursor-pointer flex justify-start items-center text-title"
+        class="group cursor-pointer flex justify-start items-center text-title"
       >
+        <input
+          type="checkbox"
+          :id="`${id}-checkbox-group-${option.value}`"
+          :name="id"
+          :value="option.value"
+          v-model="modelValue"
+          :checked="modelValue!.includes(option.value)"
+          :disabled="disabled"
+          @change="toggleSelect"
+          class="peer sr-only"
+        />
         <InputCheckboxIcon
           :checked="modelValue!.includes(option.value)"
           :invalid="invalid"
@@ -31,14 +31,14 @@
       </InputLabel>
     </div>
     <div class="mt-2" v-if="showClearButton">
-      <button
+      <ButtonText
         type="reset"
         :id="`${id}-checkbox-group-clear`"
         :form="`${id}-checkbox-group`"
         @click.prevent="resetModelValue"
       >
         Clear
-      </button>
+      </ButtonText>
     </div>
   </div>
 </template>

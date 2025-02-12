@@ -4,20 +4,22 @@
     height="20"
     view-box="0 0 20 20"
     xmlns="http://www.w3.org/2000/svg"
-    class="hover:cursor-pointer w-[20px] mr-2.5"
+    class="w-[20px] mr-2.5"
     :data-checked="checked"
     :data-indeterminate="indeterminate"
   >
     <rect
       width="20"
       height="20"
-      :style="{ 'stroke-width': invalid ? 4 : 1 }"
+      :style="{ 'stroke-width': invalid ? 4 : 2 }"
       :class="{
         'fill-input': !checked && !indeterminate,
-        'fill-input-checked': checked || indeterminate,
+        'fill-input-checked group-hover:fill-input-focused group-focus-within:fill-input-focused':
+          checked || indeterminate,
         'fill-invalid': checked && invalid,
         'fill-valid': checked && valid,
-        'stroke-current': !disabled,
+        'stroke-input peer-focus:stroke-input-focused group-focus-within:stroke-input-focused group-hover:stroke-input-focused':
+          !disabled,
         'stroke-valid': valid,
         'stroke-invalid': invalid,
       }"
@@ -25,7 +27,7 @@
     <path
       v-if="checked"
       d="M5,10 L 9,14 L 16,6"
-      class="stroke-check"
+      class="stroke-input-checked"
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
@@ -34,7 +36,7 @@
     <path
       v-if="indeterminate"
       d="M5,10 L 15,10"
-      class="stroke-gray-900"
+      class="stroke-input-checked"
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
@@ -50,5 +52,6 @@ defineProps<{
   invalid?: boolean;
   valid?: boolean;
   disabled?: boolean;
+  focused?: boolean;
 }>();
 </script>
