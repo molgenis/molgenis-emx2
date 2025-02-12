@@ -15,8 +15,6 @@ import { scrollToElementInside } from "~/utils/scrollTools";
 import logger from "@/utils/logger";
 import consola from "consola";
 
-//todo: don't forget about default values for reflinks
-
 const props = defineProps<{
   id: string;
   schemaId: string;
@@ -27,28 +25,6 @@ const modelValue = defineModel<Record<string, columnValue>>();
 
 const emit = defineEmits(["error"]);
 
-const dataMap = computed({
-  get() {
-    return props.metadata.columns
-      .filter((column) => column.columnType !== "HEADING")
-      .map((column) => {
-        const value = modelValue.value[column.id];
-        consola.info("col", column.id, "value", value);
-        return [column.id, modelValue.value[column.id]];
-      })
-      .reduce((acc, [key, value]) => {
-        acc[key] = value;
-        return acc;
-      }, {} as Record<columnId, columnValue>);
-  },
-  set(newValue) {
-    consola.info("new value", newValue);
-    Object.keys(newValue).forEach((key) => {
-      modelValue.value[key] = newValue[key];
-    });
-  },
-});
-
 const visibleMap = reactive<Record<columnId, boolean>>({});
 const errorMap = reactive<Record<columnId, string>>({});
 const previousColumn = ref<IColumn>();
@@ -57,9 +33,9 @@ const previousColumn = ref<IColumn>();
 props.metadata.columns
   .filter((column) => column.columnType === "HEADING")
   .forEach((column) => {
-    logger.debug(isColumnVisible(column, dataMap, props.metadata));
+    logger.debug(isColumnVisible(column, modelValue, props.metadata));
     visibleMap[column.id] =
-      !column.visible || isColumnVisible(column, dataMap, props.metadata)
+      !column.visible || isColumnVisible(column, modelValue, props.metadata)
         ? true
         : false;
     logger.debug(
@@ -111,7 +87,8 @@ const numberOfRequiredFields = computed(
 const numberOfRequiredFieldsWithData = computed(
   () =>
     props.metadata.columns.filter(
-      (column) => column.required && dataMap[column.id]
+      (column) =>
+        column.required && modelValue[column.id as keyof typeof modelValue]
     ).length
 );
 
@@ -119,14 +96,18 @@ const recordLabel = computed(() => props.metadata.label);
 
 function validateColumn(column: IColumn) {
   logger.debug("validate " + column.id);
-  delete errorMap[column.id];
-  const error = getColumnError(column, dataMap, props.metadata);
-  if (error) errorMap[column.id] = error;
-  else {
+
+  const error = getColumnError(column, modelValue.value, props.metadata);
+
+  consola.info("error", error);
+
+  if (error) {
+    errorMap[column.id] = error;
+  } else {
     errorMap[column.id] = props.metadata.columns
       .filter((c) => c.validation?.includes(column.id))
       .map((c) => {
-        const result = getColumnError(c, dataMap, props.metadata);
+        const result = getColumnError(c, modelValue.value, props.metadata);
         return result;
       })
       .join("");
@@ -134,7 +115,7 @@ function validateColumn(column: IColumn) {
 }
 
 function checkVisibleExpression(column: IColumn) {
-  if (!column.visible || isColumnVisible(column, dataMap, props.metadata)) {
+  if (!column.visible || isColumnVisible(column, modelValue, props.metadata)) {
     visibleMap[column.id] = true;
   } else {
     visibleMap[column.id] = false;
@@ -212,7 +193,7 @@ function goToSection(headerId: string) {
           <FormField
             class="pb-8"
             v-else-if="visibleMap[column.id] === true"
-            v-model="dataMap[column.id]"
+            v-model="modelValue[column.id]"
             :id="`${column.id}-form-field`"
             :type="column.columnType"
             :label="column.label"

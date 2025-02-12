@@ -20,6 +20,11 @@ interface Schema {
 const route = useRoute();
 const schemaId = ref((route.query.schema as string) ?? "type test");
 const tableId = ref((route.query.table as string) ?? "Types");
+const numberOfRows = ref(0);
+const rowIndex = ref<null | number>(null);
+const formFields = ref<InstanceType<typeof FormFields>>();
+const formValues = ref<Record<string, columnValue>>({});
+const errors = ref<Record<string, IFieldError[]>>({});
 
 const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   key: "schemas",
@@ -39,9 +44,6 @@ const {
   refresh,
   status,
 } = await useAsyncData("form sample", () => fetchMetadata(schemaId.value));
-
-const numberOfRows = ref(0);
-const rowIndex = ref<null | number>(null);
 
 async function getNumberOfRows() {
   const resp = await $fetch(`/${schemaId.value}/graphql`, {
@@ -75,16 +77,6 @@ const tableMeta = computed(() => {
     ? null
     : schemaMeta.value.tables.find((table) => table.id === tableId.value);
 });
-
-const formFields = ref<InstanceType<typeof FormFields>>();
-
-const formValues = ref<Record<string, columnValue>>({});
-
-function onModelUpdate(value: Record<string, columnValue>) {
-  formValues.value = value;
-}
-
-const errors = ref<Record<string, IFieldError[]>>({});
 
 function onErrors(newErrors: Record<string, IFieldError[]>) {
   errors.value = newErrors;
@@ -137,7 +129,6 @@ watch(
 <template>
   <div class="flex flex-row">
     <div class="2/3 p-8 border-l">
-      <!-- {{ formValues }} -->
       <FormFields
         id="forms-story"
         v-if="schemaId && tableMeta && status === 'success'"
@@ -199,9 +190,7 @@ watch(
           </div>
         </div>
 
-        {{ formValues }}
-
-        <!-- <div class="mt-4 flex flex-row">
+        <div class="mt-4 flex flex-row">
           <div v-if="Object.keys(formValues).length" class="basis-1/2">
             <h3 class="text-label">Values</h3>
             <dl class="flex flex-col">
@@ -223,7 +212,7 @@ watch(
               </template>
             </dl>
           </div>
-        </div> -->
+        </div>
       </div>
     </div>
   </div>
