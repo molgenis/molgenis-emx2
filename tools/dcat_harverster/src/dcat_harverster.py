@@ -3,11 +3,11 @@ from rdflib import Graph, Namespace, RDF
 import requests
 
 # EMX2 Configuration
-EMX2_URL = "https://your-emx2-instance"
-USERNAME = "your_username"
-PASSWORD = "your_password"
-DATA_SCHEMA = "your_data_schema"  # Schema for datasets
-ONTOLOGY_SCHEMA = "your_ontology_schema"  # Schema for ontology tables
+EMX2_URL = "https://emx2.dev.molgenis.org/"
+USERNAME = "admin"
+PASSWORD = "admin"
+DATA_SCHEMA = "catalogue-demo"  # Schema for datasets
+ONTOLOGY_SCHEMA = "CatalogueOntologies"  # Schema for ontology tables
 
 # Connect to EMX2
 molgenis = Molgenis(EMX2_URL)
