@@ -73,15 +73,11 @@ const chapters = computed(() => {
           id: "_scroll_to_top",
           columns: [],
           isActive: "_scroll_to_top" === activeChapterId.value,
+          errorCount: 0,
         });
       }
       acc[acc.length - 1].columns.push(column);
-      if (errorMap[column.id]) {
-        const lastChapter = acc[acc.length - 1];
-        if (lastChapter && lastChapter.errorCount) {
-          lastChapter.errorCount++;
-        }
-      }
+      if (errorMap[column.id]) acc[acc.length - 1].errorCount++;
     }
     return acc;
   }, [] as (IFormLegendSection & { columns: IColumn[] })[]);

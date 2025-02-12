@@ -44,7 +44,8 @@ export type CellValueType =
   | "EMAIL"
   | "EMAIL_ARRAY"
   | "HYPERLINK"
-  | "HYPERLINK_ARRAY";
+  | "HYPERLINK_ARRAY"
+  | "CHECKBOX";
 
 export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
@@ -99,7 +100,7 @@ export interface IFormLegendSection {
   label: string;
   id: string;
   isActive?: boolean;
-  errorCount?: number;
+  errorCount: number;
 }
 
 export type columnId = string;
