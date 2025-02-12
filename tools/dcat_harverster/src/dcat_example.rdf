@@ -1,0 +1,10 @@
+<rdf:RDF xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:dct="http://purl.org/dc/terms/">
+    <dcat:Dataset>
+        <dct:identifier>12345</dct:identifier>
+        <dct:title>Climate Data</dct:title>
+        <dct:license rdf:resource="http://example.com/license/CC-BY"/>
+        <dct:subject rdf:resource="http://example.com/theme/environment"/>
+        <dct:type rdf:resource="http://example.com/category/climate"/>
+    </dcat:Dataset>
+</rdf:RDF>
