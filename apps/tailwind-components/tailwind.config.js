@@ -244,18 +244,22 @@ module.exports = {
         "disabled": "var(--border-color-disabled)",
         "input": "var(--border-color-input)",
         "input-inverted": "var(--border-color-input-inverted)",
+        "input-focused": "var(--border-color-input-focused)",
         "listbox": "var(--border-color-search-input)",
         "listbox-option": "var(--border-color-listbox-option)",
       }),
       stroke: ({ theme }) => ({
         "input": "var(--border-color-input)",
+        "input-focused": "var(--border-color-input-focused)",
         "notification-text": "var(--text-color-legend-error-count)",
-        "check": "var(--text-color-button-primary)",
-        "invalid": "var(--text-color-invalid)",
-        "valid": "var(--text-color-valid)",
+        "input-checked": "var(--text-color-button-primary)",
+        "invalid": "var(--border-color-invalid)",
+        "valid": "var(--border-color-valid)",
+        "disabled": "var(--border-color-disabled)",
       }),
       fill: ({ theme }) => ({
         "input": "var(--background-color-input)",
+        "input-focused": "var(--background-color-input-focused)",
         "input-checked": "var(--background-color-input-checked)",
         "listbox-selected": "var(--text-color-listbox-selected)",
         "notification": "var(--background-color-notification)",
@@ -263,6 +267,7 @@ module.exports = {
         "check": "var(--text-color-button-primary)",
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",
+        "disabled": "var(--background-color-disabled)", 
         "fill-checkbox-invalid": "var(--background-color-invalid)"
       }),
       borderRadius: {

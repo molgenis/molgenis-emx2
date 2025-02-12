@@ -2,28 +2,35 @@
   <div
     :id="`${id}-radio-group`"
     :aria-describedby="describedBy"
-    class="flex gap-1"
+    class="flex gap-1 border-l-4 border-transparent"
     :class="{
       'flex-row': align === 'horizontal',
       'flex-col': align === 'vertical',
+      'border-l-invalid': invalid,
+      'border-l-valid': valid,
     }"
   >
     <div v-for="option in options" class="flex justify-start align-center">
-      <InputRadio
-        :id="`${id}-radio-group-${option.value}`"
-        class="opacity-0 absolute mt-1"
-        :value="option.value"
-        v-model="modelValue"
-        @input="toggleSelect"
-        :checked="option.value === modelValue"
-        :invalid="invalid"
-        :valid="valid"
-        :disabled="disabled"
-      />
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
-        class="hover:cursor-pointer flex flex-row gap-1 text-title"
+        class="group hover:cursor-pointer flex flex-row gap-1"
+        :class="{
+          'text-disabled cursor-not-allowed': disabled,
+          'text-title cursor-pointer ': !disabled,
+        }"
       >
+        <InputRadio
+          :id="`${id}-radio-group-${option.value}`"
+          class="peer sr-only"
+          :value="option.value"
+          :name="id"
+          v-model="modelValue"
+          @input="toggleSelect"
+          :checked="option.value === modelValue"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
+        />
         <InputRadioIcon
           :checked="modelValue === option.value"
           class="mr-1"
@@ -39,26 +46,25 @@
         </template>
       </InputLabel>
     </div>
-
-    <button
-      v-show="isClearBtnShow"
-      class="ml-2 w-8 text-center text-button-outline hover:text-button-outline hover:underline"
-      :class="{ 'ml-2': align === 'horizontal', 'mt-2': align === 'vertical' }"
+    <ButtonText
+      v-if="showClearButton"
       type="reset"
       :id="`${id}-radio-group-clear`"
+      class="w-8 ml-3"
       :form="`${id}-radio-group`"
       @click.prevent="resetModelValue"
+      :disabled="disabled || null"
     >
       Clear
-    </button>
+    </ButtonText>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { type IInputProps, type IValueLabel } from "~/types/types";
-import type { columnValue } from "metadata-utils/src/types";
+import type { columnValue } from "../../../metadata-utils/src/types";
 
-const props = withDefaults(
+withDefaults(
   defineProps<
     IInputProps & {
       options: IValueLabel[];
@@ -92,13 +98,4 @@ function toggleSelect(event: Event) {
 function resetModelValue() {
   modelValue.value = undefined;
 }
-
-const isClearBtnShow = computed(() => {
-  return (
-    props.showClearButton &&
-    (modelValue.value === true ||
-      modelValue.value === false ||
-      (modelValue.value && modelValue.value !== ""))
-  );
-});
 </script>
