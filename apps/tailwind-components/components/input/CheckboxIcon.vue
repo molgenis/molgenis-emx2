@@ -15,19 +15,23 @@
       :class="{
         'fill-input': !checked && !indeterminate,
         'fill-input-checked group-hover:fill-input-focused group-focus-within:fill-input-focused':
-          checked || indeterminate,
+          (checked || indeterminate) && !disabled,
         'fill-invalid': checked && invalid,
         'fill-valid': checked && valid,
         'stroke-input peer-focus:stroke-input-focused group-focus-within:stroke-input-focused group-hover:stroke-input-focused':
           !disabled,
         'stroke-valid': valid,
         'stroke-invalid': invalid,
+        'stroke-disabled fill-disabled': disabled,
       }"
     />
     <path
       v-if="checked"
       d="M5,10 L 9,14 L 16,6"
       class="stroke-input-checked"
+      :class="{
+        'stroke-disabled': disabled,
+      }"
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
