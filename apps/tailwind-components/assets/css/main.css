@@ -87,7 +87,7 @@
     --background-color-listbox-selected: var(--color-blue-500);
     --background-color-table: var(--color-white);
     --background-color-notification: var(--color-red-700);
-
+    --background-color-code-output: var(--color-gray-100);
 
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-white);
@@ -149,6 +149,7 @@
     --text-color-disabled: var(--color-gray-600);
     --text-color-required: var(--color-red-500);
     
+    --text-code-output: var(--color-gray-800);
     --text-content-required: "*";
 
     --border-color-button-primary: var(--color-blue-500);
