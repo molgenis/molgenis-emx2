@@ -5,6 +5,7 @@ import type {
   ISchemaMetaData,
 } from "../../metadata-utils/src/types";
 import { useRoute } from "#app/composables/router";
+import type { FormFields } from "#components";
 
 type Resp<T> = {
   data: Record<string, T[]>;
