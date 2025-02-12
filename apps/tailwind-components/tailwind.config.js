@@ -161,6 +161,7 @@ module.exports = {
         "listbox-selected": "var(--background-color-listbox-selected)",
         "table": "var(--background-color-table)",
         "notification": "var(--background-color-notification)",
+        "code-output": "var(--background-color-code-output)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -219,6 +220,7 @@ module.exports = {
         "listbox-selected": "var(--text-color-listbox-selected)",
         "button-input-toggle": "var(--text-color-button-input-toggle)",
         "legend-error-count": "var(--text-color-legend-error-count)",
+        "code-output": "var(--text-color-code-output)",
       }),
       borderColor: ({ theme }) => ({
         "button-primary": "var(--border-color-button-primary)",
