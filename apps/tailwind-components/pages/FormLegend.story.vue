@@ -8,7 +8,13 @@
         class="mb-4 border-b-2 h-40"
       >
         <h2 class="text-heading-xl">{{ section.label }}</h2>
-        <p>Content for {{ section.label }}.</p>
+        <p>
+          Content for {{ section.label }}. This section has
+          <span
+            >{{ section.errorCount }}
+            {{ section.errorCount === 1 ? "error" : "errors" }}.</span
+          >
+        </p>
       </section>
     </div>
   </div>
