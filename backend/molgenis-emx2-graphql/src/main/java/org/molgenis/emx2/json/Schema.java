@@ -9,6 +9,7 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
 public class Schema {
+
   private List<Table> tables = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
 
@@ -64,7 +65,6 @@ public class Schema {
               .filter(d -> d.value() != null)
               .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
       for (Column c : t.getColumns()) {
-        int i = 1;
         if (!c.isInherited()) {
           // we remove clearly inherited columns here
           org.molgenis.emx2.Column cm = c.getColumnMetadata(tm);

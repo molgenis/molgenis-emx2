@@ -1,0 +1,13 @@
+---
+name: "FAIR Data Point v1.2"
+description: "FAIR Data Point is a software architecture aiming to define a common approach to publish semantically-rich and machine-actionable metadata according to the FAIR principles."
+
+profileTags:  FAIRDataPoint,
+              DCAT,
+              DCAT files add-on,
+              DCAT examples
+
+demoData: _demodata/shared-examples
+
+# special options
+setViewPermission: anonymous

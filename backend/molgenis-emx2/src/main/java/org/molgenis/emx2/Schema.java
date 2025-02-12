@@ -73,4 +73,8 @@ public interface Schema {
   boolean hasSetting(String emailHost);
 
   Table getTableById(String id);
+
+  Table getTableByNameOrIdCaseInsensitive(String name);
+
+  boolean hasTableWithNameOrIdCaseInsensitive(String fileName);
 }

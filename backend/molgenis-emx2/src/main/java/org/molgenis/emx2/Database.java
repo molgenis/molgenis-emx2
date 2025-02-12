@@ -2,6 +2,8 @@ package org.molgenis.emx2;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public interface Database extends HasSettingsInterface<Database> {
 
@@ -44,6 +46,8 @@ public interface Database extends HasSettingsInterface<Database> {
   List<User> getUsers(int limit, int offset);
 
   void removeUser(String name);
+
+  void setEnabledUser(String name, Boolean enabled);
 
   void setActiveUser(String username);
 
@@ -91,4 +95,16 @@ public interface Database extends HasSettingsInterface<Database> {
   void saveUser(User user);
 
   boolean isAnonymous();
+
+  Database setBindings(Map<String, Supplier<Object>> bindings);
+
+  Map<String, Supplier<Object>> getJavaScriptBindings();
+
+  List<LastUpdate> getLastUpdated();
+
+  List<Member> loadUserRoles();
+
+  void revokeRoles(String userName, List<Map<String, String>> revokedRoles);
+
+  void updateRoles(String userName, List<Map<String, String>> roles);
 }

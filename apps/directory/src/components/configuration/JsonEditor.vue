@@ -1,7 +1,7 @@
 <template>
-  <div @keyup.ctrl.f="format">
+  <div @keyup.ctrl.alt.f="format">
     <div>
-      <div ref="editor" class="editor" @keyup="dirty = true"></div>
+      <div ref="editorDiv" class="editor" @keyup="setDirty()"></div>
     </div>
 
     <input
@@ -25,93 +25,95 @@
           Upload config
         </button>
       </div>
-      <small class="ml-auto">To format your file press ctrl + f</small>
+      <small class="ml-auto">
+        To format your file press <kbd>ctrl</kbd> + <kbd>alt</kbd> +
+        <kbd>f</kbd>
+      </small>
     </div>
   </div>
 </template>
 
-<script>
-import * as monaco from "monaco-editor";
-import { toRaw } from "vue";
+<script setup lang="ts">
+import { editor } from "monaco-editor";
+import { onMounted, ref, toRaw } from "vue";
 
-export default {
-  props: {
-    config: {
-      type: String,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      editor: {},
-      dirty: false,
-    };
-  },
-  watch: {
-    dirty(newValue) {
-      this.$emit("dirty", newValue);
-    },
-  },
-  methods: {
-    format() {
-      this.editor.getAction("editor.action.formatDocument").run();
-    },
-    save() {
-      /** doesnt work with proxy, so that is where toRaw comes in */
-      const changesToSave = toRaw(this.editor).getValue();
-      this.$emit("save", changesToSave);
-    },
-    cancel() {
-      this.$emit("cancel");
-    },
-    download() {
-      const file = new Blob([toRaw(this.editor).getValue()], {
-        type: "json",
-      });
-      const a = document.createElement("a");
-      const url = URL.createObjectURL(file);
-      a.href = url;
-      a.download = `${window.location.host}-config.json`;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(function () {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      }, 0);
-    },
-    upload() {
-      const fileInput = document.getElementById("file-selector");
-      fileInput.click();
-    },
-    async processUpload(event) {
-      const reader = new FileReader();
-      reader.addEventListener("load", (event) => {
-        this.uploadedAppConfig = atob(event.target.result.split(",")[1]);
+const { config } = defineProps<{ config: string }>();
 
-        this.$emit("diff", {
-          currentAppConfig: toRaw(this.editor).getValue(),
-          uploadedAppConfig: this.uploadedAppConfig,
-        });
-      });
-      reader.readAsDataURL(event.target.files[0]);
-    },
-  },
-  mounted() {
-    this.editor = monaco.editor.create(this.$refs.editor, {
-      automaticLayout: true,
-      value: this.config,
-      language: "json",
+const localEditor = ref<any>({});
+const editorDiv = ref<HTMLElement>();
+const dirty = ref(false);
+const uploadedAppConfig = ref("");
+
+const emit = defineEmits(["dirty", "save", "cancel", "diff"]);
+
+onMounted(() => {
+  localEditor.value = editor.create(editorDiv.value as HTMLElement, {
+    automaticLayout: true,
+    value: config,
+    language: "json",
+  });
+
+  const formatTimer = setTimeout(() => {
+    format();
+    clearTimeout(formatTimer);
+  }, 500);
+});
+
+function setDirty() {
+  dirty.value = true;
+  emit("dirty");
+}
+
+function format() {
+  localEditor.value.getAction("editor.action.formatDocument").run();
+}
+
+function save() {
+  /** doesn't work with proxy, so that is where toRaw comes in */
+  const changesToSave = toRaw(localEditor.value).getValue();
+  emit("save", changesToSave);
+}
+
+function cancel() {
+  emit("cancel");
+}
+
+function download() {
+  const file = new Blob([toRaw(localEditor.value).getValue()], {
+    type: "json",
+  });
+  const aElement = document.createElement("a");
+  const url = URL.createObjectURL(file);
+  aElement.href = url;
+  aElement.download = `${window.location.host}-config.json`;
+  document.body.appendChild(aElement);
+  aElement.click();
+  setTimeout(() => {
+    document.body.removeChild(aElement);
+    window.URL.revokeObjectURL(url);
+  }, 0);
+}
+
+function upload() {
+  const fileInput = document.getElementById("file-selector");
+  fileInput?.click();
+}
+
+async function processUpload(event: Record<string, any>) {
+  const reader = new FileReader();
+  reader.addEventListener("load", (event: ProgressEvent<FileReader>) => {
+    if (typeof event.target?.result === "string") {
+      uploadedAppConfig.value = atob(event.target?.result?.split(",")[1]);
+    } else {
+      uploadedAppConfig.value = "";
+    }
+    emit("diff", {
+      currentAppConfig: toRaw(localEditor.value).getValue(),
+      uploadedAppConfig: uploadedAppConfig.value,
     });
-
-    const formatTimer = setTimeout(() => {
-      this.format();
-      clearTimeout(formatTimer);
-    }, 500);
-  },
-  destroyed() {
-    this.editor.dispose();
-  },
-};
+  });
+  reader.readAsDataURL(event.target.files[0]);
+}
 </script>
 
 <style scoped>

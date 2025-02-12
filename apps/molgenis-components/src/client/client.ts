@@ -4,7 +4,7 @@ import type {
   ISchemaMetaData,
   ISetting,
   ITableMetaData,
-} from "meta-data-utils";
+} from "metadata-utils";
 import { IRow } from "../Interfaces/IRow";
 import { deepClone } from "../components/utils";
 import type { aggFunction } from "./IClient";
@@ -62,8 +62,7 @@ const client: IClient = {
       ) => {
         const schemaMetaData = await fetchSchemaMetaData(schemaId);
         const tableMetaData = schemaMetaData.tables.find(
-          (table: ITableMetaData) =>
-            table.id === tableId && table.schemaId === schemaMetaData.id
+          (table: ITableMetaData) => table.id === tableId
         );
         const filter = tableMetaData?.columns
           ?.filter((column: IColumn) => column.key === 1)
@@ -163,16 +162,15 @@ const client: IClient = {
 };
 export default client;
 
-const metaDataQuery = `{
+const metadataQuery = `{
   _schema {
     id,
     tables {
-      schemaId,
       id,
+      name,
       label, 
       description,
       tableType,
-      schemaId,
       semantics,
       columns {
         id,
@@ -242,7 +240,7 @@ const fetchSchemaMetaData = async (
     return schemaCache.get(currentschemaId) as ISchemaMetaData;
   }
   return await axios
-    .post(graphqlURL(schemaId), { query: metaDataQuery })
+    .post(graphqlURL(schemaId), { query: metadataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
       if (schemaId == null) {
@@ -260,19 +258,16 @@ const fetchSchemaMetaData = async (
 const fetchTableData = async (
   tableId: string,
   properties: IQueryMetaData,
-  metaData: ISchemaMetaData
+  metadata: ISchemaMetaData
 ) => {
   const limit = properties.limit ? properties.limit : 20;
   const offset = properties.offset ? properties.offset : 0;
-  const expandLevel =
-    properties.expandLevel || properties.expandLevel == 0
-      ? properties.expandLevel
-      : 2;
+  const expandLevel = properties.expandLevel ?? 2;
   const search = properties.searchTerms
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";
 
-  const schemaId = metaData.id;
+  const schemaId = metadata.id;
   const columnIds = await getColumnIds(schemaId, tableId, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
@@ -310,6 +305,7 @@ const fetchOntologyOptions = async (
   const tableDataQuery = `query ${tableId} {
         ${tableId}(
           limit:100000
+          orderby: { order: ASC }
           )
           {
           	order 
@@ -397,8 +393,7 @@ async function convertRowToPrimaryKey(
 ): Promise<Record<string, any>> {
   const schema = await fetchSchemaMetaData(schemaId);
   const tableMetadata = schema.tables.find(
-    (table: ITableMetaData) =>
-      table.id === tableId && table.schemaId === schema.id
+    (table: ITableMetaData) => table.id === tableId
   );
   if (!tableMetadata?.columns) {
     throw new Error("Empty columns in metadata");

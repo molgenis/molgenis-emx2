@@ -10,7 +10,7 @@ import java.util.*;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.datamodels.AbstractDataLoader;
+import org.molgenis.emx2.io.ImportDataModelTask;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 
@@ -34,7 +34,7 @@ public class SchemaFromProfile {
     InputStreamReader yaml =
         new InputStreamReader(
             Objects.requireNonNull(
-                AbstractDataLoader.class.getClassLoader().getResourceAsStream(yamlFileLocation)));
+                ImportDataModelTask.class.getClassLoader().getResourceAsStream(yamlFileLocation)));
     try {
       this.profiles = new ObjectMapper(new YAMLFactory()).readValue(yaml, Profiles.class);
     } catch (Exception e) {
@@ -75,8 +75,10 @@ public class SchemaFromProfile {
   public List<Row> createRows(boolean filterByProfiles) throws MolgenisException {
     List<Row> keepRows = new ArrayList<>();
     try {
-      keepRows.addAll(getProfilesFromAllModels(SHARED_MODELS_DIR, filterByProfiles));
-      keepRows.addAll(getProfilesFromAllModels(SPECIFIC_MODELS_DIR, filterByProfiles));
+      keepRows.addAll(
+          getProfilesFromAllModels(SHARED_MODELS_DIR, this.profiles.getProfileTagsList()));
+      keepRows.addAll(
+          getProfilesFromAllModels(SPECIFIC_MODELS_DIR, this.profiles.getProfileTagsList()));
     } catch (Exception e) {
       throw new MolgenisException(e.getMessage());
     }
@@ -84,26 +86,31 @@ public class SchemaFromProfile {
   }
 
   /** From a classpath dir, get all EMX2 model files and optionally slice for profiles */
-  public List<Row> getProfilesFromAllModels(String directory, boolean filterByProfiles)
+  public static List<Row> getProfilesFromAllModels(String directory, List<String> profilesSelected)
       throws URISyntaxException, IOException {
     List<Row> keepRows = new ArrayList<>();
     String[] modelsList = new ResourceListing().retrieve(directory);
-    for (String schemaLoc : modelsList) {
+    for (String schemaLoc :
+        Arrays.stream(modelsList).filter(model -> !model.endsWith(".md")).toList()) {
       Iterable<Row> rowIterable =
           CsvTableReader.read(
               new InputStreamReader(
                   Objects.requireNonNull(
-                      getClass().getResourceAsStream(directory + "/" + schemaLoc))));
+                      SchemaFromProfile.class.getResourceAsStream(directory + "/" + schemaLoc))));
 
       for (Row row : rowIterable) {
-        List<String> profiles = csvStringToList(row.getString("profiles"));
-        if (profiles.isEmpty()) {
-          throw new MolgenisException("No profiles for " + row);
-        }
-        for (String profile : profiles) {
-          if (!filterByProfiles || this.profiles.getProfileTagsList().contains(profile)) {
-            keepRows.add(row);
-            break;
+        if (profilesSelected.size() == 0) {
+          keepRows.add(row);
+        } else {
+          List<String> profiles = csvStringToList(row.getString("profiles"));
+          if (profiles.isEmpty()) {
+            throw new MolgenisException("No profiles for " + row + " in file " + schemaLoc);
+          }
+          for (String profile : profiles) {
+            if (profilesSelected.contains(profile)) {
+              keepRows.add(row);
+              break;
+            }
           }
         }
       }

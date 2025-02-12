@@ -3,15 +3,22 @@ package org.molgenis.emx2.datamodels;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.createSharedStaging;
 
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.io.ImportDataModelTask;
 
-public class DataCatalogueNetworkStagingLoader extends AbstractDataLoader {
+public class DataCatalogueNetworkStagingLoader extends ImportDataModelTask {
+
+  public DataCatalogueNetworkStagingLoader(Schema schema, Boolean includeDemoData) {
+    super(schema, includeDemoData);
+  }
 
   @Override
-  public void loadInternalImplementation(Schema schema, boolean includeDemoData) {
+  public void run() {
+    this.start();
     // create shared schemas
-    createSharedStaging(schema.getDatabase());
+    createSharedStaging(getSchema());
 
     // create the schema
-    createSchema(schema, "datacatalogue/stagingNetworks/molgenis.csv");
+    createSchema(getSchema(), "datacatalogue/stagingNetworks/molgenis.csv");
+    this.complete();
   }
 }

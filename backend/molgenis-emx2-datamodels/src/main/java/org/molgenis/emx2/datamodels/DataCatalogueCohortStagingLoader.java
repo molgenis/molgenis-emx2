@@ -2,26 +2,33 @@ package org.molgenis.emx2.datamodels;
 
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.io.ImportDataModelTask;
 
-public class DataCatalogueCohortStagingLoader extends AbstractDataLoader {
+public class DataCatalogueCohortStagingLoader extends ImportDataModelTask {
 
   static String DATA_CATALOGUE = "catalogue";
   static final String SHARED_STAGING = "SharedStaging";
 
-  @Override
-  void loadInternalImplementation(Schema schema, boolean includeDemoData) {
-    // create shared schemas
-    createSharedStaging(schema.getDatabase());
-    // create the schema
-    createSchema(schema, "datacatalogue/stagingCohorts/molgenis.csv");
+  public DataCatalogueCohortStagingLoader(Schema schema, Boolean includeDemoData) {
+    super(schema, includeDemoData);
   }
 
-  static void createSharedStaging(Database db) {
+  @Override
+  public void run() {
+    this.start();
+    // create shared schemas
+    createSharedStaging(getSchema());
+    // create the schema
+    createSchema("datacatalogue/stagingCohorts/molgenis.csv");
+    this.complete();
+  }
+
+  static void createSharedStaging(Schema schema) {
     // create DataCatalogue and CatalogueOntologies
+    Database db = schema.getDatabase();
     Schema dataCatalogueSchema = db.getSchema(DATA_CATALOGUE);
     if (dataCatalogueSchema == null) {
-      new ProfileLoader("_profiles/DataCatalogue.yaml")
-          .loadInternalImplementation(db.createSchema(DATA_CATALOGUE), false);
+      DataModels.Profile.DATA_CATALOGUE.getImportTask(db.createSchema(DATA_CATALOGUE), false).run();
     }
 
     Schema sharedSchema = db.getSchema(SHARED_STAGING);

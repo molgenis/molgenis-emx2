@@ -6,9 +6,11 @@ import static org.molgenis.emx2.web.CsvApi.getDownloadRows;
 import static org.molgenis.emx2.web.DownloadApiUtils.includeSystemColumns;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.ZipApi.generateReportsToStore;
-import static spark.Spark.get;
-import static spark.Spark.post;
 
+import io.javalin.Javalin;
+import io.javalin.http.Context;
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,95 +18,95 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.ServletException;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.ImportExcelTask;
 import org.molgenis.emx2.io.MolgenisIO;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
-import spark.Request;
-import spark.Response;
+import org.molgenis.emx2.tasks.Task;
 
 public class ExcelApi {
   private ExcelApi() {
     // hide constructor
   }
 
-  public static void create() {
+  public static void create(Javalin app) {
     // schema level operations
-    final String schemaPath = "/:schema/api/excel"; // NOSONAR
-    get(schemaPath, ExcelApi::getExcel);
-    post(schemaPath, ExcelApi::postExcel);
+    final String schemaPath = "/{schema}/api/excel"; // NOSONAR
+    app.get(schemaPath, ExcelApi::getExcel);
+    app.post(schemaPath, ExcelApi::postExcel);
 
     // table level operations
-    final String tablePath = ":schema/api/excel/:table"; // NOSONAR
-    get(tablePath, ExcelApi::getExcelTable);
+    final String tablePath = "{schema}/api/excel/{table}"; // NOSONAR
+    app.get(tablePath, ExcelApi::getExcelTable);
 
     // report operations
-    final String reportPath = "/:schema/api/reports/excel"; // NOSONAR
-    get(reportPath, ExcelApi::getExcelReport);
+    final String reportPath = "/{schema}/api/reports/excel"; // NOSONAR
+    app.get(reportPath, ExcelApi::getExcelReport);
   }
 
-  static Object postExcel(Request request, Response response) throws IOException, ServletException {
-    Long start = System.currentTimeMillis();
-    Schema schema = getSchema(request);
+  static void postExcel(Context ctx) throws IOException, ServletException {
+    long start = System.currentTimeMillis();
+    Schema schema = getSchema(ctx);
 
     // get uploaded file
     File tempFile = getTempFile(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT, ".tmp");
     tempFile.deleteOnExit();
-    request.attribute(
+    ctx.attribute(
         "org.eclipse.jetty.multipartConfig",
         new MultipartConfigElement(tempFile.getAbsolutePath()));
-    try (InputStream input = request.raw().getPart("file").getInputStream()) {
+    try (InputStream input = ctx.req().getPart("file").getInputStream()) {
       Files.copy(input, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
-    if (request.queryParams("async") != null) {
-      String id = TaskApi.submit(new ImportExcelTask(tempFile.toPath(), schema, false));
-      return new TaskReference(id, schema).toString();
+    if (ctx.queryParam("async") != null) {
+      Task task = new ImportExcelTask(tempFile.toPath(), schema, false);
+      String parentTaskId = ctx.queryParam("parentJob");
+      String taskId = TaskApi.submit(task, parentTaskId);
+      ctx.json(new TaskReference(taskId, schema));
     } else {
       MolgenisIO.importFromExcelFile(tempFile.toPath(), schema, false);
-      response.status(200);
-      return "Import success in " + (System.currentTimeMillis() - start) + "ms";
+      ctx.status(200);
+      ctx.result("Import success in " + (System.currentTimeMillis() - start) + "ms");
     }
   }
 
-  static String getExcel(Request request, Response response) throws IOException {
-    Schema schema = getSchema(request);
-    boolean includeSystemColumns = includeSystemColumns(request);
+  static void getExcel(Context ctx) throws IOException {
+    Schema schema = getSchema(ctx);
+    boolean includeSystemColumns = includeSystemColumns(ctx);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
-    try (OutputStream outputStream = response.raw().getOutputStream()) {
-      Path excelFile = tempDir.resolve("download.xlsx");
-      if (request.queryParams("emx1") != null) {
-        MolgenisIO.toEmx1ExcelFile(excelFile, schema);
-      } else {
-        MolgenisIO.toExcelFile(excelFile, schema, includeSystemColumns);
-      }
 
-      response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-      response.header(
+    Path excelFile = tempDir.resolve("download.xlsx");
+    if (ctx.queryParam("emx1") != null) {
+      MolgenisIO.toEmx1ExcelFile(excelFile, schema);
+    } else {
+      MolgenisIO.toExcelFile(excelFile, schema, includeSystemColumns);
+    }
+
+    try (OutputStream outputStream = ctx.outputStream()) {
+      ctx.contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      ctx.header(
           "Content-Disposition",
           "attachment; filename="
               + schema.getMetadata().getName()
               + System.currentTimeMillis()
               + ".xlsx");
       outputStream.write(Files.readAllBytes(excelFile));
-      return "Export success";
+      ctx.result("Export success");
     }
   }
 
-  static String getExcelTable(Request request, Response response) throws IOException {
-    Table table = MolgenisWebservice.getTableById(request);
+  static void getExcelTable(Context ctx) throws IOException {
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
-    try (OutputStream outputStream = response.raw().getOutputStream()) {
-      Path excelFile = tempDir.resolve("download.xlsx");
-      TableStore excelStore = new TableStoreForXlsxFile(excelFile);
-      excelStore.writeTable(
-          table.getName(), getDownloadColumns(request, table), getDownloadRows(request, table));
-      response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-      response.header(
+    Path excelFile = tempDir.resolve("download.xlsx");
+    TableStore excelStore = new TableStoreForXlsxFile(excelFile);
+    excelStore.writeTable(
+        table.getName(), getDownloadColumns(ctx, table), getDownloadRows(ctx, table));
+    try (OutputStream outputStream = ctx.res().getOutputStream()) {
+      ctx.contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      ctx.header(
           "Content-Disposition",
           "attachment; filename="
               + table.getSchema().getMetadata().getName()
@@ -113,21 +115,21 @@ public class ExcelApi {
               + System.currentTimeMillis()
               + ".xlsx");
       outputStream.write(Files.readAllBytes(excelFile));
-      return "Export success";
+      ctx.result("Export success");
     }
   }
 
-  static String getExcelReport(Request request, Response response) throws IOException {
+  static void getExcelReport(Context ctx) throws IOException {
     Path tempDir = Files.createTempDirectory(MolgenisWebservice.TEMPFILES_DELETE_ON_EXIT);
     tempDir.toFile().deleteOnExit();
-    try (OutputStream outputStream = response.raw().getOutputStream()) {
-      Path excelFile = tempDir.resolve("download.xlsx");
-      TableStore excelStore = new TableStoreForXlsxFile(excelFile);
-      generateReportsToStore(request, excelStore);
-      response.type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-      response.header("Content-Disposition", "attachment; filename=report.xlsx");
+    Path excelFile = tempDir.resolve("download.xlsx");
+    TableStore excelStore = new TableStoreForXlsxFile(excelFile);
+    generateReportsToStore(ctx, excelStore);
+    try (OutputStream outputStream = ctx.res().getOutputStream()) {
+      ctx.contentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      ctx.header("Content-Disposition", "attachment; filename=report.xlsx");
       outputStream.write(Files.readAllBytes(excelFile));
-      return "Export success";
+      ctx.result("Export success");
     }
   }
 }

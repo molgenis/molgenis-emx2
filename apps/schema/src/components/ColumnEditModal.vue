@@ -68,6 +68,15 @@
                       ? 'Referenced table is required'
                       : undefined
                   "
+                  :noOptionsProvidedMessage="
+                    'No ' +
+                    (column.columnType.includes('ONTOLOGY')
+                      ? 'ontology table'
+                      : 'data table') +
+                    ' found in schema \'' +
+                    (column.refSchemaName || schema.name) +
+                    '\''
+                  "
                   :options="tableNames"
                   label="refTable"
                 />
@@ -267,6 +276,7 @@
 
 <script lang="ts">
 import {
+  constants,
   //@ts-ignore
   ButtonAction, //@ts-ignore
   ButtonAlt, //@ts-ignore
@@ -417,7 +427,7 @@ export default {
     },
     //listing of all tables, used for refs
     tableNames() {
-      if (this.refSchema !== undefined) {
+      if (this.column.refSchemaName && this.refSchema.tables) {
         if (
           this.column.columnType === "ONTOLOGY" ||
           this.column.columnType === "ONTOLOGY_ARRAY"
@@ -445,8 +455,8 @@ export default {
       if (this.column.name === undefined || this.column.name === "") {
         return "Name is required";
       }
-      if (!this.column.name.match(/^[a-zA-Z][a-zA-Z0-9_ ]+$/)) {
-        return "Name should start with letter, followed by letter, number, whitespace or underscore ([a-zA-Z][a-zA-Z0-9_ ]*)";
+      if (!this.column.name.match(constants.COLUMN_NAME_REGEX)) {
+        return "Name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63.";
       }
       if (
         (this.modelValue === undefined ||
@@ -541,7 +551,7 @@ export default {
         this.column = { table: this.tableName, columnType: "STRING" };
       }
       //if reference to external schema
-      if (this.column.refSchema != undefined) {
+      if (this.column.refSchemaName != undefined) {
         this.loadRefSchema();
       }
       this.setupRequiredSelect();

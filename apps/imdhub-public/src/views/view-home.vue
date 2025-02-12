@@ -3,7 +3,7 @@
     <PageHeader
       title="Recon4imd: IMD-hub"
       subtitle="The Inherited Metabolic Diseases database"
-      imageSrc="recon4imd_header.jpg"
+      imageSrc="img/recon4imd_header.jpg"
       height="medium"
     />
     <PageSection :vertical-padding="2" aria-labelledby="welcome-section-title">
@@ -72,6 +72,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-ignore
 import { Page, PageHeader, PageSection, LinkCard } from "molgenis-viz";
 import {
   DocumentTextIcon,

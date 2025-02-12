@@ -1,13 +1,17 @@
 ---
-name: Staging area for filling out cohort metadata
+name: CohortsStaging
+description: "This schema is used by cohorts to enter their data."
 
 profileTags: CohortsStaging
 
-# demoData: _demodata/applications/datacatalogue
+demoData: _demodata/applications/datacatalogue_cohortstaging
 
-#settings: _settings/datacatalogue
+settings:
 
 # special options
-setViewPermission: anonymous
 ontologiesToFixedSchema: CatalogueOntologies
 setFixedSchemaViewPermission: anonymous
+firstCreateSchemasIfMissing:
+  - name: catalogue
+    profile: _profiles/DataCatalogue.yaml
+    importDemoData: true

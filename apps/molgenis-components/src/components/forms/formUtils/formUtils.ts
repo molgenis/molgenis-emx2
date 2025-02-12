@@ -1,4 +1,4 @@
-import type { IColumn, ITableMetaData } from "meta-data-utils";
+import type { IColumn, ITableMetaData } from "metadata-utils";
 import { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
@@ -22,7 +22,7 @@ export function getRowErrors(
   );
 }
 
-function getColumnError(
+export function getColumnError(
   column: IColumn,
   rowData: Record<string, any>,
   tableMetaData: ITableMetaData
@@ -83,6 +83,15 @@ function getColumnError(
   }
   if (type === "PERIOD_ARRAY" && containsInvalidPeriod(value)) {
     return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
+  }
+  if (type === "JSON") {
+    try {
+      if (!isJsonObjectOrArray(JSON.parse(value))) {
+        return `Root element must be an object or array`;
+      }
+    } catch {
+      return `Please enter valid JSON`;
+    }
   }
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
@@ -225,6 +234,13 @@ function isValidPeriod(value: any) {
 
 function containsInvalidPeriod(periods: any) {
   return periods.find((period: any) => !isValidPeriod(period));
+}
+
+export function isJsonObjectOrArray(parsedJson: any) {
+  if (typeof parsedJson === "object" && parsedJson !== null) {
+    return true;
+  }
+  return false;
 }
 
 export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {

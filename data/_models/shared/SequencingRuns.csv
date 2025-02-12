@@ -41,7 +41,7 @@ labinfo,,mean_cov,decimal,,,,,,,,,"Mean read depth",RD3
 labinfo,,c20,decimal,,,,,,,,,"Percentage of nucleotides within the Region of interest that is covered by at least 20 reads",RD3
 labinfo,,retracted,ontology,,,,NoYesUnknown,,,,,"Is the experiment retracted or not",RD3
 labinfo,,partOfRelease,ref_array,,,,datareleases,,,,http://purl.obolibrary.org/obo/NCIT_C172217,"One or more Solve-RD releases that indicate when the record was first introduced into RD3 or when it was updated.",RD3
-labinfo,,includedInStudies,ref_array,,,,studies,,,,http://purl.obolibrary.org/obo/RO_0000056,"Reference to the study or studies in which this person participates.",RD3
+labinfo,,includedInStudies,ref_array,,,,Studies,,,,http://purl.obolibrary.org/obo/RO_0000056,"Reference to the study or studies in which this person participates.",RD3
 labinfo,,includedInCohorts,ref_array,,,,Cohorts,,,,http://purl.obolibrary.org/obo/NCIT_C61512,"A group of individuals, identified by a common characteristic.",RD3
 labinfo,,includedInDatasets,ref_array,,,,datasets,,,,http://purl.obolibrary.org/obo/RO_0000056,"Reference to the dataset or datasets in which this person was assigned to.",RD3
 labinfo,,comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.",RD3

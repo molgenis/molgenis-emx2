@@ -1,12 +1,20 @@
 <template>
   <div>
     <!-- whilst loading -->
-    <LayoutModal v-if="loading" :title="title" :show="true">
+    <LayoutModal
+      v-if="loading"
+      :title="title"
+      :show="true"
+      @close="$emit('close')"
+    >
       <template v-slot:body>
-        <Spinner />
-        creating schema, may take a while ...
+        <Task v-if="taskId" :taskId="taskId" @taskUpdated="taskUpdated" />
+      </template>
+      <template v-if="taskDone" v-slot:footer>
+        <ButtonAction @click="$emit('close')">Close</ButtonAction>
       </template>
     </LayoutModal>
+
     <!-- when update succesfull show result before close -->
     <LayoutModal
       v-else-if="success"
@@ -84,6 +92,7 @@
 import { request } from "graphql-request";
 
 import {
+  constants,
   ButtonAction,
   ButtonDanger,
   ButtonAlt,
@@ -96,6 +105,7 @@ import {
   MessageError,
   MessageSuccess,
   Spinner,
+  Task,
 } from "molgenis-components";
 
 export default {
@@ -112,12 +122,15 @@ export default {
     InputSelect,
     LayoutForm,
     Spinner,
+    Task,
   },
   data: function () {
     return {
       key: 0,
       loading: false,
       graphqlError: null,
+      taskId: null,
+      taskDone: null,
       success: null,
       schemaName: null,
       schemaDescription: null,
@@ -128,24 +141,26 @@ export default {
         "DATA_CATALOGUE",
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
-        "DATA_CATALOGUE_FLAT",
+        "UMCG_COHORT_STAGING",
+        "UMCU_COHORTS_STAGING",
+        "INTEGRATE_COHORTS_STAGING",
         "RD3",
+        "RD3_V2",
         "JRC_COMMON_DATA_ELEMENTS",
         "FAIR_GENOMES",
         "DCAT",
+        "FAIR_DATA_POINT",
         "BEACON_V2",
         "ERN_DASHBOARD",
+        "UI_DASHBOARD",
         "BIOBANK_DIRECTORY",
         "BIOBANK_DIRECTORY_STAGING",
         "SHARED_STAGING",
         "PROJECTMANAGER",
         "GDI",
-        "FLAT_COHORTS_STAGING",
-        "FLAT_UMCG_COHORTS_STAGING",
-        "FLAT_STUDIES_STAGING",
-        "FLAT_NETWORKS_STAGING",
-        "FLAT_RWE_STAGING",
         "DATA_CATALOGUE_AGGREGATES",
+        "TYPE_TEST",
+        "PATIENT_REGISTRY_DEMO",
       ],
       includeDemoData: false,
     };
@@ -160,7 +175,7 @@ export default {
   },
   methods: {
     validate(name) {
-      const simpleName = /^[a-zA-Z][-a-zA-Z0-9_ ]*$/;
+      const simpleName = constants.SCHEMA_NAME_REGEX;
       if (name === null) {
         return undefined;
       }
@@ -171,16 +186,17 @@ export default {
       ) {
         return undefined;
       } else {
-        return "Table name must start with a letter, followed by letters, underscores, a space or numbers, i.e. [a-zA-Z][a-zA-Z0-9_]*. Maximum length: 31 characters";
+        return "Table name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
       }
     },
     executeCreateSchema() {
       this.loading = true;
       this.graphqlError = null;
       this.success = null;
+      this.taskId = null;
       request(
         this.endpoint,
-        `mutation createSchema($name:String, $description:String, $template: String, $includeDemoData: Boolean){createSchema(name:$name, description:$description, template: $template, includeDemoData: $includeDemoData){message}}`,
+        `mutation createSchema($name:String, $description:String, $template: String, $includeDemoData: Boolean){createSchema(name:$name, description:$description, template: $template, includeDemoData: $includeDemoData){message, taskId}}`,
         {
           name: this.schemaName,
           description: this.schemaDescription,
@@ -189,8 +205,12 @@ export default {
         }
       )
         .then((data) => {
-          this.success = data.createSchema.message;
-          this.loading = false;
+          if (data.createSchema.taskId) {
+            this.taskId = data.createSchema.taskId;
+          } else {
+            this.success = data.createSchema.message;
+            this.loading = false;
+          }
         })
         .catch((error) => {
           if (error.response.status === 403) {
@@ -201,6 +221,12 @@ export default {
           }
           this.loading = false;
         });
+    },
+    taskUpdated(task) {
+      if (["COMPLETED", "ERROR"].includes(task.status)) {
+        this.success = true;
+        this.taskDone = true;
+      }
     },
   },
 };

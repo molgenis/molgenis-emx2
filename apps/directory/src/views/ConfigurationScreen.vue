@@ -3,25 +3,25 @@
     <nav class="navbar bg-dark justify-content-start mb-4">
       <button
         type="button"
-        @click="switchView('ui')"
+        @click="switchView(views.ui)"
         class="btn btn-link text-white"
-        :class="{ 'editor-active': editorType === 'ui' }"
+        :class="{ 'editor-active': editorType === views.ui }"
       >
         Filters
       </button>
       <button
         type="button"
-        @click="switchView('editor')"
+        @click="switchView(views.editor)"
         class="btn btn-link text-white"
-        :class="{ 'editor-active': editorType === 'editor' }"
+        :class="{ 'editor-active': editorType === views.editor }"
       >
         JSON
       </button>
       <button
         type="button"
-        @click="switchView('landingpage')"
+        @click="switchView(views.landingpage)"
         class="btn btn-link text-white"
-        :class="{ 'editor-active': editorType === 'landingpage' }"
+        :class="{ 'editor-active': editorType === views.landingpage }"
       >
         Landingpage
       </button>
@@ -34,7 +34,7 @@
             role="alert"
             @click="statusClosed = true"
           >
-            <span>Configuration saved!</span>
+            Configuration saved!
           </div>
           <div
             v-else
@@ -42,10 +42,8 @@
             role="alert"
             @click="statusClosed = true"
           >
-            <span
-              >We could not save the configuration, make sure you are logged in
-              with sufficient rights.</span
-            >
+            We could not save the configuration, make sure you are logged in
+            with sufficient rights.
           </div>
         </div>
 
@@ -63,7 +61,11 @@
 
     <a href="" ref="download" class="hidden"></a>
 
-    <div v-if="editorType === 'ui'" class="row px-5 pb-3" :key="filterIndex">
+    <div
+      v-if="editorType === views.ui"
+      class="row px-5 pb-3"
+      :key="filterIndex"
+    >
       <div class="col-6">
         <FilterConfigUI
           :config="currentConfig"
@@ -74,18 +76,19 @@
         />
       </div>
       <div class="col-6" v-if="filterEditMode">
-        <h3>{{ getFacetTitle(this.filterIndex) }} filter configuration</h3>
+        <h3>{{ getFacetTitle(filterIndex) }} filter configuration</h3>
         <div class="editor-alignment">
-          <small v-if="filterIndex !== -1"
-            >To format your file press ctrl + f</small
-          >
+          <small v-if="filterIndex !== -1">
+            To format your file press <kbd>ctrl</kbd> + <kbd>alt</kbd> +
+            <kbd>f</kbd>
+          </small>
         </div>
-        <filter-editor
+        <FilterEditor
           :key="filterIndex"
           class="filter-editor"
           :config="currentConfig"
-          :filterIndex="this.filterIndex"
-          :title="getFacetTitle(this.filterIndex)"
+          :filterIndex="filterIndex"
+          :title="getFacetTitle(filterIndex)"
           @filterUpdate="applyChanges"
           @delete="deleteFilter"
         />
@@ -114,35 +117,33 @@
       </div>
     </div>
 
-    <!-- Advanced Editor -->
-    <json-editor
+    <JsonEditor
+      v-show="editorType === views.editor"
       :config="currentConfig"
-      @dirty="(d) => (dirty = d)"
+      @dirty="(isDirty) => (dirty = isDirty)"
       @save="saveFromEditor"
       @cancel="cancel"
       @diff="showDiffEditor"
-      v-if="editorType === 'editor'"
     />
 
-    <!-- Diff editor -->
-    <diff-editor
-      v-if="editorType === 'diff'"
+    <DiffEditor
+      v-if="editorType === views.diff"
       :currentConfig="diffAppConfig"
       :newConfig="uploadedAppConfig"
-      @save="(changesToSave) => saveFromEditor(changesToSave, 'diff')"
-      @cancel="switchView('editor')"
+      @save="(changesToSave) => saveFromEditor(changesToSave, views.diff)"
+      @cancel="switchView(views.editor)"
     />
 
-    <!-- Landingpage editor -->
-    <div v-if="editorType === 'landingpage'" class="row px-5 pb-5">
-      <landingpage-editor
+    <div v-if="editorType === views.landingpage" class="row px-5 pb-5">
+      <LandingpageEditor
         :currentConfig="currentConfig"
         @save="saveLandingpage"
         @cancel="cancel"
       />
     </div>
+
     <!-- standard button bar -->
-    <div v-if="editorType === 'ui'" class="row mt-3 px-5 pb-5">
+    <div v-if="editorType === views.ui" class="row mt-3 px-5 pb-5">
       <div class="col">
         <button class="btn btn-primary mr-3 save-button" @click="save">
           Save configuration
@@ -168,15 +169,13 @@
               role="alert"
               @click="statusClosed = true"
             >
-              <span
-                >We could not save the configuration, make sure you are logged
-                in with sufficient rights.</span
-              >
+              We could not save the configuration, make sure you are logged in
+              with sufficient rights.
             </div>
           </div>
 
           <div v-if="dirty" class="alert alert-warning m-0" role="alert">
-            <span>You have unsaved changes</span>
+            You have unsaved changes
           </div>
         </div>
       </div>
@@ -184,160 +183,166 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, onMounted, ref, toRaw, watch } from "vue";
 import DiffEditor from "../components/configuration/DiffEditor.vue";
-import FilterEditor from "../components/configuration/FilterEditor.vue";
 import FilterConfigUI from "../components/configuration/FilterConfigUI.vue";
+import FilterEditor from "../components/configuration/FilterEditor.vue";
 import JsonEditor from "../components/configuration/JsonEditor.vue";
 import LandingpageEditor from "../components/configuration/LandingpageEditor.vue";
 import { filterTemplate } from "../filter-config/facetConfigurator";
 import { useSettingsStore } from "../stores/settingsStore";
-import { toRaw } from "vue";
 
-export default {
-  setup() {
-    const settingsStore = useSettingsStore();
-    return { settingsStore };
-  },
-  components: {
-    FilterConfigUI,
-    DiffEditor,
-    FilterEditor,
-    LandingpageEditor,
-    JsonEditor,
-  },
-  data() {
-    return {
-      editor: {},
-      statusClosed: true,
-      dirty: false,
-      undoFilterSort: 0,
-      editorType: "ui", // ui / editor / diff
-      newAppConfig: "",
-      jsonError: "",
-      filterIndex: -1,
-      uploadedAppConfig: "",
-      diffAppConfig: "",
-    };
-  },
-  methods: {
-    getFacetTitle(index) {
-      return JSON.parse(this.currentConfig).filterFacets[index].facetTitle;
-    },
-    switchView(view) {
-      this.editorType = view;
-    },
-    showDiffEditor(diff) {
-      this.diffAppConfig = diff.currentAppConfig;
-      this.uploadedAppConfig = diff.uploadedAppConfig;
-      this.switchView("diff");
-    },
-    applyChanges(changesToSave) {
-      this.newAppConfig = changesToSave;
-      this.saveToDatabase(changesToSave);
-      this.filterIndex = -1;
-    },
-    save() {
-      this.statusClosed = false;
-      this.saveToDatabase(this.newAppConfig);
-    },
-    updateFilters(newConfig) {
-      this.dirty = true;
-      this.newAppConfig = newConfig;
-    },
-    saveFromEditor(changesToSave, editor) {
-      this.dirty = true;
+enum views {
+  ui,
+  editor,
+  diff,
+  landingpage,
+}
 
-      this.newAppConfig = changesToSave;
-      this.saveToDatabase(changesToSave);
+const settingsStore = useSettingsStore();
 
-      if (editor && editor === "diff") {
-        this.switchView("editor");
-      }
-    },
-    saveLandingpage(changesToSave) {
-      this.newAppConfig = changesToSave;
-      this.saveToDatabase(changesToSave);
-    },
-    checkJSONStructure(jsonString) {
-      if (typeof jsonString === "object") return;
-      try {
-        JSON.parse(jsonString);
-        this.jsonError = "";
-      } catch (e) {
-        this.jsonError = e;
-      }
-    },
-    saveToDatabase(newConfiguration) {
-      this.checkJSONStructure(toRaw(newConfiguration));
-      if (!this.jsonError) {
-        this.settingsStore.SaveApplicationConfiguration(newConfiguration);
-        this.dirty = false;
-      }
-    },
-    cancel() {
-      this.dirty = false;
-      this.newAppConfig = "";
-      this.filterIndex = -1;
-    },
-    setFilterEditIndex(newIndex) {
-      this.filterIndex = newIndex;
-    },
-    addFilter() {
-      this.dirty = true;
-      const config = JSON.parse(this.currentConfig);
+const statusClosed = ref(true);
+const dirty = ref(false);
+const editorType = ref<views>();
+const newAppConfig = ref("");
+const jsonError = ref("");
+const filterIndex = ref(-1);
+const uploadedAppConfig = ref("");
+const diffAppConfig = ref("");
 
-      config.filterFacets.unshift(filterTemplate);
-      this.newAppConfig = JSON.stringify(config);
-      this.filterIndex = 0;
-    },
-    deleteFilter() {
-      const newConfig = JSON.parse(this.currentConfig);
-      newConfig.filterFacets.splice(this.filterIndex, 1);
-      this.newAppConfig = JSON.stringify(newConfig);
-      this.filterIndex = -1;
-      this.saveToDatabase(newConfig);
-    },
-  },
-  computed: {
-    configUpdateStatus() {
-      return this.settingsStore.configUpdateStatus;
-    },
-    showNotification() {
-      return this.configUpdateStatus > 0 && !this.statusClosed;
-    },
-    currentConfig() {
-      return this.newAppConfig || this.appConfig;
-    },
-    newConfig() {
-      return this.uploadedAppConfig;
-    },
-    appConfig() {
-      const config = this.settingsStore.config || {};
-      return JSON.stringify(config);
-    },
-    filterEditMode() {
-      return this.filterIndex >= 0;
-    },
-  },
-  watch: {
-    configUpdateStatus(newStatus) {
-      this.statusClosed = false;
-      if (newStatus !== 0) {
-        const timer = setTimeout(() => {
-          this.statusClosed = true;
-          clearTimeout(timer);
-        }, 5000);
-      }
-    },
-  },
-  destroyed() {
-    this.filterIndex = -1;
-  },
-  async mounted() {
-    await this.settingsStore.GetApplicationConfiguration();
-  },
-};
+const configUpdateStatus = computed(() => {
+  return settingsStore.configUpdateStatus;
+});
+
+const showNotification = computed(() => {
+  return configUpdateStatus.value > 0 && !statusClosed.value;
+});
+
+const currentConfig = computed(() => {
+  return newAppConfig.value || appConfig.value;
+});
+
+const appConfig = computed(() => {
+  const config = settingsStore.config || {};
+  return JSON.stringify(config);
+});
+
+const filterEditMode = computed(() => {
+  return filterIndex.value >= 0;
+});
+
+watch(configUpdateStatus, (newStatus) => {
+  statusClosed.value = false;
+  if (newStatus !== 0) {
+    const timer = setTimeout(() => {
+      statusClosed.value = true;
+      clearTimeout(timer);
+    }, 5000);
+  }
+});
+
+onMounted(async () => {
+  editorType.value = views.ui;
+});
+
+function getFacetTitle(index: number) {
+  return JSON.parse(currentConfig.value).filterFacets[index].facetTitle;
+}
+
+function switchView(view: views) {
+  editorType.value = view;
+}
+
+function showDiffEditor(diff: {
+  currentAppConfig: string;
+  uploadedAppConfig: string;
+}) {
+  diffAppConfig.value = diff.currentAppConfig;
+  uploadedAppConfig.value = diff.uploadedAppConfig;
+  switchView(views.diff);
+}
+
+function applyChanges(changesToSave: string) {
+  newAppConfig.value = changesToSave;
+  saveToDatabase(changesToSave);
+  filterIndex.value = -1;
+}
+
+function save() {
+  statusClosed.value = false;
+
+  saveToDatabase(newAppConfig.value);
+}
+
+function updateFilters(newConfig: string) {
+  dirty.value = true;
+  newAppConfig.value = newConfig;
+}
+
+function saveFromEditor(changesToSave: string, view: views) {
+  dirty.value = true;
+
+  newAppConfig.value = changesToSave;
+  saveToDatabase(changesToSave);
+
+  if (view === views.diff) {
+    switchView(views.editor);
+  }
+}
+
+function saveLandingpage(changesToSave: string) {
+  newAppConfig.value = changesToSave;
+  saveToDatabase(changesToSave);
+}
+
+function checkJSONStructure(jsonString: string | Record<string, any>) {
+  if (typeof jsonString === "object") {
+    return;
+  } else {
+    try {
+      JSON.parse(jsonString);
+      jsonError.value = "";
+    } catch (error: any) {
+      jsonError.value = error;
+    }
+  }
+}
+
+function saveToDatabase(newConfiguration: string) {
+  checkJSONStructure(toRaw(newConfiguration));
+  if (!jsonError.value) {
+    settingsStore.SaveApplicationConfiguration(newConfiguration);
+    dirty.value = false;
+  }
+}
+
+function cancel() {
+  dirty.value = false;
+  newAppConfig.value = "";
+  filterIndex.value = -1;
+}
+
+function setFilterEditIndex(newIndex: number) {
+  filterIndex.value = newIndex;
+}
+
+function addFilter() {
+  dirty.value = true;
+  const config = JSON.parse(currentConfig.value);
+
+  config.filterFacets.unshift(filterTemplate);
+  newAppConfig.value = JSON.stringify(config);
+  filterIndex.value = 0;
+}
+
+function deleteFilter() {
+  const newConfig = JSON.parse(currentConfig.value);
+  newConfig.filterFacets.splice(filterIndex, 1);
+  newAppConfig.value = JSON.stringify(newConfig);
+  filterIndex.value = -1;
+  saveToDatabase(newConfig);
+}
 </script>
 
 <style scoped>
@@ -355,6 +360,7 @@ export default {
 .code-help {
   margin-top: 4rem;
 }
+
 .editor-active {
   text-decoration: underline;
 }

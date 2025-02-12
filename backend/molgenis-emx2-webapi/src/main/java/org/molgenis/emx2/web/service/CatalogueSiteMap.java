@@ -5,11 +5,8 @@ import static org.molgenis.emx2.SelectColumn.s;
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import com.redfin.sitemapgenerator.WebSitemapUrl;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.slf4j.Logger;
@@ -18,9 +15,19 @@ import org.slf4j.LoggerFactory;
 public class CatalogueSiteMap {
   private static final Logger logger = LoggerFactory.getLogger(CatalogueSiteMap.class);
 
-  private static final String APP_NAME = "ssr-catalogue";
-  private static final List<String> resourceTypes =
-      Arrays.asList("Cohorts", "Studies", "Networks", "Institutions", "Databanks", "Datasources");
+  private static final String APP_NAME = "catalogue";
+  private static final Map<String, String> resourceTypes =
+      Map.of(
+          "Cohort study",
+          "cohorts",
+          "Study",
+          "studies",
+          "Network",
+          "networks",
+          "Databank",
+          "databanks",
+          "Data source",
+          "datasources");
 
   private final Schema schema;
   private final String baseUrl;
@@ -36,42 +43,36 @@ public class CatalogueSiteMap {
   public String buildSiteMap() {
     try {
       WebSitemapGenerator wsg = new WebSitemapGenerator(baseUrl);
-
-      resourceTypes.forEach(
-          resource -> {
-            List<String> ids = getResourceIds(schema, resource);
-            ids.forEach(
-                id -> {
-                  try {
-                    wsg.addUrl(urlForResource(resourceBasePath, resource, id));
-                  } catch (MalformedURLException e) {
-                    logger.error(
-                        "Failed to generate sitemap url (schema: ("
-                            + schema.getName()
-                            + " , resource: "
-                            + resource
-                            + " , pid: "
-                            + id,
-                        e);
-                  }
-                });
-          });
-
+      Table collectionsTables = schema.getTable("Collections");
+      collectionsTables
+          .select(s("id"), s("type"))
+          .retrieveRows()
+          .forEach(
+              collection -> {
+                String collectionPath = resourceTypes.get(collection.getString("type"));
+                if (collectionPath == null) {
+                  collectionPath = "collections";
+                }
+                String collectionId = collection.getString("id");
+                try {
+                  wsg.addUrl(urlForResource(resourceBasePath, collectionPath, collectionId));
+                } catch (MalformedURLException e) {
+                  logger.error(
+                      "Failed to generate sitemap url (schema: ("
+                          + schema.getName()
+                          + " , path: "
+                          + collectionPath
+                          + " , id: "
+                          + collectionId,
+                      e);
+                }
+              });
       return String.join(System.lineSeparator(), wsg.writeAsStrings());
     } catch (MalformedURLException e) {
       String errorDescription = "Error initializing WebSitemapGenerator";
       logger.error(errorDescription, e);
       throw new MolgenisException(errorDescription);
     }
-  }
-
-  private List<String> getResourceIds(Schema schema, String resourceName) {
-    Table table = schema.getTable(resourceName);
-    if (table == null) {
-      return Collections.emptyList();
-    }
-    List<Row> rows = table.select(s("id")).retrieveRows();
-    return rows.stream().map(row -> row.getString("id")).toList();
   }
 
   private WebSitemapUrl urlForResource(

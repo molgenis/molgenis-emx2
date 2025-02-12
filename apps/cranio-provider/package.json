@@ -6,21 +6,22 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+    "format": "prettier src tests  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js",
+    "test": "vitest"
   },
   "dependencies": {
     "@heroicons/vue": "^2.0.18",
     "graphql-request": "5.2.0",
     "molgenis-components": "*",
     "molgenis-viz": "*",
-    "vue": "3.4.31",
-    "vue-router": "4.2.5"
+    "vue":"3.5.13",
+    "vue-router": "4.4.3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.6.2",
     "prettier": "2.8.8",
-    "vite": "4.5.3"
+    "vite": "5.4.12"
   },
   "browserslist": [
     "> 1%",

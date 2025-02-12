@@ -84,24 +84,25 @@ Model endpoints for which record-level GET and POST requests are implemented are
   Data is retrieved from the _Individuals_ table.
 - `/filtering_terms` returns a list of the filtering terms accepted by that Beacon instance.
 
-
 ### Permissions
 
-By default, a new database with a Beacon profile will have **VIEWER** permission for all users including anonymous requests. How to set up
+By default, a new database with a Beacon profile will have **VIEWER** permission for all users including anonymous
+requests. How to set up
 permissions for a database is found [here](use_permissions.md).
 
-Request are **Record** requests by default and therefor **VIEWER** permission on the data is needed to perform the queries.
+Request are **Record** requests by default and therefor **VIEWER** permission on the data is needed to perform the
+queries.
 For GET request this can be altered via de requestedGranularity parameter:
 
 `<server>/<database>/api/beacon/individuals/requestedsGranulariy=count`
 
 For post request via query.requestedGranularity:
+
 ```{
 "query": {
   "requestedGranularity": "count"
 }
 ```
-
 
 Beacon offers 3 different response types
 
@@ -222,7 +223,72 @@ Note that not all variables from the Beacon v2 models have been implemented.
 As per Beacon design philosophy, the variables and filter options of this implementation will grow and adapt to
 community specific needs.
 
-# Beacon VP
+### Beacon VP
 
 The Beacon VP spec is exactly modeled after the specification Virtual Platform EJP-RD specification v4
 found [here](https://github.com/ejp-rd-vp/vp-api-specs/tree/v4.0_spec)
+
+## Performance
+
+To evaluate the real-world performance of our Beacon endpoint, we used the publicly available VKGL dataset, which
+contains over 200K genomic variants and loaded this on a MOLGENIS instance running on an Azure virtual machine. We
+expanded the dataset to a total of 5.4 million records by duplicating the variants. This allowed us to test various
+queries and assess how performance scales as the dataset size increases.
+
+### Azure VM
+#### Dataset
+[VKGL_public_consensus_apr](https://vkgl-emx2.molgeniscloud.org/)
+
+#### Software
+MOLGENIS version: v11.2.1.\
+Database version: v21.\
+PostgreSQL version: v14.10.
+
+#### Hardware
+[Azure B2ms](https://learn.microsoft.com/nl-nl/azure/virtual-machines/sizes-b-series-burstable) (2vCPU, 8GB memory)
+
+#### Query performance
+Median value of 9 request
+- No parameters, `/g_variants`
+- Gene id query, `/g_variants?geneId=COL3A1`
+- Range query, `/g_variants?start=32953990,32953999&end=32954003,32954015&referenceName=13`
+
+
+| nRecords | No params | geneId | range |
+|----------|-----------|--------|-------|
+| 200K     | 31ms      | 34ms   | 35ms  |
+| 1M       | 36ms      | 30ms   | 38ms  |
+| 2.0M     | 89ms      | 78ms   | 83ms  |
+| 5.4M     | 1871ms    | 830ms  | 794ms |
+
+#### Total request time
+Median value of 9 request
+
+| nRecords | No params | geneId | range |
+|----------|-----------|--------|-------|
+| 200K     | 129ms     | 152ms  | 138ms |
+| 1M       | 143ms     | 131ms  | 154ms |
+| 2.0M     | 170ms     | 166ms  | 200ms |
+| 5.4M     | 2012ms    | 1023ms | 918ms |
+
+### Local
+To gain more insight on the influence of hardware, we also benchmarked performance on a local machine.
+#### Hardware
+MacBook PRO (M1 PRO, 16GB memory)
+#### Query performance (median value of 9 request)
+
+| nRecords | No params | geneId | range |
+|----------|-----------|--------|-------|
+| 200K     | 27ms      | 39ms   | 35ms  |
+| 1M       | 54ms      | 89ms   | 75ms  |
+| 2.0M     | 148ms     | 200ms  | 188ms |
+| 5.4M     | 341ms     | 424ms  | 400ms |
+
+#### Total request time (median value of 9 request)
+
+| nRecords | No params | geneId | range |
+|----------|-----------|--------|-------|
+| 200K     | 141ms     | 143ms  | 176ms |
+| 1M       | 164ms     | 181ms  | 160ms |
+| 2.0M     | 218ms     | 220ms  | 229ms |
+| 5.4M     | 472ms     | 527ms  | 504ms |

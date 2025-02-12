@@ -1,9 +1,0 @@
-name,label,parent,codesystem,code,ontologyTermURI,definition
-Biobank,,,,,,
-Cohort study,,,,,,
-Disease specific,,,,,,A study or biobank for which material and information is collected from subjects that have already developed a particular disease.
-Rare disease,,,,,,A collection that is focusing on rare diseases
-Registry,,,,,,
-Health records,,,,,,
-Clinical study,,,,,,
-Network,,,,,,

@@ -23,6 +23,11 @@ spec:
         - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           name: {{ .Chart.Name }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            limits:
+              memory: "2Gi"
+            requests:
+              memory: "256Mi"
           ports:
             - containerPort: 8080
           env:
@@ -40,6 +45,10 @@ spec:
                   key: databasepassword
             - name: MOLGENIS_POSTGRES_URI
               value: jdbc:postgresql://localhost/{{ .Values.database.name }}
+            - name: MOLGENIS_INCLUDE_TYPE_TEST_DEMO
+              value: {{ .Values.includeTypeTestDemo | quote }}
+            - name: MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO
+              value: {{ .Values.includePatientRegistryDemo | quote }}
             - name: MOLGENIS_INCLUDE_CATALOGUE_DEMO
               value: {{ .Values.catalogue.includeCatalogueDemo | quote }}
             - name: MOLGENIS_INCLUDE_DIRECTORY_DEMO
@@ -67,6 +76,11 @@ spec:
             - shared_buffers=256MB
             - -c
             - max_locks_per_transaction=1024
+          resources:
+            limits:
+              memory: "512Mi"
+            requests:
+              memory: "128Mi"
           env:
             - name: POSTGRES_DB
               value: {{ .Values.postgres.name }}
@@ -90,6 +104,11 @@ spec:
         - image: "{{ .Values.ssrCatalogue.image.repository }}:{{ .Values.image.tag }}"
           name: ssr-catalogue
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            limits:
+              memory: "128Mi"
+            requests:
+              memory: "64Mi"
           ports:
             - containerPort: 3000
           env:

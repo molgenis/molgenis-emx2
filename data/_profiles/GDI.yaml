@@ -4,10 +4,11 @@ description: The Genomic Data Infrastructure (GDI) project is enabling access to
 
 profileTags:  GDI T8.2 union,
               DCAT,
-              RD3,
+              DCAT files add-on,
               JRC-CDE,
               FAIR Genomes,
-              Beacon v2
+              Beacon v2,
+              Beacon v2 EMX2 add-on,
 
 demoData: _demodata/applications/gdi
 

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=69.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "molgenis-emx2-staging-migrator"
+description = "Python package for migrating Molgenis EMX2 staging areas to a catalogue."
+readme="README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+    "Operating System :: OS Independent",
+]
+dynamic = ["version", "dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+version = {file = "version.txt"}
+
+# pyproject.toml
+[tool.setuptools_scm]
+root= "../.." # root of the git repo

@@ -1,15 +1,21 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Constants.MG_USER_PREFIX;
+import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
 
 import com.zaxxer.hikari.HikariDataSource;
+import java.security.SecureRandom;
 import java.util.*;
+import java.util.function.Supplier;
 import javax.sql.DataSource;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
@@ -17,6 +23,7 @@ import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.RandomString;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +34,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final String ANONYMOUS = "anonymous";
   public static final String USER = "user";
   public static final String WITH = "with {} = {} ";
-  public static final int TEN_SECONDS = 10;
+  public static final int MAX_EXECUTION_TIME_IN_SECONDS = 10;
   private static final Settings DEFAULT_JOOQ_SETTINGS =
-      new Settings().withQueryTimeout(TEN_SECONDS);
+      new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
+  private static final Random random = new SecureRandom();
 
   // shared between all instances
   private static DataSource source;
@@ -37,16 +45,16 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private Integer databaseVersion;
   private DSLContext jooq;
   private final SqlUserAwareConnectionProvider connectionProvider;
-  private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>(); // cache
+  private final Map<String, SqlSchemaMetadata> schemaCache = new LinkedHashMap<>();
+  private Map<String, Supplier<Object>> javaScriptBindings = new HashMap<>();
   private Collection<String> schemaNames = new ArrayList<>();
   private Collection<SchemaInfo> schemaInfos = new ArrayList<>();
   private boolean inTx;
-  private static Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
+  private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
   private String initialAdminPassword =
       (String)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
-  private final Boolean isOidcEnabled =
-      EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING) != null;
+
   private static String postgresUser =
       (String)
           EnvironmentProperty.getParameter(
@@ -84,6 +92,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     for (Map.Entry<String, SqlSchemaMetadata> schema : copy.schemaCache.entrySet()) {
       this.schemaCache.put(schema.getKey(), new SqlSchemaMetadata(this, schema.getValue()));
     }
+
+    this.javaScriptBindings.putAll(copy.javaScriptBindings);
   }
 
   private void setJooq(DSLContext ctx) {
@@ -160,13 +170,23 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
 
+      initSystemSchema();
+
       // get the settings
       clearCache();
 
-      if (getSetting(Constants.IS_OIDC_ENABLED) == null) {
-        // use environment property unless overridden in settings
-        this.setSetting(Constants.IS_OIDC_ENABLED, String.valueOf(isOidcEnabled));
+      if (!this.getSettings().containsKey(Constants.IS_OIDC_ENABLED)) {
+        this.setSetting(
+            Constants.IS_OIDC_ENABLED,
+            (String) EnvironmentProperty.getParameter(MOLGENIS_OIDC_CLIENT_ID, "false", STRING));
       }
+
+      String instanceId = getSetting(Constants.MOLGENIS_INSTANCE_ID);
+      if (instanceId == null) {
+        instanceId = String.valueOf(random.nextLong(SnowflakeIdGenerator.MAX_ID));
+        this.setSetting(Constants.MOLGENIS_INSTANCE_ID, instanceId);
+      }
+      if (!SnowflakeIdGenerator.hasInstance()) SnowflakeIdGenerator.init(instanceId);
 
       if (getSetting(Constants.IS_PRIVACY_POLICY_ENABLED) == null) {
         this.setSetting(Constants.IS_PRIVACY_POLICY_ENABLED, String.valueOf(false));
@@ -205,6 +225,31 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         throw e;
       }
     }
+  }
+
+  private void initSystemSchema() {
+    this.tx(
+        tdb -> {
+          if (!this.hasSchema(SYSTEM_SCHEMA)) {
+            this.createSchema(SYSTEM_SCHEMA);
+          }
+
+          Schema schema;
+          if (!this.hasSchema(SYSTEM_SCHEMA)) {
+            schema = this.createSchema(SYSTEM_SCHEMA);
+          } else {
+            schema = this.getSchema(SYSTEM_SCHEMA);
+          }
+
+          if (!schema.getTableNames().contains("Templates")) {
+            schema.create(
+                table(
+                    "Templates",
+                    column("endpoint").setPkey(),
+                    column("schema").setPkey(),
+                    column("template").setType(ColumnType.TEXT)));
+          }
+        });
   }
 
   @Override
@@ -379,14 +424,13 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public Database setSettings(Map<String, String> settings) {
-    if (isAdmin()) {
-      super.setSettings(settings);
-      MetadataUtils.saveDatabaseSettings(jooq, getSettings());
-      // force all sessions to reload
-      this.listener.afterCommit();
-    } else {
+    if (!isAdmin()) {
       throw new MolgenisException("Insufficient rights to create database level setting");
     }
+    super.setSettings(settings);
+    MetadataUtils.saveDatabaseSettings(jooq, getSettings());
+    // force all sessions to reload
+    this.listener.afterCommit();
     return this;
   }
 
@@ -458,11 +502,46 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void removeUser(String user) {
     long start = System.currentTimeMillis();
+    if (user.equals("admin")) throw new MolgenisException("You can't remove admin");
+    if (user.equals("anonymous")) throw new MolgenisException("You can't remove anonymous");
+    if (user.equals("user")) throw new MolgenisException("You can't remove user");
+
     if (!hasUser(user))
       throw new MolgenisException(
           "Remove user failed: User with name '" + user + "' doesn't exist");
     tx(db -> ((SqlDatabase) db).getJooq().execute("DROP ROLE {0}", name(MG_USER_PREFIX + user)));
     log(start, "removed user " + user);
+
+    tx(
+        db ->
+            ((SqlDatabase) db)
+                .getJooq()
+                .deleteFrom(USERS_METADATA)
+                .where(USER_NAME.eq(user))
+                .execute());
+    log(start, "removed metadata from user " + user);
+  }
+
+  public void setEnabledUser(String user, Boolean enabled) {
+    long start = System.currentTimeMillis();
+    if (user.equals("admin")) throw new MolgenisException("You cant enable or disable admin");
+    if (user.equals("anonymous"))
+      throw new MolgenisException("You cant enable or disable anonymous");
+    if (!hasUser(user))
+      throw new MolgenisException(
+          (enabled ? "Enabling" : "Disabling")
+              + " user failed: User with name '"
+              + user
+              + "' doesn't exist");
+    tx(
+        db ->
+            ((SqlDatabase) db)
+                .getJooq()
+                .update(USERS_METADATA)
+                .set(USER_ENABLED, enabled)
+                .where(USER_NAME.eq(user))
+                .execute());
+    log(start, (enabled ? "Enabling" : "Disabling") + " user " + user);
   }
 
   public void addRole(String role) {
@@ -647,7 +726,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         connectionProvider.setActiveUser(user);
       }
     } else {
-      final Settings settings = new Settings().withQueryTimeout(TEN_SECONDS);
+      final Settings settings = new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
       SqlUserAwareConnectionProvider adminProvider = new SqlUserAwareConnectionProvider(source);
       adminProvider.setActiveUser(ADMIN_USER);
       DSLContext adminJooq = DSL.using(adminProvider, SQLDialect.POSTGRES, settings);
@@ -690,7 +769,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public boolean isOidcEnabled() {
-    return this.isOidcEnabled;
+    return this.getSettings().containsKey(Constants.IS_OIDC_ENABLED)
+        && Boolean.parseBoolean(this.getSettings().get(Constants.IS_OIDC_ENABLED));
   }
 
   @Override
@@ -716,6 +796,16 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     return null;
   }
 
+  public Database setBindings(Map<String, Supplier<Object>> bindings) {
+    this.javaScriptBindings = bindings;
+    return this;
+  }
+
+  @Override
+  public Map<String, Supplier<Object>> getJavaScriptBindings() {
+    return javaScriptBindings;
+  }
+
   public void addTableListener(TableListener tableListener) {
     this.tableListeners.add(tableListener);
   }
@@ -732,5 +822,74 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       return result.get();
     }
     return null;
+  }
+
+  @Override
+  public List<LastUpdate> getLastUpdated() {
+    return ChangeLogExecutor.executeLastUpdates(jooq);
+  }
+
+  public List<Member> loadUserRoles() {
+    List<Member> members = new ArrayList<>();
+    String roleFilter = Constants.MG_ROLE_PREFIX;
+    String userFilter = Constants.MG_USER_PREFIX;
+    List<Record> allRoles =
+        jooq.fetch(
+            "select distinct m.rolname as member, r.rolname as role"
+                + " from pg_catalog.pg_auth_members am "
+                + " join pg_catalog.pg_roles m on (m.oid = am.member)"
+                + "join pg_catalog.pg_roles r on (r.oid = am.roleid)"
+                + "where r.rolname LIKE {0} and m.rolname LIKE {1}",
+            roleFilter + "%", userFilter + "%");
+
+    for (Record userRecord : allRoles) {
+      String memberName =
+          userRecord.getValue("member", String.class).substring(userFilter.length());
+      String roleName = userRecord.getValue("role", String.class).substring(roleFilter.length());
+      members.add(new Member(memberName, roleName));
+    }
+    return members;
+  }
+
+  public void revokeRoles(String userName, List<Map<String, String>> members) {
+    try {
+      members.forEach(
+          member -> {
+            String prefixedRole =
+                Constants.MG_ROLE_PREFIX + member.get("schemaId") + "/" + member.get(ROLE);
+            jooq.execute(
+                "REVOKE {0} FROM {1}",
+                name(prefixedRole), name(Constants.MG_USER_PREFIX + userName));
+          });
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException("Removal of role failed", dae);
+    }
+  }
+
+  public void updateRoles(String userName, List<Map<String, String>> members) {
+    try {
+      members.forEach(
+          member -> {
+            String schemaId = member.get("schemaId");
+            String role = member.get(ROLE);
+            String prefixedRole = MG_ROLE_PREFIX + schemaId + "/" + role;
+            String prefixedName = MG_USER_PREFIX + userName;
+
+            List<Member> existingUserRoles =
+                this.getSchema(schemaId).getMembers().stream()
+                    .filter(mem -> mem.getUser().equals(userName))
+                    .toList();
+            if (existingUserRoles.iterator().hasNext()) {
+              existingUserRoles.forEach(
+                  existingRole -> {
+                    String oldRole = MG_ROLE_PREFIX + schemaId + "/" + existingRole.getRole();
+                    jooq.execute("REVOKE {0} FROM {1}", name(oldRole), name(prefixedName));
+                  });
+            }
+            jooq.execute("GRANT {0} TO {1}", name(prefixedRole), name(prefixedName));
+          });
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException("Updating of role failed", dae);
+    }
   }
 }

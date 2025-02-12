@@ -1,0 +1,5 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,rx,RX,,NCIT,C17262,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C17262,Ionizing electromagnetic radiation having a wavelength that is shorter than ultraviolet radiation and longer than gamma radiation.
+2,mri,MRI,,MEDDRA,10028049,http://purl.bioontology.org/ontology/MEDDRA/10028049,Magnetic resonance imaging
+3,ct,CT,,NCIT,C17204,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C17204,A method of examining structures within the body by scanning them with X rays and using a computer to construct a series of cross-sectional scans along a single axis.
+4,other,Other,,,,,

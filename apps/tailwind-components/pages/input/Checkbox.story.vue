@@ -1,55 +1,92 @@
 <script setup lang="ts">
-const defaultSelection = ref<boolean>(false);
-const valueSelection = ref<string>("No");
-const requiredSelection = ref<string>("No");
+const termsAndConditionsExample = ref<string>("");
+const signupNewsletterExample = ref<boolean>(false);
+const toppingsSelection = ref<string[]>(["tomatoes", "basil"]);
 </script>
 
 <template>
-  <h2>Checkbox component</h2>
-  <div
-    class="grid grid-cols-2 gap-6 my-5 [&>div]:p-1 [&_h3]:font-semibold [&_h3]:my-2"
-  >
+  <form class="flex flex-col gap-6 my-5 [&_h3]:font-semibold [&_h3]:my-2">
     <div>
       <h3>Default checkbox</h3>
-      <InputCheckbox
-        id="checkbox-default"
-        v-model="defaultSelection"
-        value="test"
-        checked="true"
-      />
-      <InputLabel for="checkbox-default">
-        Do you aggree to the terms and conditions?
-      </InputLabel>
-      <p>Answer: {{ defaultSelection }}</p>
+      <div class="flex justify-start items-center">
+        <InputCheckbox
+          id="checkbox-example-newsletter-signup"
+          class="sr-only"
+          :value="true"
+          v-model="signupNewsletterExample"
+        />
+        <InputLabel
+          class="flex justify-start items-center"
+          for="checkbox-example-newsletter-signup"
+        >
+          <InputCheckboxIcon :checked="signupNewsletterExample" />
+          <span>Would you like to subscribe to our newsletter?</span>
+        </InputLabel>
+      </div>
+      <output>
+        <span>Answer: {{ signupNewsletterExample }}</span>
+      </output>
     </div>
     <div>
       <h3>Checkbox with yes and no values defined</h3>
-      <InputCheckbox
-        id="checkbox-default-labels"
-        v-model="valueSelection"
-        true-value="Yes"
-        false-value="No"
-        checked="true"
-      />
-      <InputLabel for="checkbox-default-labels">
-        Do you aggree to the terms and conditions?
-      </InputLabel>
-      <p>Answer: {{ valueSelection }}</p>
+      <div class="flex justify-start items-center">
+        <InputCheckbox
+          id="checkbox-example-terms-and-conditions"
+          class="sr-only"
+          true-value="Yes"
+          false-value="No"
+          :value="true"
+          :checked="termsAndConditionsExample"
+          v-model="termsAndConditionsExample"
+        />
+        <InputLabel
+          class="flex justify-start items-center"
+          for="checkbox-example-terms-and-conditions"
+        >
+          <InputCheckboxIcon :checked="termsAndConditionsExample === 'Yes'" />
+          <span>Do you agree to the terms and conditions?</span>
+        </InputLabel>
+      </div>
+      <output>
+        <span>Selection: {{ termsAndConditionsExample }}</span>
+      </output>
     </div>
     <div>
-      <h3>Checkbox with yes and no values defined and as a required input</h3>
-      <InputCheckbox
-        id="checkbox-default-labels-required"
-        v-model="requiredSelection"
-        true-value="Yes"
-        false-value="No"
-        checked="true"
-        required="true"
+      <h3>Checkbox group example</h3>
+      <legend class="text-title">
+        Which toppings would you like on your pizza? You may select more than
+        one.
+      </legend>
+      <InputCheckboxGroup
+        id="example-4"
+        v-model="toppingsSelection"
+        :options="[
+          {
+            value: 'tomatoes',
+            label: 'Roma tomatoes',
+          },
+          {
+            value: 'pepperoni',
+            label: 'Pepperoni',
+          },
+          {
+            value: 'mozzerella',
+            label: 'Fresh mozzerella',
+          },
+          {
+            value: 'chillies',
+            label: 'Chillies',
+          },
+          {
+            value: 'basil',
+            label: 'Fresh basil',
+          },
+        ]"
+        :showClearButton="true"
       />
-      <InputLabel for="checkbox-default-labels-required" :required="true">
-        Do you aggree to the terms and conditions?
-      </InputLabel>
-      <p>Answer: {{ requiredSelection }}</p>
+      <output>
+        <span>Selection: {{ toppingsSelection }}</span>
+      </output>
     </div>
-  </div>
+  </form>
 </template>

@@ -1,37 +1,28 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.oidcController;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionListener;
 import java.util.EventListener;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.thread.ThreadPool;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.ExceptionMapper;
-import spark.Request;
-import spark.embeddedserver.EmbeddedServers;
-import spark.embeddedserver.jetty.EmbeddedJettyServer;
-import spark.embeddedserver.jetty.JettyHandler;
-import spark.embeddedserver.jetty.JettyServerFactory;
-import spark.http.matching.MatcherFilter;
-import spark.route.Routes;
-import spark.staticfiles.StaticFilesConfiguration;
 
 public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
 
-  public MolgenisSessionManager() {
-    createCustomJettyServerFactoryWithCustomSessionListener();
-  }
+  public MolgenisSessionManager() {}
 
-  public MolgenisSession getSession(Request request) {
+  public MolgenisSession getSession(HttpServletRequest request) {
     String authTokenKey = findUsedAuthTokenKey(request);
     if (authTokenKey != null) {
       return getNonPersistedSessionBasedOnToken(request, authTokenKey);
@@ -40,11 +31,11 @@ public class MolgenisSessionManager {
     }
   }
 
-  private MolgenisSession getPersistentSessionBasedOnSessionId(Request request) {
-    if (request.session().isNew()) {
-      request.session(true); // see createCustomJettyServerFactoryWithCustomSessionListener
+  private MolgenisSession getPersistentSessionBasedOnSessionId(HttpServletRequest request) {
+    if (request.getSession().isNew()) {
+      request.getSession(true); // see createCustomJettyServerFactoryWithCustomSessionListener
     }
-    MolgenisSession session = sessions.get(request.session().id());
+    MolgenisSession session = sessions.get(request.getSession().getId());
     if (session.getSessionUser() == null) {
       throw new MolgenisException(
           "Invalid session found with user == null. This should not happen so please report as a bug");
@@ -52,17 +43,20 @@ public class MolgenisSessionManager {
       logger.info(
           "get session for user({}) and key ({})",
           session.getSessionUser(),
-          request.session().id());
+          request.getSession().getId());
     }
     return session;
   }
 
-  private MolgenisSession getNonPersistedSessionBasedOnToken(Request request, String authTokenKey) {
+  private MolgenisSession getNonPersistedSessionBasedOnToken(
+      HttpServletRequest request, String authTokenKey) {
     SqlDatabase database = new SqlDatabase(false);
     database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
-    String user = JWTgenerator.getUserFromToken(database, request.headers(authTokenKey));
+    String user = JWTgenerator.getUserFromToken(database, request.getHeader(authTokenKey));
     database.setActiveUser(user);
-    return new MolgenisSession(database);
+    MolgenisSession session = new MolgenisSession(database);
+    database.setListener(new MolgenisSessionManagerDatabaseListener(this, session));
+    return session;
   }
 
   /**
@@ -72,9 +66,9 @@ public class MolgenisSessionManager {
    * @param request
    * @return
    */
-  public String findUsedAuthTokenKey(Request request) {
+  public String findUsedAuthTokenKey(HttpServletRequest request) {
     for (String authTokenKey : Constants.MOLGENIS_TOKEN) {
-      if (request.headers(authTokenKey) != null) {
+      if (request.getHeader(authTokenKey) != null) {
         return authTokenKey;
       }
     }
@@ -85,6 +79,7 @@ public class MolgenisSessionManager {
    * this method is used to reset cache of all sessions, necessary when for example metadata changes
    */
   public void clearAllCaches() {
+    oidcController.reloadConfig();
     for (MolgenisSession session : sessions.values()) {
       session.clearCache();
     }
@@ -94,46 +89,14 @@ public class MolgenisSessionManager {
    * Because we cannot access jetty outside spark, we override SparkJava EmbeddedServersFactory to
    * add custom session listener for session create/destroy logic
    */
-  private void createCustomJettyServerFactoryWithCustomSessionListener() {
+  public SessionHandler getSessionHandler() {
+    SessionHandler sessionHandler = new SessionHandler();
+    sessionHandler.setHttpOnly(true);
+    sessionHandler.setMaxInactiveInterval(30 * 60); // Set session timeout to 30 minutes
 
-    EmbeddedServers.add(
-        EmbeddedServers.Identifiers.JETTY,
-        (Routes routeMatcher,
-            StaticFilesConfiguration staticFilesConfiguration,
-            ExceptionMapper exceptionMapper,
-            boolean hasMultipleHandler) -> {
-
-          // this part has been copied from sparkjava
-          MatcherFilter matcherFilter =
-              new MatcherFilter(
-                  routeMatcher,
-                  staticFilesConfiguration,
-                  exceptionMapper,
-                  false,
-                  hasMultipleHandler);
-          matcherFilter.init(null);
-          JettyHandler handler = new JettyHandler(matcherFilter);
-          handler.getSessionCookieConfig().setHttpOnly(true);
-          handler.setMaxInactiveInterval(30 * 60); // default session timeout 30mins
-
-          // our custom logic for session create and destroy, reason for us setting up this factory
-          handler.addEventListener(createSessionListener());
-
-          // again copied from docs, simplified because we use default thread pool
-          return new EmbeddedJettyServer(
-              new JettyServerFactory() {
-                @Override
-                public Server create(int maxThreads, int minThreads, int threadTimeoutMillis) {
-                  return new Server();
-                }
-
-                @Override
-                public Server create(ThreadPool threadPool) {
-                  return new Server();
-                }
-              },
-              handler);
-        });
+    // Attach the session listener
+    sessionHandler.addEventListener(createSessionListener());
+    return sessionHandler;
   }
 
   /**

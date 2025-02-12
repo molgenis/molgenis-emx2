@@ -47,14 +47,23 @@ subprojects {
         implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
         implementation 'com.graphql-java:graphql-java:21.1'
         implementation 'com.graphql-java:graphql-java-extended-scalars:20.2'
-        implementation 'com.sparkjava:spark-core:2.9.4'
-        implementation 'org.pac4j:pac4j-core:5.6.1'
-        implementation 'org.pac4j:pac4j-oidc:5.6.1'
-        implementation 'org.pac4j:pac4j-http:5.6.1'
-        implementation 'org.pac4j:spark-pac4j:5.0.1'
+        implementation 'io.javalin:javalin:6.2.0'
+        implementation 'org.pac4j:pac4j-core:5.7.7'
+        implementation 'org.pac4j:pac4j-oidc:5.7.7'
+        implementation 'org.pac4j:pac4j-http:5.7.7'
+        implementation 'org.pac4j:javalin-pac4j:6.0.0'
         implementation 'org.javers:javers-core:6.14.0'
         implementation 'com.nimbusds:nimbus-jose-jwt:9.40'
         implementation 'com.schibsted.spt.data:jslt:0.1.14'
+        implementation 'org.eclipse.rdf4j:rdf4j-rio-api:5.0.1'
+        implementation 'org.eclipse.rdf4j:rdf4j-rio-jsonld:5.0.1'
+        implementation 'org.eclipse.rdf4j:rdf4j-rio-turtle:5.0.1'
+        implementation 'org.eclipse.rdf4j:rdf4j-rio-n3:5.0.1'
+        implementation 'org.eclipse.rdf4j:rdf4j-rio-trig:5.0.1'
+        implementation 'org.eclipse.rdf4j:rdf4j-rio-rdfxml:5.0.1'
+        implementation 'org.eclipse.rdf4j:rdf4j-rio-ntriples:5.0.1'
+        implementation 'org.eclipse.rdf4j:rdf4j-rio-nquads:5.0.1'
+        implementation 'org.eclipse.rdf4j:rdf4j-shacl:5.0.1'
 
         //also used outside test
         implementation 'org.junit.jupiter:junit-jupiter:5.10.3'
@@ -92,7 +101,7 @@ subprojects {
     }
 
     test {
-        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED")
+        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED", "--add-opens=java.base/java.lang=ALL-UNNAMED", "-XX:+EnableDynamicAgentLoading")
         useJUnitPlatform()
         testLogging {
             events "passed", "skipped", "failed" //, "standardOut", "standardError"

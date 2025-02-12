@@ -65,24 +65,25 @@ Alternatively you can run inside [IntelliJ IDEA](https://www.jetbrains.com/idea/
 * Right click on `RunMolgenisEmx2Full` and select 'run'
 
 ## Build one 'app'
+Usefull for app development without need to rebuild all apps all the time.
 
-Requires only [docker compose](https://docs.docker.com/compose/) and [yarn 1.x](https://yarnpkg.com/)
+Requires postgresql, gradle and [yarn 1.x](https://yarnpkg.com/)
 
-* Start molgenis using docker-compose
+* Build the app workspace as a whole (once)
   ```console
-  cd molgenis-emx2
-  docker-compose up
-  ```
-  You can verify that it's running by looking at http://localhost:8080
-* Build the app workspace as a whole
-  ```console
-  cd apps
+  cd molgenis-emx2/apps
   yarn install
   ```
+* Start molgenis 'headless' (i.e. without apps) using gradle (restart on java changes)
+  ```console
+  cd molgenis-emx2
+  ./gradlew dev
+  ```
+  You can verify that it's running by looking at http://localhost:8080
 * Serve only the app you want to look at
   ```console
-  cd <yourapp>
-  yarn serve
+  cd molgenis-emx2/apps/<yourapp>
+  yarn dev
   ```
   Typically the app is then served at http://localhost:9090 (look at the console to see actual port number)
 
@@ -118,14 +119,21 @@ See https://linked2ev.github.io/devsub/2019/09/30/Intellij-junit4-gradle-issue/
 To skip slow tests that are marked in junit @Tag('slow') switch from 'All in package' to 'tags' and set to '!slow' via the 'edit configuration' of your test runner in 'build configuration'
 
 When you get error "java.lang.reflect.InaccessibleObjectException: Unable to make field private final java.util.Map java.util.Collections$UnmodifiableMap.m accessible: module java.base does not "opens java.util" to unnamed module @5cee5251"
-that is because you need JVM parameter '--add-opens=java.base/java.util=ALL-UNNAMED'
+that is because you need JVM parameter `--add-opens=java.base/java.util=ALL-UNNAMED`
 
-### Reset gradle cache/deamon
+### Reset cache/deamon
 
-Sometimes it help to reset gradle cache and stop the gradle daemon
+Sometimes it helps to stop the gradle daemon and reset the gradle cache.
 
+```bash
+./gradlew --stop && rm -rf $HOME/.gradle/
 ```
-./gradlew --stop rm -rf $HOME/.gradle/
+
+When making changes to `apps/molgenis-components` or similar that other apps depend on without changing those apps themselves,
+clearing the cache of all the apps will force gradle to rebuild these again (as these are not stored in the general gradle cache!).
+
+```bash
+rm -rf ./apps/*/dist/
 ```
 
 ### Delete all schemas (destroys all your data!)

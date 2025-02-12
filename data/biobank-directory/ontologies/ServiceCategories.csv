@@ -1,0 +1,7 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,biobankingElsiServices,Biobanking & ELSI Services,,,,,,
+2,sampleBioanalyticServices,Sample & Bioanalytical Services,,,,,,
+3,imagingServices,Imaging Services,,,,,,
+4,bioinformaticsDataScienceServices,Bioinformatics & Data Science Services,,,,,,
+5,consultingTrainingEducationServices,Consulting & Training & Education Services,,,,,,
+6,specializationsInResearchAreas,Specializations in Areas of Research,,,,,,

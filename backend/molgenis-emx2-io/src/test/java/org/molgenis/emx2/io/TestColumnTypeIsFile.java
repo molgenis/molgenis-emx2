@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
@@ -30,7 +30,7 @@ public class TestColumnTypeIsFile {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(SCHEMA_NAME);
-    new PetStoreLoader().load(schema, false);
+    DataModels.Profile.PET_STORE.getImportTask(schema, false).run();
 
     schema
         .getTable("User")

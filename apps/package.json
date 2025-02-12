@@ -1,8 +1,7 @@
 {
   "private": true,
   "workspaces": [
-    "meta-data-utils",
-    "catalogue",
+    "metadata-utils",
     "directory",
     "settings",
     "central",
@@ -12,7 +11,7 @@
     "pages",
     "graphql-playground",
     "tailwind-components",
-    "nuxt3-ssr",
+    "catalogue",
     "molgenis-components",
     "molgenis-viz",
     "cranio-public",
@@ -28,9 +27,13 @@
     "projectmanager",
     "aggregates",
     "imdhub-public",
+    "aggregation-dashboard",
+    "imdhub-public",
+    "emx2-analytics",
+    "ui",
     "kwf-nestor"
   ],
-  "devDependencies": {
-    "nuxt": "3.12.2"
+  "scripts": {
+    "build:libs": "yarn workspace molgenis-components run build && yarn workspace molgenis-viz run build"
   }
 }

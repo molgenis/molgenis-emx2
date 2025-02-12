@@ -1,0 +1,49 @@
+{
+    "defaults": {
+        "reporters": [
+            "cli",
+            [
+                "pa11y-ci-reporter-html",
+                {
+                    "destination": ".reports/",
+                    "includeZeroIssues": true
+                }
+            ]
+        ]
+    },
+    "urls": [
+        "http://localhost:3000/Banner.story",
+        "http://localhost:3000/Button.story",
+        "http://localhost:3000/CustomTooltip.story",
+        "http://localhost:3000/DisplayList.story",
+        "http://localhost:3000/Dropdown.story",
+        "http://localhost:3000/FilterSearch.story",
+        "http://localhost:3000/FooterComponent.story",
+        "http://localhost:3000/Header.story",
+        "http://localhost:3000/Icons.story",
+        "http://localhost:3000/Icons.story",
+        "http://localhost:3000/input/Checkbox.story",
+        "http://localhost:3000/input/Label.story",
+        "http://localhost:3000/input/List.story",
+        "http://localhost:3000/input/Select.story",
+        "http://localhost:3000/input/String.story",
+        "http://localhost:3000/input/TextArea.story",
+        "http://localhost:3000/input/Tree.story",
+        "http://localhost:3000/Logo.story",
+        "http://localhost:3000/LogoMobile.story",
+        {
+           "url":"http://localhost:3000/Modal.story",
+           "actions": [
+            "click element button.flex.items-center"
+           ]
+        },
+        "http://localhost:3000/Navigation.story",
+        "http://localhost:3000/Pagination.story",
+        {
+            "url": "http://localhost:3000/SideModal.story",
+            "actions": ["click element button.flex.items-center"]
+        },
+        "http://localhost:3000/table/EMX2.story",
+        "http://localhost:3000/viz/ChartLegend.story"
+    ]
+}

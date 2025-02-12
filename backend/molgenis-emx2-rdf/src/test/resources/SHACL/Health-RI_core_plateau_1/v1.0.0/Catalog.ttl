@@ -1,0 +1,80 @@
+@prefix :         <http://fairdatapoint.org/> .
+@prefix dash:     <http://datashapes.org/dash#> .
+@prefix dcat:     <http://www.w3.org/ns/dcat#> .
+@prefix dct:      <http://purl.org/dc/terms/> .
+@prefix foaf:     <http://xmlns.com/foaf/0.1/> .
+@prefix sh:       <http://www.w3.org/ns/shacl#> .
+
+:CatalogShape a sh:NodeShape ;
+  sh:targetClass dcat:Catalog ;
+  sh:property 
+  [  
+    sh:path dcat:dataset ;
+    sh:or 
+    ([
+      sh:class dcat:Dataset ;
+    ]
+    [
+      sh:nodeKind sh:IRI ;
+    ])
+  ],
+  [
+    sh:path dct:description ;
+    sh:nodeKind sh:Literal ;
+    sh:minCount 1 ;
+
+    # The sh:uniqueLang constraint needs a sh:datatype rdf:langString to properly function.
+    # Currently, the FDP client does not provide support for dash:TextFieldWithLangEditor,
+    # therefore making this non-functional untill support in the client is added.
+    sh:uniqueLang true ;
+    
+    dash:viewer dash:LiteralViewer ;
+    dash:editor dash:TextAreaEditor ;
+  ], 
+  [
+    sh:path dct:publisher ;
+    sh:minCount 1 ;
+    sh:node :AgentShape;
+    dash:viewer dash:DetailsViewer ;
+    dash:editor dash:BlankNodeEditor ;
+  ],
+  [
+    sh:path dct:title ;
+    sh:nodeKind sh:Literal ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+    sh:minCount 1 ;
+    sh:uniqueLang true ;
+  ], 
+  [
+    sh:path dcat:catalog ;
+    sh:class dcat:Catalog ;
+  ],
+  [
+    sh:path dcat:service ;
+    sh:class dcat:DataService ;
+    sh:minCount 0 ;
+  ] .
+
+
+  :AgentShape  a   sh:NodeShape;
+    sh:property     
+    [ 
+    sh:path      foaf:name;
+    sh:nodeKind  sh:Literal;
+    dash:editor dash:TextFieldEditor;
+    dash:viewer dash:LiteralViewer ;
+    sh:maxCount  1;
+    sh:minCount  1;
+    ],
+    [
+    sh:path dct:identifier ;
+    sh:nodeKind sh:Literal ;
+    dash:editor dash:TextFieldEditor ;
+    dash:viewer dash:LiteralViewer ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+  ];
+  
+  sh:targetClass  foaf:Agent .
+  

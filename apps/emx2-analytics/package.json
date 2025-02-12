@@ -1,0 +1,48 @@
+{
+  "name": "@molgenis/emx2-analytics",
+  "description": "Molgenis EMX2 Analytics, client module",
+  "license": "LGPL-3.0-or-later",
+  "private": false,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "format": "prettier src  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+  },
+  "dependencies": {
+    "vue":"3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.5",
+    "prettier": "2.8.8",
+    "typescript": "^5.2.2",
+    "vite": "^5.3.1",
+    "vite-plugin-dts": "^3.9.1",
+    "vue-tsc": "^2.0.21"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "src",
+    "package.json",
+    "README.md"
+  ],
+  "main": "./dist/analytics.umd.js",
+  "module": "./dist/analytics.es.js",
+  "typings": "./dist/lib/**/*.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/analytics.es.js",
+      "require": "./dist/analytics.umd.js"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  }
+}

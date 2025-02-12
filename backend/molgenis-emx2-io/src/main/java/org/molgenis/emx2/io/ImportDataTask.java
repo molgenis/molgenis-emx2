@@ -56,14 +56,14 @@ public class ImportDataTask extends Task {
     }
 
     // check what files we skipped
-    Collection<String> tableNames = schema.getTableNames();
     try {
-      for (String sheet : tableStore.getTableNames()) {
+      for (String tableName : tableStore.getTableNames()) {
+        String sheet = tableName.toLowerCase().replace(" ", "");
         if (!sheet.startsWith("_files/")
             && !"molgenis".equals(sheet)
             && !"molgenis_settings".equals(sheet)
             && !"molgenis_members".equals(sheet)
-            && !tableNames.contains(sheet)) {
+            && !schema.hasTableWithNameOrIdCaseInsensitive(sheet)) {
           this.addSubTask(
                   "Sheet with name '" + sheet + "' was skipped: no table with that name found")
               .setSkipped();

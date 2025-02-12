@@ -1,25 +1,30 @@
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    id: string;
-    required?: boolean;
-    hasError?: boolean;
-  }>(),
-  {
-    required: false,
-    hasError: false,
-  }
-);
-
-const modelValue = ref("");
+import { type IInputProps } from "~/types/types";
+defineProps<IInputProps>();
+const modelValue = defineModel<string>();
+const emit = defineEmits([
+  "focus",
+  "blur",
+  "input",
+  "error",
+  "update:modelValue",
+]);
 </script>
 
 <template>
   <textarea
-    v-model="modelValue"
     :id="id"
-    :required="required"
-    class="w-full pr-16 font-sans text-black text-gray-300 bg-white outline-none rounded-textarea-input h-60 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border py-2"
-    :class="{ 'border-red-500 text-red-500': hasError }"
+    :placeholder="placeholder"
+    :disabled="disabled"
+    class="w-full pr-16 font-sans text-black text-gray-300 h-[112px] outline-none rounded-textarea-input pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border py-2"
+    :class="{
+      'border-invalid text-invalid border-2': invalid,
+      'border-valid text-valid border-2': valid,
+      'border-disabled text-disabled bg-disabled': disabled,
+      'bg-white': !disabled,
+    }"
+    v-model="modelValue"
+    @focus="$emit('focus')"
+    @blur="$emit('blur')"
   />
 </template>

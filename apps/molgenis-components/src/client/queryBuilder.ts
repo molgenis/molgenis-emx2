@@ -1,10 +1,9 @@
-import type { ITableMetaData, ISchemaMetaData, IColumn } from "meta-data-utils";
+import type { ITableMetaData } from "metadata-utils";
 import { fetchSchemaMetaData } from "./client";
 
 /**
  * @param {String} schemaId - schema where initial table is in
  * @param {String} tableId
- * @param {Object} metaData - object that contains all schema meta data
  * @param {Number} expandLevel - how many levels of grahpql should be expanded
  * @returns String of fields for use in gql query.
  * key=1 fields will always be expanded.
@@ -13,21 +12,19 @@ import { fetchSchemaMetaData } from "./client";
 export const getColumnIds = async (
   schemaId: string,
   tableId: string,
-  //allows expansion of ref fields to add their next layer of details.
   expandLevel: number,
-  //rootLevel
   rootLevel = true
 ) => {
-  const metaData = await fetchSchemaMetaData(schemaId);
+  const metadata = await fetchSchemaMetaData(schemaId);
   let result = "";
-  for (const col of getTable(schemaId, tableId, metaData.tables)?.columns) {
+  for (const col of getColumns(schemaId, tableId, metadata.tables)) {
     //we always expand the subfields of key, but other 'ref' fields only if they do not break server
     if (expandLevel > 0 || col.key) {
       if (
         !rootLevel &&
         ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
       ) {
-        //skip
+        continue;
       } else if (["REF", "REF_ARRAY", "REFBACK"].includes(col.columnType)) {
         result =
           result +
@@ -55,13 +52,11 @@ export const getColumnIds = async (
   return result;
 };
 
-const getTable = (
+const getColumns = (
   schemaId: string,
   tableId: string,
   tableStore: ITableMetaData[]
 ) => {
-  const result = tableStore.find(
-    (table) => table.id === tableId && table.schemaId === schemaId
-  );
-  return result;
+  const result = tableStore.find((table) => table.id === tableId);
+  return result?.columns || [];
 };

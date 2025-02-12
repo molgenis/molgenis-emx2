@@ -64,7 +64,7 @@ class SqlQueryBuilderHelpersTest {
     SelectJoinStep<org.jooq.Record> query = jooq.select().from(tableMetadata.getJooqTable());
 
     SelectConnectByStep<Record> resultQuery =
-        SqlQueryBuilderHelpers.orderBy(tableMetadata, select, query);
+        SqlQueryBuilderHelpers.orderBy(tableMetadata, select, query, "testTable");
     assertEquals(
         "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\"", resultQuery.getSQL());
   }
@@ -79,7 +79,7 @@ class SqlQueryBuilderHelpersTest {
     final SelectColumn select = new SelectColumn("testColumn");
     select.setOrderBy(Collections.singletonMap("testColumn", Order.ASC));
     SelectConnectByStep<Record> ascQuery =
-        SqlQueryBuilderHelpers.orderBy(tableMetadata, select, from);
+        SqlQueryBuilderHelpers.orderBy(tableMetadata, select, from, "testTable");
     assertEquals(
         "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by ((lower(\"testColumn\")) collate \"MOLGENIS\".numeric) asc",
         ascQuery.getSQL());
@@ -95,7 +95,7 @@ class SqlQueryBuilderHelpersTest {
     final SelectColumn select = new SelectColumn("testColumn2");
     select.setOrderBy(Collections.singletonMap("testColumn2", Order.ASC));
     SelectConnectByStep<Record> ascQuery =
-        SqlQueryBuilderHelpers.orderBy(tableMetadata, select, from);
+        SqlQueryBuilderHelpers.orderBy(tableMetadata, select, from, "testTable");
     assertEquals(
         "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by \"testColumn2\" asc",
         ascQuery.getSQL());
@@ -111,7 +111,7 @@ class SqlQueryBuilderHelpersTest {
     final SelectColumn select = new SelectColumn("testColumn");
     select.setOrderBy(Collections.singletonMap("testColumn", Order.DESC));
     SelectConnectByStep<Record> ascQuery =
-        SqlQueryBuilderHelpers.orderBy(tableMetadata, select, from);
+        SqlQueryBuilderHelpers.orderBy(tableMetadata, select, from, "testTable");
     assertEquals(
         "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by ((lower(\"testColumn\")) collate \"MOLGENIS\".numeric) desc",
         ascQuery.getSQL());
@@ -128,7 +128,7 @@ class SqlQueryBuilderHelpersTest {
     select.setOrderBy(Collections.singletonMap("refColumn", Order.ASC));
     SelectConnectByStep<Record> ascQuery =
         SqlQueryBuilderHelpers.orderBy(
-            tableMetadata, select, jooq.select().from(tableMetadata.getJooqTable()));
+            tableMetadata, select, jooq.select().from(tableMetadata.getJooqTable()), "testTable");
     assertEquals(
         "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by ((lower(\"refColumn\")) collate \"MOLGENIS\".numeric) asc",
         ascQuery.getSQL());
@@ -137,7 +137,10 @@ class SqlQueryBuilderHelpersTest {
     selectDesc.setOrderBy(Collections.singletonMap("refColumn", Order.DESC));
     SelectConnectByStep<Record> descQuery =
         SqlQueryBuilderHelpers.orderBy(
-            tableMetadata, selectDesc, jooq.select().from(tableMetadata.getJooqTable()));
+            tableMetadata,
+            selectDesc,
+            jooq.select().from(tableMetadata.getJooqTable()),
+            "testTable");
     assertEquals(
         "select * from \"SqlQueryBuilderHelpersTest\".\"testTable\" order by ((lower(\"refColumn\")) collate \"MOLGENIS\".numeric) desc",
         descQuery.getSQL());

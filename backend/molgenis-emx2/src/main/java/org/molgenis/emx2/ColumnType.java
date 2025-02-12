@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public enum ColumnType {
   // SIMPLE
@@ -20,6 +22,7 @@ public enum ColumnType {
   STRING_ARRAY(String[].class, STRING_OPERATORS),
   TEXT(String.class, STRING_OPERATORS),
   TEXT_ARRAY(String[].class, STRING_OPERATORS),
+  JSON(org.jooq.JSONB.class, STRING_OPERATORS),
 
   // NUMERIC
   INT(Integer.class, ORDINAL_OPERATORS),
@@ -34,10 +37,6 @@ public enum ColumnType {
   DATETIME_ARRAY(LocalDateTime[].class, ORDINAL_OPERATORS),
   PERIOD(Period.class, ORDINAL_OPERATORS),
   PERIOD_ARRAY(Period[].class, ORDINAL_OPERATORS),
-
-  // COMPOSITE
-  JSONB(org.jooq.JSONB.class),
-  JSONB_ARRAY(org.jooq.JSONB[].class),
 
   // RELATIONSHIP
   REF(Object.class),
@@ -59,7 +58,7 @@ public enum ColumnType {
   private Class javaType;
   private ColumnType baseType;
   private Operator[] operators;
-  private String validationRegexp;
+  private Pattern validationRegexp;
 
   ColumnType(Class javaType, Operator... operators) {
     this.javaType = javaType;
@@ -74,7 +73,7 @@ public enum ColumnType {
   ColumnType(ColumnType baseType, String validationRegexp) {
     if (this.baseType != null) throw new RuntimeException("Cannot extend an extended type");
     this.baseType = baseType; // use to extend a base type
-    this.validationRegexp = validationRegexp;
+    this.validationRegexp = Pattern.compile(validationRegexp);
   }
 
   public ColumnType getBaseType() {
@@ -104,7 +103,8 @@ public enum ColumnType {
       if (isArray()) {
         validate((Object[]) value);
       } else {
-        if (!value.toString().matches(validationRegexp)) {
+        Matcher matcher = validationRegexp.matcher(value.toString());
+        if (!matcher.matches()) {
           throw new MolgenisException("Validation failed: " + value + " is not valid " + name());
         }
       }
@@ -114,7 +114,8 @@ public enum ColumnType {
   /** throws exception when invalid */
   public void validate(Object[] values) {
     for (Object value : values) {
-      if (!value.toString().matches(validationRegexp)) {
+      Matcher matcher = validationRegexp.matcher(value.toString());
+      if (!matcher.matches()) {
         throw new MolgenisException("Validation failed: " + value + " is not valid " + name());
       }
     }

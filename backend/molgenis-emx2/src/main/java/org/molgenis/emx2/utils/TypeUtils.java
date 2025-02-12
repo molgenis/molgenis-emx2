@@ -1,6 +1,6 @@
 package org.molgenis.emx2.utils;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -19,6 +19,8 @@ import org.jooq.types.YearToSecond;
 import org.molgenis.emx2.*;
 
 public class TypeUtils {
+  private static final MolgenisObjectMapper objectMapper = MolgenisObjectMapper.INTERNAL;
+
   private static final String LOOSE_PARSER_FORMAT =
       "[yyyy-MM-dd]['T'[HHmmss][HHmm][HH:mm:ss][HH:mm][.SSSSSSSSS][.SSSSSSSS][.SSSSSSS][.SSSSSS][.SSSSS][.SSSS][.SSS][.SS][.S]][OOOO][O][z][XXXXX][XXXX]['['VV']']";
 
@@ -72,7 +74,9 @@ public class TypeUtils {
         return null;
       }
     }
-    if (v instanceof Long) {
+    if (v instanceof Long longValue) {
+      if (longValue > Integer.MAX_VALUE || longValue < Integer.MIN_VALUE)
+        throw new MolgenisException("Cannot cast '" + v + " to integer, it is too large");
       return ((Long) v).intValue();
     }
     if (v instanceof Double) return (int) Math.round((Double) v);
@@ -247,37 +251,27 @@ public class TypeUtils {
 
   public static JSONB toJsonb(Object v) {
     if (v == null) return null;
+    if (v instanceof JSONB) { // Ensures JSONB is validated
+      v = v.toString();
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value != null) {
-        return org.jooq.JSONB.valueOf(value);
+        try {
+          v = objectMapper.getReader().readTree(value);
+        } catch (Exception e) {
+          throw new MolgenisException("Invalid json", e);
+        }
       } else {
         return null;
       }
     }
-    return (JSONB) v;
-  }
+    if (v instanceof JsonNode) {
+      return org.jooq.JSONB.valueOf(objectMapper.validate((JsonNode) v).toString());
+    }
 
-  public static JSONB[] toJsonbArray(Object v) {
-    // non standard so not using the generic function
-    if (v == null) return null; // NOSONAR
-    if (v instanceof String) {
-      String value = toString(v);
-      if (value != null) {
-        v = List.of(JSONB.valueOf(value));
-      } else {
-        return null;
-      }
-    }
-    if (v instanceof String[]) {
-      v = toStringArray(v);
-    }
-    if (v instanceof Serializable[]) v = List.of((Serializable[]) v);
-    if (v instanceof Object[]) v = List.of((Object[]) v);
-    if (v instanceof List) {
-      return ((List<Object>) v).stream().map(TypeUtils::toJsonb).toArray(JSONB[]::new);
-    }
-    return (JSONB[]) v;
+    // Other input is invalid (no casting due to ensuring validateJson() is executed).
+    throw new ClassCastException("Cannot cast '" + v.toString() + "' to JSONB");
   }
 
   public static String toText(Object v) {
@@ -318,7 +312,6 @@ public class TypeUtils {
       case DATE -> ColumnType.DATE_ARRAY;
       case DATETIME -> ColumnType.DATETIME_ARRAY;
       case PERIOD -> ColumnType.PERIOD_ARRAY;
-      case JSONB -> ColumnType.JSONB_ARRAY;
       default ->
           throw new UnsupportedOperationException(
               "Unsupported array columnType found:" + columnType);
@@ -389,8 +382,7 @@ public class TypeUtils {
       case PERIOD -> SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter());
       case PERIOD_ARRAY ->
           SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter()).getArrayDataType();
-      case JSONB -> SQLDataType.JSONB;
-      case JSONB_ARRAY -> SQLDataType.JSONB.getArrayDataType();
+      case JSON -> SQLDataType.JSONB;
       default ->
           // should never happen
           throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
@@ -401,7 +393,7 @@ public class TypeUtils {
     return switch (columnType.getBaseType()) {
       case UUID -> TypeUtils.toUuid(v);
       case UUID_ARRAY -> TypeUtils.toUuidArray(v);
-      case STRING, EMAIL, HYPERLINK -> TypeUtils.toString(v);
+      case STRING, EMAIL, HYPERLINK, FILE -> TypeUtils.toString(v);
       case STRING_ARRAY, EMAIL_ARRAY, HYPERLINK_ARRAY -> TypeUtils.toStringArray(v);
       case BOOL -> TypeUtils.toBool(v);
       case BOOL_ARRAY -> TypeUtils.toBoolArray(v);
@@ -419,8 +411,8 @@ public class TypeUtils {
       case DATETIME_ARRAY -> TypeUtils.toDateTimeArray(v);
       case PERIOD -> TypeUtils.toPeriod(v);
       case PERIOD_ARRAY -> TypeUtils.toPeriodArray(v);
-      case JSONB -> TypeUtils.toJsonb(v);
-      case JSONB_ARRAY -> TypeUtils.toJsonbArray(v);
+      case JSON -> TypeUtils.toJsonb(v);
+
       default ->
           throw new UnsupportedOperationException(
               "Unsupported columnType columnType found:" + columnType);
@@ -486,27 +478,12 @@ public class TypeUtils {
 
   public static Iterable<Row> convertToRows(TableMetadata metadata, List<Map<String, Object>> map) {
     List<Row> rows = new ArrayList<>();
-    for (Map<String, Object> object : map) {
+    for (Map<String, Object> field : map) {
       Row row = new Row();
       for (Column column : metadata.getColumns()) {
-        if (object.containsKey(column.getIdentifier())) {
-          if (column.isRef()) {
-            convertRefToRow((Map<String, Object>) object.get(column.getIdentifier()), row, column);
-          } else if (column.isReference()) {
-            // REFBACK, REF_ARRAY
-            convertRefArrayToRow(
-                (List<Map<String, Object>>) object.get(column.getIdentifier()), row, column);
-          } else if (column.isFile()) {
-            BinaryFileWrapper bfw = (BinaryFileWrapper) object.get(column.getIdentifier());
-            if (bfw == null || !bfw.isSkip()) {
-              // also necessary in case of 'null' to ensure all file metadata fields are made empty
-              // skip is used when use submitted only metadata (that they received in query)
-              row.setBinary(
-                  column.getName(), (BinaryFileWrapper) object.get(column.getIdentifier()));
-            }
-          } else {
-            row.set(column.getName(), object.get(column.getIdentifier()));
-          }
+        if (field.containsKey(column.getIdentifier())) {
+          Object fieldValue = field.get(column.getIdentifier());
+          addFieldObjectToRow(column, fieldValue, row);
         }
       }
       rows.add(row);
@@ -514,9 +491,27 @@ public class TypeUtils {
     return rows;
   }
 
+  public static void addFieldObjectToRow(Column column, Object object, Row row) {
+    if (column.isRef()) {
+      convertRefToRow((Map<String, Object>) object, row, column);
+    } else if (column.isReference()) {
+      // REFBACK, REF_ARRAY
+      convertRefArrayToRow((List<Map<String, Object>>) object, row, column);
+    } else if (column.isFile()) {
+      BinaryFileWrapper bfw = (BinaryFileWrapper) object;
+      if (bfw == null || !bfw.isSkip()) {
+        // also necessary in case of 'null' to ensure all file metadata fields are made empty
+        // skip is used when use submitted only metadata (that they received in query)
+        row.setBinary(column.getName(), (BinaryFileWrapper) object);
+      }
+    } else {
+      row.set(column.getName(), object);
+    }
+  }
+
   protected static void convertRefArrayToRow(
       List<Map<String, Object>> list, Row row, Column column) {
-
+    if (list == null) return;
     List<Reference> refs = column.getReferences();
     for (Reference ref : refs) {
       if (!ref.isOverlapping()) {

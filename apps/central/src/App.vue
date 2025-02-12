@@ -8,7 +8,26 @@
 
 <script>
 import { Molgenis } from "molgenis-components";
-
+import { request, gql } from "graphql-request";
+const defaultMenuItems = [
+  { label: "Databases", href: "/apps/central/", active: true },
+  {
+    label: "GraphQL API",
+    href: "/apps/graphql-playground/",
+  },
+  {
+    label: "Components (for developers)",
+    href: "/apps/molgenis-components/",
+  },
+  {
+    label: "Tailwind Components (Beta)",
+    href: "/apps/tailwind-components/",
+  },
+  {
+    label: "Help",
+    href: "/apps/docs/",
+  },
+];
 export default {
   components: {
     Molgenis,
@@ -16,37 +35,42 @@ export default {
   data: function () {
     return {
       session: {},
+      menu: defaultMenuItems,
     };
   },
   computed: {
     menuItems() {
-      let result = [
-        { label: "Databases", href: "/apps/central/", active: true },
-        {
-          label: "GraphQL API",
-          href: "/apps/graphql-playground/",
-        },
-        {
-          label: "Components (for developers)",
-          href: "/apps/molgenis-components/",
-        },
-        {
-          label: "Tailwind Components (Beta)",
-          href: "/apps/tailwind-components/",
-        },
-        {
-          label: "Help",
-          href: "/apps/docs/",
-        },
-      ];
       if (this.session && this.session.email == "admin") {
-        result.push({
-          label: "Admin",
-          href: "/apps/central/#/admin",
-        });
+        return [
+          ...this.menu,
+          { label: "Admin", href: "/apps/central/#/admin", role: "Admin" },
+        ];
+      } else {
+        return this.menu;
       }
-      return result;
     },
+  },
+  async created() {
+    const resp = await request(
+      "graphql",
+      gql`
+        query CentralMenuQuery {
+          _settings(keys: ["menu"]) {
+            key
+            value
+          }
+        }
+      `
+    );
+    if (resp?._settings.map((s) => s.key).includes("menu")) {
+      try {
+        this.menu = JSON.parse(
+          resp._settings.find((s) => s.key === "menu").value
+        );
+      } catch (error) {
+        console.log("Error parsing menu", error);
+      }
+    }
   },
 };
 </script>
