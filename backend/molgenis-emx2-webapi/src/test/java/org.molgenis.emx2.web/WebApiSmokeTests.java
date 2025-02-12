@@ -1057,8 +1057,8 @@ public class WebApiSmokeTests {
   public void downloadExcelTable() throws IOException {
     Response response = downloadPet("/pet store/api/excel/Pet");
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
-    assertEquals("name,category,photoUrls,status,tags,weight", rows.get(0));
-    assertEquals("pooky,cat,,available,,9.4", rows.get(1));
+    assertEquals("name,category,photoUrls,status,tags,weight,orders", rows.get(0));
+    assertEquals("pooky,cat,,available,,9.4,", rows.get(1));
   }
 
   @Test
