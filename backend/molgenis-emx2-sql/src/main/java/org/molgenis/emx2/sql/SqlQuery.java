@@ -158,22 +158,22 @@ public class SqlQuery extends QueryBean {
       if (column.isFile()) {
         // check what they want to get, contents, mimetype, size, filename and/or extension
         if (select.getSubselect().isEmpty() || select.has("id")) {
-          fields.add(field(name(column.getName())));
+          fields.add(field(name(alias(tableAlias), column.getName())));
         }
         if (select.has("contents")) {
-          fields.add(field(name(column.getName() + "_contents")));
+          fields.add(field(name(alias(tableAlias), column.getName() + "_contents")));
         }
         if (select.has("size")) {
-          fields.add(field(name(column.getName() + "_size")));
+          fields.add(field(name(alias(tableAlias), column.getName() + "_size")));
         }
         if (select.has("mimetype")) {
-          fields.add(field(name(column.getName() + "_mimetype")));
+          fields.add(field(name(alias(tableAlias), column.getName() + "_mimetype")));
         }
         if (select.has("filename")) {
-          fields.add(field(name(column.getName() + "_filename")));
+          fields.add(field(name(alias(tableAlias), column.getName() + "_filename")));
         }
         if (select.has("extension")) {
-          fields.add(field(name(column.getName() + "_extension")));
+          fields.add(field(name(alias(tableAlias), column.getName() + "_extension")));
         }
       } else if (column.isReference()
           // if subselection, then we will add it as subselect

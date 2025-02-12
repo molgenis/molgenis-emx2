@@ -6,11 +6,13 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.ColumnType.FILE;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
@@ -1665,5 +1667,31 @@ if __name__ == '__main__':
       Thread.sleep(1000);
     }
     return firstJob;
+  }
+
+  @Test
+  void testRefBackAndFile_fix4703() {
+    Schema schema = db.dropCreateSchema("testRefBackAndFile_fix4703");
+    Table test =
+        schema.create(
+            table(
+                "test4703",
+                column("id").setPkey(),
+                column("ref").setType(REF).setRefTable("test4703"),
+                column("refback").setType(REFBACK).setRefTable("test4703").setRefBack("ref"),
+                column("file").setType(FILE)));
+
+    test.query()
+        .select(s("id"), s("ref"), s("refback"), s("file", s("id"), s("filename"), s("mimetype")))
+        .retrieveRows();
+
+    given()
+        .sessionId(SESSION_ID)
+        .expect()
+        .statusCode(200)
+        .when()
+        .get("/testRefBackAndFile_fix4703/api/rdf")
+        .getBody()
+        .asString();
   }
 }
