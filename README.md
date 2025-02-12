@@ -11,7 +11,7 @@ Status](https://sonarcloud.io/api/project_badges/measure?project=molgenis_molgen
 
 The world's most customizable platform for (scientific) data and FAIR principles (findability, accessibility, interoperability and reusability).
 
-## Introduction
+## Introduction bla
 
 Use MOLGENIS to precisely model your data as a schema of tables, columns and relationships. Then [MOLGENIS](http://molgenis.org)
 auto generates a complete database application with advanced data entry forms, powerful data up/download options and flexible query tools to help you collect,
