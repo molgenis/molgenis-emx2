@@ -15,7 +15,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
 | 0 | NB: Assumptions | This test plan assumes that the settings are configured to display the contact form rather than just an e-mail address. | | |
-| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue) | Landing page: European health research data and sample catalogue | | |
+| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue) | Landing page: European health research data and sample catalogue | | |
 | 2 | Navigate to Search All |  `COLLECTIONS`, `NETWORKS`, and `VARIABLES` buttons are shown with the number of each under each button | | |
 | 3a | Click on the `COLLECTIONS` button | Should be directed to the list of collections with: collection logo, "COLLECTIONS", "Data & sample collections", `DETAILED`/`COMPACT` toggle buttons (`DETAILED` is selected by default), Filters on the LHS. | | |
 | 3b | Click on `COMPACT` | The list of collections turns into a list of collection acronyms and names (in full), with an arrow after each collection | | |

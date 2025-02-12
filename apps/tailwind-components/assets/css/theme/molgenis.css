@@ -57,11 +57,11 @@
     --text-color-breadcrumb: var(--color-blue-50);
     --text-color-title: var(--color-white);
     --text-color-title-contrast: var(--color-blue-500);
-    --text-color-input-description: var(--color-gray-900);
+    --text-color-input-description: var(--color-white);
     --text-color-sub-title-contrast: var(--color-black);
-    --text-color-form-header: var(--color-gray-900);
-    --text-color-search-button: var(--text-blue-500);
-    --text-color-search-button-hover: var(--text-blue-800);
+    --text-color-form-header: var(--color-white);
+    --text-color-search-button: var(--color-blue-500);
+    --text-color-search-button-hover: var(--color-blue-800);
     --text-color-favorite: var(--color-white);
     --text-color-favorite-hover: var(--color-white);
     --text-color-search-button: var(--color-blue-500);
@@ -89,8 +89,8 @@
     --text-color-footer-link: var(--color-yellow-500);
     --text-color-table-column-header: var(--color-gray-600);
     
-    --text-color-invalid: var(--color-red-500);
-    --text-color-valid: var(--color-green-800);
+    --text-color-invalid: var(--color-red-700);
+    --text-color-valid: var(--color-green-900);
     --text-color-disabled: var(--color-gray-400);
     --text-color-required: var(--color-red-500);
     
@@ -123,8 +123,8 @@
     --border-radius-pagination: 9999px;
     --border-radius-landing: 50px;
     
-    --border-color-invalid: var(--color-red-500);
-    --border-color-valid: var(--color-green-800);
+    --border-color-invalid: var(--color-red-700);
+    --border-color-valid: var(--color-green-900);
     --border-color-disabled: var(--color-gray-400);
 
     --outline-color-select: var(--color-gray-200);

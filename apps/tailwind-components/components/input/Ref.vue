@@ -2,39 +2,31 @@
 import type { ITableDataResponse } from "~/composables/fetchTableData";
 import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQueryMetaData.ts";
 import type {
-  columnValue,
+  ITableMetaData,
   columnValueObject,
 } from "../../../metadata-utils/src/types";
-import type { IValueLabel } from "~/types/types";
-import type { ITableMetaData } from "metadata-utils";
+import { type IInputProps, type IValueLabel } from "~/types/types";
+import logger from "@/utils/logger";
 
 const props = withDefaults(
-  defineProps<{
-    id: string;
-    label?: string;
-    refSchemaId: string;
-    refTableId: string;
-    refLabel: string;
-    //todo, replace isArray with type="select"|"radio"|"checkbox"|"multiselect" and also enable this in emx2 metadata model
-    isArray?: boolean;
-    limit?: number;
-    inverted?: boolean;
-    //todo implement use of hasError, valid, disabled states?
-    required?: boolean;
-    valid?: boolean;
-    hasError?: boolean;
-  }>(),
+  defineProps<
+    IInputProps & {
+      refSchemaId: string;
+      refTableId: string;
+      refLabel: string;
+      //todo, replace isArray with type="select"|"radio"|"checkbox"|"multiselect" and also enable this in emx2 metadata model
+      isArray?: boolean;
+      limit?: number;
+    }
+  >(),
   {
     isArray: true,
-    required: false,
-    hasError: false,
     limit: 10,
-    inverted: false,
   }
 );
 
-const modelValue = defineModel<columnValueObject[] | columnValueObject | "">(); //empty string might happen
-const tableMetadata = ref<ITableMetaData>;
+const modelValue = defineModel<columnValueObject[] | columnValueObject>();
+const tableMetadata = ref<ITableMetaData>();
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
 const optionMap: Ref<Record<string, columnValueObject>> = ref({});
 const selectionMap: Ref<Record<string, columnValueObject>> = ref({});
@@ -44,21 +36,6 @@ const offset = ref<number>(0);
 const showSearch = ref<boolean>(false);
 const searchTerms: Ref<string> = ref("");
 const hasNoResults = ref<boolean>(true);
-defineExpose({ validate });
-
-function validate(value: columnValue) {
-  if (props.required && !value) {
-    const errors = [
-      { message: `${props.label || props.id} required to complete the form` },
-    ];
-    emit("error", errors);
-    return errors;
-  } else {
-    emit("error", []);
-    return [];
-  }
-}
-
 const columnName = computed<string>(() => {
   return props.refLabel.replace(/[\{\}\$]/g, "");
 });
@@ -132,6 +109,7 @@ async function loadOptions(filter: IQueryMetaData) {
   } else {
     hasNoResults.value = true;
   }
+  logger.debug("loaded options for " + props.id);
 }
 
 function toggleSearch() {
@@ -147,7 +125,6 @@ function updateSearch(newSearchTerms: string) {
 }
 
 function select(label: string) {
-  console.log("select " + label);
   if (!props.isArray) {
     selectionMap.value = {};
   }
@@ -164,7 +141,7 @@ function select(label: string) {
 
 function extractPrimaryKey(value: any) {
   const result = {} as columnValueObject;
-  tableMetadata.value.columns
+  tableMetadata.value?.columns
     .filter((column) => column.key === 1)
     .forEach((column) => {
       result[column.id] = value[column.id];
@@ -217,16 +194,10 @@ function loadMore() {
     </Button>
   </div>
   <div class="flex flex-wrap gap-2 mb-2">
-    <ButtonText
-      @click="toggleSearch"
-      :inverted="inverted"
-      :aria-controls="`search-for-${id}`"
-    >
+    <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
       Search
     </ButtonText>
-    <ButtonText @click="clearSelection" :inverted="inverted">
-      Clear all
-    </ButtonText>
+    <ButtonText @click="clearSelection"> Clear all </ButtonText>
   </div>
   <template v-if="showSearch && initialCount > limit">
     <InputLabel :for="`search-for-${id}`" class="sr-only">
@@ -249,7 +220,10 @@ function loadMore() {
       :modelValue="(selection as string[])"
       @select="select"
       @deselect="deselect"
-      :inverted="inverted"
+      :invalid="invalid"
+      :valid="valid"
+      :disabled="disabled"
+      @focus="$emit('focus')"
     />
     <InputRadioGroup
       v-else
@@ -258,13 +232,12 @@ function loadMore() {
       :modelValue="(selection as string)"
       @select="select"
       @deselect="deselect"
-      :inverted="inverted"
+      :invalid="invalid"
+      :valid="valid"
+      :disabled="disabled"
+      @focus="$emit('focus')"
     />
-    <ButtonText
-      @click="loadMore"
-      v-if="offset + limit < count"
-      :inverted="inverted"
-    >
+    <ButtonText @click="loadMore" v-if="offset + limit < count">
       load {{ entitiesLeftToLoad }} more
     </ButtonText>
   </template>

@@ -221,8 +221,10 @@ public class ColumnTypeRdfMapper {
 
       @Override
       boolean isEmpty(Row row, Column column) {
-        // Composite key requires all fields to be filled. If one is null, all should be null.
-        return row.getString(column.getReferences().get(0).getName()) == null;
+        // Composite key requires all fields to be filled. Using refLink from a non-required field
+        // could cause a part of the composite key to be defined.
+        // Therefore, if a composite key is partly defined, assume it is not defined.
+        return column.getReferences().stream().anyMatch(i -> row.getString(i.getName()) == null);
       }
     },
     REFBACK(CoreDatatype.XSD.ANYURI) {

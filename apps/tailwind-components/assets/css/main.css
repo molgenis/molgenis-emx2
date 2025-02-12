@@ -35,6 +35,7 @@
     --color-green-200: #C7FFE2;
     --color-green-500: #72F6B2;
     --color-green-800: #349D63;
+    --color-green-900: #075F32;
     --color-orange-500: #E1B53E;
     --color-red-200: #FCECEF;
     --color-red-500: #E14F62;
@@ -78,14 +79,15 @@
     --backgroud-color-tab-active: var(--color-blue-500);
     --background-color-disabled: var(--color-gray-200);
     --background-color-invalid: var(--color-red-200);
+    --background-color-valid: var(--color-green-200);
     --background-color-input: var(--color-white);
-    --background-color-input-checked: var(--color-yellow-500);
+    --background-color-input-checked: var(--color-blue-500);
     --background-color-listbox: var(--color-white);
     --background-color-listbox-hover: var(--color-gray-100);
     --background-color-listbox-selected: var(--color-blue-500);
     --background-color-table: var(--color-white);
     --background-color-notification: var(--color-red-700);
-
+    --background-color-code-output: var(--color-gray-100);
 
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-white);
@@ -105,8 +107,8 @@
     --text-color-title: var(--color-blue-800);
     --text-color-title-contrast: var(--color-blue-500);
     --text-color-sub-title-contrast: var(--color-black);
-    --text-color-search-button: var(--text-blue-500);
-    --text-color-search-button-hover: var(--text-blue-800);
+    --text-color-search-button: var(--color-blue-500);
+    --text-color-search-button-hover: var(--color-blue-800);
     --text-color-favorite: var(--color-blue-800);
     --text-color-favorite-hover: var(--color-blue-800);
     --text-color-button-text: var(--color-blue-800);
@@ -142,11 +144,12 @@
     --text-color-input-description: var(--color-blue-800);
     --text-color-legend-error-count: var(--color-white);
     
-    --text-color-invalid: var(--color-red-500);
-    --text-color-valid: var(--color-green-800);
+    --text-color-invalid: var(--color-red-700);
+    --text-color-valid: var(--color-green-900);
     --text-color-disabled: var(--color-gray-600);
     --text-color-required: var(--color-red-500);
     
+    --text-code-output: var(--color-gray-800);
     --text-content-required: "*";
 
     --border-color-button-primary: var(--color-blue-500);
@@ -178,13 +181,10 @@
     --border-radius-pagination: 9999px;
     --border-radius-landing: 50px;
     
-    --border-color-invalid: var(--color-red-500);
-    --border-color-valid: var(--color-green-800);
+    --border-color-invalid: var(--color-red-700);
+    --border-color-valid: var(--color-green-900);
     --border-color-disabled: var(--color-gray-400);
 
     --outline-color-select: var(--color-gray-200);
-
   }
-
-  
 }
