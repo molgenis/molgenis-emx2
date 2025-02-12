@@ -253,8 +253,9 @@ module.exports = {
         "input-focused": "var(--border-color-input-focused)",
         "notification-text": "var(--text-color-legend-error-count)",
         "input-checked": "var(--text-color-button-primary)",
-        "invalid": "var(--text-color-invalid)",
-        "valid": "var(--text-color-valid)",
+        "invalid": "var(--border-color-invalid)",
+        "valid": "var(--border-color-valid)",
+        "disabled": "var(--border-color-disabled)",
       }),
       fill: ({ theme }) => ({
         "input": "var(--background-color-input)",
@@ -266,6 +267,7 @@ module.exports = {
         "check": "var(--text-color-button-primary)",
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",
+        "disabled": "var(--background-color-disabled)", 
         "fill-checkbox-invalid": "var(--background-color-invalid)"
       }),
       borderRadius: {
