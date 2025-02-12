@@ -1,2 +1,2 @@
-resource,id,name,country,website
-testCohort,UMCG,University Medical Center Groningen,Netherlands (the),https://www.umcg.nl/
+resource,id,name,city,country,latitude,longitude,website
+testCohort,UMCG,University Medical Center Groningen,Groningen,Netherlands (the),53.221078054963485,6.577090705283371,https://www.umcg.nl/
