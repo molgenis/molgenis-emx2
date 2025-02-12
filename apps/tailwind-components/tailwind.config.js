@@ -84,11 +84,12 @@ module.exports = {
       },
     },
     extend: {
-      boxShadow: {
-        primary: "var(--box-shadow-primary)",
+      boxShadow: ({ theme }) => ({
+        "primary": "var(--box-shadow-primary)",
+        "input-hover": "var(--box-shadow-input-hover)",
         "search-input": "var(--box-shadow-search-input)",
         "pagination-gray": "var(--box-shadow-pagination-gray)",
-      },
+      }),
       spacing: {
         "3px": "3px",
         "50px": "50px",
@@ -121,6 +122,9 @@ module.exports = {
         table: "60.7rem",
         title: "10rem",
       },
+      transitionDuration: {
+        default: "500",
+      },
       backgroundImage: {
         "sidebar-gradient": "var(--background-image-sidebar-gradient)",
         "base-gradient": "var(--background-image-base-gradient)",
@@ -138,6 +142,8 @@ module.exports = {
         "button-outline-hover": "var(--backgroud-color-button-outline-hover)",
         "button-disabled": "var(--backgroud-color-button-disabled)",
         "button-disabled-hover": "var(backgroud-color-button-disabled-hover)",
+        "button-filter": "var(--background-color-button-filter)",
+        "button-filter-hover": "var(--background-color-button-filter-hover)",
         "search-button": "var(--backgroud-color-search-button)",
         "search-button-hover": "var(--backgroud-color-search-button-hover)",
         "navigation": "var(--backgroud-color-navigation)",
@@ -174,6 +180,7 @@ module.exports = {
         "button-outline-hover": "var(--text-color-button-outline-hover)",
         "button-disabled": "var(--text-color-button-disabled)",
         "button-disabled-hover": "var(--text-color-button-disabled-hover)",
+        "button-filter": "var(--text-color-button-filter)",
         "button-text": "var(--text-color-button-text)",
         "menu": "var(--text-color-menu)",
         "sub-menu": "var(--text-color-sub-menu)",
@@ -233,6 +240,8 @@ module.exports = {
         "button-outline-hover": "var(--border-color-button-outline-hover)",
         "button-disabled": "var(--border-color-button-disabled)",
         "button-disabled-hover": "var(--border-color-button-disabled-hover)",
+        "button-filter": "var(--border-color-button-filter)",
+        "button-filter-hover": "var(--border-color-button-filter-hover)",
         "menu-active": "var(--border-color-menu-active)",
         "search-button": "var(--border-color-search-button)",
         "search-input": "var(--border-color-search-input)",
@@ -243,6 +252,7 @@ module.exports = {
         "valid": "var(--border-color-valid)",
         "disabled": "var(--border-color-disabled)",
         "input": "var(--border-color-input)",
+        "input-hover": "var(--border-color-input-hover)",
         "input-inverted": "var(--border-color-input-inverted)",
         "listbox": "var(--border-color-search-input)",
         "listbox-option": "var(--border-color-listbox-option)",

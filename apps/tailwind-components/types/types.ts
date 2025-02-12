@@ -86,6 +86,7 @@ export interface ISection {
 export interface IFile {
   id?: string;
   size?: number;
+  filename?: string;
   extension?: string;
   url?: string;
 }
@@ -110,4 +111,5 @@ export interface IInputProps {
   invalid?: boolean;
   valid?: boolean | undefined;
   disabled?: boolean | undefined;
+  required?: boolean | undefined;
 }
