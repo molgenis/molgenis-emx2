@@ -4,7 +4,12 @@
     with the added validation of the input being a hyperlink.
   </p>
   <FormFields
+    id="form-hyperlink"
+    schemaId="schema-hyperlink"
     :metadata="{
+      label: 'Hyperlink',
+      id: 'hyperlink',
+      tableType: 'my kind of table',
       columns: [
         {
           id: 'input-hyperlink',
@@ -13,6 +18,7 @@
         },
       ],
     }"
+    :data="[]"
   />
 </template>
 
