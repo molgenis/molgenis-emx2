@@ -4,6 +4,7 @@ import type {
   columnValue,
   IColumn,
   ITableMetaData,
+  recordValue,
 } from "../../../metadata-utils/src/types";
 import {
   isColumnVisible,
@@ -21,7 +22,9 @@ const props = defineProps<{
   metadata: ITableMetaData;
 }>();
 
-const modelValue = defineModel<Record<string, columnValue>>();
+const modelValue = defineModel<recordValue>("modelValue", {
+  required: true,
+});
 
 const emit = defineEmits(["error"]);
 
@@ -33,9 +36,10 @@ const previousColumn = ref<IColumn>();
 props.metadata.columns
   .filter((column) => column.columnType === "HEADING")
   .forEach((column) => {
-    logger.debug(isColumnVisible(column, modelValue, props.metadata));
+    logger.debug(isColumnVisible(column, modelValue.value, props.metadata));
     visibleMap[column.id] =
-      !column.visible || isColumnVisible(column, modelValue, props.metadata)
+      !column.visible ||
+      isColumnVisible(column, modelValue.value, props.metadata)
         ? true
         : false;
     logger.debug(
@@ -115,7 +119,10 @@ function validateColumn(column: IColumn) {
 }
 
 function checkVisibleExpression(column: IColumn) {
-  if (!column.visible || isColumnVisible(column, modelValue, props.metadata)) {
+  if (
+    !column.visible ||
+    isColumnVisible(column, modelValue.value, props.metadata)
+  ) {
     visibleMap[column.id] = true;
   } else {
     visibleMap[column.id] = false;

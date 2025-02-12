@@ -18,8 +18,10 @@
         },
       ],
     }"
-    :data="[]"
+    v-model="formValues"
   />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const formValues = ref();
+</script>
