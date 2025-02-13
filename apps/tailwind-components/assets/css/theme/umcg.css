@@ -15,25 +15,25 @@
 
     --opacity-background-gradient: 0;
 
-    --backgroud-color-button-primary: var(--color-orange-500);
-    --backgroud-color-button-primary-hover: var(--white);
-    --backgroud-color-button-secondary: var(--color-orange-500);
-    --backgroud-color-button-secondary-hover: var(--color-orange-200);
-    --backgroud-color-button-tertiary: var(--color-umcg-light-blue);
-    --backgroud-color-button-tertiary-hover: var(--color-umcg-light-blue);
-    --backgroud-color-button-outline: var(--color-white);
-    --backgroud-color-button-outline-hover: var(--color-white);
-    --backgroud-color-button-disabled: var(--color-gray-100);
-    --backgroud-color-button-disabled-hover: var(--color-gray-100);
-    --backgroud-color-search-button: var(--color-white);
-    --backgroud-color-navigation: var(--color-white);
-    --backgroud-color-search-results-view-tabs: var(--color-umcg-dark-blue);
-    --backgroud-color-search-filter-group-toggle: #bdcce4;
-    --backgroud-color-app-wrapper: var(--color-transparent);
-    --backgroud-color-pagination: var(--color-transparent);
-    --backgroud-color-pagination-hover: var(--color-umcg-dark-blue);
-    --backgroud-color-footer: var(--color-white);
-    --backgroud-color-modal-footer: #E3EFF8;
+    --background-color-button-primary: var(--color-orange-500);
+    --background-color-button-primary-hover: var(--white);
+    --background-color-button-secondary: var(--color-orange-500);
+    --background-color-button-secondary-hover: var(--color-orange-200);
+    --background-color-button-tertiary: var(--color-umcg-light-blue);
+    --background-color-button-tertiary-hover: var(--color-umcg-light-blue);
+    --background-color-button-outline: var(--color-white);
+    --background-color-button-outline-hover: var(--color-white);
+    --background-color-button-disabled: var(--color-gray-100);
+    --background-color-button-disabled-hover: var(--color-gray-100);
+    --background-color-search-button: var(--color-white);
+    --background-color-navigation: var(--color-white);
+    --background-color-search-results-view-tabs: var(--color-umcg-dark-blue);
+    --background-color-search-filter-group-toggle: #bdcce4;
+    --background-color-app-wrapper: var(--color-transparent);
+    --background-color-pagination: var(--color-transparent);
+    --background-color-pagination-hover: var(--color-umcg-dark-blue);
+    --background-color-footer: var(--color-white);
+    --background-color-modal-footer: #E3EFF8;
 
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-orange-500);
