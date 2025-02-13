@@ -1,14 +1,14 @@
 :root[data-theme="dark"] {
-    --backgroud-color-navigation: var(--color-gray-600);
+    --background-color-navigation: var(--color-gray-600);
     --background-image-sidebar-gradient: linear-gradient(180deg, var(--color-gray-600) -24.76%, var(--color-gray-600) 86.02%);
     --background-image-base-gradient: linear-gradient(180deg, var(--color-gray-800), var(--color-gray-800) 133.81%);
 
     --opacity-background-gradient: 0;
 
-    --backgroud-color-button-primary: var(--color-green-500);
-    --backgroud-color-button-primary-hover: var(--color-white);
-    --backgroud-color-button-secondary: var(--color-gray-700);
-    --backgroud-color-button-secondary-hover: var(--color-gray-700);
+    --background-color-button-primary: var(--color-green-500);
+    --background-color-button-primary-hover: var(--color-white);
+    --background-color-button-secondary: var(--color-gray-700);
+    --background-color-button-secondary-hover: var(--color-gray-700);
 
     --text-color-button-primary: var(--color-gray-800);
     --text-color-button-primary-hover: var(--color-gray-800);

@@ -6,6 +6,7 @@
     :class="{
       'bg-invalid text-invalid fill-invalid': invalid,
       'bg-valid text-valid fill-valid': valid,
+      'bg-': !valid && !invalid,
     }"
   >
     <template v-if="invalid">
