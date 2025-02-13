@@ -73,6 +73,7 @@ const chapters = computed(() => {
           id: "_scroll_to_top",
           columns: [],
           isActive: "_scroll_to_top" === activeChapterId.value,
+          errorCount: 0,
         });
       }
       acc[acc.length - 1].columns.push(column);
@@ -108,11 +109,7 @@ function validateColumn(column: IColumn) {
     errorMap[column.id] = props.metadata.columns
       .filter((c) => c.validation?.includes(column.id))
       .map((c) => {
-        const result = getColumnError(
-          c.validation as string,
-          dataMap,
-          props.metadata
-        );
+        const result = getColumnError(c, dataMap, props.metadata);
         return result;
       })
       .join("");
@@ -219,7 +216,7 @@ function goToSection(headerId: string) {
             :type="column.columnType"
             :label="column.label"
             :description="column.description"
-            :required="isRequired(column.required)"
+            :required="isRequired(column.required ?? false)"
             :error-message="errorMap[column.id]"
             :ref-schema-id="column.refSchemaId || schemaId"
             :ref-table-id="column.refTableId"

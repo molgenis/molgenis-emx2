@@ -5,14 +5,12 @@ defineProps<{
   disabled?: boolean;
   required?: boolean;
   hideLabel?: boolean;
-  for: string;
 }>();
 </script>
 
 <template>
   <label
     class="pl-3 text-body-base"
-    :for="for"
     :class="{
       'sr-only': hideLabel,
       'text-disabled': disabled,

@@ -61,8 +61,8 @@
 </template>
 
 <script lang="ts" setup>
-import { type IInputProps, type IValueLabel } from "~/types/types";
 import type { columnValue } from "../../../metadata-utils/src/types";
+import type { IInputProps, IValueLabel } from "~/types/types";
 
 withDefaults(
   defineProps<
