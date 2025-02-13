@@ -25,6 +25,8 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // TODO check null value handling
 // TODO check value types
@@ -42,6 +44,8 @@ import org.molgenis.emx2.*;
  * </ul>
  */
 public class RDFService {
+  private static final Logger logger = LoggerFactory.getLogger(RDFService.class);
+
   private static final DateTimeFormatter dateTimeFormatter =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
   public static final IRI LDP_CONTAINS = Values.iri("http://www.w3.org/ns/ldp#contains");
@@ -173,6 +177,7 @@ public class RDFService {
           namespaces.put(schema.getName(), namespacesToMap(customRdf.getNamespaces().stream()));
           addModelToBuilder(builder, customRdf);
         }
+        logger.debug("Namespaces per schema: " +  namespaces.toString());
 
         if (table == null) {
           describeSchema(builder, schema);
