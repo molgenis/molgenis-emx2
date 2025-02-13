@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Dataset,,,,,,,,,,,dcat:Dataset,DCAT v2 dataset entries.,DCAT
-Dataset,,id,string,1,TRUE,,,,,,"dcterms:identifier,http://purl.allotrope.org/ontologies/result#AFR_0000919",Local database identifier of the dataset.,DCAT
+Dataset,,id,string,1,TRUE,,,,,,"dcterms:identifier,afr:AFR_0000919",Local database identifier of the dataset.,DCAT
 Dataset,,title,string,,TRUE,,,,,,dcterms:title,A name given to the record.,DCAT
 Dataset,,description,string,,TRUE,,,,,,dcterms:description,A free-text account of the item.,DCAT
 Dataset,,belongsToCatalog,ref_array,,TRUE,,Catalog,,,,dcat:Catalog,Reference back to any catalogs that contain this dataset.,DCAT
@@ -28,12 +28,12 @@ Dataset,,publisher,ref,,,,Agent,,,,dcterms:publisher,The entity responsible for 
 Dataset,,theme,hyperlink_array,,,,,,,,dcat:theme,A main category of the resource. A resource can have multiple themes.,DCAT
 Dataset,,type,hyperlink,,,,,,,,dcterms:type,The nature or genre of the resource.,DCAT
 Dataset,,qualifiedAttribution,string,,,,,,,,prov:qualifiedAttribution,Link to an Agent having some form of responsibility for the resource,DCAT
-Dataset,,propertyValue,string_array,,,,,,,,https://schema.org/PropertyValue,"A property-value pair, e.g. representing a feature of a product or place.",DCAT
+Dataset,,propertyValue,string_array,,,,,,,,schema:PropertyValue,"A property-value pair, e.g. representing a feature of a product or place.",DCAT
 datareleases,,,,,,,,,,,obo:NCIT_C172217,"The act of making data or other structured information accessible to the public or to the user group of a database.",RD3
 datareleases,,name,string,1,TRUE,,,,,,obo:NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing.",RD3
 datareleases,,label,string,,,,,,,,obo:NCIT_C42614,"The words or language units by which a thing is known.",RD3
 datareleases,,description,text,,,,,,,,obo:NCIT_C25365,"A written or verbal account, representation, statement, or explanation of something.",RD3
-datareleases,,date,date,,,,,,,,http://semanticscience.org/resource/SIO_001083,"A date of database submission refers to the moment in time in which some information was submitted/received to a database system.",RD3
+datareleases,,date,date,,,,,,,,sio:SIO_001083,"A date of database submission refers to the moment in time in which some information was submitted/received to a database system.",RD3
 datareleases,,createdBy,ref,,,,ContactPersons,,,,obo:NCIT_C42628,"Indicates the person or authoritative body who brought the item into existence.",RD3
 datareleases,,dataSource,ontology_array,,,,Organisations,,,,obo:NCIT_C16493,"The person or authoritative body who provided the information.",RD3
 datareleases,,releaseNotes,text,,,,,,,,obo:NCIT_C115505,"A notation regarding the decisions, and/or clarification of any information pertaining to data management.",RD3
