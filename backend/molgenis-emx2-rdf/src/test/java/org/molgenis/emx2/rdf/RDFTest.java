@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
@@ -74,23 +75,7 @@ public class RDFTest {
   static Schema semanticTest;
 
   final Set<Namespace> DEFAULT_NAMESPACES =
-      new HashSet<>() {
-        {
-          add(new SimpleNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"));
-          add(new SimpleNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#"));
-          add(new SimpleNamespace("xsd", "http://www.w3.org/2001/XMLSchema#"));
-          add(new SimpleNamespace("owl", "http://www.w3.org/2002/07/owl#"));
-          add(new SimpleNamespace("sio", "http://semanticscience.org/resource/"));
-          add(new SimpleNamespace("qb", "http://purl.org/linked-data/cube#"));
-          add(new SimpleNamespace("skos", "http://www.w3.org/2004/02/skos/core#"));
-          add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
-          add(new SimpleNamespace("dcat", "http://www.w3.org/ns/dcat#"));
-          add(new SimpleNamespace("foaf", "http://xmlns.com/foaf/0.1/"));
-          add(new SimpleNamespace("vcard", "http://www.w3.org/2006/vcard/ns#"));
-          add(new SimpleNamespace("org", "http://www.w3.org/ns/org#"));
-          add(new SimpleNamespace("fdp-o", "https://w3id.org/fdp/fdp-o#"));
-        }
-      };
+      DefaultNamespace.streamAll().collect(Collectors.toSet());
 
   @BeforeAll
   public static void setup() {
