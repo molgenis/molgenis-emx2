@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 public class GraphqlApi {
   public static final String QUERY = "query";
   public static final String VARIABLES = "variables";
+  private static final String CHANGED_SETTING =
+      "{  \"data\" : {    \"change\" : {      \"message\" : \"Changed setting '";
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
   private static MolgenisSessionManager sessionManager;
 
@@ -73,6 +75,9 @@ public class GraphqlApi {
     MolgenisSession session = sessionManager.getSession(ctx.req());
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     String result = executeQuery(session.getGraphqlForDatabase(), ctx);
+    if (result.replace("\n", "").replace("\r", "").startsWith(CHANGED_SETTING)) {
+      sessionManager.clearAllCaches();
+    }
     ctx.json(result);
   }
 

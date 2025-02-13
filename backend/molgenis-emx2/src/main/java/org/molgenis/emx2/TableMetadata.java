@@ -446,6 +446,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     columns = new LinkedHashMap<>();
     inheritName = null;
     importSchema = null;
+    this.clearSettings();
   }
 
   public boolean exists() {
