@@ -267,8 +267,7 @@ module.exports = {
         "check": "var(--text-color-button-primary)",
         "invalid": "var(--text-color-invalid)",
         "valid": "var(--text-color-valid)",
-        "disabled": "var(--background-color-disabled)", 
-        "fill-checkbox-invalid": "var(--background-color-invalid)"
+        "disabled": "var(--background-color-disabled)",
       }),
       borderRadius: {
         "3px": "var(--border-radius-3px)",

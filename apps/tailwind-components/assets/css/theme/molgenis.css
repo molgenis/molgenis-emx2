@@ -36,6 +36,7 @@
     --background-color-invalid: var(--color-red-200);
     --background-color-input: var(--color-white);
     --background-color-input-checked: var(--color-yellow-500);
+    --background-color-input-focused: var(--color-yellow-500);
     --background-color-table: var(--color-white);
 
 
