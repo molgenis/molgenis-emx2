@@ -1,5 +1,5 @@
 <template>
-  <InputTestContainer showState v-slot="{ state }">
+  <InputTestContainer showState>
     <p>
       There are multiple ways to create radio buttons using the tailwind
       component library. You can either create them manually using the
@@ -29,7 +29,6 @@
           id="example-1"
           :options="[{ value: 'no' }, { value: 'yes' }]"
           v-model="question1Response"
-          :state="state"
         />
         <output>
           <span>Selection: {{ question1Response }}</span>
@@ -47,7 +46,6 @@
             { value: 'level-2', label: 'Level 2 (AA)' },
             { value: 'level-3', label: 'Level 3 (AAA)' },
           ]"
-          :state="state"
         />
         <output>
           <span>Selection: {{ question2Response }}</span>
@@ -70,7 +68,6 @@
             { value: 'placebo', label: 'Placebo cohort' },
           ]"
           :show-clear-button="true"
-          :state="state"
         />
         <output>
           <span>Selection: {{ question3Response }}</span>
