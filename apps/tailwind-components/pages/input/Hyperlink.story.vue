@@ -18,10 +18,10 @@
         },
       ],
     }"
-    v-model="formValues"
+    v-model="model"
   />
 </template>
 
 <script setup lang="ts">
-const formValues = ref();
+const model = ref({ "input-hyperlink": null });
 </script>

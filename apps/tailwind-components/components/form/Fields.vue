@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type {
   columnId,
-  columnValue,
   IColumn,
   ITableMetaData,
   recordValue,
