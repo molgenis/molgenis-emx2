@@ -158,6 +158,8 @@ public class RDFService {
       Set<Table> allTables = new HashSet<>();
 
       // Namespaces per prefix per schema.
+      // While ModelBuilder.add() allows for prefixed name, conflicting schema-specific namespaces
+      // could cause issues.
       Map<String, Map<String, Namespace>> namespaces = new HashMap<>();
 
       for (final Schema schema : schemas) {
