@@ -26,7 +26,8 @@ public class DataModels {
     GDI("_profiles/GDI.yaml"),
     SHARED_STAGING("_profiles/SharedStaging.yaml"),
     IMAGE_TEST("_profiles/ImageTest.yaml"),
-    PET_STORE("_profiles/PetStore.yaml");
+    PET_STORE("_profiles/PetStore.yaml"),
+    TYPE_TEST("_profiles/TypeTest.yaml");
 
     public static boolean hasProfile(String nameOther) {
       return Arrays.stream(values()).anyMatch(profile -> profile.name().equals(nameOther));
@@ -51,6 +52,7 @@ public class DataModels {
     DIRECTORY(DirectoryLoader::new),
     ERN_DASHBOARD(DashboardLoader::new),
     UI_DASHBOARD(UiDashboardLoader::new),
+    PATIENT_REGISTRY_DEMO(PatientRegistryDemoLoader::new),
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
     RD3_V2(RD3v2Loader::new),

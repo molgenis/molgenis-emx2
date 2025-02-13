@@ -1,0 +1,7 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,recql4,RECQL4,,,,,
+2,usb1,USB1,,,,,
+3,fam11b,FAM11B,,,,,
+4,anapc1,ANAPC1,,,,,
+5,unknown,Unknown,,,,,
+6,other,Other,,,,,

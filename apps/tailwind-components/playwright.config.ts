@@ -23,6 +23,7 @@ export default defineConfig<ConfigOptions>({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     nuxt: {
+      // @ts-ignore
       host: process.env.E2E_BASE_URL || "http://localhost:3000/",
       build: false
     }

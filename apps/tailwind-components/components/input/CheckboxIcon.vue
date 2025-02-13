@@ -11,15 +11,21 @@
     <rect
       width="20"
       height="20"
+      :style="{ 'stroke-width': invalid ? 4 : 1 }"
       :class="{
         'fill-input': !checked && !indeterminate,
-        'fill-input-checked stroke-none': checked || indeterminate,
+        'fill-input-checked': checked || indeterminate,
+        'fill-invalid': checked && invalid,
+        'fill-valid': checked && valid,
+        'stroke-current': !disabled,
+        'stroke-valid': valid,
+        'stroke-invalid': invalid,
       }"
     />
     <path
       v-if="checked"
       d="M5,10 L 9,14 L 16,6"
-      class="stroke-gray-900"
+      class="stroke-check"
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
@@ -38,14 +44,11 @@
 </template>
 
 <script lang="ts" setup>
-withDefaults(
-  defineProps<{
-    checked?: boolean;
-    indeterminate?: boolean;
-  }>(),
-  {
-    checked: false,
-    indeterminate: false,
-  }
-);
+defineProps<{
+  checked?: boolean;
+  indeterminate?: boolean;
+  invalid?: boolean;
+  valid?: boolean;
+  disabled?: boolean;
+}>();
 </script>

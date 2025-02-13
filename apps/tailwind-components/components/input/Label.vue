@@ -1,19 +1,11 @@
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    disabled?: boolean;
-    valid?: boolean;
-    hasError?: boolean;
-    required?: boolean;
-    hideLabel?: boolean;
-  }>(),
-  {
-    disabled: false,
-    hasError: false,
-    valid: false,
-    hideLabel: false,
-  }
-);
+defineProps<{
+  invalid?: boolean;
+  valid?: boolean;
+  disabled?: boolean;
+  required?: boolean;
+  hideLabel?: boolean;
+}>();
 </script>
 
 <template>
@@ -22,7 +14,7 @@ withDefaults(
     :class="{
       'sr-only': hideLabel,
       'text-disabled': disabled,
-      'text-invalid': hasError,
+      'text-invalid': invalid,
       'text-valid': valid,
       'after:content-required after:text-required': required,
     }"

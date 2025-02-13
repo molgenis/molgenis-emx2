@@ -1,22 +1,22 @@
 <template>
   <Molgenis v-model="session" style="background-color: white">
-    <template v-if="banner" #banner>
-      <div v-html="banner"></div>
+    <template #banner>
+      <div v-html="banner" />
     </template>
     <Error />
     <RouterView @click="closeAllDropdownButtons" />
     <template #footer>
-      <Footer />
+      <div v-html="footer" />
     </template>
   </Molgenis>
 </template>
 
-<script setup>
+<script setup lang="ts">
+//@ts-expect-error
 import { Molgenis } from "molgenis-components";
-import { computed, onMounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { onMounted, computed, ref, watch } from "vue";
+import { LocationQuery, useRoute } from "vue-router";
 import Error from "./components/Error.vue";
-import Footer from "./components/Footer.vue";
 import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
 import { useCheckoutStore } from "./stores/checkoutStore";
 import { useFiltersStore } from "./stores/filtersStore";
@@ -24,14 +24,23 @@ import { useSettingsStore } from "./stores/settingsStore";
 
 const route = useRoute();
 const query = computed(() => route.query);
+
 const filtersStore = useFiltersStore();
 const checkoutStore = useCheckoutStore();
+const settingsStore = useSettingsStore();
 
-const banner = ref("");
+const banner = computed(() => settingsStore.config.banner);
+const footer = computed(() => settingsStore.config.footer);
+
+const session = ref({});
+
+watch(session, () => {
+  settingsStore.setSessionInformation(session.value);
+});
 
 watch(
   query,
-  (newQuery, oldQuery) => {
+  (newQuery: LocationQuery, oldQuery) => {
     if (newQuery && Object.keys(newQuery).length) {
       const remainingKeys = Object.keys(newQuery).filter(
         (key) => key !== "cart"
@@ -60,28 +69,23 @@ watch(
   },
   { immediate: true, deep: true }
 );
-onMounted(async () => {
-  changeFavicon();
-  const settingsStore = useSettingsStore();
-  await settingsStore.initializeConfig();
 
-  if (settingsStore.config.banner) {
-    banner.value = settingsStore.config.banner;
-  }
+onMounted(() => {
+  changeFavicon();
 });
 
-function closeAllDropdownButtons(event) {
+function closeAllDropdownButtons(event: any) {
   const allDropdownButtons = document.querySelectorAll(".dropdown-button");
-  if (event.target.id) {
-    for (const dropdownButton of allDropdownButtons) {
-      if (dropdownButton.id !== event.target.id) {
+  if (event.target?.id) {
+    allDropdownButtons.forEach((dropdownButton) => {
+      if (dropdownButton.id !== event.target?.id) {
         dropdownButton.removeAttribute("open");
       }
-    }
+    });
   } else {
-    for (const dropdownButton of allDropdownButtons) {
+    allDropdownButtons.forEach((dropdownButton) => {
       dropdownButton.removeAttribute("open");
-    }
+    });
   }
 }
 
@@ -105,20 +109,4 @@ function changeFavicon() {
     link.href = faviconUrl;
   }
 }
-</script>
-
-<script>
-export default {
-  data() {
-    return {
-      session: {},
-    };
-  },
-  watch: {
-    session(sessionState) {
-      const settingsStore = useSettingsStore();
-      settingsStore.setSessionInformation(sessionState);
-    },
-  },
-};
 </script>
