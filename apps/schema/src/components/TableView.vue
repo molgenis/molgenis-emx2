@@ -12,7 +12,9 @@
           >
             Table: {{ table.name }}
             <span v-if="table.semantics" class="small">
-              (<span v-for="semantics in table.semantics">{{ semantics }}</span
+              (<template v-for="(semantics, index) in table.semantics"
+                ><template v-if="index > 0">,</template
+                >{{ semantics }}</template
               >)
             </span>
           </h4>

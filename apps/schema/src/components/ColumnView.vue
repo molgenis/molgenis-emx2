@@ -12,7 +12,8 @@
       <span>
         {{ column.name }}
         <span v-if="column.semantics">
-          (<span v-for="semantics in column.semantics">{{ semantics }}</span
+          (<template v-for="(semantics, index) in column.semantics"
+            ><template v-if="index > 0">,</template>{{ semantics }}</template
           >)
         </span>
       </span>

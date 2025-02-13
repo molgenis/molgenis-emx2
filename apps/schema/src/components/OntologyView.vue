@@ -13,7 +13,8 @@
       >
         {{ ontology.name }}
         <span v-if="ontology.semantics" class="small">
-          (<span v-for="semantics in ontology.semantics">{{ semantics }}</span
+          (<template v-for="(semantics, index) in ontology.semantics"
+            ><template v-if="index > 0">,</template>{{ semantics }}</template
           >)
         </span>
       </div>
