@@ -12,12 +12,7 @@
       <span>
         {{ column.name }}
         <span v-if="column.semantics">
-          (<a
-            :href="purl"
-            target="_blank"
-            v-for="purl in column.semantics"
-            :key="purl"
-            >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
+          (<span v-for="semantics in column.semantics">{{ semantics }}</span
           >)
         </span>
       </span>

@@ -92,12 +92,9 @@
                   </sup>
                   <div class="float-right">
                     <small class="align-right">
-                      <a
-                        v-for="semantics in column.semantics"
-                        href="semantics"
-                        target="_blank"
-                        >{{ semantics }}</a
-                      >
+                      <span v-for="semantics in column.semantics">{{
+                        semantics
+                      }}</span>
                     </small>
                   </div>
                 </h5>
