@@ -181,13 +181,7 @@ class Client(_Client):
         :param schema: name of a schema
         :type schema: str
         """
-        current_schema = schema
-        if current_schema is None:
-            current_schema = self.default_schema
-
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
-
+        current_schema = self._set_current_schema(schema)
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
@@ -219,13 +213,7 @@ class Client(_Client):
         :returns: status message or response
         :rtype: str
         """
-        current_schema = schema
-        if current_schema is None:
-            current_schema = self.default_schema
-
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
-
+        current_schema = self._set_current_schema(schema)
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
@@ -273,13 +261,7 @@ class Client(_Client):
         :returns: list of dictionaries or pandas DataFrame
         :rtype: list | pd.DataFrame
         """
-        current_schema = schema
-        if current_schema is None:
-            current_schema = self.default_schema
-
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
-
+        current_schema = self._set_current_schema(schema)
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
@@ -344,13 +326,7 @@ class Client(_Client):
         :returns: list of records
         :rtype: list[dict]"""
 
-        current_schema = schema
-        if current_schema is None:
-            current_schema = self.default_schema
-
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
-
+        current_schema = self._set_current_schema(schema)
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
@@ -386,10 +362,7 @@ class Client(_Client):
                          Ignored when parameter filename is specified, default False
         :type as_excel: bool
         """
-        current_schema = schema if schema is not None else self.default_schema
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
-
+        current_schema = self._set_current_schema(schema)
         if table is not None and not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
@@ -521,10 +494,7 @@ class Client(_Client):
         :returns: a success or error message
         :rtype: string
         """
-        current_schema = name if name is not None else self.default_schema
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
-
+        current_schema = self._set_current_schema(name)
         query = queries.delete_schema()
         variables = {'id': current_schema}
 
@@ -552,10 +522,7 @@ class Client(_Client):
         :returns: a success or error message
         :rtype: string
         """
-        current_schema = name if name is not None else self.default_schema
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
-
+        current_schema = self._set_current_schema(name)
         query = queries.update_schema()
         variables = {'name': current_schema, 'description': description}
 
@@ -591,10 +558,7 @@ class Client(_Client):
         :returns: a success or error message
         :rtype: string
         """
-        current_schema = name if name is not None else self.default_schema
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
-
+        current_schema = self._set_current_schema(name)
         schema_meta = [db for db in self.schemas if db.name == current_schema][0]
         schema_description = description if description else schema_meta.get('description', None)
 

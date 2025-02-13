@@ -177,10 +177,7 @@ class _Client(object):
     @cache
     def get_schema_metadata(self, name: str = None) -> Schema:
         """Retrieves a schema's metadata and returns it in a metadata.Schema object."""
-        current_schema = name if name is not None else self.default_schema
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
-
+        current_schema = self._set_current_schema(name)
         query = queries.list_schema_meta()
         response = self.session.post(
             url=f"{self.url}/{current_schema}/api/graphql",
@@ -201,13 +198,7 @@ class _Client(object):
 
     def save_schema(self, table: str, name: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Imports or updates records in a table of a named schema."""
-        current_schema = name
-        if current_schema is None:
-            current_schema = self.default_schema
-
-        if current_schema not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
-
+        current_schema = self._set_current_schema(name)
         if not self._table_in_schema(table, current_schema):
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
@@ -327,6 +318,18 @@ class _Client(object):
             else:
                 message = f"Failed to validate response for {mutation!r}"
                 log.error(message)
+
+    def _set_current_schema(self, schema: Optional[str]=None):
+        """Checks whether the schema that is passed exists and is accessible for operations."""
+        current_schema = schema
+        if current_schema is None:
+            current_schema = self.default_schema
+
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+        return current_schema
+
+
 
     def _upload_csv(self, file_path: pathlib.Path, schema: str) -> str | None:
         """Uploads the CSV file from the filename to the schema. Returns the success or error message."""
