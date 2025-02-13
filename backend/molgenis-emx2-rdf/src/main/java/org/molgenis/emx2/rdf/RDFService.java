@@ -177,7 +177,7 @@ public class RDFService {
           namespaces.put(schema.getName(), namespacesToMap(customRdf.getNamespaces().stream()));
           addModelToBuilder(builder, customRdf);
         }
-        logger.debug("Namespaces per schema: " +  namespaces.toString());
+        logger.debug("Namespaces per schema: " + namespaces.toString());
 
         if (table == null) {
           describeSchema(builder, schema);
