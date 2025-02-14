@@ -28,7 +28,8 @@ interface ISourceCodeMap {
   [key: string]: string;
 }
 
-const sourceCodeMap: ISourceCodeMap = useRuntimeConfig().public.sourceCodeMap;
+const sourceCodeMap: ISourceCodeMap = useRuntimeConfig().public
+  .sourceCodeMap as ISourceCodeMap;
 const route = useRoute();
 const sourceCode = computed<string>(() => {
   return sourceCodeMap[`${route.path}.vue` as string] || "";
