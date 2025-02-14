@@ -8,7 +8,7 @@
       'border-l-valid': valid,
     }"
   >
-    <div class="group flex flex-row" v-for="option in options">
+    <div class="flex flex-row" v-for="option in options">
       <InputLabel
         :for="`${id}-checkbox-group-${option.value}`"
         class="group flex justify-start items-center"

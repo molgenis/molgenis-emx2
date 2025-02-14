@@ -10,10 +10,10 @@
       'border-l-valid': valid,
     }"
   >
-    <div v-for="option in options" class="flex justify-start align-center">
+    <div v-for="option in options" class="flex flex-row">
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
-        class="group hover:cursor-pointer flex flex-row gap-1"
+        class="group flex justify-start items-center gap-1"
         :class="{
           'text-disabled cursor-not-allowed': disabled,
           'text-title cursor-pointer ': !disabled,

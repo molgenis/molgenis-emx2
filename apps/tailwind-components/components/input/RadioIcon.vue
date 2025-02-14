@@ -12,7 +12,6 @@
       r="9"
       :style="{ 'stroke-width': invalid ? 2 : 1 }"
       fill="none"
-      class="stroke-current"
       :class="{
         'fill-input': !checked,
         'fill-input-checked group-hover:fill-input-focused group-focus-within:fill-input-focused':
@@ -20,7 +19,7 @@
         'fill-invalid': checked && invalid,
         'fill-valid': checked && valid,
         'stroke-input peer-focus:stroke-input-focused group-focus-within:stroke-input-focused group-hover:stroke-input-focused':
-          !disabled,
+          !checked && !disabled && !invalid && !valid,
         'stroke-valid': valid,
         'stroke-invalid': invalid,
         'stroke-disabled fill-disabled': disabled,
