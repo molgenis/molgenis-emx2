@@ -6,7 +6,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
-import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
