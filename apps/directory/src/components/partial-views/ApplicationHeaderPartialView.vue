@@ -178,10 +178,11 @@ export default {
     selectAllServices() {
       const allSelections = this.biobanksStore.biobankCards.map((biobank) => ({
         biobank: { id: biobank.id, name: biobank.name },
-        services: biobank.services.map((service) => ({
-          label: service.name,
-          value: service.id,
-        })),
+        services:
+          biobank.services?.map((service) => ({
+            label: service.name,
+            value: service.id,
+          })) || [],
       }));
       allSelections.forEach((item) => {
         this.checkoutStore.addServicesToSelection(
@@ -194,10 +195,11 @@ export default {
     selectAllCollections() {
       const allSelections = this.biobanksStore.biobankCards.map((biobank) => ({
         biobank: { id: biobank.id, name: biobank.name },
-        collections: biobank.collections.map((collection) => ({
-          label: collection.name,
-          value: collection.id,
-        })),
+        collections:
+          biobank.collections?.map((collection) => ({
+            label: collection.name,
+            value: collection.id,
+          })) || [],
       }));
       allSelections.forEach((item) => {
         this.checkoutStore.addCollectionsToSelection(
