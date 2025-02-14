@@ -145,7 +145,7 @@ public class TestQuery {
             .retrieveRows();
 
     assertEquals(1, rows.size());
-    assertEquals((Integer) 2, rows.get(0).getInteger("Mother-ID"));
+    assertEquals((Integer) 2, rows.get(0).getInteger("Mother.ID"));
   }
 
   @Test

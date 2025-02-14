@@ -41,13 +41,13 @@ public class TestCrossSchemaForeignKeysAndInheritance {
   public void testRef() {
     Query q = schema2.getTable("Child").select(s("name"), s("parent", s("name"), s("hobby")));
     assertTrue(q.retrieveJSON().contains("stamps"));
-    assertEquals("stamps", q.retrieveRows().get(0).getString("parent-hobby"));
+    assertEquals("stamps", q.retrieveRows().get(0).getString("parent.hobby"));
   }
 
   @Test
   public void testRefArray() {
     Query q = schema2.getTable("PetLover").select(s("name"), s("pets", s("name"), s("species")));
-    assertEquals("dog", q.retrieveRows().get(1).getString("pets-species"));
+    assertEquals("dog", q.retrieveRows().get(1).getString("pets.species"));
 
     System.out.println(q.retrieveJSON());
     assertTrue(q.retrieveJSON().contains("dog"));

@@ -93,18 +93,13 @@ public class SqlQuery extends QueryBean {
     // if empty selection, we will add the default selection here, excl File and Refback
     if (select == null || select.getColumNames().isEmpty()) {
       for (Column c : table.getColumns()) {
-        // currently we don't download refBack (good) and files (that is bad)
         if (c.isFile()) {
           select.select(c.getName());
-        } else if (!c.isRefback()) {
-          if (c.isReference()) {
-            for (Reference ref : c.getReferences()) {
-              select.select(ref.getName());
-            }
-          } else {
-            // don't include refBack or files or mg_ columns
-            select.select(c.getName());
-          }
+        } else if (c.isReference()) {
+          // subselect primary keys, nested
+          select.subselect(getRefPrimaryKeySubselect(c));
+        } else if (!c.isHeading()) {
+          select.select(c.getName());
         }
       }
     }
@@ -141,6 +136,21 @@ public class SqlQuery extends QueryBean {
     }
   }
 
+  private SelectColumn getRefPrimaryKeySubselect(Column c) {
+    List<SelectColumn> result = new ArrayList<>();
+    c.getRefTable()
+        .getPrimaryKeyColumns()
+        .forEach(
+            key -> {
+              if (key.isReference()) {
+                result.add(s(key.getName(), getRefPrimaryKeySubselect(key)));
+              } else {
+                result.add(s(key.getName()));
+              }
+            });
+    return s(c.getName(), result.toArray(SelectColumn[]::new));
+  }
+
   private void checkHasViewPermission(SqlTableMetadata table) {
     if (!table.getTableType().equals(TableType.ONTOLOGIES)
         && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
@@ -154,7 +164,7 @@ public class SqlQuery extends QueryBean {
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn select : selection.getSubselect()) {
       Column column = getColumnByName(table, select.getColumn());
-      String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
+      String columnAlias = prefix.equals("") ? column.getName() : prefix + "." + column.getName();
       if (column.isFile()) {
         // check what they want to get, contents, mimetype, size, filename and/or extension
         if (select.getSubselect().isEmpty() || select.has("id")) {
@@ -177,7 +187,7 @@ public class SqlQuery extends QueryBean {
         }
       } else if (column.isReference()
           // if subselection, then we will add it as subselect
-          && !select.getSubselect().isEmpty()) {
+          && select.getSubselect().size() > 1) {
         fields.addAll(
             rowSelectFields(
                 column.getRefTable(),
@@ -959,8 +969,21 @@ public class SqlQuery extends QueryBean {
           // only join if subselection extists
           if (!aliasList.contains(subAlias) && !select.getSubselect().isEmpty()) {
             aliasList.add(subAlias);
-            join.leftJoin(tableWithInheritanceJoin(column.getRefTable()).as(alias(subAlias)))
-                .on(refJoinCondition(column, tableAlias, subAlias));
+            if (column.isRefback() && column.getRefBackColumn().isRefArray()
+                || column.isRefArray()) {
+              List<Field<Object>> fields =
+                  column.getRefTable().getPrimaryKeyFields().stream()
+                      .map(f -> field("array_agg({0}) as {1}", f, name(f.getName())))
+                      .toList();
+              join.leftJoin(
+                      DSL.select(fields)
+                          .from(tableWithInheritanceJoin(column.getRefTable()))
+                          .asTable(alias(subAlias)))
+                  .on(refJoinCondition(column, tableAlias, subAlias));
+            } else {
+              join.leftJoin(tableWithInheritanceJoin(column.getRefTable()).as(alias(subAlias)))
+                  .on(refJoinCondition(column, tableAlias, subAlias));
+            }
             // recurse
             join =
                 refJoins(
@@ -1048,7 +1071,7 @@ public class SqlQuery extends QueryBean {
                             ? field(name(alias(tableAlias), ref.getRefTo()))
                                 .eq(field(name(alias(subAlias), ref.getName())))
                             : condition(
-                                ANY_SQL,
+                                "{0} && {1}",
                                 field(name(alias(tableAlias), ref.getRefTo())),
                                 field(name(alias(subAlias), ref.getName()))))
                 .toList());
