@@ -1,12 +1,10 @@
 import csv
 import json
 import logging
-import sys
 import pathlib
 import time
 from functools import cache
 from io import BytesIO
-from typing import Literal
 
 import pandas as pd
 import requests
@@ -14,13 +12,17 @@ from requests import Response
 
 from . import graphql_queries as queries
 from . import utils
+from .constants import HEADING, DATE, DATETIME
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
-                         PermissionDeniedException, TokenSigninException, NonExistentTemplateException)
-from .metadata import Schema
+                         PermissionDeniedException, TokenSigninException, NonExistentTemplateException,
+                         NoSuchColumnException, ReferenceException)
+from .metadata import Schema, Table
+from .utils import parse_nested_pkeys, convert_dtypes
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
 log = logging.getLogger("Molgenis EMX2 Pyclient")
 
 
@@ -38,7 +40,7 @@ class Client:
         self._token = token
         self._job = job
 
-        self.url: str = url
+        self.url: str = url if not url.endswith('/') else url[:-1]
         self.api_graphql = self.url + "/api/graphql"
 
         self.signin_status: str = 'unknown'
@@ -301,6 +303,39 @@ class Client:
         # Report on task progress
         await self._report_task_progress(process_id)
 
+    def truncate(self, table: str, schema: str):
+        """Truncates the table.
+
+        :param table: the name of the table
+        :type table: str
+        :param schema: name of a schema
+        :type schema: str
+        """
+        current_schema = schema
+        if current_schema is None:
+            current_schema = self.default_schema
+
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+
+        if not self._table_in_schema(table, current_schema):
+            raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
+
+        query_url = f"{self.url}/{current_schema}/graphql"
+        table_id = self.get_schema_metadata(current_schema).get_table(by='name', value=table).id
+        query = queries.truncate()
+
+        response = self.session.post(
+            url=query_url,
+            json={"query": query, "variables": {"table": table_id}}
+        )
+
+        self._validate_graphql_response(response, mutation='truncate',
+                                        fallback_error_message=f"Failed to truncate table {current_schema}::{table}.")
+        log.info(f"Truncated table {table!r}.")
+
+
+
     def _upload_csv(self, file_path: pathlib.Path, schema: str) -> str:
         """Uploads the CSV file from the filename to the schema. Returns the success or error message."""
         file_name = file_path.name
@@ -330,10 +365,10 @@ class Client:
     def delete_records(self, table: str, schema: str = None, file: str = None, data: list | pd.DataFrame = None):
         """Deletes records from a table.
 
-        :param schema: name of a schema
-        :type schema: str
         :param table: the name of the table
         :type table: str
+        :param schema: name of a schema
+        :type schema: str
         :param file: location of the file containing records to import or update
         :type file: str
         :param data: a dataset containing records to delete (list of dictionaries)
@@ -372,21 +407,28 @@ class Client:
             errors = '\n'.join([err['message'] for err in response.json().get('errors')])
             log.error("Failed to delete data from %s::%s\n%s.", current_schema, table, errors)
 
-    def get(self, table: str, query_filter: str = None, schema: str = None, as_df: bool = False) -> list | pd.DataFrame:
-        """Retrieves data from a schema and returns as a list of dictionaries or as
-        a pandas DataFrame (as pandas is used to parse the response).
+    def get(self,
+            table: str,
+            columns: list[str] = None,
+            query_filter: str = None,
+            schema: str = None,
+            as_df: bool = False) -> list | pd.DataFrame:
+        """Retrieves data from a table using the EMX2 CSV API and
+        returns as a list of dictionaries or a pandas DataFrame.
 
-        :param schema: name of a schema
-        :type schema: str
-        :param query_filter: the query to filter the output
-        :type query_filter: str
         :param table: the name of the table
         :type table: str
+        :param columns: list of column names to return, optional, default all columns
+        :type columns: list[str]
+        :param query_filter: the query to filter the output, optional
+        :type query_filter: str
+        :param schema: name of a schema, default self.default_schema
+        :type schema: str
         :param as_df: if True, the response will be returned as a
                       pandas DataFrame. Otherwise, a recordset will be returned.
         :type as_df: bool
 
-        :returns: list of dictionaries, status message or data frame
+        :returns: list of dictionaries or pandas DataFrame
         :rtype: list | pd.DataFrame
         """
         current_schema = schema
@@ -400,20 +442,92 @@ class Client:
             raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
 
         schema_metadata: Schema = self.get_schema_metadata(current_schema)
-        table_id = schema_metadata.get_table(by='name', value=table).id
+        table_meta = schema_metadata.get_table(by='name', value=table)
+        table_id = table_meta.id
 
         filter_part = self._prepare_filter(query_filter, table, schema)
+
+        if filter_part:
+            filter_part = "?filter=" + json.dumps(filter_part)
+        else:
+            filter_part = ""
         query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
         response = self.session.get(url=query_url)
-
         self._validate_graphql_response(response=response,
                                         fallback_error_message=f"Failed to retrieve data from {current_schema}::"
                                                                f"{table!r}.\nStatus code: {response.status_code}.")
 
-        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False)
+        response_columns = pd.read_csv(BytesIO(response.content)).columns
+        dtypes = {c: t for (c, t) in convert_dtypes(table_meta).items() if c in response_columns}
 
+        bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
+        date_columns = [c.name for c in table_meta.columns
+                        if c.get('columnType') in (DATE, DATETIME) and c.name in response_columns]
+        response_data = pd.read_csv(BytesIO(response.content),  keep_default_na=True, dtype=dtypes, parse_dates=date_columns)
+
+        response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
+        response_data = response_data.astype(dtypes)
+
+        if columns:
+            try:
+                response_data = response_data[columns]
+            except KeyError as e:
+                if "not in index" in e.args[0]:
+                    raise NoSuchColumnException(f"Columns {e.args[0]}")
+                else:
+                    raise NoSuchColumnException(f"Columns {e.args[0].split('Index(')[1].split(', dtype')}"
+                                                f" not in index.")
+            response_data = response_data.drop_duplicates(keep='first').reset_index(drop=True)
         if not as_df:
-            return response_data.to_dict('records')
+            response_data = response_data.to_dict('records')
+
+        return response_data
+
+    def get_graphql(self,
+                    table: str,
+                    columns: list[str] = None,
+                    query_filter: str = None,
+                    schema: str = None):
+        """Retrieves data from a schema using the GraphQL API and returns as a list of dictionaries.
+
+        :param table: the name of the table
+        :type table: str
+        :param columns: list of column ids to return, optional, default all columns
+        :type columns: list[str]
+        :param query_filter: the query to filter the output, optional
+        :type query_filter: str
+        :param schema: name of a schema, default self.default_schema
+        :type schema: str
+
+        :returns: list of records
+        :rtype: list[dict]"""
+
+        current_schema = schema
+        if current_schema is None:
+            current_schema = self.default_schema
+
+        if current_schema not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {current_schema!r} not available.")
+
+        if not self._table_in_schema(table, current_schema):
+            raise NoSuchTableException(f"Table {table!r} not found in schema {current_schema!r}.")
+
+        schema_metadata: Schema = self.get_schema_metadata(current_schema)
+        table_meta = schema_metadata.get_table(by='name', value=table)
+        table_id = table_meta.id
+
+        filter_part = self._prepare_filter(query_filter, table, schema)
+        query_url = f"{self.url}/{current_schema}/graphql"
+
+        query = self._parse_get_table_query(table_id, current_schema, columns)
+        response = self.session.post(url=query_url,
+                                    json={"query": query, "variables": {"filter": filter_part}})
+        self._validate_graphql_response(response=response,
+                                        fallback_error_message=f"Failed to retrieve data from {current_schema}::"
+                                                               f"{table!r}.\nStatus code: {response.status_code}.")
+        response_data = response.json().get('data').get(table_id, [])
+        response_data = self._parse_ontology(response_data, table_id, schema)
+
         return response_data
 
     async def export(self, schema: str = None, table: str = None,
@@ -689,10 +803,10 @@ class Client:
         metadata = Schema(**response_json.get('data').get('_schema'))
         return metadata
 
-    def _prepare_filter(self, expr: str, _table: str, _schema: str) -> str:
+    def _prepare_filter(self, expr: str, _table: str, _schema: str) -> dict | None:
         """Prepares a GraphQL filter based on the expression passed into `get`."""
         if expr in [None, ""]:
-            return ""
+            return None
         statements = expr.split(' and ')
         _filter = dict()
         for stmt in statements:
@@ -710,7 +824,7 @@ class Client:
                 raise ValueError(f"Cannot process statement {stmt!r}, "
                                  f"ensure specifying one of the operators '==', '>', '<', '!=', 'between' "
                                  f"in your statement.")
-        return "?filter=" + json.dumps(_filter)
+        return _filter
 
     def __prepare_equals_filter(self, stmt: str, _table: str, _schema: str) -> dict:
         """Prepares the filter part if the statement filters on equality."""
@@ -826,16 +940,21 @@ class Client:
 
         return {col.id: {'between': val}}
 
-    @staticmethod
-    def __prepare_nested_filter(columns: str, value: str | int | float | list, comparison: str):
+    def __prepare_nested_filter(self, columns: str, value: str | int | float | list, comparison: str):
         _filter = {}
         current = _filter
         for (i, segment) in enumerate(columns.split('.')[:-1]):
             current[segment] = {}
             current = current[segment]
         last_segment = columns.split('.')[-1]
-        current[last_segment] = {comparison: value}
+        current[last_segment] = {comparison: self.__prepare_value(value)}
         return _filter
+
+    @staticmethod
+    def __prepare_value(value: str):
+        if value.startswith('[') and value.endswith(']'):
+            return json.loads(value.replace('\'', '"'))
+        return value
 
     @staticmethod
     def _prep_data_or_file(file_path: str = None, data: list | pd.DataFrame = None) -> str | None:
@@ -958,6 +1077,11 @@ class Client:
                 msg = response.json().get("errors", [])[0].get('message')
                 log.error(msg)
                 raise GraphQLException(msg)
+            if "violates foreign key constraint" in response.text:
+                msg = response.json().get("errors", [])[0].get('message', '')
+                log.error(msg)
+                raise ReferenceException(msg)
+
             msg = response.json().get("errors", [])[0].get('message', '')
             log.error(msg)
             raise PyclientException("An unknown error occurred when trying to reach this server.")
@@ -1040,3 +1164,67 @@ class Client:
         except requests.exceptions.MissingSchema:
             raise ServerNotFoundError(f"Invalid URL {self.url!r}. "
                                       f"Perhaps you meant 'https://{self.url}'?")
+
+    def _parse_get_table_query(self, table_id: str, schema: str, columns: list = None) -> str:
+        """Gathers a table's metadata and parses it to a GraphQL query
+        for querying the table's contents.
+        """
+        schema_metadata: Schema = self.get_schema_metadata(schema)
+        table_metadata: Table = schema_metadata.get_table('id', table_id)
+
+        query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
+                 f"  {table_id}(filter: $filter) {{\n")
+
+        for col in table_metadata.columns:
+            if columns is not None and (col.id not in columns and col.name not in columns):
+                continue
+            if col.get('columnType') in [HEADING]:
+                continue
+            elif col.get('columnType').startswith('ONTOLOGY'):
+                query += f"    {col.get('id')} {{name}}\n"
+            elif col.get('columnType').startswith('REF'):
+                if (ref_schema := col.get('refSchemaName', schema)) == schema:
+                    pkeys = schema_metadata.get_pkeys(col.get('refTableId'))
+                else:
+                    ref_schema_meta = self.get_schema_metadata(ref_schema)
+                    pkeys = ref_schema_meta.get_pkeys(col.get('refTableId'))
+                query += f"    {col.get('id')} {{"
+                query += parse_nested_pkeys(pkeys)
+                query += "}\n"
+            elif col.get('columnType').startswith('FILE'):
+                query += f"    {col.get('id')} {{id}}\n"
+            else:
+                query += f"    {col.get('id')}\n"
+        query += "  }\n"
+        query += "}"
+
+        return query
+
+    def _parse_ontology(self, data: list, table_id: str, schema: str) -> list:
+        """Parses the ontology columns from a GraphQL response."""
+        schema_meta = self.get_schema_metadata(schema)
+        table_meta = schema_meta.get_table('id', table_id)
+        parsed_data = []
+        for row in data:
+            parsed_row = {}
+            for (col, value) in row.items():
+                column_meta = table_meta.get_column('id', col)
+                match column_meta.get('columnType'):
+                    case "ONTOLOGY":
+                        parsed_row[col] = value['name']
+                    case "ONTOLOGY_ARRAY":
+                        parsed_row[col] = [val['name'] for val in value]
+                    case "REF":
+                        _schema = column_meta.get('refSchemaName', schema)
+                        parsed_row[col] = self._parse_ontology([value], column_meta.get('refTableId'), _schema)[0]
+                    case "REF_ARRAY":
+                        _schema = column_meta.get('refSchemaName', schema)
+                        parsed_row[col] = self._parse_ontology(value, column_meta.get('refTableId'), _schema)
+                    case "REFBACK":
+                        _schema = column_meta.get('refSchemaName', schema)
+                        parsed_row[col] = self._parse_ontology(value, column_meta.get('refTableId'), _schema)
+                    case _:
+                        parsed_row[col] = value
+            parsed_data.append(parsed_row)
+        return parsed_data
+

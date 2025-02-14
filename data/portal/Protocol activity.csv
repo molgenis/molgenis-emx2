@@ -8,6 +8,7 @@ Protocol activity,,institutions involved,ref_array,,,,Organisations,,,,http://pu
 Protocol activity,,description,text,,,,,,,,,Human readible description of the protocol used. In case of standard protocol describe deviations. Could also be a log,RD3
 Protocol activity,,input files,ref_array,,,,Files,,,,,links to files used as input,RD3
 Protocol activity,,input samples,ref_array,,,,Biosamples,,,,,links to samples used as input,RD3
+Protocol activity,,included in datasets,ref_array,,,,Datasets,,,,http://purl.obolibrary.org/obo/HSO_0000370,"A reference to one or more datasets that organises records for in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)",RD3
 Protocol activity,,comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.",RD3
 Sample preparations,Protocol activity,,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0001902,A sample preparation for a nucleic acids sequencing assay.,"FAIR Genomes, RD3"
 Sample preparations,,input amount,int,,,,,,,,http://purl.allotrope.org/ontologies/role#AFRL_0000010,Amount of input material in nanogram (ng).,"FAIR Genomes, RD3"

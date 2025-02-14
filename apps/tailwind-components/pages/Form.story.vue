@@ -5,6 +5,7 @@ import type {
   ISchemaMetaData,
 } from "../../metadata-utils/src/types";
 import { useRoute } from "#app/composables/router";
+import type { FormFields } from "#components";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -17,8 +18,8 @@ interface Schema {
 }
 
 const route = useRoute();
-const schemaId = ref((route.query.schema as string) ?? "pet store");
-const tableId = ref((route.query.table as string) ?? "Pet");
+const schemaId = ref((route.query.schema as string) ?? "type test");
+const tableId = ref((route.query.table as string) ?? "Types");
 
 const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   key: "schemas",

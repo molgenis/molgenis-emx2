@@ -4,8 +4,9 @@
     :aria-labelledby="`${id}-state-context`"
     class="p-3 font-bold flex items-center rounded-input bg-default"
     :class="{
-      'bg-invalid text-required fill-invalid': invalid,
+      'bg-invalid text-invalid fill-invalid': invalid,
       'bg-valid text-valid fill-valid': valid,
+      'bg-': !valid && !invalid,
     }"
   >
     <template v-if="invalid">

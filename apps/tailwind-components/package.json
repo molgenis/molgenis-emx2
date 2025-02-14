@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "lint": "vue-tsc --noEmit",
     "generate-source-map": "node ./utils/generateSourceMap.js",
     "build": "yarn generate-source-map && nuxt build",
     "build-showcase": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
@@ -23,7 +24,8 @@
   "dependencies": {
     "consola": "3.2.3",
     "floating-vue": "5.2.2",
-    "vue":"3.5.13",
+    "vue": "3.5.13",
+    "vue-flatpickr-component": "11.0.5",
     "vue-router": "4.4.3"
   },
   "devDependencies": {
@@ -42,6 +44,6 @@
     "typescript": "5.6.2",
     "nuxt": "3.14.1592",
     "vitest": "1.6.1",
-    "vue-tsc": "2.1.6"
+    "vue-tsc": "^2.2.0"
   }
 }
