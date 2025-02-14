@@ -40,6 +40,20 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
+  <InputArray
+    v-else-if="'STRING_ARRAY' === typeUpperCase"
+    :id="id"
+    v-model="modelValue as string[]"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    placeholder="Input a hyperlink"
+    @update:modelValue="emit('update:modelValue', $event)"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
   <InputBoolean
     v-else-if="['BOOL'].includes(typeUpperCase)"
     :id="id"
