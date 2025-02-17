@@ -78,7 +78,12 @@ abstract class RdfUtils {
             .with(SEMANTIC_PREFIXES_CSV_SCHEMA)
             .readValues(schema.getSettingValue(SETTING_SEMANTIC_PREFIXES))) {
       iterator.forEachRemaining(
-          i -> namespaces.put(i.get("prefix"), Values.namespace(i.get("prefix"), i.get("iri"))));
+          i -> {
+            if (i.get("iri").indexOf(':') < 0) {
+              throw new MolgenisException(i.get("iri") + " must be a valid (absolute) IRI");
+            }
+            namespaces.put(i.get("prefix"), Values.namespace(i.get("prefix"), i.get("iri")));
+          });
     }
 
     return namespaces;
