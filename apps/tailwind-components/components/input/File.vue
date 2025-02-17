@@ -5,20 +5,29 @@
       'cursor-pointer duration-default ease-in-out hover:border-input-hover hover:shadow-input-hover focus:border-input-hover focus:shadow-input-hover focus-within:border-input-hover focus-within:shadow-input-hover':
         !disabled && !invalid,
       'border-invalid': invalid,
+      'border-valid': valid,
     }"
   >
     <div class="grow">
-      <Button
+      <button
         v-if="modelValue"
-        type="filterWell"
-        size="small"
-        icon="Trash"
-        iconPosition="right"
-        class="[&_svg]:w-4"
+        class="flex justify-center items-center h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display duration-default ease-in-out border rounded-input"
+        :class="{
+          'text-disabled bg-disabled hover:text-disabled cursor-not-allowed':
+            disabled,
+          'bg-button-filter text-button-filter border-button-filter hover:bg-button-filter-hover hover:border-button-filter-hover':
+            !disabled,
+          'border-invalid text-invalid bg-invalid hover:bg-invalid hover:text-invalid':
+            invalid,
+          'border-valid text-valid bg-valid hover:bg-valid hover:text-valid':
+            valid,
+        }"
         @click="onFilterWellClick"
+        :disabled="disabled"
       >
-        {{ modelValue.filename }}
-      </Button>
+        <span>{{ modelValue.filename }}</span>
+        <BaseIcon name="Trash" class="w-4" />
+      </button>
     </div>
     <div class="flex-none">
       <button
@@ -26,6 +35,8 @@
         :class="{
           'border-invalid text-invalid bg-invalid hover:bg-invalid hover:text-invalid':
             invalid,
+          'border-valid text-valid bg-valid hover:bg-valid hover:text-valid':
+            valid,
           'text-disabled bg-disabled hover:text-disabled cursor-not-allowed':
             disabled,
           'hover:bg-button-primary hover:text-button-primary cursor-pointer':
@@ -77,6 +88,7 @@ function onChange(event: Event) {
 }
 
 function onFilterWellClick() {
+  console.log("clicked");
   modelValue.value = null;
 }
 </script>
