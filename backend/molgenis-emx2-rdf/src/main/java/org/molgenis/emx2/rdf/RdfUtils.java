@@ -1,13 +1,17 @@
 package org.molgenis.emx2.rdf;
 
 import static org.molgenis.emx2.Constants.API_RDF;
+import static org.molgenis.emx2.rdf.DefaultNamespace.streamAll;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.google.common.net.UrlEscapers;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -24,9 +28,16 @@ import org.molgenis.emx2.utils.TypeUtils;
 abstract class RdfUtils {
   // Advanced setting containing valid Turtle-formatted RDF.
   public static final String SETTING_CUSTOM_RDF = "custom_rdf";
+  public static final String SETTING_SEMANTIC_PREFIXES = "semantic_prefixes";
 
   // Used to compare semantic field to define if it contains an IRI or a prefixed name
   private static final char SEMANTIC_IRI_STARTSWITH = '<';
+
+  public static final Map<String, Namespace> DEFAULT_NAMESPACES_MAP =
+      streamAll().collect(Collectors.toMap(Namespace::getPrefix, i -> i));
+
+  public static final CsvSchema SEMANTIC_PREFIXES_CSV_SCHEMA =
+      CsvSchema.builder().addColumn("prefix").addColumn("iri").build();
 
   /**
    * Get the namespace for a schema
@@ -55,10 +66,27 @@ abstract class RdfUtils {
     return null;
   }
 
-  static Map<String, Namespace> namespacesToMap(Stream<Namespace> namespaces) {
-    HashMap<String, Namespace> namespaceMap = new HashMap<>();
-    namespaces.forEach(i -> namespaceMap.put(i.getPrefix(), i));
-    return namespaceMap;
+  static Map<String, Namespace> getCustomPrefixes(Schema schema) throws IOException {
+    if (!schema.hasSetting(SETTING_SEMANTIC_PREFIXES)) {
+      return null;
+    }
+
+    Map<String, Namespace> namespaces = new HashMap<>();
+    try (MappingIterator<Map<String, String>> iterator =
+        new CsvMapper()
+            .readerForMapOf(String.class)
+            .with(SEMANTIC_PREFIXES_CSV_SCHEMA)
+            .readValues(schema.getSettingValue(SETTING_SEMANTIC_PREFIXES))) {
+      iterator.forEachRemaining(
+          i -> namespaces.put(i.get("prefix"), Values.namespace(i.get("prefix"), i.get("iri"))));
+    }
+
+    return namespaces;
+  }
+
+  static Map<String, Namespace> getCustomPrefixesOrDefault(Schema schema) throws IOException {
+    Map<String, Namespace> namespaces = getCustomPrefixes(schema);
+    return (namespaces == null ? DEFAULT_NAMESPACES_MAP : namespaces);
   }
 
   /**

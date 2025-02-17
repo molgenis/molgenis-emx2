@@ -4,12 +4,13 @@ import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.rdf.RdfUtils.getCustomPrefixesOrDefault;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 import static org.molgenis.emx2.rdf.RdfUtils.getSemanticValue;
-import static org.molgenis.emx2.rdf.RdfUtils.namespacesToMap;
 
 import com.google.common.net.UrlEscapers;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -57,9 +58,6 @@ public class RDFService {
       Values.iri("http://purl.org/linked-data/cube#dataSet");
   public static final IRI IRI_CONTROLLED_VOCABULARY =
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C48697");
-
-  // Advanced setting containing valid Turtle-formatted RDF.
-  public static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
   /**
    * SIO:001055 = observing (definition: observing is a process of passive interaction in which one
@@ -155,9 +153,6 @@ public class RDFService {
         describeRoot(builder);
       }
 
-      // Defines if all used schemas have a custom_rdf setting.
-      boolean allSchemasIncludeCustomRdf = true;
-
       // Collect all tables present in selected schemas.
       Set<Table> allTables = new HashSet<>();
 
@@ -167,26 +162,20 @@ public class RDFService {
       Map<String, Map<String, Namespace>> namespaces = new HashMap<>();
 
       for (final Schema schema : schemas) {
-        builder.setNamespace(getSchemaNamespace(baseURL, schema));
-
-        Model customRdf = getCustomRdf(schema);
-        if (customRdf == null) {
-          namespaces.put(schema.getName(), namespacesToMap(DefaultNamespace.streamAll()));
-          allSchemasIncludeCustomRdf = false;
-        } else {
-          namespaces.put(schema.getName(), namespacesToMap(customRdf.getNamespaces().stream()));
-          addModelToBuilder(builder, customRdf);
-        }
-        logger.debug("Namespaces per schema: " + namespaces.toString());
-
-        if (table == null) {
-          describeSchema(builder, schema);
-        }
+        processNamespaces(builder, schema, namespaces);
+        processCustomRdf(builder, schema);
+        if (table == null) describeSchema(builder, schema);
         allTables.addAll(schema.getTablesSorted());
       }
 
-      if (!allSchemasIncludeCustomRdf) {
-        DefaultNamespace.streamAll().forEach(builder::setNamespace);
+      if (logger.isDebugEnabled()) {
+        logger.debug(
+            "All tables to show: "
+                + allTables.stream()
+                    .map(
+                        i -> i.getMetadata().getSchemaName() + "." + i.getMetadata().getTableName())
+                    .toList());
+        logger.debug("Namespaces per schema: " + namespaces.toString());
       }
 
       final Set<Table> tables = table != null ? tablesToDescribe(allTables, table) : allTables;
@@ -238,9 +227,22 @@ public class RDFService {
     return false;
   }
 
-  private void addModelToBuilder(ModelBuilder builder, Model model) {
-    model.getNamespaces().forEach(builder::setNamespace); // namespaces
-    model.forEach(e -> builder.add(e.getSubject(), e.getPredicate(), e.getObject())); // triples
+  private void processNamespaces(
+      ModelBuilder builder, Schema schema, Map<String, Map<String, Namespace>> namespaces)
+      throws IOException {
+    builder.setNamespace(getSchemaNamespace(baseURL, schema));
+
+    Map<String, Namespace> schemaNamespaces = getCustomPrefixesOrDefault(schema);
+    schemaNamespaces.values().forEach(builder::setNamespace);
+    namespaces.put(schema.getName(), schemaNamespaces);
+  }
+
+  private void processCustomRdf(ModelBuilder builder, Schema schema) throws IOException {
+    Model model = getCustomRdf(schema);
+    if (model != null) {
+      // only adds triples, does not transfer defined namespaces!
+      model.forEach(e -> builder.add(e.getSubject(), e.getPredicate(), e.getObject()));
+    }
   }
 
   public WriterConfig getConfig() {
