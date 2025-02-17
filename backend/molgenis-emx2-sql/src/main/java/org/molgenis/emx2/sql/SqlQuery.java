@@ -93,6 +93,7 @@ public class SqlQuery extends QueryBean {
     // if empty selection, we will add the default selection here, excl File and Refback
     if (select == null || select.getColumNames().isEmpty()) {
       for (Column c : table.getColumns()) {
+        // currently we don't download refBack (good) and files (that is bad)
         if (c.isFile()) {
           select.select(c.getName());
         } else if (c.isReference()) {
