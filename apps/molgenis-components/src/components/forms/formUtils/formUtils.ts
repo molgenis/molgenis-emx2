@@ -1,5 +1,8 @@
-import type { IColumn, ITableMetaData } from "metadata-utils";
-import { IRow } from "../../../Interfaces/IRow";
+import type {
+  IColumn,
+  ITableMetaData,
+} from "../../../../../metadata-utils/src/types";
+import type { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
 
@@ -178,7 +181,7 @@ export function executeExpression(
     }
   });
   if (!copy.mg_tableclass) {
-    copy.mg_tableclass = `${tableMetaData.schemaId}.${tableMetaData.label}`;
+    copy.mg_tableclass = `${tableMetaData.id}.${tableMetaData.label}`;
   }
 
   // A simple client for scripts to use to request data.
