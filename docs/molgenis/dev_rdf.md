@@ -15,6 +15,7 @@ When this advanced setting is set, it will result in the following:
 * The default namespaces will be ignored (except for the schema-specific namespace which is always present).
 * Namespaces defined in the `custom_rdf` will used in the RDF API's output.
   * If a `custom_rdf` is set without any namespaces, this means only the schema-specific namespace will be present in the RDF output.
+* For the semantics field in a schema, only the prefixes defined in `custom_rdf` can be used.
 * Any triples in `custom_rdf` will be added to every API call that is part of that schema.
 
 Some notes on multi-schema API calls:
