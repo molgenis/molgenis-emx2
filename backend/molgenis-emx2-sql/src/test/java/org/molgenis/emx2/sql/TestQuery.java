@@ -81,12 +81,7 @@ public class TestQuery {
 
     StopWatch.print("got schema");
 
-    Query q =
-        s.query(
-            "Person",
-            s("First_Name"),
-            s("Last_Name"),
-            s("Father", s("First_Name"), s("Last_Name")));
+    Query q = s.query("Person", s("First_Name"), s("Last_Name"), s("Father"));
     q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
 
     System.out.println(q.retrieveJSON());
@@ -104,7 +99,7 @@ public class TestQuery {
     StopWatch.print("got schema");
 
     Query q = s.getTable("Person").query();
-    q.select(s("First_Name"), s("Last_Name"), s("Father", s("First_Name"), s("Last_Name")));
+    q.select(s("First_Name"), s("Last_Name"), s("Father"));
     q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
 
     StopWatch.print("created query");
@@ -120,7 +115,7 @@ public class TestQuery {
     StopWatch.print("query complete");
 
     q = s.getTable("Person").query();
-    q.select(s("First_Name"), s("Last_Name"), s("Father", s("Last_Name"), s("First_Name")));
+    q.select(s("First_Name"), s("Last_Name"), s("Father"));
     q.where(f("Last_Name", EQUALS, "Duck"), f("Father", f("First_Name", EQUALS, "Donald")));
 
     rows = q.retrieveRows();
@@ -134,18 +129,25 @@ public class TestQuery {
     List<Row> rows =
         schema
             .getTable(PERSON)
-            .select(
-                s("ID"),
-                s("First_Name"),
-                s("Last_Name"),
-                s("Mother").select("ID", "First_Name", "Last_Name"))
+            .select(s("ID"), s("First_Name"), s("Last_Name"), s("Mother"))
             .where(f("Mother", f("ID", EQUALS, 2)))
             .limit(1)
             .offset(1)
             .retrieveRows();
 
     assertEquals(1, rows.size());
-    assertEquals((Integer) 2, rows.get(0).getInteger("Mother.ID"));
+    assertEquals((Integer) 2, rows.get(0).getInteger("Mother"));
+
+    rows =
+        schema
+            .getTable(PERSON)
+            .select(s("ID"), s("First_Name"), s("Last_Name"), s("Mother"))
+            .where(f("Mother", f("First_Name", EQUALS, "Katrien ")))
+            .limit(1)
+            .offset(1)
+            .retrieveRows();
+    assertEquals(1, rows.size());
+    assertEquals((Integer) 2, rows.get(0).getInteger("Mother"));
   }
 
   @Test

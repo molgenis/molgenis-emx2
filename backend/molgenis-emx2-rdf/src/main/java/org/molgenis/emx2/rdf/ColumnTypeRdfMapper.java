@@ -256,23 +256,11 @@ public class ColumnTypeRdfMapper {
                 colPrefix + refPrimaryKey.getName() + SUBSELECT_SEPARATOR,
                 refPrefix + refPrimaryKey.getName() + COMPOSITE_REF_SEPARATOR);
           } else {
+            // refback
             colNameToRefTableColName.put(
                 colPrefix + refPrimaryKey.getName(), refPrefix + refPrimaryKey.getName());
           }
         }
-      }
-
-      @Override
-      boolean isEmpty(Row row, Column column) {
-        if (row.getString(column.getName()) != null) return false;
-
-        // Composite key requires all fields to be filled. If one is null, all should be null.
-        Optional<String> firstMatch =
-            row.getColumnNames().stream()
-                .filter(i -> i.startsWith(column.getName() + SUBSELECT_SEPARATOR))
-                .findFirst();
-
-        return firstMatch.isEmpty() || row.getString(firstMatch.get()) == null;
       }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
@@ -331,7 +319,12 @@ public class ColumnTypeRdfMapper {
     abstract Set<Value> retrieveValues(final String baseURL, final Row row, final Column column);
 
     boolean isEmpty(final Row row, final Column column) {
-      return row.getString(column.getName()) == null;
+      if (column.isReference() && column.getReferences().size() > 1) {
+        return column.getReferences().stream()
+            .anyMatch(ref -> row.getString(ref.getName()) == null);
+      } else {
+        return row.getString(column.getName()) == null;
+      }
     }
 
     private static Set<Value> retrieveReferenceValues(
