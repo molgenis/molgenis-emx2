@@ -51,7 +51,6 @@
         ref="fileInputElem"
         class="sr-only"
         type="file"
-        :required="required"
         :disabled="disabled"
         @change="onChange"
         @focus="$emit('focus')"
