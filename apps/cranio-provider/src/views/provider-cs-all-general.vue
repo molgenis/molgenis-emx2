@@ -144,7 +144,7 @@ import ProviderDashboard from "../components/ProviderDashboard.vue";
 import { generateAxisTickData } from "../utils/generateAxisTicks";
 import { getDashboardChart } from "../utils/getDashboardData";
 import { generateColorPalette } from "../utils/generateColorPalette";
-import { uniqueValues } from "../utils";
+import { uniqueValues, uniqueAgeGroups } from "../utils";
 
 import type { ICharts, IChartData } from "../types/schema";
 import type { IKeyValuePair } from "../types";
@@ -282,7 +282,7 @@ function updatePatientsByCountryChart() {
 }
 
 function setAgeGroupFilter() {
-  ageGroups.value = uniqueValues(
+  ageGroups.value = uniqueAgeGroups(
     cranioTypeChart.value?.dataPoints,
     "dataPointPrimaryCategory"
   );
