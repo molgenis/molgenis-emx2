@@ -28,11 +28,15 @@
           :options="[
             {
               value: 'disabled',
-              label: 'Disabled: disable interactivity with the component',
+              label: 'Disabled',
             },
             {
               value: 'error',
-              label: 'Error: simulate an instance where an error occurred',
+              label: 'Error',
+            },
+            {
+              value: 'valid',
+              label: 'Valid',
             },
           ]"
           :showClearButton="true"
@@ -61,7 +65,8 @@
       id="listbox-input"
       labelId="listbox-input-label"
       :options="listboxData"
-      :hasError="listboxState === 'error'"
+      :invalid="listboxState === 'error'"
+      :valid="listboxState === 'valid'"
       :disabled="listboxState === 'disabled'"
       :placeholder="listboxPlaceholder"
       @update:model-value="(value) => (modelValue = value)"
