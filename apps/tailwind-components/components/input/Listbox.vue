@@ -37,7 +37,6 @@
 <script lang="ts" setup>
 import { ref, useTemplateRef, nextTick, watch, onMounted } from "vue";
 import type {
-  columnValue,
   IFieldError,
   IInputValue,
   IInputValueLabel,
