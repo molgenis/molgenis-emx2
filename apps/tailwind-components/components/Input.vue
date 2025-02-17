@@ -131,7 +131,7 @@
   />
   <InputFile
     v-else-if="['FILE'].includes(typeUpperCase)"
-    v-model="modelValue as columnValue"
+    v-model="modelValue as columnValueObject"
     :id="id"
     :valid="valid"
     :invalid="invalid"
