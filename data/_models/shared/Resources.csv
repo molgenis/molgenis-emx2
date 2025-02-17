@@ -24,6 +24,8 @@ Resources,,contact email,,,,,,,,,,Contact e-mail address ,"DataCatalogueFlat,Coh
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA,StudiesStaging"
 Resources,,license,hyperlink,,,,,,,,dcterms:license,A legal document under which this catalogue record is made available,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
+Resources,,issued,datetime,,,,,,,,dcterms:issued,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When th metadata for this resource was first published in the catalogue,DataCatalogueFlat
+Resources,,modified,datetime,,,,,,,,dcterms:modified,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was last modified,DataCatalogueFlat
 Resources,,design and structure,heading,,,,,,,,,Structure of the resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,design description,text,,,,,,,,,"Short description of the study design of this resource, if applicable","DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
@@ -63,8 +65,11 @@ Resources,,population coverage,text,,,,,,,,,Estimated percentage of the populati
 Resources,,population not covered,text,,,,,,,,,"Description of the population covered by the data source in the catchment area whose data are not collected, where applicable (e.g. people who are registered only for private care) ","DataCatalogueFlat,EMA,RWEStaging"
 Resources,,counts,refback,,,,Resource counts,,resource,,,Counts of e.g. samples defined for this resource,"DataCatalogueFlat,RWEStaging,StudiesStaging,INTEGRATE"
 Resources,,contributors,heading,,,,,,,,,List of relevant collaborations,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
-Resources,,people involved,refback,,,,Contacts,,resource,,dcat:contactPoint,Persons involved and their role(s),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
-Resources,,organisations involved,refback,,,,Organisations,,resource,,"dcterms:publisher,dcterms:creator",Organisations involved and their role(s),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE"
+Resources,,people involved,refback,,,,Contacts,,resource,,,Persons involved and their role(s),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
+Resources,,contact point,ref,,,,Contacts,,,,dcat:contactPoint,This attribute is written during migration of data from staging areas and used to produce valid dcat output. Contact point for this resource,DataCatalogueFlat
+Resources,,organisations involved,refback,,,,Organisations,,resource,,,Organisations involved and their role(s),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE"
+Resources,,publisher,ref,,,,Organisations,,,,dcterms:publisher,This attribute is written during migration of data from staging areas and used to produce valid dcat output. Organisation that published this resource,DataCatalogueFlat
+Resources,,creator,ref_array,,,,Organisations,,,,dcterms:creator,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. Organisation(s) that created this resource,DataCatalogueFlat
 Resources,,networks involved,refback,,,,Resources,,resources,,,The consortia or networks that this resource is part of,"DataCatalogueFlat,EMA"
 Resources,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this resource is involved in,EMA
 Resources,,available data and samples,heading,,,,,,,,,Data model and contents,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging"
