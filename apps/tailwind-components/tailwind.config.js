@@ -261,6 +261,7 @@ module.exports = {
         "input-focused": "var(--border-color-input-focused)",
         "notification-text": "var(--text-color-legend-error-count)",
         "check": "var(--text-color-button-primary)",
+        "check-disabled": "var(--color-disabled-background)",
         "invalid": "var(--color-invalid-foreground)",
         "valid": "var(--color-valid-foreground)",
         "disabled": "var(--color-disabled-foreground)",

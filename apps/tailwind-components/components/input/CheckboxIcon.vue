@@ -28,9 +28,9 @@
     <path
       v-if="checked"
       d="M5,10 L 9,14 L 16,6"
-      class="stroke-input-checked"
+      class="stroke-check"
       :class="{
-        'stroke-disabled': disabled,
+        'stroke-check-disabled': disabled && checked,
       }"
       stroke-width="2"
       stroke-linecap="round"
