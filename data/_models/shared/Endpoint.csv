@@ -13,10 +13,8 @@ Endpoint,,rights,hyperlink_array,,,,,,,,http://purl.org/dc/terms/rights,Informat
 Endpoint,,accessRights,hyperlink_array,,,,,,,,http://purl.org/dc/terms/accessRights,Information about who access the resource or an indication of its security status.,"FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,contact,string,,,,,,,,http://www.w3.org/ns/dcat#contactPoint,Relevant contact information for the catalogued resource. Use of vCard is recommended.,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,keyword,string_array,,,,,,,,http://www.w3.org/ns/dcat#keyword,A keyword or tag describing a resource.,"FAIRDataPoint,DataCatalogueFlat"
-Endpoint,,theme,string,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,"FAIRDataPoint,DataCatalogueFlat"
-Endpoint,,url,hyperlink,,,,,,,,http://www.w3.org/ns/dcat#endpointURL,The root location or primary endpoint of the service (a web-resolvable IRI).,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,theme,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,"FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,endPointDescription,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#endPointDescription,"A description of the service end-point, including its operations, parameters etc.","FAIRDataPoint,DataCatalogueFlat"
-Endpoint,,metadataIdentifier,hyperlink,,,,,,,,https://w3id.org/fdp/fdp-o#metadataIdentifier,Identifier of the metadata entry.,"FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,metadataCatalog,ref_array,,,,Catalogues,,,,https://w3id.org/fdp/fdp-o#metadataCatalog,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.","FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,organisation,ontology,,,,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,Name of the organisation. E.g. University Medical Center Groningen,Beacon v2
 Endpoint,,alternativeUrl,,,,,,,,,"http://purl.org/dc/terms/alternative, http://schema.org/url",Alternative endpoint URL.,Beacon v2
