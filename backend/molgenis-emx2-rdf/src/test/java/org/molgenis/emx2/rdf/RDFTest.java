@@ -10,6 +10,8 @@ import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_GRANDCHILD1_
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_GRANDCHILD1_SECOND;
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_ROOT1_FIRST;
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_ROOT2_FIRST;
+import static org.molgenis.emx2.rdf.RdfUtils.SETTING_CUSTOM_RDF;
+import static org.molgenis.emx2.rdf.RdfUtils.SETTING_SEMANTIC_PREFIXES;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -55,9 +57,6 @@ public class RDFTest {
 
   static final String BASE_URL = "http://localhost:8080/";
   static final String RDF_API_LOCATION = "/api/rdf";
-
-  /** Advanced setting field for adding custom RDF to the API. */
-  private static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
   static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
 
@@ -338,7 +337,7 @@ public class RDFTest {
         table(
             "missingNamespace",
             column("id").setType(ColumnType.STRING).setPkey(),
-            column("theme").setType(ColumnType.STRING).setSemantics("dcat:theme")),
+            column("theme").setType(ColumnType.STRING).setSemantics("example:theme")),
         table(
             "iriAsPrefixedName",
             column("id").setType(ColumnType.STRING).setPkey(),
@@ -1042,41 +1041,38 @@ public class RDFTest {
           }
         };
 
-    final Set<Namespace> customNamespaces =
-        new HashSet<>() {
-          {
-            add(new SimpleNamespace("CustomRdfEdit", BASE_URL + "CustomRdfEdit/api/rdf/"));
-            add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
-          }
-        };
-
     final String customRdf =
         """
-@prefix dcterms: <http://purl.org/dc/terms/> .
-<https://molgenis.org/> dcterms:title "Molgenis" .
+@prefix example: <http://example.com/> .
+<https://molgenis.org/> example:test "Molgenis" .
 """;
 
-    var customRdfEdit = database.dropCreateSchema("CustomRdfEdit");
-    // Test default behaviour.
-    assertFalse(customRdfEdit.hasSetting(SETTING_CUSTOM_RDF));
-    var handlerBefore = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(customRdfEdit), handlerBefore);
-    assertEquals(defaultNamespaces, handlerBefore.namespaces);
-    assertFalse(handlerBefore.resources.containsKey(Values.iri("https://molgenis.org/")));
+    try {
+      Schema schema = database.dropCreateSchema("CustomRdfEdit");
+      // Test default behaviour.
+      assertFalse(schema.hasSetting(SETTING_CUSTOM_RDF));
+      var handlerBefore = new InMemoryRDFHandler() {};
+      getAndParseRDF(Selection.of(schema), handlerBefore);
+      assertFalse(handlerBefore.resources.containsKey(Values.iri("https://molgenis.org/")));
 
-    // Change setting
-    customRdfEdit.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
+      // Change setting
+      schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
 
-    // Test behaviour after changing setting.
-    var handlerAfter = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(customRdfEdit), handlerAfter);
-    assertEquals(customNamespaces, handlerAfter.namespaces);
-    assertTrue(
-        handlerAfter
-            .resources
-            .get(Values.iri("https://molgenis.org/"))
-            .get(Values.iri("http://purl.org/dc/terms/title"))
-            .contains(Values.literal("Molgenis")));
+      // Test behaviour after changing setting.
+      var handlerAfter = new InMemoryRDFHandler() {};
+      getAndParseRDF(Selection.of(schema), handlerAfter);
+      assertEquals(
+          defaultNamespaces, handlerAfter.namespaces); // example prefix should NOT be present
+      assertTrue(
+          handlerAfter
+              .resources
+              .get(Values.iri("https://molgenis.org/"))
+              .get(Values.iri("http://example.com/test"))
+              .contains(Values.literal("Molgenis")));
+
+    } finally {
+      database.dropSchemaIfExists("CustomRdfEdit");
+    }
   }
 
   /**
@@ -1092,11 +1088,109 @@ public class RDFTest {
 <https://molgenis.org/> <http://purl.org/dc/terms/title> "Molgenis"
 """;
 
-    var customRdfEdit = database.dropCreateSchema("CustomInvalidRdf");
-    customRdfEdit.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
-    var handler = new InMemoryRDFHandler() {};
-    assertThrows(
-        MolgenisException.class, () -> getAndParseRDF(Selection.of(customRdfEdit), handler));
+    try {
+      Schema schema = database.dropCreateSchema("CustomRdfInvalid");
+      schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
+      var handler = new InMemoryRDFHandler() {};
+      assertThrows(MolgenisException.class, () -> getAndParseRDF(Selection.of(schema), handler));
+    } finally {
+      database.dropSchemaIfExists("CustomRdfInvalid");
+    }
+  }
+
+  @Test
+  void testEmptyCustomRdfSetting() throws IOException {
+    final String customRdf = "";
+
+    try {
+      Schema schema = database.dropCreateSchema("CustomRdfEmpty");
+      schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
+      var handler = new InMemoryRDFHandler() {};
+      assertDoesNotThrow(() -> getAndParseRDF(Selection.of(schema), handler));
+    } finally {
+      database.dropSchemaIfExists("CustomRdfEmpty");
+    }
+  }
+
+  @Test
+  void testCustomPrefixesSetting() throws IOException {
+    final Set<Namespace> defaultNamespaces =
+        new HashSet<>() {
+          {
+            add(new SimpleNamespace("PrefixesEdit", BASE_URL + "PrefixesEdit/api/rdf/"));
+            addAll(DEFAULT_NAMESPACES);
+          }
+        };
+
+    final Set<Namespace> customNamespaces =
+        new HashSet<>() {
+          {
+            add(new SimpleNamespace("PrefixesEdit", BASE_URL + "PrefixesEdit/api/rdf/"));
+            add(new SimpleNamespace("dcat", "http://www.w3.org/ns/dcat#"));
+            add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
+          }
+        };
+
+    final String customPrefixes =
+        """
+    dcat,http://www.w3.org/ns/dcat#
+    dcterms,http://purl.org/dc/terms/
+    """;
+
+    try {
+      Schema schema = database.dropCreateSchema("PrefixesEdit");
+      // Test default behaviour.
+      assertFalse(schema.hasSetting(SETTING_SEMANTIC_PREFIXES));
+      var handlerBefore = new InMemoryRDFHandler() {};
+      getAndParseRDF(Selection.of(schema), handlerBefore);
+      assertEquals(defaultNamespaces, handlerBefore.namespaces);
+
+      // Change setting
+      schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
+
+      // Test behaviour after changing setting.
+      var handlerAfter = new InMemoryRDFHandler() {};
+      getAndParseRDF(Selection.of(schema), handlerAfter);
+      assertEquals(customNamespaces, handlerAfter.namespaces);
+    } finally {
+      database.dropSchemaIfExists("PrefixesEdit");
+    }
+  }
+
+  @Test
+  void testInvalidPrefixesSetting() throws IOException {
+    final String customPrefixes = "http://example.com,example";
+
+    try {
+      Schema schema = database.dropCreateSchema("PrefixesInvalid");
+      schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
+      var handler = new InMemoryRDFHandler() {};
+      assertThrows(MolgenisException.class, () -> getAndParseRDF(Selection.of(schema), handler));
+    } finally {
+      database.dropSchemaIfExists("PrefixesInvalid");
+    }
+  }
+
+  @Test
+  void testEmptyPrefixesSetting() throws IOException {
+    final Set<Namespace> expectedNamespaces =
+        new HashSet<>() {
+          {
+            add(new SimpleNamespace("PrefixesEmpty", BASE_URL + "PrefixesEmpty/api/rdf/"));
+          }
+        };
+
+    final String customPrefixes = "";
+
+    try {
+      Schema schema = database.dropCreateSchema("PrefixesEmpty");
+      schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
+      var handler = new InMemoryRDFHandler() {};
+      getAndParseRDF(Selection.of(schema), handler);
+      assertEquals(expectedNamespaces, handler.namespaces);
+    } finally {
+      database.dropSchemaIfExists("PrefixesEmpty");
+    }
   }
 
   @Test
@@ -1104,24 +1198,27 @@ public class RDFTest {
     final Set<Namespace> expectedNamespace =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("RdfEqual1", BASE_URL + "RdfEqual1/api/rdf/"));
-            add(new SimpleNamespace("RdfEqual2", BASE_URL + "RdfEqual2/api/rdf/"));
+            add(
+                new SimpleNamespace(
+                    "PrefixSettingEqual1", BASE_URL + "PrefixSettingEqual1/api/rdf/"));
+            add(
+                new SimpleNamespace(
+                    "PrefixSettingEqual2", BASE_URL + "PrefixSettingEqual2/api/rdf/"));
             add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
           }
         };
 
-    final String customRdf1 =
+    final String customPrefixes1 =
         """
-@prefix dcterms: <http://purl.org/dc/terms/> .
+dcterms,http://purl.org/dc/terms/
 """;
 
-    final String customRdf2 =
+    final String customPrefixes2 =
         """
-@prefix dcterms: <http://purl.org/dc/terms/> .
+dcterms,http://purl.org/dc/terms/
 """;
 
-    var handler = new InMemoryRDFHandler() {};
-    validateNamespaces(handler, "RdfEqual", expectedNamespace, customRdf1, customRdf2);
+    validateNamespaces("PrefixSettingEqual", expectedNamespace, customPrefixes1, customPrefixes2);
   }
 
   /**
@@ -1134,38 +1231,27 @@ public class RDFTest {
     final Set<Namespace> expectedNamespace =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("RdfPrefix1", BASE_URL + "RdfPrefix1/api/rdf/"));
-            add(new SimpleNamespace("RdfPrefix2", BASE_URL + "RdfPrefix2/api/rdf/"));
+            add(
+                new SimpleNamespace(
+                    "PrefixSettingName1", BASE_URL + "PrefixSettingName1/api/rdf/"));
+            add(
+                new SimpleNamespace(
+                    "PrefixSettingName2", BASE_URL + "PrefixSettingName2/api/rdf/"));
             add(new SimpleNamespace("dcterms1", "http://purl.org/dc/terms/"));
           }
         };
 
-    final String customRdf1 =
+    final String customPrefixes1 =
         """
-@prefix dcterms1: <http://purl.org/dc/terms/> .
-<https://molgenis.org/> dcterms:title "Molgenis" .
+dcterms1,http://purl.org/dc/terms/
 """;
 
-    final String customRdf2 =
+    final String customPrefixes2 =
         """
-@prefix dcterms2: <http://purl.org/dc/terms/> .
-<https://github.com/molgenis/> dcterms2:title "Molgenis GitHub" .
+dcterms2,http://purl.org/dc/terms/
 """;
 
-    var handler = new InMemoryRDFHandler() {};
-    validateNamespaces(handler, "RdfPrefix", expectedNamespace, customRdf1, customRdf2);
-    assertTrue(
-        handler
-            .resources
-            .get(Values.iri("https://molgenis.org/"))
-            .get(Values.iri("http://purl.org/dc/terms/title"))
-            .contains(Values.literal("Molgenis")));
-    assertTrue(
-        handler
-            .resources
-            .get(Values.iri("https://github.com/molgenis/"))
-            .get(Values.iri("http://purl.org/dc/terms/title"))
-            .contains(Values.literal("Molgenis GitHub")));
+    validateNamespaces("PrefixSettingName", expectedNamespace, customPrefixes1, customPrefixes2);
   }
 
   /**
@@ -1179,82 +1265,51 @@ public class RDFTest {
     final Set<Namespace> expectedNamespace =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("RdfPrefixUrl1", BASE_URL + "RdfPrefixUrl1/api/rdf/"));
-            add(new SimpleNamespace("RdfPrefixUrl2", BASE_URL + "RdfPrefixUrl2/api/rdf/"));
+            add(
+                new SimpleNamespace(
+                    "PrefixSettingNameIri1", BASE_URL + "PrefixSettingNameIri1/api/rdf/"));
+            add(
+                new SimpleNamespace(
+                    "PrefixSettingNameIri2", BASE_URL + "PrefixSettingNameIri2/api/rdf/"));
             add(new SimpleNamespace("name", "http://www.w3.org/2000/01/rdf-schema#"));
           }
         };
 
-    final String customRdf1 =
+    final String customPrefixes1 =
         """
-    @prefix name: <http://purl.org/dc/terms/> .
-    <https://molgenis.org/> name:title "Molgenis" .
+name,http://purl.org/dc/terms/
     """;
 
-    final String customRdf2 =
+    final String customPrefixes2 =
         """
-    @prefix name: <http://www.w3.org/2000/01/rdf-schema#> .
-    <https://molgenis.org/> name:label "Molgenis" .
+name,http://www.w3.org/2000/01/rdf-schema#
     """;
 
-    var handler = new InMemoryRDFHandler() {};
-    validateNamespaces(handler, "RdfPrefixUrl", expectedNamespace, customRdf1, customRdf2);
-
-    assertTrue(
-        handler
-            .resources
-            .get(Values.iri("https://molgenis.org/"))
-            .get(Values.iri("http://purl.org/dc/terms/title"))
-            .contains(Values.literal("Molgenis")));
-    assertTrue(
-        handler
-            .resources
-            .get(Values.iri("https://molgenis.org/"))
-            .get(Values.iri("http://www.w3.org/2000/01/rdf-schema#label"))
-            .contains(Values.literal("Molgenis")));
+    validateNamespaces("PrefixSettingNameIri", expectedNamespace, customPrefixes1, customPrefixes2);
   }
 
   @Test
-  void testPartlyCustomRdf() throws IOException {
+  void testSingleCustomPrefixesSetting() throws IOException {
     final Set<Namespace> expectedNamespaces =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("RdfPartlyCustom1", BASE_URL + "RdfPartlyCustom1/api/rdf/"));
-            add(new SimpleNamespace("RdfPartlyCustom2", BASE_URL + "RdfPartlyCustom2/api/rdf/"));
-            add(new SimpleNamespace("ncit", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#"));
+            add(
+                new SimpleNamespace(
+                    "PrefixSettingPartly1", BASE_URL + "PrefixSettingPartly1/api/rdf/"));
+            add(
+                new SimpleNamespace(
+                    "PrefixSettingPartly2", BASE_URL + "PrefixSettingPartly2/api/rdf/"));
+            add(new SimpleNamespace("example", "http://example.com/"));
             addAll(DEFAULT_NAMESPACES);
           }
         };
 
-    final String customRdf1 =
+    final String customPrefixes1 =
         """
-    @prefix ncit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#> .
+example,http://example.com/
     """;
 
-    var handler = new InMemoryRDFHandler() {};
-    validateNamespaces(handler, "RdfPartlyCustom", expectedNamespaces, customRdf1, null);
-  }
-
-  @Test
-  void testCustomOrEmptyRdf() throws IOException {
-    final Set<Namespace> expectedNamespaces =
-        new HashSet<>() {
-          {
-            add(new SimpleNamespace("RdfcustomOrEmpty1", BASE_URL + "RdfcustomOrEmpty1/api/rdf/"));
-            add(new SimpleNamespace("RdfcustomOrEmpty2", BASE_URL + "RdfcustomOrEmpty2/api/rdf/"));
-            add(new SimpleNamespace("ncit", "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#"));
-          }
-        };
-
-    final String customRdf1 =
-        """
-    @prefix ncit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#> .
-    """;
-
-    final String customRdf2 = "";
-
-    var handler = new InMemoryRDFHandler() {};
-    validateNamespaces(handler, "RdfcustomOrEmpty", expectedNamespaces, customRdf1, customRdf2);
+    validateNamespaces("PrefixSettingPartly", expectedNamespaces, customPrefixes1, null);
   }
 
   @Test
@@ -1334,25 +1389,32 @@ public class RDFTest {
    * @param schemaTestprefix prefix for created schemas ("1" & "2" is added to this for the 2
    *     different schemes)
    * @param expectedNamespaces set containing the expected combined namespaces
-   * @param customRdf1 custom_rdf setting field for first schema
-   * @param customRdf2 custom_rdf setting field for first schema (or null if it should not be set)
+   * @param customPrefixes1 custom_rdf setting field for first schema
+   * @param customPrefixes2 custom_rdf setting field for first schema (or null if it should not be
+   *     set)
    * @throws IOException
    */
   private void validateNamespaces(
-      InMemoryRDFHandler handler,
       String schemaTestprefix,
       Set<Namespace> expectedNamespaces,
-      String customRdf1,
-      String customRdf2)
+      String customPrefixes1,
+      String customPrefixes2)
       throws IOException {
-    var schema1 = database.dropCreateSchema(schemaTestprefix + "1");
-    var schema2 = database.dropCreateSchema(schemaTestprefix + "2");
-    schema1.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf1);
-    if (customRdf2 != null) {
-      schema2.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf2);
+    try {
+      var schema1 = database.dropCreateSchema(schemaTestprefix + "1");
+      var schema2 = database.dropCreateSchema(schemaTestprefix + "2");
+      schema1.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes1);
+      if (customPrefixes2 != null) {
+        schema2.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes2);
+      }
+
+      var handler = new InMemoryRDFHandler() {};
+      getAndParseRDF(Selection.of(schema1, schema2), handler);
+      assertEquals(expectedNamespaces, handler.namespaces);
+    } finally {
+      database.dropSchemaIfExists(schemaTestprefix + "1");
+      database.dropSchemaIfExists(schemaTestprefix + "2");
     }
-    getAndParseRDF(Selection.of(schema1, schema2), handler);
-    assertEquals(expectedNamespaces, handler.namespaces);
   }
 
   /**
