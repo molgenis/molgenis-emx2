@@ -1,9 +1,0 @@
-name,category,photoUrls,status,tags,weight
-pooky,cat,,available,,9.4
-spike,dog,,sold,"red,green",15.7
-tom,cat,,available,red,3.14
-sylvester,cat,,available,purple,1.337
-jerry,mouse,,available,blue,0.18
-tweety,bird,,available,red,0.1
-the very hungry caterpillar,caterpillar,,available,green,0.5
-fire ant,ant,,available,"purple,red,green",0.01

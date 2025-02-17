@@ -356,6 +356,7 @@ public class WebApiSmokeTests {
     acceptFileUpload(contentsTagDataFile, "Tag", false);
     acceptFileUpload(contentsPetDataFile, "Pet", false);
     acceptFileUpload(contentsUserDataFile, "User", false);
+    acceptFileUpload(contentsOrderDataFile, "Order", false);
     acceptFileUpload(contentsTableWithSpacesDataFile, TABLE_WITH_SPACES, false);
 
     // download csv from the new schema
@@ -1058,7 +1059,8 @@ public class WebApiSmokeTests {
     Response response = downloadPet("/pet store/api/excel/Pet");
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
     assertEquals("name,category,photoUrls,status,tags,weight,orders", rows.get(0));
-    assertEquals("pooky,cat,,available,,9.4,", rows.get(1));
+    assertEquals(
+        "pooky,cat,,available,,9.4,ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919", rows.get(1));
   }
 
   @Test
