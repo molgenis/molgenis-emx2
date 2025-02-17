@@ -92,9 +92,13 @@
                   </sup>
                   <div class="float-right">
                     <small class="align-right">
-                      <span v-for="semantics in column.semantics">{{
-                        semantics
-                      }}</span>
+                      <span
+                        ><template
+                          v-for="(semantics, index) in column.semantics"
+                          ><template v-if="index > 0">,</template
+                          >{{ semantics }}</template
+                        ></span
+                      >
                     </small>
                   </div>
                 </h5>
