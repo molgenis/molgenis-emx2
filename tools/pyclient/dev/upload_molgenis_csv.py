@@ -12,10 +12,12 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+
 from tools.pyclient.src.molgenis_emx2_pyclient import Client
 from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import PyclientException
 
-logging.basicConfig(level="INFO")
+log = logging.getLogger("upload test")
+logging.basicConfig(level="DEBUG")
 
 SCHEMA_NAME = "issue fix 4735"
 SCHEMA_DESCRIPTION = "https://github.com/molgenis/molgenis-emx2/issues/4735"
@@ -31,13 +33,22 @@ async def main(url: str, schema: str):
         await client.upload_file("molgenis.csv")
         Path("molgenis.csv").rename("catalogue.csv")
 
+        organisation_columns = client.get_schema_metadata().get_table('id', "Organisations").columns
+        log.debug(f"{len(organisation_columns)} columns in Organisations before update.")
+        log.debug(list(map(str, organisation_columns)))
+
         Path("organisations-only.csv").rename("molgenis.csv")
         try:
             await client.upload_file("molgenis.csv")
         except PyclientException as e:
-            logging.error(e)
+            log.error(e)
         finally:
             Path("molgenis.csv").rename("organisations-only.csv")
+
+        client.get_schema_metadata.cache_clear()
+        organisation_columns = client.get_schema_metadata().get_table('id', "Organisations").columns
+        log.debug(f"{len(organisation_columns)} columns in Organisations after update.")
+        log.debug(list(map(str, organisation_columns)))
 
         await client.upload_file("Resources.csv")
         await client.upload_file("Organisations.csv")
