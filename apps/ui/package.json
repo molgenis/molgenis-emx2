@@ -4,7 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare": "nuxt prepare",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
