@@ -4,6 +4,7 @@ import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
 
+import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.pac4j.core.client.Clients;
@@ -47,6 +48,7 @@ public class SecurityConfigFactory {
     oidcConfiguration.setSecret(oidcClientSecret);
     oidcConfiguration.setDiscoveryURI(oidcDiscoveryURI);
     oidcConfiguration.setAllowUnsignedIdTokens(unsignedToken);
+    oidcConfiguration.setClientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST);
 
     final OidcClient oidcClient = new OidcClient(oidcConfiguration);
     oidcClient.setName(OIDC_CLIENT_NAME);
