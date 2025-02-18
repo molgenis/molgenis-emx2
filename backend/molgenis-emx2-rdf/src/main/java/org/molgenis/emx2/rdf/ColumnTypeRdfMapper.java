@@ -3,8 +3,6 @@ package org.molgenis.emx2.rdf;
 import static java.util.Map.entry;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.Constants.API_FILE;
-import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
-import static org.molgenis.emx2.Constants.SUBSELECT_SEPARATOR;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 
 import com.google.common.net.UrlEscapers;
@@ -68,7 +66,7 @@ public class ColumnTypeRdfMapper {
           // RELATIONSHIP
           entry(ColumnType.REF, RdfColumnType.REFERENCE),
           entry(ColumnType.REF_ARRAY, RdfColumnType.REFERENCE),
-          entry(ColumnType.REFBACK, RdfColumnType.REFBACK),
+          entry(ColumnType.REFBACK, RdfColumnType.REFERENCE),
 
           // LAYOUT and other constants
           entry(ColumnType.HEADING, RdfColumnType.SKIP), // Should not be in RDF output.
@@ -227,42 +225,6 @@ public class ColumnTypeRdfMapper {
         return column.getReferences().stream().anyMatch(i -> row.getString(i.getName()) == null);
       }
     },
-    REFBACK(CoreDatatype.XSD.ANYURI) {
-      @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
-        Map<String, String> colNameToRefTableColName = new HashMap<>();
-        if (row.getString(column.getName()) != null) {
-          colNameToRefTableColName.put(
-              column.getName(), column.getRefTable().getPrimaryKeyColumns().get(0).getName());
-        } else {
-          refBackSubColumns(
-              colNameToRefTableColName, column, column.getName() + SUBSELECT_SEPARATOR, "");
-        }
-
-        return RdfColumnType.retrieveReferenceValues(
-            baseURL, row, column, colNameToRefTableColName);
-      }
-
-      private void refBackSubColumns(
-          Map<String, String> colNameToRefTableColName,
-          Column column,
-          String colPrefix,
-          String refPrefix) {
-        for (Column refPrimaryKey : column.getRefTable().getPrimaryKeyColumns()) {
-          if (refPrimaryKey.isRef() || refPrimaryKey.isRefArray()) {
-            refBackSubColumns(
-                colNameToRefTableColName,
-                refPrimaryKey,
-                colPrefix + refPrimaryKey.getName() + SUBSELECT_SEPARATOR,
-                refPrefix + refPrimaryKey.getName() + COMPOSITE_REF_SEPARATOR);
-          } else {
-            // refback
-            colNameToRefTableColName.put(
-                colPrefix + refPrimaryKey.getName(), refPrefix + refPrimaryKey.getName());
-          }
-        }
-      }
-    },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
       // TODO: Implement Ontology behavior where it also returns ontologyTermURI as Value.
       @Override
@@ -320,6 +282,7 @@ public class ColumnTypeRdfMapper {
 
     boolean isEmpty(final Row row, final Column column) {
       if (column.isReference() && column.getReferences().size() > 1) {
+        // check composite keys to be empty
         return column.getReferences().stream()
             .anyMatch(ref -> row.getString(ref.getName()) == null);
       } else {

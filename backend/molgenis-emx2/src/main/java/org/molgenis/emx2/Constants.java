@@ -10,7 +10,7 @@ public class Constants {
   public static final String MG_USER_PREFIX = "MG_USER_";
 
   public static final String COMPOSITE_REF_SEPARATOR = ".";
-  public static final String SUBSELECT_SEPARATOR = ".";
+  public static final String SUBSELECT_SEPARATOR = "-";
   public static final String REF_LINK = "refLink";
   public static final String REF_LABEL = "refLabel";
   public static final String REF_LABEL_DEFAULT = "refLabelDefault";

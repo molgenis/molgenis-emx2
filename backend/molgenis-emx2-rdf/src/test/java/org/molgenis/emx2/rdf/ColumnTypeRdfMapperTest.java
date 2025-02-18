@@ -239,7 +239,7 @@ class ColumnTypeRdfMapperTest {
   @AfterAll
   public static void tearDown() {
     database = TestDatabaseFactory.getTestDatabase();
-    // database.dropSchema(allColumnTypes.getName());
+    database.dropSchema(allColumnTypes.getName());
   }
 
   private Set<Value> retrieveValues(String columnName) {
@@ -249,8 +249,9 @@ class ColumnTypeRdfMapperTest {
   /** Only primary key & AUTO_ID is filled. */
   private Set<Value> retrieveEmptyValues(String columnName) {
     // REFBACK causes duplicate row (with only REFBACK values being different).
-    // Therefore, 3rd row is empty one.
-    return retrieveValues(columnName, 2);
+    // That was a bug fixed in #4705
+    // Therefore, 2nd row is empty one.
+    return retrieveValues(columnName, 1);
   }
 
   private Set<Value> retrieveValues(String columnName, int row) {
@@ -327,6 +328,7 @@ class ColumnTypeRdfMapperTest {
 
     // Validation
     assertAll(
+        // todo: please don't use assertAll, this makes it hard to debug individual fails
         // SIMPLE
         () -> assertEquals(Set.of(Values.literal(true)), retrieveValues(ColumnType.BOOL.name())),
         () ->
