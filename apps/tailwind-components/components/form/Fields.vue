@@ -73,6 +73,7 @@ const chapters = computed(() => {
           id: "_scroll_to_top",
           columns: [],
           isActive: "_scroll_to_top" === activeChapterId.value,
+          errorCount: 0,
         });
       }
       acc[acc.length - 1].columns.push(column);
@@ -108,11 +109,7 @@ function validateColumn(column: IColumn) {
     errorMap[column.id] = props.metadata.columns
       .filter((c) => c.validation?.includes(column.id))
       .map((c) => {
-        const result = getColumnError(
-          c.validation as string,
-          dataMap,
-          props.metadata
-        );
+        const result = getColumnError(c, dataMap, props.metadata);
         return result;
       })
       .join("");
@@ -219,7 +216,7 @@ function goToSection(headerId: string) {
             :type="column.columnType"
             :label="column.label"
             :description="column.description"
-            :required="isRequired(column.required)"
+            :required="isRequired(column.required ?? false)"
             :error-message="errorMap[column.id]"
             :ref-schema-id="column.refSchemaId || schemaId"
             :ref-table-id="column.refTableId"
@@ -231,15 +228,19 @@ function goToSection(headerId: string) {
           />
         </template>
       </div>
-      <div class="bg-red-500 p-3 font-bold">
-        {{ numberOfFieldsWithErrors }} fields require your attention before you
-        can save this {{ recordLabel }} ( temporary section for dev)
-      </div>
-      <div class="bg-gray-200 p-3">
-        {{ numberOfRequiredFields - numberOfRequiredFieldsWithData }} /
-        {{ numberOfRequiredFields }} required fields left ( temporary section
-        for dev)
-      </div>
+      <Message :id="id" :invalid="true">
+        <span
+          >{{ numberOfFieldsWithErrors }} fields require your attention before
+          you can save this {{ recordLabel }} ( temporary section for dev)</span
+        >
+      </Message>
+      <Message :id="id">
+        <span
+          >{{ numberOfRequiredFields - numberOfRequiredFieldsWithData }} /
+          {{ numberOfRequiredFields }} required fields left ( temporary section
+          for dev)</span
+        >
+      </Message>
       <div
         id="spacer-so-we-can-scroll-each-chapter-to-top-if-requested"
         class="h-screen"
