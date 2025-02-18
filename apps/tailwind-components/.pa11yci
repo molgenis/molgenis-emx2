@@ -23,6 +23,7 @@
         "http://localhost:3000/Icons.story",
         "http://localhost:3000/Icons.story",
         "http://localhost:3000/input/Checkbox.story",
+        "http://localhost:3000/input/File.story",
         "http://localhost:3000/input/Label.story",
         "http://localhost:3000/input/List.story",
         "http://localhost:3000/input/Select.story",
