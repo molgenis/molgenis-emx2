@@ -40,6 +40,8 @@ postgres:
   password: postgres
   database: postgres
 
+includeTypeTestDemo: false
+
 catalogue:
   includeCatalogueDemo: false
 

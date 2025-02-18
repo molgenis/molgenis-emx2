@@ -1,0 +1,4 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,crohnsDisease,Crohn’s disease,,SNOMEDCT,34000006,http://purl.bioontology.org/ontology/SNOMEDCT/34000006,
+2,ulcerativeColitis,Ulcerative Colitis,,SNOMEDCT,64766004,http://purl.bioontology.org/ontology/SNOMEDCT/64766004,
+3,other,Other,,,,,

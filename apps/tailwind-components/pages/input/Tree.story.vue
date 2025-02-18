@@ -38,6 +38,7 @@ const emitSelectedChildren = ref(true);
 </script>
 
 <template>
+  <h1 class="text-heading-2xl pb-4">InputTree</h1>
   <div class="flex flex-row gap-2 mb-4">
     <div class="basis-3/5">
       <InputTree

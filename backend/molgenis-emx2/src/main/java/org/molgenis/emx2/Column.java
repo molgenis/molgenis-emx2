@@ -627,8 +627,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return refLink;
   }
 
-  public void setRefLink(String refLink) {
+  public Column setRefLink(String refLink) {
     this.refLink = refLink;
+    return this;
   }
 
   public Column getRefLinkColumn() {

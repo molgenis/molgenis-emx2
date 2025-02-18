@@ -583,8 +583,10 @@ public class RDFService {
     for (Column c : table.getMetadata().getColumns()) {
       if (c.isFile()) {
         selectColumns.add(s(c.getName(), s("id"), s("filename"), s("mimetype")));
-      } else if (c.isReference()) {
+      } else if (c.isRef() || c.isRefArray()) {
         c.getReferences().forEach(i -> selectColumns.add(s(i.getName())));
+      } else if (c.isRefback()) {
+        selectColumns.add(refBackSelect(c));
       } else {
         selectColumns.add(s(c.getName()));
       }
@@ -609,6 +611,18 @@ public class RDFService {
       }
       return query.select(selectArray).retrieveRows();
     }
+  }
+
+  private SelectColumn refBackSelect(Column column) {
+    List<SelectColumn> subSelects = new ArrayList<>();
+    for (Column subColumn : column.getRefTable().getPrimaryKeyColumns()) {
+      if (subColumn.isRef() || subColumn.isRefArray()) {
+        subSelects.add(refBackSelect(subColumn));
+      } else {
+        subSelects.add(s(subColumn.getName()));
+      }
+    }
+    return s(column.getName(), subSelects.toArray(SelectColumn[]::new));
   }
 
   private IRI getIriForRow(final Row row, final Table table) {
