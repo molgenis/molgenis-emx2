@@ -1,7 +1,3 @@
-<script setup lang="ts">
-const file = ref();
-</script>
-
 <template>
   <InputTestContainer show-state v-slot="{ valid, invalid, disabled }">
     <label for="file-input-demo-file-input" class="block mb-2"
@@ -12,7 +8,7 @@ const file = ref();
       :valid="valid"
       :invalid="invalid"
       :disabled="disabled"
-      @update:modelValue="(value) => (file = value)"
+      @update:modelValue="(value: columnValueObject) => (file = value)"
     />
   </InputTestContainer>
   <form @submit.prevent></form>
@@ -26,3 +22,8 @@ const file = ref();
     >
   </output>
 </template>
+
+<script setup lang="ts">
+import type { columnValueObject } from "../../../metadata-utils/src/types";
+const file = ref<columnValueObject>();
+</script>

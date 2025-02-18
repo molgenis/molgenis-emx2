@@ -87,7 +87,6 @@ function onChange(event: Event) {
 }
 
 function onFilterWellClick() {
-  console.log("clicked");
   modelValue.value = null;
 }
 </script>
