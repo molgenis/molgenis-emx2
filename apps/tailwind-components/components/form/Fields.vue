@@ -228,15 +228,19 @@ function goToSection(headerId: string) {
           />
         </template>
       </div>
-      <div class="bg-red-500 p-3 font-bold">
-        {{ numberOfFieldsWithErrors }} fields require your attention before you
-        can save this {{ recordLabel }} ( temporary section for dev)
-      </div>
-      <div class="bg-gray-200 p-3">
-        {{ numberOfRequiredFields - numberOfRequiredFieldsWithData }} /
-        {{ numberOfRequiredFields }} required fields left ( temporary section
-        for dev)
-      </div>
+      <Message :id="id" :invalid="true">
+        <span
+          >{{ numberOfFieldsWithErrors }} fields require your attention before
+          you can save this {{ recordLabel }} ( temporary section for dev)</span
+        >
+      </Message>
+      <Message :id="id">
+        <span
+          >{{ numberOfRequiredFields - numberOfRequiredFieldsWithData }} /
+          {{ numberOfRequiredFields }} required fields left ( temporary section
+          for dev)</span
+        >
+      </Message>
       <div
         id="spacer-so-we-can-scroll-each-chapter-to-top-if-requested"
         class="h-screen"

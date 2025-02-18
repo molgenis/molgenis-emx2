@@ -2,10 +2,11 @@
   <div
     role="alertdialog"
     :aria-labelledby="`${id}-state-context`"
-    class="p-3 font-bold flex items-center rounded-input bg-default"
+    class="p-3 font-bold flex items-center rounded-input"
     :class="{
       'bg-invalid text-invalid fill-invalid': invalid,
       'bg-valid text-valid fill-valid': valid,
+      'bg-neutral text-neutral': !valid && !invalid,
     }"
   >
     <template v-if="invalid">
@@ -17,7 +18,7 @@
       <BaseIcon name="check" />
     </template>
     <template v-else>
-      <BaseIcon name="info" />
+      <span :id="`${id}-state-context`" class="sr-only">information</span>
     </template>
     <slot></slot>
   </div>
@@ -27,12 +28,12 @@
 withDefaults(
   defineProps<{
     id: string;
-    invalid?: boolean;
     valid?: boolean;
+    invalid?: boolean;
   }>(),
   {
-    invalid: false,
     valid: false,
+    invalid: false,
   }
 );
 </script>
