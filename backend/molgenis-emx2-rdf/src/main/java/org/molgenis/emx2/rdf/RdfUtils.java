@@ -79,6 +79,7 @@ abstract class RdfUtils {
             .readValues(schema.getSettingValue(SETTING_SEMANTIC_PREFIXES))) {
       iterator.forEachRemaining(
           i -> {
+            // Check similar to RDF4J's SimpleIRI
             if (i.get("iri").indexOf(':') < 0) {
               throw new MolgenisException(i.get("iri") + " must be a valid (absolute) IRI");
             }
