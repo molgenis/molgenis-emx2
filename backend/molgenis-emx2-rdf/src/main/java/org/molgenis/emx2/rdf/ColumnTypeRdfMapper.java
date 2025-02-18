@@ -5,6 +5,10 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.Constants.API_FILE;
 import static org.molgenis.emx2.Constants.COMPOSITE_REF_SEPARATOR;
 import static org.molgenis.emx2.Constants.SUBSELECT_SEPARATOR;
+import static org.molgenis.emx2.FilterBean.f;
+import static org.molgenis.emx2.FilterBean.or;
+import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 
 import com.google.common.net.UrlEscapers;
@@ -110,11 +114,26 @@ public class ColumnTypeRdfMapper {
    * </ul>
    */
   public Set<Value> retrieveValues(final Row row, final Column column) {
-    RdfColumnType mapper = mapping.get(column.getColumnType());
-    return (mapper.isEmpty(row, column) ? Set.of() : mapper.retrieveValues(baseURL, row, column));
+    return retrieveValues(row, column, mapping.get(column.getColumnType()));
   }
 
-  private enum RdfColumnType {
+  /**
+   * Same as {@link #retrieveValues(Row, Column)}, except manually defining which {@link
+   * RdfColumnType} should be used.
+   *
+   * <p>It is suggested to only use this method if really needed (for example if needing an email as
+   * a string literal in RDF instead of default behavior which creates a {@code mailto:} IRI).
+   *
+   * @see #retrieveValues(Row, Column)
+   */
+  public Set<Value> retrieveValues(
+      final Row row, final Column column, final RdfColumnType rdfColumnType) {
+    return (rdfColumnType.isEmpty(row, column)
+        ? Set.of()
+        : rdfColumnType.retrieveValues(baseURL, row, column));
+  }
+
+  public enum RdfColumnType {
     BOOLEAN(CoreDatatype.XSD.BOOLEAN) {
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
@@ -276,10 +295,39 @@ public class ColumnTypeRdfMapper {
       }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
-      // TODO: Implement Ontology behavior where it also returns ontologyTermURI as Value.
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
-        return RdfColumnType.REFERENCE.retrieveValues(baseURL, row, column);
+        final TableMetadata target = column.getRefTable();
+        final String rootTableName =
+            UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
+        final Namespace ns = getSchemaNamespace(baseURL, target.getRootTable().getSchema());
+
+        String[] names =
+            (column.isArray()
+                ? row.getStringArray(column.getName())
+                : new String[] {row.getString(column.getName())});
+        Filter[] filters =
+            Arrays.stream(names).map(i -> f("name", EQUALS, i)).toArray(Filter[]::new);
+
+        List<Row> refRows =
+            column
+                .getRefTable()
+                .getTable()
+                .query()
+                .select(s("name"), s("ontologyTermURI"))
+                .where(or(filters))
+                .retrieveRows();
+
+        final Set<Value> values = new HashSet<>();
+        for (Row refRow : refRows) {
+          String ontologyTermUri = refRow.getString("ontologyTermURI");
+          if (ontologyTermUri != null) {
+            values.add(Values.iri(ontologyTermUri));
+          } else {
+            values.add(Values.iri(ns, rootTableName + "?name=" + refRow.getString("name")));
+          }
+        }
+        return Set.copyOf(values);
       }
     },
     SKIP(CoreDatatype.XSD.STRING) {
