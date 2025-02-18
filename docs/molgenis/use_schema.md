@@ -193,7 +193,7 @@ By default, the following prefixed names are available:
 | vcard         | http://www.w3.org/2006/vcard/ns#               |
 | xsd           | http://www.w3.org/2001/XMLSchema#              |
 
-!> If a schema [has a custom RDF configuration](./dev_rdf.md#configuration), the default list above does not apply.
+!> The list above can be overridden using a [schema-specific advanced setting](./dev_rdf.md#configuration).
 
 ### label,label:en,label:fr etc
 
