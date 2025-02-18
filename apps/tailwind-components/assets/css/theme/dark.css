@@ -16,6 +16,10 @@
     --background-color-button-primary-hover: var(--color-white);
     --background-color-button-secondary: var(--color-gray-700);
     --background-color-button-secondary-hover: var(--color-gray-700);
+    
+    --background-color-input: var(--gray-800);
+    --background-color-input-focused: var(--color-green-200);
+    --background-color-input-checked: var(--color-green-500);
     --background-color-pagination: var(--color-gray-600);
     --background-color-pagination-hover: var(--color-gray-700);
     --background-color-input: var(--color-gray-600);
@@ -37,7 +41,9 @@
     --border-color-button-primary-hover: var(--color-white);
     --border-color-button-secondary: var(--color-gray-600);
     --border-color-button-secondary-hover: var(--color-green-200);
+    
     --border-color-input: var(--color-gray-600);
+    --border-color-input-focused: var(--color-green-200);
     
     --border-radius-pagination: 3px;
 }    

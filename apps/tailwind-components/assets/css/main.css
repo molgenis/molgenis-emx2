@@ -89,6 +89,7 @@
     
     --background-color-input: var(--color-white);
     --background-color-input-checked: var(--color-blue-500);
+    --background-color-input-focused: var(--color-blue-800);
     --background-color-listbox: var(--color-white);
     --background-color-listbox-hover: var(--color-gray-100);
     --background-color-listbox-selected: var(--color-blue-500);
@@ -171,6 +172,7 @@
     --border-color-search-input-mobile: var(--color-gray-100);
     --border-color-pagination: var(--color-transparent);
     --border-color-input: var(--color-gray-400);
+    --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
     --border-color-listbox-option: var(--color-gray-100);
     --border-color-listbox: var(--border-color-input);
