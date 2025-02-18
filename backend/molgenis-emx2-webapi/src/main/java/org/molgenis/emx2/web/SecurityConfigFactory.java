@@ -8,6 +8,9 @@ import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.profile.factory.ProfileManagerFactory;
+import org.pac4j.javalin.JavalinContextFactory;
+import org.pac4j.jee.context.session.JEESessionStoreFactory;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 
@@ -50,6 +53,11 @@ public class SecurityConfigFactory {
 
     final Clients clients = new Clients(callbackUrl + ("/" + OIDC_CALLBACK_PATH), oidcClient);
 
-    return new Config(clients);
+    Config config = new Config(clients);
+    config.setHttpActionAdapter(JavalinCustomHttpActionAdapter.INSTANCE);
+    config.setWebContextFactory(JavalinContextFactory.INSTANCE);
+    config.setSessionStoreFactory(JEESessionStoreFactory.INSTANCE);
+    config.setProfileManagerFactory(ProfileManagerFactory.DEFAULT);
+    return config;
   }
 }
