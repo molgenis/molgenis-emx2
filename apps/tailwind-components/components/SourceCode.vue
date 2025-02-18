@@ -13,8 +13,9 @@
     <pre
       v-if="sourceCode"
       class="mt-4 p-2 bg-code-output text-code-output font-mono"
-      >{{ sourceCode }}</pre
     >
+      {{ sourceCode }}
+    </pre>
     <p v-else>No source code found for this page. Might you need to rebuild?</p>
   </div>
 </template>

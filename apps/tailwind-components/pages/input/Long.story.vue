@@ -4,8 +4,8 @@
     show-state
     v-slot="{ placeholder, valid, invalid, disabled }"
   >
-    <InputDecimal
-      id="input-decimal-preview"
+    <InputLong
+      id="input-long-preview"
       v-model="demoValue"
       :placeholder="placeholder"
       :valid="valid"
@@ -16,5 +16,5 @@
 </template>
 
 <script setup lang="ts">
-const demoValue = ref("1337");
+const demoValue = ref("922337203685477580");
 </script>

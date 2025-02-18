@@ -1,16 +1,20 @@
 <template>
-  <InputString
-    :id="id"
-    :aria-describedby="describedBy"
-    :disabled="disabled"
-    :placeholder="placeholder"
-    :required="required"
-    v-model="modelValue"
-    @focus="$emit('focus')"
-    @blur="$emit('blur')"
-    @input="handleInputChanged"
-    @keypress="handleKeyValidity"
-  />
+  <div>
+    <InputString
+      :id="id"
+      :aria-describedby="describedBy"
+      :disabled="disabled"
+      :placeholder="placeholder"
+      :required="required"
+      :invalid="invalid || !!bigIntError"
+      v-model="modelValue"
+      @focus="$emit('focus')"
+      @blur="$emit('blur')"
+      @input="handleInputChanged"
+      @keypress="handleKeyValidity"
+    />
+    <div class="text-invalid">{{ bigIntError }}</div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -18,6 +22,7 @@ import type { IInputProps } from "../../types/types";
 import constants from "../../../molgenis-components/src/components/constants";
 import {
   flipSign,
+  getBigIntError,
   isNumericKey,
 } from "../../../molgenis-components/src/components/utils";
 
@@ -29,26 +34,32 @@ defineProps<
   }
 >();
 
-const { CODE_MINUS, CODE_PERIOD } = constants;
+const { CODE_MINUS } = constants;
 
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
+const bigIntError = computed(() => {
+  if (modelValue.value) {
+    return getBigIntError(modelValue.value);
+  }
+});
+
 function handleInputChanged(event: any) {
   const value = event.target?.value;
-  if (!value) {
-    emit("update:modelValue", null);
-  } else {
+  if (value?.length) {
     emitIfValid(value);
+  } else {
+    emit("update:modelValue", null);
   }
 }
 
 function emitIfValid(strValue: string) {
   const noCommaValue = strValue.replace(",", "");
-  const value = parseFloat(noCommaValue);
-  if (!isNaN(value)) {
-    emit("update:modelValue", value);
+  const noPeriodValue = noCommaValue.replace(".", "");
+  if (noPeriodValue?.length) {
+    emit("update:modelValue", noPeriodValue);
   } else {
-    emit("update:modelValue", strValue);
+    emit("update:modelValue", null);
   }
 }
 
@@ -57,9 +68,6 @@ function handleKeyValidity(event: any) {
   if (keyCode === CODE_MINUS) {
     const flipped = flipSign(event.target?.value);
     emitIfValid(flipped);
-  }
-  if (keyCode === CODE_PERIOD && event.target?.value.indexOf(".") > -1) {
-    event.preventDefault();
   }
   if (!isNumericKey(event)) {
     event.preventDefault();
