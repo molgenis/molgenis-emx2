@@ -168,7 +168,6 @@ async function getPageData() {
 }
 
 function updateCranioTypesChart() {
-  console.log(selectedAgeGroup.value);
   cranioTypeChartData.value = cranioTypeChart.value?.dataPoints
     ?.filter((row: IChartData) => {
       return row.dataPointPrimaryCategory === selectedAgeGroup.value;

@@ -54,7 +54,6 @@
     <h2 class="dashboard-h2">Surgical interventions by diagnosis</h2>
     <DashboardRow :columns="1">
       <DashboardChart>
-        {{ selectedDiagnosis }}
         <InputLabel id="diagnosisInput" label="Select a diagnosis" />
         <select
           id="diagnosisInput"
@@ -245,7 +244,6 @@ function updateComplicationsChart() {
 }
 
 function updateInterventionsChart() {
-  console.log(selectedDiagnosis.value);
   const filteredData = interventionsChart.value?.dataPoints?.filter(
     (row: IChartData) => {
       return row.dataPointPrimaryCategory === selectedDiagnosis.value;
@@ -277,7 +275,6 @@ function updateSurgeryAgeChart() {
   (surgeryAgeChart.value as ICharts).yAxisTicks = chartAxis.ticks;
 
   const total: number = sum(surgeryAgeChartData.value, "dataPointValue");
-  console.log(total);
   hasSurgeryAgeData.value = total > 0;
 }
 
