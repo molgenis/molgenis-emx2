@@ -17,12 +17,15 @@ from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import PyclientExcepti
 
 logging.basicConfig(level="INFO")
 
+SCHEMA_NAME = "issue fix 4735"
+SCHEMA_DESCRIPTION = "https://github.com/molgenis/molgenis-emx2/issues/4735"
+
 
 async def main(url: str, schema: str):
     load_dotenv()
 
     with Client(url=url, token=os.environ.get("MOLGENIS_TOKEN")) as client:
-        await client.create_schema(name=schema)
+        await client.create_schema(name=schema, description=SCHEMA_DESCRIPTION)
         client.set_schema(schema)
         Path("catalogue.csv").rename("molgenis.csv")
         await client.upload_file("molgenis.csv")
@@ -36,8 +39,11 @@ async def main(url: str, schema: str):
         finally:
             Path("molgenis.csv").rename("organisations-only.csv")
 
+        await client.upload_file("Resources.csv")
+        await client.upload_file("Organisations.csv")
+
         await client.delete_schema(schema)
 
 
 if __name__ == '__main__':
-    asyncio.run(main("https://emx2.dev.molgenis.org", "issue fix 4735"))
+    asyncio.run(main("https://emx2.dev.molgenis.org", SCHEMA_NAME))
