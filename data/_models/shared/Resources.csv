@@ -77,7 +77,6 @@ Resources,,networks other,text,,,,,,,,,List the names of any other networks that
 Resources,,"available data, imaging and samples,heading",,,,,,,,,,Data model and contents,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging"
 Resources,,data categories,ontology_array,,,CatalogueOntologies,Data categories,,,,http://www.w3.org/ns/dcat#theme,Types of data collected in this resource,"DataCatalogueFlat,CohortsStaging"
 Resources,,number of samples,int,,,,,,,,,Total number of samples included in this resource,"DataCatalogueFlat,CohortsStaging"
-Resources,,available data and samples,heading,,,,,,,,,Data model and contents,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging"
 Resources,,datasets,refback,,,,Datasets,,resource,,,List of datasets contained in this resouce if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
 Resources,,samplesets,refback,,,,Samplesets,,resource,,,List of sample sets contained in this resource if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging"
 Resources,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information cohorts,,,,,Areas of information that were collected,"DataCatalogueFlat,CohortsStaging"
