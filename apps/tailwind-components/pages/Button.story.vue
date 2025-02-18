@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col gap-4">
-    <h2 class="text-2xl text-title">Large</h2>
+    <h3 class="text-2xl text-title">Large</h3>
     <div class="flex gap-4">
       <Button type="primary" size="large">Primary</Button>
       <Button type="secondary" size="large">Secondary</Button>
@@ -10,7 +10,7 @@
       <Button type="filterWell" size="large">filterWell</Button>
     </div>
 
-    <h2 class="text-2xl text-title">Medium</h2>
+    <h3 class="text-2xl text-title">Medium</h3>
     <div class="flex gap-4">
       <Button type="primary" size="medium">Primary</Button>
       <Button type="secondary" size="medium">Secondary</Button>
@@ -20,7 +20,7 @@
       <Button type="filterWell" size="medium">filterWell</Button>
     </div>
 
-    <h2 class="text-2xl text-title">Small</h2>
+    <h3 class="text-2xl text-title">Small</h3>
     <div class="flex gap-4">
       <Button type="primary" size="small">Primary</Button>
       <Button type="secondary" size="small">Secondary</Button>
@@ -30,7 +30,7 @@
       <Button type="filterWell" size="small">filterWell</Button>
     </div>
 
-    <h2 class="text-2xl text-title">Tiny</h2>
+    <h3 class="text-2xl text-title">Tiny</h3>
     <div class="flex gap-4">
       <Button type="primary" size="tiny">Primary</Button>
       <Button type="secondary" size="tiny">Secondary</Button>
@@ -40,7 +40,7 @@
       <Button type="filterWell" size="tiny">filterWell</Button>
     </div>
 
-    <h2 class="text-2xl text-title">Icons</h2>
+    <h3 class="text-2xl text-title">Icons</h3>
     <div class="flex gap-4">
       <Button type="primary" size="medium" icon="filter" iconPosition="left">
         Filter
@@ -61,7 +61,7 @@
       </Button>
     </div>
 
-    <h2 class="text-2xl text-title">Icon only</h2>
+    <h3 class="text-2xl text-title">Icon only</h3>
     <div class="flex flex-col gap-4">
       <div class="flex gap-4">
         <Button iconOnly icon="plus" label="add" />

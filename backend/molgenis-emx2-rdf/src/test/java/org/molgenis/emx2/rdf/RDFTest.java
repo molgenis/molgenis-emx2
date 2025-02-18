@@ -70,6 +70,7 @@ public class RDFTest {
   static Schema tableInherExtTest;
   static Schema fileTest;
   static Schema refBackTest;
+  static Schema refLinkTest;
 
   final Set<Namespace> DEFAULT_NAMESPACES =
       new HashSet<>() {
@@ -317,6 +318,25 @@ public class RDFTest {
 
     refBackTest.getTable("tableRefBack").insert(row("id", "a"));
     refBackTest.getTable("tableRef").insert(row("id", "1", "link", "a"));
+
+    // refLink test
+    refLinkTest = database.dropCreateSchema("refLinkTest");
+
+    refLinkTest.create(
+        table("table1", column("id").setType(ColumnType.STRING).setPkey()),
+        table(
+            "table2",
+            column("id1").setPkey().setType(ColumnType.REF).setRefTable("table1"),
+            column("id2").setType(ColumnType.STRING).setPkey()),
+        table(
+            "table3",
+            column("p1").setPkey().setType(ColumnType.REF).setRefTable("table1"),
+            column("p2").setPkey().setType(ColumnType.REF).setRefTable("table2").setRefLink("p1"),
+            column("ref").setType(ColumnType.REF).setRefTable("table2").setRefLink("p1")));
+
+    refLinkTest.getTable("table1").insert(row("id", "t1First"));
+    refLinkTest.getTable("table2").insert(row("id1", "t1First", "id2", "t2First"));
+    refLinkTest.getTable("table3").insert(row("p1", "t1First", "p2", "t2First"));
   }
 
   private static String getApi(Schema schema) {
@@ -334,6 +354,7 @@ public class RDFTest {
     database.dropSchema(tableInherTest.getName());
     database.dropSchema(fileTest.getName());
     database.dropSchema(refBackTest.getName());
+    database.dropSchema(refLinkTest.getName());
   }
 
   @Test
@@ -1258,6 +1279,12 @@ public class RDFTest {
             .get(Values.iri(getApi(refBackTest) + "TableRefBack?id=a"))
             .get(Values.iri(getApi(refBackTest) + "TableRefBack/column/backlink"));
     assertEquals(Set.of(Values.iri(getApi(refBackTest) + "TableRef?id=1")), refBacks);
+  }
+
+  @Test
+  void testRefLinkWorks() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    assertDoesNotThrow(() -> getAndParseRDF(Selection.of(refLinkTest), handler));
   }
 
   /**

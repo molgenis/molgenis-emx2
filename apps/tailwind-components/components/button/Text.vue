@@ -1,19 +1,15 @@
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    inverted: boolean;
-    icon?: string;
-  }>(),
-  {
-    inverted: false,
-  }
-);
+defineProps<{
+  icon?: string;
+}>();
 </script>
 
 <template>
-  <button class="flex items-center text-button-text">
-    <BaseIcon v-if="icon" :name="icon" :width="18" />
-    <span class="ml-2 text-body-sm hover:underline">
+  <button
+    class="group flex items-center text-button-text cursor-pointer disabled:cursor-not-allowed disabled:text-disabled"
+  >
+    <BaseIcon v-if="icon" :name="icon" :width="18" class="mr-2" />
+    <span class="text-body-sm group-enabled:hover:underline">
       <slot />
     </span>
   </button>

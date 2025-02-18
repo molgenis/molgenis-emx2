@@ -18,9 +18,9 @@
     --background-image-sidebar-gradient: linear-gradient(180deg, var(--color-gradient1) 0%, var(--color-gradient1) 86.02%);
     --background-image-base-gradient: linear-gradient(180deg, var(--color-gradient2) 0%, var(--color-gradient2) 133.81%);
 
-    --backgroud-color-button-primary: var(--color-orange-500);
-    --backgroud-color-button-primary-hover: var(--color-orange-200);
-    --backgroud-color-search-results-view-tabs: var(--color-blue-300);
+    --background-color-button-primary: var(--color-orange-500);
+    --background-color-button-primary-hover: var(--color-orange-200);
+    --background-color-search-results-view-tabs: var(--color-blue-300);
 
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-black);
@@ -34,5 +34,14 @@
     --text-color-search-filter-group-title: var(--text-color-title);
     --text-color-pagination-input: var(--color-blue-800);
 
-    --border-radius-input: var(--border-radius-50px);
-  }
+    --border-radius-3px: 3px;
+    --border-radius-50px: 50px;
+    --border-radius-input: 50px;
+    --border-radius-textarea-input: 20px;
+    --border-radius-search-input: 9999px;
+    --border-radius-search-button: 9999px;
+    --border-radius-landing: 50px;
+
+    --text-color-input-description: var(--color-white);
+
+}

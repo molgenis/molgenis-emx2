@@ -30,10 +30,13 @@ export type CellValueType =
   | "DATETIME"
   | "DATETIME_ARRAY"
   | "PERIOD"
+  | "PERIOD_ARRAY"
   | "JSON"
   | "REF"
   | "REF_ARRAY"
   | "REFBACK"
+  | "CHECKBOX" //planned future extensions are CHECKBOX and RADIO
+  | "RADIO"
   | "HEADING"
   | "AUTO_ID"
   | "ONTOLOGY"
@@ -41,7 +44,8 @@ export type CellValueType =
   | "EMAIL"
   | "EMAIL_ARRAY"
   | "HYPERLINK"
-  | "HYPERLINK_ARRAY";
+  | "HYPERLINK_ARRAY"
+  | "CHECKBOX";
 
 export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
@@ -94,13 +98,19 @@ export interface IFieldError {
 
 export interface IFormLegendSection {
   label: string;
-  domId: string;
+  id: string;
   isActive?: boolean;
-  errorCount?: number;
+  errorCount: number;
 }
 
 export type columnId = string;
-export type columnValue = string | number | boolean | null | columnValueObject;
+export type columnValue =
+  | string
+  | number
+  | boolean
+  | null
+  | columnValueObject
+  | columnValue[];
 
 export interface columnValueObject {
   [x: string]: columnValue;

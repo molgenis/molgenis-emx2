@@ -1,21 +1,39 @@
 <template>
-  <div :id="`${id}-checkbox-group`">
+  <div
+    :id="`${id}-checkbox-group`"
+    :aria-describedby="describedBy"
+    class="border-l-4 border-transparent"
+    :class="{
+      'border-l-invalid': invalid,
+      'border-l-valid': valid,
+    }"
+  >
     <div class="flex flex-row" v-for="option in options">
-      <input
-        type="checkbox"
-        :id="`${id}-${option.value}`"
-        :name="id"
-        :value="option.value"
-        v-model="modelValue"
-        :checked="modelValue!.includes(option.value)"
-        @input="toggleSelect"
-        class="sr-only"
-      />
       <InputLabel
-        :for="`${id}-${option.value}`"
-        class="hover:cursor-pointer flex justify-start items-center"
+        :for="`${id}-checkbox-group-${option.value}`"
+        class="group flex justify-start items-center"
+        :class="{
+          'text-disabled cursor-not-allowed': disabled,
+          'text-title cursor-pointer ': !disabled,
+        }"
       >
-        <InputCheckboxIcon :checked="modelValue!.includes(option.value)" />
+        <input
+          type="checkbox"
+          :id="`${id}-checkbox-group-${option.value}`"
+          :name="id"
+          :value="option.value"
+          v-model="modelValue"
+          :checked="modelValue!.includes(option.value)"
+          :disabled="disabled"
+          @change="toggleSelect"
+          class="peer sr-only"
+        />
+        <InputCheckboxIcon
+          :checked="modelValue!.includes(option.value)"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
+        />
         <span class="block" v-if="option.label">
           {{ option.label }}
         </span>
@@ -24,35 +42,44 @@
         </span>
       </InputLabel>
     </div>
-    <div class="mt-2" v-if="showClearButton">
-      <button
-        type="reset"
-        :id="`${id}-checkbox-group-clear`"
-        :form="`${id}-checkbox-group`"
-        @click.prevent="resetModelValue"
-      >
-        Clear
-      </button>
-    </div>
+    <ButtonText
+      v-if="showClearButton"
+      type="reset"
+      :id="`${id}-checkbox-group-clear`"
+      class="mt-2 ml-3"
+      :form="`${id}-checkbox-group`"
+      @click.prevent="resetModelValue"
+      :disabled="disabled || null"
+    >
+      Clear
+    </ButtonText>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { IValueLabel } from "~/types/types";
+import { type IInputProps, type IValueLabel } from "~/types/types";
+import type { columnValue } from "../../../metadata-utils/src/types";
 
 withDefaults(
-  defineProps<{
-    id: string;
-    options: IValueLabel[];
-    showClearButton?: boolean;
-  }>(),
+  defineProps<
+    IInputProps & {
+      options: IValueLabel[];
+      showClearButton?: boolean;
+    }
+  >(),
   {
     showClearButton: false,
   }
 );
 
-const modelValue = defineModel<string[]>();
-const emit = defineEmits(["update:modelValue", "select", "deselect"]);
+const modelValue = defineModel<columnValue[]>();
+const emit = defineEmits([
+  "update:modelValue",
+  "select",
+  "deselect",
+  "blur",
+  "focus",
+]);
 
 function toggleSelect(event: Event) {
   const target = event.target as HTMLInputElement;
@@ -61,6 +88,7 @@ function toggleSelect(event: Event) {
   } else {
     emit("deselect", target.value);
   }
+  emit("focus");
 }
 
 function resetModelValue() {
