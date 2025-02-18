@@ -54,6 +54,7 @@
     <h2 class="dashboard-h2">Surgical interventions by diagnosis</h2>
     <DashboardRow :columns="1">
       <DashboardChart>
+        {{ selectedDiagnosis }}
         <InputLabel id="diagnosisInput" label="Select a diagnosis" />
         <select
           id="diagnosisInput"
@@ -200,11 +201,6 @@ async function getPageData() {
     "cs-provider-surgical-interventions"
   );
 
-  const ernInterventionsResponse = await getDashboardChart(
-    props.api.graphql.providers,
-    "cs-all-centers-surgical-interventions"
-  );
-
   const centerAgeResponse = await getDashboardChart(
     props.api.graphql.current,
     "cs-provider-age-at-first-surgery"
@@ -222,10 +218,6 @@ async function getPageData() {
   ] as IChartData[];
 
   interventionsChart.value = centerInterventionsResponse[0];
-  interventionsChart.value.dataPoints = [
-    ...(centerInterventionsResponse[0].dataPoints as IChartData[]),
-    ...(ernInterventionsResponse[0].dataPoints as IChartData[]),
-  ];
 
   surgeryAgeChart.value = centerAgeResponse[0];
   surgeryAgeChart.value.dataPoints = [
@@ -253,6 +245,7 @@ function updateComplicationsChart() {
 }
 
 function updateInterventionsChart() {
+  console.log(selectedDiagnosis.value);
   const filteredData = interventionsChart.value?.dataPoints?.filter(
     (row: IChartData) => {
       return row.dataPointPrimaryCategory === selectedDiagnosis.value;
@@ -284,6 +277,7 @@ function updateSurgeryAgeChart() {
   (surgeryAgeChart.value as ICharts).yAxisTicks = chartAxis.ticks;
 
   const total: number = sum(surgeryAgeChartData.value, "dataPointValue");
+  console.log(total);
   hasSurgeryAgeData.value = total > 0;
 }
 

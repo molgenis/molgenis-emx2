@@ -10,6 +10,7 @@
         <select
           class="inputs select"
           id="yearOfBirthFilter"
+          v-model="selectedAgeGroup"
           @change="updateCranioTypesChart"
         >
           <option v-for="ageGroup in ageGroups" :value="ageGroup">

@@ -7,6 +7,7 @@
         <select
           class="inputs select"
           id="yearOfBirthFilter"
+          v-model="selectedAgeGroup"
           @change="updateCranioTypesChart"
         >
           <option v-for="ageGroup in ageGroups" :value="ageGroup">
@@ -167,6 +168,7 @@ async function getPageData() {
 }
 
 function updateCranioTypesChart() {
+  console.log(selectedAgeGroup.value);
   cranioTypeChartData.value = cranioTypeChart.value?.dataPoints
     ?.filter((row: IChartData) => {
       return row.dataPointPrimaryCategory === selectedAgeGroup.value;
