@@ -7,10 +7,11 @@ For instance, if your MOLGENIS runs at `https://emx2.test.molgenis.org`, the RDF
 ## configuration
 
 The RDF API can be fine-tuned on a schema-based level by adding advanced settings.
-If combining multiple schemas having overlapping/conflicting data, this will be processed in a way that will result in a valid RDF output.
-Some data (such as the defined namespaces) might be missing in the generated output when conflicts occur. This will however not influence the actual triples except some might use a full IRI instead of a prefixed name.   
+If combining multiple schemas having overlapping/conflicting data, this will be processed in a way that will result in a valid RDF output (details are described below for each advanced setting individually).
 
-### custom_rdf
+### Generic triples
+
+Advanced setting key: `custom_rdf`
 
 Define triples that should be added to each API call for this schema.
 Preferably should only be used for defining some global information such as the license of the data retrieved through the API calls.
@@ -21,7 +22,9 @@ Any namespaces defined here <ins>will not</ins> be included in the RDF generated
 When combining multiple namespaces, the `custom_rdf` from these will simply be combined.
 Therefore, it is suggested to base the used subject on the database URL. 
 
-### semantic_prefixes
+### Custom semantic prefixes
+
+Advanced setting key: `semantic_prefixes`
 
 Overrides the default namespaces [as defined here](./use_schema.md#semantics).
 Requires a csv-like format where each line represents a single namespace and each line has 2 values, namely the prefix and the namespace IRI:
