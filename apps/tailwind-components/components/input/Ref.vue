@@ -5,6 +5,7 @@ import type {
   ITableMetaData,
   columnValueObject,
 } from "../../../metadata-utils/src/types";
+
 import { type IInputProps, type IValueLabel } from "~/types/types";
 import logger from "@/utils/logger";
 
@@ -27,6 +28,7 @@ const props = withDefaults(
 
 const modelValue = defineModel<columnValueObject[] | columnValueObject>();
 const tableMetadata = ref<ITableMetaData>();
+
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
 const optionMap: Ref<Record<string, columnValueObject>> = ref({});
 const selectionMap: Ref<Record<string, columnValueObject>> = ref({});
