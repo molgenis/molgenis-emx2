@@ -10,7 +10,8 @@
         <select
           class="inputs select"
           id="yearOfBirthFilter"
-          @change="updateCranioTypesChart"
+          v-model="selectedAgeGroup"
+          @change="updateChartsByAgeGroup"
         >
           <option v-for="ageGroup in ageGroups" :value="ageGroup">
             {{ ageGroup }}
@@ -231,11 +232,13 @@ function updateCranioTypesChart() {
 }
 
 function updateAffectedSutureChart() {
-  affectedSutureChartData.value = affectedSutureChart.value?.dataPoints?.sort(
-    (current, next) => {
+  affectedSutureChartData.value = affectedSutureChart.value?.dataPoints
+    ?.filter((row: IChartData) => {
+      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+    })
+    .sort((current, next) => {
       return current.dataPointOrder! - next.dataPointOrder!;
-    }
-  );
+    });
 
   const affectedSutureTicks = generateAxisTickData(
     affectedSutureChartData.value!,
@@ -249,11 +252,13 @@ function updateAffectedSutureChart() {
 }
 
 function updateMultipeSuturesChart() {
-  multipleSutureChartData.value = multipleSutureChart.value?.dataPoints?.sort(
-    (current, next) => {
+  multipleSutureChartData.value = multipleSutureChart.value?.dataPoints
+    ?.filter((row: IChartData) => {
+      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+    })
+    .sort((current, next) => {
       return current.dataPointOrder! - next.dataPointOrder!;
-    }
-  );
+    });
 
   const multipleSutureTicks = generateAxisTickData(
     multipleSutureChartData.value!,
@@ -287,6 +292,12 @@ function setAgeGroupFilter() {
     "dataPointPrimaryCategory"
   );
   selectedAgeGroup.value = ageGroups.value[0];
+}
+
+function updateChartsByAgeGroup() {
+  updateCranioTypesChart();
+  updateAffectedSutureChart();
+  updateMultipeSuturesChart();
 }
 
 onMounted(() => {
