@@ -283,38 +283,40 @@ class ColumnTypeRdfMapperTest {
   void validateValueTypes() {
     Row row = allColumnTypes.getTable(TEST_TABLE).retrieveRows().get(0);
 
-    assertTrue(retrieveFirstValue(ColumnType.BOOL.name()).isLiteral());
-    assertTrue(retrieveFirstValue(ColumnType.UUID.name()).isIRI());
-    assertTrue(retrieveFirstValue(ColumnType.FILE.name()).isIRI());
-    // STRING
-    assertTrue(retrieveFirstValue(ColumnType.STRING.name()).isLiteral());
-    assertTrue(retrieveFirstValue(ColumnType.TEXT.name()).isLiteral());
-    assertTrue(retrieveFirstValue(ColumnType.JSON.name()).isLiteral());
+    assertAll(
+        // SIMPLE
+        () -> assertTrue(retrieveFirstValue(ColumnType.BOOL.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.UUID.name()).isIRI()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.FILE.name()).isIRI()),
+        // STRING
+        () -> assertTrue(retrieveFirstValue(ColumnType.STRING.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.TEXT.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.JSON.name()).isLiteral()),
 
-    // NUMERIC
-    assertTrue(retrieveFirstValue(ColumnType.INT.name()).isLiteral());
-    assertTrue(retrieveFirstValue(ColumnType.LONG.name()).isLiteral());
-    assertTrue(retrieveFirstValue(ColumnType.DECIMAL.name()).isLiteral());
-    assertTrue(retrieveFirstValue(ColumnType.DATE.name()).isLiteral());
-    assertTrue(retrieveFirstValue(ColumnType.DATETIME.name()).isLiteral());
-    assertTrue(retrieveFirstValue(ColumnType.PERIOD.name()).isLiteral());
+        // NUMERIC
+        () -> assertTrue(retrieveFirstValue(ColumnType.INT.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.LONG.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.DECIMAL.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.DATE.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.DATETIME.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.PERIOD.name()).isLiteral()),
 
-    // RELATIONSHIP
-    assertTrue(retrieveFirstValue(ColumnType.REF.name()).isIRI());
-    assertTrue(retrieveFirstValue(ColumnType.REFBACK.name()).isIRI());
+        // RELATIONSHIP
+        () -> assertTrue(retrieveFirstValue(ColumnType.REF.name()).isIRI()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.REFBACK.name()).isIRI()),
 
-    // LAYOUT and other constants
-    // ColumnType.HEADING.name() -> no Value should be present to validate on
+        // LAYOUT and other constants
+        // ColumnType.HEADING.name() -> no Value should be present to validate on
 
-    // format flavors that extend a baseType
-    assertTrue(retrieveFirstValue(ColumnType.AUTO_ID.name()).isLiteral());
-    assertTrue(retrieveFirstValue(ColumnType.ONTOLOGY.name()).isIRI());
-    assertTrue(retrieveFirstValue(ColumnType.EMAIL.name()).isIRI());
-    assertTrue(retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI());
+        // format flavors that extend a baseType
+        () -> assertTrue(retrieveFirstValue(ColumnType.AUTO_ID.name()).isLiteral()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.ONTOLOGY.name()).isIRI()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.EMAIL.name()).isIRI()),
+        () -> assertTrue(retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI()),
 
-    // Composite keys
-    assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REF).isIRI());
-    assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REFBACK).isIRI());
+        // Composite keys
+        () -> assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REF).isIRI()),
+        () -> assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REFBACK).isIRI()));
   }
 
   @Test
@@ -328,7 +330,6 @@ class ColumnTypeRdfMapperTest {
 
     // Validation
     assertAll(
-        // todo: please don't use assertAll, this makes it hard to debug individual fails
         // SIMPLE
         () -> assertEquals(Set.of(Values.literal(true)), retrieveValues(ColumnType.BOOL.name())),
         () ->
