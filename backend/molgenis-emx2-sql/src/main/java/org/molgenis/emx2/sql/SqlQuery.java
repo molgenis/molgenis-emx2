@@ -94,16 +94,26 @@ public class SqlQuery extends QueryBean {
     // will generally be all you need
     if (select == null || select.getColumNames().isEmpty()) {
       for (Column c : table.getColumns()) {
-        // currently we don't download refBack (good) and files (that is bad)
         if (c.isFile()) {
           select.select(c.getName());
         } else if (c.isReference()) {
-          // subselect primary keys, nested
           select.subselect(getRefPrimaryKeySubselect(c));
         } else if (!c.isHeading()) {
           select.select(c.getName());
         }
       }
+    }
+
+    // we don't accept '.' notation in query select anymore
+    else {
+      if (select.getColumNames().stream().anyMatch(name -> name.contains("."))) {
+        throw new MolgenisException(
+            "select columns cannot contain dot. Use subselects. Error: "
+                + (select.getColumNames().stream()
+                    .filter(name -> name.contains("."))
+                    .collect(Collectors.joining(","))));
+      }
+      ;
     }
 
     // basequery
@@ -936,7 +946,7 @@ public class SqlQuery extends QueryBean {
     // add missing selection joins, only used for row based queries
     if (selection != null) {
       for (SelectColumn select : selection.getSubselect()) {
-        // then do same as above
+        // check if is refback for join (cut of the part behind .)
         Column column = getColumnByName(table, select.getColumn());
         if (column.isRefback()) {
           String subAlias = alias(tableAlias + "-refbackjoin-" + column.getName());
