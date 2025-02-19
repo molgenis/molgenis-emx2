@@ -292,7 +292,6 @@ jobs:
             command: |
                 find . -type f -regex ".*/e2e/test-results/.*xml" -exec cp {} /root/project/e2e \;
       - run:
-          when: always
           name: terminate test server (always)
           command: kill $(cat server.pid)
       - store_test_results:
