@@ -1,6 +1,6 @@
 <template>
-  <Message id="invalid-msg" :invalid="true">Some invalid</Message>
-  <Message id="valid-msg" :valid="true">Some success</Message>
-  <Message id="valid-msg">Generic message</Message>
+  <Message id="notification-msg-1" :invalid="true">Some invalid</Message>
+  <Message id="notification-msg-2" :valid="true">Some success</Message>
+  <Message id="notification-msg-3">Generic message</Message>
 </template>
 <script setup lang="ts"></script>

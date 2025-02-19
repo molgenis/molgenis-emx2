@@ -171,6 +171,18 @@
     @blur="emit('blur')"
     :is-array="true"
   />
+  <InputFile
+    v-else-if="['FILE'].includes(typeUpperCase)"
+    v-model="modelValue as columnValueObject"
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    @update:modelValue="emit('update:modelValue', $event)"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
   <InputDate
     v-else-if="'DATE' === typeUpperCase"
     :id="id"
