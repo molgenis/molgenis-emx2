@@ -104,6 +104,7 @@ public class SqlQuery extends QueryBean {
             select.subselect(
                 s(
                     c.getName(),
+                    s("id"),
                     s("contents"),
                     s("filename"),
                     s("size"),
@@ -111,7 +112,7 @@ public class SqlQuery extends QueryBean {
                     s("extension")));
           } else {
             select.subselect(
-                s(c.getName(), s("filename"), s("size"), s("mimetype"), s("extension")));
+                s(c.getName(), s("id"), s("filename"), s("size"), s("mimetype"), s("extension")));
           }
         } else if (c.isReference()) {
           select.subselect(getRefPrimaryKeySubselect(c));
