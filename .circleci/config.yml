@@ -247,6 +247,7 @@ jobs:
   e2e-test:
     <<: *build_config
     steps:
+      - checkout
       - run:
           name: start headless test server in background
           command: ./gradlew dev > server.log
