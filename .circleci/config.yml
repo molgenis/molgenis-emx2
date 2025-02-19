@@ -249,6 +249,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: prepare sql test database
+          command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+      - run:
           name: start headless test server in background
           command: ./gradlew dev
           background: true
