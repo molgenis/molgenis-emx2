@@ -253,8 +253,8 @@ jobs:
           command: ./gradlew dev > server.log
           background: true
           environment:
-            MOLGENIS_INCLUDE_CATALOGUE_DEMO: true
-            MOLGENIS_INCLUDE_DIRECTORY_DEMO: true
+            MOLGENIS_INCLUDE_CATALOGUE_DEMO: TRUE
+            MOLGENIS_INCLUDE_DIRECTORY_DEMO: TRUE
       - run:
           name: Wait for Test Server to Load (show the logs)
           command: |
