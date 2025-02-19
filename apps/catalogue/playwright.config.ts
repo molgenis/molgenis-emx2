@@ -21,6 +21,9 @@ export default defineConfig<ConfigOptions>({
     url: 'http://localhost:3000',
     timeout: 120 * 1000,
     reuseExistingServer: true,
+    env: {
+      NUXT_PUBLIC_API_BASE: "http://localhost:8080"
+    }
   },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
