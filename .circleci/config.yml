@@ -252,6 +252,10 @@ jobs:
       - run:
           name: start headless test server in background
           command: ./gradlew -p ../.. dev & echo $! > server.pid
+      - run:
+        name: Wait for Test Server to Start
+        command: |
+          timeout 180 sh -c 'until curl -s http://localhost:8080 > /dev/null; do echo "Waiting for server..."; sleep 10; done'
       - run: npm i -D @playwright/test
       - run:
           name: Install dependencies
