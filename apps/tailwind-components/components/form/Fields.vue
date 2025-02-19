@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type {
   columnId,
+  columnValue,
   IColumn,
   ITableMetaData,
   recordValue,
@@ -138,7 +139,7 @@ function onUpdate(column: IColumn, $event: columnValue) {
   props.metadata.columns
     .filter((c) => c.visible?.includes(column.id))
     .forEach((c) => {
-      visibleMap[c.id] = isColumnVisible(c, dataMap, props.metadata)
+      visibleMap[c.id] = isColumnVisible(c, modelValue.value, props.metadata)
         ? true
         : false;
       logger.debug("updating visibility for " + c.id + "=" + visibleMap[c.id]);

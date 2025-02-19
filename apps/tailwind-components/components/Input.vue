@@ -128,7 +128,6 @@
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
