@@ -6,6 +6,7 @@
   >
     <InputArray
       id="input-array-default"
+      type="STRING_ARRAY"
       v-model="demoValue"
       :placeholder="placeholder"
       :valid="valid"
