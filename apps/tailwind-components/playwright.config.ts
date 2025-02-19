@@ -15,16 +15,27 @@ export default defineConfig<ConfigOptions>({
   reporter: process.env.CI ? [['list'],
   ['junit', { outputFile: 'results.xml' }]
   ] : 'html',
+  /* start a test server in ci */
+   ...(process.env.CI ? {
+    webServer: {
+      command: '../../gradlew -p ../.. run', // Adjust to your actual command
+      url: 'http://localhost:8080/', // Ensure it matches your app's startup URL
+      timeout: 180 * 1000, // 3 minutes to allow full startup
+      reuseExistingServer: true, // If server is already running, don't restart
+      stdout: 'pipe', // Capture stdout logs
+      stderr: 'pipe', // Capture stderr logs
+    }
+  } : {}), // If not in CI, don't include `webServer`
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.E2E_BASE_URL || "http://localhost:3000/", // change to specific http://localhost:*/, preview, etc.
+    baseURL: "http://localhost:3000/", // change to specific http://localhost:*/, preview, etc.
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     nuxt: {
       // @ts-ignore
-      host: process.env.E2E_BASE_URL || "http://localhost:3000/",
+      host: process.env.CI ? "http://localhost:8080" : "http://localhost:3000/",
       build: false
     }
   },
