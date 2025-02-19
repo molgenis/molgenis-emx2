@@ -268,7 +268,9 @@ jobs:
           name: Show Full Server Logs if Startup Fails
           command: cat server.log
           when: on_fail
-      - run: npm i -D @playwright/test
+      - run: |
+          npm i -D @playwright/test
+          npm install -g yarn@1.22.19
       - run:
           name: Install dependencies
           command: yarn install
