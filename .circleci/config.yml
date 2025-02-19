@@ -245,12 +245,12 @@ jobs:
 
     - post_steps
   e2e-test:
-    <<: *build_config
+    <<: *test_config
     steps:
       - checkout
       - run:
           name: start headless test server in background
-          command: ./gradlew dev > server.log
+          command: ./gradlew dev
           background: true
           environment:
             MOLGENIS_INCLUDE_CATALOGUE_DEMO: 'true'
