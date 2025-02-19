@@ -251,14 +251,25 @@ jobs:
       - checkout
       - run:
           name: start headless test server in background
-          command: ./gradlew dev & echo $! > server.pid
+          command: ./gradlew dev > server.log 2>&1 & echo $! > server.pid
+          background: true
           environment:
             MOLGENIS_INCLUDE_CATALOGUE_DEMO: true
             MOLGENIS_INCLUDE_DIRECTORY_DEMO: true
       - run:
-          name: Wait for Test Server to load demo data and then start
+          name: Wait for Test Server to Load (show the logs)
           command: |
-            timeout 180 sh -c 'until curl -s http://localhost:8080 > /dev/null; do echo "Waiting for server..."; sleep 10; done'
+            tail -F server.log | while read line; do
+              echo "$line"
+              curl -s http://localhost:8080 > /dev/null && echo "Server is up!" && break
+            done
+          timeout: 180
+          when:
+            on_success
+      - run:
+          name: Show Full Server Logs if Startup Fails
+          command: cat server.log
+          when: on_fail
       - run: npm i -D @playwright/test
       - run:
           name: Install dependencies
@@ -283,17 +294,22 @@ jobs:
             yarn e2e
           working_directory: apps/tailwind-components
       - run:
-            name: Run non ssr e2e tests
-            command: |
+          name: Run non ssr e2e tests
+          command: |
               npx playwright install chrome
               npx playwright test --config e2e e2e/tests
       - run:
-            name: Save test results for stats
-            command: |
+          name: Save test results for stats
+          command: |
                 find . -type f -regex ".*/e2e/test-results/.*xml" -exec cp {} /root/project/e2e \;
       - run:
-          name: terminate test server (always)
-          command: kill $(cat server.pid)
+          name: Stop Test Server
+          command: |
+            if [ -f server.pid ]; then
+              kill $(cat server.pid) || true
+              rm server.pid
+            fi
+          when: always
       - store_test_results:
          path: /root/project/e2e
       - store_artifacts:
