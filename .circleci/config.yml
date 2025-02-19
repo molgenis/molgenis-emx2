@@ -271,6 +271,7 @@ jobs:
       - run: |
           npm i -D @playwright/test
           npm install -g yarn@1.22.19
+          yarn playwright install
       - run:
           name: Install dependencies
           command: yarn install
