@@ -259,15 +259,9 @@ jobs:
             MOLGENIS_INCLUDE_CATALOGUE_DEMO: 'true'
             MOLGENIS_INCLUDE_DIRECTORY_DEMO: 'true'
       - run:
-          name: Wait for Test Server to Load (show the logs)
+          name: Wait for Test Server to Load
           command: |
-            timeout 360 sh -c 'until curl -s http://localhost:8080 > /dev/null; do echo "Waiting for server..."; sleep 10; done'
-          when:
-            on_success
-      - run:
-          name: Show Full Server Logs if Startup Fails
-          command: cat server.log
-          when: on_fail
+            timeout 900 sh -c 'until curl -s http://localhost:8080 > /dev/null; do echo "Waiting for server..."; sleep 10; done'
       # todo add this to our build image so we can skip this test
       - run: |
           npm i -D @playwright/test
