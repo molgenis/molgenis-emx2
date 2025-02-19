@@ -251,7 +251,7 @@ jobs:
       - checkout
       - run:
           name: start headless test server in background
-          command: ./gradlew -p ../.. dev & echo $! > server.pid
+          command: ./gradlew dev & echo $! > server.pid
       - run:
         name: Wait for Test Server to Start
         command: |
