@@ -1,0 +1,217 @@
+import type { IColumn, ITableMetaData } from "../../metadata-utils/src/types";
+import constants from "../../molgenis-components/src/components/constants";
+import {
+  isMissingValue,
+  isColumnVisible,
+  isRequired,
+  isJsonObjectOrArray,
+} from "../../molgenis-components/src/components/forms/formUtils/formUtils";
+import {
+  deepClone,
+  getBigIntError,
+} from "../../molgenis-components/src/components/utils";
+
+const { EMAIL_REGEX, HYPERLINK_REGEX, PERIOD_REGEX, AUTO_ID, HEADING } =
+  constants;
+
+export function getColumnError(
+  column: IColumn,
+  rowData: Record<string, any>,
+  tableMetaData: ITableMetaData
+): string | undefined {
+  const value = rowData[column.id];
+  const type = column.columnType;
+  const missesValue = isMissingValue(value);
+  // FIXME: this function should also check all array types
+
+  try {
+    if (!isColumnVisible(column, rowData, tableMetaData)) {
+      return undefined;
+    }
+  } catch (error) {
+    return error as string;
+  }
+
+  if (column.columnType === AUTO_ID || column.columnType === HEADING) {
+    return undefined;
+  }
+
+  if (column.required) {
+    if (isRequired(column.required)) {
+      const isInvalidNumber = isInValidNumericValue(type, value);
+      if (missesValue || isInvalidNumber) {
+        return column.label + " is required";
+      }
+    } else {
+      const error = getRequiredExpressionError(
+        column.required as string,
+        rowData,
+        tableMetaData
+      );
+      if (error && missesValue) {
+        return error;
+      }
+    }
+  }
+
+  if (missesValue) {
+    return undefined;
+  }
+  if (type === "EMAIL" && !isValidEmail(value)) {
+    return "Invalid email address";
+  }
+  if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
+    return "Invalid email address";
+  }
+  if (type === "HYPERLINK" && !isValidHyperlink(value)) {
+    return "Invalid hyperlink";
+  }
+  if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
+    return "Invalid hyperlink";
+  }
+  if (type === "PERIOD" && !isValidPeriod(value)) {
+    return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
+  }
+  if (type === "PERIOD_ARRAY" && containsInvalidPeriod(value)) {
+    return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
+  }
+  if (type === "JSON") {
+    try {
+      if (!isJsonObjectOrArray(JSON.parse(value))) {
+        return `Root element must be an object or array`;
+      }
+    } catch {
+      return `Please enter valid JSON`;
+    }
+  }
+  if (type === "LONG" && getBigIntError(value)) {
+    return getBigIntError(value);
+  }
+  if (type === "DECIMAL" && isNaN(parseFloat(value))) {
+    return "Invalid number";
+  }
+  if (type === "INT" && isNaN(parseInt(value))) {
+    return "Invalid number";
+  }
+  if (column.validation) {
+    return getColumnValidationError(column.validation, rowData, tableMetaData);
+  }
+
+  return undefined;
+}
+
+function isInValidNumericValue(columnType: string, value: number) {
+  if (["DECIMAL", "INT"].includes(columnType)) {
+    return isNaN(value);
+  } else {
+    return false;
+  }
+}
+
+function getRequiredExpressionError(
+  expression: string,
+  values: Record<string, any>,
+  tableMetaData: ITableMetaData
+): string | undefined {
+  try {
+    const result = executeExpression(expression, values, tableMetaData);
+    if (result === true) {
+      return `Field is required when: ${expression}`;
+    } else if (result === false || result === undefined) {
+      return undefined;
+    }
+    return result;
+  } catch (error) {
+    return `Invalid expression '${expression}', reason: ${error}`;
+  }
+}
+
+export function executeExpression(
+  expression: string,
+  values: Record<string, any>,
+  tableMetaData: ITableMetaData
+) {
+  //make sure all columns have keys to prevent reference errors
+  const copy: Record<string, any> = deepClone(values);
+  tableMetaData.columns.forEach((column: IColumn) => {
+    if (!copy.hasOwnProperty(column.id)) {
+      copy[column.id] = null;
+    }
+  });
+  if (!copy.mg_tableclass) {
+    copy.mg_tableclass = `${tableMetaData.id}.${tableMetaData.label}`;
+  }
+
+  // A simple client for scripts to use to request data.
+  // Note: don't overuse this, the API call is blocking.
+  let simplePostClient = function (
+    query: string,
+    variables: object,
+    schemaId?: string
+  ) {
+    let xmlHttp = new XMLHttpRequest();
+    xmlHttp.open(
+      "POST",
+      schemaId ? "/" + schemaId + "/graphql" : "graphql",
+      false
+    );
+    xmlHttp.send(
+      `{"query":"${query}", "variables":${JSON.stringify(variables)}}`
+    );
+    return JSON.parse(xmlHttp.responseText).data;
+  };
+
+  // FIXME: according to the new Function definition the input here is incorrectly typed
+  // see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function
+  // FIXME: use es2021 instead of es2020 as you need it for replaceAll
+  const func = new Function(
+    "simplePostClient",
+    //@ts-ignore
+    Object.keys(copy),
+    "return eval(`" + expression.replaceAll("`", "\\`") + "`)"
+  );
+  return func(simplePostClient, ...Object.values(copy));
+}
+
+function isValidHyperlink(value: any) {
+  return HYPERLINK_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidHyperlink(hyperlinks: any) {
+  return hyperlinks.find((hyperlink: any) => !isValidHyperlink(hyperlink));
+}
+
+function isValidEmail(value: any) {
+  return EMAIL_REGEX.test(String(value).toLowerCase());
+}
+
+function containsInvalidEmail(emails: any) {
+  return emails.find((email: any) => !isValidEmail(email));
+}
+
+function isValidPeriod(value: any) {
+  return PERIOD_REGEX.test(String(value));
+}
+
+function containsInvalidPeriod(periods: any) {
+  return periods.find((period: any) => !isValidPeriod(period));
+}
+
+function getColumnValidationError(
+  validation: string,
+  values: Record<string, any>,
+  tableMetaData: ITableMetaData
+) {
+  try {
+    const result = executeExpression(validation, values, tableMetaData);
+    if (result === false) {
+      return `Applying validation rule returned error: ${validation}`;
+    } else if (result === true || result === undefined) {
+      return undefined;
+    } else {
+      return `Applying validation rule returned error: ${result}`;
+    }
+  } catch (error) {
+    return `Invalid validation expression '${validation}', reason: ${error}`;
+  }
+}

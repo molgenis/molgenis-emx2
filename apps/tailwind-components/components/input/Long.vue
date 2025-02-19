@@ -10,7 +10,7 @@
       v-model="modelValue"
       @focus="$emit('focus')"
       @blur="$emit('blur')"
-      @input="handleInputChanged"
+      @input="$emit('update:modelValue', $event.target.value)"
       @keypress="handleKeyValidity"
     />
   </div>
@@ -36,28 +36,11 @@ const { CODE_MINUS, CODE_PERIOD, CODE_COMMA } = constants;
 
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
-function handleInputChanged(event: any) {
-  const value = event.target?.value;
-  if (value?.length) {
-    emitIfValid(value);
-  } else {
-    emit("update:modelValue", null);
-  }
-}
-
-function emitIfValid(strValue: string) {
-  if (strValue?.length) {
-    emit("update:modelValue", strValue);
-  } else {
-    emit("update:modelValue", null);
-  }
-}
-
 function handleKeyValidity(event: any) {
   const keyCode = event.which ?? event.keyCode;
   if (keyCode === CODE_MINUS) {
     const flipped = flipSign(event.target?.value);
-    emitIfValid(flipped);
+    emit("update:modelValue", flipped);
   }
   if (
     !isNumericKey(event) ||
