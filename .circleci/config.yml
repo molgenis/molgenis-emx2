@@ -278,17 +278,17 @@ jobs:
           command: yarn install
           working_directory: apps
       - run:
-          name: Test nuxt ssr catalogue tests
-          command: |
-            yarn playwright install chrome
-            yarn e2e
-          working_directory: apps/catalogue
-      - run:
           name: Directory e2e tests
           command: |
             yarn playwright install chrome
             yarn e2e
           working_directory: apps/directory
+      - run:
+          name: Test nuxt ssr catalogue tests
+          command: |
+            yarn playwright install chrome
+            yarn e2e
+          working_directory: apps/catalogue
       - run:
           name: Test tailwind components
           command: |
