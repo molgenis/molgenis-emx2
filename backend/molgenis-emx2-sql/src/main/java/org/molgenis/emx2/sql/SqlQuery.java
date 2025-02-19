@@ -187,13 +187,13 @@ public class SqlQuery extends QueryBean {
           fields.add(field(name(alias(tableAlias), column.getName() + "_extension")));
         }
       } else if (column.isRef() || column.isRefArray()) {
-        checkSubselectDoesnOnlyContainPrimaryKey(select, column);
+        shouldNotExpandBeyondPkey(select, column);
         fields.addAll(
             column.getReferences().stream()
                 .map(ref -> field(name(alias(tableAlias), ref.getName())))
                 .toList());
       } else if (column.isRefback()) {
-        checkSubselectDoesnOnlyContainPrimaryKey(select, column);
+        shouldNotExpandBeyondPkey(select, column);
         // will come from refJoin table
         fields.addAll(
             column.getReferences().stream()
@@ -211,7 +211,7 @@ public class SqlQuery extends QueryBean {
     return fields;
   }
 
-  private static void checkSubselectDoesnOnlyContainPrimaryKey(SelectColumn select, Column column) {
+  private static void shouldNotExpandBeyondPkey(SelectColumn select, Column column) {
     select
         .getSubselect()
         .forEach(
