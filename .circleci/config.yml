@@ -245,11 +245,8 @@ jobs:
 
     - post_steps
   e2e-test:
-    docker:
-      - image: molgenis/ci-build:1.2.4
+    <<: *build_config
     steps:
-      - checkout
-      - pre_steps
       - run:
           name: start headless test server in background
           command: ./gradlew dev > server.log
