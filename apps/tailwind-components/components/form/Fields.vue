@@ -131,6 +131,21 @@ function checkVisibleExpression(column: IColumn) {
   );
 }
 
+function onUpdate(column: IColumn, $event: columnValue) {
+  if (errorMap[column.id]) {
+    validateColumn(column);
+  }
+  props.metadata.columns
+    .filter((c) => c.visible?.includes(column.id))
+    .forEach((c) => {
+      visibleMap[c.id] = isColumnVisible(c, dataMap, props.metadata)
+        ? true
+        : false;
+      logger.debug("updating visibility for " + c.id + "=" + visibleMap[c.id]);
+    });
+  previousColumn.value = column;
+}
+
 function onFocus(column: IColumn) {
   logger.debug("focus " + column.id + " previous " + previousColumn.value);
   //will validate previous column, because checkbox, radio don't have 'blur'
@@ -166,7 +181,6 @@ function goToSection(headerId: string) {
     <div v-if="chapters.length > 1" class="basis-1/3">
       <FormLegend :sections="chapters" @go-to-section="goToSection" />
     </div>
-
     <div
       class="h-screen overflow-y-scroll"
       :class="{ 'basis-2/3': chapters.length > 1 }"
@@ -210,6 +224,7 @@ function goToSection(headerId: string) {
             :ref-table-id="column.refTableId"
             :ref-label="column.refLabel || column.refLabelDefault"
             :invalid="errorMap[column.id]?.length > 0"
+            @update:modelValue="onUpdate(column, $event)"
             @blur="onBlur(column)"
             @focus="onFocus(column)"
           />
