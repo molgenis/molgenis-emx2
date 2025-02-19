@@ -261,7 +261,7 @@ jobs:
       - run:
           name: Wait for Test Server to Load (show the logs)
           command: |
-            timeout 180 sh -c 'until curl -s http://localhost:8080 > /dev/null; do echo "Waiting for server..."; sleep 10; done'
+            timeout 360 sh -c 'until curl -s http://localhost:8080 > /dev/null; do echo "Waiting for server..."; sleep 10; done'
           when:
             on_success
       - run:
