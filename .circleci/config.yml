@@ -259,11 +259,7 @@ jobs:
       - run:
           name: Wait for Test Server to Load (show the logs)
           command: |
-            tail -F server.log | while read line; do
-              echo "$line"
-              curl -s http://localhost:8080 > /dev/null && echo "Server is up!" && break
-            done
-          timeout: 180
+            timeout 180 sh -c 'until curl -s http://localhost:8080 > /dev/null; do echo "Waiting for server..."; sleep 10; done'
           when:
             on_success
       - run:
