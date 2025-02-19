@@ -252,8 +252,8 @@ jobs:
           name: prepare sql test database
           command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
       - run:
-          name: start headless test server in background
-          command: ./gradlew dev
+          name: start test server in background (including javascript so compiled)
+          command: ./gradlew run -x test
           background: true
           environment:
             MOLGENIS_INCLUDE_CATALOGUE_DEMO: 'true'
@@ -287,7 +287,7 @@ jobs:
           name: Test nuxt ssr catalogue tests
           command: |
             yarn playwright install chrome
-            yarn e2e
+            E2E_BASE_URL=http://localhost:8080 yarn e2e
           working_directory: apps/catalogue
       - run:
           name: Test tailwind components
