@@ -275,8 +275,10 @@ jobs:
           name: Directory e2e tests
           command: |
             yarn playwright install chrome
-            MOLGENIS_APPS_HOST=http://localhost:8080 yarn e2e
+            yarn e2e
           working_directory: apps/directory
+          environment:
+            MOLGENIS_APPS_HOST: http://localhost:8080
       - run:
           name: Test nuxt ssr catalogue tests
           command: |
