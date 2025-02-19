@@ -351,7 +351,8 @@ class Client:
         response = self.session.post(
             url=api_url,
             data=data,
-            headers={'Content-Type': 'text/csv'}
+            headers={'Content-Type': 'text/csv',
+                     'fileName': file_name}
         )
         if response.status_code == 200:
             msg = response.text
