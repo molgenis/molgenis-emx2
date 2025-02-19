@@ -75,6 +75,11 @@ public class SqlQuery extends QueryBean {
 
   @Override
   public List<Row> retrieveRows() {
+    return retrieveRows(false);
+  }
+
+  public List<Row> retrieveRows(
+      boolean includeFileContents /* suggestion change to an 'options' array */) {
     SelectColumn select = getSelect();
     Filter filter = getFilter();
     String[] searchTerms = getSearchTerms();
@@ -95,7 +100,19 @@ public class SqlQuery extends QueryBean {
     if (select == null || select.getColumNames().isEmpty()) {
       for (Column c : table.getColumns()) {
         if (c.isFile()) {
-          select.select(c.getName());
+          if (includeFileContents) {
+            select.subselect(
+                s(
+                    c.getName(),
+                    s("contents"),
+                    s("filename"),
+                    s("size"),
+                    s("mimetype"),
+                    s("extension")));
+          } else {
+            select.subselect(
+                s(c.getName(), s("filename"), s("size"), s("mimetype"), s("extension")));
+          }
         } else if (c.isReference()) {
           select.subselect(getRefPrimaryKeySubselect(c));
         } else if (!c.isHeading()) {

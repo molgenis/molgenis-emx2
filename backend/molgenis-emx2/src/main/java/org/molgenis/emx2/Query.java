@@ -23,6 +23,8 @@ public interface Query {
 
   List<Row> retrieveRows();
 
+  List<Row> retrieveRows(boolean includFileContents);
+
   String retrieveJSON();
 
   Filter getFilter();

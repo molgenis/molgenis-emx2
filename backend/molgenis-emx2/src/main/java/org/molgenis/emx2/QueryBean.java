@@ -40,6 +40,11 @@ public class QueryBean implements Query {
   }
 
   @Override
+  public List<Row> retrieveRows(boolean includeFileContents) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public String retrieveJSON() {
     throw new UnsupportedOperationException();
   }
