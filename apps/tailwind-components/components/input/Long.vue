@@ -6,25 +6,23 @@
       :disabled="disabled"
       :placeholder="placeholder"
       :required="required"
-      :invalid="invalid || !!bigIntError"
+      :invalid="invalid"
       v-model="modelValue"
       @focus="$emit('focus')"
       @blur="$emit('blur')"
       @input="handleInputChanged"
       @keypress="handleKeyValidity"
     />
-    <div class="text-invalid">{{ bigIntError }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { IInputProps } from "../../types/types";
 import constants from "../../../molgenis-components/src/components/constants";
 import {
   flipSign,
-  getBigIntError,
   isNumericKey,
 } from "../../../molgenis-components/src/components/utils";
+import type { IInputProps } from "../../types/types";
 
 const modelValue = defineModel<string>("modelValue", { required: true });
 
@@ -34,15 +32,9 @@ defineProps<
   }
 >();
 
-const { CODE_MINUS } = constants;
+const { CODE_MINUS, CODE_PERIOD, CODE_COMMA } = constants;
 
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
-
-const bigIntError = computed(() => {
-  if (modelValue.value) {
-    return getBigIntError(modelValue.value);
-  }
-});
 
 function handleInputChanged(event: any) {
   const value = event.target?.value;
@@ -54,10 +46,8 @@ function handleInputChanged(event: any) {
 }
 
 function emitIfValid(strValue: string) {
-  const noCommaValue = strValue.replace(",", "");
-  const noPeriodValue = noCommaValue.replace(".", "");
-  if (noPeriodValue?.length) {
-    emit("update:modelValue", noPeriodValue);
+  if (strValue?.length) {
+    emit("update:modelValue", strValue);
   } else {
     emit("update:modelValue", null);
   }
@@ -69,7 +59,11 @@ function handleKeyValidity(event: any) {
     const flipped = flipSign(event.target?.value);
     emitIfValid(flipped);
   }
-  if (!isNumericKey(event)) {
+  if (
+    !isNumericKey(event) ||
+    keyCode === CODE_PERIOD ||
+    keyCode === CODE_COMMA
+  ) {
     event.preventDefault();
   }
 }

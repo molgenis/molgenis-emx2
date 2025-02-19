@@ -1,20 +1,21 @@
 <template>
-  <InputTestContainer
-    show-placeholder
-    show-state
-    v-slot="{ placeholder, valid, invalid, disabled }"
-  >
-    <InputDecimal
-      id="input-decimal-preview"
-      v-model="demoValue"
-      :placeholder="placeholder"
-      :valid="valid"
-      :invalid="invalid"
-      :disabled="disabled"
-    />
-  </InputTestContainer>
+  <FormFields
+    id="form-decimal"
+    schemaId="schema-decimal"
+    :metadata="{
+      label: 'Decimal',
+      id: 'decimal',
+      tableType: 'my kind of table',
+      columns: [
+        {
+          id: 'input-decimal',
+          columnType: 'DECIMAL',
+          label: 'Input a decimal',
+        },
+      ],
+    }"
+    :data="[]"
+  />
 </template>
 
-<script setup lang="ts">
-const demoValue = ref("1337");
-</script>
+<script setup lang="ts"></script>

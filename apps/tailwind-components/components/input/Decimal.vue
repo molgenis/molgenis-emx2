@@ -21,7 +21,7 @@ import {
   isNumericKey,
 } from "../../../molgenis-components/src/components/utils";
 
-const modelValue = defineModel<string>("modelValue", { required: true });
+const modelValue = defineModel<string | undefined>({ required: true });
 
 defineProps<
   IInputProps & {
@@ -36,19 +36,10 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 function handleInputChanged(event: any) {
   const value = event.target?.value;
   if (!value) {
-    emit("update:modelValue", null);
+    emit("update:modelValue", undefined);
   } else {
-    emitIfValid(value);
-  }
-}
-
-function emitIfValid(strValue: string) {
-  const noCommaValue = strValue.replace(",", "");
-  const value = parseFloat(noCommaValue);
-  if (!isNaN(value)) {
-    emit("update:modelValue", value);
-  } else {
-    emit("update:modelValue", strValue);
+    const noCommaValue = value.replace(",", "");
+    emit("update:modelValue", noCommaValue);
   }
 }
 
@@ -56,7 +47,7 @@ function handleKeyValidity(event: any) {
   const keyCode = event.which ?? event.keyCode;
   if (keyCode === CODE_MINUS) {
     const flipped = flipSign(event.target?.value);
-    emitIfValid(flipped);
+    emit("update:modelValue", flipped);
   }
   if (keyCode === CODE_PERIOD && event.target?.value.indexOf(".") > -1) {
     event.preventDefault();

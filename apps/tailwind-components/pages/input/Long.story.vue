@@ -1,20 +1,21 @@
 <template>
-  <InputTestContainer
-    show-placeholder
-    show-state
-    v-slot="{ placeholder, valid, invalid, disabled }"
-  >
-    <InputLong
-      id="input-long-preview"
-      v-model="demoValue"
-      :placeholder="placeholder"
-      :valid="valid"
-      :invalid="invalid"
-      :disabled="disabled"
-    />
-  </InputTestContainer>
+  <FormFields
+    id="form-long"
+    schemaId="schema-long"
+    :metadata="{
+      label: 'Long',
+      id: 'long',
+      tableType: 'my kind of table',
+      columns: [
+        {
+          id: 'input-long',
+          columnType: 'LONG',
+          label: 'Input a long',
+        },
+      ],
+    }"
+    :data="[]"
+  />
 </template>
 
-<script setup lang="ts">
-const demoValue = ref("922337203685477580");
-</script>
+<script setup lang="ts"></script>
