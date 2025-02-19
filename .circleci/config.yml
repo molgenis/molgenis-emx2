@@ -256,9 +256,9 @@ jobs:
             MOLGENIS_INCLUDE_CATALOGUE_DEMO: true
             MOLGENIS_INCLUDE_DIRECTORY_DEMO: true
       - run:
-        name: Wait for Test Server to load demo data and then start
-        command: |
-          timeout 180 sh -c 'until curl -s http://localhost:8080 > /dev/null; do echo "Waiting for server..."; sleep 10; done'
+          name: Wait for Test Server to load demo data and then start
+          command: |
+            timeout 180 sh -c 'until curl -s http://localhost:8080 > /dev/null; do echo "Waiting for server..."; sleep 10; done'
       - run: npm i -D @playwright/test
       - run:
           name: Install dependencies
