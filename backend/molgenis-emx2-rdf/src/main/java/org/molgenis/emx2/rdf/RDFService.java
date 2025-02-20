@@ -594,7 +594,7 @@ public class RDFService {
         var tableName = table.getSchema().getName() + "." + table.getName();
         query.where(f("mg_tableclass", EQUALS, tableName));
       }
-      return query.retrieveRows();
+      return query.retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
     }
   }
 

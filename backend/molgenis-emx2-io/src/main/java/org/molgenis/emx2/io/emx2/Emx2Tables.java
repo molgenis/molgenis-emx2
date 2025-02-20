@@ -50,7 +50,7 @@ public class Emx2Tables {
                       MG_TABLECLASS,
                       Operator.EQUALS,
                       table.getSchema().getName() + "." + table.getName()))
-              .retrieveRows(Query.Options.INCLUDE_MG_COLUMNS));
+              .retrieveRows());
     } else {
       store.writeTable(table.getName(), downloadColumnNames, table.retrieveRows());
     }

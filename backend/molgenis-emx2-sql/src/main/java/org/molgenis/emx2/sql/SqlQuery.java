@@ -5,8 +5,8 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Privileges.*;
-import static org.molgenis.emx2.Query.Options.INCLUDE_FILE_CONTENTS;
-import static org.molgenis.emx2.Query.Options.INCLUDE_MG_COLUMNS;
+import static org.molgenis.emx2.Query.Option.EXCLUDE_MG_COLUMNS;
+import static org.molgenis.emx2.Query.Option.INCLUDE_FILE_CONTENTS;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
@@ -77,7 +77,7 @@ public class SqlQuery extends QueryBean {
   }
 
   @Override
-  public List<Row> retrieveRows(Options... options) {
+  public List<Row> retrieveRows(Option... options) {
     SelectColumn select = getSelect();
     Filter filter = getFilter();
     String[] searchTerms = getSearchTerms();
@@ -100,9 +100,9 @@ public class SqlQuery extends QueryBean {
           table.getColumns().stream()
               .filter(
                   column ->
-                      Arrays.stream(options).anyMatch(option -> option == INCLUDE_MG_COLUMNS)
-                          ? true
-                          : !column.getName().startsWith("mg_"))
+                      Arrays.stream(options).anyMatch(option -> option == EXCLUDE_MG_COLUMNS)
+                          ? !column.getName().startsWith("mg_")
+                          : true)
               .toList()) {
         if (c.isFile()) {
           if (Arrays.stream(options).anyMatch(option -> option == INCLUDE_FILE_CONTENTS)) {

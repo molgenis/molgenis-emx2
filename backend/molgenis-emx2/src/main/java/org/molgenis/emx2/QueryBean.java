@@ -35,7 +35,7 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public List<Row> retrieveRows(Options... options) {
+  public List<Row> retrieveRows(Option... options) {
     throw new UnsupportedOperationException();
   }
 
