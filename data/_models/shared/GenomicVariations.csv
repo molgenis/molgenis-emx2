@@ -24,3 +24,4 @@ GenomicVariationsCaseLevel,,,,,,,,,,,http://purl.obolibrary.org/obo/GSSO_000660,
 GenomicVariationsCaseLevel,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/OMIABIS_0001047,E.g. Var001_CLD01,Beacon v2
 GenomicVariationsCaseLevel,,individualId,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C164337,E.g. Ind001,Beacon v2
 GenomicVariationsCaseLevel,,clinicalInterpretations,ref_array,,,,GenomicVariationsClinInterpr,,,,http://purl.obolibrary.org/obo/NCIT_C125009,E.g. Var001_CI001,Beacon v2
+GenomicVariationsCaseLevel,,zygosity,ontology,,,,Zygosity,,,,http://purl.obolibrary.org/obo/NCIT_C45824,E.g. Heterozygosity,Beacon v2

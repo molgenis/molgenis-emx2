@@ -1,0 +1,5 @@
+name,definition,codesystem,code,ontologyTermURI
+Hemizygosity,Hemizygosity,NCIT,C64346,http://purl.obolibrary.org/obo/NCIT_C64346
+Heterozygosity,Heterozygosity,NCIT,C45825,http://purl.obolibrary.org/obo/NCIT_C45825
+Homozygosity,Homozygosity,NCIT,C45826,http://purl.obolibrary.org/obo/NCIT_C45826
+Nullizygosity,Nullizygosity,NCIT,C148063,http://purl.obolibrary.org/obo/NCIT_C148063
