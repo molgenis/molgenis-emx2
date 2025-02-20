@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { isRequired } from "./formUtils/formUtils";
+import { isRequiredByBoolea n } from "./formUtils/formUtils";
 
 export default {
   name: "FormGroup",
@@ -47,7 +47,7 @@ export default {
     },
   },
   methods: {
-    isRequired,
+    isRequired: isRequiredByBoolea n,
     hasDescription(description) {
       return (
         description !== null && description !== undefined && description.length

@@ -1,31 +1,36 @@
 import type { IColumn, ITableMetaData } from "../../metadata-utils/src/types";
 import constants from "../../molgenis-components/src/components/constants";
 import {
-  isMissingValue,
   isColumnVisible,
-  isRequired,
   isJsonObjectOrArray,
+  isMissingValue,
 } from "../../molgenis-components/src/components/forms/formUtils/formUtils";
 import {
   deepClone,
   getBigIntError,
 } from "../../molgenis-components/src/components/utils";
 
-const { EMAIL_REGEX, HYPERLINK_REGEX, PERIOD_REGEX, AUTO_ID, HEADING } =
-  constants;
+const {
+  AUTO_ID,
+  EMAIL_REGEX,
+  HEADING,
+  HYPERLINK_REGEX,
+  MAX_INT,
+  MIN_INT,
+  PERIOD_REGEX,
+} = constants;
 
 export function getColumnError(
   column: IColumn,
   rowData: Record<string, any>,
-  tableMetaData: ITableMetaData
+  tableMetadata: ITableMetaData
 ): string | undefined {
   const value = rowData[column.id];
   const type = column.columnType;
-  const missesValue = isMissingValue(value);
   // FIXME: this function should also check all array types
 
   try {
-    if (!isColumnVisible(column, rowData, tableMetaData)) {
+    if (!isColumnVisible(column, rowData, tableMetadata)) {
       return undefined;
     }
   } catch (error) {
@@ -36,21 +41,17 @@ export function getColumnError(
     return undefined;
   }
 
-  if (column.required) {
-    if (isRequired(column.required)) {
-      const isInvalidNumber = isInValidNumericValue(type, value);
-      if (missesValue || isInvalidNumber) {
-        return column.label + " is required";
-      }
-    } else {
-      const error = getRequiredExpressionError(
-        column.required as string,
-        rowData,
-        tableMetaData
-      );
-      if (error && missesValue) {
-        return error;
-      }
+  const missesValue = isMissingValue(value);
+
+  if (column.required && column.required !== "false") {
+    const requiredError = getRequiredError(
+      column,
+      value,
+      rowData,
+      tableMetadata
+    );
+    if (requiredError) {
+      return requiredError;
     }
   }
 
@@ -90,21 +91,25 @@ export function getColumnError(
   if (type === "DECIMAL" && isNaN(parseFloat(value))) {
     return "Invalid number";
   }
-  if (type === "INT" && isNaN(parseInt(value))) {
-    return "Invalid number";
+  if (type === "INT") {
+    const intError = getIntError(value as number);
+    if (intError) {
+      return intError;
+    }
   }
   if (column.validation) {
-    return getColumnValidationError(column.validation, rowData, tableMetaData);
+    return getColumnValidationError(column.validation, rowData, tableMetadata);
   }
 
   return undefined;
 }
 
-function isInValidNumericValue(columnType: string, value: number) {
-  if (["DECIMAL", "INT"].includes(columnType)) {
-    return isNaN(value);
-  } else {
-    return false;
+function getIntError(value: number) {
+  if (isNaN(value)) {
+    return "Invalid number";
+  }
+  if (value < MIN_INT || value > MAX_INT) {
+    return `Invalid value: must be value from ${MIN_INT} to ${MAX_INT}`;
   }
 }
 
@@ -144,12 +149,12 @@ export function executeExpression(
 
   // A simple client for scripts to use to request data.
   // Note: don't overuse this, the API call is blocking.
-  let simplePostClient = function (
+  const simplePostClient = function (
     query: string,
     variables: object,
     schemaId?: string
   ) {
-    let xmlHttp = new XMLHttpRequest();
+    const xmlHttp = new XMLHttpRequest();
     xmlHttp.open(
       "POST",
       schemaId ? "/" + schemaId + "/graphql" : "graphql",
@@ -213,5 +218,28 @@ function getColumnValidationError(
     }
   } catch (error) {
     return `Invalid validation expression '${validation}', reason: ${error}`;
+  }
+}
+
+function getRequiredError(
+  column: IColumn,
+  value: any,
+  rowData: Record<string, any>,
+  tableMetadata: ITableMetaData
+) {
+  const missesValue = isMissingValue(value);
+  if (column.required === "true") {
+    if (missesValue) {
+      return column.label + " is required";
+    }
+  } else {
+    const error = getRequiredExpressionError(
+      column.required as string,
+      rowData,
+      tableMetadata
+    );
+    if (error && missesValue) {
+      return error;
+    }
   }
 }
