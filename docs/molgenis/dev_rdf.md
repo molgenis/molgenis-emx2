@@ -29,7 +29,7 @@ Therefore, it is suggested to base the used subject on the database URL.
 
 Advanced setting key: `semantic_prefixes`
 
-Overrides the default namespaces [as defined here](./use_schema.md#semantics).
+Overrides the default namespaces [as defined here](./semantics.md#formatting).
 Requires a csv-like format where each line represents a single namespace and each line has 2 values, namely the prefix and the namespace IRI:
 ```csv
 dcat,http://www.w3.org/ns/dcat#
