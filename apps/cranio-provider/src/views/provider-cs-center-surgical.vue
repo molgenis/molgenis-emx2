@@ -200,11 +200,6 @@ async function getPageData() {
     "cs-provider-surgical-interventions"
   );
 
-  const ernInterventionsResponse = await getDashboardChart(
-    props.api.graphql.providers,
-    "cs-all-centers-surgical-interventions"
-  );
-
   const centerAgeResponse = await getDashboardChart(
     props.api.graphql.current,
     "cs-provider-age-at-first-surgery"
@@ -222,10 +217,6 @@ async function getPageData() {
   ] as IChartData[];
 
   interventionsChart.value = centerInterventionsResponse[0];
-  interventionsChart.value.dataPoints = [
-    ...(centerInterventionsResponse[0].dataPoints as IChartData[]),
-    ...(ernInterventionsResponse[0].dataPoints as IChartData[]),
-  ];
 
   surgeryAgeChart.value = centerAgeResponse[0];
   surgeryAgeChart.value.dataPoints = [
