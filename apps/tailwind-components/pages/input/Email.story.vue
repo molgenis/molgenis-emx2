@@ -4,7 +4,7 @@
   <FormFields
     id="email-form"
     schemaId="schema-email"
-    :data="[]"
+    v-model="model"
     :metadata="{
       id: 'email-form',
       label: 'Email Form',
@@ -20,4 +20,6 @@
   />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const model = ref({ "input-email": null });
+</script>
