@@ -112,7 +112,6 @@
     --border-color-search-input: var(--color-white);
     --border-color-search-input-mobile: var(--color-gray-100);
     --border-color-pagination: var(--color-transparent);
-    --border-color-input: var(--color-transparent);
     --border-color-input-inverted: var(--color-gray-600);
 
     --border-radius-3px: 3px;
