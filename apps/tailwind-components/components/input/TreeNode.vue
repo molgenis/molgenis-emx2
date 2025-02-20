@@ -43,11 +43,12 @@ function toggleExpand(name: string) {
           v-if="node.children?.length"
           @click.stop="toggleExpand(node.name)"
           class="-left-[11px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
-          :class="[
-            inverted
-              ? 'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted'
-              : 'text-search-filter-group-toggle hover:bg-search-filter-group-toggle',
-          ]"
+          :class="{
+            'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted':
+              inverted,
+            'text-search-filter-group-toggle hover:bg-search-filter-group-toggle focus:bg-search-filter-group-toggle':
+              !inverted,
+          }"
           :aria-expanded="node.expanded"
           :aria-controls="node.name"
         >
@@ -91,16 +92,12 @@ function toggleExpand(name: string) {
             v-if="node.selectable"
             :indeterminate="node.selected === 'intermediate'"
             :checked="node.selected === 'selected'"
-            class="w-[20px] ml-[-6px]"
+            class="ml-[-6px]"
             :class="{
               '[&>rect]:stroke-gray-400': inverted,
             }"
           />
-          <span
-            :class="{ 'w-[calc(100%-20px)]': node.selectable }"
-            class="block text-body-sm leading-normal"
-            >{{ node.name }}</span
-          >
+          <span class="block text-body-sm leading-normal">{{ node.name }}</span>
         </InputLabel>
         <div class="inline-flex items-center whitespace-nowrap">
           <div class="inline-block pl-1">
