@@ -100,7 +100,7 @@ export function filterObject(
   );
 }
 
-export function flipSign(value: string | null): string | null {
+export function flipSign(value: string | null): string {
   switch (value) {
     case "-":
       return "";

@@ -1,18 +1,18 @@
 <script setup lang="ts">
+import logger from "@/utils/logger";
+import { scrollToElementInside } from "~/utils/scrollTools";
 import type {
   columnId,
   columnValue,
   IColumn,
+  IFormLegendSection,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import {
   isColumnVisible,
-  getColumnError,
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
-import type { IFormLegendSection } from "../../../metadata-utils/src/types";
-import { scrollToElementInside } from "~/utils/scrollTools";
-import logger from "@/utils/logger";
+import { getColumnError } from "../../utils/utils";
 
 //todo: don't forget about default values for reflinks
 
@@ -174,6 +174,7 @@ function goToSection(headerId: string) {
   scrollToElementInside(props.id + "-fields-container", headerId);
 }
 </script>
+
 <template>
   <div class="flex flex-row border">
     <div v-if="chapters.length > 1" class="basis-1/3">
@@ -192,24 +193,23 @@ function goToSection(headerId: string) {
         "
       >
         <h2
-          class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8 scroll-mt-20"
           v-if="chapter.label !== '_scroll_to_top' && visibleMap[chapter.id]"
+          class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8 scroll-mt-20"
         >
           {{ chapter.label }}
         </h2>
         <!-- todo filter invisible -->
         <template
           v-for="column in chapter.columns.filter(
-            (c) => !c.id.startsWith('mg_')
+            (col) => !col.id.startsWith('mg_')
           )"
         >
           <div
-            style="height: 100px"
-            v-on-first-view="() => checkVisibleExpression(column)"
             v-if="visibleMap[column.id] === undefined"
-          ></div>
+            v-on-first-view="() => checkVisibleExpression(column)"
+            style="height: 100px"
+          />
           <FormField
-            class="pb-8"
             v-else-if="visibleMap[column.id] === true"
             v-model="dataMap[column.id]"
             :id="`${column.id}-form-field`"
@@ -225,6 +225,7 @@ function goToSection(headerId: string) {
             @update:modelValue="onUpdate(column, $event)"
             @blur="onBlur(column)"
             @focus="onFocus(column)"
+            class="pb-8"
           />
         </template>
       </div>

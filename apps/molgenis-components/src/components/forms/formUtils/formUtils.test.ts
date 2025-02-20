@@ -8,7 +8,7 @@ import {
   removeKeyColumns,
   splitColumnIdsByHeadings,
   isMissingValue,
-  isRequired,
+  isRequiredByBoolea n,
   isJsonObjectOrArray,
 } from "./formUtils";
 import type { ITableMetaData, IColumn } from "metadata-utils";
@@ -343,21 +343,21 @@ describe("isMissingValue", () => {
 
 describe("isRequired", () => {
   test("should return true for boolean type true and true strings", () => {
-    expect(isRequired(true)).toBe(true);
-    expect(isRequired("true")).toBe(true);
-    expect(isRequired("True")).toBe(true);
-    expect(isRequired("TRUE")).toBe(true);
+    expect(isRequiredByBoolea n(true)).toBe(true);
+    expect(isRequiredByBoolea n("true")).toBe(true);
+    expect(isRequiredByBoolea n("True")).toBe(true);
+    expect(isRequiredByBoolea n("TRUE")).toBe(true);
   });
 
   test("should return false for boolean type false and true strings", () => {
-    expect(isRequired(false)).toBe(false);
-    expect(isRequired("false")).toBe(false);
-    expect(isRequired("False")).toBe(false);
-    expect(isRequired("FALSE")).toBe(false);
+    expect(isRequiredByBoolea n(false)).toBe(false);
+    expect(isRequiredByBoolea n("false")).toBe(false);
+    expect(isRequiredByBoolea n("False")).toBe(false);
+    expect(isRequiredByBoolea n("FALSE")).toBe(false);
   });
 
   test("should return false for strings with an expression", () => {
-    expect(isRequired("someValue > 0")).toEqual(false);
+    expect(isRequiredByBoolea n("someValue > 0")).toEqual(false);
   });
 });
 

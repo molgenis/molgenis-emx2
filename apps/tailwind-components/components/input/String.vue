@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import type { IInputProps } from "~/types/types";
-const modelValue = defineModel<string | number>();
+
+const modelValue = defineModel<string>();
+
 defineProps<
   IInputProps & {
     type?: string;
   }
 >();
+
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 </script>
 
