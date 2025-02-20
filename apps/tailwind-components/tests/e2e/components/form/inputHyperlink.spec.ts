@@ -18,5 +18,6 @@ test("the inputHyperLink", async ({ page }) => {
   await expect(page.getByText("Invalid hyperlink")).toBeVisible();
   await page.getByPlaceholder("Input a hyperlink").clear();
   await page.getByPlaceholder("Input a hyperlink").fill("https://molgenis.net");
+  await page.getByRole("textbox", { name: "Input a hyperlink" }).blur();
   await expect(page.getByText("Invalid hyperlink")).not.toBeVisible();
 });
