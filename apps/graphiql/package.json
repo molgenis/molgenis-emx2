@@ -12,7 +12,7 @@
   },
   "scripts": {
     "dev": "react-scripts start",
-    "format": "echo 'skip format'",
+    "format": "echo \"skip format\"",
     "build": "BUILD_PATH='./dist' react-scripts build"
   },
   "browserslist": {
