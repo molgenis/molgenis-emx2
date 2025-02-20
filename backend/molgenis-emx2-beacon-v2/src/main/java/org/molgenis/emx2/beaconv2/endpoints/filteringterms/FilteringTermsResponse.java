@@ -46,7 +46,7 @@ public class FilteringTermsResponse {
    * @param filteringTermsSet
    * @param schemaName
    */
-  private void getFilteringTermsFromTables(
+  public void getFilteringTermsFromTables(
       Database database,
       List<String> tableNames,
       Set<FilteringTerm> filteringTermsSet,
@@ -122,7 +122,11 @@ public class FilteringTermsResponse {
             code = code == null || code.isBlank() ? "NULL" : code;
             FilteringTerm filteringTerm =
                 new FilteringTerm(
-                    "ontology", codesystem + ":" + code, row.getString("name"), tableToQuery);
+                    column,
+                    "ontology",
+                    codesystem + ":" + code,
+                    row.getString("name"),
+                    tableToQuery);
             filteringTermsSet.add(filteringTerm);
           }
         } else {
