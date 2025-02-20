@@ -90,14 +90,10 @@ public class Constants {
 
   protected static final String COLUMN_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,62}$";
 
-  // RFC 5322, see http://emailregex.com/
   protected static final String EMAIL_REGEX =
-      "(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]"
-          + "+(?:\\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|\""
-          + "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")"
-          + "@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.)"
-          + "{3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\"
-          + "[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
+      "^(([^<>()[\\\\]\\\\.,;:\\s@\"]+(\\.[^<>()[\\\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@"
+          + "((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|"
+          + "(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$|^$";
   // thank you to
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   protected static final String HYPERLINK_REGEX =

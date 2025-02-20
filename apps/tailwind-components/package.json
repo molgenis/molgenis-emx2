@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "lint": "nuxt prepare && vue-tsc --noEmit",
     "generate-source-map": "node ./utils/generateSourceMap.js",
     "build": "yarn generate-source-map && nuxt build",
     "build-showcase": "cross-env NUXT_PUBLIC_IS_SSR=false cross-env NUXT_APP_BASE_URL='/apps/tailwind-components/' nuxt generate",
@@ -14,6 +15,7 @@
     "format": "prettier components pages tests layouts --write --config ../.prettierrc.js",
     "checkFormat": "prettier components pages tests --check --config ../.prettierrc.js",
     "test": "vitest",
+    "test-ci": "vitest run",
     "e2e": "playwright test",
     "a11y:test": "pa11y-ci",
     "a11y:serve": "http-server .reports/ -p 1234",
@@ -42,7 +44,7 @@
     "prettier": "2.8.8",
     "svgo": "2.8.0",
     "typescript": "5.6.2",
-    "vitest": "1.6.1",
-    "vue-tsc": "2.1.6"
+    "vitest": "3.0.5",
+    "vue-tsc": "2.2.0"
   }
 }

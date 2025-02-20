@@ -174,9 +174,13 @@ async function getPageData() {
 
 function updatePhenotypesChart() {
   patientsByPhenotypeChartData.value =
-    patientsByPhenotypeChart.value?.dataPoints?.filter((row: IChartData) => {
-      return row.dataPointPrimaryCategory === selectedAgeGroup.value;
-    });
+    patientsByPhenotypeChart.value?.dataPoints
+      ?.filter((row: IChartData) => {
+        return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+      })
+      .sort((a: IChartData, b: IChartData) => {
+        return (a.dataPointOrder as number) - (b.dataPointOrder as number);
+      });
 
   const chartTicks = generateAxisTickData(
     patientsByPhenotypeChartData.value!,

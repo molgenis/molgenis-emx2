@@ -1,4 +1,4 @@
-import type { ITableMetaData } from "metadata-utils";
+import type { ITableMetaData } from "../../../metadata-utils/src/types";
 import { fetchSchemaMetaData } from "./client";
 
 /**

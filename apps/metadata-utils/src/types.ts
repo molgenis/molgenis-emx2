@@ -35,6 +35,8 @@ export type CellValueType =
   | "REF"
   | "REF_ARRAY"
   | "REFBACK"
+  | "CHECKBOX" //planned future extensions are CHECKBOX and RADIO
+  | "RADIO"
   | "HEADING"
   | "AUTO_ID"
   | "ONTOLOGY"
@@ -42,7 +44,8 @@ export type CellValueType =
   | "EMAIL"
   | "EMAIL_ARRAY"
   | "HYPERLINK"
-  | "HYPERLINK_ARRAY";
+  | "HYPERLINK_ARRAY"
+  | "CHECKBOX";
 
 export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
@@ -97,7 +100,7 @@ export interface IFormLegendSection {
   label: string;
   id: string;
   isActive?: boolean;
-  errorCount?: number;
+  errorCount: number;
 }
 
 export type columnId = string;
@@ -108,6 +111,8 @@ export type columnValue =
   | null
   | columnValueObject
   | columnValue[];
+
+export type recordValue = Record<string, columnValue>;
 
 export interface columnValueObject {
   [x: string]: columnValue;
