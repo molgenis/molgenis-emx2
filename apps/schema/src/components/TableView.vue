@@ -12,12 +12,9 @@
           >
             Table: {{ table.name }}
             <span v-if="table.semantics" class="small">
-              (<a
-                :href="purl"
-                target="_blank"
-                v-for="purl in table.semantics"
-                :key="purl"
-                >{{ purl.substring(purl.lastIndexOf("/") + 1) }}</a
+              (<template v-for="(semantics, index) in table.semantics"
+                ><template v-if="index > 0">,</template
+                >{{ semantics }}</template
               >)
             </span>
           </h4>
