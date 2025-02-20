@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import playwrightConfig from "../../../playwright.config";
+import playwrightConfig from "~/playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
@@ -13,6 +13,14 @@ test.beforeEach(async ({ page }) => {
 test("InputTextArea: invalid is properly indicated @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
+  await expect(page.locator("#test-state-checkbox-group")).toContainText(
+    "invalid"
+  );
+  await page
+    .locator("label")
+    .filter({ hasText: "invalid" })
+    .locator("rect")
+    .click();
   await page.getByLabel("invalid").check();
   await expect(page.getByLabel("invalid")).toBeChecked();
   const InputTextAreaClass = await page
@@ -21,11 +29,23 @@ test("InputTextArea: invalid is properly indicated @tw-components @tw-forms @inp
   await expect(InputTextAreaClass).toContain("invalid");
 });
 
+test("InputTextArea: required state is properly indicated @tw-components @tw-forms @input-textarea", async ({
+  page,
+}) => {
+  await page.getByText("Required is true").click();
+  await expect(
+    page.getByLabel("Demo input for type=text Required")
+  ).toBeVisible();
+});
+
 test("InputTextArea: valid state properly styles component @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
-  await page.getByLabel("valid", { exact: true }).check();
-  await page.getByLabel("valid", { exact: true }).isChecked();
+  await page
+    .locator("label")
+    .filter({ hasText: /^valid$/ })
+    .locator("rect")
+    .click();
   const InputTextAreaClass = await page
     .getByLabel("Demo input for type=text")
     .getAttribute("class");
@@ -35,9 +55,7 @@ test("InputTextArea: valid state properly styles component @tw-components @tw-fo
 test("InputTextArea: component is properly disabled @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
-  await expect(page.getByLabel("disabled")).not.toBeChecked();
-  await page.getByLabel("disabled").check();
-  await expect(page.getByLabel("disabled")).toBeChecked();
+  await page.getByText("disabled").click();
   await expect(page.getByLabel("Demo input for type=text")).toBeDisabled();
 });
 
