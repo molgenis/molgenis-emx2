@@ -53,7 +53,7 @@ By default, the following prefixed names are available:
 
 !> The IRI for healthDCAT-AP is a placeholder as it [currently does not have one defined](https://healthdcat-ap.github.io/#namespaces).
 
-!> The list above can be overridden using a [schema-specific advanced setting](./dev_rdf.md#semantic_prefixes).
+!> The list above can be overridden using a [schema-specific advanced setting](./dev_rdf.md#custom-semantic-prefixes).
 
 ## Example
 
