@@ -1,11 +1,6 @@
 import type { IColumn, ITableMetaData } from "../../metadata-utils/src/types";
 import constants from "../../molgenis-components/src/components/constants";
 import {
-  isColumnVisible,
-  isJsonObjectOrArray,
-  isMissingValue,
-} from "../../molgenis-components/src/components/forms/formUtils/formUtils";
-import {
   deepClone,
   getBigIntError,
 } from "../../molgenis-components/src/components/utils";
@@ -241,5 +236,38 @@ function getRequiredError(
     if (error && missesValue) {
       return error;
     }
+  }
+}
+
+function isColumnVisible(
+  column: IColumn,
+  values: Record<string, any>,
+  tableMetadata: ITableMetaData
+): boolean {
+  const expression = column.visible;
+  if (expression) {
+    try {
+      return executeExpression(expression, values, tableMetadata);
+    } catch (error) {
+      throw `Invalid visibility expression, reason: ${error}`;
+    }
+  } else {
+    return true;
+  }
+}
+
+function isJsonObjectOrArray(parsedJson: any) {
+  if (typeof parsedJson === "object" && parsedJson !== null) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function isMissingValue(value: any): boolean {
+  if (Array.isArray(value)) {
+    return value.some((element) => isMissingValue(element));
+  } else {
+    return value === undefined || value === null || value === "";
   }
 }
