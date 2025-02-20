@@ -651,8 +651,8 @@ class SqlTable implements Table {
   }
 
   @Override
-  public List<Row> retrieveRows() {
-    return this.query().retrieveRows();
+  public List<Row> retrieveRows(Query.Option... options) {
+    return this.query().retrieveRows(options);
   }
 
   @Override
