@@ -1,7 +1,7 @@
 order,name,label,parent,codesystem,code,ontologyTermURI,definition
 ,colors,,,,,,
-,red,,colors,,,,
-,green,,colors,,,,
+,red,,colors,,,https://dbpedia.org/page/Red,
+,green,,colors,,,https://dbpedia.org/page/Green,
 ,blue,,colors,,,,
 ,purple,,colors,,,,
 ,species,,,,,,
