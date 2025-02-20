@@ -5,6 +5,8 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Privileges.*;
+import static org.molgenis.emx2.Query.Options.INCLUDE_FILE_CONTENTS;
+import static org.molgenis.emx2.Query.Options.INCLUDE_MG_COLUMNS;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
@@ -25,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
+
   public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
   public static final String COUNT_FIELD = "count";
   public static final String EXISTS_FIELD = "exists";
@@ -74,12 +77,7 @@ public class SqlQuery extends QueryBean {
   }
 
   @Override
-  public List<Row> retrieveRows() {
-    return retrieveRows(false);
-  }
-
-  public List<Row> retrieveRows(
-      boolean includeFileContents /* suggestion change to an 'options' array */) {
+  public List<Row> retrieveRows(Options... options) {
     SelectColumn select = getSelect();
     Filter filter = getFilter();
     String[] searchTerms = getSearchTerms();
@@ -98,9 +96,16 @@ public class SqlQuery extends QueryBean {
     // if empty selection, we will add the default selection here, incl File and Refback
     // will generally be all you need
     if (select == null || select.getColumNames().isEmpty()) {
-      for (Column c : table.getColumns()) {
+      for (Column c :
+          table.getColumns().stream()
+              .filter(
+                  column ->
+                      Arrays.stream(options).anyMatch(option -> option == INCLUDE_MG_COLUMNS)
+                          ? true
+                          : !column.getName().startsWith("mg_"))
+              .toList()) {
         if (c.isFile()) {
-          if (includeFileContents) {
+          if (Arrays.stream(options).anyMatch(option -> option == INCLUDE_FILE_CONTENTS)) {
             select.subselect(
                 s(
                     c.getName(),

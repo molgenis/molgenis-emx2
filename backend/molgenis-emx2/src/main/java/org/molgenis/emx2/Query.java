@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 public interface Query {
+  enum Options {
+    INCLUDE_FILE_CONTENTS,
+    INCLUDE_MG_COLUMNS
+  }
 
   Query select(SelectColumn... columns);
 
@@ -21,9 +25,7 @@ public interface Query {
 
   Query orderBy(String column, Order order);
 
-  List<Row> retrieveRows();
-
-  List<Row> retrieveRows(boolean includFileContents);
+  List<Row> retrieveRows(Options... options);
 
   String retrieveJSON();
 

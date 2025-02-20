@@ -35,12 +35,7 @@ public class QueryBean implements Query {
   }
 
   @Override
-  public List<Row> retrieveRows() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public List<Row> retrieveRows(boolean includeFileContents) {
+  public List<Row> retrieveRows(Options... options) {
     throw new UnsupportedOperationException();
   }
 
