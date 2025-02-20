@@ -131,7 +131,7 @@
     sh:description "The predicate used in the metadata to relate the FAIR Data Point with its member catalogs." ;
     sh:path ldp:hasMemberRelation ;
     sh:nodeKind sh:IRI ; # FIX: changed nodeKind from fdp-o:metadataCatalog to IRI
-    sh:class fdp-o:metadataCatalog ; # FIX: added class constraint fdp-o:metadataCatalog
+    sh:hasValue <https://w3id.org/fdp/fdp-o#metadataCatalog> ; # FIX: added value check for 'metadataCatalog' here
     sh:maxCount 1 ;
     sh:minCount 1 ;
   ], [
