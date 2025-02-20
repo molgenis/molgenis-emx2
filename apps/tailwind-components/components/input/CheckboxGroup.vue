@@ -26,8 +26,11 @@
           :checked="modelValue!.includes(option.value)"
           :disabled="disabled"
           @change="toggleSelect"
-          class="peer sr-only"
+          class="opacity-0 absolute ml-4 mt-2"
         />
+        <!-- don't use ssr only that make screen 'hop'. Also we want aria to be able to use it. It is just hidden behind the icon
+        todo remove this comment once stable.
+        -->
         <InputCheckboxIcon
           :checked="modelValue!.includes(option.value)"
           :invalid="invalid"
