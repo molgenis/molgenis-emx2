@@ -76,6 +76,13 @@ export function uniqueValues(data: any, key: string): string[] {
   return Array.from(new Set(values)).sort() as string[];
 }
 
+export function uniqueAgeGroups(data: any, key: string): string[] {
+  const values = uniqueValues(data, key);
+  return values.sort((a: string, b: string) => {
+    return b.charCodeAt(0) - a.charCodeAt(0);
+  });
+}
+
 /**
  * @name ernCenterPalette
  * @description color palette for charts that show ERN and center comparisons

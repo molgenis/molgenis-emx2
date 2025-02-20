@@ -15,7 +15,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | -----| -------| ----------------| -----------------| ----------------|
 | 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. | | |
-| 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | Landing page: European health research data and sample catalogue| | true |
+| 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | Landing page: European health research data and sample catalogue| | true |
 | 2 | In section 'Project catalogues' hover over the testNetworkofNetworks row | Row should be highlighted | | true |
 | 3 | Click on the testNetworkofNetworks row | Should be directed to the testNetworkofNetworks with 'Welcome to the catalogue of testNetworkofNetworks: name for test network of networks [etc]', and Collections (8), Networks (2) and Variables (7) buttons | | true |
 | 3a | | The text under each button is as follows: Data & sample collections, Networks & Consortia, Harmonised variables | | |

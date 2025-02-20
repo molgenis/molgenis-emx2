@@ -10,9 +10,9 @@
           @change="save"
           v-model="newConfig.landingpage.enabled"
         />
-        <label class="form-check-label" for="landingpageEnabled"
-          >Landingpage enabled</label
-        >
+        <label class="form-check-label" for="landingpageEnabled">
+          Landingpage enabled
+        </label>
       </div>
       <div class="form-group">
         <label for="landingpageHeaderInput">Landingpage header</label>

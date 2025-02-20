@@ -85,7 +85,6 @@ const collections = computed(() =>
 );
 
 function handleCollectionStatus(event: any) {
-  console.log(event);
   const { checked } = event.target;
   if (checked) {
     checkoutStore.addCollectionsToSelection(

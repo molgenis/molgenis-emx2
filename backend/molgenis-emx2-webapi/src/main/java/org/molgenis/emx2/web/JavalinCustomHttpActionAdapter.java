@@ -31,13 +31,13 @@ public class JavalinCustomHttpActionAdapter implements HttpActionAdapter {
       } else if (code == 400) {
         throw new BadRequestResponse();
       } else if (action instanceof WithContentAction) {
-        context.getJavalinCtx().status(action.getCode());
-        context.getJavalinCtx().result(((WithContentAction) action).getContent());
+        context.getContext().status(action.getCode());
+        context.getContext().result(((WithContentAction) action).getContent());
         return null;
       } else if (action instanceof WithLocationAction) {
         return null;
       } else {
-        context.getJavalinCtx().status(action.getCode());
+        context.getContext().status(action.getCode());
         return null;
       }
     }

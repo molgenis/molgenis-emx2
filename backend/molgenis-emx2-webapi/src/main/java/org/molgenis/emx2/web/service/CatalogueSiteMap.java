@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class CatalogueSiteMap {
   private static final Logger logger = LoggerFactory.getLogger(CatalogueSiteMap.class);
 
-  private static final String APP_NAME = "ssr-catalogue";
+  private static final String APP_NAME = "catalogue";
   private static final Map<String, String> resourceTypes =
       Map.of(
           "Cohort study",

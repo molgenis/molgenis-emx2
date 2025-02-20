@@ -1,13 +1,14 @@
-import router from "../router";
-import { useFiltersStore } from "../stores/filtersStore";
-import { useCollectionStore } from "../stores/collectionStore";
-import { labelValuePair, useCheckoutStore } from "../stores/checkoutStore";
+import { LocationQuery } from "vue-router";
 import useErrorHandler from "../composables/errorHandler";
+import router from "../router";
+import { labelValuePair, useCheckoutStore } from "../stores/checkoutStore";
+import { useCollectionStore } from "../stores/collectionStore";
+import { useFiltersStore } from "../stores/filtersStore";
 let bookmarkApplied = false;
 
 const { setError } = useErrorHandler();
 
-export async function applyBookmark(watchedQuery: Record<string, string>) {
+export async function applyBookmark(watchedQuery: LocationQuery) {
   if (bookmarkApplied) {
     bookmarkApplied = false;
     return;
@@ -23,11 +24,11 @@ export async function applyBookmark(watchedQuery: Record<string, string>) {
 
   /**  negotiator token */
   if (watchedQuery.nToken) {
-    checkoutStore.nToken = watchedQuery.nToken;
+    checkoutStore.nToken = watchedQuery.nToken as string;
   }
 
   if (watchedQuery.cart) {
-    const decoded = decodeURIComponent(watchedQuery.cart);
+    const decoded = decodeURIComponent(watchedQuery.cart as string);
     const cartIdString = atob(decoded);
     const cartIds = cartIdString.split(",");
     const missingCollections =
@@ -52,9 +53,9 @@ export async function applyBookmark(watchedQuery: Record<string, string>) {
   /** we load the filters, grab the names, so we can loop over it to map the selections */
   const filters = Object.keys(filtersStore.facetDetails);
   if (watchedQuery.matchAll) {
-    const matchAllFilters = decodeURIComponent(watchedQuery.matchAll).split(
-      ","
-    );
+    const matchAllFilters = decodeURIComponent(
+      watchedQuery.matchAll as string
+    ).split(",");
     for (const filterName of matchAllFilters) {
       filtersStore.updateFilterType(filterName, "all", true);
     }
@@ -62,7 +63,9 @@ export async function applyBookmark(watchedQuery: Record<string, string>) {
 
   for (const filterName of filters) {
     if (watchedQuery[filterName]) {
-      const filtersToAdd: string = decodeURIComponent(watchedQuery[filterName]);
+      const filtersToAdd: string = decodeURIComponent(
+        watchedQuery[filterName] as string
+      );
 
       if (filterName === "Diagnosisavailable") {
         const diagnosisFacetDetails = filtersStore.facetDetails[filterName];

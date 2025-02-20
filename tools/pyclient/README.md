@@ -13,6 +13,9 @@ pip install molgenis-emx2-pyclient
 Releases of the Molgenis EMX2 Pyclient follow the release number of the accompanying release of the Molgenis EMX2 software.
 Therefore, releases of the Pyclient are less frequent than those of EMX2 and the latest version of the Pyclient may differ from the latest version of Molgenis EMX2.
 
+#### 11.61.2
+Fixed: problem where the schema metadata could not be updated with `upload_file` and a `molgenis.csv` file 
+
 #### 11.57.0
 - Added: feature 'truncate' to remove all entries from a table
 - Added: option to filter results of `get` method by columns

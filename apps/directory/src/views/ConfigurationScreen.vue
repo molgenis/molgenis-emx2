@@ -244,7 +244,6 @@ watch(configUpdateStatus, (newStatus) => {
 
 onMounted(async () => {
   editorType.value = views.ui;
-  await settingsStore.GetApplicationConfiguration();
 });
 
 function getFacetTitle(index: number) {

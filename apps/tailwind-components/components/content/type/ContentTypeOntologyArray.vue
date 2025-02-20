@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import type { ISectionField, IOntologyNode } from "~/interfaces/types";
+import type { ISectionField } from "~/types/types";
+
 const { field } = defineProps<{
   field: ISectionField;
 }>();
 
-const asString = computed(() => {
-  return field.value?.map((item): any => item.name).join(", ");
+interface Item {
+  name: string;
+}
+
+const asString = computed((): string => {
+  return field.value?.map((item: Item): string => item.name).join(", ");
 });
 </script>
 

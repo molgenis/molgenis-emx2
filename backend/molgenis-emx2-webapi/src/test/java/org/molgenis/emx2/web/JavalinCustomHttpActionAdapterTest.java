@@ -59,7 +59,7 @@ class JavalinCustomHttpActionAdapterTest {
     JavalinWebContext ctx = mock(JavalinWebContext.class);
     Context context = mock(Context.class);
 
-    when(ctx.getJavalinCtx()).thenReturn(context);
+    when(ctx.getContext()).thenReturn(context);
     assertEquals(null, adapter.adapt(action, ctx));
   }
 
@@ -71,7 +71,7 @@ class JavalinCustomHttpActionAdapterTest {
     JavalinWebContext ctx = mock(JavalinWebContext.class);
     Context context = mock(Context.class);
 
-    when(ctx.getJavalinCtx()).thenReturn(context);
+    when(ctx.getContext()).thenReturn(context);
     assertEquals(null, adapter.adapt(action, ctx));
   }
 
@@ -83,7 +83,7 @@ class JavalinCustomHttpActionAdapterTest {
     JavalinWebContext ctx = mock(JavalinWebContext.class);
     Context context = mock(Context.class);
 
-    when(ctx.getJavalinCtx()).thenReturn(context);
+    when(ctx.getContext()).thenReturn(context);
     assertEquals(null, adapter.adapt(action, ctx));
   }
 }

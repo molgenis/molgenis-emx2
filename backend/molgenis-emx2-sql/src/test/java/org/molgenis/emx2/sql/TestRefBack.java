@@ -239,4 +239,26 @@ public class TestRefBack {
     schema.getTable("subject").insert(row("id", "s1"));
     schema.getTable("treatmentxyz").insert(row("id", "t1"));
   }
+
+  @Test
+  void testRefBackAndFile_fix4703() {
+    Table test =
+        schema.create(
+            table(
+                "test4703",
+                column("id").setPkey(),
+                column("ref").setType(REF).setRefTable("test4703"),
+                column("refback").setType(REFBACK).setRefTable("test4703").setRefBack("ref"),
+                column("file").setType(FILE)));
+
+    assertDoesNotThrow(
+        () ->
+            test.query()
+                .select(
+                    s("id"),
+                    s("ref"),
+                    s("refback", s("ref")),
+                    s("file", s("id"), s("filename"), s("mimetype")))
+                .retrieveRows());
+  }
 }

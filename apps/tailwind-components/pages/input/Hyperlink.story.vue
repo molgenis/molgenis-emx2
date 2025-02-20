@@ -4,7 +4,12 @@
     with the added validation of the input being a hyperlink.
   </p>
   <FormFields
+    id="form-hyperlink"
+    schemaId="schema-hyperlink"
     :metadata="{
+      label: 'Hyperlink',
+      id: 'hyperlink',
+      tableType: 'my kind of table',
       columns: [
         {
           id: 'input-hyperlink',
@@ -13,7 +18,10 @@
         },
       ],
     }"
+    v-model="model"
   />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const model = ref({ "input-hyperlink": null });
+</script>

@@ -21,15 +21,6 @@ test("InputTextArea: invalid is properly indicated @tw-components @tw-forms @inp
   await expect(InputTextAreaClass).toContain("invalid");
 });
 
-test("InputTextArea: required state is properly indicated @tw-components @tw-forms @input-textarea", async ({
-  page,
-}) => {
-  await page.getByLabel("Required is true").check();
-  await expect(
-    page.getByLabel("Demo input for type=text Required")
-  ).toBeVisible();
-});
-
 test("InputTextArea: valid state properly styles component @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {

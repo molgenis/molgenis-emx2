@@ -8,19 +8,19 @@ import java.util.ArrayList;
 import java.util.Optional;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.web.JavalinCustomHttpActionAdapter;
 import org.molgenis.emx2.web.SecurityConfigFactory;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.context.CallContext;
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.engine.CallbackLogic;
 import org.pac4j.core.engine.DefaultCallbackLogic;
 import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.exception.http.RedirectionAction;
-import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.pac4j.core.profile.ProfileManager;
 import org.pac4j.core.profile.UserProfile;
-import org.pac4j.core.util.FindBest;
 import org.pac4j.core.util.Pac4jConstants;
+import org.pac4j.javalin.JavalinFrameworkParameters;
 import org.pac4j.javalin.JavalinHttpActionAdapter;
 import org.pac4j.javalin.JavalinWebContext;
 import org.pac4j.jee.context.session.JEESessionStore;
@@ -36,7 +36,7 @@ public class OIDCController {
 
   public OIDCController() {
     this.securityConfig = new SecurityConfigFactory().build();
-    this.sessionStore = FindBest.sessionStore(null, securityConfig, JEESessionStore.INSTANCE);
+    this.sessionStore = new JEESessionStore();
   }
 
   public void reloadConfig() {
@@ -44,7 +44,8 @@ public class OIDCController {
   }
 
   public void handleLoginRequest(Context ctx) {
-    final JavalinWebContext context = new JavalinWebContext(ctx);
+    WebContext context =
+        securityConfig.getWebContextFactory().newContext(new JavalinFrameworkParameters(ctx));
     sessionStore.set(context, Pac4jConstants.REQUESTED_URL, ctx.queryParams("redirect"));
     final var client =
         securityConfig
@@ -57,7 +58,7 @@ public class OIDCController {
     HttpAction action;
     try {
       Optional<RedirectionAction> redirectionAction =
-          client.getRedirectionAction(context, JEESessionStore.INSTANCE);
+          client.getRedirectionAction(new CallContext(context, sessionStore));
       if (redirectionAction.isEmpty()) {
         throw new MolgenisException("Expected OIDC redirection action not found");
       }
@@ -71,13 +72,11 @@ public class OIDCController {
 
   public void handleLoginCallback(Context ctx) {
     final JavalinWebContext context = new JavalinWebContext(ctx);
-    Optional<Object> requestedUrlList = sessionStore.get(context, Pac4jConstants.REQUESTED_URL);
-    HttpActionAdapter adapter = JavalinCustomHttpActionAdapter.INSTANCE;
-    final CallbackLogic callbackLogic =
-        FindBest.callbackLogic(null, securityConfig, DefaultCallbackLogic.INSTANCE);
+    JavalinFrameworkParameters parameters = new JavalinFrameworkParameters(ctx);
 
-    callbackLogic.perform(
-        context, sessionStore, securityConfig, adapter, null, false, OIDC_CLIENT_NAME);
+    Optional<Object> requestedUrlList = sessionStore.get(context, Pac4jConstants.REQUESTED_URL);
+    final CallbackLogic callbackLogic = DefaultCallbackLogic.INSTANCE;
+    callbackLogic.perform(securityConfig, null, false, OIDC_CLIENT_NAME, parameters);
 
     final ProfileManager manager = new ProfileManager(context, sessionStore);
     Optional<UserProfile> oidcProfile = manager.getProfile();

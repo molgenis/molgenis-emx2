@@ -16,7 +16,7 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | ---- | ------ | --------------- | ---------------- | --------------- |
 | 'ALL VARIABLES' VARIABLE EXPLORER | | | | |
 | 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. | | |
-| 1 | Go to <https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/all/variables> | The user goes to overview of all harmonised variables across all networks:         2249 variables | | |
+| 1 | Go to <https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/variables> | The user goes to overview of all harmonised variables across all networks:         2249 variables | | |
 | 2 | Type ‘adhd’ in search bar | 14 variables are listed | | |
 | 3 | Click on Harmonisations button | Harmonisation matrix is opened | | |
 | 4 | Scroll to the right to see Pelagie, testCohort1, testCohort2…| Pelagie has mappings for the first 7 variables, testCohort1, testCohort3 and testCohort4 have mappings on the ‘testVar…’ variables. | | |
@@ -67,9 +67,9 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | | | testVarLang3Vir mapped to cohorts 3 and 4. | | |
 | | | testVarVir mapped to cohorts 3 and 4 | | |
 | NETWORK-SPECIFIC VARIABLE EXPLORER | | | | |
-| 29 | Go to More --> Other Catalogues | The user goes to <https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue> | | |
-| 30 | Click on TestNetwork1 | The user goes to <https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/testNetwork1> | | |
-| 31 | Choose Variables | The user goes to <https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/testNetwork1/variables>. 7 variables are displayed: | | |
+| 29 | Go to More --> Other Catalogues | The user goes to <https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue> | | |
+| 30 | Click on TestNetwork1 | The user goes to <https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/testNetwork1> | | |
+| 31 | Choose Variables | The user goes to <https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/testNetwork1/variables>. 7 variables are displayed: | | |
 | | | testVarCategorical_, | | |
 | | | testVarLang, | | |
 | | | testVarLang3Vir, | | |

@@ -17,7 +17,7 @@
     >
       <template v-for="type in Object.keys(demoValue)">
         <FormField
-          :type="type"
+          :type="type as CellValueType"
           v-model="demoValue[type]"
           :id="'input-' + type"
           :placeholder="placeholder"
@@ -46,7 +46,9 @@
 </template>
 
 <script setup lang="ts">
-const demoValue = ref<string, any>({
+import type { CellValueType } from "../../metadata-utils/src/types";
+
+const demoValue = ref<Record<string, any>>({
   string: "test string",
   checkbox: [1],
   radio: 1,

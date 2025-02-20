@@ -5,6 +5,7 @@ import type {
   ISchemaMetaData,
 } from "../../metadata-utils/src/types";
 import { useRoute } from "#app/composables/router";
+import type { FormFields } from "#components";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -19,6 +20,11 @@ interface Schema {
 const route = useRoute();
 const schemaId = ref((route.query.schema as string) ?? "type test");
 const tableId = ref((route.query.table as string) ?? "Types");
+const numberOfRows = ref(0);
+const rowIndex = ref<null | number>(null);
+const formFields = ref<InstanceType<typeof FormFields>>();
+const formValues = ref<Record<string, columnValue>>({});
+const errors = ref<Record<string, IFieldError[]>>({});
 
 const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   key: "schemas",
@@ -39,6 +45,29 @@ const {
   status,
 } = await useAsyncData("form sample", () => fetchMetadata(schemaId.value));
 
+async function getNumberOfRows() {
+  const resp = await $fetch(`/${schemaId.value}/graphql`, {
+    method: "POST",
+    body: {
+      query: `query ${tableId.value} {
+          ${tableId.value}_agg {
+            count
+          }
+        }`,
+    },
+  });
+  numberOfRows.value = resp.data[tableId.value + "_agg"].count;
+}
+
+async function fetchRow(rowNumber: number) {
+  const resp = await fetchTableData(schemaId.value, tableId.value, {
+    limit: 1,
+    offset: rowNumber,
+  });
+
+  formValues.value = resp.rows[0];
+}
+
 const schemaTablesIds = computed(() =>
   (schemaMeta.value as ISchemaMetaData)?.tables.map((table) => table.id)
 );
@@ -48,18 +77,6 @@ const tableMeta = computed(() => {
     ? null
     : schemaMeta.value.tables.find((table) => table.id === tableId.value);
 });
-
-const data = ref([] as Record<string, columnValue>[]);
-
-const formFields = ref<InstanceType<typeof FormFields>>();
-
-const formValues = ref<Record<string, columnValue>>({});
-
-function onModelUpdate(value: Record<string, columnValue>) {
-  formValues.value = value;
-}
-
-const errors = ref<Record<string, IFieldError[]>>({});
 
 function onErrors(newErrors: Record<string, IFieldError[]>) {
   errors.value = newErrors;
@@ -92,6 +109,19 @@ watch(
         table: tableId.value,
       },
     });
+    getNumberOfRows();
+    rowIndex.value = null;
+    formValues.value = {};
+  },
+  { immediate: true }
+);
+
+watch(
+  () => rowIndex.value,
+  async () => {
+    if (rowIndex.value !== null) {
+      fetchRow(rowIndex.value - 1);
+    }
   }
 );
 </script>
@@ -105,8 +135,7 @@ watch(
         ref="formFields"
         :schemaId="schemaId"
         :metadata="tableMeta"
-        :data="data"
-        @update:model-value="onModelUpdate"
+        v-model="formValues"
         @error="onErrors($event)"
       />
     </div>
@@ -140,6 +169,25 @@ watch(
               {{ tableId }}
             </option>
           </select>
+        </div>
+
+        <div>
+          This table has {{ numberOfRows }} rows
+          <div class="flex flex-col">
+            <label for="row-select" class="text-title font-bold"
+              >Show row:
+            </label>
+            <select
+              id="row-select"
+              v-model="rowIndex"
+              class="border border-black"
+            >
+              <option :value="null">none</option>
+              <option v-for="index in numberOfRows" :value="index">
+                {{ index }}
+              </option>
+            </select>
+          </div>
         </div>
 
         <div class="mt-4 flex flex-row">
