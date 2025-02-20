@@ -581,12 +581,12 @@ public class RDFService {
     if (rowId != null) {
       // first find from root table
       PrimaryKey key = PrimaryKey.makePrimaryKeyFromEncodedKey(rowId);
-      List<Row> oneRow = query.where(key.getFilter()).retrieveRows();
+      List<Row> oneRow = query.where(key.getFilter()).retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
       // if subclass
       if (oneRow.size() == 1 && oneRow.get(0).getString(MG_TABLECLASS) != null) {
         Row row = oneRow.get(0);
         table = getSubclassTableForRowBasedOnMgTableclass(table, row);
-        return table.query().where(key.getFilter()).retrieveRows();
+        return table.query().where(key.getFilter()).retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
       }
       return oneRow;
     } else {
