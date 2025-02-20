@@ -40,8 +40,8 @@
     --border-radius-textarea-input: 20px;
     --border-radius-search-input: 9999px;
     --border-radius-search-button: 9999px;
-    --border-radius-pagination: 9999px;
     --border-radius-landing: 50px;
+
     --text-color-input-description: var(--color-white);
 
 }
