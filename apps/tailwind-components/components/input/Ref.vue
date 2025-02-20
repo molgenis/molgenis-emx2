@@ -88,6 +88,7 @@ onMounted(async () => {
   initialCount.value = count.value;
 });
 
+// the selectionMap is not reactively bound to the model due to need to fetch the options asynchonously
 watch(
   () => modelValue.value,
   () => {
@@ -96,6 +97,17 @@ watch(
       if (modelValue.value) {
         selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
           modelValue.value;
+      }
+    } else {
+      selectionMap.value = {};
+      if (
+        modelValue.value &&
+        Array.isArray(modelValue.value) &&
+        modelValue.value.length > 0
+      ) {
+        modelValue.value.forEach((value) => {
+          selectionMap.value[applyTemplate(props.refLabel, value)] = value;
+        });
       }
     }
   }
