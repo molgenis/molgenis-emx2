@@ -147,7 +147,8 @@ Known limitation: doesn't work for columns refering to a table with composite pr
 
 ### semantics
 
-See [this section](./semantics.md).
+Using semantics allows for defining how a table should be represented in RDF.
+For a detailed description on how to use this field, see [this section](./semantics.md).
 
 ### label,label:en,label:fr etc
 

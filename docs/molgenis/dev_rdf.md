@@ -1,8 +1,11 @@
 # RDF
 
 The Resource Description Format (RDF) is the W3C standard for web data.
-MOLGENIS EMX2 can export data in this format by using the RDF API. This API is located at `<server>/api/rdf` where `<server>` is the location where your MOLGENIS is hosted.
-For instance, if your MOLGENIS runs at `https://emx2.test.molgenis.org`, the RDF API is located at `https://emx2.test.molgenis.org/api/rdf`.   
+MOLGENIS EMX2 can export data in this format by using the RDF API.
+For server-wide API calls, it is located at `<server>/api/rdf` where `<server>` is the location where your MOLGENIS is hosted.
+Additionally, each database has an API available at `<server>/<database>/api/rdf`.
+For instance, if your MOLGENIS runs at `https://emx2.test.molgenis.org` and it has a database called `example`, the RDF API location for this database is `https://emx2.test.molgenis.org/example/api/rdf`.
+
 
 ## configuration
 
