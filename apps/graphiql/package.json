@@ -15,6 +15,7 @@
     "dev": "react-scripts start",
     "checkFormat": "echo \"skip checkFormat\"",
     "format": "echo \"skip format\"",
+    "test": "echo \"skip test\"",
     "build": "BUILD_PATH='./dist' react-scripts build"
   },
   "browserslist": {
