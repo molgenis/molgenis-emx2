@@ -18,8 +18,10 @@
         },
       ],
     }"
-    :data="[]"
+    v-model="model"
   />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const model = ref({ "input-hyperlink": null });
+</script>
