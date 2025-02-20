@@ -88,6 +88,19 @@ onMounted(async () => {
   initialCount.value = count.value;
 });
 
+watch(
+  () => modelValue.value,
+  () => {
+    if (props.isArray === false) {
+      delete selectionMap.value[Object.keys(selectionMap.value)[0]];
+      if (modelValue.value) {
+        selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
+          modelValue.value;
+      }
+    }
+  }
+);
+
 function applyTemplate(template: string, row: Record<string, any>): string {
   const ids = Object.keys(row);
   const vals = Object.values(row);
