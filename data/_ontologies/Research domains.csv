@@ -1,0 +1,11 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,rare_disease,Rare Diseases,,,,http://edamontology.org/topic_3325,"The study of rare diseases."
+,covid19,Covid-19,,,,,""
+,paediatrics,Paediatrics,,,,http://edamontology.org/topic_3418,"The branch of medicine that deals with the medical care of infants, children and adolescents."
+,oncology,Oncology,,,,http://edamontology.org/topic_2640,"The study of cancer, for example, genes and proteins implicated in cancer."
+,infectious,Infectious Diseases,,,,http://edamontology.org/topic_3324,"The branch of medicine that deals with the prevention, diagnosis and management of transmissible disease with clinically evident illness resulting from infection with pathogenic biological agents (viruses, bacteria, fungi, protozoa, parasites and prions)."
+,population,Population/ Reference Samples,,,,,"Samples suitable to be used as population reference samples, e.g. samples from population studies or samples from donors free of the disease of interest"
+,metabolic,Metabolic Disorders,,,,http://purl.obolibrary.org/obo/NCIT_C3235,"A congenital (due to inherited enyme abnormality) or acquired (due to failure of a metabolic important organ) disorder resulting from an abnormal metabolic process & A non-neoplastic or neoplastic disorder that affects the endocrine system. Representative examples of non-neoplastic disorders include diabetes mellitus, hyperthyroidism, and adrenal gland insufficiency. Representative examples of neoplastic disorders include carcinoid tumor, neuroendocrine carcinoma, and pheochromocytoma."
+,cardiovascular,Cardiovascular Diseases,,,,http://purl.obolibrary.org/obo/NCIT_C2931,"A non-neoplastic or neoplastic disorder affecting the heart or the vessels (arteries, veins and lymph vessels). Representative examples of non-neoplastic cardiovascular disorders are endocarditis and hypertension. Representative examples of neoplastic cardiovascular disorders are endocardial myxoma and angiosarcoma. [Definition Source: NCI]"
+,nervous_system,Nervous System Disorders,,,,http://purl.obolibrary.org/obo/NCIT_C26835,"A non-neoplastic or neoplastic disorder that affects the brain, spinal cord, or peripheral nerves."
+,autoimmune,Autoimmune Diseases,,,,http://purl.obolibrary.org/obo/OBI_1110054,"Is a disease characterized by an immune response of an organism against parts of itself.""
