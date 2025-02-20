@@ -112,6 +112,8 @@ export type columnValue =
   | columnValueObject
   | columnValue[];
 
+export type recordValue = Record<string, columnValue>;
+
 export interface columnValueObject {
   [x: string]: columnValue;
 }

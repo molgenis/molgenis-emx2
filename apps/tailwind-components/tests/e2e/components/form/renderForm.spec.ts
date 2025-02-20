@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import playwrightConfig from "../../../playwright.config";
+import playwrightConfig from "~/playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
@@ -39,7 +39,9 @@ test("the legend should show number of errors per chapter (if any)", async ({
   await page.getByLabel("name Required", { exact: true }).click();
   // skip a required field
   await page.getByLabel("name Required", { exact: true }).press("Tab");
-  await expect(page.locator("span").filter({ hasText: /^1$/ })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "overview 1 error" })
+  ).toBeVisible();
 });
 
 test("clicking on the chapter should scroll to the chapter", async ({
