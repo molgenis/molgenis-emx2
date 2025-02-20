@@ -218,7 +218,8 @@ class ColumnTypeRdfMapperTest {
             row("id1", "c", "id2", "d", "ref", "lonelyString"));
 
     // Describes rows for easy access.
-    testRows = allColumnTypes.getTable(TEST_TABLE).retrieveRows();
+    // exclude mg columns because they might be not empty for the empty test
+    testRows = allColumnTypes.getTable(TEST_TABLE).retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
   }
 
   @AfterAll
