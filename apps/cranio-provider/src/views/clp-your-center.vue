@@ -78,7 +78,7 @@
         <ProgressMeter
           :chartId="cleftqCompletionChart?.chartId"
           :title="`% of patients that completed the CLEFT-Q (${selectedAgeGroup})`"
-          :value="cleftqCompletionChart?.dataPoints![0].dataPointValue"
+          :value="progressMeterValue"
           :totalValue="100"
           :barHeight="25"
           barFill="#66c2a4"
@@ -88,7 +88,7 @@
         <ProgressMeter
           :chartId="icsCompletionChart?.chartId"
           :title="`% of patients that completed the ICS (${selectedAgeGroup})`"
-          :value="icsCompletionChart?.dataPoints![0].dataPointValue"
+          :value="progressMeterValue"
           :totalValue="100"
           :barHeight="25"
           barFill="#9f6491"
@@ -121,7 +121,7 @@ import { getUniqueAgeRanges } from "../utils/clpUtils";
 
 import type { ICharts, IChartData } from "../types/schema";
 import type { IAppPage } from "../types/app";
-import type { IKeyValuePair } from "../types/index";
+import type { IKeyValuePair, clpChartTypes } from "../types/index";
 const props = defineProps<IAppPage>();
 
 const loading = ref<boolean>(true);
@@ -136,8 +136,9 @@ const patientsByGenderChartData = ref<IKeyValuePair>();
 const patientsByGenderPalette = ref<IKeyValuePair>();
 const icsCompletionChart = ref<ICharts>();
 const cleftqCompletionChart = ref<ICharts>();
+const progressMeterValue = ref<number>(0);
 
-const currentVisibleMeter = computed<string>(() => {
+const currentVisibleMeter = computed<clpChartTypes>(() => {
   if (["3-4 years", "5-6 years"].includes(selectedAgeGroup.value as string)) {
     return "ics";
   } else {
@@ -213,9 +214,33 @@ function updateGenderChart() {
   );
 }
 
+function updateProgressMeter() {
+  console.log(currentVisibleMeter.value, selectedAgeGroup.value);
+  if (currentVisibleMeter.value === "ics") {
+    const icsFiltered = icsCompletionChart.value?.dataPoints?.filter(
+      (row: IChartData) => {
+        return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+      }
+    ) as IChartData[];
+    if (icsFiltered[0].dataPointValue) {
+      progressMeterValue.value = icsFiltered[0].dataPointValue;
+    }
+  } else {
+    const cleftqFilterd = cleftqCompletionChart.value?.dataPoints?.filter(
+      (row: IChartData) => {
+        return row.dataPointPrimaryCategory === selectedAgeGroup.value;
+      }
+    ) as IChartData[];
+    if (cleftqFilterd[0].dataPointValue) {
+      progressMeterValue.value = cleftqFilterd[0].dataPointValue;
+    }
+  }
+}
+
 function updateCharts() {
   updatePhenotypesChart();
   updateGenderChart();
+  updateProgressMeter();
 }
 
 onMounted(() => {
