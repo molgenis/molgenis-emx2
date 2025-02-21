@@ -2,7 +2,7 @@ apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
   name: {{ include "emx2.fullname" . }}-scaler
-  namespace: default  # Replace with your namespace if different
+  namespace: {{ include "emx2.fullname" .}} 
 spec:
   scaleTargetRef:
     name: {{ include "emx2.fullname" .}}
