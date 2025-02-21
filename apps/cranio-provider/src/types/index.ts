@@ -43,3 +43,5 @@ export interface IValueLabel {
   value: string;
   label: string;
 }
+
+export type clpChartTypes = "ics" | "cleftq";

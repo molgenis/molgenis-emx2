@@ -3,14 +3,14 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import ProviderOverview from "../views/provider-overview.vue";
 
 // Craniosynostosis pages (id: `-cs-`)
-import ProvidersCsAllGeneral from "../views/provider-cs-all-general.vue";
-import ProvidersCsAllSurgical from "../views/provider-cs-all-surgical.vue";
-import ProvidersCsCenterGeneral from "../views/provider-cs-center-general.vue";
-import ProvidersCsCenterSurgical from "../views/provider-cs-center-surgical.vue";
+import ProvidersCsAllGeneral from "../views/cs-all-general.vue";
+import ProvidersCsAllSurgical from "../views/cs-all-surgical.vue";
+import ProvidersCsCenterGeneral from "../views/cs-center-general.vue";
+import ProvidersCsCenterSurgical from "../views/cs-center-surgical.vue";
 
 // cleft lip and palate pages (id: `-clp-`)
-import ProviderClpYourCenter from "../views/provider-clp-your-center.vue";
-import ProviderClpAllCenters from "../views/provider-clp-all-centers.vue";
+import ProviderClpYourCenter from "../views/clp-your-center.vue";
+import ProviderClpAllCenters from "../views/clp-all-centers.vue";
 
 import ProviderGeneticDeafness from "../views/provider-genetic-deafness.vue";
 import ProviderLarnyxcleft from "../views/provider-larnyxcleft.vue";
