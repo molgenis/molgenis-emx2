@@ -31,6 +31,8 @@ public class TestLoaders {
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
+  public static final String DASHBOARD_TEST = "UiDashboardTest";
+  public static final String PATIENT_REGISTRY_DEMO = "patientRegistryDemo";
   static Database database;
 
   @BeforeAll
@@ -57,6 +59,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(FAIR_DATA_POINT);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(PROJECT_MANAGER);
+    database.dropSchemaIfExists(DASHBOARD_TEST);
     // delete ontologies last
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
@@ -161,6 +164,20 @@ public class TestLoaders {
     // depends on catalogue test above
     Schema schema = database.dropCreateSchema(PORTAL_TEST);
     DataModels.Regular.RD3_V2.getImportTask(schema, false).run();
-    assertEquals(94, schema.getTableNames().size());
+    assertEquals(97, schema.getTableNames().size());
+  }
+
+  @Test
+  public void dashboardTestLoader() {
+    Schema schema = database.dropCreateSchema(DASHBOARD_TEST);
+    DataModels.Regular.UI_DASHBOARD.getImportTask(schema, true).run();
+    assertEquals(6, schema.getTableNames().size());
+  }
+
+  @Test
+  public void patientRegistryDemoTestLoader() {
+    Schema schema = database.dropCreateSchema(PATIENT_REGISTRY_DEMO);
+    DataModels.Regular.PATIENT_REGISTRY_DEMO.getImportTask(schema, true).run();
+    assertEquals(86, schema.getTableNames().size());
   }
 }

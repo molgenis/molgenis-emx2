@@ -1,4 +1,4 @@
-import type { ITableMetaData } from "metadata-utils";
+import type { ITableMetaData } from "../../../metadata-utils/src/types";
 import { fetchSchemaMetaData } from "./client";
 
 /**
@@ -57,8 +57,6 @@ const getColumns = (
   tableId: string,
   tableStore: ITableMetaData[]
 ) => {
-  const result = tableStore.find(
-    (table) => table.id === tableId && table.schemaId === schemaId
-  );
+  const result = tableStore.find((table) => table.id === tableId);
   return result?.columns || [];
 };

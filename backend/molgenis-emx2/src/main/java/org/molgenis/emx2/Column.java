@@ -483,7 +483,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
           }
           if (name == null) {
             name = getName();
-            if (pkeys.size() > 1) {
+            // fixed in #4705 to also accommodate for nested composite keys checking keyParts!
+            if (pkeys.size() > 1 || keyPart.getReferences().size() > 0) {
               name += COMPOSITE_REF_SEPARATOR + ref.getName();
             }
           }
@@ -627,8 +628,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return refLink;
   }
 
-  public void setRefLink(String refLink) {
+  public Column setRefLink(String refLink) {
     this.refLink = refLink;
+    return this;
   }
 
   public Column getRefLinkColumn() {

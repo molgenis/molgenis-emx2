@@ -2,7 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.Row.row;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;

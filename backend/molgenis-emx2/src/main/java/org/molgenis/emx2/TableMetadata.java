@@ -196,7 +196,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   public List<Column> getDownloadColumnNames() {
     List<Column> list = new ArrayList<>();
     for (Column column : getColumns()) {
-      if (!column.isRefback() && !column.isHeading()) {
+      if (!column.isHeading()) {
         if (column.isFile()) {
           list.add(column(column.getName()));
           list.add(column(column.getName() + "_filename"));

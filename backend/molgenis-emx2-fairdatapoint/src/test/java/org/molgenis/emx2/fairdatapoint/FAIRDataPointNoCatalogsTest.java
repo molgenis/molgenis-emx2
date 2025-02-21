@@ -3,7 +3,7 @@ package org.molgenis.emx2.fairdatapoint;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import io.javalin.http.Context;
 import org.junit.jupiter.api.BeforeAll;

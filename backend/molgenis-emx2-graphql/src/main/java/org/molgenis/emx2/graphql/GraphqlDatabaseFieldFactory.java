@@ -12,7 +12,6 @@ import static org.molgenis.emx2.graphql.GraphqlSchemaFieldFactory.*;
 import graphql.Scalars;
 import graphql.schema.*;
 import java.util.*;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.tasks.Task;
@@ -142,13 +141,16 @@ public class GraphqlDatabaseFieldFactory {
             dataFetchingEnvironment -> {
               final List<String> selectedKeys =
                   dataFetchingEnvironment.getArgumentOrDefault(KEYS, new ArrayList<>());
-              Map<String, String> selectedSettings =
-                  database.getSettings().entrySet().stream()
-                      .filter(
-                          setting ->
-                              selectedKeys.isEmpty() || selectedKeys.contains(setting.getKey()))
-                      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-              return mapSettingsToGraphql(selectedSettings);
+
+              Map<String, String> filtered = new HashMap<>();
+              for (Map.Entry<String, String> setting : database.getSettings().entrySet()) {
+                if (selectedKeys.isEmpty() || selectedKeys.contains(setting.getKey())) {
+                  filtered.put(setting.getKey(), setting.getValue());
+                }
+              }
+              filtered.put(Constants.IS_OIDC_ENABLED, String.valueOf(database.isOidcEnabled()));
+
+              return mapSettingsToGraphql(filtered);
             });
   }
 

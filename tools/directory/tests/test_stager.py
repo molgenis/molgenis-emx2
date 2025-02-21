@@ -142,8 +142,10 @@ async def test_check_tables(mocker, external_server_init):
     assert warnings[1] == DirectoryWarning("Node NL has no also_known_in table")
     assert warnings[2] == DirectoryWarning("Node NL has no networks table")
     assert warnings[3] == DirectoryWarning("Node NL has no biobanks table")
-    assert warnings[4] == DirectoryWarning("Node NL has no collections table")
-    assert warnings[5] == DirectoryWarning("Node NL has no facts table")
+    assert warnings[4] == DirectoryWarning("Node NL has no services table")
+    assert warnings[5] == DirectoryWarning("Node NL has no studies table")
+    assert warnings[6] == DirectoryWarning("Node NL has no collections table")
+    assert warnings[7] == DirectoryWarning("Node NL has no facts table")
 
 
 def test_clear_staging_area(mocker):
@@ -161,13 +163,13 @@ def test_clear_staging_area(mocker):
         "molgenis_emx2.directory_client.directory_client.DirectorySession."
         "get_schemas",
         return_value=[
-            Schema(id="BBMRI-NL", name="None-NL", label="BBMRI-ERIC", description="")
+            Schema(id="BBMRI-NL", name="BBMRI-NL", label="BBMRI-ERIC", description="")
         ],
     )
     mocker.patch(
         "molgenis_emx2.directory_client.directory_client.DirectorySession."
         "set_schema",
-        return_value=["BBMRI-NL"],
+        return_value=["None-NL"],
     )
     session = DirectorySession("https://url.nl", "BBMRI-NL")
     session.get = MagicMock()
@@ -178,12 +180,14 @@ def test_clear_staging_area(mocker):
     Stager(session, Printer())._clear_staging_area(node)
 
     assert session.delete_records.mock_calls == [
-        mock.call(schema="BBMRI-NL", table="CollectionFacts", data=[{"id": "All"}]),
-        mock.call(schema="BBMRI-NL", table="Collections", data=[{"id": "All"}]),
-        mock.call(schema="BBMRI-NL", table="Biobanks", data=[{"id": "All"}]),
-        mock.call(schema="BBMRI-NL", table="Networks", data=[{"id": "All"}]),
-        mock.call(schema="BBMRI-NL", table="AlsoKnownIn", data=[{"id": "All"}]),
-        mock.call(schema="BBMRI-NL", table="Persons", data=[{"id": "All"}]),
+        mock.call(schema="None-NL", table="CollectionFacts", data=[{"id": "All"}]),
+        mock.call(schema="None-NL", table="Collections", data=[{"id": "All"}]),
+        mock.call(schema="None-NL", table="Studies", data=[{"id": "All"}]),
+        mock.call(schema="None-NL", table="Services", data=[{"id": "All"}]),
+        mock.call(schema="None-NL", table="Biobanks", data=[{"id": "All"}]),
+        mock.call(schema="None-NL", table="Networks", data=[{"id": "All"}]),
+        mock.call(schema="None-NL", table="AlsoKnownIn", data=[{"id": "All"}]),
+        mock.call(schema="None-NL", table="Persons", data=[{"id": "All"}]),
     ]
 
 
