@@ -1,5 +1,10 @@
-import type { IColumn, ITableMetaData } from "metadata-utils";
-import { IRow } from "../../../Interfaces/IRow";
+import type {
+  columnValue,
+  IColumn,
+  ITableMetaData,
+  recordValue,
+} from "../../../../../metadata-utils/src/types";
+import type { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
 
@@ -22,12 +27,12 @@ export function getRowErrors(
   );
 }
 
-function getColumnError(
+export function getColumnError(
   column: IColumn,
-  rowData: Record<string, any>,
+  rowData: recordValue | undefined,
   tableMetaData: ITableMetaData
 ): string | undefined {
-  const value = rowData[column.id];
+  const value = rowData?.[column.id];
   const type = column.columnType;
   const missesValue = isMissingValue(value);
   // FIXME: this function should also check all array types
@@ -86,7 +91,10 @@ function getColumnError(
   }
   if (type === "JSON") {
     try {
-      if (!isJsonObjectOrArray(JSON.parse(value))) {
+      if (
+        typeof value === "string" &&
+        !isJsonObjectOrArray(JSON.parse(value))
+      ) {
         return `Root element must be an object or array`;
       }
     } catch {
@@ -120,9 +128,9 @@ export function isRequired(value: string | boolean): boolean {
   }
 }
 
-function isInValidNumericValue(columnType: string, value: number) {
+function isInValidNumericValue(columnType: string, value?: columnValue) {
   if (["DECIMAL", "INT"].includes(columnType)) {
-    return isNaN(value);
+    return value === undefined || (typeof value === "number" && isNaN(value));
   } else {
     return false;
   }
@@ -130,7 +138,7 @@ function isInValidNumericValue(columnType: string, value: number) {
 
 function getRequiredExpressionError(
   expression: string,
-  values: Record<string, any>,
+  values: Record<string, any> | undefined,
   tableMetaData: ITableMetaData
 ): string | undefined {
   try {
@@ -148,7 +156,7 @@ function getRequiredExpressionError(
 
 function getColumnValidationError(
   validation: string,
-  values: Record<string, any>,
+  values: recordValue | undefined,
   tableMetaData: ITableMetaData
 ) {
   try {
@@ -167,7 +175,7 @@ function getColumnValidationError(
 
 export function executeExpression(
   expression: string,
-  values: Record<string, any>,
+  values: recordValue | undefined,
   tableMetaData: ITableMetaData
 ) {
   //make sure all columns have keys to prevent reference errors
@@ -178,7 +186,7 @@ export function executeExpression(
     }
   });
   if (!copy.mg_tableclass) {
-    copy.mg_tableclass = `${tableMetaData.schemaId}.${tableMetaData.label}`;
+    copy.mg_tableclass = `${tableMetaData.id}.${tableMetaData.label}`;
   }
 
   // A simple client for scripts to use to request data.
@@ -264,7 +272,7 @@ export function filterVisibleColumns(
 
 export function isColumnVisible(
   column: IColumn,
-  values: Record<string, any>,
+  values: recordValue | undefined,
   tableMetadata: ITableMetaData
 ): boolean {
   const expression = column.visible;

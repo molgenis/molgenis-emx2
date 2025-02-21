@@ -34,9 +34,11 @@ const deselect = (selectedNodeName: string) => {
 
 const inverted = ref(false);
 const expandSelected = ref(true);
+const emitSelectedChildren = ref(true);
 </script>
 
 <template>
+  <h1 class="text-heading-2xl pb-4">InputTree</h1>
   <div class="flex flex-row gap-2 mb-4">
     <div class="basis-3/5">
       <InputTree
@@ -46,6 +48,7 @@ const expandSelected = ref(true);
         class="p-4"
         :class="inverted ? 'bg-white' : 'bg-sidebar-gradient'"
         :inverted="inverted"
+        :emitSelectedChildren="emitSelectedChildren"
       />
     </div>
 
@@ -60,7 +63,7 @@ const expandSelected = ref(true);
             v-model="expandSelected"
           />
           <label class="ml-1 hover:cursor-pointer" for="tree-expand-selected">
-            expand Selected
+            expandSelected
           </label>
         </div>
         <div class="mb-2">
@@ -71,7 +74,18 @@ const expandSelected = ref(true);
             v-model="inverted"
           />
           <label class="ml-1 hover:cursor-pointer" for="tree-inverted">
-            inverted colors
+            inverted
+          </label>
+        </div>
+        <div class="mb-2">
+          <input
+            id="tree-emit-children"
+            class="ml-2 hover:cursor-pointer"
+            type="checkbox"
+            v-model="emitSelectedChildren"
+          />
+          <label class="ml-1 hover:cursor-pointer" for="tree-inverted">
+            emitSelectedChildren
           </label>
         </div>
       </fieldset>

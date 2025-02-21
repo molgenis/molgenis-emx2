@@ -10,6 +10,7 @@ public class Constants {
   public static final String MG_USER_PREFIX = "MG_USER_";
 
   public static final String COMPOSITE_REF_SEPARATOR = ".";
+  public static final String SUBSELECT_SEPARATOR = "-";
   public static final String REF_LINK = "refLink";
   public static final String REF_LABEL = "refLabel";
   public static final String REF_LABEL_DEFAULT = "refLabelDefault";
@@ -62,6 +63,9 @@ public class Constants {
   public static final String MOLGENIS_INCLUDE_CATALOGUE_DEMO = "MOLGENIS_INCLUDE_CATALOGUE_DEMO";
   public static final String MOLGENIS_INCLUDE_DIRECTORY_DEMO = "MOLGENIS_INCLUDE_DIRECTORY_DEMO";
   public static final String MOLGENIS_EXCLUDE_PETSTORE_DEMO = "MOLGENIS_EXCLUDE_PETSTORE_DEMO";
+  public static final String MOLGENIS_INCLUDE_TYPE_TEST_DEMO = "MOLGENIS_INCLUDE_TYPE_TEST_DEMO";
+  public static final String MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO =
+      "MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO";
 
   public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
 
@@ -86,14 +90,10 @@ public class Constants {
 
   protected static final String COLUMN_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,62}$";
 
-  // RFC 5322, see http://emailregex.com/
   protected static final String EMAIL_REGEX =
-      "(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]"
-          + "+(?:\\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|\""
-          + "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")"
-          + "@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.)"
-          + "{3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\"
-          + "[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
+      "^(([^<>()[\\\\]\\\\.,;:\\s@\"]+(\\.[^<>()[\\\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@"
+          + "((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|"
+          + "(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$|^$";
   // thank you to
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   protected static final String HYPERLINK_REGEX =
@@ -113,6 +113,11 @@ public class Constants {
 
   public static final String CONTACT_RECIPIENTS_QUERY_SETTING_KEY = "contactRecipientsQuery";
   public static final String CONTACT_BCC_ADDRESS = "contactBccAddress";
+
+  public static final String API_RDF = "/api/rdf";
+  public static final String API_TTL = "/api/ttl";
+  public static final String API_JSONLD = "/api/jsonld";
+  public static final String API_FILE = "/api/file";
 
   private Constants() {
     // hide constructor

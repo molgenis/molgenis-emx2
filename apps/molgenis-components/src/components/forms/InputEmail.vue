@@ -22,6 +22,9 @@
         :placeholder="placeholder"
         :readonly="readonly"
       />
+      <template v-slot:append>
+        <slot name="append"></slot>
+      </template>
     </InputGroup>
   </FormGroup>
 </template>

@@ -4,7 +4,7 @@
 
 ## How to import comma values
 
-Example for REF_ARRAY or STRING_ARRAY type where you have multiple values with commas in them
+Example for REF_ARRAY or STRING_ARRAY type where you have multiple values with commas in them.
 
 ```
 col1,col2

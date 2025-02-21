@@ -14,7 +14,9 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | -----| -------| ----------------| -----------------| ----------------|
-| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue) | Landing page: European health research data and sample catalogue | | |
+| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue
+
+catalogue) | Landing page: European health research data and sample catalogue | | |
 | 2 | Click the `SEARCH ALL` button | `COLLECTIONS`, `NETWORKS` and `VARIABLES` buttons are with the number of each under the button | | |
 | 3 | Click on the `COLLECTIONS` button | Collections overview page with a list of all collections in the system | | |
 | 4 | Type "Name for test cohort" in the Search field top left | See that two cohorts are presented in the list: "acronym for test cohort 1" and "acronym for test cohort 2" | | |
