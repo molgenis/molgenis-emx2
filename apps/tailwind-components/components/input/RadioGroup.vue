@@ -13,7 +13,7 @@
     <div v-for="option in options" class="flex flex-row">
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
-        class="group flex justify-start items-center gap-1"
+        class="group flex justify-start items-center gap-1 relative"
         :class="{
           'text-disabled cursor-not-allowed': disabled,
           'text-title cursor-pointer ': !disabled,
