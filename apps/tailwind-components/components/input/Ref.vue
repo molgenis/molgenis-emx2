@@ -73,7 +73,7 @@ onMounted(async () => {
     const data: ITableDataResponse = await fetchTableData(
       props.refSchemaId,
       props.refTableId,
-      { filter: { equals: modelValue.value } }
+      { filter: { equals: extractPrimaryKey(modelValue.value) } }
     );
     if (data.rows) {
       hasNoResults.value = false;
