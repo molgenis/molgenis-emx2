@@ -73,7 +73,7 @@ onMounted(async () => {
     const data: ITableDataResponse = await fetchTableData(
       props.refSchemaId,
       props.refTableId,
-      { filter: { equals: modelValue.value } }
+      { filter: { equals: extractPrimaryKey(modelValue.value) } }
     );
     if (data.rows) {
       hasNoResults.value = false;
@@ -87,6 +87,31 @@ onMounted(async () => {
   await loadOptions({ limit: props.limit });
   initialCount.value = count.value;
 });
+
+// the selectionMap is not reactively bound to the model due to need to fetch the options asynchonously
+watch(
+  () => modelValue.value,
+  () => {
+    if (props.isArray === false) {
+      delete selectionMap.value[Object.keys(selectionMap.value)[0]];
+      if (modelValue.value) {
+        selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
+          modelValue.value;
+      }
+    } else {
+      selectionMap.value = {};
+      if (
+        modelValue.value &&
+        Array.isArray(modelValue.value) &&
+        modelValue.value.length > 0
+      ) {
+        modelValue.value.forEach((value) => {
+          selectionMap.value[applyTemplate(props.refLabel, value)] = value;
+        });
+      }
+    }
+  }
+);
 
 function applyTemplate(template: string, row: Record<string, any>): string {
   const ids = Object.keys(row);
