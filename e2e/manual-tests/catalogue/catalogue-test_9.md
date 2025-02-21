@@ -14,7 +14,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | -----| -------| ----------------| -----------------| ----------------|
-| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-
+| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue
 
 catalogue) | Landing page: European health research data and sample catalogue | | |
 | 2 | Click the `SEARCH ALL` button | `COLLECTIONS`, `NETWORKS` and `VARIABLES` buttons are with the number of each under the button | | |
