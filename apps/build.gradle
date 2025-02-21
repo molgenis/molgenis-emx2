@@ -62,16 +62,7 @@ subprojects { subproject ->
 
     def packageJson = file("package.json").text
 
-    task lint(type: YarnTask, dependsOn: format) {
-        if (packageJson.contains("\"name\": \"tailwind-components\"")) {
-            args = ['run', 'lint']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        }
-    }
-
-    task buildJavascript(type: YarnTask, dependsOn: lint) {
+    task buildJavascript(type: YarnTask, dependsOn: format) {
         environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
 
         //automatically get the internal dependencies
@@ -94,6 +85,15 @@ subprojects { subproject ->
         }
     }
     parent.tasks.processResources.dependsOn buildJavascript
+
+    task lint(type: YarnTask, dependsOn: buildJavascript) {
+        if (packageJson.contains("\"name\": \"tailwind-components\"")) {
+            args = ['run', 'lint']
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+        }
+    }
 
     task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {
         if (packageJson.contains("test-ci")) {
