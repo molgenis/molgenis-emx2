@@ -1063,7 +1063,7 @@ public class SqlQuery extends QueryBean {
   private Condition whereConditions(
       TableMetadata table, String tableAlias, Filter filter, String[] searchTerms) {
     Condition searchCondition = whereConditionSearch(table, tableAlias, searchTerms);
-    Condition filterCondition = rowConditionsFilter(table, tableAlias, filter);
+    Condition filterCondition = whereConditionsFilter(table, tableAlias, filter);
 
     if (searchCondition != null && filterCondition != null) {
       return and(searchCondition, filterCondition);
@@ -1076,19 +1076,19 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private Condition rowConditionsFilter(TableMetadata table, String tableAlias, Filter filters) {
+  private Condition whereConditionsFilter(TableMetadata table, String tableAlias, Filter filters) {
     List<Condition> conditions = new ArrayList<>();
     if (Operator.OR.equals(filters.getOperator())) {
       conditions.add(
           or(
               filters.getSubfilters().stream()
-                  .map(f -> rowConditionsFilter(table, tableAlias, f))
+                  .map(f -> whereConditionsFilter(table, tableAlias, f))
                   .toList()));
     } else if (Operator.AND.equals(filters.getOperator())) {
       conditions.add(
           and(
               filters.getSubfilters().stream()
-                  .map(f -> rowConditionsFilter(table, tableAlias, f))
+                  .map(f -> whereConditionsFilter(table, tableAlias, f))
                   .toList()));
     } else {
       Column column =
@@ -1105,7 +1105,7 @@ public class SqlQuery extends QueryBean {
         for (Filter subfilter : filters.getSubfilters()) {
           if (column.isReference()) {
             conditions.add(
-                rowConditionsFilter(
+                whereConditionsFilter(
                     column.getRefTable(), tableAlias + "-" + column.getName(), subfilter));
           } else if (column.isFile()) {
             Filter sub = filters.getSubfilter("id");
