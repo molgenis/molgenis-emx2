@@ -129,7 +129,7 @@ public class ColumnTypeRdfMapper {
     STRING(CoreDatatype.XSD.STRING) {
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
-        return basicRetrievalString(row.getStringArray(column.getName()), Values::literal);
+        return basicRetrievalString(row.getStringArrayPreserveDelimiter(column), Values::literal);
       }
     },
     INT(CoreDatatype.XSD.INT) {

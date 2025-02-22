@@ -87,6 +87,14 @@ public class Row {
     return getStringArray(name, true);
   }
 
+  // If a value contains a comma but is not of type array, only return that single value without
+  // forcing it into becoming an array, creating a wrongful representation of that value
+  public String[] getStringArrayPreserveDelimiter(Column column) {
+    return column.isArray()
+        ? getStringArray(column.getName(), true)
+        : new String[] {getString(column.getName())};
+  }
+
   public String[] getStringArray(String name, boolean emptyAsNull) {
     if (values.get(name) == null) {
       // if the key is present but no value, returning an empty array allows updating to an empty

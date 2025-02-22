@@ -1,9 +1,9 @@
-network,type,publisher,name,description
-LifeCycle,project,,LifeCycle,to be filled out
-ATHLETE,project,,ATHLETE,to be filled out
-IPEC,theme,,IPEC,to be filled out
-EUChildNetwork,project,,EUChildNetwork,to be filled out
-OOM,project,,OOM,to be filled out
-LongITools,project,,LongITools,to be filled out
-testNetwork1,theme,,testNetwork1,to be filled out
-testNetworkofNetworks,project,,testNetworkofNetworks,to be filled out
+network,type,publisher,name,description,license,conformsTo
+LifeCycle,project,MOLGENIS,LifeCycle,to be filled out,https://www.gnu.org/licenses/lgpl-3.0.rdf,https://specs.fairdatapoint.org/fdp-specs-v1.2.html
+ATHLETE,project,MOLGENIS,ATHLETE,to be filled out,https://www.gnu.org/licenses/lgpl-3.0.rdf,https://specs.fairdatapoint.org/fdp-specs-v1.2.html
+IPEC,theme,MOLGENIS,IPEC,to be filled out,https://www.gnu.org/licenses/lgpl-3.0.rdf,https://specs.fairdatapoint.org/fdp-specs-v1.2.html
+EUChildNetwork,project,MOLGENIS,EUChildNetwork,to be filled out,https://www.gnu.org/licenses/lgpl-3.0.rdf,https://specs.fairdatapoint.org/fdp-specs-v1.2.html
+OOM,project,MOLGENIS,OOM,to be filled out,https://www.gnu.org/licenses/lgpl-3.0.rdf,https://specs.fairdatapoint.org/fdp-specs-v1.2.html
+LongITools,project,MOLGENIS,LongITools,to be filled out,https://www.gnu.org/licenses/lgpl-3.0.rdf,https://specs.fairdatapoint.org/fdp-specs-v1.2.html
+testNetwork1,theme,MOLGENIS,testNetwork1,to be filled out,https://www.gnu.org/licenses/lgpl-3.0.rdf,https://specs.fairdatapoint.org/fdp-specs-v1.2.html
+testNetworkofNetworks,project,MOLGENIS,testNetworkofNetworks,to be filled out,https://www.gnu.org/licenses/lgpl-3.0.rdf,https://specs.fairdatapoint.org/fdp-specs-v1.2.html
