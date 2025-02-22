@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
-import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.File;
@@ -218,22 +217,9 @@ class ColumnTypeRdfMapperTest {
             row("id1", "a", "id2", "b", "ref", "lonelyString"),
             row("id1", "c", "id2", "d", "ref", "lonelyString"));
 
-    // Use query to explicitly retrieve all rows as the following would exclude REFBACK values:
-    // allColumnTypes.getTable(TEST_TABLE).retrieveRows()
-    List<SelectColumn> selectColumnList =
-        Arrays.stream(ColumnType.values())
-            .map(i -> new SelectColumn(i.name()))
-            .collect(Collectors.toList());
-    // Add Composite columns manually.
-    selectColumnList.add(s(COLUMN_COMPOSITE_REF + ".ids"));
-    selectColumnList.add(s(COLUMN_COMPOSITE_REF + ".idi"));
-    selectColumnList.add(s(COLUMN_COMPOSITE_REF_ARRAY + ".ids"));
-    selectColumnList.add(s(COLUMN_COMPOSITE_REF_ARRAY + ".idi"));
-    selectColumnList.add(s(COLUMN_COMPOSITE_REFBACK, s("id1"), s("id2")));
-    SelectColumn[] selectColumns = selectColumnList.toArray(SelectColumn[]::new);
-
     // Describes rows for easy access.
-    testRows = allColumnTypes.getTable(TEST_TABLE).query().select(selectColumns).retrieveRows();
+    // exclude mg columns because they might be not empty for the empty test
+    testRows = allColumnTypes.getTable(TEST_TABLE).retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
   }
 
   @AfterAll
@@ -249,8 +235,9 @@ class ColumnTypeRdfMapperTest {
   /** Only primary key & AUTO_ID is filled. */
   private Set<Value> retrieveEmptyValues(String columnName) {
     // REFBACK causes duplicate row (with only REFBACK values being different).
-    // Therefore, 3rd row is empty one.
-    return retrieveValues(columnName, 2);
+    // That was a bug fixed in #4705
+    // Therefore, 2nd row is empty one.
+    return retrieveValues(columnName, 1);
   }
 
   private Set<Value> retrieveValues(String columnName, int row) {
