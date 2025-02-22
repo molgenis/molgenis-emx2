@@ -4,9 +4,9 @@
       :id="id"
       ref="btnElemRef"
       :aria-controls="`listbox-${id}-options`"
-      :required="required"
+      :invalid="invalid"
+      :valid="valid"
       :disabled="disabled"
-      :aria-labelledby="labelId"
       :selected-element-id="selectedElementId"
       @keydown="onListboxButtonKeyDown"
     >
@@ -16,7 +16,7 @@
     </InputListboxToggle>
     <InputListboxList
       :id="`listbox-${id}-options`"
-      :isExpanded="isExpanded"
+      :isExpanded="!disabled && isExpanded"
       :hasFixedHeight="listboxOptions.length > 5"
       @keydown.prevent="onListboxKeyDown"
     >
@@ -37,7 +37,6 @@
 <script lang="ts" setup>
 import { ref, useTemplateRef, nextTick, watch, onMounted } from "vue";
 import type {
-  columnValue,
   IFieldError,
   IInputValue,
   IInputValueLabel,
@@ -48,22 +47,16 @@ import type {
 } from "../../types/listbox";
 
 import { InputListboxToggle } from "#components";
+import { type IInputProps } from "~/types/types";
 
 const props = withDefaults(
-  defineProps<{
-    id: string;
-    labelId: string;
-    options: IInputValue[] | IInputValueLabel[];
-    value?: IInputValue | IInputValueLabel;
-    required?: boolean;
-    hasError?: boolean;
-    placeholder?: string;
-    disabled?: boolean;
-  }>(),
+  defineProps<
+    IInputProps & {
+      options: IInputValue[] | IInputValueLabel[];
+      value?: IInputValue | IInputValueLabel;
+    }
+  >(),
   {
-    disabled: false,
-    required: false,
-    hasError: false,
     placeholder: "Select an option",
   }
 );
@@ -74,10 +67,6 @@ const emit = defineEmits<{
   (e: "blur", value: null): void;
   (e: "focus", value: null): void;
 }>();
-
-defineExpose({
-  validate,
-});
 
 const sourceDataType = ref<string>("");
 const sourceData = ref<IInputValueLabel[]>();
@@ -358,13 +347,5 @@ function onListboxOptionKeyDown(
 
 function onListboxOptionClick(option: IInternalListboxOption) {
   updateModelValue(option);
-}
-
-function validate(value: columnValue) {
-  if (props.required && value === "") {
-    emit("error", [{ message: `${props.id} required to complete the form` }]);
-  } else {
-    emit("error", []);
-  }
 }
 </script>

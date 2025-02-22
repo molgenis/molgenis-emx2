@@ -352,7 +352,16 @@ public class TestCompositeForeignKeys {
                     .where(f("firstName", EQUALS, "Donald"))
                     .retrieveRows()
                     .get(0) //
-                    .getStringArray("cousins-firstName")) // TODO should be array?
+                    .getStringArray("cousins.firstName")) // TODO should be array?
+            .contains("Kwik"));
+
+    assertTrue(
+        List.of(
+                p.query()
+                    .where(f("firstName", EQUALS, "Donald"))
+                    .retrieveRows()
+                    .get(0) //
+                    .getStringArray("cousins.firstName")) // TODO should be array?
             .contains("Kwik"));
 
     assertTrue(

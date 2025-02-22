@@ -282,4 +282,38 @@ public class TestRefBack {
     schema.getTable("subject").insert(row("id", "s1"));
     schema.getTable("treatmentxyz").insert(row("id", "t1"));
   }
+
+  @Test
+  void testRefBackAndFile_fix4703() {
+    Table test =
+        schema.create(
+            table(
+                "test4703",
+                column("id").setPkey(),
+                column("parent").setType(REF).setRefTable("test4703"),
+                column("uncles").setType(REF_ARRAY).setRefTable("test4703"),
+                column("children").setType(REFBACK).setRefTable("test4703").setRefBack("parent"),
+                column("cousins").setType(REFBACK).setRefTable("test4703").setRefBack("uncles"),
+                column("photo").setType(FILE)));
+
+    test.insert(
+        row("id", "1"),
+        row("id", "2", "parent", "1"),
+        row("id", "3", "parent", "1"),
+        row("id", "4", "parent", "1"),
+        row("id", "5", "parent", "2", "uncles", "3,4"),
+        row("id", "6", "parent", "2", "uncles", "3,4"));
+
+    List<Row> result =
+        test.query()
+            .select(
+                s("id"),
+                s("parent", s("id")),
+                s("children", s("id")),
+                s("uncles", s("id")),
+                s("cousins", s("id")),
+                s("photo", s("id"), s("filename"), s("mimetype")))
+            .retrieveRows();
+    assertEquals(6, result.size());
+  }
 }
