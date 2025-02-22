@@ -1,7 +1,7 @@
 package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Constants.TEXT_SEARCH_COLUMN_NAME;
-import static org.molgenis.emx2.Operator.IS;
+import static org.molgenis.emx2.Operator.IS_NULL;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,9 +60,9 @@ public class FilterBean implements Filter {
   }
 
   public FilterBean(String columnName, Operator operator, Object[] values) {
-    if (IS.equals(operator)) {
-      if (values.length != 1 || !(values[0] instanceof IsNullOrNotNull))
-        throw new MolgenisException("IS operator requires as value either Is.NULL or Is.NOT_NULL");
+    if (IS_NULL.equals(operator)) {
+      if (values.length != 1 || !(values[0] instanceof Boolean))
+        throw new MolgenisException("IS_NULL operator requires as value either true or false");
     }
     this.column = columnName;
     this.operator = operator;

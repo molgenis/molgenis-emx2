@@ -93,13 +93,13 @@ public class TestGraphqlSchemaFields {
   }
 
   @Test
-  void testNullAndNotNullt() throws IOException {
+  void testNullAndNotNull() throws IOException {
     // just to check syntax works, the real tests live in sql
-    String result = execute("{Pet(filter:{tags:{_is:NULL}}){name}}").toString();
+    String result = execute("{Pet(filter:{tags:{_is_null:true}}){name}}").toString();
     assertTrue(result.contains("pooky"));
     assertFalse(result.contains("tom"));
 
-    result = execute("{Pet(filter:{tags:{_is:NOT_NULL}}){name}}").toString();
+    result = execute("{Pet(filter:{tags:{_is_null:false}}){name}}").toString();
     assertTrue(result.contains("tom"));
     assertFalse(result.contains("pooky"));
   }

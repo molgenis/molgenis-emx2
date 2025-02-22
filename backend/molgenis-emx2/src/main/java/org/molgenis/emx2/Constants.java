@@ -82,21 +82,21 @@ public class Constants {
   protected static final Operator[] EXISTS_OPERATIONS = {EQUALS};
 
   protected static final Operator[] ORDINAL_OPERATORS = {
-    EQUALS, NOT_EQUALS, MATCH_ANY, BETWEEN, NOT_BETWEEN, IS, MATCH_NONE
+    EQUALS, NOT_EQUALS, MATCH_ANY, BETWEEN, NOT_BETWEEN, IS_NULL, MATCH_NONE
   };
   protected static final Operator[] ORDINAL_ARRAY_OPERATORS =
       Stream.concat(Arrays.stream(ORDINAL_OPERATORS), Stream.of(MATCH_ALL))
           .toArray(Operator[]::new);
 
   protected static final Operator[] STRING_OPERATORS = {
-    EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH, IS, MATCH_ANY, MATCH_NONE
+    EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH, IS_NULL, MATCH_ANY, MATCH_NONE
   };
 
   protected static final Operator[] STRING_ARRAY_OPERATORS =
       Stream.concat(Arrays.stream(STRING_OPERATORS), Stream.of(MATCH_ALL)).toArray(Operator[]::new);
 
   protected static final Operator[] EQUALITY_OPERATORS = {
-    EQUALS, NOT_EQUALS, IS, MATCH_ANY, MATCH_NONE
+    EQUALS, NOT_EQUALS, IS_NULL, MATCH_ANY, MATCH_NONE
   };
 
   protected static final Operator[] EQUALITY_ARRAY_OPERATORS =

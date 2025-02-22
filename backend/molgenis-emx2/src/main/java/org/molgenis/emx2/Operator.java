@@ -15,7 +15,7 @@ public enum Operator {
   NOT_EQUALS(
       "not_equals",
       "Uses != operator. In case of array 'NOT (= ANY)'. Will be deprecated for arrays, use CONTAINS_NONE"),
-  IS("is", "value should be either 'NULL' or 'NOT_NULL'"),
+  IS_NULL("is", "When 'true' then nulls will be returned, when 'false' not nulls will be returned"),
   // ordinal
   BETWEEN("between", "Uses BETWEEN operator"),
   NOT_BETWEEN("not_between", "Uses NOT BETWEEN operator"),

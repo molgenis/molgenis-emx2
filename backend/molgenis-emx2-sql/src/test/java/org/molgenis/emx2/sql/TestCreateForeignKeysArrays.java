@@ -6,8 +6,6 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.INT;
 import static org.molgenis.emx2.ColumnType.REF_ARRAY;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.IsNullOrNotNull.NOT_NULL;
-import static org.molgenis.emx2.IsNullOrNotNull.NULL;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -138,14 +136,14 @@ public class TestCreateForeignKeysArrays {
     }
 
     // filter on null/not null
-    List<Row> result = bTable.where(f(refToA, IS, NULL)).retrieveRows();
+    List<Row> result = bTable.where(f(refToA, IS_NULL, true)).retrieveRows();
     assertEquals(0, result.size());
-    result = bTable.where(f(refToANillable, IS, NULL)).retrieveRows();
+    result = bTable.where(f(refToANillable, IS_NULL, true)).retrieveRows();
     assertEquals(1, result.size());
 
-    result = bTable.where(f(refToA, IS, NOT_NULL)).retrieveRows();
+    result = bTable.where(f(refToA, IS_NULL, false)).retrieveRows();
     assertEquals(1, result.size());
-    result = bTable.where(f(refToANillable, IS, NOT_NULL)).retrieveRows();
+    result = bTable.where(f(refToANillable, IS_NULL, false)).retrieveRows();
     assertEquals(0, result.size());
 
     // contains

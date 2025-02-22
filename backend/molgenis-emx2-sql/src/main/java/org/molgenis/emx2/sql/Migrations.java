@@ -153,7 +153,6 @@ public class Migrations {
           }
 
           if (version < 24) {
-
             executeMigrationFile(
                 tdb,
                 "migration24.sql",

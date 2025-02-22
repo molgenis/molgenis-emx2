@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.IsNullOrNotNull.NOT_NULL;
-import static org.molgenis.emx2.IsNullOrNotNull.NULL;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -116,14 +114,14 @@ public class TestCreateForeignKeys {
     }
 
     // filter on null/not null
-    List<Row> result = bTable.where(f(refFromBToA, IS, NULL)).retrieveRows();
+    List<Row> result = bTable.where(f(refFromBToA, IS_NULL, true)).retrieveRows();
     assertEquals(0, result.size());
-    result = bTable.where(f(refFromBToANillable, IS, NULL)).retrieveRows();
+    result = bTable.where(f(refFromBToANillable, IS_NULL, true)).retrieveRows();
     assertEquals(1, result.size());
 
-    result = bTable.where(f(refFromBToA, IS, NOT_NULL)).retrieveRows();
+    result = bTable.where(f(refFromBToA, IS_NULL, false)).retrieveRows();
     assertEquals(1, result.size());
-    result = bTable.where(f(refFromBToANillable, IS, NOT_NULL)).retrieveRows();
+    result = bTable.where(f(refFromBToANillable, IS_NULL, false)).retrieveRows();
     assertEquals(0, result.size());
 
     result = bTable.where(f(refFromBToA, MATCH_ANY, insertValue, updateValue)).retrieveRows();

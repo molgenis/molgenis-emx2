@@ -1144,7 +1144,7 @@ public class SqlQuery extends QueryBean {
               + values);
     }
     // cast value to match the column type
-    if ((values[0] instanceof IsNullOrNotNull) || columnType.isReference()) {
+    if (Operator.IS_NULL.equals(operator) || columnType.isReference()) {
       // type casting is handled below
     } else if (columnType.isFile()) {
       values = toStringArray(values);
@@ -1164,7 +1164,7 @@ public class SqlQuery extends QueryBean {
         return not(whereContainsAnyOrEquals(tableAlias, columnName, column, values));
       case MATCH_ALL:
         return whereColumnContainsAll(tableAlias, columnName, column, values);
-      case IS:
+      case IS_NULL:
         return whereColumnIsNullOrNotNull(tableAlias, columnName, column, values);
       case LIKE:
         return whereColumnLike(columnName, columnType.isArray(), values);
@@ -1269,7 +1269,7 @@ public class SqlQuery extends QueryBean {
       // check if any reference (not)exist
     } else if (type.isArray()) {
       String sqlTemplate =
-          IsNullOrNotNull.NULL.equals(values[0])
+          Boolean.TRUE.equals(values[0])
               ? "({0} IS NULL OR {0} = '{}')"
               : "({0} IS NOT NULL AND {0} <> '{}')";
       if (type.isReference() && columnMetadata.getReferences().size() > 1) {
@@ -1281,7 +1281,7 @@ public class SqlQuery extends QueryBean {
         return condition(sqlTemplate, field(columnName));
       }
     } else {
-      if (IsNullOrNotNull.NULL.equals(values[0])) {
+      if (Boolean.TRUE.equals(values[0])) {
         return field(columnName).isNull();
       } else {
         return field(columnName).isNotNull();

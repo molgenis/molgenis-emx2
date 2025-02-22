@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.IsNullOrNotNull.NOT_NULL;
-import static org.molgenis.emx2.IsNullOrNotNull.NULL;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -126,14 +124,14 @@ public class TestCreateArrayDataTypes {
     }
 
     // IS filters
-    result = tableA.query().where(f(aFieldName, IS, NULL)).retrieveRows();
+    result = tableA.query().where(f(aFieldName, IS_NULL, true)).retrieveRows();
     assertEquals(0, result.size());
-    result = tableA.query().where(f(aNillableFieldName, IS, NULL)).retrieveRows();
+    result = tableA.query().where(f(aNillableFieldName, IS_NULL, true)).retrieveRows();
     assertEquals(1, result.size());
 
-    result = tableA.query().where(f(aFieldName, IS, NOT_NULL)).retrieveRows();
+    result = tableA.query().where(f(aFieldName, IS_NULL, false)).retrieveRows();
     assertEquals(1, result.size());
-    result = tableA.query().where(f(aNillableFieldName, IS, NOT_NULL)).retrieveRows();
+    result = tableA.query().where(f(aNillableFieldName, IS_NULL, false)).retrieveRows();
     assertEquals(0, result.size());
 
     // delete of referenced A should fail

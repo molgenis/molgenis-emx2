@@ -638,7 +638,7 @@ the following function are available:
 - textSearch(value)
 - between(value)
 - notBetween(value)
-- _is(null|not_null)
+- _is_null - use this filter to find null (true) or not null (false) values
 - _match_any(value)
 - _match_all(value)
 - _match_none(value)

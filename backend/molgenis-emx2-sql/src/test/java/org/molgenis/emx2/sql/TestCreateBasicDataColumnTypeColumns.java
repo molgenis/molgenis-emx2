@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.IsNullOrNotNull.NOT_NULL;
-import static org.molgenis.emx2.IsNullOrNotNull.NULL;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
@@ -205,14 +203,14 @@ public class TestCreateBasicDataColumnTypeColumns {
       System.out.println(r);
     }
 
-    result = aTable.query().where(f(aColumn, IS, NULL)).retrieveRows();
+    result = aTable.query().where(f(aColumn, IS_NULL, true)).retrieveRows();
     assertEquals(0, result.size());
-    result = aTable.query().where(f(aNillableColumn, IS, NULL)).retrieveRows();
+    result = aTable.query().where(f(aNillableColumn, IS_NULL, true)).retrieveRows();
     assertEquals(2, result.size());
 
-    result = aTable.query().where(f(aColumn, IS, NOT_NULL)).retrieveRows();
+    result = aTable.query().where(f(aColumn, IS_NULL, false)).retrieveRows();
     assertEquals(2, result.size());
-    result = aTable.query().where(f(aNillableColumn, IS, NOT_NULL)).retrieveRows();
+    result = aTable.query().where(f(aNillableColumn, IS_NULL, false)).retrieveRows();
     assertEquals(0, result.size());
 
     // delete

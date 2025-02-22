@@ -42,8 +42,8 @@ public enum ColumnType {
   PERIOD_ARRAY(Period[].class, ORDINAL_ARRAY_OPERATORS),
 
   // RELATIONSHIP
-  REF(Object.class, MATCH_ANY, EQUALS, MATCH_NONE, IS),
-  REF_ARRAY(Object[].class, MATCH_ANY, MATCH_ALL, EQUALS, MATCH_NONE, IS),
+  REF(Object.class, MATCH_ANY, EQUALS, MATCH_NONE, IS_NULL),
+  REF_ARRAY(Object[].class, MATCH_ANY, MATCH_ALL, EQUALS, MATCH_NONE, IS_NULL),
   REFBACK(Object[].class, REF_ARRAY.operators), // same as ref_array
 
   // LAYOUT and other constants

@@ -29,7 +29,7 @@ public class GraphqlConstants {
   public static final String INHERIT_ID = "inheritId";
   public static final String INHERITED = "inherited";
   public static final String FILTER = "Filter";
-  public static final String FILTER_IS = "_is";
+  public static final String FILTER_IS_NULL = "_is_null";
   public static final String TABLES = "tables";
   public static final String MEMBERS = "members";
   public static final String TYPE = "type";

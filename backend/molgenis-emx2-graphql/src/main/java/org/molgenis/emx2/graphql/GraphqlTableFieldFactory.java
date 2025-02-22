@@ -2,7 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static graphql.scalars.ExtendedScalars.GraphQLLong;
 import static org.molgenis.emx2.FilterBean.*;
-import static org.molgenis.emx2.Operator.IS;
+import static org.molgenis.emx2.Operator.IS_NULL;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableType.ONTOLOGIES;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.transform;
@@ -27,12 +27,6 @@ public class GraphqlTableFieldFactory {
           .name("MolgenisOrderByEnum")
           .value(Order.ASC.name(), Order.ASC)
           .value(Order.DESC.name(), Order.DESC)
-          .build();
-  private static final GraphQLEnumType isNullOrNotNullEnum =
-      GraphQLEnumType.newEnum()
-          .name("MolgenisIsNotNullEnum")
-          .value(IsNullOrNotNull.NULL.name(), IsNullOrNotNull.NULL)
-          .value(IsNullOrNotNull.NOT_NULL.name(), IsNullOrNotNull.NOT_NULL)
           .build();
   private static GraphQLObjectType fileDownload =
       GraphQLObjectType.newObject()
@@ -476,8 +470,8 @@ public class GraphqlTableFieldFactory {
           // prefix _is to ensure we can't clash with column named 'is'
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(FILTER_IS)
-                  .type(isNullOrNotNullEnum)
+                  .name(FILTER_IS_NULL)
+                  .type(Scalars.GraphQLBoolean)
                   .build());
           // in case of single primary key we don't need nested filter object
           GraphQLInputType refType =
@@ -537,11 +531,11 @@ public class GraphqlTableFieldFactory {
       GraphQLInputObjectType.Builder builder =
           GraphQLInputObjectType.newInputObject().name("Molgenis" + typeName + FILTER);
       for (Operator operator : type.getOperators()) {
-        if (IS.equals(operator)) {
+        if (IS_NULL.equals(operator)) {
           builder.field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(operator.getName())
-                  .type(isNullOrNotNullEnum));
+                  .type(Scalars.GraphQLBoolean));
         } else {
           builder.field(
               GraphQLInputObjectField.newInputObjectField()
@@ -621,7 +615,7 @@ public class GraphqlTableFieldFactory {
       } else if (entry.getKey().equals(MATCH_INCLUDING_CHILDREN)
           || entry.getKey().equals(MATCH_INCLUDING_PARENTS)
           || entry.getKey().equals(MATCH_PATH)
-          || entry.getKey().equals(FILTER_IS)
+          || entry.getKey().equals(FILTER_IS_NULL)
           || entry.getKey().equals(FILTER_CONTAINS_ALL)) {
         // skip, handled on parent column. Need re-architecture in next major release.
       } else {
@@ -660,9 +654,9 @@ public class GraphqlTableFieldFactory {
                   Operator.MATCH_PATH,
                   ((List) value.get(MATCH_PATH)).toArray(new String[0])));
           value.remove(MATCH_PATH);
-        } else if (value.containsKey(FILTER_IS)) {
-          subFilters.add(f(c.getName(), IS, value.get(FILTER_IS)));
-          value.remove(FILTER_IS);
+        } else if (value.containsKey(FILTER_IS_NULL)) {
+          subFilters.add(f(c.getName(), IS_NULL, value.get(FILTER_IS_NULL)));
+          value.remove(FILTER_IS_NULL);
         } else if (value.containsKey(FILTER_CONTAINS_ALL)) {
           //  complex filter, should be an list of maps per graphql contract
           if (entry.getValue() != null && c.getReferences().size() > 1) {
