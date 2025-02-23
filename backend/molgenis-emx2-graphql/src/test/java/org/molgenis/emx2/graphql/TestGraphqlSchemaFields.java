@@ -94,7 +94,7 @@ public class TestGraphqlSchemaFields {
 
   @Test
   void testNullAndNotNull() throws IOException {
-    // just to check syntax works, the real tests live in sql
+    // ref
     String result = execute("{Pet(filter:{tags:{_is_null:true}}){name}}").toString();
     assertTrue(result.contains("pooky"));
     assertFalse(result.contains("tom"));
@@ -102,6 +102,24 @@ public class TestGraphqlSchemaFields {
     result = execute("{Pet(filter:{tags:{_is_null:false}}){name}}").toString();
     assertTrue(result.contains("tom"));
     assertFalse(result.contains("pooky"));
+
+    // refback+ref
+    result = execute("{Pet(filter:{orders:{_is_null:true}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertTrue(result.contains("sylvester"));
+    assertFalse(result.contains("pooky"));
+
+    result = execute("{Pet(filter:{orders:{_is_null:false}}){name}}").toString();
+    assertTrue(result.contains("spike"));
+    assertTrue(result.contains("pooky"));
+    assertFalse(result.contains("tom"));
+
+    // ref_array
+    result = execute("{User(filter:{pets:{_is_null:true}}){username}}").toString();
+    assertFalse(result.contains("bofke"));
+
+    result = execute("{User(filter:{pets:{_is_null:false}}){username}}").toString();
+    assertTrue(result.contains("bofke"));
   }
 
   @Test

@@ -13,7 +13,6 @@ import static org.molgenis.emx2.utils.TypeUtils.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jooq.*;
 import org.jooq.Record;
 import org.jooq.Table;
@@ -1161,7 +1160,9 @@ public class SqlQuery extends QueryBean {
       case MATCH_ANY, EQUALS: // equals to be deprecated for ref columns,
         return whereContainsAnyOrEquals(tableAlias, columnName, column, values);
       case MATCH_NONE, NOT_EQUALS: // non_equals to be deprecated for ref columns,
-        return not(whereContainsAnyOrEquals(tableAlias, columnName, column, values));
+        return or(
+            whereColumnIsNullOrNotNull(tableAlias, columnName, column, new Boolean[] {true}),
+            not(whereContainsAnyOrEquals(tableAlias, columnName, column, values)));
       case MATCH_ALL:
         return whereColumnContainsAll(tableAlias, columnName, column, values);
       case IS_NULL:
@@ -1262,11 +1263,14 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private static @Nullable Condition whereColumnIsNullOrNotNull(
+  private static Condition whereColumnIsNullOrNotNull(
       String tableAlias, Name columnName, Column columnMetadata, Object[] values) {
     ColumnType type = columnMetadata.getColumnType().getBaseType();
     if (type.isRefback()) {
       // check if any reference (not)exist
+      return Boolean.TRUE.equals(values[0])
+          ? not(exists(getRefbackQuery(tableAlias, columnMetadata).limit(1)))
+          : exists(getRefbackQuery(tableAlias, columnMetadata).limit(1));
     } else if (type.isArray()) {
       String sqlTemplate =
           Boolean.TRUE.equals(values[0])
@@ -1287,7 +1291,6 @@ public class SqlQuery extends QueryBean {
         return field(columnName).isNotNull();
       }
     }
-    return null;
   }
 
   private static @NotNull Condition whereColumnLike(
@@ -1390,38 +1393,7 @@ public class SqlQuery extends QueryBean {
       // first simplest implementation is to convert to temp table in all cases
       // might not be efficient
       // so select from refTable where values in compositeKeyTable and then check there is none that
-      Column refBack = columnMetadata.getRefBackColumn();
-      Condition refBackFilter =
-          refBack.isRef()
-              ?
-              // refback is simple ref so just equals on all columns
-              and(
-                  refBack.getReferences().stream()
-                      .map(
-                          ref ->
-                              field(name(ref.getName()))
-                                  .eq(field(name(tableAlias, ref.getTargetColumn()))))
-                      .toList())
-              // refBack is an array so unnest
-              : row(refBack.getReferences().stream()
-                      .map(ref -> field(name(tableAlias, ref.getTargetColumn())))
-                      .toList())
-                  .in(
-                      DSL.select(getUnnestedRefArrayFields(refBack))
-                          .from(getUnnestedRefArrayAsTable(tableAlias, refBack)));
-
-      SelectConditionStep<Record> refBackSelect =
-          DSL.select(
-                  refBack.getTable().getPrimaryKeyColumns().stream()
-                      .map(
-                          ref ->
-                              ref.isArray()
-                                  ? field(UNNEST_0, name(ref.getName())).as(name(ref.getName()))
-                                  : field(name(ref.getName())))
-                      .toList())
-              .from(refBack.getJooqTable())
-              .where(refBackFilter);
-
+      SelectConditionStep<Record> refBackSelect = getRefbackQuery(tableAlias, columnMetadata);
       if (columnMetadata.getReferences().size() == 1) {
         // will be value array
         return condition(
@@ -1444,6 +1416,42 @@ public class SqlQuery extends QueryBean {
     } else {
       throw new MolgenisException("Can apply CONTAINS_ALL only to array columns");
     }
+  }
+
+  private static @NotNull SelectConditionStep<Record> getRefbackQuery(
+      String tableAlias, Column columnMetadata) {
+    Column refBack = columnMetadata.getRefBackColumn();
+    Condition refBackFilter =
+        refBack.isRef()
+            ?
+            // refback is simple ref so just equals on all columns
+            and(
+                refBack.getReferences().stream()
+                    .map(
+                        ref ->
+                            field(name(ref.getName()))
+                                .eq(field(name(tableAlias, ref.getTargetColumn()))))
+                    .toList())
+            // refBack is an array so unnest
+            : row(refBack.getReferences().stream()
+                    .map(ref -> field(name(tableAlias, ref.getTargetColumn())))
+                    .toList())
+                .in(
+                    DSL.select(getUnnestedRefArrayFields(refBack))
+                        .from(getUnnestedRefArrayAsTable(tableAlias, refBack)));
+
+    SelectConditionStep<Record> refBackSelect =
+        DSL.select(
+                refBack.getTable().getPrimaryKeyColumns().stream()
+                    .map(
+                        ref ->
+                            ref.isArray()
+                                ? field(UNNEST_0, name(ref.getName())).as(name(ref.getName()))
+                                : field(name(ref.getName())))
+                    .toList())
+            .from(refBack.getJooqTable())
+            .where(refBackFilter);
+    return refBackSelect;
   }
 
   private static Condition whereColumnBetween(Name columnName, Object[] values) {
