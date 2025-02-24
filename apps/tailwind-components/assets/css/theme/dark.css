@@ -16,6 +16,9 @@
     --background-color-button-primary-hover: var(--color-white);
     --background-color-button-secondary: var(--color-gray-700);
     --background-color-button-secondary-hover: var(--color-gray-700);
+
+    --background-color-footer: var(--color-gray-700);
+    --background-color-modal-footer: var(--color-gray-700);
     
     --background-color-input: var(--gray-800);
     --background-color-input-focused: var(--color-green-200);
