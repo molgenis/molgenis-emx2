@@ -62,3 +62,17 @@ test("it should update the model value when a field is filled out", async ({
     "test"
   );
 });
+
+test("it should not jump around when selecting a checkbox", async ({
+  page,
+}) => {
+  await page.goto(`${route}Form.story?schema=pet+store&table=Pet`);
+  await page.getByText("Jump to", { exact: true }).click({ delay: 300 });
+  await page.getByText("colors").click();
+  await page.getByText("red", { exact: true }).click();
+  await page
+    .locator("#tags-form-field-checkbox-group")
+    .getByText("colors")
+    .click();
+  await expect(page.locator("#details")).toContainText("red");
+});
