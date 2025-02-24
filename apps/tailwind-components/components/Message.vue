@@ -9,16 +9,14 @@
       'bg-neutral text-neutral': !valid && !invalid,
     }"
   >
+    <span :id="`${id}-state-context`" class="sr-only">
+      {{ invalid ? "error" : valid ? "success" : "information" }}
+    </span>
     <template v-if="invalid">
-      <span :id="`${id}-state-context`" class="sr-only">error</span>
       <BaseIcon name="exclamation" />
     </template>
     <template v-else-if="valid">
-      <span :id="`${id}-state-context`" class="sr-only">success</span>
       <BaseIcon name="check" />
-    </template>
-    <template v-else>
-      <span :id="`${id}-state-context`" class="sr-only">information</span>
     </template>
     <slot></slot>
   </div>
