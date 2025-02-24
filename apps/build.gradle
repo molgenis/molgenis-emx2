@@ -38,6 +38,7 @@ node {
 
 subprojects { subproject ->
     apply plugin: 'com.github.node-gradle.node'
+    def packageJson = file("package.json").text
 
     node {
         with nodeSpec
@@ -60,9 +61,16 @@ subprojects { subproject ->
         }
     }
 
-    def packageJson = file("package.json").text
+    task buildLibs(type: YarnTask, dependsOn: format) {
+        if (packageJson.contains("\"name\": \"tailwind-components\"") || packageJson.contains("\"name\": \"molgenis-components\"")) {
+            args = ['run', 'build']
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+        }
+    }
 
-    task buildJavascript(type: YarnTask, dependsOn: format) {
+    task buildJavascript(type: YarnTask, dependsOn: buildLibs) {
         environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
 
         //automatically get the internal dependencies
