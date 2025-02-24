@@ -68,6 +68,7 @@ test("it should not jump around when selecting a checkbox", async ({
 }) => {
   await page.goto(`${route}Form.story?schema=pet+store&table=Pet`);
   await page.getByText("Jump to", { exact: true }).click({ delay: 300 });
+  await page.getByRole("link", { name: "details" }).click();
   await page.getByText("colors").click();
   await page.getByText("red", { exact: true }).click();
   await page
