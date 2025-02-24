@@ -1,6 +1,5 @@
 <template>
   <div
-    role="alertdialog"
     :aria-labelledby="`${id}-state-context`"
     class="p-3 font-bold flex items-center rounded-input"
     :class="{
