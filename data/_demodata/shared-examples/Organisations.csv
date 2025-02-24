@@ -1,0 +1,179 @@
+resource,id,pid,name,acronym,logo,logo_filename,country,website,role,is lead organisation
+PSYCONN,GGZ Drenthe,,GGZ Drenthe,,,,,,,true
+ACCESS,UB,,"Université de Bordeaux, Bordeaux PharmacoEpi",UB-BPE,,,France,http://www.bordeauxpharmacoepi.eu/en/,Researcher,
+OOM,DHL.I,,Finnish Institute for Health and Welfare,THL,,,Finland,https://thl.fi/en/web/thlfi-en,"Data originator,Researcher",
+OOM,OVGU,,Otto von Guericke University Magdeburg,OVGU,,,Germany,,,
+OOM,CNR-IFC,,CNR Tuscany,CNR-IFC,,,Italy,https://www.ifc.cnr.it/index.php/en/,"Researcher,Surveillance",
+OOM,FISABIO,,Fundación para el Fomento de la Investigación Sanitaria y Biomédica de la Comunitat Valenciana,FISABIO,,,Spain,http://fisabio.san.gva.es/,Researcher,
+OOM,ULST,,University of Ulster,ULST,,,United Kingdom of Great Britain and Northern Ireland (the),,,
+OOM,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,
+OOM,LIPRE,,Leibniz Institute for Prevention Research and Epidemiology,LIPRE,,,Germany,,,
+ABCD,AMC,,Amsterdam Medical Center ,AMC,,,Netherlands (the),,,true
+TestDataSourceID,AMC,,Amsterdam Medical Center ,AMC,,,Netherlands (the),,,true
+HPV,TUNI,,Tampere University,,,,Finland,https://www.tuni.fi/en,,true
+CONSTANCES,INSERM,,National Institute of Medical Research ,INSERM,,,France,,,true
+EDEN,INSERM,,National Institute of Medical Research ,INSERM,,,France,,,true
+PELAGIE,INSERM,,National Institute of Medical Research ,INSERM,,,France,,,true
+Sepages,INSERM,,National Institute of Medical Research ,INSERM,,,France,,,true
+ELFE,INSERM,,National Institute of Medical Research ,INSERM,,,France,,,true
+FEF,UEF,,University of Eastern Finland,UEF,,,Finland,,,true
+PANIC,UEF,,University of Eastern Finland,UEF,,,Finland,,,true
+SYSDIMET,UEF,,University of Eastern Finland,UEF,,,Finland,,,true
+OOM,LAREB,,Stichting LAREB,LAREB,,,Netherlands (the),,,
+BIB,BRI,,Bradford Royal Infirmary,BRI,,,United Kingdom of Great Britain and Northern Ireland (the),,,true
+MoBa,NIPH,,Norwegian Institute of Public Health,NIPH,,,Norway,https://www.fhi.no/en/,,true
+ENVIRONAGE,UHASSELT,,Hasselt University (Universiteit Hasselt),UHASSELT,,,Belgium,http://www.uhasselt.be/en,,true
+mtFIT study,NKI,,Netherlands Cancer Institute,NKI,,,,,,true
+RAINE,UWA,,University of Western Australia,UWA,,,Australia,https://www.uwa.edu.au/,,true
+KANC,VMU,,Vytautas Magnus University,VMU,,,Lithuania,https://www.vdu.lt/,,true
+DFBC,Amsterdam UMC (AMC),,"Amsterdam UMC, location AMC",,,,,,,true
+SWS,Soton,,University of Southampton,Soton,,,United Kingdom of Great Britain and Northern Ireland (the),https://www.southampton.ac.uk/,,true
+CSC,KI,,Karolinska Institutet,KI,,,Sweden,https://ki.se/en,,true
+LSC,UIBK,,Universität Innsbruck,UIBK,,,Austria,https://www.uibk.ac.at/,,true
+PSYCONN,GGZ Friesland,,GGZ Friesland,,,,,,,true
+PSYCONN,Lentis Research,,Lentis Research,,,,,,,true
+G21,ISPUP,,Institute of Public Health of the University of Porto,,,,,,,true
+GenR,EMC,,Erasmus MC,EMC,,,Netherlands (the),,,true
+GenR Next,EMC,,Erasmus MC,EMC,,,Netherlands (the),,,true
+RS3,EMC,,Erasmus MC,EMC,,,Netherlands (the),,,true
+RS2,EMC,,Erasmus MC,EMC,,,Netherlands (the),,,true
+RS1,EMC,,Erasmus MC,EMC,,,Netherlands (the),,,true
+ALSPAC,UOB,,University of Bristol,UOB,,,United Kingdom of Great Britain and Northern Ireland (the),,,true
+CELSPAC-TNG,RECETOX,,Research Centre for Toxic Compounds in the Environment,RECETOX,,,Czechia,https://www.recetox.muni.cz/en,,true
+mCRC-VHIO,VHIO,,FUNDACIO PRIVADA INSTITUT D'INVESTIGACIO ONCOLOGICA DE VALL-HEBRON,,,,Spain,https://www.vhio.net/,,true
+NFBC1986,UOULU,,University of Oulu,UOULU,,,Finland,,,true
+NFBC1966 G0,UOULU,,University of Oulu,UOULU,,,Finland,,,true
+FinnGeDi,UOULU,,University of Oulu,UOULU,,,Finland,,,true
+NFBC1966,UOULU,,University of Oulu,UOULU,,,Finland,,,true
+HELIX,ISGLOBAL,,Barcelona Institute for Global Health,ISGLOBAL,,,Spain,,,true
+NOMA,UiO,,University of Oslo,UiO,,,Norway,,,true
+MBRN,UiO,,University of Oslo,UiO,,,Norway,,,true
+EFEMERIS_PRESCRIPTION,CHUT,,Centre Hospitalier Universitaire de Toulouse,CHUT,,,France,,,true
+CON,SSI,,Statens Serum Institut,SSI,,,Denmark,,,true
+ADVANCE Coverage POC,SSI,,Statens Serum Institut,SSI,,,Denmark,,,true
+AP,ARS.TOSCANA,,Agenzia regionale di sanità della Toscana,ARS,,,Italy,https://www.ars.toscana.it/,,true
+ARS_ANAG_MED_RES_storico,ARS.TOSCANA,,Agenzia regionale di sanità della Toscana,ARS,,,Italy,https://www.ars.toscana.it/,,true
+ABL,ARS.TOSCANA,,Agenzia regionale di sanità della Toscana,ARS,,,Italy,https://www.ars.toscana.it/,,true
+SEA,ARS.TOSCANA,,Agenzia regionale di sanità della Toscana,ARS,,,Italy,https://www.ars.toscana.it/,,true
+SPF,ARS.TOSCANA,,Agenzia regionale di sanità della Toscana,ARS,,,Italy,https://www.ars.toscana.it/,,true
+ACCESS,UMCU,,UMC Utrecht,UMCU,,,Netherlands (the),https://www.umcutrecht.nl/nl,Researcher,true
+FORCE-NEN,UMCU,,UMC Utrecht,UMCU,,,Netherlands (the),https://www.umcutrecht.nl/nl,Researcher,true
+FORCE-NEN collections,UMCU,,UMC Utrecht,UMCU,,,Netherlands (the),https://www.umcutrecht.nl/nl,Researcher,true
+OOM,UMCU,,UMC Utrecht,UMCU,,,Netherlands (the),https://www.umcutrecht.nl/nl,Researcher,true
+CRC-Cohort,BBMRI-ERIC,,Biobanking and Biomolecular Resources Research Infrastructure – European Research Infrastructure Consortium,BBMRI-ERIC,,,Austria,,,true
+DNBC,UCPH,,University of Copenhagen,UCPH,,,Denmark,https://www.ku.dk/english/,,true
+DIAGNOSTIC,UB,,"Université de Bordeaux, Bordeaux PharmacoEpi",UB-BPE,,,France,http://www.bordeauxpharmacoepi.eu/en/,Researcher,true
+AVOHILMO,DHL.I,,Finnish Institute for Health and Welfare,THL,,,Finland,https://thl.fi/en/web/thlfi-en,"Data originator,Researcher",true
+DHL,DHL.I,,Finnish Institute for Health and Welfare,THL,,,Finland,https://thl.fi/en/web/thlfi-en,"Data originator,Researcher",true
+OOM,GSK,,GlaxoSmithKline,GSK,,,United Kingdom of Great Britain and Northern Ireland (the),,,true
+SEA,CNR-IFC,,CNR Tuscany,CNR-IFC,,,Italy,https://www.ifc.cnr.it/index.php/en/,"Researcher,Surveillance",true
+SPF,CNR-IFC,,CNR Tuscany,CNR-IFC,,,Italy,https://www.ifc.cnr.it/index.php/en/,"Researcher,Surveillance",true
+Immune-Image_Task_6.2a,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
+Immune-Image_Task_6.2b,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
+Immune-Image_Task_6.3,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
+IPEC,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
+testNetwork2,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
+testNetworkofNetworks,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
+testNetwork1,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
+EUROCAT NNL,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
+FORCE-NEN,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
+FORCE-NEN collections,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
+PSYCONN,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
+testCohort2,test lead organisation 2,https://pid-for-leadorg2.org,name for test lead organisation 2,acronym for test lead organisation 2,,,"""Bonaire, Sint Eustatius and Saba""",,Data provider,true
+testCohort1,test lead organisation 2,https://pid-for-leadorg2.org,name for test lead organisation 2,acronym for test lead organisation 2,,,"""Bonaire, Sint Eustatius and Saba"",Réunion",,"Data provider,Other",true
+testCohort1,Test lead organisation 1,https://pid-for-leadorg1.org,Name for lead organisation 1,ACRONYM FOR LEADORG1,,,"Botswana,Holy See (the)",,"Data originator,Data holder,Data provider,Researcher,Surveillance,Other",true
+testNetwork2,AMC,,Amsterdam Medical Center ,AMC,,,Netherlands (the),,,
+testNetworkofNetworks,AMC,,Amsterdam Medical Center ,AMC,,,Netherlands (the),,,
+testNetwork1,AMC,,Amsterdam Medical Center ,AMC,,,Netherlands (the),,,
+testNetwork2,CYN,,Cynexo ,CYN,,,Italy,,,
+testNetworkofNetworks,CYN,,Cynexo ,CYN,,,Italy,,,
+testNetwork1,CYN,,Cynexo ,CYN,,,Italy,,,
+WDC,TUNI,,Tampere University,,,,Finland,https://www.tuni.fi/en,,
+TestDataSourceID,INSERM,,National Institute of Medical Research ,INSERM,,,France,,,
+TestDataSourceID,UCL,,University College London ,UCL,,,United Kingdom of Great Britain and Northern Ireland (the),,,
+FORCE-NEN,MUMC,,Maastricht UMC+,,,,,,,
+FORCE-NEN collections,MUMC,,Maastricht UMC+,,,,,,,
+FORCE-NEN,NKI,,Netherlands Cancer Institute,NKI,,,,,,
+FORCE-NEN collections,NKI,,Netherlands Cancer Institute,NKI,,,,,,
+WDC,KI,,Karolinska Institutet,KI,,,Sweden,https://ki.se/en,,
+IPEC,GGZ Drenthe,,GGZ Drenthe,,,,,,,
+IPEC,GGZ Friesland,,GGZ Friesland,,,,,,,
+IPEC,Lentis Research,,Lentis Research,,,,,,,
+FORCE-NEN,AmsterdamUMC (VUmc),,Amterdam UMC locatie VUmc,,,,,,,
+FORCE-NEN collections,AmsterdamUMC (VUmc),,Amterdam UMC locatie VUmc,,,,,,,
+FORCE-NEN,EMC,,Erasmus MC,EMC,,,Netherlands (the),,,
+FORCE-NEN collections,EMC,,Erasmus MC,EMC,,,Netherlands (the),,,
+FORCE-NEN,Maxima MC,,Maxima Medisch Centrum,MMC,,,,,,
+FORCE-NEN collections,Maxima MC,,Maxima Medisch Centrum,MMC,,,,,,
+WDC,UOULU,,University of Oulu,UOULU,,,Finland,,,
+OOM,UoD,,University of Dundee,UoD,,,United Kingdom of Great Britain and Northern Ireland (the),,,
+OOM,AEMPS,,Agencia Española de Medicamentos y Productos Sanitarios,AEMPS,,,Spain,https://www.aemps.gob.es/,,
+OOM,JP,,Janssen Pharmaceutica NV,JP,,,Belgium,,,
+OOM,PHARMO.I,,PHARMO Institute,PHARMO,,,Netherlands (the),https://pharmo.nl/,Researcher,
+ACCESS,PHARMO.I,,PHARMO Institute,PHARMO,,,Netherlands (the),https://pharmo.nl/,Researcher,
+GECKO,place-holder-organisation,,Place holder organisation,,,,,,,
+OOM,AU,,Aarhus University,AU,,,Denmark,https://international.au.dk/,Researcher,
+OOM,UiO,,University of Oslo,UiO,,,Norway,,,
+OOM,CHUT,,Centre Hospitalier Universitaire de Toulouse,CHUT,,,France,,,
+OOM,UKZN,,University of KwaZulu-Natal,UKZN,,,South Africa,,,
+OOM,KUL,,KU Leuven,KUL,,,Belgium,,,
+OOM,UPP,,Uppsala Universitet,UPP,,,Sweden,,,
+OOM,SIDIAP.I,,Information System for Research in Primary Care,SIDIAP,,,Spain,,,
+OOM,FERR,,Università degli Studi di Ferrara – University of Ferrara,FERR,,,Italy,,,
+OOM,UM,,University of Messina,UM,,,Italy,,,
+ACCESS,UM,,University of Messina,UM,,,Italy,,,
+OOM,ARS.TOSCANA,,Agenzia regionale di sanità della Toscana,ARS,,,Italy,https://www.ars.toscana.it/,,
+OOM,MLT.I,,Malta Congenital Anomalies Registry Directorate for Health Information and Research,MLT,,,Malta,,,
+OOM,USWAN,,University of Swansea,USWAN,,,United Kingdom of Great Britain and Northern Ireland (the),,,
+OOM,IHD,,The European Institute for Innovation through Health Data,IHD,,,,,,
+OOM,NP,,Novartis Pharma AG,NP,,,Switzerland,,,
+OOM,UCB,,UCB biopharma,UCB,,,,,,
+OOM,SAN,,Sanofi,SAN,,,France,,,
+OOM,TAK,,Takeda,TAK,,,Japan,,,
+OOM,BBMRI-ERIC,,Biobanking and Biomolecular Resources Research Infrastructure – European Research Infrastructure Consortium,BBMRI-ERIC,,,Austria,,,
+ACCESS,JORDIGOL,,Institut de Recerca en Atenció Primària Jordi Gol,JORDIGOL,,,Spain,,,
+IPEC,UCPH,,University of Copenhagen,UCPH,,,Denmark,https://www.ku.dk/english/,,
+OOM,UB,,"Université de Bordeaux, Bordeaux PharmacoEpi",UB-BPE,,,France,http://www.bordeauxpharmacoepi.eu/en/,Researcher,
+ACCESS,LIPRE,,Leibniz Institute for Prevention Research and Epidemiology,LIPRE,,,Germany,,,
+testCohort1,Test additional organisation 1,https://pid-for-additionalorg1.org,name of test additional organisation 1,acronym for test additional organisation 1,,,"Canada,Western Sahara*",,"Researcher,Surveillance",
+testCohort2,id for test additional organisation 2,https://pid-for-additionalorg2.org,name for test additional organisation 2,acronym for test additional organisation 2,,,Bosnia and Herzegovina,,"Data provider,Surveillance",
+testCohort1,id for test additional organisation 2,https://pid-for-additionalorg2.org,name for test additional organisation 2,acronym for test additional organisation 2,,,"Bosnia and Herzegovina,Mayotte",,"Data provider,Surveillance",
+LifeCycle,EMC,,Erasmus MC,EMC,,,Netherlands (the),,,
+HPV,UOULU,,University of Oulu,UOULU,,,Finland,,,
+LongITools,UOULU,,University of Oulu,UOULU,,,Finland,,,
+MAT,UOULU,,University of Oulu,UOULU,,,Finland,,,
+INMA,place-holder-organisation,,Place holder organisation,,,,,,,
+testCohort3,place-holder-organisation,,Place holder organisation,,,,,,,
+BAMSE,place-holder-organisation,,Place holder organisation,,,,,,,
+SAPALDIA,place-holder-organisation,,Place holder organisation,,,,,,,
+testCohort4,place-holder-organisation,,Place holder organisation,,,,,,,
+HBCS,place-holder-organisation,,Place holder organisation,,,,,,,
+IPF,place-holder-organisation,,Place holder organisation,,,,,,,
+NBC1967-1976,place-holder-organisation,,Place holder organisation,,,,,,,
+LEMS,place-holder-organisation,,Place holder organisation,,,,,,,
+FEIBA-GO,place-holder-organisation,,Place holder organisation,,,,,,,
+ELSPAC,place-holder-organisation,,Place holder organisation,,,,,,,
+ARISE,place-holder-organisation,,Place holder organisation,,,,,,,
+EUChildNetwork,place-holder-organisation,,Place holder organisation,,,,,,,
+INSPECT,place-holder-organisation,,Place holder organisation,,,,,,,
+LEONARDO,place-holder-organisation,,Place holder organisation,,,,,,,
+ANAGRAFICA,place-holder-organisation,,Place holder organisation,,,,,,,
+ATHLETE,place-holder-organisation,,Place holder organisation,,,,,,,
+DRIVE 2019/20,place-holder-organisation,,Place holder organisation,,,,,,,
+PASS,place-holder-organisation,,Place holder organisation,,,,,,,
+DAHLIA,place-holder-organisation,,Place holder organisation,,,,,,,
+FinACAF,place-holder-organisation,,Place holder organisation,,,,,,,
+OPTI,place-holder-organisation,,Place holder organisation,,,,,,,
+THALIA,place-holder-organisation,,Place holder organisation,,,,,,,
+PERSEUS,place-holder-organisation,,Place holder organisation,,,,,,,
+SSc-ILD,place-holder-organisation,,Place holder organisation,,,,,,,
+EXE,place-holder-organisation,,Place holder organisation,,,,,,,
+PHT,place-holder-organisation,,Place holder organisation,,,,,,,
+COD_FARMACI_SPF,place-holder-organisation,,Place holder organisation,,,,,,,
+SPECIALISTICA,place-holder-organisation,,Place holder organisation,,,,,,,
+ARS_PS,place-holder-organisation,,Place holder organisation,,,,,,,
+RMR,place-holder-organisation,,Place holder organisation,,,,,,,
+FARMACEUTICA,place-holder-organisation,,Place holder organisation,,,,,,,
+VCN,place-holder-organisation,,Place holder organisation,,,,,,,
+SALM,place-holder-organisation,,Place holder organisation,,,,,,,
+SPA,place-holder-organisation,,Place holder organisation,,,,,,,
