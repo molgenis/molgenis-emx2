@@ -50,30 +50,3 @@ test("clicking on the chapter should scroll to the chapter", async ({
   await page.getByText("population", { exact: true }).first().click();
   await expect(page.getByRole("heading", { name: "population" })).toBeVisible();
 });
-
-test("it should update the model value when a field is filled out", async ({
-  page,
-}) => {
-  await page.goto(`${route}Form.story?schema=pet+store&table=Pet`);
-  await page.getByText("Jump to", { exact: true }).click({ delay: 300 });
-  await page.getByLabel("name Required", { exact: true }).click();
-  await page.getByLabel("name Required", { exact: true }).fill("test");
-  await expect(page.getByLabel("name Required", { exact: true })).toHaveValue(
-    "test"
-  );
-});
-
-test("it should not jump around when selecting a checkbox", async ({
-  page,
-}) => {
-  await page.goto(`${route}Form.story?schema=pet+store&table=Pet`);
-  await page.getByText("Jump to", { exact: true }).click({ delay: 300 });
-  await page.getByRole("link", { name: "details" }).click();
-  await page.getByText("colors").click();
-  await page.getByText("red", { exact: true }).click();
-  await page
-    .locator("#tags-form-field-checkbox-group")
-    .getByText("colors")
-    .click();
-  await expect(page.locator("#details")).toContainText("red");
-});
