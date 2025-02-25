@@ -22,8 +22,8 @@
         <LoadingScreen v-if="loading" style="height: auto" />
         <ValueShowcase
           v-else
-          :title="`${numberOfPatientsSubmitted} patients submitted`"
-          :description="`Your center has submitted on average ${monthlyAverageOfSubmissions} patients per month`"
+          :title="(numberOfPatientsSubmitted?.chartTitle as string)"
+          :description="(patientsSubmittedByTime?.chartTitle as string)"
         >
           <template v-slot:icon>
             <UserCircleIcon />
@@ -34,7 +34,9 @@
     <DashboardRow :columns="2">
       <DashboardChart id="provider-overview-patients-by-workstream">
         <LoadingScreen v-if="loading" style="height: 215px" />
-        <MessageBox v-else-if="!loading && numberOfPatientsSubmitted === 0">
+        <MessageBox
+          v-else-if="!loading && numberOfPatientsSubmitted!.dataPoints![0].dataPointValue === 0"
+        >
           <span>Not enough data to show chart</span>
         </MessageBox>
         <ColumnChart
@@ -103,6 +105,7 @@ import { asKeyValuePairs, uniqueValues } from "../utils";
 import { generateColorPalette } from "../utils/generateColorPalette";
 import { getDashboardChart } from "../utils/getDashboardData";
 import { generateAxisTickData } from "../utils/generateAxisTicks";
+import { parseChartTitle } from "../utils/parseChartTitle";
 
 import type { ICharts, IChartData } from "../types/schema";
 import type { IAppPage } from "../types/app";
@@ -110,8 +113,8 @@ import type { IKeyValuePair } from "../types/index";
 const props = defineProps<IAppPage>();
 
 const loading = ref<boolean>(true);
-const numberOfPatientsSubmitted = ref<number>(0);
-const monthlyAverageOfSubmissions = ref<number>(0);
+const numberOfPatientsSubmitted = ref<ICharts>();
+const patientsSubmittedByTime = ref<ICharts>();
 const patientsByWorkstreamChart = ref<ICharts>();
 const patientsByWorkstreamChartData = ref<IChartData[]>();
 const patientsByWorkstreamPalette = ref<IKeyValuePair>();
@@ -126,7 +129,7 @@ async function getPageData() {
     "patients-total"
   );
 
-  const monthlySubmissionResponse = await getDashboardChart(
+  const timeSubmissionResponse = await getDashboardChart(
     props.api.graphql.current,
     "patients-per-month"
   );
@@ -144,12 +147,8 @@ async function getPageData() {
   patientsByWorkstreamChart.value = patientsByWorkstreamResponse[0];
   sexByWorkstreamChart.value = sexByWorkstreamResponse[0];
 
-  const submissionsData = submissionsResponse[0];
-  const monthlySubmissionsData = monthlySubmissionResponse[0];
-  numberOfPatientsSubmitted.value =
-    submissionsData.dataPoints![0].dataPointValue!;
-  monthlyAverageOfSubmissions.value =
-    monthlySubmissionsData.dataPoints![0].dataPointValue!;
+  numberOfPatientsSubmitted.value = submissionsResponse[0];
+  patientsSubmittedByTime.value = timeSubmissionResponse[0];
 }
 
 function updateSexByWorkstream(value: string) {
@@ -175,6 +174,27 @@ function updateSexByWorkstream(value: string) {
 onMounted(() => {
   getPageData()
     .then(() => {
+      // set value showcase titles
+      if (
+        numberOfPatientsSubmitted.value?.chartTitle &&
+        numberOfPatientsSubmitted.value?.dataPoints
+      ) {
+        numberOfPatientsSubmitted.value.chartTitle = parseChartTitle(
+          numberOfPatientsSubmitted.value.chartTitle,
+          numberOfPatientsSubmitted.value.dataPoints[0].dataPointValue!
+        );
+      }
+
+      if (
+        patientsSubmittedByTime.value?.chartTitle &&
+        patientsSubmittedByTime.value?.dataPoints
+      ) {
+        patientsSubmittedByTime.value.chartTitle = parseChartTitle(
+          patientsSubmittedByTime.value.chartTitle,
+          patientsSubmittedByTime.value.dataPoints[0].dataPointValue!
+        );
+      }
+
       // prepare workstream data
       patientsByWorkstreamChartData.value =
         patientsByWorkstreamChart.value!.dataPoints?.sort(
