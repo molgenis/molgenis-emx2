@@ -3,7 +3,6 @@ package org.molgenis.emx2.cafevariome;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import java.util.ArrayList;
 import java.util.List;
-import org.molgenis.emx2.beaconv2.filter.Filter;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public record CafeVariomeQuery(
@@ -52,5 +51,19 @@ public record CafeVariomeQuery(
       double maxAf,
       boolean useLocalAf) {}
 
-  public record Advanced(Granularity granularity, List<Filter> requiredFilters) {}
+  public record Advanced(Granularity granularity, RequiredFilters requiredFilters) {}
+
+  public record RequiredFilters(
+      boolean subject,
+      boolean hpo,
+      boolean ordo,
+      boolean genes,
+      boolean snomed,
+      boolean variant,
+      boolean source,
+      boolean eav,
+      SubjectCapability subjectCapability) {}
+
+  public record SubjectCapability(
+      boolean age, boolean gender, boolean familyType, boolean affected) {}
 }
