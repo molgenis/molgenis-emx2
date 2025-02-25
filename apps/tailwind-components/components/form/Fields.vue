@@ -11,7 +11,7 @@ import type {
 } from "../../../metadata-utils/src/types";
 import {
   isColumnVisible,
-  isRequiredByBoolean,
+  isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 
 const props = defineProps<{
@@ -215,7 +215,7 @@ function goToSection(headerId: string) {
             :type="column.columnType"
             :label="column.label"
             :description="column.description"
-            :required="isRequiredByBoolean(column.required ?? false)"
+            :required="isRequired(column.required ?? false)"
             :error-message="errorMap[column.id]"
             :ref-schema-id="column.refSchemaId || schemaId"
             :ref-table-id="column.refTableId"
