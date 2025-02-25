@@ -8,10 +8,10 @@ For example:
 - https://emx2.dev.molgenis.org/api/graphql - root API
 - https://emx2.dev.molgenis.org/pet%20store/api/graphql - API for database 'pet store'
 
-Full documentation can be found while visiting the graphql-playground app. You can click 'docs' there.
+Full documentation can be found while visiting the graphiql app. You can click 'docs' there.
 
-- https://emx2.dev.molgenis.org/apps/graphql-playground/ - playground for 'root' API
-- https://emx2.dev.molgenis.org/pet%20store/graphql-playground/ - example for 'pet store' database
+- https://emx2.dev.molgenis.org/apps/graphiql/ - playground for 'root' API
+- https://emx2.dev.molgenis.org/pet%20store/graphiql/ - example for 'pet store' database
 
 ## Functions available on all APIs.
 
@@ -422,7 +422,7 @@ client
 
 ### Example querying the Pet Store
 
-Go to the [Pet Store playground](https://emx2.dev.molgenis.org/pet%20store/graphql-playground/).
+Go to the [Pet Store playground](https://emx2.dev.molgenis.org/pet%20store/graphiql/).
 
 Get the name of all the pets
 
