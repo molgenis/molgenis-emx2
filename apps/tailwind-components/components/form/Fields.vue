@@ -10,6 +10,7 @@ import type {
   recordValue,
 } from "../../../metadata-utils/src/types";
 import {
+  getColumnError,
   isColumnVisible,
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
