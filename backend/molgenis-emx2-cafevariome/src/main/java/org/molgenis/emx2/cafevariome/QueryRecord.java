@@ -31,7 +31,7 @@ public class QueryRecord {
   private static List<String> parseFilters(CafeVariomeQuery query) {
     List<String> filters = new ArrayList<>();
 
-    if (query.subject().ageFirstDiagnosis() != null) {
+    if (query.subject() != null && query.subject().ageFirstDiagnosis() != null) {
       String ageAtDiagFilter =
           FilterConceptVP.AGE_AT_DIAG
               .getGraphQlQuery()
@@ -41,13 +41,15 @@ public class QueryRecord {
       filters.add(ageAtDiagFilter);
     }
 
-    if (!query.hpo().isEmpty()) {
+    if (query.hpo() != null && !query.hpo().isEmpty()) {
       String diseaseTermFilter =
           FilterConceptVP.DISEASE.getGraphQlQuery().formatted(query.hpo().get(0).terms().get(0));
       filters.add(diseaseTermFilter);
     }
 
-    if (query.variant() != null) {}
+    if (query.variant() != null) {
+      // todo: implement
+    }
 
     return filters;
   }
