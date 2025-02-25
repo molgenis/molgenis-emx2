@@ -40,7 +40,7 @@
     <path
       v-if="indeterminate"
       d="M5,10 L 15,10"
-      class="stroke-input-checked"
+      class="stroke-check"
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"

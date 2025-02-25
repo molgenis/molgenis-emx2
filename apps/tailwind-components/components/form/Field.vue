@@ -22,8 +22,7 @@ defineProps<
     falseLabel?: string;
   }
 >();
-
-const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+const emit = defineEmits(["focus", "blur"]);
 </script>
 
 <template>

@@ -7,31 +7,25 @@ import type {
   IColumn,
   IFormLegendSection,
   ITableMetaData,
+  recordValue,
 } from "../../../metadata-utils/src/types";
 import {
   isColumnVisible,
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
-import { getColumnError } from "../../utils/utils";
-
-//todo: don't forget about default values for reflinks
 
 const props = defineProps<{
   id: string;
   schemaId: string;
   metadata: ITableMetaData;
-  data: Record<columnId, columnValue>[];
 }>();
 
-const emit = defineEmits(["error", "update:modelValue"]);
+const modelValue = defineModel<recordValue>("modelValue", {
+  required: true,
+});
 
-const dataMap = reactive<Record<columnId, columnValue>>(
-  Object.fromEntries(
-    props.metadata.columns
-      .filter((column) => column.columnType !== "HEADING")
-      .map((column) => [column.id, ""])
-  )
-);
+const emit = defineEmits(["error"]);
+
 const visibleMap = reactive<Record<columnId, boolean>>({});
 const errorMap = reactive<Record<columnId, string>>({});
 const previousColumn = ref<IColumn>();
@@ -40,9 +34,10 @@ const previousColumn = ref<IColumn>();
 props.metadata.columns
   .filter((column) => column.columnType === "HEADING")
   .forEach((column) => {
-    logger.debug(isColumnVisible(column, dataMap, props.metadata));
+    logger.debug(isColumnVisible(column, modelValue.value, props.metadata));
     visibleMap[column.id] =
-      !column.visible || isColumnVisible(column, dataMap, props.metadata)
+      !column.visible ||
+      isColumnVisible(column, modelValue.value, props.metadata)
         ? true
         : false;
     logger.debug(
@@ -94,7 +89,8 @@ const numberOfRequiredFields = computed(
 const numberOfRequiredFieldsWithData = computed(
   () =>
     props.metadata.columns.filter(
-      (column) => column.required && dataMap[column.id]
+      (column) =>
+        column.required && modelValue[column.id as keyof typeof modelValue]
     ).length
 );
 
@@ -102,14 +98,16 @@ const recordLabel = computed(() => props.metadata.label);
 
 function validateColumn(column: IColumn) {
   logger.debug("validate " + column.id);
-  delete errorMap[column.id];
-  const error = getColumnError(column, dataMap, props.metadata);
-  if (error) errorMap[column.id] = error;
-  else {
+
+  const error = getColumnError(column, modelValue.value, props.metadata);
+
+  if (error) {
+    errorMap[column.id] = error;
+  } else {
     errorMap[column.id] = props.metadata.columns
       .filter((c) => c.validation?.includes(column.id))
       .map((c) => {
-        const result = getColumnError(c, dataMap, props.metadata);
+        const result = getColumnError(c, modelValue.value, props.metadata);
         return result;
       })
       .join("");
@@ -117,7 +115,10 @@ function validateColumn(column: IColumn) {
 }
 
 function checkVisibleExpression(column: IColumn) {
-  if (!column.visible || isColumnVisible(column, dataMap, props.metadata)) {
+  if (
+    !column.visible ||
+    isColumnVisible(column, modelValue.value, props.metadata)
+  ) {
     visibleMap[column.id] = true;
   } else {
     visibleMap[column.id] = false;
@@ -128,20 +129,18 @@ function checkVisibleExpression(column: IColumn) {
 }
 
 function onUpdate(column: IColumn, $event: columnValue) {
-  dataMap[column.id] = $event;
   if (errorMap[column.id]) {
     validateColumn(column);
   }
   props.metadata.columns
     .filter((c) => c.visible?.includes(column.id))
     .forEach((c) => {
-      visibleMap[c.id] = isColumnVisible(c, dataMap, props.metadata)
+      visibleMap[c.id] = isColumnVisible(c, modelValue.value, props.metadata)
         ? true
         : false;
       logger.debug("updating visibility for " + c.id + "=" + visibleMap[c.id]);
     });
   previousColumn.value = column;
-  emit("update:modelValue", dataMap);
 }
 
 function onFocus(column: IColumn) {
@@ -211,7 +210,7 @@ function goToSection(headerId: string) {
           />
           <FormField
             v-else-if="visibleMap[column.id] === true"
-            v-model="dataMap[column.id]"
+            v-model="modelValue[column.id]"
             :id="`${column.id}-form-field`"
             :type="column.columnType"
             :label="column.label"
