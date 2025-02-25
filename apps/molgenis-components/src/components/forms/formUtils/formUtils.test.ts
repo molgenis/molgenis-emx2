@@ -10,6 +10,7 @@ import {
   isMissingValue,
   isRequired,
   isJsonObjectOrArray,
+  getBigIntError,
 } from "./formUtils";
 import type { ITableMetaData, IColumn } from "metadata-utils";
 const { AUTO_ID, HEADING } = constants;
@@ -148,7 +149,7 @@ describe("getRowErrors", () => {
     const rowData = { hyperlink: "https://google.com" };
     const metadata = {
       columns: [{ id: "hyperlink", columnType: "HYPERLiNK" }],
-    } as ITableMetaData;
+    } as unknown as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({});
   });
@@ -187,7 +188,7 @@ describe("getRowErrors", () => {
     };
     const metadata = {
       columns: [{ id: "hyperlink", columnType: "HYPERLiNK_ARRAY" }],
-    } as ITableMetaData;
+    } as unknown as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({});
   });
@@ -241,6 +242,38 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({});
+  });
+});
+
+describe("getBigIntError", () => {
+  const BIG_INT_ERROR = `Invalid value: must be value from -9223372036854775807 to 9223372036854775807`;
+
+  test("it should return undefined for a valid positive long", () => {
+    expect(getBigIntError("9223372036854775807")).toBeUndefined();
+  });
+
+  test("it should return undefined for a valid negative long", () => {
+    expect(getBigIntError("-9223372036854775807")).toBeUndefined();
+  });
+
+  test("it should return an error string for a too large long", () => {
+    expect(getBigIntError("9223372036854775808")).toEqual(BIG_INT_ERROR);
+  });
+
+  test("it should return an error string for a too small long", () => {
+    expect(getBigIntError("-9223372036854775808")).toEqual(BIG_INT_ERROR);
+  });
+
+  test("it should return an error for invalid input", () => {
+    expect(getBigIntError("randomtext")).toEqual(BIG_INT_ERROR);
+  });
+
+  test("it should return an error for empty inputs", () => {
+    expect(getBigIntError("")).toEqual(BIG_INT_ERROR);
+  });
+
+  test("it should return an error for only a minus", () => {
+    expect(getBigIntError("-")).toEqual(BIG_INT_ERROR);
   });
 });
 

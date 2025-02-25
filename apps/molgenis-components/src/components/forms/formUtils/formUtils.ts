@@ -8,8 +8,19 @@ import type { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
 
-const { EMAIL_REGEX, HYPERLINK_REGEX, PERIOD_REGEX, AUTO_ID, HEADING } =
-  constants;
+const {
+  EMAIL_REGEX,
+  HYPERLINK_REGEX,
+  PERIOD_REGEX,
+  AUTO_ID,
+  HEADING,
+  MIN_INT,
+  MAX_INT,
+  MIN_LONG,
+  MAX_LONG,
+} = constants;
+const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
+const INT_ERROR = `Invalid value: must be value from ${MIN_INT} to ${MAX_INT}`;
 
 export function getRowErrors(
   tableMetaData: ITableMetaData,
@@ -101,11 +112,49 @@ export function getColumnError(
       return `Please enter valid JSON`;
     }
   }
+  if (type === "LONG" && getBigIntError(value as string | undefined)) {
+    return getBigIntError(value as string | undefined);
+  }
+  if (type === "DECIMAL" && isNaN(parseFloat(value as string))) {
+    return "Invalid number";
+  }
+  if (type === "INT") {
+    const intError = getIntError(value as number);
+    if (intError) {
+      return intError;
+    }
+  }
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
   }
 
   return undefined;
+}
+
+export function getBigIntError(value?: string): string | undefined {
+  if (isInvalidBigInt(value)) {
+    return BIG_INT_ERROR;
+  } else {
+    return undefined;
+  }
+}
+
+export function isInvalidBigInt(value?: string): boolean {
+  const isValidRegex = /^-?\d+$/;
+  if (value && isValidRegex.test(value)) {
+    return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
+  } else {
+    return true;
+  }
+}
+
+function getIntError(value: number) {
+  if (isNaN(value)) {
+    return "Invalid number";
+  }
+  if (value < MIN_INT || value > MAX_INT) {
+    return INT_ERROR;
+  }
 }
 
 export function isMissingValue(value: any): boolean {

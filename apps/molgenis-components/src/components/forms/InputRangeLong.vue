@@ -34,8 +34,8 @@
 import BaseInput from "./baseInputs/BaseInput.vue";
 import BaseInputLong from "./baseInputs/BaseInputLong.vue";
 import FormGroup from "./FormGroup.vue";
+import { getBigIntError } from "./formUtils/formUtils";
 import InputGroup from "./InputGroup.vue";
-import { getBigIntError } from "../utils";
 
 export default {
   components: { BaseInputLong, FormGroup, InputGroup },
