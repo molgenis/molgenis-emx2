@@ -18,19 +18,13 @@ import org.pac4j.oidc.config.OidcConfiguration;
 public class SecurityConfigFactory {
 
   private String oidcClientId;
-  private final String oidcClientSecret =
-      (String)
-          EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_SECRET, null, STRING);
+  private final String oidcClientSecret = "SVTwkFLI1Oy58eHZwq4qr6lfG0FjJiAt";
   public static String OIDC_CLIENT_NAME =
       (String)
           EnvironmentProperty.getParameter(
               Constants.MOLGENIS_OIDC_CLIENT_NAME, "MolgenisAuth", STRING);
   private String oidcDiscoveryURI =
-      (String)
-          EnvironmentProperty.getParameter(
-              Constants.MOLGENIS_OIDC_DISCOVERY_URI,
-              "https://auth.molgenis.org/.well-known/openid-configuration/",
-              STRING);
+      "https://auth1.molgenis.net/realms/Cafe-Variome/.well-known/openid-configuration";
   private String callbackUrl =
       (String)
           EnvironmentProperty.getParameter(
