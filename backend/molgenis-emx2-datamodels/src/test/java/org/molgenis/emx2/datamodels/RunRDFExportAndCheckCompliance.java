@@ -1,6 +1,6 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2.datamodels;
 
-import static org.molgenis.emx2.rdf.ComplianceTest.*;
+import static org.molgenis.emx2.rdf.SHACLComplianceTester.*;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -35,7 +35,7 @@ public class RunRDFExportAndCheckCompliance {
 
     // Create new Data Catalogue and export to RDF
     if (performFreshRDFExport) {
-      String rdf = createSchemaExportRDF("datacatl", "_profiles/DataCatalogue.yaml");
+      String rdf = ComplianceTest.createSchemaExportRDF("datacatl", "_profiles/DataCatalogue.yaml");
       try (PrintWriter out = new PrintWriter(rdfExportLoc)) {
         out.println(rdf);
       }
@@ -45,9 +45,9 @@ public class RunRDFExportAndCheckCompliance {
     String catalogueSchemaRDF = Files.readString(Paths.get(rdfExportLoc), Charset.defaultCharset());
 
     // Test compliance against one or more sets of SHACL files
-    testCompliance(FAIR_DATA_POINT_SHACL_FILES, catalogueSchemaRDF);
-    testCompliance(DCAT_AP_SHACL_FILES, catalogueSchemaRDF);
-    testCompliance(HEALTH_RI_SHACL_FILES, catalogueSchemaRDF);
-    testCompliance(EJP_RD_VP_SHACL_FILES, catalogueSchemaRDF);
+    testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, catalogueSchemaRDF);
+    testShaclCompliance(DCAT_AP_SHACL_FILES, catalogueSchemaRDF);
+    testShaclCompliance(HEALTH_RI_SHACL_FILES, catalogueSchemaRDF);
+    testShaclCompliance(EJP_RD_VP_SHACL_FILES, catalogueSchemaRDF);
   }
 }
