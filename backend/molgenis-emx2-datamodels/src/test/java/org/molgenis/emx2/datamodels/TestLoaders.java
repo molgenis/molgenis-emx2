@@ -91,7 +91,7 @@ public class TestLoaders {
     rdf.describeAsRDF(outputStream, null, null, null, dataCatalogue);
 
     // check compliance
-    // testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
+    testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
     // testShaclCompliance(DCAT_AP_SHACL_FILES, outputStream.toString());
     // testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
     // testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
@@ -177,7 +177,7 @@ public class TestLoaders {
     rdf.describeAsRDF(outputStream, null, null, null, FDPSchema);
 
     // test compliance
-    // testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
+    testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
     // testShaclCompliance(DCAT_AP_SHACL_FILES, outputStream.toString());
     // testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
     // testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
