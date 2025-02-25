@@ -16,12 +16,24 @@ import org.molgenis.emx2.cafevariome.CafeVariomeQuery;
 import org.molgenis.emx2.cafevariome.QueryRecord;
 import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
 import org.molgenis.emx2.cafevariome.response.RecordResponse;
+import org.pac4j.core.config.Config;
+import org.pac4j.javalin.SecurityHandler;
 
 public class CafeVariomeApi {
 
   public static void create(Javalin app) {
+    app.before("/{schema}/api/cafevariome/record", CafeVariomeApi::checkToken);
     app.post("/{schema}/api/cafevariome/record", CafeVariomeApi::postRecord);
+    app.before("/{schema}/api/cafevariome/record-index", CafeVariomeApi::checkToken);
     app.get("/{schema}/api/cafevariome/record-index", CafeVariomeApi::getRecordIndex);
+  }
+
+  private static void checkToken(Context ctx) {
+    Config config = new SecurityConfigFactory().build();
+
+    SecurityHandler securityHandler = new SecurityHandler(config, "MolgenisAuth");
+
+    securityHandler.handle(ctx);
   }
 
   private static void postRecord(Context ctx) throws JsonProcessingException {
