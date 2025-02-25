@@ -36,8 +36,7 @@ public class SecurityConfigFactory {
 
   public Config build() {
     final OidcConfiguration oidcConfiguration = new OidcConfiguration();
-    oidcClientId =
-        (String) EnvironmentProperty.getParameter(Constants.MOLGENIS_OIDC_CLIENT_ID, null, STRING);
+    oidcClientId = "MolgenisAuth";
     oidcConfiguration.setClientId(oidcClientId);
     oidcConfiguration.setSecret(oidcClientSecret);
     oidcConfiguration.setDiscoveryURI(oidcDiscoveryURI);
