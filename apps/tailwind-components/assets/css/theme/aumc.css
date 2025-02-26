@@ -29,6 +29,7 @@
     --background-color-footer: var(--color-blue-800);
     --background-color-modal-footer: var(--color-blue-800);
 
+    --text-color-link: var(--color-orange-500);
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-black);
     --text-color-button-text: var(--color-white);
