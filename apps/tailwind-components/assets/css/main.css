@@ -179,6 +179,7 @@
     --border-color-pagination: var(--color-transparent);
     --border-color-input-hover: var(--color-blue-500);
     --border-color-input: var(--color-gray-400);
+    --border-color-input-hover: var(--color-blue-500);
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
     --border-color-listbox-option: var(--color-gray-100);

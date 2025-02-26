@@ -5,6 +5,7 @@
 
     --color-valid-foreground: var(--color-green-200);
     --color-valid-background: var(--color-green-900);
+    --color-disabled-background: var(--color-gray-600);
     --color-invalid-foreground: var(--color-red-200);
     --color-invalid-background: var(--color-red-700);
     --color-neutral-background: var(--color-gray-600);
@@ -43,6 +44,7 @@
     --border-color-button-secondary-hover: var(--color-green-200);
     
     --border-color-input: var(--color-gray-600);
+    --border-color-input-hover: var(--color-green-200);
     --border-color-input-focused: var(--color-green-200);
     
     --border-radius-pagination: 3px;
