@@ -1,5 +1,7 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.Constants.MOLGENIS_OIDC_CLIENT_NAME;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 
@@ -16,6 +18,7 @@ import org.molgenis.emx2.cafevariome.CafeVariomeQuery;
 import org.molgenis.emx2.cafevariome.QueryRecord;
 import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
 import org.molgenis.emx2.cafevariome.response.RecordResponse;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.pac4j.core.config.Config;
 import org.pac4j.javalin.SecurityHandler;
 
@@ -30,9 +33,10 @@ public class CafeVariomeApi {
 
   private static void checkToken(Context ctx) {
     Config config = new SecurityConfigFactory().build();
-
-    SecurityHandler securityHandler = new SecurityHandler(config, "MolgenisAuth");
-
+    String clientName =
+        (String)
+            EnvironmentProperty.getParameter(MOLGENIS_OIDC_CLIENT_NAME, "MolgenisAuth", STRING);
+    SecurityHandler securityHandler = new SecurityHandler(config, clientName);
     securityHandler.handle(ctx);
   }
 
