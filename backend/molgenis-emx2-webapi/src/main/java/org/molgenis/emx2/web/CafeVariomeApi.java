@@ -3,12 +3,13 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.MOLGENIS_OIDC_CLIENT_NAME;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
-import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.servlet.JavalinServletContext;
+import io.javalin.http.servlet.Task;
 import java.util.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -19,25 +20,49 @@ import org.molgenis.emx2.cafevariome.QueryRecord;
 import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
 import org.molgenis.emx2.cafevariome.response.RecordResponse;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.config.Config;
-import org.pac4j.javalin.SecurityHandler;
+import org.pac4j.javalin.JavalinFrameworkParameters;
 
 public class CafeVariomeApi {
 
-  public static void create(Javalin app) {
-    app.before("/{schema}/api/cafevariome/record", CafeVariomeApi::checkToken);
+  private static MolgenisSessionManager sessionManager;
+  private static final Config config = new SecurityConfigFactory().build();
+  private static final String clientName =
+      (String) EnvironmentProperty.getParameter(MOLGENIS_OIDC_CLIENT_NAME, "MolgenisAuth", STRING);
+
+  public static void create(Javalin app, MolgenisSessionManager sm) {
+    sessionManager = sm;
+    app.before("/{schema}/api/cafevariome/record", CafeVariomeApi::checkAuth);
     app.post("/{schema}/api/cafevariome/record", CafeVariomeApi::postRecord);
-    app.before("/{schema}/api/cafevariome/record-index", CafeVariomeApi::checkToken);
+    app.before("/{schema}/api/cafevariome/record-index", CafeVariomeApi::checkAuth);
     app.get("/{schema}/api/cafevariome/record-index", CafeVariomeApi::getRecordIndex);
   }
 
-  private static void checkToken(Context ctx) {
-    Config config = new SecurityConfigFactory().build();
-    String clientName =
-        (String)
-            EnvironmentProperty.getParameter(MOLGENIS_OIDC_CLIENT_NAME, "MolgenisAuth", STRING);
-    SecurityHandler securityHandler = new SecurityHandler(config, clientName);
-    securityHandler.handle(ctx);
+  private static void checkAuth(Context ctx) {
+    MolgenisSession session = sessionManager.getSession(ctx.req());
+    if (!session.getDatabase().isAnonymous()) {
+      return;
+    }
+
+    FrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(config);
+    Object result =
+        config
+            .getSecurityLogic()
+            .perform(
+                config,
+                (context, store, profiles) -> "AUTH_GRANTED",
+                clientName,
+                null,
+                null,
+                new JavalinFrameworkParameters(ctx));
+
+    System.out.println("--- AUTH RESULT ---" + result);
+
+    if (!"AUTH_GRANTED".equals(result)) {
+      ctx.status(401).result("Unauthorized");
+      ((JavalinServletContext) ctx).getTasks().removeIf(Task::getSkipIfExceptionOccurred);
+    }
   }
 
   private static void postRecord(Context ctx) throws JsonProcessingException {

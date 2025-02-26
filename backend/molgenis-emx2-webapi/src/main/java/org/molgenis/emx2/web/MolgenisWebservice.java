@@ -101,13 +101,13 @@ public class MolgenisWebservice {
     ExcelApi.create(app);
     JsonApi.create(app);
     FileApi.create(app);
-    CafeVariomeApi.create(app);
     JsonYamlApi.create(app);
     TaskApi.create(app);
     GraphqlApi.createGraphQLservice(app, sessionManager);
     RDFApi.create(app, sessionManager);
     GraphGenomeApi.create(app, sessionManager);
     BeaconApi.create(app, sessionManager);
+    CafeVariomeApi.create(app, sessionManager);
     FAIRDataPointApi.create(app, sessionManager);
     BootstrapThemeService.create(app);
     ProfilesApi.create(app);
