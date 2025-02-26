@@ -37,6 +37,7 @@
     --text-color-pagination: var(--color-white);
     --text-color-pagination-button: var(--color-green-500);
     --text-color-pagination-hover: var(--color-green-500);
+    --text-color-input: var(--color-white);
 
     --border-color-button-primary: var(--color-green-500);
     --border-color-button-primary-hover: var(--color-white);

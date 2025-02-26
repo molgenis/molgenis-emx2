@@ -156,6 +156,7 @@
     --text-color-form-header: var(--color-blue-800);
     --text-color-input-description: var(--color-blue-800);
     --text-color-legend-error-count: var(--color-white);
+    --text-color-input: var(--color-blue-800);
     
     --text-code-output: var(--color-gray-800);
     --text-content-required: "*";

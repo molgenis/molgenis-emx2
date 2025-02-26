@@ -14,7 +14,7 @@
         valid && disabled,
       'bg-disabled border-invalid text-invalid cursor-not-allowed':
         invalid && disabled,
-      'bg-input text-current hover:border-input-hover focus:border-input-focused':
+      'bg-input text-input hover:border-input-hover focus:border-input-focused':
         !disabled && !invalid && !valid,
     }"
     v-model="modelValue"

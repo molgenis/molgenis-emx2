@@ -28,7 +28,7 @@ function handleInput(input: string) {
         valid && disabled,
       'bg-disabled border-invalid text-invalid cursor-not-allowed':
         invalid && disabled,
-      'bg-input text-current hover:border-input-hover focus-within:border-input-focused':
+      'bg-input text-input hover:border-input-hover focus-within:border-input-focused':
         !disabled && !invalid && !valid,
     }"
   >
@@ -36,7 +36,7 @@ function handleInput(input: string) {
       <BaseIcon
         name="search"
         :width="21"
-        class="text-current"
+        class="text-input"
         :class="{
           'text-valid': valid,
           'text-invalid': invalid,
