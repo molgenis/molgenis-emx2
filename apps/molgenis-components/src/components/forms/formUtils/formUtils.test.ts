@@ -240,7 +240,7 @@ describe("getRowErrors", () => {
   });
 
   test("it should return nog error for a valid integer", () => {
-    const rowData = { integer: "1" };
+    const rowData = { integer: 1 };
     const metadata = {
       columns: [{ id: "integer", columnType: "INT" }],
     } as ITableMetaData;
@@ -255,6 +255,28 @@ describe("getRowErrors", () => {
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({ integer: "Invalid number" });
+  });
+
+  test("it should return an error for an integer that is too large", () => {
+    const rowData = { integer: "2147483648" };
+    const metadata = {
+      columns: [{ id: "integer", columnType: "INT" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      integer: "Invalid value: must be value from -2147483648 to 2147483647",
+    });
+  });
+
+  test("it should return an error for an integer that is too small", () => {
+    const rowData = { integer: "-2147483649" };
+    const metadata = {
+      columns: [{ id: "integer", columnType: "INT" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      integer: "Invalid value: must be value from -2147483648 to 2147483647",
+    });
   });
 
   test("it should return no error for a successful validation", () => {
