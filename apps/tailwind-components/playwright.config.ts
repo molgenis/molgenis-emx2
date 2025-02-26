@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import type { ConfigOptions } from '@nuxt/test-utils/playwright'
 
 export default defineConfig<ConfigOptions>({
-  testDir: './tests',
+  testDir: './tests/e2e',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */

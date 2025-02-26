@@ -4,6 +4,7 @@ import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQu
 import type {
   ITableMetaData,
   columnValueObject,
+  recordValue,
 } from "../../../metadata-utils/src/types";
 
 import { type IInputProps, type IValueLabel } from "~/types/types";
@@ -30,8 +31,8 @@ const modelValue = defineModel<columnValueObject[] | columnValueObject>();
 const tableMetadata = ref<ITableMetaData>();
 
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
-const optionMap: Ref<Record<string, columnValueObject>> = ref({});
-const selectionMap: Ref<Record<string, columnValueObject>> = ref({});
+const optionMap: Ref<recordValue> = ref({});
+const selectionMap: Ref<recordValue> = ref({});
 const initialCount = ref<number>(0);
 const count = ref<number>(0);
 const offset = ref<number>(0);
