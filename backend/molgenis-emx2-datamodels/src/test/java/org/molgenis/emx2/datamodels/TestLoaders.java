@@ -45,7 +45,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(PORTAL_TEST);
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);
-    // database.dropSchemaIfExists(DATA_CATALOGUE);
+    database.dropSchemaIfExists(DATA_CATALOGUE);
     database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(SHARED_STAGING);
@@ -82,7 +82,6 @@ public class TestLoaders {
   @Test
   void test06DataCatalogueLoader() throws Exception {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
-    // database.getSchema(DATA_CATALOGUE); //
     DataModels.Profile.DATA_CATALOGUE.getImportTask(dataCatalogue, true).run();
     assertEquals(26, dataCatalogue.getTableNames().size());
 
