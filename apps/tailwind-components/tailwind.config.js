@@ -221,6 +221,7 @@ module.exports = {
         "footer-link": "var(--text-color-footer-link)",
         "table-column-header": "var(--text-color-table-column-header)",
         "form-header": "var(--text-color-form-header)",
+        "input": "var(--text-color-input)",
         "input-description": "var(--text-color-input-description)",
         
         "invalid": "var(--color-invalid-foreground)",
