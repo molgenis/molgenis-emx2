@@ -59,10 +59,19 @@ const { $sourceCodeMap } = useNuxtApp();
           <aside
             class="xl:min-w-95 xl:w-95 hidden xl:block pl-6 bg-sidebar-gradient"
           >
-            <h2 class="text-2xl text-title font-bold my-5">Theme Styles</h2>
-            <NuxtLink class="hover:underline text-title" to="/Styles.other"
-              >Theme styles</NuxtLink
-            >
+            <h2 class="text-2xl text-title font-bold my-5">Design</h2>
+            <ul class="list-style-none">
+              <li class="py-2">
+                <NuxtLink class="hover:underline text-title" to="/Styles.other">
+                  Theme styles
+                </NuxtLink>
+              </li>
+              <li class="py-2">
+                <NuxtLink class="hover:underline text-title" to="/Figma.other">
+                  Figma
+                </NuxtLink>
+              </li>
+            </ul>
             <h2 class="text-2xl text-title font-bold my-5">Components</h2>
             <ul class="list-none">
               <li class="py-2" v-for="story in stories">
