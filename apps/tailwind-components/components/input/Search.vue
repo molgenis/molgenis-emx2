@@ -19,7 +19,7 @@ function handleInput(input: string) {
 </script>
 <template>
   <div
-    class="relative flex items-center w-full h-[56px] border-2 outline-none rounded-input"
+    class="relative flex items-center w-full h-[56px] border outline-none rounded-input"
     :class="{
       'bg-input border-valid text-valid': valid && !disabled,
       'bg-input border-invalid text-invalid': invalid && !disabled,

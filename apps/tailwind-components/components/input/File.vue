@@ -1,12 +1,13 @@
 <template>
   <div
-    class="flex items-center border-2 border-input p-2"
+    class="flex items-center border rounded-input p-2"
     :class="{
       'cursor-pointer duration-default ease-in-out hover:border-input-hover focus-within:border-input-focused':
         !disabled && !invalid,
       'border-invalid': invalid,
       'border-valid': valid,
       'bg-disabled cursor-not-allowed': disabled,
+      'bg-input border-input': !disabled,
     }"
   >
     <div class="grow">

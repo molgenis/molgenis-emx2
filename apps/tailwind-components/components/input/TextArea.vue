@@ -16,7 +16,7 @@ const emit = defineEmits([
     :id="id"
     :placeholder="placeholder"
     :disabled="disabled"
-    class="w-full h-[112px] pl-3 pr-16 py-2 border-2 outline-none rounded-textarea-input"
+    class="w-full h-[112px] pl-3 pr-16 py-2 border outline-none rounded-textarea-input"
     :class="{
       'bg-input border-valid text-valid': valid && !disabled,
       'bg-input border-invalid text-invalid': invalid && !disabled,
