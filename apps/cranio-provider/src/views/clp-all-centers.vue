@@ -97,7 +97,7 @@ import { getUniqueAgeRanges } from "../utils/clpUtils";
 import { sortByDataPointName } from "../utils";
 
 import type { ICharts, IChartData } from "../types/schema";
-import type { IKeyValuePair } from "../types";
+import type { IKeyValuePair, clpChartTypes } from "../types";
 import type { IAppPage } from "../types/app";
 const props = defineProps<IAppPage>();
 
@@ -110,8 +110,7 @@ const cleftqOutcomesChart = ref<ICharts>();
 const cleftqOutcomesChartData = ref<IChartData[]>();
 const chartColorPalette = ref<IKeyValuePair>();
 
-type chartTypes = "ics" | "cleftq";
-const currentVisibleChart = ref<chartTypes>("ics");
+const currentVisibleChart = ref<clpChartTypes>("ics");
 
 async function getPageData() {
   const icsCenterResponse = await getDashboardChart(

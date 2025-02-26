@@ -11,7 +11,7 @@
     <div class="flex flex-row" v-for="option in options">
       <InputLabel
         :for="`${id}-checkbox-group-${option.value}`"
-        class="group flex justify-start items-center"
+        class="group flex justify-start items-center relative"
         :class="{
           'text-disabled cursor-not-allowed': disabled,
           'text-title cursor-pointer ': !disabled,
@@ -26,11 +26,8 @@
           :checked="modelValue!.includes(option.value)"
           :disabled="disabled"
           @change="toggleSelect"
-          class="opacity-0 absolute ml-4 mt-2"
+          class="ml-4 mt-2 sr-only"
         />
-        <!-- don't use ssr only that make screen 'hop'. Also we want aria to be able to use it. It is just hidden behind the icon
-        todo remove this comment once stable.
-        -->
         <InputCheckboxIcon
           :checked="modelValue!.includes(option.value)"
           :invalid="invalid"
