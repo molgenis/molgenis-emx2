@@ -1,15 +1,19 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.Constants.MOLGENIS_OIDC_CLIENT_NAME;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import io.javalin.http.servlet.JavalinServletContext;
-import io.javalin.http.servlet.Task;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
@@ -19,17 +23,11 @@ import org.molgenis.emx2.cafevariome.CafeVariomeQuery;
 import org.molgenis.emx2.cafevariome.QueryRecord;
 import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
 import org.molgenis.emx2.cafevariome.response.RecordResponse;
-import org.molgenis.emx2.utils.EnvironmentProperty;
-import org.pac4j.core.adapter.FrameworkAdapter;
-import org.pac4j.core.config.Config;
-import org.pac4j.javalin.JavalinFrameworkParameters;
 
 public class CafeVariomeApi {
 
   private static MolgenisSessionManager sessionManager;
-  private static final Config config = new SecurityConfigFactory().build();
-  private static final String clientName =
-      (String) EnvironmentProperty.getParameter(MOLGENIS_OIDC_CLIENT_NAME, "MolgenisAuth", STRING);
+  private static final String clientSecret = "SVTwkFLI1Oy58eHZwq4qr6lfG0FjJiAt";
 
   public static void create(Javalin app, MolgenisSessionManager sm) {
     sessionManager = sm;
@@ -39,30 +37,49 @@ public class CafeVariomeApi {
     app.get("/{schema}/api/cafevariome/record-index", CafeVariomeApi::getRecordIndex);
   }
 
-  private static void checkAuth(Context ctx) {
+  private static void checkAuth(Context ctx) throws IOException, InterruptedException {
     MolgenisSession session = sessionManager.getSession(ctx.req());
     if (!session.getDatabase().isAnonymous()) {
       return;
     }
 
-    FrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(config);
-    Object result =
-        config
-            .getSecurityLogic()
-            .perform(
-                config,
-                (context, store, profiles) -> "AUTH_GRANTED",
-                clientName,
-                null,
-                null,
-                new JavalinFrameworkParameters(ctx));
+    HttpClient client = HttpClient.newHttpClient();
 
-    System.out.println("--- AUTH RESULT ---" + result);
+    Enumeration<String> authHeaders = ctx.req().getHeaders("Authorization");
+    String authHeader = authHeaders.nextElement();
+    String accessToken = authHeader.split(" ")[1];
+    String formData =
+        "client_id="
+            + URLEncoder.encode("MolgenisAuth", StandardCharsets.UTF_8)
+            + "&client_secret="
+            + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8)
+            + "&token="
+            + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
 
-    if (!"AUTH_GRANTED".equals(result)) {
-      ctx.status(401).result("Unauthorized");
-      ((JavalinServletContext) ctx).getTasks().removeIf(Task::getSkipIfExceptionOccurred);
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .uri(
+                URI.create(
+                    "https://auth1.molgenis.net/realms/Cafe-Variome/protocol/openid-connect/token/introspect"))
+            .POST(HttpRequest.BodyPublishers.ofString(formData))
+            .build();
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    if (response.statusCode() != 200) {
+      ctx.status(response.statusCode());
     }
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode jsonResponse = objectMapper.readTree(response.body());
+    String user = String.valueOf(jsonResponse.get("email"));
+
+    Database database = session.getDatabase();
+    if (!database.hasUser(user)) {
+      //      logger.info("Add new OIDC user({}) to database", user);
+      database.addUser(user);
+    }
+    database.setActiveUser(user);
+    //    logger.info("OIDC sign in for user: {}", user);
+
   }
 
   private static void postRecord(Context ctx) throws JsonProcessingException {
