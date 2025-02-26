@@ -552,23 +552,21 @@ describe("isValidHyperLink", () => {
       constants.HYPERLINK_REGEX.test("https://example.com/(test)".toLowerCase())
     ).toBe(true);
   });
+});
 
-  describe("isJsonObjectOrArray", () => {
-    test("only JSON object/array should return true (after parsing from JSON string)", () => {
-      expect(isJsonObjectOrArray(JSON.parse('{"key":"value"}'))).toBe(true);
-      expect(isJsonObjectOrArray(JSON.parse('["string1", "string2"]'))).toBe(
-        true
-      );
-      expect(
-        isJsonObjectOrArray(
-          JSON.parse('{"key1":{"key2":["value1", "value2"]}}')
-        )
-      ).toBe(true);
-      expect(isJsonObjectOrArray(JSON.parse('"string"'))).toBe(false);
-      expect(isJsonObjectOrArray(JSON.parse("1"))).toBe(false);
-      expect(isJsonObjectOrArray(JSON.parse("true"))).toBe(false);
-      expect(isJsonObjectOrArray(JSON.parse("false"))).toBe(false);
-      expect(isJsonObjectOrArray(JSON.parse("null"))).toBe(false);
-    });
+describe("isJsonObjectOrArray", () => {
+  test("only JSON object/array should return true (after parsing from JSON string)", () => {
+    expect(isJsonObjectOrArray(JSON.parse('{"key":"value"}'))).toBe(true);
+    expect(isJsonObjectOrArray(JSON.parse('["string1", "string2"]'))).toBe(
+      true
+    );
+    expect(
+      isJsonObjectOrArray(JSON.parse('{"key1":{"key2":["value1", "value2"]}}'))
+    ).toBe(true);
+    expect(isJsonObjectOrArray(JSON.parse('"string"'))).toBe(false);
+    expect(isJsonObjectOrArray(JSON.parse("1"))).toBe(false);
+    expect(isJsonObjectOrArray(JSON.parse("true"))).toBe(false);
+    expect(isJsonObjectOrArray(JSON.parse("false"))).toBe(false);
+    expect(isJsonObjectOrArray(JSON.parse("null"))).toBe(false);
   });
 });
