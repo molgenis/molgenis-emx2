@@ -38,7 +38,7 @@
     @blur="emit('blur')"
   />
   <InputArray
-    v-else-if="'STRING_ARRAY' === typeUpperCase"
+    v-else-if="typeUpperCase.includes('ARRAY')"
     :id="id"
     v-model="modelValue as string[]"
     type="text"
