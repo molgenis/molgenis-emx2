@@ -1,5 +1,5 @@
 <template>
-  <div v-if="values" v-for="(value, index) in values" :key="index" class="flex">
+  <div v-if="values" v-for="(value, index) in values" :key="index" class="flex items-center gap-1">
     <Input
       :id="id"
       v-model="values[index]"
