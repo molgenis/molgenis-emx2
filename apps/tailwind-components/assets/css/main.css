@@ -156,6 +156,7 @@
     --text-color-form-header: var(--color-blue-800);
     --text-color-input-description: var(--color-blue-800);
     --text-color-legend-error-count: var(--color-white);
+    --text-color-input: var(--color-blue-800);
     
     --text-code-output: var(--color-gray-800);
     --text-content-required: "*";
@@ -179,6 +180,7 @@
     --border-color-pagination: var(--color-transparent);
     --border-color-input-hover: var(--color-blue-500);
     --border-color-input: var(--color-gray-400);
+    --border-color-input-hover: var(--color-blue-500);
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
     --border-color-listbox-option: var(--color-gray-100);
