@@ -148,21 +148,20 @@ describe("getRowErrors", () => {
   test("it should return no error for a valid hyperlink", () => {
     const rowData = { hyperlink: "https://google.com" };
     const metadata = {
-      columns: [{ id: "hyperlink", columnType: "HYPERLiNK" }],
-    } as unknown as ITableMetaData;
+      columns: [{ id: "hyperlink", columnType: "HYPERLINK" }],
+    } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({});
   });
 
-  //FIXME: Hyperlink checking seems to accept anything
-  // test("it should return an error for an invalid hyperlink", () => {
-  //   const rowData = { hyperlink: "google" };
-  //   const metadata = {
-  //     columns: [{ id: "hyperlink", columnType: "HYPERLiNK" }],
-  //   } as ITableMetaData;
-  //   const result = getRowErrors(metadata, rowData);
-  //   expect(result).to.deep.equal({ hyperlink: "Invalid hyperlink" });
-  // });
+  test("it should return an error for an invalid hyperlink", () => {
+    const rowData = { hyperlink: "google" };
+    const metadata = {
+      columns: [{ id: "hyperlink", columnType: "HYPERLINK" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({ hyperlink: "Invalid hyperlink" });
+  });
 
   test("it should return no error for a valid email address array array", () => {
     const rowData = { email: ["blaat@blabla.bla", "bla2@blabla.bla"] };
@@ -187,21 +186,76 @@ describe("getRowErrors", () => {
       hyperlink: ["https://google.com", "https://molgenis.org"],
     };
     const metadata = {
-      columns: [{ id: "hyperlink", columnType: "HYPERLiNK_ARRAY" }],
-    } as unknown as ITableMetaData;
+      columns: [{ id: "hyperlink", columnType: "HYPERLINK_ARRAY" }],
+    } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({});
   });
 
-  //FIXME: Hyperlink checking seems to accept anything
-  // test("it should return an error for an invalid hyperlink array ", () => {
-  //   const rowData = { hyperlink: ["google"] };
-  //   const metadata = {
-  //     columns: [{ id: "hyperlink", columnType: "HYPERLiNK_ARRAY" }],
-  //   } as ITableMetaData;
-  //   const result = getRowErrors(metadata, rowData);
-  //   expect(result).to.deep.equal({ hyperlink: "Invalid hyperlink" });
-  // });
+  test("it should return an error for an invalid hyperlink array ", () => {
+    const rowData = { hyperlink: ["google"] };
+    const metadata = {
+      columns: [{ id: "hyperlink", columnType: "HYPERLINK_ARRAY" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({ hyperlink: "Invalid hyperlink" });
+  });
+
+  test("it should return no error for a valid long", () => {
+    const rowData = { long: "9223372036854775807" };
+    const metadata = {
+      columns: [{ id: "long", columnType: "LONG" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({});
+  });
+
+  test("it should return an error for an invalid long", () => {
+    const rowData = { long: "9223372036854775808" };
+    const metadata = {
+      columns: [{ id: "long", columnType: "LONG" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      long: "Invalid value: must be value from -9223372036854775807 to 9223372036854775807",
+    });
+  });
+
+  test("it should return no error for a valid decimal", () => {
+    const rowData = { decimal: "1.1" };
+    const metadata = {
+      columns: [{ id: "decimal", columnType: "DECIMAL" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({});
+  });
+
+  test("it should return an error for an invalid decimal", () => {
+    const rowData = { decimal: "." };
+    const metadata = {
+      columns: [{ id: "decimal", columnType: "DECIMAL" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({ decimal: "Invalid number" });
+  });
+
+  test("it should return nog error for a valid integer", () => {
+    const rowData = { integer: "1" };
+    const metadata = {
+      columns: [{ id: "integer", columnType: "INT" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({});
+  });
+
+  test("it should return an error for an invalid integer", () => {
+    const rowData = { integer: "." };
+    const metadata = {
+      columns: [{ id: "integer", columnType: "INT" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({ integer: "Invalid number" });
+  });
 
   test("it should return no error for a successful validation", () => {
     const rowData = { validation: 2 };
