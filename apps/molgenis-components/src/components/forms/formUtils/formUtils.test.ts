@@ -221,6 +221,26 @@ describe("getRowErrors", () => {
     });
   });
 
+  test("it should return no error for a valid long array", () => {
+    const rowData = { long: ["9223372036854775807", "-9223372036854775807"] };
+    const metadata = {
+      columns: [{ id: "long", columnType: "LONG_ARRAY" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({});
+  });
+
+  test("it should return an error for an invalid long array", () => {
+    const rowData = { long: ["9223372036854775807", "9223372036854775808"] };
+    const metadata = {
+      columns: [{ id: "long", columnType: "LONG_ARRAY" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      long: "Invalid value: must be value from -9223372036854775807 to 9223372036854775807",
+    });
+  });
+
   test("it should return no error for a valid decimal", () => {
     const rowData = { decimal: "1.1" };
     const metadata = {
@@ -234,6 +254,24 @@ describe("getRowErrors", () => {
     const rowData = { decimal: "." };
     const metadata = {
       columns: [{ id: "decimal", columnType: "DECIMAL" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({ decimal: "Invalid number" });
+  });
+
+  test("it should return no error for a valid decimal array", () => {
+    const rowData = { decimal: ["1.1"] };
+    const metadata = {
+      columns: [{ id: "decimal", columnType: "DECIMAL_ARRAY" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({});
+  });
+
+  test("it should return an error for an invalid decimal array", () => {
+    const rowData = { decimal: ["."] };
+    const metadata = {
+      columns: [{ id: "decimal", columnType: "DECIMAL_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({ decimal: "Invalid number" });
@@ -258,7 +296,7 @@ describe("getRowErrors", () => {
   });
 
   test("it should return an error for an integer that is too large", () => {
-    const rowData = { integer: "2147483648" };
+    const rowData = { integer: 2147483648 };
     const metadata = {
       columns: [{ id: "integer", columnType: "INT" }],
     } as ITableMetaData;
@@ -269,9 +307,38 @@ describe("getRowErrors", () => {
   });
 
   test("it should return an error for an integer that is too small", () => {
-    const rowData = { integer: "-2147483649" };
+    const rowData = { integer: -2147483649 };
     const metadata = {
       columns: [{ id: "integer", columnType: "INT" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({
+      integer: "Invalid value: must be value from -2147483648 to 2147483647",
+    });
+  });
+
+  test("it should return no error for a valid integer array", () => {
+    const rowData = { integer: [1, 2] };
+    const metadata = {
+      columns: [{ id: "integer", columnType: "INT_ARRAY" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({});
+  });
+
+  test("it should return an error for an invalid integer array", () => {
+    const rowData = { integer: [".", 2] };
+    const metadata = {
+      columns: [{ id: "integer", columnType: "INT_ARRAY" }],
+    } as ITableMetaData;
+    const result = getRowErrors(metadata, rowData);
+    expect(result).to.deep.equal({ integer: "Invalid number" });
+  });
+
+  test("it should return an error for an invalid integer array", () => {
+    const rowData = { integer: [-2147483649, 2] };
+    const metadata = {
+      columns: [{ id: "integer", columnType: "INT_ARRAY" }],
     } as ITableMetaData;
     const result = getRowErrors(metadata, rowData);
     expect(result).to.deep.equal({

@@ -1,3 +1,4 @@
+import { get } from "@vueuse/core";
 import type {
   columnValue,
   IColumn,
@@ -47,7 +48,6 @@ export function getColumnError(
   const type = column.columnType;
   const missesValue = isMissingValue(value);
   // FIXME: this function should also check all array types
-  // FIXME: longs are not checked
 
   try {
     if (!isColumnVisible(column, rowData, tableMetaData)) {
@@ -115,13 +115,31 @@ export function getColumnError(
   if (type === "LONG" && getBigIntError(value as string | undefined)) {
     return getBigIntError(value as string | undefined);
   }
+  if (
+    type === "LONG_ARRAY" &&
+    (value as string[]).some((val) => getBigIntError(val))
+  ) {
+    return BIG_INT_ERROR;
+  }
   if (type === "DECIMAL" && isNaN(parseFloat(value as string))) {
+    return "Invalid number";
+  }
+  if (
+    type === "DECIMAL_ARRAY" &&
+    (value as string[]).some((val) => isNaN(parseFloat(val as string)))
+  ) {
     return "Invalid number";
   }
   if (type === "INT") {
     const intError = getIntError(value as number);
     if (intError) {
       return intError;
+    }
+  }
+  if (type === "INT_ARRAY") {
+    const errorInt = (value as number[]).find((val) => getIntError(val));
+    if (errorInt) {
+      return getIntError(errorInt as number);
     }
   }
   if (column.validation) {
@@ -148,7 +166,7 @@ export function isInvalidBigInt(value?: string): boolean {
   }
 }
 
-function getIntError(value: number) {
+function getIntError(value: number): string | undefined {
   if (isNaN(value)) {
     return "Invalid number";
   }
