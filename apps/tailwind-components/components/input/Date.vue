@@ -1,17 +1,21 @@
 <template>
-  <h1>Date</h1>
   <flat-pickr
     :id="id"
     :aria-describedby="describedBy"
     :type="type || 'text'"
     :placeholder="placeholder"
     :disabled="disabled"
-    class="w-full h-[56px] pr-4 font-sans text-black text-gray-300 outline-none ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border border-solid rounded-input"
+    class="w-full h-[56px] pr-4 pl-3 border-2 outline-none rounded-input"
     :class="{
-      'border-invalid text-invalid border-2': invalid,
-      'border-valid text-valid border-2': valid,
-      'border-disabled text-disabled bg-disabled': disabled,
-      'bg-white': !disabled,
+      'bg-input border-valid text-valid': valid && !disabled,
+      'bg-input border-invalid text-invalid': invalid && !disabled,
+      'border-disabled text-disabled bg-disabled cursor-not-allowed': disabled,
+      'bg-disabled border-valid text-valid cursor-not-allowed':
+        valid && disabled,
+      'bg-disabled border-invalid text-invalid cursor-not-allowed':
+        invalid && disabled,
+      'bg-input text-current hover:border-input-hover focus:border-input-focused':
+        !disabled && !invalid && !valid,
     }"
     v-model="modelValue"
     @focus="$emit('focus')"

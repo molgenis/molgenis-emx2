@@ -1,11 +1,12 @@
 <template>
   <div
-    class="flex items-center border border-input p-2"
+    class="flex items-center border-2 border-input p-2"
     :class="{
-      'cursor-pointer duration-default ease-in-out hover:border-input-hover hover:shadow-input-hover focus:border-input-hover focus:shadow-input-hover focus-within:border-input-hover focus-within:shadow-input-hover':
+      'cursor-pointer duration-default ease-in-out hover:border-input-hover focus-within:border-input-focused':
         !disabled && !invalid,
       'border-invalid': invalid,
       'border-valid': valid,
+      'bg-disabled cursor-not-allowed': disabled,
     }"
   >
     <div class="grow">
@@ -37,7 +38,7 @@
             invalid,
           'border-valid text-valid bg-valid hover:bg-valid hover:text-valid':
             valid,
-          'text-disabled bg-disabled hover:text-disabled cursor-not-allowed':
+          'text-disabled bg-disabled border-disabled hover:text-disabled cursor-not-allowed':
             disabled,
           'hover:bg-button-primary hover:text-button-primary cursor-pointer':
             !disabled,
