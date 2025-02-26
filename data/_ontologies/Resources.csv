@@ -1,2 +1,3 @@
-id,name,type
-RD3,Solve-RD RD3,Other type
+id,name,type,type other,acronym,cohort type,website,start year,end year
+ROR,Research Organization Registry,"Data source,Other type",Ontology,ROR,,https://ror.org/,,
+RD3,Solve-RD,"Data source,Rare disease,Registry",,,Clinical cohort,https://solve-rd.eu,2018,2022
