@@ -247,7 +247,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public Column setRequired(String required) {
-    this.required = required;
+    if ("true".equalsIgnoreCase(required) || "false".equalsIgnoreCase(required)) {
+      this.required = required.toLowerCase();
+    } else {
+      this.required = required;
+    }
     return this;
   }
 
