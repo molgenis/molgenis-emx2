@@ -43,7 +43,7 @@
     --border-color-button-secondary: var(--color-gray-600);
     --border-color-button-secondary-hover: var(--color-green-200);
     
-    --border-color-input: var(--color-gray-600);
+    --border-color-input: var(--color-gray-400);
     --border-color-input-hover: var(--color-green-200);
     --border-color-input-focused: var(--color-green-200);
     
