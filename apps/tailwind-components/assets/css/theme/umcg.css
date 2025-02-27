@@ -77,7 +77,7 @@
     --text-color-pagination-button: var(--color-umcg-dark-blue);
     --text-color-pagination-input: var(--color-umcg-dark-blue);
     --text-color-pagination-hover: var(--color-white);
-    --text-color-footer-link: var(--color-umcg-mid-blue);
+    --text-color-link: var(--color-umcg-mid-blue);
 
     --border-color-button-primary: var(--color-orange-500);
     --border-color-button-primary-hover: var(--color-orange-500);

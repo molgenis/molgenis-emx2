@@ -18,10 +18,18 @@
     --background-image-sidebar-gradient: linear-gradient(180deg, var(--color-gradient1) 0%, var(--color-gradient1) 86.02%);
     --background-image-base-gradient: linear-gradient(180deg, var(--color-gradient2) 0%, var(--color-gradient2) 133.81%);
 
+    --background-color-navigation: rgba(0, 0, 0, .2);
+    --background-color-navigation-sticky: var(--color-blue-800);
+
     --background-color-button-primary: var(--color-orange-500);
     --background-color-button-primary-hover: var(--color-orange-200);
     --background-color-search-results-view-tabs: var(--color-blue-300);
 
+
+    --background-color-footer: var(--color-blue-800);
+    --background-color-modal-footer: var(--color-blue-800);
+
+    --text-color-link: var(--color-white);
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-black);
     --text-color-button-text: var(--color-white);
