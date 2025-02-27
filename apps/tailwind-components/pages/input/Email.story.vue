@@ -25,6 +25,8 @@
 </template>
 
 <script setup lang="ts">
+import type { ColumnType } from "../../../metadata-utils/src/types";
+
 const model = ref({ "input-email": null });
 const chapters = ref([
   {
@@ -33,7 +35,7 @@ const chapters = ref([
     columns: [
       {
         id: "input-email",
-        columnType: "EMAIL",
+        columnType: "EMAIL" as ColumnType,
         label: "Input an email address",
       },
     ],

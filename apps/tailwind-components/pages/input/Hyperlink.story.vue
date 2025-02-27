@@ -27,6 +27,8 @@
 </template>
 
 <script setup lang="ts">
+import type { ColumnType } from "../../../metadata-utils/src/types";
+
 const model = ref({ "input-hyperlink": null });
 
 const activeChapterId = ref(null);
@@ -39,7 +41,7 @@ const chapters = ref([
     columns: [
       {
         id: "input-hyperlink",
-        columnType: "EMAIL",
+        columnType: "EMAIL" as ColumnType,
         label: "Input an email address",
       },
     ],
