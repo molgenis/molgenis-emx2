@@ -5,6 +5,7 @@
 
     --color-valid-foreground: var(--color-green-200);
     --color-valid-background: var(--color-green-900);
+    --color-disabled-background: var(--color-gray-600);
     --color-invalid-foreground: var(--color-red-200);
     --color-invalid-background: var(--color-red-700);
     --color-neutral-background: var(--color-gray-600);
@@ -16,6 +17,9 @@
     --background-color-button-primary-hover: var(--color-white);
     --background-color-button-secondary: var(--color-gray-700);
     --background-color-button-secondary-hover: var(--color-gray-700);
+
+    --background-color-footer: var(--color-gray-700);
+    --background-color-modal-footer: var(--color-gray-700);
     
     --background-color-input: var(--gray-800);
     --background-color-input-focused: var(--color-green-200);
@@ -24,6 +28,7 @@
     --background-color-pagination-hover: var(--color-gray-700);
     --background-color-input: var(--color-gray-600);
 
+    --text-color-link: var(--color-green-500);
     --text-color-button-primary: var(--color-gray-800);
     --text-color-button-primary-hover: var(--color-gray-800);
     --text-color-button-secondary: var(--color-green-500);
@@ -36,13 +41,15 @@
     --text-color-pagination: var(--color-white);
     --text-color-pagination-button: var(--color-green-500);
     --text-color-pagination-hover: var(--color-green-500);
+    --text-color-input: var(--color-white);
 
     --border-color-button-primary: var(--color-green-500);
     --border-color-button-primary-hover: var(--color-white);
     --border-color-button-secondary: var(--color-gray-600);
     --border-color-button-secondary-hover: var(--color-green-200);
     
-    --border-color-input: var(--color-gray-600);
+    --border-color-input: var(--color-gray-400);
+    --border-color-input-hover: var(--color-green-200);
     --border-color-input-focused: var(--color-green-200);
     
     --border-radius-pagination: 3px;

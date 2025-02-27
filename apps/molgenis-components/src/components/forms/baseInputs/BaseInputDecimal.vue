@@ -8,7 +8,7 @@
     :aria-describedby="id + 'Help'"
     :placeholder="placeholder"
     :readonly="readonly"
-    :required="required"
+    :required="isRequired(required)"
     @keypress="handleKeyValidity"
     @input="handleInputChanged"
   />
@@ -17,6 +17,7 @@
 <script lang="ts">
 import constants from "../../constants";
 import { flipSign, isNumericKey } from "../../utils";
+import { isRequired } from "../formUtils/formUtils";
 import BaseInput from "./BaseInput.vue";
 
 const { CODE_MINUS, CODE_PERIOD } = constants;
@@ -32,7 +33,11 @@ export default {
         this.emitIfValid(value);
       }
     },
-    emitIfValid(strValue: string) {
+    emitIfValid(strValue: string | null) {
+      if (strValue === null) {
+        this.$emit("update:modelValue", null);
+        return;
+      }
       const noCommaValue = strValue.replace(",", "");
       const value = parseFloat(noCommaValue);
       if (!isNaN(value)) {
@@ -54,6 +59,7 @@ export default {
         event.preventDefault();
       }
     },
+    isRequired,
   },
 };
 </script>
