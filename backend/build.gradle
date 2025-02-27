@@ -37,7 +37,7 @@ subprojects {
     /* default dependencies for all projects*/
     dependencies {
         implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
-        implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0'
+        compileOnly 'org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0'
         implementation 'org.jooq:jooq:3.18.7'
         implementation 'com.zaxxer:HikariCP:5.0.1'
         implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.16.1'
@@ -71,6 +71,8 @@ subprojects {
         testImplementation 'org.mockito:mockito-core:5.6.0'
         //allows to set environment variables in test
         testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
+        //allows for asserting log messages
+        testImplementation 'io.github.hakky54:logcaptor:2.10.1'
     }
 
     jacoco {

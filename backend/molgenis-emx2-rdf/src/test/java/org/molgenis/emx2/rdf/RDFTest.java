@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import nl.altindag.log.LogCaptor;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
@@ -47,7 +48,6 @@ import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFTest {
-
   /**
    * Encoded id for the Pet pooky. The id string is composed by base64 encoding the id columns and
    * their values separately. Column names and values are separated by an ampersand and multiple
@@ -333,24 +333,28 @@ public class RDFTest {
             column("title")
                 .setType(ColumnType.STRING)
                 .setSemantics("http://purl.org/dc/terms/title"),
-            column("description").setType(ColumnType.STRING).setSemantics("dcterms:description")),
+            column("description").setType(ColumnType.STRING).setSemantics("dcterms:description"),
+            column("nonDefinedPrefix")
+                .setType(ColumnType.STRING)
+                .setSemantics("nonDefinedPrefix:value")),
         table(
-            "missingNamespace",
+            "invalid",
             column("id").setType(ColumnType.STRING).setPkey(),
-            column("theme").setType(ColumnType.STRING).setSemantics("example:theme")),
-        table(
-            "iriAsPrefixedName",
-            column("id").setType(ColumnType.STRING).setPkey(),
-            // might cause unexpected behavior if IRI scheme is also used as a namespace prefix
-            column("tag").setType(ColumnType.STRING).setSemantics("tag:molgenis.org,2020:1")));
+            column("theme").setType(ColumnType.STRING).setSemantics("theme")));
 
-    semanticTest.getTable("valid").insert(row("id", "1", "title", "test", "description", "test2"));
-    semanticTest.getTable("missingNamespace").insert(row("id", "2", "tag", "test3"));
-    semanticTest.getTable("iriAsPrefixedName").insert(row("id", "3", "theme", "test4"));
+    semanticTest
+        .getTable("valid")
+        .insert(
+            row("id", "1", "title", "test", "description", "test2", "nonDefinedPrefix", "test3"));
+    semanticTest.getTable("invalid").insert(row("id", "2", "theme", "test4"));
 
     semanticTest
         .getMetadata()
-        .setSetting(SETTING_CUSTOM_RDF, "@prefix dcterms: <http://purl.org/dc/terms/> .");
+        .setSetting(
+            SETTING_SEMANTIC_PREFIXES,
+            """
+  dcterms,http://purl.org/dc/terms/
+  urn,http://example.com/""");
   }
 
   private static String getApi(Schema schema) {
@@ -1360,26 +1364,33 @@ example,http://example.com/
 
   @Test
   void prefixedNames() throws IOException {
-    var handler = new InMemoryRDFHandler() {};
-    getAndParseRDF(Selection.of(semanticTest, "valid"), handler);
-
     Set<IRI> expectedPredicates =
         Set.of(
             Values.iri("http://purl.org/dc/terms/title"),
             Values.iri("http://purl.org/dc/terms/description"));
+
+    var handler = new InMemoryRDFHandler() {};
+    try (LogCaptor logCaptorService = LogCaptor.forClass(RDFService.class);
+        LogCaptor logCaptorUtil = LogCaptor.forClass(RdfUtils.class)) {
+      getAndParseRDF(Selection.of(semanticTest, "valid"), handler);
+      assertTrue(
+          logCaptorService
+              .getWarnLogs()
+              .contains(
+                  "Schema \"semanticTest\" contains a semantic prefix that is also defined by IANA as an URI scheme: urn"));
+      assertTrue(
+          logCaptorUtil
+              .getWarnLogs()
+              .contains(
+                  "Found an IRI with a scheme not defined by IANA: \"nonDefinedPrefix:value\""));
+    }
     Set<IRI> actualPredicates =
         handler.resources.get(Values.iri(getApi(semanticTest) + "Valid?id=1")).keySet();
+    assertTrue(actualPredicates.containsAll(expectedPredicates));
 
-    assertAll(
-        () -> assertTrue(actualPredicates.containsAll(expectedPredicates)),
-        () ->
-            assertThrows(
-                MolgenisException.class,
-                () -> getAndParseRDF(Selection.of(semanticTest, "missingNamespace"), handler)),
-        () ->
-            assertThrows(
-                MolgenisException.class,
-                () -> getAndParseRDF(Selection.of(semanticTest, "iriAsPrefixedName"), handler)));
+    assertThrows(
+        MolgenisException.class,
+        () -> getAndParseRDF(Selection.of(semanticTest, "invalid"), handler));
   }
 
   /**

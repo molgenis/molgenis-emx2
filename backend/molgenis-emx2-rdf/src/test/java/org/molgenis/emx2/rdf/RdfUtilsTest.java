@@ -1,8 +1,12 @@
 package org.molgenis.emx2.rdf;
 
 import static java.util.Map.entry;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
+import nl.altindag.log.LogCaptor;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleNamespace;
@@ -43,10 +47,9 @@ class RdfUtilsTest {
     Namespace expected = Values.namespace(TEST_SCHEMA, NAMESPACE_IRI);
 
     Assertions.assertAll(
+        () -> assertEquals(expected, RdfUtils.getSchemaNamespace(BASE_URL, rdfUtilsTest)),
         () ->
-            Assertions.assertEquals(expected, RdfUtils.getSchemaNamespace(BASE_URL, rdfUtilsTest)),
-        () ->
-            Assertions.assertEquals(
+            assertEquals(
                 expected, RdfUtils.getSchemaNamespace(BASE_URL, rdfUtilsTest.getMetadata())));
   }
 
@@ -57,29 +60,28 @@ class RdfUtilsTest {
             entry("rdf", new SimpleNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")),
             entry("invalid", new SimpleNamespace("invalid", "thisFieldIsInvalid")));
 
-    Assertions.assertAll(
-        () -> // valid prefixed name
-        Assertions.assertEquals(
-                valueFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-                RdfUtils.getSemanticValue(namespaces, "rdf:type")),
-        () -> // valid IRI
-        Assertions.assertEquals(
-                valueFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-                RdfUtils.getSemanticValue(
-                    namespaces, "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>")),
-        () -> // invalid IRI
-        Assertions.assertThrows(
-                MolgenisException.class,
-                () ->
-                    RdfUtils.getSemanticValue(
-                        namespaces, "http://www.w3.org/2000/01/rdf-schema#label")),
-        () -> // non-existing prefix label
-        Assertions.assertThrows(
-                MolgenisException.class,
-                () -> RdfUtils.getSemanticValue(namespaces, "doesnotexist:test")),
-        () -> // existing but invalid namespace
-        Assertions.assertThrows(
-                IllegalArgumentException.class,
-                () -> RdfUtils.getSemanticValue(namespaces, "invalid:test")));
+    // valid prefixed name
+    assertEquals(
+        valueFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+        RdfUtils.getSemanticValue(namespaces, "rdf:type"));
+    // valid IRI
+    assertEquals(
+        valueFactory.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+        RdfUtils.getSemanticValue(namespaces, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"));
+    // invalid IRI
+    assertThrows(MolgenisException.class, () -> RdfUtils.getSemanticValue(namespaces, "test"));
+    // prefixed name that uses a namespace that results in an invalid IRI
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> RdfUtils.getSemanticValue(namespaces, "invalid:test"));
+    // IRI with scheme not defined by IANA (possible undefined prefixed name)
+    try (LogCaptor logCaptor = LogCaptor.forClass(RdfUtils.class)) {
+      RdfUtils.getSemanticValue(namespaces, "nonStandardPrefix:value");
+      assertTrue(
+          logCaptor
+              .getWarnLogs()
+              .contains(
+                  "Found an IRI with a scheme not defined by IANA: \"nonStandardPrefix:value\""));
+    }
   }
 }

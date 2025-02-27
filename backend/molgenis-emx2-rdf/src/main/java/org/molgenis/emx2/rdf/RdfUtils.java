@@ -119,10 +119,7 @@ abstract class RdfUtils {
     Namespace foundNamespace = namespaces.get(semanticSplit[0]);
     if (foundNamespace == null) {
       if (!URIUtils.isIanaScheme(semanticSplit[0])) {
-        logger.warn(
-            "Found URI scheme not defined by IANA: \""
-                + semanticSplit[0]
-                + "\". Please check if an expected prefixed name is not configured.");
+        logger.warn("Found an IRI with a scheme not defined by IANA: \"" + semantic + "\"");
       }
       return Values.iri(semantic);
     }
