@@ -23,6 +23,7 @@ const props = withDefaults(
     iconPosition: "left",
     disabled: false,
     iconOnly: false,
+    inlined: false,
   }
 );
 
@@ -53,6 +54,14 @@ const SIZE_MAPPING = {
   medium: "h-14 px-7.5 text-heading-xl gap-4",
   large: "h-18 px-8.75 text-heading-xl gap-5",
 };
+
+const ICON_ONLY_SIZE_MAPPING = {
+  tiny: "p-[8px] h-8 w-8",
+  small: "p-[5px] h-10 w-10",
+  medium: "p-[8px] h-14 w-14",
+  large: "p-[8px] h-18 w-18",
+};
+
 const ICON_SIZE_MAPPING = {
   tiny: 12,
   small: 18,
@@ -70,7 +79,9 @@ const colorClasses = computed(() => {
 });
 
 const sizeClasses = computed(() => {
-  return props.iconOnly ? "p-[8px]" : SIZE_MAPPING[props.size];
+  return props.iconOnly
+    ? ICON_ONLY_SIZE_MAPPING[props.size]
+    : SIZE_MAPPING[props.size];
 });
 
 const iconPositionClass = computed(() => {
@@ -88,7 +99,7 @@ const tooltipText = computed(() => {
 <template>
   <button
     v-tooltip.bottom="tooltipText"
-    class="flex items-center border rounded-input group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input duration-default ease-in-out"
+    class="flex items-center justify-center border rounded-input group-[.button-bar]:rounded-none group-[.button-bar]:first:rounded-l-input group-[.button-bar]:last:rounded-r-input duration-default ease-in-out"
     :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
   >
     <BaseIcon v-if="icon" :name="icon" :width="iconSize" />

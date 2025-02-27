@@ -9,6 +9,7 @@ const props = withDefaults(
     rows: Record<string, any>[];
     count: number;
     settings?: ITableSettings;
+    isEditable?: boolean;
   }>(),
   {
     settings: {
@@ -19,6 +20,7 @@ const props = withDefaults(
       orderby: { column: "", direction: "ASC" },
       search: "",
     },
+    isEditable: false,
   }
 );
 
@@ -108,13 +110,23 @@ function handlePagingRequest(page: number) {
         <tbody
           class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-5"
         >
-          <tr v-for="row in rows">
+          <tr v-for="row in rows" class="h-[50px]">
             <TableCellTypesEMX2
-              v-for="column in columns"
+              v-for="(column, index) in columns"
               :scope="column.key === 1 ? 'row' : null"
               :metaData="column"
               :data="row[column.id]"
-            />
+            >
+              <template v-if="isEditable && index === 0" #suffix>
+                <Button
+                  :icon-only="true"
+                  type="secondary"
+                  icon="edit"
+                  size="small"
+                  label="edit"
+                ></Button>
+              </template>
+            </TableCellTypesEMX2>
           </tr>
         </tbody>
       </table>
