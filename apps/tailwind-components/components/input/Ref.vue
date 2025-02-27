@@ -77,7 +77,7 @@ async function prepareModel() {
     );
     if (data.rows) {
       hasNoResults.value = false;
-      data.rows?.forEach(
+      data.rows.forEach(
         (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
       );
     }
@@ -96,7 +96,8 @@ watch(
   () => prepareModel
 );
 
-// the selectionMap is not reactively bound to the model due to need to fetch the options asynchonously
+// the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
+// todo: move the options fetch to the outside of the component and pass it as a (synchronous) prop
 watch(
   () => modelValue.value,
   () => {
