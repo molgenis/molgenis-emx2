@@ -2,7 +2,7 @@
   <InputString
     v-if="['STRING', 'AUTO_ID'].includes(typeUpperCase)"
     :id="id"
-    v-model="modelValue as string |  undefined"
+    v-model="modelValue as string | number | undefined"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
