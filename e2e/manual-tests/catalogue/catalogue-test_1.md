@@ -14,7 +14,7 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | -----| -------| ----------------| -----------------| ----------------|
-| 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off.Ensure that the testCatalogue schema has been uploaded into Acc before you start testing. 
+| 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off.Ensure that the testCatalogue schema has been uploaded into the Acceptance server before you start testing. 
 | | |
 | 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | Landing page: European health research data and sample catalogue| | true |
 | 2 | In section 'Project catalogues' hover over the testNetworkofNetworks row | Row should be highlighted | | true |
