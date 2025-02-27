@@ -26,19 +26,21 @@
 
 <script setup lang="ts">
 const model = ref({ "input-email": null });
-const chapters = ref([{
-  label: "_top",
-  id: "_scroll_to_top",
-  columns: [
-    {
-      id: "input-email",
-      columnType: "EMAIL",
-      label: "Input an email address",
-    },
-  ],
-  isActive: false,
-  errorCount: 0,
-}]);
+const chapters = ref([
+  {
+    label: "_top",
+    id: "_scroll_to_top",
+    columns: [
+      {
+        id: "input-email",
+        columnType: "EMAIL",
+        label: "Input an email address",
+      },
+    ],
+    isActive: false,
+    errorCount: 0,
+  },
+]);
 const visibleMap = ref({
   "input-email": true,
 });
