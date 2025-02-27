@@ -242,34 +242,21 @@ const rootNodes = computed(() => {
 </script>
 
 <template>
-  <button
-    v-if="!showOptionsSearch"
-    class="flex items-center ml-6"
-    @click="toggleSearch"
-  >
-    <BaseIcon
-      name="search"
-      :class="`text-search-filter-expand${inverted ? '-mobile' : ''}`"
-      :width="18"
+  <ButtonText icon="Search" @click="toggleSearch">
+    <span>Search for options</span>
+  </ButtonText>
+  <div v-if="showOptionsSearch">
+    <input
+      :value="optionsSearch"
+      @input="(event) => handleSearchInput((event.target as HTMLInputElement).value)"
+      type="search"
+      class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
+      placeholder="Type to search in options..."
     />
-    <span
-      class="ml-2 text-body-sm hover:underline"
-      :class="`text-search-filter-expand${inverted ? '-mobile' : ''}`"
-    >
-      Search for options
+    <span v-if="rootNodes.filter((node) => node.visible).length === 0">
+      no results found
     </span>
-  </button>
-  <input
-    v-else
-    :value="optionsSearch"
-    @input="(event) => handleSearchInput((event.target as HTMLInputElement).value)"
-    type="search"
-    class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
-    placeholder="Type to search in options..."
-  />
-  <span v-if="rootNodes.filter((node) => node.visible).length === 0"
-    >no results found</span
-  >
+  </div>
   <TreeNode
     :nodes="rootNodes"
     :inverted="inverted"

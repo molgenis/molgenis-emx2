@@ -247,7 +247,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public Column setRequired(String required) {
-    this.required = required;
+    if ("true".equalsIgnoreCase(required) || "false".equalsIgnoreCase(required)) {
+      this.required = required.toLowerCase();
+    } else {
+      this.required = required;
+    }
     return this;
   }
 
@@ -483,7 +487,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
           }
           if (name == null) {
             name = getName();
-            if (pkeys.size() > 1) {
+            // fixed in #4705 to also accommodate for nested composite keys checking keyParts!
+            if (pkeys.size() > 1 || keyPart.getReferences().size() > 0) {
               name += COMPOSITE_REF_SEPARATOR + ref.getName();
             }
           }
