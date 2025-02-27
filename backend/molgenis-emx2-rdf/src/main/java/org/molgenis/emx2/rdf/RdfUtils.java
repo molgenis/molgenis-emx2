@@ -24,8 +24,13 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.TypeUtils;
+import org.molgenis.emx2.utils.URIUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 abstract class RdfUtils {
+  private static final Logger logger = LoggerFactory.getLogger(RdfUtils.class);
+
   // Advanced setting containing valid Turtle-formatted RDF.
   public static final String SETTING_CUSTOM_RDF = "custom_rdf";
   public static final String SETTING_SEMANTIC_PREFIXES = "semantic_prefixes";
@@ -107,16 +112,19 @@ abstract class RdfUtils {
    * @param namespaces Namespace prefix -> Namespace
    */
   static IRI getSemanticValue(final Map<String, Namespace> namespaces, String semantic) {
-    if (semantic.charAt(0) == SEMANTIC_IRI_STARTSWITH) {
-      return Values.iri(semantic.substring(1, semantic.length() - 1));
-    }
     String[] semanticSplit = semantic.split(":", 2);
+    if (semanticSplit.length == 1) { // If @base is supported, might need to be changed.
+      throw new MolgenisException("Invalid semantics (missing \":\"): " + semantic);
+    }
     Namespace foundNamespace = namespaces.get(semanticSplit[0]);
     if (foundNamespace == null) {
-      throw new MolgenisException(
-          "Could not find the prefix label \""
-              + semanticSplit[0]
-              + "\" within the given namespaces.");
+      if (!URIUtils.isIanaScheme(semanticSplit[0])) {
+        logger.warn(
+            "Found URI scheme not defined by IANA: \""
+                + semanticSplit[0]
+                + "\". Please check if an expected prefixed name is not configured.");
+      }
+      return Values.iri(semantic);
     }
     return Values.iri(foundNamespace, semanticSplit[1]);
   }

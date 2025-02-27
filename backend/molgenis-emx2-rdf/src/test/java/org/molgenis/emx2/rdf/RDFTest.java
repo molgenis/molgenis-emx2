@@ -332,7 +332,7 @@ public class RDFTest {
             column("id").setType(ColumnType.STRING).setPkey(),
             column("title")
                 .setType(ColumnType.STRING)
-                .setSemantics("<http://purl.org/dc/terms/title>"),
+                .setSemantics("http://purl.org/dc/terms/title"),
             column("description").setType(ColumnType.STRING).setSemantics("dcterms:description")),
         table(
             "missingNamespace",
