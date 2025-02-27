@@ -22,7 +22,7 @@ test('toggle oidc', async ({ page }) => {
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   // test oidc login page is shown
-  await expect(page.getByRole('link', { name: 'UMCG' })).toBeVisible();
+  await expect(page.locator('#kc-page-title')).toContainText('Sign in to your account');
 
   await page.goto("/");
 
