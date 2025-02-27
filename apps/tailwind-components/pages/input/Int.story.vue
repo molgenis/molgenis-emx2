@@ -1,6 +1,7 @@
 <template>
   <FormFields
     id="form-int"
+    v-model="data"
     schemaId="schema-int"
     :metadata="{
       label: 'Int',
@@ -18,4 +19,8 @@
   />
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import type { recordValue } from "../../../metadata-utils/src/types";
+
+const data = ref<recordValue>({ "input-int": undefined });
+</script>
