@@ -107,6 +107,7 @@ public class MolgenisWebservice {
     RDFApi.create(app, sessionManager);
     GraphGenomeApi.create(app, sessionManager);
     BeaconApi.create(app, sessionManager);
+    CafeVariomeApi.create(app, sessionManager);
     FAIRDataPointApi.create(app, sessionManager);
     BootstrapThemeService.create(app);
     ProfilesApi.create(app);
