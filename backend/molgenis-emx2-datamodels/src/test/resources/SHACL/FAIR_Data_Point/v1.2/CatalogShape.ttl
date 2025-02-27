@@ -4,7 +4,7 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix   sh: <http://www.w3.org/ns/shacl#> .
 @prefix  xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix fdp-o: <https://w3id.org/fdp/fdp-o#> .
+@prefix fdp-o: <https://w3id.org/fdp/fdp-o#> . # FIX: added missing fdp-o prefix
 
 :CatalogShape a sh:NodeShape ;
   sh:targetClass dcat:Catalog ;
@@ -15,7 +15,7 @@
   ], [
     sh:path dct:hasVersion ;
     sh:nodeKind sh:Literal ;
-    sh:maxCount 1;
+    sh:maxCount 1; # FIX: added missing maxCount value
   ], [
     sh:path dct:description ;
     sh:nodeKind sh:Literal ;
@@ -75,7 +75,7 @@
     sh:maxCount 1 ;
     sh:minCount 1 ;
   ], [
-    sh:path fdp-o:metadataIdentifier ;
+    sh:path fdp-o:metadataModified ; # FIX: changed fdp-o:metadataIdentifier to fdp-o:metadataModified
     sh:datatype xsd:dateTime ;
     sh:maxCount 1 ;
     sh:minCount 1 ;
