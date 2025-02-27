@@ -46,7 +46,7 @@
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
-    placeholder="Input a decimal"
+    :placeholder="placeholder"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -59,7 +59,7 @@
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
-    placeholder="Input an integer"
+    :placeholder="placeholder"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -72,7 +72,7 @@
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
-    placeholder="Input a long"
+    :placeholder="placeholder"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
