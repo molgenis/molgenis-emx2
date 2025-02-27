@@ -25,8 +25,12 @@ interface Schema {
 const route = useRoute();
 const schemaId = ref((route.query.schema as string) ?? "type test");
 const tableId = ref((route.query.table as string) ?? "Types");
-const numberOfRows = ref(0);
 const rowIndex = ref<null | number>(null);
+if (route.query.rowIndex) {
+  rowIndex.value = parseInt(route.query.rowIndex as string);
+}
+
+const numberOfRows = ref(0);
 const formFields = ref<InstanceType<typeof FormFields>>();
 const formValues = ref<Record<string, columnValue>>({});
 const errors = ref<Record<string, IFieldError[]>>({});
@@ -95,9 +99,7 @@ watch(
       tableId.value = schemaMeta.value.tables[0].id;
       useRouter().push({
         query: {
-          ...useRoute().query,
           schema: schemaId.value,
-          table: tableId.value,
         },
       });
     }
@@ -106,16 +108,20 @@ watch(
 
 watch(
   () => tableId.value,
-  async () => {
-    useRouter().push({
-      query: {
-        ...useRoute().query,
-        schema: schemaId.value,
-        table: tableId.value,
-      },
-    });
+  async (newTableId, oldTableId) => {
+    if (oldTableId !== newTableId && oldTableId !== undefined) {
+      rowIndex.value = null;
+    }
+    const query: { schema: string; table: string; rowIndex?: number } = {
+      schema: schemaId.value,
+      table: tableId.value,
+    };
+    if (rowIndex.value !== null) {
+      query.rowIndex = rowIndex.value;
+    }
+
+    useRouter().push({ query });
     getNumberOfRows();
-    rowIndex.value = null;
     formValues.value = {};
   },
   { immediate: true }
@@ -124,10 +130,22 @@ watch(
 watch(
   () => rowIndex.value,
   async () => {
+    const query: { schema: string; table: string; rowIndex?: number } = {
+      schema: schemaId.value,
+      table: tableId.value,
+    };
+    if (rowIndex.value !== null) {
+      query.rowIndex = rowIndex.value;
+    }
+    useRouter().push({ query });
+
+    formValues.value = {};
+
     if (rowIndex.value !== null) {
       fetchRow(rowIndex.value - 1);
     }
-  }
+  },
+  { immediate: true }
 );
 
 const numberOfFieldsWithErrors = computed(
