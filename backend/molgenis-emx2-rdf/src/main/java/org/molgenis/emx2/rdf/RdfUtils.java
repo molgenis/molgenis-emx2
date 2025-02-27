@@ -35,9 +35,6 @@ abstract class RdfUtils {
   public static final String SETTING_CUSTOM_RDF = "custom_rdf";
   public static final String SETTING_SEMANTIC_PREFIXES = "semantic_prefixes";
 
-  // Used to compare semantic field to define if it contains an IRI or a prefixed name
-  private static final char SEMANTIC_IRI_STARTSWITH = '<';
-
   public static final Map<String, Namespace> DEFAULT_NAMESPACES_MAP =
       streamAll().collect(Collectors.toMap(Namespace::getPrefix, i -> i));
 
