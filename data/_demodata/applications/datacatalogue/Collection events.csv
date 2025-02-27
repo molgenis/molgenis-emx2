@@ -1,5 +1,5 @@
 ﻿resource,name,description,subpopulations,start date,end date,age groups,number of participants,areas of information,data categories,sample categories,standardized tools,standardized tools other,core variables,contact point.first name,contact point.last name,publisher,creator,license,issued,modified
-EDEN,20-24 week's of amenorrhoea (WA),This is a test description,mothers,,,,,,,,,,,Bob,Ross,INSERM,INSERM,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0
+EDEN,20-24 week's of amenorrhoea,This is a test description,mothers,,,,,,,,,,,Bob,Ross,INSERM,INSERM,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0
 ELFE,5y,This is a test description,children,,,,,,,,,,,Bob,Ross,INSERM,INSERM,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0
 ELFE,2 months,This is a test description,children,,,,,,,,,,,Bob,Ross,INSERM,INSERM,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0
 ELFE,birth,This is a test description,"children,mothers",,,,,,,,,,,Bob,Ross,INSERM,INSERM,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0
