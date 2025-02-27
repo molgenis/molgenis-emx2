@@ -3,5 +3,5 @@ Catalogues,,,,,,,,,,,http://www.w3.org/ns/dcat#Catalog,A collection of resources
 Catalogues,,name,,1,TRUE,,,,,,http://purl.org/dc/terms/title,The name given to the catalogue,DataCatalogueFlat,,
 Catalogues,,network,ref,1,TRUE,,Resources,,,,,Network or consortium that publishes this catalogue,DataCatalogueFlat,,
 Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,DataCatalogueFlat,,
-Catalogues,,description,text,,TRUE,,,,,,http://purl.org/dc/terms/description,Description of this catalogue,DataCatalogueFlat,,network?.description
+Catalogues,,description,text,,TRUE,,,,,,http://purl.org/dc/terms/description,Description of this catalogue,DataCatalogueFlat,,
 Catalogues,,publisher,,,,,,,,,http://purl.org/dc/terms/publisher,The organisation responsible for making the catalogue available,DataCatalogueFlat,,
