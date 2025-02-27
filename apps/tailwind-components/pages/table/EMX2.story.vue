@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import Boolean from "~/components/input/Boolean.vue";
 import type { ITableSettings, Resp, Schema } from "~/types/types";
+
+const isEditable = ref(false);
 
 const tableSettings = ref<ITableSettings>({
   page: 1,
@@ -112,6 +115,14 @@ const numberOfRows = computed(() => tableData?.value?.count ?? 0);
         </option>
       </select>
     </div>
+    <div class="m-2">
+      <label for="table-id-select">Edit mode: </label>
+      <InputBoolean
+        v-model="isEditable"
+        id="edit-mode-input"
+        :showClearButton="false"
+      />
+    </div>
   </div>
 
   <div>
@@ -122,6 +133,7 @@ const numberOfRows = computed(() => tableData?.value?.count ?? 0);
       :count="numberOfRows"
       @update:settings="(value: ITableSettings) => tableSettings = value"
       :settings="tableSettings"
+      :is-editable="isEditable"
     />
   </div>
 </template>

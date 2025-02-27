@@ -64,6 +64,14 @@
     <h3 class="text-2xl text-title">Icon only</h3>
     <div class="flex flex-col gap-4">
       <div class="flex gap-4">
+        <Button iconOnly icon="edit" label="add" size="tiny" />
+        <Button iconOnly icon="edit" label="add" size="small" />
+        <Button iconOnly icon="edit" label="add" />
+        <!-- medium is the default-->
+        <Button iconOnly icon="edit" label="add" size="large" />
+      </div>
+
+      <div class="flex gap-4">
         <Button iconOnly icon="plus" label="add" />
         <Button iconOnly icon="plus" label="add" type="secondary" />
         <Button iconOnly icon="plus" label="add" type="tertiary" />
