@@ -24,7 +24,9 @@ import {
 } from "../../../molgenis-components/src/components/utils";
 import type { IInputProps } from "../../types/types";
 
-const modelValue = defineModel<string>("modelValue", { required: true });
+const modelValue = defineModel<string | undefined>("modelValue", {
+  required: true,
+});
 
 defineProps<
   IInputProps & {

@@ -21,7 +21,7 @@ import {
   isNumericKey,
 } from "../../../molgenis-components/src/components/utils";
 
-const modelValue = defineModel<string | undefined>({ required: true });
+const modelValue = defineModel<string | number | undefined>({ required: true });
 
 defineProps<
   IInputProps & {
