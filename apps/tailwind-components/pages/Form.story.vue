@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import type {
+  columnId,
   columnValue,
+  IColumn,
   IFieldError,
+  IFormLegendSection,
   ISchemaMetaData,
 } from "../../metadata-utils/src/types";
 import { useRoute } from "#app/composables/router";
 import type { FormFields } from "#components";
+import Legend from "~/components/form/Legend.vue";
+import { isColumnVisible } from "../../molgenis-components/src/components/forms/formUtils/formUtils";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -124,22 +129,138 @@ watch(
     }
   }
 );
+
+const numberOfFieldsWithErrors = computed(
+  () => Object.values(errorMap).filter((value) => value).length
+);
+
+const numberOfRequiredFields = computed(() =>
+  tableMeta.value
+    ? tableMeta.value.columns.filter((column) => column.required).length
+    : 0
+);
+
+const numberOfRequiredFieldsWithData = computed(() =>
+  tableMeta.value
+    ? tableMeta.value.columns.filter(
+        (column) => column.required && formValues.value[column.id]
+      ).length
+    : 0
+);
+
+const visibleMap = reactive<Record<columnId, boolean>>({});
+
+//initialize visibility for headers
+if (tableMeta.value) {
+  tableMeta.value.columns
+    .filter((column) => column.columnType === "HEADING")
+    .forEach((column) => {
+      if (tableMeta.value) {
+        logger.debug(
+          isColumnVisible(column, formValues.value, tableMeta.value)
+        );
+      }
+      visibleMap[column.id] =
+        !column.visible ||
+        (tableMeta.value &&
+          isColumnVisible(column, formValues.value, tableMeta.value))
+          ? true
+          : false;
+      logger.debug(
+        "check heading " +
+          column.id +
+          "=" +
+          visibleMap[column.id] +
+          " expression " +
+          column.visible
+      );
+    });
+}
+
+function checkVisibleExpression(column: IColumn) {
+  if (
+    !column.visible ||
+    isColumnVisible(column, formValues.value, tableMeta.value!)
+  ) {
+    visibleMap[column.id] = true;
+  } else {
+    visibleMap[column.id] = false;
+  }
+  logger.debug(
+    "checking visibility of " + column.id + "=" + visibleMap[column.id]
+  );
+}
+
+function goToSection(headerId: string) {
+  //requires all elements before id to have check visibility so we know their sizes
+  //todo: loading animation this might take while
+  //todo: next to visibility we also need to wait until all have retrieved options or ensure refs have fixed size
+  if (!tableMeta.value) return;
+  for (let i = 0; i < tableMeta.value.columns.length; i++) {
+    const column = tableMeta.value.columns[i];
+    if (visibleMap[column.id] === undefined) checkVisibleExpression(column);
+    if (column.id === "forms-story") break;
+  }
+  scrollToElementInside("forms-story" + "-fields-container", headerId);
+}
+
+const errorMap = reactive<Record<columnId, string>>({});
+
+const activeChapterId: Ref<string | null> = ref(null);
+
+const chapters = computed(() => {
+  return tableMeta.value?.columns.reduce((acc, column) => {
+    if (column.columnType === "HEADING") {
+      acc.push({
+        label: column.label,
+        id: column.id,
+        columns: [],
+        isActive: column.id === activeChapterId.value,
+        errorCount: 0,
+      });
+    } else {
+      if (acc.length === 0) {
+        acc.push({
+          label: "_top",
+          id: "_scroll_to_top",
+          columns: [],
+          isActive: "_scroll_to_top" === activeChapterId.value,
+          errorCount: 0,
+        });
+      }
+      acc[acc.length - 1].columns.push(column);
+      if (errorMap[column.id]) acc[acc.length - 1].errorCount++;
+    }
+    return acc;
+  }, [] as (IFormLegendSection & { columns: IColumn[] })[]);
+});
 </script>
 
 <template>
   <div class="flex flex-row">
-    <div class="2/3 p-8 border-l">
+    <div class="p-8 border-l grow flex flex-row">
+      <Legend
+        v-if="chapters"
+        :sections="chapters"
+        @goToSection="goToSection"
+        class="pr-2 mr-4"
+      />
       <FormFields
         id="forms-story"
-        v-if="schemaId && tableMeta && status === 'success'"
+        class="grow"
+        v-if="chapters && tableMeta"
         ref="formFields"
         :schemaId="schemaId"
         :metadata="tableMeta"
+        :chapters="chapters"
+        :visibleMap="visibleMap"
+        :errorMap="errorMap"
+        :activeChapterId="activeChapterId"
         v-model="formValues"
         @error="onErrors($event)"
       />
     </div>
-    <div class="basis-1/3 ml-2 h-screen">
+    <div class="ml-2 h-screen">
       <h2>Demo controls, settings and status</h2>
 
       <div class="p-4 border-2 mb-2 flex flex-col gap-4">

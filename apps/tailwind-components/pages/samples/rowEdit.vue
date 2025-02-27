@@ -6,6 +6,7 @@ import type {
   IFormLegendSection,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
+import { isColumnVisible } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import cohortTableMetadata from "./data/cohort-table-metadata";
 
 definePageMeta({
@@ -22,6 +23,30 @@ const formValues = ref<Record<string, columnValue>>({});
 
 const metadata = cohortTableMetadata as ITableMetaData;
 const errorMap = reactive<Record<columnId, string>>({});
+const visibleMap = reactive<Record<columnId, boolean>>({});
+
+//initialize visibility for headers
+metadata.columns
+  .filter((column) => column.columnType === "HEADING")
+  .forEach((column) => {
+    if (metadata) {
+      logger.debug(isColumnVisible(column, formValues.value, metadata));
+    }
+    visibleMap[column.id] =
+      !column.visible ||
+      (metadata && isColumnVisible(column, formValues.value, metadata))
+        ? true
+        : false;
+    logger.debug(
+      "check heading " +
+        column.id +
+        "=" +
+        visibleMap[column.id] +
+        " expression " +
+        column.visible
+    );
+  });
+
 const activeChapterId: Ref<string | null> = ref(null);
 const chapters = computed(() => {
   return metadata.columns.reduce((acc, column) => {
@@ -73,15 +98,19 @@ const chapters = computed(() => {
       </template>
     </PageHeader>
     <section class="flex flex-row min-w-full">
-      <div class="1/3"><FormLegend :sections="chapters" /></div>
-      <div class="2/3">
-        <FormFields
-          id="row-edit-sample"
-          schemaId="row-edit-sample"
-          :metadata="metadata"
-          v-model="formValues"
-        />
-      </div>
+      <FormLegend :sections="chapters" class="pr-20 mr-5" />
+
+      <FormFields
+        class="grow"
+        id="row-edit-sample"
+        schemaId="row-edit-sample"
+        :metadata="metadata"
+        :chapters="chapters"
+        :visibleMap="visibleMap"
+        :errorMap="errorMap"
+        :activeChapterId="activeChapterId"
+        v-model="formValues"
+      />
     </section>
   </Container>
 </template>
