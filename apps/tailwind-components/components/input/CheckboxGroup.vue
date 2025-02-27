@@ -1,5 +1,5 @@
 <template>
-  <div
+  <InputGroupContainer
     :id="`${id}-checkbox-group`"
     :aria-describedby="describedBy"
     class="border-l-4 border-transparent"
@@ -7,6 +7,8 @@
       'border-l-invalid': invalid,
       'border-l-valid': valid,
     }"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
   >
     <div class="flex flex-row" v-for="option in options">
       <InputLabel
@@ -53,7 +55,7 @@
     >
       Clear
     </ButtonText>
-  </div>
+  </InputGroupContainer>
 </template>
 
 <script lang="ts" setup>
