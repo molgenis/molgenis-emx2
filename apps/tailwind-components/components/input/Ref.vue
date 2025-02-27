@@ -59,12 +59,12 @@ const selection = computed(() =>
     : (Object.keys(selectionMap.value)[0] as string)
 );
 
-onMounted(async () => {
+async function prepareModel() {
   tableMetadata.value = await fetchTableMetadata(
     props.refSchemaId,
     props.refTableId
   );
-  //first we need to retrieve all selected items so are sure we have all for the template
+
   if (
     modelValue.value && Array.isArray(modelValue.value)
       ? modelValue.value.length > 0
@@ -83,10 +83,18 @@ onMounted(async () => {
     }
   }
 
-  //then we load the options for the first time
   await loadOptions({ limit: props.limit });
   initialCount.value = count.value;
-});
+}
+
+watch(
+  () => props.refSchemaId,
+  () => prepareModel
+);
+watch(
+  () => props.refTableId,
+  () => prepareModel
+);
 
 // the selectionMap is not reactively bound to the model due to need to fetch the options asynchonously
 watch(
@@ -127,6 +135,8 @@ async function loadOptions(filter: IQueryMetaData) {
     props.refTableId,
     filter
   );
+
+  optionMap.value = {};
 
   if (data.rows) {
     hasNoResults.value = false;
@@ -203,6 +213,8 @@ function loadMore() {
     searchTerms: searchTerms.value,
   });
 }
+
+prepareModel();
 </script>
 
 <template>
