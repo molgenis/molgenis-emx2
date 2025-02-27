@@ -3,10 +3,11 @@
     <InputString
       :id="id"
       :aria-describedby="describedBy"
+      :valid="valid"
+      :invalid="invalid"
       :disabled="disabled"
       :placeholder="placeholder"
       :required="required"
-      :invalid="invalid"
       v-model="modelValue"
       @focus="$emit('focus')"
       @blur="$emit('blur')"

@@ -1,26 +1,20 @@
 <template>
-  <FormFields
-    id="form-int"
-    v-model="data"
-    schemaId="schema-int"
-    :metadata="{
-      label: 'Int',
-      id: 'int',
-      tableType: 'my kind of table',
-      columns: [
-        {
-          id: 'input-int',
-          columnType: 'INT',
-          label: 'Input a int',
-        },
-      ],
-    }"
-    :data="[]"
-  />
+  <InputTestContainer
+    show-placeholder
+    show-state
+    v-slot="{ placeholder, valid, invalid, disabled }"
+  >
+    <InputInt
+      id="input-int"
+      v-model="demoValue"
+      :placeholder="placeholder"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
+    />
+  </InputTestContainer>
 </template>
 
 <script setup lang="ts">
-import type { recordValue } from "../../../metadata-utils/src/types";
-
-const data = ref<recordValue>({ "input-int": undefined });
+const demoValue = ref<string | number>();
 </script>

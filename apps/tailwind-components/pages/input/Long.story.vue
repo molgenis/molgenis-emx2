@@ -1,26 +1,20 @@
 <template>
-  <FormFields
-    id="form-long"
-    v-model="data"
-    schemaId="schema-long"
-    :metadata="{
-      label: 'Long',
-      id: 'long',
-      tableType: 'my kind of table',
-      columns: [
-        {
-          id: 'input-long',
-          columnType: 'LONG',
-          label: 'Input a long',
-        },
-      ],
-    }"
-    :data="[]"
-  />
+  <InputTestContainer
+    show-placeholder
+    show-state
+    v-slot="{ placeholder, valid, invalid, disabled }"
+  >
+    <InputLong
+      id="input-long"
+      v-model="demoValue"
+      :placeholder="placeholder"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
+    />
+  </InputTestContainer>
 </template>
 
 <script setup lang="ts">
-import type { recordValue } from "../../../metadata-utils/src/types";
-
-const data = ref<recordValue>({ "input-long": undefined });
+const demoValue = ref<string>();
 </script>

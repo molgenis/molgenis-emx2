@@ -2,6 +2,8 @@
   <InputString
     :id="id"
     :aria-describedby="describedBy"
+    :valid="valid"
+    :invalid="invalid"
     :disabled="disabled"
     :placeholder="placeholder"
     :required="required"
