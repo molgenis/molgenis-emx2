@@ -115,7 +115,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 99b | Use the browser's ⬅️ button | The user goes back to [/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | | |
 | 100a | Click on **OOM** under *Project Catalogues* | The user goes to [/catalogue/OOM](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/OOM). | | |
 | 100b | | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `ABOUT`, `MORE` | | |
-| 101 | Hover on `MORE` | 2 options are provided: `Other catalogues`, `Upload data` | | |
+| 101 | Hover on `MORE` | 2 options are provided: `Other catalogues`, `Upload data`,'Manuals' | | |
 | 102 | Click on `Other Catalogues` | The user goes to [/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | | |
 | | [THIS EXTRA TEST STEP CAN BE RENDERED INVALID BY PRODUCTION DATA FOR LONGITOOLS BEING COPIED INTO ACC - SEE IT AS A BONUS STEP!] | | | |
 | 103a | Click on **LongITools** under *Project Catalogues* | The user goes to [/catalogue/LongITools](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/LongITools). | | |
