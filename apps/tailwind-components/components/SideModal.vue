@@ -20,7 +20,18 @@ const props = withDefaults(
   }
 );
 
+const isVisibile = ref(props.show);
+
+function showModal() {
+  isVisibile.value = true;
+}
+
+function hideModal() {
+  isVisibile.value = false;
+}
+
 const emit = defineEmits(["close"]);
+defineExpose({ showModal, hideModal });
 
 const preAnimation = () => {
   if (props.slideInRight) {
@@ -37,15 +48,14 @@ const onHide = () => {
   setTimeout(() => {
     document.body.classList.remove("v-popper_right");
     emit("close");
+    isVisibile.value = false;
   }, 150);
 };
 
 watch(
-  () => toRefs(props),
-  (newValue, oldValue) => {
-    if (oldValue != newValue && !newValue.show.value) {
-      onHide();
-    }
+  () => props.show,
+  (value) => {
+    isVisibile.value = value;
   }
 );
 
@@ -83,7 +93,7 @@ const bgClass = computed(() => {
 <template>
   <VDropdown
     :aria-id="ariaId"
-    :shown="show"
+    :shown="isVisibile"
     :positioning-disabled="true"
     @show="preAnimation()"
     @apply-show="onShow()"
@@ -100,7 +110,7 @@ const bgClass = computed(() => {
               <BaseIcon name="cross" />
             </button>
 
-            <div class="overflow-auto calc-remaining-max-height pb-6">
+            <div class="overflow-auto calc-remaining-max-height pb-12">
               <slot></slot>
             </div>
           </div>
@@ -109,7 +119,7 @@ const bgClass = computed(() => {
             <div
               :class="`flex items-center ${buttonAlignmentClass} px-6 bg-modal-footer h-19`"
             >
-              <slot name="footer" :hide="hide"></slot>
+              <slot name="footer"></slot>
             </div>
           </div>
         </div>
