@@ -201,7 +201,7 @@ public class TestLoaders {
   public void dashboardTestLoader() {
     Schema schema = database.dropCreateSchema(DASHBOARD_TEST);
     DataModels.Regular.UI_DASHBOARD.getImportTask(schema, true).run();
-    assertEquals(6, schema.getTableNames().size());
+    assertEquals(7, schema.getTableNames().size());
   }
 
   @Test
