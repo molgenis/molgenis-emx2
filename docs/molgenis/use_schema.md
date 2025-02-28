@@ -145,6 +145,11 @@ Optionally you can also use javascript expressions. For example:
 
 Known limitation: doesn't work for columns refering to a table with composite primary key (i.e. having multiple key=1 fields).
 
+### semantics
+
+Using semantics allows for defining how a table should be represented in RDF.
+For a detailed description on how to use this field, see [this section](./semantics.md).
+
 ### label,label:en,label:fr etc
 
 Using label you can change the labels in forms. Typically useful for data capture and surveys. Using :suffix you can give labels for multiple languages, e.g.
