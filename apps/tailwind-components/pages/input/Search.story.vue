@@ -1,13 +1,22 @@
 <script setup lang="ts">
-const inverted = ref<boolean>(false);
-const searchValue = ref<sring>("");
+const searchValue = ref<string>("");
 </script>
 
 <template>
-  <div class="flex flex-row gap-2 mb-4">
-    <div class="basis-3/5">
-      <InputSearch v-model="searchValue" :inverted="inverted" />
-      value: {{ searchValue }}
-    </div>
-  </div>
+  <InputTestContainer
+    show-placeholder
+    show-state
+    v-slot="{ placeholder, valid, invalid, disabled }"
+  >
+    <label for="search-input"> Search </label>
+    <InputSearch
+      v-model="searchValue"
+      :placeholder="placeholder"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
+      id="search-input"
+    />
+    value: {{ searchValue }}
+  </InputTestContainer>
 </template>
