@@ -34,6 +34,12 @@ public class RD3v2Loader extends ImportDataModelTask {
       List<Row> rows = getProfilesFromAllModels("/portal", List.of());
       getSchema().migrate(Emx2.fromRowList(rows));
       MolgenisIO.fromClasspathDirectory("/_ontologies", getSchema(), false);
+      MolgenisIO.fromClasspathDirectory("/_settings/portal", getSchema(), false);
+
+      if (isIncludeDemoData()) {
+        MolgenisIO.fromClasspathDirectory("/_demodata/applications/portal", getSchema(), false);
+      }
+
       this.complete();
     } catch (Exception e) {
       this.completeWithError(e.getMessage());

@@ -1,2 +1,25 @@
-id,name,type
-RD3,Solve-RD RD3,Other type
+id,name,type,acronym,website,start year,end year
+Solve-RD,Solve-RD,Network,Solve-RD,https://solve-rd.eu,2018,2022
+ERN BOND,ERN BOND,Network,ERN BOND,https://ror.org/04crk2m06,,
+ERN CRANIO,ERN CRANIO,Network,ERN CRANIO,https://ror.org/032gggv33,,
+Endo-ERN,Endo-ERN,Network,Endo-ERN,https://ror.org/05s4nk876,,
+ERN EpiCARE,ERN EpiCARE,Network,ERN EpiCARE,https://ror.org/0214h3370,,
+ERKNet,ERKNet,Network,ERKNet,https://ror.org/04x2ddb07,,
+ERN-RND,ERN-RND,Network,ERN-RND,https://ror.org/05a27za87,,
+ERNICA,ERNICA,Network,ERNICA,https://ror.org/02h9n4675,,
+ERN LUNG,ERN LUNG,Network,ERN LUNG,https://ror.org/0279ntc65,,
+ERN Skin,ERN Skin,Network,ERN Skin,https://ror.org/0446wcg70,,
+ERN EURACAN,ERN EURACAN,Network,ERN EURACAN,https://ror.org/01rq5e797,,
+ERN EuroBloodNet,ERN EuroBloodNet,Network,ERN EuroBloodNet,https://ror.org/04dng8q18,,
+ERN eUROGEN,ERN eUROGEN,Network,ERN eUROGEN,https://ror.org/00y7tet25,,
+ERN EURO-NMD,ERN EURO-NMD,Network,ERN EURO-NMD,https://ror.org/04x3ta798,,
+ERN EYE,ERN EYE,Network,ERN EYE,https://ror.org/029nm1m14,,
+ERN GENTURIS,ERN GENTURIS,Network,ERN GENTURIS,https://ror.org/03pbpa834,,
+ERN ITHACA,ERN ITHACA,Network,ERN ITHACA,https://ror.org/03va0yq34,,
+MetabERN,MetabERN,Network,MetabERN,https://ror.org/00xdsr520,,
+ERN PaedCan,ERN PaedCan,Network,ERN PaedCan,https://ror.org/02dk8t214,,
+ERN RARE-LIVER,ERN RARE-LIVER,Network,ERN RARE-LIVER,https://ror.org/036e61f39,,
+ERN ReCONNET,ERN ReCONNET,Network,ERN ReCONNET,https://ror.org/04069k268,,
+ERN RITA,ERN RITA,Network,ERN RITA,https://ror.org/0208ges23,,
+ERN TRANSPLANT-CHILD,ERN TRANSPLANT-CHILD,Network,ERN TRANSPLANT-CHILD,https://ror.org/04rr75245,,
+VASCERN,VASCERN,Network,VASCERN,https://ror.org/005pygq66,,
