@@ -1,9 +1,12 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2.datamodels;
+
+import static org.molgenis.emx2.rdf.SHACLComplianceTester.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.rdf.SHACLValidator;
 
 public class SHACLIntegrationTest extends ComplianceTest {
 

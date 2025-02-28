@@ -178,7 +178,7 @@ jobs:
 
     - run:
         name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
         name: run tests and push to sonar
@@ -203,7 +203,7 @@ jobs:
     
     - run:
         name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     # we might be optimistic and skip tests here
     - run:
