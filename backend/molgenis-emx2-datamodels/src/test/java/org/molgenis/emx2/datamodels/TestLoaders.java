@@ -192,6 +192,12 @@ public class TestLoaders {
   }
 
   @Test
+  void test19MigrationTestLoader() {
+    Schema schema = database.dropCreateSchema("MigrationTest");
+    DataModels.Profile.TEST_PROFILE_MIGRATION.getImportTask(schema, true).run();
+    assertEquals(1, schema.getTableNames().size());
+  }
+
   public void dashboardTestLoader() {
     Schema schema = database.dropCreateSchema(DASHBOARD_TEST);
     DataModels.Regular.UI_DASHBOARD.getImportTask(schema, true).run();

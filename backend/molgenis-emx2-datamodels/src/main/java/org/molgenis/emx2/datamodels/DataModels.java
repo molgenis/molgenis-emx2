@@ -27,6 +27,7 @@ public class DataModels {
     SHARED_STAGING("_profiles/SharedStaging.yaml"),
     IMAGE_TEST("_profiles/ImageTest.yaml"),
     PET_STORE("_profiles/PetStore.yaml"),
+    TEST_PROFILE_MIGRATION("_profiles/test-only/TestProfileMigration.yaml"),
     TYPE_TEST("_profiles/TypeTest.yaml");
 
     public static boolean hasProfile(String nameOther) {
