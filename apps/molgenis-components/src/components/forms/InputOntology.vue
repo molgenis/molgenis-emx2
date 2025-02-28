@@ -17,22 +17,21 @@
         style="height: auto"
         @click="toggleFocus"
       >
-        <template v-if="selectionWithoutChildren.length > 0">
-          <span
-            class="btn btn-sm btn-primary text-white mr-1"
-            v-for="selectedTerm in selectionWithoutChildren"
-            :key="JSON.stringify(selectedTerm)"
-            @click.stop="deselect(selectedTerm.name)"
-          >
-            {{ selectedTerm.label ? selectedTerm.label : selectedTerm.name }}
-            <span class="fa fa-times"></span>
-          </span>
-          <i
-            class="p-2 fa fa-times"
-            style="vertical-align: middle"
-            @click.stop="clearSelection"
-          />
-        </template>
+        <span
+          class="btn btn-sm btn-primary text-white mr-1"
+          v-for="selectedTerm in selectionWithoutChildren"
+          :key="selectedTerm"
+          @click.stop="deselect(selectedTerm.name)"
+        >
+          {{ selectedTerm.label ? selectedTerm.label : selectedTerm.name }}
+          <span class="fa fa-times"></span>
+        </span>
+        <i
+          class="p-2 fa fa-times"
+          style="vertical-align: middle"
+          @click.stop="clearSelection"
+          v-if="showExpanded && selectionWithoutChildren.length > 0"
+        />
         <span :class="{ 'input-group': showExpanded }">
           <div v-if="showExpanded" class="input-group-prepend">
             <button
@@ -287,7 +286,6 @@ export default {
       this.key++;
     },
     deselect(item: string) {
-      console.log("haat " + item);
       if (this.isMultiSelect) {
         let term = this.terms[item];
         term.selected = "unselected";
@@ -329,11 +327,11 @@ export default {
       this.key++;
     },
     emitValue() {
-      let selectedTerms = Object.values(this.selectionWithoutChildren).map(
-        (term: any) => {
+      let selectedTerms = Object.values(this.terms)
+        .filter((term: any) => term.selected === "complete")
+        .map((term: any) => {
           return { name: term.name };
-        }
-      );
+        });
       if (this.isMultiSelect) {
         this.$emit("update:modelValue", selectedTerms);
       } else {
@@ -351,7 +349,10 @@ export default {
         value.forEach((v: Record<string, any>) => {
           let term = this.terms[v.name];
           if (term) {
-            term.selected = "complete";
+            //select if doesn't have children
+            if (this.getAllChildren(term).length == 0) {
+              term.selected = "complete";
+            }
             if (this.isMultiSelect) {
               //if list also select its children
               this.getAllChildren(term).forEach(

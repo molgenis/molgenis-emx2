@@ -73,7 +73,7 @@ const selectedNodesNames = computed({
     :isMultiSelect="true"
     :inverted="mobileDisplay"
     :expandSelected="true"
-    :emitSelectedChildren="false"
+    :emitSelectedChildren="true"
   >
   </InputTree>
 </template>
