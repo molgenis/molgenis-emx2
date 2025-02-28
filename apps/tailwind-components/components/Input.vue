@@ -8,7 +8,6 @@
     :disabled="disabled"
     :describedBy="describedBy"
     :placeholder="placeholder"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -22,7 +21,6 @@
     :disabled="disabled"
     :describedBy="describedBy"
     placeholder="Input an email address"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -36,7 +34,6 @@
     :disabled="disabled"
     :describedBy="describedBy"
     placeholder="Input a hyperlink"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -50,7 +47,6 @@
     :describedBy="describedBy"
     :trueLabel="trueLabel"
     :falseLabel="falseLabel"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -63,7 +59,6 @@
     :disabled="disabled"
     :describedBy="describedBy"
     :placeholder="placeholder"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -77,7 +72,6 @@
     :describedBy="describedBy"
     :placeholder="placeholder"
     :options="options as IValueLabel[]"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -91,7 +85,6 @@
     :describedBy="describedBy"
     :placeholder="placeholder"
     :options="options as IValueLabel[]"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -107,7 +100,6 @@
     :refSchemaId="refSchemaId as string"
     :refTableId="refTableId as string"
     :refLabel="refLabel as string"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="false"
@@ -124,10 +116,20 @@
     :refSchemaId="refSchemaId as string"
     :refTableId="refTableId as string"
     :refLabel="refLabel as string"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="true"
+  />
+  <InputFile
+    v-else-if="['FILE'].includes(typeUpperCase)"
+    v-model="modelValue as columnValueObject"
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
   />
   <InputDate
     v-else-if="'DATE' === typeUpperCase"
@@ -139,7 +141,6 @@
     :disabled="disabled"
     :describedBy="describedBy"
     placeholder="Input a date"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -153,7 +154,6 @@
     :disabled="disabled"
     :describedBy="describedBy"
     placeholder="Input a date and time"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -180,6 +180,6 @@ const props = defineProps<
     falseLabel?: string;
   }
 >();
-const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+const emit = defineEmits(["focus", "blur"]);
 const typeUpperCase = computed(() => props.type.toUpperCase());
 </script>
