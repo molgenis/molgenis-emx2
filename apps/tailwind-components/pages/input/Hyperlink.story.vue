@@ -19,9 +19,37 @@
       ],
     }"
     v-model="model"
+    :chapters="chapters"
+    :visibleMap="visibleMap"
+    :errorMap="errorMap"
+    :activeChapterId="activeChapterId"
   />
 </template>
 
 <script setup lang="ts">
+import type { ColumnType } from "../../../metadata-utils/src/types";
+
 const model = ref({ "input-hyperlink": null });
+
+const activeChapterId = ref(null);
+const errorMap = ref({});
+
+const chapters = ref([
+  {
+    label: "_top",
+    id: "_scroll_to_top",
+    columns: [
+      {
+        id: "input-hyperlink",
+        columnType: "EMAIL" as ColumnType,
+        label: "Input an email address",
+      },
+    ],
+    isActive: false,
+    errorCount: 0,
+  },
+]);
+const visibleMap = ref({
+  "input-hyperlink": true,
+});
 </script>

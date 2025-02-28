@@ -3,6 +3,7 @@ import type {
   columnId,
   columnValue,
   IColumn,
+  IFormLegendSection,
   ITableMetaData,
   recordValue,
 } from "../../../metadata-utils/src/types";
@@ -11,92 +12,29 @@ import {
   getColumnError,
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
-import type { IFormLegendSection } from "../../../metadata-utils/src/types";
-import { scrollToElementInside } from "~/utils/scrollTools";
 import logger from "@/utils/logger";
 import consola from "consola";
 
-const props = defineProps<{
-  id: string;
-  schemaId: string;
-  metadata: ITableMetaData;
-}>();
+const props = withDefaults(
+  defineProps<{
+    id: string;
+    schemaId: string;
+    metadata: ITableMetaData;
+    chapters: (IFormLegendSection & { columns: IColumn[] })[];
+    visibleMap: Record<columnId, boolean>;
+    errorMap: Record<columnId, string>;
+    activeChapterId?: string | null;
+  }>(),
+  {
+    activeChapterId: null,
+  }
+);
 
 const modelValue = defineModel<recordValue>("modelValue", {
   required: true,
 });
 
-const emit = defineEmits(["error"]);
-
-const visibleMap = reactive<Record<columnId, boolean>>({});
-const errorMap = reactive<Record<columnId, string>>({});
-const previousColumn = ref<IColumn>();
-
-//initialize visibility for headers
-props.metadata.columns
-  .filter((column) => column.columnType === "HEADING")
-  .forEach((column) => {
-    logger.debug(isColumnVisible(column, modelValue.value, props.metadata));
-    visibleMap[column.id] =
-      !column.visible ||
-      isColumnVisible(column, modelValue.value, props.metadata)
-        ? true
-        : false;
-    logger.debug(
-      "check heading " +
-        column.id +
-        "=" +
-        visibleMap[column.id] +
-        " expression " +
-        column.visible
-    );
-  });
-
-const activeChapterId: Ref<string | null> = ref(null);
-const chapters = computed(() => {
-  return props.metadata.columns.reduce((acc, column) => {
-    if (column.columnType === "HEADING") {
-      acc.push({
-        label: column.label,
-        id: column.id,
-        columns: [],
-        isActive: column.id === activeChapterId.value,
-        errorCount: 0,
-      });
-    } else {
-      if (acc.length === 0) {
-        acc.push({
-          label: "_top",
-          id: "_scroll_to_top",
-          columns: [],
-          isActive: "_scroll_to_top" === activeChapterId.value,
-          errorCount: 0,
-        });
-      }
-      acc[acc.length - 1].columns.push(column);
-      if (errorMap[column.id]) acc[acc.length - 1].errorCount++;
-    }
-    return acc;
-  }, [] as (IFormLegendSection & { columns: IColumn[] })[]);
-});
-
-const numberOfFieldsWithErrors = computed(
-  () => Object.values(errorMap).filter((value) => value).length
-);
-
-const numberOfRequiredFields = computed(
-  () => props.metadata.columns.filter((column) => column.required).length
-);
-
-const numberOfRequiredFieldsWithData = computed(
-  () =>
-    props.metadata.columns.filter(
-      (column) =>
-        column.required && modelValue[column.id as keyof typeof modelValue]
-    ).length
-);
-
-const recordLabel = computed(() => props.metadata.label);
+const emit = defineEmits(["error", "update:activeChapterId"]);
 
 function validateColumn(column: IColumn) {
   logger.debug("validate " + column.id);
@@ -106,43 +44,38 @@ function validateColumn(column: IColumn) {
   consola.info("error", error);
 
   if (error) {
-    errorMap[column.id] = error;
+    emit("error", error);
   } else {
-    errorMap[column.id] = props.metadata.columns
+    const errorValue = props.metadata.columns
       .filter((c) => c.validation?.includes(column.id))
       .map((c) => {
         const result = getColumnError(c, modelValue.value, props.metadata);
         return result;
       })
       .join("");
+    emit("error", errorValue);
   }
 }
 
-function checkVisibleExpression(column: IColumn) {
-  if (
-    !column.visible ||
-    isColumnVisible(column, modelValue.value, props.metadata)
-  ) {
-    visibleMap[column.id] = true;
-  } else {
-    visibleMap[column.id] = false;
-  }
-  logger.debug(
-    "checking visibility of " + column.id + "=" + visibleMap[column.id]
-  );
-}
+const previousColumn = ref<IColumn>();
 
 function onUpdate(column: IColumn, $event: columnValue) {
-  if (errorMap[column.id]) {
+  if (props.errorMap[column.id]) {
     validateColumn(column);
   }
   props.metadata.columns
     .filter((c) => c.visible?.includes(column.id))
     .forEach((c) => {
-      visibleMap[c.id] = isColumnVisible(c, modelValue.value, props.metadata)
+      props.visibleMap[c.id] = isColumnVisible(
+        c,
+        modelValue.value,
+        props.metadata
+      )
         ? true
         : false;
-      logger.debug("updating visibility for " + c.id + "=" + visibleMap[c.id]);
+      logger.debug(
+        "updating visibility for " + c.id + "=" + props.visibleMap[c.id]
+      );
     });
   previousColumn.value = column;
 }
@@ -162,92 +95,66 @@ function onBlur(column: IColumn) {
 }
 
 function updateActiveChapter(chapterId: string) {
-  activeChapterId.value = chapterId;
+  emit("update:activeChapterId", chapterId);
 }
 
-function goToSection(headerId: string) {
-  //requires all elements before id to have check visibility so we know their sizes
-  //todo: loading animation this might take while
-  //todo: next to visibility we also need to wait until all have retrieved options or ensure refs have fixed size
-  for (let i = 0; i < props.metadata.columns.length; i++) {
-    const column = props.metadata.columns[i];
-    if (visibleMap[column.id] === undefined) checkVisibleExpression(column);
-    if (column.id === props.id) break;
+function checkVisibleExpression(column: IColumn) {
+  if (
+    !column.visible ||
+    isColumnVisible(column, modelValue.value, props.metadata!)
+  ) {
+    props.visibleMap[column.id] = true;
+  } else {
+    props.visibleMap[column.id] = false;
   }
-  scrollToElementInside(props.id + "-fields-container", headerId);
+  logger.debug(
+    "checking visibility of " + column.id + "=" + props.visibleMap[column.id]
+  );
 }
 </script>
 <template>
-  <div class="flex flex-row border">
-    <div v-if="chapters.length > 1" class="basis-1/3">
-      <FormLegend :sections="chapters" @go-to-section="goToSection" />
-    </div>
+  <div class="h-screen overflow-y-scroll" :id="id + '-fields-container'">
     <div
-      class="h-screen overflow-y-scroll"
-      :class="{ 'basis-2/3': chapters.length > 1 }"
-      :id="id + '-fields-container'"
+      v-for="chapter in chapters"
+      :id="chapter.id"
+      v-when-overlaps-with-top-of-container="
+        () => updateActiveChapter(chapter.id)
+      "
     >
-      <div
-        v-for="chapter in chapters"
-        :id="chapter.id"
-        v-when-overlaps-with-top-of-container="
-          () => updateActiveChapter(chapter.id)
-        "
+      <h2
+        class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8 scroll-mt-20"
+        v-if="chapter.label !== '_scroll_to_top' && visibleMap[chapter.id]"
       >
-        <h2
-          class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8 scroll-mt-20"
-          v-if="chapter.label !== '_scroll_to_top' && visibleMap[chapter.id]"
-        >
-          {{ chapter.label }}
-        </h2>
-        <!-- todo filter invisible -->
-        <template
-          v-for="column in chapter.columns.filter(
-            (c) => !c.id.startsWith('mg_')
-          )"
-        >
-          <div
-            style="height: 100px"
-            v-on-first-view="() => checkVisibleExpression(column)"
-            v-if="visibleMap[column.id] === undefined"
-          ></div>
-          <FormField
-            class="pb-8"
-            v-else-if="visibleMap[column.id] === true"
-            v-model="modelValue[column.id]"
-            :id="`${column.id}-form-field`"
-            :type="column.columnType"
-            :label="column.label"
-            :description="column.description"
-            :required="isRequired(column.required ?? false)"
-            :error-message="errorMap[column.id]"
-            :ref-schema-id="column.refSchemaId || schemaId"
-            :ref-table-id="column.refTableId"
-            :ref-label="column.refLabel || column.refLabelDefault"
-            :invalid="errorMap[column.id]?.length > 0"
-            @update:modelValue="onUpdate(column, $event)"
-            @blur="onBlur(column)"
-            @focus="onFocus(column)"
-          />
-        </template>
-      </div>
-      <Message :id="id" :invalid="true">
-        <span
-          >{{ numberOfFieldsWithErrors }} fields require your attention before
-          you can save this {{ recordLabel }} ( temporary section for dev)</span
-        >
-      </Message>
-      <Message :id="id">
-        <span
-          >{{ numberOfRequiredFields - numberOfRequiredFieldsWithData }} /
-          {{ numberOfRequiredFields }} required fields left ( temporary section
-          for dev)</span
-        >
-      </Message>
-      <div
-        id="spacer-so-we-can-scroll-each-chapter-to-top-if-requested"
-        class="h-screen"
-      />
+        {{ chapter.label }}
+      </h2>
+      <!-- todo filter invisible -->
+      <template
+        v-for="column in chapter.columns.filter((c) => !c.id.startsWith('mg_'))"
+      >
+        <div
+          style="height: 100px"
+          v-on-first-view="() => checkVisibleExpression(column)"
+          v-if="visibleMap[column.id] === undefined"
+        ></div>
+        <FormField
+          class="pb-8"
+          v-else-if="visibleMap[column.id] === true"
+          v-model="modelValue[column.id]"
+          :id="`${column.id}-form-field`"
+          :type="column.columnType"
+          :label="column.label"
+          :description="column.description"
+          :required="isRequired(column.required ?? false)"
+          :error-message="errorMap[column.id]"
+          :ref-schema-id="column.refSchemaId || schemaId"
+          :ref-table-id="column.refTableId"
+          :ref-label="column.refLabel || column.refLabelDefault"
+          :invalid="errorMap[column.id]?.length > 0"
+          @update:modelValue="onUpdate(column, $event ?? '')"
+          @blur="onBlur(column)"
+          @focus="onFocus(column)"
+        />
+      </template>
     </div>
   </div>
 </template>
