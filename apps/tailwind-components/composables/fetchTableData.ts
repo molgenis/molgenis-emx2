@@ -8,9 +8,6 @@ export interface ITableDataResponse {
 
 export default async (schemaId: string, tableId: string, properties?: IQueryMetaData,): Promise<ITableDataResponse> => {
 
-  console.log(`Fetching data for table ${tableId} schema ${schemaId}`);
-  console.log('properties', properties);
-
   const limit = properties?.limit ? properties?.limit : 20;
   const offset = properties?.offset ? properties?.offset : 0;
   const expandLevel =
