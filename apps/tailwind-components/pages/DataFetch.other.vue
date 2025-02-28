@@ -38,7 +38,6 @@ const {
   error,
   refresh: refetchTableData,
 } = await useAsyncData("my data", () => {
-  console.log("data fetch data handler for: ", tableId.value);
   return fetchTableData(schemaId.value, tableId.value);
 });
 
