@@ -1,6 +1,6 @@
 <template>
   <InputString
-    v-if="['STRING', 'AUTO_ID', 'LONG', 'INT'].includes(typeUpperCase)"
+    v-if="['STRING', 'AUTO_ID'].includes(typeUpperCase)"
     :id="id"
     v-model="modelValue as string | number | undefined"
     :valid="valid"
@@ -34,6 +34,45 @@
     :disabled="disabled"
     :describedBy="describedBy"
     placeholder="Input a hyperlink"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <InputDecimal
+    v-else-if="'DECIMAL' === typeUpperCase"
+    :id="id"
+    v-model="modelValue as string | number | undefined"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <InputInt
+    v-else-if="'INT' === typeUpperCase"
+    :id="id"
+    v-model="modelValue as string | number | undefined"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <InputLong
+    v-else-if="'LONG' === typeUpperCase"
+    :id="id"
+    v-model="modelValue as string | undefined"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
