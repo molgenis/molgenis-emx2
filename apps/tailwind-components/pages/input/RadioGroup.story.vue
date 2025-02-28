@@ -2,12 +2,13 @@
   <InputTestContainer show-state v-slot="{ invalid, valid, disabled }">
     <form>
       <fieldset>
-        <legend class="text-title">
+        <legend id="radio-input-group-title" class="text-title">
           Select the patient's group allocation. If unknown, please leave blank.
         </legend>
         <InputRadioGroup
           id="radio-input-group"
-          v-model="example"
+          described-by="radio-input-group-title"
+          v-model="selection"
           :options="[
             { value: 'control', label: 'Healthy control' },
             {
@@ -20,15 +21,21 @@
           :invalid="invalid"
           :valid="valid"
           :disabled="disabled"
+          @focus="inputState = 'focused'"
+          @blur="inputState = 'blurred'"
         />
       </fieldset>
     </form>
-    <output>
-      <span>Selection: {{ example }}</span>
-    </output>
   </InputTestContainer>
+  <div>
+    <ul class="text-title">
+      <li>Selection: {{ selection }}</li>
+      <li>Input Group State: {{ inputState }}</li>
+    </ul>
+  </div>
 </template>
 
 <script lang="ts" setup>
-const example = ref<string>("intervention");
+const selection = ref<string>("intervention");
+const inputState = ref<string>("inactive");
 </script>
