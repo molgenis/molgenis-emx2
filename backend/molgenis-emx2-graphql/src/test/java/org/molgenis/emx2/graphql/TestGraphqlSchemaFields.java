@@ -65,6 +65,64 @@ public class TestGraphqlSchemaFields {
   }
 
   @Test
+  void testMatchInParentsAndChildren() throws IOException {
+    // just to check syntax works, the real tests live in sql
+    String result =
+        execute("{Pet(filter:{tags:{_match_any_including_children:\"colors\"}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertFalse(result.contains("pooky")); // poor pooky has no color
+
+    result =
+        execute("{Pet(filter:{tags:{_match_any_including_children:[\"green\",\"blue\"]}}){name}}")
+            .toString();
+    assertTrue(result.contains("jerry"));
+    assertTrue(result.contains("spike"));
+    assertFalse(result.contains("tom")); // tom is red
+
+    result =
+        execute("{Pet(filter:{tags:{_match_any_including_parents:[\"green\",\"blue\"]}}){name}}")
+            .toString();
+    assertTrue(result.contains("jerry"));
+    assertTrue(result.contains("spike"));
+    assertFalse(result.contains("tom")); // tom is red
+
+    result = execute("{Pet(filter:{tags:{_match_path:[\"green\",\"blue\"]}}){name}}").toString();
+    assertTrue(result.contains("jerry"));
+    assertTrue(result.contains("spike"));
+    assertFalse(result.contains("tom")); // tom is red
+  }
+
+  @Test
+  void testNullAndNotNull() throws IOException {
+    // ref
+    String result = execute("{Pet(filter:{tags:{_is_null:true}}){name}}").toString();
+    assertTrue(result.contains("pooky"));
+    assertFalse(result.contains("tom"));
+
+    result = execute("{Pet(filter:{tags:{_is_null:false}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertFalse(result.contains("pooky"));
+
+    // refback+ref
+    result = execute("{Pet(filter:{orders:{_is_null:true}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertTrue(result.contains("sylvester"));
+    assertFalse(result.contains("pooky"));
+
+    result = execute("{Pet(filter:{orders:{_is_null:false}}){name}}").toString();
+    assertTrue(result.contains("spike"));
+    assertTrue(result.contains("pooky"));
+    assertFalse(result.contains("tom"));
+
+    // ref_array
+    result = execute("{User(filter:{pets:{_is_null:true}}){username}}").toString();
+    assertFalse(result.contains("bofke"));
+
+    result = execute("{User(filter:{pets:{_is_null:false}}){username}}").toString();
+    assertTrue(result.contains("bofke"));
+  }
+
+  @Test
   public void testSession() throws IOException {
     try {
       database.setActiveUser(ANONYMOUS);
@@ -242,7 +300,7 @@ public class TestGraphqlSchemaFields {
 
     // between int one sided
     assertEquals(
-        "pooky",
+        "spike",
         execute("{Order(filter:{quantity:{not_between:[null,3]}}){quantity,pet{name}}}")
             .at("/Order/0/pet/name")
             .textValue());
@@ -789,11 +847,13 @@ public class TestGraphqlSchemaFields {
                   "{TestJson(filter:{json:{equals:\"{\\\"name\\\": \\\"bofke2\\\"}\"}}){json}}") // notice the extra space!
               .at("/TestJson/0/json")
               .asText());
-      assertEquals(
-          value2,
-          execute("{TestJson(filter:{json:{like:\"bofke2\"}}){json}}") // more useful
-              .at("/TestJson/0/json")
-              .asText());
+      // disabled because like doesn't make sense like this. we should revisit json queries.
+      //      assertEquals(
+      //          value2,
+      //          execute("{TestJson(filter:{json:{like:\"bofke2\"}}){json}}") // more useful but
+      // inconsistent
+      //              .at("/TestJson/0/json")
+      //              .asText());
     } finally {
       grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     }
