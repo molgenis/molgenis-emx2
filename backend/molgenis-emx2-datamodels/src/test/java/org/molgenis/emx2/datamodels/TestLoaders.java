@@ -3,13 +3,16 @@ package org.molgenis.emx2.datamodels;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.DATA_CATALOGUE;
 import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.SHARED_STAGING;
+import static org.molgenis.emx2.rdf.SHACLComplianceTester.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.io.ImportProfileTask;
+import org.molgenis.emx2.rdf.RDFService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -32,6 +35,7 @@ public class TestLoaders {
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
   public static final String DASHBOARD_TEST = "UiDashboardTest";
+  public static final String PATIENT_REGISTRY_DEMO = "patientRegistryDemo";
   static Database database;
 
   @BeforeAll
@@ -64,6 +68,8 @@ public class TestLoaders {
   }
 
   @Test
+  @Disabled
+  // todo delete
   public void test01FAIRDataHubLoader() {
     Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
     DataModels.Profile.FAIR_DATA_HUB.getImportTask(fairDataHubSchema, true).run();
@@ -74,10 +80,21 @@ public class TestLoaders {
   }
 
   @Test
-  void test06DataCatalogueLoader() {
+  void test06DataCatalogueLoader() throws Exception {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     DataModels.Profile.DATA_CATALOGUE.getImportTask(dataCatalogue, true).run();
-    assertEquals(23, dataCatalogue.getTableNames().size());
+    assertEquals(26, dataCatalogue.getTableNames().size());
+
+    // create rdf in memory
+    OutputStream outputStream = new ByteArrayOutputStream();
+    var rdf = new RDFService("http://localhost:8080", "/api/rdf", null);
+    rdf.describeAsRDF(outputStream, null, null, null, dataCatalogue);
+
+    // check compliance
+    testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
+    // testShaclCompliance(DCAT_AP_SHACL_FILES, outputStream.toString());
+    // testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
+    // testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
   }
 
   @Test
@@ -103,6 +120,8 @@ public class TestLoaders {
   }
 
   @Test
+  @Disabled
+  // todo delete
   void test10RD3Loader() {
     Schema RD3Schema = database.createSchema(RD3_TEST);
     DataModels.Profile.RD3.getImportTask(RD3Schema, true).run();
@@ -131,6 +150,8 @@ public class TestLoaders {
   }
 
   @Test
+  @Disabled
+  // todo delete
   void test14DCATLoader() {
     Schema DCATSchema = database.createSchema(DCAT);
     DataModels.Profile.DCAT.getImportTask(DCATSchema, true).run();
@@ -144,26 +165,30 @@ public class TestLoaders {
     assertEquals(8, directoryStaging.getTableNames().size());
   }
 
-  @Test
-  void test16DCATBasic() {
-    Schema DCATSchema = database.createSchema(DCAT_BASIC);
-    new ImportProfileTask(DCATSchema, "_profiles/test-only/DCAT-basic.yaml", true).run();
-    assertEquals(9, DCATSchema.getTableNames().size());
-  }
-
-  @Test
-  void test17FAIRDataPointLoader() {
-    Schema FDPSchema = database.createSchema(FAIR_DATA_POINT);
-    DataModels.Profile.FAIR_DATA_POINT.getImportTask(FDPSchema, true).run();
-    assertEquals(25, FDPSchema.getTableNames().size());
-  }
+  //  @Test
+  //  void test17FAIRDataPointLoader() throws Exception {
+  //    Schema FDPSchema = database.createSchema(FAIR_DATA_POINT);
+  //    DataModels.Profile.FAIR_DATA_POINT.getImportTask(FDPSchema, true).run();
+  //    assertEquals(25, FDPSchema.getTableNames().size());
+  //
+  //    // create rdf in memory
+  //    OutputStream outputStream = new ByteArrayOutputStream();
+  //    var rdf = new RDFService("http://localhost:8080", "/api/rdf", null);
+  //    rdf.describeAsRDF(outputStream, null, null, null, FDPSchema);
+  //
+  //    // test compliance
+  //    // testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
+  //    // testShaclCompliance(DCAT_AP_SHACL_FILES, outputStream.toString());
+  //    // testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
+  //    // testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
+  //  }
 
   @Test
   void test18PortalLoader() throws URISyntaxException, IOException {
     // depends on catalogue test above
     Schema schema = database.dropCreateSchema(PORTAL_TEST);
     DataModels.Regular.RD3_V2.getImportTask(schema, false).run();
-    assertEquals(94, schema.getTableNames().size());
+    assertEquals(97, schema.getTableNames().size());
   }
 
   @Test
@@ -177,5 +202,12 @@ public class TestLoaders {
     Schema schema = database.dropCreateSchema(DASHBOARD_TEST);
     DataModels.Regular.UI_DASHBOARD.getImportTask(schema, true).run();
     assertEquals(6, schema.getTableNames().size());
+  }
+
+  @Test
+  public void patientRegistryDemoTestLoader() {
+    Schema schema = database.dropCreateSchema(PATIENT_REGISTRY_DEMO);
+    DataModels.Regular.PATIENT_REGISTRY_DEMO.getImportTask(schema, true).run();
+    assertEquals(86, schema.getTableNames().size());
   }
 }

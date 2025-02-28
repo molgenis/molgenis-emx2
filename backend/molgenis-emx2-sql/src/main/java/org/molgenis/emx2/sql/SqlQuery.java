@@ -5,6 +5,8 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Privileges.*;
+import static org.molgenis.emx2.Query.Option.EXCLUDE_MG_COLUMNS;
+import static org.molgenis.emx2.Query.Option.INCLUDE_FILE_CONTENTS;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.searchColumnName;
 import static org.molgenis.emx2.utils.TypeUtils.*;
@@ -25,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SqlQuery extends QueryBean {
+
   public static int AGGREGATE_COUNT_THRESHOLD = Integer.MIN_VALUE; // threshold disabled by default
   public static final String COUNT_FIELD = "count";
   public static final String EXISTS_FIELD = "exists";
@@ -63,7 +66,7 @@ public class SqlQuery extends QueryBean {
 
   /** Create alias that is short enough for postgresql to not complain */
   public String alias(String label) {
-    if (!label.contains("-")) {
+    if (!label.contains(SUBSELECT_SEPARATOR)) {
       // we only need aliases for subquery tables
       return label;
     }
@@ -74,7 +77,7 @@ public class SqlQuery extends QueryBean {
   }
 
   @Override
-  public List<Row> retrieveRows() {
+  public List<Row> retrieveRows(Option... options) {
     SelectColumn select = getSelect();
     Filter filter = getFilter();
     String[] searchTerms = getSearchTerms();
@@ -90,30 +93,57 @@ public class SqlQuery extends QueryBean {
     checkHasViewPermission(table);
     String tableAlias = "root-" + table.getTableName();
 
-    // if empty selection, we will add the default selection here, excl File and Refback
+    // if empty selection, we will add the default selection here, incl File and Refback
+    // will generally be all you need
     if (select == null || select.getColumNames().isEmpty()) {
-      for (Column c : table.getColumns()) {
-        // currently we don't download refBack (good) and files (that is bad)
+      for (Column c :
+          table.getColumns().stream()
+              .filter(
+                  column ->
+                      Arrays.stream(options).anyMatch(option -> option == EXCLUDE_MG_COLUMNS)
+                          ? !column.getName().startsWith("mg_")
+                          : true)
+              .toList()) {
         if (c.isFile()) {
-          select.select(c.getName());
-        } else if (!c.isRefback()) {
-          if (c.isReference()) {
-            for (Reference ref : c.getReferences()) {
-              select.select(ref.getName());
-            }
+          if (Arrays.stream(options).anyMatch(option -> option == INCLUDE_FILE_CONTENTS)) {
+            select.subselect(
+                s(
+                    c.getName(),
+                    s("id"),
+                    s("contents"),
+                    s("filename"),
+                    s("size"),
+                    s("mimetype"),
+                    s("extension")));
           } else {
-            // don't include refBack or files or mg_ columns
-            select.select(c.getName());
+            select.subselect(
+                s(c.getName(), s("id"), s("filename"), s("size"), s("mimetype"), s("extension")));
           }
+        } else if (c.isReference()) {
+          select.subselect(getRefPrimaryKeySubselect(c));
+        } else if (!c.isHeading()) {
+          select.select(c.getName());
         }
       }
+    }
+
+    // we don't accept '.' notation in query select anymore
+    else {
+      if (select.getColumNames().stream().anyMatch(name -> name.contains("."))) {
+        throw new MolgenisException(
+            "select columns cannot contain dot. Use subselects. Error: "
+                + (select.getColumNames().stream()
+                    .filter(name -> name.contains("."))
+                    .collect(Collectors.joining(","))));
+      }
+      ;
     }
 
     // basequery
     SelectJoinStep<org.jooq.Record> from =
         table
             .getJooq()
-            .select(rowSelectFields(table, tableAlias, "", select))
+            .select(rowSelectFields(table, tableAlias, select))
             .from(tableWithInheritanceJoin(table).as(alias(tableAlias)));
 
     // joins, only filtered tables
@@ -141,6 +171,21 @@ public class SqlQuery extends QueryBean {
     }
   }
 
+  private SelectColumn getRefPrimaryKeySubselect(Column c) {
+    List<SelectColumn> result = new ArrayList<>();
+    c.getRefTable()
+        .getPrimaryKeyColumns()
+        .forEach(
+            key -> {
+              if (key.isReference()) {
+                result.add(s(key.getName(), getRefPrimaryKeySubselect(key)));
+              } else {
+                result.add(s(key.getName()));
+              }
+            });
+    return s(c.getName(), result.toArray(SelectColumn[]::new));
+  }
+
   private void checkHasViewPermission(SqlTableMetadata table) {
     if (!table.getTableType().equals(TableType.ONTOLOGIES)
         && !schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
@@ -149,67 +194,66 @@ public class SqlQuery extends QueryBean {
   }
 
   private List<Field<?>> rowSelectFields(
-      TableMetadata table, String tableAlias, String prefix, SelectColumn selection) {
+      TableMetadata table, String tableAlias, SelectColumn selection) {
 
     List<Field<?>> fields = new ArrayList<>();
     for (SelectColumn select : selection.getSubselect()) {
       Column column = getColumnByName(table, select.getColumn());
-      String columnAlias = prefix.equals("") ? column.getName() : prefix + "-" + column.getName();
       if (column.isFile()) {
         // check what they want to get, contents, mimetype, size, filename and/or extension
         if (select.getSubselect().isEmpty() || select.has("id")) {
-          fields.add(field(name(column.getName())));
+          fields.add(field(name(alias(tableAlias), column.getName())));
         }
         if (select.has("contents")) {
-          fields.add(field(name(column.getName() + "_contents")));
+          fields.add(field(name(alias(tableAlias), column.getName() + "_contents")));
         }
         if (select.has("size")) {
-          fields.add(field(name(column.getName() + "_size")));
+          fields.add(field(name(alias(tableAlias), column.getName() + "_size")));
         }
         if (select.has("mimetype")) {
-          fields.add(field(name(column.getName() + "_mimetype")));
+          fields.add(field(name(alias(tableAlias), column.getName() + "_mimetype")));
         }
         if (select.has("filename")) {
-          fields.add(field(name(column.getName() + "_filename")));
+          fields.add(field(name(alias(tableAlias), column.getName() + "_filename")));
         }
         if (select.has("extension")) {
-          fields.add(field(name(column.getName() + "_extension")));
+          fields.add(field(name(alias(tableAlias), column.getName() + "_extension")));
         }
-      } else if (column.isReference()
-          // if subselection, then we will add it as subselect
-          && !select.getSubselect().isEmpty()) {
+      } else if (column.isRef() || column.isRefArray()) {
+        shouldNotExpandBeyondPkey(select, column);
         fields.addAll(
-            rowSelectFields(
-                column.getRefTable(),
-                tableAlias + "-" + column.getName(),
-                columnAlias,
-                selection.getSubselect(column.getName())));
+            column.getReferences().stream()
+                .map(ref -> field(name(alias(tableAlias), ref.getName())))
+                .toList());
       } else if (column.isRefback()) {
-        fields.add(
-            field("array({0})", rowBackrefSubselect(column, tableAlias)).as(column.getName()));
-      } else if (column.isReference()) { // REF and REF_ARRAY
-        // might be composite column with same name
-        Reference ref = null;
-        for (Reference r : column.getReferences()) {
-          if (r.getName().equals(column.getName())) {
-            ref = r;
-          }
-        }
-        if (ref == null) {
-          throw new MolgenisException(
-              "Select of column '"
-                  + column.getName()
-                  + "' failed: composite foreign key requires subselection or explicit naming of underlying fields");
-        } else {
-          fields.add(
-              field(name(alias(tableAlias), column.getName()), ref.getJooqType()).as(columnAlias));
-        }
+        shouldNotExpandBeyondPkey(select, column);
+        // will come from refJoin table
+        fields.addAll(
+            column.getReferences().stream()
+                .map(
+                    ref ->
+                        field(
+                            name(
+                                alias(tableAlias + "-refbackjoin-" + column.getName()),
+                                ref.getName())))
+                .toList());
       } else if (!column.isHeading()) {
-        fields.add(
-            field(name(alias(tableAlias), column.getName()), column.getJooqType()).as(columnAlias));
+        fields.add(field(name(alias(tableAlias), column.getName()), column.getJooqType()));
       }
     }
     return fields;
+  }
+
+  private static void shouldNotExpandBeyondPkey(SelectColumn select, Column column) {
+    select
+        .getSubselect()
+        .forEach(
+            subselect -> {
+              if (!column.getRefTable().getPrimaryKeys().contains(subselect.getColumn())) {
+                throw new MolgenisException(
+                    "Row subselect can only contain primary keys. Found: " + subselect.getColumn());
+              }
+            });
   }
 
   private Field<String> intervalField(String tableAlias, Column column) {
@@ -217,33 +261,6 @@ public class SqlQuery extends QueryBean {
     Field<String> functionCallField =
         function("\"MOLGENIS\".interval_to_iso8601", String.class, intervalField);
     return functionCallField.as(name(column.getIdentifier()));
-  }
-
-  private SelectConditionStep<org.jooq.Record> rowBackrefSubselect(
-      Column column, String tableAlias) {
-    Column refBack = column.getRefBackColumn();
-    List<Condition> where = new ArrayList<>();
-
-    // might be composite
-    for (Reference ref : refBack.getReferences()) {
-      if (refBack.isRef()) {
-        where.add(
-            field(name(refBack.getTable().getTableName(), ref.getName()))
-                .eq(field(name(alias(tableAlias), ref.getRefTo()))));
-      } else if (refBack.isRefArray()) {
-        where.add(
-            condition(
-                ANY_SQL,
-                field(name(alias(tableAlias), ref.getRefTo())),
-                field(name(refBack.getTable().getTableName(), ref.getName()))));
-      } else {
-        throw new MolgenisException(
-            "Internal error: Refback for type not matched for column " + column.getName());
-      }
-    }
-    return DSL.select(column.getRefTable().getPrimaryKeyFields())
-        .from(name(refBack.getSchemaName(), refBack.getTableName()))
-        .where(where);
   }
 
   @Override
@@ -952,24 +969,55 @@ public class SqlQuery extends QueryBean {
     // add missing selection joins, only used for row based queries
     if (selection != null) {
       for (SelectColumn select : selection.getSubselect()) {
-        // then do same as above
+        // check if is refback for join (cut of the part behind .)
         Column column = getColumnByName(table, select.getColumn());
-        if (column.isReference()) {
-          String subAlias = tableAlias + "-" + column.getName();
-          // only join if subselection extists
-          if (!aliasList.contains(subAlias) && !select.getSubselect().isEmpty()) {
+        if (column.isRefback()) {
+          String subAlias = alias(tableAlias + "-refbackjoin-" + column.getName());
+          if (!aliasList.contains(subAlias)) {
+            // to ensure only join once
             aliasList.add(subAlias);
-            join.leftJoin(tableWithInheritanceJoin(column.getRefTable()).as(alias(subAlias)))
-                .on(refJoinCondition(column, tableAlias, subAlias));
-            // recurse
+            Column refBack = column.getRefBackColumn();
+            List<Field> refbackSelection = new ArrayList<>();
+            refbackSelection.addAll(
+                column.getReferences().stream()
+                    .map(
+                        ref ->
+                            field("array_agg({0})", name(ref.getRefTo())).as(name(ref.getName())))
+                    .toList());
+            if (refBack.isRefArray()) {
+              refbackSelection.addAll(
+                  refBack.getReferences().stream()
+                      .map(
+                          reference ->
+                              field("unnest({0})", name(reference.getName()))
+                                  .as(name("_refback_" + reference.getRefTo())))
+                      .toList());
+            } else {
+              refbackSelection.addAll(
+                  refBack.getReferences().stream()
+                      .map(
+                          reference ->
+                              field(name(reference.getName()))
+                                  .as(name("_refback_" + reference.getRefTo())))
+                      .toList());
+            }
+            // we create a natural joinable representation of refback that looks same as ref_array
             join =
-                refJoins(
-                    column.getRefTable(),
-                    subAlias,
-                    join,
-                    filters != null ? filters.getSubfilter(column.getName()) : null,
-                    select,
-                    aliasList);
+                join.leftJoin(
+                        DSL.select(refbackSelection)
+                            .from(column.getRefTable().getJooqTable())
+                            .groupBy(
+                                refBack.getReferences().stream()
+                                    .map(ref -> field(name("_refback_" + ref.getRefTo())))
+                                    .toList())
+                            .asTable(name(subAlias)))
+                    .on(
+                        refBack.getReferences().stream()
+                            .map(
+                                ref ->
+                                    field(name(subAlias, "_refback_" + ref.getRefTo()))
+                                        .eq(field(name(alias(tableAlias), ref.getRefTo()))))
+                            .toArray(Condition[]::new));
           }
         }
       }

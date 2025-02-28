@@ -86,6 +86,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.jooq = jooq;
     databaseVersion = MetadataUtils.getVersion(jooq);
 
+    this.listener = copy.listener;
     // copy all schemas
     this.schemaNames.addAll(copy.schemaNames);
     this.schemaInfos.addAll(copy.schemaInfos);

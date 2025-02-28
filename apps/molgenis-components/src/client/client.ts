@@ -1,15 +1,16 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
+import type { AxiosError, AxiosResponse } from "axios";
 import type {
   IColumn,
   ISchemaMetaData,
   ISetting,
   ITableMetaData,
-} from "metadata-utils";
-import { IRow } from "../Interfaces/IRow";
+} from "../../../metadata-utils/src/types";
+import type { IRow } from "../Interfaces/IRow";
 import { deepClone } from "../components/utils";
 import type { aggFunction } from "./IClient";
-import { IClient, INewClient } from "./IClient";
-import { IQueryMetaData } from "./IQueryMetaData";
+import type { IClient, INewClient } from "./IClient";
+import type { IQueryMetaData } from "./IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
 
 // application wide cache for schema meta data
@@ -167,6 +168,7 @@ const metadataQuery = `{
     id,
     tables {
       id,
+      name,
       label, 
       description,
       tableType,

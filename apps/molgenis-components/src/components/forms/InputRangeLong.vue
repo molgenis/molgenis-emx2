@@ -3,7 +3,7 @@
     :id="id + '-from'"
     :label="label"
     :description="description"
-    :errorMessage="errorMessage || bigIntError1 || bigIntError2"
+    :errorMessage="errorMessage"
   >
     <InputGroup class="d-flex">
       <template v-slot:prepend>
@@ -14,14 +14,14 @@
         :modelValue="modelValue[0]"
         @update:modelValue="emitValue($event, 0)"
         placeholder="from"
-        :class="{ 'is-invalid': errorMessage || bigIntError1 }"
+        :class="{ 'is-invalid': errorMessage }"
       />
       <BaseInputLong
         :id="id + '-to'"
         :modelValue="modelValue[1]"
         @update:modelValue="emitValue($event, 1)"
         placeholder="to"
-        :class="{ 'is-invalid': errorMessage || bigIntError2 }"
+        :class="{ 'is-invalid': errorMessage }"
       />
       <template v-slot:append>
         <slot name="append"></slot>
@@ -35,7 +35,6 @@ import BaseInput from "./baseInputs/BaseInput.vue";
 import BaseInputLong from "./baseInputs/BaseInputLong.vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
-import { getBigIntError } from "../utils";
 
 export default {
   components: { BaseInputLong, FormGroup, InputGroup },
@@ -51,18 +50,6 @@ export default {
       let result = [...this.modelValue];
       result[index] = value === "" ? null : value;
       this.$emit("update:modelValue", result);
-    },
-  },
-  computed: {
-    bigIntError1() {
-      if (Array.isArray(this.modelValue)) {
-        return getBigIntError(this.modelValue[0]);
-      }
-    },
-    bigIntError2() {
-      if (Array.isArray(this.modelValue)) {
-        return getBigIntError(this.modelValue[1]);
-      }
     },
   },
 };

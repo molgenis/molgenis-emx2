@@ -1,3 +1,8 @@
+.app-page,
+.app-footer {
+  font-size: 14pt;
+}
+
 .app-page {
   .page-header {
     height: 22em;
@@ -7,14 +12,26 @@
     }
   }
 
-  .message-box {
-    display: flex;
-    align-items: center;
+  .page-section {
+    padding-top: 1em;
 
-    .message-text {
-      p {
-        margin-bottom: 0;
+    .page-section-content {
+      h2 {
+        padding: 12px 0;
+        margin-bottom: 0.15em;
       }
+    }
+  }
+}
+
+.message-box {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  .message-text {
+    p {
+      margin-bottom: 0;
     }
   }
 }

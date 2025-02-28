@@ -1,0 +1,4 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,frozenSkin,Frozen skin,,,,,
+2,rna,RNA,,,,,
+3,protein,Protein,,,,,
