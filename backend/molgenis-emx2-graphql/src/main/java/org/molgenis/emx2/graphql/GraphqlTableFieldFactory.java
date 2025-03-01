@@ -431,17 +431,17 @@ public class GraphqlTableFieldFactory {
       if (TableType.ONTOLOGIES.equals(table.getTableType())) {
         filterBuilder.field(
             GraphQLInputObjectField.newInputObjectField()
-                .name(MATCH_INCLUDING_CHILDREN)
+                .name(FILTER_MATCH_INCLUDING_CHILDREN)
                 .type(GraphQLList.list(Scalars.GraphQLString))
                 .build());
         filterBuilder.field(
             GraphQLInputObjectField.newInputObjectField()
-                .name(MATCH_INCLUDING_PARENTS)
+                .name(FILTER_MATCH_INCLUDING_PARENTS)
                 .type(GraphQLList.list(Scalars.GraphQLString))
                 .build());
         filterBuilder.field(
             GraphQLInputObjectField.newInputObjectField()
-                .name(MATCH_PATH)
+                .name(FILTER_MATCH_PATH)
                 .type(GraphQLList.list(Scalars.GraphQLString))
                 .build());
       }
@@ -480,12 +480,12 @@ public class GraphqlTableFieldFactory {
                   : getPrimaryKeyInput(table);
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(FILTER_CONTAINS_ALL)
+                  .name(FILTER_MATCH_ALL)
                   .type(GraphQLList.list(refType))
                   .build());
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(FILTER_CONTAINS_ANY)
+                  .name(FILTER_MATCH_ANY)
                   .type(GraphQLList.list(refType))
                   .build());
         } else if (col.getColumnType().getOperators().length > 0) {
@@ -612,11 +612,11 @@ public class GraphqlTableFieldFactory {
                   ((List<Map<String, Object>>) entry.getValue())
                       .stream().map(v -> createKeyFilter(table, v)).collect(Collectors.toList())));
         }
-      } else if (entry.getKey().equals(MATCH_INCLUDING_CHILDREN)
-          || entry.getKey().equals(MATCH_INCLUDING_PARENTS)
-          || entry.getKey().equals(MATCH_PATH)
+      } else if (entry.getKey().equals(FILTER_MATCH_INCLUDING_CHILDREN)
+          || entry.getKey().equals(FILTER_MATCH_INCLUDING_PARENTS)
+          || entry.getKey().equals(FILTER_MATCH_PATH)
           || entry.getKey().equals(FILTER_IS_NULL)
-          || entry.getKey().equals(FILTER_CONTAINS_ALL)) {
+          || entry.getKey().equals(FILTER_MATCH_ALL)) {
         // skip, handled on parent column. Need re-architecture in next major release.
       } else {
         // find column by escaped name
@@ -633,31 +633,31 @@ public class GraphqlTableFieldFactory {
         Column c = optional.get();
         Map value = (Map) entry.getValue();
         // although nested, this should apply on this level, not sublevel
-        if (value.containsKey(MATCH_INCLUDING_CHILDREN)) {
+        if (value.containsKey(FILTER_MATCH_INCLUDING_CHILDREN)) {
           subFilters.add(
               f(
                   c.getName(),
                   Operator.MATCH_ANY_INCLUDING_CHILDREN,
-                  ((List) value.get(MATCH_INCLUDING_CHILDREN)).toArray(new String[0])));
-          value.remove(MATCH_INCLUDING_CHILDREN);
-        } else if (value.containsKey(MATCH_INCLUDING_PARENTS)) {
+                  ((List) value.get(FILTER_MATCH_INCLUDING_CHILDREN)).toArray(new String[0])));
+          value.remove(FILTER_MATCH_INCLUDING_CHILDREN);
+        } else if (value.containsKey(FILTER_MATCH_INCLUDING_PARENTS)) {
           subFilters.add(
               f(
                   c.getName(),
                   Operator.MATCH_ANY_INCLUDING_PARENTS,
-                  ((List) value.get(MATCH_INCLUDING_PARENTS)).toArray(new String[0])));
-          value.remove(MATCH_INCLUDING_PARENTS);
-        } else if (value.containsKey(MATCH_PATH)) {
+                  ((List) value.get(FILTER_MATCH_INCLUDING_PARENTS)).toArray(new String[0])));
+          value.remove(FILTER_MATCH_INCLUDING_PARENTS);
+        } else if (value.containsKey(FILTER_MATCH_PATH)) {
           subFilters.add(
               f(
                   c.getName(),
                   Operator.MATCH_PATH,
-                  ((List) value.get(MATCH_PATH)).toArray(new String[0])));
-          value.remove(MATCH_PATH);
+                  ((List) value.get(FILTER_MATCH_PATH)).toArray(new String[0])));
+          value.remove(FILTER_MATCH_PATH);
         } else if (value.containsKey(FILTER_IS_NULL)) {
           subFilters.add(f(c.getName(), IS_NULL, value.get(FILTER_IS_NULL)));
           value.remove(FILTER_IS_NULL);
-        } else if (value.containsKey(FILTER_CONTAINS_ALL)) {
+        } else if (value.containsKey(FILTER_MATCH_ALL)) {
           //  complex filter, should be an list of maps per graphql contract
           if (entry.getValue() != null && c.getReferences().size() > 1) {
             subFilters.add(
@@ -666,13 +666,13 @@ public class GraphqlTableFieldFactory {
                     Operator.MATCH_ALL,
                     convertToPrimaryKeyRows(
                             c.getRefTable(),
-                            (List<Map<String, Object>>) value.get(FILTER_CONTAINS_ALL))
+                            (List<Map<String, Object>>) value.get(FILTER_MATCH_ALL))
                         .toArray()));
           } else if (entry.getValue() != null) {
             subFilters.add(
-                f(c.getName(), Operator.MATCH_ALL, (List<Object>) value.get(FILTER_CONTAINS_ALL)));
+                f(c.getName(), Operator.MATCH_ALL, (List<Object>) value.get(FILTER_MATCH_ALL)));
           }
-          value.remove(FILTER_CONTAINS_ALL);
+          value.remove(FILTER_MATCH_ALL);
         }
 
         if (value.size() == 0) continue;
