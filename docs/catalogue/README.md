@@ -7,11 +7,11 @@ metadata of the cohorts and the common data model.
 
 We distinguish three roles when using the catalogue:
 
-|     |     | [Researcher](cat_researcher.md) | [Local data manager](cat_cohort-data-manager.md) | [Network data manager](cat_network-data-manager.md) |
-| --- | --- | --- | --- | --- |
-| Catalogue | Data mapping/harmonisation | | [X](cat_cohort-data-manager.md#data-harmonisation) | |
-| Catalogue | Local metadata description | | [X](cat_cohort-data-manager.md#fill-out-rich-metadata) | |
-| Catalogue | Describe and upload common data model | | | [X](cat_network-data-manager.md#define-cdm-metadata) |
-| Catalogue | Find (common) variables | [X](cat_researcher.md#find-harmonised-variables) | | |
-| Catalogue | Find mapping specifications | [X](cat_researcher.md#find-harmonisation-details) | [X](cat_cohort-data-manager.md#define-harmonisations) | |
-| Catalogue | Request access | | [X](cat_cohort-data-manager.md#request-access-catalogue) | [X](cat_network-data-manager.md#request-access) |
+|     | [Researcher](cat_researcher.md) | [Local data manager](cat_cohort-data-manager.md) | [Network data manager](cat_network-data-manager.md) |
+| --- | --- | --- | --- |
+| Data mapping/harmonisation | | [X](cat_cohort-data-manager.md#data-harmonisation) | |
+| Local metadata description | | [X](cat_cohort-data-manager.md#fill-out-rich-metadata) | |
+| Describe and upload common data model | | | [X](cat_network-data-manager.md#define-cdm-metadata) |
+| Find (common) variables | [X](cat_researcher.md#find-harmonised-variables) | | |
+| Find mapping specifications | [X](cat_researcher.md#find-harmonisation-details) | [X](cat_cohort-data-manager.md#define-harmonisations) | |
+| Request access | | [X](cat_cohort-data-manager.md#request-access-catalogue) | [X](cat_network-data-manager.md#request-access) |
