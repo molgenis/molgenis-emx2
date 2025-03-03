@@ -1,13 +1,13 @@
 # MOLGENIS Catalogue Guide
 
-We are highly motivated to promote multi-centre human data analysis to improve people's health, linking data from many
-local institutions into networks, optionally by mapping data to common data models, for use in new research. To find the data we developed
-a [catalogue](https://data-catalogue.molgeniscloud.org/). Here you can find the
-metadata of the cohorts and the common data model.
+Welcome to the MOLGENIS Catalogue Guide! This guide explains what a MOLGENIS Catalogue is and how you can best use it.
+To help you get to the right information, we've distinguished three roles for users of the catalogue:
+a researcher, looking to find relevant data for their research,
+a resource data manager, managing the metadata and variable mappings of their resource,
+and a network data manager, managing the metadata and common data model of their network.
+Use the table below to find the most relevant section for your role and goal.
 
-We distinguish three roles when using the catalogue:
-
-|     | [Researcher](cat_researcher.md) | [Local data manager](cat_cohort-data-manager.md) | [Network data manager](cat_network-data-manager.md) |
+| Goal | [Researcher](cat_researcher.md) | [Local data manager](cat_cohort-data-manager.md) | [Network data manager](cat_network-data-manager.md) |
 | --- | --- | --- | --- |
 | Data mapping/harmonisation | | [X](cat_cohort-data-manager.md#data-harmonisation) | |
 | Local metadata description | | [X](cat_cohort-data-manager.md#fill-out-rich-metadata) | |
@@ -15,3 +15,5 @@ We distinguish three roles when using the catalogue:
 | Find (common) variables | [X](cat_researcher.md#find-harmonised-variables) | | |
 | Find mapping specifications | [X](cat_researcher.md#find-harmonisation-details) | [X](cat_cohort-data-manager.md#define-harmonisations) | |
 | Request access | | [X](cat_cohort-data-manager.md#request-access-catalogue) | [X](cat_network-data-manager.md#request-access) |
+
+In addition, there is  SASASA
