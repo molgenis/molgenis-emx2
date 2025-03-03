@@ -5,9 +5,11 @@ export interface ITableDataResponse {
   count: number;
 }
 
-
-export default async (schemaId: string, tableId: string, properties?: IQueryMetaData,): Promise<ITableDataResponse> => {
-
+export default async (
+  schemaId: string,
+  tableId: string,
+  properties?: IQueryMetaData
+): Promise<ITableDataResponse> => {
   const limit = properties?.limit ? properties?.limit : 20;
   const offset = properties?.offset ? properties?.offset : 0;
   const expandLevel =
@@ -52,10 +54,9 @@ export default async (schemaId: string, tableId: string, properties?: IQueryMeta
     });
   });
 
-
   console.log(`Fetching data for table ${tableId} schema ${schemaId}`);
 
-  return {rows: data[tableId], count: data[`${tableId}_agg`].count};
+  return { rows: data[tableId], count: data[`${tableId}_agg`].count };
 };
 
 export const getColumnIds = async (
@@ -67,10 +68,9 @@ export const getColumnIds = async (
   rootLevel = true
 ) => {
   const metaData = await fetchMetadata(schemaId);
- 
-  const columns = metaData.tables.find(
-    (table) => table.id === tableId
-  )?.columns || [];
+
+  const columns =
+    metaData.tables.find((table) => table.id === tableId)?.columns || [];
 
   let gqlFields = "";
   for (const col of columns) {
@@ -107,5 +107,3 @@ export const getColumnIds = async (
 
   return gqlFields;
 };
-
-

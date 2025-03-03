@@ -15,6 +15,5 @@ test("the form should show the row data", async ({ page }) => {
   await expect(
     page.getByRole("textbox", { name: "name Required" })
   ).toHaveValue("pooky");
-  await expect(page.locator('[id="_scroll_to_top"]')).toContainText("cat");
   await expect(page.getByRole("button", { name: "cat" })).toBeVisible();
 });

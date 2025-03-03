@@ -24,9 +24,9 @@ const emit = defineEmits(["focus", "blur"]);
 </script>
 
 <template>
-  <div>
+  <div :id="id">
     <template v-if="label">
-      <label :for="id">
+      <label :for="`${id}-input`">
         <span class="text-title font-bold">{{ label }}</span>
         <span class="text-disabled text-body-sm ml-3" v-if="required">
           Required
@@ -40,7 +40,7 @@ const emit = defineEmits(["focus", "blur"]);
     </div>
     <Input
       v-model="modelValue"
-      :id="id"
+      :id="`${id}-input`"
       :type="type"
       :valid="valid"
       :invalid="invalid"

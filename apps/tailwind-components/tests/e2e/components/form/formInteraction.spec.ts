@@ -26,8 +26,8 @@ test("it should not jump around when selecting a checkbox", async ({
   await page.getByRole("link", { name: "details" }).click();
   await page.getByText("red", { exact: true }).click();
   await page
-    .locator("#tags-form-field-checkbox-group")
+    .locator("#tags-form-field-input-checkbox-group")
     .getByText("colors")
     .click();
-  await expect(page.locator("#details")).toContainText("red");
+  await expect(page.locator("#tags-form-field")).toContainText("red");
 });
