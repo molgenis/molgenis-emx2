@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { C } from "vitest/dist/chunks/environment.d8YfPkTm.js";
 import type {
   columnId,
   columnValue,
