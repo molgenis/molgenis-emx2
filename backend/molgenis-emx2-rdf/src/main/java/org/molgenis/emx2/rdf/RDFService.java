@@ -72,9 +72,9 @@ public class RDFService {
   // See: https://specs.fairdatapoint.org/fdp-specs-v1.2.html
   public static final IRI FDP_METADATAIDENTIFIER =
       Values.iri("https://w3id.org/fdp/fdp-o#metadataIdentifier");
-  // DCAT:endPointURL is the 'root' location, which is the schema. see:
+  // DCAT:endpointURL is the 'root' location, which is the schema. see:
   // https://www.w3.org/TR/vocab-dcat-3/#Property:data_service_endpoint_url
-  public static final IRI DCAT_ENDPOINTURL = Values.iri("http://www.w3.org/ns/dcat#endPointURL");
+  public static final IRI DCAT_ENDPOINTURL = Values.iri("http://www.w3.org/ns/dcat#endpointURL");
 
   /** NCIT:C95637 = Coded Value Data Type */
   public static final IRI IRI_CODED_VALUE_DATATYPE =
