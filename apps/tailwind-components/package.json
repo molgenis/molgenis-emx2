@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "prepare": "nuxt prepare",
     "lint": "vue-tsc --noEmit",
     "generate-source-map": "node ./utils/generateSourceMap.js",
     "build": "yarn generate-source-map && nuxt build",
@@ -11,10 +12,11 @@
     "dev": "yarn generate-source-map && nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
+    "postinstall": "nuxt prepare",
     "format": "prettier components pages tests layouts --write --config ../.prettierrc.js",
     "checkFormat": "prettier components pages tests --check --config ../.prettierrc.js",
     "test": "vitest",
+    "test-ci": "vitest run",
     "e2e": "playwright test",
     "a11y:test": "pa11y-ci",
     "a11y:serve": "http-server .reports/ -p 1234",
@@ -36,14 +38,14 @@
     "happy-dom": "15.10.2",
     "http-server": "^14.1.1",
     "if-env": "1.0.4",
+    "nuxt": "3.14.1592",
     "pa11y-ci": "^3.1.0",
     "pa11y-ci-reporter-html": "^7.0.0",
     "playwright-core": "1.50.0",
     "prettier": "2.8.8",
     "svgo": "2.8.0",
     "typescript": "5.6.2",
-    "nuxt": "3.14.1592",
-    "vitest": "1.6.1",
-    "vue-tsc": "^2.2.0"
+    "vitest": "3.0.5",
+    "vue-tsc": "2.2.0"
   }
 }

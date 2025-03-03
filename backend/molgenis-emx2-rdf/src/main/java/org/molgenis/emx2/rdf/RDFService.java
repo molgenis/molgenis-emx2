@@ -4,7 +4,6 @@ import static org.eclipse.rdf4j.model.util.Values.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 
 import com.google.common.net.UrlEscapers;
@@ -69,6 +68,13 @@ public class RDFService {
       "http://semanticscience.org/resource/SIO_000115";
   public static final IRI IRI_OBSERVATION =
       Values.iri("http://purl.org/linked-data/cube#Observation");
+  // FDP-O:metadataIdentifier is the identifier of the metadata entry, which is the subject itself.
+  // See: https://specs.fairdatapoint.org/fdp-specs-v1.2.html
+  public static final IRI FDP_METADATAIDENTIFIER =
+      Values.iri("https://w3id.org/fdp/fdp-o#metadataIdentifier");
+  // DCAT:endPointURL is the 'root' location, which is the schema. see:
+  // https://www.w3.org/TR/vocab-dcat-3/#Property:data_service_endpoint_url
+  public static final IRI DCAT_ENDPOINTURL = Values.iri("http://www.w3.org/ns/dcat#endPointURL");
 
   /** NCIT:C95637 = Coded Value Data Type */
   public static final IRI IRI_CODED_VALUE_DATATYPE =
@@ -495,6 +501,11 @@ public class RDFService {
       final IRI subject) {
     builder.add(subject, RDF.TYPE, tableIRI);
     builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
+    builder.add(
+        subject,
+        DCAT_ENDPOINTURL,
+        Values.iri(getSchemaNamespace(baseURL, table.getSchema()).getName()));
+    builder.add(subject, FDP_METADATAIDENTIFIER, subject);
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {
         builder.add(subject, RDF.TYPE, iri(semantics));
@@ -579,29 +590,15 @@ public class RDFService {
   private List<Row> getRows(Table table, final String rowId) {
     Query query = table.query();
 
-    List<SelectColumn> selectColumns = new ArrayList<>();
-    for (Column c : table.getMetadata().getColumns()) {
-      if (c.isFile()) {
-        selectColumns.add(s(c.getName(), s("id"), s("filename"), s("mimetype")));
-      } else if (c.isRef() || c.isRefArray()) {
-        c.getReferences().forEach(i -> selectColumns.add(s(i.getName())));
-      } else if (c.isRefback()) {
-        selectColumns.add(refBackSelect(c));
-      } else {
-        selectColumns.add(s(c.getName()));
-      }
-    }
-    SelectColumn[] selectArray = selectColumns.toArray(SelectColumn[]::new);
-
     if (rowId != null) {
       // first find from root table
       PrimaryKey key = PrimaryKey.makePrimaryKeyFromEncodedKey(rowId);
-      List<Row> oneRow = query.select(selectArray).where(key.getFilter()).retrieveRows();
+      List<Row> oneRow = query.where(key.getFilter()).retrieveRows();
       // if subclass
       if (oneRow.size() == 1 && oneRow.get(0).getString(MG_TABLECLASS) != null) {
         Row row = oneRow.get(0);
         table = getSubclassTableForRowBasedOnMgTableclass(table, row);
-        return table.query().select(selectArray).where(key.getFilter()).retrieveRows();
+        return table.query().where(key.getFilter()).retrieveRows();
       }
       return oneRow;
     } else {
@@ -609,20 +606,8 @@ public class RDFService {
         var tableName = table.getSchema().getName() + "." + table.getName();
         query.where(f("mg_tableclass", EQUALS, tableName));
       }
-      return query.select(selectArray).retrieveRows();
+      return query.retrieveRows();
     }
-  }
-
-  private SelectColumn refBackSelect(Column column) {
-    List<SelectColumn> subSelects = new ArrayList<>();
-    for (Column subColumn : column.getRefTable().getPrimaryKeyColumns()) {
-      if (subColumn.isRef() || subColumn.isRefArray()) {
-        subSelects.add(refBackSelect(subColumn));
-      } else {
-        subSelects.add(s(subColumn.getName()));
-      }
-    }
-    return s(column.getName(), subSelects.toArray(SelectColumn[]::new));
   }
 
   private IRI getIriForRow(final Row row, final Table table) {

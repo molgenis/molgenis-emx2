@@ -20,7 +20,7 @@ defineProps<
     falseLabel?: string;
   }
 >();
-const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+const emit = defineEmits(["focus", "blur"]);
 </script>
 
 <template>
@@ -33,13 +33,11 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
         </span>
       </label>
     </template>
-    <p
-      :id="`${id}-input-description`"
-      v-if="description"
-      class="text-input-description text-body-sm"
-    >
-      {{ description }}
-    </p>
+    <div :id="`${id}-input-description`">
+      <p v-if="description" class="text-input-description text-body-sm">
+        {{ description }}
+      </p>
+    </div>
     <Input
       v-model="modelValue"
       :id="id"
@@ -47,19 +45,21 @@ const emit = defineEmits(["focus", "blur", "update:modelValue"]);
       :valid="valid"
       :invalid="invalid"
       :disabled="disabled"
-      :describedBy="`${id}-description ${id}-input-error`"
+      :describedBy="`${id}-input-description ${id}-input-error`"
       :placeholder="placeholder"
       :options="options"
-      :refSchemaId="refSchemaId as string"
-      :refTableId="refTableId as string"
-      :refLabel="refLabel as string"
+      :refSchemaId="(refSchemaId as string)"
+      :refTableId="(refTableId as string)"
+      :refLabel="(refLabel as string)"
       :trueLabel="trueLabel"
       :falseLabel="falseLabel"
       @blur="emit('blur')"
       @focus="emit('focus')"
     />
-    <Message v-if="errorMessage" invalid id="`${id}-input-error`">{{
-      errorMessage
-    }}</Message>
+    <div :id="`${id}-input-error`">
+      <Message :id="id" invalid v-if="errorMessage">
+        {{ errorMessage }}
+      </Message>
+    </div>
   </div>
 </template>

@@ -16,7 +16,7 @@
     </InputListboxToggle>
     <InputListboxList
       :id="`listbox-${id}-options`"
-      :isExpanded="isExpanded"
+      :isExpanded="!disabled && isExpanded"
       :hasFixedHeight="listboxOptions.length > 5"
       @keydown.prevent="onListboxKeyDown"
     >
