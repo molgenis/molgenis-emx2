@@ -638,6 +638,13 @@ the following function are available:
 - textSearch(value)
 - between(value)
 - notBetween(value)
+- _is_null - use this filter to find null (true) or not null (false) values
+- _match_any(value)
+- _match_all(value)
+- _match_none(value)
+- _match_path(name) - use to filter ontology terms, = or(match_any_including_children(name),match_any_including_parents(name))
+- _match_any_including_children(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
+- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
 
 If you want to filter a ref/mref/categorial or any other 'nested' table result, use:
 
