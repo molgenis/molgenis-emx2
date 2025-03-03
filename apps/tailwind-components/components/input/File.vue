@@ -9,10 +9,12 @@
       'bg-disabled cursor-not-allowed': disabled,
       'bg-input border-input': !disabled,
     }"
+    @click="onFileInputClick"
   >
     <div class="grow">
       <button
         v-if="modelValue"
+        ref="selectedFileButton"
         class="flex justify-center items-center h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display duration-default ease-in-out border rounded-input"
         :class="{
           'text-disabled bg-disabled hover:text-disabled cursor-not-allowed':
@@ -24,7 +26,6 @@
           'border-valid text-valid bg-valid hover:bg-valid hover:text-valid':
             valid,
         }"
-        @click="onFilterWellClick"
         :disabled="disabled"
       >
         <span>{{ modelValue.filename }}</span>
@@ -50,7 +51,7 @@
       </button>
       <input
         :id="`${id}-file-input`"
-        ref="fileInputElem"
+        ref="fileInput"
         class="sr-only"
         type="file"
         :disabled="disabled"
@@ -66,14 +67,33 @@
 import type { IInputProps, IFile } from "~/types/types";
 
 const modelValue = defineModel<IFile | null>();
-const fileInputElem = useTemplateRef<HTMLInputElement>("fileInputElem");
+const fileInputElem = useTemplateRef<HTMLInputElement>("fileInput");
+const selectedFileButton =
+  useTemplateRef<HTMLButtonElement>("selectedFileButton");
 
 defineProps<IInputProps>();
 
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
 
+function resetModelValue() {
+  modelValue.value = null;
+}
+
 function showFileInput() {
   fileInputElem.value?.click();
+}
+
+function onFileInputClick(event: Event) {
+  const target = event.target as Node;
+  const isRefElemNode =
+    selectedFileButton.value?.contains(target) ||
+    selectedFileButton.value === target;
+
+  if (isRefElemNode) {
+    resetModelValue();
+  } else {
+    showFileInput();
+  }
 }
 
 function onChange(event: Event) {
@@ -86,9 +106,5 @@ function onChange(event: Event) {
       extension: file.type,
     };
   }
-}
-
-function onFilterWellClick() {
-  modelValue.value = null;
 }
 </script>
