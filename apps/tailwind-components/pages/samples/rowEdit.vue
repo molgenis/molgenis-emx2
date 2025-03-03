@@ -1,12 +1,10 @@
 <script setup lang="ts">
+import { a } from "vitest/dist/chunks/suite.BJU7kdY9.js";
 import type {
   columnId,
   columnValue,
-  IColumn,
-  IFormLegendSection,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
-import { isColumnVisible } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import cohortTableMetadata from "./data/cohort-table-metadata";
 
 definePageMeta({
@@ -22,58 +20,17 @@ const current = computed(() => "Edit cohort: CONSTANCES");
 const formValues = ref<Record<string, columnValue>>({});
 
 const metadata = cohortTableMetadata as ITableMetaData;
-const errorMap = reactive<Record<columnId, string>>({});
-const visibleMap = reactive<Record<columnId, boolean>>({});
+const errorMap = ref<Record<columnId, string>>({});
 
-//initialize visibility for headers
-metadata.columns
-  .filter((column) => column.columnType === "HEADING")
-  .forEach((column) => {
-    if (metadata) {
-      logger.debug(isColumnVisible(column, formValues.value, metadata));
-    }
-    visibleMap[column.id] =
-      !column.visible ||
-      (metadata && isColumnVisible(column, formValues.value, metadata))
-        ? true
-        : false;
-    logger.debug(
-      "check heading " +
-        column.id +
-        "=" +
-        visibleMap[column.id] +
-        " expression " +
-        column.visible
-    );
-  });
+const activeChapterId = ref<string>("_scroll_to_top");
+const sections = useSections(metadata, activeChapterId, errorMap);
 
-const activeChapterId: Ref<string | null> = ref(null);
-const chapters = computed(() => {
-  return metadata.columns.reduce((acc, column) => {
-    if (column.columnType === "HEADING") {
-      acc.push({
-        label: column.label,
-        id: column.id,
-        columns: [],
-        isActive: column.id === activeChapterId.value,
-        errorCount: 0,
-      });
-    } else {
-      if (acc.length === 0) {
-        acc.push({
-          label: "_top",
-          id: "_scroll_to_top",
-          columns: [],
-          isActive: "_scroll_to_top" === activeChapterId.value,
-          errorCount: 0,
-        });
-      }
-      acc[acc.length - 1].columns.push(column);
-      if (errorMap[column.id]) acc[acc.length - 1].errorCount++;
-    }
-    return acc;
-  }, [] as (IFormLegendSection & { columns: IColumn[] })[]);
-});
+function scrollTo(elementId: string) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.scrollIntoView();
+  }
+}
 </script>
 <template>
   <Container>
@@ -97,20 +54,27 @@ const chapters = computed(() => {
         >
       </template>
     </PageHeader>
-    <section class="flex flex-row min-w-full">
-      <FormLegend :sections="chapters" class="pr-20 mr-5" />
+    <section class="grid grid-cols-4 gap-3">
+      <div class="col-span-1">
+        <FormLegend
+          v-if="sections"
+          class="pr-20 mr-5 sticky top-0"
+          :sections="sections"
+          @goToSection="scrollTo($event)"
+        />
+      </div>
 
-      <FormFields
-        class="grow"
-        id="row-edit-sample"
-        schemaId="row-edit-sample"
-        :metadata="metadata"
-        :chapters="chapters"
-        :visibleMap="visibleMap"
-        :errorMap="errorMap"
-        :activeChapterId="activeChapterId"
-        v-model="formValues"
-      />
+      <div id="row-edit-field-container" class="col-span-3 border p-10">
+        <FormFields
+          class="px-32 pt-16"
+          schemaId="row-edit-sample"
+          :metadata="metadata"
+          :sections="sections"
+          v-model:errors="errorMap"
+          v-model="formValues"
+          @update:active-chapter-id="activeChapterId = $event"
+        />
+      </div>
     </section>
   </Container>
 </template>

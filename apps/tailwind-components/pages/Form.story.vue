@@ -2,15 +2,12 @@
 import type {
   columnId,
   columnValue,
-  IColumn,
   IFieldError,
-  IFormLegendSection,
   ISchemaMetaData,
 } from "../../metadata-utils/src/types";
 import { useRoute } from "#app/composables/router";
 import type { FormFields } from "#components";
 import Legend from "~/components/form/Legend.vue";
-import { isColumnVisible } from "../../molgenis-components/src/components/forms/formUtils/formUtils";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -33,7 +30,6 @@ if (route.query.rowIndex) {
 const numberOfRows = ref(0);
 const formFields = ref<InstanceType<typeof FormFields>>();
 const formValues = ref<Record<string, columnValue>>({});
-const errors = ref<Record<string, IFieldError[]>>({});
 
 const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   key: "schemas",
@@ -48,11 +44,9 @@ const schemaIds = computed(
       .map((s) => s.id) ?? []
 );
 
-const {
-  data: schemaMeta,
-  refresh,
-  status,
-} = await useAsyncData("form sample", () => fetchMetadata(schemaId.value));
+const { data: schemaMeta, refresh } = await useAsyncData("form sample", () =>
+  fetchMetadata(schemaId.value)
+);
 
 async function getNumberOfRows() {
   const resp = await $fetch(`/${schemaId.value}/graphql`, {
@@ -81,15 +75,17 @@ const schemaTablesIds = computed(() =>
   (schemaMeta.value as ISchemaMetaData)?.tables.map((table) => table.id)
 );
 
-const tableMeta = computed(() => {
-  return schemaMeta.value === null
-    ? null
-    : schemaMeta.value.tables.find((table) => table.id === tableId.value);
+const metadata = computed(() => {
+  const tableMetadata = (schemaMeta.value as ISchemaMetaData)?.tables.find(
+    (table) => table.id === tableId.value
+  );
+  if (!tableMetadata) {
+    throw new Error(
+      `Table ${tableId.value} not found in schema ${schemaId.value}`
+    );
+  }
+  return tableMetadata;
 });
-
-function onErrors(newErrors: Record<string, IFieldError[]>) {
-  errors.value = newErrors;
-}
 
 watch(
   () => schemaId.value,
@@ -149,134 +145,60 @@ watch(
 );
 
 const numberOfFieldsWithErrors = computed(
-  () => Object.values(errorMap).filter((value) => value).length
+  () => Object.values(errorMap.value).filter((error) => error.length > 0).length
 );
 
 const numberOfRequiredFields = computed(() =>
-  tableMeta.value
-    ? tableMeta.value.columns.filter((column) => column.required).length
+  metadata.value !== null
+    ? metadata.value?.columns.filter((column) => column.required).length
     : 0
 );
 
 const numberOfRequiredFieldsWithData = computed(() =>
-  tableMeta.value
-    ? tableMeta.value.columns.filter(
+  metadata.value !== null
+    ? metadata.value?.columns.filter(
         (column) => column.required && formValues.value[column.id]
       ).length
     : 0
 );
 
-const visibleMap = reactive<Record<columnId, boolean>>({});
+const activeChapterId = ref<string>("_scroll_to_top");
+const errorMap = ref<Record<columnId, string>>({});
 
-//initialize visibility for headers
-if (tableMeta.value) {
-  tableMeta.value.columns
-    .filter((column) => column.columnType === "HEADING")
-    .forEach((column) => {
-      if (tableMeta.value) {
-        logger.debug(
-          isColumnVisible(column, formValues.value, tableMeta.value)
-        );
-      }
-      visibleMap[column.id] =
-        !column.visible ||
-        (tableMeta.value &&
-          isColumnVisible(column, formValues.value, tableMeta.value))
-          ? true
-          : false;
-      logger.debug(
-        "check heading " +
-          column.id +
-          "=" +
-          visibleMap[column.id] +
-          " expression " +
-          column.visible
-      );
-    });
+function setActive(id: string) {
+  activeChapterId.value = id;
 }
 
-function checkVisibleExpression(column: IColumn) {
-  if (
-    !column.visible ||
-    isColumnVisible(column, formValues.value, tableMeta.value!)
-  ) {
-    visibleMap[column.id] = true;
-  } else {
-    visibleMap[column.id] = false;
-  }
-  logger.debug(
-    "checking visibility of " + column.id + "=" + visibleMap[column.id]
-  );
-}
-
-function goToSection(headerId: string) {
-  //requires all elements before id to have check visibility so we know their sizes
-  //todo: loading animation this might take while
-  //todo: next to visibility we also need to wait until all have retrieved options or ensure refs have fixed size
-  if (!tableMeta.value) return;
-  for (let i = 0; i < tableMeta.value.columns.length; i++) {
-    const column = tableMeta.value.columns[i];
-    if (visibleMap[column.id] === undefined) checkVisibleExpression(column);
-    if (column.id === "forms-story") break;
-  }
-  scrollToElementInside("forms-story" + "-fields-container", headerId);
-}
-
-const errorMap = reactive<Record<columnId, string>>({});
-
-const activeChapterId: Ref<string | null> = ref(null);
-
-const chapters = computed(() => {
-  return tableMeta.value?.columns.reduce((acc, column) => {
-    if (column.columnType === "HEADING") {
-      acc.push({
-        label: column.label,
-        id: column.id,
-        columns: [],
-        isActive: column.id === activeChapterId.value,
-        errorCount: 0,
-      });
-    } else {
-      if (acc.length === 0) {
-        acc.push({
-          label: "_top",
-          id: "_scroll_to_top",
-          columns: [],
-          isActive: "_scroll_to_top" === activeChapterId.value,
-          errorCount: 0,
-        });
-      }
-      acc[acc.length - 1].columns.push(column);
-      if (errorMap[column.id]) acc[acc.length - 1].errorCount++;
-    }
-    return acc;
-  }, [] as (IFormLegendSection & { columns: IColumn[] })[]);
-});
+const sections = useSections(metadata, activeChapterId, errorMap);
 </script>
 
 <template>
   <div class="flex flex-row">
-    <div class="p-8 border-l grow flex flex-row">
+    <div class="p-8 grow flex flex-row">
       <Legend
-        v-if="chapters"
-        :sections="chapters"
-        @goToSection="goToSection"
+        v-if="sections?.length"
+        :sections="sections"
+        @goToSection="
+          scrollToElementInside('forms-story-fields-container', $event)
+        "
         class="pr-2 mr-4"
       />
-      <FormFields
-        id="forms-story"
-        class="grow"
-        v-if="chapters && tableMeta"
-        ref="formFields"
-        :schemaId="schemaId"
-        :metadata="tableMeta"
-        :chapters="chapters"
-        :visibleMap="visibleMap"
-        :errorMap="errorMap"
-        :activeChapterId="activeChapterId"
-        v-model="formValues"
-        @error="onErrors($event)"
-      />
+      <div
+        id="forms-story-fields-container"
+        class="grow h-screen overflow-y-scroll border p-10"
+      >
+        <FormFields
+          id="forms-story"
+          class="grow"
+          ref="formFields"
+          :schemaId="schemaId"
+          :sections="sections"
+          :metadata="metadata"
+          v-model:errors="errorMap"
+          v-model="formValues"
+          @update:active-chapter-id="setActive"
+        />
+      </div>
     </div>
     <div class="ml-2 h-screen">
       <h2>Demo controls, settings and status</h2>
@@ -329,8 +251,8 @@ const chapters = computed(() => {
           </div>
         </div>
 
-        <div class="mt-4 flex flex-row">
-          <div v-if="Object.keys(formValues).length" class="basis-1/2">
+        <div class="mt-4">
+          <div v-if="Object.keys(formValues).length">
             <h3 class="text-label">Values</h3>
             <dl class="flex flex-col">
               <template v-for="(value, key) in formValues">
@@ -341,11 +263,14 @@ const chapters = computed(() => {
               </template>
             </dl>
           </div>
-          <div v-if="Object.keys(errors).length" class="basis-1/2">
+          <div>
+            <div>number of error: {{ numberOfFieldsWithErrors }}</div>
+          </div>
+          <div v-if="Object.keys(errorMap).length">
             <h3 class="text-label">Errors</h3>
 
             <dl class="flex flex-col">
-              <template v-for="(value, key) in errors">
+              <template v-for="(value, key) in errorMap">
                 <dt class="font-bold">{{ key }}:</dt>
                 <dd v-if="value.length" class="ml-1">{{ value }}</dd>
               </template>
