@@ -1,7 +1,7 @@
 # MOLGENIS Catalogue Guide
 
 We are highly motivated to promote multi-centre human data analysis to improve people's health, linking data from many
-local institutions into networks, optionally by mapping data to common data models, for use in new research. To **find** the data we developed
+local institutions into networks, optionally by mapping data to common data models, for use in new research. To find the data we developed
 a [catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/). Here you can find the
 metadata of the cohorts and the common data model.
 
