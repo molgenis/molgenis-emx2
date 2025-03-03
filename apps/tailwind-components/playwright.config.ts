@@ -15,16 +15,22 @@ export default defineConfig<ConfigOptions>({
   reporter: process.env.CI ? [['list'],
   ['junit', { outputFile: 'results.xml' }]
   ] : 'html',
+  webServer: {
+    command: 'yarn dev', // Start the dev server
+    url: 'http://localhost:3000', // Adjust if your app runs on a different port
+    timeout: 120 * 1000, // Wait up to 2 minutes for the server
+    reuseExistingServer: true, // Reuse local server if already running
+  },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.E2E_BASE_URL || "http://localhost:3000/", // change to specific http://localhost:*/, preview, etc.
+    baseURL: "http://localhost:3000/", // change to specific http://localhost:*/, preview, etc.
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     nuxt: {
       // @ts-ignore
-      host: process.env.E2E_BASE_URL || "http://localhost:3000/",
+      host: "http://localhost:3000/",
       build: false
     }
   },

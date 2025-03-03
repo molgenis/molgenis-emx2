@@ -9,6 +9,13 @@ export default defineConfig<PlaywrightTestConfig>({
   reporter: process.env.CI ? [['list'],
   ['junit', { outputFile: 'results.xml' }]
   ] : 'html',
+  /* Start dev server if needed */
+  webServer: {
+    command: 'yarn dev',
+    url: 'http://localhost:5173',
+    timeout: 120 * 1000,
+    reuseExistingServer: true,
+  },
   use: {
     baseURL: process.env.E2E_BASE_URL || "http://localhost:5173/", // change to specific http://localhost:*/, preview, etc.
     trace: 'on-first-retry',
