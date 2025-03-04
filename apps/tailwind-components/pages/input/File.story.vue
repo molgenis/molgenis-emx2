@@ -25,5 +25,5 @@
 
 <script setup lang="ts">
 import type { columnValueObject } from "../../../metadata-utils/src/types";
-const file = ref<columnValueObject>();
+const file = ref<columnValueObject | null>();
 </script>
