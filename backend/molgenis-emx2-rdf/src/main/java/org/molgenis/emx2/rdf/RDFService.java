@@ -627,7 +627,7 @@ public class RDFService {
           }
         }
       } else {
-        keyParts.put(column.getIdentifier(), row.get(column).toString());
+        keyParts.put(column.getName(), row.get(column).toString());
       }
     }
     final Namespace ns = getSchemaNamespace(baseURL, metadata.getRootTable().getSchema());
