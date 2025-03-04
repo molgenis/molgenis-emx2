@@ -1,27 +1,2 @@
-resource,id,name,pid
-RD3,ERN Board of Member States,ERN Board of Member States,https://ror.org/00r7apq26
-RD3,European Commission,European Commission,https://ror.org/00k4n6c32
-RD3,ERN BOND,ERN BOND,https://ror.org/04crk2m06
-RD3,ERN CRANIO,ERN CRANIO,https://ror.org/032gggv33
-RD3,Endo-ERN,Endo-ERN,https://ror.org/05s4nk876
-RD3,ERN EpiCARE,ERN EpiCARE,https://ror.org/0214h3370
-RD3,ERKNet,ERKNet,https://ror.org/04x2ddb07
-RD3,ERN-RND,ERN-RND,https://ror.org/05a27za87
-RD3,ERNICA,ERNICA,https://ror.org/02h9n4675
-RD3,ERN LUNG,ERN LUNG,https://ror.org/0279ntc65
-RD3,ERN Skin,ERN Skin,https://ror.org/0446wcg70
-RD3,ERN EURACAN,ERN EURACAN,https://ror.org/01rq5e797
-RD3,ERN EuroBloodNet,ERN EuroBloodNet,https://ror.org/04dng8q18
-RD3,ERN eUROGEN,ERN eUROGEN,https://ror.org/00y7tet25
-RD3,ERN EURO-NMD,ERN EURO-NMD,https://ror.org/04x3ta798
-RD3,ERN EYE,ERN EYE,https://ror.org/029nm1m14
-RD3,ERN GENTURIS,ERN GENTURIS,https://ror.org/03pbpa834
-RD3,ERN ITHACA,ERN ITHACA,https://ror.org/03va0yq34
-RD3,MetabERN,MetabERN,https://ror.org/00xdsr520
-RD3,ERN PaedCan,ERN PaedCan,https://ror.org/02dk8t214
-RD3,ERN RARE-LIVER,ERN RARE-LIVER,https://ror.org/036e61f39
-RD3,ERN ReCONNET,ERN ReCONNET,https://ror.org/04069k268
-RD3,ERN RITA,ERN RITA,https://ror.org/0208ges23
-RD3,ERN TRANSPLANT-CHILD,ERN TRANSPLANT-CHILD,https://ror.org/04rr75245
-RD3,VASCERN,VASCERN,https://ror.org/005pygq66
-RD3,UMCG,UMCG,https://ror.org/03cv38k47
+resource,id,name,defintion,codesystem,code,ontologyTermURI,country,city,latitude,longitude,website,pid
+Solve-RD,UMCG,UMCG,University Medical Center Groningen,ROR,ROR:03cv38k47,https://ror.org/03cv38k47,Netherlands (the),Groningen,53.21917,6.56667,https://www.umcg.nl/,https://ror.org/03cv38k47

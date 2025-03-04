@@ -1,0 +1,19 @@
+pedigree,individual,relative,relation
+Case1,Case1C,Case1C,Patient
+Case1,Case1F,Case1C,Biological Father
+Case1,Case1M,Case1C,Biological Mother
+Case2,Case2C,Case2C,Patient
+Case2,Case2F,Case2C,Biological Father
+Case2,Case2M,Case2C,Biological Mother
+Case3,Case3C,Case3C,Patient
+Case3,Case3F,Case3C,Biological Father
+Case3,Case3M,Case3C,Biological Mother
+Case4,Case4C,Case4C,Patient
+Case4,Case4F,Case4C,Biological Father
+Case4,Case4M,Case4C,Biological Mother
+Case5,Case5C,Case5C,Patient
+Case5,Case5F,Case5C,Biological Father
+Case5,Case5M,Case5C,Biological Mother
+Case6,Case6C,Case6C,Patient
+Case6,Case6F,Case6C,Biological Father
+Case6,Case6M,Case6C,Biological Mother
