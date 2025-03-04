@@ -35,7 +35,7 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | 14 | Remove ‘asthma’ from the search bar at the top. | The original list of 2249 variables is displayed. | | |
 | 15 | On the left hand side, expand Topics, press Search for options | Drop-down with topics is displayed | | |
 | 16 | Type ‘lang’ in the search bar in the drop-down | List of topics is reduced to those highest-level topics including the letters ‘lang’ either in their name or in the hover text (whether in subtopics or highest-level topic itself)| | |
-| 17 | Find ‘Language’ under ‘Socio-demographic and economic characteristics’ and select that. | Subtopic Language and topic Socio-demographic and economic characteristics are both selected. 12 variables are displayed  (8 existing vars + 4 test vars with keyword Language) | | |
+| 17 | Find ‘Language’ under ‘Socio-demographic and economic characteristics’ and select that. | Subtopic Language is selected and topic Socio-demographic and economic characteristics is half-selected. 12 variables are displayed  (8 existing vars + 4 test vars with keyword Language) | | |
 | 18 | Toggle back to ‘List of Variables’| The same variables are displayed in a list. | | |
 | 19 | Add ‘adhd’ in the search bar | 1 variable is displayed (only variables which match both criteria, i.e. testVarNoRepeats)| | |
 | 20 | Delete ‘adhd’ in the search bar | List returns to 12 variables (just language now – 8 + 4 test vars)| | |
