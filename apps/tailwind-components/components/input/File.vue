@@ -9,7 +9,7 @@
       'bg-disabled cursor-not-allowed': disabled,
       'bg-input border-input': !disabled,
     }"
-    @click="onFileInputClick"
+    @click="onInputClick"
   >
     <div class="grow">
       <button
@@ -55,7 +55,7 @@
         class="sr-only"
         type="file"
         :disabled="disabled"
-        @change="onChange"
+        @input="onFileInput"
         @focus="$emit('focus')"
         @blur="$emit('blur')"
       />
@@ -83,23 +83,26 @@ function showFileInput() {
   fileInputElem.value?.click();
 }
 
-function onFileInputClick(event: Event) {
+function onInputClick(event: Event) {
   const target = event.target as Node;
   const isRefElemNode =
     selectedFileButton.value?.contains(target) ||
     selectedFileButton.value === target;
 
   if (isRefElemNode) {
+    console.log(target, 'resetting modelValue')
     resetModelValue();
   } else {
+    console.log(target,"opening file chooser")
     showFileInput();
   }
 }
 
-function onChange(event: Event) {
-  const files = (event.target as HTMLInputElement)?.files;
-  if (files) {
-    const file = files.item(0) as File;
+function onFileInput(event: Event) {
+  const files = (event.target as HTMLInputElement)?.files as FileList;
+  console.log(files)
+  if (files.length) {
+    const file = files?.item(0) as File;
     modelValue.value = {
       filename: file.name,
       size: file.size,
