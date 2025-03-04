@@ -8,13 +8,13 @@ tailored to your research needs.
 Entering the catalogue, you can search all harmonised variables
 by clicking `ALL VARIABLES` in the menu.
 
-![Go to the variable explorer or a project page](../img/cat-homepage-variables.png)
+![Go to the variable explorer or a project page](../img/cat_homepage-variables.png)
 
 Alternatively, you can choose to only view the harmonised variables within a particular project,
 such as the EUChildNetwork or LifeCycle. For the latter, first go to the project you are interested in
 and then click `VARIABLES`.
 
-![Go to the project variable explorer](../img/cat-project-variables.png)
+![Go to the project variable explorer](../img/cat_project-variables.png)
 
 Please note that the catalogue only describes the harmonised variables,
 it does **not** contain the actual data values.
@@ -27,7 +27,7 @@ Additionally, you can filter on topics to find relevant variables.
 You can also make a selection of sources so that only variables
 which have mappings to these sources are shown.
 
-![Variable explorer with search](../img/cat-variables-search-bar.png)
+![Variable explorer with search](../img/cat_variables-search-bar.png)
 
 *In the future you will be able to use a shopping cart to select all variables of interest and create an overview.*
 
@@ -43,4 +43,4 @@ By clicking on a variable of interest (here `dia_bf`), a detailed harmonisation 
 of that particular variable is displayed, containing both the harmonisation status per source and
 further details about the harmonisation like source variables and harmonisation syntax.
 
-![Variable detail view](../img/cat-detailed-harmonised-variable-view.png)
+![Variable detail view](../img/cat_detailed-harmonised-variable-view.png)
