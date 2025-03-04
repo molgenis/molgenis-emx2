@@ -1,0 +1,2 @@
+resource,id,name,defintion,codesystem,code,ontologyTermURI,country,city,latitude,longitude,website,pid
+Solve-RD,UMCG,UMCG,University Medical Center Groningen,ROR,ROR:03cv38k47,https://ror.org/03cv38k47,Netherlands (the),Groningen,53.21917,6.56667,https://www.umcg.nl/,https://ror.org/03cv38k47
