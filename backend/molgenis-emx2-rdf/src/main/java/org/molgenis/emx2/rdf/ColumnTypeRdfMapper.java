@@ -132,6 +132,12 @@ public class ColumnTypeRdfMapper {
         return basicRetrievalString(row.getStringArrayPreserveDelimiter(column), Values::literal);
       }
     },
+    TEXT(CoreDatatype.XSD.STRING) {
+      @Override
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+        return basicRetrievalString(row.getStringArrayPreserveDelimiter(column), Values::literal);
+      }
+    },
     INT(CoreDatatype.XSD.INT) {
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {

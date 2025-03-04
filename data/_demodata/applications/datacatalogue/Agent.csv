@@ -1,3 +1,3 @@
-name,logo
-MOLGENIS,https://molgenis.org/assets/img/logo_green.png
-UMCG,https://www.umcg.nl/o/umcg-website-theme/images/desktop-umcg-logo.webp
+name,logo,url,mbox
+MOLGENIS,https://molgenis.org/assets/img/logo_green.png,https://molgenis.org,molgenis-support@umcg.nl
+UMCG,https://www.umcg.nl/o/umcg-website-theme/images/desktop-umcg-logo.webp,https://www.umcg.nl,info@umcg.nl

@@ -57,7 +57,7 @@
     dash:editor dash:URIEditor ;
     dash:viewer dash:LabelViewer ;
   ],  [
-    sh:path dct:keyword ;
+    sh:path dcat:keyword ; # FIX: 'keyword' is a DCAT term (prefix: dcat), instead of a Dublin Core term (prefix: dct)
     sh:name "Keywords" ;
     sh:nodeKind sh:Literal ;
     sh:minCount 1 ;
