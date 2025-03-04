@@ -106,7 +106,9 @@ Columns with an asterisk (\*) after their name are mandatory.
 | since version | Version of the data model when this dataset was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this dataset was deleted | e.g. 2.0.0 or 2.1 |
 
-_Table 1. Description of the columns that can be filled out for Datasets. \* = mandatory; 1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Keywords, Observation targets or Dataset types_
+_Table 1. Description of the columns that can be filled out for Datasets.
+\* = mandatory; 1 = contact [*molgenis support*](mailto:support@molgenis.org)
+to add Keywords, Observation targets or Dataset types_
 
 ### *Variables* sheet
 
