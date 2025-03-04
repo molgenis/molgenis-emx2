@@ -1,20 +1,24 @@
 # Resource data manager
 
-[MOLGENIS catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#) provides a
-framework to describe in detail: metadata of different data resources, such as cohorts and data sources; definitions of
-the variables collected in these resources; and mappings to common data models. Its purpose is to provide a gateway to
-find and access health research data and to facilitate pooled data analysis of multiple cohorts
-[Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/) and multi-data source studies
-[Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
+The [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/) provides a
+framework for detailed descriptions of the following:
+metadata of different types of data sources, such as cohort studies and biobanks;
+definitions of the variables collected in these resources;
+and mappings of these variables to common data models.
+Its purpose is to provide a gateway for finding and accessing health research data
+and to facilitate pooled data analysis of multiple cohorts ([Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/))
+and multi-data source studies ([Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/)).
 
-- The metadata of data resources include descriptive information such as contact details, name of the resource, a high-level
-  summary of contents and design, and access and use conditions.
-- The metadata of the source variables can be considered the codebook or data
-  dictionary of a cohort or other data resource (e.g. ALSPAC) and
-  of the tables which make up a data source's data bank(s) (e.g. the Danish Healthcare Registries).
-- Similarly, the common data models (or 'target variables') can be considered the codebook for a network of organisations
-  with access to cohorts or data sources (e.g. LifeCycle or ConcePTION)
-- The mappings describe how source variables have been converted into target variables as a basis for integrated analysis.
+The metadata of data sources consists of high-level descriptive information, such as contact details,
+contents and design, and access and usage conditions.
+In addition, the definitions of the source variables of a resource
+(e.g. a cohort study like [ALSPAC](https://data-catalogue.molgeniscloud.org/catalogue/ssr-catalogue/all/collections/ALSPAC))
+can be considered its codebook or data dictionary.
+Similarly, the common data models (or 'target variables') can be considered the codebook for a network of organisations
+with access to multiple data sources
+(e.g. [LifeCycle](https://data-catalogue.molgeniscloud.org/catalogue/ssr-catalogue/LifeCycle/variables)).
+Combining these two, the variable mappings describe how source variables have been converted into target variables,
+which can be used as a basis for integrated analysis.
 
 ## Data harmonisation
 
@@ -29,7 +33,7 @@ The metadata of the cohort or of the data source are first uploaded into what ar
 catalogue. Later on the metadata are transferred to production; use of a staging area allows for review before the
 metadata are entered in the live catalogue.
 
-You will need credentials to log in and upload metadata. Contact us at [molgenis support](mailto:support@molgenis.org)
+You will need credentials to log in and upload metadata. Contact us at [support@molgenis.org](mailto:support@molgenis.org)
 to receive credentials.
 
 Cohorts in projects such as ATHLETE, IPEC and LongITools use
