@@ -45,7 +45,7 @@
           'hover:bg-button-primary hover:text-button-primary cursor-pointer':
             !disabled,
         }"
-        @click="showFileInput"
+        :disabled="disabled"
       >
         <span>Browse</span>
       </button>
@@ -79,6 +79,10 @@ function resetModelValue() {
   modelValue.value = null;
 }
 
+function blurFileInput() {
+  fileInputElem.value?.blur();
+}
+
 function showFileInput() {
   fileInputElem.value?.click();
 }
@@ -90,17 +94,15 @@ function onInputClick(event: Event) {
     selectedFileButton.value === target;
 
   if (isRefElemNode) {
-    console.log(target, 'resetting modelValue')
     resetModelValue();
   } else {
-    console.log(target,"opening file chooser")
     showFileInput();
   }
 }
 
 function onFileInput(event: Event) {
   const files = (event.target as HTMLInputElement)?.files as FileList;
-  console.log(files)
+  console.log(files);
   if (files.length) {
     const file = files?.item(0) as File;
     modelValue.value = {
