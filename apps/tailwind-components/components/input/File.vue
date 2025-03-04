@@ -79,10 +79,6 @@ function resetModelValue() {
   modelValue.value = null;
 }
 
-function blurFileInput() {
-  fileInputElem.value?.blur();
-}
-
 function showFileInput() {
   fileInputElem.value?.click();
 }
