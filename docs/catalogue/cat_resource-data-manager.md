@@ -1,7 +1,5 @@
 # Resource data manager
 
-## MOLGENIS catalogue
-
 [MOLGENIS catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#) provides a
 framework to describe in detail: metadata of different data resources, such as cohorts and data sources; definitions of 
 the variables collected in these resources; and mappings to common data models. Its purpose is to provide a gateway to 
@@ -18,14 +16,14 @@ find and access health research data and to facilitate pooled data analysis of m
   with access to cohorts or data sources (e.g. LifeCycle or ConcePTION)
 - The mappings describe how source variables have been converted into target variables as a basis for integrated analysis.
 
-### Data harmonisation
+## Data harmonisation
 
 Each organisation with access to data (which may be a cohort, or a data source composed of one or more data banks)
 harmonises their data according to the consortium’s protocols into a common data model (CDM) format which has been
 centrally agreed upon. In some projects, data may be made available via [DataSHIELD](https://www.datashield.org/). 
 In these cases each resource stores the data locally in a [MOLGENIS Armadillo](/#/armadillo/) DataSHIELD server.
 
-### Staging areas for uploads
+## Staging areas for uploads
 
 The metadata of the cohort or of the data source are first uploaded into what are called "staging areas" of the MOLGENIS 
 catalogue. Later on the metadata are transferred to production; use of a staging area allows for review before the 
@@ -51,7 +49,7 @@ When you log in, you will be able to see at least the following databases:
 
 <sup>*Figure 1. Databases in the MOLGENIS catalogue staging area.*</sup>
 
-### Fill out rich metadata
+## Fill out rich metadata
 
 Open your staging area, navigate to 'Tables' and open the table 'Resources'. Your resource id and name are already 
 filled out. Click on the pencil sign next to this entry to start editing your rich metadata by filling out 
@@ -59,7 +57,7 @@ the form. For cohort studies 'Subcohorts' and 'Collection events' should also be
 You can later refer to them from columns in the dictionary templates to indicate which variables were collected 
 during which collection event.
 
-### Define codebooks or data dictionaries
+## Define codebooks or data dictionaries
 
 This section explains how to submit 'source variables' + 'mappings from source variables to target variables' into
 MOLGENIS catalogue. Expected users of this 'how to' are data managers within the organisations with access to cohorts or
@@ -67,7 +65,7 @@ data sources. This document assumes you have received login details for upload o
 this [*instruction video*](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS). Note that this video used 
 dictionary model version 2.x, which was updated to 4.x. The basic principles remain the same, but column names vary between these versions.
 
-#### Define source variable metadata / source data dictionary
+### Define source variable metadata / source data dictionary
 
 We use the [*SourceDictionary template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceDictionary.xlsx)
 to define variable metadata. The [*SourceDictionary
@@ -88,7 +86,7 @@ upload the metadata to the catalogue see the section [Upload metadata](cat_resou
 via the templates, some are filled via an online form, see section 
 [Fill out rich metadata](cat_resource-data-manager.md#fill-out-rich-metadata).*</sup>
 
-#### *Datasets* sheet
+### *Datasets* sheet
 
 The datasets/tables for a resource, such as a cohort or databank of a data source are defined in the *Datasets* sheet. 
 Columns with an asterisk (\*) after their name are mandatory.
@@ -109,7 +107,7 @@ Columns with an asterisk (\*) after their name are mandatory.
 <sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Keywords, Observation targets or Dataset types</sup>
 
 
-#### *Variables* sheet
+### *Variables* sheet
 
 The variables of the datasets specified in the *Datasets* sheet are defined in the *Variables* sheet.
 
@@ -138,7 +136,7 @@ The variables of the datasets specified in the *Datasets* sheet are defined in t
 <sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory; 
 1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Vocabularies, Keywords, Repeat units, or Units</sup>
 
-#### *Variable values* sheet
+### *Variable values* sheet
 
 The coding of categorical variables is defined in the *Variable values* sheet. This sheet is optional, but it is
 highly recommended to fill out the codes and values for your categorical variables, so that your data becomes more
@@ -158,7 +156,7 @@ insightful for those that are interested.
 
 <sup>Table 3. Description of the columns that can be filled out for Variable values. * = mandatory</sup>
 
-#### Define harmonisations
+### Define harmonisations
 
 We use the [*Mappings* template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings.xlsx) to
 describe the harmonisations. The 
@@ -169,7 +167,7 @@ You can download this
 [*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings_testCohort.xlsx)
 as a reference for filling out the template.
 
-#### *Dataset mappings* sheet
+### *Dataset mappings* sheet
 
 Harmonisation procedures at the table level are defined in the *Dataset mappings* sheet, irrespective of whether the table
 is in a cohort or in a data bank.
@@ -185,7 +183,7 @@ target dataset \* | Target dataset name | Map to a dataset that is defined in a 
 
 <sup>Table 4. Description of the columns that can be filled out for Variable mappings. * = mandatory</sup>
 
-#### *Variable mappings* sheet
+### *Variable mappings* sheet
 
 Harmonisation procedures at the variable level are defined in the *Variable mappings* sheet.
 
@@ -208,7 +206,7 @@ Harmonisation procedures at the variable level are defined in the *Variable mapp
 [*example template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings_testCohort.xlsx)
 for an example on how to fill this out (last line) </sup> 
 
-### Upload metadata
+## Upload metadata
 
 When you have filled out the template(s) you can start uploading metadata. When you log in to 
 [*MOLGENIS catalogue*](https://data-catalogue.molgeniscloud.org/apps/central/#/) 
@@ -218,13 +216,13 @@ uploading, you can view your metadata under 'Tables'.
 
 Please report any bugs or difficulties to [*molgenis support*](mailto:support@molgenis.org).
 
-#### Find harmonisations
+### Find harmonisations
 
 When your data is uploaded to the Data Catalogue you can find your own harmonised variables in variable details in the 
 [Harmonised variable explorer](https://data-catalogue.molgeniscloud.org/apps/docs/#/catalogue/cat_researcher)
 once they have been transferred there. 
 
-#### Request access (catalogue)
+### Request access (catalogue)
 
 If you do not have an account to upload data to the catalogue yet, please
 email [*molgenis support*](mailto:support@molgenis.org) to apply for an account.
