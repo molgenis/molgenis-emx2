@@ -98,7 +98,7 @@ function onInputClick(event: Event) {
 
 function onFileInput(event: Event) {
   const files = (event.target as HTMLInputElement)?.files as FileList;
-  console.log(files);
+
   if (files.length) {
     const file = files?.item(0) as File;
     modelValue.value = {
