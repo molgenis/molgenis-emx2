@@ -1,4 +1,4 @@
-# Data manager of a data resource
+# Resource data manager
 
 ## MOLGENIS catalogue
 
@@ -80,13 +80,13 @@ upload. You can download this
 as a reference for filling out the template.
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds. To
-upload the metadata to the catalogue see the section [Upload metadata](cat_cohort-data-manager.md#upload-metadata).
+upload the metadata to the catalogue see the section [Upload metadata](cat_resource-data-manager.md#upload-metadata).
 
 ![MOLGENIS tables in cohort catalogue](../img/cat_tables-in-cohort-catalogue.png)
 
 <sup>*Figure 2. Tables in a cohort's database in the MOLGENIS catalogue. Note that not all tables are filled out 
 via the templates, some are filled via an online form, see section 
-[Fill out rich metadata](cat_cohort-data-manager.md#fill-out-rich-metadata).*</sup>
+[Fill out rich metadata](cat_resource-data-manager.md#fill-out-rich-metadata).*</sup>
 
 #### *Datasets* sheet
 
