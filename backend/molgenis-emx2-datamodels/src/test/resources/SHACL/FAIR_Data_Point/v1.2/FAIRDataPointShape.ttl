@@ -104,7 +104,7 @@
   sh:targetClass vcard:Kind ;
   sh:property [
     sh:path vcard:hasEmail ;
-    sh:nodeKind sh:IRI ; # FIX: should be IRI instead of Literal
+    sh:nodeKind sh:IRI ; # FIX: email should be an IRI instead of a Literal
     sh:maxCount 1 ;
     sh:minCount 1 ;
   ].
@@ -122,8 +122,7 @@
     sh:name "membership resource" ;
     sh:description "" ;
     sh:path ldp:membershipResource ;
-    sh:nodeKind sh:IRI ; # FIX: changed nodeKind from fdp-o:FAIRDataPoint to IRI
-    sh:class fdp-o:FAIRDataPoint ; # FIX: added class constraint fdp-o:FAIRDataPoint
+    sh:class fdp-o:FAIRDataPoint ;
     sh:maxCount 1 ;
     sh:minCount 1 ;
   ], [
@@ -131,7 +130,7 @@
     sh:description "The predicate used in the metadata to relate the FAIR Data Point with its member catalogs." ;
     sh:path ldp:hasMemberRelation ;
     sh:nodeKind sh:IRI ; # FIX: changed nodeKind from fdp-o:metadataCatalog to IRI
-    sh:hasValue <https://w3id.org/fdp/fdp-o#metadataCatalog> ; # FIX: added value check for 'metadataCatalog' here
+    sh:hasValue <https://w3id.org/fdp/fdp-o#metadataCatalog> ; # FIX: added value check for 'metadataCatalog' here, as required by FDP 1.2 specs
     sh:maxCount 1 ;
     sh:minCount 1 ;
   ], [

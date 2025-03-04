@@ -94,7 +94,7 @@
   sh:targetClass vcard:Kind ;
   sh:property [
     sh:path vcard:hasEmail ;
-    sh:nodeKind sh:IRI ; # FIX: should be IRI instead of Literal
+    sh:nodeKind sh:IRI ; # FIX: email should be an IRI instead of a Literal
     sh:maxCount 1 ;
     sh:minCount 1 ;
   ].
