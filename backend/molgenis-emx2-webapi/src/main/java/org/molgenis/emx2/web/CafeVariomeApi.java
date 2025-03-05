@@ -23,11 +23,20 @@ import org.molgenis.emx2.cafevariome.CafeVariomeQuery;
 import org.molgenis.emx2.cafevariome.QueryRecord;
 import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
 import org.molgenis.emx2.cafevariome.response.RecordResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CafeVariomeApi {
 
   private static MolgenisSessionManager sessionManager;
-  private static final String clientSecret = "SVTwkFLI1Oy58eHZwq4qr6lfG0FjJiAt";
+  private static final Logger logger = LoggerFactory.getLogger(CafeVariomeApi.class);
+
+  // TODO !! change these to ENV settings again !!
+  private static final String CLIENT_SECRET = "SVTwkFLI1Oy58eHZwq4qr6lfG0FjJiAt";
+  private static final String CLIENT_ID = "MolgenisAuth";
+  // TODO: get introspect URI from discover URI?
+  private static final String INTROSPECT_URI =
+      "https://auth1.molgenis.net/realms/Cafe-Variome/protocol/openid-connect/token/introspect";
 
   public static void create(Javalin app, MolgenisSessionManager sm) {
     sessionManager = sm;
@@ -42,7 +51,6 @@ public class CafeVariomeApi {
     if (!session.getDatabase().isAnonymous()) {
       return;
     }
-
     HttpClient client = HttpClient.newHttpClient();
 
     Enumeration<String> authHeaders = ctx.req().getHeaders("Authorization");
@@ -50,18 +58,16 @@ public class CafeVariomeApi {
     String accessToken = authHeader.split(" ")[1];
     String formData =
         "client_id="
-            + URLEncoder.encode("MolgenisAuth", StandardCharsets.UTF_8)
+            + URLEncoder.encode(CLIENT_ID, StandardCharsets.UTF_8)
             + "&client_secret="
-            + URLEncoder.encode(clientSecret, StandardCharsets.UTF_8)
+            + URLEncoder.encode(CLIENT_SECRET, StandardCharsets.UTF_8)
             + "&token="
             + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
 
     HttpRequest request =
         HttpRequest.newBuilder()
             .header("Content-Type", "application/x-www-form-urlencoded")
-            .uri(
-                URI.create(
-                    "https://auth1.molgenis.net/realms/Cafe-Variome/protocol/openid-connect/token/introspect"))
+            .uri(URI.create(INTROSPECT_URI))
             .POST(HttpRequest.BodyPublishers.ofString(formData))
             .build();
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -74,12 +80,11 @@ public class CafeVariomeApi {
 
     Database database = session.getDatabase();
     if (!database.hasUser(user)) {
-      //      logger.info("Add new OIDC user({}) to database", user);
+      logger.info("Add new user({}) to database", user);
       database.addUser(user);
     }
     database.setActiveUser(user);
-    //    logger.info("OIDC sign in for user: {}", user);
-
+    logger.info("Sign in for user: {}", user);
   }
 
   private static void postRecord(Context ctx) throws JsonProcessingException {
@@ -102,6 +107,8 @@ public class CafeVariomeApi {
     Map<String, List<String>> mappings = new HashMap<>();
 
     Set<FilteringTerm> filteringTermsSet = new HashSet<>();
+
+    // Reuse beacon logic
     new FilteringTerms(database)
         .getResponse()
         .getFilteringTermsFromTables(
