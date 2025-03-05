@@ -15,6 +15,18 @@ export default defineConfig<ConfigOptions>({
   reporter: process.env.CI ? [['list'],
   ['junit', { outputFile: 'results.xml' }]
   ] : 'html',
+  /* Start dev server if needed */
+  ...(process.env.CI ? {
+    webServer: {
+      command: 'yarn dev',
+      url: 'http://localhost:3000',
+      timeout: 120 * 1000,
+      reuseExistingServer: true,
+      env: {
+        NUXT_PUBLIC_API_BASE: "http://localhost:8080"
+      }
+    }
+  } : {}),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
