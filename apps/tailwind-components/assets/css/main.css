@@ -84,8 +84,8 @@
     --background-color-pagination: var(--color-blue-800);
     --background-color-pagination-hover: var(--color-blue-900);
     --background-color-pagination-input: var(--color-white);
-    --background-color-footer: var(--color-blue-800);
-    --background-color-modal-footer: var(--color-blue-800);
+    --background-color-footer: var(--color-white);
+    --background-color-modal-footer: var(--color-white);
     --background-color-tab: var(--color-blue-50);
     --background-color-tab-hover: var(--color-blue-500);
     --background-color-tab-active: var(--color-blue-500);
@@ -147,7 +147,7 @@
     --text-color-pagination-input: var(--text-color-title);
     --text-color-pagination-hover: var(--color-white);
     --text-color-pagination-button: var(--color-white);
-    --text-color-footer-link: var(--color-yellow-500);
+    --text-color-link: var(--color-blue-500);
     --text-color-listbox: var(--color-black);
     --text-color-listbox-hover: var(--color-black);
     --text-color-listbox-selected: var(--color-blue-50);
@@ -156,6 +156,7 @@
     --text-color-form-header: var(--color-blue-800);
     --text-color-input-description: var(--color-blue-800);
     --text-color-legend-error-count: var(--color-white);
+    --text-color-input: var(--color-blue-800);
     
     --text-code-output: var(--color-gray-800);
     --text-content-required: "*";
@@ -179,6 +180,7 @@
     --border-color-pagination: var(--color-transparent);
     --border-color-input-hover: var(--color-blue-500);
     --border-color-input: var(--color-gray-400);
+    --border-color-input-hover: var(--color-blue-500);
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
     --border-color-listbox-option: var(--color-gray-100);

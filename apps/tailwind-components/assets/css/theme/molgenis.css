@@ -87,7 +87,7 @@
     --text-color-pagination-inverted: var(--color-gray-400);
     --text-color-pagination-input: var(--color-blue-800);
     --text-color-pagination-hover: var(--color-white);
-    --text-color-footer-link: var(--color-yellow-500);
+    --text-color-link: var(--color-yellow-500);
     --text-color-table-column-header: var(--color-gray-600);
     
     --text-color-invalid: var(--color-red-700);
@@ -122,10 +122,6 @@
     --border-radius-search-button: 9999px;
     --border-radius-pagination: 9999px;
     --border-radius-landing: 50px;
-    
-    --border-color-invalid: var(--color-red-700);
-    --border-color-valid: var(--color-green-900);
-    --border-color-disabled: var(--color-gray-400);
 
     --outline-color-select: var(--color-gray-200);
   }
