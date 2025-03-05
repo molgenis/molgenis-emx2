@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { HarmonisationStatus, IMapping } from "~/interfaces/types";
+import type { IMapping } from "~/interfaces/types";
 
-const props = defineProps<{
+defineProps<{
   mappings: IMapping[] | undefined;
 }>();
 </script>
@@ -10,9 +10,11 @@ const props = defineProps<{
     <div>
       <ul>
         <li
-          v-for="mapping in mappings?.filter(
-            (m) => m.match && m.match.name != 'na'
-          )"
+          v-for="mapping in mappings
+            ?.filter((m) => m.match && m.match.name != 'unmapped')
+            .sort((a, b) =>
+              a.source.id.toLowerCase().localeCompare(b.source.id.toLowerCase())
+            )"
           class="pb-2"
         >
           <div class="flex items-center gap-2">
