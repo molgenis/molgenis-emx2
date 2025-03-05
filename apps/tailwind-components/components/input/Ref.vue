@@ -59,12 +59,12 @@ const selection = computed(() =>
     : (Object.keys(selectionMap.value)[0] as string)
 );
 
-onMounted(async () => {
+async function prepareModel() {
   tableMetadata.value = await fetchTableMetadata(
     props.refSchemaId,
     props.refTableId
   );
-  //first we need to retrieve all selected items so are sure we have all for the template
+
   if (
     modelValue.value && Array.isArray(modelValue.value)
       ? modelValue.value.length > 0
@@ -73,20 +73,54 @@ onMounted(async () => {
     const data: ITableDataResponse = await fetchTableData(
       props.refSchemaId,
       props.refTableId,
-      { filter: { equals: modelValue.value } }
+      { filter: { equals: extractPrimaryKey(modelValue.value) } }
     );
     if (data.rows) {
       hasNoResults.value = false;
-      data.rows?.forEach(
+      data.rows.forEach(
         (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
       );
     }
   }
 
-  //then we load the options for the first time
   await loadOptions({ limit: props.limit });
   initialCount.value = count.value;
-});
+}
+
+watch(
+  () => props.refSchemaId,
+  () => prepareModel
+);
+watch(
+  () => props.refTableId,
+  () => prepareModel
+);
+
+// the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
+// todo: move the options fetch to the outside of the component and pass it as a (synchronous) prop
+watch(
+  () => modelValue.value,
+  () => {
+    if (props.isArray === false) {
+      delete selectionMap.value[Object.keys(selectionMap.value)[0]];
+      if (modelValue.value) {
+        selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
+          modelValue.value;
+      }
+    } else {
+      selectionMap.value = {};
+      if (
+        modelValue.value &&
+        Array.isArray(modelValue.value) &&
+        modelValue.value.length > 0
+      ) {
+        modelValue.value.forEach((value) => {
+          selectionMap.value[applyTemplate(props.refLabel, value)] = value;
+        });
+      }
+    }
+  }
+);
 
 function applyTemplate(template: string, row: Record<string, any>): string {
   const ids = Object.keys(row);
@@ -102,6 +136,8 @@ async function loadOptions(filter: IQueryMetaData) {
     props.refTableId,
     filter
   );
+
+  optionMap.value = {};
 
   if (data.rows) {
     hasNoResults.value = false;
@@ -178,6 +214,8 @@ function loadMore() {
     searchTerms: searchTerms.value,
   });
 }
+
+prepareModel();
 </script>
 
 <template>

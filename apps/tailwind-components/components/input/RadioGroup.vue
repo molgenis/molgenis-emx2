@@ -1,5 +1,5 @@
 <template>
-  <div
+  <InputGroupContainer
     :id="`${id}-radio-group`"
     :aria-describedby="describedBy"
     class="flex gap-1 border-l-4 border-transparent"
@@ -9,11 +9,13 @@
       'border-l-invalid': invalid,
       'border-l-valid': valid,
     }"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
   >
     <div v-for="option in options" class="flex flex-row">
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
-        class="group flex justify-start items-center gap-1"
+        class="group flex justify-start items-center gap-1 relative"
         :class="{
           'text-disabled cursor-not-allowed': disabled,
           'text-title cursor-pointer ': !disabled,
@@ -57,7 +59,7 @@
     >
       Clear
     </ButtonText>
-  </div>
+  </InputGroupContainer>
 </template>
 
 <script lang="ts" setup>
