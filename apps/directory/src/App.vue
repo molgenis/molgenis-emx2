@@ -90,16 +90,13 @@ function closeAllDropdownButtons(event: any) {
 }
 
 function changeFavicon() {
-  const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  let faviconUrl = "";
+  const faviconUrl = getFaviconUrl();
 
   if (window.location.href.includes("bbmri")) {
-    faviconUrl = isDark
-      ? "/bbmri-darkmode-favicon.ico"
-      : "/bbmri-lightmode-favicon.ico";
   }
 
-  const link = document.querySelector("link[rel~='icon']");
+  const link: HTMLLinkElement | null =
+    document.querySelector("link[rel~='icon']");
   if (!link) {
     const newLink = document.createElement("link");
     newLink.rel = "icon";
@@ -108,5 +105,12 @@ function changeFavicon() {
   } else {
     link.href = faviconUrl;
   }
+}
+
+function getFaviconUrl() {
+  const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  return isDark
+    ? "/bbmri-darkmode-favicon.ico"
+    : "/bbmri-lightmode-favicon.ico";
 }
 </script>
