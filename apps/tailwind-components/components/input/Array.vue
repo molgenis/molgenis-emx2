@@ -1,15 +1,17 @@
 <template>
-  <div v-for="(value, index) in alwaysHaveAValue(values)" :key="index" class="flex items-center gap-1">
-    <Input
-      :id="id+'_'+index"
-      v-model="alwaysHaveAValue(values)[index]"
-      v-bind="partialProps($props)"
-      :type="nonArrayType(props.type || 'STRING_ARRAY')"
-      @blur="emit('blur')"
-      @focus="emit('focus')"
-    />
-    <Button iconOnly icon="plus" label="add" @click="addItem(alwaysHaveAValue(values), index)" />
-    <Button iconOnly icon="trash" label="Remove"  v-if="alwaysHaveAValue(values).length > 1" @click="clearInput(alwaysHaveAValue(values), index)" />
+  <div>
+    <div v-for="(value, index) in alwaysHaveAValue(values)" :key="index" class="flex items-center gap-1">
+      <Input
+        :id="id+'_'+index"
+        v-model="alwaysHaveAValue(values)[index]"
+        v-bind="partialProps($props)"
+        :type="nonArrayType(props.type || 'STRING_ARRAY')"
+        @blur="emit('blur')"
+        @focus="emit('focus')"
+      />
+      <Button iconOnly type="secondary" icon="trash" label="Remove"  v-if="alwaysHaveAValue(values).length > 1" @click="clearInput(alwaysHaveAValue(values), index)" />
+    </div>
+    <Button type="secondary" size="small" icon="plus" label="Add a additional item" @click="addItem(alwaysHaveAValue(values), index)"/>
   </div>
 </template>
 
