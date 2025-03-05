@@ -47,7 +47,12 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | 21 | Inclusion criteria | Clinically relevant exposure inclusion criterion | | |
 | | | Clinically relevant lifestyle inclusion criterion | | |
 | | | Country of residence inclusion criteria | | |
-| 22a | ORGANISATIONS | | | |
+| 22 | Other inclusion criteria | Other inclusion criteria cohort 1 | | |
+| 23 | Exclusion criteria | Clinically relevant exposure inclusion criterion | | |
+| | | Clinically relevant lifestyle inclusion criterion | | |
+| | | Country of residence inclusion criteria | | |
+| 24| Other exclusion criteria | Other exclusion criteria cohort 1 | | |
+| 25a | ORGANISATIONS | | | |
 | | | Lead organisations | | |
 | | | 1 card per organisation: | | |
 | | | Name for lead organisation 1 (ACRONYM FOR LEADORG1) \| Botswana, Holy See (the) \| Data originator, Data holder, Data provider, Researcher, Surveillance, Other | | |
@@ -56,28 +61,34 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | 1 card per organisation: | | |
 | | | name for test additional organisation 2 (acronym for test additional organisation 2) \| Bosnia and Herzegovina, Mayotte \| Data provider, Surveillance | | |
 | | | name of test additional organisation 1 (acronym for test additional organisation 1) \| Canada, Western Sahara* \| Researcher, Surveillance | | |
-| 22b | CONTRIBUTORS | | | |
+| 25b | CONTRIBUTORS | | | |
 | | | 1 card per contributor: | | |
 | | | dr. ir. P.I.P.M. (PIPM) surname prefix last name PIPM \| Name for lead organisation 1 \| <pipm@testdomain.nl> \| Principal Investigator, Project manager | | |
-| | | dr. D.M. (datamgr first name) datamgr surname prefix datamgr last name \| Name for lead organisation 1 \| <test@email.nl> \| Data manager | | |
-| 23 | SUBPOPULATIONS | List of subpopulations for this resource | | |
+| | | dr. D.M. (datamgr first name) datamgr surname prefix datamgr last name \| Name for lead organisation 1 \| <test@email.nl> \| Data manager | | | |
+| 26 | Available Data & Samples | | |
+| | Data categories | Imaging data, Medical records, National registries, Genealogical records | | |
+| | Hover over 'ⓘ' | Details about each data category appears | | |
+| | Sample categories | Blood, Genetic material | | |
+| | Areas of information | Health and community care services utilization, Laboratory measures | | |
+| 27 | SUBPOPULATIONS | List of subpopulations for this resource | | |
 | | | table with the following columns: Name, Description, Number of participants | | |
 | | | test subcohort 1A, description for test subcohort 1A, 956 --> | | |
 | | | test subcohort 1B, description for test subcohort 1B, 23487 --> | | |
-| 24 | COLLECTION EVENTS | List of collection events defined for this resource | | |
+| 28 | COLLECTION EVENTS | List of collection events defined for this resource | | |
 | | | table with the following columns: Name, Description, Participants, Start end year | | |
 | | | test collection event 1A, test description for test collection event 1A, 3500, 1958-04-01 until 1994-04-30 --> | | |
 | | | test collection event 1B, description for test collection event 1B, 286, 1992-03-01 until 2000-08-31 --> | | |
-| 25 | DATASETS | List of datasets for this resource | | |
+| 29 | DATASETS | List of datasets for this resource | | |
 | | | Table with the following columns: Name, Description | | |
 | | | test dataset for testCohort1, test description for dataset 1 --> | | |
 | | | name of test dataset 2 for test cohort 1, description for test dataset 2 for test cohort 1 --> | | |
-| 26 | NETWORKS | Part of networks | | |
+| 30 | NETWORKS | Part of networks | | |
 | | | logo, Name of network, >Website, --> to navigate to details | | |
 | | | name for test network2, >Website, --> | | |
 | | | name for test network of networks, >Website, --> | | |
 | | | name for test network1, >Website, --> | | |
-| 27 | ACCESS CONDITIONS | Data access conditions description text cohort 1 - yes fee | | |
+| 31 | PUBLICATIONS | Three publications: 'Birth of a cohort--..Raine study.',  'Cohort Profile: The French...birth to 5 years', Effevtiveness of AS04-adjuvanted...community randomised trial' | | |
+| 32 | ACCESS CONDITIONS | Data access conditions description text cohort 1 - yes fee | | |
 | | Data access conditions | general research use, health or medical or biomedical research | | |
 | | Data use conditions | genetic studies only, publication required, ethics approval required | | |
 | | Data access fee | true | | |
@@ -85,5 +96,6 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | Release description | Release description cohort 1 | | |
 | | Prelinked | true | | |
 | | Linkage options | Linkage options cohort 1 | | |
-| 28 | DOCUMENTATION | Card per document, clickable so that you open the document: test doc 2 for test cohort 1 & test documentation for cohort 1 | | |
+| 33 | FUNDING & ACKNOWLEDGEMENTS | lorem ipsum text, check that "until now" is shown at the end of both fields so that you know the full text has been displayed | | |
+| 34 | DOCUMENTATION | Card per document, clickable so that you open the document: test doc 2 for test cohort 1 & test documentation for cohort 1 | | |
 | 29 | Click on test documentation for cohort 1 | test documentation for cohort 1 is downloaded locally | | |
