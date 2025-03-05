@@ -21,12 +21,13 @@ watch(() => props.ontologyTableId, init);
 async function retrieveTerms(
   parentNode: ITreeNodeState | undefined = undefined
 ): Promise<ITreeNodeState[]> {
-  //todo add a 'loaded' flag so we can skip loading if loaded before
+  //todo for later: add a 'loaded' flag so we can skip loading if loaded before
 
   const graphqlFilter = parentNode
     ? { parent: { name: { equals: parentNode.name } } }
     : { parent: { _is_null: true } };
 
+  //todo: replace with custom query, now it retrieves too much
   const result = await fetchTableData(
     props.ontologySchemaId,
     props.ontologyTableId,
