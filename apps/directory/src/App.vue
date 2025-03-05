@@ -14,7 +14,7 @@
 <script setup lang="ts">
 //@ts-expect-error
 import { Molgenis } from "molgenis-components";
-import { computed, ref, watch } from "vue";
+import { onMounted, computed, ref, watch } from "vue";
 import { LocationQuery, useRoute } from "vue-router";
 import Error from "./components/Error.vue";
 import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
@@ -70,6 +70,10 @@ watch(
   { immediate: true, deep: true }
 );
 
+onMounted(() => {
+  changeFavicon();
+});
+
 function closeAllDropdownButtons(event: any) {
   const allDropdownButtons = document.querySelectorAll(".dropdown-button");
   if (event.target?.id) {
@@ -82,6 +86,27 @@ function closeAllDropdownButtons(event: any) {
     allDropdownButtons.forEach((dropdownButton) => {
       dropdownButton.removeAttribute("open");
     });
+  }
+}
+
+function changeFavicon() {
+  const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  let faviconUrl = "";
+
+  if (window.location.href.includes("bbmri")) {
+    faviconUrl = isDark
+      ? "/bbmri-darkmode-favicon.ico"
+      : "/bbmri-lightmode-favicon.ico";
+  }
+
+  const link = document.querySelector("link[rel~='icon']");
+  if (!link) {
+    const newLink = document.createElement("link");
+    newLink.rel = "icon";
+    newLink.href = faviconUrl;
+    document.head.appendChild(newLink);
+  } else {
+    link.href = faviconUrl;
   }
 }
 </script>
