@@ -59,7 +59,7 @@ const emit = defineEmits(["focus", "blur"]);
       @focus="emit('focus')"
     />
     <div :id="`${id}-input-error`">
-      <Message v-if="errorMessage" invalid id="`${id}-input-error`">
+      <Message v-if="errorMessage" invalid :id="`${id}-input-error`">
         {{ errorMessage }}
       </Message>
     </div>
