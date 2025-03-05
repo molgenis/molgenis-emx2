@@ -71,9 +71,7 @@ watch(
   { immediate: true, deep: true }
 );
 
-onMounted(() => {
-  changeFavicon();
-});
+onMounted(changeFavicon);
 
 function closeAllDropdownButtons(event: any) {
   const allDropdownButtons = document.querySelectorAll(".dropdown-button");
