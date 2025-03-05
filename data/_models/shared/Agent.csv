@@ -1,4 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Agent,,,,,,,,,,,"http://xmlns.com/foaf/0.1/Agent","An agent (eg. person, group, software or physical artifact).","DCAT,Beacon v2,DataCatalogueFlat"
+Agent,,,,,,,,,,,"http://xmlns.com/foaf/0.1/Agent,http://www.w3.org/2006/vcard/ns#Agent","An agent (eg. person, group, software or physical artifact).","DCAT,Beacon v2,DataCatalogueFlat"
 Agent,,name,string,1,TRUE,,,,,,"http://xmlns.com/foaf/0.1/name,http://purl.org/dc/terms/identifier",A name and identifier for this agent.,"DCAT,Beacon v2,DataCatalogueFlat"
 Agent,,logo,hyperlink,,,,,,,,"http://xmlns.com/foaf/0.1/logo",A logo representing some thing.,"DCAT,Beacon v2,DataCatalogueFlat"
+Agent,,url,hyperlink,,,,,,,,"http://www.w3.org/2006/vcard/ns#url",An URL representing some thing.,"Beacon v2,DataCatalogueFlat"
+Agent,,mbox,email,,,,,,,,"http://www.w3.org/2006/vcard/ns#hasEmail,http://xmlns.com/foaf/0.1/mbox","An email address is an identifier to send mail to particular electronic mailbox of a contact person or organization.","Beacon v2,DataCatalogueFlat"
