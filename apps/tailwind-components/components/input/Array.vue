@@ -9,9 +9,9 @@
         @blur="emit('blur')"
         @focus="emit('focus')"
       />
-      <Button iconOnly type="secondary" icon="trash" label="Remove"  v-if="alwaysHaveAValue(values).length > 1" @click="clearInput(alwaysHaveAValue(values), index)" />
+      <Button iconOnly type="secondary" icon="trash" label="Remove item"  v-if="alwaysHaveAValue(values).length > 1" @click="clearInput(alwaysHaveAValue(values), index)" />
     </div>
-    <Button type="secondary" size="small" icon="plus" label="Add a additional item" @click="addItem(alwaysHaveAValue(values), index)"/>
+    <Button type="secondary" size="small" icon="plus" label="Add a additional item" @click="addItem(alwaysHaveAValue(values))"/>
   </div>
 </template>
 
@@ -36,8 +36,9 @@ function alwaysHaveAValue(values:any){
     return values;
   }
 }
+
 function addItem(values: any, index: number) {
-  values.splice(index + 1, 0, null);
+  values.push(undefined);
   emit("update:modelValue", values);
 }
 
