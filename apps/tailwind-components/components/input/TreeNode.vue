@@ -5,6 +5,7 @@ import CustomTooltip from "../CustomTooltip.vue";
 
 const props = withDefaults(
   defineProps<{
+    id: string;
     nodes: ITreeNodeState[];
     inverted?: boolean;
     isRoot: boolean;
@@ -16,12 +17,12 @@ const props = withDefaults(
 );
 const emit = defineEmits(["toggleSelect", "toggleExpand"]);
 
-function toggleSelect(name: string) {
-  emit("toggleSelect", name);
+function toggleSelect(node: ITreeNodeState) {
+  emit("toggleSelect", node);
 }
 
-function toggleExpand(name: string) {
-  emit("toggleExpand", name);
+function toggleExpand(node: ITreeNodeState) {
+  emit("toggleExpand", node);
 }
 </script>
 
@@ -35,13 +36,13 @@ function toggleExpand(name: string) {
   >
     <li
       v-for="node in nodes.filter((node2) => node2.visible === true)"
-      :key="node.name"
+      :key="id + node.name"
       class="mt-2.5 relative"
     >
       <div class="flex items-center">
         <button
           v-if="node.children?.length"
-          @click.stop="toggleExpand(node.name)"
+          @click.stop="toggleExpand(node)"
           class="-left-[11px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
           :class="{
             'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted':
@@ -78,14 +79,14 @@ function toggleExpand(name: string) {
           v-if="node.selectable"
           type="checkbox"
           :indeterminate="node.selected === 'intermediate'"
-          :id="node.name"
+          :id="id + '-' + node.name + '-input'"
           :name="node.name"
           :checked="node.selected === 'selected'"
-          @click.stop="toggleSelect(node.name)"
+          @click.stop="toggleSelect(node)"
           class="sr-only"
         />
         <InputLabel
-          :for="node.name"
+          :for="id + '-' + node.name + '-input'"
           class="flex justify-center items-start hover:cursor-pointer"
         >
           <InputCheckboxIcon
@@ -111,6 +112,7 @@ function toggleExpand(name: string) {
         </div>
       </div>
       <TreeNode
+        :id="id"
         v-if="node.children?.length && node.expanded"
         class="ml-[31px]"
         :nodes="node.children"

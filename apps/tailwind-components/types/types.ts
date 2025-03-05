@@ -33,6 +33,8 @@ export interface ITreeNodeState extends ITreeNode {
   expanded?: boolean;
   /* helper to quickly navigate to parent node */
   parent?: string;
+  /* helper to quickly navigate to parent node */
+  parentNode?: ITreeNodeState;
   /* extension of children */
   children: ITreeNodeState[];
   /* if a node is selectable */
