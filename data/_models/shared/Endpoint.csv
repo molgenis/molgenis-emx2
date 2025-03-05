@@ -23,3 +23,5 @@ Endpoint,,alternativeUrl,,,,,,,,,"http://purl.org/dc/terms/alternative, http://s
 Endpoint,,conformsToFdpSpec,hyperlink,,TRUE,,,,,,https://w3id.org/fdp/fdp-o#conformsToFdpSpec,The relation should point to an URI that contains the version of the FDP specifications for which this instance of the FDP conforms to,"DataCatalogueFlat"
 Endpoint,,EJP_RD_personalData,bool,,,,,,,,https://w3id.org/ejp-rd/vocabulary#personalData,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false.","FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,EJP_RD_vpConnection,hyperlink,,,,,,,,https://w3id.org/ejp-rd/vocabulary#vpConnection,"This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.","FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,issued,datetime,,,,,,,,"http://purl.org/dc/terms/issued,https://w3id.org/fdp/fdp-o#metadataIssued",,DataCatalogueFlat,
+Endpoint,,modified,datetime,,,,,,,,"http://purl.org/dc/terms/modified,https://w3id.org/fdp/fdp-o#metadataModified",,DataCatalogueFlat,

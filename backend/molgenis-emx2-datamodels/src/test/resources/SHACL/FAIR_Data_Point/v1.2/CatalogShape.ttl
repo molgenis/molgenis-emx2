@@ -52,7 +52,7 @@
     sh:path dcat:theme ;
     sh:nodeKind sh:IRI ;
   ], [
-    sh:path dcat:endPointURL ;
+    sh:path dcat:endpointURL ; # FIX: the correct casing is endpointURL, instead of endPointURL
     sh:nodeKind sh:IRI ;
     sh:maxCount 1 ;
     sh:minCount 1 ;
@@ -94,7 +94,7 @@
   sh:targetClass vcard:Kind ;
   sh:property [
     sh:path vcard:hasEmail ;
-    sh:nodeKind sh:Literal ;
+    sh:nodeKind sh:IRI ; # FIX: email should be an IRI instead of a Literal
     sh:maxCount 1 ;
     sh:minCount 1 ;
   ].
