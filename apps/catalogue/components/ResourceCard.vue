@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import dateUtils from "~/utils/dateUtils";
 import type { IResources } from "~/interfaces/catalogue";
+
+const datasetStore = useDatasetStore();
+
 const cutoff = 250;
 
 const route = useRoute();
@@ -18,10 +21,7 @@ const props = withDefaults(
 );
 
 const startEndYear = dateUtils.startEndYear;
-
-const articleClasses = computed(() => {
-  return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
-});
+const isInShoppingCart = ref<boolean>(false);
 
 const subtitleClasses = computed(() => {
   return props.compact ? "hidden md:block" : "mt-1.5 block md:inline";
@@ -35,13 +35,29 @@ const headerClasses = computed(() => {
   return props.compact ? "" : "items-start xl:items-center";
 });
 
-const iconStarClasses = computed(() => {
-  return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
+function onInput() {
+  isInShoppingCart.value = datasetStore.resourceIsInCart(props.resource.id);
+  if (isInShoppingCart.value) {
+    datasetStore.removeFromCart(props.resource.id);
+  } else {
+    datasetStore.addToCart(props.resource);
+  }
+}
+
+watch([datasetStore.datasets], () => {
+  isInShoppingCart.value = datasetStore.resourceIsInCart(props.resource.id);
 });
 </script>
 
 <template>
-  <article :class="articleClasses">
+  <article
+    class="border-l-[12px] border-transparent"
+    :class="{
+      'py-5 lg:px-12.5 p-5': compact,
+      'lg:px-12.5 py-12.5 px-5': !compact,
+      'border-l-yellow-500': isInShoppingCart,
+    }"
+  >
     <header :class="headerClasses" class="flex">
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
@@ -58,13 +74,23 @@ const iconStarClasses = computed(() => {
         </span>
       </div>
       <div class="flex">
-        <!--
-        <IconButton
-          icon="star"
-          :class="iconStarClasses"
-          class="text-blue-500 xl:justify-end"
-        />
-        -->
+        <label
+          :for="`${resource.id}-shopping-cart-input`"
+          class="cursor-pointer text-blue-500 xl:flex xl:justify-end hover:text-blue-800 focus:text-blue-800"
+          :class="{
+            'items-baseline xl:items-center mt-0.5 xl:mt-0': !compact,
+          }"
+        >
+          <BaseIcon name="shopping-cart-add" />
+          <span class="sr-only"></span>
+          <input
+            type="checkbox"
+            :id="`${resource.id}-shopping-cart-input`"
+            class="sr-only"
+            v-model="isInShoppingCart"
+            @input="onInput"
+          />
+        </label>
         <NuxtLink
           :to="`/${schema}/catalogue/${catalogue}/resources/${resource.id}`"
         >

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { UIResource } from "~/interfaces/types";
 
+const datasetStore = useDatasetStore();
+
 const route = useRoute();
 const config = useRuntimeConfig();
 
@@ -19,6 +21,8 @@ const cohortOnly = computed(() => {
 const catalogueRouteParam = route.params.catalogue as string;
 
 const menu: { label: string; link: string }[] = [];
+
+const showCartModal = ref<boolean>(false);
 
 // the variable route does not set the resourceType param, therefore check the route name
 if (
@@ -94,8 +98,13 @@ if (!cohortOnly.value) {
            <SearchBar />
         </div>-->
 
-        <!-- <HeaderButton label="Favorites" icon="star" />
-        <HeaderButton label="Account" icon="user" /> -->
+        <HeaderButton
+          label="Cart"
+          icon="shopping-cart"
+          class="!text-blue-500"
+          @click="showCartModal = !showCartModal"
+        />
+        <!-- <HeaderButton label="Account" icon="user" /> -->
       </div>
 
       <div class="pt-5 xl:hidden">
@@ -111,8 +120,8 @@ if (!cohortOnly.value) {
           </div>
 
           <div class="flex gap-3">
-            <!-- <HeaderButton label="Favorites" icon="star" />
-            <HeaderButton label="Account" icon="user" /> -->
+            <HeaderButton label="Cart" icon="shopping-cart" />
+            <!-- <HeaderButton label="Account" icon="user" /> -->
           </div>
         </div>
 
@@ -122,5 +131,28 @@ if (!cohortOnly.value) {
         </div>
       </div>
     </Container>
+    <SideModal
+      :show="showCartModal"
+      :slideInRight="true"
+      :fullScreen="false"
+      :includeFooter="true"
+      buttonAlignment="left"
+      @close="showCartModal = false"
+    >
+      <ContentBlockModal title="Datasets">
+        <StoreModalResourceList
+          v-if="
+            datasetStore.datasets.value &&
+            Object.keys(datasetStore.datasets.value).length > 0
+          "
+        />
+        <p v-else>Cart is empty</p>
+      </ContentBlockModal>
+      <template #footer>
+        <Button type="primary" size="medium" icon="ShoppingCart">
+          Checkout
+        </Button>
+      </template>
+    </SideModal>
   </header>
 </template>

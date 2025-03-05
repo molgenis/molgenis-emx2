@@ -1,7 +1,9 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
 const route = useRoute();
-const { initialize } = useGtag()
+const { initialize } = useGtag();
+
+const datasetStore = useDatasetStore();
 
 const analyticsService = computed(() => {
   if( typeof config.public.analyticsProvider === "string" ) {
