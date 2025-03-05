@@ -21,6 +21,7 @@ import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
 import { useCheckoutStore } from "./stores/checkoutStore";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useSettingsStore } from "./stores/settingsStore";
+import { useFavicon, usePreferredDark } from "@vueuse/core";
 
 const route = useRoute();
 const query = computed(() => route.query);
@@ -91,26 +92,11 @@ function closeAllDropdownButtons(event: any) {
 
 function changeFavicon() {
   const faviconUrl = getFaviconUrl();
-
-  if (window.location.href.includes("bbmri")) {
-  }
-
-  const link: HTMLLinkElement | null =
-    document.querySelector("link[rel~='icon']");
-  if (!link) {
-    const newLink = document.createElement("link");
-    newLink.rel = "icon";
-    newLink.href = faviconUrl;
-    document.head.appendChild(newLink);
-  } else {
-    link.href = faviconUrl;
-  }
+  useFavicon(faviconUrl);
 }
 
 function getFaviconUrl() {
-  const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  return isDark
-    ? "/bbmri-darkmode-favicon.ico"
-    : "/bbmri-lightmode-favicon.ico";
+  const isDark = usePreferredDark();
+  return isDark ? "bbmri-darkmode-favicon.ico" : "bbmri-lightmode-favicon.ico";
 }
 </script>
