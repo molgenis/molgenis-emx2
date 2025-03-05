@@ -25,26 +25,22 @@ which can be used as a basis for integrated analysis.
 Each organisation with access to data (which may be a cohort, or a data source composed of one or more data banks)
 harmonises their data according to the consortium’s protocols into a common data model (CDM) format which has been
 centrally agreed upon. In some projects, data may be made available via [DataSHIELD](https://www.datashield.org/).
-In these cases each resource stores the data locally in a [MOLGENIS Armadillo](/#/armadillo/) DataSHIELD server.
+In these cases each resource stores the data locally in a [MOLGENIS Armadillo](../armadillo/) DataSHIELD server.
 
 ## Staging areas for uploads
 
-The metadata of the cohort or of the data source are first uploaded into what are called "staging areas" of the MOLGENIS
+The metadata of the cohort or of the data source are first uploaded into what are called 'staging areas' of the MOLGENIS
 catalogue. Later on the metadata are transferred to production; use of a staging area allows for review before the
 metadata are entered in the live catalogue.
 
 You will need credentials to log in and upload metadata. Contact us at [support@molgenis.org](mailto:support@molgenis.org)
 to receive credentials.
 
-Cohorts in projects such as ATHLETE, IPEC and LongITools use
-[*MOLGENIS catalogue*](https://data-catalogue.molgeniscloud.org/apps/central/#/).  
-
 When you log in, you will be able to see at least the following databases:
 
 - **catalogue**: The catalogue data, in which metadata is visualized and you can search for target variables to map to.
 - **CatalogueOntologies**: This database contains the look-up list that you need for filling out some columns in the
-  templates, e.g. format or unit. If you need to add anything to these look-up lists, contact us
-  at [molgenis-support](mailto:support@molgenis.org).
+  templates, e.g. format or unit. If you need to add anything to these look-up lists, [contact us](mailto:support@molgenis.org).
 - **Your own database**: Use this to fill out rich metadata and to upload the templates once you have filled them out.
 - **Test databases** (here: testCohort, testDatasource and testNetwork): You can see filled out example metadata
   in these databases.
