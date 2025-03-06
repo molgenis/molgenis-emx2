@@ -135,6 +135,7 @@ abstract class RdfUtils {
   public static boolean hasIllegalPrefix(String semantic) {
     return ILLEGAL_PREFIX.matcher(semantic).find();
   }
+
   public static boolean isIllegalPrefix(String prefix) {
     return hasIllegalPrefix(prefix + ':');
   }
