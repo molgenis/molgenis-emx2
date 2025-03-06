@@ -24,6 +24,7 @@ public enum DefaultNamespace {
   LNC("lnc", "http://purl.bioontology.org/ontology/LNC/"),
   MESH("mesh", "http://purl.bioontology.org/ontology/MESH/"),
   OBO("obo", "http://purl.obolibrary.org/obo/"),
+  OBO_IN_OWL("oboInOwl", "http://www.geneontology.org/formats/oboInOwl#"),
   ODRL("odrl", "http://www.w3.org/ns/odrl/2/"),
   ORDO("ordo", "http://www.orpha.net/ORDO/"),
   ORG("org", "http://www.w3.org/ns/org#"),
