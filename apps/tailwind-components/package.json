@@ -13,8 +13,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "format": "prettier components pages tests layouts --write --config ../.prettierrc.js",
-    "checkFormat": "prettier components pages tests --check --config ../.prettierrc.js",
+    "format": "prettier components pages tests layouts composables --write --config ../.prettierrc.js",
+    "checkFormat": "prettier components pages tests layouts composables --check --config ../.prettierrc.js",
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "test-ci": "vitest run",
@@ -25,6 +25,8 @@
     "typecheck": "nuxi typecheck"
   },
   "dependencies": {
+    "@vueuse/components": "12.8.2",
+    "@vueuse/core": "12.8.2",
     "consola": "3.2.3",
     "floating-vue": "5.2.2",
     "vue": "3.5.13",
