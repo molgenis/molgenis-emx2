@@ -38,8 +38,6 @@ function validateColumn(column: IColumn) {
 
   const error = getColumnError(column, modelValue.value, props.metadata);
 
-  consola.info("error", error);
-
   if (error) {
     errors.value[column.id] = error;
   } else {
@@ -125,6 +123,7 @@ props.metadata.columns
     );
   });
 </script>
+
 <template>
   <template v-for="column in metadata.columns">
     <div
