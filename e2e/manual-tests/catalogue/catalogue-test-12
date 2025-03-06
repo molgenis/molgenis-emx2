@@ -15,7 +15,7 @@ A naïve visitor to the data catalogue on a small screen can click around throug
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- |----------------- | --------------- |
 | 1 | Navigate to [catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | Landing page: European health research data and sample catalogue. The ribbon reads: 'MENU'`MOLGENIS` logo at the top and `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS` below | | |
-| 2 | Hover over the `MENU` button | It stays the same | | |
+| 2 | Hover over the `MENU` button | It stays the same size| | |
 | 3 | Click on the `MENU` button | A pop-up opens listing 'Home','All collections', 'All variables', 'All networks', 'Upload data' and 'Manuals' | | |
 | 4 | Close the pop-up | The user returns to the landing page | | |
 | 5 | Hover over the `MOLGENIS` logo in the top centre | The logo stays the same size | | |
