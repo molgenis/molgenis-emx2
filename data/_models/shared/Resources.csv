@@ -1,12 +1,12 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Resources,,,,,,,,,,,"dcat:DatasetSeries,dcat:Dataset",Resource of data and/or samples. Use 'resource type' to specify,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,overview,heading,,,,,,,,,General information,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
-Resources,,id,,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
+Resources,,id,,1,TRUE,,,,,,dcterms:identifier,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,pid,,2,,,,,,,http://www.geneontology.org/formats/oboInOwl#hasAlternativeId,Persistent identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
-Resources,,name,text,3,TRUE,,,,,,http://purl.org/dc/terms/title,Name used in international projects,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
-Resources,,local name,,,,,,,,,http://www.w3.org/2000/01/rdf-schema#label,"If different from above, name in the national language","DataCatalogueFlat,CohortsStaging,RWEStaging"
-Resources,,acronym,,,,,,,,,http://purl.org/dc/terms/alternative,"Acronym, if applicable","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
-Resources,,type,ontology_array,,TRUE,CatalogueOntologies,Resource types,,,,http://purl.org/dc/terms/type,"Type of resource, e.g. registry, cohort, biobank","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
+Resources,,name,text,3,TRUE,,,,,,dcterms:title,Name used in international projects,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
+Resources,,local name,,,,,,,,,rdfs:label,"If different from above, name in the national language","DataCatalogueFlat,CohortsStaging,RWEStaging"
+Resources,,acronym,,,,,,,,,dcterms:alternative,"Acronym, if applicable","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
+Resources,,type,ontology_array,,TRUE,CatalogueOntologies,Resource types,,,,dcterms:type,"Type of resource, e.g. registry, cohort, biobank","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,type other,,,,,,,,,,"If other, describe the type of resource","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging,UMCUCohorts"
 Resources,,cohort type,ontology_array,,,CatalogueOntologies,Cohort study types,,,,dcterms:type,Type of cohort,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,clinical study type,ontology_array,,,CatalogueOntologies,Clinical study types,,,,dcterms:type,Type of clinical study,"DataCatalogueFlat,EMA"
@@ -17,15 +17,15 @@ Resources,,description,text,,,,,,,,dcterms:description,Short description,"DataCa
 Resources,,keywords,string_array,,,,,,,,dcat:keyword,Keywords to increase findability of this resource. Try to use words that are not used in the description. Keywords are not displayed on the resource page,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,RWEStaging,UMCUCohorts,INTEGRATE"
 Resources,,internal identifiers,refback,,,,Internal identifiers,,resource,,,Internal identifier(s) for this resource (e.g. UMCG register number),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging"
 Resources,,external identifiers,refback,,,,External identifiers,,resource,,,External identifier(s) for this resource (e.g. EUPASS number or BBMRI persistent identifer),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,INTEGRATE"
-Resources,,start year,int,,,,,,,,http://www.w3.org/ns/dcat#startDate,"The year when the resource started, e.g. when data or samples started to be collected or extracted, or when the resource was established","DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,NetworksStaging,INTEGRATE"
-Resources,,end year,int,,,,,,,,http://www.w3.org/ns/dcat#endDate,"The year the resource ceased, e.g. when data or sample collection was stopped","DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,NetworksStaging,INTEGRATE"
+Resources,,start year,int,,,,,,,,dcat:startDate,"The year when the resource started, e.g. when data or samples started to be collected or extracted, or when the resource was established","DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,NetworksStaging,INTEGRATE"
+Resources,,end year,int,,,,,,,,dcat:endDate,"The year the resource ceased, e.g. when data or sample collection was stopped","DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,NetworksStaging,INTEGRATE"
 Resources,,time span description,text,,,,,,,,,Description of time span,"DataCatalogueFlat,RWEStaging"
 Resources,,contact email,,,,,,,,,,Contact e-mail address ,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,INTEGRATE"
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA,StudiesStaging"
-Resources,,license,hyperlink,,,,,,,,http://purl.org/dc/terms/license,A legal document under which this catalogue record is made available,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
-Resources,,issued,datetime,,,,,,,,http://purl.org/dc/terms/issued,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was first published in the catalogue,DataCatalogueFlat
-Resources,,modified,datetime,,,,,,,,http://purl.org/dc/terms/modified,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was last modified,DataCatalogueFlat
+Resources,,license,hyperlink,,,,,,,,dcterms:license,A legal document under which this catalogue record is made available,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
+Resources,,issued,datetime,,,,,,,,dcterms:issued,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was first published in the catalogue,DataCatalogueFlat
+Resources,,modified,datetime,,,,,,,,dcterms:modified,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was last modified,DataCatalogueFlat
 Resources,,design and structure,heading,,,,,,,,,Structure of the resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,design description,text,,,,,,,,,"Short description of the study design of this resource, if applicable","DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
@@ -205,4 +205,4 @@ Resources,,study design classification,ontology_array,,,CatalogueOntologies,Stud
 Resources,,study design classification other,text,,,,,,,,,Further details on design,EMA
 Resources,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study,EMA
 Resources,,study scope other,text,,,,,,,,,If scope 'other',EMA
-Resources,,theme,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,DataCatalogueFlat
+Resources,,theme,hyperlink_array,,,,,,,,dcat:theme,A main category of the resource. A resource can have multiple themes.,DataCatalogueFlat
