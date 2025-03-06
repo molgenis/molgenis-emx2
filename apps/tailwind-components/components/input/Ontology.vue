@@ -55,6 +55,16 @@ async function retrieveTerms(
 /** initial load */
 async function init() {
   ontologyTree.value = await retrieveTerms();
+  //apply intermediate
+
+  //apply selection
+  ontologyTree.value
+    .filter((term) =>
+      props.isArray
+        ? modelValue.value?.includes(term.name)
+        : modelValue.value === term.name
+    )
+    .forEach((term) => (term.selected = "selected"));
 }
 
 function toggleSelect(node: ITreeNodeState) {
@@ -138,7 +148,13 @@ async function toggleExpand(node: ITreeNodeState) {
         name: child.name,
         visible: true,
         children: child.children,
-        selected: props.isArray ? node.selected : "unselected",
+        selected: props.isArray
+          ? modelValue.value?.includes(child.name)
+            ? "selected"
+            : node.selected
+          : modelValue.value === child.name
+          ? "selected"
+          : "unselected",
         selectable: true,
         parentNode: node,
       };
@@ -159,9 +175,6 @@ async function toggleExpand(node: ITreeNodeState) {
       @toggleExpand="toggleExpand"
       @toggleSelect="toggleSelect"
     />
-    <pre>
-  modelValue = {{ modelValue }};
-  </pre
-    >
+    <pre></pre>
   </div>
 </template>

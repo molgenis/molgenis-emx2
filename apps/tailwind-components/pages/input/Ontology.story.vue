@@ -1,8 +1,8 @@
 <script setup lang="ts">
-const ontologySchemaId = ref<string>("CatalogueOntologies");
-const ontologyTableId = ref<string>("Diseases");
+const ontologySchemaId = ref<string>("pet store");
+const ontologyTableId = ref<string>("Tag");
 const modelValue = ref("green");
-const modelValueArray = ref(["green"]);
+const modelValueArray = ref(["colors", "mammals"]);
 </script>
 
 <template>
