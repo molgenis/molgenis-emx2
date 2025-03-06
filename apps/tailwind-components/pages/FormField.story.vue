@@ -56,6 +56,9 @@ const demoValue = ref<Record<string, any>>({
   text: "some demo text",
   ref: null,
   bool: true,
+  int: 42,
+  decimal: -13.37,
+  long: "37",
 });
 
 const focusCount = ref(0);
