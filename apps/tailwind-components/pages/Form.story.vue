@@ -2,7 +2,6 @@
 import type {
   columnId,
   columnValue,
-  IFieldError,
   ISchemaMetaData,
 } from "../../metadata-utils/src/types";
 import { useRoute } from "#app/composables/router";
@@ -28,7 +27,6 @@ if (route.query.rowIndex) {
 }
 
 const numberOfRows = ref(0);
-const formFields = ref<InstanceType<typeof FormFields>>();
 const formValues = ref<Record<string, columnValue>>({});
 
 const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
@@ -165,10 +163,6 @@ const numberOfRequiredFieldsWithData = computed(() =>
 const activeChapterId = ref<string>("_scroll_to_top");
 const errorMap = ref<Record<columnId, string>>({});
 
-function setActive(id: string) {
-  activeChapterId.value = id;
-}
-
 const sections = useSections(metadata, activeChapterId, errorMap);
 </script>
 
@@ -188,15 +182,13 @@ const sections = useSections(metadata, activeChapterId, errorMap);
         class="grow h-screen overflow-y-scroll border p-10"
       >
         <FormFields
-          id="forms-story"
           class="grow"
-          ref="formFields"
           :schemaId="schemaId"
           :sections="sections"
           :metadata="metadata"
           v-model:errors="errorMap"
           v-model="formValues"
-          @update:active-chapter-id="setActive"
+          @update:active-chapter-id="activeChapterId = $event"
         />
       </div>
     </div>
