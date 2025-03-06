@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.IRI;
@@ -24,7 +25,6 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.TypeUtils;
-import org.molgenis.emx2.utils.URIUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +40,8 @@ abstract class RdfUtils {
 
   public static final CsvSchema SEMANTIC_PREFIXES_CSV_SCHEMA =
       CsvSchema.builder().addColumn("prefix").addColumn("iri").build();
+  // Matches with Strings like "urn:" & "urn:uuid:", but allows variations such as "urnamespace:"
+  public static final Pattern ILLEGAL_PREFIX = Pattern.compile("^(http(s)?|urn(:.*)?|tag):");
 
   /**
    * Get the namespace for a schema
@@ -81,6 +83,13 @@ abstract class RdfUtils {
             .readValues(schema.getSettingValue(SETTING_SEMANTIC_PREFIXES))) {
       iterator.forEachRemaining(
           i -> {
+            if (isIllegalPrefix(i.get("prefix"))) {
+              throw new MolgenisException(
+                  "Schema \""
+                      + schema.getName()
+                      + "\" contains a prefix that is not allowed: "
+                      + i.get("prefix"));
+            }
             // Check similar to RDF4J's SimpleIRI
             if (i.get("iri").indexOf(':') < 0) {
               throw new MolgenisException(i.get("iri") + " must be a valid (absolute) IRI");
@@ -115,11 +124,18 @@ abstract class RdfUtils {
     }
     Namespace foundNamespace = namespaces.get(semanticSplit[0]);
     if (foundNamespace == null) {
-      if (!URIUtils.isIanaScheme(semanticSplit[0])) {
-        logger.warn("Found an IRI with a scheme not defined by IANA: \"" + semantic + "\"");
+      if (logger.isDebugEnabled() && !hasIllegalPrefix(semantic)) {
+        logger.debug("Found undefined prefix (unless IRI is expected): \"" + semantic + "\"");
       }
       return Values.iri(semantic);
     }
     return Values.iri(foundNamespace, semanticSplit[1]);
+  }
+
+  public static boolean hasIllegalPrefix(String semantic) {
+    return ILLEGAL_PREFIX.matcher(semantic).find();
+  }
+  public static boolean isIllegalPrefix(String prefix) {
+    return hasIllegalPrefix(prefix + ':');
   }
 }

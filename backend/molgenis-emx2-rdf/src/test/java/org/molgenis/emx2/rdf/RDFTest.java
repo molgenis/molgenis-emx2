@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import nl.altindag.log.LogCaptor;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
@@ -350,11 +349,7 @@ public class RDFTest {
 
     semanticTest
         .getMetadata()
-        .setSetting(
-            SETTING_SEMANTIC_PREFIXES,
-            """
-  dcterms,http://purl.org/dc/terms/
-  urn,http://example.com/""");
+        .setSetting(SETTING_SEMANTIC_PREFIXES, "dcterms,http://purl.org/dc/terms/");
   }
 
   private static String getApi(Schema schema) {
@@ -1117,7 +1112,7 @@ public class RDFTest {
   }
 
   @Test
-  void testCustomPrefixesSetting() throws IOException {
+  void testSemanticPrefixesSetting() throws IOException {
     final Set<Namespace> defaultNamespaces =
         new HashSet<>() {
           {
@@ -1162,21 +1157,35 @@ public class RDFTest {
   }
 
   @Test
-  void testInvalidPrefixesSetting() throws IOException {
-    final String customPrefixes = "http://example.com,example";
+  void testMissingIriSemanticPrefixesSetting() throws IOException {
+    final String customPrefixes = "example,example";
 
     try {
-      Schema schema = database.dropCreateSchema("PrefixesInvalid");
+      Schema schema = database.dropCreateSchema("PrefixesMissingIri");
       schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
       var handler = new InMemoryRDFHandler() {};
       assertThrows(MolgenisException.class, () -> getAndParseRDF(Selection.of(schema), handler));
     } finally {
-      database.dropSchemaIfExists("PrefixesInvalid");
+      database.dropSchemaIfExists("PrefixesMissingIri");
     }
   }
 
   @Test
-  void testEmptyPrefixesSetting() throws IOException {
+  void testIllegalPrefixSemanticPrefixesSetting() throws IOException {
+    final String customPrefixes = "urn,http://example.com";
+
+    try {
+      Schema schema = database.dropCreateSchema("PrefixesIllegalPrefix");
+      schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
+      var handler = new InMemoryRDFHandler() {};
+      assertThrows(MolgenisException.class, () -> getAndParseRDF(Selection.of(schema), handler));
+    } finally {
+      database.dropSchemaIfExists("PrefixesIllegalPrefix");
+    }
+  }
+
+  @Test
+  void testEmptySemanticPrefixesSetting() throws IOException {
     final Set<Namespace> expectedNamespaces =
         new HashSet<>() {
           {
@@ -1370,20 +1379,7 @@ example,http://example.com/
             Values.iri("http://purl.org/dc/terms/description"));
 
     var handler = new InMemoryRDFHandler() {};
-    try (LogCaptor logCaptorService = LogCaptor.forClass(RDFService.class);
-        LogCaptor logCaptorUtil = LogCaptor.forClass(RdfUtils.class)) {
-      getAndParseRDF(Selection.of(semanticTest, "valid"), handler);
-      assertTrue(
-          logCaptorService
-              .getWarnLogs()
-              .contains(
-                  "Schema \"semanticTest\" contains a semantic prefix that is also defined by IANA as an URI scheme: urn"));
-      assertTrue(
-          logCaptorUtil
-              .getWarnLogs()
-              .contains(
-                  "Found an IRI with a scheme not defined by IANA: \"nonDefinedPrefix:value\""));
-    }
+    getAndParseRDF(Selection.of(semanticTest, "valid"), handler);
     Set<IRI> actualPredicates =
         handler.resources.get(Values.iri(getApi(semanticTest) + "Valid?id=1")).keySet();
     assertTrue(actualPredicates.containsAll(expectedPredicates));

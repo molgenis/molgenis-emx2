@@ -25,7 +25,6 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.URIUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -233,16 +232,7 @@ public class RDFService {
     builder.setNamespace(getSchemaNamespace(baseURL, schema));
 
     Map<String, Namespace> schemaNamespaces = getCustomPrefixesOrDefault(schema);
-    for (Namespace namespace : schemaNamespaces.values()) {
-      builder.setNamespace(namespace);
-      if (URIUtils.isIanaScheme(namespace.getPrefix())) {
-        logger.warn(
-            "Schema \""
-                + schema.getName()
-                + "\" contains a semantic prefix that is also defined by IANA as an URI scheme: "
-                + namespace.getPrefix());
-      }
-    }
+    schemaNamespaces.values().forEach(builder::setNamespace);
     namespaces.put(schema.getName(), schemaNamespaces);
   }
 
