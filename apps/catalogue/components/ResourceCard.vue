@@ -23,6 +23,10 @@ const props = withDefaults(
 const startEndYear = dateUtils.startEndYear;
 const isInShoppingCart = ref<boolean>(false);
 
+const articleClasses = computed(() => {
+  return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
+});
+
 const subtitleClasses = computed(() => {
   return props.compact ? "hidden md:block" : "mt-1.5 block md:inline";
 });
@@ -50,14 +54,7 @@ watch([datasetStore.datasets], () => {
 </script>
 
 <template>
-  <article
-    class="border-l-[12px] border-transparent"
-    :class="{
-      'py-5 lg:px-12.5 p-5': compact,
-      'lg:px-12.5 py-12.5 px-5': !compact,
-      'border-l-yellow-500': isInShoppingCart,
-    }"
-  >
+  <article :class="articleClasses">
     <header :class="headerClasses" class="flex">
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
@@ -76,12 +73,13 @@ watch([datasetStore.datasets], () => {
       <div class="flex">
         <label
           :for="`${resource.id}-shopping-cart-input`"
-          class="cursor-pointer text-blue-500 xl:flex xl:justify-end hover:text-blue-800 focus:text-blue-800"
+          class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer text-blue-500 hover:text-blue-800 focus:text-blue-800"
           :class="{
             'items-baseline xl:items-center mt-0.5 xl:mt-0': !compact,
+            'bg-blue-500 text-white hover:text-white': isInShoppingCart,
           }"
         >
-          <BaseIcon name="shopping-cart-add" />
+          <BaseIcon name="shopping-cart-add" :width="21" />
           <span class="sr-only"></span>
           <input
             type="checkbox"

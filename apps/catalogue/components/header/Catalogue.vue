@@ -98,12 +98,7 @@ if (!cohortOnly.value) {
            <SearchBar />
         </div>-->
 
-        <HeaderButton
-          label="Cart"
-          icon="shopping-cart"
-          class="!text-blue-500"
-          @click="showCartModal = !showCartModal"
-        />
+        <StoreHeaderButton @click="showCartModal = !showCartModal" />
         <!-- <HeaderButton label="Account" icon="user" /> -->
       </div>
 
@@ -120,7 +115,7 @@ if (!cohortOnly.value) {
           </div>
 
           <div class="flex gap-3">
-            <HeaderButton label="Cart" icon="shopping-cart" />
+            <StoreHeaderButton @click="showCartModal = !showCartModal" />
             <!-- <HeaderButton label="Account" icon="user" /> -->
           </div>
         </div>

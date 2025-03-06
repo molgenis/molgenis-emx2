@@ -2,7 +2,7 @@
   <ul class="list-style-none">
     <li
       v-for="resource in datasetStore.datasets.value"
-      class="border-b-2 border-b-gray-200 mb-2"
+      class="border-b-[1px] border-b-gray-200 mb-2 last:border-none last:mb-none"
     >
       <div class="flex justfy-center items-center">
         <div class="grow mb-2">
