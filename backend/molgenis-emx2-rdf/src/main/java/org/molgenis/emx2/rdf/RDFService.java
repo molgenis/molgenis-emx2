@@ -69,6 +69,13 @@ public class RDFService {
       "http://semanticscience.org/resource/SIO_000115";
   public static final IRI IRI_OBSERVATION =
       Values.iri("http://purl.org/linked-data/cube#Observation");
+  // FDP-O:metadataIdentifier is the identifier of the metadata entry, which is the subject itself.
+  // See: https://specs.fairdatapoint.org/fdp-specs-v1.2.html
+  public static final IRI FDP_METADATAIDENTIFIER =
+      Values.iri("https://w3id.org/fdp/fdp-o#metadataIdentifier");
+  // DCAT:endpointURL is the 'root' location, which is the schema. see:
+  // https://www.w3.org/TR/vocab-dcat-3/#Property:data_service_endpoint_url
+  public static final IRI DCAT_ENDPOINTURL = Values.iri("http://www.w3.org/ns/dcat#endpointURL");
 
   /** NCIT:C95637 = Coded Value Data Type */
   public static final IRI IRI_CODED_VALUE_DATATYPE =
@@ -509,6 +516,11 @@ public class RDFService {
       final IRI subject) {
     builder.add(subject, RDF.TYPE, tableIRI);
     builder.add(subject, RDF.TYPE, IRI_OBSERVATION);
+    builder.add(
+        subject,
+        DCAT_ENDPOINTURL,
+        Values.iri(getSchemaNamespace(baseURL, table.getSchema()).getName()));
+    builder.add(subject, FDP_METADATAIDENTIFIER, subject);
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {
         builder.add(
@@ -634,7 +646,7 @@ public class RDFService {
           }
         }
       } else {
-        keyParts.put(column.getIdentifier(), row.get(column).toString());
+        keyParts.put(column.getName(), row.get(column).toString());
       }
     }
     final Namespace ns = getSchemaNamespace(baseURL, metadata.getRootTable().getSchema());

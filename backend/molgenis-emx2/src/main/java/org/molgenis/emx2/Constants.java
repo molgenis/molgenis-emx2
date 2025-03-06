@@ -2,6 +2,9 @@ package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Operator.*;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 public class Constants {
 
   public static final String SYS_COLUMN_NAME_PREFIX = "mg_";
@@ -76,12 +79,29 @@ public class Constants {
   public static final String LOCALES = "locales";
   public static final String LOCALES_DEFAULT = "[\"en\"]";
 
-  protected static final Operator[] EXISTS_OPERATIONS = {};
-  protected static final Operator[] ORDINAL_OPERATORS = {EQUALS, NOT_EQUALS, BETWEEN, NOT_BETWEEN};
-  protected static final Operator[] STRING_OPERATORS = {
-    EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH
+  protected static final Operator[] EXISTS_OPERATIONS = {EQUALS};
+
+  protected static final Operator[] ORDINAL_OPERATORS = {
+    EQUALS, NOT_EQUALS, MATCH_ANY, BETWEEN, NOT_BETWEEN, IS_NULL, MATCH_NONE
   };
-  protected static final Operator[] EQUALITY_OPERATORS = {EQUALS, NOT_EQUALS};
+  protected static final Operator[] ORDINAL_ARRAY_OPERATORS =
+      Stream.concat(Arrays.stream(ORDINAL_OPERATORS), Stream.of(MATCH_ALL))
+          .toArray(Operator[]::new);
+
+  protected static final Operator[] STRING_OPERATORS = {
+    EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, TRIGRAM_SEARCH, TEXT_SEARCH, IS_NULL, MATCH_ANY, MATCH_NONE
+  };
+
+  protected static final Operator[] STRING_ARRAY_OPERATORS =
+      Stream.concat(Arrays.stream(STRING_OPERATORS), Stream.of(MATCH_ALL)).toArray(Operator[]::new);
+
+  protected static final Operator[] EQUALITY_OPERATORS = {
+    EQUALS, NOT_EQUALS, IS_NULL, MATCH_ANY, MATCH_NONE
+  };
+
+  protected static final Operator[] EQUALITY_ARRAY_OPERATORS =
+      Stream.concat(Arrays.stream(EQUALITY_OPERATORS), Stream.of(MATCH_ALL))
+          .toArray(Operator[]::new);
 
   // n.b. we allow _SYSTEM_
   protected static final String SCHEMA_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,62}$";
@@ -96,12 +116,9 @@ public class Constants {
           + "(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$|^$";
   // thank you to
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
+  // updated to also allow localhost / localhost:8080 as valid hyperlink, needed to testing
   protected static final String HYPERLINK_REGEX =
-      "((https?)://)(www.)?"
-          + "[a-zA-Z0-9@:%._\\+~#?&//=-]"
-          + "{2,256}\\.[a-z]"
-          + "{2,6}\\b([-a-zA-Z0-9@:%"
-          + "._\\+~#?!&//=(\\)]*)";
+      "((https?)://)((www.)?[a-zA-Z0-9@:%._\\+~#?&//=-]{2,256}\\.[a-z]{2,6}|localhost)(:[0-9]+)?([-a-zA-Z0-9@:%._\\+~#?!&//=(\\)]*)$";
 
   public static final String PRIVACY_POLICY_LEVEL = "PrivacyPolicyLevel";
   public static final String PRIVACY_POLICY_LEVEL_DEFAULT = "Level 4";
