@@ -3,12 +3,13 @@
 # docker buildx build -t molgenis/ci-build:1.2.2 --platform linux/amd64 .
 # docker push molgenis/ci-build:1.2.2
 
-FROM gradle:jdk17-jammy
+FROM gradle:jdk21-noble
 
 RUN apt-get update && apt-get install python3 python3-venv -y
-RUN apt-get install python3 python3-venv python3-pip -y
-RUN python3 -m pip install --upgrade build twine
-RUN python3 --version
+RUN apt-get install python3 python3-venv python3-pip twine python3-build -y
+#RUN python3 -m pip install --upgrade twine
+#RUN python3 -m pip install --upgrade build twine
+#RUN python3 --version
 
 ENV NODE_VERSION=20.11.0
 RUN apt install -y curl
@@ -55,3 +56,4 @@ RUN apt-get install postgresql-client -y
 # GemTools & FPM For debian and redhat packages
 RUN apt-get install ruby-dev -y 
 RUN gem install fpm
+USER gradle
