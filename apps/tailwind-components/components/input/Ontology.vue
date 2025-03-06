@@ -55,6 +55,7 @@ async function retrieveTerms(
 async function retrieveIntermediateTermNamesForModelValue(): Promise<string[]> {
   const graphqlFilter = {
     _match_any_including_parents: modelValue.value,
+    parent: { _is_null: true },
   };
   //todo: replace with custom query, now it retrieves too much
   const result = await fetchTableData(
