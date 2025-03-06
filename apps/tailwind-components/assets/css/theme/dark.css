@@ -19,7 +19,8 @@
     --background-color-button-secondary-hover: var(--color-gray-700);
 
     --background-color-footer: var(--color-gray-700);
-    --background-color-modal-footer: var(--color-gray-700);
+    --background-color-modal: var(--color-gray-900);
+    --background-color-modal-footer: var(--color-gray-900);
     
     --background-color-input: var(--gray-800);
     --background-color-input-focused: var(--color-green-200);
@@ -35,7 +36,8 @@
     --text-color-button-secondary-hover: var(--color-green-200);
     --text-color-button-text: var(--color-green-500);
     --text-color-title: var(--color-white);
-    --text-color-title-contrast: var(--color-blue-500);
+   
+    --text-color-title-contrast: var(--text-color-title);
     --text-color-form-header: var(--color-white);
     --text-color-input-description: var(--color-gray-50);
     --text-color-pagination: var(--color-white);

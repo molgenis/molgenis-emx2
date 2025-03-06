@@ -114,6 +114,7 @@
     --border-color-pagination: var(--color-transparent);
     --border-color-input-inverted: var(--color-gray-600);
 
+    --border-radius-theme: 50px;
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
     --border-radius-input: 50px;
