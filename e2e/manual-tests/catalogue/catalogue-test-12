@@ -8,7 +8,7 @@ Naïve user of the data catalogue on a small screen
 
 # Goal
 
-A naïve visitor to the data catalogue on a small screen can click around through items in the menu ribbon and end up where they would expect
+A naïve visitor to the data catalogue on a small screen can click around through items in the menu ribbon and end up where they would expect. The catalogue (menu ribbon, blocks of information displayed, filters, etc) is displayed correctly when viewed in 'small-screen' mode.
 
 # Steps
 
@@ -18,8 +18,40 @@ A naïve visitor to the data catalogue on a small screen can click around throug
 | 2 | Hover over the `MENU` button | It stays the same size| | |
 | 3 | Click on the `MENU` button | A pop-up opens listing 'Home','All collections', 'All variables', 'All networks', 'Upload data' and 'Manuals' | | |
 | 4 | Close the pop-up | The user returns to the landing page | | |
-| 5 | Hover over the `MOLGENIS` logo in the top centre | The logo stays the same size | | |
-| 6 | Click on the `MOLGENIS` logo in the top left | The page does not reload and the user stays on the same page | | |
+| 5 | Click on the 'Search all' button | The user goes to [/catalogue/all](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all) | | |
+| 6 | | The ribbon reads: 'MENU' and `MOLGENIS` logo at the top, Below: `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `OTHER CATALOGUES` | | |
+| 7 | Click on 'Collections' | The user goes to  [/catalogue/all/collections](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/collections) | | |
+| 8 | | The ribbon reads: 'MENU' and `MOLGENIS` logo at the top, Below: 'OVERVIEW', `COLLECTIONS`, `NETWORKS`, `VARIABLES` | | |
+| 9 | Click on 'Filters' and a pop-up opens. | A search field is disaplyed at the top and filters below | | |
+| 4 | Close the pop-up | The user returns to  [/catalogue/all/collections](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/collections) | | |
+| 4 | Click on the 'View' button | List of collections changes to compact view and the URL changes to [/view=compact](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/collections?view=compact) | | || | |
+| 4 | Click on the 'View' button again | List of collections goes back to detailed view and the URL changes to [/view=detailed](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/collections?view=detailed) | | |
+| 5 | Click on 'acronym for test cohort 1' | The user goes to overview page for this collection and the ribbon reads :'MENU' and `MOLGENIS` logo at the top, Below: 'OVERVIEW', `COLLECTIONS`, `NETWORKS`, `VARIABLES` | | |
+| 6 | See that the fields are filled as follows: | https://www.molgenis.org/, 'Contact' button, Description, General design, Population, Organisations, Contributors, Available Data & Samples, Subpopulations, Collection Events, Datasets, Networks, Publications, Access Conditions, Funding and acknowledgements, and Documentation | | |
+| 4 | Click the back arrow on the page | The user returns to [/catalogue/all](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all) | | | 
+| 4 | Click on 'Networks'| The user goes to [/catalogue/all/networks](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/networks) | | |
+| 8 | | The ribbon reads: 'MENU' and `MOLGENIS` logo at the top, Below: 'OVERVIEW', `COLLECTIONS` `NETWORKS`, `VARIABLES` | | |
+| 9 | Click on 'Filters' and a pop-up opens. | A search field is displayed at the top and filters below | | |
+| 6 | Close the pop-up | | | |
+| 5 | Click on 'acronym for test network1' | The user goes to overview page for this network and the ribbon reads :'MENU' and `MOLGENIS` logo at the top, Below: 'OVERVIEW', `COLLECTIONS`, `NETWORKS`, `VARIABLES` | | |
+| 6 | See that the fields are filled as follows: | Test logo for test network,(https://www.molgenis.org/), Description, General design, Population, Organisations, Datasets, Networks, Funding and acknowledgements | | |
+| 6 | Press the back button on the page | The user goes to [/catalogue/all/networks](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/networks) | | |
+| 7 | Press the back button again | The user goes to [/catalogue/all](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all) | | |
+| 13 | Click on 'Variables` | The user goes to [/catalogue/all/variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/variables) | | |
+| 9 | Click on 'Filters' and a pop-up opens. | A search field is displayed at the top and filters below | | |
+| 6 | Close the pop-up | | | |
+| 9 | Click on 'Harmonisations' | Harmonisation matrix of all the variables are displayed | | |
+| 7 | Press the back button on the page | The user goes to [/catalogue/all](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all) | | |
+| 6 | Click on 'Variables' again | A list of all variables is listed | | |
+| 7 | Click on the first variable 'abd_circum_sdsWHO_t' | The user goes to [/variables/abd_circum_sdsWHO_t](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/variables/abd_circum_sdsWHO_t-ATHLETE-outcome_ath-ATHLETE?keys={%22name%22:%22abd_circum_sdsWHO_t%22,%22resource%22:{%22id%22:%22ATHLETE%22},%22dataset%22:{%22name%22:%22outcome_ath%22,%22resource%22:{%22id%22:%22ATHLETE%22}}}) | | |
+| 6 | See that the fields are filled as follows: | Definition, Harmonisation status per source and Harmonisation details per source | | |
+
+
+
+
+| 5 | 
+Hover over the `MOLGENIS` logo in the top centre | The logo stays the same size | | |
+| 6 | Click on the `MOLGENIS` logo in the top centre | The page does not reload and the user stays on the same page | | |
 | 7 | Hover over the `HOME` button | `HOME` is underlined | | |
 | 8 | Click on the `HOME` button | The page is reloaded | | |
 | 9 | Hover over the `ALL COLLECTIONS` button | `ALL COLLECTIONS` is underlined | | |
@@ -29,8 +61,8 @@ A naïve visitor to the data catalogue on a small screen can click around throug
 | 13 | Click on the `ALL VARIABLES` button | The user goes to [/catalogue/all/variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/variables) | | |
 | 14 | Use the browser's ⬅️ button | The user goes back to [/catalogue](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | | |
 | 15 | Navigate to [/catalogue/all](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all) | The ribbon reads: 'MENU' and `MOLGENIS` logo at the top, Below: `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `OTHER CATALOGUES` | | |
-| 16 | Hover over the `MOLGENIS` logo in the top left | The logo stays the same size | | |
-| 17 | Click on the `MOLGENIS` logo in the top left | The page does not reload and the user stays on the same page | | |
+| 16 | Hover over the `MOLGENIS` logo in the top centre | The logo stays the same size | | |
+| 17 | Click on the `MOLGENIS` logo in the top centre | The page does not reload and the user stays on the same page | | |
 | 18 | Hover over the `COLLECTIONS` button | `COLLECTIONS` is underlined | | |
 | 19 | Click on the `COLLECTIONS` button | The user goes to [/catalogue/all/collections](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/collections) | | |
 | 20 | Use the browser's ⬅️ button | The user goes back to [/catalogue/all](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all) | | |
