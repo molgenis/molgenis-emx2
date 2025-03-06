@@ -56,7 +56,7 @@ class RdfUtilsTest {
   }
 
   @Test
-  void testPrefixMatcher() {
+  void testPrefixValidation() {
     assertAll(
         () -> assertFalse(isIllegalPrefix("dcat")),
         () -> assertTrue(isIllegalPrefix("http")),
