@@ -9,6 +9,7 @@ There are 2 types of data allowed in this field:
 * an IRI (f.e. `http://purl.org/dc/terms/title`)
 * a prefixed name (f.e. `dcterms:title`), assuming that prefix [is defined](#defining-namespaces)
  
+
 When processing a semantic field, a check is done to see if it can be interpreted as a prefixed name (based on the defined namespaces for that scheme).
 If not, then it is assumed to be an IRI.
 
