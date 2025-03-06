@@ -8,6 +8,7 @@ import TreeNode from "./TreeNode.vue";
 
 const props = withDefaults(
   defineProps<{
+    id: string;
     /* tree model to be rendered */
     nodes: ITreeNode[];
     modelValue: string[];
@@ -258,6 +259,7 @@ const rootNodes = computed(() => {
     </span>
   </div>
   <TreeNode
+    :id="id"
     :nodes="rootNodes"
     :inverted="inverted"
     :isRoot="true"

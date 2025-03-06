@@ -10,7 +10,9 @@ const props = defineProps<
     ontologyTableId: string;
   }
 >();
+//the selected values
 const modelValue = defineModel<string[] | string>();
+//state of the tree that is shown
 const ontologyTree: Ref<ITreeNodeState[]> = ref([]);
 
 onMounted(init);
@@ -39,8 +41,6 @@ async function retrieveTerms(
     }
   );
 
-  console.log(parentNode?.selected);
-
   return result.rows?.map((row) => {
     return {
       name: row.name,
@@ -52,10 +52,33 @@ async function retrieveTerms(
   });
 }
 
+async function retrieveIntermediateTermNamesForModelValue(): Promise<string[]> {
+  const graphqlFilter = {
+    _match_any_including_parents: modelValue.value,
+  };
+  //todo: replace with custom query, now it retrieves too much
+  const result = await fetchTableData(
+    props.ontologySchemaId,
+    props.ontologyTableId,
+    {
+      filter: graphqlFilter,
+      expandLevel: 0,
+      limit: 10000,
+    }
+  );
+  console.log(result.rows);
+  return result.rows?.map((row) => row.name);
+}
+
 /** initial load */
 async function init() {
   ontologyTree.value = await retrieveTerms();
-  //apply intermediate
+
+  //apply intermediate selected state
+  const intermediates = await retrieveIntermediateTermNamesForModelValue();
+  ontologyTree.value
+    .filter((term) => intermediates.includes(term.name))
+    .forEach((term) => (term.selected = "intermediate"));
 
   //apply selection
   ontologyTree.value
