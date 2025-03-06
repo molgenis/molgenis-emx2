@@ -36,7 +36,9 @@ dcat,http://www.w3.org/ns/dcat#
 dcterms,http://purl.org/dc/terms/
 ```
 
-!> If overridden, make sure to either include previously used namespaces or adjust every semantic field that uses a prefix that is not supported anymore.
+!> The following prefixes are **not** allowed: `http`, `https`, `urn` & `tag`
+
+!> When the default is overridden, make sure to either include previously used namespaces or adjust every semantic field that uses a prefix that is not supported anymore.
 
 Conflicts in namespaces will not break the RDF output but might result in unexpected behaviour. Examples include:
 * If 2 different namespaces use the same prefix, only one of them will use that prefix while the other simply returns full IRIs in the API output.

@@ -5,11 +5,16 @@ For this you use the `semantics` field in EMX2.
 
 ## Formatting
 
-There are 2 formats allowed for this field:
-* an IRI surrounded by `<` and `>` (f.e. `<http://purl.org/dc/elements/1.1/title>`)
-* a prefixed name using a defined prefix followed by the relative IRI (f.e. `dcterms:title` if `dcterms` has been defined)
+There are 2 types of data allowed in this field:
+* an IRI (f.e. `http://purl.org/dc/terms/title`)
+* a prefixed name (f.e. `dcterms:title`), assuming that prefix [is defined](#defining-namespaces)
+ 
+When processing a semantic field, a check is done to see if it can be interpreted as a prefixed name (based on the defined namespaces for that scheme).
+If not, then it is assumed to be an IRI.
 
-Multiple values can be defined by separating these by a comma (f.e. `dcat:Resource,dcat:Dataset`).
+Multiple values can be defined by separating these by a comma (f.e. `dcterms:title,http://purl.org/dc/terms/description`).
+
+## Defining namespaces
 
 By default, the following prefixed names are available:
 <!-- see: https://github.com/molgenis/molgenis-emx2/blob/master/backend/molgenis-emx2-rdf/src/main/java/org/molgenis/emx2/rdf/DefaultNamespace.java -->
@@ -36,6 +41,7 @@ By default, the following prefixed names are available:
 | lnc           | http://purl.bioontology.org/ontology/LNC/      |
 | mesh          | http://purl.bioontology.org/ontology/MESH/     |
 | obo           | http://purl.obolibrary.org/obo/                |
+| oboInOwl      | http://www.geneontology.org/formats/oboInOwl#  |
 | odrl          | http://www.w3.org/ns/odrl/2/                   |
 | ordo          | http://www.orpha.net/ORDO/                     |
 | org           | http://www.w3.org/ns/org#                      |
