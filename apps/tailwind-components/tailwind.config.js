@@ -154,6 +154,7 @@ module.exports = {
         "pagination": "var(--background-color-pagination)",
         "pagination-hover": "var(--background-color-pagination-hover)",
         "footer": "var(--background-color-footer)",
+        "modal": "var(--background-color-modal)",
         "modal-footer": "var(--background-color-modal-footer)",
         "tab": "var(--background-color-tab)",
         "tab-hover": "var(--background-color-tab-hover)",
@@ -192,6 +193,7 @@ module.exports = {
         "breadcrumb": "var(--text-color-breadcrumb)",
         "title": "var(--text-color-title)",
         "title-contrast": "var(--text-color-title-contrast)",
+        "title-contrast-pop": "var(--text-color-title-contrast-pop)",
         "sub-title-contrast": "var(--text-color-sub-title-contrast)",
         "search-button": "var(--text-color-search-button)",
         "search-button-hover": "var(--text-color-search-button-hover)",
@@ -292,6 +294,7 @@ module.exports = {
         "disabled": "var(--color-disabled-foreground)",
       }),
       borderRadius: {
+        "theme": "var(--border-radius-theme)",
         "3px": "var(--border-radius-3px)",
         "50px": "var(--border-radius-50px)",
         "input": "var(--border-radius-input)",
