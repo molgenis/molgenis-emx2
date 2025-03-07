@@ -119,6 +119,7 @@
     --text-color-breadcrumb: var(--color-blue-500);
     --text-color-title: var(--color-blue-800);
     --text-color-title-contrast: var(--text-color-title);
+    --text-color-title-contrast-pop: var(--text-color-title-contrast);
     --text-color-sub-title-contrast: var(--color-black);
     --text-color-search-button: var(--color-blue-500);
     --text-color-search-button-hover: var(--color-blue-800);

@@ -193,6 +193,7 @@ module.exports = {
         "breadcrumb": "var(--text-color-breadcrumb)",
         "title": "var(--text-color-title)",
         "title-contrast": "var(--text-color-title-contrast)",
+        "title-contrast-pop": "var(--text-color-title-contrast-pop)",
         "sub-title-contrast": "var(--text-color-sub-title-contrast)",
         "search-button": "var(--text-color-search-button)",
         "search-button-hover": "var(--text-color-search-button-hover)",

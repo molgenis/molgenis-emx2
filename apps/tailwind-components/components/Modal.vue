@@ -44,7 +44,7 @@ defineExpose({
     />
 
     <div
-      class="bg-modal w-3/4 relative m-auto h-3/4 rounded-t-none rounded-b-theme"
+      class="bg-modal w-3/4 relative m-auto h-5/6 rounded-t-none rounded-b-theme"
       :class="maxWidth"
     >
       <slot name="header">
