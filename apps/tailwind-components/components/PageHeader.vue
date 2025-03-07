@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useSlots } from "vue";
 
-const slots = useSlots();
+const slots: ReturnType<typeof useSlots> = useSlots();
 
 withDefaults(
   defineProps<{
@@ -30,14 +30,12 @@ withDefaults(
       <span class="mb-2 mt-2.5 xl:block hidden text-icon" v-if="icon">
         <BaseIcon :name="icon" :width="55" />
       </span>
-      <div class="relative">
+      <div class="relative flex items-center">
+        <slot name="title-prefix"></slot>
+
         <h1 class="font-display text-heading-6xl">{{ title }}</h1>
-        <div
-          class="absolute hidden pl-1 -translate-y-1/2 text-favorite hover:text-favorite-hover left-full top-1/2 whitespace-nowrap xl:block"
-          :v-if="slots['title-suffix']"
-        >
-          <slot name="title-suffix"></slot>
-        </div>
+
+        <slot name="title-suffix"></slot>
       </div>
       <div
         v-if="slots['description']"

@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 var fs = require("fs");
 var path = require("path");
 var process = require("process");
