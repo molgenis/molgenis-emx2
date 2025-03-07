@@ -4,7 +4,7 @@ import { defineNuxtConfig } from "nuxt/config";
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   devtools: { enabled: true },
-  modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag"],
+  modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag", "@pinia/nuxt"],
   tailwindcss: {
     cssPath: "../tailwind-components/assets/css/main.css",
     configPath: "../tailwind-components/tailwind.config.js",
@@ -32,6 +32,9 @@ export default defineNuxtConfig({
     prerender: {
       ignore: ["/_tailwind/"],
     },
+  },
+  pinia: {
+    storesDirs: ['./stores/**'],
   },
   app: {
     head: {
