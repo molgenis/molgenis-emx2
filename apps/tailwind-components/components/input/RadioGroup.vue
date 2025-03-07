@@ -2,7 +2,7 @@
   <InputGroupContainer
     :id="`${id}-radio-group`"
     :aria-describedby="describedBy"
-    class="flex gap-1 border-l-4 border-transparent"
+    class="flex gap-1 border-l-2 border-transparent"
     :class="{
       'flex-row': align === 'horizontal',
       'flex-col': align === 'vertical',
