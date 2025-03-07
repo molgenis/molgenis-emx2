@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { UIResource } from "~/interfaces/types";
 
-const datasetStore = useDatasetStore();
-
 const route = useRoute();
 const config = useRuntimeConfig();
 
@@ -126,28 +124,6 @@ if (!cohortOnly.value) {
         </div>
       </div>
     </Container>
-    <SideModal
-      :show="showCartModal"
-      :slideInRight="true"
-      :fullScreen="false"
-      :includeFooter="true"
-      buttonAlignment="left"
-      @close="showCartModal = false"
-    >
-      <ContentBlockModal title="Datasets">
-        <StoreModalResourceList
-          v-if="
-            datasetStore.datasets.value &&
-            Object.keys(datasetStore.datasets.value).length > 0
-          "
-        />
-        <p v-else>Cart is empty</p>
-      </ContentBlockModal>
-      <template #footer>
-        <Button type="primary" size="medium" icon="ShoppingCart">
-          Checkout
-        </Button>
-      </template>
-    </SideModal>
+    <StoreModal :show="showCartModal" @close="showCartModal = false" />
   </header>
 </template>

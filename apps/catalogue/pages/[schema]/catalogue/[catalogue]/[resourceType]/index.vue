@@ -180,6 +180,10 @@ const query = computed(() => {
       design {
           name
       }
+      datasets {
+        name
+        label
+      }
     }
     Resources_agg (filter:$filter){
         count
