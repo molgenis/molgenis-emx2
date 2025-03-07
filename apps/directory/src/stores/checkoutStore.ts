@@ -366,7 +366,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
           toRaw({
             id: collection.value,
             name: collection.label,
-            // todo: This expects an organization object, but its inclear how the organization is supposed to be mapped to the biobank
+            // todo: This expects an organization object, but its unclear how the organization is supposed to be mapped to the biobank
             // organization: {
             //   id: biobank.value,
             //   externalId: biobank.id,
@@ -385,12 +385,6 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
           toRaw({
             id: service.value,
             name: service.label,
-            // todo: This expects an organization object, but its inclear how the organization is supposed to be mapped to the biobank
-            // organization: {
-            //   id: biobank.value,
-            //   externalId: biobank.id,
-            //   name: biobank.label,
-            // },
           })
         );
       }
@@ -416,7 +410,29 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     if (response.ok) {
       removeAllFromSelection(false);
     } else {
-      throw new Error("Negotiator is not available. Please try again later.");
+      const statusCode = response.status;
+      switch (statusCode) {
+        case 400:
+          throw new Error("Negotiator responded with code 400, invalid input.");
+        case 401:
+          throw new Error(
+            "Negotiator responded with code 401, not authorised ."
+          );
+        case 404:
+          throw new Error("Negotiator not found, error code 404.");
+        case 413:
+          throw new Error(
+            "Negotiator responded with code 413, request too large."
+          );
+        case 500:
+          throw new Error(
+            "Negotiator responded with code 500, internal server error."
+          );
+        default:
+          throw new Error(
+            "An unknown error occurred with the Negotiator. Please try again later."
+          );
+      }
     }
 
     const body = await response.json();
