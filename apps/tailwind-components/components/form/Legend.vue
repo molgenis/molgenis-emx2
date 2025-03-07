@@ -1,5 +1,5 @@
 <template>
-  <nav class="pt-4 pb-8 bg-sidebar-gradient" v-if="sections.length > 1">
+  <nav class="pt-4 pb-8" v-if="sections.length > 1">
     <h3 class="text-disabled p-4 ml-1">Jump to</h3>
     <ul class="list-none space-y-3">
       <li
