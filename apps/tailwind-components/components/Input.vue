@@ -24,6 +24,18 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
+  <InputArray
+    v-else-if="['STRING_ARRAY', 'BOOL_ARRAY', 'DATE_ARRAY', 'DATETIME_ARRAY', 'DECIMAL_ARRAY', 'EMAIL_ARRAY', 'HYPERLINK_ARRAY', 'INT_ARRAY','LONG_ARRAY','TEXT_ARRAY','UUID_ARRAY','PERIOD_ARRAY'].includes(typeUpperCase)"
+    :id="id"
+    v-model="modelValue as any[]"
+    :type="typeUpperCase"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
   <InputString
     v-else-if="'HYPERLINK' === typeUpperCase"
     :id="id"
