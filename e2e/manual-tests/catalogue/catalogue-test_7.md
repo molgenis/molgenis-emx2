@@ -61,7 +61,7 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | | | testVarVir mapped to cohorts 3 and 4. | | |
 | | | See that variables with no mappings ARE displayed, and that cohorts with no mappings are also displayed. | | |
 | | | See that testVarRepeats_ is NOT shown (keyword adhd not selected). | | |
-| 26 | Remove the ‘Language’ filter | 2 variables are displayed and all the sources are displayed. The following mappings are shown: | | |
+| 26 | Remove the ‘Language’ filter by typing in 'lang' in the search bar | 2 variables are displayed and all the sources are displayed. The following mappings are shown: | | |
 | | | testVarLang3Vir mapped to cohorts 3 and 4. | | |
 | | | testVarVir mapped to cohorts 3 and 4 | | |
 | NETWORK-SPECIFIC VARIABLE EXPLORER | | | | |
@@ -82,7 +82,7 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | 32 | On the left hand side, expand Topics, press Search for options | Drop-down with topics is displayed | | |
 | 33 | Type ‘bio’ in the search bar | List of topics is reduced to those including the letters ‘bio’ either in their name or in the hover text (whether in subtopics or highest-level topic itself)| | |
 | 34 | Having found ‘Laboratory measures’, expand that to find ‘Biochemistry’ and click on that. | See that no variables at all are displayed because there are no variables in testNetwork1 which match both criteria (search bar ‘adhd’ and topic ‘biochemistry’). | | |
-| 35 | Click open the ‘Search for options’ under Topics. Remove the ‘biochemistry’ filter and add ‘Language’ as a filter (under ‘Socio-demographic and economic characteristics’)| 1 variable is displayed: only testVarNoRepeats because that is the only variable with both keywords ‘adhd’ and ‘language’. All 8 sources in the network are shown. | | |
+| 35 | Remove the ‘biochemistry’ filter and type in ‘lang’ to add ‘Language’ as a filter (under ‘Socio-demographic and economic characteristics’)| 1 variable is displayed: only testVarNoRepeats because that is the only variable with both keywords ‘adhd’ and ‘language’. All 8 sources in the network are shown. | | |
 | 36 | Delete ‘adhd’ in the search bar | List returns to 4 variables (just the filter on language now). | | |
 | | | testVarCategorical_, | | |
 | | | testVarLang, | | |
@@ -97,14 +97,14 @@ A researcher can filter on variables using the search filter, topics and cohorts
 | | | testVarNoRepeats mapped to cohorts 1, 3 and 4. | | |
 | | | See that testVarCategorical_ and testVarLang2 are not shown (because they have no mappings to the cohorts selected). | | |
 | | | TestCohort2 is shown despite having no mappings to these variables, because it has been selected in the source filter. | | |
-| 40 | Add the filter ‘Virology’ in the topics on the left hand side (under ‘Laboratory measures’)| See that 4 variables are displayed, with the following mappings: | | |
+| 40 | Type in ‘Virology’ in the search field and add the filter ‘Virology’ in the topics on the left hand side (under ‘Laboratory measures’)| See that 4 variables are displayed, with the following mappings: | | |
 | | | testVarLang with mappings to cohorts 1 and 4. | | |
 | | | testVarLang3Vir with mappings to cohorts 3 and 4. | | |
 | | | testVarNoRepeats with mappings to cohorts 1,3,4. | | |
 | | | testVarVir with mappings to cohorts 3 and 4. | | |
 | | | Testcohort2 is shown with no mappings. | | |
 | | | Not shown: testVarCategorical_ | | |
-| 41 | Remove the filter ‘Language’ on the left hand side. | See that 2 variables are displayed, with the following mappings: | | |
+| 41 | Remove the filter ‘Language’ on the left hand side by typing in ‘lang’. | See that 2 variables are displayed, with the following mappings: | | |
 | | | testVarLang3Vir with mappings to cohorts 3 and 4. | | |
 | | | testVarVir with mappings to cohorts 3 and 4. | | |
 | | | See that testcohort1 and testcohort2 are shown, despite having no mappings, because they have been actively selected. | | |
