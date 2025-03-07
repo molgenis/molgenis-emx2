@@ -17,6 +17,8 @@
     --background-color-button-primary-hover: var(--color-white);
     --background-color-button-secondary: var(--color-gray-700);
     --background-color-button-secondary-hover: var(--color-gray-700);
+    --background-color-button-outline: var(--color-gray-900);
+    --background-color-button-outline-hover: var(--color-gray-900);
 
     --background-color-footer: var(--color-gray-700);
     --background-color-modal: var(--color-gray-900);
@@ -34,6 +36,8 @@
     --text-color-button-primary-hover: var(--color-gray-800);
     --text-color-button-secondary: var(--color-green-500);
     --text-color-button-secondary-hover: var(--color-green-200);
+    --text-color-button-outline: var(--color-green-500);
+    --text-color-button-outline-hover: var(--color-green-200);
     --text-color-button-text: var(--color-green-500);
     --text-color-title: var(--color-white);
    
@@ -49,6 +53,8 @@
     --border-color-button-primary-hover: var(--color-white);
     --border-color-button-secondary: var(--color-gray-600);
     --border-color-button-secondary-hover: var(--color-green-200);
+    --border-color-button-outline: var(--color-gray-200);
+    --border-color-button-outline-hover: var(--color-gray-200);
     
     --border-color-input: var(--color-gray-400);
     --border-color-input-hover: var(--color-green-200);
