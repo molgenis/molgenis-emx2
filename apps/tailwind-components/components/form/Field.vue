@@ -4,7 +4,9 @@ import type {
   CellValueType,
   columnValue,
 } from "../../../metadata-utils/src/types";
-const modelValue = defineModel<columnValue>();
+
+const modelValue = defineModel<columnValue>({ required: true });
+
 defineProps<
   IInputProps & {
     type: CellValueType;
@@ -24,9 +26,9 @@ const emit = defineEmits(["focus", "blur"]);
 </script>
 
 <template>
-  <div>
+  <div :id="id">
     <template v-if="label">
-      <label :for="id">
+      <label :for="`${id}-input`">
         <span class="text-title font-bold">{{ label }}</span>
         <span class="text-disabled text-body-sm ml-3" v-if="required">
           Required
@@ -40,7 +42,7 @@ const emit = defineEmits(["focus", "blur"]);
     </div>
     <Input
       v-model="modelValue"
-      :id="id"
+      :id="`${id}-input`"
       :type="type"
       :valid="valid"
       :invalid="invalid"
@@ -57,7 +59,7 @@ const emit = defineEmits(["focus", "blur"]);
       @focus="emit('focus')"
     />
     <div :id="`${id}-input-error`">
-      <Message :id="id" invalid v-if="errorMessage">
+      <Message v-if="errorMessage" invalid :id="`${id}-input-error`">
         {{ errorMessage }}
       </Message>
     </div>

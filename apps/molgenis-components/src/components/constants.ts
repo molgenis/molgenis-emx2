@@ -1,6 +1,7 @@
 export default {
   CODE_0: 48,
   CODE_9: 57,
+  CODE_COMMA: 44,
   CODE_PERIOD: 46,
   CODE_MINUS: 45,
   SCHEMA_NAME_REGEX: /^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,62}$/,
