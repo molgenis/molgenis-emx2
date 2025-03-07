@@ -13,8 +13,9 @@
     <pre
       v-if="sourceCode"
       class="mt-4 p-2 bg-code-output text-code-output font-mono"
-      >{{ sourceCode }}</pre
     >
+      {{ sourceCode }}
+    </pre>
     <p v-else>No source code found for this page. Might you need to rebuild?</p>
   </div>
 </template>
@@ -28,7 +29,8 @@ interface ISourceCodeMap {
   [key: string]: string;
 }
 
-const sourceCodeMap: ISourceCodeMap = useRuntimeConfig().public.sourceCodeMap;
+const sourceCodeMap: ISourceCodeMap = useRuntimeConfig().public
+  .sourceCodeMap as ISourceCodeMap;
 const route = useRoute();
 const sourceCode = computed<string>(() => {
   return sourceCodeMap[`${route.path}.vue` as string] || "";

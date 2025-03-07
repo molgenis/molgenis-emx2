@@ -8,34 +8,35 @@
 
     --opacity-background-gradient: 100;
 
-    --backgroud-color-button-primary: var(--color-yellow-500);
-    --backgroud-color-button-primary-hover: var(--color-yellow-200);
-    --backgroud-color-button-secondary: var(--color-blue-800);
-    --backgroud-color-button-secondary-hover: var(--color-blue-300);
-    --backgroud-color-button-tertiary: var(--color-blue-500);
-    --backgroud-color-button-tertiary-hover: var(--color-blue-300);
-    --backgroud-color-button-outline: var(--color-white);
-    --backgroud-color-button-outline-hover: var(--color-blue-50);
-    --backgroud-color-button-disabled: var(--color-gray-100);
-    --backgroud-color-button-disabled-hover: var(--color-gray-100);
-    --backgroud-color-search-button: var(--color-blue-50);
-    --backgroud-color-search-button-hover: var(--color-blue-700);
-    --backgroud-color-navigation: rgba(0, 0, 0, .2);
-    --backgroud-color-navigation-sticky: var(--color-blue-800);
-    --backgroud-color-search-results-view-tabs: var(--color-blue-800);
-    --backgroud-color-search-filter-group-toggle: var(--color-blue-800);
-    --backgroud-color-app-wrapper: var(--color-black);
-    --backgroud-color-pagination: var(--color-blue-800);
-    --backgroud-color-pagination-hover: var(--color-blue-900);
-    --backgroud-color-footer: var(--color-blue-800);
-    --backgroud-color-modal-footer: var(--color-blue-800);
-    --backgroud-color-tab: var(--color-blue-50);
-    --backgroud-color-tab-hover: var(--color-blue-500);
-    --backgroud-color-tab-active: var(--color-blue-500);
+    --background-color-button-primary: var(--color-yellow-500);
+    --background-color-button-primary-hover: var(--color-yellow-200);
+    --background-color-button-secondary: var(--color-blue-800);
+    --background-color-button-secondary-hover: var(--color-blue-300);
+    --background-color-button-tertiary: var(--color-blue-500);
+    --background-color-button-tertiary-hover: var(--color-blue-300);
+    --background-color-button-outline: var(--color-white);
+    --background-color-button-outline-hover: var(--color-blue-50);
+    --background-color-button-disabled: var(--color-gray-100);
+    --background-color-button-disabled-hover: var(--color-gray-100);
+    --background-color-search-button: var(--color-blue-50);
+    --background-color-search-button-hover: var(--color-blue-700);
+    --background-color-navigation: rgba(0, 0, 0, .2);
+    --background-color-navigation-sticky: var(--color-blue-800);
+    --background-color-search-results-view-tabs: var(--color-blue-800);
+    --background-color-search-filter-group-toggle: var(--color-blue-800);
+    --background-color-app-wrapper: var(--color-black);
+    --background-color-pagination: var(--color-blue-800);
+    --background-color-pagination-hover: var(--color-blue-900);
+    --background-color-footer: var(--color-blue-800);
+    --background-color-modal-footer: var(--color-blue-800);
+    --background-color-tab: var(--color-blue-50);
+    --background-color-tab-hover: var(--color-blue-500);
+    --background-color-tab-active: var(--color-blue-500);
     --background-color-disabled: var(--color-gray-200);
     --background-color-invalid: var(--color-red-200);
     --background-color-input: var(--color-white);
     --background-color-input-checked: var(--color-yellow-500);
+    --background-color-input-focused: var(--color-yellow-500);
     --background-color-table: var(--color-white);
 
 
@@ -86,7 +87,7 @@
     --text-color-pagination-inverted: var(--color-gray-400);
     --text-color-pagination-input: var(--color-blue-800);
     --text-color-pagination-hover: var(--color-white);
-    --text-color-footer-link: var(--color-yellow-500);
+    --text-color-link: var(--color-yellow-500);
     --text-color-table-column-header: var(--color-gray-600);
     
     --text-color-invalid: var(--color-red-700);
@@ -111,7 +112,6 @@
     --border-color-search-input: var(--color-white);
     --border-color-search-input-mobile: var(--color-gray-100);
     --border-color-pagination: var(--color-transparent);
-    --border-color-input: var(--color-transparent);
     --border-color-input-inverted: var(--color-gray-600);
 
     --border-radius-3px: 3px;
@@ -122,10 +122,6 @@
     --border-radius-search-button: 9999px;
     --border-radius-pagination: 9999px;
     --border-radius-landing: 50px;
-    
-    --border-color-invalid: var(--color-red-700);
-    --border-color-valid: var(--color-green-900);
-    --border-color-disabled: var(--color-gray-400);
 
     --outline-color-select: var(--color-gray-200);
   }

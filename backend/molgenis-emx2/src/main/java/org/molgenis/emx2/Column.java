@@ -40,7 +40,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
-  private String[] semantics = null; // json ld expression
+  private String[] semantics = null; // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
 
   // todo implement below, or remove
@@ -247,7 +247,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public Column setRequired(String required) {
-    this.required = required;
+    if ("true".equalsIgnoreCase(required) || "false".equalsIgnoreCase(required)) {
+      this.required = required.toLowerCase();
+    } else {
+      this.required = required;
+    }
     return this;
   }
 
@@ -483,7 +487,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
           }
           if (name == null) {
             name = getName();
-            if (pkeys.size() > 1) {
+            // fixed in #4705 to also accommodate for nested composite keys checking keyParts!
+            if (pkeys.size() > 1 || keyPart.getReferences().size() > 0) {
               name += COMPOSITE_REF_SEPARATOR + ref.getName();
             }
           }

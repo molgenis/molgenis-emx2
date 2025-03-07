@@ -1,6 +1,7 @@
 export default {
   CODE_0: 48,
   CODE_9: 57,
+  CODE_COMMA: 44,
   CODE_PERIOD: 46,
   CODE_MINUS: 45,
   SCHEMA_NAME_REGEX: /^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,62}$/,
@@ -11,6 +12,8 @@ export default {
   HYPERLINK_REGEX:
     /^((https?):\/\/)(www.)?[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%._\\+~#?&//=()]*)\/?$|^$/,
   PERIOD_REGEX: /^P(?=\d+Y|\d+M|\d+D)(\d+Y)?(\d+M)?(\d+D)?$/,
+  MAX_INT: 2147483647,
+  MIN_INT: -2147483648,
   MAX_LONG: "9223372036854775807",
   MIN_LONG: "-9223372036854775807",
   IS_CHAPTERS_ENABLED_FIELD_NAME: "isChaptersEnabled",

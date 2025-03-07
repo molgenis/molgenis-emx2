@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import type { ConfigOptions } from '@nuxt/test-utils/playwright'
 
 export default defineConfig<ConfigOptions>({
-  testDir: './tests',
+  testDir: './tests/e2e',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -23,6 +23,7 @@ export default defineConfig<ConfigOptions>({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     nuxt: {
+      // @ts-ignore
       host: process.env.E2E_BASE_URL || "http://localhost:3000/",
       build: false
     }

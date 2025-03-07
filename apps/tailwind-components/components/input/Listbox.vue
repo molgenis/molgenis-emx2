@@ -16,7 +16,7 @@
     </InputListboxToggle>
     <InputListboxList
       :id="`listbox-${id}-options`"
-      :isExpanded="isExpanded"
+      :isExpanded="!disabled && isExpanded"
       :hasFixedHeight="listboxOptions.length > 5"
       @keydown.prevent="onListboxKeyDown"
     >
@@ -37,7 +37,6 @@
 <script lang="ts" setup>
 import { ref, useTemplateRef, nextTick, watch, onMounted } from "vue";
 import type {
-  columnValue,
   IFieldError,
   IInputValue,
   IInputValueLabel,
