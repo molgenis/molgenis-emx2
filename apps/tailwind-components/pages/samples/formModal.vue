@@ -66,7 +66,7 @@ function scrollToElementInside(containerId: string, elementId: string) {
             aria-label="Close modal"
             class="absolute top-7 right-8 p-1"
           >
-            <BaseIcon class="text-link" name="cross" />
+            <BaseIcon class="text-gray-400" name="cross" />
           </button>
         </header>
       </template>
