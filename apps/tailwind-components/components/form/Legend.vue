@@ -17,7 +17,7 @@
           @click.prevent="emit('goToSection', section.id)"
         >
           <span
-            class="text-title capitalize"
+            class="text-title-contrast capitalize"
             :class="{ 'font-bold': section.isActive }"
           >
             {{ section.label }}
