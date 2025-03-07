@@ -34,7 +34,7 @@ function onBlur() {
         :invalid="refExampleError || invalid"
         :disabled="disabled"
         :required="true"
-        @update:modelValue="onBlur"
+        @update:modelValue="refExampleError ? onBlur() : null"
         @blur="onBlur"
       />
       <div id="story-ref-array-error-container">
@@ -46,7 +46,7 @@ function onBlur() {
           <span>Field is required</span>
         </Message>
         <Message id="story-ref-array-error" :invalid="invalid" v-if="invalid">
-          <span>An error was thrown</span>
+          <span>A generic error message</span>
         </Message>
       </div>
       <div class="pt-5">value selected: {{ value }}</div>
