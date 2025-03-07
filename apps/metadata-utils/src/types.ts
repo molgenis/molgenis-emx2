@@ -109,6 +109,7 @@ export type columnValue =
   | number
   | boolean
   | null
+  | undefined
   | columnValueObject
   | columnValue[];
 
