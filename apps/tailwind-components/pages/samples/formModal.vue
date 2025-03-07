@@ -40,6 +40,16 @@ function scrollToElementInside(containerId: string, elementId: string) {
     element.scrollIntoView();
   }
 }
+
+const errorMessage = computed(() => {
+  const errorCount = Object.values(errorMap.value).filter(
+    (value) => value !== ""
+  ).length;
+  const fieldLabel = errorCount === 1 ? "field requires" : "fields require";
+  return errorCount > 0
+    ? `${errorCount} ${fieldLabel} attention before you can save this cohort`
+    : "";
+});
 </script>
 <template>
   <Container>
@@ -95,6 +105,13 @@ function scrollToElementInside(containerId: string, elementId: string) {
           />
         </div>
       </section>
+      <Transition name="slide-up">
+        <FormError
+          v-show="errorMessage"
+          :message="errorMessage"
+          class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        />
+      </Transition>
 
       <template #footer>
         <menu class="flex items-center justify-end h-[116px]">
@@ -108,3 +125,20 @@ function scrollToElementInside(containerId: string, elementId: string) {
     </Modal>
   </Container>
 </template>
+
+<style scoped>
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.25s ease-out;
+}
+
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(62px);
+}
+
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(62px);
+}
+</style>
