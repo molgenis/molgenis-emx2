@@ -17,7 +17,10 @@ const relevantMappings = computed(() =>
   )
 );
 const sourceIds = computed(() => [
-  ...new Set(relevantMappings.value?.map((m) => m.source.id)),
+  ...new Set(
+    relevantMappings.value?.map((m) => m.source.id)
+    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())
+  ),
 ]);
 const activeSource = computed(() => sourceIds.value[activeTabIndex.value]);
 const activeMappings = computed(() =>
