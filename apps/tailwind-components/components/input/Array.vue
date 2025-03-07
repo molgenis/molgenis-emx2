@@ -1,18 +1,37 @@
 <template>
   <div>
-    <div v-for="(value, index) in valuesNotUndefined" :key="index" class="flex items-center gap-1">
+    <div
+      v-for="(value, index) in valuesNotUndefined"
+      :key="index"
+      class="flex items-center gap-1"
+    >
       <Input
-        :id="id+'_'+index"
+        :id="id + '_' + index"
         :modelValue="valuesNotUndefined[index]"
         v-bind="partialProps($props)"
         :type="nonArrayType(props.type || 'STRING_ARRAY')"
         @blur="emit('blur')"
         @focus="emit('focus')"
-        @update:model-value="emit('update:modelValue',setValues($event,index))"
+        @update:model-value="
+          emit('update:modelValue', setValues($event, index))
+        "
       />
-      <Button iconOnly type="secondary" icon="trash" label="Remove item"  v-if="valuesNotUndefined.length > 1" @click="clearInput(valuesNotUndefined, index)" />
+      <Button
+        iconOnly
+        type="secondary"
+        icon="trash"
+        label="Remove item"
+        v-if="valuesNotUndefined.length > 1"
+        @click="clearInput(valuesNotUndefined, index)"
+      />
     </div>
-    <Button type="secondary" size="small" icon="plus" label="Add a additional item" @click="addItem(valuesNotUndefined)"/>
+    <Button
+      type="secondary"
+      size="small"
+      icon="plus"
+      label="Add a additional item"
+      @click="addItem(valuesNotUndefined)"
+    />
   </div>
 </template>
 
@@ -22,7 +41,7 @@ import type { CellValueType } from "../../../metadata-utils/src/types";
 
 let props = defineProps<
   IInputProps & {
-    modelValue: any[]|undefined;
+    modelValue: any[] | undefined;
     type?: string;
   }
 >();
@@ -30,21 +49,21 @@ let props = defineProps<
 const values = ref(props.modelValue);
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
-function setValues(value:any, index:number){
-  if(values.value === undefined){
-    values.value =[undefined]
-  }else{
+function setValues(value: any, index: number) {
+  if (values.value === undefined) {
+    values.value = [undefined];
+  } else {
     values.value[index] = value;
   }
   return values.value;
-} 
+}
 
-const valuesNotUndefined = computed(()=>{
-  if(values.value === undefined){
-    values.value =[undefined]
+const valuesNotUndefined = computed(() => {
+  if (values.value === undefined) {
+    values.value = [undefined];
   }
   return values.value;
-})
+});
 
 function addItem(values: any) {
   values.push(undefined);

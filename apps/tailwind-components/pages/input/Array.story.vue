@@ -4,8 +4,8 @@
     show-state
     v-slot="{ placeholder, valid, invalid, disabled }"
   >
-  <div class="my-4">String array</div>
-  <InputArray
+    <div class="my-4">String array</div>
+    <InputArray
       id="input-array-string"
       type="STRING_ARRAY"
       v-model="stringValue"
@@ -119,7 +119,7 @@
 
 <script setup lang="ts">
 const stringValue = ref(["string 1", "string 2"]);
-const boolValue = ref([true,false])
-const timeValue = ref([Date.now(),Date.now()])
-const numberValue = ref([1,2])
+const boolValue = ref([true, false]);
+const timeValue = ref([Date.now(), Date.now()]);
+const numberValue = ref([1, 2]);
 </script>
