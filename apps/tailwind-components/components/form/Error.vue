@@ -8,16 +8,18 @@
 
     <ButtonBar>
       <Button
+        class="border-gray-200"
         :icon-only="true"
         type="tertiary"
-        icon="caret-up"
+        icon="arrow-up"
         label="Go to previous error"
         @click="$emit('error-prev')"
       />
       <Button
+        class="border-gray-200"
         :icon-only="true"
         type="tertiary"
-        icon="caret-down"
+        icon="arrow-down"
         label="Go to next error"
         @click="$emit('error-next')"
       />
