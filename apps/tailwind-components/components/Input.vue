@@ -1,6 +1,6 @@
 <template>
   <InputString
-    v-if="['STRING', 'AUTO_ID', 'LONG', 'INT'].includes(typeUpperCase)"
+    v-if="['STRING', 'AUTO_ID'].includes(typeUpperCase)"
     :id="id"
     v-model="modelValue as string | number | undefined"
     :valid="valid"
@@ -37,15 +37,42 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
-  <InputArray
-    v-else-if="['STRING_ARRAY', 'BOOL_ARRAY', 'DATE_ARRAY', 'DATETIME_ARRAY', 'DECIMAL_ARRAY', 'EMAIL_ARRAY', 'HYPERLINK_ARRAY', 'INT_ARRAY','LONG_ARRAY','TEXT_ARRAY','UUID_ARRAY','PERIOD_ARRAY'].includes(typeUpperCase)"
+  <InputDecimal
+    v-else-if="'DECIMAL' === typeUpperCase"
     :id="id"
-    v-model="modelValue as any[]"
-    :type="typeUpperCase"
+    v-model="modelValue as string | number | undefined"
+    type="text"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
+    :placeholder="placeholder"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <InputInt
+    v-else-if="'INT' === typeUpperCase"
+    :id="id"
+    v-model="modelValue as string | number | undefined"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <InputLong
+    v-else-if="'LONG' === typeUpperCase"
+    :id="id"
+    v-model="modelValue as string | undefined"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
