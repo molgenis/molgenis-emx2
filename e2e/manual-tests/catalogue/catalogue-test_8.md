@@ -100,7 +100,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 83 | Hover over the `VARIABLES` button | `VARIABLES` underlined | | |
 | 84 | Click on the `VARIABLES` button | The user goes to [/catalogue/all/variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/variables) | | |
 | 85 | Use the browser's ⬅️ button | The user goes back to [/catalogue/all/networks](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/networks) | | |
-| 86 | Hover over `MORE` | A drop-down menu is presented with `Other catalogues` and `Upload data` as options | | |
+| 86 | Hover over `MORE` | A drop-down menu is presented with `Other catalogues`, `Upload data` and `Manuals` as options | | |
 | 87 | Click on `Other catalogues` | The user goes to [/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | | |
 | | | | | |
 | 88 | Click on **testnetwork1** | The user goes to [/catalogue/testNetwork1](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/testNetwork1). | | |
