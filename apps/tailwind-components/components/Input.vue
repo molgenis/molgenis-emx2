@@ -38,16 +38,14 @@
     @blur="emit('blur')"
   />
   <InputArray
-    v-else-if="typeUpperCase.includes('ARRAY')"
+    v-else-if="['STRING_ARRAY', 'BOOL_ARRAY', 'DATE_ARRAY', 'DATETIME_ARRAY', 'DECIMAL_ARRAY', 'EMAIL_ARRAY', 'HYPERLINK_ARRAY', 'INT_ARRAY','LONG_ARRAY','TEXT_ARRAY','UUID_ARRAY','PERIOD_ARRAY'].includes(typeUpperCase)"
     :id="id"
-    v-model="modelValue as string[]"
-    type="text"
+    v-model="modelValue as any[]"
+    :type="typeUpperCase"
     :valid="valid"
     :invalid="invalid"
     :disabled="disabled"
     :describedBy="describedBy"
-    placeholder="Input a hyperlink"
-    @update:modelValue="emit('update:modelValue', $event)"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />

@@ -1,17 +1,18 @@
 <template>
   <div>
-    <div v-for="(value, index) in alwaysHaveAValue(values)" :key="index" class="flex items-center gap-1">
+    <div v-for="(value, index) in valuesNotUndefined" :key="index" class="flex items-center gap-1">
       <Input
         :id="id+'_'+index"
-        v-model="alwaysHaveAValue(values)[index]"
+        :modelValue="valuesNotUndefined[index]"
         v-bind="partialProps($props)"
         :type="nonArrayType(props.type || 'STRING_ARRAY')"
         @blur="emit('blur')"
         @focus="emit('focus')"
+        @update:model-value="emit('update:modelValue',setValues($event,index))"
       />
-      <Button iconOnly type="secondary" icon="trash" label="Remove item"  v-if="alwaysHaveAValue(values).length > 1" @click="clearInput(alwaysHaveAValue(values), index)" />
+      <Button iconOnly type="secondary" icon="trash" label="Remove item"  v-if="valuesNotUndefined.length > 1" @click="clearInput(valuesNotUndefined, index)" />
     </div>
-    <Button type="secondary" size="small" icon="plus" label="Add a additional item" @click="addItem(alwaysHaveAValue(values))"/>
+    <Button type="secondary" size="small" icon="plus" label="Add a additional item" @click="addItem(valuesNotUndefined)"/>
   </div>
 </template>
 
@@ -21,23 +22,31 @@ import type { CellValueType } from "../../../metadata-utils/src/types";
 
 let props = defineProps<
   IInputProps & {
-    modelValue: any;
+    modelValue: any[]|undefined;
     type?: string;
   }
 >();
 
-const values = props.modelValue;
-
+const values = ref(props.modelValue);
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
-function alwaysHaveAValue(values:any){
-  if(typeof values=== 'undefined'){
-    return [undefined];
-  }else{
-    return values;
-  }
-}
 
-function addItem(values: any, index: number) {
+function setValues(value:any, index:number){
+  if(values.value === undefined){
+    values.value =[undefined]
+  }else{
+    values.value[index] = value;
+  }
+  return values.value;
+} 
+
+const valuesNotUndefined = computed(()=>{
+  if(values.value === undefined){
+    values.value =[undefined]
+  }
+  return values.value;
+})
+
+function addItem(values: any) {
   values.push(undefined);
   emit("update:modelValue", values);
 }
