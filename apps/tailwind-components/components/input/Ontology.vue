@@ -91,6 +91,14 @@ async function init() {
     .forEach((term) => (term.selected = "selected"));
 }
 
+function getParents(node: ITreeNodeState): ITreeNodeState[] {
+  if (node.parentNode) {
+    return [node.parentNode, ...getParents(node.parentNode)];
+  } else {
+    return [];
+  }
+}
+
 function toggleSelect(node: ITreeNodeState) {
   console.log("toggle select: " + node.name);
   if (!props.isArray) {
@@ -105,27 +113,49 @@ function toggleSelect(node: ITreeNodeState) {
     });
   }
   if (node.selected == "selected") {
+    //update UI state
     node.selected = "unselected";
+    const itemsToBeRemoved: string[] = [node.name]; //deselection
+    const itemsToBeAdded: string[] = []; //adding siblings selection in case of array
     // unselect all children
-    getAllChildren(node).forEach((child) => (child.selected = "unselected"));
+    getAllChildren(node).forEach((child) => {
+      child.selected = "unselected";
+      itemsToBeRemoved.push(child.name);
+    });
     //if all siblings are unselected then remove 'intermediate' from parent
     if (
       node.parentNode &&
       !node.parentNode.children.some((child) => child.selected === "selected")
     ) {
-      let parentNode: ITreeNodeState | undefined = node.parentNode;
-      while (parentNode) {
+      getParents(node).forEach((parentNode) => {
         parentNode.selected = "unselected";
-        parentNode = parentNode.parentNode;
-      }
+        itemsToBeRemoved.push(parentNode.name);
+      });
     }
     //else apply intermediate to parent
     else {
-      let parentNode: ITreeNodeState | undefined = node.parentNode;
-      while (parentNode) {
+      getParents(node).forEach((parentNode) => {
         parentNode.selected = "intermediate";
-        parentNode = parentNode.parentNode;
-      }
+        itemsToBeRemoved.push(parentNode.name);
+        itemsToBeAdded.push(
+          ...parentNode.children
+            .filter((child) => child.selected === "selected")
+            .map((child) => child.name)
+        );
+      });
+    }
+    //update modelValue
+    if (props.isArray && Array.isArray(modelValue.value)) {
+      modelValue.value = [
+        ...new Set([
+          ...modelValue.value.filter(
+            (value) => !itemsToBeRemoved.includes(value)
+          ),
+          ...itemsToBeAdded,
+        ]),
+      ];
+    } else {
+      modelValue.value = undefined;
     }
   } else {
     //if all siblings are selected, select the parent instead
@@ -134,22 +164,34 @@ function toggleSelect(node: ITreeNodeState) {
       node.parentNode &&
       node.parentNode.children.every((child) => child.selected === "selected")
     ) {
-      console.log("should set selected on parent because all selected");
-      //remove all children from the selection
-
-      //and instead select the parent
-      toggleSelect(node.parentNode);
+      console.log("one");
+      return toggleSelect(node.parentNode);
     } else {
+      console.log("two");
+
       //mark all parents as intermediate
-      let parentNode = node.parentNode;
-      while (parentNode) {
-        console.log("set parent to intermediate " + parentNode.name);
-        parentNode.selected = "intermediate";
-        parentNode = parentNode.parentNode;
-      }
+      getParents(node).forEach(
+        (parentNode) => (parentNode.selected = "intermediate")
+      );
       //mark all children loaded children as selected
-      if (props.isArray)
+      if (props.isArray) {
         getAllChildren(node).forEach((child) => (child.selected = "selected"));
+      }
+      //update modelValue
+      if (props.isArray && Array.isArray(modelValue.value)) {
+        const childrenToBeRemoved =
+          node.children?.map((child) => child.name) || [];
+        modelValue.value = [
+          node.name,
+          ...new Set([
+            ...modelValue.value.filter(
+              (value) => !childrenToBeRemoved.includes(value)
+            ),
+          ]),
+        ];
+      } else {
+        modelValue.value = node.name;
+      }
     }
   }
 }
