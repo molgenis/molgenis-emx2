@@ -41,19 +41,19 @@ BEGIN
     EXECUTE
         'WITH RECURSIVE term_hierarchy AS (
             -- Start with the given terms
-            SELECT name
+            SELECT name,parent
             FROM "' || schema_name || '"."' || table_name || '"
             WHERE name = ANY($1)
 
-            UNION
+            UNION ALL
 
             -- Recursively find terms linked via ''parent''
-            SELECT t.parent
+            SELECT t.name,t.parent
             FROM "' || schema_name || '"."' || table_name || '" t
-            INNER JOIN term_hierarchy th ON t.name = th.name
-            WHERE t.parent IS NOT NULL
+            INNER JOIN term_hierarchy th ON th.parent = t.name
+            WHERE th.parent IS NOT NULL
         )
-        SELECT array_agg(name)
+        SELECT COALESCE(array_agg(name), ''{}''::VARCHAR[])
         FROM term_hierarchy'
         INTO result_terms
         USING input_terms;

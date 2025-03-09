@@ -35,6 +35,7 @@ public class TestOntologyQueries {
                     "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
                     schema.getName(), "Tag", new String[] {"colors"}))
             .fetch();
+    assertTrue(result.toString().contains("colors"));
     assertTrue(result.toString().contains("green"));
     assertFalse(result.toString().contains("mammals"));
 
@@ -48,6 +49,7 @@ public class TestOntologyQueries {
                     schema.getName(), "Tag", new String[] {"green", "blue"}))
             .fetch();
     assertTrue(result.toString().contains("green"));
+    assertFalse(result.toString().contains("colors"));
 
     // expect 'colors' to return all colors
     String jsonResult =
@@ -89,8 +91,10 @@ public class TestOntologyQueries {
                     "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
                     schema.getName(), "Tag", new String[] {"red"}))
             .fetch();
+    System.out.println(result);
     assertTrue(result.toString().contains("red"));
     assertTrue(result.toString().contains("colors"));
+    assertFalse(result.toString().contains("mammals"));
 
     // check that the function works
     result =

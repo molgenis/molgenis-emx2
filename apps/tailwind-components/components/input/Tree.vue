@@ -8,6 +8,7 @@ import TreeNode from "./TreeNode.vue";
 
 const props = withDefaults(
   defineProps<{
+    id: string;
     /* tree model to be rendered */
     nodes: ITreeNode[];
     modelValue: string[];
@@ -122,9 +123,8 @@ function getAllParents(node: ITreeNodeState): ITreeNodeState[] {
     : [];
 }
 
-function toggleSelect(name: string) {
+function toggleSelect(node: ITreeNodeState) {
   //toggle select of the named node
-  const node = nodeMap.value[name];
   const previousState = node.selected;
   if (node) {
     if (previousState !== "selected") {
@@ -162,8 +162,9 @@ function emitSelection() {
 }
 
 /* manage expand */
-function toggleExpand(name: string) {
-  nodeMap.value[name].expanded = nodeMap.value[name].expanded !== true;
+function toggleExpand(node: ITreeNodeState) {
+  nodeMap.value[node.name].expanded =
+    nodeMap.value[node.name].expanded !== true;
 }
 
 /* manage search */
@@ -258,6 +259,7 @@ const rootNodes = computed(() => {
     </span>
   </div>
   <TreeNode
+    :id="id"
     :nodes="rootNodes"
     :inverted="inverted"
     :isRoot="true"
