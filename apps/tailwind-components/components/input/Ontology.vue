@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { IInputProps, ITreeNodeState } from "~/types/types";
 import TreeNode from "~/components/input/TreeNode.vue";
+import type { Ref } from "vue";
 
 const props = defineProps<
   IInputProps & {
@@ -14,34 +15,43 @@ const props = defineProps<
 const modelValue = defineModel<string[] | string>();
 //state of the tree that is shown
 const ontologyTree: Ref<ITreeNodeState[]> = ref([]);
+//intermediate selected values
+const intermediates: Ref<string[]> = ref([]);
+//toggle for showing search
+const showSearch = ref<boolean>(false);
+// the search value
+const searchTerms: Ref<string> = ref("");
 
 onMounted(init);
 watch(() => props.ontologySchemaId, init);
 watch(() => props.ontologyTableId, init);
+watch(() => modelValue.value, applySelectedStates);
 
 /* retrieves terms, optionally as children to a parent */
 async function retrieveTerms(
   parentNode: ITreeNodeState | undefined = undefined
 ): Promise<ITreeNodeState[]> {
   //todo for later: add a 'loaded' flag so we can skip loading if loaded before
-
-  const graphqlFilter = parentNode
+  let graphqlFilter: any = parentNode
     ? { parent: { name: { equals: parentNode.name } } }
     : { parent: { _is_null: true } };
 
-  //todo: replace with custom query, now it retrieves too much
-  const result = await fetchTableData(
+  console.log("retrieve " + searchTerms.value);
+
+  if (searchTerms.value) {
+    //graphqlFilter._search = searchTerms.value;
+    //todo: need search including parents so I can get the paths. TODO
+  }
+
+  const data = await fetchGraphql(
     props.ontologySchemaId,
-    props.ontologyTableId,
+    `query ${props.ontologyTableId}($filter:${props.ontologyTableId}Filter) {${props.ontologyTableId}(filter:$filter, limit:1000, orderby:{name:ASC}){name,children(limit:1){name}}}`,
     {
       filter: graphqlFilter,
-      expandLevel: 1,
-      orderby: { name: "ASC" },
-      limit: 10000,
     }
   );
 
-  return result.rows?.map((row) => {
+  return data[props.ontologyTableId].map((row: any) => {
     return {
       name: row.name,
       parentNode: parentNode,
@@ -52,159 +62,127 @@ async function retrieveTerms(
   });
 }
 
-async function retrieveIntermediateTermNamesForModelValue(): Promise<string[]> {
+async function retrieveSelectedPathsForModelValue(): Promise<string[]> {
+  if (
+    props.isArray && Array.isArray(modelValue.value)
+      ? modelValue.value.length === 0
+      : !modelValue.value
+  ) {
+    return [];
+  }
   const graphqlFilter = {
     _match_any_including_parents: modelValue.value,
-    parent: { _is_null: true },
   };
-  //todo: replace with custom query, now it retrieves too much
-  const result = await fetchTableData(
+  const data = await fetchGraphql(
     props.ontologySchemaId,
-    props.ontologyTableId,
+    `query ${props.ontologyTableId}($filter:${props.ontologyTableId}Filter) {${props.ontologyTableId}(filter:$filter,limit:1000){name}}`,
     {
       filter: graphqlFilter,
-      expandLevel: 0,
-      limit: 10000,
     }
   );
-  console.log(result.rows);
-  return result.rows?.map((row) => row.name);
+
+  return data[props.ontologyTableId].map((term: { name: string }) => term.name);
 }
 
 /** initial load */
 async function init() {
   ontologyTree.value = await retrieveTerms();
-
-  //apply intermediate selected state
-  const intermediates = await retrieveIntermediateTermNamesForModelValue();
-  ontologyTree.value
-    .filter((term) => intermediates.includes(term.name))
-    .forEach((term) => (term.selected = "intermediate"));
-
-  //apply selection
-  ontologyTree.value
-    .filter((term) =>
-      props.isArray
-        ? modelValue.value?.includes(term.name)
-        : modelValue.value === term.name
-    )
-    .forEach((term) => (term.selected = "selected"));
+  applySelectedStates();
 }
 
-function getParents(node: ITreeNodeState): ITreeNodeState[] {
-  if (node.parentNode) {
-    return [node.parentNode, ...getParents(node.parentNode)];
+/** apply selection UI state on selection changes */
+async function applySelectedStates() {
+  intermediates.value = await retrieveSelectedPathsForModelValue();
+  ontologyTree.value.forEach((term) => {
+    applyStateToNode(term);
+  });
+}
+
+function applyStateToNode(node: ITreeNodeState): void {
+  if (
+    props.isArray
+      ? modelValue.value?.includes(node.name)
+      : modelValue.value === node.name
+  ) {
+    node.selected = "selected";
+    //todo: to make sure all children from modelValue?
+    getAllChildren(node).forEach((child) => (child.selected = "selected"));
+  } else if (intermediates.value.includes(node.name)) {
+    node.selected = "intermediate";
+    node.children.forEach((child) => applyStateToNode(child));
   } else {
-    return [];
+    node.selected = "unselected";
+    getAllChildren(node).forEach((child) => (child.selected = "unselected"));
   }
+}
+
+function getAllChildren(node: ITreeNodeState): ITreeNodeState[] {
+  const result: ITreeNodeState[] = node.children || [];
+  node.children?.forEach((child) => result.push(...getAllChildren(child)));
+  return result;
 }
 
 function toggleSelect(node: ITreeNodeState) {
-  console.log("toggle select: " + node.name);
   if (!props.isArray) {
-    //deselect else first
-    ontologyTree.value.forEach((term) => {
-      if (node.name !== term.name) term.selected = "unselected";
-      getAllChildren(term).forEach((child) => {
-        if (node.name !== child.name) {
-          child.selected = "unselected";
-        }
-      });
-    });
-  }
-  if (node.selected == "selected") {
-    //update UI state
-    node.selected = "unselected";
-    const itemsToBeRemoved: string[] = [node.name]; //deselection
-    const itemsToBeAdded: string[] = []; //adding siblings selection in case of array
-    // unselect all children
-    getAllChildren(node).forEach((child) => {
-      child.selected = "unselected";
-      itemsToBeRemoved.push(child.name);
-    });
-    //if all siblings are unselected then remove 'intermediate' from parent
-    if (
-      node.parentNode &&
-      !node.parentNode.children.some((child) => child.selected === "selected")
-    ) {
-      getParents(node).forEach((parentNode) => {
-        parentNode.selected = "unselected";
-        itemsToBeRemoved.push(parentNode.name);
-      });
-    }
-    //else apply intermediate to parent
-    else {
-      getParents(node).forEach((parentNode) => {
-        parentNode.selected = "intermediate";
-        itemsToBeRemoved.push(parentNode.name);
-        itemsToBeAdded.push(
-          ...parentNode.children
-            .filter((child) => child.selected === "selected")
-            .map((child) => child.name)
+    modelValue.value = modelValue.value === node.name ? undefined : node.name;
+  } else if (Array.isArray(modelValue.value)) {
+    //deselect directly
+    if (modelValue.value.includes(node.name)) {
+      modelValue.value = modelValue.value.filter(
+        (value) => value !== node.name
+      );
+    } else {
+      //if last child to be selected, we should deselect all siblings and select parent
+      const itemsToBeAdded: string[] = [];
+      const itemsToBeRemoved: string[] = []; //deselection
+      if (
+        node.parentNode &&
+        node.parentNode.children.every((child) => child.selected === "selected")
+      ) {
+        console.log(
+          "when all sibling selected then deselect parent, select siblings"
         );
-      });
-    }
-    //update modelValue
-    if (props.isArray && Array.isArray(modelValue.value)) {
-      modelValue.value = [
-        ...new Set([
+        itemsToBeAdded.push(
+          ...node.parentNode.children
+            .map((node) => node.name)
+            .filter((name) => node.name !== name)
+        );
+        itemsToBeRemoved.push(node.parentNode.name);
+        modelValue.value = [
           ...modelValue.value.filter(
             (value) => !itemsToBeRemoved.includes(value)
           ),
           ...itemsToBeAdded,
-        ]),
-      ];
-    } else {
-      modelValue.value = undefined;
-    }
-  } else {
-    //if all siblings are selected, select the parent instead
-    node.selected = "selected";
-    if (
-      node.parentNode &&
-      node.parentNode.children.every((child) => child.selected === "selected")
-    ) {
-      console.log("one");
-      return toggleSelect(node.parentNode);
-    } else {
-      console.log("two");
-
-      //mark all parents as intermediate
-      getParents(node).forEach(
-        (parentNode) => (parentNode.selected = "intermediate")
-      );
-      //mark all children loaded children as selected
-      if (props.isArray) {
-        getAllChildren(node).forEach((child) => (child.selected = "selected"));
-      }
-      //update modelValue
-      if (props.isArray && Array.isArray(modelValue.value)) {
-        const childrenToBeRemoved =
-          node.children?.map((child) => child.name) || [];
-        modelValue.value = [
-          node.name,
-          ...new Set([
-            ...modelValue.value.filter(
-              (value) => !childrenToBeRemoved.includes(value)
-            ),
-          ]),
         ];
       } else {
-        modelValue.value = node.name;
+        node.selected = "selected";
+        if (
+          node.parentNode &&
+          node.parentNode.children.every(
+            (child) => child.selected === "selected"
+          )
+        ) {
+          console.log(
+            "when last sibling selected then select parent, deselect siblings"
+          );
+          itemsToBeRemoved.push(
+            ...node.parentNode.children.map((node) => node.name)
+          );
+          itemsToBeAdded.push(node.parentNode.name);
+          modelValue.value = [
+            ...modelValue.value.filter(
+              (value) => !itemsToBeRemoved.includes(value)
+            ),
+            ...itemsToBeAdded,
+          ];
+        } else {
+          modelValue.value = [...modelValue.value, node.name];
+        }
       }
     }
   }
+  //ui selection state will be updated via watch on modelValue
 }
-
-const getAllChildren = (node: ITreeNodeState): ITreeNodeState[] => {
-  let result: ITreeNodeState[] = [];
-  if (node.children) {
-    for (const child of node.children) {
-      result.push(child, ...getAllChildren(child));
-    }
-  }
-  return result;
-};
 
 async function toggleExpand(node: ITreeNodeState) {
   if (!node.expanded) {
@@ -230,10 +208,62 @@ async function toggleExpand(node: ITreeNodeState) {
     node.expanded = false;
   }
 }
+
+function deselect(name: string) {
+  if (props.isArray && Array.isArray(modelValue.value)) {
+    modelValue.value = modelValue.value.filter((value) => value != name);
+  } else {
+    modelValue.value = undefined;
+  }
+}
+
+function clearSelection() {
+  modelValue.value = props.isArray ? [] : undefined;
+}
+
+function toggleSearch() {
+  showSearch.value = !showSearch.value;
+  if (!showSearch.value) init();
+}
+
+function updateSearch(value: string) {
+  searchTerms.value = value;
+  init();
+}
 </script>
 
 <template>
   <div>
+    <div
+      class="flex flex-wrap gap-2 mb-2"
+      v-if="Array.isArray(modelValue) ? modelValue.length : modelValue"
+    >
+      <Button
+        v-for="label in Array.isArray(modelValue) ? modelValue : [modelValue]"
+        icon="cross"
+        iconPosition="right"
+        type="filterWell"
+        size="tiny"
+        @click="deselect(label as string)"
+      >
+        {{ label }}
+      </Button>
+    </div>
+    <div class="flex flex-wrap gap-2 mb-2">
+      <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
+        Search
+      </ButtonText>
+      <ButtonText @click="clearSelection"> Clear all </ButtonText>
+      <InputSearch
+        v-if="showSearch"
+        :id="`search-for-${id}`"
+        :modelValue="searchTerms"
+        @update:modelValue="updateSearch"
+        class="mb-2"
+        :placeholder="`Search in terms`"
+        :aria-hidden="!showSearch"
+      />
+    </div>
     <TreeNode
       :id="id"
       :nodes="ontologyTree"
