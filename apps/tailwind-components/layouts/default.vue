@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+import PlaygroundNavBar from "~/PlaygroundNavBar.vue";
 
 const modules = import.meta.glob("../**/*.story.vue", {
   import: "default",
@@ -47,6 +48,7 @@ const { $sourceCodeMap } = useNuxtApp();
   <div
     class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden pt-15"
   >
+    <PlaygroundNavBar />
     <div
       class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient"
     >

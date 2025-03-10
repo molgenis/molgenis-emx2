@@ -153,6 +153,7 @@ module.exports = {
         "app-wrapper": "var(--background-color-app-wrapper)",
         "pagination": "var(--background-color-pagination)",
         "pagination-hover": "var(--background-color-pagination-hover)",
+        "form": "var(--background-color-form)",
         "footer": "var(--background-color-footer)",
         "modal": "var(--background-color-modal)",
         "modal-footer": "var(--background-color-modal-footer)",

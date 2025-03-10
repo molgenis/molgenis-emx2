@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { a } from "vitest/dist/chunks/suite.BJU7kdY9.js";
 import type {
   columnId,
   columnValue,
@@ -33,9 +32,51 @@ function scrollTo(elementId: string) {
     window.scroll(0, element.offsetTop - STICKY_HEADER_OFFSET);
   }
 }
+function onSave() {
+  alert("Do Save");
+}
+
+function onSaveDraft() {
+  alert("Do draft save");
+}
+
+function onCancel() {
+  alert("Do cancel");
+}
+
+const errorMessage = computed(() => {
+  const errorCount = Object.values(errorMap.value).filter(
+    (value) => value !== ""
+  ).length;
+  const fieldLabel = errorCount === 1 ? "field requires" : "fields require";
+  return errorCount > 0
+    ? `${errorCount} ${fieldLabel} attention before you can save this cohort`
+    : "";
+});
+
+const currentErrorFieldId = ref<string | null>(null);
+
+function errorPrev() {
+  const keys = Object.keys(errorMap.value);
+  const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
+  const prevIndex = currentIndex - 1;
+  const previousErrorColumnId =
+    keys[prevIndex < 0 ? keys.length - 1 : prevIndex];
+  const fieldDomId = `${previousErrorColumnId}-form-field`;
+  scrollTo(fieldDomId);
+}
+
+function errorNext() {
+  const keys = Object.keys(errorMap.value);
+  const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
+  const nextIndex = currentIndex + 1;
+  const nextErrorColumnId = keys[nextIndex >= keys.length ? 0 : nextIndex];
+  const fieldDomId = `${nextErrorColumnId}-form-field`;
+  scrollTo(fieldDomId);
+}
 </script>
 <template>
-  <Container>
+  <Container class="pt-16">
     <PageHeader title="Edit cohort: CONSTANCES" align="left">
       <template #prefix>
         <BreadCrumbs :align="'left'" :crumbs="crumbs" :current="current" />
@@ -57,7 +98,7 @@ function scrollTo(elementId: string) {
       </template>
     </PageHeader>
     <section class="grid grid-cols-4 gap-3">
-      <div class="col-span-1">
+      <div class="col-span-1 bg-sidebar-gradient">
         <FormLegend
           v-if="sections"
           class="pr-20 mr-5 sticky top-0"
@@ -66,9 +107,28 @@ function scrollTo(elementId: string) {
         />
       </div>
 
-      <div id="row-edit-field-container" class="col-span-3 border p-10">
+      <div id="row-edit-field-container" class="col-span-3 border">
+        <div class="h-[116px] sticky top-0 bg-form z-10">
+          <menu
+            class="flex items-center justify-end pt-[20px] pb-[20px] px-[30px]"
+          >
+            <div class="flex gap-4">
+              <Button type="secondary" @click="onCancel">Cancel</Button>
+              <Button type="outline" @click="onSaveDraft">Save draft</Button>
+              <Button type="primary" @click="onSave">Save</Button>
+            </div>
+          </menu>
+          <FormError
+            v-show="errorMessage"
+            :message="errorMessage"
+            class="sticky h-[62px] bottom-0 ransition-all transition-discrete"
+            @error-prev="errorPrev"
+            @error-next="errorNext"
+          />
+        </div>
+
         <FormFields
-          class="px-32 pt-16"
+          class="px-32"
           schemaId="row-edit-sample"
           :metadata="metadata"
           :sections="sections"

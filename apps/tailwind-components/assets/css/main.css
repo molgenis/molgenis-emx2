@@ -85,6 +85,7 @@
     --background-color-pagination-hover: var(--color-blue-900);
     --background-color-pagination-input: var(--color-white);
     --background-color-footer: var(--color-white);
+    --background-color-form: var(--color-white);
     --background-color-modal: var(--color-white);
     --background-color-modal-footer: var(--color-white);
     --background-color-tab: var(--color-blue-50);

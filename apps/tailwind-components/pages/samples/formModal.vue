@@ -99,9 +99,6 @@ function errorNext() {
           >
             <BaseIcon class="text-gray-400" name="cross" />
           </button>
-
-          current error: {{ currentErrorFieldId }} error keys:
-          {{ Object.keys(errorMap) }}
         </header>
       </template>
 
