@@ -22,65 +22,76 @@ Boolean defining whether to load the demo catalogue on server startup
 
 #### key
 
-```CATALOGUE_BANNER_HTML```
+`CATALOGUE_BANNER_HTML`
 
 #### description
-string containing html to be rendered in page banner 
+
+String containing html to be rendered in page banner
 
 #### default
-none, no notification message is shown
+
+None, no notification message is shown
 
 ### Landing page title
 
 #### key
-```CATALOGUE_LANDING_TITLE```
+
+`CATALOGUE_LANDING_TITLE`
 
 #### description
+
 Main title shown in landing page
 
 #### default
+
 "European Networks Health Data
 & Cohort Catalogue."
-
 
 ### Landing page description
 
 #### key
-```CATALOGUE_LANDING_DESCRIPTION```
+
+`CATALOGUE_LANDING_DESCRIPTION`
 
 #### description
-Description text or subtitle shown on 
+
+Description text or subtitle shown on
 
 #### default
-"Browse and manage metadata for data resources, such as cohorts, registries, bio-banks, and multi-center collaborations thereof such as networks, common data models and studies."
 
+"Browse and manage metadata for data resources, such as cohorts, registries, bio-banks,
+and multi-center collaborations thereof such as networks, common data models and studies."
 
 ### Landing page call-to-action (CTA) labels
 
 #### keys
-```CATALOGUE_LANDING_COHORTS_CTA```
 
-```CATALOGUE_LANDING_NETWORKS_CTA```
+`CATALOGUE_LANDING_COHORTS_CTA`
 
-```CATALOGUE_LANDING_VARIABLES_CTA```
+`CATALOGUE_LANDING_NETWORKS_CTA`
 
+`CATALOGUE_LANDING_VARIABLES_CTA`
 
 #### description
+
 The label shown on landing CTA element for each of the main sections
 
 #### default
-"Cohorts", "Networks", "Variables" 
+
+"Cohorts", "Networks", "Variables"
 
 ### Landing page primary cards  text
 
 #### keys
-```CATALOGUE_LANDING_COHORTS_TEXT```
 
-```CATALOGUE_LANDING_NETWORKS_TEXT```
+`CATALOGUE_LANDING_COHORTS_TEXT`
 
-```CATALOGUE_LANDING_VARIABLES_TEXT```
+`CATALOGUE_LANDING_NETWORKS_TEXT`
+
+`CATALOGUE_LANDING_VARIABLES_TEXT`
 
 #### default
+
 - CATALOGUE_LANDING_COHORTS_TEXT: *A complete overview of all cohorts and biobanks.*
 - CATALOGUE_LANDING_NETWORKS_TEXT: *Collaborations of multiple institutions and/or cohorts with a common objective.*
 - CATALOGUE_LANDING_VARIABLES_TEXT: *A complete overview of available variables.*
@@ -88,24 +99,25 @@ The label shown on landing CTA element for each of the main sections
 ### Landing page info cards (secondary landing card) labels and text
 
 #### keys
-```CATALOGUE_LANDING_PARTICIPANTS_LABEL```
 
-```CATALOGUE_LANDING_PARTICIPANTS_TEXT```
+`CATALOGUE_LANDING_PARTICIPANTS_LABEL`
 
-```CATALOGUE_LANDING_SAMPLES_LABEL```
+`CATALOGUE_LANDING_PARTICIPANTS_TEXT`
 
-```CATALOGUE_LANDING_SAMPLES_TEXT```
+`CATALOGUE_LANDING_SAMPLES_LABEL`
 
-```CATALOGUE_LANDING_DESIGN_LABEL```
+`CATALOGUE_LANDING_SAMPLES_TEXT`
 
-```CATALOGUE_LANDING_DESIGN_TEXT```
+`CATALOGUE_LANDING_DESIGN_LABEL`
 
-```CATALOGUE_LANDING_SUBCOHORTS_LABEL```
+`CATALOGUE_LANDING_DESIGN_TEXT`
 
-```CATALOGUE_LANDING_SUBCOHORTS_TEXT```
+`CATALOGUE_LANDING_SUBCOHORTS_LABEL`
 
+`CATALOGUE_LANDING_SUBCOHORTS_TEXT`
 
 #### default
+
 - CATALOGUE_LANDING_PARTICIPANTS_LABEL: *Participants*
 - CATALOGUE_LANDING_PARTICIPANTS_TEXT: *The cumulative number of participants of all datasets combined.*
 - CATALOGUE_LANDING_SAMPLES_LABEL: *Samples*
@@ -117,17 +129,18 @@ The label shown on landing CTA element for each of the main sections
 - CATALOGUE_LANDING_SUBCOHORTS_LABEL: *Subcohorts*
 - CATALOGUE_LANDING_SUBCOHORTS_TEXT: *The total number of subcohorts included*
 
-
-
-
 ## Favicon
 
-A Themed favicon is set by placing a [theme].icon file in the public/img folder. At runtime the [theme] is replaced by the value as set in ```NUXT_PUBLIC_EMX2_THEME``` environment setting. If no theme is set, the default molgenis favicon is show. 
+A Themed favicon is set by placing a [theme].icon file in the public/img folder.
+At runtime the [theme] is replaced by the value as set in `NUXT_PUBLIC_EMX2_THEME` environment setting.
+If no theme is set, the default molgenis favicon is show.
 
 ## Analytics
 
 Analytics can be enabled by setting the following environment variables:
 
-```NUXT_PUBLIC_ANALYTICS_KEY``` : The analytics measurement id
+`NUXT_PUBLIC_ANALYTICS_KEY` : The analytics measurement id
 
-```NUXT_PUBLIC_ANALYTICS_PROVIDER``` : specfied the analytics provider ( either [siteimprove](https://www.siteimprove.com/) or [google-analytics](https://marketingplatform.google.com/about/analytics/) ), defaults to "siteimprove"
+`NUXT_PUBLIC_ANALYTICS_PROVIDER` : specify the analytics provider (either [siteimprove](https://www.siteimprove.com/)
+or [Google Analytics](https://marketingplatform.google.com/about/analytics/)),
+defaults to "siteimprove"
