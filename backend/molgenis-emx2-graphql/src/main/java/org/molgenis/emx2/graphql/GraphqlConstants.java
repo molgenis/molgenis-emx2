@@ -42,6 +42,7 @@ public class GraphqlConstants {
   public static final String FILTER_AND = "_and";
   public static final String FILTER_MATCH_INCLUDING_CHILDREN = "_match_any_including_children";
   public static final String FILTER_MATCH_INCLUDING_PARENTS = "_match_any_including_parents";
+  public static final String FILTER_LIKE_INCLUDING_PARENTS = "_like_including_parents";
   public static final String FILTER_MATCH_PATH = "_match_path";
   public static final String DETAIL = "detail";
   public static final String LIMIT = "limit";

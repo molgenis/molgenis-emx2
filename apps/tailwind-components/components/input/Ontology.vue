@@ -39,7 +39,7 @@ async function retrieveTerms(
   console.log("retrieve " + searchTerms.value);
 
   if (searchTerms.value) {
-    //graphqlFilter._search = searchTerms.value;
+    graphqlFilter._like_including_parents = searchTerms.value;
     //todo: need search including parents so I can get the paths. TODO
   }
 
@@ -226,9 +226,9 @@ function toggleSearch() {
   if (!showSearch.value) init();
 }
 
-function updateSearch(value: string) {
+async function updateSearch(value: string) {
   searchTerms.value = value;
-  init();
+  await init();
 }
 </script>
 

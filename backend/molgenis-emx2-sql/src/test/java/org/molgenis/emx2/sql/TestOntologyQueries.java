@@ -7,6 +7,9 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.Row.row;
 
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 import org.jooq.Result;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,7 +84,7 @@ public class TestOntologyQueries {
   }
 
   @Test
-  void testGetTermsIncludingParents() {
+  void testGetTermsIncludingParents() throws SQLException {
     // check that the function works
     Result<?> result =
         schema
@@ -91,7 +94,6 @@ public class TestOntologyQueries {
                     "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
                     schema.getName(), "Tag", new String[] {"red"}))
             .fetch();
-    System.out.println(result);
     assertTrue(result.toString().contains("red"));
     assertTrue(result.toString().contains("colors"));
     assertFalse(result.toString().contains("mammals"));
@@ -111,6 +113,24 @@ public class TestOntologyQueries {
     assertTrue(result.toString().contains("species"));
     assertFalse(result.toString().contains("carnivorous mammals"));
 
+    // check that the function works
+    // check that the function works
+    result =
+        schema
+            .getJooq()
+            .select(
+                field(
+                        "\"MOLGENIS\".ilike_terms_including_parents({0},{1},{2})",
+                        schema.getName(), "Tag", new String[] {"re", "amma"})
+                    .as("result"))
+            .fetch();
+    List<String> resultString = Arrays.asList(new SqlRow(result.get(0)).getStringArray("result"));
+    assertTrue(resultString.contains("red"));
+    assertTrue(resultString.contains("colors"));
+    assertTrue(resultString.contains("mammals"));
+    assertTrue(resultString.contains("species"));
+    assertTrue(resultString.contains("carnivorous mammals"));
+
     // red (colors is not in the data)
     String jsonResult =
         schema.query("Pet").where(f("tags", MATCH_ANY_INCLUDING_PARENTS, "red")).retrieveJSON();
@@ -124,6 +144,12 @@ public class TestOntologyQueries {
     // mammals and thus also species (spike has species)
     jsonResult =
         schema.query("Pet").where(f("tags", MATCH_ANY_INCLUDING_PARENTS, "red")).retrieveJSON();
+    assertTrue(jsonResult.contains("colors"));
+    assertTrue(jsonResult.contains("extra"));
+    assertFalse(result.toString().contains("pooky"));
+
+    // mammals and thus also species (spike has species)
+    jsonResult = schema.query("Pet").where(f("tags", LIKE_INCLUDING_PARENTS, "re")).retrieveJSON();
     assertTrue(jsonResult.contains("colors"));
     assertTrue(jsonResult.contains("extra"));
     assertFalse(result.toString().contains("pooky"));

@@ -474,7 +474,11 @@ public class SqlQuery extends QueryBean {
               jsonFilterQueryConditions(table, column, tableAlias, subAlias, filter, searchTerms));
         case TRIGRAM_SEARCH, TEXT_SEARCH:
           return jsonSearchConditions(table, subAlias, TypeUtils.toStringArray(filter.getValues()));
-        case MATCH_ANY_INCLUDING_PARENTS, MATCH_PATH, MATCH_ALL, MATCH_ANY_INCLUDING_CHILDREN:
+        case MATCH_ANY_INCLUDING_PARENTS,
+            MATCH_PATH,
+            MATCH_ALL,
+            MATCH_ANY_INCLUDING_CHILDREN,
+            LIKE_INCLUDING_PARENTS:
           // check for table level filter for ontologies (weird getColumn), apply to "name" columm
           if (filter.getOperator().getName().equals(filter.getColumn())) {
             return whereCondition(
@@ -1195,6 +1199,8 @@ public class SqlQuery extends QueryBean {
         return whereColumnBetween(columnName, values);
       case MATCH_ANY_INCLUDING_PARENTS:
         return whereColumnMatchAnyIncludingParents(column, values);
+      case LIKE_INCLUDING_PARENTS:
+        return whereColumnLikeIncludingParents(column, values);
       case MATCH_ANY_INCLUDING_CHILDREN:
         return whereColumnMatchAnyIncludingChilderen(column, values);
       case MATCH_PATH:
@@ -1246,6 +1252,29 @@ public class SqlQuery extends QueryBean {
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
+                  column.getRefSchemaName(),
+                  column.getRefTableName(),
+                  value(TypeUtils.toStringArray(values)))));
+    }
+  }
+
+  private Condition whereColumnLikeIncludingParents(Column column, Object[] values) {
+    if (column.isArray()) {
+      return whereColumnInSubquery(
+          column,
+          DSL.select(
+              field(
+                  "\"MOLGENIS\".ilike_terms_including_parents({0},{1},{2})",
+                  column.getRefSchemaName(),
+                  column.getRefTableName(),
+                  value(TypeUtils.toStringArray(values)))));
+    } else {
+      return condition(
+          "{0} = ANY(ARRAY({1}))",
+          name(column.getName()),
+          DSL.select(
+              field(
+                  "\"MOLGENIS\".ilike_terms_including_parents({0},{1},{2})",
                   column.getRefSchemaName(),
                   column.getRefTableName(),
                   value(TypeUtils.toStringArray(values)))));
