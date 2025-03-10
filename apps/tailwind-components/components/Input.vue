@@ -128,7 +128,7 @@
     @blur="emit('blur')"
   />
   <InputRef
-    v-else-if="['REF', 'ONTOLOGY'].includes(typeUpperCase)"
+    v-else-if="['REF'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject"
     :id="id"
     :valid="valid"
@@ -144,7 +144,7 @@
     :is-array="false"
   />
   <InputRef
-    v-else-if="['REF_ARRAY', 'ONTOLOGY_ARRAY'].includes(typeUpperCase)"
+    v-else-if="['REF_ARRAY'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject[]"
     :id="id"
     :valid="valid"
@@ -158,6 +158,48 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="true"
+  />
+  <InputOntology
+    v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
+    :modelValue="modelValue ? modelValue.name : undefined"
+    @update:modelValue="
+      $event ? (modelValue = { name: $event }) : (modelValue = undefined)
+    "
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    :ontologySchemaId="refSchemaId as string"
+    :ontologyTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+    :is-array="false"
+  />
+  <InputOntology
+    v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
+    :isArray="true"
+    :modelValue="modelValue ? modelValue.map((value) => value.name) : []"
+    @update:modelValue="
+      Array.isArray($event)
+        ? (modelValue = $event.map((value) => {
+            return { name: value };
+          }))
+        : (modelValue = [])
+    "
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    :ontologySchemaId="refSchemaId as string"
+    :ontologyTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
   />
   <InputFile
     v-else-if="['FILE'].includes(typeUpperCase)"
