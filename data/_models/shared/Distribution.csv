@@ -5,6 +5,6 @@ Distribution,,description,string,,,,,,,,dcterms:description,"Description of a Ta
 Distribution,,type,ontology,,TRUE,,DistributionType,,,,afr:AFR_0002205,"Distribution type, either Table or File.",DCAT files add-on
 Distribution,,files,ref_array,,,,Files,,,,obo:STATO_0000002,"One or multiple metadata for digital remote files.",DCAT files add-on
 Distribution,,belongsToDataset,ref_array,,TRUE,,Dataset,,,,dcat:Dataset,Reference to any datasets that contain this distribution.,DCAT
-Distribution,,propertyValue,string_array,,,,,,,,https://schema.org/PropertyValue,"A property-value pair, e.g. representing a feature of a product or place.",DCAT
+Distribution,,propertyValue,string_array,,,,,,,,schema:PropertyValue,"A property-value pair, e.g. representing a feature of a product or place.",DCAT
 Distribution,,mediaType,string,,,,,,,,dcat:mediaType,"The file format, physical medium, or dimensions of the resource.",DCAT
 Distribution,,accessURL,hyperlink,,,,,,,,dcat:accessURL,"A URL of a resource that gives access to a distribution of the dataset. E.g. landing page, feed, SPARQL endpoint. Use for all cases except a simple download link, in which case downloadURL is preferred.",DCAT

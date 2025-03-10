@@ -9,4 +9,4 @@ Catalog,,language,ontology_array,,,,Languages,,,,dcterms:language,The language(s
 Catalog,,license,hyperlink,,TRUE,,,,,,dcterms:license,The reference to the usage license of the catalog.,DCAT
 Catalog,,themeTaxonomy,hyperlink_array,,TRUE,,,,,,dcat:themeTaxonomy,"A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.",DCAT
 Catalog,,dataset,refBack,,,,Dataset,,belongsToCatalog,,dcat:dataset,"The relation between the catalog and its items. This is the most general predicate for membership of a catalog. It is recommended to use more specific sub-properties such as dcat:dataset, dcat:catalog, dcat:service, or a custom sub-property.",DCAT
-Catalog,,propertyValue,string_array,,,,,,,,https://schema.org/PropertyValue,"A property-value pair, e.g. representing a feature of a product or place.",DCAT
+Catalog,,propertyValue,string_array,,,,,,,,schema:PropertyValue,"A property-value pair, e.g. representing a feature of a product or place.",DCAT
