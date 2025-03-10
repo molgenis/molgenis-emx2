@@ -5,10 +5,10 @@ The Network data manager is responsible for uploading the common data model (CDM
 ## Define CDM metadata
 
 [MOLGENIS catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#) provides a
-framework to describe in detail: metadata of different data resources (such as cohorts and data sources); definitions of 
-the variables collected in these resources; and mappings to common data models. Its purpose is to provide a gateway to 
-find and access health research data and to facilitate pooled data analysis of multiple cohorts 
-[Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/) and multi-datasource studies 
+framework to describe in detail: metadata of different data resources (such as cohorts and data sources); definitions of
+the variables collected in these resources; and mappings to common data models. Its purpose is to provide a gateway to
+find and access health research data and to facilitate pooled data analysis of multiple cohorts
+[Fortier et al, 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/) and multi-datasource studies
 [Gini et al, 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/).
 
 - The resource metadata provides descriptive information such as contact details, name of the cohort, and high-level
@@ -26,7 +26,7 @@ LongITools. You will need login details to upload metadata to the MOLGENIS catal
 ### Define common data elements
 
 We use the [*TargetDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary.xlsx)
-to describe common data model elements. The 
+to describe common data model elements. The
 [*TargetDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary.xlsx)
 consists of multiple sheets. Each sheet corresponds to a table in the catalogue. The columns in the sheet
 correspond to columns in the table concerned. This document describes how to fill out each of the sheets and their
@@ -42,13 +42,12 @@ upload the metadata to the catalogue see the section [Upload metadata](cat_netwo
 
 <sup>Figure 1. Tables in a Network’s staging area in the MOLGENIS catalogue.</sup>
 
-
 ## Fill out network rich metadata
 
-Open your staging area, navigate to 'Tables' and open the table 'Resources'. Your network id and name are already 
-filled out. Click on the pencil sign next to this entry to start editing your network rich metadata by filling out 
-the form. 'Subpopulations' and 'Collection events' are filled out through the same route, by accessing the corresponding tables.
-
+Open your staging area, navigate to 'Tables' and open the table 'Resources'. Your network id and name are already
+filled out. Click on the pencil sign next to this entry to start editing your network rich metadata by filling out
+the form. 'Subpopulations' and 'Collection events' are filled out through the same route,
+by accessing the corresponding tables.
 
 ## Define the common data model
 
@@ -58,7 +57,7 @@ The network's datasets are defined in the *Datasets* sheet. Columns with an aste
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Id of the <b>resource</b>. | e.g LifeCycle, LongITools or ATHLETE |
+| resource \* | Id of the resource. | e.g LifeCycle, LongITools or ATHLETE |
 | name \* | Unique dataset name | |
 | label | Dataset label | |
 | description | Dataset description | |
@@ -69,7 +68,8 @@ The network's datasets are defined in the *Datasets* sheet. Columns with an aste
 | since version | Version of the data model when this dataset was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this dataset was deleted | e.g. 2.0.0 or 2.1 |
 
-<sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Keywords, Observation targets or Dataset types</sup>
+<sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory;
+1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Keywords, Observation targets or Dataset types</sup>
 
 ### *Variables* sheet
 
@@ -77,8 +77,8 @@ The network's variables are defined in the *Variables* sheet.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Resource (Network) that this variable belongs to. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
-| dataset \* | Dataset that contains the variable. | Datasets must be predefined in the _Datasets_ sheet |
+| resource \* | Resource (Network) that this variable belongs to. Fill out your resource id | The resource id is found in the table *Resources* in the resource staging area |
+| dataset \* | Dataset that contains the variable. | Datasets must be predefined in the *Datasets* sheet |
 | name \* | Variable name, unique within a dataset | |
 | label | Human readable variable label | |
 | format | The data type of the variable | Find list to choose from in CatalogueOntologies [Formats](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Formats) |
@@ -97,7 +97,7 @@ The network's variables are defined in the *Variables* sheet.
 | useExternalDefinition.dataset | Refer to the associated dataset name | When using the definitions of a harmonised variable from another CDM |
 | use externaldefinition.name | Refer to the associated variable name | When using the definitions of a harmonised variable from another CDM |
 
-<sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory; 
+<sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory;
 1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Vocabularies, Keywords, Repeat units, or Units</sup>
 
 ### *Variable values* sheet
@@ -108,9 +108,9 @@ insightful for those that are interested.
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Resource that the variable belongs to. Fill out your resource id | The resource id is found in the table _Resources_ in the resource staging area |
-| dataset \* | Dataset that contains the variable | Datasets must be predefined in the _Datasets_ sheet |
-| name \* | Variable name | Variables must be predefined in the _Variables_ sheet |
+| resource \* | Resource that the variable belongs to. Fill out your resource id | The resource id is found in the table *Resources* in the resource staging area |
+| dataset \* | Dataset that contains the variable | Datasets must be predefined in the *Datasets* sheet |
+| name \* | Variable name | Variables must be predefined in the *Variables* sheet |
 | value \* | The code or value used | e.g. 1, 2 or -99 |
 | label \* | The label corresponding to the value | e.g. 'yes', 'no' or 'NA' |
 | order | The order in which the code list should appear | e.g. 1 |
@@ -129,5 +129,5 @@ the catalogue.
 
 When you log in to the MOLGENIS catalogue you will see a listing of databases that are accessible to you. Click on your
 network's database to access it. Go to 'Up/Download' in the menu. Use 'browse' to select a template and 'upload' to
-start uploading your metadata. After uploading you can view your metadata under 'Tables'. When you are finished uploading, 
+start uploading your metadata. After uploading you can view your metadata under 'Tables'. When you are finished uploading,
 contact [*molgenis support*](mailto:support@molgenis.org) to synchronise your data to the catalogue.
