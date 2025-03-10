@@ -1,4 +1,4 @@
-# Resource data manager
+# Data manager
 
 The [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/) provides a
 framework for detailed descriptions of the following:
@@ -21,10 +21,13 @@ Combining these two, the variable mappings describe how source variables have be
 which can be used as a basis for integrated analysis. In some projects, data may be made available via [DataSHIELD](https://www.datashield.org/).
 In these cases each resource stores the data locally in a [MOLGENIS Armadillo](../armadillo/) DataSHIELD server.
 
-This page describes the process of filling out metadata and source variable information for a resource
+This page describes the process of filling out metadata and variable information for a resource
 and uploading this to the catalogue. Expected users of this are data managers within the organisations
-with access to the resources to be included in the catalogue.
-This document assumes you have received login details for upload of your metadata.
+with access to the resources to be included in the catalogue, who can submit metadata, source variables
+(also called collected variables) and variable mappings. In addition, it can be used by central data managers
+of networks with a common data model such as LifeCycle or LongITools, who can submit metadata and target variables
+(also called the harmonised variables or common data model).
+This document assumes you have received login details for upload of your variables and metadata.
 If this is not the case, see the section on [requesting access](#request-access).
 
 ## Staging areas
@@ -55,38 +58,48 @@ You can see filled out example metadata in these databases.
 
 Open your staging area and open the table `Resources`. The `id` and `name` columns are already filled in.
 Click on the pencil sign next to this entry to start editing your metadata by filling out
-the form. If you are planning on entering collected variables as well,
+the form. If you are planning on entering source variables,
 make sure to fill in tables `Collection events` and `Subpopulations` as well.
 You can later refer to these from columns in the dictionary templates to indicate
 which variables were collected during which collection event and for which subpopulation.
 
-## Define codebooks or data dictionaries
+## Define data dictionaries and common data models
 
-This section explains how to define data dictionaries (also known as codebooks) in the MOLGENIS catalogue.
-You can also watch this [instruction video](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS).
+The next section explains how to define variable metadata, which can be used to create data dictionaries (also known as codebooks),
+in the case of source variables, and common data models, in the case of target variables, in the MOLGENIS catalogue.
+For the creation of data dictionaries, you can also watch this
+[instruction video](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS).
 Note that this video uses an older version of the dictionary model (2.x). However, the basic principles remain the same,
 although column names have changed between this version and the current version.
+There is no specific instruction video for the creation of common data models, but network data managers might still find
+the video a useful introduction to definining variable metadata in the MOLGENIS catalogue.
 
-### Define source variable metadata
+## Define variable metadata
 
-We use the [*SourceDictionary template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceDictionary.xlsx)
-to define metadata on collected variables to create data dictionaries. In this context,
-these variables are called 'source variables',
-since they are the sources for mappings to the target variables of the common data model. The [*SourceDictionary
-template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceDictionary.xlsx) consists of multiple
-sheets. Each sheet corresponds to a table in the catalogue (Figure 2). The columns in each sheet correspond to
-columns in the table of the same name. Here, we describe how to fill out each of the sheets and their columns.
+We use the [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary.xlsx)
+to define metadata on variables, creating data dictionaries (with source variables) or common data models (with target variables).
+The [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary.xlsx)
+consists of multiple sheets. Each sheet corresponds to a table in the catalogue (Figure 2 and 3).
+The columns in each sheet correspond to columns in the table of the same name.
+Here, we describe how to fill out each of the sheets and their columns.
 Columns marked with an asterisk (\*) are mandatory,
-i.e., they need to be filled in for the system to accept the data as valid. You can download this
-[*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/SourceDictionary_testCohort.xlsx)
+i.e., they need to be filled in for the system to accept the data as valid. Depending on your needs, you can download a
+[*filled-in example for source variables*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary_testCohort.xlsx)
+and a [*filled-in example for target variables*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary_testNetwork.xlsx),
 as a reference for filling out the template.
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds.
 See the section [Upload variable metadata](cat_resource-data-manager.md#upload-variable-metadata) for details on how to upload.
 
-![MOLGENIS tables in cohort catalogue](../img/cat_tables-in-cohort-catalogue.png)
+![MOLGENIS tables in cohort staging area](../img/cat_tables-in-cohort-catalogue.png)
 
 *Figure 2. Tables in a cohort staging area. Note that not all tables are filled out
+via the templates, some are filled via an online form, see section
+[Fill out rich metadata](cat_resource-data-manager.md#fill-out-rich-metadata).*
+
+![MOLGENIS tables in network staging area](../img/cat_tables-in-catalogue.png)
+
+*Figure 3. Tables in a network staging area. Note that not all tables are filled out
 via the templates, some are filled via an online form, see section
 [Fill out rich metadata](cat_resource-data-manager.md#fill-out-rich-metadata).*
 
@@ -96,8 +109,8 @@ The datasets (sets of variables) that make up a resource are defined in the *Dat
 
 | *Column name* | *Description* | *Remarks* |
 | --- | --- | --- |
-| resource \* | Resource that this dataset or table belongs to. Fill out your resource id | The resource id is found in the table *Resources* in the resource staging area |
-| name \* | Unique dataset or table name | |
+| resource \* | Resource that this dataset belongs to. Fill in your resource id | The resource id is found in the table *Resources* in the resource staging area |
+| name \* | Unique dataset name | |
 | label | Dataset label | |
 | dataset type<sup>1</sup>  | Type of dataset | Find list to choose from in CatalogueOntologies [Dataset types](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/DatasetTypes) |
 | description | Dataset description | |
@@ -236,8 +249,8 @@ Go to the catalogue at [https://data-catalogue.molgeniscloud.org](https://data-c
 Click on `More` and select `Upload data`. Click on `Sign in`. Click on `LS Login`.
 Search for and select your institution and follow the instructions.
 You can now log in using your institutional e-mail account.
-<!-- If your institution is not listed, set up an ORCID here: https://orcid.org/register,
-then log in via LS login and choose the ORCID log in option. -->
+If your institution is not listed, set up an ORCID here: https://orcid.org/register,
+then log in via LS login and choose the ORCID login option.
 In addition, your account needs to be linked to the resource(s) you will be working on.
 Contact us at [support@molgenis.org](mailto:support@molgenis.org) with your account e-mail address and
 the resource(s) you will be working on to get the necessary access permissions.
