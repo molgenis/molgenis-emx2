@@ -141,7 +141,7 @@ The variables making up the datasets specified in the *Datasets* sheet are defin
 | repeat unit<sup>1</sup>  | In case of repeated variables, indicate the repeat period | Find list to choose from in CatalogueOntologies [Repeat units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/RepeatUnits) |
 | repeat min | The minimum repeat unit | E.g. 0 or 10 |
 | repeat max | The maximum repeat unit | E.g. 10 or 60 |
-| collection events | Refer to the names of collection events in a comma separated list | The collection events need to be predefined in the Collection events table in the resource staging area; e.g. y1, y2 |
+| collection event | Refer to the names of collection events in a comma separated list | The collection events need to be predefined in the Collection events table in the resource staging area; e.g. y1, y2 |
 | vocabularies<sup>1</sup> | Refer to ontologies being used | Find list to choose from in CatalogueOntologies [Vocabularies](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Vocabularies) |
 | keywords<sup>1</sup> | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords)|
 | since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
@@ -163,11 +163,12 @@ insightful for those that are interested.
 | --- | --- | --- |
 | resource \* | Resource that the variable belongs to. Fill out your resource id | The resource id is found in the table *Resources* in the resource staging area |
 | dataset \* | Dataset that contains the variable | Datasets must be predefined in the *Datasets* sheet |
-| name \* | Variable name | Variables must be predefined in the *Variables* sheet |
+| variable \* | Variable name | Variables must be predefined in the *Variables* sheet |
 | value \* | The code or value used | e.g. 1, 2 or -99 |
 | label \* | The label corresponding to the value | e.g. 'yes', 'no' or 'NA' |
 | order | The order in which the code list should appear | e.g. 1 |
 | is missing | Whether this value indicates a missing field | TRUE or FALSE |
+| ontology term URI | Reference to ontology term that defines this categorical value | e.g. <http://purl.obolibrary.org/obo/NCIT_C48660> |
 | since version | Version of the data model when this variable value was introduced | e.g. 1.0.0 or 2.1 |
 | until version | Version of the data model when this variable value was deleted | e.g. 2.0.0 or 2.1 |
 
@@ -197,6 +198,7 @@ Harmonisation procedures at the dataset level are defined in the *Dataset mappin
 | source dataset \* | Source dataset name | Datasets must be predefined in the *Datasets* sheet in the SourceDictionary template |
 | target \* | Name of the target CDM  | e.g. LifeCycle or LongITools |
 | target dataset \* | Target dataset name | Map to a dataset that is defined in a CDM |
+| order | Order in which table ETLs should be executed for this source-target combination | |
 | description | Description of the harmonisation | |
 | syntax | Syntax used for this harmonisation | |
 
@@ -249,7 +251,7 @@ Go to the catalogue at [https://data-catalogue.molgeniscloud.org](https://data-c
 Click on `More` and select `Upload data`. Click on `Sign in`. Click on `LS Login`.
 Search for and select your institution and follow the instructions.
 You can now log in using your institutional e-mail account.
-If your institution is not listed, set up an ORCID here: https://orcid.org/register,
+If your institution is not listed, set up an ORCID here: <https://orcid.org/register>,
 then log in via LS login and choose the ORCID login option.
 In addition, your account needs to be linked to the resource(s) you will be working on.
 Contact us at [support@molgenis.org](mailto:support@molgenis.org) with your account e-mail address and
