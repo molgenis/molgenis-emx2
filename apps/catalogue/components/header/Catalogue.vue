@@ -3,6 +3,7 @@ import type { UIResource } from "~/interfaces/types";
 
 const route = useRoute();
 const config = useRuntimeConfig();
+const datasetStore = useDatasetStore();
 
 const props = defineProps<{
   catalogue?: UIResource;
@@ -96,7 +97,10 @@ if (!cohortOnly.value) {
            <SearchBar />
         </div>-->
 
-        <StoreHeaderButton @click="showCartModal = !showCartModal" />
+        <StoreHeaderButton
+          @click="showCartModal = !showCartModal"
+          v-if="datasetStore.isEnabled"
+        />
         <!-- <HeaderButton label="Account" icon="user" /> -->
       </div>
 
@@ -113,7 +117,10 @@ if (!cohortOnly.value) {
           </div>
 
           <div class="flex gap-3">
-            <StoreHeaderButton @click="showCartModal = !showCartModal" />
+            <StoreHeaderButton
+              @click="showCartModal = !showCartModal"
+              v-if="datasetStore.isEnabled"
+            />
             <!-- <HeaderButton label="Account" icon="user" /> -->
           </div>
         </div>

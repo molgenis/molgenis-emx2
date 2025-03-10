@@ -73,6 +73,7 @@ watch([datasetStore.datasets], () => {
       </div>
       <div class="flex">
         <label
+          v-if="datasetStore.isEnabled"
           :for="`${resource.id}-shopping-cart-input`"
           class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer text-blue-500 hover:text-blue-800 focus:text-blue-800"
           :class="{

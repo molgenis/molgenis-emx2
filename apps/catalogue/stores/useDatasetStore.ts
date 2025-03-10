@@ -4,6 +4,20 @@ import type { IShoppingCart } from "~/interfaces/types";
 
 export const useDatasetStore = defineStore("datasets", () => {
   const datasets = reactive<Record<string, IResources>>({});
+  const isEnabled = ref<boolean>(false);
+  const CATALOGUE_STORE_IS_ENABLED: string = "CATALOGUE_STORE_IS_ENABLED";
+
+  async function isDatastoreEnabled() {
+    const response = await fetchSetting(CATALOGUE_STORE_IS_ENABLED);
+    const status = response.data._settings.find(
+      (setting: { key: string; value: string }) => {
+        return setting.key === CATALOGUE_STORE_IS_ENABLED;
+      }
+    );
+    if (status) {
+      isEnabled.value = status.value === "true";
+    }
+  }
 
   function addToCart(resource: IResources) {
     const newCartDataset: IShoppingCart = {};
@@ -23,5 +37,12 @@ export const useDatasetStore = defineStore("datasets", () => {
     }
   }
 
-  return { datasets, addToCart, removeFromCart, resourceIsInCart };
+  return {
+    datasets,
+    isEnabled,
+    addToCart,
+    removeFromCart,
+    resourceIsInCart,
+    isDatastoreEnabled,
+  };
 });
