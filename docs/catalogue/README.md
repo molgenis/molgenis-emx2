@@ -16,6 +16,6 @@ Use the table below to find the most relevant section for your role and goal.
 | Describe and define common data model | | | [X](cat_network-data-manager.md#define-cdm-metadata) |
 | Find (harmonised) variables | [X](cat_researcher.md#find-harmonised-variables) | | |
 | Find or define variable mappings | [X](cat_researcher.md#see-harmonisation-details) | [X](cat_resource-data-manager.md#define-harmonisations) | |
-| Request access to the catalogue | | [X](cat_resource-data-manager.md#request-access-catalogue) | [X](cat_network-data-manager.md#request-access) |
+| Request access to the catalogue | | [X](cat_resource-data-manager.md#request-access) | [X](cat_network-data-manager.md#request-access) |
 
 In addition, there is a separate page with information for [system administrators](cat_admin.md).

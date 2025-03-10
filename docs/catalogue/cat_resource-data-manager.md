@@ -24,8 +24,8 @@ In these cases each resource stores the data locally in a [MOLGENIS Armadillo](.
 This page describes the process of filling out metadata and source variable information for a resource
 and uploading this to the catalogue. Expected users of this are data managers within the organisations
 with access to the resources to be included in the catalogue.
-This document assumes you have received login details for upload of your metadata. ADD LINK TO LAST SECTION HERE https://asdf.asdf jljl;jlkj
-<!-- Revise this last line -->
+This document assumes you have received login details for upload of your metadata.
+If this is not the case, see the section on [requesting access](#request-access).
 
 ## Staging areas
 
@@ -227,9 +227,17 @@ to the main catalogue, contact us at [MOLGENIS support](mailto:support@molgenis.
 Once the data is transferred, you can find your own harmonised variables and variable details in the
 [harmonised variable explorer](https://data-catalogue.molgeniscloud.org/catalogue/ssr-catalogue/all/variables) ([manual](cat_researcher)).
 
-### Request access (catalogue)
+If you encounter any difficulties during this process, feel free to [contact us](mailto:support@molgenis.org).
 
-If you do not have an account to upload data to the catalogue yet, please
-email [*molgenis support*](mailto:support@molgenis.org) to apply for an account.
-You will need credentials to log in and upload metadata. Contact us at [support@molgenis.org](mailto:support@molgenis.org)
-to receive credentials. Please report any bugs or difficulties to [*molgenis support*](mailto:support@molgenis.org).
+## Request access
+
+If you do not have an account yet, you will need to set one up:
+Go to the catalogue at [https://data-catalogue.molgeniscloud.org](https://data-catalogue.molgeniscloud.org).
+Click on `More` and select `Upload data`. Click on `Sign in`. Click on `LS Login`.
+Search for and select your institution and follow the instructions.
+You can now log in using your institutional e-mail account.
+<!-- If your institution is not listed, set up an ORCID here: https://orcid.org/register,
+then log in via LS login and choose the ORCID log in option. -->
+In addition, your account needs to be linked to the resource(s) you will be working on.
+Contact us at [support@molgenis.org](mailto:support@molgenis.org) with your account e-mail address and
+the resource(s) you will be working on to get the necessary access permissions.
