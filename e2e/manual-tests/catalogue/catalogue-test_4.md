@@ -14,7 +14,7 @@ A researcher working in consortium X (*example: testNetwork1*) searches for spec
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
-| 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. | | |
+| 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. Ensure that testCatalogue scheme has been uploaded into the Acceptance server before you start testing | | |
 | 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | Landing page: European health research data and sample catalogue | | |
 | 2 | Scroll down to the catalogue 'testNetwork1', under 'Thematic catalogues' | from left to right: network logo, network acronym (link), network name, arrow right (link) | | |
 | 3 | Hover over the testNetwork1 row | Row should be highlighted | | |
@@ -26,8 +26,8 @@ A researcher working in consortium X (*example: testNetwork1*) searches for spec
 | 8a | Search 'ADHD' in search bar | Variables should be filtered on ADHD variables ('testVarRepeats_' and 'testVarNoRepeats'); variable "testVarRepeats_" should have "repeated for year 0-10" under its name; active filters should show 'Search in variables: ADHD' | | |
 | 8b | Remove 'ADHD' from the search bar | The list of variables returns to its initial form and no filters are shown above the list | | |
 | 9a | Expand the Topics tree if necessary and then click on 'Search for options' above the topics on the left hand side | A pop-up with the list of topics is displayed | | |
-| 9b | Type 'Symptoms' in the search field in the pop-up | Four sections of the topic tree with checkboxes are displayed | | |
-| 9c | Open topic 'Symptoms and signs' > 'Symptoms and signs involving cognition, perception, emotional state and behaviour (R40-R46)' > 'Behavioral problem domains' > select 'ADHD symptoms' and then choose Show Results | Variables should be filtered on ADHD variables ('testVarNoRepeats' and 'testVarRepeats_'); variable "testVarRepeats_" should have "repeated for year 0-10" under its name; active filters should show 'Topics - 1' | | |
+| 9b | Type 'Symptoms' in the search field.| Four sections of the topic tree with checkboxes are displayed | | |
+| 9c | Open topic 'Symptoms and signs' > 'Symptoms and signs involving cognition, perception, emotional state and behaviour (R40-R46)' > 'Behavioral problem domains' > select 'ADHD symptoms'.| Variables should be filtered on ADHD variables ('testVarNoRepeats' and 'testVarRepeats_'); variable "testVarRepeats_" should have "repeated for year 0-10" under its name; active filters should show 'Topics - 1' | | |
 | 10 | Click on the name of variable 'testVarRepeats_' | Should redirect to variable detailed view; Details should show: 1) definition, 2) harmonisation status per source, 3) harmonisation details per source. Table in 2): testCohort1 should show all repeats completely harmonised; testCohort3 and testCohort4 should show partial, NA and complete. Example: testCohort3 should show repeat 1 completely, repeat 3 NA and repeat 4 partial. 4) tabs for each source with further details (variables used, syntax) | | |
 | 11 | In "Harmonisation status per source", hover over 'about statuses' | Pop up should show 'completed: source was able to fully map to the harmonised variables'; 'partially: source was able to partially map to the harmonised variable'; 'No data: no harmonisation information is available'. | | |
 | 12 | In "Harmonisation details per source", look at details for testcohort 1 | See that for Year 0 to Year 10 harmonisations details are available. | | |
