@@ -162,6 +162,7 @@ const activeTab = ref<ICardTab>(
 const commercialAvailableCollections = ref<string[]>([]);
 
 const loading = ref(true);
+const errorMessage = ref("");
 
 new QueryEMX2(graphqlEndpoint)
   .table("Collections")
@@ -183,7 +184,31 @@ new QueryEMX2(graphqlEndpoint)
 
 const emit = defineEmits(["update:modelValue"]);
 
-const errorMessage = ref(""); // New reactive error state
+const uiText = computed(() => settingsStore.uiText);
+const selectedCollections = computed(() => checkoutStore.selectedCollections);
+const selectedServices = computed(() => checkoutStore.selectedServices);
+
+const selectionCount = computed(
+  () =>
+    checkoutStore.collectionSelectionCount + checkoutStore.serviceSelectionCount
+);
+
+const modalFooterText = computed(
+  () => `${selectionCount.value} item(s) selected`
+);
+
+const nSelectedNonCommercialCollections = computed(() => {
+  let allCollectionIds: string[] = [];
+  for (const biobank in selectedCollections.value) {
+    allCollectionIds = allCollectionIds.concat(
+      selectedCollections.value[biobank].map((col) => col.value)
+    );
+  }
+  const nonCommercialCollections = allCollectionIds.filter(
+    (col: string) => !commercialAvailableCollections.value.includes(col)
+  );
+  return nonCommercialCollections.length;
+});
 
 function changeTab(tab: ICardTab) {
   activeTab.value = tab;
@@ -215,39 +240,11 @@ async function sendRequest() {
   try {
     await checkoutStore.sendToNegotiator();
     emit("update:modelValue", false);
-  } catch (err) {
-    console.info("Negotiator is unavailable. Please try again later.");
-    errorMessage.value = "Negotiator is unavailable. Please try again later.";
+  } catch (error: any) {
+    console.info("Negotiator threw error: ", error);
+    errorMessage.value = error.message;
   }
 }
-
-const uiText = computed(() => settingsStore.uiText);
-
-const selectionCount = computed(
-  () =>
-    checkoutStore.collectionSelectionCount + checkoutStore.serviceSelectionCount
-);
-
-const modalFooterText = computed(
-  () => `${selectionCount.value} item(s) selected`
-);
-
-const selectedCollections = computed(() => checkoutStore.selectedCollections);
-
-const selectedServices = computed(() => checkoutStore.selectedServices);
-
-const nSelectedNonCommercialCollections = computed(() => {
-  let allCollectionIds: string[] = [];
-  for (const biobank in selectedCollections.value) {
-    allCollectionIds = allCollectionIds.concat(
-      selectedCollections.value[biobank].map((col) => col.value)
-    );
-  }
-  const nonCommercialCollections = allCollectionIds.filter(
-    (col: string) => !commercialAvailableCollections.value.includes(col)
-  );
-  return nonCommercialCollections.length;
-});
 </script>
 
 <style scoped>
