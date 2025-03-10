@@ -11,7 +11,7 @@ const props = withDefaults(
 </script>
 <template>
   <div
-    class="flex flex-col md:flex-row md:mr-[2em] md:h-16 gap-5 justify-end md:items-center p-2 md:p-0"
+    class="flex flex-col md:flex-row md:mr-[2em] md:h-16 gap-5 md:items-center p-2 md:p-0"
   >
     <ul
       class="flex flex-col md:flex-row gap-3 list-none p-0 [&_li]:flex [&_li]:items-center [&_li]:gap-2"
@@ -37,7 +37,7 @@ const props = withDefaults(
     >
       <div class="flex gap-1 text-blue-500 hover:underline cursor-pointer">
         <BaseIcon name="info" />
-        <span> About statuses </span>
+        <span class="text-body-base"> About statuses </span>
       </div>
       <template #popper>
         <ul class="list-none [&_li]:flex [&_li]:gap-1">

@@ -14,13 +14,14 @@
 <script setup lang="ts">
 //@ts-expect-error
 import { Molgenis } from "molgenis-components";
-import { computed, ref, watch } from "vue";
+import { onMounted, computed, ref, watch } from "vue";
 import { LocationQuery, useRoute } from "vue-router";
 import Error from "./components/Error.vue";
 import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
 import { useCheckoutStore } from "./stores/checkoutStore";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useSettingsStore } from "./stores/settingsStore";
+import { useFavicon, usePreferredDark } from "@vueuse/core";
 
 const route = useRoute();
 const query = computed(() => route.query);
@@ -70,6 +71,8 @@ watch(
   { immediate: true, deep: true }
 );
 
+onMounted(changeFavicon);
+
 function closeAllDropdownButtons(event: any) {
   const allDropdownButtons = document.querySelectorAll(".dropdown-button");
   if (event.target?.id) {
@@ -83,5 +86,15 @@ function closeAllDropdownButtons(event: any) {
       dropdownButton.removeAttribute("open");
     });
   }
+}
+
+function changeFavicon() {
+  const faviconUrl = getFaviconUrl();
+  useFavicon(faviconUrl);
+}
+
+function getFaviconUrl() {
+  const isDark = usePreferredDark();
+  return isDark ? "bbmri-darkmode-favicon.ico" : "bbmri-lightmode-favicon.ico";
 }
 </script>
