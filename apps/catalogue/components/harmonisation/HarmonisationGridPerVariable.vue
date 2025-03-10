@@ -17,7 +17,11 @@ const relevantMappings = computed(() =>
   )
 );
 const sourceIds = computed(() => [
-  ...new Set(relevantMappings.value?.map((mapping) => mapping.source.id)),
+  ...new Set(
+    relevantMappings.value
+      ?.map((mapping) => mapping.source.id)
+      .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+  ),
 ]);
 const repeats = computed(() => {
   const min = props.variable.repeatMin | 0;
