@@ -6,16 +6,16 @@ For this you use the `semantics` field in EMX2.
 ## Formatting
 
 There are 2 types of data allowed in this field:
-* an IRI (f.e. `http://purl.org/dc/terms/title`)
-* a prefixed name (f.e. `dcterms:title`), assuming that prefix [is defined](#defining-namespaces)
+* an IRI (such as `http://purl.org/dc/terms/title`)
+* a prefixed name (such as `dcterms:title`), assuming that prefix [is defined](#defined-namespaces)
  
 
 When processing a semantic field, a check is done to see if it can be interpreted as a prefixed name (based on the defined namespaces for that scheme).
 If not, then it is assumed to be an IRI.
 
-Multiple values can be defined by separating these by a comma (f.e. `dcterms:title,http://purl.org/dc/terms/description`).
+Multiple values can be defined by separating these by a comma (such as `dcterms:title,http://purl.org/dc/terms/description`).
 
-## Defining namespaces
+## Defined namespaces
 
 By default, the following prefixed names are available:
 <!-- see: https://github.com/molgenis/molgenis-emx2/blob/master/backend/molgenis-emx2-rdf/src/main/java/org/molgenis/emx2/rdf/DefaultNamespace.java -->
@@ -33,7 +33,7 @@ By default, the following prefixed names are available:
 | efo           | http://www.ebi.ac.uk/efo/                      |
 | ejp           | https://w3id.org/ejp-rd/vocabulary#            |
 | ensembl       | http://ensembl.org/glossary/                   |
-| fdp-o         | http://w3id.org/fdp/fdp-o#                     |
+| fdp-o         | https://w3id.org/fdp/fdp-o#                    |
 | fg            | https://w3id.org/fair-genomes/resource/        |
 | foaf          | http://xmlns.com/foaf/0.1/                     |
 | healthDCAT-AP | urn:uuid:a7ef52b2-bd43-4294-a80f-3e7299af35e4# |
