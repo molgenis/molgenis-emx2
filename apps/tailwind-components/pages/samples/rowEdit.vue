@@ -108,7 +108,7 @@ function errorNext() {
       </div>
 
       <div id="row-edit-field-container" class="col-span-3 border">
-        <div class="h-[116px] sticky top-0 bg-form z-10">
+        <div class="bg-form h-[116px] sticky top-0 z-10">
           <menu
             class="flex items-center justify-end pt-[20px] pb-[20px] px-[30px]"
           >
@@ -128,7 +128,7 @@ function errorNext() {
         </div>
 
         <FormFields
-          class="px-32"
+          class="px-32 bg-form"
           schemaId="row-edit-sample"
           :metadata="metadata"
           :sections="sections"
