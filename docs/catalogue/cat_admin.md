@@ -139,8 +139,8 @@ If no theme is set, the default MOLGENIS favicon is shown.
 
 Analytics can be enabled by setting the following environment variables:
 
-`NUXT_PUBLIC_ANALYTICS_KEY` : The analytics measurement id
+`NUXT_PUBLIC_ANALYTICS_KEY`: The analytics measurement id.
 
-`NUXT_PUBLIC_ANALYTICS_PROVIDER` : specify the analytics provider (either [siteimprove](https://www.siteimprove.com/)
-or [Google Analytics](https://marketingplatform.google.com/about/analytics/)),
-defaults to "siteimprove"
+`NUXT_PUBLIC_ANALYTICS_PROVIDER`: The analytics provider. Either `siteimprove` for [Siteimprove](https://www.siteimprove.com/)
+or `google-analytics` for [Google Analytics](https://marketingplatform.google.com/about/analytics/). 
+Defaults to `siteimprove`.
