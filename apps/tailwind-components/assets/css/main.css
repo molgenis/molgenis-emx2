@@ -23,7 +23,7 @@
     --color-blue-900: #013F7E;
     --color-gray-50: #F9F9F9;
     --color-gray-100: #F4F4F4;
-    --color-gray-200: #E2E2E2;
+    --color-gray-200: #646464;
     --color-gray-400: #C0C0C0;
     --color-gray-600: #2C2C2C;
     --color-gray-700: #414141;
@@ -85,6 +85,8 @@
     --background-color-pagination-hover: var(--color-blue-900);
     --background-color-pagination-input: var(--color-white);
     --background-color-footer: var(--color-white);
+    --background-color-form: var(--color-white);
+    --background-color-modal: var(--color-white);
     --background-color-modal-footer: var(--color-white);
     --background-color-tab: var(--color-blue-50);
     --background-color-tab-hover: var(--color-blue-500);
@@ -117,7 +119,8 @@
     --text-color-breadcrumb-arrow: var(--color-gray-400);
     --text-color-breadcrumb: var(--color-blue-500);
     --text-color-title: var(--color-blue-800);
-    --text-color-title-contrast: var(--color-blue-500);
+    --text-color-title-contrast: var(--text-color-title);
+    --text-color-title-contrast-pop: var(--text-color-title-contrast);
     --text-color-sub-title-contrast: var(--color-black);
     --text-color-search-button: var(--color-blue-500);
     --text-color-search-button-hover: var(--color-blue-800);
@@ -186,6 +189,7 @@
     --border-color-listbox-option: var(--color-gray-100);
     --border-color-listbox: var(--border-color-input);
 
+    --border-radius-theme: 0px;
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
     --border-radius-input: 3px;
