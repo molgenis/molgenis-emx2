@@ -87,7 +87,7 @@ async function retrieveSelectedPathsForModelValue(): Promise<string[]> {
 /** initial load */
 async function init() {
   ontologyTree.value = await retrieveTerms();
-  applySelectedStates();
+  await applySelectedStates();
 }
 
 /** apply selection UI state on selection changes */
@@ -105,11 +105,10 @@ function applyStateToNode(node: ITreeNodeState): void {
       : modelValue.value === node.name
   ) {
     node.selected = "selected";
-    //todo: to make sure all children from modelValue?
     getAllChildren(node).forEach((child) => (child.selected = "selected"));
   } else if (intermediates.value.includes(node.name)) {
     node.selected = "intermediate";
-    node.children.forEach((child) => applyStateToNode(child));
+    node.children?.forEach((child) => applyStateToNode(child));
   } else {
     node.selected = "unselected";
     getAllChildren(node).forEach((child) => (child.selected = "unselected"));
@@ -139,9 +138,6 @@ function toggleSelect(node: ITreeNodeState) {
         node.parentNode &&
         node.parentNode.children.every((child) => child.selected === "selected")
       ) {
-        console.log(
-          "when all sibling selected then deselect parent, select siblings"
-        );
         itemsToBeAdded.push(
           ...node.parentNode.children
             .map((node) => node.name)
@@ -162,9 +158,6 @@ function toggleSelect(node: ITreeNodeState) {
             (child) => child.selected === "selected"
           )
         ) {
-          console.log(
-            "when last sibling selected then select parent, deselect siblings"
-          );
           itemsToBeRemoved.push(
             ...node.parentNode.children.map((node) => node.name)
           );
@@ -204,6 +197,7 @@ async function toggleExpand(node: ITreeNodeState) {
       };
     });
     node.expanded = true;
+    applyStateToNode(node);
   } else {
     node.expanded = false;
   }
