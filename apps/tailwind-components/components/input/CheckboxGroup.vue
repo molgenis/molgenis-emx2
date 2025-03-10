@@ -2,7 +2,7 @@
   <InputGroupContainer
     :id="`${id}-checkbox-group`"
     :aria-describedby="describedBy"
-    class="border-l-4 border-transparent"
+    class="border-l-2 border-transparent"
     :class="{
       'border-l-invalid': invalid,
       'border-l-valid': valid,

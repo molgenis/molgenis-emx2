@@ -219,68 +219,68 @@ prepareModel();
 </script>
 
 <template>
-  <div
-    class="flex flex-wrap gap-2 mb-2"
-    v-if="isArray ? selection.length : selection"
-  >
-    <Button
-      v-for="label in isArray ? selection : [selection]"
-      icon="cross"
-      iconPosition="right"
-      type="filterWell"
-      size="tiny"
-      @click="deselect(label as string)"
+  <InputGroupContainer @focus="emit('focus')" @blur="emit('blur')">
+    <div
+      class="flex flex-wrap gap-2 mb-2"
+      v-if="isArray ? selection.length : selection"
     >
-      {{ label }}
-    </Button>
-  </div>
-  <div class="flex flex-wrap gap-2 mb-2">
-    <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
-      Search
-    </ButtonText>
-    <ButtonText @click="clearSelection"> Clear all </ButtonText>
-  </div>
-  <template v-if="showSearch && initialCount > limit">
-    <InputLabel :for="`search-for-${id}`" class="sr-only">
-      search in {{ columnName }}
-    </InputLabel>
-    <InputSearch
-      :id="`search-for-${id}`"
-      :modelValue="searchTerms"
-      @update:modelValue="updateSearch"
-      class="mb-2"
-      :placeholder="`Search in ${columnName}`"
-      :aria-hidden="!showSearch"
-    />
-  </template>
-  <template v-if="!hasNoResults">
-    <InputCheckboxGroup
-      v-if="isArray"
-      :id="id"
-      :options="listOptions"
-      :modelValue="(selection as string[])"
-      @select="select"
-      @deselect="deselect"
-      :invalid="invalid"
-      :valid="valid"
-      :disabled="disabled"
-      @focus="$emit('focus')"
-    />
-    <InputRadioGroup
-      v-else
-      :id="id"
-      :options="listOptions"
-      :modelValue="(selection as string)"
-      @select="select"
-      @deselect="deselect"
-      :invalid="invalid"
-      :valid="valid"
-      :disabled="disabled"
-      @focus="$emit('focus')"
-    />
-    <ButtonText @click="loadMore" v-if="offset + limit < count">
-      load {{ entitiesLeftToLoad }} more
-    </ButtonText>
-  </template>
-  <ButtonText v-else>No results found</ButtonText>
+      <Button
+        v-for="label in isArray ? selection : [selection]"
+        icon="cross"
+        iconPosition="right"
+        type="filterWell"
+        size="tiny"
+        @click="deselect(label as string)"
+      >
+        {{ label }}
+      </Button>
+    </div>
+    <div class="flex flex-wrap gap-2 mb-2">
+      <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
+        Search
+      </ButtonText>
+      <ButtonText @click="clearSelection"> Clear all </ButtonText>
+    </div>
+    <template v-if="showSearch && initialCount > limit">
+      <InputLabel :for="`search-for-${id}`" class="sr-only">
+        search in {{ columnName }}
+      </InputLabel>
+      <InputSearch
+        :id="`search-for-${id}`"
+        :modelValue="searchTerms"
+        @update:modelValue="updateSearch"
+        class="mb-2"
+        :placeholder="`Search in ${columnName}`"
+        :aria-hidden="!showSearch"
+      />
+    </template>
+    <template v-if="!hasNoResults">
+      <InputCheckboxGroup
+        v-if="isArray"
+        :id="id"
+        :options="listOptions"
+        :modelValue="(selection as string[])"
+        @select="select"
+        @deselect="deselect"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
+      />
+      <InputRadioGroup
+        v-else
+        :id="id"
+        :options="listOptions"
+        :modelValue="(selection as string)"
+        @select="select"
+        @deselect="deselect"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
+      />
+      <ButtonText @click="loadMore" v-if="offset + limit < count">
+        load {{ entitiesLeftToLoad }} more
+      </ButtonText>
+    </template>
+    <ButtonText v-else>No results found</ButtonText>
+  </InputGroupContainer>
 </template>
