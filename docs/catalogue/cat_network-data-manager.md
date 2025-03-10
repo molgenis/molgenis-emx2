@@ -1,10 +1,8 @@
-# CDM / Network data manager
+# Network data manager
 
 The Network data manager is responsible for uploading the common data model (CDM) to the MOLGENIS catalogue.
 
-## MOLGENIS catalogue
-
-### Define CDM metadata
+## Define CDM metadata
 
 [MOLGENIS catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#) provides a
 framework to describe in detail: metadata of different data resources (such as cohorts and data sources); definitions of 
@@ -25,7 +23,7 @@ This section explains how to submit the 'target variables' (also called the harm
 the MOLGENIS catalogue. Expected users of this 'how to' are central data managers of networks such as LifeCycle or
 LongITools. You will need login details to upload metadata to the MOLGENIS catalogue.
 
-#### Define common data elements
+### Define common data elements
 
 We use the [*TargetDictionary* template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/TargetDictionary.xlsx)
 to describe common data model elements. The 
@@ -45,16 +43,16 @@ upload the metadata to the catalogue see the section [Upload metadata](cat_netwo
 <sup>Figure 1. Tables in a Network’s staging area in the MOLGENIS catalogue.</sup>
 
 
-### Fill out network rich metadata
+## Fill out network rich metadata
 
 Open your staging area, navigate to 'Tables' and open the table 'Resources'. Your network id and name are already 
 filled out. Click on the pencil sign next to this entry to start editing your network rich metadata by filling out 
 the form. 'Subpopulations' and 'Collection events' are filled out through the same route, by accessing the corresponding tables.
 
 
-### Define the common data model
+## Define the common data model
 
-#### *Datasets* sheet
+### *Datasets* sheet
 
 The network's datasets are defined in the *Datasets* sheet. Columns with an asterisk (\*) after their name are mandatory.
 
@@ -73,7 +71,7 @@ The network's datasets are defined in the *Datasets* sheet. Columns with an aste
 
 <sup>Table 1. Description of the columns that can be filled out for Datasets. * = mandatory; 1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Keywords, Observation targets or Dataset types</sup>
 
-#### *Variables* sheet
+### *Variables* sheet
 
 The network's variables are defined in the *Variables* sheet.
 
@@ -102,7 +100,7 @@ The network's variables are defined in the *Variables* sheet.
 <sup>Table 2. Description of the columns that can be filled out for Variables. * = mandatory; 
 1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Vocabularies, Keywords, Repeat units, or Units</sup>
 
-#### *Variable values* sheet
+### *Variable values* sheet
 
 The coding of categorical variables is defined in the *Variable values* sheet. This sheet is optional, but it is
 highly recommended to fill out the codes and values for your categorical variables, so that your data becomes more
@@ -122,12 +120,12 @@ insightful for those that are interested.
 
 <sup>Table 3. Description of the columns that can be filled out for Variable values. * = mandatory</sup>
 
-### Request access
+## Request access
 
 Send an email to [*molgenis support*](mailto:support@molgenis.org) to apply for an account to upload metadata to
 the catalogue.
 
-### Upload metadata
+## Upload metadata
 
 When you log in to the MOLGENIS catalogue you will see a listing of databases that are accessible to you. Click on your
 network's database to access it. Go to 'Up/Download' in the menu. Use 'browse' to select a template and 'upload' to
