@@ -31,7 +31,8 @@ This document assumes you have received login details for upload of your metadat
 
 The metadata of the resource are first uploaded into what are called the 'staging areas' of the catalogue.
 Later on the metadata are transferred to the main catalogue; use of a staging area allows for review before the
-information becomes available through the live catalogue.
+information becomes available through the live catalogue. If the data in your staging area is ready for transfer,
+let us know through [MOLGENIS support](mailto:support@molgenis.org).
 
 When you log in, you will be able to see at least the following databases:
 
@@ -81,7 +82,7 @@ i.e., they need to be filled in for the system to accept the data as valid. You 
 as a reference for filling out the template.
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds.
-See the section [Upload metadata](cat_resource-data-manager.md#upload-metadata) for details on how to upload.
+See the section [Upload variable metadata](cat_resource-data-manager.md#upload-variable-metadata) for details on how to upload.
 
 ![MOLGENIS tables in cohort catalogue](../img/cat_tables-in-cohort-catalogue.png)
 
@@ -212,25 +213,23 @@ _Table 5. Description of the columns that can be filled out for Variable mapping
 [example template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings_testCohort.xlsx)
 for an example on how to fill this out (last line)_
 
-## Upload metadata
+## Upload variable metadata
 
-When you have filled out the template(s) you can start uploading metadata. When you log in to
-[*MOLGENIS catalogue*](https://data-catalogue.molgeniscloud.org/apps/central/#/)
-you will see a listing of databases that are accessible to you. Click on your resource's database to access it.
-Go to 'Up/Download' in the menu. Use 'browse' to select a template and 'upload' to start uploading your metadata. After
-uploading, you can view your metadata under 'Tables'.
+When you have filled out the template(s) you can start uploading variable metadata. To do this, log in to the
+[MOLGENIS catalogue backend](https://data-catalogue.molgeniscloud.org/apps/central/#/), where
+you will see a list of databases that are accessible to you. Click on the database for your resource and
+go to `Up/Download` in the menu. Use `Browse` to select the file containing the filled-in template and
+click `Import` to start uploading. A progress report is displayed and if your upload completes without
+errors, your variable metadata is available for viewing under `Tables`.
 
-Please report any bugs or difficulties to [*molgenis support*](mailto:support@molgenis.org).
-
-### Find harmonisations
-
-When your data is uploaded to the Data Catalogue you can find your own harmonised variables in variable details in the
-[Harmonised variable explorer](https://data-catalogue.molgeniscloud.org/apps/docs/#/catalogue/cat_researcher)
-once they have been transferred there.
+If your variable metadata is correctly uploaded and ready for transfer from the staging area
+to the main catalogue, contact us at [MOLGENIS support](mailto:support@molgenis.org).
+Once the data is transferred, you can find your own harmonised variables and variable details in the
+[harmonised variable explorer](https://data-catalogue.molgeniscloud.org/catalogue/ssr-catalogue/all/variables) ([manual](cat_researcher)).
 
 ### Request access (catalogue)
 
 If you do not have an account to upload data to the catalogue yet, please
 email [*molgenis support*](mailto:support@molgenis.org) to apply for an account.
 You will need credentials to log in and upload metadata. Contact us at [support@molgenis.org](mailto:support@molgenis.org)
-to receive credentials.
+to receive credentials. Please report any bugs or difficulties to [*molgenis support*](mailto:support@molgenis.org).
