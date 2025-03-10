@@ -21,22 +21,27 @@ const databases = computed(
 );
 
 const schemaId = ref(
-  databases.value.find((d) => d.label === "pet store" || d.id === "catalogue")
-    ?.id || ""
+  databases.value.find(
+    (d) => d.label === "pet store" || d.id === "catalogue-demo"
+  )?.id || ""
+);
+
+const tableId = ref(
+  schemaId.value === "pet store"
+    ? "Pet"
+    : schemaId.value === "catalogue-demo"
+    ? "Resources"
+    : ""
 );
 
 const schemaOptions = computed(() =>
   databases.value.map((schema) => schema.id)
 );
 
-const {
-  data: metadata,
-  pending: metadataPending,
-  error: metadataError,
-  refresh: refetchMetadata,
-} = await useLazyAsyncData("my meta data", () => fetchMetadata(schemaId.value));
-
-const tableId = ref("");
+const { data: metadata, refresh: refetchMetadata } = await useLazyAsyncData(
+  "my meta data",
+  () => fetchMetadata(schemaId.value)
+);
 
 if (metadata.value) {
   tableId.value = metadata.value.tables[0].id;
@@ -52,7 +57,6 @@ const tableOptions = computed(() => {
 
 const {
   data: tableData,
-  pending,
   error,
   refresh: refetchTableData,
 } = await useLazyAsyncData("my data", () =>
@@ -116,6 +120,7 @@ const numberOfRows = computed(() => tableData?.value?.count ?? 0);
 
   <div>
     <TableEMX2
+      v-if="tableId && schemaId"
       :table-id="tableId"
       :columns="tableColumns"
       :rows="dataRows"

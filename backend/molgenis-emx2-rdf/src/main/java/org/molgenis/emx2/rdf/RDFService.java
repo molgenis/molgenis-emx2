@@ -1,18 +1,18 @@
 package org.molgenis.emx2.rdf;
 
-import static org.eclipse.rdf4j.model.util.Values.*;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.rdf.RdfUtils.getCustomPrefixesOrDefault;
+import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
+import static org.molgenis.emx2.rdf.RdfUtils.getSemanticValue;
 
 import com.google.common.net.UrlEscapers;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
@@ -25,6 +25,8 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // TODO check null value handling
 // TODO check value types
@@ -42,6 +44,8 @@ import org.molgenis.emx2.*;
  * </ul>
  */
 public class RDFService {
+  private static final Logger logger = LoggerFactory.getLogger(RDFService.class);
+
   private static final DateTimeFormatter dateTimeFormatter =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
   public static final IRI LDP_CONTAINS = Values.iri("http://www.w3.org/ns/ldp#contains");
@@ -53,9 +57,6 @@ public class RDFService {
       Values.iri("http://purl.org/linked-data/cube#dataSet");
   public static final IRI IRI_CONTROLLED_VOCABULARY =
       Values.iri("http://purl.obolibrary.org/obo/NCIT_C48697");
-
-  // Advanced setting containing valid Turtle-formatted RDF.
-  public static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
   /**
    * SIO:001055 = observing (definition: observing is a process of passive interaction in which one
@@ -72,9 +73,9 @@ public class RDFService {
   // See: https://specs.fairdatapoint.org/fdp-specs-v1.2.html
   public static final IRI FDP_METADATAIDENTIFIER =
       Values.iri("https://w3id.org/fdp/fdp-o#metadataIdentifier");
-  // DCAT:endPointURL is the 'root' location, which is the schema. see:
+  // DCAT:endpointURL is the 'root' location, which is the schema. see:
   // https://www.w3.org/TR/vocab-dcat-3/#Property:data_service_endpoint_url
-  public static final IRI DCAT_ENDPOINTURL = Values.iri("http://www.w3.org/ns/dcat#endPointURL");
+  public static final IRI DCAT_ENDPOINTURL = Values.iri("http://www.w3.org/ns/dcat#endpointURL");
 
   /** NCIT:C95637 = Coded Value Data Type */
   public static final IRI IRI_CODED_VALUE_DATATYPE =
@@ -154,9 +155,6 @@ public class RDFService {
     try {
       final ModelBuilder builder = new ModelBuilder();
 
-      // (custom) namespaces & custom rdf
-      buildgenericRdf(builder, schemas);
-
       if (table == null) {
         describeRoot(builder);
       }
@@ -164,11 +162,26 @@ public class RDFService {
       // Collect all tables present in selected schemas.
       Set<Table> allTables = new HashSet<>();
 
+      // Namespaces per prefix per schema.
+      // While ModelBuilder.add() allows for prefixed name, conflicting schema-specific namespaces
+      // could cause issues.
+      Map<String, Map<String, Namespace>> namespaces = new HashMap<>();
+
       for (final Schema schema : schemas) {
-        if (table == null) {
-          describeSchema(builder, schema);
-        }
+        processNamespaces(builder, schema, namespaces);
+        processCustomRdf(builder, schema);
+        if (table == null) describeSchema(builder, schema);
         allTables.addAll(schema.getTablesSorted());
+      }
+
+      if (logger.isDebugEnabled()) {
+        logger.debug(
+            "All tables to show: "
+                + allTables.stream()
+                    .map(
+                        i -> i.getMetadata().getSchemaName() + "." + i.getMetadata().getTableName())
+                    .toList());
+        logger.debug("Namespaces per schema: " + namespaces.toString());
       }
 
       final Set<Table> tables = table != null ? tablesToDescribe(allTables, table) : allTables;
@@ -180,12 +193,12 @@ public class RDFService {
           continue;
         }
         if (rowId == null) {
-          describeTable(builder, tableToDescribe);
-          describeColumns(builder, tableToDescribe, columnName);
+          describeTable(builder, namespaces, tableToDescribe);
+          describeColumns(builder, namespaces, tableToDescribe, columnName);
         }
         // if a column name is provided then only provide column metadata, no row values
         if (columnName == null) {
-          rowsToRdf(builder, tableToDescribe, rowId);
+          rowsToRdf(builder, namespaces, tableToDescribe, rowId);
         }
       }
       Rio.write(builder.build(), outputStream, rdfFormat, config);
@@ -220,42 +233,22 @@ public class RDFService {
     return false;
   }
 
-  /**
-   * Processes all schemas for custom namespaces/RDF.
-   *
-   * @param builder
-   * @param schemas
-   * @throws IOException
-   */
-  private void buildgenericRdf(ModelBuilder builder, Schema[] schemas) throws IOException {
-    // Defines if all used schemas have a custom_rdf setting.
-    boolean allIncludeCustomRdf = true;
-    // Define the schemas at the start of the document.
-    for (final Schema schema : schemas) {
-      final Namespace ns = getSchemaNamespace(baseURL, schema);
-      builder.setNamespace(ns);
-      // Adds custom RDF to model.
-      if (schema.hasSetting(SETTING_CUSTOM_RDF)) {
-        addModelToBuilder(
-            builder,
-            Rio.parse(
-                IOUtils.toInputStream(
-                    schema.getSettingValue(SETTING_CUSTOM_RDF), StandardCharsets.UTF_8),
-                RDFFormat.TURTLE));
-      } else {
-        allIncludeCustomRdf = false;
-      }
-    }
+  private void processNamespaces(
+      ModelBuilder builder, Schema schema, Map<String, Map<String, Namespace>> namespaces)
+      throws IOException {
+    builder.setNamespace(getSchemaNamespace(baseURL, schema));
 
-    // If any of the used schemas do not have custom_rdf set, adds the default ones.
-    if (!allIncludeCustomRdf) {
-      DefaultNamespace.streamAll().forEach(builder::setNamespace);
-    }
+    Map<String, Namespace> schemaNamespaces = getCustomPrefixesOrDefault(schema);
+    schemaNamespaces.values().forEach(builder::setNamespace);
+    namespaces.put(schema.getName(), schemaNamespaces);
   }
 
-  private void addModelToBuilder(ModelBuilder builder, Model model) {
-    model.getNamespaces().forEach(builder::setNamespace); // namespaces
-    model.forEach(e -> builder.add(e.getSubject(), e.getPredicate(), e.getObject())); // triples
+  private void processCustomRdf(ModelBuilder builder, Schema schema) throws IOException {
+    Model model = getCustomRdf(schema);
+    if (model != null) {
+      // only adds triples, does not transfer defined namespaces!
+      model.forEach(e -> builder.add(e.getSubject(), e.getPredicate(), e.getObject()));
+    }
   }
 
   public WriterConfig getConfig() {
@@ -316,7 +309,10 @@ public class RDFService {
     }
   }
 
-  private void describeTable(final ModelBuilder builder, final Table table) {
+  private void describeTable(
+      final ModelBuilder builder,
+      final Map<String, Map<String, Namespace>> namespaces,
+      final Table table) {
     final IRI subject = getTableIRI(table);
     builder.add(subject, RDF.TYPE, OWL.CLASS);
     builder.add(subject, RDFS.SUBCLASSOF, IRI_DATASET_CLASS);
@@ -331,7 +327,10 @@ public class RDFService {
     if (table.getMetadata().getSemantics() != null) {
       for (final String tableSemantics : table.getMetadata().getSemantics()) {
         try {
-          builder.add(subject, RDFS.ISDEFINEDBY, iri(tableSemantics));
+          builder.add(
+              subject,
+              RDFS.ISDEFINEDBY,
+              getSemanticValue(table.getMetadata(), namespaces, tableSemantics));
         } catch (Exception e) {
           throw new MolgenisException(
               "Table annotation '"
@@ -362,7 +361,10 @@ public class RDFService {
   }
 
   private void describeColumns(
-      final ModelBuilder builder, final Table table, final String columnName) {
+      final ModelBuilder builder,
+      final Map<String, Map<String, Namespace>> namespaces,
+      final Table table,
+      final String columnName) {
     if (table.getMetadata().getTableType() == TableType.DATA) {
       for (final Column column : table.getMetadata().getNonInheritedColumns()) {
         // Exclude the system columns that refer to specific users
@@ -370,7 +372,7 @@ public class RDFService {
           continue;
         }
         if (columnName == null || columnName.equals(column.getName())) {
-          describeColumn(builder, column);
+          describeColumn(builder, namespaces, column);
         }
       }
     } else {
@@ -387,7 +389,10 @@ public class RDFService {
     return Values.iri(ns, tableName + "/column/" + columnName);
   }
 
-  private void describeColumn(final ModelBuilder builder, final Column column) {
+  private void describeColumn(
+      final ModelBuilder builder,
+      final Map<String, Map<String, Namespace>> namespaces,
+      final Column column) {
     final IRI subject = getColumnIRI(column);
     if (column.isReference()) {
       builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
@@ -411,7 +416,10 @@ public class RDFService {
           columnSemantics = SEMANTICS_ID_URL_STRING;
         }
         try {
-          builder.add(subject, RDFS.ISDEFINEDBY, iri(columnSemantics));
+          builder.add(
+              subject,
+              RDFS.ISDEFINEDBY,
+              getSemanticValue(column.getTable(), namespaces, columnSemantics));
         } catch (Exception e) {
           throw new MolgenisException(
               "Semantic tag '"
@@ -439,7 +447,11 @@ public class RDFService {
    * @param table the table for which to fetch the rows
    * @param rowId optional rowId
    */
-  public void rowsToRdf(final ModelBuilder builder, final Table table, final String rowId) {
+  public void rowsToRdf(
+      final ModelBuilder builder,
+      final Map<String, Map<String, Namespace>> namespaces,
+      final Table table,
+      final String rowId) {
     final IRI tableIRI = getTableIRI(table);
     final List<Row> rows = getRows(table, rowId);
     switch (table.getMetadata().getTableType()) {
@@ -448,7 +460,9 @@ public class RDFService {
               row -> ontologyRowToRdf(builder, table, tableIRI, row, getIriForRow(row, table)));
       case DATA ->
           rows.forEach(
-              row -> dataRowToRdf(builder, table, tableIRI, row, rowId, getIriForRow(row, table)));
+              row ->
+                  dataRowToRdf(
+                      builder, namespaces, table, tableIRI, row, rowId, getIriForRow(row, table)));
       default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
     }
   }
@@ -494,6 +508,7 @@ public class RDFService {
 
   private void dataRowToRdf(
       final ModelBuilder builder,
+      final Map<String, Map<String, Namespace>> namespaces,
       Table table,
       final IRI tableIRI,
       final Row row,
@@ -508,7 +523,8 @@ public class RDFService {
     builder.add(subject, FDP_METADATAIDENTIFIER, subject);
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {
-        builder.add(subject, RDF.TYPE, iri(semantics));
+        builder.add(
+            subject, RDF.TYPE, getSemanticValue(table.getMetadata(), namespaces, semantics));
       }
     }
     builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
@@ -528,7 +544,10 @@ public class RDFService {
       for (final Value value : mapper.retrieveValues(row, column)) {
         if (column.getSemantics() != null) {
           for (String semantics : column.getSemantics()) {
-            builder.add(subject.stringValue(), semantics, value);
+            builder.add(
+                subject.stringValue(),
+                getSemanticValue(table.getMetadata(), namespaces, semantics),
+                value);
             //                builder.add(
             //                    // subject, Values.iri(semantics), value);
             //                    subject, Values.iri(semantics.split(":")[0],
@@ -627,7 +646,7 @@ public class RDFService {
           }
         }
       } else {
-        keyParts.put(column.getIdentifier(), row.get(column).toString());
+        keyParts.put(column.getName(), row.get(column).toString());
       }
     }
     final Namespace ns = getSchemaNamespace(baseURL, metadata.getRootTable().getSchema());
