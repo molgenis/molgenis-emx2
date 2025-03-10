@@ -68,9 +68,9 @@ EMX2_THEME=umcg yarn dev
 The following feature flag(s) are used to toggle certain app features via the runtime config
 
 - ```cohortOnly```  boolean when set to true the networks part is hidden ( see docker file for passing flag via container)
+- `CATALOGUE_STORE_IS_ENABLED` (boolean): when enabled, the shopping cart will be activated on the collections page (defined in the advanced settings tab)
 
-
-### debug/test options 
+### debug/test options
 
 Runtime config options can be set via query param to test/debug options:
 
