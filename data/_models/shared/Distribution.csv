@@ -1,10 +1,10 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Distribution,,,,,,,,,,,http://www.w3.org/ns/dcat#Distribution,DCAT v2 distribution entries.,DCAT
-Distribution,,name,string,1,TRUE,,,,,,"http://schema.org/name,http://purl.org/dc/terms/title","Unique name of a Table or (set of) File(s).",DCAT
-Distribution,,description,string,,,,,,,,http://purl.org/dc/terms/description,"Description of a Table or (set of) File(s).",DCAT
-Distribution,,type,ontology,,TRUE,,DistributionType,,,,http://purl.allotrope.org/ontologies/result#AFR_0002205,"Distribution type, either Table or File.",DCAT files add-on
-Distribution,,files,ref_array,,,,Files,,,,http://purl.obolibrary.org/obo/STATO_0000002,"One or multiple metadata for digital remote files.",DCAT files add-on
-Distribution,,belongsToDataset,ref_array,,TRUE,,Dataset,,,,http://www.w3.org/ns/dcat#Dataset,Reference to any datasets that contain this distribution.,DCAT
+Distribution,,,,,,,,,,,dcat:Distribution,DCAT v2 distribution entries.,DCAT
+Distribution,,name,string,1,TRUE,,,,,,"schema:name,dcterms:title","Unique name of a Table or (set of) File(s).",DCAT
+Distribution,,description,string,,,,,,,,dcterms:description,"Description of a Table or (set of) File(s).",DCAT
+Distribution,,type,ontology,,TRUE,,DistributionType,,,,afr:AFR_0002205,"Distribution type, either Table or File.",DCAT files add-on
+Distribution,,files,ref_array,,,,Files,,,,obo:STATO_0000002,"One or multiple metadata for digital remote files.",DCAT files add-on
+Distribution,,belongsToDataset,ref_array,,TRUE,,Dataset,,,,dcat:Dataset,Reference to any datasets that contain this distribution.,DCAT
 Distribution,,propertyValue,string_array,,,,,,,,https://schema.org/PropertyValue,"A property-value pair, e.g. representing a feature of a product or place.",DCAT
-Distribution,,mediaType,string,,,,,,,,http://www.w3.org/ns/dcat#mediaType,"The file format, physical medium, or dimensions of the resource.",DCAT
-Distribution,,accessURL,hyperlink,,,,,,,,http://www.w3.org/ns/dcat#accessURL,"A URL of a resource that gives access to a distribution of the dataset. E.g. landing page, feed, SPARQL endpoint. Use for all cases except a simple download link, in which case downloadURL is preferred.",DCAT
+Distribution,,mediaType,string,,,,,,,,dcat:mediaType,"The file format, physical medium, or dimensions of the resource.",DCAT
+Distribution,,accessURL,hyperlink,,,,,,,,dcat:accessURL,"A URL of a resource that gives access to a distribution of the dataset. E.g. landing page, feed, SPARQL endpoint. Use for all cases except a simple download link, in which case downloadURL is preferred.",DCAT
