@@ -1,64 +1,133 @@
-# Information for system administrator of catalogue
+# System administrator
 
-## To initialize catalogue
+## Server settings
 
-1. Import the metadata schema. It is file molgenis.csv that can be found
-   here: [https://github.com/molgenis/molgenis-emx2/tree/master/data/datacatalogue](https://github.com/molgenis/molgenis-emx2/tree/master/data/datacatalogue)
-1. Optionally, also import ontologies etc from the data folders there. You can create zip file of one of the folders to
-   upload in batch.
-   (todo: define what data folder to use in what case)
+### Demo dataset
 
-#### demo dataset
-By setting the ```MOLGENIS_INCLUDE_CATALOGUE_DEMO``` to ```true``` on server startup the demo catalogue is loaded.
+#### key
 
-## Updating existing schema
+`MOLGENIS_INCLUDE_CATALOGUE_DEMO`
 
-Since 27 sep 2021 we have started to give catalogue schema a seperate version number. This can be found on first line of
-molgenis.csv file (using description of special table 'Version'). Below summary of the changes and what the general
-procedure is to update.
+#### description
 
-| version     | update procedure                                                                                                                                                                                                                                                                                                                                                                                                                         |
-|-------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 0 => 1      | This change only adds column 'notes' to table 'Variables'. Just upload molgenis.csv to update.                                                                                                                                                                                                                                                                                                                                           |  
-| 1 => 1.1    | Download data in either Excel or zip and change molgenis sheet or molgenis.csv to version 1.1.                                                                                                                                                                                                                                                                                                                                           |
-|             | In table 'Contacts' the key column 'name' was changed to two key columns: 'firstName' and 'surname'.                                                                                                                                                                                                                                                                                                                                     |
-|             | In table 'Contributions' the column 'contact' has to be split into 'contact.firstname' and 'contact.surname'.                                                                                                                                                                                                                                                                                                                            |
-|             | In table 'Resources' column 'contacts' was deleted. Contacts are now refered to via contributions.                                                                                                                                                                                                                                                                                                                                       |
-|             | In table 'Contacts' columns 'title', 'prefix', 'intials' were added.                                                                                                                                                                                                                                                                                                                                                                     |
-|             | In table 'Resources' change column names: 'homepage' => 'website', 'publication' => 'designPaper', 'otherPublications' => 'publications'                                                                                                                                                                                                                                                                                                 |
-|             | In table 'Cohorts' change column names: 'noParticipants' => 'numberOfParticipants', 'noParticipantsWithSamples' => 'numberOfParticipantsWithSamples'                                                                                                                                                                                                                                                                                     |
-|             | In table 'CollectionEvents' columns 'startMonth' and 'endMonth' were added. The columnType of columns 'startYear' and 'startMonth' were changed from int to ref. Add a table that extend OntologyTerms named 'Years' including relevant years.                                                                                                                                                                                           |
-| 1.1 => 1.2  | This change adds a column 'type' of columnType ref to table 'Datasources'. Just upload molgenis.csv to update.                                                                                                                                                                                                                                                                                                                           |
-| 1.2 => 1.3  | This change fixes a few variable descriptions. Just upload molgenis.csv to update.                                                                                                                                                                                                                                                                                                                                                       |
-| 1.3 => 1.4  | This change adds Models.releases refback. Just upload molgenis.csv to update.                                                                                                                                                                                                                                                                                                                                                            |
-| 1.4 => 1.5  | Added Counts table, and linked via RWEresources.counts. Just upload molgenis.csv to update.                                                                                                                                                                                                                                                                                                                                              |
-| 1.5 => 1.6  | The following data items were added: Databanks.dateEstablished, Databanks.refresh, Datasources.studies, Studies.type, Studies.dataExtractionDate, Studies.CDM, Studies.contactName
-|             | Deleted Models.datasources, Models.databanks. Moved models.releases to heading 'contents'. Just upload molgenis.csv to update.                                                                                                                                                                                                                                                                                                           |
-| 1.6 => 1.7  | Added CollectionEvents.standardizedTools, CollectionEvents.standardizedToolsOther, Cohorts.contactEmail, StandardizedTools (OntologyTerm table), Datasources.qualityOfLifeOther. Moved Datasources.studies to RWEresources.studies. Deleted RWEresources.standardVocabularies. Download datamodel and data and replace molgenis.csv or molgenis sheet (in xlsx) with the newest version and reupload data in freshly made schema.        |
-| 1.7 => 1.8  | ColumnType of CollectionEvents.standardizedTools changed to ref_array. Unless bugfix #711 Download datamodel and data and replace molgenis.csv or molgenis sheet (in xlsx) with the newest version and reupload data in freshly made schema.                                                                                                                                                                                             |
-| 1.8 => 1.9  | fix: Institution.typeOther should be text. Just upload molgenis.csv to update.                                                                                                                                                                                                                                                                                                                                                           |
-| 1.9=> 1.10  | feat: add Database.populationSize(captured,active), RWEresources.approvalForPublication, Dispensing subterms. Just upload molgenis.csv to update.                                                                                                                                                                                                                                                                                        |
-| 1.10=> 1.11 | Add VariableMappings.fromVariablesInOtherTables. Just upload molgenis.csv to update.                                                                                                                                                                                                                                                                                                                                                     |
-| 1.11 => 2.0 | Delete AllVariables and split tables Variables, RepeatedVariables and VariableValues in SourceVariables and TargetVariables, RepeatedSourceVariables and RepeatedTargetVariables, SourceVariableValues and TargetVariableValues.                                                                                                                                                                                                         |
-|             | Split table Tables in SourceTables and TargetTables.                                                                                                                                                                                                                                                                                                                                                                                     |
-|             | Split table Releases in SourceDataDictionaries and TargetDataDictionaries and adapt references from tables TableMappings and VariableMappings accordingly.                                                                                                                                                                                                                                                                               |
-| 2.0 => 2.1  | Add Cohorts.designDescription and Cohorts.designSchematic. Change ColumnType of Resources.designPaper to ref, referring to table Publications.                                                                                                                                                                                                                                                                                           |
-|             | Split Cohorts.dataAccessConditions into dataAccessConditions and dataUseConditions, add Cohorts.dataAccessFee.                                                                                                                                                                                                                                                                                                                           |
-| 2.1 => 2.2  | ColumnType ontology and ontology_array now automatically instantiate tables of ontology type with tablename that is under refTable. These tables are not otherwise explicitly defined in the datamodel anymore. Download whole database, replace molgenis.csv and reupload in new Schema.                                                                                                                                                |
-| 2.2 => 2.3  | Alter division of AllVariables, Variables and RepeatedVariables (for Sources and Targets). Download whole database, replace molgenis.csv and reupload in new Schema.                                                                                                                                                                                                                                                                     |
-| 2.3 => 2.4  | Ontologies are placed in schema 'CatalogueOntologies' next to the catalogue itself. molgenis.csv is updated with an extra column 'refSchema' and 'columnType' ontology and ontology_array are refering to schema 'CatalogueOntologies'. It is important that 'refSchema' refers to CatalogueOntologies and this schema needs to exist before uploading molgenis.csv (or alter the ontology schema on the server and within molgenis.csv) |
-| 2.4 => 2.5  | CollectionEvents.coreVariables, Subcohorts.comorbidity, Subcohorts.counts. Add table SubcohortCounts. Download whole database, replace molgenis.csv and reupload in new Schema.                                                                                                                                                                                                                                                          | |
-| 2.5 => 2.6  | Edits to table SubcohortCounts: delete SubcohortCounts.year, SubcohortCounts.ageband, SubcohortCounts.gender, SubcohortCounts.N. Add SubcohortCounts.ageGroup, SubcohortCounts.N total, SubcohortCounts.N female, SubcohortCounts.N male. Download whole database, replace molgenis.csv and reupload in new Schema.                                                                                                                      | |
-| 2.6 => 2.7  | Add Network.type and CatalogueOntologies.NetworkTypes. To update: upload molgenis.csv and add 'h2020' and 'harmonization' to NetworkTypes                                                                                                                                                                                                                                                                                                | |
-| 2.7 => 2.8  | Change: Cohorts.designDescription columnType from STRING to TEXT . Upload molgenis.csv to update.                                                                                                                                                                                                                                                                                                | |
-| 2.8 => 2.9  | Add Contacts.statementOfConsentPersonalData and Contacts.statementOfConsentEmail email. Upload molgenis.csv to update                                                                                                                                                                                                                                                                                                | |
-| 2.9 => 3.3  | Use the automated update procedure documented [here](https://github.com/molgenis/molgenis-emx2/tree/master/data/scripts/molgenis-model-update) | |
-| 3.3 => 3.4  | to do ...| |
-| 3.4 => 3.5  | to do ...| |
-| 3.5 => 3.6  | RWE resources.population disease to Data resources.population disease. Add Data resources.population oncology topology, Data resources.population oncology morphology, Data resources.informed consent type. Change columnType Cohorts.inclusion criteria to ontology_array, add Cohorts.inclusion criteria other. To update, update molgenis.csv and move information under Cohorts.inclusion criteria to Cohorts.inclusion criteria other. | |
-| 3.6 => 3.7  | Delete Resource organisations table. Move DAPs.access level, DAPs.access completeness, DAPs.access permission, DAPs.reason access to one checklist under DAPs.is resource provider: DAP information. To update, update molgenis.csv and move information in Resource organisations to DAPs, and move information from separate removed columns to DAPs.is resource provider. | |
-| 3.7 => 3.8  | Add Network.networks ref_array and Networks.is_catalogue bool | |
-| 3.8 => 3.9  | Delete Network.is_catalogue, add Catalogues table | |
-| 3.9 => 3.10  | to do | |
-| 3.10 => 3.11  | Publications.doi to hyperlink. To update, download data, edit Publications.doi data to hyperlink, reupload data with data model version 3.12.| |
-| 3.11 => 3.12  | Add Aggregates table. Upload new data model to update. | |
+Boolean defining whether to load the demo catalogue on server startup
+
+#### default
+
+`false`
+
+## Schema settings
+
+### Notification
+
+#### key
+
+```CATALOGUE_BANNER_HTML```
+
+#### description
+string containing html to be rendered in page banner 
+
+#### default
+none, no notification message is shown
+
+### Landing page title
+
+#### key
+```CATALOGUE_LANDING_TITLE```
+
+#### description
+Main title shown in landing page
+
+#### default
+"European Networks Health Data
+& Cohort Catalogue."
+
+
+### Landing page description
+
+#### key
+```CATALOGUE_LANDING_DESCRIPTION```
+
+#### description
+Description text or subtitle shown on 
+
+#### default
+"Browse and manage metadata for data resources, such as cohorts, registries, bio-banks, and multi-center collaborations thereof such as networks, common data models and studies."
+
+
+### Landing page call-to-action (CTA) labels
+
+#### keys
+```CATALOGUE_LANDING_COHORTS_CTA```
+
+```CATALOGUE_LANDING_NETWORKS_CTA```
+
+```CATALOGUE_LANDING_VARIABLES_CTA```
+
+
+#### description
+The label shown on landing CTA element for each of the main sections
+
+#### default
+"Cohorts", "Networks", "Variables" 
+
+### Landing page primary cards  text
+
+#### keys
+```CATALOGUE_LANDING_COHORTS_TEXT```
+
+```CATALOGUE_LANDING_NETWORKS_TEXT```
+
+```CATALOGUE_LANDING_VARIABLES_TEXT```
+
+#### default
+- CATALOGUE_LANDING_COHORTS_TEXT: *A complete overview of all cohorts and biobanks.*
+- CATALOGUE_LANDING_NETWORKS_TEXT: *Collaborations of multiple institutions and/or cohorts with a common objective.*
+- CATALOGUE_LANDING_VARIABLES_TEXT: *A complete overview of available variables.*
+
+### Landing page info cards (secondary landing card) labels and text
+
+#### keys
+```CATALOGUE_LANDING_PARTICIPANTS_LABEL```
+
+```CATALOGUE_LANDING_PARTICIPANTS_TEXT```
+
+```CATALOGUE_LANDING_SAMPLES_LABEL```
+
+```CATALOGUE_LANDING_SAMPLES_TEXT```
+
+```CATALOGUE_LANDING_DESIGN_LABEL```
+
+```CATALOGUE_LANDING_DESIGN_TEXT```
+
+```CATALOGUE_LANDING_SUBCOHORTS_LABEL```
+
+```CATALOGUE_LANDING_SUBCOHORTS_TEXT```
+
+
+#### default
+- CATALOGUE_LANDING_PARTICIPANTS_LABEL: *Participants*
+- CATALOGUE_LANDING_PARTICIPANTS_TEXT: *The cumulative number of participants of all datasets combined.*
+- CATALOGUE_LANDING_SAMPLES_LABEL: *Samples*
+- CATALOGUE_LANDING_SAMPLES_TEXT: *The cumulative number of participants with samples collected of
+        all datasets combined.*
+- CATALOGUE_LANDING_DESIGN_LABEL: *Longitudinal*
+- CATALOGUE_LANDING_DESIGN_TEXT: *Percentage of longitudinal datasets. The remaining datasets are
+        cross-sectional*
+- CATALOGUE_LANDING_SUBCOHORTS_LABEL: *Subcohorts*
+- CATALOGUE_LANDING_SUBCOHORTS_TEXT: *The total number of subcohorts included*
+
+
+
+
+## Favicon
+
+A Themed favicon is set by placing a [theme].icon file in the public/img folder. At runtime the [theme] is replaced by the value as set in ```NUXT_PUBLIC_EMX2_THEME``` environment setting. If no theme is set, the default molgenis favicon is show. 
+
+## Analytics
+
+Analytics can be enabled by setting the following environment variables:
+
+```NUXT_PUBLIC_ANALYTICS_KEY``` : The analytics measurement id
+
+```NUXT_PUBLIC_ANALYTICS_PROVIDER``` : specfied the analytics provider ( either [siteimprove](https://www.siteimprove.com/) or [google-analytics](https://marketingplatform.google.com/about/analytics/) ), defaults to "siteimprove"
