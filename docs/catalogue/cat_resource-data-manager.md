@@ -24,8 +24,8 @@ In these cases each resource stores the data locally in a [MOLGENIS Armadillo](.
 This page describes the process of filling out metadata and source variable information for a resource
 and uploading this to the catalogue. Expected users of this are data managers within the organisations
 with access to the resources to be included in the catalogue.
-
 This document assumes you have received login details for upload of your metadata. ADD LINK TO LAST SECTION HERE https://asdf.asdf jljl;jlkj
+<!-- Revise this last line -->
 
 ## Staging areas
 
