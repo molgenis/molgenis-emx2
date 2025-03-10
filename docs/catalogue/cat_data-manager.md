@@ -69,8 +69,8 @@ The next section explains how to define variable metadata, which can be used to 
 in the case of source variables, and common data models, in the case of target variables, in the MOLGENIS catalogue.
 For the creation of data dictionaries, you can also watch this
 [instruction video](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS).
-Note that this video uses an older version of the dictionary model (2.x). However, the basic principles remain the same,
-although column names have changed between this version and the current version.
+Note that this video uses an older version of the dictionary model (2.x).
+However, the basic principles remain the same, although column names have changed between this version and the current version.
 There is no specific instruction video for the creation of common data models, but network data managers might still find
 the video a useful introduction to definining variable metadata in the MOLGENIS catalogue.
 
