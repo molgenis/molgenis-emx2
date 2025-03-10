@@ -80,7 +80,7 @@ The label shown on landing CTA element for each of the main sections
 
 "Cohorts", "Networks", "Variables"
 
-### Landing page primary cards  text
+### Landing page call-to-action (CTA) descriptions
 
 #### keys
 
@@ -90,13 +90,17 @@ The label shown on landing CTA element for each of the main sections
 
 `CATALOGUE_LANDING_VARIABLES_TEXT`
 
+#### description
+
+The descriptive text shown underneath each CTA element
+
 #### default
 
 - `CATALOGUE_LANDING_COHORTS_TEXT`: "A complete overview of all cohorts and biobanks."
 - `CATALOGUE_LANDING_NETWORKS_TEXT`: "Collaborations of multiple institutions and/or cohorts with a common objective."
 - `CATALOGUE_LANDING_VARIABLES_TEXT`: "A complete overview of available variables."
 
-### Landing page info cards (secondary landing card) labels and text
+### Landing page information cards
 
 #### keys
 
@@ -115,6 +119,10 @@ The label shown on landing CTA element for each of the main sections
 `CATALOGUE_LANDING_SUBCOHORTS_LABEL`
 
 `CATALOGUE_LANDING_SUBCOHORTS_TEXT`
+
+#### description
+
+Labels and descriptive texts for the information cards on the landing page
 
 #### default
 
