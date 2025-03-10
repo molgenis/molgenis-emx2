@@ -411,26 +411,32 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       removeAllFromSelection(false);
     } else {
       const statusCode = response.status;
+      const jsonResponse = await response.json();
+      const detail = jsonResponse.detail
+        ? ` Detail: ${jsonResponse.detail}`
+        : "";
       switch (statusCode) {
         case 400:
-          throw new Error("Negotiator responded with code 400, invalid input.");
+          throw new Error(
+            `Negotiator responded with code 400, invalid input.${detail}`
+          );
         case 401:
           throw new Error(
-            "Negotiator responded with code 401, not authorised ."
+            `Negotiator responded with code 401, not authorised.${detail}`
           );
         case 404:
-          throw new Error("Negotiator not found, error code 404.");
+          throw new Error(`Negotiator not found, error code 404.${detail}`);
         case 413:
           throw new Error(
-            "Negotiator responded with code 413, request too large."
+            `Negotiator responded with code 413, request too large.${detail}`
           );
         case 500:
           throw new Error(
-            "Negotiator responded with code 500, internal server error."
+            `Negotiator responded with code 500, internal server error.${detail}`
           );
         default:
           throw new Error(
-            "An unknown error occurred with the Negotiator. Please try again later."
+            `An unknown error occurred with the Negotiator. Please try again later.${detail}`
           );
       }
     }
