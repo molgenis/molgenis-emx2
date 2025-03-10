@@ -131,9 +131,9 @@ The label shown on landing CTA element for each of the main sections
 
 ## Favicon
 
-A Themed favicon is set by placing a [theme].icon file in the public/img folder.
-At runtime the [theme] is replaced by the value as set in `NUXT_PUBLIC_EMX2_THEME` environment setting.
-If no theme is set, the default molgenis favicon is show.
+A themed favicon is set by placing a [theme].ico file in the public/img folder.
+At runtime the [theme] is replaced by the value as set in the `NUXT_PUBLIC_EMX2_THEME` environment setting.
+If no theme is set, the default MOLGENIS favicon is shown.
 
 ## Analytics
 
