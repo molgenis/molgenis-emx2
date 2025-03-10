@@ -74,7 +74,6 @@ useHead({
 </script>
 
 <template>
-  {{ datasetStore.isEnabled }}
   <div
     class="overflow-x-clip min-h-screen bg-base-gradient relative"
   >
