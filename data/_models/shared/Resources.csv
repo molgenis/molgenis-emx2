@@ -2,7 +2,7 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Resources,,,,,,,,,,,"http://www.w3.org/ns/dcat#DatasetSeries,http://www.w3.org/ns/dcat#Dataset",Resource of data and/or samples. Use 'resource type' to specify,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,overview,heading,,,,,,,,,General information,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,id,,1,TRUE,,,,,,http://purl.org/dc/terms/identifier,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
-Resources,,pid,,2,,,,,,,http://purl.org/dc/terms/identifier,Persistent identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
+Resources,,pid,,2,,,,,,,http://www.geneontology.org/formats/oboInOwl#hasAlternativeId,Persistent identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,name,text,3,TRUE,,,,,,http://purl.org/dc/terms/title,Name used in international projects,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,local name,,,,,,,,,http://www.w3.org/2000/01/rdf-schema#label,"If different from above, name in the national language","DataCatalogueFlat,CohortsStaging,RWEStaging"
 Resources,,acronym,,,,,,,,,http://purl.org/dc/terms/alternative,"Acronym, if applicable","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
@@ -205,3 +205,4 @@ Resources,,study design classification,ontology_array,,,CatalogueOntologies,Stud
 Resources,,study design classification other,text,,,,,,,,,Further details on design,EMA
 Resources,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study,EMA
 Resources,,study scope other,text,,,,,,,,,If scope 'other',EMA
+Resources,,theme,hyperlink_array,,,,,,,,http://www.w3.org/ns/dcat#theme,A main category of the resource. A resource can have multiple themes.,DataCatalogueFlat

@@ -93,8 +93,8 @@ public class TestLoaders {
     // check compliance
     testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
     // testShaclCompliance(DCAT_AP_SHACL_FILES, outputStream.toString());
-    // testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
-    // testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
+    testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
+    testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
   }
 
   @Test

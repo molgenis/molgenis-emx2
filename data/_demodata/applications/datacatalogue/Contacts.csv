@@ -30,9 +30,9 @@ SYSDIMET,,,Bob,Ross,Bob Ross,,BR,dr.,,bob.ross@paintings.eu,0000-0033-1119-366,h
 WDC,Project manager,,Bob,Ross,Bob Ross,,BR,dr.,TUNI,bob.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Painting
 WDC,Principal Investigator,,Jack,Ross,Jack Ross,,JR,prof.,UOULU,jack.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Carpenting
 WDC,Principal Investigator,,Ollie,Ross,Ollie Ross,,OR,ir.,TUNI,ollie.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Waiting
-testCohort1,"Principal Investigator,Project manager",Test description of PI/PM role,PIPM,last name PIPM,PIPM last name PIPM,surname prefix,P.I.P.M.,dr. ir.,Test lead organisation 1,pipm@testdomain.nl,test orcid,test homepage,,,test expertise
-testCohort1,Data manager,test description for data manager role,datamgr first name,datamgr last name,datamgr first name datamgr last name,datamgr surname prefix,D.M.,dr.,Test lead organisation 1,test@email.nl,test orcid,test homepage,,,test expertise for data manager role
-testCohort2,Alternative contact,test alternative contact for cohort 2,cohort2alternativefirst,cohort2alternativelast,cohort2alternativefirst cohort2alternativelast,surname prefix,A.L.T.E.R.,dr.,test lead organisation 2,testemailalternative@testdomain.nl,testorcid,test homepage,,,test expertise for alternative contact
+testCohort1,"Principal Investigator,Project manager",Test description of PI/PM role,PIPM,last name PIPM,PIPM last name PIPM,surname prefix,P.I.P.M.,dr. ir.,Test lead organisation 1,pipm@testdomain.nl,test orcid,https://kanariepiet.com,,,test expertise
+testCohort1,Data manager,test description for data manager role,datamgr first name,datamgr last name,datamgr first name datamgr last name,datamgr surname prefix,D.M.,dr.,Test lead organisation 1,test@email.nl,test orcid,https://kanariepiet.com,,,test expertise for data manager role
+testCohort2,Alternative contact,test alternative contact for cohort 2,cohort2alternativefirst,cohort2alternativelast,cohort2alternativefirst cohort2alternativelast,surname prefix,A.L.T.E.R.,dr.,test lead organisation 2,testemailalternative@testdomain.nl,testorcid,https://kanariepiet.com,,,test expertise for alternative contact
 mtFIT study,Primary contact,,Bob,Ross,Bob Ross,,,,,bob.ross@paintings.eu,,,,,
 DFBC,Primary contact,,Bob,Ross,Bob Ross,,,,,bob.ross@paintings.eu,,,,,
 ENVIRONAGE,Primary contact,,Bob,Ross,Bob Ross,,,,,bob.ross@paintings.eu,,,,,
