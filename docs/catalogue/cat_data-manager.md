@@ -22,7 +22,7 @@ which can be used as a basis for integrated analysis. In some projects, data may
 In these cases each resource stores the data locally in a [MOLGENIS Armadillo](../armadillo/) DataSHIELD server.
 
 This page describes the process of filling out metadata and variable information for a resource
-and uploading this to the catalogue. Expected users of this are data managers within the organisations
+and uploading this to the catalogue. Users of this guide are expected to be data managers within the organisations
 with access to the resources to be included in the catalogue, who can submit metadata, source variables
 (also called collected variables) and variable mappings. In addition, it can be used by central data managers
 of networks with a common data model such as LifeCycle or LongITools, who can submit metadata and target variables
@@ -33,9 +33,9 @@ If this is not the case, see the section on [requesting access](#request-access)
 ## Staging areas
 
 The metadata of the resource are first uploaded into what are called the 'staging areas' of the catalogue.
-Later on the metadata are transferred to the main catalogue; use of a staging area allows for review before the
-information becomes available through the live catalogue. If the data in your staging area is ready for transfer,
-let us know through [MOLGENIS support](mailto:support@molgenis.org).
+Later on the metadata are transferred to the main catalogue 
+Use of a staging area allows for review before the information becomes available through the live catalogue. 
+If the data in your staging area is ready for transfer you can let us know by emailing us through [MOLGENIS support](mailto:support@molgenis.org).
 
 When you log in, you will be able to see at least the following databases:
 
@@ -52,7 +52,7 @@ You can see filled out example metadata in these databases.
 
 ![MOLGENIS databases](../img/cat_databases.png)
 
-*Figure 1. Databases in the MOLGENIS catalogue staging area.*
+*Figure 1. Databases in the MOLGENIS catalogue.*
 
 ## Fill out rich metadata
 
