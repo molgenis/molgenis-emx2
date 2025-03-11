@@ -63,6 +63,10 @@ const { $sourceCodeMap } = useNuxtApp();
             <NuxtLink class="hover:underline text-title" to="/Styles.other"
               >Theme styles</NuxtLink
             >
+            <h2 class="text-2xl text-title font-bold my-5">Sample pages</h2>
+            <NuxtLink class="hover:underline text-title" to="/samples/rowEdit"
+              >Row edit</NuxtLink
+            >
             <h2 class="text-2xl text-title font-bold my-5">Components</h2>
             <ul class="list-none">
               <li class="py-2" v-for="story in stories">
