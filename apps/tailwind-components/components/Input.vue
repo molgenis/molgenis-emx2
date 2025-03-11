@@ -161,7 +161,7 @@
   />
   <InputOntology
     v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
-    :modelValue="modelValue ? modelValue.name : undefined"
+    :modelValue="modelValue as columnValueObject ? (modelValue as columnValueObject)['name'] as string : undefined"
     @update:modelValue="
       $event ? (modelValue = { name: $event }) : (modelValue = undefined)
     "
@@ -181,7 +181,7 @@
   <InputOntology
     v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
     :isArray="true"
-    :modelValue="modelValue ? modelValue.map((value) => value.name) : []"
+    :modelValue="Array.isArray(modelValue)? modelValue.filter(value => value).map( value => (value as columnValueObject)['name'] as string) : []"
     @update:modelValue="
       Array.isArray($event)
         ? (modelValue = $event.map((value) => {
@@ -248,7 +248,7 @@ import type {
   columnValue,
   columnValueObject,
 } from "../../metadata-utils/src/types";
-const modelValue = defineModel<columnValue>();
+const modelValue = defineModel<columnValue | columnValue[]>();
 const props = defineProps<
   IInputProps & {
     type: CellValueType;

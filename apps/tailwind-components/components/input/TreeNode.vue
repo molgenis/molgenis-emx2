@@ -9,6 +9,9 @@ const props = withDefaults(
     nodes: ITreeNodeState[];
     inverted?: boolean;
     isRoot: boolean;
+    valid?: boolean;
+    invalid?: boolean;
+    disabled?: boolean;
   }>(),
   {
     inverted: false,

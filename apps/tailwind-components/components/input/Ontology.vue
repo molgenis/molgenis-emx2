@@ -11,6 +11,7 @@ const props = defineProps<
     ontologyTableId: string;
   }
 >();
+const emit = defineEmits(["focus", "blur"]);
 //the selected values
 const modelValue = defineModel<string[] | string>();
 //state of the tree that is shown
@@ -45,7 +46,7 @@ async function retrieveTerms(
 
   const data = await fetchGraphql(
     props.ontologySchemaId,
-    `query ${props.ontologyTableId}($filter:${props.ontologyTableId}Filter) {${props.ontologyTableId}(filter:$filter, limit:1000, orderby:{name:ASC}){name,children(limit:1){name}}}`,
+    `query ${props.ontologyTableId}($filter:${props.ontologyTableId}Filter) {${props.ontologyTableId}(filter:$filter, limit:1000, orderby:{order:ASC,name:ASC}){name,children(limit:1){name}}}`,
     {
       filter: graphqlFilter,
     }
@@ -174,7 +175,7 @@ function toggleSelect(node: ITreeNodeState) {
       }
     }
   }
-  //ui selection state will be updated via watch on modelValue
+  emit("focus");
 }
 
 async function toggleExpand(node: ITreeNodeState) {
@@ -201,6 +202,7 @@ async function toggleExpand(node: ITreeNodeState) {
   } else {
     node.expanded = false;
   }
+  emit("focus");
 }
 
 function deselect(name: string) {
@@ -209,20 +211,24 @@ function deselect(name: string) {
   } else {
     modelValue.value = undefined;
   }
+  emit("focus");
 }
 
 function clearSelection() {
   modelValue.value = props.isArray ? [] : undefined;
+  emit("focus");
 }
 
 function toggleSearch() {
   showSearch.value = !showSearch.value;
   if (!showSearch.value) init();
+  emit("focus");
 }
 
 async function updateSearch(value: string) {
   searchTerms.value = value;
   await init();
+  emit("focus");
 }
 </script>
 
@@ -258,13 +264,27 @@ async function updateSearch(value: string) {
         :aria-hidden="!showSearch"
       />
     </div>
-    <TreeNode
-      :id="id"
-      :nodes="ontologyTree"
-      :isRoot="true"
-      @toggleExpand="toggleExpand"
-      @toggleSelect="toggleSelect"
-    />
-    <pre></pre>
+    <InputGroupContainer
+      :id="`${id}-checkbox-group`"
+      :aria-describedby="describedBy"
+      class="border-l-4 border-transparent"
+      :class="{
+        'border-l-invalid': invalid,
+        'border-l-valid': valid,
+      }"
+      @focus="emit('focus')"
+      @blur="emit('blur')"
+    >
+      <TreeNode
+        :id="id"
+        :nodes="ontologyTree"
+        :isRoot="true"
+        :valid="valid"
+        :invalid="invalid"
+        :disabled="disabled"
+        @toggleExpand="toggleExpand"
+        @toggleSelect="toggleSelect"
+      />
+    </InputGroupContainer>
   </div>
 </template>
