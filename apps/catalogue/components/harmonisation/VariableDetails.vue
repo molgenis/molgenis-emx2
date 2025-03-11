@@ -17,13 +17,17 @@ const relevantMappings = computed(() =>
   )
 );
 const sourceIds = computed(() => [
-  ...new Set(relevantMappings.value?.map((m) => m.source.id)),
+  ...new Set(
+    relevantMappings.value
+      ?.map((m) => m.source.id)
+      .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+  ),
 ]);
 const activeSource = computed(() => sourceIds.value[activeTabIndex.value]);
 const activeMappings = computed(() =>
   relevantMappings.value
     ?.filter((m) => m.source.id === activeSource.value)
-    .sort((a, b) => a.repeats - b.repeats)
+    .sort((a, b) => Number(a.repeats) - Number(b.repeats))
 );
 let activeVariableUsedKey = ref();
 let showSidePanel = computed(() => activeVariableUsedKey.value?.name);
