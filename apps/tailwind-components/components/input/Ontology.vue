@@ -123,6 +123,7 @@ function getAllChildren(node: ITreeNodeState): ITreeNodeState[] {
 }
 
 function toggleSelect(node: ITreeNodeState) {
+  if (props.disabled) return;
   if (!props.isArray) {
     modelValue.value = modelValue.value === node.name ? undefined : node.name;
   } else if (Array.isArray(modelValue.value)) {
@@ -202,33 +203,30 @@ async function toggleExpand(node: ITreeNodeState) {
   } else {
     node.expanded = false;
   }
-  emit("focus");
 }
 
 function deselect(name: string) {
+  if (props.disabled) return;
   if (props.isArray && Array.isArray(modelValue.value)) {
     modelValue.value = modelValue.value.filter((value) => value != name);
   } else {
     modelValue.value = undefined;
   }
-  emit("focus");
 }
 
 function clearSelection() {
+  if (props.disabled) return;
   modelValue.value = props.isArray ? [] : undefined;
-  emit("focus");
 }
 
 function toggleSearch() {
   showSearch.value = !showSearch.value;
   if (!showSearch.value) init();
-  emit("focus");
 }
 
 async function updateSearch(value: string) {
   searchTerms.value = value;
   await init();
-  emit("focus");
 }
 </script>
 
@@ -268,12 +266,8 @@ async function updateSearch(value: string) {
       :id="`${id}-checkbox-group`"
       :aria-describedby="describedBy"
       class="border-l-4 border-transparent"
-      :class="{
-        'border-l-invalid': invalid,
-        'border-l-valid': valid,
-      }"
-      @focus="emit('focus')"
       @blur="emit('blur')"
+      @focus="emit('focus')"
     >
       <TreeNode
         :id="id"

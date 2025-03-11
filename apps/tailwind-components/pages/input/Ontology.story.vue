@@ -6,7 +6,12 @@ const modelValueArray = ref(["colors", "mammals"]);
 </script>
 
 <template>
-  <InputTestContainer show-state v-slot="{ invalid, valid, disabled }">
+  <InputTestContainer
+    show-state
+    showBlurCount
+    showFocusCount
+    v-slot="{ invalid, valid, disabled, onBlur, onFocus }"
+  >
     <h2>Ontology single</h2>
     <InputOntology
       id="test-ontology-input-id"
@@ -16,6 +21,8 @@ const modelValueArray = ref(["colors", "mammals"]);
       :invalid="invalid"
       :valid="valid"
       :disabled="disabled"
+      @blur="onBlur"
+      @focus="onBlur"
     />
     modelValue = {{ modelValue }}
     <h2>Ontology array</h2>
@@ -28,6 +35,8 @@ const modelValueArray = ref(["colors", "mammals"]);
       :invalid="invalid"
       :valid="valid"
       :disabled="disabled"
+      @blur="onBlur"
+      @focus="onFocus"
     />
     modelValueArray = {{ modelValueArray }}
   </InputTestContainer>

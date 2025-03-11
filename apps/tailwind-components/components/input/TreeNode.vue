@@ -90,7 +90,11 @@ function toggleExpand(node: ITreeNodeState) {
         />
         <InputLabel
           :for="id + '-' + node.name + '-input'"
-          class="flex justify-center items-start hover:cursor-pointer"
+          class="flex justify-center items-start"
+          :class="{
+            'text-disabled cursor-not-allowed': disabled,
+            'text-title cursor-pointer ': !disabled,
+          }"
         >
           <InputCheckboxIcon
             v-if="node.selectable"
@@ -100,6 +104,9 @@ function toggleExpand(node: ITreeNodeState) {
             :class="{
               '[&>rect]:stroke-gray-400': inverted,
             }"
+            :invalid="invalid"
+            :valid="valid"
+            :disabled="disabled"
           />
           <span class="block text-body-sm leading-normal">{{ node.name }}</span>
         </InputLabel>
@@ -121,6 +128,9 @@ function toggleExpand(node: ITreeNodeState) {
         :nodes="node.children"
         :isRoot="false"
         :inverted="inverted"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
         @toggleSelect="toggleSelect"
         @toggleExpand="toggleExpand"
       />
