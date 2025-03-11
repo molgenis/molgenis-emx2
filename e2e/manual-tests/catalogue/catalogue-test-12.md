@@ -36,16 +36,16 @@ A naïve visitor to the data catalogue on a small screen can click around throug
 | 19 | Click on 'Filters' and a pop-up opens. | A search field is displayed at the top and filters below | | |
 | 20 | Close the pop-up | | | |
 | 21 | Click on 'acronym for test network1' | The user goes to overview page for this network and the ribbon reads :`MENU` and `MOLGENIS` logo at the top, Below: `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES` | | |
-| 22 | See that the fields are filled as follows: | Test logo for test network,(https://www.molgenis.org/), Description, General design, Population, Organisations, Datasets, Networks, Publication, Funding and acknowledgements | | |
+| 22 | See that the fields are filled as follows: | Test logo for test network,(https://www.molgenis.org/), Description, General design, Population, Organisations, Datasets, Networks, Publications, Funding and acknowledgements | | |
 | 23 | Press the back button on the page | The user goes to [/catalogue/all/networks](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/networks) | | |
 | 24 | Press the back button again | The user goes to [/catalogue/all](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all) | | |
 | 25 | Click on 'Variables` | The user goes to [/catalogue/all/variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/variables) | | |
 | 26 | Click on 'Filters' and a pop-up opens. | A search field is displayed at the top and filters below | | |
 | 27 | Close the pop-up | | | |
-| 28 | Click on 'Harmonisations' | Harmonisation matrix of all the variables are displayed | | |
+| 28 | Click on 'Harmonisations' | Harmonisations matrix of all the variables are displayed | | |
 | 29 | Press the back button on the page | The user goes to [/catalogue/all](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all) | | |
 | 30 | Click on 'Variables' again | A list of all variables is displayed | | |
-| 31 | | The ribbon reads: `MENU` and `MOLGENIS` logo at the top, Below: `COLLECTIONS`, `NETWORKS`, `VARIABLES` and `OTHER CATALOGUES` | | |
+| 31 | | The ribbon reads: `MENU` and `MOLGENIS` logo at the top, Below: `OVERVIEW``COLLECTIONS`, `NETWORKS`,  and `VARIABLES` | | |
 | 32 | Click on the first variable 'abd_circum_sdsWHO_t' | The user goes to [/variables/abd_circum_sdsWHO_t](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/variables/abd_circum_sdsWHO_t-ATHLETE-outcome_ath-ATHLETE?keys={%22name%22:%22abd_circum_sdsWHO_t%22,%22resource%22:{%22id%22:%22ATHLETE%22},%22dataset%22:{%22name%22:%22outcome_ath%22,%22resource%22:{%22id%22:%22ATHLETE%22}}}) | | |
 | 33 | See that the fields are filled as follows: | Definition, Harmonisation status per source and Harmonisation details per source | | |
 | 34 | Click on `OTHER CATALOGUES` again | | |
