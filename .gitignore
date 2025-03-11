@@ -41,15 +41,16 @@ release.properties
 tls
 **/**/bin/
 .venv
+.vscode/
 
 yarn_error.log
 .nyc_output
 coverage
 
-apps/nuxt3-ssr/assets/css/*.css
-!apps/nuxt3-ssr/assets/css/main.css
+apps/catalogue/assets/css/*.css
+!apps/catalogue/assets/css/main.css
 
-apps/nuxt3-ssr/utils/fingerprint.js
+apps/catalogue/utils/fingerprint.js
 /test-results/
 /playwright-report/
 /playwright/.cache/
@@ -67,3 +68,5 @@ venv
 requirements.txt
 e2e/.auth
 e2e/e2e/.auth
+e2e/test-results/
+apps/tailwind-components/test-results/.last-run.json

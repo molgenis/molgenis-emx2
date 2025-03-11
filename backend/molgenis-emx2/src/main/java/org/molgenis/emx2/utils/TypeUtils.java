@@ -274,6 +274,10 @@ public class TypeUtils {
     throw new ClassCastException("Cannot cast '" + v.toString() + "' to JSONB");
   }
 
+  public static JSONB[] toJsonbArray(Object v) {
+    return (JSONB[]) processArray(v, TypeUtils::toJsonb, JSONB[]::new, JSONB.class);
+  }
+
   public static String toText(Object v) {
     if (v == null) return null;
     if (v instanceof String) {
@@ -307,11 +311,13 @@ public class TypeUtils {
       case STRING -> ColumnType.STRING_ARRAY;
       case BOOL -> ColumnType.BOOL_ARRAY;
       case INT -> ColumnType.INT_ARRAY;
+      case LONG -> ColumnType.LONG_ARRAY;
       case DECIMAL -> ColumnType.DECIMAL_ARRAY;
       case TEXT -> ColumnType.TEXT_ARRAY;
       case DATE -> ColumnType.DATE_ARRAY;
       case DATETIME -> ColumnType.DATETIME_ARRAY;
       case PERIOD -> ColumnType.PERIOD_ARRAY;
+      case JSON -> ColumnType.STRING_ARRAY; // only used for filters
       default ->
           throw new UnsupportedOperationException(
               "Unsupported array columnType found:" + columnType);
@@ -383,6 +389,7 @@ public class TypeUtils {
       case PERIOD_ARRAY ->
           SQLDataType.INTERVAL.asConvertedDataType(new PeriodConverter()).getArrayDataType();
       case JSON -> SQLDataType.JSONB;
+
       default ->
           // should never happen
           throw new IllegalArgumentException("jooqTypeOf(type) : unsupported type '" + type + "'");
@@ -476,10 +483,22 @@ public class TypeUtils {
     }
   }
 
-  public static Iterable<Row> convertToRows(TableMetadata metadata, List<Map<String, Object>> map) {
+  public static List<Row> convertToRows(TableMetadata metadata, List<Map<String, Object>> map) {
+    return convertToRows(metadata, map, false);
+  }
+
+  public static List<Row> convertToPrimaryKeyRows(
+      TableMetadata metadata, List<Map<String, Object>> map) {
+    return convertToRows(metadata, map, true);
+  }
+
+  private static List<Row> convertToRows(
+      TableMetadata metadata, List<Map<String, Object>> map, boolean primaryKeyOnly) {
     List<Row> rows = new ArrayList<>();
     for (Map<String, Object> field : map) {
       Row row = new Row();
+      List<Column> columns =
+          primaryKeyOnly ? metadata.getPrimaryKeyColumns() : metadata.getColumns();
       for (Column column : metadata.getColumns()) {
         if (field.containsKey(column.getIdentifier())) {
           Object fieldValue = field.get(column.getIdentifier());
@@ -511,7 +530,7 @@ public class TypeUtils {
 
   protected static void convertRefArrayToRow(
       List<Map<String, Object>> list, Row row, Column column) {
-
+    if (list == null) return;
     List<Reference> refs = column.getReferences();
     for (Reference ref : refs) {
       if (!ref.isOverlapping()) {

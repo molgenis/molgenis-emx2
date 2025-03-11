@@ -1,53 +1,58 @@
 package org.molgenis.emx2;
 
 import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.Operator.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public enum ColumnType {
   // SIMPLE
   BOOL(Boolean.class, EQUALITY_OPERATORS),
-  BOOL_ARRAY(Boolean[].class, EQUALITY_OPERATORS),
+  BOOL_ARRAY(Boolean[].class, EQUALITY_ARRAY_OPERATORS),
   UUID(java.util.UUID.class, EQUALITY_OPERATORS),
-  UUID_ARRAY(java.util.UUID[].class, EQUALITY_OPERATORS),
+  UUID_ARRAY(java.util.UUID[].class, EQUALITY_ARRAY_OPERATORS),
   FILE(byte[].class, EXISTS_OPERATIONS),
 
   // STRING
   STRING(String.class, STRING_OPERATORS),
-  STRING_ARRAY(String[].class, STRING_OPERATORS),
+  STRING_ARRAY(String[].class, STRING_ARRAY_OPERATORS),
   TEXT(String.class, STRING_OPERATORS),
-  TEXT_ARRAY(String[].class, STRING_OPERATORS),
+  TEXT_ARRAY(String[].class, STRING_ARRAY_OPERATORS),
   JSON(org.jooq.JSONB.class, STRING_OPERATORS),
 
   // NUMERIC
   INT(Integer.class, ORDINAL_OPERATORS),
-  INT_ARRAY(Integer[].class, ORDINAL_OPERATORS),
+  INT_ARRAY(Integer[].class, ORDINAL_ARRAY_OPERATORS),
   LONG(Long.class, ORDINAL_OPERATORS),
-  LONG_ARRAY(Long[].class, ORDINAL_OPERATORS),
+  LONG_ARRAY(Long[].class, ORDINAL_ARRAY_OPERATORS),
   DECIMAL(Double.class, ORDINAL_OPERATORS),
-  DECIMAL_ARRAY(Double[].class, ORDINAL_OPERATORS),
+  DECIMAL_ARRAY(Double[].class, ORDINAL_ARRAY_OPERATORS),
   DATE(LocalDate.class, ORDINAL_OPERATORS),
-  DATE_ARRAY(LocalDate[].class, ORDINAL_OPERATORS),
+  DATE_ARRAY(LocalDate[].class, ORDINAL_ARRAY_OPERATORS),
   DATETIME(LocalDateTime.class, ORDINAL_OPERATORS),
-  DATETIME_ARRAY(LocalDateTime[].class, ORDINAL_OPERATORS),
+  DATETIME_ARRAY(LocalDateTime[].class, ORDINAL_ARRAY_OPERATORS),
   PERIOD(Period.class, ORDINAL_OPERATORS),
-  PERIOD_ARRAY(Period[].class, ORDINAL_OPERATORS),
+  PERIOD_ARRAY(Period[].class, ORDINAL_ARRAY_OPERATORS),
 
   // RELATIONSHIP
-  REF(Object.class),
-  REF_ARRAY(Object[].class),
-  REFBACK(Object[].class),
+  REF(Object.class, MATCH_ANY, EQUALS, MATCH_NONE, IS_NULL),
+  REF_ARRAY(Object[].class, MATCH_ANY, MATCH_ALL, EQUALS, MATCH_NONE, IS_NULL),
+  REFBACK(Object[].class, REF_ARRAY.operators), // same as ref_array
 
   // LAYOUT and other constants
   HEADING(String.class), // use for layout elements or constant values
 
   // format flavors that extend a baseType
   AUTO_ID(STRING),
-  ONTOLOGY(REF),
-  ONTOLOGY_ARRAY(REF_ARRAY),
+  ONTOLOGY(REF, MATCH_ANY_INCLUDING_CHILDREN, MATCH_ANY_INCLUDING_PARENTS, MATCH_PATH),
+  ONTOLOGY_ARRAY(REF_ARRAY, MATCH_ANY_INCLUDING_CHILDREN, MATCH_ANY_INCLUDING_PARENTS, MATCH_PATH),
   EMAIL(STRING, EMAIL_REGEX),
   EMAIL_ARRAY(STRING_ARRAY, EMAIL_REGEX),
   HYPERLINK(STRING, HYPERLINK_REGEX),
@@ -56,22 +61,26 @@ public enum ColumnType {
   private Class javaType;
   private ColumnType baseType;
   private Operator[] operators;
-  private String validationRegexp;
+  private Pattern validationRegexp;
 
   ColumnType(Class javaType, Operator... operators) {
     this.javaType = javaType;
     this.operators = operators;
   }
 
-  ColumnType(ColumnType baseType) {
+  ColumnType(ColumnType baseType, Operator... operators) {
     if (this.baseType != null) throw new RuntimeException("Cannot extend an extended type");
     this.baseType = baseType; // use to extend a base type
+    this.operators =
+        Stream.concat(Arrays.stream(baseType.operators), Arrays.stream(operators))
+            .toArray(Operator[]::new);
   }
 
   ColumnType(ColumnType baseType, String validationRegexp) {
     if (this.baseType != null) throw new RuntimeException("Cannot extend an extended type");
     this.baseType = baseType; // use to extend a base type
-    this.validationRegexp = validationRegexp;
+    this.operators = this.baseType.operators;
+    this.validationRegexp = Pattern.compile(validationRegexp);
   }
 
   public ColumnType getBaseType() {
@@ -87,11 +96,7 @@ public enum ColumnType {
   }
 
   public Operator[] getOperators() {
-    if (baseType != null) {
-      return this.baseType.getOperators();
-    } else {
-      return this.operators;
-    }
+    return this.operators;
   }
 
   /** throws exception when invalid */
@@ -101,7 +106,8 @@ public enum ColumnType {
       if (isArray()) {
         validate((Object[]) value);
       } else {
-        if (!value.toString().matches(validationRegexp)) {
+        Matcher matcher = validationRegexp.matcher(value.toString());
+        if (!matcher.matches()) {
           throw new MolgenisException("Validation failed: " + value + " is not valid " + name());
         }
       }
@@ -111,7 +117,8 @@ public enum ColumnType {
   /** throws exception when invalid */
   public void validate(Object[] values) {
     for (Object value : values) {
-      if (!value.toString().matches(validationRegexp)) {
+      Matcher matcher = validationRegexp.matcher(value.toString());
+      if (!matcher.matches()) {
         throw new MolgenisException("Validation failed: " + value + " is not valid " + name());
       }
     }

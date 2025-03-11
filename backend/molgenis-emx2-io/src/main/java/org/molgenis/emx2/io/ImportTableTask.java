@@ -185,8 +185,8 @@ public class ImportTableTask extends Task {
               row.setBinary(c.getName(), wrapper);
             } catch (Exception e) {
               throw new MolgenisException(
-                  "Failed to read file attachment for column %s row %d"
-                      .formatted(c.getName(), index),
+                  "Failed to read file attachment for table '%s' column '%s' row '%d'"
+                      .formatted(table.getName(), c.getName(), index),
                   e);
             }
           }

@@ -1,15 +1,16 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
+import type { AxiosError, AxiosResponse } from "axios";
 import type {
   IColumn,
   ISchemaMetaData,
   ISetting,
   ITableMetaData,
-} from "metadata-utils";
-import { IRow } from "../Interfaces/IRow";
+} from "../../../metadata-utils/src/types";
+import type { IRow } from "../Interfaces/IRow";
 import { deepClone } from "../components/utils";
 import type { aggFunction } from "./IClient";
-import { IClient, INewClient } from "./IClient";
-import { IQueryMetaData } from "./IQueryMetaData";
+import type { IClient, INewClient } from "./IClient";
+import type { IQueryMetaData } from "./IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
 
 // application wide cache for schema meta data
@@ -62,8 +63,7 @@ const client: IClient = {
       ) => {
         const schemaMetaData = await fetchSchemaMetaData(schemaId);
         const tableMetaData = schemaMetaData.tables.find(
-          (table: ITableMetaData) =>
-            table.id === tableId && table.schemaId === schemaMetaData.id
+          (table: ITableMetaData) => table.id === tableId
         );
         const filter = tableMetaData?.columns
           ?.filter((column: IColumn) => column.key === 1)
@@ -167,12 +167,11 @@ const metadataQuery = `{
   _schema {
     id,
     tables {
-      schemaId,
       id,
+      name,
       label, 
       description,
       tableType,
-      schemaId,
       semantics,
       columns {
         id,
@@ -395,8 +394,7 @@ async function convertRowToPrimaryKey(
 ): Promise<Record<string, any>> {
   const schema = await fetchSchemaMetaData(schemaId);
   const tableMetadata = schema.tables.find(
-    (table: ITableMetaData) =>
-      table.id === tableId && table.schemaId === schema.id
+    (table: ITableMetaData) => table.id === tableId
   );
   if (!tableMetadata?.columns) {
     throw new Error("Empty columns in metadata");

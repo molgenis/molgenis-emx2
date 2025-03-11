@@ -1,7 +1,7 @@
 package org.molgenis.emx2.rdf;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
@@ -45,9 +45,10 @@ public class OntologyTableSemantics {
         result.contains("rdfs:subClassOf qb:DataSet, owl:Thing, skos:ConceptScheme;"),
         "Tag should be a subclass of the given classes");
     assertTrue(
-        result.contains("PetStore:Tag a owl:Class;"), "Tag should be an instance of owl:Class");
+        result.contains("SemanticPetStore:Tag a owl:Class;"),
+        "Tag should be an instance of owl:Class");
     assertTrue(
-        result.contains("rdfs:isDefinedBy <http://purl.obolibrary.org/obo/NCIT_C48697>;"),
+        result.contains("rdfs:isDefinedBy obo:NCIT_C48697;"),
         "Tag should be defined by NCIT_C48697");
     assertFalse(
         result.contains("https://w3id.org/reproduceme#Tag>"),
@@ -75,9 +76,9 @@ public class OntologyTableSemantics {
         result.contains("rdfs:subClassOf qb:DataSet, owl:Thing, skos:ConceptScheme;"),
         "Tag should be a subclass of the given classes");
     assertTrue(
-        result.contains("PetStore:Tag a owl:Class;"), "Tag should be an instance of owl:Class");
+        result.contains("SemanticPetStore:Tag a owl:Class;"),
+        "Tag should be an instance of owl:Class");
     assertTrue(
-        result.contains(
-            "rdfs:isDefinedBy <https://w3id.org/reproduceme#Tag>, <http://purl.obolibrary.org/obo/NCIT_C48697>;"));
+        result.contains("rdfs:isDefinedBy <https://w3id.org/reproduceme#Tag>, obo:NCIT_C48697;"));
   }
 }

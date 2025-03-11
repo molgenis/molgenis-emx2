@@ -1,6 +1,6 @@
 import { StorageSerializers, useSessionStorage } from "@vueuse/core";
 
-import metadataGql from "../../nuxt3-ssr/gql/metadata";
+import metadataGql from "../../catalogue/gql/metadata";
 import { type ISchemaMetaData } from "../../metadata-utils/src/types";
 
 const query = moduleToString(metadataGql);
@@ -25,10 +25,7 @@ export default async (schemaId: string): Promise<ISchemaMetaData> => {
       });
     });
 
-    
     console.log(`Fetching metadata for schema ${schemaId}`);
-
-
 
     // Update the cache
     cached.value = data._schema;

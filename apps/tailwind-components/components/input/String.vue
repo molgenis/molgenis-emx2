@@ -1,60 +1,36 @@
 <script setup lang="ts">
-import type { columnValue } from "../../../metadata-utils/src/types";
+import type { IInputProps } from "~/types/types";
 
-const props = withDefaults(
-  defineProps<{
-    id: string;
-    label?: string;
-    modelValue?: string;
-    placeholder?: string;
-    disabled?: boolean;
-    required?: boolean;
-    valid?: boolean;
-    hasError?: boolean;
-  }>(),
-  {
-    disabled: false,
-    required: false,
-    hasError: false,
-    valid: false,
+const modelValue = defineModel<string | number | undefined>({ required: true });
+
+defineProps<
+  IInputProps & {
+    type?: string;
   }
-);
-
-const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
-defineExpose({ validate });
-
-function validate(value: columnValue) {
-  if (props.required && value === "") {
-    emit("error", [
-      { message: `${props.label || props.id} required to complete the form` },
-    ]);
-  } else {
-    emit("error", []);
-  }
-}
-
-function onInput(event: Event) {
-  const inputElement = event.target as HTMLInputElement;
-  emit("update:modelValue", inputElement.value);
-  validate(inputElement.value);
-}
+>();
+const emit = defineEmits(["focus", "blur"]);
 </script>
 
 <template>
   <input
     :id="id"
-    :required="required"
+    :aria-describedby="describedBy"
+    :type="type || 'text'"
     :placeholder="placeholder"
     :disabled="disabled"
-    class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
+    class="w-full h-[56px] pr-4 pl-3 border outline-none rounded-input"
     :class="{
-      'border-invalid text-invalid': hasError,
-      'border-valid text-valid': valid,
-      'border-disabled text-disabled bg-disabled': disabled,
-      'bg-white': !disabled,
+      'bg-input border-valid text-valid': valid && !disabled,
+      'bg-input border-invalid text-invalid': invalid && !disabled,
+      'border-disabled text-disabled bg-disabled cursor-not-allowed': disabled,
+      'bg-disabled border-valid text-valid cursor-not-allowed':
+        valid && disabled,
+      'bg-disabled border-invalid text-invalid cursor-not-allowed':
+        invalid && disabled,
+      'bg-input text-input hover:border-input-hover focus:border-input-focused':
+        !disabled && !invalid && !valid,
     }"
-    :value="modelValue"
-    @input="onInput"
+    v-model="modelValue"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
   />

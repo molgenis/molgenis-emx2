@@ -8,7 +8,7 @@ import static org.molgenis.emx2.ColumnType.TEXT;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.TableMetadata.table;
-import static org.molgenis.emx2.datamodels.DataModels.Regular.PET_STORE;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
