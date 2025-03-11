@@ -16,8 +16,8 @@
         'fill-input': !checked && !indeterminate,
         'fill-input-checked group-hover:fill-input-focused group-focus-within:fill-input-focused':
           (checked || indeterminate) && !disabled && !invalid && !valid,
-        'fill-invalid': checked | indeterminate && invalid,
-        'fill-valid': checked | indeterminate && valid,
+        'fill-invalid': (checked || indeterminate) && invalid,
+        'fill-valid': (checked || indeterminate) && valid,
         'stroke-input peer-focus:stroke-input-focused group-focus-within:stroke-input-focused group-hover:stroke-input-focused':
           !checked && !disabled && !invalid && !valid,
         'stroke-valid': valid,
