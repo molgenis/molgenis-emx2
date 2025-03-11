@@ -3,7 +3,7 @@
     <router-link v-if="canEdit" :to="'/' + page + '/edit'">
       edit page
     </router-link>
-    <div v-html="contents"></div>
+    <div ref="pageContents"></div>
   </div>
 </template>
 
@@ -32,5 +32,31 @@ export default {
       );
     },
   },
-};
+  watch: {
+    contents(htmlString) {
+htmlString += "<script>alert('working!')<\/script>"
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlString, 'text/html');
+
+      /** Loop over the just parsed html items, and add them */
+      Array.from(doc.body.children).forEach(el => {
+        if (el.tagName !== 'SCRIPT') {
+          this.$refs.pageContents.appendChild(el);
+        }
+        else {
+          /** Script tags need a special treatment, else they will not execute. **/
+          const scriptEl = document.createElement('script');
+          if (el.src) {
+            /** If we have an external script. */
+            scriptEl.src = el.src;
+          } else {
+            /** Regular inline script */
+            scriptEl.textContent = el.textContent;
+          }
+          this.$refs.pageContents.appendChild(scriptEl);
+        }
+      });
+    },
+  }
+}
 </script>
