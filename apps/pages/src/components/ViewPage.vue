@@ -34,18 +34,17 @@ export default {
   },
   watch: {
     contents(htmlString) {
-htmlString += "<script>alert('working!')<\/script>"
+      htmlString += "<script>alert('working!')<\/script>";
       const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlString, 'text/html');
+      const doc = parser.parseFromString(htmlString, "text/html");
 
       /** Loop over the just parsed html items, and add them */
-      Array.from(doc.body.children).forEach(el => {
-        if (el.tagName !== 'SCRIPT') {
+      Array.from(doc.body.children).forEach((el) => {
+        if (el.tagName !== "SCRIPT") {
           this.$refs.pageContents.appendChild(el);
-        }
-        else {
+        } else {
           /** Script tags need a special treatment, else they will not execute. **/
-          const scriptEl = document.createElement('script');
+          const scriptEl = document.createElement("script");
           if (el.src) {
             /** If we have an external script. */
             scriptEl.src = el.src;
@@ -57,6 +56,6 @@ htmlString += "<script>alert('working!')<\/script>"
         }
       });
     },
-  }
-}
+  },
+};
 </script>
