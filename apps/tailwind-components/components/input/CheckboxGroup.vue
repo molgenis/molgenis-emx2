@@ -25,13 +25,13 @@
           :name="id"
           :value="option.value"
           v-model="modelValue"
-          :checked="modelValue!.includes(option.value)"
+          :checked="modelValue ? modelValue.includes(option.value) : false"
           :disabled="disabled"
           @change="toggleSelect"
           class="ml-4 mt-2 sr-only"
         />
         <InputCheckboxIcon
-          :checked="modelValue!.includes(option.value)"
+          :checked="modelValue ? modelValue.includes(option.value) : false"
           :invalid="invalid"
           :valid="valid"
           :disabled="disabled"
