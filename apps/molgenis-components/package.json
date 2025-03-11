@@ -33,7 +33,7 @@
     "@popperjs/core": "2.11.8",
     "@vueuse/core": "10.7.0",
     "@vueuse/integrations": "10.7.0",
-    "axios": "1.7.4",
+    "axios": "1.8.2",
     "click-outside-vue3": "4.0.1",
     "cross-env": "7.0.3",
     "metadata-utils": "*",
