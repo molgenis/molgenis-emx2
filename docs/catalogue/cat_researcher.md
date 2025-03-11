@@ -6,18 +6,18 @@ Using the catalogue, you can explore a variety of data sources and compose a dat
 tailored to your research needs.
 
 Entering the catalogue, you can search all harmonised variables
-by clicking `ALL VARIABLES` in the menu.
+by clicking **ALL VARIABLES** in the menu.
 
 ![Go to the variable explorer or a project page](../img/cat_homepage-variables.png)
 
 Alternatively, you can choose to only view the harmonised variables within a particular project,
-such as the EUChildNetwork or LifeCycle. For the latter, first go to the project you are interested in
-and then click `VARIABLES`.
+such as the EUChildNetwork or LifeCycle. In that case, first go to the project you are interested in
+and then click **VARIABLES**.
 
 ![Go to the project variable explorer](../img/cat_project-variables.png)
 
 Please note that the catalogue only describes the harmonised variables,
-it does **not** contain the actual data values.
+it does *not* contain the actual data values.
 
 ## Find harmonised variables
 
@@ -33,7 +33,7 @@ which have mappings to these sources are shown.
 
 ## See harmonisation details
 
-The harmonisation view (click `HARMONISATIONS`) allows you to see
+The harmonisation view (click **HARMONISATIONS**) allows you to see
 which sources have (partially) harmonised your variables of interest and
 thus have those variables available for analysis.
 
