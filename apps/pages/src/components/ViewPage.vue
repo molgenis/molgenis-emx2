@@ -34,7 +34,6 @@ export default {
   },
   watch: {
     contents(htmlString) {
-      htmlString += "<script>alert('working!')<\/script>";
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlString, "text/html");
 
