@@ -56,10 +56,10 @@ You can see filled out example metadata in these databases.
 
 ## Fill out rich metadata
 
-Open your staging area and open the table `Resources`. The `id` and `name` columns are already filled in.
+Open your staging area and open the table **Resources**. The **id** and **name** columns are already filled in.
 Click on the pencil sign next to this entry to start editing your metadata by filling out
 the form. If you are planning on entering source variables,
-make sure to fill in tables `Collection events` and `Subpopulations` as well.
+make sure to fill in tables **Collection events** and **Subpopulations** as well.
 You can later refer to these from columns in the dictionary templates to indicate
 which variables were collected during which collection event and for which subpopulation.
 
@@ -76,16 +76,16 @@ the video a useful introduction to definining variable metadata in the MOLGENIS 
 
 ## Define variable metadata
 
-We use the [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary.xlsx)
+We use the [Dictionary template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary.xlsx)
 to define metadata on variables, creating data dictionaries (with source variables) or common data models (with target variables).
-The [*Dictionary template*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary.xlsx)
+The [Dictionary template](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary.xlsx)
 consists of multiple sheets. Each sheet corresponds to a table in the catalogue (Figure 2 and 3).
 The columns in each sheet correspond to columns in the table of the same name.
 Here, we describe how to fill out each of the sheets and their columns.
 Columns marked with an asterisk (\*) are mandatory,
 i.e., they need to be filled in for the system to accept the data as valid. Depending on your needs, you can download a
-[*filled-in example for source variables*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary_testCohort.xlsx)
-and a [*filled-in example for target variables*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary_testNetwork.xlsx),
+[filled-in example for source variables](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary_testCohort.xlsx)
+and a [filled-in example for target variables](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Dictionary_testNetwork.xlsx),
 as a reference for filling out the template.
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds.
@@ -107,18 +107,18 @@ via the templates, some are filled via an online form, see section
 
 The datasets (sets of variables) that make up a resource are defined in the *Datasets* sheet.
 
-| *Column name* | *Description* | *Remarks* |
-| --- | --- | --- |
-| resource \* | Resource that this dataset belongs to. Fill in your resource id | The resource id is found in the table *Resources* in the resource staging area |
-| name \* | Unique dataset name | |
-| label | Dataset label | |
-| dataset type<sup>1</sup>  | Type of dataset | Find list to choose from in CatalogueOntologies [Dataset types](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/DatasetTypes) |
-| description | Dataset description | |
-| unit of observation<sup>1</sup>  | Defines what each record in this dataset describes | Find list to choose from in CatalogueOntologies [Observation targets](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/ObservationTargets) |
-| number of rows | Count of the number of records in this dataset | |
-| keywords<sup>1</sup> | Enables grouping of datasets into topics and helps to display variables in a tree | Find list to choose from in CatalogueOntologies [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords) |
-| since version | Version of the data model when this dataset was introduced | e.g. 1.0.0 or 2.1 |
-| until version | Version of the data model when this dataset was deleted | e.g. 2.0.0 or 2.1 |
+| Column name                     | Description                                                                       | Remarks                                                                                                                                                         |
+|---------------------------------|-----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| resource\*                      | Resource that this dataset belongs to. Fill in your resource id                   | The resource id is found in the table *Resources* in the resource staging area                                                                                  |
+| name\*                          | Unique dataset name                                                               |                                                                                                                                                                 |
+| label                           | Dataset label                                                                     |                                                                                                                                                                 |
+| dataset type<sup>1</sup>        | Type of dataset                                                                   | Find list to choose from in CatalogueOntologies [Dataset types](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/DatasetTypes)             |
+| description                     | Dataset description                                                               |                                                                                                                                                                 |
+| unit of observation<sup>1</sup> | Defines what each record in this dataset describes                                | Find list to choose from in CatalogueOntologies [Observation targets](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/ObservationTargets) |
+| number of rows                  | Count of the number of records in this dataset                                    |                                                                                                                                                                 |
+| keywords<sup>1</sup>            | Enables grouping of datasets into topics and helps to display variables in a tree | Find list to choose from in CatalogueOntologies [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords)                      |
+| since version                   | Version of the data model when this dataset was introduced                        | e.g. 1.0.0 or 2.1                                                                                                                                               |
+| until version                   | Version of the data model when this dataset was deleted                           | e.g. 2.0.0 or 2.1                                                                                                                                               |
 
 _Table 1. Description of the columns that can be filled out for Datasets.
 \* = mandatory; 1 = contact [*molgenis support*](mailto:support@molgenis.org)
@@ -128,30 +128,30 @@ to add Keywords, Observation targets or Dataset types_
 
 The variables making up the datasets specified in the *Datasets* sheet are defined in the *Variables* sheet.
 
-| *Column name* | *Description* | *Remarks* |
-| --- | --- | --- |
-| resource \* | Resource that this variable belongs to. Fill out your resource id | The resource id is found in the table *Resources* in the resource staging area |
-| dataset \* | Dataset that contains the variable. | Datasets must be predefined in the *Datasets* sheet |
-| name \* | Variable name, unique within a dataset | |
-| label | Human readable variable label | |
-| format | The data type of the variable | Find list to choose from in CatalogueOntologies [Formats](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Formats) |
-| unit<sup>1</sup> | Unit in case of a continuous or integer format | Find list to choose from in CatalogueOntologies [Units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Units) |
-| description | Description of the variable | |
-| example values | Examples of values in a comma separated list | Makes your data structure more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14 |
-| repeat unit<sup>1</sup>  | In case of repeated variables, indicate the repeat period | Find list to choose from in CatalogueOntologies [Repeat units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/RepeatUnits) |
-| repeat min | The minimum repeat unit | E.g. 0 or 10 |
-| repeat max | The maximum repeat unit | E.g. 10 or 60 |
-| collection event | Refer to the names of collection events in a comma separated list | The collection events need to be predefined in the Collection events table in the resource staging area; e.g. y1, y2 |
-| vocabularies<sup>1</sup> | Refer to ontologies being used | Find list to choose from in CatalogueOntologies [Vocabularies](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Vocabularies) |
-| keywords<sup>1</sup> | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords)|
-| since version | Version of the data model when this variable was introduced | e.g. 1.0.0 or 2.1 |
-| until version | Version of the data model when this variable was deleted | e.g. 2.0.0 or 2.1 |
-| useExternaldefinition.resource | Refer to the associated resource id | When using the definitions of a harmonised variable from another CDM |
-| useExternaldefinition.dataset | Refer to the associated dataset name | When using the definitions of a harmonised variable from another CDM |
-| useExternaldefinition.name | Refer to the associated variable name | When using the definitions of a harmonised variable from another CDM |
+| Column name                    | Description                                                                        | Remarks                                                                                                                                            |
+|--------------------------------|------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| resource\*                     | Resource that this variable belongs to. Fill out your resource id                  | The resource id is found in the table *Resources* in the resource staging area                                                                     |
+| dataset\*                      | Dataset that contains the variable.                                                | Datasets must be predefined in the *Datasets* sheet                                                                                                |
+| name\*                         | Variable name, unique within a dataset                                             |                                                                                                                                                    |
+| label                          | Human readable variable label                                                      |                                                                                                                                                    |
+| format                         | The data type of the variable                                                      | Find list to choose from in CatalogueOntologies [Formats](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Formats)           |
+| unit[^1]                       | Unit in case of a continuous or integer format                                     | Find list to choose from in CatalogueOntologies [Units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Units)               |
+| description                    | Description of the variable                                                        |                                                                                                                                                    |
+| example values                 | Examples of values in a comma separated list                                       | Makes your data structure more insightful. E.g. 1,2,3 or TRUE,FALSE or 1.23,4.56,3.14                                                              |
+| repeat unit[^1]                | In case of repeated variables, indicate the repeat period                          | Find list to choose from in CatalogueOntologies [Repeat units](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/RepeatUnits)  |
+| repeat min                     | The minimum repeat unit                                                            | E.g. 0 or 10                                                                                                                                       |
+| repeat max                     | The maximum repeat unit                                                            | E.g. 10 or 60                                                                                                                                      |
+| collection event               | Refer to the names of collection events in a comma separated list                  | The collection events need to be predefined in the Collection events table in the resource staging area; e.g. y1, y2                               |
+| vocabularies[^1]               | Refer to ontologies being used                                                     | Find list to choose from in CatalogueOntologies [Vocabularies](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Vocabularies) |
+| keywords[^1]                   | Enables grouping of variables into topics and helps to display variables in a tree | Find list to choose from in Catalogue [Keywords](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/Keywords)                   |
+| since version                  | Version of the data model when this variable was introduced                        | e.g. 1.0.0 or 2.1                                                                                                                                  |
+| until version                  | Version of the data model when this variable was deleted                           | e.g. 2.0.0 or 2.1                                                                                                                                  |
+| useExternaldefinition.resource | Refer to the associated resource id                                                | When using the definitions of a harmonised variable from another CDM                                                                               |
+| useExternaldefinition.dataset  | Refer to the associated dataset name                                               | When using the definitions of a harmonised variable from another CDM                                                                               |
+| useExternaldefinition.name     | Refer to the associated variable name                                              | When using the definitions of a harmonised variable from another CDM                                                                               |
 
 _Table 2. Description of the columns that can be filled out for Variables. \* = mandatory;
-1 = contact [*molgenis support*](mailto:support@molgenis.org) to add Vocabularies, Keywords, Repeat units, or Units_
+[^1]: = contact [*molgenis support*](mailto:support@molgenis.org) to add Vocabularies, Keywords, Repeat units, or Units_
 
 ### *Variable values* sheet
 
@@ -159,18 +159,18 @@ The coding of categorical variables is defined in the *Variable values* sheet. T
 highly recommended to fill out the codes and values for your categorical variables, so that your data becomes more
 insightful for those that are interested.
 
-| *Column name* | *Description* | *Remarks* |
-| --- | --- | --- |
-| resource \* | Resource that the variable belongs to. Fill out your resource id | The resource id is found in the table *Resources* in the resource staging area |
-| dataset \* | Dataset that contains the variable | Datasets must be predefined in the *Datasets* sheet |
-| variable \* | Variable name | Variables must be predefined in the *Variables* sheet |
-| value \* | The code or value used | e.g. 1, 2 or -99 |
-| label \* | The label corresponding to the value | e.g. 'yes', 'no' or 'NA' |
-| order | The order in which the code list should appear | e.g. 1 |
-| is missing | Whether this value indicates a missing field | TRUE or FALSE |
-| ontology term URI | Reference to ontology term that defines this categorical value | e.g. <http://purl.obolibrary.org/obo/NCIT_C48660> |
-| since version | Version of the data model when this variable value was introduced | e.g. 1.0.0 or 2.1 |
-| until version | Version of the data model when this variable value was deleted | e.g. 2.0.0 or 2.1 |
+| Column name       | Description                                                       | Remarks                                                                        |
+|-------------------|-------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| resource\*        | Resource that the variable belongs to. Fill out your resource id  | The resource id is found in the table *Resources* in the resource staging area |
+| dataset\*         | Dataset that contains the variable                                | Datasets must be predefined in the *Datasets* sheet                            |
+| variable\*        | Variable name                                                     | Variables must be predefined in the *Variables* sheet                          |
+| value\*           | The code or value used                                            | e.g. 1, 2 or -99                                                               |
+| label\*           | The label corresponding to the value                              | e.g. 'yes', 'no' or 'NA'                                                       |
+| order             | The order in which the code list should appear                    | e.g. 1                                                                         |
+| is missing        | Whether this value indicates a missing field                      | TRUE or FALSE                                                                  |
+| ontology term URI | Reference to ontology term that defines this categorical value    | e.g. <http://purl.obolibrary.org/obo/NCIT_C48660>                              |
+| since version     | Version of the data model when this variable value was introduced | e.g. 1.0.0 or 2.1                                                              |
+| until version     | Version of the data model when this variable value was deleted    | e.g. 2.0.0 or 2.1                                                              |
 
 _Table 3. Description of the columns that can be filled out for Variable values. \* = mandatory_
 
@@ -192,15 +192,15 @@ as a reference for filling out the template.
 
 Harmonisation procedures at the dataset level are defined in the *Dataset mappings* sheet.
 
-| *Column name* | *Description* | *Remarks* |
-| --- | --- | --- |
-| source \* | Resource id. Fill out your resource id | The resource id is found in the table *Resources* in the resource staging area |
-| source dataset \* | Source dataset name | Datasets must be predefined in the *Datasets* sheet in the SourceDictionary template |
-| target \* | Name of the target CDM  | e.g. LifeCycle or LongITools |
-| target dataset \* | Target dataset name | Map to a dataset that is defined in a CDM |
-| order | Order in which table ETLs should be executed for this source-target combination | |
-| description | Description of the harmonisation | |
-| syntax | Syntax used for this harmonisation | |
+| Column name      | Description                                                                     | Remarks                                                                              |
+|------------------|---------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| source\*         | Resource id. Fill out your resource id                                          | The resource id is found in the table *Resources* in the resource staging area       |
+| source dataset\* | Source dataset name                                                             | Datasets must be predefined in the *Datasets* sheet in the SourceDictionary template |
+| target\*         | Name of the target CDM                                                          | e.g. LifeCycle or LongITools                                                         |
+| target dataset\* | Target dataset name                                                             | Map to a dataset that is defined in a CDM                                            |
+| order            | Order in which table ETLs should be executed for this source-target combination |                                                                                      |
+| description      | Description of the harmonisation                                                |                                                                                      |
+| syntax           | Syntax used for this harmonisation                                              |                                                                                      |
 
 _Table 4. Description of the columns that can be filled out for Variable mappings. \* = mandatory_
 
@@ -208,20 +208,20 @@ _Table 4. Description of the columns that can be filled out for Variable mapping
 
 Harmonisation procedures at the variable level are defined in the *Variable mappings* sheet.
 
-| *Column name* | *Description* | *Remarks* |
-| --- | --- | --- |
-| source \* | Resource id. Fill out your resource id | The resource id is found in the table *Resources* in the resource staging area |
-| source dataset \* | Source table name | Datasets must be predefined in the *Datasets* sheet in the SourceDictionary template |
-| source variables | Source variable name(s) | Variables must be predefined in the *Variables* sheet in the SourceDictionary template; When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3 |
-| source variables other datasets.dataset | Other source tables | When using variables from multiple other datasets, use a comma-separated list, e.g. dataset1,dataset2,dataset3<sup>1</sup> |
-| source variables other datasets.name | Source variable(s) from other datasets than filled out under source dataset | When using variables from multiple other datasets, use a comma-separated list, the order corresponding to the order of the datasets they are derived from specified under source variables from other datasets.dataset<sup>1</sup> |
-| target \* | Name of the target CDM  | e.g. LifeCycle or LongITools |
-| target dataset \* | Target dataset name. | Map to a dataset that is defined in a CDM |
-| target variable \* | Target variable name | Map to a variable that is defined in a CDM |
-| match \* | Whether the harmonisation is partial, complete or na (non-existent) | Find list to choose from in CatalogueOntologies [StatusDetails](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/StatusDetails) |
-| repeats | In the case of a repeated target variable, comma separated list of repeats that were mapped to | e.g. 0,1,2,6,12 |
-| description | Description of the harmonisation | |
-| syntax | Syntax used for this harmonisation | |
+| Column name                             | Description                                                                                    | Remarks                                                                                                                                                                                                                            |
+|-----------------------------------------|------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| source\*                                | Resource id. Fill out your resource id                                                         | The resource id is found in the table *Resources* in the resource staging area                                                                                                                                                     |
+| source dataset\*                        | Source table name                                                                              | Datasets must be predefined in the *Datasets* sheet in the SourceDictionary template                                                                                                                                               |
+| source variables                        | Source variable name(s)                                                                        | Variables must be predefined in the *Variables* sheet in the SourceDictionary template; When multiple variables are mapped together use a comma-separated list, e.g. v1,v2,v3                                                      |
+| source variables other datasets.dataset | Other source tables                                                                            | When using variables from multiple other datasets, use a comma-separated list, e.g. dataset1,dataset2,dataset3<sup>1</sup>                                                                                                         |
+| source variables other datasets.name    | Source variable(s) from other datasets than filled out under source dataset                    | When using variables from multiple other datasets, use a comma-separated list, the order corresponding to the order of the datasets they are derived from specified under source variables from other datasets.dataset<sup>1</sup> |
+| target\*                                | Name of the target CDM                                                                         | e.g. LifeCycle or LongITools                                                                                                                                                                                                       |
+| target dataset\*                        | Target dataset name.                                                                           | Map to a dataset that is defined in a CDM                                                                                                                                                                                          |
+| target variable\*                       | Target variable name                                                                           | Map to a variable that is defined in a CDM                                                                                                                                                                                         |
+| match\*                                 | Whether the harmonisation is partial, complete or na (non-existent)                            | Find list to choose from in CatalogueOntologies [StatusDetails](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/StatusDetails)                                                                               |
+| repeats                                 | In the case of a repeated target variable, comma separated list of repeats that were mapped to | e.g. 0,1,2,6,12                                                                                                                                                                                                                    |
+| description                             | Description of the harmonisation                                                               |                                                                                                                                                                                                                                    |
+| syntax                                  | Syntax used for this harmonisation                                                             |                                                                                                                                                                                                                                    |
 
 _Table 5. Description of the columns that can be filled out for Variable mappings. \* = mandatory;
 1 = see sheet Variable mappings in the
@@ -233,9 +233,9 @@ for an example on how to fill this out (last line)_
 When you have filled out the template(s) you can start uploading variable metadata. To do this, log in to the
 [MOLGENIS catalogue backend](https://data-catalogue.molgeniscloud.org/apps/central/#/), where
 you will see a list of databases that are accessible to you. Click on the database for your resource and
-go to `Up/Download` in the menu. Use `Browse` to select the file containing the filled-in template and
-click `Import` to start uploading. A progress report is displayed and if your upload completes without
-errors, your variable metadata is available for viewing under `Tables`.
+go to **Up/Download** in the menu. Use **Browse** to select the file containing the filled-in template and
+click **Import** to start uploading. A progress report is displayed and if your upload completes without
+errors, your variable metadata is available for viewing under **Tables**.
 
 If your variable metadata is correctly uploaded and ready for transfer from the staging area
 to the main catalogue, contact us at [MOLGENIS support](mailto:support@molgenis.org).
@@ -247,11 +247,11 @@ If you encounter any difficulties during this process, feel free to [contact us]
 ## Request access
 
 If you do not have an account yet, you will need to set one up:
-Go to the catalogue at [https://data-catalogue.molgeniscloud.org](https://data-catalogue.molgeniscloud.org).
-Click on `More` and select `Upload data`. Click on `Sign in`. Click on `LS Login`.
+Go to the catalogue at [data-catalogue.molgeniscloud.org](https://data-catalogue.molgeniscloud.org).
+Click on **More** and select **Upload data**. Click on **Sign in**. Click on **LS Login**.
 Search for and select your institution and follow the instructions.
 You can now log in using your institutional e-mail account.
-If your institution is not listed, set up an ORCID here: <https://orcid.org/register>,
+If your institution is not listed, set up an [ORCID](https://orcid.org/register),
 then log in via LS login and choose the ORCID login option.
 In addition, your account needs to be linked to the resource(s) you will be working on.
 Contact us at [support@molgenis.org](mailto:support@molgenis.org) with your account e-mail address and
