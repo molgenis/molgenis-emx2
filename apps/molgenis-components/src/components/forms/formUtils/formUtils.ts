@@ -287,7 +287,7 @@ export function executeExpression(
 }
 
 function isInvalidHyperlink(value: any) {
-  return !HYPERLINK_REGEX.test(String(value).toLowerCase());
+  return value && !HYPERLINK_REGEX.test(value);
 }
 
 function containsInvalidHyperlink(hyperlinks: any) {
@@ -295,16 +295,15 @@ function containsInvalidHyperlink(hyperlinks: any) {
 }
 
 function isInvalidEmail(value: any) {
-  return !EMAIL_REGEX.test(String(value).toLowerCase());
+  return value && !EMAIL_REGEX.test(value);
 }
 
 function containsInvalidEmail(emails: any) {
-  console.log(JSON.stringify(emails));
   return emails.some((email: any) => isInvalidEmail(email));
 }
 
 function isInvalidPeriod(value: any) {
-  return !PERIOD_REGEX.test(String(value));
+  return !PERIOD_REGEX.test(value);
 }
 
 function containsInvalidPeriod(periods: any) {
