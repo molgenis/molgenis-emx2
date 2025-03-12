@@ -84,12 +84,35 @@ export default function useForm(
     scrollTo(`${currentRequiredFieldId.value}-form-field`);
   };
 
+  const currentErrorFieldId = ref<columnId | null>(null);
+
+  const gotoPreviousError = () => {
+    const keys = Object.keys(errorMap.value);
+    const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
+    const prevIndex = currentIndex - 1;
+    const previousErrorColumnId =
+      keys[prevIndex < 0 ? keys.length - 1 : prevIndex];
+
+    scrollTo(`${previousErrorColumnId}-form-field`);
+  };
+
+  const gotoNextError = () => {
+    const keys = Object.keys(errorMap.value);
+    const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
+    const nextIndex = currentIndex + 1;
+    const nextErrorColumnId = keys[nextIndex >= keys.length ? 0 : nextIndex];
+
+    scrollTo(`${nextErrorColumnId}-form-field`);
+  };
+
   return {
     requiredFields,
     emptyRequiredFields,
     requiredMessage,
     gotoNextRequiredField,
     gotoPreviousRequiredField,
+    gotoNextError,
+    gotoPreviousError,
     errorMessage,
   };
 }

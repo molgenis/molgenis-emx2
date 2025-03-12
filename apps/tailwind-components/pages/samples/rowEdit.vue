@@ -38,6 +38,8 @@ const {
   errorMessage,
   gotoPreviousRequiredField,
   gotoNextRequiredField,
+  gotoNextError,
+  gotoPreviousError,
 } = useForm(metadata, formValues, errorMap, scrollTo);
 
 function onSave() {
@@ -50,27 +52,6 @@ function onSaveDraft() {
 
 function onCancel() {
   alert("Do cancel");
-}
-
-const currentErrorFieldId = ref<columnId | null>(null);
-
-function errorPrev() {
-  const keys = Object.keys(errorMap.value);
-  const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
-  const prevIndex = currentIndex - 1;
-  const previousErrorColumnId =
-    keys[prevIndex < 0 ? keys.length - 1 : prevIndex];
-  const fieldDomId = `${previousErrorColumnId}-form-field`;
-  scrollTo(fieldDomId);
-}
-
-function errorNext() {
-  const keys = Object.keys(errorMap.value);
-  const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
-  const nextIndex = currentIndex + 1;
-  const nextErrorColumnId = keys[nextIndex >= keys.length ? 0 : nextIndex];
-  const fieldDomId = `${nextErrorColumnId}-form-field`;
-  scrollTo(fieldDomId);
 }
 </script>
 <template>
@@ -125,8 +106,8 @@ function errorNext() {
             v-show="errorMessage"
             :message="errorMessage"
             class="sticky h-[62px] bottom-0 ransition-all transition-discrete"
-            @error-prev="errorPrev"
-            @error-next="errorNext"
+            @error-prev="gotoPreviousError"
+            @error-next="gotoNextError"
           />
         </div>
 
