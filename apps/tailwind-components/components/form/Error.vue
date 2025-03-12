@@ -12,7 +12,7 @@
         :icon-only="true"
         type="tertiary"
         icon="arrow-up"
-        label="Go to previous error"
+        label="go to previous error"
         @click="$emit('error-prev')"
       />
       <Button
@@ -20,7 +20,7 @@
         :icon-only="true"
         type="tertiary"
         icon="arrow-down"
-        label="Go to next error"
+        label="go to next error"
         @click="$emit('error-next')"
       />
     </ButtonBar>

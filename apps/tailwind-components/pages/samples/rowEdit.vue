@@ -24,6 +24,12 @@ const errorMap = ref<Record<columnId, string>>({});
 const activeChapterId = ref<string>("_scroll_to_top");
 const sections = useSections(metadata, activeChapterId, errorMap);
 
+const { requiredMessage, errorMessage } = useForm(
+  metadata,
+  formValues,
+  errorMap
+);
+
 const STICKY_HEADER_OFFSET = 58;
 
 function scrollTo(elementId: string) {
@@ -43,16 +49,6 @@ function onSaveDraft() {
 function onCancel() {
   alert("Do cancel");
 }
-
-const errorMessage = computed(() => {
-  const errorCount = Object.values(errorMap.value).filter(
-    (value) => value !== ""
-  ).length;
-  const fieldLabel = errorCount === 1 ? "field requires" : "fields require";
-  return errorCount > 0
-    ? `${errorCount} ${fieldLabel} attention before you can save this cohort`
-    : "";
-});
 
 const currentErrorFieldId = ref<string | null>(null);
 
@@ -110,8 +106,9 @@ function errorNext() {
       <div id="row-edit-field-container" class="col-span-3 border">
         <div class="bg-form h-[116px] sticky top-0 z-10">
           <menu
-            class="flex items-center justify-end pt-[20px] pb-[20px] px-[30px]"
+            class="flex items-center justify-between pt-[20px] pb-[20px] px-[30px]"
           >
+            <FormRequired :message="requiredMessage" />
             <div class="flex gap-4">
               <Button type="secondary" @click="onCancel">Cancel</Button>
               <Button type="outline" @click="onSaveDraft">Save draft</Button>

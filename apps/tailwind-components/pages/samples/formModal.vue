@@ -41,16 +41,6 @@ function scrollToElementInside(containerId: string, elementId: string) {
   }
 }
 
-const errorMessage = computed(() => {
-  const errorCount = Object.values(errorMap.value).filter(
-    (value) => value !== ""
-  ).length;
-  const fieldLabel = errorCount === 1 ? "field requires" : "fields require";
-  return errorCount > 0
-    ? `${errorCount} ${fieldLabel} attention before you can save this cohort`
-    : "";
-});
-
 const currentErrorFieldId = ref<string | null>(null);
 
 function errorPrev() {
@@ -71,6 +61,12 @@ function errorNext() {
   const fieldDomId = `${nextErrorColumnId}-form-field`;
   scrollToElementInside("fields-container", fieldDomId);
 }
+
+const { requiredMessage, errorMessage } = useForm(
+  metadata,
+  formValues,
+  errorMap
+);
 </script>
 <template>
   <Container>
@@ -137,13 +133,16 @@ function errorNext() {
       </Transition>
 
       <template #footer>
-        <menu class="flex items-center justify-end h-[116px]">
-          <div class="flex gap-4">
-            <Button type="secondary" @click="hide">Cancel</Button>
-            <Button type="outline" @click="onSaveDraft">Save draft</Button>
-            <Button type="primary" @click="onSave">Save</Button>
-          </div>
-        </menu>
+        <div class="flex justify-between items-center">
+          <FormRequired :message="requiredMessage" />
+          <menu class="flex items-center justify-end h-[116px]">
+            <div class="flex gap-4">
+              <Button type="secondary" @click="hide">Cancel</Button>
+              <Button type="outline" @click="onSaveDraft">Save draft</Button>
+              <Button type="primary" @click="onSave">Save</Button>
+            </div>
+          </menu>
+        </div>
       </template>
     </Modal>
   </Container>
