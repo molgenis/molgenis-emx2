@@ -24,12 +24,12 @@ const errorMap = ref<Record<columnId, string>>({});
 const activeChapterId = ref<string>("_scroll_to_top");
 const sections = useSections(metadata, activeChapterId, errorMap);
 
-const STICKY_HEADER_OFFSET = 58;
+const PAGE_OFF_SET = 200;
 
 function scrollTo(elementId: string) {
   const element = document.getElementById(elementId);
   if (element) {
-    window.scroll(0, element.offsetTop - STICKY_HEADER_OFFSET);
+    window.scroll(0, element.offsetTop - PAGE_OFF_SET);
   }
 }
 
@@ -55,7 +55,7 @@ function onCancel() {
 }
 </script>
 <template>
-  <Container class="pt-16">
+  <Container>
     <PageHeader title="Edit cohort: CONSTANCES" align="left">
       <template #prefix>
         <BreadCrumbs :align="'left'" :crumbs="crumbs" :current="current" />

@@ -44,7 +44,7 @@ defineExpose({
     />
 
     <div
-      class="bg-modal w-3/4 relative m-auto h-5/6 rounded-t-none rounded-b-theme"
+      class="bg-modal w-3/4 relative m-auto rounded-t-none rounded-b-theme"
       :class="maxWidth"
     >
       <slot name="header">
@@ -66,12 +66,12 @@ defineExpose({
         </header>
       </slot>
 
-      <div class="overflow-y-auto max-h-[calc(80vh-232px)]">
+      <div class="overflow-y-auto max-h-[calc(95vh-232px)]">
         <slot />
       </div>
 
       <footer
-        class="bg-modal-footer px-[50px] rounded-b-theme border-t border-divider"
+        class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider"
       >
         <slot name="footer" />
       </footer>
