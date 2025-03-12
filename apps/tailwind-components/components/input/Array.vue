@@ -1,13 +1,13 @@
 <template>
   <div>
     <div
-      v-for="(value, index) in valuesNotUndefined"
+      v-for="(_value, index) in values"
       :key="index"
       class="flex items-center gap-1"
     >
       <Input
         :id="id + '_' + index"
-        :modelValue="valuesNotUndefined[index]"
+        :modelValue="values[index]"
         v-bind="partialProps($props)"
         :type="nonArrayType(props.type || 'STRING_ARRAY')"
         @blur="emit('blur')"
@@ -21,8 +21,8 @@
         type="secondary"
         icon="trash"
         label="Remove item"
-        v-if="valuesNotUndefined.length > 1"
-        @click="clearInput(valuesNotUndefined, index)"
+        v-if="values.length > 1"
+        @click="clearInput(values, index)"
       />
     </div>
     <Button
@@ -30,7 +30,7 @@
       size="small"
       icon="plus"
       label="Add a additional item"
-      @click="addItem(valuesNotUndefined)"
+      @click="addItem(values)"
     />
   </div>
 </template>
@@ -46,8 +46,15 @@ let props = defineProps<
   }
 >();
 
-const values = ref(props.modelValue);
+const values = ref<any[]>(handleUndefined(props.modelValue));
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+
+function handleUndefined(bla: any[] | undefined) {
+  if (bla === undefined) {
+    return [undefined];
+  }
+  return bla;
+}
 
 function setValues(value: any, index: number) {
   if (values.value === undefined) {
@@ -57,13 +64,6 @@ function setValues(value: any, index: number) {
   }
   return values.value;
 }
-
-const valuesNotUndefined = computed(() => {
-  if (values.value === undefined) {
-    values.value = [undefined];
-  }
-  return values.value;
-});
 
 function addItem(values: any) {
   values.push(undefined);
