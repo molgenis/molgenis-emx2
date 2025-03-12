@@ -56,7 +56,7 @@ function handleUndefined(bla: any[] | undefined) {
 
 function setValues(value: any, index: number) {
   values.value[index] = value;
-  emit('update:modelValue', values.value);
+  emit("update:modelValue", values.value);
 }
 
 function addItem(values: any) {
