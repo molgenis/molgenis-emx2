@@ -2,20 +2,12 @@
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnValue, columnId } from "../../../metadata-utils/src/types";
 import cohortTableMetadata from "./data/cohort-table-metadata";
-import Modal from "@/components/Modal.vue";
 
 definePageMeta({
   layout: "full-page",
 });
 
-const modal = ref<InstanceType<typeof Modal>>();
-function show() {
-  modal.value?.show();
-}
-
-function hide() {
-  modal.value?.close();
-}
+const visible = ref<boolean>(false);
 
 const formValues = ref<Record<string, columnValue>>({});
 const metadata = cohortTableMetadata as ITableMetaData;
@@ -54,9 +46,11 @@ const {
 </script>
 <template>
   <Container>
-    <div class="  "><Button class="m-10" @click="show"> Show</Button></div>
+    <div class="  ">
+      <Button class="m-10" @click="visible = true"> Show</Button>
+    </div>
 
-    <Modal ref="modal" max-width="max-w-9/10">
+    <Modal v-model:visible="visible" max-width="max-w-9/10">
       <template #header>
         <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
           <div class="mb-5 relative flex items-center">
@@ -73,7 +67,7 @@ const {
           </div>
 
           <button
-            @click="hide"
+            @click="visible = false"
             aria-label="Close modal"
             class="absolute top-7 right-8 p-1"
           >
@@ -125,7 +119,7 @@ const {
           />
           <menu class="flex items-center justify-end h-[116px]">
             <div class="flex gap-4">
-              <Button type="secondary" @click="hide">Cancel</Button>
+              <Button type="secondary" @click="visible = false">Cancel</Button>
               <Button type="outline" @click="onSaveDraft">Save draft</Button>
               <Button type="primary" @click="onSave">Save</Button>
             </div>

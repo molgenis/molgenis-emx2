@@ -10,20 +10,8 @@ withDefaults(
   }
 );
 
-const visible = ref(false);
-
-function showModal() {
-  visible.value = true;
-}
-
-const closeModal = () => {
-  visible.value = false;
-};
-
-defineExpose({
-  show: showModal,
-  close: closeModal,
-  visible,
+const visible = defineModel("visible", {
+  required: true,
 });
 </script>
 
@@ -37,7 +25,7 @@ defineExpose({
   >
     <a
       id="backdrop"
-      @click="closeModal()"
+      @click="visible = false"
       class="w-full h-full absolute left-0 bg-black/60 overscroll-behavior: contain"
       href="#"
       tabindex="-1"
@@ -57,7 +45,7 @@ defineExpose({
           </h2>
 
           <button
-            @click="closeModal()"
+            @click="visible = false"
             aria-label="Close modal"
             class="absolute top-7 right-8 p-1"
           >
