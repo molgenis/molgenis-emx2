@@ -33,7 +33,7 @@ By default, the following prefixed names are available:
 | efo           | http://www.ebi.ac.uk/efo/                      |
 | ejp           | https://w3id.org/ejp-rd/vocabulary#            |
 | ensembl       | http://ensembl.org/glossary/                   |
-| fdp-o         | http://w3id.org/fdp/fdp-o#                     |
+| fdp-o         | https://w3id.org/fdp/fdp-o#                    |
 | fg            | https://w3id.org/fair-genomes/resource/        |
 | foaf          | http://xmlns.com/foaf/0.1/                     |
 | healthDCAT-AP | urn:uuid:a7ef52b2-bd43-4294-a80f-3e7299af35e4# |
