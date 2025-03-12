@@ -6,10 +6,8 @@
 FROM gradle:jdk21-noble
 RUN useradd -m molgenis
 
-RUN apt-get update && apt-get install python3 python3-venv -y
-RUN apt-get install python3 python3-venv python3-pip -y  
+RUN apt-get update && apt-get install vim python3 python3-venv python3-pip -y
 RUN python3 -m pip config set global.break-system-packages true
-RUN python3 -m pip install --upgrade build twine numpy
 RUN python3 --version
 
 ENV NODE_VERSION=20.11.0
@@ -59,4 +57,4 @@ RUN apt-get install postgresql-client -y
 # GemTools & FPM For debian and redhat packages
 RUN apt-get install ruby-dev -y 
 RUN gem install fpm
-USER molgenis
+#USER molgenis
