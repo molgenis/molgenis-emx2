@@ -291,7 +291,11 @@ function isInvalidHyperlink(value: any) {
 }
 
 function containsInvalidHyperlink(hyperlinks: any) {
+<<<<<<< HEAD
   return hyperlinks.some((hyperlink: string) => isInvalidHyperlink(hyperlink));
+=======
+  return hyperlinks.some((hyperlink: any) => !isValidHyperlink(hyperlink));
+>>>>>>> c75c987ecb6e7d464771ea8c5ac01fdf946da867
 }
 
 function isInvalidEmail(value: any) {
@@ -299,8 +303,12 @@ function isInvalidEmail(value: any) {
 }
 
 function containsInvalidEmail(emails: any) {
+<<<<<<< HEAD
   console.log(JSON.stringify(emails));
   return emails.some((email: any) => isInvalidEmail(email));
+=======
+  return emails.some((email: any) => !isValidEmail(email));
+>>>>>>> c75c987ecb6e7d464771ea8c5ac01fdf946da867
 }
 
 function isInvalidPeriod(value: any) {
@@ -308,7 +316,11 @@ function isInvalidPeriod(value: any) {
 }
 
 function containsInvalidPeriod(periods: any) {
+<<<<<<< HEAD
   return periods.some((period: any) => isInvalidPeriod(period));
+=======
+  return periods.some((period: any) => !isValidPeriod(period));
+>>>>>>> c75c987ecb6e7d464771ea8c5ac01fdf946da867
 }
 
 export function isJsonObjectOrArray(parsedJson: any) {
