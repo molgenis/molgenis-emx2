@@ -62,11 +62,14 @@ function errorNext() {
   scrollToElementInside("fields-container", fieldDomId);
 }
 
-const { requiredMessage, errorMessage } = useForm(
-  metadata,
-  formValues,
-  errorMap
-);
+const {
+  requiredMessage,
+  errorMessage,
+  gotoPreviousRequiredField,
+  gotoNextRequiredField,
+} = useForm(metadata, formValues, errorMap, (fieldId) => {
+  scrollToElementInside("fields-container", `${fieldId}-form-field`);
+});
 </script>
 <template>
   <Container>
@@ -134,7 +137,11 @@ const { requiredMessage, errorMessage } = useForm(
 
       <template #footer>
         <div class="flex justify-between items-center">
-          <FormRequired :message="requiredMessage" />
+          <FormRequired
+            :message="requiredMessage"
+            @required-next="gotoNextRequiredField"
+            @required-prev="gotoPreviousRequiredField"
+          />
           <menu class="flex items-center justify-end h-[116px]">
             <div class="flex gap-4">
               <Button type="secondary" @click="hide">Cancel</Button>

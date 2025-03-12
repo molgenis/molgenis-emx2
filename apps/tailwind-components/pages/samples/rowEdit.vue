@@ -24,12 +24,6 @@ const errorMap = ref<Record<columnId, string>>({});
 const activeChapterId = ref<string>("_scroll_to_top");
 const sections = useSections(metadata, activeChapterId, errorMap);
 
-const { requiredMessage, errorMessage, emptyRequiredFields } = useForm(
-  metadata,
-  formValues,
-  errorMap
-);
-
 const STICKY_HEADER_OFFSET = 58;
 
 function scrollTo(elementId: string) {
@@ -38,6 +32,14 @@ function scrollTo(elementId: string) {
     window.scroll(0, element.offsetTop - STICKY_HEADER_OFFSET);
   }
 }
+
+const {
+  requiredMessage,
+  errorMessage,
+  gotoPreviousRequiredField,
+  gotoNextRequiredField,
+} = useForm(metadata, formValues, errorMap, scrollTo);
+
 function onSave() {
   alert("Do Save");
 }
@@ -69,48 +71,6 @@ function errorNext() {
   const nextErrorColumnId = keys[nextIndex >= keys.length ? 0 : nextIndex];
   const fieldDomId = `${nextErrorColumnId}-form-field`;
   scrollTo(fieldDomId);
-}
-
-const currentRequiredFieldId = ref<columnId | null>(null);
-
-function gotoNextRequiredField() {
-  if (!emptyRequiredFields.value) {
-    return;
-  }
-  if (currentRequiredFieldId.value === null) {
-    currentRequiredFieldId.value = emptyRequiredFields.value[0].id;
-  } else {
-    const currentIndex = emptyRequiredFields.value
-      .map((column) => column.id)
-      .indexOf(currentRequiredFieldId.value);
-    const nextIndex = currentIndex + 1;
-    currentRequiredFieldId.value =
-      emptyRequiredFields.value[
-        nextIndex >= emptyRequiredFields.value.length ? 0 : nextIndex
-      ].id;
-  }
-
-  scrollTo(`${currentRequiredFieldId.value}-form-field`);
-}
-
-function gotoPreviousRequiredField() {
-  if (!emptyRequiredFields.value) {
-    return;
-  }
-  if (currentRequiredFieldId.value === null) {
-    currentRequiredFieldId.value = emptyRequiredFields.value[0].id;
-  } else {
-    const currentIndex = emptyRequiredFields.value
-      .map((column) => column.id)
-      .indexOf(currentRequiredFieldId.value);
-    const prevIndex = currentIndex - 1;
-    currentRequiredFieldId.value =
-      emptyRequiredFields.value[
-        prevIndex < 0 ? emptyRequiredFields.value.length - 1 : prevIndex
-      ].id;
-  }
-
-  scrollTo(`${currentRequiredFieldId.value}-form-field`);
 }
 </script>
 <template>

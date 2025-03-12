@@ -8,7 +8,8 @@ import type {
 export default function useForm(
   metadata: MaybeRef<ITableMetaData>,
   formValues: Ref<Record<columnId, columnValue>>,
-  errorMap: Ref<Record<columnId, string>>
+  errorMap: Ref<Record<columnId, string>>,
+  scrollTo: (id: string) => void
 ) {
   const requiredFields = computed(() => {
     return toRef(metadata).value.columns.filter(
@@ -41,10 +42,54 @@ export default function useForm(
       : "";
   });
 
+  const currentRequiredFieldId = ref<columnId | null>(null);
+
+  const gotoNextRequiredField = () => {
+    if (!emptyRequiredFields.value) {
+      return;
+    }
+    if (currentRequiredFieldId.value === null) {
+      currentRequiredFieldId.value = emptyRequiredFields.value[0].id;
+    } else {
+      const currentIndex = emptyRequiredFields.value
+        .map((column) => column.id)
+        .indexOf(currentRequiredFieldId.value);
+      const nextIndex = currentIndex + 1;
+      currentRequiredFieldId.value =
+        emptyRequiredFields.value[
+          nextIndex >= emptyRequiredFields.value.length ? 0 : nextIndex
+        ].id;
+    }
+
+    scrollTo(`${currentRequiredFieldId.value}-form-field`);
+  };
+
+  const gotoPreviousRequiredField = () => {
+    if (!emptyRequiredFields.value) {
+      return;
+    }
+    if (currentRequiredFieldId.value === null) {
+      currentRequiredFieldId.value = emptyRequiredFields.value[0].id;
+    } else {
+      const currentIndex = emptyRequiredFields.value
+        .map((column) => column.id)
+        .indexOf(currentRequiredFieldId.value);
+      const prevIndex = currentIndex - 1;
+      currentRequiredFieldId.value =
+        emptyRequiredFields.value[
+          prevIndex < 0 ? emptyRequiredFields.value.length - 1 : prevIndex
+        ].id;
+    }
+
+    scrollTo(`${currentRequiredFieldId.value}-form-field`);
+  };
+
   return {
     requiredFields,
     emptyRequiredFields,
     requiredMessage,
+    gotoNextRequiredField,
+    gotoPreviousRequiredField,
     errorMessage,
   };
 }
