@@ -125,7 +125,7 @@ export function getColumnError(
   }
   if (
     type === "DECIMAL_ARRAY" &&
-    (value as string[]).some((val) => isNaN(parseFloat(val as string)))
+    (value as string[]).some((val) => val && isNaN(parseFloat(val as string)))
   ) {
     return "Invalid number";
   }
@@ -158,7 +158,10 @@ export function getBigIntError(value?: string): string | undefined {
 
 export function isInvalidBigInt(value?: string): boolean {
   const isValidRegex = /^-?\d+$/;
-  if (value && isValidRegex.test(value)) {
+  if (!value) {
+    return false;
+  }
+  if (isValidRegex.test(value)) {
     return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
   } else {
     return true;
