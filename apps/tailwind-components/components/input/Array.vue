@@ -12,9 +12,7 @@
         :type="nonArrayType(props.type || 'STRING_ARRAY')"
         @blur="emit('blur')"
         @focus="emit('focus')"
-        @update:model-value="
-          emit('update:modelValue', setValues($event, index))
-        "
+        @update:model-value="setValues($event, index)"
       />
       <Button
         iconOnly
@@ -57,12 +55,8 @@ function handleUndefined(bla: any[] | undefined) {
 }
 
 function setValues(value: any, index: number) {
-  if (values.value === undefined) {
-    values.value = [undefined];
-  } else {
-    values.value[index] = value;
-  }
-  return values.value;
+  values.value[index] = value;
+  emit('update:modelValue', values.value);
 }
 
 function addItem(values: any) {

@@ -291,7 +291,7 @@ function isValidHyperlink(value: any) {
 }
 
 function containsInvalidHyperlink(hyperlinks: any) {
-  return hyperlinks.find((hyperlink: any) => !isValidHyperlink(hyperlink));
+  return hyperlinks.some((hyperlink: any) => !isValidHyperlink(hyperlink));
 }
 
 function isValidEmail(value: any) {
@@ -299,7 +299,7 @@ function isValidEmail(value: any) {
 }
 
 function containsInvalidEmail(emails: any) {
-  return emails.find((email: any) => !isValidEmail(email));
+  return emails.some((email: any) => !isValidEmail(email));
 }
 
 function isValidPeriod(value: any) {
@@ -307,7 +307,7 @@ function isValidPeriod(value: any) {
 }
 
 function containsInvalidPeriod(periods: any) {
-  return periods.find((period: any) => !isValidPeriod(period));
+  return periods.some((period: any) => !isValidPeriod(period));
 }
 
 export function isJsonObjectOrArray(parsedJson: any) {
