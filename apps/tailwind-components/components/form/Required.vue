@@ -6,18 +6,20 @@
 
     <ButtonBar class="rounded-input">
       <button
-        v-tooltip.bottom="'next required field'"
-        class="flex items-center border-l border-collapse tracking-widest bg-form-required hover:bg-form-required-btn-hover text-link p-[8px] transition-colors border-l-form-required v-popper--has-tooltip"
-      >
-        <BaseIcon name="arrow-down" :width="24" />
-        <span class="sr-only">next required field</span>
-      </button>
-      <button
         v-tooltip.bottom="'previous required field'"
-        class="flex items-center border-l border-collapse tracking-widest bg-form-required hover:bg-form-required-btn-hover text-link p-[8px] transition-colors border-l-form-required rounded-r-form-required v-popper--has-tooltip"
+        class="flex items-center border-l border-collapse tracking-widest bg-form-required hover:bg-form-required-btn-hover text-link p-[8px] transition-colors border-l-form-required v-popper--has-tooltip"
+        @click="$emit('required-prev')"
       >
         <BaseIcon name="arrow-up" :width="24" />
         <span class="sr-only">previous required field</span>
+      </button>
+      <button
+        v-tooltip.bottom="'next required field'"
+        class="flex items-center border-l border-collapse tracking-widest bg-form-required hover:bg-form-required-btn-hover text-link p-[8px] transition-colors border-l-form-required rounded-r-form-required v-popper--has-tooltip"
+        @click="$emit('required-next')"
+      >
+        <BaseIcon name="arrow-down" :width="24" />
+        <span class="sr-only">next required field</span>
       </button>
     </ButtonBar>
   </span>

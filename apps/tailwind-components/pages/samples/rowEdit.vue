@@ -24,7 +24,7 @@ const errorMap = ref<Record<columnId, string>>({});
 const activeChapterId = ref<string>("_scroll_to_top");
 const sections = useSections(metadata, activeChapterId, errorMap);
 
-const { requiredMessage, errorMessage } = useForm(
+const { requiredMessage, errorMessage, emptyRequiredFields } = useForm(
   metadata,
   formValues,
   errorMap
@@ -50,7 +50,7 @@ function onCancel() {
   alert("Do cancel");
 }
 
-const currentErrorFieldId = ref<string | null>(null);
+const currentErrorFieldId = ref<columnId | null>(null);
 
 function errorPrev() {
   const keys = Object.keys(errorMap.value);
@@ -69,6 +69,48 @@ function errorNext() {
   const nextErrorColumnId = keys[nextIndex >= keys.length ? 0 : nextIndex];
   const fieldDomId = `${nextErrorColumnId}-form-field`;
   scrollTo(fieldDomId);
+}
+
+const currentRequiredFieldId = ref<columnId | null>(null);
+
+function gotoNextRequiredField() {
+  if (!emptyRequiredFields.value) {
+    return;
+  }
+  if (currentRequiredFieldId.value === null) {
+    currentRequiredFieldId.value = emptyRequiredFields.value[0].id;
+  } else {
+    const currentIndex = emptyRequiredFields.value
+      .map((column) => column.id)
+      .indexOf(currentRequiredFieldId.value);
+    const nextIndex = currentIndex + 1;
+    currentRequiredFieldId.value =
+      emptyRequiredFields.value[
+        nextIndex >= emptyRequiredFields.value.length ? 0 : nextIndex
+      ].id;
+  }
+
+  scrollTo(`${currentRequiredFieldId.value}-form-field`);
+}
+
+function gotoPreviousRequiredField() {
+  if (!emptyRequiredFields.value) {
+    return;
+  }
+  if (currentRequiredFieldId.value === null) {
+    currentRequiredFieldId.value = emptyRequiredFields.value[0].id;
+  } else {
+    const currentIndex = emptyRequiredFields.value
+      .map((column) => column.id)
+      .indexOf(currentRequiredFieldId.value);
+    const prevIndex = currentIndex - 1;
+    currentRequiredFieldId.value =
+      emptyRequiredFields.value[
+        prevIndex < 0 ? emptyRequiredFields.value.length - 1 : prevIndex
+      ].id;
+  }
+
+  scrollTo(`${currentRequiredFieldId.value}-form-field`);
 }
 </script>
 <template>
@@ -108,7 +150,11 @@ function errorNext() {
           <menu
             class="flex items-center justify-between pt-[20px] pb-[20px] px-[30px]"
           >
-            <FormRequired :message="requiredMessage" />
+            <FormRequired
+              :message="requiredMessage"
+              @required-prev="gotoPreviousRequiredField"
+              @required-next="gotoNextRequiredField"
+            />
             <div class="flex gap-4">
               <Button type="secondary" @click="onCancel">Cancel</Button>
               <Button type="outline" @click="onSaveDraft">Save draft</Button>
