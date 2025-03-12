@@ -23,7 +23,8 @@
     --color-blue-900: #013F7E;
     --color-gray-50: #F9F9F9;
     --color-gray-100: #F4F4F4;
-    --color-gray-200: #646464;
+    --color-gray-200: #E2E2E2;
+    --color-gray-300: #444444;
     --color-gray-400: #C0C0C0;
     --color-gray-600: #2C2C2C;
     --color-gray-700: #414141;
@@ -200,5 +201,12 @@
     --border-radius-landing: 50px;
 
     --outline-color-select: var(--color-gray-200);
+
+    --background-color-form-required: var(--color-white);
+    --background-color-form-required-btn: var(--color-white);
+    --background-color-form-required-btn-hover: var(--color-blue-50);
+    --border-color-form-required: var(--color-gray-200);
+    --border-radius-form-required: var(--border-radius-3px);
+    --border-width-form-required: 1px;
   }
 }

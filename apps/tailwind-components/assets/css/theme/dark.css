@@ -62,4 +62,10 @@
     --border-color-input-focused: var(--color-green-200);
     
     --border-radius-pagination: 3px;
+
+    --border-color-form-required: var(--color-gray-300);
+    --border-width-form-required: 1px;
+    --background-color-form-required: var(--color-gray-900);
+    --background-color-form-required-btn: var(--color-gray-900);
+    --background-color-form-required-btn-hover: var(--color-gray-300);
 }    

@@ -155,6 +155,9 @@ module.exports = {
         "pagination-hover": "var(--background-color-pagination-hover)",
         "form": "var(--background-color-form)",
         "footer": "var(--background-color-footer)",
+        "form-required": "var(--background-color-form-required)",
+        "form-required-btn": "var(--background-color-form-required-btn)",
+        "form-required-btn-hover": "var(--background-color-form-required-btn-hover)",
         "modal": "var(--background-color-modal)",
         "modal-footer": "var(--background-color-modal-footer)",
         "tab": "var(--background-color-tab)",
@@ -270,6 +273,7 @@ module.exports = {
         "input-focused": "var(--border-color-input-focused)",
         "listbox": "var(--border-color-search-input)",
         "listbox-option": "var(--border-color-listbox-option)",
+        "form-required": "var(--border-color-form-required)",
       }),
       stroke: ({ theme }) => ({
         "input": "var(--border-color-input)",
@@ -304,6 +308,10 @@ module.exports = {
         "search-button": "var(--border-radius-search-button)",
         "pagination": "var(--border-radius-pagination)",
         "landing": "var(--border-radius-landing)",
+        "form-required": "var(--border-radius-form-required)",
+      },
+      borderWidth: {
+        "form-required": "var(--border-width-form-required)",
       },
       opacity: {
         "background-gradient": "var(--opacity-background-gradient)",

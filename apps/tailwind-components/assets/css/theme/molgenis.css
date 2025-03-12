@@ -126,4 +126,11 @@
     --border-radius-landing: 50px;
 
     --outline-color-select: var(--color-gray-200);
+
+    --border-width-form-required: 0;
+    --background-color-form-required: var(--color-blue-800);
+    --border-radius-form-required: var(--border-radius-theme);
+    --background-color-form-required-btn-hover: var(--color-blue-300);
+    --border-color-form-required: var(--color-blue-300);
+    
   }
