@@ -7,7 +7,7 @@ import type {
 
 export default function useForm(
   metadata: MaybeRef<ITableMetaData>,
-  formValues: Ref<Record<columnId, columnValue>>,
+  formValues: MaybeRef<Record<columnId, columnValue>>,
   errorMap: Ref<Record<columnId, string>>,
   scrollTo: (id: string) => void
 ) {
@@ -19,7 +19,7 @@ export default function useForm(
 
   const emptyRequiredFields = computed(() => {
     return requiredFields.value.filter(
-      (column: IColumn) => !formValues.value[column.id]
+      (column: IColumn) => !toRef(formValues).value[column.id]
     );
   });
 
