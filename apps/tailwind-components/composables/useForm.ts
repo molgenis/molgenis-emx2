@@ -45,7 +45,7 @@ export default function useForm(
   const currentRequiredFieldId = ref<columnId | null>(null);
 
   const gotoNextRequiredField = () => {
-    if (!emptyRequiredFields.value) {
+    if (!emptyRequiredFields.value || emptyRequiredFields.value.length === 0) {
       return;
     }
     if (currentRequiredFieldId.value === null) {
@@ -109,10 +109,10 @@ export default function useForm(
     requiredFields,
     emptyRequiredFields,
     requiredMessage,
+    errorMessage,
     gotoNextRequiredField,
     gotoPreviousRequiredField,
     gotoNextError,
     gotoPreviousError,
-    errorMessage,
   };
 }
