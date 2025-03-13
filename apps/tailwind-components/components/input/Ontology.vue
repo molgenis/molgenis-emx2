@@ -32,7 +32,6 @@ watch(() => modelValue.value, applySelectedStates);
 async function retrieveTerms(
   parentNode: ITreeNodeState | undefined = undefined
 ): Promise<ITreeNodeState[]> {
-  //todo for later: add a 'loaded' flag so we can skip loading if loaded before
   let graphqlFilter: any = parentNode
     ? { parent: { name: { equals: parentNode.name } } }
     : { parent: { _is_null: true } };
@@ -41,7 +40,6 @@ async function retrieveTerms(
 
   if (searchTerms.value) {
     graphqlFilter._like_including_parents = searchTerms.value;
-    //todo: need search including parents so I can get the paths. TODO
   }
 
   const data = await fetchGraphql(
@@ -117,9 +115,19 @@ function applyStateToNode(node: ITreeNodeState): void {
 }
 
 function getAllChildren(node: ITreeNodeState): ITreeNodeState[] {
-  const result: ITreeNodeState[] = node.children || [];
-  node.children?.forEach((child) => result.push(...getAllChildren(child)));
+  const result: ITreeNodeState[] = [];
+  node.children?.forEach((child) =>
+    result.push(child, ...getAllChildren(child))
+  );
   return result;
+}
+
+function getAllParents(node: ITreeNodeState): ITreeNodeState[] {
+  if (node.parentNode) {
+    return [node.parentNode, ...getAllParents(node.parentNode)];
+  } else {
+    return [];
+  }
 }
 
 function toggleSelect(node: ITreeNodeState) {
@@ -127,53 +135,55 @@ function toggleSelect(node: ITreeNodeState) {
   if (!props.isArray) {
     modelValue.value = modelValue.value === node.name ? undefined : node.name;
   } else if (Array.isArray(modelValue.value)) {
-    //deselect directly
+    //if a selected value then simply deselect
     if (modelValue.value.includes(node.name)) {
       modelValue.value = modelValue.value.filter(
         (value) => value !== node.name
       );
-    } else {
-      //if last child to be selected, we should deselect all siblings and select parent
-      const itemsToBeAdded: string[] = [];
-      const itemsToBeRemoved: string[] = []; //deselection
-      if (
-        node.parentNode &&
-        node.parentNode.children.every((child) => child.selected === "selected")
-      ) {
-        itemsToBeAdded.push(
-          ...node.parentNode.children
-            .map((node) => node.name)
-            .filter((name) => node.name !== name)
-        );
-        itemsToBeRemoved.push(node.parentNode.name);
-        modelValue.value = [
-          ...modelValue.value.filter(
-            (value) => !itemsToBeRemoved.includes(value)
-          ),
-          ...itemsToBeAdded,
-        ];
-      } else {
-        node.selected = "selected";
-        if (
-          node.parentNode &&
-          node.parentNode.children.every(
-            (child) => child.selected === "selected"
-          )
-        ) {
-          itemsToBeRemoved.push(
-            ...node.parentNode.children.map((node) => node.name)
-          );
-          itemsToBeAdded.push(node.parentNode.name);
-          modelValue.value = [
-            ...modelValue.value.filter(
-              (value) => !itemsToBeRemoved.includes(value)
-            ),
-            ...itemsToBeAdded,
-          ];
-        } else {
-          modelValue.value = [...modelValue.value, node.name];
-        }
-      }
+    }
+    //if deselection of a node in a selected parent
+    //then select all siblings except current node
+    //recursively!
+    else if (
+      node.parentNode &&
+      getAllParents(node).some((parent) =>
+        modelValue.value?.includes(parent.name)
+      )
+    ) {
+      const itemsToBeRemoved = [
+        node.name,
+        ...getAllParents(node).map((parent) => parent.name),
+      ];
+      const itemsToBeAdded: string[] = getAllParents(node)
+        .map((parent) => parent.children.map((child) => child.name))
+        .flat();
+      //remove parent node from select and add all siblings
+      modelValue.value = [...modelValue.value, ...itemsToBeAdded].filter(
+        (name) => !itemsToBeRemoved.includes(name)
+      );
+    }
+    // if we select last selected child
+    // then we need toggle select on parent instead
+    else if (
+      node.parentNode &&
+      node.parentNode.children
+        .filter((child) => child.name != node.name)
+        .every((child) => child.selected === "selected")
+    ) {
+      toggleSelect(node.parentNode);
+    }
+    // if we simply select a node
+    // then make sure to deselect all its children
+    else {
+      const itemsToBeRemoved: string[] = getAllChildren(node).map(
+        (child) => child.name
+      );
+      modelValue.value = [
+        ...modelValue.value.filter(
+          (value) => !itemsToBeRemoved.includes(value)
+        ),
+        node.name,
+      ];
     }
   }
   emit("focus");
@@ -199,7 +209,7 @@ async function toggleExpand(node: ITreeNodeState) {
       };
     });
     node.expanded = true;
-    applyStateToNode(node);
+    await applySelectedStates();
   } else {
     node.expanded = false;
   }
@@ -232,43 +242,46 @@ async function updateSearch(value: string) {
 
 <template>
   <div>
-    <div
-      class="flex flex-wrap gap-2 mb-2"
-      v-if="Array.isArray(modelValue) ? modelValue.length : modelValue"
-    >
-      <Button
-        v-for="label in Array.isArray(modelValue) ? modelValue : [modelValue]"
-        icon="cross"
-        iconPosition="right"
-        type="filterWell"
-        size="tiny"
-        @click="deselect(label as string)"
-      >
-        {{ label }}
-      </Button>
-    </div>
-    <div class="flex flex-wrap gap-2 mb-2">
-      <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
-        Search
-      </ButtonText>
-      <ButtonText @click="clearSelection"> Clear all </ButtonText>
-      <InputSearch
-        v-if="showSearch"
-        :id="`search-for-${id}`"
-        :modelValue="searchTerms"
-        @update:modelValue="updateSearch"
-        class="mb-2"
-        :placeholder="`Search in terms`"
-        :aria-hidden="!showSearch"
-      />
-    </div>
     <InputGroupContainer
-      :id="`${id}-checkbox-group`"
-      :aria-describedby="describedBy"
       class="border-l-4 border-transparent"
       @blur="emit('blur')"
       @focus="emit('focus')"
     >
+      <div
+        class="flex flex-wrap gap-2 mb-2 max-h-[300px] overflow-y-auto"
+        v-if="Array.isArray(modelValue) ? modelValue.length : modelValue"
+      >
+        <Button
+          v-for="label in Array.isArray(modelValue)
+            ? modelValue.sort()
+            : [modelValue]"
+          icon="cross"
+          iconPosition="right"
+          type="filterWell"
+          size="tiny"
+          @click="deselect(label as string)"
+        >
+          {{ label }}
+        </Button>
+      </div>
+      <div class="flex flex-wrap gap-2 mb-2">
+        <InputLabel :for="`search-for-${id}`" class="sr-only">
+          search in ontology
+        </InputLabel>
+        <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
+          Search
+        </ButtonText>
+        <ButtonText @click="clearSelection"> Clear all </ButtonText>
+        <InputSearch
+          v-if="showSearch"
+          :id="`search-for-${id}`"
+          :modelValue="searchTerms"
+          @update:modelValue="updateSearch"
+          class="mb-2"
+          :placeholder="`Search in terms`"
+          :aria-hidden="!showSearch"
+        />
+      </div>
       <TreeNode
         :id="id"
         :nodes="ontologyTree"
@@ -278,6 +291,11 @@ async function updateSearch(value: string) {
         :disabled="disabled"
         @toggleExpand="toggleExpand"
         @toggleSelect="toggleSelect"
+        class="border-l-2 border-transparent pl-4 max-h-[500px] overflow-y-auto"
+        :class="{
+          'border-l-invalid': invalid,
+          'border-l-valid': valid,
+        }"
       />
     </InputGroupContainer>
   </div>
