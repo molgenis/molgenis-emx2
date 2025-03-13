@@ -33,8 +33,8 @@ If this is not the case, see the section on [requesting access](#request-access)
 ## Staging areas
 
 The metadata of the resource are first uploaded into what are called the 'staging areas' of the catalogue.
-Later on the metadata are transferred to the main catalogue 
-Use of a staging area allows for review before the information becomes available through the live catalogue. 
+Later on the metadata are transferred to the main catalogue
+Use of a staging area allows for review before the information becomes available through the live catalogue.
 If the data in your staging area is ready for transfer you can let us know by emailing us through [MOLGENIS support](mailto:support@molgenis.org).
 
 When you log in, you will be able to see at least the following databases:
@@ -121,7 +121,7 @@ The datasets (sets of variables) that make up a resource are defined in the *Dat
 | until version                             | Version of the data model when this dataset was deleted                           | e.g. 2.0.0 or 2.1                                                                                                                                               |
 
 _Table 1. Description of the columns that can be filled out for Datasets.
-\*: mandatory; 
+\*: mandatory;
 <a id="ds1">1</a>: contact [*molgenis support*](mailto:support@molgenis.org)
 to add Keywords, Observation targets or Dataset types._
 
