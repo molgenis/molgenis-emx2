@@ -511,7 +511,7 @@ public class RDFService {
   private void dataRowToRdf(
       final ModelBuilder builder,
       final Map<String, Map<String, Namespace>> namespaces,
-      Table table,
+      final Table table,
       final IRI tableIRI,
       final Row row,
       final String rowId,
@@ -531,12 +531,6 @@ public class RDFService {
     }
     builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
     builder.add(subject, RDFS.LABEL, Values.literal(getLabelForRow(row, table.getMetadata())));
-    // via rowId might be subclass
-    if (rowId != null) {
-      // because row IRI point to root tables we need to find actual subclass table to ensure we
-      // get all columns
-      table = getSubclassTableForRowBasedOnMgTableclass(table, row);
-    }
     for (final Column column : table.getMetadata().getColumns()) {
       // Exclude the system columns that refer to specific users
       if (column.isSystemAddUpdateByUserColumn()) {
@@ -612,23 +606,15 @@ public class RDFService {
     Query query = table.query();
 
     if (rowId != null) {
-      // first find from root table
       PrimaryKey key = PrimaryKey.makePrimaryKeyFromEncodedKey(rowId);
-      List<Row> oneRow = query.where(key.getFilter()).retrieveRows();
-      // if subclass
-      if (oneRow.size() == 1 && oneRow.get(0).getString(MG_TABLECLASS) != null) {
-        Row row = oneRow.get(0);
-        table = getSubclassTableForRowBasedOnMgTableclass(table, row);
-        return table.query().where(key.getFilter()).retrieveRows();
-      }
-      return oneRow;
-    } else {
-      if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
-        var tableName = table.getSchema().getName() + "." + table.getName();
-        query.where(f("mg_tableclass", EQUALS, tableName));
-      }
-      return query.retrieveRows();
+      query.where(key.getFilter());
     }
+
+    if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
+      var tableName = table.getSchema().getName() + "." + table.getName();
+      query.where(f("mg_tableclass", EQUALS, tableName));
+    }
+    return query.retrieveRows();
   }
 
   private IRI getIriForRow(final Row row, final Table table) {
