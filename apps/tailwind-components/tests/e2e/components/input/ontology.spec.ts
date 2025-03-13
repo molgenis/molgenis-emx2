@@ -55,8 +55,8 @@ test("test expand and deselect behavior", async ({ page }) => {
   ).toBeVisible();
   //search
   await page.getByRole("button", { name: "Search" }).nth(1).click();
-  await page.getByRole("searchbox", { name: "Search in terms" }).click();
-  await page.getByRole("searchbox", { name: "Search in terms" }).fill("re");
+  await page.getByPlaceholder("Search in terms").click();
+  await page.getByPlaceholder("Search in terms").fill("re");
   await expect(
     page
       .locator("#test-ontology-array-input-id-checkbox-group")
