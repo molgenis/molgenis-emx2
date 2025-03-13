@@ -271,38 +271,97 @@ class ColumnTypeRdfMapperTest {
 
     assertAll(
         // SIMPLE
-        () -> assertTrue(retrieveFirstValue(ColumnType.BOOL.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.UUID.name()).isIRI()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.FILE.name()).isIRI()),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.BOOL.name()).isLiteral(),
+                ColumnType.BOOL.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.UUID.name()).isIRI(),
+                ColumnType.UUID.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.FILE.name()).isIRI(),
+                ColumnType.FILE.name() + " failed"),
         // STRING
-        () -> assertTrue(retrieveFirstValue(ColumnType.STRING.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.TEXT.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.JSON.name()).isLiteral()),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.STRING.name()).isLiteral(),
+                ColumnType.STRING.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.TEXT.name()).isLiteral(),
+                ColumnType.TEXT.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.JSON.name()).isLiteral(),
+                ColumnType.JSON.name() + " failed"),
 
         // NUMERIC
-        () -> assertTrue(retrieveFirstValue(ColumnType.INT.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.LONG.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.DECIMAL.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.DATE.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.DATETIME.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.PERIOD.name()).isLiteral()),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.INT.name()).isLiteral(),
+                ColumnType.INT.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.LONG.name()).isLiteral(),
+                ColumnType.LONG.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.DECIMAL.name()).isLiteral(),
+                ColumnType.DECIMAL.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.DATE.name()).isLiteral(),
+                ColumnType.DATE.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.DATETIME.name()).isLiteral(),
+                ColumnType.DATETIME.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.PERIOD.name()).isLiteral(),
+                ColumnType.PERIOD.name() + " failed"),
 
         // RELATIONSHIP
-        () -> assertTrue(retrieveFirstValue(ColumnType.REF.name()).isIRI()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.REFBACK.name()).isIRI()),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.REF.name()).isIRI(),
+                ColumnType.REF.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.REFBACK.name()).isIRI(),
+                ColumnType.REFBACK.name() + " failed"),
 
         // LAYOUT and other constants
         // ColumnType.HEADING.name() -> no Value should be present to validate on
 
         // format flavors that extend a baseType
-        () -> assertTrue(retrieveFirstValue(ColumnType.AUTO_ID.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.ONTOLOGY.name()).isIRI()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.EMAIL.name()).isIRI()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI()),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.AUTO_ID.name()).isLiteral(),
+                ColumnType.AUTO_ID.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.ONTOLOGY.name()).isIRI(),
+                ColumnType.ONTOLOGY.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.EMAIL.name()).isIRI(),
+                ColumnType.EMAIL.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI(),
+                ColumnType.HYPERLINK.name() + " failed"),
 
         // Composite keys
-        () -> assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REF).isIRI()),
-        () -> assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REFBACK).isIRI()));
+        () ->
+            assertTrue(
+                retrieveFirstValue(COLUMN_COMPOSITE_REF).isIRI(), COLUMN_COMPOSITE_REF + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(COLUMN_COMPOSITE_REFBACK).isIRI(),
+                COLUMN_COMPOSITE_REFBACK + " failed"));
   }
 
   @Test
