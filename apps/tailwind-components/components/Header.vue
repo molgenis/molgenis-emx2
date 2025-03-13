@@ -3,7 +3,9 @@
     <Container>
       <div class="items-center hidden xl:flex h-25">
         <slot name="logo"></slot>
-        <div class="items-center justify-between hidden xl:flex xl:grow h-25">
+        <div
+          class="items-center justify-between hidden pl-8 xl:flex xl:grow h-25"
+        >
           <slot name="nav"></slot>
 
           <div class="w-[450px]">

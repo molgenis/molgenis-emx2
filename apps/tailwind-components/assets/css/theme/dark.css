@@ -49,6 +49,7 @@
   --text-color-button-outline-hover: var(--color-green-200);
   --text-color-button-text: var(--color-green-500);
   --text-color-title: var(--color-white);
+  --text-color-breadcrumb: var(--color-green-500);
 
   --text-color-title-contrast: var(--text-color-title);
   --text-color-form-header: var(--color-white);

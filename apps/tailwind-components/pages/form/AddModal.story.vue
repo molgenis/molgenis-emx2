@@ -13,7 +13,6 @@
       v-model:schemaId="schemaId"
     >
     </DemoDataControles>
-    {{ metadata?.label }}
   </div>
 </template>
 

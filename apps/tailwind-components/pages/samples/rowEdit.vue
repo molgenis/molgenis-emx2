@@ -9,6 +9,13 @@ import cohortTableMetadata from "./data/cohort-table-metadata";
 definePageMeta({
   layout: "full-page",
 });
+
+useHead({
+  htmlAttrs: {
+    "data-theme": (useRoute().query.theme as string) || "light",
+  },
+});
+
 const crumbs = computed(() => {
   let crumb: { [key: string]: string } = {};
   crumb["Catalogue example"] = `/catalogue-example`;

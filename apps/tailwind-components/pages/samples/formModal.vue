@@ -7,6 +7,12 @@ definePageMeta({
   layout: "full-page",
 });
 
+useHead({
+  htmlAttrs: {
+    "data-theme": (useRoute().query.theme as string) || "light",
+  },
+});
+
 const visible = ref<boolean>(false);
 
 const formValues = ref<Record<string, columnValue>>({});
