@@ -281,13 +281,7 @@ public class ColumnTypeRdfMapper {
     abstract Set<Value> retrieveValues(final String baseURL, final Row row, final Column column);
 
     boolean isEmpty(final Row row, final Column column) {
-      if (column.isReference() && column.getReferences().size() > 1) {
-        // check composite keys to be empty
-        return column.getReferences().stream()
-            .anyMatch(ref -> row.getString(ref.getName()) == null);
-      } else {
-        return row.getString(column.getName()) == null;
-      }
+      return row.getString(column.getName()) == null;
     }
 
     private static Set<Value> retrieveReferenceValues(
