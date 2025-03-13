@@ -243,6 +243,7 @@ async function updateSearch(value: string) {
 <template>
   <div>
     <InputGroupContainer
+      :id="`${id}-checkbox-group`"
       class="border-l-4 border-transparent"
       @blur="emit('blur')"
       @focus="emit('focus')"
