@@ -65,7 +65,7 @@ which variables were collected during which collection event and for which subpo
 
 ## Define data dictionaries and common data models
 
-The next section explains how to define variable metadata, which can be used to create data dictionaries (also known as codebooks),
+The next sections explain how to define variable metadata, which can be used to create data dictionaries (also known as codebooks),
 in the case of source variables, and common data models, in the case of target variables, in the MOLGENIS catalogue.
 For the creation of data dictionaries, you can also watch this
 [instruction video](https://www.youtube.com/watch?v=b_Ef_Uiw1gE&amp;ab_channel=MOLGENIS).
