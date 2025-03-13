@@ -25,7 +25,7 @@ You can use the search bar and filters to subset the harmonised variables.
 In the example below, we searched for harmonised variables related to 'diabetes'.
 Additionally, you can filter on topics to find relevant variables.
 You can also make a selection of sources so that only variables
-which have mappings to these sources are shown.
+mapped to by these sources are shown.
 
 ![Variable explorer with search](../img/cat_variables-search-bar.png)
 
