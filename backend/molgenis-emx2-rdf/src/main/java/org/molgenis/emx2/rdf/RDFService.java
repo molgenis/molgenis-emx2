@@ -179,11 +179,11 @@ public class RDFService {
 
       if (logger.isDebugEnabled()) {
         logger.debug(
-                "Tables to show: "
-                        + tables.stream()
-                        .map(
-                                i -> i.getMetadata().getSchemaName() + "." + i.getMetadata().getTableName())
-                        .toList());
+            "Tables to show: "
+                + tables.stream()
+                    .map(
+                        i -> i.getMetadata().getSchemaName() + "." + i.getMetadata().getTableName())
+                    .toList());
         logger.debug("Namespaces per schema: " + namespaces.toString());
       }
 
