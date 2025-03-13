@@ -114,7 +114,7 @@ class ColumnTypeRdfMapperTest {
         .insert(
             row("name", "aa", "ontologyTermURI", "http://example.com/aa"),
             row("name", "bb", "ontologyTermURI", "http://example.com/bb"),
-            row("name", "cc", "ontologyTermURI", "http://example.com/cc"));
+            row("name", "cc"));
 
     allColumnTypes.getTable(REF_TABLE).insert(row("id", "1"), row("id", "2"), row("id", "3"));
 
@@ -232,6 +232,11 @@ class ColumnTypeRdfMapperTest {
     return retrieveValues(columnName, 0);
   }
 
+  private Set<Value> retrieveValues(String columnName, int row) {
+    return mapper.retrieveValues(
+        testRows.get(row), allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName));
+  }
+
   /** Only primary key & AUTO_ID is filled. */
   private Set<Value> retrieveEmptyValues(String columnName) {
     // REFBACK causes duplicate row (with only REFBACK values being different).
@@ -240,9 +245,16 @@ class ColumnTypeRdfMapperTest {
     return retrieveValues(columnName, 1);
   }
 
-  private Set<Value> retrieveValues(String columnName, int row) {
+  private Set<Value> retrieveValuesCustom(String columnName, ColumnTypeRdfMapper.RdfColumnType rdfColumnType) {
+    return retrieveValuesCustom(columnName, 0, rdfColumnType);
+  }
+
+  private Set<Value> retrieveValuesCustom(
+      String columnName, int row, ColumnTypeRdfMapper.RdfColumnType rdfColumnType) {
     return mapper.retrieveValues(
-        testRows.get(row), allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName));
+        testRows.get(row),
+        allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName),
+        rdfColumnType);
   }
 
   private Value retrieveFirstValue(String columnName) {
@@ -503,12 +515,12 @@ class ColumnTypeRdfMapperTest {
                     .matches("[0-9a-zA-Z]+")),
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=aa")),
+                Set.of(Values.iri("http://example.com/aa")),
                 retrieveValues(ColumnType.ONTOLOGY.name())),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=bb"),
+                    Values.iri("http://example.com/bb"),
                     Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=cc")),
                 retrieveValues(ColumnType.ONTOLOGY_ARRAY.name())),
         () ->
@@ -545,7 +557,27 @@ class ColumnTypeRdfMapperTest {
                 Set.of(
                     Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=a&id2=b"),
                     Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=c&id2=d")),
-                actualRefback));
+                actualRefback),
+        // Overriding default behaviour
+        // ontology as reference (key=1 instead of ontologyTermURI)
+        () ->
+            assertEquals(
+                Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=aa")),
+                retrieveValuesCustom(
+                    ColumnType.ONTOLOGY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
+        () ->
+            assertEquals(
+                Set.of(
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=bb"),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=cc")),
+                retrieveValuesCustom(
+                    ColumnType.ONTOLOGY_ARRAY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
+        // email as regular string
+        () ->
+            assertEquals(
+                Set.of(Values.literal("aap@example.com")),
+                retrieveValuesCustom(
+                    ColumnType.EMAIL.name(), ColumnTypeRdfMapper.RdfColumnType.STRING)));
   }
 
   @Test
@@ -568,7 +600,7 @@ class ColumnTypeRdfMapperTest {
 
   @Test
   void validateUnmodifiable() {
-    allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns().stream()
+    allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns()
         .forEach(
             c -> {
               assertThrows(

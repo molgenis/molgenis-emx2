@@ -3,6 +3,8 @@ package org.molgenis.emx2.rdf;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.getCoreDataType;
+import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomPrefixesOrDefault;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
@@ -93,7 +95,6 @@ public class RDFService {
 
   private final WriterConfig config;
   private final RDFFormat rdfFormat;
-  private final ColumnTypeRdfMapper mapper;
 
   /**
    * The baseURL is the URL at which MOLGENIS is deployed, include protocol and port (if deviating
@@ -114,7 +115,6 @@ public class RDFService {
     // construct URL paths.
     String baseUrlTrim = baseURL.trim();
     this.baseURL = baseUrlTrim.endsWith("/") ? baseUrlTrim : baseUrlTrim + "/";
-    this.mapper = new ColumnTypeRdfMapper(this.baseURL);
     this.rdfFormat = format == null ? RDFFormat.TURTLE : format;
 
     this.config = new WriterConfig();
@@ -187,6 +187,8 @@ public class RDFService {
         logger.debug("Namespaces per schema: " + namespaces.toString());
       }
 
+      final RdfMapData rdfMapData = new RdfMapData(baseURL, new OntologyIriMapper(tables));
+
       for (final Table tableToDescribe : tables) {
         // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
         // of course references to ontologies are still included and are fully retrievable
@@ -200,7 +202,7 @@ public class RDFService {
         }
         // if a column name is provided then only provide column metadata, no row values
         if (columnName == null) {
-          rowsToRdf(builder, namespaces, tableToDescribe, rowId);
+          rowsToRdf(builder, rdfMapData, namespaces, tableToDescribe, rowId);
         }
       }
       Rio.write(builder.build(), outputStream, rdfFormat, config);
@@ -406,7 +408,7 @@ public class RDFService {
         builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
       } else {
         builder.add(subject, RDF.TYPE, OWL.DATATYPEPROPERTY);
-        builder.add(subject, RDFS.RANGE, ColumnTypeRdfMapper.getCoreDataType(column));
+        builder.add(subject, RDFS.RANGE, getCoreDataType(column));
       }
     }
     builder.add(subject, RDFS.LABEL, column.getName());
@@ -451,6 +453,7 @@ public class RDFService {
    */
   public void rowsToRdf(
       final ModelBuilder builder,
+      final RdfMapData rdfMapData,
       final Map<String, Map<String, Namespace>> namespaces,
       final Table table,
       final String rowId) {
@@ -459,18 +462,28 @@ public class RDFService {
     switch (table.getMetadata().getTableType()) {
       case ONTOLOGIES ->
           rows.forEach(
-              row -> ontologyRowToRdf(builder, table, tableIRI, row, getIriForRow(row, table)));
+              row ->
+                  ontologyRowToRdf(
+                      builder, rdfMapData, table, tableIRI, row, getIriForRow(row, table)));
       case DATA ->
           rows.forEach(
               row ->
                   dataRowToRdf(
-                      builder, namespaces, table, tableIRI, row, rowId, getIriForRow(row, table)));
+                      builder,
+                      rdfMapData,
+                      namespaces,
+                      table,
+                      tableIRI,
+                      row,
+                      rowId,
+                      getIriForRow(row, table)));
       default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
     }
   }
 
   private void ontologyRowToRdf(
       final ModelBuilder builder,
+      final RdfMapData rdfMapData,
       final Table table,
       final IRI tableIRI,
       final Row row,
@@ -501,7 +514,7 @@ public class RDFService {
       builder.add(subject, OWL.SAMEAS, Values.iri(row.getString(ONTOLOGY_TERM_URI)));
     }
     if (row.getString("parent") != null) {
-      Set<Value> parents = mapper.retrieveValues(row, table.getMetadata().getColumn("parent"));
+      Set<Value> parents = retrieveValues(rdfMapData, row, table.getMetadata().getColumn("parent"));
       for (var parent : parents) {
         builder.add(subject, RDFS.SUBCLASSOF, parent);
       }
@@ -510,6 +523,7 @@ public class RDFService {
 
   private void dataRowToRdf(
       final ModelBuilder builder,
+      final RdfMapData rdfMapData,
       final Map<String, Map<String, Namespace>> namespaces,
       final Table table,
       final IRI tableIRI,
@@ -537,7 +551,7 @@ public class RDFService {
         continue;
       }
       IRI columnIRI = getColumnIRI(column);
-      for (final Value value : mapper.retrieveValues(row, column)) {
+      for (final Value value : retrieveValues(rdfMapData, row, column)) {
         if (column.getSemantics() != null) {
           for (String semantics : column.getSemantics()) {
             builder.add(
