@@ -20,8 +20,7 @@ export interface IValueLabel {
 }
 
 export interface ITreeNode extends INode {
-  children:
-  ITreeNode[];
+  children: ITreeNode[];
 }
 
 export interface ITreeNodeState extends ITreeNode {
@@ -36,7 +35,7 @@ export interface ITreeNodeState extends ITreeNode {
   /* extension of children */
   children: ITreeNodeState[];
   /* if a node is selectable */
-  selectable: boolean
+  selectable: boolean;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";
@@ -67,7 +66,7 @@ export interface ITableSettings {
   pageSize: number;
   orderby: {
     column: string;
-    direction: sortDirection
+    direction: sortDirection;
   };
   search: string;
 }

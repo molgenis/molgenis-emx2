@@ -91,7 +91,7 @@ const {
           class="col-span-3 px-4 py-50px overflow-y-auto"
         >
           <FormFields
-            schemaId="row-edit-sample"
+            schemaId="catalogue-demo"
             :metadata="metadata"
             :sections="sections"
             v-model:errors="errorMap"

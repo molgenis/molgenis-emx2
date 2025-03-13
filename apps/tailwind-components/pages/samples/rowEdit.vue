@@ -113,7 +113,7 @@ function onCancel() {
 
         <FormFields
           class="px-32 bg-form"
-          schemaId="row-edit-sample"
+          schemaId="catalogue-demo"
           :metadata="metadata"
           :sections="sections"
           v-model:errors="errorMap"

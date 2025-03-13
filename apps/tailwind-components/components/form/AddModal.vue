@@ -51,7 +51,7 @@
         class="col-span-3 px-4 py-50px overflow-y-auto"
       >
         <FormFields
-          schemaId="row-edit-sample"
+          :schemaId="schemaId"
           :metadata="metadata"
           :sections="sections"
           v-model:errors="errorMap"
@@ -96,13 +96,14 @@ import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 const props = withDefaults(
   defineProps<{
     metadata: ITableMetaData;
+    schemaId: string;
   }>(),
   {}
 );
 
 const visible = ref(false);
 
-const rowType = props.metadata.id;
+const rowType = computed(() => props.metadata.id);
 const isDraft = ref(false);
 
 function onCancel() {
