@@ -63,7 +63,9 @@ async function retrieveTerms(
       children: row.children,
       //visibility is used for search hiding
       visible: searchTerms.value
-        ? data.searchMatch?.some((match) => match.name === row.name) || false
+        ? data.searchMatch?.some(
+            (match: boolean) => (match as any).name === row.name
+          ) || false
         : true,
     };
   });
