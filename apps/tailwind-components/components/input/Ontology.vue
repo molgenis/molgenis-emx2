@@ -279,7 +279,7 @@ async function updateSearch(value: string) {
           :modelValue="searchTerms"
           @update:modelValue="updateSearch"
           class="mb-2"
-          :placeholder="`Search in terms`"
+          :placeholder="Search in terms"
           :aria-hidden="!showSearch"
         />
       </div>
