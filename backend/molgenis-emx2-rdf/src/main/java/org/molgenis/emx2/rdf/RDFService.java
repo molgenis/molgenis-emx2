@@ -575,18 +575,6 @@ public class RDFService {
     }
   }
 
-  private static Table getSubclassTableForRowBasedOnMgTableclass(Table table, Row row) {
-    if (row.getString(MG_TABLECLASS) != null) {
-      table =
-          table
-              .getSchema()
-              .getDatabase()
-              .getSchema(row.getSchemaName())
-              .getTable(row.getTableName());
-    }
-    return table;
-  }
-
   private String getLabelForRow(final Row row, final TableMetadata metadata) {
     List<String> primaryKeyValues = new ArrayList<>();
     for (Column column : metadata.getPrimaryKeyColumns()) {
