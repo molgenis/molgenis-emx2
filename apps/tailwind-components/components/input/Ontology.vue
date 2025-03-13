@@ -32,31 +32,39 @@ watch(() => modelValue.value, applySelectedStates);
 async function retrieveTerms(
   parentNode: ITreeNodeState | undefined = undefined
 ): Promise<ITreeNodeState[]> {
-  let graphqlFilter: any = parentNode
-    ? { parent: { name: { equals: parentNode.name } } }
-    : { parent: { _is_null: true } };
-
-  console.log("retrieve " + searchTerms.value);
+  const variables: any = {
+    termFilter: parentNode
+      ? { parent: { name: { equals: parentNode.name } } }
+      : { parent: { _is_null: true } },
+  };
 
   if (searchTerms.value) {
-    graphqlFilter._like_including_parents = searchTerms.value;
+    variables.searchFilter = Object.assign({}, variables.termFilter, {
+      _like_including_parents: searchTerms.value,
+    });
   }
 
-  const data = await fetchGraphql(
-    props.ontologySchemaId,
-    `query ${props.ontologyTableId}($filter:${props.ontologyTableId}Filter) {${props.ontologyTableId}(filter:$filter, limit:1000, orderby:{order:ASC,name:ASC}){name,children(limit:1){name}}}`,
-    {
-      filter: graphqlFilter,
-    }
-  );
+  let query = searchTerms.value
+    ? `query myquery($termFilter:${props.ontologyTableId}Filter, $searchFilter:${props.ontologyTableId}Filter) {
+        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:1000, orderby:{order:ASC,name:ASC}){name,children(limit:1){name}}
+        searchMatch: ${props.ontologyTableId}(filter:$searchFilter, limit:1000, orderby:{order:ASC,name:ASC}){name}
+       }`
+    : `query myquery($termFilter:${props.ontologyTableId}Filter) {
+        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:1000, orderby:{order:ASC,name:ASC}){name,children(limit:1){name}}
+       }`;
 
-  return data[props.ontologyTableId].map((row: any) => {
+  const data = await fetchGraphql(props.ontologySchemaId, query, variables);
+
+  return data.retrieveTerms.map((row: any) => {
     return {
       name: row.name,
       parentNode: parentNode,
       selectable: true,
       children: row.children,
-      visible: true, //visible is silly
+      //visibility is used for search hiding
+      visible: searchTerms.value
+        ? data.searchMatch?.some((match) => match.name === row.name) || false
+        : true,
     };
   });
 }
@@ -195,7 +203,7 @@ async function toggleExpand(node: ITreeNodeState) {
     node.children = children.map((child) => {
       return {
         name: child.name,
-        visible: true,
+        visible: child.visible,
         children: child.children,
         selected: props.isArray
           ? modelValue.value?.includes(child.name)

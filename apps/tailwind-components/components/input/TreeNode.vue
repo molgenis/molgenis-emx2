@@ -135,5 +135,42 @@ function toggleExpand(node: ITreeNodeState) {
         @toggleExpand="toggleExpand"
       />
     </li>
+    <li
+      v-if="nodes.some((child) => child.visible === false)"
+      class="mt-2.5 relative"
+    >
+      <div class="flex items-center">
+        <template v-if="!isRoot">
+          <BaseIcon
+            name="collapsible-list-item"
+            :width="20"
+            class="text-blue-200 absolute -top-[9px]"
+          />
+        </template>
+        <span class="text-body-sm italic ml-6"
+          >{{
+            nodes.filter((child) => child.visible === false).length
+          }}
+          option{{
+            nodes.filter((child) => child.visible === false).length > 1
+              ? "s"
+              : ""
+          }}
+          outside search
+          {{
+            nodes.some((node) => node.selected === "selected")
+              ? " including " +
+                nodes.filter((node) => node.selected === "selected").length +
+                " selected"
+              : ""
+          }}</span
+        >
+        <ButtonText
+          class="ml-2"
+          @click="nodes.forEach((node) => (node.visible = true))"
+          >(show)</ButtonText
+        >
+      </div>
+    </li>
   </ul>
 </template>

@@ -21,11 +21,11 @@ BEGIN
         FROM "' || schema_name || '"."' || table_name || '" t
         INNER JOIN term_hierarchy th ON t.parent = th.name
     )
-    SELECT array_agg(DISTINCT name)
-    FROM term_hierarchy'
+        SELECT array_agg(DISTINCT name)
+        FROM term_hierarchy'
         INTO result_terms
         USING input_terms;
-    RETURN COALESCE(result_terms,ARRAY[]::varchar[]);
+    RETURN COALESCE(result_terms, ARRAY['mg_no_result_found']::VARCHAR[]);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -53,11 +53,11 @@ BEGIN
             INNER JOIN term_hierarchy th ON th.parent = t.name
             WHERE th.parent IS NOT NULL
         )
-        SELECT COALESCE(array_agg(DISTINCT name), ''{}''::VARCHAR[])
+        SELECT array_agg(DISTINCT name)
         FROM term_hierarchy'
         INTO result_terms
         USING input_terms;
-    RETURN COALESCE(result_terms, ARRAY[]::varchar[]);
+    RETURN COALESCE(result_terms, ARRAY['mg_no_result_found']::VARCHAR[]);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -89,10 +89,10 @@ BEGIN
             INNER JOIN term_hierarchy th ON th.parent = t.name
             WHERE th.parent IS NOT NULL
         )
-        SELECT COALESCE(array_agg(DISTINCT name), ''{}''::VARCHAR[])
+        SELECT array_agg(DISTINCT name)
         FROM term_hierarchy'
         INTO result_terms
         USING input_terms;
-    RETURN COALESCE(result_terms, ARRAY[]::VARCHAR[]);
+    RETURN COALESCE(result_terms, ARRAY['mg_no_result_found']::VARCHAR[]);
 END;
 $$ LANGUAGE plpgsql;
