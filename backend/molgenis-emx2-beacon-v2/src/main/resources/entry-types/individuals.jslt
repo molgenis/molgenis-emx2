@@ -20,7 +20,7 @@ import "range.jslt" as range
             "results":
             [for (.results) {
                 "id": .id,
-                "sex": ontology(.sex),
+                "sex": ontology(.genderAtBirth),
                 "age": {
                     "ageGroup": ontology(.age_ageGroup),
                     "age": { "iso8601duration": .age_age_iso8601duration }
@@ -32,19 +32,21 @@ import "range.jslt" as range
                 "ethnicity": ontology(.ethnicity),
                 "geographicOrigin": ontology(.geographicOrigin),
                 "disease":
-                [for (.diseases) {
-                    "diseaseCode": ontology(.diseaseCode),
-                    "ageOfOnset": {
-                        "ageGroup": ontology(.ageOfOnset_ageGroup),
-                        "age": { "iso8601duration": .ageOfOnset_age_iso8601duration }
-                    },
-                    "ageAtDiagnosis": {
-                        "ageGroup": ontology(.ageAtDiagnosis_ageGroup),
-                        "age": { "iso8601duration": .ageAtDiagnosis_age_iso8601duration }
+                [for (.clinicalObservations)
+                    [for (.diseases) {
+                        "disease": ontology(.disease),
+                        "ageOfOnset": {
+                            "ageGroup": ontology(.ageOfOnset_ageGroup),
+                            "age": { "iso8601duration": .ageOfOnset_age_iso8601duration }
+                        },
+                        "ageAtDiagnosis": {
+                            "ageGroup": ontology(.ageAtDiagnosis_ageGroup),
+                            "age": { "iso8601duration": .ageAtDiagnosis_age_iso8601duration }
 
-                    },
-                    "severity": ontology(.severity)
-                }
+                        },
+                        "severity": ontology(.severity)
+                    }
+                    ]
                 ],
                 "measures":
                 [for (.measures) {

@@ -1,7 +1,9 @@
 package org.molgenis.emx2.beaconv2;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
@@ -28,7 +30,9 @@ public class QueryBuilder {
 
   public QueryBuilder addColumns(List<Column> columns, int maxDepth) {
     int currentDepth = 0;
-    queryColumnsRecursively(columns, maxDepth, currentDepth);
+    Set<String> seenTables = new HashSet<>();
+    seenTables.add(table.getName().toLowerCase());
+    queryColumnsRecursively(columns, maxDepth, currentDepth, seenTables);
 
     return this;
   }
@@ -105,16 +109,26 @@ public class QueryBuilder {
     query.append("] }");
   }
 
-  private int queryColumnsRecursively(List<Column> columns, int maxDepth, int currentDepth) {
+  private int queryColumnsRecursively(
+      List<Column> columns, int maxDepth, int currentDepth, Set<String> seenTables) {
     for (Column column : columns) {
       if (column.isReference()) {
+        if (column.getName().equals("parent") || column.getName().equals("children")) continue;
+        if (!column.isOntology()) {
+          if (seenTables.contains(column.getName().toLowerCase())) {
+            continue;
+          } else {
+            seenTables.add(column.getName().toLowerCase());
+          }
+        }
         if (currentDepth < maxDepth) {
           TableMetadata refTable = column.getRefTable();
 
           currentDepth++;
           columnSb.append(column.getIdentifier()).append("{");
           currentDepth =
-              queryColumnsRecursively(refTable.getColumnsWithoutHeadings(), maxDepth, currentDepth);
+              queryColumnsRecursively(
+                  refTable.getColumnsWithoutHeadings(), maxDepth, currentDepth, seenTables);
           columnSb.append("}");
         }
       } else if (column.isFile()) {
