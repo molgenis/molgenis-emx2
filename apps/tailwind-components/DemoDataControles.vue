@@ -147,7 +147,7 @@ watch(
       query.rowIndex = rowIndex.value;
     }
 
-    //  useRouter().push({ query });
+    useRouter().push({ query });
     if (props.includeRowSelect) {
       getNumberOfRows();
     }
