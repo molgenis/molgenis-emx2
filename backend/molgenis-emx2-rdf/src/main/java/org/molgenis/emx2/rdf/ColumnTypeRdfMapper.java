@@ -72,7 +72,7 @@ public class ColumnTypeRdfMapper {
           // RELATIONSHIP
           entry(ColumnType.REF, RdfColumnType.REFERENCE),
           entry(ColumnType.REF_ARRAY, RdfColumnType.REFERENCE),
-          entry(ColumnType.REFBACK, RdfColumnType.REFBACK),
+          entry(ColumnType.REFBACK, RdfColumnType.REFERENCE),
 
           // LAYOUT and other constants
           entry(ColumnType.HEADING, RdfColumnType.SKIP), // Should not be in RDF output.
@@ -150,7 +150,13 @@ public class ColumnTypeRdfMapper {
     STRING(CoreDatatype.XSD.STRING) {
       @Override
       Set<Value> retrieveValues(String baseURL, Row row, Column column) {
-        return basicRetrievalString(row.getStringArray(column.getName()), Values::literal);
+        return basicRetrievalString(row.getStringArrayPreserveDelimiter(column), Values::literal);
+      }
+    },
+    TEXT(CoreDatatype.XSD.STRING) {
+      @Override
+      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+        return basicRetrievalString(row.getStringArrayPreserveDelimiter(column), Values::literal);
       }
     },
     INT(CoreDatatype.XSD.INT) {
@@ -240,56 +246,10 @@ public class ColumnTypeRdfMapper {
 
       @Override
       boolean isEmpty(Row row, Column column) {
-        // Composite key requires all fields to be filled. If one is null, all should be null.
-        return row.getString(column.getReferences().get(0).getName()) == null;
-      }
-    },
-    REFBACK(CoreDatatype.XSD.ANYURI) {
-      @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
-        Map<String, String> colNameToRefTableColName = new HashMap<>();
-        if (row.getString(column.getName()) != null) {
-          colNameToRefTableColName.put(
-              column.getName(), column.getRefTable().getPrimaryKeyColumns().get(0).getName());
-        } else {
-          refBackSubColumns(
-              colNameToRefTableColName, column, column.getName() + SUBSELECT_SEPARATOR, "");
-        }
-
-        return RdfColumnType.retrieveReferenceValues(
-            baseURL, row, column, colNameToRefTableColName);
-      }
-
-      private void refBackSubColumns(
-          Map<String, String> colNameToRefTableColName,
-          Column column,
-          String colPrefix,
-          String refPrefix) {
-        for (Column refPrimaryKey : column.getRefTable().getPrimaryKeyColumns()) {
-          if (refPrimaryKey.isRef() || refPrimaryKey.isRefArray()) {
-            refBackSubColumns(
-                colNameToRefTableColName,
-                refPrimaryKey,
-                colPrefix + refPrimaryKey.getName() + SUBSELECT_SEPARATOR,
-                refPrefix + refPrimaryKey.getName() + COMPOSITE_REF_SEPARATOR);
-          } else {
-            colNameToRefTableColName.put(
-                colPrefix + refPrimaryKey.getName(), refPrefix + refPrimaryKey.getName());
-          }
-        }
-      }
-
-      @Override
-      boolean isEmpty(Row row, Column column) {
-        if (row.getString(column.getName()) != null) return false;
-
-        // Composite key requires all fields to be filled. If one is null, all should be null.
-        Optional<String> firstMatch =
-            row.getColumnNames().stream()
-                .filter(i -> i.startsWith(column.getName() + SUBSELECT_SEPARATOR))
-                .findFirst();
-
-        return firstMatch.isEmpty() || row.getString(firstMatch.get()) == null;
+        // Composite key requires all fields to be filled. Using refLink from a non-required field
+        // could cause a part of the composite key to be defined.
+        // Therefore, if a composite key is partly defined, assume it is not defined.
+        return column.getReferences().stream().anyMatch(i -> row.getString(i.getName()) == null);
       }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
@@ -377,7 +337,13 @@ public class ColumnTypeRdfMapper {
     abstract Set<Value> retrieveValues(final String baseURL, final Row row, final Column column);
 
     boolean isEmpty(final Row row, final Column column) {
-      return row.getString(column.getName()) == null;
+      if (column.isReference() && column.getReferences().size() > 1) {
+        // check composite keys to be empty
+        return column.getReferences().stream()
+            .anyMatch(ref -> row.getString(ref.getName()) == null);
+      } else {
+        return row.getString(column.getName()) == null;
+      }
     }
 
     private static Set<Value> retrieveReferenceValues(

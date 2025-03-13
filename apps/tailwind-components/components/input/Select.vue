@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type IInputProps } from "~/types/types";
-import type { columnValue } from "metadata-utils/src/types";
+import type { columnValue } from "../../../metadata-utils/src/types";
 const modelValue = defineModel<columnValue>();
 withDefaults(
   defineProps<

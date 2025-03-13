@@ -38,8 +38,6 @@ public class Emx2Tables {
             .map(Column::getName)
             .filter(n -> !n.startsWith("mg_") || includeSystemColumns)
             .toList();
-    SelectColumn[] select =
-        downloadColumnNames.stream().map(SelectColumn::s).toArray(SelectColumn[]::new);
 
     if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
       store.writeTable(
@@ -47,7 +45,6 @@ public class Emx2Tables {
           downloadColumnNames,
           table
               .query()
-              .select(select)
               .where(
                   f(
                       MG_TABLECLASS,
@@ -55,7 +52,7 @@ public class Emx2Tables {
                       table.getSchema().getName() + "." + table.getName()))
               .retrieveRows());
     } else {
-      store.writeTable(table.getName(), downloadColumnNames, table.select(select).retrieveRows());
+      store.writeTable(table.getName(), downloadColumnNames, table.retrieveRows());
     }
 
     // in case of zip file we include the attached files

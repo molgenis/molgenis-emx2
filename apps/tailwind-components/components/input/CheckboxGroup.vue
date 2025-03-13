@@ -1,23 +1,37 @@
 <template>
-  <div :id="`${id}-checkbox-group`" :aria-describedby="describedBy">
+  <InputGroupContainer
+    :id="`${id}-checkbox-group`"
+    :aria-describedby="describedBy"
+    class="border-l-2 border-transparent"
+    :class="{
+      'border-l-invalid': invalid,
+      'border-l-valid': valid,
+    }"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  >
     <div class="flex flex-row" v-for="option in options">
-      <input
-        type="checkbox"
-        :id="`${id}-checkbox-group-${option.value}`"
-        :name="id"
-        :value="option.value"
-        v-model="modelValue"
-        :checked="modelValue!.includes(option.value)"
-        :disabled="disabled"
-        @change="toggleSelect"
-        class="absolute ml-4 mt-2 opacity-0"
-      />
       <InputLabel
         :for="`${id}-checkbox-group-${option.value}`"
-        class="hover:cursor-pointer flex justify-start items-center text-title"
+        class="group flex justify-start items-center relative"
+        :class="{
+          'text-disabled cursor-not-allowed': disabled,
+          'text-title cursor-pointer ': !disabled,
+        }"
       >
+        <input
+          type="checkbox"
+          :id="`${id}-checkbox-group-${option.value}`"
+          :name="id"
+          :value="option.value"
+          v-model="modelValue"
+          :checked="modelValue ? modelValue.includes(option.value) : false"
+          :disabled="disabled"
+          @change="toggleSelect"
+          class="ml-4 mt-2 sr-only"
+        />
         <InputCheckboxIcon
-          :checked="modelValue!.includes(option.value)"
+          :checked="modelValue ? modelValue.includes(option.value) : false"
           :invalid="invalid"
           :valid="valid"
           :disabled="disabled"
@@ -30,17 +44,18 @@
         </span>
       </InputLabel>
     </div>
-    <div class="mt-2" v-if="showClearButton">
-      <button
-        type="reset"
-        :id="`${id}-checkbox-group-clear`"
-        :form="`${id}-checkbox-group`"
-        @click.prevent="resetModelValue"
-      >
-        Clear
-      </button>
-    </div>
-  </div>
+    <ButtonText
+      v-if="showClearButton"
+      type="reset"
+      :id="`${id}-checkbox-group-clear`"
+      class="mt-2 ml-3"
+      :form="`${id}-checkbox-group`"
+      @click.prevent="resetModelValue"
+      :disabled="disabled || null"
+    >
+      Clear
+    </ButtonText>
+  </InputGroupContainer>
 </template>
 
 <script lang="ts" setup>
