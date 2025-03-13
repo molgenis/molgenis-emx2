@@ -174,17 +174,19 @@ public class RDFService {
         allTables.addAll(schema.getTablesSorted());
       }
 
+      // Tables to include in output.
+      final Set<Table> tables = table != null ? tablesToDescribe(allTables, table) : allTables;
+
       if (logger.isDebugEnabled()) {
         logger.debug(
-            "All tables to show: "
-                + allTables.stream()
-                    .map(
-                        i -> i.getMetadata().getSchemaName() + "." + i.getMetadata().getTableName())
-                    .toList());
+                "Tables to show: "
+                        + tables.stream()
+                        .map(
+                                i -> i.getMetadata().getSchemaName() + "." + i.getMetadata().getTableName())
+                        .toList());
         logger.debug("Namespaces per schema: " + namespaces.toString());
       }
 
-      final Set<Table> tables = table != null ? tablesToDescribe(allTables, table) : allTables;
       for (final Table tableToDescribe : tables) {
         // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
         // of course references to ontologies are still included and are fully retrievable
