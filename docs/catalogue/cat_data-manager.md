@@ -40,7 +40,7 @@ If the data in your staging area is ready for transfer you can let us know by em
 When you log in, you will be able to see at least the following databases:
 
 - **Aggregates**: A database where aggregate data are stored.
-- **Your own database**  (here: ALSPAC): The staging area of the resource you are working on.
+- **Your own database**: The staging area of the resource you are working on.
 Use this to fill out rich metadata and to upload the variable templates once you have filled them out.
 - **catalogue**: The main catalogue, where your data will eventually be transferred to.
 This is also where you can search for target variables to map to.
