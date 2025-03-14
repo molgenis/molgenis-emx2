@@ -94,7 +94,7 @@ public class TestLoaders {
     testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
     // testShaclCompliance(DCAT_AP_SHACL_FILES, outputStream.toString());
     testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
-    // testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
+    testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
   }
 
   @Test
@@ -188,7 +188,7 @@ public class TestLoaders {
     // depends on catalogue test above
     Schema schema = database.dropCreateSchema(PORTAL_TEST);
     DataModels.Regular.RD3_V2.getImportTask(schema, false).run();
-    assertEquals(97, schema.getTableNames().size());
+    assertEquals(96, schema.getTableNames().size());
   }
 
   @Test

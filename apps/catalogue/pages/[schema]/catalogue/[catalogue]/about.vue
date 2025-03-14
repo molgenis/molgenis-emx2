@@ -119,11 +119,11 @@
           >
           . Questions about the Molgenis software can be sent to
           <a
-            href="mailto:molgenis-support@umcg.nl"
+            href="mailto:support@molgenis.org"
             rel="noopener noreferrer"
             target="_blank"
             class="text-blue-500 underline hover:bg-blue-50"
-            >molgenis-support@umcg.nl</a
+            >support@molgenis.org</a
           >.
         </ContentBlock>
         <ContentBlock id="privacy" title="Disclaimer &amp; Privacy">
