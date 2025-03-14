@@ -9,13 +9,13 @@ Its purpose is to provide a gateway for finding and accessing health research da
 and to facilitate pooled data analysis of multiple cohorts ([Fortier et al., 2017](https://pubmed.ncbi.nlm.nih.gov/27272186/))
 and multi-data source studies ([Gini et al., 2020](https://pubmed.ncbi.nlm.nih.gov/32243569/)).
 
-The metadata of data sources consists of high-level descriptive information, such as contact details,
+The metadata of resources consists of high-level descriptive information, such as contact details,
 contents, design, and access and usage conditions.
 The definitions of the source variables of a resource
 (e.g. a cohort study like [ALSPAC](https://data-catalogue.molgeniscloud.org/catalogue/ssr-catalogue/all/collections/ALSPAC))
 can be considered its codebook or data dictionary.
 Similarly, the common data models (or 'target variables') can be considered the codebook for a network of organisations
-with access to multiple data sources
+with access to multiple data resources
 (e.g. [LifeCycle](https://data-catalogue.molgeniscloud.org/catalogue/ssr-catalogue/LifeCycle/variables)).
 Combining these two, the variable mappings describe how source variables have been converted into target variables,
 which can be used as a basis for integrated analysis. In some projects, data may be made available via [DataSHIELD](https://www.datashield.org/).
@@ -185,7 +185,7 @@ The [*Mappings template*](https://github.com/molgenis/molgenis-emx2/raw/master/d
 consists of two sheets: Dataset mappings and Variable mappings.
 Dataset mappings defines mappings from a dataset containing source variables to a dataset of the CDM.
 Variable mappings is used to define the mappings from source variables to target
-variables, which corresponds to the Extraction, Transformation and Load (ETL) process of a data source
+variables, which corresponds to the Extraction, Transformation and Load (ETL) process of a resource
 to a common data model (CDM). You can download this
 [*filled out example*](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/Mappings_testCohort.xlsx)
 as a reference for filling out the template.
