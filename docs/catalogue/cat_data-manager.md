@@ -58,9 +58,10 @@ You can see filled out example metadata in these databases.
 
 Open your staging area and open the table **Resources**. The **id** and **name** columns are already filled in.
 Click on the pencil sign next to this entry to start editing your metadata by filling out
-the form. If you are planning on entering source variables,
-make sure to fill in tables **Collection events** and **Subpopulations** as well.
-You can later refer to these from columns in the dictionary templates to indicate
+the form. For additional detail, or if you are planning on entering source variables,
+make sure to fill in the tables **Collection events** and **Subpopulations** as well.
+These contain valuable metadata items for describing your resource in more detail.
+Also, you can later refer to these from columns in the dictionary templates to indicate
 which variables were collected during which collection event and for which subpopulation.
 
 ## Define data dictionaries and common data models
