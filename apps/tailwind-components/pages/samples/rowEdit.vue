@@ -84,7 +84,7 @@ function onCancel() {
       </template>
     </PageHeader>
     <section class="grid grid-cols-4 gap-3">
-      <div class="col-span-1 bg-sidebar-gradient">
+      <div class="col-span-1 bg-form-legend">
         <FormLegend
           v-if="sections"
           class="pr-20 mr-5 sticky top-0"

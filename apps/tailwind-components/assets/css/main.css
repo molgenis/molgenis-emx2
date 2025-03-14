@@ -62,6 +62,7 @@
       var(--color-gray-50) -24.76%,
       var(--color-gray-50) 86.02%
     );
+
     --background-image-base-gradient: linear-gradient(
       180deg,
       #ffffff,
@@ -94,6 +95,7 @@
     --background-color-pagination-input: var(--color-white);
     --background-color-footer: var(--color-white);
     --background-color-form: var(--color-white);
+    --background-color-form-legend: var(--color-gray-50);
     --background-color-modal: var(--color-white);
     --background-color-modal-footer: var(--color-white);
     --background-color-tab: var(--color-blue-50);

@@ -37,7 +37,7 @@
     </template>
 
     <section class="grid grid-cols-4 gap-1">
-      <div class="col-span-1">
+      <div class="col-span-1 bg-form-legend">
         <FormLegend
           v-if="sections"
           class="sticky top-0"

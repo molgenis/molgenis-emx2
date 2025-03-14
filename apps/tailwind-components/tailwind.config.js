@@ -158,6 +158,7 @@ module.exports = {
         pagination: "var(--background-color-pagination)",
         "pagination-hover": "var(--background-color-pagination-hover)",
         form: "var(--background-color-form)",
+        "form-legend": "var(--background-color-form-legend)",
         footer: "var(--background-color-footer)",
         "form-required": "var(--background-color-form-required)",
         "form-required-btn": "var(--background-color-form-required-btn)",
