@@ -5,7 +5,38 @@ to help you find the relevant data for your research question.
 Using the catalogue, you can explore a variety of data sources and compose a dataset
 tailored to your research needs.
 
-Entering the catalogue, you can search all harmonised variables
+## Find rich metadata
+
+Entering the catalogue, the landing page shows a list of available subcatalogues.
+This list is divided between thematic catalogues, which cover a specific subject
+and originate from collaborations between multiple projects,
+and project catalogues, which originate from individual projects.
+
+![Landing page of the MOLGENIS Data Catalogue](../img/cat_homepage.png)
+
+Selecting one of these, e.g. **EHEN**, will take you to a new landing page, where you can choose
+to browse either collections, networks, or variables.
+Alternatively, if you want to search across all data, regardless of project, you can use the **SEARCH ALL** button.
+
+![Landing page of a subcatalogue, in this case EHEN](../img/cat_catalogue-landing-page.png)
+
+Selecting either **COLLECTIONS** or **NETWORKS** at the next step will provide you with a list of
+collections or networks to browse through. To narrow down the list, you can do a text-based search (e.g. 'early pregnancy)
+or filter on specific attributes (e.g. collections of type 'Biobank').
+
+![List of collections, with search and filters](../img/cat_collections-list.png)
+
+Clicking an item in the list will take you to a page containing detailed information on the resource in question.
+Here, all information available in the catalogue about the resource is displayed.
+You can either scroll through the page or navigate to a specific section of interest using the
+index on the left-hand side. Also note that for some types of information, such as collection events or datasets,
+clicking on a specific instance will provide more details about it (e.g. inclusion criteria for a certain subpopulation).
+
+![Resource information page for resource BIB](../img/cat_resource-information-page.png)
+
+## Find harmonised variables
+
+From the catalogue landing page, you can search all harmonised variables
 by clicking **ALL VARIABLES** in the menu.
 
 ![Go to the variable explorer or a project page](../img/cat_homepage-variables.png)
@@ -18,8 +49,6 @@ and then click **VARIABLES**.
 
 Please note that the catalogue only describes the harmonised variables,
 it does *not* contain the actual data values.
-
-## Find harmonised variables
 
 You can use the search bar and filters to subset the harmonised variables.
 In the example below, we searched for harmonised variables related to 'diabetes'.
