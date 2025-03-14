@@ -232,8 +232,10 @@ for an example on how to fill this out (last line)._
 ## Upload variable metadata
 
 When you have filled out the template(s) you can start uploading variable metadata. To do this, log in to the
-[MOLGENIS catalogue backend](https://data-catalogue.molgeniscloud.org/apps/central/#/), where
-you will see a list of databases that are accessible to you. Click on the database for your resource and
+[MOLGENIS catalogue](https://data-catalogue.molgeniscloud.org/apps/central/#/), where
+you will see a list of staging areas and other databases that are accessible to you.
+You can also reach the staging areas via the catalogue menu: click **More** and select **Upload data**. 
+Click on the staging area for your resource and
 go to **Up/Download** in the menu. Use **Browse** to select the file containing the filled-in template and
 click **Import** to start uploading. A progress report is displayed and if your upload completes without
 errors, your variable metadata is available for viewing under **Tables**.
