@@ -441,7 +441,7 @@ public class GraphqlTableFieldFactory {
                 .build());
         filterBuilder.field(
             GraphQLInputObjectField.newInputObjectField()
-                .name(FILTER_LIKE_INCLUDING_PARENTS)
+                .name(FILTER_SEARCH_INCLUDING_PARENTS)
                 .type(GraphQLList.list(Scalars.GraphQLString))
                 .build());
         filterBuilder.field(
@@ -620,7 +620,7 @@ public class GraphqlTableFieldFactory {
       } else if (entry.getKey().equals(FILTER_MATCH_INCLUDING_CHILDREN)
           || entry.getKey().equals(FILTER_MATCH_INCLUDING_PARENTS)
           || entry.getKey().equals(FILTER_MATCH_PATH)
-          || entry.getKey().equals(FILTER_LIKE_INCLUDING_PARENTS)
+          || entry.getKey().equals(FILTER_SEARCH_INCLUDING_PARENTS)
           || entry.getKey().equals(FILTER_MATCH_ALL)) {
         switch (entry.getKey()) {
           case FILTER_MATCH_INCLUDING_CHILDREN ->
@@ -631,9 +631,9 @@ public class GraphqlTableFieldFactory {
                   f(Operator.MATCH_ANY_INCLUDING_PARENTS, ((List) entry.getValue()).toArray()));
           case FILTER_MATCH_PATH ->
               subFilters.add(f(Operator.MATCH_PATH, ((List) entry.getValue()).toArray()));
-          case FILTER_LIKE_INCLUDING_PARENTS ->
+          case FILTER_SEARCH_INCLUDING_PARENTS ->
               subFilters.add(
-                  f(Operator.LIKE_INCLUDING_PARENTS, ((List) entry.getValue()).toArray()));
+                  f(Operator.SEARCH_INCLUDING_PARENTS, ((List) entry.getValue()).toArray()));
         }
         // skip match all, handled on parent column
       } else {
@@ -658,13 +658,13 @@ public class GraphqlTableFieldFactory {
                   Operator.MATCH_ANY_INCLUDING_CHILDREN,
                   ((List) value.get(FILTER_MATCH_INCLUDING_CHILDREN)).toArray(new String[0])));
           value.remove(FILTER_MATCH_INCLUDING_CHILDREN);
-        } else if (value.containsKey(FILTER_LIKE_INCLUDING_PARENTS)) {
+        } else if (value.containsKey(FILTER_SEARCH_INCLUDING_PARENTS)) {
           subFilters.add(
               f(
                   c.getName(),
-                  Operator.LIKE_INCLUDING_PARENTS,
-                  ((List) value.get(FILTER_LIKE_INCLUDING_PARENTS)).toArray(new String[0])));
-          value.remove(FILTER_LIKE_INCLUDING_PARENTS);
+                  Operator.SEARCH_INCLUDING_PARENTS,
+                  ((List) value.get(FILTER_SEARCH_INCLUDING_PARENTS)).toArray(new String[0])));
+          value.remove(FILTER_SEARCH_INCLUDING_PARENTS);
         } else if (value.containsKey(FILTER_MATCH_PATH)) {
           subFilters.add(
               f(

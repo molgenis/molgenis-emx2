@@ -75,7 +75,7 @@ public class TestGraphqlSchemaFields {
     assertTrue(result.contains("colors"));
     assertFalse(result.contains("mammals"));
 
-    result = execute("{Tag(filter:{_like_including_parents:[\"re\"]}){name}}").toString();
+    result = execute("{Tag(filter:{_search_including_parents:[\"re\"]}){name}}").toString();
     assertTrue(result.contains("colors"));
     assertTrue(result.contains("green"));
     assertTrue(result.contains("red"));
@@ -92,7 +92,7 @@ public class TestGraphqlSchemaFields {
     assertTrue(result.contains("tom"));
     assertFalse(result.contains("pooky")); // poor pooky has no color
 
-    result = execute("{Pet(filter:{tags:{_like_including_parents:\"re\"}}){name}}").toString();
+    result = execute("{Pet(filter:{tags:{_search_including_parents:\"re\"}}){name}}").toString();
     assertTrue(result.contains("tom"));
     assertFalse(result.contains("pooky")); // poor pooky has no color
 

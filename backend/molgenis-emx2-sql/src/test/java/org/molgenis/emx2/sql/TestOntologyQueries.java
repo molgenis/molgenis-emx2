@@ -120,7 +120,7 @@ public class TestOntologyQueries {
             .getJooq()
             .select(
                 field(
-                        "\"MOLGENIS\".ilike_terms_including_parents({0},{1},{2})",
+                        "\"MOLGENIS\".search_terms_including_parents({0},{1},{2})",
                         schema.getName(), "Tag", new String[] {"re", "amma"})
                     .as("result"))
             .fetch();
@@ -149,7 +149,8 @@ public class TestOntologyQueries {
     assertFalse(result.toString().contains("pooky"));
 
     // mammals and thus also species (spike has species)
-    jsonResult = schema.query("Pet").where(f("tags", LIKE_INCLUDING_PARENTS, "re")).retrieveJSON();
+    jsonResult =
+        schema.query("Pet").where(f("tags", SEARCH_INCLUDING_PARENTS, "re")).retrieveJSON();
     assertTrue(jsonResult.contains("colors"));
     assertTrue(jsonResult.contains("extra"));
     assertFalse(result.toString().contains("pooky"));

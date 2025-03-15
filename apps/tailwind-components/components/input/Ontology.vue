@@ -2,7 +2,6 @@
 import type { IInputProps, ITreeNodeState } from "~/types/types";
 import TreeNode from "~/components/input/TreeNode.vue";
 import type { Ref } from "vue";
-import { value } from "happy-dom/lib/PropertySymbol";
 
 const props = defineProps<
   IInputProps & {
@@ -16,7 +15,7 @@ const emit = defineEmits(["focus", "blur"]);
 //the selected values
 const modelValue = defineModel<string[] | string>();
 //labels for the selected values
-const valueLabels = ref({});
+const valueLabels: Ref<Record<string, string>> = ref({});
 //state of the tree that is shown
 const ontologyTree: Ref<ITreeNodeState[]> = ref([]);
 //intermediate selected values
@@ -48,7 +47,7 @@ async function retrieveTerms(
 
   if (searchTerms.value) {
     variables.searchFilter = Object.assign({}, variables.termFilter, {
-      _like_including_parents: searchTerms.value,
+      _search_including_parents: searchTerms.value,
     });
   }
 
@@ -84,9 +83,7 @@ async function retrieveTerms(
   });
 }
 
-async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<
-  string[]
-> {
+async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<void> {
   if (
     props.isArray && Array.isArray(modelValue.value)
       ? modelValue.value.length === 0
@@ -106,7 +103,7 @@ async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<
       }
     );
     valueLabels.value = Object.fromEntries(
-      data.ontologyPaths.map((row) => [row.name, row.label || row.name])
+      data.ontologyPaths.map((row: any) => [row.name, row.label || row.name])
     );
     intermediates.value = data.ontologyPaths.map(
       (term: { name: string }) => term.name
@@ -228,7 +225,7 @@ async function toggleExpand(node: ITreeNodeState) {
         name: child.name,
         label: child.label,
         code: child.code,
-        codeSystem: child.codeSystem,
+        codeSystem: child.codesystem,
         uri: child.uri,
         description: child.description,
         visible: child.visible,
@@ -293,8 +290,8 @@ async function updateSearch(value: string) {
       >
         <Button
           v-for="name in Array.isArray(modelValue)
-            ? modelValue.sort()
-            : [modelValue]"
+            ? (modelValue as string[]).sort()
+            : modelValue ? [modelValue] : []"
           icon="cross"
           iconPosition="right"
           type="filterWell"

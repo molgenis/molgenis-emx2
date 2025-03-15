@@ -61,7 +61,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION "MOLGENIS".ilike_terms_including_parents(
+CREATE OR REPLACE FUNCTION "MOLGENIS".search_terms_including_parents(
     schema_name TEXT,
     table_name TEXT,
     input_terms VARCHAR[]
@@ -77,7 +77,7 @@ BEGIN
             FROM "' || schema_name || '"."' || table_name || '"
             WHERE ' ||
             array_to_string(ARRAY(
-                SELECT format('name ILIKE %L', '%' || term || '%')
+                SELECT format('%I ILIKE %L', table_name || '_TEXT_SEARCH_COLUMN', '%' || term || '%')
                 FROM unnest(input_terms) AS term
             ), ' OR ')
             || '
@@ -91,8 +91,7 @@ BEGIN
         )
         SELECT array_agg(DISTINCT name)
         FROM term_hierarchy'
-        INTO result_terms
-        USING input_terms;
+        INTO result_terms;
     RETURN COALESCE(result_terms, ARRAY['mg_no_result_found']::VARCHAR[]);
 END;
 $$ LANGUAGE plpgsql;

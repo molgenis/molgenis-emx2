@@ -23,7 +23,7 @@ public enum Operator {
   NOT_BETWEEN("not_between", "Uses NOT BETWEEN operator"),
   // text
   LIKE("like", "Uses ILIKE '%value%'"),
-  LIKE_INCLUDING_PARENTS(
+  SEARCH_INCLUDING_PARENTS(
       "like_including_parents",
       "Uses ILIKE on ontology(array) to search if (any of) the term exists in ontology parents including itself using pattern '%term%'"),
   NOT_LIKE("not_like", "Uses column NOT ILIKE '%value%' OR column IS NULL"), // ilike

@@ -119,13 +119,13 @@ function toggleExpand(node: ITreeNodeState) {
                 class="underline"
                 >{{
                   node.codesystem
-                    ? `${node.codesystem}:${code}`
+                    ? `${node.codesystem}:${node.code}`
                     : node.code || node.name
                 }}</a
               ><template v-else
                 >{{
                   node.codesystem
-                    ? `${node.codesystem}:${code}`
+                    ? `${node.codesystem}:${node.code}`
                     : node.code || node.name
                 }})</template
               >)</template
