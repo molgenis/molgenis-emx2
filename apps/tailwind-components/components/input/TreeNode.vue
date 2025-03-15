@@ -108,12 +108,36 @@ function toggleExpand(node: ITreeNodeState) {
             :valid="valid"
             :disabled="disabled"
           />
-          <span class="block text-body-sm leading-normal">{{ node.name }}</span>
+          <span class="block text-body-sm leading-normal"
+            >{{ node.label || node.name }}
+            <template
+              v-if="node.code || (node.label && node.label !== node.name)"
+              >(<a
+                v-if="node.uri"
+                :href="node.uri"
+                target="_blank"
+                class="underline"
+                >{{
+                  node.codesystem
+                    ? `${node.codesystem}:${code}`
+                    : node.code || node.name
+                }}</a
+              ><template v-else
+                >{{
+                  node.codesystem
+                    ? `${node.codesystem}:${code}`
+                    : node.code || node.name
+                }})</template
+              >)</template
+            ></span
+          >
         </InputLabel>
-        <div class="inline-flex items-center whitespace-nowrap">
+        <div
+          class="inline-flex items-center whitespace-nowrap"
+          v-if="node.description"
+        >
           <div class="inline-block pl-1">
             <CustomTooltip
-              v-if="node.description"
               label="Read more"
               :hoverColor="inverted ? 'none' : 'white'"
               :content="node.description"

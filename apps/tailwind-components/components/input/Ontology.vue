@@ -46,11 +46,11 @@ async function retrieveTerms(
 
   let query = searchTerms.value
     ? `query myquery($termFilter:${props.ontologyTableId}Filter, $searchFilter:${props.ontologyTableId}Filter) {
-        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:1000, orderby:{order:ASC,name:ASC}){name,children(limit:1){name}}
+        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:1000, orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
         searchMatch: ${props.ontologyTableId}(filter:$searchFilter, limit:1000, orderby:{order:ASC,name:ASC}){name}
        }`
     : `query myquery($termFilter:${props.ontologyTableId}Filter) {
-        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:1000, orderby:{order:ASC,name:ASC}){name,children(limit:1){name}}
+        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:1000, orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
        }`;
 
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
@@ -59,6 +59,11 @@ async function retrieveTerms(
     return {
       name: row.name,
       parentNode: parentNode,
+      label: row.label,
+      description: row.definition,
+      code: row.code,
+      codeSystem: row.codeSystem,
+      uri: row.ontologyTermURI,
       selectable: true,
       children: row.children,
       //visibility is used for search hiding
@@ -205,6 +210,11 @@ async function toggleExpand(node: ITreeNodeState) {
     node.children = children.map((child) => {
       return {
         name: child.name,
+        label: child.label,
+        code: child.code,
+        codeSystem: child.codeSystem,
+        uri: child.uri,
+        description: child.description,
         visible: child.visible,
         children: child.children,
         selected: props.isArray
