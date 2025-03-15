@@ -13,7 +13,7 @@ const modelValueArray = ref(["colors", "mammals"]);
     v-slot="{ invalid, valid, disabled, onBlur, onFocus }"
   >
     <h2 class="text-title">Ontology single</h2>
-    <div class="p-4">
+    <div class="mt-4">
       <InputOntology
         id="test-ontology-input-id"
         v-model="modelValue"
@@ -27,8 +27,8 @@ const modelValueArray = ref(["colors", "mammals"]);
       />
       <p class="mt-4">modelValue = {{ modelValue }}</p>
     </div>
-    <h2 class="text-title">Ontology array</h2>
-    <div class="p-4">
+    <h2 class="mt-4 text-title">Ontology array</h2>
+    <div class="mt-4">
       <InputOntology
         id="test-ontology-array-input-id"
         :isArray="true"

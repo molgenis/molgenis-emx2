@@ -2,6 +2,7 @@
 import type { IInputProps, ITreeNodeState } from "~/types/types";
 import TreeNode from "~/components/input/TreeNode.vue";
 import type { Ref } from "vue";
+import { value } from "happy-dom/lib/PropertySymbol";
 
 const props = defineProps<
   IInputProps & {
@@ -14,6 +15,8 @@ const props = defineProps<
 const emit = defineEmits(["focus", "blur"]);
 //the selected values
 const modelValue = defineModel<string[] | string>();
+//labels for the selected values
+const valueLabels = ref({});
 //state of the tree that is shown
 const ontologyTree: Ref<ITreeNodeState[]> = ref([]);
 //intermediate selected values
@@ -22,8 +25,13 @@ const intermediates: Ref<string[]> = ref([]);
 const showSearch = ref<boolean>(false);
 // the search value
 const searchTerms: Ref<string> = ref("");
+//initial loading state
+const initLoading = ref(true);
 
-onMounted(init);
+onMounted(() => {
+  init();
+  initLoading.value = false;
+});
 watch(() => props.ontologySchemaId, init);
 watch(() => props.ontologyTableId, init);
 watch(() => modelValue.value, applySelectedStates);
@@ -76,26 +84,34 @@ async function retrieveTerms(
   });
 }
 
-async function retrieveSelectedPathsForModelValue(): Promise<string[]> {
+async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<
+  string[]
+> {
   if (
     props.isArray && Array.isArray(modelValue.value)
       ? modelValue.value.length === 0
       : !modelValue.value
   ) {
-    return [];
+    valueLabels.value = {};
+    intermediates.value = [];
+  } else {
+    const graphqlFilter = {
+      _match_any_including_parents: modelValue.value,
+    };
+    const data = await fetchGraphql(
+      props.ontologySchemaId,
+      `query ontologyPaths($filter:${props.ontologyTableId}Filter) {ontologyPaths: ${props.ontologyTableId}(filter:$filter,limit:1000){name,label}}`,
+      {
+        filter: graphqlFilter,
+      }
+    );
+    valueLabels.value = Object.fromEntries(
+      data.ontologyPaths.map((row) => [row.name, row.label || row.name])
+    );
+    intermediates.value = data.ontologyPaths.map(
+      (term: { name: string }) => term.name
+    );
   }
-  const graphqlFilter = {
-    _match_any_including_parents: modelValue.value,
-  };
-  const data = await fetchGraphql(
-    props.ontologySchemaId,
-    `query ${props.ontologyTableId}($filter:${props.ontologyTableId}Filter) {${props.ontologyTableId}(filter:$filter,limit:1000){name}}`,
-    {
-      filter: graphqlFilter,
-    }
-  );
-
-  return data[props.ontologyTableId].map((term: { name: string }) => term.name);
 }
 
 /** initial load */
@@ -106,7 +122,7 @@ async function init() {
 
 /** apply selection UI state on selection changes */
 async function applySelectedStates() {
-  intermediates.value = await retrieveSelectedPathsForModelValue();
+  await retrieveSelectedPathsAndLabelsForModelValue();
   ontologyTree.value.forEach((term) => {
     applyStateToNode(term);
   });
@@ -261,7 +277,10 @@ async function updateSearch(value: string) {
 </script>
 
 <template>
-  <div>
+  <div v-if="initLoading">
+    <BaseIcon name="progress-activity" />
+  </div>
+  <div v-else>
     <InputGroupContainer
       :id="`${id}-checkbox-group`"
       class="border-l-4 border-transparent"
@@ -270,19 +289,19 @@ async function updateSearch(value: string) {
     >
       <div
         class="flex flex-wrap gap-2 mb-2 max-h-[300px] overflow-y-auto"
-        v-if="Array.isArray(modelValue) ? modelValue.length : modelValue"
+        v-if="Object.keys(valueLabels).length > 0"
       >
         <Button
-          v-for="label in Array.isArray(modelValue)
+          v-for="name in Array.isArray(modelValue)
             ? modelValue.sort()
             : [modelValue]"
           icon="cross"
           iconPosition="right"
           type="filterWell"
           size="tiny"
-          @click="deselect(label as string)"
+          @click="deselect(name as string)"
         >
-          {{ label }}
+          {{ valueLabels[name] }}
         </Button>
       </div>
       <div class="flex flex-wrap gap-2 mb-2">
