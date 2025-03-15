@@ -42,6 +42,7 @@ const emitSelectedChildren = ref(true);
   <div class="flex flex-row gap-2 mb-4">
     <div class="basis-3/5">
       <InputTree
+        id="tree-story-input"
         :nodes="nodes"
         v-model="selectedNodesNames"
         :expandSelected="expandSelected"

@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 24;
+  private static final int SOFTWARE_DATABASE_VERSION = 25;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -152,7 +152,9 @@ public class Migrations {
             executeMigrationFile(tdb, "migration23.sql", "add enable state to user metadata");
           }
 
-          if (version < 24) {
+          // we skip 24 because there was an bug in the migration that is now 25
+
+          if (version < 25) {
             executeMigrationFile(
                 tdb,
                 "migration24.sql",

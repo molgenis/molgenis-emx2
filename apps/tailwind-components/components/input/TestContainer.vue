@@ -9,6 +9,8 @@
         :placeholder="placeholder"
         :required="required"
         :errorMessage="errorMessage"
+        :onFocus="handleFocus"
+        :onBlur="handleBlur"
       ></slot>
     </div>
     <div class="w-1/3 p-4 sticky top-0">
@@ -53,6 +55,8 @@
           description="set to true to show required tags"
         />
         <slot name="settings"></slot>
+        <p v-if="showBlurCount">focusCount = {{ focusCount }}</p>
+        <p v-if="showBlurCount">blurCount = {{ blurCount }}</p>
       </FieldSet>
     </div>
   </div>
@@ -64,12 +68,24 @@ defineProps<{
   showPlaceholder?: boolean;
   showRequired?: boolean;
   showErrorMessage?: boolean;
+  showFocusCount?: boolean;
+  showBlurCount?: boolean;
 }>();
 const placeholder = ref("");
 const state = ref([] as string[]);
 const errorMessage = ref("");
 const required = ref(false);
+const focusCount = ref(0);
+const blurCount = ref(0);
 const valid = computed(() => state.value.includes("valid"));
 const invalid = computed(() => state.value.includes("invalid"));
 const disabled = computed(() => state.value.includes("disabled"));
+
+function handleBlur() {
+  blurCount.value++;
+}
+
+function handleFocus() {
+  focusCount.value++;
+}
 </script>
