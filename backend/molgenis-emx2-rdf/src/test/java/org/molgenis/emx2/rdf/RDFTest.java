@@ -65,6 +65,7 @@ public class RDFTest {
   static Schema petStore_nr2;
   static Schema compositeKeyTest;
   static Schema ontologyTest;
+  static Schema ontologyCrossSchemaTest;
   static Schema tableInherTest;
   static Schema tableInherExtTest;
   static Schema fileTest;
@@ -155,8 +156,16 @@ public class RDFTest {
                 "gc1b_first"));
 
     // Test schema for ontologies
-    ontologyTest = database.dropCreateSchema("OntologyTest");
+    database.dropSchemaIfExists(
+        RDFTest.class.getSimpleName() + "_ontology_cross_schema"); // in case tearDown fails
+    ontologyTest = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_ontology");
     ontologyTest.create(table("Diseases").setTableType(TableType.ONTOLOGIES));
+    ontologyTest.create(
+        table(
+            "Patients",
+            column("name").setPkey(),
+            column("diseases").setType(ColumnType.ONTOLOGY_ARRAY).setRefTable("Diseases")));
+
     ontologyTest
         .getTable("Diseases")
         .insert(
@@ -208,6 +217,36 @@ public class RDFTest {
                 "C00-C75 Malignant neoplasms, stated or presumed to be primary, of specified sites, except of lymphoid, haematopoietic and related tissue",
                 "code",
                 "C00-C14"));
+
+    ontologyTest
+        .getTable("Patients")
+        .insert(
+            row(
+                "name",
+                "bob",
+                "diseases",
+                "\"U07\", \"C00-C14 Malignant neoplasms of lip, oral cavity and pharynx\""));
+
+    // Test for cross-schema references
+    ontologyCrossSchemaTest =
+        database.dropCreateSchema(RDFTest.class.getSimpleName() + "_ontology_cross_schema");
+    ontologyCrossSchemaTest.create(
+        table(
+            "Patients",
+            column("name").setPkey(),
+            column("diseases")
+                .setType(ColumnType.ONTOLOGY_ARRAY)
+                .setRefSchemaName(RDFTest.class.getSimpleName() + "_ontology")
+                .setRefTable("Diseases")));
+
+    ontologyCrossSchemaTest
+        .getTable("Patients")
+        .insert(
+            row(
+                "name",
+                "pim",
+                "diseases",
+                "\"U07\", \"C00-C14 Malignant neoplasms of lip, oral cavity and pharynx\""));
 
     // Test table inheritance
     // Use example from the catalogue schema since this has all the different issues.
@@ -362,6 +401,7 @@ public class RDFTest {
     database.dropSchema(petStore_nr1.getName());
     database.dropSchema(petStore_nr2.getName());
     database.dropSchema(compositeKeyTest.getName());
+    database.dropSchema(ontologyCrossSchemaTest.getName());
     database.dropSchema(ontologyTest.getName());
     database.dropSchema(tableInherExtTest.getName());
     database.dropSchema(tableInherTest.getName());
@@ -637,6 +677,46 @@ public class RDFTest {
     var parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
     assertEquals(
         2, parents.size(), "This disease should only be a subclass of Diseases and C00-C75");
+  }
+
+  @Test
+  void testDataTableOntologyColumnValue() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(ontologyTest, "Patients"), handler);
+
+    Set<Value> expected =
+        Set.of(
+            Values.iri("https://icd.who.int/browse10/2019/en#/U07"),
+            Values.iri(
+                getApi(ontologyTest)
+                    + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
+    Set<Value> actual =
+        handler
+            .resources
+            .get(Values.iri(getApi(ontologyTest) + "Patients?name=bob"))
+            .get(Values.iri(getApi(ontologyTest) + "Patients/column/diseases"));
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  void testCrossSchemaDataTableOntologyColumnValue() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.of(ontologyCrossSchemaTest, "Patients"), handler);
+
+    Set<Value> expected =
+        Set.of(
+            Values.iri("https://icd.who.int/browse10/2019/en#/U07"),
+            Values.iri(
+                getApi(ontologyTest)
+                    + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
+    Set<Value> actual =
+        handler
+            .resources
+            .get(Values.iri(getApi(ontologyCrossSchemaTest) + "Patients?name=pim"))
+            .get(Values.iri(getApi(ontologyCrossSchemaTest) + "Patients/column/diseases"));
+
+    assertEquals(expected, actual);
   }
 
   @Test
