@@ -499,7 +499,7 @@ public class TypeUtils {
       Row row = new Row();
       List<Column> columns =
           primaryKeyOnly ? metadata.getPrimaryKeyColumns() : metadata.getColumns();
-      for (Column column : metadata.getColumns()) {
+      for (Column column : columns) {
         if (field.containsKey(column.getIdentifier())) {
           Object fieldValue = field.get(column.getIdentifier());
           addFieldObjectToRow(column, fieldValue, row);

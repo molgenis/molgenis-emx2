@@ -174,17 +174,19 @@ public class RDFService {
         allTables.addAll(schema.getTablesSorted());
       }
 
+      // Tables to include in output.
+      final Set<Table> tables = table != null ? tablesToDescribe(allTables, table) : allTables;
+
       if (logger.isDebugEnabled()) {
         logger.debug(
-            "All tables to show: "
-                + allTables.stream()
+            "Tables to show: "
+                + tables.stream()
                     .map(
                         i -> i.getMetadata().getSchemaName() + "." + i.getMetadata().getTableName())
                     .toList());
         logger.debug("Namespaces per schema: " + namespaces.toString());
       }
 
-      final Set<Table> tables = table != null ? tablesToDescribe(allTables, table) : allTables;
       for (final Table tableToDescribe : tables) {
         // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
         // of course references to ontologies are still included and are fully retrievable
@@ -509,7 +511,7 @@ public class RDFService {
   private void dataRowToRdf(
       final ModelBuilder builder,
       final Map<String, Map<String, Namespace>> namespaces,
-      Table table,
+      final Table table,
       final IRI tableIRI,
       final Row row,
       final String rowId,
@@ -529,12 +531,6 @@ public class RDFService {
     }
     builder.add(subject, IRI_DATASET_PREDICATE, tableIRI);
     builder.add(subject, RDFS.LABEL, Values.literal(getLabelForRow(row, table.getMetadata())));
-    // via rowId might be subclass
-    if (rowId != null) {
-      // because row IRI point to root tables we need to find actual subclass table to ensure we
-      // get all columns
-      table = getSubclassTableForRowBasedOnMgTableclass(table, row);
-    }
     for (final Column column : table.getMetadata().getColumns()) {
       // Exclude the system columns that refer to specific users
       if (column.isSystemAddUpdateByUserColumn()) {
@@ -579,18 +575,6 @@ public class RDFService {
     }
   }
 
-  private static Table getSubclassTableForRowBasedOnMgTableclass(Table table, Row row) {
-    if (row.getString(MG_TABLECLASS) != null) {
-      table =
-          table
-              .getSchema()
-              .getDatabase()
-              .getSchema(row.getSchemaName())
-              .getTable(row.getTableName());
-    }
-    return table;
-  }
-
   private String getLabelForRow(final Row row, final TableMetadata metadata) {
     List<String> primaryKeyValues = new ArrayList<>();
     for (Column column : metadata.getPrimaryKeyColumns()) {
@@ -610,23 +594,15 @@ public class RDFService {
     Query query = table.query();
 
     if (rowId != null) {
-      // first find from root table
       PrimaryKey key = PrimaryKey.makePrimaryKeyFromEncodedKey(rowId);
-      List<Row> oneRow = query.where(key.getFilter()).retrieveRows();
-      // if subclass
-      if (oneRow.size() == 1 && oneRow.get(0).getString(MG_TABLECLASS) != null) {
-        Row row = oneRow.get(0);
-        table = getSubclassTableForRowBasedOnMgTableclass(table, row);
-        return table.query().where(key.getFilter()).retrieveRows();
-      }
-      return oneRow;
-    } else {
-      if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
-        var tableName = table.getSchema().getName() + "." + table.getName();
-        query.where(f("mg_tableclass", EQUALS, tableName));
-      }
-      return query.retrieveRows();
+      query.where(key.getFilter());
     }
+
+    if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
+      var tableName = table.getSchema().getName() + "." + table.getName();
+      query.where(f("mg_tableclass", EQUALS, tableName));
+    }
+    return query.retrieveRows();
   }
 
   private IRI getIriForRow(final Row row, final Table table) {
