@@ -9,18 +9,22 @@
       <tbody>
         <tr>
           <td class="text-nowrap">
-            Organisation(s): {{ biobanksStore.biobankCardsBiobankCount }}
-          </td>
-          <td class="text-nowrap">
-            Collection(s): {{ biobanksStore.biobankCardsCollectionCount }}
+            {{ organisationLabel }}:
+            {{ biobanksStore.biobankCardsBiobankCount }}
           </td>
         </tr>
         <tr>
           <td class="text-nowrap">
-            Service(s): {{ biobanksStore.biobankCardsServicesCount }}
+            {{ collectionLabel }}:
+            {{
+              biobanksStore.biobankCardsCollectionCount +
+              biobanksStore.biobankCardsSubcollectionCount
+            }}
           </td>
+        </tr>
+        <tr>
           <td class="text-nowrap">
-            Subcollection(s): {{ biobanksStore.biobankCardsSubcollectionCount }}
+            {{ serviveLabel }}: {{ biobanksStore.biobankCardsServicesCount }}
           </td>
         </tr>
       </tbody>
@@ -28,13 +32,25 @@
   </small>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed } from "vue";
 import { useBiobanksStore } from "../../stores/biobanksStore";
 
-export default {
-  setup() {
-    const biobanksStore = useBiobanksStore();
-    return { biobanksStore };
-  },
-};
+const biobanksStore = useBiobanksStore();
+
+const organisationLabel = computed(() => {
+  return biobanksStore.biobankCardsBiobankCount > 1
+    ? "Organisations"
+    : "Organisation";
+});
+
+const collectionLabel = computed(() => {
+  return biobanksStore.biobankCardsCollectionCount > 1
+    ? "Collections"
+    : "Collection";
+});
+
+const serviveLabel = computed(() => {
+  return biobanksStore.biobankCardsServicesCount > 1 ? "Services" : "Service";
+});
 </script>
