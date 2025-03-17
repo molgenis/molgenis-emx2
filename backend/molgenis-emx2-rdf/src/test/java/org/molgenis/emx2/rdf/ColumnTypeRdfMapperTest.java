@@ -113,7 +113,7 @@ class ColumnTypeRdfMapperTest {
         .insert(
             row("name", "aa", "ontologyTermURI", "http://example.com/aa"),
             row("name", "bb", "ontologyTermURI", "http://example.com/bb"),
-            row("name", "cc"));
+            row("name", "c c"));
 
     allColumnTypes.getTable(REF_TABLE).insert(row("id", "1"), row("id", "2"), row("id", "3"));
 
@@ -187,7 +187,7 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.ONTOLOGY.name(),
                 "aa",
                 ColumnType.ONTOLOGY_ARRAY.name(),
-                "bb,cc",
+                "bb,c c",
                 ColumnType.EMAIL.name(),
                 "aap@example.com",
                 ColumnType.EMAIL_ARRAY.name(),
@@ -528,7 +528,7 @@ class ColumnTypeRdfMapperTest {
             assertEquals(
                 Set.of(
                     Values.iri("http://example.com/bb"),
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=cc")),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=c+c")),
                 retrieveValues(ColumnType.ONTOLOGY_ARRAY.name())),
         () ->
             assertEquals(
@@ -576,7 +576,7 @@ class ColumnTypeRdfMapperTest {
             assertEquals(
                 Set.of(
                     Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=bb"),
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=cc")),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=c+c")),
                 retrieveValuesCustom(
                     ColumnType.ONTOLOGY_ARRAY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
         // email as regular string
