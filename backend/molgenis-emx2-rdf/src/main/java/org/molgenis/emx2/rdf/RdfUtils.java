@@ -139,4 +139,12 @@ abstract class RdfUtils {
   public static boolean isIllegalPrefix(String prefix) {
     return hasIllegalPrefix(prefix + ':');
   }
+
+  /**
+   * Ensure that the base URL has a trailing "/" so we can use it easily to construct URL paths.
+   */
+  public static String formatBaseURL(String baseURL) {
+    String baseUrlTrim = baseURL.trim();
+    return baseUrlTrim.endsWith("/") ? baseUrlTrim : baseUrlTrim + "/";
+  }
 }

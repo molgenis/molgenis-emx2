@@ -28,7 +28,7 @@ import org.molgenis.emx2.utils.URIUtils;
  *       for generating the RDF
  * </ul>
  */
-public class ColumnTypeRdfMapper {
+public abstract class ColumnTypeRdfMapper {
   // All ColumnType mappings.
   // mapping.keySet() should be equal to ColumnType.values()
   private static final Map<ColumnType, RdfColumnType> mapping =

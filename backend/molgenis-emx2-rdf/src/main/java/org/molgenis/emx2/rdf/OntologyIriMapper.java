@@ -20,6 +20,12 @@ public class OntologyIriMapper {
     addAll(tables);
   }
 
+  public OntologyIriMapper(Table table) {
+    add(table);
+  }
+
+  public OntologyIriMapper() {}
+
   private void addAll(Collection<Table> tables) {
     for (Table table : tables) {
       add(table);

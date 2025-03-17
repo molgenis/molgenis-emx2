@@ -1,12 +1,13 @@
 package org.molgenis.emx2.rdf;
 
+import static org.molgenis.emx2.rdf.RdfUtils.formatBaseURL;
+
 public class RdfMapData {
   private final String baseURL;
   private final OntologyIriMapper ontologyIriMapper;
 
   public RdfMapData(String baseURL, OntologyIriMapper ontologyIriMapper) {
-    String baseUrlTrim = baseURL.trim();
-    this.baseURL = baseUrlTrim.endsWith("/") ? baseUrlTrim : baseUrlTrim + "/";
+    this.baseURL = formatBaseURL(baseURL);
     this.ontologyIriMapper = ontologyIriMapper;
   }
 

@@ -5,6 +5,7 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.getCoreDataType;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
+import static org.molgenis.emx2.rdf.RdfUtils.formatBaseURL;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomPrefixesOrDefault;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
@@ -111,10 +112,7 @@ public class RDFService {
    * @param format the requested RDF document type
    */
   public RDFService(final String baseURL, final String rdfAPIPath, final RDFFormat format) {
-    // Ensure that the base URL has a trailing "/" so we can use it easily to
-    // construct URL paths.
-    String baseUrlTrim = baseURL.trim();
-    this.baseURL = baseUrlTrim.endsWith("/") ? baseUrlTrim : baseUrlTrim + "/";
+    this.baseURL = formatBaseURL(baseURL);
     this.rdfFormat = format == null ? RDFFormat.TURTLE : format;
 
     this.config = new WriterConfig();
