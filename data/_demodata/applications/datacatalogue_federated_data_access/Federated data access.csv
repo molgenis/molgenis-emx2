@@ -1,0 +1,3 @@
+resource,name,type,version,profiles,status
+BIB,Opal,Opal,5.1.2,"galaxy_zenith,kitty_cliff",false
+BIB,Armadillo,Armadillo,4.13.1,"habitat_zenith,jaguar_cliff",true
