@@ -6,7 +6,7 @@
 FROM gradle:jdk21-noble
 RUN useradd -m molgenis
 
-RUN apt-get update && apt-get install vim python3 python3-venv python3-pip -y
+RUN apt-get update && apt-get install vim python3 python3-venv python3-pip python3-setuptools python3-setuptools-whl -y
 RUN python3 -m pip config set global.break-system-packages true
 RUN python3 --version
 
