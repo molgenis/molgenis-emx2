@@ -1,8 +1,8 @@
 tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description
-Federated data access,,,,,,,,,,,,,,,,,,,List of Armadillo and/or Opal server(s) available for this resource.
-Federated data access,,,id,auto_id,1,true,,,,,,,,,,,,,
-Federated data access,,,cohort,ref,,,catalogue,Resources,,,,,,,,,,,
-Federated data access,,,type,,,true,,,,,,,,,,,,,For example: Armadillo or Opal.
-Federated data access,,,version,,,,,,,,,,,,,,,,Armadillo versions: https://github.com/molgenis/molgenis-service-armadillo/tags and Opal versions: https://github.com/obiba/opal/tags
-Federated data access,,,profiles,string_array,,,,,,,,,,,,,,,DataSHIELD profiles installed on server: https://wiki.datashield.org/en/opmanag/standard-profiles-and-platforms
-Federated data access,,,status,bool,,,,,,,,,,,,,,,Server status Up or Down.
+Federated data access,,,,,,,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,List of Armadillo and/or Opal server(s) available for this resource.
+Federated data access,,,resource,ref,1,true,,Resources,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,Federated data access defined for this resource
+Federated data access,,,name,,1,true,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,Federated data access server name
+Federated data access,,,type,,,true,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,For example: Armadillo or Opal.
+Federated data access,,,version,,,,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,Armadillo versions: https://github.com/molgenis/molgenis-service-armadillo/tags and Opal versions: https://github.com/obiba/opal/tags
+Federated data access,,,profiles,string_array,,,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,DataSHIELD profiles installed on server: https://wiki.datashield.org/en/opmanag/standard-profiles-and-platforms
+Federated data access,,,status,bool,,,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,Server status Up or Down.
