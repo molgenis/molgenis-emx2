@@ -107,10 +107,11 @@ public abstract class ColumnTypeRdfMapper {
 
   /**
    * Same as {@link #retrieveValues(RdfMapData, Row, Column)}, except manually defining which {@link
-   * RdfColumnType} should be used.
-   *
-   * <p>It is suggested to only use this method if really needed (for example if needing an email as
-   * a string literal in RDF instead of default behavior which creates a {@code mailto:} IRI).
+   * RdfColumnType} should be used. <br>
+   * <br>
+   * It is suggested to only use this method if really needed (for example if needing an email as a
+   * string literal in RDF instead of default behavior which creates a {@code mailto:} IRI).
+   * <strong>Using this incorrectly will cause issues!</strong>
    *
    * @see #retrieveValues(RdfMapData, Row, Column)
    */
