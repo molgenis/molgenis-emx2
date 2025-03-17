@@ -37,8 +37,6 @@ class ColumnTypeRdfMapperTest {
   static final String RDF_API_URL_PREFIX = BASE_URL + TEST_SCHEMA + "/api/rdf/";
   static final String FILE_API_URL_PREFIX = BASE_URL + TEST_SCHEMA + "/api/file/";
 
-  static final ColumnTypeRdfMapper mapper = new ColumnTypeRdfMapper(BASE_URL);
-
   static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
   static final File TEST_FILE =
       new File(classLoader.getResource("testfiles/molgenis.png").getFile());
@@ -50,6 +48,7 @@ class ColumnTypeRdfMapperTest {
   static Database database;
   static Schema allColumnTypes;
   static List<Row> testRows;
+  static RdfMapData rdfMapData;
 
   @BeforeAll
   public static void setup() {
@@ -220,6 +219,10 @@ class ColumnTypeRdfMapperTest {
     // Describes rows for easy access.
     // exclude mg columns because they might be not empty for the empty test
     testRows = allColumnTypes.getTable(TEST_TABLE).retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
+
+    // Prepares RdfMapData
+    rdfMapData =
+        new RdfMapData(BASE_URL, new OntologyIriMapper(allColumnTypes.getTable(ONT_TABLE)));
   }
 
   @AfterAll
@@ -233,8 +236,10 @@ class ColumnTypeRdfMapperTest {
   }
 
   private Set<Value> retrieveValues(String columnName, int row) {
-    return mapper.retrieveValues(
-        testRows.get(row), allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName));
+    return ColumnTypeRdfMapper.retrieveValues(
+        rdfMapData,
+        testRows.get(row),
+        allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName));
   }
 
   /** Only primary key & AUTO_ID is filled. */
@@ -245,13 +250,15 @@ class ColumnTypeRdfMapperTest {
     return retrieveValues(columnName, 1);
   }
 
-  private Set<Value> retrieveValuesCustom(String columnName, ColumnTypeRdfMapper.RdfColumnType rdfColumnType) {
+  private Set<Value> retrieveValuesCustom(
+      String columnName, ColumnTypeRdfMapper.RdfColumnType rdfColumnType) {
     return retrieveValuesCustom(columnName, 0, rdfColumnType);
   }
 
   private Set<Value> retrieveValuesCustom(
       String columnName, int row, ColumnTypeRdfMapper.RdfColumnType rdfColumnType) {
-    return mapper.retrieveValues(
+    return ColumnTypeRdfMapper.retrieveValues(
+        rdfMapData,
         testRows.get(row),
         allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName),
         rdfColumnType);
@@ -600,7 +607,10 @@ class ColumnTypeRdfMapperTest {
 
   @Test
   void validateUnmodifiable() {
-    allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns()
+    allColumnTypes
+        .getTable(TEST_TABLE)
+        .getMetadata()
+        .getColumns()
         .forEach(
             c -> {
               assertThrows(
