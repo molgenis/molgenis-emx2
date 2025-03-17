@@ -1,10 +1,16 @@
 package org.molgenis.emx2.rdf;
 
+import static java.util.Map.entry;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
+import java.util.List;
+import java.util.Map;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.Values;
 import org.junit.jupiter.api.AfterAll;
@@ -12,7 +18,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Query;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SelectColumn;
+import org.molgenis.emx2.Table;
+import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -123,6 +134,56 @@ class OntologyIriMapperTest {
         () -> assertNull(mapperGet(mapper, OntologyIRI.ONT1_C)),
         () -> assertEquals(OntologyIRI.ONT2_AA.getIri(), mapperGet(mapper, OntologyIRI.ONT2_AA)),
         () -> assertEquals(OntologyIRI.ONT2_BB.getIri(), mapperGet(mapper, OntologyIRI.ONT2_BB)));
+  }
+
+  /**
+   * A specific ontology table can only be added once. If a non-empty ontology table has already
+   * been added, any extra attempts are ignored.
+   */
+  @Test
+  void testDuplicateAddition() {
+    final String mockName = "mockName";
+    final String mockIRI = "http://example.com/mockIRI";
+
+    Row row = new Row(Map.ofEntries(entry("name", mockName), entry("ontologyTermURI", mockIRI)));
+    List<Row> rows = List.of(row);
+
+    TableMetadata tableMetadata = mock(TableMetadata.class);
+    when(tableMetadata.getTableType()).thenReturn(TableType.ONTOLOGIES);
+
+    Schema schema = mock(Schema.class);
+    when(schema.getName()).thenReturn(SCHEMA_NAME);
+
+    Query query = mock(Query.class);
+    when(query.select(any(SelectColumn.class), any(SelectColumn.class))).thenReturn(query);
+    when(query.retrieveRows()).thenReturn(rows);
+
+    Table table = mock(Table.class);
+    when(table.getMetadata()).thenReturn(tableMetadata);
+    when(table.getSchema()).thenReturn(schema);
+    when(table.getName()).thenReturn(ONT_TABLE_FIRST);
+    when(table.query()).thenReturn(query);
+
+    // Check when real table is given first that mock data is NOT present.
+    OntologyIriMapper mapper1 =
+        new OntologyIriMapper(List.of(ontologyIriMapper.getTable(ONT_TABLE_FIRST), table));
+
+    assertAll(
+        () -> assertEquals(OntologyIRI.ONT1_A.getIri(), mapperGet(mapper1, OntologyIRI.ONT1_A)),
+        () -> assertEquals(OntologyIRI.ONT1_B.getIri(), mapperGet(mapper1, OntologyIRI.ONT1_B)),
+        () -> assertEquals(OntologyIRI.ONT1_C.getIri(), mapperGet(mapper1, OntologyIRI.ONT1_C)),
+        () -> assertNull(mapper1.get(SCHEMA_NAME, ONT_TABLE_FIRST, mockName)));
+
+    // Check when mock table is given first that real data is NOT present.
+    OntologyIriMapper mapper2 =
+        new OntologyIriMapper(List.of(table, ontologyIriMapper.getTable(ONT_TABLE_FIRST)));
+
+    assertAll(
+        () -> assertNull(mapperGet(mapper2, OntologyIRI.ONT1_A)),
+        () -> assertNull(mapperGet(mapper2, OntologyIRI.ONT1_B)),
+        () -> assertNull(mapperGet(mapper2, OntologyIRI.ONT1_C)),
+        () ->
+            assertEquals(Values.iri(mockIRI), mapper2.get(SCHEMA_NAME, ONT_TABLE_FIRST, mockName)));
   }
 
   private IRI mapperGet(OntologyIriMapper mapper, OntologyIRI ontologyIRI) {
