@@ -67,10 +67,26 @@ public class OntologyIriMapper {
     return table.query().select(s("name"), s("ontologyTermURI")).retrieveRows();
   }
 
+  /**
+   * Retrieves ontologyTermURI for single value.
+   *
+   * @return IRI if match is found, otherwise {@code null}
+   */
   public IRI get(String schemaName, String ontologyTableName, String value) {
-    return irisPerSchema.get(schemaName).get(ontologyTableName).get(value);
+    Map<String, Map<String, IRI>> schemaIris = irisPerSchema.get(schemaName);
+    if (schemaIris == null) return null;
+    Map<String, IRI> ontologyIris = schemaIris.get(ontologyTableName);
+    if (ontologyIris == null) return null;
+    return ontologyIris.get(value);
   }
 
+  /**
+   * Retrieves ontologyTermURI for multiple values.
+   *
+   * @return a {@link Map} with the input {@code values} as key and the found match (or {@code null}
+   *     for no match) as value
+   * @see #get(String, String, String)
+   */
   public Map<String, IRI> map(String schemaName, String ontologyTableName, String... values) {
     Map<String, IRI> iriMap = new HashMap<>();
     for (String value : values) {
