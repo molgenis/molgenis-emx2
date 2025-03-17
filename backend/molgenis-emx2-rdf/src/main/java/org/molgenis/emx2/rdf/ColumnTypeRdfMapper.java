@@ -255,7 +255,7 @@ public abstract class ColumnTypeRdfMapper {
         Map<String, IRI> mappedNames =
             rdfMapData
                 .getOntologyIriMapper()
-                .map(column.getSchemaName(), column.getRefTableName(), names);
+                .map(column.getRefTable().getSchemaName(), column.getRefTableName(), names);
 
         return mappedNames.keySet().stream()
             .map(
