@@ -14,21 +14,8 @@ export default gql`
     ) {
       name
       label
-      description
-      unit {
-        name
-      }
-      format {
-        name
-      }
       resource {
         id
-      }
-      dataset {
-        name
-        resource {
-          id
-        }
       }
     }
     Variables_agg(filter: $filter) {
