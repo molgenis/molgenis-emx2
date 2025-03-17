@@ -261,7 +261,11 @@ public abstract class ColumnTypeRdfMapper {
                 i ->
                     (mappedNames.get(i) != null
                         ? mappedNames.get(i)
-                        : Values.iri(ns, rootTableName + "?name=" + i)))
+                        : Values.iri(
+                            ns,
+                            rootTableName
+                                + "?"
+                                + new PrimaryKey(Map.of("name", i)).getEncodedValue())))
             .collect(Collectors.toUnmodifiableSet());
       }
     },
