@@ -255,8 +255,8 @@ Go to the catalogue at [data-catalogue.molgeniscloud.org](https://data-catalogue
 Click on **More** and select **Upload data**. Click on **Sign in**. Click on **LS Login**.
 Search for and select your institution and follow the instructions.
 You can now log in using your institutional e-mail account.
-If your institution is not listed, set up an [ORCID](https://orcid.org/register),
-then log in via LS login and choose the ORCID login option.
-In addition, your account needs to be linked to the resource(s) you will be working on.
+If your institution is not listed, or you encounter any other difficulties, [send us an e-mail](mailto:support@molgenis.org).
+
+After creating your account and logging in, your account needs to be linked to the resource(s) you will be working on.
 Contact us at [support@molgenis.org](mailto:support@molgenis.org) with your account e-mail address and
 the resource(s) you will be working on to get the necessary access permissions.
