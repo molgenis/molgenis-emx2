@@ -54,11 +54,10 @@ public class OntologyIriMapper {
         irisPerOntology.getOrDefault(ontology.getName(), new HashMap<>());
     // Skips adding if already done.
     if (irisPerName.isEmpty()) {
-      queryOntology(ontology)
-          .forEach(
-              row ->
-                  irisPerName.put(
-                      row.getString("name"), Values.iri(row.getString("ontologyTermURI"))));
+      for (Row row : queryOntology(ontology)) {
+        if (row.getString("ontologyTermURI") == null) continue;
+        irisPerName.put(row.getString("name"), Values.iri(row.getString("ontologyTermURI")));
+      }
       irisPerOntology.put(ontology.getName(), irisPerName);
       irisPerSchema.put(ontology.getSchema().getName(), irisPerOntology);
     }
