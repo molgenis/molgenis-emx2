@@ -178,12 +178,17 @@ function toggleSelect(node: ITreeNodeState) {
         modelValue.value?.includes(parent.name)
       )
     ) {
+      console.log("here");
       const itemsToBeRemoved = [
         node.name,
         ...getAllParents(node).map((parent) => parent.name),
       ];
       const itemsToBeAdded: string[] = getAllParents(node)
-        .map((parent) => parent.children.map((child) => child.name))
+        .map((parent) =>
+          parent.selected === "selected"
+            ? parent.children.map((child) => child.name)
+            : []
+        )
         .flat();
       //remove parent node from select and add all siblings
       modelValue.value = [...modelValue.value, ...itemsToBeAdded].filter(
