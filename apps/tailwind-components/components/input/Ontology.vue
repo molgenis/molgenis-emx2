@@ -319,21 +319,24 @@ async function updateSearch(value: string) {
           :aria-hidden="!showSearch"
         />
       </div>
-      <TreeNode
-        :id="id"
-        :nodes="ontologyTree"
-        :isRoot="true"
-        :valid="valid"
-        :invalid="invalid"
-        :disabled="disabled"
-        @toggleExpand="toggleExpand"
-        @toggleSelect="toggleSelect"
-        class="border-l-2 border-transparent pl-4 max-h-[500px] overflow-y-auto"
-        :class="{
-          'border-l-invalid': invalid,
-          'border-l-valid': valid,
-        }"
-      />
+      <fieldset>
+        <legend class="sr-only">select ontology terms</legend>
+        <TreeNode
+          :id="id"
+          :nodes="ontologyTree"
+          :isRoot="true"
+          :valid="valid"
+          :invalid="invalid"
+          :disabled="disabled"
+          @toggleExpand="toggleExpand"
+          @toggleSelect="toggleSelect"
+          class="border-l-2 border-transparent pl-4 pb-2 max-h-[500px] overflow-y-auto"
+          :class="{
+            'border-l-invalid': invalid,
+            'border-l-valid': valid,
+          }"
+        />
+      </fieldset>
     </InputGroupContainer>
   </div>
 </template>
