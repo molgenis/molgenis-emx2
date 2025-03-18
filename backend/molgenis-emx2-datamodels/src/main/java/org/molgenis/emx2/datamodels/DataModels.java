@@ -13,6 +13,7 @@ public class DataModels {
     DATA_CATALOGUE_COHORT_STAGING("_profiles/CohortsStaging.yaml"),
     DATA_CATALOGUE_NETWORK_STAGING("_profiles/NetworksStaging.yaml"),
     DATA_CATALOGUE_AGGREGATES("_profiles/DataCatalogueAggregates.yaml"),
+    DATA_CATALOGUE_FEDERATED_DATA_ACCESS("_profiles/FederatedDataAccess.yaml"),
     UMCG_COHORT_STAGING("_profiles/UMCGCohortsStaging.yaml"),
     UMCU_COHORTS_STAGING("_profiles/UMCUCohorts.yaml"),
     INTEGRATE_COHORTS_STAGING("_profiles/INTEGRATECohorts.yaml"),
