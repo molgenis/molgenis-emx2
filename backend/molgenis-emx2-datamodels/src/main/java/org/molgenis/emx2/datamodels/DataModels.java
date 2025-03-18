@@ -9,26 +9,26 @@ import org.molgenis.emx2.tasks.Task;
 public class DataModels {
 
   public enum Profile {
-    DATA_CATALOGUE("_profiles/DataCatalogue.yaml"),
-    DATA_CATALOGUE_COHORT_STAGING("_profiles/CohortsStaging.yaml"),
-    DATA_CATALOGUE_NETWORK_STAGING("_profiles/NetworksStaging.yaml"),
-    DATA_CATALOGUE_AGGREGATES("_profiles/DataCatalogueAggregates.yaml"),
-    DATA_CATALOGUE_FEDERATED_DATA_ACCESS("_profiles/FederatedDataAccess.yaml"),
-    UMCG_COHORT_STAGING("_profiles/UMCGCohortsStaging.yaml"),
-    UMCU_COHORTS_STAGING("_profiles/UMCUCohorts.yaml"),
-    INTEGRATE_COHORTS_STAGING("_profiles/INTEGRATECohorts.yaml"),
-    FAIR_DATA_HUB("_profiles/FAIRDataHub.yaml"),
-    RD3("_profiles/RD3.yaml"),
-    JRC_COMMON_DATA_ELEMENTS("_profiles/JRC-CDE.yaml"),
-    FAIR_GENOMES("_profiles/FAIRGenomes.yaml"),
-    DCAT("_profiles/DCAT.yaml"),
-    FAIR_DATA_POINT("_profiles/FAIRDataPoint.yaml"),
     BEACON_V2("_profiles/BeaconV2.yaml"),
+    DATA_CATALOGUE_AGGREGATES("_profiles/DataCatalogueAggregates.yaml"),
+    DATA_CATALOGUE_COHORT_STAGING("_profiles/CohortsStaging.yaml"),
+    DATA_CATALOGUE_FEDERATED_DATA_ACCESS("_profiles/FederatedDataAccess.yaml"),
+    DATA_CATALOGUE_NETWORK_STAGING("_profiles/NetworksStaging.yaml"),
+    DATA_CATALOGUE("_profiles/DataCatalogue.yaml"),
+    DCAT("_profiles/DCAT.yaml"),
+    FAIR_DATA_HUB("_profiles/FAIRDataHub.yaml"),
+    FAIR_DATA_POINT("_profiles/FAIRDataPoint.yaml"),
+    FAIR_GENOMES("_profiles/FAIRGenomes.yaml"),
     GDI("_profiles/GDI.yaml"),
-    SHARED_STAGING("_profiles/SharedStaging.yaml"),
     IMAGE_TEST("_profiles/ImageTest.yaml"),
+    INTEGRATE_COHORTS_STAGING("_profiles/INTEGRATECohorts.yaml"),
+    JRC_COMMON_DATA_ELEMENTS("_profiles/JRC-CDE.yaml"),
     PET_STORE("_profiles/PetStore.yaml"),
-    TYPE_TEST("_profiles/TypeTest.yaml");
+    RD3("_profiles/RD3.yaml"),
+    SHARED_STAGING("_profiles/SharedStaging.yaml"),
+    TYPE_TEST("_profiles/TypeTest.yaml"),
+    UMCG_COHORT_STAGING("_profiles/UMCGCohortsStaging.yaml"),
+    UMCU_COHORTS_STAGING("_profiles/UMCUCohorts.yaml");
 
     public static boolean hasProfile(String nameOther) {
       return Arrays.stream(values()).anyMatch(profile -> profile.name().equals(nameOther));
