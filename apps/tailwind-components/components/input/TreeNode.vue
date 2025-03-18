@@ -46,13 +46,7 @@ function toggleExpand(node: ITreeNodeState) {
         <button
           v-if="node.children?.length"
           @click.stop="toggleExpand(node)"
-          class="-left-[11px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
-          :class="{
-            'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted':
-              inverted,
-            'text-search-filter-group-toggle hover:bg-search-filter-group-toggle focus:bg-search-filter-group-toggle':
-              !inverted,
-          }"
+          class="-left-[11px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20 text-search-filter-group-toggle hover:bg-button-primary hover:text-button-primary-hover"
           :aria-expanded="node.expanded"
           :aria-controls="node.name"
         >

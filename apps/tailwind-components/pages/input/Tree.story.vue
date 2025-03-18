@@ -53,7 +53,7 @@ const emitSelectedChildren = ref(true);
       />
     </div>
 
-    <div class="basis-2/5 p-2">
+    <div class="basis-2/5 p-2 text-title">
       <fieldset class="border border-gray-900 mb-2">
         <legend class="m-2 px-2">Props</legend>
         <div class="mb-2">
