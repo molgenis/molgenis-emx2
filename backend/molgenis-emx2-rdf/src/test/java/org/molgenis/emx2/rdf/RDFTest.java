@@ -164,7 +164,10 @@ public class RDFTest {
         table(
             "Patients",
             column("name").setPkey(),
-            column("diseases").setType(ColumnType.ONTOLOGY_ARRAY).setRefTable("Diseases")));
+            column("diseases")
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C2991")
+                .setType(ColumnType.ONTOLOGY_ARRAY)
+                .setRefTable("Diseases")));
 
     ontologyTest
         .getTable("Diseases")
@@ -235,6 +238,7 @@ public class RDFTest {
             "Patients",
             column("name").setPkey(),
             column("diseases")
+                .setSemantics("http://purl.obolibrary.org/obo/NCIT_C2991")
                 .setType(ColumnType.ONTOLOGY_ARRAY)
                 .setRefSchemaName(RDFTest.class.getSimpleName() + "_ontology")
                 .setRefTable("Diseases")));
@@ -684,19 +688,32 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(ontologyTest, "Patients"), handler);
 
-    Set<Value> expected =
+    Set<Value> expectedSemantic =
         Set.of(
             Values.iri("https://icd.who.int/browse10/2019/en#/U07"),
             Values.iri(
                 getApi(ontologyTest)
                     + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
-    Set<Value> actual =
+    Set<Value> expectedNonSemantic =
+        Set.of(
+            Values.iri(getApi(ontologyTest) + "Diseases?name=U07"),
+            Values.iri(
+                getApi(ontologyTest)
+                    + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
+
+    Set<Value> actualSemantic =
+        handler
+            .resources
+            .get(Values.iri(getApi(ontologyTest) + "Patients?name=bob"))
+            .get(Values.iri("http://purl.obolibrary.org/obo/NCIT_C2991"));
+    Set<Value> actualNonSemantic =
         handler
             .resources
             .get(Values.iri(getApi(ontologyTest) + "Patients?name=bob"))
             .get(Values.iri(getApi(ontologyTest) + "Patients/column/diseases"));
 
-    assertEquals(expected, actual);
+    assertEquals(expectedSemantic, actualSemantic);
+    assertEquals(expectedNonSemantic, actualNonSemantic);
   }
 
   @Test
@@ -704,19 +721,32 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(ontologyCrossSchemaTest, "Patients"), handler);
 
-    Set<Value> expected =
+    Set<Value> expectedSemantic =
         Set.of(
             Values.iri("https://icd.who.int/browse10/2019/en#/U07"),
             Values.iri(
                 getApi(ontologyTest)
                     + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
-    Set<Value> actual =
+    Set<Value> expectedNonSemantic =
+        Set.of(
+            Values.iri(getApi(ontologyTest) + "Diseases?name=U07"),
+            Values.iri(
+                getApi(ontologyTest)
+                    + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
+
+    Set<Value> actualSemantic =
+        handler
+            .resources
+            .get(Values.iri(getApi(ontologyCrossSchemaTest) + "Patients?name=pim"))
+            .get(Values.iri("http://purl.obolibrary.org/obo/NCIT_C2991"));
+    Set<Value> actualNonSemantic =
         handler
             .resources
             .get(Values.iri(getApi(ontologyCrossSchemaTest) + "Patients?name=pim"))
             .get(Values.iri(getApi(ontologyCrossSchemaTest) + "Patients/column/diseases"));
 
-    assertEquals(expected, actual);
+    assertEquals(expectedSemantic, actualSemantic);
+    assertEquals(expectedNonSemantic, actualNonSemantic);
   }
 
   @Test

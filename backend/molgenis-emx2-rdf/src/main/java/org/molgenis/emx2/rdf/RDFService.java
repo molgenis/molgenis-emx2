@@ -549,6 +549,14 @@ public class RDFService {
         continue;
       }
       IRI columnIRI = getColumnIRI(column);
+
+      // Non-default behaviour for non-semantic values to ontology table.
+      if (column.getColumnType().equals(ColumnType.ONTOLOGY)
+          || column.getColumnType().equals(ColumnType.ONTOLOGY_ARRAY)) {
+        retrieveValues(rdfMapData, row, column, ColumnTypeRdfMapper.RdfColumnType.REFERENCE)
+            .forEach(value -> builder.add(subject, columnIRI, value));
+      }
+
       for (final Value value : retrieveValues(rdfMapData, row, column)) {
         if (column.getSemantics() != null) {
           for (String semantics : column.getSemantics()) {
@@ -556,32 +564,34 @@ public class RDFService {
                 subject.stringValue(),
                 getSemanticValue(table.getMetadata(), namespaces, semantics),
                 value);
-            //                builder.add(
-            //                    // subject, Values.iri(semantics), value);
-            //                    subject, Values.iri(semantics.split(":")[0],
-            // semantics.split(":")[1]), value);
           }
         }
-        builder.add(subject, columnIRI, value);
-        if (column.getColumnType().equals(ColumnType.HYPERLINK)
-            || column.getColumnType().equals(ColumnType.HYPERLINK_ARRAY)) {
-          var resource = Values.iri(value.stringValue());
-          builder.add(resource, RDFS.LABEL, Values.literal(value.stringValue()));
-        }
-        // Adds file metadata.
-        if (column.isFile()) {
-          IRI fileSubject = (IRI) value;
-          builder.add(fileSubject, RDF.TYPE, IRI_FILE);
-          builder.add(
-              fileSubject,
-              DCTERMS.TITLE,
-              Values.literal(row.getString(column.getName() + "_filename")));
-          builder.add(
-              fileSubject,
-              DCTERMS.FORMAT,
-              Values.iri(
-                  "http://www.iana.org/assignments/media-types/"
-                      + row.getString(column.getName() + "_mimetype")));
+
+        switch (column.getColumnType()) {
+          case ONTOLOGY, ONTOLOGY_ARRAY -> {} // skipped due to custom behaviour above
+          case HYPERLINK, HYPERLINK_ARRAY -> {
+            builder.add(subject, columnIRI, value);
+            var resource = Values.iri(value.stringValue());
+            builder.add(resource, RDFS.LABEL, Values.literal(value.stringValue()));
+          }
+          case FILE -> {
+            builder.add(subject, columnIRI, value);
+            IRI fileSubject = (IRI) value;
+            builder.add(fileSubject, RDF.TYPE, IRI_FILE);
+            builder.add(
+                fileSubject,
+                DCTERMS.TITLE,
+                Values.literal(row.getString(column.getName() + "_filename")));
+            builder.add(
+                fileSubject,
+                DCTERMS.FORMAT,
+                Values.iri(
+                    "http://www.iana.org/assignments/media-types/"
+                        + row.getString(column.getName() + "_mimetype")));
+          }
+          default -> {
+            builder.add(subject, columnIRI, value);
+          }
         }
       }
     }
