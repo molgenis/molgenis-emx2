@@ -260,3 +260,4 @@ If your institution is not listed, or you encounter any other difficulties, [sen
 After creating your account and logging in, your account needs to be linked to the resource(s) you will be working on.
 Contact us at [support@molgenis.org](mailto:support@molgenis.org) with your account e-mail address and
 the resource(s) you will be working on to get the necessary access permissions.
+Please make sure to include the PI, head, or other person responsible for the management of your resource on CC.
