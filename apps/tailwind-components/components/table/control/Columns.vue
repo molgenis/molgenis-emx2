@@ -65,6 +65,7 @@ const props = defineProps<{
 const emits = defineEmits(["update:columns"]);
 
 const showModal = ref(false);
+const columnsInColumnsSelectModal = ref<IColumnConfig[]>([]);
 
 interface IColumnConfig {
   id: string;
@@ -73,13 +74,11 @@ interface IColumnConfig {
   visible: boolean;
 }
 
-const columnsInColumnsSelectModal = ref<IColumnConfig[]>([]);
-
 watch(
   () => props.columns,
   (value) => {
     columnsInColumnsSelectModal.value = value
-      .map(columToColumnConfig)
+      .map(columnToColumnConfig)
       .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
   }
 );
@@ -91,7 +90,6 @@ function handleColumnDragEvent(event: {
     oldIndex: number;
   };
 }) {
-  console.log(event);
   columnsInColumnsSelectModal.value.forEach((column) => {
     if (column.id === event.moved.element.id) {
       column.position = event.moved.newIndex;
@@ -110,15 +108,14 @@ function handleColumnDragEvent(event: {
 }
 
 function handleCancel() {
-  // reset to initial state
-  columnsInColumnsSelectModal.value = props.columns.map(columToColumnConfig);
+  columnsInColumnsSelectModal.value = props.columns.map(columnToColumnConfig);
   showModal.value = false;
 }
 
 function handleSave() {
   const updated = props.columns.map((column) => {
     const columnConfig = columnsInColumnsSelectModal.value.find(
-      (c) => c.id === column.id
+      (col) => col.id === column.id
     );
     if (columnConfig) {
       column.position = columnConfig.position;
@@ -130,7 +127,7 @@ function handleSave() {
   showModal.value = false;
 }
 
-function columToColumnConfig(column: IColumn): IColumnConfig {
+function columnToColumnConfig(column: IColumn): IColumnConfig {
   return {
     id: column.id,
     label: column.label || column.id,
