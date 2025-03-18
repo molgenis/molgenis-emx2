@@ -123,9 +123,9 @@ For the example below, keep in mind that the referenced ontology table contains 
 | blue   | colors |                                |
 | purple | colors |                                |
 
-The objects of the <span style="color:#FF8C82">non-semantic predicate</span> are IRIs that refer to the primary key of the ontology table (like a regular reference).  
+The <span style="color:#FF8C82">objects of the non-semantic predicate</span> are IRIs that refer to the primary key of the ontology table (like a regular reference).  
 
-However, the objects of the <span style="color:#94E3FE">semantic predicate</span> contain the `ontologyTermURI` belonging to that ontology reference, if one was found (as can be seen for "red" and "green"). If no `ontologyTermURI` was defined, it uses the primary key of the ontology table instead (see "purple").
+However, the <span style="color:#94E3FE">objects of the semantic predicate</span> contain the `ontologyTermURI` belonging to that ontology reference, if one was found (as can be seen for "red" and "green"). If no `ontologyTermURI` was defined, it uses the primary key of the ontology table instead (see "purple").
 
 
 <pre style="white-space: pre-wrap;">
@@ -137,10 +137,10 @@ rdfs:label "fire ant";
 &lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/name&gt; "fire ant";
 &lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/category&gt; &lt;http://localhost:8080/pet%20store/api/rdf/Category?name=ant&gt;;
 &lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/status&gt; "available";
-<span style="color:#FF8C82">&lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/tags&gt; &lt;http://localhost:8080/pet%20store/api/rdf/Tag?name=purple&gt;,
-&lt;http://localhost:8080/pet%20store/api/rdf/Tag?name=green&gt;, &lt;http://localhost:8080/pet%20store/api/rdf/Tag?name=red&gt;;</span>
-<span style="color:#94E3FE">&lt;http://example.com/petstore#hasTags&gt; &lt;http://localhost:8080/pet%20store/api/rdf/Tag?name=purple&gt;,
-&lt;https://dbpedia.org/page/Red&gt;, &lt;https://dbpedia.org/page/Green&gt;;</span>
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/tags&gt; <span style="color:#FF8C82">&lt;http://localhost:8080/pet%20store/api/rdf/Tag?name=purple&gt;,
+&lt;http://localhost:8080/pet%20store/api/rdf/Tag?name=green&gt;, &lt;http://localhost:8080/pet%20store/api/rdf/Tag?name=red&gt;</span>;
+&lt;http://example.com/petstore#hasTags&gt; <span style="color:#94E3FE">&lt;http://localhost:8080/pet%20store/api/rdf/Tag?name=purple&gt;,
+&lt;https://dbpedia.org/page/Red&gt;, &lt;https://dbpedia.org/page/Green&gt;</span>;
 &lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/weight&gt; 1.0E-2;
 &lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/mg_insertedOn&gt; "2025-03-18T12:04:55"^^xsd:dateTime;
 &lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/mg_updatedOn&gt; "2025-03-18T12:04:55"^^xsd:dateTime .
