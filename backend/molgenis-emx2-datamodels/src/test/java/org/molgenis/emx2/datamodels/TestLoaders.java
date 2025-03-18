@@ -36,6 +36,7 @@ public class TestLoaders {
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
   public static final String DASHBOARD_TEST = "UiDashboardTest";
   public static final String PATIENT_REGISTRY_DEMO = "patientRegistryDemo";
+  public static final String DATA_CATALOGUE_FEDERATED_DATA_ACCESS = "FederatedDataAccess";
   static Database database;
 
   @BeforeAll
@@ -63,6 +64,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(PROJECT_MANAGER);
     database.dropSchemaIfExists(DASHBOARD_TEST);
+    database.dropSchemaIfExists(DATA_CATALOGUE_FEDERATED_DATA_ACCESS)
     // delete ontologies last
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
@@ -203,5 +205,12 @@ public class TestLoaders {
     Schema schema = database.dropCreateSchema(PATIENT_REGISTRY_DEMO);
     DataModels.Regular.PATIENT_REGISTRY_DEMO.getImportTask(schema, true).run();
     assertEquals(86, schema.getTableNames().size());
+  }
+
+  @Test
+  public void test19DataCatalogueFederatedDataAccessLoader() {
+    Schema schema = database.createSchema(DATA_CATALOGUE_FEDERATED_DATA_ACCESS);
+    DataModels.Profile.DATA_CATALOGUE_FEDERATED_DATA_ACCESS.getImportTask(schema, true).run();
+    assertEquals(1, schema.getTableNames().size());
   }
 }
