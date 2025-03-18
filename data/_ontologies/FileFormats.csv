@@ -578,3 +578,4 @@ GEO Matrix Series format,GEO Matrix Series format,SWO,SWO_1100126,http://www.ebi
 crai,CRAI,,,
 phenopacketJSON,"JavaScript Object Notation PhenoPacket a lightweight, text-based format to represent tree-structured data using key-value pairs.",EDAM,format:3464,http://edamontology.org/format_3464
 gVCF,"Genomic Variant Call Format (VCF) for sequence variation (indels, polymorphisms, structural variation).",EDAM,format:3016,http://edamontology.org/format_3016
+md5,MD5 Checksum,NCIT,NCIT_C171276,http://purl.obolibrary.org/obo/NCIT_C171276

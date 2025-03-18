@@ -15,6 +15,6 @@ defineProps<{
     <p class="mt-2" v-if="description">{{ description }}</p>
     <slot></slot>
     <h2 class="text-heading-xl mt-4">Source code:</h2>
-    <SourceCode :id="title" class="mt-4" />
+    <SourceCode :id="title" />
   </div>
 </template>

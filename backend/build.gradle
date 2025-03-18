@@ -65,11 +65,11 @@ subprojects {
         implementation 'org.eclipse.rdf4j:rdf4j-rio-nquads:5.0.1'
         implementation 'org.eclipse.rdf4j:rdf4j-shacl:5.0.1'
 
-        //also used outside test
+        // also used outside test
         implementation 'org.junit.jupiter:junit-jupiter:5.10.3'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
         testImplementation 'org.mockito:mockito-core:5.6.0'
-        //allows to set environment variables in test
+        // allows to set environment variables in test
         testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
     }
 

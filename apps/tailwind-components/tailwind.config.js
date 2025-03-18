@@ -158,16 +158,13 @@ module.exports = {
         "tab": "var(--background-color-tab)",
         "tab-hover": "var(--background-color-tab-hover)",
         "tab-active": "var(--background-color-tab-active)",
-        
         "valid": "var(--color-valid-background)",
         "invalid": "var(--color-invalid-background)",
         "disabled": "var(--color-disabled-background)",
         "neutral": "var(--color-neutral-background)",
-        
         "input": "var(--background-color-input)",
-        "listbox": "var(--background-color-listbox)",
-        "listbox-hover": "var(--background-color-listbox-hover)",
-        "listbox-selected": "var(--background-color-listbox-selected)",
+        "input-focused": "var(--background-color-input-focused)",
+        "input-checked": "var(--background-color-button-primary)",
         "table": "var(--background-color-table)",
         "notification": "var(--background-color-notification)",
         "code-output": "var(--background-color-code-output)",
@@ -221,8 +218,11 @@ module.exports = {
         "link": "var(--text-color-link)",
         "table-column-header": "var(--text-color-table-column-header)",
         "form-header": "var(--text-color-form-header)",
+        
         "input": "var(--text-color-input)",
         "input-description": "var(--text-color-input-description)",
+        "input-checked": "var(--text-color-button-primary)",
+        "input-focused": "var(--text-color-button-primary)",
         
         "invalid": "var(--color-invalid-foreground)",
         "neutral": "var(--color-neutral-foreground)",
@@ -230,9 +230,6 @@ module.exports = {
         "disabled": "var(--color-disabled-foreground)",
         
         "required": "var(--text-color-required)",
-        "listbox": "var(--text-color-listbox)",
-        "listbox-hover": "var(--text-color-listbox-hover)",
-        "listbox-selected": "var(--text-color-listbox-selected)",
         "button-input-toggle": "var(--text-color-button-input-toggle)",
         "legend-error-count": "var(--text-color-legend-error-count)",
         "code-output": "var(--text-color-code-output)",
@@ -265,11 +262,10 @@ module.exports = {
         "input-hover": "var(--border-color-input-hover)",
         "input-inverted": "var(--border-color-input-inverted)",
         "input-focused": "var(--border-color-input-focused)",
-        "listbox": "var(--border-color-search-input)",
-        "listbox-option": "var(--border-color-listbox-option)",
       }),
       stroke: ({ theme }) => ({
         "input": "var(--border-color-input)",
+        "input-checked": "var(--text-color-button-primary)",
         "input-focused": "var(--border-color-input-focused)",
         "notification-text": "var(--text-color-legend-error-count)",
         "check": "var(--text-color-button-primary)",
@@ -281,8 +277,7 @@ module.exports = {
       fill: ({ theme }) => ({
         "input": "var(--background-color-input)",
         "input-focused": "var(--background-color-input-focused)",
-        "input-checked": "var(--background-color-input-checked)",
-        "listbox-selected": "var(--text-color-listbox-selected)",
+        "input-checked": "var(--background-color-button-primary)",
         "notification": "var(--background-color-notification)",
         "notification-text": "var(--text-color-legend-error-count)",
         "check": "var(--text-color-button-primary)",
