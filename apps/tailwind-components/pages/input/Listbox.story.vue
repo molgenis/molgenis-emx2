@@ -1,6 +1,6 @@
 <template>
   <h2 class="text-heading-2xl">Listbox component</h2>
-  <form class="mb-6 bg-white rounded p-4">
+  <form class="mb-6 rounded p-4 text-title">
     <legend class="mb-2 text-heading-lg">
       Configure the listbox component
     </legend>
@@ -42,7 +42,7 @@
           :showClearButton="true"
         />
       </div>
-      <div class="bg-white p-2 grow">
+      <div class="p-2 grow">
         <InputLabel for="listbox-placeholder">
           Change the default placeholder text
         </InputLabel>
@@ -50,7 +50,7 @@
       </div>
     </div>
   </form>
-  <div class="mb-6 bg-white rounded px-6 py-8">
+  <div class="mb-6 rounded px-6 py-8 text-title">
     <h3 class="text-heading-lg mb-2">Listbox example</h3>
     <InputLabel
       id="listbox-input-label"
@@ -71,18 +71,18 @@
       :placeholder="listboxPlaceholder"
       @update:model-value="(value) => (modelValue = value)"
     />
-    <output class="block w-full mt-6 bg-gray-100 py-3 px-2 pl-6">
+    <output class="block w-full mt-6 border py-3 px-2 pl-6">
       <code
         >Output {{ listboxDataType === "true" ? "Value" : "Object" }}:
         {{ modelValue }}</code
       >
     </output>
   </div>
-  <div class="mb-2 bg-white rounded p-6">
+  <div class="mb-2 rounded p-6 text-title">
     <h3 class="text-heading-lg mb-2">Input data structure</h3>
     <p>Based on the selection above, the input data is shown below.</p>
     <output
-      class="block w-full mt-6 bg-gray-100 py-3 px-2 pl-6 h-60 overflow-y-scroll shadow-inner"
+      class="block w-full mt-6 border py-3 px-2 pl-6 h-60 overflow-y-scroll shadow-inner"
     >
       <pre class="indent-[-5em]">
         {{ listboxData }}
