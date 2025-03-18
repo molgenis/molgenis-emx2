@@ -32,7 +32,7 @@ public class BeaconApi {
   }
 
   private static void defineRoutes(Javalin app, String basePath) {
-    app.before(basePath + "/*", BeaconApi::processRequest);
+    app.before(basePath + "/*", BeaconApi::beforeRequest);
 
     app.get(basePath, BeaconApi::getInfo);
     app.get(basePath + "/", BeaconApi::getInfo);
@@ -48,7 +48,7 @@ public class BeaconApi {
     app.post(basePath + "/{entry_type}", BeaconApi::postEntryType);
   }
 
-  private static void processRequest(Context ctx) {
+  private static void beforeRequest(Context ctx) {
     extractSpecification(ctx);
     ctx.contentType(Constants.ACCEPT_JSON);
   }

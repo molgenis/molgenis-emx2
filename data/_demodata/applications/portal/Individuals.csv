@@ -17,8 +17,8 @@ Case5F,assigned male at birth,Case5,EGAS00001005702,EGAD00001008392,,,
 Case6C,assigned male at birth,Case6,EGAS00001005702,EGAD00001008392,,,
 Case6F,assigned male at birth,Case6,EGAS00001005702,EGAD00001008392,,,
 Case6M,assigned female at birth,Case6,EGAS00001005702,EGAD00001008392,,,
-Ind001,assigned female at birth,,DUMMY,Dummy data,,,
-Ind002,assigned male at birth,,DUMMY,Dummy data,,,
+Ind001,assigned female at birth,,DUMMY,Dummy data,Adult (18+ years),1993,July
+Ind002,assigned male at birth,,DUMMY,Dummy data,Child (2-12 years),2022,August
 MinIndNoRefs003,assigned indeterminate at birth,,DUMMY,Dummy data,,,
 MinInd004,assigned unspecified at birth,,DUMMY,Dummy data,,,
-Ind005,assigned indeterminate at birth,,DUMMY,Dummy data,,,
+Ind005,assigned indeterminate at birth,,DUMMY,Dummy data,,1993,

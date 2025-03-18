@@ -115,10 +115,10 @@ public class QueryBuilder {
       if (column.isReference()) {
         if (column.getName().equals("parent") || column.getName().equals("children")) continue;
         if (!column.isOntology()) {
-          if (seenTables.contains(column.getName().toLowerCase())) {
+          if (seenTables.contains(column.getRefTableName().toLowerCase())) {
             continue;
           } else {
-            seenTables.add(column.getName().toLowerCase());
+            seenTables.add(column.getRefTableName().toLowerCase());
           }
         }
         if (currentDepth < maxDepth) {
