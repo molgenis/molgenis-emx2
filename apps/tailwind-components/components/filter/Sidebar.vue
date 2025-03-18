@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import type {
-  IFilter,
-  IOntologyFilter,
-  IRefArrayFilter,
-} from "~/interfaces/types";
+import type { IFilter, IOntologyFilter, IRefArrayFilter } from "~/types/types";
 const props = withDefaults(
   defineProps<{
+    id: string;
     title: string;
     filters: IFilter[];
     mobileDisplay?: boolean;
@@ -17,7 +14,7 @@ const props = withDefaults(
 
 const emit = defineEmits(["update:filters"]);
 
-function handleFilerUpdate(filter: IFilter) {
+function handleFilterUpdate(filter: IFilter) {
   const index = props.filters.findIndex((f: IFilter) => f.id === filter.id);
   const newFilters = [...props.filters];
   newFilters[index] = filter;
@@ -42,12 +39,12 @@ function handleFilerUpdate(filter: IFilter) {
         v-for="filter in filters"
         :title="filter.config.label"
         :conditions="(filter as IOntologyFilter | IRefArrayFilter).conditions ? (filter as IOntologyFilter | IRefArrayFilter).conditions : []"
-        @update:conditions="(value) => {(filter as IOntologyFilter).conditions = value; handleFilerUpdate(filter)}"
+        @update:conditions="(value) => {(filter as IOntologyFilter).conditions = value; handleFilterUpdate(filter)}"
         :search="filter.search"
         @update:search="
           (value) => {
             filter.search = value;
-            handleFilerUpdate(filter);
+            handleFilterUpdate(filter);
           }
         "
         :mobileDisplay="mobileDisplay"
@@ -60,28 +57,32 @@ function handleFilerUpdate(filter: IFilter) {
           @update:model-value="
             (value) => {
               filter.search = value;
-              handleFilerUpdate(filter);
+              handleFilterUpdate(filter);
             }
           "
         />
-        <FilterOntology
+        <InputOntology
           v-else-if="filter.config.type === 'ONTOLOGY'"
-          :table-id="filter.config.ontologyTableId"
+          :id="id + '-' + filter.id"
+          :ontologySchemaId="filter.config.ontologySchemaId"
+          :ontologyTableId="filter.config.ontologyTableId"
           :filter="filter.config.filter"
           :mobileDisplay="mobileDisplay"
           :filterLabel="filter.config.label"
           :model-value="(filter as IOntologyFilter).conditions "
-          @update:model-value="(value) => {(filter as IOntologyFilter).conditions = value; handleFilerUpdate(filter)}"
+          @update:model-value="(value) => {(filter as IOntologyFilter).conditions = value; handleFilterUpdate(filter)}"
         />
-        <FilterList
+        <InputRef
           v-else-if="filter.config.type === 'REF_ARRAY'"
-          :table-id="filter.config.refTableId"
+          :id="id + '-' + filter.id"
+          :isArray="true"
+          :refTableId="filter.config.refTableId"
+          :refSchemaId="filter.config.refSchemaId"
+          :refLabel="filter.config.refLabel"
           :mobileDisplay="mobileDisplay"
-          :name-field="filter.config.refFields?.name"
-          :descriptionField="filter.config.refFields?.description"
-          :options="(filter as IRefArrayFilter).options"
+          :refDescription="filter.config.refDescription"
           :model-value="(filter as IRefArrayFilter).conditions"
-          @update:model-value="(value) => {(filter as IRefArrayFilter).conditions = value; handleFilerUpdate(filter)}"
+          @update:model-value="(value) => {(filter as IRefArrayFilter).conditions = value; handleFilterUpdate(filter)}"
         />
       </FilterContainer>
     </template>

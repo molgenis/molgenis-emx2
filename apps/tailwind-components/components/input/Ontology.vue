@@ -6,14 +6,14 @@ import type { Ref } from "vue";
 const props = defineProps<
   IInputProps & {
     isArray?: boolean;
-    //todo: do we need to change to radio button instead of checkboxes when !isArray?
-    ontologySchemaId: string;
+    ontologySchemaId?: string;
     ontologyTableId: string;
+    filter?: any;
   }
 >();
 const emit = defineEmits(["focus", "blur"]);
 //the selected values
-const modelValue = defineModel<string[] | string>();
+const modelValue = defineModel<string[] | string | undefined>();
 //labels for the selected values
 const valueLabels: Ref<Record<string, string>> = ref({});
 //state of the tree that is shown
@@ -40,9 +40,12 @@ async function retrieveTerms(
   parentNode: ITreeNodeState | undefined = undefined
 ): Promise<ITreeNodeState[]> {
   const variables: any = {
-    termFilter: parentNode
-      ? { parent: { name: { equals: parentNode.name } } }
-      : { parent: { _is_null: true } },
+    termFilter: Object.assign(
+      props.filter || {},
+      parentNode
+        ? { parent: { name: { equals: parentNode.name } } }
+        : { parent: { _is_null: true } }
+    ),
   };
 
   if (searchTerms.value) {
