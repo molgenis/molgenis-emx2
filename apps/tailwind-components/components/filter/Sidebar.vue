@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { IFilter, IOntologyFilter, IRefArrayFilter } from "~/types/types";
+import type { columnValueObject } from "../../../metadata-utils/src/types";
 const props = withDefaults(
   defineProps<{
     id: string;
@@ -64,13 +65,14 @@ function handleFilterUpdate(filter: IFilter) {
         <InputOntology
           v-else-if="filter.config.type === 'ONTOLOGY'"
           :id="id + '-' + filter.id"
+          :is-array="true"
           :ontologySchemaId="filter.config.ontologySchemaId"
           :ontologyTableId="filter.config.ontologyTableId"
           :filter="filter.config.filter"
           :mobileDisplay="mobileDisplay"
           :filterLabel="filter.config.label"
-          :model-value="(filter as IOntologyFilter).conditions "
-          @update:model-value="(value) => {(filter as IOntologyFilter).conditions = value; handleFilterUpdate(filter)}"
+          :model-value="(filter as IOntologyFilter).conditions as string[]"
+          @update:model-value="(value: string[]) => {(filter as IOntologyFilter).conditions = value; handleFilterUpdate(filter)}"
         />
         <InputRef
           v-else-if="filter.config.type === 'REF_ARRAY'"
@@ -81,8 +83,8 @@ function handleFilterUpdate(filter: IFilter) {
           :refLabel="filter.config.refLabel"
           :mobileDisplay="mobileDisplay"
           :refDescription="filter.config.refDescription"
-          :model-value="(filter as IRefArrayFilter).conditions"
-          @update:model-value="(value) => {(filter as IRefArrayFilter).conditions = value; handleFilterUpdate(filter)}"
+          :model-value="(filter as IRefArrayFilter).conditions as columnValueObject[]"
+          @update:model-value="(value: columnValueObject[]) => {(filter as IRefArrayFilter).conditions = value; handleFilterUpdate(filter)}"
         />
       </FilterContainer>
     </template>

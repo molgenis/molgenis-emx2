@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { IFilter } from "~/types/types";
 
-const demoFilter: IFilter[] = ref([
+const demoFilter: Ref<IFilter[]> = ref([
   {
     id: "search",
     config: {
@@ -37,19 +37,19 @@ const demoFilter: IFilter[] = ref([
     },
     conditions: [],
   },
-  {
-    id: "resources",
-    config: {
-      label: "Sources",
-      type: "REF_ARRAY",
-      refTableId: "Resources",
-      refSchemaId: "catalogue-demo",
-      refLabel: "${id}",
-      refDescription: "${name}",
-      initialCollapsed: false,
-    },
-    conditions: [],
-  },
+  // {
+  //   id: "resources",
+  //   config: {
+  //     label: "Sources",
+  //     type: "REF_ARRAY",
+  //     refTableId: "Resources",
+  //     refSchemaId: "catalogue-demo",
+  //     refLabel: "${id}",
+  //     refDescription: "${name}",
+  //     initialCollapsed: false,
+  //   },
+  //   conditions: [],
+  // },
 ]);
 </script>
 

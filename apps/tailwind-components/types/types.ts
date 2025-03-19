@@ -153,7 +153,7 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   type: "ONTOLOGY";
   ontologyTableId: string;
   ontologySchemaId: string;
-  filter: Record<string, IFilter>;
+  filter?: Record<string, IFilter>;
   columnId: string;
   refFields?: filterRefField;
 }
@@ -185,12 +185,8 @@ type filterRefField = {
   [key: string]: string;
 };
 
-export type IFilterCondition = {
-  [id: string]: IFilterCondition | string;
-};
-
 export interface IOntologyFilter extends IAbstractFilter {
-  conditions: IFilterCondition[];
+  conditions: columnValue;
   config: IOntologyFilterConfig;
 }
 
@@ -201,7 +197,7 @@ export interface optionsFetchFn {
 }
 
 export interface IRefArrayFilter extends IAbstractFilter {
-  conditions: IFilterCondition[];
+  conditions: columnValue[];
   config: IRefArrayFilterCustomConfig | IRefArrayFilterDefaultConfig;
   options?: INode[] | optionsFetchFn;
 }
