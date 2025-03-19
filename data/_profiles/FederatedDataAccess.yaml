@@ -14,4 +14,4 @@ setFixedSchemaViewPermission: anonymous
 firstCreateSchemasIfMissing:
   - name: catalogue
     profile: _profiles/DataCatalogue.yaml
-    importDemoData: true
+    importDemoData: false
