@@ -22,7 +22,8 @@ const databases = computed(
 
 const schemaId = ref(
   databases.value.find(
-    (d) => d.label === "pet store" || d.id === "catalogue-demo"
+    (database) =>
+      database.label === "pet store" || database.id === "catalogue-demo"
   )?.id || ""
 );
 
@@ -63,7 +64,7 @@ const {
   fetchTableData(schemaId.value, tableId.value)
 );
 
-watch(schemaId, async () => {
+watch(schemaId, () => {
   refetchMetadata().then(() => {
     if (metadata.value) {
       tableId.value = metadata.value.tables[0].id;
@@ -72,9 +73,7 @@ watch(schemaId, async () => {
   });
 });
 
-watch(tableId, async () => {
-  refetchTableData();
-});
+watch(tableId, () => refetchTableData);
 
 const tableColumns = computed(() => {
   return (

@@ -11,7 +11,6 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
     "format": "prettier components composables gql interfaces pages plugins utils tests stores  --write --config ../.prettierrc.js --gitignore",
     "checkFormat": "prettier components composables gql interfaces pages plugins utils tests stores --check --config ../.prettierrc.js --gitignore",
     "typecheck": "nuxi typecheck"

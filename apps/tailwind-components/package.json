@@ -12,7 +12,6 @@
     "dev": "yarn generate-source-map && nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
     "format": "prettier components pages tests layouts composables --write --config ../.prettierrc.js",
     "checkFormat": "prettier components pages tests layouts composables --check --config ../.prettierrc.js",
     "test": "vitest",

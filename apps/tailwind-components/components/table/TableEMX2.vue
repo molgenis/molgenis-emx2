@@ -1,65 +1,3 @@
-<script setup lang="ts">
-import type { ITableSettings, sortDirection } from "~/types/types";
-import type { IColumn } from "../../../metadata-utils/src/types";
-
-const props = withDefaults(
-  defineProps<{
-    tableId: string;
-    columns: IColumn[];
-    rows: Record<string, any>[];
-    count: number;
-    settings?: ITableSettings;
-  }>(),
-  {
-    settings: {
-      //@ts-ignore
-      tableId: "",
-      page: 1,
-      pageSize: 10,
-      orderby: { column: "", direction: "ASC" },
-      search: "",
-    },
-  }
-);
-
-const emit = defineEmits(["update:settings"]);
-const mgAriaSortMappings = {
-  ASC: "ascending",
-  DESC: "descending",
-};
-
-function handleSortRequest(columnId: string) {
-  let direction: sortDirection = "ASC";
-  if (props.settings.orderby.column === columnId) {
-    direction = props.settings.orderby.direction === "ASC" ? "DESC" : "ASC";
-  }
-
-  emit("update:settings", {
-    ...props.settings,
-    orderby: { column: columnId, direction },
-  });
-}
-
-function handleSearchRequest(search: string) {
-  emit("update:settings", {
-    ...props.settings,
-    search,
-  });
-}
-
-function handlePagingRequest(page: number) {
-  emit("update:settings", {
-    ...props.settings,
-    page,
-  });
-}
-
-const sortedVisibleColumns = computed(() =>
-  props.columns
-    .filter((column) => column.visible !== "false")
-    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-);
-</script>
 <template>
   <div class="flex pb-[30px] justify-between">
     <FilterSearch
@@ -69,7 +7,10 @@ const sortedVisibleColumns = computed(() =>
       :inverted="true"
     >
     </FilterSearch>
-    <TableControleColumns :columns="columns" />
+    <TableControlColumns
+      :columns="props.columns"
+      @update:columns="handleColumnsUpdate"
+    />
   </div>
 
   <div class="overflow-auto rounded-b-50px">
@@ -119,7 +60,7 @@ const sortedVisibleColumns = computed(() =>
             <TableCellTypesEMX2
               v-for="column in sortedVisibleColumns"
               :scope="column.key === 1 ? 'row' : null"
-              :metaData="column"
+              :metadata="column"
               :data="row[column.id]"
             />
           </tr>
@@ -135,3 +76,80 @@ const sortedVisibleColumns = computed(() =>
     @update="handlePagingRequest($event)"
   />
 </template>
+
+<script setup lang="ts">
+import type { ITableSettings, sortDirection } from "~/types/types";
+import type { IColumn } from "../../../metadata-utils/src/types";
+import { sortColumns } from "~/utils/sortColumns";
+
+const props = withDefaults(
+  defineProps<{
+    tableId: string;
+    columns: IColumn[];
+    rows: Record<string, any>[];
+    count: number;
+    settings?: ITableSettings;
+  }>(),
+  {
+    settings: {
+      //@ts-ignore
+      tableId: "",
+      page: 1,
+      pageSize: 10,
+      orderby: { column: "", direction: "ASC" },
+      search: "",
+    },
+  }
+);
+
+const columns = ref(props.columns);
+
+const emit = defineEmits(["update:settings", "update:columns"]);
+const mgAriaSortMappings = {
+  ASC: "ascending",
+  DESC: "descending",
+};
+
+const sortedVisibleColumns = computed(() => {
+  const visibleColumns = columns.value.filter(
+    (column) => column.visible !== "false"
+  );
+  console.log(columns.value);
+  return sortColumns(visibleColumns);
+});
+
+function handleSortRequest(columnId: string) {
+  const direction: sortDirection = getDirection(columnId);
+
+  emit("update:settings", {
+    ...props.settings,
+    orderby: { column: columnId, direction },
+  });
+}
+
+function getDirection(columnId: string): sortDirection {
+  if (props.settings.orderby.column === columnId) {
+    return props.settings.orderby.direction === "ASC" ? "DESC" : "ASC";
+  } else {
+    return "ASC";
+  }
+}
+
+function handleSearchRequest(search: string) {
+  emit("update:settings", {
+    ...props.settings,
+    search,
+  });
+}
+
+function handlePagingRequest(page: number) {
+  emit("update:settings", {
+    ...props.settings,
+    page,
+  });
+}
+
+function handleColumnsUpdate(newColumns: IColumn[]) {
+  columns.value = newColumns;
+}
+</script>

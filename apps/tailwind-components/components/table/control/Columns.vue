@@ -1,7 +1,7 @@
 <template>
-  <Button type="outline" icon="columns" size="small" @click="showModal = true"
-    >Columns</Button
-  >
+  <Button type="outline" icon="columns" size="small" @click="showModal = true">
+    Columns
+  </Button>
   <SideModal
     class="hidden"
     :slide-in-right="true"
@@ -32,8 +32,9 @@
                 <label
                   class="hover:cursor-pointer text-body-sm group"
                   :for="element.id"
-                  >{{ element.label }}</label
                 >
+                  {{ element.label }}
+                </label>
               </div>
               <BaseIcon name="equal" class="hover:cursor-grab" />
             </div>
@@ -56,6 +57,8 @@
 
 <script setup lang="ts">
 import draggable from "vuedraggable";
+import type { IColumnConfig } from "~/types/types";
+import { sortColumns } from "~/utils/sortColumns";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 
 const props = defineProps<{
@@ -65,22 +68,8 @@ const props = defineProps<{
 const emits = defineEmits(["update:columns"]);
 
 const showModal = ref(false);
-const columnsInColumnsSelectModal = ref<IColumnConfig[]>([]);
-
-interface IColumnConfig {
-  id: string;
-  label: string;
-  position: number;
-  visible: boolean;
-}
-
-watch(
-  () => props.columns,
-  (value) => {
-    columnsInColumnsSelectModal.value = value
-      .map(columnToColumnConfig)
-      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-  }
+const columnsInColumnsSelectModal = ref<IColumnConfig[]>(
+  sortColumns(props.columns.map(columnToColumnConfig))
 );
 
 function handleColumnDragEvent(event: {
@@ -104,22 +93,29 @@ function handleColumnDragEvent(event: {
     ) {
       column.position = (column.position ?? 0) - 1;
     }
+    console.log(column.id, column.position);
   });
 }
 
 function handleCancel() {
-  columnsInColumnsSelectModal.value = props.columns.map(columnToColumnConfig);
+  columnsInColumnsSelectModal.value = sortColumns(
+    props.columns.map(columnToColumnConfig)
+  );
   showModal.value = false;
 }
 
 function handleSave() {
-  const updated = props.columns.map((column) => {
+  const updated = props.columns.map((column: IColumn) => {
     const columnConfig = columnsInColumnsSelectModal.value.find(
       (col) => col.id === column.id
     );
     if (columnConfig) {
-      column.position = columnConfig.position;
-      column.visible = columnConfig.visible ? "true" : "false";
+      const newColumn = { ...column };
+      newColumn.position = columnConfig.position;
+      newColumn.visible = columnConfig.visible ? "true" : "false";
+      return newColumn;
+    } else {
+      return column;
     }
   });
 
