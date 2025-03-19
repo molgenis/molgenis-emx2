@@ -8,9 +8,13 @@ import pandas as pd
 
 DATA_DIR = Path(__file__).parent.parent.absolute()
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger("merge")
+
 def move_fdp_tables():
     """Moves the tables in the _models/shared directory that are not part of the data catalogue model."""
 
+    logger.info("Moving tables.")
     # Create the directory
     if not (fdp_dir := (DATA_DIR / "_models" / "specific" / "fdp")).exists():
         fdp_dir.mkdir()
@@ -25,11 +29,11 @@ def move_fdp_tables():
         if df["profiles"].str.contains("DataCatalogueFlat").any():
             continue
         # Move to new directory
-        logging.info(f"Moving file {table_path.name!r} to 'specific/fdp'.")
+        logger.info(f"Moving file 'shared/{table_path.name}' to 'specific/fdp{table_path.name}'.")
         table_path.rename(Path(str(table_path).replace("shared", "specific/fdp")))
 
 def main():
-    pass
+    move_fdp_tables()
 
 
 if __name__ == '__main__':
