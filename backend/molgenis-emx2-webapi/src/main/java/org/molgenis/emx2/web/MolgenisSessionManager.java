@@ -45,6 +45,7 @@ public class MolgenisSessionManager {
           session.getSessionUser(),
           request.getSession().getId());
     }
+    session.getDatabase().becomeAdmin();
     return session;
   }
 

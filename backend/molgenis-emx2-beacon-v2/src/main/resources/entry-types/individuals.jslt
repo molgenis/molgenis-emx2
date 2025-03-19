@@ -26,7 +26,7 @@ import "range.jslt" as range
                 },
                 "diseaseCausalGenes":
                 [for (.clinicalObservations)
-                    ontology(.molecularDiagnosisGene[0]) // flatten function forces [0] index
+                    ontology(.molecularDiagnosisGene[0])
                 ],
                 "ethnicity": ontology(.ethnicity),
                 "geographicOrigin": ontology(.geographicOrigin),
@@ -47,18 +47,19 @@ import "range.jslt" as range
                     "severity": ontology($disease.severity)
                     }
                 ],
+
                 "measures":
                 // Clinical observations -> [ measurements ]
                 [for (.clinicalObservations)
                     [for (.measurements) {
-                        "assayCode": ontology(.assayCode),
-                        "date": .date,
-                        "measurementVariable": .measurementVariable,
+                        "assayCode": ontology(.code),
+                        "date": $clinicalObservation.dateOfObservation,
+                        "measurementVariable": .variable,
                         "measurementValue": {
-                            "value": .measurementValue_value,
-                            "unit": ontology(.measurementValue_units)
+                            "value": .value,
+                            "unit": ontology(.unit)
                         },
-                        "observationMoment": { "age": { "iso8601duration": .observationMoment_age_iso8601duration } }
+                        "observationMoment": { "age": { "iso8601duration": $clinicalObservation.ageAtObservation } }
                     }]
                 ]
             }]
