@@ -49,8 +49,8 @@ def merge_models():
         if (shared_dir / table_file.name).exists():
             logger.info(f"Merging table {table_file.name!r}.")
 
-            portal_df = pd.read_csv(table_file).replace({np.nan: None})
-            cat_df = pd.read_csv(shared_dir / table_file.name).replace({np.nan: None})
+            portal_df = pd.read_csv(table_file).replace({np.nan: None}).set_index('columnName')
+            cat_df = pd.read_csv(shared_dir / table_file.name).replace({np.nan: None}).set_index('columnName')
 
             print(portal_df.head(5).to_string())
             print(cat_df.head(5).to_string())
@@ -58,8 +58,8 @@ def merge_models():
             cols = portal_df.columns.drop("profiles")
 
             # Matching columns
-            portal_match = portal_df.loc[portal_df['columnName'].isin(cat_df['columnName'])]
-            portal_add = portal_df.loc[~portal_df['columnName'].isin(cat_df['columnName'])]
+            portal_match = portal_df.loc[portal_df.index.isin(cat_df.index)]
+            portal_add = portal_df.loc[~portal_df.index.isin(cat_df.index)]
         else:
             logger.info(f"Moving table {table_file.name!r} to folder 'shared'.")
 
