@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-noble
+FROM eclipse-temurin:21-jre-noble
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar
 EXPOSE 8080
