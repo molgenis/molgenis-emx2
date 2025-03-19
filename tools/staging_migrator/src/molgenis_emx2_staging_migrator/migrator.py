@@ -206,17 +206,23 @@ class StagingMigrator(Client):
 
         upload_stream = BytesIO()
 
+        schema_metadata = self.get_schema_metadata(self.staging_area)
+
         with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
               zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
             for file_name in source_archive.namelist():
                 if '_files/' in file_name:
                     upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
                     continue
-                elif (table_name := Path(file_name).stem) not in [*tables_to_sync.keys(), *self.extra_tables]:
+                try:
+                    table_id = schema_metadata.get_table('name', Path(file_name).stem).id
+                except NoSuchTableException:
+                    continue
+                if table_id not in [*tables_to_sync.keys(), *self.extra_tables]:
                     continue
 
                 _table = source_archive.read(file_name)
-                if consent_val := has_statement_of_consent(table_name, self.get_schema_metadata(self.staging_area)):
+                if consent_val := has_statement_of_consent(table_id, self.get_schema_metadata(self.staging_area)):
                     _table = process_statement(table=_table, consent_val=consent_val)
                 upload_archive.writestr(file_name, BytesIO(_table).getvalue())
 
