@@ -13,11 +13,14 @@ const { data } = await useFetch<Resp<Schema>>("/graphql", {
   body: { query: `{ _schemas { id,label,description } }` },
 });
 
-const databases = computed(
-  () =>
-    data.value?.data?._schemas.sort((a, b) => a.label.localeCompare(b.label)) ??
-    []
-);
+const databases = computed(() => {
+  const schemas = data.value?.data?._schemas;
+  if (schemas) {
+    return schemas.sort((a, b) => a.label.localeCompare(b.label));
+  } else {
+    return [];
+  }
+});
 </script>
 <template>
   <Container>
