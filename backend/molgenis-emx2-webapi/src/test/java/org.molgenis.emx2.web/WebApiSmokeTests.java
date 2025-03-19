@@ -1193,7 +1193,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @Disabled("Fails on new build")
   public void testScriptScheduling() throws JsonProcessingException, InterruptedException {
     // make sure the 'test' script is not there already from a previous test
     db.getSchema(SYSTEM_SCHEMA).getTable("Jobs").truncate();
