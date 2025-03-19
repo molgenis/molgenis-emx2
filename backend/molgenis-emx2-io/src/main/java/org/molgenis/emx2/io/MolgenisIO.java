@@ -14,6 +14,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.io.emx1.Emx1;
 import org.molgenis.emx2.io.tablestore.*;
+import org.molgenis.emx2.tasks.Task;
 
 /** Short hands for running the tasks */
 public class MolgenisIO {
@@ -96,13 +97,15 @@ public class MolgenisIO {
     new ImportExcelTask(excelFile, schema, strict).run();
   }
 
-  public static void fromStore(
+  public static Task fromStore(
       TableStore store, Schema schema, boolean strict, String... includeTableNames) {
-    new ImportSchemaTask(store, schema, strict, includeTableNames).run();
+    Task task = new ImportSchemaTask(store, schema, strict, includeTableNames);
+    task.run();
+    return task;
   }
 
-  public static void fromClasspathDirectory(
+  public static Task fromClasspathDirectory(
       String path, Schema schema, boolean strict, String... includeTableNames) {
-    fromStore(new TableStoreForCsvFilesClasspath(path), schema, strict, includeTableNames);
+    return fromStore(new TableStoreForCsvFilesClasspath(path), schema, strict, includeTableNames);
   }
 }

@@ -18,8 +18,8 @@
     "coverage": "vitest run --coverage",
     "test-ci": "vitest run",
     "e2e": "playwright test",
-    "a11y:test": "pa11y-ci",
-    "a11y:serve": "http-server .reports/ -p 1234",
+    "wcag:test": "node ./scripts/pa11y_update_urls.js && pa11y-ci -c .pa11yci",
+    "wcag:serve": "http-server .reports/ -p 1234",
     "parse-icons": "node ../node_modules/svgo/bin/svgo -f ./assets/icons -o ./assets/minified-icons --config ./svgo.config.cjs && node ./scripts/create_vue_components_from_icons.cjs",
     "typecheck": "nuxi typecheck"
   },
