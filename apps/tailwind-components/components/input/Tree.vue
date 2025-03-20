@@ -243,20 +243,29 @@ const rootNodes = computed(() => {
 </script>
 
 <template>
-  <ButtonText icon="Search" @click="toggleSearch">
+  <ButtonText
+    :id="`${id}-tree-search-button-toggle`"
+    icon="Search"
+    @click="toggleSearch"
+    :aria-controls="`${id}-tree-search-input-container`"
+    :aria-expanded="showOptionsSearch"
+  >
     <span>Search for options</span>
   </ButtonText>
-  <div v-if="showOptionsSearch">
-    <input
-      :value="optionsSearch"
-      @input="(event) => handleSearchInput((event.target as HTMLInputElement).value)"
-      type="search"
-      class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
+  <div v-if="showOptionsSearch" :id="`${id}-tree-search-input-container`">
+    <label :for="`${id}-tree-search-input`" class="sr-only">search</label>
+    <InputSearch
+      :id="`${id}-tree-search-input`"
+      :modelValue="optionsSearch"
+      @update:modelValue="handleSearchInput"
       placeholder="Type to search in options..."
+      :describedby="`${id}-tree-search-input-message`"
     />
-    <span v-if="rootNodes.filter((node) => node.visible).length === 0">
-      no results found
-    </span>
+    <div :id="`${id}-tree-search-input-message`">
+      <span v-if="rootNodes.filter((node) => node.visible).length === 0">
+        no results found
+      </span>
+    </div>
   </div>
   <TreeNode
     :id="id"
