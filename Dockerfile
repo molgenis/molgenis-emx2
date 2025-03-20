@@ -6,8 +6,10 @@ RUN apk add --no-cache \
   python3 \
   py3-pip \
   py3-virtualenv 
+RUN apk add --no-cache gcompat
 
-RUN apk add --no-cache ruby ruby-dev build-base && gem install sass
+
+#RUN apk add --no-cache ruby ruby-dev build-base && gem install sass
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar
 EXPOSE 8080
