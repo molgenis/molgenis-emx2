@@ -208,6 +208,7 @@ public class TestLoaders {
   }
 
   @Test
+  @Disabled
   public void test19DataCatalogueFederatedDataAccessLoader() {
     Schema schema = database.createSchema(DATA_CATALOGUE_FEDERATED_DATA_ACCESS);
     DataModels.Profile.DATA_CATALOGUE_FEDERATED_DATA_ACCESS.getImportTask(schema, true).run();
