@@ -16,5 +16,5 @@ RUN pip3 install setuptools --break-system-packages
 #RUN useradd -m molgenis
 RUN addgroup -S molgenis && adduser -S molgenis -G molgenis
 
-USER molgenis
+#USER molgenis
 ENTRYPOINT ["java","-jar","app.jar"]
