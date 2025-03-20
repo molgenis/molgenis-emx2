@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { IFilter, IOntologyFilter, IRefArrayFilter } from "~/types/types";
-import type { columnValueObject } from "../../../metadata-utils/src/types";
+import type {
+  columnValue,
+  columnValueObject,
+} from "../../../metadata-utils/src/types";
 const props = withDefaults(
   defineProps<{
     id: string;
@@ -72,7 +75,7 @@ function handleFilterUpdate(filter: IFilter) {
           :mobileDisplay="mobileDisplay"
           :filterLabel="filter.config.label"
           :model-value="(filter as IOntologyFilter).conditions as string[]"
-          @update:model-value="(value: string[]) => {(filter as IOntologyFilter).conditions = value; handleFilterUpdate(filter)}"
+          @update:model-value="(value: columnValue) => {(filter as IOntologyFilter).conditions = value; handleFilterUpdate(filter)}"
         />
         <InputRef
           v-else-if="filter.config.type === 'REF_ARRAY'"
