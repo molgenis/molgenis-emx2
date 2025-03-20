@@ -69,8 +69,15 @@ const emits = defineEmits(["update:columns"]);
 
 const showModal = ref(false);
 const columnsInColumnsSelectModal = ref<IColumnConfig[]>(
-  sortColumns(props.columns.map(columnToColumnConfig))
+  indexColumns(sortColumns(props.columns.map(columnToColumnConfig)))
 );
+
+function indexColumns(columns: IColumnConfig[]) {
+  return columns.map((column, index) => {
+    column.position = index;
+    return column;
+  });
+}
 
 function handleColumnDragEvent(event: {
   moved: {
@@ -93,7 +100,6 @@ function handleColumnDragEvent(event: {
     ) {
       column.position = (column.position ?? 0) - 1;
     }
-    console.log(column.id, column.position);
   });
 }
 
