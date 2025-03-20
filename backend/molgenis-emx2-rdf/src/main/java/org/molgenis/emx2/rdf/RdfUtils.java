@@ -9,11 +9,13 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.google.common.net.UrlEscapers;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.rdf4j.common.net.ParsedIRI;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
@@ -59,6 +61,19 @@ abstract class RdfUtils {
 
   static Namespace getSchemaNamespace(final String baseURL, final Schema schema) {
     return getSchemaNamespace(baseURL, schema.getMetadata());
+  }
+
+  static ParsedIRI getRdfApiPath(String baseURL, SchemaMetadata schema) {
+    return ParsedIRI.create(baseURL + schema.getName() + API_RDF + "/");
+  }
+
+  static ParsedIRI getRdfApiPath(String baseURL, Schema schema) {
+    return getRdfApiPath(baseURL, schema.getMetadata());
+  }
+
+  static String defineBase(String baseURL, Schema... schemas) {
+    if (schemas.length > 1) return baseURL;
+    return getRdfApiPath(baseURL, Arrays.stream(schemas).findFirst().get()).toASCIIString();
   }
 
   static Model getCustomRdf(Schema schema) throws IOException {

@@ -5,6 +5,7 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.getCoreDataType;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
+import static org.molgenis.emx2.rdf.RdfUtils.defineBase;
 import static org.molgenis.emx2.rdf.RdfUtils.formatBaseURL;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomPrefixesOrDefault;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
@@ -203,7 +204,8 @@ public class RDFService {
           rowsToRdf(builder, rdfMapData, namespaces, tableToDescribe, rowId);
         }
       }
-      Rio.write(builder.build(), outputStream, baseURL, rdfFormat, config);
+
+      Rio.write(builder.build(), outputStream, defineBase(baseURL, schemas), rdfFormat, config);
 
     } catch (Exception e) {
       throw new MolgenisException("RDF export failed due to an exception", e);

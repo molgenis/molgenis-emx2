@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.molgenis.emx2.rdf.RdfUtils.defineBase;
 import static org.molgenis.emx2.rdf.RdfUtils.hasIllegalPrefix;
 import static org.molgenis.emx2.rdf.RdfUtils.isIllegalPrefix;
 
@@ -21,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class RdfUtilsTest {
@@ -107,5 +111,22 @@ class RdfUtilsTest {
             assertThrows(
                 IllegalArgumentException.class,
                 () -> RdfUtils.getSemanticValue(namespaces, "invalid:test")));
+  }
+
+  @Test
+  void testDefineBase() {
+    final String baseUrl = "http://localhost:8080/";
+    final String schema1RdfApi = "http://localhost:8080/schema1/api/rdf/";
+
+    SchemaMetadata schemaMetadata1 = mock(SchemaMetadata.class);
+    when(schemaMetadata1.getName()).thenReturn("schema1");
+    Schema schema1 = mock(Schema.class);
+    when(schema1.getMetadata()).thenReturn(schemaMetadata1);
+    
+    Schema schema2 = mock(Schema.class);
+
+    assertAll(
+        () -> assertEquals(schema1RdfApi, defineBase(baseUrl, schema1)),
+        () -> assertEquals(baseUrl, defineBase(baseUrl, schema1, schema2)));
   }
 }
