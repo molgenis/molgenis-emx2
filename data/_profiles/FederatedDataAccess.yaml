@@ -1,0 +1,17 @@
+---
+name: FederatedDataAccess
+description: "This schema is used by MOLGENIS to enter Armadillo and/or Opal server(s) details."
+
+profileTags: FederatedDataAccess
+
+demoData: _demodata/applications/datacatalogue_federated_data_access
+
+settings:
+
+# special options
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous
+firstCreateSchemasIfMissing:
+  - name: catalogue
+    profile: _profiles/DataCatalogue.yaml
+    importDemoData: false
