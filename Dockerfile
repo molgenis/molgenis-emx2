@@ -1,5 +1,5 @@
 #FROM eclipse-temurin:21-jre-noble
-FROM ubuntu:24:10
+FROM ubuntu:24.10
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar
 EXPOSE 8080
