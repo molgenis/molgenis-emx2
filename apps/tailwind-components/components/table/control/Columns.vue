@@ -28,6 +28,11 @@
                     v-model="element.visible"
                     :id="element.id"
                   />
+                  <InputCheckbox
+                    v-model="element.visible"
+                    :id="element.id"
+                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5border border-checkbox"
+                  />
                 </div>
                 <label
                   class="hover:cursor-pointer text-body-sm group"
@@ -87,7 +92,7 @@ function handleColumnDragEvent() {
 
 function handleCancel() {
   columnsInColumnsSelectModal.value = sortColumns(
-    props.columns.map(columnToColumnConfig)
+    indexColumns(props.columns.map(columnToColumnConfig))
   );
   showModal.value = false;
 }
