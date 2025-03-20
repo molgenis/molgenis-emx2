@@ -1,14 +1,25 @@
 #FROM eclipse-temurin:21-jre-noble
 #FROM ubuntu:24.10
 FROM alpine:latest
-ENV TMPDIR=/app/tmp
-RUN mkdir -p /app/tmp && chmod -R 777 /app/tmp
+
+
 RUN apk add --no-cache \
+  fontconfig \
+  ttf-dejavu\
+  gnupg\
+  ca-certificates \
+  p11-kit-trust \
+  musl-locales\
+  musl-locales-lang \
+  binutils \
+  tzdata \
+  coreutils \
+  openssl \
   openjdk21 \
   python3 \
   py3-pip \
   py3-virtualenv 
-RUN apk add --no-cache gcompat
+
 
 
 #RUN apk add --no-cache ruby ruby-dev build-base && gem install sass
