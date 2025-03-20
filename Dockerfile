@@ -3,12 +3,10 @@
 FROM eclipse-temurin:21-alpine-3.21
 RUN apk --no-cache update
 RUN apk add --no-cache \
-  openjdk21 \
   python3 \
   py3-pip \
   py3-virtualenv \
-  expat \
-  binutils 
+
 
 
 
