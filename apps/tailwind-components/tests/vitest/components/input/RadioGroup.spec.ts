@@ -16,3 +16,16 @@ it("the parent of the hidden input should have a class relative to keep the posi
     radioItemLabel.get('[id="test-radio-group-option1"]').html()
   ).toContain("sr-only");
 });
+
+it("to be focused", async () => {
+  const firstInputElem = wrapper.get('input[type="radio"]');
+  firstInputElem.trigger("focus");
+  expect(wrapper.emitted("focus"));
+});
+
+it("to be blurred", async () => {
+  const firstInputElem = wrapper.get('input[type="radio"]');
+  firstInputElem.trigger("focus");
+  firstInputElem.trigger("blur");
+  expect(wrapper.emitted("blur"));
+});

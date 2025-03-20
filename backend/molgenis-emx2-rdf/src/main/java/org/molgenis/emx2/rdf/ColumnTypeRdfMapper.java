@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
@@ -27,10 +28,7 @@ import org.molgenis.emx2.utils.URIUtils;
  *       for generating the RDF
  * </ul>
  */
-public class ColumnTypeRdfMapper {
-  // Needed in some cases for Values retrieval.
-  private final String baseURL;
-
+public abstract class ColumnTypeRdfMapper {
   // All ColumnType mappings.
   // mapping.keySet() should be equal to ColumnType.values()
   private static final Map<ColumnType, RdfColumnType> mapping =
@@ -80,11 +78,6 @@ public class ColumnTypeRdfMapper {
           entry(ColumnType.HYPERLINK, RdfColumnType.URI),
           entry(ColumnType.HYPERLINK_ARRAY, RdfColumnType.URI));
 
-  public ColumnTypeRdfMapper(String baseURL) {
-    String baseUrlTrim = baseURL.trim();
-    this.baseURL = baseUrlTrim.endsWith("/") ? baseUrlTrim : baseUrlTrim + "/";
-  }
-
   /** Retrieve all {@link ColumnType}{@code 's} which have a mapping available. */
   static Set<ColumnType> getMapperKeys() {
     return mapping.keySet();
@@ -107,65 +100,79 @@ public class ColumnTypeRdfMapper {
    *   <li>If field has value(s), returns a filled {@link Set}
    * </ul>
    */
-  public Set<Value> retrieveValues(final Row row, final Column column) {
-    RdfColumnType mapper = mapping.get(column.getColumnType());
-    return (mapper.isEmpty(row, column) ? Set.of() : mapper.retrieveValues(baseURL, row, column));
+  public static Set<Value> retrieveValues(
+      RdfMapData rdfMapData, final Row row, final Column column) {
+    return retrieveValues(rdfMapData, row, column, mapping.get(column.getColumnType()));
   }
 
-  private enum RdfColumnType {
+  /**
+   * Same as {@link #retrieveValues(RdfMapData, Row, Column)}, except manually defining which {@link
+   * RdfColumnType} should be used. <br>
+   * <br>
+   * It is suggested to only use this method if really needed (for example if needing an email as a
+   * string literal in RDF instead of default behavior which creates a {@code mailto:} IRI).
+   * <strong>Using this incorrectly will cause issues!</strong>
+   *
+   * @see #retrieveValues(RdfMapData, Row, Column)
+   */
+  public static Set<Value> retrieveValues(
+      RdfMapData rdfMapData,
+      final Row row,
+      final Column column,
+      final RdfColumnType rdfColumnType) {
+    return (rdfColumnType.isEmpty(row, column)
+        ? Set.of()
+        : rdfColumnType.retrieveValues(rdfMapData, row, column));
+  }
+
+  public enum RdfColumnType {
     BOOLEAN(CoreDatatype.XSD.BOOLEAN) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(row.getBooleanArray(column.getName()), Values::literal);
       }
     },
     UUID(CoreDatatype.XSD.ANYURI) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
             row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI("urn:uuid:" + i));
       }
     },
     STRING(CoreDatatype.XSD.STRING) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
-        return basicRetrievalString(row.getStringArrayPreserveDelimiter(column), Values::literal);
-      }
-    },
-    TEXT(CoreDatatype.XSD.STRING) {
-      @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(row.getStringArrayPreserveDelimiter(column), Values::literal);
       }
     },
     INT(CoreDatatype.XSD.INT) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(row.getIntegerArray(column.getName()), Values::literal);
       }
     },
     LONG(CoreDatatype.XSD.LONG) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(row.getLongArray(column.getName()), Values::literal);
       }
     },
     DECIMAL(CoreDatatype.XSD.DECIMAL) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(row.getDecimalArray(column.getName()), Values::literal);
       }
     },
     DATE(CoreDatatype.XSD.DATE) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(
             row.getDateArray(column.getName()), (i) -> literal(i.toString(), getCoreDatatype()));
       }
     },
     DATETIME(CoreDatatype.XSD.DATETIME) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(
             row.getDateTimeArray(column.getName()),
             (i) -> literal(dateTimeFormatter.format((LocalDateTime) i), getCoreDatatype()));
@@ -173,27 +180,27 @@ public class ColumnTypeRdfMapper {
     },
     DURATION(CoreDatatype.XSD.DURATION) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(row.getPeriodArray(column.getName()), Values::literal);
       }
     },
 
     URI(CoreDatatype.XSD.ANYURI) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(row.getStringArray(column.getName()), URIUtils::encodedIRI);
       }
     },
     EMAIL(CoreDatatype.XSD.ANYURI) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
             row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI("mailto:" + i));
       }
     },
     FILE(CoreDatatype.XSD.ANYURI) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         final String schemaPath =
             UrlEscapers.urlPathSegmentEscaper().escape(column.getSchemaName());
         final String tablePath = UrlEscapers.urlPathSegmentEscaper().escape(column.getTableName());
@@ -202,7 +209,7 @@ public class ColumnTypeRdfMapper {
             UrlEscapers.urlPathSegmentEscaper().escape(row.getString(column.getName()));
         return Set.of(
             Values.iri(
-                baseURL
+                rdfMapData.getBaseURL()
                     + schemaPath
                     + API_FILE
                     + "/"
@@ -215,12 +222,12 @@ public class ColumnTypeRdfMapper {
     },
     REFERENCE(CoreDatatype.XSD.ANYURI) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         Map<String, String> colNameToRefTableColName =
             column.getReferences().stream()
                 .collect(Collectors.toMap(Reference::getName, Reference::getRefTo));
         return RdfColumnType.retrieveReferenceValues(
-            baseURL, row, column, colNameToRefTableColName);
+            rdfMapData, row, column, colNameToRefTableColName);
       }
 
       @Override
@@ -232,15 +239,40 @@ public class ColumnTypeRdfMapper {
       }
     },
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
-      // TODO: Implement Ontology behavior where it also returns ontologyTermURI as Value.
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
-        return RdfColumnType.REFERENCE.retrieveValues(baseURL, row, column);
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
+        final TableMetadata target = column.getRefTable();
+        final String rootTableName =
+            UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
+        final Namespace ns =
+            getSchemaNamespace(rdfMapData.getBaseURL(), target.getRootTable().getSchema());
+
+        String[] names =
+            (column.isArray()
+                ? row.getStringArray(column.getName())
+                : new String[] {row.getString(column.getName())});
+
+        Map<String, IRI> mappedNames =
+            rdfMapData
+                .getOntologyIriMapper()
+                .map(column.getRefTable().getSchemaName(), column.getRefTableName(), names);
+
+        return mappedNames.keySet().stream()
+            .map(
+                i ->
+                    (mappedNames.get(i) != null
+                        ? mappedNames.get(i)
+                        : Values.iri(
+                            ns,
+                            rootTableName
+                                + "?"
+                                + new PrimaryKey(Map.of("name", i)).getEncodedValue())))
+            .collect(Collectors.toUnmodifiableSet());
       }
     },
     SKIP(CoreDatatype.XSD.STRING) {
       @Override
-      Set<Value> retrieveValues(String baseURL, Row row, Column column) {
+      Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return Set.of();
       }
     };
@@ -284,27 +316,23 @@ public class ColumnTypeRdfMapper {
           .collect(Collectors.toUnmodifiableSet());
     }
 
-    abstract Set<Value> retrieveValues(final String baseURL, final Row row, final Column column);
+    abstract Set<Value> retrieveValues(
+        final RdfMapData rdfMapData, final Row row, final Column column);
 
     boolean isEmpty(final Row row, final Column column) {
-      if (column.isReference() && column.getReferences().size() > 1) {
-        // check composite keys to be empty
-        return column.getReferences().stream()
-            .anyMatch(ref -> row.getString(ref.getName()) == null);
-      } else {
-        return row.getString(column.getName()) == null;
-      }
+      return row.getString(column.getName()) == null;
     }
 
     private static Set<Value> retrieveReferenceValues(
-        final String baseURL,
+        final RdfMapData rdfMapData,
         final Row row,
         final Column tableColumn,
         final Map<String, String> colNameToRefTableColName) {
       final TableMetadata target = tableColumn.getRefTable();
       final String rootTableName =
           UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
-      final Namespace ns = getSchemaNamespace(baseURL, target.getRootTable().getSchema());
+      final Namespace ns =
+          getSchemaNamespace(rdfMapData.getBaseURL(), target.getRootTable().getSchema());
 
       final Map<Integer, Map<String, String>> items = new HashMap<>();
       for (final String colName : colNameToRefTableColName.keySet()) {
