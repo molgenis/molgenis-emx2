@@ -1,6 +1,8 @@
 #FROM eclipse-temurin:21-jre-noble
 #FROM ubuntu:24.10
 FROM alpine:latest
+ENV TMPDIR=/app/tmp
+RUN mkdir -p /app/tmp && chmod -R 777 /app/tmp
 RUN apk add --no-cache \
   openjdk21 \
   python3 \
