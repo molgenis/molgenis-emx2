@@ -22,16 +22,10 @@
             <div class="flex justify-between">
               <div class="flex items-start">
                 <div class="flex items-center">
-                  <input
-                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox hover:cursor-pointer"
-                    type="checkbox"
-                    v-model="element.visible"
-                    :id="element.id"
-                  />
                   <InputCheckbox
                     v-model="element.visible"
                     :id="element.id"
-                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5border border-checkbox"
+                    class="w-5 h-5 rounded-3px ml-[6px] mr-2.5 mt-0.5 accent-yellow-500 border border-checkbox"
                   />
                 </div>
                 <label

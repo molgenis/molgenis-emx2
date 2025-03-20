@@ -79,74 +79,72 @@
 
 <script setup lang="ts">
 import type { ITableSettings, sortDirection } from "~/types/types";
-import type { IColumn } from "../../../metadata-utils/src/types";
 import { sortColumns } from "~/utils/sortColumns";
+import type { IColumn } from "../../../metadata-utils/src/types";
 
-const props = withDefaults(
-  defineProps<{
-    tableId: string;
-    columns: IColumn[];
-    rows: Record<string, any>[];
-    count: number;
-    settings?: ITableSettings;
-  }>(),
-  {
-    settings: {
-      //@ts-ignore
-      tableId: "",
-      page: 1,
-      pageSize: 10,
-      orderby: { column: "", direction: "ASC" },
-      search: "",
-    },
-  }
-);
-
-const columns = ref(props.columns);
-
-const emit = defineEmits(["update:settings", "update:columns"]);
 const mgAriaSortMappings = {
   ASC: "ascending",
   DESC: "descending",
 };
 
+const defaultSettings: ITableSettings = {
+  page: 1,
+  pageSize: 10,
+  orderby: { column: "", direction: "ASC" },
+  search: "",
+};
+
+const props = defineProps<{
+  tableId: string;
+  columns: IColumn[];
+  rows: Record<string, any>[];
+  count: number;
+  settings?: ITableSettings;
+}>();
+
+const emit = defineEmits(["update:settings", "update:columns"]);
+
+const settings = ref({ ...defaultSettings, ...props.settings });
+const columns = ref(props.columns);
+
 const sortedVisibleColumns = computed(() => {
   const visibleColumns = columns.value.filter(
     (column) => column.visible !== "false"
   );
-  console.log(columns.value);
   return sortColumns(visibleColumns);
 });
 
 function handleSortRequest(columnId: string) {
   const direction: sortDirection = getDirection(columnId);
-
-  emit("update:settings", {
-    ...props.settings,
+  settings.value = {
+    ...settings.value,
     orderby: { column: columnId, direction },
-  });
+  };
+  emit("update:settings", settings.value);
 }
 
 function getDirection(columnId: string): sortDirection {
-  if (props.settings.orderby.column === columnId) {
-    return props.settings.orderby.direction === "ASC" ? "DESC" : "ASC";
+  if (settings.value.orderby.column === columnId) {
+    return settings.value.orderby.direction === "ASC" ? "DESC" : "ASC";
   } else {
     return "ASC";
   }
 }
 
 function handleSearchRequest(search: string) {
-  emit("update:settings", {
-    ...props.settings,
+  settings.value = {
+    ...settings.value,
     search,
-  });
+  };
+  emit("update:settings", settings.value);
 }
 
 function handlePagingRequest(page: number) {
-  emit("update:settings", {
-    ...props.settings,
+  settings.value = {
+    ...settings.value,
     page,
-  });
+  };
+  emit("update:settings", settings.value);
 }
 
 function handleColumnsUpdate(newColumns: IColumn[]) {

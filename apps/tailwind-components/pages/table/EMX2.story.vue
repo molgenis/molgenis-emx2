@@ -129,4 +129,3 @@ const numberOfRows = computed(() => tableData?.value?.count ?? 0);
     />
   </div>
 </template>
-d
