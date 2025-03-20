@@ -203,7 +203,7 @@ public class RDFService {
           rowsToRdf(builder, rdfMapData, namespaces, tableToDescribe, rowId);
         }
       }
-      Rio.write(builder.build(), outputStream, rdfFormat, config);
+      Rio.write(builder.build(), outputStream, baseURL, rdfFormat, config);
 
     } catch (Exception e) {
       throw new MolgenisException("RDF export failed due to an exception", e);
