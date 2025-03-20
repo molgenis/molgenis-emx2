@@ -1,24 +1,14 @@
 #FROM eclipse-temurin:21-jre-noble
 #FROM ubuntu:24.10
-FROM alpine:latest
-
-
+FROM eclipse-temurin:21-alpine-3.21
+RUN apk --no-cache update
 RUN apk add --no-cache \
-  fontconfig \
-  ttf-dejavu\
-  gnupg\
-  ca-certificates \
-  p11-kit-trust \
-  musl-locales\
-  musl-locales-lang \
-  binutils \
-  tzdata \
-  coreutils \
-  openssl \
   openjdk21 \
   python3 \
   py3-pip \
-  py3-virtualenv 
+  py3-virtualenv \
+  expat \
+  binutils 
 
 
 
@@ -31,5 +21,5 @@ RUN pip3 install setuptools --break-system-packages
 #RUN useradd -m molgenis
 RUN addgroup -S molgenis && adduser -S molgenis -G molgenis
 
-#USER molgenis
+USER molgenis
 ENTRYPOINT ["java","-jar","app.jar"]
