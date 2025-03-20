@@ -55,13 +55,13 @@ import "range.jslt" as range
                 [for (.clinicalObservations)
                     [for (.measurements) {
                         "assayCode": ontology(.code),
-                        "date": $clinicalObservation.dateOfObservation,
+                        "date": .clinicalObservation.dateOfObservation,
                         "measurementVariable": .variable,
                         "measurementValue": {
                             "value": .value,
                             "unit": ontology(.unit)
                         },
-                        "observationMoment": { "age": { "iso8601duration": $clinicalObservation.ageAtObservation } }
+                        "observationMoment": { "age": { "iso8601duration": .clinicalObservation.ageAtObservation } }
                     }]
                 ]
             }]
