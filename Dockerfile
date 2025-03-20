@@ -5,7 +5,10 @@ RUN apk add --no-cache \
   openjdk21 \
   python3 \
   py3-pip \
-  py3-virtualenv
+  py3-virtualenv \
+  nodejs \ 
+  npm
+
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar
 EXPOSE 8080
