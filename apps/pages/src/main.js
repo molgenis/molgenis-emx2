@@ -4,6 +4,7 @@ import App from "./App.vue";
 import ListPages from "./components/ListPages.vue";
 import ViewPage from "./components/ViewPage.vue";
 import EditPage from "./components/EditPage.vue";
+import PageEditor from "./components/PageEditor.vue";
 
 import "molgenis-components/dist/style.css";
 
@@ -23,6 +24,11 @@ const router = createRouter({
     {
       path: "/:page/edit",
       component: EditPage,
+      props: true,
+    },
+    {
+      path: "/:page/editor",
+      component: PageEditor,
       props: true,
     },
   ],
