@@ -1,29 +1,41 @@
 <template>
   <div>
-    {{ page }}
     <router-link :to="'/' + page">view page</router-link>
-    <h1>{{ title }}</h1>
+    <div class="d-flex">
+      <div class="flex-grow-1">
+        <h1>{{ title }}</h1>
+      </div>
+      <div class="mt-2 mb-4 d-flex justify-content-end gap-2">
+        <ButtonOutline @click="viewHtml = !viewHtml"
+          >View {{ viewHtml ? "editor" : "HTML" }}</ButtonOutline
+        >
+        <ButtonAction @click="savePage" class="ml-2">Save changes</ButtonAction>
+      </div>
+    </div>
     <Spinner v-if="loading" />
     <div v-else>
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
+
+      <div v-if="viewHtml">
+        <InputText :id="`${page}-html-editor`" v-model="draft" />
+      </div>
       <QuillEditor
+        v-else
         v-model:content="draft"
         toolbar="full"
         class="bg-white"
         contentType="html"
       />
-      <div class="mt-2 float-right">
-        <ButtonAction @click="savePage">Save '{{ page }}'</ButtonAction>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
 import {
+  InputText,
   ButtonAction,
-  ButtonAlt,
+  ButtonOutline,
   MessageError,
   MessageSuccess,
   Spinner,
@@ -34,8 +46,9 @@ import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
 export default {
   components: {
+    InputText,
     ButtonAction,
-    ButtonAlt,
+    ButtonOutline,
     MessageError,
     MessageSuccess,
     Spinner,
@@ -46,6 +59,7 @@ export default {
       graphqlError: null,
       success: null,
       loading: false,
+      viewHtml: false,
       draft: "<h1>New page</h1><p>Add your contents here</p>",
     };
   },
