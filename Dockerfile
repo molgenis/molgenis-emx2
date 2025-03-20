@@ -5,11 +5,9 @@ RUN apk add --no-cache \
   openjdk21 \
   python3 \
   py3-pip \
-  py3-virtualenv \
-  nodejs \ 
-  npm
+  py3-virtualenv 
 
-RUN npm install -g sass
+RUN apk add --no-cache ruby ruby-dev build-base && gem install sass
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar
 EXPOSE 8080
