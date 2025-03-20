@@ -9,6 +9,7 @@ RUN apk add --no-cache \
   nodejs \ 
   npm
 
+RUN npm install -g sass
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar
 EXPOSE 8080
