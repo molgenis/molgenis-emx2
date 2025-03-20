@@ -57,7 +57,7 @@ public class RDFApi {
     app.head("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfHead(ctx, format));
     app.get(
         "{schema}" + apiLocation + "/{table}/column/{column}", (ctx) -> rdfForColumn(ctx, format));
-    app.head("{schema}" + apiLocation + "/{table}column/{column}/", (ctx) -> rdfHead(ctx, format));
+    app.head("{schema}" + apiLocation + "/{table}/column/{column}", (ctx) -> rdfHead(ctx, format));
   }
 
   private static void rdfHead(Context ctx, RDFFormat format) {
