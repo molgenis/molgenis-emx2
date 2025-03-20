@@ -79,28 +79,10 @@ function indexColumns(columns: IColumnConfig[]) {
   });
 }
 
-function handleColumnDragEvent(event: {
-  moved: {
-    element: IColumnConfig;
-    newIndex: number;
-    oldIndex: number;
-  };
-}) {
-  columnsInColumnsSelectModal.value.forEach((column) => {
-    if (column.id === event.moved.element.id) {
-      column.position = event.moved.newIndex;
-    } else if (
-      column.position >= event.moved.newIndex &&
-      column.position < event.moved.oldIndex
-    ) {
-      column.position = (column.position ?? 0) + 1;
-    } else if (
-      column.position <= event.moved.newIndex &&
-      column.position > event.moved.oldIndex
-    ) {
-      column.position = (column.position ?? 0) - 1;
-    }
-  });
+function handleColumnDragEvent() {
+  columnsInColumnsSelectModal.value = indexColumns(
+    columnsInColumnsSelectModal.value
+  );
 }
 
 function handleCancel() {
