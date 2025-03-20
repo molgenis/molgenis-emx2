@@ -5,7 +5,7 @@ RUN apk --no-cache update
 RUN apk add --no-cache \
   python3 \
   py3-pip \
-  py3-virtualenv \
+  py3-virtualenv 
 
 
 
