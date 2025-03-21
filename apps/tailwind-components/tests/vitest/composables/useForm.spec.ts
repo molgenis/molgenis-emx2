@@ -36,22 +36,16 @@ describe("useForm", () => {
     ],
   };
 
-  const formValues = ref<Record<string, columnValue>>({});
-  const errorMap = ref<Record<columnId, string>>({});
-  const scrollTo = vi.fn();
-
-  const {
-    requiredFields,
-    emptyRequiredFields,
-    requiredMessage,
-    errorMessage,
-    gotoPreviousRequiredField,
-    gotoNextRequiredField,
-    gotoNextError,
-    gotoPreviousError,
-  } = useForm(tableMetadata, formValues, errorMap, scrollTo);
-
   test("should return a list of required fields", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const errorMap = ref<Record<columnId, string>>({});
+    const scrollTo = vi.fn();
+    const { requiredFields } = useForm(
+      tableMetadata,
+      formValues,
+      errorMap,
+      scrollTo
+    );
     expect(requiredFields.value).toEqual([
       {
         columnType: "STRING",
@@ -69,6 +63,15 @@ describe("useForm", () => {
   });
 
   test("should return a list of empty required fields", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const errorMap = ref<Record<columnId, string>>({});
+    const scrollTo = vi.fn();
+    const { emptyRequiredFields } = useForm(
+      tableMetadata,
+      formValues,
+      errorMap,
+      scrollTo
+    );
     expect(emptyRequiredFields.value).toEqual([
       {
         columnType: "STRING",
@@ -86,6 +89,15 @@ describe("useForm", () => {
   });
 
   test("should go to the next required field", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const errorMap = ref<Record<columnId, string>>({});
+    const scrollTo = vi.fn();
+    const { gotoNextRequiredField } = useForm(
+      tableMetadata,
+      formValues,
+      errorMap,
+      scrollTo
+    );
     gotoNextRequiredField();
     expect(scrollTo).toHaveBeenCalledWith("col2-form-field");
     gotoNextRequiredField();
@@ -93,6 +105,15 @@ describe("useForm", () => {
   });
 
   test("should go to the previous required field", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const errorMap = ref<Record<columnId, string>>({});
+    const scrollTo = vi.fn();
+    const { gotoPreviousRequiredField } = useForm(
+      tableMetadata,
+      formValues,
+      errorMap,
+      scrollTo
+    );
     gotoPreviousRequiredField();
     expect(scrollTo).toHaveBeenCalledWith("col2-form-field");
     gotoPreviousRequiredField();
@@ -100,6 +121,15 @@ describe("useForm", () => {
   });
 
   test("setting a value on required field should update the message", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const errorMap = ref<Record<columnId, string>>({});
+    const scrollTo = vi.fn();
+    const { requiredMessage, emptyRequiredFields } = useForm(
+      tableMetadata,
+      formValues,
+      errorMap,
+      scrollTo
+    );
     expect(requiredMessage.value).toBe("2/2 required fields left");
 
     // setting a value removes the field from the required list
@@ -116,6 +146,15 @@ describe("useForm", () => {
   });
 
   test("setting an error should update the message", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const errorMap = ref<Record<columnId, string>>({});
+    const scrollTo = vi.fn();
+    const { errorMessage } = useForm(
+      tableMetadata,
+      formValues,
+      errorMap,
+      scrollTo
+    );
     expect(errorMessage.value).toBe("");
 
     errorMap.value["col2"] = "some error";
@@ -125,11 +164,35 @@ describe("useForm", () => {
   });
 
   test("should go to the next error", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const errorMap = ref<Record<columnId, string>>({
+      col2: "some error",
+      col4: "some error",
+    });
+    const scrollTo = vi.fn();
+    const { gotoNextError } = useForm(
+      tableMetadata,
+      formValues,
+      errorMap,
+      scrollTo
+    );
     gotoNextError();
     expect(scrollTo).toHaveBeenCalledWith("col2-form-field");
   });
 
   test("should go to the previous error", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const errorMap = ref<Record<columnId, string>>({
+      col2: "some error",
+      col4: "some error",
+    });
+    const scrollTo = vi.fn();
+    const { gotoPreviousError } = useForm(
+      tableMetadata,
+      formValues,
+      errorMap,
+      scrollTo
+    );
     gotoPreviousError();
     expect(scrollTo).toHaveBeenCalledWith("col4-form-field");
   });
