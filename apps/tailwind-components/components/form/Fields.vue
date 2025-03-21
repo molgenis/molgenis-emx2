@@ -49,6 +49,13 @@ function validateColumn(column: IColumn) {
       })
       .join("");
   }
+
+  // remove empty entries from the map
+  Object.entries(errors.value).forEach(([key, value]) => {
+    if (value == "" || value == undefined || value == null) {
+      delete errors.value[key];
+    }
+  });
 }
 
 const previousColumn = ref<IColumn>();

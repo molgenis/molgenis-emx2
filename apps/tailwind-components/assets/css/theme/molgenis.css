@@ -65,10 +65,11 @@
   --text-color-breadcrumb-arrow: var(--color-white);
   --text-color-breadcrumb: var(--color-blue-50);
   --text-color-title: var(--color-white);
-  --text-color-title-contrast: var(--color-blue-500);
-  --text-color-input-description: var(--color-white);
+  --text-color-title-contrast: var(--color-gray-900);
+  --text-color-title-contrast-pop: var(--color-blue-500);
+  --text-color-input-description: var(--color-gray-900);
   --text-color-sub-title-contrast: var(--color-black);
-  --text-color-form-header: var(--color-white);
+  --text-color-form-header: var(--text-color-title-contrast);
   --text-color-search-button: var(--color-blue-500);
   --text-color-search-button-hover: var(--color-blue-800);
   --text-color-favorite: var(--color-white);
@@ -122,6 +123,7 @@
   --border-color-pagination: var(--color-transparent);
   --border-color-input-inverted: var(--color-gray-600);
 
+  --border-radius-theme: 50px;
   --border-radius-3px: 3px;
   --border-radius-50px: 50px;
   --border-radius-input: 50px;
@@ -132,4 +134,10 @@
   --border-radius-landing: 50px;
 
   --outline-color-select: var(--color-gray-200);
+
+  --border-width-form-required: 0;
+  --background-color-form-required: var(--color-blue-800);
+  --border-radius-form-required: var(--border-radius-theme);
+  --background-color-form-required-btn-hover: var(--color-blue-300);
+  --border-color-form-required: var(--color-blue-300);
 }

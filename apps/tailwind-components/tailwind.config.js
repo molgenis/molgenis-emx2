@@ -159,11 +159,31 @@ module.exports = {
         "app-wrapper": "var(--background-color-app-wrapper)",
         pagination: "var(--background-color-pagination)",
         "pagination-hover": "var(--background-color-pagination-hover)",
+        form: "var(--background-color-form)",
+        "form-legend": "var(--background-color-form-legend)",
+        footer: "var(--background-color-footer)",
+        "form-required": "var(--background-color-form-required)",
+        "form-required-btn": "var(--background-color-form-required-btn)",
+        "form-required-btn-hover":
+          "var(--background-color-form-required-btn-hover)",
+        modal: "var(--background-color-modal)",
         footer: "var(--background-color-footer)",
         "modal-footer": "var(--background-color-modal-footer)",
         tab: "var(--background-color-tab)",
         "tab-hover": "var(--background-color-tab-hover)",
         "tab-active": "var(--background-color-tab-active)",
+
+        valid: "var(--color-valid-background)",
+        invalid: "var(--color-invalid-background)",
+        disabled: "var(--color-disabled-background)",
+        neutral: "var(--color-neutral-background)",
+
+        input: "var(--background-color-input)",
+        listbox: "var(--background-color-listbox)",
+        "listbox-hover": "var(--background-color-listbox-hover)",
+        "listbox-selected": "var(--background-color-listbox-selected)",
+        table: "var(--background-color-table)",
+        notification: "var(--background-color-notification)",
         valid: "var(--color-valid-background)",
         invalid: "var(--color-invalid-background)",
         disabled: "var(--color-disabled-background)",
@@ -188,6 +208,7 @@ module.exports = {
         "button-disabled-hover": "var(--text-color-button-disabled-hover)",
         "button-filter": "var(--text-color-button-filter)",
         "button-text": "var(--text-color-button-text)",
+        menu: "var(--text-color-menu)",
         "button-tree-node-toggle": "var(--text-color-button-tree-node-toggle)",
         "button-tree-node-toggle-hover":
           "var(--text-color-button-tree-node-toggle-hover)",
@@ -198,6 +219,7 @@ module.exports = {
         breadcrumb: "var(--text-color-breadcrumb)",
         title: "var(--text-color-title)",
         "title-contrast": "var(--text-color-title-contrast)",
+        "title-contrast-pop": "var(--text-color-title-contrast-pop)",
         "sub-title-contrast": "var(--text-color-sub-title-contrast)",
         "search-button": "var(--text-color-search-button)",
         "search-button-hover": "var(--text-color-search-button-hover)",
@@ -242,6 +264,11 @@ module.exports = {
 
         input: "var(--text-color-input)",
         "input-description": "var(--text-color-input-description)",
+
+        required: "var(--text-color-required)",
+        listbox: "var(--text-color-listbox)",
+        "listbox-hover": "var(--text-color-listbox-hover)",
+        "listbox-selected": "var(--text-color-listbox-selected)",
         "input-checked": "var(--text-color-button-primary)",
         "input-focused": "var(--text-color-button-primary)",
 
@@ -283,6 +310,9 @@ module.exports = {
         "input-hover": "var(--border-color-input-hover)",
         "input-inverted": "var(--border-color-input-inverted)",
         "input-focused": "var(--border-color-input-focused)",
+        listbox: "var(--border-color-search-input)",
+        "listbox-option": "var(--border-color-listbox-option)",
+        "form-required": "var(--border-color-form-required)",
       }),
       stroke: ({ theme }) => ({
         input: "var(--border-color-input)",
@@ -308,6 +338,7 @@ module.exports = {
         disabled: "var(--color-disabled-foreground)",
       }),
       borderRadius: {
+        theme: "var(--border-radius-theme)",
         "3px": "var(--border-radius-3px)",
         "50px": "var(--border-radius-50px)",
         input: "var(--border-radius-input)",
@@ -316,6 +347,10 @@ module.exports = {
         "search-button": "var(--border-radius-search-button)",
         pagination: "var(--border-radius-pagination)",
         landing: "var(--border-radius-landing)",
+        "form-required": "var(--border-radius-form-required)",
+      },
+      borderWidth: {
+        "form-required": "var(--border-width-form-required)",
       },
       opacity: {
         "background-gradient": "var(--opacity-background-gradient)",
