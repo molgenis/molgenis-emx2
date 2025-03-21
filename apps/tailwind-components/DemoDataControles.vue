@@ -152,7 +152,7 @@ watch(
       getNumberOfRows();
     }
     formValues.value = {};
-    metadata.value = (schemaMeta.value as ISchemaMetaData)?.tables.find(
+    metadata.value = schemaMeta.value?.tables.find(
       (table) => table.id === newTableId
     );
   },
