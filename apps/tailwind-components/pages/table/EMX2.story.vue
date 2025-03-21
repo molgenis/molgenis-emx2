@@ -86,14 +86,39 @@ const tableColumns = computed(() => {
 const dataRows = computed(() => {
   if (!tableData.value) return [];
 
-  return tableData.value.rows.map((row) => {
+  const filteredRows = tableData.value.rows.map((row) => {
     return Object.fromEntries(
       Object.entries(row).filter(([key]) => !key.startsWith("mg"))
     );
   });
+
+  if (tableSettings.value.orderby?.column) {
+    return filteredRows.sort(sortRow);
+  } else {
+    return filteredRows;
+  }
 });
 
 const numberOfRows = computed(() => tableData?.value?.count ?? 0);
+
+function sortRow(row1: Record<string, any>, row2: Record<string, any>) {
+  const orderbyColumn = tableSettings.value.orderby.column;
+  const orderbyDirection = tableSettings.value.orderby.direction;
+
+  const row1Value =
+    typeof row1[orderbyColumn] === "string"
+      ? row1[orderbyColumn]
+      : row1[orderbyColumn]?.name;
+  const row2Value =
+    typeof row2[orderbyColumn] === "string"
+      ? row2[orderbyColumn]
+      : row2[orderbyColumn]?.name;
+  if (orderbyDirection === "ASC") {
+    return row1Value > row2Value ? 1 : -1;
+  } else {
+    return row1Value < row2Value ? 1 : -1;
+  }
+}
 </script>
 
 <template>

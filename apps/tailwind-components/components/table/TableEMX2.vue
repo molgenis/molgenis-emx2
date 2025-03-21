@@ -116,10 +116,7 @@ const sortedVisibleColumns = computed(() => {
 
 function handleSortRequest(columnId: string) {
   const direction: sortDirection = getDirection(columnId);
-  settings.value = {
-    ...settings.value,
-    orderby: { column: columnId, direction },
-  };
+  settings.value.orderby = { column: columnId, direction };
   emit("update:settings", settings.value);
 }
 
@@ -132,18 +129,12 @@ function getDirection(columnId: string): sortDirection {
 }
 
 function handleSearchRequest(search: string) {
-  settings.value = {
-    ...settings.value,
-    search,
-  };
+  settings.value.search = search;
   emit("update:settings", settings.value);
 }
 
 function handlePagingRequest(page: number) {
-  settings.value = {
-    ...settings.value,
-    page,
-  };
+  settings.value.page = page;
   emit("update:settings", settings.value);
 }
 
