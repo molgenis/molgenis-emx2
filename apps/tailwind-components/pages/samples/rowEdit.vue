@@ -112,7 +112,7 @@ function onCancel() {
           <FormError
             v-show="errorMessage"
             :message="errorMessage"
-            class="sticky h-[62px] bottom-0 ransition-all transition-discrete"
+            class="sticky h-[62px] bottom-0 transition-all transition-discrete"
             @error-prev="gotoPreviousError"
             @error-next="gotoNextError"
           />
