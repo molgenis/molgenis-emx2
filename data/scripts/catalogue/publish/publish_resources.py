@@ -25,7 +25,7 @@ log = logging.getLogger('publisher')
 def main(args):
 
     # Set up the logger
-    logging.basicConfig(level=LOG_LEVEL)
+    logging.basicConfig(level=LOG_LEVEL, stream=sys.stdout)
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 

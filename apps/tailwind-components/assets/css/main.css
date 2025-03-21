@@ -76,6 +76,8 @@
     --background-color-search-button-hover: var(--color-blue-700);
     --background-color-button-filter: var(--color-blue-50);
     --background-color-button-filter-hover: var(--color-white);
+    --background-color-button-tree-node-toggle: var(--color-blue-800);
+    
     --background-color-navigation: var(--color-white);
     --background-color-navigation-sticky: var(--background-color-navigation);
     --background-color-search-results-view-tabs: var(--color-blue-800);
@@ -93,9 +95,6 @@
     --background-color-input: var(--color-white);
     --background-color-input-checked: var(--color-blue-500);
     --background-color-input-focused: var(--color-blue-800);
-    --background-color-listbox: var(--color-white);
-    --background-color-listbox-hover: var(--color-gray-100);
-    --background-color-listbox-selected: var(--color-blue-500);
     --background-color-table: var(--color-white);
     --background-color-notification: var(--color-red-700);
     --background-color-code-output: var(--color-gray-100);
@@ -111,6 +110,9 @@
     --text-color-button-disabled: var(--color-gray-600);
     --text-color-button-disabled-hover: var(--color-gray-600);
     --text-color-button-filter: var(--color-blue-500);
+    --text-color-button-tree-node-toggle: var(--color-blue-800);
+    --text-color-button-tree-node-toggle-hover: var(--color-white);
+    
     --text-color-menu: var(--text-color-title);
     --text-color-sub-menu: var(--color-blue-500);
     --text-color-sub-menu-hover: var(--color-blue-700);
@@ -148,9 +150,6 @@
     --text-color-pagination-hover: var(--color-white);
     --text-color-pagination-button: var(--color-white);
     --text-color-link: var(--color-blue-500);
-    --text-color-listbox: var(--color-black);
-    --text-color-listbox-hover: var(--color-black);
-    --text-color-listbox-selected: var(--color-blue-50);
     --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);
     --text-color-form-header: var(--color-blue-800);
@@ -183,8 +182,6 @@
     --border-color-input-hover: var(--color-blue-500);
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
-    --border-color-listbox-option: var(--color-gray-100);
-    --border-color-listbox: var(--border-color-input);
 
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;

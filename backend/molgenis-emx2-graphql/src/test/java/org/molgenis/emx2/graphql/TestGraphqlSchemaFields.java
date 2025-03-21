@@ -66,9 +66,33 @@ public class TestGraphqlSchemaFields {
 
   @Test
   void testMatchInParentsAndChildren() throws IOException {
-    // just to check syntax works, the real tests live in sql
     String result =
+        execute("{Tag(filter:{_match_any_including_children:[\"colors\"]}){name}}").toString();
+    assertTrue(result.contains("red"));
+    assertFalse(result.contains("mammals"));
+
+    result = execute("{Tag(filter:{_match_any_including_parents:[\"red\"]}){name}}").toString();
+    assertTrue(result.contains("colors"));
+    assertFalse(result.contains("mammals"));
+
+    result = execute("{Tag(filter:{_search_including_parents:[\"re\"]}){name}}").toString();
+    assertTrue(result.contains("colors"));
+    assertTrue(result.contains("green"));
+    assertTrue(result.contains("red"));
+    assertFalse(result.contains("mammals"));
+
+    // just to check syntax works, the real tests live in sql
+    result =
         execute("{Pet(filter:{tags:{_match_any_including_children:\"colors\"}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertFalse(result.contains("pooky")); // poor pooky has no color
+
+    result =
+        execute("{Pet(filter:{tags:{_match_any_including_parents:\"red\"}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertFalse(result.contains("pooky")); // poor pooky has no color
+
+    result = execute("{Pet(filter:{tags:{_search_including_parents:\"re\"}}){name}}").toString();
     assertTrue(result.contains("tom"));
     assertFalse(result.contains("pooky")); // poor pooky has no color
 

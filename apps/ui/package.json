@@ -21,7 +21,7 @@
   "license": "LGPL-3.0",
   "devDependencies": {
     "cross-env": "7.0.3",
-    "nuxt": "3.14.1592",
+    "nuxt": "3.16.0",
     "tailwind-components": "*"
   }
 }
