@@ -3,6 +3,7 @@ import { gql } from "graphql-request";
 import subpopulationsQuery from "~~/gql/subpopulations";
 import collectionEventsQuery from "~~/gql/collectionEvents";
 import datasetQuery from "~~/gql/datasets";
+import variablesQuery from "~~/gql/variables";
 import ontologyFragment from "~~/gql/fragments/ontology";
 import fileFragment from "~~/gql/fragments/file";
 import type {
@@ -11,6 +12,7 @@ import type {
   IOntologyItem,
   linkTarget,
   DefinitionListItemType,
+  IVariable,
 } from "~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
 import type { IResources } from "~/interfaces/catalogue";
@@ -174,6 +176,9 @@ const query = gql`
         count
       }
     }
+    Variables_agg(filter: { resource: { id: { equals: [$id] } } }) {
+      count
+    }
   }
 `;
 const variables = { id: route.params.resource };
@@ -265,6 +270,22 @@ function subpopulationMapper(subpopulation: any) {
   };
 }
 
+function variableMapper(variable: IVariable) {
+  const key = getKey(variable);
+
+  return {
+    id: key,
+    name: variable.name,
+    description: variable.description,
+    _renderComponent: "VariableDisplay",
+    _path: `/${route.params.schema}/catalogue/${route.params.catalogue}/${
+      route.params.resourceType
+    }/${route.params.resource}/variables/${variable.name}${resourceIdPath(
+      key
+    )}`,
+  };
+}
+
 const networks = computed(() =>
   !resource.value.partOfResources
     ? []
@@ -302,7 +323,7 @@ const tocItems = computed(() => {
       id: "AvailableData",
     });
   }
-  // { label: 'Variables & topics', id: 'Variables' },
+  tableOffContents.push({ label: "Variables", id: "Variables" });
   if (subpopulationCount.value ?? 0 > 0) {
     tableOffContents.push({
       label: "Subpopulations",
@@ -687,6 +708,25 @@ const showPopulation = computed(
             :name="slotProps.id.name"
             :resource-id="slotProps.id.resource"
           />
+        </TableContent>
+
+        <TableContent
+          title="Variables"
+          id="Variables"
+          description="List of variables for this resource"
+          :headers="[
+            { id: 'name', label: 'Name' },
+            { id: 'description', label: 'Description' },
+          ]"
+          type="Variables"
+          :query="variablesQuery"
+          :filter="{
+            filter: { resource: { id: { equals: route.params.resource } } },
+          }"
+          :rowMapper="variableMapper"
+          v-slot="slotProps"
+        >
+          <VariableDisplay :variable-key="slotProps.id" />
         </TableContent>
 
         <ContentBlock
