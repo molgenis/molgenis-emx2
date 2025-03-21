@@ -33,15 +33,13 @@ export default {
     },
   },
   watch: {
-    contents(htmlString) {
+    contents() {
+      const html = this.session.settings["page." + this.page].html;
       const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlString, "text/html");
+      const doc = parser.parseFromString(html, "text/html");
 
-      /** Loop over the just parsed html items, and add them */
       Array.from(doc.body.children).forEach((el) => {
-        if (el.tagName !== "SCRIPT") {
-          this.$refs.pageContents.appendChild(el);
-        } else {
+        if (el.tagName === "SCRIPT") {
           /** Script tags need a special treatment, else they will not execute. **/
           const scriptEl = document.createElement("script");
           if (el.src) {
@@ -52,6 +50,12 @@ export default {
             scriptEl.textContent = el.textContent;
           }
           this.$refs.pageContents.appendChild(scriptEl);
+        } else if (el.tagName === "STYLE") {
+          const styleEl = document.createElement("style");
+          styleEl.textContent = el.textContent;
+          this.$refs.pageContents.appendChild(styleEl);
+        } else {
+          this.$refs.pageContents.appendChild(el);
         }
       });
     },
