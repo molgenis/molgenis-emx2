@@ -98,7 +98,7 @@ function onCancel() {
           <menu
             class="flex items-center justify-between pt-[20px] pb-[20px] px-[30px]"
           >
-            <FormRequired
+            <FormRequiredInfoSection
               :message="requiredMessage"
               @required-prev="gotoPreviousRequiredField"
               @required-next="gotoNextRequiredField"

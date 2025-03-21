@@ -1,5 +1,5 @@
 <template>
-  <FormRequired
+  <FormRequiredInfoSection
     message="3/20 required fields left"
     @required-prev="requiredPrev"
     @required-next="requiredNext"

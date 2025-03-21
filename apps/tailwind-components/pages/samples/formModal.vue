@@ -66,7 +66,7 @@
 
       <template #footer>
         <div class="flex justify-between items-center">
-          <FormRequired
+          <FormRequiredInfoSection
             :message="requiredMessage"
             @required-next="gotoNextRequiredField"
             @required-prev="gotoPreviousRequiredField"
