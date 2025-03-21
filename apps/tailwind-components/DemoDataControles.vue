@@ -101,7 +101,7 @@ const schemaIds = computed(
 );
 
 const schemaTablesIds = computed(() =>
-  (schemaMeta.value as ISchemaMetaData)?.tables.map((table) => table.id)
+  schemaMeta.value?.tables.map((table) => table.id)
 );
 
 watch(
