@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { IFilterCondition } from "~/interfaces/types";
+import type { columnValue } from "../../../metadata-utils/src/types";
 
 const props = withDefaults(
   defineProps<{
     title: string;
-    conditions: IFilterCondition[];
+    conditions: columnValue;
     search?: string;
     initialCollapsed?: boolean;
     mobileDisplay?: boolean;
@@ -16,7 +16,7 @@ const props = withDefaults(
 );
 
 let isCollapsed = ref(props.initialCollapsed);
-let selected = ref<IFilterCondition[]>([]);
+let selected: Ref<columnValue> = ref([]);
 
 const emit = defineEmits(["update:conditions", "update:search"]);
 
@@ -64,12 +64,12 @@ function clearSearch() {
     </div>
     <div class="text-right grow">
       <span
-        v-if="selected.length"
+        v-if="Array.isArray(selected) ? selected?.length : selected"
         class="text-body-sm hover:underline hover:cursor-pointer"
         :class="`text-search-filter-expand${mobileDisplay ? '-mobile' : ''}`"
         @click="clearSelection()"
       >
-        Remove {{ selected?.length }} selected
+        Remove {{ Array.isArray(selected) ? selected?.length : 1 }} selected
       </span>
       <span
         class="text-body-sm hover:underline hover:cursor-pointer"

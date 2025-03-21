@@ -75,6 +75,22 @@ const pageFilterTemplate: IFilter[] = [
     conditions: [],
   },
   {
+    id: "datasets",
+    config: {
+      label: "Datasets",
+      type: "REF_ARRAY",
+      refTableId: "Datasets",
+      columnId: "datasets",
+      initialCollapsed: true,
+      refFields: {
+        label: "${resource.name}.${name}",
+        name: "name",
+        description: "resource{name}",
+      },
+    },
+    conditions: [],
+  },
+  {
     id: "resources",
     config: {
       label: "Sources",
