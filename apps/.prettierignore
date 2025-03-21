@@ -1,0 +1,5 @@
+build
+coverage
+.nuxt
+.output
+.gradle
