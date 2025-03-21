@@ -1,0 +1,15 @@
+apiVersion: http.keda.sh/v1alpha1
+kind: HTTPScaledObject
+metadata:
+  name: preview-emx2-pr-4430 
+  namespace: preview-emx2-pr-4430
+spec:
+  scaleTargetRef:
+    name: preview-emx2-pr-4430 
+    service: preview-emx2-pr-4430
+    port: 80
+  replicas:
+    min: 0
+    max: 1
+  hosts:
+    - preview-emx2-pr-4430.dev.molgenis.org 
