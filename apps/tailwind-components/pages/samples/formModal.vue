@@ -1,7 +1,7 @@
 <template>
   <Container>
-    <div class="  ">
-      <Button class="m-10" @click="visible = true"> Show</Button>
+    <div>
+      <Button class="m-10" @click="visible = true">Show</Button>
     </div>
 
     <Modal v-model:visible="visible" max-width="max-w-9/10">
@@ -58,7 +58,7 @@
         <FormError
           v-show="errorMessage"
           :message="errorMessage"
-          class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+          class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
           @error-prev="gotoPreviousError"
           @error-next="gotoNextError"
         />
