@@ -1503,7 +1503,7 @@
     unimport "^4.1.2"
     untyped "^2.0.0"
 
-"@nuxt/kit@^3.11.1", "@nuxt/kit@^3.11.2", "@nuxt/kit@^3.13.0", "@nuxt/kit@^3.13.2", "@nuxt/kit@^3.15.4", "@nuxt/kit@^3.5.0":
+"@nuxt/kit@^3.11.1", "@nuxt/kit@^3.11.2", "@nuxt/kit@^3.13.0", "@nuxt/kit@^3.13.2", "@nuxt/kit@^3.15.4":
   version "3.15.4"
   resolved "https://registry.yarnpkg.com/@nuxt/kit/-/kit-3.15.4.tgz#122f511e518573320a035b5e24adf0118d51485d"
   integrity sha512-dr7I7eZOoRLl4uxdxeL2dQsH0OrbEiVPIyBHnBpA4co24CBnoJoF+JINuP9l3PAM3IhUzc5JIVq3/YY3lEc3Hw==
@@ -1529,7 +1529,7 @@
     unimport "^4.0.0"
     untyped "^1.5.2"
 
-"@nuxt/kit@^3.16.1":
+"@nuxt/kit@^3.16.1", "@nuxt/kit@^3.9.0":
   version "3.16.1"
   resolved "https://registry.yarnpkg.com/@nuxt/kit/-/kit-3.16.1.tgz#7acc5457b83fc2c7ecb25d728d83899eef4464d4"
   integrity sha512-Perby8hJGUeCWad5oTVXb/Ibvp18ZCUC5PxHHu+acMDmVfnxSo48yqk7qNd09VkTF3LEzoEjNZpmW2ZWN0ry7A==
@@ -1945,13 +1945,12 @@
     tslib "^2.6.2"
     webcrypto-core "^1.8.0"
 
-"@pinia/nuxt@0.5.1":
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/@pinia/nuxt/-/nuxt-0.5.1.tgz#ee7c979d365a5dfda882430ddfae405fbd78d8d5"
-  integrity sha512-6wT6TqY81n+7/x3Yhf0yfaJVKkZU42AGqOR0T3+UvChcaOJhSma7OWPN64v+ptYlznat+fS1VTwNAcbi2lzHnw==
+"@pinia/nuxt@0.10.1":
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/@pinia/nuxt/-/nuxt-0.10.1.tgz#74cc5d486667bd87e4c1ccc55a134dc437c5cb89"
+  integrity sha512-xrpkKZHSmshPK6kQzboJ+TZiZ5zj73gBCI5SfiUaJkKKS9gx4B1hLEzJIjxZl0/HS5jRWrIvQ+u9ulvIRlNiow==
   dependencies:
-    "@nuxt/kit" "^3.5.0"
-    pinia ">=2.1.7"
+    "@nuxt/kit" "^3.9.0"
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
@@ -11064,7 +11063,7 @@ pinia@2.1.7:
     "@vue/devtools-api" "^6.5.0"
     vue-demi ">=0.14.5"
 
-pinia@3.0.1, pinia@>=2.1.7:
+pinia@3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/pinia/-/pinia-3.0.1.tgz#d19f79a04b2b55fd63f78f1395a8c4a714d96941"
   integrity sha512-WXglsDzztOTH6IfcJ99ltYZin2mY8XZCXujkYWVIJlBjqsP6ST7zw+Aarh63E1cDVYeyUcPCxPHzJpEOmzB6Wg==
@@ -13137,6 +13136,7 @@ string_decoder@~1.1.1:
     safe-buffer "~5.1.0"
 
 "strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
+  name strip-ansi-cjs
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9"
   integrity sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==
@@ -15040,6 +15040,7 @@ wordwrap@^1.0.0, wordwrap@~1.0.0:
   integrity sha512-gvVzJFlPycKc5dZN4yPkP8w7Dc37BtP1yczEneOb4uq34pXZcvrtRTmWV8W+Ume+XCxKgbjM+nevkyFPMybd4Q==
 
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+  name wrap-ansi-cjs
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
