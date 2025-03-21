@@ -39,7 +39,7 @@ const visible = defineModel("visible", {
         <header
           class="pt-[36px] px-[50px] overflow-y-auto border-b border-divider"
         >
-          <div class="text-gray-900" v-if="subtitle">{{ subtitle }}</div>
+          <div v-if="subtitle" class="text-gray-900">{{ subtitle }}</div>
           <h2 v-if="title" class="mb-5 uppercase text-heading-4xl font-display">
             {{ title }}
           </h2>
