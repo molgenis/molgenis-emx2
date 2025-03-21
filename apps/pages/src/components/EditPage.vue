@@ -1,13 +1,11 @@
 <template>
   <div>
-    {{ webContent }}
     <router-link :to="'/' + page">view page</router-link>
     <div class="d-flex">
       <div class="flex-grow-1">
         <h1>{{ title }}</h1>
       </div>
       <div class="mt-2 mb-4 d-flex justify-content-end gap-2">
-        <!-- <ButtonOutline @click=""> Format HTML </ButtonOutline> -->
         <ButtonAction @click="savePage" class="ml-2">Save changes</ButtonAction>
       </div>
     </div>
@@ -19,7 +17,7 @@
         <div class="col-7">
           <div class="position-relative shadow">
             <div class="bg-dark pl-2 size-7 sticky-top">
-              <h2 class="h4 m-0 p-2 text-white">HTML</h2>
+              <h2 class="h6 m-0 p-2 text-white">HTML</h2>
             </div>
             <div
               ref="html"
@@ -28,7 +26,7 @@
           </div>
           <div class="position-relative mt-4 shadow">
             <div class="bg-dark pl-2 size-7 sticky-top">
-              <h2 class="h4 m-0 p-2 text-white">CSS</h2>
+              <h2 class="h6 m-0 p-2 text-white">CSS</h2>
             </div>
             <div
               ref="css"
@@ -37,11 +35,11 @@
           </div>
           <div class="position-relative mt-4 shadow">
             <div class="bg-dark pl-2 size-7 sticky-top">
-              <h2 class="h4 m-0 p-2 text-white">JS</h2>
+              <h2 class="h6 m-0 p-2 text-white">JS</h2>
             </div>
             <div
               ref="javascript"
-              @keyup="(event) => onCodeInput(event.target.value, 'javscript')"
+              @keyup="(event) => onCodeInput(event.target.value, 'javascript')"
             />
           </div>
         </div>
@@ -77,22 +75,17 @@ export default {
   },
   data() {
     return {
+      initialLoadComplete: false,
       graphqlError: null,
       success: null,
       loading: false,
-      viewHtml: false,
-      draft: "<h1>New page</h1><p>Add your contents here</p>",
-      dirty: false,
       html: {},
       css: {},
       javascript: {},
-      webContent: {
+      content: {
         html: "",
-        content: {
-          html: `<p class="welcome-message">Hello, world!</p>`,
-          css: ".welcome-message { color: blue; }",
-          javascript: "",
-        },
+        css: "",
+        javascript: "",
       },
     };
   },
@@ -110,13 +103,22 @@ export default {
         return "Edit page '" + this.page + "'";
       else return "Create new page '" + this.page + "'";
     },
+    webContent() {
+      return {
+        html: this.setHtmlString(),
+        content: this.content,
+      };
+    },
+    webContentJson() {
+      return JSON.stringify(this.webContent);
+    },
   },
   methods: {
     initEditor(editor) {
       const editorRef = this.$refs[editor];
       this[editor] = monaco.editor.create(editorRef, {
         automaticLayout: true,
-        value: this.webContent.content[editor],
+        value: this.content[editor],
         language: editor,
         theme: "vs-dark",
         autoClosingBrackets: true,
@@ -139,35 +141,31 @@ export default {
     },
 
     onCodeInput(content, editor) {
-      this.webContent.content[editor] = content;
+      this.content[editor] = content;
     },
 
-    setWebContentHtml() {
-      const content = [];
-      if (this.webContent.content.css && this.webContent.content.css !== "") {
+    setHtmlString() {
+      const doc = [];
+      if (this.content.css) {
         const cssMarkup = [
           "<style type='text/css'>",
-          this.webContent.content.css,
+          this.content.css,
           "</style>",
         ].join("");
-        content.push(cssMarkup);
+        doc.push(cssMarkup);
       }
 
-      content.push(this.webContent.content.html);
+      doc.push(this.content.html);
 
-      if (
-        this.webContent.content.javascript &&
-        this.webContent.content.javascript !== ""
-      ) {
+      if (this.content.javascript) {
         const jsMarkup = [
           "<script type='text/javascript'>",
-          this.webContent.content.javascript,
+          this.content.javascript,
           "</style>",
         ].join("");
-        content.push(jsMarkup);
+        doc.push(jsMarkup);
       }
-
-      this.webContent.html = content.join("").trim();
+      return doc.join("").trim();
     },
 
     savePage() {
@@ -180,13 +178,13 @@ export default {
         {
           settings: {
             key: "page." + this.page,
-            value: JSON.stringify(this.webContent),
+            value: this.webContentJson,
           },
         }
       )
         .then((data) => {
           this.success = data.change.message;
-          this.session.settings["page." + this.page] = this.webContent;
+          this.session.settings["page." + this.page] = this.webContentJson;
         })
         .catch((graphqlError) => {
           this.graphqlError = graphqlError.response.errors[0].message;
@@ -199,9 +197,8 @@ export default {
         this.session.settings &&
         this.session.settings["page." + this.page]
       ) {
-        this.webContent = this.session.settings["page." + this.page];
-      } else {
-        return "New page, edit here";
+        const doc = this.session.settings["page." + this.page];
+        this.content = doc.content;
       }
     },
   },
@@ -215,18 +212,14 @@ export default {
         this.reload();
       },
     },
-    webContent: {
-      deep: true,
-      handler() {
-        this.setWebContentHtml();
-      },
-    },
-  },
-  mounted() {
-    this.createAllEditors();
   },
   created() {
     this.reload();
+  },
+  mounted() {
+    setTimeout(() => {
+      this.createAllEditors();
+    }, 25);
   },
 };
 </script>
