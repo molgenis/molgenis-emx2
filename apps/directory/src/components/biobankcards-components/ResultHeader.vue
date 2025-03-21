@@ -9,13 +9,13 @@
       <tbody>
         <tr>
           <td class="text-nowrap">
-            {{ organisationLabel }}:
+            Organisations:
             {{ biobanksStore.biobankCardsBiobankCount }}
           </td>
         </tr>
         <tr>
           <td class="text-nowrap">
-            {{ collectionLabel }}:
+            Collections:
             {{
               biobanksStore.biobankCardsCollectionCount +
               biobanksStore.biobankCardsSubcollectionCount
@@ -24,7 +24,7 @@
         </tr>
         <tr>
           <td class="text-nowrap">
-            {{ serviveLabel }}: {{ biobanksStore.biobankCardsServicesCount }}
+            Services: {{ biobanksStore.biobankCardsServicesCount }}
           </td>
         </tr>
       </tbody>
@@ -33,24 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { useBiobanksStore } from "../../stores/biobanksStore";
 
 const biobanksStore = useBiobanksStore();
-
-const organisationLabel = computed(() => {
-  return biobanksStore.biobankCardsBiobankCount > 1
-    ? "Organisations"
-    : "Organisation";
-});
-
-const collectionLabel = computed(() => {
-  return biobanksStore.biobankCardsCollectionCount > 1
-    ? "Collections"
-    : "Collection";
-});
-
-const serviveLabel = computed(() => {
-  return biobanksStore.biobankCardsServicesCount > 1 ? "Services" : "Service";
-});
 </script>
