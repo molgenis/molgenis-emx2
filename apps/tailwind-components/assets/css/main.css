@@ -27,6 +27,19 @@
     --color-gray-300: #444444;
     --color-gray-400: #c0c0c0;
     --color-gray-600: #2c2c2c;
+    --color-blue-50: #e1f0ff;
+    --color-blue-100: #add6ff;
+    --color-blue-200: #8bc5ff;
+    --color-blue-300: #53a9ff;
+    --color-blue-500: #0173e4;
+    --color-blue-700: #015cb6;
+    --color-blue-800: #014f9e;
+    --color-blue-900: #013f7e;
+    --color-gray-50: #f9f9f9;
+    --color-gray-100: #f4f4f4;
+    --color-gray-200: #e2e2e2;
+    --color-gray-400: #c0c0c0;
+    --color-gray-600: #2c2c2c;
     --color-gray-700: #414141;
     --color-gray-800: #1e1e1e;
     --color-gray-900: #1d1d1d;
@@ -85,6 +98,8 @@
     --background-color-search-button-hover: var(--color-blue-700);
     --background-color-button-filter: var(--color-blue-50);
     --background-color-button-filter-hover: var(--color-white);
+    --background-color-button-tree-node-toggle: var(--color-blue-800);
+
     --background-color-navigation: var(--color-white);
     --background-color-navigation-sticky: var(--background-color-navigation);
     --background-color-search-results-view-tabs: var(--color-blue-800);
@@ -105,9 +120,6 @@
     --background-color-input: var(--color-white);
     --background-color-input-checked: var(--color-blue-500);
     --background-color-input-focused: var(--color-blue-800);
-    --background-color-listbox: var(--color-white);
-    --background-color-listbox-hover: var(--color-gray-100);
-    --background-color-listbox-selected: var(--color-blue-500);
     --background-color-table: var(--color-white);
     --background-color-notification: var(--color-red-700);
     --background-color-code-output: var(--color-gray-100);
@@ -123,6 +135,9 @@
     --text-color-button-disabled: var(--color-gray-600);
     --text-color-button-disabled-hover: var(--color-gray-600);
     --text-color-button-filter: var(--color-blue-500);
+    --text-color-button-tree-node-toggle: var(--color-blue-800);
+    --text-color-button-tree-node-toggle-hover: var(--color-white);
+
     --text-color-menu: var(--text-color-title);
     --text-color-sub-menu: var(--color-blue-500);
     --text-color-sub-menu-hover: var(--color-blue-700);
@@ -161,9 +176,6 @@
     --text-color-pagination-hover: var(--color-white);
     --text-color-pagination-button: var(--color-white);
     --text-color-link: var(--color-blue-500);
-    --text-color-listbox: var(--color-black);
-    --text-color-listbox-hover: var(--color-black);
-    --text-color-listbox-selected: var(--color-blue-50);
     --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);
     --text-color-form-header: var(--color-blue-800);
@@ -196,8 +208,6 @@
     --border-color-input-hover: var(--color-blue-500);
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
-    --border-color-listbox-option: var(--color-gray-100);
-    --border-color-listbox: var(--border-color-input);
 
     --border-radius-theme: 0px;
     --border-radius-3px: 3px;

@@ -42,6 +42,7 @@ const emitSelectedChildren = ref(true);
   <div class="flex flex-row gap-2 mb-4">
     <div class="basis-3/5">
       <InputTree
+        id="tree-story-input"
         :nodes="nodes"
         v-model="selectedNodesNames"
         :expandSelected="expandSelected"
@@ -52,7 +53,7 @@ const emitSelectedChildren = ref(true);
       />
     </div>
 
-    <div class="basis-2/5 p-2">
+    <div class="basis-2/5 p-2 text-title">
       <fieldset class="border border-gray-900 mb-2">
         <legend class="m-2 px-2">Props</legend>
         <div class="mb-2">
@@ -84,26 +85,23 @@ const emitSelectedChildren = ref(true);
             type="checkbox"
             v-model="emitSelectedChildren"
           />
-          <label class="ml-1 hover:cursor-pointer" for="tree-inverted">
+          <label class="ml-1 hover:cursor-pointer" for="tree-emit-children">
             emitSelectedChildren
           </label>
         </div>
       </fieldset>
 
       <div class="mb-2">
-        <button
-          @click="clearSelection"
-          class="bg-orange-500 hover:bg-white py-2 px-4 rounded border border-gray-900"
-        >
+        <Button @click="clearSelection" type="outline" size="small">
           Clear selection
-        </button>
+        </Button>
       </div>
       <hr />
       <div class="my-2">
         Number off selected nodes: {{ selectedNodesNames.length }}
       </div>
       <div>
-        <h3 class="font-bold">Selected nodes:</h3>
+        <h2 class="font-bold">Selected nodes:</h2>
         <ul>
           <li v-for="selectedNodeName in selectedNodesNames">
             {{ selectedNodeName }}

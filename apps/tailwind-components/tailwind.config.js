@@ -146,6 +146,8 @@ module.exports = {
         "button-disabled-hover": "var(background-color-button-disabled-hover)",
         "button-filter": "var(--background-color-button-filter)",
         "button-filter-hover": "var(--background-color-button-filter-hover)",
+        "button-tree-node-toggle":
+          "var(--background-color-button-tree-node-toggle)",
         "search-button": "var(--background-color-search-button)",
         "search-button-hover": "var(--background-color-search-button-hover)",
         navigation: "var(--background-color-navigation)",
@@ -165,6 +167,7 @@ module.exports = {
         "form-required-btn-hover":
           "var(--background-color-form-required-btn-hover)",
         modal: "var(--background-color-modal)",
+        footer: "var(--background-color-footer)",
         "modal-footer": "var(--background-color-modal-footer)",
         tab: "var(--background-color-tab)",
         "tab-hover": "var(--background-color-tab-hover)",
@@ -179,6 +182,15 @@ module.exports = {
         listbox: "var(--background-color-listbox)",
         "listbox-hover": "var(--background-color-listbox-hover)",
         "listbox-selected": "var(--background-color-listbox-selected)",
+        table: "var(--background-color-table)",
+        notification: "var(--background-color-notification)",
+        valid: "var(--color-valid-background)",
+        invalid: "var(--color-invalid-background)",
+        disabled: "var(--color-disabled-background)",
+        neutral: "var(--color-neutral-background)",
+        input: "var(--background-color-input)",
+        "input-focused": "var(--background-color-input-focused)",
+        "input-checked": "var(--background-color-button-primary)",
         table: "var(--background-color-table)",
         notification: "var(--background-color-notification)",
         "code-output": "var(--background-color-code-output)",
@@ -196,6 +208,10 @@ module.exports = {
         "button-disabled-hover": "var(--text-color-button-disabled-hover)",
         "button-filter": "var(--text-color-button-filter)",
         "button-text": "var(--text-color-button-text)",
+        menu: "var(--text-color-menu)",
+        "button-tree-node-toggle": "var(--text-color-button-tree-node-toggle)",
+        "button-tree-node-toggle-hover":
+          "var(--text-color-button-tree-node-toggle-hover)",
         menu: "var(--text-color-menu)",
         "sub-menu": "var(--text-color-sub-menu)",
         "sub-menu-hover": "var(--text-color-sub-menu-hover)",
@@ -245,8 +261,16 @@ module.exports = {
         link: "var(--text-color-link)",
         "table-column-header": "var(--text-color-table-column-header)",
         "form-header": "var(--text-color-form-header)",
+
         input: "var(--text-color-input)",
         "input-description": "var(--text-color-input-description)",
+
+        required: "var(--text-color-required)",
+        listbox: "var(--text-color-listbox)",
+        "listbox-hover": "var(--text-color-listbox-hover)",
+        "listbox-selected": "var(--text-color-listbox-selected)",
+        "input-checked": "var(--text-color-button-primary)",
+        "input-focused": "var(--text-color-button-primary)",
 
         invalid: "var(--color-invalid-foreground)",
         neutral: "var(--color-neutral-foreground)",
@@ -254,9 +278,6 @@ module.exports = {
         disabled: "var(--color-disabled-foreground)",
 
         required: "var(--text-color-required)",
-        listbox: "var(--text-color-listbox)",
-        "listbox-hover": "var(--text-color-listbox-hover)",
-        "listbox-selected": "var(--text-color-listbox-selected)",
         "button-input-toggle": "var(--text-color-button-input-toggle)",
         "legend-error-count": "var(--text-color-legend-error-count)",
         "code-output": "var(--text-color-code-output)",
@@ -295,6 +316,7 @@ module.exports = {
       }),
       stroke: ({ theme }) => ({
         input: "var(--border-color-input)",
+        "input-checked": "var(--text-color-button-primary)",
         "input-focused": "var(--border-color-input-focused)",
         "notification-text": "var(--text-color-legend-error-count)",
         check: "var(--text-color-button-primary)",
@@ -306,8 +328,7 @@ module.exports = {
       fill: ({ theme }) => ({
         input: "var(--background-color-input)",
         "input-focused": "var(--background-color-input-focused)",
-        "input-checked": "var(--background-color-input-checked)",
-        "listbox-selected": "var(--text-color-listbox-selected)",
+        "input-checked": "var(--background-color-button-primary)",
         notification: "var(--background-color-notification)",
         "notification-text": "var(--text-color-legend-error-count)",
         check: "var(--text-color-button-primary)",

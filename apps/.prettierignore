@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 # Ignore artifacts:
+=======
+>>>>>>> 02293dd782f6eb0574a5787e5a2a38261671dadf
 build
 coverage
 .nuxt
 .output
+<<<<<<< HEAD
 .gradle
+=======
+.gradle
+>>>>>>> 02293dd782f6eb0574a5787e5a2a38261671dadf
