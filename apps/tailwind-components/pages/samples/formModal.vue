@@ -1,55 +1,3 @@
-<script setup lang="ts">
-import type { ITableMetaData } from "../../../metadata-utils/src";
-import type { columnValue, columnId } from "../../../metadata-utils/src/types";
-import cohortTableMetadata from "./data/cohort-table-metadata";
-
-definePageMeta({
-  layout: "full-page",
-});
-
-useHead({
-  htmlAttrs: {
-    "data-theme": (useRoute().query.theme as string) || "light",
-  },
-});
-
-const visible = ref<boolean>(false);
-
-const formValues = ref<Record<string, columnValue>>({});
-const metadata = cohortTableMetadata as ITableMetaData;
-const errorMap = ref<Record<columnId, string>>({});
-
-const activeChapterId = ref<string>("_scroll_to_top");
-const sections = useSections(metadata, activeChapterId, errorMap);
-
-function onSave() {
-  alert("Do Save");
-}
-
-function onSaveDraft() {
-  alert("Do draft save");
-}
-
-function scrollToElementInside(containerId: string, elementId: string) {
-  const container = document.getElementById(containerId);
-  const element = document.getElementById(elementId);
-  if (container && element) {
-    container.scrollTop = element.offsetTop - container.offsetTop;
-    element.scrollIntoView();
-  }
-}
-
-const {
-  requiredMessage,
-  errorMessage,
-  gotoPreviousRequiredField,
-  gotoNextRequiredField,
-  gotoNextError,
-  gotoPreviousError,
-} = useForm(metadata, formValues, errorMap, (fieldId) => {
-  scrollToElementInside("fields-container", fieldId);
-});
-</script>
 <template>
   <Container>
     <div class="  ">
@@ -152,3 +100,56 @@ const {
   transform: translateY(62px);
 }
 </style>
+
+<script setup lang="ts">
+import type { ITableMetaData } from "../../../metadata-utils/src";
+import type { columnValue, columnId } from "../../../metadata-utils/src/types";
+import cohortTableMetadata from "./data/cohort-table-metadata";
+
+definePageMeta({
+  layout: "full-page",
+});
+
+useHead({
+  htmlAttrs: {
+    "data-theme": (useRoute().query.theme as string) || "light",
+  },
+});
+
+const visible = ref<boolean>(false);
+
+const formValues = ref<Record<string, columnValue>>({});
+const metadata = cohortTableMetadata as ITableMetaData;
+const errorMap = ref<Record<columnId, string>>({});
+
+const activeChapterId = ref<string>("_scroll_to_top");
+const sections = useSections(metadata, activeChapterId, errorMap);
+
+function onSave() {
+  alert("Do Save");
+}
+
+function onSaveDraft() {
+  alert("Do draft save");
+}
+
+function scrollToElementInside(containerId: string, elementId: string) {
+  const container = document.getElementById(containerId);
+  const element = document.getElementById(elementId);
+  if (container && element) {
+    container.scrollTop = element.offsetTop - container.offsetTop;
+    element.scrollIntoView();
+  }
+}
+
+const {
+  requiredMessage,
+  errorMessage,
+  gotoPreviousRequiredField,
+  gotoNextRequiredField,
+  gotoNextError,
+  gotoPreviousError,
+} = useForm(metadata, formValues, errorMap, (fieldId) => {
+  scrollToElementInside("fields-container", fieldId);
+});
+</script>
