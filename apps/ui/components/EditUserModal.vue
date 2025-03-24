@@ -1,5 +1,5 @@
 <template>
-  <Modal ref="modal" :title="`Edit user: ${userName}`">
+  <Modal v-model:visible="visible" :title="`Edit user: ${userName}`">
     <div>
       <b>New password</b>
       <InputString
@@ -91,12 +91,9 @@
 </template>
 
 <script setup lang="ts">
-import { type Modal } from "#build/components";
 import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
 import { isValidPassword, updateUser } from "~/util/adminUtils";
 import _ from "lodash";
-
-const modal = ref<InstanceType<typeof Modal>>();
 
 const { schemas, roles } = defineProps<{
   schemas: ISchemaInfo[];
@@ -121,7 +118,7 @@ const SchemaIds = computed(() => {
 const emit = defineEmits(["userUpdated"]);
 
 function closeEditUserModal() {
-  modal.value?.close();
+  visible.value = false;
 }
 
 function addRole() {
@@ -150,7 +147,7 @@ function showModal(selectedUser: IUser) {
     userRoles.value = getRoles(selectedUser.roles || []);
     userTokens.value = selectedUser.tokens || ([] as string[]);
   }
-  modal.value?.show();
+  visible.value = true;
 }
 
 function getRoles(roles: IRole[]): Record<string, IRole> {
@@ -182,15 +179,14 @@ async function saveUser() {
 
   await updateUser(editedUser);
   emit("userUpdated");
-  modal.value?.close();
+  visible.value = false;
 }
 
 function closeModal() {
-  modal.value?.close();
+  visible.value = false;
 }
 
-defineExpose({
-  show: showModal,
-  close: closeModal,
-});
+const visible = ref(false);
+
+
 </script>
