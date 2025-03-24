@@ -1,6 +1,6 @@
 <template>
-  <nav class="pt-4 pb-8 bg-sidebar-gradient" v-if="sections.length > 1">
-    <h3 class="text-disabled p-4 ml-1">Jump to</h3>
+  <nav class="pt-4 pb-8" v-if="sections.length > 1">
+    <h3 class="text-disabled p-4 ml-4">Jump to</h3>
     <ul class="list-none space-y-3">
       <li
         v-for="section in sections"
@@ -11,13 +11,13 @@
           :class="{ 'bg-button-primary': section.isActive }"
         />
         <a
-          class="pl-4 flex items-center"
+          class="pl-7 flex items-center"
           href="#"
           :aria-current="section.isActive"
           @click.prevent="emit('goToSection', section.id)"
         >
           <span
-            class="text-title capitalize"
+            class="text-title-contrast capitalize"
             :class="{ 'font-bold': section.isActive }"
           >
             {{ section.label }}
