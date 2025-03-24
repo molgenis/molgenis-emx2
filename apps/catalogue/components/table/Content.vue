@@ -50,6 +50,13 @@ watch(orderByColumn, () => {
   fetchRows();
 });
 
+watch(
+  () => props.filter,
+  () => {
+    fetchRows();
+  }
+);
+
 function setCurrentPage(newPageNumber: number) {
   pageNumber.value = newPageNumber;
   fetchRows();
@@ -63,16 +70,13 @@ function setActiveSideModal(value: string) {
 
 <template>
   <ContentBlock :title="title" :description="description">
-    <ButtonGroup
-      v-if="count > pageSize || primaryActionPath"
-      class="flex mb-5 flex-wrap"
-    >
+    <ButtonGroup class="flex mb-5 flex-wrap">
       <div class="grow">
         <NuxtLink v-if="primaryActionPath" :to="primaryActionPath">
           <Button :label="primaryActionLabel" type="tertiary" size="medium" />
         </NuxtLink>
       </div>
-      <slot name="filter-group"> filter group </slot>
+      <slot name="filter-group"></slot>
       <div v-if="count > pageSize" class="relative">
         <label
           class="block absolute text-body-xs top-2 left-6 pointer-events-none"

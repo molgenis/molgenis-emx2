@@ -286,13 +286,25 @@ function variableMapper(variable: IVariable) {
   };
 }
 
-const datasetOptions = ref<Array<{ name: string }>>([]);
-const datasetFilter = ref<string | null>(null);
+const datasetOptions = ref<Array<{ name: string }>>([{ name: "All datasets" }]);
+const datasetFilter = ref<string>("All datasets");
+
+const variablesFilter = computed(() => {
+  return {
+    filter: {
+      resource: { id: { equals: route.params.resource } },
+      dataset:
+        datasetFilter.value === "All datasets"
+          ? undefined
+          : { name: { equals: datasetFilter.value } },
+    },
+  };
+});
 
 async function fetchDatasetOptions() {
   const query = gql`
     query DatasetOptions($id: String) {
-      Datasets(filter: { resource: { id: { equals: $id } } }) {
+      Datasets(filter: { resource: { id: { equals: [$id] } } }) {
         name
       }
     }
@@ -310,7 +322,9 @@ async function fetchDatasetOptions() {
     logError(error.value, "Error fetching dataset options");
   }
 
-  datasetOptions.value = data.value?.data?.Datasets || [];
+  datasetOptions.value = data.value?.data?.Datasets
+    ? [...datasetOptions.value, ...data.value?.data?.Datasets]
+    : datasetOptions.value;
 }
 
 fetchDatasetOptions();
@@ -749,9 +763,7 @@ const showPopulation = computed(
           ]"
           type="Variables"
           :query="variablesQuery"
-          :filter="{
-            filter: { resource: { id: { equals: route.params.resource } } },
-          }"
+          :filter="variablesFilter"
           :rowMapper="variableMapper"
         >
           <template #filter-group>
