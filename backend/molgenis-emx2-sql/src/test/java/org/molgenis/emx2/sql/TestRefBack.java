@@ -280,7 +280,9 @@ public class TestRefBack {
                 .setRefTable("treatmentxyz")
                 .setRefBack("partOfSubject"));
     schema.getTable("subject").insert(row("id", "s1"));
-    schema.getTable("treatmentxyz").insert(row("id", "t1"));
+    schema.getTable("treatmentxyz").insert(row("id", "t1", "partOfSubject", "s1"));
+    List<Row> subjects = schema.query("subject").retrieveRows();
+    assertEquals("t1", subjects.get(0).getString("treatxyz"));
   }
 
   @Test

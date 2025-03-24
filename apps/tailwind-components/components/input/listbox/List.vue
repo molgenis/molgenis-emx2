@@ -3,7 +3,7 @@
     role="listbox"
     ref="ul"
     :aria-expanded="isExpanded"
-    class="absolute b-0 w-full overflow-y-scroll z-10 bg-listbox border"
+    class="absolute b-0 w-full overflow-y-scroll z-10 bg-input border"
     :class="{
       hidden: !isExpanded,
       'h-44': isExpanded && hasFixedHeight,
