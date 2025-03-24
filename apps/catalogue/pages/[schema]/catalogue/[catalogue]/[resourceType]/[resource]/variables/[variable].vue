@@ -41,8 +41,11 @@ crumbs[
   `${route.params.catalogue}`
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
 crumbs[
-  "variables"
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}/variables`;
+  route.params.resourceType as string
+] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
+crumbs[
+  route.params.resource as string
+] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}#Variables`;
 
 const resourcesWithMapping = computed(() => {
   if (!resources.value) return [];
@@ -74,11 +77,6 @@ if (resourcesWithMapping.value.length > 0) {
     label: "Harmonisation details per source",
     id: "harmonisation-details-per-source",
   });
-} else {
-  tocItems.push({
-    label: "Harmonisation",
-    id: "harmonisation-details-no-mapping",
-  });
 }
 
 const titlePrefix =
@@ -102,7 +100,7 @@ useHead({ title: titlePrefix + variable.value.name });
         </template> -->
       </PageHeader>
     </template>
-    <template #side>
+    <template v-if="tocItems.length > 1" #side>
       <SideNavigation
         :title="variable?.name"
         :items="tocItems"
@@ -136,6 +134,10 @@ useHead({ title: titlePrefix + variable.value.name });
                 label: 'Description',
                 content: variable?.description,
               },
+              {
+                label: 'Dataset',
+                content: variable?.dataset?.name,
+              },
             ]"
           >
           </CatalogueItemList>
@@ -160,14 +162,6 @@ useHead({ title: titlePrefix + variable.value.name });
           description="Select a data source to see the details of the harmonisation"
         >
           <HarmonisationVariableDetails :variable="variable" />
-        </ContentBlock>
-
-        <ContentBlock
-          v-if="resourcesWithMapping.length === 0"
-          id="harmonisation-details-no-mapping"
-          title="Harmonisation"
-          description="No mapping found for this variable"
-        >
         </ContentBlock>
       </ContentBlocks>
     </template>
