@@ -474,6 +474,24 @@ public class SqlQuery extends QueryBean {
               jsonFilterQueryConditions(table, column, tableAlias, subAlias, filter, searchTerms));
         case TRIGRAM_SEARCH, TEXT_SEARCH:
           return jsonSearchConditions(table, subAlias, TypeUtils.toStringArray(filter.getValues()));
+        case MATCH_ANY_INCLUDING_PARENTS,
+            MATCH_PATH,
+            MATCH_ALL,
+            MATCH_ANY_INCLUDING_CHILDREN,
+            SEARCH_INCLUDING_PARENTS:
+          // check for table level filter for ontologies (weird getColumn), apply to "name" columm
+          if (filter.getOperator().getName().equals(filter.getColumn())) {
+            return whereCondition(
+                tableAlias,
+                // use the table itself
+                new Column("name")
+                    .setType(ColumnType.ONTOLOGY)
+                    .setRefSchemaName(table.getSchemaName())
+                    .setRefTable(table.getTableName()),
+                filter.getOperator(),
+                filter.getValues());
+          }
+          // else use default
         default:
           // then it must be a column filter
           return whereCondition(
@@ -953,7 +971,7 @@ public class SqlQuery extends QueryBean {
             join =
                 join.leftJoin(
                         DSL.select(refbackSelection)
-                            .from(column.getRefTable().getJooqTable())
+                            .from(tableWithInheritanceJoin(column.getRefTable()))
                             .groupBy(
                                 refBack.getReferences().stream()
                                     .map(ref -> field(name("_refback_" + ref.getRefTo())))
@@ -1181,37 +1199,86 @@ public class SqlQuery extends QueryBean {
         return whereColumnBetween(columnName, values);
       case MATCH_ANY_INCLUDING_PARENTS:
         return whereColumnMatchAnyIncludingParents(column, values);
+      case SEARCH_INCLUDING_PARENTS:
+        return whereColumnSearchIncludingParents(column, values);
       case MATCH_ANY_INCLUDING_CHILDREN:
-        return whereColumnMatchAnyIcludingChilderen(column, values);
+        return whereColumnMatchAnyIncludingChilderen(column, values);
       case MATCH_PATH:
         return or(
             whereColumnMatchAnyIncludingParents(column, values),
-            whereColumnMatchAnyIcludingChilderen(column, values));
+            whereColumnMatchAnyIncludingChilderen(column, values));
       default:
         throw new MolgenisException("Unknown operator: " + operator);
     }
   }
 
-  private Condition whereColumnMatchAnyIcludingChilderen(Column column, Object[] values) {
-    return whereColumnInSubquery(
-        column,
-        DSL.select(
-            field(
-                "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
-                column.getRefTable().getSchemaName(),
-                column.getRefTable().getTableName(),
-                TypeUtils.toStringArray(values))));
+  private Condition whereColumnMatchAnyIncludingChilderen(Column column, Object[] values) {
+    if (column.isArray()) {
+      return whereColumnInSubquery(
+          column,
+          DSL.select(
+              field(
+                  "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
+                  column.getRefSchemaName(),
+                  column.getRefTableName(),
+                  TypeUtils.toStringArray(values))));
+    } else {
+      return condition(
+          "{0} = ANY(ARRAY({1}))",
+          name(column.getName()),
+          DSL.select(
+              field(
+                  "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
+                  column.getRefSchemaName(),
+                  column.getRefTableName(),
+                  TypeUtils.toStringArray(values))));
+    }
   }
 
   private Condition whereColumnMatchAnyIncludingParents(Column column, Object[] values) {
-    return whereColumnInSubquery(
-        column,
-        DSL.select(
-            field(
-                "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
-                column.getRefTable().getSchemaName(),
-                column.getRefTable().getTableName(),
-                TypeUtils.toStringArray(values))));
+    if (column.isArray()) {
+      return whereColumnInSubquery(
+          column,
+          DSL.select(
+              field(
+                  "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
+                  column.getRefSchemaName(),
+                  column.getRefTableName(),
+                  value(TypeUtils.toStringArray(values)))));
+    } else {
+      return condition(
+          "{0} = ANY(ARRAY({1}))",
+          name(column.getName()),
+          DSL.select(
+              field(
+                  "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
+                  column.getRefSchemaName(),
+                  column.getRefTableName(),
+                  value(TypeUtils.toStringArray(values)))));
+    }
+  }
+
+  private Condition whereColumnSearchIncludingParents(Column column, Object[] values) {
+    if (column.isArray()) {
+      return whereColumnInSubquery(
+          column,
+          DSL.select(
+              field(
+                  "\"MOLGENIS\".search_terms_including_parents({0},{1},{2})",
+                  column.getRefSchemaName(),
+                  column.getRefTableName(),
+                  value(TypeUtils.toStringArray(values)))));
+    } else {
+      return condition(
+          "{0} = ANY(ARRAY({1}))",
+          name(column.getName()),
+          DSL.select(
+              field(
+                  "\"MOLGENIS\".search_terms_including_parents({0},{1},{2})",
+                  column.getRefSchemaName(),
+                  column.getRefTableName(),
+                  value(TypeUtils.toStringArray(values)))));
+    }
   }
 
   private static @NotNull Condition whereColumnTextSearch(
