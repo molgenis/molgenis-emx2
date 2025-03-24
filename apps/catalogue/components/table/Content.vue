@@ -72,6 +72,7 @@ function setActiveSideModal(value: string) {
           <Button :label="primaryActionLabel" type="tertiary" size="medium" />
         </NuxtLink>
       </div>
+      <slot name="filter-group"> filter group </slot>
       <div v-if="count > pageSize" class="relative">
         <label
           class="block absolute text-body-xs top-2 left-6 pointer-events-none"

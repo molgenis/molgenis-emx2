@@ -19,7 +19,7 @@ const imageMap: Record<string, string> = {
   networks: "image-network",
 };
 
-const title = route.params.resourceType;
+const title = route.params.resourceType as string;
 const description: string | undefined =
   descriptionMap[route.params.resourceType as string];
 const image: string | undefined = imageMap[route.params.resourceType as string];

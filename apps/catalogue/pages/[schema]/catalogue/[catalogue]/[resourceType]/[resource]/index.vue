@@ -276,7 +276,7 @@ function variableMapper(variable: IVariable) {
   return {
     id: key,
     name: variable.name,
-    description: variable.description,
+    dataset: variable.dataset.name,
     _renderComponent: "VariableDisplay",
     _path: `/${route.params.schema}/catalogue/${route.params.catalogue}/${
       route.params.resourceType
@@ -285,6 +285,35 @@ function variableMapper(variable: IVariable) {
     )}`,
   };
 }
+
+const datasetOptions = ref<Array<{ name: string }>>([]);
+const datasetFilter = ref<string | null>(null);
+
+async function fetchDatasetOptions() {
+  const query = gql`
+    query DatasetOptions($id: String) {
+      Datasets(filter: { resource: { id: { equals: $id } } }) {
+        name
+      }
+    }
+  `;
+  const variables = { id: route.params.resource };
+  const { data, error } = await useFetch<
+    { data: { Datasets: { name: string }[] } },
+    IMgError
+  >(`/${route.params.schema}/graphql`, {
+    method: "POST",
+    body: { query, variables },
+  });
+
+  if (error.value) {
+    logError(error.value, "Error fetching dataset options");
+  }
+
+  datasetOptions.value = data.value?.data?.Datasets || [];
+}
+
+fetchDatasetOptions();
 
 const networks = computed(() =>
   !resource.value.partOfResources
@@ -715,8 +744,8 @@ const showPopulation = computed(
           id="Variables"
           description="List of variables for this resource"
           :headers="[
+            { id: 'dataset', label: 'Dataset' },
             { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description' },
           ]"
           type="Variables"
           :query="variablesQuery"
@@ -724,9 +753,32 @@ const showPopulation = computed(
             filter: { resource: { id: { equals: route.params.resource } } },
           }"
           :rowMapper="variableMapper"
-          v-slot="slotProps"
         >
-          <VariableDisplay :variable-key="slotProps.id" />
+          <template #filter-group>
+            <div class="relative">
+              <label
+                class="block absolute text-body-xs top-2 left-6 pointer-events-none"
+                for="filter-by-data-set"
+              >
+                Filter by dataset
+              </label>
+              <select
+                v-model="datasetFilter"
+                name="filter-by-data-set"
+                class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none hover:bg-gray-100 hover:cursor-pointer bg-none"
+              >
+                <option v-for="option in datasetOptions" :value="option.name">
+                  {{ option.name }}
+                </option>
+              </select>
+              <span class="absolute right-5 top-5 pointer-events-none">
+                <BaseIcon name="caret-down" :width="20" />
+              </span>
+            </div>
+          </template>
+          <template #default="slotProps">
+            <VariableDisplay :variable-key="slotProps.id" />
+          </template>
         </TableContent>
 
         <ContentBlock
