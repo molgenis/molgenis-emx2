@@ -38,7 +38,7 @@
                     visit the molgenis website to learn more
                   </span>
                   <img
-                    src="/molgenis-logo-blue-text.png"
+                    src="/img/molgenis-logo-blue-text.png"
                     class="molgenis-logo"
                     alt="molgenis open source data platform"
                   />

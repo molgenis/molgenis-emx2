@@ -30,22 +30,19 @@
         </li>
       </template>
       <template v-slot:column-logos>
-        <li id="genturis-logo-link">
-          <a href="/">
-            <!-- <img
-              src="..."
-              class="project-logo logo-small"
-              alt="KWF Nestor project"
-            /> -->
-            logo will go here
-          </a>
-        </li>
         <!-- <li id="project-funding-logo">
           <img
             src="...."
             alt="european reference network funded by the european union"
           />
         </li> -->
+        <li id="project-logo-link">
+          <img
+            src="/img/nestor-logo.png"
+            class="logo logo-small"
+            alt="The Nestor Registry"
+          />
+        </li>
       </template>
       <template v-slot:site-citation>
         <li>

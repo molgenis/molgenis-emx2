@@ -8,12 +8,12 @@ export default defineConfig(() => {
     css: {
       preprocessorOptions: {
         scss: {
-          // @import "src/styles/variables.scss";
           additionalData: `
           @import "../molgenis-viz/src/styles/palettes.scss";
           @import "../molgenis-viz/src/styles/variables.scss";
           @import "../molgenis-viz/src/styles/mixins.scss";
           @import "../molgenis-viz/src/styles/resets.scss";
+          @import "src/styles/variables.scss";
         `,
         },
       },

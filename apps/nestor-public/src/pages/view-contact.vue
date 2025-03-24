@@ -1,7 +1,7 @@
 <template>
   <Page>
     <PageHeader
-      title="KWF NESTOR"
+      title="NESTOR Registry"
       subtitle="Contact Us"
       imageSrc="background_image.jpg"
       titlePositionX="center"
@@ -10,14 +10,14 @@
     />
     <PageSection aria-labelledby="contact-us-section-title">
       <h2 id="contact-us-section-title">Contact Us</h2>
-      <MessageBox type="warning">
-        <span>This page is under construction.</span>
-      </MessageBox>
+      <Address :showEmail="true" :centerText="true" />
     </PageSection>
   </Page>
 </template>
 
 <script setup lang="ts">
 // @ts-expect-error
-import { Page, PageHeader, PageSection, MessageBox } from "molgenis-viz";
+import { Page, PageHeader, PageSection } from "molgenis-viz";
+// @ts-expect-error
+import Address from "../components/Address.vue";
 </script>

@@ -9,7 +9,7 @@ import GovernancePage from "../pages/view-governance.vue";
 import PrivacyPolicyPage from "../pages/view-privacy.vue";
 import PublicDashboard from "../pages/view-dashboard.vue";
 
-const project = "KWF Nestor";
+const project = "NESTOR Registry";
 
 const router = createRouter({
   history: createWebHashHistory(),

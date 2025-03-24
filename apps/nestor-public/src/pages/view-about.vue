@@ -1,15 +1,22 @@
 <template>
   <Page>
     <PageHeader
-      title="KWF NESTOR"
-      subtitle="About Us"
+      title="NESTOR Resgistry"
+      subtitle="About the NESTOR registry"
       imageSrc="background_image.jpg"
       titlePositionX="center"
       titlePositionY="center"
       height="medium"
     />
     <PageSection aria-labelledby="about-us-section-title">
-      <h2 id="about-us-section-title">About Us</h2>
+      <h2 id="about-us-section-title">About the NESTOR registry</h2>
+      <p>
+        The NESTOR registry is a web-based platform that facilitates and
+        accelerates research to improve diagnostics, treatment and the provision
+        of high-quality healthcare for patients with one of rare genetic tumor
+        risk syndromes. The NESTOR registry is affiliated to the KWF NESTOR
+        project.
+      </p>
       <MessageBox type="warning">
         <span>This page is under construction.</span>
       </MessageBox>

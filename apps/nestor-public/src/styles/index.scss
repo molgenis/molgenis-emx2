@@ -1,0 +1,99 @@
+.app-page,
+.app-footer {
+  font-size: 14pt;
+  font-family: $font-family;
+}
+
+.app-page {
+  .page-header {
+    .background-image-filter {
+      opacity: 0.5;
+    }
+  }
+
+  .page-section {
+    .page-section-content {
+      h2 {
+        margin-bottom: 0.3em;
+      }
+
+      ul {
+        line-height: 1.5;
+      }
+    }
+  }
+}
+
+.message-box {
+  .message-text {
+    padding: 1em;
+    p {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.logo {
+  display: block;
+
+  &.logo-center {
+    margin: 1em auto;
+  }
+
+  &.logo-small {
+    width: 175px;
+  }
+
+  &.logo-medium {
+    width: 250px;
+  }
+
+  &.logo-large {
+    width: 325px;
+  }
+}
+
+#quickLinks {
+  .nav-item {
+    .link-card {
+      height: auto;
+      border-radius: 0;
+
+      .card-content {
+        padding: 1.7em;
+      }
+
+      .card-background-filter {
+        border-radius: 0;
+      }
+    }
+
+    &:nth-child(1) {
+      .link-card {
+        background-color: $brand-green;
+      }
+    }
+
+    &:nth-child(2) {
+      .card-background-filter {
+        background-color: $brand-green;
+        opacity: 0.6;
+      }
+    }
+
+    &:nth-child(3) {
+      .card-background-filter {
+        background-color: $brand-orange;
+        opacity: 0.65;
+      }
+    }
+  }
+}
+
+#public-dashboard {
+  .dashboard-content {
+    @media (min-width: 1800px) {
+      max-width: 60vw;
+    }
+  }
+}

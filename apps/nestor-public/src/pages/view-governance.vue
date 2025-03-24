@@ -1,7 +1,7 @@
 <template>
   <Page>
     <PageHeader
-      title="KWF NESTOR"
+      title="NESTOR Registry"
       subtitle="Governance"
       imageSrc="background_image.jpg"
       titlePositionX="center"

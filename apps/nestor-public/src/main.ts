@@ -1,5 +1,8 @@
 import { createApp } from "vue";
+
+// @ts-expect-error
 import App from "./App.vue";
+// @ts-expect-error
 import router from "./router";
 
 import "molgenis-components/dist/style.css";
