@@ -1,17 +1,19 @@
 <template>
-  <div
+  <InputGroupContainer
     :id="`${id}-checkbox-group`"
     :aria-describedby="describedBy"
-    class="border-l-4 border-transparent"
+    class="border-l-2 border-transparent"
     :class="{
       'border-l-invalid': invalid,
       'border-l-valid': valid,
     }"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
   >
     <div class="flex flex-row" v-for="option in options">
       <InputLabel
         :for="`${id}-checkbox-group-${option.value}`"
-        class="group flex justify-start items-center"
+        class="group flex justify-start items-center relative"
         :class="{
           'text-disabled cursor-not-allowed': disabled,
           'text-title cursor-pointer ': !disabled,
@@ -23,16 +25,13 @@
           :name="id"
           :value="option.value"
           v-model="modelValue"
-          :checked="modelValue!.includes(option.value)"
+          :checked="modelValue ? modelValue.includes(option.value) : false"
           :disabled="disabled"
           @change="toggleSelect"
-          class="opacity-0 absolute ml-4 mt-2"
+          class="ml-4 mt-2 sr-only"
         />
-        <!-- don't use ssr only that make screen 'hop'. Also we want aria to be able to use it. It is just hidden behind the icon
-        todo remove this comment once stable.
-        -->
         <InputCheckboxIcon
-          :checked="modelValue!.includes(option.value)"
+          :checked="modelValue ? modelValue.includes(option.value) : false"
           :invalid="invalid"
           :valid="valid"
           :disabled="disabled"
@@ -56,7 +55,7 @@
     >
       Clear
     </ButtonText>
-  </div>
+  </InputGroupContainer>
 </template>
 
 <script lang="ts" setup>

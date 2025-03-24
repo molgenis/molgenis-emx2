@@ -1,6 +1,6 @@
 <template>
   <InputString
-    v-if="['STRING', 'AUTO_ID', 'LONG', 'INT'].includes(typeUpperCase)"
+    v-if="['STRING', 'AUTO_ID'].includes(typeUpperCase)"
     :id="id"
     v-model="modelValue as string | number | undefined"
     :valid="valid"
@@ -34,6 +34,45 @@
     :disabled="disabled"
     :describedBy="describedBy"
     placeholder="Input a hyperlink"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <InputDecimal
+    v-else-if="'DECIMAL' === typeUpperCase"
+    :id="id"
+    v-model="modelValue as string | number | undefined"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <InputInt
+    v-else-if="'INT' === typeUpperCase"
+    :id="id"
+    v-model="modelValue as string | number | undefined"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
+  <InputLong
+    v-else-if="'LONG' === typeUpperCase"
+    :id="id"
+    v-model="modelValue as string | undefined"
+    type="text"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -89,7 +128,7 @@
     @blur="emit('blur')"
   />
   <InputRef
-    v-else-if="['REF', 'ONTOLOGY'].includes(typeUpperCase)"
+    v-else-if="['REF'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject"
     :id="id"
     :valid="valid"
@@ -105,7 +144,7 @@
     :is-array="false"
   />
   <InputRef
-    v-else-if="['REF_ARRAY', 'ONTOLOGY_ARRAY'].includes(typeUpperCase)"
+    v-else-if="['REF_ARRAY'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject[]"
     :id="id"
     :valid="valid"
@@ -119,6 +158,48 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="true"
+  />
+  <InputOntology
+    v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
+    :modelValue="modelValue as columnValueObject ? (modelValue as columnValueObject)['name'] as string : undefined"
+    @update:modelValue="
+      $event ? (modelValue = { name: $event }) : (modelValue = undefined)
+    "
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    :ontologySchemaId="refSchemaId as string"
+    :ontologyTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+    :is-array="false"
+  />
+  <InputOntology
+    v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
+    :isArray="true"
+    :modelValue="Array.isArray(modelValue)? modelValue.filter(value => value).map( value => (value as columnValueObject)['name'] as string) : []"
+    @update:modelValue="
+      Array.isArray($event)
+        ? (modelValue = $event.map((value) => {
+            return { name: value };
+          }))
+        : (modelValue = [])
+    "
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    :ontologySchemaId="refSchemaId as string"
+    :ontologyTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
   />
   <InputFile
     v-else-if="['FILE'].includes(typeUpperCase)"
@@ -167,7 +248,7 @@ import type {
   columnValue,
   columnValueObject,
 } from "../../metadata-utils/src/types";
-const modelValue = defineModel<columnValue>();
+const modelValue = defineModel<columnValue | columnValue[]>();
 const props = defineProps<
   IInputProps & {
     type: CellValueType;

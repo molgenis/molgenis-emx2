@@ -1,7 +1,11 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible,computed
-Catalogues,,,,,,,,,,,http://www.w3.org/ns/dcat#Catalog,A collection of resources within a network or consortium or about a common topic,DataCatalogueFlat,,
-Catalogues,,name,,1,TRUE,,,,,,http://purl.org/dc/terms/title,The name given to the catalogue,DataCatalogueFlat,,
+Catalogues,,,,,,,,,,,dcat:Catalog,A collection of resources within a network or consortium or about a common topic,DataCatalogueFlat,,
+Catalogues,,name,,1,TRUE,,,,,,dcterms:title,The name given to the catalogue,DataCatalogueFlat,,
 Catalogues,,network,ref,1,TRUE,,Resources,,,,,Network or consortium that publishes this catalogue,DataCatalogueFlat,,
 Catalogues,,type,ontology,,TRUE,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,DataCatalogueFlat,,
-Catalogues,,description,text,,TRUE,,,,,,http://purl.org/dc/terms/description,Description of this catalogue,DataCatalogueFlat,,network?.description
-Catalogues,,publisher,,,,,,,,,http://purl.org/dc/terms/publisher,The organisation responsible for making the catalogue available,DataCatalogueFlat,,
+Catalogues,,description,text,,TRUE,,,,,,dcterms:description,Description of this catalogue,DataCatalogueFlat,,
+Catalogues,,publisher,ref_array,,TRUE,,Agent,,,,dcterms:publisher,The organisation responsible for making the catalogue available,DataCatalogueFlat,,
+Catalogues,,license,hyperlink,,TRUE,,,,,,dcterms:license,The reference to the usage license of the catalog,DataCatalogueFlat,,
+Catalogues,,conformsTo,hyperlink,,TRUE,,,,,,dcterms:conformsTo,The specification of the catalog metadata schema,DataCatalogueFlat,,
+Catalogues,,issued,datetime,,,,,,,,"dcterms:issued,fdp-o:metadataIssued",,DataCatalogueFlat,
+Catalogues,,modified,datetime,,,,,,,,"dcterms:modified,fdp-o:metadataModified",,DataCatalogueFlat,

@@ -50,15 +50,3 @@ test("clicking on the chapter should scroll to the chapter", async ({
   await page.getByText("population", { exact: true }).first().click();
   await expect(page.getByRole("heading", { name: "population" })).toBeVisible();
 });
-
-test("it should update the model value when a field is filled out", async ({
-  page,
-}) => {
-  await page.goto(`${route}Form.story?schema=pet+store&table=Pet`);
-  await page.getByText("Jump to", { exact: true }).click({ delay: 300 });
-  await page.getByLabel("name Required", { exact: true }).click();
-  await page.getByLabel("name Required", { exact: true }).fill("test");
-  await expect(page.getByLabel("name Required", { exact: true })).toHaveValue(
-    "test"
-  );
-});

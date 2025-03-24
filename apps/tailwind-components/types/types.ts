@@ -20,23 +20,32 @@ export interface IValueLabel {
 }
 
 export interface ITreeNode extends INode {
-  children:
-  ITreeNode[];
+  children: ITreeNode[];
 }
 
 export interface ITreeNodeState extends ITreeNode {
   /* if a node should be shown, used for search filter */
   visible?: boolean;
+  /* label will be shown if provided instead of name */
+  label?: string;
+  /* code from a code system */
+  code?: string;
+  /* code system if provided */
+  codesystem?: string;
+  /* uri where the code comes from */
+  uri?: string;
   /* if a node is selected, intermediate or unselected*/
   selected?: SelectionState; //'unselected','selected','intermediate'
   /* if a node should be shown expanded */
   expanded?: boolean;
   /* helper to quickly navigate to parent node */
   parent?: string;
+  /* helper to quickly navigate to parent node */
+  parentNode?: ITreeNodeState;
   /* extension of children */
   children: ITreeNodeState[];
   /* if a node is selectable */
-  selectable: boolean
+  selectable: boolean;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";
@@ -67,7 +76,7 @@ export interface ITableSettings {
   pageSize: number;
   orderby: {
     column: string;
-    direction: sortDirection
+    direction: sortDirection;
   };
   search: string;
 }

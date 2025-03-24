@@ -8,20 +8,20 @@
     "dev": "nuxt dev",
     "generate": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
     "format": "prettier app.vue layouts pages composables  --write --config ../.prettierrc.js",
     "checkFormat": "prettier app.vue layouts pages composables  --check --config ../.prettierrc.js"
   },
   "dependencies": {
-    "@pinia/nuxt": "0.5.1",
-    "pinia": "2.1.7",
     "vue": "3.5.13",
-    "vue-router": "4.4.3",
-    "tailwind-components": "*"
+    "vue-router": "4.4.3"
   },
   "license": "LGPL-3.0",
   "devDependencies": {
+    "@pinia/nuxt": "0.10.1",
     "cross-env": "7.0.3",
-    "nuxt": "3.14.1592"
+    "nuxt": "3.16.0",
+    "pinia": "3.0.1",
+    "tailwind-components": "*"
   }
 }

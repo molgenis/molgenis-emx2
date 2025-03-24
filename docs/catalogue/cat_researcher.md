@@ -1,30 +1,75 @@
 # Researcher
 
-## Catalogue
+The [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/) is perfectly suited
+to help you find the relevant data for your research question.
+Using the catalogue, you can explore a variety of resources and compose a dataset
+tailored to your research needs.
 
-When you have defined a research question it is time to find the relevant data to answer it. You can use
-the [MOLGENIS Data Catalogue](https://data-catalogue.molgeniscloud.org/) to compose your dataset. Upon entering the Data Catalogue, 
-you can choose to either search all harmonised variables (by clicking on 'All variables' in the menu), or search the harmonised variables within a project, such as the EUChildNetwork. The Data Catalogue only describes the harmonized variables, it does **not** contain the actual data values.
+## Find rich metadata
 
-![Go to variables](../img/cat-homepage-variables.png)
+Entering the catalogue, the landing page shows a list of available subcatalogues.
+This list is divided between thematic catalogues, which cover a specific subject
+and originate from collaborations between multiple projects,
+and project catalogues, which originate from individual projects.
 
+![Landing page of the MOLGENIS Data Catalogue](../img/cat_homepage.png)
 
-### Find harmonised variables
+Selecting one of these, e.g. **EHEN**, will take you to a new landing page, where you can choose
+to browse either collections, networks, or variables.
+Alternatively, if you want to search across all data, regardless of project, you can use the **SEARCH ALL** button.
 
-You can use the search bar and filters to subset the harmonised variables. In the example below, we searched for harmonised variables concerning 'diabetes'. Additionally, you may filter on topics or on cohorts that mapped to these variables.
+![Landing page of a subcatalogue, in this case EHEN](../img/cat_catalogue-landing-page.png)
 
-[Variable explorer search bar](../img/cat-variables-search-bar.png)
+Selecting either **COLLECTIONS** or **NETWORKS** at the next step will provide you with a list of
+collections or networks to browse through. To narrow down the list, you can do a text-based search (e.g. 'early pregnancy)
+or filter on specific attributes (e.g. collections of type 'Biobank').
 
+![List of collections, with search and filters](../img/cat_collections-list.png)
+
+Clicking an item in the list will take you to a page containing detailed information on the resource in question.
+Here, all information available in the catalogue about the resource is displayed.
+You can either scroll through the page or navigate to a specific section of interest using the
+index on the left-hand side. Also note that for some types of information, such as collection events or datasets,
+clicking on a specific instance will provide more details about it (e.g. inclusion criteria for a certain subpopulation).
+
+![Resource information page for resource BIB](../img/cat_resource-information-page.png)
+
+## Find harmonised variables
+
+From the catalogue landing page, you can search all harmonised variables
+by clicking **ALL VARIABLES** in the menu.
+
+![Go to the variable explorer or a project page](../img/cat_homepage-variables.png)
+
+Alternatively, you can choose to only view the harmonised variables within a particular project,
+such as the EUChildNetwork or LifeCycle. In that case, first go to the project you are interested in
+and then click **VARIABLES**.
+
+![Go to the project variable explorer](../img/cat_project-variables.png)
+
+Please note that the catalogue only describes the harmonised variables,
+it does *not* contain the actual data values.
+
+You can use the search bar and filters to subset the harmonised variables.
+In the example below, we searched for harmonised variables related to 'diabetes'.
+Additionally, you can filter on topics to find relevant variables.
+You can also make a selection of sources so that only variables
+mapped to by these sources are shown.
+
+![Variable explorer with search](../img/cat_variables-search-bar.png)
 
 *In the future you will be able to use a shopping cart to select all variables of interest and create an overview.*
 
-### Find harmonisation details
+## See harmonisation details
 
-The harmonisation view allows you to see which cohorts have (partially) harmonised your variables of interest and thus
-have those variables available for analysis.
+The harmonisation view (click **HARMONISATIONS**) allows you to see
+which sources have (partially) harmonised your variables of interest and
+thus have those variables available for analysis.
 
-![Variable explorer harmonisation specifications](../img/cat_harmonisation-specifications.png)
+![Variable explorer harmonisation matrix](../img/cat_harmonisation-specifications.png)
 
-When you click on a variable of interest, you can go to a detailed harmonisation overview for this variable. When you scroll down, you see more harmonisation details per cohort
+By clicking on a variable of interest (here `dia_bf`), a detailed harmonisation overview
+of that particular variable is displayed, containing both the harmonisation status per source and
+further details about the harmonisation like source variables and harmonisation syntax.
 
-![Detail variable harmonisation](../img/cat-detailed-harmonised-variable-view.png)
+![Variable detail view](../img/cat_detailed-harmonised-variable-view.png)

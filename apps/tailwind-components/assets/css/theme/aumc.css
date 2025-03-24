@@ -1,47 +1,61 @@
 :root[data-theme="aumc"] {
-    --color-black: #003944;
-    --color-blue-50: #F0F5F5;
-    --color-blue-100: #F0F5F5;
-    --color-blue-200: #459ab1;
-    --color-blue-300: #459ab1;
-    --color-blue-500: #337588;
-    --color-blue-700: #337588;
-    --color-blue-800: #21515f;
-    --color-blue-900: #21515f;
-    --color-orange-200: rgb(245,151,148);
-    --color-orange-500: #d14200;
-    --color-orange-800: #d14200;
+  --color-black: #003944;
+  --color-blue-50: #f0f5f5;
+  --color-blue-100: #f0f5f5;
+  --color-blue-200: #459ab1;
+  --color-blue-300: #459ab1;
+  --color-blue-500: #337588;
+  --color-blue-700: #337588;
+  --color-blue-800: #21515f;
+  --color-blue-900: #21515f;
+  --color-orange-200: rgb(245, 151, 148);
+  --color-orange-500: #d14200;
+  --color-orange-800: #d14200;
 
-    --color-gradient1: #21515f;
-    --color-gradient2: #337588;
+  --color-gradient1: #21515f;
+  --color-gradient2: #337588;
 
-    --background-image-sidebar-gradient: linear-gradient(180deg, var(--color-gradient1) 0%, var(--color-gradient1) 86.02%);
-    --background-image-base-gradient: linear-gradient(180deg, var(--color-gradient2) 0%, var(--color-gradient2) 133.81%);
+  --background-image-sidebar-gradient: linear-gradient(
+    180deg,
+    var(--color-gradient1) 0%,
+    var(--color-gradient1) 86.02%
+  );
+  --background-image-base-gradient: linear-gradient(
+    180deg,
+    var(--color-gradient2) 0%,
+    var(--color-gradient2) 133.81%
+  );
 
-    --background-color-button-primary: var(--color-orange-500);
-    --background-color-button-primary-hover: var(--color-orange-200);
-    --background-color-search-results-view-tabs: var(--color-blue-300);
+  --background-color-navigation: rgba(0, 0, 0, 0.2);
+  --background-color-navigation-sticky: var(--color-blue-800);
 
-    --text-color-button-primary: var(--color-white);
-    --text-color-button-primary-hover: var(--color-black);
-    --text-color-button-text: var(--color-white);
-    --text-color-title: var(--color-white);
-    --text-color-form-header: var(--text-color-title);
-    --text-color-breadcrumb: var(--text-color-title);
-    --text-color-breadcrumb-arrow: var(--text-color-title);
-    --text-color-search-results-view-tabs:  var(--color-blue-300);
-    --text-color-search-results-view-tabs-hover: var(--color-blue-800);
-    --text-color-search-filter-group-title: var(--text-color-title);
-    --text-color-pagination-input: var(--color-blue-800);
+  --background-color-button-primary: var(--color-orange-500);
+  --background-color-button-primary-hover: var(--color-orange-200);
+  --background-color-search-results-view-tabs: var(--color-blue-300);
 
-    --border-radius-3px: 3px;
-    --border-radius-50px: 50px;
-    --border-radius-input: 50px;
-    --border-radius-textarea-input: 20px;
-    --border-radius-search-input: 9999px;
-    --border-radius-search-button: 9999px;
-    --border-radius-landing: 50px;
+  --background-color-footer: var(--color-blue-800);
+  --background-color-modal-footer: var(--color-blue-800);
 
-    --text-color-input-description: var(--color-white);
+  --text-color-link: var(--color-white);
+  --text-color-button-primary: var(--color-white);
+  --text-color-button-primary-hover: var(--color-black);
+  --text-color-button-text: var(--color-white);
+  --text-color-title: var(--color-white);
+  --text-color-form-header: var(--text-color-title);
+  --text-color-breadcrumb: var(--text-color-title);
+  --text-color-breadcrumb-arrow: var(--text-color-title);
+  --text-color-search-results-view-tabs: var(--color-blue-300);
+  --text-color-search-results-view-tabs-hover: var(--color-blue-800);
+  --text-color-search-filter-group-title: var(--text-color-title);
+  --text-color-pagination-input: var(--color-blue-800);
 
+  --border-radius-3px: 3px;
+  --border-radius-50px: 50px;
+  --border-radius-input: 50px;
+  --border-radius-textarea-input: 20px;
+  --border-radius-search-input: 9999px;
+  --border-radius-search-button: 9999px;
+  --border-radius-landing: 50px;
+
+  --text-color-input-description: var(--color-white);
 }

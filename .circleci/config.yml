@@ -178,14 +178,14 @@ jobs:
 
     - run:
         name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
         name: run tests and push to sonar
         command: |
           ./gradlew test jacocoMergedReport sonar --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+          -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
 
     - post_steps
@@ -203,7 +203,7 @@ jobs:
     
     - run:
         name: prepare sql test database
-        command: psql -h 127.0.0.1 -p 5432 -U postgres < .docker/initdb.sql
+        command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     # we might be optimistic and skip tests here
     - run:
@@ -211,7 +211,7 @@ jobs:
         command: |
           ./gradlew shadowJar test jacocoMergedReport sonar ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+          -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
     - run:
         name: either release or push only snapshots to docker
@@ -239,14 +239,14 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           curl -d "token=${SLACK_TOKEN}" \
-          -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
+          -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.org" \
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.50.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.51.0-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test

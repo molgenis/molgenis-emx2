@@ -35,7 +35,11 @@ let activeVariablePath = computed(() =>
     <HarmonisationLegendMatrix size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
       <TableSticky
-        :columns="resources"
+        :columns="
+          resources.sort((a, b) =>
+            a.id.toLowerCase().localeCompare(b.id.toLowerCase())
+          )
+        "
         :rows="variables"
         class="h-screen overflow-auto"
       >

@@ -4,7 +4,9 @@ import type {
   CellValueType,
   columnValue,
 } from "../../../metadata-utils/src/types";
-const modelValue = defineModel<columnValue>();
+
+const modelValue = defineModel<columnValue>({ required: true });
+
 defineProps<
   IInputProps & {
     type: CellValueType;
@@ -24,42 +26,42 @@ const emit = defineEmits(["focus", "blur"]);
 </script>
 
 <template>
-  <div>
+  <div :id="id">
     <template v-if="label">
-      <label :for="id">
+      <label :for="`${id}-input`">
         <span class="text-title font-bold">{{ label }}</span>
         <span class="text-disabled text-body-sm ml-3" v-if="required">
           Required
         </span>
       </label>
     </template>
-    <p
-      :id="`${id}-input-description`"
-      v-if="description"
-      class="text-input-description text-body-sm"
-    >
-      {{ description }}
-    </p>
+    <div :id="`${id}-input-description`">
+      <p v-if="description" class="text-input-description text-body-sm">
+        {{ description }}
+      </p>
+    </div>
     <Input
       v-model="modelValue"
-      :id="id"
+      :id="`${id}-input`"
       :type="type"
       :valid="valid"
       :invalid="invalid"
       :disabled="disabled"
-      :describedBy="`${id}-description ${id}-input-error`"
+      :describedBy="`${id}-input-description ${id}-input-error`"
       :placeholder="placeholder"
       :options="options"
-      :refSchemaId="refSchemaId as string"
-      :refTableId="refTableId as string"
-      :refLabel="refLabel as string"
+      :refSchemaId="(refSchemaId as string)"
+      :refTableId="(refTableId as string)"
+      :refLabel="(refLabel as string)"
       :trueLabel="trueLabel"
       :falseLabel="falseLabel"
       @blur="emit('blur')"
       @focus="emit('focus')"
     />
-    <Message v-if="errorMessage" invalid id="`${id}-input-error`">{{
-      errorMessage
-    }}</Message>
+    <div :id="`${id}-input-error`">
+      <Message v-if="errorMessage" invalid :id="`${id}-input-error`">
+        {{ errorMessage }}
+      </Message>
+    </div>
   </div>
 </template>

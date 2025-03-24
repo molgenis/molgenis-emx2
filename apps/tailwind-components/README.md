@@ -9,7 +9,7 @@ All components are stored in the `components` folder and stories are located in 
 In the component folder, we've arranged the components into categories. To use the components, you will need to prefix the component name using the name of the subfolder. For example, if you wanted to use the checkbox component (`components/input/Checkbox.vue`), you would write the component as `<InputCheckbox>`. There are some folders that do not require the path prefix. This is summarised in the following table.
 
 | Folder  | Prefix       | Description                                                                    | Example                |
-|:--------|:-------------|:-------------------------------------------------------------------------------|------------------------|
+| :------ | :----------- | :----------------------------------------------------------------------------- | ---------------------- |
 | display | `<Display*>` | these components can be used to specify the presentation of content            | `<DisplayList>`        |
 | filter  | `<Filter*>`  | these components are used to reduce content by user specified criteria         | `<FilterSearch>`       |
 | global  | ---          | these components are globally available (path prefix is not needed)            | `<ArrowLeft>`          |
@@ -93,8 +93,8 @@ yarn preview
 [pa11y-ci](https://github.com/pa11y/pa11y-ci) is used for local accessibility testing. We have configured the tests to evaluate components individually against the WCAG2AA standard. To run the tests, follow these steps.
 
 1. Start the development server for the tailwind components: `yarn dev`
-2. In a separate terminal window, run the accessibility tests: `yarn a11y:test`
-3. When the tests are complete, view the report: `yarn a11y:serve` (the report will be served at `http://localhost:1234`)
+2. In a separate terminal window, run the accessibility tests: `yarn wcag:test`. This will not only test the stories located in `pages` but will regenerate the site map from the `sourceCodeMap.json` file.
+3. When the tests are complete, view the report: `yarn wcag:serve` (the report will be served at `http://localhost:1234`)
 
 It is recommended to address all errors and warnings identified by this tool. In addition, it is also recommended to install the [WAVE Browser extension](https://wave.webaim.org/extension/) for in-browser accessibility testing as this can help identify issues earlier in the development process. If errors unrelated to the component are detected, please note this in a new issue.
 

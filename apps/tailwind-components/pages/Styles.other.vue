@@ -311,7 +311,7 @@
       <ColorTile color="pagination-hover" type="text" />
     </li>
     <li>
-      <ColorTile color="footer-link" type="text" />
+      <ColorTile color="link" type="text" />
     </li>
     <li>
       <ColorTile color="table-column-header" type="text" />
