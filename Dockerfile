@@ -1,12 +1,13 @@
 #FROM eclipse-temurin:21-jre-noble
 #FROM ubuntu:24.10
 FROM eclipse-temurin:21-alpine-3.21
+RUN apk add gcompat
 RUN apk --no-cache update
 RUN apk add --no-cache \
   python3 \
   py3-pip \
   py3-virtualenv \
-  dart-sass
+  
 
 
 
