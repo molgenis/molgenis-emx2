@@ -1,3 +1,3 @@
-resource,name,type,url,version,profiles,status
+resource,name,type other,url,version,profiles,status
 BIB,Opal,Opal,https://bib-opal.obiba.com,5.1.2,"galaxy_zenith,kitty_cliff",false
 BIB,Armadillo,Armadillo,https://bib-armadillo.molgeniscloud.org,4.13.1,"habitat_zenith,jaguar_cliff",true

@@ -211,6 +211,6 @@ public class TestLoaders {
   public void test19DataCatalogueFederatedDataAccessLoader() {
     Schema schema = database.createSchema(DATA_CATALOGUE_FEDERATED_DATA_ACCESS);
     DataModels.Profile.DATA_CATALOGUE_FEDERATED_DATA_ACCESS.getImportTask(schema, true).run();
-    assertEquals(1, schema.getTableNames().size());
+    assertEquals(3, schema.getTableNames().size());
   }
 }
