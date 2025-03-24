@@ -248,6 +248,7 @@ import type {
   columnValue,
   columnValueObject,
 } from "../../metadata-utils/src/types";
+import { computed } from "vue";
 const modelValue = defineModel<columnValue | columnValue[]>();
 const props = defineProps<
   IInputProps & {

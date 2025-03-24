@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useNuxtApp } from "#app";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import PlaygroundNavBar from "~/PlaygroundNavBar.vue";

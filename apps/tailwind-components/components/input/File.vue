@@ -64,6 +64,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useTemplateRef } from "vue";
 import type { IInputProps, IFile } from "~/types/types";
 
 const modelValue = defineModel<IFile | null>();

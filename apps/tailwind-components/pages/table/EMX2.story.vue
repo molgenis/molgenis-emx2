@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useFetch, useLazyAsyncData } from "#app";
+import { fetchMetadata, fetchTableData } from "#imports";
+import { ref, computed, watch } from "vue";
 import type { ITableSettings, Resp, Schema } from "~/types/types";
 
 const tableSettings = ref<ITableSettings>({

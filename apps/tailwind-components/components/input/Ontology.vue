@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { IInputProps, ITreeNodeState } from "~/types/types";
 import TreeNode from "~/components/input/TreeNode.vue";
-import type { Ref } from "vue";
+import { onMounted, ref, watch, type Ref } from "vue";
+import { fetchGraphql } from "#imports";
 
 const props = defineProps<
   IInputProps & {
@@ -62,7 +63,7 @@ async function retrieveTerms(
 
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
 
-  return data.retrieveTerms.map((row: any) => {
+  return data.retrieveTerms?.map((row: any) => {
     return {
       name: row.name,
       parentNode: parentNode,

@@ -63,6 +63,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from "vue";
+
 defineProps<{
   showState?: boolean;
   showPlaceholder?: boolean;

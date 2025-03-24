@@ -9,6 +9,9 @@ import type {
 
 import { type IInputProps, type IValueLabel } from "~/types/types";
 import logger from "@/utils/logger";
+import { fetchTableMetadata } from "#imports";
+import { ref, type Ref, computed, watch } from "vue";
+import fetchTableData from "~/composables/fetchTableData";
 
 const props = withDefaults(
   defineProps<

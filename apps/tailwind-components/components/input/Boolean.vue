@@ -15,6 +15,7 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from "vue";
 import type { IInputProps, IRadioOptionsData } from "~/types/types";
 const props = withDefaults(
   defineProps<

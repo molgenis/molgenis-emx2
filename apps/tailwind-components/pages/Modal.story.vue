@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 const visible = ref(false);
 let sectionCount = ref(0);
 </script>

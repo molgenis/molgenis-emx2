@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { type Ref, ref } from "vue";
 import type { INode } from "~/types/types";
 
 function generateListData(length: number) {
