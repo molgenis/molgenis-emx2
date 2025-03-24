@@ -158,10 +158,10 @@ Note that the list only goes back to the most recent breaking change, i.e. the m
 
 | Version | Changes                                                                                         |
 |---------|-------------------------------------------------------------------------------------------------|
-| 5.0     | Breaking change from version 4.x due to renaming _Collections_ to _Resources_                   |
+| 5.0     | Breaking change from version 4.x due to renaming _Collections_ to _Resources_.                  |
 | 5.1     | Made 'type' a required property for _Resources_.                                                |
 | 5.2     | Introduced table _Internal identifiers_. Added exclusion criteria to _Resources_.               |
-| 5.3     | Added clarification for use of keywords                                                         |
-| 5.4     | Added UMCU and INTEGRATE cohorts profile                                                        |
-| 5.5     | Fixed reflinks, typos and added demo data                                                       |
+| 5.3     | Added clarification on use of keywords.                                                         |
+| 5.4     | Added UMCU and INTEGRATE cohorts profiles.                                                      |
+| 5.5     | Fixed reflinks, typos and added demo data.                                                      |
 | 5.6     | Removed computed value for Catalogue network description. Added missing demo data descriptions. |
