@@ -163,5 +163,7 @@ Note that the list only goes back to the most recent breaking change, i.e. the m
 | 5.2     | Introduced table _Internal identifiers_. Added exclusion criteria to _Resources_.               |
 | 5.3     | Added clarification on use of keywords.                                                         |
 | 5.4     | Added UMCU and INTEGRATE cohorts profiles.                                                      |
-| 5.5     | Fixed reflinks, typos and added demo data.                                                      |
-| 5.6     | Removed computed value for Catalogue network description. Added missing demo data descriptions. |
+| 5.4.x   | Added data items for valid DCAT HRICore 1.0: contact point, publisher, theme, creator, issued, modified.|
+| 5.4.x   | Added tables for Fair Data Point: Container, Endpoint, Agent.                                   | 
+| 5.5     | Fixed reflinks, typos and added demo data to fit DCAT HRICore 1.0.                              |
+| 5.6     | Removed computed value for Catalogues.description. Added missing demo data descriptions.        |
