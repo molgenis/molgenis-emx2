@@ -53,8 +53,6 @@ public class RDFApi {
     app.head("{schema}" + apiLocation, (ctx) -> rdfHead(ctx, format));
     app.get("{schema}" + apiLocation + "/{table}", (ctx) -> rdfForTable(ctx, format));
     app.head("{schema}" + apiLocation + "/{table}", (ctx) -> rdfHead(ctx, format));
-    app.get("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfForRow(ctx, format));
-    app.head("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfHead(ctx, format));
     app.get(
         "{schema}" + apiLocation + "/{table}/column/{column}", (ctx) -> rdfForColumn(ctx, format));
     app.head("{schema}" + apiLocation + "/{table}/column/{column}", (ctx) -> rdfHead(ctx, format));
@@ -130,21 +128,6 @@ public class RDFApi {
     }
     final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    RDFService rdf = new RDFService(baseURL, API_RDF, format);
-    ctx.contentType(rdf.getMimeType());
-
-    OutputStream outputStream = ctx.outputStream();
-    rdf.describeAsRDF(outputStream, table, rowId, null, table.getSchema());
-    outputStream.flush();
-    outputStream.close();
-  }
-
-  private static void rdfForRow(Context ctx, RDFFormat format) throws IOException {
-    format = selectFormat(ctx, format); // defines format if null
-    Table table = getTableByIdOrName(ctx);
-    String rowId = sanitize(ctx.pathParam("row"));
-
-    final String baseURL = URLUtils.extractBaseURL(ctx);
     RDFService rdf = new RDFService(baseURL, API_RDF, format);
     ctx.contentType(rdf.getMimeType());
 
