@@ -19,8 +19,15 @@
         class="kwf-logo logo-medium logo-center"
         alt="KWF NESTOR logo will go here"
       />
-      <h2 id="kwf-section-welcome-title">Welcome to the KWF Nestor database</h2>
-      <p>Welcome message will go here</p>
+      <h2 id="kwf-section-welcome-title">Welcome to the NESTOR Registry</h2>
+      <p>
+        The Netherlands Genetic Tumour Risk Registry
+        <strong>NESTOR</strong> Registry is the European registry for patients
+        with genetic tumour risk syndromes (genturis). It is associated with 8
+        Dutch centres participating in the KWF NESTOR project and serves as a
+        comprehensive resource for all patients with one of the rare genetic
+        tumor risk syndromes.
+      </p>
     </PageSection>
     <PageSection
       aria-labelledby="quicklinks-card-title"
