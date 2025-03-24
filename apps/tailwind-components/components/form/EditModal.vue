@@ -150,6 +150,6 @@ const {
   gotoNextError,
   gotoPreviousError,
 } = useForm(props.metadata, editFormValues, errorMap, (fieldId) => {
-  scrollToElementInside("fields-container", `${fieldId}-form-field`);
+  scrollToElementInside("fields-container", fieldId);
 });
 </script>

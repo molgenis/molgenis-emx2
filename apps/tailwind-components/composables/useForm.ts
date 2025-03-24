@@ -24,12 +24,12 @@ export default function useForm(
   });
 
   const requiredMessage = computed(() => {
-    const fieldPrural =
+    const fieldPlural =
       emptyRequiredFields.value.length > 1 ? "fields" : "field";
     if (emptyRequiredFields.value.length === 0) {
       return "All required fields are filled";
     }
-    return `${emptyRequiredFields.value.length}/${requiredFields.value.length} required ${fieldPrural} left`;
+    return `${emptyRequiredFields.value.length}/${requiredFields.value.length} required ${fieldPlural} left`;
   });
 
   const errorMessage = computed(() => {
