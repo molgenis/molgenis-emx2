@@ -971,7 +971,7 @@ public class SqlQuery extends QueryBean {
             join =
                 join.leftJoin(
                         DSL.select(refbackSelection)
-                            .from(column.getRefTable().getJooqTable())
+                            .from(tableWithInheritanceJoin(column.getRefTable()))
                             .groupBy(
                                 refBack.getReferences().stream()
                                     .map(ref -> field(name("_refback_" + ref.getRefTo())))

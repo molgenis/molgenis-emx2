@@ -5,7 +5,6 @@ import type {
   ISchemaMetaData,
 } from "../../metadata-utils/src/types";
 import { useRoute } from "#app/composables/router";
-import type { FormFields } from "#components";
 import Legend from "~/components/form/Legend.vue";
 
 type Resp<T> = {
@@ -144,20 +143,6 @@ watch(
 
 const numberOfFieldsWithErrors = computed(
   () => Object.values(errorMap.value).filter((error) => error.length > 0).length
-);
-
-const numberOfRequiredFields = computed(() =>
-  metadata.value !== null
-    ? metadata.value?.columns.filter((column) => column.required).length
-    : 0
-);
-
-const numberOfRequiredFieldsWithData = computed(() =>
-  metadata.value !== null
-    ? metadata.value?.columns.filter(
-        (column) => column.required && formValues.value[column.id]
-      ).length
-    : 0
 );
 
 const activeChapterId = ref<string>("_scroll_to_top");
