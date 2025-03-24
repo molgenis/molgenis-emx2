@@ -16,7 +16,7 @@
         class="group flex justify-start items-center relative"
         :class="{
           'text-disabled cursor-not-allowed': disabled,
-          'text-title cursor-pointer ': !disabled,
+          'text-title-contrast cursor-pointer ': !disabled,
         }"
       >
         <input

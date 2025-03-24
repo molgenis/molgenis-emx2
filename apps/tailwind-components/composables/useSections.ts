@@ -49,7 +49,7 @@ export default function useSections(
         sections.push(heading);
         currentSection = heading;
       } else {
-        const errorCount = errorMap.value[column.id] ? 1 : 0; // todo: replace 1 with the actual when we have more than one error per column
+        const errorCount = errorMap.value[column.id] ? 1 : 0;
         if (currentSection) {
           currentSection.errorCount += errorCount;
         }
