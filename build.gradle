@@ -83,7 +83,7 @@ task ci(type: WriteProperties) {
 }
 
 task dockerBuild(type: Exec) {
-    commandLine 'docker', 'build', '-t', "${imageName}:latest", '-t',"${imageName}:${tagname}",'--build-arg',"JAR_FILE=${shadowJar.archiveFile.get().asFile.name}",'.'
+    commandLine 'docker', 'build', '-t', "${imageName}:latest", '-t',"${imageName}:${tagName}",'--build-arg',"JAR_FILE=${shadowJar.archiveFile.get().asFile.name}",'.'
     //commandLine 'docker,' 'push'
 }
 
