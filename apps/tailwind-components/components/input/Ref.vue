@@ -16,6 +16,7 @@ const props = withDefaults(
       refSchemaId: string;
       refTableId: string;
       refLabel: string;
+      filter?: any;
       //todo, replace isArray with type="select"|"radio"|"checkbox"|"multiselect" and also enable this in emx2 metadata model
       isArray?: boolean;
       limit?: number;
@@ -24,6 +25,7 @@ const props = withDefaults(
   {
     isArray: true,
     limit: 10,
+    filter: {},
   }
 );
 
@@ -83,7 +85,7 @@ async function prepareModel() {
     }
   }
 
-  await loadOptions({ limit: props.limit });
+  await loadOptions({ filter: props.filter, limit: props.limit });
   initialCount.value = count.value;
 }
 
@@ -129,15 +131,18 @@ function applyTemplate(template: string, row: Record<string, any>): string {
   return label;
 }
 
-async function loadOptions(filter: IQueryMetaData) {
+async function loadOptions(filter: IQueryMetaData, append: boolean = false) {
   hasNoResults.value = true;
+
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
     props.refTableId,
     filter
   );
 
-  optionMap.value = {};
+  if (!append || !optionMap.value) {
+    optionMap.value = {};
+  }
 
   if (data.rows) {
     hasNoResults.value = false;
@@ -160,7 +165,11 @@ function updateSearch(newSearchTerms: string) {
   optionMap.value = {};
   offset.value = 0;
   searchTerms.value = newSearchTerms;
-  loadOptions({ limit: props.limit, searchTerms: searchTerms.value });
+  loadOptions({
+    filter: props.filter,
+    limit: props.limit,
+    searchTerms: searchTerms.value,
+  });
 }
 
 function select(label: string) {
@@ -208,11 +217,15 @@ function clearSelection() {
 
 function loadMore() {
   offset.value += props.limit;
-  loadOptions({
-    offset: offset.value,
-    limit: props.limit,
-    searchTerms: searchTerms.value,
-  });
+  loadOptions(
+    {
+      filter: props.filter,
+      offset: offset.value,
+      limit: props.limit,
+      searchTerms: searchTerms.value,
+    },
+    true
+  );
 }
 
 prepareModel();

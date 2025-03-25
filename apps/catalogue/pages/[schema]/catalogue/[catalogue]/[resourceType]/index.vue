@@ -293,6 +293,7 @@ crumbs[
   <LayoutsSearchPage>
     <template #side>
       <FilterSidebar
+        id="filter-sidebar"
         title="Filters"
         :filters="filters"
         @update:filters="onFilterChange"

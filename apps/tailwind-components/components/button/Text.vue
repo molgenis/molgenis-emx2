@@ -6,7 +6,7 @@ defineProps<{
 
 <template>
   <button
-    class="group flex items-center text-button-text cursor-pointer disabled:cursor-not-allowed disabled:text-disabled"
+    class="group flex items-center cursor-pointer disabled:cursor-not-allowed disabled:text-disabled group-enabled:hover:underline"
   >
     <BaseIcon v-if="icon" :name="icon" :width="18" class="mr-2" />
     <span class="text-title-contrast group-enabled:hover:underline">

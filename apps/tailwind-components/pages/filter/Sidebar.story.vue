@@ -17,7 +17,7 @@ const demoFilter: Ref<IFilter[]> = ref([
       label: "Topics",
       type: "ONTOLOGY",
       ontologyTableId: "Keywords",
-      ontologySchemaId: "CatalogueOntologies",
+      ontologySchema: "CatalogueOntologies",
       columnId: "keywords",
       initialCollapsed: true,
     },
@@ -37,19 +37,6 @@ const demoFilter: Ref<IFilter[]> = ref([
     },
     conditions: [],
   },
-  // {
-  //   id: "resources",
-  //   config: {
-  //     label: "Sources",
-  //     type: "REF_ARRAY",
-  //     refTableId: "Resources",
-  //     refSchemaId: "catalogue-demo",
-  //     refLabel: "${id}",
-  //     refDescription: "${name}",
-  //     initialCollapsed: false,
-  //   },
-  //   conditions: [],
-  // },
 ]);
 </script>
 

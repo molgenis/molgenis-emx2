@@ -151,7 +151,7 @@ export interface ISearchFilterConfig extends IFilterConfig {
 export interface IOntologyFilterConfig extends IFilterConfig {
   type: "ONTOLOGY";
   ontologyTableId: string;
-  ontologySchemaId: string;
+  ontologySchema: string;
   filter?: Record<string, IFilter>;
   columnId: string;
   refFields?: filterRefField;
@@ -163,6 +163,7 @@ export interface IRefArrayFilterAbstractConfig extends IFilterConfig {
   refSchemaId: string;
   refLabel: string;
   refDescription?: string;
+  filter?: Record<string, IFilter>;
   // optional function to build the filter bases on the selected options
   // if empty the defualt builder will be used
   buildFilterFunction?: Function;
