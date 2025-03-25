@@ -125,7 +125,7 @@ jobs:
 
     - run:
         name: build and push emx2 java docker images for the preview
-        command: ./gradlew -s --no-daemon shadowJar dockerBuild ci -x test
+        command: ./gradlew -s --no-daemon shadowJar dockerPush ci -x test
 
     - run:
         name: push ssr-catalogue docker images
