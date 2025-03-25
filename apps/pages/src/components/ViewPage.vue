@@ -13,6 +13,33 @@ export default {
     page: String,
     session: Object,
   },
+  methods: {
+    parseContent() {
+      if (this.contents) {
+        const parser = new DOMParser();
+
+        if (this.contents.html) {
+          const doc = parser.parseFromString(this.contents.html, "text/html");
+          Array.from(doc.body.children).forEach((elem) => {
+            this.$refs.pageContents.appendChild(elem);
+          });
+        }
+
+        if (this.contents.css) {
+          const styleElem = document.createElement("style");
+          styleElem.textContent = this.contents.css;
+          this.$refs.pageContents.appendChild(styleElem);
+        }
+
+        if (this.contents.javascript) {
+          const scriptElem = document.createElement("script");
+          scriptElem.setAttribute("type", "text/javascript");
+          scriptElem.textContent = this.contents.javascript;
+          this.$refs.pageContents.appendChild(scriptElem);
+        }
+      }
+    },
+  },
   computed: {
     contents() {
       if (
@@ -22,7 +49,7 @@ export default {
       ) {
         return this.session.settings["page." + this.page];
       }
-      return "Page not found";
+      return null;
     },
     canEdit() {
       return (
@@ -33,32 +60,14 @@ export default {
     },
   },
   watch: {
-    contents() {
-      const html = this.session.settings["page." + this.page].html;
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, "text/html");
-
-      Array.from(doc.body.children).forEach((el) => {
-        if (el.tagName === "SCRIPT") {
-          /** Script tags need a special treatment, else they will not execute. **/
-          const scriptEl = document.createElement("script");
-          if (el.src) {
-            /** If we have an external script. */
-            scriptEl.src = el.src;
-          } else {
-            /** Regular inline script */
-            scriptEl.textContent = el.textContent;
-          }
-          this.$refs.pageContents.appendChild(scriptEl);
-        } else if (el.tagName === "STYLE") {
-          const styleEl = document.createElement("style");
-          styleEl.textContent = el.textContent;
-          this.$refs.pageContents.appendChild(styleEl);
-        } else {
-          this.$refs.pageContents.appendChild(el);
-        }
-      });
+    contents(newContent, oldContent) {
+      if (newContent && oldContent === null) {
+        this.parseContent();
+      }
     },
+  },
+  mounted() {
+    this.parseContent();
   },
 };
 </script>
