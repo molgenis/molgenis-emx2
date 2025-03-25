@@ -3,7 +3,7 @@
     <PageHeader
       title="NESTOR Registry"
       subtitle="Subtitle will go here"
-      imageSrc="/img/background_image.jpg"
+      imageSrc="img/background_image.jpg"
       titlePositionX="center"
       titlePositionY="center"
       height="medium"
@@ -46,12 +46,12 @@
           {
             name: 'documents',
             label: 'Documents',
-            image: '/img/bg-documents.jpg',
+            image: 'img/bg-documents.jpg',
           },
           {
             name: 'dashboard',
             label: 'Dashboard',
-            image: '/img/bg-dashboard.jpg',
+            image: 'img/bg-dashboard.jpg',
           },
         ]"
         name="name"

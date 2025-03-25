@@ -7,7 +7,14 @@
 .app-page {
   .page-header {
     .background-image-filter {
-      opacity: 0.5;
+      opacity: 0.2;
+      background: $brand-green;
+    }
+    .header-content {
+      .header-title,
+      .header-subtitle {
+        color: $brand-green;
+      }
     }
   }
 

@@ -22,7 +22,7 @@ withDefaults(
     name: string;
     label: string;
     imageSrc: string;
-    height: "xsmall" | "small" | "medium" | "large";
+    height?: "xsmall" | "small" | "medium" | "large";
   }>(),
   {
     height: "medium",
