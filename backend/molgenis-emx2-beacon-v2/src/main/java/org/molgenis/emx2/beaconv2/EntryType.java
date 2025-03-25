@@ -36,7 +36,7 @@ public enum EntryType {
       List.of(BEACON_VP),
       List.of(DISEASE, PHENOTYPE, RESOURCE_TYPE)),
   GENOMIC_VARIANT(
-      "GenomicVariations",
+      "GenomicVariants",
       "g_variants",
       "GenomicVariant",
       "ENSGLOSSARY:0000092",

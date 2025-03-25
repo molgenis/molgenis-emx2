@@ -55,8 +55,11 @@ public class QueryEntryType {
 
     int numTotalResults = 0;
     ArrayNode resultSets = mapper.createArrayNode();
-    if (schema != null && isAuthorized(schema.getInheritedRolesForActiveUser())) {
+    if (isAuthorized(schema.getInheritedRolesForActiveUser())) {
       Table table = schema.getTable(entryType.getId());
+      if (table == null) {
+        throw new MolgenisException("Table " + entryType.getId() + " does not exist");
+      }
       numTotalResults = queryTable(table, filterParser, resultSets);
     }
 

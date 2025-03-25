@@ -18,8 +18,6 @@ import "range.jslt" as range
             "info": range(.),
             "results":
             [for (.results) {
-                let clincalObservationsFlat = flatten(.clinicalObservations)
-                "clinicalObsflat": $clincalObservationsFlat,
                 "id": .id,
                 "sex": ontology(.genderAtBirth),
                 "age": {

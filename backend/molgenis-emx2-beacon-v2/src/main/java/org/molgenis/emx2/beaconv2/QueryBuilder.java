@@ -54,7 +54,7 @@ public class QueryBuilder {
 
   public String getQuery() {
     query = new StringBuilder("{");
-    query.append(table.getName());
+    query.append(table.getIdentifier());
     if (hasFilterArguments()) {
       query.append("(");
       if (limit != null) query.append("limit: ").append(limit).append(",");
@@ -79,7 +79,7 @@ public class QueryBuilder {
 
   private String getAggregateQuery(String variable) {
     query = new StringBuilder("{");
-    query.append(table.getName()).append("_agg");
+    query.append(table.getIdentifier()).append("_agg");
 
     if (filters != null && !filters.isEmpty()) {
       query.append("(");
