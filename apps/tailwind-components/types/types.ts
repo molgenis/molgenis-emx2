@@ -20,21 +20,20 @@ export interface IValueLabel {
 }
 
 export interface ITreeNode extends INode {
-  children:
-  ITreeNode[];
+  children: ITreeNode[];
 }
 
 export interface ITreeNodeState extends ITreeNode {
   /* if a node should be shown, used for search filter */
   visible?: boolean;
   /* label will be shown if provided instead of name */
-  label?: string,
+  label?: string;
   /* code from a code system */
-  code?: string,
+  code?: string;
   /* code system if provided */
-  codesystem?: string,
+  codesystem?: string;
   /* uri where the code comes from */
-  uri?: string,
+  uri?: string;
   /* if a node is selected, intermediate or unselected*/
   selected?: SelectionState; //'unselected','selected','intermediate'
   /* if a node should be shown expanded */
@@ -46,7 +45,7 @@ export interface ITreeNodeState extends ITreeNode {
   /* extension of children */
   children: ITreeNodeState[];
   /* if a node is selectable */
-  selectable: boolean
+  selectable: boolean;
 }
 
 export type SelectionState = "selected" | "intermediate" | "unselected";
@@ -77,7 +76,7 @@ export interface ITableSettings {
   pageSize: number;
   orderby: {
     column: string;
-    direction: sortDirection
+    direction: sortDirection;
   };
   search: string;
 }
@@ -128,10 +127,10 @@ interface IAbstractFilter {
   id: string;
   search?: string;
   config:
-      | ISearchFilterConfig
-      | IOntologyFilterConfig
-      | IRefArrayFilterDefaultConfig
-      | IRefArrayFilterCustomConfig;
+    | ISearchFilterConfig
+    | IOntologyFilterConfig
+    | IRefArrayFilterDefaultConfig
+    | IRefArrayFilterCustomConfig;
 }
 export interface ISearchFilter extends IAbstractFilter {
   search: string;
@@ -170,12 +169,12 @@ export interface IRefArrayFilterAbstractConfig extends IFilterConfig {
 }
 
 export interface IRefArrayFilterDefaultConfig
-    extends IRefArrayFilterAbstractConfig {
+  extends IRefArrayFilterAbstractConfig {
   columnId: string;
 }
 
 export interface IRefArrayFilterCustomConfig
-    extends IRefArrayFilterAbstractConfig {
+  extends IRefArrayFilterAbstractConfig {
   // optional function to build the filter bases on the selected options
   // if empty the defualt builder will be used
   buildFilterFunction?: Function;
