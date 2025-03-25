@@ -375,11 +375,12 @@ public class SqlColumnExecutor {
               + "."
               + c.getName());
     }
-    if (c.isRefback() && !c.getRefBackColumn().isRef()) {
+    if (c.isRefback() && !c.getRefBackColumn().isReference()) {
       throw new MolgenisException(
           "Refback column '" + c.getRefBackColumn() + "' is not of type reference");
     }
     if (c.isRefback()
+        && c.getRefBackColumn().isRef()
         && !c.getTableName().equals(c.getRefBackColumn().getRefTable().getTableName())) {
       throw new MolgenisException(
           "Refback '" + c.getRefBackColumn() + "' is not a reference to table " + c.getTableName());
