@@ -34,9 +34,16 @@ const bgClass = computed(() => {
 <template>
   <section class="pb-[2.5rem] pt-[3.125rem] px-[2.5rem]" :class="bgClass">
     <div v-if="subTitle">{{ subTitle }}</div>
-    <h2 class="mb-5 uppercase text-heading-4xl font-display" v-if="title">
-      {{ title }}
-    </h2>
+    <div class="grid grid-cols-2">
+      <div>
+        <h2 v-if="title" class="mb-5 uppercase text-heading-4xl font-display">
+          {{ title }}
+        </h2>
+      </div>
+      <div class="justify-end">
+        <slot name="title-button" />
+      </div>
+    </div>
     <div class="mb-5 prose max-w-none" v-if="description">
       <div v-html="description"></div>
     </div>

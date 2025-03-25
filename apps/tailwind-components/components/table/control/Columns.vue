@@ -11,6 +11,16 @@
     @close="showModal = false"
   >
     <ContentBlockModal title="Columns">
+      <template v-slot:title-button>
+        <Button
+          type="secondary"
+          size="small"
+          label="Reset to default"
+          icon="RestartAlt"
+          :onclick="resetToDefault"
+        />
+      </template>
+
       <draggable
         tag="ul"
         :list="columnsInColumnsSelectModal"
@@ -118,5 +128,11 @@ function columnToColumnConfig(column: IColumn): IColumnConfig {
     position: column.position ?? 0,
     visible: column.visible === "false" ? false : true,
   };
+}
+
+function resetToDefault() {
+  columnsInColumnsSelectModal.value = indexColumns(
+    sortColumns(props.columns.map(columnToColumnConfig))
+  );
 }
 </script>
