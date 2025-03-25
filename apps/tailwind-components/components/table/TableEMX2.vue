@@ -56,7 +56,7 @@
         <tbody
           class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-5"
         >
-          <tr v-for="row in sortedRows">
+          <tr v-for="row in rows">
             <TableCellTypesEMX2
               v-for="column in sortedVisibleColumns"
               :scope="column.key === 1 ? 'row' : null"
@@ -113,44 +113,6 @@ const sortedVisibleColumns = computed(() => {
   );
   return sortColumns(visibleColumns);
 });
-
-const sortedRows = computed(() => {
-  if (settings.value.orderby?.column) {
-    return sortRows(props.rows, settings.value.orderby);
-  } else {
-    return props.rows;
-  }
-});
-
-function sortRows(
-  rows: Record<string, any>[],
-  orderby: ITableSettings["orderby"]
-) {
-  return rows.sort((row1, row2) =>
-    sortRow(row1, row2, orderby.column, orderby.direction)
-  );
-}
-
-function sortRow(
-  row1: Record<string, any>,
-  row2: Record<string, any>,
-  orderbyColumn: string,
-  orderbyDirection: sortDirection
-) {
-  const row1Value =
-    typeof row1[orderbyColumn] === "string"
-      ? row1[orderbyColumn]
-      : row1[orderbyColumn]?.name;
-  const row2Value =
-    typeof row2[orderbyColumn] === "string"
-      ? row2[orderbyColumn]
-      : row2[orderbyColumn]?.name;
-  if (orderbyDirection === "ASC") {
-    return row1Value > row2Value ? 1 : -1;
-  } else {
-    return row1Value < row2Value ? 1 : -1;
-  }
-}
 
 function handleSortRequest(columnId: string) {
   const direction: sortDirection = getDirection(columnId);
