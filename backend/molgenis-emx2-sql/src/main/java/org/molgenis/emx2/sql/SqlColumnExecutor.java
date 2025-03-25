@@ -375,6 +375,15 @@ public class SqlColumnExecutor {
               + "."
               + c.getName());
     }
+    if (c.isRefback() && !c.getRefBackColumn().isRef()) {
+      throw new MolgenisException(
+          "Refback column '" + c.getRefBackColumn() + "' is not of type reference");
+    }
+    if (c.isRefback()
+        && !c.getTableName().equals(c.getRefBackColumn().getRefTable().getTableName())) {
+      throw new MolgenisException(
+          "Refback '" + c.getRefBackColumn() + "' is not a reference to table " + c.getTableName());
+    }
     if (c.isReference() && !c.isOntology() && c.getRefTable() == null) {
       throw new MolgenisException(
           String.format(
