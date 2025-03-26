@@ -66,6 +66,9 @@ public class FileApi {
     ctx.header(
         "Content-Disposition",
         "attachment; filename=" + (fileName != null ? fileName : columnName + "." + extension));
+    if (mimetype == null) {
+      mimetype = "application/octet-stream";
+    }
     ctx.contentType(mimetype);
     try (OutputStream out = ctx.outputStream()) {
       out.write(contents); // autoclosing
