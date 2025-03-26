@@ -190,6 +190,7 @@ interface IResourceQueryResponseValue extends IResources {
 interface IResponse {
   data: {
     Resources: IResourceQueryResponseValue[];
+    Variables_agg: { count: number };
   };
 }
 const { data, error } = await useFetch<IResponse, IMgError>(
@@ -233,6 +234,8 @@ const collectionEventCount = computed(
 const subpopulationCount = computed(
   () => resource.value.subpopulations_agg?.count
 );
+
+const variableCount = computed(() => data.value?.data?.Variables_agg.count);
 
 function collectionEventMapper(item: any) {
   return {
@@ -288,6 +291,7 @@ function variableMapper(variable: IVariable) {
 
 const datasetOptions = ref<Array<{ name: string }>>([{ name: "All datasets" }]);
 const datasetFilter = ref<string>("All datasets");
+const variableSearchValue = ref<string>("");
 
 const variablesFilter = computed(() => {
   return {
@@ -360,27 +364,27 @@ const tocItems = computed(() => {
       id: "Contributors",
     });
   }
-  if (resource.value.collectionEvents) {
-    tableOffContents.push({
-      label: "Available data & samples",
-      id: "AvailableData",
-    });
+
+  if (resource.value.datasets) {
+    tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
-  tableOffContents.push({ label: "Variables", id: "Variables" });
+
+  if (variableCount.value ?? 0 > 0) {
+    tableOffContents.push({ label: "Variables", id: "Variables" });
+  }
+
   if (subpopulationCount.value ?? 0 > 0) {
     tableOffContents.push({
       label: "Subpopulations",
       id: "Subpopulations",
     });
   }
+
   if (collectionEventCount.value ?? 0 > 0) {
     tableOffContents.push({
       label: "Collection events",
       id: "CollectionEvents",
     });
-  }
-  if (resource.value.datasets) {
-    tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
 
   if (networks.value.length > 0) {
@@ -683,11 +687,85 @@ const showPopulation = computed(
         >
         </ContentBlockContact>
 
-        <ContentBlockData
-          id="AvailableData"
-          title="Available Data &amp; Samples"
-          :collectionEvents="resource?.collectionEvents"
-        />
+        <TableContent
+          v-if="resource.datasets"
+          id="Datasets"
+          title="Datasets"
+          description="List of datasets for this resource"
+          :headers="[
+            { id: 'name', label: 'Name' },
+            { id: 'description', label: 'Description', singleLine: true },
+          ]"
+          type="Datasets"
+          :query="datasetQuery"
+          :filter="{ id: route.params.resource }"
+          :rowMapper="datasetMapper"
+          v-slot="slotProps"
+        >
+          <DatasetDisplay
+            :name="slotProps.id.name"
+            :resource-id="slotProps.id.resource"
+          />
+        </TableContent>
+
+        <TableContent
+          v-if="variableCount ?? 0 > 0"
+          title="Variables"
+          id="Variables"
+          description="List of variables for this resource"
+          :headers="[
+            { id: 'name', label: 'Name' },
+            { id: 'dataset', label: 'Dataset' },
+          ]"
+          type="Variables"
+          :query="variablesQuery"
+          :filter="variablesFilter"
+          :search-filter-value="variableSearchValue"
+          :rowMapper="variableMapper"
+        >
+          <template #filter-group>
+            <div class="relative">
+              <label
+                class="block absolute text-body-xs top-2 left-6 pointer-events-none"
+                for="filter-by-variable"
+              >
+                Filter by variable
+              </label>
+              <input
+                v-model="variableSearchValue"
+                @click="variableSearchValue = ''"
+                name="filter-by-variable"
+                class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none hover:bg-gray-100 hover:cursor-pointer bg-none"
+              />
+              <span class="absolute right-5 top-5 pointer-events-none">
+                <BaseIcon name="cross" class="stroke-1" :width="20" />
+              </span>
+            </div>
+            <div class="relative">
+              <label
+                class="block absolute text-body-xs top-2 left-6 pointer-events-none"
+                for="filter-by-data-set"
+              >
+                Filter by dataset
+              </label>
+              <select
+                v-model="datasetFilter"
+                name="filter-by-data-set"
+                class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none hover:bg-gray-100 hover:cursor-pointer bg-none"
+              >
+                <option v-for="option in datasetOptions" :value="option.name">
+                  {{ option.name }}
+                </option>
+              </select>
+              <span class="absolute right-5 top-5 pointer-events-none">
+                <BaseIcon name="caret-down" :width="20" />
+              </span>
+            </div>
+          </template>
+          <template #default="slotProps">
+            <VariableDisplay :variable-key="slotProps.id" />
+          </template>
+        </TableContent>
 
         <TableContent
           v-if="subpopulationCount ?? 0 > 0"
@@ -730,67 +808,6 @@ const showPopulation = computed(
           v-slot="slotProps"
         >
           <CollectionEventDisplay :id="slotProps.id" />
-        </TableContent>
-
-        <TableContent
-          v-if="resource.datasets"
-          id="Datasets"
-          title="Datasets"
-          description="List of datasets for this resource"
-          :headers="[
-            { id: 'name', label: 'Name' },
-            { id: 'description', label: 'Description', singleLine: true },
-          ]"
-          type="Datasets"
-          :query="datasetQuery"
-          :filter="{ id: route.params.resource }"
-          :rowMapper="datasetMapper"
-          v-slot="slotProps"
-        >
-          <DatasetDisplay
-            :name="slotProps.id.name"
-            :resource-id="slotProps.id.resource"
-          />
-        </TableContent>
-
-        <TableContent
-          title="Variables"
-          id="Variables"
-          description="List of variables for this resource"
-          :headers="[
-            { id: 'dataset', label: 'Dataset' },
-            { id: 'name', label: 'Name' },
-          ]"
-          type="Variables"
-          :query="variablesQuery"
-          :filter="variablesFilter"
-          :rowMapper="variableMapper"
-        >
-          <template #filter-group>
-            <div class="relative">
-              <label
-                class="block absolute text-body-xs top-2 left-6 pointer-events-none"
-                for="filter-by-data-set"
-              >
-                Filter by dataset
-              </label>
-              <select
-                v-model="datasetFilter"
-                name="filter-by-data-set"
-                class="h-14 border border-gray-400 pb-2 pt-6 pl-6 pr-12 rounded-full appearance-none hover:bg-gray-100 hover:cursor-pointer bg-none"
-              >
-                <option v-for="option in datasetOptions" :value="option.name">
-                  {{ option.name }}
-                </option>
-              </select>
-              <span class="absolute right-5 top-5 pointer-events-none">
-                <BaseIcon name="caret-down" :width="20" />
-              </span>
-            </div>
-          </template>
-          <template #default="slotProps">
-            <VariableDisplay :variable-key="slotProps.id" />
-          </template>
         </TableContent>
 
         <ContentBlock

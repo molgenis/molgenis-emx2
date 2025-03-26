@@ -5,12 +5,14 @@ export default gql`
     $offset: Int
     $orderby: Variablesorderby
     $filter: VariablesFilter
+    $search: String
   ) {
     Variables(
       limit: $limit
       offset: $offset
       filter: $filter
       orderby: $orderby
+      search: $search
     ) {
       name
       label
@@ -31,7 +33,7 @@ export default gql`
         }
       }
     }
-    Variables_agg(filter: $filter) {
+    Variables_agg(filter: $filter, search: $search) {
       count
     }
   }

@@ -13,6 +13,7 @@ const props = defineProps<{
   type: string;
   query: DocumentNode;
   filter?: object;
+  searchFilterValue?: string;
   rowMapper: Function;
   primaryActionLabel?: string;
   primaryActionPath?: string;
@@ -35,6 +36,7 @@ async function fetchRows() {
     limit: pageSize,
     offset: offset.value,
     orderby,
+    search: props.searchFilterValue ?? undefined,
   });
 
   rows.value = resp.data[props.type]?.map(props.rowMapper);
@@ -52,6 +54,13 @@ watch(orderByColumn, () => {
 
 watch(
   () => props.filter,
+  () => {
+    fetchRows();
+  }
+);
+
+watch(
+  () => props.searchFilterValue,
   () => {
     fetchRows();
   }
