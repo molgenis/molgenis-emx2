@@ -138,24 +138,6 @@ export default {
     },
   },
   methods: {
-    // async retrievePageSetting () {
-    //   const query = `query {
-    //     _settings(keys: ["${this.pageSettingKey}"]) {
-    //       key
-    //       value
-    //     }
-    //   }`
-
-    //   const response = await request("graphql", query);
-
-    //   if (response._settings) {
-    //     const pageContent = response._settings.filter((setting) => setting.key === this.pageSettingKey);
-    //     if (pageContent) {
-    //       const contentString = pageContent[0].value;
-    //       this.content = JSON.parse(contentString)
-    //     }
-    //   }
-    // },
     async savePageSettings() {
       const response = await request(
         "graphql",
