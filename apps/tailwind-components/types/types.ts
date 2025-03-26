@@ -101,9 +101,9 @@ export interface IFile {
 
 export interface IDocumentation {
   name: string;
-  description: string;
-  url: string;
-  file: IFile;
+  description?: string;
+  url?: string;
+  file?: IFile;
 }
 
 export interface IRadioOptionsData {

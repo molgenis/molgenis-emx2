@@ -3,7 +3,7 @@
     <template #header>
       <PageHeader id="page-header" title="About">
         <template #prefix>
-          <BreadCrumbs :crumbs="[]" />
+          <BreadCrumbs />
         </template>
       </PageHeader>
     </template>
