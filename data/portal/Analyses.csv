@@ -4,6 +4,7 @@ Analyses,,id,auto_id,1,,,,,,,,http://semanticscience.org/resource/SIO_000115,A u
 Analyses,,date completed,date,,,,,,,,,http://semanticscience.org/resource/SIO_000032,The date on which the analysis was completed,RD3
 Analyses,,persons involved,ref_array,,,,Contacts,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,Reference to one or more individuals involved in the analysis,RD3
 Analyses,,files used,ref_array,,,,Files,,,,,http://semanticscience.org/resource/SIO_000396,Reference to one or more files involved in the analysis,RD3
+Analyses,,input samples,ref_array,,,,Biosamples,,,,,links to samples used as input,RD3
 Individual analyses,Analyses,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25391,Patient level analysis,RD3
 Individual analyses,,individual,ref,,,,Individuals,,,,,http://purl.obolibrary.org/obo/IAO_0000136,A reference to the individual whom this analysis is about,RD3
 Individual analyses,,solved,bool,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25587,An indication that diagnosis is given and the case is no longer considered unsolved.,RD3
