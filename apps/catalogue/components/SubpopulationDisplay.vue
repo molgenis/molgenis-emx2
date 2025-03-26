@@ -50,7 +50,6 @@ function renderList(
 }
 
 const toName = (item: any) => item.name;
-const toCommaList = (items: any) => items.join(",");
 
 const items: any = [];
 

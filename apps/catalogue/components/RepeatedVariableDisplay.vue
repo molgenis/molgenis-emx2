@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import repeatedVariableQuery from "~~/gql/repeatedVariable";
-import type { KeyObject } from "metadata-utils";
+import type { KeyObject } from "../../metadata-utils/src/types";
 import { buildFilterFromKeysObject } from "metadata-utils";
 
 const query = moduleToString(repeatedVariableQuery);
