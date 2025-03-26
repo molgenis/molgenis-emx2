@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, toRefs, useId, watch } from "vue";
-import type { INotificationType } from "~/types/types";
+import type { INotificationType } from "../types/types";
 const ariaId = useId();
 const props = withDefaults(
   defineProps<{

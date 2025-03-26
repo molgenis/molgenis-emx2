@@ -242,7 +242,7 @@
 </template>
 
 <script setup lang="ts">
-import type { IInputProps, IValueLabel } from "~/types/types";
+import type { IInputProps, IValueLabel } from "../types/types";
 import type {
   CellValueType,
   columnValue,

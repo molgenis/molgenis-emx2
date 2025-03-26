@@ -3,7 +3,7 @@
 - split the search out to a wrapping component
  */
 
-import type { ITreeNode, ITreeNodeState } from "~/types/types";
+import type { ITreeNode, ITreeNodeState } from "../../types/types";
 import TreeNode from "./TreeNode.vue";
 import { computed, ref, watch } from "vue";
 
