@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { IOntologyItem } from "~/interfaces/types";
 
 const props = withDefaults(

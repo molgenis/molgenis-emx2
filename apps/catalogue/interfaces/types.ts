@@ -42,6 +42,7 @@ export interface IVariableDetails {
 
 export interface IVariableMappings {
   mappings?: IMapping[];
+  repeats?: string;
 }
 
 export type IVariable = IVariableBase & IVariableDetails;
@@ -96,6 +97,7 @@ export interface IUrlObject {
 export interface ICollectionEventCategory {
   name: string;
   parent?: INameObject;
+  children?: ICollectionEventCategory[];
   definition?: string;
 }
 

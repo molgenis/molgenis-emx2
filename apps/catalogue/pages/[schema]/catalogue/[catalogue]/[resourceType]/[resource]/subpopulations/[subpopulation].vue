@@ -6,6 +6,7 @@ import type { ISubpopulations } from "../../../../../../../interfaces/catalogue"
 import type { IMgError } from "../../../../../../../interfaces/types";
 import dateUtils from "../../../../../../../utils/dateUtils";
 import subpopulationGql from "../../../../../../../gql/subpopulation";
+import { removeChildIfParentSelected } from "../../../../../../../utils/treeHelpers";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -31,8 +32,12 @@ const { data } = await useFetch<ISubpopulationQueryResponse, IMgError>(
   }
 );
 
-const subpopulation = data.value?.data?.Subpopulations?.[0] ?? null;
-useHead({ title: subpopulation?.name });
+if (data.value?.data?.Subpopulations?.length === 0) {
+  throw new Error("Subpopulation not found");
+}
+
+const subpopulation = data.value?.data?.Subpopulations?.[0] as ISubpopulations;
+useHead({ title: subpopulation.name });
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
@@ -75,23 +80,23 @@ let tocItems = reactive([{ label: "Details", id: "details" }]);
 
 const items: any = [];
 
-if (subpopulation?.numberOfParticipants) {
+if (subpopulation.numberOfParticipants) {
   items.push({
     label: "Number of participants",
     content: subpopulation.numberOfParticipants,
   });
 }
-if (subpopulation?.inclusionStart || subpopulation?.inclusionEnd) {
+if (subpopulation.inclusionStart || subpopulation.inclusionEnd) {
   items.push({
     label: "Start/end year",
     content: dateUtils.startEndYear(
-      subpopulation.inclusionStart?.toString(),
-      subpopulation.inclusionEnd?.toString()
+      subpopulation.inclusionStart,
+      subpopulation.inclusionEnd
     ),
   });
 }
 
-if (subpopulation?.countries) {
+if (subpopulation.countries) {
   items.push({
     label: "Countries",
     content: renderList(
@@ -101,7 +106,7 @@ if (subpopulation?.countries) {
   });
 }
 
-if (subpopulation?.inclusionCriteria) {
+if (subpopulation.inclusionCriteria) {
   items.push({
     label: "Inclusion criteria",
     content: renderList(
@@ -113,14 +118,14 @@ if (subpopulation?.inclusionCriteria) {
   });
 }
 
-if (subpopulation?.otherInclusionCriteria) {
+if (subpopulation.otherInclusionCriteria) {
   items.push({
     label: "Other inclusion criteria",
     content: subpopulation.otherInclusionCriteria,
   });
 }
 
-if (subpopulation?.exclusionCriteria) {
+if (subpopulation.exclusionCriteria) {
   items.push({
     label: "Exclusion criteria",
     content: renderList(
@@ -132,19 +137,19 @@ if (subpopulation?.exclusionCriteria) {
   });
 }
 
-if (subpopulation?.otherExclusionCriteria) {
+if (subpopulation.otherExclusionCriteria) {
   items.push({
     label: "Other exclusion criteria",
     content: subpopulation.otherExclusionCriteria,
   });
 }
 
-if (subpopulation?.ageGroups?.length) {
+if (subpopulation.ageGroups?.length) {
   tocItems.push({ label: "Age categories", id: "age_categories" });
 }
 
 const mainMedicalConditionTree = computed(() => {
-  if (subpopulation?.mainMedicalCondition?.length) {
+  if (subpopulation.mainMedicalCondition?.length) {
     return buildTree(subpopulation.mainMedicalCondition);
   } else {
     return [];
@@ -152,20 +157,20 @@ const mainMedicalConditionTree = computed(() => {
 });
 
 const comorbidityTree = computed(() => {
-  if (subpopulation?.comorbidity?.length) {
+  if (subpopulation.comorbidity?.length) {
     return buildTree(subpopulation.comorbidity);
   } else {
     return [];
   }
 });
 
-if (subpopulation?.mainMedicalCondition?.length) {
+if (subpopulation.mainMedicalCondition?.length) {
   tocItems.push({
     label: "Main medical condition",
     id: "main_medical_condition",
   });
 }
-if (subpopulation?.comorbidity?.length) {
+if (subpopulation.comorbidity?.length) {
   tocItems.push({ label: "Comorbidity", id: "comorbidity" });
 }
 </script>
@@ -175,8 +180,8 @@ if (subpopulation?.comorbidity?.length) {
     <template #header>
       <PageHeader
         id="page-header"
-        :title="subpopulation?.name"
-        :description="subpopulation?.description"
+        :title="subpopulation.name"
+        :description="subpopulation.description"
       >
         <template #prefix>
           <BreadCrumbs :crumbs="pageCrumbs" />
@@ -185,7 +190,7 @@ if (subpopulation?.comorbidity?.length) {
     </template>
     <template #side>
       <SideNavigation
-        :title="subpopulation?.name"
+        :title="subpopulation.name"
         :items="tocItems"
         header-target="#page-header"
       />

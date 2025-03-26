@@ -9,7 +9,6 @@ describe("toHeadings", () => {
       id: "test",
       label: "test",
       tableType: "test",
-      schemaId: "test",
       columns: [
         { id: "test", columnType: "HEADING", label: "test" },
         { id: "test2", columnType: "TEXT", label: "test2" },
@@ -26,7 +25,6 @@ describe("toHeadings", () => {
       id: "test",
       label: "test",
       tableType: "test",
-      schemaId: "test",
       columns: [],
     };
 
@@ -39,7 +37,6 @@ describe("toSectionsMap", () => {
     id: "test",
     label: "test",
     tableType: "test",
-    schemaId: "test",
     columns: [],
   };
 

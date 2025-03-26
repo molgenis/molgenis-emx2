@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import type { IManifestResponse, IMgError } from "~~/interfaces/types";
+import { useGqlFetch } from "../../composables/useGqlFetch";
+import { computed } from "vue";
+import type { IManifestResponse, IMgError } from "../../interfaces/types";
 
 const { data } = await useGqlFetch<IManifestResponse, IMgError>(
   ` 
-    query manifest{
+    query manifest {
       _manifest {
         ImplementationVersion
         SpecificationVersion
@@ -12,8 +14,9 @@ const { data } = await useGqlFetch<IManifestResponse, IMgError>(
     }`,
   { key: "manifest" }
 );
-
-const manifest = computed(() => data.value?.data._manifest);
+const manifest = computed(
+  () => (data.value as IManifestResponse).data._manifest ?? {}
+);
 </script>
 
 <template>

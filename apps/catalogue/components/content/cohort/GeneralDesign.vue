@@ -113,7 +113,9 @@ const generalDesign: IDefinitionListItem[] = [
   },
   {
     label:
-      designPublications.value?.length > 1 ? "Design papers" : "Design paper",
+      (designPublications.value?.length ?? 0) > 1
+        ? "Design papers"
+        : "Design paper",
     type: "LINK",
     content: designPublications.value
       ? designPaperToItem(designPublications.value)

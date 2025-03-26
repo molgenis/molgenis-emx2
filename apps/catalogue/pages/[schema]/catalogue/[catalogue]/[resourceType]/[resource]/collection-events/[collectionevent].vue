@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { DocumentNode } from "graphql";
 import dateUtils from "../../../../../../../utils/dateUtils";
 import collectionEventGql from "../../../../../../../gql/collectionEvent";
 import type {
@@ -7,6 +6,10 @@ import type {
   IMgError,
   IOntologyItem,
 } from "~~/interfaces/types";
+import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
+import { moduleToString, logError, buildTree } from "#imports";
+import { computed, reactive } from "vue";
+import { removeChildIfParentSelected } from "../../../../../../../utils/treeHelpers";
 
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -124,48 +127,6 @@ if (collectionEvent.value.standardizedTools) {
 }
 
 useHead({ title: collectionEvent.value?.name });
-
-function useRuntimeConfig() {
-  throw new Error("Function not implemented.");
-}
-
-function useRoute() {
-  throw new Error("Function not implemented.");
-}
-
-function moduleToString(collectionEventGql: DocumentNode) {
-  throw new Error("Function not implemented.");
-}
-
-function useFetch<T, U>(
-  arg0: string,
-  arg1: {
-    method: string;
-    body: { query: any; variables: { id: any; name: any } };
-  }
-): { data: any; error: any } | PromiseLike<{ data: any; error: any }> {
-  throw new Error("Function not implemented.");
-}
-
-function logError(value: any, contextMsg: string) {
-  throw new Error("Function not implemented.");
-}
-
-function computed(arg0: () => any): any {
-  throw new Error("Function not implemented.");
-}
-
-function reactive(arg0: { label: string; id: string }[]) {
-  throw new Error("Function not implemented.");
-}
-
-function buildTree(dataCategories: any): IOntologyItem[] {
-  throw new Error("Function not implemented.");
-}
-
-function useHead(arg0: { title: any }) {
-  throw new Error("Function not implemented.");
-}
 </script>
 
 <template>
