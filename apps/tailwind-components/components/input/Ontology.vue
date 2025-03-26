@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IInputProps, ITreeNodeState } from "~/types/types";
+import type { IInputProps, ITreeNodeState } from "../../types/types";
 import TreeNode from "~/components/input/TreeNode.vue";
 import { onMounted, ref, watch, type Ref } from "vue";
 import { fetchGraphql } from "#imports";

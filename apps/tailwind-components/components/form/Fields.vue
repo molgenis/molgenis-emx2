@@ -13,7 +13,7 @@ import {
   getColumnError,
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
-import logger from "@/utils/logger";
+import logger from "../../utils/logger";
 import { vIntersectionObserver } from "@vueuse/components";
 
 const props = defineProps<{
