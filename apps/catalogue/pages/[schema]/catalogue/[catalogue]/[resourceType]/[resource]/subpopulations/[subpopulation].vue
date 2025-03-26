@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import type { ISubpopulations } from "~/interfaces/catalogue";
-import type { IMgError } from "~/interfaces/types";
-import dateUtils from "~/utils/dateUtils";
-import subpopulationGql from "~~/gql/subpopulation";
+import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
+import { moduleToString, buildTree } from "#imports";
+import { computed, reactive } from "vue";
+import type { ISubpopulations } from "../../../../../../../interfaces/catalogue";
+import type { IMgError } from "../../../../../../../interfaces/types";
+import dateUtils from "../../../../../../../utils/dateUtils";
+import subpopulationGql from "../../../../../../../gql/subpopulation";
 const config = useRuntimeConfig();
 const route = useRoute();
 

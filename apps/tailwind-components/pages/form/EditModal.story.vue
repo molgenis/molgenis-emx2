@@ -24,7 +24,7 @@ import type {
   columnValue,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
-import DemoDataControles from "~/DemoDataControles.vue";
+import DemoDataControles from "../../DemoDataControles.vue";
 
 const metadata = ref<ITableMetaData>();
 const schemaId = ref<string>("type test");

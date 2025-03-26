@@ -5,7 +5,7 @@ import type {
   ISchemaMetaData,
 } from "../../metadata-utils/src/types";
 import { useRoute, useRouter } from "#app/composables/router";
-import Legend from "~/components/form/Legend.vue";
+import Legend from "../components/form/Legend.vue";
 import { useFetch, useAsyncData } from "#app";
 import { fetchMetadata, fetchTableData, useSections } from "#imports";
 import { ref, computed, watch } from "vue";

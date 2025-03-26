@@ -184,10 +184,12 @@ watch(optionsSearch, (newValue, oldValue) => {
       rootNodes.value.forEach((node) => {
         applySearch(searchValue, node);
         //expand unless too many hits
-        if (node.children.filter((child) => child.visible).length === 1)
+        if (node.children.filter((child: any) => child.visible).length === 1)
           node.expanded = true;
         getAllChildren(node).forEach((child) => {
-          if (child.children.filter((child2) => child2.visible).length === 1)
+          if (
+            child.children.filter((child2: any) => child2.visible).length === 1
+          )
             child.expanded = true;
         });
       });
@@ -216,12 +218,12 @@ function applySearch(searchValue: string, node: ITreeNodeState) {
     getAllParents(node).forEach((parent) => {
       parent.visible = true;
       //parents not selectable because might be incomplete, unless all children are visible
-      if (!parent.children.some((child) => !child.visible)) {
+      if (!parent.children.some((child: any) => !child.visible)) {
         parent.selectable = true;
       }
     });
   } else {
-    node.children.forEach((child) => applySearch(searchValue, child));
+    node.children.forEach((child: any) => applySearch(searchValue, child));
   }
 }
 

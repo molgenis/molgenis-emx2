@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import mappingsFragment from "~~/gql/fragments/mappings";
+import mappingsFragment from "../gql/fragments/mappings";
 export default gql`
   query Variables(
     $variableFilter:VariablesFilter,

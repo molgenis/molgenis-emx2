@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { ITableMetaData } from "../../../metadata-utils/src/types";
-import DemoDataControles from "~/DemoDataControles.vue";
+import DemoDataControles from "../../DemoDataControles.vue";
 
 const metadata = ref<ITableMetaData>();
 const schemaId = ref<string>("type test");

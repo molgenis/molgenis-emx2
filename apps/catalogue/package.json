@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "lint": "vue-tsc --noEmit",
     "build": "nuxt build",
     "test": "vitest",
     "test-ci": "vitest run",

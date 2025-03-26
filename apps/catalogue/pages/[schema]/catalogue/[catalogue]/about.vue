@@ -297,7 +297,10 @@
 </template>
 
 <script setup lang="ts">
-import type { IManifestResponse, IMgError } from "~~/interfaces/types";
+import { useHead } from "#app";
+import { useGqlFetch } from "../../../../composables/useGqlFetch";
+import { computed } from "vue";
+import type { IManifestResponse, IMgError } from "../../../../interfaces/types";
 
 useHead({ title: "About" });
 

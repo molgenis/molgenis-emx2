@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { IResources } from "~/interfaces/catalogue";
 import type { INameObject, IDefinitionListItem } from "~/interfaces/types";
 

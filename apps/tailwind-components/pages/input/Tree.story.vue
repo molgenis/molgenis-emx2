@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type Ref, ref } from "vue";
-import type { ITreeNode } from "~/types/types";
+import type { ITreeNode } from "../../types/types";
 
 function generateTreeData(width: number, depth: number, parentName?: string) {
   const nodes = [];

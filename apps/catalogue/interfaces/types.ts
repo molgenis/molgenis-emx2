@@ -1,5 +1,5 @@
 import type { INode } from "../../tailwind-components/types/types";
-import type { IResources } from "~/interfaces/catalogue";
+import type { IResources } from "../interfaces/catalogue";
 
 export interface IPublication {
   doi: string;

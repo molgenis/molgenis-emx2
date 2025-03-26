@@ -3,7 +3,7 @@ import { useFetch, useAsyncData } from "#app";
 import { fetchMetadata, fetchTableData } from "#imports";
 import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import type { Schema } from "~/types/types";
+import type { Schema } from "../types/types";
 
 type Resp<T> = {
   data: Record<string, T[]>;

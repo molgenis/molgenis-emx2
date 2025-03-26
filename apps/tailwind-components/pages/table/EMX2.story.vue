@@ -2,7 +2,7 @@
 import { useFetch, useLazyAsyncData } from "#app";
 import { fetchMetadata, fetchTableData } from "#imports";
 import { ref, computed, watch } from "vue";
-import type { ITableSettings, Resp, Schema } from "~/types/types";
+import type { ITableSettings, Resp, Schema } from "../../types/types";
 
 const tableSettings = ref<ITableSettings>({
   page: 1,
@@ -19,13 +19,14 @@ const { data } = await useFetch<Resp<Schema>>("/graphql", {
 
 const databases = computed(
   () =>
-    data.value?.data?._schemas.sort((a, b) => a.label.localeCompare(b.label)) ??
-    []
+    data.value?.data?._schemas.sort((a: any, b: any) =>
+      a.label.localeCompare(b.label)
+    ) ?? []
 );
 
 const schemaId = ref(
   databases.value.find(
-    (d) => d.label === "pet store" || d.id === "catalogue-demo"
+    (d: any) => d.label === "pet store" || d.id === "catalogue-demo"
   )?.id || ""
 );
 
@@ -38,7 +39,7 @@ const tableId = ref(
 );
 
 const schemaOptions = computed(() =>
-  databases.value.map((schema) => schema.id)
+  databases.value.map((schema: any) => schema.id)
 );
 
 const { data: metadata, refresh: refetchMetadata } = await useLazyAsyncData(

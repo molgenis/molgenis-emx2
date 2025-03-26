@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import type { ICollection, IDefinitionListItem } from "~/interfaces/types";
-import collectionGql from "~~/gql/collection";
+import { useRoute, useFetch } from "#app";
+import { moduleToString } from "#imports";
+import { ref, watch } from "vue";
+import type { IDefinitionListItem } from "../interfaces/types";
+import collectionGql from "../graphql/collection.gql";
 
 const props = defineProps<{
   id: string;
@@ -10,7 +13,7 @@ const route = useRoute();
 
 const query = moduleToString(collectionGql);
 
-let collection: ICollection = ref();
+let collection = ref();
 
 const { data: collectionData } = await useFetch(
   `/${route.params.schema}/graphql`,
