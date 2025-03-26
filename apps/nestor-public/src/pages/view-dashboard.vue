@@ -20,7 +20,7 @@
       :verticalPadding="0"
       :horizontalPadding="2"
     >
-      <DashboardRow :columns="1">
+      <DashboardRow :columns="2">
         <DashboardChart>
           <GeoMercator
             :chartId="OrganisationsChart?.chartId"
@@ -51,6 +51,51 @@
             :enableLegendClicks="true"
           />
         </DashboardChart>
+        <DashboardChart>
+          <DataTable
+            :tableId="enrollmentChart?.chartId"
+            :caption="enrollmentChart?.chartTitle"
+            :columnOrder="['name', 'value']"
+            :data="enrollmentChartData"
+            :enableRowHighlighting="true"
+          />
+        </DashboardChart>
+      </DashboardRow>
+      <DashboardRow :columns="2">
+        <DashboardChart>
+          <PieChart2
+            :chartId="genderChart?.chartId"
+            :title="genderChart?.chartTitle"
+            :chartData="genderChartData"
+            :asDonutChart="true"
+            :enableLegendHovering="true"
+            :legendPosition="genderChart?.legendPosition?.name"
+            :chartMargins="10"
+            :chartHeight="215"
+            :chartScale="0.85"
+          />
+        </DashboardChart>
+        <DashboardChart>
+          <ColumnChart
+            :chartId="ageChart?.chartId"
+            :title="ageChart?.chartTitle"
+            :chartData="ageChartData"
+            xvar="name"
+            yvar="value"
+            :xAxisLabel="ageChart?.xAxisLabel"
+            :yAxisLabel="ageChart?.yAxisLabel"
+            :yTickValues="ageChart?.yAxisTicks"
+            :yMin="ageChart?.yAxisMinValue"
+            :yMax="ageChart?.yAxisMaxValue"
+            :chartHeight="275"
+            :chartMargins="{
+              top: ageChart?.topMargin,
+              right: ageChart?.rightMargin,
+              bottom: ageChart?.bottomMargin,
+              left: ageChart?.leftMargin,
+            }"
+          />
+        </DashboardChart>
       </DashboardRow>
     </Dashboard>
   </Page>
@@ -70,15 +115,20 @@ import {
   MessageBox,
   GeoMercator,
   WorldGeoJson,
+  DataTable,
+  PieChart2,
+  ColumnChart,
   // @ts-ignore
 } from "molgenis-viz";
 
 import { asKeyValuePairs } from "../../../cranio-provider/src/utils/index";
+import { generateAxisTickData } from "../utils/generateAxisTicks";
 import type {
   ICharts,
+  IChartData,
   IOrganisations,
   IOrganisationsResponse,
-  IChartsResponse,
+  IDashboardPagesResponse,
 } from "../types/schema";
 import type { IKeyValuePair } from "../types";
 
@@ -88,30 +138,107 @@ const error = ref<Error | null>(null);
 const OrganisationsChart = ref<ICharts>();
 const OrganisationsChartData = ref<IOrganisations[]>([]);
 const OrganisationsChartPalette = ref<IKeyValuePair>({});
+const enrollmentChart = ref<ICharts>();
+const enrollmentChartData = ref<IChartData[]>();
+const ageChart = ref<ICharts>();
+const ageChartData = ref<IChartData[]>();
+const genderChart = ref<ICharts>();
+const genderChartData = ref<IKeyValuePair>();
+const genderChartPalette = ref<IKeyValuePair>({});
 
-async function getOrganisations() {
-  const chartSettings: IChartsResponse = await request(
+async function getPageCharts() {
+  const response: IDashboardPagesResponse = await request(
     "../api/graphql",
     gql`
       {
-        Charts(filter: { chartId: { equals: "organisation-map" } }) {
-          chartId
-          chartTitle
-          colorPalette {
-            key
-            color
+        DashboardPages {
+          name
+          charts {
+            chartId
+            chartType {
+              name
+            }
+            chartTitle
+            chartSubtitle
+            xAxisLabel
+            xAxisMinValue
+            xAxisMaxValue
+            xAxisTicks
+            yAxisLabel
+            yAxisMinValue
+            yAxisMaxValue
+            yAxisTicks
+            colorPalette {
+              key
+              color
+            }
+            topMargin
+            rightMargin
+            bottomMargin
+            leftMargin
+            legendPosition {
+              name
+            }
+            dataPoints {
+              id
+              name
+              value
+              valueLabel
+              primaryCategory
+              secondaryCategory
+              primaryCategoryLabel
+              secondaryCategoryLabel
+              sortOrder
+            }
           }
         }
       }
     `
   );
-  OrganisationsChart.value = chartSettings.Charts[0];
+
+  const charts = response.DashboardPages[0].charts as ICharts[];
+
+  OrganisationsChart.value = charts.filter(
+    (chart: ICharts) => chart.chartId === "organisation-map"
+  )[0];
   OrganisationsChartPalette.value = asKeyValuePairs(
     OrganisationsChart.value.colorPalette,
     "key",
     "color"
   );
 
+  enrollmentChart.value = charts.filter(
+    (chart: ICharts) => chart.chartId === "enrollment-by-disease-group"
+  )[0];
+  enrollmentChartData.value = enrollmentChart.value.dataPoints;
+
+  genderChart.value = charts.filter(
+    (chart: ICharts) => chart.chartId === "sex-at-birth"
+  )[0];
+  genderChartData.value = asKeyValuePairs(
+    genderChart.value?.dataPoints,
+    "name",
+    "value"
+  );
+  genderChartPalette.value = asKeyValuePairs(
+    genderChart.value.colorPalette,
+    "key",
+    "value"
+  );
+
+  ageChart.value = charts.filter(
+    (chart: ICharts) => chart.chartId === "age-at-last-visit"
+  )[0];
+  ageChartData.value = ageChart.value.dataPoints;
+
+  if (ageChartData.value) {
+    const ageChartTickData = generateAxisTickData(ageChartData.value, "value");
+    ageChart.value.yAxisMaxValue = ageChartTickData.limit;
+    ageChart.value.yAxisTicks = ageChartTickData.ticks;
+  }
+}
+
+async function getOrganisations() {
   const response: IOrganisationsResponse = await request(
     "../api/graphql",
     gql`
@@ -144,6 +271,7 @@ async function getOrganisations() {
 }
 
 async function loadData() {
+  await getPageCharts();
   await getOrganisations();
 }
 

@@ -98,9 +98,32 @@
 }
 
 #public-dashboard {
+  font-size: 11pt;
+
   .dashboard-content {
     @media (min-width: 1800px) {
       max-width: 60vw;
+    }
+
+    .d3-viz {
+      .chart-title {
+        @include setChartTitle;
+      }
+    }
+
+    table {
+      thead {
+        th {
+          font-size: 0.8rem;
+        }
+      }
+      tbody {
+        tr {
+          td {
+            font-size: 0.9rem;
+          }
+        }
+      }
     }
   }
 }

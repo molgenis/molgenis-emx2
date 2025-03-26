@@ -2,7 +2,7 @@
   <Page id="page-home">
     <PageHeader
       title="NESTOR Registry"
-      subtitle="Subtitle will go here"
+      subtitle="The Netherlands Genetic Tumour Risk Registry"
       imageSrc="img/background_image.jpg"
       titlePositionX="center"
       titlePositionY="center"
@@ -22,9 +22,9 @@
       <h2 id="section-welcome-title">Welcome to the NESTOR Registry</h2>
       <p>
         The Netherlands Genetic Tumour Risk Registry
-        <strong>NESTOR</strong> Registry is the European registry for patients
-        with genetic tumour risk syndromes (genturis). It is associated with 8
-        Dutch centres participating in the KWF NESTOR project and serves as a
+        <strong>NESTOR</strong> Registry is the Dutch registry for patients with
+        genetic tumour risk syndromes (genturis). It is associated with 8 Dutch
+        centres participating in the KWF NESTOR project and serves as a
         comprehensive resource for all patients with one of the rare genetic
         tumor risk syndromes.
       </p>
