@@ -1,8 +1,8 @@
-import { useRoute, type UseFetchOptions } from "nuxt/app";
 import { defu } from "defu";
 import type { DocumentNode } from "graphql";
-import { moduleToString, logError } from "#imports";
+import { moduleToString, logError, useRoute, useFetch } from "#imports";
 import { type Ref, isRef } from "vue";
+import type { UseFetchOptions } from "#app";
 
 interface UseGqlFetchOptions<T> extends UseFetchOptions<T> {
   variables?: object;
@@ -46,6 +46,6 @@ export function useGqlFetch<T, E>(
 
   const params = defu(options, defaults);
 
-  // @ts-ignore it cant figure out the combined param types
+  // @ts-ignore
   return useFetch<T, E>(url, params);
 }

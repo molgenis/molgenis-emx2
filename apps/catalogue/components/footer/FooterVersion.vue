@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { useGqlFetch } from "../../composables/useGqlFetch";
-import { computed } from "vue";
 import type { IManifestResponse, IMgError } from "../../interfaces/types";
+import { useRoute } from "vue-router";
 
-const { data } = await useGqlFetch<IManifestResponse, IMgError>(
-  ` 
+const route = useRoute();
+
+const { data } = await $fetch(`/${route.params.schema}/graphql`, {
+  key: `manifest`,
+  method: "POST",
+  body: {
+    query: ` 
     query manifest {
       _manifest {
         ImplementationVersion
@@ -12,17 +17,14 @@ const { data } = await useGqlFetch<IManifestResponse, IMgError>(
         DatabaseVersion
       }
     }`,
-  { key: "manifest" }
-);
-const manifest = computed(
-  () => (data.value as IManifestResponse).data._manifest ?? {}
-);
+  },
+});
 </script>
 
 <template>
   <div class="mb-0 text-center lg:pb-5 text-title text-body-lg">
-    <span v-if="manifest?.SpecificationVersion">
-      Software version: {{ manifest.SpecificationVersion }}
+    <span v-if="data">
+      Software version: {{ data?._manifest.SpecificationVersion }}
     </span>
   </div>
 </template>

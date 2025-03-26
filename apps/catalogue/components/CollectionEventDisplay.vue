@@ -2,7 +2,7 @@
 import collectionEventGql from "~~/gql/collectionEvent";
 import type { IDefinitionListItem, IMgError } from "~~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
-import { useRuntimeConfig, useRoute, useFetch } from "#app";
+import { useRoute, useFetch } from "#app";
 import {
   moduleToString,
   logError,
