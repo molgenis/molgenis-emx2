@@ -106,7 +106,6 @@ export interface IFormLegendSection {
 export type columnId = string;
 export type columnValue =
   | string
-  | string[]
   | number
   | boolean
   | null
