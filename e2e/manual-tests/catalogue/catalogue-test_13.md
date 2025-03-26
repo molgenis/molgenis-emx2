@@ -46,7 +46,7 @@ A naïve visitor to the data catalogue on a different browsers like Mozilla Fire
 | 29 | Click on `MORE`->`Other Catalogues` | The user goes to [/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | | |
 | | [THIS EXTRA TEST STEP CAN BE RENDERED INVALID BY PRODUCTION DATA FOR LONGITOOLS BEING COPIED INTO ACC - SEE IT AS A BONUS STEP!] | | | |
 | 30a | Click on **LongITools** under *Project Catalogues* | The user goes to [/catalogue/LongITools](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/LongITools). | | |
-| 30b | | The ribbon reads: `MENU`, `MOLGENIS` logo, `COLLECTIONS`, `VARIABLES`, `ABOUT`, `OTHER CATALOGUES` and `MORE` | | |
+| 30b | | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `VARIABLES`, `ABOUT`, `OTHER CATALOGUES` and `MORE` | | |
 | 31 | Navigate to [catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) using Safari | Landing page: European health research data and sample catalogue. The ribbon reads: `MOLGENIS` logo, `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS` and `MORE` | | |
 | 32 | Repeat steps from 2 to 30b | | |
 | 31 | Navigate to [catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) using Microsoft Edge | Landing page: European health research data and sample catalogue. The ribbon reads: `MOLGENIS` logo, `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS` and `MORE` | | |
