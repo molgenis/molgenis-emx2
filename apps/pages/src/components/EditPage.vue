@@ -1,13 +1,14 @@
 <template>
   <div>
-    {{ content }}
     <router-link :to="'/' + page">view page</router-link>
     <div class="d-flex">
       <div class="flex-grow-1">
         <h1>{{ title }}</h1>
       </div>
       <div class="mt-2 mb-4 d-flex justify-content-end gap-2">
-        <ButtonAction @click="savePage" class="ml-2">Save changes</ButtonAction>
+        <ButtonAction @click="savePageSettings" class="ml-2"
+          >Save changes</ButtonAction
+        >
       </div>
     </div>
     <Spinner v-if="loading" />
@@ -29,10 +30,7 @@
                 />
               </div>
             </div>
-            <div
-              ref="html"
-              @keyup="(event) => onCodeInput(event.target.value, 'html')"
-            />
+            <div ref="html" />
           </div>
           <div class="position-relative mt-4 shadow">
             <div
@@ -47,10 +45,7 @@
                 />
               </div>
             </div>
-            <div
-              ref="css"
-              @keyup="(event) => onCodeInput(event.target.value, 'css')"
-            />
+            <div ref="css" />
           </div>
           <div class="position-relative mt-4 shadow">
             <div
@@ -65,10 +60,7 @@
                 />
               </div>
             </div>
-            <div
-              ref="javascript"
-              @keyup="(event) => onCodeInput(event.target.value, 'javascript')"
-            />
+            <div ref="javascript" />
           </div>
         </div>
         <div class="position-relative col-5 bg-light shadow">
@@ -91,6 +83,10 @@ import {
 import { request } from "graphql-request";
 import * as monaco from "monaco-editor";
 
+import { toRaw } from "vue";
+import { getPageSetting } from "../utils/getPageSetting";
+import { generateHtmlPreview } from "../utils/generateHtmlPreview";
+
 const editorLanguages = ["html", "css", "javascript"];
 
 export default {
@@ -105,7 +101,6 @@ export default {
   },
   data() {
     return {
-      initialLoadComplete: false,
       graphqlError: null,
       success: null,
       loading: false,
@@ -124,6 +119,9 @@ export default {
     session: Object,
   },
   computed: {
+    pageSettingKey() {
+      return "page." + this.page;
+    },
     title() {
       if (
         this.session &&
@@ -140,31 +138,41 @@ export default {
     },
   },
   methods: {
-    generatePreview() {
-      if (this.content) {
-        this.$refs.pagePreview.replaceChildren();
+    // async retrievePageSetting () {
+    //   const query = `query {
+    //     _settings(keys: ["${this.pageSettingKey}"]) {
+    //       key
+    //       value
+    //     }
+    //   }`
 
-        const parser = new DOMParser();
+    //   const response = await request("graphql", query);
 
-        if (this.content.html) {
-          const doc = parser.parseFromString(this.content.html, "text/html");
-          Array.from(doc.body.children).forEach((elem) => {
-            this.$refs.pagePreview.appendChild(elem);
-          });
+    //   if (response._settings) {
+    //     const pageContent = response._settings.filter((setting) => setting.key === this.pageSettingKey);
+    //     if (pageContent) {
+    //       const contentString = pageContent[0].value;
+    //       this.content = JSON.parse(contentString)
+    //     }
+    //   }
+    // },
+    async savePageSettings() {
+      const response = await request(
+        "graphql",
+        `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){status message}}`,
+        {
+          settings: {
+            key: this.pageSettingKey,
+            value: this.contentJSON,
+          },
         }
-
-        if (this.content.css) {
-          const styleElem = document.createElement("style");
-          styleElem.textContent = this.content.css;
-          this.$refs.pagePreview.appendChild(styleElem);
+      );
+      if (Object.hasOwn(response, "change")) {
+        if (response.change.status === "SUCCESS") {
+          this.success = response.change.message;
         }
-
-        if (this.content.javascript) {
-          const scriptElem = document.createElement("script");
-          scriptElem.setAttribute("type", "text/javascript");
-          scriptElem.textContent = this.content.javascript;
-          this.$refs.pagePreview.appendChild(scriptElem);
-        }
+      } else {
+        this.graphqlError = response;
       }
     },
     initEditor(editor) {
@@ -185,8 +193,6 @@ export default {
           insertMode: "insert",
         },
       });
-
-      this.formatEditor(editor);
     },
 
     formatEditor(editor) {
@@ -199,66 +205,57 @@ export default {
       editorLanguages.forEach((editor) => this.initEditor(editor));
     },
 
-    onCodeInput(content, editor) {
-      this.content[editor] = content;
-      this.generatePreview();
+    formatAllEditors() {
+      editorLanguages.forEach((editor) => this.formatEditor(editor));
     },
 
-    savePage() {
-      this.loading = true;
-      this.graphqlError = null;
-      this.success = null;
-      request(
-        "graphql",
-        `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){message}}`,
-        {
-          settings: {
-            key: "page." + this.page,
-            value: this.contentJSON,
-          },
-        }
-      )
-        .then((data) => {
-          this.success = data.change.message;
-          this.session.settings["page." + this.page] = this.contentJSON;
-        })
-        .catch((graphqlError) => {
-          this.graphqlError = graphqlError.response.errors[0].message;
-        })
-        .finally((this.loading = false));
-    },
-    reload() {
-      if (
-        this.session &&
-        this.session.settings &&
-        this.session.settings["page." + this.page]
-      ) {
-        const doc = this.session.settings["page." + this.page];
-        this.content = doc;
-      }
+    setContentFromEditor(editor, key) {
+      editor.getModel().onDidChangeContent(() => {
+        this.content[key] = toRaw(editor).getValue();
+      });
     },
   },
   destroyed() {
     editorLanguages.forEach((editor) => this[editor].dispose());
   },
   watch: {
-    session: {
-      deep: true,
-      handler() {
-        this.reload();
-      },
-    },
     content: {
+      deep: true,
       handler(newContent) {
         if (newContent) {
-          this.createAllEditors();
-          this.generatePreview();
+          generateHtmlPreview(this, this.content, "pagePreview");
         }
+      },
+    },
+    html: {
+      deep: true,
+      handler(editor) {
+        this.setContentFromEditor(editor, "html");
+      },
+    },
+    css: {
+      deep: true,
+      handler(editor) {
+        this.setContentFromEditor(editor, "css");
+      },
+    },
+    javascript: {
+      deep: true,
+      handler(editor) {
+        this.setContentFromEditor(editor, "javascript");
       },
     },
   },
   mounted() {
-    this.reload();
+    Promise.resolve(getPageSetting(this.pageSettingKey))
+      .then((data) => (this.content = data))
+      .then(() => this.createAllEditors())
+      .then(() => {
+        this.formatAllEditors();
+        generateHtmlPreview(this, this.content, "pagePreview");
+      })
+      .catch((err) => (this.graphqlError = err))
+      .finally(() => (this.loading = false));
   },
 };
 </script>
