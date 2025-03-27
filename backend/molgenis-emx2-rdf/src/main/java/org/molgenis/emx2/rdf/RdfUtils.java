@@ -52,7 +52,7 @@ abstract class RdfUtils {
    */
   static Namespace getSchemaNamespace(final String baseURL, final SchemaMetadata schema) {
     final String schemaName = UrlEscapers.urlPathSegmentEscaper().escape(schema.getName());
-    final String url = baseURL + schemaName + API_RDF + "/";
+    final String url = baseURL + "/" + schemaName + API_RDF + "/";
     final String prefix = TypeUtils.convertToPascalCase(schema.getName());
     return Values.namespace(prefix, url);
   }
@@ -142,7 +142,6 @@ abstract class RdfUtils {
 
   /** Ensure that the base URL has a trailing "/" so we can use it easily to construct URL paths. */
   public static String formatBaseURL(String baseURL) {
-    String baseUrlTrim = baseURL.trim();
-    return baseUrlTrim.endsWith("/") ? baseUrlTrim : baseUrlTrim + "/";
+    return baseURL.endsWith("/") ? baseURL.substring(0, baseURL.length() - 1) : baseURL;
   }
 }
