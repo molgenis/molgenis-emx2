@@ -40,7 +40,7 @@
                   <!-- TODO move styling to checkbox component -->
                 </div>
                 <label
-                  class="hover:cursor-pointer text-body-sm group"
+                  class="text-title hover:cursor-pointer text-body-sm group"
                   :for="element.id"
                 >
                   {{ element.label }}
