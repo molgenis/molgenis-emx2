@@ -173,7 +173,7 @@ class SqlTable implements Table {
       String mg_table = t.getMgTableClass(t.getMetadata());
       // cascading delete will take care of subclass deletes
       database
-          .getJooq()
+          .getJooqWithExtendedTimeout()
           .deleteFrom(rootTable.getJooqTable())
           .where(field(MG_TABLECLASS).equal(mg_table))
           .execute();
@@ -182,7 +182,7 @@ class SqlTable implements Table {
     else {
       // truncate would be faster, but then we need add code to remove and re-add foreign keys
       // Can we indeed not use truncate here?
-      database.getJooq().truncate(t.getJooqTable()).execute();
+      database.getJooqWithExtendedTimeout().truncate(t.getJooqTable()).execute();
     }
     logger.info(database.getActiveUser() + " truncated table " + tableName);
   }
