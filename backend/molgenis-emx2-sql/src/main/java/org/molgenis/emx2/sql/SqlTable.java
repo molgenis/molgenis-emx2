@@ -182,7 +182,7 @@ class SqlTable implements Table {
     else {
       // truncate would be faster, but then we need add code to remove and re-add foreign keys
       // Can we indeed not use truncate here?
-      database.getJooqWithExtendedTimeout().truncate(t.getJooqTable()).execute();
+      database.getJooqWithExtendedTimeout().deleteFrom(t.getJooqTable()).execute();
     }
     logger.info(database.getActiveUser() + " truncated table " + tableName);
   }
