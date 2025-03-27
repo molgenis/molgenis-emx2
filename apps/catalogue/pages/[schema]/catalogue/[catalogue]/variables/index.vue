@@ -75,11 +75,38 @@ const pageFilterTemplate: IFilter[] = [
     conditions: [],
   },
   {
+    id: "datasets",
+    config: {
+      label: "Datasets",
+      type: "REF_ARRAY",
+      refTableId: "Datasets",
+      refSchemaId: route.params.schema,
+      refLabel: "${resource.id}.${name}",
+      filter: scoped
+        ? {
+            _or: [
+              { resource: { id: { equals: catalogueRouteParam } } },
+              {
+                resource: {
+                  partOfResources: { id: { equals: catalogueRouteParam } },
+                },
+              },
+            ],
+          }
+        : { resource: { type: { name: { equals: "Network" } } } },
+      columnId: "datasets",
+      initialCollapsed: true,
+    },
+    conditions: [],
+  },
+  {
     id: "resources",
     config: {
       label: "Sources",
       type: "REF_ARRAY",
+      refSchemaId: route.params.schema,
       refTableId: "Resources",
+      refLabel: "${id}",
       initialCollapsed: false,
       buildFilterFunction: (
         filterBuilder: Record<string, Record<string, any>>,
@@ -89,63 +116,38 @@ const pageFilterTemplate: IFilter[] = [
           ...filterBuilder,
           ...{
             mappings: {
-              source: { equals: conditions.map((c) => ({ id: c.name })) },
+              source: {
+                equals: conditions.map((c) => {
+                  console.log(c);
+                  return { id: c.id };
+                }),
+              },
               match: { name: { equals: ["complete", "partial"] } },
             },
           },
         };
       },
-      refFields: {
-        name: "id",
-        description: "name",
-      },
-    },
-    options: fetchResourceOptions,
-    conditions: [],
-  },
-];
-
-async function fetchResourceOptions(): Promise<INode[]> {
-  const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `
-            query Resources($resourcesFilter: ResourcesFilter) {
-              Resources(filter: $resourcesFilter, orderby: { id: ASC }) {
-                id
-                name
-              }
-            }
-          `,
-      variables: scoped
+      filter: scoped
         ? {
-            resourcesFilter: {
-              _or: [
-                {
-                  partOfResources: { equals: [{ id: catalogueRouteParam }] },
-                },
-                {
+            _or: [
+              {
+                partOfResources: { equals: [{ id: catalogueRouteParam }] },
+              },
+              {
+                partOfResources: {
+                  type: { name: { equals: "Network" } },
                   partOfResources: {
-                    type: { name: { equals: "Network" } },
-                    partOfResources: {
-                      equals: [{ id: catalogueRouteParam }],
-                    },
+                    equals: [{ id: catalogueRouteParam }],
                   },
                 },
-              ],
-            },
+              },
+            ],
           }
         : { resource: { type: { name: { equals: "Network" } } } },
     },
-  });
-
-  return data.Resources.map((option: { id: string; name?: string }) => {
-    return {
-      name: option.id,
-      description: option.name,
-    } as INode;
-  });
-}
+    conditions: [],
+  },
+];
 
 const filters = computed(() => {
   // if there are not query conditions just use the page defaults
@@ -226,13 +228,13 @@ const fetchData = async () => {
   if (resourceConditions.length) {
     resourcesFilter = {
       ...resourcesFilter,
-      equals: resourceConditions.map((c) => ({ id: c.name })),
+      equals: resourceConditions.map((c) => ({ id: c.id })),
     };
   }
   const variableResourceFilter = resourceConditions.length
     ? {
         mappings: {
-          source: { id: { equals: resourceConditions.map((c) => c.name) } },
+          source: { id: { equals: resourceConditions.map((c) => c.id) } },
           match: { name: { equals: ["complete", "partial"] } },
         },
       }
@@ -316,6 +318,7 @@ crumbs[
   <LayoutsSearchPage>
     <template #side>
       <FilterSidebar
+        id="filter-side-bar"
         title="Filters"
         :filters="filters"
         @update:filters="onFilterChange"

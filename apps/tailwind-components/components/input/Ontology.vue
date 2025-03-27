@@ -6,9 +6,9 @@ import type { Ref } from "vue";
 const props = defineProps<
   IInputProps & {
     isArray?: boolean;
-    //todo: do we need to change to radio button instead of checkboxes when !isArray?
     ontologySchemaId: string;
     ontologyTableId: string;
+    filter?: any;
   }
 >();
 const emit = defineEmits(["focus", "blur"]);
@@ -40,9 +40,12 @@ async function retrieveTerms(
   parentNode: ITreeNodeState | undefined = undefined
 ): Promise<ITreeNodeState[]> {
   const variables: any = {
-    termFilter: parentNode
-      ? { parent: { name: { equals: parentNode.name } } }
-      : { parent: { _is_null: true } },
+    termFilter: Object.assign(
+      props.filter || {},
+      parentNode
+        ? { parent: { name: { equals: parentNode.name } } }
+        : { parent: { _is_null: true } }
+    ),
   };
 
   if (searchTerms.value) {
@@ -310,10 +313,16 @@ async function updateSearch(value: string) {
         <InputLabel :for="`search-for-${id}`" class="sr-only">
           search in ontology
         </InputLabel>
-        <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
+        <ButtonText
+          @click="toggleSearch"
+          :aria-controls="`search-for-${id}`"
+          class="text-body-sm"
+        >
           Search
         </ButtonText>
-        <ButtonText @click="clearSelection"> Clear all </ButtonText>
+        <ButtonText @click="clearSelection" class="text-body-sm text-title">
+          Clear all
+        </ButtonText>
         <InputSearch
           v-if="showSearch"
           :id="`search-for-${id}`"
