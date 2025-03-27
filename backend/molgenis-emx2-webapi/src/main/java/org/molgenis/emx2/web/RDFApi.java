@@ -19,7 +19,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.RDFService;
-import org.molgenis.emx2.utils.URLUtils;
 
 public class RDFApi {
   public static final String FORMAT = "format";
@@ -83,9 +82,7 @@ public class RDFApi {
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
 
-    final String baseURL = URLUtils.extractBaseURL(ctx);
-
-    final RDFService rdf = new RDFService(baseURL, format);
+    final RDFService rdf = new RDFService(baseUri, format);
     ctx.contentType(rdf.getMimeType());
     OutputStream outputStream = ctx.outputStream();
     db.tx(
@@ -107,9 +104,8 @@ public class RDFApi {
     if (schema == null) {
       throw new MolgenisException("Schema " + ctx.pathParam("schema") + " was not found");
     }
-    final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    RDFService rdf = new RDFService(baseURL, format);
+    RDFService rdf = new RDFService(baseUri, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
@@ -126,9 +122,8 @@ public class RDFApi {
     if (ctx.queryString() != null && !ctx.queryString().isBlank()) {
       rowId = ctx.queryString();
     }
-    final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    RDFService rdf = new RDFService(baseURL, format);
+    RDFService rdf = new RDFService(baseUri, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
@@ -143,9 +138,7 @@ public class RDFApi {
     Table table = getTableByIdOrName(ctx);
     String columnName = sanitize(ctx.pathParam("column"));
 
-    final String baseURL = URLUtils.extractBaseURL(ctx);
-
-    RDFService rdf = new RDFService(baseURL, format);
+    RDFService rdf = new RDFService(baseUri, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();

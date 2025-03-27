@@ -1,11 +1,11 @@
 package org.molgenis.emx2.rdf;
 
+import static java.util.Objects.requireNonNull;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.getCoreDataType;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
-import static org.molgenis.emx2.rdf.RdfUtils.formatBaseURL;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomPrefixesOrDefault;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
@@ -14,6 +14,7 @@ import static org.molgenis.emx2.rdf.RdfUtils.getSemanticValue;
 import com.google.common.net.UrlEscapers;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
@@ -98,11 +99,15 @@ public class RDFService {
   private final RDFFormat rdfFormat;
 
   /**
-   * The baseURL is the URL at which MOLGENIS is deployed, include protocol and port (if deviating
-   * from the protocol default port). This is used because we need to be able to refer to different
-   * schemas.
+   * The baseURL is the URL at which MOLGENIS is deployed, include protocol and port (if not
+   * deviating from the protocol, the port should not be included in the output IRI). This is used
+   * because we need to be able to refer to different schemas.
    */
   private final String baseURL;
+
+  public RDFService(final URI baseURI, final RDFFormat rdfFormat) {
+    this(baseURI.toString(), rdfFormat);
+  }
 
   /**
    * Construct an RDF Service.
@@ -111,7 +116,7 @@ public class RDFService {
    * @param format the requested RDF document type
    */
   public RDFService(final String baseURL, final RDFFormat format) {
-    this.baseURL = formatBaseURL(baseURL);
+    this.baseURL = requireNonNull(baseURL);
     this.rdfFormat = format == null ? RDFFormat.TURTLE : format;
 
     this.config = new WriterConfig();
