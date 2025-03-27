@@ -1,10 +1,10 @@
 <template>
   <div>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
+    <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     <h5 class="card-title">Manage pages</h5>
-    <table class="table caption-top">
-      <caption class="h5" style="caption-side: top">
-        Available pages
-      </caption>
+    <p v-if="!pages.length && loading">No pages available</p>
+    <table v-else class="table caption-top">
       <thead>
         <tr>
           <th>Page</th>
@@ -12,7 +12,7 @@
           <th>Edit</th>
         </tr>
       </thead>
-      <tr v-for="(page, index) in pages" :key="index">
+      <tr v-for="(page, index) in pages.sort()" :key="index">
         <td>{{ page }}</td>
         <td>
           <router-link :to="'../pages/#/' + page">view</router-link>
@@ -32,12 +32,14 @@
         class="d-flex align-items-center"
         style="gap: 12px"
       />
-      <ButtonAction v-if="newPage && !nameError" @click="savePage" class="ml-4">
+      <ButtonAction
+        v-if="newPage && !nameError"
+        @click="savePageSetting"
+        class="ml-4"
+      >
         Create new
       </ButtonAction>
     </form>
-    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-    <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
   </div>
 </template>
 
@@ -49,6 +51,7 @@ import {
   MessageError,
   MessageSuccess,
 } from "molgenis-components";
+import { request } from "graphql-request";
 
 export default {
   components: {
@@ -64,27 +67,34 @@ export default {
       success: null,
       graphqlError: null,
       newPage: null,
+      pages: [],
     };
   },
   methods: {
-    async savePageSettings() {
+    async savePageSetting() {
+      const initialContent = JSON.stringify({
+        html: `<h1>${this.newPage}</h1>`,
+        css: "",
+        javascript: "",
+      });
+
       const response = await request(
         "graphql",
         `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){status message}}`,
         {
           settings: {
-            key: `page.${this.page}`,
-            value: JSON.stringify({
-              html: `<h1>${this.newPage}</h1>`,
-              css: "",
-              javascript: "",
-            }),
+            key: `page.${this.newPage}`,
+            value: initialContent,
           },
         }
       );
       if (Object.hasOwn(response, "change")) {
         if (response.change.status === "SUCCESS") {
           this.success = response.change.message;
+          this.pages.push(this.newPage);
+          this.newPage = "";
+        } else {
+          this.graphqlError = response;
         }
       } else {
         this.graphqlError = response;
@@ -102,14 +112,18 @@ export default {
         return undefined;
       }
     },
-    pages() {
-      if (this.session && this.session.settings) {
-        return Object.keys(this.session.settings)
-          .filter((key) => key.startsWith("page."))
-          .map((key) => key.substring(5));
-      }
-      return [];
-    },
+  },
+  async created() {
+    const query = `query {_settings { key }}`;
+    const response = await request("graphql", query);
+    if (response._settings) {
+      const pageList = response._settings
+        .filter((setting) => setting.key.startsWith("page."))
+        .map((setting) => setting.key.replace("page.", "").trim());
+      this.pages = pageList;
+    } else {
+      this.graphqlError = this.response;
+    }
   },
 };
 </script>
