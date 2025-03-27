@@ -11,11 +11,14 @@ import java.util.List;
 import org.molgenis.emx2.*;
 
 public class FileApi {
+
+  private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
+
   public static void create(Javalin app) {
-    app.get("/{schema}/api/file/{table}/{column}/{id}", FileApi::getFile);
+    app.get("/{schema}/api/file/{table}/{column}/{id}", FileApi::serveFile);
   }
 
-  public static void getFile(Context ctx) {
+  public static void serveFile(Context ctx) {
     String tableName = ctx.pathParam("table");
     String columnName = ctx.pathParam("column");
     String id = ctx.pathParam("id");
@@ -62,7 +65,7 @@ public class FileApi {
     ctx.header(
         "Content-Disposition",
         "inline; filename=" + (fileName != null ? fileName : columnName + "." + extension));
-    ctx.contentType(mimetype != null ? mimetype : "application/octet-stream");
+    ctx.contentType(mimetype != null ? mimetype : DEFAULT_MIME_TYPE);
     ctx.result(contents);
   }
 }
