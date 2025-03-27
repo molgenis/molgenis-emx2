@@ -41,7 +41,7 @@ async function fetchRows() {
     search: props.searchFilterValue ?? undefined,
   });
 
-  rows.value = resp.data[props.type]?.map(props.rowMapper);
+  rows.value = resp.data[props.type]?.map(props.rowMapper) || [];
   count.value = (
     resp.data[`${props.type}_agg`] as unknown as { count: number }
   ).count;
@@ -125,7 +125,16 @@ function setActiveSideModal(value: string) {
         </TableHeadRow>
       </template>
       <template #body>
+        <TableRow v-if="rows.length === 0">
+          <td
+            class="py-2.5 px-2.5 border-b border-gray-200 first:font-bold first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 hover:cursor-default hover:bg-white"
+            colspan="100%"
+          >
+            <div>No results for current selection</div>
+          </td>
+        </TableRow>
         <TableRow
+          v-else
           v-for="row in rows"
           @click="setActiveSideModal(row[headers[0].id])"
         >
