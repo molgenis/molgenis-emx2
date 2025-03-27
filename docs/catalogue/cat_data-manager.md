@@ -90,7 +90,7 @@ and a [filled-in example for target variables](https://github.com/molgenis/molge
 as a reference for filling out the template.
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds.
-See the section [Upload variable metadata](cat_resource-data-manager.md#upload-variable-metadata) for details on how to upload.
+See the section [Upload variable metadata](cat_data-manager.md#upload-variable-metadata) for details on how to upload.
 
 ![MOLGENIS tables in cohort staging area](../img/cat_tables-in-cohort-catalogue.png)
 
