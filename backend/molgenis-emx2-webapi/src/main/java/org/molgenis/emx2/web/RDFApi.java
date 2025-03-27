@@ -85,7 +85,7 @@ public class RDFApi {
 
     final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    final RDFService rdf = new RDFService(ctx.url().split("/api/")[0], baseURL, format);
+    final RDFService rdf = new RDFService(baseURL, format);
     ctx.contentType(rdf.getMimeType());
     OutputStream outputStream = ctx.outputStream();
     db.tx(
@@ -109,7 +109,7 @@ public class RDFApi {
     }
     final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    RDFService rdf = new RDFService(baseURL, API_RDF, format);
+    RDFService rdf = new RDFService(baseURL, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
@@ -128,7 +128,7 @@ public class RDFApi {
     }
     final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    RDFService rdf = new RDFService(baseURL, API_RDF, format);
+    RDFService rdf = new RDFService(baseURL, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
@@ -145,7 +145,7 @@ public class RDFApi {
 
     final String baseURL = URLUtils.extractBaseURL(ctx);
 
-    RDFService rdf = new RDFService(baseURL, API_RDF, format);
+    RDFService rdf = new RDFService(baseURL, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();

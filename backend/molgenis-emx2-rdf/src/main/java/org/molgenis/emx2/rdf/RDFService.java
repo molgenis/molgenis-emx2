@@ -108,10 +108,9 @@ public class RDFService {
    * Construct an RDF Service.
    *
    * @param baseURL the base URL of the MOLGENIS installation
-   * @param rdfAPIPath the path fragment for the RDF service within a Schema
    * @param format the requested RDF document type
    */
-  public RDFService(final String baseURL, final String rdfAPIPath, final RDFFormat format) {
+  public RDFService(final String baseURL, final RDFFormat format) {
     this.baseURL = formatBaseURL(baseURL);
     this.rdfFormat = format == null ? RDFFormat.TURTLE : format;
 

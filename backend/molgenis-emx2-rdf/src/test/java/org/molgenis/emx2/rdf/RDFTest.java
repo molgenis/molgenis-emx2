@@ -1544,7 +1544,7 @@ example,http://example.com/
    */
   private void getAndParseRDF(Selection selection, RDFHandler handler) throws IOException {
     OutputStream outputStream = new ByteArrayOutputStream();
-    var rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
+    var rdf = new RDFService("http://localhost:8080", null);
     rdf.describeAsRDF(
         outputStream, selection.table, selection.rowId, selection.columnName, selection.schemas);
     String result = outputStream.toString();
