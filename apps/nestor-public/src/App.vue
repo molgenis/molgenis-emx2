@@ -30,12 +30,13 @@
         </li>
       </template>
       <template v-slot:column-logos>
-        <!-- <li id="project-funding-logo">
+        <li id="project-funding-logo">
           <img
-            src="...."
-            alt="european reference network funded by the european union"
+            src="/img/kwf_supported_by_logo.png"
+            class="logo logo-small"
+            alt="NESTOR Registry funded by the KWF"
           />
-        </li> -->
+        </li>
         <li id="project-logo-link">
           <img
             src="/img/nestor-logo.png"
