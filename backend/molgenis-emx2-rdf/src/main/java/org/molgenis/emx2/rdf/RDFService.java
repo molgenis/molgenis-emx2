@@ -10,10 +10,12 @@ import static org.molgenis.emx2.rdf.RdfUtils.getCustomPrefixesOrDefault;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 import static org.molgenis.emx2.rdf.RdfUtils.getSemanticValue;
+import static org.molgenis.emx2.utils.IRIUtils.encodeIRI;
 
 import com.google.common.net.UrlEscapers;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -654,6 +656,10 @@ public class RDFService {
     }
     final Namespace ns = getSchemaNamespace(baseURL, metadata.getRootTable().getSchema());
     PrimaryKey key = new PrimaryKey(keyParts);
-    return Values.iri(ns, rootTableName + "?" + key.getEncodedValue());
+    try {
+      return encodeIRI(ns.getName() + rootTableName + "?" + key.getEncodedValue());
+    } catch (URISyntaxException e) {
+      throw new MolgenisException("Could not generate IRI from data: " + e.getMessage());
+    }
   }
 }

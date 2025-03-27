@@ -210,6 +210,7 @@ public abstract class ColumnTypeRdfMapper {
         return Set.of(
             Values.iri(
                 rdfMapData.getBaseURL()
+                    + "/"
                     + schemaPath
                     + API_FILE
                     + "/"
