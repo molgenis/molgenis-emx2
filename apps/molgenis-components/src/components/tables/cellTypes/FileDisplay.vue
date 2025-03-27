@@ -1,9 +1,5 @@
 <template>
-  <a
-    v-if="data.id"
-    :href="data.url"
-    :target="data.extension.toLowerCase() == 'html' ? '_blank' : null"
-  >
+  <a v-if="data.id" :href="data.url" target="_blank">
     {{ data?.filename ? data.filename : metadata.name + "." + data.extension }}
     ({{ fileSize }})
   </a>
