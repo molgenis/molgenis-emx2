@@ -1,6 +1,6 @@
 import { expect, test } from "@nuxt/test-utils/playwright";
 
-test("filter down resoure variables", async ({ page, goto }) => {
+test("filter down resource variables", async ({ page, goto }) => {
   await goto("/catalogue-demo/catalogue/LongITools/collections/ENVIRONAGE", {
     waitUntil: "hydration",
   });
