@@ -15,7 +15,6 @@ import static org.molgenis.emx2.utils.URIUtils.encodeIRI;
 import com.google.common.net.UrlEscapers;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
