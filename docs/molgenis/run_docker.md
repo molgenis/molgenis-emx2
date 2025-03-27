@@ -24,6 +24,11 @@ docker-compose pull
 
 Stop by typing ctrl+c.
 
+To delete the database run (not recoverable!):
+```
+rm -Rf psql_data
+```
+
 Notes:
 
 * because postgres starts slow, emx2 will restart 2-4 times because of 'ConnectException: Connection refused'. This is
