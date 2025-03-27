@@ -2,7 +2,7 @@
   <PageHeader title="Admin Tools" />
   <Container class="flex flex-col items-center">
     <ContentBlock class="w-full mt-3" title="User management">
-      <Button icon="plus" @click="createUserModal?.show()">
+      <Button icon="plus" @click="showNewUserModal = true">
         Create User
       </Button>
 
@@ -48,15 +48,17 @@
       </Table>
 
       <NewUserModal
-        ref="createUserModal"
+        v-model:visible="showNewUserModal"
         :usernames="usernames"
         @addUser="addUser"
       />
 
       <EditUserModal
-        ref="editUserModal"
+        v-if="selectedUser"
+        v-model:visible="showEditUserModal"
         :schemas="schemas"
         :roles="roles"
+        :user="selectedUser"
         @userUpdated="retrieveUsers"
       />
     </ContentBlock>
@@ -90,8 +92,9 @@ definePageMeta({
 });
 
 const LIMIT = 100;
-const editUserModal = ref<InstanceType<typeof EditUserModal>>();
-const createUserModal = ref<InstanceType<typeof NewUserModal>>();
+const showEditUserModal = ref(false)
+const showNewUserModal = ref(false);
+const selectedUser = ref<IUser | null>(null);
 
 const currentPage = ref(1);
 const users = ref<IUser[]>([]);
@@ -100,13 +103,6 @@ const totalPages = ref(0);
 const schemas = ref<ISchemaInfo[]>([]);
 const roles = ref<string[]>([]);
 const schema = ref<string>("");
-
-const offset = computed(() => {
-  // todo: use offset
-  return currentPage.value > 1
-    ? `, offset: ${(currentPage.value - 1) * LIMIT}`
-    : "";
-});
 
 retrieveUsers();
 schemas.value = await getSchemas();
@@ -142,7 +138,8 @@ async function removeUser(user: IUser) {
 }
 
 function editUser(user: IUser) {
-  editUserModal.value?.show(user);
+  selectedUser.value = user;
+  showEditUserModal.value = true;
 }
 
 function canDelete(user: IUser) {
