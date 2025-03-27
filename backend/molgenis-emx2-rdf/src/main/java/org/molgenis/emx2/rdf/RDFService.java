@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf;
 
+import static org.molgenis.emx2.Constants.API_RDF;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
@@ -501,7 +502,7 @@ public class RDFService {
     builder.add(
         subject,
         BasicIRI.DCAT_ENDPOINTURL.getIri(),
-        Values.iri(getSchemaNamespace(baseURL, table.getSchema()).getName()));
+        encodeIRI(baseURL + "/" + table.getSchema().getName() + API_RDF));
     builder.add(subject, BasicIRI.FDP_METADATAIDENTIFIER.getIri(), subject);
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {
