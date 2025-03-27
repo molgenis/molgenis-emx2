@@ -136,7 +136,7 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI("urn:uuid:" + i));
+            row.getStringArray(column.getName()), (i) -> URIUtils.encodeIRI("urn:uuid:" + i));
       }
     },
     STRING(CoreDatatype.XSD.STRING) {
@@ -188,14 +188,14 @@ public abstract class ColumnTypeRdfMapper {
     URI(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
-        return basicRetrievalString(row.getStringArray(column.getName()), URIUtils::encodedIRI);
+        return basicRetrievalString(row.getStringArray(column.getName()), URIUtils::encodeIRI);
       }
     },
     EMAIL(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI("mailto:" + i));
+            row.getStringArray(column.getName()), (i) -> URIUtils.encodeIRI("mailto:" + i));
       }
     },
     FILE(CoreDatatype.XSD.ANYURI) {
