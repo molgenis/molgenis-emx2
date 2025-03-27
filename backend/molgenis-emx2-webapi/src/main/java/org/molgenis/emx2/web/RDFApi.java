@@ -82,7 +82,7 @@ public class RDFApi {
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
 
-    final RDFService rdf = new RDFService(baseUri, format);
+    final RDFService rdf = new RDFService(baseUrl, format);
     ctx.contentType(rdf.getMimeType());
     OutputStream outputStream = ctx.outputStream();
     db.tx(
@@ -105,7 +105,7 @@ public class RDFApi {
       throw new MolgenisException("Schema " + ctx.pathParam("schema") + " was not found");
     }
 
-    RDFService rdf = new RDFService(baseUri, format);
+    RDFService rdf = new RDFService(baseUrl, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
@@ -123,7 +123,7 @@ public class RDFApi {
       rowId = ctx.queryString();
     }
 
-    RDFService rdf = new RDFService(baseUri, format);
+    RDFService rdf = new RDFService(baseUrl, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
@@ -138,7 +138,7 @@ public class RDFApi {
     Table table = getTableByIdOrName(ctx);
     String columnName = sanitize(ctx.pathParam("column"));
 
-    RDFService rdf = new RDFService(baseUri, format);
+    RDFService rdf = new RDFService(baseUrl, format);
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();

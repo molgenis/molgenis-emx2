@@ -14,7 +14,7 @@ import static org.molgenis.emx2.rdf.RdfUtils.getSemanticValue;
 import com.google.common.net.UrlEscapers;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
+import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
@@ -105,8 +105,8 @@ public class RDFService {
    */
   private final String baseURL;
 
-  public RDFService(final URI baseURI, final RDFFormat rdfFormat) {
-    this(baseURI.toString(), rdfFormat);
+  public RDFService(final URL baseURL, final RDFFormat rdfFormat) {
+    this(baseURL.toString(), rdfFormat);
   }
 
   /**

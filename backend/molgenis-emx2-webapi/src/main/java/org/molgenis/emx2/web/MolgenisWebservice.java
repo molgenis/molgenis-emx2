@@ -12,7 +12,6 @@ import io.javalin.http.Context;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.*;
@@ -35,7 +34,7 @@ public class MolgenisWebservice {
   public static MolgenisSessionManager sessionManager;
   public static OIDCController oidcController;
   static URL hostUrl;
-  static URI baseUri;
+  static URL baseUrl;
 
   private MolgenisWebservice() {
     // hide constructor
@@ -58,7 +57,7 @@ public class MolgenisWebservice {
 
     try {
       hostUrl = new URL(URIUtils.extractHost(app.jettyServer().server().getURI()));
-      baseUri = app.jettyServer().server().getURI();
+      baseUrl = app.jettyServer().server().getURI().toURL();
     } catch (Exception ignored) {
       // should we handle this?
     }
