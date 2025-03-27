@@ -19,6 +19,9 @@
 </template>
 
 <script lang="ts" setup>
+import { useDatasetStore } from "#imports";
+import { ref, watch, computed } from "vue";
+
 const datasetStore = useDatasetStore();
 
 defineEmits<{ (e: "click"): void }>();

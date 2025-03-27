@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useRoute } from "#app/composables/router";
+
 const route = useRoute();
 defineProps<{
   title?: string;

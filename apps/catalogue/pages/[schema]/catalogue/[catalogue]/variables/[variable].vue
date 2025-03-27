@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import variableQuery from "~~/gql/variable";
-import type { IVariable, IVariableMappings } from "~/interfaces/types";
+import type {
+  IVariable,
+  IVariableMappings,
+} from "../../../../../interfaces/types";
 import { buildFilterFromKeysObject } from "metadata-utils";
+import { useRoute, useFetch, useHead } from "#app";
+import {
+  moduleToString,
+  useQueryParams,
+  calcIndividualVariableHarmonisationStatus,
+} from "#imports";
+import { computed, reactive } from "vue";
 const route = useRoute();
 
 const query = moduleToString(variableQuery);

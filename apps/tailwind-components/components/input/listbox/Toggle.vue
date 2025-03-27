@@ -29,6 +29,8 @@
 </template>
 
 <script lang="ts" setup>
+import { ref, useTemplateRef } from "vue";
+
 defineProps<{
   required?: boolean;
   valid?: boolean;

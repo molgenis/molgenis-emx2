@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useHead } from "#app";
+import { definePageMeta, useSections, useForm } from "#imports";
+import { computed, ref } from "vue";
+import { useRoute } from "vue-router";
 import type {
   columnId,
   columnValue,

@@ -1,5 +1,9 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
+import { useRuntimeConfig } from "#app";
+import { shallowRef } from "vue";
+import { useRoute } from "vue-router";
+
 defineProps<{
   link?: string;
   image?: string;

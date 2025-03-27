@@ -1,3 +1,4 @@
+import { defineNuxtPlugin } from "#app";
 import { type DirectiveBinding } from "vue";
 
 type LazyLoadBindingValue = () => Promise<void> | void;

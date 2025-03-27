@@ -1,3 +1,5 @@
+import { useRoute } from "#app";
+import { moduleToString } from "#imports";
 import type { DocumentNode } from "graphql";
 import type { GqlResp } from "~/interfaces/types";
 

@@ -1,6 +1,8 @@
 import { describe, expect, test, vi } from "vitest";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type { columnId } from "../../../../metadata-utils/src/types";
+import useSections from "../../../composables/useSections";
+import { ref } from "vue";
 
 describe("useSections", () => {
   let errorMap = ref<Record<columnId, string>>({});

@@ -1,7 +1,15 @@
 <script setup lang="ts">
-import variableQuery from "~~/gql/variable";
+import variableQuery from "../../../../../../../gql/variable";
 import type { IVariable, IVariableMappings } from "~/interfaces/types";
 import { buildFilterFromKeysObject } from "metadata-utils";
+import { useRoute } from "#app/composables/router";
+import { moduleToString } from "../../../../../../../../tailwind-components/utils/moduleToString";
+import { useFetch, useHead } from "#app";
+import {
+  useQueryParams,
+  calcIndividualVariableHarmonisationStatus,
+} from "#imports";
+import { computed, reactive } from "vue";
 const route = useRoute();
 
 const query = moduleToString(variableQuery);

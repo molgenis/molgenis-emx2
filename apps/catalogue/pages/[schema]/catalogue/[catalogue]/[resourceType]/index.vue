@@ -1,4 +1,20 @@
 <script setup lang="ts">
+import {
+  useRoute,
+  useRouter,
+  useRuntimeConfig,
+  useHead,
+  useFetch,
+  navigateTo,
+} from "#app";
+import {
+  conditionsFromPathQuery,
+  mergeWithPageDefaults,
+  buildQueryFilter,
+  logError,
+  toPathQueryConditions,
+} from "#imports";
+import { computed, ref } from "vue";
 import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
 
 const route = useRoute();
@@ -55,6 +71,7 @@ if (route.params.resourceType === "collections") {
       type: "ONTOLOGY",
       ontologyTableId: "ResourceTypes",
       ontologySchema: "CatalogueOntologies",
+      // @ts-ignore
       filter: { tags: { equals: "collection" } },
       columnId: "type",
       initialCollapsed: false,
