@@ -441,7 +441,7 @@ public class RDFTest {
 
     for (var resource : handler.resources.entrySet()) {
       var subClasses = resource.getValue().get(RDFS.SUBCLASSOF);
-      if (subClasses != null && subClasses.contains(RDFService.IRI_DATABASE_TABLE)) {
+      if (subClasses != null && subClasses.contains(BasicIRI.SIO_DATABASE_TABLE.getIri())) {
         var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
         var subject = resource.getKey().stringValue();
         assertFalse(types.isEmpty(), subject + " should have a rdf:Type.");
@@ -506,7 +506,7 @@ public class RDFTest {
             OWL.DATATYPEPROPERTY,
             OWL.OBJECTPROPERTY,
             RDFS.CONTAINER,
-            RDFService.IRI_DATABASE);
+            BasicIRI.SIO_DATABASE.getIri());
 
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey().stringValue();
@@ -575,10 +575,10 @@ public class RDFTest {
 
         var pooky = handler.resources.get(iri);
         assertTrue(
-            pooky.containsKey(RDFService.IRI_DATASET_PREDICATE),
+            pooky.containsKey(BasicIRI.LD_DATASET_PREDICATE.getIri()),
             "An instance of a Pet should refer back to the Collection using qb:dataSet");
         assertFalse(
-            pooky.containsKey(RDFService.IRI_DATASET_CLASS), "qb:DataSet is not a predicate");
+            pooky.containsKey(BasicIRI.LD_DATASET_CLASS.getIri()), "qb:DataSet is not a predicate");
       }
     }
   }
