@@ -3,8 +3,7 @@
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
     <h5 class="card-title">Manage pages</h5>
-    <p v-if="!pages.length && loading">No pages available</p>
-    <table v-else class="table caption-top">
+    <table class="table caption-top">
       <thead>
         <tr>
           <th>Page</th>
@@ -12,15 +11,24 @@
           <th>Edit</th>
         </tr>
       </thead>
-      <tr v-for="(page, index) in pages.sort()" :key="index">
-        <td>{{ page }}</td>
-        <td>
-          <router-link :to="'../pages/#/' + page">view</router-link>
-        </td>
-        <td>
-          <router-link :to="'../pages/#/' + page + '/edit'">edit</router-link>
-        </td>
-      </tr>
+      <tbody>
+        <tr
+          v-for="(page, index) in pages.sort()"
+          :key="index"
+          v-if="pages.length > 0"
+        >
+          <th class="font-weight-normal">{{ page }}</th>
+          <td>
+            <a :href="'../pages/#/' + page">{{ page }}</a>
+          </td>
+          <td>
+            <a :href="'../pages/#/' + page + '/edit'">{{ page }}</a>
+          </td>
+        </tr>
+        <tr v-else>
+          <td colspan="3" class="text-center">No pages available</td>
+        </tr>
+      </tbody>
     </table>
     <form class="form-inline">
       <legend class="h5">Add a new page</legend>
@@ -58,6 +66,8 @@ export default {
     IconAction,
     ButtonAction,
     InputString,
+    MessageError,
+    MessageSuccess,
   },
   props: {
     session: Object,
@@ -113,7 +123,7 @@ export default {
       }
     },
   },
-  async created() {
+  async mounted() {
     const query = `query {_settings { key }}`;
     const response = await request("graphql", query);
     if (response._settings) {
