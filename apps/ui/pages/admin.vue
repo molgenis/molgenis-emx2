@@ -65,6 +65,8 @@
 
 <script setup lang="ts">
 import type { EditUserModal, NewUserModal } from "#build/components";
+import { definePageMeta } from "#imports";
+import { ref, computed } from "vue";
 import {
   createUser,
   deleteUser,

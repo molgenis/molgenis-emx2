@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useFetch } from "#app/composables/fetch";
+import { useRoute, navigateTo } from "#app/composables/router";
+import { computed } from "vue";
+
 const route = useRoute();
 const schema = route.params.schema;
 

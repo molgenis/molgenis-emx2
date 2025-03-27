@@ -1,5 +1,8 @@
+import { defineStore } from "pinia";
 import metadataGql from "../../catalogue/gql/metadata";
 import { type ISchemaMetaData, type ITableMetaData } from "../../metadata-utils/src/types";
+import { moduleToString } from "../../tailwind-components/utils/moduleToString";
+import { createError } from "#app/composables/error";
 
 const query = moduleToString(metadataGql);
 
