@@ -86,6 +86,10 @@ export default {
         html: `<h1>${this.newPage}</h1>`,
         css: "",
         javascript: "",
+        dependencies: {
+          css: [],
+          javascript: [],
+        },
       });
 
       const response = await request(
