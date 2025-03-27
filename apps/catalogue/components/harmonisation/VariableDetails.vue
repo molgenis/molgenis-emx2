@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { computed, ref } from "vue";
 import type {
   IVariable,
   IVariableBase,
   IVariableMappings,
-} from "~/interfaces/types";
+} from "../../interfaces/types";
+import { getKey } from "../../utils/variableUtils";
 
 type VariableDetailsWithMapping = IVariable & IVariableMappings;
 const props = defineProps<{

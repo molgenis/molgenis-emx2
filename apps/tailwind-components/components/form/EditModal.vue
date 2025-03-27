@@ -90,6 +90,8 @@
 </template>
 
 <script setup lang="ts">
+import { useSections, useForm } from "#imports";
+import { ref, watchEffect, computed } from "vue";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref, type Ref } from "vue";
+
 const title = ref("My list");
 const columnCount = ref(1);
 const type: Ref<"standard" | "link"> = ref("standard");

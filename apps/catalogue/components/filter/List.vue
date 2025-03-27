@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { fetchGql } from "../../composables/fetchGql";
 import type { INode } from "../../../tailwind-components/types/types";
-import type { IFilterCondition, optionsFetchFn } from "~/interfaces/types";
+import type { IFilterCondition, optionsFetchFn } from "../../interfaces/types";
+import { computed } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -60,7 +62,7 @@ const selectedNodesNames = computed({
 <template>
   <InputList
     :nodes="nodes"
-    v-model="selectedNodesNames"
+    v-model="(selectedNodesNames as string[])"
     :inverted="mobileDisplay"
   >
   </InputList>

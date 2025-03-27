@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { expect, it } from "vitest";
-import InputCheckboxGroup from "~/components/input/CheckboxGroup.vue";
+import InputCheckboxGroup from "../../../../components/input/CheckboxGroup.vue";
 
 const wrapper = mount(InputCheckboxGroup, {
   props: {

@@ -11,5 +11,6 @@
 
 <script setup lang="ts">
 import type { IResources } from "~/interfaces/catalogue";
+import { useDatasetStore } from "~/stores/useDatasetStore";
 const datasetStore = useDatasetStore();
 </script>

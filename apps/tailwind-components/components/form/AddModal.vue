@@ -90,8 +90,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
+import useSections from "../../composables/useSections";
+import useForm from "../../composables/useForm";
 
 const props = withDefaults(
   defineProps<{

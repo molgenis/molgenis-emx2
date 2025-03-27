@@ -102,6 +102,10 @@
 </style>
 
 <script setup lang="ts">
+import { useHead } from "#app";
+import { definePageMeta, useSections, useForm } from "#imports";
+import { ref } from "vue";
+import { useRoute } from "vue-router";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnValue, columnId } from "../../../metadata-utils/src/types";
 import cohortTableMetadata from "./data/cohort-table-metadata";

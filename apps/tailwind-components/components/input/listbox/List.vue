@@ -16,6 +16,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useTemplateRef } from "vue";
+
 withDefaults(
   defineProps<{
     isExpanded: boolean;

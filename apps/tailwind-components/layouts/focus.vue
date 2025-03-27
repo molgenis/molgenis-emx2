@@ -22,5 +22,5 @@
 </template>
 
 <script setup lang="ts">
-import PlaygroundNavBar from "~/PlaygroundNavBar.vue";
+import PlaygroundNavBar from "../PlaygroundNavBar.vue";
 </script>

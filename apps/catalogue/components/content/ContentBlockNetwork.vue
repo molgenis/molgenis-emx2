@@ -13,11 +13,11 @@ defineProps<{
     <ReferenceCardList>
       <ReferenceCard
         v-for="network in networks"
-        :imageUrl="network?.logo?.url"
+        :imageUrl="network?.logo?.url ?? ''"
         :title="network?.name"
-        :description="network?.description"
-        :url="network.website"
-        :links="[{ title: 'Read more', url: network.website }]"
+        :description="network?.description ?? ''"
+        :url="network.website ?? ''"
+        :links="[{ title: 'Read more', url: network.website ?? '' }]"
         target="_blank"
       />
     </ReferenceCardList>
