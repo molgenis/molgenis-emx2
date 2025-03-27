@@ -44,6 +44,7 @@
 
 <script setup lang="ts">
 import type { Modal } from "#build/components";
+import { computed, ref } from "vue";
 import { isValidPassword } from "~/util/adminUtils";
 
 const modal = ref<InstanceType<typeof Modal>>();

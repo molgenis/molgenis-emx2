@@ -1,4 +1,4 @@
-import { defineStore } from "pinia";
+import { acceptHMRUpdate, defineStore } from "pinia";
 import metadataGql from "../../catalogue/gql/metadata";
 import { type ISchemaMetaData, type ITableMetaData } from "../../metadata-utils/src/types";
 import { moduleToString } from "../../tailwind-components/utils/moduleToString";
