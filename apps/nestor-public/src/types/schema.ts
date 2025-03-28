@@ -36,7 +36,7 @@ export interface IChartData {
   timeUnit?: string;
   color?: string;
   description?: string;
-  order?: number;
+  sortOrder?: number;
   includedInChart?: ICharts;
 }
 
@@ -77,7 +77,9 @@ export interface ICharts {
   rightMargin?: number;
   bottomMargin?: number;
   leftMargin?: number;
-  legendPosition?: string;
+  legendPosition?: {
+    name: string;
+  };
   dataPoints?: IChartData[];
   dashboardPage?: IDashboardPages;
 }

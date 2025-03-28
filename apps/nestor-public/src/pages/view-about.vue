@@ -3,7 +3,6 @@
     <PageHeader
       title="NESTOR Resgistry"
       subtitle="About the NESTOR registry"
-      imageSrc="background_image.jpg"
       titlePositionX="center"
       titlePositionY="center"
       height="medium"

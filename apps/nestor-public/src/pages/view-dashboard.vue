@@ -3,7 +3,6 @@
     <PageHeader
       title="NESTOR Registry"
       subtitle="Dashboard"
-      imageSrc="bkg-image-dashboard.jpg"
       titlePositionX="center"
       titlePositionY="center"
       height="medium"
@@ -32,12 +31,13 @@
             group="hasSubmittedData"
             :legendData="OrganisationsChartPalette"
             :groupColorMappings="OrganisationsChartPalette"
-            :geojson="WorldGeoJson"
+            :geojson="geojson"
             :chartSize="114"
             :chartHeight="350"
             :mapCenter="{
-              latitude: 5,
-              longitude: 51,
+              // centroid of the Netherlands
+              latitude: 5.291266,
+              longitude: 52.132633,
             }"
             :pointRadius="6"
             :tooltipTemplate="(row: IOrganisations) => {
@@ -46,8 +46,13 @@
                 <p class='location'>${row.city}, ${row.country}</p>
                 `;
             }"
-            :chartScale="1.8"
-            :zoomLimits="[0.5, 10]"
+            :mapColors="{
+              water: 'hsl(177, 63%, 90%)',
+              land: 'hsl(177, 63%, 35%)',
+              border: 'hsl(177, 63%, 90%)',
+            }"
+            :chartScale="10"
+            :zoomLimits="[0, 10]"
             :enableLegendClicks="true"
           />
         </DashboardChart>
@@ -67,6 +72,7 @@
             :chartId="genderChart?.chartId"
             :title="genderChart?.chartTitle"
             :chartData="genderChartData"
+            :chartColors="genderChartPalette"
             :asDonutChart="true"
             :enableLegendHovering="true"
             :legendPosition="genderChart?.legendPosition?.name"
@@ -85,6 +91,8 @@
             :xAxisLabel="ageChart?.xAxisLabel"
             :yAxisLabel="ageChart?.yAxisLabel"
             :yTickValues="ageChart?.yAxisTicks"
+            columnFill="hsl(177,63%,37%)"
+            columnHoverFill="hsl(177,63%,67%)"
             :yMin="ageChart?.yAxisMinValue"
             :yMax="ageChart?.yAxisMaxValue"
             :chartHeight="275"
@@ -114,7 +122,6 @@ import {
   LoadingScreen,
   MessageBox,
   GeoMercator,
-  WorldGeoJson,
   DataTable,
   PieChart2,
   ColumnChart,
@@ -131,6 +138,8 @@ import type {
   IDashboardPagesResponse,
 } from "../types/schema";
 import type { IKeyValuePair } from "../types";
+
+import geojson from "../data/nl.geo.json";
 
 const loading = ref<boolean>(true);
 const error = ref<Error | null>(null);
@@ -210,26 +219,38 @@ async function getPageCharts() {
   enrollmentChart.value = charts.filter(
     (chart: ICharts) => chart.chartId === "enrollment-by-disease-group"
   )[0];
-  enrollmentChartData.value = enrollmentChart.value.dataPoints;
+  enrollmentChartData.value = enrollmentChart.value.dataPoints?.sort(
+    (current: IChartData, next: IChartData) => {
+      return (current.sortOrder as number) - (next.sortOrder as number);
+    }
+  );
 
   genderChart.value = charts.filter(
     (chart: ICharts) => chart.chartId === "sex-at-birth"
   )[0];
-  genderChartData.value = asKeyValuePairs(
-    genderChart.value?.dataPoints,
-    "name",
-    "value"
+
+  const genderData = genderChart.value.dataPoints?.sort(
+    (current: IChartData, next: IChartData) => {
+      return (next.value as number) - (current.value as number);
+    }
   );
+
+  genderChartData.value = asKeyValuePairs(genderData, "name", "value");
   genderChartPalette.value = asKeyValuePairs(
     genderChart.value.colorPalette,
     "key",
-    "value"
+    "color"
   );
 
   ageChart.value = charts.filter(
     (chart: ICharts) => chart.chartId === "age-at-last-visit"
   )[0];
-  ageChartData.value = ageChart.value.dataPoints;
+
+  ageChartData.value = ageChart.value.dataPoints?.sort(
+    (current: IChartData, next: IChartData) => {
+      return (current.sortOrder as number) - (next.sortOrder as number);
+    }
+  );
 
   if (ageChartData.value) {
     const ageChartTickData = generateAxisTickData(ageChartData.value, "value");

@@ -3,7 +3,6 @@
     <PageHeader
       title="NESTOR Registry"
       subtitle="Download documents"
-      imageSrc="bkg-image-documents.jpg"
       titlePositionX="center"
       titlePositionY="center"
       height="medium"

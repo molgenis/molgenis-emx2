@@ -6,14 +6,11 @@
 
 .app-page {
   .page-header {
-    .background-image-filter {
-      opacity: 0.2;
-      background: $brand-green;
-    }
+    background: $brand-green-050;
     .header-content {
       .header-title,
       .header-subtitle {
-        color: $brand-green;
+        color: $brand-green-800;
       }
     }
   }
@@ -111,7 +108,7 @@
       }
     }
 
-    table {
+    .d3-table {
       thead {
         th {
           font-size: 0.8rem;
@@ -121,6 +118,16 @@
         tr {
           td {
             font-size: 0.9rem;
+          }
+        }
+      }
+
+      &.table-row-highlighting {
+        tbody {
+          tr {
+            &:hover {
+              background-color: $brand-green-050;
+            }
           }
         }
       }

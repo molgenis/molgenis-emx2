@@ -3,7 +3,6 @@
     <PageHeader
       title="NESTOR Registry"
       subtitle="The Netherlands Genetic Tumour Risk Registry"
-      imageSrc="img/background_image.jpg"
       titlePositionX="center"
       titlePositionY="center"
       height="medium"

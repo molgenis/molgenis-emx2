@@ -3,7 +3,6 @@
     <PageHeader
       title="NESTOR Registry"
       subtitle="Governance"
-      imageSrc="background_image.jpg"
       titlePositionX="center"
       titlePositionY="center"
       height="medium"
