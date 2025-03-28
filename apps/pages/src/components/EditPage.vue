@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ content }}
     <router-link :to="'/' + page">view page</router-link>
     <div class="d-flex">
       <div class="flex-grow-1">
@@ -12,8 +11,7 @@
         >
       </div>
     </div>
-    <Spinner v-if="loading" />
-    <div class="container-fluid" v-else>
+    <div class="container-fluid">
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <div class="row">
@@ -69,7 +67,8 @@
             >
               <h2 class="flex-grow-1 h6 m-0 p-2">Resources</h2>
             </div>
-            <form class="p-4">
+            <Spinner v-if="loading" />
+            <form class="p-4" v-else>
               <legend>Add external dependencies to your page</legend>
               <div class="">
                 <label>CSS dependencies</label>
@@ -92,8 +91,13 @@
             </form>
           </div>
         </div>
-        <div class="position-relative col-5 bg-light shadow">
-          <div ref="pagePreview" class="sticky-top top-0 pt-2 pb-2 h-100"></div>
+        <div class="position-relative col-5 p-0 bg-light shadow">
+          <div class="sticky-top top-0">
+            <div class="size-7 bg-white p-2">
+              <h2 class="h6 m-0 ml-2">Preview</h2>
+            </div>
+            <div ref="pagePreview" class="px-4 py-2 h-100"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -134,7 +138,7 @@ export default {
     return {
       graphqlError: null,
       success: null,
-      loading: false,
+      loading: true,
       html: {},
       css: {},
       javascript: {},
@@ -147,6 +151,8 @@ export default {
           javascript: [],
         },
       },
+      cssAssets: [],
+      jsAssets: [],
     };
   },
   props: {
@@ -265,14 +271,16 @@ export default {
   },
   mounted() {
     Promise.resolve(getPageSetting(this.pageSettingKey))
-      .then((data) => (this.content = data))
-      .then(() => this.createAllEditors())
+      .then((data) => {
+        this.content = data;
+        this.loading = false;
+      })
       .then(() => {
+        this.createAllEditors();
         this.formatAllEditors();
         generateHtmlPreview(this, this.content, "pagePreview");
       })
-      .catch((err) => (this.graphqlError = err))
-      .finally(() => (this.loading = false));
+      .catch((err) => (this.graphqlError = err));
   },
 };
 </script>
