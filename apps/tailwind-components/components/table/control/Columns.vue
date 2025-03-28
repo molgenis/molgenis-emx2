@@ -21,6 +21,14 @@
         />
       </template>
 
+      <InputSelect
+        id="column-sorting-select"
+        label="Sort by"
+        v-model="selectedSortMethod"
+        :options="sortMethods"
+        @change="handleSortMethodChanged"
+      />
+
       <draggable
         tag="ul"
         :list="columnsInColumnsSelectModal"
@@ -72,6 +80,8 @@ import type { IColumnConfig } from "~/types/types";
 import { sortColumns } from "~/utils/sortColumns";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 
+const SORTING_METHODS = ["Default", "Ascending", "Descending", "Custom"];
+
 const props = defineProps<{
   columns: IColumn[];
 }>();
@@ -82,6 +92,8 @@ const showModal = ref(false);
 const columnsInColumnsSelectModal = ref<IColumnConfig[]>(
   indexColumns(sortColumns(props.columns.map(columnToColumnConfig)))
 );
+const sortMethods = ref<string[]>(SORTING_METHODS);
+const selectedSortMethod = ref<string>("Default");
 
 function indexColumns(columns: IColumnConfig[]) {
   return columns.map((column, index) => {
@@ -94,6 +106,7 @@ function handleColumnDragEvent() {
   columnsInColumnsSelectModal.value = indexColumns(
     columnsInColumnsSelectModal.value
   );
+  selectedSortMethod.value = "Custom";
 }
 
 function handleCancel() {
@@ -135,5 +148,30 @@ function resetToDefault() {
   columnsInColumnsSelectModal.value = indexColumns(
     sortColumns(props.columns.map(columnToColumnConfig))
   );
+  selectedSortMethod.value = "Default";
+}
+
+function handleSortMethodChanged(event: Event) {
+  const target = event.target as HTMLSelectElement;
+  selectedSortMethod.value = target.value;
+  switch (target.value) {
+    case "Ascending":
+      columnsInColumnsSelectModal.value = indexColumns(
+        columnsInColumnsSelectModal.value.sort((a, b) =>
+          a.label.localeCompare(b.label)
+        )
+      );
+      break;
+    case "Descending":
+      columnsInColumnsSelectModal.value = indexColumns(
+        columnsInColumnsSelectModal.value
+          .sort((a, b) => a.label.localeCompare(b.label))
+          .reverse()
+      );
+      break;
+    case "Default":
+      resetToDefault();
+      break;
+  }
 }
 </script>

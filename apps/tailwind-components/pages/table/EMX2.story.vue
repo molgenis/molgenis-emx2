@@ -84,7 +84,7 @@ watch(schemaId, () => {
   });
 });
 
-watch(tableId, () => refetchTableData);
+watch(tableId, () => refetchTableData());
 
 const tableColumns = computed(() => {
   return (
