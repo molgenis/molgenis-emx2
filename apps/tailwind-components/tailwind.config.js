@@ -260,6 +260,7 @@ module.exports = {
         "pagination-button": "var(--text-color-pagination-button)",
         link: "var(--text-color-link)",
         "table-column-header": "var(--text-color-table-column-header)",
+        "table-row": "var(--text-color-table-row)",
         "form-header": "var(--text-color-form-header)",
 
         input: "var(--text-color-input)",

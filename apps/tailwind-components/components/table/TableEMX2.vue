@@ -57,7 +57,7 @@ function handlePagingRequest(page: number) {
 <template>
   <div class="flex pb-[30px]">
     <FilterSearch
-      class="w-2/5"
+      class="w-3/5 xl:w-2/5 2xl:w-1/5"
       :modelValue="settings.search"
       @update:modelValue="handleSearchRequest"
       :inverted="true"
@@ -72,7 +72,7 @@ function handlePagingRequest(page: number) {
           <tr>
             <th
               v-for="column in columns"
-              class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64"
+              class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64 overflow-hidden whitespace-nowrap align-middle"
               :ariaSort="
                 settings.orderby.column === column.id
                   ? mgAriaSortMappings[settings.orderby.direction]
@@ -80,26 +80,30 @@ function handlePagingRequest(page: number) {
               "
               scope="col"
             >
-              <button
-                class="overflow-ellipsis whitespace-nowrap overflow-hidden hover:cursor-pointer text-table-column-header text-body-base capitalize"
-                @click="handleSortRequest(column.id)"
+              <span
+                class="whitespace-nowrap max-w-60 w-64 overflow-hidden inline-block"
               >
-                {{ column.label }}
+                <button
+                  @click="handleSortRequest(column.id)"
+                  class="overflow-ellipsis whitespace-nowrap max-w-56 overflow-hidden inline-block text-left text-table-column-header font-normal align-middle"
+                >
+                  {{ column.label }}
+                </button>
                 <ArrowUp
                   v-if="
                     column.id === settings.orderby.column &&
                     settings.orderby.direction === 'ASC'
                   "
-                  class="w-4 h-4 inline-block"
+                  class="w-4 h-4 inline-block ml-1 text-table-column-header font-normal"
                 />
                 <ArrowDown
                   v-if="
                     column.id === settings.orderby.column &&
                     settings.orderby.direction === 'DESC'
                   "
-                  class="w-4 h-4 inline-block"
+                  class="w-4 h-4 inline-block ml-1 text-table-column-header font-normal"
                 />
-              </button>
+              </span>
             </th>
           </tr>
         </thead>
@@ -108,6 +112,7 @@ function handlePagingRequest(page: number) {
         >
           <tr v-for="row in rows">
             <TableCellTypesEMX2
+              class="w-6 text-table-row"
               v-for="column in columns"
               :scope="column.key === 1 ? 'row' : null"
               :metaData="column"
