@@ -37,7 +37,7 @@
 import type { IInputProps } from "~/types/types";
 import type { CellValueType } from "../../../metadata-utils/src/types";
 
-let props = defineProps<
+const props = defineProps<
   IInputProps & {
     modelValue: any[] | undefined;
     type: string;
