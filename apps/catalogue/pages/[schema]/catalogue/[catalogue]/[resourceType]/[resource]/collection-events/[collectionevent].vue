@@ -5,7 +5,7 @@ import type {
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
-} from "~~/interfaces/types";
+} from "../../../../../../../interfaces/types";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
 import { moduleToString, logError, buildTree } from "#imports";
 import { computed, reactive } from "vue";

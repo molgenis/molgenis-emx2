@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import variableQuery from "../gql/variable";
 import type { KeyObject } from "../../metadata-utils/src/types";
-import { buildFilterFromKeysObject } from "metadata-utils";
 import type { IVariables } from "../interfaces/catalogue";
 import type { Resp } from "../../tailwind-components/types/types";
 import { useRoute, useFetch, showError } from "#app";
 import { moduleToString } from "#imports";
 import { computed } from "vue";
+import { buildFilterFromKeysObject } from "../../metadata-utils/src";
 
 const query = moduleToString(variableQuery);
 
