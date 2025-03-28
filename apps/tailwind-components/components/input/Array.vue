@@ -27,7 +27,7 @@
       type="secondary"
       size="small"
       icon="plus"
-      label="Add a additional item"
+      label="Add an additional item"
       @click="addItem(values)"
     />
   </div>
