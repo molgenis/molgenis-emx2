@@ -66,6 +66,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import draggable from "vuedraggable";
 import type { IColumnConfig } from "~/types/types";
 import { sortColumns } from "~/utils/sortColumns";
