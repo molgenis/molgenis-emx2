@@ -1,5 +1,5 @@
 :root[data-theme="dark"] {
-  --background-color-navigation: var(--color-gray-600);
+  --background-color-navigation: var(--color-gray-800);
   --background-image-sidebar-gradient: linear-gradient(
     180deg,
     var(--color-gray-600) -24.76%,

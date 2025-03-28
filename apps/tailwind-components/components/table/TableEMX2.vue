@@ -67,7 +67,9 @@ function handlePagingRequest(page: number) {
 
   <div class="overflow-auto rounded-b-theme">
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-theme">
-      <table class="text-left table-fixed w-full border">
+      <table
+        class="text-left table-fixed w-full border border-theme border-color-theme"
+      >
         <thead>
           <tr>
             <th
