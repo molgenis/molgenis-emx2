@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { sortColumns } from "~/utils/sortColumns";
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type { ITableSettings, sortDirection } from "../../types/types";
@@ -114,6 +114,13 @@ const sortedVisibleColumns = computed(() => {
   );
   return sortColumns(visibleColumns);
 });
+
+watch(
+  () => props.columns,
+  (newColumns: IColumn[]) => {
+    columns.value = newColumns;
+  }
+);
 
 function handleSortRequest(columnId: string) {
   const direction: sortDirection = getDirection(columnId);
