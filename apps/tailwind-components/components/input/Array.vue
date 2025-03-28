@@ -8,8 +8,8 @@
       <Input
         :id="id + '_' + index"
         :modelValue="values[index]"
-        v-bind="partialProps($props)"
-        :type="nonArrayType(props.type || 'STRING_ARRAY')"
+        v-bind="getPartialProps($props)"
+        :type="getNonArrayType(props.type || 'STRING_ARRAY')"
         @blur="emit('blur')"
         @focus="emit('focus')"
         @update:model-value="setValues($event, index)"
@@ -40,7 +40,7 @@ import type { CellValueType } from "../../../metadata-utils/src/types";
 let props = defineProps<
   IInputProps & {
     modelValue: any[] | undefined;
-    type?: string;
+    type: string;
   }
 >();
 
@@ -71,7 +71,7 @@ function clearInput(values: any, index: number) {
   emit("update:modelValue", values);
 }
 
-function partialProps(props: any): { [key: string]: string } {
+function getPartialProps(props: any): { [key: string]: string } {
   let clone = { ...props };
   delete clone.id;
   delete clone.type;
@@ -79,7 +79,7 @@ function partialProps(props: any): { [key: string]: string } {
   return clone;
 }
 
-function nonArrayType(type: string): CellValueType {
+function getNonArrayType(type: string): CellValueType {
   return ({
     BOOL_ARRAY: "BOOL",
     DATE_ARRAY: "DATE",
