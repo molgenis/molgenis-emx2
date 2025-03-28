@@ -260,6 +260,7 @@ module.exports = {
         "pagination-button": "var(--text-color-pagination-button)",
         link: "var(--text-color-link)",
         "table-column-header": "var(--text-color-table-column-header)",
+        "table-row": "var(--text-color-table-row)",
         "form-header": "var(--text-color-form-header)",
 
         input: "var(--text-color-input)",
@@ -283,6 +284,7 @@ module.exports = {
         "code-output": "var(--text-color-code-output)",
       }),
       borderColor: ({ theme }) => ({
+        theme: "var(--border-color-theme)",
         "button-primary": "var(--border-color-button-primary)",
         "button-primary-hover": "var(--border-color-button-primary-hover)",
         "button-secondary": "var(--border-color-button-secondary)",
@@ -351,6 +353,7 @@ module.exports = {
       },
       borderWidth: {
         "form-required": "var(--border-width-form-required)",
+        theme: "var(--border-width-theme)",
       },
       opacity: {
         "background-gradient": "var(--opacity-background-gradient)",

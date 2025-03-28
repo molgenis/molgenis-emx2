@@ -113,5 +113,7 @@
   --border-radius-pagination: 3px;
   --border-radius-landing: 3px;
 
+  --border-width-theme: 0px;
+
   --logo: UMCGkort.woordbeeld;
 }
