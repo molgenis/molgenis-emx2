@@ -139,7 +139,7 @@ import type {
 } from "../types/schema";
 import type { IKeyValuePair } from "../types";
 
-import geojson from "../data/nl.geo.json";
+import * as geojson from "../data/nl.geo.json";
 
 const loading = ref<boolean>(true);
 const error = ref<Error | null>(null);

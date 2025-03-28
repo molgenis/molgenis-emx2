@@ -4,6 +4,7 @@
   "compilerOptions": {
     "strict": true,
     "isolatedModules": true,
+    "resolveJsonModule": true,
     // "allowJs": true,
     "types": ["vite/client"],
     "lib": ["es2022", "dom"]
