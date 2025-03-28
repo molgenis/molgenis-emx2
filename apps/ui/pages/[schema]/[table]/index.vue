@@ -102,7 +102,7 @@ const current = computed(
 );
 </script>
 <template>
-  <Container>
+  <section class="mx-auto lg:px-[30px] px-0">
     <PageHeader :title="tableMetaData?.label ?? ''" align="left">
       <template #prefix>
         <BreadCrumbs :align="'left'" :crumbs="crumbs" :current="current" />
@@ -119,5 +119,5 @@ const current = computed(
       :settings="tableSettings"
       @update:settings="handleSettingsUpdate"
     />
-  </Container>
+  </section>
 </template>
