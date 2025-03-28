@@ -65,11 +65,11 @@ function handlePagingRequest(page: number) {
     </FilterSearch>
   </div>
 
-  <div class="overflow-auto rounded-b-50px">
+  <div class="overflow-auto rounded-b-theme">
     <div
-      class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px pb-6"
+      class="overflow-x-auto overscroll-x-contain bg-table rounded-t-theme "
     >
-      <table class="text-left table-fixed w-full">
+      <table class="text-left table-fixed w-full border">
         <thead>
           <tr>
             <th
