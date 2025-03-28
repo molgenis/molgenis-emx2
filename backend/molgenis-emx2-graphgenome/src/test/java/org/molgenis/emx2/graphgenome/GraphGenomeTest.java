@@ -38,9 +38,7 @@ public class GraphGenomeTest {
   public void TestForGene() {
     OutputStream outputStream = new ByteArrayOutputStream();
     new GraphGenome(
-            "http://localhost:8080/api/graphgenome?gene=TERC&assembly=GRCh37&ucscgenome=hg19",
-            RDF_API_LOCATION,
-            null)
+            "http://localhost:8080/api/graphgenome?gene=TERC&assembly=GRCh37&ucscgenome=hg19", null)
         .graphGenomeAsRDF(
             outputStream,
             "TERC",

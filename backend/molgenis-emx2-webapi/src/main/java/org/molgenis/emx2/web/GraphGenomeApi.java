@@ -1,7 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.Constants.API_RDF;
-
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
@@ -39,7 +37,7 @@ public class GraphGenomeApi {
             + (ctx.port() > 0 ? ":" + ctx.port() : "")
             + (!ctx.path().isEmpty() ? "/" + ctx.path() + "/" : "/");
     var format = RDFApi.selectFormat(ctx);
-    new GraphGenome(baseURL, API_RDF, format)
+    new GraphGenome(baseURL, format)
         .graphGenomeAsRDF(
             outputStream, gene, assembly, ucscgenome, GRAPH_GENOME_API_LOCATION, tables);
     outputStream.flush();
