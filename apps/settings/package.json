@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
+    "lint": "vite lint",
     "format": "prettier src --write --config ../.prettierrc.js",
     "checkFormat": "prettier src --check --config ../.prettierrc.js"
   },
