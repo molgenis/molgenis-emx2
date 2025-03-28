@@ -1,3 +1,5 @@
+import { useAsyncData } from "#app/composables/asyncData";
+
 export const useSession = () => {
   return useAsyncData("session", async () => {
     const { data, error } = await $fetch("/api/graphql", {

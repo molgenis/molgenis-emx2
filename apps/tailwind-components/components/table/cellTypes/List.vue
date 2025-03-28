@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 
 const props = defineProps<{

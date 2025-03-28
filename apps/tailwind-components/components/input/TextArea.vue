@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type IInputProps } from "~/types/types";
+import { type IInputProps } from "../../types/types";
 defineProps<IInputProps>();
 const modelValue = defineModel<string>();
 const emit = defineEmits([

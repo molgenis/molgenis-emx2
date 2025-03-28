@@ -24,6 +24,7 @@
     --color-gray-50: #f9f9f9;
     --color-gray-100: #f4f4f4;
     --color-gray-200: #e2e2e2;
+    --color-gray-300: #444444;
     --color-gray-400: #c0c0c0;
     --color-gray-600: #2c2c2c;
     --color-gray-700: #414141;
@@ -61,6 +62,7 @@
       var(--color-gray-50) -24.76%,
       var(--color-gray-50) 86.02%
     );
+
     --background-image-base-gradient: linear-gradient(
       180deg,
       #ffffff,
@@ -94,6 +96,9 @@
     --background-color-pagination-hover: var(--color-blue-900);
     --background-color-pagination-input: var(--color-white);
     --background-color-footer: var(--color-white);
+    --background-color-form: var(--color-white);
+    --background-color-form-legend: var(--color-gray-50);
+    --background-color-modal: var(--color-white);
     --background-color-modal-footer: var(--color-white);
     --background-color-tab: var(--color-blue-50);
     --background-color-tab-hover: var(--color-blue-500);
@@ -126,7 +131,8 @@
     --text-color-breadcrumb-arrow: var(--color-gray-400);
     --text-color-breadcrumb: var(--color-blue-500);
     --text-color-title: var(--color-blue-800);
-    --text-color-title-contrast: var(--color-blue-500);
+    --text-color-title-contrast: var(--text-color-title);
+    --text-color-title-contrast-pop: var(--text-color-title-contrast);
     --text-color-sub-title-contrast: var(--color-black);
     --text-color-search-button: var(--color-blue-500);
     --text-color-search-button-hover: var(--color-blue-800);
@@ -190,6 +196,7 @@
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
 
+    --border-radius-theme: 0px;
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
     --border-radius-input: 3px;
@@ -200,5 +207,12 @@
     --border-radius-landing: 50px;
 
     --outline-color-select: var(--color-gray-200);
+
+    --background-color-form-required: var(--color-white);
+    --background-color-form-required-btn: var(--color-white);
+    --background-color-form-required-btn-hover: var(--color-blue-50);
+    --border-color-form-required: var(--color-gray-200);
+    --border-radius-form-required: var(--border-radius-3px);
+    --border-width-form-required: 1px;
   }
 }

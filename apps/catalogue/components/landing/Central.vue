@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useRoute, useRuntimeConfig, useFetch } from "#app";
+
 const route = useRoute();
 
 const config = useRuntimeConfig();

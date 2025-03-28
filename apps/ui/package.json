@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "lint": "vue-tsc --noEmit",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
@@ -22,6 +23,7 @@
     "cross-env": "7.0.3",
     "nuxt": "3.16.0",
     "pinia": "3.0.1",
-    "tailwind-components": "*"
+    "tailwind-components": "*",
+    "vue-tsc": "2.1.6"
   }
 }

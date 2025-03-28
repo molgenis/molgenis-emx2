@@ -1,7 +1,9 @@
 <script setup lang="ts">
-const route = useRoute();
+import { useRoute } from "#app/composables/router";
 import type { ICatalogue } from "~/interfaces/types";
+import { navigateTo } from "#app/composables/router";
 
+const route = useRoute();
 const props = defineProps<{
   catalogues: ICatalogue[];
   title: string;

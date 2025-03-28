@@ -4,9 +4,18 @@ import type {
   IMgError,
   IFilterCondition,
   IRefArrayFilter,
-} from "~/interfaces/types";
-import mappingsFragment from "~~/gql/fragments/mappings";
+} from "../../../../../interfaces/types";
+import mappingsFragment from "../../../../../gql/fragments/mappings";
 import type { INode } from "../../../../../../tailwind-components/types/types";
+import { useRoute, useRouter, useHead, navigateTo, useAsyncData } from "#app";
+import {
+  conditionsFromPathQuery,
+  mergeWithPageDefaults,
+  moduleToString,
+  buildQueryFilter,
+  toPathQueryConditions,
+} from "#imports";
+import { computed } from "vue";
 
 const route = useRoute();
 const router = useRouter();

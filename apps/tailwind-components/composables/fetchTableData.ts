@@ -1,3 +1,5 @@
+import { createError } from "#app";
+import { fetchMetadata } from "#imports";
 import { type IQueryMetaData } from "../../molgenis-components/src/client/IQueryMetaData";
 
 export interface ITableDataResponse {

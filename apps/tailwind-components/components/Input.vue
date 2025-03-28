@@ -242,12 +242,13 @@
 </template>
 
 <script setup lang="ts">
-import type { IInputProps, IValueLabel } from "~/types/types";
+import type { IInputProps, IValueLabel } from "../types/types";
 import type {
   CellValueType,
   columnValue,
   columnValueObject,
 } from "../../metadata-utils/src/types";
+import { computed } from "vue";
 const modelValue = defineModel<columnValue | columnValue[]>();
 const props = defineProps<
   IInputProps & {

@@ -72,7 +72,11 @@ subprojects { subproject ->
     }
 
     task lint(type: YarnTask, dependsOn: nuxtPrepare) {
-        if (packageJson.contains("\"name\": \"tailwind-components\"")) {
+        if (
+                packageJson.contains("\"name\": \"tailwind-components\"") ||
+                packageJson.contains("\"name\": \"ui\"") ||
+                packageJson.contains("\"name\": \"catalogue\"")
+        ) {
             args = ['run', 'lint']
             inputs.files fileTree(projectDir).matching {
                 with excludeDef

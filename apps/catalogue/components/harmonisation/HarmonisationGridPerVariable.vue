@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import type {
-  HarmonisationStatus,
-  IMapping,
-  IVariable,
-  IVariableDetails,
-  IVariableMappings,
-} from "~/interfaces/types";
+import { computed } from "vue";
+import type { IVariableDetails, IVariableMappings } from "~/interfaces/types";
 
 const props = defineProps<{
   variable: IVariableDetails & IVariableMappings;

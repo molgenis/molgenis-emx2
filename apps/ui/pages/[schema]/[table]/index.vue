@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { ITableSettings } from "../../../../tailwind-components/types/types";
+import { useLazyAsyncData } from "#app/composables/asyncData";
+import fetchTableMetadata from "../../../../tailwind-components/composables/fetchTableMetadata";
+import fetchTableData from "../../../../tailwind-components/composables/fetchTableData";
+import { useRoute, useRouter } from "#app/composables/router";
 
 const route = useRoute();
 const router = useRouter();

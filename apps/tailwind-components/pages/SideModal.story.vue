@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 import type { SideModal } from "#build/components";
 
 const showSidePanel = ref(false);

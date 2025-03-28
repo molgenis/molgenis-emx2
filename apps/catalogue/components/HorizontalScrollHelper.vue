@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 defineProps({
   addFade: {
     type: Boolean,

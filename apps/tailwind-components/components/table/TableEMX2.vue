@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ITableSettings, sortDirection } from "~/types/types";
+import type { ITableSettings, sortDirection } from "../../types/types";
 import { sortColumns } from "~/utils/sortColumns";
 import type { IColumn } from "../../../metadata-utils/src/types";
 
