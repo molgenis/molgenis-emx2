@@ -1,4 +1,5 @@
 import type { ITableMetaData } from "../../metadata-utils/src/types";
+import fetchMetadata from "./fetchMetadata";
 
 export default async (
   schemaId: string,

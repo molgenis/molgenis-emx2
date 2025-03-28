@@ -1,5 +1,7 @@
 import { joinURL } from "ufo";
 import { createConsola } from "consola";
+import { useRuntimeConfig } from "#imports";
+import { proxyRequest, defineEventHandler, readBody, getRouterParam } from "h3";
 
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event);

@@ -1,19 +1,26 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
-import subpopulationsQuery from "~~/gql/subpopulations";
-import collectionEventsQuery from "~~/gql/collectionEvents";
-import datasetQuery from "~~/gql/datasets";
-import ontologyFragment from "~~/gql/fragments/ontology";
-import fileFragment from "~~/gql/fragments/file";
+import subpopulationsQuery from "../../../../../../gql/subpopulations";
+import collectionEventsQuery from "../../../../../../gql/collectionEvents";
+import datasetQuery from "../../../../../../gql/datasets";
+import ontologyFragment from "../../../../../../gql/fragments/ontology";
+import fileFragment from "../../../../../../gql/fragments/file";
 import type {
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
   linkTarget,
   DefinitionListItemType,
-} from "~/interfaces/types";
-import dateUtils from "~/utils/dateUtils";
-import type { IResources } from "~/interfaces/catalogue";
+} from "../../../../../../interfaces/types";
+import dateUtils from "../../../../../../utils/dateUtils";
+import type { IResources } from "../../../../../../interfaces/catalogue";
+import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
+import {
+  moduleToString,
+  logError,
+  removeChildIfParentSelected,
+} from "#imports";
+import { computed } from "vue";
 const config = useRuntimeConfig();
 const route = useRoute();
 

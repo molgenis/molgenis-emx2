@@ -2,15 +2,16 @@
   <li
     ref="li"
     role="option"
-    class="flex justify-start items-center gap-3 pl-3 py-1 bg-listbox text-listbox border-t-[1px] border-t-listbox-option hover:cursor-pointer hover:bg-listbox-hover hover:text-listbox focus:bg-listbox-hover focus:text-listbox focus:ring-blue-300"
+    class="flex justify-start items-center gap-3 pl-3 py-1 bg-input border-t-[1px] hover:cursor-pointer hover:bg-input-focused focus:bg-input-focused hover:text-input-focused"
     :class="{
-      '!bg-listbox-selected !text-listbox-selected': isSelected,
+      'text-input': !isSelected,
+      'bg-input-checked text-input-checked': isSelected,
     }"
     :aria-selected="isSelected"
   >
     <BaseIcon
       name="Check"
-      class="fill-listbox-selected invisible"
+      class="fill-check invisible"
       :class="{
         '!visible': isSelected,
       }"
@@ -21,6 +22,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useTemplateRef } from "vue";
+
 defineProps<{
   isSelected?: boolean;
   label: string | number | boolean;

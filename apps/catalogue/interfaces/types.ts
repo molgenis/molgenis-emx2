@@ -1,4 +1,5 @@
 import type { INode } from "../../tailwind-components/types/types";
+import type { IResources } from "../interfaces/catalogue";
 
 export interface IPublication {
   doi: string;
@@ -41,6 +42,7 @@ export interface IVariableDetails {
 
 export interface IVariableMappings {
   mappings?: IMapping[];
+  repeats?: string;
 }
 
 export type IVariable = IVariableBase & IVariableDetails;
@@ -95,6 +97,7 @@ export interface IUrlObject {
 export interface ICollectionEventCategory {
   name: string;
   parent?: INameObject;
+  children?: ICollectionEventCategory[];
   definition?: string;
 }
 
@@ -282,7 +285,7 @@ export interface IOntologyFilterConfig extends IFilterConfig {
   type: "ONTOLOGY";
   ontologyTableId: string;
   ontologySchema: string;
-  filter: Record<string, IFilter>;
+  filter?: Record<string, IFilter>;
   columnId: string;
   refFields?: filterRefField;
 }
@@ -379,3 +382,5 @@ export interface UIResource {
 }
 
 export type analyticsSericves = "siteimprove" | "google-analytics";
+
+export type IShoppingCart = Record<string, IResources>;

@@ -29,7 +29,7 @@
           :label="'Demo input for type=' + type"
           :required="required"
           refSchemaId="pet store"
-          refTableId="Pet"
+          :refTableId="type.startsWith('ontology') ? 'Tag' : 'Pet'"
           refLabel="${name}"
           description="here a demo description to see that that works too"
           @blur="blurCount++"
@@ -46,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import type { CellValueType } from "../../metadata-utils/src/types";
 
 const demoValue = ref<Record<string, any>>({
@@ -59,6 +60,8 @@ const demoValue = ref<Record<string, any>>({
   int: 42,
   decimal: -13.37,
   long: "37",
+  ontology: { name: "green" },
+  ontology_array: [{ name: "green" }, { name: "mammals" }],
 });
 
 const focusCount = ref(0);

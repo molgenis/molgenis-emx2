@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import flatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
-import type { IInputProps } from "~/types/types";
+import type { IInputProps } from "../../types/types";
 const modelValue = defineModel<any>();
 defineProps<
   IInputProps & {

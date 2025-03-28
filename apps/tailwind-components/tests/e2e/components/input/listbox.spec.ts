@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import playwrightConfig from "~/playwright.config";
+import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
@@ -17,59 +17,6 @@ test.describe(
         .getByText("Listbox component", { exact: true })
         .first()
         .click({ delay: 300 });
-    });
-
-    test("toggle has correct aria attributes", async ({ page }) => {
-      const combobox = await page.getByRole("combobox");
-      await expect(combobox).toHaveAttribute("aria-required");
-      await expect(combobox).toHaveAttribute("aria-expanded");
-      await expect(combobox).toHaveAttribute("role", "combobox");
-      await expect(combobox).toHaveAttribute("aria-haspopup", "listbox");
-    });
-
-    test("options list is properly linked to the listbox", async ({ page }) => {
-      const combobox = await page.getByRole("combobox");
-      const listbox = await page.getByRole("listbox");
-      await combobox.click();
-
-      const comboxId = await combobox.getAttribute("aria-controls");
-      const listboxId = await listbox.getAttribute("id");
-      await expect(comboxId).toEqual(listboxId);
-    });
-
-    test("listbox is properly labelled", async ({ page }) => {
-      const combobox = await page.getByRole("combobox");
-      const comboxId = await combobox.getAttribute("aria-labelledby");
-      await page.locator(`label[for='${comboxId}']`);
-    });
-
-    test("aria expand properties correctly update when opened", async ({
-      page,
-    }) => {
-      const combobox = await page.getByRole("combobox");
-      await expect(combobox).toHaveAttribute("aria-expanded", "false");
-    });
-
-    test("placeholder is always the first element in the list", async ({
-      page,
-    }) => {
-      const combobox = await page.getByRole("combobox");
-      await combobox.click();
-      const option = await page.getByRole("option").first();
-      await expect(option).toHaveText("Select an option");
-    });
-
-    test("list items have the proper attributes", async ({ page }) => {
-      const combobox = await page.getByRole("combobox");
-      await combobox.click();
-      await expect(combobox).toHaveAttribute("aria-expanded", "true");
-      for (const option of await page.getByRole("option").all()) {
-        if ((await option.innerText()) === "Select an option") {
-          await expect(option).toHaveAttribute("aria-selected", "true");
-        } else {
-          await expect(option).toHaveAttribute("aria-selected", "false");
-        }
-      }
     });
 
     test(

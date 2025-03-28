@@ -24,6 +24,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import type { columnValueObject } from "../../../metadata-utils/src/types";
 const file = ref<columnValueObject | null>();
 </script>

@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { useRuntimeConfig, useHead } from "#app";
+import { useRoute, navigateTo } from "#app/composables/router";
+import { useSession } from "#imports";
+import { computed } from "vue";
+
 const config = useRuntimeConfig();
 const route = useRoute();
 const { data: session } = await useSession();
