@@ -1,5 +1,16 @@
 import { expect, test } from "@nuxt/test-utils/playwright";
 
+test.beforeEach(async ({ context, baseURL }) => {
+  await context.addCookies([
+    {
+      name: "mg_allow_analytics",
+      value: "false",
+      domain: new URL(baseURL as string).hostname,
+      path: "/",
+    },
+  ]);
+});
+
 test("filter down resoure variables", async ({ page, goto }) => {
   await goto("/catalogue-demo/catalogue/LongITools/collections/ENVIRONAGE", {
     waitUntil: "hydration",
