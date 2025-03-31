@@ -198,6 +198,5 @@ const wrapperComponent = props.wrapperComponent ? ContentBlock : ContentAdded;
       :prevent-default="true"
       :inverted="true"
     />
-    <slot name="added-content"></slot>
   </component>
 </template>

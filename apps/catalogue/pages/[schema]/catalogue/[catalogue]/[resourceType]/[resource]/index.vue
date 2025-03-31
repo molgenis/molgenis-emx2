@@ -375,7 +375,7 @@ const tocItems = computed(() => {
   }
 
   if (variableCount.value ?? 0 > 0) {
-    tableOffContents.push({ label: "Dataset variables", id: "Variables" });
+    tableOffContents.push({ label: "Dataset variables", id: "DataVariables" });
   } else if (resource.value.datasets?.length) {
     tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
@@ -719,15 +719,11 @@ const showPopulation = computed(
           id="DataVariables"
           v-if="variableCount ?? 0 > 0"
         >
-          <DefinitionListTerm>
-            <div class="flex items-center gap-1">Datasets</div>
-          </DefinitionListTerm>
-          <div class="mb-5 prose max-w-none">
-            Datasets and their description
-          </div>
           <TableContent
             v-if="resource.datasets"
             id="Datasets"
+            title="Datasets"
+            description="Datasets and their description"
             :wrapper-component="false"
             :headers="[
               { id: 'name', label: 'Name' },
@@ -744,17 +740,13 @@ const showPopulation = computed(
               :resource-id="slotProps.id.resource"
             />
           </TableContent>
-          <DefinitionListTerm class="mt-11">
-            <div class="flex items-center gap-1">Variables</div>
-          </DefinitionListTerm>
-          <div class="mb-5 prose max-w-none">
-            Dataset variables and their description
-          </div>
+
           <TableContent
+            class="mt-11"
             :wrapper-component="false"
             title="Dataset variables"
             id="Variables"
-            description="Dataset with their variables for this resource"
+            description="Dataset variables and their description"
             :headers="[
               { id: 'name', label: 'variable' },
               { id: 'dataset', label: 'Dataset' },
