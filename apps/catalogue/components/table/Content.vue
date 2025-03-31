@@ -1,25 +1,33 @@
 <script setup lang="ts">
 import { fetchGql } from "#imports";
 import type { DocumentNode } from "graphql";
-import { type Ref, ref, computed, watch } from "vue";
+import { type Ref, ref, computed, watch, VueElement } from "vue";
+import ContentBlock from "../../../tailwind-components/components/content/ContentBlock.vue";
+import ContentAdded from "../../../tailwind-components/components/content/ContentAdded.vue";
 
-const props = defineProps<{
-  title: string;
-  description?: string;
-  headers: {
-    id: string;
-    label: string;
-    singleLine?: boolean;
-    orderByColumn?: string;
-  }[];
-  type: string;
-  query: DocumentNode;
-  filter?: object;
-  rowMapper: (row: any) => { _path?: string; [key: string]: any };
-  searchFilterValue?: string;
-  primaryActionLabel?: string;
-  primaryActionPath?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    description?: string;
+    headers: {
+      id: string;
+      label: string;
+      singleLine?: boolean;
+      orderByColumn?: string;
+    }[];
+    type: string;
+    query: DocumentNode;
+    filter?: object;
+    rowMapper: (row: any) => { _path?: string; [key: string]: any };
+    searchFilterValue?: string;
+    primaryActionLabel?: string;
+    primaryActionPath?: string;
+    wrapperComponent?: boolean;
+  }>(),
+  {
+    wrapperComponent: true,
+  }
+);
 
 const pageSize = 10;
 let pageNumber: Ref = ref(1);
@@ -79,10 +87,12 @@ let activeSideModal = ref("");
 function setActiveSideModal(value: string) {
   activeSideModal.value = value;
 }
+
+const wrapperComponent = props.wrapperComponent ? ContentBlock : ContentAdded;
 </script>
 
 <template>
-  <ContentBlock :title="title" :description="description">
+  <component :is="wrapperComponent" :title="title" :description="description">
     <ButtonGroup class="flex mb-5 flex-wrap">
       <div class="grow">
         <NuxtLink v-if="primaryActionPath" :to="primaryActionPath">
@@ -188,5 +198,6 @@ function setActiveSideModal(value: string) {
       :prevent-default="true"
       :inverted="true"
     />
-  </ContentBlock>
+    <slot name="added-content"></slot>
+  </component>
 </template>
