@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import type { Modal } from "#build/components";
+import { fetchOntology } from "../../composables/fetchOntology";
 import type { ITreeNode } from "../../../tailwind-components/types/types";
-import type { IFilterCondition, IOntologyRespItem } from "~/interfaces/types";
+import type {
+  IFilter,
+  IFilterCondition,
+  IOntologyRespItem,
+} from "../../interfaces/types";
+import { computed, useId } from "vue";
 
 const props = withDefaults(
   defineProps<{
     tableId: string;
-    filter: Record<String, Filter>;
+    filter: Record<string, IFilter>;
     modelValue: IFilterCondition[];
     options?: IOntologyRespItem[];
     isMultiSelect?: boolean;
@@ -58,18 +63,21 @@ const selectedNodesNames = computed({
     //current state
     return props.modelValue ? props.modelValue.map((n) => n.name) : [];
   },
-  set(newValue) {
+  set(newValue: any[]) {
     // transform the names back to the original data structure for use in gql query
     const newConditions = newValue.map((name) => ({ name: name }));
     emit("update:modelValue", newConditions);
   },
 });
+
+const id = useId();
 </script>
 
 <template>
   <InputTree
+    :id="id"
     :nodes="rootNodes"
-    v-model="selectedNodesNames"
+    v-model="(selectedNodesNames as string[])"
     :isMultiSelect="true"
     :inverted="mobileDisplay"
     :expandSelected="true"

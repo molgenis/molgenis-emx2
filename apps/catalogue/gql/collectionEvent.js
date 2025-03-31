@@ -1,5 +1,6 @@
 import gql from "graphql-tag";
 import ontologyFragment from "~~/gql/fragments/ontology";
+import { moduleToString } from "../../tailwind-components/utils/moduleToString";
 
 export default gql`
   query CollectionEvent($id: String, $name: String) {

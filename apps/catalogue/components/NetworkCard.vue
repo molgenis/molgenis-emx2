@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const route = useRoute();
-import type { INetwork } from "~/interfaces/types";
+import type { INetwork } from "../interfaces/types";
 import { computed } from "vue";
+import { useRoute } from "#app/composables/router";
 
 const props = withDefaults(
   defineProps<{
@@ -36,22 +37,12 @@ const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
 
-//TODO: morris believes we don't need this anymore with the catalogues.
-//instead we would like to link to their catalogues, if applicable?
-const links = [];
-//   {
-//     title: "Network",
-//     url: `/${props.schema}/catalogue/${catalogue}/networks/${props.network.id}`,
-//   },
-//   {
-//     title: "Cohorts",
-//     url: `/${props.schema}/catalogue/${catalogue}/networks/${props.network.id}#cohorts`,
-//   },
-//   {
-//     title: "Variables",
-//     url: `/${props.schema}/catalogue/${catalogue}/networks/${props.network.id}#variables`,
-//   },
-// ];
+interface Link {
+  url: string;
+  title: string;
+}
+
+const links: Link[] = [];
 </script>
 
 <template>

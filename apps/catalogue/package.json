@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "lint": "vue-tsc --noEmit",
     "build": "nuxt build",
     "test": "vitest",
     "test-ci": "vitest run",
@@ -50,7 +51,7 @@
     "metadata-utils": "*",
     "nuxt-gtag": "3.0.1",
     "pinia": "3.0.1",
-    "vite": "5.4.12",
+    "vite": "5.4.15",
     "vue": "3.5.13"
   }
 }

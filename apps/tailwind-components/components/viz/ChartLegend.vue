@@ -65,6 +65,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+
 interface ILegendProps {
   legendId: string;
   data: Record<string, any>;

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import { toHeadings, toSectionsMap } from "./headingUtils";
-import type { ITableMetaData } from "metadata-utils";
+import type { ITableMetaData } from "../../metadata-utils/src/types";
 
 describe("toHeadings", () => {
   it("should return only the heading columns", () => {
@@ -9,7 +9,6 @@ describe("toHeadings", () => {
       id: "test",
       label: "test",
       tableType: "test",
-      schemaId: "test",
       columns: [
         { id: "test", columnType: "HEADING", label: "test" },
         { id: "test2", columnType: "TEXT", label: "test2" },
@@ -26,7 +25,6 @@ describe("toHeadings", () => {
       id: "test",
       label: "test",
       tableType: "test",
-      schemaId: "test",
       columns: [],
     };
 
@@ -39,7 +37,6 @@ describe("toSectionsMap", () => {
     id: "test",
     label: "test",
     tableType: "test",
-    schemaId: "test",
     columns: [],
   };
 

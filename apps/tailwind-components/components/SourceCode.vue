@@ -21,6 +21,10 @@
 </template>
 
 <script setup lang="ts">
+import { useRuntimeConfig } from "#app";
+import { computed, ref } from "vue";
+import { useRoute } from "vue-router";
+
 defineProps<{
   id: string;
 }>();

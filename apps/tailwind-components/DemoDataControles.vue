@@ -36,10 +36,13 @@
 </template>
 
 <script setup lang="ts">
+import { useFetch, useAsyncData } from "#app";
+import { fetchMetadata, fetchTableMetadata, fetchTableData } from "#imports";
+import { ref, watch, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import type {
   columnId,
   columnValue,
-  ISchemaMetaData,
   ITableMetaData,
 } from "../metadata-utils/src/types";
 import type { Resp, Schema } from "./types/types";

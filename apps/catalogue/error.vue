@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useRuntimeConfig, useRoute, useHead } from '#app';
+
 defineProps(["error"]);
 
 const config = useRuntimeConfig();
