@@ -77,7 +77,9 @@ const rows = computed(() => tableData.value.rows);
 const dataColumns = computed(() => {
   if (!tableMetaData.value) return [];
 
-  return tableMetaData.value.columns.filter((c) => !c.id.startsWith("mg"));
+  return tableMetaData.value.columns
+    .filter((c) => !c.id.startsWith("mg"))
+    .filter((c) => c.columnType !== "HEADING");
 });
 
 function handleSettingsUpdate(settings: ITableSettings) {
