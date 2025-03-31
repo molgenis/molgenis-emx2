@@ -70,7 +70,7 @@ function isAFilterSet(filters: IFilter[]) {
         <Button
           v-if="filter.config.type === 'SEARCH' && isFilterSet(filter)"
           @click="
-            (value) => {
+            () => {
               filter.search = '';
               handleFilerUpdate(filter);
             }
