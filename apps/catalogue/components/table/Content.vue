@@ -7,7 +7,7 @@ import ContentAdded from "../../../tailwind-components/components/content/Conten
 
 const props = withDefaults(
   defineProps<{
-    title: string;
+    title?: string;
     description?: string;
     headers: {
       id: string;
