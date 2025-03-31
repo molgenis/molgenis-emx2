@@ -8,7 +8,7 @@
     >
     </FilterSearch>
     <TableControlColumns
-      :columns="props.columns"
+      :columns="columns"
       @update:columns="handleColumnsUpdate"
     />
   </div>

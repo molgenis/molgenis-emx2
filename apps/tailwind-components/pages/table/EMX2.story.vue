@@ -95,7 +95,7 @@ const tableColumns = computed(() => {
 });
 
 const dataRows = computed(() => {
-  if (!tableData.value) return [];
+  if (!tableData.value?.rows) return [];
 
   const filteredRows = tableData.value.rows.map((row) => {
     return Object.fromEntries(

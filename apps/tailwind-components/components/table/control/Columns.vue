@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import draggable from "vuedraggable";
 import type { IColumnConfig } from "~/types/types";
 import { sortColumns } from "~/utils/sortColumns";
@@ -89,11 +89,17 @@ const props = defineProps<{
 const emits = defineEmits(["update:columns"]);
 
 const showModal = ref(false);
-const columnsInColumnsSelectModal = ref<IColumnConfig[]>(
-  indexColumns(sortColumns(props.columns.map(columnToColumnConfig)))
-);
+const columnsInColumnsSelectModal = ref<IColumnConfig[]>([]);
 const sortMethods = ref<string[]>(SORTING_METHODS);
 const selectedSortMethod = ref<string>("Default");
+
+watch(() => props.columns, initializeColumns, { immediate: true });
+
+function initializeColumns(newColumns: IColumn[]) {
+  columnsInColumnsSelectModal.value = indexColumns(
+    sortColumns(newColumns.map(columnToColumnConfig))
+  );
+}
 
 function indexColumns(columns: IColumnConfig[]) {
   return columns.map((column, index) => {
