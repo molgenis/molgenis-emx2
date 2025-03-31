@@ -375,7 +375,7 @@ const tocItems = computed(() => {
   }
 
   if (variableCount.value ?? 0 > 0) {
-    tableOffContents.push({ label: "Dataset variables", id: "Variables" });
+    tableOffContents.push({ label: "Dataset variables", id: "DataVariables" });
   } else if (resource.value.datasets?.length) {
     tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
