@@ -22,6 +22,11 @@ const elementType = computed(() => props.metaData.columnType.split("_")[0]);
       :metaData="metaData"
       :data="listElement as number"
     />
+    <TableCellTypesLong
+      v-else-if="elementType === 'LONG'"
+      :metaData="metaData"
+      :data="listElement as number"
+    />
     <TableCellTypesBool
       v-else-if="elementType === 'BOOL'"
       :metaData="metaData"
