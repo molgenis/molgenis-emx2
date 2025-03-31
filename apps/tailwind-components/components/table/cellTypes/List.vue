@@ -20,7 +20,12 @@ const elementType = computed(() => props.metaData.columnType.split("_")[0]);
     <TableCellTypesDecimal
       v-else-if="elementType === 'DECIMAL'"
       :metaData="metaData"
-      :data="listElement as string"
+      :data="listElement as number"
+    />
+    <TableCellTypesBool
+      v-else-if="elementType === 'BOOL'"
+      :metaData="metaData"
+      :data="listElement as boolean"
     />
     <TableCellTypesObject
       v-else-if="elementType === 'REF'"
