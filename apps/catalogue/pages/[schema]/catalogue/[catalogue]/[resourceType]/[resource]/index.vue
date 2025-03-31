@@ -376,7 +376,7 @@ const tocItems = computed(() => {
 
   if (variableCount.value ?? 0 > 0) {
     tableOffContents.push({ label: "Dataset variables", id: "Variables" });
-  } else {
+  } else if (resource.value.datasets?.length) {
     tableOffContents.push({ label: "Datasets", id: "Datasets" });
   }
 
@@ -785,7 +785,6 @@ const showPopulation = computed(
         <TableContent
           v-if="resource.datasets && !variableCount"
           id="Datasets"
-          :wrapper-component="false"
           title="Datasets"
           :headers="[
             { id: 'name', label: 'Name' },
