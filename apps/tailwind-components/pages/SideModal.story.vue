@@ -14,7 +14,6 @@ function toggle() {
 
 function toggleViaRef() {
   if (sideModal.value && sideModal.value.showModal) {
-    console.log("toggleViaRef", sideModal.value);
     sideModal.value.showModal();
   }
 }

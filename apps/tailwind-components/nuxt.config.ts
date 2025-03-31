@@ -57,7 +57,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: "http://emx2.dev.molgenis.org/",
+      apiBase: "https://emx2.dev.molgenis.org/",
       sourceCodeMap: sourceCodeMap,
     },
   },
