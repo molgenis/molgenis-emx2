@@ -19,9 +19,9 @@ test("show dataset details on cohorts page", async ({ page, goto }) => {
   await page.getByPlaceholder("Type to search..").click();
   await page.getByPlaceholder("Type to search..").fill("genr");
   await page.getByRole("link", { name: "GenR", exact: true }).click();
-  await page.getByRole("link", { name: "Datasets" }).click();
-  await page.getByText("FETALCRL_22112016").first().click();
-  await expect(
-    page.getByText("DataWiki dataset FETALCRL_22112016")
-  ).toBeVisible();
+  await page
+    .getByRole("cell", { name: "FETALGROWTH_22112016" })
+    .locator("span")
+    .click();
+  await expect(page.getByText("DataWiki dataset")).toBeVisible();
 });
