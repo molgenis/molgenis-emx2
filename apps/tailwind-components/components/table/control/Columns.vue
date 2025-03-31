@@ -76,9 +76,9 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import draggable from "vuedraggable";
-import type { IColumnConfig } from "~/types/types";
-import { sortColumns } from "~/utils/sortColumns";
 import type { IColumn } from "../../../../metadata-utils/src/types";
+import type { IColumnConfig } from "../../../types/types";
+import { sortColumns } from "../../../utils/sortColumns";
 
 const SORTING_METHODS = ["Default", "Ascending", "Descending", "Custom"];
 
