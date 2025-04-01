@@ -12,6 +12,7 @@
 import { MessageError } from "molgenis-components";
 import { getPageSetting } from "../utils/getPageSetting";
 import { generateHtmlPreview } from "../utils/generateHtmlPreview";
+import { newPageContentObject } from "../utils/newPageContentObject";
 
 export default {
   props: {
@@ -41,10 +42,14 @@ export default {
   mounted() {
     Promise.resolve(getPageSetting(this.pageSettingKey))
       .then((data) => {
-        if (data) {
+        if (data && Object.keys(data).length) {
           this.content = data;
+        } else if (data && typeof data === "string") {
+          const contentObj = newPageContentObject();
+          contentObj.html = data;
+          this.content = contentObj;
         } else {
-          throw new Error("Unable to retrieve page contents");
+          this.content = newPageContentObject();
         }
       })
       .then(() => generateHtmlPreview(this, this.content, "pageContents"))

@@ -120,6 +120,7 @@ import * as monaco from "monaco-editor";
 import { toRaw } from "vue";
 import { getPageSetting } from "../utils/getPageSetting";
 import { generateHtmlPreview } from "../utils/generateHtmlPreview";
+import { newPageContentObject } from "../utils/newPageContentObject";
 
 const editorLanguages = ["html", "css", "javascript"];
 
@@ -210,7 +211,7 @@ export default {
         autoIndent: "brackets",
         autoClosingBrackets: true,
         dimension: {
-          height: 350,
+          height: 310,
         },
         suggest: {
           insertMode: "insert",
@@ -272,7 +273,15 @@ export default {
   mounted() {
     Promise.resolve(getPageSetting(this.pageSettingKey))
       .then((data) => {
-        this.content = data;
+        if (data && Object.keys(data).length) {
+          this.content = data;
+        } else if (data && typeof data === "string") {
+          const contentObj = newPageContentObject();
+          contentObj.html = data;
+          this.content = contentObj;
+        } else {
+          this.content = contentObj;
+        }
         this.loading = false;
       })
       .then(() => {
