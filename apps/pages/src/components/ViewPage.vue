@@ -42,7 +42,12 @@ export default {
   mounted() {
     Promise.resolve(getPageSetting(this.pageSettingKey))
       .then((data) => {
-        if (data && Object.keys(data).length) {
+        if (
+          data &&
+          (Object.keys(data).includes("html") ||
+            Object.keys(data).includes("css") ||
+            Object.keys(data).includes("javascript"))
+        ) {
           this.content = data;
         } else if (data && typeof data === "string") {
           const contentObj = newPageContentObject();

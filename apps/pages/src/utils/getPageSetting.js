@@ -15,8 +15,12 @@ export async function getPageSetting(pageSettingKey) {
       (setting) => setting.key === pageSettingKey
     );
     if (pageContent) {
-      const contentString = pageContent[0].value;
-      return JSON.parse(contentString);
+      const pageContentString = pageContent[0].value;
+      try {
+        return JSON.parse(pageContentString);
+      } catch (error) {
+        return pageContentString;
+      }
     }
   } else {
     return null;

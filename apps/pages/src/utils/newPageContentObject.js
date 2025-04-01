@@ -3,6 +3,6 @@ export function newPageContentObject() {
     css: "",
     html: "",
     javascript: "",
-    dependencies: { css: "", javascript: "" },
+    dependencies: { css: [], javascript: [] },
   };
 }
