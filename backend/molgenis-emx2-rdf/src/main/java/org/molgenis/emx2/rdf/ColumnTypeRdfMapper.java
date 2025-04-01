@@ -224,8 +224,6 @@ public abstract class ColumnTypeRdfMapper {
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
-        final TableMetadata targetRootTable = column.getRefTable().getRootTable();
-
         String[] names =
             (column.isArray()
                 ? row.getStringArray(column.getName())
@@ -243,7 +241,7 @@ public abstract class ColumnTypeRdfMapper {
                         ? mappedNames.get(i)
                         : rowIRI(
                             rdfMapData.getBaseURL(),
-                            targetRootTable,
+                            column.getRefTable().getRootTable(),
                             new PrimaryKey(Map.of("name", i)))))
             .collect(Collectors.toUnmodifiableSet());
       }
@@ -306,8 +304,6 @@ public abstract class ColumnTypeRdfMapper {
         final Row row,
         final Column tableColumn,
         final Map<String, String> colNameToRefTableColName) {
-      final TableMetadata targetRootTable = tableColumn.getRefTable().getRootTable();
-
       final Map<Integer, Map<String, String>> items = new HashMap<>();
       for (final String colName : colNameToRefTableColName.keySet()) {
         final String[] values =
@@ -326,7 +322,7 @@ public abstract class ColumnTypeRdfMapper {
 
       final Set<Value> values = new HashSet<>();
       for (final Map<String, String> item : items.values()) {
-        values.add(rowIRI(rdfMapData.getBaseURL(), targetRootTable, new PrimaryKey(item)));
+        values.add(rowIRI(rdfMapData.getBaseURL(), tableColumn.getRefTable().getRootTable(), new PrimaryKey(item)));
       }
       return Set.copyOf(values);
     }

@@ -344,8 +344,7 @@ public class RDFService {
     final IRI subject = columnIRI(baseURL, column);
     if (column.isReference()) {
       builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
-      Table refTable = column.getRefTable().getTable();
-      builder.add(subject, RDFS.RANGE, tableIRI(baseURL, refTable));
+      builder.add(subject, RDFS.RANGE, tableIRI(baseURL, column.getRefTable()));
     } else {
       var type = column.getColumnType();
       if (type == ColumnType.HYPERLINK || type == ColumnType.HYPERLINK_ARRAY) {
@@ -408,7 +407,7 @@ public class RDFService {
           rows.forEach(
               row ->
                   ontologyRowToRdf(
-                      builder, rdfMapData, table, tableIRI, row, getIriForRow(row, table)));
+                      builder, rdfMapData, table, row, getIriForRow(row, table)));
       case DATA ->
           rows.forEach(
               row ->
@@ -417,9 +416,7 @@ public class RDFService {
                       rdfMapData,
                       namespaces,
                       table,
-                      tableIRI,
                       row,
-                      rowId,
                       getIriForRow(row, table)));
       default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
     }
@@ -429,9 +426,10 @@ public class RDFService {
       final ModelBuilder builder,
       final RdfMapData rdfMapData,
       final Table table,
-      final IRI tableIRI,
       final Row row,
       final IRI subject) {
+    final IRI tableIRI = tableIRI(baseURL, table);
+
     builder.add(subject, RDF.TYPE, BasicIRI.NCIT_CODED_VALUE_DATA_TYPE.getIri());
     builder.add(subject, RDF.TYPE, OWL.CLASS);
     builder.add(subject, RDF.TYPE, SKOS.CONCEPT);
@@ -473,10 +471,10 @@ public class RDFService {
       final RdfMapData rdfMapData,
       final Map<String, Map<String, Namespace>> namespaces,
       final Table table,
-      final IRI tableIRI,
       final Row row,
-      final String rowId,
       final IRI subject) {
+    final IRI tableIRI = tableIRI(baseURL, table);
+
     builder.add(subject, RDF.TYPE, tableIRI);
     builder.add(subject, RDF.TYPE, BasicIRI.LD_OBSERVATION.getIri());
     builder.add(subject, BasicIRI.DCAT_ENDPOINTURL.getIri(), schemaIRI(baseURL, table.getSchema()));
@@ -578,8 +576,6 @@ public class RDFService {
   }
 
   private IRI getIriForRow(final Row row, final TableMetadata metadata) {
-    final TableMetadata rootTable = metadata.getRootTable();
-
     final Map<String, String> keyParts = new LinkedHashMap<>();
     for (final Column column : metadata.getPrimaryKeyColumns()) {
       if (column.isReference()) {
@@ -593,6 +589,6 @@ public class RDFService {
         keyParts.put(column.getName(), row.get(column).toString());
       }
     }
-    return rowIRI(baseURL, rootTable, new PrimaryKey(keyParts));
+    return rowIRI(baseURL, metadata.getRootTable(), new PrimaryKey(keyParts));
   }
 }
