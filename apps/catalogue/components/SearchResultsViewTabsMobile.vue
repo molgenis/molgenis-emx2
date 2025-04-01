@@ -65,13 +65,13 @@ function handleClick() {
         <slot></slot>
       </ContentBlockModal>
 
-      <template #footer="{ hide }">
+      <template #footer="{}">
         <Button
           type="secondary"
           size="small"
           label="View results"
           iconPosition="left"
-          @click="hide()"
+          @click="handleClick"
         ></Button>
       </template>
     </SideModal>

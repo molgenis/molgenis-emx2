@@ -79,9 +79,9 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { sortColumns } from "~/utils/sortColumns";
 import type { IColumn } from "../../../metadata-utils/src/types";
 import type { ITableSettings, sortDirection } from "../../types/types";
+import { sortColumns } from "../../utils/sortColumns";
 
 const mgAriaSortMappings = {
   ASC: "ascending",
