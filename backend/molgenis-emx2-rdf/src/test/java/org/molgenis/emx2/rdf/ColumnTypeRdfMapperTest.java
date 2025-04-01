@@ -31,7 +31,8 @@ class ColumnTypeRdfMapperTest {
   static final String REFBACK_TABLE = "TestRefBackTable";
   static final String COMPOSITE_REF_TABLE = "TestCompositeRefTable";
   static final String COMPOSITE_REFBACK_TABLE = "TestCompositeRefbackTable";
-  static final String ONT_TABLE = "TestOntology";
+  static final String ONT_TABLE = "Test Ontology";
+  static final String ONT_TABLE_URL = "Test%20Ontology";
 
   static final String BASE_URL = "http://localhost:8080/";
   static final String RDF_API_URL_PREFIX = BASE_URL + TEST_SCHEMA + "/api/rdf/";
@@ -113,7 +114,7 @@ class ColumnTypeRdfMapperTest {
         .insert(
             row("name", "aa", "ontologyTermURI", "http://example.com/aa"),
             row("name", "bb", "ontologyTermURI", "http://example.com/bb"),
-            row("name", "c c"));
+            row("name", "c+c")); // actual +, not escaped character
 
     allColumnTypes.getTable(REF_TABLE).insert(row("id", "1"), row("id", "2"), row("id", "3"));
 
@@ -187,15 +188,15 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.ONTOLOGY.name(),
                 "aa",
                 ColumnType.ONTOLOGY_ARRAY.name(),
-                "bb,c c",
+                "bb,c+c",
                 ColumnType.EMAIL.name(),
                 "aap@example.com",
                 ColumnType.EMAIL_ARRAY.name(),
                 "noot@example.com,mies@example.com",
                 ColumnType.HYPERLINK.name(),
-                "https://molgenis.org",
+                "https://molgenis.org/", // added slash due to normalization
                 ColumnType.HYPERLINK_ARRAY.name(),
-                "https://molgenis.org, https://github.com/molgenis",
+                "https://molgenis.org/, https://github.com/molgenis",
                 // Extra columns for composite key testing
                 // -- no manual entry: COLUMN_COMPOSITE_REFBACK
                 COLUMN_COMPOSITE_REF + ".ids",
@@ -528,7 +529,7 @@ class ColumnTypeRdfMapperTest {
             assertEquals(
                 Set.of(
                     Values.iri("http://example.com/bb"),
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=c+c")),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "?name=c%2Bc")),
                 retrieveValues(ColumnType.ONTOLOGY_ARRAY.name())),
         () ->
             assertEquals(
@@ -541,12 +542,12 @@ class ColumnTypeRdfMapperTest {
                 retrieveValues(ColumnType.EMAIL_ARRAY.name())),
         () ->
             assertEquals(
-                Set.of(Values.iri("https://molgenis.org")),
+                Set.of(Values.iri("https://molgenis.org/")), // added slash due to normalization
                 retrieveValues(ColumnType.HYPERLINK.name())),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri("https://molgenis.org"), Values.iri("https://github.com/molgenis")),
+                    Values.iri("https://molgenis.org/"), Values.iri("https://github.com/molgenis")),
                 retrieveValues(ColumnType.HYPERLINK_ARRAY.name())),
         // Composite reference / refback
         () ->
@@ -569,14 +570,14 @@ class ColumnTypeRdfMapperTest {
         // ontology as reference (key=1 instead of ontologyTermURI)
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=aa")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "?name=aa")),
                 retrieveValuesCustom(
                     ColumnType.ONTOLOGY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=bb"),
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=c+c")),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "?name=bb"),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "?name=c%2Bc")),
                 retrieveValuesCustom(
                     ColumnType.ONTOLOGY_ARRAY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
         // email as regular string

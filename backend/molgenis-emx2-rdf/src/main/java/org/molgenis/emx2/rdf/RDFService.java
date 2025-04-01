@@ -7,6 +7,7 @@ import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.getCoreDataType;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
 import static org.molgenis.emx2.rdf.RdfUtils.formatBaseURL;
+import static org.molgenis.emx2.rdf.RdfUtils.generateIRI;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomPrefixesOrDefault;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
@@ -601,8 +602,8 @@ public class RDFService {
   }
 
   private IRI getIriForRow(final Row row, final TableMetadata metadata) {
-    final String rootTableName =
-        UrlEscapers.urlPathSegmentEscaper().escape(metadata.getRootTable().getIdentifier());
+    final TableMetadata rootTable = metadata.getRootTable();
+
     final Map<String, String> keyParts = new LinkedHashMap<>();
     for (final Column column : metadata.getPrimaryKeyColumns()) {
       if (column.isReference()) {
@@ -616,8 +617,6 @@ public class RDFService {
         keyParts.put(column.getName(), row.get(column).toString());
       }
     }
-    final Namespace ns = getSchemaNamespace(baseURL, metadata.getRootTable().getSchema());
-    PrimaryKey key = new PrimaryKey(keyParts);
-    return encodeIRI(ns.getName() + rootTableName + "?" + key.getEncodedValue());
+    return generateIRI(baseURL, rootTable, new PrimaryKey(keyParts));
   }
 }

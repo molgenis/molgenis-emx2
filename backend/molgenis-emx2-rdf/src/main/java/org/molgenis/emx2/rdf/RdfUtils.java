@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf;
 
+import static com.github.jsonldjava.shaded.com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 import static org.molgenis.emx2.Constants.API_RDF;
 import static org.molgenis.emx2.rdf.DefaultNamespace.streamAll;
 
@@ -23,6 +24,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
@@ -42,6 +44,28 @@ abstract class RdfUtils {
       CsvSchema.builder().addColumn("prefix").addColumn("iri").build();
   // Matches with Strings like "urn:" & "urn:uuid:", but allows variations such as "urnamespace:"
   public static final Pattern ILLEGAL_PREFIX = Pattern.compile("^(http(s)?|urn(:.*)?|tag):");
+
+  static IRI generateIRI(String baseURL, TableMetadata table, PrimaryKey key) {
+    return Values.iri(
+            baseURL
+                    + "/"
+                    + urlPathSegmentEscaper().escape(table.getSchemaName())
+                    + API_RDF
+                    + "/"
+                    + urlPathSegmentEscaper().escape(table.getIdentifier())
+                    + "?"
+                    + key.getEncodedValue());
+  }
+
+  static IRI generateIRI(String baseURL, TableMetadata table) {
+    return Values.iri(
+            baseURL
+                    + "/"
+                    + urlPathSegmentEscaper().escape(table.getSchemaName())
+                    + API_RDF
+                    + "/"
+                    + urlPathSegmentEscaper().escape(table.getIdentifier()));
+  }
 
   /**
    * Get the namespace for a schema

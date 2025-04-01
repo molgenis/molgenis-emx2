@@ -1,18 +1,18 @@
 package org.molgenis.emx2.rdf;
 
+import static com.github.jsonldjava.shaded.com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 import static java.util.Map.entry;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.molgenis.emx2.Constants.API_FILE;
-import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
+import static org.molgenis.emx2.rdf.RdfUtils.generateIRI;
+import static org.molgenis.emx2.utils.URIUtils.encodeIRI;
 
-import com.google.common.net.UrlEscapers;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.eclipse.rdf4j.model.util.Values;
@@ -136,7 +136,7 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> URIUtils.encodeIRI("urn:uuid:" + i));
+            row.getStringArray(column.getName()), (i) -> encodeIRI("urn:uuid:" + i));
       }
     },
     STRING(CoreDatatype.XSD.STRING) {
@@ -195,18 +195,17 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> URIUtils.encodeIRI("mailto:" + i));
+            row.getStringArray(column.getName()), (i) -> encodeIRI("mailto:" + i));
       }
     },
     FILE(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
-        final String schemaPath =
-            UrlEscapers.urlPathSegmentEscaper().escape(column.getSchemaName());
-        final String tablePath = UrlEscapers.urlPathSegmentEscaper().escape(column.getTableName());
-        final String columnPath = UrlEscapers.urlPathSegmentEscaper().escape(column.getName());
-        final String fileName =
-            UrlEscapers.urlPathSegmentEscaper().escape(row.getString(column.getName()));
+        final String schemaPath = urlPathSegmentEscaper().escape(column.getSchemaName());
+        final String tablePath = urlPathSegmentEscaper().escape(column.getTableName());
+        final String columnPath = urlPathSegmentEscaper().escape(column.getName());
+        final String fileName = urlPathSegmentEscaper().escape(row.getString(column.getName()));
+
         return Set.of(
             Values.iri(
                 rdfMapData.getBaseURL()
@@ -242,11 +241,7 @@ public abstract class ColumnTypeRdfMapper {
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
-        final TableMetadata target = column.getRefTable();
-        final String rootTableName =
-            UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
-        final Namespace ns =
-            getSchemaNamespace(rdfMapData.getBaseURL(), target.getRootTable().getSchema());
+        final TableMetadata targetRootTable = column.getRefTable().getRootTable();
 
         String[] names =
             (column.isArray()
@@ -263,11 +258,7 @@ public abstract class ColumnTypeRdfMapper {
                 i ->
                     (mappedNames.get(i) != null
                         ? mappedNames.get(i)
-                        : Values.iri(
-                            ns,
-                            rootTableName
-                                + "?"
-                                + new PrimaryKey(Map.of("name", i)).getEncodedValue())))
+                        : generateIRI(rdfMapData.getBaseURL(), targetRootTable, new PrimaryKey(Map.of("name", i)))))
             .collect(Collectors.toUnmodifiableSet());
       }
     },
@@ -329,11 +320,7 @@ public abstract class ColumnTypeRdfMapper {
         final Row row,
         final Column tableColumn,
         final Map<String, String> colNameToRefTableColName) {
-      final TableMetadata target = tableColumn.getRefTable();
-      final String rootTableName =
-          UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
-      final Namespace ns =
-          getSchemaNamespace(rdfMapData.getBaseURL(), target.getRootTable().getSchema());
+      final TableMetadata targetRootTable = tableColumn.getRefTable().getRootTable();
 
       final Map<Integer, Map<String, String>> items = new HashMap<>();
       for (final String colName : colNameToRefTableColName.keySet()) {
@@ -354,7 +341,7 @@ public abstract class ColumnTypeRdfMapper {
       final Set<Value> values = new HashSet<>();
       for (final Map<String, String> item : items.values()) {
         PrimaryKey key = new PrimaryKey(item);
-        values.add(Values.iri(ns, rootTableName + "?" + key.getEncodedValue()));
+        values.add(generateIRI(rdfMapData.getBaseURL(), targetRootTable, key));
       }
       return Set.copyOf(values);
     }
