@@ -1,9 +1,25 @@
 {
-  "prConcurrentLimit": 1,
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
   "extends": [
     "config:base"
   ],
   "packageRules": [ 
+      {
+      "matchManagers": ["gradle"],
+      "matchPackagePatterns": [".*"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "Java Dependencies (Safe Updates)",
+      "groupSlug": "java-safe-updates"
+      "recreateWhen": "never",
+      "separateMinorPatch": false,
+      "schedule": ["every 2 hours"], 
+      "prPriority": 20
+    },
+    {
+      "matchManagers": ["npm"],
+      "prConcurrentLimit": 3  
+    },
     {
       "groupName":"com.squareup.okhttp3",
       "matchPackagePrefixes": [
