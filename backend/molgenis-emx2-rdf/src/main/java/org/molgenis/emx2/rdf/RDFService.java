@@ -1,20 +1,20 @@
 package org.molgenis.emx2.rdf;
 
-import static org.molgenis.emx2.Constants.API_RDF;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.getCoreDataType;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
+import static org.molgenis.emx2.rdf.IriGenerator.columnIRI;
+import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
+import static org.molgenis.emx2.rdf.IriGenerator.schemaIRI;
+import static org.molgenis.emx2.rdf.IriGenerator.tableIRI;
 import static org.molgenis.emx2.rdf.RdfUtils.formatBaseURL;
-import static org.molgenis.emx2.rdf.RdfUtils.generateIRI;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomPrefixesOrDefault;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 import static org.molgenis.emx2.rdf.RdfUtils.getSemanticValue;
-import static org.molgenis.emx2.utils.URIUtils.encodeIRI;
 
-import com.google.common.net.UrlEscapers;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -250,17 +250,6 @@ public class RDFService {
         .add(DCTERMS.CREATOR, BasicIRI.MOLGENIS.getIri());
   }
 
-  /**
-   * Get an IRI for the table. Taking the schema in which the table resides into consideration.
-   *
-   * @param table the table
-   * @return An IRI that is based on the schema namespace.
-   */
-  private IRI getTableIRI(final Table table) {
-    final Namespace ns = getSchemaNamespace(baseURL, table.getSchema());
-    return Values.iri(ns, table.getIdentifier());
-  }
-
   private void describeSchema(final ModelBuilder builder, final Schema schema) {
     // The name from a name space is the IRI.
     final String subject = getSchemaNamespace(baseURL, schema).getName();
@@ -273,8 +262,7 @@ public class RDFService {
       builder.subject(subject).add(DCTERMS.DESCRIPTION, schema.getMetadata().getDescription());
     }
     for (final Table table : schema.getTablesSorted()) {
-      final IRI object = getTableIRI(table);
-      builder.subject(subject).add(BasicIRI.LDP_CONTAINS.getIri(), object);
+      builder.subject(subject).add(BasicIRI.LDP_CONTAINS.getIri(), tableIRI(baseURL, table));
     }
   }
 
@@ -282,7 +270,7 @@ public class RDFService {
       final ModelBuilder builder,
       final Map<String, Map<String, Namespace>> namespaces,
       final Table table) {
-    final IRI subject = getTableIRI(table);
+    final IRI subject = tableIRI(baseURL, table);
     builder.add(subject, RDF.TYPE, OWL.CLASS);
     builder.add(subject, RDFS.SUBCLASSOF, BasicIRI.LD_DATASET_CLASS.getIri());
     Table parent = table.getInheritedTable();
@@ -290,7 +278,7 @@ public class RDFService {
     if (parent == null) {
       builder.add(subject, RDFS.SUBCLASSOF, OWL.THING);
     } else {
-      builder.add(subject, RDFS.SUBCLASSOF, getTableIRI(parent));
+      builder.add(subject, RDFS.SUBCLASSOF, tableIRI(baseURL, parent));
     }
     // Any custom semantics are always added, regardless of table type (DATA/ONTOLOGIES)
     if (table.getMetadata().getSemantics() != null) {
@@ -349,24 +337,15 @@ public class RDFService {
     }
   }
 
-  private IRI getColumnIRI(final Column column) {
-    TableMetadata table = column.getTable();
-    Schema schema = table.getTable().getSchema();
-    final String tableName = UrlEscapers.urlPathSegmentEscaper().escape(table.getIdentifier());
-    final String columnName = UrlEscapers.urlPathSegmentEscaper().escape(column.getIdentifier());
-    final Namespace ns = getSchemaNamespace(baseURL, schema);
-    return Values.iri(ns, tableName + "/column/" + columnName);
-  }
-
   private void describeColumn(
       final ModelBuilder builder,
       final Map<String, Map<String, Namespace>> namespaces,
       final Column column) {
-    final IRI subject = getColumnIRI(column);
+    final IRI subject = columnIRI(baseURL, column);
     if (column.isReference()) {
       builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
       Table refTable = column.getRefTable().getTable();
-      builder.add(subject, RDFS.RANGE, getTableIRI(refTable));
+      builder.add(subject, RDFS.RANGE, tableIRI(baseURL, refTable));
     } else {
       var type = column.getColumnType();
       if (type == ColumnType.HYPERLINK || type == ColumnType.HYPERLINK_ARRAY) {
@@ -377,7 +356,7 @@ public class RDFService {
       }
     }
     builder.add(subject, RDFS.LABEL, column.getName());
-    builder.add(subject, RDFS.DOMAIN, getTableIRI(column.getTable().getTable()));
+    builder.add(subject, RDFS.DOMAIN, tableIRI(baseURL, column.getTable()));
     if (column.getSemantics() != null) {
       for (String columnSemantics : column.getSemantics()) {
         if (columnSemantics.equals("id")) {
@@ -422,7 +401,7 @@ public class RDFService {
       final Map<String, Map<String, Namespace>> namespaces,
       final Table table,
       final String rowId) {
-    final IRI tableIRI = getTableIRI(table);
+    final IRI tableIRI = tableIRI(baseURL, table);
     final List<Row> rows = getRows(table, rowId);
     switch (table.getMetadata().getTableType()) {
       case ONTOLOGIES ->
@@ -500,10 +479,7 @@ public class RDFService {
       final IRI subject) {
     builder.add(subject, RDF.TYPE, tableIRI);
     builder.add(subject, RDF.TYPE, BasicIRI.LD_OBSERVATION.getIri());
-    builder.add(
-        subject,
-        BasicIRI.DCAT_ENDPOINTURL.getIri(),
-        encodeIRI(baseURL + "/" + table.getSchema().getName() + API_RDF));
+    builder.add(subject, BasicIRI.DCAT_ENDPOINTURL.getIri(), schemaIRI(baseURL, table.getSchema()));
     builder.add(subject, BasicIRI.FDP_METADATAIDENTIFIER.getIri(), subject);
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {
@@ -518,7 +494,7 @@ public class RDFService {
       if (column.isSystemAddUpdateByUserColumn()) {
         continue;
       }
-      IRI columnIRI = getColumnIRI(column);
+      IRI columnIRI = columnIRI(baseURL, column);
 
       // Non-default behaviour for non-semantic values to ontology table.
       if (column.getColumnType().equals(ColumnType.ONTOLOGY)
@@ -617,6 +593,6 @@ public class RDFService {
         keyParts.put(column.getName(), row.get(column).toString());
       }
     }
-    return generateIRI(baseURL, rootTable, new PrimaryKey(keyParts));
+    return rowIRI(baseURL, rootTable, new PrimaryKey(keyParts));
   }
 }

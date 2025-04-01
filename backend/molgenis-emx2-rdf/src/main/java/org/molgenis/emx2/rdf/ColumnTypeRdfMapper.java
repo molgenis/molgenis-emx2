@@ -3,9 +3,8 @@ package org.molgenis.emx2.rdf;
 import static com.github.jsonldjava.shaded.com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 import static java.util.Map.entry;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.Constants.API_FILE;
-import static org.molgenis.emx2.rdf.RdfUtils.generateIRI;
-import static org.molgenis.emx2.utils.URIUtils.encodeIRI;
+import static org.molgenis.emx2.rdf.IriGenerator.fileIRI;
+import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -17,7 +16,6 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.eclipse.rdf4j.model.util.Values;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.URIUtils;
 
 /**
  * Used for functionalities that are {@link ColumnType} specific. This includes:
@@ -136,7 +134,7 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> encodeIRI("urn:uuid:" + i));
+            row.getStringArray(column.getName()), (i) -> Values.iri("urn:uuid:" + i));
       }
     },
     STRING(CoreDatatype.XSD.STRING) {
@@ -184,40 +182,25 @@ public abstract class ColumnTypeRdfMapper {
         return basicRetrieval(row.getPeriodArray(column.getName()), Values::literal);
       }
     },
-
+    /** URI is treated as-is and no escaping/normalization is done. */
     URI(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
-        return basicRetrievalString(row.getStringArray(column.getName()), URIUtils::encodeIRI);
+        return basicRetrievalString(row.getStringArray(column.getName()), Values::iri);
       }
     },
     EMAIL(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> encodeIRI("mailto:" + i));
+            row.getStringArray(column.getName()),
+            (i) -> Values.iri("mailto:" + urlPathSegmentEscaper().escape(i)));
       }
     },
     FILE(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
-        final String schemaPath = urlPathSegmentEscaper().escape(column.getSchemaName());
-        final String tablePath = urlPathSegmentEscaper().escape(column.getTableName());
-        final String columnPath = urlPathSegmentEscaper().escape(column.getName());
-        final String fileName = urlPathSegmentEscaper().escape(row.getString(column.getName()));
-
-        return Set.of(
-            Values.iri(
-                rdfMapData.getBaseURL()
-                    + "/"
-                    + schemaPath
-                    + API_FILE
-                    + "/"
-                    + tablePath
-                    + "/"
-                    + columnPath
-                    + "/"
-                    + fileName));
+        return Set.of(fileIRI(rdfMapData.getBaseURL(), row, column));
       }
     },
     REFERENCE(CoreDatatype.XSD.ANYURI) {
@@ -258,7 +241,7 @@ public abstract class ColumnTypeRdfMapper {
                 i ->
                     (mappedNames.get(i) != null
                         ? mappedNames.get(i)
-                        : generateIRI(
+                        : rowIRI(
                             rdfMapData.getBaseURL(),
                             targetRootTable,
                             new PrimaryKey(Map.of("name", i)))))
@@ -343,7 +326,7 @@ public abstract class ColumnTypeRdfMapper {
 
       final Set<Value> values = new HashSet<>();
       for (final Map<String, String> item : items.values()) {
-        values.add(generateIRI(rdfMapData.getBaseURL(), targetRootTable, new PrimaryKey(item)));
+        values.add(rowIRI(rdfMapData.getBaseURL(), targetRootTable, new PrimaryKey(item)));
       }
       return Set.copyOf(values);
     }

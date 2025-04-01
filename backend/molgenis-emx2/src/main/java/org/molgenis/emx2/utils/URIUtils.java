@@ -3,7 +3,6 @@ package org.molgenis.emx2.utils;
 import java.net.URI;
 import org.eclipse.rdf4j.common.net.ParsedIRI;
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.util.Values;
 import org.molgenis.emx2.MolgenisException;
 
 public class URIUtils {
@@ -19,13 +18,6 @@ public class URIUtils {
         + (requestURI.getPort() != -1 ? ":" + requestURI.getPort() : "");
   }
 
-  public static IRI encodeIRI(String iriString) {
-    return Values.iri(ParsedIRI.create(iriString).normalize().toASCIIString());
-  }
-
-  /**
-   * Old function used by FDP API (does NOT normalize nor use ASCIIString!)
-   */
   public static IRI encodedIRI(String uriString) {
     return org.eclipse.rdf4j.model.util.Values.iri(ParsedIRI.create(uriString).toString());
   }
