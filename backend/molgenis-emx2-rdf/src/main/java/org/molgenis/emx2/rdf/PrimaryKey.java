@@ -12,7 +12,8 @@ import org.molgenis.emx2.Filter;
 import org.molgenis.emx2.MolgenisException;
 
 class PrimaryKey {
-  private static final PercentEscaper escaper = new PercentEscaper("", false);
+  // Identical to urlFormParameterEscaper except space escaping
+  private static final PercentEscaper escaper = new PercentEscaper("-_.*", false);
 
   public static final String NAME_VALUE_SEPARATOR = "=";
   public static final String KEY_PARTS_SEPARATOR = "&";
