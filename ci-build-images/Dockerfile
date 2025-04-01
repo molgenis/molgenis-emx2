@@ -3,7 +3,7 @@
 # docker buildx build -t molgenis/ci-build:1.2.2 --platform linux/amd64 .
 # docker push molgenis/ci-build:1.2.2
 
-FROM gradle:jdk17-jammy
+FROM gradle:jdk21-noble
 
 RUN apt-get update && apt-get install python3 python3-venv -y
 RUN apt-get install python3 python3-venv python3-pip -y
