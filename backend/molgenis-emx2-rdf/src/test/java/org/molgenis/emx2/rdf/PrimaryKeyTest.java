@@ -5,27 +5,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 
 import java.util.*;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Filter;
 
 public class PrimaryKeyTest {
 
-  public static final Map.Entry<String, String> LAST_KEY = Map.entry("last", "value1");
-  public static final Map.Entry<String, String> FIRST_KEY = Map.entry("first", "value2");
-  public static final Map<String, String> KEY =
-      Map.of(LAST_KEY.getKey(), LAST_KEY.getValue(), FIRST_KEY.getKey(), FIRST_KEY.getValue());
-  public static final String ENCODED_KEY = "first=value2&last=value1";
+  static final Map.Entry<String, String> COMPLEX_KEY = Map.entry("complex pair", "me, myself & I");
+  static final Map.Entry<String, String> LAST_KEY = Map.entry("last", "value");
+  // Linked Map to enforce order
+  static final Map<String, String> KEYS_MAP = new LinkedHashMap<>();
+  static final String ENCODED_KEY = "complex%20pair=me%2C%20myself%20%26%20I&last=value";
 
-  public static final Filter FIRST_KEY_FILTER = f("first", EQUALS, "value2");
-  public static final Filter LAST_KEY_FILTER = f("last", EQUALS, "value1");
+  static {
+    KEYS_MAP.put(LAST_KEY.getKey(), LAST_KEY.getValue());
+    KEYS_MAP.put(COMPLEX_KEY.getKey(), COMPLEX_KEY.getValue());
+  }
 
   @Test
   void testThatAPrimaryKeyIsSorted() {
-    var key = new PrimaryKey(KEY).getEncodedValue();
+    var key = new PrimaryKey(KEYS_MAP).getEncodedValue();
     assertEquals(ENCODED_KEY, key);
   }
 
@@ -40,7 +40,7 @@ public class PrimaryKeyTest {
     assertNotNull(key, "Should be able to decode the key");
     assertEquals(2, key.getKeys().size(), "The key should contain two values");
     assertTrue(
-        key.getKeys().entrySet().contains(FIRST_KEY),
+        key.getKeys().entrySet().contains(COMPLEX_KEY),
         "The first key should have been decoded successfully");
     assertTrue(
         key.getKeys().entrySet().contains(LAST_KEY),
@@ -49,9 +49,7 @@ public class PrimaryKeyTest {
 
   @Test
   void testThatKeyCanBeConvertedToAFilter() {
-    var pairs =
-        Map.of(LAST_KEY.getKey(), LAST_KEY.getValue(), FIRST_KEY.getKey(), FIRST_KEY.getValue());
-    var key = new PrimaryKey(pairs);
+    var key = new PrimaryKey(KEYS_MAP);
     var filters = key.getFilter();
     assertNotNull(filters, "The filter should not be null.");
     assertEquals(
@@ -61,15 +59,15 @@ public class PrimaryKeyTest {
     boolean filterFirst = false;
     boolean filterLast = false;
     for (var filter : filters.getSubfilters()) {
-      if (filter.getColumn().equals("first")
+      if (filter.getColumn().equals(COMPLEX_KEY.getKey())
           && filter.getOperator() == EQUALS
-          && Arrays.stream(filter.getValues()).toList().contains("value2")
+          && Arrays.stream(filter.getValues()).toList().contains(COMPLEX_KEY.getValue())
           && filter.getValues().length == 1) {
         filterFirst = true;
       }
-      if (filter.getColumn().equals("last")
+      if (filter.getColumn().equals(LAST_KEY.getKey())
           && filter.getOperator() == EQUALS
-          && Arrays.stream(filter.getValues()).toList().contains("value1")
+          && Arrays.stream(filter.getValues()).toList().contains(LAST_KEY.getValue())
           && filter.getValues().length == 1) {
         filterLast = true;
       }
@@ -79,7 +77,7 @@ public class PrimaryKeyTest {
   }
 
   @Test
-  void testEncodedValues() {
+  void testEncodedValuesForDifferentSizes() {
     assertAll(
         () -> assertEquals("a=1", new PrimaryKey(Map.of("a", "1")).getEncodedValue()),
         () -> assertEquals("a=1&b=2", new PrimaryKey(Map.of("a", "1", "b", "2")).getEncodedValue()),
