@@ -675,7 +675,7 @@ public class RDFTest {
     var subject =
         Values.iri(
             getApi(ontologyTest)
-                + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx");
+                + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx");
 
     var parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
     assertEquals(
@@ -692,13 +692,13 @@ public class RDFTest {
             Values.iri("https://icd.who.int/browse10/2019/en#/U07"),
             Values.iri(
                 getApi(ontologyTest)
-                    + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
+                    + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
     Set<Value> expectedNonSemantic =
         Set.of(
             Values.iri(getApi(ontologyTest) + "Diseases?name=U07"),
             Values.iri(
                 getApi(ontologyTest)
-                    + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
+                    + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
 
     Set<Value> actualSemantic =
         handler
@@ -725,13 +725,13 @@ public class RDFTest {
             Values.iri("https://icd.who.int/browse10/2019/en#/U07"),
             Values.iri(
                 getApi(ontologyTest)
-                    + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
+                    + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
     Set<Value> expectedNonSemantic =
         Set.of(
             Values.iri(getApi(ontologyTest) + "Diseases?name=U07"),
             Values.iri(
                 getApi(ontologyTest)
-                    + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
+                    + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
 
     Set<Value> actualSemantic =
         handler
