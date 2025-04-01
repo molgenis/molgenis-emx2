@@ -12,7 +12,6 @@
       "groupName": "Java Dependencies (Safe Updates)",
       "groupSlug": "java-safe-updates",
       "recreateWhen": "never",
-      "separateMinorPatch": false,
       "prPriority": 20
     },
     {
