@@ -77,7 +77,6 @@
 import { ref, watch } from "vue";
 import draggable from "vuedraggable";
 import type { IColumn } from "../../../../metadata-utils/src/types";
-import type { IColumnConfig } from "../../../types/types";
 import { sortColumns } from "../../../utils/sortColumns";
 
 const SORTING_METHODS = ["Default", "Ascending", "Descending", "Custom"];
@@ -179,5 +178,12 @@ function handleSortMethodChanged(event: Event) {
       resetToDefault();
       break;
   }
+}
+
+interface IColumnConfig {
+  id: string;
+  label: string;
+  position: number;
+  visible: boolean;
 }
 </script>

@@ -121,10 +121,3 @@ export interface IInputProps {
   valid?: boolean | undefined;
   disabled?: boolean | undefined;
 }
-
-export interface IColumnConfig {
-  id: string;
-  label: string;
-  position: number;
-  visible: boolean;
-}
