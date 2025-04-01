@@ -90,7 +90,7 @@ public class FAIRDataPointDataset {
     String apiRDF = host + "/" + schema.getName() + "/api/rdf";
 
     IRI reqUrl = iri(ctx.url()); // escaping/encoding seems OK
-    IRI apiFdpDistributionEnc = encodeIRI(apiFdpDistribution);
+    IRI apiFdpDistributionEnc = encodedIRI(apiFdpDistribution);
 
     builder.add(reqUrl, RDF.TYPE, DCAT.DATASET);
     List<Map> distributions = (List<Map>) datasetFromJSON.get("distribution");
@@ -109,7 +109,7 @@ public class FAIRDataPointDataset {
               reqUrl,
               // not 'Distribution' (class) but 'distribution' (predicate)
               iri("http://www.w3.org/ns/dcat#distribution"),
-              encodeIRI(
+              encodedIRI(
                   apiFdpDistribution
                       + "/"
                       + schema.getName()
@@ -120,7 +120,7 @@ public class FAIRDataPointDataset {
           builder.add(
               apiFdpDistributionEnc,
               LDP.CONTAINS,
-              encodeIRI(
+              encodedIRI(
                   apiFdpDistribution
                       + "/"
                       + schema.getName()
@@ -144,7 +144,7 @@ public class FAIRDataPointDataset {
               reqUrl,
               // not 'Distribution' (class) but 'distribution' (predicate)
               iri("http://www.w3.org/ns/dcat#distribution"),
-              encodeIRI(
+              encodedIRI(
                   apiFdpDistribution
                       + "/"
                       + schema.getName()
@@ -156,7 +156,7 @@ public class FAIRDataPointDataset {
           builder.add(
               apiFdpDistributionEnc,
               LDP.CONTAINS,
-              encodeIRI(
+              encodedIRI(
                   apiFdpDistribution
                       + "/"
                       + schema.getName()
@@ -213,13 +213,13 @@ public class FAIRDataPointDataset {
     }
     if (datasetFromJSON.get("contactPoint") != null) {
       String personId = (String) ((Map) datasetFromJSON.get("contactPoint")).get("identifier");
-      builder.add(reqUrl, DCAT.CONTACT_POINT, encodeIRI(apiRDF + "/Persons/" + personId));
+      builder.add(reqUrl, DCAT.CONTACT_POINT, encodedIRI(apiRDF + "/Persons/" + personId));
     }
     if (datasetFromJSON.get("creator") != null) {
       List<Map> creators = (List<Map>) datasetFromJSON.get("creator");
       for (Map creator : creators) {
         String personId = (String) creator.get("identifier");
-        builder.add(reqUrl, DCTERMS.CREATOR, encodeIRI(apiRDF + "/Persons/" + personId));
+        builder.add(reqUrl, DCTERMS.CREATOR, encodedIRI(apiRDF + "/Persons/" + personId));
       }
     }
     if (datasetFromJSON.get("description") != null) {
@@ -267,7 +267,7 @@ public class FAIRDataPointDataset {
 
       String organisationName = (String) ((Map) datasetFromJSON.get("publisher")).get("name");
       builder.add(
-          reqUrl, DCTERMS.PUBLISHER, encodeIRI(apiRDF + "/Organisations/" + organisationName));
+          reqUrl, DCTERMS.PUBLISHER, encodedIRI(apiRDF + "/Organisations/" + organisationName));
     }
     if (this.issued == null) {
       builder.add(

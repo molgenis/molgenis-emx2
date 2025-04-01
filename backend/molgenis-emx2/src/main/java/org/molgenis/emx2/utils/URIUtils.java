@@ -23,6 +23,13 @@ public class URIUtils {
     return Values.iri(ParsedIRI.create(iriString).normalize().toASCIIString());
   }
 
+  /**
+   * Old function used by FDP API (does NOT normalize nor use ASCIIString!)
+   */
+  public static IRI encodedIRI(String uriString) {
+    return org.eclipse.rdf4j.model.util.Values.iri(ParsedIRI.create(uriString).toString());
+  }
+
   public static URI getURI(String uriString) {
     try {
       ParsedIRI parsedIRI = ParsedIRI.create(uriString);

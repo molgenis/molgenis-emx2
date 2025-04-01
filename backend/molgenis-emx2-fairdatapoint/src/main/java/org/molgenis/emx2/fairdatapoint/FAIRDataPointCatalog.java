@@ -127,9 +127,9 @@ public class FAIRDataPointCatalog {
     String apiFdpCatalogProfile = apiFdp + "/catalog/profile";
 
     IRI reqUrl = iri(ctx.url()); // escaping/encoding seems OK
-    IRI apiFdpEnc = encodeIRI(apiFdp);
-    IRI apiFdpDatasetEnc = encodeIRI(apiFdpDataset);
-    IRI apiFdpCatalogProfileEnc = encodeIRI(apiFdpCatalogProfile);
+    IRI apiFdpEnc = encodedIRI(apiFdp);
+    IRI apiFdpDatasetEnc = encodedIRI(apiFdpDataset);
+    IRI apiFdpCatalogProfileEnc = encodedIRI(apiFdpCatalogProfile);
 
     /*
     Required by FDP specification (https://specs.fairdatapoint.org/)
@@ -227,7 +227,7 @@ public class FAIRDataPointCatalog {
     builder.add(
         accessRights, DCTERMS.DESCRIPTION, "Access rights are provided on a per-dataset basis.");
     builder.add(
-        reqUrl, FOAF.HOMEPAGE, encodeIRI(host + "/" + schema.getName() + "/tables/#/Catalog"));
+        reqUrl, FOAF.HOMEPAGE, encodedIRI(host + "/" + schema.getName() + "/tables/#/Catalog"));
 
     // Write model
     Model model = builder.build();
@@ -286,7 +286,7 @@ public class FAIRDataPointCatalog {
     ArrayList<IRI> values = new ArrayList<>();
     for (Map map : ((List<Map>) object)) {
       String id = TypeUtils.toString(map.get("id"));
-      IRI iri = encodeIRI(apiFdp + "/dataset/" + schema + "/" + id);
+      IRI iri = encodedIRI(apiFdp + "/dataset/" + schema + "/" + id);
       values.add(iri);
     }
     return values;

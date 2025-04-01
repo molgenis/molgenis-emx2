@@ -124,7 +124,7 @@ public class FAIRDataPointDistribution {
         builder.add(
             reqURL,
             DCAT.DOWNLOAD_URL,
-            encodeIRI(host + "/" + schemaParam + "/api/" + formatParam + "/" + distributionParam));
+            encodedIRI(host + "/" + schemaParam + "/api/" + formatParam + "/" + distributionParam));
       } else if (formatParam.equals("graphql")) {
         List<String> columnNames =
             database
@@ -136,7 +136,7 @@ public class FAIRDataPointDistribution {
         builder.add(
             reqURL,
             DCAT.DOWNLOAD_URL,
-            encodeIRI(
+            encodedIRI(
                 host
                     + "/"
                     + schemaParam

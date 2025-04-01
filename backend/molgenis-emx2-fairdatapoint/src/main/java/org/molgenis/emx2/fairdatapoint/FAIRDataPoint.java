@@ -123,10 +123,10 @@ public class FAIRDataPoint {
     String apiFdpProfile = apiFdp + "/profile";
     String apiFdpIdentifier = apiFdp + "#identifier";
 
-    IRI apiFdpEnc = encodeIRI(apiFdp);
-    IRI apiFdpCatalogEnc = encodeIRI(apiFdpCatalog);
-    IRI apiFdpProfileEnc = encodeIRI(apiFdpProfile);
-    IRI apiFdpIdentifierEnc = encodeIRI(apiFdpIdentifier);
+    IRI apiFdpEnc = encodedIRI(apiFdp);
+    IRI apiFdpCatalogEnc = encodedIRI(apiFdpCatalog);
+    IRI apiFdpProfileEnc = encodedIRI(apiFdpProfile);
+    IRI apiFdpIdentifierEnc = encodedIRI(apiFdpIdentifier);
 
     /*
     Required by FDP specification (https://specs.fairdatapoint.org/)
@@ -165,7 +165,7 @@ public class FAIRDataPoint {
     /*
     Optional in FDP specification (https://specs.fairdatapoint.org/)
      */
-    builder.add(apiFdpEnc, DCAT.ENDPOINT_DESCRIPTION, encodeIRI(host + "/api/openapi"));
+    builder.add(apiFdpEnc, DCAT.ENDPOINT_DESCRIPTION, encodedIRI(host + "/api/openapi"));
     builder.add(
         apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#startDate"), literal(issued, XSD.DATETIME));
     builder.add(
@@ -224,7 +224,7 @@ public class FAIRDataPoint {
       String schemaName)
       throws Exception {
     for (Map<String, Object> map : allCatalogFromJSON.get(schemaName)) {
-      IRI catalogIriEnc = encodeIRI(apiFdpCatalog + "/" + schemaName + "/" + map.get("id"));
+      IRI catalogIriEnc = encodedIRI(apiFdpCatalog + "/" + schemaName + "/" + map.get("id"));
       builder.add(apiFdpCatalogEnc, iri("http://www.w3.org/ns/ldp#contains"), catalogIriEnc);
       builder.add(apiFdpEnc, iri("https://w3id.org/fdp/fdp-o#metadataCatalog"), catalogIriEnc);
       nullCheckOnPropVal(builder, map, catalogIriEnc);
