@@ -251,8 +251,7 @@ public class RDFService {
   }
 
   private void describeSchema(final ModelBuilder builder, final Schema schema) {
-    // The name from a name space is the IRI.
-    final String subject = getSchemaNamespace(baseURL, schema).getName();
+    final IRI subject = schemaIRI(baseURL, schema);
     builder
         .subject(subject)
         .add(RDFS.LABEL, schema.getName())
