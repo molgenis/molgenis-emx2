@@ -258,7 +258,10 @@ public abstract class ColumnTypeRdfMapper {
                 i ->
                     (mappedNames.get(i) != null
                         ? mappedNames.get(i)
-                        : generateIRI(rdfMapData.getBaseURL(), targetRootTable, new PrimaryKey(Map.of("name", i)))))
+                        : generateIRI(
+                            rdfMapData.getBaseURL(),
+                            targetRootTable,
+                            new PrimaryKey(Map.of("name", i)))))
             .collect(Collectors.toUnmodifiableSet());
       }
     },

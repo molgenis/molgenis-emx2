@@ -4,11 +4,10 @@ import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 
+import com.google.common.net.PercentEscaper;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
-import com.google.common.net.PercentEscaper;
 import org.molgenis.emx2.Filter;
 import org.molgenis.emx2.MolgenisException;
 

@@ -24,7 +24,6 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
@@ -47,24 +46,24 @@ abstract class RdfUtils {
 
   static IRI generateIRI(String baseURL, TableMetadata table, PrimaryKey key) {
     return Values.iri(
-            baseURL
-                    + "/"
-                    + urlPathSegmentEscaper().escape(table.getSchemaName())
-                    + API_RDF
-                    + "/"
-                    + urlPathSegmentEscaper().escape(table.getIdentifier())
-                    + "?"
-                    + key.getEncodedValue());
+        baseURL
+            + "/"
+            + urlPathSegmentEscaper().escape(table.getSchemaName())
+            + API_RDF
+            + "/"
+            + urlPathSegmentEscaper().escape(table.getIdentifier())
+            + "?"
+            + key.getEncodedValue());
   }
 
   static IRI generateIRI(String baseURL, TableMetadata table) {
     return Values.iri(
-            baseURL
-                    + "/"
-                    + urlPathSegmentEscaper().escape(table.getSchemaName())
-                    + API_RDF
-                    + "/"
-                    + urlPathSegmentEscaper().escape(table.getIdentifier()));
+        baseURL
+            + "/"
+            + urlPathSegmentEscaper().escape(table.getSchemaName())
+            + API_RDF
+            + "/"
+            + urlPathSegmentEscaper().escape(table.getIdentifier()));
   }
 
   /**
