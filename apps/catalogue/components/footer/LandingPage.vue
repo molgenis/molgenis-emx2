@@ -1,13 +1,11 @@
 <template>
-  <footer class="bg-footer text-white">
+  <footer class="bg-footer">
     <div
-      class="grid grid-cols-1 gap-4 lg:gap-2 lg:grid-cols-3 items-start justify-center lg:max-w-[1024px] m-auto px-6 pt-6"
+      class="grid grid-cols-1 gap-4 lg:gap-2 lg:grid-cols-3 items-start justify-center max-w-lg mx-auto px-6 py-6"
     >
       <div>
-        <h3 class="uppercase mb-2 text-heading-lg font-display tracking-widest">
-          Created with MOLGENIS
-        </h3>
-        <ul>
+        <h3 class="mb-2 text-white">Created with MOLGENIS</h3>
+        <ul class="text-gray-200 list-style-none flex flex-col gap-1.5">
           <li class="flex items-ceter">
             <a
               class="flex items-center hover:underline"
@@ -30,17 +28,15 @@
           <li class="flex items-center">
             <BaseIcon name="CaretRight" :width="16" />
             <span>Need help?</span>
-            <a href="mailto:support@molgenis.org" class="ml-1 underline"
-              >Contact us</a
-            >
+            <a href="mailto:support@molgenis.org" class="ml-1 underline">
+              Contact us
+            </a>
           </li>
         </ul>
       </div>
       <div>
-        <h3 class="uppercase mb-2 text-heading-lg font-display tracking-widest">
-          Running a custom MOLGENIS version
-        </h3>
-        <ul class="list-style-none flex flex-col mb-5">
+        <h3 class="mb-2 text-white">Running a custom MOLGENIS version</h3>
+        <ul class="text-gray-200 list-style-none flex flex-col gap-1.5">
           <li>
             <a
               class="flex items-center hover:underline"
@@ -74,10 +70,8 @@
         </ul>
       </div>
       <div>
-        <h3 class="uppercase mb-2 text-heading-lg font-display tracking-widest">
-          Please cite on use
-        </h3>
-        <ul class="list-style-none flex flex-col mb-5">
+        <h3 class="mb-2 text-white">Please cite on use</h3>
+        <ul class="text-gray-200 list-style-none flex flex-col gap-1.5">
           <li>
             <a
               class="hover:underline flex items-center"
@@ -111,7 +105,7 @@
         </ul>
       </div>
     </div>
-    <div class="pb-2">
+    <div class="pb-2 text-gray-200">
       <ClientOnly>
         <FooterVersion />
       </ClientOnly>
