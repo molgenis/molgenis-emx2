@@ -14,6 +14,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.OIDCController;
@@ -61,6 +62,13 @@ public class MolgenisWebservice {
     }
 
     MessageApi.create(app);
+
+    app.get(
+        "/test",
+        ctx -> {
+          TimeUnit.SECONDS.sleep(40); // 6 seconds
+          ctx.result("OK");
+        });
 
     app.get("/" + OIDC_CALLBACK_PATH, MolgenisWebservice::handleLoginCallback);
     app.get("/" + OIDC_LOGIN_PATH, oidcController::handleLoginRequest);
