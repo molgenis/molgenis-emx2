@@ -19,24 +19,12 @@
       "prConcurrentLimit": 3  
     },
     {
-      "groupName":"com.squareup.okhttp3",
-      "matchPackagePrefixes": [
-        "com.squareup.okhttp3"
-      ]
-    },
-    {
       "matchPackageNames": ["vue-router"],
       "allowedVersions": ">=3.5"
     },
     {
       "matchPackageNames": ["vuex"],
       "allowedVersions": ">=3.6"
-    },
-    {
-      "groupName": "org.pac4j",
-      "matchPackagePrefixes": [
-        "org.pac4j"
-      ]
     },
     {
       "groupName": "nuxt",
@@ -51,35 +39,5 @@
         "vueuse"
       ]
     },
-    {
-      "groupName": "org.eclipse.rdf4j",
-      "matchPackagePrefixes": [
-        "org.eclipse.rdf4j"
-      ]
-    },
-    {
-      "groupName": "com.fasterxml.jackson",
-      "matchPackagePrefixes": [
-        "com.fasterxml.jackson"
-      ]
-    },
-    {
-      "groupName": "org.apache.logging.log4j",
-      "matchPackagePrefixes": [
-        "org.apache.logging.log4j"
-      ]
-    },
-    {
-      "groupName": "org.graalvm.js",
-      "matchPackagePrefixes": [
-        "org.graalvm.js"
-      ]
-    },
-    {
-      "groupName": "org.apache.poi",
-      "matchPackagePrefixes": [
-        "org.apache.poi"
-      ]
-    }
   ]
 }
