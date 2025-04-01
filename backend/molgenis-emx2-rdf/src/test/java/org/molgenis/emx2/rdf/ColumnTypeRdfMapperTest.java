@@ -32,7 +32,7 @@ class ColumnTypeRdfMapperTest {
   static final String COMPOSITE_REF_TABLE = "TestCompositeRefTable";
   static final String COMPOSITE_REFBACK_TABLE = "TestCompositeRefbackTable";
   static final String ONT_TABLE = "Test Ontology";
-  static final String ONT_TABLE_URL = "Test%20Ontology";
+  static final String ONT_TABLE_URL = "TestOntology";
 
   static final String BASE_URL = "http://localhost:8080/";
   static final String RDF_API_URL_PREFIX = BASE_URL + TEST_SCHEMA + "/api/rdf/";
@@ -194,9 +194,9 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.EMAIL_ARRAY.name(),
                 "noot@example.com,mies@example.com",
                 ColumnType.HYPERLINK.name(),
-                "https://molgenis.org/", // added slash due to normalization
+                "https://molgenis.org",
                 ColumnType.HYPERLINK_ARRAY.name(),
-                "https://molgenis.org/, https://github.com/molgenis",
+                "https://molgenis.org, https://github.com/molgenis",
                 // Extra columns for composite key testing
                 // -- no manual entry: COLUMN_COMPOSITE_REFBACK
                 COLUMN_COMPOSITE_REF + ".ids",
@@ -542,12 +542,12 @@ class ColumnTypeRdfMapperTest {
                 retrieveValues(ColumnType.EMAIL_ARRAY.name())),
         () ->
             assertEquals(
-                Set.of(Values.iri("https://molgenis.org/")), // added slash due to normalization
+                Set.of(Values.iri("https://molgenis.org")),
                 retrieveValues(ColumnType.HYPERLINK.name())),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri("https://molgenis.org/"), Values.iri("https://github.com/molgenis")),
+                    Values.iri("https://molgenis.org"), Values.iri("https://github.com/molgenis")),
                 retrieveValues(ColumnType.HYPERLINK_ARRAY.name())),
         // Composite reference / refback
         () ->
