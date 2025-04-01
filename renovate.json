@@ -6,7 +6,7 @@
   "packageRules": [ 
       {
       "matchManagers": ["gradle"],
-      "matchPackagePatterns": [".*"],
+      "matchPackagePatterns": [".*","!jooq"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "Java Dependencies (Safe Updates)",
       "groupSlug": "java-safe-updates",
