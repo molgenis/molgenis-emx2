@@ -3,26 +3,40 @@
   "extends": [
     "config:base"
   ],
-  "packageRules": [ 
-      {
-      "matchManagers": ["gradle"],
-      "matchPackagePatterns": [".*"],
-      "matchUpdateTypes": ["minor", "patch"],
+  "packageRules": [
+    {
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchPackagePatterns": [
+        ".*",
+        "!jooq"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "groupName": "Java Dependencies (Safe Updates)",
       "groupSlug": "java-safe-updates",
       "recreateWhen": "never",
       "prPriority": 20
     },
     {
-      "matchManagers": ["npm"],
-      "prConcurrentLimit": 3  
+      "matchManagers": [
+        "npm"
+      ],
+      "prConcurrentLimit": 3
     },
     {
-      "matchPackageNames": ["vue-router"],
+      "matchPackageNames": [
+        "vue-router"
+      ],
       "allowedVersions": ">=3.5"
     },
     {
-      "matchPackageNames": ["vuex"],
+      "matchPackageNames": [
+        "vuex"
+      ],
       "allowedVersions": ">=3.6"
     },
     {
@@ -32,7 +46,7 @@
         "nuxt"
       ]
     },
-        {
+    {
       "groupName": "vueuse",
       "matchPackagePrefixes": [
         "vueuse"
