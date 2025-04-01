@@ -244,10 +244,10 @@ public class RDFService {
   protected void describeRoot(final ModelBuilder builder) {
     builder
         .subject(baseURL)
-        .add(RDF.TYPE, BasicIRI.SIO_DATABASE.getIri())
+        .add(RDF.TYPE, BasicIRI.SIO_DATABASE)
         .add(RDFS.LABEL, "EMX2")
         .add(DCTERMS.DESCRIPTION, "MOLGENIS EMX2 database at " + baseURL)
-        .add(DCTERMS.CREATOR, BasicIRI.MOLGENIS.getIri());
+        .add(DCTERMS.CREATOR, BasicIRI.MOLGENIS);
   }
 
   private void describeSchema(final ModelBuilder builder, final Schema schema) {
@@ -261,7 +261,7 @@ public class RDFService {
       builder.subject(subject).add(DCTERMS.DESCRIPTION, schema.getMetadata().getDescription());
     }
     for (final Table table : schema.getTablesSorted()) {
-      builder.subject(subject).add(BasicIRI.LDP_CONTAINS.getIri(), tableIRI(baseURL, table));
+      builder.subject(subject).add(BasicIRI.LDP_CONTAINS, tableIRI(baseURL, table));
     }
   }
 
@@ -271,7 +271,7 @@ public class RDFService {
       final Table table) {
     final IRI subject = tableIRI(baseURL, table);
     builder.add(subject, RDF.TYPE, OWL.CLASS);
-    builder.add(subject, RDFS.SUBCLASSOF, BasicIRI.LD_DATASET_CLASS.getIri());
+    builder.add(subject, RDFS.SUBCLASSOF, BasicIRI.LD_DATASET_CLASS);
     Table parent = table.getInheritedTable();
     // A table is a subclass of owl:Thing or of it's direct parent
     if (parent == null) {
@@ -300,11 +300,11 @@ public class RDFService {
     }
     // Add 'observing' for any DATA
     if (table.getMetadata().getTableType() == TableType.DATA) {
-      builder.add(subject, RDFS.ISDEFINEDBY, BasicIRI.SIO_OBSERVING.getIri());
+      builder.add(subject, RDFS.ISDEFINEDBY, BasicIRI.SIO_OBSERVING);
     }
     // Add 'controlled vocab' and 'concept scheme' for any ONTOLOGIES
     if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
-      builder.add(subject, RDFS.ISDEFINEDBY, BasicIRI.NCIT_CONTROLLED_VOCABULARY.getIri());
+      builder.add(subject, RDFS.ISDEFINEDBY, BasicIRI.NCIT_CONTROLLED_VOCABULARY);
       builder.add(subject, RDFS.SUBCLASSOF, SKOS.CONCEPT_SCHEME);
     }
     builder.add(subject, RDFS.LABEL, table.getName());
@@ -359,7 +359,7 @@ public class RDFService {
       for (String columnSemantics : column.getSemantics()) {
         if (columnSemantics.equals("id")) {
           // todo: need to figure out how to better handle 'id' tagging
-          columnSemantics = BasicIRI.SIO_IDENTIFIER.getIri().stringValue();
+          columnSemantics = BasicIRI.SIO_IDENTIFIER.stringValue();
         }
         try {
           builder.add(
@@ -429,7 +429,7 @@ public class RDFService {
       final IRI subject) {
     final IRI tableIRI = tableIRI(baseURL, table);
 
-    builder.add(subject, RDF.TYPE, BasicIRI.NCIT_CODED_VALUE_DATA_TYPE.getIri());
+    builder.add(subject, RDF.TYPE, BasicIRI.NCIT_CODED_VALUE_DATA_TYPE);
     builder.add(subject, RDF.TYPE, OWL.CLASS);
     builder.add(subject, RDF.TYPE, SKOS.CONCEPT);
     builder.add(subject, RDFS.SUBCLASSOF, tableIRI);
@@ -448,7 +448,7 @@ public class RDFService {
     if (row.getString("codesystem") != null) {
       builder.add(
           subject,
-          BasicIRI.NCIT_CONTROLLED_VOCABULARY.getIri(),
+          BasicIRI.NCIT_CONTROLLED_VOCABULARY,
           Values.literal(row.getString("codesystem")));
     }
     if (row.getString("definition") != null) {
@@ -475,16 +475,16 @@ public class RDFService {
     final IRI tableIRI = tableIRI(baseURL, table);
 
     builder.add(subject, RDF.TYPE, tableIRI);
-    builder.add(subject, RDF.TYPE, BasicIRI.LD_OBSERVATION.getIri());
-    builder.add(subject, BasicIRI.DCAT_ENDPOINTURL.getIri(), schemaIRI(baseURL, table.getSchema()));
-    builder.add(subject, BasicIRI.FDP_METADATAIDENTIFIER.getIri(), subject);
+    builder.add(subject, RDF.TYPE, BasicIRI.LD_OBSERVATION);
+    builder.add(subject, BasicIRI.DCAT_ENDPOINTURL, schemaIRI(baseURL, table.getSchema()));
+    builder.add(subject, BasicIRI.FDP_METADATAIDENTIFIER, subject);
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {
         builder.add(
             subject, RDF.TYPE, getSemanticValue(table.getMetadata(), namespaces, semantics));
       }
     }
-    builder.add(subject, BasicIRI.LD_DATASET_PREDICATE.getIri(), tableIRI);
+    builder.add(subject, BasicIRI.LD_DATASET_PREDICATE, tableIRI);
     builder.add(subject, RDFS.LABEL, Values.literal(getLabelForRow(row, table.getMetadata())));
     for (final Column column : table.getMetadata().getColumns()) {
       // Exclude the system columns that refer to specific users
@@ -520,7 +520,7 @@ public class RDFService {
           case FILE -> {
             builder.add(subject, columnIRI, value);
             IRI fileSubject = (IRI) value;
-            builder.add(fileSubject, RDF.TYPE, BasicIRI.SIO_FILE.getIri());
+            builder.add(fileSubject, RDF.TYPE, BasicIRI.SIO_FILE);
             builder.add(
                 fileSubject,
                 DCTERMS.TITLE,
