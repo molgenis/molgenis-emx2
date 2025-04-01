@@ -13,7 +13,6 @@
       "groupSlug": "java-safe-updates",
       "recreateWhen": "never",
       "separateMinorPatch": false,
-      "schedule": ["every 2 hours"], 
       "prPriority": 20
     },
     {
