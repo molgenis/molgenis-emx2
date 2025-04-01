@@ -1,4 +1,6 @@
+import { fetchSetting } from "#imports";
 import { defineStore } from "pinia";
+import { reactive, ref } from "vue";
 import type { IResources } from "~/interfaces/catalogue";
 import type { IShoppingCart } from "~/interfaces/types";
 

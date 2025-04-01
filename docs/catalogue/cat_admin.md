@@ -150,3 +150,20 @@ Analytics can be enabled by setting the following environment variables:
 `NUXT_PUBLIC_ANALYTICS_PROVIDER`: The analytics provider. Either `siteimprove` for [Siteimprove](https://www.siteimprove.com/)
 or `google-analytics` for [Google Analytics](https://marketingplatform.google.com/about/analytics/).
 Defaults to `siteimprove`.
+
+## Data model changelog
+
+Below is a list of versions of the data model with a description of changes made for each version.
+Note that the list only goes back to the most recent breaking change, i.e. the most recent major version update.
+
+| Version | Changes                                                                                         |
+|---------|-------------------------------------------------------------------------------------------------|
+| 5.0     | Breaking change from version 4.x due to renaming _Collections_ to _Resources_.                  |
+| 5.1     | Made 'type' a required property for _Resources_.                                                |
+| 5.2     | Introduced table _Internal identifiers_. Added exclusion criteria to _Resources_.               |
+| 5.3     | Added clarification on use of keywords.                                                         |
+| 5.4     | Added UMCU and INTEGRATE cohorts profiles.                                                      |
+| 5.4.x   | Added data items for valid DCAT HRICore 1.0: contact point, publisher, theme, creator, issued, modified.|
+| 5.4.x   | Added tables for Fair Data Point: Container, Endpoint, Agent.                                   | 
+| 5.5     | Fixed reflinks, typos and added demo data to fit DCAT HRICore 1.0.                              |
+| 5.6     | Removed computed value for Catalogues.description. Added missing demo data descriptions.        |

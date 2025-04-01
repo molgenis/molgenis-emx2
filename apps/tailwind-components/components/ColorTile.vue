@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 const props = defineProps<{
   color: string;
   type: "background" | "text" | "border" | "radius";

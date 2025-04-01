@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useFetch } from "#app";
+import { computed } from "vue";
+import { navigateTo } from "#app/composables/router";
+
 type Resp<T> = {
   data: Record<string, T[]>;
 };

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { IContacts } from "~/interfaces/catalogue";
 
 const props = defineProps<{

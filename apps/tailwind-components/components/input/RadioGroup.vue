@@ -18,7 +18,7 @@
         class="group flex justify-start items-center gap-1 relative"
         :class="{
           'text-disabled cursor-not-allowed': disabled,
-          'text-title cursor-pointer ': !disabled,
+          'text-title-contrast cursor-pointer ': !disabled,
         }"
       >
         <InputRadio
@@ -64,7 +64,7 @@
 
 <script lang="ts" setup>
 import type { columnValue } from "../../../metadata-utils/src/types";
-import type { IInputProps, IValueLabel } from "~/types/types";
+import type { IInputProps, IValueLabel } from "../../types/types";
 
 withDefaults(
   defineProps<

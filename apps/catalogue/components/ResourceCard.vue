@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import dateUtils from "~/utils/dateUtils";
 import type { IResources } from "~/interfaces/catalogue";
+import { computed, ref, watch } from "vue";
+import { useRoute } from "#app";
+import { useDatasetStore } from "#imports";
 
 const datasetStore = useDatasetStore();
 
@@ -121,12 +124,7 @@ watch([datasetStore.datasets], () => {
         <div>
           <dt class="flex-auto block text-gray-600">Duration</dt>
           <dd>
-            {{
-              startEndYear(
-                resource?.startYear?.toString(),
-                resource?.endYear?.toString()
-              )
-            }}
+            {{ startEndYear(resource?.startYear, resource?.endYear) }}
           </dd>
         </div>
       </dl>

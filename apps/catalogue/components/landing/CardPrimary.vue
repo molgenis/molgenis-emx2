@@ -24,7 +24,7 @@ withDefaults(defineProps<Props>(), {
       <div class="relative">
         <NuxtLink :to="link" :target="openLinkInNewTab ? '_blank' : undefined">
           <h1
-            class="font-display md:text-heading-5xl text-heading-5xl text-title-contrast px-3"
+            class="font-display md:text-heading-5xl text-heading-5xl text-title-contrast-pop px-3"
           >
             {{ title }}
           </h1>
@@ -32,7 +32,7 @@ withDefaults(defineProps<Props>(), {
       </div>
       <slot name="title-suffix">
         <span
-          class="bg-blue-50 text-title-contrast flex justify-center rounded-full px-3 py-1 font-bold text-heading-sm"
+          class="bg-blue-50 text-title-contrast-pop flex justify-center rounded-full px-3 py-1 font-bold text-heading-sm"
           v-if="typeof count != 'undefined'"
         >
           {{ count }}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ITableSettings, sortDirection } from "~/types/types";
+import type { ITableSettings, sortDirection } from "../../types/types";
 import type { IColumn } from "../../../metadata-utils/src/types";
 
 const props = withDefaults(

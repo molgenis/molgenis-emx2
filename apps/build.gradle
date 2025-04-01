@@ -62,8 +62,21 @@ subprojects { subproject ->
 
     def packageJson = file("package.json").text
 
-    task lint(type: YarnTask, dependsOn: format) {
+    task nuxtPrepare(type: YarnTask, dependsOn: format) {
         if (packageJson.contains("\"name\": \"tailwind-components\"")) {
+            args = ['run', 'prepare']
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+        }
+    }
+
+    task lint(type: YarnTask, dependsOn: nuxtPrepare) {
+        if (
+                packageJson.contains("\"name\": \"tailwind-components\"") ||
+                packageJson.contains("\"name\": \"ui\"") ||
+                packageJson.contains("\"name\": \"catalogue\"")
+        ) {
             args = ['run', 'lint']
             inputs.files fileTree(projectDir).matching {
                 with excludeDef

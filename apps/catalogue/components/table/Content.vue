@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { fetchGql } from "#imports";
 import type { DocumentNode } from "graphql";
+import { type Ref, ref, computed, watch } from "vue";
 
 const props = defineProps<{
   title: string;
@@ -13,7 +15,7 @@ const props = defineProps<{
   type: string;
   query: DocumentNode;
   filter?: object;
-  rowMapper: Function;
+  rowMapper: (row: any) => { _path?: string; [key: string]: any };
   primaryActionLabel?: string;
   primaryActionPath?: string;
 }>();
@@ -26,7 +28,7 @@ let orderby = {
   [orderByColumn.value]: "ASC",
 };
 
-const rows = ref([]);
+const rows = ref<{ [key: string]: any; _path?: string }[]>([]);
 const count = ref(0);
 
 async function fetchRows() {
@@ -38,7 +40,9 @@ async function fetchRows() {
   });
 
   rows.value = resp.data[props.type]?.map(props.rowMapper);
-  count.value = resp.data[`${props.type}_agg`].count;
+  count.value = (
+    resp.data[`${props.type}_agg`] as unknown as { count: number }
+  ).count;
 }
 
 fetchRows();

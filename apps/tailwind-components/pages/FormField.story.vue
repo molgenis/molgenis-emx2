@@ -46,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import type { CellValueType } from "../../metadata-utils/src/types";
 
 const demoValue = ref<Record<string, any>>({
