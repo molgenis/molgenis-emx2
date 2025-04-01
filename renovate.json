@@ -10,7 +10,7 @@
       "matchPackagePatterns": [".*"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "Java Dependencies (Safe Updates)",
-      "groupSlug": "java-safe-updates"
+      "groupSlug": "java-safe-updates",
       "recreateWhen": "never",
       "separateMinorPatch": false,
       "schedule": ["every 2 hours"], 
