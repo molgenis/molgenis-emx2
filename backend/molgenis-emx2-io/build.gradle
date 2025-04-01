@@ -1,6 +1,6 @@
 dependencies {
     implementation 'org.simpleflatmapper:sfm-csv:8.2.3'
-    implementation 'com.github.pjfanning:excel-streaming-reader:4.4.0'
+    implementation 'com.github.pjfanning:excel-streaming-reader:4.2.1'
     implementation 'org.apache.commons:commons-lang3:3.13.0'
     implementation 'commons-io:commons-io:2.15.1'
     implementation project(':backend:molgenis-emx2')
