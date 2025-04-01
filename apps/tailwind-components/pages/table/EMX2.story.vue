@@ -2,12 +2,7 @@
 import { useFetch, useLazyAsyncData } from "#app";
 import { fetchMetadata, fetchTableData } from "#imports";
 import { computed, ref, watch } from "vue";
-import type {
-  ITableSettings,
-  Resp,
-  Schema,
-  sortDirection,
-} from "../../types/types";
+import type { ITableSettings, Resp, Schema } from "../../types/types";
 
 const tableSettings = ref<ITableSettings>({
   page: 1,
@@ -97,47 +92,12 @@ const tableColumns = computed(() => {
 const dataRows = computed(() => {
   if (!tableData.value?.rows) return [];
 
-  const filteredRows = tableData.value.rows.map((row) => {
+  return tableData.value.rows.map((row) => {
     return Object.fromEntries(
       Object.entries(row).filter(([key]) => !key.startsWith("mg"))
     );
   });
-  if (tableSettings.value.orderby?.column) {
-    return sortRows(filteredRows, tableSettings.value.orderby);
-  } else {
-    return filteredRows;
-  }
 });
-
-function sortRows(
-  rows: Record<string, any>[],
-  orderby: ITableSettings["orderby"]
-) {
-  return rows.sort((row1, row2) =>
-    sortRow(row1, row2, orderby.column, orderby.direction)
-  );
-}
-
-function sortRow(
-  row1: Record<string, any>,
-  row2: Record<string, any>,
-  orderbyColumn: string,
-  orderbyDirection: sortDirection
-) {
-  const row1Value =
-    typeof row1[orderbyColumn] === "string"
-      ? row1[orderbyColumn]
-      : row1[orderbyColumn]?.name;
-  const row2Value =
-    typeof row2[orderbyColumn] === "string"
-      ? row2[orderbyColumn]
-      : row2[orderbyColumn]?.name;
-  if (orderbyDirection === "ASC") {
-    return row1Value > row2Value ? 1 : -1;
-  } else {
-    return row1Value < row2Value ? 1 : -1;
-  }
-}
 </script>
 
 <template>
