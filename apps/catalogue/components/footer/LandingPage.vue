@@ -1,25 +1,22 @@
-<script lang="ts" setup>
-import { useRoute } from "#app";
-const route = useRoute();
-</script>
-
 <template>
-  <footer class="bg-blue-700">
-    <slot> </slot>
-    <div class="grid grid-cols-1 lg:grid-cols-3 items-start p-6">
-      <div class="text-white lg:col-span-2">
-        <h3 class="uppercase mb-2 text-heading-lg font-display tracking-widest">
-          Catalogues
-        </h3>
-        <NuxtLink :to="`/${route.params.schema}/catalogue/all`">
-          <Button label="Search all" />
-        </NuxtLink>
-      </div>
-      <div class="text-white lg:col-span-1">
+  <footer class="bg-footer text-white">
+    <div
+      class="grid grid-cols-1 gap-4 lg:gap-2 lg:grid-cols-3 items-start justify-center lg:max-w-[1024px] m-auto px-6 pt-6"
+    >
+      <div>
         <h3 class="uppercase mb-2 text-heading-lg font-display tracking-widest">
           Created with MOLGENIS
         </h3>
-        <ul class="list-style-none flex flex-col mb-5">
+        <ul>
+          <li class="flex items-ceter">
+            <a
+              class="flex items-center hover:underline"
+              href="http://molgenis.org"
+            >
+              <BaseIcon name="CaretRight" :width="16" />
+              <span>About Molgenis</span>
+            </a>
+          </li>
           <li>
             <a
               class="flex items-center hover:underline"
@@ -30,6 +27,20 @@ const route = useRoute();
               <BaseIcon name="ExternalLink" :width="16" />
             </a>
           </li>
+          <li class="flex items-center">
+            <BaseIcon name="CaretRight" :width="16" />
+            <span>Need help?</span>
+            <a href="mailto:support@molgenis.org" class="ml-1 underline"
+              >Contact us</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="uppercase mb-2 text-heading-lg font-display tracking-widest">
+          Running a custom MOLGENIS version
+        </h3>
+        <ul class="list-style-none flex flex-col mb-5">
           <li>
             <a
               class="flex items-center hover:underline"
@@ -40,35 +51,33 @@ const route = useRoute();
               <BaseIcon name="ExternalLink" :width="16" />
             </a>
           </li>
-          <li class="flex items-ceter">
-            <ClientOnly>
+          <li>
+            <a
+              class="flex items-center hover:underline"
+              href="https://molgenis.org/LICENSE-LGPLv3.html"
+            >
               <BaseIcon name="CaretRight" :width="16" />
-              <FooterVersion />
-            </ClientOnly>
+              <span>Open Source LGPLv3 License</span>
+              <BaseIcon name="ExternalLink" :width="16" />
+            </a>
+          </li>
+          <li>
+            <a
+              class="flex items-center hover:underline"
+              href="https://molgenis.org/MOLGENIS_Privacy_Policy.pdf"
+            >
+              <BaseIcon name="CaretRight" :width="16" />
+              <span>Privacy Policy</span>
+              <BaseIcon name="ExternalLink" :width="16" />
+            </a>
           </li>
         </ul>
-        <p class="mb-5">
-          The MOLGENIS software in the European Health Research Data and Sample
-          Catalogue is free to use under
-          <a href="https://molgenis.org/LICENSE-LGPLv3.html" class="underline"
-            >LGPLv3 License</a
-          >. MOLGENIS adheres to the following
-          <a
-            href="https://molgenis.org/MOLGENIS_Privacy_Policy.pdf"
-            class="underline"
-            >Privacy Policy</a
-          >.
-        </p>
-        <p>
-          Need help?
-          <a href="mailto:support@molgenis.org" class="underline">Contact us</a>
-        </p>
       </div>
-    </div>
-    <div class="bg-blue-800 p-6">
-      <div class="text-gray-400 text-body flex items-center">
-        <span class="text-gray-200">On use, please cite:</span>
-        <ul class="list-style-none ml-2 flex items-center gap-4">
+      <div>
+        <h3 class="uppercase mb-2 text-heading-lg font-display tracking-widest">
+          Please cite on use
+        </h3>
+        <ul class="list-style-none flex flex-col mb-5">
           <li>
             <a
               class="hover:underline flex items-center"
@@ -101,6 +110,11 @@ const route = useRoute();
           </li>
         </ul>
       </div>
+    </div>
+    <div class="pb-2">
+      <ClientOnly>
+        <FooterVersion />
+      </ClientOnly>
     </div>
   </footer>
 </template>
