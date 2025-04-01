@@ -404,19 +404,12 @@ public class RDFService {
     switch (table.getMetadata().getTableType()) {
       case ONTOLOGIES ->
           rows.forEach(
-              row ->
-                  ontologyRowToRdf(
-                      builder, rdfMapData, table, row, getIriForRow(row, table)));
+              row -> ontologyRowToRdf(builder, rdfMapData, table, row, getIriForRow(row, table)));
       case DATA ->
           rows.forEach(
               row ->
                   dataRowToRdf(
-                      builder,
-                      rdfMapData,
-                      namespaces,
-                      table,
-                      row,
-                      getIriForRow(row, table)));
+                      builder, rdfMapData, namespaces, table, row, getIriForRow(row, table)));
       default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
     }
   }

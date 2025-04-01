@@ -322,7 +322,11 @@ public abstract class ColumnTypeRdfMapper {
 
       final Set<Value> values = new HashSet<>();
       for (final Map<String, String> item : items.values()) {
-        values.add(rowIRI(rdfMapData.getBaseURL(), tableColumn.getRefTable().getRootTable(), new PrimaryKey(item)));
+        values.add(
+            rowIRI(
+                rdfMapData.getBaseURL(),
+                tableColumn.getRefTable().getRootTable(),
+                new PrimaryKey(item)));
       }
       return Set.copyOf(values);
     }
