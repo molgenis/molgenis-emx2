@@ -118,6 +118,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+
 const stringValue = ref(["string 1", "string 2"]);
 const boolValue = ref([true, false]);
 const timeValue = ref([Date.now(), Date.now()]);

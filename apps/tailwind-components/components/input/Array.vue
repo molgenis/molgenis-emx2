@@ -14,6 +14,7 @@
         @focus="emit('focus')"
         @update:model-value="setValues($event, index)"
       />
+      {{ values.length }}
       <Button
         iconOnly
         type="secondary"
@@ -36,6 +37,7 @@
 <script setup lang="ts">
 import type { IInputProps } from "~/types/types";
 import type { CellValueType } from "../../../metadata-utils/src/types";
+import { ref } from "vue";
 
 const props = defineProps<
   IInputProps & {
