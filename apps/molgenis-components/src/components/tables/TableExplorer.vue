@@ -377,7 +377,9 @@
       @close="isDeleteAllModalShown = false"
       @confirmed="handelExecuteDeleteAll"
     >
-      <Task v-if="taskId" :taskId="taskId" @taskUpdated="taskUpdated" />
+      <LayoutModal v-if="taskId">
+        <Task :taskId="taskId" @taskUpdated="taskUpdated" />
+      </LayoutModal>
 
       <p>
         Truncate <strong>{{ tableMetadata.label }}</strong>
@@ -642,26 +644,18 @@ export default {
       }
     },
     async handelExecuteDeleteAll() {
-      // this.isDeleteAllModalShown = false;
-      const resp = await this.client
+      this.isDeleteAllModalShown = false;
+      await this.client
         .deleteAllTableData(this.tableMetadata?.id)
         .then((data: any) => {
-          console.log("data ", data);
-          console.log("truncate", data.data.data.truncate);
-          console.log("taskId", data.data.data.truncate.taskId);
-          console.log("message", data.data.data.truncate.message);
-          if (data.truncate.taskId) {
-            this.taskId = data.truncate.taskId;
+          if (data.data.data.truncate.taskId) {
+            this.taskId = data.data.data.truncate.taskId;
           } else {
-            this.success = data.truncate.message;
+            this.success = data.data.data.truncate.message;
             this.loading = false;
           }
         })
         .catch(this.handleError);
-      if (resp) {
-        console.log("resp", resp);
-        //this.reload();
-      }
     },
     handleCellClick(event: any) {
       const { column, cellValue } = event;

@@ -549,9 +549,20 @@ public class GraphqlSchemaFieldFactory {
             new Task() {
               @Override
               public void run() {
-                truncateTables(schema, tables);
+                this.start();
+                this.setDescription("Truncating table:" + String.join(", ", tables));
+                try {
+                  truncateTables(schema, tables);
+                } catch (MolgenisException e) {
+                  this.stop();
+                  this.completeWithError(e.getMessage());
+                  throw (e);
+                }
+                this.setDescription("Completed truncating table");
+                this.complete();
               }
             };
+        task.setDescription("Truncating table");
         String id = taskService.submit(task);
         result.setTaskId(id);
       } else {
