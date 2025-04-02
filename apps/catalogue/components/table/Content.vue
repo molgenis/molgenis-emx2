@@ -1,24 +1,33 @@
 <script setup lang="ts">
 import { fetchGql } from "#imports";
 import type { DocumentNode } from "graphql";
-import { type Ref, ref, computed, watch } from "vue";
+import { type Ref, ref, computed, watch, VueElement } from "vue";
+import ContentBlock from "../../../tailwind-components/components/content/ContentBlock.vue";
+import ContentAdded from "../../../tailwind-components/components/content/ContentAdded.vue";
 
-const props = defineProps<{
-  title: string;
-  description?: string;
-  headers: {
-    id: string;
-    label: string;
-    singleLine?: boolean;
-    orderByColumn?: string;
-  }[];
-  type: string;
-  query: DocumentNode;
-  filter?: object;
-  rowMapper: (row: any) => { _path?: string; [key: string]: any };
-  primaryActionLabel?: string;
-  primaryActionPath?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    title?: string;
+    description?: string;
+    headers: {
+      id: string;
+      label: string;
+      singleLine?: boolean;
+      orderByColumn?: string;
+    }[];
+    type: string;
+    query: DocumentNode;
+    filter?: object;
+    rowMapper: (row: any) => { _path?: string; [key: string]: any };
+    searchFilterValue?: string;
+    primaryActionLabel?: string;
+    primaryActionPath?: string;
+    wrapperComponent?: boolean;
+  }>(),
+  {
+    wrapperComponent: true,
+  }
+);
 
 const pageSize = 10;
 let pageNumber: Ref = ref(1);
@@ -37,9 +46,10 @@ async function fetchRows() {
     limit: pageSize,
     offset: offset.value,
     orderby,
+    search: props.searchFilterValue ?? undefined,
   });
 
-  rows.value = resp.data[props.type]?.map(props.rowMapper);
+  rows.value = resp.data[props.type]?.map(props.rowMapper) || [];
   count.value = (
     resp.data[`${props.type}_agg`] as unknown as { count: number }
   ).count;
@@ -54,6 +64,20 @@ watch(orderByColumn, () => {
   fetchRows();
 });
 
+watch(
+  () => props.filter,
+  () => {
+    fetchRows();
+  }
+);
+
+watch(
+  () => props.searchFilterValue,
+  () => {
+    fetchRows();
+  }
+);
+
 function setCurrentPage(newPageNumber: number) {
   pageNumber.value = newPageNumber;
   fetchRows();
@@ -63,19 +87,19 @@ let activeSideModal = ref("");
 function setActiveSideModal(value: string) {
   activeSideModal.value = value;
 }
+
+const wrapperComponent = props.wrapperComponent ? ContentBlock : ContentAdded;
 </script>
 
 <template>
-  <ContentBlock :title="title" :description="description">
-    <ButtonGroup
-      v-if="count > pageSize || primaryActionPath"
-      class="flex mb-5 flex-wrap"
-    >
+  <component :is="wrapperComponent" :title="title" :description="description">
+    <ButtonGroup class="flex mb-5 flex-wrap">
       <div class="grow">
         <NuxtLink v-if="primaryActionPath" :to="primaryActionPath">
           <Button :label="primaryActionLabel" type="tertiary" size="medium" />
         </NuxtLink>
       </div>
+      <slot name="filter-group"></slot>
       <div v-if="count > pageSize" class="relative">
         <label
           class="block absolute text-body-xs top-2 left-6 pointer-events-none"
@@ -111,7 +135,16 @@ function setActiveSideModal(value: string) {
         </TableHeadRow>
       </template>
       <template #body>
+        <TableRow v-if="rows.length === 0">
+          <td
+            class="py-2.5 px-2.5 border-b border-gray-200 first:font-bold first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 hover:cursor-default hover:bg-white"
+            colspan="100%"
+          >
+            <div>No results for current selection</div>
+          </td>
+        </TableRow>
         <TableRow
+          v-else
           v-for="row in rows"
           @click="setActiveSideModal(row[headers[0].id])"
         >
@@ -165,5 +198,5 @@ function setActiveSideModal(value: string) {
       :prevent-default="true"
       :inverted="true"
     />
-  </ContentBlock>
+  </component>
 </template>
