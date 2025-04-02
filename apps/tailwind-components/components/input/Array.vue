@@ -34,13 +34,13 @@
 </template>
 
 <script setup lang="ts">
-import type { IInputProps } from "~/types/types";
-import type { CellValueType } from "../../../metadata-utils/src/types";
+import type { IInputProps } from "../../types/types";
+import type { CellValueType, columnValue } from "../../../metadata-utils/src/types";
 import { ref } from "vue";
 
 const props = defineProps<
   IInputProps & {
-    modelValue: any[] | undefined;
+    modelValue: columnValue[] | undefined;
     type: string;
   }
 >();
@@ -48,14 +48,14 @@ const props = defineProps<
 const values = ref<any[]>(handleUndefined(props.modelValue));
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
-function handleUndefined(bla: any[] | undefined) {
-  if (bla === undefined) {
+function handleUndefined(inputValues: columnValue[] | undefined) {
+  if (inputValues === undefined) {
     return [undefined];
   }
-  return bla;
+  return inputValues;
 }
 
-function setValues(value: any, index: number) {
+function setValues(value: columnValue, index: number) {
   values.value[index] = value;
   emit("update:modelValue", values.value);
 }

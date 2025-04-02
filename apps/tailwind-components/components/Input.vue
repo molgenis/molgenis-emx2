@@ -25,22 +25,7 @@
     @blur="emit('blur')"
   />
   <InputArray
-    v-else-if="
-      [
-        'STRING_ARRAY',
-        'BOOL_ARRAY',
-        'DATE_ARRAY',
-        'DATETIME_ARRAY',
-        'DECIMAL_ARRAY',
-        'EMAIL_ARRAY',
-        'HYPERLINK_ARRAY',
-        'INT_ARRAY',
-        'LONG_ARRAY',
-        'TEXT_ARRAY',
-        'UUID_ARRAY',
-        'PERIOD_ARRAY',
-      ].includes(typeUpperCase)
-    "
+    v-else-if="NON_REF_ARRAY_TYPES.includes(typeUpperCase)"
     :id="id"
     v-model="modelValue as any[]"
     :type="typeUpperCase"
@@ -291,4 +276,19 @@ const props = defineProps<
 >();
 const emit = defineEmits(["focus", "blur"]);
 const typeUpperCase = computed(() => props.type.toUpperCase());
+
+const NON_REF_ARRAY_TYPES = [
+        'STRING_ARRAY',
+        'BOOL_ARRAY',
+        'DATE_ARRAY',
+        'DATETIME_ARRAY',
+        'DECIMAL_ARRAY',
+        'EMAIL_ARRAY',
+        'HYPERLINK_ARRAY',
+        'INT_ARRAY',
+        'LONG_ARRAY',
+        'TEXT_ARRAY',
+        'UUID_ARRAY',
+        'PERIOD_ARRAY',
+      ];
 </script>
