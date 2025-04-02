@@ -82,6 +82,7 @@ public class GraphqlConstants {
   public static final String REF_LINK_ID = "refLinkId";
   public static final String REF_BACK_ID = "refBackId";
   public static final String TABLE_ID = "tableId";
+  public static final String ASYNC = "async";
 
   private GraphqlConstants() {
     // hide constructor

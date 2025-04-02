@@ -139,7 +139,7 @@ public class GraphqlApiFactory {
 
     mutationBuilder.field(schemaFields.changeMutation(schema));
     mutationBuilder.field(schemaFields.dropMutation(schema));
-    mutationBuilder.field(schemaFields.truncateMutation(schema));
+    mutationBuilder.field(schemaFields.truncateMutation(schema, taskService));
     if ((schema.getRoleForActiveUser() != null
             && schema.getRoleForActiveUser().equals(Privileges.MANAGER.toString()))
         || schema.getDatabase().isAdmin()) {
@@ -167,10 +167,7 @@ public class GraphqlApiFactory {
     // assemble and return
     GraphQL result =
         GraphQL.newGraphQL(
-                GraphQLSchema.newSchema()
-                    .query(queryBuilder.build())
-                    .mutation(mutationBuilder.build())
-                    .build())
+                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
             .mutationExecutionStrategy(
                 new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
             .build();
