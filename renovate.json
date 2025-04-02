@@ -10,7 +10,8 @@
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "Java Dependencies (Safe Updates)",
       "groupSlug": "java-safe-updates",
-      "prPriority": 20
+      "prPriority": 20,
+      "recreateWhen": "always",
     },
     {
       "matchManagers": ["npm"],
