@@ -20,8 +20,12 @@ const defaultMenuItems = [
     href: "/apps/molgenis-components/",
   },
   {
-    label: "Tailwind Components (Beta)",
+    label: "New Components (Beta)",
     href: "/apps/tailwind-components/",
+  },
+  {
+    label: "New UI (Alpha)",
+    href: "/apps/ui/",
   },
   {
     label: "Help",

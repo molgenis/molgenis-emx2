@@ -133,6 +133,8 @@
   --border-radius-pagination: 9999px;
   --border-radius-landing: 50px;
 
+  --border-width-theme: 0px;
+
   --outline-color-select: var(--color-gray-200);
 
   --border-width-form-required: 0;
