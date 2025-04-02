@@ -65,7 +65,7 @@ const demoValue = ref<Record<string, any>>({
   decimal_array: [3.14159265],
   ontology: { name: "green" },
   ontology_array: [{ name: "green" }, { name: "mammals" }],
-);
+});
 
 const focusCount = ref(0);
 const blurCount = ref(0);
