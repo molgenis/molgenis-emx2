@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 const showSidePanel = ref(false);
 const fullScreen = ref(false);
 const slideInRight = ref(true);

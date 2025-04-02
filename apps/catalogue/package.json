@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "lint": "vue-tsc --noEmit",
     "build": "nuxt build",
     "test": "vitest",
     "test-ci": "vitest run",
@@ -11,7 +12,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
     "format": "prettier components composables gql interfaces pages plugins utils tests stores  --write --config ../.prettierrc.js --gitignore",
     "checkFormat": "prettier components composables gql interfaces pages plugins utils tests stores --check --config ../.prettierrc.js --gitignore",
     "typecheck": "nuxi typecheck"
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@nuxt/image": "1.7.0",
     "@nuxt/test-utils": "3.14.4",
+    "@pinia/nuxt": "0.10.1",
     "@playwright/test": "1.51.0",
     "@tailwindcss/forms": "0.5.7",
     "@tailwindcss/typography": "0.5.13",
@@ -30,7 +32,7 @@
     "if-env": "^1.0.4",
     "jsdom": "22.1.0",
     "metadata-utils": "*",
-    "nuxt": "3.14.1592",
+    "nuxt": "3.16.0",
     "playwright-core": "1.51.0",
     "postcss": "8.4.39",
     "postcss-custom-properties": "13.3.11",
@@ -49,7 +51,7 @@
     "metadata-utils": "*",
     "nuxt-gtag": "3.0.1",
     "pinia": "3.0.1",
-    "vite": "5.4.12",
+    "vite": "5.4.16",
     "vue": "3.5.13"
   }
 }

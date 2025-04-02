@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { onMounted, useId } from "vue";
+
 const pageInputId = useId();
 
 const props = withDefaults(

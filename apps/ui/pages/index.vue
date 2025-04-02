@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useFetch } from "#app/composables/fetch";
+import { computed } from "vue";
 import type { Resp } from "../../tailwind-components/types/types";
+import { navigateTo } from "#app/composables/router";
 
 interface Schema {
   id: string;

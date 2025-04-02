@@ -7,14 +7,10 @@ defineProps<{
   partners: IPartner[];
 }>();
 const linkToWebsite = (partner: IPartner) => {
-  if (partner?.website) {
-    const url = partner?.website;
-    const protocolCheck = new RegExp("^https?:\/\/");
-    if (!protocolCheck.test(url)) return `https://${url}`;
-    else return url;
-  } else {
-    return undefined;
-  }
+  const url = partner?.website;
+  const protocolCheck = new RegExp("^https?:\/\/");
+  if (!protocolCheck.test(url)) return `https://${url}`;
+  else return url;
 };
 </script>
 
