@@ -63,6 +63,10 @@ subprojects { subproject ->
     def packageJson = file("package.json").text
 
     task nuxtPrepare(type: YarnTask, dependsOn: format) {
+        //automatically get the internal dependencies
+        (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
+            dependsOn ":apps:${match[1]}:buildJavascript";
+        }
         if (packageJson.contains("\"name\": \"tailwind-components\"")) {
             args = ['run', 'prepare']
             inputs.files fileTree(projectDir).matching {
@@ -72,10 +76,6 @@ subprojects { subproject ->
     }
 
     task lint(type: YarnTask, dependsOn: nuxtPrepare) {
-        //automatically get the internal dependencies
-        (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
-            dependsOn ":apps:${match[1]}:buildJavascript";
-        }
         if (
                 packageJson.contains("\"name\": \"tailwind-components\"") ||
                 packageJson.contains("\"name\": \"ui\"") ||
@@ -91,10 +91,6 @@ subprojects { subproject ->
     task buildJavascript(type: YarnTask, dependsOn: lint) {
         environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
 
-        //automatically get the internal dependencies
-        (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
-            dependsOn ":apps:${match[1]}:buildJavascript";
-        }
         //run the build
         def command =   packageJson.contains("\"name\": \"ui\"") ? "generate" : "build"
         args = ['run', command]
