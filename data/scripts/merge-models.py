@@ -30,6 +30,23 @@ def identify_non_catalogue() -> list:
 
     return non_catalogue
 
+def identify_missing() -> list:
+    """
+    Identifies the tables in the Portal model that are not present in the data catalogue model.
+    """
+
+    shared_dir = DATA_DIR / "_models" / "shared"
+    portals_dir = DATA_DIR / "portal"
+
+    non_catalogue = list()
+    table_path: PosixPath
+    for table_path in portals_dir.glob("*.csv"):
+        if table_path.name not in map(lambda file: file.name, shared_dir.iterdir()):
+            non_catalogue.append(table_path.name)
+
+    return non_catalogue
+
+
 def merge_models():
     """
     Merges the portal and data catalogue data models.
@@ -64,9 +81,14 @@ def merge_models():
             logger.info(f"Moving table {table_file.name!r} to folder 'shared'.")
 
 def main():
-    tables = identify_non_catalogue()
-    print(tables)
-    merge_models()
+    non_catalogues = identify_non_catalogue()
+    print("Tables in folder '_models/shared' that are not in Catalogue model:")
+    print("\n".join(sorted(non_catalogues)))
+
+    print("\nTables in folder 'portal' that are not in Catalogue model:")
+    missing_portals = identify_missing()
+    print("\n".join(sorted(missing_portals)))
+
 
 
 if __name__ == '__main__':
