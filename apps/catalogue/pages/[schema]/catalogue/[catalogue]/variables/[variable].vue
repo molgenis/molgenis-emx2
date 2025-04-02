@@ -4,7 +4,7 @@ import type {
   IVariable,
   IVariableMappings,
 } from "../../../../../interfaces/types";
-import { buildFilterFromKeysObject } from "metadata-utils";
+import { buildFilterFromKeysObject } from "../../../../../../metadata-utils/src";
 import { useRoute, useFetch, useHead } from "#app";
 import {
   moduleToString,
