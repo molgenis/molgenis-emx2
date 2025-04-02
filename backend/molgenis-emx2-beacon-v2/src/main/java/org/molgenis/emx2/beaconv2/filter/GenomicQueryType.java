@@ -4,30 +4,30 @@ public enum GenomicQueryType {
   SEQUENCE(
       """
       { _and: [
-        { position_start: { equals: %d } },
-        { position_refseqId: {equals: "%s" } },
-        { referenceBases: { like: "%s" } },
-        { alternateBases: {like: "%s" } }
+        { startPosition: { equals: %d } },
+        { refseqAssemblyId: {equals: "%s" } },
+        { ref: { like: "%s" } },
+        { alt: {like: "%s" } }
       ]}"""),
   RANGE(
       """
       { _or: [
         { _and: [
-          { position_refseqId: { equals: "%1$s" } },
-          { position_start: { between: [%2$d , %3$d] } }
+          { refseqAssemblyId: { equals: "%1$s" } },
+          { startPosition: { between: [%2$d , %3$d] } }
         ]},
         { _and: [
-          { position_refseqId: { equals: "%1$s" } },
-          { position_end: { between: [%2$d , %3$d] } }
+          { refseqAssemblyId: { equals: "%1$s" } },
+          { stopPosition: { between: [%2$d , %3$d] } }
         ]}
       ]}"""),
   GENE_ID("{ geneId: { equals: \"%s\" } }"),
   BRACKET(
       """
       { _and: [
-        { position_refseqId: { equals: "%s" } },
-        { position_start: { between: [ %d, %d ] } },
-        { position_end: { between: [ %d, %d ]  } }
+        { refseqAssemblyId: { equals: "%s" } },
+        { startPosition: { between: [ %d, %d ] } },
+        { stopPosition: { between: [ %d, %d ]  } }
       ]}"""),
   NO_PARAMS(null);
 

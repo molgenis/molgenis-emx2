@@ -4,7 +4,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.beaconv2.BeaconSpec.BEACON_V2;
 import static org.molgenis.emx2.beaconv2.BeaconSpec.BEACON_VP;
-import static org.molgenis.emx2.datamodels.DataModels.Profile.FAIR_DATA_HUB;
+import static org.molgenis.emx2.datamodels.DataModels.Regular.RD3_V2;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,8 +24,8 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BeaconModelEndPointTest {
 
-  public static final String TEST_URL = "http://localhost:8080/api/";
-  public static final String SCHEMA_NAME = "fairdatahub";
+  public static final String SCHEMA_NAME = "rd3_beacon";
+  public static final String TEST_URL = "http://localhost:8080/" + SCHEMA_NAME + "/api/";
 
   protected static Database database;
   protected static Schema beaconSchema;
@@ -36,7 +36,7 @@ public class BeaconModelEndPointTest {
       database = TestDatabaseFactory.getTestDatabase();
       // beaconSchema = database.getSchema(SCHEMA_NAME);
       beaconSchema = database.dropCreateSchema(SCHEMA_NAME);
-      FAIR_DATA_HUB.getImportTask(beaconSchema, true).run();
+      RD3_V2.getImportTask(beaconSchema, true).run();
     }
   }
 
