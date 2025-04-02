@@ -72,6 +72,10 @@ subprojects { subproject ->
     }
 
     task lint(type: YarnTask, dependsOn: nuxtPrepare) {
+        //automatically get the internal dependencies
+        (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
+            dependsOn ":apps:${match[1]}:buildJavascript";
+        }
         if (
                 packageJson.contains("\"name\": \"tailwind-components\"") ||
                 packageJson.contains("\"name\": \"ui\"") ||
