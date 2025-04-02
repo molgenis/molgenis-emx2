@@ -5,7 +5,9 @@
     <Container>
       <div class="items-center hidden xl:flex h-20">
         <slot name="logo"></slot>
-        <div class="items-center justify-between hidden pl-8 xl:flex xl:grow">
+        <div
+          class="items-center justify-between hidden pl-8 xl:flex xl:grow gap-8"
+        >
           <slot name="nav"></slot>
 
           <div class="w-[450px]">
@@ -13,6 +15,8 @@
           </div>
 
           <slot name="admin" />
+
+          <DarkModeToggle v-if="showDarkModeToggle"></DarkModeToggle>
 
           <slot name="account">
             <!-- <HeaderButton label="Favorites" icon="star" /> -->
@@ -43,3 +47,19 @@
     </Container>
   </header>
 </template>
+
+<script setup lang="ts">
+import { defineProps, withDefaults } from "vue";
+import HeaderButton from "./HeaderButton.vue";
+import DarkModeToggle from "./DarkModeToggle.vue";
+import Container from "./Container.vue";
+
+withDefaults(
+  defineProps<{
+    showDarkModeToggle?: boolean;
+  }>(),
+  {
+    showDarkModeToggle: false,
+  }
+);
+</script>

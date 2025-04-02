@@ -63,7 +63,7 @@ const navigation = computed(() => {
       <BackgroundGradient class="z-10" />
     </div>
     <div class="z-30 relative min-h-screen flex flex-col">
-      <Header>
+      <Header :showDarkModeToggle="true">
         <template #logo>
           <Logo link="/" />
         </template>
