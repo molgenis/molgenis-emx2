@@ -10,8 +10,8 @@ defineProps<{
 }>();
 function setSideMenuStyle(hash: string) {
   return hash == route.hash
-    ? "w-full block my-2 border-l-4 menu-active pl-4 font-bold hover:cursor-pointer"
-    : "w-full block my-2 hover:font-bold hover:cursor-pointer";
+    ? "border-l-4 menu-active pl-4 font-bold hover:cursor-pointer"
+    : "hover:font-bold hover:cursor-pointer";
 }
 </script>
 
@@ -33,13 +33,15 @@ function setSideMenuStyle(hash: string) {
     </div>
     <ul>
       <li v-for="item in items">
-        <NuxtLink
-          class="capitalize"
-          :to="{ ...route, hash: '#' + item.id }"
-          :class="setSideMenuStyle('#' + item.id)"
-        >
-          {{ item.label }}
-        </NuxtLink>
+        <ClientOnly>
+          <NuxtLink
+            class="capitalize w-full block my-2"
+            :to="{ ...route, hash: '#' + item.id }"
+            :class="setSideMenuStyle('#' + item.id)"
+          >
+            {{ item.label }}
+          </NuxtLink>
+        </ClientOnly>
       </li>
     </ul>
   </nav>
