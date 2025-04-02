@@ -35,7 +35,10 @@
 
 <script setup lang="ts">
 import type { IInputProps } from "../../types/types";
-import type { CellValueType, columnValue } from "../../../metadata-utils/src/types";
+import type {
+  CellValueType,
+  columnValue,
+} from "../../../metadata-utils/src/types";
 import { ref } from "vue";
 
 const props = defineProps<
