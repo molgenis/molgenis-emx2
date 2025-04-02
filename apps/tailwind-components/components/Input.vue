@@ -278,17 +278,17 @@ const emit = defineEmits(["focus", "blur"]);
 const typeUpperCase = computed(() => props.type.toUpperCase());
 
 const NON_REF_ARRAY_TYPES = [
-        'STRING_ARRAY',
-        'BOOL_ARRAY',
-        'DATE_ARRAY',
-        'DATETIME_ARRAY',
-        'DECIMAL_ARRAY',
-        'EMAIL_ARRAY',
-        'HYPERLINK_ARRAY',
-        'INT_ARRAY',
-        'LONG_ARRAY',
-        'TEXT_ARRAY',
-        'UUID_ARRAY',
-        'PERIOD_ARRAY',
-      ];
+  "STRING_ARRAY",
+  "BOOL_ARRAY",
+  "DATE_ARRAY",
+  "DATETIME_ARRAY",
+  "DECIMAL_ARRAY",
+  "EMAIL_ARRAY",
+  "HYPERLINK_ARRAY",
+  "INT_ARRAY",
+  "LONG_ARRAY",
+  "TEXT_ARRAY",
+  "UUID_ARRAY",
+  "PERIOD_ARRAY",
+];
 </script>
