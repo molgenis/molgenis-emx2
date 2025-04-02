@@ -62,7 +62,7 @@ const demoValue = ref<Record<string, any>>({
   decimal: -13.37,
   long: "37",
   string_array: ["Hello", "World"],
-  decimal_array: [3.14159265]
+  decimal_array: [3.14159265],
   ontology: { name: "green" },
   ontology_array: [{ name: "green" }, { name: "mammals" }],
 );

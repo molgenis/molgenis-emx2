@@ -3,7 +3,7 @@
     <div
       v-for="(_value, index) in values"
       :key="index"
-      class="flex items-center gap-1"
+      class="flex items-center gap-1 mb-1"
     >
       <Input
         :id="id + '_' + index"
