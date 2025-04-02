@@ -843,7 +843,7 @@ public class GraphqlSchemaFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition truncateMutation(Schema schema, TaskService taskService) {
+  public GraphQLFieldDefinition.Builder truncateMutation(Schema schema, TaskService taskService) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("truncate")
         .dataFetcher(truncateFetcher(schema, taskService))
@@ -853,8 +853,9 @@ public class GraphqlSchemaFieldFactory {
                 .name(GraphqlConstants.TABLES)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
         .argument(
-            GraphQLArgument.newArgument().name(GraphqlConstants.ASYNC).type(Scalars.GraphQLBoolean))
-        .build();
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.ASYNC)
+                .type(Scalars.GraphQLBoolean));
   }
 
   public GraphQLFieldDefinition schemaReportsField(Schema schema) {

@@ -647,9 +647,9 @@ export default {
         .deleteAllTableData(this.tableMetadata?.id)
         .then((data: any) => {
           console.log("data ", data);
-          console.log("truncate", data.truncate);
-          console.log("taskId", data.truncate.taskId);
-          console.log("message", data.truncate.message);
+          console.log("truncate", data.data.data.truncate);
+          console.log("taskId", data.data.data.truncate.taskId);
+          console.log("message", data.data.data.truncate.message);
           if (data.truncate.taskId) {
             this.taskId = data.truncate.taskId;
           } else {
