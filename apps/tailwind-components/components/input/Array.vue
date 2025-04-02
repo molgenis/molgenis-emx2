@@ -14,7 +14,6 @@
         @focus="emit('focus')"
         @update:model-value="setValues($event, index)"
       />
-      {{ values.length }}
       <Button
         iconOnly
         type="secondary"
