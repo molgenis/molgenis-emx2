@@ -78,22 +78,22 @@ export function getColumnError(
     }
   }
 
-  if (missesValue) {
+  if (!type.includes("_ARRAY") && missesValue) {
     return undefined;
   }
-  if (type === "EMAIL" && !isValidEmail(value)) {
+  if (type === "EMAIL" && isInvalidEmail(value)) {
     return "Invalid email address";
   }
   if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
     return "Invalid email address";
   }
-  if (type === "HYPERLINK" && !isValidHyperlink(value)) {
+  if (type === "HYPERLINK" && isInvalidHyperlink(value)) {
     return "Invalid hyperlink";
   }
   if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
     return "Invalid hyperlink";
   }
-  if (type === "PERIOD" && !isValidPeriod(value)) {
+  if (type === "PERIOD" && !isInvalidPeriod(value)) {
     return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
   }
   if (type === "PERIOD_ARRAY" && containsInvalidPeriod(value)) {
@@ -125,7 +125,7 @@ export function getColumnError(
   }
   if (
     type === "DECIMAL_ARRAY" &&
-    (value as string[]).some((val) => isNaN(parseFloat(val as string)))
+    (value as string[]).some((val) => val && isNaN(parseFloat(val as string)))
   ) {
     return "Invalid number";
   }
@@ -158,7 +158,10 @@ export function getBigIntError(value?: string): string | undefined {
 
 export function isInvalidBigInt(value?: string): boolean {
   const isValidRegex = /^-?\d+$/;
-  if (value && isValidRegex.test(value)) {
+  if (!value) {
+    return false;
+  }
+  if (isValidRegex.test(value)) {
     return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
   } else {
     return true;
@@ -286,28 +289,28 @@ export function executeExpression(
   return func(simplePostClient, ...Object.values(copy));
 }
 
-function isValidHyperlink(value: any) {
-  return HYPERLINK_REGEX.test(String(value).toLowerCase());
+function isInvalidHyperlink(value: any) {
+  return value && !HYPERLINK_REGEX.test(value);
 }
 
 function containsInvalidHyperlink(hyperlinks: any) {
-  return hyperlinks.find((hyperlink: any) => !isValidHyperlink(hyperlink));
+  return hyperlinks.some((hyperlink: string) => isInvalidHyperlink(hyperlink));
 }
 
-function isValidEmail(value: any) {
-  return EMAIL_REGEX.test(String(value).toLowerCase());
+function isInvalidEmail(value: any) {
+  return value && !EMAIL_REGEX.test(value);
 }
 
 function containsInvalidEmail(emails: any) {
-  return emails.find((email: any) => !isValidEmail(email));
+  return emails.some((email: any) => isInvalidEmail(email));
 }
 
-function isValidPeriod(value: any) {
-  return PERIOD_REGEX.test(String(value));
+function isInvalidPeriod(value: any) {
+  return !PERIOD_REGEX.test(value);
 }
 
 function containsInvalidPeriod(periods: any) {
-  return periods.find((period: any) => !isValidPeriod(period));
+  return periods.some((period: any) => isInvalidPeriod(period));
 }
 
 export function isJsonObjectOrArray(parsedJson: any) {
