@@ -441,7 +441,7 @@ public class RDFTest {
 
     for (var resource : handler.resources.entrySet()) {
       var subClasses = resource.getValue().get(RDFS.SUBCLASSOF);
-      if (subClasses != null && subClasses.contains(RDFService.IRI_DATABASE_TABLE)) {
+      if (subClasses != null && subClasses.contains(BasicIRI.SIO_DATABASE_TABLE)) {
         var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
         var subject = resource.getKey().stringValue();
         assertFalse(types.isEmpty(), subject + " should have a rdf:Type.");
@@ -506,7 +506,7 @@ public class RDFTest {
             OWL.DATATYPEPROPERTY,
             OWL.OBJECTPROPERTY,
             RDFS.CONTAINER,
-            RDFService.IRI_DATABASE);
+            BasicIRI.SIO_DATABASE);
 
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey().stringValue();
@@ -575,10 +575,9 @@ public class RDFTest {
 
         var pooky = handler.resources.get(iri);
         assertTrue(
-            pooky.containsKey(RDFService.IRI_DATASET_PREDICATE),
+            pooky.containsKey(BasicIRI.LD_DATASET_PREDICATE),
             "An instance of a Pet should refer back to the Collection using qb:dataSet");
-        assertFalse(
-            pooky.containsKey(RDFService.IRI_DATASET_CLASS), "qb:DataSet is not a predicate");
+        assertFalse(pooky.containsKey(BasicIRI.LD_DATASET_CLASS), "qb:DataSet is not a predicate");
       }
     }
   }
@@ -676,7 +675,7 @@ public class RDFTest {
     var subject =
         Values.iri(
             getApi(ontologyTest)
-                + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx");
+                + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx");
 
     var parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
     assertEquals(
@@ -693,13 +692,13 @@ public class RDFTest {
             Values.iri("https://icd.who.int/browse10/2019/en#/U07"),
             Values.iri(
                 getApi(ontologyTest)
-                    + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
+                    + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
     Set<Value> expectedNonSemantic =
         Set.of(
             Values.iri(getApi(ontologyTest) + "Diseases?name=U07"),
             Values.iri(
                 getApi(ontologyTest)
-                    + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
+                    + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
 
     Set<Value> actualSemantic =
         handler
@@ -726,13 +725,13 @@ public class RDFTest {
             Values.iri("https://icd.who.int/browse10/2019/en#/U07"),
             Values.iri(
                 getApi(ontologyTest)
-                    + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
+                    + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
     Set<Value> expectedNonSemantic =
         Set.of(
             Values.iri(getApi(ontologyTest) + "Diseases?name=U07"),
             Values.iri(
                 getApi(ontologyTest)
-                    + "Diseases?name=C00-C14+Malignant+neoplasms+of+lip%2C+oral+cavity+and+pharynx"));
+                    + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
 
     Set<Value> actualSemantic =
         handler
@@ -1544,7 +1543,7 @@ example,http://example.com/
    */
   private void getAndParseRDF(Selection selection, RDFHandler handler) throws IOException {
     OutputStream outputStream = new ByteArrayOutputStream();
-    var rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
+    var rdf = new RDFService("http://localhost:8080", null);
     rdf.describeAsRDF(
         outputStream, selection.table, selection.rowId, selection.columnName, selection.schemas);
     String result = outputStream.toString();
