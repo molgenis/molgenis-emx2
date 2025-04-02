@@ -159,7 +159,7 @@ export function getBigIntError(value?: string): string | undefined {
 export function isInvalidBigInt(value?: string): boolean {
   const isValidRegex = /^-?\d+$/;
   if (!value) {
-    return false;
+    return true;
   }
   if (isValidRegex.test(value)) {
     return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
