@@ -2,12 +2,18 @@
 import collectionEventGql from "~~/gql/collectionEvent";
 import type { IDefinitionListItem, IMgError } from "~~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
+import { useRoute, useFetch } from "#app";
+import {
+  moduleToString,
+  logError,
+  removeChildIfParentSelected,
+} from "#imports";
+import { computed } from "vue";
 
 const { id: collectionEventName } = defineProps<{
   id: string;
 }>();
 
-const config = useRuntimeConfig();
 const route = useRoute();
 const query = moduleToString(collectionEventGql);
 

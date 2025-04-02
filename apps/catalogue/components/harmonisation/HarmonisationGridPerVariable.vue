@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import type {
-  HarmonisationStatus,
-  IMapping,
-  IVariable,
-  IVariableDetails,
-  IVariableMappings,
-} from "~/interfaces/types";
+import { computed } from "vue";
+import type { IVariableDetails, IVariableMappings } from "~/interfaces/types";
 
 const props = defineProps<{
   variable: IVariableDetails & IVariableMappings;
@@ -17,7 +12,11 @@ const relevantMappings = computed(() =>
   )
 );
 const sourceIds = computed(() => [
-  ...new Set(relevantMappings.value?.map((mapping) => mapping.source.id)),
+  ...new Set(
+    relevantMappings.value
+      ?.map((mapping) => mapping.source.id)
+      .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+  ),
 ]);
 const repeats = computed(() => {
   const min = props.variable.repeatMin | 0;

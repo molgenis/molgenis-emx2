@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useRoute, useRuntimeConfig, useHead, useFetch } from "#app";
+import { logError } from "#imports";
+import { computed } from "vue";
 import type { ISetting } from "../../../../../metadata-utils/src/types";
 
 const route = useRoute();

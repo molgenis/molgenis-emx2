@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { resourceIdPath } from "#imports";
+import { computed } from "vue";
 import type { IVariable } from "~/interfaces/types";
 import { getKey } from "~/utils/variableUtils";
 

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type IInputProps, type IValueLabel } from "~/types/types";
+import { type IInputProps, type IValueLabel } from "../../types/types";
 import type {
   CellValueType,
   columnValue,
@@ -29,7 +29,7 @@ const emit = defineEmits(["focus", "blur"]);
   <div :id="id">
     <template v-if="label">
       <label :for="`${id}-input`">
-        <span class="text-title font-bold">{{ label }}</span>
+        <span class="text-title-contrast font-bold">{{ label }}</span>
         <span class="text-disabled text-body-sm ml-3" v-if="required">
           Required
         </span>

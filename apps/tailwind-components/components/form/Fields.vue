@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { reactive, ref } from "vue";
 import type {
   columnId,
   columnValue,
@@ -12,7 +13,7 @@ import {
   getColumnError,
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
-import logger from "@/utils/logger";
+import logger from "../../utils/logger";
 import { vIntersectionObserver } from "@vueuse/components";
 
 const props = defineProps<{
@@ -49,6 +50,13 @@ function validateColumn(column: IColumn) {
       })
       .join("");
   }
+
+  // remove empty entries from the map
+  Object.entries(errors.value).forEach(([key, value]) => {
+    if (value == "" || value == undefined || value == null) {
+      delete errors.value[key];
+    }
+  });
 }
 
 const previousColumn = ref<IColumn>();

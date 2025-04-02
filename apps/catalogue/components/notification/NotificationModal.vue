@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from "vue";
 import type { INotificationType } from "~/interfaces/types";
 const props = withDefaults(
   defineProps<{
@@ -12,7 +13,7 @@ const props = withDefaults(
   }
 );
 
-let timeOutId: NodeJS.Timer;
+let timeOutId: ReturnType<typeof setInterval>;
 let show = ref(false);
 
 function onTimeout() {

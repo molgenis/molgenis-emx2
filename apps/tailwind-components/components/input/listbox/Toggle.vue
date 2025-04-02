@@ -6,12 +6,17 @@
     :aria-required="required"
     :aria-expanded="isExpanded"
     :aria-activedescendant="selectedElementId"
-    class="flex justify-start items-center h-10 w-full text-left pl-11 border text-button-input-toggle focus:ring-blue-300"
+    class="flex justify-start items-center h-10 w-full text-left pl-11 border rounded-input"
     :class="{
-      'bg-input': !disabled && !invalid && !valid,
-      'bg-disabled border-disabled text-disabled': disabled,
-      'border-invalid text-invalid': invalid,
-      'border-valid text-valid': valid,
+      'bg-input border-invalid text-invalid': invalid && !disabled,
+      'bg-input border-valid text-valid': valid && !disabled,
+      'bg-disabled border-disabled text-disabled cursor-not-allowed': disabled,
+      'bg-disabled border-valid text-valid cursor-not-allowed':
+        valid && disabled,
+      'bg-disabled border-invalid text-invalid cursor-not-allowed':
+        invalid && disabled,
+      'bg-input text-input hover:border-input-hover focus:border-input-focused':
+        !disabled && !invalid && !valid,
     }"
     @click="onClick()"
   >
@@ -24,6 +29,8 @@
 </template>
 
 <script lang="ts" setup>
+import { ref, useTemplateRef } from "vue";
+
 defineProps<{
   required?: boolean;
   valid?: boolean;

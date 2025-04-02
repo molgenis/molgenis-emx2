@@ -1,5 +1,5 @@
 <template>
-  <Modal ref="modal" :title="`Edit user: ${userName}`">
+  <Modal v-model:visible="visible" :title="`Edit user: ${userName}`">
     <div>
       <b>New password</b>
       <InputString
@@ -23,7 +23,7 @@
       <b>Disable user</b>
       <InputRadioGroup
         id="disabledUserRadio"
-        :radioOptions="[
+        :options="[
           { value: true, label: 'Enabled' },
           { value: false, label: 'Disabled' },
         ]"
@@ -91,37 +91,40 @@
 </template>
 
 <script setup lang="ts">
-import { type Modal } from "#build/components";
 import type { IRole, ISchemaInfo, IUser } from "~/util/adminUtils";
 import { isValidPassword, updateUser } from "~/util/adminUtils";
-import _ from "lodash";
+// import _ from "lodash";
+import { computed, ref } from "vue";
 
-const modal = ref<InstanceType<typeof Modal>>();
-
-const { schemas, roles } = defineProps<{
+const props = defineProps<{
+  user: IUser;
   schemas: ISchemaInfo[];
   roles: string[];
 }>();
 
-const role = ref<string>("Viewer");
-const schema = ref<string>(schemas.length ? schemas[0].id : "");
+const visible = defineModel("visible", {
+  required: true,
+});
 
-const userName = ref<string>("");
-const isEnabled = ref<boolean>(true);
-const userRoles = ref<Record<string, IRole>>({});
+const role = ref<string>("Viewer");
+const schema = ref<string>(props.schemas.length ? props.schemas[0].id : "");
+
+const userName = ref<string>(props.user.email);
+const isEnabled = ref<boolean>(props.user.enabled);
+const userRoles = ref<Record<string, IRole>>(getRoles(props.user.roles || []));
 const revokedRoles = ref<Record<string, IRole>>({});
-const userTokens = ref<string[]>([]);
+const userTokens = ref<string[]>(props.user.tokens || ([] as string[]));
 const password = ref<string>("");
 const password2 = ref<string>("");
 
 const SchemaIds = computed(() => {
-  return schemas.map((schema) => schema.id);
+  return props.schemas.map((schema) => schema.id);
 });
 
 const emit = defineEmits(["userUpdated"]);
 
 function closeEditUserModal() {
-  modal.value?.close();
+  visible.value = false;
 }
 
 function addRole() {
@@ -142,16 +145,6 @@ function removeRole(role: IRole) {
 // function removeToken(token: string) {
 //   userTokens.value = _.reject(userTokens.value, (tok) => tok === token);
 // }
-
-function showModal(selectedUser: IUser) {
-  if (selectedUser) {
-    userName.value = selectedUser.email;
-    isEnabled.value = selectedUser.enabled;
-    userRoles.value = getRoles(selectedUser.roles || []);
-    userTokens.value = selectedUser.tokens || ([] as string[]);
-  }
-  modal.value?.show();
-}
 
 function getRoles(roles: IRole[]): Record<string, IRole> {
   return roles.reduce((accum, role) => {
@@ -182,15 +175,6 @@ async function saveUser() {
 
   await updateUser(editedUser);
   emit("userUpdated");
-  modal.value?.close();
+  visible.value = false;
 }
-
-function closeModal() {
-  modal.value?.close();
-}
-
-defineExpose({
-  show: showModal,
-  close: closeModal,
-});
 </script>
