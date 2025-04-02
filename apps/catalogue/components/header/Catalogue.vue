@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useRoute, useRuntimeConfig } from "#app";
+import { useDatasetStore } from "#imports";
+import { computed, ref } from "vue";
 import type { UIResource } from "~/interfaces/types";
 
 const route = useRoute();

@@ -1,4 +1,14 @@
 <script setup lang="ts">
+import {
+  useRoute,
+  useHead,
+  useRuntimeConfig,
+  navigateTo,
+  useFetch,
+} from "#app";
+import { definePageMeta } from "#imports";
+import { computed } from "vue";
+
 const route = useRoute();
 useHead({ title: "Health Data and Samples Catalogue" });
 

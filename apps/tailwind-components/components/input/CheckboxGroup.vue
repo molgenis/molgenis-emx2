@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import { type IInputProps, type IValueLabel } from "~/types/types";
+import { type IInputProps, type IValueLabel } from "../../types/types";
 import type { columnValue } from "../../../metadata-utils/src/types";
 
 withDefaults(

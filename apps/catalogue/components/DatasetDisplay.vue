@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useRoute, useFetch } from "#app";
+import { moduleToString } from "#imports";
+import { computed } from "vue";
 import type { IDefinitionListItem } from "~/interfaces/types";
 import datasetGql from "~~/gql/datasetDetails";
 const route = useRoute();

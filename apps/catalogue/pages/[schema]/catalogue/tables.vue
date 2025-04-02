@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useRoute } from "#app";
+import { fetchMetadata } from "#imports";
+import { computed } from "vue";
+
 const route = useRoute();
 
 const schemaId = route.params.schema.toString();
@@ -6,7 +10,7 @@ const metadata = await fetchMetadata(schemaId);
 
 const tables = computed(() =>
   metadata.tables
-    .filter((t) => t.schemaId === schemaId)
+    .filter((t) => t.id === schemaId)
     .filter((t) => t.id !== "Version")
 );
 </script>
