@@ -5,7 +5,7 @@ We support Redhat and Ubuntu based installations.
 
 ## Java 
 
-MOLGENIS EMX2 runs on java > 17
+MOLGENIS EMX2 runs on java > 21
 <!-- tabs:start -->
 
 #### **Ubuntu (apt)**
