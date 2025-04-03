@@ -550,6 +550,16 @@ public class RDFService {
       }
       IRI columnIRI = getColumnIRI(column);
 
+      // Non default behavior for 'a'
+      if (column.getSemantics() != null)
+        for (String semantics : column.getSemantics()) {
+          if ("rdf:type".equalsIgnoreCase(semantics.trim())) {
+            builder.add(subject, RDF.TYPE, row.getString(column.getName()));
+          }
+          // todo generalize way to have values as IRI
+          // todo prevent also passed as string literal
+        }
+
       // Non-default behaviour for non-semantic values to ontology table.
       if (column.getColumnType().equals(ColumnType.ONTOLOGY)
           || column.getColumnType().equals(ColumnType.ONTOLOGY_ARRAY)) {
