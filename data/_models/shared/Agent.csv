@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Agent,,,,,,,,,,,"foaf:Agent,vcard:Agent","An agent (eg. person, group, software or physical artifact).","DCAT,Beacon v2,DataCatalogueFlat"
-Agent,,name,string,1,TRUE,,,,,,"foaf:name,dcterms:identifier",A name and identifier for this agent.,"DCAT,Beacon v2,DataCatalogueFlat"
-Agent,,logo,hyperlink,,,,,,,,"foaf:logo",A logo representing some thing.,"DCAT,Beacon v2,DataCatalogueFlat"
-Agent,,url,hyperlink,,,,,,,,"vcard:url",An URL representing some thing.,"Beacon v2,DataCatalogueFlat"
-Agent,,mbox,email,,,,,,,,"vcard:hasEmail,foaf:mbox","An email address is an identifier to send mail to particular electronic mailbox of a contact person or organization.","Beacon v2,DataCatalogueFlat"
+Agent,,,,,,,,,,,"foaf:Agent,vcard:Agent","An agent (eg. person, group, software or physical artifact).","DCAT,Beacon v2,DataCatalogueFlat,FederatedDataAccess"
+Agent,,name,string,1,TRUE,,,,,,"foaf:name,dcterms:identifier",A name and identifier for this agent.,"DCAT,Beacon v2,DataCatalogueFlat,FederatedDataAccess"
+Agent,,logo,hyperlink,,,,,,,,"foaf:logo",A logo representing some thing.,"DCAT,Beacon v2,DataCatalogueFlat,FederatedDataAccess"
+Agent,,url,hyperlink,,,,,,,,"vcard:url",An URL representing some thing.,"Beacon v2,DataCatalogueFlat,FederatedDataAccess"
+Agent,,mbox,email,,,,,,,,"vcard:hasEmail,foaf:mbox","An email address is an identifier to send mail to particular electronic mailbox of a contact person or organization.","Beacon v2,DataCatalogueFlat,FederatedDataAccess"
