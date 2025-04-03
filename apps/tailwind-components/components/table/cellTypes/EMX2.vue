@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { IColumn } from "../../../../metadata-utils/src/types";
 defineProps<{
-  metadata: IColumn;
+  metaData: IColumn;
   data: any;
 }>();
 </script>
@@ -12,24 +12,24 @@ defineProps<{
   ></td>
 
   <td
-    v-else-if="metadata.columnType.endsWith('ARRAY')"
+    v-else-if="metaData.columnType.endsWith('ARRAY')"
     class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 h-4 overflow-ellipsis whitespace-nowrap overflow-hidden"
   >
-    <TableCellTypesList :metaData="metadata" :data="data" />
+    <TableCellTypesList :metaData="metaData" :data="data" />
   </td>
 
   <td
-    v-else-if="metadata.columnType === 'STRING'"
+    v-else-if="metaData.columnType === 'STRING'"
     class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 h-4 overflow-ellipsis whitespace-nowrap overflow-hidden"
   >
-    <TableCellTypesString :metaData="metadata" :data="data" />
+    <TableCellTypesString :metaData="metaData" :data="data" />
   </td>
 
   <td
-    v-else-if="metadata.columnType === 'DECIMAL'"
+    v-else-if="metaData.columnType === 'DECIMAL'"
     class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 h-4 overflow-ellipsis whitespace-nowrap overflow-hidden"
   >
-    <TableCellTypesDecimal :metaData="metadata" :data="data" />
+    <TableCellTypesDecimal :metaData="metaData" :data="data" />
   </td>
 
   <td
@@ -43,14 +43,14 @@ defineProps<{
     v-else-if="metaData.columnType === 'REF'"
     class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 h-4 overflow-ellipsis whitespace-nowrap overflow-hidden"
   >
-    <TableCellTypesObject :metaData="metadata" :data="data" />
+    <TableCellTypesObject :metaData="metaData" :data="data" />
   </td>
 
   <td
-    v-else-if="metadata.columnType === 'ONTOLOGY'"
+    v-else-if="metaData.columnType === 'ONTOLOGY'"
     class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 h-4 overflow-ellipsis whitespace-nowrap overflow-hidden"
   >
-    <TableCellTypesObject :metaData="metadata" :data="data" />
+    <TableCellTypesObject :metaData="metaData" :data="data" />
   </td>
 
   <td
@@ -64,6 +64,6 @@ defineProps<{
     v-else
     class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5"
   >
-    {{ metadata.columnType }}
+    {{ metaData.columnType }}
   </td>
 </template>

@@ -65,7 +65,7 @@
               v-for="column in sortedVisibleColumns"
               class="w-6 text-table-row"
               :scope="column.key === 1 ? 'row' : null"
-              :metadata="column"
+              :metaData="column"
               :data="row[column.id]"
             />
           </tr>
