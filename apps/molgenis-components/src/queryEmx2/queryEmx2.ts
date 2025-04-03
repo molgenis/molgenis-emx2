@@ -387,18 +387,37 @@ class QueryEMX2 {
   // but this requires another rewrite ;)
   _createFilterString(filters: Record<string, any>) {
     let filterString = "";
-    if (!filters) return filterString;
+    console.log('filters: ', filters);
 
-    if (filters["_and"].length) {
-      filterString += `_and: [ ${filters["_and"].join(", ")} ]`;
-    }
+    if (!filters) {
+      return filterString;
+    } 
 
-    if (filters["_or"].length) {
-      if (filterString.length) {
-        filterString += ", ";
+    const andCount = filters["_and"] ? filters["_and"].length : 0;
+    const orCount = filters["_or"] ? filters["_or"].length : 0;
+
+    if( andCount + orCount > 1) {
+      let inner = "";
+      if(filters["_and"].length) {
+        inner += `_and: [ ${filters["_and"].join(", ")} ]`;
       }
-
-      filterString += `_or: [ ${filters["_or"].join(", ")} ]`;
+      if(filters["_or"].length) {
+        if(inner.length) {
+          inner += ", ";
+        }
+        filters["_or"].forEach((orFilter: string) => {
+          if(inner.length) {
+            inner += ", ";
+          }
+          inner += `{ _or: [ ${orFilter} ] }`;
+        });
+      }
+      filterString += `_and: [ ${inner} ]`;
+      
+    } else if(andCount === 1) {
+      filterString += filters["_and"][0];
+    } else if(orCount === 1) {
+      filterString += filters["_or"][0];
     }
     return filterString;
   }
