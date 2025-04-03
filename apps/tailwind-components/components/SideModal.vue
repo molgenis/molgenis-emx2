@@ -120,7 +120,7 @@ const bgClass = computed(() => {
             <div
               :class="`flex items-center ${buttonAlignmentClass} px-6 bg-modal-footer h-19`"
             >
-              <slot name="footer"></slot>
+              <slot name="footer" :hide="hide"></slot>
             </div>
           </div>
         </div>
