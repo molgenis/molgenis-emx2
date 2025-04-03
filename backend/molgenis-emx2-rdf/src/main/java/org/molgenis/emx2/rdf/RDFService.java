@@ -10,6 +10,8 @@ import static org.molgenis.emx2.rdf.RdfUtils.getCustomPrefixesOrDefault;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 import static org.molgenis.emx2.rdf.RdfUtils.getSemanticValue;
+import static org.molgenis.emx2.sql.SqlTypeUtils.convertRowToMap;
+import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import com.google.common.net.UrlEscapers;
 import java.io.IOException;
@@ -326,24 +328,25 @@ public class RDFService {
       builder.add(subject, RDFS.SUBCLASSOF, getTableIRI(parent));
     }
     // Any custom semantics are always added, regardless of table type (DATA/ONTOLOGIES)
-    if (table.getMetadata().getSemantics() != null) {
-      for (final String tableSemantics : table.getMetadata().getSemantics()) {
-        try {
-          builder.add(
-              subject,
-              RDFS.ISDEFINEDBY,
-              getSemanticValue(table.getMetadata(), namespaces, tableSemantics));
-        } catch (Exception e) {
-          throw new MolgenisException(
-              "Table annotation '"
-                  + tableSemantics
-                  + "' for table "
-                  + table.getName()
-                  + " gives error",
-              e);
-        }
-      }
-    }
+    // disabled, should be on instances only right?
+    //    if (table.getMetadata().getSemantics() != null) {
+    //      for (final String tableSemantics : table.getMetadata().getSemantics()) {
+    //        try {
+    //          builder.add(
+    //              subject,
+    //              RDFS.ISDEFINEDBY,
+    //              getSemanticValue(table.getMetadata(), namespaces, tableSemantics));
+    //        } catch (Exception e) {
+    //          throw new MolgenisException(
+    //              "Table annotation '"
+    //                  + tableSemantics
+    //                  + "' for table "
+    //                  + table.getName()
+    //                  + " gives error",
+    //              e);
+    //        }
+    //      }
+    //    }
     // Add 'observing' for any DATA
     if (table.getMetadata().getTableType() == TableType.DATA) {
       builder.add(subject, RDFS.ISDEFINEDBY, IRI_OBSERVING);
@@ -535,8 +538,18 @@ public class RDFService {
         DCAT_ENDPOINTURL,
         Values.iri(getSchemaNamespace(baseURL, table.getSchema()).getName()));
     builder.add(subject, FDP_METADATAIDENTIFIER, subject);
-    if (table.getMetadata().getSemantics() != null) {
-      for (String semantics : table.getMetadata().getSemantics()) {
+    if (table.getMetadata().getSemantics() != null
+        && table.getMetadata().getSemantics().length > 0) {
+      String[] semanticsArray = table.getMetadata().getSemantics();
+      if (semanticsArray[0].startsWith("expression:")) {
+        semanticsArray =
+            ((String)
+                    executeJavascriptOnMap(
+                        String.join(",", semanticsArray),
+                        convertRowToMap(table.getMetadata().getColumns(), row)))
+                .split(",");
+      }
+      for (String semantics : semanticsArray) {
         builder.add(
             subject, RDF.TYPE, getSemanticValue(table.getMetadata(), namespaces, semantics));
       }
