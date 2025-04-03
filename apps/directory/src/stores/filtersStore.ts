@@ -386,9 +386,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   function updateQueryAndBookmark(
     newFilters: Record<string, any>,
     newFilterTypes: Record<string, any>
-  )
-   {
-    console.log("updateQueryAndBookmark", newFilters, newFilterTypes);
+  ) {
     applyFiltersToQuery(
       baseQuery,
       newFilters,

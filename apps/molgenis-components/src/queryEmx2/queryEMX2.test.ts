@@ -94,7 +94,7 @@ Biobanks(filter: { _and: [ { name: { like: "UMC" } } ] }) {
       .getQuery();
 
     expect(query).toEqual(`{
-Biobanks(filter: { _or: [ { country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } } ] }) {
+Biobanks(filter: { _and: [ { _or: [ { country: { name: { like: "DE" } } } ] }, { _or: [ { collections: { name: { like: "covid" } } } ] } ] }) {
     id,
     name
   }
@@ -112,7 +112,7 @@ Biobanks(filter: { _or: [ { country: { name: { like: "DE" } } }, { collections: 
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: [ { name: { like: "Dresden" } }, { country: { name: { equals: "DE" } } } ] }) {
+Biobanks(filter: { _and: [ { _and: [ { name: { like: "Dresden" } } ] }, { _and: [ { country: { name: { equals: "DE" } } } ] } ] }) {
     id,
     name
   }
@@ -130,7 +130,7 @@ Biobanks(filter: { _and: [ { name: { like: "Dresden" } }, { country: { name: { e
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: [ { collections: { id: { like: "eric" } } }, { collections: { name: { like: "Lifelines" } } } ] }) {
+Biobanks(filter: { _and: [ { _and: [ { collections: { id: { like: "eric" } } } ] }, { _and: [ { collections: { name: { like: "Lifelines" } } } ] } ] }) {
     id,
     name
   }
@@ -181,7 +181,7 @@ Biobanks(limit: 100, orderby: { name: ASC }, filter: { _and: [ { name: { like: "
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: [ { name: { like: "UMC" } }, { name: { like: "Dresden" } } ] }) {
+Biobanks(filter: { _and: [ { _and: [ { name: { like: "UMC" } } ] }, { _and: [ { name: { like: "Dresden" } } ] } ] }) {
     id,
     name
   }
@@ -199,7 +199,7 @@ Biobanks(filter: { _and: [ { name: { like: "UMC" } }, { name: { like: "Dresden" 
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: [ { name: { like: "Dresden" } } ], _or: [ { country: { name: { like: "DE" } } } ] }) {
+Biobanks(filter: { _and: [ { _and: [ { name: { like: "Dresden" } } ] }, { _or: [ { country: { name: { like: "DE" } } } ] } ] }) {
     id,
     name
   }
@@ -219,7 +219,7 @@ Biobanks(filter: { _and: [ { name: { like: "Dresden" } } ], _or: [ { country: { 
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: [ { name: { like: "Dresden" } } ], _or: [ { country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } } ] }) {
+Biobanks(filter: { _and: [ { _and: [ { name: { like: "Dresden" } } ] }, { _or: [ { country: { name: { like: "DE" } } } ] }, { _or: [ { collections: { name: { like: "covid" } } } ] } ] }) {
     id,
     name
   }
@@ -241,7 +241,7 @@ Biobanks(filter: { _and: [ { name: { like: "Dresden" } } ], _or: [ { country: { 
       .getQuery();
 
     expect(query).toStrictEqual(`{
-Biobanks(filter: { _and: [ { name: { like: "Dresden" } } ], _or: [ { country: { name: { like: "DE" } } }, { collections: { name: { like: "covid" } } }, { collections: { materials: { name: { like: "covid" } } } } ] }) {
+Biobanks(filter: { _and: [ { _and: [ { name: { like: "Dresden" } } ] }, { _or: [ { country: { name: { like: "DE" } } } ] }, { _or: [ { collections: { name: { like: "covid" } } } ] }, { _or: [ { collections: { materials: { name: { like: "covid" } } } } ] } ] }) {
     id,
     name
   }
