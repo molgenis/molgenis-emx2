@@ -1,5 +1,5 @@
 export function generateHtmlPreview(instance, content, ref) {
-  if (content && Object.keys(content).length) {
+  if (content && typeof content === "object" && Object.keys(content).length) {
     instance.$refs[ref].replaceChildren();
 
     const parser = new DOMParser();
