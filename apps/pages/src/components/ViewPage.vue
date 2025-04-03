@@ -50,9 +50,7 @@ export default {
         ) {
           this.content = data;
         } else if (data && typeof data === "string") {
-          const contentObj = newPageContentObject();
-          contentObj.html = data;
-          this.content = contentObj;
+          this.content = data;
         } else {
           this.content = newPageContentObject();
         }
