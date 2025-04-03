@@ -1,7 +1,5 @@
 export function generateHtmlPreview(instance, content, ref) {
-  console.log(content);
   if (content && typeof content === "object" && Object.keys(content).length) {
-    console.log("generating new preview");
     instance.$refs[ref].replaceChildren();
 
     const parser = new DOMParser();
@@ -50,7 +48,6 @@ export function generateHtmlPreview(instance, content, ref) {
       }
     }
   } else {
-    console.log("generating legacy preview");
     const parser = new DOMParser();
     const doc = parser.parseFromString(content, "text/html");
     /** Loop over the just parsed html items, and add them */
