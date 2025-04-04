@@ -40,6 +40,12 @@ the data, and use VueJS to create your own 'apps'.
 
 Detailed changes for each release are documented in the [release notes](https://github.com/molgenis/molgenis-emx2/releases).
 
+Breaking changes:
+
+| Version | Description of issues one might encounter |
+|---------|-------------------------------------------|
+| 12.x    | Changes the way pages are stored in settings. Migration is automatic API changed. |
+
 ## Licence
 
 ![lgplv3logo](https://www.gnu.org/graphics/lgplv3-with-text-154x68.png)
