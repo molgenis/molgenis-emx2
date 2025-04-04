@@ -353,7 +353,7 @@ const networks = computed(() =>
 
 interface INetworkResponse {
   data: {
-    Resources: any[];
+    Resources: { id: string }[];
   };
 }
 const { data: linkedNetworks, error: linkedNetworksError } = await useFetch<
