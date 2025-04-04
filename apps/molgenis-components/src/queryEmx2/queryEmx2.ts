@@ -387,18 +387,45 @@ class QueryEMX2 {
   // but this requires another rewrite ;)
   _createFilterString(filters: Record<string, any>) {
     let filterString = "";
-    if (!filters) return filterString;
 
-    if (filters["_and"].length) {
-      filterString += `_and: [ ${filters["_and"].join(", ")} ]`;
+    if (!filters) {
+      return filterString;
     }
 
-    if (filters["_or"].length) {
-      if (filterString.length) {
-        filterString += ", ";
-      }
+    const andCount = filters["_and"] ? filters["_and"].length : 0;
+    const orCount = filters["_or"] ? filters["_or"].length : 0;
 
-      filterString += `_or: [ ${filters["_or"].join(", ")} ]`;
+    if (andCount + orCount > 1) {
+      let inner = "";
+      if (filters["_and"].length) {
+        if (inner.length) {
+          inner += ", ";
+        }
+        filters["_and"].forEach((andFilter: string) => {
+          if (inner.length) {
+            inner += ", ";
+          }
+          inner += `{ _and: [ ${andFilter} ] }`;
+        });
+      }
+      if (filters["_or"].length) {
+        if (inner.length) {
+          inner += ", ";
+        }
+        filters["_or"].forEach((orFilter: string) => {
+          if (inner.length && !inner.endsWith(", ")) {
+            inner += ", ";
+          }
+          inner += `{ _or: [ ${orFilter} ] }`;
+        });
+      }
+      filterString += `_and: [ ${inner} ]`;
+    } else if (andCount === 1) {
+      const inner = filters["_and"];
+      filterString += `_and: [ ${inner} ]`;
+    } else if (orCount === 1) {
+      const inner = filters["_or"];
+      filterString += `_or: [ ${inner} ]`;
     }
     return filterString;
   }
