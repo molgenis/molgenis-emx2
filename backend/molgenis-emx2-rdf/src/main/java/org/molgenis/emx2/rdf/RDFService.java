@@ -76,6 +76,10 @@ public class RDFService {
   // See: https://specs.fairdatapoint.org/fdp-specs-v1.2.html
   public static final IRI FDP_METADATAIDENTIFIER =
       Values.iri("https://w3id.org/fdp/fdp-o#metadataIdentifier");
+      
+  public static final IRI LDP_MEMBERSHIP_RESOURCE =
+      Values.iri("http://www.w3.org/ns/ldp#membershipResource");
+
   // DCAT:endpointURL is the 'root' location, which is the schema. see:
   // https://www.w3.org/TR/vocab-dcat-3/#Property:data_service_endpoint_url
   public static final IRI DCAT_ENDPOINTURL = Values.iri("http://www.w3.org/ns/dcat#endpointURL");
@@ -535,6 +539,7 @@ public class RDFService {
         DCAT_ENDPOINTURL,
         Values.iri(getSchemaNamespace(baseURL, table.getSchema()).getName()));
     builder.add(subject, FDP_METADATAIDENTIFIER, subject);
+    builder.add(subject, LDP_MEMBERSHIP_RESOURCE, subject);
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {
         builder.add(
