@@ -76,10 +76,6 @@ public class RDFService {
   // See: https://specs.fairdatapoint.org/fdp-specs-v1.2.html
   public static final IRI FDP_METADATAIDENTIFIER =
       Values.iri("https://w3id.org/fdp/fdp-o#metadataIdentifier");
-
-  public static final IRI LDP_MEMBERSHIP_RESOURCE =
-      Values.iri("http://www.w3.org/ns/ldp#membershipResource");
-
   // DCAT:endpointURL is the 'root' location, which is the schema. see:
   // https://www.w3.org/TR/vocab-dcat-3/#Property:data_service_endpoint_url
   public static final IRI DCAT_ENDPOINTURL = Values.iri("http://www.w3.org/ns/dcat#endpointURL");
@@ -539,7 +535,6 @@ public class RDFService {
         DCAT_ENDPOINTURL,
         Values.iri(getSchemaNamespace(baseURL, table.getSchema()).getName()));
     builder.add(subject, FDP_METADATAIDENTIFIER, subject);
-    builder.add(subject, LDP_MEMBERSHIP_RESOURCE, subject);
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {
         builder.add(
@@ -558,11 +553,19 @@ public class RDFService {
       // Non default behavior for 'a'
       if (column.getSemantics() != null)
         for (String semantics : column.getSemantics()) {
-          if ("rdf:type".equalsIgnoreCase(semantics.trim())) {
-            builder.add(subject, RDF.TYPE, row.getString(column.getName()));
-          }
           // todo generalize way to have values as IRI
           // todo prevent also passed as string literal
+          if ("rdf:type".equalsIgnoreCase(semantics.trim())) {
+            if (column.isArray()) {
+              Arrays.stream(row.getStringArray(column.getName()))
+                  .forEach(
+                      value -> {
+                        builder.add(subject, RDF.TYPE, value);
+                      });
+            } else {
+              builder.add(subject, RDF.TYPE, row.getString(column.getName()));
+            }
+          }
         }
 
       // Non-default behaviour for non-semantic values to ontology table.
