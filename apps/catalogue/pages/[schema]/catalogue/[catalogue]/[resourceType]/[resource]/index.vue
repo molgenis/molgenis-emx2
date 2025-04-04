@@ -351,13 +351,13 @@ const networks = computed(() =>
       )
 );
 
-interface INetWorkResponse {
+interface INetworkResponse {
   data: {
     Resources: any[];
   };
 }
 const { data: linkedNetworks, error: linkedNetworksError } = await useFetch<
-  INetWorkResponse,
+  INetworkResponse,
   IMgError
 >(`/${route.params.schema}/graphql`, {
   method: "POST",
@@ -384,7 +384,7 @@ if (linkedNetworksError.value) {
   logError(linkedNetworksError.value, "Error fetching resource metadata");
 }
 
-const netWorksWithLocalReference = computed(() =>
+const localNetworkIds = computed(() =>
   linkedNetworks.value?.data?.Resources.map((network) => network.id)
 );
 
@@ -897,12 +897,12 @@ const showPopulation = computed(
               :description="network?.description || ''"
               :imageUrl="network?.logo?.url || ''"
               :url="
-                netWorksWithLocalReference?.includes(network.id)
+                localNetworkIds?.includes(network.id)
                   ? `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`
                   : network.website || ''
               "
               :links="[network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
-               netWorksWithLocalReference?.includes(network.id) ? {
+               localNetworkIds?.includes(network.id) ? {
                 title: 'View network',
                 url: `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`,
                 target: '_self' as linkTarget,
