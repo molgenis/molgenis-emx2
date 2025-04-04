@@ -388,16 +388,6 @@ const netWorksWithLocalReference = computed(() =>
   linkedNetworks.value?.data?.Resources.map((network) => network.id)
 );
 
-const networkLinks = computed(() => {
-  return networks.value.map((network) => {
-    return {
-      title: network.name,
-      url: network.website,
-      target: "_blank",
-    };
-  });
-});
-
 const tocItems = computed(() => {
   let tableOffContents = [
     { label: "Description", id: "Description" },
