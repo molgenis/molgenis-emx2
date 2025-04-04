@@ -384,8 +384,8 @@ if (linkedNetworksError.value) {
   logError(linkedNetworksError.value, "Error fetching resource metadata");
 }
 
-const localNetworkIds = computed(() =>
-  linkedNetworks.value?.data?.Resources.map((network) => network.id)
+const localNetworkIds = computed(
+  () => linkedNetworks.value?.data?.Resources.map((network) => network.id) || []
 );
 
 const tocItems = computed(() => {
