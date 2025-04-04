@@ -166,6 +166,7 @@ const query = gql`
         name
       }
       partOfResources {
+        id
         name
         type {
             name
@@ -349,6 +350,53 @@ const networks = computed(() =>
         c.type.find((t) => t.name == "Network")
       )
 );
+
+interface INetWorkResponse {
+  data: {
+    Resources: any[];
+  };
+}
+const { data: linkedNetworks, error: linkedNetworksError } = await useFetch<
+  INetWorkResponse,
+  IMgError
+>(`/${route.params.schema}/graphql`, {
+  method: "POST",
+  body: {
+    query: `
+query LinkedNetworks($networkIds: [String]) {
+  Resources(
+    filter: {
+      _and: [
+        { type: { name: { equals: ["Network"] } } }
+        { id: { equals: $networkIds } }
+      ]
+    }
+  ) {
+    id
+  }
+}
+      `,
+    variables: { networkIds: networks.value.map((network) => network.id) },
+  },
+});
+
+if (linkedNetworksError.value) {
+  logError(linkedNetworksError.value, "Error fetching resource metadata");
+}
+
+const netWorksWithLocalReference = computed(() =>
+  linkedNetworks.value?.data?.Resources.map((network) => network.id)
+);
+
+const networkLinks = computed(() => {
+  return networks.value.map((network) => {
+    return {
+      title: network.name,
+      url: network.website,
+      target: "_blank",
+    };
+  });
+});
 
 const tocItems = computed(() => {
   let tableOffContents = [
@@ -846,6 +894,8 @@ const showPopulation = computed(
           <CollectionEventDisplay :id="slotProps.id" />
         </TableContent>
 
+        {{ netWorksWithLocalReference }}
+
         <ContentBlock
           v-if="networks.length"
           title="Networks"
@@ -858,18 +908,17 @@ const showPopulation = computed(
               :title="network.name"
               :description="network?.description || ''"
               :imageUrl="network?.logo?.url || ''"
-              :url="network.website || ''"
-              :links="
-                network.website
-                  ? [
-                      {
-                        title: 'Website',
-                        url: network.website,
-                        target: '_blank',
-                      },
-                    ]
-                  : []
+              :url="
+                netWorksWithLocalReference?.includes(network.id)
+                  ? `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`
+                  : network.website || ''
               "
+              :links="[network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
+               netWorksWithLocalReference?.includes(network.id) ? {
+                title: 'View network',
+                url: `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`,
+                target: '_self' as linkTarget,
+              } : null].filter((link) => link !== null)"
               target="_blank"
             />
           </ReferenceCardList>
