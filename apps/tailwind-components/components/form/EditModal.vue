@@ -90,8 +90,9 @@
 </template>
 
 <script setup lang="ts">
-import { useSections, useForm } from "#imports";
-import { ref, watchEffect, computed } from "vue";
+import { computed, ref, watchEffect } from "vue";
+import useForm from "../../composables/useForm";
+import useSections from "../../composables/useSections";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 
@@ -151,7 +152,7 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
-} = useForm(props.metadata, editFormValues, errorMap, (fieldId) => {
+} = useForm(props.metadata, editFormValues, errorMap, (fieldId: string) => {
   scrollToElementInside("fields-container", fieldId);
 });
 </script>
