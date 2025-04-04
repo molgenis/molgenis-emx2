@@ -421,10 +421,10 @@ class QueryEMX2 {
       }
       filterString += `_and: [ ${inner} ]`;
     } else if (andCount === 1) {
-      const inner = filters["_and"][0];
+      const inner = filters["_and"];
       filterString += `_and: [ ${inner} ]`;
     } else if (orCount === 1) {
-      const inner = filters["_or"][0];
+      const inner = filters["_or"];
       filterString += `_or: [ ${inner} ]`;
     }
     return filterString;
