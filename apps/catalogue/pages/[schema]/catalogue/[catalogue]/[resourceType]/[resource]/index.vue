@@ -884,8 +884,6 @@ const showPopulation = computed(
           <CollectionEventDisplay :id="slotProps.id" />
         </TableContent>
 
-        {{ netWorksWithLocalReference }}
-
         <ContentBlock
           v-if="networks.length"
           title="Networks"
