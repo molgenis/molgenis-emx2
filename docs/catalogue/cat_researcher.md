@@ -23,6 +23,7 @@ Alternatively, if you want to search across all data, regardless of project, you
 Selecting either **COLLECTIONS** or **NETWORKS** at the next step will provide you with a list of
 collections or networks to browse through. To narrow down the list, you can do a text-based search (e.g. 'early pregnancy)
 or filter on specific attributes (e.g. collections of type 'Biobank').
+For more information on searching and filtering, see [this section](#searching-and-filtering) below.
 
 ![List of collections, with search and filters](../img/cat_collections-list.png)
 
@@ -82,3 +83,20 @@ of that particular variable is displayed, containing both the harmonisation stat
 further details about the harmonisation like source variables and harmonisation syntax.
 
 ![Variable detail view](../img/cat_detailed-harmonised-variable-view.png)
+
+## Searching and filtering
+<!-- A stand alone 'filter' section would be useful, e start by showing how you search, and then give all the options for filtering -->
+Since the catalogue contains many resources and variables, there are several ways of narrowing down the lists of results
+for collections, networks, and variables.
+
+![Sidebar with search and filters](../img/cat_search-and-filters.png)
+
+The most straightforward way of finding relevant information is using the search bar. Enter your search term of interest
+and all resources or variables containing the term in any of their attributes will be returned.
+For example, searching for 'diabetes' in collections will return collections with 'diabetes' in their name or description
+as well as in their list of main medical conditions or the names of their subpopulations.
+
+In addition to searching for a term, there is also a set of filters on specific attributes which can be used instead of
+or in addition to the search bar.
+
+<!-- An explanation of the distinction between topics and variables (and maybe where these topic categories come from)<-- put this near the topic filter explanation -->
