@@ -88,6 +88,12 @@ export interface IFile {
       }
       writer.println("}");
       writer.println("");
+
+      writer.println(String.format("export interface I%s_agg {", tableName));
+      // todo do all agg
+      writer.println("  count: number");
+      writer.println("}");
+      writer.println("");
     }
 
     writer.println("");
