@@ -398,9 +398,6 @@ class QueryEMX2 {
     if (andCount + orCount > 1) {
       let inner = "";
       if (filters["_and"].length) {
-        if (inner.length) {
-          inner += ", ";
-        }
         filters["_and"].forEach((andFilter: string) => {
           if (inner.length) {
             inner += ", ";
