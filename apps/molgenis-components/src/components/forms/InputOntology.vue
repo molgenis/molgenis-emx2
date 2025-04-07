@@ -19,7 +19,9 @@
       >
         <span
           class="btn btn-sm btn-primary text-white mr-1"
-          v-for="selectedTerm in selectionWithoutChildren"
+          v-for="selectedTerm in selectionWithoutChildren.sort(
+            (a, b) => a.order - b.order
+          )"
           :key="selectedTerm"
           @click.stop="deselect(selectedTerm.name)"
         >
@@ -471,6 +473,7 @@ export default {
         //convert to tree of terms
         //list all terms, incl subtrees
         let terms: Record<string, any> = {};
+        console.log("data", this.data);
         this.data.forEach((term: Record<string, any>) => {
           // did we see it maybe as parent before?
           if (terms[term.name]) {
@@ -479,6 +482,7 @@ export default {
             terms[term.name].label = term.label;
             terms[term.name].code = term.code;
             terms[term.name].codesystem = term.codesystem;
+            terms[term.name].order = term.order;
           } else {
             //else simply add the record
             terms[term.name] = {
@@ -490,6 +494,7 @@ export default {
               code: term.code,
               codesystem: term.codesystem,
               label: term.label,
+              order: term.order,
             };
           }
           if (term.parent) {
