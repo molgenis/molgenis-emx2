@@ -2,10 +2,10 @@ tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,re
 Federated data access,,,,,,,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,List of Armadillo and/or Opal server(s) available for this resource.
 Federated data access,,,resource,ref,1,TRUE,catalogue,Resources,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,Federated data access defined for this resource
 Federated data access,,,name,,1,TRUE,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,For example: resource-Armadillo or resource-Opal.
-Federated data access,,,datashield server,ontology,1,TRUE,CatalogueOntologies,DataSHIELD servers,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,For example: Armadillo or Opal.
+Federated data access,,,datashield server,ontology,1,TRUE,CatalogueOntologies,DataSHIELD servers,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,DataSHIELD server: Armadillo or Opal.
 Federated data access,,,url,hyperlink,,,,,,,,,,,,,FederatedDataAccess,,Federated data access resource url
 Federated data access,,,version,,,,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,Armadillo versions: https://github.com/molgenis/molgenis-service-armadillo/tags and Opal versions: https://github.com/obiba/opal/tags
-Federated data access,,,status,ontology,,,CatalogueOntologies,HTTP Status Codes,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,Server HTTP status.
+Federated data access,,,status,ontology,,,CatalogueOntologies,HTTP Status Codes,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,HTTP status Codes
 Federated data access,,,profile name,ontology,1,TRUE,CatalogueOntologies,DataSHIELD profile names,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,DataSHIELD profile names installed on server: https://wiki.datashield.org/en/opmanag/standard-profiles-and-platforms
 Federated data access,,,profile image,ontology,1,TRUE,CatalogueOntologies,DataSHIELD profile images,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,DataSHIELD profile images installed on server: https://hub.docker.com/u/datashield
 Federated data access,,,profile config,,,,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,DataSHIELD profile R and/or packages version
