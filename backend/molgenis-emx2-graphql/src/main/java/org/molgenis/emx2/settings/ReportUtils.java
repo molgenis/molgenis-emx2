@@ -17,7 +17,9 @@ public class ReportUtils {
       List<Map<String, String>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
       if (reportsJson != null) {
         Optional<Map<String, String>> reportOptional =
-            reportList.stream().filter(r -> reportId.equals(r.get("id"))).findFirst();
+            reportList.stream()
+                .filter(r -> reportId.equals(String.valueOf(r.get("id"))))
+                .findFirst();
         if (reportOptional.isPresent()) {
           return reportOptional.get();
         }
