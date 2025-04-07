@@ -79,6 +79,29 @@ class StagingMigrator(Client):
             # Remove any downloaded files from disk
             self._cleanup()
 
+    def create_zip(self):
+        """
+        Creates a ZIP file containing tables to be uploaded to the catalogue schema.
+        """
+        resource_ids: list = self._get_resource_ids()
+        sa_schema: Schema = self.get_schema_metadata(self.staging_area)
+
+        # with open ZipFile(...
+        for table in sa_schema.tables:
+            filtered_data = self._get_filtered(table, resource_ids)
+        # )
+
+        # Combine into zip
+
+        # Return zip
+
+    def _get_resource_ids(self) -> list[str]:
+        """
+        Get the identifiers of the entries in the Resources table.
+        """
+        id_query = self.get_graphql(schema=self.staging_area, table="Resources", columns=["id"])
+        return id_query
+
     def _download_schema_zip(self, schema: str, schema_type: SchemaType,
                              include_system_columns: bool = True) -> str:
         """Download target schema as zip, save in case upload fails."""
