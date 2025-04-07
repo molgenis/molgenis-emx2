@@ -14,8 +14,8 @@
         :items="[
           { id: 'intro', label: 'Introduction' },
           { id: 'use', label: 'Use' },
-          { id: 'molgenis', label: 'MOLGENIS Software' },
           { id: 'video', label: 'LongITools Video' },
+          { id: 'molgenis', label: 'MOLGENIS Software' },
           { id: 'involvement', label: 'How to Get Involved' },
           { id: 'acknowledgements', label: 'Acknowledgements' },
         ]"
