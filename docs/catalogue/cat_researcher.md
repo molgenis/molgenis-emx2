@@ -36,6 +36,15 @@ clicking on a specific instance will provide more details about it (e.g. inclusi
 
 ## Find harmonised variables
 
+Harmonised variables (also called target variables) are variables
+which are defined in the context of a common data model. For example, a network of organisations with access
+to multiple data sources, like LifeCycle has defined a set of variables, called the common data model,
+which all data sources can map their own variables to.
+Here, mapping means the process of defining how to convert the collected variable from the data source (source variable)
+to the harmonised variable in the common data model (target variable).
+For example, a collected variable describing length at birth in inches can be mapped to a harmonised variable
+describing length at birth in centimetres. These mappings can then be used as a basis for integrated analysis.
+
 From the catalogue landing page, you can search all harmonised variables
 by clicking **ALL VARIABLES** in the menu.
 
