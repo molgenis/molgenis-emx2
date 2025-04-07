@@ -1,5 +1,5 @@
-resource,name,url,version,status,profile image,profile name,profile config,profile status
-BIB,Opal,https://bib-opal.obiba.com,5.1.2,false,datashield/galaxy_zenith:latest,default,,
-BIB,Armadillo,https://bib-armadillo.molgeniscloud.org,4.13.1,true,datashield/rock-lemon-donkey:latest,default,"[JAVA_VERSION=jdk-21.0.5+11, ROCK_VERSION=2.1.1, DSBASE_VERSION=6.3.1, DSMEDIATION_VERSION=0.0.3, DSEXPOSOME_VERSION=2.0.9, DSTIDYVERSE_VERSION=v1.0.1, DSOMICS_VERSION=v1.0.18-2, DSMTL_VERSION=0.9.9, DSSURVIVAL_VERSION=v2.1.3]",RUNNING
-BIB,Armadillo,https://bib-armadillo.molgeniscloud.org,4.13.1,true,datashield/rock-dolomite-xenon:2.0.0,xenon,"[JAVA_VERSION=jdk-21.0.2+13, ROCK_VERSION=2.0.1, DSBASE_VERSION=6.3.0, DSMEDIATION_VERSION=0.0.3, DSEXPOSOME_VERSION=2.0.9, DSOMICS_VERSION=v1.0.18-2, DSMTL_VERSION=0.9.9, DSURVIVAL_VERSION=v2.1.3]",RUNNING
-BIB,Armadillo,https://bib-armadillo.molgeniscloud.org,4.13.1,true,datashield/rock-lemon-donkey:latest,donkey,,NOT_FOUND
+resource,name,datashield server,url,version,status,profile image,profile name,profile config,profile status
+BIB,bib-opal,opal,https://bib-opal.obiba.com,5.1.2,404,datashield/galaxy_zenith:latest,default,,
+BIB,bib-armadillo,armadillo,https://bib-armadillo.molgeniscloud.org,4.13.1,200,datashield/rock-lemon-donkey:latest,default,"[JAVA_VERSION=jdk-21.0.5+11, ROCK_VERSION=2.1.1, DSBASE_VERSION=6.3.1, DSMEDIATION_VERSION=0.0.3, DSEXPOSOME_VERSION=2.0.9, DSTIDYVERSE_VERSION=v1.0.1, DSOMICS_VERSION=v1.0.18-2, DSMTL_VERSION=0.9.9, DSSURVIVAL_VERSION=v2.1.3]",RUNNING
+BIB,bib-armadillo,armadillo,https://bib-armadillo.molgeniscloud.org,4.13.1,200,datashield/rock-dolomite-xenon:2.0.0,xenon,"[JAVA_VERSION=jdk-21.0.2+13, ROCK_VERSION=2.0.1, DSBASE_VERSION=6.3.0, DSMEDIATION_VERSION=0.0.3, DSEXPOSOME_VERSION=2.0.9, DSOMICS_VERSION=v1.0.18-2, DSMTL_VERSION=0.9.9, DSURVIVAL_VERSION=v2.1.3]",RUNNING
+BIB,bib-armadillo,armadillo,https://bib-armadillo.molgeniscloud.org,4.13.1,200,datashield/rock-lemon-donkey:latest,donkey,,NOT_FOUND
