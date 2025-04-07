@@ -473,7 +473,6 @@ export default {
         //convert to tree of terms
         //list all terms, incl subtrees
         let terms: Record<string, any> = {};
-        console.log("data", this.data);
         this.data.forEach((term: Record<string, any>) => {
           // did we see it maybe as parent before?
           if (terms[term.name]) {
