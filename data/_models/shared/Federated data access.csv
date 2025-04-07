@@ -6,7 +6,7 @@ Federated data access,,,datashield server,ontology,1,TRUE,CatalogueOntologies,Da
 Federated data access,,,url,hyperlink,,,,,,,,,,,,,FederatedDataAccess,,Federated data access resource url
 Federated data access,,,version,,,,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,Armadillo versions: https://github.com/molgenis/molgenis-service-armadillo/tags and Opal versions: https://github.com/obiba/opal/tags
 Federated data access,,,status,bool,,,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,Server status Up or Down.
-Federated data access,,,profile name,ontology,1,TRUE,CatalogueOntologies,DataSHIELD profile names,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,DataSHIELD profile name
-Federated data access,,,profile image,ontology,1,TRUE,CatalogueOntologies,DataSHIELD profile images,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,DataSHIELD profiles installed on server: https://wiki.datashield.org/en/opmanag/standard-profiles-and-platforms
+Federated data access,,,profile name,ontology,1,TRUE,CatalogueOntologies,DataSHIELD profile names,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,DataSHIELD profile names installed on server: https://wiki.datashield.org/en/opmanag/standard-profiles-and-platforms
+Federated data access,,,profile image,ontology,1,TRUE,CatalogueOntologies,DataSHIELD profile images,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,DataSHIELD profile images installed on server: https://hub.docker.com/u/datashield
 Federated data access,,,profile config,,,,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,DataSHIELD profile R and/or packages version
 Federated data access,,,profile status,,,,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,DataSHIELD profile status (RUNNING/NOT_FOUND)
