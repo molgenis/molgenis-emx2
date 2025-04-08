@@ -142,6 +142,9 @@ abstract class RdfUtils {
 
   /** Ensure that the base URL has a trailing "/" so we can use it easily to construct URL paths. */
   public static String formatBaseURL(String baseURL) {
-    return baseURL.endsWith("/") ? baseURL.substring(0, baseURL.length() - 1) : baseURL;
+    String baseUrlTrim = baseURL.trim();
+    return baseUrlTrim.endsWith("/")
+        ? baseUrlTrim.substring(0, baseUrlTrim.length() - 1)
+        : baseUrlTrim;
   }
 }
