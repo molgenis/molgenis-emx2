@@ -54,7 +54,7 @@ class URLUtilsTest {
   void testBaseUrlMolgenis() {
     runTestConfig(
         (ctx) -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
-        "http://molgenis.org/",
+        "http://molgenis.org",
         "molgenis.org",
         null);
   }
@@ -63,7 +63,7 @@ class URLUtilsTest {
   void testBaseUrlMolgenis80() {
     runTestConfig(
         (ctx) -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
-        "http://molgenis.org/",
+        "http://molgenis.org",
         "molgenis.org:80",
         null);
   }
@@ -72,7 +72,7 @@ class URLUtilsTest {
   void testBaseUrlMolgenis8080() {
     runTestConfig(
         (ctx) -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
-        "http://molgenis.org:8080/",
+        "http://molgenis.org:8080",
         "molgenis.org:8080",
         null);
   }
