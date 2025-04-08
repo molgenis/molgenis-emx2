@@ -14,12 +14,14 @@ import org.molgenis.emx2.MolgenisException;
 /**
  * A primary key for use in an URL or to decode the rowId path segment.
  *
- * <p>Note regarding used escaping: For values, any reserved character according to <a
+ * <h4>Note regarding escaping:</h4>
+ *
+ * For values, any reserved character according to <a
  * href=https://datatracker.ietf.org/doc/html/rfc3986#section-2.2>rfc3986</a> are escaped.
  * Therefore, the escaped result is similar to {@link
- * com.google.common.net.UrlEscapers#urlFormParameterEscaper}, except spaces are escaped as {@code
- * %20} instead of {@code +}. Any reserved characters present in the encoded {@link String} are used
- * as delims and not part of an actual value within the key pairs.
+ * com.google.common.net.UrlEscapers#urlFormParameterEscaper}, except spaces are escaped as "{@code
+ * %20}" instead of "{@code +}". Any reserved characters present in the encoded {@link String} are
+ * used as delims and are not part of an actual value within the key pairs.
  */
 class PrimaryKey {
   private static final PercentEscaper escaper = new PercentEscaper("-._~", false);
