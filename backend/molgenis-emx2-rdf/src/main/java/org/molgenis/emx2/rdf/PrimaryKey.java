@@ -11,12 +11,18 @@ import java.util.*;
 import org.molgenis.emx2.Filter;
 import org.molgenis.emx2.MolgenisException;
 
+/**
+ * A primary key for use in an URL or to decode the rowId path segment.
+ *
+ * <p>Note regarding used escaping: For values, any reserved character according to <a
+ * href=https://datatracker.ietf.org/doc/html/rfc3986#section-2.2>rfc3986</a> are escaped.
+ * Therefore, the escaped result is similar to {@link
+ * com.google.common.net.UrlEscapers#urlFormParameterEscaper}, except spaces are escaped as {@code
+ * %20} instead of {@code +}. Any reserved characters present in the encoded {@link String} are used
+ * as delims and not part of an actual value within the key pairs.
+ */
 class PrimaryKey {
-  /**
-   * Identical to {@link com.google.common.net.UrlEscapers#urlPathSegmentEscaper}, except "=" & "&"
-   * are treated as unsafe.
-   */
-  private static final PercentEscaper escaper = new PercentEscaper("-._~!$'()*,;@:+", false);
+  private static final PercentEscaper escaper = new PercentEscaper("-._~", false);
 
   public static final String NAME_VALUE_SEPARATOR = "=";
   public static final String KEY_PARTS_SEPARATOR = "&";
