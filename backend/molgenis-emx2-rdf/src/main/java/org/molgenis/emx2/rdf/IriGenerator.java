@@ -1,6 +1,6 @@
 package org.molgenis.emx2.rdf;
 
-import static com.github.jsonldjava.shaded.com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
+import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 import static org.molgenis.emx2.Constants.API_FILE;
 import static org.molgenis.emx2.Constants.API_RDF;
 
