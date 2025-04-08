@@ -377,10 +377,6 @@
       @close="isDeleteAllModalShown = false"
       @confirmed="handelExecuteDeleteAll"
     >
-      <LayoutModal v-if="taskId">
-        <Task :taskId="taskId" @taskUpdated="taskUpdated" />
-      </LayoutModal>
-
       <p>
         Truncate <strong>{{ tableMetadata.label }}</strong>
       </p>
@@ -390,6 +386,17 @@
         }}'?
       </p>
     </ConfirmModal>
+
+    <LayoutModal
+      v-if="isTaskModalShown"
+      title="Truncating table"
+      @close="isTaskModalShown = false"
+    >
+      <template #body>
+        <Task :taskId="taskId" @taskUpdated="taskUpdated" />
+      </template>
+    </LayoutModal>
+
     <RefSideModal
       v-if="refSideModalProps"
       :column="refSideModalProps.column"
@@ -439,6 +446,7 @@ import ShowHide from "./ShowHide.vue";
 import TableMolgenis from "./TableMolgenis.vue";
 import TableSettings from "./TableSettings.vue";
 import Task from "../task/Task.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
 
 const View: Record<string, string> = {
   TABLE: "table",
@@ -466,6 +474,7 @@ const ViewButtons: Record<string, any> = {
 export default {
   name: "TableExplorer",
   components: {
+    LayoutModal,
     Task,
     ShowHide,
     Pagination,
@@ -499,10 +508,11 @@ export default {
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: undefined,
       graphqlError: "",
-      taskId: null,
+      taskId: String,
       taskDone: false,
       success: false,
       isDeleteAllModalShown: false,
+      isTaskModalShown: false,
       isDeleteModalShown: false,
       isEditModalShown: false,
       limit: this.showLimit,
@@ -644,12 +654,13 @@ export default {
       }
     },
     async handelExecuteDeleteAll() {
-      this.isDeleteAllModalShown = false;
       await this.client
         .deleteAllTableData(this.tableMetadata?.id)
         .then((data: any) => {
           if (data.data.data.truncate.taskId) {
             this.taskId = data.data.data.truncate.taskId;
+            this.isTaskModalShown = true;
+            this.isDeleteAllModalShown = false;
           } else {
             this.success = data.data.data.truncate.message;
             this.loading = false;
