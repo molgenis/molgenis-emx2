@@ -5,6 +5,7 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.molgenis.emx2.Filter;
@@ -51,8 +52,8 @@ class PrimaryKey {
       // Sort the list to have a stable order
       var sortedMap = new TreeMap<>(this.keys);
       for (var pair : sortedMap.entrySet()) {
-        var name = IriGenerator.escaper.escape(pair.getKey());
-        var value = IriGenerator.escaper.escape(pair.getValue());
+        var name = URLEncoder.encode(pair.getKey(), StandardCharsets.UTF_8.toString());
+        var value = URLEncoder.encode(pair.getValue(), StandardCharsets.UTF_8.toString());
         encodedPairs.add(name + NAME_VALUE_SEPARATOR + value);
       }
       return String.join(KEY_PARTS_SEPARATOR, encodedPairs);

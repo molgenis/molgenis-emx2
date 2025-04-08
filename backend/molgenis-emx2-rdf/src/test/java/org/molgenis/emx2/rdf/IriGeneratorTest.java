@@ -22,7 +22,7 @@ class IriGeneratorTest {
   private static final String TABLE_ID = "MyTable";
   private static final String COLUMN_NAME = "my Column";
   private static final String COLUMN_ID = "myColumn";
-  private static final String ENCODED_PRIMARYKEY = "last%20name=van%20de%20achternaam";
+  private static final String ENCODED_PRIMARYKEY = "last+name=van+de+achternaam";
 
   @Test
   void testIRIGenerator() {
@@ -61,7 +61,7 @@ class IriGeneratorTest {
                 columnIRI(baseURL, column).toString()),
         () ->
             assertEquals(
-                "http://example.com/my%20Schema/api/rdf/MyTable/last%20name=van%20de%20achternaam",
+                "http://example.com/my%20Schema/api/rdf/MyTable?last+name=van+de+achternaam",
                 rowIRI(baseURL, table, primaryKey).toString()));
   }
 }

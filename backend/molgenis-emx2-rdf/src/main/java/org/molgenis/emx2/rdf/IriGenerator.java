@@ -70,7 +70,7 @@ public class IriGenerator {
             + API_RDF
             + "/"
             + escaper.escape(table.getIdentifier())
-            + "/"
+            + "?"
             + primaryKey.getEncodedValue());
   }
 
