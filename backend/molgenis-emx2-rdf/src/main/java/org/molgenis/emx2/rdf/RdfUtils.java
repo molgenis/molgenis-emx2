@@ -1,12 +1,11 @@
 package org.molgenis.emx2.rdf;
 
-import static org.molgenis.emx2.Constants.API_RDF;
 import static org.molgenis.emx2.rdf.DefaultNamespace.streamAll;
+import static org.molgenis.emx2.rdf.IriGenerator.schemaIRI;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.google.common.net.UrlEscapers;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -44,16 +43,16 @@ abstract class RdfUtils {
   public static final Pattern ILLEGAL_PREFIX = Pattern.compile("^(http(s)?|urn(:.*)?|tag):");
 
   /**
-   * Get the namespace for a schema
+   * Get the namespace for a schema. A namespace URL does have a trailing slash (as it is used for
+   * defining relative paths).
    *
    * @param baseURL the baseURL that needs to be used
    * @param schema the schema
    * @return A namespace that defines a local unique prefix for this schema.
    */
   static Namespace getSchemaNamespace(final String baseURL, final SchemaMetadata schema) {
-    final String schemaName = UrlEscapers.urlPathSegmentEscaper().escape(schema.getName());
-    final String url = baseURL + "/" + schemaName + API_RDF + "/";
     final String prefix = TypeUtils.convertToPascalCase(schema.getName());
+    final String url = schemaIRI(baseURL, schema).stringValue() + "/";
     return Values.namespace(prefix, url);
   }
 
