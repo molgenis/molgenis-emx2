@@ -6,6 +6,7 @@ import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
+
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
 
@@ -26,6 +27,7 @@ public class Emx2 {
   public static final String REF_JS_TEMPLATE = "refLabel";
   public static final String REF_BACK = "refBack";
   public static final String REQUIRED = "required";
+  public static final String READ_ONLY = "readonly";
   public static final String DEFAULT_VALUE = "defaultValue";
   private static final String VALIDATION = "validation";
   private static final String VISIBLE = "visible";
@@ -136,6 +138,8 @@ public class Emx2 {
           if (r.notNull(REF_JS_TEMPLATE)) column.setRefLabel(r.getString(REF_JS_TEMPLATE));
           if (r.notNull(COLUMN_POSITION)) column.setPosition(r.getInteger(COLUMN_POSITION));
           if (r.notNull(OLD_NAME)) column.setOldName(r.getString(OLD_NAME));
+          if (r.notNull(READ_ONLY)) column.setReadonly(getBoolAsBoolean(r));
+
           if (!r.isNull(DROP, BOOL) && r.getBoolean(DROP)) column.drop();
           else
             column.setPosition(
@@ -160,6 +164,11 @@ public class Emx2 {
       lineNo++;
     }
     return schema;
+  }
+
+  private static boolean getBoolAsBoolean(Row row) {
+    String readonlyString = row.getString(READ_ONLY);
+    return readonlyString.equalsIgnoreCase("true");
   }
 
   public static void outputMetadata(TableStore store, Schema schema) {
@@ -205,7 +214,9 @@ public class Emx2 {
     return headers;
   }
 
-  /** Outputs tables + columns. */
+  /**
+   * Outputs tables + columns.
+   */
   public static List<Row> toRowList(SchemaMetadata schema) {
 
     // get the metadata in right order; exclude ontologies
