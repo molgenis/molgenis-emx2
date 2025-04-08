@@ -2,7 +2,7 @@ FROM ubuntu:24.10
 
 RUN apt update && apt -y upgrade
 RUN apt update && apt -y install python3 python3-pip python3-venv openjdk-21-jre-headless
-RUN pip3 install setuptools --break-system-packages
+#RUN pip3 install setuptools --break-system-packages
 
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar
