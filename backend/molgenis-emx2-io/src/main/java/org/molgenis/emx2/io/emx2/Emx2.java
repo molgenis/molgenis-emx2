@@ -6,8 +6,10 @@ import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
+
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class Emx2 {
 
@@ -138,7 +140,7 @@ public class Emx2 {
           if (row.notNull(REF_JS_TEMPLATE)) column.setRefLabel(row.getString(REF_JS_TEMPLATE));
           if (row.notNull(COLUMN_POSITION)) column.setPosition(row.getInteger(COLUMN_POSITION));
           if (row.notNull(OLD_NAME)) column.setOldName(row.getString(OLD_NAME));
-          if (row.notNull(READ_ONLY)) column.setReadonly(getBoolAsBoolean(row));
+          if (row.notNull(READ_ONLY)) column.setReadonly(TypeUtils.toBool(row.getString(READ_ONLY)));
 
           if (!row.isNull(DROP, BOOL) && row.getBoolean(DROP)) {
             column.drop();
@@ -164,11 +166,6 @@ public class Emx2 {
       lineNo++;
     }
     return schema;
-  }
-
-  private static boolean getBoolAsBoolean(Row row) {
-    String readonlyString = row.getString(READ_ONLY);
-    return readonlyString.equalsIgnoreCase("true");
   }
 
   public static void outputMetadata(TableStore store, Schema schema) {
@@ -215,7 +212,9 @@ public class Emx2 {
     return headers;
   }
 
-  /** Outputs tables + columns. */
+  /**
+   * Outputs tables + columns.
+   */
   public static List<Row> toRowList(SchemaMetadata schema) {
 
     // get the metadata in right order; exclude ontologies
