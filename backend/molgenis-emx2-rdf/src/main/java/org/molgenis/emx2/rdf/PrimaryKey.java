@@ -1,6 +1,5 @@
 package org.molgenis.emx2.rdf;
 
-import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
