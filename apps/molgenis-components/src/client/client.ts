@@ -229,7 +229,7 @@ const deleteRow = async (row: IRow, tableId: string, schemaId?: string) => {
 };
 
 const deleteAllTableData = (tableId: string, schemaId?: string) => {
-  const query = `mutation {truncate(tables:"${tableId}"){taskId message}}`;
+  const query = `mutation {truncate(tables:"${tableId}" async:true){taskId message}}`;
   return axios.post(graphqlURL(schemaId), { query });
 };
 

@@ -666,7 +666,10 @@ export default {
             this.loading = false;
           }
         })
-        .catch(this.handleError);
+        .catch((error: any) => {
+          this.isDeleteAllModalShown = false;
+          this.handleError(error);
+        });
     },
     handleCellClick(event: any) {
       const { column, cellValue } = event;
