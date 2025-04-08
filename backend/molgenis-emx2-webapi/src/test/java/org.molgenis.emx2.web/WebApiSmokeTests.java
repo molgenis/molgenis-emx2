@@ -927,7 +927,7 @@ public class WebApiSmokeTests {
         given()
             .sessionId(SESSION_ID)
             .when()
-            .get("http://127.0.0.1:" + PORT + "/api/rdf?schemas=pet store")
+            .get("http://localhost:" + PORT + "/api/rdf?schemas=pet store")
             .getBody()
             .asString();
 
@@ -936,7 +936,7 @@ public class WebApiSmokeTests {
         given()
             .sessionId(SESSION_ID)
             .when()
-            .get("http://127.0.0.1:" + PORT + "/pet store/api/rdf")
+            .get("http://localhost:" + PORT + "/pet store/api/rdf")
             .getBody()
             .asString();
 
@@ -946,12 +946,12 @@ public class WebApiSmokeTests {
         () ->
             assertTrue(
                 resultBase.contains(
-                    "http://127.0.0.1:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
+                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
         // Validate schema API.
         () ->
             assertTrue(
                 resultSchema.contains(
-                    "http://127.0.0.1:" + PORT + "/pet%20store/api/rdf/Category/column/name")));
+                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")));
   }
 
   /**
