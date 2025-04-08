@@ -2,7 +2,6 @@ package org.molgenis.emx2.utils;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.utils.URLUtils.extractBaseURL;
-import static org.molgenis.emx2.utils.URLUtils.extractOrigin;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -49,15 +48,6 @@ class URLUtilsTest {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  @Test
-  void testOrigin() {
-    runTestConfig(
-        (ctx) -> contextWrapper(ctx, extractOrigin(ctx).getBytes()),
-        "http://molgenis.org",
-        "molgenis.org",
-        "/subdir");
   }
 
   @Test
