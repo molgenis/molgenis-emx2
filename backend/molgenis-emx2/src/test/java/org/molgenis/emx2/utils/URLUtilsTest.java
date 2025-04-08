@@ -82,7 +82,7 @@ class URLUtilsTest {
   void testBaseUrlMolgenisSubdir8080() {
     runTestConfig(
         (ctx) -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
-        "http://molgenis.org:8080/subdir/",
+        "http://molgenis.org:8080/subdir",
         "molgenis.org:8080",
         "/subdir");
   }
@@ -91,7 +91,7 @@ class URLUtilsTest {
   void testContextPathTrailingSlash() {
     runTestConfig(
         (ctx) -> contextWrapper(ctx, extractBaseURL(ctx).getBytes()),
-        "http://molgenis.org:8080/subdir/",
+        "http://molgenis.org:8080/subdir",
         "molgenis.org:8080",
         "/subdir/");
   }
