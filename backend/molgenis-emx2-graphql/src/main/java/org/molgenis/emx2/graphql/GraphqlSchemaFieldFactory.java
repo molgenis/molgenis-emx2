@@ -539,7 +539,7 @@ public class GraphqlSchemaFieldFactory {
   private static DataFetcher<?> truncateFetcher(Schema schema, TaskService taskService) {
     return dataFetchingEnvironment -> {
       List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
-      boolean async = dataFetchingEnvironment.getArgument(GraphqlConstants.ASYNC);
+      boolean async = dataFetchingEnvironment.getArgumentOrDefault(GraphqlConstants.ASYNC, false);
       GraphqlApiMutationResult result =
           new GraphqlApiMutationResult(SUCCESS, "Truncated tables: " + String.join(", ", tables));
 
