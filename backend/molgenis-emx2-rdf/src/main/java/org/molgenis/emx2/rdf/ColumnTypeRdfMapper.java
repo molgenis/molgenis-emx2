@@ -182,19 +182,22 @@ public abstract class ColumnTypeRdfMapper {
         return basicRetrieval(row.getPeriodArray(column.getName()), Values::literal);
       }
     },
-    /** URI is treated as-is and no escaping/normalization is done. */
+    /** URI is treated as-is and no escaping/normalization is done. Any normalization should be done
+     * before storing the value and not within an API endpoint. */
     URI(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(row.getStringArray(column.getName()), Values::iri);
       }
     },
+    /** EMAIL is treated as-is and no escaping/normalization is done. If this fails, then EMAIL is
+     * invalid and should be rejected when value was being stored. */
     EMAIL(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
             row.getStringArray(column.getName()),
-            (i) -> Values.iri("mailto:" + urlPathSegmentEscaper().escape(i)));
+            (i) -> Values.iri("mailto:" + i));
       }
     },
     FILE(CoreDatatype.XSD.ANYURI) {
