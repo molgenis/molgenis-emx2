@@ -17,7 +17,6 @@ import static org.molgenis.emx2.rdf.RdfUtils.getSemanticValue;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
@@ -66,10 +65,6 @@ public class RDFService {
    * because we need to be able to refer to different schemas.
    */
   private final String baseURL;
-
-  public RDFService(final URL baseURL, final RDFFormat rdfFormat) {
-    this(baseURL.toString(), rdfFormat);
-  }
 
   /**
    * Construct an RDF Service.

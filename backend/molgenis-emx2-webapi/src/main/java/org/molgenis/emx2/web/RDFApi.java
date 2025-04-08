@@ -3,6 +3,7 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.Constants.API_JSONLD;
 import static org.molgenis.emx2.Constants.API_RDF;
 import static org.molgenis.emx2.Constants.API_TTL;
+import static org.molgenis.emx2.utils.URLUtils.extractBaseURL;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 
 import io.javalin.Javalin;
@@ -84,7 +85,7 @@ public class RDFApi {
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
 
-    final RDFService rdf = new RDFService(baseUrl, format);
+    final RDFService rdf = new RDFService(extractBaseURL(ctx), format);
     ctx.contentType(rdf.getMimeType());
     OutputStream outputStream = ctx.outputStream();
     db.tx(
@@ -132,7 +133,7 @@ public class RDFApi {
       final String columnName,
       final Schema... schemas)
       throws IOException {
-    RDFService rdf = new RDFService(baseUrl, selectFormat(ctx, format));
+    RDFService rdf = new RDFService(extractBaseURL(ctx), selectFormat(ctx, format));
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
