@@ -12,6 +12,8 @@
 </template>
 
 <script setup lang="ts">
+import { useSections } from "#imports";
+import { ref } from "vue";
 import type { ColumnType } from "../../../metadata-utils/src/types";
 
 const model = ref({});

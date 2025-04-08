@@ -22,6 +22,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useTemplateRef } from "vue";
+
 defineProps<{
   isSelected?: boolean;
   label: string | number | boolean;

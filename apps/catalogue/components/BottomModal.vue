@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useId } from "vue";
+
 const ariaId = useId();
 const preAnimation = () => {
   document.body.classList.add("v-popper_bottom");

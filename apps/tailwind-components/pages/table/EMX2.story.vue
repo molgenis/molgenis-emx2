@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import type { ITableSettings, Resp, Schema } from "~/types/types";
+import { useFetch, useLazyAsyncData } from "#app";
+import { fetchMetadata, fetchTableData } from "#imports";
+import { computed, ref, watch } from "vue";
+import type { ITableSettings, Resp, Schema } from "../../types/types";
 
 const tableSettings = ref<ITableSettings>({
   page: 1,
@@ -16,13 +19,15 @@ const { data } = await useFetch<Resp<Schema>>("/graphql", {
 
 const databases = computed(
   () =>
-    data.value?.data?._schemas.sort((a, b) => a.label.localeCompare(b.label)) ??
-    []
+    data.value?.data?._schemas.sort((a: any, b: any) =>
+      a.label.localeCompare(b.label)
+    ) ?? []
 );
 
 const schemaId = ref(
   databases.value.find(
-    (d) => d.label === "pet store" || d.id === "catalogue-demo"
+    (database: any) =>
+      database.label === "pet store" || database.id === "catalogue-demo"
   )?.id || ""
 );
 
@@ -35,7 +40,7 @@ const tableId = ref(
 );
 
 const schemaOptions = computed(() =>
-  databases.value.map((schema) => schema.id)
+  databases.value.map((schema: any) => schema.id)
 );
 
 const { data: metadata, refresh: refetchMetadata } = await useLazyAsyncData(
@@ -63,7 +68,9 @@ const {
   fetchTableData(schemaId.value, tableId.value)
 );
 
-watch(schemaId, async () => {
+const numberOfRows = computed(() => tableData?.value?.count ?? 0);
+
+watch(schemaId, () => {
   refetchMetadata().then(() => {
     if (metadata.value) {
       tableId.value = metadata.value.tables[0].id;
@@ -72,9 +79,7 @@ watch(schemaId, async () => {
   });
 });
 
-watch(tableId, async () => {
-  refetchTableData();
-});
+watch(tableId, () => refetchTableData());
 
 const tableColumns = computed(() => {
   return (
@@ -85,7 +90,7 @@ const tableColumns = computed(() => {
 });
 
 const dataRows = computed(() => {
-  if (!tableData.value) return [];
+  if (!tableData.value?.rows) return [];
 
   return tableData.value.rows.map((row) => {
     return Object.fromEntries(
@@ -93,8 +98,6 @@ const dataRows = computed(() => {
     );
   });
 });
-
-const numberOfRows = computed(() => tableData?.value?.count ?? 0);
 </script>
 
 <template>
@@ -130,4 +133,3 @@ const numberOfRows = computed(() => tableData?.value?.count ?? 0);
     />
   </div>
 </template>
-d

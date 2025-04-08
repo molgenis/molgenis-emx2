@@ -1,3 +1,5 @@
+import { createError } from "#imports";
+
 export default async (
   schemaId: string,
   query: string,

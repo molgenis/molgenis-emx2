@@ -57,5 +57,7 @@
   --border-radius-search-button: 9999px;
   --border-radius-landing: 50px;
 
+  --border-width-theme: 0px;
+
   --text-color-input-description: var(--color-white);
 }

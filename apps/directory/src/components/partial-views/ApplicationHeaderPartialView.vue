@@ -184,7 +184,12 @@ export default {
             value: service.id,
           })) || [],
       }));
-      allSelections.forEach((item) => {
+
+      const nonEmptyBiobanks = allSelections.filter(
+        (item) => item.services.length > 0
+      );
+
+      nonEmptyBiobanks.forEach((item) => {
         this.checkoutStore.addServicesToSelection(
           item.biobank,
           item.services,
@@ -201,7 +206,12 @@ export default {
             value: collection.id,
           })) || [],
       }));
-      allSelections.forEach((item) => {
+
+      const nonEmptyBiobanks = allSelections.filter(
+        (item) => item.collections.length > 0
+      );
+
+      nonEmptyBiobanks.forEach((item) => {
         this.checkoutStore.addCollectionsToSelection(
           item.biobank,
           item.collections,

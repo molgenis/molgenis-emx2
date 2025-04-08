@@ -286,6 +286,53 @@ public class TestRefBack {
   }
 
   @Test
+  public void testRefbackWithIncorrectRefColumn() {
+    schema.create(
+        table("subject_incorrect_ref", column("id").setPkey()),
+        table(
+            "treatments_incorrect_ref",
+            column("id").setPkey(),
+            column("partOfSubject").setType(REF).setRefTable("subject_incorrect_ref")));
+    assertThrows(
+        MolgenisException.class,
+        () ->
+            schema
+                .getTable("subject_incorrect_ref")
+                .getMetadata()
+                .add(
+                    column("treatment")
+                        .setType(REFBACK)
+                        .setRefTable("treatments_incorrect_ref")
+                        .setRefBack("id")));
+    ;
+  }
+
+  @Test
+  public void testRefbackWithIncorrectRefTable() {
+    schema.create(
+        table("subject_incorrect_ref_table", column("id").setPkey()),
+        table(
+            "treatments_incorrect_ref_table",
+            column("id").setPkey(),
+            column("partOfDisease").setType(REF).setRefTable("diseases_incorrect_ref_table")),
+        table(
+            "diseases_incorrect_ref_table",
+            column("id").setPkey(),
+            column("partOfTreatment").setType(REF).setRefTable("treatments_incorrect_ref_table")));
+    assertThrows(
+        MolgenisException.class,
+        () ->
+            schema
+                .getTable("subject_incorrect_ref_table")
+                .getMetadata()
+                .add(
+                    column("disease")
+                        .setType(REFBACK)
+                        .setRefTable("diseases_incorrect_ref_table")
+                        .setRefBack("partOfTreatment")));
+  }
+
+  @Test
   void testRefBackAndFile_fix4703() {
     Table test =
         schema.create(

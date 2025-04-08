@@ -1,5 +1,7 @@
 import { joinURL } from "ufo";
 import { createConsola } from "consola";
+import { defineEventHandler, readBody, getRouterParam, proxyRequest } from "h3";
+import { useRuntimeConfig } from "#imports";
 
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event);
@@ -16,7 +18,12 @@ export default defineEventHandler((event) => {
     });
   }
   const schema = getRouterParam(event, "schema") || "";
-  logger.info("to : ", joinURL(config.public.apiBase, schema, "graphql"));
-  const target = joinURL(config.public.apiBase, schema, "graphql");
+  const target =
+    schema === "undefined"
+      ? joinURL(config.public.apiBase, "api/graphql")
+      : joinURL(config.public.apiBase, schema, "graphql");
+
+  logger.info("to : ", target);
+
   return proxyRequest(event, target);
 });

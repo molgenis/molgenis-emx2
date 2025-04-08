@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useRuntimeConfig, useRoute, useCookie, useHead } from '#app';
+import { useGtag, useDatasetStore } from '#imports';
+import { computed, ref } from 'vue';
+
 const config = useRuntimeConfig();
 const route = useRoute();
 const { initialize } = useGtag();

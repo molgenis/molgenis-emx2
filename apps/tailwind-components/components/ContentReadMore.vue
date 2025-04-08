@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 withDefaults(
   defineProps<{
     text?: string;

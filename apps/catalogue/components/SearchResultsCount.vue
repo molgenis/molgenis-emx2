@@ -1,10 +1,10 @@
 <script setup lang="ts">
-const props = withDefaults(
+withDefaults(
   defineProps<{
     value: number;
     label?: string;
     suffix?: string;
-    valuePrefix?: string;
+    valuePrefix?: string | null;
   }>(),
   {
     value: 0,

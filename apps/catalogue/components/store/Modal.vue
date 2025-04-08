@@ -32,6 +32,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useDatasetStore } from "~/stores/useDatasetStore";
+
 const datasetStore = useDatasetStore();
 
 withDefaults(

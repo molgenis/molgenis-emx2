@@ -83,6 +83,9 @@
 </template>
 
 <script setup lang="ts">
+import { setPageLayout, useCookie, useHead } from "#app";
+import { ref } from "vue";
+
 const theme = useCookie("theme", {
   default: () => "",
 });

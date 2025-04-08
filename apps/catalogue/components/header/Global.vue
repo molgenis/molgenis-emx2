@@ -1,9 +1,9 @@
-<script setup>
+<script setup lang="ts">
+import { useRuntimeConfig, useRoute } from "#app";
+
 const config = useRuntimeConfig();
-let schema;
-if (useRoute) {
-  schema = useRoute().params.schema;
-}
+const schema = useRoute().params.schema;
+
 const menu = [
   { label: "Home", link: `/${schema}/catalogue` },
   config.public.cohortOnly

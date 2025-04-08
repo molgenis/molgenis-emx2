@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { watch } from "vue";
+import { type ICollectionEvents } from "../interfaces/catalogue";
+import type { ICollectionEventCategory } from "../interfaces/types";
 const props = withDefaults(
   defineProps<{
     title: string;
     category: string;
-    collectionEvents: ICollectionEvent[];
+    collectionEvents: ICollectionEvents[];
     columnCount?: number;
   }>(),
   {
@@ -11,11 +14,14 @@ const props = withDefaults(
   }
 );
 
-function collectCategories(type: string, collectionEvents: ICollectionEvent[]) {
+function collectCategories(
+  type: string,
+  collectionEvents: ICollectionEvents[]
+) {
   const items = collectionEvents.reduce(
     (
       accumulator: ICollectionEventCategory[],
-      currentValue: ICollectionEvent
+      currentValue: ICollectionEvents
     ) => {
       // @ts-ignore
       if (Array.isArray(currentValue[type])) {
@@ -55,7 +61,7 @@ function findParentCategories(categories: ICollectionEventCategory[]) {
 function combineParentChildCategories(
   categories: ICollectionEventCategory[],
   parents: ICollectionEventCategory[]
-): ICollectionEventCategorySet[] {
+): ICollectionEventCategory[] {
   return parents.map((item: ICollectionEventCategory) => {
     const children = categories.filter((child: ICollectionEventCategory) => {
       return child?.parent?.name === item?.name;
@@ -73,8 +79,8 @@ function combineParentChildCategories(
 
 function getCategoriesOf(
   type: string,
-  collectionEvents: ICollectionEvent[]
-): ICollectionEventCategorySet[] {
+  collectionEvents: ICollectionEvents[]
+): ICollectionEventCategory[] {
   const categories: ICollectionEventCategory[] = collectCategories(
     type,
     collectionEvents
@@ -83,12 +89,15 @@ function getCategoriesOf(
   return combineParentChildCategories(categories, parents);
 }
 
-let treeItems: ICollectionEventCategorySet[][];
+let treeItems: ICollectionEventCategory[][];
 watch(
   props.collectionEvents,
   () => {
     treeItems = [];
-    const allCategories = getCategoriesOf(props.category, collectionEvents);
+    const allCategories = getCategoriesOf(
+      props.category,
+      props.collectionEvents
+    );
     if (allCategories.length > props.columnCount) {
       const pageSize = allCategories.length / props.columnCount;
       for (let column = 1; column < props.columnCount + 1; column++) {
