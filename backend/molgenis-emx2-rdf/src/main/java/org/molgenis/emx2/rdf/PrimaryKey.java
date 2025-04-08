@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf;
 
+import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
@@ -12,8 +13,10 @@ import org.molgenis.emx2.Filter;
 import org.molgenis.emx2.MolgenisException;
 
 class PrimaryKey {
-  // Identical to urlFormParameterEscaper except space escaping
-  private static final PercentEscaper escaper = new PercentEscaper("-_.*", false);
+  /**
+   * Identical to {@link com.google.common.net.UrlEscapers#urlPathSegmentEscaper}, except "=" & "&" are treated as unsafe.
+   */
+  private static final PercentEscaper escaper = new PercentEscaper("-._~!$'()*,;@:+", false);
 
   public static final String NAME_VALUE_SEPARATOR = "=";
   public static final String KEY_PARTS_SEPARATOR = "&";
