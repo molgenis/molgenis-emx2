@@ -1,5 +1,5 @@
 :root[data-theme="dark"] {
-  --background-color-navigation: var(--color-gray-600);
+  --background-color-navigation: var(--color-gray-800);
   --background-image-sidebar-gradient: linear-gradient(
     180deg,
     var(--color-gray-600) -24.76%,
@@ -43,6 +43,8 @@
   --background-color-pagination-hover: var(--color-gray-700);
   --background-color-input: var(--color-gray-600);
 
+  --background-color-table: var(--color-gray-700);
+
   --text-color-link: var(--color-green-500);
   --text-color-button-primary: var(--color-gray-800);
   --text-color-button-primary-hover: var(--color-gray-800);
@@ -57,6 +59,8 @@
   --text-color-breadcrumb: var(--color-green-500);
 
   --text-color-title-contrast: var(--text-color-title);
+  --text-color-table-column-header: var(--color-gray-50);
+  --text-color-table-row: var(--color-white);
   --text-color-form-header: var(--color-white);
   --text-color-input-description: var(--color-gray-50);
   --text-color-pagination: var(--color-white);
