@@ -52,6 +52,8 @@ public class RDFApi {
     app.head("{schema}" + apiLocation, (ctx) -> rdfHead(ctx, format));
     app.get("{schema}" + apiLocation + "/{table}", (ctx) -> rdfForTable(ctx, format));
     app.head("{schema}" + apiLocation + "/{table}", (ctx) -> rdfHead(ctx, format));
+    app.get("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfForRow(ctx, format));
+    app.head("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfHead(ctx, format));
     app.get(
         "{schema}" + apiLocation + "/{table}/column/{column}", (ctx) -> rdfForColumn(ctx, format));
     app.head("{schema}" + apiLocation + "/{table}/column/{column}", (ctx) -> rdfHead(ctx, format));
@@ -98,51 +100,43 @@ public class RDFApi {
   }
 
   private static void rdfForSchema(Context ctx, RDFFormat format) throws IOException {
-    format = selectFormat(ctx, format); // defines format if null
-
     Schema schema = getSchema(ctx);
     if (schema == null) {
       throw new MolgenisException("Schema " + ctx.pathParam("schema") + " was not found");
     }
-
-    RDFService rdf = new RDFService(baseUrl, format);
-    ctx.contentType(rdf.getMimeType());
-
-    OutputStream outputStream = ctx.outputStream();
-    rdf.describeAsRDF(outputStream, null, null, null, schema);
-    outputStream.flush();
-    outputStream.close();
+    runService(ctx, format, null, null, null, schema);
   }
 
   private static void rdfForTable(Context ctx, RDFFormat format) throws IOException {
-    format = selectFormat(ctx, format); // defines format if null
-
     Table table = getTableByIdOrName(ctx);
-    String rowId = null;
-    if (ctx.queryString() != null && !ctx.queryString().isBlank()) {
-      rowId = ctx.queryString();
-    }
-
-    RDFService rdf = new RDFService(baseUrl, format);
-    ctx.contentType(rdf.getMimeType());
-
-    OutputStream outputStream = ctx.outputStream();
-    rdf.describeAsRDF(outputStream, table, rowId, null, table.getSchema());
-    outputStream.flush();
-    outputStream.close();
+    runService(ctx, format, table, null, null, table.getSchema());
   }
 
   private static void rdfForColumn(Context ctx, RDFFormat format) throws IOException {
-    format = selectFormat(ctx, format); // defines format if null
-
     Table table = getTableByIdOrName(ctx);
     String columnName = sanitize(ctx.pathParam("column"));
+    runService(ctx, format, table, null, columnName, table.getSchema());
+  }
 
-    RDFService rdf = new RDFService(baseUrl, format);
+  private static void rdfForRow(Context ctx, RDFFormat format) throws IOException {
+    Table table = getTableByIdOrName(ctx);
+    String rowId = sanitize(ctx.pathParam("row"));
+    runService(ctx, format, table, rowId, null, table.getSchema());
+  }
+
+  private static void runService(
+      final Context ctx,
+      final RDFFormat format,
+      final Table table,
+      final String rowId,
+      final String columnName,
+      final Schema... schemas)
+      throws IOException {
+    RDFService rdf = new RDFService(baseUrl, selectFormat(ctx, format));
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();
-    rdf.describeAsRDF(outputStream, table, null, columnName, table.getSchema());
+    rdf.describeAsRDF(outputStream, table, rowId, columnName, schemas);
     outputStream.flush();
     outputStream.close();
   }
