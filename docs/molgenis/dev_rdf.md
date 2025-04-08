@@ -68,8 +68,8 @@ One particular column from a table within a schema can be retrieved by adding a 
 For example: `<server>/pet%20store/api/rdf/Pet/column/name`
 
 ### Filter rows
-The rows from a table within a schema can be filtered based on a column value by adding these as a `key=value` pair to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>/<column-name>=<value>`.
-For example: `<server>/pet%20store/api/rdf/Pet/category=cat`
+The rows from a table within a schema can be filtered based on a column value by adding these as a `key=value` pair to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>?<column-name>=<value>`.
+For example: `<server>/pet%20store/api/rdf/Pet?category=cat`
 
 ## data formats
 Using the content negotiation, RDF can be exported in one of many available formats. For example the following curl command will download the pet store in jsonld:
