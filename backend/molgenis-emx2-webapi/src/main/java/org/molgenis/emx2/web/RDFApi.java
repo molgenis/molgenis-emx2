@@ -68,20 +68,20 @@ public class RDFApi {
     format = selectFormat(ctx, format); // defines format if null
 
     Database db = sessionManager.getSession(ctx.req()).getDatabase();
+    Collection<String> availableSchemas = getSchemaNames(ctx);
     Collection<String> schemaNames = new ArrayList<>();
     if (ctx.queryParam("schemas") != null) {
       List<String> selectedSchemas = Arrays.stream(ctx.queryParam("schemas").split(",")).toList();
-      for (String name : MolgenisWebservice.getSchemaNames(ctx)) {
-        if (selectedSchemas.contains(name)) {
-          if (db.getSchema(name) == null) {
-            throw new MolgenisException("Schema '" + name + "' unknown or permission denied");
-          }
-          schemaNames.add(name);
+      for (String name : selectedSchemas) {
+        if (!availableSchemas.contains(name) || db.getSchema(name) == null) {
+          throw new MolgenisException("Schema '" + name + "' unknown or permission denied");
         }
+        schemaNames.add(name);
       }
     } else {
-      schemaNames = MolgenisWebservice.getSchemaNames(ctx);
+      schemaNames = availableSchemas;
     }
+
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
 
