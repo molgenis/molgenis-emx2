@@ -675,7 +675,7 @@ public class RDFTest {
     var subject =
         Values.iri(
             getApi(ontologyTest)
-                + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx");
+                + "Diseases/name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx");
 
     var parents = handler.resources.get(subject).get(RDFS.SUBCLASSOF);
     assertEquals(
@@ -692,23 +692,23 @@ public class RDFTest {
             Values.iri("https://icd.who.int/browse10/2019/en#/U07"),
             Values.iri(
                 getApi(ontologyTest)
-                    + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
+                    + "Diseases/name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
     Set<Value> expectedNonSemantic =
         Set.of(
-            Values.iri(getApi(ontologyTest) + "Diseases?name=U07"),
+            Values.iri(getApi(ontologyTest) + "Diseases/name=U07"),
             Values.iri(
                 getApi(ontologyTest)
-                    + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
+                    + "Diseases/name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
 
     Set<Value> actualSemantic =
         handler
             .resources
-            .get(Values.iri(getApi(ontologyTest) + "Patients?name=bob"))
+            .get(Values.iri(getApi(ontologyTest) + "Patients/name=bob"))
             .get(Values.iri("http://purl.obolibrary.org/obo/NCIT_C2991"));
     Set<Value> actualNonSemantic =
         handler
             .resources
-            .get(Values.iri(getApi(ontologyTest) + "Patients?name=bob"))
+            .get(Values.iri(getApi(ontologyTest) + "Patients/name=bob"))
             .get(Values.iri(getApi(ontologyTest) + "Patients/column/diseases"));
 
     assertEquals(expectedSemantic, actualSemantic);
@@ -725,23 +725,23 @@ public class RDFTest {
             Values.iri("https://icd.who.int/browse10/2019/en#/U07"),
             Values.iri(
                 getApi(ontologyTest)
-                    + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
+                    + "Diseases/name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
     Set<Value> expectedNonSemantic =
         Set.of(
-            Values.iri(getApi(ontologyTest) + "Diseases?name=U07"),
+            Values.iri(getApi(ontologyTest) + "Diseases/name=U07"),
             Values.iri(
                 getApi(ontologyTest)
-                    + "Diseases?name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
+                    + "Diseases/name=C00-C14%20Malignant%20neoplasms%20of%20lip%2C%20oral%20cavity%20and%20pharynx"));
 
     Set<Value> actualSemantic =
         handler
             .resources
-            .get(Values.iri(getApi(ontologyCrossSchemaTest) + "Patients?name=pim"))
+            .get(Values.iri(getApi(ontologyCrossSchemaTest) + "Patients/name=pim"))
             .get(Values.iri("http://purl.obolibrary.org/obo/NCIT_C2991"));
     Set<Value> actualNonSemantic =
         handler
             .resources
-            .get(Values.iri(getApi(ontologyCrossSchemaTest) + "Patients?name=pim"))
+            .get(Values.iri(getApi(ontologyCrossSchemaTest) + "Patients/name=pim"))
             .get(Values.iri(getApi(ontologyCrossSchemaTest) + "Patients/column/diseases"));
 
     assertEquals(expectedSemantic, actualSemantic);
@@ -1442,7 +1442,7 @@ example,http://example.com/
     Set<Value> files =
         handler
             .resources
-            .get(Values.iri(getApi(fileTest) + "MyFiles?id=1"))
+            .get(Values.iri(getApi(fileTest) + "MyFiles/id=1"))
             .get(Values.iri(getApi(fileTest) + "MyFiles/column/file"));
 
     IRI fileIRI = (IRI) files.stream().findFirst().get();
@@ -1469,9 +1469,9 @@ example,http://example.com/
     Set<Value> refBacks =
         handler
             .resources
-            .get(Values.iri(getApi(refBackTest) + "TableRefBack?id=a"))
+            .get(Values.iri(getApi(refBackTest) + "TableRefBack/id=a"))
             .get(Values.iri(getApi(refBackTest) + "TableRefBack/column/backlink"));
-    assertEquals(Set.of(Values.iri(getApi(refBackTest) + "TableRef?id=1")), refBacks);
+    assertEquals(Set.of(Values.iri(getApi(refBackTest) + "TableRef/id=1")), refBacks);
   }
 
   @Test
@@ -1490,7 +1490,7 @@ example,http://example.com/
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(semanticTest, "valid"), handler);
     Set<IRI> actualPredicates =
-        handler.resources.get(Values.iri(getApi(semanticTest) + "Valid?id=1")).keySet();
+        handler.resources.get(Values.iri(getApi(semanticTest) + "Valid/id=1")).keySet();
     assertTrue(actualPredicates.containsAll(expectedPredicates));
 
     assertThrows(
@@ -1598,39 +1598,39 @@ example,http://example.com/
   private enum ValidationTriple {
     // Inheritance testing
     INHER_ID1(
-        getApi(tableInherTest) + "Root?id=1",
+        getApi(tableInherTest) + "Root/id=1",
         getApi(tableInherTest) + "Root/column/rootColumn",
         Values.literal("id1 data")),
     INHER_ID2(
-        getApi(tableInherTest) + "Root?id=2",
+        getApi(tableInherTest) + "Root/id=2",
         getApi(tableInherTest) + "Child/column/childColumn",
         Values.literal("id2 data")),
     INHER_ID3(
-        getApi(tableInherTest) + "Root?id=3",
+        getApi(tableInherTest) + "Root/id=3",
         getApi(tableInherTest) + "GrandchildTypeA/column/grandchildColumn",
         Values.literal("id3 data")),
     INHER_ID4(
-        getApi(tableInherTest) + "Root?id=4",
+        getApi(tableInherTest) + "Root/id=4",
         getApi(tableInherTest) + "GrandchildTypeB/column/grandchildColumn",
         Values.literal("id4 data")),
     INHER_ID4_GRANDPARENT_FIELD(
-        getApi(tableInherTest) + "Root?id=4",
+        getApi(tableInherTest) + "Root/id=4",
         getApi(tableInherTest) + "Root/column/rootColumn",
         Values.literal("id4 data for rootColumn")),
     INHER_ID4_PARENT_FIELD(
-        getApi(tableInherTest) + "Root?id=4",
+        getApi(tableInherTest) + "Root/id=4",
         getApi(tableInherTest) + "Child/column/childColumn",
         Values.literal("id4 data for childColumn")),
     INHER_ID5(
-        getApi(tableInherTest) + "Root?id=5",
+        getApi(tableInherTest) + "Root/id=5",
         getApi(tableInherExtTest) + "ExternalChild/column/externalChildColumn",
         Values.literal("id5 data")),
     INHER_ID6(
-        getApi(tableInherTest) + "Root?id=6",
+        getApi(tableInherTest) + "Root/id=6",
         getApi(tableInherExtTest) + "ExternalGrandchild/column/externalGrandchildColumn",
         Values.literal("id6 data")),
     INHER_UNRELATED(
-        getApi(tableInherExtTest) + "ExternalUnrelated?id=a",
+        getApi(tableInherExtTest) + "ExternalUnrelated/id=a",
         getApi(tableInherExtTest) + "ExternalUnrelated/column/externalUnrelatedColumn",
         Values.literal("unrelated data")),
 
@@ -1690,13 +1690,13 @@ example,http://example.com/
   }
 
   enum ValidationSubjects {
-    COMP_ROOT1_FIRST("Root1?r1.c1a=c1a_first&r1.c1b.gc1a=gc1a_first&r1.c1b.gc1b=gc1b_first"),
+    COMP_ROOT1_FIRST("Root1/r1.c1a=c1a_first&r1.c1b.gc1a=gc1a_first&r1.c1b.gc1b=gc1b_first"),
     COMP_ROOT2_FIRST(
-        "Root2?r2a=r2a_first&r2b.c1a=c1a_second&r2b.c1b.gc1a=gc1a_first&r2b.c1b.gc1b=gc1b_first"),
-    COMP_CHILD1_FIRST("Child1?c1a=c1a_first&c1b.gc1a=gc1a_first&c1b.gc1b=gc1b_first"),
-    COMP_CHILD1_SECOND("Child1?c1a=c1a_second&c1b.gc1a=gc1a_first&c1b.gc1b=gc1b_first"),
-    COMP_GRANDCHILD1_FIRST("Grandchild1?gc1a=gc1a_first&gc1b=gc1b_first"),
-    COMP_GRANDCHILD1_SECOND("Grandchild1?gc1a=gc1a_second&gc1b=gc1b_second");
+        "Root2/r2a=r2a_first&r2b.c1a=c1a_second&r2b.c1b.gc1a=gc1a_first&r2b.c1b.gc1b=gc1b_first"),
+    COMP_CHILD1_FIRST("Child1/c1a=c1a_first&c1b.gc1a=gc1a_first&c1b.gc1b=gc1b_first"),
+    COMP_CHILD1_SECOND("Child1/c1a=c1a_second&c1b.gc1a=gc1a_first&c1b.gc1b=gc1b_first"),
+    COMP_GRANDCHILD1_FIRST("Grandchild1/gc1a=gc1a_first&gc1b=gc1b_first"),
+    COMP_GRANDCHILD1_SECOND("Grandchild1/gc1a=gc1a_second&gc1b=gc1b_second");
 
     Value value;
 

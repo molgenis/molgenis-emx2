@@ -56,7 +56,7 @@ public class IriGenerator {
             + API_RDF
             + "/"
             + urlPathSegmentEscaper().escape(table.getIdentifier())
-            + "?"
+            + "/"
             + primaryKey.getEncodedValue());
   }
 

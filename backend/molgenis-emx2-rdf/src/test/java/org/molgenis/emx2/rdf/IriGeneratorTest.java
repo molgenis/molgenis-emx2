@@ -61,7 +61,7 @@ class IriGeneratorTest {
                 columnIRI(baseURL, column).toString()),
         () ->
             assertEquals(
-                "http://example.com/my%20Schema/api/rdf/MyTable?last%20name=van%20de%20achternaam",
+                "http://example.com/my%20Schema/api/rdf/MyTable/last%20name=van%20de%20achternaam",
                 rowIRI(baseURL, table, primaryKey).toString()));
   }
 }
