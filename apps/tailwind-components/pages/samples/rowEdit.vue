@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useHead } from "#app";
-import { definePageMeta, useSections, useForm } from "#imports";
+import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import type {
@@ -8,6 +8,8 @@ import type {
   columnValue,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
+import useForm from "../../composables/useForm";
+import useSections from "../../composables/useSections";
 import cohortTableMetadata from "./data/cohort-table-metadata";
 
 definePageMeta({
