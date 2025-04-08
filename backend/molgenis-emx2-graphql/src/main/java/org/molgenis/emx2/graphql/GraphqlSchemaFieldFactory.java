@@ -550,7 +550,7 @@ public class GraphqlSchemaFieldFactory {
               @Override
               public void run() {
                 this.start();
-                this.setDescription("Truncating table:" + String.join(", ", tables));
+                this.setDescription("Truncating table: " + String.join(", ", tables));
                 try {
                   truncateTables(schema, tables);
                 } catch (MolgenisException e) {
