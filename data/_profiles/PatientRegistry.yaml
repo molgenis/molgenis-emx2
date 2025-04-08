@@ -1,0 +1,10 @@
+---
+name: Patient registry
+description: Patient registry and data catalogue
+
+profileTags: Patient registry, DataCatalogueFlat
+
+# special options
+setViewPermission: anonymous
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous
