@@ -5,7 +5,7 @@ import { useSession } from "../composables/session";
 
 const route = useRoute();
 const router = useRouter();
-const { data: session } = await useSession();
+const { session, reload: reloadSession } = await useSession();
 
 const errorMsg = ref("");
 async function signout() {
@@ -25,7 +25,8 @@ async function signout() {
 
   if (data.signout.status === "SUCCESS") {
     console.log(data.signout.message);
-    session.value.email = "anonymous";
+
+    reloadSession();
     route.redirectedFrom ? router.go(-1) : navigateTo({ path: "/" });
   } else {
     console.log(data.signout.message);
@@ -34,10 +35,10 @@ async function signout() {
 </script>
 <template>
   <Container class="flex flex-col items-center">
-    <ContentBlock class="w-6/12 mt-3" :title="session.email">
+    <ContentBlock class="w-6/12 mt-3" :title="session?.email">
       <div>
         <Button
-          v-if="session.email !== 'anonymous'"
+          v-if="session?.email !== 'anonymous'"
           type="primary"
           size="medium"
           @click="signout"

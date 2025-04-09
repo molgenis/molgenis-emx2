@@ -36,8 +36,8 @@ async function signin() {
 
     if (signinResp.data.signin.status === "SUCCESS") {
       console.log(signinResp.data.signin);
-      const { data: session } = await useSession();
-      session.value.email = username.value;
+      const { reload } = await useSession();
+      reload();
       route.redirectedFrom ? router.go(-1) : navigateTo({ path: "/" });
     } else {
       console.log(signinResp.data.signin.message);

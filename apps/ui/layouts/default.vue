@@ -6,7 +6,7 @@ import { computed } from "vue";
 
 const config = useRuntimeConfig();
 const route = useRoute();
-const { data: session } = await useSession();
+const { session } = await useSession();
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`

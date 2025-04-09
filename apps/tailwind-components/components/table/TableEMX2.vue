@@ -7,10 +7,21 @@
       :inverted="true"
     >
     </FilterSearch>
-    <TableControlColumns
-      :columns="columns"
-      @update:columns="handleColumnsUpdate"
-    />
+
+    <div class="flex gap-[10px]">
+      <Button
+        v-if="isEditable"
+        type="primary"
+        icon="plus"
+        @click="handleAddClick"
+        >Add {{ tableId }}</Button
+      >
+
+      <TableControlColumns
+        :columns="columns"
+        @update:columns="handleColumnsUpdate"
+      />
+    </div>
   </div>
 
   <div class="overflow-auto rounded-b-theme">
@@ -88,6 +99,28 @@ import type { IColumn } from "../../../metadata-utils/src/types";
 import type { ITableSettings, sortDirection } from "../../types/types";
 import { sortColumns } from "../../utils/sortColumns";
 
+const props = withDefaults(
+  defineProps<{
+    tableId: string;
+    columns: IColumn[];
+    rows: Record<string, any>[];
+    count: number;
+    settings?: ITableSettings;
+    isEditable?: boolean;
+  }>(),
+  {
+    settings: () => ({
+      page: 1,
+      pageSize: 10,
+      orderby: { column: "", direction: "ASC" },
+      search: "",
+    }),
+    isEditable: () => false,
+  }
+);
+
+const emit = defineEmits(["update:settings", "update:columns"]);
+
 const mgAriaSortMappings = {
   ASC: "ascending",
   DESC: "descending",
@@ -99,16 +132,6 @@ const defaultSettings: ITableSettings = {
   orderby: { column: "", direction: "ASC" },
   search: "",
 };
-
-const props = defineProps<{
-  tableId: string;
-  columns: IColumn[];
-  rows: Record<string, any>[];
-  count: number;
-  settings?: ITableSettings;
-}>();
-
-const emit = defineEmits(["update:settings", "update:columns"]);
 
 const settings = ref({ ...defaultSettings, ...props.settings });
 const columns = ref(props.columns);
@@ -153,5 +176,9 @@ function handlePagingRequest(page: number) {
 
 function handleColumnsUpdate(newColumns: IColumn[]) {
   columns.value = newColumns;
+}
+
+function handleAddClick() {
+  alert("Add row placeholder");
 }
 </script>

@@ -121,3 +121,7 @@ export interface IInputProps {
   valid?: boolean | undefined;
   disabled?: boolean | undefined;
 }
+
+export interface ISession {
+  email: string;
+}

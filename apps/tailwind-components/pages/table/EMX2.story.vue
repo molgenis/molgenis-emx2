@@ -11,6 +11,8 @@ const tableSettings = ref<ITableSettings>({
   search: "",
 });
 
+const isEditable = ref(false);
+
 const { data } = await useFetch<Resp<Schema>>("/graphql", {
   key: "databases",
   method: "POST",
@@ -119,6 +121,14 @@ const dataRows = computed(() => {
         </option>
       </select>
     </div>
+    <div class="m-2">
+      <label for="table-id-select">Edit mode: </label>
+      <InputBoolean
+        v-model="isEditable"
+        id="edit-mode-input"
+        :showClearButton="false"
+      />
+    </div>
   </div>
 
   <div>
@@ -130,6 +140,7 @@ const dataRows = computed(() => {
       :count="numberOfRows"
       @update:settings="(value: ITableSettings) => tableSettings = value"
       :settings="tableSettings"
+      :is-editable="isEditable"
     />
   </div>
 </template>

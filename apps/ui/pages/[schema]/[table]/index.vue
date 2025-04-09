@@ -5,6 +5,7 @@ import { useLazyAsyncData } from "#app/composables/asyncData";
 import fetchTableMetadata from "../../../../tailwind-components/composables/fetchTableMetadata";
 import fetchTableData from "../../../../tailwind-components/composables/fetchTableData";
 import { useRoute, useRouter } from "#app/composables/router";
+import { useSession } from "../../../../ui/composables/session";
 
 const route = useRoute();
 const router = useRouter();
@@ -102,6 +103,8 @@ const crumbs = computed(() => {
 const current = computed(
   () => tableMetaData.value?.label ?? tableMetaData.value?.id ?? ""
 );
+
+const { isAdmin } = useSession();
 </script>
 <template>
   <section class="mx-auto lg:px-[30px] px-0">
@@ -111,8 +114,7 @@ const current = computed(
       </template>
     </PageHeader>
     <div v-if="error">Error: {{ error }}</div>
-    <!-- <pre v-if="data">{{ tableMetaData }}</pre> -->
-    <!-- <pre>{{ tableData}}</pre> -->
+
     <TableEMX2
       :table-id="tableId"
       :columns="dataColumns"
@@ -120,6 +122,7 @@ const current = computed(
       :count="numberOfRows"
       :settings="tableSettings"
       @update:settings="handleSettingsUpdate"
+      :is-editable="isAdmin"
     />
   </section>
 </template>
