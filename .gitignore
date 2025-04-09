@@ -64,6 +64,7 @@ CHANGELOG.md
 e2e/.auth/
 
 # python
+__pycache__
 venv
 requirements.txt
 e2e/.auth
