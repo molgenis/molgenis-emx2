@@ -9,11 +9,10 @@ from typing import TypeAlias, Literal
 import pandas as pd
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
-from molgenis_emx2_pyclient.metadata import Schema, Table
+from molgenis_emx2_pyclient.metadata import Table
 
 from .constants import BASE_DIR, changelog_query
-from .utils import (find_cohort_references, construct_delete_variables, has_statement_of_consent,
-                    process_statement, prepare_pkey, query_columns_string, prepare_primary_keys)
+from .utils import prepare_primary_keys
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
@@ -171,90 +170,6 @@ class StagingMigrator(Client):
             log.error("Error: download failed.")
         return filepath
 
-    def _delete_staging_from_catalogue(self):
-        """
-        Prepares the staging area by deleting data from tables
-        that are later synchronized from the staging area.
-        """
-
-        # Gather the tables to delete from the target catalogue
-        tables_to_delete = find_cohort_references(self.get_schema_metadata(self.catalogue), self.table)
-
-        cohort_ids = self._get_table_pkey_values()
-        for table_id, ref_cols in tables_to_delete.items():
-            # Iterate over the tables that reference the core table of the staging area
-            # Check if any row matches this core table
-
-            delete_rows = self._query_delete_rows(table_id, ref_cols, cohort_ids)
-
-            if len(delete_rows) == 0:
-                continue
-            log.debug(f"Deleting in table {table_id!r} row(s) with primary keys {delete_rows.get(table_id)}.")
-
-            # Delete the matching rows from the target catalogue table
-            self._delete_table_entries(table_id=table_id,
-                                       pkeys=delete_rows.get(table_id))
-
-    def _query_delete_rows(self, table_id: str, ref_cols: str | list,
-                           cohort_ids: list) -> dict:
-        """Queries the rows to be deleted from a table."""
-        schema_meta: Schema = self.get_schema_metadata(self.catalogue)
-        query = self.__construct_pkey_query(schema_meta, table_id)
-        if isinstance(ref_cols, str):
-            ref_cols = [ref_cols]
-        data = dict()
-        for ref_col in ref_cols:
-            variables = construct_delete_variables(self.get_schema_metadata(self.catalogue),
-                                                   cohort_ids, table_id, ref_col)
-
-            response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
-                                         json={"query": query, "variables": variables},
-                                         headers={'x-molgenis-token': self.token})
-
-            _data = response.json().get('data')
-            for key, values in _data.items():
-                if key in data.keys():
-                    for row in values:
-                        if row not in _data[key]:
-                            data[key].append(row)
-                else:
-                    data[key] = values
-
-        return data
-
-    def _delete_table_entries(self, table_id: str, pkeys: list):
-        """Deletes the rows marked by the primary keys from the table."""
-        query = (f"mutation delete($pkey:[{table_id}Input]) {{\n"
-                 f"  delete({table_id}:$pkey) {{message}}\n"
-                 f"}}")
-
-        batch_size = 1000
-        for _batch in range(0, len(pkeys), batch_size):
-            variables = {'pkey': pkeys[_batch:_batch + batch_size]}
-            response = self.session.post(
-                url=f"{self.url}/{self.catalogue}/graphql",
-                json={"query": query, "variables": variables},
-                headers={'x-molgenis-token': self.token}
-            )
-            if response.status_code != 200:
-                message = response.json().get('errors')[0].get('message')
-                if 'is still referenced' in message:
-                    log.error(f"Deleting entries from table {table_id} failed.")
-                    log.error(message.split('Details: ')[-1])
-                else:
-                    log.error(response)
-                    log.error(f"Deleting entries from table {table_id} failed.")
-            else:
-                log.info(response.json().get('data').get('delete').get('message'))
-
-    def _cohorts_in_ref_array(self, _table_id: str) -> bool:
-        """Returns True if cohorts are referenced in a referenced array in any column in this table."""
-        try:
-            _table_schema: Table = self.get_schema_metadata(self.catalogue).get_table(by='id', value=_table_id)
-        except ValueError:
-            raise NoSuchTableException(f"No table with id {_table_id!r} in schema {self.catalogue!r}.")
-        return len(_table_schema.get_columns(by=['columnType', 'refTableId'], value=['REF_ARRAY', self.table])) > 0
-
     def _verify_schemas(self):
         """Ensures the staging area and catalogue are available."""
         if self.staging_area is not None:
@@ -268,37 +183,6 @@ class StagingMigrator(Client):
         if self.staging_area == self.catalogue:
             raise NoSuchSchemaException(f"Catalogue schema must be different from staging area schema.")
 
-    def _create_upload_zip(self) -> BytesIO:
-        """Combines the relevant tables of the staging area into a zipfile."""
-        tables_to_sync = find_cohort_references(self.get_schema_metadata(self.staging_area), self.table)
-
-        source_file_path = self._download_schema_zip(schema=self.staging_area, schema_type='source',
-                                                     include_system_columns=False)
-
-        upload_stream = BytesIO()
-
-        schema_metadata = self.get_schema_metadata(self.staging_area)
-
-        with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
-              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
-            for file_name in source_archive.namelist():
-                if '_files/' in file_name:
-                    upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
-                    continue
-                try:
-                    table_id = schema_metadata.get_table('name', Path(file_name).stem).id
-                except NoSuchTableException:
-                    continue
-                if table_id not in [*tables_to_sync.keys(), *self.extra_tables]:
-                    continue
-
-                _table = source_archive.read(file_name)
-                if consent_val := has_statement_of_consent(table_id, self.get_schema_metadata(self.staging_area)):
-                    _table = process_statement(table=_table, consent_val=consent_val)
-                upload_archive.writestr(file_name, BytesIO(_table).getvalue())
-
-        log.info(f"Migrating tables {', '.join(tables_to_sync.keys())}.")
-        return upload_stream
 
     def _upload_zip_stream(self, zip_stream: BytesIO, is_fallback: bool = False):
         """Uploads the zip file containing the tables from the staging area
@@ -355,40 +239,6 @@ class StagingMigrator(Client):
         # Upload the stream
         self._upload_zip_stream(upload_stream, is_fallback=True)
 
-    def _get_table_pkey_values(self):
-        """Fetches the primary key values associated with the staging area's table."""
-
-        staging_schema = self.get_schema_metadata(self.staging_area)
-
-        # Query server for resource id
-        pkeys = [prepare_pkey(schema=staging_schema, table_id=self.table, col_id=col)
-                 for col in prepare_pkey(schema=staging_schema, table_id=self.table)]
-        pkey_print = query_columns_string(pkeys, indent=2)
-        query = """{{\n  {} {{\n  {}\n  }}\n}}""".format(self.table, pkey_print)
-
-        staging_url = f"{self.url}/{self.staging_area}/graphql"
-        response = self.session.post(url=staging_url,
-                                     headers={'x-molgenis-token': self.token},
-                                     json={"query": query})
-        response_data = response.json().get('data')
-        if response_data is None:
-            # Raise new error
-            raise NoSuchTableException(f"Table {self.table!r} not found on schema {self.staging_area!r}.")
-
-        # Return only if there is exactly one id/cohort in the Resources table
-        if self.table in response_data.keys():
-            if len(response_data[self.table]) < 1:
-                raise ValueError(
-                    f"Expected a value in table {self.table!r} in staging area {self.staging_area!r}"
-                    f" but found {len(response_data[self.table])!r}"
-                )
-        else:
-            raise ValueError(
-                f"Expected a value in table {self.table!r} in staging area {self.staging_area!r}"
-                f" but found none."
-            )
-
-        return [resource[pkeys[0]] for resource in response_data[self.table]]
 
     def last_change(self, staging_area: str = None) -> datetime | None:
         """Retrieves the datetime of the latest change made on the staging area.
@@ -415,21 +265,3 @@ class StagingMigrator(Client):
             if Path(filename).exists():
                 log.debug(f"Deleting file {zp!r}.")
                 Path(filename).unlink()
-
-    @staticmethod
-    def __construct_pkey_query(db_schema: Schema, table_id: str, all_columns: bool = False):
-        """Constructs a GraphQL query for finding the primary key values in a table."""
-        table_schema: Table = db_schema.get_table(by='id', value=table_id)
-        if all_columns:
-            pkeys = [prepare_pkey(db_schema, table_id, col.id) for col in table_schema.columns]
-            pkeys = [pk for pk in pkeys if pk is not None]
-        else:
-            pkeys = [prepare_pkey(db_schema, table_id, col.id) for col in table_schema.get_columns(by='key', value=1)]
-        table_id = table_schema.id
-        pkeys_print = query_columns_string(pkeys, indent=4)
-        _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
-                  f"  {table_id}(filter: $filter) {{\n"
-                  f"{pkeys_print}\n"
-                  f"  }}\n"
-                  f"}}")
-        return _query
