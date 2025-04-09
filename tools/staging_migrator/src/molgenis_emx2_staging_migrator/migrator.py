@@ -63,26 +63,26 @@ class StagingMigrator(Client):
         """Performs the migration of the staging area to the catalogue."""
 
         # Download the target catalogue for upload in case of an error during execution
-        self._download_schema_zip(schema=self.catalogue, schema_type='target', include_system_columns=True)
+        self.download_schema_zip(schema=self.catalogue, schema_type='target', include_system_columns=True)
 
         # Create zipfile for uploading
         zip_stream = self.create_zip()
 
         # Upload the zip to the target schema
-        self._upload_zip_stream(zip_stream)
+        self.upload_zip_stream(zip_stream)
 
         if not keep_zips:
             # Remove any downloaded files from disk
-            self._cleanup()
+            self.cleanup()
 
     def create_zip(self):
         """
         Creates a ZIP file containing tables to be uploaded to the catalogue schema.
         """
-        source_file_path = self._download_schema_zip(schema=self.staging_area, schema_type='source',
-                                                     include_system_columns=True)
+        source_file_path = self.download_schema_zip(schema=self.staging_area, schema_type='source',
+                                                    include_system_columns=True)
 
-        schema_metadata = self.get_schema_metadata(self.staging_area)
+        source_metadata = self.get_schema_metadata(self.staging_area)
         upload_stream = BytesIO()
         updated_tables = list()
         with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
@@ -95,7 +95,7 @@ class StagingMigrator(Client):
                     continue
 
                 try:
-                    table: Table = schema_metadata.get_table('name', Path(file_name).stem)
+                    table: Table = source_metadata.get_table('name', Path(file_name).stem)
                 except NoSuchTableException:
                     continue
                 updated_table: pd.DataFrame = self._get_filtered(table)
@@ -149,8 +149,8 @@ class StagingMigrator(Client):
 
         return filtered_df
 
-    def _download_schema_zip(self, schema: str, schema_type: SchemaType,
-                             include_system_columns: bool = True) -> Path:
+    def download_schema_zip(self, schema: str, schema_type: SchemaType,
+                            include_system_columns: bool = True) -> Path:
         """Download target schema as zip, save in case upload fails."""
         filepath = BASE_DIR.joinpath(f"{schema_type}.zip")
         if Path(filepath).exists():
@@ -184,7 +184,7 @@ class StagingMigrator(Client):
             raise NoSuchSchemaException(f"Catalogue schema must be different from staging area schema.")
 
 
-    def _upload_zip_stream(self, zip_stream: BytesIO, is_fallback: bool = False):
+    def upload_zip_stream(self, zip_stream: BytesIO, is_fallback: bool = False):
         """Uploads the zip file containing the tables from the staging area
         to the catalogue.
         """
@@ -237,7 +237,7 @@ class StagingMigrator(Client):
                 if not file_name.startswith('molgenis'):
                     upload_archive.writestr(file_name, BytesIO(target_archive.read(file_name)).getvalue())
         # Upload the stream
-        self._upload_zip_stream(upload_stream, is_fallback=True)
+        self.upload_zip_stream(upload_stream, is_fallback=True)
 
 
     def last_change(self, staging_area: str = None) -> datetime | None:
@@ -257,7 +257,7 @@ class StagingMigrator(Client):
         return change_datetime
 
     @staticmethod
-    def _cleanup():
+    def cleanup():
         """Deletes the downloaded files after successful migration."""
         zip_files = ['target.zip', 'source.zip', 'upload.zip']
         for zp in zip_files:

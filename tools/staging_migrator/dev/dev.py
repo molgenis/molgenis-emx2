@@ -29,8 +29,8 @@ def main(staging_area: str):
     with StagingMigrator(url=server_url, token=token, catalogue=CATALOGUE) as migrator:
         migrator.set_staging_area(staging_area)
         schema: Schema = migrator.get_schema_metadata(staging_area)
-        source_path = migrator._download_schema_zip(schema=staging_area, schema_type='source', include_system_columns=True)
-        target_path = migrator._download_schema_zip(schema=CATALOGUE, schema_type='target', include_system_columns=True)
+        source_path = migrator.download_schema_zip(schema=staging_area, schema_type='source', include_system_columns=True)
+        target_path = migrator.download_schema_zip(schema=CATALOGUE, schema_type='target', include_system_columns=True)
 
         stream = migrator.create_zip()
         with open(source_path.parent / "upload.zip", 'wb') as zf:
