@@ -13,7 +13,7 @@ from molgenis_emx2_pyclient.metadata import Schema, Table
 
 from .constants import BASE_DIR, changelog_query
 from .utils import (find_cohort_references, construct_delete_variables, has_statement_of_consent,
-                    process_statement, prepare_pkey, query_columns_string)
+                    process_statement, prepare_pkey, query_columns_string, prepare_pkey_names)
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
@@ -111,18 +111,14 @@ class StagingMigrator(Client):
         that have not been updated or published yet in the catalogue.
         """
         # Specify the primary keys
-        pkeys = prepare_pkey(schema=self.get_schema_metadata(self.staging_area), table_id=table.id)
+        # pkeys = prepare_pkey(schema=self.get_schema_metadata(self.staging_area), table_id=table.id)
+        pkeys = prepare_pkey_names(self.get_schema_metadata(self.staging_area), table.name)
 
         # Load the data for the table from the ZIP files
-
         with zipfile.ZipFile(BASE_DIR.joinpath("source.zip"), 'r') as source_archive:
             source_df = pd.read_csv(BytesIO(source_archive.read(f"{table.name}.csv")))
         with zipfile.ZipFile(BASE_DIR.joinpath("target.zip"), 'r') as target_archive:
             target_df = pd.read_csv(BytesIO(target_archive.read(f"{table.name}.csv")))
-
-        # Compare the values by primary key
-        print(source_df[pkeys])
-        print(target_df[pkeys])
 
         # Create mapping of indices from the source table to the target table
         id_map = {}

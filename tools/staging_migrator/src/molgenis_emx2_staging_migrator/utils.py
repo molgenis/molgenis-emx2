@@ -44,6 +44,17 @@ def prepare_pkey(schema: Schema, table_id: str, col_id: str | list = None) -> st
     else:
         return col_id
 
+def prepare_pkey_names(schema: Schema, table_name: str):
+    """
+    Finds the primary keys of a table and returns them in a format compatible with CSV output.
+    """
+    try:
+        table_schema: Table = schema.get_table(by='name', value=table_name)
+    except ValueError:
+        raise NoSuchTableException(f"{table_name!r} not found in schema.")
+
+    return list(map(lambda col: col.name, table_schema.get_columns(by='key', value=1)))
+
 
 def query_columns_string(column: str | list | dict, indent: int) -> str:
     """Constructs a query string based on the level of indentation requested."""
