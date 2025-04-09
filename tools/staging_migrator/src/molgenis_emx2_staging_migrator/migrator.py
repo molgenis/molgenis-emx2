@@ -13,7 +13,7 @@ from molgenis_emx2_pyclient.metadata import Schema, Table
 
 from .constants import BASE_DIR, changelog_query
 from .utils import (find_cohort_references, construct_delete_variables, has_statement_of_consent,
-                    process_statement, prepare_pkey, query_columns_string, prepare_pkey_names)
+                    process_statement, prepare_pkey, query_columns_string, prepare_primary_keys)
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
@@ -98,21 +98,13 @@ class StagingMigrator(Client):
 
         # Return zip
 
-    def _get_resource_ids(self) -> list[str]:
-        """
-        Get the identifiers of the entries in the Resources table.
-        """
-        id_query = self.get_graphql(schema=self.staging_area, table="Resources", columns=["id"])
-        return [r_id['id'] for r_id in id_query]
-
     def _get_filtered(self, table: Table) -> pd.DataFrame:
         """
         Filters the table for rows in present in the staging area
         that have not been updated or published yet in the catalogue.
         """
         # Specify the primary keys
-        # pkeys = prepare_pkey(schema=self.get_schema_metadata(self.staging_area), table_id=table.id)
-        pkeys = prepare_pkey_names(self.get_schema_metadata(self.staging_area), table.name)
+        primary_keys = prepare_primary_keys(self.get_schema_metadata(self.staging_area), table.name)
 
         # Load the data for the table from the ZIP files
         with zipfile.ZipFile(BASE_DIR.joinpath("source.zip"), 'r') as source_archive:
@@ -122,8 +114,8 @@ class StagingMigrator(Client):
 
         # Create mapping of indices from the source table to the target table
         id_map = {}
-        for sa_id, sa_values in source_df[pkeys].iterrows():
-            for cat_id, cat_values in target_df[pkeys].iterrows():
+        for sa_id, sa_values in source_df[primary_keys].iterrows():
+            for cat_id, cat_values in target_df[primary_keys].iterrows():
                 if all(val_1 == val_2 for (val_1, val_2) in zip(sa_values, cat_values)):
                     id_map[sa_id] = cat_id
             if not id_map.get(sa_id):

@@ -44,7 +44,7 @@ def prepare_pkey(schema: Schema, table_id: str, col_id: str | list = None) -> st
     else:
         return col_id
 
-def prepare_pkey_names(schema: Schema, table_name: str):
+def prepare_primary_keys(schema: Schema, table_name: str):
     """
     Finds the primary keys of a table and returns them in a format compatible with CSV output.
     """

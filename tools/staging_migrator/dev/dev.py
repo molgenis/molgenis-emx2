@@ -35,8 +35,7 @@ def main(staging_area: str):
         #     print(f"Filtering table {table.name}")
         #     f = migrator._get_filtered(table)
         #     print(f.head())
-        f = migrator._get_filtered(schema.get_table('name', 'Contacts'))
-
+        f = migrator._get_filtered(schema.get_table('name', 'Dataset mappings'))
         print(f)
 
 
