@@ -64,9 +64,14 @@ CHANGELOG.md
 e2e/.auth/
 
 # python
+__pycache__
 venv
 requirements.txt
 e2e/.auth
 e2e/e2e/.auth
 e2e/test-results/
 apps/tailwind-components/test-results/.last-run.json
+
+
+# vscode
+*.code-workspace
