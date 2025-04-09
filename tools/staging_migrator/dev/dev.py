@@ -31,12 +31,12 @@ def main(staging_area: str):
         schema: Schema = migrator.get_schema_metadata(staging_area)
         source_path = migrator._download_schema_zip(schema=staging_area, schema_type='source', include_system_columns=True)
         target_path = migrator._download_schema_zip(schema=CATALOGUE, schema_type='target', include_system_columns=True)
-        # for table in schema.tables:
-        #     print(f"Filtering table {table.name}")
-        #     f = migrator._get_filtered(table)
-        #     print(f.head())
-        f = migrator._get_filtered(schema.get_table('name', 'Dataset mappings'))
-        print(f)
+
+        stream = migrator.create_zip()
+        with open(source_path.parent / "upload.zip", 'wb') as zf:
+            zf.write(stream.getbuffer())
+        # f = migrator._get_filtered(schema.get_table('name', 'Dataset mappings'))
+        # print(f)
 
 
 if __name__ == '__main__':

@@ -84,19 +84,33 @@ class StagingMigrator(Client):
         """
         Creates a ZIP file containing tables to be uploaded to the catalogue schema.
         """
-        self._download_schema_zip(schema=self.staging_area, schema_type='source', include_system_columns=True)
+        source_file_path = self._download_schema_zip(schema=self.staging_area, schema_type='source',
+                                                     include_system_columns=True)
 
+        schema_metadata = self.get_schema_metadata(self.staging_area)
         upload_stream = BytesIO()
+        updated_tables = list()
+        with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
+              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
+            for file_name in source_archive.namelist():
 
-        with zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive:
-            pass
-            # Add '_files' folder
+                # Add '_files' folder
+                if '_files/' in file_name:
+                    upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
+                    continue
 
-            # Iterate over tables from schema metadata
-
-        # Combine into zip
+                try:
+                    table: Table = schema_metadata.get_table('name', Path(file_name).stem)
+                except NoSuchTableException:
+                    continue
+                updated_table: pd.DataFrame = self._get_filtered(table)
+                if len(updated_table.index) != 0:
+                    upload_archive.writestr(file_name, updated_table.to_csv())
+                    updated_tables.append(file_name.split('.csv')[0])
 
         # Return zip
+        log.info(f"Migrating tables {', '.join(updated_tables)}.")
+        return upload_stream
 
     def _get_filtered(self, table: Table) -> pd.DataFrame:
         """
@@ -141,7 +155,7 @@ class StagingMigrator(Client):
         return filtered_df
 
     def _download_schema_zip(self, schema: str, schema_type: SchemaType,
-                             include_system_columns: bool = True) -> str:
+                             include_system_columns: bool = True) -> Path:
         """Download target schema as zip, save in case upload fails."""
         filepath = BASE_DIR.joinpath(f"{schema_type}.zip")
         if Path(filepath).exists():
