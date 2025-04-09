@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io.emx2;
 
+import static org.molgenis.emx2.Constants.MG_DRAFT;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 
@@ -36,24 +37,19 @@ public class Emx2Tables {
                         || isFileType(c, metadata)
                         || store instanceof TableAndFileStore)
             .map(Column::getName)
-            .filter(n -> !n.startsWith("mg_") || includeSystemColumns)
+            .filter(name -> !name.startsWith("mg_") || includeSystemColumns)
             .toList();
 
-    if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
-      store.writeTable(
-          table.getName(),
-          downloadColumnNames,
-          table
-              .query()
-              .where(
-                  f(
-                      MG_TABLECLASS,
-                      Operator.EQUALS,
-                      table.getSchema().getName() + "." + table.getName()))
-              .retrieveRows());
-    } else {
-      store.writeTable(table.getName(), downloadColumnNames, table.retrieveRows());
+    Query query = table.query();
+    // exclude drafts when system columns are not included
+    if (!includeSystemColumns) {
+      query.where(f(MG_DRAFT, Operator.NOT_EQUALS, true));
     }
+    if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
+      query.where(
+          f(MG_TABLECLASS, Operator.EQUALS, table.getSchema().getName() + "." + table.getName()));
+    }
+    store.writeTable(table.getName(), downloadColumnNames, query.retrieveRows());
 
     // in case of zip file we include the attached files
     if (store instanceof TableAndFileStore tableAndFileStore) {
