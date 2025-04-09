@@ -980,25 +980,19 @@ public class TestGraphqlSchemaFields {
             .at("/truncate/taskId")
             .asText();
 
-    String status =
-        execute("{ _tasks( id: \"" + taskId + "\"){ status }}")
-            .get("_tasks")
-            .get(0)
-            .get("status")
-            .asText();
-
+    String status = "";
     int pollCount = 0;
     while (!"COMPLETED".equals(status) && !"ERROR".equals(status)) {
-      if (pollCount++ > 5) {
-        throw new MolgenisException("failed: polling took too long, result is: " + status);
-      }
-      Thread.sleep(1000);
       status =
           execute("{ _tasks( id: \"" + taskId + "\"){ status }}")
               .get("_tasks")
               .get(0)
               .get("status")
               .asText();
+      if (pollCount++ > 5) {
+        throw new MolgenisException("failed: polling took too long, result is: " + status);
+      }
+      Thread.sleep(1000);
     }
 
     List<Row> truncatedResult = schema.getTable("Order").retrieveRows();
