@@ -904,7 +904,7 @@ const showPopulation = computed(
               :links="[network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
                localNetworkIds?.includes(network.id) ? {
                 title: 'View network',
-                url: `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`,
+                url: `/${route.params.schema}/catalogue/${route.params.catalogue}`,
                 target: '_self' as linkTarget,
               } : null].filter((link) => link !== null)"
               target="_blank"
