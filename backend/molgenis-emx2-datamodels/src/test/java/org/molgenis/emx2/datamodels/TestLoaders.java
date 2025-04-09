@@ -1,7 +1,6 @@
 package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.SHARED_STAGING;
 import static org.molgenis.emx2.rdf.SHACLComplianceTester.*;
 
 import java.io.ByteArrayOutputStream;
@@ -49,7 +48,6 @@ public class TestLoaders {
         database.dropSchemaIfExists(DATA_CATALOGUE);
         database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
         database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
-        database.dropSchemaIfExists(SHARED_STAGING);
         database.dropSchemaIfExists(DIRECTORY_TEST);
         database.dropSchemaIfExists(DIRECTORY_STAGING);
         database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
