@@ -12,7 +12,7 @@
       <Button
         v-if="isEditable"
         type="primary"
-        icon="plus"
+        icon="add-circle"
         @click="handleAddClick"
         >Add {{ tableId }}</Button
       >
