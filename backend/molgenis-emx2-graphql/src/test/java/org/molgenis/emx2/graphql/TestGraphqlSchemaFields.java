@@ -973,6 +973,43 @@ public class TestGraphqlSchemaFields {
   }
 
   @Test
+  public void testTruncateAsync() throws IOException, InterruptedException {
+    List<Row> preTruncatedResult = schema.getTable("Order").retrieveRows();
+    String taskId =
+        execute("mutation {truncate(tables: \"Order\" async:true){ taskId message}}")
+            .at("/truncate/taskId")
+            .asText();
+
+    String status =
+        execute("{ _tasks( id: \"" + taskId + "\"){ status }}")
+            .get("_tasks")
+            .get(0)
+            .get("status")
+            .asText();
+
+    int pollCount = 0;
+    while (!"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      if (pollCount++ > 5) {
+        throw new MolgenisException("failed: polling took too long, result is: " + status);
+      }
+      Thread.sleep(1000);
+      status =
+          execute("{ _tasks( id: \"" + taskId + "\"){ status }}")
+              .get("_tasks")
+              .get(0)
+              .get("status")
+              .asText();
+    }
+
+    List<Row> truncatedResult = schema.getTable("Order").retrieveRows();
+    assertTrue(!preTruncatedResult.isEmpty() && truncatedResult.isEmpty());
+
+    // restore
+    schema = database.dropCreateSchema(schemaName);
+    PET_STORE.getImportTask(schema, true).run();
+  }
+
+  @Test
   public void testReport() throws IOException {
     schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
