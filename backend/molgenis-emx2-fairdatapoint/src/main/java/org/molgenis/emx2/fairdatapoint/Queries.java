@@ -1,13 +1,12 @@
 package org.molgenis.emx2.fairdatapoint;
 
-import static org.molgenis.emx2.beaconv2.QueryHelper.finalizeFilter;
-
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jooq.tools.StringUtils;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
@@ -96,5 +95,10 @@ public class Queries {
     }
     return (List<Map<String, Object>>)
         ((HashMap<String, Object>) result.get("data")).get("Distribution");
+  }
+
+  public static String finalizeFilter(String filter) {
+    int nrOfStartingBraces = StringUtils.countMatches(filter, "{");
+    return filter + "}".repeat(nrOfStartingBraces);
   }
 }
