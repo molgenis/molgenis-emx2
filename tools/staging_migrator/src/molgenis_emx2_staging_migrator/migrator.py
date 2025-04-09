@@ -6,6 +6,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import TypeAlias, Literal
 
+import pandas as pd
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
 from molgenis_emx2_pyclient.metadata import Schema, Table
@@ -63,7 +64,7 @@ class StagingMigrator(Client):
         """Performs the migration of the staging area to the catalogue."""
 
         # Download the target catalogue for upload in case of an error during execution
-        self._download_schema_zip(schema=self.catalogue, schema_type='target', include_system_columns=False)
+        self._download_schema_zip(schema=self.catalogue, schema_type='target', include_system_columns=True)
 
         # Delete the source tables from the target database
         log.info("Deleting staging area resource from the catalogue.")
@@ -83,13 +84,15 @@ class StagingMigrator(Client):
         """
         Creates a ZIP file containing tables to be uploaded to the catalogue schema.
         """
-        resource_ids: list = self._get_resource_ids()
-        sa_schema: Schema = self.get_schema_metadata(self.staging_area)
+        self._download_schema_zip(schema=self.staging_area, schema_type='source', include_system_columns=True)
 
-        # with open ZipFile(...
-        for table in sa_schema.tables:
-            filtered_data = self._get_filtered(table, resource_ids)
-        # )
+        upload_stream = BytesIO()
+
+        with zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive:
+            pass
+            # Add '_files' folder
+
+            # Iterate over tables from schema metadata
 
         # Combine into zip
 
@@ -100,7 +103,54 @@ class StagingMigrator(Client):
         Get the identifiers of the entries in the Resources table.
         """
         id_query = self.get_graphql(schema=self.staging_area, table="Resources", columns=["id"])
-        return id_query
+        return [r_id['id'] for r_id in id_query]
+
+    def _get_filtered(self, table: Table) -> pd.DataFrame:
+        """
+        Filters the table for rows in present in the staging area
+        that have not been updated or published yet in the catalogue.
+        """
+        # Specify the primary keys
+        pkeys = prepare_pkey(schema=self.get_schema_metadata(self.staging_area), table_id=table.id)
+
+        # Load the data for the table from the ZIP files
+
+        with zipfile.ZipFile(BASE_DIR.joinpath("source.zip"), 'r') as source_archive:
+            source_df = pd.read_csv(BytesIO(source_archive.read(f"{table.name}.csv")))
+        with zipfile.ZipFile(BASE_DIR.joinpath("target.zip"), 'r') as target_archive:
+            target_df = pd.read_csv(BytesIO(target_archive.read(f"{table.name}.csv")))
+
+        # Compare the values by primary key
+        print(source_df[pkeys])
+        print(target_df[pkeys])
+
+        # Create mapping of indices from the source table to the target table
+        id_map = {}
+        for sa_id, sa_values in source_df[pkeys].iterrows():
+            for cat_id, cat_values in target_df[pkeys].iterrows():
+                if all(val_1 == val_2 for (val_1, val_2) in zip(sa_values, cat_values)):
+                    id_map[sa_id] = cat_id
+            if not id_map.get(sa_id):
+                id_map[sa_id] = None
+
+        # Filter rows not present in the catalogue
+        new_ids = [s for (s, t) in id_map.items() if t is None]
+        new_df = source_df.iloc[new_ids]
+
+        # Filter updated rows
+        updated_ids = []
+        for (s, t) in id_map.items():
+            if t is None:
+                continue
+            source_datetime = source_df.at[s, 'mg_updatedOn']
+            target_datetime = target_df.at[t, 'mg_updatedOn']
+            if source_datetime > target_datetime:
+                updated_ids.append(s)
+        updated_df = source_df.iloc[updated_ids]
+
+        filtered_df = pd.concat([new_df, updated_df])
+
+        return filtered_df
 
     def _download_schema_zip(self, schema: str, schema_type: SchemaType,
                              include_system_columns: bool = True) -> str:
