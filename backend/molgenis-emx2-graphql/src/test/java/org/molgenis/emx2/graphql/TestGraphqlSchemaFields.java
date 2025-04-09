@@ -604,7 +604,8 @@ public class TestGraphqlSchemaFields {
   @Test
   public void testTableAlterDropOperations() throws IOException {
     // simple meta
-    assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
+    int tables = execute("{_schema{tables{name}}}").at("/_schema/tables").size();
+    assertEquals(5, tables);
 
     // add table
     execute(
@@ -1001,6 +1002,8 @@ public class TestGraphqlSchemaFields {
     // restore
     schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
+    grapql =
+        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
   }
 
   @Test
