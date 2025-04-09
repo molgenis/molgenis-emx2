@@ -69,6 +69,7 @@ subprojects { subproject ->
         (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
             dependsOn ":apps:${match[1]}:buildJavascript";
         }
+
         //run the build
         def command =   packageJson.contains("\"name\": \"ui\"") ? "generate" : "build"
         args = ['run', command]
