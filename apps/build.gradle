@@ -65,6 +65,10 @@ subprojects { subproject ->
     task buildJavascript(type: YarnTask, dependsOn: format) {
         environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
 
+        //automatically get the internal dependencies
+        (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
+            dependsOn ":apps:${match[1]}:buildJavascript";
+        }
         //run the build
         def command =   packageJson.contains("\"name\": \"ui\"") ? "generate" : "build"
         args = ['run', command]
