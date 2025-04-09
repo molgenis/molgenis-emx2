@@ -1,0 +1,6 @@
+build
+coverage
+.nuxt
+.output
+.gradle
+sourceCodeMap.json

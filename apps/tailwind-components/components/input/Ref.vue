@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ITableDataResponse } from "~/composables/fetchTableData";
+import type { ITableDataResponse } from "../../composables/fetchTableData";
 import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQueryMetaData.ts";
 import type {
   ITableMetaData,
@@ -7,8 +7,11 @@ import type {
   recordValue,
 } from "../../../metadata-utils/src/types";
 
-import { type IInputProps, type IValueLabel } from "~/types/types";
-import logger from "@/utils/logger";
+import { type IInputProps, type IValueLabel } from "../../types/types";
+import logger from "../../utils/logger";
+import { fetchTableMetadata } from "#imports";
+import { ref, type Ref, computed, watch } from "vue";
+import fetchTableData from "../../composables/fetchTableData";
 
 const props = withDefaults(
   defineProps<

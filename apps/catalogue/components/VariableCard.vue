@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { resourceIdPath } from "#imports";
+import { computed } from "vue";
 import type { IVariable } from "~/interfaces/types";
 import { getKey } from "~/utils/variableUtils";
 
@@ -40,7 +42,7 @@ const repeats = computed(() =>
           </NuxtLink>
           <div
             v-if="repeats"
-            class="bg-blue-50 text-title-contrast justify-center rounded-full px-2 py-1 font-bold text-heading-sm hover:cursor-help"
+            class="bg-blue-50 text-title-contrast justify-center rounded-full px-2 py-1 font-bold text-heading-sm"
             style="display: inline-flex; flex-wrap: wrap"
           >
             {{ repeats }}

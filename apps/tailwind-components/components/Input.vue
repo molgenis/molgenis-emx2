@@ -24,6 +24,18 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
+  <InputArray
+    v-else-if="NON_REF_ARRAY_TYPES.includes(typeUpperCase)"
+    :id="id"
+    v-model="modelValue as any[]"
+    :type="typeUpperCase"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
   <InputString
     v-else-if="'HYPERLINK' === typeUpperCase"
     :id="id"
@@ -242,12 +254,13 @@
 </template>
 
 <script setup lang="ts">
-import type { IInputProps, IValueLabel } from "~/types/types";
+import type { IInputProps, IValueLabel } from "../types/types";
 import type {
   CellValueType,
   columnValue,
   columnValueObject,
 } from "../../metadata-utils/src/types";
+import { computed } from "vue";
 const modelValue = defineModel<columnValue | columnValue[]>();
 const props = defineProps<
   IInputProps & {
@@ -263,4 +276,19 @@ const props = defineProps<
 >();
 const emit = defineEmits(["focus", "blur"]);
 const typeUpperCase = computed(() => props.type.toUpperCase());
+
+const NON_REF_ARRAY_TYPES = [
+  "STRING_ARRAY",
+  "BOOL_ARRAY",
+  "DATE_ARRAY",
+  "DATETIME_ARRAY",
+  "DECIMAL_ARRAY",
+  "EMAIL_ARRAY",
+  "HYPERLINK_ARRAY",
+  "INT_ARRAY",
+  "LONG_ARRAY",
+  "TEXT_ARRAY",
+  "UUID_ARRAY",
+  "PERIOD_ARRAY",
+];
 </script>

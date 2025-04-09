@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import type { IResources } from "~/interfaces/catalogue";
+import { useRoute } from "#app/composables/router";
+import { computed, ref } from "vue";
+import type { IResources } from "../../interfaces/catalogue";
 import type { IVariableWithMappings } from "~/interfaces/types";
-import { getKey } from "~/utils/variableUtils";
+import { calcAggregatedHarmonisationStatus } from "~/utils/harmonisation";
+import { getKey } from "../../utils/variableUtils";
+import { resourceIdPath } from "../../utils/urlHelpers";
 const route = useRoute();
 
 const props = defineProps<{

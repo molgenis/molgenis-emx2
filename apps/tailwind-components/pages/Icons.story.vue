@@ -39,6 +39,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+
 const modules: Record<string, any> = import.meta.glob(
   "../components/global/icons/*.vue",
   {

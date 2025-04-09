@@ -129,7 +129,6 @@ import ContactInformation from "../components/report-components/ContactInformati
 import ReportDescription from "../components/report-components/ReportDescription.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
-import useErrorHandler from "../composables/errorHandler";
 import {
   getCollectionDetails,
   mapAlsoKnownIn,
@@ -174,6 +173,9 @@ function filterCollections(collections: Record<string, any>[]) {
     collections
       ?.filter((collection: Record<string, any>) => {
         return !collection.parent_collection;
+      })
+      .filter((collection: Record<string, any>) => {
+        return !collection.withdrawn;
       })
       .map((collection: Record<string, any>) =>
         getCollectionDetails(collection)

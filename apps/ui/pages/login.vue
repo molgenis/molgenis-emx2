@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { useRouter } from "#app/composables";
+import { navigateTo, useRoute } from "#app/composables/router";
+import { ref } from "vue";
+import { useSession } from "../composables/session";
+
 const route = useRoute();
 const router = useRouter();
 

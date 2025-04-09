@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ITreeNodeState } from "~/types/types";
+import type { ITreeNodeState } from "../../types/types";
 import BaseIcon from "../BaseIcon.vue";
 import CustomTooltip from "../CustomTooltip.vue";
 
@@ -50,7 +50,7 @@ function toggleExpand(node: ITreeNodeState) {
           :class="{
             'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted':
               inverted,
-            'text-search-filter-group-toggle hover:bg-search-filter-group-toggle focus:bg-search-filter-group-toggle':
+            'text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover':
               !inverted,
           }"
           :aria-expanded="node.expanded"

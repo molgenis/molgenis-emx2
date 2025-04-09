@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 
 const props = defineProps<{
@@ -19,7 +20,17 @@ const elementType = computed(() => props.metaData.columnType.split("_")[0]);
     <TableCellTypesDecimal
       v-else-if="elementType === 'DECIMAL'"
       :metaData="metaData"
-      :data="listElement as string"
+      :data="listElement as number"
+    />
+    <TableCellTypesLong
+      v-else-if="elementType === 'LONG'"
+      :metaData="metaData"
+      :data="listElement as number"
+    />
+    <TableCellTypesBool
+      v-else-if="elementType === 'BOOL'"
+      :metaData="metaData"
+      :data="listElement as boolean"
     />
     <TableCellTypesObject
       v-else-if="elementType === 'REF'"

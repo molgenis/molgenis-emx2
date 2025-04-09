@@ -16,7 +16,7 @@
         class="group flex justify-start items-center relative"
         :class="{
           'text-disabled cursor-not-allowed': disabled,
-          'text-title cursor-pointer ': !disabled,
+          'text-title-contrast cursor-pointer ': !disabled,
         }"
       >
         <input
@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import { type IInputProps, type IValueLabel } from "~/types/types";
+import { type IInputProps, type IValueLabel } from "../../types/types";
 import type { columnValue } from "../../../metadata-utils/src/types";
 
 withDefaults(

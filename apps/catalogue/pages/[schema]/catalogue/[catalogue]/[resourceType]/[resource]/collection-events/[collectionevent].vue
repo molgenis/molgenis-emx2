@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import dateUtils from "~/utils/dateUtils";
-import collectionEventGql from "~~/gql/collectionEvent";
+import dateUtils from "../../../../../../../utils/dateUtils";
+import collectionEventGql from "../../../../../../../gql/collectionEvent";
 import type {
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
-} from "~~/interfaces/types";
+} from "../../../../../../../interfaces/types";
+import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
+import { moduleToString, logError, buildTree } from "#imports";
+import { computed, reactive } from "vue";
+import { removeChildIfParentSelected } from "../../../../../../../utils/treeHelpers";
 
 const config = useRuntimeConfig();
 const route = useRoute();
