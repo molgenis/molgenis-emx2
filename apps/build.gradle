@@ -62,33 +62,7 @@ subprojects { subproject ->
 
     def packageJson = file("package.json").text
 
-    task nuxtPrepare(type: YarnTask, dependsOn: format) {
-        //automatically get the internal dependencies
-        (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
-            dependsOn ":apps:${match[1]}:buildJavascript";
-        }
-        if (packageJson.contains("\"name\": \"tailwind-components\"")) {
-            args = ['run', 'prepare']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        }
-    }
-
-    task lint(type: YarnTask, dependsOn: nuxtPrepare) {
-        if (
-                packageJson.contains("\"name\": \"tailwind-components\"") ||
-                packageJson.contains("\"name\": \"ui\"") ||
-                packageJson.contains("\"name\": \"catalogue\"")
-        ) {
-            args = ['run', 'lint']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        }
-    }
-
-    task buildJavascript(type: YarnTask, dependsOn: lint) {
+    task buildJavascript(type: YarnTask, dependsOn: format) {
         environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
 
         //run the build
@@ -106,6 +80,20 @@ subprojects { subproject ->
             with excludeDef
         }
     }
+
+    task lint(type: YarnTask, dependsOn: buildJavascript) {
+        if (
+                packageJson.contains("\"name\": \"tailwind-components\"") ||
+                        packageJson.contains("\"name\": \"ui\"") ||
+                        packageJson.contains("\"name\": \"catalogue\"")
+        ) {
+            args = ['run', 'lint']
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+        }
+    }
+
     parent.tasks.processResources.dependsOn buildJavascript
 
     task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {
