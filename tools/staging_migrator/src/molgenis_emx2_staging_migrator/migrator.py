@@ -18,9 +18,6 @@ log = logging.getLogger('Molgenis EMX2 Migrator')
 
 SchemaType: TypeAlias = Literal['source', 'target']
 
-PUBLICATIONS = "Publications"
-RESOURCES = "Resources"
-
 
 class StagingMigrator(Client):
     """
@@ -31,21 +28,18 @@ class StagingMigrator(Client):
     def __init__(self, url: str,
                  staging_area: str = None,
                  catalogue: str = 'catalogue',
-                 table: str = 'Resources', token: str = None):
+                 token: str = None):
         """Sets up the StagingMigrator by logging in to the client."""
         super().__init__(url=url, token=token)
         self.staging_area = staging_area
         self.catalogue = catalogue
         self._verify_schemas()
-        self.table = self.get_schema_metadata(catalogue).get_table('name', table).id
-        self.extra_tables: list[str] = [PUBLICATIONS] if self.table == RESOURCES else []
 
     def __repr__(self):
         class_name = type(self).__name__
         args = [
             f"staging_area={self.staging_area!r}",
-            f"catalogue={self.catalogue!r}",
-            f"table={self.table!r}"
+            f"catalogue={self.catalogue!r}"
         ]
         return f"{class_name}({', '.join(args)})"
 
@@ -89,7 +83,7 @@ class StagingMigrator(Client):
               zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
             for file_name in source_archive.namelist():
 
-                # Add '_files' folder
+                # Add files in '_files' folder
                 if '_files/' in file_name:
                     upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
                     continue
