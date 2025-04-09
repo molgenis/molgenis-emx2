@@ -66,12 +66,8 @@ class StagingMigrator(Client):
         # Download the target catalogue for upload in case of an error during execution
         self._download_schema_zip(schema=self.catalogue, schema_type='target', include_system_columns=True)
 
-        # Delete the source tables from the target database
-        log.info("Deleting staging area resource from the catalogue.")
-        self._delete_staging_from_catalogue()
-
         # Create zipfile for uploading
-        zip_stream = self._create_upload_zip()
+        zip_stream = self.create_zip()
 
         # Upload the zip to the target schema
         self._upload_zip_stream(zip_stream)
