@@ -54,7 +54,7 @@ class StagingMigrator(Client):
         self._verify_schemas()
 
     def migrate(self, keep_zips: bool = False):
-        """Performs the migration of the staging area to the catalogue."""
+        """Performs the migration of the source schema to the target schema."""
 
         # Download the target catalogue for upload in case of an error during execution
         self.download_schema_zip(schema=self.catalogue, schema_type='target', include_system_columns=True)
@@ -95,7 +95,7 @@ class StagingMigrator(Client):
                 updated_table: pd.DataFrame = self._get_filtered(table)
                 if len(updated_table.index) != 0:
                     upload_archive.writestr(file_name, updated_table.to_csv())
-                    updated_tables.append(file_name.split('.csv')[0])
+                    updated_tables.append(Path(file_name).stem)
 
         # Return zip
         log.info(f"Migrating tables {', '.join(updated_tables)}.")
@@ -117,12 +117,12 @@ class StagingMigrator(Client):
 
         # Create mapping of indices from the source table to the target table
         id_map = {}
-        for sa_id, sa_values in source_df[primary_keys].iterrows():
-            for cat_id, cat_values in target_df[primary_keys].iterrows():
-                if all(val_1 == val_2 for (val_1, val_2) in zip(sa_values, cat_values)):
-                    id_map[sa_id] = cat_id
-            if not id_map.get(sa_id):
-                id_map[sa_id] = None
+        for s_id, s_values in source_df[primary_keys].iterrows():
+            for t_id, t_values in target_df[primary_keys].iterrows():
+                if all(s_val == t_val for (s_val, t_val) in zip(s_values, t_values)):
+                    id_map[s_id] = t_id
+            if not id_map.get(s_id):
+                id_map[s_id] = None
 
         # Filter rows not present in the catalogue
         new_ids = [s for (s, t) in id_map.items() if t is None]
