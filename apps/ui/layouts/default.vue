@@ -90,7 +90,7 @@ async function signout() {
         <template #nav>
           <Navigation :navigation="navigation" />
         </template>
-        
+
         <template #account>
           <VDropdown
             v-if="isSignedIn"
@@ -101,7 +101,9 @@ async function signout() {
           >
             <HeaderButton label="Account" icon="user" />
             <template #popper>
-              <div class="px-[10px] py-[5px] border-theme border-color-theme rounded-theme bg-form">
+              <div
+                class="px-[10px] py-[5px] border-theme border-color-theme rounded-theme bg-form"
+              >
                 <slot name="account-dropdown">
                   <section class="flex flex-col p-4">
                     <div class="mb-1">Hi {{ session?.email }}</div>
@@ -185,5 +187,4 @@ async function signout() {
   .v-popper__wrapper {
   transform: translateX(100%);
 }
-
 </style>
