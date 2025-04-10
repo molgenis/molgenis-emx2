@@ -931,6 +931,16 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
 
+    // Output from global API call with invalid schema.
+    // TODO: https://github.com/molgenis/molgenis-emx2/issues/4954 (fix to return 204)
+    String resultBaseNonExisting =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .get("http://localhost:" + PORT + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
+            .getBody()
+            .asString();
+
     // Output schema API call.
     String resultSchema =
         given()
@@ -943,6 +953,10 @@ public class WebApiSmokeTests {
     assertAll(
         // Validate base API.
         () -> assertFalse(resultBase.contains("CatalogueOntologies")),
+        () ->
+            assertTrue(
+                resultBaseNonExisting.contains(
+                    "Schema 'thisSchemaTotallyDoesNotExist' unknown or permission denied")),
         () ->
             assertTrue(
                 resultBase.contains(
