@@ -420,6 +420,7 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1), handler);
 
+    assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey();
       var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
@@ -439,6 +440,7 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1), handler);
 
+    assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
       var subClasses = resource.getValue().get(RDFS.SUBCLASSOF);
       if (subClasses != null && subClasses.contains(BasicIRI.SIO_DATABASE_TABLE)) {
@@ -455,6 +457,7 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1), handler);
 
+    assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey().stringValue();
       var predicates = resource.getValue().keySet();
@@ -474,6 +477,8 @@ public class RDFTest {
   void testThatColumnsHaveARangeAndDomain() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1), handler);
+
+    assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey();
       var predicates = resource.getValue().keySet();
@@ -488,6 +493,8 @@ public class RDFTest {
   void testThatRDFOnlyIncludesRequestedSchema() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var resource : handler.resources.keySet()) {
       assertFalse(
           resource.toString().contains("petStoreNr2"),
@@ -508,6 +515,7 @@ public class RDFTest {
             RDFS.CONTAINER,
             BasicIRI.SIO_DATABASE);
 
+    assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey().stringValue();
       var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
@@ -569,6 +577,8 @@ public class RDFTest {
   void testThatInstancesUseReferToDatasetWithTheRightPredicate() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", POOKY_ROWID), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var iri : handler.resources.keySet()) {
       // Select the triples for pooky
       if (iri.stringValue().endsWith(POOKY_ROWID)) {
@@ -588,6 +598,8 @@ public class RDFTest {
     var measure_property = Values.iri("http://purl.org/linked-data/cube#MeasureProperty");
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1, "Pet", "name"), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith("/column/name")) {
         var subclasses = handler.resources.get(subject).getOrDefault(RDFS.SUBCLASSOF, Set.of());
@@ -604,6 +616,8 @@ public class RDFTest {
     var database_row = Values.iri("http://semanticscience.org/resource/SIO_001187");
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", POOKY_ROWID), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith(POOKY_ROWID)) {
         var types = handler.resources.get(subject).get(RDF.TYPE);
@@ -622,6 +636,8 @@ public class RDFTest {
   void testThatOntologyTermsAreClasses() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(ontologyTest, "Diseases"), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith("/Diseases/U07.1")) {
         var types = handler.resources.get(subject).get(RDF.TYPE);
@@ -634,6 +650,8 @@ public class RDFTest {
   void testThatOntologyTermsUseRDFSchema() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(ontologyTest, "Diseases"), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith("/Diseases/U07.1")) {
         var data = handler.resources.get(subject);
@@ -661,6 +679,8 @@ public class RDFTest {
   void testThatOntologyTermsDonNotDefineColumnsAsPredicates() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1, "Tag"), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
       assertFalse(
           subject.stringValue().contains("/Tag/column/"),
@@ -1047,6 +1067,8 @@ public class RDFTest {
     getAndParseRDF(Selection.of(schema, table.getName()), handler);
     boolean isObjectProperty = false;
     boolean linkHasLabel = false;
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
       if (subject.stringValue().contains("/column/website")) {
         var types = handler.resources.get(subject).get(RDF.TYPE);
@@ -1076,6 +1098,8 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1), handler);
     int instancesWithOutALabel = 0;
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var resource : handler.resources.keySet()) {
       var labels = handler.resources.get(resource).get(RDFS.LABEL);
       if (labels.isEmpty()) {
