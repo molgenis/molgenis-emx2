@@ -40,6 +40,9 @@ const query = computed(() => {
       type {
         name
       }
+      catalogueType {
+        name
+      }
       logo {
         id
         size
@@ -68,7 +71,7 @@ const { data } = await useFetch<Resp<IResources, IResources_agg>>(
 const thematicCatalogues = computed(() => {
   let result = data?.value?.data?.Resources
     ? data.value?.data?.Resources?.filter(
-        (c) => !c.type?.some((type) => type.name === "Project")
+        (c) => c.catalogueType?.name !== "project"
       )
     : [];
   result.sort((a, b) => a.id.localeCompare(b.id));
@@ -76,8 +79,8 @@ const thematicCatalogues = computed(() => {
 });
 const projectCatalogues = computed(() => {
   let result = data?.value?.data?.Resources
-    ? data.value?.data?.Resources?.filter((c) =>
-        c.type?.some((type) => type.name === "Project")
+    ? data.value?.data?.Resources?.filter(
+        (c) => c.catalogueType?.name === "project"
       )
     : [];
   result.sort((a, b) => a.id.localeCompare(b.id));
