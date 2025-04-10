@@ -153,9 +153,7 @@ class StagingMigrator(Client):
         api_zip_url = f"{self.url}/{schema}/api/zip"
         if include_system_columns:
             api_zip_url += '?includeSystemColumns=true'
-        resp = self.session.get(api_zip_url,
-                                headers={'x-molgenis-token': self.token},
-                                allow_redirects=True)
+        resp = self.session.get(api_zip_url, allow_redirects=True)
 
         if resp.content:
             Path(filepath).write_bytes(resp.content)
@@ -186,8 +184,7 @@ class StagingMigrator(Client):
 
         response = self.session.post(
             url=upload_url,
-            files={'file': (f"{BASE_DIR}/upload.zip", zip_stream.getvalue())},
-            headers={'x-molgenis-token': self.token}
+            files={'file': (f"{BASE_DIR}/upload.zip", zip_stream.getvalue())}
         )
 
         response_status = response.status_code
@@ -195,18 +192,15 @@ class StagingMigrator(Client):
             log.error(f"Migration failed with error {response_status}:\n{str(response.text)}")
         else:
             response_url = f"{self.url}{response.json().get('url')}"
-            upload_status = self.session.get(response_url,
-                                             headers={'x-molgenis-token': self.token}).json().get('status')
+            upload_status = self.session.get(response_url).json().get('status')
             while upload_status == 'RUNNING':
                 time.sleep(2)
-                upload_status = self.session.get(response_url,
-                                                 headers={'x-molgenis-token': self.token}).json().get('status')
-            upload_description = self.session.get(response_url,
-                                                  headers={'x-molgenis-token': self.token}).json().get('description')
+                upload_status = self.session.get(response_url).json().get('status')
+            upload_description = self.session.get(response_url).json().get('description')
 
             if upload_status == 'ERROR':
                 log.error(f"Migration failed, reason: {upload_description}.")
-                log.debug(self.session.get(response_url, headers={'x-molgenis-token': self.token}).json())
+                log.debug(self.session.get(response_url).json())
             else:
                 log.info("Migrated successfully.")
 
