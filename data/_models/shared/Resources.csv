@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,computed
-Resources,,,,,,,,,,,,Resource of data and/or samples. Use 'resource type' to specify,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
+Resources,,,,,,,,,,,ldp:DirectContainer,Resource of data and/or samples. Use 'resource type' to specify,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,dcat type,,,,,,,,,rdf:type,The DCAT type such as dcat:Catalog as computed field,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE","type.some(item => item.name === 'Catalogue') ? 'dcat:Catalog' : 'dcat:DatasetSeries'"
 Resources,,overview,heading,,,,,,,,,General information,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,id,,1,TRUE,,,,,,dcterms:identifier,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
