@@ -91,7 +91,9 @@ class StagingMigrator(Client):
                 try:
                     table: Table = source_metadata.get_table('name', Path(file_name).stem)
                 except NoSuchTableException:
+                    log.debug(f"Skipping file {file_name!r}.")
                     continue
+                log.debug(f"Processing table {table.name!r}.")
                 updated_table: pd.DataFrame = self._get_filtered(table)
                 if len(updated_table.index) != 0:
                     upload_archive.writestr(file_name, updated_table.to_csv())
