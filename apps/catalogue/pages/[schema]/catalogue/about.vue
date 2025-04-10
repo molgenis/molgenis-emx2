@@ -26,13 +26,13 @@
     <template #main>
       <ContentBlocks>
         <ContentBlock id="intro" title="Introduction">
-          Developed by the MOLGENIS team of Genomics Coordination Center (GCC) at the University
-          Medical Center Groningen (UMCG), the European Health Research Data and
-          Sample Catalogue is a joint metadata catalogue initiative designed to
-          bring together catalogues from various EU research projects and
-          networks. It promotes data sharing and reuse, and supports
-          advancements in public health. The catalogue contains only
-          metadata—information about data, not the data itself.
+          Developed by the MOLGENIS team of Genomics Coordination Center (GCC)
+          at the University Medical Center Groningen (UMCG), the European Health
+          Research Data and Sample Catalogue is a joint metadata catalogue
+          initiative designed to bring together catalogues from various EU
+          research projects and networks. It promotes data sharing and reuse,
+          and supports advancements in public health. The catalogue contains
+          only metadata—information about data, not the data itself.
         </ContentBlock>
 
         <ContentBlock id="use" title="Use">
@@ -66,7 +66,8 @@
             rel="noopener noreferrer"
             class="text-blue-500 underline hover:bg-blue-50"
           >
-            Watch the introductory video made in collaboration with the LongITools project
+            Watch the introductory video made in collaboration with the
+            LongITools project
           </a>
         </ContentBlock>
 
@@ -88,9 +89,10 @@
 
           <ul class="list-disc pl-5 pt-2">
             <li>
-              Swertz, van Enckevort et al. "Towards an Interoperable Ecosystem 
-              of Research Cohort and Real-world Data Catalogues Enabling 
-              Multi-center Studies."<em>Yearb Med Inform</em>. 31(1):262-272, 2022
+              Swertz, van Enckevort et al. "Towards an Interoperable Ecosystem
+              of Research Cohort and Real-world Data Catalogues Enabling
+              Multi-center Studies."<em>Yearb Med Inform</em>. 31(1):262-272,
+              2022
             </li>
             <li>
               van der Velde, K. Joeri, et al. "MOLGENIS research: advanced
