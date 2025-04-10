@@ -23,7 +23,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +50,7 @@ abstract class RdfUtils {
    * @return A namespace that defines a local unique prefix for this schema.
    */
   static Namespace getSchemaNamespace(final String baseURL, final SchemaMetadata schema) {
-    final String prefix = TypeUtils.convertToPascalCase(schema.getName());
+    final String prefix = schema.getIdentifier();
     final String url = schemaIRI(baseURL, schema).stringValue() + "/";
     return Values.namespace(prefix, url);
   }
