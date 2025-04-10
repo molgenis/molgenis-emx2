@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "prepare": "nuxt prepare",
     "lint": "vue-tsc --noEmit",
     "generate-source-map": "node ./utils/generateSourceMap.js",
     "build": "yarn generate-source-map && nuxt build",
