@@ -37,14 +37,12 @@ public class Emx2Tables {
                         || isFileType(c, metadata)
                         || store instanceof TableAndFileStore)
             .map(Column::getName)
-            .filter(name -> !name.startsWith("mg_") || includeSystemColumns)
+            .filter(
+                name -> name.equals(MG_DRAFT) || !name.startsWith("mg_") || includeSystemColumns)
             .toList();
 
     Query query = table.query();
-    // exclude drafts when system columns are not included
-    if (!includeSystemColumns) {
-      query.where(f(MG_DRAFT, Operator.NOT_EQUALS, true));
-    }
+
     if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
       query.where(
           f(MG_TABLECLASS, Operator.EQUALS, table.getSchema().getName() + "." + table.getName()));
