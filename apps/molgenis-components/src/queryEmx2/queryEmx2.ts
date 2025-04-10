@@ -4,8 +4,6 @@
 
 import { request } from "graphql-request";
 import { IColumn, ITableMetaData } from "../../../metadata-utils/dist";
-import { C } from "vitest/dist/chunks/reporters.QZ837uWx";
-import { S } from "vitest/dist/chunks/config.BRtC-JeT";
 
 class QueryEMX2 {
   tableId = "";
