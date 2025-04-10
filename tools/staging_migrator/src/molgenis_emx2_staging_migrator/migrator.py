@@ -178,7 +178,7 @@ class StagingMigrator(Client):
             raise NoSuchSchemaException(f"Catalogue schema must be different from staging area schema.")
 
 
-    def upload_zip_stream(self, zip_stream: BytesIO, is_fallback: bool = False):
+    def upload_zip_stream(self, zip_stream: BytesIO):
         """Uploads the zip file containing the tables from the staging area
         to the catalogue.
         """
@@ -193,8 +193,6 @@ class StagingMigrator(Client):
         response_status = response.status_code
         if response.status_code != 200:
             log.error(f"Migration failed with error {response_status}:\n{str(response.text)}")
-            log.error("Uploading fallback zip.")
-            self._upload_fallback_zip()
         else:
             response_url = f"{self.url}{response.json().get('url')}"
             upload_status = self.session.get(response_url,
@@ -209,29 +207,8 @@ class StagingMigrator(Client):
             if upload_status == 'ERROR':
                 log.error(f"Migration failed, reason: {upload_description}.")
                 log.debug(self.session.get(response_url, headers={'x-molgenis-token': self.token}).json())
-                if not is_fallback:
-                    log.info("Uploading fallback zip.")
-                    self._upload_fallback_zip()
-                else:
-                    log.error("Restoring fallback zip failed.")
             else:
-                if is_fallback:
-                    log.info("Fallback zip restored successfully.")
-                else:
-                    log.info("Migrated successfully.")
-
-    def _upload_fallback_zip(self):
-        """Restores the catalogue to the state before deletion by uploading the downloaded target zip."""
-        target_filename = f"{BASE_DIR}/target.zip"
-        upload_stream = BytesIO()
-        # Load the target.zip file as a stream
-        with (zipfile.ZipFile(target_filename, 'r') as target_archive,
-              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED) as upload_archive):
-            for file_name in target_archive.namelist():
-                if not file_name.startswith('molgenis'):
-                    upload_archive.writestr(file_name, BytesIO(target_archive.read(file_name)).getvalue())
-        # Upload the stream
-        self.upload_zip_stream(upload_stream, is_fallback=True)
+                log.info("Migrated successfully.")
 
 
     def last_change(self, staging_area: str = None) -> datetime | None:
