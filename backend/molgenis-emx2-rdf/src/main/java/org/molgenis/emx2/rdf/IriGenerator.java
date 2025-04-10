@@ -24,6 +24,8 @@ import org.molgenis.emx2.TableMetadata;
  * com.google.common.net.UrlEscapers#urlFormParameterEscaper}, except spaces are escaped as "{@code
  * %20}" instead of "{@code +}". Any reserved characters present in the IRI are therefore deliberate
  * and are not part of any user-data stored within EMX2.
+ * <br /><br />
+ * IMPORTANT: {@link PrimaryKey} still uses `+`.
  */
 public class IriGenerator {
   static final PercentEscaper escaper = new PercentEscaper("-._~", false);
