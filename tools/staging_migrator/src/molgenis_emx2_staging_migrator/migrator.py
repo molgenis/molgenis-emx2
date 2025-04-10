@@ -19,47 +19,67 @@ from .utils import prepare_primary_keys
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
 SchemaType: TypeAlias = Literal['source', 'target']
+CATALOGUE = "catalogue"
 
 
 class StagingMigrator(Client):
     """
-    The StagingMigrator class is used to migrate updated data in a staging area to a catalogue.
+    The StagingMigrator class is used to migrate updated data from a source schema to a target.
     The class subclasses the Molgenis EMX2 Pyclient to access the API on the server
     """
 
     def __init__(self, url: str,
+                 source: str = None,
+                 target: str = CATALOGUE,
                  staging_area: str = None,
-                 catalogue: str = 'catalogue',
+                 catalogue: str = None,
                  token: str = None):
         """Sets up the StagingMigrator by logging in to the client."""
         super().__init__(url=url, token=token)
-        self.staging_area = staging_area
-        self.catalogue = catalogue
+
+        if staging_area is not None:
+            DeprecationWarning("Parameter 'staging_area' is deprecated, use 'source' instead.")
+            self.source = staging_area
+        else:
+            self.source = source
+        if catalogue is not None:
+            DeprecationWarning("Parameter 'catalogue' is deprecated, use 'target' instead.")
+            self.target = catalogue
+        else:
+            self.target = target
         self._verify_schemas()
 
     def __repr__(self):
         class_name = type(self).__name__
         args = [
-            f"staging_area={self.staging_area!r}",
-            f"catalogue={self.catalogue!r}"
+            f"source={self.source!r}",
+            f"target={self.target!r}"
         ]
         return f"{class_name}({', '.join(args)})"
 
     def set_staging_area(self, staging_area: str):
-        """Sets the staging area and verifies its existence."""
-        self.staging_area = staging_area
+        DeprecationWarning("Method 'set_staging_area' is deprecated, use 'set_target' instead.")
+        return self.set_source(staging_area)
+
+    def set_source(self, source: str):
+        """Sets the source schema and verifies its existence."""
+        self.source = source
         self._verify_schemas()
 
     def set_catalogue(self, catalogue: str):
-        """Sets the catalogue and verifies its existence."""
-        self.catalogue = catalogue
+        DeprecationWarning("Method 'set_catalogue' is deprecated, use 'set_target' instead.")
+        return self.set_target(catalogue)
+
+    def set_target(self, target: str):
+        """Sets the target schema and verifies its existence."""
+        self.target = target
         self._verify_schemas()
 
     def migrate(self, keep_zips: bool = False):
         """Performs the migration of the source schema to the target schema."""
 
-        # Download the target catalogue for upload in case of an error during execution
-        self.download_schema_zip(schema=self.catalogue, schema_type='target', include_system_columns=True)
+        # Download data from the target schema for upload in case of an error during execution
+        self.download_schema_zip(schema=self.target, schema_type='target', include_system_columns=True)
 
         # Create zipfile for uploading
         zip_stream = self.create_zip()
@@ -73,12 +93,12 @@ class StagingMigrator(Client):
 
     def create_zip(self):
         """
-        Creates a ZIP file containing tables to be uploaded to the catalogue schema.
+        Creates a ZIP file containing tables to be uploaded to the target schema.
         """
-        source_file_path = self.download_schema_zip(schema=self.staging_area, schema_type='source',
+        source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
                                                     include_system_columns=True)
 
-        source_metadata = self.get_schema_metadata(self.staging_area)
+        source_metadata = self.get_schema_metadata(self.source)
         upload_stream = BytesIO()
         updated_tables = list()
         with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
@@ -111,11 +131,11 @@ class StagingMigrator(Client):
 
     def _get_filtered(self, table: Table) -> pd.DataFrame:
         """
-        Filters the table for rows in present in the staging area
-        that have not been updated or published yet in the catalogue.
+        Filters the table for rows in present in the source schema
+        that have not been updated or published yet in the target schema.
         """
         # Specify the primary keys
-        primary_keys = prepare_primary_keys(self.get_schema_metadata(self.staging_area), table.name)
+        primary_keys = prepare_primary_keys(self.get_schema_metadata(self.source), table.name)
 
         # Load the data for the table from the ZIP files
         source_df = self._load_table('source', table)
@@ -130,7 +150,7 @@ class StagingMigrator(Client):
             if id_map.get(s_id) is None:
                 id_map[s_id] = None
 
-        # Filter rows not present in the catalogue
+        # Filter rows not present in the target's table
         new_ids = [s for (s, t) in id_map.items() if t is None]
         new_df = source_df.iloc[new_ids]
 
@@ -197,24 +217,24 @@ class StagingMigrator(Client):
 
 
     def _verify_schemas(self):
-        """Ensures the staging area and catalogue are available."""
-        if self.staging_area is not None:
-            if self.staging_area not in self.schema_names:
-                raise NoSuchSchemaException(f"Schema {self.staging_area!r} not found on server."
+        """Ensures the source and target are available."""
+        if self.source is not None:
+            if self.source not in self.schema_names:
+                raise NoSuchSchemaException(f"Schema {self.source!r} not found on server."
                                             f" Available schemas: {', '.join(self.schema_names)}.")
-        if self.catalogue not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {self.catalogue!r} not found on server."
+        if self.target not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {self.target!r} not found on server."
                                         f" Available schemas: {', '.join(self.schema_names)}.")
 
-        if self.staging_area == self.catalogue:
-            raise NoSuchSchemaException(f"Catalogue schema must be different from staging area schema.")
+        if self.source == self.target:
+            raise NoSuchSchemaException(f"Target schema must be different from source schema.")
 
 
     def upload_zip_stream(self, zip_stream: BytesIO):
-        """Uploads the zip file containing the tables from the staging area
-        to the catalogue.
+        """Uploads the zip file containing the tables from the source schema
+        to the target schema.
         """
-        upload_url = f"{self.url}/{self.catalogue}/api/zip?async=true"
+        upload_url = f"{self.url}/{self.target}/api/zip?async=true"
 
         response = self.session.post(
             url=upload_url,
@@ -239,13 +259,13 @@ class StagingMigrator(Client):
                 log.info("Migration process completed successfully.")
 
 
-    def last_change(self, staging_area: str = None) -> datetime | None:
-        """Retrieves the datetime of the latest change made on the staging area.
+    def last_change(self, source: str = None) -> datetime | None:
+        """Retrieves the datetime of the latest change made on the source schema.
         Returns None if the changelog is disabled or empty.
         """
-        staging_area = staging_area or self.staging_area
+        source = source or self.source
 
-        response = self.session.post(url=f"{self.url}/{staging_area}/settings/graphql",
+        response = self.session.post(url=f"{self.url}/{source}/settings/graphql",
                                          json={"query": changelog_query}, headers=self.session.headers)
         changelog = response.json().get('data').get('_changes')
         if len(changelog) == 0:
