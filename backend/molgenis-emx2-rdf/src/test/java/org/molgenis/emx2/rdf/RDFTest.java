@@ -31,6 +31,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleNamespace;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.DCAT;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
@@ -580,6 +581,23 @@ public class RDFTest {
         .add(ValidationTriple.COMP_GRANDCHILD_REFBACK_1.getTriple(), false)
         .add(ValidationTriple.COMP_GRANDCHILD_REFBACK_2.getTriple(), false)
         .validate(handler);
+  }
+
+  @Test
+  void testCorrectEndpointIRI() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", POOKY_ROWID), handler);
+
+    Set<Value> endpointIris =
+        handler
+            .resources
+            .get(Values.iri(getApi(petStore_nr1) + "Pet?" + POOKY_ROWID))
+            .get(Values.iri(DCAT.ENDPOINT_URL.stringValue()));
+    assertAll(
+        () -> assertEquals(1, endpointIris.size()),
+        () ->
+            assertEquals(
+                Values.iri(getApi(petStore_nr1, false)), endpointIris.stream().findFirst().get()));
   }
 
   @Test
