@@ -402,8 +402,6 @@ public class RDFTest {
 
   /**
    * Actual API has no trailing slash. Use {@link #getApi(Schema, boolean)} with `false` if needed.
-   * @param schema
-   * @return
    */
   private static String getApi(Schema schema) {
     return getApi(schema, true);
