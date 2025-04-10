@@ -101,7 +101,7 @@ public class TestLoaders {
 
         // create rdf in memory
         OutputStream outputStream = new ByteArrayOutputStream();
-        var rdf = new RDFService("http://localhost:8080", "/api/rdf", null);
+        var rdf = new RDFService("http://localhost:8080", null);
         rdf.describeAsRDF(outputStream, null, null, null, dataCatalogue);
 
         // check compliance
