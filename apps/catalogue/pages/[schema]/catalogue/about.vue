@@ -14,7 +14,7 @@
         :items="[
           { id: 'intro', label: 'Introduction' },
           { id: 'use', label: 'Use' },
-          { id: 'video', label: 'INTRODUCTORY VIDEO' },
+          { id: 'video', label: 'Introductory video' },
           { id: 'molgenis', label: 'MOLGENIS Software' },
           { id: 'involvement', label: 'How to Get Involved' },
           { id: 'acknowledgements', label: 'Acknowledgements' },
@@ -59,8 +59,8 @@
           >.
         </ContentBlock>
 
-        <ContentBlock id="video" title="INTRODUCTORY VIDEO">
-          <div class="aspect-w-16 aspect-h-18 w-full h-full">
+        <ContentBlock id="video" title="Introductory video">
+          <div class="aspect-w-16 aspect-h-18 w-full">
             <iframe
               src="https://www.youtube.com/embed/PyRElhVzzb4"
               title="Introductory Video"
