@@ -66,7 +66,7 @@
             rel="noopener noreferrer"
             class="text-blue-500 underline hover:bg-blue-50"
           >
-            Watch the LongITools introduction video on YouTube
+            Watch the introductory video made in collaboration with the LongITools project
           </a>
         </ContentBlock>
 
