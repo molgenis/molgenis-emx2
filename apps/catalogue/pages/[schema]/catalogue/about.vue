@@ -60,15 +60,16 @@
         </ContentBlock>
 
         <ContentBlock id="video" title="INTRODUCTORY VIDEO">
-          <a
-            href="https://www.youtube.com/watch?v=PyRElhVzzb4&ab_channel=LongITools"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-blue-500 underline hover:bg-blue-50"
-          >
-            Watch the introductory video made in collaboration with the
-            LongITools project
-          </a>
+          <div class="aspect-w-16 aspect-h-18 w-full h-full">
+            <iframe
+              src="https://www.youtube.com/embed/PyRElhVzzb4"
+              title="Introductory Video"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              class="w-full h-full rounded-lg"
+            ></iframe>
+          </div>
         </ContentBlock>
 
         <ContentBlock id="molgenis" title="MOLGENIS Software">
