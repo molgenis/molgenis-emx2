@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
@@ -509,10 +510,9 @@ public class RDFService {
             builder.add(subject, columnIRI, value);
             IRI fileSubject = (IRI) value;
             builder.add(fileSubject, RDF.TYPE, BasicIRI.SIO_FILE);
-            builder.add(
-                fileSubject,
-                DCTERMS.TITLE,
-                Values.literal(row.getString(column.getName() + "_filename")));
+            Literal fileName = Values.literal(row.getString(column.getName() + "_filename"));
+            builder.add(fileSubject, RDFS.LABEL, fileName);
+            builder.add(fileSubject, DCTERMS.TITLE, fileName);
             builder.add(
                 fileSubject,
                 DCTERMS.FORMAT,
