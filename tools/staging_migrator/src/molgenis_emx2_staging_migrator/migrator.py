@@ -8,8 +8,10 @@ from typing import TypeAlias, Literal
 
 import pandas as pd
 from molgenis_emx2_pyclient import Client
+from molgenis_emx2_pyclient.constants import DATE, DATETIME
 from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
 from molgenis_emx2_pyclient.metadata import Table
+from molgenis_emx2_pyclient.utils import convert_dtypes
 
 from .constants import BASE_DIR, changelog_query
 from .utils import prepare_primary_keys
@@ -112,11 +114,8 @@ class StagingMigrator(Client):
         primary_keys = prepare_primary_keys(self.get_schema_metadata(self.staging_area), table.name)
 
         # Load the data for the table from the ZIP files
-        with zipfile.ZipFile(BASE_DIR.joinpath("source.zip"), 'r') as source_archive:
-            source_df = pd.read_csv(BytesIO(source_archive.read(f"{table.name}.csv")))
-        with zipfile.ZipFile(BASE_DIR.joinpath("target.zip"), 'r') as target_archive:
-            target_df = pd.read_csv(BytesIO(target_archive.read(f"{table.name}.csv")))
-
+        source_df = self._load_table('source', table)
+        target_df = self._load_table('target', table)
         # Create mapping of indices from the source table to the target table
         id_map = {}
         for s_id, s_values in source_df[primary_keys].iterrows():
@@ -163,6 +162,31 @@ class StagingMigrator(Client):
         else:
             log.error("Error: download failed.")
         return filepath
+
+    @staticmethod
+    def _load_table(schema_type: SchemaType, table: Table) -> pd.DataFrame:
+        """Loads the table from a zip file into a DataFrame.
+        Then parses the data by converting the columns' dtypes.
+        """
+        with zipfile.ZipFile(BASE_DIR / f"{schema_type}.zip", 'r') as archive:
+            raw_df = pd.read_csv(BytesIO(archive.read(f"{table.name}.csv")), nrows=1)
+
+        columns = raw_df.columns
+        dtypes = {c: t for (c, t) in convert_dtypes(table).items() if c in columns}
+
+        bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
+        date_columns = [c.name for c in table.columns
+                        if c.get('columnType') in (DATE, DATETIME) and c.name in columns]
+
+        with zipfile.ZipFile(BASE_DIR / f"{schema_type}.zip", 'r') as archive:
+            df = pd.read_csv(BytesIO(archive.read(f"{table.name}.csv")),  keep_default_na=True,
+                             dtype=dtypes, parse_dates=date_columns)
+
+        df[bool_columns] = df[bool_columns].replace({'true': True, 'false': False})
+        df = df.astype(dtypes)
+
+        return df
+
 
     def _verify_schemas(self):
         """Ensures the staging area and catalogue are available."""

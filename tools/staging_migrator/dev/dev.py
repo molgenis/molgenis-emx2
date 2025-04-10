@@ -30,9 +30,14 @@ def main(staging_area: str):
         migrator.set_staging_area(staging_area)
         target_path = migrator.download_schema_zip(schema=CATALOGUE, schema_type='target', include_system_columns=True)
 
-        stream = migrator.create_zip()
-        with open(target_path.parent / "upload.zip", 'wb') as zf:
-            zf.write(stream.getbuffer())
+        schema = migrator.get_schema_metadata(staging_area)
+        df = migrator._load_table('source', schema.get_table('name', 'Collection events'))
+        print(df.head())
+        # migrator.create_zip()
+        migrator.migrate(keep_zips=True)
+        # stream = migrator.create_zip()
+        # with open(target_path.parent / "upload.zip", 'wb') as zf:
+        #     zf.write(stream.getbuffer())
 
 
 if __name__ == '__main__':
