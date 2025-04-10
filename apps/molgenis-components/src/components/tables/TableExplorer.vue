@@ -629,6 +629,7 @@ export default {
       if (["COMPLETED", "ERROR"].includes(task.status)) {
         this.success = true;
         this.taskDone = true;
+        this.reload();
       }
     },
     async handleRowAction(type: any, key?: Promise<any>) {
