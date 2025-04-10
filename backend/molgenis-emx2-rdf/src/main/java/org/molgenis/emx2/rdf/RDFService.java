@@ -256,7 +256,7 @@ public class RDFService {
       builder.subject(subject).add(DCTERMS.DESCRIPTION, schema.getMetadata().getDescription());
     }
     for (final Table table : schema.getTablesSorted()) {
-      builder.subject(subject).add(BasicIRI.LDP_CONTAINS, tableIRI(baseURL, table));
+      builder.subject(subject).add(LDP.CONTAINS, tableIRI(baseURL, table));
     }
   }
 
@@ -464,7 +464,7 @@ public class RDFService {
 
     builder.add(subject, RDF.TYPE, tableIRI);
     builder.add(subject, RDF.TYPE, BasicIRI.LD_OBSERVATION);
-    builder.add(subject, BasicIRI.DCAT_ENDPOINTURL, schemaIRI(baseURL, table.getSchema()));
+    builder.add(subject, DCAT.ENDPOINT_URL, schemaIRI(baseURL, table.getSchema()));
     builder.add(subject, BasicIRI.FDP_METADATAIDENTIFIER, subject);
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {

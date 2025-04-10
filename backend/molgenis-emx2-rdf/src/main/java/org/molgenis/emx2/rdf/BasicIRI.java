@@ -10,19 +10,12 @@ import org.eclipse.rdf4j.model.IRI;
  */
 public class BasicIRI {
   /**
-   * DCAT:endpointURL is the 'root' location, which is the schema. see:
-   * https://www.w3.org/TR/vocab-dcat-3/#Property:data_service_endpoint_url
-   */
-  public static final IRI DCAT_ENDPOINTURL = iri("http://www.w3.org/ns/dcat#endpointURL");
-
-  /**
    * FDP-O:metadataIdentifier is the identifier of the metadata entry, which is the subject itself.
    * See: https://specs.fairdatapoint.org/fdp-specs-v1.2.html
    */
   public static final IRI FDP_METADATAIDENTIFIER =
       iri("https://w3id.org/fdp/fdp-o#metadataIdentifier");
 
-  public static final IRI LDP_CONTAINS = iri("http://www.w3.org/ns/ldp#contains");
   public static final IRI LD_DATASET_CLASS = iri("http://purl.org/linked-data/cube#DataSet");
   public static final IRI LD_DATASET_PREDICATE = iri("http://purl.org/linked-data/cube#dataSet");
   public static final IRI LD_OBSERVATION = iri("http://purl.org/linked-data/cube#Observation");
