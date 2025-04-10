@@ -179,8 +179,11 @@ class StagingMigrator(Client):
                         if c.get('columnType') in (DATE, DATETIME) and c.name in columns]
 
         with zipfile.ZipFile(BASE_DIR / f"{schema_type}.zip", 'r') as archive:
-            df = pd.read_csv(BytesIO(archive.read(f"{table.name}.csv")),  keep_default_na=True,
-                             dtype=dtypes, parse_dates=date_columns)
+            df = pd.read_csv(filepath_or_buffer=BytesIO(archive.read(f"{table.name}.csv")),
+                             dtype=dtypes,
+                             na_values=[""],
+                             keep_default_na=False,
+                             parse_dates=date_columns)
 
         df[bool_columns] = df[bool_columns].replace({'true': True, 'false': False})
         df = df.astype(dtypes)
