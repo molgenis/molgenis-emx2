@@ -4,6 +4,8 @@
 
 import { request } from "graphql-request";
 import { IColumn, ITableMetaData } from "../../../metadata-utils/dist";
+import { C } from "vitest/dist/chunks/reporters.QZ837uWx";
+import { S } from "vitest/dist/chunks/config.BRtC-JeT";
 
 class QueryEMX2 {
   tableId = "";
@@ -20,6 +22,8 @@ class QueryEMX2 {
   aggregateQuery = false;
   type = "";
   orCount = 0;
+  searchFieldsByProperty: Record<string, string[]> = {};
+  searchValue = "";
 
   /**
    * @param {string} graphqlUrl the endpoint to query
@@ -231,6 +235,8 @@ class QueryEMX2 {
     this.filters = {};
     this.findInAllColumns = "";
     this.page = {};
+    this.searchFieldsByProperty = {};
+    this.searchValue = "";
     return this;
   }
 
@@ -385,15 +391,14 @@ class QueryEMX2 {
   // the best query would be for example"
   // Biobanks(orderby: { name: ASC }, filter: {collections: {_and: [{materials: {name: {like: "BUFFY_COAT"}}}, {materials: {name: {like: "CELL_LINES"}}}]}})
   // but this requires another rewrite ;)
-  _createFilterString(filters: Record<string, any>) {
+  _createFilterString(filters: Record<string, any>, property: string) {
     let filterString = "";
 
-    if (!filters) {
-      return filterString;
-    }
+    const andCount = filters && filters["_and"] ? filters["_and"].length : 0;
+    const orCount = filters && filters["_or"] ? filters["_or"].length : 0;
 
-    const andCount = filters["_and"] ? filters["_and"].length : 0;
-    const orCount = filters["_or"] ? filters["_or"].length : 0;
+    console.log("filters", filters);
+    console.log("property: : ", property);
 
     if (andCount + orCount > 1) {
       let inner = "";
@@ -423,6 +428,27 @@ class QueryEMX2 {
     } else if (orCount === 1) {
       const inner = filters["_or"];
       filterString += `_or: [ ${inner} ]`;
+    }
+    console.log("filterString before search: ", filterString);
+    if (
+      this.searchValue &&
+      Object.keys(this.searchFieldsByProperty).includes(property) &&
+      this.searchFieldsByProperty[property].length
+    ) {
+      let searchString = "";
+      this.searchFieldsByProperty[property].forEach((field) => {
+        if (searchString.length) {
+          searchString += ", ";
+        }
+        // todo: handle the case where the field is a nested property
+        searchString += `{ ${field}: { like: "${this.searchValue}" } }`;
+      });
+
+      filterString = filterString.length
+        ? `_and: [ { _or: [ ${searchString} ] } , { ${filterString} } ]`
+        : `_or: [ ${searchString} ]`;
+
+      console.log("filterString after search", filterString);
     }
     return filterString;
   }
@@ -483,7 +509,10 @@ class QueryEMX2 {
         : ""
     );
 
-    const filterString = this._createFilterString(this.filters[property]);
+    const filterString = this._createFilterString(
+      this.filters[property],
+      property
+    );
     if (filterString.length) {
       modifierParts.push(`filter: { ${filterString} }`);
     }
