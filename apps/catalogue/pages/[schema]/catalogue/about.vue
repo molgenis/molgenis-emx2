@@ -14,7 +14,7 @@
         :items="[
           { id: 'intro', label: 'Introduction' },
           { id: 'use', label: 'Use' },
-          { id: 'video', label: 'LongITools Video' },
+          { id: 'video', label: 'INTRODUCTORY VIDEO' },
           { id: 'molgenis', label: 'MOLGENIS Software' },
           { id: 'involvement', label: 'How to Get Involved' },
           { id: 'acknowledgements', label: 'Acknowledgements' },
@@ -59,7 +59,7 @@
           >.
         </ContentBlock>
 
-        <ContentBlock id="video" title="LongITools Video">
+        <ContentBlock id="video" title="INTRODUCTORY VIDEO">
           <a
             href="https://www.youtube.com/watch?v=PyRElhVzzb4&ab_channel=LongITools"
             target="_blank"
