@@ -1,4 +1,4 @@
-// Generated (on: 2025-04-05T22:58:47.077180) from Generator.java for schema: catalogue
+// Generated (on: 2025-04-10T16:07:27.333397) from Generator.java for schema: catalogue
 
 export interface IFile {
   id?: string;
@@ -98,6 +98,23 @@ export interface IBiospecimens {
 }
 
 export interface IBiospecimens_agg {
+  count: number;
+}
+
+export interface ICatalogueTypes {
+  order?: number;
+  name: string;
+  label?: string;
+  tags?: string[];
+  parent?: ICatalogueTypes;
+  codesystem?: string;
+  code?: string;
+  ontologyTermURI?: string;
+  definition?: string;
+  children?: ICatalogueTypes[];
+}
+
+export interface ICatalogueTypes_agg {
   count: number;
 }
 
@@ -972,6 +989,7 @@ export interface IResources {
   acronym?: string;
   type: IOntologyNode[];
   typeOther?: string;
+  catalogueType?: IOntologyNode;
   cohortType?: IOntologyNode[];
   clinicalStudyType?: IOntologyNode[];
   rWDType?: IOntologyNode[];
