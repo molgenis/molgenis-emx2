@@ -1,6 +1,6 @@
 name,label,parent,tags,codesystem,code,ontologyTermURI,definition
 Biobank,,,collection,EDAM,EDAM:3337,http://edamontology.org/topic_3337,Repositories of biological samples.
-Catalogue,,,collection,SIO,SIO:001241,http://semanticscience.org/resource/SIO_001241,A catalog is a systemic collection of items of the same type.
+Catalogue,,,collection,,,,Catalogue of resources.
 Clinical trial,,,collection,SIO,SIO:001000,http://semanticscience.org/resource/SIO_001000,Studies testing medical interventions.
 Cohort study,,,collection,SIO,SIO:001067,http://semanticscience.org/resource/SIO_001067,Observational studies of defined populations
 Common data model,,,collection,,,,
@@ -11,5 +11,4 @@ Health records,,,collection,SCDO,SCDO:0000492,http://purl.obolibrary.org/obo/SCD
 Network,,,network,,,,
 Rare disease,,,collection,OMIT,OMIT:0022617,http://purl.obolibrary.org/obo/OMIT_0022617,A collection that is focusing on rare diseases
 Registry,,,collection,,,,
-Project,,,network,,,,A network that is a funded project such as by EC H2020. If catalogue this will put it in the project category
 Other type,,,collection,,,,
