@@ -85,9 +85,9 @@ further details about the harmonisation like source variables and harmonisation 
 ![Variable detail view](../img/cat_detailed-harmonised-variable-view.png)
 
 ## Searching and filtering
-<!-- A stand alone 'filter' section would be useful, e start by showing how you search, and then give all the options for filtering -->
+
 Since the catalogue contains many resources and variables, there are several ways of narrowing down the lists of results
-for collections, networks, and variables.
+when exploring collections, networks, and variables.
 
 ![Sidebar with search and filters](../img/cat_search-and-filters.png)
 
@@ -97,6 +97,27 @@ For example, searching for 'diabetes' in collections will return collections wit
 as well as in their list of main medical conditions or the names of their subpopulations.
 
 In addition to searching for a term, there is also a set of filters on specific attributes which can be used instead of
-or in addition to the search bar.
+or together with the search bar. For collections and networks, these are:
 
-<!-- An explanation of the distinction between topics and variables (and maybe where these topic categories come from)<-- put this near the topic filter explanation -->
+- **Collection type**: the type of collection you are interested in, e.g. biobanks, cohort studies, health records.
+- **Areas of information**: the topics each collection has collected data on, e.g. education, medication, chemical exposure.
+- **Data categories**: the type of data each collection has collected, e.g. medical records, biological samples, surveys.
+- **Population age groups**: the age groups each collection has collected data on, e.g. prenatal, 65+, adolescents.
+- **Sample categories**: in case the collection contains biological samples, which types of samples have been collected.
+E.g. tears, frozen tissue, stem cells.
+- **Cohort types**: in case the collection is/contains a cohort study, what types of cohort study it has/is,
+e.g. birth cohort, population cohort, clinical cohort.
+- **Design**: the study design of the collection, e.g. longitudinal, cross-sectional.
+- **Diseases**: the diseases the collection has collected data on, using ICD-10 and Orphanet codes,
+e.g. Kostmann syndrome, diseases of the respiratory system, Hodgkin lymphoma.
+
+And for variables, these are:
+
+- **Topics**: the variables contain information regarding these topics,
+e.g. allergies, lifestyle and behaviours, surgical interventions.
+- **Sources**: show only variables originating from these collections, e.g. ABCD, Lifelines, GenR.
+
+Note that, since some filters have a large number of options, each filter also allows for searching
+within those filter options by clicking on **Search for options**. Naturally, these filters can be combined
+to make your search more specific. For example, filtering on collection type 'biobank' and population age group 'child'
+provides you with a list of biobanks containing data on children age 2-12.
