@@ -26,7 +26,7 @@
     <template #main>
       <ContentBlocks>
         <ContentBlock id="intro" title="Introduction">
-          Developed by the Genomics Coordination Center (GCC) at the University
+          Developed by the MOLGENIS team of Genomics Coordination Center (GCC) at the University
           Medical Center Groningen (UMCG), the European Health Research Data and
           Sample Catalogue is a joint metadata catalogue initiative designed to
           bring together catalogues from various EU research projects and
@@ -88,9 +88,14 @@
 
           <ul class="list-disc pl-5 pt-2">
             <li>
+              Swertz, van Enckevort et al. "Towards an Interoperable Ecosystem 
+              of Research Cohort and Real-world Data Catalogues Enabling 
+              Multi-center Studies."<em>Yearb Med Inform</em>. 31(1):262-272, 2022
+            </li>
+            <li>
               van der Velde, K. Joeri, et al. "MOLGENIS research: advanced
               bioinformatics data software for non-bioinformaticians."
-              <em>Bioinformatics</em> 35.6 (2018): 1076.
+              <em>Bioinformatics</em>. 35.6 (2018): 1076.
             </li>
             <li>
               Swertz, Morris A., et al. "The MOLGENIS toolkit: rapid prototyping
@@ -144,10 +149,14 @@
           This catalogue was created with the support of many partners. Special
           thanks to:
           <ul class="list-disc pl-5 pt-2">
+            <li>EUCAN-connect</li>
             <li>European Child Cohort Network</li>
             <li>LifeCycle Consortium</li>
             <li>ATHLETE Consortium</li>
             <li>LongITools Consortium</li>
+            <li>IMI Conception</li>
+            <li>European Human Exposome Network</li>
+            <li>BBMRI-ERIC</li>
           </ul>
         </ContentBlock>
       </ContentBlocks>
