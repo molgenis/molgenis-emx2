@@ -54,7 +54,7 @@ public class RDFTest {
    */
   public static final String POOKY_ROWID = "name=pooky";
 
-  static final String BASE_URL = "http://localhost:8080/";
+  static final String BASE_URL = "http://localhost:8080";
   static final String RDF_API_LOCATION = "/api/rdf";
 
   static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
@@ -395,8 +395,17 @@ public class RDFTest {
         .setSetting(SETTING_SEMANTIC_PREFIXES, "dcterms,http://purl.org/dc/terms/");
   }
 
+  private static String getApi(Schema schema, boolean trailingSlash) {
+    return BASE_URL + "/" + schema.getName() + RDF_API_LOCATION + (trailingSlash ? "/" : "");
+  }
+
+  /**
+   * Actual API has no trailing slash. Use {@link #getApi(Schema, boolean)} with `false` if needed.
+   * @param schema
+   * @return
+   */
   private static String getApi(Schema schema) {
-    return BASE_URL + schema.getName() + RDF_API_LOCATION + "/";
+    return getApi(schema, true);
   }
 
   @AfterAll
@@ -1168,7 +1177,7 @@ public class RDFTest {
     final Set<Namespace> defaultNamespaces =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("CustomRdfEdit", BASE_URL + "CustomRdfEdit/api/rdf/"));
+            add(new SimpleNamespace("CustomRdfEdit", BASE_URL + "/CustomRdfEdit/api/rdf/"));
             addAll(DEFAULT_NAMESPACES);
           }
         };
@@ -1249,7 +1258,7 @@ public class RDFTest {
     final Set<Namespace> defaultNamespaces =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("PrefixesEdit", BASE_URL + "PrefixesEdit/api/rdf/"));
+            add(new SimpleNamespace("PrefixesEdit", BASE_URL + "/PrefixesEdit/api/rdf/"));
             addAll(DEFAULT_NAMESPACES);
           }
         };
@@ -1257,7 +1266,7 @@ public class RDFTest {
     final Set<Namespace> customNamespaces =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("PrefixesEdit", BASE_URL + "PrefixesEdit/api/rdf/"));
+            add(new SimpleNamespace("PrefixesEdit", BASE_URL + "/PrefixesEdit/api/rdf/"));
             add(new SimpleNamespace("dcat", "http://www.w3.org/ns/dcat#"));
             add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
           }
@@ -1322,7 +1331,7 @@ public class RDFTest {
     final Set<Namespace> expectedNamespaces =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("PrefixesEmpty", BASE_URL + "PrefixesEmpty/api/rdf/"));
+            add(new SimpleNamespace("PrefixesEmpty", BASE_URL + "/PrefixesEmpty/api/rdf/"));
           }
         };
 
@@ -1346,10 +1355,10 @@ public class RDFTest {
           {
             add(
                 new SimpleNamespace(
-                    "PrefixSettingEqual1", BASE_URL + "PrefixSettingEqual1/api/rdf/"));
+                    "PrefixSettingEqual1", BASE_URL + "/PrefixSettingEqual1/api/rdf/"));
             add(
                 new SimpleNamespace(
-                    "PrefixSettingEqual2", BASE_URL + "PrefixSettingEqual2/api/rdf/"));
+                    "PrefixSettingEqual2", BASE_URL + "/PrefixSettingEqual2/api/rdf/"));
             add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
           }
         };
@@ -1379,10 +1388,10 @@ dcterms,http://purl.org/dc/terms/
           {
             add(
                 new SimpleNamespace(
-                    "PrefixSettingName1", BASE_URL + "PrefixSettingName1/api/rdf/"));
+                    "PrefixSettingName1", BASE_URL + "/PrefixSettingName1/api/rdf/"));
             add(
                 new SimpleNamespace(
-                    "PrefixSettingName2", BASE_URL + "PrefixSettingName2/api/rdf/"));
+                    "PrefixSettingName2", BASE_URL + "/PrefixSettingName2/api/rdf/"));
             add(new SimpleNamespace("dcterms1", "http://purl.org/dc/terms/"));
           }
         };
@@ -1413,10 +1422,10 @@ dcterms2,http://purl.org/dc/terms/
           {
             add(
                 new SimpleNamespace(
-                    "PrefixSettingNameIri1", BASE_URL + "PrefixSettingNameIri1/api/rdf/"));
+                    "PrefixSettingNameIri1", BASE_URL + "/PrefixSettingNameIri1/api/rdf/"));
             add(
                 new SimpleNamespace(
-                    "PrefixSettingNameIri2", BASE_URL + "PrefixSettingNameIri2/api/rdf/"));
+                    "PrefixSettingNameIri2", BASE_URL + "/PrefixSettingNameIri2/api/rdf/"));
             add(new SimpleNamespace("name", "http://www.w3.org/2000/01/rdf-schema#"));
           }
         };
@@ -1441,10 +1450,10 @@ name,http://www.w3.org/2000/01/rdf-schema#
           {
             add(
                 new SimpleNamespace(
-                    "PrefixSettingPartly1", BASE_URL + "PrefixSettingPartly1/api/rdf/"));
+                    "PrefixSettingPartly1", BASE_URL + "/PrefixSettingPartly1/api/rdf/"));
             add(
                 new SimpleNamespace(
-                    "PrefixSettingPartly2", BASE_URL + "PrefixSettingPartly2/api/rdf/"));
+                    "PrefixSettingPartly2", BASE_URL + "/PrefixSettingPartly2/api/rdf/"));
             add(new SimpleNamespace("example", "http://example.com/"));
             addAll(DEFAULT_NAMESPACES);
           }
@@ -1567,7 +1576,7 @@ example,http://example.com/
    */
   private void getAndParseRDF(Selection selection, RDFHandler handler) throws IOException {
     OutputStream outputStream = new ByteArrayOutputStream();
-    var rdf = new RDFService("http://localhost:8080", null);
+    var rdf = new RDFService(BASE_URL, null);
     rdf.describeAsRDF(
         outputStream, selection.table, selection.rowId, selection.columnName, selection.schemas);
     String result = outputStream.toString();
