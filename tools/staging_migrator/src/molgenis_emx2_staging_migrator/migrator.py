@@ -102,6 +102,10 @@ class StagingMigrator(Client):
                     updated_tables.append(Path(file_name).stem)
 
         # Return zip
+        if len(updated_table) == 0:
+            log.info(f"No data to migrate.")
+            upload_stream.flush()
+            return upload_stream
         log.info(f"Migrating tables {', '.join(updated_tables)}.")
         return upload_stream
 
@@ -122,7 +126,8 @@ class StagingMigrator(Client):
             for t_id, t_values in target_df[primary_keys].iterrows():
                 if all(s_val == t_val for (s_val, t_val) in zip(s_values, t_values)):
                     id_map[s_id] = t_id
-            if not id_map.get(s_id):
+                    break
+            if id_map.get(s_id) is None:
                 id_map[s_id] = None
 
         # Filter rows not present in the catalogue
@@ -231,7 +236,7 @@ class StagingMigrator(Client):
                 log.error(f"Migration failed, reason: {upload_description}.")
                 log.debug(self.session.get(response_url).json())
             else:
-                log.info("Migrated successfully.")
+                log.info("Migration process completed successfully.")
 
 
     def last_change(self, staging_area: str = None) -> datetime | None:

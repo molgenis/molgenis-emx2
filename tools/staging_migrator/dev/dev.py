@@ -31,8 +31,8 @@ def main(staging_area: str):
         target_path = migrator.download_schema_zip(schema=CATALOGUE, schema_type='target', include_system_columns=True)
 
         schema = migrator.get_schema_metadata(staging_area)
-        df = migrator._load_table('source', schema.get_table('name', 'Collection events'))
-        print(df.head())
+        # df = migrator._load_table('source', schema.get_table('name', 'Variable values'))
+        # df = migrator._get_filtered(schema.get_table('name', 'Resources'))
         # migrator.create_zip()
         migrator.migrate(keep_zips=True)
         # stream = migrator.create_zip()
