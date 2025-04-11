@@ -1,5 +1,5 @@
 dependencies {
-    implementation 'org.graalvm.js:js:23.0.0'
-    implementation 'org.graalvm.js:js-scriptengine:23.0.0'
+    implementation 'org.graalvm.js:js:23.0.7'
+    implementation 'org.graalvm.js:js-scriptengine:23.1.6'
     testImplementation 'io.javalin:javalin-testtools:6.5.0'
 }
