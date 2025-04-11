@@ -8,12 +8,12 @@ plugins {
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'application'
-    id 'com.palantir.docker' version '0.35.0'
+    id 'com.palantir.docker' version '0.36.0'
 }
 
 ext {
     javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
-    javaVersion = JavaVersion.VERSION_17
+    javaVersion = JavaVersion.VERSION_21
 }
 
 allprojects {
