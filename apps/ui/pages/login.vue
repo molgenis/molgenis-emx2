@@ -36,9 +36,10 @@ async function signin() {
 
     if (signinResp.data.signin.status === "SUCCESS") {
       console.log(signinResp.data.signin);
-      const { reload } = await useSession();
-      reload();
-      route.redirectedFrom ? router.go(-1) : navigateTo({ path: "/" });
+      (await useSession()).reload();
+      route.redirectedFrom || router.getRoutes().length
+        ? router.back()
+        : navigateTo({ path: "/" });
     } else {
       console.log(signinResp.data.signin.message);
       error.value = signinResp.data.signin.message;
