@@ -9,13 +9,16 @@
     </FilterSearch>
 
     <div class="flex gap-[10px]">
-      <Button
-        v-if="isEditable"
-        type="primary"
-        icon="add-circle"
-        @click="handleAddClick"
-        >Add {{ tableId }}</Button
+      <AddModal
+        v-if="props.isEditable && data?.tableMetadata"
+        :metadata="data.tableMetadata"
+        :schemaId="props.schemaId"
+        v-slot="{ setVisable }"
       >
+        <Button type="primary" icon="add-circle" @click="setVisable"
+          >Add {{ tableId }}</Button
+        >
+      </AddModal>
 
       <TableControlColumns
         :columns="columns"
@@ -101,6 +104,7 @@ import { sortColumns } from "../../utils/sortColumns";
 
 import { useAsyncData } from "#app/composables/asyncData";
 import { fetchTableData, fetchTableMetadata } from "#imports";
+import AddModal from "../form/AddModal.vue";
 
 const props = withDefaults(
   defineProps<{

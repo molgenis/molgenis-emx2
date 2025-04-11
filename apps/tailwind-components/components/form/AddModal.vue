@@ -1,5 +1,5 @@
 <template>
-  <slot>
+  <slot :setVisable="setVisable">
     <Button
       class="m-10"
       type="primary"
@@ -105,6 +105,10 @@ const props = withDefaults(
 );
 
 const visible = ref(false);
+
+function setVisable() {
+  visible.value = true;
+}
 
 const rowType = computed(() => props.metadata.id);
 const isDraft = ref(false);
