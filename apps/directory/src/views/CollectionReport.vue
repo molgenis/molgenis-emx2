@@ -8,7 +8,15 @@
     </div>
 
     <div
-      v-else-if="collection?.biobank?.withdrawn || collection?.withdrawn"
+      v-else-if="collection?.biobank?.withdrawn"
+      class="alert alert-warning"
+      role="alert"
+    >
+      {{ uiText["biobank_withdrawn"] }}
+    </div>
+
+    <div
+      v-else-if="collection?.withdrawn"
       class="alert alert-warning"
       role="alert"
     >
