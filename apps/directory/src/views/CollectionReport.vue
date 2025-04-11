@@ -8,7 +8,7 @@
     </div>
 
     <div
-      v-if="loaded && collection?.biobank?.withdrawn"
+      v-else-if="collection?.biobank?.withdrawn || collection?.withdrawn"
       class="alert alert-warning"
       role="alert"
     >
