@@ -38,7 +38,10 @@ const menu = [
   // { label: "Manuals", link: "#" },
   config.public.cohortOnly
     ? { label: "About", link: `/${schema}/catalogue/all/about` }
-    : undefined,
+    : {
+        label: "About",
+        link: `/${schema}/catalogue/about`,
+      },
 ].filter((item) => item !== undefined);
 </script>
 
