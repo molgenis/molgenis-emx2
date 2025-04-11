@@ -7,10 +7,25 @@
       :inverted="true"
     >
     </FilterSearch>
-    <TableControlColumns
-      :columns="columns"
-      @update:columns="handleColumnsUpdate"
-    />
+
+    <div class="flex gap-[10px]">
+      <AddModal
+        v-if="props.isEditable && data?.tableMetadata"
+        :metadata="data.tableMetadata"
+        :schemaId="props.schemaId"
+        v-slot="{ setVisable }"
+        @update:added="afterRowAdded"
+      >
+        <Button type="primary" icon="add-circle" @click="setVisable"
+          >Add {{ tableId }}</Button
+        >
+      </AddModal>
+
+      <TableControlColumns
+        :columns="columns"
+        @update:columns="handleColumnsUpdate"
+      />
+    </div>
   </div>
 
   <div class="overflow-auto rounded-b-theme">
@@ -88,30 +103,80 @@ import type { IColumn } from "../../../metadata-utils/src/types";
 import type { ITableSettings, sortDirection } from "../../types/types";
 import { sortColumns } from "../../utils/sortColumns";
 
+import { useAsyncData } from "#app/composables/asyncData";
+import { fetchTableData, fetchTableMetadata } from "#imports";
+import AddModal from "../form/AddModal.vue";
+
+const props = withDefaults(
+  defineProps<{
+    schemaId: string;
+    tableId: string;
+    isEditable?: boolean;
+  }>(),
+  {
+    isEditable: () => false,
+  }
+);
+
+const settings = defineModel<ITableSettings>("settings", {
+  required: false,
+  default: () => ({
+    page: 1,
+    pageSize: 10,
+    orderby: { column: "", direction: "ASC" },
+    search: "",
+  }),
+});
+
 const mgAriaSortMappings = {
   ASC: "ascending",
   DESC: "descending",
 };
 
-const defaultSettings: ITableSettings = {
-  page: 1,
-  pageSize: 10,
-  orderby: { column: "", direction: "ASC" },
-  search: "",
-};
+// use useAsyncData to have control of status, error, and refresh
+const { data, status, error, refresh, clear } = useAsyncData(
+  `tableEMX2-${props.schemaId}-${props.tableId}`,
+  async () => {
+    const tableMetadata = await fetchTableMetadata(
+      props.schemaId,
+      props.tableId
+    );
+    const tableData = await fetchTableData(props.schemaId, props.tableId, {
+      limit: settings.value.pageSize,
+      offset: (settings.value.page - 1) * settings.value.pageSize,
+      orderby: settings.value.orderby.column
+        ? { [settings.value.orderby.column]: settings.value.orderby.direction }
+        : {},
+      searchTerms: settings.value.search,
+    });
+    return {
+      tableMetadata,
+      tableData,
+    };
+  }
+);
 
-const props = defineProps<{
-  tableId: string;
-  columns: IColumn[];
-  rows: Record<string, any>[];
-  count: number;
-  settings?: ITableSettings;
-}>();
+const rows = computed(() => {
+  if (!data.value?.tableData) return [];
 
-const emit = defineEmits(["update:settings", "update:columns"]);
+  return data.value.tableData.rows;
+});
 
-const settings = ref({ ...defaultSettings, ...props.settings });
-const columns = ref(props.columns);
+const count = computed(() => data.value?.tableData?.count ?? 0);
+
+const columns = ref<IColumn[]>([]);
+
+watch(
+  () => data.value?.tableMetadata,
+  (newMetadata) => {
+    if (newMetadata) {
+      columns.value = newMetadata.columns.filter(
+        (c) => !c.id.startsWith("mg") && c.columnType !== "HEADING"
+      );
+    }
+  },
+  { immediate: true }
+);
 
 const sortedVisibleColumns = computed(() => {
   const visibleColumns = columns.value.filter(
@@ -120,17 +185,16 @@ const sortedVisibleColumns = computed(() => {
   return sortColumns(visibleColumns);
 });
 
-watch(
-  () => props.columns,
-  (newColumns: IColumn[]) => {
-    columns.value = newColumns;
-  }
-);
+function handleColumnsUpdate(newColumns: IColumn[]) {
+  columns.value = newColumns;
+}
 
 function handleSortRequest(columnId: string) {
   const direction: sortDirection = getDirection(columnId);
-  settings.value.orderby = { column: columnId, direction };
-  emit("update:settings", settings.value);
+  settings.value.orderby.column = columnId;
+  settings.value.orderby.direction = direction;
+  settings.value.page = 1;
+  refresh();
 }
 
 function getDirection(columnId: string): sortDirection {
@@ -143,15 +207,17 @@ function getDirection(columnId: string): sortDirection {
 
 function handleSearchRequest(search: string) {
   settings.value.search = search;
-  emit("update:settings", settings.value);
+  settings.value.page = 1;
+  refresh();
 }
 
 function handlePagingRequest(page: number) {
   settings.value.page = page;
-  emit("update:settings", settings.value);
+  refresh();
 }
 
-function handleColumnsUpdate(newColumns: IColumn[]) {
-  columns.value = newColumns;
+function afterRowAdded() {
+  // todo reset filters and search, goto page with added item, flash row with add item
+  refresh();
 }
 </script>
