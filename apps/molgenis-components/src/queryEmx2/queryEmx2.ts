@@ -438,8 +438,7 @@ class QueryEMX2 {
         if (searchString.length) {
           searchString += ", ";
         }
-        // todo: handle the case where the field is a nested property
-        searchString += `{ ${field}: { like: "${this.searchValue}" } }`;
+        searchString += this.buildExpandedLike(field, this.searchValue);
       });
 
       filterString = filterString.length
@@ -449,6 +448,14 @@ class QueryEMX2 {
       console.log("filterString after search", filterString);
     }
     return filterString;
+  }
+
+  buildExpandedLike(field: string, value: string) {
+    const fieldParts = field.split(".");
+    const str = fieldParts.reduce((acc: string, part: string) => {
+      return acc + `{ ${part}: `;
+    }, "");
+    return str + `{ like: "${value}" } }` + " }".repeat(fieldParts.length - 1);
   }
 
   /** Create a nested object to represent the branches and their properties */

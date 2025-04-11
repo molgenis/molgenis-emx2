@@ -379,4 +379,27 @@ NestedExample {
   }
 }`);
   });
+
+  it("should nest branched search queries", () => {
+    const result = new QueryEMX2("graphql").buildExpandedLike("name", "test");
+    expect(result).toEqual(`{ name: { like: \"test\" } }`);
+  });
+
+  it("should nest branched search queries with a dot notation", () => {
+    const result = new QueryEMX2("graphql").buildExpandedLike(
+      "collections.name",
+      "test"
+    );
+    expect(result).toEqual(`{ collections: { name: { like: \"test\" } } }`);
+  });
+
+  it("should nest branched search queries with two dot notations", () => {
+    const result = new QueryEMX2("graphql").buildExpandedLike(
+      "collections.materials.name",
+      "test"
+    );
+    expect(result).toEqual(
+      `{ collections: { materials: { name: { like: \"test\" } } } }`
+    );
+  });
 });
