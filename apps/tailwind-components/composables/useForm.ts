@@ -5,6 +5,7 @@ import type {
   IColumn,
   columnId,
 } from "../../metadata-utils/src/types";
+import { toFormData } from "#imports";
 
 export default function useForm(
   metadata: MaybeRef<ITableMetaData>,
@@ -106,6 +107,17 @@ export default function useForm(
     scrollTo(`${nextErrorColumnId}-form-field`);
   };
 
+  const insertInto = (schemaId: string, tableId: string) => {
+    const formData = toFormData(toRef(formValues).value);
+    const query = `mutation insert($value:[${tableId}Input]){insert(${tableId}:$value){message}}`;
+    formData.append("query", query);
+
+    return $fetch(`/${schemaId}/graphql`, {
+      method: "POST",
+      body: formData,
+    });
+  };
+
   return {
     requiredFields,
     emptyRequiredFields,
@@ -115,5 +127,6 @@ export default function useForm(
     gotoPreviousRequiredField,
     gotoNextError,
     gotoPreviousError,
+    insertInto,
   };
 }

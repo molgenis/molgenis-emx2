@@ -14,6 +14,7 @@
         :metadata="data.tableMetadata"
         :schemaId="props.schemaId"
         v-slot="{ setVisable }"
+        @update:added="afterRowAdded"
       >
         <Button type="primary" icon="add-circle" @click="setVisable"
           >Add {{ tableId }}</Button
@@ -215,7 +216,8 @@ function handlePagingRequest(page: number) {
   refresh();
 }
 
-function handleAddClick() {
-  alert("Add row placeholder");
+function afterRowAdded() {
+  // todo reset filters and search, goto page with added item, flash row with add item
+  refresh();
 }
 </script>
