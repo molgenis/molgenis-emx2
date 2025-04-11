@@ -2,7 +2,7 @@
 import { useRouter } from "#app/composables";
 import { navigateTo, useRoute } from "#app/composables/router";
 import { ref } from "vue";
-import { useSession } from "../composables/session";
+import { useSession } from "../composables/useSession";
 
 const route = useRoute();
 const router = useRouter();

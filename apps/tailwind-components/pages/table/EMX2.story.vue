@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFetch, useLazyAsyncData } from "#app";
-import { fetchMetadata, fetchTableData } from "#imports";
+import { fetchMetadata } from "#imports";
 import { computed, ref, watch } from "vue";
 import type { ITableSettings, Resp, Schema } from "../../types/types";
 
@@ -33,6 +33,21 @@ const schemaId = ref(
   )?.id || ""
 );
 
+watch(
+  schemaId,
+  async () => {
+    if (schemaId.value) {
+      const { data: metadata } = await useLazyAsyncData("my meta data", () =>
+        fetchMetadata(schemaId.value)
+      );
+      if (metadata.value) {
+        tableId.value = metadata.value.tables[0].id;
+      }
+    }
+  },
+  { immediate: true }
+);
+
 const tableId = ref(
   schemaId.value === "pet store"
     ? "Pet"
@@ -60,45 +75,6 @@ const tableOptions = computed(() => {
   } else {
     return [];
   }
-});
-
-const {
-  data: tableData,
-  error,
-  refresh: refetchTableData,
-} = await useLazyAsyncData("my data", () =>
-  fetchTableData(schemaId.value, tableId.value)
-);
-
-const numberOfRows = computed(() => tableData?.value?.count ?? 0);
-
-watch(schemaId, () => {
-  refetchMetadata().then(() => {
-    if (metadata.value) {
-      tableId.value = metadata.value.tables[0].id;
-      refetchTableData();
-    }
-  });
-});
-
-watch(tableId, () => refetchTableData());
-
-const tableColumns = computed(() => {
-  return (
-    metadata.value?.tables
-      .find((t) => t.id === tableId.value)
-      ?.columns.filter((column) => !column.id.startsWith("mg")) ?? []
-  );
-});
-
-const dataRows = computed(() => {
-  if (!tableData.value?.rows) return [];
-
-  return tableData.value.rows.map((row) => {
-    return Object.fromEntries(
-      Object.entries(row).filter(([key]) => !key.startsWith("mg"))
-    );
-  });
 });
 </script>
 
@@ -132,14 +108,17 @@ const dataRows = computed(() => {
   </div>
 
   <div>
+    <div><span class="text-title">tableId:</span> {{ tableId }}</div>
+    <div class="mb-4">
+      <span class="text-title">schemaId:</span> {{ schemaId }}
+    </div>
+
     <TableEMX2
       v-if="tableId && schemaId"
+      :key="`${schemaId}-${tableId}`"
+      :schema-id="schemaId"
       :table-id="tableId"
-      :columns="tableColumns"
-      :rows="dataRows"
-      :count="numberOfRows"
-      @update:settings="(value: ITableSettings) => tableSettings = value"
-      :settings="tableSettings"
+      v-model:settings="tableSettings"
       :is-editable="isEditable"
     />
   </div>
