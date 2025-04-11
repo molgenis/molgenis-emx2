@@ -166,6 +166,7 @@ const query = gql`
         name
       }
       partOfResources {
+        id
         name
         type {
             name
@@ -348,6 +349,43 @@ const networks = computed(() =>
     : resource.value.partOfResources.filter((c) =>
         c.type.find((t) => t.name == "Network")
       )
+);
+
+interface INetworkResponse {
+  data: {
+    Resources: { id: string }[];
+  };
+}
+const { data: linkedNetworks, error: linkedNetworksError } = await useFetch<
+  INetworkResponse,
+  IMgError
+>(`/${route.params.schema}/graphql`, {
+  method: "POST",
+  body: {
+    query: `
+query LinkedNetworks($networkIds: [String]) {
+  Resources(
+    filter: {
+      _and: [
+        { type: { name: { equals: ["Network"] } } }
+        { id: { equals: $networkIds } }
+      ]
+    }
+  ) {
+    id
+  }
+}
+      `,
+    variables: { networkIds: networks.value.map((network) => network.id) },
+  },
+});
+
+if (linkedNetworksError.value) {
+  logError(linkedNetworksError.value, "Error fetching resource metadata");
+}
+
+const localNetworkIds = computed(
+  () => linkedNetworks.value?.data?.Resources.map((network) => network.id) || []
 );
 
 const tocItems = computed(() => {
@@ -858,19 +896,20 @@ const showPopulation = computed(
               :title="network.name"
               :description="network?.description || ''"
               :imageUrl="network?.logo?.url || ''"
-              :url="network.website || ''"
-              :links="
-                network.website
-                  ? [
-                      {
-                        title: 'Website',
-                        url: network.website,
-                        target: '_blank',
-                      },
-                    ]
-                  : []
+              :url="
+                localNetworkIds?.includes(network.id)
+                  ? `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`
+                  : network.website || ''
               "
-              target="_blank"
+              :links="[network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
+               localNetworkIds?.includes(network.id) ? {
+                title: 'View network',
+                url: `/${route.params.schema}/catalogue/${route.params.catalogue}`,
+                target: '_self' as linkTarget,
+              } : null].filter((link) => link !== null)"
+              :target="
+                localNetworkIds?.includes(network.id) ? '_self' : '_blank'
+              "
             />
           </ReferenceCardList>
         </ContentBlock>
