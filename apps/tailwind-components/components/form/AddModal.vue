@@ -142,6 +142,7 @@ async function onSaveDraft() {
   }
 
   isDraft.value = true;
+  emit("update:added", resp);
 }
 
 async function onSave() {
@@ -159,6 +160,7 @@ async function onSave() {
 
   isDraft.value = false;
   visible.value = false;
+  emit("update:added", resp);
 }
 
 const formValues = ref<Record<string, columnValue>>({});

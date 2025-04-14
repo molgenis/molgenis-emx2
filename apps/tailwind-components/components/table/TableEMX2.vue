@@ -99,14 +99,23 @@
                   label="delete"
                   @click="handleRowDelete"
                 ></Button>
-                <Button
-                  :icon-only="true"
-                  type="inline"
-                  icon="edit"
-                  size="small"
-                  label="edit"
-                  @click="handleRowEdit"
-                ></Button>
+                <EditModal
+                  v-if="data?.tableMetadata"
+                  :schemaId="props.schemaId"
+                  :metadata="data.tableMetadata"
+                  :formValues="row"
+                  v-slot="{ setVisable }"
+                  @update:updated="afterRowUpdated"
+                >
+                  <Button
+                    :icon-only="true"
+                    type="inline"
+                    icon="edit"
+                    size="small"
+                    label="edit"
+                    @click="setVisable"
+                  />
+                </EditModal>
               </div>
             </TableCellTypesEMX2>
           </tr>
@@ -132,6 +141,7 @@ import { sortColumns } from "../../utils/sortColumns";
 import { useAsyncData } from "#app/composables/asyncData";
 import { fetchTableData, fetchTableMetadata } from "#imports";
 import AddModal from "../form/AddModal.vue";
+import EditModal from "../form/EditModal.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -247,11 +257,11 @@ function afterRowAdded() {
   refresh();
 }
 
-function handleRowDelete() {
-  alert("todo delete row");
+function afterRowUpdated() {
+  refresh();
 }
 
-function handleRowEdit() {
-  alert("todo delete edit");
+function handleRowDelete() {
+  alert("todo delete row");
 }
 </script>

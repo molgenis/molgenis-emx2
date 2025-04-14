@@ -118,6 +118,17 @@ export default function useForm(
     });
   };
 
+  const updateInto = (schemaId: string, tableId: string) => {
+    const formData = toFormData(toRef(formValues).value);
+    const query = `mutation update($value:[${tableId}Input]){update(${tableId}:$value){message}}`;
+    formData.append("query", query);
+
+    return $fetch(`/${schemaId}/graphql`, {
+      method: "POST",
+      body: formData,
+    });
+  };
+
   return {
     requiredFields,
     emptyRequiredFields,
@@ -128,5 +139,6 @@ export default function useForm(
     gotoNextError,
     gotoPreviousError,
     insertInto,
+    updateInto,
   };
 }
