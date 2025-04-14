@@ -22,5 +22,7 @@ export const i18n = {
     deselect_all: "Deselect all",
     biobank_withdrawn: "This biobank is no longer part of BBMRI-ERIC",
     collection_withdrawn: "This collection is no longer part of BBMRI-ERIC",
+    collection_biobank_withdrawn:
+      "This collection belongs to a biobank that is no longer part of BBMRI-ERIC",
   },
 };
