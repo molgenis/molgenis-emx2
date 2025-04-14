@@ -61,6 +61,8 @@ async function signin() {
         />
         <InputString
           id="password"
+          type="password"
+          autocomplete="current-password"
           placeholder="Password"
           :required="true"
           v-model="password"
