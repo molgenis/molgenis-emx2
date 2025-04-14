@@ -81,15 +81,16 @@ public class RunMolgenisEmx2 {
             Schema schema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
             DataModels.Profile.DATA_CATALOGUE.getImportTask(schema, true).run();
           }
-          if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
-            Schema schema = db.createSchema(DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo");
-            new BiobankDirectoryLoader(schema, true).setStaging(false).run();
-          }
+          // Disable directory and patient registry demo in order to get the previews up.
+          // if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
+          //   Schema schema = db.createSchema(DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo");
+          //   new BiobankDirectoryLoader(schema, true).setStaging(false).run();
+          // }
 
-          if (INCLUDE_PATIENT_REGISTRY_DEMO && db.getSchema("patient registry demo") == null) {
-            Schema schema = db.createSchema("patient registry demo");
-            new PatientRegistryDemoLoader(schema, true).run();
-          }
+          // if (INCLUDE_PATIENT_REGISTRY_DEMO && db.getSchema("patient registry demo") == null) {
+          //   Schema schema = db.createSchema("patient registry demo");
+          //   new PatientRegistryDemoLoader(schema, true).run();
+          // }
         });
 
     // start
