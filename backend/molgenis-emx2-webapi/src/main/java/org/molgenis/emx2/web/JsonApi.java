@@ -5,7 +5,6 @@ import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.ZipApi.getReportParameters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.util.*;
@@ -26,7 +25,6 @@ public class JsonApi {
     Schema schema = getSchema(ctx);
     String reports = ctx.queryParam("id");
     Map<String, ?> parameters = getReportParameters(ctx);
-    ObjectMapper mapper = new ObjectMapper();
     Map<String, Object> jsonResponse = new HashMap<>();
     for (String reportId : reports.split(",")) {
       jsonResponse.put(reportId, getReportAsJson(reportId, schema, parameters));
