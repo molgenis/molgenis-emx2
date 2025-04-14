@@ -19,7 +19,9 @@
       >
         <span
           class="btn btn-sm btn-primary text-white mr-1"
-          v-for="selectedTerm in selectionWithoutChildren"
+          v-for="selectedTerm in selectionWithoutChildren.sort(
+            (a, b) => a.order - b.order
+          )"
           :key="selectedTerm"
           @click.stop="deselect(selectedTerm.name)"
         >
@@ -479,6 +481,7 @@ export default {
             terms[term.name].label = term.label;
             terms[term.name].code = term.code;
             terms[term.name].codesystem = term.codesystem;
+            terms[term.name].order = term.order;
           } else {
             //else simply add the record
             terms[term.name] = {
@@ -490,6 +493,7 @@ export default {
               code: term.code,
               codesystem: term.codesystem,
               label: term.label,
+              order: term.order,
             };
           }
           if (term.parent) {
