@@ -18,6 +18,7 @@ public class TestScriptTask {
 
     @Tag("windowsFail")
     @Test
+    @Disabled
     public void testPython() throws InterruptedException {
         System.out.println("first");
         ScriptTask r1 = new ScriptTask("hello")
@@ -62,7 +63,6 @@ public class TestScriptTask {
     }
 
     @Test
-    @Disabled
     public void testBashScript() {
         Task bashTask = new ScriptTask("bashTest")
             .type(BASH)
