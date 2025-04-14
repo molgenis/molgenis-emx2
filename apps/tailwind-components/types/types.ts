@@ -57,7 +57,8 @@ export type ButtonType =
   | "tertiary"
   | "outline"
   | "disabled"
-  | "filterWell";
+  | "filterWell"
+  | "inline";
 
 export type ButtonSize = "tiny" | "small" | "medium" | "large";
 

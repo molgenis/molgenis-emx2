@@ -75,14 +75,40 @@
         <tbody
           class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-5"
         >
-          <tr v-for="row in rows">
+          <tr
+            v-for="row in rows"
+            class="static hover:bg-blue-50 group h-4"
+            :class="{ 'hover:cursor-pointer': props.isEditable }"
+          >
             <TableCellTypesEMX2
-              v-for="column in sortedVisibleColumns"
-              class="w-6 text-table-row"
+              v-for="(column, index) in sortedVisibleColumns"
+              class="text-table-row"
               :scope="column.key === 1 ? 'row' : null"
               :metaData="column"
               :data="row[column.id]"
-            />
+            >
+              <div
+                v-if="isEditable && index === 0"
+                class="flex items-center gap-1 flex-none invisible group-hover:visible h-4 pt-4"
+              >
+                <Button
+                  :icon-only="true"
+                  type="inline"
+                  icon="trash"
+                  size="small"
+                  label="delete"
+                  @click="handleRowDelete"
+                ></Button>
+                <Button
+                  :icon-only="true"
+                  type="inline"
+                  icon="edit"
+                  size="small"
+                  label="edit"
+                  @click="handleRowEdit"
+                ></Button>
+              </div>
+            </TableCellTypesEMX2>
           </tr>
         </tbody>
       </table>
@@ -219,5 +245,13 @@ function handlePagingRequest(page: number) {
 function afterRowAdded() {
   // todo reset filters and search, goto page with added item, flash row with add item
   refresh();
+}
+
+function handleRowDelete() {
+  alert("todo delete row");
+}
+
+function handleRowEdit() {
+  alert("todo delete edit");
 }
 </script>
