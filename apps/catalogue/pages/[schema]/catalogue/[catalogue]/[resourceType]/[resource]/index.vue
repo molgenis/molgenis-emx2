@@ -189,6 +189,9 @@ const query = gql`
     Variables_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
     }
+    Catalogues{
+        network{id}
+    }
   }
 `;
 const variables = { id: route.params.resource };
@@ -201,6 +204,7 @@ interface IResponse {
   data: {
     Resources: IResourceQueryResponseValue[];
     Variables_agg: { count: number };
+    Catalogues: ICatalogues[];
   };
 }
 const { data, error } = await useFetch<IResponse, IMgError>(
@@ -246,6 +250,12 @@ const subpopulationCount = computed(
 );
 
 const variableCount = computed(() => data.value?.data?.Variables_agg.count);
+
+function isCatalogue(id: string): boolean | undefined {
+  return data.value?.data?.Catalogues.some(
+    (catalogue) => catalogue.network.id === id
+  );
+}
 
 function collectionEventMapper(item: any) {
   return {
@@ -349,43 +359,6 @@ const networks = computed(() =>
     : resource.value.partOfResources.filter((c) =>
         c.type.find((t) => t.name == "Network")
       )
-);
-
-interface INetworkResponse {
-  data: {
-    Resources: { id: string }[];
-  };
-}
-const { data: linkedNetworks, error: linkedNetworksError } = await useFetch<
-  INetworkResponse,
-  IMgError
->(`/${route.params.schema}/graphql`, {
-  method: "POST",
-  body: {
-    query: `
-query LinkedNetworks($networkIds: [String]) {
-  Resources(
-    filter: {
-      _and: [
-        { type: { name: { equals: ["Network"] } } }
-        { id: { equals: $networkIds } }
-      ]
-    }
-  ) {
-    id
-  }
-}
-      `,
-    variables: { networkIds: networks.value.map((network) => network.id) },
-  },
-});
-
-if (linkedNetworksError.value) {
-  logError(linkedNetworksError.value, "Error fetching resource metadata");
-}
-
-const localNetworkIds = computed(
-  () => linkedNetworks.value?.data?.Resources.map((network) => network.id) || []
 );
 
 const tocItems = computed(() => {
@@ -897,17 +870,22 @@ const showPopulation = computed(
               :description="network?.description || ''"
               :imageUrl="network?.logo?.url || ''"
               :url="
-                localNetworkIds?.includes(network.id)
-                  ? `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`
-                  : network.website || ''
+                isCatalogue(network.id)
+                  ? `/${route.params.schema}/catalogue/${network.id}`
+                  : `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`
               "
               :links="[network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
-               localNetworkIds?.includes(network.id) ? {
-                title: 'View network',
+               {title: 'Network details',
+                url: `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`,
+                target: '_blank' as linkTarget,
+                },
+                isCatalogue(network.id) ? {
+                title: 'Catalogue',
                 url: `/${route.params.schema}/catalogue/${route.params.catalogue}`,
                 target: '_self' as linkTarget,
-              } : null].filter((link) => link !== null)"
-              target="_blank"
+              }: null
+                ].filter((link) => link !== null)"
+              :target="isCatalogue(network.id) ? '_self' : '_blank'"
             />
           </ReferenceCardList>
         </ContentBlock>
