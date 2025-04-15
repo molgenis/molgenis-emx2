@@ -338,8 +338,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     bookmarkTriggeredFilter.value = fromBookmark ?? false;
 
     if (typeof value === "string" || typeof value === "boolean") {
-      filters.value[filterName] = value;
-      checkoutStore.setSearchHistory(`${filterName} filtered on ${value}`);
+      if (value === "") {
+        delete filters.value[filterName];
+        checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
+      } else {
+        filters.value[filterName] = value;
+        checkoutStore.setSearchHistory(`${filterName} filtered on ${value}`);
+      }
     } else if (Array.isArray(value) && value.length) {
       filters.value[filterName] = value;
 
