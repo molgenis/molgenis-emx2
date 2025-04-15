@@ -340,6 +340,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     if (typeof value === "string" || typeof value === "boolean") {
       if (value === "") {
         delete filters.value[filterName];
+        checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
       } else {
         filters.value[filterName] = value;
         checkoutStore.setSearchHistory(`${filterName} filtered on ${value}`);
