@@ -881,7 +881,7 @@ const showPopulation = computed(
                 },
                 isCatalogue(network.id) ? {
                 title: 'Catalogue',
-                url: `/${route.params.schema}/catalogue/${route.params.catalogue}`,
+                url: `/${route.params.schema}/catalogue/${network.id}`,
                 target: '_blank' as linkTarget,
               }: null
                 ].filter((link) => link !== null)"
