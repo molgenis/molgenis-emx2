@@ -877,15 +877,15 @@ const showPopulation = computed(
               :links="[network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
                {title: 'Network details',
                 url: `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`,
-                target: '_blank' as linkTarget,
+                target: '_self' as linkTarget,
                 },
                 isCatalogue(network.id) ? {
                 title: 'Catalogue',
                 url: `/${route.params.schema}/catalogue/${route.params.catalogue}`,
-                target: '_self' as linkTarget,
+                target: '_blank' as linkTarget,
               }: null
                 ].filter((link) => link !== null)"
-              :target="isCatalogue(network.id) ? '_self' : '_blank'"
+              :target="isCatalogue(network.id) ? '_blank' : '_self'"
             />
           </ReferenceCardList>
         </ContentBlock>
