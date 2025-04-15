@@ -907,9 +907,7 @@ const showPopulation = computed(
                 url: `/${route.params.schema}/catalogue/${route.params.catalogue}`,
                 target: '_self' as linkTarget,
               } : null].filter((link) => link !== null)"
-              :target="
-                localNetworkIds?.includes(network.id) ? '_self' : '_blank'
-              "
+              target="_blank"
             />
           </ReferenceCardList>
         </ContentBlock>
