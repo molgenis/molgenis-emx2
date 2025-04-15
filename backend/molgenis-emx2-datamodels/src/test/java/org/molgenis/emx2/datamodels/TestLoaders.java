@@ -24,7 +24,6 @@ public class TestLoaders {
   public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
   public static final String DIRECTORY_TEST = "DirectoryTest";
   public static final String DIRECTORY_STAGING = "DirectoryStaging";
-  public static final String RD3_TEST = "RD3Test";
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
   public static final String DCAT = "DCATTest";
@@ -52,7 +51,6 @@ public class TestLoaders {
     database.dropSchemaIfExists(DIRECTORY_TEST);
     database.dropSchemaIfExists(DIRECTORY_STAGING);
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
-    database.dropSchemaIfExists(RD3_TEST);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(DCAT);
@@ -120,15 +118,6 @@ public class TestLoaders {
   }
 
   @Test
-  @Disabled
-  // todo delete
-  void test10RD3Loader() {
-    Schema RD3Schema = database.createSchema(RD3_TEST);
-    DataModels.Profile.RD3.getImportTask(RD3Schema, true).run();
-    assertEquals(27, RD3Schema.getTableNames().size());
-  }
-
-  @Test
   void test11JRCCDELoader() {
     Schema JRCCDESchema = database.createSchema(JRC_CDE_TEST);
     DataModels.Profile.JRC_COMMON_DATA_ELEMENTS.getImportTask(JRCCDESchema, true).run();
@@ -187,7 +176,7 @@ public class TestLoaders {
   void test18PortalLoader() throws URISyntaxException, IOException {
     // depends on catalogue test above
     Schema schema = database.dropCreateSchema(PORTAL_TEST);
-    DataModels.Regular.RD3_V2.getImportTask(schema, false).run();
+    DataModels.Profile.PATIENT_REGISTRY.getImportTask(schema, false).run();
     assertEquals(96, schema.getTableNames().size());
   }
 
