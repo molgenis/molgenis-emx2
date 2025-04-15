@@ -45,7 +45,7 @@ which all data sources can map their own variables to.
 Variable mapping is the process of defining how to convert the collected variable in the data source (source variable)
 to the harmonised variable in the common data model (target variable).
 For example, a collected variable describing length at birth in inches can be mapped to a harmonised variable
-describing length at birth in centimetres. These mappings can then be used as a basis for integrated analysis.
+describing length at birth in centimetres. These mappings can then be used as a basis for combined analysis.
 
 From the catalogue landing page, you can find all harmonised variables
 by clicking **ALL VARIABLES** in the menu.
