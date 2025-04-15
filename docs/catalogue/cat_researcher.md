@@ -119,7 +119,7 @@ And for variables, these are:
 e.g. allergies, lifestyle and behaviours, surgical interventions.
 - **Sources**: show only variables originating from these collections, e.g. ABCD, Lifelines, GenR.
 
-![List of collections filtered on collection type 'biobank' and population age group 'child'](../img/cat_filters-collections.png)
+![List of collections filtered on collection type 'biobank' and population age group 'child' ](../img/cat_filters-collections.png)
 
 Note that, since some filters have a large number of options, each filter also allows for searching
 within those filter options by clicking on **Search for options**. Filters can be combined
