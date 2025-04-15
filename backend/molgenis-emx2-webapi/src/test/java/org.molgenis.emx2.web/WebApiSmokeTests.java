@@ -1059,7 +1059,7 @@ public class WebApiSmokeTests {
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
     assertEquals("name,category,photoUrls,status,tags,weight,orders,mg_draft", rows.get(0));
     assertEquals(
-        "pooky,cat,,available,,9.4,ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919", rows.get(1));
+        "pooky,cat,,available,,9.4,ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919,", rows.get(1));
   }
 
   @Test
