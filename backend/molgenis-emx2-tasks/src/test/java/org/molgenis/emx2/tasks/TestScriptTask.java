@@ -9,19 +9,18 @@ import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @Tag("slow")
 public class TestScriptTask {
 
-    @Tag("windowsFail")
-    @Test
-    @Disabled
-    public void testPython() throws InterruptedException {
-        System.out.println("first");
-        ScriptTask r1 = new ScriptTask("hello")
+  @Tag("windowsFail")
+  @Test
+  public void testPython() throws InterruptedException {
+    System.out.println("first");
+    ScriptTask r1 =
+        new ScriptTask("hello")
             .type(PYTHON)
             .dependencies("numpy==1.23.4")
             // example with some characters that need escaping
@@ -39,58 +38,57 @@ public class TestScriptTask {
                 print('Halfway')
                 time.sleep(1)
                 print('Complete')
-                """
-            );
-        r1.run();
-        if (ERROR.equals(r1.getStatus())) {
-            System.out.println(r1);
-        }
-        assertEquals(COMPLETED, r1.getStatus());
-        // check for the arguments
-        assertTrue(r1.toString().contains("world"));
+                """);
+    r1.run();
+    if (ERROR.equals(r1.getStatus())) {
+      System.out.println(r1);
+    }
+    assertEquals(COMPLETED, r1.getStatus());
+    // check for the arguments
+    assertTrue(r1.toString().contains("world"));
 
-        System.out.println("\nsecond");
-        ScriptTask r2 = new ScriptTask("error")
+    System.out.println("\nsecond");
+    ScriptTask r2 =
+        new ScriptTask("error")
             .type(PYTHON)
             .script(
                 """
                 import sys
                 print('Error message', file=sys.stderr)
-                """
-            );
-        // System.out.println(r2);
-        r2.run();
-    }
+                """);
+    // System.out.println(r2);
+    r2.run();
+  }
 
-    @Test
-    public void testBashScript() {
-        Task bashTask = new ScriptTask("bashTest")
+  @Test
+  public void testBashScript() {
+    Task bashTask =
+        new ScriptTask("bashTest")
             .type(BASH)
             .script(
                 """
                 echo "hello world"
                 ls -la
                 echo "bey"
-                """
-            );
-        bashTask.run();
-        assertEquals(bashTask.getStatus(), COMPLETED);
-    }
+                """);
+    bashTask.run();
+    assertEquals(bashTask.getStatus(), COMPLETED);
+  }
 
-    @Test
-    public void testPythonScript_shouldFail() throws MalformedURLException {
-        Task task = new ScriptTask("error")
+  @Test
+  public void testPythonScript_shouldFail() throws MalformedURLException {
+    Task task =
+        new ScriptTask("error")
             .type(PYTHON)
             .script(
                 """
                 import sys
                 failureVariable = fail
                 print('unreachable')
-                """
-            )
+                """)
             .setServerUrl(new URL("http://localhost:8080/"))
             .failureAddress("test@test.com");
-        task.run();
-        assertEquals(task.getStatus(), ERROR);
-    }
+    task.run();
+    assertEquals(task.getStatus(), ERROR);
+  }
 }
