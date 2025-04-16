@@ -869,23 +869,18 @@ const showPopulation = computed(
               :title="network.name"
               :description="network?.description || ''"
               :imageUrl="network?.logo?.url || ''"
-              :url="
-                isCatalogue(network.id)
-                  ? `/${route.params.schema}/catalogue/${network.id}`
-                  : `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`
-              "
-              :links="[network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
+              :url="`/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`"
+              :links="[
+                  network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
                {title: 'Network details',
                 url: `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`,
-                target: '_self' as linkTarget,
                 },
                 isCatalogue(network.id) ? {
                 title: 'Catalogue',
                 url: `/${route.params.schema}/catalogue/${network.id}`,
-                target: '_blank' as linkTarget,
               }: null
                 ].filter((link) => link !== null)"
-              :target="isCatalogue(network.id) ? '_blank' : '_self'"
+              target="_self"
             />
           </ReferenceCardList>
         </ContentBlock>
