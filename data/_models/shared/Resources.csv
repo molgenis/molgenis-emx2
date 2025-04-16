@@ -25,6 +25,7 @@ Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","
 Resources,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA,StudiesStaging",
 Resources,,license,hyperlink,,,,,,,,dcterms:license,A legal document under which this catalogue record is made available,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Resources,,applicable legislation,hyperlink_array,,TRUE,,,,,,dcatap:applicableLegislation,The legislation that mandates the creation or management of the resource,DataCatalogueFlat,http://data.europa.eu/eli/reg/2022/868/oj
+Resources,,purpose,text,,,,,,,,dpv:hasPurpose,A free text statement of the purpose of the processing of data or personal data,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,INTEGRATE",
 Resources,,issued,datetime,,,,,,,,dcterms:issued,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was first published in the catalogue,DataCatalogueFlat,
 Resources,,modified,datetime,,,,,,,,dcterms:modified,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was last modified,DataCatalogueFlat,
 Resources,,design and structure,heading,,,,,,,,,Structure of the resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
@@ -106,6 +107,7 @@ Resources,,linkage possibility description,text,,,,,,,,,Description of data sour
 Resources,,linked resources,refback,,,,Linkages,,resource,,,List of resources that are or can be linked to this main resource,"DataCatalogueFlat,EMA,RWEStaging",
 Resources,,access conditions,heading,,,,,,,,,Access and validation information,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Resources,,access rights,hyperlink,,,,,,,,,"Specify whether data is publicly accessible, has access restrictions or is not public",DataCatalogueFlat,https://publications.europa.eu/resource/authority/access-right/RESTRICTED
+Resources,,provenance,text,,,,,,,,dct:provenance,A statement about the lineage of the resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Resources,,informed consent type,ontology,,,CatalogueOntologies,Informed consent types,,,,,What type of informed consent was given for data resource?,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Resources,,informed consent required,ontology,,,CatalogueOntologies,Informed consent required,,,,,Is informed consent required for use of the data for research purposes?,"DataCatalogueFlat,EMA,RWEStaging",
 Resources,,informed consent other,text,,,,,,,,,"If 'other', describe the conditions when informed consent is required","DataCatalogueFlat,EMA,RWEStaging",
