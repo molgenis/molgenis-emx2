@@ -13,15 +13,16 @@ import org.slf4j.LoggerFactory;
 public class RunMolgenisEmx2 {
 
   public static final String CATALOGUE_DEMO = "catalogue-demo";
-  public static final String DIRECTORY_DEMO = "directory-demo";
+  // public static final String DIRECTORY_DEMO = "directory-demo";
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
   public static final boolean INCLUDE_CATALOGUE_DEMO =
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_CATALOGUE_DEMO, false, BOOL);
-  public static final boolean INCLUDE_DIRECTORY_DEMO =
-      (Boolean)
-          EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_DIRECTORY_DEMO, false, BOOL);
+  // public static final boolean INCLUDE_DIRECTORY_DEMO =
+  //     (Boolean)
+  //         EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_DIRECTORY_DEMO, false,
+  // BOOL);
   public static final boolean EXCLUDE_PETSTORE_DEMO =
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_EXCLUDE_PETSTORE_DEMO, false, BOOL);
@@ -29,10 +30,10 @@ public class RunMolgenisEmx2 {
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_TYPE_TEST_DEMO, false, BOOL);
 
-  public static final boolean INCLUDE_PATIENT_REGISTRY_DEMO =
-      (Boolean)
-          EnvironmentProperty.getParameter(
-              Constants.MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO, false, BOOL);
+  // public static final boolean INCLUDE_PATIENT_REGISTRY_DEMO =
+  //     (Boolean)
+  //         EnvironmentProperty.getParameter(
+  //             Constants.MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO, false, BOOL);
 
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
