@@ -48,7 +48,7 @@
                 <Tabs :tabIds="['collections', 'biobanks']">
                   <template #collections-header>
                     <CollectionsHeader
-                      :collectionCount="collections?.length"
+                      :collectionCount="collections.length"
                       :subcollectionCount="subcollectionCount"
                     />
                   </template>
@@ -167,9 +167,12 @@ const network = computed(() => networkReport.value.network);
 const alsoKnownIn = computed(() => mapAlsoKnownIn(network.value));
 const subcollectionCount = computed<number>(
   () =>
-    networkReport.value.collections?.filter(
-      (collection: Record<string, any>) => collection.parent_collection
-    ).length || 0
+    networkReport.value.collections
+      ?.filter(
+        (collection: Record<string, any>) => collection.parent_collection
+      )
+      .filter((collection: Record<string, any>) => !collection.withdrawn)
+      .length || 0
 );
 
 function filterCollections(collections: Record<string, any>[]) {
