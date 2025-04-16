@@ -155,6 +155,13 @@ class StagingMigrator(Client):
         new_ids = [s for (s, t) in id_map.items() if t is None]
         new_df = source_df.iloc[new_ids]
 
+        target_table = self.get_schema_metadata(self.target).get_table("id", table.id)
+        if "issued" in map(lambda c: c.name, target_table.columns):
+            new_df["issued"] = new_df["mg_insertedOn"]
+        if "modified" in map(lambda c: c.name, target_table.columns):
+            new_df["modified"] = new_df["mg_updatedOn"]
+
+
         # Filter updated rows
         updated_ids = []
         for (s, t) in id_map.items():
