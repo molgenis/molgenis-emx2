@@ -89,7 +89,7 @@
             >
               <div
                 v-if="isEditable && index === 0"
-                class="flex items-center gap-1 flex-none invisible group-hover:visible h-4 pt-4"
+                class="flex items-center gap-1 flex-none invisible group-hover:visible h-4 py-6 px-4 absolute right-7 bg-blue-50"
               >
                 <Button
                   :icon-only="true"
