@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from tools.pyclient.src.molgenis_emx2_pyclient.metadata import Schema
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
-CATALOGUE = 'testcat1'
+CATALOGUE = 'testcat2'
 
 log = logging.getLogger('publisher')
 
@@ -33,8 +33,8 @@ def main(staging_area: str):
         schema = migrator.get_schema_metadata(staging_area)
         # df = migrator._load_table('source', schema.get_table('name', 'Variable values'))
         # df = migrator._get_filtered(schema.get_table('name', 'Resources'))
-        # migrator.create_zip()
-        migrator.migrate(keep_zips=True)
+        migrator.create_zip()
+        # migrator.migrate(keep_zips=True)
         # stream = migrator.create_zip()
         # with open(target_path.parent / "upload.zip", 'wb') as zf:
         #     zf.write(stream.getbuffer())

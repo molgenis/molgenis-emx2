@@ -9,7 +9,7 @@ from typing import TypeAlias, Literal
 import pandas as pd
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.constants import DATE, DATETIME
-from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
+from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException, NoSuchColumnException
 from molgenis_emx2_pyclient.metadata import Table
 from molgenis_emx2_pyclient.utils import convert_dtypes
 
@@ -176,6 +176,30 @@ class StagingMigrator(Client):
         """
         if (consent_val := has_statement_of_consent(table)) != 0:
             return process_statement(df, consent_val=consent_val)
+        df = self._process_dates(df, table)
+        return df
+
+    def _process_dates(self, df: pd.DataFrame, table: Table) -> pd.DataFrame:
+        """
+        Process the issued and modification dates in case the table contains these columns.
+        """
+        if len(df.index) == 0:
+            return df
+
+        def apply_issued(row: pd.Series):
+            if row["issued"].isna():
+                return row["mg_insertedOn"]
+            return row["issued"]
+
+        if "issued" in map(lambda c: c.name, table.columns):
+            df["issued"] = df.apply(apply_issued, axis=1)
+
+        try:
+            if table.get_column("name", "modified"):
+                pass
+        except NoSuchColumnException:
+            pass
+
         return df
 
 
