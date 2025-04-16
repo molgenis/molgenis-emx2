@@ -14,7 +14,7 @@ from molgenis_emx2_pyclient.metadata import Table
 from molgenis_emx2_pyclient.utils import convert_dtypes
 
 from .constants import BASE_DIR, changelog_query
-from .utils import prepare_primary_keys
+from .utils import prepare_primary_keys, has_statement_of_consent, process_statement
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
@@ -117,8 +117,9 @@ class StagingMigrator(Client):
                     continue
                 log.debug(f"Processing table {table.name!r}.")
                 updated_table: pd.DataFrame = self._get_filtered(table)
+                modified_table: pd.DataFrame = self._modify_table(updated_table, table)
                 if len(updated_table.index) != 0:
-                    upload_archive.writestr(file_name, updated_table.to_csv())
+                    upload_archive.writestr(file_name, modified_table.to_csv())
                     updated_tables.append(Path(file_name).stem)
 
         # Return zip
@@ -168,6 +169,15 @@ class StagingMigrator(Client):
         filtered_df = pd.concat([new_df, updated_df])
 
         return filtered_df
+
+    def _modify_table(self, df: pd.DataFrame, table: Table) -> pd.DataFrame:
+        """
+        Applies transformation on a table's data given its contents.
+        """
+        if (consent_val := has_statement_of_consent(table)) != 0:
+            return process_statement(df, consent_val=consent_val)
+        return df
+
 
     def download_schema_zip(self, schema: str, schema_type: SchemaType,
                             include_system_columns: bool = True) -> Path:

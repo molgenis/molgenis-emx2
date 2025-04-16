@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from tools.pyclient.src.molgenis_emx2_pyclient.metadata import Schema
 from tools.staging_migrator.src.molgenis_emx2_staging_migrator import StagingMigrator
 
-CATALOGUE = 'catalogue'
+CATALOGUE = 'testcat1'
 
 log = logging.getLogger('publisher')
 

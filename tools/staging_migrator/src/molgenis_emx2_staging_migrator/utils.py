@@ -23,22 +23,18 @@ def prepare_primary_keys(schema: Schema, table_name: str):
     return list(map(lambda col: col.name, table_schema.get_columns(by='key', value=1)))
 
 
-def has_statement_of_consent(table_id: str, schema: Schema) -> int:
+def has_statement_of_consent(table: Table) -> int:
     """Checks whether this table has a column that asks for a statement of consent."""
     consent_cols = ['statement of consent personal data',
                     'statement of consent email']
-    try:
-        table_schema = schema.get_table(by='id', value=table_id)
-    except ValueError:
-        raise NoSuchTableException(f"Table with id {table_id!r} not in schema.")
-    col_names = map(str, table_schema.columns)
+
+    col_names = map(str, table.columns)
 
     return 1 * (consent_cols[0] in col_names) + 2 * (consent_cols[1] in col_names)
 
 
-def process_statement(table: bytes, consent_val: int) -> bytes:
+def process_statement(df: pd.DataFrame, consent_val: int) -> pd.DataFrame:
     """Processes any statement of consent by modifying the rows in the table for which no consent is given."""
-    df = pd.read_csv(BytesIO(table))
 
     # Remove rows without any data consent
     if consent_val % 2 == 1:
@@ -47,8 +43,6 @@ def process_statement(table: bytes, consent_val: int) -> bytes:
     if consent_val > 1:
         df.loc[~df['statement of consent email'], 'email'] = None
 
-    _table = df.to_csv(index=False).encode()
-
     log.info("Implemented statement of consent in Contacts table.")
 
-    return _table
+    return df
