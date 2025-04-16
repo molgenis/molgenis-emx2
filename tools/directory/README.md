@@ -21,8 +21,10 @@ If you just want to retrieve the data of a node for another purpose, you can use
 and `ExternalServerSession` directly:
 
 ```python
-from molgenis-emx2.directory-client import DirectorySession, ExternalServerSession
-from molgenis-emx2.directory-client import NodeData
+import logging
+import asyncio
+from molgenis_emx2.directory_client.directory_client import DirectorySession, ExternalServerSession
+from molgenis_emx2.directory_client.directory_client import NodeData
 
 # Get the staging and published data of NL from the directory
 async def get_data():
