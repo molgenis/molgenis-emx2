@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 import os
 import tempfile
 from collections import defaultdict
@@ -101,6 +102,10 @@ class DirectorySession(Session):
         table_id = schema_metadata.get_table(by="name", value=table).id
 
         filter_part = self._prepare_filter(query_filter, table, schema)
+        if filter_part:
+            filter_part = "?filter=" + json.dumps(filter_part)
+        else:
+            filter_part = ""
         query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
         response = self.session.get(url=query_url)
 

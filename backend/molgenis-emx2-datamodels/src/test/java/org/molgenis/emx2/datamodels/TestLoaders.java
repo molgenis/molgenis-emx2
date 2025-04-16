@@ -62,6 +62,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(DASHBOARD_TEST);
     database.dropSchemaIfExists(DATA_CATALOGUE_FEDERATED_DATA_ACCESS);
     database.dropSchemaIfExists(PATIENT_REGISTRY_DEMO);
+
     // delete ontologies last
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
