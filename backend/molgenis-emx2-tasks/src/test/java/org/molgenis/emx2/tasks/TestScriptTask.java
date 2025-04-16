@@ -27,18 +27,18 @@ public class TestScriptTask {
             .parameters("\"netherlands & world\"")
             .script(
                 """
-                import time
-                import numpy as np
-                import sys
-                # you can get parameters via sys.argv[1]
-                print('Hello, '+sys.argv[1]+'!')
-                a = np.array([1, 2, 3, 4, 5, 6])
-                print(a)
-                time.sleep(1)
-                print('Halfway')
-                time.sleep(1)
-                print('Complete')
-                """);
+import time
+import numpy as np
+import sys
+# you can get parameters via sys.argv[1]
+print('Hello, '+sys.argv[1]+'!')
+a = np.array([1, 2, 3, 4, 5, 6])
+print(a)
+time.sleep(1)
+print('Halfway')
+time.sleep(1)
+print('Complete')
+""");
     r1.run();
     if (ERROR.equals(r1.getStatus())) {
       System.out.println(r1);
@@ -53,9 +53,9 @@ public class TestScriptTask {
             .type(PYTHON)
             .script(
                 """
-                import sys
-                print('Error message', file=sys.stderr)
-                """);
+import sys
+print('Error message', file=sys.stderr)
+""");
     // System.out.println(r2);
     r2.run();
   }
@@ -67,10 +67,10 @@ public class TestScriptTask {
             .type(BASH)
             .script(
                 """
-                echo "hello world"
-                ls -la
-                echo "bey"
-                """);
+echo "hello world"
+ls -la
+echo "bey"
+""");
     bashTask.run();
     assertEquals(bashTask.getStatus(), COMPLETED);
   }
@@ -82,10 +82,10 @@ public class TestScriptTask {
             .type(PYTHON)
             .script(
                 """
-                import sys
-                failureVariable = fail
-                print('unreachable')
-                """)
+import sys
+failureVariable = fail
+print('unreachable')
+""")
             .setServerUrl(new URL("http://localhost:8080/"))
             .failureAddress("test@test.com");
     task.run();
