@@ -1,0 +1,4 @@
+part of clinical observation,type,excluded,modifiers,severity
+Ind001.45763,Abnormality of body height,FALSE,Exacerbated by tobacco use,Mild
+Ind002.45763,Myopia,FALSE,,Mild
+MinInd004.45763,Abasia,FALSE,,

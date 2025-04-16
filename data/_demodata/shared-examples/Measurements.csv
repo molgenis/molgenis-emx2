@@ -1,0 +1,5 @@
+part of clinical observation,code,variable,value,unit
+Ind001.45763,Metabolomics,Blood platelet count,55345,Per Millimeter
+Ind002.45763,Transcriptomics,TTN read count,23567,DNA Copies Per Microgram
+Ind002.45763,Proteomics,TTN peptipe,6853,Nanomole per Milligram of Protein
+MinInd004.45763,Genomics,,,

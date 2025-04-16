@@ -1,0 +1,4 @@
+id,individual,date saved in database,date of observation,age at observation,type of visit,molecular diagnosis gene,molecular diagnosis other,is solved,date solved,medication,drug regimen,date of first contact,date of last contact,classification of functioning,material used in diagnosis
+Ind001.45763,Ind001,2025-04-16,2025-04-16,P32Y,,"TTN,COL7A1",,,,,,,,,
+Ind002.45763,Ind002,2025-04-16,2025-04-16,P2Y,,CHD7,,,,,,,,,
+MinInd004.45763,MinInd004,2025-04-16,2025-04-16,P34Y,,COL7A1,,,,,,,,,

@@ -1,4 +1,4 @@
-id,PathologicalState,sampleOriginType,collectionMoment,collectionDate,obtentionProcedure
-Sample0001,abnormal sample,post mortem specimen,P32Y6M1D,2023-07-11 12:00:00.0,needle biopsy
-Sample0002,reference sample,tongue swab specimen,P31Y5M2D,2021-04-12,surgical biopsy
-MinSample3,reference sample,post mortem specimen,,,needle biopsy
+id,material type,pathological state,date of collection,collected from individual,collected at organisation.resource,collected at organisation.id,affiliated organisations.resource,affiliated organisations.id,comments,included in datasets.resource,included in datasets.name
+Sample0001,Other,abnormal sample,2023-07-11,Ind001,MOLGENIS,UMCG,MOLGENIS,UMCG,post mortem specimen,Beacon v2,Beacon v2 Demo Dataset
+Sample0002,Swabbed Material,reference sample,2021-04-12,Ind002,MOLGENIS,UMCG,MOLGENIS,UMCG,,Beacon v2,Beacon v2 Demo Dataset
+MinSample4,Other,reference sample,,MinInd004,MOLGENIS,UMCG,MOLGENIS,UMCG,post mortem specimen,Beacon v2,Beacon v2 Demo Dataset
