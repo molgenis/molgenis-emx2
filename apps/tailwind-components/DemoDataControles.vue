@@ -47,6 +47,8 @@ import type {
 } from "../metadata-utils/src/types";
 import type { Resp, Schema } from "./types/types";
 
+const router = useRouter();
+
 const props = withDefaults(
   defineProps<{
     includeRowSelect?: boolean;
@@ -113,7 +115,7 @@ watch(
     if (schemaMeta.value) {
       await refresh();
       tableId.value = schemaMeta.value.tables[0].id;
-      useRouter().push({
+      router.push({
         query: {
           schema: schemaId.value,
         },
@@ -150,7 +152,7 @@ watch(
       query.rowIndex = rowIndex.value;
     }
 
-    useRouter().push({ query });
+    router.push({ query });
     if (props.includeRowSelect) {
       getNumberOfRows();
     }
@@ -181,7 +183,7 @@ watch(
     if (rowIndex.value !== null) {
       query.rowIndex = rowIndex.value;
     }
-    useRouter().push({ query });
+    router.push({ query });
 
     formValues.value = {};
 
