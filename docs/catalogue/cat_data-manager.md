@@ -96,13 +96,13 @@ See the section [Upload variable metadata](cat_data-manager.md#upload-variable-m
 
 *Figure 2. Tables in a cohort staging area. Note that not all tables are filled out
 via the templates, some are filled via an online form, see section
-[Fill out rich metadata](cat_resource-data-manager.md#fill-out-rich-metadata).*
+[Fill out rich metadata](cat_data-manager.md#fill-out-rich-metadata).*
 
 ![MOLGENIS tables in network staging area](../img/cat_tables-in-catalogue.png)
 
 *Figure 3. Tables in a network staging area. Note that not all tables are filled out
 via the templates, some are filled via an online form, see section
-[Fill out rich metadata](cat_resource-data-manager.md#fill-out-rich-metadata).*
+[Fill out rich metadata](cat_data-manager.md#fill-out-rich-metadata).*
 
 ### *Datasets* sheet
 
