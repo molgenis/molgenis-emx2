@@ -25,7 +25,7 @@ public class JsonApi {
     Schema schema = getSchema(ctx);
     String reports = ctx.queryParam("id");
     Map<String, ?> parameters = getReportParameters(ctx);
-    Map<String, Object> jsonResponse = new HashMap<>();
+    Map<String, Object> jsonResponse = new LinkedHashMap<>();
     for (String reportId : reports.split(",")) {
       jsonResponse.put(reportId, getReportById(reportId, schema, parameters));
     }
