@@ -3,6 +3,7 @@ package org.molgenis.emx2;
 import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
+import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
 import java.util.*;
@@ -333,6 +334,12 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       if (c != null) return new Column(c.getTable(), c);
     }
     return null;
+  }
+
+  public Column getColumnByIdentifier(String identifier) {
+    return columns.values().stream()
+            .filter(c -> c.getIdentifier().equals(identifier))
+            .findFirst().orElse(null);
   }
 
   public TableMetadata add(Column... column) {
