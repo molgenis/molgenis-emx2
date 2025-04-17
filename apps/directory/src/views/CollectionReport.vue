@@ -6,9 +6,14 @@
     >
       <spinner />
     </div>
+    <div v-else-if="collection?.biobank?.withdrawn && !collection?.withdrawn">
+      <div class="alert alert-warning" role="alert">
+        {{ uiText["collection_biobank_withdrawn"] }}
+      </div>
+    </div>
 
     <div
-      v-if="loaded && collection?.biobank?.withdrawn"
+      v-else-if="collection?.withdrawn"
       class="alert alert-warning"
       role="alert"
     >

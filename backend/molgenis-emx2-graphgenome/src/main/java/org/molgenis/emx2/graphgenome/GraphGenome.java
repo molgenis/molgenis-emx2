@@ -17,8 +17,8 @@ import org.molgenis.emx2.rdf.RDFService;
 
 public class GraphGenome extends RDFService {
 
-  public GraphGenome(String baseURL, String rdfAPIpath, RDFFormat format) {
-    super(baseURL, rdfAPIpath, format);
+  public GraphGenome(String baseURL, RDFFormat format) {
+    super(baseURL, format);
   }
 
   public static final int DNA_PADDING = 10;

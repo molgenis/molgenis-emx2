@@ -2,4 +2,4 @@
 
 ## Reporting a Vulnerability
 
-Email me at m.a.swertz@gmail.com
+Email me at support@molgenis.org

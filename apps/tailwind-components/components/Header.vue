@@ -1,11 +1,11 @@
 <template>
-  <header class="antialiased px-5 lg:px-0 xl:bg-navigation">
+  <header
+    class="antialiased px-5 lg:px-0 xl:bg-navigation border-b-theme border-color-theme box-border"
+  >
     <Container>
-      <div class="items-center hidden xl:flex h-25">
+      <div class="items-center hidden xl:flex h-20">
         <slot name="logo"></slot>
-        <div
-          class="items-center justify-between hidden pl-8 xl:flex xl:grow h-25"
-        >
+        <div class="items-center justify-between hidden pl-8 xl:flex xl:grow">
           <slot name="nav"></slot>
 
           <div class="w-[450px]">

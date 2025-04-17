@@ -1,12 +1,11 @@
 package org.molgenis.emx2.rdf;
 
-import static org.molgenis.emx2.Constants.API_RDF;
 import static org.molgenis.emx2.rdf.DefaultNamespace.streamAll;
+import static org.molgenis.emx2.rdf.IriGenerator.schemaIRI;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.google.common.net.UrlEscapers;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -24,7 +23,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
-import org.molgenis.emx2.utils.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,16 +42,16 @@ abstract class RdfUtils {
   public static final Pattern ILLEGAL_PREFIX = Pattern.compile("^(http(s)?|urn(:.*)?|tag):");
 
   /**
-   * Get the namespace for a schema
+   * Get the namespace for a schema. A namespace URL does have a trailing slash (as it is used for
+   * defining relative paths).
    *
    * @param baseURL the baseURL that needs to be used
    * @param schema the schema
    * @return A namespace that defines a local unique prefix for this schema.
    */
   static Namespace getSchemaNamespace(final String baseURL, final SchemaMetadata schema) {
-    final String schemaName = UrlEscapers.urlPathSegmentEscaper().escape(schema.getName());
-    final String url = baseURL + schemaName + API_RDF + "/";
-    final String prefix = TypeUtils.convertToPascalCase(schema.getName());
+    final String prefix = schema.getIdentifier();
+    final String url = schemaIRI(baseURL, schema).stringValue() + "/";
     return Values.namespace(prefix, url);
   }
 
@@ -140,9 +138,11 @@ abstract class RdfUtils {
     return hasIllegalPrefix(prefix + ':');
   }
 
-  /** Ensure that the base URL has a trailing "/" so we can use it easily to construct URL paths. */
+  /** Ensure that the base URL has no trailing "/". */
   public static String formatBaseURL(String baseURL) {
     String baseUrlTrim = baseURL.trim();
-    return baseUrlTrim.endsWith("/") ? baseUrlTrim : baseUrlTrim + "/";
+    return baseUrlTrim.endsWith("/")
+        ? baseUrlTrim.substring(0, baseUrlTrim.length() - 1)
+        : baseUrlTrim;
   }
 }

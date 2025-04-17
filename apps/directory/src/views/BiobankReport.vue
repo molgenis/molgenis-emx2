@@ -41,7 +41,10 @@
           <div class="container pl-0">
             <div class="row">
               <div class="col-md-8" v-if="biobankDataAvailable">
-                <ViewGenerator :viewmodel="biobank.viewmodel" />
+                <ViewGenerator
+                  v-if="biobank.viewmodel"
+                  :viewmodel="biobank.viewmodel"
+                />
 
                 <div class="d-flex mt-4 justify-content-between">
                   <small class="w-25">
@@ -49,17 +52,17 @@
                       <tbody>
                         <tr>
                           <td class="text-nowrap">
-                            Collections(s): {{ collectionsData.length }}
+                            Collections: {{ collectionsData.length }}
                           </td>
                         </tr>
                         <tr>
                           <td class="text-nowrap">
-                            SubCollections(s): {{ subcollectionCount }}
+                            Subcollections: {{ subcollectionCount }}
                           </td>
                         </tr>
                         <tr>
                           <td class="text-nowrap">
-                            Service(s): {{ biobank.services?.length || 0 }}
+                            Services: {{ biobank.services?.length || 0 }}
                           </td>
                         </tr>
                       </tbody>
@@ -217,6 +220,7 @@ const tabs = computed(() => {
     },
   };
 });
+
 function changeTab(tab: TBiobankDetailTab) {
   activeTab.value = tab;
 }
@@ -237,9 +241,12 @@ const collectionsData = computed(() => {
 
 const subcollectionCount = computed<number>(() => {
   return (
-    biobank.value?.collections?.filter(
-      (biobank: Record<string, any>) => biobank.parent_collection
-    ).length || 0
+    biobank.value?.collections
+      ?.filter(
+        (collection: Record<string, any>) => collection.parent_collection
+      )
+      .filter((collection: Record<string, any>) => !collection.withdrawn)
+      .length || 0
   );
 });
 

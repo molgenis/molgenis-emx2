@@ -27,7 +27,7 @@
     --color-gray-300: #444444;
     --color-gray-400: #c0c0c0;
     --color-gray-600: #2c2c2c;
-    --color-gray-700: #414141;
+    --color-gray-700: #262626;
     --color-gray-800: #1e1e1e;
     --color-gray-900: #1d1d1d;
     --color-yellow-200: #fff4cb;
@@ -165,6 +165,7 @@
     --text-color-link: var(--color-blue-500);
     --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);
+    --text-color-table-row: var(--color-blue-800);
     --text-color-form-header: var(--color-blue-800);
     --text-color-input-description: var(--color-blue-800);
     --text-color-legend-error-count: var(--color-white);
@@ -173,6 +174,7 @@
     --text-code-output: var(--color-gray-800);
     --text-content-required: "*";
 
+    --border-color-theme: var(--color-gray-200);
     --border-color-button-primary: var(--color-blue-500);
     --border-color-button-primary-hover: var(--color-blue-700);
     --border-color-button-secondary: var(--color-white);
@@ -196,7 +198,10 @@
     --border-color-input-focused: var(--color-blue-800);
     --border-color-input-inverted: var(--color-gray-600);
 
-    --border-radius-theme: 0px;
+    --border-width-theme: 1px;
+    --border-width-form-required: 1px;
+
+    --border-radius-theme: 3px;
     --border-radius-3px: 3px;
     --border-radius-50px: 50px;
     --border-radius-input: 3px;
@@ -213,6 +218,5 @@
     --background-color-form-required-btn-hover: var(--color-blue-50);
     --border-color-form-required: var(--color-gray-200);
     --border-radius-form-required: var(--border-radius-3px);
-    --border-width-form-required: 1px;
   }
 }

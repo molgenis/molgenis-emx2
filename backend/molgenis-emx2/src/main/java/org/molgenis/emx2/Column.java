@@ -43,7 +43,6 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String[] semantics = null; // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
 
-  // todo implement below, or remove
   private Boolean readonly = false;
   private String defaultValue = null;
   private boolean indexed = false;

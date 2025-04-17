@@ -1,7 +1,9 @@
 <template>
   <ul style="list-style-type: none">
     <li
-      v-for="term in terms.filter((t) => t.visible)"
+      v-for="term in terms
+        .filter((t) => t.visible)
+        .sort((a, b) => a.order - b.order)"
       :key="term.name + term.selected + term.expanded"
     >
       <!--show if selected or search-->

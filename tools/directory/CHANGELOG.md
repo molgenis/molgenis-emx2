@@ -1,4 +1,6 @@
 # Changelog
+## Version 1.2.1
+- Fix incompatibility issue with latest EMX2-pyclient
 
 ## Version 1.2.0
 - Include publishing of the Services table

@@ -94,25 +94,26 @@ Before building the source, the package `bumpversion` needs to be installed.
 (venv) $ pip install bumpversion
 ```
 
-Bump the source version. This will update setup.py and __init__.py
-Always start with creating a new -dev0 version with major, minor or patch parameter  
+Bump the source version. This will update setup.py and __init__.py. NB! Make sure that
+the version numbers in these file have single quotes.
+Always start with creating a new -dev0 version with major, minor or patch parameter
 depending on the release scope
 ```console
-(venv) $ ./bumpversion major
+(venv) $ ./bump-version.sh major
 OR
-(venv) $ ./bumpversion minor
+(venv) $ ./bump-version.sh minor
 OR
-(venv) $ ./bumpversion patch
+(venv) $ ./bump-version.sh patch
 ```
 
 Then either create a new dev-version in case any changes have been made
 ```console
-(venv) $ ./bumpversion build
+(venv) $ ./bump-version.sh build
 ```
 
 Or if all is fine, create a new release version
 ```console
-(venv) $ ./bumpversion release
+(venv) $ ./bump-version.sh release
 ```
 
 After bumping the version, the source can be build

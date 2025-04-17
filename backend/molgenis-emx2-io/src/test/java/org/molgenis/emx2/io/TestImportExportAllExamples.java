@@ -1,10 +1,10 @@
 package org.molgenis.emx2.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
-import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -31,35 +31,35 @@ public class TestImportExportAllExamples {
   }
 
   @Test
-  public void testArrayTypeTestExample() throws IOException {
+  public void testArrayTypeTestExample() {
     SchemaMetadata schema1 = new SchemaMetadata(prefix + "1");
     ArrayTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testRefAndRefArrayExample() throws IOException {
+  public void testRefAndRefArrayExample() {
     SchemaMetadata schema1 = new SchemaMetadata(prefix + "4");
     RefAndRefArrayTestExample.createRefAndRefArrayTestExample(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testSimpleTypeTestExample() throws IOException {
+  public void testSimpleTypeTestExample() {
     SchemaMetadata schema1 = new SchemaMetadata(prefix + "5");
     SimpleTypeTestExample.createSimpleTypeTest(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testProductComponentPartsExample() throws IOException {
+  public void testProductComponentPartsExample() {
     SchemaMetadata schema1 = new SchemaMetadata(prefix + "6");
     ProductComponentPartsExample.create(schema1);
     executeCompare(schema1);
   }
 
   @Test
-  public void testDefaultValuesMetadata() throws IOException {
+  public void testDefaultValuesMetadata() {
     SchemaMetadata schema1 = new SchemaMetadata(prefix + "8");
     schema1.create(table("test", column("id").setDefaultValue("bla")));
     Schema result = executeCompare(schema1);
@@ -67,7 +67,15 @@ public class TestImportExportAllExamples {
         "bla", result.getMetadata().getTableMetadata("test").getColumn("id").getDefaultValue());
   }
 
-  public Schema executeCompare(SchemaMetadata schema1) throws IOException, MolgenisException {
+  @Test
+  public void testReadOnlyColumn() {
+    SchemaMetadata schema1 = new SchemaMetadata(prefix + "9");
+    schema1.create(table("test", column("readOnly").setReadonly(true)));
+    Schema result = executeCompare(schema1);
+    assertTrue(result.getMetadata().getTableMetadata("test").getColumn("readOnly").isReadonly());
+  }
+
+  public Schema executeCompare(SchemaMetadata schema1) throws MolgenisException {
     try {
       // now write it out and fromReader back and compare
       List<Row> contents = Emx2.toRowList(schema1);

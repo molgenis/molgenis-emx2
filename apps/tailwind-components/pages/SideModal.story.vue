@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+import type { SideModal } from "#build/components";
+
 const showSidePanel = ref(false);
 const fullScreen = ref(false);
 const slideInRight = ref(true);
@@ -10,16 +12,31 @@ function toggle() {
   showSidePanel.value = !showSidePanel.value;
 }
 
-let sectionCount = ref(0);
+function toggleViaRef() {
+  if (sideModal.value && sideModal.value.showModal) {
+    sideModal.value.showModal();
+  }
+}
+
+const sideModal = ref<InstanceType<typeof SideModal>>();
 </script>
 <template>
   <div class="p-12">
-    <button
-      @click="toggle"
-      class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
-    >
-      Open side modal 🙈
-    </button>
+    <div class="flex gap-3">
+      <button
+        @click="toggle"
+        class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
+      >
+        Open side modal 🙈
+      </button>
+
+      <button
+        @click="toggleViaRef"
+        class="flex items-center border rounded-full h-10.5 px-5 text-heading-lg gap-3 tracking-widest uppercase font-display bg-button-primary text-button-primary border-button-primary hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
+      >
+        Open via ref 🫣
+      </button>
+    </div>
 
     <fieldset class="border border-gray-900 mb-2">
       <legend class="m-2 px-2">Props</legend>
@@ -67,13 +84,13 @@ let sectionCount = ref(0);
       </div>
     </fieldset>
   </div>
-  {{ fullScreen }}
   <SideModal
     :show="showSidePanel"
     :fullScreen="fullScreen"
     :slideInRight="slideInRight"
     :buttonAlignment="buttonAlignment"
     @close="showSidePanel = false"
+    ref="sideModal"
   >
     <ContentBlockModal title="Side modal">
       <p>

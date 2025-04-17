@@ -1,6 +1,7 @@
 <template>
   <div class="relative">
     <HeaderButton
+      label="Selected items"
       icon="shopping-cart"
       class="xl:text-blue-500"
       @click="$emit('click')"

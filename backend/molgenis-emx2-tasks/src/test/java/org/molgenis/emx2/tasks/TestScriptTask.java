@@ -1,7 +1,6 @@
 package org.molgenis.emx2.tasks;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.tasks.ScriptType.BASH;
 import static org.molgenis.emx2.tasks.ScriptType.PYTHON;
 import static org.molgenis.emx2.tasks.TaskStatus.COMPLETED;
@@ -22,7 +21,7 @@ public class TestScriptTask {
     ScriptTask r1 =
         new ScriptTask("hello")
             .type(PYTHON)
-            .dependencies("numpy==1.23.4")
+            .dependencies("numpy==2.2.4")
             // example with some characters that need escaping
             .parameters("\"netherlands & world\"")
             .script(
@@ -42,8 +41,11 @@ print('Complete')
     r1.run();
     if (ERROR.equals(r1.getStatus())) {
       System.out.println(r1);
+      fail(r1.getSubTasks().stream().map(Task::getDescription).toList().toString());
+    } else {
+      assertEquals(COMPLETED, r1.getStatus());
     }
-    assertEquals(COMPLETED, r1.getStatus());
+
     // check for the arguments
     assertTrue(r1.toString().contains("world"));
 

@@ -604,7 +604,8 @@ public class TestGraphqlSchemaFields {
   @Test
   public void testTableAlterDropOperations() throws IOException {
     // simple meta
-    assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
+    int tables = execute("{_schema{tables{name}}}").at("/_schema/tables").size();
+    assertEquals(5, tables);
 
     // add table
     execute(
@@ -970,6 +971,39 @@ public class TestGraphqlSchemaFields {
     // restore
     schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
+  }
+
+  @Test
+  public void testTruncateAsync() throws IOException, InterruptedException {
+    List<Row> preTruncatedResult = schema.getTable("Order").retrieveRows();
+    String taskId =
+        execute("mutation {truncate(tables: \"Order\" async:true){ taskId message}}")
+            .at("/truncate/taskId")
+            .asText();
+
+    String status = "";
+    int pollCount = 0;
+    while (!"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      status =
+          execute("{ _tasks( id: \"" + taskId + "\"){ status }}")
+              .get("_tasks")
+              .get(0)
+              .get("status")
+              .asText();
+      if (pollCount++ > 5) {
+        throw new MolgenisException("failed: polling took too long, result is: " + status);
+      }
+      Thread.sleep(1000);
+    }
+
+    List<Row> truncatedResult = schema.getTable("Order").retrieveRows();
+    assertTrue(!preTruncatedResult.isEmpty() && truncatedResult.isEmpty());
+
+    // restore
+    schema = database.dropCreateSchema(schemaName);
+    PET_STORE.getImportTask(schema, true).run();
+    grapql =
+        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
   }
 
   @Test

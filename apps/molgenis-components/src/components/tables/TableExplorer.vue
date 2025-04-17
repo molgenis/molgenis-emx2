@@ -68,8 +68,8 @@
               <div>
                 <span class="fixed-width">excel</span>
                 <ButtonAlt :href="'/' + schemaId + '/api/excel/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                  >all rows
+                </ButtonAlt>
                 <span v-if="Object.keys(graphqlFilter).length > 0">
                   |
                   <ButtonAlt
@@ -386,6 +386,17 @@
         }}'?
       </p>
     </ConfirmModal>
+
+    <LayoutModal
+      v-if="isTaskModalShown"
+      title="Truncating table"
+      @close="isTaskModalShown = false"
+    >
+      <template #body>
+        <Task :taskId="taskId" @taskUpdated="taskUpdated" />
+      </template>
+    </LayoutModal>
+
     <RefSideModal
       v-if="refSideModalProps"
       :column="refSideModalProps.column"
@@ -434,6 +445,8 @@ import SelectionBox from "./SelectionBox.vue";
 import ShowHide from "./ShowHide.vue";
 import TableMolgenis from "./TableMolgenis.vue";
 import TableSettings from "./TableSettings.vue";
+import Task from "../task/Task.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
 
 const View: Record<string, string> = {
   TABLE: "table",
@@ -461,6 +474,8 @@ const ViewButtons: Record<string, any> = {
 export default {
   name: "TableExplorer",
   components: {
+    LayoutModal,
+    Task,
     ShowHide,
     Pagination,
     ButtonAlt,
@@ -493,7 +508,11 @@ export default {
       editMode: "add", // add, edit, clone
       editRowPrimaryKey: undefined,
       graphqlError: "",
+      taskId: String,
+      taskDone: false,
+      success: false,
       isDeleteAllModalShown: false,
+      isTaskModalShown: false,
       isDeleteModalShown: false,
       isEditModalShown: false,
       limit: this.showLimit,
@@ -606,6 +625,13 @@ export default {
       this.$emit("searchTerms", newSearchValue);
       this.reload();
     },
+    taskUpdated(task: any) {
+      if (["COMPLETED", "ERROR"].includes(task.status)) {
+        this.success = true;
+        this.taskDone = true;
+        this.reload();
+      }
+    },
     async handleRowAction(type: any, key?: Promise<any>) {
       this.editMode = type;
       this.editRowPrimaryKey = await key;
@@ -629,13 +655,22 @@ export default {
       }
     },
     async handelExecuteDeleteAll() {
-      this.isDeleteAllModalShown = false;
-      const resp = await this.client
+      await this.client
         .deleteAllTableData(this.tableMetadata?.id)
-        .catch(this.handleError);
-      if (resp) {
-        this.reload();
-      }
+        .then((data: any) => {
+          if (data.data.data.truncate.taskId) {
+            this.taskId = data.data.data.truncate.taskId;
+            this.isTaskModalShown = true;
+            this.isDeleteAllModalShown = false;
+          } else {
+            this.success = data.data.data.truncate.message;
+            this.loading = false;
+          }
+        })
+        .catch((error: any) => {
+          this.isDeleteAllModalShown = false;
+          this.handleError(error);
+        });
     },
     handleCellClick(event: any) {
       const { column, cellValue } = event;
@@ -883,11 +918,13 @@ function graphqlFilter(
   border-bottom-left-radius: 0;
   border-left: 0;
 }
+
 .btn-group >>> span:not(:last-child) .btn {
   margin-left: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
+
 .inline-form-group {
   margin-bottom: 0;
 }
@@ -899,19 +936,19 @@ function graphqlFilter(
     <div class="border p-1 my-1">
       <label>Read only example</label>
       <table-explorer
-        id="my-table-explorer"
-        tableId="Pet"
-        schemaId="pet store"
-        :showColumns="showColumns"
-        :showFilters="showFilters"
-        :urlConditions="urlConditions"
-        :showPage="page"
-        :showLimit="limit"
-        :showOrderBy="showOrderBy"
-        :showOrder="showOrder"
-        :canEdit="canEdit"
-        :canManage="canManage"
-        :canView="true"
+          id="my-table-explorer"
+          tableId="Pet"
+          schemaId="pet store"
+          :showColumns="showColumns"
+          :showFilters="showFilters"
+          :urlConditions="urlConditions"
+          :showPage="page"
+          :showLimit="limit"
+          :showOrderBy="showOrderBy"
+          :showOrder="showOrder"
+          :canEdit="canEdit"
+          :canManage="canManage"
+          :canView="true"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>

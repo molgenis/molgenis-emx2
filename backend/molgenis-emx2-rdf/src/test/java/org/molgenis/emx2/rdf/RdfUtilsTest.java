@@ -25,8 +25,9 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class RdfUtilsTest {
   static final String TEST_SCHEMA = "TestRdfUtils";
-  static final String BASE_URL = "http://molgenis.org/";
-  static final String NAMESPACE_IRI = BASE_URL + TEST_SCHEMA + "/api/rdf/";
+  static final String BASE_URL = "http://molgenis.org";
+  // namespace has trailing slash!
+  static final String NAMESPACE_IRI = BASE_URL + "/" + TEST_SCHEMA + "/api/rdf/";
   static final ValueFactory valueFactory = SimpleValueFactory.getInstance();
 
   static Database database;

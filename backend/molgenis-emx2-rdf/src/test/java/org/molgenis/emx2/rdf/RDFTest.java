@@ -31,6 +31,7 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.impl.SimpleNamespace;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.DCAT;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
@@ -54,7 +55,7 @@ public class RDFTest {
    */
   public static final String POOKY_ROWID = "name=pooky";
 
-  static final String BASE_URL = "http://localhost:8080/";
+  static final String BASE_URL = "http://localhost:8080";
   static final String RDF_API_LOCATION = "/api/rdf";
 
   static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
@@ -81,8 +82,8 @@ public class RDFTest {
     database = TestDatabaseFactory.getTestDatabase();
     petStore_nr1 = database.dropCreateSchema("petStoreNr1");
     petStore_nr2 = database.dropCreateSchema("petStoreNr2");
-    DataModels.Profile.PET_STORE.getImportTask(petStore_nr1, false).run();
-    DataModels.Profile.PET_STORE.getImportTask(petStore_nr2, false).run();
+    DataModels.Profile.PET_STORE.getImportTask(petStore_nr1, true).run();
+    DataModels.Profile.PET_STORE.getImportTask(petStore_nr2, true).run();
     petStoreSchemas = List.of(petStore_nr1, petStore_nr2);
 
     // Test schema for composite keys
@@ -395,8 +396,15 @@ public class RDFTest {
         .setSetting(SETTING_SEMANTIC_PREFIXES, "dcterms,http://purl.org/dc/terms/");
   }
 
+  private static String getApi(Schema schema, boolean trailingSlash) {
+    return BASE_URL + "/" + schema.getName() + RDF_API_LOCATION + (trailingSlash ? "/" : "");
+  }
+
+  /**
+   * Actual API has no trailing slash. Use {@link #getApi(Schema, boolean)} with `false` if needed.
+   */
   private static String getApi(Schema schema) {
-    return BASE_URL + schema.getName() + RDF_API_LOCATION + "/";
+    return getApi(schema, true);
   }
 
   @AfterAll
@@ -420,6 +428,7 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1), handler);
 
+    assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey();
       var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
@@ -439,9 +448,10 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1), handler);
 
+    assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
       var subClasses = resource.getValue().get(RDFS.SUBCLASSOF);
-      if (subClasses != null && subClasses.contains(RDFService.IRI_DATABASE_TABLE)) {
+      if (subClasses != null && subClasses.contains(BasicIRI.SIO_DATABASE_TABLE)) {
         var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
         var subject = resource.getKey().stringValue();
         assertFalse(types.isEmpty(), subject + " should have a rdf:Type.");
@@ -455,6 +465,7 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1), handler);
 
+    assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey().stringValue();
       var predicates = resource.getValue().keySet();
@@ -474,6 +485,8 @@ public class RDFTest {
   void testThatColumnsHaveARangeAndDomain() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1), handler);
+
+    assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey();
       var predicates = resource.getValue().keySet();
@@ -488,6 +501,8 @@ public class RDFTest {
   void testThatRDFOnlyIncludesRequestedSchema() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var resource : handler.resources.keySet()) {
       assertFalse(
           resource.toString().contains("petStoreNr2"),
@@ -506,8 +521,9 @@ public class RDFTest {
             OWL.DATATYPEPROPERTY,
             OWL.OBJECTPROPERTY,
             RDFS.CONTAINER,
-            RDFService.IRI_DATABASE);
+            BasicIRI.SIO_DATABASE);
 
+    assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
       var subject = resource.getKey().stringValue();
       var types = resource.getValue().getOrDefault(RDF.TYPE, Set.of());
@@ -566,19 +582,37 @@ public class RDFTest {
   }
 
   @Test
+  void testCorrectEndpointIRI() throws IOException {
+    var handler = new InMemoryRDFHandler() {};
+    getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", POOKY_ROWID), handler);
+
+    Set<Value> endpointIris =
+        handler
+            .resources
+            .get(Values.iri(getApi(petStore_nr1) + "Pet?" + POOKY_ROWID))
+            .get(Values.iri(DCAT.ENDPOINT_URL.stringValue()));
+    assertAll(
+        () -> assertEquals(1, endpointIris.size()),
+        () ->
+            assertEquals(
+                Values.iri(getApi(petStore_nr1, false)), endpointIris.stream().findFirst().get()));
+  }
+
+  @Test
   void testThatInstancesUseReferToDatasetWithTheRightPredicate() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", POOKY_ROWID), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var iri : handler.resources.keySet()) {
       // Select the triples for pooky
       if (iri.stringValue().endsWith(POOKY_ROWID)) {
 
         var pooky = handler.resources.get(iri);
         assertTrue(
-            pooky.containsKey(RDFService.IRI_DATASET_PREDICATE),
+            pooky.containsKey(BasicIRI.LD_DATASET_PREDICATE),
             "An instance of a Pet should refer back to the Collection using qb:dataSet");
-        assertFalse(
-            pooky.containsKey(RDFService.IRI_DATASET_CLASS), "qb:DataSet is not a predicate");
+        assertFalse(pooky.containsKey(BasicIRI.LD_DATASET_CLASS), "qb:DataSet is not a predicate");
       }
     }
   }
@@ -589,6 +623,8 @@ public class RDFTest {
     var measure_property = Values.iri("http://purl.org/linked-data/cube#MeasureProperty");
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1, "Pet", "name"), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith("/column/name")) {
         var subclasses = handler.resources.get(subject).getOrDefault(RDFS.SUBCLASSOF, Set.of());
@@ -605,6 +641,8 @@ public class RDFTest {
     var database_row = Values.iri("http://semanticscience.org/resource/SIO_001187");
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.ofRow(petStore_nr1, "Pet", POOKY_ROWID), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith(POOKY_ROWID)) {
         var types = handler.resources.get(subject).get(RDF.TYPE);
@@ -623,6 +661,8 @@ public class RDFTest {
   void testThatOntologyTermsAreClasses() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(ontologyTest, "Diseases"), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith("/Diseases/U07.1")) {
         var types = handler.resources.get(subject).get(RDF.TYPE);
@@ -635,6 +675,8 @@ public class RDFTest {
   void testThatOntologyTermsUseRDFSchema() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(ontologyTest, "Diseases"), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
       if (subject.stringValue().endsWith("/Diseases/U07.1")) {
         var data = handler.resources.get(subject);
@@ -662,6 +704,8 @@ public class RDFTest {
   void testThatOntologyTermsDonNotDefineColumnsAsPredicates() throws IOException {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1, "Tag"), handler);
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
       assertFalse(
           subject.stringValue().contains("/Tag/column/"),
@@ -1048,6 +1092,8 @@ public class RDFTest {
     getAndParseRDF(Selection.of(schema, table.getName()), handler);
     boolean isObjectProperty = false;
     boolean linkHasLabel = false;
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
       if (subject.stringValue().contains("/column/website")) {
         var types = handler.resources.get(subject).get(RDF.TYPE);
@@ -1077,6 +1123,8 @@ public class RDFTest {
     var handler = new InMemoryRDFHandler() {};
     getAndParseRDF(Selection.of(petStore_nr1), handler);
     int instancesWithOutALabel = 0;
+
+    assertFalse(handler.resources.keySet().isEmpty());
     for (var resource : handler.resources.keySet()) {
       var labels = handler.resources.get(resource).get(RDFS.LABEL);
       if (labels.isEmpty()) {
@@ -1145,7 +1193,7 @@ public class RDFTest {
     final Set<Namespace> defaultNamespaces =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("CustomRdfEdit", BASE_URL + "CustomRdfEdit/api/rdf/"));
+            add(new SimpleNamespace("CustomRdfEdit", BASE_URL + "/CustomRdfEdit/api/rdf/"));
             addAll(DEFAULT_NAMESPACES);
           }
         };
@@ -1226,7 +1274,7 @@ public class RDFTest {
     final Set<Namespace> defaultNamespaces =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("PrefixesEdit", BASE_URL + "PrefixesEdit/api/rdf/"));
+            add(new SimpleNamespace("PrefixesEdit", BASE_URL + "/PrefixesEdit/api/rdf/"));
             addAll(DEFAULT_NAMESPACES);
           }
         };
@@ -1234,7 +1282,7 @@ public class RDFTest {
     final Set<Namespace> customNamespaces =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("PrefixesEdit", BASE_URL + "PrefixesEdit/api/rdf/"));
+            add(new SimpleNamespace("PrefixesEdit", BASE_URL + "/PrefixesEdit/api/rdf/"));
             add(new SimpleNamespace("dcat", "http://www.w3.org/ns/dcat#"));
             add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
           }
@@ -1299,7 +1347,7 @@ public class RDFTest {
     final Set<Namespace> expectedNamespaces =
         new HashSet<>() {
           {
-            add(new SimpleNamespace("PrefixesEmpty", BASE_URL + "PrefixesEmpty/api/rdf/"));
+            add(new SimpleNamespace("PrefixesEmpty", BASE_URL + "/PrefixesEmpty/api/rdf/"));
           }
         };
 
@@ -1323,10 +1371,10 @@ public class RDFTest {
           {
             add(
                 new SimpleNamespace(
-                    "PrefixSettingEqual1", BASE_URL + "PrefixSettingEqual1/api/rdf/"));
+                    "PrefixSettingEqual1", BASE_URL + "/PrefixSettingEqual1/api/rdf/"));
             add(
                 new SimpleNamespace(
-                    "PrefixSettingEqual2", BASE_URL + "PrefixSettingEqual2/api/rdf/"));
+                    "PrefixSettingEqual2", BASE_URL + "/PrefixSettingEqual2/api/rdf/"));
             add(new SimpleNamespace("dcterms", "http://purl.org/dc/terms/"));
           }
         };
@@ -1356,10 +1404,10 @@ dcterms,http://purl.org/dc/terms/
           {
             add(
                 new SimpleNamespace(
-                    "PrefixSettingName1", BASE_URL + "PrefixSettingName1/api/rdf/"));
+                    "PrefixSettingName1", BASE_URL + "/PrefixSettingName1/api/rdf/"));
             add(
                 new SimpleNamespace(
-                    "PrefixSettingName2", BASE_URL + "PrefixSettingName2/api/rdf/"));
+                    "PrefixSettingName2", BASE_URL + "/PrefixSettingName2/api/rdf/"));
             add(new SimpleNamespace("dcterms1", "http://purl.org/dc/terms/"));
           }
         };
@@ -1390,10 +1438,10 @@ dcterms2,http://purl.org/dc/terms/
           {
             add(
                 new SimpleNamespace(
-                    "PrefixSettingNameIri1", BASE_URL + "PrefixSettingNameIri1/api/rdf/"));
+                    "PrefixSettingNameIri1", BASE_URL + "/PrefixSettingNameIri1/api/rdf/"));
             add(
                 new SimpleNamespace(
-                    "PrefixSettingNameIri2", BASE_URL + "PrefixSettingNameIri2/api/rdf/"));
+                    "PrefixSettingNameIri2", BASE_URL + "/PrefixSettingNameIri2/api/rdf/"));
             add(new SimpleNamespace("name", "http://www.w3.org/2000/01/rdf-schema#"));
           }
         };
@@ -1418,10 +1466,10 @@ name,http://www.w3.org/2000/01/rdf-schema#
           {
             add(
                 new SimpleNamespace(
-                    "PrefixSettingPartly1", BASE_URL + "PrefixSettingPartly1/api/rdf/"));
+                    "PrefixSettingPartly1", BASE_URL + "/PrefixSettingPartly1/api/rdf/"));
             add(
                 new SimpleNamespace(
-                    "PrefixSettingPartly2", BASE_URL + "PrefixSettingPartly2/api/rdf/"));
+                    "PrefixSettingPartly2", BASE_URL + "/PrefixSettingPartly2/api/rdf/"));
             add(new SimpleNamespace("example", "http://example.com/"));
             addAll(DEFAULT_NAMESPACES);
           }
@@ -1544,7 +1592,7 @@ example,http://example.com/
    */
   private void getAndParseRDF(Selection selection, RDFHandler handler) throws IOException {
     OutputStream outputStream = new ByteArrayOutputStream();
-    var rdf = new RDFService("http://localhost:8080", RDF_API_LOCATION, null);
+    var rdf = new RDFService(BASE_URL, null);
     rdf.describeAsRDF(
         outputStream, selection.table, selection.rowId, selection.columnName, selection.schemas);
     String result = outputStream.toString();
