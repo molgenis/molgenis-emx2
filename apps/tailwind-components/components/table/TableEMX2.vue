@@ -91,14 +91,23 @@
                 v-if="isEditable && index === 0"
                 class="flex items-center gap-1 flex-none invisible group-hover:visible h-4 py-6 px-4 absolute right-7 bg-blue-50"
               >
-                <Button
-                  :icon-only="true"
-                  type="inline"
-                  icon="trash"
-                  size="small"
-                  label="delete"
-                  @click="handleRowDelete"
-                ></Button>
+                <DeleteModal
+                  v-if="data?.tableMetadata"
+                  :schemaId="props.schemaId"
+                  :metadata="data.tableMetadata"
+                  :formValues="row"
+                  v-slot="{ setVisible }"
+                  @update:deleted="afterRowDeleted"
+                >
+                  <Button
+                    :icon-only="true"
+                    type="inline"
+                    icon="trash"
+                    size="small"
+                    label="delete"
+                    @click="setVisible"
+                  />
+                </DeleteModal>
                 <EditModal
                   v-if="data?.tableMetadata"
                   :schemaId="props.schemaId"
@@ -142,6 +151,7 @@ import { useAsyncData } from "#app/composables/asyncData";
 import { fetchTableData, fetchTableMetadata } from "#imports";
 import AddModal from "../form/AddModal.vue";
 import EditModal from "../form/EditModal.vue";
+import DeleteModal from "../form/DeleteModal.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -261,7 +271,8 @@ function afterRowUpdated() {
   refresh();
 }
 
-function handleRowDelete() {
-  alert("todo delete row");
+function afterRowDeleted() {
+  // maybe notify user, and do more stuff
+  refresh();
 }
 </script>
