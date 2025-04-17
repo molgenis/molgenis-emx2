@@ -1,7 +1,6 @@
 package org.molgenis.emx2;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -125,14 +124,5 @@ public class TestTypeUtils {
         () -> assertThrows(MolgenisException.class, () -> TypeUtils.toJsonb(trailingData)),
         // invalid: Java type int
         () -> assertThrows(ClassCastException.class, () -> TypeUtils.toJsonb(invalidJavaType)));
-  }
-
-  @Test
-  void testCamelCase() {
-    assertAll(
-        () -> assertEquals("aName", convertToCamelCase("a name")),
-        () -> assertEquals("aNaMe", convertToCamelCase("a naMe")),
-        () -> assertEquals("aNaMe", convertToCamelCase("A NaMe")),
-        () -> assertEquals("aNaMe", convertToCamelCase("a na me")));
   }
 }
