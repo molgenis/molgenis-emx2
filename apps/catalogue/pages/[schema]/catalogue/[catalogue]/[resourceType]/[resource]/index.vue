@@ -869,7 +869,7 @@ const showPopulation = computed(
                {title: 'Network details',
                 url: `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`,
                 },
-               data.value?.data?.Catalogues.some( (catalogue) => catalogue.network.id === id)
+               data.data?.Catalogues.some( (catalogue) => catalogue.network.id === network.id)
                ? {
                 title: 'Catalogue',
                 url: `/${route.params.schema}/catalogue/${network.id}`,
