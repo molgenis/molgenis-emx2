@@ -288,8 +288,7 @@ f.close()
                     "script",
                     demoScript,
                     "dependencies",
-                    "numpy==1.23.4", // it has a dependency :-)
-                    "type",
+                    "numpy==2.2.4",
                     "python",
                     "outputFileExtension",
                     "txt"));

@@ -21,7 +21,7 @@ public class TestScriptTask {
     ScriptTask r1 =
         new ScriptTask("hello")
             .type(PYTHON)
-            .dependencies("numpy==1.23.4")
+            .dependencies("numpy==2.2.4")
             // example with some characters that need escaping
             .parameters("\"netherlands & world\"")
             .script(
