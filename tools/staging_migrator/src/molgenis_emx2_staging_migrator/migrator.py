@@ -172,6 +172,8 @@ class StagingMigrator(Client):
             if source_datetime > target_datetime:
                 updated_ids.append(s)
         updated_df = source_df.iloc[updated_ids]
+        if "modified" in map(lambda c: c.name, target_table.columns):
+            new_df["modified"] = new_df["mg_updatedOn"]
 
         filtered_df = pd.concat([new_df, updated_df])
 
