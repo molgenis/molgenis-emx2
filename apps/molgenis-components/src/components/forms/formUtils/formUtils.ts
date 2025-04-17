@@ -90,7 +90,10 @@ export function getColumnError(
   if (type === "HYPERLINK" && isInvalidHyperlink(value)) {
     return "Invalid hyperlink";
   }
-  if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
+  if (
+    type === "HYPERLINK_ARRAY" &&
+    containsInvalidHyperlink(value as string[] | undefined)
+  ) {
     return "Invalid hyperlink";
   }
   if (type === "PERIOD" && !isInvalidPeriod(value)) {
@@ -293,8 +296,10 @@ function isInvalidHyperlink(value: any) {
   return value && !HYPERLINK_REGEX.test(value);
 }
 
-function containsInvalidHyperlink(hyperlinks: any) {
-  return hyperlinks?.some((hyperlink: string) => isInvalidHyperlink(hyperlink));
+function containsInvalidHyperlink(hyperlinks: string[] | undefined) {
+  return hyperlinks?.some((hyperlink: string) => isInvalidHyperlink(hyperlink))
+    ? true
+    : false;
 }
 
 function isInvalidEmail(value: any) {
