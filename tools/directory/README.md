@@ -21,8 +21,13 @@ If you just want to retrieve the data of a node for another purpose, you can use
 and `ExternalServerSession` directly:
 
 ```python
-from molgenis-emx2.directory-client import DirectorySession, ExternalServerSession
-from molgenis-emx2.directory-client import NodeData
+import logging
+import asyncio
+import os
+from molgenis_emx2.directory_client.directory_client import DirectorySession
+from molgenis_emx2.directory_client.directory_client import NodeData
+
+os.environ['NN_SCHEMA_PREFIX'] = "BBMRI"
 
 # Get the staging and published data of NL from the directory
 async def get_data():
@@ -36,17 +41,17 @@ async def get_data():
         # Apply the 'signin' method with the username and password
         session.signin(username, password)
 
-        nl = session.get_external_node("NL")
+        nl = session.get_node("NL")
         nl_staging_data: NodeData = session.get_staging_node_data(nl)
         nl_published_data: NodeData = session.get_published_node_data(nl)
 
-        # Get the data from the external server of NL
-        external_session = ExternalServerSession(nl)
-        nl_external_data: NodeData = external_session.get_node_data()
+    # Now you can use the NodeData objects as you wish
+    for person in nl_staging_data.persons.rows:
+        print(person)
 
     # Now you can use the NodeData objects as you wish
-    for person in nl_external_data.persons.rows:
-        print(person)
+    for biobank in nl_published_data.biobanks.rows:
+        print(biobank)
 
 if __name__ == "__main__":
     asyncio.run(get_data())
