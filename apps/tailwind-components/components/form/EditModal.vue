@@ -1,5 +1,5 @@
 <template>
-  <slot :setVisable="setVisable">
+  <slot :setVisible="setVisible">
     <Button
       class="m-10"
       type="primary"
@@ -122,7 +122,7 @@ const visible = ref(false);
 
 const updateErrorMessage = ref<string>("");
 
-function setVisable() {
+function setVisible() {
   visible.value = true;
 }
 
