@@ -1,4 +1,54 @@
 part of clinical observation,type
-7qOBAUD681,Macular dystrophy
-7qOBAUD682,Macular dystrophy
-7qOBAUD683,Limb-girdle muscular dystrophy
+Case1C,Intellectual disability
+Case1C,Neck muscle weakness
+Case1C,Muscular hypotonia
+Case1C,Neonatal hypotonia
+Case1C,Congenital hip dislocation
+Case1C,Inability to walk
+Case1C,Recurrent lower respiratory tract infections
+Case1C,Arthrogryposis multiplex congenita
+Case1C,Skeletal muscle atrophy
+Case1C,Distal arthrogryposis
+Case1C,Weakness of facial musculature
+Case2C,Reduced visual acuity
+Case2C,Abnormality of retinal pigmentation
+Case2C,Retinal pigment epithelial atrophy
+Case2M,Progressive visual loss
+Case2M,Scotoma
+Case2M,Abnormality of retinal pigmentation
+Case2M,Abnormality of macular pigmentation
+Case2M,Metamorphopsia
+Case3C,Elevated serum creatinine
+Case3C,Muscle weakness
+Case3C,Myalgia
+Case3C,Muscular dystrophy
+Case3C,Quadriceps muscle atrophy
+Case4C,Developmental stagnation
+Case4C,Microcephaly
+Case4C,Symptomatic seizures
+Case4C,Motor delay
+Case4C,Vomiting
+Case4C,Hepatomegaly
+Case4C,Motor deterioration
+Case4C,Developmental regression
+Case4C,Increased CSF lactate
+Case4C,Increased CSF protein
+Case4C,Lactic acidosis
+Case4C,Sensory axonal neuropathy
+Case4C,Myoclonic spasms
+Case4C,Decreased body weight
+Case4C,"Intellectual disability, progressive"
+Case4C,Motor axonal neuropathy
+Case4C,Neurodevelopmental delay
+Case4C,Cognitive impairment
+Case4C,Epileptic encephalopathy
+Case5C,Decreased fertility
+Case5C,Colon cancer
+Case5C,Breast carcinoma
+Case5C,Neoplasm of the breast
+Case5M,Ovarian neoplasm
+Case6C,Neck muscle weakness
+Case6C,Distal arthrogryposis
+Case6C,Muscular hypotonia of the trunk
+Case6C,Skeletal muscle atrophy
+Case6C,Neonatal hypotonia

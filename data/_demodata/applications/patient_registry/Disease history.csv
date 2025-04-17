@@ -1,6 +1,9 @@
-part of clinical observation,disease
-7qOBAUD680,Central core disease
-7qOBAUD684,Mitochondrial DNA depletion syndrome
-7qOBAUD687,Central core disease
-7qOBAUD685,Hereditary breast cancer
-7qOBAUD686,Hereditary breast cancer
+part of clinical observation,disease,age group at onset,age of onset,age group at diagnosis,age at diagnosis,has family history,disease severity,disease stage
+Case1C,Central core disease,,,,P8Y3M26D,,,
+Case1C,Congenital myopathy,,,,P8Y3M26D,,,
+Case5C,Hereditary breast and ovarian cancer syndrome,,,,P39Y4M28D,TRUE,,
+Case5M,Hereditary breast and ovarian cancer syndrome,,,,,TRUE,,
+Case6C,Congenital myopathy,,,,P2Y3M22D,,,
+Ind001_clin_obs_01,Spinocerebellar ataxia type 34,Young adult onset,P32Y6M1D,Adult (18+ years),P20Y3M2D,FALSE,Profound,acute onset
+Ind001_clin_obs_02,Edinburgh malformation syndrome,Childhood onset,P2Y8M,Child (2-12 years),P2Y1M,TRUE,Severe,progression stage
+Ind002_clin_obs_01,Jalili syndrome,Late onset,P89Y,Adult (18+ years),P58Y,TRUE,Mild,relapse
