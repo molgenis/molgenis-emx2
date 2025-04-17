@@ -1595,7 +1595,7 @@ public class SqlQuery extends QueryBean {
         return row(pkey)
             .in(
                 DSL.select(backRef)
-                    .from(tableWithInheritanceJoin(c.getRefTable()))
+                    .from(c.getRefTable().getRootTable().getJooqTable())
                     .where(row(backRefKey).in(subQuery)));
       } else {
         // ref_array
