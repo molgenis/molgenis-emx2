@@ -16,7 +16,7 @@ public class PrimaryKeyTest {
   static final Map.Entry<String, String> LAST_KEY = Map.entry("last", "value");
   // Linked Map to enforce order
   static final Map<String, String> KEYS_MAP = new LinkedHashMap<>();
-  static final String ENCODED_KEY = "complex+pair=me%2C+myself+%26+I&last=value";
+  static final String ENCODED_KEY = "complexPair=me%2C%20myself%20%26%20I&last=value";
 
   static {
     KEYS_MAP.put(LAST_KEY.getKey(), LAST_KEY.getValue());

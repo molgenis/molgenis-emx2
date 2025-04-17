@@ -53,9 +53,8 @@ public class RDFApi {
     app.head("{schema}" + apiLocation, (ctx) -> rdfHead(ctx, format));
     app.get("{schema}" + apiLocation + "/{table}", (ctx) -> rdfForTable(ctx, format));
     app.head("{schema}" + apiLocation + "/{table}", (ctx) -> rdfHead(ctx, format));
-    // TODO: Enable once rowIRI uses '/' instead of '?'
-    //    app.get("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfForRow(ctx, format));
-    //    app.head("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfHead(ctx, format));
+        app.get("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfForRow(ctx, format));
+        app.head("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfHead(ctx, format));
     app.get(
         "{schema}" + apiLocation + "/{table}/column/{column}", (ctx) -> rdfForColumn(ctx, format));
     app.head("{schema}" + apiLocation + "/{table}/column/{column}", (ctx) -> rdfHead(ctx, format));
@@ -110,15 +109,8 @@ public class RDFApi {
   }
 
   private static void rdfForTable(Context ctx, RDFFormat format) throws IOException {
-    // TODO: remove once rowIRI uses '/' instead of '?'
-    String rowId = null;
-    if (ctx.queryString() != null && !ctx.queryString().isBlank()) {
-      rowId = ctx.queryString();
-    }
-    // end TODO
-
     Table table = getTableByIdOrName(ctx);
-    runService(ctx, format, table, rowId, null, table.getSchema());
+    runService(ctx, format, table, null, null, table.getSchema());
   }
 
   private static void rdfForColumn(Context ctx, RDFFormat format) throws IOException {
