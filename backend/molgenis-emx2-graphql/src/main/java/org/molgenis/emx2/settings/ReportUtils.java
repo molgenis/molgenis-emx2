@@ -1,5 +1,6 @@
 package org.molgenis.emx2.settings;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,12 @@ public class ReportUtils {
     throw new MolgenisException("Report not found id=" + reportId);
   }
 
+  public static Object getReportById(String reportId, Schema schema, Map<String, ?> parameters)
+      throws JsonProcessingException {
+    Map<String, String> report = getReportById(reportId, schema);
+    return processRows(schema.retrieveSql(report.get("sql"), parameters));
+  }
+
   public static String getReportAsJson(String id, Schema schema, Map<String, ?> parameters) {
     Map<String, String> report = getReportById(id, schema);
     return convertToJson(schema.retrieveSql(report.get("sql"), parameters));
@@ -53,20 +60,25 @@ public class ReportUtils {
     return schema.retrieveSql(countSql, parameters).get(0).get("count", Integer.class);
   }
 
+  private static Object processRows(List<Row> rows) throws JsonProcessingException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    List<Map<String, Object>> result = new ArrayList<>();
+    for (Row row : rows) {
+      if (row.getValueMap().size() == 1) {
+        Object value = row.getValueMap().values().iterator().next();
+        if (value instanceof JSONB) {
+          return objectMapper.readValue(value.toString(), Object.class);
+        }
+      }
+      result.add(row.getValueMap());
+    }
+    return result;
+  }
+
   private static String convertToJson(List<Row> rows) {
     ObjectMapper objectMapper = new ObjectMapper();
     try {
-      List<Map<String, Object>> result = new ArrayList<>();
-      for (Row row : rows) {
-        if (row.getValueMap().size() == 1) {
-          Object value = row.getValueMap().values().iterator().next();
-          if (value instanceof JSONB) {
-            return value.toString();
-          }
-        }
-        result.add(row.getValueMap());
-      }
-      return objectMapper.writeValueAsString(result);
+      return objectMapper.writeValueAsString(processRows(rows));
     } catch (Exception e) {
       throw new MolgenisException("Cannot convert sql result set to json", e);
     }
