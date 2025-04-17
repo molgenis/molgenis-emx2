@@ -149,8 +149,10 @@ class StagingMigrator(Client):
             source_df = source_df.loc[~source_df["mg_draft"]]
 
         # Create mapping of indices from the source table to the target table
-        id_map = source_df.reset_index().merge(target_df.reset_index(),
-                                               on=primary_keys).set_index("index_x")["index_y"].to_dict()
+        merge_df = source_df.reset_index().merge(target_df.reset_index(), on=primary_keys)
+        # Filter updated rows
+        merge_df = merge_df.loc[merge_df["mg_insertedOn_x"] > merge_df["mg_insertedOn_y"]]
+        id_map = merge_df.set_index("index_x")["index_y"].to_dict()
 
         # Filter rows not present in the target's table
         new_df = source_df.loc[~source_df.index.isin(id_map.keys())]
@@ -161,17 +163,7 @@ class StagingMigrator(Client):
         if "modified" in map(lambda c: c.name, target_table.columns):
             new_df["modified"] = new_df["mg_updatedOn"]
 
-
-        # Filter updated rows
-        updated_ids = []
-        for (s, t) in id_map.items():
-            if t is None:
-                continue
-            source_datetime = source_df.at[s, 'mg_updatedOn']
-            target_datetime = target_df.at[t, 'mg_updatedOn']
-            if source_datetime > target_datetime:
-                updated_ids.append(s)
-        updated_df = source_df.iloc[updated_ids]
+        updated_df = source_df.iloc[merge_df["index_x"]]
         if "modified" in map(lambda c: c.name, target_table.columns):
             new_df["modified"] = new_df["mg_updatedOn"]
 
