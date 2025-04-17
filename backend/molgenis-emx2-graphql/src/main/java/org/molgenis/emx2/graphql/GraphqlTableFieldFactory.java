@@ -638,17 +638,13 @@ public class GraphqlTableFieldFactory {
         // skip match all, handled on parent column
       } else {
         // find column by escaped name
-        Optional<Column> optional =
-            table.getColumns().stream()
-                .filter(c -> c.getIdentifier().equals(entry.getKey()))
-                .findFirst();
-        if (optional.isEmpty())
+        Column c = table.getColumnByIdentifier(entry.getKey());
+        if (c == null)
           throw new GraphqlException(
               "Graphql API error: Column "
                   + entry.getKey()
                   + " unknown in table "
                   + table.getTableName());
-        Column c = optional.get();
         Map value = (Map) entry.getValue();
         // although nested, this should apply on this level, not sublevel
         if (value.containsKey(FILTER_MATCH_INCLUDING_CHILDREN)) {
