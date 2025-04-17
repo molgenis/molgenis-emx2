@@ -10,11 +10,11 @@ test.beforeEach(async ({ page }) => {
   await page.goto(
     `${route}form/EditModal.story?schema=pet+store&table=Pet&rowIndex=1`
   );
-  await expect(page.getByText("Demo data controls")).toBeVisible();
+  await expect(page.getByText("Update Pet").first()).toBeVisible();
 });
 
 test("should show the edit modal", async ({ page }) => {
-  await page.getByRole("button", { name: "Update Pet" }).click();
+  await page.getByRole("button", { name: "Update Pet" }).first().click();
   await expect(page.getByRole("link", { name: "_top" })).toBeVisible();
   await expect(
     page.getByRole("listitem").filter({ hasText: "details" })

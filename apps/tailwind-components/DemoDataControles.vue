@@ -86,9 +86,9 @@ const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   body: { query: `{ _schemas { id,label,description } }` },
 });
 
-const { data: schemaMeta, refresh } = await useAsyncData("form sample", () =>
-  fetchMetadata(schemaId.value)
-);
+const { data: schemaMeta, refresh } = await useAsyncData("form sample", () => {
+  return fetchMetadata((route.query.schema as string) || schemaId.value);
+});
 
 watch(
   schemaMeta,
@@ -105,8 +105,8 @@ const schemaIds = computed(
       .map((s) => s.id) ?? []
 );
 
-const schemaTablesIds = computed(() =>
-  schemaMeta.value?.tables.map((table) => table.id)
+const schemaTablesIds = computed(
+  () => schemaMeta.value?.tables.map((table) => table.id) ?? []
 );
 
 watch(
@@ -125,17 +125,19 @@ watch(
 );
 
 async function getNumberOfRows() {
+  // lock (unref) the tableId insiude closure, to make sure the same id is used in the request as while reading the respqonse
+  const countTableId = tableId.value;
   const resp = await $fetch(`/${schemaId.value}/graphql`, {
     method: "POST",
     body: {
-      query: `query ${tableId.value} {
-          ${tableId.value}_agg {
+      query: `query ${countTableId} {
+          ${countTableId}_agg {
             count
           }
         }`,
     },
   });
-  numberOfRows.value = resp.data[tableId.value + "_agg"].count;
+  numberOfRows.value = resp.data[countTableId + "_agg"].count;
 }
 
 watch(
@@ -160,8 +162,7 @@ watch(
     metadata.value = schemaMeta.value?.tables.find(
       (table) => table.id === newTableId
     );
-  },
-  { immediate: true }
+  }
 );
 
 async function fetchRow(rowNumber: number) {
@@ -183,12 +184,20 @@ watch(
     if (rowIndex.value !== null) {
       query.rowIndex = rowIndex.value;
     }
-    router.push({ query });
+
+    if (rowIndex.value !== route.query.rowIndex) {
+      router.push({ query });
+    }
+
+    if (rowIndex.value !== null) {
+      await getNumberOfRows();
+    }
 
     formValues.value = {};
 
     if (rowIndex.value !== null) {
-      fetchRow(rowIndex.value - 1);
+      console.log("fetching row", rowIndex.value);
+      await fetchRow(rowIndex.value - 1);
     }
   },
   { immediate: true }

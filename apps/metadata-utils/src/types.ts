@@ -125,3 +125,5 @@ export type IInputValueLabel = {
   value: IInputValue | IInputValue[] | null;
   label?: string;
 };
+
+export type IRow = Record<columnId, columnValue>;

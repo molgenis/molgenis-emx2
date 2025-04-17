@@ -1,5 +1,5 @@
 <template>
-  <slot>
+  <slot :setVisible="setVisible">
     <Button
       class="m-10"
       type="primary"
@@ -69,6 +69,13 @@
         @error-next="gotoNextError"
       />
     </Transition>
+    <Transition name="slide-up">
+      <FormError
+        v-show="saveErrorMessage"
+        :message="saveErrorMessage"
+        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+      />
+    </Transition>
 
     <template #footer>
       <div class="flex justify-between items-center">
@@ -104,7 +111,15 @@ const props = withDefaults(
   {}
 );
 
+const emit = defineEmits(["update:added"]);
+
 const visible = ref(false);
+
+const saveErrorMessage = ref<string>("");
+
+function setVisible() {
+  visible.value = true;
+}
 
 const rowType = computed(() => props.metadata.id);
 const isDraft = ref(false);
@@ -113,15 +128,39 @@ function onCancel() {
   visible.value = false;
 }
 
-function onSaveDraft() {
-  console.log("do save Draft");
+async function onSaveDraft() {
+  const resp = await insertInto(props.schemaId, props.metadata.id).catch(
+    (err) => {
+      console.error("Error saving data", err);
+      saveErrorMessage.value = "Error saving draft";
+      return null;
+    }
+  );
+
+  if (!resp) {
+    return;
+  }
+
   isDraft.value = true;
+  emit("update:added", resp);
 }
 
-function onSave() {
-  console.log("do save ");
+async function onSave() {
+  const resp = await insertInto(props.schemaId, props.metadata.id).catch(
+    (err) => {
+      console.error("Error saving data", err);
+      saveErrorMessage.value = "Error saving data";
+      return null;
+    }
+  );
+
+  if (!resp) {
+    return;
+  }
+
   isDraft.value = false;
   visible.value = false;
+  emit("update:added", resp);
 }
 
 const formValues = ref<Record<string, columnValue>>({});
@@ -146,6 +185,7 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
+  insertInto,
 } = useForm(props.metadata, formValues, errorMap, (fieldId) => {
   scrollToElementInside("fields-container", fieldId);
 });

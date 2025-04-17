@@ -11,7 +11,7 @@ const elementType = computed(() => props.metaData.columnType.split("_")[0]);
 </script>
 
 <template>
-  <template v-for="listElement in data">
+  <template v-for="(listElement, index) in data">
     <TableCellTypesString
       v-if="elementType === 'STRING'"
       :metaData="metaData"
@@ -42,6 +42,8 @@ const elementType = computed(() => props.metaData.columnType.split("_")[0]);
       :metaData="metaData"
       :data="listElement"
     />
+
     <span v-else>{{ elementType }}</span>
+    <span v-if="Number(data.length) - 1 !== Number(index)">,&nbsp;</span>
   </template>
 </template>
