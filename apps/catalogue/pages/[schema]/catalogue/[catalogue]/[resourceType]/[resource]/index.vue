@@ -251,12 +251,6 @@ const subpopulationCount = computed(
 
 const variableCount = computed(() => data.value?.data?.Variables_agg.count);
 
-function isCatalogue(id: string): boolean | undefined {
-  return data.value?.data?.Catalogues.some(
-    (catalogue) => catalogue.network.id === id
-  );
-}
-
 function collectionEventMapper(item: any) {
   return {
     id: item.name,
@@ -875,7 +869,8 @@ const showPopulation = computed(
                {title: 'Network details',
                 url: `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`,
                 },
-                isCatalogue(network.id) ? {
+               data.value?.data?.Catalogues.some( (catalogue) => catalogue.network.id === id)
+               ? {
                 title: 'Catalogue',
                 url: `/${route.params.schema}/catalogue/${network.id}`,
               }: null
