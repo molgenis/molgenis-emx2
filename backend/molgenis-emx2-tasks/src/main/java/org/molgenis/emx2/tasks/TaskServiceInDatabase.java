@@ -289,6 +289,7 @@ f.close()
                     demoScript,
                     "dependencies",
                     "numpy==2.2.4",
+                    "type",
                     "python",
                     "outputFileExtension",
                     "txt"));
