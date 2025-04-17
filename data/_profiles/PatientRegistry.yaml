@@ -6,7 +6,7 @@ profileTags: Patient registry, DataCatalogueFlat
 
 settings: _settings/patient_registry
 
-# demoData: _demodata/patient_regsitry
+demoData: _demodata/patient_regsitry
 
 # special options
 setViewPermission: anonymous
