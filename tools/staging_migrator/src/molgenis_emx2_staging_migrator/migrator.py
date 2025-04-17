@@ -145,6 +145,9 @@ class StagingMigrator(Client):
         if len(source_df.index) == 0:
             return source_df
 
+        if "mg_draft" in source_df.columns:
+            source_df = source_df.loc[~source_df["mg_draft"]]
+
         # Create mapping of indices from the source table to the target table
         id_map = source_df.reset_index().merge(target_df.reset_index(),
                                                on=primary_keys).set_index("index_x")["index_y"].to_dict()
