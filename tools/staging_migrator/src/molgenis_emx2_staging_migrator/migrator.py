@@ -141,19 +141,16 @@ class StagingMigrator(Client):
         # Load the data for the table from the ZIP files
         source_df = self._load_table('source', table)
         target_df = self._load_table('target', table)
+
+        if len(source_df.index) == 0:
+            return source_df
+
         # Create mapping of indices from the source table to the target table
-        id_map = {}
-        for s_id, s_values in source_df[primary_keys].iterrows():
-            for t_id, t_values in target_df[primary_keys].iterrows():
-                if all(s_val == t_val for (s_val, t_val) in zip(s_values, t_values)):
-                    id_map[s_id] = t_id
-                    break
-            if id_map.get(s_id) is None:
-                id_map[s_id] = None
+        id_map = source_df.reset_index().merge(target_df.reset_index(),
+                                               on=primary_keys).set_index("index_x")["index_y"].to_dict()
 
         # Filter rows not present in the target's table
-        new_ids = [s for (s, t) in id_map.items() if t is None]
-        new_df = source_df.iloc[new_ids]
+        new_df = source_df.loc[~source_df.index.isin(id_map.keys())]
 
         target_table = self.get_schema_metadata(self.target).get_table("id", table.id)
         if "issued" in map(lambda c: c.name, target_table.columns):
