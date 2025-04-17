@@ -21,6 +21,7 @@ interface Schema {
 }
 
 const route = useRoute();
+const router = useRouter();
 const schemaId = ref((route.query.schema as string) ?? "type test");
 const tableId = ref((route.query.table as string) ?? "Types");
 const rowIndex = ref<null | number>(null);
@@ -93,7 +94,7 @@ watch(
     if (schemaMeta.value) {
       await refresh();
       tableId.value = schemaMeta.value.tables[0].id;
-      useRouter().push({
+      router.push({
         query: {
           schema: schemaId.value,
         },
@@ -116,7 +117,7 @@ watch(
       query.rowIndex = rowIndex.value;
     }
 
-    useRouter().push({ query });
+    router.push({ query });
     getNumberOfRows();
     formValues.value = {};
   },
@@ -133,7 +134,7 @@ watch(
     if (rowIndex.value !== null) {
       query.rowIndex = rowIndex.value;
     }
-    useRouter().push({ query });
+    router.push({ query });
 
     formValues.value = {};
 
