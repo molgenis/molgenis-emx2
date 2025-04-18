@@ -34,10 +34,10 @@ def main(staging_area: str):
         # df = migrator._load_table('source', schema.get_table('name', 'Variable values'))
         # df = migrator._get_filtered(schema.get_table('name', 'Resources'))
         # migrator.create_zip()
-        # migrator.migrate(keep_zips=True)
-        stream = migrator.create_zip()
-        with open(target_path.parent / "upload.zip", 'wb') as zf:
-            zf.write(stream.getbuffer())
+        migrator.migrate(keep_zips=True)
+        # stream = migrator.create_zip()
+        # with open(target_path.parent / "upload.zip", 'wb') as zf:
+        #     zf.write(stream.getbuffer())
 
 
 if __name__ == '__main__':

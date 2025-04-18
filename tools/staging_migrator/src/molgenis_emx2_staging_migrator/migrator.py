@@ -118,12 +118,12 @@ class StagingMigrator(Client):
                 log.debug(f"Processing table {table.name!r}.")
                 updated_table: pd.DataFrame = self._get_filtered(table)
                 modified_table: pd.DataFrame = self._modify_table(updated_table, table)
-                if len(updated_table.index) != 0:
+                if len(modified_table.index) != 0:
                     upload_archive.writestr(file_name, modified_table.to_csv())
                     updated_tables.append(Path(file_name).stem)
 
         # Return zip
-        if len(updated_table) == 0:
+        if len(updated_tables) == 0:
             log.info(f"No data to migrate.")
             upload_stream.flush()
             return upload_stream
@@ -145,18 +145,18 @@ class StagingMigrator(Client):
         if len(source_df.index) == 0:
             return source_df
 
-        if "mg_draft" in source_df.columns:
-            source_df = source_df.loc[~source_df["mg_draft"]]
+        # if "mg_draft" in source_df.columns:
+        #     source_df = source_df.loc[~source_df["mg_draft"]]
 
         # Create mapping of indices from the source table to the target table
         merge_df = source_df.reset_index().merge(target_df.reset_index(), on=primary_keys)
 
-        # Filter updated rows
-        merge_df = merge_df.loc[merge_df["mg_insertedOn_x"] > merge_df["mg_insertedOn_y"]]
-        id_map = merge_df.set_index("index_x")["index_y"].to_dict()
-
         # Filter rows not present in the target's table
-        new_df = source_df.loc[~source_df.index.isin(id_map.keys())]
+        new_df = source_df.loc[~source_df.index.isin(merge_df["index_x"])]
+
+        # Filter updated rows
+        merge_df = merge_df.loc[merge_df["mg_updatedOn_x"] > merge_df["mg_updatedOn_y"]]
+
 
         target_table = self.get_schema_metadata(self.target).get_table("id", table.id)
         if "issued" in map(lambda c: c.name, target_table.columns):
