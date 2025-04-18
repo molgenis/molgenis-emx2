@@ -40,6 +40,11 @@ body:
     attributes:
       label: Reproduction steps
       description: What are the exact steps to reproduce the bug?
+      value: |
+        1. Go to 'https://emx2.dev.molgenis.org'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
       placeholder: |
         1. Go to 'https://emx2.dev.molgenis.org'
         2. Click on '....'

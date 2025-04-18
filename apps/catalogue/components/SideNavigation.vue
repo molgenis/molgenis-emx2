@@ -27,7 +27,16 @@ function setSideMenuStyle(hash: string) {
       >
         <img :src="image" :alt="title" />
       </NuxtLink>
-      <NuxtLink v-else :to="{ ...route, hash: headerTarget }">
+      <NuxtLink
+        v-else
+        :to="{ ...route, hash: headerTarget }"
+        style="
+          /* use style due to issue in tailwind 3.x , this can be done in tailwind when we move to 4.x */
+          overflow-wrap: break-word;
+          word-wrap: break-word; /* older syntax */
+          white-space: normal;
+        "
+      >
         {{ title }}
       </NuxtLink>
     </div>
