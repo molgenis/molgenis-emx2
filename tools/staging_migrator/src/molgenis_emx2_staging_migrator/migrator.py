@@ -150,6 +150,7 @@ class StagingMigrator(Client):
 
         # Create mapping of indices from the source table to the target table
         merge_df = source_df.reset_index().merge(target_df.reset_index(), on=primary_keys)
+
         # Filter updated rows
         merge_df = merge_df.loc[merge_df["mg_insertedOn_x"] > merge_df["mg_insertedOn_y"]]
         id_map = merge_df.set_index("index_x")["index_y"].to_dict()
@@ -171,36 +172,13 @@ class StagingMigrator(Client):
 
         return filtered_df
 
-    def _modify_table(self, df: pd.DataFrame, table: Table) -> pd.DataFrame:
+    @staticmethod
+    def _modify_table(df: pd.DataFrame, table: Table) -> pd.DataFrame:
         """
         Applies transformation on a table's data given its contents.
         """
         if (consent_val := has_statement_of_consent(table)) != 0:
             return process_statement(df, consent_val=consent_val)
-        df = self._process_dates(df, table)
-        return df
-
-    def _process_dates(self, df: pd.DataFrame, table: Table) -> pd.DataFrame:
-        """
-        Process the issued and modification dates in case the table contains these columns.
-        """
-        if len(df.index) == 0:
-            return df
-
-        def apply_issued(row: pd.Series):
-            if row["issued"].isna():
-                return row["mg_insertedOn"]
-            return row["issued"]
-
-        if "issued" in map(lambda c: c.name, table.columns):
-            df["issued"] = df.apply(apply_issued, axis=1)
-
-        try:
-            if table.get_column("name", "modified"):
-                pass
-        except NoSuchColumnException:
-            pass
-
         return df
 
 
