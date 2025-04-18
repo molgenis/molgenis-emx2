@@ -297,9 +297,7 @@ function isInvalidHyperlink(value: any) {
 }
 
 function containsInvalidHyperlink(hyperlinks: string[] | undefined) {
-  return hyperlinks?.some((hyperlink: string) => isInvalidHyperlink(hyperlink))
-    ? true
-    : false;
+  return !!hyperlinks?.some(isInvalidHyperlink);
 }
 
 function isInvalidEmail(value: any) {
