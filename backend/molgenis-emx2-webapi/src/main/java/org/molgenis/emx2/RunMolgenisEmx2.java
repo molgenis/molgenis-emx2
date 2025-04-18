@@ -3,9 +3,7 @@ package org.molgenis.emx2;
 import static org.molgenis.emx2.ColumnType.BOOL;
 import static org.molgenis.emx2.ColumnType.INT;
 
-import org.molgenis.emx2.datamodels.BiobankDirectoryLoader;
 import org.molgenis.emx2.datamodels.DataModels;
-import org.molgenis.emx2.datamodels.PatientRegistryDemoLoader;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.web.MolgenisWebservice;
@@ -15,15 +13,16 @@ import org.slf4j.LoggerFactory;
 public class RunMolgenisEmx2 {
 
   public static final String CATALOGUE_DEMO = "catalogue-demo";
-  public static final String DIRECTORY_DEMO = "directory-demo";
+  // public static final String DIRECTORY_DEMO = "directory-demo";
   private static Logger logger = LoggerFactory.getLogger(RunMolgenisEmx2.class);
 
   public static final boolean INCLUDE_CATALOGUE_DEMO =
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_CATALOGUE_DEMO, false, BOOL);
-  public static final boolean INCLUDE_DIRECTORY_DEMO =
-      (Boolean)
-          EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_DIRECTORY_DEMO, false, BOOL);
+  // public static final boolean INCLUDE_DIRECTORY_DEMO =
+  //     (Boolean)
+  //         EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_DIRECTORY_DEMO, false,
+  // BOOL);
   public static final boolean EXCLUDE_PETSTORE_DEMO =
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_EXCLUDE_PETSTORE_DEMO, false, BOOL);
@@ -31,10 +30,10 @@ public class RunMolgenisEmx2 {
       (Boolean)
           EnvironmentProperty.getParameter(Constants.MOLGENIS_INCLUDE_TYPE_TEST_DEMO, false, BOOL);
 
-  public static final boolean INCLUDE_PATIENT_REGISTRY_DEMO =
-      (Boolean)
-          EnvironmentProperty.getParameter(
-              Constants.MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO, false, BOOL);
+  // public static final boolean INCLUDE_PATIENT_REGISTRY_DEMO =
+  //     (Boolean)
+  //         EnvironmentProperty.getParameter(
+  //             Constants.MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO, false, BOOL);
 
   public static void main(String[] args) {
     logger.info("Starting MOLGENIS EMX2 Software Version=" + Version.getVersion());
@@ -80,15 +79,6 @@ public class RunMolgenisEmx2 {
           if (INCLUDE_CATALOGUE_DEMO && db.getSchema(CATALOGUE_DEMO) == null) {
             Schema schema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
             DataModels.Profile.DATA_CATALOGUE.getImportTask(schema, true).run();
-          }
-          if (INCLUDE_DIRECTORY_DEMO && db.getSchema(DIRECTORY_DEMO) == null) {
-            Schema schema = db.createSchema(DIRECTORY_DEMO, "BBMRI-ERIC Directory Demo");
-            new BiobankDirectoryLoader(schema, true).setStaging(false).run();
-          }
-
-          if (INCLUDE_PATIENT_REGISTRY_DEMO && db.getSchema("patient registry demo") == null) {
-            Schema schema = db.createSchema("patient registry demo");
-            new PatientRegistryDemoLoader(schema, true).run();
           }
         });
 
