@@ -152,7 +152,7 @@ class StagingMigrator(Client):
         merge_df = source_df.reset_index().merge(target_df.reset_index(), on=primary_keys)
 
         # Filter rows not present in the target's table
-        new_df = source_df.loc[~source_df.index.isin(merge_df["index_x"])]
+        new_df = source_df.loc[~source_df.index.isin(merge_df["index_x"])].copy()
 
         # Filter updated rows
         merge_df = merge_df.loc[merge_df["mg_updatedOn_x"] > merge_df["mg_updatedOn_y"]]
@@ -166,7 +166,7 @@ class StagingMigrator(Client):
 
         updated_df = source_df.iloc[merge_df["index_x"]]
         if "modified" in map(lambda c: c.name, target_table.columns):
-            new_df["modified"] = new_df["mg_updatedOn"]
+            updated_df["modified"] = updated_df["mg_updatedOn"]
 
         filtered_df = pd.concat([new_df, updated_df])
 
