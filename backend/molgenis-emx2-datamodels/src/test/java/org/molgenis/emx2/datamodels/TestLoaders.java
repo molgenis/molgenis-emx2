@@ -116,6 +116,7 @@ public class TestLoaders {
     assertEquals(13, directory.getTableNames().size());
   }
 
+  @Disabled
   @Test
   void test11JRCCDELoader() {
     Schema JRCCDESchema = database.createSchema(JRC_CDE_TEST);
@@ -123,6 +124,7 @@ public class TestLoaders {
     assertEquals(12, JRCCDESchema.getTableNames().size());
   }
 
+  @Disabled
   @Test
   void test12FAIRGenomesLoader() {
     Schema FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);

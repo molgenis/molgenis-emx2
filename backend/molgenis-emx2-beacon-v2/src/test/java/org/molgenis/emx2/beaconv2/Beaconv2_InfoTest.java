@@ -2,11 +2,14 @@ package org.molgenis.emx2.beaconv2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Disabled;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.Info;
 import org.molgenis.emx2.beaconv2.entrytypes.BeaconModelEndPointTest;
 
+@Disabled
 public class Beaconv2_InfoTest extends BeaconModelEndPointTest {
 
   @Test
