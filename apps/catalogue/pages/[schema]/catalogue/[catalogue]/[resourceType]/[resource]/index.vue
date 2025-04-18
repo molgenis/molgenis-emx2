@@ -166,6 +166,7 @@ const query = gql`
         name
       }
       partOfResources {
+        id
         name
         type {
             name
@@ -188,6 +189,9 @@ const query = gql`
     Variables_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
     }
+    Catalogues{
+        network{id}
+    }
   }
 `;
 const variables = { id: route.params.resource };
@@ -200,6 +204,7 @@ interface IResponse {
   data: {
     Resources: IResourceQueryResponseValue[];
     Variables_agg: { count: number };
+    Catalogues: ICatalogues[];
   };
 }
 const { data, error } = await useFetch<IResponse, IMgError>(
@@ -858,19 +863,19 @@ const showPopulation = computed(
               :title="network.name"
               :description="network?.description || ''"
               :imageUrl="network?.logo?.url || ''"
-              :url="network.website || ''"
-              :links="
-                network.website
-                  ? [
-                      {
-                        title: 'Website',
-                        url: network.website,
-                        target: '_blank',
-                      },
-                    ]
-                  : []
-              "
-              target="_blank"
+              :url="`/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`"
+              :links="[
+                  network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
+               {title: 'Network details',
+                url: `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`,
+                },
+               data.data?.Catalogues.some( (catalogue) => catalogue.network.id === network.id)
+               ? {
+                title: 'Catalogue',
+                url: `/${route.params.schema}/catalogue/${network.id}`,
+              }: null
+                ].filter((link) => link !== null)"
+              target="_self"
             />
           </ReferenceCardList>
         </ContentBlock>

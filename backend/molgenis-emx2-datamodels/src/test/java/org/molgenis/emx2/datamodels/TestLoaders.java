@@ -1,8 +1,6 @@
 package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.DATA_CATALOGUE;
-import static org.molgenis.emx2.datamodels.DataCatalogueCohortStagingLoader.SHARED_STAGING;
 import static org.molgenis.emx2.rdf.SHACLComplianceTester.*;
 
 import java.io.ByteArrayOutputStream;
@@ -18,6 +16,8 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
 public class TestLoaders {
+
+  public static final String DATA_CATALOGUE = "catalogue";
   public static final String COHORT_STAGING = "CohortStaging";
   public static final String NETWORK_STAGING = "NetworkStaging";
   public static final String DATA_CATALOGUE_AGGREGATES = "AggregatesTest";
@@ -48,7 +48,6 @@ public class TestLoaders {
     database.dropSchemaIfExists(DATA_CATALOGUE);
     database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
-    database.dropSchemaIfExists(SHARED_STAGING);
     database.dropSchemaIfExists(DIRECTORY_TEST);
     database.dropSchemaIfExists(DIRECTORY_STAGING);
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
@@ -87,7 +86,7 @@ public class TestLoaders {
 
     // create rdf in memory
     OutputStream outputStream = new ByteArrayOutputStream();
-    var rdf = new RDFService("http://localhost:8080", "/api/rdf", null);
+    var rdf = new RDFService("http://localhost:8080", null);
     rdf.describeAsRDF(outputStream, null, null, null, dataCatalogue);
 
     // check compliance
