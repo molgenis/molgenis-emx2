@@ -11,6 +11,12 @@ import java.util.*;
 import org.molgenis.emx2.Filter;
 import org.molgenis.emx2.MolgenisException;
 
+/**
+ * Does not support "{@code _ARRAY}" {@link org.molgenis.emx2.ColumnType}'s
+ *
+ * @see <a
+ *     href=https://github.com/molgenis/molgenis-emx2/issues/4944>https://github.com/molgenis/molgenis-emx2/issues/4944</a>
+ */
 class PrimaryKey {
   public static final String NAME_VALUE_SEPARATOR = "=";
   public static final String KEY_PARTS_SEPARATOR = "&";

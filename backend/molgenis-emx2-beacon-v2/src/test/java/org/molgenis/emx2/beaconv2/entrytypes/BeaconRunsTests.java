@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;

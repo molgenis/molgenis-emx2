@@ -172,6 +172,23 @@ public class TestLoaders {
   //    // testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
   //    // testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
   //  }
+  //  @Test
+  //  void test17FAIRDataPointLoader() throws Exception {
+  //    Schema FDPSchema = database.createSchema(FAIR_DATA_POINT);
+  //    DataModels.Profile.FAIR_DATA_POINT.getImportTask(FDPSchema, true).run();
+  //    assertEquals(25, FDPSchema.getTableNames().size());
+  //
+  //    // create rdf in memory
+  //    OutputStream outputStream = new ByteArrayOutputStream();
+  //    var rdf = new RDFService("http://localhost:8080", "/api/rdf", null);
+  //    rdf.describeAsRDF(outputStream, null, null, null, FDPSchema);
+  //
+  //    // test compliance
+  //    // testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
+  //    // testShaclCompliance(DCAT_AP_SHACL_FILES, outputStream.toString());
+  //    // testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
+  //    // testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
+  //  }
 
   @Test
   void test18PortalLoader() throws URISyntaxException, IOException {
