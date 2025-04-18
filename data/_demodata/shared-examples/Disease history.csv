@@ -1,5 +1,0 @@
-part of clinical observation,disease,age group at onset,age of onset,age group at diagnosis,age at diagnosis,has family history,disease severity,disease stage
-Ind001.45763,Spinocerebellar ataxia type 34,Young adult onset,P20Y3M2D,Adult (25-44 years),P32Y6M1D,FALSE,Profound,acute onset
-Ind001.45763,Edinburgh malformation syndrome,Pediatric onset,P2Y1M,Child (2-12 years),P2Y8M,TRUE,Severe,progression stage
-Ind002.45763,Jalili syndrome,Late onset,P58Y,Aged (80+ years),P89Y,TRUE,Mild,relapse
-MinInd004.45763,Spinocerebellar ataxia type 34,,,,,,,

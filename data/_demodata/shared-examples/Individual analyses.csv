@@ -1,6 +1,0 @@
-id,date completed,persons involved.resource,persons involved.first name,persons involved.last name,files used,individual,solved
-A01,2025-04-16,MOLGENIS,Test,User,File01.vcf,Ind001,FALSE
-A02,2025-04-16,MOLGENIS,Test,User,File01.vcf,Ind001,FALSE
-A03,2025-04-16,MOLGENIS,Test,User,File01.vcf,Ind001,FALSE
-A04,2025-04-16,MOLGENIS,Test,User,File02.vcf,Ind002,FALSE
-MinA04,2025-04-16,MOLGENIS,Test,User,MinFile04.vcf,MinInd004,FALSE

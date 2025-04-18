@@ -1,6 +1,0 @@
-identifier,protocol,date,input samples,included in datasets.resource,included in datasets.name,comments,individual,institutions involved.resource,institutions involved.id,sequencing centre.resource,sequencing centre.id,library source,library selection,library strategy,library layout,platform,platform model
-SampleRun0001.43497,,2019-02-01,Sample0001,Beacon v2,Beacon v2 Demo Dataset,,Ind001,MOLGENIS,UMCG,MOLGENIS,UMCG,genomic source,cDNA method,Whole-Genome Shotgun Sequencing,PAIRED,PacBio platform,PacBio RS II
-SampleRun0002.43832,,2020-01-02,Sample0002,Beacon v2,Beacon v2 Demo Dataset,,Ind002,MOLGENIS,UMCG,MOLGENIS,UMCG,transcriptomic source,DNAse method,Whole Transcriptome Sequencing,SINGLE,Illumina platform,Illumina NextSeq 2000
-SampleRun0002.44228,,2021-02-01,Sample0002,Beacon v2,Beacon v2 Demo Dataset,,Ind002,MOLGENIS,UMCG,MOLGENIS,UMCG,genomic source,cDNA method,Whole-Genome Shotgun Sequencing,PAIRED,PacBio platform,PacBio RS II
-SampleRun0001.44563,,2022-01-02,Sample0001,Beacon v2,Beacon v2 Demo Dataset,,Ind001,MOLGENIS,UMCG,MOLGENIS,UMCG,transcriptomic source,DNAse method,Whole Transcriptome Sequencing,SINGLE,Illumina platform,Illumina NextSeq 2000
-MinSampleRun4.44639,,2022-03-19,MinSample4,Beacon v2,Beacon v2 Demo Dataset,,MinInd004,MOLGENIS,UMCG,MOLGENIS,UMCG,,,,,,

@@ -1,6 +1,0 @@
-id,age group,year of birth,month of birth,date of birth,gender at birth,ancestry,country of birth,individual status,affiliated institutions.resource,affiliated institutions.id,pedigree,included in datasets.resource,included in datasets.name
-Ind001,Adult (18+ years),1993,June,1993-06-01,assigned female at birth,Luxembourgish,Switzerland,Alive,MOLGENIS,UMCG,,Beacon v2,Beacon v2 Demo Dataset
-Ind002,Child (2-12 years),2023,August,,assigned male at birth,Dutch,Slovenia,Alive,MOLGENIS,UMCG,,Beacon v2,Beacon v2 Demo Dataset
-Ind005,,1991,,,assigned indeterminate at birth,,Netherlands (the),Alive,MOLGENIS,UMCG,,Beacon v2,Beacon v2 Demo Dataset
-MinInd004,,,,,assigned unspecified at birth,,Netherlands (the),Alive,MOLGENIS,UMCG,,Beacon v2,Beacon v2 Demo Dataset
-MinIndNoRefs003,,,,,assigned indeterminate at birth,,Netherlands (the),Alive,MOLGENIS,UMCG,,Beacon v2,Beacon v2 Demo Dataset
