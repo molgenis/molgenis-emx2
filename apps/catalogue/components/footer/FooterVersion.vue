@@ -22,7 +22,7 @@ const { data } = await $fetch(`/${route.params.schema}/graphql`, {
 </script>
 
 <template>
-  <div class="mb-0 text-center lg:pb-5 text-title text-body-lg">
+  <div class="mb-0 text-center">
     <span v-if="data">
       Software version: {{ data?._manifest.SpecificationVersion }}
     </span>
