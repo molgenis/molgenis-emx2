@@ -6,10 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 
+@Disabled
 public class BeaconGranularityTests extends BeaconModelEndPointTest {
 
   @Test

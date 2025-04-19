@@ -1,0 +1,23 @@
+id,individual,date saved in database,date of observation,age at observation,type of visit,is solved,date solved,molecular diagnosis gene
+Case1C,Case1C,2025-01-01,2021-04-21,P8Y3M26D,Genetic consultation,TRUE,2013-01-01,
+Case1F,Case1F,2025-01-01,2021-04-21,,Genetic consultation,FALSE,,
+Case1M,Case1M,2025-01-01,2021-04-21,,Genetic consultation,FALSE,,
+Case2C,Case2C,2025-01-01,2021-04-21,P41Y5M1D,Genetic consultation,TRUE,2021-04-21,
+Case2F,Case2F,2025-01-01,2021-04-21,,Genetic consultation,FALSE,,
+Case2M,Case2M,2025-01-01,2021-04-21,,Genetic consultation,FALSE,,
+Case3C,Case3C,2025-01-01,2021-04-21,P19Y4M6D,Genetic consultation,FALSE,,
+Case3F,Case3F,2025-01-01,2021-04-21,,Genetic consultation,FALSE,,
+Case3M,Case3M,2025-01-01,2021-04-21,,Genetic consultation,FALSE,,
+Case4C,Case4C,2025-01-01,2021-04-21,P9Y3M29D,Genetic consultation,TRUE,2021-04-21,OPA1
+Case4F,Case4F,2025-01-01,2021-04-21,,Genetic consultation,FALSE,,
+Case4M,Case4M,2025-01-01,2021-04-21,,Genetic consultation,FALSE,,
+Case5C,Case5C,2025-01-01,2021-04-21,P39Y4M28D,Genetic consultation,FALSE,,
+Case5F,Case5F,2025-01-01,2021-04-21,,Genetic consultation,FALSE,,
+Case5M,Case5M,2025-01-01,2021-04-21,,Genetic consultation,FALSE,,
+Case6C,Case6C,2025-01-01,2021-04-21,P2Y3M22D,Genetic consultation,FALSE,,
+Case6F,Case6F,2025-01-01,2021-04-21,P34Y4M24D,Genetic consultation,FALSE,,
+Case6M,Case6M,2025-01-01,2021-04-21,P35Y4M24D,Genetic consultation,FALSE,,
+Ind001_clin_obs_01,Ind001,2025-03-18,,P55Y8M12D,,,,TTN
+Ind001_clin_obs_02,Ind001,2025-03-18,,P70Y5M10D,,,,COL7A1
+Ind002_clin_obs_01,Ind002,2025-03-18,,P75Y9M11D,,,,CHD7
+Ind005_clin_obs_01,Ind005,2025-03-18,,,,,,COL7A1

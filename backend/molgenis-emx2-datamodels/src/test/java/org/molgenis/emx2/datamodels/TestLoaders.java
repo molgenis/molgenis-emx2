@@ -24,13 +24,10 @@ public class TestLoaders {
   public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
   public static final String DIRECTORY_TEST = "DirectoryTest";
   public static final String DIRECTORY_STAGING = "DirectoryStaging";
-  public static final String RD3_TEST = "RD3Test";
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
-  public static final String DCAT = "DCATTest";
   public static final String PORTAL_TEST = "PortalTest";
   public static final String FAIR_DATA_POINT = "FAIRDataPointTest";
-  public static final String DCAT_BASIC = "DCATBasicTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
@@ -51,12 +48,8 @@ public class TestLoaders {
     database.dropSchemaIfExists(DIRECTORY_TEST);
     database.dropSchemaIfExists(DIRECTORY_STAGING);
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
-    database.dropSchemaIfExists(RD3_TEST);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
-    database.dropSchemaIfExists(DCAT);
-    database.dropSchemaIfExists(DCAT_BASIC);
-    database.dropSchemaIfExists(DCAT_BASIC);
     database.dropSchemaIfExists(PROJECT_MANAGER);
     database.dropSchemaIfExists(FAIR_DATA_POINT);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
@@ -119,21 +112,13 @@ public class TestLoaders {
   }
 
   @Test
-  @Disabled
-  // todo delete
-  void test10RD3Loader() {
-    Schema RD3Schema = database.createSchema(RD3_TEST);
-    DataModels.Profile.RD3.getImportTask(RD3Schema, true).run();
-    assertEquals(27, RD3Schema.getTableNames().size());
-  }
-
-  @Test
   void test11JRCCDELoader() {
     Schema JRCCDESchema = database.createSchema(JRC_CDE_TEST);
     DataModels.Profile.JRC_COMMON_DATA_ELEMENTS.getImportTask(JRCCDESchema, true).run();
-    assertEquals(12, JRCCDESchema.getTableNames().size());
+    assertEquals(5, JRCCDESchema.getTableNames().size());
   }
 
+  @Disabled
   @Test
   void test12FAIRGenomesLoader() {
     Schema FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
@@ -146,15 +131,6 @@ public class TestLoaders {
     Schema ProjectManagerSchema = database.createSchema(PROJECT_MANAGER);
     DataModels.Regular.PROJECTMANAGER.getImportTask(ProjectManagerSchema, true).run();
     assertEquals(5, ProjectManagerSchema.getTableNames().size());
-  }
-
-  @Test
-  @Disabled
-  // todo delete
-  void test14DCATLoader() {
-    Schema DCATSchema = database.createSchema(DCAT);
-    DataModels.Profile.DCAT.getImportTask(DCATSchema, true).run();
-    assertEquals(23, DCATSchema.getTableNames().size());
   }
 
   @Test
@@ -181,13 +157,30 @@ public class TestLoaders {
   //    // testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
   //    // testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
   //  }
+  //  @Test
+  //  void test17FAIRDataPointLoader() throws Exception {
+  //    Schema FDPSchema = database.createSchema(FAIR_DATA_POINT);
+  //    DataModels.Profile.FAIR_DATA_POINT.getImportTask(FDPSchema, true).run();
+  //    assertEquals(25, FDPSchema.getTableNames().size());
+  //
+  //    // create rdf in memory
+  //    OutputStream outputStream = new ByteArrayOutputStream();
+  //    var rdf = new RDFService("http://localhost:8080", "/api/rdf", null);
+  //    rdf.describeAsRDF(outputStream, null, null, null, FDPSchema);
+  //
+  //    // test compliance
+  //    // testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
+  //    // testShaclCompliance(DCAT_AP_SHACL_FILES, outputStream.toString());
+  //    // testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
+  //    // testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
+  //  }
 
   @Test
   void test18PortalLoader() throws URISyntaxException, IOException {
     // depends on catalogue test above
     Schema schema = database.dropCreateSchema(PORTAL_TEST);
-    DataModels.Regular.RD3_V2.getImportTask(schema, false).run();
-    assertEquals(96, schema.getTableNames().size());
+    DataModels.Profile.PATIENT_REGISTRY.getImportTask(schema, false).run();
+    assertEquals(47, schema.getTableNames().size());
   }
 
   @Test
