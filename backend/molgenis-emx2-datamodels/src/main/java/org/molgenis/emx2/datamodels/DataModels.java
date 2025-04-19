@@ -20,7 +20,6 @@ public class DataModels {
     PATIENT_REGISTRY("_profiles/PatientRegistry.yaml"),
     JRC_COMMON_DATA_ELEMENTS("_profiles/JRC-CDE.yaml"),
     FAIR_GENOMES("_profiles/FAIRGenomes.yaml"),
-    DCAT("_profiles/DCAT.yaml"),
     FAIR_DATA_POINT("_profiles/FAIRDataPoint.yaml"),
     BEACON_V2("_profiles/BeaconV2.yaml"),
     SHARED_STAGING("_profiles/SharedStaging.yaml"),

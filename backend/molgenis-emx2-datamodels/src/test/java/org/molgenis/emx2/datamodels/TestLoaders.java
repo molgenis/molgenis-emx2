@@ -26,10 +26,8 @@ public class TestLoaders {
   public static final String DIRECTORY_STAGING = "DirectoryStaging";
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
-  public static final String DCAT = "DCATTest";
   public static final String PORTAL_TEST = "PortalTest";
   public static final String FAIR_DATA_POINT = "FAIRDataPointTest";
-  public static final String DCAT_BASIC = "DCATBasicTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
@@ -52,9 +50,6 @@ public class TestLoaders {
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
-    database.dropSchemaIfExists(DCAT);
-    database.dropSchemaIfExists(DCAT_BASIC);
-    database.dropSchemaIfExists(DCAT_BASIC);
     database.dropSchemaIfExists(PROJECT_MANAGER);
     database.dropSchemaIfExists(FAIR_DATA_POINT);
     database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
@@ -140,15 +135,6 @@ public class TestLoaders {
   }
 
   @Test
-  @Disabled
-  // todo delete
-  void test14DCATLoader() {
-    Schema DCATSchema = database.createSchema(DCAT);
-    DataModels.Profile.DCAT.getImportTask(DCATSchema, true).run();
-    assertEquals(23, DCATSchema.getTableNames().size());
-  }
-
-  @Test
   void test15DirectoryStagingLoader() {
     Schema directoryStaging = database.createSchema(DIRECTORY_STAGING);
     DataModels.Regular.BIOBANK_DIRECTORY_STAGING.getImportTask(directoryStaging, false).run();
@@ -195,7 +181,7 @@ public class TestLoaders {
     // depends on catalogue test above
     Schema schema = database.dropCreateSchema(PORTAL_TEST);
     DataModels.Profile.PATIENT_REGISTRY.getImportTask(schema, false).run();
-    assertEquals(48, schema.getTableNames().size());
+    assertEquals(47, schema.getTableNames().size());
   }
 
   @Test

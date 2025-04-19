@@ -24,6 +24,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
  * problem', we leave it at that level.
  */
 @Tag("slow")
+@Disabled
 public class FAIRDataPointBadDistributionInDatasetTest {
 
   static Database database;

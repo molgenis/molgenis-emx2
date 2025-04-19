@@ -147,7 +147,6 @@ export default {
         "PATIENT_REGISTRY",
         "JRC_COMMON_DATA_ELEMENTS",
         "FAIR_GENOMES",
-        "DCAT",
         "FAIR_DATA_POINT",
         "BEACON_V2",
         "ERN_DASHBOARD",

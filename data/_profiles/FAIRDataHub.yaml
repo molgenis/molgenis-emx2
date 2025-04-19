@@ -2,9 +2,7 @@
 name: FAIR Data Hub
 description: The FAIR life science and omics model
 
-profileTags:  DCAT,
-              DCAT files add-on,
-              FAIR Genomes,
+profileTags:  FAIR Genomes,
               FAIR Genomes metabolomics add-on,
               Beacon v2,
               Beacon v2 EMX2 add-on,
