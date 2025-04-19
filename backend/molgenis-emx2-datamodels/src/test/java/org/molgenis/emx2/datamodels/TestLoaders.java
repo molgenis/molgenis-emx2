@@ -111,12 +111,11 @@ public class TestLoaders {
     assertEquals(13, directory.getTableNames().size());
   }
 
-  @Disabled
   @Test
   void test11JRCCDELoader() {
     Schema JRCCDESchema = database.createSchema(JRC_CDE_TEST);
     DataModels.Profile.JRC_COMMON_DATA_ELEMENTS.getImportTask(JRCCDESchema, true).run();
-    assertEquals(12, JRCCDESchema.getTableNames().size());
+    assertEquals(5, JRCCDESchema.getTableNames().size());
   }
 
   @Disabled
