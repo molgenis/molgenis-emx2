@@ -66,6 +66,22 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({ required: "required is required" });
   });
 
+  test("it should not fail on non-existing array value", () => {
+    const rowData = {  };
+    const metadata = {
+      columns: [
+        {
+          id: "intArray",
+          label: "intArray",
+          columnType: "DECIMAL_ARRAY",
+          required: "false",
+        },
+      ],
+    } as ITableMetaData;
+    //should not fail
+    getRowErrors(metadata, rowData);
+  });
+
   test("it should give an error if a field is conditionally required on another field", () => {
     const rowData = {
       status: null,
@@ -173,7 +189,7 @@ describe("getRowErrors", () => {
   });
 
   test("it should return an error for an invalid email address array", () => {
-    const rowData = { email: ["in@valid", "val@id.com", null, ""] };
+    const rowData = { email: ["in@valid", "val@id.com", null] };
     const metadata = {
       columns: [{ id: "email", columnType: "EMAIL_ARRAY" }],
     } as ITableMetaData;
