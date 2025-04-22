@@ -91,6 +91,15 @@ class PrimaryKey {
   private static String recursiveIdentifierToName(TableMetadata table, List<String> remaining) {
     String currentIdentifier = remaining.remove(0);
     Column currentColumn = table.getColumnByIdentifier(currentIdentifier);
+    if (currentColumn == null) {
+      throw new MolgenisException(
+          "Could not find column name for identifier \""
+              + currentIdentifier
+              + "\" in table \""
+              + table.getTableName()
+              + "\"");
+    }
+
     if (!remaining.isEmpty()) {
       return currentColumn.getName()
           + "."
