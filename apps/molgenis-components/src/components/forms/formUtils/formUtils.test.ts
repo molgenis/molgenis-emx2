@@ -67,7 +67,7 @@ describe("getRowErrors", () => {
   });
 
   test("it should not fail on non-existing array value", () => {
-    const rowData = {  };
+    const rowData = {};
     const metadata = {
       columns: [
         {
