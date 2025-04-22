@@ -36,11 +36,11 @@ class PrimaryKey {
         for (final Reference reference : column.getReferences()) {
           final String[] values = row.getStringArray(reference.getName());
           for (final String value : values) {
-            keyParts.put(reference.getName(), value);
+            keyParts.put(reference.getIdentifier(), value);
           }
         }
       } else {
-        keyParts.put(column.getName(), row.get(column).toString());
+        keyParts.put(column.getIdentifier(), row.get(column).toString());
       }
     }
     return new PrimaryKey(keyParts);

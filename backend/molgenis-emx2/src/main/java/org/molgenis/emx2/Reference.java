@@ -2,6 +2,7 @@ package org.molgenis.emx2;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 import static org.molgenis.emx2.utils.TypeUtils.toJooqType;
 
 import java.util.List;
@@ -50,6 +51,10 @@ public class Reference {
 
   public String getName() {
     return fromColumn;
+  }
+
+  public String getIdentifier() {
+    return convertToCamelCase(fromColumn);
   }
 
   public String getRefTo() {
