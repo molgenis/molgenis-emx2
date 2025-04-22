@@ -3,9 +3,9 @@ package org.molgenis.emx2.rdf;
 import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.rdf.IriGenerator.escaper;
 
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.molgenis.emx2.Filter;
@@ -14,7 +14,8 @@ import org.molgenis.emx2.MolgenisException;
 /**
  * Does not support "{@code _ARRAY}" {@link org.molgenis.emx2.ColumnType}'s
  *
- *  @see <a href=https://github.com/molgenis/molgenis-emx2/issues/4944>https://github.com/molgenis/molgenis-emx2/issues/4944</a>
+ * @see <a
+ *     href=https://github.com/molgenis/molgenis-emx2/issues/4944>https://github.com/molgenis/molgenis-emx2/issues/4944</a>
  */
 class PrimaryKey {
   public static final String NAME_VALUE_SEPARATOR = "=";
@@ -57,8 +58,8 @@ class PrimaryKey {
       // Sort the list to have a stable order
       var sortedMap = new TreeMap<>(this.keys);
       for (var pair : sortedMap.entrySet()) {
-        var name = URLEncoder.encode(pair.getKey(), StandardCharsets.UTF_8.toString());
-        var value = URLEncoder.encode(pair.getValue(), StandardCharsets.UTF_8.toString());
+        var name = escaper.escape(pair.getKey());
+        var value = escaper.escape(pair.getValue());
         encodedPairs.add(name + NAME_VALUE_SEPARATOR + value);
       }
       return String.join(KEY_PARTS_SEPARATOR, encodedPairs);
