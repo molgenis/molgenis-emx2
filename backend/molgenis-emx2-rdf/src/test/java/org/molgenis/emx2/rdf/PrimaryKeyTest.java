@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Filter;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -101,6 +102,16 @@ public class PrimaryKeyTest {
   }
 
   @Test
+  void testFromRowWrongTable() {
+    Table table1 = primaryKeyTest.getTable("basic");
+    Table table2 = primaryKeyTest.getTable("composite");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PrimaryKey.fromRow(table1, table2.retrieveRows().get(0)));
+  }
+
+  @Test
   void testFromEncodedStringBasic() {
     Table table = primaryKeyTest.getTable("basic");
     PrimaryKey primaryKey = PrimaryKey.fromEncodedString(table, ENCODED_KEY_BASIC);
@@ -128,6 +139,14 @@ public class PrimaryKeyTest {
     PrimaryKey primaryKey = PrimaryKey.fromEncodedString(table, ENCODED_COMPOSITE);
 
     assertEquals(compositeKeys.entrySet(), primaryKey.getKeys().entrySet());
+  }
+
+  /** Table does not contain correct columns for retrieving names from identifiers */
+  @Test
+  void testFromEncodedStringWrongTable() {
+    Table table = primaryKeyTest.getTable("basic");
+    assertThrows(
+        MolgenisException.class, () -> PrimaryKey.fromEncodedString(table, ENCODED_COMPOSITE));
   }
 
   @Test

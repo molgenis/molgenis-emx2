@@ -35,6 +35,10 @@ class PrimaryKey {
    * values should not be needed.
    */
   static PrimaryKey fromRow(TableMetadata table, Row row) {
+    if(!row.getTableName().equals(table.getTableName())) {
+      throw new IllegalArgumentException("Row must be from the given table.");
+    }
+
     final SortedMap<String, String> keyParts = new TreeMap<>();
     for (final Column column : table.getPrimaryKeyColumns()) {
       if (column.isReference()) {
@@ -92,7 +96,7 @@ class PrimaryKey {
     String currentIdentifier = remaining.remove(0);
     Column currentColumn = table.getColumnByIdentifier(currentIdentifier);
     if (currentColumn == null) {
-      throw new MolgenisException(
+      throw new IllegalArgumentException(
           "Could not find column for identifier \""
               + currentIdentifier
               + "\" in table \""
@@ -115,6 +119,8 @@ class PrimaryKey {
   PrimaryKey(SortedMap<String, String> keys) {
     if (keys.isEmpty()) {
       throw new IllegalArgumentException("There must be at least one key.");
+    } else if (keys.containsValue(null)) {
+      throw new IllegalArgumentException("Values are not allowed to be null.");
     }
     this.keys = keys;
   }
