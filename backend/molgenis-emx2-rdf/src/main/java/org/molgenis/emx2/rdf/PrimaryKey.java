@@ -75,10 +75,12 @@ class PrimaryKey {
           throw new IllegalArgumentException(
               "Can't decode the key, name value pair is incomplete.");
         }
-        String name =
-            table
-                .getColumnByIdentifier(URLDecoder.decode(parts[0], StandardCharsets.UTF_8))
-                .getName();
+        String identifier = URLDecoder.decode(parts[0], StandardCharsets.UTF_8);
+        String name = table.getColumnByIdentifier(identifier).getName();
+        if (name == null) {
+          throw new MolgenisException(
+              "Could not find column name in given table belonging to \"" + identifier + "\"");
+        }
         String value = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
         pairs.put(name, value);
       }
