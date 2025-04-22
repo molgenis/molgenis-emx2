@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf;
 
+import static java.util.stream.Collectors.toCollection;
 import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
@@ -76,16 +77,26 @@ class PrimaryKey {
               "Can't decode the key, name value pair is incomplete.");
         }
         String identifier = URLDecoder.decode(parts[0], StandardCharsets.UTF_8);
-        String name = table.getColumnByIdentifier(identifier).getName();
-        if (name == null) {
-          throw new MolgenisException(
-              "Could not find column name in given table belonging to \"" + identifier + "\"");
-        }
+        String name =
+            recursiveIdentifierToName(
+                table,
+                Arrays.stream(identifier.split("\\.")).collect(toCollection(ArrayList::new)));
         String value = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
         pairs.put(name, value);
       }
       return new PrimaryKey(pairs);
     }
+  }
+
+  private static String recursiveIdentifierToName(TableMetadata table, List<String> remaining) {
+    String currentIdentifier = remaining.remove(0);
+    Column currentColumn = table.getColumnByIdentifier(currentIdentifier);
+    if (!remaining.isEmpty()) {
+      return currentColumn.getName()
+          + "."
+          + recursiveIdentifierToName(currentColumn.getRefTable(), remaining);
+    }
+    return currentColumn.getName();
   }
 
   static PrimaryKey fromEncodedString(Table table, String encodedValue) {
