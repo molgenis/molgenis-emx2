@@ -4,12 +4,19 @@ import static org.molgenis.emx2.FilterBean.and;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.rdf.IriGenerator.escaper;
+import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Filter;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Reference;
+import org.molgenis.emx2.Row;
+import org.molgenis.emx2.Table;
+import org.molgenis.emx2.TableMetadata;
 
 /**
  * Does not support "{@code _ARRAY}" {@link org.molgenis.emx2.ColumnType}'s
@@ -21,6 +28,28 @@ class PrimaryKey {
   public static final String NAME_VALUE_SEPARATOR = "=";
   public static final String KEY_PARTS_SEPARATOR = "&";
   private final Map<String, String> keys;
+
+  static PrimaryKey fromRow(TableMetadata table, Row row) {
+    final Map<String, String> keyParts = new LinkedHashMap<>();
+    for (final Column column : table.getPrimaryKeyColumns()) {
+      if (column.isReference()) {
+        for (final Reference reference : column.getReferences()) {
+          final String[] values = row.getStringArray(reference.getName());
+          for (final String value : values) {
+            keyParts.put(reference.getName(), value);
+          }
+        }
+      } else {
+        keyParts.put(column.getName(), row.get(column).toString());
+      }
+    }
+    return new PrimaryKey(keyParts);
+  }
+
+  static PrimaryKey fromRow(Table table, Row row) {
+    return fromRow(table.getMetadata(), row);
+  }
+
 
   // use map instead of list<NameValuePair> to prevent duplicate entries
   // some foreign key have overlapping relationships which resulted in a bug

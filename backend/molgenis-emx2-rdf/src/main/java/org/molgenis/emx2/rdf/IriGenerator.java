@@ -80,6 +80,14 @@ public class IriGenerator {
     return rowIRI(baseURL, table.getMetadata(), primaryKey);
   }
 
+  static IRI rowIRI(String baseURL, TableMetadata table, Row row) {
+    return rowIRI(baseURL, table, PrimaryKey.fromRow(table, row));
+  }
+
+  static IRI rowIRI(String baseURL, Table table, Row row) {
+    return rowIRI(baseURL, table.getMetadata(), row);
+  }
+
   static IRI fileIRI(String baseURL, Row row, Column column) {
     return Values.iri(
         baseURL
