@@ -93,7 +93,7 @@ class PrimaryKey {
     Column currentColumn = table.getColumnByIdentifier(currentIdentifier);
     if (currentColumn == null) {
       throw new MolgenisException(
-          "Could not find column name for identifier \""
+          "Could not find column for identifier \""
               + currentIdentifier
               + "\" in table \""
               + table.getTableName()
