@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Operator.EQUALS;
-import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Filter;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -32,6 +32,8 @@ public class PrimaryKeyTest {
 
   static final Map<String, String> basicKeys = new TreeMap<>();
   static final Map<String, String> compositeKeys = new TreeMap<>();
+  static final Map<String, String> compositeKeys2 = new TreeMap<>();
+  static final Map<String, String> compositeKeys3 = new TreeMap<>();
 
   static {
     basicKeys.put("last", "value");
@@ -40,6 +42,13 @@ public class PrimaryKeyTest {
     compositeKeys.put("ref.first id", "myId1");
     compositeKeys.put("ref.second id.id Aa", "myId2");
     compositeKeys.put("ref.second id.id bB", "myId3");
+
+    compositeKeys2.put("first id", "myId1");
+    compositeKeys2.put("second id.id Aa", "myId2");
+    compositeKeys2.put("second id.id bB", "myId3");
+
+    compositeKeys3.put("id Aa", "myId2");
+    compositeKeys3.put("id bB", "myId3");
   }
 
   @BeforeAll
@@ -64,21 +73,10 @@ public class PrimaryKeyTest {
             column("id Aa").setType(ColumnType.STRING).setPkey(),
             column("id bB").setType(ColumnType.STRING).setPkey()));
 
-    primaryKeyTest.getTable("basic").insert(row("last", "value", "complex pair", "me, myself & I"));
-    primaryKeyTest.getTable("composite3").insert(row("id Aa", "myId2", "id bB", "myId3"));
-    primaryKeyTest
-        .getTable("composite2")
-        .insert(row("first id", "myId1", "second id.id Aa", "myId2", "second id.id bB", "myId3"));
-    primaryKeyTest
-        .getTable("composite")
-        .insert(
-            row(
-                "ref.first id",
-                "myId1",
-                "ref.second id.id Aa",
-                "myId2",
-                "ref.second id.id bB",
-                "myId3"));
+    primaryKeyTest.getTable("basic").insert(new Row(basicKeys));
+    primaryKeyTest.getTable("composite3").insert(new Row(compositeKeys3));
+    primaryKeyTest.getTable("composite2").insert(new Row(compositeKeys2));
+    primaryKeyTest.getTable("composite").insert(new Row(compositeKeys));
   }
 
   @AfterAll
