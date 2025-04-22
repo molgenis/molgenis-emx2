@@ -1,7 +1,7 @@
-identifier
-Case1
-Case2
-Case3
-Case4
-Case5
-Case6
+identifier,disease
+Case1,"Central core disease,Congenital myopathy"
+Case2,,
+Case3,,
+Case4,,
+Case5,"Hereditary breast and ovarian cancer syndrome"
+Case6,"Congenital myopathy",
