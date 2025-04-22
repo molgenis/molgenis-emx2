@@ -247,7 +247,7 @@ public abstract class ColumnTypeRdfMapper {
                         : rowIRI(
                             rdfMapData.getBaseURL(),
                             column.getRefTable().getRootTable(),
-                            new PrimaryKey(new TreeMap<>(Map.of("name", i))))))
+                            new PrimaryKey(Map.of("name", i)))))
             .collect(Collectors.toUnmodifiableSet());
       }
     },

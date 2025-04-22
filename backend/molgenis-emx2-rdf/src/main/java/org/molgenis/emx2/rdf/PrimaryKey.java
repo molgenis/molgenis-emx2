@@ -103,11 +103,15 @@ class PrimaryKey {
     return fromEncodedString(table.getMetadata(), encodedValue);
   }
 
-  public PrimaryKey(SortedMap<String, String> keys) {
+  PrimaryKey(SortedMap<String, String> keys) {
     if (keys.isEmpty()) {
       throw new IllegalArgumentException("There must be at least one key.");
     }
     this.keys = keys;
+  }
+
+  PrimaryKey(Map<String, String> keys) {
+    this(new TreeMap<>(keys));
   }
 
   String getEncodedString() {
