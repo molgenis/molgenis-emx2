@@ -45,7 +45,7 @@ class IriGeneratorTest {
     when(column.getIdentifier()).thenReturn(COLUMN_ID);
 
     PrimaryKey primaryKey = mock(PrimaryKey.class);
-    when(primaryKey.getEncodedValue()).thenReturn(ENCODED_PRIMARYKEY);
+    when(primaryKey.getEncodedString()).thenReturn(ENCODED_PRIMARYKEY);
 
     assertAll(
         () ->

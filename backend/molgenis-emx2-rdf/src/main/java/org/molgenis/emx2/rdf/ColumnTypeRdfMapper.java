@@ -247,7 +247,7 @@ public abstract class ColumnTypeRdfMapper {
                         : rowIRI(
                             rdfMapData.getBaseURL(),
                             column.getRefTable().getRootTable(),
-                            new PrimaryKey(Map.of("name", i)))))
+                            new PrimaryKey(new TreeMap<>(Map.of("name", i))))))
             .collect(Collectors.toUnmodifiableSet());
       }
     },
@@ -309,7 +309,7 @@ public abstract class ColumnTypeRdfMapper {
         final Row row,
         final Column tableColumn,
         final Map<String, String> colNameToRefTableColName) {
-      final Map<Integer, Map<String, String>> items = new HashMap<>();
+      final Map<Integer, SortedMap<String, String>> items = new HashMap<>();
       for (final String colName : colNameToRefTableColName.keySet()) {
         final String[] values =
             (tableColumn.isArray()
@@ -319,14 +319,14 @@ public abstract class ColumnTypeRdfMapper {
         if (values == null) continue;
 
         for (int i = 0; i < values.length; i++) {
-          Map<String, String> keyValuePairs = items.getOrDefault(i, new LinkedHashMap<>());
+          SortedMap<String, String> keyValuePairs = items.getOrDefault(i, new TreeMap<>());
           keyValuePairs.put(colNameToRefTableColName.get(colName), values[i]);
           items.put(i, keyValuePairs);
         }
       }
 
       final Set<Value> values = new HashSet<>();
-      for (final Map<String, String> item : items.values()) {
+      for (final SortedMap<String, String> item : items.values()) {
         values.add(
             rowIRI(
                 rdfMapData.getBaseURL(),

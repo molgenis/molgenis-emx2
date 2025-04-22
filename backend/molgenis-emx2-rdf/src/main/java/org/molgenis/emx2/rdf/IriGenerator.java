@@ -73,7 +73,7 @@ public class IriGenerator {
             + "/"
             + escaper.escape(table.getIdentifier())
             + "/"
-            + primaryKey.getEncodedValue());
+            + primaryKey.getEncodedString());
   }
 
   static IRI rowIRI(String baseURL, Table table, PrimaryKey primaryKey) {

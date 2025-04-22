@@ -398,23 +398,14 @@ public class RDFService {
     final IRI tableIRI = tableIRI(baseURL, table);
     final List<Row> rows = getRows(table, rowId);
     switch (table.getMetadata().getTableType()) {
-      case ONTOLOGIES ->
-          rows.forEach(
-              row -> ontologyRowToRdf(builder, rdfMapData, table, row));
-      case DATA ->
-          rows.forEach(
-              row ->
-                  dataRowToRdf(
-                      builder, rdfMapData, namespaces, table, row));
+      case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(builder, rdfMapData, table, row));
+      case DATA -> rows.forEach(row -> dataRowToRdf(builder, rdfMapData, namespaces, table, row));
       default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
     }
   }
 
   private void ontologyRowToRdf(
-      final ModelBuilder builder,
-      final RdfMapData rdfMapData,
-      final Table table,
-      final Row row) {
+      final ModelBuilder builder, final RdfMapData rdfMapData, final Table table, final Row row) {
     final IRI tableIRI = tableIRI(baseURL, table);
     final IRI subject = rowIRI(rdfMapData.getBaseURL(), table, row);
 
@@ -547,7 +538,7 @@ public class RDFService {
     Query query = table.query();
 
     if (rowId != null) {
-      PrimaryKey key = PrimaryKey.makePrimaryKeyFromEncodedKey(rowId);
+      PrimaryKey key = PrimaryKey.fromEncodedString(table, rowId);
       query.where(key.getFilter());
     }
 
