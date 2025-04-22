@@ -21,13 +21,11 @@ public class TestLoaders {
   public static final String COHORT_STAGING = "CohortStaging";
   public static final String NETWORK_STAGING = "NetworkStaging";
   public static final String DATA_CATALOGUE_AGGREGATES = "AggregatesTest";
-  public static final String FAIR_DATA_HUB_TEST = "FAIRDataHubTest";
   public static final String DIRECTORY_TEST = "DirectoryTest";
   public static final String DIRECTORY_STAGING = "DirectoryStaging";
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
   public static final String PORTAL_TEST = "PortalTest";
-  public static final String FAIR_DATA_POINT = "FAIRDataPointTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
@@ -44,31 +42,15 @@ public class TestLoaders {
     database.dropSchemaIfExists(NETWORK_STAGING);
     database.dropSchemaIfExists(DATA_CATALOGUE);
     database.dropSchemaIfExists(DATA_CATALOGUE_AGGREGATES);
-    database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
     database.dropSchemaIfExists(DIRECTORY_TEST);
     database.dropSchemaIfExists(DIRECTORY_STAGING);
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
     database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(PROJECT_MANAGER);
-    database.dropSchemaIfExists(FAIR_DATA_POINT);
-    database.dropSchemaIfExists(FAIR_DATA_HUB_TEST);
-    database.dropSchemaIfExists(PROJECT_MANAGER);
     database.dropSchemaIfExists(DASHBOARD_TEST);
     // delete ontologies last
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
-  }
-
-  @Test
-  @Disabled
-  // todo delete
-  public void test01FAIRDataHubLoader() {
-    Schema fairDataHubSchema = database.createSchema(FAIR_DATA_HUB_TEST);
-    DataModels.Profile.FAIR_DATA_HUB.getImportTask(fairDataHubSchema, true).run();
-    assertEquals(71, fairDataHubSchema.getTableNames().size());
-    String[] semantics = fairDataHubSchema.getTable("BiospecimenType").getMetadata().getSemantics();
-    assertEquals("http://purl.obolibrary.org/obo/NCIT_C70699", semantics[0]);
-    assertEquals("http://purl.obolibrary.org/obo/NCIT_C70713", semantics[1]);
   }
 
   @Test
