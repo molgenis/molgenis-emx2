@@ -124,23 +124,29 @@ public class PrimaryKeyTest {
 
   @Test
   void testThatKeyCanBeConvertedToAFilter() {
-    when(table.getPrimaryKeyColumns()).thenReturn(List.of(complexColumn, lastColumn));
-
-    PrimaryKey key = PrimaryKey.fromRow(table, row);
+    PrimaryKey key = PrimaryKey.fromEncodedString(table, ENCODED_KEY_FULL);
     Filter filters = key.getFilter();
     assertNotNull(filters, "The filter should not be null.");
     assertEquals(
-        2,
+        3,
         filters.getSubfilters().size(),
         "The filter should contain filters for both conditions.");
+
     boolean filterFirst = false;
+    boolean filterComplex = false;
     boolean filterLast = false;
     for (var filter : filters.getSubfilters()) {
+      if (filter.getColumn().equals(KEY_FIRST.getKey())
+          && filter.getOperator() == EQUALS
+          && Arrays.stream(filter.getValues()).toList().contains(KEY_FIRST.getValue())
+          && filter.getValues().length == 1) {
+        filterFirst = true;
+      }
       if (filter.getColumn().equals(KEY_COMPLEX.getKey())
           && filter.getOperator() == EQUALS
           && Arrays.stream(filter.getValues()).toList().contains(KEY_COMPLEX.getValue())
           && filter.getValues().length == 1) {
-        filterFirst = true;
+        filterComplex = true;
       }
       if (filter.getColumn().equals(KEY_LAST.getKey())
           && filter.getOperator() == EQUALS
@@ -150,6 +156,7 @@ public class PrimaryKeyTest {
       }
     }
     assertTrue(filterFirst, "The filter should contain a sub filter for the first key.");
+    assertTrue(filterComplex, "The filter should contain a sub filter for the complex key.");
     assertTrue(filterLast, "The filter should contain a sub filter for the last key.");
   }
 }
