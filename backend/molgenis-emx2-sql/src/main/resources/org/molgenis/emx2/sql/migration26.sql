@@ -14,7 +14,7 @@ DO $$
                     JOIN pg_language l ON p.prolang = l.oid
             WHERE
                 p.prorettype = 'pg_catalog.trigger'::regtype
-              AND n.nspname NOT IN ('pg_catalog', 'information_schema', '_SYSTEM_', 'MOLGENIS')
+              AND n.nspname NOT IN ('pg_catalog', 'information_schema', 'MOLGENIS')
             LOOP
                 alter_stmt := format(
                         'ALTER FUNCTION %I.%I(%s) OWNER TO %I;',
