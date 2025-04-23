@@ -3,7 +3,7 @@ import playwrightConfig from "../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
-  : "/apps/ui/#/";
+  : "/apps/ui/";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}pet%20store/Pet`);
