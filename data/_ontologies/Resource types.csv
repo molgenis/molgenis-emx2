@@ -1,6 +1,6 @@
 name,label,parent,tags,codesystem,code,ontologyTermURI,definition
 Biobank,,,collection,EDAM,EDAM:3337,http://edamontology.org/topic_3337,Repositories of biological samples.
-Catalogue,,,collection,,,,Catalogue of resources.
+Catalogue,,,,,,,Catalogue of resources.
 Clinical trial,,,collection,SIO,SIO:001000,http://semanticscience.org/resource/SIO_001000,Studies testing medical interventions.
 Cohort study,,,collection,SIO,SIO:001067,http://semanticscience.org/resource/SIO_001067,Observational studies of defined populations
 Common data model,,,collection,,,,
