@@ -1,4 +1,4 @@
-// Generated (on: 2025-04-10T16:07:27.333397) from Generator.java for schema: catalogue
+// Generated (on: 2025-04-23T20:59:57.584101) from Generator.java for schema: catalogue
 
 export interface IFile {
   id?: string;
@@ -227,24 +227,13 @@ export interface IContacts {
   organisation?: IOrganisations;
   email?: string;
   orcid?: string;
+  orcidUrl?: string;
   homepage?: string;
   photo?: IFile;
   expertise?: string;
 }
 
 export interface IContacts_agg {
-  count: number;
-}
-
-export interface IContainer {
-  id: string;
-  title?: string[];
-  membershipResource?: string;
-  hasMemberRelation?: string;
-  contains?: IResources[];
-}
-
-export interface IContainer_agg {
   count: number;
 }
 
@@ -981,7 +970,9 @@ export interface IResourceTypes_agg {
 }
 
 export interface IResources {
-  dcatType?: string;
+  rdfType?: string;
+  membershipResource?: string;
+  ldpMembershipRelation?: string;
   id: string;
   pid?: string;
   name: string;
@@ -1047,7 +1038,7 @@ export interface IResources {
   peopleInvolved?: IContacts[];
   contactPoint?: IContacts;
   organisationsInvolved?: IOrganisations[];
-  publisher?: IOrganisations[];
+  publisher?: IOrganisations;
   creator?: IOrganisations[];
   networksInvolved?: IResources[];
   datasets?: IDatasets[];
