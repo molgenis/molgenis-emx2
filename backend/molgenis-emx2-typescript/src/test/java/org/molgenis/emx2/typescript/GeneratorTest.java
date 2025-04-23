@@ -46,13 +46,7 @@ class GeneratorTest {
     StringWriter stringWriter = new StringWriter();
     PrintWriter printWriter = new PrintWriter(stringWriter);
     String schemaName = GeneratorTest.class.getSimpleName() + "TypeTest";
-
-    Schema schema = db.getSchema(schemaName);
-    if (schema == null) {
-      schema = db.createSchema(schemaName);
-    } else {
-      schema = db.dropCreateSchema(schema.getName());
-    }
+    final Schema schema = db.dropCreateSchema(schemaName);
 
     SimpleTypeTestExample.createSimpleTypeTest(schema.getMetadata());
     ProductComponentPartsExample.create(schema.getMetadata());
@@ -67,6 +61,11 @@ class GeneratorTest {
     String generated = stringWriter.toString();
 
     assertEquals(expected, generated);
+
+    // to make sonar happy also check the file generate
+    File tempFile = File.createTempFile("myTempFile", ".tmp");
+    tempFile.deleteOnExit();
+    new Generator().generate(schema, tempFile.getAbsolutePath());
   }
 
   private String fileToString(String file) throws IOException {
