@@ -36,8 +36,9 @@
         <thead>
           <tr>
             <th
-              v-for="column in sortedVisibleColumns"
-              class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64 overflow-hidden whitespace-nowrap align-middle"
+              v-for="(column, colIndex) in sortedVisibleColumns"
+              class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left overflow-hidden whitespace-nowrap align-middle"
+              :style="`width: ${column.width}px`"
               :ariaSort="
                 settings.orderby.column === column.id
                   ? mgAriaSortMappings[settings.orderby.direction]
@@ -81,11 +82,14 @@
             :class="{ 'hover:cursor-pointer': props.isEditable }"
           >
             <TableCellTypesEMX2
-              v-for="(column, index) in sortedVisibleColumns"
+              v-for="column in sortedVisibleColumns"
               class="text-table-row"
               :scope="column.key === 1 ? 'row' : null"
               :metaData="column"
               :data="row[column.id]"
+              @mousedown="onMouseDown($event, column)"
+              @mouseup="onMouseUp"
+              @mousemove="mouseElem && onMouseMove($event, column)"
             >
               <div
                 v-if="isEditable && index === 0"
@@ -179,6 +183,8 @@ const mgAriaSortMappings = {
   DESC: "descending",
 };
 
+const colWith = ref(256);
+
 // use useAsyncData to have control of status, error, and refresh
 const { data, status, error, refresh, clear } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
@@ -210,15 +216,24 @@ const rows = computed(() => {
 
 const count = computed(() => data.value?.tableData?.count ?? 0);
 
-const columns = ref<IColumn[]>([]);
+interface ISizedColumn extends IColumn {
+  width: number;
+}
+
+const columns = ref<ISizedColumn[]>([]);
 
 watch(
   () => data.value?.tableMetadata,
   (newMetadata) => {
     if (newMetadata) {
-      columns.value = newMetadata.columns.filter(
-        (c) => !c.id.startsWith("mg") && c.columnType !== "HEADING"
-      );
+      columns.value = newMetadata.columns
+        .filter((c) => !c.id.startsWith("mg") && c.columnType !== "HEADING")
+        .map((column) => {
+          return {
+            ...column,
+            width: 256,
+          };
+        });
     }
   },
   { immediate: true }
@@ -231,7 +246,7 @@ const sortedVisibleColumns = computed(() => {
   return sortColumns(visibleColumns);
 });
 
-function handleColumnsUpdate(newColumns: IColumn[]) {
+function handleColumnsUpdate(newColumns: ISizedColumn[]) {
   columns.value = newColumns;
 }
 
@@ -274,5 +289,36 @@ function afterRowUpdated() {
 function afterRowDeleted() {
   // maybe notify user, and do more stuff
   refresh();
+}
+
+const mouseElem = ref<HTMLElement | null>(null);
+const dragStart = ref(0);
+const dragColumnIndex = ref(0);
+
+function onMouseDown(event: MouseEvent) {
+  mouseElem.value = event.target as HTMLElement;
+  dragStart.value = event.pageX;
+
+  console.log("onMouseDown", mouseElem.value);
+}
+
+function onMouseUp(event: MouseEvent) {
+  mouseElem.value = null;
+  dragColumnIndex.value = 0;
+  dragStart.value = 0;
+  console.log("onMouseUp", event.pageX);
+}
+
+function onMouseMove(event: MouseEvent, column: ISizedColumn) {
+  if (mouseElem.value && dragStart.value) {
+    const diff = dragStart.value - event.pageX;
+    console.log("onMouseMove", diff);
+
+    if (diff > 0) {
+      column.width = column.width - 1;
+    } else {
+      column.width = column.width + 1;
+    }
+  }
 }
 </script>
