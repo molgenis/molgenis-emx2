@@ -15,31 +15,31 @@ public class Generator {
 
   private static final String FILE_TS_INTERFACE =
       """
-export interface IFile {
-  id?: string;
-  size?: number;
-  extension?: string;
-  url?: string;
-}
-""";
+                    export interface IFile {
+                        id?: string;
+                        size?: number;
+                        extension?: string;
+                        url?: string;
+                    }
+                    """;
 
   private static final String ONTOLOGY_TS_INTERFACE =
       """
-  export interface ITreeNode {
-    name: string;
-    children?: ITreeNode[];
-    parent?: {
-      name: string;
-    };
-  }
+                    export interface ITreeNode {
+                        name: string;
+                        children?: ITreeNode[];
+                        parent?: {
+                            name: string;
+                        };
+                    }
 
-  export interface IOntologyNode extends ITreeNode {
-    code?: string;
-    definition?: string;
-    ontologyTermURI?: string;
-    order?: number;
-  }
-   """;
+                    export interface IOntologyNode extends ITreeNode {
+                        code?: string;
+                        definition?: string;
+                        ontologyTermURI?: string;
+                        order?: number;
+                    }
+                    """;
 
   public Generator() {}
 
@@ -50,12 +50,17 @@ export interface IFile {
     } catch (FileNotFoundException | UnsupportedEncodingException e) {
       throw new RuntimeException(e);
     }
+    generate(schema, writer, true);
+  }
 
-    writer.println(
-        String.format(
-            "// Generated (on: %s) from Generator.java for schema: %s",
-            LocalDateTime.now(), schema.getName()));
-    writer.println("");
+  public void generate(Schema schema, PrintWriter writer, boolean includeHeader) {
+    if (includeHeader) {
+      writer.println(
+          String.format(
+              "// Generated (on: %s) from Generator.java for schema: %s",
+              LocalDateTime.now(), schema.getName()));
+      writer.println("");
+    }
 
     writer.write(FILE_TS_INTERFACE);
     writer.println("");
@@ -84,14 +89,14 @@ export interface IFile {
         String columnName = convertToCamelCase(column.getName());
         String fieldValue = toTypeScriptInterfaceFieldValue(column);
         String optional = column.isRequired() ? "" : "?";
-        writer.println(String.format("  %s%s: %s;", columnName, optional, fieldValue));
+        writer.println(String.format("    %s%s: %s;", columnName, optional, fieldValue));
       }
       writer.println("}");
       writer.println("");
 
       writer.println(String.format("export interface I%s_agg {", tableName));
       // todo do all agg
-      writer.println("  count: number");
+      writer.println("    count: number");
       writer.println("}");
       writer.println("");
     }

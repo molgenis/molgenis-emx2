@@ -82,7 +82,7 @@ public class TestLoaders {
   void test06DataCatalogueLoader() throws Exception {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     DataModels.Profile.DATA_CATALOGUE.getImportTask(dataCatalogue, true).run();
-    assertEquals(25, dataCatalogue.getTableNames().size());
+    assertEquals(24, dataCatalogue.getTableNames().size());
 
     // create rdf in memory
     OutputStream outputStream = new ByteArrayOutputStream();
