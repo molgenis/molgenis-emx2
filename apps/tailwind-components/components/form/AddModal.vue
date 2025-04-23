@@ -39,7 +39,7 @@
     <section class="grid grid-cols-4 gap-1">
       <div class="col-span-1 bg-form-legend">
         <FormLegend
-          v-if="sections"
+          v-if="visible && sections"
           class="sticky top-0"
           :sections="sections"
           @goToSection="scrollToElementInside('fields-container', $event)"
@@ -51,6 +51,7 @@
         class="col-span-3 px-4 py-50px overflow-y-auto"
       >
         <FormFields
+          v-if="visible"
           :schemaId="schemaId"
           :metadata="metadata"
           :sections="sections"
@@ -97,7 +98,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import useSections from "../../composables/useSections";
@@ -177,6 +178,19 @@ function scrollToElementInside(containerId: string, elementId: string) {
     element.scrollIntoView();
   }
 }
+
+function resetState() {
+  formValues.value = {};
+  errorMap.value = {};
+  saveErrorMessage.value = "";
+  isDraft.value = false;
+}
+
+watch(visible, (newValue, oldValue) => {
+  if (newValue && !oldValue) {
+    resetState();
+  }
+});
 
 const {
   requiredMessage,
