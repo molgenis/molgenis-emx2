@@ -196,7 +196,6 @@ watch(
     formValues.value = {};
 
     if (rowIndex.value !== null) {
-      console.log("fetching row", rowIndex.value);
       await fetchRow(rowIndex.value - 1);
     }
   },
