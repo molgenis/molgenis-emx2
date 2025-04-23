@@ -63,6 +63,7 @@ import { computed, ref } from "vue";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
+import { errorToMessage } from "../../utils/errorToMessage";
 
 const props = withDefaults(
   defineProps<{
@@ -94,7 +95,7 @@ async function onDeleteConfirm() {
   const resp = await deleteRecord(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error deleting data", err);
-      deleteErrorMessage.value = "Error deleting record";
+      deleteErrorMessage.value = errorToMessage(err, "Error deleting record");
       return null;
     }
   );

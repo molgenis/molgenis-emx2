@@ -102,6 +102,7 @@ import useForm from "../../composables/useForm";
 import useSections from "../../composables/useSections";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
+import { errorToMessage } from "../../utils/errorToMessage";
 
 const props = withDefaults(
   defineProps<{
@@ -137,7 +138,7 @@ async function onUpdateDraft() {
   const resp = await updateInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error saving data", err);
-      updateErrorMessage.value = "Error updating draft";
+      updateErrorMessage.value = errorToMessage(err, "Error updating draft");
       return null;
     }
   );
@@ -154,7 +155,7 @@ async function onUpdate() {
   const resp = await updateInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error saving data", err);
-      updateErrorMessage.value = "Error updating record";
+      updateErrorMessage.value = errorToMessage(err, "Error updating record");
       return null;
     }
   );
