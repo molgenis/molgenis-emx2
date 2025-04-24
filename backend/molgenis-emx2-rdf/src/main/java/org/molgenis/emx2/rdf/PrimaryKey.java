@@ -95,7 +95,7 @@ class PrimaryKey {
       throw new IllegalArgumentException(
           "Could not find column for identifier \""
               + currentIdentifier
-              + "\" in table \""
+              + "\" for table \""
               + table.getTableName()
               + "\"");
     }
