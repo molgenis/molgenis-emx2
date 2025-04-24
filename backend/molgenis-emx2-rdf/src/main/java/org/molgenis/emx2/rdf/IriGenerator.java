@@ -68,7 +68,7 @@ public class IriGenerator {
     return Values.iri(
         baseURL
             + "/"
-            + escaper.escape(table.getSchemaName())
+            + escaper.escape(table.getRootTable().getSchemaName())
             + API_RDF
             + "/"
             + escaper.escape(table.getRootTable().getIdentifier())
