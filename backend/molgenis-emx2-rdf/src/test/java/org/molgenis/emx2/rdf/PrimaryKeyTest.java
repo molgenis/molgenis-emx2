@@ -96,7 +96,7 @@ public class PrimaryKeyTest {
   }
 
   @Test
-  void testEmptyConstructor() {
+  void testThatAPrimaryKeyMustHaveAtLeastOneComponent() {
     assertThrows(IllegalArgumentException.class, () -> new PrimaryKey(Map.of()));
   }
 
