@@ -93,9 +93,9 @@ class PrimaryKey {
     Column currentColumn = table.getColumnByIdentifier(currentIdentifier);
     if (currentColumn == null) {
       throw new IllegalArgumentException(
-          "Could not find column for identifier \""
+          "Could not find (inherited) column for identifier \""
               + currentIdentifier
-              + "\" for table \""
+              + "\" in table \""
               + table.getTableName()
               + "\"");
     }
