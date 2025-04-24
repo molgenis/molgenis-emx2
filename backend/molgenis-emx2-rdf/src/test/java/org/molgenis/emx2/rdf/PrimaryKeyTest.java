@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Filter;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -146,7 +145,8 @@ public class PrimaryKeyTest {
   void testFromEncodedStringWrongTable() {
     Table table = primaryKeyTest.getTable("basic");
     assertThrows(
-        MolgenisException.class, () -> PrimaryKey.fromEncodedString(table, ENCODED_COMPOSITE));
+        IllegalArgumentException.class,
+        () -> PrimaryKey.fromEncodedString(table, ENCODED_COMPOSITE));
   }
 
   @Test
