@@ -56,8 +56,8 @@ class PrimaryKey {
   }
 
   /**
-   * Uses map instead of list<NameValuePair> to prevent duplicate entries as some foreign key have
-   * overlapping relationships which resulted in a bug.
+   * Uses map instead of {@code list<NameValuePair>} to prevent duplicate entries as some foreign
+   * key have overlapping relationships which resulted in a bug.
    *
    * @throws IllegalArgumentException if encodedString contains 0 pairs, encodedString is unsorted
    */

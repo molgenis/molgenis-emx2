@@ -25,15 +25,16 @@ public class PrimaryKeyTest {
   static Schema primaryKeyTest;
 
   static final String ENCODED_KEY_BASIC = "complexPair=me%2C%20myself%20%26%20I&last=value";
-  static final String ENCODED_KEY_BASIC_LAST_WRONG_ORDER =
+  static final String ENCODED_KEY_BASIC_WRONG_ORDER =
       "last=value&complexPair=me%2C%20myself%20%26%20I";
   static final String ENCODED_COMPOSITE =
       "ref.firstId=myId1&ref.secondId.idAa=myId2&ref.secondId.idBB=myId3";
 
-  static final Map<String, String> basicKeys = new TreeMap<>();
-  static final Map<String, String> compositeKeys = new TreeMap<>();
-  static final Map<String, String> compositeKeys2 = new TreeMap<>();
-  static final Map<String, String> compositeKeys3 = new TreeMap<>();
+  static final SortedMap<String, String> basicKeys = new TreeMap<>();
+  static final SortedMap<String, String> compositeKeys = new TreeMap<>();
+  static final SortedMap<String, String> compositeKeys2 = new TreeMap<>();
+  static final SortedMap<String, String> compositeKeys3 = new TreeMap<>();
+  static final Map<String, String> basicKeysWrongOrder = new LinkedHashMap<>();
 
   static {
     basicKeys.put("last", "value");
@@ -49,6 +50,9 @@ public class PrimaryKeyTest {
 
     compositeKeys3.put("id Aa", "myId2");
     compositeKeys3.put("id bB", "myId3");
+
+    basicKeysWrongOrder.put("last", "value");
+    basicKeysWrongOrder.put("complex pair", "me, myself & I");
   }
 
   @BeforeAll
@@ -82,6 +86,24 @@ public class PrimaryKeyTest {
   @AfterAll
   static void afterAll() {
     database.dropSchemaIfExists(primaryKeyTest.getName());
+  }
+
+  @Test
+  void testConstructorWrongOrderedLinkedHashMap() {
+    // Calls generic Map constructor instead of SortedMap constructor so items get sorted.
+    assertEquals(ENCODED_KEY_BASIC, new PrimaryKey(basicKeysWrongOrder).getEncodedString());
+  }
+
+  @Test
+  void testEmptyConstructor() {
+    assertThrows(IllegalArgumentException.class, () -> new PrimaryKey(Map.of()));
+  }
+
+  @Test
+  void testConstructorWithNullValueInMap() {
+    SortedMap<String, String> map = new TreeMap<>();
+    map.put("key", null);
+    assertThrows(IllegalArgumentException.class, () -> new PrimaryKey(map));
   }
 
   @Test
@@ -129,7 +151,7 @@ public class PrimaryKeyTest {
     Table table = primaryKeyTest.getTable("basic");
     assertThrows(
         IllegalArgumentException.class,
-        () -> PrimaryKey.fromEncodedString(table, ENCODED_KEY_BASIC_LAST_WRONG_ORDER));
+        () -> PrimaryKey.fromEncodedString(table, ENCODED_KEY_BASIC_WRONG_ORDER));
   }
 
   @Test

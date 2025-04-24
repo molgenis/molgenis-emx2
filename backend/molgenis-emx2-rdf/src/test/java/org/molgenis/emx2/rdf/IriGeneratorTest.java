@@ -92,7 +92,7 @@ class IriGeneratorTest {
                 "http://example.com/my%20Schema/api/rdf/MyTable/lastName=van%20de%20achternaam",
                 rowIRI(baseURL, table, primaryKey).toString()),
         () -> // PrimaryKey is only part that can differ due to root table overriding current table!
-            assertEquals(
+        assertEquals(
                 "http://example.com/my%20Schema/api/rdf/MyTable/lastName=van%20de%20achternaam",
                 rowIRI(baseURL, childTable, primaryKey).toString()));
   }
