@@ -78,7 +78,7 @@ export function getColumnError(
     }
   }
 
-  if (!type.includes("_ARRAY") && missesValue) {
+  if (value === undefined || (!type.includes("_ARRAY") && missesValue)) {
     return undefined;
   }
   if (type === "EMAIL" && isInvalidEmail(value)) {
