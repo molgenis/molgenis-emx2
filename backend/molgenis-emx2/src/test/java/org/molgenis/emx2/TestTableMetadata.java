@@ -52,7 +52,18 @@ public class TestTableMetadata {
     c1.setTable(table);
     c2.setTable(table);
     table.setSchema(schema);
+    table.setInheritName("parent table");
 
-    assertEquals(c2, table.getColumnByIdentifier("aColName"));
+    // Parent table for inheritance validation
+    Column c3 = new Column("parent column");
+    TableMetadata parentTable = TableMetadata.table("parent table", c3);
+
+    c3.setTable(parentTable);
+    parentTable.setSchema(schema);
+    when(schema.getTableMetadata("parent table")).thenReturn(parentTable);
+
+    assertAll(
+        () -> assertEquals(c2, table.getColumnByIdentifier("aColName")),
+        () -> assertEquals(c3, table.getColumnByIdentifier("parentColumn")));
   }
 }
