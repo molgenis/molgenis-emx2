@@ -29,7 +29,7 @@
   </div>
 
   <div class="overflow-auto rounded-b-theme">
-    <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-theme">
+    <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
       <table
         class="text-left table-fixed w-full border border-theme border-color-theme"
       >
@@ -77,7 +77,7 @@
         >
           <tr
             v-for="row in rows"
-            class="static hover:bg-blue-50 group h-4"
+            class="static hover:bg-hover group h-4"
             :class="{ 'hover:cursor-pointer': props.isEditable }"
           >
             <TableCellTypesEMX2
