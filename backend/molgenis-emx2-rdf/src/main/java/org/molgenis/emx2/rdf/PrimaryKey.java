@@ -35,10 +35,6 @@ class PrimaryKey {
    * values should not be needed.
    */
   static PrimaryKey fromRow(TableMetadata table, Row row) {
-    if (!row.getTableName().equals(table.getTableName())) {
-      throw new IllegalArgumentException("Row must be from the given table.");
-    }
-
     final SortedMap<String, String> keyParts = new TreeMap<>();
     for (final Column column : table.getPrimaryKeyColumns()) {
       if (column.isReference()) {
