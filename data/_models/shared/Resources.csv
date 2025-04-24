@@ -28,7 +28,7 @@ Resources,,contact email,,,,,,,,,,Contact e-mail address ,"DataCatalogueFlat,Coh
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA,StudiesStaging"
 Resources,,license,hyperlink,,,,,,,,dcterms:license,A legal document under which this catalogue record is made available,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
-Resources,,conformsTo,hyperlink,,,,,,,,dcterms:conformsTo,The specification of the catalog metadata schema,DataCatalogueFlat
+Resources,,conforms to,hyperlink,,,,,,,,dcterms:conformsTo,The specification of the catalog metadata schema,DataCatalogueFlat
 Resources,,has member relation,hyperlink,,,,,,,,"ldp:hasMemberRelation,dcat:record",This relation points to the URI of the custom relation/predicate used to relate the FAIR Data Point with its member catalogs. The object of this property MUST be fdp-o:metadataCatalog.,DataCatalogueFlat
 Resources,,issued,datetime,,,,,,,,"dcterms:issued,https://w3id.org/fdp/fdp-o#metadataIssued",This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was first published in the catalogue,DataCatalogueFlat
 Resources,,modified,datetime,,,,,,,,"dcterms:modified,https://w3id.org/fdp/fdp-o#metadataModified",This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was last modified,DataCatalogueFlat
@@ -79,7 +79,7 @@ Resources,,creator,ref_array,,,,Organisations,,,,dcterms:creator,This attribute 
 Resources,,networks involved,refback,,,,Resources,,resources,,,The consortia or networks that this resource is part of,"DataCatalogueFlat,EMA"
 Resources,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this resource is involved in,EMA
 Resources,,available data and samples,heading,,,,,,,,,Data model and contents,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging"
-Resources,,datasets,refback,,,,Datasets,,resource,,"dcat:datasets",List of datasets contained in this resouce if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
+Resources,,datasets,refback,,,,Datasets,,resource,,,List of datasets contained in this resouce if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging"
 Resources,,samplesets,refback,,,,Samplesets,,resource,,,List of sample sets contained in this resource if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging"
 Resources,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information cohorts,,,,,Areas of information that were collected,"DataCatalogueFlat,CohortsStaging"
 Resources,,areas of information rwd,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,"DataCatalogueFlat,EMA,RWEStaging"
