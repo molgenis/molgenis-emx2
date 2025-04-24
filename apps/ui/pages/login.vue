@@ -58,6 +58,8 @@ async function signin() {
           placeholder="Username"
           :required="true"
           v-model="username"
+          autofocus
+          autocomplete="username"
         />
         <InputString
           id="password"
