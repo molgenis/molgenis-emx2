@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -200,5 +201,17 @@ public class PrimaryKeyTest {
     }
     assertTrue(filterComplex, "The filter should contain a sub filter for the complex key.");
     assertTrue(filterLast, "The filter should contain a sub filter for the last key.");
+  }
+
+  @Test
+  void testEncodedValuesForDifferentSizes() {
+    assertAll(
+        () -> assertEquals("a=1", new PrimaryKey(Map.of("a", "1")).getEncodedString()),
+        () ->
+            assertEquals("a=1&b=2", new PrimaryKey(Map.of("a", "1", "b", "2")).getEncodedString()),
+        () ->
+            assertEquals(
+                "a=1&b=2&c=3",
+                new PrimaryKey(Map.of("a", "1", "b", "2", "c", "3")).getEncodedString()));
   }
 }
