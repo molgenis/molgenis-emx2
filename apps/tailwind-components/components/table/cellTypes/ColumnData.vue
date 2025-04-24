@@ -42,6 +42,18 @@
     :data="data"
   />
 
+  <TableCellTypesEmail
+    v-else-if="metaData.columnType === 'EMAIL'"
+    :metaData="metaData"
+    :data="data"
+  />
+
+  <TableCellTypesHyperlink
+    v-else-if="metaData.columnType === 'HYPERLINK'"
+    :metaData="metaData"
+    :data="data"
+  />
+
   <template v-else> {{ metaData.columnType }} </template>
 </template>
 
