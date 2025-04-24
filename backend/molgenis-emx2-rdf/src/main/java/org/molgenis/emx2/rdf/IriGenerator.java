@@ -71,7 +71,7 @@ public class IriGenerator {
             + escaper.escape(table.getSchemaName())
             + API_RDF
             + "/"
-            + escaper.escape(table.getIdentifier())
+            + escaper.escape(table.getRootTable().getIdentifier())
             + "/"
             + primaryKey.getEncodedString());
   }
