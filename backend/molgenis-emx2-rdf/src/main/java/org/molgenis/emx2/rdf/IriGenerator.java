@@ -68,16 +68,24 @@ public class IriGenerator {
     return Values.iri(
         baseURL
             + "/"
-            + escaper.escape(table.getSchemaName())
+            + escaper.escape(table.getRootTable().getSchemaName())
             + API_RDF
             + "/"
-            + escaper.escape(table.getIdentifier())
+            + escaper.escape(table.getRootTable().getIdentifier())
             + "/"
-            + primaryKey.getEncodedValue());
+            + primaryKey.getEncodedString());
   }
 
   static IRI rowIRI(String baseURL, Table table, PrimaryKey primaryKey) {
     return rowIRI(baseURL, table.getMetadata(), primaryKey);
+  }
+
+  static IRI rowIRI(String baseURL, TableMetadata table, Row row) {
+    return rowIRI(baseURL, table, PrimaryKey.fromRow(table, row));
+  }
+
+  static IRI rowIRI(String baseURL, Table table, Row row) {
+    return rowIRI(baseURL, table.getMetadata(), row);
   }
 
   static IRI fileIRI(String baseURL, Row row, Column column) {
