@@ -1,5 +1,5 @@
 <template>
-  <Button type="outline" icon="columns" size="small" @click="showModal = true">
+  <Button type="outline" icon="columns" @click="showModal = true">
     Columns
   </Button>
   <SideModal

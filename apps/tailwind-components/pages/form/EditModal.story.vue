@@ -4,7 +4,7 @@
     :metadata="metadata"
     :schemaId="schemaId"
     :formValues="formValues"
-    :key="metadata.id"
+    :key="`${schemaId} - ${metadata.id} - ${JSON.stringify(formValues)}`"
   ></FormEditModal>
 
   <div>

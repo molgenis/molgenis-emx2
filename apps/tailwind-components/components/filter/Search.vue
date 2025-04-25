@@ -50,7 +50,7 @@ const inputId = useId();
     <button
       class="rounded-theme absolute top-0 right-0 flex items-center pl-8 pr-6 tracking-wider text-search-button border-search-button border-[1px] transition-colors bg-search-button h-10 font-display text-heading-xl hover:text-search-button-hover"
     >
-      Search
+      {{ label }}
     </button>
   </form>
 </template>
