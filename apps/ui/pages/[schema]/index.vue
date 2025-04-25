@@ -90,7 +90,10 @@ const ontologies = computed(
           </TableHeadRow>
         </template>
         <template #body>
-          <TableRow v-for="ontology in ontologies">
+          <TableRow
+            v-for="ontology in ontologies"
+            @click="navigateTo(`${schema}/${ontology.id}`)"
+          >
             <TableCell>{{ ontology.label }}</TableCell>
             <TableCell>{{ ontology.description }}</TableCell>
           </TableRow>

@@ -1,5 +1,5 @@
 <template>
-  <slot>
+  <slot :setVisible="setVisible">
     <Button
       class="m-10"
       type="primary"
@@ -39,7 +39,7 @@
     <section class="grid grid-cols-4 gap-1">
       <div class="col-span-1 bg-form-legend">
         <FormLegend
-          v-if="sections"
+          v-if="visible && sections"
           class="sticky top-0"
           :sections="sections"
           @goToSection="scrollToElementInside('fields-container', $event)"
@@ -51,6 +51,7 @@
         class="col-span-3 px-4 py-50px overflow-y-auto"
       >
         <FormFields
+          v-if="visible"
           :schemaId="schemaId"
           :metadata="metadata"
           :sections="sections"
@@ -67,6 +68,13 @@
         class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
         @error-prev="gotoPreviousError"
         @error-next="gotoNextError"
+      />
+    </Transition>
+    <Transition name="slide-up">
+      <FormError
+        v-show="saveErrorMessage"
+        :message="saveErrorMessage"
+        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
       />
     </Transition>
 
@@ -90,11 +98,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import useSections from "../../composables/useSections";
 import useForm from "../../composables/useForm";
+import { errorToMessage } from "../../utils/errorToMessage";
 
 const props = withDefaults(
   defineProps<{
@@ -104,7 +113,15 @@ const props = withDefaults(
   {}
 );
 
+const emit = defineEmits(["update:added"]);
+
 const visible = ref(false);
+
+const saveErrorMessage = ref<string>("");
+
+function setVisible() {
+  visible.value = true;
+}
 
 const rowType = computed(() => props.metadata.id);
 const isDraft = ref(false);
@@ -113,15 +130,40 @@ function onCancel() {
   visible.value = false;
 }
 
-function onSaveDraft() {
-  console.log("do save Draft");
+async function onSaveDraft() {
+  const resp = await insertInto(props.schemaId, props.metadata.id).catch(
+    (err) => {
+      console.error("Error saving data", err);
+      saveErrorMessage.value = errorToMessage(err, "Error saving draft");
+      return null;
+    }
+  );
+
+  if (!resp) {
+    return;
+  }
+
   isDraft.value = true;
+  emit("update:added", resp);
 }
 
-function onSave() {
-  console.log("do save ");
+async function onSave() {
+  const resp = await insertInto(props.schemaId, props.metadata.id).catch(
+    (err) => {
+      console.error("Error saving data", err);
+      saveErrorMessage.value = errorToMessage(err, "Error saving data");
+
+      return null;
+    }
+  );
+
+  if (!resp) {
+    return;
+  }
+
   isDraft.value = false;
   visible.value = false;
+  emit("update:added", resp);
 }
 
 const formValues = ref<Record<string, columnValue>>({});
@@ -139,6 +181,19 @@ function scrollToElementInside(containerId: string, elementId: string) {
   }
 }
 
+function resetState() {
+  formValues.value = {};
+  errorMap.value = {};
+  saveErrorMessage.value = "";
+  isDraft.value = false;
+}
+
+watch(visible, (newValue, oldValue) => {
+  if (newValue && !oldValue) {
+    resetState();
+  }
+});
+
 const {
   requiredMessage,
   errorMessage,
@@ -146,6 +201,7 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
+  insertInto,
 } = useForm(props.metadata, formValues, errorMap, (fieldId) => {
   scrollToElementInside("fields-container", fieldId);
 });
