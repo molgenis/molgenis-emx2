@@ -398,25 +398,16 @@ public class RDFService {
     final IRI tableIRI = tableIRI(baseURL, table);
     final List<Row> rows = getRows(table, rowId);
     switch (table.getMetadata().getTableType()) {
-      case ONTOLOGIES ->
-          rows.forEach(
-              row -> ontologyRowToRdf(builder, rdfMapData, table, row, getIriForRow(row, table)));
-      case DATA ->
-          rows.forEach(
-              row ->
-                  dataRowToRdf(
-                      builder, rdfMapData, namespaces, table, row, getIriForRow(row, table)));
+      case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(builder, rdfMapData, table, row));
+      case DATA -> rows.forEach(row -> dataRowToRdf(builder, rdfMapData, namespaces, table, row));
       default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
     }
   }
 
   private void ontologyRowToRdf(
-      final ModelBuilder builder,
-      final RdfMapData rdfMapData,
-      final Table table,
-      final Row row,
-      final IRI subject) {
+      final ModelBuilder builder, final RdfMapData rdfMapData, final Table table, final Row row) {
     final IRI tableIRI = tableIRI(baseURL, table);
+    final IRI subject = rowIRI(rdfMapData.getBaseURL(), table, row);
 
     builder.add(subject, RDF.TYPE, BasicIRI.NCIT_CODED_VALUE_DATA_TYPE);
     builder.add(subject, RDF.TYPE, OWL.CLASS);
@@ -459,9 +450,9 @@ public class RDFService {
       final RdfMapData rdfMapData,
       final Map<String, Map<String, Namespace>> namespaces,
       final Table table,
-      final Row row,
-      final IRI subject) {
+      final Row row) {
     final IRI tableIRI = tableIRI(baseURL, table);
+    final IRI subject = rowIRI(rdfMapData.getBaseURL(), table, row);
 
     builder.add(subject, RDF.TYPE, tableIRI);
     builder.add(subject, RDF.TYPE, BasicIRI.LD_OBSERVATION);
@@ -547,7 +538,7 @@ public class RDFService {
     Query query = table.query();
 
     if (rowId != null) {
-      PrimaryKey key = PrimaryKey.makePrimaryKeyFromEncodedKey(rowId);
+      PrimaryKey key = PrimaryKey.fromEncodedString(table, rowId);
       query.where(key.getFilter());
     }
 
@@ -556,26 +547,5 @@ public class RDFService {
       query.where(f("mg_tableclass", EQUALS, tableName));
     }
     return query.retrieveRows();
-  }
-
-  private IRI getIriForRow(final Row row, final Table table) {
-    return getIriForRow(row, table.getMetadata());
-  }
-
-  private IRI getIriForRow(final Row row, final TableMetadata metadata) {
-    final Map<String, String> keyParts = new LinkedHashMap<>();
-    for (final Column column : metadata.getPrimaryKeyColumns()) {
-      if (column.isReference()) {
-        for (final Reference reference : column.getReferences()) {
-          final String[] values = row.getStringArray(reference.getName());
-          for (final String value : values) {
-            keyParts.put(reference.getName(), value);
-          }
-        }
-      } else {
-        keyParts.put(column.getName(), row.get(column).toString());
-      }
-    }
-    return rowIRI(baseURL, metadata.getRootTable(), new PrimaryKey(keyParts));
   }
 }

@@ -336,10 +336,15 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   }
 
   public Column getColumnByIdentifier(String identifier) {
-    return columns.values().stream()
-        .filter(c -> c.getIdentifier().equals(identifier))
-        .findFirst()
-        .orElse(null);
+    Column column =
+        columns.values().stream()
+            .filter(c -> c.getIdentifier().equals(identifier))
+            .findFirst()
+            .orElse(null);
+    if (column == null && getInheritedTable() != null) {
+      column = getInheritedTable().getColumnByIdentifier(identifier);
+    }
+    return column;
   }
 
   public TableMetadata add(Column... column) {
