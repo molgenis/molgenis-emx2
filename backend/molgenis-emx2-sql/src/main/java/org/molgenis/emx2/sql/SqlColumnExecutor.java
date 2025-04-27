@@ -363,7 +363,7 @@ public class SqlColumnExecutor {
                 + c.getName()
                 + "' failed: When key spans multiple columns, none of the columns can be nullable");
       }
-      if (c.isReference() && !c.isOntology() && c.getRefTable() == null) {
+      if (c.isReference() && !c.isOntology() && c.getRefTableName() == null) {
         throw new MolgenisException(
             String.format(
                 "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK (tried to find: %s:%s)",

@@ -303,7 +303,7 @@ public class TestInherits {
     assertThrows(
         MolgenisException.class,
         () -> {
-          s.create(table("will fail", column("id").setPkey(), column("ref").setRefTable("bla")));
+          s.create(table("will fail", column("id").setPkey(), column("ref").setType(REF)));
         });
 
     // can also drop the table without errors when trigger is removed
