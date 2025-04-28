@@ -2,12 +2,10 @@
 withDefaults(
   defineProps<{
     crumbs?: Record<string, string>;
-    current?: string | undefined;
     align?: "left" | "center";
   }>(),
   {
     crumbs: () => ({}),
-    current: undefined,
     align: "center",
   }
 );
@@ -28,31 +26,28 @@ withDefaults(
       class="items-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"
       :class="{ 'justify-center': align === 'center' }"
     >
-      <li
+      <template
         v-for="(url, label, index) in crumbs"
         :key="label"
-        class="flex justify-center items-center gap-3"
       >
-        <NuxtLink :to="url" class="text-breadcrumb hover:underline">
-          {{ label }}
-        </NuxtLink>
-        <span
-          class="text-breadcrumb-arrow"
-          v-if="index < Object.keys(crumbs).length - 1 || current"
+        <li v-if="index === Object.keys(crumbs).length - 1" aria-current="page">
+          <span class="text-breadcrumb">{{ label }}</span>
+        </li>
+        <li
+          v-else
+          class="flex justify-center items-center gap-3"
         >
-          <BaseIcon name="caret-right" :width="12" />
-        </span>
-      </li>
-      <li v-if="current && !Object.keys(crumbs).includes(current)">
-        <a
-          href=""
-          class="text-breadcrumb hover:underline"
-          aria-current="page"
-          @click.prevent
-        >
-          {{ current }}
-        </a>
-      </li>
+          <NuxtLink :to="url" class="text-breadcrumb hover:underline">
+            {{ label }}
+          </NuxtLink>
+          <span
+            class="text-breadcrumb-arrow"
+            v-if="index < Object.keys(crumbs).length - 1 || current"
+          >
+            <BaseIcon name="caret-right" :width="12" />
+          </span>
+        </li>
+      </template>
     </ol>
   </nav>
 </template>
