@@ -1,19 +1,24 @@
+import { acceptHMRUpdate, defineStore } from "pinia";
 import metadataGql from "../../catalogue/gql/metadata";
-import { type ISchemaMetaData, type ITableMetaData } from "../../metadata-utils/src/types";
+import type {
+  ISchemaMetaData,
+  ITableMetaData,
+} from "../../metadata-utils/src/types";
+import { moduleToString } from "../../tailwind-components/utils/moduleToString";
+import { createError } from "#app/composables/error";
 
 const query = moduleToString(metadataGql);
 
 type Resp<T> = {
-  data?: Record<string, T> ;
+  data?: Record<string, T>;
   error?: any;
 };
 
-export const useMetaStore = defineStore('meta-data',{
-
+export const useMetaStore = defineStore("meta-data", {
   state: () => {
     return {
       metaData: {} as Record<string, ISchemaMetaData>,
-    }
+    };
   },
 
   getters: {
@@ -22,21 +27,22 @@ export const useMetaStore = defineStore('meta-data',{
         if (!state.metaData) {
           throw new Error(`The store is not initialized`);
         }
-        if(!state.metaData[schemaId]) {
+        if (!state.metaData[schemaId]) {
           throw new Error(`Schema with id ${schemaId} not found in store`);
         }
         const tableMeta = state.metaData[schemaId].tables.find(
-          (t: ITableMetaData) =>
-            t.id.toLowerCase() === tableId.toLowerCase()
+          (t: ITableMetaData) => t.id.toLowerCase() === tableId.toLowerCase()
         );
         if (!tableMeta) {
-          throw new Error(`Table with id ${tableId} not found in schema ${schemaId}`);
+          throw new Error(
+            `Table with id ${tableId} not found in schema ${schemaId}`
+          );
         }
         return tableMeta;
-      }
-    }
+      };
+    },
   },
-  
+
   actions: {
     async fetchSchemaMetaData(schemaId: string) {
       const resp = await $fetch<Resp<ISchemaMetaData>>(`/${schemaId}/graphql`, {
@@ -53,17 +59,15 @@ export const useMetaStore = defineStore('meta-data',{
         });
       }
 
-      if(resp.data) {
+      if (resp.data) {
         return resp.data._schema;
       }
-  
 
-      throw createError('Could not fetch metadata for schema, no data found');
-        
-    }
-  }
-})
+      throw createError("Could not fetch metadata for schema, no data found");
+    },
+  },
+});
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useMetaStore, import.meta.hot))
+  import.meta.hot.accept(acceptHMRUpdate(useMetaStore, import.meta.hot));
 }

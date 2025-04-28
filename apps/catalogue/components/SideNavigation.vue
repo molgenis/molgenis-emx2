@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useRoute } from "#app/composables/router";
+
 const route = useRoute();
 defineProps<{
   title?: string;
@@ -8,8 +10,8 @@ defineProps<{
 }>();
 function setSideMenuStyle(hash: string) {
   return hash == route.hash
-    ? "w-full block my-2 border-l-4 menu-active pl-4 font-bold hover:cursor-pointer"
-    : "w-full block my-2 hover:font-bold hover:cursor-pointer";
+    ? "border-l-4 menu-active pl-4 font-bold hover:cursor-pointer"
+    : "hover:font-bold hover:cursor-pointer";
 }
 </script>
 
@@ -25,19 +27,30 @@ function setSideMenuStyle(hash: string) {
       >
         <img :src="image" :alt="title" />
       </NuxtLink>
-      <NuxtLink v-else :to="{ ...route, hash: headerTarget }">
+      <NuxtLink
+        v-else
+        :to="{ ...route, hash: headerTarget }"
+        style="
+          /* use style due to issue in tailwind 3.x , this can be done in tailwind when we move to 4.x */
+          overflow-wrap: break-word;
+          word-wrap: break-word; /* older syntax */
+          white-space: normal;
+        "
+      >
         {{ title }}
       </NuxtLink>
     </div>
     <ul>
       <li v-for="item in items">
-        <NuxtLink
-          class="capitalize"
-          :to="{ ...route, hash: '#' + item.id }"
-          :class="setSideMenuStyle('#' + item.id)"
-        >
-          {{ item.label }}
-        </NuxtLink>
+        <ClientOnly>
+          <NuxtLink
+            class="capitalize w-full block my-2"
+            :to="{ ...route, hash: '#' + item.id }"
+            :class="setSideMenuStyle('#' + item.id)"
+          >
+            {{ item.label }}
+          </NuxtLink>
+        </ClientOnly>
       </li>
     </ul>
   </nav>

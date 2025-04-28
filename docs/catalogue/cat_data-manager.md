@@ -90,19 +90,19 @@ and a [filled-in example for target variables](https://github.com/molgenis/molge
 as a reference for filling out the template.
 
 It is good practice to try adding a few variables to the template first and see whether your upload succeeds.
-See the section [Upload variable metadata](cat_resource-data-manager.md#upload-variable-metadata) for details on how to upload.
+See the section [Upload variable metadata](cat_data-manager.md#upload-variable-metadata) for details on how to upload.
 
 ![MOLGENIS tables in cohort staging area](../img/cat_tables-in-cohort-catalogue.png)
 
 *Figure 2. Tables in a cohort staging area. Note that not all tables are filled out
 via the templates, some are filled via an online form, see section
-[Fill out rich metadata](cat_resource-data-manager.md#fill-out-rich-metadata).*
+[Fill out rich metadata](cat_data-manager.md#fill-out-rich-metadata).*
 
 ![MOLGENIS tables in network staging area](../img/cat_tables-in-catalogue.png)
 
 *Figure 3. Tables in a network staging area. Note that not all tables are filled out
 via the templates, some are filled via an online form, see section
-[Fill out rich metadata](cat_resource-data-manager.md#fill-out-rich-metadata).*
+[Fill out rich metadata](cat_data-manager.md#fill-out-rich-metadata).*
 
 ### *Datasets* sheet
 
@@ -221,7 +221,7 @@ Harmonisation procedures at the variable level are defined in the *Variable mapp
 | target dataset\*                        | Target dataset name.                                                                           | Map to a dataset that is defined in a CDM                                                                                                                                                                                                           |
 | target variable\*                       | Target variable name                                                                           | Map to a variable that is defined in a CDM                                                                                                                                                                                                          |
 | match\*                                 | Whether the harmonisation is partial, complete or na (non-existent)                            | Find list to choose from in CatalogueOntologies [StatusDetails](https://data-catalogue.molgeniscloud.org/CatalogueOntologies/tables/#/StatusDetails)                                                                                                |
-| repeats                                 | In the case of a repeated target variable, comma separated list of repeats that were mapped to | e.g. 0,1,2,6,12                                                                                                                                                                                                                                     |
+| repeats\*                               | In the case of a repeated target variable, comma separated list of repeats that were mapped to | e.g. 0,1,2,6,12 or NA                                                                                                                                                                                                                                |
 | description                             | Description of the harmonisation                                                               |                                                                                                                                                                                                                                                     |
 | syntax                                  | Syntax used for this harmonisation                                                             |                                                                                                                                                                                                                                                     |
 

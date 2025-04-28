@@ -19,7 +19,7 @@ export const useNetworkStore = defineStore("networkStore", () => {
   async function loadNetworkReport(netWorkId: string) {
     const biobanksQuery = new QueryEMX2(graphqlEndpoint)
       .table("Biobanks")
-      .select(["name", "id", "description"])
+      .select(["name", "id", "description", "withdrawn"])
       .where("network.id")
       .equals(netWorkId);
 

@@ -20,6 +20,7 @@ export interface IValueLabel {
 }
 
 export interface ITreeNode extends INode {
+  parent?: string;
   children: ITreeNode[];
 }
 
@@ -56,7 +57,8 @@ export type ButtonType =
   | "tertiary"
   | "outline"
   | "disabled"
-  | "filterWell";
+  | "filterWell"
+  | "inline";
 
 export type ButtonSize = "tiny" | "small" | "medium" | "large";
 
@@ -101,9 +103,9 @@ export interface IFile {
 
 export interface IDocumentation {
   name: string;
-  description: string;
-  url: string;
-  file: IFile;
+  description?: string;
+  url?: string;
+  file?: IFile;
 }
 
 export interface IRadioOptionsData {
@@ -119,4 +121,8 @@ export interface IInputProps {
   invalid?: boolean;
   valid?: boolean | undefined;
   disabled?: boolean | undefined;
+}
+
+export interface ISession {
+  email: string;
 }

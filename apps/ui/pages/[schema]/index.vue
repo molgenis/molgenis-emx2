@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useFetch } from "#app/composables/fetch";
+import { useRoute, navigateTo } from "#app/composables/router";
+import { computed } from "vue";
+
 const route = useRoute();
 const schema = route.params.schema;
 
@@ -86,7 +90,10 @@ const ontologies = computed(
           </TableHeadRow>
         </template>
         <template #body>
-          <TableRow v-for="ontology in ontologies">
+          <TableRow
+            v-for="ontology in ontologies"
+            @click="navigateTo(`${schema}/${ontology.id}`)"
+          >
             <TableCell>{{ ontology.label }}</TableCell>
             <TableCell>{{ ontology.description }}</TableCell>
           </TableRow>

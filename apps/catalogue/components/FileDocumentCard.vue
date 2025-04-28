@@ -2,7 +2,7 @@
 withDefaults(
   defineProps<{
     title: string;
-    url: string;
+    url?: string;
     isExternal?: boolean;
   }>(),
   {

@@ -4,7 +4,7 @@
     :metadata="metadata"
     :schemaId="schemaId"
     :formValues="formValues"
-    :key="metadata.id"
+    :key="`${schemaId} - ${metadata.id} - ${JSON.stringify(formValues)}`"
   ></FormEditModal>
 
   <div>
@@ -18,12 +18,13 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import type {
   columnId,
   columnValue,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
-import DemoDataControles from "~/DemoDataControles.vue";
+import DemoDataControles from "../../DemoDataControles.vue";
 
 const metadata = ref<ITableMetaData>();
 const schemaId = ref<string>("type test");

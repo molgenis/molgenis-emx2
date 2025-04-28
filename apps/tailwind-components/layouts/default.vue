@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { useNuxtApp } from "#app";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import PlaygroundNavBar from "~/PlaygroundNavBar.vue";
+import PlaygroundNavBar from "../PlaygroundNavBar.vue";
 
 const modules = import.meta.glob("../**/*.story.vue", {
   import: "default",
@@ -96,7 +97,7 @@ const { $sourceCodeMap } = useNuxtApp();
               >Data fetching</NuxtLink
             >
           </aside>
-          <Story :title="storyName" class="border-2 grow">
+          <Story :title="storyName" class="grow">
             <slot></slot>
           </Story>
         </div>

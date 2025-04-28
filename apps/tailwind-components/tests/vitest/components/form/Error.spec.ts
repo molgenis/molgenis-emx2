@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { expect, it } from "vitest";
-import Error from "~/components/form/Error.vue";
+import Error from "../../../../components/form/Error.vue";
 import FloatingVue from "floating-vue";
 import "floating-vue/dist/style.css"; // Ensure styles are loaded
 

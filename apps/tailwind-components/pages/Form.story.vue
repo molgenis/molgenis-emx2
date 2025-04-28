@@ -4,8 +4,11 @@ import type {
   columnValue,
   ISchemaMetaData,
 } from "../../metadata-utils/src/types";
-import { useRoute } from "#app/composables/router";
-import Legend from "~/components/form/Legend.vue";
+import { useRoute, useRouter } from "#app/composables/router";
+import Legend from "../components/form/Legend.vue";
+import { useFetch, useAsyncData } from "#app";
+import { fetchMetadata, fetchTableData, useSections } from "#imports";
+import { ref, computed, watch } from "vue";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -18,6 +21,7 @@ interface Schema {
 }
 
 const route = useRoute();
+const router = useRouter();
 const schemaId = ref((route.query.schema as string) ?? "type test");
 const tableId = ref((route.query.table as string) ?? "Types");
 const rowIndex = ref<null | number>(null);
@@ -90,7 +94,7 @@ watch(
     if (schemaMeta.value) {
       await refresh();
       tableId.value = schemaMeta.value.tables[0].id;
-      useRouter().push({
+      router.push({
         query: {
           schema: schemaId.value,
         },
@@ -113,7 +117,7 @@ watch(
       query.rowIndex = rowIndex.value;
     }
 
-    useRouter().push({ query });
+    router.push({ query });
     getNumberOfRows();
     formValues.value = {};
   },
@@ -130,7 +134,7 @@ watch(
     if (rowIndex.value !== null) {
       query.rowIndex = rowIndex.value;
     }
-    useRouter().push({ query });
+    router.push({ query });
 
     formValues.value = {};
 
@@ -149,6 +153,15 @@ const activeChapterId = ref<string>("_scroll_to_top");
 const errorMap = ref<Record<columnId, string>>({});
 
 const sections = useSections(metadata, activeChapterId, errorMap);
+
+function scrollToElementInside(containerId: string, elementId: string) {
+  const container = document.getElementById(containerId);
+  const element = document.getElementById(elementId);
+  if (container && element) {
+    container.scrollTop = element.offsetTop - container.offsetTop;
+    element.scrollIntoView();
+  }
+}
 </script>
 
 <template>

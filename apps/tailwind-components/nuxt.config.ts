@@ -10,6 +10,9 @@ const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@nuxtjs/tailwindcss", "@nuxt/test-utils/module"],
+  imports: {
+    autoImport: false,
+  },
   tailwindcss: {
     cssPath: "~/assets/css/main.css",
     configPath: "~/tailwind.config.js",

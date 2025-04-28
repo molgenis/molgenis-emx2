@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ITreeNodeState } from "~/types/types";
+import type { ITreeNodeState } from "../../types/types";
 import BaseIcon from "../BaseIcon.vue";
 import CustomTooltip from "../CustomTooltip.vue";
 

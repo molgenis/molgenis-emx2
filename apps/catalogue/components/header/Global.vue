@@ -1,9 +1,9 @@
-<script setup>
+<script setup lang="ts">
+import { useRuntimeConfig, useRoute } from "#app";
+
 const config = useRuntimeConfig();
-let schema;
-if (useRoute) {
-  schema = useRoute().params.schema;
-}
+const schema = useRoute().params.schema;
+
 const menu = [
   { label: "Home", link: `/${schema}/catalogue` },
   config.public.cohortOnly
@@ -38,7 +38,10 @@ const menu = [
   // { label: "Manuals", link: "#" },
   config.public.cohortOnly
     ? { label: "About", link: `/${schema}/catalogue/all/about` }
-    : undefined,
+    : {
+        label: "About",
+        link: `/${schema}/catalogue/about`,
+      },
 ].filter((item) => item !== undefined);
 </script>
 

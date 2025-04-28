@@ -1,6 +1,7 @@
 <template>
   <div class="relative">
     <HeaderButton
+      label="Selected items"
       icon="shopping-cart"
       class="xl:text-blue-500"
       @click="$emit('click')"
@@ -18,6 +19,9 @@
 </template>
 
 <script lang="ts" setup>
+import { useDatasetStore } from "#imports";
+import { ref, watch, computed } from "vue";
+
 const datasetStore = useDatasetStore();
 
 defineEmits<{ (e: "click"): void }>();

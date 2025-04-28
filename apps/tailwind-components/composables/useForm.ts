@@ -1,9 +1,12 @@
+import { type MaybeRef, type Ref, computed, toRef, ref } from "vue";
 import type {
   columnValue,
   ITableMetaData,
   IColumn,
   columnId,
 } from "../../metadata-utils/src/types";
+import { toFormData } from "../utils/toFormData";
+import { getPrimaryKey } from "../utils/getPrimaryKey";
 
 export default function useForm(
   metadata: MaybeRef<ITableMetaData>,
@@ -105,6 +108,42 @@ export default function useForm(
     scrollTo(`${nextErrorColumnId}-form-field`);
   };
 
+  const insertInto = (schemaId: string, tableId: string) => {
+    const formData = toFormData(toRef(formValues).value);
+    const query = `mutation insert($value:[${tableId}Input]){insert(${tableId}:$value){message}}`;
+    formData.append("query", query);
+
+    return $fetch(`/${schemaId}/graphql`, {
+      method: "POST",
+      body: formData,
+    });
+  };
+
+  const updateInto = (schemaId: string, tableId: string) => {
+    const formData = toFormData(toRef(formValues).value);
+    const query = `mutation update($value:[${tableId}Input]){update(${tableId}:$value){message}}`;
+    formData.append("query", query);
+
+    return $fetch(`/${schemaId}/graphql`, {
+      method: "POST",
+      body: formData,
+    });
+  };
+
+  const deleteRecord = async (schemaId: string, tableId: string) => {
+    const key = await getPrimaryKey(toRef(formValues).value, tableId, schemaId);
+    const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
+    const variables = { pkey: [key] };
+
+    return $fetch(`/${schemaId}/graphql`, {
+      method: "POST",
+      body: {
+        query,
+        variables,
+      },
+    });
+  };
+
   return {
     requiredFields,
     emptyRequiredFields,
@@ -114,5 +153,8 @@ export default function useForm(
     gotoPreviousRequiredField,
     gotoNextError,
     gotoPreviousError,
+    insertInto,
+    updateInto,
+    deleteRecord,
   };
 }

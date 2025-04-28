@@ -69,7 +69,7 @@
       :valid="listboxState === 'valid'"
       :disabled="listboxState === 'disabled'"
       :placeholder="listboxPlaceholder"
-      @update:model-value="(value) => (modelValue = value)"
+      @update:model-value="(value: any) => (modelValue = value)"
     />
     <output class="block w-full mt-6 border py-3 px-2 pl-6">
       <code

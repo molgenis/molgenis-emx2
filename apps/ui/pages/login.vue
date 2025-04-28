@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { useRouter } from "#app/composables";
+import { navigateTo, useRoute } from "#app/composables/router";
+import { ref } from "vue";
+import { useSession } from "../composables/useSession";
+
 const route = useRoute();
 const router = useRouter();
 
@@ -31,9 +36,10 @@ async function signin() {
 
     if (signinResp.data.signin.status === "SUCCESS") {
       console.log(signinResp.data.signin);
-      const { data: session } = await useSession();
-      session.value.email = username.value;
-      route.redirectedFrom ? router.go(-1) : navigateTo({ path: "/" });
+      (await useSession()).reload();
+      route.redirectedFrom || router.getRoutes().length
+        ? router.back()
+        : navigateTo({ path: "/" });
     } else {
       console.log(signinResp.data.signin.message);
       error.value = signinResp.data.signin.message;
@@ -52,9 +58,13 @@ async function signin() {
           placeholder="Username"
           :required="true"
           v-model="username"
+          autofocus
+          autocomplete="username"
         />
         <InputString
           id="password"
+          type="password"
+          autocomplete="current-password"
           placeholder="Password"
           :required="true"
           v-model="password"
