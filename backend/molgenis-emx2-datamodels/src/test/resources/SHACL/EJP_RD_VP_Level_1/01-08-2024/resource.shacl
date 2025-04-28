@@ -177,7 +177,7 @@
     sh:path vcard:url;
     sh:name "URL" ;
     sh:nodeKind sh:IRI ;
-    sh:minCount 1 ;
+    sh:minCount 0 ; # fix not required
     sh:maxCount  1 ;
     dash:editor dash:URIEditor ;
     dash:viewer dash:LabelViewer ;

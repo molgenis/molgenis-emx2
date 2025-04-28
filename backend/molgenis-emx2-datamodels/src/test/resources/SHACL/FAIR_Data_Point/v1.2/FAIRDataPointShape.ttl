@@ -137,5 +137,5 @@
     sh:name "contains" ;
     sh:description "A set of triples, maintained by the LDP container, that lists documents created by the LDP container." ;
     sh:path ldp:contains ;
-    sh:node :CatalogShape ;
+    sh:nodeKind sh:IRI ; # FIX: changed from sh:node :CatalogShape for containers other than root-containers;
   ].

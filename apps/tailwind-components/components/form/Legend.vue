@@ -4,10 +4,10 @@
     <ul class="list-none space-y-3">
       <li
         v-for="section in sections"
-        class="group flex items-center cursor-pointer"
+        class="group/chapter flex items-center cursor-pointer"
       >
         <div
-          class="h-[24px] w-1 group-hover:bg-button-primary"
+          class="h-[24px] w-1 group-hover/chapter:bg-button-primary"
           :class="{ 'bg-button-primary': section.isActive }"
         />
         <a

@@ -166,6 +166,7 @@ const query = gql`
         name
       }
       partOfResources {
+        id
         name
         type {
             name
@@ -858,19 +859,19 @@ const showPopulation = computed(
               :title="network.name"
               :description="network?.description || ''"
               :imageUrl="network?.logo?.url || ''"
-              :url="network.website || ''"
-              :links="
-                network.website
-                  ? [
-                      {
-                        title: 'Website',
-                        url: network.website,
-                        target: '_blank',
-                      },
-                    ]
-                  : []
-              "
-              target="_blank"
+              :url="`/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`"
+              :links="[
+                  network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
+               {title: 'Network details',
+                url: `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`,
+                },
+               network.type?.some( (type) => type.name === 'Catalogue')
+               ? {
+                title: 'Catalogue',
+                url: `/${route.params.schema}/catalogue/${network.id}`,
+              }: null
+                ].filter((link) => link !== null)"
+              target="_self"
             />
           </ReferenceCardList>
         </ContentBlock>
