@@ -26,17 +26,11 @@ withDefaults(
       class="items-center hidden gap-3 tracking-widest xl:flex font-display text-heading-lg"
       :class="{ 'justify-center': align === 'center' }"
     >
-      <template
-        v-for="(url, label, index) in crumbs"
-        :key="label"
-      >
+      <template v-for="(url, label, index) in crumbs" :key="label">
         <li v-if="index === Object.keys(crumbs).length - 1" aria-current="page">
           <span class="text-breadcrumb">{{ label }}</span>
         </li>
-        <li
-          v-else
-          class="flex justify-center items-center gap-3"
-        >
+        <li v-else class="flex justify-center items-center gap-3">
           <NuxtLink :to="url" class="text-breadcrumb hover:underline">
             {{ label }}
           </NuxtLink>

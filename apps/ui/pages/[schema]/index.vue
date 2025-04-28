@@ -50,10 +50,9 @@ const ontologies = computed(
 
 const crumbs: Record<string, string> = {};
 crumbs[schema] = `/${schema}`;
-crumbs['tables'] = '';
-
+crumbs["tables"] = "";
 </script>
-<template> 
+<template>
   <Container>
     <PageHeader :title="`Tables in ${data?.data?._schema?.label}`" align="left">
       <template #prefix>

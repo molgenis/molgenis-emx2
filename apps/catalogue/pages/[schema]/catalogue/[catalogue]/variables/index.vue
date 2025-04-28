@@ -319,7 +319,7 @@ let crumbs: any = {};
 crumbs[
   `${route.params.catalogue}`
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
-crumbs['variables'] = '';
+crumbs["variables"] = "";
 </script>
 
 <template>

@@ -585,11 +585,11 @@ if (route.params.catalogue) {
     cohortOnly.value ? "home" : (route.params.catalogue as string)
   ] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
   if (route.params.resourceType !== "about")
-    console.log("adding resource type", route.params)
-    crumbs[
-      route.params.resourceType as string
-    ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
-    crumbs[route.params.resource] = '';
+    console.log("adding resource type", route.params);
+  crumbs[
+    route.params.resourceType as string
+  ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
+  crumbs[route.params.resource] = "";
 } else {
   crumbs["Home"] = `/${route.params.schema}/catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/catalogue/all`;

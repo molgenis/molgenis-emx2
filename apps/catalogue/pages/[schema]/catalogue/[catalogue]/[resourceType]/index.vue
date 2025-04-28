@@ -304,7 +304,7 @@ const crumbs: any = {};
 crumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
-crumbs[route.params.resourceType] = '';
+crumbs[route.params.resourceType] = "";
 </script>
 
 <template>
