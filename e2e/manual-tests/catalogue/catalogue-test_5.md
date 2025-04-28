@@ -142,15 +142,19 @@ and understand what they are seeing when viewing a resource in detail.
 | | | Since version 1959 | | |
 | | | Until version 1985 | | |
 | 52 | Click the cross top right to close the pop-up | Return to resource information page. | | |
-| 53 | NETWORKS, subtitle: Part of networks | List of networks in which this resource is involved. For each network: logo, name, > Website, and an arrow to navigate to details. | | |
+| 53 | NETWORKS, subtitle: Part of networks | List of networks in which this resource is involved. For each network: logo, name, > Website > Network details (> Catalogue), and an arrow to navigate to details. | | |
 | | | name for test network2 | | |
-| | | > Website | | |
+| | | > Website > Network details | | |
 | | | name for test network of networks | | |
-| | | > Website | | |
+| | | > Website > Network details > Catalogue | | |
 | | | name for test network1 | | |
-| | | > Website | | |
-| 54 | Click on 'name for test network of networks' | Molgenis.org opens in a new window. | | |
-| 55 | Return to the resource information page | | | |
+| | | > Website > Network details > Catalogue | | |
+| 54a | Click on 'name for test network of networks' | Molgenis.org opens in a new window. | | |
+| 54b | Return to the resource information page | | | |
+| 54c | Click on '> Network details' for 'name for test network of networks' | The network information page opens in the same window | | |
+| 54d | Go back to the resource information page | | | |
+| 54e | Click on '> Catalogue for 'name for test network of networks' | The catalogue landing page for that network opens in the same window | | |
+| 55 | Go back to the resource information page | | | |
 | 56a | PUBLICATIONS | | | |
 | | | Clickable block per publication with the name of the publication as a clickable link which opens the link in a new window: "Birth of a cohort--the first 20 years of the Raine study", "test publication 2", "test publication 3" | | |
 | | Click on test publication 2 | The paper "Maternal Dietary Glycemic Index and Glycemic Load in Pregnancy and Offspring Cord Blood DNA Methylation" opens in a new window. | | |
