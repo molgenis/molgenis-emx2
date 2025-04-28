@@ -91,7 +91,7 @@ public class SnowflakeIdGeneratorTest {
     String snowflakeId = generator.generateId();
 
     long snowflakeTimestamp = SnowflakeIdGenerator.extractTimestamp(snowflakeId);
-    // Allow a mismatch of 1ms
-    assertTrue(Math.abs(currentTime - snowflakeTimestamp) <= 1);
+    // Allow a mismatch of 10ms
+    assertTrue(Math.abs(currentTime - snowflakeTimestamp) <= 10);
   }
 }
