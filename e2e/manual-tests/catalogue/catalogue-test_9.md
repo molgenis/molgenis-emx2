@@ -84,10 +84,10 @@ Not all fields on the page are tested (see test plan 5 for full test of this pag
 | | | test dataset for testCohort1, test description for dataset 1 --> | | |
 | | | name of test dataset 2 for test cohort 1, description for test dataset 2 for test cohort 1 --> | | |
 | 29 | NETWORKS | Part of networks | | |
-| | | logo, Name of network, >Website, --> to navigate to details | | |
-| | | name for test network2, >Website, --> | | |
-| | | name for test network of networks, >Website, --> | | |
-| | | name for test network1, >Website, --> | | |
+| | | logo, Name of network, > Website > Network details (> Catalogue), --> to navigate to details | | |
+| | | name for test network2, > Website > Network details, --> | | |
+| | | name for test network of networks, > Website > Network details > Catalogue, --> | | |
+| | | name for test network1, > Website > Network details > Catalogue, --> | | |
 | 30 | PUBLICATIONS | Three publications: 'Birth of a cohort--..Raine study.',  'Cohort Profile: The French...birth to 5 years', Effevtiveness of AS04-adjuvanted...community randomised trial' | | |
 | 31 | ACCESS CONDITIONS | Data access conditions description text cohort 1 - yes fee | | |
 | | Data access conditions | general research use, health or medical or biomedical research | | |
