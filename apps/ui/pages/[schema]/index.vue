@@ -47,12 +47,17 @@ const ontologies = computed(
       .filter((t) => t.tableType === "ONTOLOGIES")
       .sort((a, b) => a.label.localeCompare(b.label)) ?? []
 );
+
+const crumbs: Record<string, string> = {};
+crumbs[schema] = `/${schema}`;
+crumbs['tables'] = '';
+
 </script>
-<template>
+<template> 
   <Container>
-    <PageHeader :title="`Tables in ${data?.data._schema.label}`" align="left">
+    <PageHeader :title="`Tables in ${data?.data?._schema?.label}`" align="left">
       <template #prefix>
-        <BreadCrumbs align="left" :current="data?.data._schema.label" />
+        <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
     </PageHeader>
 
