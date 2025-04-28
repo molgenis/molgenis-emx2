@@ -1,16 +1,15 @@
-# Number
+# Test Plan 5
 
-5
-
-# Role
+## Role
 
 Naïve user of the data catalogue
 
-# Goal
+## Goal
 
-A naïve visitor to the data catalogue can click around in the catalogue and understand what they are seeing when viewing a resource in detail.
+A naïve visitor to the data catalogue can click around in the catalogue
+and understand what they are seeing when viewing a resource in detail.
 
-# Steps
+## Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
