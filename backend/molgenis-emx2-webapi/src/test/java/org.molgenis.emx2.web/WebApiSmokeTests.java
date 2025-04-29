@@ -252,6 +252,15 @@ public class WebApiSmokeTests {
             .asString();
     Object result = objectMapper.readValue(jsonResults, Object.class);
     assertTrue(result.toString().contains("pooky"));
+
+    // test report using json objects
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report5")
+            .asString();
+    Object jsonResult = objectMapper.readValue(jsonResults, Object.class);
+    assertTrue(jsonResult.toString().contains("pooky"));
   }
 
   @Test
