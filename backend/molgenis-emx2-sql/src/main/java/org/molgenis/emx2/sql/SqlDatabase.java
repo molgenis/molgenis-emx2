@@ -85,6 +85,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private SqlDatabase(DSLContext jooq, SqlDatabase copy) {
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.connectionProvider.setActiveUser(copy.connectionProvider.getActiveUser());
+    this.connectionProvider.setAdmin(copy.connectionProvider.isAdmin());
     this.jooq = jooq;
     databaseVersion = MetadataUtils.getVersion(jooq);
 
@@ -584,6 +585,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
     }
     this.connectionProvider.setActiveUser(username);
+    this.connectionProvider.setAdmin(isAdmin());
     this.clearCache();
   }
 
@@ -657,6 +659,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private synchronized void sync(SqlDatabase from) {
     if (from != this) {
       this.connectionProvider.setActiveUser(from.connectionProvider.getActiveUser());
+      this.connectionProvider.setAdmin(from.connectionProvider.isAdmin());
       this.databaseVersion = from.databaseVersion;
 
       this.schemaNames = from.schemaNames;
@@ -706,6 +709,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
     } finally {
       this.connectionProvider.setActiveUser(user);
+      this.connectionProvider.setAdmin(isAdmin());
     }
   }
 
