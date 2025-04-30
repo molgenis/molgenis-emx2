@@ -28,10 +28,13 @@ withDefaults(
     >
       <template v-for="(url, label, index) in crumbs" :key="label">
         <li v-if="index === Object.keys(crumbs).length - 1" aria-current="page">
-          <span class="text-breadcrumb">{{ label }}</span>
+          <span class="text-breadcrumb cursor-default">{{ label }}</span>
         </li>
         <li v-else class="flex justify-center items-center gap-3">
-          <NuxtLink :to="url" class="text-breadcrumb hover:underline">
+          <span v-if="url === ''" class="text-breadcrumb cursor-default">
+            {{ label }}
+          </span>
+          <NuxtLink v-else :to="url" class="text-breadcrumb hover:underline">
             {{ label }}
           </NuxtLink>
           <span
