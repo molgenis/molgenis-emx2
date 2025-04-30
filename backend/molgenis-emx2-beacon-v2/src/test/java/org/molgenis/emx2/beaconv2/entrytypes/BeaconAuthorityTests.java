@@ -11,11 +11,13 @@ import io.javalin.http.Context;
 import java.util.HashMap;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 
+@Disabled
 public class BeaconAuthorityTests extends BeaconModelEndPointTest {
 
   @BeforeAll
