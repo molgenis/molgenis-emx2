@@ -9,6 +9,7 @@ public class User extends HasSettings<User> {
   private String username;
   private Boolean enabled = Boolean.TRUE;
   private Database database;
+  private Boolean isAdmin = Boolean.FALSE;
 
   User(String username) {
     // for testing protected
@@ -79,5 +80,13 @@ public class User extends HasSettings<User> {
     }
     this.setSetting(TOKENS, tokensString);
     database.saveUser(this);
+  }
+
+  public void setAdmin(Boolean admin) {
+    this.isAdmin = admin;
+  }
+
+  public Boolean isAdmin() {
+    return isAdmin;
   }
 }

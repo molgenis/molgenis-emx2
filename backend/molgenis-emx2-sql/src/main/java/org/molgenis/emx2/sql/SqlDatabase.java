@@ -762,7 +762,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public boolean isAdmin() {
-    return ADMIN_USER.equals(getActiveUser());
+    return getUser(getActiveUser()).isAdmin() || ADMIN_USER.equals(getActiveUser());
   }
 
   @Override

@@ -101,6 +101,7 @@ public class MetadataUtils {
   public static final Field<String> USER_NAME = field(name("username"), VARCHAR);
   private static final Field<String> USER_PASS = field(name("password"), VARCHAR);
   public static final Field<Boolean> USER_ENABLED = field(name("enabled"), BOOLEAN.nullable(false));
+  public static final Field<Boolean> USER_ADMIN = field(name("admin"), BOOLEAN);
 
   // settings field, reused by all other metadata
   static final org.jooq.Field SETTINGS = field(name(org.molgenis.emx2.Constants.SETTINGS), JSON);
@@ -710,6 +711,7 @@ public class MetadataUtils {
       User result = new User(db, userName);
       result.setEnabled(userRecord.get(USER_ENABLED));
       result.setSettings(userRecord.get(SETTINGS, Map.class));
+      result.setAdmin(userRecord.get(USER_ADMIN));
       return result;
     }
     return null;
