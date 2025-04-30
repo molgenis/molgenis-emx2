@@ -167,3 +167,4 @@ Note that the list only goes back to the most recent breaking change, i.e. the m
 | 5.4.x   | Added tables for Fair Data Point: Container, Endpoint, Agent.                                   | 
 | 5.5     | Fixed reflinks, typos and added demo data to fit DCAT HRICore 1.0.                              |
 | 5.6     | Removed computed value for Catalogues.description. Added missing demo data descriptions.        |
+| 6.0     | Breaking change. We merged 'Catalogues' into 'Resources'. To solve download from old, import in new and then in Resourcs.types set 'catalogue' to those records previously linked in Catalogues'|
