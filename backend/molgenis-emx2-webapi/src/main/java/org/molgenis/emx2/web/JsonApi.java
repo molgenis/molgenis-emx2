@@ -1,9 +1,10 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.settings.ReportUtils.getReportAsJson;
+import static org.molgenis.emx2.settings.ReportUtils.getReportById;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 import static org.molgenis.emx2.web.ZipApi.getReportParameters;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.util.*;
@@ -20,13 +21,13 @@ public class JsonApi {
     app.get(reportPath, JsonApi::getJsonReport);
   }
 
-  public static void getJsonReport(Context ctx) {
+  public static void getJsonReport(Context ctx) throws JsonProcessingException {
     Schema schema = getSchema(ctx);
     String reports = ctx.queryParam("id");
     Map<String, ?> parameters = getReportParameters(ctx);
     Map<String, Object> jsonResponse = new LinkedHashMap<>();
     for (String reportId : reports.split(",")) {
-      jsonResponse.put(reportId, getReportAsJson(reportId, schema, parameters));
+      jsonResponse.put(reportId, getReportById(reportId, schema, parameters));
     }
     if (jsonResponse.size() == 1) {
       ctx.json(jsonResponse.values().iterator().next());

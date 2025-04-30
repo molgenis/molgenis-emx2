@@ -261,6 +261,15 @@ public class WebApiSmokeTests {
             .asString();
     Object jsonResult = objectMapper.readValue(jsonResults, Object.class);
     assertTrue(jsonResult.toString().contains("pooky"));
+
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report4,report5")
+            .asString();
+    Map<String, Object> multipleResults = objectMapper.readValue(jsonResults, Map.class);
+    // Check if multiple result are returned as proper json
+    assertFalse(multipleResults.get("report4").toString().startsWith("{\""));
   }
 
   @Test

@@ -1,21 +1,16 @@
 package org.molgenis.emx2.settings;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.jooq.JSON;
 import org.jooq.JSONB;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.json.JsonUtil;
 
 public class ReportUtils {
   public static Map<String, String> getReportById(String reportId, Schema schema) {
@@ -82,20 +77,8 @@ public class ReportUtils {
   }
 
   private static String convertToJson(List<Row> rows) {
-    ObjectMapper mapper = new ObjectMapper();
-    SimpleModule module = new SimpleModule();
-    module.addSerializer(
-        JSON.class,
-        new JsonSerializer<>() {
-          @Override
-          public void serialize(JSON json, JsonGenerator gen, SerializerProvider sp)
-              throws IOException {
-            gen.writeRawValue(json.data());
-          }
-        });
-    mapper.registerModule(module);
     try {
-      return mapper.writeValueAsString(processRows(rows));
+      return JsonUtil.getJooqMapper().writeValueAsString(processRows(rows));
     } catch (Exception e) {
       throw new MolgenisException("Cannot convert sql result set to json", e);
     }
