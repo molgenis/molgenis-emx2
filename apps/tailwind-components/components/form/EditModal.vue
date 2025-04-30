@@ -1,5 +1,5 @@
 <template>
-  <slot>
+  <slot :setVisible="setVisible">
     <Button
       class="m-10"
       type="primary"
@@ -69,6 +69,13 @@
         @error-next="gotoNextError"
       />
     </Transition>
+    <Transition name="slide-up">
+      <FormError
+        v-show="updateErrorMessage"
+        :message="updateErrorMessage"
+        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+      />
+    </Transition>
 
     <template #footer>
       <div class="flex justify-between items-center">
@@ -90,11 +97,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, toRaw, watchEffect } from "vue";
 import useForm from "../../composables/useForm";
 import useSections from "../../composables/useSections";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
+import { errorToMessage } from "../../utils/errorToMessage";
 
 const props = withDefaults(
   defineProps<{
@@ -105,13 +113,19 @@ const props = withDefaults(
   {}
 );
 
-const editFormValues = ref<Record<columnId, columnValue>>(props.formValues);
+const emit = defineEmits(["update:updated"]);
 
-watchEffect(() => {
-  editFormValues.value = props.formValues;
-});
+const editFormValues = ref<Record<columnId, columnValue>>(
+  structuredClone(toRaw(props.formValues))
+);
 
 const visible = ref(false);
+
+const updateErrorMessage = ref<string>("");
+
+function setVisible() {
+  visible.value = true;
+}
 
 const rowType = computed(() => props.metadata.id);
 const isDraft = ref(false);
@@ -120,15 +134,39 @@ function onCancel() {
   visible.value = false;
 }
 
-function onUpdateDraft() {
-  console.log("do update as Draft");
+async function onUpdateDraft() {
+  const resp = await updateInto(props.schemaId, props.metadata.id).catch(
+    (err) => {
+      console.error("Error saving data", err);
+      updateErrorMessage.value = errorToMessage(err, "Error updating draft");
+      return null;
+    }
+  );
+
+  if (!resp) {
+    return;
+  }
+
   isDraft.value = true;
+  emit("update:updated", resp);
 }
 
-function onUpdate() {
-  console.log("do update row");
+async function onUpdate() {
+  const resp = await updateInto(props.schemaId, props.metadata.id).catch(
+    (err) => {
+      console.error("Error saving data", err);
+      updateErrorMessage.value = errorToMessage(err, "Error updating record");
+      return null;
+    }
+  );
+
+  if (!resp) {
+    return;
+  }
+
   isDraft.value = false;
   visible.value = false;
+  emit("update:updated", resp);
 }
 
 const errorMap = ref<Record<columnId, string>>({});
@@ -152,6 +190,7 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
+  updateInto,
 } = useForm(props.metadata, editFormValues, errorMap, (fieldId: string) => {
   scrollToElementInside("fields-container", fieldId);
 });

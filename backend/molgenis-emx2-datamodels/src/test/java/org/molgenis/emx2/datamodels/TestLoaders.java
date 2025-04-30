@@ -57,7 +57,7 @@ public class TestLoaders {
   void test06DataCatalogueLoader() throws Exception {
     Schema dataCatalogue = database.createSchema(DATA_CATALOGUE);
     DataModels.Profile.DATA_CATALOGUE.getImportTask(dataCatalogue, true).run();
-    assertEquals(26, dataCatalogue.getTableNames().size());
+    assertEquals(24, dataCatalogue.getTableNames().size());
 
     // create rdf in memory
     OutputStream outputStream = new ByteArrayOutputStream();
@@ -162,7 +162,7 @@ public class TestLoaders {
     // depends on catalogue test above
     Schema schema = database.dropCreateSchema(PORTAL_TEST);
     DataModels.Profile.PATIENT_REGISTRY.getImportTask(schema, false).run();
-    assertEquals(47, schema.getTableNames().size());
+    assertEquals(45, schema.getTableNames().size());
   }
 
   @Test

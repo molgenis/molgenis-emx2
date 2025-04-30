@@ -1,5 +1,8 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Resources,,,,,,,,,,,"dcat:DatasetSeries,dcat:Dataset",Resource of data and/or samples. Use 'resource type' to specify,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,computed,defaultValue
+Resources,,,,,,,,,,,ldp:DirectContainer,Resource of data and/or samples. Use 'resource type' to specify,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
+Resources,,rdf type,hyperlink,,,,,,,,rdf:type,The DCAT type such as dcat:Catalog as computed field,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE","type.some(item => item.name === 'Catalogue') ? 'http://www.w3.org/ns/dcat#Catalog' : 'http://www.w3.org/ns/dcat#DatasetSeries'"
+Resources,,membershipResource,hyperlink,,,,,,,,ldp:membershipResource,hardcoded,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE","'http://localhost:8080/catalogue/api/rdf/Endpoint/id=Example_FAIR_Data_Point'"
+Resources,,ldp membership relation,hyperlink,,,,,,,,ldp:hasMemberRelation,LDP membership relation,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,https://w3id.org/fdp/fdp-o#metadataCatalog
 Resources,,overview,heading,,,,,,,,,General information,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,id,,1,TRUE,,,,,,dcterms:identifier,Internal identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,pid,,2,,,,,,,oboInOwl:hasAlternativeId,Persistent identifier,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
@@ -8,6 +11,7 @@ Resources,,local name,,,,,,,,,rdfs:label,"If different from above, name in the n
 Resources,,acronym,,,,,,,,,dcterms:alternative,"Acronym, if applicable","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,type,ontology_array,,TRUE,CatalogueOntologies,Resource types,,,,dcterms:type,"Type of resource, e.g. registry, cohort, biobank","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,type other,,,,,,,,,,"If other, describe the type of resource","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,StudiesStaging,UMCUCohorts"
+Resources,,catalogue type,ontology,,,CatalogueOntologies,CatalogueTypes,,,,,Type of catalogue,"DataCatalogueFlat"
 Resources,,cohort type,ontology_array,,,CatalogueOntologies,Cohort study types,,,,dcterms:type,Type of cohort,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,clinical study type,ontology_array,,,CatalogueOntologies,Clinical study types,,,,dcterms:type,Type of clinical study,"DataCatalogueFlat,EMA"
 Resources,,RWD type,ontology_array,,,CatalogueOntologies,Datasource types,,,,dcterms:type,Type of registry or health record,"DataCatalogueFlat,EMA,RWEStaging"
@@ -24,8 +28,10 @@ Resources,,contact email,,,,,,,,,,Contact e-mail address ,"DataCatalogueFlat,Coh
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA,StudiesStaging"
 Resources,,license,hyperlink,,,,,,,,dcterms:license,A legal document under which this catalogue record is made available,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
-Resources,,issued,datetime,,,,,,,,dcterms:issued,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was first published in the catalogue,DataCatalogueFlat
-Resources,,modified,datetime,,,,,,,,dcterms:modified,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was last modified,DataCatalogueFlat
+Resources,,conforms to,hyperlink,,,,,,,,dcterms:conformsTo,The specification of the catalog metadata schema,DataCatalogueFlat
+Resources,,has member relation,hyperlink,,,,,,,,"ldp:hasMemberRelation,dcat:record",This relation points to the URI of the custom relation/predicate used to relate the FAIR Data Point with its member catalogs. The object of this property MUST be fdp-o:metadataCatalog.,DataCatalogueFlat
+Resources,,issued,datetime,,,,,,,,"dcterms:issued,https://w3id.org/fdp/fdp-o#metadataIssued",This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was first published in the catalogue,DataCatalogueFlat
+Resources,,modified,datetime,,,,,,,,"dcterms:modified,https://w3id.org/fdp/fdp-o#metadataModified",This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was last modified,DataCatalogueFlat
 Resources,,design and structure,heading,,,,,,,,,Structure of the resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,design,ontology,,,CatalogueOntologies,Cohort designs,,,,,"The study design of this cohort, i.e. cross-sectional or longitudinal","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
 Resources,,design description,text,,,,,,,,,"Short description of the study design of this resource, if applicable","DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"

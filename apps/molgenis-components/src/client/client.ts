@@ -12,6 +12,7 @@ import type { aggFunction } from "./IClient";
 import type { IClient, INewClient } from "./IClient";
 import type { IQueryMetaData } from "./IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
+import { toFormData } from "../../../tailwind-components/utils/toFormData";
 
 // application wide cache for schema meta data
 const schemaCache = new Map<string, ISchemaMetaData>();
@@ -350,41 +351,6 @@ const request = async (url: string, graphql: string, variables?: any) => {
         .join(". ");
       throw detailedErrorMessage || error.message;
     });
-};
-
-const isFileValue = (value: File) => {
-  if (window && "File" in window) {
-    return value instanceof File;
-  } else {
-    throw "Files can only be uploaded via a browser client";
-  }
-};
-
-const toFormData = (rowData: IRow) => {
-  if (!FormData) {
-    throw "Files can only be uploaded via a browser client";
-  }
-  const formData = new FormData();
-  let nonFileValue: { [key: string]: string } = {};
-  let fileValues: { [key: string]: string } = {};
-
-  // split into file and non-file entries
-  for (const [key, value] of Object.entries(rowData)) {
-    isFileValue(value)
-      ? (fileValues[key] = value)
-      : (nonFileValue[key] = value);
-  }
-
-  // add the file objects to the formData and place a link to the object in the variables
-  for (const [key, value] of Object.entries(fileValues)) {
-    const id = Math.random().toString(36);
-    formData.append(id, value);
-    nonFileValue[key] = id;
-  }
-
-  formData.append("variables", JSON.stringify({ value: [nonFileValue] }));
-
-  return formData;
 };
 
 async function convertRowToPrimaryKey(

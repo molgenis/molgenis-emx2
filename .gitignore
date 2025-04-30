@@ -58,6 +58,10 @@ apps/catalogue/utils/fingerprint.js
 #python build
 **/version.txt
 
+# python
+venv
+requirements.txt
+
 #playwright
 playwright-report
 CHANGELOG.md
@@ -71,7 +75,6 @@ e2e/.auth
 e2e/e2e/.auth
 e2e/test-results/
 apps/tailwind-components/test-results/.last-run.json
-
 
 # vscode
 *.code-workspace
