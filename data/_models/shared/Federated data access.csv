@@ -1,6 +1,6 @@
 tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description
 Federated data access,,,,,,,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,List of Armadillo and/or Opal server(s) available for this resource.
-Federated data access,,,resource,ref,1,TRUE,catalogue,Resources,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,Federated data access defined for this resource
+Federated data access,,,resource,ref,1,TRUE,,Resources,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,Federated data access defined for this resource
 Federated data access,,,name,,1,TRUE,,,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,For example: resource-Armadillo or resource-Opal.
 Federated data access,,,datashield server,ontology,1,TRUE,CatalogueOntologies,DataSHIELD servers,,,,,,,,,"DataCatalogueFlat,FederatedDataAccess",,DataSHIELD server: Armadillo or Opal.
 Federated data access,,,url,hyperlink,,,,,,,,,,,,,FederatedDataAccess,,Federated data access resource url
