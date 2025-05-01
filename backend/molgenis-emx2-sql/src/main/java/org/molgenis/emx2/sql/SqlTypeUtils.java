@@ -26,6 +26,7 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static void applyValidationAndComputed(List<Column> columns, Row row) {
     Map<String, Object> graph = convertRowToMap(columns, row);
+    addJavaScriptBindings(columns, graph);
     for (Column c : columns.stream().filter(c -> !c.isHeading()).toList()) {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
         row.setString(
@@ -59,7 +60,6 @@ public class SqlTypeUtils extends TypeUtils {
           row.set(c.getName(), c.getDefaultValue());
         }
       } else if (c.getComputed() != null) {
-        addBindings(c, graph);
         Object computedValue = executeJavascriptOnMap(c.getComputed(), graph);
         TypeUtils.addFieldObjectToRow(c, computedValue, row);
       } else if (columnIsVisible(c, graph)) {
@@ -222,7 +222,6 @@ public class SqlTypeUtils extends TypeUtils {
       // validation
       if (column.getValidation() != null) {
         // check if validation script contains js functions that are bound to java functions
-        addBindings(column, values);
         String errorMessage = checkValidation(column.getValidation(), values);
         if (errorMessage != null)
           throw new MolgenisException(
@@ -231,15 +230,15 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  private static void addBindings(Column column, Map<String, Object> values) {
-    if (column.getSchema() != null && column.getSchema().getDatabase() != null) {
-      Map<String, Supplier<Object>> bindings =
-          column.getSchema().getDatabase().getJavaScriptBindings();
-      for (String key : bindings.keySet()) {
-        if (column.getValidation().contains(key)) {
-          values.put(key, bindings.get(key).get());
-        }
-      }
+  private static void addJavaScriptBindings(List<Column> columns, Map<String, Object> values) {
+    if (columns.isEmpty()) return;
+    Column column = columns.get(0);
+    if (column.getSchema() == null) return;
+    if (column.getSchema().getDatabase() == null) return;
+    Map<String, Supplier<Object>> bindings =
+        columns.get(0).getSchema().getDatabase().getJavaScriptBindings();
+    for (String key : bindings.keySet()) {
+      values.put(key, bindings.get(key).get());
     }
   }
 
