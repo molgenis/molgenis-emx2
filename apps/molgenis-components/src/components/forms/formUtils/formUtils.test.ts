@@ -170,6 +170,17 @@ describe("getRowErrors", () => {
     expect(result).to.deep.equal({});
   });
 
+  // test("it should return no error for valid localhost hyperlink", () => {
+  //   const rowData = {
+  //     hyperlink: "http://localhost:8080/pet%20store/api/rdf/Endpoint?id=test",
+  //   };
+  //   const metadata = {
+  //     columns: [{ id: "hyperlink", columnType: "HYPERLINK" }],
+  //   } as ITableMetaData;
+  //   const result = getRowErrors(metadata, rowData);
+  //   expect(result).to.deep.equal({});
+  // });
+
   test("it should return an error for an invalid hyperlink", () => {
     const rowData = { hyperlink: "google" };
     const metadata = {
