@@ -1,0 +1,2 @@
+resource,role,role description,first name,last name,display name,prefix,initials,title,organisation.resource,organisation.id,email,orcid,homepage,photo,expertise
+MOLGENIS,Alternative contact,Example contact,Test,User,,,TU,,MOLGENIS,UMCG,test.user@example.com,,https://example.com/person/test-user,,MOLGENIS
