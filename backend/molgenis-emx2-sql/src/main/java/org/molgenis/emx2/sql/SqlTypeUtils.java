@@ -233,10 +233,11 @@ public class SqlTypeUtils extends TypeUtils {
   private static void addJavaScriptBindings(List<Column> columns, Map<String, Object> values) {
     if (columns.isEmpty()) return;
     Column column = columns.get(0);
+    if (column.getTable() == null) return;
     if (column.getSchema() == null) return;
     if (column.getSchema().getDatabase() == null) return;
     Map<String, Supplier<Object>> bindings =
-        columns.get(0).getSchema().getDatabase().getJavaScriptBindings();
+        column.getSchema().getDatabase().getJavaScriptBindings();
     for (String key : bindings.keySet()) {
       values.put(key, bindings.get(key).get());
     }
