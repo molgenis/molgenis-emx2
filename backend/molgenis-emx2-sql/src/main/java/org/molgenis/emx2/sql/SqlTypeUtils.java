@@ -59,6 +59,7 @@ public class SqlTypeUtils extends TypeUtils {
           row.set(c.getName(), c.getDefaultValue());
         }
       } else if (c.getComputed() != null) {
+        addBindings(c, graph);
         Object computedValue = executeJavascriptOnMap(c.getComputed(), graph);
         TypeUtils.addFieldObjectToRow(c, computedValue, row);
       } else if (columnIsVisible(c, graph)) {
@@ -221,19 +222,23 @@ public class SqlTypeUtils extends TypeUtils {
       // validation
       if (column.getValidation() != null) {
         // check if validation script contains js functions that are bound to java functions
-        if (column.getSchema() != null && column.getSchema().getDatabase() != null) {
-          Map<String, Supplier<Object>> bindings =
-              column.getSchema().getDatabase().getJavaScriptBindings();
-          for (String key : bindings.keySet()) {
-            if (column.getValidation().contains(key)) {
-              values.put(key, bindings.get(key).get());
-            }
-          }
-        }
+        addBindings(column, values);
         String errorMessage = checkValidation(column.getValidation(), values);
         if (errorMessage != null)
           throw new MolgenisException(
               "Validation error on column '" + column.getName() + "': " + errorMessage + ".");
+      }
+    }
+  }
+
+  private static void addBindings(Column column, Map<String, Object> values) {
+    if (column.getSchema() != null && column.getSchema().getDatabase() != null) {
+      Map<String, Supplier<Object>> bindings =
+          column.getSchema().getDatabase().getJavaScriptBindings();
+      for (String key : bindings.keySet()) {
+        if (column.getValidation().contains(key)) {
+          values.put(key, bindings.get(key).get());
+        }
       }
     }
   }
