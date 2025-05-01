@@ -60,6 +60,7 @@ function handleSettingsUpdate() {
 const crumbs = computed(() => {
   let crumb: { [key: string]: string } = {};
   crumb[schemaId] = `/${schemaId}`;
+  crumb[tableMetadata.label || tableMetadata.id] = "";
   return crumb;
 });
 
@@ -74,12 +75,9 @@ const { isAdmin } = useSession();
 <template>
   <section class="mx-auto lg:px-[30px] px-0">
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
+      {{ tableMetadata }}
       <template #prefix>
-        <BreadCrumbs
-          :align="'left'"
-          :crumbs="crumbs"
-          :current="currentBreadCrumb"
-        />
+        <BreadCrumbs :align="'left'" :crumbs="crumbs" />
       </template>
     </PageHeader>
 
