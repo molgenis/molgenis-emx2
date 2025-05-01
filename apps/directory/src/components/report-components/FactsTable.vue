@@ -110,7 +110,7 @@
             <select v-model="filters['sample_type']" class="w-100">
               <option :value="ALL">All</option>
               <option
-                v-for="material of factProperties.materialtypeOptions"
+                v-for="material of factProperties.materialTypeOptions"
                 :key="material"
                 :value="material"
               >
@@ -295,7 +295,7 @@ function getValue(object: Record<string, any>, propertyString: string) {
 function getFactProperties() {
   const splitFacts: Record<string, string[]> = facts.value.reduce(
     (accum, fact) => {
-      if (fact.sample_type) accum.materialtypeOptions.push(fact.sample_type);
+      if (fact.sample_type) accum.materialTypeOptions.push(fact.sample_type);
       if (fact.sex) accum.sexOptions.push(fact.sex);
       if (fact.age_range) accum.ageRangeOptions.push(fact.age_range);
       if (fact.disease) {
@@ -308,7 +308,7 @@ function getFactProperties() {
       return accum;
     },
     {
-      materialtypeOptions: [] as string[],
+      materialTypeOptions: [] as string[],
       sexOptions: [] as string[],
       ageRangeOptions: [] as string[],
       diseaseOptions: [] as string[],
@@ -316,14 +316,14 @@ function getFactProperties() {
   );
 
   const uniqSplitFacts = {
-    materialtypeOptions: _.uniq(splitFacts.materialtypeOptions),
+    materialTypeOptions: _.uniq(splitFacts.materialTypeOptions),
     sexOptions: _.uniq(splitFacts.sexOptions),
     ageRangeOptions: _.uniq(splitFacts.ageRangeOptions),
     diseaseOptions: _.uniq(splitFacts.diseaseOptions),
   };
 
   return {
-    materialtypeOptions: _.sortBy(uniqSplitFacts.materialtypeOptions),
+    materialTypeOptions: _.sortBy(uniqSplitFacts.materialTypeOptions),
     sexOptions: _.sortBy(uniqSplitFacts.sexOptions),
     ageRangeOptions: _.sortBy(uniqSplitFacts.ageRangeOptions),
     diseaseOptions: _.sortBy(uniqSplitFacts.diseaseOptions),
@@ -382,20 +382,17 @@ function hasAFactToShow(fact: Record<string, any>) {
 }
 
 function collapseRows() {
-  let collapsedFacts: Record<string, any>[] = hardCopy(baseFacts);
-
-  Object.keys(splitByColumn.value).forEach((columnId) => {
+  facts.value = Object.keys(splitByColumn.value).reduce((accum, columnId) => {
     if (splitByColumn.value[columnId]) {
-      collapsedFacts = collapsedFacts.filter(
+      return accum.filter(
         (fact: Record<string, any>) => fact[columnId] !== ANY
       );
     } else {
-      collapsedFacts = collapsedFacts.filter(
+      return accum.filter(
         (fact: Record<string, any>) => fact[columnId] === ANY
       );
     }
-  });
-  facts.value = collapsedFacts;
+  }, hardCopy(baseFacts));
 }
 </script>
 
