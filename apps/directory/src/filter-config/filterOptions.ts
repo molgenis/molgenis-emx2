@@ -45,12 +45,20 @@ export const customFilterOptions = (filterFacet: any) => {
 function _mapToOptions(
   row: any,
   filterLabelAttribute: any,
-  filterValueAttribute: any
+  filterValueAttribute: any,
+  extraAttributes: any
 ) {
-  return {
-    text: row[filterLabelAttribute],
-    value: row[filterValueAttribute],
-  };
+  if (extraAttributes?.length) {
+    return {
+      text: row[filterLabelAttribute],
+      value: row[filterValueAttribute],
+    };
+  } else {
+    return {
+      text: row[filterLabelAttribute],
+      value: row[filterValueAttribute],
+    };
+  }
 }
 
 export const genericFilterOptions = (filterFacet: any) => {
@@ -81,24 +89,27 @@ export const genericFilterOptions = (filterFacet: any) => {
           .select(selection)
           .orderBy(sourceTable, sortColumn, sortDirection)
           .execute()
-          .then((response: any) => {
-            let filterOptions = response[sourceTable].map((row: any) => {
-              return {
-                ..._mapToOptions(
-                  row,
-                  filterLabelAttribute,
-                  filterValueAttribute
-                ),
-                parent: row.parent
-                  ? row.parent[filterValueAttribute]
-                  : undefined,
-                children: row.children
-                  ? row.children.map(
-                      (child: any) => child[filterValueAttribute]
-                    )
-                  : undefined,
-              };
-            });
+          .then((response: Record<string, Record<string, any>>) => {
+            let filterOptions = response[sourceTable].map(
+              (row: Record<string, any>) => {
+                return {
+                  ..._mapToOptions(
+                    row,
+                    filterLabelAttribute,
+                    filterValueAttribute,
+                    extraAttributes
+                  ),
+                  parent: row.parent
+                    ? row.parent[filterValueAttribute]
+                    : undefined,
+                  children: row.children
+                    ? row.children.map(
+                        (child: any) => child[filterValueAttribute]
+                      )
+                    : undefined,
+                };
+              }
+            );
 
             /**  remove unwanted options if applicable */
             filterOptions = removeOptions(filterOptions, filterFacet);
