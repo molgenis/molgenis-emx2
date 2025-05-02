@@ -61,6 +61,9 @@ pageCrumbs[
   route.params.resource as string
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`;
 
+pageCrumbs["Collection events"] = "";
+pageCrumbs[route.params.collectionevent as string] = "";
+
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);
 }

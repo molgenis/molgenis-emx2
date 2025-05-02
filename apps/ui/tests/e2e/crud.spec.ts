@@ -29,7 +29,7 @@ test.afterEach(async ({ page }) => {
 });
 
 test("add new row", async ({ page }) => {
-  await expect(page.getByRole("heading")).toContainText("Pet");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Pet");
 
   await page.getByRole("button", { name: "Add Pet" }).click();
   await page.getByRole("textbox", { name: "name Required" }).click();

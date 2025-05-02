@@ -53,6 +53,7 @@ crumbs[
 crumbs[
   "variables"
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/variables`;
+crumbs[route.params.variable] = "";
 
 const resourcesWithMapping = computed(() => {
   if (!resources.value) return [];
