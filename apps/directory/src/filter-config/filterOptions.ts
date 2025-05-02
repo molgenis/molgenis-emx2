@@ -60,6 +60,7 @@ export const genericFilterOptions = (filterFacet: any) => {
     facetIdentifier,
     filterLabelAttribute,
     filterValueAttribute,
+    extraAttributes,
     sortColumn,
     sortDirection,
   } = filterFacet;
@@ -67,8 +68,12 @@ export const genericFilterOptions = (filterFacet: any) => {
   return () =>
     new Promise((resolve) => {
       const cachedOptions = retrieveFromCache(facetIdentifier);
-
       const selection = [filterLabelAttribute, filterValueAttribute];
+      if (extraAttributes?.length) {
+        extraAttributes.forEach((attribute: any) => {
+          selection.push(attribute);
+        });
+      }
 
       if (!cachedOptions.length) {
         new QueryEMX2(getSchema(sourceSchema))

@@ -71,8 +71,8 @@
             class="badge badge-light border mr-2 ml-1"
             v-if="filterSelectionCount(filter.facetIdentifier) > 0"
           >
-            {{ filterSelectionCount(filter.facetIdentifier) }}</span
-          >
+            {{ filterSelectionCount(filter.facetIdentifier) }}
+          </span>
         </template>
         <component
           :is="filter.component"
@@ -80,8 +80,7 @@
           @click="currentFilter = filter.facetIdentifier"
           :currentlyActive="currentFilter === filter.facetIdentifier"
           :optionsFilter="optionsPresent(filter.facetIdentifier)"
-        >
-        </component>
+        />
       </HtmlDropdown>
 
       <toggle-filter
