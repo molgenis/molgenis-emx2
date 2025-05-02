@@ -176,7 +176,7 @@
       <tbody v-else>
         <tr>
           <td colspan="6" class="text-center">
-            <strong>No data available </strong>
+            <strong>No data available for this selection</strong>
           </td>
         </tr>
       </tbody>
