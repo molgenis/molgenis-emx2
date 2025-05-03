@@ -10,11 +10,11 @@ def isCI = System.getenv('CI') ? true : false
 node {
     version = '22.3.0'
     npmVersion = "10.8.1"
-    pnpmVersion = '10.10.0'
+    pnpmVersion = "10.10.0"
     download = true
 }
 
-task installJavascriptDependencies(type: PnpmTask, dependsOn: pnpmSetup) {
+task installJavascriptDependencies(type: PnpmTask, dependsOn: pnpmInstall) {
     args = ['install']
 }
 
