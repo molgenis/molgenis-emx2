@@ -251,6 +251,7 @@ jobs:
       - checkout
       - run: npm i -D @playwright/test
       - run: curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=10.10.0 bash -
+      - run: source ~/.bashrc
       - run:
           name: Install dependencies
           command: pnpm install
