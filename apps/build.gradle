@@ -71,7 +71,8 @@ task lint(type: PnpmTask, dependsOn: buildJavascript) {
 }
 
 task testJavaScript(type: PnpmTask, dependsOn: buildJavascript) {
-    args = ['run', 'test']
+    //nx takes care of build if needed
+    args = ['run','test']
 }
 test.dependsOn testJavaScript
 
