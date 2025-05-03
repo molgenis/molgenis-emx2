@@ -250,7 +250,7 @@ jobs:
     steps:
       - checkout
       - run: npm i -D @playwright/test
-      - run: curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=10.10.0 sh -
+      - run: curl -fsSL https://get.pnpm.io/install.sh | env PNPM_VERSION=10.10.0 bash -
       - run:
           name: Install dependencies
           command: pnpm install
@@ -258,7 +258,7 @@ jobs:
       - run:
           name: Test tailwind components
           command: |
-            yarn playwright install chrome
+            pnpm playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
@@ -283,7 +283,7 @@ jobs:
       - run:
           name: Test nuxt ssr catalogue tests
           command: |
-            yarn playwright install chrome
+            pnpm playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
@@ -308,7 +308,7 @@ jobs:
       - run:
           name: Directory e2e tests
           command: |
-            yarn playwright install chrome
+            pnpm playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
@@ -317,7 +317,7 @@ jobs:
       - run:
           name: UI tests
           command: |
-            yarn playwright install chrome
+            pnpm playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
