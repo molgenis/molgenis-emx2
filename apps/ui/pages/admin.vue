@@ -92,7 +92,7 @@ definePageMeta({
 });
 
 const LIMIT = 100;
-const showEditUserModal = ref(false)
+const showEditUserModal = ref(false);
 const showNewUserModal = ref(false);
 const selectedUser = ref<IUser | null>(null);
 

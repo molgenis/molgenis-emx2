@@ -1,136 +1,81 @@
 /* will produce a fat jar containing all html/js dist in public_html/apps*/
-
 plugins {
     id "java"
-    id "com.github.node-gradle.node" version "7.0.2"
-}
-
-java {
-    targetCompatibility = rootProject.ext.javaVersion
-    sourceCompatibility = rootProject.ext.javaVersion
+    id "com.github.node-gradle.node" version "7.1.0"
 }
 
 def isCI = System.getenv('CI') ? true : false
 
-def nodeSpec = {
-    version = '20.11.0'
-    yarnVersion = '1.22.19'
-    npmVersion = "9.5.1"
+//node config
+node {
+    version = '22.3.0'
+    npmVersion = "10.8.1"
     download = !isCI
 }
 
-def excludeDef = {
-    // Exclude 'build', 'dist', and 'showCase' directories from inputs
-    exclude ".gradle"
-    exclude "dist"
-    exclude "node_modules"
-    exclude "showCase"
-    exclude ".output"
-    exclude ".fingerprint.js"
-    exclude ".nuxt"
-    exclude "public/_nuxt-styles"
-    exclude "build"
+task installJavascriptDependencies(type: PnpmTask) {
+    args = ['install']
 }
 
-node {
-    with nodeSpec
-}
-
-subprojects { subproject ->
-    apply plugin: 'com.github.node-gradle.node'
-
-    node {
-        with nodeSpec
-    }
-
-    task format(type: YarnTask, dependsOn: parent.yarn_install) {
-        if (!isCI) {
-            args = ['run', 'format']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-            outputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        } else {
-            args = ['run', 'checkFormat']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        }
-    }
-
-    def packageJson = file("package.json").text
-
-    task buildJavascript(type: YarnTask, dependsOn: format) {
-        environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
-
-        //automatically get the internal dependencies
-        (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
-            dependsOn ":apps:${match[1]}:buildJavascript";
-        }
-
-        //run the build
-        def command =   packageJson.contains("\"name\": \"ui\"") ? "generate" : "build"
-        args = ['run', command]
-        doLast {
-            copy {
-                from packageJson.contains("\"name\": \"ui\"") ? ".output/public" : "dist"
-                into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
-            }
-        }
-        outputs.dir "dist"
-//        for caching
-        inputs.files fileTree(projectDir).matching {
-            with excludeDef
-        }
-    }
-
-    task lint(type: YarnTask, dependsOn: buildJavascript) {
-        if (
-                packageJson.contains("\"name\": \"tailwind-components\"") ||
-                        packageJson.contains("\"name\": \"ui\"") ||
-                        packageJson.contains("\"name\": \"catalogue\"")
-        ) {
-            args = ['run', 'lint']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        }
-    }
-
-    parent.tasks.processResources.dependsOn buildJavascript
-
-    task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {
-        if (packageJson.contains("test-ci")) {
-            args = ['run', 'test-ci']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        }
-    }
-    test.dependsOn testJavaScript
-
-    if (packageJson.contains("build-showcase")) {
-        task buildShowcase(type: YarnTask, dependsOn: buildJavascript) {
-            environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
-            args = ['run', 'build-showcase']
-            doLast {
+//run using pnpm after pnpm install
+task buildJavascript(type: PnpmTask, dependsOn: installJavascriptDependencies) {
+    //delegate heavy lifting to nx
+    args = ['run', 'build']
+    //copy build results when done
+    doLast {
+        file("${project.projectDir}").eachDir { folder ->
+            def packageJsonFile = file("${folder}/package.json")
+            //only files with apps
+            if (packageJsonFile.exists()) {
+                def fromDir = packageJsonFile.text.contains("\"name\": \"ui\"") ? "${folder}/.output/public" : "${folder}/dist"
+                def toDir = "${project.buildDir}/generated/main/resources/public_html/apps/${folder.name}"
                 copy {
-                    from packageJson.contains("\"name\": \"tailwind-components\"") ? ".output/public" : "showCase"
-                    into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
+                    from fromDir
+                    into toDir
                 }
             }
-            outputs.dir packageJson.contains("\"name\": \"tailwind-components\"") ? ".output/public" : "showCase"
-            //for caching
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
         }
-        parent.tasks.processResources.dependsOn buildShowcase
     }
 }
 
+task format(type: PnpmTask) {
+    if (!isCI) {
+        args = ['run', 'format']
+    } else {
+        args = ['run', 'checkFormat']
+    }
+}
+
+task buildShowcase(type: PnpmTask, dependsOn: buildJavascript) {
+    args = ['run', 'build-showcase']
+    //copy build results when done
+    doLast {
+        file("${project.projectDir}").eachDir { folder ->
+            def packageJsonFile = file("${folder}/package.json")
+            //only files with apps
+            if (packageJsonFile.exists()) {
+                def fromDir = packageJsonFile.text.contains("\"name\": \"tailwind-components\"") ? "${folder}/.output/public" : "${folder}/showCase"
+                def toDir = "${project.buildDir}/generated/main/resources/public_html/apps/${folder.name}"
+                copy {
+                    from fromDir
+                    into toDir
+                }
+            }
+        }
+    }
+}
+
+task lint(type: PnpmTask, dependsOn: buildJavascript) {
+    args = ['run', 'lint']
+}
+
+task testJavaScript(type: PnpmTask, dependsOn: buildJavascript) {
+    args = ['run', 'test']
+}
+test.dependsOn testJavaScript
+
+//depends on build showcase which depends on buildJavascript
+processResources.dependsOn buildShowcase
 sourceSets {
     main {
         resources {
