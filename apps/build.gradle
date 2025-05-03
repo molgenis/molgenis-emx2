@@ -14,7 +14,7 @@ node {
     download = !isCI
 }
 
-task installJavascriptDependencies(type: PnpmTask) {
+task installJavascriptDependencies(type: PnpmTask, dependsOn: pnpmSetup) {
     args = ['install']
 }
 
