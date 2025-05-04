@@ -241,7 +241,7 @@ class SqlSchemaMetadataExecutor {
               });
 
       // remove tables individually to trigger foreign key error if appropriate
-      List<Table> tables = db.getSchema(schemaName).getTablesSorted();
+      List<Table> tables = schema.getTablesSorted();
       Collections.reverse(tables);
       tables.forEach(table -> executeDropTable(db.getJooq(), table.getMetadata()));
 
