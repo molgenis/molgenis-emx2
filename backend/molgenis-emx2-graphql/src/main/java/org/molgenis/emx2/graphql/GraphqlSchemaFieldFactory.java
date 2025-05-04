@@ -21,6 +21,8 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.SqlSchemaMetadata;
+import org.molgenis.emx2.tasks.Task;
+import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -284,14 +286,6 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.SCHEMA_NAME)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
-                  .name(GraphqlConstants.SCHEMA_ID)
-                  .type(Scalars.GraphQLString))
-          .field(
-              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.INHERIT_NAME)
                   .type(Scalars.GraphQLString))
           .field(
@@ -481,10 +475,6 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
-          .field(
-              GraphQLInputObjectField.newInputObjectField()
-                  .name(SCHEMA_NAME)
-                  .type(Scalars.GraphQLString))
           .build();
 
   public GraphqlSchemaFieldFactory() {
@@ -546,30 +536,57 @@ public class GraphqlSchemaFieldFactory {
     };
   }
 
-  private static DataFetcher<?> truncateFetcher(Schema schema) {
+  private static DataFetcher<?> truncateFetcher(Schema schema, TaskService taskService) {
     return dataFetchingEnvironment -> {
-      StringBuilder message = new StringBuilder();
-      schema
-          .getDatabase()
-          .tx(
-              db -> {
-                Schema s = db.getSchema(schema.getName());
-                List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
-                if (tables != null) {
-                  for (String tableName : tables) {
-                    Table table = s.getTable(tableName);
-                    if (table == null) {
-                      throw new GraphqlException(
-                          "Truncate failed: table " + tableName + " unknown");
-                    } else {
-                      table.truncate();
-                    }
-                    message.append("Truncated table '" + tableName + "'\n");
+      List<String> tables = dataFetchingEnvironment.getArgument(GraphqlConstants.TABLES);
+      boolean async = dataFetchingEnvironment.getArgumentOrDefault(GraphqlConstants.ASYNC, false);
+      GraphqlApiMutationResult result =
+          new GraphqlApiMutationResult(SUCCESS, "Truncated tables: " + String.join(", ", tables));
+
+      if (async) {
+        Task task =
+            new Task() {
+              @Override
+              public void run() {
+                this.start();
+                this.setDescription("Truncating table: " + String.join(", ", tables));
+                try {
+                  truncateTables(schema, tables);
+                } catch (MolgenisException e) {
+                  this.completeWithError(e.getMessage());
+                  throw (e);
+                }
+                this.setDescription("Completed truncating table");
+                this.complete();
+              }
+            };
+        task.setDescription("Truncating table");
+        String id = taskService.submit(task);
+        result.setTaskId(id);
+      } else {
+        truncateTables(schema, tables);
+      }
+      return result;
+    };
+  }
+
+  private static void truncateTables(Schema schema, List<String> tables) {
+    schema
+        .getDatabase()
+        .tx(
+            db -> {
+              Schema s = db.getSchema(schema.getName());
+              if (tables != null) {
+                for (String tableName : tables) {
+                  Table table = s.getTable(tableName);
+                  if (table == null) {
+                    throw new GraphqlException("Truncate failed: table " + tableName + " unknown");
+                  } else {
+                    table.truncate();
                   }
                 }
-              });
-      return new GraphqlApiMutationResult(SUCCESS, message.toString());
-    };
+              }
+            });
   }
 
   private static void dropColumns(
@@ -835,16 +852,19 @@ public class GraphqlSchemaFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition truncateMutation(Schema schema) {
+  public GraphQLFieldDefinition.Builder truncateMutation(Schema schema, TaskService taskService) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("truncate")
+        .dataFetcher(truncateFetcher(schema, taskService))
         .type(typeForMutationResult)
-        .dataFetcher(truncateFetcher(schema))
         .argument(
             GraphQLArgument.newArgument()
                 .name(GraphqlConstants.TABLES)
                 .type(GraphQLList.list(Scalars.GraphQLString)))
-        .build();
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.ASYNC)
+                .type(Scalars.GraphQLBoolean));
   }
 
   public GraphQLFieldDefinition schemaReportsField(Schema schema) {

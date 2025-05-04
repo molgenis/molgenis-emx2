@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { ITreeNode } from "~/types/types";
+import { type Ref, ref } from "vue";
+import type { ITreeNode } from "../../types/types";
 
 function generateTreeData(width: number, depth: number, parentName?: string) {
   const nodes = [];
@@ -34,22 +35,26 @@ const deselect = (selectedNodeName: string) => {
 
 const inverted = ref(false);
 const expandSelected = ref(true);
+const emitSelectedChildren = ref(true);
 </script>
 
 <template>
+  <h1 class="text-heading-2xl pb-4">InputTree</h1>
   <div class="flex flex-row gap-2 mb-4">
     <div class="basis-3/5">
       <InputTree
+        id="tree-story-input"
         :nodes="nodes"
         v-model="selectedNodesNames"
         :expandSelected="expandSelected"
         class="p-4"
         :class="inverted ? 'bg-white' : 'bg-sidebar-gradient'"
         :inverted="inverted"
+        :emitSelectedChildren="emitSelectedChildren"
       />
     </div>
 
-    <div class="basis-2/5 p-2">
+    <div class="basis-2/5 p-2 text-title">
       <fieldset class="border border-gray-900 mb-2">
         <legend class="m-2 px-2">Props</legend>
         <div class="mb-2">
@@ -60,7 +65,7 @@ const expandSelected = ref(true);
             v-model="expandSelected"
           />
           <label class="ml-1 hover:cursor-pointer" for="tree-expand-selected">
-            expand Selected
+            expandSelected
           </label>
         </div>
         <div class="mb-2">
@@ -71,25 +76,33 @@ const expandSelected = ref(true);
             v-model="inverted"
           />
           <label class="ml-1 hover:cursor-pointer" for="tree-inverted">
-            inverted colors
+            inverted
+          </label>
+        </div>
+        <div class="mb-2">
+          <input
+            id="tree-emit-children"
+            class="ml-2 hover:cursor-pointer"
+            type="checkbox"
+            v-model="emitSelectedChildren"
+          />
+          <label class="ml-1 hover:cursor-pointer" for="tree-emit-children">
+            emitSelectedChildren
           </label>
         </div>
       </fieldset>
 
       <div class="mb-2">
-        <button
-          @click="clearSelection"
-          class="bg-orange-500 hover:bg-white py-2 px-4 rounded border border-gray-900"
-        >
+        <Button @click="clearSelection" type="outline" size="small">
           Clear selection
-        </button>
+        </Button>
       </div>
       <hr />
       <div class="my-2">
         Number off selected nodes: {{ selectedNodesNames.length }}
       </div>
       <div>
-        <h3 class="font-bold">Selected nodes:</h3>
+        <h2 class="font-bold">Selected nodes:</h2>
         <ul>
           <li v-for="selectedNodeName in selectedNodesNames">
             {{ selectedNodeName }}

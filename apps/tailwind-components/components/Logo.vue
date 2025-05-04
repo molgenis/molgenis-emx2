@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useRuntimeConfig } from "#app";
+import { shallowRef } from "vue";
+import { useRoute } from "vue-router";
+
 defineProps<{
   link?: string;
   image?: string;
@@ -11,6 +15,7 @@ const logoFileName = (route.query.logo as string) || config.public.emx2Logo;
 // load the svg data from the assets folder
 let svg = shallowRef();
 if (logoFileName) {
+  //@ts-ignore
   svg.value = await assetLoader.load(logoFileName);
 }
 </script>

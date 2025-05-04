@@ -351,82 +351,98 @@ public class SqlColumnExecutor {
   }
 
   static void validateColumn(Column c) {
-    if (c.getName() == null) {
-      throw new MolgenisException("Add column failed: Column name cannot be null");
-    }
-    if (c.getKey() > 0 && c.getTable().getKeyFields(c.getKey()).size() > 1 && !c.isRequired()) {
-      throw new MolgenisException(
-          "unique on column '"
-              + c.getTableName()
-              + "."
-              + c.getName()
-              + "' failed: When key spans multiple columns, none of the columns can be nullable");
-    }
-    if (c.isRefback() && c.getRefBack() == null) {
-      throw new MolgenisException(
-          "Refback is null for column " + c.getTableName() + "." + c.getName());
-    }
-    if (c.isRefback() && c.getRefBackColumn() == null) {
-      throw new MolgenisException(
-          "Refback '"
-              + c.getRefBack()
-              + "' could not be found for column "
-              + c.getTableName()
-              + "."
-              + c.getName());
-    }
-    if (c.isReference() && !c.isOntology() && c.getRefTable() == null) {
-      throw new MolgenisException(
-          String.format(
-              "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK (tried to find: %s:%s)",
-              c.getTableName(), c.getName(), c.getRefSchemaName(), c.getRefTableName()));
-    }
-    if (c.getRefTableName() != null && !c.isReference()) {
-      throw new MolgenisException(
-          "Cannot set refTable '"
-              + c.getRefTableName()
-              + "' for column '"
-              + c.getName()
-              + "': is not a reference but a "
-              + c.getColumnType());
-    }
-    if (c.getRefLink() != null) {
-      if (c.getTable().getColumn(c.getRefLink()) == null) {
+    try {
+      if (c.getName() == null) {
+        throw new MolgenisException("Add column failed: Column name cannot be null");
+      }
+      if (c.getKey() > 0 && c.getTable().getKeyFields(c.getKey()).size() > 1 && !c.isRequired()) {
+        throw new MolgenisException(
+            "unique on column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: When key spans multiple columns, none of the columns can be nullable");
+      }
+      if (c.isReference() && !c.isOntology() && c.getRefTableName() == null) {
         throw new MolgenisException(
             String.format(
-                "Add column '%s.%s' failed: refLink '%s' column cannot be found",
-                c.getTableName(), c.getName(), c.getRefLink()));
+                "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK (tried to find: %s:%s)",
+                c.getTableName(), c.getName(), c.getRefSchemaName(), c.getRefTableName()));
       }
-      Column refLink = c.getTable().getColumn(c.getRefLink());
-      if (!refLink.isRef() && !refLink.isRefArray()) {
+      if (c.isRefback() && c.getRefBack() == null) {
         throw new MolgenisException(
-            String.format(
-                "Add column '%s.%s' failed: refLink %s is not a REF,REF_ARRAY",
-                c.getTableName(), c.getName(), c.getRefLink()));
+            "Refback is null for column " + c.getTableName() + "." + c.getName());
       }
-      AtomicBoolean foundOverlap = new AtomicBoolean(false);
-      refLink
-          .getReferences()
-          .forEach(
-              ref -> {
-                c.getReferences()
-                    .forEach(
-                        ref2 -> {
-                          if (ref.getTargetTable().equals(ref2.getTargetTable())) {
-                            foundOverlap.set(true);
-                          }
-                        });
-              });
-      if (!foundOverlap.get()) {
+      if (c.isRefback() && c.getRefBackColumn() == null) {
         throw new MolgenisException(
-            String.format(
-                "Add column '%s.%s' failed: refLink '%s' does not have overlapping refTable with '%s'",
-                c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
+            "Refback '" + c.getRefTableName() + "." + c.getRefBack() + "' could not be found.");
       }
-    }
-    // fix required
-    if (c.getKey() == 1 && !c.isRequired()) {
-      c.setRequired(true);
+      if (c.isRefback() && !c.getRefBackColumn().isReference()) {
+        throw new MolgenisException(
+            "Refback column '" + c.getRefBackColumn() + "' is not of type reference");
+      }
+      if (c.isRefback()
+          && c.getRefBackColumn().isRef()
+          && !c.getTable().getAllInheritNames().contains(c.getRefBackColumn().getRefTableName())) {
+        throw new MolgenisException(
+            "Refback '"
+                + c.getRefTableName()
+                + "."
+                + c.getRefBack()
+                + "' is not a reference to table "
+                + c.getTableName()
+                + " or any of its inherited tables");
+      }
+      if (c.getRefTableName() != null && !c.isReference()) {
+        throw new MolgenisException(
+            "Cannot set refTable '"
+                + c.getRefTableName()
+                + "' for column '"
+                + c.getName()
+                + "': is not a reference but a "
+                + c.getColumnType());
+      }
+      if (c.getRefLink() != null) {
+        if (c.getTable().getColumn(c.getRefLink()) == null) {
+          throw new MolgenisException(
+              String.format(
+                  "Add column '%s.%s' failed: refLink '%s' column cannot be found",
+                  c.getTableName(), c.getName(), c.getRefLink()));
+        }
+        Column refLink = c.getTable().getColumn(c.getRefLink());
+        if (!refLink.isRef() && !refLink.isRefArray()) {
+          throw new MolgenisException(
+              String.format(
+                  "Add column '%s.%s' failed: refLink %s is not a REF,REF_ARRAY",
+                  c.getTableName(), c.getName(), c.getRefLink()));
+        }
+        AtomicBoolean foundOverlap = new AtomicBoolean(false);
+        refLink
+            .getReferences()
+            .forEach(
+                ref -> {
+                  c.getReferences()
+                      .forEach(
+                          ref2 -> {
+                            if (ref.getTargetTable().equals(ref2.getTargetTable())) {
+                              foundOverlap.set(true);
+                            }
+                          });
+                });
+        if (!foundOverlap.get()) {
+          throw new MolgenisException(
+              String.format(
+                  "Add column '%s.%s' failed: refLink '%s' does not have overlapping refTable with '%s'",
+                  c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
+        }
+      }
+      // fix required
+      if (c.getKey() == 1 && !c.isRequired()) {
+        c.setRequired(true);
+      }
+    } catch (MolgenisException e) {
+      throw new MolgenisException(
+          "Column " + c.getTableName() + "." + c.getName() + " is invalid: " + e.getMessage());
     }
   }
 

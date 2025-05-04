@@ -10,7 +10,10 @@ from setuptools import setup
 
 if __name__ == "__main__":
     try:
-        setup(version="1.1.0", use_scm_version={"version_scheme": "no-guess-dev"})
+        setup(
+            version="1.2.1",  # bumpversion.sh needs single-quotes # noqa : E261, W291,
+            use_scm_version={"version_scheme": "no-guess-dev"},
+        )
     except:  # noqa
         print(
             "\n\nAn error occurred while building the project, "

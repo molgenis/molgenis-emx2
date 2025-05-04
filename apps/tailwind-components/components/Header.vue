@@ -1,18 +1,24 @@
 <template>
-  <header class="antialiased px-5 lg:px-0 xl:bg-navigation">
+  <header
+    class="antialiased px-5 lg:px-0 xl:bg-navigation border-b-theme border-color-theme box-border"
+  >
     <Container>
-      <div class="items-center justify-between hidden xl:flex h-25">
+      <div class="items-center hidden xl:flex h-20">
         <slot name="logo"></slot>
-        <slot name="nav"></slot>
+        <div class="items-center justify-between hidden pl-8 xl:flex xl:grow">
+          <slot name="nav"></slot>
 
-        <div class="w-[450px]">
-          <!-- <SearchBar /> -->
+          <div class="w-[450px]">
+            <!-- <SearchBar /> -->
+          </div>
+
+          <slot name="admin" />
+
+          <slot name="account">
+            <!-- <HeaderButton label="Favorites" icon="star" /> -->
+            <HeaderButton label="Account" icon="user" />
+          </slot>
         </div>
-
-        <slot name="account">
-          <!-- <HeaderButton label="Favorites" icon="star" /> -->
-          <HeaderButton label="Account" icon="user" />
-        </slot>
       </div>
 
       <div class="pt-5 xl:hidden">

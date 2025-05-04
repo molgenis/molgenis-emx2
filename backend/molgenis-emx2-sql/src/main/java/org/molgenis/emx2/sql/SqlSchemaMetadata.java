@@ -113,12 +113,12 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         .tx(
             database -> {
               SqlSchema s = (SqlSchema) database.getSchema(getName());
+              SqlSchemaMetadata sm = s.getMetadata();
               if (tables.length > 1) {
                 // make use of dependency sorting etc
                 s.migrate(new SchemaMetadata().create(tables));
               } else {
                 TableMetadata table = tables[0];
-                SqlSchemaMetadata sm = s.getMetadata();
                 List<TableMetadata> tableList = new ArrayList<>();
                 tableList.addAll(List.of(tables));
                 validateTableIdentifierIsUnique(sm, table);
@@ -134,8 +134,8 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                 }
                 sm.tables.put(table.getTableName(), result);
                 executeCreateTable(((SqlDatabase) database).getJooq(), result);
-                sync(sm);
               }
+              sync(sm);
             });
     getDatabase().getListener().schemaChanged(getName());
     return this;

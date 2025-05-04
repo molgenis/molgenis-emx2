@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 import os
 import tempfile
 from collections import defaultdict
@@ -37,6 +38,7 @@ class AttributesRequest:
     networks: List[str]
     also_known_in: List[str]
     biobanks: List[str]
+    services: List[str]
     studies: List[str]
     collections: List[str]
     facts: List[str]
@@ -100,6 +102,10 @@ class DirectorySession(Session):
         table_id = schema_metadata.get_table(by="name", value=table).id
 
         filter_part = self._prepare_filter(query_filter, table, schema)
+        if filter_part:
+            filter_part = "?filter=" + json.dumps(filter_part)
+        else:
+            filter_part = ""
         query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
         response = self.session.get(url=query_url)
 
@@ -177,10 +183,15 @@ class DirectorySession(Session):
             table="QualityInfoCollections",
         )
 
+        service_qualities = self.get(
+            table="QualityInfoServices",
+        )
+
         bb_qual = defaultdict(list)
         bb_level = defaultdict(list)
         coll_qual = defaultdict(list)
         coll_level = defaultdict(list)
+        service_qual = defaultdict(list)
         for row in biobank_qualities:
             bb_qual[row["biobank"]].append(row["id"])
             bb_level[row["biobank"]].append(row["assess_level_bio"])
@@ -188,11 +199,15 @@ class DirectorySession(Session):
             coll_qual[row["collection"]].append(row["id"])
             coll_level[row["collection"]].append(row["assess_level_col"])
 
+        for row in service_qualities:
+            service_qual[row["service"]].append(row["id"])
+
         return QualityInfo(
             biobanks=bb_qual,
             collections=coll_qual,
             biobank_levels=bb_level,
             collection_levels=coll_level,
+            services=service_qual,
         )
 
     def get_node(self, code: str) -> Node:

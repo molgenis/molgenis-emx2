@@ -1,0 +1,12 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+,colors,,,,,,
+,red,,colors,,,https://dbpedia.org/page/Red,
+,green,,colors,,,https://dbpedia.org/page/Green,
+,blue,,colors,,,,
+,purple,,colors,,,,
+,species,,,,,,
+,mammals,,species,,,,
+,carnivorous mammals,,mammals,,,,
+,herbivorous mammals,,mammals,,,,
+,birds,,species,,,,
+,insect,,species,,,,

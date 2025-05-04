@@ -10,11 +10,19 @@
       cx="10"
       cy="10"
       r="9"
-      stroke-width="1"
+      :style="{ 'stroke-width': invalid ? 2 : 1 }"
       fill="none"
-      class="stroke-gray-600"
       :class="{
-        'fill-yellow-500 stroke-none': checked,
+        'fill-input': !checked,
+        'fill-input-checked group-hover:fill-input-focused group-focus-within:fill-input-focused':
+          checked && !disabled && !invalid && !valid,
+        'fill-invalid': checked && invalid,
+        'fill-valid': checked && valid,
+        'stroke-input peer-focus:stroke-input-focused group-focus-within:stroke-input-focused group-hover:stroke-input-focused':
+          !checked && !disabled && !invalid && !valid,
+        'stroke-valid': valid,
+        'stroke-invalid': invalid,
+        'stroke-disabled fill-disabled': disabled,
       }"
     />
     <circle
@@ -23,10 +31,10 @@
       r="3"
       stroke-width="1"
       stroke="none"
+      class="fill-transparent"
       :class="{
-        'fill-gray-900': checked,
+        '!fill-check': checked,
       }"
-      v-if="checked"
     />
   </svg>
 </template>
@@ -34,5 +42,8 @@
 <script lang="ts" setup>
 defineProps<{
   checked?: boolean;
+  invalid?: boolean;
+  valid?: boolean;
+  disabled?: boolean;
 }>();
 </script>

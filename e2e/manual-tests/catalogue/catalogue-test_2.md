@@ -14,12 +14,12 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ----------------- | -----------------|
-| 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. | | |
-| 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue/) | Landing page: European health research data and sample catalogue| | |
+| 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. Ensure that testCatalogue scheme has been uploaded into the Acceptance server before you start testing | | |
+| 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | Landing page: European health research data and sample catalogue| | |
 | 2 | In section 'Thematic catalogues' hover over the testNetwork1 row | Row should be highlighted | | |
 | 3 | Click on the testNetwork1 logo | Should be directed to the testNetwork1 home page with 'Welcome to the catalogue of testNetwork1: [etc]', and Collections (8), Variables (7) buttons | | |
 | 3a | | There should be 3,700 participants, 498 samples, Longitudinal 25%, 3 Subpopulations given. | | |
-| 3b | | In the ribbon at the top of the page there should be: Left: testNetwork1 logo, Right: (L-R) Collections, Variables, About, Other catalogues, More (-> Upload data) | | |
+| 3b | | In the ribbon at the top of the page there should be: Left: testNetwork1 logo, Right: (L-R) Collections, Variables, About, Other catalogues, More (-> Upload data, Manuals) | | |
 | 4 | Click on the testNetwork1 logo | The page doesn't change | | |
 | 5 | Click on the 'Collections' button at the top | Should be directed to the list of collections for testNetwork1 | | |
 | 6 | In the filters on the left hand side for 'Collection type' select 'Biobank' | Should find 0 collections and text: 'No resources found with current filters' | | |

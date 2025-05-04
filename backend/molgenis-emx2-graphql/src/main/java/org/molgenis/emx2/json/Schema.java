@@ -44,7 +44,6 @@ public class Schema {
             .filter(d -> d.value() != null)
             .collect(Collectors.toMap(Setting::key, Setting::value)));
     for (Table t : this.tables) {
-      if (s.getName() == null) s.setName(t.getSchemaName());
       TableMetadata tm = s.create(table(t.getName()));
       tm.setInheritName(t.getInheritName());
       tm.setSettings(

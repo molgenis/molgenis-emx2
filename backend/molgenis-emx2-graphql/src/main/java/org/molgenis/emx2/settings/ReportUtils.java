@@ -1,5 +1,6 @@
 package org.molgenis.emx2.settings;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import org.jooq.JSONB;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.json.JsonUtil;
 
 public class ReportUtils {
   public static Map<String, String> getReportById(String reportId, Schema schema) {
@@ -17,7 +19,9 @@ public class ReportUtils {
       List<Map<String, String>> reportList = new ObjectMapper().readValue(reportsJson, List.class);
       if (reportsJson != null) {
         Optional<Map<String, String>> reportOptional =
-            reportList.stream().filter(r -> reportId.equals(r.get("id"))).findFirst();
+            reportList.stream()
+                .filter(r -> reportId.equals(String.valueOf(r.get("id"))))
+                .findFirst();
         if (reportOptional.isPresent()) {
           return reportOptional.get();
         }
@@ -26,6 +30,12 @@ public class ReportUtils {
       // nothing to do, error will be handled below
     }
     throw new MolgenisException("Report not found id=" + reportId);
+  }
+
+  public static Object getReportById(String reportId, Schema schema, Map<String, ?> parameters)
+      throws JsonProcessingException {
+    Map<String, String> report = getReportById(reportId, schema);
+    return processRows(schema.retrieveSql(report.get("sql"), parameters));
   }
 
   public static String getReportAsJson(String id, Schema schema, Map<String, ?> parameters) {
@@ -51,20 +61,24 @@ public class ReportUtils {
     return schema.retrieveSql(countSql, parameters).get(0).get("count", Integer.class);
   }
 
-  private static String convertToJson(List<Row> rows) {
+  private static Object processRows(List<Row> rows) throws JsonProcessingException {
     ObjectMapper objectMapper = new ObjectMapper();
-    try {
-      List<Map<String, Object>> result = new ArrayList<>();
-      for (Row row : rows) {
-        if (row.getValueMap().size() == 1) {
-          Object value = row.getValueMap().values().iterator().next();
-          if (value instanceof JSONB) {
-            return value.toString();
-          }
+    List<Map<String, Object>> result = new ArrayList<>();
+    for (Row row : rows) {
+      if (row.getValueMap().size() == 1) {
+        Object value = row.getValueMap().values().iterator().next();
+        if (value instanceof JSONB) {
+          return objectMapper.readValue(value.toString(), Object.class);
         }
-        result.add(row.getValueMap());
       }
-      return objectMapper.writeValueAsString(result);
+      result.add(row.getValueMap());
+    }
+    return result;
+  }
+
+  private static String convertToJson(List<Row> rows) {
+    try {
+      return JsonUtil.getJooqMapper().writeValueAsString(processRows(rows));
     } catch (Exception e) {
       throw new MolgenisException("Cannot convert sql result set to json", e);
     }

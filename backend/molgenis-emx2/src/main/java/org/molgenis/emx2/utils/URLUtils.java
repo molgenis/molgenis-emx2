@@ -15,7 +15,7 @@ public class URLUtils {
         + "://"
         + host
         // ctx.contextPath() should start with "/"
-        + (!ctx.contextPath().isEmpty() ? ctx.contextPath() + "/" : "/");
+        + (!ctx.contextPath().isEmpty() ? ctx.contextPath() : "");
   }
 
   public static boolean isDefaultPort(String scheme, String port) {

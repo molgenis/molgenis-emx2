@@ -13,7 +13,7 @@
         :placeholder="placeholder"
         :readonly="readonly"
         :required="required"
-        :class="{ 'is-invalid': errorMessage || bigIntError }"
+        :class="{ 'is-invalid': errorMessage }"
         @update:modelValue="$emit('update:modelValue', $event)"
       />
       <template v-slot:append>
@@ -28,7 +28,6 @@ import BaseInput from "./baseInputs/BaseInput.vue";
 import BaseInputLong from "./baseInputs/BaseInputLong.vue";
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
-import { getBigIntError } from "../utils";
 
 export default {
   extends: BaseInput,
@@ -36,11 +35,6 @@ export default {
     FormGroup,
     BaseInputLong,
     InputGroup,
-  },
-  computed: {
-    bigIntError() {
-      return getBigIntError(this.modelValue);
-    },
   },
 };
 </script>

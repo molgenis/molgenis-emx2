@@ -1,8 +1,10 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.*;
+import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlDatabaseExecutor.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeCreateSchema;
@@ -33,8 +35,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public static final String USER = "user";
   public static final String WITH = "with {} = {} ";
   public static final int MAX_EXECUTION_TIME_IN_SECONDS = 10;
+  public static final int MAX_EXECUTION_TIME_IN_SECONDS_PROLONGED = 60;
   private static final Settings DEFAULT_JOOQ_SETTINGS =
       new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
+  private static final Settings PROLONGED_TIMEOUT_JOOQ_SETTINGS =
+      new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS_PROLONGED);
   private static final Random random = new SecureRandom();
 
   // shared between all instances
@@ -83,6 +88,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.jooq = jooq;
     databaseVersion = MetadataUtils.getVersion(jooq);
 
+    this.listener = copy.listener;
     // copy all schemas
     this.schemaNames.addAll(copy.schemaNames);
     this.schemaInfos.addAll(copy.schemaInfos);
@@ -168,12 +174,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         setUserPassword(ADMIN_USER, initialAdminPassword);
       }
 
-      this.tx(
-          tdb -> {
-            if (!this.hasSchema(SYSTEM_SCHEMA)) {
-              this.createSchema(SYSTEM_SCHEMA);
-            }
-          });
+      initSystemSchema();
 
       // get the settings
       clearCache();
@@ -228,6 +229,31 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         throw e;
       }
     }
+  }
+
+  private void initSystemSchema() {
+    this.tx(
+        tdb -> {
+          if (!this.hasSchema(SYSTEM_SCHEMA)) {
+            this.createSchema(SYSTEM_SCHEMA);
+          }
+
+          Schema schema;
+          if (!this.hasSchema(SYSTEM_SCHEMA)) {
+            schema = this.createSchema(SYSTEM_SCHEMA);
+          } else {
+            schema = this.getSchema(SYSTEM_SCHEMA);
+          }
+
+          if (!schema.getTableNames().contains("Templates")) {
+            schema.create(
+                table(
+                    "Templates",
+                    column("endpoint").setPkey(),
+                    column("schema").setPkey(),
+                    column("template").setType(ColumnType.TEXT)));
+          }
+        });
   }
 
   @Override
@@ -480,8 +506,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public void removeUser(String user) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin")) throw new MolgenisException("You cant remove admin");
-    if (user.equals("anonymous")) throw new MolgenisException("You cant remove anonymous");
+    if (user.equals("admin")) throw new MolgenisException("You can't remove admin");
+    if (user.equals("anonymous")) throw new MolgenisException("You can't remove anonymous");
+    if (user.equals("user")) throw new MolgenisException("You can't remove user");
 
     if (!hasUser(user))
       throw new MolgenisException(
@@ -684,6 +711,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public DSLContext getJooq() {
     return jooq;
+  }
+
+  public DSLContext getJooqWithExtendedTimeout() {
+    return jooq.configuration().derive(PROLONGED_TIMEOUT_JOOQ_SETTINGS).dsl();
   }
 
   void getJooqAsAdmin(JooqTransaction transaction) {

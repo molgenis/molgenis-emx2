@@ -21,7 +21,7 @@
         <a href="mailto:genturis-registry@umcg.nl">genturis-registry@umcg.nl</a>
         or at the following address.
       </p>
-      <GenturisAddress :centerText="true" />
+      <Address :centerText="true" />
     </PageSection>
   </Page>
 </template>
@@ -29,4 +29,6 @@
 <script setup lang="ts">
 // @ts-ignore
 import { Page, PageHeader, PageSection } from "molgenis-viz";
+// @ts-ignore
+import Address from "../components/Address.vue";
 </script>

@@ -1,23 +1,45 @@
 <template>
-  <div :id="`${id}-radio-group`">
-    <div
-      class="flex justify-start align-center"
-      v-for="option in radioOptions"
-      :key="option.value"
-    >
-      <InputRadio
-        :id="`${id}-radio-group-${option.value}`"
-        class="sr-only"
-        :name="id"
-        :value="option.value"
-        v-model="modelValue"
-        :checked="option.value === modelValue"
-      />
+  <InputGroupContainer
+    :id="`${id}-radio-group`"
+    :aria-describedby="describedBy"
+    class="flex gap-1 border-l-2 border-transparent"
+    :class="{
+      'flex-row': align === 'horizontal',
+      'flex-col': align === 'vertical',
+      'border-l-invalid': invalid,
+      'border-l-valid': valid,
+    }"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  >
+    <div v-for="option in options" class="flex flex-row">
       <InputLabel
         :for="`${id}-radio-group-${option.value}`"
-        class="hover:cursor-pointer flex flex-row gap-1"
+        class="group flex justify-start items-center gap-1 relative"
+        :class="{
+          'text-disabled cursor-not-allowed': disabled,
+          'text-title-contrast cursor-pointer ': !disabled,
+        }"
       >
-        <InputRadioIcon :checked="modelValue === option.value" class="mr-2.5" />
+        <InputRadio
+          :id="`${id}-radio-group-${option.value}`"
+          class="peer sr-only"
+          :value="option.value"
+          :name="id"
+          v-model="modelValue"
+          @input="toggleSelect"
+          :checked="option.value === modelValue"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
+        />
+        <InputRadioIcon
+          :checked="modelValue === option.value"
+          class="mr-1"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
+        />
         <template v-if="option.label">
           {{ option.label }}
         </template>
@@ -26,40 +48,56 @@
         </template>
       </InputLabel>
     </div>
-    <div class="mt-2" v-if="showClearButton">
-      <button
-        type="reset"
-        :id="`${id}-radio-group-clear`"
-        :form="`${id}-radio-group`"
-        @click.prevent="resetModelValue"
-      >
-        Clear
-      </button>
-    </div>
-  </div>
+    <ButtonText
+      v-if="showClearButton"
+      type="reset"
+      :id="`${id}-radio-group-clear`"
+      class="w-8 ml-3"
+      :form="`${id}-radio-group`"
+      @click.prevent="resetModelValue"
+      :disabled="disabled || null"
+    >
+      Clear
+    </ButtonText>
+  </InputGroupContainer>
 </template>
 
 <script lang="ts" setup>
-interface RadioOptionsDataIF {
-  value: string;
-  label?: string;
-  checked?: boolean | undefined;
-}
+import type { columnValue } from "../../../metadata-utils/src/types";
+import type { IInputProps, IValueLabel } from "../../types/types";
 
 withDefaults(
-  defineProps<{
-    id: string;
-    radioOptions: RadioOptionsDataIF[];
-    showClearButton?: boolean;
-  }>(),
+  defineProps<
+    IInputProps & {
+      options: IValueLabel[];
+      showClearButton?: boolean;
+      align?: "horizontal" | "vertical";
+    }
+  >(),
   {
-    showClearButton: false,
+    align: "vertical",
   }
 );
+const modelValue = defineModel<columnValue>();
+const emit = defineEmits([
+  "update:modelValue",
+  "select",
+  "deselect",
+  "blur",
+  "focus",
+]);
 
-const modelValue = defineModel<string>();
+function toggleSelect(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target.checked) {
+    emit("select", target.value);
+  } else {
+    emit("deselect", target.value);
+  }
+  emit("focus");
+}
 
 function resetModelValue() {
-  modelValue.value = "";
+  modelValue.value = undefined;
 }
 </script>

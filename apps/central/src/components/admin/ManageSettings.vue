@@ -4,21 +4,30 @@
     <h3>Manage system settings</h3>
 
     <table class="table table-hover table-bordered bg-white">
-      <thead>
+      <tr>
         <th style="width: 1px">
-          <IconAction icon="plus" @click="handleCreateRequest" />
+          <IconAction
+            icon="plus"
+            @click="handleCreateRequest"
+            aria-label="Add"
+          />
         </th>
         <th>key</th>
         <th>value</th>
-      </thead>
+      </tr>
       <tbody v-if="settings">
         <tr v-for="setting in settings" :key="setting.key">
           <td>
             <div style="display: flex">
-              <IconAction icon="edit" @click="handleRowEditRequest(setting)" />
+              <IconAction
+                icon="edit"
+                @click="handleRowEditRequest(setting)"
+                :aria-label="`Edit-${setting.key}`"
+              />
               <IconDanger
                 icon="trash"
                 @click="handleRowDeleteRequest(setting)"
+                :aria-label="`Remove-${setting.key}`"
               />
             </div>
           </td>

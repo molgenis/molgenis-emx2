@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 interface PropType {
   maximumButtonShown?: number;
   invert?: boolean;
@@ -22,7 +24,6 @@ const mainButtons = computed(() =>
 const subButtons = computed(() =>
   props.navigation.slice(props.maximumButtonShown)
 );
-const active = "underline";
 </script>
 
 <template>

@@ -15,4 +15,4 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-__version__ = "1.1.0"
+__version__ = "1.2.1"  # bumpversion.sh needs single-quotes # noqa : E261, W291
