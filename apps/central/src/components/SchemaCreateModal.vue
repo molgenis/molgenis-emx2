@@ -155,6 +155,7 @@ export default {
         "DATA_CATALOGUE_AGGREGATES",
         "TYPE_TEST",
         "PATIENT_REGISTRY_DEMO",
+        "DATA_CATALOGUE_FEDERATED_DATA_ACCESS",
       ],
       includeDemoData: false,
     };

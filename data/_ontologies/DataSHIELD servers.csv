@@ -1,0 +1,3 @@
+name,label,parent,tags,codesystem,code,ontologyTermURI,definition
+armadillo,Armadillo,,,,,,"Armadillo is a data portal that allows data stewards to share datasets on a server, and researchers to analyse these data and those shared on other servers using the DataSHIELD analysis tools."
+opal,Opal,,,,,,"Opal is OBiBa's core data managment application. This server application provides all the necessary tools to import, transform and describe data."
