@@ -1,0 +1,4 @@
+name: Category
+fields:
+- name: name
+  key: 1

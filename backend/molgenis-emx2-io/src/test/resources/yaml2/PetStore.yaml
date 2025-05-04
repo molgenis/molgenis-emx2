@@ -1,0 +1,5 @@
+name: Pet store
+description: My pet store
+entities:
+- import: petstore/Pets
+- import: petstore/Category
