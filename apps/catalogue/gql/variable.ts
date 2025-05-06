@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
-import mappingsFragment from "../gql/fragments/mappings";
-import { moduleToString } from "../tailwind-components/utils/moduleToString.ts";
+import mappingsFragment from "./fragments/mappings";
+import { moduleToString } from "../../tailwind-components/utils/moduleToString";
 export default gql`
   query Variables(
     $variableFilter:VariablesFilter,
