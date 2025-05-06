@@ -233,7 +233,7 @@ public class Row {
       this.values.put(name, id);
       this.values.put(
           name + "_filename",
-          !value.getFileName().isEmpty() ? value.getFileName() : id + value.getExtension());
+          !value.getFileName().isEmpty() ? value.getFileName() : id + "." + value.getExtension());
       this.values.put(name + "_extension", value.getExtension());
       this.values.put(name + "_mimetype", value.getMimeType());
       this.values.put(name + "_size", value.getSize());
