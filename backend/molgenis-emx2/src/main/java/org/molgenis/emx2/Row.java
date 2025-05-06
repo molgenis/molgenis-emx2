@@ -229,8 +229,11 @@ public class Row {
       this.values.put(name + "_size", null);
       this.values.put(name + "_contents", null);
     } else {
-      this.values.put(name, UUID.randomUUID().toString().replace("-", ""));
-      this.values.put(name + "_filename", value.getFileName());
+      String id = UUID.randomUUID().toString().replace("-", "");
+      this.values.put(name, id);
+      this.values.put(
+          name + "_filename",
+          !value.getFileName().isEmpty() ? value.getFileName() : id + value.getExtension());
       this.values.put(name + "_extension", value.getExtension());
       this.values.put(name + "_mimetype", value.getMimeType());
       this.values.put(name + "_size", value.getSize());
