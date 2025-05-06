@@ -1,18 +1,31 @@
-package org.molgenis.emx2.io.yaml2;
+package org.molgenis.emx2.yaml;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import org.molgenis.emx2.MolgenisException;
 
 public class Yaml2Loader {
+  static ObjectMapper mapper =
+      new ObjectMapper(
+              new YAMLFactory()
+                  .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                  .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES))
+          .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+          .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 
   public Schema loadSchema(URL url) {
     try {
@@ -28,7 +41,6 @@ public class Yaml2Loader {
 
   public static Entity loadEntity(URL url) {
     try {
-      ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
       Entity entity = mapper.readValue(url, Entity.class);
       entity.setSourceURL(url);
       entity.loadImports();
@@ -40,7 +52,6 @@ public class Yaml2Loader {
 
   public static Field loadField(URL url) {
     try {
-      ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
       Field field = mapper.readValue(url, Field.class);
       field.setSourceURL(url);
       return field;
@@ -50,14 +61,10 @@ public class Yaml2Loader {
   }
 
   public String toYaml(Schema schema) throws JsonProcessingException {
-    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     return mapper.writeValueAsString(schema);
   }
 
   public String toYaml(Entity entity) throws JsonProcessingException {
-    ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     return mapper.writeValueAsString(entity);
   }
 
@@ -127,6 +134,22 @@ public class Yaml2Loader {
       return new URL(urlString.substring(0, lastSlash + 1)); // include trailing slash
     } catch (Exception e) {
       throw new MolgenisException("Failed to extract base URL from: " + url, e);
+    }
+  }
+
+  public static class SingleValueListSerializer extends JsonSerializer<List<String>> {
+    @Override
+    public void serialize(List<String> value, JsonGenerator gen, SerializerProvider serializers)
+        throws IOException {
+      if (value != null && value.size() == 1) {
+        gen.writeString(value.get(0));
+      } else {
+        gen.writeStartArray();
+        for (String s : value) {
+          gen.writeString(s);
+        }
+        gen.writeEndArray();
+      }
     }
   }
 }

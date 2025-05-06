@@ -77,6 +77,7 @@ include(':backend:molgenis-emx2-email')
 include(':backend:molgenis-emx2-nonparallel-tests')
 include(':backend:molgenis-emx2-analytics')
 include(':backend:molgenis-emx2-typescript')
+include(':backend:molgenis-emx2-yaml')
 include(':tools:pyclient')
 
 

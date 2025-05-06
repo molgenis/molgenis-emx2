@@ -1,0 +1,25 @@
+entity: Pet
+label: Pets
+labels:
+  nl: Dieren
+description: The pets in the pet store
+descriptions:
+  nl: Dieren in de dieren winkel
+notes:
+- this is my first comment
+fields:
+- field: name
+  label: Name
+  labels:
+    nl: Naam
+  description: The name of the pet
+  descriptions:
+    nl: Naam van het huisdier
+  key: 1
+
+- field: category
+  ref: Category
+  required: true
+
+- import: PetsDetails
+

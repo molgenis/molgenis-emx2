@@ -1,9 +1,0 @@
-name: Pet
-fields:
-- name: name
-  key: 1
-- name: category
-  ref: Category
-  required: true
-- import: PetsDetails
-

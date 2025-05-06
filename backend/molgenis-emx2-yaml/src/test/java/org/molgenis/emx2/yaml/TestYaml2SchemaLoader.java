@@ -1,4 +1,4 @@
-package org.molgenis.emx2.io.yaml2;
+package org.molgenis.emx2.yaml;
 
 import java.io.IOException;
 import java.net.URL;
