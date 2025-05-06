@@ -395,9 +395,6 @@ class QueryEMX2 {
     const andCount = filters && filters["_and"] ? filters["_and"].length : 0;
     const orCount = filters && filters["_or"] ? filters["_or"].length : 0;
 
-    console.log("filters", filters);
-    console.log("property: : ", property);
-
     if (andCount + orCount > 1) {
       let inner = "";
       if (filters["_and"].length) {
@@ -427,7 +424,7 @@ class QueryEMX2 {
       const inner = filters["_or"];
       filterString += `_or: [ ${inner} ]`;
     }
-    console.log("filterString before search: ", filterString);
+
     if (
       this.searchValue &&
       Object.keys(this.searchFieldsByProperty).includes(property) &&
@@ -444,8 +441,6 @@ class QueryEMX2 {
       filterString = filterString.length
         ? `_and: [ { _or: [ ${searchString} ] } , { ${filterString} } ]`
         : `_or: [ ${searchString} ]`;
-
-      console.log("filterString after search", filterString);
     }
     return filterString;
   }
