@@ -1,0 +1,21 @@
+entity: Animals
+variants:
+- variant: CanFly
+- variant: CanSpeak
+- variant: Ducks
+  extends: [CanFly,CanSpeak]
+  when: type?.some(t => t.name == 'Duck')
+- variant: Dogs
+  extends: [CanSpeak]
+  when: type?.some(t => t.name == 'Dog')
+fields:
+- field: type
+  type: ontology_array
+  ref: AnimalTypes
+- field: sound
+  variant: CanSpeak
+- field: breed
+  variant: Dog
+- field: wingspan
+  type: int
+  variant: CanFly

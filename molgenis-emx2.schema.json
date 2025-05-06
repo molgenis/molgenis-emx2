@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Entity",
+  "type": "object",
+  "properties": {
+    "entity": {
+      "type": "string",
+      "description": "The name of the entity"
+    },
+    "label": {
+      "type": "string"
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "description": {
+      "type": "string"
+    },
+    "descriptions": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "variants": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Variant"
+      }
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Field"
+      }
+    },
+    "import": {
+      "type": "string",
+      "description": "Import path"
+    },
+    "import_fields": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "import_variants": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["entity", "fields"],
+  "$defs": {
+    "Field": {
+      "type": "object",
+      "properties": {
+        "field": { "type": "string" },
+        "variant": { "type": "string" },
+        "import_path": { "type": "string" },
+        "import_fields": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+        // Add other known Field properties here
+      },
+      "required": ["field"]
+    },
+    "Variant": {
+      "type": "object",
+      "properties": {
+        "variant": { "type": "string" },
+        "label": { "type": "string" },
+        "labels": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "description": { "type": "string" },
+        "descriptions": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "extends": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "when": { "type": "string" }
+      },
+      "required": ["variant"]
+    }
+  }
+}

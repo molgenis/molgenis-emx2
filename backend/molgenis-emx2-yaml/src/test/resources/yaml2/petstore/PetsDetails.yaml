@@ -1,0 +1,7 @@
+fields:
+- heading: details
+- field: status
+- field: tags
+  type: ontology_array
+  ref: Tags
+- import: PetsExtraField

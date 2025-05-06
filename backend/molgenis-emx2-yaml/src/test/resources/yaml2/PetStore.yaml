@@ -1,0 +1,45 @@
+schema: Pet store
+description: My pet store
+# have all ontologies centrally is a good practice
+# todo ontologySchema: centralOntologies
+entities:
+- import: petstore/Pets
+- import: petstore/Pets
+  entity: My pets
+  description: I like my Pets different
+  import_fields:
+  # changing order just because we can ;-)
+  - category
+  - name
+  # this one is from PetsDetails.PetsExtraField import
+  - extra field
+  # this one is from PetsDetails import
+  - tags
+  fields:
+  - field: category
+    description: I override description of category here
+  - field: my
+    description: some field I added
+- entity: My pets with custom fields in specific places
+  fields:
+  - field: first field
+  - import: petstore/Pets
+    import_fields:
+    # changing order just because we can
+    - category
+    # this one is from PetsDetails.PetsExtraField import
+    - extra field
+    # this one is from PetsDetails import
+    - tags
+  - field: category
+    description: my override of imported category field here
+  - field: my last field
+- import: petstore/Category
+- import: petstore/Animals
+  import_variants: Dogs
+  description: I only like dogs in my Animals table
+  variants:
+  - variant: adding my own variant
+  - variant: Dogs
+    label: Override the label for Dogs
+

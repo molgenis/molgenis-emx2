@@ -1,0 +1,4 @@
+entity: Category
+fields:
+- field: name
+  key: 1
