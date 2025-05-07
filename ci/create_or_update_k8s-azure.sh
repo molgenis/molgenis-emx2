@@ -54,3 +54,4 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 
 rm /tmp/cert_key
 rm /tmp/cert_pem
+
