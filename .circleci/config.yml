@@ -250,18 +250,19 @@ jobs:
     steps:
       - checkout
       - run: npm i -D @playwright/test
+      - run: npm install -g pnpm
       - run:
           name: Install dependencies
-          command: yarn install
+          command: pnpm install
           working_directory: apps
       - run:
           name: Test tailwind components
           command: |
-            yarn playwright install chrome
+            pnpm playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            yarn e2e
+            pnpm run e2e
           working_directory: apps/tailwind-components
       - run:
           name: Wait for catalogue e2e test data to be loaded, poll every 10 seconds
@@ -282,11 +283,11 @@ jobs:
       - run:
           name: Test nuxt ssr catalogue tests
           command: |
-            yarn playwright install chrome
+            pnpm playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            yarn e2e
+            pnpm run e2e
           working_directory: apps/catalogue
       - run:
           name: Wait for directory e2e test data to be loaded, poll every 10 seconds
@@ -307,20 +308,20 @@ jobs:
       - run:
           name: Directory e2e tests
           command: |
-            yarn playwright install chrome
+            pnpm playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            yarn e2e
+            pnpm run e2e
           working_directory: apps/directory
       - run:
           name: UI tests
           command: |
-            yarn playwright install chrome
+            pnpm playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            yarn e2e
+            pnpm run e2e
           working_directory: apps/ui
       - run:
             name: Run non ssr e2e tests
