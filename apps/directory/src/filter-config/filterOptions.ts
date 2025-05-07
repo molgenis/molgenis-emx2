@@ -46,12 +46,24 @@ function _mapToOptions(
   row: any,
   filterLabelAttribute: any,
   filterValueAttribute: any,
-  extraAttributes: any
+  extraAttributes: any[]
 ) {
   if (extraAttributes?.length) {
     return {
       text: row[filterLabelAttribute],
       value: row[filterValueAttribute],
+      extraAttributes: extraAttributes.reduce(
+        (acc: Record<string, any>, attribute: string) => {
+          if (attribute.includes(".")) {
+            const [parent, child] = attribute.split(".");
+            acc[attribute] = row[parent][child];
+          } else {
+            acc[attribute] = row[attribute];
+          }
+          return acc;
+        },
+        {}
+      ),
     };
   } else {
     return {

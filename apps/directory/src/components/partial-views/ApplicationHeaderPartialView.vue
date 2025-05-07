@@ -108,6 +108,7 @@ import { useCheckoutStore } from "../../stores/checkoutStore";
 /** Components used for filters */
 import SearchFilter from "../filters/SearchFilter.vue";
 import CheckboxFilter from "../filters/CheckboxFilter.vue";
+import GroupedCheckboxFilter from "../filters/GroupedCheckboxFilter.vue";
 import OntologyFilter from "../filters/OntologyFilter.vue";
 import ToggleFilter from "../filters/ToggleFilter.vue";
 import { HtmlDropdown } from "molgenis-components";
@@ -128,6 +129,7 @@ export default {
     SearchFilter,
     HtmlDropdown,
     CheckboxFilter,
+    GroupedCheckboxFilter,
     OntologyFilter,
     ToggleFilter,
     CheckOut,
