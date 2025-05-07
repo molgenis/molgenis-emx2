@@ -7,12 +7,18 @@
     />
 
     <div class="d-flex flex-column scrollable-content pt-2">
-      <CheckboxComponent
-        v-for="(option, index) of checkboxOptions"
-        :key="index"
-        v-model="filterSelection"
-        :option="option"
-      />
+      <div v-for="groupName of Object.keys(groupedOptions)">
+        <div>
+          <b>{{ groupLabels[groupName] }}</b>
+        </div>
+        <div v-for="(option, index) of groupedOptions[groupName]">
+          <CheckboxComponent
+            :key="index + groupName"
+            v-model="filterSelection"
+            :option="option"
+          />
+        </div>
+      </div>
     </div>
     <div>
       <button
@@ -59,30 +65,28 @@ const {
 
 const resolvedOptions = ref<IOption[]>([]);
 const reducedOptions = ref<IOption[]>(optionsFilter || []);
-const groupOptions = ref<Record<string, any[]>>({});
+const groupedOptions = ref<Record<string, IOption[]>>({});
+const groupLabels = ref<Record<string, string>>({});
 
 onMounted(() => {
   options().then((response: IOption[]) => {
     resolvedOptions.value = response;
-    if (
-      resolvedOptions.value.find((option: IOption) => {
-        return option.extraAttributes;
-      })
-    ) {
-      const groups = _.uniq(
-        resolvedOptions.value.reduce((accum: string[], option: IOption) => {
-          if (option.extraAttributes) {
-            accum.push(...Object.keys(option.extraAttributes));
-          }
-          return accum;
-        }, [])
-      );
-
-      console.log(groups);
-      groupOptions.value = _.groupBy(resolvedOptions.value, (option:IOption)=>{
-        return option.extraAttributes?[groups[0]]
-      })
-    }
+    groupedOptions.value = resolvedOptions.value.reduce(
+      (accum: Record<string, IOption[]>, option) => {
+        const name = option.extraAttributes["serviceCategory.name"];
+        const label = option.extraAttributes["serviceCategory.label"];
+        if (!accum[name]) {
+          accum[name] = [];
+          groupLabels.value[name] = label;
+        }
+        accum[name].push(option);
+        return accum;
+      },
+      {}
+    );
+  });
+  Object.keys(groupedOptions.value).forEach((key) => {
+    groupedOptions.value[key] = groupedOptions.value[key].sort();
   });
 });
 
@@ -142,7 +146,10 @@ function toggleSelect() {
 interface IOption {
   label: string;
   value: string;
-  extraAttributes?: Record<string, any>;
+  extraAttributes: {
+    "serviceCategory.name": string;
+    "serviceCategory.label": string;
+  };
   parent?: IOption;
   children?: IOption[];
 }
