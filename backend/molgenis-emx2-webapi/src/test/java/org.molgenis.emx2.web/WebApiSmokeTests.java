@@ -55,7 +55,7 @@ public class WebApiSmokeTests {
   public static final String PET_STORE_SCHEMA = "pet store";
   public static String SESSION_ID; // to toss around a session for the tests
   private static Database db;
-  private static Schema schema;
+  private static Schema schema, catalogueSchema;
   final String CSV_TEST_SCHEMA = "pet store csv";
   static final int PORT = 8081; // other than default so we can see effect
 
@@ -94,6 +94,10 @@ public class WebApiSmokeTests {
     schema = db.createSchema(PET_STORE_SCHEMA);
     PET_STORE.getImportTask(schema, true).run();
 
+    db.dropSchemaIfExists(CATALOGUE_DEMO);
+    catalogueSchema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
+    DataModels.Profile.DATA_CATALOGUE.getImportTask(catalogueSchema, true).run();
+
     // grant a user permission
     db.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
     db.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
@@ -114,6 +118,7 @@ public class WebApiSmokeTests {
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
     db.dropSchemaIfExists("pet store yaml");
     db.dropSchemaIfExists("pet store json");
+    db.dropSchemaIfExists(CATALOGUE_DEMO);
   }
 
   @Test
@@ -1680,12 +1685,6 @@ if __name__ == '__main__':
 
   @Test
   void testCatalogueSiteMapEndpoint() {
-    if (db.getSchema(CATALOGUE_DEMO) == null
-        || db.getSchema(CATALOGUE_DEMO).getTable("Resources") == null) {
-      Schema schema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
-      DataModels.Profile.DATA_CATALOGUE.getImportTask(schema, true).run();
-    }
-
     String result = given().get("/%s/sitemap.xml".formatted(CATALOGUE_DEMO)).getBody().asString();
     assertTrue(result.contains("/catalogue-demo/catalogue/all/collections/ABCD"));
   }
