@@ -189,9 +189,6 @@ const query = gql`
     Variables_agg(filter: { resource: { id: { equals: [$id] } } }) {
       count
     }
-    Catalogues{
-        network{id}
-    }
   }
 `;
 const variables = { id: route.params.resource };
@@ -204,7 +201,6 @@ interface IResponse {
   data: {
     Resources: IResourceQueryResponseValue[];
     Variables_agg: { count: number };
-    Catalogues: ICatalogues[];
   };
 }
 const { data, error } = await useFetch<IResponse, IMgError>(
@@ -592,6 +588,7 @@ if (route.params.catalogue) {
     crumbs[
       route.params.resourceType as string
     ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
+  crumbs[route.params.resource] = "";
 } else {
   crumbs["Home"] = `/${route.params.schema}/catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/catalogue/all`;
@@ -869,7 +866,7 @@ const showPopulation = computed(
                {title: 'Network details',
                 url: `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`,
                 },
-               data.data?.Catalogues.some( (catalogue) => catalogue.network.id === network.id)
+               network.type?.some( (type) => type.name === 'Catalogue')
                ? {
                 title: 'Catalogue',
                 url: `/${route.params.schema}/catalogue/${network.id}`,

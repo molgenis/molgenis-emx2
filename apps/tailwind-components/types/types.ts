@@ -58,7 +58,8 @@ export type ButtonType =
   | "text"
   | "outline"
   | "disabled"
-  | "filterWell";
+  | "filterWell"
+  | "inline";
 
 export type ButtonSize = "tiny" | "small" | "medium" | "large";
 
@@ -121,4 +122,8 @@ export interface IInputProps {
   invalid?: boolean;
   valid?: boolean | undefined;
   disabled?: boolean | undefined;
+}
+
+export interface ISession {
+  email: string;
 }

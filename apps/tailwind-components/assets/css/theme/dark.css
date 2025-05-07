@@ -41,6 +41,7 @@
   --background-color-input-checked: var(--color-green-500);
   --background-color-pagination: var(--color-gray-600);
   --background-color-pagination-hover: var(--color-gray-700);
+  --background-color-hover: var(--color-gray-900);
   --background-color-input: var(--color-gray-600);
 
   --background-color-table: var(--color-gray-700);
@@ -59,7 +60,7 @@
   --text-color-breadcrumb: var(--color-green-500);
 
   --text-color-title-contrast: var(--text-color-title);
-  --text-color-table-column-header: var(--color-gray-50);
+  --text-color-table-column-header: var(--color-gray-400);
   --text-color-table-row: var(--color-white);
   --text-color-form-header: var(--color-white);
   --text-color-input-description: var(--color-gray-50);

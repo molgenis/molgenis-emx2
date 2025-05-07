@@ -10,6 +10,7 @@ import org.jooq.JSONB;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.json.JsonUtil;
 
 public class ReportUtils {
   public static Map<String, String> getReportById(String reportId, Schema schema) {
@@ -76,9 +77,8 @@ public class ReportUtils {
   }
 
   private static String convertToJson(List<Row> rows) {
-    ObjectMapper objectMapper = new ObjectMapper();
     try {
-      return objectMapper.writeValueAsString(processRows(rows));
+      return JsonUtil.getJooqMapper().writeValueAsString(processRows(rows));
     } catch (Exception e) {
       throw new MolgenisException("Cannot convert sql result set to json", e);
     }

@@ -1,16 +1,15 @@
-# Number
+# Test Plan 7
 
-7
-
-# Role
+## Role
 
 Researcher searching for certain variables in the 'all variables' explorer and the network-specific explorer
 
-# Goal
+## Goal
 
-A researcher can filter on variables using the search filter, topics and cohorts in both the 'all variables' explorer and the network-specific explorer
+A researcher can filter on variables using the search filter, topics and cohorts in both the 'all variables' explorer
+and the network-specific explorer
 
-# Steps
+## Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |

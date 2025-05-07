@@ -185,7 +185,7 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     if (this.refSchemaName != null) {
       try {
         schema = getSchema().getDatabase().getSchema(this.refSchemaName).getMetadata();
-      } catch (MolgenisException e) {
+      } catch (Exception e) {
         throw new MolgenisException(
             "refSchema '"
                 + this.refSchemaName

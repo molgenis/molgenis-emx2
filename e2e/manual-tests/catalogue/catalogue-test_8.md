@@ -1,16 +1,14 @@
-# Number
+# Test Plan 8
 
-8
-
-# Role
+## Role
 
 Naïve user of the data catalogue
 
-# Goal
+## Goal
 
 A naïve visitor to the data catalogue can click around through items in the menu ribbon and end up where they would expect
 
-# Steps
+## Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- |----------------- | --------------- |
