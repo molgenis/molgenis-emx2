@@ -1,4 +1,3 @@
-<script setup lang="ts"></script>
 <template>
   <div
     class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden pt-15"
@@ -9,6 +8,7 @@
       <BackgroundGradient class="z-10" />
     </div>
     <div class="z-30 relative min-h-screen flex flex-col">
+      <PlaygroundNavBar />
       <main class="mb-auto">
         <div id="header-place-holder"></div>
         <div class="xl:flex">
@@ -20,3 +20,7 @@
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import PlaygroundNavBar from "../PlaygroundNavBar.vue";
+</script>

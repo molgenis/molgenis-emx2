@@ -37,7 +37,7 @@ public class GraphGenomeApi {
             + (ctx.port() > 0 ? ":" + ctx.port() : "")
             + (!ctx.path().isEmpty() ? "/" + ctx.path() + "/" : "/");
     var format = RDFApi.selectFormat(ctx);
-    new GraphGenome(baseURL, RDFApi.RDF_API_LOCATION, format)
+    new GraphGenome(baseURL, format)
         .graphGenomeAsRDF(
             outputStream, gene, assembly, ucscgenome, GRAPH_GENOME_API_LOCATION, tables);
     outputStream.flush();

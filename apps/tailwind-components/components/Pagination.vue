@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { onMounted, useId } from "vue";
+
 const pageInputId = useId();
 
 const props = withDefaults(
@@ -6,9 +8,11 @@ const props = withDefaults(
     currentPage: number;
     totalPages: number;
     preventDefault?: boolean;
+    inverted?: boolean;
   }>(),
   {
     preventDefault: false,
+    inverted: false,
   }
 );
 const emit = defineEmits(["update"]);
@@ -57,16 +61,17 @@ function changeCurrentPage(event: Event) {
     class="pt-12.5 font-display text-heading-xl -mx-2.5"
     :aria-labelledby="`${pageInputId}Label`"
   >
-    <span :id="`${pageInputId}Label`" class="sr-only"
-      >pagingation navigation</span
-    >
+    <span :id="`${pageInputId}Label`" class="sr-only">
+      pagination navigation
+    </span>
     <ul class="flex items-center justify-center list-none">
       <li>
         <a
+          href="#"
           @click.prevent="onPrevClick"
-          class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination text-pagination h-15 w-15"
+          class="flex justify-center border border-pagination rounded-pagination bg-pagination text-pagination-button h-15 w-15"
           :class="{
-            'hover:bg-pagination-hover hover:text-pagination-hover':
+            'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
               currentPage > 1,
           }"
         >
@@ -77,24 +82,39 @@ function changeCurrentPage(event: Event) {
       <li class="flex justify-center items-center">
         <div class="px-4 tracking-widest sm:px-5">
           <label :for="pageInputId" class="sr-only">go to specific page</label>
-          <span class="text-pagination">Page</span>
+          <span
+            class="text-pagination"
+            :class="{
+              'text-pagination-inverted': inverted,
+            }"
+          >
+            Page
+          </span>
         </div>
         <input
           :id="pageInputId"
-          class="sm:px-12 px-7.5 w-32 text-center border rounded-pagination text-pagination-input h-15 flex items-center tracking-widest bg-white"
+          class="sm:px-12 px-7.5 w-32 text-center border border-input rounded-pagination bg-input text-pagination-input h-15 flex items-center tracking-widest"
           :value="currentPage"
           @change="changeCurrentPage"
         />
         <div class="px-4 tracking-widest sm:px-5 whitespace-nowrap">
-          <span class="text-pagination">OF {{ totalPages }}</span>
+          <span
+            class="text-pagination"
+            :class="{
+              'text-pagination-inverted': inverted,
+            }"
+          >
+            OF {{ totalPages }}
+          </span>
         </div>
       </li>
       <li>
         <a
+          href="#"
           @click.prevent="onNextClick"
-          class="flex justify-center transition-colors border border-pagination rounded-pagination bg-pagination text-pagination h-15 w-15"
+          class="flex justify-center border border-pagination rounded-pagination bg-pagination text-pagination-button h-15 w-15"
           :class="{
-            'hover:bg-pagination-hover hover:text-pagination-hover':
+            'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
               currentPage < totalPages,
           }"
         >

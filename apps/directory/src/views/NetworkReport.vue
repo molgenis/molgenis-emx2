@@ -6,7 +6,7 @@
     >
       <Spinner />
     </div>
-    <div v-else class="container-fluid">
+    <div v-else-if="network" class="container-fluid">
       <div class="row">
         <div class="col my-3 shadow-sm d-flex p-2 align-items-center bg-white">
           <Breadcrumb
@@ -48,7 +48,7 @@
                 <Tabs :tabIds="['collections', 'biobanks']">
                   <template #collections-header>
                     <CollectionsHeader
-                      :collectionCount="collections?.length"
+                      :collectionCount="collections.length"
                       :subcollectionCount="subcollectionCount"
                     />
                   </template>
@@ -123,9 +123,9 @@ import { Breadcrumb, Spinner, Tabs } from "molgenis-components";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
+import CollectionsHeader from "../components/report-components/CollectionsHeader.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
 import ContactInformation from "../components/report-components/ContactInformation.vue";
-import CollectionsHeader from "../components/report-components/CollectionsHeader.vue";
 import ReportDescription from "../components/report-components/ReportDescription.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
@@ -158,14 +158,21 @@ const networkReport = computed(() => networkStore.networkReport);
 const collections = computed(() =>
   filterCollections(networkReport.value.collections)
 );
-const biobanks = computed(() => networkReport.value.biobanks);
+const biobanks = computed(() =>
+  networkReport.value.biobanks.filter((biobank: Record<string, any>) => {
+    return !biobank.withdrawn;
+  })
+);
 const network = computed(() => networkReport.value.network);
 const alsoKnownIn = computed(() => mapAlsoKnownIn(network.value));
 const subcollectionCount = computed<number>(
   () =>
-    networkReport.value.collections?.filter(
-      (collection: Record<string, any>) => collection.parent_collection
-    ).length || 0
+    networkReport.value.collections
+      ?.filter(
+        (collection: Record<string, any>) => collection.parent_collection
+      )
+      .filter((collection: Record<string, any>) => !collection.withdrawn)
+      .length || 0
 );
 
 function filterCollections(collections: Record<string, any>[]) {
@@ -173,6 +180,9 @@ function filterCollections(collections: Record<string, any>[]) {
     collections
       ?.filter((collection: Record<string, any>) => {
         return !collection.parent_collection;
+      })
+      .filter((collection: Record<string, any>) => {
+        return !collection.withdrawn;
       })
       .map((collection: Record<string, any>) =>
         getCollectionDetails(collection)

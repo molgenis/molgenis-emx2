@@ -87,6 +87,14 @@ public class Row {
     return getStringArray(name, true);
   }
 
+  // If a value contains a comma but is not of type array, only return that single value without
+  // forcing it into becoming an array, creating a wrongful representation of that value
+  public String[] getStringArrayPreserveDelimiter(Column column) {
+    return column.isArray()
+        ? getStringArray(column.getName(), true)
+        : new String[] {getString(column.getName())};
+  }
+
   public String[] getStringArray(String name, boolean emptyAsNull) {
     if (values.get(name) == null) {
       // if the key is present but no value, returning an empty array allows updating to an empty
@@ -169,10 +177,6 @@ public class Row {
 
   public JSONB getJsonb(String name) {
     return TypeUtils.toJsonb(values.get(name));
-  }
-
-  public JSONB[] getJsonbArray(String name) {
-    return TypeUtils.toJsonbArray(values.get(name));
   }
 
   public Row setString(String name, String value) {
@@ -344,8 +348,6 @@ public class Row {
         return (T) getStringArray(name);
       case "JSONB":
         return (T) getJsonb(name);
-      case "JSONB[]":
-        return (T) getJsonbArray(name);
       case "Integer":
         return (T) getInteger(name);
       case "Integer[]":

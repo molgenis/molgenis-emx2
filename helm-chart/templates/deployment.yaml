@@ -27,7 +27,7 @@ spec:
             limits:
               memory: "2Gi"
             requests:
-              memory: "500Mi"
+              memory: "256Mi"
           ports:
             - containerPort: 8080
           env:
@@ -45,6 +45,10 @@ spec:
                   key: databasepassword
             - name: MOLGENIS_POSTGRES_URI
               value: jdbc:postgresql://localhost/{{ .Values.database.name }}
+            - name: MOLGENIS_INCLUDE_TYPE_TEST_DEMO
+              value: {{ .Values.includeTypeTestDemo | quote }}
+            - name: MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO
+              value: {{ .Values.includePatientRegistryDemo | quote }}
             - name: MOLGENIS_INCLUDE_CATALOGUE_DEMO
               value: {{ .Values.catalogue.includeCatalogueDemo | quote }}
             - name: MOLGENIS_INCLUDE_DIRECTORY_DEMO
@@ -74,9 +78,9 @@ spec:
             - max_locks_per_transaction=1024
           resources:
             limits:
-              memory: "1Gi"
+              memory: "512Mi"
             requests:
-              memory: "256Mi"
+              memory: "128Mi"
           env:
             - name: POSTGRES_DB
               value: {{ .Values.postgres.name }}
@@ -102,9 +106,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             limits:
-              memory: "1Gi"
+              memory: "128Mi"
             requests:
-              memory: "256Mi"
+              memory: "64Mi"
           ports:
             - containerPort: 3000
           env:

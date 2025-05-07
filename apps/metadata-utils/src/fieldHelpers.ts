@@ -1,4 +1,4 @@
-import { IColumn } from "./types";
+import type { IColumn } from "./types";
 
 export const fieldTypes = () => {
   return [
@@ -32,6 +32,7 @@ export const fieldTypes = () => {
     "TEXT_ARRAY",
     "UUID",
     "UUID_ARRAY",
+    "JSON",
   ];
 };
 
@@ -56,7 +57,8 @@ export const isValueType = (column: IColumn) => {
     column.columnType === "DATETIME" ||
     column.columnType === "INT" ||
     column.columnType === "LONG" ||
-    column.columnType === "DECIMAL"
+    column.columnType === "DECIMAL" ||
+    column.columnType === "JSON"
   );
 };
 

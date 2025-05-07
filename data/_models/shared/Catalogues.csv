@@ -1,7 +1,0 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible,computed
-Catalogues,,,,,,,,,,,dcat:Catalog,A collection of resources within a network or consortium or about a common topic,DataCatalogueFlat,,
-Catalogues,,name,,1,true,,,,,,dct:title,The name given to the catalogue,DataCatalogueFlat,,
-Catalogues,,network,ref,1,true,,Resources,,,,,Network or consortium that publishes this catalogue,DataCatalogueFlat,,
-Catalogues,,type,ontology,,true,CatalogueOntologies,CatalogueTypes,,,,dcat:theme,Type of catalogue,DataCatalogueFlat,,
-Catalogues,,description,text,,true,,,,,,dct:description,Description of this catalogue,DataCatalogueFlat,,"network?.description"
-Catalogues,,publisher,,,,,,,,,dct:publisher,The organisation responsible for making the catalogue available,DataCatalogueFlat,,

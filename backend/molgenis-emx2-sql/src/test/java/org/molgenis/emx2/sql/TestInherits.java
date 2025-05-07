@@ -299,6 +299,13 @@ public class TestInherits {
             .get(0)
             .getName());
 
+    // try to add faulty reftable
+    assertThrows(
+        MolgenisException.class,
+        () -> {
+          s.create(table("will fail", column("id").setPkey(), column("ref").setType(REF)));
+        });
+
     // can also drop the table without errors when trigger is removed
     ceoTable.getMetadata().drop();
     manager.getMetadata().drop();

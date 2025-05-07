@@ -23,10 +23,12 @@ import org.molgenis.emx2.sql.SqlDatabase;
 public class TaskServiceInDatabase extends TaskServiceInMemory {
   private SqlDatabase database;
   private String systemSchemaName;
+  private URL hostUrl;
 
-  public TaskServiceInDatabase(String systemSchemaName) {
+  public TaskServiceInDatabase(String systemSchemaName, URL hostUrl) {
     this.database = new SqlDatabase(false);
     this.systemSchemaName = systemSchemaName;
+    this.hostUrl = hostUrl;
     this.init();
   }
 
@@ -90,7 +92,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   @Override
-  public String submitTaskFromName(String scriptName, String parameters, URL url) {
+  public String submitTaskFromName(String scriptName, String parameters) {
     StringBuilder result = new StringBuilder();
     String defaultUser = database.getActiveUser();
     database.tx(
@@ -99,7 +101,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
           Schema systemSchema = db.getSchema(this.systemSchemaName);
 
           ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
-          scriptTask.setServerUrl(url);
+          scriptTask.setServerUrl(hostUrl);
           String user =
               scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
 
@@ -116,11 +118,6 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                       .submitUser(user)));
         });
     return result.toString();
-  }
-
-  @Override
-  public String submitTaskFromName(final String scriptName, final String parameters) {
-    return submitTaskFromName(scriptName, parameters, null);
   }
 
   private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {
@@ -291,12 +288,13 @@ f.close()
                     "script",
                     demoScript,
                     "dependencies",
-                    "numpy==1.23.4", // it has a dependency :-)
+                    "numpy==2.2.4",
                     "type",
                     "python",
                     "outputFileExtension",
                     "txt"));
-            scripTypes.insert(row("name", "python")); // lowercase by convention
+            scripTypes.insert(
+                row("name", "python"), row("name", "bash")); // lowercase by convention
             jobStatus.insert(
                 Arrays.stream(TaskStatus.values()).map(value -> row("name", value)).toList());
           } // else, migrations in the future

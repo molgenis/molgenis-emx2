@@ -1,0 +1,6 @@
+order,name,label,parent,codesystem,code,ontologyTermURI,definition
+1,Heterozygous,Heterozygous,,,,,
+2,Homozygous,Homozygous,,,,,
+3,Hemizygous,Hemizygous,,,,,
+4,Heteroplasmic,Heteroplasmic,,,,,
+5,Homoplasmic,Homoplasmic,,,,,

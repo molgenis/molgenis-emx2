@@ -1,25 +1,123 @@
 <template>
   <main>
-    <section class="d-flex justify-content-center">
-      <landingpage-header
-        :header-text="pageHeader"
-        :linkText="gotoCatalogue"
-        :css="landingpageCss"
-      >
-        <landingpage-search
-          :buttonText="search.buttonText"
-          :ariaLabel="search.ariaLabel"
-          :searchPlaceholder="search.searchPlaceholder"
-          :css="landingpageCss"
-        />
-        <button
-          class="edit-button header-section"
-          @click="$emit('open', 'landingpage-header')"
-          v-if="editable"
+    <section class="w-75 mx-auto">
+      <h1 class="text-center py-5">
+        {{ headerText }}
+      </h1>
+      <div class="row">
+        <div
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
         >
-          Edit
-        </button>
-      </landingpage-header>
+          <ImageCard
+            label="Autoimmune Diseases"
+            image-src="img/bacterial-blue.png"
+            alt-text="bacterial"
+            :to="{ name: 'catalogue', query: { Categories: 'autoimmune' } }"
+          />
+        </div>
+        <div
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
+        >
+          <ImageCard
+            label="Cardiovascular Deseases"
+            image-src="img/heart-blue.png"
+            alt-text="bacterial"
+            :to="{ name: 'catalogue', query: { Categories: 'cardiovascular' } }"
+          />
+        </div>
+        <div
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
+        >
+          <ImageCard
+            label="COVID 19"
+            image-src="img/coronavirus-blue.png"
+            alt-text="coronavirus"
+            :to="{ name: 'catalogue', query: { Categories: 'covid19' } }"
+          />
+        </div>
+        <div
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
+        >
+          <ImageCard
+            label="Infectious Diseases"
+            image-src="img/infected-blue.png"
+            alt-text="infected"
+            :to="{ name: 'catalogue', query: { Categories: 'infectious' } }"
+          />
+        </div>
+        <div
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
+        >
+          <ImageCard
+            label="Metabolic Disorders"
+            image-src="img/metabolism-blue.png"
+            alt-text="metabolism"
+            :to="{ name: 'catalogue', query: { Categories: 'metabolic' } }"
+          />
+        </div>
+        <div
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
+        >
+          <ImageCard
+            label="Nervous System Disorders"
+            image-src="img/brain-blue.png"
+            alt-text="brain"
+            :to="{ name: 'catalogue', query: { Categories: 'nervous_system' } }"
+          />
+        </div>
+        <div
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
+        >
+          <ImageCard
+            label="Oncology"
+            image-src="img/ribbon-blue.png"
+            alt-text="Oncology"
+            :to="{ name: 'catalogue', query: { Categories: 'oncology' } }"
+          />
+        </div>
+        <div
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
+        >
+          <ImageCard
+            label="Pediatrics"
+            image-src="img/pediatrics-blue.png"
+            alt-text="pediatrics"
+            :to="{ name: 'catalogue', query: { Categories: 'paediatrics' } }"
+          />
+        </div>
+        <div
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
+        >
+          <ImageCard
+            label="Population Reference"
+            image-src="img/blood-sample-blue.png"
+            alt-text="Population Reference"
+            :to="{ name: 'catalogue', query: { Categories: 'population' } }"
+          />
+        </div>
+        <div
+          class="col-sm-6 col-md-4 col-xl-3 d-flex justify-content-center pb-3"
+        >
+          <ImageCard
+            label="Rare Diseases"
+            image-src="img/statistics-blue.png"
+            alt-text="Rare Diseases"
+            :to="{ name: 'catalogue', query: { Categories: 'rare_disease' } }"
+          />
+        </div>
+        <div
+          class="col-sm-12 col-md-8 col-xl-6 cards-section-other d-flex justify-content-center align-items-center"
+        >
+          <div>
+            <p>or proceed to the directory without any selection</p>
+            <router-link
+              class="btn btn-lg btn-outline-secondary btn-block"
+              to="/catalogue"
+              >Directory</router-link
+            >
+          </div>
+        </div>
+      </div>
     </section>
     <section
       class="d-flex justify-content-between mx-5 my-5 cta-container w-75 mx-auto"
@@ -72,63 +170,61 @@
   </main>
 </template>
 
-<script>
+<script setup lang="ts">
 import LandingpageBiobankSpotlight from "../components/landingpage-components/LandingpageBiobankSpotlight.vue";
 import LandingpageCallToAction from "../components/landingpage-components/LandingpageCallToAction.vue";
-import LandingpageHeader from "../components/landingpage-components/LandingpageHeader.vue";
 import LandingpageCollectionSpotlight from "../components/landingpage-components/LandingpageCollectionSpotlight.vue";
-import LandingpageSearch from "../components/landingpage-components/LandingpageSearch.vue";
 import { useSettingsStore } from "../stores/settingsStore";
+import ImageCard from "../components/ImageCard.vue";
+import Button from "../components/Button.vue";
+import { computed } from "vue";
+import router from "../router";
 
-export default {
-  setup() {
-    const settingsStore = useSettingsStore();
+const settingsStore = useSettingsStore();
 
-    return { settingsStore };
-  },
-  props: {
-    editable: {
-      type: Boolean,
-      required: false,
-      default: () => false,
-    },
-  },
-  components: {
-    LandingpageHeader,
-    LandingpageSearch,
-    LandingpageCallToAction,
-    LandingpageBiobankSpotlight,
-    LandingpageCollectionSpotlight,
-  },
-  computed: {
-    landingpage() {
-      if (this.settingsStore.configurationFetched) {
-        return this.settingsStore.config.landingpage;
-      } else return this.settingsStore.config;
-    },
-    pageHeader() {
-      return this.landingpage.page_header;
-    },
-    gotoCatalogue() {
-      return this.landingpage.goto_catalogue_link;
-    },
-    search() {
-      return this.landingpage.page_search;
-    },
-    biobankSpotlight() {
-      return this.landingpage.page_biobank_spotlight;
-    },
-    collectionSpotlight() {
-      return this.landingpage.page_collection_spotlight;
-    },
-    callToActions() {
-      return this.landingpage.page_call_to_actions;
-    },
-    landingpageCss() {
-      return this.landingpage.css;
-    },
-  },
-};
+withDefaults(
+  defineProps<{
+    editable: boolean;
+  }>(),
+  {
+    editable: false,
+  }
+);
+
+interface ILandingpageConfig {
+  headerText?: string;
+  page_biobank_spotlight?: {
+    header?: string;
+    biobankName?: string;
+    biobankId?: string;
+    bodyHtml?: string;
+    buttonText?: string;
+  };
+  page_collection_spotlight?: any;
+  page_call_to_actions?: any;
+  css?: any;
+}
+
+const landingpage = computed(() =>
+  settingsStore.configurationFetched
+    ? (settingsStore.config.landingpage as ILandingpageConfig)
+    : (settingsStore.config as ILandingpageConfig)
+);
+
+const biobankSpotlight = computed(
+  () => landingpage.value.page_biobank_spotlight || {}
+);
+const collectionSpotlight = computed(
+  () => landingpage.value.page_collection_spotlight
+);
+const callToActions = computed(() => landingpage.value.page_call_to_actions);
+const landingpageCss = computed(() => landingpage.value.css);
+
+const headerText = computed(
+  () =>
+    landingpage.value.headerText ??
+    "Search the BBMRI-ERIC Directory by category"
+);
 </script>
 
 <style scoped>
@@ -158,5 +254,9 @@ section {
 .collection-spotlight-section {
   top: 2%;
   right: 2%;
+}
+
+.cards-section-other {
+  color: #003675;
 }
 </style>

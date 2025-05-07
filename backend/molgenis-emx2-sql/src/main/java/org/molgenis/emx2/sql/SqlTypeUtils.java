@@ -26,6 +26,7 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static void applyValidationAndComputed(List<Column> columns, Row row) {
     Map<String, Object> graph = convertRowToMap(columns, row);
+    addJavaScriptBindings(columns, graph);
     for (Column c : columns.stream().filter(c -> !c.isHeading()).toList()) {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
         row.setString(
@@ -179,8 +180,7 @@ public class SqlTypeUtils extends TypeUtils {
       case DATETIME_ARRAY -> row.getDateTimeArray(name);
       case PERIOD -> row.getPeriod(name);
       case PERIOD_ARRAY -> row.getPeriodArray(name);
-      case JSONB -> row.getJsonb(name);
-      case JSONB_ARRAY -> row.getJsonbArray(name);
+      case JSON -> row.getJsonb(name);
       default ->
           throw new UnsupportedOperationException(
               "Unsupported columnType found:" + c.getColumnType());
@@ -209,7 +209,7 @@ public class SqlTypeUtils extends TypeUtils {
       case DATE_ARRAY -> "date[]";
       case DATETIME -> "timestamp without time zone";
       case DATETIME_ARRAY -> "timestamp without time zone[]";
-      case JSONB -> "jsonb";
+      case JSON -> "jsonb";
       default ->
           throw new MolgenisException(
               "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
@@ -222,20 +222,24 @@ public class SqlTypeUtils extends TypeUtils {
       // validation
       if (column.getValidation() != null) {
         // check if validation script contains js functions that are bound to java functions
-        if (column.getSchema() != null && column.getSchema().getDatabase() != null) {
-          Map<String, Supplier<Object>> bindings =
-              column.getSchema().getDatabase().getJavaScriptBindings();
-          for (String key : bindings.keySet()) {
-            if (column.getValidation().contains(key)) {
-              values.put(key, bindings.get(key).get());
-            }
-          }
-        }
         String errorMessage = checkValidation(column.getValidation(), values);
         if (errorMessage != null)
           throw new MolgenisException(
               "Validation error on column '" + column.getName() + "': " + errorMessage + ".");
       }
+    }
+  }
+
+  private static void addJavaScriptBindings(List<Column> columns, Map<String, Object> values) {
+    if (columns.isEmpty()) return;
+    Column column = columns.get(0);
+    if (column.getTable() == null) return;
+    if (column.getSchema() == null) return;
+    if (column.getSchema().getDatabase() == null) return;
+    Map<String, Supplier<Object>> bindings =
+        column.getSchema().getDatabase().getJavaScriptBindings();
+    for (String key : bindings.keySet()) {
+      values.put(key, bindings.get(key).get());
     }
   }
 

@@ -9,11 +9,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.json.JavalinJackson;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +33,9 @@ public class MolgenisWebservice {
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
   private static final String ROBOTS_TXT = "robots.txt";
   private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
-  static MolgenisSessionManager sessionManager;
-  static OIDCController oidcController;
+  public static MolgenisSessionManager sessionManager;
+  public static OIDCController oidcController;
+  static URL hostUrl;
 
   private MolgenisWebservice() {
     // hide constructor
@@ -39,7 +44,7 @@ public class MolgenisWebservice {
   public static void start(int port) {
 
     sessionManager = new MolgenisSessionManager();
-    oidcController = new OIDCController(sessionManager, new SecurityConfigFactory().build());
+    oidcController = new OIDCController();
     Javalin app =
         Javalin.create(
                 config -> {
@@ -48,8 +53,18 @@ public class MolgenisWebservice {
                   config.router.treatMultipleSlashesAsSingleSlash = true;
                   config.jetty.modifyServletContextHandler(
                       handler -> handler.setSessionHandler(sessionManager.getSessionHandler()));
+                  config.jsonMapper(
+                      new JavalinJackson()
+                          .updateMapper(
+                              mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
                 })
             .start(port);
+
+    try {
+      hostUrl = new URL(URIUtils.extractHost(app.jettyServer().server().getURI()));
+    } catch (Exception ignored) {
+      // should we handle this?
+    }
 
     MessageApi.create(app);
 
@@ -90,6 +105,7 @@ public class MolgenisWebservice {
     CsvApi.create(app);
     ZipApi.create(app);
     ExcelApi.create(app);
+    JsonApi.create(app);
     FileApi.create(app);
     JsonYamlApi.create(app);
     TaskApi.create(app);

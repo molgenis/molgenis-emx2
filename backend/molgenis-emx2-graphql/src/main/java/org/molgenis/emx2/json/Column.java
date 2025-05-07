@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
@@ -59,6 +60,7 @@ public class Column {
     this.name = column.getName();
     this.labels =
         column.getLabels().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.oldName = column.getOldName();
@@ -69,11 +71,13 @@ public class Column {
     }
     if (column.isReference()) {
       if (column.getSchema().getDatabase() != null) {
+        if (!column.getRefSchemaName().equals(column.getSchemaName())) {
+          this.refSchemaId = column.getRefSchemaName();
+          this.refSchemaName = column.getRefSchemaName();
+        }
         this.refTableId = column.getRefTable().getIdentifier();
         this.refLabelDefault = column.getRefLabelDefault();
       }
-      this.refSchemaId = column.getRefSchemaName();
-      this.refSchemaName = column.getRefSchemaName();
       this.refTableName = column.getRefTableName();
       if (column.getRefLinkColumn() != null) {
         if (column.getTable().getSchema().getDatabase() != null) {
@@ -83,7 +87,11 @@ public class Column {
       }
       if (column.getRefBack() != null) {
         if (column.getTable().getSchema().getDatabase() != null) {
-          this.refBackId = column.getRefBackColumn().getIdentifier();
+          org.molgenis.emx2.Column refBackColumn = column.getRefBackColumn();
+          if (refBackColumn == null)
+            throw new MolgenisException(
+                "Cannot find refback for " + column.getTableName() + "." + column.getName());
+          this.refBackId = refBackColumn.getIdentifier();
         }
         this.refBackName = column.getRefBack();
       }
@@ -96,6 +104,7 @@ public class Column {
     this.defaultValue = column.getDefaultValue();
     this.descriptions =
         column.getDescriptions().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics = column.getSemantics();
@@ -136,6 +145,7 @@ public class Column {
     c.setVisible(visible);
     c.setComputed(computed);
     c.setReadonly(readonly);
+    c.setProfiles(profiles);
 
     // ignore inherited
     return c;

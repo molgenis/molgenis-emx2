@@ -20,6 +20,7 @@ import HyperlinkDisplay from "./cellTypes/HyperlinkDisplay.vue";
 const typeMap: { [key: string]: string } = {
   FILE: "FileDisplay",
   TEXT: "TextDisplay",
+  JSON: "TextDisplay",
   REFBACK: "ListDisplay",
   REF: "ObjectDisplay",
   ONTOLOGY: "ObjectDisplay",

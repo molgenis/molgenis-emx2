@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 const props = defineProps<{
   color: string;
   type: "background" | "text" | "border" | "radius";
@@ -50,12 +52,12 @@ const radiusClass = computed(() => {
     ></div>
     <div class="relative">
       <div
-        class="pointer-events-none absolute z-50 py-1 px-2 text-sm bg-gray-800 dark:bg-midnight text-white rounded transition duration-200 overflow-hidden"
+        class="pointer-events-none absolute z-50 py-1 px-2 text-sm bg-gray-800 text-white rounded transition duration-200 overflow-hidden"
       >
         <br /><!---->
       </div>
       <div
-        class="inline-block text-sm text-gray-800 dark:text-gray-400 font-mono hover:text-teal-600 dark-hover:text-teal-400 cursor-pointer break-words"
+        class="inline-block text-sm text-title font-mono hover:text-teal-600 cursor-pointer break-words"
       >
         {{ color }}
       </div>

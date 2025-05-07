@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import type { ISectionField } from "~/interfaces/types";
+import { computed } from "vue";
+import type { ISectionField } from "../../../types/types";
+
 const props = defineProps<{
   field: ISectionField;
 }>();

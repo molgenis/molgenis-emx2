@@ -1,20 +1,59 @@
 <template>
   <div class="px-3 pt-1 headerbar card sticky-top border-0 shadow-sm">
     <div class="row my-2">
-      <div class="col-8" aria-label="action-bar">
+      <div class="col px-2" aria-label="action-bar">
         <div class="search-container mr-2 mb-2">
           <SearchFilter />
         </div>
       </div>
-      <div class="col-4 d-flex justify-content-end">
-        <router-link
-          v-if="showSettings"
-          class="btn btn-light border mr-2 align-self-start"
-          to="/configuration"
-        >
-          <span class="mr-2">Settings</span>
-          <span class="fa-solid fa-gear" />
-        </router-link>
+
+      <div class="col d-flex filterbar justify-content-end">
+        <div>
+          <button
+            v-if="
+              hasActiveFilters &&
+              biobanksStore.biobankCardsCollectionCount +
+                biobanksStore.biobankCardsSubcollectionCount >
+                0
+            "
+            @click="selectAllCollections"
+            type="button"
+            class="btn btn-secondary mb-3 text-nowrap"
+          >
+            Select all collections
+            <span class="badge badge-light ml-2">
+              {{
+                biobanksStore.biobankCardsCollectionCount +
+                biobanksStore.biobankCardsSubcollectionCount
+              }}</span
+            >
+          </button>
+        </div>
+        <div>
+          <button
+            v-if="
+              hasActiveFilters && biobanksStore.biobankCardsServicesCount > 0
+            "
+            @click="selectAllServices"
+            type="button"
+            class="btn btn-secondary mb-3 text-nowrap"
+          >
+            Select all services
+            <span class="badge badge-light ml-2">
+              {{ biobanksStore.biobankCardsServicesCount }}</span
+            >
+          </button>
+        </div>
+        <div>
+          <router-link
+            v-if="showSettings"
+            class="btn btn-light border mr-2 mb-3 text-nowrap"
+            to="/configuration"
+          >
+            <span class="mr-2">Settings</span>
+            <span class="fa-solid fa-gear" />
+          </router-link>
+        </div>
         <check-out :bookmark="true" />
       </div>
     </div>
@@ -50,7 +89,6 @@
         :key="toggleFilter.name"
         v-bind="toggleFilter"
       />
-
       <button
         v-if="hasActiveFilters"
         @click="clearAllFilters"
@@ -137,6 +175,50 @@ export default {
     clearAllFilters() {
       this.filtersStore.clearAllFilters();
     },
+    selectAllServices() {
+      const allSelections = this.biobanksStore.biobankCards.map((biobank) => ({
+        biobank: { id: biobank.id, name: biobank.name },
+        services:
+          biobank.services?.map((service) => ({
+            label: service.name,
+            value: service.id,
+          })) || [],
+      }));
+
+      const nonEmptyBiobanks = allSelections.filter(
+        (item) => item.services.length > 0
+      );
+
+      nonEmptyBiobanks.forEach((item) => {
+        this.checkoutStore.addServicesToSelection(
+          item.biobank,
+          item.services,
+          true
+        );
+      });
+    },
+    selectAllCollections() {
+      const allSelections = this.biobanksStore.biobankCards.map((biobank) => ({
+        biobank: { id: biobank.id, name: biobank.name },
+        collections:
+          biobank.collections?.map((collection) => ({
+            label: collection.name,
+            value: collection.id,
+          })) || [],
+      }));
+
+      const nonEmptyBiobanks = allSelections.filter(
+        (item) => item.collections.length > 0
+      );
+
+      nonEmptyBiobanks.forEach((item) => {
+        this.checkoutStore.addCollectionsToSelection(
+          item.biobank,
+          item.collections,
+          true
+        );
+      });
+    },
     filterSelectionCount(facetIdentifier) {
       const options = this.filtersStore.filters[facetIdentifier];
       if (!options || !options.length) {
@@ -166,6 +248,6 @@ export default {
   display: inline-flex;
   position: relative;
   top: 2px; /* aligning it with the dropwdowns */
-  width: 44%;
+  width: 60%;
 }
 </style>

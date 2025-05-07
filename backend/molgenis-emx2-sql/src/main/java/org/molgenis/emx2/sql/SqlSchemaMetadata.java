@@ -9,7 +9,6 @@ import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetMembers;
 import static org.molgenis.emx2.sql.SqlSchemaMetadataExecutor.executeGetRoles;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeCreateTable;
-import static org.molgenis.emx2.utils.TableSort.sortTableByDependency;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -115,10 +114,13 @@ public class SqlSchemaMetadata extends SchemaMetadata {
             database -> {
               SqlSchema s = (SqlSchema) database.getSchema(getName());
               SqlSchemaMetadata sm = s.getMetadata();
-              List<TableMetadata> tableList = new ArrayList<>();
-              tableList.addAll(List.of(tables));
-              if (tableList.size() > 1) sortTableByDependency(tableList);
-              for (TableMetadata table : tableList) {
+              if (tables.length > 1) {
+                // make use of dependency sorting etc
+                s.migrate(new SchemaMetadata().create(tables));
+              } else {
+                TableMetadata table = tables[0];
+                List<TableMetadata> tableList = new ArrayList<>();
+                tableList.addAll(List.of(tables));
                 validateTableIdentifierIsUnique(sm, table);
                 SqlTableMetadata result = null;
                 if (TableType.ONTOLOGIES.equals(table.getTableType())) {
@@ -139,7 +141,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return this;
   }
 
-  private static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {
+  static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {
     for (TableMetadata existingTable : sm.getTables()) {
       if (!existingTable.getTableName().equals(table.getTableName())
           && existingTable.getIdentifier().equals(table.getIdentifier())) {
@@ -239,25 +241,6 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   @Override
   public SqlDatabase getDatabase() {
     return (SqlDatabase) super.getDatabase();
-  }
-
-  public void renameTable(TableMetadata table, String newName) {
-    getDatabase()
-        .tx(
-            db -> {
-              sync(renameTableTransaction(db, getName(), table.getTableName(), newName));
-            });
-  }
-
-  private static SqlSchemaMetadata renameTableTransaction(
-      Database db, String schemaName, String tableName, String newName) {
-    SqlSchemaMetadata sm = (SqlSchemaMetadata) db.getSchema(schemaName).getMetadata();
-    validateTableIdentifierIsUnique(sm, new TableMetadata(newName));
-    SqlTableMetadata tm = sm.getTableMetadata(tableName);
-    tm.alterName(newName);
-    sm.tables.remove(tableName);
-    sm.tables.put(newName, tm);
-    return sm;
   }
 
   public List<String> getIneritedRolesForUser(String user) {

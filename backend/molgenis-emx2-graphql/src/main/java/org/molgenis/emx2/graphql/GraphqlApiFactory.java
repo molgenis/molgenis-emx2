@@ -60,9 +60,10 @@ public class GraphqlApiFactory {
 
     // admin operations
     if (database.isAdmin()) {
-      queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(database));
-      mutationBuilder.field(GraphlAdminFieldFactory.removeUser(database));
-      mutationBuilder.field(GraphlAdminFieldFactory.setEnabledUser(database));
+      queryBuilder.field(GraphqlAdminFieldFactory.queryAdminField(database));
+      mutationBuilder.field(GraphqlAdminFieldFactory.removeUser(database));
+      mutationBuilder.field(GraphqlAdminFieldFactory.setEnabledUser(database));
+      mutationBuilder.field(GraphqlAdminFieldFactory.updateUser(database));
     }
 
     // database operations
@@ -138,7 +139,7 @@ public class GraphqlApiFactory {
 
     mutationBuilder.field(schemaFields.changeMutation(schema));
     mutationBuilder.field(schemaFields.dropMutation(schema));
-    mutationBuilder.field(schemaFields.truncateMutation(schema));
+    mutationBuilder.field(schemaFields.truncateMutation(schema, taskService));
     if ((schema.getRoleForActiveUser() != null
             && schema.getRoleForActiveUser().equals(Privileges.MANAGER.toString()))
         || schema.getDatabase().isAdmin()) {
@@ -166,10 +167,7 @@ public class GraphqlApiFactory {
     // assemble and return
     GraphQL result =
         GraphQL.newGraphQL(
-                GraphQLSchema.newSchema()
-                    .query(queryBuilder.build())
-                    .mutation(mutationBuilder.build())
-                    .build())
+                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
             .mutationExecutionStrategy(
                 new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
             .build();

@@ -1,49 +1,64 @@
 {
-    "defaults": {
-        "reporters": [
-            "cli",
-            [
-                "pa11y-ci-reporter-html",
-                {
-                    "destination": ".reports/",
-                    "includeZeroIssues": true
-                }
-            ]
-        ]
-    },
-    "urls": [
-        "http://localhost:3000/Banner.story",
-        "http://localhost:3000/Button.story",
-        "http://localhost:3000/CustomTooltip.story",
-        "http://localhost:3000/DisplayList.story",
-        "http://localhost:3000/Dropdown.story",
-        "http://localhost:3000/FilterSearch.story",
-        "http://localhost:3000/FooterComponent.story",
-        "http://localhost:3000/Header.story",
-        "http://localhost:3000/Icons.story",
-        "http://localhost:3000/Icons.story",
-        "http://localhost:3000/input/Checkbox.story",
-        "http://localhost:3000/input/Label.story",
-        "http://localhost:3000/input/List.story",
-        "http://localhost:3000/input/Select.story",
-        "http://localhost:3000/input/String.story",
-        "http://localhost:3000/input/TextArea.story",
-        "http://localhost:3000/input/Tree.story",
-        "http://localhost:3000/Logo.story",
-        "http://localhost:3000/LogoMobile.story",
+  "defaults": {
+    "reporters": [
+      "cli",
+      [
+        "pa11y-ci-reporter-html",
         {
-           "url":"http://localhost:3000/Modal.story",
-           "actions": [
-            "click element button.flex.items-center"
-           ]
-        },
-        "http://localhost:3000/Navigation.story",
-        "http://localhost:3000/Pagination.story",
-        {
-            "url": "http://localhost:3000/SideModal.story",
-            "actions": ["click element button.flex.items-center"]
-        },
-        "http://localhost:3000/table/EMX2.story",
-        "http://localhost:3000/viz/ChartLegend.story"
+          "destination": ".reports/",
+          "includeZeroIssues": true
+        }
+      ]
     ]
+  },
+  "urls": [
+    "http://localhost:3000/Banner.story",
+    "http://localhost:3000/BreadCrumbs.story",
+    "http://localhost:3000/Button.story",
+    "http://localhost:3000/ButtonBar.story",
+    "http://localhost:3000/ButtonDropdown.story",
+    "http://localhost:3000/CustomTooltip.story",
+    "http://localhost:3000/DataFetch.other",
+    "http://localhost:3000/DisplayList.story",
+    "http://localhost:3000/FilterSearch.story",
+    "http://localhost:3000/FooterComponent.story",
+    "http://localhost:3000/Form.story",
+    "http://localhost:3000/FormField.story",
+    "http://localhost:3000/Header.story",
+    "http://localhost:3000/Icons.story",
+    "http://localhost:3000/Legend.story",
+    "http://localhost:3000/Logo.story",
+    "http://localhost:3000/LogoMobile.story",
+    "http://localhost:3000/Message.story",
+    "http://localhost:3000/Modal.story",
+    "http://localhost:3000/Navigation.story",
+    "http://localhost:3000/Pagination.story",
+    "http://localhost:3000/SideModal.story",
+    "http://localhost:3000/Styles.other",
+    "http://localhost:3000/form/Error.story",
+    "http://localhost:3000/index",
+    "http://localhost:3000/input/Boolean.story",
+    "http://localhost:3000/input/CheckboxGroup.story",
+    "http://localhost:3000/input/Date.story",
+    "http://localhost:3000/input/DateTime.story",
+    "http://localhost:3000/input/Decimal.story",
+    "http://localhost:3000/input/Email.story",
+    "http://localhost:3000/input/File.story",
+    "http://localhost:3000/input/Hyperlink.story",
+    "http://localhost:3000/input/Int.story",
+    "http://localhost:3000/input/Label.story",
+    "http://localhost:3000/input/List.story",
+    "http://localhost:3000/input/Listbox.story",
+    "http://localhost:3000/input/Long.story",
+    "http://localhost:3000/input/RadioGroup.story",
+    "http://localhost:3000/input/Ref.story",
+    "http://localhost:3000/input/Search.story",
+    "http://localhost:3000/input/Select.story",
+    "http://localhost:3000/input/String.story",
+    "http://localhost:3000/input/TextArea.story",
+    "http://localhost:3000/input/Tree.story",
+    "http://localhost:3000/samples/rowEdit",
+    "http://localhost:3000/table/EMX2.story",
+    "http://localhost:3000/viz/ChartLegend.story"
+  ]
 }

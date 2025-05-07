@@ -1,17 +1,21 @@
 # MOLGENIS Catalogue Guide
 
-We are highly motivated to promote multi-centre human data analysis to improve people's health, linking data from many
-local institutions into networks, optionally by mapping data to common data models, for use in new research. To **find** the data we developed
-a [catalogue](https://data-catalogue.molgeniscloud.org/catalogue/catalogue/#/variable-explorer/). Here you can find the
-metadata of the cohorts and the common data model.
+Welcome to the MOLGENIS Catalogue Guide!
+This guide explains what [the MOLGENIS Catalogue](https://data-catalogue.molgeniscloud.org/)
+is and how you can best use it.
+To help you get to the right information, we have distinguished three roles for users of the catalogue:
+a researcher, looking to find relevant data for their research question,
+a resource data manager, managing the metadata and variable mappings of their resource,
+and a network data manager, managing the common data model of their network.
+Use the table below to find the most relevant section for your role and goal.
 
-We distinguish three roles when using the catalogue:
+| Goal                             |            [Researcher](cat_researcher.md)             |               [Resource <br/> data manager](cat_data-manager.md)               |    [Network <br/> data manager](cat_data-manager.md)    |
+|----------------------------------|:------------------------------------------------------:|:------------------------------------------------------------------------------:|:-------------------------------------------------------:|
+| Fill out rich metadata           |                                                        |             [&check;](cat_data-manager.md#fill-out-rich-metadata)              |  [&check;](cat_data-manager.md#fill-out-rich-metadata)  |
+| Define data dictionaries         |                                                        | [&check;](cat_data-manager.md#define-data-dictionaries-and-common-data-models) |                                                         |
+| Define common data models        |                                                        |                                                                                | [&check;](cat_data-manager.md#define-variable-metadata) |
+| Find (harmonised) variables      |              [&check;](cat_researcher.md)              |                                                                                |                                                         |
+| Find or define variable mappings | [&check;](cat_researcher.md#see-harmonisation-details) |              [&check;](cat_data-manager.md#define-harmonisations)              |                                                         |
+| Request access to the catalogue  |                                                        |                 [&check;](cat_data-manager.md#request-access)                  |      [&check;](cat_data-manager.md#request-access)      |
 
-|     |     | [Researcher](cat_researcher.md) | [Local data manager](cat_cohort-data-manager.md) | [Network data manager](cat_network-data-manager.md) |
-| --- | --- | --- | --- | --- |
-| Catalogue | Data mapping/harmonisation | | [X](cat_cohort-data-manager.md#data-harmonisation) | |
-| Catalogue | Local metadata description | | [X](cat_cohort-data-manager.md#define-metedata-of-cohorts-or-data-sources) | |
-| Catalogue | Describe and upload common data model | | | [X](cat_network-data-manager.md#define-cdm-metadata) |
-| Catalogue | Find (common) variables | [X](cat_researcher.md#find-variables) | | |
-| Catalogue | Find mapping specifications | [X](cat_researcher.md#find-harmonisation-details) | [X](cat_cohort-data-manager.md#define-harmonisations) | |
-| Catalogue | Request access | | [X](cat_cohort-data-manager.md#request-access-catalogue) | [X](cat_network-data-manager.md#request-access) |
+In addition, there is a separate page with information for [system administrators](cat_admin.md).

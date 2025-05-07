@@ -100,11 +100,11 @@ In the apps folder, there are several core frontend applications (e.g., settings
 docker-compose up
 ```
 
-The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use yarn serve. For example, to preview the app `apps/schema`, run the following command.
+The `/api` and `/graphql` paths are proxied as defined in the dev-proxy.config.js. In order to preview individual apps, use `yarn dev`. For example, to preview the app `apps/schema`, run the following command.
 
 ```bash
 cd apps/schema
-yarn serve
+yarn dev
 ```
 
 ## Deploying your application
@@ -409,9 +409,9 @@ By this point, you should have enough to view your app. Run the `yarn dev` comma
 To generate the typescript interfaces for a given schema, run:
 `./gradlew generateTypes --args=[schemaName] [full-path+file-name]`
 
-for example on unix: `./gradlew generateTypes --args='catalogue /Users/john/Code/emx2/molgenis-emx2/apps/nuxt3-ssr/interfaces/generated/types.ts'`
+for example on unix: `./gradlew generateTypes --args='catalogue /Users/john/Code/emx2/molgenis-emx2/apps/catalogue/interfaces/generated/types.ts'`
 "
-or on windows: `.\gradlew generateTypes --args='"catalogue" "C:\Users\john\Code\emx2\molgenis-emx2\apps\nuxt3-ssr\interfaces\generated\types.ts"' `
+or on windows: `.\gradlew generateTypes --args='"catalogue" "C:\Users\john\Code\emx2\molgenis-emx2\apps\catalogue\interfaces\generated\types.ts"' `
 
 The first param is the schema name, second param is the full path to the file the interfaces get generated into.
 Note that the file is either created or overridden, and that the folder must already exist.

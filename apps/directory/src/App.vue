@@ -1,35 +1,47 @@
 <template>
-  <Molgenis v-model="session">
-    <template v-if="banner" #banner>
-      <div v-html="banner"></div>
+  <Molgenis v-model="session" style="background-color: white">
+    <template #banner>
+      <div v-html="banner" />
     </template>
+    <Error />
     <RouterView @click="closeAllDropdownButtons" />
     <template #footer>
-      <Footer />
+      <div v-html="footer" />
     </template>
   </Molgenis>
 </template>
 
-<script setup>
+<script setup lang="ts">
+//@ts-expect-error
 import { Molgenis } from "molgenis-components";
-import { computed, onMounted, watch, ref } from "vue";
+import { onMounted, computed, ref, watch } from "vue";
+import { LocationQuery, useRoute } from "vue-router";
+import Error from "./components/Error.vue";
 import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
-import { useRoute } from "vue-router";
-import { useFiltersStore } from "./stores/filtersStore";
 import { useCheckoutStore } from "./stores/checkoutStore";
+import { useFiltersStore } from "./stores/filtersStore";
 import { useSettingsStore } from "./stores/settingsStore";
-import Footer from "./components/Footer.vue";
+import { useFavicon, usePreferredDark } from "@vueuse/core";
 
 const route = useRoute();
 const query = computed(() => route.query);
+
 const filtersStore = useFiltersStore();
 const checkoutStore = useCheckoutStore();
+const settingsStore = useSettingsStore();
 
-const banner = ref("");
+const banner = computed(() => settingsStore.config.banner);
+const footer = computed(() => settingsStore.config.footer);
+
+const session = ref({});
+
+watch(session, () => {
+  settingsStore.setSessionInformation(session.value);
+});
 
 watch(
   query,
-  (newQuery, oldQuery) => {
+  (newQuery: LocationQuery, oldQuery) => {
     if (newQuery && Object.keys(newQuery).length) {
       const remainingKeys = Object.keys(newQuery).filter(
         (key) => key !== "cart"
@@ -44,7 +56,11 @@ watch(
       newQuery &&
       Object.keys(newQuery).length === 0
     ) {
-      createBookmark(filtersStore.filters, checkoutStore.selectedCollections);
+      createBookmark(
+        filtersStore.filters,
+        checkoutStore.selectedCollections,
+        checkoutStore.selectedServices
+      );
       applyBookmark(newQuery);
     }
 
@@ -54,43 +70,31 @@ watch(
   },
   { immediate: true, deep: true }
 );
-onMounted(async () => {
-  const settingsStore = useSettingsStore();
-  await settingsStore.initializeConfig();
 
-  if (settingsStore.config.banner) {
-    banner.value = settingsStore.config.banner;
-  }
-});
+onMounted(changeFavicon);
 
-function closeAllDropdownButtons(event) {
+function closeAllDropdownButtons(event: any) {
   const allDropdownButtons = document.querySelectorAll(".dropdown-button");
-  if (event.target.id) {
-    for (const dropdownButton of allDropdownButtons) {
-      if (dropdownButton.id !== event.target.id) {
+  if (event.target?.id) {
+    allDropdownButtons.forEach((dropdownButton) => {
+      if (dropdownButton.id !== event.target?.id) {
         dropdownButton.removeAttribute("open");
       }
-    }
+    });
   } else {
-    for (const dropdownButton of allDropdownButtons) {
+    allDropdownButtons.forEach((dropdownButton) => {
       dropdownButton.removeAttribute("open");
-    }
+    });
   }
 }
-</script>
 
-<script>
-export default {
-  data() {
-    return {
-      session: {},
-    };
-  },
-  watch: {
-    session(sessionState) {
-      const settingsStore = useSettingsStore();
-      settingsStore.setSessionInformation(sessionState);
-    },
-  },
-};
+function changeFavicon() {
+  const faviconUrl = getFaviconUrl();
+  useFavicon(faviconUrl);
+}
+
+function getFaviconUrl() {
+  const isDark = usePreferredDark();
+  return isDark ? "bbmri-darkmode-favicon.ico" : "bbmri-lightmode-favicon.ico";
+}
 </script>

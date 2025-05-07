@@ -4,7 +4,7 @@ import static org.jooq.impl.DSL.*;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
-import static org.molgenis.emx2.sql.SqlDatabase.TEN_SECONDS;
+import static org.molgenis.emx2.sql.SqlDatabase.MAX_EXECUTION_TIME_IN_SECONDS;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.MG_TABLECLASS_UPDATE;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.updateSearchIndexTriggerFunction;
 
@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 23;
-  public static final int THREE_MINUTES = 180;
+  private static final int SOFTWARE_DATABASE_VERSION = 27;
+  public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
   public static synchronized void initOrMigrate(SqlDatabase db) {
@@ -152,6 +152,29 @@ public class Migrations {
             executeMigrationFile(tdb, "migration23.sql", "add enable state to user metadata");
           }
 
+          // we skip 24 because there was an bug in the migration that is now 25
+
+          if (version < 25) {
+            executeMigrationFile(
+                tdb,
+                "migration24.sql",
+                "add function to retrieve child terms from ontology to enable query expansion");
+          }
+
+          if (version < 26) {
+            executeMigrationFile(
+                tdb,
+                "migration25.sql",
+                "migrate page settings to advanced page editor data object");
+          }
+
+          if (version < 27) {
+            executeMigrationFile(
+                tdb,
+                "migration26.sql",
+                "set ownership of all trigger function to the manager role");
+          }
+
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
         });
@@ -217,14 +240,14 @@ public class Migrations {
   static void executeMigrationFile(Database db, String sqlFile, String message) {
     DSLContext jooq = ((SqlDatabase) db).getJooq();
     try {
-      jooq.settings().setQueryTimeout(THREE_MINUTES);
+      jooq.settings().setQueryTimeout(MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS);
       String sql = new String(Migrations.class.getResourceAsStream(sqlFile).readAllBytes());
       jooq.execute(sql);
       logger.debug(message + "(file = " + sqlFile);
     } catch (IOException e) {
       throw new MolgenisException("Execute migration failed", e);
     } finally {
-      jooq.settings().setQueryTimeout(TEN_SECONDS);
+      jooq.settings().setQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
     }
   }
 

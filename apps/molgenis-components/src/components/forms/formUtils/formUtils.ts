@@ -1,10 +1,26 @@
-import type { IColumn, ITableMetaData } from "metadata-utils";
-import { IRow } from "../../../Interfaces/IRow";
+import type {
+  columnValue,
+  IColumn,
+  ITableMetaData,
+  recordValue,
+} from "../../../../../metadata-utils/src/types";
+import type { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
 
-const { EMAIL_REGEX, HYPERLINK_REGEX, PERIOD_REGEX, AUTO_ID, HEADING } =
-  constants;
+const {
+  EMAIL_REGEX,
+  HYPERLINK_REGEX,
+  PERIOD_REGEX,
+  AUTO_ID,
+  HEADING,
+  MIN_INT,
+  MAX_INT,
+  MIN_LONG,
+  MAX_LONG,
+} = constants;
+const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
+const INT_ERROR = `Invalid value: must be value from ${MIN_INT} to ${MAX_INT}`;
 
 export function getRowErrors(
   tableMetaData: ITableMetaData,
@@ -22,16 +38,15 @@ export function getRowErrors(
   );
 }
 
-function getColumnError(
+export function getColumnError(
   column: IColumn,
-  rowData: Record<string, any>,
+  rowData: recordValue | undefined,
   tableMetaData: ITableMetaData
 ): string | undefined {
-  const value = rowData[column.id];
+  const value = rowData?.[column.id];
   const type = column.columnType;
   const missesValue = isMissingValue(value);
   // FIXME: this function should also check all array types
-  // FIXME: longs are not checked
 
   try {
     if (!isColumnVisible(column, rowData, tableMetaData)) {
@@ -63,32 +78,103 @@ function getColumnError(
     }
   }
 
-  if (missesValue) {
+  if (value === undefined || (!type.includes("_ARRAY") && missesValue)) {
     return undefined;
   }
-  if (type === "EMAIL" && !isValidEmail(value)) {
+  if (type === "EMAIL" && isInvalidEmail(value)) {
     return "Invalid email address";
   }
   if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
     return "Invalid email address";
   }
-  if (type === "HYPERLINK" && !isValidHyperlink(value)) {
+  if (type === "HYPERLINK" && isInvalidHyperlink(value)) {
     return "Invalid hyperlink";
   }
   if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
     return "Invalid hyperlink";
   }
-  if (type === "PERIOD" && !isValidPeriod(value)) {
+  if (type === "PERIOD" && !isInvalidPeriod(value)) {
     return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
   }
   if (type === "PERIOD_ARRAY" && containsInvalidPeriod(value)) {
     return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
+  }
+  if (type === "JSON") {
+    try {
+      if (
+        typeof value === "string" &&
+        !isJsonObjectOrArray(JSON.parse(value))
+      ) {
+        return `Root element must be an object or array`;
+      }
+    } catch {
+      return `Please enter valid JSON`;
+    }
+  }
+  if (type === "LONG" && getBigIntError(value as string | undefined)) {
+    return getBigIntError(value as string | undefined);
+  }
+  if (
+    type === "LONG_ARRAY" &&
+    (value as string[]).some((val) => getBigIntError(val))
+  ) {
+    return BIG_INT_ERROR;
+  }
+  if (type === "DECIMAL" && isNaN(parseFloat(value as string))) {
+    return "Invalid number";
+  }
+  if (
+    type === "DECIMAL_ARRAY" &&
+    (value as string[]).some((val) => val && isNaN(parseFloat(val as string)))
+  ) {
+    return "Invalid number";
+  }
+  if (type === "INT") {
+    const intError = getIntError(value as number);
+    if (intError) {
+      return intError;
+    }
+  }
+  if (type === "INT_ARRAY") {
+    const errorInt = (value as number[]).find((val) => getIntError(val));
+    if (errorInt) {
+      return getIntError(errorInt as number);
+    }
   }
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
   }
 
   return undefined;
+}
+
+export function getBigIntError(value?: string): string | undefined {
+  if (isInvalidBigInt(value)) {
+    return BIG_INT_ERROR;
+  } else {
+    return undefined;
+  }
+}
+
+export function isInvalidBigInt(value?: string): boolean {
+  const isValidRegex = /^-?\d+$/;
+  if (!value) {
+    return true;
+  }
+  if (isValidRegex.test(value)) {
+    return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
+  } else {
+    return true;
+  }
+}
+
+function getIntError(value: number): string | undefined {
+  if (isNaN(value)) {
+    return "Invalid number";
+  }
+  if (value < MIN_INT || value > MAX_INT) {
+    return INT_ERROR;
+  }
 }
 
 export function isMissingValue(value: any): boolean {
@@ -111,9 +197,9 @@ export function isRequired(value: string | boolean): boolean {
   }
 }
 
-function isInValidNumericValue(columnType: string, value: number) {
+function isInValidNumericValue(columnType: string, value?: columnValue) {
   if (["DECIMAL", "INT"].includes(columnType)) {
-    return isNaN(value);
+    return value === undefined || (typeof value === "number" && isNaN(value));
   } else {
     return false;
   }
@@ -121,7 +207,7 @@ function isInValidNumericValue(columnType: string, value: number) {
 
 function getRequiredExpressionError(
   expression: string,
-  values: Record<string, any>,
+  values: Record<string, any> | undefined,
   tableMetaData: ITableMetaData
 ): string | undefined {
   try {
@@ -139,7 +225,7 @@ function getRequiredExpressionError(
 
 function getColumnValidationError(
   validation: string,
-  values: Record<string, any>,
+  values: recordValue | undefined,
   tableMetaData: ITableMetaData
 ) {
   try {
@@ -158,7 +244,7 @@ function getColumnValidationError(
 
 export function executeExpression(
   expression: string,
-  values: Record<string, any>,
+  values: recordValue | undefined,
   tableMetaData: ITableMetaData
 ) {
   //make sure all columns have keys to prevent reference errors
@@ -169,7 +255,7 @@ export function executeExpression(
     }
   });
   if (!copy.mg_tableclass) {
-    copy.mg_tableclass = `${tableMetaData.schemaId}.${tableMetaData.label}`;
+    copy.mg_tableclass = `${tableMetaData.id}.${tableMetaData.label}`;
   }
 
   // A simple client for scripts to use to request data.
@@ -203,28 +289,35 @@ export function executeExpression(
   return func(simplePostClient, ...Object.values(copy));
 }
 
-function isValidHyperlink(value: any) {
-  return HYPERLINK_REGEX.test(String(value).toLowerCase());
+function isInvalidHyperlink(value: any) {
+  return value && !HYPERLINK_REGEX.test(value);
 }
 
 function containsInvalidHyperlink(hyperlinks: any) {
-  return hyperlinks.find((hyperlink: any) => !isValidHyperlink(hyperlink));
+  return hyperlinks.some((hyperlink: string) => isInvalidHyperlink(hyperlink));
 }
 
-function isValidEmail(value: any) {
-  return EMAIL_REGEX.test(String(value).toLowerCase());
+function isInvalidEmail(value: any) {
+  return value && !EMAIL_REGEX.test(value);
 }
 
 function containsInvalidEmail(emails: any) {
-  return emails.find((email: any) => !isValidEmail(email));
+  return emails.some((email: any) => isInvalidEmail(email));
 }
 
-function isValidPeriod(value: any) {
-  return PERIOD_REGEX.test(String(value));
+function isInvalidPeriod(value: any) {
+  return !PERIOD_REGEX.test(value);
 }
 
 function containsInvalidPeriod(periods: any) {
-  return periods.find((period: any) => !isValidPeriod(period));
+  return periods.some((period: any) => isInvalidPeriod(period));
+}
+
+export function isJsonObjectOrArray(parsedJson: any) {
+  if (typeof parsedJson === "object" && parsedJson !== null) {
+    return true;
+  }
+  return false;
 }
 
 export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
@@ -248,7 +341,7 @@ export function filterVisibleColumns(
 
 export function isColumnVisible(
   column: IColumn,
-  values: Record<string, any>,
+  values: recordValue | undefined,
   tableMetadata: ITableMetaData
 ): boolean {
   const expression = column.visible;

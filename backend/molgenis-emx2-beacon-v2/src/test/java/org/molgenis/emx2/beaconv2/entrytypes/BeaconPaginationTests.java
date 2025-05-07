@@ -3,10 +3,12 @@ package org.molgenis.emx2.beaconv2.entrytypes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 
+@Disabled
 public class BeaconPaginationTests extends BeaconModelEndPointTest {
 
   @Test

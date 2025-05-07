@@ -40,10 +40,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   private String validation = null;
   private String visible = null; // javascript expression to influence vibility
   private String computed = null; // javascript expression to compute a value, overrides updates
-  private String[] semantics = null; // json ld expression
+  private String[] semantics = null; // absolute IRI or prefixed name
   private String[] profiles = null; // comma-separated strings
 
-  // todo implement below, or remove
   private Boolean readonly = false;
   private String defaultValue = null;
   private boolean indexed = false;
@@ -215,13 +214,6 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public Column setRefTable(String refTable) {
-    if (refTable != null && !getColumnType().isReference()) {
-      throw new MolgenisException(
-          "Cannot set refTable for column '"
-              + getName()
-              + "': is not a reference but a "
-              + getColumnType());
-    }
     this.refTable = refTable;
     return this;
   }
@@ -254,7 +246,11 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
   }
 
   public Column setRequired(String required) {
-    this.required = required;
+    if ("true".equalsIgnoreCase(required) || "false".equalsIgnoreCase(required)) {
+      this.required = required.toLowerCase();
+    } else {
+      this.required = required;
+    }
     return this;
   }
 
@@ -391,6 +387,25 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return getColumnType().isReference();
   }
 
+  public Column getReferenceRefback() {
+    if (!this.isReference()) {
+      return null;
+    }
+    // in complex table rename scenarios the refTable might not be available
+    // todo, never have to check if null
+    if (this.getRefTable() != null) {
+      for (Column c : this.getRefTable().getColumns()) {
+        if (c.isRefback()
+            && c.getRefTableName().equals(this.getTableName())
+            && c.getRefSchemaName().equals(this.getSchemaName())
+            && this.getName().equals(c.getRefBack())) {
+          return c;
+        }
+      }
+    }
+    return null;
+  }
+
   public String getSchemaName() {
     return getTable().getSchemaName();
   }
@@ -471,7 +486,8 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
           }
           if (name == null) {
             name = getName();
-            if (pkeys.size() > 1) {
+            // fixed in #4705 to also accommodate for nested composite keys checking keyParts!
+            if (pkeys.size() > 1 || keyPart.getReferences().size() > 0) {
               name += COMPOSITE_REF_SEPARATOR + ref.getName();
             }
           }
@@ -615,8 +631,9 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
     return refLink;
   }
 
-  public void setRefLink(String refLink) {
+  public Column setRefLink(String refLink) {
     this.refLink = refLink;
+    return this;
   }
 
   public Column getRefLinkColumn() {

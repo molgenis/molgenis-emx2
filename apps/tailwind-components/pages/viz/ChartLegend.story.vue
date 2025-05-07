@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 const legendItemHovered = ref<string>();
 const legendItemClicked = ref<string[]>();
 const legendItemClickedSingle = ref<string[]>([]);
@@ -13,7 +15,7 @@ const legendData = {
 
 <template>
   <div class="[&>p]:mb-3 [&>p]:mt-2">
-    <h4 class="text-heading-2xl">Legend Item Marker Component</h4>
+    <h3 class="text-heading-2xl">Legend Item Marker Component</h3>
     <p>
       The legend component has one child component:
       <code>ChartLegendMarker</code>. This component allows you to change the
@@ -32,7 +34,7 @@ const legendData = {
       <ChartLegendMarker marker-type="circle" fill="orange" />
       <ChartLegendMarker marker-type="square" fill="orange" />
     </div>
-    <h4 class="text-heading-2xl">The Legend Component</h4>
+    <h3 class="text-heading-2xl">The Legend Component</h3>
     <p>
       The purpose of the <code>ChartLegend</code> component is to provide
       context for charts that display grouped data. The color palette in the
@@ -60,7 +62,7 @@ const legendData = {
       :data="legendData"
       :stack-legend="true"
     />
-    <h4 class="text-heading-2xl mt-2">Legend Interactivity</h4>
+    <h3 class="text-heading-2xl mt-2">Legend Interactivity</h3>
     <p>
       Interactive features are also available on the legend component. These
       features can be used to control a chart by extracting the value of a

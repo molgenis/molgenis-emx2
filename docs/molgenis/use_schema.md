@@ -28,7 +28,7 @@ Will be the name of the table. Must be unique per database (including present on
 It must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31 (so it fits in Excel sheet names).
 
 Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$`  
-See the [database naming requirements](./use_database.md#naming-requirements) for some examples.
+See the [database naming requirements](./use_database.md#naming-requirements) for some examples (keep in mind a database name allows for `-` as well).
 
 Settings defined on a line with the `tableName` without a `columnname` will apply to the table instead of a column.
 
@@ -39,7 +39,7 @@ Will be the name of the column. Must be unique per tableName. Default value: emp
 It must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63 (PostgreSQL limit for identifiers before they get truncated).
 
 Regular expression requirement: `^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,62}$`  
-See the [database naming requirements](./use_database.md#naming-requirements) for some examples (where `columnName` has a higher character limit).
+See the [database naming requirements](./use_database.md#naming-requirements) for some examples (keep in mind a database name allows for `-` as well and has a lower character limit).
 
 If a `columnName` contains spaces, it is escaped to camelCase for usage as variable.
 For example, `first name` would be defined as `firstName` when creating a validation expression.
@@ -60,7 +60,7 @@ Basic type:
 - datetime
 - period : string as a ISO 8601 duration containing Years, Months and/or Days. (P2Y4M30D)
 - uuid
-- jsonb : validates json format
+- json : validates json format (must be an array or object!)
 - file
 - text : string that displays as text area
 
@@ -145,6 +145,11 @@ Optionally you can also use javascript expressions. For example:
 
 Known limitation: doesn't work for columns refering to a table with composite primary key (i.e. having multiple key=1 fields).
 
+### semantics
+
+Using semantics allows for defining how a table should be represented in RDF.
+For a detailed description on how to use this field, see [this section](./semantics.md).
+
 ### label,label:en,label:fr etc
 
 Using label you can change the labels in forms. Typically useful for data capture and surveys. Using :suffix you can give labels for multiple languages, e.g.
@@ -187,6 +192,58 @@ If you want to create a two-directional relationship, you can use columnType=ref
 refTable that is of columnType=ref or columnType=ref_array and refers to this table. A refback column behaves as a ref_array, but is in fact either many_to_many
 or many_to_one, depending on whether the refback is ref or ref_array. Refback columns are read-only (i.e. you cannot insert/update data in these columns). See
 the example below.
+
+### refLink
+
+!> This functionality is currently not configurable through the web interface.
+
+When dealing with a design where a composite key indirectly refers to the same table through multiple layers,
+one can use `refLink` to simplify the data processing. This way, complex duplicate mentioning of the same "final table"
+is unneeded and only the additional primary keys still need to be mentioned for the in-between tables.
+
+For example, imagine the following schema with 3 tables:
+```mermaid
+---
+config:
+    markdownAutoWrap: false
+---
+flowchart LR
+  t1["`**table 1**
+      p1: key=1 ref(table3)
+      p2: key=1 ref(table2) refLink(p1)
+    `"]
+    
+  t2["`**table 2**
+      id1: key=1 ref(table3)
+      id2: key=1 string
+    `"]
+    
+  t3["`**table 3**
+      id: key=1 string
+    `"]
+  
+  t1-->|p2|t2
+  t1-->|p1|t3
+  t2-->|id1|t3
+  
+  classDef default text-align:left;
+```
+Here, we have table 1 that has a composite key that refers to both table 2 and table 3.
+As table 2 also has a composite key with a reference to table 3, table 1 indirectly refers to table 3 twice.
+Therefore, `p2` in table1 can set a `refLink(p1)` to indicate parts of table 2 are identical to `p1` from table 1.
+This way, only `id2` from table 2 needs to be specified during data processing.
+Note that table 2 requires a non-ref column for this to function properly.
+
+For a data export, table 2 and table 3 stay identical no matter if a `refLink` is used. However, table 1 will be simplified by using a `refLink`, as explained in the table below:
+
+| column | without refLink | with refLink | explanation                                                                  | 
+|--------|-----------------|--------------|------------------------------------------------------------------------------|
+| p1     | p1              | p1           | stays identical                                                              |
+| p2     | p2.id1          |              | refLink makes this unnecessary                                                |
+| p2     | p2.id2          | p2           | column name can be simplified as only 1 remaining column needs to be defined |
+
+
+?> Want to try out the example above? Download it [here](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/reflink_example1739203151994.zip) and upload it to a database without a schema.
 
 ## Ontologies
 
