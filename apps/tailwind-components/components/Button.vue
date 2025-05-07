@@ -40,8 +40,7 @@ const COLOR_MAPPING = {
     "tracking-widest uppercase font-display bg-button-secondary text-button-secondary border-button-secondary hover:bg-button-secondary-hover hover:text-button-secondary-hover hover:border-button-secondary-hover",
   tertiary:
     "tracking-widest uppercase font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover",
-  text:
-    "group flex items-center text-button-text cursor-pointer disabled:cursor-not-allowed disabled:text-disabled border-none h-auto !p-[inherit]",
+  text: "group flex items-center text-button-text cursor-pointer disabled:cursor-not-allowed disabled:text-disabled border-none h-auto !p-[inherit]",
   outline:
     "tracking-widest uppercase font-display bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover",
   disabled:
@@ -52,7 +51,7 @@ const COLOR_MAPPING = {
     "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary",
 };
 
-const TEXT_MAPPING =  "text-title-contrast group-enabled:hover:underline";
+const TEXT_MAPPING = "text-title-contrast group-enabled:hover:underline";
 
 const SIZE_MAPPING = {
   tiny: "h-8 px-5 text-heading-sm gap-3",
@@ -110,6 +109,11 @@ const tooltipText = computed(() => {
     :class="`${colorClasses} ${sizeClasses} ${iconPositionClass} transition-colors`"
   >
     <BaseIcon v-if="icon" :name="icon" :width="iconSize" />
-    <span :class="`${(type==='text'?TEXT_MAPPING:'')} ${iconOnly?'sr-only':''}`">{{ label }}<slot /></span>
+    <span
+      :class="`${type === 'text' ? TEXT_MAPPING : ''} ${
+        iconOnly ? 'sr-only' : ''
+      }`"
+      >{{ label }}<slot
+    /></span>
   </button>
 </template>
