@@ -11,6 +11,7 @@ import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.RunMolgenisEmx2.CATALOGUE_DEMO;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
@@ -33,6 +34,7 @@ import java.util.*;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
@@ -1674,6 +1676,17 @@ if __name__ == '__main__':
   void signIn() throws JsonProcessingException {
     String token = getToken("admin", "admin");
     assertTrue(token.length() > 10);
+  }
+
+  @Test
+  void testCatalogueSiteMapEndpoint() {
+    if (db.getSchema(CATALOGUE_DEMO) == null) {
+      Schema schema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
+      DataModels.Profile.DATA_CATALOGUE.getImportTask(schema, true).run();
+    }
+
+    String result = given().get("/%s/sitemap.xml".formatted(CATALOGUE_DEMO)).getBody().asString();
+    assertTrue(result.contains("/catalogue-demo/catalogue/all/collections/ABCD"));
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
