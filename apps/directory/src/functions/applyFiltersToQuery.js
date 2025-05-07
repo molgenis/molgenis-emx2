@@ -10,9 +10,6 @@ export async function applyFiltersToQuery(
 
   if (activeFilters.length === 0) return baseQuery;
 
-  console.log("active filters", activeFilters);
-  console.log("filters", filters);
-
   for (const filterKey of activeFilters) {
     const filterDetail = facetDetails[filterKey];
 
