@@ -38,20 +38,13 @@ import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
 import CheckboxComponent from "./base/CheckboxComponent.vue";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { useFiltersStore } from "../../stores/filtersStore";
-import { ref, watch, computed, onMounted } from "vue";
+import { ref, watch, computed, onMounted, toRefs } from "vue";
 import * as _ from "lodash";
 
 const settingsStore = useSettingsStore();
 const filtersStore = useFiltersStore();
 
-const {
-  facetIdentifier,
-  options,
-  currentlyActive,
-  optionsFilter,
-  selectAll,
-  showMatchTypeSelector,
-} = withDefaults(
+const props = withDefaults(
   defineProps<{
     facetIdentifier: string;
     options: Function;
@@ -63,13 +56,22 @@ const {
   { currentlyActive: false, selectAll: false, showMatchTypeSelector: false }
 );
 
+const {
+  facetIdentifier,
+  options,
+  currentlyActive,
+  optionsFilter,
+  selectAll,
+  showMatchTypeSelector,
+} = toRefs(props);
+
 const resolvedOptions = ref<IOption[]>([]);
-const reducedOptions = ref<IOption[]>(optionsFilter || []);
+const reducedOptions = ref<IOption[]>(optionsFilter.value || []);
 const groupedOptions = ref<Record<string, IOption[]>>({});
 const groupLabels = ref<Record<string, string>>({});
 
 onMounted(() => {
-  options().then((response: IOption[]) => {
+  options.value().then((response: IOption[]) => {
     resolvedOptions.value = response;
     groupedOptions.value = resolvedOptions.value.reduce(
       (accum: Record<string, IOption[]>, option) => {
@@ -119,17 +121,17 @@ function createCheckboxOptions(options: IOption[], reducedOptions: IOption[]) {
 
 const filterSelection = computed({
   get() {
-    return filtersStore.getFilterValue(facetIdentifier) || [];
+    return filtersStore.getFilterValue(facetIdentifier.value) || [];
   },
   set(value) {
-    filtersStore.updateFilter(facetIdentifier, value);
+    filtersStore.updateFilter(facetIdentifier.value, value);
   },
 });
 
 watch(
-  () => optionsFilter,
+  () => optionsFilter.value,
   (newValue) => {
-    if (!currentlyActive || !filterSelection.value.length) {
+    if (!currentlyActive.value || !filterSelection.value.length) {
       reducedOptions.value = newValue || [];
     }
   }
