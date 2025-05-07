@@ -1680,7 +1680,8 @@ if __name__ == '__main__':
 
   @Test
   void testCatalogueSiteMapEndpoint() {
-    if (db.getSchema(CATALOGUE_DEMO) == null) {
+    if (db.getSchema(CATALOGUE_DEMO) == null
+        || db.getSchema(CATALOGUE_DEMO).getTable("Resources") == null) {
       Schema schema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
       DataModels.Profile.DATA_CATALOGUE.getImportTask(schema, true).run();
     }

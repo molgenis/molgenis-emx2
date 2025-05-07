@@ -40,6 +40,10 @@ public class CatalogueSiteMap {
     try {
       WebSitemapGenerator wsg = new WebSitemapGenerator(baseUrl);
       Table resourceTable = schema.getTable("Resources");
+      if (resourceTable == null) {
+        throw new MolgenisException(
+            "Expected table 'Resources' not found in schema: %s".formatted(schema.getName()));
+      }
       resourceTable
           .select(s("id"), s("type"))
           .retrieveRows()
