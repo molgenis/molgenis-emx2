@@ -160,7 +160,7 @@ jobs:
     - run:
         name: Docker-Scout scanning on cve's, break on critical. 
         command: |
-        docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code 1 --only-severity critical
+          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code 1 --only-severity critical
 
     - run:
         name: message slack about preview
