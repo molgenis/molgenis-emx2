@@ -101,12 +101,12 @@
 </template>
 
 <script>
+import { useBiobanksStore } from "../../stores/biobanksStore";
 import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useFiltersStore } from "../../stores/filtersStore";
 import { useSettingsStore } from "../../stores/settingsStore";
 
 /** Components used for filters */
-import { HtmlDropdown } from "molgenis-components";
 import CheckboxFilter from "../filters/CheckboxFilter.vue";
 import OntologyFilter from "../filters/OntologyFilter.vue";
 import SearchFilter from "../filters/SearchFilter.vue";
@@ -114,7 +114,7 @@ import ServiceFilter from "../filters/ServiceFilter.vue";
 import ToggleFilter from "../filters/ToggleFilter.vue";
 /** */
 
-import { useBiobanksStore } from "../../stores/biobanksStore";
+import { HtmlDropdown } from "molgenis-components";
 import CheckOut from "../checkout-components/CheckOut.vue";
 
 export default {
