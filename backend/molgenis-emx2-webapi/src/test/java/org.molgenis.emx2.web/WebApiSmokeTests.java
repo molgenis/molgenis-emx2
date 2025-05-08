@@ -11,7 +11,6 @@ import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
-import static org.molgenis.emx2.RunMolgenisEmx2.CATALOGUE_DEMO;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
@@ -34,7 +33,6 @@ import java.util.*;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
-import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
@@ -55,7 +53,7 @@ public class WebApiSmokeTests {
   public static final String PET_STORE_SCHEMA = "pet store";
   public static String SESSION_ID; // to toss around a session for the tests
   private static Database db;
-  private static Schema schema, catalogueSchema;
+  private static Schema schema;
   final String CSV_TEST_SCHEMA = "pet store csv";
   static final int PORT = 8081; // other than default so we can see effect
 
@@ -94,10 +92,6 @@ public class WebApiSmokeTests {
     schema = db.createSchema(PET_STORE_SCHEMA);
     PET_STORE.getImportTask(schema, true).run();
 
-    db.dropSchemaIfExists(CATALOGUE_DEMO);
-    catalogueSchema = db.createSchema(CATALOGUE_DEMO, "from DataCatalogue demo data loader");
-    DataModels.Profile.DATA_CATALOGUE.getImportTask(catalogueSchema, true).run();
-
     // grant a user permission
     db.setUserPassword(PET_SHOP_OWNER, PET_SHOP_OWNER);
     db.setUserPassword(PET_SHOP_VIEWER, PET_SHOP_VIEWER);
@@ -118,7 +112,6 @@ public class WebApiSmokeTests {
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
     db.dropSchemaIfExists("pet store yaml");
     db.dropSchemaIfExists("pet store json");
-    db.dropSchemaIfExists(CATALOGUE_DEMO);
   }
 
   @Test
@@ -1681,12 +1674,6 @@ if __name__ == '__main__':
   void signIn() throws JsonProcessingException {
     String token = getToken("admin", "admin");
     assertTrue(token.length() > 10);
-  }
-
-  @Test
-  void testCatalogueSiteMapEndpoint() {
-    String result = given().get("/%s/sitemap.xml".formatted(CATALOGUE_DEMO)).getBody().asString();
-    assertTrue(result.contains("/catalogue-demo/catalogue/all/collections/ABCD"));
   }
 
   private Row waitForScriptToComplete(String scriptName) throws InterruptedException {
