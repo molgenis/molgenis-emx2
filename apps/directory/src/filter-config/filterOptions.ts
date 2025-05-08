@@ -47,7 +47,7 @@ function _mapToOptions(
   filterLabelAttribute: any,
   filterValueAttribute: any,
   extraAttributes?: string[]
-) {
+): Record<string, any> {
   if (extraAttributes?.length) {
     return {
       text: row[filterLabelAttribute],
@@ -105,22 +105,27 @@ export const genericFilterOptions = (filterFacet: any) => {
           .then((response: Record<string, Record<string, any>>) => {
             let filterOptions = response[sourceTable].map(
               (row: Record<string, any>) => {
-                return {
-                  ..._mapToOptions(
-                    row,
-                    filterLabelAttribute,
-                    filterValueAttribute,
-                    extraAttributes
-                  ),
-                  parent: row.parent
-                    ? row.parent[filterValueAttribute]
-                    : undefined,
-                  children: row.children
-                    ? row.children.map(
-                        (child: any) => child[filterValueAttribute]
-                      )
-                    : undefined,
-                };
+                let result = _mapToOptions(
+                  row,
+                  filterLabelAttribute,
+                  filterValueAttribute,
+                  extraAttributes
+                );
+                const parent = row.parent
+                  ? row.parent[filterValueAttribute]
+                  : undefined;
+                if (parent) {
+                  result[parent] = parent;
+                }
+                const children = row.children
+                  ? row.children.map(
+                      (child: any) => child[filterValueAttribute]
+                    )
+                  : undefined;
+                if (children) {
+                  result[children] = children;
+                }
+                return result;
               }
             );
 
