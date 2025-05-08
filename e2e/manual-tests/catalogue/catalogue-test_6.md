@@ -1,16 +1,15 @@
-# Number
+# Test Plan 6
 
-6
-
-# Role
+## Role
 
 Researcher searching for specific variables across all projects.
 
-# Goal
+## Goal
 
-A researcher searches for specific variables (*example: all ADHD variables*) across all projects to check which cohorts have these available.
+A researcher searches for specific variables (*example: all ADHD variables*) across all projects
+to check which cohorts have these available.
 
-# Steps
+## Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
