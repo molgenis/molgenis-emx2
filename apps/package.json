@@ -2,15 +2,6 @@
   "name": "molgenis-apps-monorepo",
   "private": true,
   "devDependencies": {
-    "autoprefixer": "10.4.19",
     "nx": "20.8.1"
-  },
-  "scripts": {
-    "build": "nx run-many --target=build --all",
-    "build-showcase": "nx run-many --target=build-showcase --all",
-    "format": "nx run-many --target=format --all",
-    "checkFormat": "nx run-many --target=format --all",
-    "lint": "nx run-many --target=format --all",
-    "test": "nx run-many --target=test-ci --all"
   }
 }

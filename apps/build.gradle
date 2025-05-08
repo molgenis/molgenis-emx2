@@ -14,17 +14,50 @@ node {
     download = true
 }
 
-task installJavascriptDependencies(type: PnpmTask, dependsOn: pnpmSetup) {
+task installJavascript(type: PnpmTask, dependsOn: pnpmSetup) {
+   inputs.files(fileTree("${project.buildDir}") {
+        include("**/package.json", "pnpm-lock.yaml")
+    });
+    outputs.files(fileTree("${project.projectDir}") {
+        include("pnpm-lock.yaml") // Single lock file in the root
+    })
     args = ['install']
 }
 
+def excludeDef = {
+    // Exclude 'build', 'dist', and 'showCase' directories from inputs
+    exclude "**/.gradle"
+    exclude "**/dist"
+    exclude "**/node_modules"
+    exclude "**/showCase"
+    exclude "**/.output"
+    exclude "**/.fingerprint.js"
+    exclude "**/.nuxt"
+    exclude "**/public/_nuxt-styles"
+    exclude "**/build"
+    exclude "**/.nx"
+}
+
+clean.doLast {
+    def nxCacheDir = file("${projectDir}/.nx")
+    if (nxCacheDir.exists()) {
+        nxCacheDir.deleteDir()
+        println ".nx cache folder deleted"
+    } else {
+        println ".nx folder not found"
+    }
+}
+
 //run using pnpm after pnpm install
-task buildJavascript(type: PnpmTask, dependsOn: installJavascriptDependencies) {
+task buildJavascript(type: PnpmTask, dependsOn: installJavascript) {
     //delegate heavy lifting to nx
-    args = ['run', 'build']
+    args = ["nx", "run-many", "--target=build", "--all"]
+    inputs.files fileTree(projectDir).matching {
+        with excludeDef
+    }
     //copy build results when done
     doLast {
-        file("${project.projectDir}").eachDir { folder ->
+        file(projectDir).eachDir { folder ->
             def packageJsonFile = file("${folder}/package.json")
             //only files with apps
             if (packageJsonFile.exists()) {
@@ -37,18 +70,32 @@ task buildJavascript(type: PnpmTask, dependsOn: installJavascriptDependencies) {
             }
         }
     }
+
+    outputs.files fileTree(dir: "${project.buildDir}/generated/main/resources/public_html/apps/")
 }
 
 task format(type: PnpmTask) {
+    inputs.files fileTree(projectDir).matching {
+        with excludeDef
+    }
     if (!isCI) {
-        args = ['run', 'format']
+        args = ["nx", "run-many", "--target=format", "--all"]
+        outputs.files fileTree(projectDir).matching {
+            with excludeDef
+        }
     } else {
-        args = ['run', 'checkFormat']
+        args = ["nx", "run-many", "--target=checkFormat", "--all"]
     }
 }
 
 task buildShowcase(type: PnpmTask, dependsOn: buildJavascript) {
-    args = ['run', 'build-showcase']
+    inputs.files fileTree(projectDir).matching {
+        with excludeDef
+    }
+    outputs.files(fileTree("${project.buildDir}") {
+        include("**/.output", "**/showCase")
+    });
+    args = ['nx', 'run-many', '--target=build-showcase', '--all']
     //copy build results when done
     doLast {
         file("${project.projectDir}").eachDir { folder ->
@@ -67,12 +114,18 @@ task buildShowcase(type: PnpmTask, dependsOn: buildJavascript) {
 }
 
 task lint(type: PnpmTask, dependsOn: buildJavascript) {
-    args = ['run', 'lint']
+    inputs.files fileTree(projectDir).matching {
+        with excludeDef
+    }
+    args = ["nx", "run-many", "--target=lint", "--all"]
 }
 
 task testJavaScript(type: PnpmTask, dependsOn: buildJavascript) {
+    inputs.files fileTree(projectDir).matching {
+        with excludeDef
+    }
     //nx takes care of build if needed
-    args = ['run','test']
+    args = ["nx", "run-many", "--target=test-ci", "--all"]
 }
 test.dependsOn testJavaScript
 
