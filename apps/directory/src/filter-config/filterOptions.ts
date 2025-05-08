@@ -117,11 +117,9 @@ export const genericFilterOptions = (filterFacet: any) => {
                 if (parent) {
                   result[parent] = parent;
                 }
-                const children = row.children
-                  ? row.children.map(
-                      (child: any) => child[filterValueAttribute]
-                    )
-                  : undefined;
+                const children = row.children?.map(
+                  (child: any) => child[filterValueAttribute]
+                );
                 if (children) {
                   result[children] = children;
                 }
