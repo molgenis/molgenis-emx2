@@ -20,28 +20,15 @@
         </div>
       </div>
     </div>
-    <div>
-      <button
-        v-if="selectAll"
-        type="button"
-        class="btn btn-link p-2"
-        @click.prevent="toggleSelect"
-      >
-        {{ selectAllText }}
-      </button>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
-import CheckboxComponent from "./base/CheckboxComponent.vue";
-import { useSettingsStore } from "../../stores/settingsStore";
+import { computed, onMounted, ref, toRefs } from "vue";
 import { useFiltersStore } from "../../stores/filtersStore";
-import { ref, watch, computed, onMounted, toRefs } from "vue";
-import * as _ from "lodash";
+import CheckboxComponent from "./base/CheckboxComponent.vue";
+import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
 
-const settingsStore = useSettingsStore();
 const filtersStore = useFiltersStore();
 
 const props = withDefaults(
@@ -50,23 +37,14 @@ const props = withDefaults(
     options: Function;
     currentlyActive?: boolean;
     optionsFilter?: IOption[];
-    selectAll?: boolean;
     showMatchTypeSelector?: boolean;
   }>(),
-  { currentlyActive: false, selectAll: false, showMatchTypeSelector: false }
+  { showMatchTypeSelector: false }
 );
 
-const {
-  facetIdentifier,
-  options,
-  currentlyActive,
-  optionsFilter,
-  selectAll,
-  showMatchTypeSelector,
-} = toRefs(props);
+const { facetIdentifier, options, showMatchTypeSelector } = toRefs(props);
 
 const resolvedOptions = ref<IOption[]>([]);
-const reducedOptions = ref<IOption[]>(optionsFilter.value || []);
 const groupedOptions = ref<Record<string, IOption[]>>({});
 const groupLabels = ref<Record<string, string>>({});
 
@@ -92,33 +70,6 @@ onMounted(() => {
   });
 });
 
-const selectAllText = computed(() => {
-  if (filterSelection.value?.length) {
-    return settingsStore.uiText.value["deselect_all"];
-  } else {
-    return settingsStore.uiText.value["select_all"];
-  }
-});
-
-const checkboxOptions = computed(() =>
-  createCheckboxOptions(resolvedOptions.value, reducedOptions.value)
-);
-
-function createCheckboxOptions(options: IOption[], reducedOptions: IOption[]) {
-  if (reducedOptions.length) {
-    const selectedValues =
-      filterSelection.value?.map((selection: IOption) => selection.value) || [];
-
-    return options.filter(
-      (option: IOption) =>
-        reducedOptions.find((op: IOption) => op.value === option.value) ||
-        selectedValues.includes(option.value)
-    );
-  } else {
-    return options;
-  }
-}
-
 const filterSelection = computed({
   get() {
     return filtersStore.getFilterValue(facetIdentifier.value) || [];
@@ -128,23 +79,6 @@ const filterSelection = computed({
   },
 });
 
-watch(
-  () => optionsFilter.value,
-  (newValue) => {
-    if (!currentlyActive.value || !filterSelection.value.length) {
-      reducedOptions.value = newValue || [];
-    }
-  }
-);
-
-function toggleSelect() {
-  if (filterSelection.value?.length) {
-    filterSelection.value = [];
-  } else {
-    filterSelection.value = checkboxOptions;
-  }
-}
-
 interface IOption {
   label: string;
   value: string;
@@ -152,8 +86,6 @@ interface IOption {
     "serviceCategory.name": string;
     "serviceCategory.label": string;
   };
-  parent?: IOption;
-  children?: IOption[];
 }
 </script>
 

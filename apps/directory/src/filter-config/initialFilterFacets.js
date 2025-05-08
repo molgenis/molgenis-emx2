@@ -95,7 +95,7 @@ export const initialFilterFacets = [
   },
   {
     facetTitle: "Services type",
-    component: "GroupedCheckboxFilter",
+    component: "ServiceFilter",
     sourceSchema: ontologySchema,
     sourceTable: "ServiceTypes",
     applyToColumn: "services.serviceTypes.name",

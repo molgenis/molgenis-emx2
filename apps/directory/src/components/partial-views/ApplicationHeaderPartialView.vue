@@ -101,21 +101,21 @@
 </template>
 
 <script>
+import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useFiltersStore } from "../../stores/filtersStore";
 import { useSettingsStore } from "../../stores/settingsStore";
-import { useCheckoutStore } from "../../stores/checkoutStore";
 
 /** Components used for filters */
-import SearchFilter from "../filters/SearchFilter.vue";
-import CheckboxFilter from "../filters/CheckboxFilter.vue";
-import GroupedCheckboxFilter from "../filters/GroupedCheckboxFilter.vue";
-import OntologyFilter from "../filters/OntologyFilter.vue";
-import ToggleFilter from "../filters/ToggleFilter.vue";
 import { HtmlDropdown } from "molgenis-components";
+import CheckboxFilter from "../filters/CheckboxFilter.vue";
+import OntologyFilter from "../filters/OntologyFilter.vue";
+import SearchFilter from "../filters/SearchFilter.vue";
+import ServiceFilter from "../filters/ServiceFilter.vue";
+import ToggleFilter from "../filters/ToggleFilter.vue";
 /** */
 
-import CheckOut from "../checkout-components/CheckOut.vue";
 import { useBiobanksStore } from "../../stores/biobanksStore";
+import CheckOut from "../checkout-components/CheckOut.vue";
 
 export default {
   setup() {
@@ -129,7 +129,7 @@ export default {
     SearchFilter,
     HtmlDropdown,
     CheckboxFilter,
-    GroupedCheckboxFilter,
+    ServiceFilter,
     OntologyFilter,
     ToggleFilter,
     CheckOut,
