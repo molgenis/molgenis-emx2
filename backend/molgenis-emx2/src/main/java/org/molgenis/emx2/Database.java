@@ -49,7 +49,7 @@ public interface Database extends HasSettingsInterface<Database> {
 
   void setEnabledUser(String name, Boolean enabled);
 
-  void setAdminUser(String name, Boolean enabled);
+  void setAdminUser(String name, Boolean admin);
 
   void setActiveUser(String username);
 
