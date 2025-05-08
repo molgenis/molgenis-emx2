@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,computed,defaultValue
 Resources,,,,,,,,,,,ldp:DirectContainer,Resource of data and/or samples. Use 'resource type' to specify,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
-Resources,,rdf type,hyperlink,,,,,,,,rdf:type,The DCAT type such as dcat:Catalog as computed field,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",type.some(item => item.name === 'Catalogue') ? 'http://www.w3.org/ns/dcat#Catalog' : 'http://www.w3.org/ns/dcat#DatasetSeries',
+Resources,,rdf type,hyperlink,,,,,,,,rdf:type,The DCAT type such as dcat:Catalog as computed field,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",type.some(item => item.name === 'Catalogue') ? 'http://www.w3.org/ns/dcat#Catalog' : 'http://www.w3.org/ns/dcat#Dataset',
 Resources,,fdp endpoint,ref,,,,Endpoint,,,,ldp:membershipResource,FDP endpoint to associated with the catalogue,"DataCatalogueFlat,EMA,INTEGRATE",,= {id: 'main_fdp'}
 Resources,,ldp membership relation,hyperlink,,,,,,,,ldp:hasMemberRelation,LDP membership relation,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,https://w3id.org/fdp/fdp-o#metadataCatalog
 Resources,,overview,heading,,,,,,,,,General information,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
@@ -45,7 +45,7 @@ Resources,,subpopulations,refback,,,,Subpopulations,,resource,,,"List of cohorts
 Resources,,collection events,refback,,,,Collection events,,resource,,dcterms:hasPart,"List of data/sample collection events defined for this collection, if applicable","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",,
 Resources,,resources,ref_array,,,,Resources,,,,dcat:dataset,List of other resources included in this resource,"DataCatalogueFlat,EMA",,
 Resources,,part of resources,refback,,,,Resources,,resources,,dcat:inSeries,List of other collections included in this resource,"DataCatalogueFlat,EMA",,
-Resources,,resources,ref_array,,,catalogue,Resources,,,,,"List of other resources included in this network, e.g. cohorts, biobanks or other networks",NetworksStaging,,
+Resources,,resources,ref_array,,,catalogue,Resources,,,,"dcat:dataset,ldp:contains","List of other resources included in this network, e.g. cohorts, biobanks or other networks",NetworksStaging,,
 Resources,,population,heading,,,,,,,,,Description of the population that is sampled in this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
 Resources,,number of participants,int,,,,,,,,healthDCAT-AP:numberOfUniqueIndividuals,Total number of individuals for which data is collected,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
 Resources,,number of participants with samples,int,,,,,,,,,Number of individuals for which samples are collected,"DataCatalogueFlat,CohortsStaging,RWEStaging,UMCGCohortsStaging,INTEGRATE",,
