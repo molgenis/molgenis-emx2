@@ -469,7 +469,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public void setUserPassword(String userName, String password) {
     // can only as admin or as own user + admin user can only set admin password
     String activeUser = getActiveUser();
-    if ((activeUser != null && !activeUser.equals(ADMIN_USER) && !userName.equals(activeUser))
+    if ((activeUser != null && !isAdmin() && !userName.equals(activeUser))
         || (ADMIN_USER.equals(userName) && !ADMIN_USER.equals(activeUser))) {
       throw new MolgenisException(
           "Set password failed for user '" + userName + "': permission denied");

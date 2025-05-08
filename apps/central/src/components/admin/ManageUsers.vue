@@ -241,7 +241,9 @@ export default {
           }
         })
         .catch((error) => {
-          this.alterError = "update user failed: " + error.response.message;
+          console.log(error);
+          this.alterError =
+            "update user failed: " + error.response.errors[0].message;
         });
     },
     enableUser(user) {
