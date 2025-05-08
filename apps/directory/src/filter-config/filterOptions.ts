@@ -43,27 +43,16 @@ export const customFilterOptions = (filterFacet: any) => {
 };
 
 function _mapToOptions(
-  row: any,
+  row: Record<string, any>,
   filterLabelAttribute: any,
   filterValueAttribute: any,
-  extraAttributes: any[]
+  extraAttributes?: string[]
 ) {
   if (extraAttributes?.length) {
     return {
       text: row[filterLabelAttribute],
       value: row[filterValueAttribute],
-      extraAttributes: extraAttributes.reduce(
-        (acc: Record<string, any>, attribute: string) => {
-          if (attribute.includes(".")) {
-            const [parent, child] = attribute.split(".");
-            acc[attribute] = row[parent][child];
-          } else {
-            acc[attribute] = row[attribute];
-          }
-          return acc;
-        },
-        {}
-      ),
+      extraAttributes: getExtraAttributes(row, extraAttributes),
     };
   } else {
     return {
@@ -71,6 +60,18 @@ function _mapToOptions(
       value: row[filterValueAttribute],
     };
   }
+}
+
+function getExtraAttributes(row: Record<string, any>, attributes: string[]) {
+  return attributes.reduce((accum: Record<string, any>, attribute: string) => {
+    if (attribute.includes(".")) {
+      const [parent, child] = attribute.split(".");
+      accum[attribute] = row[parent][child];
+    } else {
+      accum[attribute] = row[attribute];
+    }
+    return accum;
+  }, {});
 }
 
 export const genericFilterOptions = (filterFacet: any) => {
