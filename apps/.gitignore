@@ -21,3 +21,5 @@ yarn-error.log*
 *.sln
 *.sw?
 /nuxt-ssr/.nuxt/
+
+.env
