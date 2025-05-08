@@ -74,7 +74,16 @@ function getExtraAttributes(row: Record<string, any>, attributes: string[]) {
   }, {});
 }
 
-export const genericFilterOptions = (filterFacet: any) => {
+export const genericFilterOptions = (filterFacet: {
+  sourceTable: string;
+  sourceSchema: string;
+  facetIdentifier: string;
+  filterLabelAttribute: string;
+  filterValueAttribute: string;
+  extraAttributes?: string[];
+  sortColumn: string;
+  sortDirection: "ASC" | "DESC";
+}) => {
   const {
     sourceTable,
     sourceSchema,
@@ -89,12 +98,11 @@ export const genericFilterOptions = (filterFacet: any) => {
   return () =>
     new Promise((resolve) => {
       const cachedOptions = retrieveFromCache(facetIdentifier);
-      const selection = [filterLabelAttribute, filterValueAttribute];
-      if (extraAttributes?.length) {
-        extraAttributes.forEach((attribute: any) => {
-          selection.push(attribute);
-        });
-      }
+      const selection = getAttributeSelection(
+        filterLabelAttribute,
+        filterValueAttribute,
+        extraAttributes
+      );
 
       if (!cachedOptions.length) {
         new QueryEMX2(getSchema(sourceSchema))
@@ -138,6 +146,18 @@ export const genericFilterOptions = (filterFacet: any) => {
       }
     });
 };
+
+function getAttributeSelection(
+  filterLabelAttribute: string,
+  filterValueAttribute: string,
+  extraAttributes?: string[]
+) {
+  if (extraAttributes?.length) {
+    return [filterLabelAttribute, filterValueAttribute, ...extraAttributes];
+  } else {
+    return [filterLabelAttribute, filterValueAttribute];
+  }
+}
 
 export const ontologyFilterOptions = (filterFacet: any) => {
   const {
