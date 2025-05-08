@@ -610,7 +610,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
     }
     this.connectionProvider.setActiveUser(username);
-    this.connectionProvider.setAdmin(getUser(username).isAdmin());
+    User user = getUser(username);
+    this.connectionProvider.setAdmin(user != null && user.isAdmin());
     this.clearCache();
   }
 
