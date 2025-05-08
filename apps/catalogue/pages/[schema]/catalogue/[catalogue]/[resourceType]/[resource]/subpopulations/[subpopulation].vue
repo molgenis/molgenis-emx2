@@ -57,6 +57,9 @@ pageCrumbs[
   route.params.resource as string
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`;
 
+pageCrumbs["Subpopulations"] = "";
+pageCrumbs[route.params.subpopulation as string] = "";
+
 function renderList(
   list: any[],
   itemMapper: (a: any) => string,

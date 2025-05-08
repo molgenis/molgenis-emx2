@@ -7,9 +7,9 @@ Variable mappings,,source variables other datasets,ref_array,,,,Variables,source
 Variable mappings,,target,ref,1,TRUE,,Resources,,,,,Id of the resource that contains the target variable,"DataCatalogueFlat,RWEStaging,StudiesStaging",,
 Variable mappings,,target dataset,ref,1,TRUE,,Datasets,target,,,,Name of the dataset that contains the target variable,"DataCatalogueFlat,RWEStaging,StudiesStaging",,
 Variable mappings,,target variable,ref,1,TRUE,,Variables,target dataset,,,,Target variable that was mapped to,"DataCatalogueFlat,RWEStaging,StudiesStaging",,
-Variable mappings,,target,ref,1,TRUE,catalogue,Resources,,,,,Id of the resource that contains the target variable,"CohortsStaging",,
-Variable mappings,,target dataset,ref,1,TRUE,catalogue,Datasets,target,,,,Name of the dataset that contains the target variable,"CohortsStaging",,
-Variable mappings,,target variable,ref,1,TRUE,catalogue,Variables,target dataset,,,,Target variable that was mapped to,"CohortsStaging",,
+Variable mappings,,target,ref,1,TRUE,catalogue,Resources,,,,,Id of the resource that contains the target variable,CohortsStaging,,
+Variable mappings,,target dataset,ref,1,TRUE,catalogue,Datasets,target,,,,Name of the dataset that contains the target variable,CohortsStaging,,
+Variable mappings,,target variable,ref,1,TRUE,catalogue,Variables,target dataset,,,,Target variable that was mapped to,CohortsStaging,,
 Variable mappings,,repeats,text,1,TRUE,,,,,,,"In case of mapping to a repeated variable, specify which repeats were mapped to","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging",,NA
 Variable mappings,,match,ontology,,TRUE,CatalogueOntologies,Status details,,,,,"Harmonisation match, i.e., complete, partial, na","DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging",,
 Variable mappings,,description,text,,,,,,,,,Human readible description of the mapping,"DataCatalogueFlat,RWEStaging,CohortsStaging,StudiesStaging",,
