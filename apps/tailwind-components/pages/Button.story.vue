@@ -97,14 +97,14 @@
         <Button iconOnly icon="caret-down" label="next" type="disabled" />
         <Button iconOnly icon="caret-down" label="next" type="filterWell" />
       </div>
-
-      <Button type="text" size="small" iconPosition="left">
-        Text button
-      </Button>
-      <Button type="text" size="small" icon="star" iconPosition="left">
-        Text button with icon
-      </Button>
-
+      <div class="flex flex-col items-start gap-4">
+        <Button type="text" size="small" iconPosition="left">
+          Text button
+        </Button>
+        <Button type="text" size="small" icon="star" iconPosition="left">
+          Text button with icon
+        </Button>
+      </div>
       <!-- do not render by default to avoid errors on clean load-->
       <div v-if="route.query.showError" class="flex gap-4">
         <!-- this should result in an error ( due to missing label)-->
