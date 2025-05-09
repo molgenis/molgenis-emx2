@@ -6,7 +6,7 @@
     />
 
     <div class="d-flex flex-column scrollable-content pt-2">
-      <div v-for="groupName of Object.keys(groupedOptions).sort()">
+      <div v-for="groupName of groupNames">
         <div>
           <b>{{ groupLabels[groupName] }}</b>
         </div>
@@ -41,13 +41,10 @@ const settingsStore = useSettingsStore();
 const { facetIdentifier, options } = defineProps<{
   facetIdentifier: string;
   options: Function;
-  currentlyActive?: boolean;
-  optionsFilter?: IOption[];
 }>();
 
 const resolvedOptions = ref<IOption[]>([]);
 const groupedOptions = ref<Record<string, IOption[]>>({});
-const groupLabels = ref<Record<string, string>>({});
 
 onMounted(() => {
   options().then((response: IOption[]) => {
@@ -56,14 +53,44 @@ onMounted(() => {
   });
 });
 
+const groupNames = computed(() => Object.keys(groupedOptions.value).sort());
+
+const groupLabels = computed(() =>
+  Object.keys(groupedOptions.value).reduce(
+    (accum: Record<string, string>, groupName: string) => {
+      accum[groupName] =
+        groupedOptions.value[groupName][0].extraAttributes[
+          "serviceCategory.label"
+        ];
+      return accum;
+    },
+    {}
+  )
+);
+
+const filterSelection = computed({
+  get() {
+    return filtersStore.getFilterValue(facetIdentifier) || [];
+  },
+  set(filters) {
+    filtersStore.updateFilter(facetIdentifier, filters);
+  },
+});
+
+const selectAllText = computed(() => {
+  if (filterSelection.value?.length) {
+    return settingsStore.uiText["deselect_all"];
+  } else {
+    return settingsStore.uiText["select_all"];
+  }
+});
+
 function groupOptions(options: IOption[]) {
   const groupedOptions = options.reduce(
     (accum: Record<string, IOption[]>, option) => {
       const name = option.extraAttributes["serviceCategory.name"];
-      const label = option.extraAttributes["serviceCategory.label"];
       if (!accum[name]) {
         accum[name] = [];
-        groupLabels.value[name] = label;
       }
       accum[name].push(option);
       return accum;
@@ -78,26 +105,6 @@ function groupOptions(options: IOption[]) {
   return groupedOptions;
 }
 
-const filterSelection = computed({
-  get() {
-    return filtersStore.getFilterValue(facetIdentifier) || [];
-  },
-  set(filters) {
-    const filterOptions: IFilterOption[] = filters.map((filter: IOption) => {
-      return { text: filter.label, value: filter.value };
-    });
-    filtersStore.updateFilter(facetIdentifier, filterOptions);
-  },
-});
-
-const selectAllText = computed(() => {
-  if (filterSelection.value?.length) {
-    return settingsStore.uiText["deselect_all"];
-  } else {
-    return settingsStore.uiText["select_all"];
-  }
-});
-
 function toggleSelect() {
   if (filterSelection.value?.length) {
     filterSelection.value = [];
@@ -107,7 +114,7 @@ function toggleSelect() {
 }
 
 interface IOption {
-  label: string;
+  text: string;
   value: string;
   extraAttributes: {
     "serviceCategory.name": string;
