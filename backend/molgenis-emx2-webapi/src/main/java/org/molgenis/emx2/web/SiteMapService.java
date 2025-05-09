@@ -20,8 +20,13 @@ public class SiteMapService {
   public static void getSiteMapForSchema(Context ctx) {
     ctx.res().setContentType("application/xml");
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      ctx.status(404);
+      ctx.result("Schema not found");
+      return;
+    }
 
-    final String baseUrl = ctx.scheme() + "://" + ctx.host() + "/" + schema.getName();
+    final String baseUrl = "https://" + ctx.host() + "/" + schema.getName();
 
     String siteMap = new CatalogueSiteMap(schema, baseUrl).buildSiteMap();
     ctx.result(siteMap);
