@@ -38,7 +38,7 @@ public class CatalogueSiteMapTest {
   }
 
   @Test
-  public void buildSiteMapWhenExpectedTableIsMissing() {
+  void buildSiteMapWhenExpectedTableIsMissing() {
     Schema schema = mock(Schema.class);
     Table table = mock(Table.class);
     Query query = mock(Query.class);
