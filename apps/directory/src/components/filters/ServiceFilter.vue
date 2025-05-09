@@ -20,16 +20,28 @@
         </div>
       </div>
     </div>
+    <div>
+      <button
+        type="button"
+        class="btn btn-link p-2"
+        @click.prevent="toggleSelect"
+      >
+        {{ selectAllText }}
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, toRefs } from "vue";
 import { useFiltersStore } from "../../stores/filtersStore";
+import { useSettingsStore } from "../../stores/settingsStore";
 import CheckboxComponent from "./base/CheckboxComponent.vue";
 import MatchTypeRadiobutton from "./base/MatchTypeRadiobutton.vue";
+import { IFilterOption } from "../../interfaces/interfaces";
 
 const filtersStore = useFiltersStore();
+const settingsStore = useSettingsStore();
 
 const props = withDefaults(
   defineProps<{
@@ -74,10 +86,29 @@ const filterSelection = computed({
   get() {
     return filtersStore.getFilterValue(facetIdentifier.value) || [];
   },
-  set(value) {
-    filtersStore.updateFilter(facetIdentifier.value, value);
+  set(filters) {
+    const filterOptions: IFilterOption[] = filters.map((filter: IOption) => {
+      return { text: filter.label, value: filter.value };
+    });
+    filtersStore.updateFilter(facetIdentifier.value, filterOptions);
   },
 });
+
+const selectAllText = computed(() => {
+  if (filterSelection.value?.length) {
+    return settingsStore.uiText["deselect_all"];
+  } else {
+    return settingsStore.uiText["select_all"];
+  }
+});
+
+function toggleSelect() {
+  if (filterSelection.value?.length) {
+    filterSelection.value = [];
+  } else {
+    filterSelection.value = resolvedOptions;
+  }
+}
 
 interface IOption {
   label: string;

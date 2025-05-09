@@ -91,6 +91,7 @@ export async function applyFiltersToQuery(
         break;
       }
       case "ToggleFilter":
+      case "ServiceFilter":
       case "CheckboxFilter": {
         const values = Array.isArray(filterValue)
           ? filterValue.map((fv) => fv.value)
