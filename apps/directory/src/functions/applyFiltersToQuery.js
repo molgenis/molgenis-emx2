@@ -96,8 +96,7 @@ export async function applyFiltersToQuery(
         const values = Array.isArray(filterValue)
           ? filterValue.map((fv) => fv.value)
           : [filterValue];
-
-        let columns = Array.isArray(filterDetail.applyToColumn)
+        const columns = Array.isArray(filterDetail.applyToColumn)
           ? filterDetail.applyToColumn
           : [filterDetail.applyToColumn];
 
