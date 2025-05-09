@@ -44,8 +44,8 @@ export const customFilterOptions = (filterFacet: any) => {
 
 function _mapToOptions(
   row: Record<string, any>,
-  filterLabelAttribute: any,
-  filterValueAttribute: any,
+  filterLabelAttribute: string,
+  filterValueAttribute: string,
   extraAttributes?: string[]
 ): Record<string, any> {
   if (extraAttributes?.length) {
