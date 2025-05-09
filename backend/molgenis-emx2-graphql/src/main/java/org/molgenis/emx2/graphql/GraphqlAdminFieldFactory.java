@@ -36,6 +36,11 @@ public class GraphqlAdminFieldFactory {
                   .build())
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(ADMIN)
+                  .type(Scalars.GraphQLBoolean)
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(SETTINGS)
                   .type(GraphQLList.list(outputSettingsType))
                   .build())
@@ -137,6 +142,7 @@ public class GraphqlAdminFieldFactory {
     Map<String, Object> result = new LinkedHashMap<>();
     result.put(EMAIL, user.getUsername());
     result.put(ENABLED, user.getEnabled());
+    result.put(ADMIN, user.isAdmin());
     result.put(SETTINGS, mapSettingsToGraphql(user.getSettings()));
 
     List<Map<String, String>> roles = getRoles(user, members);
@@ -205,6 +211,11 @@ public class GraphqlAdminFieldFactory {
             if (enabled != null) {
               db.setEnabledUser(userName, enabled);
             }
+
+            Boolean admin = (Boolean) updatedUser.get(ADMIN);
+            if (admin != null) {
+              db.setAdminUser(userName, admin);
+            }
           });
     }
     return new GraphqlApiMutationResult(SUCCESS, "User %s updated", userName);
@@ -235,6 +246,10 @@ public class GraphqlAdminFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(ENABLED)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(ADMIN)
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()

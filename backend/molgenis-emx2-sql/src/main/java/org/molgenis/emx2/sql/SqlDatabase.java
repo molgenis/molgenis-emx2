@@ -85,6 +85,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private SqlDatabase(DSLContext jooq, SqlDatabase copy) {
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.connectionProvider.setActiveUser(copy.connectionProvider.getActiveUser());
+    this.connectionProvider.setAdmin(copy.connectionProvider.isAdmin());
     this.jooq = jooq;
     databaseVersion = MetadataUtils.getVersion(jooq);
 
@@ -465,27 +466,28 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void setUserPassword(String user, String password) {
-    // can only as admin or as own user
-    if (getActiveUser() != null
-        && !getActiveUser().equals(ADMIN_USER)
-        && !user.equals(getActiveUser())) {
-      throw new MolgenisException("Set password failed for user '" + user + "': permission denied");
+  public void setUserPassword(String userName, String password) {
+    // can only as admin or as own user + admin user can only set admin password
+    String activeUser = getActiveUser();
+    if ((activeUser != null && !isAdmin() && !userName.equals(activeUser))
+        || (ADMIN_USER.equals(userName) && !ADMIN_USER.equals(activeUser))) {
+      throw new MolgenisException(
+          "Set password failed for user '" + userName + "': permission denied");
     }
     // password should have minimum length
     if (password == null || password.length() < 5) {
       throw new MolgenisException(
-          "Set password failed for user '" + user + "': password too short");
+          "Set password failed for user '" + userName + "': password too short");
     }
     long start = System.currentTimeMillis();
     tx(
         db -> {
-          if (!db.hasUser(user)) {
-            db.addUser(user);
+          if (!db.hasUser(userName)) {
+            db.addUser(userName);
           }
-          MetadataUtils.setUserPassword(((SqlDatabase) db).getJooq(), user, password);
+          MetadataUtils.setUserPassword(((SqlDatabase) db).getJooq(), userName, password);
         });
-    log(start, "set password for user '" + user + "'");
+    log(start, "set password for user '" + userName + "'");
   }
 
   @Override
@@ -497,7 +499,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public List<User> getUsers(int limit, int offset) {
-    if (!ADMIN_USER.equals(getActiveUser()) && getActiveUser() != null) {
+    if (getActiveUser() != null && !isAdmin()) {
       throw new MolgenisException("getUsers denied");
     }
     return MetadataUtils.loadUsers(this, limit, offset);
@@ -548,6 +550,30 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     log(start, (enabled ? "Enabling" : "Disabling") + " user " + user);
   }
 
+  public void setAdminUser(String user, Boolean admin) {
+    long start = System.currentTimeMillis();
+    if (user.equals("admin")) throw new MolgenisException("You cant enable or disable admin");
+    if (user.equals("anonymous"))
+      throw new MolgenisException("You cant enable or disable anonymous");
+    if (!ADMIN_USER.equals(this.getActiveUser()))
+      throw new MolgenisException("Only root admin user may grant admin permission");
+    if (!hasUser(user))
+      throw new MolgenisException(
+          (admin ? "Granting" : "Revoking")
+              + " admin privileges to user failed: User with name '"
+              + user
+              + "' doesn't exist");
+    tx(
+        db ->
+            ((SqlDatabase) db)
+                .getJooq()
+                .update(USERS_METADATA)
+                .set(USER_ADMIN, admin)
+                .where(USER_NAME.eq(user))
+                .execute());
+    log(start, (admin ? "Granting" : "Revoking") + " admin rights to user " + user);
+  }
+
   public void addRole(String role) {
     long start = System.currentTimeMillis();
     executeCreateRole(getJooq(), role);
@@ -584,22 +610,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
     }
     this.connectionProvider.setActiveUser(username);
+    User user = getUser(username);
+    this.connectionProvider.setAdmin(user != null && user.isAdmin());
     this.clearCache();
   }
 
   @Override
   public String getActiveUser() {
-    String user = jooq.fetchOne("SELECT CURRENT_USER").get(0, String.class);
-    if (user.equals(postgresUser)) {
-      return ADMIN_USER;
-    } else if (user.contains(MG_USER_PREFIX)) {
-      String userName = user.substring(MG_USER_PREFIX.length());
-      if (!userName.isEmpty()) {
-        return userName;
-      }
-    }
-    // user is either valid MG_USER_* or postgresUser, otherwise error state
-    throw new MolgenisException("Unexpected user found as activeUser " + user);
+    return connectionProvider.getActiveUser();
   }
 
   @Override
@@ -657,6 +675,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private synchronized void sync(SqlDatabase from) {
     if (from != this) {
       this.connectionProvider.setActiveUser(from.connectionProvider.getActiveUser());
+      this.connectionProvider.setAdmin(from.connectionProvider.isAdmin());
       this.databaseVersion = from.databaseVersion;
 
       this.schemaNames = from.schemaNames;
@@ -706,6 +725,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
     } finally {
       this.connectionProvider.setActiveUser(user);
+      this.connectionProvider.setAdmin(isAdmin());
     }
   }
 
@@ -749,7 +769,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public int countUsers() {
-    if (!ADMIN_USER.equals(getActiveUser()) && getActiveUser() != null) {
+    if (getActiveUser() != null && !isAdmin()) {
       throw new MolgenisException("countUsers denied");
     }
     return MetadataUtils.countUsers(getJooq());
@@ -762,7 +782,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public boolean isAdmin() {
-    return ADMIN_USER.equals(getActiveUser());
+    User user = getUser(getActiveUser());
+    return (user != null && user.isAdmin()) || ADMIN_USER.equals(getActiveUser());
   }
 
   @Override
