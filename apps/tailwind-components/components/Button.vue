@@ -51,7 +51,7 @@ const COLOR_MAPPING = {
     "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary",
 };
 
-const TEXT_MAPPING = "text-title-contrast group-enabled:hover:underline";
+const TEXT_STYLING = "text-title-contrast group-enabled:hover:underline";
 
 const SIZE_MAPPING = {
   tiny: "h-8 px-5 text-heading-sm gap-3",
@@ -110,7 +110,7 @@ const tooltipText = computed(() => {
   >
     <BaseIcon v-if="icon" :name="icon" :width="iconSize" />
     <span
-      :class="`${type === 'text' ? TEXT_MAPPING : ''} ${
+      :class="`${type === 'text' ? TEXT_STYLING : ''} ${
         iconOnly ? 'sr-only' : ''
       }`"
       >{{ label }}<slot
