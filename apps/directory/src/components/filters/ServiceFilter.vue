@@ -29,7 +29,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { IFilterOption } from "../../interfaces/interfaces";
 import { useFiltersStore } from "../../stores/filtersStore";
 import { useSettingsStore } from "../../stores/settingsStore";
 import CheckboxComponent from "./base/CheckboxComponent.vue";
