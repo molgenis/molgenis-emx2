@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.graphql.GraphqlException;
 import org.slf4j.Logger;
@@ -72,8 +73,21 @@ public class GraphqlApi {
   private static void handleDatabaseRequests(Context ctx) throws IOException {
     MolgenisSession session = sessionManager.getSession(ctx.req());
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
-    String result = executeQuery(session.getGraphqlForDatabase(), ctx);
-    ctx.json(result);
+    if (ctx.header("MG-Schema") != null) {
+      String schemaName = ctx.header("MG-Schema");
+      Schema schema =
+          sessionManager.getSession(ctx.req()).getDatabase().getSchema(sanitize(schemaName));
+      if (schema == null) {
+        throw new GraphqlException(
+            "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
+      }
+      GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
+      ctx.header(CONTENT_TYPE, ACCEPT_JSON);
+      ctx.json(executeQuery(graphqlForSchema, ctx));
+    } else {
+      String result = executeQuery(session.getGraphqlForDatabase(), ctx);
+      ctx.json(result);
+    }
   }
 
   public static void handleSchemaRequests(Context ctx) throws IOException {
