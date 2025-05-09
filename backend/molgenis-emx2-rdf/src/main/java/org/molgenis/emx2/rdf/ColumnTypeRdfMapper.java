@@ -2,22 +2,19 @@ package org.molgenis.emx2.rdf;
 
 import static java.util.Map.entry;
 import static org.eclipse.rdf4j.model.util.Values.literal;
-import static org.molgenis.emx2.Constants.API_FILE;
-import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
+import static org.molgenis.emx2.rdf.IriGenerator.fileIRI;
+import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
 
-import com.google.common.net.UrlEscapers;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.eclipse.rdf4j.model.util.Values;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.utils.URIUtils;
 
 /**
  * Used for functionalities that are {@link ColumnType} specific. This includes:
@@ -136,7 +133,7 @@ public abstract class ColumnTypeRdfMapper {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI("urn:uuid:" + i));
+            row.getStringArray(column.getName()), (i) -> Values.iri("urn:uuid:" + i));
       }
     },
     STRING(CoreDatatype.XSD.STRING) {
@@ -184,40 +181,31 @@ public abstract class ColumnTypeRdfMapper {
         return basicRetrieval(row.getPeriodArray(column.getName()), Values::literal);
       }
     },
-
+    /**
+     * URI is treated as-is and no escaping/normalization is done. Any normalization should be done
+     * before storing the value and not within an API endpoint.
+     */
     URI(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
-        return basicRetrievalString(row.getStringArray(column.getName()), URIUtils::encodedIRI);
+        return basicRetrievalString(row.getStringArray(column.getName()), Values::iri);
       }
     },
+    /**
+     * EMAIL is treated as-is and no escaping/normalization is done. If this fails, then EMAIL is
+     * invalid and should be rejected when value was being stored.
+     */
     EMAIL(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrievalString(
-            row.getStringArray(column.getName()), (i) -> URIUtils.encodedIRI("mailto:" + i));
+            row.getStringArray(column.getName()), (i) -> Values.iri("mailto:" + i));
       }
     },
     FILE(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
-        final String schemaPath =
-            UrlEscapers.urlPathSegmentEscaper().escape(column.getSchemaName());
-        final String tablePath = UrlEscapers.urlPathSegmentEscaper().escape(column.getTableName());
-        final String columnPath = UrlEscapers.urlPathSegmentEscaper().escape(column.getName());
-        final String fileName =
-            UrlEscapers.urlPathSegmentEscaper().escape(row.getString(column.getName()));
-        return Set.of(
-            Values.iri(
-                rdfMapData.getBaseURL()
-                    + schemaPath
-                    + API_FILE
-                    + "/"
-                    + tablePath
-                    + "/"
-                    + columnPath
-                    + "/"
-                    + fileName));
+        return Set.of(fileIRI(rdfMapData.getBaseURL(), row, column));
       }
     },
     REFERENCE(CoreDatatype.XSD.ANYURI) {
@@ -241,12 +229,6 @@ public abstract class ColumnTypeRdfMapper {
     ONTOLOGY(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
-        final TableMetadata target = column.getRefTable();
-        final String rootTableName =
-            UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
-        final Namespace ns =
-            getSchemaNamespace(rdfMapData.getBaseURL(), target.getRootTable().getSchema());
-
         String[] names =
             (column.isArray()
                 ? row.getStringArray(column.getName())
@@ -262,11 +244,10 @@ public abstract class ColumnTypeRdfMapper {
                 i ->
                     (mappedNames.get(i) != null
                         ? mappedNames.get(i)
-                        : Values.iri(
-                            ns,
-                            rootTableName
-                                + "?"
-                                + new PrimaryKey(Map.of("name", i)).getEncodedValue())))
+                        : rowIRI(
+                            rdfMapData.getBaseURL(),
+                            column.getRefTable().getRootTable(),
+                            new PrimaryKey(Map.of("name", i)))))
             .collect(Collectors.toUnmodifiableSet());
       }
     },
@@ -328,13 +309,7 @@ public abstract class ColumnTypeRdfMapper {
         final Row row,
         final Column tableColumn,
         final Map<String, String> colNameToRefTableColName) {
-      final TableMetadata target = tableColumn.getRefTable();
-      final String rootTableName =
-          UrlEscapers.urlPathSegmentEscaper().escape(target.getRootTable().getIdentifier());
-      final Namespace ns =
-          getSchemaNamespace(rdfMapData.getBaseURL(), target.getRootTable().getSchema());
-
-      final Map<Integer, Map<String, String>> items = new HashMap<>();
+      final Map<Integer, SortedMap<String, String>> items = new HashMap<>();
       for (final String colName : colNameToRefTableColName.keySet()) {
         final String[] values =
             (tableColumn.isArray()
@@ -344,16 +319,19 @@ public abstract class ColumnTypeRdfMapper {
         if (values == null) continue;
 
         for (int i = 0; i < values.length; i++) {
-          Map<String, String> keyValuePairs = items.getOrDefault(i, new LinkedHashMap<>());
+          SortedMap<String, String> keyValuePairs = items.getOrDefault(i, new TreeMap<>());
           keyValuePairs.put(colNameToRefTableColName.get(colName), values[i]);
           items.put(i, keyValuePairs);
         }
       }
 
       final Set<Value> values = new HashSet<>();
-      for (final Map<String, String> item : items.values()) {
-        PrimaryKey key = new PrimaryKey(item);
-        values.add(Values.iri(ns, rootTableName + "?" + key.getEncodedValue()));
+      for (final SortedMap<String, String> item : items.values()) {
+        values.add(
+            rowIRI(
+                rdfMapData.getBaseURL(),
+                tableColumn.getRefTable().getRootTable(),
+                new PrimaryKey(item)));
       }
       return Set.copyOf(values);
     }

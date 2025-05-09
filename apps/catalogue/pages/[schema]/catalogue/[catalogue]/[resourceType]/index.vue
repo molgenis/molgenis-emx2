@@ -304,6 +304,7 @@ const crumbs: any = {};
 crumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
+crumbs[route.params.resourceType] = "";
 </script>
 
 <template>
@@ -321,7 +322,7 @@ crumbs[
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader :title="title" :description="description" :icon="image">
             <template #prefix>
-              <BreadCrumbs :crumbs="crumbs" :current="title" />
+              <BreadCrumbs :crumbs="crumbs" />
             </template>
             <template #suffix>
               <SearchResultsViewTabs

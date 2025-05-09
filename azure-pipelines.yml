@@ -25,7 +25,7 @@ steps:
 - script: |
     git fetch --all --tags
 - script: |
-    sudo apt-get update &&  sudo apt-get install postgresql-client python3 python3-venv -y
+    sudo add-apt-repository ppa:deadsnakes/ppa && sudo apt-get update &&  sudo apt-get install postgresql-client python3.10 python3.10-venv -y
   displayName: postgresql client python3
 - script: |
     psql -h localhost -p 5432 -U postgres < .circleci/initdb.sql
@@ -36,11 +36,11 @@ steps:
     sudo update-alternatives --display java
   displayName: list available java versions (for debug purposes)
 - script: |
-    export JAVA_HOME=/usr/lib/jvm/temurin-17-jdk-amd64/
+    export JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64/
     ./gradlew -version
     ./gradlew test jacocoMergedReport
   # sonarqube -Dsonar.login=$(SONAR_TOKEN) -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dorg.ajoberstar.grgit.auth.username=$(GITHUB_TOKEN) -Dorg.ajoberstar.grgit.auth.password
-  displayName: run test, ensure we are using java 17 JAVA_HOME
+  displayName: run test, ensure we are using java 21 JAVA_HOME
 
   env:
     MOLGENIS_POSTGRES_USER: molgenis

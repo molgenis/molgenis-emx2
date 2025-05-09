@@ -27,7 +27,6 @@ const visible = defineModel("visible", {
       id="backdrop"
       @click="visible = false"
       class="w-full h-full absolute left-0 bg-black/60 overscroll-behavior: contain"
-      href="#"
       tabindex="-1"
     />
 

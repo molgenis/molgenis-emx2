@@ -9,12 +9,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.json.JavalinJackson;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
@@ -51,6 +53,10 @@ public class MolgenisWebservice {
                   config.router.treatMultipleSlashesAsSingleSlash = true;
                   config.jetty.modifyServletContextHandler(
                       handler -> handler.setSessionHandler(sessionManager.getSessionHandler()));
+                  config.jsonMapper(
+                      new JavalinJackson()
+                          .updateMapper(
+                              mapper -> mapper.registerModule(JsonUtil.getJooqJsonModule())));
                 })
             .start(port);
 

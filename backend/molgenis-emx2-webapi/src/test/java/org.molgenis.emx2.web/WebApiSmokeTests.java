@@ -252,6 +252,24 @@ public class WebApiSmokeTests {
             .asString();
     Object result = objectMapper.readValue(jsonResults, Object.class);
     assertTrue(result.toString().contains("pooky"));
+
+    // test report using json objects
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report5")
+            .asString();
+    Object jsonResult = objectMapper.readValue(jsonResults, Object.class);
+    assertTrue(jsonResult.toString().contains("pooky"));
+
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report4,report5")
+            .asString();
+    Map<String, Object> multipleResults = objectMapper.readValue(jsonResults, Map.class);
+    // Check if multiple result are returned as proper json
+    assertFalse(multipleResults.get("report4").toString().startsWith("{\""));
   }
 
   @Test
@@ -262,59 +280,52 @@ public class WebApiSmokeTests {
 
     // full table header present in exported table metadata
     String header =
-        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description\r\n";
+        "tableName,tableExtends,tableType,columnName,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description\r\n";
 
     // add new table with description and semantics as metadata
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,TestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,TestSem,,,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\r\n");
 
     // update table without new description or semantics, values should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName\r\nTestMetaTable",
-        "TestMetaTable,,,,,,,,,,,,,,,,TestSem,,,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\r\n");
 
     // update only description, semantics should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,description\r\nTestMetaTable,NewTestDesc",
-        "TestMetaTable,,,,,,,,,,,,,,,,TestSem,,,NewTestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,TestSem,,,NewTestDesc\r\n");
 
     // make semantics empty by not supplying a value, description  should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,semantics\r\nTestMetaTable,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,,NewTestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,NewTestDesc\r\n");
 
     // make description empty while also adding a new value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,NewTestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,NewTestSem,,,\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,NewTestSem,,,\r\n");
 
     // empty both description and semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,,\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,\r\n");
 
     // add description value, and string array value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
-        "TestMetaTable,,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,,TestDesc\r\n");
   }
 
-  /**
-   * Helper function to prevent code duplication
-   *
-   * @param header
-   * @param tableMeta
-   * @param expected
-   * @throws IOException
-   */
+  /** Helper function to prevent code duplication */
   private void addUpdateTableAndCompare(String header, String tableMeta, String expected)
       throws IOException {
     byte[] addUpdateTable = tableMeta.getBytes(StandardCharsets.UTF_8);
@@ -931,6 +942,16 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
 
+    // Output from global API call with invalid schema.
+    // TODO: https://github.com/molgenis/molgenis-emx2/issues/4954 (fix to return 204)
+    String resultBaseNonExisting =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .get("http://localhost:" + PORT + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
+            .getBody()
+            .asString();
+
     // Output schema API call.
     String resultSchema =
         given()
@@ -943,6 +964,10 @@ public class WebApiSmokeTests {
     assertAll(
         // Validate base API.
         () -> assertFalse(resultBase.contains("CatalogueOntologies")),
+        () ->
+            assertTrue(
+                resultBaseNonExisting.contains(
+                    "Schema 'thisSchemaTotallyDoesNotExist' unknown or permission denied")),
         () ->
             assertTrue(
                 resultBase.contains(
@@ -1045,7 +1070,6 @@ public class WebApiSmokeTests {
     assertTrue(
         response.getBody().asString().contains("name,category,photoUrls,status,tags,weight"));
     assertTrue(response.getBody().asString().contains("pooky,cat,,available,,9.4"));
-    assertFalse(response.getBody().asString().contains("mg_"));
   }
 
   @Test
@@ -1058,9 +1082,9 @@ public class WebApiSmokeTests {
   public void downloadExcelTable() throws IOException {
     Response response = downloadPet("/pet store/api/excel/Pet");
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
-    assertEquals("name,category,photoUrls,status,tags,weight,orders", rows.get(0));
+    assertEquals("name,category,photoUrls,status,tags,weight,orders,mg_draft", rows.get(0));
     assertEquals(
-        "pooky,cat,,available,,9.4,ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919", rows.get(1));
+        "pooky,cat,,available,,9.4,ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919,", rows.get(1));
   }
 
   @Test

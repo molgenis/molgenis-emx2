@@ -25,7 +25,7 @@
         genetic tumour risk syndromes (genturis). It is associated with 8 Dutch
         centres participating in the KWF NESTOR project and serves as a
         comprehensive resource for all patients with one of the rare genetic
-        tumor risk syndromes.
+        tumour risk syndromes.
       </p>
     </PageSection>
     <PageSection
@@ -75,7 +75,7 @@
       <p>
         Therefore the primary aim of the NESTOR Registry is to support research
         that provides valuable insights into the natural history of rare genetic
-        tumor risk syndromes and the care pathway for affected patients. By
+        tumour risk syndromes and the care pathway for affected patients. By
         collecting data from a large cohort of affected patients, the registry
         will enable regulated data access according to a defined data access
         policy.
@@ -107,7 +107,7 @@
         </li>
         <li>
           Accelerating collaborative research efforts to generate new knowledge
-          on rare genetic tumor risk syndromes
+          on rare genetic tumour risk syndromes
         </li>
       </ul>
     </PageSection>

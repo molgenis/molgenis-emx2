@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import type { ITableSettings } from "../../../../tailwind-components/types/types";
-import { useLazyAsyncData } from "#app/composables/asyncData";
+import { computed, ref } from "vue";
+import type {
+  ITableSettings,
+  sortDirection,
+} from "../../../../tailwind-components/types/types";
 import fetchTableMetadata from "../../../../tailwind-components/composables/fetchTableMetadata";
-import fetchTableData from "../../../../tailwind-components/composables/fetchTableData";
 import { useRoute, useRouter } from "#app/composables/router";
+import { useSession } from "../../../../ui/composables/useSession";
+import { watch } from "vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -18,77 +21,37 @@ const currentPage = computed(() => {
     : 1;
 });
 
-type orderDirection = "ASC" | "DESC";
-
 const orderbyColumn = computed(() => route.query.orderby as string);
 const orderbyDirection = computed(() =>
-  route.query.order ? (route.query.order as orderDirection) : "ASC"
+  route.query.order ? (route.query.order as sortDirection) : "ASC"
 );
-
-const orderby = computed(() => {
-  return orderbyColumn.value
-    ? { [orderbyColumn.value]: orderbyDirection.value }
-    : {};
-});
 
 const search = computed(() => route.query.search as string);
 
-const tableSettings = computed(() => {
-  return {
-    page: currentPage.value,
-    pageSize: 10,
-    orderby: {
-      column: orderbyColumn.value,
-      direction: orderbyDirection.value,
-    },
-    search: search.value,
-  };
-});
-
-const offset = computed(
-  () => (currentPage.value - 1) * tableSettings.value.pageSize
-);
-
-const { data, error } = await useLazyAsyncData(
-  "table explorer data",
-  async () => {
-    const metaData = fetchTableMetadata(schemaId, tableId);
-    const tableData = fetchTableData(schemaId, tableId, {
-      limit: tableSettings.value.pageSize,
-      offset: offset.value,
-      orderby: orderby.value,
-      searchTerms: search.value,
-    });
-
-    return await Promise.all([metaData, tableData]);
+const tableSettings = ref<ITableSettings>({
+  page: currentPage.value,
+  pageSize: 10,
+  orderby: {
+    column: orderbyColumn.value,
+    direction: orderbyDirection.value,
   },
-  {
-    watch: [tableSettings],
-  }
-);
-
-const tableMetaData = computed(() => (data.value ? data.value[0] : null));
-const tableData = computed(() =>
-  data.value ? data.value[1] : { rows: [], count: 0 }
-);
-const numberOfRows = computed(() => tableData.value.count);
-const rows = computed(() => tableData.value.rows);
-
-const dataColumns = computed(() => {
-  if (!tableMetaData.value) return [];
-
-  return tableMetaData.value.columns
-    .filter((c) => !c.id.startsWith("mg"))
-    .filter((c) => c.columnType !== "HEADING");
+  search: search.value || "",
 });
 
-function handleSettingsUpdate(settings: ITableSettings) {
+const tableMetadata = await fetchTableMetadata(schemaId, tableId);
+
+function handleSettingsUpdate() {
   const query = {
     ...route.query,
-    orderby: settings.orderby.column,
-    order: !settings.orderby.column ? undefined : settings.orderby.direction,
-    search: settings.search === "" ? undefined : settings.search,
-    page: settings.page < 2 ? undefined : settings.page,
+    orderby: tableSettings.value.orderby.column,
+    order: !tableSettings.value.orderby.column
+      ? undefined
+      : tableSettings.value.orderby.direction,
+    search:
+      tableSettings.value.search === ""
+        ? undefined
+        : tableSettings.value.search,
+    page: tableSettings.value.page < 2 ? undefined : tableSettings.value.page,
   };
 
   router.push({ query });
@@ -97,29 +60,32 @@ function handleSettingsUpdate(settings: ITableSettings) {
 const crumbs = computed(() => {
   let crumb: { [key: string]: string } = {};
   crumb[schemaId] = `/${schemaId}`;
+  crumb[tableMetadata.label || tableMetadata.id] = "";
   return crumb;
 });
-const current = computed(
-  () => tableMetaData.value?.label ?? tableMetaData.value?.id ?? ""
+
+const currentBreadCrumb = computed(
+  () => tableMetadata.label ?? tableMetadata.id
 );
+
+watch(tableSettings, handleSettingsUpdate, { deep: true });
+
+const { isAdmin } = useSession();
 </script>
 <template>
   <section class="mx-auto lg:px-[30px] px-0">
-    <PageHeader :title="tableMetaData?.label ?? ''" align="left">
+    <PageHeader :title="tableMetadata?.label ?? ''" align="left">
+      {{ tableMetadata }}
       <template #prefix>
-        <BreadCrumbs :align="'left'" :crumbs="crumbs" :current="current" />
+        <BreadCrumbs :align="'left'" :crumbs="crumbs" />
       </template>
     </PageHeader>
-    <div v-if="error">Error: {{ error }}</div>
-    <!-- <pre v-if="data">{{ tableMetaData }}</pre> -->
-    <!-- <pre>{{ tableData}}</pre> -->
+
     <TableEMX2
-      :table-id="tableId"
-      :columns="dataColumns"
-      :rows="rows"
-      :count="numberOfRows"
-      :settings="tableSettings"
-      @update:settings="handleSettingsUpdate"
+      :schemaId="schemaId"
+      :tableId="tableId"
+      v-model:settings="tableSettings"
+      :isEditable="isAdmin"
     />
   </section>
 </template>

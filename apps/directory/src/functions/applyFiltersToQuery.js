@@ -17,45 +17,75 @@ export async function applyFiltersToQuery(
 
     switch (filterDetail.component) {
       case "StringFilter": {
-        /** add filters to Biobanks */
-        baseQuery.orWhere("id").like(filterValue);
-        baseQuery.orWhere("name").like(filterValue);
-        baseQuery.orWhere("acronym").like(filterValue);
-        baseQuery.orWhere("collections.id").like(filterValue);
-        baseQuery.orWhere("collections.name").like(filterValue);
-        baseQuery.orWhere("collections.acronym").like(filterValue);
-        baseQuery
-          .orWhere("collections.diagnosis_available.name")
-          .like(filterValue);
-        baseQuery
-          .orWhere("collections.diagnosis_available.code")
-          .like(filterValue);
-        baseQuery
-          .orWhere("collections.diagnosis_available.label")
-          .like(filterValue);
-        baseQuery
-          .orWhere("collections.diagnosis_available.definition")
-          .like(filterValue);
-        baseQuery.orWhere("collections.materials.name").like(filterValue);
-        baseQuery.orWhere("collections.materials.label").like(filterValue);
+        if (filterKey === "search" && filterValue) {
+          baseQuery.searchValue = filterValue;
+          baseQuery.searchFieldsByProperty = {
+            root: [
+              "id",
+              "name",
+              "acronym",
+              "collections.id",
+              "collections.name",
+              "collections.acronym",
+              "collections.diagnosis_available.name",
+              "collections.diagnosis_available.code",
+              "collections.diagnosis_available.label",
+              "collections.diagnosis_available.definition",
+              "collections.materials.name",
+              "collections.materials.label",
+            ],
+            collections: [
+              "id",
+              "name",
+              "acronym",
+              "biobank.name",
+              "diagnosis_available.name",
+              "diagnosis_available.code",
+              "diagnosis_available.label",
+              "diagnosis_available.definition",
+            ],
+          };
+        } else {
+          /** add filters to Biobanks */
+          baseQuery.orWhere("id").like(filterValue);
+          baseQuery.orWhere("name").like(filterValue);
+          baseQuery.orWhere("acronym").like(filterValue);
+          baseQuery.orWhere("collections.id").like(filterValue);
+          baseQuery.orWhere("collections.name").like(filterValue);
+          baseQuery.orWhere("collections.acronym").like(filterValue);
+          baseQuery
+            .orWhere("collections.diagnosis_available.name")
+            .like(filterValue);
+          baseQuery
+            .orWhere("collections.diagnosis_available.code")
+            .like(filterValue);
+          baseQuery
+            .orWhere("collections.diagnosis_available.label")
+            .like(filterValue);
+          baseQuery
+            .orWhere("collections.diagnosis_available.definition")
+            .like(filterValue);
+          baseQuery.orWhere("collections.materials.name").like(filterValue);
+          baseQuery.orWhere("collections.materials.label").like(filterValue);
 
-        /** and filter the collections  */
-        baseQuery.orFilter("collections.id").like(filterValue);
-        baseQuery.orFilter("collections.name").like(filterValue);
-        baseQuery.orFilter("collections.acronym").like(filterValue);
-        baseQuery.orFilter("collections.biobank.name").like(filterValue);
-        baseQuery
-          .orFilter("collections.diagnosis_available.name")
-          .like(filterValue);
-        baseQuery
-          .orFilter("collections.diagnosis_available.code")
-          .like(filterValue);
-        baseQuery
-          .orFilter("collections.diagnosis_available.label")
-          .like(filterValue);
-        baseQuery
-          .orFilter("collections.diagnosis_available.definition")
-          .like(filterValue);
+          /** and filter the collections  */
+          baseQuery.orFilter("collections.id").like(filterValue);
+          baseQuery.orFilter("collections.name").like(filterValue);
+          baseQuery.orFilter("collections.acronym").like(filterValue);
+          baseQuery.orFilter("collections.biobank.name").like(filterValue);
+          baseQuery
+            .orFilter("collections.diagnosis_available.name")
+            .like(filterValue);
+          baseQuery
+            .orFilter("collections.diagnosis_available.code")
+            .like(filterValue);
+          baseQuery
+            .orFilter("collections.diagnosis_available.label")
+            .like(filterValue);
+          baseQuery
+            .orFilter("collections.diagnosis_available.definition")
+            .like(filterValue);
+        }
 
         /** cant search in the search box on any filter that is set to 'adaptive' because the items will not show. */
         break;
