@@ -1215,10 +1215,10 @@ class Client:
                         parsed_row[col] = value['name']
                     case "ONTOLOGY_ARRAY":
                         parsed_row[col] = [val['name'] for val in value]
-                    case "REF":
+                    case "REF", "SELECT", "RADIO":
                         _schema = column_meta.get('refSchemaName', schema)
                         parsed_row[col] = self._parse_ontology([value], column_meta.get('refTableId'), _schema)[0]
-                    case "REF_ARRAY":
+                    case "REF_ARRAY", "MULTISELECT", "CHECKBOX":
                         _schema = column_meta.get('refSchemaName', schema)
                         parsed_row[col] = self._parse_ontology(value, column_meta.get('refTableId'), _schema)
                     case "REFBACK":
