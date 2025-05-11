@@ -76,7 +76,7 @@ subprojects { subproject ->
         }
     }
 
-    def packageJson = file("package.json").text
+    def packageJson = file("${subproject.projectDir}/package.json").text
 
     task buildJavascript(type: PnpmTask, dependsOn: format) {
         environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
@@ -100,9 +100,9 @@ subprojects { subproject ->
         inputs.files fileTree(projectDir).matching {
             with excludeDef
         }
-        parent.tasks.processResources.dependsOn buildJavascript
     }
 
+    //todo if (packageJson.contains("lint")) {
     task lint(type: PnpmTask, dependsOn: buildJavascript) {
         if (
                 packageJson.contains("\"name\": \"tailwind-components\"") ||
@@ -118,15 +118,15 @@ subprojects { subproject ->
 
     parent.tasks.processResources.dependsOn buildJavascript
 
-    task testJavaScript(type: PnpmTask, dependsOn: buildJavascript) {
-        if (packageJson.contains("test-ci")) {
+    if (packageJson.contains("test-ci")) {
+        task testJavaScript(type: PnpmTask, dependsOn: buildJavascript) {
             args = ['run', 'test-ci']
             inputs.files fileTree(projectDir).matching {
                 with excludeDef
             }
+            test.dependsOn testJavaScript
         }
     }
-    test.dependsOn testJavaScript
 
     if (packageJson.contains("build-showcase")) {
         task buildShowcase(type: PnpmTask, dependsOn: buildJavascript) {
