@@ -10,7 +10,6 @@
     "test-ci": "vitest run",
     "e2e": "playwright test",
     "dev": "nuxt dev",
-    "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
     "format": "prettier components composables gql interfaces pages plugins utils tests stores  --write --config ../.prettierrc.js --gitignore",

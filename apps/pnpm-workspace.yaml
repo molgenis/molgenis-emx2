@@ -16,6 +16,7 @@ packages:
 - ern-reconnet
 - ern-skin
 - gportal
+- graphql-playground
 - helloworld
 - imdhub-public
 - molgenis-viz

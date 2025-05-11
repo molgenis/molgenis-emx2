@@ -1,7 +1,3 @@
 {
-  "name": "molgenis-apps-monorepo",
-  "private": true,
-  "devDependencies": {
-    "nx": "20.8.1"
-  }
+  "name": "molgenis-apps-monorepo"
 }
