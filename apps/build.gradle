@@ -14,7 +14,7 @@ def isCI = System.getenv('CI') ? true : false
 
 def nodeSpec = {
     version = '20.11.0'
-    yarnVersion = '1.22.19'
+    pnpmVersion = "10.10.0"
     npmVersion = "9.5.1"
     download = !isCI
 }
@@ -36,14 +36,30 @@ node {
     with nodeSpec
 }
 
+task installJavascript(type: PnpmTask, dependsOn: pnpmSetup) {
+    inputs.files(
+        fileTree("${projectDir}/**/package.json"),
+        file("${projectDir}/pnpm-lock.yaml"),
+        file("${projectDir}/pnpm-workspace.yaml")
+    );
+    outputs.files(file("${projectDir}/pnpm-lock.yaml"))
+    args = ['install']
+}
+
 subprojects { subproject ->
     apply plugin: 'com.github.node-gradle.node'
 
     node {
-        with nodeSpec
+        workDir = file("${parent.projectDir}/.gradle/nodejs")
+        npmWorkDir = file("${parent.projectDir}/.gradle/npm")
+        pnpmWorkDir = file("${parent.projectDir}/.gradle/pnpm")
+        download = false
     }
+    nodeSetup.dependsOn parent.nodeSetup
+    npmSetup.dependsOn parent.npmSetup
+    pnpmSetup.dependsOn parent.pnpmSetup
 
-    task format(type: YarnTask, dependsOn: parent.yarn_install) {
+    task format(type: PnpmTask, dependsOn: parent.installJavascript) {
         if (!isCI) {
             args = ['run', 'format']
             inputs.files fileTree(projectDir).matching {
@@ -60,13 +76,13 @@ subprojects { subproject ->
         }
     }
 
-    def packageJson = file("package.json").text
+    def packageJson = file("${subproject.projectDir}/package.json").text
 
-    task buildJavascript(type: YarnTask, dependsOn: format) {
+    task buildJavascript(type: PnpmTask, dependsOn: format) {
         environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
 
         //automatically get the internal dependencies
-        (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
+        (packageJson =~ /"([^"]+)":\s*"workspace:\*"/).each { match ->
             dependsOn ":apps:${match[1]}:buildJavascript";
         }
 
@@ -86,7 +102,8 @@ subprojects { subproject ->
         }
     }
 
-    task lint(type: YarnTask, dependsOn: buildJavascript) {
+    //todo if (packageJson.contains("lint")) {
+    task lint(type: PnpmTask, dependsOn: buildJavascript) {
         if (
                 packageJson.contains("\"name\": \"tailwind-components\"") ||
                         packageJson.contains("\"name\": \"ui\"") ||
@@ -101,18 +118,18 @@ subprojects { subproject ->
 
     parent.tasks.processResources.dependsOn buildJavascript
 
-    task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {
-        if (packageJson.contains("test-ci")) {
+    if (packageJson.contains("test-ci")) {
+        task testJavaScript(type: PnpmTask, dependsOn: buildJavascript) {
             args = ['run', 'test-ci']
             inputs.files fileTree(projectDir).matching {
                 with excludeDef
             }
+            test.dependsOn testJavaScript
         }
     }
-    test.dependsOn testJavaScript
 
     if (packageJson.contains("build-showcase")) {
-        task buildShowcase(type: YarnTask, dependsOn: buildJavascript) {
+        task buildShowcase(type: PnpmTask, dependsOn: buildJavascript) {
             environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
             args = ['run', 'build-showcase']
             doLast {
