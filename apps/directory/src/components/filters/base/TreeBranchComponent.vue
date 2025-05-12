@@ -7,7 +7,7 @@
       </span>
       <input
         @click.stop
-        @change="(event) => selectOption(event.target?.checked, option)"
+        @change="(event) => selectOption((event.target as HTMLInputElement).checked, option)"
         type="checkbox"
         :ref="`${option.name}-checkbox`"
         class="mr-1"
@@ -38,7 +38,7 @@
 import { defineAsyncComponent } from "vue";
 import { useFiltersStore } from "../../../stores/filtersStore";
 
-/** need to lazy load because it gets toooo large quickly. Over 9000! */
+/** need to lazy load because it gets too large quickly. Over 9000! */
 const TreeComponent = defineAsyncComponent(() => import("./TreeComponent.vue"));
 export default {
   setup() {
