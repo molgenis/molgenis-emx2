@@ -135,6 +135,11 @@ jobs:
           docker push molgenis/ssr-catalogue-snapshot --all-tags
     
     - run:
+        name: Docker-Scout scanning on cve's, break on critical. 
+        command: |
+          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code 1 --only-severity low 
+
+    - run:
         name: deploy preview to azure
         command: |
           export $( cat build/ci.properties | xargs )
@@ -157,10 +162,6 @@ jobs:
                   fi; 
                   sleep 10; 
               done
-    - run:
-        name: Docker-Scout scanning on cve's, break on critical. 
-        command: |
-          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code --only-severity critical
 
     - run:
         name: message slack about preview
