@@ -30,6 +30,8 @@ RUN install -m 0755 -d /etc/apt/keyrings
 
 ##docker
 RUN curl -sSL https://get.docker.com/ | sh
+RUN mkdir ~/.docker
+RUN curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s 
 
 # kubectl
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
@@ -57,4 +59,4 @@ RUN apt-get install postgresql-client -y
 # GemTools & FPM For debian and redhat packages
 RUN apt-get install ruby-dev -y 
 RUN gem install fpm
-USER molgenis
+USER root 
