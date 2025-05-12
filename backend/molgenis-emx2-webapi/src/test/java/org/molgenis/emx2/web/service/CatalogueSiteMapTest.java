@@ -38,6 +38,47 @@ public class CatalogueSiteMapTest {
   }
 
   @Test
+  public void buildSiteMapForSchemaWithVariables() {
+    Schema schema = mock(Schema.class);
+    Table resourceTable = mock(Table.class);
+    Table varaibleTable = mock(Table.class);
+    Query resourceQuery = mock(Query.class);
+    Query varaibleQuery = mock(Query.class);
+    List<Row> resourceRows =
+        List.of(
+            new Row("id", "my-id", "type", "Data source"),
+            new Row("id", "my-second-id", "type", "Network"));
+    List<Row> variableRows =
+        List.of(new Row("name", "Var name", "resource", "lifetime", "dataset", "core"));
+
+    when(schema.getTable("Resources")).thenReturn(resourceTable);
+    when(schema.getTable("Variables")).thenReturn(varaibleTable);
+    when(resourceTable.select(any(), any())).thenReturn(resourceQuery);
+    when(resourceQuery.retrieveRows()).thenReturn(resourceRows);
+
+    when(schema.query("Variables")).thenReturn(varaibleQuery);
+    when(varaibleQuery.select(any(), any(), any())).thenReturn(varaibleQuery);
+    when(varaibleQuery.where(any())).thenReturn(varaibleQuery);
+    when(varaibleQuery.retrieveRows()).thenReturn(variableRows);
+    CatalogueSiteMap catalogueSiteMap = new CatalogueSiteMap(schema, "https://my/base/url");
+
+    String expected =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" >\n"
+            + "  <url>\n"
+            + "    <loc>https://my/base/url/catalogue/all/collections/my-id</loc>\n"
+            + "  </url>\n"
+            + "  <url>\n"
+            + "    <loc>https://my/base/url/catalogue/all/networks/my-second-id</loc>\n"
+            + "  </url>\n"
+            + "  <url>\n"
+            + "    <loc>https://my/base/url/catalogue/all/variables/Var+name-lifetime-core-lifetime?keys={&quot;name&quot;:&quot;Var+name&quot;,&quot;resource&quot;:{&quot;id&quot;:&quot;lifetime&quot;},&quot;dataset&quot;:{&quot;name&quot;:&quot;core&quot;,&quot;resource&quot;:{&quot;id&quot;:&quot;lifetime&quot;}}}</loc>\n"
+            + "  </url>\n"
+            + "</urlset>";
+    assertEquals(expected, catalogueSiteMap.buildSiteMap());
+  }
+
+  @Test
   void buildSiteMapWhenExpectedTableIsMissing() {
     Schema schema = mock(Schema.class);
     Table table = mock(Table.class);
