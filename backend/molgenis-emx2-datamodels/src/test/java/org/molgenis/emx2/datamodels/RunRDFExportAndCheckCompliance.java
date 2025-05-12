@@ -47,7 +47,7 @@ public class RunRDFExportAndCheckCompliance {
 
     // Test compliance against one or more sets of SHACL files
     testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, catalogueSchemaRDF);
-    // testShaclCompliance(DCAT_AP_SHACL_FILES, catalogueSchemaRDF);
+    testShaclCompliance(DCAT_AP_SHACL_FILES, catalogueSchemaRDF);
     testShaclCompliance(HEALTH_RI_V1_SHACL_FILES, catalogueSchemaRDF);
     testShaclCompliance(HEALTH_RI_V2_SHACL_FILES, catalogueSchemaRDF);
     testShaclCompliance(EJP_RD_VP_SHACL_FILES, catalogueSchemaRDF);
