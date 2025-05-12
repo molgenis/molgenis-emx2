@@ -72,24 +72,10 @@ spec:
           name: postgres
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
-            #- -c
-            #- shared_buffers=256MB
-            #- -c
-            #- max_locks_per_transaction=1024
             - -c
-            - shared_buffers=512MB
+            - shared_buffers=256MB
             - -c
-            - work_mem=16MB
-            - -c
-            - maintenance_work_mem=128MB
-            - -c
-            - wal_buffers=16MB
-            - -c
-            - fsync=off
-            - -c
-            - synchronous_commit=off
-            - -c
-            - full_page_writes=off
+            - max_locks_per_transaction=1024
           resources:
             limits:
               memory: "512Mi"
