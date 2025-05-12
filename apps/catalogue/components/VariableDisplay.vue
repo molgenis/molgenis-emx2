@@ -38,8 +38,8 @@ const variable = computed(() => data.value?.data?.Variables[0] as IVariables);
 const items = computed(() => {
   const defaultItems = [
     {
-      label: "Unit",
-      content: variable.value?.unit?.name || "-",
+      label: "Label",
+      content: variable.value.label || "-",
     },
     {
       label: "Formats",
@@ -58,6 +58,10 @@ const items = computed(() => {
             variable.value?.repeatMax
           : undefined,
     },
+    {
+      label: "Unit",
+      content: variable.value?.unit?.name || "-",
+    },
   ];
 
   if (variable.value.dataset) {
@@ -72,17 +76,11 @@ const items = computed(() => {
 
   return defaultItems;
 });
-
-const title = computed(() => {
-  return variable.value.label
-    ? `${variable.value.label} (${variable.value.name})`
-    : variable.value.name;
-});
 </script>
 
 <template>
   <ContentBlockModal
-    :title="title"
+    :title="variable.name"
     :description="variable.description"
     sub-title="Variable"
   >
