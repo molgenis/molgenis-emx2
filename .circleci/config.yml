@@ -137,7 +137,7 @@ jobs:
     - run:
         name: Docker-Scout scanning on cve's, break on critical. 
         command: |
-          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code 1 --only-severity low 
+          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code --only-severity low 
 
     - run:
         name: deploy preview to azure
