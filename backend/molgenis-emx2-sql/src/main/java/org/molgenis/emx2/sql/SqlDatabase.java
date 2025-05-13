@@ -173,6 +173,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       if (!hasUser(ADMIN_USER)) {
         addUser(ADMIN_USER);
         setUserPassword(ADMIN_USER, initialAdminPassword);
+        setAdminUser(ADMIN_USER, true);
       }
 
       initSystemSchema();
