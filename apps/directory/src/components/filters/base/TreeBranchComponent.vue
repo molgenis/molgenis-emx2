@@ -11,7 +11,7 @@
         :ref="`${option.name}-checkbox`"
         class="mr-1"
         :checked="selected"
-        :indeterminate.prop="isIndeterminate"
+        :indeterminate.prop="isIndeterminate && !selected"
       />
       <label>
         <span class="code">{{ option.code }}</span> {{ option.label }}
@@ -94,7 +94,7 @@ const isIndeterminate = computed<boolean>(() => {
 
   return (
     selectedChildren.value.length > 0 &&
-    selectedChildren.value.length < option.value.children.length
+    selectedChildren.value.length <= option.value.children.length
   );
 });
 
