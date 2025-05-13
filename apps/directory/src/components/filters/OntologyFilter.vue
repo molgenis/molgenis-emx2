@@ -82,9 +82,9 @@ const { facetIdentifier, ontologyIdentifiers, options, showMatchTypeSelector } =
     showMatchTypeSelector: boolean;
   }>();
 
-let ontologyQuery = ref("");
-let resolvedOptions = ref<Record<string, any> | undefined>(undefined);
-let selectedOntology = ref(ontologyIdentifiers[0]);
+const ontologyQuery = ref("");
+const resolvedOptions = ref<Record<string, any> | undefined>(undefined);
+const selectedOntology = ref(ontologyIdentifiers[0]);
 
 options()
   .then((response: any) => {
@@ -94,7 +94,7 @@ options()
     console.log(`Error resolving ontology facet options: ${error}`);
   });
 
-let selectionOverflow = computed(() => {
+const selectionOverflow = computed(() => {
   return (
     facetIdentifier === "Diagnosisavailable" &&
     filtersStore.filters["Diagnosisavailable"]?.length >= 50 &&
@@ -102,7 +102,7 @@ let selectionOverflow = computed(() => {
   );
 });
 
-let displayOptions = computed(() => {
+const displayOptions = computed(() => {
   if (!resolvedOptions.value) return [];
   if (!ontologyQuery.value) {
     return resolvedOptions.value[selectedOntology.value] || [];

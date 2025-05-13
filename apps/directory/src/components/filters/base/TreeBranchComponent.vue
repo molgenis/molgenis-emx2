@@ -1,7 +1,6 @@
 <template>
   <ul>
     <li @click="open = !open" :class="option.children ? 'clickable' : ''">
-      <!-- because Vue3 does not allow me, for some odd reason, to toggle a class or spans with font awesome icons, we have to do it like  -->
       <span class="toggle-icon">
         {{ option.children ? (open ? "&#9660;" : "&#9650;") : "" }}
       </span>
@@ -12,7 +11,7 @@
         :ref="`${option.name}-checkbox`"
         class="mr-1"
         :checked="selected"
-        :indeterminate.prop="indeterminateState"
+        :indeterminate.prop="isIndeterminate"
       />
       <label>
         <span class="code">{{ option.code }}</span> {{ option.label }}
@@ -27,7 +26,7 @@
         :options="option.children"
         :facetIdentifier="facetIdentifier"
         :parentSelected="selected"
-        @indeterminate-update="signalParentOurIndeterminateStatus"
+        @indeterminate-update="handleChildIndeterminateUpdate"
         :filter="filter"
       />
     </li>
@@ -54,74 +53,68 @@ const props = withDefaults(
   { parentSelected: false, filter: "" }
 );
 
-const { option, filter, parentSelected, facetIdentifier } = toRefs(props);
+const { facetIdentifier, option, parentSelected, filter } = toRefs(props);
 
 const open = ref<boolean>(!!filter.value);
 const childIsIndeterminate = ref<boolean>(false);
 
-const currentFilterSelection = computed<any[]>(() => {
+const selectedFilters = computed<any[]>(() => {
   return filtersStore.getFilterValue(facetIdentifier.value) || [];
 });
 
 const selected = computed(() => {
   if (parentSelected.value) {
     return true;
-  } else if (!currentFilterSelection.value?.length) {
+  } else if (selectedChildren.value.length === option.value.children?.length) {
+    return true;
+  } else if (!selectedFilters.value?.length) {
     return false;
   } else {
-    return currentFilterSelection.value.some(
+    return selectedFilters.value.some(
       (selectedValue: Record<string, any>) =>
         selectedValue.name === option.value.name
     );
   }
 });
 
-const numberOfChildrenInSelection = computed(() => {
-  if (!option.value.children) {
-    return 0;
-  }
-
-  return selectedChildren.value.length;
-});
-
 const selectedChildren = computed(() => {
-  const childNames = option.value.children.map(
-    (childOption: Record<string, any>) => childOption.name
-  );
-  return currentFilterSelection.value.filter(
-    (selectedOption: Record<string, any>) =>
-      childNames.includes(selectedOption.name)
+  const childNames =
+    option.value.children?.map(
+      (childOption: Record<string, any>) => childOption.name
+    ) || [];
+  return selectedFilters.value.filter((selectedFilter: Record<string, any>) =>
+    childNames.includes(selectedFilter.name)
   );
 });
 
-const indeterminateState = computed(() => {
+const isIndeterminate = computed<boolean>(() => {
   if (parentSelected.value) return false;
   if (childIsIndeterminate.value) return true;
   if (!option.value.children) return false;
 
   return (
-    numberOfChildrenInSelection.value !== option.value.children.length &&
-    numberOfChildrenInSelection.value > 0
+    selectedChildren.value.length > 0 &&
+    selectedChildren.value.length < option.value.children.length
   );
 });
 
-watch(indeterminateState, (status: boolean) => {
-  signalParentOurIndeterminateStatus(status);
-});
+watch(isIndeterminate, signalParentOurIndeterminateStatus);
 
 watch(filter, (newFilter: string) => {
   open.value = !!newFilter;
 });
 
 function selectOption(checked: boolean, option: Record<string, any>) {
-  /** if it is checked we add */
   filtersStore.updateOntologyFilter(facetIdentifier.value, option, checked);
-  signalParentOurIndeterminateStatus(checked);
+  // emit("indeterminate-update", checked || isIndeterminate.value);
 }
 
-function signalParentOurIndeterminateStatus(status: boolean) {
-  childIsIndeterminate.value = status;
-  emit("indeterminate-update", status);
+function handleChildIndeterminateUpdate(newStatus: boolean) {
+  childIsIndeterminate.value = newStatus;
+}
+
+function signalParentOurIndeterminateStatus() {
+  emit("indeterminate-update", isIndeterminate);
 }
 </script>
 <style scoped>
