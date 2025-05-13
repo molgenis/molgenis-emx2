@@ -106,7 +106,6 @@ watch(filter, (newFilter: string) => {
 
 function selectOption(checked: boolean, option: Record<string, any>) {
   filtersStore.updateOntologyFilter(facetIdentifier.value, option, checked);
-  // emit("indeterminate-update", checked || isIndeterminate.value);
 }
 
 function handleChildIndeterminateUpdate(newStatus: boolean) {
@@ -114,7 +113,7 @@ function handleChildIndeterminateUpdate(newStatus: boolean) {
 }
 
 function signalParentOurIndeterminateStatus() {
-  emit("indeterminate-update", isIndeterminate);
+  emit("indeterminate-update", isIndeterminate.value);
 }
 </script>
 <style scoped>
