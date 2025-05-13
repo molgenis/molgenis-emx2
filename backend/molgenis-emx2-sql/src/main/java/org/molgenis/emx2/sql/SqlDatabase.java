@@ -529,7 +529,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     log(start, "removed metadata from user " + user);
   }
 
-  public void setEnabledUser(String user, Boolean enabled) {
+  public void setEnabledUser(String user, boolean enabled) {
     long start = System.currentTimeMillis();
     if (user.equals("admin")) throw new MolgenisException("You cant enable or disable admin");
     if (user.equals("anonymous"))
@@ -551,7 +551,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     log(start, (enabled ? "Enabling" : "Disabling") + " user " + user);
   }
 
-  public void setAdminUser(String user, Boolean admin) {
+  public void setAdminUser(String user, boolean admin) {
     long start = System.currentTimeMillis();
     if (user.equals("admin") && !admin)
       throw new MolgenisException("Cannot revoke admin rights of admin user");

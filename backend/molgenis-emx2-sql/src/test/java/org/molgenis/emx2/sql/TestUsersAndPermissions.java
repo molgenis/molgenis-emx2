@@ -17,6 +17,8 @@ public class TestUsersAndPermissions {
   private static final String TEST_ENABLE_USERS = "TestEnableUser";
   private static final String TEST_INITIALLY_ENABLE_USERS = "TestInitiallyEnableUser";
   private static final String TEST_NONEXISTENT_USERS = "TestNonExistentUser";
+  private static final String TEST_ADMIN_USER = "TestAdminUser";
+  private static final String TEST_ADMIN_USER_2 = "TestAdminUser2";
 
   @BeforeAll
   public static void setup() {
@@ -27,6 +29,9 @@ public class TestUsersAndPermissions {
   public static void removeUsers() {
     if (database.hasUser(TEST_ENABLE_USERS)) {
       database.removeUser(TEST_ENABLE_USERS);
+    }
+    if (database.hasUser(TEST_ADMIN_USER)) {
+      database.removeUser(TEST_ADMIN_USER);
     }
   }
 
@@ -93,6 +98,46 @@ public class TestUsersAndPermissions {
     database.addUser(TEST_ENABLE_USERS);
     database.setEnabledUser(TEST_ENABLE_USERS, false);
     assertFalse(database.getUser(TEST_ENABLE_USERS).getEnabled());
+  }
+
+  @Test
+  public void testGrantAdminStatus() {
+    database.addUser(TEST_ADMIN_USER);
+    database.setAdminUser(TEST_ENABLE_USERS, true);
+    assertTrue(database.getUser(TEST_ENABLE_USERS).isAdmin());
+    database.setAdminUser(TEST_ENABLE_USERS, false);
+    assertFalse(database.getUser(TEST_ENABLE_USERS).isAdmin());
+  }
+
+  @Test
+  public void testGrantAdminStatusAnonymous_shouldThrow() {
+    assertThrows(MolgenisException.class, () -> database.setAdminUser(ANONYMOUS, true));
+  }
+
+  @Test
+  public void testRevokeAdminStatusOfAdmin_shouldThrow() {
+    assertThrows(MolgenisException.class, () -> database.setAdminUser(ADMIN, false));
+  }
+
+  @Test
+  public void testGrantAdminByNonRootAdmin_shouldThrow() {
+    database.addUser(TEST_ADMIN_USER);
+    database.setAdminUser(TEST_ADMIN_USER, true);
+    // Become non-root admin user
+    database.setActiveUser(TEST_ADMIN_USER);
+    database.addUser(TEST_ADMIN_USER_2);
+    // Should throw only root admin can set admin
+    assertThrows(MolgenisException.class, () -> database.setAdminUser(TEST_ADMIN_USER_2, true));
+  }
+
+  @Test
+  public void changeAdminPasswordByNonRootAdmin_shouldThrow() {
+    database.addUser(TEST_ADMIN_USER);
+    database.setAdminUser(TEST_ADMIN_USER, true);
+    // Become non-root admin user
+    database.setActiveUser(TEST_ADMIN_USER);
+    // Should throw only root admin can set admin password
+    assertThrows(MolgenisException.class, () -> database.setUserPassword(ADMIN, "somePassword"));
   }
 
   @Test
