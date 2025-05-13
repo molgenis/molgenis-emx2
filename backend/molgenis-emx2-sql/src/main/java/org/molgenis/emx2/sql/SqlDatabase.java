@@ -553,9 +553,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   public void setAdminUser(String user, Boolean admin) {
     long start = System.currentTimeMillis();
-    if (user.equals("admin")) throw new MolgenisException("You cant enable or disable admin");
+    if (user.equals("admin") && !admin)
+      throw new MolgenisException("Cannot revoke admin rights of admin user");
     if (user.equals("anonymous"))
-      throw new MolgenisException("You cant enable or disable anonymous");
+      throw new MolgenisException("Anonymous user cannot have admin rights");
     if (!ADMIN_USER.equals(this.getActiveUser()))
       throw new MolgenisException("Only root admin user may grant admin permission");
     if (!hasUser(user))
