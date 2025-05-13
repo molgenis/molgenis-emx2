@@ -12,9 +12,9 @@
       <p>
         The NESTOR Registry is a web-based platform that facilitates and
         accelerates research to improve diagnostics, treatment and the provision
-        of high-quality healthcare for patients with one of rare genetic tumour
-        risk syndromes. The NESTOR Registry is affiliated to the KWF NESTOR
-        project.
+        of high-quality healthcare for patients with one of the rare genetic
+        tumour risk syndromes. The NESTOR Registry is affiliated to the KWF
+        NESTOR project.
       </p>
       <MessageBox type="warning">
         <span>This page is under construction.</span>
