@@ -116,6 +116,7 @@ function signalParentOurIndeterminateStatus() {
   emit("indeterminate-update", isIndeterminate.value);
 }
 </script>
+
 <style scoped>
 li {
   margin-right: 1rem;
