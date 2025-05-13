@@ -121,6 +121,7 @@ public class TestUsersAndPermissions {
 
   @Test
   public void testGrantAdminByNonRootAdmin_shouldThrow() {
+    database.becomeAdmin();
     database.addUser(TEST_ADMIN_USER);
     database.setAdminUser(TEST_ADMIN_USER, true);
     // Become non-root admin user
