@@ -41,9 +41,10 @@
             <MessageWarning
               class="mx-3 position-absolute"
               v-if="selectionOverflow"
-              >You can only select 50 items at a time under 'Match All'. Please
-              adjust your query.</MessageWarning
             >
+              You can only select 50 items at a time under 'Match All'. Please
+              adjust your query.
+            </MessageWarning>
             <TreeComponent
               :class="{ 'warning-padding': selectionOverflow }"
               :options="displayOptions"
