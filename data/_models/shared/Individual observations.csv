@@ -40,6 +40,6 @@ Disease history,,disease stage,ontology,,,CatalogueOntologies,Disease stage,,,,h
 Measurements,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25209,Additional clinical measurements collected as part of the clinical observation,"Patient registry, FAIR Genomes"
 Measurements,,part of clinical observation,ref,1,TRUE,,Clinical observations,,,,http://purl.obolibrary.org/obo/NCIT_C87853,"A reference to a specific clinical observation (e.g., ""Ind001_Phen001"")","Patient registry, FAIR Genomes"
 Measurements,,code,ontology,1,TRUE,CatalogueOntologies,Analyses performed,,,,http://purl.obolibrary.org/obo/NCIT_C25162,"A unique code that identifies or categorises this measurement (e.g., ""Metabolomics"")","Patient registry, FAIR Genomes"
-Measurements,,variable,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C54166,"A name that describes the measurement (e.g.. ""Blood platelet count"")","Patient registry, FAIR Genomes"
+Measurements,,variable,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C54166,"A name that describes the measurement (e.g.. ""Blood platelet count"")","Patient registry, FAIR Genomes"
 Measurements,,value,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25712,"The value that was measured, collected, derived, etc. (e.g. ""55345"")","Patient registry, FAIR Genomes"
 Measurements,,unit,ontology,,,CatalogueOntologies,Units,,,,http://purl.obolibrary.org/obo/NCIT_C25709,"A value that specifes the measured value (e.g., ""Per Millimeter"")","Patient registry, FAIR Genomes"
