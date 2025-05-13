@@ -606,6 +606,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
     } else {
       if (!Objects.equals(username, connectionProvider.getActiveUser())) {
+        this.connectionProvider.setActiveUser(username);
         listener.userChanged();
       }
     }
@@ -782,8 +783,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public boolean isAdmin() {
+    if (ADMIN_USER.equals(getActiveUser())) return true;
     User user = getUser(getActiveUser());
-    return (user != null && user.isAdmin()) || ADMIN_USER.equals(getActiveUser());
+    return (user != null && user.isAdmin());
   }
 
   @Override
