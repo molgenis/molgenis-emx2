@@ -723,12 +723,19 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.schemaInfos.clear();
     // elevate privileges for loading settings
     String user = this.connectionProvider.getActiveUser();
+    boolean isAdmin = this.connectionProvider.isAdmin();
     try {
+      logger.info(
+          "Setting admin user for clearing cache {} {}", Thread.currentThread().getName(), this);
       this.connectionProvider.setActiveUser(ADMIN_USER);
       this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
     } finally {
+      logger.info(
+          "Setting current user back after clearing cache {} {}",
+          Thread.currentThread().getName(),
+          this);
       this.connectionProvider.setActiveUser(user);
-      this.connectionProvider.setAdmin(isAdmin());
+      this.connectionProvider.setAdmin(isAdmin);
     }
   }
 

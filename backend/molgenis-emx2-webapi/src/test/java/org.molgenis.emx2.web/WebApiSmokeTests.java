@@ -115,6 +115,30 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  public void testLoginMultipleTimes() {
+    String adminPass =
+        (String)
+            EnvironmentProperty.getParameter(
+                org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+
+    for (int i = 0; i < 10; i++) {
+      String result =
+          given()
+              .sessionId(SESSION_ID)
+              .body(
+                  "{\"query\":\"mutation{signin(email:\\\""
+                      + db.getAdminUserName()
+                      + "\\\",password:\\\""
+                      + adminPass
+                      + "\\\"){message}}\"}")
+              .when()
+              .post("/api/graphql")
+              .asString();
+      assertTrue(result.contains("Signed in"), "Login failed at iteration " + i);
+    }
+  }
+
+  @Test
   public void testApiRoot() {
     String result =
         given()
