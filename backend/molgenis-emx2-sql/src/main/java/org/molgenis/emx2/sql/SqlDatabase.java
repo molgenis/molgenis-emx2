@@ -644,7 +644,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     } else {
       // we create a new instance, isolated from 'this' until end of transaction
       SqlDatabase db = new SqlDatabase(jooq, this);
-      this.tableListeners.forEach(listener -> db.addTableListener(listener));
+      this.tableListeners.forEach(db::addTableListener);
       try {
         jooq.transaction(
             config -> {
