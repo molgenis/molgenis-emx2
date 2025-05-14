@@ -25,20 +25,21 @@ public class CatalogueSiteMapTest {
     CatalogueSiteMap catalogueSiteMap = new CatalogueSiteMap(schema, "https://my/base/url");
 
     String expected =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" >\n"
-            + "  <url>\n"
-            + "    <loc>https://my/base/url/catalogue/all/collections/my-id</loc>\n"
-            + "  </url>\n"
-            + "  <url>\n"
-            + "    <loc>https://my/base/url/catalogue/all/networks/my-second-id</loc>\n"
-            + "  </url>\n"
-            + "</urlset>";
+        """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" >
+      <url>
+        <loc>https://my/base/url/catalogue/all/collections/my-id</loc>
+      </url>
+      <url>
+        <loc>https://my/base/url/catalogue/all/networks/my-second-id</loc>
+      </url>
+    </urlset>""";
     assertEquals(expected, catalogueSiteMap.buildSiteMap());
   }
 
   @Test
-  public void buildSiteMapForSchemaWithVariables() {
+  void buildSiteMapForSchemaWithVariables() {
     Schema schema = mock(Schema.class);
     Table resourceTable = mock(Table.class);
     Table varaibleTable = mock(Table.class);
@@ -63,18 +64,19 @@ public class CatalogueSiteMapTest {
     CatalogueSiteMap catalogueSiteMap = new CatalogueSiteMap(schema, "https://my/base/url");
 
     String expected =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" >\n"
-            + "  <url>\n"
-            + "    <loc>https://my/base/url/catalogue/all/collections/my-id</loc>\n"
-            + "  </url>\n"
-            + "  <url>\n"
-            + "    <loc>https://my/base/url/catalogue/all/networks/my-second-id</loc>\n"
-            + "  </url>\n"
-            + "  <url>\n"
-            + "    <loc>https://my/base/url/catalogue/all/variables/Var+name-lifetime-core-lifetime?keys={&quot;name&quot;:&quot;Var+name&quot;,&quot;resource&quot;:{&quot;id&quot;:&quot;lifetime&quot;},&quot;dataset&quot;:{&quot;name&quot;:&quot;core&quot;,&quot;resource&quot;:{&quot;id&quot;:&quot;lifetime&quot;}}}</loc>\n"
-            + "  </url>\n"
-            + "</urlset>";
+        """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" >
+      <url>
+        <loc>https://my/base/url/catalogue/all/collections/my-id</loc>
+      </url>
+      <url>
+        <loc>https://my/base/url/catalogue/all/networks/my-second-id</loc>
+      </url>
+      <url>
+        <loc>https://my/base/url/catalogue/all/variables/Var+name-lifetime-core-lifetime?keys={&quot;name&quot;:&quot;Var+name&quot;,&quot;resource&quot;:{&quot;id&quot;:&quot;lifetime&quot;},&quot;dataset&quot;:{&quot;name&quot;:&quot;core&quot;,&quot;resource&quot;:{&quot;id&quot;:&quot;lifetime&quot;}}}</loc>
+      </url>
+    </urlset>""";
     assertEquals(expected, catalogueSiteMap.buildSiteMap());
   }
 

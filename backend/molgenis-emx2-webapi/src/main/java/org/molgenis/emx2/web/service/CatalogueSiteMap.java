@@ -18,6 +18,7 @@ public class CatalogueSiteMap {
 
   private static final String APP_NAME = "catalogue";
   private static final String TYPE_NETWORK = "Network";
+  private static final String RESOURCE = "resource";
 
   private enum ResourcePath {
     networks,
@@ -65,8 +66,8 @@ public class CatalogueSiteMap {
       if (schema.getTable("Variables") != null) {
         schema
             .query("Variables")
-            .select(s("name"), s("resource"), s("dataset"))
-            .where(f("resource", f("type", f("name", Operator.EQUALS, "Network"))))
+            .select(s("name"), s(RESOURCE), s("dataset"))
+            .where(f(RESOURCE, f("type", f("name", Operator.EQUALS, TYPE_NETWORK))))
             .retrieveRows()
             .forEach(
                 variable -> {
@@ -111,7 +112,7 @@ public class CatalogueSiteMap {
 
   private WebSitemapUrl urlForVariable(Row variable) throws MalformedURLException {
     String variableId = encodePathSegment(variable.getString("name"));
-    String resource = encodePathSegment(variable.getString("resource"));
+    String resource = encodePathSegment(variable.getString(RESOURCE));
     String dataset = encodePathSegment(variable.getString("dataset"));
 
     // human-readable key
