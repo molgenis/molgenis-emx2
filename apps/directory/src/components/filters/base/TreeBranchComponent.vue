@@ -58,14 +58,14 @@ const { facetIdentifier, option, parentSelected, filter } = toRefs(props);
 const open = ref<boolean>(!!filter.value);
 const childIsIndeterminate = ref<boolean>(false);
 
-const selectedFilters = computed<any[]>(() => {
-  return filtersStore.getFilterValue(facetIdentifier.value) || [];
-});
+const selectedFilters = computed<any[]>(
+  () => filtersStore.getFilterValue(facetIdentifier.value) || []
+);
 
 const selected = computed(() => {
   if (parentSelected.value) {
     return true;
-  } else if (selectedChildren.value.length === option.value.children?.length) {
+  } else if (numberOfSelectedChildren.value === option.value.children?.length) {
     return true;
   } else if (!selectedFilters.value?.length) {
     return false;
@@ -77,14 +77,17 @@ const selected = computed(() => {
   }
 });
 
-const selectedChildren = computed(() => {
-  const childNames =
-    option.value.children?.map(
-      (childOption: Record<string, any>) => childOption.name
-    ) || [];
-  return selectedFilters.value.filter((selectedFilter: Record<string, any>) =>
-    childNames.includes(selectedFilter.name)
-  );
+const numberOfSelectedChildren = computed(() => {
+  if (option.value.children) {
+    return selectedFilters.value.filter((selectedFilter: Record<string, any>) =>
+      option.value.children.some(
+        (childOption: Record<string, any>) =>
+          selectedFilter.name === childOption.name
+      )
+    ).length;
+  } else {
+    return 0;
+  }
 });
 
 const isIndeterminate = computed<boolean>(() => {
@@ -93,8 +96,8 @@ const isIndeterminate = computed<boolean>(() => {
   if (!option.value.children) return false;
 
   return (
-    selectedChildren.value.length > 0 &&
-    selectedChildren.value.length <= option.value.children.length
+    numberOfSelectedChildren.value > 0 &&
+    numberOfSelectedChildren.value <= option.value.children.length
   );
 });
 
