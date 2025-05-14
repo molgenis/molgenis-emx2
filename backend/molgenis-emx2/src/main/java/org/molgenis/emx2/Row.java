@@ -231,9 +231,12 @@ public class Row {
     } else {
       String id = UUID.randomUUID().toString().replace("-", "");
       this.values.put(name, id);
-      this.values.put(
-          name + "_filename",
-          !value.getFileName().isEmpty() ? value.getFileName() : id + "." + value.getExtension());
+      String filename = value.getFileName();
+      if (filename != null && !filename.isEmpty()) {
+        this.values.put(name + "_filename", filename);
+      } else {
+        this.values.put(name + "_filename", id + "." + value.getExtension());
+      }
       this.values.put(name + "_extension", value.getExtension());
       this.values.put(name + "_mimetype", value.getMimeType());
       this.values.put(name + "_size", value.getSize());
