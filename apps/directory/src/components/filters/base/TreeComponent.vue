@@ -80,7 +80,7 @@ function getTopPaginatedOptions() {
   }
 }
 
-function signalParentOurIndeterminateStatus(status: any) {
+function signalParentOurIndeterminateStatus(status: boolean) {
   emit("indeterminate-update", status);
 }
 
