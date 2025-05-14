@@ -86,7 +86,6 @@ subprojects { subproject ->
         }
     }
 
-
     task lint(type: YarnTask, dependsOn: buildJavascript) {
         if (
                 packageJson.contains("\"name\": \"tailwind-components\"") ||
