@@ -7,5 +7,7 @@ export default defineEventHandler((event) => {
   // console.log("to : ", joinURL(config.public.apiBase, "graphql"));
   console.log("CENTRAL proxy gql from main graphql : ", event.path);
   const target = joinURL(config.public.apiBase, "api/graphql");
-  return proxyRequest(event, target, {headers: { "MG-Schema": "catalogue-demo" }});
+  return proxyRequest(event, target, {
+    headers: { "MG-Schema": "catalogue-demo" },
+  });
 });
