@@ -13,7 +13,7 @@ const { name, resourceId } = defineProps<{
 
 const query = moduleToString(datasetGql);
 
-const { data } = await useFetch(`/${route.params.schema}/graphql`, {
+const { data } = await useFetch(`/graphql`, {
   method: "POST",
   body: {
     query: query,

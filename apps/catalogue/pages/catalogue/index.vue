@@ -59,7 +59,7 @@ interface Resp<T, U> {
   data_agg: Record<string, U>;
 }
 
-let graphqlURL = computed(() => `/${route.params.schema}/graphql`);
+let graphqlURL = computed(() => `/graphql`);
 const { data } = await useFetch<Resp<IResources, IResources_agg>>(
   graphqlURL.value,
   {
@@ -100,7 +100,7 @@ const projectCatalogues = computed(() => {
           class="relative justify-center flex flex-col md:flex-row text-title"
         >
           <div class="flex flex-col items-center max-w-sm lg:mt-5">
-            <NuxtLink :to="`/${route.params.schema}/catalogue/all`">
+            <NuxtLink :to="`/catalogue/all`">
               <Button label="Search all" />
             </NuxtLink>
             <p

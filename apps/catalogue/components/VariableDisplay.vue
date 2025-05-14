@@ -16,18 +16,15 @@ const props = defineProps<{
 
 const route = useRoute();
 
-const { data, error } = await useFetch<Resp<IVariables>>(
-  `/${route.params.schema}/graphql`,
-  {
-    method: "POST",
-    body: {
-      query: query,
-      variables: {
-        variableFilter: buildFilterFromKeysObject(props.variableKey),
-      },
+const { data, error } = await useFetch<Resp<IVariables>>(`/graphql`, {
+  method: "POST",
+  body: {
+    query: query,
+    variables: {
+      variableFilter: buildFilterFromKeysObject(props.variableKey),
     },
-  }
-);
+  },
+});
 
 if (error.value) {
   showError(error.value);

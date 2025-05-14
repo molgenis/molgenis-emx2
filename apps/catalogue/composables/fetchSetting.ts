@@ -6,7 +6,7 @@ export const fetchSetting = (settingKey: string) => {
   };
 
   const route = useRoute();
-  return $fetch(`/${route.params.schema}/graphql`, {
+  return $fetch(`/graphql`, {
     method: "POST",
     body,
   });

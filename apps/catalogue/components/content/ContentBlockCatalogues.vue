@@ -26,19 +26,17 @@ const props = defineProps<{
         <TableRow
           v-for="catalogue in catalogues"
           :key="catalogue.id"
-          @click="
-            navigateTo(`/${route.params.schema}/catalogue/${catalogue.id}`)
-          "
+          @click="navigateTo(`/catalogue/${catalogue.id}`)"
         >
           <TableCell class="hidden sm:table-cell">
-            <NuxtLink :to="`/${route.params.schema}/catalogue/${catalogue.id}`">
+            <NuxtLink :to="`/catalogue/${catalogue.id}`">
               <div class="items-center flex justify-center w-32">
                 <img :src="catalogue?.logo?.url" />
               </div>
             </NuxtLink>
           </TableCell>
           <TableCell>
-            <NuxtLink :to="`/${route.params.schema}/catalogue/${catalogue.id}`">
+            <NuxtLink :to="`/catalogue/${catalogue.id}`">
               <span
                 class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
                 >{{ catalogue.id }}</span
@@ -46,12 +44,12 @@ const props = defineProps<{
             </NuxtLink>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            <NuxtLink :to="`/${route.params.schema}/catalogue/${catalogue.id}`">
+            <NuxtLink :to="`/catalogue/${catalogue.id}`">
               {{ catalogue?.name }}
             </NuxtLink>
           </TableCell>
           <TableCell>
-            <NuxtLink :to="`/${route.params.schema}/catalogue/${catalogue.id}`">
+            <NuxtLink :to="`/catalogue/${catalogue.id}`">
               <IconButton icon="arrow-right" class="text-blue-500" />
             </NuxtLink>
           </TableCell>

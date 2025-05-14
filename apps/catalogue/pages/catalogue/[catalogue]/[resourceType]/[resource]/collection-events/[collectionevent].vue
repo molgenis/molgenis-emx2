@@ -1,34 +1,31 @@
 <script setup lang="ts">
-import dateUtils from "../../../../../../../utils/dateUtils";
-import collectionEventGql from "../../../../../../../gql/collectionEvent";
+import dateUtils from "../../../../../../utils/dateUtils";
+import collectionEventGql from "../../../../../../gql/collectionEvent";
 import type {
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
-} from "../../../../../../../interfaces/types";
+} from "../../../../../../interfaces/types";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
 import { moduleToString, logError, buildTree } from "#imports";
 import { computed, reactive } from "vue";
-import { removeChildIfParentSelected } from "../../../../../../../utils/treeHelpers";
+import { removeChildIfParentSelected } from "../../../../../../utils/treeHelpers";
 
 const config = useRuntimeConfig();
 const route = useRoute();
 
 const query = moduleToString(collectionEventGql);
 
-const { data, error } = await useFetch<any, IMgError>(
-  `/${route.params.schema}/graphql`,
-  {
-    method: "POST",
-    body: {
-      query,
-      variables: {
-        id: route.params.resource,
-        name: route.params.collectionevent,
-      },
+const { data, error } = await useFetch<any, IMgError>(`/graphql`, {
+  method: "POST",
+  body: {
+    query,
+    variables: {
+      id: route.params.resource,
+      name: route.params.collectionevent,
     },
-  }
-);
+  },
+});
 
 if (error.value) {
   const contextMsg = "Error fetching data for collection-event detail page";
@@ -51,15 +48,15 @@ const pageCrumbs: any = {};
 
 pageCrumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
+] = `/catalogue/${route.params.catalogue}`;
 
 pageCrumbs[
   route.params.resourceType as string
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
+] = `/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
 
 pageCrumbs[
   route.params.resource as string
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`;
+] = `/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`;
 
 pageCrumbs["Collection events"] = "";
 pageCrumbs[route.params.collectionevent as string] = "";

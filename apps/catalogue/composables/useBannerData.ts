@@ -4,7 +4,7 @@ export async function useBannerData() {
   const route = useRoute();
   const CATALOGUE_BANNER_HTML = "CATALOGUE_BANNER_HTML";
 
-  return useFetch(`/${route.params.schema}/graphql`, {
+  return useFetch(`/graphql`, {
     method: "POST",
     body: {
       query: `{_settings (keys: ["${CATALOGUE_BANNER_HTML}"]){ key, value }}`,

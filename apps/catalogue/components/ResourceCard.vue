@@ -14,7 +14,6 @@ const route = useRoute();
 const props = withDefaults(
   defineProps<{
     resource: IResources;
-    schema: string;
     compact?: boolean;
     catalogue?: string;
   }>(),
@@ -63,7 +62,7 @@ watch([datasetStore.datasets], () => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/catalogue/${catalogue}/${route.params.resourceType}/${resource.id}`"
+            :to="`/catalogue/${catalogue}/${route.params.resourceType}/${resource.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ resource?.acronym || resource?.name }}
@@ -94,9 +93,7 @@ watch([datasetStore.datasets], () => {
             @input="onInput"
           />
         </label>
-        <NuxtLink
-          :to="`/${schema}/catalogue/${catalogue}/resources/${resource.id}`"
-        >
+        <NuxtLink :to="`/catalogue/${catalogue}/resources/${resource.id}`">
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"

@@ -2,11 +2,11 @@
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
 import { moduleToString, buildTree } from "#imports";
 import { computed, reactive } from "vue";
-import type { ISubpopulations } from "../../../../../../../interfaces/catalogue";
-import type { IMgError } from "../../../../../../../interfaces/types";
-import dateUtils from "../../../../../../../utils/dateUtils";
-import subpopulationGql from "../../../../../../../gql/subpopulation";
-import { removeChildIfParentSelected } from "../../../../../../../utils/treeHelpers";
+import type { ISubpopulations } from "../../../../../../interfaces/catalogue";
+import type { IMgError } from "../../../../../../interfaces/types";
+import dateUtils from "../../../../../../utils/dateUtils";
+import subpopulationGql from "../../../../../../gql/subpopulation";
+import { removeChildIfParentSelected } from "../../../../../../utils/treeHelpers";
 const config = useRuntimeConfig();
 const route = useRoute();
 
@@ -19,7 +19,7 @@ interface ISubpopulationQueryResponse {
 }
 
 const { data } = await useFetch<ISubpopulationQueryResponse, IMgError>(
-  `/${route.params.schema}/graphql`,
+  `/graphql`,
   {
     method: "POST",
     body: {
@@ -47,15 +47,15 @@ const pageCrumbs: any = {};
 
 pageCrumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
+] = `/catalogue/${route.params.catalogue}`;
 
 pageCrumbs[
   route.params.resourceType as string
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
+] = `/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
 
 pageCrumbs[
   route.params.resource as string
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`;
+] = `/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`;
 
 pageCrumbs["Subpopulations"] = "";
 pageCrumbs[route.params.subpopulation as string] = "";

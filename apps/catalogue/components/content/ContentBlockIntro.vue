@@ -111,7 +111,7 @@ const submitForm = async () => {
     : `Contact request for ${fields.senderName.fieldValue}`;
 
   try {
-    isSendSuccess = await sendContactForm({
+    isSendSuccess = !!(await sendContactForm({
       recipientsFilter: props.contactMessageFilter || "",
       subject,
       body: `
@@ -121,7 +121,7 @@ const submitForm = async () => {
       \nTopic: ${fields.topic.fieldValue}
       \nMessage: ${fields.senderMessage.fieldValue}
     `,
-    });
+    }));
   } catch (error) {
     console.log(error);
   }
