@@ -86,7 +86,6 @@ subprojects { subproject ->
         }
     }
 
-    // foobar
 
     task lint(type: YarnTask, dependsOn: buildJavascript) {
         if (
