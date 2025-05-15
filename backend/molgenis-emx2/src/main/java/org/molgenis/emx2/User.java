@@ -7,9 +7,9 @@ import java.util.*;
 public class User extends HasSettings<User> {
   private static final String TOKENS = "access-tokens";
   private String username;
-  private Boolean enabled = Boolean.TRUE;
+  private boolean enabled = true;
   private Database database;
-  private Boolean isAdmin = Boolean.FALSE;
+  private boolean isAdmin = false;
 
   User(String username) {
     // for testing protected
@@ -82,11 +82,11 @@ public class User extends HasSettings<User> {
     database.saveUser(this);
   }
 
-  public void setAdmin(Boolean admin) {
+  public void setAdmin(boolean admin) {
     this.isAdmin = admin;
   }
 
-  public Boolean isAdmin() {
+  public boolean isAdmin() {
     return isAdmin;
   }
 }

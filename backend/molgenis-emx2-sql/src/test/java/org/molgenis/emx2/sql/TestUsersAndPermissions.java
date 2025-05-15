@@ -36,7 +36,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void getUsers() {
+  void getUsers() {
     List<User> users = database.getUsers(1000, 0);
     assertTrue(users.size() > 0);
 
@@ -47,7 +47,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testActiveUser() {
+  void testActiveUser() {
     try {
 
       assertTrue(database.isAdmin());
@@ -94,14 +94,14 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testDisableUser() {
+  void testDisableUser() {
     database.addUser(TEST_ENABLE_USERS);
     database.setEnabledUser(TEST_ENABLE_USERS, false);
     assertFalse(database.getUser(TEST_ENABLE_USERS).getEnabled());
   }
 
   @Test
-  public void testGrantAdminStatus() {
+  void testGrantAdminStatus() {
     database.addUser(TEST_ADMIN_USER);
     database.setAdminUser(TEST_ENABLE_USERS, true);
     assertTrue(database.getUser(TEST_ENABLE_USERS).isAdmin());
@@ -110,17 +110,17 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testGrantAdminStatusAnonymous_shouldThrow() {
+  void testGrantAdminStatusAnonymous_shouldThrow() {
     assertThrows(MolgenisException.class, () -> database.setAdminUser(ANONYMOUS, true));
   }
 
   @Test
-  public void testRevokeAdminStatusOfAdmin_shouldThrow() {
+  void testRevokeAdminStatusOfAdmin_shouldThrow() {
     assertThrows(MolgenisException.class, () -> database.setAdminUser(ADMIN, false));
   }
 
   @Test
-  public void testGrantAdminByNonRootAdmin_shouldThrow() {
+  void testGrantAdminByNonRootAdmin_shouldThrow() {
     database.becomeAdmin();
     database.addUser(TEST_ADMIN_USER);
     database.setAdminUser(TEST_ADMIN_USER, true);
@@ -132,7 +132,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void changeAdminPasswordByNonRootAdmin_shouldThrow() {
+  void changeAdminPasswordByNonRootAdmin_shouldThrow() {
     database.addUser(TEST_ADMIN_USER);
     database.setAdminUser(TEST_ADMIN_USER, true);
     // Become non-root admin user
@@ -142,7 +142,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testNonExistentDisableUser() {
+  void testNonExistentDisableUser() {
     try {
       database.setEnabledUser(TEST_NONEXISTENT_USERS, false);
       fail("should have failed");
@@ -152,7 +152,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testDisableAdmin() {
+  void testDisableAdmin() {
     try {
       database.setEnabledUser(ADMIN, false);
       fail("should have failed");
@@ -162,7 +162,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testDisableAnonymous() {
+  void testDisableAnonymous() {
     try {
       database.setEnabledUser(ANONYMOUS, false);
       fail("should have failed");
@@ -172,7 +172,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testRemoveAdmin() {
+  void testRemoveAdmin() {
     try {
       database.removeUser(ADMIN);
       fail("should have failed");
@@ -182,7 +182,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testRemoveAnonymous() {
+  void testRemoveAnonymous() {
     try {
       database.removeUser(ANONYMOUS);
       fail("should have failed");
@@ -192,7 +192,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testRemoveUser() {
+  void testRemoveUser() {
     try {
       database.removeUser(USER);
       fail("should have failed");
@@ -202,7 +202,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testNonExistentRemoveUser() {
+  void testNonExistentRemoveUser() {
     try {
       database.removeUser(TEST_NONEXISTENT_USERS);
       fail("should have failed");
@@ -212,13 +212,13 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testInitiallyEnabledUser() {
+  void testInitiallyEnabledUser() {
     database.addUser(TEST_INITIALLY_ENABLE_USERS);
     assertTrue(database.getUser(TEST_INITIALLY_ENABLE_USERS).getEnabled());
   }
 
   @Test
-  public void testPassword() {
+  void testPassword() {
     try {
       database.addUser("donald");
       database.setUserPassword("donald", "blaat");
