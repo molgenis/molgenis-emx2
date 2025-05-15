@@ -139,8 +139,7 @@ public class WebApiSmokeTests {
 
     String sessionQuery = "{ \"query\": \"{ _session { email } } \"}";
 
-    String result =
-        given().sessionId(SESSION_ID).body(createUserQuery).post("/api/graphql").asString();
+    given().sessionId(SESSION_ID).body(createUserQuery).post("/api/graphql").asString();
 
     int threadCount = 10;
     ExecutorService executor = Executors.newFixedThreadPool(threadCount);
