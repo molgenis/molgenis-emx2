@@ -30,6 +30,8 @@ ingress:
   hosts:
      - host: emx2.dev.molgenis.org
   path: /
+  controller:
+    allowSnippetAnnotations: true
 
 postgres:
   image:
