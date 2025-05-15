@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: proxy-nginx-config
+data:
+  nginx.conf: |
+    events {}
+    http {
+      server {
+        listen 80;
+
+        location / {
+          proxy_pass http://{{ include "emx2.fullname" . }}.default.svc.cluster.local::8080;
+          client_max_body_size 0;
+          proxy_read_timeout 600s;
+          proxy_redirect http://{{ include "emx2.fullname" . }}.default.svc.cluster.local::8080/ $scheme://$host/;
+          proxy_set_header Host $host;
+          proxy_set_header MG-Schema "catalogue-demo";
+          proxy_http_version 1.1;
+        }
+
+        ## Redirect old SSR catalogue paths to the new ones
+          location ~* ^/(.+)/ssr-catalogue(.*)$ {
+          return 301 $scheme://$host/$1/catalogue$2;
+        }
+
+        # ssr catalogue nuxt service
+          location ~* ^\/[^\/]+\/catalogue {
+          proxy_pass http://{{ include "emx2.fullname" . }}.default.svc.cluster.local:3000;
+          proxy_http_version 1.1;
+          proxy_set_header Host 127.0.0.1:30000;
+          proxy_set_header X-Forwarded-Host $http_host;
+          proxy_set_header X-Forwarded-For $remote_addr;
+        }
+
+        # ssr catalogue nuxt service system routes
+          location ~* /_nuxt/ {
+          proxy_pass http://{{ include "emx2.fullname" . }}.default.svc.cluster.local:3000;
+          proxy_http_version 1.1;
+          proxy_set_header Host 127.0.0.1:30000;
+          proxy_set_header X-Forwarded-Host $http_host;
+          proxy_set_header X-Forwarded-For $remote_addr;
+        }
+        # ssr catalogue nuxt service theme styles
+          location ~* /_nuxt-styles/ {
+          proxy_pass http://{{ include "emx2.fullname" . }}.default.svc.cluster.local:3000;
+          proxy_http_version 1.1;
+          proxy_set_header Host 127.0.0.1:30000;
+          proxy_set_header X-Forwarded-Host $http_host;
+          proxy_set_header X-Forwarded-For $remote_addr;
+        }
+
+      }
+    }

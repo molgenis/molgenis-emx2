@@ -20,6 +20,12 @@ spec:
         {{- include "emx2.selectorLabels" . | nindent 8 }}
     spec:
       containers:
+        - name: nginx
+          image: nginx:stable
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
         - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           name: {{ .Chart.Name }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -123,6 +129,9 @@ spec:
             - name: NUXT_PUBLIC_ANALYTICS_KEY
               value: {{ .Values.ssrCatalogue.environment.analyticsKey | quote }}
       volumes:
+        - name: nginx-config
+          configMap:
+            name: proxy-nginx-config
         - name: postgres-initdb
           configMap:
             name: postgres-initdb-config

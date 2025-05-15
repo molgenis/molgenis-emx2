@@ -4,6 +4,16 @@ items:
   - apiVersion: v1
     kind: Service
     metadata:
+      name: proxy
+    spec:
+      selector:
+        app: proxy
+      ports:
+      - port: {{ .Values.service.port }}
+        targetPort: 80
+  - apiVersion: v1
+    kind: Service
+    metadata:
       name: {{ include "emx2.fullname" . }}
       labels:
         app: {{ template "emx2.name" . }}
@@ -13,7 +23,7 @@ items:
     spec:
       type: {{ .Values.service.type }}
       ports:
-        - port: {{ .Values.service.port }}
+        - port: 8080
           targetPort: 8080
           protocol: TCP
       selector:
