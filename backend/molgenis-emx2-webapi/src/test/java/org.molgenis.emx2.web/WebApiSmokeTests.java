@@ -139,7 +139,8 @@ public class WebApiSmokeTests {
 
     String sessionQuery = "{ \"query\": \"{ _session { email } } \"}";
 
-    given().sessionId(SESSION_ID).body(createUserQuery).post("/api/graphql").asString();
+    String result =
+        given().sessionId(SESSION_ID).body(createUserQuery).post("/api/graphql").asString();
 
     int threadCount = 10;
     ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -157,7 +158,7 @@ public class WebApiSmokeTests {
               readyLatch.countDown();
               startLatch.await();
 
-              String result =
+              String signinResult =
                   RestAssured.given()
                       .sessionId(SESSION_ID)
                       .body(signinQuery)
@@ -165,7 +166,7 @@ public class WebApiSmokeTests {
                       .asString();
 
               assertTrue(
-                  result.contains("Signed in"),
+                  signinResult.contains("Signed in"),
                   "Login failed in thread: " + Thread.currentThread().getName());
 
               String sessionResult =
