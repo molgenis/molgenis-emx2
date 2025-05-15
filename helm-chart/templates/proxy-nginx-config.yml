@@ -26,7 +26,7 @@ data:
 
         # ssr catalogue nuxt service
           location ~* ^\/[^\/]+\/catalogue {
-          proxy_pass http://{{ include "emx2.fullname" . }}.default.svc.cluster.local:3000;
+          proxy_pass http://ssr-catalogue.default.svc.cluster.local:3000;
           proxy_http_version 1.1;
           proxy_set_header Host 127.0.0.1:30000;
           proxy_set_header X-Forwarded-Host $http_host;
@@ -35,7 +35,7 @@ data:
 
         # ssr catalogue nuxt service system routes
           location ~* /_nuxt/ {
-          proxy_pass http://{{ include "emx2.fullname" . }}.default.svc.cluster.local:3000;
+          proxy_pass http://ssr-catalogue.default.svc.cluster.local:3000;
           proxy_http_version 1.1;
           proxy_set_header Host 127.0.0.1:30000;
           proxy_set_header X-Forwarded-Host $http_host;
@@ -43,7 +43,7 @@ data:
         }
         # ssr catalogue nuxt service theme styles
           location ~* /_nuxt-styles/ {
-          proxy_pass http://{{ include "emx2.fullname" . }}.default.svc.cluster.local:3000;
+          proxy_pass http://ssr-catalogue.default.svc.cluster.local:3000;
           proxy_http_version 1.1;
           proxy_set_header Host 127.0.0.1:30000;
           proxy_set_header X-Forwarded-Host $http_host;
