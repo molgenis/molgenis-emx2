@@ -11,15 +11,10 @@ import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DataSourceConnectionProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider {
   private String activeUser;
   private boolean isAdmin = false;
-
-  private static final Logger logger =
-      LoggerFactory.getLogger(SqlUserAwareConnectionProvider.class);
 
   public SqlUserAwareConnectionProvider(DataSource source) {
     super(source);
@@ -65,7 +60,6 @@ public class SqlUserAwareConnectionProvider extends DataSourceConnectionProvider
   }
 
   public void setActiveUser(String activeUser) {
-    // logger.info("Setting active user: {} {}", activeUser, Thread.currentThread().getName());
     this.activeUser = activeUser;
   }
 

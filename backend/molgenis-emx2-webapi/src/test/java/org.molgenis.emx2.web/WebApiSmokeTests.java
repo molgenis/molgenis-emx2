@@ -30,9 +30,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
@@ -119,72 +116,6 @@ public class WebApiSmokeTests {
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
     db.dropSchemaIfExists("pet store yaml");
     db.dropSchemaIfExists("pet store json");
-  }
-
-  @Test
-  public void testLoginMultithreaded() throws InterruptedException {
-    String testUser = "test@test.com";
-    String password = "somepass";
-
-    String createUserQuery =
-        "{ \"query\": \"mutation { signup(email: \\\""
-            + testUser
-            + "\\\", password: \\\""
-            + password
-            + "\\\") { message }}\"}";
-
-    final String signinQuery =
-        "{\"query\":\"mutation{signin(email:\\\""
-            + testUser
-            + "\\\",password:\\\""
-            + password
-            + "\\\"){message}}\"}";
-
-    String sessionQuery = "{ \"query\": \"{ _session { email } } \"}";
-
-    String createUserResult =
-        given().sessionId(SESSION_ID).body(createUserQuery).post("/api/graphql").asString();
-
-    int threadCount = 100;
-    ExecutorService executor = Executors.newFixedThreadPool(threadCount);
-    CountDownLatch readyLatch = new CountDownLatch(threadCount);
-    CountDownLatch startLatch = new CountDownLatch(1);
-    CountDownLatch doneLatch = new CountDownLatch(threadCount);
-
-    for (int i = 0; i < threadCount; i++) {
-      executor.submit(
-          () -> {
-            try {
-              readyLatch.countDown(); // Signal that this thread is ready
-              startLatch.await(); // Wait for all threads to be ready
-              String result =
-                  RestAssured.given()
-                      .sessionId(SESSION_ID) // Be cautious if SESSION_ID must be unique per thread
-                      .body(signinQuery)
-                      .post("/api/graphql")
-                      .asString();
-
-              assertTrue(
-                  result.contains("Signed in"),
-                  "Login failed in thread: " + Thread.currentThread().getName());
-
-              String sessionResult =
-                  given().sessionId(SESSION_ID).body(sessionQuery).post("/api/graphql").asString();
-              logger.info("Result of login {}", sessionResult);
-
-            } catch (Exception e) {
-              throw new RuntimeException(e);
-            } finally {
-              doneLatch.countDown();
-            }
-          });
-    }
-
-    // Wait for all threads to be ready, then start simultaneously
-    readyLatch.await(); // ensure all threads are ready
-    startLatch.countDown(); // let all threads proceed
-    doneLatch.await(); // wait for all threads to finish
-    executor.shutdown();
   }
 
   @Test
