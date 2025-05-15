@@ -59,3 +59,4 @@ RUN apt-get install postgresql-client -y
 # GemTools & FPM For debian and redhat packages
 RUN apt-get install ruby-dev -y 
 RUN gem install fpm
+USER molgenis
