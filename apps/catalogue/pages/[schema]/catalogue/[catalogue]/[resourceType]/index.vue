@@ -40,7 +40,10 @@ const description: string | undefined =
   descriptionMap[route.params.resourceType as string];
 const image: string | undefined = imageMap[route.params.resourceType as string];
 
-useHead({ title: titlePrefix + title });
+useHead({
+  title: titlePrefix + title,
+  meta: [{ name: "description", content: description }],
+});
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
