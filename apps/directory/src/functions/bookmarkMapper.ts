@@ -4,6 +4,8 @@ import router from "../router";
 import { labelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
+import { IOntologyItem } from "../interfaces/interfaces";
+import { forEach } from "lodash";
 let bookmarkApplied = false;
 
 const { setError } = useErrorHandler();
@@ -71,11 +73,14 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
         const diagnosisFacetDetails = filtersStore.facetDetails[filterName];
         /** the diagnosis available has been encoded, to discourage messing with the tree and breaking stuff. */
         const queryValues = atob(filtersToAdd).split(",");
-        const options = await filtersStore.getOntologyOptionsForCodes(
-          diagnosisFacetDetails,
-          queryValues
-        );
-        filtersStore.updateOntologyFilter(filterName, options, true, true);
+        const options: IOntologyItem[] =
+          await filtersStore.getOntologyOptionsForCodes(
+            diagnosisFacetDetails,
+            queryValues
+          );
+        options.forEach((option) => {
+          filtersStore.updateOntologyFilter(filterName, option, true, true);
+        });
         /** retrieve these from the server, this is easier than tree traversal */
       } else {
         const filterOptions = filtersStore.filterOptionsCache[filterName];

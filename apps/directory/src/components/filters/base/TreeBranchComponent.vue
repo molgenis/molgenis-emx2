@@ -25,7 +25,6 @@
         v-if="open"
         :options="option.children"
         :facetIdentifier="facetIdentifier"
-        :parentSelected="selected"
         @indeterminate-update="handleChildIndeterminateUpdate"
         :filter="filter"
       />
@@ -35,6 +34,7 @@
 
 <script setup lang="ts">
 import { computed, defineAsyncComponent, ref, toRefs, watch } from "vue";
+import { IOntologyItem } from "../../../interfaces/interfaces";
 import { useFiltersStore } from "../../../stores/filtersStore";
 
 /** need to lazy load because it gets too large quickly. Over 9000! */
@@ -46,21 +46,23 @@ const emit = defineEmits(["indeterminate-update"]);
 const props = withDefaults(
   defineProps<{
     facetIdentifier: string;
-    option: Record<string, any>;
+    option: IOntologyItem;
     parentSelected?: boolean;
     filter?: string;
   }>(),
-  { parentSelected: false, filter: "" }
+  { filter: "" }
 );
 
-const { facetIdentifier, option, parentSelected, filter } = toRefs(props);
+const { facetIdentifier, option, filter } = toRefs(props);
 
 const open = ref<boolean>(!!filter.value);
 const childIsIndeterminate = ref<boolean>(false);
 
-const selectedFilters = computed<any[]>(
-  filtersStore.getFilterValue(facetIdentifier.value) || []
-);
+const selectedFilters = computed<any[]>(() => {
+  const filters = filtersStore.getFilterValue(facetIdentifier.value) || [];
+  // console.log(filters);
+  return filters;
+});
 
 const selected = computed(() => {
   if (numberOfSelectedChildren.value === option.value.children?.length) {
@@ -89,15 +91,6 @@ function isSelected(option: Record<string, any>) {
   return selectedFilters.value.some((filter) => filter.name === option.name);
 }
 
-function getSelectedChildCount(bla: Record<string, any>) {
-  return bla.children.reduce((accum: number, child: Record<string, any>) => {
-    if (isSelected(child)) {
-      return accum + 1;
-    }
-    return accum;
-  }, 0);
-}
-
 const isIndeterminate = computed<boolean>(() => {
   if (selected.value) return false;
   if (childIsIndeterminate.value) return true;
@@ -115,7 +108,7 @@ watch(filter, (newFilter: string) => {
   open.value = !!newFilter;
 });
 
-function selectOption(checked: boolean, option: Record<string, any>) {
+function selectOption(checked: boolean, option: IOntologyItem) {
   filtersStore.updateOntologyFilter(facetIdentifier.value, option, checked);
 }
 

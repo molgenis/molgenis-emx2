@@ -14,6 +14,7 @@ import { IFilterOption, IOntologyItem } from "../interfaces/interfaces";
 import router from "../router";
 
 const { setError } = useErrorHandler();
+const DIAGNOSIS_AVAILABLE = "Diagnosisavailable";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
@@ -156,8 +157,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     } else {
       for (const child of branch.children) {
         flattenedBranches = flattenOntologyBranch(child, flattenedBranches);
-        delete child.children;
-        flattenedBranches?.push(child);
       }
     }
     return flattenedBranches;
@@ -165,73 +164,32 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function updateOntologyFilter(
     filterName: string,
-    value: any,
+    value: IOntologyItem,
     add: boolean,
     fromBookmark: any = false
   ) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
-    /** value can be a child (single value), or a parent with its children > make it into an array of values */
-    let processedValue = value;
-
-    if (value.children?.length) {
-      let copyBranch = JSON.parse(JSON.stringify(value));
-      let allChildrenValues = flattenOntologyBranch(copyBranch);
-      delete copyBranch.children;
-      allChildrenValues.push(copyBranch);
-
-      let deduplicatedValues: IOntologyItem[] = [];
-      let codesProcessed: string[] = [];
-
-      for (const childValue of allChildrenValues) {
-        if (!codesProcessed.includes(childValue.code)) {
-          deduplicatedValues.push(childValue);
-          codesProcessed.push(childValue.code);
-        }
-      }
-
-      processedValue = deduplicatedValues;
-    }
-
-    const multipleOptions = Array.isArray(processedValue);
+    const childValues = flattenOntologyBranch(value);
+    const processedValues = _.uniqBy(childValues, "code");
 
     if (add) {
-      multipleOptions
-        ? addOntologyOptions(filterName, processedValue)
-        : addOntologyOption(filterName, processedValue);
+      addOntologyOptions(filterName, processedValues);
     } else {
-      multipleOptions
-        ? removeOntologyOptions(filterName, processedValue)
-        : removeOntologyOption(filterName, processedValue);
-    }
-  }
-
-  function addOntologyOption(filterName: string, value: IOntologyItem) {
-    if (filters.value[filterName]) {
-      /** sanity check, if it is there already then the job is done */
-      if (
-        filters.value[filterName].some(
-          (option: IOntologyItem) => option.name === value.name
-        )
-      )
-        return;
-
-      filters.value[filterName].push(value);
-    } else {
-      filters.value[filterName] = [value];
+      removeOntologyOptions(filterName, processedValues);
     }
   }
 
   function addOntologyOptions(filterName: string, value: IOntologyItem[]) {
-    const diagnosisavailableCount = filters.value.Diagnosisavailable?.length
+    const diagnosisAvailableCount = filters.value.Diagnosisavailable?.length
       ? filters.value.Diagnosisavailable.length
       : 0;
     const limit = 50;
     let ontologySet = value;
-    const slotsRemaining = limit - diagnosisavailableCount;
+    const slotsRemaining = limit - diagnosisAvailableCount;
     if (
-      filterName === "Diagnosisavailable" &&
-      getFilterType("Diagnosisavailable") === "all"
+      filterName === DIAGNOSIS_AVAILABLE &&
+      getFilterType(DIAGNOSIS_AVAILABLE) === "all"
     ) {
       ontologySet = ontologySet.slice(0, slotsRemaining);
     }
@@ -365,13 +323,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function updateFilterType(filterName: string, value: any, fromBookmark: any) {
     if (
-      filterName === "Diagnosisavailable" &&
+      filterName === DIAGNOSIS_AVAILABLE &&
       (filterType.value[filterName] === "any" ||
         filterType.value[filterName] === undefined) &&
-      filters.value["Diagnosisavailable"]?.length > 50
+      filters.value[DIAGNOSIS_AVAILABLE]?.length > 50
     ) {
-      filters.value["Diagnosisavailable"] = filters.value[
-        "Diagnosisavailable"
+      filters.value[DIAGNOSIS_AVAILABLE] = filters.value[
+        DIAGNOSIS_AVAILABLE
       ].slice(0, 50);
     }
 
