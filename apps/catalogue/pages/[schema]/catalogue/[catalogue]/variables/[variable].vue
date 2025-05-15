@@ -126,8 +126,12 @@ useHead({ title: titlePrefix + variable.value.name });
           <CatalogueItemList
             :items="[
               {
-                label: 'Unit',
-                content: variable?.unit?.name,
+                label: 'Label',
+                content: variable?.label,
+              },
+              {
+                label: 'Description',
+                content: variable?.description,
               },
               {
                 label: 'Format',
@@ -144,8 +148,15 @@ useHead({ title: titlePrefix + variable.value.name });
                   : undefined,
               },
               {
-                label: 'Description',
-                content: variable?.description,
+                label: 'Unit',
+                content: variable?.unit?.name,
+              },
+              {
+                label: 'Dataset',
+                content:
+                  variable?.dataset?.resource.id +
+                  ' - ' +
+                  variable?.dataset?.name,
               },
             ]"
           >
