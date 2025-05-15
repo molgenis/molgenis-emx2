@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 import { createFilters } from "../filter-config/facetConfigurator";
@@ -6,7 +7,6 @@ import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
 import { useBiobanksStore } from "./biobanksStore";
 import { useCheckoutStore } from "./checkoutStore";
 import { useSettingsStore } from "./settingsStore";
-import * as _ from "lodash";
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
 import useErrorHandler from "../composables/errorHandler";
@@ -181,16 +181,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   function addOntologyOptions(filterName: string, value: IOntologyItem[]) {
-    const diagnosisAvailableCount = filters.value.Diagnosisavailable?.length
-      ? filters.value.Diagnosisavailable.length
-      : 0;
+    const diagnosisAvailableCount =
+      filters.value.Diagnosisavailable?.length || 0;
     const limit = 50;
-    let ontologySet = value;
     const slotsRemaining = limit - diagnosisAvailableCount;
-    if (
-      filterName === DIAGNOSIS_AVAILABLE &&
-      getFilterType(DIAGNOSIS_AVAILABLE) === "all"
-    ) {
+
+    let ontologySet = value;
+    if (getFilterType(DIAGNOSIS_AVAILABLE) === "all") {
       ontologySet = ontologySet.slice(0, slotsRemaining);
     }
 
@@ -208,7 +205,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
-  /** did not move this to be used in filteroptions because the store is async. */
+  /** did not move this to be used in filterOptions because the store is async. */
   function getOntologyAttributes(filterFacet: Record<string, any>) {
     const { filterLabelAttribute, filterValueAttribute } = filterFacet;
     return [
@@ -249,19 +246,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
 
     return ontologyResults;
-  }
-
-  function removeOntologyOption(filterName: string, value: IOntologyItem) {
-    /** can't remove an option which is not present. Jobs done. */
-    if (!filters.value[filterName]) return;
-
-    filters.value[filterName] = filters.value[filterName].filter(
-      (option: IOntologyItem) => option.name !== value.name
-    );
-
-    /** everything is deselected, remove the filter entirely */
-    if (filters.value[filterName].length === 0)
-      delete filters.value[filterName];
   }
 
   function removeOntologyOptions(filterName: string, value: IOntologyItem[]) {

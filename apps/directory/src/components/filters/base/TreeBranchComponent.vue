@@ -71,15 +71,14 @@ const selected = computed(() => {
     return false;
   } else {
     return selectedFilters.value.some(
-      (selectedValue: Record<string, any>) =>
-        selectedValue.name === option.value.name
+      (selectedValue: IOntologyItem) => selectedValue.name === option.value.name
     );
   }
 });
 
 const numberOfSelectedChildren = computed(() => {
   if (option.value.children) {
-    return option.value.children.filter((child: Record<string, any>) =>
+    return option.value.children.filter((child: IOntologyItem) =>
       isSelected(child)
     ).length;
   } else {
@@ -87,14 +86,14 @@ const numberOfSelectedChildren = computed(() => {
   }
 });
 
-function isSelected(option: Record<string, any>) {
+function isSelected(option: IOntologyItem) {
   return selectedFilters.value.some((filter) => filter.name === option.name);
 }
 
 const isIndeterminate = computed<boolean>(() => {
-  if (selected.value) return false;
-  if (childIsIndeterminate.value) return true;
+  // if (selected.value) return false;
   if (!option.value.children) return false;
+  if (childIsIndeterminate.value) return true;
 
   return (
     numberOfSelectedChildren.value > 0 &&
@@ -103,10 +102,7 @@ const isIndeterminate = computed<boolean>(() => {
 });
 
 watch(isIndeterminate, signalParentOurIndeterminateStatus);
-
-watch(filter, (newFilter: string) => {
-  open.value = !!newFilter;
-});
+watch(filter, (newFilter: string) => (open.value = !!newFilter));
 
 function selectOption(checked: boolean, option: IOntologyItem) {
   filtersStore.updateOntologyFilter(facetIdentifier.value, option, checked);

@@ -1,11 +1,10 @@
 import { LocationQuery } from "vue-router";
 import useErrorHandler from "../composables/errorHandler";
+import { IOntologyItem } from "../interfaces/interfaces";
 import router from "../router";
 import { labelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
-import { IOntologyItem } from "../interfaces/interfaces";
-import { forEach } from "lodash";
 let bookmarkApplied = false;
 
 const { setError } = useErrorHandler();
@@ -81,7 +80,6 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
         options.forEach((option) => {
           filtersStore.updateOntologyFilter(filterName, option, true, true);
         });
-        /** retrieve these from the server, this is easier than tree traversal */
       } else {
         const filterOptions = filtersStore.filterOptionsCache[filterName];
         if (filterOptions) {
