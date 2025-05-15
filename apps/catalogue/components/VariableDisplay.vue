@@ -42,7 +42,7 @@ const items = computed(() => {
       content: variable.value.label || "-",
     },
     {
-      label: "Formats",
+      label: "Format",
       content: variable.value?.format?.name || "-",
     },
     {
