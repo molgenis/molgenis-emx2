@@ -4,7 +4,9 @@ import { useRoute, navigateTo } from "#app/composables/router";
 import { computed } from "vue";
 
 const route = useRoute();
-const schema = route.params.schema;
+const schema = Array.isArray(route.params.schema)
+  ? route.params.schema[0]
+  : route.params.schema;
 
 type Resp<T> = {
   data: Record<string, T>;
@@ -27,7 +29,7 @@ interface Schema {
 }
 
 const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
-  key: "databases",
+  key: "tables",
   method: "POST",
   body: {
     query: `{_schema{id,label,tables{id,label,tableType,description}}}`,
