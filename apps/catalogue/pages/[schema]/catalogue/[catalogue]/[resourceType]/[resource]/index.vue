@@ -588,7 +588,7 @@ if (route.params.catalogue) {
     crumbs[
       route.params.resourceType as string
     ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
-  crumbs[route.params.resource] = "";
+  crumbs[route.params.resource as string] = "";
 } else {
   crumbs["Home"] = `/${route.params.schema}/catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/catalogue/all`;
