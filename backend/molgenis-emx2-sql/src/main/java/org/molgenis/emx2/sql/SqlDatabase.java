@@ -722,8 +722,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.schemaNames.clear();
     this.schemaInfos.clear();
     // elevate privileges for loading settings
-    String user = this.connectionProvider.getActiveUser();
-    boolean isAdmin = this.connectionProvider.isAdmin();
+
+    ThreadLocal<String> threadUser = new ThreadLocal<>();
+    threadUser.set(this.connectionProvider.getActiveUser());
     try {
       logger.info(
           "Setting admin user for clearing cache {} {}", Thread.currentThread().getName(), this);
@@ -734,8 +735,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
           "Setting current user back after clearing cache {} {}",
           Thread.currentThread().getName(),
           this);
-      this.connectionProvider.setActiveUser(user);
-      this.connectionProvider.setAdmin(isAdmin);
+      this.connectionProvider.setActiveUser(threadUser.get());
     }
   }
 

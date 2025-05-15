@@ -30,6 +30,9 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
@@ -38,11 +41,15 @@ import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
 public class WebApiSmokeTests {
+
+  private static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
@@ -115,27 +122,69 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testLoginMultipleTimes() {
-    String adminPass =
-        (String)
-            EnvironmentProperty.getParameter(
-                org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+  public void testLoginMultithreaded() throws InterruptedException {
+    String testUser = "test@test.com";
+    String password = "somepass";
 
-    for (int i = 0; i < 10; i++) {
-      String result =
-          given()
-              .sessionId(SESSION_ID)
-              .body(
-                  "{\"query\":\"mutation{signin(email:\\\""
-                      + db.getAdminUserName()
-                      + "\\\",password:\\\""
-                      + adminPass
-                      + "\\\"){message}}\"}")
-              .when()
-              .post("/api/graphql")
-              .asString();
-      assertTrue(result.contains("Signed in"), "Login failed at iteration " + i);
+    String createUserQuery =
+        "{ \"query\": \"mutation { signup(email: \\\""
+            + testUser
+            + "\\\", password: \\\""
+            + password
+            + "\\\") { message }}\"}";
+
+    final String signinQuery =
+        "{\"query\":\"mutation{signin(email:\\\""
+            + testUser
+            + "\\\",password:\\\""
+            + password
+            + "\\\"){message}}\"}";
+
+    String sessionQuery = "{ \"query\": \"{ _session { email } } \"}";
+
+    String createUserResult =
+        given().sessionId(SESSION_ID).body(createUserQuery).post("/api/graphql").asString();
+
+    int threadCount = 100;
+    ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+    CountDownLatch readyLatch = new CountDownLatch(threadCount);
+    CountDownLatch startLatch = new CountDownLatch(1);
+    CountDownLatch doneLatch = new CountDownLatch(threadCount);
+
+    for (int i = 0; i < threadCount; i++) {
+      executor.submit(
+          () -> {
+            try {
+              readyLatch.countDown(); // Signal that this thread is ready
+              startLatch.await(); // Wait for all threads to be ready
+              String result =
+                  RestAssured.given()
+                      .sessionId(SESSION_ID) // Be cautious if SESSION_ID must be unique per thread
+                      .body(signinQuery)
+                      .post("/api/graphql")
+                      .asString();
+
+              assertTrue(
+                  result.contains("Signed in"),
+                  "Login failed in thread: " + Thread.currentThread().getName());
+
+              String sessionResult =
+                  given().sessionId(SESSION_ID).body(sessionQuery).post("/api/graphql").asString();
+              logger.info("Result of login {}", sessionResult);
+
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            } finally {
+              doneLatch.countDown();
+            }
+          });
     }
+
+    // Wait for all threads to be ready, then start simultaneously
+    readyLatch.await(); // ensure all threads are ready
+    startLatch.countDown(); // let all threads proceed
+    doneLatch.await(); // wait for all threads to finish
+    executor.shutdown();
   }
 
   @Test
