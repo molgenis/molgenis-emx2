@@ -14,16 +14,13 @@ const { id } = defineProps<{
 
 const query = moduleToString(subpopulationGql);
 
-const { data, error } = await useFetch<Resp<ISubpopulations>>(
-  `/${route.params.schema}/graphql`,
-  {
-    method: "POST",
-    body: {
-      query: query,
-      variables: { id: route.params.resource, name: id },
-    },
-  }
-);
+const { data, error } = await useFetch<Resp<ISubpopulations>>(`/graphql`, {
+  method: "POST",
+  body: {
+    query: query,
+    variables: { id: route.params.resource, name: id },
+  },
+});
 
 if (error.value) {
   showError(error.value);

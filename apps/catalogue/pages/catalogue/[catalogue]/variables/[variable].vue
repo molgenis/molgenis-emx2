@@ -3,7 +3,7 @@ import variableQuery from "~~/gql/variable";
 import type {
   IVariable,
   IVariableMappings,
-} from "../../../../../interfaces/types";
+} from "../../../../interfaces/types";
 import { buildFilterFromKeysObject } from "metadata-utils";
 import { useRoute, useFetch, useHead } from "#app";
 import {
@@ -35,7 +35,7 @@ const resourceFilter = scoped
 type VariableDetailsWithMapping = IVariable &
   IVariableMappings & { nRepeats: number };
 
-const { data } = await useFetch(`/${route.params.schema}/graphql`, {
+const { data } = await useFetch(`/graphql`, {
   method: "POST",
   body: { query, variables: { variableFilter, resourceFilter } },
 });
@@ -47,13 +47,9 @@ const resources = computed(() => data.value.data.Resources as { id: string }[]);
 const isRepeating = computed(() => variable.value.repeatUnit?.name);
 
 let crumbs: any = {};
-crumbs[
-  `${route.params.catalogue}`
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
-crumbs[
-  "variables"
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}/variables`;
-crumbs[route.params.variable] = "";
+crumbs[`${route.params.catalogue}`] = `/catalogue/${route.params.catalogue}`;
+crumbs["variables"] = `/catalogue/${route.params.catalogue}/variables`;
+crumbs[route.params.variable as string] = "";
 
 const resourcesWithMapping = computed(() => {
   if (!resources.value) return [];

@@ -5,7 +5,7 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-const { data } = await $fetch(`/${route.params.schema}/graphql`, {
+const { data } = await $fetch(`/graphql`, {
   key: `manifest`,
   method: "POST",
   body: {

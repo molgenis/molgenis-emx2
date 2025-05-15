@@ -298,9 +298,9 @@
 
 <script setup lang="ts">
 import { useHead } from "#app";
-import { useGqlFetch } from "../../../../composables/useGqlFetch";
+import { useGqlFetch } from "../../../composables/useGqlFetch";
 import { computed } from "vue";
-import type { IManifestResponse, IMgError } from "../../../../interfaces/types";
+import type { IManifestResponse, IMgError } from "../../../interfaces/types";
 
 useHead({ title: "About" });
 

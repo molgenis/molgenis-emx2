@@ -4,9 +4,9 @@ import type {
   IMgError,
   IFilterCondition,
   IRefArrayFilter,
-} from "../../../../../interfaces/types";
-import mappingsFragment from "../../../../../gql/fragments/mappings";
-import type { INode } from "../../../../../../tailwind-components/types/types";
+} from "../../../../interfaces/types";
+import mappingsFragment from "../../../../gql/fragments/mappings";
+import type { INode } from "../../../../../tailwind-components/types/types";
 import { useRoute, useRouter, useHead, navigateTo, useAsyncData } from "#app";
 import {
   conditionsFromPathQuery,
@@ -115,7 +115,7 @@ const pageFilterTemplate: IFilter[] = [
 ];
 
 async function fetchResourceOptions(): Promise<INode[]> {
-  const { data, error } = await $fetch(`/${route.params.schema}/graphql`, {
+  const { data, error } = await $fetch(`/graphql`, {
     method: "POST",
     body: {
       query: `
@@ -211,7 +211,7 @@ const numberOfVariables = computed(
   () => data?.value.data?.Variables_agg.count || 0
 );
 
-const graphqlURL = computed(() => `/${route.params.schema}/graphql`);
+const graphqlURL = computed(() => `/graphql`);
 
 const filter = computed(() => {
   return buildQueryFilter(filters.value);
@@ -316,9 +316,7 @@ function onFilterChange(filters: IFilter[]) {
 }
 
 let crumbs: any = {};
-crumbs[
-  `${route.params.catalogue}`
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
+crumbs[`${route.params.catalogue}`] = `/catalogue/${route.params.catalogue}`;
 crumbs["variables"] = "";
 </script>
 
@@ -413,7 +411,6 @@ crumbs["variables"] = "";
               >
                 <VariableCard
                   :variable="variable"
-                  :schema="route.params.schema as string"
                   :catalogue="route.params.catalogue as string"
                 />
               </CardListItem>

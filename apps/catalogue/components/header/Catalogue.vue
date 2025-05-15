@@ -33,46 +33,46 @@ if (
 ) {
   menu.push({
     label: "overview",
-    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}`,
+    link: `/catalogue/${catalogueRouteParam}`,
   });
 }
 
 if (props.collectionCount > 0) {
   menu.push({
     label: "Collections",
-    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/collections`,
+    link: `/catalogue/${catalogueRouteParam}/collections`,
   });
 }
 
 if (props.networkCount > 0 && !cohortOnly.value) {
   menu.push({
     label: "Networks",
-    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/networks`,
+    link: `/catalogue/${catalogueRouteParam}/networks`,
   });
 }
 
 if (props.variableCount > 0 && !cohortOnly.value)
   menu.push({
     label: "Variables",
-    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/variables`,
+    link: `/catalogue/${catalogueRouteParam}/variables`,
   });
 
 if (cohortOnly.value) {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/about`,
+    link: `/catalogue/${catalogueRouteParam}/about`,
   });
 } else if (catalogueRouteParam && catalogueRouteParam !== "all") {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/about/${catalogueRouteParam}`,
+    link: `/catalogue/${catalogueRouteParam}/about/${catalogueRouteParam}`,
   });
 }
 
 if (!cohortOnly.value) {
   menu.push({
     label: "Other catalogues",
-    link: `/${route.params.schema}/catalogue`,
+    link: `/catalogue`,
   });
   menu.push({
     label: "Upload data",
@@ -90,7 +90,7 @@ if (!cohortOnly.value) {
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
-          :link="`/${route.params.schema}/catalogue/${catalogueRouteParam}`"
+          :link="`/catalogue/${catalogueRouteParam}`"
           :image="
             catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
           "
@@ -112,7 +112,7 @@ if (!cohortOnly.value) {
           <HamburgerMenu :navigation="menu" />
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile
-              :link="`/${route.params.schema}/catalogue/${catalogueRouteParam}`"
+              :link="`/catalogue/${catalogueRouteParam}`"
               :image="
                 catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
               "

@@ -1,17 +1,11 @@
 <script setup lang="ts">
-import { useRoute } from "#app";
 import { fetchMetadata } from "#imports";
 import { computed } from "vue";
 
-const route = useRoute();
-
-const schemaId = route.params.schema.toString();
-const metadata = await fetchMetadata(schemaId);
+const metadata = await fetchMetadata();
 
 const tables = computed(() =>
-  metadata.tables
-    .filter((t) => t.id === schemaId)
-    .filter((t) => t.id !== "Version")
+  metadata.tables.filter((t) => t.id !== "Version")
 );
 </script>
 <template>
@@ -32,7 +26,7 @@ const tables = computed(() =>
           <template v-for="table in tables">
             <TableRow>
               <TableCell>
-                <NuxtLink :to="`/${schemaId}/catalogue/all/${table.id}`">{{
+                <NuxtLink :to="`/catalogue/all/${table.id}`">{{
                   table.label
                 }}</NuxtLink></TableCell
               >

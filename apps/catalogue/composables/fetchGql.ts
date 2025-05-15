@@ -1,4 +1,3 @@
-import { useRoute } from "#app";
 import { moduleToString } from "#imports";
 import type { DocumentNode } from "graphql";
 import type { GqlResp } from "~/interfaces/types";
@@ -17,9 +16,8 @@ export function fetchGql<T>(
     body.variables = variables;
   }
 
-  const route = useRoute();
-  const schema = schemaId ? schemaId : route.params.schema;
-  return $fetch<GqlResp<T>>(`/${schema}/graphql`, {
+  const location = schemaId ? `/${schemaId}/graphql` : `/graphql`;
+  return $fetch<GqlResp<T>>(location, {
     method: "POST",
     body,
   });

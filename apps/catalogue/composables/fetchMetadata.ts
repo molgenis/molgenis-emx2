@@ -7,14 +7,14 @@ import { moduleToString } from "#imports";
 
 const query = moduleToString(metadataGql);
 
-export default async (schemaId: string): Promise<ISchemaMetaData> => {
+export default async (): Promise<ISchemaMetaData> => {
   // Use sessionStorage to cache data
-  const cached = useSessionStorage<ISchemaMetaData>(schemaId, null, {
+  const cached = useSessionStorage<ISchemaMetaData>("app-schema", null, {
     serializer: StorageSerializers.object,
   });
 
   if (!cached.value) {
-    const resp = await $fetch(`/${schemaId}/graphql`, {
+    const resp = await $fetch(`/graphql`, {
       method: "POST",
       body: {
         query,
@@ -27,14 +27,14 @@ export default async (schemaId: string): Promise<ISchemaMetaData> => {
       console.log("handel error ");
       throw createError({
         ...error,
-        statusMessage: `Could not fetch metadata for schema ${schemaId}`,
+        statusMessage: `Could not fetch metadata`,
       });
     }
 
     // Update the cache
     cached.value = data._schema;
   } else {
-    console.log(`Getting value from cache for schema ${schemaId}`);
+    console.log(`Getting value from cache`);
   }
 
   return cached.value;

@@ -246,23 +246,20 @@ const gqlFilter = computed(() => {
   return result;
 });
 
-const { data } = await useFetch<any, IMgError>(
-  `/${useRoute().params.schema}/graphql`,
-  {
-    method: "POST",
-    body: {
-      query: query,
-      variables: { filter: gqlFilter, orderby },
-    },
-    onResponseError(_ctx) {
-      logError({
-        message: "onResponseError fetching data from GraphQL endpoint",
-        statusCode: _ctx.response.status,
-        data: _ctx.response._data,
-      });
-    },
-  }
-);
+const { data } = await useFetch<any, IMgError>(`/graphql`, {
+  method: "POST",
+  body: {
+    query: query,
+    variables: { filter: gqlFilter, orderby },
+  },
+  onResponseError(_ctx) {
+    logError({
+      message: "onResponseError fetching data from GraphQL endpoint",
+      statusCode: _ctx.response.status,
+      data: _ctx.response._data,
+    });
+  },
+});
 
 const resources = computed(() => data.value?.data.Resources || []);
 const numberOfResources = computed(
@@ -303,8 +300,8 @@ const cohortOnly = computed(() => {
 const crumbs: any = {};
 crumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
-crumbs[route.params.resourceType] = "";
+] = `/catalogue/${route.params.catalogue}`;
+crumbs[route.params.resourceType as string] = "";
 </script>
 
 <template>

@@ -17,20 +17,17 @@ const { id: collectionEventName } = defineProps<{
 const route = useRoute();
 const query = moduleToString(collectionEventGql);
 
-const { data, error } = await useFetch<any, IMgError>(
-  `/${route.params.schema}/graphql`,
-  {
-    key: `collection-event-${route.params.resource}-${collectionEventName}`,
-    method: "POST",
-    body: {
-      query,
-      variables: {
-        id: route.params.resource,
-        name: collectionEventName,
-      },
+const { data, error } = await useFetch<any, IMgError>(`/graphql`, {
+  key: `collection-event-${route.params.resource}-${collectionEventName}`,
+  method: "POST",
+  body: {
+    query,
+    variables: {
+      id: route.params.resource,
+      name: collectionEventName,
     },
-  }
-);
+  },
+});
 
 if (error.value) {
   const contextMsg = "Error fetching data for collection-event preview fetch";
@@ -43,12 +40,12 @@ const collectionEvent: any = computed(
 );
 
 const pageCrumbs: any = {
-  Resource: `/${route.params.schema}/catalogue`,
+  Resource: `/catalogue`,
 };
 
 pageCrumbs[
   route.params.resource as string
-] = `/${route.params.schema}/catalogue/resources/${route.params.resource}`;
+] = `/catalogue/resources/${route.params.resource}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);
