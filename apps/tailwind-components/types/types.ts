@@ -55,6 +55,7 @@ export type ButtonType =
   | "primary"
   | "secondary"
   | "tertiary"
+  | "text"
   | "outline"
   | "disabled"
   | "filterWell"
