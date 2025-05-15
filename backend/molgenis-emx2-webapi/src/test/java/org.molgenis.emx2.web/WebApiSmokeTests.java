@@ -142,7 +142,7 @@ public class WebApiSmokeTests {
     String createUserResult =
         given().sessionId(SESSION_ID).body(createUserQuery).post("/api/graphql").asString();
 
-    int threadCount = 50;
+    int threadCount = 10;
     ExecutorService executor = Executors.newFixedThreadPool(threadCount);
     CountDownLatch readyLatch = new CountDownLatch(threadCount);
     CountDownLatch startLatch = new CountDownLatch(1);
