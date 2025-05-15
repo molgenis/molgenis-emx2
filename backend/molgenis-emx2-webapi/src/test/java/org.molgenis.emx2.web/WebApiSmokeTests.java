@@ -119,7 +119,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testLoginMultithreaded() throws InterruptedException {
+  void testLoginMultithreaded() throws InterruptedException {
     String testUser = "test@test.com";
     String password = "somepass";
 
@@ -130,7 +130,7 @@ public class WebApiSmokeTests {
             + password
             + "\\\") { message }}\"}";
 
-    final String signinQuery =
+    String signinQuery =
         "{\"query\":\"mutation{signin(email:\\\""
             + testUser
             + "\\\",password:\\\""
@@ -139,8 +139,7 @@ public class WebApiSmokeTests {
 
     String sessionQuery = "{ \"query\": \"{ _session { email } } \"}";
 
-    String createUserResult =
-        given().sessionId(SESSION_ID).body(createUserQuery).post("/api/graphql").asString();
+    given().sessionId(SESSION_ID).body(createUserQuery).post("/api/graphql").asString();
 
     int threadCount = 10;
     ExecutorService executor = Executors.newFixedThreadPool(threadCount);
