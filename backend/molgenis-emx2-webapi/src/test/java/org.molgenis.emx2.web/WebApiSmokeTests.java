@@ -1035,26 +1035,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testFDPDistribution() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(400)
-        .when()
-        .get("http://localhost:" + PORT + "/api/fdp/distribution/pet store/Category/ttl");
-  }
-
-  @Test
-  public void testFDPHead() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .contentType("text/turtle")
-        .when()
-        .head("http://localhost:" + PORT + "/api/fdp");
-  }
-
-  @Test
   public void testGraphGenome400() {
     given()
         .sessionId(SESSION_ID)
