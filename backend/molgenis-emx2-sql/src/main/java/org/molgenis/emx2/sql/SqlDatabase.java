@@ -589,17 +589,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public String getActiveUser() {
-    String user = jooq.fetchOne("SELECT CURRENT_USER").get(0, String.class);
-    if (user.equals(postgresUser)) {
-      return ADMIN_USER;
-    } else if (user.contains(MG_USER_PREFIX)) {
-      String userName = user.substring(MG_USER_PREFIX.length());
-      if (!userName.isEmpty()) {
-        return userName;
-      }
-    }
-    // user is either valid MG_USER_* or postgresUser, otherwise error state
-    throw new MolgenisException("Unexpected user found as activeUser " + user);
+    return connectionProvider.getActiveUser();
   }
 
   @Override
