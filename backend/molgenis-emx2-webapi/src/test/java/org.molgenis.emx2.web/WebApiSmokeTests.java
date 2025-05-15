@@ -192,7 +192,7 @@ public class WebApiSmokeTests {
     // Propagate any failures to fail the test
     if (!failures.isEmpty()) {
       for (Throwable t : failures) {
-        t.printStackTrace(); // optional: helpful for debugging
+        t.printStackTrace();
       }
       fail("One or more threads failed. Total failures: " + failures.size());
     }
