@@ -570,7 +570,10 @@ let fundingAndAcknowledgementItems = computed(() => {
   return items;
 });
 
-useHead({ title: resource.value.acronym || resource.value.name });
+useHead({
+  title: resource.value.acronym || resource.value.name,
+  meta: [{ name: "description", content: resource.value.description }],
+});
 
 const messageFilter = `{"filter": {"id":{"equals":"${route.params.resource}"}}}`;
 
