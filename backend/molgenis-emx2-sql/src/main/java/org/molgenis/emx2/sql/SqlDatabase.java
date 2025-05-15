@@ -589,17 +589,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public String getActiveUser() {
-    String user = jooq.fetchOne("SELECT CURRENT_USER").get(0, String.class);
-    if (user.equals(postgresUser)) {
-      return ADMIN_USER;
-    } else if (user.contains(MG_USER_PREFIX)) {
-      String userName = user.substring(MG_USER_PREFIX.length());
-      if (!userName.isEmpty()) {
-        return userName;
-      }
-    }
-    // user is either valid MG_USER_* or postgresUser, otherwise error state
-    throw new MolgenisException("Unexpected user found as activeUser " + user);
+    return connectionProvider.getActiveUser();
   }
 
   @Override
@@ -699,14 +689,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.schemaCache.clear();
     this.schemaNames.clear();
     this.schemaInfos.clear();
-    // elevate privileges for loading settings
-    String user = this.connectionProvider.getActiveUser();
-    try {
-      this.connectionProvider.setActiveUser(ADMIN_USER);
-      this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
-    } finally {
-      this.connectionProvider.setActiveUser(user);
-    }
+
+    getJooqAsAdmin(
+        adminJooq -> this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(adminJooq)));
   }
 
   public DSLContext getJooq() {
