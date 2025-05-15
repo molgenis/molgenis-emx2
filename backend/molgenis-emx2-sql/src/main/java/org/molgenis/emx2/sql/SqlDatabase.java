@@ -699,14 +699,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.schemaCache.clear();
     this.schemaNames.clear();
     this.schemaInfos.clear();
-    // elevate privileges for loading settings
-    String user = this.connectionProvider.getActiveUser();
-    try {
-      this.connectionProvider.setActiveUser(ADMIN_USER);
-      this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(getJooq()));
-    } finally {
-      this.connectionProvider.setActiveUser(user);
-    }
+
+    getJooqAsAdmin(
+        adminJooq -> this.setSettingsWithoutReload(MetadataUtils.loadDatabaseSettings(adminJooq)));
   }
 
   public DSLContext getJooq() {
