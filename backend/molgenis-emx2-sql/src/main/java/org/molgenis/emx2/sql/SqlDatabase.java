@@ -594,9 +594,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     if (username == null || username.isEmpty()) {
       throw new MolgenisException("setActiveUser failed: username cannot be null");
     }
+    User user = getUser(username);
     if (inTx) {
       try {
-        if (username.equals(ADMIN_USER)) {
+        if (username.equals(ADMIN_USER) || user.isAdmin()) {
           // admin user is session user, so remove role
           jooq.execute("RESET ROLE;");
         } else {
@@ -608,12 +609,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
     } else {
       if (!Objects.equals(username, connectionProvider.getActiveUser())) {
-        this.connectionProvider.setActiveUser(username);
         listener.userChanged();
       }
     }
     this.connectionProvider.setActiveUser(username);
-    User user = getUser(username);
     this.connectionProvider.setAdmin(user != null && user.isAdmin());
     this.clearCache();
   }
