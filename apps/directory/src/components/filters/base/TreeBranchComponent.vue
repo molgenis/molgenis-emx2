@@ -59,13 +59,11 @@ const open = ref<boolean>(!!filter.value);
 const childIsIndeterminate = ref<boolean>(false);
 
 const selectedFilters = computed<any[]>(
-  () => filtersStore.getFilterValue(facetIdentifier.value) || []
+  filtersStore.getFilterValue(facetIdentifier.value) || []
 );
 
 const selected = computed(() => {
-  if (parentSelected.value) {
-    return true;
-  } else if (numberOfSelectedChildren.value === option.value.children?.length) {
+  if (numberOfSelectedChildren.value === option.value.children?.length) {
     return true;
   } else if (!selectedFilters.value?.length) {
     return false;
@@ -79,19 +77,29 @@ const selected = computed(() => {
 
 const numberOfSelectedChildren = computed(() => {
   if (option.value.children) {
-    return selectedFilters.value.filter((selectedFilter: Record<string, any>) =>
-      option.value.children.some(
-        (childOption: Record<string, any>) =>
-          selectedFilter.name === childOption.name
-      )
+    return option.value.children.filter((child: Record<string, any>) =>
+      isSelected(child)
     ).length;
   } else {
     return 0;
   }
 });
 
+function isSelected(option: Record<string, any>) {
+  return selectedFilters.value.some((filter) => filter.name === option.name);
+}
+
+function getSelectedChildCount(bla: Record<string, any>) {
+  return bla.children.reduce((accum: number, child: Record<string, any>) => {
+    if (isSelected(child)) {
+      return accum + 1;
+    }
+    return accum;
+  }, 0);
+}
+
 const isIndeterminate = computed<boolean>(() => {
-  if (parentSelected.value) return false;
+  if (selected.value) return false;
   if (childIsIndeterminate.value) return true;
   if (!option.value.children) return false;
 
