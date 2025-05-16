@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 import { createFilters } from "../filter-config/facetConfigurator";
@@ -6,7 +7,6 @@ import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
 import { useBiobanksStore } from "./biobanksStore";
 import { useCheckoutStore } from "./checkoutStore";
 import { useSettingsStore } from "./settingsStore";
-import * as _ from "lodash";
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
 import useErrorHandler from "../composables/errorHandler";
@@ -14,6 +14,7 @@ import { IFilterOption, IOntologyItem } from "../interfaces/interfaces";
 import router from "../router";
 
 const { setError } = useErrorHandler();
+const DIAGNOSIS_AVAILABLE = "Diagnosisavailable";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
@@ -156,8 +157,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     } else {
       for (const child of branch.children) {
         flattenedBranches = flattenOntologyBranch(child, flattenedBranches);
-        delete child.children;
-        flattenedBranches?.push(child);
       }
     }
     return flattenedBranches;
@@ -165,74 +164,30 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function updateOntologyFilter(
     filterName: string,
-    value: any,
+    value: IOntologyItem,
     add: boolean,
     fromBookmark: any = false
   ) {
     bookmarkTriggeredFilter.value = fromBookmark;
 
-    /** value can be a child (single value), or a parent with its children > make it into an array of values */
-    let processedValue = value;
-
-    if (value.children?.length) {
-      let copyBranch = JSON.parse(JSON.stringify(value));
-      let allChildrenValues = flattenOntologyBranch(copyBranch);
-      delete copyBranch.children;
-      allChildrenValues.push(copyBranch);
-
-      let deduplicatedValues: IOntologyItem[] = [];
-      let codesProcessed: string[] = [];
-
-      for (const childValue of allChildrenValues) {
-        if (!codesProcessed.includes(childValue.code)) {
-          deduplicatedValues.push(childValue);
-          codesProcessed.push(childValue.code);
-        }
-      }
-
-      processedValue = deduplicatedValues;
-    }
-
-    const multipleOptions = Array.isArray(processedValue);
+    const childValues = flattenOntologyBranch(value);
+    const processedValues = _.uniqBy(childValues, "code");
 
     if (add) {
-      multipleOptions
-        ? addOntologyOptions(filterName, processedValue)
-        : addOntologyOption(filterName, processedValue);
+      addOntologyOptions(filterName, processedValues);
     } else {
-      multipleOptions
-        ? removeOntologyOptions(filterName, processedValue)
-        : removeOntologyOption(filterName, processedValue);
-    }
-  }
-
-  function addOntologyOption(filterName: string, value: IOntologyItem) {
-    if (filters.value[filterName]) {
-      /** sanity check, if it is there already then the job is done */
-      if (
-        filters.value[filterName].some(
-          (option: IOntologyItem) => option.name === value.name
-        )
-      )
-        return;
-
-      filters.value[filterName].push(value);
-    } else {
-      filters.value[filterName] = [value];
+      removeOntologyOptions(filterName, processedValues);
     }
   }
 
   function addOntologyOptions(filterName: string, value: IOntologyItem[]) {
-    const diagnosisavailableCount = filters.value.Diagnosisavailable?.length
-      ? filters.value.Diagnosisavailable.length
-      : 0;
+    const diagnosisAvailableCount =
+      filters.value.Diagnosisavailable?.length || 0;
     const limit = 50;
+    const slotsRemaining = limit - diagnosisAvailableCount;
+
     let ontologySet = value;
-    const slotsRemaining = limit - diagnosisavailableCount;
-    if (
-      filterName === "Diagnosisavailable" &&
-      getFilterType("Diagnosisavailable") === "all"
-    ) {
+    if (getFilterType(DIAGNOSIS_AVAILABLE) === "all") {
       ontologySet = ontologySet.slice(0, slotsRemaining);
     }
 
@@ -250,7 +205,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
-  /** did not move this to be used in filteroptions because the store is async. */
+  /** did not move this to be used in filterOptions because the store is async. */
   function getOntologyAttributes(filterFacet: Record<string, any>) {
     const { filterLabelAttribute, filterValueAttribute } = filterFacet;
     return [
@@ -291,19 +246,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
 
     return ontologyResults;
-  }
-
-  function removeOntologyOption(filterName: string, value: IOntologyItem) {
-    /** can't remove an option which is not present. Jobs done. */
-    if (!filters.value[filterName]) return;
-
-    filters.value[filterName] = filters.value[filterName].filter(
-      (option: IOntologyItem) => option.name !== value.name
-    );
-
-    /** everything is deselected, remove the filter entirely */
-    if (filters.value[filterName].length === 0)
-      delete filters.value[filterName];
   }
 
   function removeOntologyOptions(filterName: string, value: IOntologyItem[]) {
@@ -365,13 +307,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function updateFilterType(filterName: string, value: any, fromBookmark: any) {
     if (
-      filterName === "Diagnosisavailable" &&
+      filterName === DIAGNOSIS_AVAILABLE &&
       (filterType.value[filterName] === "any" ||
         filterType.value[filterName] === undefined) &&
-      filters.value["Diagnosisavailable"]?.length > 50
+      filters.value[DIAGNOSIS_AVAILABLE]?.length > 50
     ) {
-      filters.value["Diagnosisavailable"] = filters.value[
-        "Diagnosisavailable"
+      filters.value[DIAGNOSIS_AVAILABLE] = filters.value[
+        DIAGNOSIS_AVAILABLE
       ].slice(0, 50);
     }
 
@@ -437,25 +379,25 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   return {
-    facetDetails,
-    updateFilter,
-    clearAllFilters,
-    updateOntologyFilter,
-    getFilterValue,
-    updateFilterType,
-    getFilterType,
-    getValuePropertyForFacet,
     checkOntologyDescendantsIfMatches,
-    ontologyItemMatchesQuery,
+    clearAllFilters,
+    getFilterType,
+    getFilterValue,
     getOntologyOptionsForCodes,
+    getValuePropertyForFacet,
+    ontologyItemMatchesQuery,
+    updateFilter,
+    updateFilterType,
+    updateOntologyFilter,
+    bookmarkWaitingForApplication,
+    facetDetails,
+    filterFacets,
     filterOptionsCache,
+    filtersReady,
+    filtersReadyToRender,
+    filters,
+    filterTriggeredBookmark,
     hasActiveFilters,
     hasActiveBiobankOnlyFilters,
-    filters,
-    filterFacets,
-    filtersReady,
-    bookmarkWaitingForApplication,
-    filterTriggeredBookmark,
-    filtersReadyToRender,
   };
 });

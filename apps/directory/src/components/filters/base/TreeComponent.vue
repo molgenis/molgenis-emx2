@@ -5,7 +5,6 @@
         :option="option"
         :facetIdentifier="facetIdentifier"
         @indeterminate-update="signalParentOurIndeterminateStatus"
-        :parentSelected="parentSelected"
         :filter="filter"
       />
     </div>
@@ -31,14 +30,13 @@ const props = withDefaults(
   defineProps<{
     facetIdentifier: string;
     options: any[];
-    parentSelected?: boolean;
     filter?: string;
   }>(),
   { filter: "" }
 );
 
 const { facetIdentifier } = props;
-const { filter, options, parentSelected } = toRefs(props);
+const { filter, options } = toRefs(props);
 
 const emit = defineEmits(["indeterminate-update"]);
 
