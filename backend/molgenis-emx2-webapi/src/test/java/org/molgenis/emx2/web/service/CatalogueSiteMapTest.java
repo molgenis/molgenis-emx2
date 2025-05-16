@@ -42,9 +42,9 @@ public class CatalogueSiteMapTest {
   void buildSiteMapForSchemaWithVariables() {
     Schema schema = mock(Schema.class);
     Table resourceTable = mock(Table.class);
-    Table varaibleTable = mock(Table.class);
+    Table variableTable = mock(Table.class);
     Query resourceQuery = mock(Query.class);
-    Query varaibleQuery = mock(Query.class);
+    Query variableQuery = mock(Query.class);
     List<Row> resourceRows =
         List.of(
             new Row("id", "my-id", "type", "Data source"),
@@ -53,14 +53,14 @@ public class CatalogueSiteMapTest {
         List.of(new Row("name", "Var name", "resource", "lifetime", "dataset", "core"));
 
     when(schema.getTable("Resources")).thenReturn(resourceTable);
-    when(schema.getTable("Variables")).thenReturn(varaibleTable);
+    when(schema.getTable("Variables")).thenReturn(variableTable);
     when(resourceTable.select(any(), any())).thenReturn(resourceQuery);
     when(resourceQuery.retrieveRows()).thenReturn(resourceRows);
 
-    when(schema.query("Variables")).thenReturn(varaibleQuery);
-    when(varaibleQuery.select(any(), any(), any())).thenReturn(varaibleQuery);
-    when(varaibleQuery.where(any())).thenReturn(varaibleQuery);
-    when(varaibleQuery.retrieveRows()).thenReturn(variableRows);
+    when(schema.query("Variables")).thenReturn(variableQuery);
+    when(variableQuery.select(any(), any(), any())).thenReturn(variableQuery);
+    when(variableQuery.where(any())).thenReturn(variableQuery);
+    when(variableQuery.retrieveRows()).thenReturn(variableRows);
     CatalogueSiteMap catalogueSiteMap = new CatalogueSiteMap(schema, "https://my/base/url");
 
     String expected =
