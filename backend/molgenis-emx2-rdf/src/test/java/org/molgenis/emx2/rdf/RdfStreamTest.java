@@ -184,7 +184,6 @@ public class RdfStreamTest {
       List<Duration> durationList,
       List<Long> memoryList,
       OutputStream out) {
-    System.gc();
     Instant startTime = Instant.now();
     Long memory = function.apply(out);
     durationList.add(Duration.between(startTime, Instant.now()));
@@ -193,6 +192,7 @@ public class RdfStreamTest {
 
   /** This is vague at best due to influences like GC collection. */
   private static Long currentMemoryUsed() {
+    System.gc();
     return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
   }
 
