@@ -400,6 +400,15 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     return this.inheritName;
   }
 
+  public List<String> getAllInheritNames() {
+    List<String> result = new ArrayList<>();
+    result.add(this.getTableName());
+    if (getInheritName() != null) {
+      result.addAll(getInheritedTable().getAllInheritNames());
+    }
+    return result;
+  }
+
   public TableMetadata setInheritName(String otherTable) {
     this.inheritName = otherTable;
     return this;

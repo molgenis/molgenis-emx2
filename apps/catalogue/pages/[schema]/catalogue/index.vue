@@ -8,9 +8,21 @@ import {
 } from "#app";
 import { definePageMeta } from "#imports";
 import { computed } from "vue";
+import type { IResources, IResources_agg } from "~/interfaces/catalogue";
+
+const pageDescription =
+  "A collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens health.";
 
 const route = useRoute();
-useHead({ title: "Health Data and Samples Catalogue" });
+useHead({
+  title: "Health Data and Samples Catalogue",
+  meta: [
+    {
+      name: "description",
+      content: pageDescription,
+    },
+  ],
+});
 
 //add redirect middleware for cohortOnly to skip this page
 definePageMeta({
@@ -30,50 +42,28 @@ definePageMeta({
 
 const query = computed(() => {
   return `
-  query Catalogues($filter:CataloguesFilter){
-    Catalogues(filter:$filter) {
-      network {
-        id
+  query Resources{
+    Resources(filter:{type:{name:{equals:"Catalogue"}}}) {
+      id
+      name
+      acronym
+      description
+      type {
         name
-        acronym
-        description
-        logo {
-          id
-          size
-          extension
-          url
-        }
       }
-      type {name}
-    }
-    Catalogues_agg (filter:$filter){
-      count
+      catalogueType {
+        name
+      }
+      logo {
+        id
+        size
+        extension
+        url
+      }
     }
   }
   `;
 });
-
-interface Catalogue {
-  network: {
-    id: string;
-    name: string;
-    acronym: string;
-    description: string;
-    logo: {
-      id: string;
-      size: number;
-      extension: string;
-      url: string;
-    };
-  };
-  type: {
-    name: string;
-  };
-}
-
-interface Catalogues_agg {
-  count: number;
-}
 
 interface Resp<T, U> {
   data: Record<string, T[]>;
@@ -81,27 +71,30 @@ interface Resp<T, U> {
 }
 
 let graphqlURL = computed(() => `/${route.params.schema}/graphql`);
-const { data } = await useFetch<Resp<Catalogue, Catalogues_agg>>(
+const { data } = await useFetch<Resp<IResources, IResources_agg>>(
   graphqlURL.value,
   {
-    key: "catalogues",
     method: "POST",
     body: { query },
   }
 );
 
 const thematicCatalogues = computed(() => {
-  let result = data?.value?.data?.Catalogues
-    ? data.value?.data?.Catalogues?.filter((c) => c.type?.name === "theme")
+  let result = data?.value?.data?.Resources
+    ? data.value?.data?.Resources?.filter(
+        (c) => c.catalogueType?.name !== "project"
+      )
     : [];
-  result.sort((a, b) => a.network.id.localeCompare(b.network.id));
+  result.sort((a, b) => a.id.localeCompare(b.id));
   return result;
 });
 const projectCatalogues = computed(() => {
-  let result = data?.value?.data?.Catalogues
-    ? data.value?.data?.Catalogues?.filter((c) => c.type?.name === "project")
+  let result = data?.value?.data?.Resources
+    ? data.value?.data?.Resources?.filter(
+        (c) => c.catalogueType?.name === "project"
+      )
     : [];
-  result.sort((a, b) => a.network.id.localeCompare(b.network.id));
+  result.sort((a, b) => a.id.localeCompare(b.id));
   return result;
 });
 </script>
@@ -110,7 +103,7 @@ const projectCatalogues = computed(() => {
   <LayoutsLandingPage>
     <PageHeader
       title="European Health Research Data and Sample Catalogue"
-      description="A collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens health."
+      :description="pageDescription"
       :truncate="false"
     >
       <template #suffix>

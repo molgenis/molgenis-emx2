@@ -10,9 +10,6 @@ export async function applyFiltersToQuery(
 
   if (activeFilters.length === 0) return baseQuery;
 
-  console.log("active filters", activeFilters);
-  console.log("filters", filters);
-
   for (const filterKey of activeFilters) {
     const filterDetail = facetDetails[filterKey];
 
@@ -94,12 +91,12 @@ export async function applyFiltersToQuery(
         break;
       }
       case "ToggleFilter":
+      case "ServiceFilter":
       case "CheckboxFilter": {
         const values = Array.isArray(filterValue)
           ? filterValue.map((fv) => fv.value)
           : [filterValue];
-
-        let columns = Array.isArray(filterDetail.applyToColumn)
+        const columns = Array.isArray(filterDetail.applyToColumn)
           ? filterDetail.applyToColumn
           : [filterDetail.applyToColumn];
 

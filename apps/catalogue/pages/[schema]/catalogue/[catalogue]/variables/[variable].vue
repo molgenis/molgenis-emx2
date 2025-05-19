@@ -53,6 +53,7 @@ crumbs[
 crumbs[
   "variables"
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/variables`;
+crumbs[route.params.variable as string] = "";
 
 const resourcesWithMapping = computed(() => {
   if (!resources.value) return [];
@@ -93,7 +94,10 @@ if (resourcesWithMapping.value.length > 0) {
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: titlePrefix + variable.value.name });
+useHead({
+  title: titlePrefix + variable.value.name,
+  meta: [{ name: "description", content: variable.value.description }],
+});
 </script>
 
 <template>
@@ -125,8 +129,12 @@ useHead({ title: titlePrefix + variable.value.name });
           <CatalogueItemList
             :items="[
               {
-                label: 'Unit',
-                content: variable?.unit?.name,
+                label: 'Label',
+                content: variable?.label,
+              },
+              {
+                label: 'Description',
+                content: variable?.description,
               },
               {
                 label: 'Format',
@@ -143,8 +151,15 @@ useHead({ title: titlePrefix + variable.value.name });
                   : undefined,
               },
               {
-                label: 'Description',
-                content: variable?.description,
+                label: 'Unit',
+                content: variable?.unit?.name,
+              },
+              {
+                label: 'Dataset',
+                content:
+                  variable?.dataset?.resource.id +
+                  ' - ' +
+                  variable?.dataset?.name,
               },
             ]"
           >
