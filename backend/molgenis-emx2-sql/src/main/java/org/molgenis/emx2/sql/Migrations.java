@@ -179,6 +179,10 @@ public class Migrations {
             executeMigrationFile(tdb, "migration27.sql", "Add admin column to user metadata");
           }
 
+          if (version < 29) {
+            executeMigrationFile(tdb, "migration28.sql", "Update admin field original admin user");
+          }
+
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
         });
