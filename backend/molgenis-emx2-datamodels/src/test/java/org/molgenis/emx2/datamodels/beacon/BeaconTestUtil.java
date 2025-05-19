@@ -43,7 +43,7 @@ public class BeaconTestUtil {
     return mockEntryTypeRequest(entryType, queryParams, BEACON_VP);
   }
 
-  static BeaconRequestBody mockIndividualsPostRequestVp(String body)
+  public static BeaconRequestBody mockIndividualsPostRequestVp(String body)
       throws JsonProcessingException {
     Context request = mockEntryRequestVp(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     ObjectMapper mapper = new ObjectMapper();

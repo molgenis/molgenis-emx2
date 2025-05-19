@@ -52,29 +52,28 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
     assertEquals(1, results.size());
     assertEquals(results.get(0).get("id").textValue(), "Ind001");
   }
-  //
-  //  @Test
-  //  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_OneHit() throws Exception {
-  //    BeaconRequestBody beaconRequest =
-  //        BeaconModelEndPointTest.mockIndividualsPostRequestVp(
-  //            """
-  //                          {
-  //                            "query": {
-  //                          	"filters": [
-  //                          	  {
-  //                          		"id": "ncit:C28421",
-  //                          		"value": "ncit:C16576",
-  //                          		"operator": "="
-  //                          	  }
-  //                          	]
-  //                            }
-  //                          }""");
-  //    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-  //    JsonNode json = queryEntryType.query(BeaconModelEndPointTest.beaconSchema);
-  //    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
-  //    assertEquals(1,
-  // json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
-  //  }
+
+  @Test
+  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_OneHit() throws Exception {
+    BeaconRequestBody beaconRequest =
+        BeaconTestUtil.mockIndividualsPostRequestVp(
+            """
+                            {
+                              "query": {
+                            	"filters": [
+                            	  {
+                            		"id": "ncit:C28421",
+                            		"value": "ncit:C16576",
+                            		"operator": "="
+                            	  }
+                            	]
+                              }
+                            }""");
+    QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
+    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
+    assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
+  }
   //
   //  @Test
   //  public void test_EJP_RD_VP_API_FilterOnGenderAtBirth_NoHits() throws Exception {
