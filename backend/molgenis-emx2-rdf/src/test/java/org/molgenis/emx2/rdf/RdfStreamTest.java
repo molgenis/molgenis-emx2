@@ -70,10 +70,18 @@ public class RdfStreamTest {
                 .setSemantics("http://purl.org/dc/terms/title")));
     table = schema.getTable("myTable");
 
+    // use 100 as max value when running compareMethodsOutput()
+    // use 100000 as max value when running compareMethodsUsage()
     IntStream.rangeClosed(1, 100000)
         .forEach(i -> table.insert(row("id", i, "description", "description of " + i)));
   }
 
+  /**
+   * Reduce size of table for quicker comparison. Not advisable with huge table as it will just be
+   * slower without a different result.
+   *
+   * @throws IOException
+   */
   @Test
   void compareMethodsOutput() throws IOException {
     ByteArrayOutputStream rdf4jBuilderOutputStream = new ByteArrayOutputStream();
