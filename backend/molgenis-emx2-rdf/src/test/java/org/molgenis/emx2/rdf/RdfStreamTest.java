@@ -54,6 +54,13 @@ public class RdfStreamTest {
   static Table table;
   static String baseURL = "http://example.com/streamTest/api/rdf";
 
+  // manually set value below for different tests
+  // do not use compareMethodsOutput() with high values (> 100)!
+  static final int N_TABLE_ROWS = 100;
+
+  // must be uneven value (for easy median retrieval)
+  static final int N_PERFORMANCE_RUNS = 9;
+
   @BeforeAll
   static void beforeAll() {
     database = TestDatabaseFactory.getTestDatabase();
@@ -70,9 +77,7 @@ public class RdfStreamTest {
                 .setSemantics("http://purl.org/dc/terms/title")));
     table = schema.getTable("myTable");
 
-    // manually set value below for different tests
-    // do not use compareMethodsOutput() with high values (> 100)!
-    IntStream.rangeClosed(1, 100)
+    IntStream.rangeClosed(1, N_TABLE_ROWS)
         .forEach(i -> table.insert(row("id", i, "description", "description of " + i)));
   }
 
@@ -119,7 +124,7 @@ public class RdfStreamTest {
   }
 
   @Test
-  void compareMethodsUsage() throws IOException {
+  void compareMethodsPerformance() throws IOException {
     List<Duration> rdf4jBuildersDuration = new ArrayList<>();
     List<Duration> rdf4jWritersDuration = new ArrayList<>();
     List<Duration> jenaStreamWritersDuration = new ArrayList<>();
@@ -130,7 +135,7 @@ public class RdfStreamTest {
     List<Long> jenaStreamWriterMemory = new ArrayList<>();
     List<Long> manualStreamMemory = new ArrayList<>();
 
-    List<Integer> runs = IntStream.range(0, 5).boxed().toList();
+    List<Integer> runs = IntStream.range(0, N_PERFORMANCE_RUNS).boxed().toList();
 
     try (OutputStream nullOutputStream = OutputStream.nullOutputStream()) {
       runs.forEach(
@@ -166,10 +171,26 @@ public class RdfStreamTest {
                   nullOutputStream));
     }
 
-    out.println("rdf4j builder durations: " + rdf4jBuildersDuration);
-    out.println("rdf4j writer durations: " + rdf4jWritersDuration);
-    out.println("jena stream writer durations: " + jenaStreamWritersDuration);
-    out.println("manual stream durations: " + manualStreamsDuration);
+    out.println(
+        "rdf4j builder durations: "
+            + median(rdf4jBuildersDuration)
+            + " (median) -> "
+            + rdf4jBuildersDuration);
+    out.println(
+        "rdf4j writer durations: "
+            + median(rdf4jWritersDuration)
+            + " (median) -> "
+            + rdf4jWritersDuration);
+    out.println(
+        "jena stream writer durations: "
+            + median(jenaStreamWritersDuration)
+            + " (median) -> "
+            + jenaStreamWritersDuration);
+    out.println(
+        "manual stream durations: "
+            + median(manualStreamsDuration)
+            + " (median) -> "
+            + manualStreamsDuration);
     out.println("-------- -------- --------");
     out.println("rdf4j builder memory: " + byteToMegaByte(rdf4jBuilderMemory));
     out.println("rdf4j writer memory: " + byteToMegaByte(rdf4jWriterMemory));
@@ -196,6 +217,10 @@ public class RdfStreamTest {
 
   private static List<String> byteToMegaByte(List<Long> bytes) {
     return bytes.stream().map(i -> Long.toString(i / 1024 / 1024) + " MB").toList();
+  }
+
+  private static Duration median(List<Duration> durations) {
+    return durations.stream().sorted().toList().get(N_PERFORMANCE_RUNS / 2);
   }
 
   private static Long processWithRdf4jBuilder(OutputStream out) {
