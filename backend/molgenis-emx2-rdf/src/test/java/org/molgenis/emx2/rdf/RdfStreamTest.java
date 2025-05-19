@@ -259,6 +259,7 @@ public class RdfStreamTest {
   }
 
   private static Long processWithManualStream(OutputStream out) {
+    Long maxMemoryUsed = 0L;
     // missing namespace handling
     // very ugly, always creates full triples (real implementation should be better)
 
@@ -271,22 +272,16 @@ public class RdfStreamTest {
           IRI predicate = Values.iri(column.getSemantics()[0]);
           Literal object = Values.literal(row.getString(column.getName()));
           try {
-            StringBuilder builder = new StringBuilder();
-            builder
-                .append("<")
-                .append(subject)
-                .append("> <")
-                .append(predicate)
-                .append("> ")
-                .append(object)
-                .append(" .\n");
-            out.write(builder.toString().getBytes());
+            String outputString = "<" + subject + "> <" + predicate + "> " + object + " .\n";
+            Long memoryUsed = RdfStreamTest.currentMemoryUsed();
+            if (memoryUsed > maxMemoryUsed) maxMemoryUsed = memoryUsed;
+            out.write(outputString.getBytes());
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
         }
       }
     }
-    return RdfStreamTest.currentMemoryUsed();
+    return maxMemoryUsed;
   }
 }
