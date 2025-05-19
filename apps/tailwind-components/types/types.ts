@@ -126,4 +126,5 @@ export interface IInputProps {
 
 export interface ISession {
   email: string;
+  admin: boolean;
 }
