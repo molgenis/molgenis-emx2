@@ -106,7 +106,7 @@ public class RdfStreamTest {
             RDFFormat.TURTLE);
 
     assertAll(
-        () -> assertEquals(rdf4jBuilderModel, rdf4jBuilderModel),
+        () -> assertEquals(rdf4jBuilderModel, rdf4jWriterModel),
         () -> assertEquals(rdf4jBuilderModel, jenaStreamWriterModel),
         () -> assertEquals(rdf4jBuilderModel, manualStreamModel));
     ;
@@ -171,7 +171,7 @@ public class RdfStreamTest {
     out.println("manual stream memory: " + byteToMegaByte(manualStreamMemory));
   }
 
-  void run(
+  private void run(
       Function<OutputStream, Long> function,
       List<Duration> durationList,
       List<Long> memoryList,
@@ -183,16 +183,16 @@ public class RdfStreamTest {
   }
 
   /** This is vague at best due to influences like GC collection. */
-  static Long currentMemoryUsed() {
+  private static Long currentMemoryUsed() {
     System.gc();
     return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
   }
 
-  static List<String> byteToMegaByte(List<Long> bytes) {
+  private static List<String> byteToMegaByte(List<Long> bytes) {
     return bytes.stream().map(i -> Long.toString(i / 1024 / 1024) + " MB").toList();
   }
 
-  static Long processWithRdf4jBuilder(OutputStream out) {
+  private static Long processWithRdf4jBuilder(OutputStream out) {
     ModelBuilder builder = new ModelBuilder();
     for (Row row : table.query().retrieveRows()) {
       final IRI subject = rowIRI(baseURL, table, row);
@@ -213,7 +213,7 @@ public class RdfStreamTest {
     return memoryUsed;
   }
 
-  static Long processWithRdf4jWriter(OutputStream out) {
+  private static Long processWithRdf4jWriter(OutputStream out) {
     RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, out);
     SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
@@ -236,7 +236,7 @@ public class RdfStreamTest {
     return memoryUsed;
   }
 
-  static Long processWithJenaStreamWriter(OutputStream out) {
+  private static Long processWithJenaStreamWriter(OutputStream out) {
     StreamRDF streamRdf = StreamRDFWriter.getWriterStream(out, Lang.TURTLE);
     streamRdf.start();
 
@@ -258,8 +258,7 @@ public class RdfStreamTest {
     return memoryUsed;
   }
 
-  // todo: finish wip
-  static Long processWithManualStream(OutputStream out) {
+  private static Long processWithManualStream(OutputStream out) {
     // missing namespace handling
     // very ugly, always creates full triples (real implementation should be better)
 
