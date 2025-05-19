@@ -18,6 +18,7 @@ import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.URIUtils;
+import org.molgenis.emx2.web.controllers.CatalogueSearchController;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,7 @@ public class MolgenisWebservice {
         "/{schema}/api",
         ctx -> ctx.result("Welcome to schema api. Check <a href=\"api/openapi\">openapi</a>"));
 
+    CatalogueSearchController.create(app);
     SiteMapService.create(app);
     CsvApi.create(app);
     ZipApi.create(app);
