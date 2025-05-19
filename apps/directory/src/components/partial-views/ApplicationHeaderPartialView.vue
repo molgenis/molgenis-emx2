@@ -71,8 +71,8 @@
             class="badge badge-light border mr-2 ml-1"
             v-if="filterSelectionCount(filter.facetIdentifier) > 0"
           >
-            {{ filterSelectionCount(filter.facetIdentifier) }}</span
-          >
+            {{ filterSelectionCount(filter.facetIdentifier) }}
+          </span>
         </template>
         <component
           :is="filter.component"
@@ -80,8 +80,7 @@
           @click="currentFilter = filter.facetIdentifier"
           :currentlyActive="currentFilter === filter.facetIdentifier"
           :optionsFilter="optionsPresent(filter.facetIdentifier)"
-        >
-        </component>
+        />
       </HtmlDropdown>
 
       <toggle-filter
@@ -102,20 +101,21 @@
 </template>
 
 <script>
+import { useBiobanksStore } from "../../stores/biobanksStore";
+import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useFiltersStore } from "../../stores/filtersStore";
 import { useSettingsStore } from "../../stores/settingsStore";
-import { useCheckoutStore } from "../../stores/checkoutStore";
 
 /** Components used for filters */
-import SearchFilter from "../filters/SearchFilter.vue";
 import CheckboxFilter from "../filters/CheckboxFilter.vue";
 import OntologyFilter from "../filters/OntologyFilter.vue";
+import SearchFilter from "../filters/SearchFilter.vue";
+import ServiceFilter from "../filters/ServiceFilter.vue";
 import ToggleFilter from "../filters/ToggleFilter.vue";
-import { HtmlDropdown } from "molgenis-components";
 /** */
 
+import { HtmlDropdown } from "molgenis-components";
 import CheckOut from "../checkout-components/CheckOut.vue";
-import { useBiobanksStore } from "../../stores/biobanksStore";
 
 export default {
   setup() {
@@ -129,6 +129,7 @@ export default {
     SearchFilter,
     HtmlDropdown,
     CheckboxFilter,
+    ServiceFilter,
     OntologyFilter,
     ToggleFilter,
     CheckOut,
@@ -178,12 +179,18 @@ export default {
     selectAllServices() {
       const allSelections = this.biobanksStore.biobankCards.map((biobank) => ({
         biobank: { id: biobank.id, name: biobank.name },
-        services: biobank.services.map((service) => ({
-          label: service.name,
-          value: service.id,
-        })),
+        services:
+          biobank.services?.map((service) => ({
+            label: service.name,
+            value: service.id,
+          })) || [],
       }));
-      allSelections.forEach((item) => {
+
+      const nonEmptyBiobanks = allSelections.filter(
+        (item) => item.services.length > 0
+      );
+
+      nonEmptyBiobanks.forEach((item) => {
         this.checkoutStore.addServicesToSelection(
           item.biobank,
           item.services,
@@ -194,12 +201,18 @@ export default {
     selectAllCollections() {
       const allSelections = this.biobanksStore.biobankCards.map((biobank) => ({
         biobank: { id: biobank.id, name: biobank.name },
-        collections: biobank.collections.map((collection) => ({
-          label: collection.name,
-          value: collection.id,
-        })),
+        collections:
+          biobank.collections?.map((collection) => ({
+            label: collection.name,
+            value: collection.id,
+          })) || [],
       }));
-      allSelections.forEach((item) => {
+
+      const nonEmptyBiobanks = allSelections.filter(
+        (item) => item.collections.length > 0
+      );
+
+      nonEmptyBiobanks.forEach((item) => {
         this.checkoutStore.addCollectionsToSelection(
           item.biobank,
           item.collections,

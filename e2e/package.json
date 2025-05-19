@@ -13,7 +13,7 @@
     "test:tw-forms": "playwright test --grep '@tw-forms' --reporter=line"
   },
   "dependencies": {
-    "@playwright/test": "1.50.0",
+    "@playwright/test": "1.52.0",
     "install": "0.13.0"
   }
 }

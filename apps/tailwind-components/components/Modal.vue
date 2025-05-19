@@ -1,23 +1,17 @@
 <script setup lang="ts">
-defineProps<{
-  title: string;
-  subtitle?: string;
-}>();
+withDefaults(
+  defineProps<{
+    title?: string;
+    subtitle?: string;
+    maxWidth?: string;
+  }>(),
+  {
+    maxWidth: "max-w-xl",
+  }
+);
 
-const visible = ref(false);
-
-function showModal() {
-  visible.value = true;
-}
-
-const closeModal = () => {
-  visible.value = false;
-};
-
-defineExpose({
-  show: showModal,
-  close: closeModal,
-  visible,
+const visible = defineModel("visible", {
+  required: true,
 });
 </script>
 
@@ -27,42 +21,46 @@ defineExpose({
     role="dialog"
     :aria-labelledby="title"
     ref="dialog"
-    class="fixed min-h-lvh w-full top-0 left-0 flex z-20"
+    class="fixed min-h-lvh w-full top-0 left-0 flex z-20 overscroll-behavior: contain"
   >
     <a
       id="backdrop"
-      @click="closeModal()"
-      class="w-full h-full absolute left-0 bg-black/60"
-      href="#"
+      @click="visible = false"
+      class="w-full h-full absolute left-0 bg-black/60 overscroll-behavior: contain"
       tabindex="-1"
     />
 
-    <div class="bg-white w-3/4 relative m-auto h-3/4 rounded-50px max-w-xl">
-      <header class="pt-[36px] px-[50px] overflow-y-auto">
-        <div class="text-gray-900" v-if="subtitle">{{ subtitle }}</div>
-        <h2 v-if="title" class="mb-5 uppercase text-heading-4xl font-display">
-          {{ title }}
-        </h2>
-
-        <button
-          @click="closeModal()"
-          aria-label="Close modal"
-          class="absolute top-7 right-8 p-1"
+    <div
+      class="bg-modal w-3/4 relative m-auto rounded-t-none rounded-b-theme"
+      :class="maxWidth"
+    >
+      <slot name="header">
+        <header
+          class="pt-[36px] px-[50px] overflow-y-auto border-b border-divider"
         >
-          <BaseIcon class="text-blue-500" name="cross" />
-        </button>
+          <div v-if="subtitle" class="text-gray-900">{{ subtitle }}</div>
+          <h2 v-if="title" class="mb-5 uppercase text-heading-4xl font-display">
+            {{ title }}
+          </h2>
 
-        <slot name="header" />
-      </header>
+          <button
+            @click="visible = false"
+            aria-label="Close modal"
+            class="absolute top-7 right-8 p-1"
+          >
+            <BaseIcon class="text-link" name="cross" />
+          </button>
+        </header>
+      </slot>
 
-      <div class="px-[50px] overflow-y-auto py-4 max-h-[calc(80vh-232px)]">
+      <div class="overflow-y-auto max-h-[calc(95vh-232px)]">
         <slot />
       </div>
 
-      <footer class="bg-modal-footer px-[50px] rounded-b-50px">
-        <menu class="flex items-center justify-left h-[116px]">
-          <slot name="footer" />
-        </menu>
+      <footer
+        class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider"
+      >
+        <slot name="footer" />
       </footer>
     </div>
   </section>

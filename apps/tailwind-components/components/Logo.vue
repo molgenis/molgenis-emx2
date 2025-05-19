@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useRuntimeConfig } from "#app";
+import { shallowRef } from "vue";
+import { useRoute } from "vue-router";
+
 defineProps<{
   link?: string;
   image?: string;
@@ -8,17 +12,17 @@ const config = useRuntimeConfig();
 const route = useRoute();
 const logoFileName = (route.query.logo as string) || config.public.emx2Logo;
 
-// load the svg data from the assets folder
-let svg = shallowRef();
+// load the svg data from the public folder
+const svg = shallowRef();
 if (logoFileName) {
-  svg.value = await assetLoader.load(logoFileName);
+  svg.value = `/_nuxt-styles/logos/${logoFileName}.svg`;
 }
 </script>
 
 <template>
   <NuxtLink :to="link" class="transition-transform hover:scale-105">
     <span class="sr-only">Go to home</span>
-    <i v-if="svg" v-html="svg.default"></i>
+    <img v-if="svg" :src="svg" alt="logo" />
     <img
       v-else-if="image"
       :src="image"

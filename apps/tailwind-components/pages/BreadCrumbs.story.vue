@@ -1,10 +1,12 @@
 <template>
-  <p class="pb-3 text-title">Default breadcrumbs, with 3 items</p>
+  <p class="pb-3 text-title">
+    Default breadcrumbs, with 3 items, aligns middle
+  </p>
   <div>
     <BreadCrumbs :crumbs="crumbs" />
   </div>
 
-  <p class="pt-6 pb-3 text-title">Breadcrumbs aligined left</p>
+  <p class="pt-6 pb-3 text-title">Breadcrumbs aligned left</p>
   <div>
     <BreadCrumbs :crumbs="crumbs" align="left" />
   </div>
@@ -16,6 +18,9 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+import { useRoute } from "vue-router";
+
 const route = useRoute();
 interface Crumbs {
   [key: string]: string;

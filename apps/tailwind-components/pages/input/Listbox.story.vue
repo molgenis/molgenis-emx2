@@ -1,40 +1,6 @@
 <template>
-  <article
-    aria-labelledby="listbox-component-title"
-    class="[&>p]:mt-3 [&_p]:mb-4"
-  >
-    <h2 id="listbox-component-title" class="text-heading-2xl">
-      Listbox component
-    </h2>
-    <p>
-      The <code>InputListbox</code> component an alternative to the
-      <code>InputSelect</code> component. This component functions and behaves
-      in the same manner as the select element, but it allows the component to
-      be styled with greater detail. The component is flexible in that it allows
-      for multiple input types. Options can be generated from an array of values
-      (string, number, boolean) or as an array of objects that follow the
-      <code>IListboxOption</code> type (<code
-        >[{value: "...", label: "..."},...]</code
-      >). The return value will always match the input type. When passing data
-      into the component, you must also supply the listbox type. There are two
-      types to use.
-    </p>
-    <ul class="pl-6 mb-4 list-disc">
-      <li>
-        <code>IListboxValue</code>: an array of values (as strings, or
-        string[]). For now, this component only supports string arrays.
-      </li>
-      <li>
-        <code>IListboxOption</code>: an array of objects that have a value and a
-        label key.(<code>[{value: "...", label: "..."},...]</code>).
-      </li>
-    </ul>
-    <p>
-      The following examples demonstrate the use of the listbox components and
-      the various configurations that area allowed.
-    </p>
-  </article>
-  <form class="mb-6 bg-white rounded p-4">
+  <h2 class="text-heading-2xl">Listbox component</h2>
+  <form class="mb-6 rounded p-4 text-title">
     <legend class="mb-2 text-heading-lg">
       Configure the listbox component
     </legend>
@@ -46,7 +12,7 @@
         <InputRadioGroup
           id="listbox-data-type"
           v-model="listboxDataType"
-          :radio-options="[
+          :options="[
             { value: 'string', label: 'String array' },
             { value: 'array', label: 'Array of options' },
           ]"
@@ -59,20 +25,24 @@
         <InputRadioGroup
           id="listbox-component-state"
           v-model="listboxState"
-          :radioOptions="[
+          :options="[
             {
               value: 'disabled',
-              label: 'Disabled: disable interactivity with the component',
+              label: 'Disabled',
             },
             {
               value: 'error',
-              label: 'Error: simulate an instance where an error occurred',
+              label: 'Error',
+            },
+            {
+              value: 'valid',
+              label: 'Valid',
             },
           ]"
           :showClearButton="true"
         />
       </div>
-      <div class="bg-white p-2 grow">
+      <div class="p-2 grow">
         <InputLabel for="listbox-placeholder">
           Change the default placeholder text
         </InputLabel>
@@ -80,7 +50,7 @@
       </div>
     </div>
   </form>
-  <div class="mb-6 bg-white rounded px-6 py-8">
+  <div class="mb-6 rounded px-6 py-8 text-title">
     <h3 class="text-heading-lg mb-2">Listbox example</h3>
     <InputLabel
       id="listbox-input-label"
@@ -95,23 +65,24 @@
       id="listbox-input"
       labelId="listbox-input-label"
       :options="listboxData"
-      :hasError="listboxState === 'error'"
+      :invalid="listboxState === 'error'"
+      :valid="listboxState === 'valid'"
       :disabled="listboxState === 'disabled'"
       :placeholder="listboxPlaceholder"
-      @update:model-value="(value) => (modelValue = value)"
+      @update:model-value="(value: any) => (modelValue = value)"
     />
-    <output class="block w-full mt-6 bg-gray-100 py-3 px-2 pl-6">
+    <output class="block w-full mt-6 border py-3 px-2 pl-6">
       <code
         >Output {{ listboxDataType === "true" ? "Value" : "Object" }}:
         {{ modelValue }}</code
       >
     </output>
   </div>
-  <div class="mb-2 bg-white rounded p-6">
+  <div class="mb-2 rounded p-6 text-title">
     <h3 class="text-heading-lg mb-2">Input data structure</h3>
     <p>Based on the selection above, the input data is shown below.</p>
     <output
-      class="block w-full mt-6 bg-gray-100 py-3 px-2 pl-6 h-60 overflow-y-scroll shadow-inner"
+      class="block w-full mt-6 border py-3 px-2 pl-6 h-60 overflow-y-scroll shadow-inner"
     >
       <pre class="indent-[-5em]">
         {{ listboxData }}

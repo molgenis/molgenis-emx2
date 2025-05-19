@@ -1,27 +1,26 @@
-# Number
+# Test Plan 5
 
-5
-
-# Role
+## Role
 
 Naïve user of the data catalogue
 
-# Goal
+## Goal
 
-A naïve visitor to the data catalogue can click around in the catalogue and understand what they are seeing when viewing a resource in detail.
+A naïve visitor to the data catalogue can click around in the catalogue
+and understand what they are seeing when viewing a resource in detail.
 
-# Steps
+## Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
 | 0 | NB: Assumptions | This test plan assumes that the settings are configured to display the contact form rather than just an e-mail address. | | |
-| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/ssr-catalogue) | Landing page: European health research data and sample catalogue | | |
+| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue) | Landing page: European health research data and sample catalogue | | |
 | 2 | Navigate to Search All |  `COLLECTIONS`, `NETWORKS`, and `VARIABLES` buttons are shown with the number of each under each button | | |
 | 3a | Click on the `COLLECTIONS` button | Should be directed to the list of collections with: collection logo, "COLLECTIONS", "Data & sample collections", `DETAILED`/`COMPACT` toggle buttons (`DETAILED` is selected by default), Filters on the LHS. | | |
 | 3b | Click on `COMPACT` | The list of collections turns into a list of collection acronyms and names (in full), with an arrow after each collection | | |
 | 4 | Type "name for test cohort" in the Search field top left | See that two collections are presented in the list: "acronym for test cohort 1" and "acronym for test cohort 2" | | |
 | 5a | Click on "Acronym for test cohort 2" | See that the resource detail page for Acronym for test cohort 2 is presented: "All > Collections", ACRONYM FOR TEST COHORT 2, Name for test cohort 2 | | |
-| 5b | | In the ribbon at the top of the page there should be: Left: Molgenis logo, Right: (L-R) `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `MORE` (-> `Other catalogues`, `Upload data`) | | |
+| 5b | | In the ribbon at the top of the page there should be: Left: Molgenis logo, Right: (L-R) `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `MORE` (-> `Other catalogues`, `Upload data`,'Manuals') | | |
 | 6 | Click on the `CONTACT` button | pop-up with "Name for test cohort 2", Contact, Name entry field, Email entry field, Organisation entry field, Topic dropdown, Message entry field, "or contact us at: <support@molgenis.org>", `SEND` button | | |
 | 7 | Type in test message, fill in your own email address and press `SEND` | An e-mail is sent to Molgenis Support. | | |
 | 8 | Close the notification, if any pops up | Return to the detailed page for "acronym for test cohort 2". | | |
@@ -143,15 +142,19 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 | | | Since version 1959 | | |
 | | | Until version 1985 | | |
 | 52 | Click the cross top right to close the pop-up | Return to resource information page. | | |
-| 53 | NETWORKS, subtitle: Part of networks | List of networks in which this resource is involved. For each network: logo, name, > Website, and an arrow to navigate to details. | | |
+| 53 | NETWORKS, subtitle: Part of networks | List of networks in which this resource is involved. For each network: logo, name, > Website > Network details (> Catalogue), and an arrow to navigate to details. | | |
 | | | name for test network2 | | |
-| | | > Website | | |
+| | | > Website > Network details | | |
 | | | name for test network of networks | | |
-| | | > Website | | |
+| | | > Website > Network details > Catalogue | | |
 | | | name for test network1 | | |
-| | | > Website | | |
-| 54 | Click on 'name for test network of networks' | Molgenis.org opens in a new window. | | |
-| 55 | Return to the resource information page | | | |
+| | | > Website > Network details > Catalogue | | |
+| 54a | Click on 'name for test network of networks' | Molgenis.org opens in a new window. | | |
+| 54b | Return to the resource information page | | | |
+| 54c | Click on '> Network details' for 'name for test network of networks' | The network information page opens in the same window | | |
+| 54d | Go back to the resource information page | | | |
+| 54e | Click on '> Catalogue for 'name for test network of networks' | The catalogue landing page for that network opens in the same window | | |
+| 55 | Go back to the resource information page | | | |
 | 56a | PUBLICATIONS | | | |
 | | | Clickable block per publication with the name of the publication as a clickable link which opens the link in a new window: "Birth of a cohort--the first 20 years of the Raine study", "test publication 2", "test publication 3" | | |
 | | Click on test publication 2 | The paper "Maternal Dietary Glycemic Index and Glycemic Load in Pregnancy and Offspring Cord Blood DNA Methylation" opens in a new window. | | |

@@ -48,7 +48,7 @@
                 <Tabs :tabIds="['collections', 'biobanks']">
                   <template #collections-header>
                     <CollectionsHeader
-                      :collectionCount="collections?.length"
+                      :collectionCount="collections.length"
                       :subcollectionCount="subcollectionCount"
                     />
                   </template>
@@ -129,7 +129,6 @@ import ContactInformation from "../components/report-components/ContactInformati
 import ReportDescription from "../components/report-components/ReportDescription.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
-import useErrorHandler from "../composables/errorHandler";
 import {
   getCollectionDetails,
   mapAlsoKnownIn,
@@ -159,14 +158,21 @@ const networkReport = computed(() => networkStore.networkReport);
 const collections = computed(() =>
   filterCollections(networkReport.value.collections)
 );
-const biobanks = computed(() => networkReport.value.biobanks);
+const biobanks = computed(() =>
+  networkReport.value.biobanks.filter((biobank: Record<string, any>) => {
+    return !biobank.withdrawn;
+  })
+);
 const network = computed(() => networkReport.value.network);
 const alsoKnownIn = computed(() => mapAlsoKnownIn(network.value));
 const subcollectionCount = computed<number>(
   () =>
-    networkReport.value.collections?.filter(
-      (collection: Record<string, any>) => collection.parent_collection
-    ).length || 0
+    networkReport.value.collections
+      ?.filter(
+        (collection: Record<string, any>) => collection.parent_collection
+      )
+      .filter((collection: Record<string, any>) => !collection.withdrawn)
+      .length || 0
 );
 
 function filterCollections(collections: Record<string, any>[]) {
@@ -174,6 +180,9 @@ function filterCollections(collections: Record<string, any>[]) {
     collections
       ?.filter((collection: Record<string, any>) => {
         return !collection.parent_collection;
+      })
+      .filter((collection: Record<string, any>) => {
+        return !collection.withdrawn;
       })
       .map((collection: Record<string, any>) =>
         getCollectionDetails(collection)

@@ -20,8 +20,12 @@ const defaultMenuItems = [
     href: "/apps/molgenis-components/",
   },
   {
-    label: "Tailwind Components (Beta)",
+    label: "New Components (Beta)",
     href: "/apps/tailwind-components/",
+  },
+  {
+    label: "New UI (Alpha)",
+    href: "/apps/ui/",
   },
   {
     label: "Help",
@@ -40,7 +44,7 @@ export default {
   },
   computed: {
     menuItems() {
-      if (this.session && this.session.email == "admin") {
+      if (this.session && this.session.admin) {
         return [
           ...this.menu,
           { label: "Admin", href: "/apps/central/#/admin", role: "Admin" },

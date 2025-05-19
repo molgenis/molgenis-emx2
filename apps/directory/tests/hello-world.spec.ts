@@ -8,5 +8,5 @@ test("should run playwright", async ({ page }) => {
 
 test("directory page should load", async ({ page }) => {
   await page.goto(getAppRoute());
-  await expect(page.getByRole("paragraph")).toContainText("© 2024 BBMRI-ERIC");
+  expect((await page.title()).endsWith("Directory")).toBeTruthy();
 });

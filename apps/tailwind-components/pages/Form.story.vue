@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import type { FormFields } from "#build/components";
 import type {
+  columnId,
   columnValue,
-  IColumn,
-  IFieldError,
   ISchemaMetaData,
 } from "../../metadata-utils/src/types";
-import { useRoute } from "#app/composables/router";
+import { useRoute, useRouter } from "#app/composables/router";
+import Legend from "../components/form/Legend.vue";
+import { useFetch, useAsyncData } from "#app";
+import { fetchMetadata, fetchTableData, useSections } from "#imports";
+import { ref, computed, watch } from "vue";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -19,8 +21,16 @@ interface Schema {
 }
 
 const route = useRoute();
-const schemaId = ref((route.query.schema as string) ?? "pet store");
-const tableId = ref((route.query.table as string) ?? "Pet");
+const router = useRouter();
+const schemaId = ref((route.query.schema as string) ?? "type test");
+const tableId = ref((route.query.table as string) ?? "Types");
+const rowIndex = ref<null | number>(null);
+if (route.query.rowIndex) {
+  rowIndex.value = parseInt(route.query.rowIndex as string);
+}
+
+const numberOfRows = ref(0);
+const formValues = ref<Record<string, columnValue>>({});
 
 const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   key: "schemas",
@@ -35,112 +45,48 @@ const schemaIds = computed(
       .map((s) => s.id) ?? []
 );
 
-const {
-  data: schemaMeta,
-  refresh,
-  status,
-} = await useAsyncData("form sample", () => fetchMetadata(schemaId.value));
+const { data: schemaMeta, refresh } = await useAsyncData("form sample", () =>
+  fetchMetadata(schemaId.value)
+);
+
+async function getNumberOfRows() {
+  const resp = await $fetch(`/${schemaId.value}/graphql`, {
+    method: "POST",
+    body: {
+      query: `query ${tableId.value} {
+          ${tableId.value}_agg {
+            count
+          }
+        }`,
+    },
+  });
+  numberOfRows.value = resp.data[tableId.value + "_agg"].count;
+}
+
+async function fetchRow(rowNumber: number) {
+  const resp = await fetchTableData(schemaId.value, tableId.value, {
+    limit: 1,
+    offset: rowNumber,
+  });
+
+  formValues.value = resp.rows[0];
+}
 
 const schemaTablesIds = computed(() =>
   (schemaMeta.value as ISchemaMetaData)?.tables.map((table) => table.id)
 );
 
-const tableMeta = computed(() => {
-  return schemaMeta.value === null
-    ? null
-    : schemaMeta.value.tables.find((table) => table.id === tableId.value);
-});
-
-const data = ref([] as Record<string, columnValue>[]);
-
-const formFields = ref<InstanceType<typeof FormFields>>();
-
-const formValues = ref<Record<string, columnValue>>({});
-
-function onModelUpdate(value: Record<string, columnValue>) {
-  formValues.value = value;
-}
-
-const errors = ref<Record<string, IFieldError[]>>({});
-
-function onErrors(newErrors: Record<string, IFieldError[]>) {
-  errors.value = newErrors;
-}
-
-function chapterFieldIds(chapterId: string) {
-  const chapterFieldIds = [];
-  let inChapter = false;
-  const columns = tableMeta.value ? tableMeta.value.columns : [];
-
-  for (const column of columns) {
-    if (column.columnType === "HEADING" && column.id === chapterId) {
-      inChapter = true;
-    } else if (column.columnType === "HEADING" && column.id !== chapterId) {
-      inChapter = false;
-    } else if (inChapter) {
-      chapterFieldIds.push(column.id);
-    }
-  }
-  return chapterFieldIds;
-}
-
-function chapterErrorCount(chapterId: string) {
-  const counted = chapterFieldIds(chapterId).reduce((acc, fieldId) => {
-    return acc + (errors.value[fieldId]?.length ?? 0);
-  }, 0);
-  return counted;
-}
-
-const currentSectionDomId = ref("");
-
-const sections = computed(() => {
-  return tableMeta.value
-    ? tableMeta.value.columns
-        .filter((column: IColumn) => column.columnType == "HEADING")
-        .map((column: IColumn) => {
-          return {
-            label: column.label,
-            domId: column.id,
-            isActive: currentSectionDomId.value.startsWith(column.id),
-            errorCount: chapterErrorCount(column.id),
-          };
-        })
-    : [];
-});
-
-function setUpChapterIsInViewObserver() {
-  if (import.meta.client) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const id = entry.target.getAttribute("id");
-          if (id && entry.intersectionRatio > 0) {
-            currentSectionDomId.value = id;
-          }
-        });
-      },
-      {
-        root: formFields.value?.$el,
-        rootMargin: "0px",
-        threshold: 0.5,
-      }
+const metadata = computed(() => {
+  const tableMetadata = (schemaMeta.value as ISchemaMetaData)?.tables.find(
+    (table) => table.id === tableId.value
+  );
+  if (!tableMetadata) {
+    throw new Error(
+      `Table ${tableId.value} not found in schema ${schemaId.value}`
     );
-
-    document.querySelectorAll("[id$=chapter-title]").forEach((section) => {
-      observer.observe(section);
-    });
   }
-}
-
-onMounted(() => setUpChapterIsInViewObserver());
-
-watch(
-  () => tableMeta.value,
-  async () => {
-    await nextTick();
-    setUpChapterIsInViewObserver();
-  }
-);
+  return tableMetadata;
+});
 
 watch(
   () => schemaId.value,
@@ -148,11 +94,9 @@ watch(
     if (schemaMeta.value) {
       await refresh();
       tableId.value = schemaMeta.value.tables[0].id;
-      useRouter().push({
+      router.push({
         query: {
-          ...useRoute().query,
           schema: schemaId.value,
-          table: tableId.value,
         },
       });
     }
@@ -161,45 +105,92 @@ watch(
 
 watch(
   () => tableId.value,
-  async () => {
-    useRouter().push({
-      query: {
-        ...useRoute().query,
-        schema: schemaId.value,
-        table: tableId.value,
-      },
-    });
-  }
+  async (newTableId, oldTableId) => {
+    if (oldTableId !== newTableId && oldTableId !== undefined) {
+      rowIndex.value = null;
+    }
+    const query: { schema: string; table: string; rowIndex?: number } = {
+      schema: schemaId.value,
+      table: tableId.value,
+    };
+    if (rowIndex.value !== null) {
+      query.rowIndex = rowIndex.value;
+    }
+
+    router.push({ query });
+    getNumberOfRows();
+    formValues.value = {};
+  },
+  { immediate: true }
 );
 
-const fieldsKey = computed(() => `${schemaId.value}-${tableId.value}-fields`);
+watch(
+  () => rowIndex.value,
+  async () => {
+    const query: { schema: string; table: string; rowIndex?: number } = {
+      schema: schemaId.value,
+      table: tableId.value,
+    };
+    if (rowIndex.value !== null) {
+      query.rowIndex = rowIndex.value;
+    }
+    router.push({ query });
+
+    formValues.value = {};
+
+    if (rowIndex.value !== null) {
+      fetchRow(rowIndex.value - 1);
+    }
+  },
+  { immediate: true }
+);
+
+const numberOfFieldsWithErrors = computed(
+  () => Object.values(errorMap.value).filter((error) => error.length > 0).length
+);
+
+const activeChapterId = ref<string>("_scroll_to_top");
+const errorMap = ref<Record<columnId, string>>({});
+
+const sections = useSections(metadata, activeChapterId, errorMap);
+
+function scrollToElementInside(containerId: string, elementId: string) {
+  const container = document.getElementById(containerId);
+  const element = document.getElementById(elementId);
+  if (container && element) {
+    container.scrollTop = element.offsetTop - container.offsetTop;
+    element.scrollIntoView();
+  }
+}
 </script>
 
 <template>
   <div class="flex flex-row">
-    <div id="mock-form-contaner" class="basis-2/3 flex flex-row border">
-      <div class="basis-1/3">
-        <FormLegend
-          v-if="sections && sections.length"
-          class="bg-sidebar-gradient mx-4"
+    <div class="p-8 grow flex flex-row">
+      <Legend
+        v-if="sections?.length"
+        :sections="sections"
+        @goToSection="
+          scrollToElementInside('forms-story-fields-container', $event)
+        "
+        class="pr-2 mr-4"
+      />
+      <div
+        id="forms-story-fields-container"
+        class="grow h-screen overflow-y-scroll border p-10"
+      >
+        <FormFields
+          class="grow"
+          :schemaId="schemaId"
           :sections="sections"
+          :metadata="metadata"
+          v-model:errors="errorMap"
+          v-model="formValues"
+          @update:active-chapter-id="activeChapterId = $event"
         />
       </div>
-
-      <FormFields
-        :key="fieldsKey"
-        v-if="schemaId && tableMeta && status === 'success'"
-        class="basis-2/3 p-8 border-l overflow-y-auto h-screen"
-        ref="formFields"
-        :schemaId="schemaId"
-        :metadata="tableMeta"
-        :data="data"
-        @update:model-value="onModelUpdate"
-        @error="onErrors($event)"
-      />
     </div>
-
-    <div class="basis-1/3 ml-2 h-screen overflow-y-scroll">
+    <div class="ml-2 h-screen">
       <h2>Demo controls, settings and status</h2>
 
       <div class="p-4 border-2 mb-2 flex flex-col gap-4">
@@ -231,15 +222,27 @@ const fieldsKey = computed(() => `${schemaId.value}-${tableId.value}-fields`);
           </select>
         </div>
 
-        <button
-          class="border-gray-900 border-[1px] p-2 bg-gray-200"
-          @click="formFields?.validate"
-        >
-          External Validate
-        </button>
+        <div>
+          This table has {{ numberOfRows }} rows
+          <div class="flex flex-col">
+            <label for="row-select" class="text-title font-bold"
+              >Show row:
+            </label>
+            <select
+              id="row-select"
+              v-model="rowIndex"
+              class="border border-black"
+            >
+              <option :value="null">none</option>
+              <option v-for="index in numberOfRows" :value="index">
+                {{ index }}
+              </option>
+            </select>
+          </div>
+        </div>
 
-        <div class="mt-4 flex flex-row">
-          <div v-if="Object.keys(formValues).length" class="basis-1/2">
+        <div class="mt-4">
+          <div v-if="Object.keys(formValues).length">
             <h3 class="text-label">Values</h3>
             <dl class="flex flex-col">
               <template v-for="(value, key) in formValues">
@@ -250,11 +253,14 @@ const fieldsKey = computed(() => `${schemaId.value}-${tableId.value}-fields`);
               </template>
             </dl>
           </div>
-          <div v-if="Object.keys(errors).length" class="basis-1/2">
+          <div>
+            <div>number of error: {{ numberOfFieldsWithErrors }}</div>
+          </div>
+          <div v-if="Object.keys(errorMap).length">
             <h3 class="text-label">Errors</h3>
 
             <dl class="flex flex-col">
-              <template v-for="(value, key) in errors">
+              <template v-for="(value, key) in errorMap">
                 <dt class="font-bold">{{ key }}:</dt>
                 <dd v-if="value.length" class="ml-1">{{ value }}</dd>
               </template>

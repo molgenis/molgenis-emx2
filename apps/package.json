@@ -11,7 +11,7 @@
     "pages",
     "graphql-playground",
     "tailwind-components",
-    "nuxt3-ssr",
+    "catalogue",
     "molgenis-components",
     "molgenis-viz",
     "cranio-public",
@@ -30,7 +30,8 @@
     "aggregation-dashboard",
     "imdhub-public",
     "emx2-analytics",
-    "ui"
+    "ui",
+    "nestor-public"
   ],
   "scripts": {
     "build:libs": "yarn workspace molgenis-components run build && yarn workspace molgenis-viz run build"

@@ -1,64 +1,47 @@
 <script setup lang="ts">
-import type { ITableDataResponse } from "~/composables/fetchTableData";
+import type { ITableDataResponse } from "../../composables/fetchTableData";
 import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQueryMetaData.ts";
 import type {
-  columnValue,
+  ITableMetaData,
   columnValueObject,
+  recordValue,
 } from "../../../metadata-utils/src/types";
-import type { IValueLabel } from "~/types/types";
-import type { ITableMetaData } from "metadata-utils";
+
+import { type IInputProps, type IValueLabel } from "../../types/types";
+import logger from "../../utils/logger";
+import { fetchTableMetadata } from "#imports";
+import { ref, type Ref, computed, watch } from "vue";
+import fetchTableData from "../../composables/fetchTableData";
 
 const props = withDefaults(
-  defineProps<{
-    id: string;
-    label?: string;
-    refSchemaId: string;
-    refTableId: string;
-    refLabel: string;
-    //todo, replace isArray with type="select"|"radio"|"checkbox"|"multiselect" and also enable this in emx2 metadata model
-    isArray?: boolean;
-    limit?: number;
-    inverted?: boolean;
-    //todo implement use of hasError, valid, disabled states?
-    required?: boolean;
-    valid?: boolean;
-    hasError?: boolean;
-  }>(),
+  defineProps<
+    IInputProps & {
+      refSchemaId: string;
+      refTableId: string;
+      refLabel: string;
+      //todo, replace isArray with type="select"|"radio"|"checkbox"|"multiselect" and also enable this in emx2 metadata model
+      isArray?: boolean;
+      limit?: number;
+    }
+  >(),
   {
     isArray: true,
-    required: false,
-    hasError: false,
     limit: 10,
-    inverted: false,
   }
 );
 
-const modelValue = defineModel<columnValueObject[] | columnValueObject | "">(); //empty string might happen
-const tableMetadata = ref<ITableMetaData>;
+const modelValue = defineModel<columnValueObject[] | columnValueObject>();
+const tableMetadata = ref<ITableMetaData>();
+
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
-const optionMap: Ref<Record<string, columnValueObject>> = ref({});
-const selectionMap: Ref<Record<string, columnValueObject>> = ref({});
+const optionMap: Ref<recordValue> = ref({});
+const selectionMap: Ref<recordValue> = ref({});
 const initialCount = ref<number>(0);
 const count = ref<number>(0);
 const offset = ref<number>(0);
 const showSearch = ref<boolean>(false);
 const searchTerms: Ref<string> = ref("");
 const hasNoResults = ref<boolean>(true);
-defineExpose({ validate });
-
-function validate(value: columnValue) {
-  if (props.required && !value) {
-    const errors = [
-      { message: `${props.label || props.id} required to complete the form` },
-    ];
-    emit("error", errors);
-    return errors;
-  } else {
-    emit("error", []);
-    return [];
-  }
-}
-
 const columnName = computed<string>(() => {
   return props.refLabel.replace(/[\{\}\$]/g, "");
 });
@@ -79,12 +62,12 @@ const selection = computed(() =>
     : (Object.keys(selectionMap.value)[0] as string)
 );
 
-onMounted(async () => {
+async function prepareModel() {
   tableMetadata.value = await fetchTableMetadata(
     props.refSchemaId,
     props.refTableId
   );
-  //first we need to retrieve all selected items so are sure we have all for the template
+
   if (
     modelValue.value && Array.isArray(modelValue.value)
       ? modelValue.value.length > 0
@@ -93,20 +76,54 @@ onMounted(async () => {
     const data: ITableDataResponse = await fetchTableData(
       props.refSchemaId,
       props.refTableId,
-      { filter: { equals: modelValue.value } }
+      { filter: { equals: extractPrimaryKey(modelValue.value) } }
     );
     if (data.rows) {
       hasNoResults.value = false;
-      data.rows?.forEach(
+      data.rows.forEach(
         (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
       );
     }
   }
 
-  //then we load the options for the first time
   await loadOptions({ limit: props.limit });
   initialCount.value = count.value;
-});
+}
+
+watch(
+  () => props.refSchemaId,
+  () => prepareModel
+);
+watch(
+  () => props.refTableId,
+  () => prepareModel
+);
+
+// the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
+// todo: move the options fetch to the outside of the component and pass it as a (synchronous) prop
+watch(
+  () => modelValue.value,
+  () => {
+    if (props.isArray === false) {
+      delete selectionMap.value[Object.keys(selectionMap.value)[0]];
+      if (modelValue.value) {
+        selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
+          modelValue.value;
+      }
+    } else {
+      selectionMap.value = {};
+      if (
+        modelValue.value &&
+        Array.isArray(modelValue.value) &&
+        modelValue.value.length > 0
+      ) {
+        modelValue.value.forEach((value) => {
+          selectionMap.value[applyTemplate(props.refLabel, value)] = value;
+        });
+      }
+    }
+  }
+);
 
 function applyTemplate(template: string, row: Record<string, any>): string {
   const ids = Object.keys(row);
@@ -123,6 +140,8 @@ async function loadOptions(filter: IQueryMetaData) {
     filter
   );
 
+  optionMap.value = {};
+
   if (data.rows) {
     hasNoResults.value = false;
     data.rows.forEach(
@@ -132,6 +151,7 @@ async function loadOptions(filter: IQueryMetaData) {
   } else {
     hasNoResults.value = true;
   }
+  logger.debug("loaded options for " + props.id);
 }
 
 function toggleSearch() {
@@ -147,7 +167,6 @@ function updateSearch(newSearchTerms: string) {
 }
 
 function select(label: string) {
-  console.log("select " + label);
   if (!props.isArray) {
     selectionMap.value = {};
   }
@@ -164,7 +183,7 @@ function select(label: string) {
 
 function extractPrimaryKey(value: any) {
   const result = {} as columnValueObject;
-  tableMetadata.value.columns
+  tableMetadata.value?.columns
     .filter((column) => column.key === 1)
     .forEach((column) => {
       result[column.id] = value[column.id];
@@ -198,75 +217,73 @@ function loadMore() {
     searchTerms: searchTerms.value,
   });
 }
+
+prepareModel();
 </script>
 
 <template>
-  <div
-    class="flex flex-wrap gap-2 mb-2"
-    v-if="isArray ? selection.length : selection"
-  >
-    <Button
-      v-for="label in isArray ? selection : [selection]"
-      icon="cross"
-      iconPosition="right"
-      type="filterWell"
-      size="tiny"
-      @click="deselect(label as string)"
+  <InputGroupContainer @focus="emit('focus')" @blur="emit('blur')">
+    <div
+      class="flex flex-wrap gap-2 mb-2"
+      v-if="isArray ? selection.length : selection"
     >
-      {{ label }}
-    </Button>
-  </div>
-  <div class="flex flex-wrap gap-2 mb-2">
-    <ButtonText
-      @click="toggleSearch"
-      :inverted="inverted"
-      :aria-controls="`search-for-${id}`"
-    >
-      Search
-    </ButtonText>
-    <ButtonText @click="clearSelection" :inverted="inverted">
-      Clear all
-    </ButtonText>
-  </div>
-  <template v-if="showSearch && initialCount > limit">
-    <InputLabel :for="`search-for-${id}`" class="sr-only">
-      search in {{ columnName }}
-    </InputLabel>
-    <InputSearch
-      :id="`search-for-${id}`"
-      :modelValue="searchTerms"
-      @update:modelValue="updateSearch"
-      class="mb-2"
-      :placeholder="`Search in ${columnName}`"
-      :aria-hidden="!showSearch"
-    />
-  </template>
-  <template v-if="!hasNoResults">
-    <InputCheckboxGroup
-      v-if="isArray"
-      :id="id"
-      :options="listOptions"
-      :modelValue="(selection as string[])"
-      @select="select"
-      @deselect="deselect"
-      :inverted="inverted"
-    />
-    <InputRadioGroup
-      v-else
-      :id="id"
-      :options="listOptions"
-      :modelValue="(selection as string)"
-      @select="select"
-      @deselect="deselect"
-      :inverted="inverted"
-    />
-    <ButtonText
-      @click="loadMore"
-      v-if="offset + limit < count"
-      :inverted="inverted"
-    >
-      load {{ entitiesLeftToLoad }} more
-    </ButtonText>
-  </template>
-  <ButtonText v-else>No results found</ButtonText>
+      <Button
+        v-for="label in isArray ? selection : [selection]"
+        icon="cross"
+        iconPosition="right"
+        type="filterWell"
+        size="tiny"
+        @click="deselect(label as string)"
+      >
+        {{ label }}
+      </Button>
+    </div>
+    <div class="flex flex-wrap gap-2 mb-2">
+      <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
+        Search
+      </ButtonText>
+      <ButtonText @click="clearSelection"> Clear all </ButtonText>
+    </div>
+    <template v-if="showSearch && initialCount > limit">
+      <InputLabel :for="`search-for-${id}`" class="sr-only">
+        search in {{ columnName }}
+      </InputLabel>
+      <InputSearch
+        :id="`search-for-${id}`"
+        :modelValue="searchTerms"
+        @update:modelValue="updateSearch"
+        class="mb-2"
+        :placeholder="`Search in ${columnName}`"
+        :aria-hidden="!showSearch"
+      />
+    </template>
+    <template v-if="!hasNoResults">
+      <InputCheckboxGroup
+        v-if="isArray"
+        :id="id"
+        :options="listOptions"
+        :modelValue="(selection as string[])"
+        @select="select"
+        @deselect="deselect"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
+      />
+      <InputRadioGroup
+        v-else
+        :id="id"
+        :options="listOptions"
+        :modelValue="(selection as string)"
+        @select="select"
+        @deselect="deselect"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
+      />
+      <ButtonText @click="loadMore" v-if="offset + limit < count">
+        load {{ entitiesLeftToLoad }} more
+      </ButtonText>
+    </template>
+    <ButtonText v-else>No results found</ButtonText>
+  </InputGroupContainer>
 </template>

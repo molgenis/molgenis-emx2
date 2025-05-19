@@ -4,7 +4,10 @@ description: "The \"Set of common data elements for Rare Diseases Registration\"
 
 profileTags: JRC-CDE
 
-demoData: _demodata/shared-examples
+demoData: _demodata/applications/patient_registry
 
 # special options
 setViewPermission: anonymous
+
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous

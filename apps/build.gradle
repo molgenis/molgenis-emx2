@@ -69,6 +69,7 @@ subprojects { subproject ->
         (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
             dependsOn ":apps:${match[1]}:buildJavascript";
         }
+
         //run the build
         def command =   packageJson.contains("\"name\": \"ui\"") ? "generate" : "build"
         args = ['run', command]
@@ -84,6 +85,20 @@ subprojects { subproject ->
             with excludeDef
         }
     }
+
+    task lint(type: YarnTask, dependsOn: buildJavascript) {
+        if (
+                packageJson.contains("\"name\": \"tailwind-components\"") ||
+                        packageJson.contains("\"name\": \"ui\"") ||
+                        packageJson.contains("\"name\": \"catalogue\"")
+        ) {
+            args = ['run', 'lint']
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+        }
+    }
+
     parent.tasks.processResources.dependsOn buildJavascript
 
     task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {

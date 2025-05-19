@@ -10,11 +10,12 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from "vue";
 import type { IFormLegendSection } from "../../metadata-utils/src/types";
 
-function handleGoToRequest(section: IFormLegendSection) {
+function handleGoToRequest(id: string) {
   sections.value.forEach((s) => {
-    if (s.domId === section.domId) {
+    if (s.id === id) {
       s.isActive = true;
     } else {
       s.isActive = false;
@@ -25,26 +26,34 @@ function handleGoToRequest(section: IFormLegendSection) {
 const sections = ref<IFormLegendSection[]>([
   {
     label: "Overview",
-    domId: "overview",
+    id: "overview",
     isActive: true,
     errorCount: 1,
   },
   {
     label: "Population",
-    domId: "population",
+    id: "population",
     errorCount: 2,
   },
   {
     label: "Contents",
-    domId: "contents",
+    id: "contents",
+    errorCount: 0,
   },
   {
     label: "Access",
-    domId: "access",
+    id: "access",
+    errorCount: 0,
+  },
+  {
+    label: "Registration",
+    id: "data-registration",
+    errorCount: 16,
   },
   {
     label: "Information",
-    domId: "information",
+    id: "information",
+    errorCount: 0,
   },
 ]);
 </script>

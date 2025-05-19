@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import type { ITreeNodeState } from "~/types/types";
+import type { ITreeNodeState } from "../../types/types";
 import BaseIcon from "../BaseIcon.vue";
 import CustomTooltip from "../CustomTooltip.vue";
 
 const props = withDefaults(
   defineProps<{
+    id: string;
     nodes: ITreeNodeState[];
     inverted?: boolean;
     isRoot: boolean;
+    valid?: boolean;
+    invalid?: boolean;
+    disabled?: boolean;
   }>(),
   {
     inverted: false,
@@ -16,12 +20,12 @@ const props = withDefaults(
 );
 const emit = defineEmits(["toggleSelect", "toggleExpand"]);
 
-function toggleSelect(name: string) {
-  emit("toggleSelect", name);
+function toggleSelect(node: ITreeNodeState) {
+  emit("toggleSelect", node);
 }
 
-function toggleExpand(name: string) {
-  emit("toggleExpand", name);
+function toggleExpand(node: ITreeNodeState) {
+  emit("toggleExpand", node);
 }
 </script>
 
@@ -35,19 +39,20 @@ function toggleExpand(name: string) {
   >
     <li
       v-for="node in nodes.filter((node2) => node2.visible === true)"
-      :key="node.name"
+      :key="id + node.name"
       class="mt-2.5 relative"
     >
       <div class="flex items-center">
         <button
           v-if="node.children?.length"
-          @click.stop="toggleExpand(node.name)"
+          @click.stop="toggleExpand(node)"
           class="-left-[11px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
-          :class="[
-            inverted
-              ? 'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted'
-              : 'text-search-filter-group-toggle hover:bg-search-filter-group-toggle',
-          ]"
+          :class="{
+            'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted':
+              inverted,
+            'text-button-tree-node-toggle hover:bg-button-tree-node-toggle hover:text-button-tree-node-toggle-hover':
+              !inverted,
+          }"
           :aria-expanded="node.expanded"
           :aria-controls="node.name"
         >
@@ -77,35 +82,62 @@ function toggleExpand(name: string) {
           v-if="node.selectable"
           type="checkbox"
           :indeterminate="node.selected === 'intermediate'"
-          :id="node.name"
+          :id="id + '-' + node.name + '-input'"
           :name="node.name"
           :checked="node.selected === 'selected'"
-          @click.stop="toggleSelect(node.name)"
+          @click.stop="toggleSelect(node)"
           class="sr-only"
         />
         <InputLabel
-          :for="node.name"
-          class="flex justify-center items-start hover:cursor-pointer"
+          :for="id + '-' + node.name + '-input'"
+          class="flex justify-center items-start"
+          :class="{
+            'text-disabled cursor-not-allowed': disabled,
+            'text-title cursor-pointer ': !disabled,
+          }"
         >
           <InputCheckboxIcon
             v-if="node.selectable"
             :indeterminate="node.selected === 'intermediate'"
             :checked="node.selected === 'selected'"
-            class="w-[20px] ml-[-6px]"
+            class="ml-[-6px] min-w-[20px]"
             :class="{
               '[&>rect]:stroke-gray-400': inverted,
             }"
+            :invalid="invalid"
+            :valid="valid"
+            :disabled="disabled"
           />
-          <span
-            :class="{ 'w-[calc(100%-20px)]': node.selectable }"
-            class="block text-body-sm leading-normal"
-            >{{ node.name }}</span
+          <span class="block text-body-sm leading-normal"
+            >{{ node.label || node.name }}
+            <template
+              v-if="node.code || (node.label && node.label !== node.name)"
+              >(<a
+                v-if="node.uri"
+                :href="node.uri"
+                target="_blank"
+                class="underline"
+                >{{
+                  node.codesystem
+                    ? `${node.codesystem}:${node.code}`
+                    : node.code || node.name
+                }}</a
+              ><template v-else
+                >{{
+                  node.codesystem
+                    ? `${node.codesystem}:${node.code}`
+                    : node.code || node.name
+                }})</template
+              >)</template
+            ></span
           >
         </InputLabel>
-        <div class="inline-flex items-center whitespace-nowrap">
+        <div
+          class="inline-flex items-center whitespace-nowrap"
+          v-if="node.description"
+        >
           <div class="inline-block pl-1">
             <CustomTooltip
-              v-if="node.description"
               label="Read more"
               :hoverColor="inverted ? 'none' : 'white'"
               :content="node.description"
@@ -114,14 +146,55 @@ function toggleExpand(name: string) {
         </div>
       </div>
       <TreeNode
+        :id="id"
         v-if="node.children?.length && node.expanded"
         class="ml-[31px]"
         :nodes="node.children"
         :isRoot="false"
         :inverted="inverted"
+        :invalid="invalid"
+        :valid="valid"
+        :disabled="disabled"
         @toggleSelect="toggleSelect"
         @toggleExpand="toggleExpand"
       />
+    </li>
+    <li
+      v-if="nodes.some((child) => child.visible === false)"
+      class="mt-2.5 relative"
+    >
+      <div class="flex items-center">
+        <template v-if="!isRoot">
+          <BaseIcon
+            name="collapsible-list-item"
+            :width="20"
+            class="text-blue-200 absolute -top-[9px]"
+          />
+        </template>
+        <span class="text-body-sm italic ml-6"
+          >{{
+            nodes.filter((child) => child.visible === false).length
+          }}
+          option{{
+            nodes.filter((child) => child.visible === false).length > 1
+              ? "s"
+              : ""
+          }}
+          outside search
+          {{
+            nodes.some((node) => node.selected === "selected")
+              ? " including " +
+                nodes.filter((node) => node.selected === "selected").length +
+                " selected"
+              : ""
+          }}</span
+        >
+        <ButtonText
+          class="ml-2"
+          @click="nodes.forEach((node) => (node.visible = true))"
+          >(show)</ButtonText
+        >
+      </div>
     </li>
   </ul>
 </template>
