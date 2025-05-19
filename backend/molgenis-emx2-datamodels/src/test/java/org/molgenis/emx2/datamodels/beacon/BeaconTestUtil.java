@@ -20,7 +20,7 @@ public class BeaconTestUtil {
   public static final String SCHEMA_NAME = "patientRegistryTest";
   public static final String TEST_URL = "http://localhost:8080/" + SCHEMA_NAME + "/api/";
 
-  static Context mockEntryTypeRequest(
+  public static Context mockEntryTypeRequest(
       String entryType, Map<String, List<String>> queryParams, BeaconSpec spec) {
     Context request = mock(Context.class);
     String url = TEST_URL + spec.getPath();
@@ -39,13 +39,24 @@ public class BeaconTestUtil {
     return mockEntryTypeRequest(entryType, queryParams, BEACON_V2);
   }
 
-  static Context mockEntryRequestVp(String entryType, Map<String, List<String>> queryParams) {
+  public static Context mockEntryRequestVp(
+      String entryType, Map<String, List<String>> queryParams) {
     return mockEntryTypeRequest(entryType, queryParams, BEACON_VP);
   }
 
   public static BeaconRequestBody mockIndividualsPostRequestVp(String body)
       throws JsonProcessingException {
     Context request = mockEntryRequestVp(EntryType.INDIVIDUALS.getId(), new HashMap<>());
+    ObjectMapper mapper = new ObjectMapper();
+    BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
+    beaconRequest.addRequestParameters(request);
+
+    return beaconRequest;
+  }
+
+  public static BeaconRequestBody mockIndividualsPostRequestRegular(String body)
+      throws JsonProcessingException {
+    Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     ObjectMapper mapper = new ObjectMapper();
     BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
     beaconRequest.addRequestParameters(request);
