@@ -10,6 +10,7 @@ import java.util.List;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.molgenis.emx2.Column;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
@@ -59,29 +60,22 @@ public abstract class RdfWriter implements Closeable {
     return triples;
   }
 
-  /** Describe the MOLGENIS instance as a whole. */
-  public abstract void writeRoot();
-
-  /** Writes RDF belonging to the table itself (so NOT the individual rows!) */
-  public abstract void writeTable(Table table);
+  /** Writes EMX2 Database */
+  public abstract void write(Database database);
 
   /**
-   * Writes all {@link Table}{@code s} in a {@link Schema).
+   * Writes a {@link Schema).
    */
-  public abstract void writeRows(Schema schema, boolean includeOntologies);
+  public abstract void write(Schema schema);
 
-  public void writeRows(Schema schema) {
-    writeRows(schema, false);
-  }
-
-  /** Writes all {@link Row}{@code s} in a {@link Table} */
-  public abstract void writeRows(Table table);
+  /** Writes a {@link Table} */
+  public abstract void write(Table table);
 
   /**
-   * Writes an individual {@link Row} from a {@link Table}.
+   * Writes a {@link Row} belonging to a {@link Table}.
    */
-  public abstract void writeRows(Table table, Row row);
+  public abstract void write(Table table, Row row);
 
-  /** Writes a single cell ({@link Column} of {@link Row} belonging to a {@link Table}) */
-  public abstract void writeCell(Table table, Row row, Column column);
+  /** Writes a cell ({@link Column} of {@link Row} belonging to a {@link Table}) */
+  public abstract void write(Table table, Row row, Column column);
 }
