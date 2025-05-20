@@ -36,6 +36,8 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.WriterConfig;
+import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -224,6 +226,8 @@ public class RdfStreamTest {
   }
 
   private static Long processWithRdf4jBuilder(OutputStream out) {
+    WriterConfig config = new WriterConfig();
+    config.set(BasicWriterSettings.PRETTY_PRINT, false);
     ModelBuilder builder = new ModelBuilder();
     for (Row row : table.query().retrieveRows()) {
       final IRI subject = rowIRI(baseURL, table, row);
@@ -240,12 +244,14 @@ public class RdfStreamTest {
 
     Model model = builder.build();
     Long memoryUsed = RdfStreamTest.currentMemoryUsed();
-    Rio.write(model, out, RDFFormat.TURTLE);
+    Rio.write(model, out, RDFFormat.TURTLE, config);
     return memoryUsed;
   }
 
   private static Long processWithRdf4jWriter(OutputStream out) {
     RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, out);
+    WriterConfig config = writer.getWriterConfig();
+    config.set(BasicWriterSettings.PRETTY_PRINT, false);
     SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
     writer.startRDF();
