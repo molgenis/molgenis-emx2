@@ -99,7 +99,8 @@ public abstract class RdfUtils {
     return namespaces;
   }
 
-  public static Map<String, Namespace> getCustomPrefixesOrDefault(Schema schema) throws IOException {
+  public static Map<String, Namespace> getCustomPrefixesOrDefault(Schema schema)
+      throws IOException {
     Map<String, Namespace> namespaces = getCustomPrefixes(schema);
     return (namespaces == null ? DEFAULT_NAMESPACES_MAP : namespaces);
   }
@@ -108,7 +109,7 @@ public abstract class RdfUtils {
    * @param namespaces Schema name -> Namespace prefix -> Namespace
    */
   public static IRI getSemanticValue(
-          TableMetadata table, final Map<String, Map<String, Namespace>> namespaces, String semantic) {
+      TableMetadata table, final Map<String, Map<String, Namespace>> namespaces, String semantic) {
     return getSemanticValue(namespaces.get(table.getSchema().getName()), semantic);
   }
 
