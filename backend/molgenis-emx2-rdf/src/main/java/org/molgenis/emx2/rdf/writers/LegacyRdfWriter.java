@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2.rdf.writers;
 
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
@@ -32,6 +32,11 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.rdf.BasicIRI;
+import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
+import org.molgenis.emx2.rdf.OntologyIriMapper;
+import org.molgenis.emx2.rdf.PrimaryKey;
+import org.molgenis.emx2.rdf.RdfMapData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +55,8 @@ import org.slf4j.LoggerFactory;
  *   <li>OWL, RDF, RDFS
  * </ul>
  */
-public class RDFService {
-  private static final Logger logger = LoggerFactory.getLogger(RDFService.class);
+public class LegacyRdfWriter {
+  private static final Logger logger = LoggerFactory.getLogger(LegacyRdfWriter.class);
 
   private static final DateTimeFormatter dateTimeFormatter =
       DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
@@ -73,7 +78,7 @@ public class RDFService {
    * @param baseURL the base URL of the MOLGENIS installation
    * @param format the requested RDF document type
    */
-  public RDFService(final String baseURL, final RDFFormat format) {
+  public LegacyRdfWriter(final String baseURL, final RDFFormat format) {
     // REST API URL (and therefore `dcat:endpointURL`) should not have trailing slash
     this.baseURL = formatBaseURL(baseURL);
     this.rdfFormat = format == null ? RDFFormat.TURTLE : format;

@@ -19,7 +19,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.rdf.writers.LegacyRdfWriter;
 
 public class RDFApi {
   public static final String FORMAT = "format";
@@ -85,7 +85,7 @@ public class RDFApi {
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
 
-    final RDFService rdf = new RDFService(extractBaseURL(ctx), format);
+    final LegacyRdfWriter rdf = new LegacyRdfWriter(extractBaseURL(ctx), format);
     ctx.contentType(rdf.getMimeType());
     OutputStream outputStream = ctx.outputStream();
     db.tx(
@@ -133,7 +133,7 @@ public class RDFApi {
       final String columnName,
       final Schema... schemas)
       throws IOException {
-    RDFService rdf = new RDFService(extractBaseURL(ctx), selectFormat(ctx, format));
+    LegacyRdfWriter rdf = new LegacyRdfWriter(extractBaseURL(ctx), selectFormat(ctx, format));
     ctx.contentType(rdf.getMimeType());
 
     OutputStream outputStream = ctx.outputStream();

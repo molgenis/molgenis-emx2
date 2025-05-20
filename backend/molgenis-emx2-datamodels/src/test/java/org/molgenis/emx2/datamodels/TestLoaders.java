@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.rdf.writers.LegacyRdfWriter;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -61,7 +61,7 @@ public class TestLoaders {
 
     // create rdf in memory
     OutputStream outputStream = new ByteArrayOutputStream();
-    var rdf = new RDFService("http://localhost:8080", null);
+    var rdf = new LegacyRdfWriter("http://localhost:8080", null);
     rdf.describeAsRDF(outputStream, null, null, null, dataCatalogue);
 
     // check compliance

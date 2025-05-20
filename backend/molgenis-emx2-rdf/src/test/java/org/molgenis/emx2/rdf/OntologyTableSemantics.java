@@ -14,6 +14,7 @@ import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
+import org.molgenis.emx2.rdf.writers.LegacyRdfWriter;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class OntologyTableSemantics {
@@ -33,7 +34,7 @@ public class OntologyTableSemantics {
   @Test
   void OntologyTableSemanticsTest() {
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService rdf = new RDFService("http://localhost:8080", null);
+    LegacyRdfWriter rdf = new LegacyRdfWriter("http://localhost:8080", null);
     rdf.describeAsRDF(outputStream, petStoreSchema.getTable("Tag"), null, null, petStoreSchema);
     String result = outputStream.toString();
 

@@ -26,7 +26,7 @@ import org.molgenis.emx2.TableMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class RdfUtils {
+public abstract class RdfUtils {
   private static final Logger logger = LoggerFactory.getLogger(RdfUtils.class);
 
   // Advanced setting containing valid Turtle-formatted RDF.
@@ -49,17 +49,17 @@ abstract class RdfUtils {
    * @param schema the schema
    * @return A namespace that defines a local unique prefix for this schema.
    */
-  static Namespace getSchemaNamespace(final String baseURL, final SchemaMetadata schema) {
+  public static Namespace getSchemaNamespace(final String baseURL, final SchemaMetadata schema) {
     final String prefix = schema.getIdentifier();
     final String url = schemaIRI(baseURL, schema).stringValue() + "/";
     return Values.namespace(prefix, url);
   }
 
-  static Namespace getSchemaNamespace(final String baseURL, final Schema schema) {
+  public static Namespace getSchemaNamespace(final String baseURL, final Schema schema) {
     return getSchemaNamespace(baseURL, schema.getMetadata());
   }
 
-  static Model getCustomRdf(Schema schema) throws IOException {
+  public static Model getCustomRdf(Schema schema) throws IOException {
     if (schema.hasSetting(SETTING_CUSTOM_RDF)) {
       return Rio.parse(
           IOUtils.toInputStream(schema.getSettingValue(SETTING_CUSTOM_RDF), StandardCharsets.UTF_8),
@@ -68,7 +68,7 @@ abstract class RdfUtils {
     return null;
   }
 
-  static Map<String, Namespace> getCustomPrefixes(Schema schema) throws IOException {
+  public static Map<String, Namespace> getCustomPrefixes(Schema schema) throws IOException {
     if (!schema.hasSetting(SETTING_SEMANTIC_PREFIXES)) {
       return null;
     }
@@ -99,7 +99,7 @@ abstract class RdfUtils {
     return namespaces;
   }
 
-  static Map<String, Namespace> getCustomPrefixesOrDefault(Schema schema) throws IOException {
+  public static Map<String, Namespace> getCustomPrefixesOrDefault(Schema schema) throws IOException {
     Map<String, Namespace> namespaces = getCustomPrefixes(schema);
     return (namespaces == null ? DEFAULT_NAMESPACES_MAP : namespaces);
   }
@@ -107,15 +107,15 @@ abstract class RdfUtils {
   /**
    * @param namespaces Schema name -> Namespace prefix -> Namespace
    */
-  static IRI getSemanticValue(
-      TableMetadata table, final Map<String, Map<String, Namespace>> namespaces, String semantic) {
+  public static IRI getSemanticValue(
+          TableMetadata table, final Map<String, Map<String, Namespace>> namespaces, String semantic) {
     return getSemanticValue(namespaces.get(table.getSchema().getName()), semantic);
   }
 
   /**
    * @param namespaces Namespace prefix -> Namespace
    */
-  static IRI getSemanticValue(final Map<String, Namespace> namespaces, String semantic) {
+  public static IRI getSemanticValue(final Map<String, Namespace> namespaces, String semantic) {
     String[] semanticSplit = semantic.split(":", 2);
     if (semanticSplit.length == 1) { // If @base is supported, might need to be changed.
       throw new MolgenisException("Invalid semantics (missing \":\"): " + semantic);
