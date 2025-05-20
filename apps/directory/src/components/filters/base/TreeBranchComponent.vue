@@ -60,19 +60,24 @@ const childIsIndeterminate = ref<boolean>(false);
 
 const selectedFilters = computed<any[]>(() => {
   const filters = filtersStore.getFilterValue(facetIdentifier.value) || [];
-  // console.log(filters);
+  console.log(filters);
   return filters;
 });
 
 const selected = computed(() => {
-  if (numberOfSelectedChildren.value === option.value.children?.length) {
-    return true;
-  } else if (!selectedFilters.value?.length) {
+  if (!selectedFilters.value?.length) {
     return false;
+  } else if (option.value.children?.length) {
+    if (numberOfSelectedChildren.value === option.value.children.length) {
+      if (!isSelected(option.value)) {
+        selectOption(true, option.value);
+      }
+      return true;
+    } else {
+      return false;
+    }
   } else {
-    return selectedFilters.value.some(
-      (selectedValue: IOntologyItem) => selectedValue.name === option.value.name
-    );
+    return isSelected(option.value);
   }
 });
 
@@ -86,23 +91,25 @@ const numberOfSelectedChildren = computed(() => {
   }
 });
 
+const isIndeterminate = computed<boolean>(() => {
+  if (!option.value.children) {
+    return false;
+  } else if (childIsIndeterminate.value) {
+    return true;
+  } else {
+    return (
+      numberOfSelectedChildren.value > 0 &&
+      numberOfSelectedChildren.value < option.value.children.length
+    );
+  }
+});
+
+watch(isIndeterminate, emitIndeterminateStatus);
+watch(filter, (newFilter: string) => (open.value = !!newFilter));
+
 function isSelected(option: IOntologyItem) {
   return selectedFilters.value.some((filter) => filter.name === option.name);
 }
-
-const isIndeterminate = computed<boolean>(() => {
-  // if (selected.value) return false;
-  if (!option.value.children) return false;
-  if (childIsIndeterminate.value) return true;
-
-  return (
-    numberOfSelectedChildren.value > 0 &&
-    numberOfSelectedChildren.value <= option.value.children.length
-  );
-});
-
-watch(isIndeterminate, signalParentOurIndeterminateStatus);
-watch(filter, (newFilter: string) => (open.value = !!newFilter));
 
 function selectOption(checked: boolean, option: IOntologyItem) {
   filtersStore.updateOntologyFilter(facetIdentifier.value, option, checked);
@@ -112,7 +119,7 @@ function handleChildIndeterminateUpdate(newStatus: boolean) {
   childIsIndeterminate.value = newStatus;
 }
 
-function signalParentOurIndeterminateStatus() {
+function emitIndeterminateStatus() {
   emit("indeterminate-update", isIndeterminate.value);
 }
 </script>

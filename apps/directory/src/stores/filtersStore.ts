@@ -171,7 +171,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     bookmarkTriggeredFilter.value = fromBookmark;
 
     const childValues = flattenOntologyBranch(value);
-    const processedValues = _.uniqBy(childValues, "code");
+    const processedValues = _.uniqBy([value, ...childValues], "code");
 
     if (add) {
       addOntologyOptions(filterName, processedValues);
@@ -180,13 +180,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
-  function addOntologyOptions(filterName: string, value: IOntologyItem[]) {
+  function addOntologyOptions(filterName: string, options: IOntologyItem[]) {
     const diagnosisAvailableCount =
       filters.value.Diagnosisavailable?.length || 0;
     const limit = 50;
     const slotsRemaining = limit - diagnosisAvailableCount;
 
-    let ontologySet = value;
+    let ontologySet = options;
     if (getFilterType(DIAGNOSIS_AVAILABLE) === "all") {
       ontologySet = ontologySet.slice(0, slotsRemaining);
     }
@@ -248,19 +248,30 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return ontologyResults;
   }
 
-  function removeOntologyOptions(filterName: string, value: IOntologyItem[]) {
-    /** can't remove an option which is not present. Jobs done. */
+  function removeOntologyOptions(filterName: string, values: IOntologyItem[]) {
     if (!filters.value[filterName]) return;
 
-    const valuesToRemove = value.map((value) => value.name);
+    const valuesToRemove = getValuesToRemove(values);
 
     filters.value[filterName] = filters.value[filterName].filter(
       (option: IOntologyItem) => !valuesToRemove.includes(option.name)
     );
 
-    /** everything is deselected, remove the filter entirely */
-    if (filters.value[filterName].length === 0)
+    if (filters.value[filterName].length === 0) {
       delete filters.value[filterName];
+    }
+  }
+
+  function getValuesToRemove(values: IOntologyItem[]) {
+    return values.reduce((accum: string[], value) => {
+      accum.push(value.name);
+      if (value.parent) {
+        value.parent.forEach((parent) => {
+          accum.push(parent.name);
+        });
+      }
+      return accum;
+    }, []);
   }
 
   function clearAllFilters() {
@@ -305,16 +316,18 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return filters.value[filterName];
   }
 
-  function updateFilterType(filterName: string, value: any, fromBookmark: any) {
+  function updateFilterType(
+    filterName: string,
+    value: any,
+    fromBookmark: boolean
+  ) {
     if (
       filterName === DIAGNOSIS_AVAILABLE &&
       (filterType.value[filterName] === "any" ||
         filterType.value[filterName] === undefined) &&
-      filters.value[DIAGNOSIS_AVAILABLE]?.length > 50
+      filters.value[filterName]?.length > 50
     ) {
-      filters.value[DIAGNOSIS_AVAILABLE] = filters.value[
-        DIAGNOSIS_AVAILABLE
-      ].slice(0, 50);
+      filters.value[filterName] = filters.value[filterName].slice(0, 50);
     }
 
     bookmarkTriggeredFilter.value = fromBookmark;
@@ -351,33 +364,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     bookmarkTriggeredFilter.value = false;
   }
 
-  /**
-   * returns for given input: ([11], 5): [[5],[5],[1]]
-   */
-  function convertArrayToChunks(fullArray: any[], chunkSize = 100) {
-    let chunkArray = [];
-    const arrayLength = fullArray.length;
-
-    let chunk = [];
-    if (fullArray.length > 20) {
-      for (let index = 0; index < arrayLength; index++) {
-        chunk.push(fullArray[index]);
-        if (chunk.length === chunkSize) {
-          chunkArray.push(chunk);
-          chunk = [];
-        }
-      }
-      if (chunk.length) {
-        chunkArray.push(chunk);
-        chunk = [];
-      }
-    } else {
-      chunkArray = [fullArray];
-    }
-
-    return chunkArray;
-  }
-
   return {
     checkOntologyDescendantsIfMatches,
     clearAllFilters,
@@ -401,3 +387,30 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     hasActiveBiobankOnlyFilters,
   };
 });
+
+/**
+ * returns for given input: ([11], 5): [[5],[5],[1]]
+ */
+function convertArrayToChunks(fullArray: any[], chunkSize = 100) {
+  let chunkArray = [];
+  const arrayLength = fullArray.length;
+
+  let chunk = [];
+  if (fullArray.length > 20) {
+    for (let index = 0; index < arrayLength; index++) {
+      chunk.push(fullArray[index]);
+      if (chunk.length === chunkSize) {
+        chunkArray.push(chunk);
+        chunk = [];
+      }
+    }
+    if (chunk.length) {
+      chunkArray.push(chunk);
+      chunk = [];
+    }
+  } else {
+    chunkArray = [fullArray];
+  }
+
+  return chunkArray;
+}
