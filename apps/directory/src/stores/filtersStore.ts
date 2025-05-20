@@ -379,14 +379,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     bookmarkTriggeredFilter.value = false;
   }
 
-  function isDiseaseSelected(diseaseName: string): boolean {
-    return !!selectedDiseases.value[diseaseName];
-  }
-
-  function isDiseaseIndeterminate(diseaseName: string): boolean {
-    return !!indeterminateDiseases.value[diseaseName];
-  }
-
   function setDiseaseIndeterminate(diseaseName: string, value: boolean): void {
     indeterminateDiseases.value[diseaseName] = value;
   }
@@ -399,12 +391,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     getOntologyOptionsForCodes,
     getValuePropertyForFacet,
     ontologyItemMatchesQuery,
+    setDiseaseIndeterminate,
     updateFilter,
     updateFilterType,
     updateOntologyFilter,
-    isDiseaseSelected,
-    isDiseaseIndeterminate,
-    setDiseaseIndeterminate,
     bookmarkWaitingForApplication,
     facetDetails,
     filterFacets,
