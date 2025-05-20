@@ -40,7 +40,6 @@ import { useFiltersStore } from "../../../stores/filtersStore";
 const TreeComponent = defineAsyncComponent(() => import("./TreeComponent.vue"));
 
 const filtersStore = useFiltersStore();
-const emit = defineEmits(["indeterminate-update"]);
 
 const props = withDefaults(
   defineProps<{
@@ -102,10 +101,6 @@ function lessThenAllChildrenSelected(): boolean {
     numberOfSelectedChildren.value > 0 &&
     numberOfSelectedChildren.value < (option.value.children?.length ?? Infinity)
   );
-}
-
-function isOntologySelected(option: IOntologyItem) {
-  return selectedDiseases.value[option.name];
 }
 
 function selectOption(checked: boolean, option: IOntologyItem) {
