@@ -1,4 +1,4 @@
-package org.molgenis.emx2.beaconv2.vp;
+package org.molgenis.emx2.datamodels.beacon.vp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

@@ -1,4 +1,4 @@
-package org.molgenis.emx2.beaconv2;
+package org.molgenis.emx2.datamodels.beacon;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -14,8 +14,9 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.EntryTypes;
 
+@Disabled
 @Tag("slow")
-public class Beaconv2_EntryTypesTest {
+public class BeaconEntryTypesTest {
 
   private Context mockRequest() {
     Context request = mock(Context.class);
@@ -26,7 +27,6 @@ public class Beaconv2_EntryTypesTest {
   }
 
   @Test
-  @Disabled
   public void testEntryTypes() throws JsonProcessingException {
     Context context = mockRequest();
     EntryTypes entryTypes = new EntryTypes();

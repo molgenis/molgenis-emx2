@@ -1,4 +1,4 @@
-package org.molgenis.emx2.beaconv2;
+package org.molgenis.emx2.datamodels.beacon;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -9,7 +9,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.Configuration;
 
-public class Beaconv2_ConfigurationTest {
+@Disabled
+public class BeaconConfigurationTest {
 
   private Context mockRequest() {
     Context request = mock(Context.class);
@@ -20,7 +21,6 @@ public class Beaconv2_ConfigurationTest {
   }
 
   @Test
-  @Disabled
   public void testConfiguration() throws Exception {
     Configuration configuration = new Configuration();
 

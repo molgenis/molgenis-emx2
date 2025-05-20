@@ -1,4 +1,4 @@
-package org.molgenis.emx2.beaconv2.entrytypes;
+package org.molgenis.emx2.datamodels.beacon.entrytypes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -13,9 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
+import org.molgenis.emx2.datamodels.PatientRegistryTest;
 
 @Disabled
-public class BeaconRunsTests extends BeaconModelEndPointTest {
+public class BeaconRunsTests extends PatientRegistryTest {
 
   @Test
   public void testRunsOfIndividual_pathQuery_twoResults() {
