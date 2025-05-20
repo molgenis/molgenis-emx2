@@ -17,7 +17,7 @@ import org.molgenis.emx2.datamodels.beacon.BeaconTestUtil;
 public class BeaconAnalysisTest extends PatientRegistryTest {
 
   @Test
-  public void testAnalyses_NoParams() throws Exception {
+  public void testAnalyses_NoParams() {
     Context request = BeaconTestUtil.mockEntryTypeRequestRegular("analyses", new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
@@ -29,7 +29,7 @@ public class BeaconAnalysisTest extends PatientRegistryTest {
   }
 
   @Test
-  public void testAnalyses_NoHits() throws Exception {
+  public void testAnalyses_NoHits() {
     Context request =
         BeaconTestUtil.mockEntryTypeRequestRegular(
             EntryType.ANALYSES.getId(), Map.of("id", List.of("A05")));
@@ -42,7 +42,7 @@ public class BeaconAnalysisTest extends PatientRegistryTest {
   }
 
   @Test
-  public void testAnalyses_IdQuery() throws Exception {
+  public void testAnalyses_IdQuery() {
     Context request =
         BeaconTestUtil.mockEntryTypeRequestRegular(
             EntryType.ANALYSES.getId(), Map.of("id", List.of("A03")));
