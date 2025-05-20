@@ -10,8 +10,8 @@
         type="checkbox"
         :ref="`${option.name}-checkbox`"
         class="mr-1"
-        :checked="selected"
-        :indeterminate.prop="isIndeterminate && !selected"
+        :checked="isSelected"
+        :indeterminate.prop="isIndeterminate && !isSelected"
       />
       <label>
         <span class="code">{{ option.code }}</span> {{ option.label }}
@@ -25,7 +25,6 @@
         v-if="open"
         :options="option.children"
         :facetIdentifier="facetIdentifier"
-        @indeterminate-update="handleChildIndeterminateUpdate"
         :filter="filter"
       />
     </li>
@@ -56,71 +55,61 @@ const props = withDefaults(
 const { facetIdentifier, option, filter } = toRefs(props);
 
 const open = ref<boolean>(!!filter.value);
-const childIsIndeterminate = ref<boolean>(false);
 
-const selectedFilters = computed<any[]>(() => {
-  const filters = filtersStore.getFilterValue(facetIdentifier.value) || [];
-  console.log(filters);
-  return filters;
-});
-
-const selected = computed(() => {
-  if (!selectedFilters.value?.length) {
-    return false;
-  } else if (option.value.children?.length) {
-    if (numberOfSelectedChildren.value === option.value.children.length) {
-      if (!isSelected(option.value)) {
-        selectOption(true, option.value);
-      }
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return isSelected(option.value);
-  }
-});
+const indeterminateDiseases = computed(
+  () => filtersStore.indeterminateDiseases
+);
+const selectedDiseases = computed(() => filtersStore.selectedDiseases);
 
 const numberOfSelectedChildren = computed(() => {
-  if (option.value.children) {
-    return option.value.children.filter((child: IOntologyItem) =>
-      isSelected(child)
-    ).length;
-  } else {
-    return 0;
-  }
+  return (
+    option.value.children?.filter(
+      (child: IOntologyItem) => selectedDiseases.value[child.name]
+    ).length || 0
+  );
 });
+
+const isSelected = computed<boolean>(
+  () => selectedDiseases.value[option.value.name]
+);
 
 const isIndeterminate = computed<boolean>(() => {
-  if (!option.value.children) {
-    return false;
-  } else if (childIsIndeterminate.value) {
+  if (lessThenAllChildrenSelected() || hasIndeterminateChild()) {
     return true;
   } else {
-    return (
-      numberOfSelectedChildren.value > 0 &&
-      numberOfSelectedChildren.value < option.value.children.length
-    );
+    return false;
   }
 });
 
-watch(isIndeterminate, emitIndeterminateStatus);
 watch(filter, (newFilter: string) => (open.value = !!newFilter));
+watch(isIndeterminate, (newValue: boolean) =>
+  filtersStore.setDiseaseIndeterminate(option.value.name, newValue)
+);
+watch(numberOfSelectedChildren, (newValue) => {
+  if (newValue === option.value.children?.length) {
+    selectOption(true, option.value);
+  }
+});
 
-function isSelected(option: IOntologyItem) {
-  return selectedFilters.value.some((filter) => filter.name === option.name);
+function hasIndeterminateChild(): boolean {
+  return !!option.value.children?.some((child) => {
+    return indeterminateDiseases.value[child.name];
+  });
+}
+
+function lessThenAllChildrenSelected(): boolean {
+  return (
+    numberOfSelectedChildren.value > 0 &&
+    numberOfSelectedChildren.value < (option.value.children?.length ?? Infinity)
+  );
+}
+
+function isOntologySelected(option: IOntologyItem) {
+  return selectedDiseases.value[option.name];
 }
 
 function selectOption(checked: boolean, option: IOntologyItem) {
   filtersStore.updateOntologyFilter(facetIdentifier.value, option, checked);
-}
-
-function handleChildIndeterminateUpdate(newStatus: boolean) {
-  childIsIndeterminate.value = newStatus;
-}
-
-function emitIndeterminateStatus() {
-  emit("indeterminate-update", isIndeterminate.value);
 }
 </script>
 

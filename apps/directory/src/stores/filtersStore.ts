@@ -43,6 +43,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   let filtersReadyToRender = ref(false);
 
+  const indeterminateDiseases = ref<Record<string, boolean>>({});
+  const selectedDiseases = ref<Record<string, boolean>>({});
+
   watch(
     () => settingsStore.configurationFetched,
     () => {
@@ -191,6 +194,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       ontologySet = ontologySet.slice(0, slotsRemaining);
     }
 
+    ontologySet.forEach((option: IOntologyItem) => {
+      selectedDiseases.value[option.name] = true;
+    });
+
     if (filters.value[filterName]) {
       const existingValues = filters.value[filterName].map(
         (option: IOntologyItem) => option.name
@@ -249,9 +256,17 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   function removeOntologyOptions(filterName: string, values: IOntologyItem[]) {
-    if (!filters.value[filterName]) return;
+    if (!filters.value[filterName]) {
+      selectedDiseases.value = {};
+      indeterminateDiseases.value = {};
+      return;
+    }
 
     const valuesToRemove = getValuesToRemove(values);
+
+    valuesToRemove.forEach((name: string) => {
+      selectedDiseases.value[name] = false;
+    });
 
     filters.value[filterName] = filters.value[filterName].filter(
       (option: IOntologyItem) => !valuesToRemove.includes(option.name)
@@ -364,6 +379,18 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     bookmarkTriggeredFilter.value = false;
   }
 
+  function isDiseaseSelected(diseaseName: string): boolean {
+    return !!selectedDiseases.value[diseaseName];
+  }
+
+  function isDiseaseIndeterminate(diseaseName: string): boolean {
+    return !!indeterminateDiseases.value[diseaseName];
+  }
+
+  function setDiseaseIndeterminate(diseaseName: string, value: boolean): void {
+    indeterminateDiseases.value[diseaseName] = value;
+  }
+
   return {
     checkOntologyDescendantsIfMatches,
     clearAllFilters,
@@ -375,6 +402,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     updateFilter,
     updateFilterType,
     updateOntologyFilter,
+    isDiseaseSelected,
+    isDiseaseIndeterminate,
+    setDiseaseIndeterminate,
     bookmarkWaitingForApplication,
     facetDetails,
     filterFacets,
@@ -385,6 +415,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filterTriggeredBookmark,
     hasActiveFilters,
     hasActiveBiobankOnlyFilters,
+    indeterminateDiseases,
+    selectedDiseases,
   };
 });
 
