@@ -227,7 +227,7 @@ public class RdfStreamTest {
 
   private static Long processWithRdf4jBuilder(OutputStream out) {
     WriterConfig config = new WriterConfig();
-    config.set(BasicWriterSettings.PRETTY_PRINT, false); // output looks worse than Jena if disabled
+    config.set(BasicWriterSettings.PRETTY_PRINT, false); // output looks worse than Jena if false
     ModelBuilder builder = new ModelBuilder();
     for (Row row : table.query().retrieveRows()) {
       final IRI subject = rowIRI(baseURL, table, row);
@@ -251,7 +251,7 @@ public class RdfStreamTest {
   private static Long processWithRdf4jWriter(OutputStream out) {
     RDFWriter writer = Rio.createWriter(RDFFormat.TURTLE, out);
     WriterConfig config = writer.getWriterConfig();
-    config.set(BasicWriterSettings.PRETTY_PRINT, false); // output looks worse than Jena if disabled
+    config.set(BasicWriterSettings.PRETTY_PRINT, false); // output looks worse than Jena if false
     SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
     writer.startRDF();
