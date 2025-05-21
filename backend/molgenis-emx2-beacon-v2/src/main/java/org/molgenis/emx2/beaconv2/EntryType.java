@@ -42,7 +42,7 @@ public enum EntryType {
       "ENSGLOSSARY:0000092",
       "Variant",
       List.of(BEACON_V2)),
-  DATASETS("Dataset", "datasets", "Dataset", "NCIT:C47824", "Data set", List.of(BEACON_V2)),
+  DATASETS("Datasets", "datasets", "Dataset", "NCIT:C47824", "Data set", List.of(BEACON_V2)),
   ANALYSES(
       "IndividualAnalyses",
       "analyses",
