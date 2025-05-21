@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted, watchEffect } from "vue";
+
 withDefaults(
   defineProps<{
     title?: string;
@@ -12,6 +14,28 @@ withDefaults(
 
 const visible = defineModel("visible", {
   required: true,
+});
+
+watchEffect(() => {
+  if (visible.value) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+});
+
+function handleKeydown(e: KeyboardEvent) {
+  if (e.key === "Escape") {
+    visible.value = false;
+  }
+}
+
+onMounted(() => {
+  window.addEventListener("keydown", handleKeydown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("keydown", handleKeydown);
 });
 </script>
 
@@ -36,10 +60,13 @@ const visible = defineModel("visible", {
     >
       <slot name="header">
         <header
-          class="pt-[36px] px-[50px] overflow-y-auto border-b border-divider"
+          class="pt-[36px] px-[30px] overflow-y-auto border-b border-divider"
         >
-          <div v-if="subtitle" class="text-gray-900">{{ subtitle }}</div>
-          <h2 v-if="title" class="mb-5 uppercase text-heading-4xl font-display">
+          <div v-if="subtitle" class="text-title-contrast">{{ subtitle }}</div>
+          <h2
+            v-if="title"
+            class="mb-5 uppercase text-heading-4xl font-display text-title-contrast"
+          >
             {{ title }}
           </h2>
 
@@ -48,7 +75,7 @@ const visible = defineModel("visible", {
             aria-label="Close modal"
             class="absolute top-7 right-8 p-1"
           >
-            <BaseIcon class="text-link" name="cross" />
+            <BaseIcon class="text-button-input-toggle" name="cross" />
           </button>
         </header>
       </slot>

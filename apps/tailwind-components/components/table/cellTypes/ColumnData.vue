@@ -21,13 +21,14 @@
   <TableCellTypesLong
     v-else-if="metaData.columnType === 'LONG'"
     :metaData="metaData"
-    :data="data"
+    :data="typeof data === 'number' ? data : Number(data)"
   />
 
-  <TableCellTypesObject
+  <TableCellTypesRef
     v-else-if="metaData.columnType === 'REF'"
     :metaData="metaData"
     :data="data"
+    @refCellClicked="$emit('cellClicked', $event)"
   />
 
   <TableCellTypesObject
@@ -54,13 +55,25 @@
     :data="data"
   />
 
+  <TableCellTypesRefBack
+    v-else-if="metaData.columnType === 'REFBACK'"
+    :metaData="metaData"
+    :data="data"
+    @refBackCellClicked="$emit('cellClicked', $event)"
+  />
+
   <template v-else> {{ metaData.columnType }} </template>
 </template>
 
 <script setup lang="ts">
+import type { RefPayload } from "../../../types/types";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 defineProps<{
   metaData: IColumn;
   data: any;
+}>();
+
+const emit = defineEmits<{
+  (event: "cellClicked", payload: RefPayload): void;
 }>();
 </script>

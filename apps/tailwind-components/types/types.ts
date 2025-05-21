@@ -1,4 +1,8 @@
-import type { columnValue, IColumn } from "../../metadata-utils/src/types";
+import type {
+  columnValue,
+  IColumn,
+  IRow,
+} from "../../metadata-utils/src/types";
 
 export type Resp<T> = {
   data: Record<string, T[]>;
@@ -127,4 +131,9 @@ export interface IInputProps {
 export interface ISession {
   email: string;
   admin: boolean;
+}
+
+export interface RefPayload {
+  metadata: IColumn;
+  data: IRow;
 }

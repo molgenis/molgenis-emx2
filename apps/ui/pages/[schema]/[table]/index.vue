@@ -77,7 +77,11 @@ const { isAdmin } = useSession();
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
       {{ tableMetadata }}
       <template #prefix>
-        <BreadCrumbs :align="'left'" :crumbs="crumbs" />
+        <BreadCrumbs
+          :align="'left'"
+          :crumbs="crumbs"
+          :current="currentBreadCrumb"
+        />
       </template>
     </PageHeader>
 
