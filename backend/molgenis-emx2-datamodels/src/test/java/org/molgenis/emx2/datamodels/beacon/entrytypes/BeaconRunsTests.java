@@ -1,4 +1,4 @@
-package org.molgenis.emx2.beaconv2.entrytypes;
+package org.molgenis.emx2.datamodels.beacon.entrytypes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -8,14 +8,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
+import org.molgenis.emx2.datamodels.PatientRegistryTest;
 
-@Disabled
-public class BeaconRunsTests extends BeaconModelEndPointTest {
+public class BeaconRunsTests extends PatientRegistryTest {
 
   @Test
   public void testRunsOfIndividual_pathQuery_twoResults() {
@@ -23,8 +22,8 @@ public class BeaconRunsTests extends BeaconModelEndPointTest {
     when(request.url()).thenReturn("http://localhost:8080/api/beacon");
     Map<String, String> urlParams =
         Map.of(
-            "entry_type_id", EntryType.INDIVIDUALS.getId(),
-            "entry_type", EntryType.RUNS.getId(),
+            "entry_type_id", EntryType.INDIVIDUALS.getName(),
+            "entry_type", EntryType.RUNS.getName(),
             "id", "Ind001");
 
     when(request.pathParamMap()).thenReturn(urlParams);

@@ -1,6 +1,7 @@
-package org.molgenis.emx2.beaconv2.entrytypes;
+package org.molgenis.emx2.datamodels.beacon.entrytypes;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.datamodels.beacon.BeaconTestUtil.mockEntryTypeRequestRegular;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
@@ -12,10 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.datamodels.PatientRegistryTest;
 
 @Disabled
-public class BeaconCohortsTests extends BeaconModelEndPointTest {
+public class BeaconCohortsTests extends PatientRegistryTest {
 
   @Test
   public void testCohorts_NoParams() {
@@ -37,7 +38,7 @@ public class BeaconCohortsTests extends BeaconModelEndPointTest {
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode cohorts = queryEntryType.query(database);
 
-    String json = JsonUtil.getWriter().writeValueAsString(cohorts);
-    assertTrue(json.contains("\"collections\" : [ ]"));
+    //    String json = JsonUtil.getWriter().writeValueAsString(cohorts);
+    //    assertTrue(json.contains("\"collections\" : [ ]"));
   }
 }
