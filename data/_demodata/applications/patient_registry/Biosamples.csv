@@ -17,5 +17,5 @@ SAMEA10450732,DNA,Available,Case5F,EGAS00001005702,EGAD00001008392,
 SAMEA10450733,DNA,Available,Case6C,EGAS00001005702,EGAD00001008392,
 SAMEA10450734,DNA,Available,Case6F,EGAS00001005702,EGAD00001008392,
 SAMEA10450735,DNA,Available,Case6M,EGAS00001005702,EGAD00001008392,
-Sample0001,,Available,Ind001,EMX2 API,Test dataset,abnormal sample
-Sample0002,,Available,Ind002,EMX2 API,Test dataset,reference sample
+Sample0001,DNA,Available,Ind001,EMX2 API,Test dataset,abnormal sample
+Sample0002,DNA,Available,Ind002,EMX2 API,Test dataset,reference sample
