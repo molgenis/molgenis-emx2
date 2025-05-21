@@ -92,7 +92,9 @@ public class ImportTableTask extends Task {
         // column warning
         if (task.getProgress() == 0) {
           List<String> columnNames =
-              metadata.getDownloadColumnNames().stream().map(Column::getName).toList();
+              new ArrayList<>(
+                  metadata.getDownloadColumnNames().stream().map(Column::getName).toList());
+          columnNames.add(MG_DELETE);
           warningColumns =
               row.getColumnNames().stream()
                   .filter(name -> !columnNames.contains(name))
