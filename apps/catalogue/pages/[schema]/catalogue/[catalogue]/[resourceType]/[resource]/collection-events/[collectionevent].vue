@@ -129,7 +129,10 @@ if (collectionEvent.value.standardizedTools) {
   tocItems.push({ label: "Standardized tools", id: "standardized_tools" });
 }
 
-useHead({ title: collectionEvent.value?.name });
+useHead({
+  title: collectionEvent.value?.name,
+  meta: [{ name: "description", content: collectionEvent.value?.description }],
+});
 </script>
 
 <template>

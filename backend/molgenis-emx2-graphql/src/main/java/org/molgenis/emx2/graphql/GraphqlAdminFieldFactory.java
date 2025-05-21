@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.Constants.KEY;
+import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.FAILED;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.Status.SUCCESS;
 import static org.molgenis.emx2.graphql.GraphqlApiMutationResult.typeForMutationResult;
 import static org.molgenis.emx2.graphql.GraphqlConstants.*;
@@ -32,6 +33,11 @@ public class GraphqlAdminFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(ENABLED)
+                  .type(Scalars.GraphQLBoolean)
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(ADMIN)
                   .type(Scalars.GraphQLBoolean)
                   .build())
           .field(
@@ -137,6 +143,7 @@ public class GraphqlAdminFieldFactory {
     Map<String, Object> result = new LinkedHashMap<>();
     result.put(EMAIL, user.getUsername());
     result.put(ENABLED, user.getEnabled());
+    result.put(ADMIN, user.isAdmin());
     result.put(SETTINGS, mapSettingsToGraphql(user.getSettings()));
 
     List<Map<String, String>> roles = getRoles(user, members);
@@ -182,31 +189,37 @@ public class GraphqlAdminFieldFactory {
       Database database, DataFetchingEnvironment dataFetchingEnvironment) {
     LinkedHashMap<String, Object> updatedUser = dataFetchingEnvironment.getArgument(UPDATE_USER);
     String userName = (String) updatedUser.get(EMAIL);
-    if (userName != null) {
-      database.tx(
-          db -> {
-            String password = (String) updatedUser.get(PASSWORD);
-            if (password != null) {
-              db.setUserPassword(userName, password);
-            }
-
-            List<Map<String, String>> roles = (List<Map<String, String>>) updatedUser.get(ROLES);
-            if (roles != null && roles.iterator().hasNext()) {
-              db.updateRoles(userName, roles);
-            }
-
-            List<Map<String, String>> revokedRoles =
-                (List<Map<String, String>>) updatedUser.get("revokedRoles");
-            if (revokedRoles != null && revokedRoles.iterator().hasNext()) {
-              db.revokeRoles(userName, revokedRoles);
-            }
-
-            Boolean enabled = (Boolean) updatedUser.get(ENABLED);
-            if (enabled != null) {
-              db.setEnabledUser(userName, enabled);
-            }
-          });
+    if (userName == null) {
+      return new GraphqlApiMutationResult(FAILED, "No user provided");
     }
+    database.tx(
+        db -> {
+          String password = (String) updatedUser.get(PASSWORD);
+          if (password != null) {
+            db.setUserPassword(userName, password);
+          }
+
+          List<Map<String, String>> roles = (List<Map<String, String>>) updatedUser.get(ROLES);
+          if (roles != null && roles.iterator().hasNext()) {
+            db.updateRoles(userName, roles);
+          }
+
+          List<Map<String, String>> revokedRoles =
+              (List<Map<String, String>>) updatedUser.get("revokedRoles");
+          if (revokedRoles != null && revokedRoles.iterator().hasNext()) {
+            db.revokeRoles(userName, revokedRoles);
+          }
+
+          Boolean enabled = (Boolean) updatedUser.get(ENABLED);
+          if (enabled != null) {
+            db.setEnabledUser(userName, enabled);
+          }
+
+          Boolean admin = (Boolean) updatedUser.get(ADMIN);
+          if (admin != null) {
+            db.setAdminUser(userName, admin);
+          }
+        });
     return new GraphqlApiMutationResult(SUCCESS, "User %s updated", userName);
   }
 
@@ -235,6 +248,10 @@ public class GraphqlAdminFieldFactory {
           .field(
               GraphQLInputObjectField.newInputObjectField()
                   .name(ENABLED)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(ADMIN)
                   .type(Scalars.GraphQLBoolean))
           .field(
               GraphQLInputObjectField.newInputObjectField()

@@ -40,7 +40,10 @@ const description: string | undefined =
   descriptionMap[route.params.resourceType as string];
 const image: string | undefined = imageMap[route.params.resourceType as string];
 
-useHead({ title: titlePrefix + title });
+useHead({
+  title: titlePrefix + title,
+  meta: [{ name: "description", content: description }],
+});
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -304,7 +307,7 @@ const crumbs: any = {};
 crumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
-crumbs[route.params.resourceType] = "";
+crumbs[route.params.resourceType as string] = "";
 </script>
 
 <template>

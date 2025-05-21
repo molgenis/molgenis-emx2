@@ -10,7 +10,7 @@ export const useSession = () => {
       const { data, error } = await $fetch("/api/graphql", {
         method: "POST",
         body: JSON.stringify({
-          query: `{_session { email, roles, token }}`,
+          query: `{_session { email, admin, roles, token }}`,
         }),
       });
 
