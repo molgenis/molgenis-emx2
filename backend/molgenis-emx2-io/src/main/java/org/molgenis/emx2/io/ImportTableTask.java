@@ -1,5 +1,9 @@
 package org.molgenis.emx2.io;
 
+import static org.molgenis.emx2.Constants.MG_DELETE;
+
+import java.util.*;
+import java.util.stream.Collectors;
 import org.jooq.Field;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.RowProcessor;
@@ -7,11 +11,6 @@ import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskStatus;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.molgenis.emx2.Constants.MG_DELETE;
 
 public class ImportTableTask extends Task {
   private Table table;
@@ -175,7 +174,8 @@ public class ImportTableTask extends Task {
       List<Column> columns = table.getMetadata().getColumns();
       while (iterator.hasNext()) {
         Row row = iterator.next();
-        boolean isDrop = false;
+        boolean isDrop = row.getValueMap().get(MG_DELETE) != null && row.getBoolean(MG_DELETE);
+
         // add file attachments, if applicable
         for (Column c : columns) {
           if (c.isFile()
@@ -194,8 +194,6 @@ public class ImportTableTask extends Task {
                       .formatted(table.getName(), c.getName(), index),
                   e);
             }
-          } else if (Objects.equals(c.getName(), MG_DELETE) && row.getBoolean(c.getName())) {
-            isDrop = true;
           }
         }
         if (!isDrop) {
