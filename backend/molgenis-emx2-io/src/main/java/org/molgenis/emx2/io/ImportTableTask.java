@@ -1,7 +1,5 @@
 package org.molgenis.emx2.io;
 
-import java.util.*;
-import java.util.stream.Collectors;
 import org.jooq.Field;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.RowProcessor;
@@ -9,6 +7,11 @@ import org.molgenis.emx2.io.tablestore.TableAndFileStore;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.tasks.Task;
 import org.molgenis.emx2.tasks.TaskStatus;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.molgenis.emx2.Constants.MG_DELETE;
 
 public class ImportTableTask extends Task {
   private Table table;
@@ -167,10 +170,12 @@ public class ImportTableTask extends Task {
     public void process(Iterator<Row> iterator, TableStore source) {
       task.setProgress(0); // for the progress monitoring
       int index = 0;
-      List<Row> batch = new ArrayList<>();
+      List<Row> importBatch = new ArrayList<>();
+      List<Row> deleteBatch = new ArrayList<>();
       List<Column> columns = table.getMetadata().getColumns();
       while (iterator.hasNext()) {
         Row row = iterator.next();
+        boolean isDrop = false;
         // add file attachments, if applicable
         for (Column c : columns) {
           if (c.isFile()
@@ -189,22 +194,35 @@ public class ImportTableTask extends Task {
                       .formatted(table.getName(), c.getName(), index),
                   e);
             }
+          } else if (Objects.equals(c.getName(), MG_DELETE) && row.getBoolean(c.getName())) {
+            isDrop = true;
           }
         }
-        batch.add(row);
+        if (!isDrop) {
+          importBatch.add(row);
+        } else {
+          deleteBatch.add(row);
+        }
         index++;
-        if (batch.size() >= 100) {
-          table.save(batch);
+
+        if (importBatch.size() >= 100) {
+          table.save(importBatch);
           task.setProgress(index);
           task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
-          batch.clear();
+          importBatch.clear();
         }
       }
       // remaining
-      if (!batch.isEmpty()) {
-        table.save(batch);
+      if (!importBatch.isEmpty()) {
+        table.save(importBatch);
         task.setProgress(index);
         task.setDescription("Imported " + task.getProgress() + " rows into " + table.getName());
+      }
+      // delete
+      if (!deleteBatch.isEmpty()) {
+        table.delete(deleteBatch);
+        task.setProgress(deleteBatch.size());
+        task.setDescription("Deleted " + task.getProgress() + " rows from " + table.getName());
       }
     }
   }
