@@ -8,6 +8,7 @@ const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
   : { none: "none" };
 
 export default defineNuxtConfig({
+  packageManager: "pnpm",
   devtools: { enabled: true },
   modules: ["@nuxtjs/tailwindcss", "@nuxt/test-utils/module"],
   imports: {
@@ -63,4 +64,8 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: "2024-08-23",
+
+  experimental: {
+    extraPageMetaExtractionKeys: [], // ✅ Fix non-iterable issue
+  },
 });

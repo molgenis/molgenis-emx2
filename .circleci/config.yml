@@ -181,6 +181,13 @@ jobs:
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
+        name: lint the code
+        command: |
+          ./gradlew lint ci --no-daemon \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
+
+
+    - run:
         name: run tests and push to sonar
         command: |
           ./gradlew test jacocoMergedReport sonar --no-daemon \
@@ -205,7 +212,13 @@ jobs:
         name: prepare sql test database
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
-    # we might be optimistic and skip tests here
+    - run:
+        name: lint the code
+        command: |
+          ./gradlew lint ci --no-daemon \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
+
+      # we might be optimistic and skip tests here
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
         command: |

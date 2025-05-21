@@ -205,8 +205,9 @@
             </div>
             <div class="row">
               <div class="col-4">
-                <InputString
+                <ArrayInput
                   id="column_semantics"
+                  columnType="STRING_ARRAY"
                   v-model="column.semantics"
                   :list="true"
                   label="semantics"
@@ -286,6 +287,7 @@ import {
   InputRadio, //@ts-ignore
   InputSelect, //@ts-ignore
   InputString, //@ts-ignore
+  ArrayInput, //@ts-ignore
   InputText, //@ts-ignore
   InputTextLocalized, //@ts-ignore
   LayoutForm, //@ts-ignore
@@ -307,6 +309,7 @@ export default {
     LayoutForm,
     InputText,
     InputString,
+    ArrayInput,
     InputBoolean,
     InputSelect,
     InputRadio,

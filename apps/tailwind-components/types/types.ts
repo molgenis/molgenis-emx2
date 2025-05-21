@@ -55,6 +55,7 @@ export type ButtonType =
   | "primary"
   | "secondary"
   | "tertiary"
+  | "text"
   | "outline"
   | "disabled"
   | "filterWell"
@@ -125,4 +126,5 @@ export interface IInputProps {
 
 export interface ISession {
   email: string;
+  admin: boolean;
 }

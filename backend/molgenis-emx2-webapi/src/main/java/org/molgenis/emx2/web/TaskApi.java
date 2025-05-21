@@ -73,8 +73,7 @@ public class TaskApi {
 
   private static void postScript(Context ctx) {
     MolgenisSession session = sessionManager.getSession(ctx.req());
-    String user = session.getSessionUser();
-    if (!"admin".equals(user)) {
+    if (!session.getDatabase().isAdmin()) {
       throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
     }
     String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
@@ -86,8 +85,7 @@ public class TaskApi {
 
   private static void getScript(Context ctx) throws InterruptedException {
     MolgenisSession session = sessionManager.getSession(ctx.req());
-    String user = session.getSessionUser();
-    if (!"admin".equals(user)) {
+    if (!session.getDatabase().isAdmin()) {
       throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
     }
     String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
