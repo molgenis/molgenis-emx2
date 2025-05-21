@@ -51,7 +51,7 @@ public enum EntryType {
       "Analysis",
       List.of(BEACON_V2)),
   COHORTS("Cohorts", "cohorts", "Cohort", "NCIT:C61512", "Cohort", List.of(BEACON_V2)),
-  RUNS("Runs", "runs", "Run", "NCIT:C148088", "Sequencing run", List.of(BEACON_V2));
+  RUNS("SequencingRuns", "runs", "Run", "NCIT:C148088", "Sequencing run", List.of(BEACON_V2));
 
   EntryType(
       String id,
