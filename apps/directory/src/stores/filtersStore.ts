@@ -291,6 +291,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   function clearAllFilters() {
     filters.value = {};
+    selectedDiseases.value = {};
+    indeterminateDiseases.value = {};
     createBookmark(
       filters.value,
       checkoutStore.selectedCollections,
