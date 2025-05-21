@@ -151,18 +151,19 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return codeFound || nameFound || labelFound;
   }
 
-  function flattenOntologyBranch(
-    branch: IOntologyItem,
-    flattenedBranches: IOntologyItem[] = []
-  ) {
-    if (!branch.children?.length) {
-      return [...flattenedBranches, branch];
-    } else {
-      for (const child of branch.children) {
-        flattenedBranches = flattenOntologyBranch(child, flattenedBranches);
+  function flattenOntologyBranch(branch: IOntologyItem) {
+    let stack = [branch];
+    let result: IOntologyItem[] = [];
+    while (stack.length) {
+      const current = stack.pop();
+      if (current?.children) {
+        stack = stack.concat(current.children);
+      }
+      if (current) {
+        result.push(current);
       }
     }
-    return flattenedBranches;
+    return result;
   }
 
   function updateOntologyFilter(
@@ -174,7 +175,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     bookmarkTriggeredFilter.value = fromBookmark;
 
     const childValues = flattenOntologyBranch(value);
-    const processedValues = _.uniqBy([value, ...childValues], "code");
+    const processedValues = _.uniqBy(childValues, "code");
 
     if (add) {
       addOntologyOptions(filterName, processedValues);
@@ -184,19 +185,28 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   function addOntologyOptions(filterName: string, options: IOntologyItem[]) {
-    const diagnosisAvailableCount =
-      filters.value.Diagnosisavailable?.length || 0;
-    const limit = 50;
-    const slotsRemaining = limit - diagnosisAvailableCount;
-
     let ontologySet = options;
+
     if (getFilterType(DIAGNOSIS_AVAILABLE) === "all") {
+      const diagnosisAvailableCount =
+        filters.value.Diagnosisavailable?.length || 0;
+      const limit = 50;
+      const slotsRemaining = limit - diagnosisAvailableCount;
       ontologySet = ontologySet.slice(0, slotsRemaining);
     }
 
-    ontologySet.forEach((option: IOntologyItem) => {
-      selectedDiseases.value[option.name] = true;
-    });
+    const newSelectedDiseases = ontologySet.reduce(
+      (accum: Record<string, boolean>, option: IOntologyItem) => {
+        accum[option.name] = true;
+        return accum;
+      },
+      {}
+    );
+
+    selectedDiseases.value = {
+      ...selectedDiseases.value,
+      ...newSelectedDiseases,
+    };
 
     if (filters.value[filterName]) {
       const existingValues = filters.value[filterName].map(
@@ -265,7 +275,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     const valuesToRemove = getValuesToRemove(values);
 
     valuesToRemove.forEach((name: string) => {
-      selectedDiseases.value[name] = false;
+      delete selectedDiseases.value[name];
     });
 
     filters.value[filterName] = filters.value[filterName].filter(

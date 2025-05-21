@@ -85,7 +85,7 @@ watch(isIndeterminate, (newValue: boolean) =>
   filtersStore.setDiseaseIndeterminate(option.value.name, newValue)
 );
 watch(numberOfSelectedChildren, (newValue) => {
-  if (newValue === option.value.children?.length) {
+  if (!isSelected.value && newValue === option.value.children?.length) {
     selectOption(true, option.value);
   }
 });
