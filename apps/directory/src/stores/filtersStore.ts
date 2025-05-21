@@ -230,7 +230,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     const { sourceTable, sortColumn, sortDirection } = filterFacet;
     const attributes = getOntologyAttributes(filterFacet);
 
-    let codesToQuery = convertArrayToChunks(codes, 600);
+    const codesToQuery = _.chunk(codes, 600);
     const ontologyResults = [];
 
     for (const codeBlock of codesToQuery) {
@@ -409,30 +409,3 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     selectedDiseases,
   };
 });
-
-/**
- * returns for given input: ([11], 5): [[5],[5],[1]]
- */
-function convertArrayToChunks(fullArray: any[], chunkSize = 100) {
-  let chunkArray = [];
-  const arrayLength = fullArray.length;
-
-  let chunk = [];
-  if (fullArray.length > 20) {
-    for (let index = 0; index < arrayLength; index++) {
-      chunk.push(fullArray[index]);
-      if (chunk.length === chunkSize) {
-        chunkArray.push(chunk);
-        chunk = [];
-      }
-    }
-    if (chunk.length) {
-      chunkArray.push(chunk);
-      chunk = [];
-    }
-  } else {
-    chunkArray = [fullArray];
-  }
-
-  return chunkArray;
-}
