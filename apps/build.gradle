@@ -36,6 +36,8 @@ node {
     with nodeSpec
 }
 
+
+
 task installJavascript(type: PnpmTask, dependsOn: pnpmSetup) {
     inputs.files(
         fileTree("${projectDir}/**/package.json"),
@@ -50,10 +52,7 @@ subprojects { subproject ->
     apply plugin: 'com.github.node-gradle.node'
 
     node {
-        workDir = file("${parent.projectDir}/.gradle/nodejs")
-        npmWorkDir = file("${parent.projectDir}/.gradle/npm")
-        pnpmWorkDir = file("${parent.projectDir}/.gradle/pnpm")
-        download = false
+        with nodeSpec
     }
     nodeSetup.dependsOn parent.nodeSetup
     npmSetup.dependsOn parent.npmSetup
