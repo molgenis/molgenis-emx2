@@ -112,7 +112,6 @@ public class MolgenisWebservice {
     GraphqlApi.createGraphQLservice(app, sessionManager);
     RDFApi.create(app, sessionManager);
     BeaconApi.create(app, sessionManager);
-    FAIRDataPointApi.create(app, sessionManager);
     BootstrapThemeService.create(app);
     ProfilesApi.create(app);
     AnalyticsApi.create(app);

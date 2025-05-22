@@ -13,7 +13,6 @@ There are a number of guides available to help you get started with EMX2. We enc
 - APIs
     - [Batch API](./dev_batchapi.md)
     - [Beacon v2](./dev_beaconv2.md)
-    - [FAIR Data Point](./dev_fairdatapoint.md)
     - [GraphQL](./dev_graphql.md)
     - [Message API](./dev_messageapi.md)
     - [RDF](./dev_rdf.md)
