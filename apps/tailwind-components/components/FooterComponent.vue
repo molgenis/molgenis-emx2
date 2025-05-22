@@ -12,7 +12,7 @@
               href="https://data-catalogue.molgeniscloud.org/catalogue/catalogue/about"
             >
               <BaseIcon name="CaretRight" :width="16" />
-              <span>About Molgenis catalogue</span>
+              <span>About the catalogue</span>
             </a>
           </li>
           <li>
