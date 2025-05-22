@@ -32,6 +32,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

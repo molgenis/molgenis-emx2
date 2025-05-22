@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2.rdf.mappers;
 
 import static java.util.Map.entry;
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,6 +25,7 @@ import org.molgenis.emx2.SelectColumn;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
+import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 class OntologyIriMapperTest {

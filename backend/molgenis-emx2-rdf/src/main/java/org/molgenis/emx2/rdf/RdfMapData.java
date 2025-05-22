@@ -1,5 +1,7 @@
 package org.molgenis.emx2.rdf;
 
+import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
+
 import static java.util.Objects.requireNonNull;
 import static org.molgenis.emx2.rdf.RdfUtils.formatBaseURL;
 
