@@ -38,7 +38,6 @@
     - [FAIR Data Point](dev_fairdatapoint.md)
     - [Beacon v2](dev_beaconv2.md)
     - [RDF](dev_rdf.md)
-    - [Graph genome](dev_graphgenome.md)
     - [Building frontend apps](dev_apps.md)
     - [App profiles](dev_profiles.md)
     - [Migrations](dev_migrations.md)
