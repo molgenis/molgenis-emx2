@@ -6,14 +6,11 @@
       <div>
         <h3 class="mb-2 text-title font-bold">Created with MOLGENIS</h3>
         <ul class="list-style-none flex flex-col gap-1.5 text-link">
-          <li class="flex items-ceter">
-            <a
-              class="flex items-center hover:underline"
-              :link="`/${schema}/catalogue/all/about`"
-            >
+          <li class="flex items-center">
+            <NuxtLink to="[schema]/catalogue/catalogue/about" class="flex items-center hover:underline">
               <BaseIcon name="CaretRight" :width="16" />
               <span>About the catalogue</span>
-            </a>
+            </NuxtLink>
           </li>
           <li>
             <a
