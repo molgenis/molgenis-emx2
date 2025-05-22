@@ -9,7 +9,7 @@
           <li class="flex items-ceter">
             <a
               class="flex items-center hover:underline"
-              href="https://data-catalogue.molgeniscloud.org/catalogue/catalogue/about"
+              :link="`/${schema}/catalogue/all/about`"
             >
               <BaseIcon name="CaretRight" :width="16" />
               <span>About the catalogue</span>
