@@ -9,10 +9,10 @@
           <li class="flex items-ceter">
             <a
               class="flex items-center hover:underline"
-              href="http://molgenis.org"
+              href="https://data-catalogue.molgeniscloud.org/catalogue/catalogue/about"
             >
               <BaseIcon name="CaretRight" :width="16" />
-              <span>About Molgenis</span>
+              <span>About the Molgenis catalogue</span>
             </a>
           </li>
           <li>
