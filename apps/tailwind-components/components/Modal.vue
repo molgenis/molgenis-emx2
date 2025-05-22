@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, watchEffect } from "vue";
+import { onBeforeUnmount, onMounted, onUnmounted, watchEffect } from "vue";
 
 withDefaults(
   defineProps<{
@@ -19,9 +19,11 @@ const visible = defineModel("visible", {
 watchEffect(() => {
   if (visible.value) {
     document.body.style.overflow = "hidden";
-  } else {
-    document.body.style.overflow = "";
   }
+});
+
+onBeforeUnmount(() => {
+  document.body.style.overflow = "";
 });
 
 function handleKeydown(e: KeyboardEvent) {
