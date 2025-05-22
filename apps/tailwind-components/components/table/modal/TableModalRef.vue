@@ -9,6 +9,7 @@ import fetchRowData from "../../../composables/fetchRowData";
 import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
 import ColumnData from "../cellTypes/ColumnData.vue";
 import fetchTableMetadata from "../../../composables/fetchTableMetadata";
+import type { RefPayload } from "~/types/types";
 
 const props = withDefaults(
   defineProps<{
@@ -38,23 +39,13 @@ const refColumnLabel = computed(() => {
 const loading = ref(true);
 const columns = ref();
 
-async function fetchData() {
-  const rowKey = await fetchRowPrimaryKey(
-    props.row,
-    props.metadata.refTableId,
-    props.schema
-  );
+async function fetchData(row: IRow, tableId: string, schema: string) {
+  loading.value = true;
+  const rowKey = await fetchRowPrimaryKey(row, tableId, schema);
 
-  const refRow = await fetchRowData(
-    props.schema,
-    props.metadata.refTableId,
-    rowKey
-  );
+  const refRow = await fetchRowData(schema, tableId, rowKey);
 
-  const refRowMetadata = await fetchTableMetadata(
-    props.schema,
-    props.metadata.refTableId
-  );
+  const refRowMetadata = await fetchTableMetadata(schema, tableId);
 
   loading.value = false;
 
@@ -77,7 +68,15 @@ async function fetchData() {
     });
 }
 
-await fetchData();
+await fetchData(props.row, props.metadata.refTableId, props.schema);
+
+function handleCellClicked(event: RefPayload) {
+  fetchData(
+    event.data,
+    event.metadata.refTableId,
+    event.metadata.refSchemaId ?? props.schema
+  );
+}
 </script>
 
 <template>
@@ -95,7 +94,11 @@ await fetchData();
             >{{ column.key }}
           </DefinitionListTerm>
           <DefinitionListDefinition class="text-title-contrast">
-            <ColumnData :data="column.value" :meta-data="column.metadata" />
+            <ColumnData
+              :data="column.value"
+              :meta-data="column.metadata"
+              @cellClicked="handleCellClicked"
+            />
           </DefinitionListDefinition>
         </template>
       </DefinitionList>
