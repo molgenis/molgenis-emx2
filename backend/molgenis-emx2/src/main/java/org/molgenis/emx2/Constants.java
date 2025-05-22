@@ -37,6 +37,7 @@ public class Constants {
 
   public static final String MG_TABLECLASS = "mg_tableclass";
   public static final String MG_DRAFT = "mg_draft";
+  public static final String MG_DELETE = "mg_delete";
   public static final String MG_INSERTEDBY = "mg_insertedBy";
   public static final String MG_INSERTEDON = "mg_insertedOn";
   public static final String MG_UPDATEDBY = "mg_updatedBy";
