@@ -135,6 +135,8 @@ public class RDFService {
               new NamespaceMapper(Arrays.stream(schemas).toList()),
               new OntologyIriMapper(tables));
 
+      rdfMapData.getNamespaceMapper().getAllNamespaces().forEach(builder::setNamespace);
+
       if (logger.isDebugEnabled()) {
         logger.debug(
             "Tables to show: "
