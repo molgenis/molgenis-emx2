@@ -51,9 +51,6 @@ import org.slf4j.LoggerFactory;
  */
 public class RDFService {
   private static final Logger logger = LoggerFactory.getLogger(RDFService.class);
-
-  private static final DateTimeFormatter dateTimeFormatter =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
   public static final String ONTOLOGY_TERM_URI = "ontologyTermURI";
 
   private final WriterConfig config;
