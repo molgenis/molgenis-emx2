@@ -8,11 +8,14 @@ import fetchTableMetadata from "../../../../tailwind-components/composables/fetc
 import { useRoute, useRouter } from "#app/composables/router";
 import { useSession } from "../../../../ui/composables/useSession";
 import { watch } from "vue";
+import { useHead } from "#app";
 
 const route = useRoute();
 const router = useRouter();
 const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
+
+useHead({ title: `${tableId} - ${schemaId}  - Molgenis` });
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
