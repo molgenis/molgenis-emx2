@@ -9,7 +9,7 @@ import fetchRowData from "../../../composables/fetchRowData";
 import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
 import ColumnData from "../cellTypes/ColumnData.vue";
 import fetchTableMetadata from "../../../composables/fetchTableMetadata";
-import type { RefPayload } from "~/types/types";
+import type { RefPayload } from "../../../types/types";
 
 const props = withDefaults(
   defineProps<{
