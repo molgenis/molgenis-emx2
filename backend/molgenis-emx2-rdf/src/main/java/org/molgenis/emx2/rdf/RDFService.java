@@ -10,10 +10,8 @@ import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
 import static org.molgenis.emx2.rdf.IriGenerator.schemaIRI;
 import static org.molgenis.emx2.rdf.IriGenerator.tableIRI;
 import static org.molgenis.emx2.rdf.RdfUtils.formatBaseURL;
-import static org.molgenis.emx2.rdf.RdfUtils.getCustomPrefixesOrDefault;
 import static org.molgenis.emx2.rdf.RdfUtils.getCustomRdf;
 import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
-import static org.molgenis.emx2.rdf.RdfUtils.getSemanticValue;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,7 +20,6 @@ import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.model.util.Values;
@@ -32,6 +29,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,13 +122,8 @@ public class RDFService {
       // Collect all tables present in selected schemas.
       Set<Table> allTables = new HashSet<>();
 
-      // Namespaces per prefix per schema.
-      // While ModelBuilder.add() allows for prefixed name, conflicting schema-specific namespaces
-      // could cause issues.
-      Map<String, Map<String, Namespace>> namespaces = new HashMap<>();
-
       for (final Schema schema : schemas) {
-        processNamespaces(builder, schema, namespaces);
+        addSchemaNamespace(builder, schema);
         processCustomRdf(builder, schema);
         if (table == null) describeSchema(builder, schema);
         allTables.addAll(schema.getTablesSorted());
@@ -139,6 +132,12 @@ public class RDFService {
       // Tables to include in output.
       final Set<Table> tables = table != null ? tablesToDescribe(allTables, table) : allTables;
 
+      final RdfMapData rdfMapData =
+          new RdfMapData(
+              baseURL,
+              new NamespaceMapper(Arrays.stream(schemas).toList()),
+              new OntologyIriMapper(tables));
+
       if (logger.isDebugEnabled()) {
         logger.debug(
             "Tables to show: "
@@ -146,10 +145,8 @@ public class RDFService {
                     .map(
                         i -> i.getMetadata().getSchemaName() + "." + i.getMetadata().getTableName())
                     .toList());
-        logger.debug("Namespaces per schema: " + namespaces.toString());
+        logger.debug("Namespaces per schema: " + rdfMapData.getNamespaceMapper());
       }
-
-      final RdfMapData rdfMapData = new RdfMapData(baseURL, new OntologyIriMapper(tables));
 
       for (final Table tableToDescribe : tables) {
         // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
@@ -159,12 +156,12 @@ public class RDFService {
           continue;
         }
         if (rowId == null) {
-          describeTable(builder, namespaces, tableToDescribe);
-          describeColumns(builder, namespaces, tableToDescribe, columnName);
+          describeTable(builder, rdfMapData.getNamespaceMapper(), tableToDescribe);
+          describeColumns(builder, rdfMapData.getNamespaceMapper(), tableToDescribe, columnName);
         }
         // if a column name is provided then only provide column metadata, no row values
         if (columnName == null) {
-          rowsToRdf(builder, rdfMapData, namespaces, tableToDescribe, rowId);
+          rowsToRdf(builder, rdfMapData, tableToDescribe, rowId);
         }
       }
       Rio.write(builder.build(), outputStream, rdfFormat, config);
@@ -199,14 +196,8 @@ public class RDFService {
     return false;
   }
 
-  private void processNamespaces(
-      ModelBuilder builder, Schema schema, Map<String, Map<String, Namespace>> namespaces)
-      throws IOException {
+  private void addSchemaNamespace(ModelBuilder builder, Schema schema) throws IOException {
     builder.setNamespace(getSchemaNamespace(baseURL, schema));
-
-    Map<String, Namespace> schemaNamespaces = getCustomPrefixesOrDefault(schema);
-    schemaNamespaces.values().forEach(builder::setNamespace);
-    namespaces.put(schema.getName(), schemaNamespaces);
   }
 
   private void processCustomRdf(ModelBuilder builder, Schema schema) throws IOException {
@@ -263,9 +254,7 @@ public class RDFService {
   }
 
   private void describeTable(
-      final ModelBuilder builder,
-      final Map<String, Map<String, Namespace>> namespaces,
-      final Table table) {
+      final ModelBuilder builder, final NamespaceMapper mapper, final Table table) {
     final IRI subject = tableIRI(baseURL, table);
     builder.add(subject, RDF.TYPE, OWL.CLASS);
     builder.add(subject, RDFS.SUBCLASSOF, BasicIRI.LD_DATASET_CLASS);
@@ -280,10 +269,7 @@ public class RDFService {
     if (table.getMetadata().getSemantics() != null) {
       for (final String tableSemantics : table.getMetadata().getSemantics()) {
         try {
-          builder.add(
-              subject,
-              RDFS.ISDEFINEDBY,
-              getSemanticValue(table.getMetadata(), namespaces, tableSemantics));
+          builder.add(subject, RDFS.ISDEFINEDBY, mapper.map(table.getSchema(), tableSemantics));
         } catch (Exception e) {
           throw new MolgenisException(
               "Table annotation '"
@@ -315,7 +301,7 @@ public class RDFService {
 
   private void describeColumns(
       final ModelBuilder builder,
-      final Map<String, Map<String, Namespace>> namespaces,
+      final NamespaceMapper mapper,
       final Table table,
       final String columnName) {
     if (table.getMetadata().getTableType() == TableType.DATA) {
@@ -325,7 +311,7 @@ public class RDFService {
           continue;
         }
         if (columnName == null || columnName.equals(column.getName())) {
-          describeColumn(builder, namespaces, column);
+          describeColumn(builder, mapper, column);
         }
       }
     } else {
@@ -334,9 +320,7 @@ public class RDFService {
   }
 
   private void describeColumn(
-      final ModelBuilder builder,
-      final Map<String, Map<String, Namespace>> namespaces,
-      final Column column) {
+      final ModelBuilder builder, final NamespaceMapper mapper, final Column column) {
     final IRI subject = columnIRI(baseURL, column);
     if (column.isReference()) {
       builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
@@ -359,10 +343,7 @@ public class RDFService {
           columnSemantics = BasicIRI.SIO_IDENTIFIER.stringValue();
         }
         try {
-          builder.add(
-              subject,
-              RDFS.ISDEFINEDBY,
-              getSemanticValue(column.getTable(), namespaces, columnSemantics));
+          builder.add(subject, RDFS.ISDEFINEDBY, mapper.map(column.getSchema(), columnSemantics));
         } catch (Exception e) {
           throw new MolgenisException(
               "Semantic tag '"
@@ -393,14 +374,13 @@ public class RDFService {
   public void rowsToRdf(
       final ModelBuilder builder,
       final RdfMapData rdfMapData,
-      final Map<String, Map<String, Namespace>> namespaces,
       final Table table,
       final String rowId) {
     final IRI tableIRI = tableIRI(baseURL, table);
     final List<Row> rows = getRows(table, rowId);
     switch (table.getMetadata().getTableType()) {
       case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(builder, rdfMapData, table, row));
-      case DATA -> rows.forEach(row -> dataRowToRdf(builder, rdfMapData, namespaces, table, row));
+      case DATA -> rows.forEach(row -> dataRowToRdf(builder, rdfMapData, table, row));
       default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
     }
   }
@@ -447,11 +427,7 @@ public class RDFService {
   }
 
   private void dataRowToRdf(
-      final ModelBuilder builder,
-      final RdfMapData rdfMapData,
-      final Map<String, Map<String, Namespace>> namespaces,
-      final Table table,
-      final Row row) {
+      final ModelBuilder builder, final RdfMapData rdfMapData, final Table table, final Row row) {
     final IRI tableIRI = tableIRI(baseURL, table);
     final IRI subject = rowIRI(rdfMapData.getBaseURL(), table, row);
 
@@ -462,7 +438,7 @@ public class RDFService {
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {
         builder.add(
-            subject, RDF.TYPE, getSemanticValue(table.getMetadata(), namespaces, semantics));
+            subject, RDF.TYPE, rdfMapData.getNamespaceMapper().map(table.getSchema(), semantics));
       }
     }
     builder.add(subject, BasicIRI.LD_DATASET_PREDICATE, tableIRI);
@@ -486,7 +462,7 @@ public class RDFService {
           for (String semantics : column.getSemantics()) {
             builder.add(
                 subject.stringValue(),
-                getSemanticValue(table.getMetadata(), namespaces, semantics),
+                rdfMapData.getNamespaceMapper().map(table.getSchema(), semantics),
                 value);
           }
         }
