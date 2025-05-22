@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type {
-  IColumn,
-  IRefColumn,
-  IRow,
-} from "../../../../metadata-utils/src/types";
+import type { IRefColumn, IRow } from "../../../../metadata-utils/src/types";
 import { rowToString } from "../../../utils/rowToString";
 import type { RefPayload } from "../../../types/types";
 const props = defineProps<{
@@ -34,7 +30,9 @@ const refColumnLabel = computed(() => {
 </script>
 
 <template>
-  <span class="underline hover:cursor-pointer" @click="handleRefCellClicked">{{
-    refColumnLabel
-  }}</span>
+  <span
+    class="underline hover:cursor-pointer text-link"
+    @click="handleRefCellClicked"
+    >{{ refColumnLabel }}</span
+  >
 </template>

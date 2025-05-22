@@ -5,10 +5,10 @@ import Modal from "../../../../tailwind-components/components/Modal.vue";
 import DefinitionListDefinition from "../../../../tailwind-components/components/DefinitionListDefinition.vue";
 import { computed, ref } from "vue";
 import { rowToString } from "../../../utils/rowToString";
-import fetchRowData from "~/composables/fetchRowData";
+import fetchRowData from "../../../composables/fetchRowData";
 import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
 import ColumnData from "../cellTypes/ColumnData.vue";
-import fetchTableMetadata from "~/composables/fetchTableMetadata";
+import fetchTableMetadata from "../../../composables/fetchTableMetadata";
 
 const props = withDefaults(
   defineProps<{
@@ -35,25 +35,30 @@ const refColumnLabel = computed(() => {
   return rowToString(props.row, labelTemplate);
 });
 
-const rowKey = await fetchRowPrimaryKey(
-  props.row,
-  props.metadata.refTableId,
-  props.schema
-);
+const loading = ref(true);
+const columns = ref();
 
-const refRow = await fetchRowData(
-  props.schema,
-  props.metadata.refTableId,
-  rowKey
-);
+async function fetchData() {
+  const rowKey = await fetchRowPrimaryKey(
+    props.row,
+    props.metadata.refTableId,
+    props.schema
+  );
 
-const refRowMetadata = await fetchTableMetadata(
-  props.schema,
-  props.metadata.refTableId
-);
+  const refRow = await fetchRowData(
+    props.schema,
+    props.metadata.refTableId,
+    rowKey
+  );
 
-const columns = computed(() => {
-  return Object.entries(refRow)
+  const refRowMetadata = await fetchTableMetadata(
+    props.schema,
+    props.metadata.refTableId
+  );
+
+  loading.value = false;
+
+  columns.value = Object.entries(refRow)
     .map(([key, value]) => ({ key, value }))
     .filter((item) => {
       return !item.key.startsWith("mg_") || props.showDataOwner;
@@ -70,7 +75,9 @@ const columns = computed(() => {
         metadata: columnMetadata,
       };
     });
-});
+}
+
+await fetchData();
 </script>
 
 <template>
@@ -82,12 +89,12 @@ const columns = computed(() => {
     :onClose="emit('onClose')"
   >
     <section class="px-8 py-[50px]">
-      <DefinitionList>
+      <DefinitionList v-if="!loading" :compact="false">
         <template v-for="column in columns">
           <DefinitionListTerm class="text-title-contrast"
             >{{ column.key }}
           </DefinitionListTerm>
-          <DefinitionListDefinition>
+          <DefinitionListDefinition class="text-title-contrast">
             <ColumnData :data="column.value" :meta-data="column.metadata" />
           </DefinitionListDefinition>
         </template>

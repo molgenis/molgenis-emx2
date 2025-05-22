@@ -26,7 +26,7 @@
 
   <TableCellTypesRef
     v-else-if="metaData.columnType === 'REF'"
-    :metaData="metaData"
+    :metaData="metaData as IRefColumn"
     :data="data"
     @refCellClicked="$emit('cellClicked', $event)"
   />
@@ -57,7 +57,7 @@
 
   <TableCellTypesRefBack
     v-else-if="metaData.columnType === 'REFBACK'"
-    :metaData="metaData"
+    :metaData="metaData as IRefColumn"
     :data="data"
     @refBackCellClicked="$emit('cellClicked', $event)"
   />
@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import type { RefPayload } from "../../../types/types";
-import type { IColumn } from "../../../../metadata-utils/src/types";
+import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
 defineProps<{
   metaData: IColumn;
   data: any;
