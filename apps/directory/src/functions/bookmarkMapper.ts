@@ -11,7 +11,6 @@ const { setError } = useErrorHandler();
 
 export async function applyBookmark(watchedQuery: LocationQuery) {
   if (bookmarkApplied) {
-    bookmarkApplied = false;
     return;
   }
 
@@ -93,6 +92,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
     }
   }
   filtersStore.bookmarkWaitingForApplication = false;
+  bookmarkApplied = true;
 }
 
 export function createBookmark(

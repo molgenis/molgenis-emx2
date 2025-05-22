@@ -209,14 +209,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     };
 
     if (filters.value[filterName]) {
-      const existingValues = filters.value[filterName].map(
-        (option: IOntologyItem) => option.name
+      filters.value[filterName] = _.uniqBy(
+        filters.value[filterName].concat(ontologySet),
+        "name"
       );
-      const filterOptionsToAdd = ontologySet.filter(
-        (newValue: IOntologyItem) => !existingValues.includes(newValue.name)
-      );
-      filters.value[filterName] =
-        filters.value[filterName].concat(filterOptionsToAdd);
     } else {
       filters.value[filterName] = ontologySet;
     }

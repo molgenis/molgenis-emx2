@@ -11,7 +11,7 @@
         :ref="`${option.name}-checkbox`"
         class="mr-1"
         :checked="isSelected"
-        :indeterminate.prop="isIndeterminate && !isSelected"
+        :indeterminate.prop="isIndeterminate"
       />
       <label>
         <span class="code">{{ option.code }}</span> {{ option.label }}
@@ -59,14 +59,7 @@ const indeterminateDiseases = computed(
   () => filtersStore.indeterminateDiseases
 );
 const selectedDiseases = computed(() => filtersStore.selectedDiseases);
-
-const numberOfSelectedChildren = computed(() => {
-  return (
-    option.value.children?.filter(
-      (child: IOntologyItem) => selectedDiseases.value[child.name]
-    ).length || 0
-  );
-});
+const numberOfSelectedChildren = computed(getNumberOfSelectedChildren);
 
 const isSelected = computed<boolean>(
   () => selectedDiseases.value[option.value.name]
@@ -81,8 +74,12 @@ const isIndeterminate = computed<boolean>(() => {
 });
 
 watch(filter, (newFilter: string) => (open.value = !!newFilter));
-watch(isIndeterminate, (newValue: boolean) =>
-  filtersStore.setDiseaseIndeterminate(option.value.name, newValue)
+watch(
+  isIndeterminate,
+  (newValue: boolean) => {
+    filtersStore.setDiseaseIndeterminate(option.value.name, newValue);
+  },
+  { immediate: true }
 );
 watch(numberOfSelectedChildren, (newValue) => {
   if (!isSelected.value && newValue === option.value.children?.length) {
@@ -105,6 +102,14 @@ function lessThenAllChildrenSelected(): boolean {
 
 function selectOption(checked: boolean, option: IOntologyItem) {
   filtersStore.updateOntologyFilter(facetIdentifier.value, option, checked);
+}
+
+function getNumberOfSelectedChildren() {
+  return (
+    option.value.children?.filter(
+      (child: IOntologyItem) => selectedDiseases.value[child.name]
+    ).length || 0
+  );
 }
 </script>
 
