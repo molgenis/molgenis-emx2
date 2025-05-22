@@ -74,6 +74,14 @@ export interface IColumn {
   defaultValue?: string;
 }
 
+export interface IRefColumn extends IColumn {
+  refTableId: string;
+  refSchemaId: string;
+  refLabel: string;
+  refLabelDefault: string;
+  refLinkId: string;
+}
+
 export interface ITableMetaData {
   id: string;
   name?: string;

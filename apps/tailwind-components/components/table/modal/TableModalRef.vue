@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import DefinitionListTerm from "../../../../tailwind-components/components/DefinitionListTerm.vue";
-import type { IColumn, IRow } from "../../../../metadata-utils/src/types";
+import type { IRefColumn, IRow } from "../../../../metadata-utils/src/types";
 import Modal from "../../../../tailwind-components/components/Modal.vue";
 import DefinitionListDefinition from "../../../../tailwind-components/components/DefinitionListDefinition.vue";
 import { computed, ref } from "vue";
 import { rowToString } from "../../../utils/rowToString";
+import fetchRowData from "~/composables/fetchRowData";
+import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
+import ColumnData from "../cellTypes/ColumnData.vue";
+import fetchTableMetadata from "~/composables/fetchTableMetadata";
 
 const props = withDefaults(
   defineProps<{
-    metadata: IColumn;
+    metadata: IRefColumn;
     row: IRow;
-    schema?: string;
+    schema: string;
     showDataOwner?: boolean;
   }>(),
   {
@@ -31,14 +35,40 @@ const refColumnLabel = computed(() => {
   return rowToString(props.row, labelTemplate);
 });
 
+const rowKey = await fetchRowPrimaryKey(
+  props.row,
+  props.metadata.refTableId,
+  props.schema
+);
+
+const refRow = await fetchRowData(
+  props.schema,
+  props.metadata.refTableId,
+  rowKey
+);
+
+const refRowMetadata = await fetchTableMetadata(
+  props.schema,
+  props.metadata.refTableId
+);
+
 const columns = computed(() => {
-  return Object.entries(props.row)
-    .map(([key, value]) => ({
-      key,
-      value,
-    }))
+  return Object.entries(refRow)
+    .map(([key, value]) => ({ key, value }))
     .filter((item) => {
       return !item.key.startsWith("mg_") || props.showDataOwner;
+    })
+    .map((item) => {
+      const columnMetadata = refRowMetadata.columns.find(
+        (column) => column.id === item.key
+      );
+      if (!columnMetadata) {
+        throw new Error(`Column metadata not found for ${item.key}`);
+      }
+      return {
+        ...item,
+        metadata: columnMetadata,
+      };
     });
 });
 </script>
@@ -49,6 +79,7 @@ const columns = computed(() => {
     :title="refColumnLabel"
     :subtitle="metadata.refTableId"
     max-width="max-w-9/10"
+    :onClose="emit('onClose')"
   >
     <section class="px-8 py-[50px]">
       <DefinitionList>
@@ -56,9 +87,9 @@ const columns = computed(() => {
           <DefinitionListTerm class="text-title-contrast"
             >{{ column.key }}
           </DefinitionListTerm>
-          <DefinitionListDefinition>{{
-            column.value
-          }}</DefinitionListDefinition>
+          <DefinitionListDefinition>
+            <ColumnData :data="column.value" :meta-data="column.metadata" />
+          </DefinitionListDefinition>
         </template>
       </DefinitionList>
     </section>

@@ -1,6 +1,7 @@
 import type {
   columnValue,
   IColumn,
+  IRefColumn,
   IRow,
 } from "../../metadata-utils/src/types";
 
@@ -134,6 +135,6 @@ export interface ISession {
 }
 
 export interface RefPayload {
-  metadata: IColumn;
+  metadata: IRefColumn;
   data: IRow;
 }

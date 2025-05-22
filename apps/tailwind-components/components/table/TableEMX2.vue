@@ -142,19 +142,22 @@
   />
 
   <TableModalRef
-    v-if="refTableRow && refTableColumn"
+    v-if="showModal && refTableRow && refTableColumn"
     v-model:visible="showModal"
     :metadata="refTableColumn"
     :row="refTableRow"
     :schema="props.schemaId"
     :showDataOwner="false"
-    @close="showModal = false"
   />
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import type { IRow, IColumn } from "../../../metadata-utils/src/types";
+import type {
+  IRow,
+  IColumn,
+  IRefColumn,
+} from "../../../metadata-utils/src/types";
 import type {
   ITableSettings,
   RefPayload,
@@ -280,7 +283,7 @@ function handlePagingRequest(page: number) {
 
 const showModal = ref(false);
 const refTableRow = ref<IRow>();
-const refTableColumn = ref<IColumn>();
+const refTableColumn = ref<IRefColumn>();
 
 function handleCellClick(
   event: RefPayload,
@@ -289,7 +292,10 @@ function handleCellClick(
 ) {
   console.log("Cell clicked", event);
   refTableRow.value = event.data;
-  refTableColumn.value = column;
+  refTableColumn.value =
+    column.columnType === "REF"
+      ? (column as IRefColumn)
+      : (column as IRefColumn); // todo other types of column
   showModal.value = true;
 }
 
