@@ -12,8 +12,8 @@
     "dependencies": {
         "@heroicons/vue": "^2.0.18",
         "graphql-request": "5.2.0",
-        "molgenis-components": "*",
-        "molgenis-viz": "*",
+        "molgenis-components": "workspace:*",
+        "molgenis-viz": "workspace:*",
         "vue":"3.5.13",
         "vue-router": "4.4.3"
       },

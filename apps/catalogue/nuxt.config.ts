@@ -3,6 +3,7 @@ import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
+  packageManager: 'pnpm',
   devtools: { enabled: true },
   modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag", "@pinia/nuxt"],
   tailwindcss: {
