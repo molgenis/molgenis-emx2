@@ -16,12 +16,16 @@ const visible = defineModel("visible", {
   required: true,
 });
 
+// needed for case where modal is show/hidden but not added /removed from DOM
 watchEffect(() => {
   if (visible.value) {
     document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
   }
 });
 
+// needed for case where modal is added /removed ( versus show/hide)
 onBeforeUnmount(() => {
   document.body.style.overflow = "";
 });
