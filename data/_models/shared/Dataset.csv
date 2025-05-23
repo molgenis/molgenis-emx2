@@ -1,54 +1,46 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,default
-Dataset,,,,,,,,,,,dcat:Dataset,DCAT v2 dataset entries.,DCAT,
-Dataset,,id,string,1,TRUE,,,,,,"dcterms:identifier,afr:AFR_0000919",Local database identifier of the dataset.,DCAT,
-Dataset,,title,string,,TRUE,,,,,,dcterms:title,A name given to the record.,DCAT,
-Dataset,,description,string,,TRUE,,,,,,dcterms:description,A free-text account of the item.,DCAT,
-Dataset,,belongsToCatalog,ref_array,,TRUE,,Catalog,,,,dcat:Catalog,Reference back to any catalogs that contain this dataset.,DCAT,
-Dataset,,distribution,refBack,,,,Distribution,,belongsToDataset,,dcterms:distribution,"Reference to one or more Distributions to make table data and/or remote file(s) metadata available in the FDP.",DCAT,
-Dataset,,accrualPeriodicity,string,,,,,,,,dcterms:accrualPeriodicity,The frequency at which dataset is published.,DCAT,
-Dataset,,spatial,ontology_array,,TRUE,,Countries,,,,dcterms:spatial,The geographical area covered by the dataset.,DCAT,
-Dataset,,spatialResolutionInMeters,decimal,,,,,,,,dcterms:spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT,
-Dataset,,temporal,string,,,,,,,,dcterms:temporal,The temporal period that the dataset covers.,DCAT,
-Dataset,,temporalResolution,string,,,,,,,,dcterms:temporalResolution,Minimum time period resolvable in the dataset.,DCAT,
-Dataset,,wasGeneratedBy,string,,,,,,,,prov:wasGeneratedBy,"An activity that generated, or provides the business context for, the creation of the dataset.",DCAT,
-Dataset,,accessRights,ontology_array,,,,,,,,dcterms:accessRights,Information about who can access the resource or an indication of its security status.,DCAT,
-Dataset,,contactPoint,ref,,,,ContactPersons,,,,dcterms:contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT,
-Dataset,,Distribution,ref,,,,Distribution,,,,dcat:distribution,"Recommended practice is to use a controlled vocabulary where available. For example, for file formats one could use the list of Internet Media Types [[MIME](https://www.iana.org/assignments/media-types/media-types.xhtml)].  Examples of dimensions include size and duration.",DCAT,
-Dataset,,creator,ref_array,,,,ContactPersons,,,,dcterms:creator,The entity responsible for producing the resource.,DCAT,
-Dataset,,hasPolicy,string,,,,,,,,odrl:hasPolicy,An ODRL conformant policy expressing the rights associated with the resource.,DCAT,
-Dataset,,identifier,string,,,,,,,,dcterms:identifier,A unique identifier of the item.,DCAT,
-Dataset,,isReferencedBy,string,,,,,,,,dcterms:isReferencedBy,"A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.",DCAT,
-Dataset,,keyword,string_array,,,,,,,,dcterms:keyword,A keyword or tag describing the resource.,DCAT,
-Dataset,,landingPage,string,,,,,,,,dcterms:landingPage,"A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.",DCAT,
-Dataset,,license,hyperlink,,,,,,,,dcterms:license,A legal document under which the resource is made available.,DCAT,
-Dataset,,language,ontology_array,,,,Languages,,,,dcterms:language,"A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.",DCAT,
-Dataset,,relation,ref_array,,,,Studies,,,,dcterms:relation,A resource with an unspecified relationship to the cataloged item.,DCAT,
-Dataset,,rights,string,,,,,,,,dcterms:rights,"A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",DCAT,
-Dataset,,qualifiedRelation,string,,,,,,,,dcterms:qualifiedRelation,Link to a description of a relationship with another resource.,DCAT,
-Dataset,,publisher,ref,,TRUE,,Agent,,,,dcterms:publisher,The entity responsible for making the item available.,DCAT,
-Dataset,,theme,hyperlink_array,,,,,,,,dcat:theme,A main category of the resource. A resource can have multiple themes.,DCAT,
-Dataset,,applicableLegislation,hyperlink_array,,,,,,,,dcatap:applicableLegislation,"Legislation applicable to the catalogue",DCAT,http://data.europa.eu/eli/reg/2022/868/oj
-Dataset,,type,hyperlink,,,,,,,,dcterms:type,The nature or genre of the resource.,DCAT,
-Dataset,,hasPurpose,hyperlink,,TRUE,,,,,,dpv:hasPurpose,The purpose for whicht the resource is made availiable,DCAT,
-Dataset,,healthDataAccessBody,hyperlink_array,,TRUE,,Organisations,,,,healtdcatap:hdab,Link the ressource to its designated Health Data Access Body,DCATAP,
-Dataset,,healthCategory,hyperlink_array,,TRUE,,Resources,,,,healtdcatap:healthCategory,The health category of the dataset,DCATAP,
-Dataset,,theme,hyperlink_array,,TRUE,,,,,,healtdcatap:Theme,A main category of the resource. A resource can have multiple themes.,DCAT,"HEAL"
-Dataset,,codeValues,hyperlink_array,,,,,,,,healtdcatap:hasCodeValues,Code values associated with the resource,DCATAP,
-Dataset,,codingSystem,hyperlink,,,,,,,,healtdcatap:hasCodingSystem,The coding system used for classification.,DCATAP,
-Dataset,,qualifiedAttribution,string,,,,,,,,prov:qualifiedAttribution,Link to an Agent having some form of responsibility for the resource,DCAT,
-Dataset,,propertyValue,string_array,,,,,,,,schema:PropertyValue,"A property-value pair, e.g. representing a feature of a product or place.",DCAT,
-datareleases,,,,,,,,,,,obo:NCIT_C172217,"The act of making data or other structured information accessible to the public or to the user group of a database.",RD3,
-datareleases,,name,string,1,TRUE,,,,,,obo:NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing.",RD3,
-datareleases,,label,string,,,,,,,,obo:NCIT_C42614,"The words or language units by which a thing is known.",RD3,
-datareleases,,description,text,,,,,,,,obo:NCIT_C25365,"A written or verbal account, representation, statement, or explanation of something.",RD3,
-datareleases,,date,date,,,,,,,,sio:SIO_001083,"A date of database submission refers to the moment in time in which some information was submitted/received to a database system.",RD3,
-datareleases,,createdBy,ref,,,,ContactPersons,,,,obo:NCIT_C42628,"Indicates the person or authoritative body who brought the item into existence.",RD3,
-datareleases,,dataSource,ontology_array,,,,Organisations,,,,obo:NCIT_C16493,"The person or authoritative body who provided the information.",RD3,
-datareleases,,releaseNotes,text,,,,,,,,obo:NCIT_C115505,"A notation regarding the decisions, and/or clarification of any information pertaining to data management.",RD3,
-datasets,,,,,,,,,,,obo:NCIT_C47824,"container of files belonging together (different datasets can contain overlapping files, except for the intial datasets containing startfiles (before analysis, startfiles= BAM, gVCF files (one per chromosome) and phenopacket file))",RD3,
-datasets,,name,string,1,TRUE,,,,,,obo:NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing.",RD3,
-datasets,,description,text,,,,,,,,obo:NCIT_C25365,"A written or verbal account, representation, statement, or explanation of something.",RD3,
-datasets,,datausepermissions,ontology_array,,,,DataUsePermissions,,,,obo:DUO_0000001,,RD3,
-datasets,,datausemodifiers,ontology_array,,,,DataUseModifiers,,,,obo:DUO_0000017,"Data use modifiers indicate additional conditions for use. For instance, a dataset is restricted to investigations into specific diseases or performed at specific geographical locations.",RD3,
-datasets,,datasetType,,,TRUE,,,,,,,"type of dataset (raw or processed (analysed) data)",RD3,
-datasets,,comments,text,,,,,,,,obo:NCIT_C25393,"A written explanation, observation or criticism added to textual material.",RD3,
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Dataset,,,,,,,,,,,dcat:Dataset,DCAT v2 dataset entries.,DCAT
+Dataset,,id,string,1,TRUE,,,,,,"dcterms:identifier,afr:AFR_0000919",Local database identifier of the dataset.,DCAT
+Dataset,,title,string,,TRUE,,,,,,dcterms:title,A name given to the record.,DCAT
+Dataset,,description,string,,TRUE,,,,,,dcterms:description,A free-text account of the item.,DCAT
+Dataset,,belongsToCatalog,ref_array,,TRUE,,Catalog,,,,dcat:Catalog,Reference back to any catalogs that contain this dataset.,DCAT
+Dataset,,distribution,refBack,,,,Distribution,,belongsToDataset,,dcterms:distribution,"Reference to one or more Distributions to make table data and/or remote file(s) metadata available in the FDP.",DCAT
+Dataset,,accrualPeriodicity,string,,,,,,,,dcterms:accrualPeriodicity,The frequency at which dataset is published.,DCAT
+Dataset,,spatial,ontology_array,,,,Countries,,,,dcterms:spatial,The geographical area covered by the dataset.,DCAT
+Dataset,,spatialResolutionInMeters,decimal,,,,,,,,dcterms:spatialResolutionInMeters,"Minimum spatial separation resolvable in a dataset, measured in meters.",DCAT
+Dataset,,temporal,string,,,,,,,,dcterms:temporal,The temporal period that the dataset covers.,DCAT
+Dataset,,temporalResolution,string,,,,,,,,dcterms:temporalResolution,Minimum time period resolvable in the dataset.,DCAT
+Dataset,,wasGeneratedBy,string,,,,,,,,prov:wasGeneratedBy,"An activity that generated, or provides the business context for, the creation of the dataset.",DCAT
+Dataset,,accessRights,string,,,,,,,,dcterms:accessRights,Information about who can access the resource or an indication of its security status.,DCAT
+Dataset,,contactPoint,ref,,,,ContactPersons,,,,dcterms:contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,DCAT
+Dataset,,creator,ref_array,,,,ContactPersons,,,,dcterms:creator,The entity responsible for producing the resource.,DCAT
+Dataset,,hasPolicy,string,,,,,,,,odrl:hasPolicy,An ODRL conformant policy expressing the rights associated with the resource.,DCAT
+Dataset,,identifier,string,,,,,,,,dcterms:identifier,A unique identifier of the item.,DCAT
+Dataset,,isReferencedBy,string,,,,,,,,dcterms:isReferencedBy,"A related resource, such as a publication, that references, cites, or otherwise points to the cataloged resource.",DCAT
+Dataset,,keyword,string_array,,,,,,,,dcterms:keyword,A keyword or tag describing the resource.,DCAT
+Dataset,,landingPage,string,,,,,,,,dcterms:landingPage,"A Web page that can be navigated to in a Web browser to gain access to the catalog, a dataset, its distributions and/or additional information.",DCAT
+Dataset,,license,hyperlink,,,,,,,,dcterms:license,A legal document under which the resource is made available.,DCAT
+Dataset,,language,ontology_array,,,,Languages,,,,dcterms:language,"A language of the item. This refers to the natural language used for textual metadata (i.e. titles, descriptions, etc) of a cataloged resource (i.e. dataset or service) or the textual values of a dataset distribution.",DCAT
+Dataset,,relation,ref_array,,,,Studies,,,,dcterms:relation,A resource with an unspecified relationship to the cataloged item.,DCAT
+Dataset,,rights,string,,,,,,,,dcterms:rights,"A statement that concerns all rights not addressed with dct:license or dct:accessRights, such as copyright statements.",DCAT
+Dataset,,qualifiedRelation,string,,,,,,,,dcterms:qualifiedRelation,Link to a description of a relationship with another resource.,DCAT
+Dataset,,publisher,ref,,,,Agent,,,,dcterms:publisher,The entity responsible for making the item available.,DCAT
+Dataset,,theme,hyperlink_array,,,,,,,,dcat:theme,A main category of the resource. A resource can have multiple themes.,DCAT
+Dataset,,type,hyperlink,,,,,,,,dcterms:type,The nature or genre of the resource.,DCAT
+Dataset,,qualifiedAttribution,string,,,,,,,,prov:qualifiedAttribution,Link to an Agent having some form of responsibility for the resource,DCAT
+Dataset,,propertyValue,string_array,,,,,,,,schema:PropertyValue,"A property-value pair, e.g. representing a feature of a product or place.",DCAT
+datareleases,,,,,,,,,,,obo:NCIT_C172217,"The act of making data or other structured information accessible to the public or to the user group of a database.",RD3
+datareleases,,name,string,1,TRUE,,,,,,obo:NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing.",RD3
+datareleases,,label,string,,,,,,,,obo:NCIT_C42614,"The words or language units by which a thing is known.",RD3
+datareleases,,description,text,,,,,,,,obo:NCIT_C25365,"A written or verbal account, representation, statement, or explanation of something.",RD3
+datareleases,,date,date,,,,,,,,sio:SIO_001083,"A date of database submission refers to the moment in time in which some information was submitted/received to a database system.",RD3
+datareleases,,createdBy,ref,,,,ContactPersons,,,,obo:NCIT_C42628,"Indicates the person or authoritative body who brought the item into existence.",RD3
+datareleases,,dataSource,ontology_array,,,,Organisations,,,,obo:NCIT_C16493,"The person or authoritative body who provided the information.",RD3
+datareleases,,releaseNotes,text,,,,,,,,obo:NCIT_C115505,"A notation regarding the decisions, and/or clarification of any information pertaining to data management.",RD3
+datasets,,,,,,,,,,,obo:NCIT_C47824,"container of files belonging together (different datasets can contain overlapping files, except for the intial datasets containing startfiles (before analysis, startfiles= BAM, gVCF files (one per chromosome) and phenopacket file))",RD3
+datasets,,name,string,1,TRUE,,,,,,obo:NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing.",RD3
+datasets,,description,text,,,,,,,,obo:NCIT_C25365,"A written or verbal account, representation, statement, or explanation of something.",RD3
+datasets,,datausepermissions,ontology_array,,,,DataUsePermissions,,,,obo:DUO_0000001,,RD3
+datasets,,datausemodifiers,ontology_array,,,,DataUseModifiers,,,,obo:DUO_0000017,"Data use modifiers indicate additional conditions for use. For instance, a dataset is restricted to investigations into specific diseases or performed at specific geographical locations.",RD3
+datasets,,datasetType,,,TRUE,,,,,,,"type of dataset (raw or processed (analysed) data)",RD3
+datasets,,comments,text,,,,,,,,obo:NCIT_C25393,"A written explanation, observation or criticism added to textual material.",RD3
