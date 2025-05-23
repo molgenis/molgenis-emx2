@@ -68,6 +68,12 @@
     @refBackCellClicked="$emit('cellClicked', $event)"
   />
 
+  <TableCellTypesFile
+    v-else-if="metaData.columnType === 'FILE'"
+    :metaData="metaData"
+    :data="data"
+  />
+
   <template v-else> {{ metaData.columnType }} </template>
 </template>
 

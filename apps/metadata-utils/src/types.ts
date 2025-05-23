@@ -119,13 +119,22 @@ export type columnValue =
   | null
   | undefined
   | columnValueObject
-  | columnValue[];
+  | columnValue[]
+  | fileValue;
 
 export type recordValue = Record<string, columnValue>;
 
 export interface columnValueObject {
   [x: string]: columnValue;
 }
+
+export type fileValue = {
+  id: string;
+  size: number;
+  filename: string;
+  extension: string;
+  url: string;
+};
 
 export type IInputValue = string | number | boolean;
 
