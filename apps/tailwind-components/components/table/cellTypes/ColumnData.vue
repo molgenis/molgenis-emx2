@@ -12,6 +12,12 @@
     :data="data"
   />
 
+  <TableCellTypesText
+    v-else-if="metaData.columnType === 'TEXT'"
+    :metaData="metaData"
+    :data="data"
+  />
+
   <TableCellTypesDecimal
     v-else-if="metaData.columnType === 'DECIMAL'"
     :metaData="metaData"

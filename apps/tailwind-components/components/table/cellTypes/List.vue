@@ -17,6 +17,11 @@ const elementType = computed(() => props.metaData.columnType.split("_")[0]);
       :metaData="metaData"
       :data="listElement as string"
     />
+    <TableCellTypesString
+      v-if="elementType === 'TEXT'"
+      :metaData="metaData"
+      :data="listElement as string"
+    />
     <TableCellTypesDecimal
       v-else-if="elementType === 'DECIMAL'"
       :metaData="metaData"
