@@ -1715,7 +1715,7 @@ name,definition,codesystem,code,ontologyTermURI
 "Kcal_per_day","Kilocalorie per Day","NCIT","C139135","http://purl.obolibrary.org/obo/NCIT_C139135"
 "mg_per_dl","Milligram per Deciliter","NCIT","C67015","http://purl.obolibrary.org/obo/NCIT_C67015"
 "vehicles_per_day",,,,
-"ten_power_minus_five_per_inverse_meter","we have reciprocal meter, but not with a multiplier",,,
+"ten_power_minus_five_per_inverse_meter",,,,
 "parts_per_billion","Part Per Billion","NCIT","C70565","http://purl.obolibrary.org/obo/NCIT_C70565"
 "vehicles_per_day_and_meter",,,,
 "iu_per_ml",,,,
