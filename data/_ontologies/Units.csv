@@ -1733,10 +1733,10 @@ name,definition,codesystem,code,ontologyTermURI
 "gram/ml","Gram per Milliliter","NCIT","C64566","http://purl.obolibrary.org/obo/NCIT_C64566"
 "times_per_day","Daily","NCIT","C25473","http://purl.obolibrary.org/obo/NCIT_C25473"
 "cats","Cat","NCIT","C14191","http://purl.obolibrary.org/obo/NCIT_C14191"
-"degree_celsius","Degree Celsius","NCIT","C42559","http://purl.obolibrary.org/obo/NCIT_C42559 "
+"degree_celsius","Degree Celsius","NCIT","C42559","http://purl.obolibrary.org/obo/NCIT_C42559"
 "z-score","Z-Score","NCIT","C68741","http://purl.obolibrary.org/obo/NCIT_C68741"
 "kua_l","Kilo Allergen-specific Units per Liter?","NCIT","C70504","http://purl.obolibrary.org/obo/NCIT_C70504"
-"times_per_week","Meter per Second","NCIT","C42571","http://purl.obolibrary.org/obo/NCIT_C42571"
+"times_per_week","Weekly","NCIT","C67069","http://purl.obolibrary.org/obo/NCIT_C67069"
 "numeric","Numeric","NCIT","C25337","http://purl.obolibrary.org/obo/NCIT_C25337"
 "mU/L","Milliunit per Liter","NCIT","C67408","http://purl.obolibrary.org/obo/NCIT_C67408"
 "gr/day","Gram per Day","NCIT","C67372","http://purl.obolibrary.org/obo/NCIT_C67372"
@@ -1765,7 +1765,7 @@ name,definition,codesystem,code,ontologyTermURI
 "date","Date","NCIT","C25164","http://purl.obolibrary.org/obo/NCIT_C25164"
 "pack/years",,,,
 "drinks/week","Weekly","NCIT","C67069","http://purl.obolibrary.org/obo/NCIT_C67069"
-"cig/day",,"NCIT","C181711","http://purl.obolibrary.org/obo/NCIT_C181711"
+"cig/day","Average Number of Times per Day Subject Uses Tobacco","NCIT","C181711","http://purl.obolibrary.org/obo/NCIT_C181711"
 "mk",,,,
 "eur","Euro (qualifier value)","SNOMED","414151005","http://snomed.info/id/414151005"
 "milliseconds","Millisecond","NCIT","C41140","http://purl.obolibrary.org/obo/NCIT_C41140"
@@ -1775,6 +1775,6 @@ name,definition,codesystem,code,ontologyTermURI
 "Hectopascal","A SI derived unit of pressure equivalent to one hundred pascals, 1 millibar or 0.0145 pounds per square inch.","NCIT","C105487","http://purl.obolibrary.org/obo/NCIT_C105487"
 "watt per square meter","Watt per Square Meter","UO","155","http://purl.obolibrary.org/obo/UO_0000155"
 "pmol/L","Picomole per Liter","NCIT","C67434","http://purl.obolibrary.org/obo/NCIT_C67434"
-"ug/g","Microgram per Gram",,,
+"ug/g",,,,
 "radiation",,,,"http://www.ontology-of-units-of-measure.org/resource/Valerie-9/radiation"
 "pmol/l","Picomole per Liter","NCIT","C67434","http://purl.obolibrary.org/obo/NCIT_C67434"
