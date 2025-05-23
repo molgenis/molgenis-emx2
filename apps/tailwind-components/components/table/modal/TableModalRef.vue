@@ -101,7 +101,7 @@ function handleCellClicked(event: RefPayload) {
       <DefinitionList v-if="!loading" :compact="false">
         <template v-for="column in columns">
           <DefinitionListTerm class="text-title-contrast"
-            >{{ column.key }}
+            >{{ column.metadata.label }}
           </DefinitionListTerm>
           <DefinitionListDefinition class="text-title-contrast">
             <ColumnData
