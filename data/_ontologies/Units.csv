@@ -1663,118 +1663,118 @@ name,definition,codesystem,code,ontologyTermURI
 "Micrometer per Second","Micrometer per Second","NCIT","C154858","http://purl.obolibrary.org/obo/NCIT_C154858"
 "Microsiemens","Microsiemens","NCIT","C154859","http://purl.obolibrary.org/obo/NCIT_C154859"
 "Hundred Million International Units","Hundred Million International Units","NCIT","C156119","http://purl.obolibrary.org/obo/NCIT_C156119"
-%,,,,
-meter,,,,
-mmHg,,,,
-bpm,,,,
-mmol/litre,,,,
-day,,,,
-litre,,,,
-litres/second,,,,
-metre_per_second,,,,
-percent,,,,
-mm,,,,
-year,,,,
-gram/litre,,,,
-pg/ml,,,,
-mu/litre,,,,
-ug/ml,,,,
-square_meter,,,,
-square_meter_per_square_kilometer,,,,
-week,,,,
-mg/litre,,,,
-cm,,,,
-m,,,,
-kg,,,,
-minutes,,,,
-vocabulary_table,,,,
-free_text,,,,
-weeks,,,,
-unit,,,,
-microgram_per_milli_liter,,,,
-ng/ml,,,,
-gram,"",UO,0000021,http://purl.obolibrary.org/obo/UO_0000021
-kJ,,,,
-hours/day,,,,
-hours/week,,,,
-servings/day,,,,
-mg/day,,,,
-kcal/day,,,,
-kg/m2,,,,
-mg,,,,
-month,,,,
-meter_per_square_kilometer,,,,
-percent_energy_intake,,,,
-inverse_meter,,,,
-hours_per_day,,,,
-A_weighted_decibel,,,,
-gram_per_dl,,,,
-percent_total_food,,,,
-ng_per_ml,,,,
-dogs,,,,
-Kcal_per_day,,,,
-mg_per_dl,,,,
-vehicles_per_day,,,,
-ten_power_minus_five_per_inverse_meter,,,,
-parts_per_billion,,,,
-vehicles_per_day_and_meter,,,,
-iu_per_ml,,,,
-milligram_per_day,,,,
-nanograms_per_cubic_meter,,,,
-people_per_square_kilometer,,,,
-gram_per_day,,,,
-micrograms_per_cubic_meter,,,,
-ndvi_value,,,,
-sympercent_change,,,,
-number_per_square_kilometer,,,,
-µg/ml,,,,
-servings_per_day,,,,
-kilojoules_per_square_meter,,,,
-gram/ml,,,,
-times_per_day,,,,
-cats,,,,
-degree_celsius,,,,
-z-score,,,,
-kua_l,,,,
-times_per_week,,,,
-numeric,,,,
-mU/L,,,,
-gr/day,,,,
-% total food,,,,
-times/week,,,,
-m/s,,,,
-% energy intake,,,,
-days,,,,
-times/day,,,,
-mmhg,,,,
-Kcal/day,,,,
-months,,,,
-kUa/L,,,,
-L,,,,
-years,,,,
-g,,,,
-L/s,,,,
-g/L,,,,
-grams,,,,
-EUR,,,,
-sympercent change,,,,
-h/day,,,,
-µg/L,,,,
-mmol/l,,,,
-pg/g,,,,
-date,,,,
-pack/years,,,,
-drinks/week,,,,
-cig/day,,,,
-mk,,,,
-eur,,,,
-milliseconds,,,,
-micrometer,"",UO,0000017,http://purl.obolibrary.org/obo/UO_0000017
-unit per liter,"",UO,0000179,http://purl.obolibrary.org/obo/UO_0000179
-estimated fetal weight SDS,,,,
-Hectopascal,"A SI derived unit of pressure equivalent to one hundred pascals, 1 millibar or 0.0145 pounds per square inch.",NCIT,C105487,http://purl.obolibrary.org/obo/NCIT_C105487
-watt per square meter,"",UO,0000155,http://purl.obolibrary.org/obo/UO_0000155
-pmol/L,,,,
-ug/g,,,,
-radiation,,,,http://www.ontology-of-units-of-measure.org/resource/Valerie-9/radiation
-pmol/l,,,,
+"%","Percent Unit","NCIT","C48570","http://purl.obolibrary.org/obo/NCIT_C48570"
+"meter","Meter","NCIT","C41139","http://purl.obolibrary.org/obo/NCIT_C41139"
+"mmHg","Millimeter of Mercury","NCIT","C49670","http://purl.obolibrary.org/obo/NCIT_C49670"
+"bpm","Beats per Minute","NCIT","C49673","http://purl.obolibrary.org/obo/NCIT_C49673"
+"mmol/litre","Millimole per Liter","NCIT","C64387","http://purl.obolibrary.org/obo/NCIT_C64387"
+"day","Day","NCIT","C25301","http://purl.obolibrary.org/obo/NCIT_C25301"
+"litre","Liter","NCIT","C48505","http://purl.obolibrary.org/obo/NCIT_C48505"
+"litres/second","Liter per Second","NCIT","C67390","http://purl.obolibrary.org/obo/NCIT_C67390"
+"metre_per_second","Meter per Second","NCIT","C42571","http://purl.obolibrary.org/obo/NCIT_C42571"
+"percent","Percent Unit","NCIT","C48570","http://purl.obolibrary.org/obo/NCIT_C48570"
+"mm","Millimeter","NCIT","C28251","http://purl.obolibrary.org/obo/NCIT_C28251"
+"year","Year","NCIT","C29848","http://purl.obolibrary.org/obo/NCIT_C29848"
+"gram/litre","Gram per Liter","NCIT","C42576","http://purl.obolibrary.org/obo/NCIT_C42576"
+"pg/ml","Nanogram per Liter","NCIT","C67327","http://purl.obolibrary.org/obo/NCIT_C67327"
+"mu/litre","Milliunit per Liter","NCIT","C67408","http://purl.obolibrary.org/obo/NCIT_C67408"
+"ug/ml","Microgram per Milliliter","NCIT","C75905","http://purl.obolibrary.org/obo/NCIT_C75905"
+"square_meter","Square Meter","NCIT","C42569","http://purl.obolibrary.org/obo/NCIT_C42569"
+"square_meter_per_square_kilometer",,,,
+"week","Week","NCIT","C29844","http://purl.obolibrary.org/obo/NCIT_C29844"
+"mg/litre","Milligram per Liter","NCIT","C64572","http://purl.obolibrary.org/obo/NCIT_C64572"
+"cm","Centimeter","NCIT","C49668","http://purl.obolibrary.org/obo/NCIT_C49668"
+"m","Meter","NCIT","C41139","http://purl.obolibrary.org/obo/NCIT_C41139"
+"kg","Kilogram","NCIT","C28252","http://purl.obolibrary.org/obo/NCIT_C28252"
+"minutes","Minute","NCIT","C48154","http://purl.obolibrary.org/obo/NCIT_C48154"
+"vocabulary_table",,,,
+"free_text",,,,
+"weeks","Week","NCIT","C29844","http://purl.obolibrary.org/obo/NCIT_C29844"
+"unit","Unit","NCIT","C44278","http://purl.obolibrary.org/obo/NCIT_C44278"
+"microgram_per_milli_liter","Microgram per Milliliter","NCIT","C75905","http://purl.obolibrary.org/obo/NCIT_C75905"
+"ng/ml","Nanogram per Milliliter","NCIT","C67306","http://purl.obolibrary.org/obo/NCIT_C67306"
+"gram","Gram","NCIT","C48155","http://purl.obolibrary.org/obo/NCIT_C48155"
+"kJ","Kilojoule","NCIT","C68547","http://purl.obolibrary.org/obo/NCIT_C68547"
+"hours/day","Hour per Day","NCIT","C176380","http://purl.obolibrary.org/obo/NCIT_C176380"
+"hours/week","Hours Per Week","NCIT","C170635","http://purl.obolibrary.org/obo/NCIT_C170635"
+"servings/day",,,,
+"mg/day","Milligram per Day","NCIT","C67399","http://purl.obolibrary.org/obo/NCIT_C67399"
+"kcal/day","Kilocalorie per Day","NCIT","C139135","http://purl.obolibrary.org/obo/NCIT_C139135"
+"kg/m2","Kilogram per Square Meter","NCIT","C49671","http://purl.obolibrary.org/obo/NCIT_C49671"
+"mg","Milligram","NCIT","C28253","http://purl.obolibrary.org/obo/NCIT_C28253"
+"month","Month","NCIT","C29846","http://purl.obolibrary.org/obo/NCIT_C29846"
+"meter_per_square_kilometer",,,,
+"percent_energy_intake","Percent","NCIT","C48570","http://purl.obolibrary.org/obo/NCIT_C48570"
+"inverse_meter","Reciprocal Meter","NCIT","C42573","http://purl.obolibrary.org/obo/NCIT_C42573"
+"hours_per_day","Hour per Day","NCIT","C176380","http://purl.obolibrary.org/obo/NCIT_C176380"
+"A_weighted_decibel",,,,
+"gram_per_dl","Gram per Deciliter","NCIT","C64783","http://purl.obolibrary.org/obo/NCIT_C64783"
+"percent_total_food","Percent","NCIT","C48570","http://purl.obolibrary.org/obo/NCIT_C48570"
+"ng_per_ml","Nanogram per Milliliter","NCIT","C67306","http://purl.obolibrary.org/obo/NCIT_C67306"
+"dogs","Dog","NCIT","C14201","http://purl.obolibrary.org/obo/NCIT_C14201"
+"Kcal_per_day","Kilocalorie per Day","NCIT","C139135","http://purl.obolibrary.org/obo/NCIT_C139135"
+"mg_per_dl","Milligram per Deciliter","NCIT","C67015","http://purl.obolibrary.org/obo/NCIT_C67015"
+"vehicles_per_day",,,,
+"ten_power_minus_five_per_inverse_meter","we have reciprocal meter, but not with a multiplier",,,
+"parts_per_billion","Part Per Billion","NCIT","C70565","http://purl.obolibrary.org/obo/NCIT_C70565"
+"vehicles_per_day_and_meter",,,,
+"iu_per_ml",,,,
+"milligram_per_day","Milligram per Day","NCIT","C67399","http://purl.obolibrary.org/obo/NCIT_C67399"
+"nanograms_per_cubic_meter","usually Nanogram per Liter (factor 1000) (C67327)",,,
+"people_per_square_kilometer",,,,
+"gram_per_day","Gram per Day","NCIT","C67372","http://purl.obolibrary.org/obo/NCIT_C67372"
+"micrograms_per_cubic_meter",,,,
+"ndvi_value",,,,
+"sympercent_change",,,,
+"number_per_square_kilometer",,,,
+"µg/ml","Microgram per Milliliter","NCIT","C75905","http://purl.obolibrary.org/obo/NCIT_C75905"
+"servings_per_day",,,,
+"kilojoules_per_square_meter",,,,
+"gram/ml","Gram per Milliliter","NCIT","C64566","http://purl.obolibrary.org/obo/NCIT_C64566"
+"times_per_day","Daily","NCIT","C25473","http://purl.obolibrary.org/obo/NCIT_C25473"
+"cats","Cat","NCIT","C14191","http://purl.obolibrary.org/obo/NCIT_C14191"
+"degree_celsius","Degree Celsius","NCIT","C42559","http://purl.obolibrary.org/obo/NCIT_C42559 "
+"z-score","Z-Score","NCIT","C68741","http://purl.obolibrary.org/obo/NCIT_C68741"
+"kua_l","Kilo Allergen-specific Units per Liter?","NCIT","C70504","http://purl.obolibrary.org/obo/NCIT_C70504"
+"times_per_week","Meter per Second","NCIT","C42571","http://purl.obolibrary.org/obo/NCIT_C42571"
+"numeric","Numeric","NCIT","C25337","http://purl.obolibrary.org/obo/NCIT_C25337"
+"mU/L","Milliunit per Liter","NCIT","C67408","http://purl.obolibrary.org/obo/NCIT_C67408"
+"gr/day","Gram per Day","NCIT","C67372","http://purl.obolibrary.org/obo/NCIT_C67372"
+"% total food","Percent","NCIT","C48570","http://purl.obolibrary.org/obo/NCIT_C48570"
+"times/week","Weekly","NCIT","C67069","http://purl.obolibrary.org/obo/NCIT_C67069"
+"m/s","Meter per Second","NCIT","C42571","http://purl.obolibrary.org/obo/NCIT_C42571"
+"% energy intake","Percent","NCIT","C48570","http://purl.obolibrary.org/obo/NCIT_C48570"
+"days","Day","NCIT","C25301","http://purl.obolibrary.org/obo/NCIT_C25301"
+"times/day","Daily","NCIT","C25473","http://purl.obolibrary.org/obo/NCIT_C25473"
+"mmhg","Millimeter of Mercury","NCIT","C49670","http://purl.obolibrary.org/obo/NCIT_C49670"
+"Kcal/day","Kilocalorie per Day","NCIT","C139135","http://purl.obolibrary.org/obo/NCIT_C139135"
+"months","Month","NCIT","C29846","http://purl.obolibrary.org/obo/NCIT_C29846"
+"kUa/L","Allergy Unit per Milliliter","NCIT","C70504","http://purl.obolibrary.org/obo/NCIT_C70504"
+"L","Liter","NCIT","C48505","http://purl.obolibrary.org/obo/NCIT_C48505"
+"years","Year","NCIT","C29848","http://purl.obolibrary.org/obo/NCIT_C29848"
+"g","Gram","NCIT","C48155","http://purl.obolibrary.org/obo/NCIT_C48155"
+"L/s","Liter per Second","NCIT","C67390","http://purl.obolibrary.org/obo/NCIT_C67390"
+"g/L","Gram per Liter","NCIT","C42576","http://purl.obolibrary.org/obo/NCIT_C42576"
+"grams","Gram","NCIT","C48155","http://purl.obolibrary.org/obo/NCIT_C48155"
+"EUR","Euro (qualifier value)","SNOMED","414151005","http://snomed.info/id/414151005"
+"sympercent change",,,,
+"h/day","Hours Per Day","NCIT","C176380","http://purl.obolibrary.org/obo/NCIT_C176380"
+"µg/L","Microgram per Liter","NCIT","C67306","http://purl.obolibrary.org/obo/NCIT_C67306"
+"mmol/l","Millimole per Liter","NCIT","C64387","http://purl.obolibrary.org/obo/NCIT_C64387"
+"pg/g","Picogram per Gram","NCIT","C67429","http://purl.obolibrary.org/obo/NCIT_C67429"
+"date","Date","NCIT","C25164","http://purl.obolibrary.org/obo/NCIT_C25164"
+"pack/years",,,,
+"drinks/week","Weekly","NCIT","C67069","http://purl.obolibrary.org/obo/NCIT_C67069"
+"cig/day",,"NCIT","C181711","http://purl.obolibrary.org/obo/NCIT_C181711"
+"mk",,,,
+"eur","Euro (qualifier value)","SNOMED","414151005","http://snomed.info/id/414151005"
+"milliseconds","Millisecond","NCIT","C41140","http://purl.obolibrary.org/obo/NCIT_C41140"
+"micrometer","micrometer","UO","17","http://purl.obolibrary.org/obo/UO_0000017"
+"unit per liter","Unit per Liter","UO","179","http://purl.obolibrary.org/obo/UO_0000179"
+"estimated fetal weight SDS",,,,
+"Hectopascal","A SI derived unit of pressure equivalent to one hundred pascals, 1 millibar or 0.0145 pounds per square inch.","NCIT","C105487","http://purl.obolibrary.org/obo/NCIT_C105487"
+"watt per square meter","Watt per Square Meter","UO","155","http://purl.obolibrary.org/obo/UO_0000155"
+"pmol/L","Picomole per Liter","NCIT","C67434","http://purl.obolibrary.org/obo/NCIT_C67434"
+"ug/g","Microgram per Gram",,,
+"radiation",,,,"http://www.ontology-of-units-of-measure.org/resource/Valerie-9/radiation"
+"pmol/l","Picomole per Liter","NCIT","C67434","http://purl.obolibrary.org/obo/NCIT_C67434"
