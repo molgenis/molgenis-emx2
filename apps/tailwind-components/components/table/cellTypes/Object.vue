@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { flattenObject } from "#imports";
+import { flattenObject } from "../../../utils/flattenObject";
 import { computed } from "vue";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 

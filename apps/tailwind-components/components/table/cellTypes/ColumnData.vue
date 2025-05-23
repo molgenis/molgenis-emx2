@@ -12,6 +12,12 @@
     :data="data"
   />
 
+  <TableCellTypesText
+    v-else-if="metaData.columnType === 'TEXT'"
+    :metaData="metaData"
+    :data="data"
+  />
+
   <TableCellTypesDecimal
     v-else-if="metaData.columnType === 'DECIMAL'"
     :metaData="metaData"
@@ -21,13 +27,20 @@
   <TableCellTypesLong
     v-else-if="metaData.columnType === 'LONG'"
     :metaData="metaData"
-    :data="data"
+    :data="typeof data === 'number' ? data : Number(data)"
   />
 
-  <TableCellTypesObject
-    v-else-if="metaData.columnType === 'REF'"
+  <TableCellTypesInt
+    v-else-if="metaData.columnType === 'INT'"
     :metaData="metaData"
+    :data="typeof data === 'number' ? data : Number(data)"
+  />
+
+  <TableCellTypesRef
+    v-else-if="metaData.columnType === 'REF'"
+    :metaData="metaData as IRefColumn"
     :data="data"
+    @refCellClicked="$emit('cellClicked', $event)"
   />
 
   <TableCellTypesObject
@@ -54,13 +67,31 @@
     :data="data"
   />
 
+  <TableCellTypesRefBack
+    v-else-if="metaData.columnType === 'REFBACK'"
+    :metaData="metaData as IRefColumn"
+    :data="data"
+    @refBackCellClicked="$emit('cellClicked', $event)"
+  />
+
+  <TableCellTypesFile
+    v-else-if="metaData.columnType === 'FILE'"
+    :metaData="metaData"
+    :data="data"
+  />
+
   <template v-else> {{ metaData.columnType }} </template>
 </template>
 
 <script setup lang="ts">
-import type { IColumn } from "../../../../metadata-utils/src/types";
+import type { RefPayload } from "../../../types/types";
+import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
 defineProps<{
   metaData: IColumn;
   data: any;
+}>();
+
+const emit = defineEmits<{
+  (event: "cellClicked", payload: RefPayload): void;
 }>();
 </script>
