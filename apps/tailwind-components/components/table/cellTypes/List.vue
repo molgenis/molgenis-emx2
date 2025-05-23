@@ -27,10 +27,25 @@ const elementType = computed(() => props.metaData.columnType.split("_")[0]);
       :metaData="metaData"
       :data="listElement as number"
     />
+    <TableCellTypesLong
+      v-else-if="elementType === 'INT'"
+      :metaData="metaData"
+      :data="listElement as number"
+    />
     <TableCellTypesBool
       v-else-if="elementType === 'BOOL'"
       :metaData="metaData"
       :data="listElement as boolean"
+    />
+    <TableCellTypesEmail
+      v-else-if="elementType === 'EMAIL'"
+      :metaData="metaData"
+      :data="listElement as string"
+    />
+    <TableCellTypesHyperlink
+      v-else-if="elementType === 'HYPERLINK'"
+      :metaData="metaData"
+      :data="listElement as string"
     />
     <TableCellTypesObject
       v-else-if="elementType === 'REF'"

@@ -24,6 +24,12 @@
     :data="typeof data === 'number' ? data : Number(data)"
   />
 
+  <TableCellTypesInt
+    v-else-if="metaData.columnType === 'INT'"
+    :metaData="metaData"
+    :data="typeof data === 'number' ? data : Number(data)"
+  />
+
   <TableCellTypesRef
     v-else-if="metaData.columnType === 'REF'"
     :metaData="metaData as IRefColumn"
