@@ -23,17 +23,22 @@ const props = withDefaults(
   }
 );
 
+// keep internal refs to allow walking data graph ( ref -> ref - > ref _> ... )
+const currentMetadata = ref<IRefColumn>(props.metadata);
+const currentRow = ref<IRow>(props.row);
+const currentSchema = ref<string>(props.schema);
+
 const visible = ref(false);
 
 const emit = defineEmits(["onClose"]);
 
 const refColumnLabel = computed(() => {
   const labelTemplate = (
-    props.metadata.refLabel
-      ? props.metadata.refLabel
-      : props.metadata.refLabelDefault
+    currentMetadata.value.refLabel
+      ? currentMetadata.value.refLabel
+      : currentMetadata.value.refLabelDefault
   ) as string;
-  return rowToString(props.row, labelTemplate);
+  return rowToString(currentRow.value, labelTemplate);
 });
 
 const loading = ref(true);
@@ -71,6 +76,11 @@ async function fetchData(row: IRow, tableId: string, schema: string) {
 await fetchData(props.row, props.metadata.refTableId, props.schema);
 
 function handleCellClicked(event: RefPayload) {
+  // update the context to drill down
+  currentMetadata.value = event.metadata;
+  currentRow.value = event.data;
+  currentSchema.value = event.metadata.refSchemaId ?? props.schema;
+  // uodate the data
   fetchData(
     event.data,
     event.metadata.refTableId,
