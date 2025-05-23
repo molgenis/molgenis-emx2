@@ -10,6 +10,7 @@ import { useSettingsStore } from "./settingsStore";
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
 import useErrorHandler from "../composables/errorHandler";
+import flattenOntologyBranch from "../functions/flattenOntologyBranch";
 import { IFilterOption, IOntologyItem } from "../interfaces/interfaces";
 import router from "../router";
 
@@ -149,21 +150,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     const labelFound = ontologyItem.label.toLowerCase().includes(findString);
 
     return codeFound || nameFound || labelFound;
-  }
-
-  function flattenOntologyBranch(branch: IOntologyItem) {
-    let stack = [branch];
-    let result: IOntologyItem[] = [];
-    while (stack.length) {
-      const current = stack.pop();
-      if (current?.children) {
-        stack = stack.concat(current.children);
-      }
-      if (current) {
-        result.push(current);
-      }
-    }
-    return result;
   }
 
   function updateOntologyFilter(
