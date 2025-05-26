@@ -56,6 +56,10 @@
                   column.columnType === 'REF' ||
                   column.columnType === 'REF_ARRAY' ||
                   column.columnType === 'REFBACK' ||
+                  column.columnType === 'RADIO' ||
+                  column.columnType === 'CHECKBOX' ||
+                  column.columnType === 'SELECT' ||
+                  column.columnType === 'MULTISELECT' ||
                   column.columnType === 'ONTOLOGY' ||
                   column.columnType === 'ONTOLOGY_ARRAY'
                 "
@@ -498,7 +502,12 @@ export default {
       return this.table.columns
         .filter(
           (c: Record<string, any>) =>
-            (c.columnType === "REF" || c.columnType === "REF_ARRAY") &&
+            (c.columnType === "REF" ||
+              c.columnType === "REF_ARRAY" ||
+              c.columnType === "RADIO" ||
+              c.columnType === "SELECT" ||
+              c.columnType === "MULTISELECT" ||
+              c.columnType === "CHECKBOX") &&
             c.name !== this.modelValue?.name
         )
         .map((c: Record<string, any>) => c.name);

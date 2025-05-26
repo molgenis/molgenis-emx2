@@ -114,7 +114,7 @@
     @blur="emit('blur')"
   />
   <InputRadioGroup
-    v-else-if="['RADIO'].includes(typeUpperCase)"
+    v-else-if="['RADIO'].includes(typeUpperCase) && options"
     v-model="modelValue as columnValue"
     :id="id"
     :valid="valid"
@@ -127,7 +127,7 @@
     @blur="emit('blur')"
   />
   <InputCheckboxGroup
-    v-else-if="['CHECKBOX'].includes(typeUpperCase)"
+    v-else-if="['CHECKBOX'].includes(typeUpperCase) && options"
     v-model="modelValue as columnValue[]"
     :id="id"
     :valid="valid"
@@ -140,7 +140,7 @@
     @blur="emit('blur')"
   />
   <InputRef
-    v-else-if="['REF'].includes(typeUpperCase)"
+    v-else-if="['REF', 'RADIO'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject"
     :id="id"
     :valid="valid"
@@ -156,7 +156,7 @@
     :is-array="false"
   />
   <InputRef
-    v-else-if="['REF_ARRAY'].includes(typeUpperCase)"
+    v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject[]"
     :id="id"
     :valid="valid"

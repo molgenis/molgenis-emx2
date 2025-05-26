@@ -80,10 +80,26 @@ export const getColumnIds = async (
     if (expandLevel > 0 || col.key) {
       if (
         !rootLevel &&
-        ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
+        [
+          "REF_ARRAY",
+          "REFBACK",
+          "ONTOLOGY_ARRAY",
+          "MULTISELECT",
+          "CHECKBOX",
+        ].includes(col.columnType)
       ) {
         //skip
-      } else if (["REF", "REF_ARRAY", "REFBACK"].includes(col.columnType)) {
+      } else if (
+        [
+          "REF",
+          "REF_ARRAY",
+          "REFBACK",
+          "MULTISELECT",
+          "CHECKBOX",
+          "SELECT",
+          "RADIO",
+        ].includes(col.columnType)
+      ) {
         gqlFields =
           gqlFields +
           " " +
