@@ -19,15 +19,15 @@ public abstract class RdfWriter implements Closeable {
   private final RDFFormat format;
   private final OutputStream outputStream;
 
-  public String getBaseUrl() {
+  protected String getBaseUrl() {
     return baseUrl;
   }
 
-  public RDFFormat getFormat() {
+  protected RDFFormat getFormat() {
     return format;
   }
 
-  public OutputStream getOutputStream() {
+  protected OutputStream getOutputStream() {
     return outputStream;
   }
 
