@@ -372,7 +372,6 @@ public class RDFService {
       final NamespaceMapper namespaces,
       final Table table,
       final String rowId) {
-    final IRI tableIRI = tableIRI(baseURL, table);
     final List<Row> rows = getRows(table, rowId);
     switch (table.getMetadata().getTableType()) {
       case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(builder, rdfMapData, table, row));
