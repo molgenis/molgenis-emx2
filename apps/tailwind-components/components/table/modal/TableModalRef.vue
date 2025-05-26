@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import DefinitionListTerm from "../../../../tailwind-components/components/DefinitionListTerm.vue";
-import type { IRefColumn, IRow } from "../../../../metadata-utils/src/types";
+import type {
+  columnValue,
+  IColumn,
+  IRefColumn,
+  IRow,
+} from "../../../../metadata-utils/src/types";
 import Modal from "../../../../tailwind-components/components/Modal.vue";
 import DefinitionListDefinition from "../../../../tailwind-components/components/DefinitionListDefinition.vue";
 import { computed, ref } from "vue";
@@ -42,7 +47,13 @@ const refColumnLabel = computed(() => {
 });
 
 const loading = ref(true);
-const columns = ref();
+const sections =
+  ref<
+    {
+      heading: string;
+      fields: { key: string; value: columnValue; metadata: IColumn }[];
+    }[]
+  >();
 
 async function fetchData(row: IRow, tableId: string, schema: string) {
   loading.value = true;
@@ -54,22 +65,40 @@ async function fetchData(row: IRow, tableId: string, schema: string) {
 
   loading.value = false;
 
-  columns.value = Object.entries(refRow)
-    .map(([key, value]) => ({ key, value }))
+  sections.value = refRowMetadata.columns
+    .map((column) => {
+      return {
+        key: column.id,
+        value: refRow[column.id],
+        metadata: column,
+      };
+    })
     .filter((item) => {
       return !item.key.startsWith("mg_") || props.showDataOwner;
     })
-    .map((item) => {
-      const columnMetadata = refRowMetadata.columns.find(
-        (column) => column.id === item.key
+    .filter((item) => {
+      return (
+        refRow.hasOwnProperty(item.key) ||
+        item.metadata.columnType === "HEADING"
       );
-      if (!columnMetadata) {
-        throw new Error(`Column metadata not found for ${item.key}`);
+    })
+    .reduce((acc, item) => {
+      if (item.metadata.columnType === "HEADING") {
+        // If the item is a heading, create a new section
+        acc.push({ heading: item.metadata.label as string, fields: [] });
+      } else {
+        // If first item is not a section heading, create a default section
+        if (acc.length === 0) {
+          acc.push({ heading: "", fields: [] });
+        }
+        // Add the item to the last section
+        acc[acc.length - 1].fields.push(item);
       }
-      return {
-        ...item,
-        metadata: columnMetadata,
-      };
+      return acc;
+    }, [] as { heading: string; fields: { key: string; value: columnValue; metadata: IColumn }[] }[])
+    .filter((section) => {
+      // Filter out empty sections
+      return section.fields.length > 0;
     });
 }
 
@@ -93,20 +122,31 @@ function handleValueClicked(event: RefPayload) {
   <Modal
     v-model:visible="visible"
     :title="refColumnLabel"
-    :subtitle="metadata.refTableId"
+    :subtitle="currentMetadata.refTableId"
     max-width="max-w-9/10"
     :onClose="emit('onClose')"
   >
-    <section class="px-8 py-[50px]">
-      <DefinitionList v-if="!loading" :compact="false">
-        <template v-for="column in columns">
+    <section
+      v-if="!loading"
+      v-for="section in sections"
+      class="px-8 first:pt-[50px] last:pb-[50px]"
+      :class="section.heading ? 'pt-[50px]' : ''"
+    >
+      <h3
+        v-if="section.heading"
+        class="text-heading-3xl font-display text-title-contrast mb-4"
+      >
+        {{ section.heading }}
+      </h3>
+      <DefinitionList :compact="false">
+        <template v-for="field in section.fields">
           <DefinitionListTerm class="text-title-contrast"
-            >{{ column.metadata.label }}
+            >{{ field.metadata.label }}
           </DefinitionListTerm>
           <DefinitionListDefinition class="text-title-contrast">
             <ValueEMX2
-              :data="column.value"
-              :meta-data="column.metadata"
+              :data="field.value"
+              :meta-data="field.metadata"
               @valueClick="handleValueClicked"
             />
           </DefinitionListDefinition>

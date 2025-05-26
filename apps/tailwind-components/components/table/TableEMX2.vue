@@ -171,7 +171,6 @@ import AddModal from "../form/AddModal.vue";
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import TableModalRef from "./modal/TableModalRef.vue";
-import CellEMX2 from "./CellEMX2.vue";
 
 const props = withDefaults(
   defineProps<{
