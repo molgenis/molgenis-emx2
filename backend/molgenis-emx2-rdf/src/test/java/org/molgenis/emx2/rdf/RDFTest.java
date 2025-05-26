@@ -1426,8 +1426,8 @@ dcterms2,http://purl.org/dc/terms/
   }
 
   /**
-   * If multiple namespace share the same prefix but refer to a different IRI, they get overwritten
-   * by the last to be added. However, the other IRIs are not broken but simply not shortened.
+   * If multiple namespace share the same prefix but refer to a different IRI, the first one is
+   * kept. IRIs belonging to the other prefix are not broken but are simply not shortened.
    *
    * @throws IOException
    */
@@ -1442,7 +1442,7 @@ dcterms2,http://purl.org/dc/terms/
             add(
                 new SimpleNamespace(
                     "PrefixSettingNameIri2", BASE_URL + "/PrefixSettingNameIri2/api/rdf/"));
-            add(new SimpleNamespace("name", "http://www.w3.org/2000/01/rdf-schema#"));
+            add(new SimpleNamespace("name", "http://purl.org/dc/terms/"));
           }
         };
 

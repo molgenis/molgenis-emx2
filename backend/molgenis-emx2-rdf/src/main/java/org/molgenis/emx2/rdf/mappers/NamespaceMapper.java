@@ -17,7 +17,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
@@ -68,18 +70,36 @@ public class NamespaceMapper {
    * highest priority, if used.
    */
   public Set<Namespace> getAllNamespaces() {
-    Set<Namespace> combinedNameSpaces = new HashSet<>();
+    SortedSet<Namespace> combinedNameSpaces = new TreeSet<>();
+
+    Set<String> processedPrefixes = new HashSet<>();
+    Set<String> processedNames = new HashSet<>();
 
     // if any Schema uses default namespaces, ensure these take priority!
     if (namespaces.containsValue(null)) {
-      combinedNameSpaces.addAll(DEFAULT_NAMESPACES_MAP.values());
+      DEFAULT_NAMESPACES_MAP
+          .values()
+          .forEach(
+              i -> {
+                processedPrefixes.add(i.getPrefix());
+                processedNames.add(i.getName());
+                combinedNameSpaces.add(i);
+              });
     }
 
     namespaces.values().stream()
         .filter(Objects::nonNull)
         .map(Map::values)
         .flatMap(Collection::stream)
-        .forEach(combinedNameSpaces::add);
+        .forEach(
+            i -> {
+              if (!processedPrefixes.contains(i.getPrefix())
+                  && !processedNames.contains(i.getName())) {
+                processedPrefixes.add(i.getPrefix());
+                processedNames.add(i.getName());
+                combinedNameSpaces.add(i);
+              }
+            });
     return combinedNameSpaces;
   }
 

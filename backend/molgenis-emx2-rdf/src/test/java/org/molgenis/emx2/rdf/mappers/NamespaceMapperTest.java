@@ -104,9 +104,7 @@ rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#
         Set.of(
             namespace("prefix1", "http://example.com/schema1only#"),
             namespace("prefix2", "http://example.com/conflicting_url1#"),
-            namespace("prefix2", "http://example.com/conflicting_url2#"),
             namespace("prefix3", "http://example.com/identical_url_different_prefix#"),
-            namespace("prefix4", "http://example.com/identical_url_different_prefix#"),
             namespace("prefix5", "http://example.com/duplicate#"),
             namespace("prefix6", "http://example.com/schema2only#"));
 
