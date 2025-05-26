@@ -1,0 +1,49 @@
+package org.molgenis.emx2.rdf.writers;
+
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.WriterConfig;
+import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
+
+import java.io.IOException;
+import java.io.OutputStream;
+
+public class RdfStreamWriter extends RdfWriter {
+    private static final WriterConfig config = new WriterConfig();
+    private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
+
+    private final RDFWriter writer;
+
+    static {
+        config.set(BasicWriterSettings.PRETTY_PRINT, false);
+    }
+
+    public RdfStreamWriter(RDFFormat format, OutputStream out) {
+        writer = Rio.createWriter(format, out);
+        writer.startRDF();
+    }
+
+    public void consumeNamespace(Namespace namespace) {
+        writer.handleNamespace(namespace.getPrefix(), namespace.getName());
+    }
+
+    public void consumeTriple(Statement statement) {
+        writer.handleStatement(statement);
+    }
+
+    public void consumeTriple(Resource subject, IRI predicate, Value object) {
+        consumeTriple(valueFactory.createStatement(subject, predicate, object));
+    }
+
+    @Override
+    public void close() throws IOException {
+        writer.endRDF();
+    }
+}
