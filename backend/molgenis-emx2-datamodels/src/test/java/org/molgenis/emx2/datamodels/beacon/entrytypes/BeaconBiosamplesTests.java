@@ -1,5 +1,8 @@
 package org.molgenis.emx2.datamodels.beacon.entrytypes;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.datamodels.beacon.BeaconTestUtil.mockEntryTypeRequestRegular;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -7,34 +10,26 @@ import io.javalin.http.Context;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.datamodels.PatientRegistryTest;
 
-@Disabled
 public class BeaconBiosamplesTests extends PatientRegistryTest {
 
   @Test
-  public void testBiosamples_NoParams() throws Exception {
+  public void testBiosamples_NoParams() {
     Context request = mockEntryTypeRequestRegular(EntryType.BIOSAMPLES.getId(), new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode biosamples = queryEntryType.query(database);
-    //    String json = JsonUtil.getWriter().writeValueAsString(biosamples);
-    //
-    //    assertTrue(json.contains("\"resultsCount\" : 3,"));
-    //    assertTrue(json.contains("obtentionProcedure"));
-    //    assertTrue(json.contains("procedureCode"));
-    //    assertTrue(json.contains("\"id\" : \"OBI:0002654\""));
-    //    assertTrue(json.contains("\"label\" : \"needle biopsy\""));
+    assertEquals(20, biosamples.get("responseSummary").get("numTotalResults").intValue());
   }
 
   @Test
-  public void testBiosamples_NoHits() throws Exception {
+  public void testBiosamples_NoHits() {
     Context request =
         mockEntryTypeRequestRegular(
             EntryType.BIOSAMPLES.getId(), Map.of("id", List.of("Sample0003")));
@@ -42,13 +37,12 @@ public class BeaconBiosamplesTests extends PatientRegistryTest {
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode biosamples = queryEntryType.query(database);
-    //    String json = JsonUtil.getWriter().writeValueAsString(biosamples);
-    //
-    //    assertTrue(json.contains("\"response\" : {\n" + "    \"resultSets\" : [ ]"));
+    assertEquals(0, biosamples.get("responseSummary").get("numTotalResults").intValue());
+    assertFalse(biosamples.get("responseSummary").get("exists").booleanValue());
   }
 
   @Test
-  public void testBiosamples_IdQuery() throws Exception {
+  public void testBiosamples_IdQuery() {
     Context request =
         mockEntryTypeRequestRegular(
             EntryType.BIOSAMPLES.getId(), Map.of("id", List.of("Sample0002")));
@@ -56,8 +50,10 @@ public class BeaconBiosamplesTests extends PatientRegistryTest {
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode biosamples = queryEntryType.query(database);
-    //    String json = JsonUtil.getWriter().writeValueAsString(biosamples);
-    //    assertTrue(json.contains("\"id\" : \"Sample0002\","));
-    //    assertTrue(json.contains("\"resultsCount\" : 1,"));
+    assertEquals(1, biosamples.get("responseSummary").get("numTotalResults").intValue());
+    assertTrue(biosamples.get("responseSummary").get("exists").booleanValue());
+    JsonNode sample = biosamples.get("response").get("resultSets").get(0).get("results").get(0);
+    assertEquals("Sample0002", sample.get("id").asText());
+    assertEquals("P3Y1M4D", sample.get("collectionMoment").asText());
   }
 }

@@ -39,13 +39,17 @@ public class BeaconApi {
     app.get(basePath + "/info", BeaconApi::getInfo);
     app.get(basePath + "/service-info", BeaconApi::getInfo);
     app.get(basePath + "/configuration", new Configuration()::getResponse);
-    app.get(basePath + "/map", new Map()::getResponse);
+    app.get(basePath + "/map", BeaconApi::getMap);
     app.get(basePath + "/entry_types", new EntryTypes()::getResponse);
     app.get(basePath + "/filtering_terms", BeaconApi::getFilteringTerms);
     app.get(basePath + "/{entry_type}", BeaconApi::getEntryType);
     app.get(basePath + "/{entry_type}/{id}", BeaconApi::getEntryType);
     app.get(basePath + "/{entry_type_id}/{id}/{entry_type}", BeaconApi::getEntryType);
     app.post(basePath + "/{entry_type}", BeaconApi::postEntryType);
+  }
+
+  private static void getMap(Context ctx) {
+    ctx.json(new Map().getResponse(ctx));
   }
 
   private static void beforeRequest(Context ctx) {
