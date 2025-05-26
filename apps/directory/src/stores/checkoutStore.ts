@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, ref, toRaw, watch } from "vue";
 import { createBookmark } from "../functions/bookmarkMapper";
-import { IBiobank } from "../interfaces/directory";
+import { IBiobanks } from "../interfaces/directory";
 import { IBiobankIdentifier } from "../interfaces/interfaces";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
@@ -98,7 +98,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   }
 
   function addServicesToSelection(
-    biobank: IBiobank,
+    biobank: IBiobanks,
     services: ILabelValuePair[],
     bookmark: boolean
   ) {
@@ -149,7 +149,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   }
 
   function addCollectionsToSelection(
-    biobank: IBiobank,
+    biobank: IBiobanks,
     collections: ILabelValuePair[],
     bookmark: boolean
   ) {

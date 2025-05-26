@@ -84,7 +84,7 @@ export interface IAssessmentLevels {
   children?: IAssessmentLevels[];
 }
 
-export interface IBiobank {
+export interface IBiobanks {
   id: string;
   pid: string;
   name: string;
@@ -178,7 +178,7 @@ export interface ICollections {
   withdrawn: boolean;
   parent_collection?: ICollections;
   sub_collections?: ICollections[];
-  biobank: IBiobank;
+  biobank: IBiobanks;
   biobank_label: string;
   network?: INetworks[];
   combined_network?: INetworks[];
@@ -385,7 +385,7 @@ export interface IPersons {
   city?: string;
   country: IOntologyNode;
   role?: string;
-  biobanks?: IBiobank[];
+  biobanks?: IBiobanks[];
   collections?: ICollections[];
   networks?: INetworks[];
   national_node: INationalNodes;
@@ -393,7 +393,7 @@ export interface IPersons {
 
 export interface IQualityInfoBiobanks {
   id: string;
-  biobank: IBiobank;
+  biobank: IBiobanks;
   quality_standard: IOntologyNode;
   assess_level_bio: IOntologyNode;
   certification_number?: string;
@@ -503,7 +503,7 @@ export interface IServices {
   qualityStandards?: IQualityInfoServices[];
   contactInformation?: IPersons;
   national_node: INationalNodes;
-  biobank: IBiobank;
+  biobank: IBiobanks;
 }
 
 export interface ISexTypes {

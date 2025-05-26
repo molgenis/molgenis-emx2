@@ -51,7 +51,7 @@ import HeaderSection from "./HeaderSection.vue";
 import OrganizationSection from "./OrganizationSection.vue";
 import Card from "../Card.vue";
 import { computed, onBeforeMount, ref } from "vue";
-import { IBiobank } from "../../interfaces/directory";
+import { IBiobanks } from "../../interfaces/directory";
 import ServiceSection from "./ServiceSection.vue";
 import CollectionsSection from "./CollectionsSection.vue";
 import { useCheckoutStore } from "../../stores/checkoutStore";
@@ -63,7 +63,7 @@ const filtersStore = useFiltersStore();
 
 const props = withDefaults(
   defineProps<{
-    biobank: IBiobank;
+    biobank: IBiobanks;
     fullSize?: boolean;
   }>(),
   {
