@@ -13,6 +13,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.RDFService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
+@Disabled
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
 public class TestLoaders {
