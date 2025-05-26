@@ -107,7 +107,11 @@ public class CatalogueSiteMap {
       String resourceBasePath, ResourcePath resourcePath, String resourceId)
       throws MalformedURLException {
     return new WebSitemapUrl.Options(
-            resourceBasePath + "/all/" + resourcePath.name() + "/" + resourceId)
+            "%s/all/%s/%s"
+                .formatted(
+                    resourceBasePath,
+                    encodePathSegment(resourcePath.name()),
+                    encodePathSegment(resourceId)))
         .build();
   }
 
