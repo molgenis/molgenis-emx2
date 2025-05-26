@@ -274,28 +274,28 @@ $$
 DECLARE
     group_name TEXT;
 BEGIN
-    -- Make sure global admin group exists
--- Ensure global admin group exists
+    -- Ensure global admin group exists
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'MG_GROUP:_ADMIN_') THEN
         INSERT INTO "MOLGENIS".group_permissions(group_name)
         VALUES ('MG_GROUP:_ADMIN_')
         ON CONFLICT DO NOTHING;
-        EXECUTE ('GRANT ALL PRIVILEGES TO MG_GROUP:_ADMIN_');
+
+        EXECUTE 'GRANT ALL PRIVILEGES TO "MG_GROUP:_ADMIN_"';
     END IF;
-    -- Create schema level default groups with permissions
+
     -- Create _ADMIN group for the schema
     group_name := format('%I_ADMIN', schema_id);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = group_name) THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name)
+        INSERT INTO "MOLGENIS".group_metadata(group_name, table_schema)
         VALUES (group_name, schema_id);
     END IF;
-
 
     -- Create _VIEWER group with select permissions
     group_name := format('%I_VIEWER', schema_id);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = group_name) THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name)
-        VALUES (group_name, schema_id)
+        INSERT INTO "MOLGENIS".group_metadata(group_name, table_schema)
+        VALUES (group_name, schema_id);
+
         INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
         VALUES (group_name, schema_id, true);
     END IF;
@@ -303,24 +303,25 @@ BEGIN
     -- Create _EDITOR group with select, insert, update, delete permissions
     group_name := format('%I_EDITOR', schema_id);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = group_name) THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name)
+        INSERT INTO "MOLGENIS".group_metadata(group_name, table_schema)
         VALUES (group_name, schema_id)
         ON CONFLICT DO NOTHING;
+
         INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update, has_delete)
         VALUES (group_name, schema_id, true, true, true, true);
     END IF;
 
-
     -- Create _ADMIN group with admin permissions
     group_name := format('%I_ADMIN', schema_id);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = group_name) THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name)
+        INSERT INTO "MOLGENIS".group_metadata(group_name, table_schema)
         VALUES (group_name, schema_id)
         ON CONFLICT DO NOTHING;
+
         INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_admin)
         VALUES (group_name, schema_id, true);
     END IF;
-END
+END;
 $$;
 
 -- Function to enable RLS
@@ -433,4 +434,4 @@ BEGIN
                 );
     END IF;
 END;
-$$ LANGUAGE plpgsql;
+$$;
