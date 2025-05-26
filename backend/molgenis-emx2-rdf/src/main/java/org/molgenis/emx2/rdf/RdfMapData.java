@@ -9,13 +9,11 @@ import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 public class RdfMapData {
   private final String baseURL;
   private final OntologyIriMapper ontologyIriMapper;
-  private final NamespaceMapper namespaceMapper;
 
   public RdfMapData(
-      String baseURL, NamespaceMapper namespaceMapper, OntologyIriMapper ontologyIriMapper) {
+      String baseURL, OntologyIriMapper ontologyIriMapper) {
     this.baseURL = formatBaseURL(baseURL);
     this.ontologyIriMapper = requireNonNull(ontologyIriMapper);
-    this.namespaceMapper = requireNonNull(namespaceMapper);
   }
 
   public String getBaseURL() {
@@ -24,9 +22,5 @@ public class RdfMapData {
 
   public OntologyIriMapper getOntologyIriMapper() {
     return ontologyIriMapper;
-  }
-
-  public NamespaceMapper getNamespaceMapper() {
-    return namespaceMapper;
   }
 }

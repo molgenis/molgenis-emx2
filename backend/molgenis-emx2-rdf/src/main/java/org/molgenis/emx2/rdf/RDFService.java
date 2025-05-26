@@ -125,16 +125,11 @@ public class RDFService {
         allTables.addAll(schema.getTablesSorted());
       }
 
+      NamespaceMapper namespaces = new NamespaceMapper(Arrays.stream(schemas).toList());
+      namespaces.getAllNamespaces().forEach(builder::setNamespace);
+
       // Tables to include in output.
       final Set<Table> tables = table != null ? tablesToDescribe(allTables, table) : allTables;
-
-      final RdfMapData rdfMapData =
-          new RdfMapData(
-              baseURL,
-              new NamespaceMapper(Arrays.stream(schemas).toList()),
-              new OntologyIriMapper(tables));
-
-      rdfMapData.getNamespaceMapper().getAllNamespaces().forEach(builder::setNamespace);
 
       if (logger.isDebugEnabled()) {
         logger.debug(
@@ -143,8 +138,13 @@ public class RDFService {
                     .map(
                         i -> i.getMetadata().getSchemaName() + "." + i.getMetadata().getTableName())
                     .toList());
-        logger.debug("Namespaces per schema: " + rdfMapData.getNamespaceMapper());
+        logger.debug("Namespaces per schema: " + namespaces);
       }
+
+      final RdfMapData rdfMapData =
+              new RdfMapData(
+                      baseURL,
+                      new OntologyIriMapper(tables));
 
       for (final Table tableToDescribe : tables) {
         // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
@@ -154,12 +154,12 @@ public class RDFService {
           continue;
         }
         if (rowId == null) {
-          describeTable(builder, rdfMapData.getNamespaceMapper(), tableToDescribe);
-          describeColumns(builder, rdfMapData.getNamespaceMapper(), tableToDescribe, columnName);
+          describeTable(builder, namespaces, tableToDescribe);
+          describeColumns(builder, namespaces, tableToDescribe, columnName);
         }
         // if a column name is provided then only provide column metadata, no row values
         if (columnName == null) {
-          rowsToRdf(builder, rdfMapData, tableToDescribe, rowId);
+          rowsToRdf(builder, rdfMapData, namespaces, tableToDescribe, rowId);
         }
       }
       Rio.write(builder.build(), outputStream, rdfFormat, config);
@@ -372,13 +372,14 @@ public class RDFService {
   public void rowsToRdf(
       final ModelBuilder builder,
       final RdfMapData rdfMapData,
+      final NamespaceMapper namespaces,
       final Table table,
       final String rowId) {
     final IRI tableIRI = tableIRI(baseURL, table);
     final List<Row> rows = getRows(table, rowId);
     switch (table.getMetadata().getTableType()) {
       case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(builder, rdfMapData, table, row));
-      case DATA -> rows.forEach(row -> dataRowToRdf(builder, rdfMapData, table, row));
+      case DATA -> rows.forEach(row -> dataRowToRdf(builder, rdfMapData, namespaces, table, row));
       default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
     }
   }
@@ -425,7 +426,7 @@ public class RDFService {
   }
 
   private void dataRowToRdf(
-      final ModelBuilder builder, final RdfMapData rdfMapData, final Table table, final Row row) {
+      final ModelBuilder builder, final RdfMapData rdfMapData, final NamespaceMapper namespaces, final Table table, final Row row) {
     final IRI tableIRI = tableIRI(baseURL, table);
     final IRI subject = rowIRI(rdfMapData.getBaseURL(), table, row);
 
@@ -436,7 +437,7 @@ public class RDFService {
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {
         builder.add(
-            subject, RDF.TYPE, rdfMapData.getNamespaceMapper().map(table.getSchema(), semantics));
+            subject, RDF.TYPE, namespaces.map(table.getSchema(), semantics));
       }
     }
     builder.add(subject, BasicIRI.LD_DATASET_PREDICATE, tableIRI);
@@ -460,7 +461,7 @@ public class RDFService {
           for (String semantics : column.getSemantics()) {
             builder.add(
                 subject.stringValue(),
-                rdfMapData.getNamespaceMapper().map(table.getSchema(), semantics),
+                    namespaces.map(table.getSchema(), semantics),
                 value);
           }
         }
