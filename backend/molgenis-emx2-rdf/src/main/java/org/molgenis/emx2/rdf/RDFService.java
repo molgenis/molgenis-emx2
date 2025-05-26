@@ -141,10 +141,7 @@ public class RDFService {
         logger.debug("Namespaces per schema: " + namespaces);
       }
 
-      final RdfMapData rdfMapData =
-              new RdfMapData(
-                      baseURL,
-                      new OntologyIriMapper(tables));
+      final RdfMapData rdfMapData = new RdfMapData(baseURL, new OntologyIriMapper(tables));
 
       for (final Table tableToDescribe : tables) {
         // for full-schema retrieval, don't print the (huge and mostly unused) ontologies
@@ -426,7 +423,11 @@ public class RDFService {
   }
 
   private void dataRowToRdf(
-      final ModelBuilder builder, final RdfMapData rdfMapData, final NamespaceMapper namespaces, final Table table, final Row row) {
+      final ModelBuilder builder,
+      final RdfMapData rdfMapData,
+      final NamespaceMapper namespaces,
+      final Table table,
+      final Row row) {
     final IRI tableIRI = tableIRI(baseURL, table);
     final IRI subject = rowIRI(rdfMapData.getBaseURL(), table, row);
 
@@ -436,8 +437,7 @@ public class RDFService {
     builder.add(subject, BasicIRI.FDP_METADATAIDENTIFIER, subject);
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {
-        builder.add(
-            subject, RDF.TYPE, namespaces.map(table.getSchema(), semantics));
+        builder.add(subject, RDF.TYPE, namespaces.map(table.getSchema(), semantics));
       }
     }
     builder.add(subject, BasicIRI.LD_DATASET_PREDICATE, tableIRI);
@@ -459,10 +459,7 @@ public class RDFService {
       for (final Value value : retrieveValues(rdfMapData, row, column)) {
         if (column.getSemantics() != null) {
           for (String semantics : column.getSemantics()) {
-            builder.add(
-                subject.stringValue(),
-                    namespaces.map(table.getSchema(), semantics),
-                value);
+            builder.add(subject.stringValue(), namespaces.map(table.getSchema(), semantics), value);
           }
         }
 
