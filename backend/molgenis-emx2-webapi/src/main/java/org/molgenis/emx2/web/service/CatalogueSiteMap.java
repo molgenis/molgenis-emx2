@@ -2,11 +2,12 @@ package org.molgenis.emx2.web.service;
 
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.web.util.EncodingHelpers.encodePathSegment;
+import static org.molgenis.emx2.web.util.EncodingHelpers.encodeQueryParam;
 
 import com.redfin.sitemapgenerator.WebSitemapGenerator;
 import com.redfin.sitemapgenerator.WebSitemapUrl;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import org.molgenis.emx2.*;
@@ -111,33 +112,26 @@ public class CatalogueSiteMap {
   }
 
   private WebSitemapUrl urlForVariable(Row variable) throws MalformedURLException {
-    String variableId = encodePathSegment(variable.getString("name"));
-    String resource = encodePathSegment(variable.getString(RESOURCE));
-    String dataset = encodePathSegment(variable.getString("dataset"));
+    String variableId = variable.getString("name");
+    String resource = variable.getString(RESOURCE);
+    String dataset = variable.getString("dataset");
 
     // human-readable key
-    String variableCombiKey = String.join("-", variableId, resource, dataset, resource);
+    String variableIdPathSegment = String.join("-", variableId, resource, dataset, resource);
 
-    // key used to pinpoint the resource
-    String queryPart =
+    // JSON query parameter value
+    String variableIdQueryParamValue =
         String.format(
-            "?keys={\"name\":\"%s\",\"resource\":{\"id\":\"%s\"},\"dataset\":{\"name\":\"%s\",\"resource\":{\"id\":\"%s\"}}}",
+            "{\"name\":\"%s\",\"resource\":{\"id\":\"%s\"},\"dataset\":{\"name\":\"%s\",\"resource\":{\"id\":\"%s\"}}}",
             variableId, resource, dataset, resource);
 
+    // note segment and query have their own encoding
     return new WebSitemapUrl.Options(
             "%s/all/variables/%s%s"
-                .formatted(basePath, encodePathSegment(variableCombiKey), queryPart))
+                .formatted(
+                    basePath,
+                    encodePathSegment(variableIdPathSegment),
+                    "?keys=" + encodeQueryParam(variableIdQueryParamValue)))
         .build();
-  }
-
-  private String encodePathSegment(String segment) {
-    String encodedSegment =
-        segment.replace("\n", "").replace("\r", "").replace(" ", "+").replace("\u00A0", " ").trim();
-    try {
-      encodedSegment = URI.create(encodedSegment).getRawPath();
-    } catch (IllegalArgumentException e) {
-      throw new MolgenisException("Failed to encode path segment: %s".formatted(segment), e);
-    }
-    return encodedSegment;
   }
 }
