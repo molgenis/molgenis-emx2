@@ -1,5 +1,7 @@
 package org.molgenis.emx2.rdf.writers;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
@@ -12,41 +14,38 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 public class RdfStreamWriter extends RdfWriter {
-    private static final WriterConfig config = new WriterConfig();
-    private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
+  private static final WriterConfig config = new WriterConfig();
+  private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
-    private final RDFWriter writer;
+  private final RDFWriter writer;
 
-    static {
-        config.set(BasicWriterSettings.PRETTY_PRINT, false);
-    }
+  static {
+    config.set(BasicWriterSettings.PRETTY_PRINT, false);
+  }
 
-    public RdfStreamWriter(RDFFormat format, OutputStream out) {
-        writer = Rio.createWriter(format, out);
-        writer.startRDF();
-    }
+  public RdfStreamWriter(RDFFormat format, OutputStream out) {
+    writer = Rio.createWriter(format, out);
+    writer.startRDF();
+  }
 
-    @Override
-    public void processNamespace(Namespace namespace) {
-        writer.handleNamespace(namespace.getPrefix(), namespace.getName());
-    }
+  @Override
+  public void processNamespace(Namespace namespace) {
+    writer.handleNamespace(namespace.getPrefix(), namespace.getName());
+  }
 
-    @Override
-    public void processTriple(Statement statement) {
-        writer.handleStatement(statement);
-    }
+  @Override
+  public void processTriple(Statement statement) {
+    writer.handleStatement(statement);
+  }
 
-    @Override
-    public void processTriple(Resource subject, IRI predicate, Value object) {
-        processTriple(valueFactory.createStatement(subject, predicate, object));
-    }
+  @Override
+  public void processTriple(Resource subject, IRI predicate, Value object) {
+    processTriple(valueFactory.createStatement(subject, predicate, object));
+  }
 
-    @Override
-    public void close() throws IOException {
-        writer.endRDF();
-    }
+  @Override
+  public void close() throws IOException {
+    writer.endRDF();
+  }
 }

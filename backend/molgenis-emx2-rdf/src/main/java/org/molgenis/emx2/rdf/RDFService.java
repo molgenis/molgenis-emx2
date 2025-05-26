@@ -15,7 +15,6 @@ import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
