@@ -37,12 +37,17 @@ export function generateHtmlPreview(instance, content, ref) {
       }
 
       if (content.dependencies.javascript.length) {
+        const documentHead = document.getElementsByTagName("head");
         content.dependencies.javascript.forEach((url) => {
           if (url && url !== "") {
-            const elem = document.createElement("link");
+            const elem = document.createElement("script");
             elem.src = url;
-            elem.defer = true;
-            instance.$refs[ref].appendChild(elem);
+            elem.defer = content.options.jsDefer;
+            if (content.dependencies.jsDefer) {
+              documentHead.appendChild(elem);
+            } else {
+              instance.$refs[ref].appendChild(elem);
+            }
           }
         });
       }

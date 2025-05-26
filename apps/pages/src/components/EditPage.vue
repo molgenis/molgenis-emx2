@@ -12,6 +12,7 @@
       </div>
     </div>
     <div class="container-fluid">
+      {{ content.dependencies }}
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <div class="row">
@@ -88,6 +89,17 @@
                   description="Paste the URL to the JS file (.js, min.js, etc.)"
                 />
               </div>
+              <div>
+                <label for="javascript-defer"
+                  >Defer JavaScript dependencies?</label
+                >
+                <InputBoolean
+                  id="javascript-defer"
+                  v-model="content.dependencies.jsDefer"
+                  :isClearable="false"
+                  description="If yes, dependencies will be loaded after content is parsed"
+                />
+              </div>
             </form>
           </div>
         </div>
@@ -113,6 +125,7 @@ import {
   MessageSuccess,
   Spinner,
   ArrayInput,
+  InputBoolean,
 } from "molgenis-components";
 import { request } from "graphql-request";
 import * as monaco from "monaco-editor";
@@ -134,6 +147,7 @@ export default {
     Spinner,
     IconAction,
     ArrayInput,
+    InputBoolean,
   },
   data() {
     return {
@@ -143,17 +157,19 @@ export default {
       html: {},
       css: {},
       javascript: {},
-      content: {
-        html: "",
-        css: "",
-        javascript: "",
-        dependencies: {
-          css: [],
-          javascript: [],
-        },
-      },
-      cssAssets: [],
-      jsAssets: [],
+      // content: {
+      //   html: "",
+      //   css: "",
+      //   javascript: "",
+      //   dependencies: {
+      //     css: [],
+      //     javascript: [],
+      //   },
+      //   options: {
+      //     jsDefer: "",
+      //   },
+      // },
+      content: newPageContentObject(),
     };
   },
   props: {
@@ -277,7 +293,8 @@ export default {
           data &&
           (Object.keys(data).includes("html") ||
             Object.keys(data).includes("css") ||
-            Object.keys(data).includes("javascript"))
+            Object.keys(data).includes("javascript") ||
+            Object.keys(data).includes("options"))
         ) {
           this.content = data;
         } else if (data && typeof data === "string") {
