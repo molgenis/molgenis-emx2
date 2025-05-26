@@ -37,9 +37,11 @@ public class NamespaceMapper {
       CsvSchema.builder().addColumn("prefix").addColumn("iri").build();
 
   // We need to store the namespaces per schema to ensure each prefix is processed correctly
-  // (as different schema's can have a different namespace URL for the same prefix).
-  // Uses sorted map to ensure conflicts are handled identically.
-  // schema -> namespace prefix -> namespace
+  // (as different schema's can have a different namespace URL for the same prefix and vice versa).
+  // Outer map uses SortedMap to ensure schema's are always processed in the same order.
+  // If the outer Map contains null as value, it means that the setting is not defined.
+  // If the outer Map contains an empty Map, the setting was defined but empty.
+  // schema name -> namespace prefix -> namespace
   private final SortedMap<String, Map<String, Namespace>> namespaces = new TreeMap<>();
 
   public NamespaceMapper(Collection<Schema> schemas) throws IOException {
@@ -53,8 +55,7 @@ public class NamespaceMapper {
   public NamespaceMapper() {}
 
   private void add(Schema schema) throws IOException {
-    Map<String, Namespace> schemaNamespaces = getCustomPrefixes(schema);
-    namespaces.put(schema.getName(), schemaNamespaces);
+    namespaces.put(schema.getName(), getCustomPrefixes(schema));
   }
 
   private void addAll(Collection<Schema> schemas) throws IOException {
@@ -100,7 +101,6 @@ public class NamespaceMapper {
                       + "\" contains a prefix that is not allowed: "
                       + i.get("prefix"));
             }
-            // Check similar to RDF4J's SimpleIRI
             if (isIllegalIri(i.get("iri"))) {
               throw new MolgenisException(i.get("iri") + " must be a valid (absolute) IRI");
             }
