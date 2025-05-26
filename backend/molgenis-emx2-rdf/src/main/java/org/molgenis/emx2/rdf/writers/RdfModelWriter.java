@@ -14,12 +14,8 @@ import org.eclipse.rdf4j.rio.Rio;
 public class RdfModelWriter extends RdfWriter {
   private final ModelBuilder builder = new ModelBuilder();
 
-  private final RDFFormat format;
-  private final OutputStream outputStream;
-
-  public RdfModelWriter(RDFFormat format, OutputStream outputStream) {
-    this.format = format;
-    this.outputStream = outputStream;
+  public RdfModelWriter(RDFFormat baseUrl, RDFFormat format, OutputStream outputStream) {
+    super(baseUrl, format, outputStream);
   }
 
   @Override
@@ -39,6 +35,6 @@ public class RdfModelWriter extends RdfWriter {
 
   @Override
   public void close() throws IOException {
-    Rio.write(builder.build(), outputStream, format);
+    Rio.write(builder.build(), getOutputStream(), getFormat());
   }
 }
