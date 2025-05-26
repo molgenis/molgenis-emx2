@@ -423,19 +423,19 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     selectedCollections: Record<string, ILabelValuePair[]>
   ) {
     if (settingsStore.config.negotiatorType === "v3") {
-      return Object.keys(selectedCollections).map((biobankId) => {
-        const collectionSelection = selectedCollections[biobankId];
+      return Object.keys(selectedCollections).map((biobankName) => {
+        const collectionSelection = selectedCollections[biobankName];
         return collectionSelection.map((collection) => {
           return toRaw({ id: collection.value, name: collection.label });
         });
       });
     } else if (settingsStore.config.negotiatorType === "v2") {
-      return Object.keys(selectedCollections).map((biobankId) => {
-        const collectionSelection = selectedCollections[biobankId];
+      return Object.keys(selectedCollections).map((biobankName) => {
+        const collectionSelection = selectedCollections[biobankName];
         return collectionSelection.map((collection) => {
           return toRaw({
             collectionId: collection.value,
-            biobankId: biobankId,
+            biobankId: biobankIdDictionary.value[biobankName],
           });
         });
       });
