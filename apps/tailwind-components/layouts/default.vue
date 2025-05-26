@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useNuxtApp } from "#app";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
+import PlaygroundNavBar from "../PlaygroundNavBar.vue";
 
 const modules = import.meta.glob("../**/*.story.vue", {
   import: "default",
@@ -47,6 +49,7 @@ const { $sourceCodeMap } = useNuxtApp();
   <div
     class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden pt-15"
   >
+    <PlaygroundNavBar />
     <div
       class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient"
     >
@@ -64,9 +67,19 @@ const { $sourceCodeMap } = useNuxtApp();
               >Theme styles</NuxtLink
             >
             <h2 class="text-2xl text-title font-bold my-5">Sample pages</h2>
-            <NuxtLink class="hover:underline text-title" to="/samples/rowEdit"
-              >Row edit</NuxtLink
-            >
+            <div class="py-2">
+              <NuxtLink class="hover:underline text-title" to="/samples/rowEdit"
+                >Row edit</NuxtLink
+              >
+            </div>
+            <div class="py-2">
+              <NuxtLink
+                class="hover:underline text-title"
+                to="/samples/formModal"
+                >Edit modal</NuxtLink
+              >
+            </div>
+
             <h2 class="text-2xl text-title font-bold my-5">Components</h2>
             <ul class="list-none">
               <li class="py-2" v-for="story in stories">
@@ -84,7 +97,7 @@ const { $sourceCodeMap } = useNuxtApp();
               >Data fetching</NuxtLink
             >
           </aside>
-          <Story :title="storyName" class="border-2 grow">
+          <Story :title="storyName" class="grow">
             <slot></slot>
           </Story>
         </div>

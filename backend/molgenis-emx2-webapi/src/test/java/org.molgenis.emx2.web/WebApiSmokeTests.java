@@ -30,6 +30,10 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
@@ -112,6 +116,85 @@ public class WebApiSmokeTests {
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
     db.dropSchemaIfExists("pet store yaml");
     db.dropSchemaIfExists("pet store json");
+  }
+
+  @Test
+  void testLoginMultithreaded() throws InterruptedException {
+    String testUser = "test@test.com";
+    String password = "somepass";
+
+    String createUserQuery =
+        "{ \"query\": \"mutation { signup(email: \\\""
+            + testUser
+            + "\\\", password: \\\""
+            + password
+            + "\\\") { message }}\"}";
+
+    String signinQuery =
+        "{\"query\":\"mutation{signin(email:\\\""
+            + testUser
+            + "\\\",password:\\\""
+            + password
+            + "\\\"){message}}\"}";
+
+    String sessionQuery = "{ \"query\": \"{ _session { email } } \"}";
+
+    given().sessionId(SESSION_ID).body(createUserQuery).post("/api/graphql").asString();
+
+    int threadCount = 10;
+    ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+    CountDownLatch readyLatch = new CountDownLatch(threadCount);
+    CountDownLatch startLatch = new CountDownLatch(1);
+    CountDownLatch doneLatch = new CountDownLatch(threadCount);
+
+    // To collect any failures
+    ConcurrentLinkedQueue<Throwable> failures = new ConcurrentLinkedQueue<>();
+
+    for (int i = 0; i < threadCount; i++) {
+      executor.submit(
+          () -> {
+            try {
+              readyLatch.countDown();
+              startLatch.await();
+
+              String signinResult =
+                  RestAssured.given()
+                      .sessionId(SESSION_ID)
+                      .body(signinQuery)
+                      .post("/api/graphql")
+                      .asString();
+
+              assertTrue(
+                  signinResult.contains("Signed in"),
+                  "Login failed in thread: " + Thread.currentThread().getName());
+
+              String sessionResult =
+                  given().sessionId(SESSION_ID).body(sessionQuery).post("/api/graphql").asString();
+
+              assertTrue(
+                  sessionResult.contains(testUser),
+                  "Session check failed in thread: " + Thread.currentThread().getName());
+
+            } catch (Throwable t) {
+              failures.add(t); // catch all errors
+            } finally {
+              doneLatch.countDown();
+            }
+          });
+    }
+
+    readyLatch.await();
+    startLatch.countDown();
+    doneLatch.await();
+    executor.shutdown();
+
+    // Propagate any failures to fail the test
+    if (!failures.isEmpty()) {
+      for (Throwable t : failures) {
+        t.printStackTrace();
+      }
+      fail("One or more threads failed. Total failures: " + failures.size());
+    }
   }
 
   @Test
@@ -252,6 +335,24 @@ public class WebApiSmokeTests {
             .asString();
     Object result = objectMapper.readValue(jsonResults, Object.class);
     assertTrue(result.toString().contains("pooky"));
+
+    // test report using json objects
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report5")
+            .asString();
+    Object jsonResult = objectMapper.readValue(jsonResults, Object.class);
+    assertTrue(jsonResult.toString().contains("pooky"));
+
+    jsonResults =
+        given()
+            .sessionId(SESSION_ID)
+            .get("/pet store reports/api/reports/json?id=report4,report5")
+            .asString();
+    Map<String, Object> multipleResults = objectMapper.readValue(jsonResults, Map.class);
+    // Check if multiple result are returned as proper json
+    assertFalse(multipleResults.get("report4").toString().startsWith("{\""));
   }
 
   @Test
@@ -262,59 +363,52 @@ public class WebApiSmokeTests {
 
     // full table header present in exported table metadata
     String header =
-        "tableName,tableExtends,tableType,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description\r\n";
+        "tableName,tableExtends,tableType,columnName,columnType,key,required,readonly,refSchema,refTable,refLink,refBack,refLabel,defaultValue,validation,visible,computed,semantics,profiles,label,description\r\n";
 
     // add new table with description and semantics as metadata
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,TestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,TestSem,,,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\r\n");
 
     // update table without new description or semantics, values should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName\r\nTestMetaTable",
-        "TestMetaTable,,,,,,,,,,,,,,,,TestSem,,,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,TestSem,,,TestDesc\r\n");
 
     // update only description, semantics should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,description\r\nTestMetaTable,NewTestDesc",
-        "TestMetaTable,,,,,,,,,,,,,,,,TestSem,,,NewTestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,TestSem,,,NewTestDesc\r\n");
 
     // make semantics empty by not supplying a value, description  should be untouched
     addUpdateTableAndCompare(
         header,
         "tableName,semantics\r\nTestMetaTable,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,,NewTestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,NewTestDesc\r\n");
 
     // make description empty while also adding a new value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,NewTestSem",
-        "TestMetaTable,,,,,,,,,,,,,,,,NewTestSem,,,\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,NewTestSem,,,\r\n");
 
     // empty both description and semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,,",
-        "TestMetaTable,,,,,,,,,,,,,,,,,,,\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,,,,\r\n");
 
     // add description value, and string array value for semantics
     addUpdateTableAndCompare(
         header,
         "tableName,description,semantics\r\nTestMetaTable,TestDesc,\"TestSem1,TestSem2\"",
-        "TestMetaTable,,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,,TestDesc\r\n");
+        "TestMetaTable,,,,,,,,,,,,,,,,,\"TestSem1,TestSem2\",,,TestDesc\r\n");
   }
 
-  /**
-   * Helper function to prevent code duplication
-   *
-   * @param header
-   * @param tableMeta
-   * @param expected
-   * @throws IOException
-   */
+  /** Helper function to prevent code duplication */
   private void addUpdateTableAndCompare(String header, String tableMeta, String expected)
       throws IOException {
     byte[] addUpdateTable = tableMeta.getBytes(StandardCharsets.UTF_8);
@@ -931,6 +1025,16 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
 
+    // Output from global API call with invalid schema.
+    // TODO: https://github.com/molgenis/molgenis-emx2/issues/4954 (fix to return 204)
+    String resultBaseNonExisting =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .get("http://localhost:" + PORT + "/api/rdf?schemas=thisSchemaTotallyDoesNotExist")
+            .getBody()
+            .asString();
+
     // Output schema API call.
     String resultSchema =
         given()
@@ -943,6 +1047,10 @@ public class WebApiSmokeTests {
     assertAll(
         // Validate base API.
         () -> assertFalse(resultBase.contains("CatalogueOntologies")),
+        () ->
+            assertTrue(
+                resultBaseNonExisting.contains(
+                    "Schema 'thisSchemaTotallyDoesNotExist' unknown or permission denied")),
         () ->
             assertTrue(
                 resultBase.contains(
@@ -1010,26 +1118,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testFDPDistribution() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(400)
-        .when()
-        .get("http://localhost:" + PORT + "/api/fdp/distribution/pet store/Category/ttl");
-  }
-
-  @Test
-  public void testFDPHead() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .contentType("text/turtle")
-        .when()
-        .head("http://localhost:" + PORT + "/api/fdp");
-  }
-
-  @Test
   public void testGraphGenome400() {
     given()
         .sessionId(SESSION_ID)
@@ -1045,7 +1133,6 @@ public class WebApiSmokeTests {
     assertTrue(
         response.getBody().asString().contains("name,category,photoUrls,status,tags,weight"));
     assertTrue(response.getBody().asString().contains("pooky,cat,,available,,9.4"));
-    assertFalse(response.getBody().asString().contains("mg_"));
   }
 
   @Test
@@ -1058,9 +1145,9 @@ public class WebApiSmokeTests {
   public void downloadExcelTable() throws IOException {
     Response response = downloadPet("/pet store/api/excel/Pet");
     List<String> rows = TestUtils.readExcelSheet(response.getBody().asInputStream());
-    assertEquals("name,category,photoUrls,status,tags,weight,orders", rows.get(0));
+    assertEquals("name,category,photoUrls,status,tags,weight,orders,mg_draft", rows.get(0));
     assertEquals(
-        "pooky,cat,,available,,9.4,ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919", rows.get(1));
+        "pooky,cat,,available,,9.4,ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919,", rows.get(1));
   }
 
   @Test
@@ -1516,35 +1603,6 @@ if __name__ == '__main__':
 
     result = given().get("/api/beacon/runs").getBody().asString();
     assertTrue(result.contains("datasets"));
-  }
-
-  @Test
-  public void testFairDataPointSmoke() {
-    // todo: enable fdp somehow? I suppose we would need a publid fair data hub for this?
-
-    // String result = given().get("/api/fdp").getBody().asString();
-    // assertTrue(result.contains("endpointSets"));
-
-    //    result = given().get("/api/fdp/catalogue/pet store/Pet").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/dataset/pet store/Pet").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/distribution/pet store/json/json").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/catalogue/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/dataset/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/distribution/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
   }
 
   @Test

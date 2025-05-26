@@ -1,7 +1,14 @@
 <script setup lang="ts">
+import { useRuntimeConfig, useRoute, useCookie, useHead } from '#app';
+import { useGtag, useDatasetStore } from '#imports';
+import { computed, ref } from 'vue';
+
 const config = useRuntimeConfig();
 const route = useRoute();
-const { initialize } = useGtag()
+const { initialize } = useGtag();
+
+const datasetStore = useDatasetStore();
+await datasetStore.isDatastoreEnabled();
 
 const analyticsService = computed(() => {
   if( typeof config.public.analyticsProvider === "string" ) {

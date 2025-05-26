@@ -5,9 +5,6 @@ ELFE,2 months,This is a test description,children,,,,,,,,,,,Bob,Ross,INSERM,INSE
 ELFE,birth,This is a test description,"children,mothers",,,,,,,,,,,Bob,Ross,INSERM,INSERM,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0,http://semanticscience.org/resource/example
 ELFE,3.5y,This is a test description,children,,,,,,,,,,,Bob,Ross,INSERM,INSERM,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0,http://semanticscience.org/resource/example
 ELFE,3-10 months,This is a test description,children,,,,,,,,,,,Bob,Ross,INSERM,INSERM,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0,http://semanticscience.org/resource/example
-LifeCycle,y0-1,age ≥0 year and <1 year,,,,,,,,,,,,Bob,Ross,EMC,EMC,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0,http://semanticscience.org/resource/example
-LifeCycle,y1-2,age ≥1 year and <2 year,,,,,,,,,,,,Bob,Ross,EMC,EMC,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0,http://semanticscience.org/resource/example
-LifeCycle,y2-3,age ≥2 year and <3 year,,,,,,,,,,,,Bob,Ross,EMC,EMC,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0,http://semanticscience.org/resource/example
 mtFIT study,event 1,This is a test description,mtFIT study,,,,,,"Biological samples,Medical records,Physiological/Biochemical measurements",,,,,Bob,Ross,NKI,NKI,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0,http://semanticscience.org/resource/example
 NFBC1966,46yr,46-year follow-up,,,,,,,,,,,,Bob,Ross,UOULU,UOULU,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0,http://semanticscience.org/resource/example
 NFBC1966,31yr,31-year follow-up,,,,,,,,,,,,Bob,Ross,UOULU,UOULU,https://placeholder-license.nl,1990-01-01 00:00:00.0,1990-01-01 00:00:00.0,http://semanticscience.org/resource/example

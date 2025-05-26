@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { useRoute, useRuntimeConfig } from "#app";
+import { useDatasetStore } from "#imports";
+import { computed, ref } from "vue";
 import type { UIResource } from "~/interfaces/types";
 
 const route = useRoute();
 const config = useRuntimeConfig();
+const datasetStore = useDatasetStore();
 
 const props = defineProps<{
   catalogue?: UIResource;
@@ -19,6 +23,8 @@ const cohortOnly = computed(() => {
 const catalogueRouteParam = route.params.catalogue as string;
 
 const menu: { label: string; link: string }[] = [];
+
+const showCartModal = ref<boolean>(false);
 
 // the variable route does not set the resourceType param, therefore check the route name
 if (
@@ -94,8 +100,11 @@ if (!cohortOnly.value) {
            <SearchBar />
         </div>-->
 
-        <!-- <HeaderButton label="Favorites" icon="star" />
-        <HeaderButton label="Account" icon="user" /> -->
+        <StoreHeaderButton
+          @click="showCartModal = !showCartModal"
+          v-if="datasetStore.isEnabled"
+        />
+        <!-- <HeaderButton label="Account" icon="user" /> -->
       </div>
 
       <div class="pt-5 xl:hidden">
@@ -111,8 +120,11 @@ if (!cohortOnly.value) {
           </div>
 
           <div class="flex gap-3">
-            <!-- <HeaderButton label="Favorites" icon="star" />
-            <HeaderButton label="Account" icon="user" /> -->
+            <StoreHeaderButton
+              @click="showCartModal = !showCartModal"
+              v-if="datasetStore.isEnabled"
+            />
+            <!-- <HeaderButton label="Account" icon="user" /> -->
           </div>
         </div>
 
@@ -122,5 +134,6 @@ if (!cohortOnly.value) {
         </div>
       </div>
     </Container>
+    <StoreModal :show="showCartModal" @close="showCartModal = false" />
   </header>
 </template>

@@ -24,6 +24,18 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
+  <InputArray
+    v-else-if="NON_REF_ARRAY_TYPES.includes(typeUpperCase)"
+    :id="id"
+    v-model="modelValue as any[]"
+    :type="typeUpperCase"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  />
   <InputString
     v-else-if="'HYPERLINK' === typeUpperCase"
     :id="id"
@@ -128,7 +140,7 @@
     @blur="emit('blur')"
   />
   <InputRef
-    v-else-if="['REF', 'ONTOLOGY'].includes(typeUpperCase)"
+    v-else-if="['REF'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject"
     :id="id"
     :valid="valid"
@@ -144,7 +156,7 @@
     :is-array="false"
   />
   <InputRef
-    v-else-if="['REF_ARRAY', 'ONTOLOGY_ARRAY'].includes(typeUpperCase)"
+    v-else-if="['REF_ARRAY'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject[]"
     :id="id"
     :valid="valid"
@@ -158,6 +170,48 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="true"
+  />
+  <InputOntology
+    v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
+    :modelValue="modelValue as columnValueObject ? (modelValue as columnValueObject)['name'] as string : undefined"
+    @update:modelValue="
+      $event ? (modelValue = { name: $event }) : (modelValue = undefined)
+    "
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    :ontologySchemaId="refSchemaId as string"
+    :ontologyTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+    :is-array="false"
+  />
+  <InputOntology
+    v-else-if="['ONTOLOGY_ARRAY'].includes(typeUpperCase)"
+    :isArray="true"
+    :modelValue="Array.isArray(modelValue)? modelValue.filter(value => value).map( value => (value as columnValueObject)['name'] as string) : []"
+    @update:modelValue="
+      Array.isArray($event)
+        ? (modelValue = $event.map((value) => {
+            return { name: value };
+          }))
+        : (modelValue = [])
+    "
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    :ontologySchemaId="refSchemaId as string"
+    :ontologyTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
   />
   <InputFile
     v-else-if="['FILE'].includes(typeUpperCase)"
@@ -200,13 +254,14 @@
 </template>
 
 <script setup lang="ts">
-import type { IInputProps, IValueLabel } from "~/types/types";
+import type { IInputProps, IValueLabel } from "../types/types";
 import type {
   CellValueType,
   columnValue,
   columnValueObject,
 } from "../../metadata-utils/src/types";
-const modelValue = defineModel<columnValue>();
+import { computed } from "vue";
+const modelValue = defineModel<columnValue | columnValue[]>();
 const props = defineProps<
   IInputProps & {
     type: CellValueType;
@@ -221,4 +276,19 @@ const props = defineProps<
 >();
 const emit = defineEmits(["focus", "blur"]);
 const typeUpperCase = computed(() => props.type.toUpperCase());
+
+const NON_REF_ARRAY_TYPES = [
+  "STRING_ARRAY",
+  "BOOL_ARRAY",
+  "DATE_ARRAY",
+  "DATETIME_ARRAY",
+  "DECIMAL_ARRAY",
+  "EMAIL_ARRAY",
+  "HYPERLINK_ARRAY",
+  "INT_ARRAY",
+  "LONG_ARRAY",
+  "TEXT_ARRAY",
+  "UUID_ARRAY",
+  "PERIOD_ARRAY",
+];
 </script>

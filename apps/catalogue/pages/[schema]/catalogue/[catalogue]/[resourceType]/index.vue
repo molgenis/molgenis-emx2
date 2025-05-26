@@ -1,4 +1,20 @@
 <script setup lang="ts">
+import {
+  useRoute,
+  useRouter,
+  useRuntimeConfig,
+  useHead,
+  useFetch,
+  navigateTo,
+} from "#app";
+import {
+  conditionsFromPathQuery,
+  mergeWithPageDefaults,
+  buildQueryFilter,
+  logError,
+  toPathQueryConditions,
+} from "#imports";
+import { computed, ref } from "vue";
 import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
 
 const route = useRoute();
@@ -19,12 +35,15 @@ const imageMap: Record<string, string> = {
   networks: "image-network",
 };
 
-const title = route.params.resourceType;
+const title = route.params.resourceType as string;
 const description: string | undefined =
   descriptionMap[route.params.resourceType as string];
 const image: string | undefined = imageMap[route.params.resourceType as string];
 
-useHead({ title: titlePrefix + title });
+useHead({
+  title: titlePrefix + title,
+  meta: [{ name: "description", content: description }],
+});
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -55,6 +74,7 @@ if (route.params.resourceType === "collections") {
       type: "ONTOLOGY",
       ontologyTableId: "ResourceTypes",
       ontologySchema: "CatalogueOntologies",
+      // @ts-ignore
       filter: { tags: { equals: "collection" } },
       columnId: "type",
       initialCollapsed: false,
@@ -180,6 +200,10 @@ const query = computed(() => {
       design {
           name
       }
+      datasets {
+        name
+        label
+      }
     }
     Resources_agg (filter:$filter){
         count
@@ -283,6 +307,7 @@ const crumbs: any = {};
 crumbs[
   cohortOnly.value ? "home" : (route.params.catalogue as string)
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
+crumbs[route.params.resourceType as string] = "";
 </script>
 
 <template>
@@ -300,7 +325,7 @@ crumbs[
           <!-- <NavigationIconsMobile :link="" /> -->
           <PageHeader :title="title" :description="description" :icon="image">
             <template #prefix>
-              <BreadCrumbs :crumbs="crumbs" :current="title" />
+              <BreadCrumbs :crumbs="crumbs" />
             </template>
             <template #suffix>
               <SearchResultsViewTabs

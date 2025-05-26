@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import type { linkTarget } from "../interfaces/types";
+
 withDefaults(
   defineProps<{
     imageUrl: string;
     title: string;
     description: string;
     url: string;
-    links: { title: string; url: string; target?: "_self" | "_blank" }[];
+    links: { title: string; url: string; target?: linkTarget }[];
     target?: "_self" | "_blank";
   }>(),
   {

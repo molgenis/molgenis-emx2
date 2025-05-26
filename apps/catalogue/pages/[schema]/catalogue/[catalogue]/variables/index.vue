@@ -4,9 +4,18 @@ import type {
   IMgError,
   IFilterCondition,
   IRefArrayFilter,
-} from "~/interfaces/types";
-import mappingsFragment from "~~/gql/fragments/mappings";
+} from "../../../../../interfaces/types";
+import mappingsFragment from "../../../../../gql/fragments/mappings";
 import type { INode } from "../../../../../../tailwind-components/types/types";
+import { useRoute, useRouter, useHead, navigateTo, useAsyncData } from "#app";
+import {
+  conditionsFromPathQuery,
+  mergeWithPageDefaults,
+  moduleToString,
+  buildQueryFilter,
+  toPathQueryConditions,
+} from "#imports";
+import { computed } from "vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -14,7 +23,15 @@ const pageSize = 30;
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: titlePrefix + "Variables" });
+useHead({
+  title: titlePrefix + "Variables",
+  meta: [
+    {
+      name: "description",
+      content: `A complete overview of ${titlePrefix.trim()} harmonised variables`,
+    },
+  ],
+});
 
 type view = "list" | "harmonisation";
 
@@ -310,6 +327,7 @@ let crumbs: any = {};
 crumbs[
   `${route.params.catalogue}`
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
+crumbs["variables"] = "";
 </script>
 
 <template>

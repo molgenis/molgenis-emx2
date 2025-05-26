@@ -1,3 +1,5 @@
+import { useRoute } from "#app";
+import { logError } from "#imports";
 import type { UIResource } from "~/interfaces/types";
 
 interface Resp<T> {

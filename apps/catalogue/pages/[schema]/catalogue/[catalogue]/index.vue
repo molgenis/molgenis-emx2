@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useRoute, useRuntimeConfig, useHead, useFetch } from "#app";
+import { logError } from "#imports";
+import { computed } from "vue";
 import type { ISetting } from "../../../../../metadata-utils/src/types";
 
 const route = useRoute();
@@ -8,8 +11,6 @@ const catalogueRouteParam = route.params.catalogue;
 
 const scoped = route.params.catalogue !== "all";
 const catalogue = scoped ? route.params.catalogue : undefined;
-
-useHead({ title: scoped ? `${catalogue} Catalogue` : "Catalogue" });
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
@@ -205,6 +206,16 @@ const description = computed(() => {
   } else {
     return "Select one of the content categories listed below.";
   }
+});
+
+useHead({
+  title: scoped ? `${catalogue} Catalogue` : "Catalogue",
+  meta: [
+    {
+      name: "description",
+      content: scoped ? network.value?.description : description.value,
+    },
+  ],
 });
 
 const collectionCount = computed(() => data.value.data?.Collections_agg?.count);

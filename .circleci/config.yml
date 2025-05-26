@@ -21,7 +21,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.2.4
+    - image: molgenis/ci-build:1.3.3
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -30,7 +30,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.2.4
+    - image: molgenis/ci-build:1.3.3
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -44,7 +44,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.2.4
+      - image: molgenis/ci-build:1.3.3
       - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
@@ -181,6 +181,13 @@ jobs:
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
+        name: lint the code
+        command: |
+          ./gradlew lint ci --no-daemon \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
+
+
+    - run:
         name: run tests and push to sonar
         command: |
           ./gradlew test jacocoMergedReport sonar --no-daemon \
@@ -205,7 +212,13 @@ jobs:
         name: prepare sql test database
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
-    # we might be optimistic and skip tests here
+    - run:
+        name: lint the code
+        command: |
+          ./gradlew lint ci --no-daemon \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
+
+      # we might be optimistic and skip tests here
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
         command: |
@@ -239,14 +252,14 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           curl -d "token=${SLACK_TOKEN}" \
-          -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
+          -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.org" \
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.51.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.52.0-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
@@ -313,6 +326,15 @@ jobs:
             echo $E2E_BASE_URL
             yarn e2e
           working_directory: apps/directory
+      - run:
+          name: UI tests
+          command: |
+            yarn playwright install chrome
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            echo $E2E_BASE_URL
+            yarn e2e
+          working_directory: apps/ui
       - run:
             name: Run non ssr e2e tests
             command: |

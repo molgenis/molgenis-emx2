@@ -1,9 +1,11 @@
 <script setup lang="ts">
-const route = useRoute();
-import type { ICatalogue } from "~/interfaces/types";
+import { useRoute } from "#app/composables/router";
+import type { IResources } from "~/interfaces/catalogue";
+import { navigateTo } from "#app/composables/router";
 
+const route = useRoute();
 const props = defineProps<{
-  catalogues: ICatalogue[];
+  catalogues: IResources[];
   title: string;
   description: string;
 }>();
@@ -23,43 +25,33 @@ const props = defineProps<{
       <template #body>
         <TableRow
           v-for="catalogue in catalogues"
-          :key="catalogue.network.id"
+          :key="catalogue.id"
           @click="
-            navigateTo(
-              `/${route.params.schema}/catalogue/${catalogue.network.id}`
-            )
+            navigateTo(`/${route.params.schema}/catalogue/${catalogue.id}`)
           "
         >
           <TableCell class="hidden sm:table-cell">
-            <NuxtLink
-              :to="`/${route.params.schema}/catalogue/${catalogue.network.id}`"
-            >
+            <NuxtLink :to="`/${route.params.schema}/catalogue/${catalogue.id}`">
               <div class="items-center flex justify-center w-32">
-                <img :src="catalogue.network?.logo?.url" />
+                <img :src="catalogue?.logo?.url" />
               </div>
             </NuxtLink>
           </TableCell>
           <TableCell>
-            <NuxtLink
-              :to="`/${route.params.schema}/catalogue/${catalogue.network.id}`"
-            >
+            <NuxtLink :to="`/${route.params.schema}/catalogue/${catalogue.id}`">
               <span
                 class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
-                >{{ catalogue.network.id }}</span
+                >{{ catalogue.id }}</span
               >
             </NuxtLink>
           </TableCell>
           <TableCell class="hidden sm:table-cell">
-            <NuxtLink
-              :to="`/${route.params.schema}/catalogue/${catalogue.network.id}`"
-            >
-              {{ catalogue.network?.name }}
+            <NuxtLink :to="`/${route.params.schema}/catalogue/${catalogue.id}`">
+              {{ catalogue?.name }}
             </NuxtLink>
           </TableCell>
           <TableCell>
-            <NuxtLink
-              :to="`/${route.params.schema}/catalogue/${catalogue.network.id}`"
-            >
+            <NuxtLink :to="`/${route.params.schema}/catalogue/${catalogue.id}`">
               <IconButton icon="arrow-right" class="text-blue-500" />
             </NuxtLink>
           </TableCell>

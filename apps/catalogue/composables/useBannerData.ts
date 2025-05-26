@@ -1,3 +1,5 @@
+import { useRoute, useFetch } from "#app";
+
 export async function useBannerData() {
   const route = useRoute();
   const CATALOGUE_BANNER_HTML = "CATALOGUE_BANNER_HTML";

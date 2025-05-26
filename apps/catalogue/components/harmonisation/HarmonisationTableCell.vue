@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { HarmonisationStatus } from "~/interfaces/types";
 
 // Note: component similar to HarmonisationStatusIcon.vue but with different due to table cell styling details

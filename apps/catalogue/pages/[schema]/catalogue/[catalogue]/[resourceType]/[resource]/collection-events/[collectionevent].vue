@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import dateUtils from "~/utils/dateUtils";
-import collectionEventGql from "~~/gql/collectionEvent";
+import dateUtils from "../../../../../../../utils/dateUtils";
+import collectionEventGql from "../../../../../../../gql/collectionEvent";
 import type {
   IDefinitionListItem,
   IMgError,
   IOntologyItem,
-} from "~~/interfaces/types";
+} from "../../../../../../../interfaces/types";
+import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
+import { moduleToString, logError, buildTree } from "#imports";
+import { computed, reactive } from "vue";
+import { removeChildIfParentSelected } from "../../../../../../../utils/treeHelpers";
 
 const config = useRuntimeConfig();
 const route = useRoute();
@@ -56,6 +60,9 @@ pageCrumbs[
 pageCrumbs[
   route.params.resource as string
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`;
+
+pageCrumbs["Collection events"] = "";
+pageCrumbs[route.params.collectionevent as string] = "";
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);
@@ -122,7 +129,10 @@ if (collectionEvent.value.standardizedTools) {
   tocItems.push({ label: "Standardized tools", id: "standardized_tools" });
 }
 
-useHead({ title: collectionEvent.value?.name });
+useHead({
+  title: collectionEvent.value?.name,
+  meta: [{ name: "description", content: collectionEvent.value?.description }],
+});
 </script>
 
 <template>

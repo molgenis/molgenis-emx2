@@ -1,5 +1,5 @@
 <template>
-  <Modal ref="modal" title="Create User">
+  <Modal v-model:visible="visible" title="Create User">
     <label>Username</label>
     <InputString
       id="New username"
@@ -44,9 +44,12 @@
 
 <script setup lang="ts">
 import type { Modal } from "#build/components";
+import { computed, ref } from "vue";
 import { isValidPassword } from "~/util/adminUtils";
 
-const modal = ref<InstanceType<typeof Modal>>();
+const visible = defineModel("visible", {
+  required: true,
+});
 
 const { usernames } = defineProps<{ usernames: string[] }>();
 
@@ -73,19 +76,10 @@ function isValidUser(): boolean {
   );
 }
 
-function showModal() {
-  modal.value?.show();
-}
-
 function closeModal() {
   username.value = "";
   password.value = "";
   password2.value = "";
-  modal.value?.close();
+  visible.value = false;
 }
-
-defineExpose({
-  show: showModal,
-  close: closeModal,
-});
 </script>

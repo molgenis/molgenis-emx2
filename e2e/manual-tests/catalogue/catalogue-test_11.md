@@ -1,16 +1,14 @@
-# Number
+# Test Plan 11
 
-11
-
-# Role
+## Role
 
 Naïve user of the data catalogue.
 
-# Goal
+## Goal
 
 A naïve visitor to the data catalogue can click around the 'browse all catalogue content'-screen and search within 'all resources'-screen.
 
-# Steps
+## Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
@@ -28,7 +26,7 @@ A naïve visitor to the data catalogue can click around the 'browse all catalogu
 | 11 | Check the description of the `NETWORKS` CTA | It should read "Networks & Consortia" | | |
 | 12 | Check the description of the `VARIABLES` CTA | It should read "Harmonised variables" | | |
 | 13 | Check the ribbon at the top of the screen | It should contain the options: `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `OTHER CATALOGUES` and `MORE` | | |
-| 14 | Mouse over `MORE` | It should reveal the options "Upload data" | | |
+| 14 | Mouse over `MORE` | It should reveal the options "Upload data" and "Manuals"| | |
 | 15 | Check the texts below the CTAs | It should contain the number of participants, the number of samples, the percentage of longitudinal collections, and the number of subpopulations. | | |
 | 16 | Each card containing a CTA should be lined out consistently | Each should take up the same amount of space and the room between them should be consistent. | | |
 | | | | | |
