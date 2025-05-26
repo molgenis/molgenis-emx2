@@ -80,7 +80,7 @@
             class="static hover:bg-hover group h-4"
             :class="{ 'hover:cursor-pointer': props.isEditable }"
           >
-            <TableCellTypesEMX2
+            <TableCellEMX2
               v-for="(column, index) in sortedVisibleColumns"
               class="text-table-row"
               :scope="column.key === 1 ? 'row' : null"
@@ -127,7 +127,7 @@
                   />
                 </EditModal>
               </div>
-            </TableCellTypesEMX2>
+            </TableCellEMX2>
           </tr>
         </tbody>
       </table>
@@ -171,6 +171,7 @@ import AddModal from "../form/AddModal.vue";
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import TableModalRef from "./modal/TableModalRef.vue";
+import CellEMX2 from "./CellEMX2.vue";
 
 const props = withDefaults(
   defineProps<{

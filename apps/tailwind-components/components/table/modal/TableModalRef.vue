@@ -7,7 +7,7 @@ import { computed, ref } from "vue";
 import { rowToString } from "../../../utils/rowToString";
 import fetchRowData from "../../../composables/fetchRowData";
 import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
-import ColumnData from "../cellTypes/ColumnData.vue";
+import ValueEMX2 from "../../value/EMX2.vue";
 import fetchTableMetadata from "../../../composables/fetchTableMetadata";
 import type { RefPayload } from "../../../types/types";
 
@@ -75,7 +75,7 @@ async function fetchData(row: IRow, tableId: string, schema: string) {
 
 await fetchData(props.row, props.metadata.refTableId, props.schema);
 
-function handleCellClicked(event: RefPayload) {
+function handleValueClicked(event: RefPayload) {
   // update the context to drill down
   currentMetadata.value = event.metadata;
   currentRow.value = event.data;
@@ -104,10 +104,10 @@ function handleCellClicked(event: RefPayload) {
             >{{ column.metadata.label }}
           </DefinitionListTerm>
           <DefinitionListDefinition class="text-title-contrast">
-            <ColumnData
+            <ValueEMX2
               :data="column.value"
               :meta-data="column.metadata"
-              @cellClicked="handleCellClicked"
+              @valueClick="handleValueClicked"
             />
           </DefinitionListDefinition>
         </template>

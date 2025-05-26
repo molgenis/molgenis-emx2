@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { flattenObject } from "../../../utils/flattenObject";
+import { flattenObject } from "../../utils/flattenObject";
 import { computed } from "vue";
-import type { IColumn } from "../../../../metadata-utils/src/types";
+import type { IColumn } from "../../../metadata-utils/src/types";
 
 const props = defineProps<{
   metaData: IColumn;

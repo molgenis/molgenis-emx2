@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { IRefColumn, IRow } from "../../../../metadata-utils/src/types";
-import { rowToString } from "../../../utils/rowToString";
-import type { RefPayload } from "../../../types/types";
+import type { IRefColumn, IRow } from "../../../metadata-utils/src/types";
+import { rowToString } from "../../utils/rowToString";
+import type { RefPayload } from "../../types/types";
 
 const props = defineProps<{
   metaData: IRefColumn;

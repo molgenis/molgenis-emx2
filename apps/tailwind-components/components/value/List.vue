@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { IColumn } from "../../../../metadata-utils/src/types";
+import type { IColumn } from "../../../metadata-utils/src/types";
 
 const props = defineProps<{
   metaData: IColumn;
@@ -12,52 +12,52 @@ const elementType = computed(() => props.metaData.columnType.split("_")[0]);
 
 <template>
   <template v-for="(listElement, index) in data">
-    <TableCellTypesString
+    <ValueString
       v-if="elementType === 'STRING'"
       :metaData="metaData"
       :data="listElement as string"
     />
-    <TableCellTypesString
+    <ValueString
       v-if="elementType === 'TEXT'"
       :metaData="metaData"
       :data="listElement as string"
     />
-    <TableCellTypesDecimal
+    <ValueDecimal
       v-else-if="elementType === 'DECIMAL'"
       :metaData="metaData"
       :data="listElement as number"
     />
-    <TableCellTypesLong
+    <ValueLong
       v-else-if="elementType === 'LONG'"
       :metaData="metaData"
       :data="listElement as number"
     />
-    <TableCellTypesLong
+    <ValueLong
       v-else-if="elementType === 'INT'"
       :metaData="metaData"
       :data="listElement as number"
     />
-    <TableCellTypesBool
+    <ValueBool
       v-else-if="elementType === 'BOOL'"
       :metaData="metaData"
       :data="listElement as boolean"
     />
-    <TableCellTypesEmail
+    <ValueEmail
       v-else-if="elementType === 'EMAIL'"
       :metaData="metaData"
       :data="listElement as string"
     />
-    <TableCellTypesHyperlink
+    <ValueHyperlink
       v-else-if="elementType === 'HYPERLINK'"
       :metaData="metaData"
       :data="listElement as string"
     />
-    <TableCellTypesObject
+    <ValueObject
       v-else-if="elementType === 'REF'"
       :metaData="metaData"
       :data="listElement"
     />
-    <TableCellTypesObject
+    <ValueObject
       v-else-if="elementType === 'ONTOLOGY'"
       :metaData="metaData"
       :data="listElement"
