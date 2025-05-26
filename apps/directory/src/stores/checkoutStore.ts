@@ -449,8 +449,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   function getServicesToSend(
     selectedServices: Record<string, ILabelValuePair[]>
   ) {
-    return Object.keys(selectedServices).map((biobankId) => {
-      const serviceSelection = selectedServices[biobankId];
+    return Object.keys(selectedServices).map((biobankName) => {
+      const serviceSelection = selectedServices[biobankName];
       return serviceSelection.map((service) => {
         return toRaw({ id: service.value, name: service.label });
       });
@@ -458,8 +458,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   }
 
   function isInCart(identifier: string) {
-    for (const biobankId in selectedCollections.value) {
-      const collectionSelection = selectedCollections.value[biobankId];
+    for (const biobankName in selectedCollections.value) {
+      const collectionSelection = selectedCollections.value[biobankName];
 
       for (const collection of collectionSelection) {
         if (collection.value === identifier) {
@@ -468,8 +468,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       }
     }
 
-    for (const biobankId in selectedServices.value) {
-      const serviceSelection = selectedServices.value[biobankId];
+    for (const biobankName in selectedServices.value) {
+      const serviceSelection = selectedServices.value[biobankName];
 
       for (const service of serviceSelection) {
         if (service.value === identifier) {
