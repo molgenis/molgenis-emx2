@@ -1,10 +1,12 @@
 package org.molgenis.emx2.web.util;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 public class EncodingHelpers {
+
+  private EncodingHelpers() {}
+
   // Encodes a path segment (e.g., one part between slashes in a URL)
   public static String encodePathSegment(String segment) {
     StringBuilder encoded = new StringBuilder();
@@ -21,11 +23,7 @@ public class EncodingHelpers {
 
   // Encodes query parameter names or values (space becomes +, etc.)
   public static String encodeQueryParam(String param) {
-    try {
-      return URLEncoder.encode(param, StandardCharsets.UTF_8.toString());
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException("UTF-8 not supported", e);
-    }
+    return URLEncoder.encode(param, StandardCharsets.UTF_8);
   }
 
   private static boolean isUnreserved(char c) {
