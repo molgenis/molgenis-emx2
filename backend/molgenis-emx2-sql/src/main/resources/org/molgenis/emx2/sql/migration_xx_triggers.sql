@@ -1,7 +1,7 @@
 -- users_metadata already exist
 
 -- Create groups metadata tqble, which will also trigger group creation, update, drop
-CREATE TABLE "MOLGENIS".group_metadata
+CREATE TABLE IF NOT EXISTS "MOLGENIS".group_metadata
 (
     group_name        TEXT PRIMARY KEY, -- Friendly name for the group
     group_description TEXT,             -- Optional description of the group
@@ -18,7 +18,7 @@ DECLARE
 BEGIN
     -- Handle INSERT operation: when users are added to the group
     IF TG_OP = 'INSERT' THEN
-        FOREACH user IN DISTINCT ARRAY NEW.users
+        FOREACH user IN ARRAY NEW.users
         LOOP
             -- Verify if the user exists in the users_metadata table
             SELECT EXISTS(SELECT 1 FROM "MOLGENIS".users_metadata WHERE username = user)
@@ -35,7 +35,7 @@ BEGIN
 
         -- Handle DELETE operation: when a group is deleted
     ELSIF TG_OP = 'DELETE' THEN
-        FOREACH user IN DISTINCT ARRAY OLD.users
+        FOREACH user IN ARRAY OLD.users
         LOOP
             -- Revoke the group role from the user
             EXECUTE format('REVOKE "%I" FROM "%I"', OLD.group_name, user);
@@ -44,7 +44,7 @@ BEGIN
         -- Handle UPDATE operation: when users are added or removed in the updated array
     ELSIF TG_OP = 'UPDATE' THEN
         -- Grant roles to new users in the updated list
-        FOREACH user IN DISTINCT ARRAY NEW.users
+        FOREACH user IN ARRAY NEW.users
         LOOP
             -- Verify if the user exists in the users_metadata table
             SELECT EXISTS(SELECT 1 FROM "MOLGENIS".users_metadata WHERE username = user)
@@ -57,12 +57,14 @@ BEGIN
             END LOOP;
 
         -- Revoke roles from users no longer in the group
-        FOREACH user IN DISTINCT ARRAY OLD.users
+        FOREACH user IN ARRAY OLD.users
         LOOP
             IF NOT user = ANY (NEW.users) THEN
                 EXECUTE format('REVOKE "%I" FROM "%I"', OLD.group_name, user);
             END IF;
             END LOOP;
+
+
     END IF;
 
     RETURN NEW;
@@ -70,7 +72,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create the trigger to call the function
-CREATE TRIGGER group_metadata_trigger
+CREATE OR REPLACE TRIGGER group_metadata_trigger
     AFTER INSERT OR DELETE OR UPDATE
     ON "MOLGENIS".group_metadata
     FOR EACH ROW
@@ -93,7 +95,7 @@ CREATE TABLE IF NOT EXISTS "MOLGENIS".group_permissions
     has_admin        BOOLEAN NOT NULL DEFAULT FALSE, -- only for schema
     PRIMARY KEY (group_name, table_schema, table_name),
     CONSTRAINT fk_table_metadata FOREIGN KEY (table_schema, table_name)
-        REFERENCES table_metadata (table_schema, table_name)
+        REFERENCES "MOLGENIS".table_metadata (table_schema, table_name)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     CONSTRAINT fk_group_metadata FOREIGN KEY (group_name)
@@ -101,7 +103,7 @@ CREATE TABLE IF NOT EXISTS "MOLGENIS".group_permissions
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-CREATE INDEX idx_permissions_lookup ON "MOLGENIS".group_permissions (table_schema, table_name, group_name);
+CREATE INDEX IF NOT EXISTS idx_permissions_lookup ON "MOLGENIS".group_permissions (table_schema, table_name, group_name);
 
 CREATE OR REPLACE FUNCTION group_permissions_trigger_function()
     RETURNS TRIGGER AS
@@ -116,9 +118,8 @@ BEGIN
             -- get tables in the schema
             SELECT ARRAY_AGG(table_name)
             INTO table_ids
-            FROM information_schema.tables t
-            WHERE t.table_schema = OLD.table_schema
-              AND t.table_type = 'BASE TABLE';
+            FROM "MOLGENIS".table_metadata t
+            WHERE t.table_schema = OLD.table_schema;
             -- todo remove usage on schema if group has no other rows in group_permissions
             IF OLD.has_admin THEN
                 EXECUTE format('REVOKE CREATE ON SCHEMA %I FROM %I', NEW.table_schema, NEW.group_name);
@@ -184,7 +185,7 @@ BEGIN
             -- get tables in the schema
             SELECT ARRAY_AGG(table_name)
             INTO table_ids
-            FROM information_schema.tables t
+            FROM "MOLGENIS".table_metadata t
             WHERE t.table_schema = NEW.table_schema
               AND t.table_type = 'BASE TABLE';
             FOREACH table_id IN ARRAY table_ids
@@ -336,7 +337,7 @@ BEGIN
     -- check if table exist
     IF NOT EXISTS (
         SELECT 1
-        FROM information_schema.tables
+        FROM "MOLGENIS".table_metadata
         WHERE table_schema = schema_id
           AND table_name = table_id
     ) THEN
