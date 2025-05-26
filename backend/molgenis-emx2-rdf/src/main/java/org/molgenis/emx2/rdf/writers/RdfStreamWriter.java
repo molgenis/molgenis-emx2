@@ -24,8 +24,8 @@ public class RdfStreamWriter extends RdfWriter {
     config.set(BasicWriterSettings.PRETTY_PRINT, false);
   }
 
-  public RdfStreamWriter(String baseUrl, RDFFormat format, OutputStream outputStream) {
-    super(baseUrl, format, outputStream);
+  public RdfStreamWriter(OutputStream outputStream, RDFFormat format) {
+    super(outputStream, format);
     writer = Rio.createWriter(getFormat(), getOutputStream());
     writer.startRDF();
   }

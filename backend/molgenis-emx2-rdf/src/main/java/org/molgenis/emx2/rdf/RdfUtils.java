@@ -46,11 +46,16 @@ public abstract class RdfUtils {
     return getSchemaNamespace(baseURL, schema.getMetadata());
   }
 
-  static Model getCustomRdf(Schema schema) throws IOException {
+  public static Model getCustomRdf(Schema schema) {
     if (schema.hasSetting(SETTING_CUSTOM_RDF)) {
-      return Rio.parse(
-          IOUtils.toInputStream(schema.getSettingValue(SETTING_CUSTOM_RDF), StandardCharsets.UTF_8),
-          RDFFormat.TURTLE);
+      try {
+        return Rio.parse(
+            IOUtils.toInputStream(
+                schema.getSettingValue(SETTING_CUSTOM_RDF), StandardCharsets.UTF_8),
+            RDFFormat.TURTLE);
+      } catch (IOException e) {
+        logger.error("An error occured while parsing the custom RDF.");
+      }
     }
     return null;
   }

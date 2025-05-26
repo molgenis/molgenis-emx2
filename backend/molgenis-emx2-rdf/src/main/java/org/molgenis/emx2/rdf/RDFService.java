@@ -338,7 +338,8 @@ public class RDFService {
           columnSemantics = BasicIRI.SIO_IDENTIFIER.stringValue();
         }
         try {
-          builder.add(subject, RDFS.ISDEFINEDBY, namespaces.map(column.getSchema(), columnSemantics));
+          builder.add(
+              subject, RDFS.ISDEFINEDBY, namespaces.map(column.getSchema(), columnSemantics));
         } catch (Exception e) {
           throw new MolgenisException(
               "Semantic tag '"
