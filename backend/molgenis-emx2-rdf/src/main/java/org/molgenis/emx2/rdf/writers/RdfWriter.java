@@ -8,10 +8,10 @@ import org.eclipse.rdf4j.model.Value;
 
 import java.io.Closeable;
 
-abstract class RdfWriter implements Closeable {
-    abstract void consumeNamespace(Namespace namespace);
+public abstract class RdfWriter implements Closeable {
+    abstract public void processNamespace(Namespace namespace);
 
-    abstract void consumeTriple(Statement statement);
+    abstract void processTriple(Statement statement);
 
-    abstract void consumeTriple(Resource subject, IRI predicate, Value object);
+    abstract void processTriple(Resource subject, IRI predicate, Value object);
 }

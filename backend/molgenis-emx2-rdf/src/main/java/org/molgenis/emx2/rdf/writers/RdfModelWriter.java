@@ -24,17 +24,17 @@ public class RdfModelWriter extends RdfWriter {
     }
 
     @Override
-    void consumeNamespace(Namespace namespace) {
+    public void processNamespace(Namespace namespace) {
         builder.setNamespace(namespace);
     }
 
     @Override
-    void consumeTriple(Statement statement) {
+    public void processTriple(Statement statement) {
         builder.add(statement.getSubject(), statement.getPredicate(), statement.getObject());
     }
 
     @Override
-    void consumeTriple(Resource subject, IRI predicate, Value object) {
+    public void processTriple(Resource subject, IRI predicate, Value object) {
         builder.add(subject, predicate, object);
     }
 

@@ -30,16 +30,19 @@ public class RdfStreamWriter extends RdfWriter {
         writer.startRDF();
     }
 
-    public void consumeNamespace(Namespace namespace) {
+    @Override
+    public void processNamespace(Namespace namespace) {
         writer.handleNamespace(namespace.getPrefix(), namespace.getName());
     }
 
-    public void consumeTriple(Statement statement) {
+    @Override
+    public void processTriple(Statement statement) {
         writer.handleStatement(statement);
     }
 
-    public void consumeTriple(Resource subject, IRI predicate, Value object) {
-        consumeTriple(valueFactory.createStatement(subject, predicate, object));
+    @Override
+    public void processTriple(Resource subject, IRI predicate, Value object) {
+        processTriple(valueFactory.createStatement(subject, predicate, object));
     }
 
     @Override
