@@ -1118,26 +1118,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testFDPDistribution() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(400)
-        .when()
-        .get("http://localhost:" + PORT + "/api/fdp/distribution/pet store/Category/ttl");
-  }
-
-  @Test
-  public void testFDPHead() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .contentType("text/turtle")
-        .when()
-        .head("http://localhost:" + PORT + "/api/fdp");
-  }
-
-  @Test
   public void testGraphGenome400() {
     given()
         .sessionId(SESSION_ID)
@@ -1623,35 +1603,6 @@ if __name__ == '__main__':
 
     result = given().get("/api/beacon/runs").getBody().asString();
     assertTrue(result.contains("datasets"));
-  }
-
-  @Test
-  public void testFairDataPointSmoke() {
-    // todo: enable fdp somehow? I suppose we would need a publid fair data hub for this?
-
-    // String result = given().get("/api/fdp").getBody().asString();
-    // assertTrue(result.contains("endpointSets"));
-
-    //    result = given().get("/api/fdp/catalogue/pet store/Pet").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/dataset/pet store/Pet").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/distribution/pet store/json/json").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/catalogue/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/dataset/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/distribution/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
   }
 
   @Test
