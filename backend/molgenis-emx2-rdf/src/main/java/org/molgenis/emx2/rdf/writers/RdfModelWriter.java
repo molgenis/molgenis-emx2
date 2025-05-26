@@ -14,7 +14,7 @@ import org.eclipse.rdf4j.rio.Rio;
 public class RdfModelWriter extends RdfWriter {
   private final ModelBuilder builder = new ModelBuilder();
 
-  public RdfModelWriter(RDFFormat baseUrl, RDFFormat format, OutputStream outputStream) {
+  public RdfModelWriter(String baseUrl, RDFFormat format, OutputStream outputStream) {
     super(baseUrl, format, outputStream);
   }
 
