@@ -24,7 +24,7 @@ import org.molgenis.emx2.TableMetadata;
  * @see <a
  *     href=https://github.com/molgenis/molgenis-emx2/issues/4944>https://github.com/molgenis/molgenis-emx2/issues/4944</a>
  */
-class PrimaryKey {
+public class PrimaryKey {
   public static final String NAME_VALUE_SEPARATOR = "=";
   public static final String KEY_PARTS_SEPARATOR = "&";
   // "column name", "column value" (non-escaped due to getFilter() functionality)
@@ -139,7 +139,7 @@ class PrimaryKey {
     }
   }
 
-  Filter getFilter() {
+  public Filter getFilter() {
     final List<Filter> filters =
         keys.entrySet().stream().map(param -> f(param.getKey(), EQUALS, param.getValue())).toList();
     return and(filters);
