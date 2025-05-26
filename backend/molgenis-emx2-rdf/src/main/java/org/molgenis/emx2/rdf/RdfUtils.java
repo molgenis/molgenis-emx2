@@ -55,10 +55,16 @@ public abstract class RdfUtils {
     return null;
   }
 
+  /**
+   * @param semantic a prefixed name as defined <a href="https://www.w3.org/TR/turtle/#prefixed-name">here</a>
+   */
   public static boolean hasIllegalPrefix(String semantic) {
     return ILLEGAL_PREFIX.matcher(semantic).find();
   }
 
+  /**
+   * @param prefix the prefix WITHOUT ':' or anything after that
+   */
   public static boolean isIllegalPrefix(String prefix) {
     return hasIllegalPrefix(prefix + ':');
   }
