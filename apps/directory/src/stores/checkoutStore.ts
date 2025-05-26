@@ -429,7 +429,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
           return toRaw({ id: collection.value, name: collection.label });
         });
       });
-    } else if (settingsStore.config.negotiatorType === "v2") {
+    } else if (settingsStore.config.negotiatorType === "v1") {
       return Object.keys(selectedCollections).map((biobankName) => {
         const collectionSelection = selectedCollections[biobankName];
         return collectionSelection.map((collection) => {
