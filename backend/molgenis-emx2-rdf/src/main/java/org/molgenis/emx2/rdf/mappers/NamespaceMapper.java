@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -75,6 +76,7 @@ public class NamespaceMapper {
     }
 
     namespaces.values().stream()
+        .filter(Objects::nonNull)
         .map(Map::values)
         .flatMap(Collection::stream)
         .forEach(combinedNameSpaces::add);
