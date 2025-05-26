@@ -47,13 +47,12 @@ const refColumnLabel = computed(() => {
 });
 
 const loading = ref(true);
-const sections =
-  ref<
-    {
-      heading: string;
-      fields: { key: string; value: columnValue; metadata: IColumn }[];
-    }[]
-  >();
+const sections = ref<
+  {
+    heading: string;
+    fields: { key: string; value: columnValue; metadata: IColumn }[];
+  }[]
+>();
 
 async function fetchData(row: IRow, tableId: string, schema: string) {
   loading.value = true;
