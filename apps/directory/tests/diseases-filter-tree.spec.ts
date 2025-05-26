@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
+import { getAppRoute } from "./getAppRoute";
 
 test("The tree state of the Diagnosis Available filter", async ({ page }) => {
-  await page.goto("http://localhost:5173/#/catalogue");
+  await page.goto(getAppRoute());
   await page.locator("#Diagnosisavailable svg").click();
 
   // Open the first item of the list
