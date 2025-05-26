@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { IBiobanks } from "../../interfaces/directory";
+import { IBiobank } from "../../interfaces/directory";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { computed } from "vue";
 import CollectionSelector from "../../components/checkout-components/CollectionSelector.vue";
@@ -80,7 +80,7 @@ import CardItem from "../CardItem.vue";
 
 const props = withDefaults(
   defineProps<{
-    biobank: IBiobanks;
+    biobank: IBiobank;
     hasActiveFilters?: boolean;
   }>(),
   {

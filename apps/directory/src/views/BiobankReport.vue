@@ -181,13 +181,13 @@ import {
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
 import { useSettingsStore } from "../stores/settingsStore";
-import { IBiobanks } from "../interfaces/directory";
+import { IBiobank } from "../interfaces/directory";
 
 const settingsStore = useSettingsStore();
 const biobanksStore = useBiobanksStore();
 const qualitiesStore = useQualitiesStore();
 
-const biobank = ref<IBiobanks>({} as IBiobanks);
+const biobank = ref<IBiobank>({} as IBiobank);
 const route = useRoute();
 const { setError } = useErrorHandler();
 

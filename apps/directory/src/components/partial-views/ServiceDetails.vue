@@ -100,7 +100,7 @@
 
 <script setup lang="ts">
 import { computed, defineProps } from "vue";
-import { IBiobanks, IServices } from "../../interfaces/directory";
+import { IBiobank, IServices } from "../../interfaces/directory";
 import quality from "../../components/generators/view-components/quality.vue";
 import string from "../../components/generators/view-components/string.vue";
 import { useCheckoutStore } from "../../stores/checkoutStore";
@@ -147,7 +147,7 @@ function toggleSelection() {
       {
         id: props.service.biobank.id,
         name: props.service.biobank.name,
-      } as IBiobanks,
+      } as IBiobank,
       [{ label: props.service.name, value: props.service.id }],
       bookmark
     );

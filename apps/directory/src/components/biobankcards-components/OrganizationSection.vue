@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { getViewmodel } from "../../functions/viewmodelMapper";
-import { IBiobanks } from "../../interfaces/directory";
+import { IBiobank } from "../../interfaces/directory";
 import { useSettingsStore } from "../../stores/settingsStore";
 import CardItem from "../CardItem.vue";
 import ViewGenerator from "../generators/ViewGenerator.vue";
@@ -28,7 +28,7 @@ import MatchesOn from "./MatchesOn.vue";
 import { computed } from "vue";
 
 const props = defineProps<{
-  biobank: IBiobanks;
+  biobank: IBiobank;
 }>();
 
 const attributes = computed(() => {

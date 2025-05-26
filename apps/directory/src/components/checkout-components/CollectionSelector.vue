@@ -41,14 +41,14 @@
 import { computed } from "vue";
 import { useCheckoutStore } from "../../stores/checkoutStore";
 import { useSettingsStore } from "../../stores/settingsStore";
-import { IBiobanks, ICollections } from "../../interfaces/directory";
+import { IBiobank, ICollections } from "../../interfaces/directory";
 
 const checkoutStore = useCheckoutStore();
 const settingsStore = useSettingsStore();
 
 const props = withDefaults(
   defineProps<{
-    biobankData: IBiobanks;
+    biobankData: IBiobank;
     collectionData: ICollections | ICollections[];
     iconOnly?: boolean;
     bookmark?: boolean;

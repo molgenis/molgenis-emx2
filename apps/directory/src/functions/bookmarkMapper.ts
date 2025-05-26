@@ -1,7 +1,7 @@
 import { LocationQuery } from "vue-router";
 import useErrorHandler from "../composables/errorHandler";
 import router from "../router";
-import { labelValuePair, useCheckoutStore } from "../stores/checkoutStore";
+import { ILabelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
 let bookmarkApplied = false;
@@ -94,8 +94,8 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
 
 export function createBookmark(
   filters: Record<string, any>,
-  collectionCart: Record<string, labelValuePair[]>,
-  serviceCart: Record<string, labelValuePair[]>
+  collectionCart: Record<string, ILabelValuePair[]>,
+  serviceCart: Record<string, ILabelValuePair[]>
 ) {
   const filtersStore = useFiltersStore();
   const bookmark: Record<string, string> = {};

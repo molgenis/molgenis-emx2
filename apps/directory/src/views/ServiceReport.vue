@@ -157,7 +157,7 @@ import { computed, ref } from "vue";
 import QueryEMX2 from "../../../molgenis-components/src/queryEmx2/queryEmx2";
 // @ts-ignore
 import { Breadcrumb } from "molgenis-components";
-import { IBiobanks, IServices } from "../interfaces/directory";
+import { IBiobank, IServices } from "../interfaces/directory";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useRoute } from "vue-router";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
@@ -275,7 +275,7 @@ function toggleSelection() {
       {
         id: service.value.biobank.id,
         name: service.value.biobank.name,
-      } as IBiobanks,
+      } as IBiobank,
       [{ label: service.value.name, value: service.value.id }],
       bookmark
     );
