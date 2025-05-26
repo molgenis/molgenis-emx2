@@ -249,7 +249,7 @@ public class RDFService {
   }
 
   private void describeTable(
-      final ModelBuilder builder, final NamespaceMapper mapper, final Table table) {
+      final ModelBuilder builder, final NamespaceMapper namespaces, final Table table) {
     final IRI subject = tableIRI(baseURL, table);
     builder.add(subject, RDF.TYPE, OWL.CLASS);
     builder.add(subject, RDFS.SUBCLASSOF, BasicIRI.LD_DATASET_CLASS);
@@ -264,7 +264,7 @@ public class RDFService {
     if (table.getMetadata().getSemantics() != null) {
       for (final String tableSemantics : table.getMetadata().getSemantics()) {
         try {
-          builder.add(subject, RDFS.ISDEFINEDBY, mapper.map(table.getSchema(), tableSemantics));
+          builder.add(subject, RDFS.ISDEFINEDBY, namespaces.map(table.getSchema(), tableSemantics));
         } catch (Exception e) {
           throw new MolgenisException(
               "Table annotation '"
@@ -296,7 +296,7 @@ public class RDFService {
 
   private void describeColumns(
       final ModelBuilder builder,
-      final NamespaceMapper mapper,
+      final NamespaceMapper namespaces,
       final Table table,
       final String columnName) {
     if (table.getMetadata().getTableType() == TableType.DATA) {
@@ -306,7 +306,7 @@ public class RDFService {
           continue;
         }
         if (columnName == null || columnName.equals(column.getName())) {
-          describeColumn(builder, mapper, column);
+          describeColumn(builder, namespaces, column);
         }
       }
     } else {
@@ -315,7 +315,7 @@ public class RDFService {
   }
 
   private void describeColumn(
-      final ModelBuilder builder, final NamespaceMapper mapper, final Column column) {
+      final ModelBuilder builder, final NamespaceMapper namespaces, final Column column) {
     final IRI subject = columnIRI(baseURL, column);
     if (column.isReference()) {
       builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
@@ -338,7 +338,7 @@ public class RDFService {
           columnSemantics = BasicIRI.SIO_IDENTIFIER.stringValue();
         }
         try {
-          builder.add(subject, RDFS.ISDEFINEDBY, mapper.map(column.getSchema(), columnSemantics));
+          builder.add(subject, RDFS.ISDEFINEDBY, namespaces.map(column.getSchema(), columnSemantics));
         } catch (Exception e) {
           throw new MolgenisException(
               "Semantic tag '"
