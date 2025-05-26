@@ -139,11 +139,11 @@ rm -rf ./apps/*/dist/
 ### Delete all schemas (destroys all your data!)
 
 If you want to delete all the MOLGENIS generated schemas, roles and users in the postgresql and return to clean state, run
-```gradle cleandb```
+```./gradlew cleandb```
 
 ### Build+test drop/creates schemas in my database
 
-Build test ('gradle test') will create database schemas, users, roles and passwords. If you don't like that than please consider to use a different database
+Build test (`./gradlew test`) will create database schemas, users, roles and passwords. If you don't like that than please consider to use a different database
 instance for 'test'. You can use environment variables MOLGENIS_POSTGRES_** for this. See [Installation guide](run).
 
 ### VS code
