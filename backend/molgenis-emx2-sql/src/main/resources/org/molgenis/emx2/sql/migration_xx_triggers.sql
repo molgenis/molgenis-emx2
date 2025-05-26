@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS "MOLGENIS".group_permissions
 );
 CREATE INDEX IF NOT EXISTS idx_permissions_lookup ON "MOLGENIS".group_permissions (table_schema, table_name, group_name);
 
-CREATE OR REPLACE FUNCTION group_permissions_trigger_function()
+CREATE OR REPLACE FUNCTION "MOLGENIS".group_permissions_trigger_function()
     RETURNS TRIGGER AS
 $$
 DECLARE
@@ -228,7 +228,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Materialized view for fast lookups user - permission mappings (skipping join on pg_roles)
-CREATE MATERIALIZED VIEW "MOLGENIS".user_permissions_mv AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS "MOLGENIS".user_permissions_mv AS
 SELECT gp.group_name,
        gp.table_schema,
        gp.table_name,
@@ -245,8 +245,8 @@ FROM "MOLGENIS".group_permissions gp
          JOIN pg_roles r ON pg_has_role(r.rolname, gp.group_name, 'MEMBER')
 WHERE r.rolname LIKE 'MG_USER:%'
 WITH NO DATA;
-REFRESH MATERIALIZED VIEW CONCURRENTLY "MOLGENIS".user_permissions_mv;
-CREATE INDEX idx_user_permissions_user_schema
+REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
+CREATE INDEX IF NOT EXISTS idx_user_permissions_user_schema
     ON "MOLGENIS".user_permissions_mv(user_name, table_schema, table_name)
 -- Trigger Function for updating materialized view
 CREATE OR REPLACE FUNCTION "MOLGENIS".user_permissions_mv_trigger_function()
@@ -254,11 +254,11 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".user_permissions_mv_trigger_function()
 $$
 BEGIN
     -- Refresh the materialized view whenever the group_permissions table changes
-    REFRESH MATERIALIZED VIEW CONCURRENTLY "MOLGENIS".user_permissions_mv;
+    REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
     RETURN NEW; -- Continue with the operation
 END;
 $$ LANGUAGE plpgsql;
-CREATE TRIGGER user_permissions_mv_trigger
+CREATE OR REPLACE TRIGGER user_permissions_mv_trigger
     AFTER INSERT OR UPDATE OR DELETE
     ON "MOLGENIS".group_permissions
     FOR EACH STATEMENT
@@ -321,7 +321,7 @@ BEGIN
         VALUES (group_name, schema_id, true);
     END IF;
 END
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Function to enable RLS
 CREATE OR REPLACE FUNCTION "MOLGENIS".enable_RLS_on_table(
