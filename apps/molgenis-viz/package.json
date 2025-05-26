@@ -20,7 +20,6 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build -m lib",
-    "build-showcase": "vite build -m app --outDir showCase",
     "serve": "vite serve",
     "preview": "vite preview",
     "docs": "vuese gen",
@@ -30,9 +29,10 @@
   },
   "dependencies": {
     "@heroicons/vue": "2.0.18",
-    "molgenis-components": "*",
+    "molgenis-components": "workspace:*",
     "d3": "7.8.5",
     "graphql-request": "^6.1.0",
+    "graphql-tag": "2.12.6",
     "heroicons": "^2.0.18",
     "vue":"3.5.13"
   },

@@ -36,6 +36,8 @@ steps:
     sudo update-alternatives --display java
   displayName: list available java versions (for debug purposes)
 - script: |
+    npm install -g pnpm@v10.10.0
+- script: |
     export JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64/
     ./gradlew -version
     ./gradlew test jacocoMergedReport
