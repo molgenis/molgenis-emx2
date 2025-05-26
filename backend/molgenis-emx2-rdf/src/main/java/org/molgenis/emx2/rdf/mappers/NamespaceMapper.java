@@ -3,6 +3,7 @@ package org.molgenis.emx2.rdf.mappers;
 import static org.molgenis.emx2.rdf.DefaultNamespace.streamAll;
 import static org.molgenis.emx2.rdf.RdfUtils.SETTING_SEMANTIC_PREFIXES;
 import static org.molgenis.emx2.rdf.RdfUtils.hasIllegalPrefix;
+import static org.molgenis.emx2.rdf.RdfUtils.isIllegalIri;
 import static org.molgenis.emx2.rdf.RdfUtils.isIllegalPrefix;
 
 import com.fasterxml.jackson.databind.MappingIterator;
@@ -100,7 +101,7 @@ public class NamespaceMapper {
                       + i.get("prefix"));
             }
             // Check similar to RDF4J's SimpleIRI
-            if (i.get("iri").indexOf(':') < 0) {
+            if (isIllegalIri(i.get("iri"))) {
               throw new MolgenisException(i.get("iri") + " must be a valid (absolute) IRI");
             }
             namespaces.put(i.get("prefix"), Values.namespace(i.get("prefix"), i.get("iri")));

@@ -11,6 +11,7 @@ import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.slf4j.Logger;
@@ -75,5 +76,13 @@ public abstract class RdfUtils {
     return baseUrlTrim.endsWith("/")
         ? baseUrlTrim.substring(0, baseUrlTrim.length() - 1)
         : baseUrlTrim;
+  }
+
+  /**
+   * Check if IRI is valid similar to RDF4J's SimpleIRI
+   * @see org.eclipse.rdf4j.model.impl.SimpleIRI
+   */
+  public static boolean isIllegalIri(String iri) {
+    return (iri.indexOf(':') < 0);
   }
 }
