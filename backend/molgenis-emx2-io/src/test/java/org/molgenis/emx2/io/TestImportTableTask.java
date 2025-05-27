@@ -68,25 +68,41 @@ public class TestImportTableTask {
   public void testDeleteFromImportCSV() {
     ClassLoader classLoader = getClass().getClassLoader();
     Path path = new File(classLoader.getResource("TestImportTableDelete").getFile()).toPath();
-    //    Create 'pet store' schema
+
     PET_STORE.getImportTask(schema, true).run();
     List<Row> rows = schema.retrieveSql("Select * from \"Pet\"");
     assertEquals(8, rows.size());
 
-    //    Import CSV with some new rows for table 'Pet'
+    // Insert one row
     Path insertPath = path.resolve("insert");
     ImportDirectoryTask insertTask = new ImportDirectoryTask(insertPath, schema, false);
     insertTask.run();
-    //    Assert number of rows has increased
+
     rows = schema.retrieveSql("Select * from \"Pet\"");
     assertEquals(9, rows.size());
 
-    //    Import CSV with some deletions
+    // Delete one row
     Path deletePath = path.resolve("delete");
     ImportDirectoryTask deleteTask = new ImportDirectoryTask(deletePath, schema, false);
     deleteTask.run();
-    //    Assert number of rows has decreased
+
     rows = schema.retrieveSql("Select * from \"Pet\"");
     assertEquals(8, rows.size());
+  }
+
+  @Test
+  public void testErrorDeletingFromImportCSV() {
+    ClassLoader classLoader = getClass().getClassLoader();
+    Path path = new File(classLoader.getResource("TestImportTableDelete/DeleteWithError").getFile()).toPath();
+    PET_STORE.getImportTask(schema, true).run();
+    ImportDirectoryTask t = new ImportDirectoryTask(path, schema, false);
+    try {
+      t.run();
+      fail("should have failed on reference");
+    } catch (Exception e) {
+      assertEquals(
+          "Transaction failed: update or delete on table \"Category\" violates foreign key constraint \"Pet.category REFERENCES Category\" on table \"Pet\". Details: Key (name)=(cat) is still referenced from table \"Pet\".",
+          e.getMessage());
+    }
   }
 }
