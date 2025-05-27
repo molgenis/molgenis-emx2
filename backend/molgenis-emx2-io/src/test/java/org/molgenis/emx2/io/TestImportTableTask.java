@@ -93,7 +93,9 @@ public class TestImportTableTask {
   @Test
   public void testErrorDeletingFromImportCSV() {
     ClassLoader classLoader = getClass().getClassLoader();
-    Path path = new File(classLoader.getResource("TestImportTableDelete/DeleteWithError").getFile()).toPath();
+    Path path =
+        new File(classLoader.getResource("TestImportTableDelete/DeleteWithError").getFile())
+            .toPath();
     PET_STORE.getImportTask(schema, true).run();
     ImportDirectoryTask t = new ImportDirectoryTask(path, schema, false);
     try {
