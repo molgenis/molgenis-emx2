@@ -1,12 +1,15 @@
 package org.molgenis.emx2.io;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -62,10 +65,28 @@ public class TestImportTableTask {
   }
 
   @Test
-  public void testWarningDelete() {
+  public void testDeleteFromImportCSV() {
     ClassLoader classLoader = getClass().getClassLoader();
     Path path = new File(classLoader.getResource("TestImportTableDelete").getFile()).toPath();
-    ImportDirectoryTask t = new ImportDirectoryTask(path, schema, false);
-    t.run();
+    //    Create 'pet store' schema
+    PET_STORE.getImportTask(schema, true).run();
+    List<Row> rows = schema.retrieveSql("Select * from \"Pet\"");
+    assertEquals(8, rows.size());
+
+    //    Import CSV with some new rows for table 'Pet'
+    Path insertPath = path.resolve("insert");
+    ImportDirectoryTask insertTask = new ImportDirectoryTask(insertPath, schema, false);
+    insertTask.run();
+    //    Assert number of rows has increased
+    rows = schema.retrieveSql("Select * from \"Pet\"");
+    assertEquals(9, rows.size());
+
+    //    Import CSV with some deletions
+    Path deletePath = path.resolve("delete");
+    ImportDirectoryTask deleteTask = new ImportDirectoryTask(deletePath, schema, false);
+    deleteTask.run();
+    //    Assert number of rows has decreased
+    rows = schema.retrieveSql("Select * from \"Pet\"");
+    assertEquals(8, rows.size());
   }
 }
