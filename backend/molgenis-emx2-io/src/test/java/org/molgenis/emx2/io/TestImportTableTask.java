@@ -60,4 +60,12 @@ public class TestImportTableTask {
           e.getMessage());
     }
   }
+
+  @Test
+  public void testWarningDelete() {
+    ClassLoader classLoader = getClass().getClassLoader();
+    Path path = new File(classLoader.getResource("TestImportTableDelete").getFile()).toPath();
+    ImportDirectoryTask t = new ImportDirectoryTask(path, schema, false);
+    t.run();
+  }
 }
