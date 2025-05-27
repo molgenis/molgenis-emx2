@@ -7,12 +7,7 @@
       </Button>
 
       <h2>User List ({{ userCount }})</h2>
-      <!-- <Pagination
-        v-if="userCount > 100"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
-        @update="updateCurrentPage"
-      /> -->
+
       <Table>
         <template #head>
           <TableHeadRow>
