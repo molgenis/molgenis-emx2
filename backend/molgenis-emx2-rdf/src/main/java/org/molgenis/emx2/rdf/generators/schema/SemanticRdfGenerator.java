@@ -7,7 +7,8 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
-public class SemanticRdfGenerator extends RdfGenerator {
+// todo: implement
+public class SemanticRdfGenerator extends RdfGenerator implements RdfApiPaths {
   public SemanticRdfGenerator(RdfWriter writer, String baseURL) {
     super(writer, baseURL);
   }

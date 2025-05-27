@@ -47,22 +47,27 @@ public class NamespaceMapper {
   // schema name -> namespace prefix -> namespace
   private final SortedMap<String, Map<String, Namespace>> namespaces = new TreeMap<>();
 
-  public NamespaceMapper(Collection<Schema> schemas) throws IOException {
+  public NamespaceMapper(Collection<Schema> schemas) {
     addAll(schemas);
   }
 
-  public NamespaceMapper(Schema schema) throws IOException {
+  public NamespaceMapper(Schema schema) {
     add(schema);
   }
 
   public NamespaceMapper() {}
 
-  private void add(Schema schema) throws IOException {
+  private void add(Schema schema) {
     namespaces.put(schema.getName(), getCustomPrefixes(schema));
   }
 
-  private void addAll(Collection<Schema> schemas) throws IOException {
+  private void addAll(Collection<Schema> schemas) {
     for (Schema schema : schemas) add(schema);
+  }
+
+  public Set<Namespace> getAllNamespaces(Schema schema) {
+    return namespaces.get(schema.getName()).values().stream()
+        .collect(Collectors.toUnmodifiableSet());
   }
 
   /**
@@ -103,7 +108,7 @@ public class NamespaceMapper {
     return combinedNameSpaces;
   }
 
-  private static Map<String, Namespace> getCustomPrefixes(Schema schema) throws IOException {
+  private static Map<String, Namespace> getCustomPrefixes(Schema schema) {
     if (!schema.hasSetting(SETTING_SEMANTIC_PREFIXES)) {
       return null;
     }
@@ -128,6 +133,11 @@ public class NamespaceMapper {
             }
             namespaces.put(i.get("prefix"), Values.namespace(i.get("prefix"), i.get("iri")));
           });
+    } catch (IOException e) {
+      // If retrieval fails, use default namespaces instead.
+      logger.error(
+          "An error occurred while trying to process the custom namespaces (using no namespaces instead): "
+              + e.getMessage());
     }
 
     return namespaces;

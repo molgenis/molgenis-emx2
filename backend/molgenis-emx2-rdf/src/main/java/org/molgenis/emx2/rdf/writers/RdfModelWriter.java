@@ -34,7 +34,7 @@ public class RdfModelWriter extends RdfWriter {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     Rio.write(builder.build(), getOutputStream(), getFormat());
   }
 }

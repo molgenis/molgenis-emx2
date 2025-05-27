@@ -38,48 +38,49 @@ import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
-public class Emx2RdfGenerator extends RdfRowsGenerator {
-  private final NamespaceMapper namespaces;
-  private final RdfMapData rdfMapData;
-
-  public Emx2RdfGenerator(
-      RdfWriter writer,
-      String baseURL,
-      NamespaceMapper namespaces,
-      OntologyIriMapper ontologyIris) {
+public class Emx2RdfGenerator extends RdfGenerator implements RdfApiPaths {
+  public Emx2RdfGenerator(RdfWriter writer, String baseURL) {
     super(writer, baseURL);
-    this.namespaces = namespaces;
-    this.rdfMapData = new RdfMapData(getBaseURL(), ontologyIris);
   }
 
   @Override
   public void generate(Schema schema) {
+    List<Table> tables = schema.getTablesSorted();
+    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+    NamespaceMapper namespaces = new NamespaceMapper(schema);
+
+    generatePrefixes(namespaces.getAllNamespaces(schema));
     generateCustomRdf(schema);
-    super.generate(schema);
+    tables.forEach(i -> describeTable(namespaces, i));
+    tables.forEach(i -> describeColumns(namespaces, i, null));
+    tables.forEach(i -> processRows(namespaces, rdfMapData, i, null));
   }
 
   @Override
   public void generate(Table table) {
-    generateCustomRdf(table.getSchema());
-    describeTable(table);
-    describeColumns(table, null);
-    super.generate(table);
+    generate(table, (PrimaryKey) null);
   }
 
   @Override
   public void generate(Table table, PrimaryKey primaryKey) {
+    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
+    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+    NamespaceMapper namespaces = new NamespaceMapper(table.getSchema());
+
+    generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
     generateCustomRdf(table.getSchema());
-    describeTable(table);
-    describeColumns(table, null);
-    super.generate(table, primaryKey);
+    describeTable(namespaces, table);
+    describeColumns(namespaces, table, null);
+    tables.forEach(i -> processRows(namespaces, rdfMapData, i, primaryKey));
   }
 
   @Override
   public void generate(Table table, Column column) {
-    describeColumns(table, column.getName());
+    NamespaceMapper namespaces = new NamespaceMapper(table.getSchema());
+    describeColumns(namespaces, table, column.getName());
   }
 
-  private void describeTable(final Table table) {
+  void describeTable(final NamespaceMapper namespaces, final Table table) {
     final IRI subject = tableIRI(getBaseURL(), table);
     getWriter().processTriple(subject, RDF.TYPE, OWL.CLASS);
     getWriter().processTriple(subject, RDFS.SUBCLASSOF, BasicIRI.LD_DATASET_CLASS);
@@ -128,7 +129,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
   }
 
-  private void describeColumns(final Table table, final String columnName) {
+  void describeColumns(
+      final NamespaceMapper namespaces, final Table table, final String columnName) {
     if (table.getMetadata().getTableType() == TableType.DATA) {
       for (final Column column : table.getMetadata().getNonInheritedColumns()) {
         // Exclude the system columns that refer to specific users
@@ -136,7 +138,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
           continue;
         }
         if (columnName == null || columnName.equals(column.getName())) {
-          describeColumn(column);
+          describeColumn(namespaces, column);
         }
       }
     } else {
@@ -144,7 +146,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
   }
 
-  private void describeColumn(final Column column) {
+  private void describeColumn(final NamespaceMapper namespaces, final Column column) {
     final IRI subject = columnIRI(getBaseURL(), column);
     if (column.isReference()) {
       getWriter().processTriple(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
@@ -192,15 +194,18 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
   }
 
-  void processRows(Table table, List<Row> rows) {
+  void processRows(
+      NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, PrimaryKey primaryKey) {
+    List<Row> rows = getRows(table, primaryKey);
+
     switch (table.getMetadata().getTableType()) {
-      case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(table, row));
-      case DATA -> rows.forEach(row -> dataRowToRdf(table, row));
+      case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(rdfMapData, table, row));
+      case DATA -> rows.forEach(row -> dataRowToRdf(namespaces, rdfMapData, table, row));
       default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
     }
   }
 
-  private void ontologyRowToRdf(final Table table, final Row row) {
+  private void ontologyRowToRdf(final RdfMapData rdfMapData, final Table table, final Row row) {
     final IRI tableIRI = tableIRI(getBaseURL(), table);
     final IRI subject = rowIRI(getBaseURL(), table, row);
 
@@ -242,7 +247,11 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     }
   }
 
-  private void dataRowToRdf(final Table table, final Row row) {
+  private void dataRowToRdf(
+      final NamespaceMapper namespaces,
+      final RdfMapData rdfMapData,
+      final Table table,
+      final Row row) {
     final IRI tableIRI = tableIRI(getBaseURL(), table);
     final IRI subject = rowIRI(getBaseURL(), table, row);
 

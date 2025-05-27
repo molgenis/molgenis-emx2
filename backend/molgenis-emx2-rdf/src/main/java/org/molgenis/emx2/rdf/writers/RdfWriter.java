@@ -2,7 +2,6 @@ package org.molgenis.emx2.rdf.writers;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.Closeable;
 import java.io.OutputStream;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
@@ -11,7 +10,7 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.rio.RDFFormat;
 
-public abstract class RdfWriter implements Closeable {
+public abstract class RdfWriter implements AutoCloseable {
   private final OutputStream outputStream;
   private final RDFFormat format;
 

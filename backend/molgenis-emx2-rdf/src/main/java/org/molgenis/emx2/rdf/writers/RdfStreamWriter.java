@@ -46,7 +46,7 @@ public class RdfStreamWriter extends RdfWriter {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     writer.endRDF();
   }
 }
