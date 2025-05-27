@@ -9,7 +9,7 @@ export default async function fetchRowPrimaryKey(
   row: IRow,
   tableId: string,
   schemaId: string
-): Promise<Record<string, any>> {
+): Promise<Record<string, string>> {
   const schema = await fetchMetadata(schemaId);
   const tableMetadata = schema.tables.find(
     (table: ITableMetaData) => table.id === tableId

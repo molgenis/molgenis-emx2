@@ -147,6 +147,7 @@
     :metadata="refTableColumn"
     :row="refTableRow"
     :schema="props.schemaId"
+    :sourceTableId="refSourceTableId"
     :showDataOwner="false"
   />
 </template>
@@ -171,6 +172,7 @@ import AddModal from "../form/AddModal.vue";
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import TableModalRef from "./modal/TableModalRef.vue";
+import { useRoute } from "#app/composables/router";
 
 const props = withDefaults(
   defineProps<{
@@ -206,6 +208,9 @@ const { data, status, error, refresh, clear } = useAsyncData(
       props.schemaId,
       props.tableId
     );
+
+    resolveRefRoute();
+
     const tableData = await fetchTableData(props.schemaId, props.tableId, {
       limit: settings.value.pageSize,
       offset: (settings.value.page - 1) * settings.value.pageSize,
@@ -214,6 +219,7 @@ const { data, status, error, refresh, clear } = useAsyncData(
         : {},
       searchTerms: settings.value.search,
     });
+
     return {
       tableMetadata,
       tableData,
@@ -284,19 +290,46 @@ function handlePagingRequest(page: number) {
 const showModal = ref(false);
 const refTableRow = ref<IRow>();
 const refTableColumn = ref<IRefColumn>();
+// initially set to the current tableId
+const refSourceTableId = ref<string>(props.tableId);
 
 function handleCellClick(
   event: RefPayload,
   column: IColumn,
   row: Record<string, any>
 ) {
-  console.log("Cell clicked", event);
   refTableRow.value = event.data;
   refTableColumn.value =
     column.columnType === "REF"
       ? (column as IRefColumn)
       : (column as IRefColumn); // todo other types of column
+
   showModal.value = true;
+}
+
+async function resolveRefRoute() {
+  if (
+    // only if route contains all redetails open the modal
+    useRoute().query.detail === "ref" &&
+    useRoute().query.detailsType === "modal" &&
+    useRoute().query.refSourceTable &&
+    useRoute().query.refRowId
+  ) {
+    const refRowKeyString = useRoute().query.refRowId as string;
+    const refColumnId = useRoute().query.refColumnId as string;
+    const currentSourceTableId = useRoute().query.refSourceTable as string;
+
+    const refSourceTableMetadata = await fetchTableMetadata(
+      props.schemaId,
+      currentSourceTableId
+    );
+    refTableColumn.value = refSourceTableMetadata.columns.find(
+      (column) => column.id === refColumnId
+    ) as IRefColumn;
+    refTableRow.value = JSON.parse(refRowKeyString);
+
+    showModal.value = true;
+  }
 }
 
 function afterRowAdded() {

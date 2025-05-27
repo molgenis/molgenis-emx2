@@ -15,12 +15,14 @@ import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
 import ValueEMX2 from "../../value/EMX2.vue";
 import fetchTableMetadata from "../../../composables/fetchTableMetadata";
 import type { RefPayload } from "../../../types/types";
+import { useRoute, useRouter } from "#app/composables/router";
 
 const props = withDefaults(
   defineProps<{
     metadata: IRefColumn;
     row: IRow;
     schema: string;
+    sourceTableId: string;
     showDataOwner?: boolean;
   }>(),
   {
@@ -32,10 +34,27 @@ const props = withDefaults(
 const currentMetadata = ref<IRefColumn>(props.metadata);
 const currentRow = ref<IRow>(props.row);
 const currentSchema = ref<string>(props.schema);
+const currentSourceTableId = ref<string>(props.sourceTableId);
 
 const visible = ref(false);
 
 const emit = defineEmits(["onClose"]);
+
+function onModalClose() {
+  // reset the query parameters to remove the modal state
+  useRouter().push({
+    query: {
+      ...useRoute().query,
+      detail: undefined,
+      detailsType: undefined,
+      refColumnId: undefined,
+      refSourceTable: undefined,
+      refRowId: undefined,
+    },
+  });
+
+  emit("onClose");
+}
 
 const refColumnLabel = computed(() => {
   const labelTemplate = (
@@ -54,13 +73,20 @@ const sections = ref<
   }[]
 >();
 
-async function fetchData(row: IRow, tableId: string, schema: string) {
+async function fetchData(
+  row: IRow,
+  tableId: string,
+  schema: string,
+  refColumnId: string,
+  soureTableId: string
+) {
   loading.value = true;
   const rowKey = await fetchRowPrimaryKey(row, tableId, schema);
 
   const refRow = await fetchRowData(schema, tableId, rowKey);
 
   const refRowMetadata = await fetchTableMetadata(schema, tableId);
+  currentSourceTableId.value = soureTableId;
 
   loading.value = false;
 
@@ -99,12 +125,30 @@ async function fetchData(row: IRow, tableId: string, schema: string) {
       // Filter out empty sections
       return section.fields.length > 0;
     });
+
+  useRouter().push({
+    query: {
+      ...useRoute().query,
+      detail: "ref",
+      detailsType: "modal",
+      refColumnId: refColumnId,
+      refSourceTable: currentSourceTableId.value,
+      refRowId: JSON.stringify(rowKey),
+    },
+  });
 }
 
-await fetchData(props.row, props.metadata.refTableId, props.schema);
+await fetchData(
+  props.row,
+  props.metadata.refTableId,
+  props.schema,
+  props.metadata.id,
+  props.sourceTableId
+);
 
 function handleValueClicked(event: RefPayload) {
   // update the context to drill down
+  const sourceTableId = currentMetadata.value.refTableId;
   currentMetadata.value = event.metadata;
   currentRow.value = event.data;
   currentSchema.value = event.metadata.refSchemaId ?? props.schema;
@@ -112,7 +156,9 @@ function handleValueClicked(event: RefPayload) {
   fetchData(
     event.data,
     event.metadata.refTableId,
-    event.metadata.refSchemaId ?? props.schema
+    event.metadata.refSchemaId ?? props.schema,
+    event.metadata.id,
+    sourceTableId
   );
 }
 </script>
@@ -123,7 +169,7 @@ function handleValueClicked(event: RefPayload) {
     :title="refColumnLabel"
     :subtitle="currentMetadata.refTableId"
     max-width="max-w-9/10"
-    :onClose="emit('onClose')"
+    @closed="onModalClose"
   >
     <section
       v-if="!loading"

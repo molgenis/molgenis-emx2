@@ -16,12 +16,15 @@ const visible = defineModel("visible", {
   required: true,
 });
 
+const emit = defineEmits(["closed"]);
+
 // needed for case where modal is show/hidden but not added /removed from DOM
 watchEffect(() => {
   if (visible.value) {
     document.body.style.overflow = "hidden";
   } else {
     document.body.style.overflow = "";
+    emit("closed");
   }
 });
 
@@ -41,6 +44,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  emit("closed");
   window.removeEventListener("keydown", handleKeydown);
 });
 </script>
