@@ -12,7 +12,6 @@
       </div>
     </div>
     <div class="container-fluid">
-      {{ content.dependencies }}
       <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
       <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
       <div class="row">
@@ -157,18 +156,6 @@ export default {
       html: {},
       css: {},
       javascript: {},
-      // content: {
-      //   html: "",
-      //   css: "",
-      //   javascript: "",
-      //   dependencies: {
-      //     css: [],
-      //     javascript: [],
-      //   },
-      //   options: {
-      //     jsDefer: "",
-      //   },
-      // },
       content: newPageContentObject(),
     };
   },
