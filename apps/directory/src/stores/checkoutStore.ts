@@ -422,7 +422,10 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   function getCollectionsToSend(
     selectedCollections: Record<string, ILabelValuePair[]>
   ) {
-    if (settingsStore.config.negotiatorType === "v3") {
+    if (
+      settingsStore.config.negotiatorType === "v3" ||
+      settingsStore.config.negotiatorType === "eric-negotiator"
+    ) {
       return Object.keys(selectedCollections).map((biobankName) => {
         const collectionSelection = selectedCollections[biobankName];
         return collectionSelection.map((collection) => {
