@@ -1,2 +1,2 @@
-name,category,photoUrls,status,tags,weight,orders,mg_draft,mg_delete
-molgenis,cat,,available,blue,4.23,,,true
+name,mg_delete
+molgenis,true
