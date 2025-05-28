@@ -25,7 +25,7 @@ public class TestImportTableTask {
   }
 
   @Test
-  public void testWarningMissingColumns() {
+  void testWarningMissingColumns() {
     ClassLoader classLoader = getClass().getClassLoader();
     Path path = new File(classLoader.getResource("TestImportTableTask").getFile()).toPath();
     ImportDirectoryTask t = new ImportDirectoryTask(path, schema, false);
@@ -52,7 +52,7 @@ public class TestImportTableTask {
   }
 
   @Test
-  public void testWarningMissingKeys() {
+  void testWarningMissingKeys() {
     ClassLoader classLoader = getClass().getClassLoader();
     Path path = new File(classLoader.getResource("TestImportTableMissingKey").getFile()).toPath();
     try {
@@ -66,7 +66,7 @@ public class TestImportTableTask {
   }
 
   @Test
-  public void testDeleteFromImportCSV() {
+  void testDeleteFromImportCSV() {
     ClassLoader classLoader = getClass().getClassLoader();
     Path path = new File(classLoader.getResource("TestImportTableDelete").getFile()).toPath();
 
@@ -92,7 +92,7 @@ public class TestImportTableTask {
   }
 
   @Test
-  public void testErrorDeletingFromImportCSV() {
+  void testErrorDeletingFromImportCSV() {
     ClassLoader classLoader = getClass().getClassLoader();
     Path path =
         new File(classLoader.getResource("TestImportTableDelete/DeleteWithError").getFile())
