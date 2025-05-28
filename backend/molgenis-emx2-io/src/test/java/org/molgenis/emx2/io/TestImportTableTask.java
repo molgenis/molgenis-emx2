@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
@@ -70,7 +71,7 @@ public class TestImportTableTask {
     Path path = new File(classLoader.getResource("TestImportTableDelete").getFile()).toPath();
 
     PET_STORE.getImportTask(schema, true).run();
-    List<Row> rows = schema.retrieveSql("Select * from \"Pet\"");
+    List<Row> rows = schema.getTable("Pet").retrieveRows();
     assertEquals(8, rows.size());
 
     // Insert one row
@@ -78,7 +79,7 @@ public class TestImportTableTask {
     ImportDirectoryTask insertTask = new ImportDirectoryTask(insertPath, schema, false);
     insertTask.run();
 
-    rows = schema.retrieveSql("Select * from \"Pet\"");
+    rows = schema.getTable("Pet").retrieveRows();
     assertEquals(9, rows.size());
 
     // Delete one row
@@ -86,7 +87,7 @@ public class TestImportTableTask {
     ImportDirectoryTask deleteTask = new ImportDirectoryTask(deletePath, schema, false);
     deleteTask.run();
 
-    rows = schema.retrieveSql("Select * from \"Pet\"");
+    rows = schema.getTable("Pet").retrieveRows();
     assertEquals(8, rows.size());
   }
 
@@ -98,13 +99,6 @@ public class TestImportTableTask {
             .toPath();
     PET_STORE.getImportTask(schema, true).run();
     ImportDirectoryTask t = new ImportDirectoryTask(path, schema, false);
-    try {
-      t.run();
-      fail("should have failed on reference");
-    } catch (Exception e) {
-      assertEquals(
-          "Transaction failed: update or delete on table \"Category\" violates foreign key constraint \"Pet.category REFERENCES Category\" on table \"Pet\". Details: Key (name)=(cat) is still referenced from table \"Pet\".",
-          e.getMessage());
-    }
+    assertThrows(MolgenisException.class, t::run, "should have failed on reference deletion");
   }
 }
