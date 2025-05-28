@@ -20,7 +20,8 @@ public class SHACLIntegrationTest extends ComplianceTest {
     List<String> allSHACLFilesList = new ArrayList<>();
     Collections.addAll(allSHACLFilesList, FAIR_DATA_POINT_SHACL_FILES);
     Collections.addAll(allSHACLFilesList, DCAT_AP_SHACL_FILES);
-    Collections.addAll(allSHACLFilesList, HEALTH_RI_SHACL_FILES);
+    Collections.addAll(allSHACLFilesList, HEALTH_RI_V1_SHACL_FILES);
+    Collections.addAll(allSHACLFilesList, HEALTH_RI_V2_SHACL_FILES);
     Collections.addAll(allSHACLFilesList, EJP_RD_VP_SHACL_FILES);
     String[] allSHACLFilesArray = new String[allSHACLFilesList.size()];
     for (int i = 0; i < allSHACLFilesList.size(); i++)
