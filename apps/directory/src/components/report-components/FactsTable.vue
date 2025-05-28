@@ -8,44 +8,16 @@
     <div>
       <label class="font-weight-bold mr-3">Split by:</label>
       <div class="d-inline-flex justify-content-around w-50">
-        <label>
-          <input
-            type="checkbox"
-            @change="(event) => toggleColumn(event, 'sample_type')"
-            :checked="splitByColumn['sample_type']"
-          />
-          Material type
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            @change="(event) => toggleColumn(event, 'sex')"
-            :checked="splitByColumn['sex']"
-          />
-          Sex
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            @change="(event) => toggleColumn(event, 'age_range')"
-            :checked="splitByColumn['age_range']"
-          />
-          Age range
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            @change="(event) => toggleColumn(event, 'disease')"
-            :checked="splitByColumn['disease']"
-          />
-          Disease codes
-        </label>
+        <div>
+          <select v-model="splitByColumn" @change="toggleColumn">
+            <option value="all">All</option>
+            <option value="sample_type">Material type</option>
+            <option value="sex">Sex</option>
+            <option value="age_range">Age range</option>
+            <option value="disease">Disease codes</option>
+          </select>
+        </div>
       </div>
-    </div>
-    <div v-if="splitByColumnChecked < 4" class="alert alert-dark" role="alert">
-      Because of the adopted method of data creation and collection the number
-      of donors presented in the table below should not be added as it may give
-      the wrong sums.
     </div>
     <table class="table border w-100" :key="tableVersion">
       <thead>
@@ -205,6 +177,7 @@ const FACT_PROPERTIES = [
   "number_of_samples",
   "number_of_donors",
 ];
+const COLUMN_IDS = ["sample_type", "sex", "age_range", "disease"];
 
 const currentPage = ref(1);
 const facts = ref<Record<string, any>[]>([]);
@@ -212,12 +185,7 @@ const sortColumn = ref("");
 const sortAsc = ref(false);
 const tableVersion = ref(0);
 const filters = ref<Record<string, any>>(NO_FILTERS);
-const splitByColumn = ref<Record<string, boolean>>({
-  sample_type: true,
-  sex: true,
-  age_range: true,
-  disease: true,
-});
+const splitByColumn = ref<string>("all");
 const factProperties = ref<Record<string, any>>({});
 
 let baseFacts: Record<string, any>[] = [];
@@ -226,10 +194,6 @@ onMounted(() => {
   baseFacts = getBaseFacts(attribute);
   collapseRows();
   factProperties.value = getFactProperties();
-});
-
-const splitByColumnChecked = computed(() => {
-  return Object.values(splitByColumn.value).filter((sbc) => sbc).length;
 });
 
 const filteredFacts = computed(() => {
@@ -330,8 +294,7 @@ function getFactProperties() {
   };
 }
 
-function toggleColumn(event: Event, columnName: string) {
-  splitByColumn.value[columnName] = (event.target as HTMLInputElement).checked;
+function toggleColumn() {
   filters.value = NO_FILTERS;
   collapseRows();
 }
@@ -382,8 +345,8 @@ function hasAFactToShow(fact: Record<string, any>) {
 }
 
 function collapseRows() {
-  facts.value = Object.keys(splitByColumn.value).reduce((accum, columnId) => {
-    if (splitByColumn.value[columnId]) {
+  facts.value = COLUMN_IDS.reduce((accum, columnId) => {
+    if (splitByColumn.value === ALL) {
       return accum.filter(
         (fact: Record<string, any>) => fact[columnId] !== ANY
       );
