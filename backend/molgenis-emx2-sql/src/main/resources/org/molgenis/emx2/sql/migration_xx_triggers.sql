@@ -325,28 +325,29 @@ END;
 $$;
 
 -- Function to enable RLS
-CREATE OR REPLACE FUNCTION "MOLGENIS".enable_RLS_on_table(
-    schema_id TEXT,
-    table_id TEXT
-)
-    RETURNS void
-    LANGUAGE plpgsql AS
+CREATE OR REPLACE FUNCTION "MOLGENIS".enable_RLS_on_table(schema_id TEXT, table_id TEXT)
+    RETURNS void AS
 $$
 DECLARE
     policies_exists TEXT[];
+    safe_schema_id TEXT := replace(schema_id, ' ', '_');
+    safe_table_id TEXT := replace(table_id, ' ', '_');
 BEGIN
-    -- check if table exist
+    -- check if table exists
     IF NOT EXISTS (
         SELECT 1
         FROM "MOLGENIS".table_metadata
         WHERE table_schema = schema_id
           AND table_name = table_id
     ) THEN
-        RAISE EXCEPTION 'Table %I.%I does not exist.', schema_id, table_id;
+        RAISE EXCEPTION 'Table %.% does not exist.', schema_id, table_id;
     END IF;
 
     -- Ensure the 'mg_group' column exists
-    EXECUTE (format('ALTER TABLE %I.%I ADD COLUMN IF NOT EXISTS mg_group TEXT DEFAULT NULL', schema_id, table_id));
+    EXECUTE format(
+            'ALTER TABLE %I.%I ADD COLUMN IF NOT EXISTS mg_group TEXT DEFAULT NULL',
+            schema_id, table_id
+            );
 
     -- Fetch existing policies
     SELECT COALESCE(array_agg(policyname), ARRAY[]::TEXT[])
@@ -356,82 +357,80 @@ BEGIN
       AND tablename = table_id;
 
     -- Create SELECT policy if not exists
-    IF NOT ( ('select_policy_' || schema_id || '_' || table_id) = ANY (policies_exists)) THEN
+    IF NOT ('select_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
         EXECUTE format(
-                'CREATE POLICY select_policy_%1$s_%2$s ON %1$I.%2$I FOR SELECT USING (
+                'CREATE POLICY select_policy_%s_%s ON %I.%I FOR SELECT USING (
                     EXISTS (
                         SELECT 1
                         FROM "MOLGENIS".user_permissions_mv u
                         WHERE u.user_name = current_user
-                          AND u.table_schema = %1$L
-                          AND (u.table_name = %2$L OR u.table_name = ''_ALL_'')
+                          AND u.table_schema = %L
+                          AND (u.table_name = %L OR u.table_name = ''_ALL_'')
                           AND (
                               u.has_select
-                              OR (u.has_group_select AND u.group_name = mg_group))
+                              OR (u.has_group_select AND u.group_name = mg_group)
                           )
                     )
                 )',
-                schema_id, table_id
+                safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
                 );
     END IF;
+
     -- Create INSERT policy if not exists
-    IF NOT ( ('insert_policy_' || schema_id || '_' || table_id) = ANY (policies_exists)) THEN
+    IF NOT ('insert_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
         EXECUTE format(
-                'CREATE POLICY insert_policy_%1$s_%2$s ON %1$I.%2$I FOR INSERT USING (
+                'CREATE POLICY insert_policy_%s_%s ON %I.%I FOR INSERT WITH CHECK (
                     EXISTS (
                         SELECT 1
                         FROM "MOLGENIS".user_permissions_mv u
                         WHERE u.user_name = current_user
-                          AND u.table_schema = %1$L
-                          AND (u.table_name = %2$L OR u.table_name = ''_ALL_'')
-                          AND (
-                              u.has_insert
-                              )
-                          )
+                          AND u.table_schema = %L
+                          AND (u.table_name = %L OR u.table_name = ''_ALL_'')
+                          AND u.has_insert
                     )
                 )',
-                schema_id, table_id
+                safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
                 );
     END IF;
+
     -- Create UPDATE policy if not exists
-    IF NOT ( ('update_policy_' || schema_id || '_' || table_id) = ANY (policies_exists)) THEN
+    IF NOT ('update_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
         EXECUTE format(
-                'CREATE POLICY update_policy_%1$s_%2$s ON %1$I.%2$I FOR UPDATE USING (
+                'CREATE POLICY update_policy_%s_%s ON %I.%I FOR UPDATE USING (
                     EXISTS (
                         SELECT 1
                         FROM "MOLGENIS".user_permissions_mv u
                         WHERE u.user_name = current_user
-                          AND u.table_schema = %1$L
-                          AND (u.table_name = %2$L OR u.table_name = ''_ALL_'')
+                          AND u.table_schema = %L
+                          AND (u.table_name = %L OR u.table_name = ''_ALL_'')
                           AND (
                               u.has_update
-                              OR (u.has_group_update
-                                  AND u.group_name = mg_group)
+                              OR (u.has_group_update AND u.group_name = mg_group)
                           )
                     )
                 )',
-                schema_id, table_id
+                safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
                 );
     END IF;
+
     -- Create DELETE policy if not exists
-    IF NOT ( ('delete_policy_' || schema_id || '_' || table_id) = ANY (policies_exists)) THEN
+    IF NOT ('delete_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
         EXECUTE format(
-                'CREATE POLICY delete_policy_%1$s_%2$s ON %1$I.%2$I FOR DELETE USING (
+                'CREATE POLICY delete_policy_%s_%s ON %I.%I FOR DELETE USING (
                     EXISTS (
                         SELECT 1
                         FROM "MOLGENIS".user_permissions_mv u
                         WHERE u.user_name = current_user
-                          AND u.table_schema = %1$L
-                          AND (u.table_name = %2$L OR u.table_name = ''_ALL_'')
+                          AND u.table_schema = %L
+                          AND (u.table_name = %L OR u.table_name = ''_ALL_'')
                           AND (
                               u.has_delete
-                              OR (u.has_group_delete
-                                  AND u.group_name = mg_group)
+                              OR (u.has_group_delete AND u.group_name = mg_group)
                           )
                     )
                 )',
-                schema_id, table_id
+                safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
                 );
     END IF;
 END;
-$$;
+$$ LANGUAGE plpgsql;
