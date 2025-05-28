@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { IColumn, IRefColumn } from "../../../metadata-utils/src/types";
-import type { RefPayload } from "../../types/types";
+import type { FieldPayload } from "../../types/types";
 defineProps<{
   metaData: IColumn;
   data: any;
 }>();
 
 defineEmits<{
-  (e: "cellClicked", payload: RefPayload): void;
+  (e: "cellClicked", payload: FieldPayload): void;
 }>();
 </script>
 

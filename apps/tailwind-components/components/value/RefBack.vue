@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import type { IRefColumn, IRow } from "../../../metadata-utils/src/types";
 import { rowToString } from "../../utils/rowToString";
-import type { RefPayload } from "../../types/types";
+import type { RefBackPayload } from "../../types/types";
 
 const props = defineProps<{
   metaData: IRefColumn;
@@ -10,13 +10,13 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "refBackCellClicked", payload: RefPayload): void;
+  (e: "refBackCellClicked", payload: RefBackPayload): void;
 }>();
 
 const handleRefBackCellClicked = () => {
   emit("refBackCellClicked", {
     metadata: props.metaData,
-    data: props.data[0], // todo think about how to handle multiple rows, separate for each row or joined as one?
+    data: props.data,
   });
 };
 

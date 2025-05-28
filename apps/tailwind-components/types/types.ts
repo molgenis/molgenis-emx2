@@ -134,7 +134,16 @@ export interface ISession {
   admin: boolean;
 }
 
-export interface RefPayload {
+export interface FieldPayload {
+  metadata: IColumn;
+  data: IRow | IRow[] | null;
+}
+
+export interface RefPayload extends FieldPayload {
   metadata: IRefColumn;
   data: IRow;
+}
+export interface RefBackPayload extends FieldPayload {
+  metadata: IRefColumn;
+  data: IRow[];
 }

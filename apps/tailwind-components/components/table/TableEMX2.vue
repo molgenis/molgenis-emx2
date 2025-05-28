@@ -160,6 +160,7 @@ import type {
   IRefColumn,
 } from "../../../metadata-utils/src/types";
 import type {
+  FieldPayload,
   ITableSettings,
   RefPayload,
   sortDirection,
@@ -294,17 +295,20 @@ const refTableColumn = ref<IRefColumn>();
 const refSourceTableId = ref<string>(props.tableId);
 
 function handleCellClick(
-  event: RefPayload,
+  event: FieldPayload,
   column: IColumn,
   row: Record<string, any>
 ) {
-  refTableRow.value = event.data;
-  refTableColumn.value =
-    column.columnType === "REF"
-      ? (column as IRefColumn)
-      : (column as IRefColumn); // todo other types of column
+  if (event.metadata && event.metadata.columnType == "REF") {
+    const refPayload = event as RefPayload;
+    refTableRow.value = refPayload.data;
+    refTableColumn.value =
+      column.columnType === "REF"
+        ? (column as IRefColumn)
+        : (column as IRefColumn); // todo other types of column
 
-  showModal.value = true;
+    showModal.value = true;
+  } else if ()
 }
 
 async function resolveRefRoute() {
