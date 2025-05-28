@@ -1,5 +1,7 @@
 package org.molgenis.emx2.datamodels;
 
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PATIENT_REGISTRY;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.molgenis.emx2.Database;
@@ -18,9 +20,9 @@ public class PatientRegistryTest {
   public void setup() {
     if (database == null) {
       database = TestDatabaseFactory.getTestDatabase();
-      patientRegistrySchema = database.getSchema(SCHEMA_NAME);
-      //      patientRegistrySchema = database.dropCreateSchema(SCHEMA_NAME);
-      //      PATIENT_REGISTRY.getImportTask(patientRegistrySchema, true).run();
+      // patientRegistrySchema = database.getSchema(SCHEMA_NAME);
+      patientRegistrySchema = database.dropCreateSchema(SCHEMA_NAME);
+      PATIENT_REGISTRY.getImportTask(patientRegistrySchema, true).run();
     }
   }
 }

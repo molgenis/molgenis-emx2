@@ -38,18 +38,14 @@ public class BeaconApi {
     app.get(basePath + "/", BeaconApi::getInfo);
     app.get(basePath + "/info", BeaconApi::getInfo);
     app.get(basePath + "/service-info", BeaconApi::getInfo);
-    app.get(basePath + "/configuration", new Configuration()::getResponse);
+    app.get(basePath + "/configuration", BeaconApi::getConfiguration);
     app.get(basePath + "/map", BeaconApi::getMap);
-    app.get(basePath + "/entry_types", new EntryTypes()::getResponse);
+    app.get(basePath + "/entry_types", BeaconApi::getEntryTypes);
     app.get(basePath + "/filtering_terms", BeaconApi::getFilteringTerms);
     app.get(basePath + "/{entry_type}", BeaconApi::getEntryType);
     app.get(basePath + "/{entry_type}/{id}", BeaconApi::getEntryType);
     app.get(basePath + "/{entry_type_id}/{id}/{entry_type}", BeaconApi::getEntryType);
     app.post(basePath + "/{entry_type}", BeaconApi::postEntryType);
-  }
-
-  private static void getMap(Context ctx) {
-    ctx.json(new Map().getResponse(ctx));
   }
 
   private static void beforeRequest(Context ctx) {
@@ -60,6 +56,31 @@ public class BeaconApi {
   private static void extractSpecification(Context ctx) {
     String specification = ctx.matchedPath().split("/api/")[1].split("/")[0];
     ctx.attribute("specification", specification);
+  }
+
+  private static void getInfo(Context ctx) {
+    ctx.contentType(Constants.ACCEPT_JSON);
+    Schema schema = getSchema(ctx);
+
+    Database database = sessionManager.getSession(ctx.req()).getDatabase();
+    ctx.json(new Info(database).getResponse(schema));
+  }
+
+  private static void getConfiguration(Context ctx) {
+    ctx.json(new Configuration().getResponse(ctx));
+  }
+
+  private static void getMap(Context ctx) {
+    ctx.json(new Map().getResponse(ctx));
+  }
+
+  private static void getEntryTypes(Context ctx) {
+    ctx.json(new EntryTypes().getResponse(ctx));
+  }
+
+  private static void getFilteringTerms(Context ctx) {
+    Database database = sessionManager.getSession(ctx.req()).getDatabase();
+    ctx.json(new FilteringTerms(database));
   }
 
   private static void getEntryType(Context ctx) {
@@ -83,18 +104,5 @@ public class BeaconApi {
       Database database = sessionManager.getSession(ctx.req()).getDatabase();
       ctx.json(queryEntryType.query(database));
     }
-  }
-
-  private static void getFilteringTerms(Context ctx) {
-    Database database = sessionManager.getSession(ctx.req()).getDatabase();
-    ctx.json(new FilteringTerms(database));
-  }
-
-  private static void getInfo(Context ctx) {
-    ctx.contentType(Constants.ACCEPT_JSON);
-    Schema schema = getSchema(ctx);
-
-    Database database = sessionManager.getSession(ctx.req()).getDatabase();
-    ctx.json(new Info(database).getResponse(schema));
   }
 }

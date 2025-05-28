@@ -1,15 +1,15 @@
 package org.molgenis.emx2.datamodels.beacon;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.Configuration;
 
-@Disabled
 public class BeaconConfigurationTest {
 
   private Context mockRequest() {
@@ -21,25 +21,26 @@ public class BeaconConfigurationTest {
   }
 
   @Test
-  public void testConfiguration() throws Exception {
+  public void testConfiguration() {
     Configuration configuration = new Configuration();
 
     Context context = mockRequest();
-    configuration.getResponse(mockRequest());
 
-    String json = context.result();
-    assertTrue(json.contains("\"meta\" : {"));
+    JsonNode result = configuration.getResponse(context);
+    assertTrue(result.has("meta"));
 
-    // last line (except for closing braces)
-    assertTrue(json.contains("\"label\" : \"Sequencing run\""));
+    JsonNode entryTypes = result.get("response").get("entryTypes");
 
-    // check ids of all possible return types
-    assertTrue(json.contains("\"id\" : \"Analyses\","));
-    assertTrue(json.contains("\"id\" : \"Biosamples\","));
-    assertTrue(json.contains("\"id\" : \"Cohorts\","));
-    assertTrue(json.contains("\"id\" : \"Dataset\","));
-    assertTrue(json.contains("\"id\" : \"GenomicVariations\","));
-    assertTrue(json.contains("\"id\" : \"Individuals\","));
-    assertTrue(json.contains("\"id\" : \"Runs\","));
+    assertEquals(
+        "Sequencing run",
+        entryTypes.get("runs").get("ontologyTermForThisType").get("label").asText());
+
+    assertEquals("IndividualAnalyses", entryTypes.get("analyses").get("id").asText());
+    assertEquals("Biosamples", entryTypes.get("biosamples").get("id").asText());
+    assertEquals("Cohorts", entryTypes.get("cohorts").get("id").asText());
+    assertEquals("Datasets", entryTypes.get("datasets").get("id").asText());
+    assertEquals("GenomicVariants", entryTypes.get("g_variants").get("id").asText());
+    assertEquals("Individuals", entryTypes.get("individuals").get("id").asText());
+    assertEquals("SequencingRuns", entryTypes.get("runs").get("id").asText());
   }
 }
