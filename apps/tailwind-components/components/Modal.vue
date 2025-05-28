@@ -20,6 +20,10 @@ const emit = defineEmits(["closed"]);
 
 // needed for case where modal is show/hidden but not added /removed from DOM
 watchEffect(() => {
+  if (typeof document === "undefined" || !document.body) {
+    // short circuit if document is not available (e.g. during SSR)
+    return;
+  }
   if (visible.value) {
     document.body.style.overflow = "hidden";
   } else {
@@ -40,12 +44,16 @@ function handleKeydown(e: KeyboardEvent) {
 }
 
 onMounted(() => {
-  window.addEventListener("keydown", handleKeydown);
+  if (window) {
+    window.addEventListener("keydown", handleKeydown);
+  }
 });
 
 onUnmounted(() => {
   emit("closed");
-  window.removeEventListener("keydown", handleKeydown);
+  if (window) {
+    window.removeEventListener("keydown", handleKeydown);
+  }
 });
 
 function hide() {
