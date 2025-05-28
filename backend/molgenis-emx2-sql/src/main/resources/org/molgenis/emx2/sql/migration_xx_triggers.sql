@@ -286,15 +286,15 @@ BEGIN
     -- Create _ADMIN group for the schema
     group_name := format('%I_ADMIN', schema_id);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = group_name) THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, table_schema)
-        VALUES (group_name, schema_id);
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY[]::varchar[]);
     END IF;
 
     -- Create _VIEWER group with select permissions
     group_name := format('%I_VIEWER', schema_id);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = group_name) THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, table_schema)
-        VALUES (group_name, schema_id);
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY[]::varchar[]);
 
         INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
         VALUES (group_name, schema_id, true);
@@ -303,8 +303,8 @@ BEGIN
     -- Create _EDITOR group with select, insert, update, delete permissions
     group_name := format('%I_EDITOR', schema_id);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = group_name) THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, table_schema)
-        VALUES (group_name, schema_id)
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY[]::varchar[])
         ON CONFLICT DO NOTHING;
 
         INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update, has_delete)
@@ -314,8 +314,8 @@ BEGIN
     -- Create _ADMIN group with admin permissions
     group_name := format('%I_ADMIN', schema_id);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = group_name) THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, table_schema)
-        VALUES (group_name, schema_id)
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY[]::varchar[])
         ON CONFLICT DO NOTHING;
 
         INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_admin)
