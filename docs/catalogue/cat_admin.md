@@ -171,3 +171,4 @@ Note that the list only goes back to the most recent breaking change, i.e. the m
 | 6.0.1   | Add Resources.publications and Resources.information to INTEGRATE profile. To update reload updated molgenis.csv to INTEGRATE cohorts staging areas or add columns in schema editor.    |
 | 6.0.2   | Add Resources.catalogue types to NetworksStaging profile. To update reload updated molgenis.csv to Network staging areas or add column in schema editor   |
 | 6.0.3   | Delete visible expression=FALSE from Contacts.display name. To update reload updated molgenis.csv to catalogue schema or update in schema editor   |
+| 6.0.4   | Removed staging area profiles from rdf properties in Resources table. To update reload updated molgenis.csv to staging schemas or update in schema editor   |
