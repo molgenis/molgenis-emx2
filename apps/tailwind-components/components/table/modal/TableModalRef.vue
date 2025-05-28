@@ -36,6 +36,8 @@ const currentRow = ref<IRow>(props.row);
 const currentSchema = ref<string>(props.schema);
 const currentSourceTableId = ref<string>(props.sourceTableId);
 
+const labelStack = ref<string[]>([]);
+
 const visible = ref(false);
 
 const emit = defineEmits(["onClose"]);
@@ -147,11 +149,17 @@ await fetchData(
 );
 
 function handleValueClicked(event: RefPayload) {
+  // store the label for go back path
+  if (refColumnLabel.value) {
+    labelStack.value.push(refColumnLabel.value);
+  }
+
   // update the context to drill down
   const sourceTableId = currentMetadata.value.refTableId;
   currentMetadata.value = event.metadata;
   currentRow.value = event.data;
   currentSchema.value = event.metadata.refSchemaId ?? props.schema;
+
   // uodate the data
   fetchData(
     event.data,
@@ -160,6 +168,11 @@ function handleValueClicked(event: RefPayload) {
     event.metadata.id,
     sourceTableId
   );
+}
+
+function handleBackBtnClicked() {
+  useRouter().back();
+  labelStack.value.pop();
 }
 </script>
 
@@ -198,9 +211,23 @@ function handleValueClicked(event: RefPayload) {
         </template>
       </DefinitionList>
     </section>
-    <template #footer>
+    <template #footer="{ hide }">
       <div class="flex width-full justify-end">
-        <menu class="flex items-center justify-end h-[82px]">
+        <menu class="flex items-center justify-end h-[82px] gap-[10px]">
+          <Button
+            v-if="labelStack.length === 0"
+            type="secondary"
+            size="medium"
+            @click="hide"
+            >Close</Button
+          >
+          <Button
+            v-else
+            type="secondary"
+            size="medium"
+            @click="handleBackBtnClicked"
+            >Back to {{ labelStack[labelStack.length - 1] }}</Button
+          >
           <Button type="primary" size="medium" @click=""
             >Go to {{ refColumnLabel }}</Button
           >

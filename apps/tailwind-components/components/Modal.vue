@@ -47,6 +47,10 @@ onUnmounted(() => {
   emit("closed");
   window.removeEventListener("keydown", handleKeydown);
 });
+
+function hide() {
+  visible.value = false;
+}
 </script>
 
 <template>
@@ -97,7 +101,7 @@ onUnmounted(() => {
       <footer
         class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider"
       >
-        <slot name="footer" />
+        <slot name="footer" :hide="hide" />
       </footer>
     </div>
   </section>
