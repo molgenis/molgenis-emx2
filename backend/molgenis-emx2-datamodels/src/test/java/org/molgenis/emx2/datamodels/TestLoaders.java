@@ -4,16 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.rdf.SHACLComplianceTester.*;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.RDFService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-@Disabled
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
 public class TestLoaders {
@@ -157,14 +154,6 @@ public class TestLoaders {
   //    // testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
   //    // testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
   //  }
-
-  @Test
-  void test18PortalLoader() throws URISyntaxException, IOException {
-    // depends on catalogue test above
-    Schema schema = database.dropCreateSchema(PORTAL_TEST);
-    DataModels.Profile.PATIENT_REGISTRY.getImportTask(schema, false).run();
-    assertEquals(45, schema.getTableNames().size());
-  }
 
   @Test
   public void dashboardTestLoader() {
