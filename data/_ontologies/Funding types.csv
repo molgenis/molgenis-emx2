@@ -1,8 +1,8 @@
-﻿name,order,code,parent,ontologyTermURI,definition
-Funding by own institution,1,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030063,
-"National, regional, or municipal public funding",2,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030064,
-European public funding,3,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030065,
-Funding from industry or contract research,4,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030067,
-Funding from public-private partnership,5,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030068,
-"Funds from patients organisations, charity and foundations",6,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030069,
-Other,7,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000031044,
+﻿order,name,code,parent,ontologyTermURI,definition
+1,Funding by own institution,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030063,
+2,"National, regional, or municipal public funding",,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030064,
+3,European public funding,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030065,
+4,Funding from industry or contract research,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030067,
+5,Funding from public-private partnership,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030068,
+6,"Funds from patients organisations, charity and foundations",,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000030069,
+7,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000030062/terms/200000031044,
