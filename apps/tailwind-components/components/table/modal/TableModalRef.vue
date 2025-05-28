@@ -30,6 +30,9 @@ const props = withDefaults(
   }
 );
 
+const router = useRouter();
+const route = useRoute();
+
 // keep internal refs to allow walking data graph ( ref -> ref - > ref _> ... )
 const currentMetadata = ref<IRefColumn>(props.metadata);
 const currentRow = ref<IRow>(props.row);
@@ -44,9 +47,9 @@ const emit = defineEmits(["onClose"]);
 
 function onModalClose() {
   // reset the query parameters to remove the modal state
-  useRouter().push({
+  router.push({
     query: {
-      ...useRoute().query,
+      ...route.query,
       detail: undefined,
       detailsType: undefined,
       refColumnId: undefined,
@@ -128,9 +131,9 @@ async function fetchData(
       return section.fields.length > 0;
     });
 
-  useRouter().push({
+  router.push({
     query: {
-      ...useRoute().query,
+      ...route.query,
       detail: "ref",
       detailsType: "modal",
       refColumnId: refColumnId,
@@ -171,7 +174,7 @@ function handleValueClicked(event: RefPayload) {
 }
 
 function handleBackBtnClicked() {
-  useRouter().back();
+  router.back();
   labelStack.value.pop();
 }
 </script>

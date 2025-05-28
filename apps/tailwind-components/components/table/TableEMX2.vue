@@ -185,6 +185,8 @@ const props = withDefaults(
   }
 );
 
+const route = useRoute();
+
 const settings = defineModel<ITableSettings>("settings", {
   required: false,
   default: () => ({
@@ -310,14 +312,14 @@ function handleCellClick(
 async function resolveRefRoute() {
   if (
     // only if route contains all redetails open the modal
-    useRoute().query.detail === "ref" &&
-    useRoute().query.detailsType === "modal" &&
-    useRoute().query.refSourceTable &&
-    useRoute().query.refRowId
+    route.query.detail === "ref" &&
+    route.query.detailsType === "modal" &&
+    route.query.refSourceTable &&
+    route.query.refRowId
   ) {
-    const refRowKeyString = useRoute().query.refRowId as string;
-    const refColumnId = useRoute().query.refColumnId as string;
-    const currentSourceTableId = useRoute().query.refSourceTable as string;
+    const refRowKeyString = route.query.refRowId as string;
+    const refColumnId = route.query.refColumnId as string;
+    const currentSourceTableId = route.query.refSourceTable as string;
 
     const refSourceTableMetadata = await fetchTableMetadata(
       props.schemaId,
