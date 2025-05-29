@@ -11,8 +11,11 @@ FROM (
          AND jsonb_typeof(value->'dependencies') = 'object'
         THEN jsonb_set(
           value,
-          '{dependencies}',
-          (value->'dependencies') || jsonb_build_object('jsDefer', true),
+          '{dependencies,javascript}',
+          (
+            SELECT jsonb_agg(jsonb_build_object('url', js_item, 'defer', false))
+            FROM jsonb_array_elements_text(value->'dependencies'->'javascript') AS js_item
+          ),
           true
         )
         ELSE value
@@ -23,4 +26,3 @@ FROM (
   GROUP BY ctid
 ) AS updated
 WHERE "MOLGENIS"."schema_metadata".ctid = updated.ctid;
-
