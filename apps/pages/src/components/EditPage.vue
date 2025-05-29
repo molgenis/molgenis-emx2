@@ -329,8 +329,7 @@ export default {
           data &&
           (Object.keys(data).includes("html") ||
             Object.keys(data).includes("css") ||
-            Object.keys(data).includes("javascript") ||
-            Object.keys(data).includes("options"))
+            Object.keys(data).includes("javascript"))
         ) {
           this.content = data;
         } else if (data && typeof data === "string") {
