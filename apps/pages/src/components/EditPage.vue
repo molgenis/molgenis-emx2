@@ -84,15 +84,39 @@
                   v-if="content.dependencies.javascript.length"
                   v-for="(dependency, index) in content.dependencies.javascript"
                 >
-                  <div class="d-flex">
-                    <ExternalDependency
-                      class="flex-fill mr-4"
-                      :url="dependency.url"
-                      :defer="dependency.defer"
-                      @update:modelValue="
-                        (value) => updateJsDependency(value, index)
-                      "
-                    />
+                  <div class="d-flex flex-row flex-wrap">
+                    <div class="flex-fill mr-4">
+                      <label for="javascript-urls"
+                        >Enter the URL to javascript dependency</label
+                      >
+                      <FormInput
+                        id="javascript-urls"
+                        columnType="HYPERLINK"
+                        :modelValue="dependency.url"
+                        @update:modelValue="
+                          (value) =>
+                            updateJsDependency(dependency, index, 'url', value)
+                        "
+                      />
+                    </div>
+                    <div>
+                      <label for="javascript-defer">Defer dependency?</label>
+                      <FormInput
+                        id="javascript-defer"
+                        columnType="BOOL"
+                        :modelValue="dependency.defer"
+                        :isClearable="false"
+                        @update:modelValue="
+                          (value) =>
+                            updateJsDependency(
+                              dependency,
+                              index,
+                              'defer',
+                              value
+                            )
+                        "
+                      />
+                    </div>
                     <IconAction
                       icon="trash"
                       tooltip="Remove dependency"
@@ -132,6 +156,8 @@ import {
   Spinner,
   ArrayInput,
   InputBoolean,
+  InputHyperlink,
+  FormInput,
 } from "molgenis-components";
 import { request } from "graphql-request";
 import * as monaco from "monaco-editor";
@@ -154,6 +180,8 @@ export default {
     IconAction,
     ArrayInput,
     InputBoolean,
+    InputHyperlink,
+    FormInput,
     ExternalDependency,
   },
   data() {
@@ -221,6 +249,7 @@ export default {
         formatOnPaste: true,
         autoIndent: "brackets",
         autoClosingBrackets: true,
+        wordWrap: "on",
         dimension: {
           height: 310,
         },
@@ -254,20 +283,15 @@ export default {
       this.content.dependencies.javascript.push({ url: null, defer: false });
     },
 
-    removeJsDependency(dependency, index) {
-      if (dependency && dependency.url !== null) {
-        this.content.dependencies.javascript =
-          this.content.dependencies.javascript.filter((row) => {
-            return row.url !== dependency.url;
-          });
-      } else {
-        this.content.dependencies.javascript =
-          this.content.dependencies.javascript.splice(index, 1);
-      }
+    removeJsDependency(index) {
+      this.content.dependencies.javascript =
+        this.content.dependencies.javascript.splice(index, 1);
     },
 
-    updateJsDependency(dependency, index) {
-      this.content.dependencies.javascript[index] = dependency;
+    updateJsDependency(dependency, index, key, value) {
+      const newDependency = dependency;
+      newDependency[key] = value;
+      this.content.dependencies.javascript[index] = newDependency;
     },
   },
   destroyed() {
