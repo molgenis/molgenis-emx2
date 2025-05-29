@@ -144,8 +144,6 @@
   </div>
 </template>
 <script>
-import ExternalDependency from "./ExternalDependency.vue";
-
 import {
   InputText,
   IconAction,
@@ -182,7 +180,6 @@ export default {
     InputBoolean,
     InputHyperlink,
     FormInput,
-    ExternalDependency,
   },
   data() {
     return {
