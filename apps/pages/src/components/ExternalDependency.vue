@@ -1,6 +1,4 @@
 <template>
-  <!-- url: {{ url}}
-  defer: {{ defer }} -->
   <div class="d-flex flex-row flex-wrap">
     <div class="flex-fill mr-4">
       <label for="javascript-urls"

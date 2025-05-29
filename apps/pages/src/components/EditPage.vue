@@ -78,7 +78,6 @@
                   v-model="content.dependencies.css"
                 />
               </div>
-              {{ content.dependencies.javascript }}
               <fieldset>
                 <legend class="h6">Add URLs to JavaScript dependencies</legend>
                 <template
