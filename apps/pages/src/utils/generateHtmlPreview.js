@@ -38,11 +38,15 @@ export function generateHtmlPreview(instance, content, ref) {
 
       if (content.dependencies.javascript.length) {
         const documentHead = document.getElementsByTagName("head")[0];
-        content.dependencies.javascript.forEach((url) => {
-          if (url && url !== "") {
+        content.dependencies.javascript.forEach((dependency) => {
+          if (
+            dependency.url &&
+            dependency.url !== "" &&
+            dependency.url !== null
+          ) {
             const elem = document.createElement("script");
-            elem.src = url;
-            elem.defer = content.dependencies.jsDefer;
+            elem.src = dependency.url;
+            elem.defer = dependency.defer;
             documentHead.appendChild(elem);
           }
         });

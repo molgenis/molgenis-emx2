@@ -69,36 +69,42 @@
             </div>
             <Spinner v-if="loading" />
             <form class="p-4" v-else>
-              <legend>Add external dependencies to your page</legend>
+              <legend class="h4">Add external dependencies</legend>
               <div class="">
-                <label>CSS dependencies</label>
+                <label class="h6">Add URLs to CSS dependencies</label>
                 <ArrayInput
                   id="css-urls"
                   columnType="HYPERLINK_ARRAY"
                   v-model="content.dependencies.css"
-                  description="Paste the URL to the CSS file (.css, min.css, etc.)"
                 />
               </div>
-              <div>
-                <label for="javascript-urls">JavaScript dependencies</label>
-                <ArrayInput
-                  id="javascript-urls"
-                  columnType="HYPERLINK_ARRAY"
-                  v-model="content.dependencies.javascript"
-                  description="Paste the URL to the JS file (.js, min.js, etc.)"
-                />
-              </div>
-              <div>
-                <label for="javascript-defer"
-                  >Defer JavaScript dependencies?</label
+              {{ content.dependencies.javascript }}
+              <fieldset>
+                <legend class="h6">Add URLs to JavaScript dependencies</legend>
+                <template
+                  v-if="content.dependencies.javascript.length"
+                  v-for="(dependency, index) in content.dependencies.javascript"
                 >
-                <InputBoolean
-                  id="javascript-defer"
-                  v-model="content.dependencies.jsDefer"
-                  :isClearable="false"
-                  description="If yes, dependencies will be loaded after content is parsed"
-                />
-              </div>
+                  <div class="d-flex">
+                    <ExternalDependency
+                      class="flex-fill mr-4"
+                      :url="dependency.url"
+                      :defer="dependency.defer"
+                      @update:modelValue="
+                        (value) => updateJsDependency(value, index)
+                      "
+                    />
+                    <IconAction
+                      icon="trash"
+                      tooltip="Remove dependency"
+                      @click="removeJsDependency(dependency, index)"
+                    />
+                  </div>
+                </template>
+                <ButtonOutline @click="addJsDependency">
+                  Add dependency
+                </ButtonOutline>
+              </fieldset>
             </form>
           </div>
         </div>
@@ -115,6 +121,8 @@
   </div>
 </template>
 <script>
+import ExternalDependency from "./ExternalDependency.vue";
+
 import {
   InputText,
   IconAction,
@@ -147,6 +155,7 @@ export default {
     IconAction,
     ArrayInput,
     InputBoolean,
+    ExternalDependency,
   },
   data() {
     return {
@@ -240,6 +249,26 @@ export default {
       editor.getModel().onDidChangeContent(() => {
         this.content[key] = toRaw(editor).getValue();
       });
+    },
+
+    addJsDependency() {
+      this.content.dependencies.javascript.push({ url: null, defer: false });
+    },
+
+    removeJsDependency(dependency, index) {
+      if (dependency && dependency.url !== null) {
+        this.content.dependencies.javascript =
+          this.content.dependencies.javascript.filter((row) => {
+            return row.url !== dependency.url;
+          });
+      } else {
+        this.content.dependencies.javascript =
+          this.content.dependencies.javascript.splice(index, 1);
+      }
+    },
+
+    updateJsDependency(dependency, index) {
+      this.content.dependencies.javascript[index] = dependency;
     },
   },
   destroyed() {
