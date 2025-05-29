@@ -1,9 +1,10 @@
 import { createError } from "#app";
 import { fetchMetadata } from "#imports";
+import type { columnValue } from "../../metadata-utils/src/types";
 import { type IQueryMetaData } from "../../molgenis-components/src/client/IQueryMetaData";
 
 export interface ITableDataResponse {
-  rows: Record<string, any>[];
+  rows: Record<string, columnValue>[];
   count: number;
 }
 
