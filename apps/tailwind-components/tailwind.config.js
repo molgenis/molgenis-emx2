@@ -338,6 +338,8 @@ module.exports = {
         invalid: "var(--color-invalid-foreground)",
         valid: "var(--color-valid-foreground)",
         disabled: "var(--color-disabled-foreground)",
+        "logo-text": "var(--text-color-logo-text)",
+        "logo-text-inverted": "var(--text-color-logo-text-inverted)",
       }),
       borderRadius: {
         theme: "var(--border-radius-theme)",
