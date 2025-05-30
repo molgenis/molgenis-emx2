@@ -9,6 +9,11 @@ Protocol activity,,description,text,,,,,,,,,Human readible description of the pr
 Protocol activity,,input files,ref_array,,,,Files,,,,,links to files used as input,Patient registry
 Protocol activity,,input biosamples,ref_array,,,,Biosamples,,,,,links to biosamples used as input,"Patient registry, FAIR Genomes"
 Protocol activity,,included in datasets,ref_array,,,,Datasets,,,,http://purl.obolibrary.org/obo/HSO_0000370,"A reference to one or more datasets that organises records for in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)",Patient registry
+Protocol activity,,data source,ref,,,,Resources,,,,http://purl.obolibrary.org/obo/NCIT_C16493,"The source or origin of the record. For example, an organisation, database, system, etc.",Patient registry
+Protocol activity,,date created at source,date,,,,,,,,"dcterms:created,http://purl.obolibrary.org/obo/NCIT_C16493",The date the record was created at the source,Patient registry
+Protocol activity,,created at source by,ref,,,,Contacts,,,,"http://purl.obolibrary.org/obo/NCIT_C51820,http://purl.obolibrary.org/obo/NCIT_C16493",The person who created the record at the source,Patient registry
+Protocol activity,,date updated at source,date,,,,,,,,"dcterms:modified,http://purl.obolibrary.org/obo/NCIT_C16493",The date the record was updated at the source,Patient registry
+Protocol activity,,updated at source by,ref,,,,Contacts,,,,"http://purl.obolibrary.org/obo/NCIT_C51820,http://purl.obolibrary.org/obo/NCIT_C16493",The person who updated the record at the source,Patient registry
 Protocol activity,,comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.","Patient registry, FAIR Genomes"
 Biosample preparations,Protocol activity,,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0001902,A preparation for a nucleic acids sequencing assay.,"Patient registry, FAIR Genomes"
 Biosample preparations,,input amount,int,,,,,,,,http://purl.allotrope.org/ontologies/role#AFRL_0000010,Amount of input material in nanogram (ng).,"Patient registry, FAIR Genomes"
