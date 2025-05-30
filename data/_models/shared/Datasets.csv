@@ -1,7 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible,default
 Datasets,,,,,,,,,,,,Definition of a dataset,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,
 Datasets,,resource,ref,1,TRUE,,Resources,,,,,Resource of which the dataset is part,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,
-Datasets,,name,,1,TRUE,,,,,,dcterms:title,Unique dataset name in the model,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,
+Datasets,,name,,1,TRUE,,,,,,dct:title,Unique dataset name in the model,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,
 Datasets,,label,text,,,,,,,,rdfs:label,Short human readable description,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,
 Datasets,,dataset type,ontology_array,,,CatalogueOntologies,Dataset types,,,,,"Defines the type of dataset, e.g. genomic","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,
 Datasets,,unit of observation,ontology,,,CatalogueOntologies,Observation targets,,,,,Defines what each record in this table describes,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,
