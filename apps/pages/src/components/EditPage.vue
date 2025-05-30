@@ -69,25 +69,65 @@
             </div>
             <Spinner v-if="loading" />
             <form class="p-4" v-else>
-              <legend>Add external dependencies to your page</legend>
+              <legend class="h4">Add external dependencies</legend>
               <div class="">
-                <label>CSS dependencies</label>
+                <label class="h6">Add URLs to CSS dependencies</label>
                 <ArrayInput
                   id="css-urls"
                   columnType="HYPERLINK_ARRAY"
                   v-model="content.dependencies.css"
-                  description="Paste the URL to the CSS file (.css, min.css, etc.)"
                 />
               </div>
-              <div>
-                <label for="javascript-urls">JavaScript dependencies</label>
-                <ArrayInput
-                  id="javascript-urls"
-                  columnType="HYPERLINK_ARRAY"
-                  v-model="content.dependencies.javascript"
-                  description="Paste the URL to the JS file (.js, min.js, etc.)"
-                />
-              </div>
+              <fieldset>
+                <legend class="h6">Add URLs to JavaScript dependencies</legend>
+                <template
+                  v-if="content.dependencies.javascript.length"
+                  v-for="(dependency, index) in content.dependencies.javascript"
+                >
+                  <div class="d-flex flex-row flex-wrap">
+                    <div class="flex-fill mr-4">
+                      <label for="javascript-urls"
+                        >Enter the URL to javascript dependency</label
+                      >
+                      <FormInput
+                        id="javascript-urls"
+                        columnType="HYPERLINK"
+                        :modelValue="dependency.url"
+                        @update:modelValue="
+                          (value) =>
+                            updateJsDependency(dependency, index, 'url', value)
+                        "
+                      />
+                    </div>
+                    <div>
+                      <label for="javascript-defer">Defer dependency?</label>
+                      <FormInput
+                        id="javascript-defer"
+                        columnType="BOOL"
+                        :modelValue="dependency.defer"
+                        :isClearable="false"
+                        @update:modelValue="
+                          (value) =>
+                            updateJsDependency(
+                              dependency,
+                              index,
+                              'defer',
+                              value
+                            )
+                        "
+                      />
+                    </div>
+                    <IconAction
+                      icon="trash"
+                      tooltip="Remove dependency"
+                      @click="removeJsDependency(dependency, index)"
+                    />
+                  </div>
+                </template>
+                <ButtonOutline @click="addJsDependency">
+                  Add dependency
+                </ButtonOutline>
+              </fieldset>
             </form>
           </div>
         </div>
@@ -113,6 +153,9 @@ import {
   MessageSuccess,
   Spinner,
   ArrayInput,
+  InputBoolean,
+  InputHyperlink,
+  FormInput,
 } from "molgenis-components";
 import { request } from "graphql-request";
 import * as monaco from "monaco-editor";
@@ -134,6 +177,9 @@ export default {
     Spinner,
     IconAction,
     ArrayInput,
+    InputBoolean,
+    InputHyperlink,
+    FormInput,
   },
   data() {
     return {
@@ -143,17 +189,7 @@ export default {
       html: {},
       css: {},
       javascript: {},
-      content: {
-        html: "",
-        css: "",
-        javascript: "",
-        dependencies: {
-          css: [],
-          javascript: [],
-        },
-      },
-      cssAssets: [],
-      jsAssets: [],
+      content: newPageContentObject(),
     };
   },
   props: {
@@ -210,6 +246,7 @@ export default {
         formatOnPaste: true,
         autoIndent: "brackets",
         autoClosingBrackets: true,
+        wordWrap: "on",
         dimension: {
           height: 310,
         },
@@ -237,6 +274,21 @@ export default {
       editor.getModel().onDidChangeContent(() => {
         this.content[key] = toRaw(editor).getValue();
       });
+    },
+
+    addJsDependency() {
+      this.content.dependencies.javascript.push({ url: null, defer: false });
+    },
+
+    removeJsDependency(index) {
+      this.content.dependencies.javascript =
+        this.content.dependencies.javascript.splice(index, 1);
+    },
+
+    updateJsDependency(dependency, index, key, value) {
+      const newDependency = dependency;
+      newDependency[key] = value;
+      this.content.dependencies.javascript[index] = newDependency;
     },
   },
   destroyed() {
