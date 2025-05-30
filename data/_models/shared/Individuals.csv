@@ -1,6 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Individuals,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90492,"Data, facts or figures about an individual; the set of relevant items would depend on the use case","Patient registry, FAIR Genomes, JRC-CDE"
 Individuals,,id,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,A unique proper name or character sequence that identifies this individual,"Patient registry, FAIR Genomes, JRC-CDE"
+Individuals,,alternate ids,string_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,Additional identifiers that identify an individual,Patient registry
 Individuals,,age group,ontology,,,CatalogueOntologies,Age groups,,,,http://purl.obolibrary.org/obo/NCIT_C20587,"A categorical value that groups this individual by age (e.g., ""Adult"", ""18-24 years"", etc.)",Patient registry
 Individuals,,year of birth,int,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C83164,The year on which this individual was born,"Patient registry, FAIR Genomes"
 Individuals,,month of birth,ontology,,,CatalogueOntologies,Month of the year,,,,http://purl.obolibrary.org/obo/NCIT_C83090,The month on which this individual was born,"Patient registry, FAIR Genomes"
