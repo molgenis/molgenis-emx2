@@ -302,7 +302,12 @@ import { useGqlFetch } from "../../../../composables/useGqlFetch";
 import { computed } from "vue";
 import type { IManifestResponse, IMgError } from "../../../../interfaces/types";
 
-useHead({ title: "About" });
+const pageDescription = `This meta-data catalogue was commissioned by the University Medical Centre Groningen (UMCG). The aim of the UMCG Research Data Catalogue is to increase the visibility of UMCG data and sample resources and thereby stimulate their findability, accessibility and reuse, three major pillars of the FAIR principles. The UMCG Research Data Catalogue includes a wide variety of data and sample resources, from large population-based cohorts and clinical biobanks to studies and everything in between. Some resources date back all the way to 1962. The catalogue was developed by the Genomics Coordination Centre (GCC), the Cohort and Biobank Coordination Hub (CBCH) and the Digital Competence Center (DCC) of the UMCG. This database was created using the MOLGENIS molgenis-emx2 open source software (license: LGPLv3). Please cite Van der Velde et al (2018) or Swertz et al (2010) on use.`;
+
+useHead({
+  title: "About",
+  meta: [{ name: "description", content: pageDescription }],
+});
 
 const { data, error } = await useGqlFetch<IManifestResponse, IMgError>(
   ` 

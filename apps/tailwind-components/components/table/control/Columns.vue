@@ -1,5 +1,5 @@
 <template>
-  <Button type="outline" icon="columns" size="small" @click="showModal = true">
+  <Button type="outline" icon="columns" @click="showModal = true">
     Columns
   </Button>
   <SideModal
@@ -13,10 +13,11 @@
     <ContentBlockModal title="Columns">
       <template v-slot:title-button>
         <Button
-          type="secondary"
+          type="text"
           size="small"
           label="Reset to default"
           icon="RestartAlt"
+          class="leading-9"
           :onclick="resetToDefault"
         />
       </template>

@@ -54,6 +54,8 @@ crumbs[
 crumbs[
   route.params.resource as string
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}#Variables`;
+crumbs["variables"] = "";
+crumbs[variable.value?.name] = "";
 
 const resourcesWithMapping = computed(() => {
   if (!resources.value) return [];
@@ -89,7 +91,15 @@ if (resourcesWithMapping.value.length > 0) {
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: titlePrefix + variable.value.name });
+useHead({
+  title: titlePrefix + variable.value.name,
+  meta: [
+    {
+      name: "description",
+      content: variable.value.description,
+    },
+  ],
+});
 </script>
 
 <template>

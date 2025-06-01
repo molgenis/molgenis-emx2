@@ -37,7 +37,10 @@ if (data.value?.data?.Subpopulations?.length === 0) {
 }
 
 const subpopulation = data.value?.data?.Subpopulations?.[0] as ISubpopulations;
-useHead({ title: subpopulation.name });
+useHead({
+  title: subpopulation.name,
+  meta: [{ name: "description", content: subpopulation.description }],
+});
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
@@ -56,6 +59,9 @@ pageCrumbs[
 pageCrumbs[
   route.params.resource as string
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}`;
+
+pageCrumbs["Subpopulations"] = "";
+pageCrumbs[route.params.subpopulation as string] = "";
 
 function renderList(
   list: any[],

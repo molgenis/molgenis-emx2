@@ -120,6 +120,10 @@ public class GraphqlSessionFieldFactory {
                         .type(Scalars.GraphQLString))
                 .field(
                     GraphQLFieldDefinition.newFieldDefinition()
+                        .name(ADMIN)
+                        .type(Scalars.GraphQLBoolean))
+                .field(
+                    GraphQLFieldDefinition.newFieldDefinition()
                         .name(ROLES)
                         .type(GraphQLList.list(Scalars.GraphQLString)))
                 .field(
@@ -139,6 +143,7 @@ public class GraphqlSessionFieldFactory {
               Map<String, Object> result = new LinkedHashMap<>();
               result.put(
                   EMAIL, database.getActiveUser() != null ? database.getActiveUser() : "anonymous");
+              result.put(ADMIN, database.isAdmin());
               if (schema != null) {
                 result.put(ROLES, schema.getInheritedRolesForActiveUser());
               }

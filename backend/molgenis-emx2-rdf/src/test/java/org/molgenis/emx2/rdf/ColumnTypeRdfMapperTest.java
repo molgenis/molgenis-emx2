@@ -499,17 +499,17 @@ class ColumnTypeRdfMapperTest {
         // RELATIONSHIP
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=1")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "/id=1")),
                 retrieveValues(ColumnType.REF.name())),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=2"),
-                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=3")),
+                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "/id=2"),
+                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "/id=3")),
                 retrieveValues(ColumnType.REF_ARRAY.name())),
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + REFBACK_TABLE + "?id=1")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + REFBACK_TABLE + "/id=1")),
                 retrieveValues(ColumnType.REFBACK.name())),
         // LAYOUT and other constants -> should return empty sets as they should be excluded
         () -> assertEquals(Set.of(), retrieveValues(ColumnType.HEADING.name())),
@@ -529,7 +529,7 @@ class ColumnTypeRdfMapperTest {
             assertEquals(
                 Set.of(
                     Values.iri("http://example.com/bb"),
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "?name=c%2Bc")),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "/name=c%2Bc")),
                 retrieveValues(ColumnType.ONTOLOGY_ARRAY.name())),
         () ->
             assertEquals(
@@ -552,32 +552,32 @@ class ColumnTypeRdfMapperTest {
         // Composite reference / refback
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=1&ids=a")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "/idi=1&ids=a")),
                 retrieveValues(COLUMN_COMPOSITE_REF)),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=2&ids=b"),
-                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=3&ids=c")),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "/idi=2&ids=b"),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "/idi=3&ids=c")),
                 retrieveValues(COLUMN_COMPOSITE_REF_ARRAY)),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=a&id2=b"),
-                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=c&id2=d")),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "/id1=a&id2=b"),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "/id1=c&id2=d")),
                 actualRefback),
         // Overriding default behaviour
         // ontology as reference (key=1 instead of ontologyTermURI)
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "?name=aa")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "/name=aa")),
                 retrieveValuesCustom(
                     ColumnType.ONTOLOGY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "?name=bb"),
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "?name=c%2Bc")),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "/name=bb"),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "/name=c%2Bc")),
                 retrieveValuesCustom(
                     ColumnType.ONTOLOGY_ARRAY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
         // email as regular string

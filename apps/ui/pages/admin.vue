@@ -66,9 +66,8 @@
 </template>
 
 <script setup lang="ts">
-import type { EditUserModal, NewUserModal } from "#build/components";
 import { definePageMeta } from "#imports";
-import { ref, computed } from "vue";
+import { computed, ref } from "vue";
 import {
   createUser,
   deleteUser,
@@ -92,7 +91,7 @@ definePageMeta({
 });
 
 const LIMIT = 100;
-const showEditUserModal = ref(false)
+const showEditUserModal = ref(false);
 const showNewUserModal = ref(false);
 const selectedUser = ref<IUser | null>(null);
 

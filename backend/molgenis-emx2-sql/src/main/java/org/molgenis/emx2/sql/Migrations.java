@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class Migrations {
   // version the current software needs to work
-  private static final int SOFTWARE_DATABASE_VERSION = 26;
+  private static final int SOFTWARE_DATABASE_VERSION = 29;
   public static final int MAX_EXECUTION_TIME_FOR_LONG_JOBS_IN_SECONDS = 180;
   private static Logger logger = LoggerFactory.getLogger(Migrations.class);
 
@@ -166,6 +166,21 @@ public class Migrations {
                 tdb,
                 "migration25.sql",
                 "migrate page settings to advanced page editor data object");
+          }
+
+          if (version < 27) {
+            executeMigrationFile(
+                tdb,
+                "migration26.sql",
+                "set ownership of all trigger function to the manager role");
+          }
+
+          if (version < 28) {
+            executeMigrationFile(tdb, "migration27.sql", "Add admin column to user metadata");
+          }
+
+          if (version < 29) {
+            executeMigrationFile(tdb, "migration28.sql", "Update admin field original admin user");
           }
 
           // if success, update version to SOFTWARE_DATABASE_VERSION

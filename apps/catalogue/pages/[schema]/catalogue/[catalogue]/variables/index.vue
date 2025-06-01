@@ -23,7 +23,15 @@ const pageSize = 30;
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: titlePrefix + "Variables" });
+useHead({
+  title: titlePrefix + "Variables",
+  meta: [
+    {
+      name: "description",
+      content: `A complete overview of ${titlePrefix.trim()} harmonised variables`,
+    },
+  ],
+});
 
 type view = "list" | "harmonisation";
 
@@ -319,6 +327,7 @@ let crumbs: any = {};
 crumbs[
   `${route.params.catalogue}`
 ] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
+crumbs["variables"] = "";
 </script>
 
 <template>

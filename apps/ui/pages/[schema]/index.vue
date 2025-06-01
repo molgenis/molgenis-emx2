@@ -4,7 +4,9 @@ import { useRoute, navigateTo } from "#app/composables/router";
 import { computed } from "vue";
 
 const route = useRoute();
-const schema = route.params.schema;
+const schema = Array.isArray(route.params.schema)
+  ? route.params.schema[0]
+  : route.params.schema;
 
 type Resp<T> = {
   data: Record<string, T>;
@@ -27,7 +29,7 @@ interface Schema {
 }
 
 const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
-  key: "databases",
+  key: "tables",
   method: "POST",
   body: {
     query: `{_schema{id,label,tables{id,label,tableType,description}}}`,
@@ -47,12 +49,16 @@ const ontologies = computed(
       .filter((t) => t.tableType === "ONTOLOGIES")
       .sort((a, b) => a.label.localeCompare(b.label)) ?? []
 );
+
+const crumbs: Record<string, string> = {};
+crumbs[schema] = `/${schema}`;
+crumbs["tables"] = "";
 </script>
 <template>
   <Container>
-    <PageHeader :title="`Tables in ${data?.data._schema.label}`" align="left">
+    <PageHeader :title="`Tables in ${data?.data?._schema?.label}`" align="left">
       <template #prefix>
-        <BreadCrumbs align="left" :current="data?.data._schema.label" />
+        <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
     </PageHeader>
 
@@ -90,7 +96,10 @@ const ontologies = computed(
           </TableHeadRow>
         </template>
         <template #body>
-          <TableRow v-for="ontology in ontologies">
+          <TableRow
+            v-for="ontology in ontologies"
+            @click="navigateTo(`${schema}/${ontology.id}`)"
+          >
             <TableCell>{{ ontology.label }}</TableCell>
             <TableCell>{{ ontology.description }}</TableCell>
           </TableRow>
