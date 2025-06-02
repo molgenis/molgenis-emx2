@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
@@ -1592,9 +1593,26 @@ example,http://example.com/
    */
   private void getAndParseRDF(Selection selection, RDFHandler handler) throws IOException {
     OutputStream outputStream = new ByteArrayOutputStream();
-    var rdf = new RDFService(BASE_URL, null);
-    rdf.describeAsRDF(
-        outputStream, selection.table, selection.rowId, selection.columnName, selection.schemas);
+    RdfService2 rdfService = new RdfService2(BASE_URL, RDFFormat.TURTLE, outputStream);
+
+    if (selection.table != null) {
+      if (selection.rowId != null) {
+        rdfService
+            .getGenerator()
+            .generate(
+                selection.table, PrimaryKey.fromEncodedString(selection.table, selection.rowId));
+      } else if (selection.columnName != null) {
+        rdfService.getGenerator().generate(selection.table, column(selection.columnName));
+      } else {
+        rdfService.getGenerator().generate(selection.table);
+      }
+    } else if (selection.schemas.length == 1) {
+      rdfService.getGenerator().generate(selection.schemas[0]);
+    } else {
+      throw new NotImplementedException();
+    }
+
+    rdfService.close();
     String result = outputStream.toString();
     var parser = Rio.createParser(RDFFormat.TURTLE);
     parser.setRDFHandler(handler);
