@@ -1,6 +1,5 @@
 package org.molgenis.emx2.rdf.mappers;
 
-import static org.molgenis.emx2.rdf.DefaultNamespace.streamAll;
 import static org.molgenis.emx2.rdf.RdfUtils.SETTING_SEMANTIC_PREFIXES;
 import static org.molgenis.emx2.rdf.RdfUtils.hasIllegalPrefix;
 import static org.molgenis.emx2.rdf.RdfUtils.isIllegalIri;
@@ -27,6 +26,7 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.rdf.DefaultNamespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +34,10 @@ public class NamespaceMapper {
   private static final Logger logger = LoggerFactory.getLogger(NamespaceMapper.class);
 
   private static final Map<String, Namespace> DEFAULT_NAMESPACES_MAP =
-      streamAll().collect(Collectors.toMap(Namespace::getPrefix, i -> i));
+      DefaultNamespace.streamAll().collect(Collectors.toMap(Namespace::getPrefix, i -> i));
+
+  private static final Set<Namespace> DEFAULT_NAMESPACES_SET =
+      DefaultNamespace.streamAll().collect(Collectors.toUnmodifiableSet());
 
   private static final CsvSchema SEMANTIC_PREFIXES_CSV_SCHEMA =
       CsvSchema.builder().addColumn("prefix").addColumn("iri").build();
@@ -66,8 +69,9 @@ public class NamespaceMapper {
   }
 
   public Set<Namespace> getAllNamespaces(Schema schema) {
-    return namespaces.get(schema.getName()).values().stream()
-        .collect(Collectors.toUnmodifiableSet());
+    Map<String, Namespace> customNamespaces = namespaces.get(schema.getName());
+    if (customNamespaces == null) return DEFAULT_NAMESPACES_SET;
+    return customNamespaces.values().stream().collect(Collectors.toUnmodifiableSet());
   }
 
   /**

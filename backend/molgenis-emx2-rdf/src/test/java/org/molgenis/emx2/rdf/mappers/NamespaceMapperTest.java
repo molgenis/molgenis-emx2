@@ -8,12 +8,14 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.ValueFactory;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.rdf.DefaultNamespace;
 import org.molgenis.emx2.rdf.RdfUtils;
 
 class NamespaceMapperTest {
@@ -111,6 +113,22 @@ rdf,http://www.w3.org/1999/02/22-rdf-syntax-ns#
     // Added in non-alphabetical order as this should not matter.
     NamespaceMapper mapper = new NamespaceMapper(List.of(schema2, schema1));
     assertEquals(expectedNamespaces, mapper.getAllNamespaces());
+  }
+
+  @Test
+  void nonExistingSetting() {
+    Schema schema = mock(Schema.class);
+    when(schema.getName()).thenReturn("missingSettingSchema");
+    when(schema.hasSetting(RdfUtils.SETTING_SEMANTIC_PREFIXES)).thenReturn(false);
+
+    NamespaceMapper mapper = new NamespaceMapper(schema);
+
+    Set<Namespace> defaultNamespaces =
+        DefaultNamespace.streamAll().collect(Collectors.toUnmodifiableSet());
+
+    assertAll(
+        () -> assertEquals(defaultNamespaces, mapper.getAllNamespaces()),
+        () -> assertEquals(defaultNamespaces, mapper.getAllNamespaces(schema)));
   }
 
   private Schema mockSchema(String schemaName, String semanticPrefixesSetting) {
