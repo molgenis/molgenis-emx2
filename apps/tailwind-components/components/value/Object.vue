@@ -4,20 +4,20 @@ import { computed } from "vue";
 import type { IColumn } from "../../../metadata-utils/src/types";
 
 const props = defineProps<{
-  metaData: IColumn;
+  metadata: IColumn;
   data: Record<string, any>;
 }>();
 
 const hasTemplate = computed(
-  () => !!props.metaData.refLabel || !!props.metaData.refLabelDefault
+  () => !!props.metadata.refLabel || !!props.metadata.refLabelDefault
 );
 
 const asTemplate = computed(() => {
   const ids = Object.keys(props.data);
   const vals = Object.values(props.data);
-  const refLabel = props.metaData.refLabel
-    ? props.metaData.refLabel
-    : props.metaData.refLabelDefault;
+  const refLabel = props.metadata.refLabel
+    ? props.metadata.refLabel
+    : props.metadata.refLabelDefault;
   try {
     return new Function(...ids, "return `" + refLabel + "`;")(...vals);
   } catch (err: any) {

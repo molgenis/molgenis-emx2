@@ -5,7 +5,7 @@ import { rowToString } from "../../utils/rowToString";
 import type { RefPayload } from "../../types/types";
 
 const props = defineProps<{
-  metaData: IRefColumn;
+  metadata: IRefColumn;
   data: IRow[];
 }>();
 
@@ -15,7 +15,7 @@ const emit = defineEmits<{
 
 const handleRefBackCellClicked = () => {
   emit("refBackCellClicked", {
-    metadata: props.metaData,
+    metadata: props.metadata,
     data: props.data[0], // todo think about how to handle multiple rows, separate for each row or joined as one?
   });
 };
@@ -23,9 +23,9 @@ const handleRefBackCellClicked = () => {
 const refBackColumnLabel = computed(() => {
   // we know that in case of refback, either refLabel or refLabelDefault is defined, although this can not easily be expressed in the typescript
   const labelTemplate = (
-    props.metaData.refLabel
-      ? props.metaData.refLabel
-      : props.metaData.refLabelDefault
+    props.metadata.refLabel
+      ? props.metadata.refLabel
+      : props.metadata.refLabelDefault
   ) as string;
   return props.data
     .map((refRow) => rowToString(refRow, labelTemplate))

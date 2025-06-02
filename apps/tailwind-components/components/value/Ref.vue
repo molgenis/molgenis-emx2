@@ -4,7 +4,7 @@ import type { IRefColumn, IRow } from "../../../metadata-utils/src/types";
 import { rowToString } from "../../utils/rowToString";
 import type { RefPayload } from "../../types/types";
 const props = defineProps<{
-  metaData: IRefColumn;
+  metadata: IRefColumn;
   data: IRow;
 }>();
 
@@ -14,16 +14,16 @@ const emit = defineEmits<{
 
 const handleRefCellClicked = () => {
   emit("refCellClicked", {
-    metadata: props.metaData,
+    metadata: props.metadata,
     data: props.data,
   });
 };
 
 const refColumnLabel = computed(() => {
   const labelTemplate = (
-    props.metaData.refLabel
-      ? props.metaData.refLabel
-      : props.metaData.refLabelDefault
+    props.metadata.refLabel
+      ? props.metadata.refLabel
+      : props.metadata.refLabelDefault
   ) as string;
   return rowToString(props.data, labelTemplate);
 });

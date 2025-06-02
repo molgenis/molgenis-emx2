@@ -8,86 +8,86 @@
       >
         <template v-if="data == null || data === undefined"></template>
         <ValueList
-          v-else-if="metaData.columnType.endsWith('ARRAY')"
-          :metaData="metaData"
+          v-else-if="metadata.columnType.endsWith('ARRAY')"
+          :metadata="metadata"
           :data="data"
         />
 
         <ValueString
-          v-else-if="metaData.columnType === 'STRING'"
-          :metaData="metaData"
+          v-else-if="metadata.columnType === 'STRING'"
+          :metadata="metadata"
           :data="data"
         />
 
         <ValueText
-          v-else-if="metaData.columnType === 'TEXT'"
-          :metaData="metaData"
+          v-else-if="metadata.columnType === 'TEXT'"
+          :metadata="metadata"
           :data="data"
         />
 
         <ValueDecimal
-          v-else-if="metaData.columnType === 'DECIMAL'"
-          :metaData="metaData"
+          v-else-if="metadata.columnType === 'DECIMAL'"
+          :metadata="metadata"
           :data="data"
         />
 
         <ValueLong
-          v-else-if="metaData.columnType === 'LONG'"
-          :metaData="metaData"
+          v-else-if="metadata.columnType === 'LONG'"
+          :metadata="metadata"
           :data="typeof data === 'number' ? data : Number(data)"
         />
 
         <ValueInt
-          v-else-if="metaData.columnType === 'INT'"
-          :metaData="metaData"
+          v-else-if="metadata.columnType === 'INT'"
+          :metadata="metadata"
           :data="typeof data === 'number' ? data : Number(data)"
         />
 
         <ValueRef
-          v-else-if="metaData.columnType === 'REF'"
-          :metaData="metaData as IRefColumn"
+          v-else-if="metadata.columnType === 'REF'"
+          :metadata="metadata as IRefColumn"
           :data="data"
           @refCellClicked="$emit('cellClicked', $event)"
         />
 
         <ValueObject
-          v-else-if="metaData.columnType === 'ONTOLOGY'"
-          :metaData="metaData"
+          v-else-if="metadata.columnType === 'ONTOLOGY'"
+          :metadata="metadata"
           :data="data"
         />
 
         <ValueBool
-          v-else-if="metaData.columnType === 'BOOL'"
-          :metaData="metaData"
+          v-else-if="metadata.columnType === 'BOOL'"
+          :metadata="metadata"
           :data="data"
         />
 
         <ValueEmail
-          v-else-if="metaData.columnType === 'EMAIL'"
-          :metaData="metaData"
+          v-else-if="metadata.columnType === 'EMAIL'"
+          :metadata="metadata"
           :data="data"
         />
 
         <ValueHyperlink
-          v-else-if="metaData.columnType === 'HYPERLINK'"
-          :metaData="metaData"
+          v-else-if="metadata.columnType === 'HYPERLINK'"
+          :metadata="metadata"
           :data="data"
         />
 
         <ValueRefBack
-          v-else-if="metaData.columnType === 'REFBACK'"
-          :metaData="metaData as IRefColumn"
+          v-else-if="metadata.columnType === 'REFBACK'"
+          :metadata="metadata as IRefColumn"
           :data="data"
           @refBackCellClicked="$emit('cellClicked', $event)"
         />
 
         <ValueFile
-          v-else-if="metaData.columnType === 'FILE'"
-          :metaData="metaData"
+          v-else-if="metadata.columnType === 'FILE'"
+          :metadata="metadata"
           :data="data"
         />
 
-        <template v-else> {{ metaData.columnType }} </template>
+        <template v-else> {{ metadata.columnType }} </template>
       </span>
       <slot />
     </div>
@@ -98,7 +98,7 @@
 import type { IColumn, IRefColumn } from "../../../metadata-utils/src/types";
 import type { RefPayload } from "../../types/types";
 defineProps<{
-  metaData: IColumn;
+  metadata: IColumn;
   data: any;
 }>();
 

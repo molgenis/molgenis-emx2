@@ -84,7 +84,7 @@
               v-for="(column, index) in sortedVisibleColumns"
               class="text-table-row"
               :scope="column.key === 1 ? 'row' : null"
-              :metaData="column"
+              :metadata="column"
               :data="row[column.id]"
               @cellClicked="handleCellClick($event, column, row)"
             >

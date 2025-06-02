@@ -26,7 +26,7 @@
     <template #main>
       <ContentBlocks>
         <ContentBlock id="intro" title="Introduction">
-          This meta-data catalogue was commissioned by the University Medical
+          This metadata catalogue was commissioned by the University Medical
           Centre Groningen (UMCG). The aim of the UMCG Research Data Catalogue
           is to increase the visibility of UMCG data and sample resources and
           thereby stimulate their findability, accessibility and reuse, three
@@ -79,7 +79,7 @@
           id="standards"
           title="National and international standards"
         >
-          Where possible, the meta-data in this catalogue was entered according
+          Where possible, the metadata in this catalogue was entered according
           to international standards, including
           <a
             href="https://icd.who.int/browse10/2019/en#/"
@@ -132,7 +132,7 @@
           derived from it. The UMCG is not responsible for any errors in the
           metadata or the content of the resource profiles on
           umcgresearchdatacatalogue.nl. Data from resource participants cannot
-          be directly accessed in or through this meta-data catalogue. Access to
+          be directly accessed in or through this metadata catalogue. Access to
           the resources is restricted and use must fit within the informed
           consent that participants signed before collection. Researchers can
           request access to data and samples. Please see the individual resource
@@ -302,7 +302,7 @@ import { useGqlFetch } from "../../../../composables/useGqlFetch";
 import { computed } from "vue";
 import type { IManifestResponse, IMgError } from "../../../../interfaces/types";
 
-const pageDescription = `This meta-data catalogue was commissioned by the University Medical Centre Groningen (UMCG). The aim of the UMCG Research Data Catalogue is to increase the visibility of UMCG data and sample resources and thereby stimulate their findability, accessibility and reuse, three major pillars of the FAIR principles. The UMCG Research Data Catalogue includes a wide variety of data and sample resources, from large population-based cohorts and clinical biobanks to studies and everything in between. Some resources date back all the way to 1962. The catalogue was developed by the Genomics Coordination Centre (GCC), the Cohort and Biobank Coordination Hub (CBCH) and the Digital Competence Center (DCC) of the UMCG. This database was created using the MOLGENIS molgenis-emx2 open source software (license: LGPLv3). Please cite Van der Velde et al (2018) or Swertz et al (2010) on use.`;
+const pageDescription = `This metadata catalogue was commissioned by the University Medical Centre Groningen (UMCG). The aim of the UMCG Research Data Catalogue is to increase the visibility of UMCG data and sample resources and thereby stimulate their findability, accessibility and reuse, three major pillars of the FAIR principles. The UMCG Research Data Catalogue includes a wide variety of data and sample resources, from large population-based cohorts and clinical biobanks to studies and everything in between. Some resources date back all the way to 1962. The catalogue was developed by the Genomics Coordination Centre (GCC), the Cohort and Biobank Coordination Hub (CBCH) and the Digital Competence Center (DCC) of the UMCG. This database was created using the MOLGENIS molgenis-emx2 open source software (license: LGPLv3). Please cite Van der Velde et al (2018) or Swertz et al (2010) on use.`;
 
 useHead({
   title: "About",

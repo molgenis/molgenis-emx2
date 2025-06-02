@@ -3,63 +3,63 @@ import { computed } from "vue";
 import type { IColumn } from "../../../metadata-utils/src/types";
 
 const props = defineProps<{
-  metaData: IColumn;
+  metadata: IColumn;
   data: string[] | number[] | Record<string, any>;
 }>();
 
-const elementType = computed(() => props.metaData.columnType.split("_")[0]);
+const elementType = computed(() => props.metadata.columnType.split("_")[0]);
 </script>
 
 <template>
   <template v-for="(listElement, index) in data">
     <ValueString
       v-if="elementType === 'STRING'"
-      :metaData="metaData"
+      :metadata="metadata"
       :data="listElement as string"
     />
     <ValueString
       v-if="elementType === 'TEXT'"
-      :metaData="metaData"
+      :metadata="metadata"
       :data="listElement as string"
     />
     <ValueDecimal
       v-else-if="elementType === 'DECIMAL'"
-      :metaData="metaData"
+      :metadata="metadata"
       :data="listElement as number"
     />
     <ValueLong
       v-else-if="elementType === 'LONG'"
-      :metaData="metaData"
+      :metadata="metadata"
       :data="listElement as number"
     />
     <ValueLong
       v-else-if="elementType === 'INT'"
-      :metaData="metaData"
+      :metadata="metadata"
       :data="listElement as number"
     />
     <ValueBool
       v-else-if="elementType === 'BOOL'"
-      :metaData="metaData"
+      :metadata="metadata"
       :data="listElement as boolean"
     />
     <ValueEmail
       v-else-if="elementType === 'EMAIL'"
-      :metaData="metaData"
+      :metadata="metadata"
       :data="listElement as string"
     />
     <ValueHyperlink
       v-else-if="elementType === 'HYPERLINK'"
-      :metaData="metaData"
+      :metadata="metadata"
       :data="listElement as string"
     />
     <ValueObject
       v-else-if="elementType === 'REF'"
-      :metaData="metaData"
+      :metadata="metadata"
       :data="listElement"
     />
     <ValueObject
       v-else-if="elementType === 'ONTOLOGY'"
-      :metaData="metaData"
+      :metadata="metadata"
       :data="listElement"
     />
 

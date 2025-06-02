@@ -26,7 +26,7 @@
           <DefinitionListDefinition class="text-title-contrast">
             <ValueEMX2
               :data="field.value"
-              :meta-data="field.metadata"
+              :metadata="field.metadata"
               @valueClick="handleValueClicked"
             />
           </DefinitionListDefinition>

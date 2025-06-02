@@ -70,10 +70,10 @@ export const getColumnIds = async (
   //rootLevel
   rootLevel = true
 ) => {
-  const metaData = await fetchMetadata(schemaId);
+  const metadata = await fetchMetadata(schemaId);
 
   const columns =
-    metaData.tables.find((table) => table.id === tableId)?.columns || [];
+    metadata.tables.find((table) => table.id === tableId)?.columns || [];
 
   let gqlFields = "";
   for (const col of columns) {
