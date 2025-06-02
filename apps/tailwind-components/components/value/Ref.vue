@@ -20,12 +20,12 @@ const emit = defineEmits<{
   (e: "refCellClicked", data: RefPayload): void;
 }>();
 
-const handleRefCellClicked = () => {
+function handleRefCellClicked() {
   emit("refCellClicked", {
     metadata: props.metadata,
     data: props.data,
   });
-};
+}
 
 const refColumnLabel = computed(() => {
   const labelTemplate = (
