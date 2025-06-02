@@ -1,4 +1,6 @@
-import { fetchTableData, fetchTableMetadata } from "#imports";
+import fetchTableMetadata from "./fetchTableMetadata";
+import fetchTableData from "./fetchTableData";
+
 import type {
   columnValue,
   IColumn,
