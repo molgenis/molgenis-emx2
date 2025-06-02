@@ -29,11 +29,11 @@ export function rowToString(
   }
 
   if (row.hasOwnProperty("name")) {
-    return row.name != null ? String(row.name) : undefined;
+    return row.name !== null ? String(row.name) : undefined;
   }
 
   if (row.hasOwnProperty("id")) {
-    return row.id != null ? String(row.id) : undefined;
+    return row.id !== null ? String(row.id) : undefined;
   }
   return flattenObject(row);
 }
