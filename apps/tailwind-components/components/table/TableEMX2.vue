@@ -172,7 +172,6 @@ import AddModal from "../form/AddModal.vue";
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import TableModalRef from "./modal/TableModalRef.vue";
-import { useRoute } from "#app/composables/router";
 
 const props = withDefaults(
   defineProps<{
@@ -184,8 +183,6 @@ const props = withDefaults(
     isEditable: () => false,
   }
 );
-
-const route = useRoute();
 
 const settings = defineModel<ITableSettings>("settings", {
   required: false,
@@ -210,8 +207,6 @@ const { data, status, error, refresh, clear } = useAsyncData(
       props.schemaId,
       props.tableId
     );
-
-    resolveRefRoute();
 
     const tableData = await fetchTableData(props.schemaId, props.tableId, {
       limit: settings.value.pageSize,
@@ -307,31 +302,6 @@ function handleCellClick(
       : (column as IRefColumn); // todo other types of column
 
   showModal.value = true;
-}
-
-async function resolveRefRoute() {
-  if (
-    // only if route contains all redetails open the modal
-    route.query.detail === "ref" &&
-    route.query.detailsType === "modal" &&
-    route.query.refSourceTable &&
-    route.query.refRowId
-  ) {
-    const refRowKeyString = route.query.refRowId as string;
-    const refColumnId = route.query.refColumnId as string;
-    const currentSourceTableId = route.query.refSourceTable as string;
-
-    const refSourceTableMetadata = await fetchTableMetadata(
-      props.schemaId,
-      currentSourceTableId
-    );
-    refTableColumn.value = refSourceTableMetadata.columns.find(
-      (column) => column.id === refColumnId
-    ) as IRefColumn;
-    refTableRow.value = JSON.parse(refRowKeyString);
-
-    showModal.value = true;
-  }
 }
 
 function afterRowAdded() {

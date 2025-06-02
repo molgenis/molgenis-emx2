@@ -2,7 +2,7 @@
   <Modal
     v-model:visible="visible"
     :title="refColumnLabel"
-    :subtitle="currentMetadata.refTableId"
+    :subtitle="refSubTitle"
     max-width="max-w-9/10"
     @closed="onModalClose"
   >
@@ -37,7 +37,7 @@
       <div class="flex width-full justify-end">
         <menu class="flex items-center justify-end h-[82px] gap-[10px]">
           <Button
-            v-if="labelStack.length === 0"
+            v-if="refStack.length === 0"
             type="secondary"
             size="medium"
             @click="hide"
@@ -48,7 +48,7 @@
             type="secondary"
             size="medium"
             @click="handleBackBtnClicked"
-            >Back to {{ labelStack[labelStack.length - 1] }}</Button
+            >Back to {{ backBtnLabel }}</Button
           >
           <Button type="primary" size="medium" @click=""
             >Go to {{ refColumnLabel }}</Button
@@ -66,17 +66,17 @@ import type {
   IColumn,
   IRefColumn,
   IRow,
+  ITableMetaData,
 } from "../../../../metadata-utils/src/types";
 import Modal from "../../../../tailwind-components/components/Modal.vue";
 import DefinitionListDefinition from "../../../../tailwind-components/components/DefinitionListDefinition.vue";
-import { computed, ref } from "vue";
+import { computed, ref, unref } from "vue";
 import { rowToString } from "../../../utils/rowToString";
 import fetchRowData from "../../../composables/fetchRowData";
 import fetchRowPrimaryKey from "../../../composables/fetchRowPrimaryKey";
 import ValueEMX2 from "../../value/EMX2.vue";
 import fetchTableMetadata from "../../../composables/fetchTableMetadata";
 import type { RefPayload } from "../../../types/types";
-import { useRoute, useRouter } from "#app/composables/router";
 
 const props = withDefaults(
   defineProps<{
@@ -91,76 +91,83 @@ const props = withDefaults(
   }
 );
 
-const router = useRouter();
-const route = useRoute();
+const loading = ref(true);
+const refColumnId = ref(props.metadata.id);
+const refRow = ref<IRow>({});
+const refRowMetadata = ref<ITableMetaData>();
 
-// keep internal refs to allow walking data graph ( ref -> ref - > ref _> ... )
-const currentMetadata = ref<IRefColumn>(props.metadata);
-const currentRow = ref<IRow>(props.row);
-const currentSchema = ref<string>(props.schema);
-const currentSourceTableId = ref<string>(props.sourceTableId);
+const sourceTableMetadata = ref<ITableMetaData>();
 
-const labelStack = ref<string[]>([]);
+interface IRefStackItem {
+  refRow: IRow;
+  refMetadata: ITableMetaData;
+  backBtnLabel?: string;
+}
+const refStack = ref<IRefStackItem[]>([]);
 
 const visible = ref(false);
 
 const emit = defineEmits(["onClose"]);
 
 function onModalClose() {
-  // reset the query parameters to remove the modal state
-  router.push({
-    query: {
-      ...route.query,
-      detail: undefined,
-      detailsType: undefined,
-      refColumnId: undefined,
-      refSourceTable: undefined,
-      refRowId: undefined,
-    },
-  });
-
   emit("onClose");
 }
 
-const refColumnLabel = computed(() => {
-  const labelTemplate = (
-    currentMetadata.value.refLabel
-      ? currentMetadata.value.refLabel
-      : currentMetadata.value.refLabelDefault
-  ) as string;
-  return rowToString(currentRow.value, labelTemplate);
+const sourceColumn = computed(() => {
+  return sourceTableMetadata.value?.columns.find(
+    (column) => column.id === refColumnId.value
+  );
 });
 
-const loading = ref(true);
-const sections = ref<
-  {
-    heading: string;
-    fields: { key: string; value: columnValue; metadata: IColumn }[];
-  }[]
->();
+const refColumnLabel = computed(() => {
+  const labelTemplate = (
+    sourceColumn.value?.refLabel
+      ? sourceColumn.value?.refLabel
+      : sourceColumn.value?.refLabelDefault
+  ) as string;
+  return rowToString(refRow.value, labelTemplate);
+});
+
+const refSubTitle = computed(() => {
+  const column = refRowMetadata.value?.columns.find(
+    (column) => column.id === refColumnId.value
+  );
+  return column?.refTableId ?? props.metadata.refTableId;
+});
+
+const backBtnLabel = computed(() => {
+  if (refStack.value.length === 0) {
+    return "";
+  }
+  return refStack.value[refStack.value.length - 1].backBtnLabel;
+});
 
 async function fetchData(
   row: IRow,
   tableId: string,
   schema: string,
-  refColumnId: string,
-  soureTableId: string
+  sourceTableId: string
 ) {
   loading.value = true;
   const rowKey = await fetchRowPrimaryKey(row, tableId, schema);
 
-  const refRow = await fetchRowData(schema, tableId, rowKey);
-
-  const refRowMetadata = await fetchTableMetadata(schema, tableId);
-  currentSourceTableId.value = soureTableId;
+  refRow.value = await fetchRowData(schema, tableId, rowKey);
+  refRowMetadata.value = await fetchTableMetadata(schema, tableId);
+  sourceTableMetadata.value = await fetchTableMetadata(schema, sourceTableId);
 
   loading.value = false;
+}
 
-  sections.value = refRowMetadata.columns
+const sections = computed(() => {
+  if (!refRowMetadata.value) {
+    return [];
+  }
+
+  return refRowMetadata.value.columns
     .map((column) => {
       return {
         key: column.id,
-        value: refRow[column.id],
+        value: refRow.value[column.id],
         metadata: column,
       };
     })
@@ -169,7 +176,7 @@ async function fetchData(
     })
     .filter((item) => {
       return (
-        refRow.hasOwnProperty(item.key) ||
+        refRow.value.hasOwnProperty(item.key) ||
         item.metadata.columnType === "HEADING"
       );
     })
@@ -191,51 +198,39 @@ async function fetchData(
       // Filter out empty sections
       return section.fields.length > 0;
     });
-
-  router.push({
-    query: {
-      ...route.query,
-      detail: "ref",
-      detailsType: "modal",
-      refColumnId: refColumnId,
-      refSourceTable: currentSourceTableId.value,
-      refRowId: JSON.stringify(rowKey),
-    },
-  });
-}
+});
 
 await fetchData(
   props.row,
   props.metadata.refTableId,
   props.schema,
-  props.metadata.id,
   props.sourceTableId
 );
 
 function handleValueClicked(event: RefPayload) {
-  // store the label for go back path
-  if (refColumnLabel.value) {
-    labelStack.value.push(refColumnLabel.value);
+  if (refColumnLabel.value && refRowMetadata.value) {
+    refStack.value.push({
+      refRow: unref(refRow.value),
+      refMetadata: unref(refRowMetadata.value),
+      backBtnLabel: refColumnLabel.value,
+    });
   }
 
-  // update the context to drill down
-  const sourceTableId = currentMetadata.value.refTableId;
-  currentMetadata.value = event.metadata;
-  currentRow.value = event.data;
-  currentSchema.value = event.metadata.refSchemaId ?? props.schema;
+  refColumnId.value = event.metadata.id;
 
-  // uodate the data
   fetchData(
     event.data,
     event.metadata.refTableId,
     event.metadata.refSchemaId ?? props.schema,
-    event.metadata.id,
-    sourceTableId
+    refRowMetadata.value?.id ?? props.sourceTableId
   );
 }
 
 function handleBackBtnClicked() {
-  router.back();
-  labelStack.value.pop();
+  const previous = refStack.value.pop();
+  if (previous) {
+    refRow.value = previous.refRow;
+    refRowMetadata.value = previous.refMetadata;
+  }
 }
 </script>
