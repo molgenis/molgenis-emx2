@@ -231,17 +231,17 @@
 230,SF-36,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/2200000030210/terms/200000030230
 231,SF-6D,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030231
 232,SF-12,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000041061
-233,HUI,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030232
-234,Quality of life: Not captured,Not captured,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000031093
-235,Quality of life: Not coded (Free text),Not coded (Free text),,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000031094
-236,Quality of life: Other,Other,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000031095
-237,Health care costs,,Is information on costs of healthcare available?,,
-238,Free text,,Is free text information available?,,
-239,Care setting,,,,
-240,"Primary care - GP, community pharmacist level",,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029982
-241,Primary care - specialist level (e.g. paediatricians),,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029983
-242,Secondary care - specialist level (ambulatory),,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029984
-243,Hospital inpatient care,,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029985
-244,Hospital outpatient care,,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029986
-245,Care setting: Other,Other,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000031055
-246,Population pregnancy and neonates,,,,
+,HUI,,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000030232
+,Quality of life: Not captured,Not captured,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000031093
+,Quality of life: Not coded (Free text),Not coded (Free text),,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000031094
+,Quality of life: Other,Other,,Quality of life,https://spor.ema.europa.eu/rmswi/#/lists/200000030210/terms/200000031095
+,Health care costs,,Is information on costs of healthcare available?,,
+,Free text,,Is free text information available?,,
+,Care setting,,,,
+,"Primary care - GP, community pharmacist level",,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029982
+,Primary care - specialist level (e.g. paediatricians),,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029983
+,Secondary care - specialist level (ambulatory),,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029984
+,Hospital inpatient care,,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029985
+,Hospital outpatient care,,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000029986
+,Care setting: Other,Other,,Care setting,https://spor.ema.europa.eu/rmswi/#/lists/200000029968/terms/200000031055
+,Population pregnancy and neonates,,,,

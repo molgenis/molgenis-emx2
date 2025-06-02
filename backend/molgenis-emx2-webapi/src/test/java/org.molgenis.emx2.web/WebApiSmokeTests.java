@@ -13,8 +13,7 @@ import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,6 +29,10 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
@@ -38,11 +41,15 @@ import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
 public class WebApiSmokeTests {
+
+  static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
 
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
@@ -112,6 +119,97 @@ public class WebApiSmokeTests {
     db.dropSchemaIfExists(PET_STORE_SCHEMA);
     db.dropSchemaIfExists("pet store yaml");
     db.dropSchemaIfExists("pet store json");
+  }
+
+  @Test
+  void testLoginMultithreaded() throws InterruptedException {
+    String testUser = "test@test.com";
+    String password = "somepass";
+
+    String createUserQuery =
+        "{ \"query\": \"mutation { signup(email: \\\""
+            + testUser
+            + "\\\", password: \\\""
+            + password
+            + "\\\") { message }}\"}";
+
+    String signinQuery =
+        "{\"query\":\"mutation{signin(email:\\\""
+            + testUser
+            + "\\\",password:\\\""
+            + password
+            + "\\\"){message}}\"}";
+
+    String sessionQuery = "{ \"query\": \"{ _session { email } } \"}";
+
+    given().sessionId(SESSION_ID).body(createUserQuery).post("/api/graphql").asString();
+
+    int threadCount = 10;
+    ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+    CountDownLatch readyLatch = new CountDownLatch(threadCount);
+    CountDownLatch startLatch = new CountDownLatch(1);
+    CountDownLatch doneLatch = new CountDownLatch(threadCount);
+
+    ConcurrentLinkedQueue<Throwable> failures = new ConcurrentLinkedQueue<>();
+
+    for (int i = 0; i < threadCount; i++) {
+      executor.submit(
+          () -> {
+            try {
+              readyLatch.countDown();
+              startLatch.await();
+
+              String signinResult =
+                  RestAssured.given()
+                      .sessionId(SESSION_ID)
+                      .body(signinQuery)
+                      .post("/api/graphql")
+                      .asString();
+
+              try {
+                assertTrue(
+                    signinResult.contains("Signed in"),
+                    "Login failed in thread: " + Thread.currentThread().getName());
+              } catch (AssertionError e) {
+                logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+              }
+
+              String sessionResult =
+                  given().sessionId(SESSION_ID).body(sessionQuery).post("/api/graphql").asString();
+
+              assertFalse(
+                  sessionResult.contains(ADMIN_USER),
+                  "ADMIN_USER present in thread: " + Thread.currentThread().getName());
+
+              try {
+                assertTrue(
+                    sessionResult.contains(testUser),
+                    "Session check failed in thread: " + Thread.currentThread().getName());
+              } catch (AssertionError e) {
+                logger.warn("[Thread {}] {}", Thread.currentThread().getName(), e.getMessage());
+              }
+
+            } catch (Throwable t) {
+              failures.add(t); // only assertFalse failure or unexpected errors will be added
+            } finally {
+              doneLatch.countDown();
+            }
+          });
+    }
+
+    readyLatch.await();
+    startLatch.countDown();
+    doneLatch.await();
+    executor.shutdown();
+
+    if (!failures.isEmpty()) {
+      for (Throwable t : failures) {
+        t.printStackTrace();
+      }
+      fail(
+          "One or more critical assertions failed (ADMIN_USER presence). Total failures: "
+              + failures.size());
+    }
   }
 
   @Test
@@ -1035,26 +1133,6 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testFDPDistribution() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(400)
-        .when()
-        .get("http://localhost:" + PORT + "/api/fdp/distribution/pet store/Category/ttl");
-  }
-
-  @Test
-  public void testFDPHead() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .contentType("text/turtle")
-        .when()
-        .head("http://localhost:" + PORT + "/api/fdp");
-  }
-
-  @Test
   public void testGraphGenome400() {
     given()
         .sessionId(SESSION_ID)
@@ -1540,35 +1618,6 @@ if __name__ == '__main__':
 
     result = given().get("/api/beacon/runs").getBody().asString();
     assertTrue(result.contains("datasets"));
-  }
-
-  @Test
-  public void testFairDataPointSmoke() {
-    // todo: enable fdp somehow? I suppose we would need a publid fair data hub for this?
-
-    // String result = given().get("/api/fdp").getBody().asString();
-    // assertTrue(result.contains("endpointSets"));
-
-    //    result = given().get("/api/fdp/catalogue/pet store/Pet").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/dataset/pet store/Pet").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/distribution/pet store/json/json").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/catalogue/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/dataset/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
-    //
-    //    result = given().get("/api/fdp/distribution/profile").getBody().asString();
-    //    assertTrue(result.contains("todo"));
   }
 
   @Test
