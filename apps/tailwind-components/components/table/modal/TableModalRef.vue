@@ -1,3 +1,64 @@
+<template>
+  <Modal
+    v-model:visible="visible"
+    :title="refColumnLabel"
+    :subtitle="currentMetadata.refTableId"
+    max-width="max-w-9/10"
+    @closed="onModalClose"
+  >
+    <section
+      v-if="!loading"
+      v-for="section in sections"
+      class="px-8 first:pt-[50px] last:pb-[50px]"
+      :class="section.heading ? 'pt-[50px]' : ''"
+    >
+      <h3
+        v-if="section.heading"
+        class="text-heading-3xl font-display text-title-contrast mb-4"
+      >
+        {{ section.heading }}
+      </h3>
+      <DefinitionList :compact="false">
+        <template v-for="field in section.fields">
+          <DefinitionListTerm class="text-title-contrast"
+            >{{ field.metadata.label }}
+          </DefinitionListTerm>
+          <DefinitionListDefinition class="text-title-contrast">
+            <ValueEMX2
+              :data="field.value"
+              :meta-data="field.metadata"
+              @valueClick="handleValueClicked"
+            />
+          </DefinitionListDefinition>
+        </template>
+      </DefinitionList>
+    </section>
+    <template #footer="{ hide }">
+      <div class="flex width-full justify-end">
+        <menu class="flex items-center justify-end h-[82px] gap-[10px]">
+          <Button
+            v-if="labelStack.length === 0"
+            type="secondary"
+            size="medium"
+            @click="hide"
+            >Close</Button
+          >
+          <Button
+            v-else
+            type="secondary"
+            size="medium"
+            @click="handleBackBtnClicked"
+            >Back to {{ labelStack[labelStack.length - 1] }}</Button
+          >
+          <Button type="primary" size="medium" @click=""
+            >Go to {{ refColumnLabel }}</Button
+          >
+        </menu>
+      </div>
+    </template>
+  </Modal>
+</template>
+
 <script setup lang="ts">
 import DefinitionListTerm from "../../../../tailwind-components/components/DefinitionListTerm.vue";
 import type {
@@ -178,64 +239,3 @@ function handleBackBtnClicked() {
   labelStack.value.pop();
 }
 </script>
-
-<template>
-  <Modal
-    v-model:visible="visible"
-    :title="refColumnLabel"
-    :subtitle="currentMetadata.refTableId"
-    max-width="max-w-9/10"
-    @closed="onModalClose"
-  >
-    <section
-      v-if="!loading"
-      v-for="section in sections"
-      class="px-8 first:pt-[50px] last:pb-[50px]"
-      :class="section.heading ? 'pt-[50px]' : ''"
-    >
-      <h3
-        v-if="section.heading"
-        class="text-heading-3xl font-display text-title-contrast mb-4"
-      >
-        {{ section.heading }}
-      </h3>
-      <DefinitionList :compact="false">
-        <template v-for="field in section.fields">
-          <DefinitionListTerm class="text-title-contrast"
-            >{{ field.metadata.label }}
-          </DefinitionListTerm>
-          <DefinitionListDefinition class="text-title-contrast">
-            <ValueEMX2
-              :data="field.value"
-              :meta-data="field.metadata"
-              @valueClick="handleValueClicked"
-            />
-          </DefinitionListDefinition>
-        </template>
-      </DefinitionList>
-    </section>
-    <template #footer="{ hide }">
-      <div class="flex width-full justify-end">
-        <menu class="flex items-center justify-end h-[82px] gap-[10px]">
-          <Button
-            v-if="labelStack.length === 0"
-            type="secondary"
-            size="medium"
-            @click="hide"
-            >Close</Button
-          >
-          <Button
-            v-else
-            type="secondary"
-            size="medium"
-            @click="handleBackBtnClicked"
-            >Back to {{ labelStack[labelStack.length - 1] }}</Button
-          >
-          <Button type="primary" size="medium" @click=""
-            >Go to {{ refColumnLabel }}</Button
-          >
-        </menu>
-      </div>
-    </template>
-  </Modal>
-</template>
