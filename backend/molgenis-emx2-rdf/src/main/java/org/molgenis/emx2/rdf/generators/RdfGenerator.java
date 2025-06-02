@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf.generators.schema;
+package org.molgenis.emx2.rdf.generators;
 
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;

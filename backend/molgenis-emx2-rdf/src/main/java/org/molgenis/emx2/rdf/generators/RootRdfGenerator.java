@@ -1,7 +1,12 @@
 package org.molgenis.emx2.rdf.generators;
 
+import java.util.Collection;
+import java.util.List;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.rdf.generators.schema.RdfGenerator;
+import org.molgenis.emx2.Table;
+import org.molgenis.emx2.rdf.RdfMapData;
+import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
+import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 /**
@@ -9,10 +14,23 @@ import org.molgenis.emx2.rdf.writers.RdfWriter;
  * behavior but follows its own logic.
  */
 public class RootRdfGenerator extends RdfGenerator {
+  private final Emx2RdfGenerator emx2RdfGenerator;
+
   public RootRdfGenerator(RdfWriter writer, String baseURL) {
     super(writer, baseURL);
+    emx2RdfGenerator = new Emx2RdfGenerator(writer, baseURL);
   }
 
-  // todo: implement
-  public void generate(Schema... schemas) {}
+  public void generate(Collection<Schema> schemas) {
+    NamespaceMapper namespaces = new NamespaceMapper(schemas);
+    List<Table> tables =
+        schemas.stream().map(Schema::getTablesSorted).flatMap(Collection::stream).toList();
+    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+
+    generatePrefixes(namespaces.getAllNamespaces());
+    schemas.forEach(this::generateCustomRdf);
+    tables.forEach(i -> emx2RdfGenerator.describeTable(namespaces, i));
+    tables.forEach(i -> emx2RdfGenerator.describeColumns(namespaces, i, null));
+    tables.forEach(i -> emx2RdfGenerator.processRows(namespaces, rdfMapData, i, null));
+  }
 }

@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf.generators.schema;
+package org.molgenis.emx2.rdf.generators;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.molgenis.emx2.Column;

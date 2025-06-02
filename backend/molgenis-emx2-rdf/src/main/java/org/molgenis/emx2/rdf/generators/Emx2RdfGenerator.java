@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf.generators.schema;
+package org.molgenis.emx2.rdf.generators;
 
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.getCoreDataType;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;

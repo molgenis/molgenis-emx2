@@ -3,7 +3,7 @@ package org.molgenis.emx2.rdf;
 import java.io.OutputStream;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.rdf.generators.RdfApiGeneratorFactory;
-import org.molgenis.emx2.rdf.generators.schema.RdfApiPaths;
+import org.molgenis.emx2.rdf.generators.RdfApiPaths;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 import org.molgenis.emx2.rdf.writers.WriterFactory;
 

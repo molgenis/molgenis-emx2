@@ -25,7 +25,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RDFService;
 import org.molgenis.emx2.rdf.RdfService2;
-import org.molgenis.emx2.rdf.generators.schema.RdfApiPaths;
+import org.molgenis.emx2.rdf.generators.RdfApiPaths;
 
 public class RDFApi {
   public static final String FORMAT = "format";
