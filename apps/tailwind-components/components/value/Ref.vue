@@ -1,3 +1,11 @@
+<template>
+  <span
+    class="underline hover:cursor-pointer text-link"
+    @click="handleRefCellClicked"
+    >{{ refColumnLabel }}</span
+  >
+</template>
+
 <script setup lang="ts">
 import { computed } from "vue";
 import type { IRefColumn, IRow } from "../../../metadata-utils/src/types";
@@ -28,11 +36,3 @@ const refColumnLabel = computed(() => {
   return rowToString(props.data, labelTemplate);
 });
 </script>
-
-<template>
-  <span
-    class="underline hover:cursor-pointer text-link"
-    @click="handleRefCellClicked"
-    >{{ refColumnLabel }}</span
-  >
-</template>
