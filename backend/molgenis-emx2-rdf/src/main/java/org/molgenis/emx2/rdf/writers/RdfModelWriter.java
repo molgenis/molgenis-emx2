@@ -1,6 +1,5 @@
 package org.molgenis.emx2.rdf.writers;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;

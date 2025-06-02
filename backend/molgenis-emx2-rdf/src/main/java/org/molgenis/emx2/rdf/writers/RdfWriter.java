@@ -32,4 +32,7 @@ public abstract class RdfWriter implements AutoCloseable {
   public abstract void processTriple(Statement statement);
 
   public abstract void processTriple(Resource subject, IRI predicate, Value object);
+
+  @Override
+  public abstract void close();
 }

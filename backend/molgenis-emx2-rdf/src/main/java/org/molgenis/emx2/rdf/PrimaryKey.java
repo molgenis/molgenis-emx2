@@ -108,7 +108,7 @@ public class PrimaryKey {
     return currentColumn.getName();
   }
 
-  static PrimaryKey fromEncodedString(Table table, String encodedValue) {
+  public static PrimaryKey fromEncodedString(Table table, String encodedValue) {
     return fromEncodedString(table.getMetadata(), encodedValue);
   }
 
