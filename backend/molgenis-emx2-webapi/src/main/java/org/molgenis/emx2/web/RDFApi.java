@@ -142,6 +142,7 @@ public class RDFApi {
   private static void runService(
       final Context ctx, RDFFormat format, Method method, Object... methodArgs) throws IOException {
     format = selectFormat(ctx, format);
+    ctx.contentType(format.getDefaultMIMEType());
     String baseUrl = extractBaseURL(ctx);
 
     try (OutputStream out = ctx.outputStream()) {
@@ -152,6 +153,7 @@ public class RDFApi {
         throw new RuntimeException(
             "An error occurred while trying to run the RDF API: " + e.getCause());
       }
+      out.flush();
     }
   }
 
