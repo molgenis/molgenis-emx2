@@ -22,43 +22,43 @@
     <table class="table border w-100" :key="tableVersion">
       <thead>
         <tr class="facts-header bg-secondary text-white">
-          <th @click="sort('sample_type')">
+          <th v-if="splitByColumn !== SAMPLE_TYPE" @click="sort(SAMPLE_TYPE)">
             Material type
             <span
-              v-if="sortColumn === 'sample_type'"
+              v-if="sortColumn === SAMPLE_TYPE"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('sex')">
+          <th v-if="splitByColumn !== SEX" @click="sort(SEX)">
             Sex
             <span
-              v-if="sortColumn === 'sex'"
+              v-if="sortColumn === SEX"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('age_range')">
+          <th v-if="splitByColumn !== AGE_RANGE" @click="sort(AGE_RANGE)">
             Age range
             <span
-              v-if="sortColumn === 'age_range'"
+              v-if="sortColumn === AGE_RANGE"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('disease')">
+          <th v-if="splitByColumn !== DISEASE" @click="sort(DISEASE)">
             Disease codes
             <span
-              v-if="sortColumn === 'disease'"
+              v-if="sortColumn === DISEASE"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('number_of_donors')">
+          <th @click="sort(NUMBER_OF_DONORS)">
             #Donors
             <span
               v-if="sortColumn === 'number_of_donors'"
@@ -67,10 +67,10 @@
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('number_of_samples')">
+          <th @click="sort(NUMBER_OF_SAMPLES)">
             #Samples
             <span
-              v-if="sortColumn === 'number_of_samples'"
+              v-if="sortColumn === NUMBER_OF_SAMPLES"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
@@ -78,8 +78,8 @@
           </th>
         </tr>
         <tr class="filter-bar">
-          <th>
-            <select v-model="filters['sample_type']" class="w-100">
+          <th v-if="splitByColumn !== SAMPLE_TYPE">
+            <select v-model="filters[SAMPLE_TYPE]" class="w-100">
               <option :value="ALL">All</option>
               <option
                 v-for="material of factProperties.materialTypeOptions"
@@ -90,8 +90,8 @@
               </option>
             </select>
           </th>
-          <th>
-            <select v-model="filters['sex']">
+          <th v-if="splitByColumn !== SEX">
+            <select v-model="filters[SEX]">
               <option :value="ALL">All</option>
               <option
                 v-for="sex of factProperties.sexOptions"
@@ -103,8 +103,8 @@
             </select>
           </th>
 
-          <th>
-            <select v-model="filters['age_range']">
+          <th v-if="splitByColumn !== AGE_RANGE">
+            <select v-model="filters[AGE_RANGE]">
               <option :value="ALL">All</option>
               <option
                 v-for="ageRange of factProperties.ageRangeOptions"
@@ -115,8 +115,9 @@
               </option>
             </select>
           </th>
-          <th>
-            <select v-model="filters['disease']">
+
+          <th v-if="splitByColumn !== DISEASE">
+            <select v-model="filters[DISEASE]">
               <option :value="ALL">All</option>
               <option
                 v-for="disease of factProperties.diseaseOptions"
@@ -134,12 +135,16 @@
       <tbody v-if="factsTable.length">
         <template v-for="fact of factsTable" :key="fact.id">
           <tr>
-            <th scope="row" class="pr-1 align-top">
+            <th
+              v-if="splitByColumn !== SAMPLE_TYPE"
+              scope="row"
+              class="pr-1 align-top"
+            >
               {{ fact.sample_type }}
             </th>
-            <td>{{ fact.sex }}</td>
-            <td>{{ fact.age_range }}</td>
-            <td>{{ fact.disease }}</td>
+            <td v-if="splitByColumn !== SEX">{{ fact.sex }}</td>
+            <td v-if="splitByColumn !== AGE_RANGE">{{ fact.age_range }}</td>
+            <td v-if="splitByColumn !== DISEASE">{{ fact.disease }}</td>
             <td>{{ fact.number_of_donors }}</td>
             <td>{{ fact.number_of_samples }}</td>
           </tr>
@@ -167,17 +172,24 @@ const { attribute } = defineProps<{ attribute: any[] }>();
 const ALL = "all";
 const ANY = "Any";
 const UNKNOWN = "Unknown";
-const NO_FILTERS = { sample_type: ALL, sex: ALL, age_range: ALL, disease: ALL };
+const SAMPLE_TYPE = "sample_type";
+const SEX = "sex";
+const AGE_RANGE = "age_range";
+const DISEASE = "disease";
+const NUMBER_OF_DONORS = "number_of_donors";
+const NUMBER_OF_SAMPLES = "number_of_samples";
+
 const FACT_PROPERTIES = [
   "sample_type.label",
   "sex.label",
   "age_range.label",
   "disease.label",
   "disease.name",
-  "number_of_samples",
-  "number_of_donors",
+  NUMBER_OF_SAMPLES,
+  NUMBER_OF_DONORS,
 ];
-const COLUMN_IDS = ["sample_type", "sex", "age_range", "disease"];
+const COLUMN_IDS = [SAMPLE_TYPE, SEX, AGE_RANGE, DISEASE];
+const NO_FILTERS = { sample_type: ALL, sex: ALL, age_range: ALL, disease: ALL };
 
 const currentPage = ref(1);
 const facts = ref<Record<string, any>[]>([]);
