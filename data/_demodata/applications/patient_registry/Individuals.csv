@@ -1,24 +1,24 @@
-id,age group,year of birth,month of birth,date of birth,gender at birth,individual status,pedigree,included in datasets.resource,included in datasets.name
-Case1F,,,,,assigned male at birth,Alive,Case1,EGAS00001005702,EGAD00001008392
-Case1C,Adolescent (13-17 years),2013,January,2013-01-01,assigned male at birth,Alive,Case1,EGAS00001005702,EGAD00001008392
-Case1M,,,,,assigned female at birth,Alive,Case1,EGAS00001005702,EGAD00001008392
-Case2C,Middle-aged (45-64 years),1980,January,1980-01-01,assigned male at birth,Alive,Case2,EGAS00001005702,EGAD00001008392
-Case2F,,,,,assigned male at birth,Alive,Case2,EGAS00001005702,EGAD00001008392
-Case2M,,,,,assigned female at birth,Alive,Case2,EGAS00001005702,EGAD00001008392
-Case3C,Young adult (18-24 years),2002,January,2002-01-01,assigned male at birth,Alive,Case3,EGAS00001005702,EGAD00001008392
-Case3F,,,,,assigned male at birth,Alive,Case3,EGAS00001005702,EGAD00001008392
-Case3M,,,,,assigned female at birth,Alive,Case3,EGAS00001005702,EGAD00001008392
-Case4C,Adolescent (13-17 years),2012,January,2012-01-01,assigned male at birth,Alive,Case4,EGAS00001005702,EGAD00001008392
-Case4F,,,,,assigned male at birth,Alive,Case4,EGAS00001005702,EGAD00001008392
-Case4M,,,,,assigned female at birth,Alive,Case4,EGAS00001005702,EGAD00001008392
-Case5C,Adult (25-44 years),1982,January,1982-01-01,assigned female at birth,Alive,Case5,EGAS00001005702,EGAD00001008392
-Case5M,,,,,assigned female at birth,Alive,Case5,EGAS00001005702,EGAD00001008392
-Case5F,,,,,assigned male at birth,Alive,Case5,EGAS00001005702,EGAD00001008392
-Case6C,Child (2-12 years),2019,January,2019-01-01,assigned male at birth,Alive,Case6,EGAS00001005702,EGAD00001008392
-Case6F,Adult (25-44 years),1987,January,1987-01-01,assigned male at birth,Alive,Case6,EGAS00001005702,EGAD00001008392
-Case6M,Adult (25-44 years),1986,January,1986-01-01,assigned female at birth,Alive,Case6,EGAS00001005702,EGAD00001008392
-Ind001,Adult (18+ years),1993,July,1993-07-01,assigned female at birth,Alive,,EMX2 API,Test dataset
-Ind002,Child (2-12 years),2022,August,2022-08-01,assigned male at birth,Alive,,EMX2 API,Test dataset
-MinIndNoRefs003,,,,,assigned indeterminate at birth,Alive,,EMX2 API,Test dataset
-MinInd004,,,,,assigned unspecified at birth,Alive,,EMX2 API,Test dataset
-Ind005,,1993,,,assigned indeterminate at birth,Alive,,EMX2 API,Test dataset
+id,age group,year of birth,month of birth,date of birth,gender at birth,individual status,pedigree,included in resources,data source,date created at source,date updated at source
+Case1F,,,,,assigned male at birth,Alive,Case1,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case1C,Adolescent (13-17 years),2013,January,2013-01-01,assigned male at birth,Alive,Case1,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case1M,,,,,assigned female at birth,Alive,Case1,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case2C,Middle-aged (45-64 years),1980,January,1980-01-01,assigned male at birth,Alive,Case2,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case2F,,,,,assigned male at birth,Alive,Case2,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case2M,,,,,assigned female at birth,Alive,Case2,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case3C,Young adult (18-24 years),2002,January,2002-01-01,assigned male at birth,Alive,Case3,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case3F,,,,,assigned male at birth,Alive,Case3,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case3M,,,,,assigned female at birth,Alive,Case3,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case4C,Adolescent (13-17 years),2012,January,2012-01-01,assigned male at birth,Alive,Case4,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case4F,,,,,assigned male at birth,Alive,Case4,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case4M,,,,,assigned female at birth,Alive,Case4,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case5C,Adult (25-44 years),1982,January,1982-01-01,assigned female at birth,Alive,Case5,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case5M,,,,,assigned female at birth,Alive,Case5,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case5F,,,,,assigned male at birth,Alive,Case5,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case6C,Child (2-12 years),2019,January,2019-01-01,assigned male at birth,Alive,Case6,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case6F,Adult (25-44 years),1987,January,1987-01-01,assigned male at birth,Alive,Case6,EGAD00001008392,EGAS00001005702,2021-10-22,
+Case6M,Adult (25-44 years),1986,January,1986-01-01,assigned female at birth,Alive,Case6,EGAD00001008392,EGAS00001005702,2021-10-22,
+Ind001,Adult (18+ years),1993,July,1993-07-01,assigned female at birth,Alive,,EMX2 API,EMX2 API,2025-01-01,2025-03-01
+Ind002,Child (2-12 years),2022,August,2022-08-01,assigned male at birth,Alive,,EMX2 API,EMX2 API,2025-01-01,2025-03-01
+MinIndNoRefs003,,,,,assigned indeterminate at birth,Alive,,EMX2 API,EMX2 API,2025-01-01,2025-03-01
+MinInd004,,,,,assigned unspecified at birth,Alive,,EMX2 API,EMX2 API,2025-01-01,2025-03-01
+Ind005,,1993,,,assigned indeterminate at birth,Alive,,EMX2 API,EMX2 API,2025-01-01,2025-03-01
