@@ -1,7 +1,6 @@
 package org.molgenis.emx2.rdf.generators;
 
 import java.lang.reflect.InvocationTargetException;
-
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 public enum RdfApiGeneratorFactory {
