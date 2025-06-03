@@ -924,7 +924,7 @@ public class RDFTest {
 
   @Test
   void testTableInheritanceExternalSchemaRetrieveData() throws IOException {
-    InMemoryRDFHandler handler = parseRootRdf(List.of(tableInherTest));
+    InMemoryRDFHandler handler = parseRootRdf(List.of(tableInherExtTest));
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), false) // different schema
         .add(ValidationTriple.INHER_ID2.getTriple(), false) // different schema
