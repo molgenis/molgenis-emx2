@@ -421,20 +421,20 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   }
 
   function getCollectionsToSend(
-    selectedCollections: Record<string, ILabelValuePair[]>
+    selectedCollectionsByBiobank: Record<string, ILabelValuePair[]>
   ) {
     if (
       settingsStore.config.negotiatorType === "v3" ||
       settingsStore.config.negotiatorType === "eric-negotiator"
     ) {
-      return _.flatMap(selectedCollections, (collectionSelection) => {
+      return _.flatMap(selectedCollectionsByBiobank, (collectionSelection) => {
         return collectionSelection.map((collection) => {
           return toRaw({ id: collection.value, name: collection.label });
         });
       });
     } else if (settingsStore.config.negotiatorType === "v1") {
       return _.flatMap(
-        selectedCollections,
+        selectedCollectionsByBiobank,
         (collectionSelection, biobankName) => {
           return collectionSelection.map((collection) => {
             return toRaw({
