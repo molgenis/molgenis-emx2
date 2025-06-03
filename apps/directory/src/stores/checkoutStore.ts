@@ -5,6 +5,7 @@ import { IBiobanks } from "../interfaces/directory";
 import { IBiobankIdentifier } from "../interfaces/interfaces";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
+import _ = require("lodash");
 
 export interface ILabelValuePair {
   label: string;
@@ -426,14 +427,14 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       settingsStore.config.negotiatorType === "v3" ||
       settingsStore.config.negotiatorType === "eric-negotiator"
     ) {
-      return Object.keys(selectedCollections).map((biobankName) => {
+      return _.flatMap(Object.keys(selectedCollections), (biobankName) => {
         const collectionSelection = selectedCollections[biobankName];
         return collectionSelection.map((collection) => {
           return toRaw({ id: collection.value, name: collection.label });
         });
       });
     } else if (settingsStore.config.negotiatorType === "v1") {
-      return Object.keys(selectedCollections).map((biobankName) => {
+      return _.flatMap(Object.keys(selectedCollections), (biobankName) => {
         const collectionSelection = selectedCollections[biobankName];
         return collectionSelection.map((collection) => {
           return toRaw({
@@ -452,7 +453,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   function getServicesToSend(
     selectedServices: Record<string, ILabelValuePair[]>
   ) {
-    return Object.keys(selectedServices).map((biobankName) => {
+    return _.flatMap(Object.keys(selectedServices), (biobankName) => {
       const serviceSelection = selectedServices[biobankName];
       return serviceSelection.map((service) => {
         return toRaw({ id: service.value, name: service.label });
