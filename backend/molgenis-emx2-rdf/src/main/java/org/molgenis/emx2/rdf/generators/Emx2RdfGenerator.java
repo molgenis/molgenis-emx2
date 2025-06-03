@@ -47,7 +47,7 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiPaths {
   public void generate(Schema schema) {
     List<Table> tables = schema.getTablesSorted();
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
-    NamespaceMapper namespaces = new NamespaceMapper(schema);
+    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), schema);
 
     generatePrefixes(namespaces.getAllNamespaces(schema));
     generateCustomRdf(schema);
@@ -65,7 +65,7 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiPaths {
   public void generate(Table table, PrimaryKey primaryKey) {
     Set<Table> tables = tablesToDescribe(table.getSchema(), table);
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
-    NamespaceMapper namespaces = new NamespaceMapper(table.getSchema());
+    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
 
     generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
     generateCustomRdf(table.getSchema());
@@ -76,7 +76,7 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiPaths {
 
   @Override
   public void generate(Table table, Column column) {
-    NamespaceMapper namespaces = new NamespaceMapper(table.getSchema());
+    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
     describeColumns(namespaces, table, column.getName());
   }
 

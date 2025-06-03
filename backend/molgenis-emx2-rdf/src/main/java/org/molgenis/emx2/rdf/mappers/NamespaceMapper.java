@@ -1,9 +1,11 @@
 package org.molgenis.emx2.rdf.mappers;
 
 import static org.molgenis.emx2.rdf.RdfUtils.SETTING_SEMANTIC_PREFIXES;
+import static org.molgenis.emx2.rdf.RdfUtils.getSchemaNamespace;
 import static org.molgenis.emx2.rdf.RdfUtils.hasIllegalPrefix;
 import static org.molgenis.emx2.rdf.RdfUtils.isIllegalIri;
 import static org.molgenis.emx2.rdf.RdfUtils.isIllegalPrefix;
+import static org.molgenis.emx2.utils.URLUtils.validateUrl;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -42,6 +44,8 @@ public class NamespaceMapper {
   private static final CsvSchema SEMANTIC_PREFIXES_CSV_SCHEMA =
       CsvSchema.builder().addColumn("prefix").addColumn("iri").build();
 
+  private final String baseUrl;
+
   // We need to store the namespaces per schema to ensure each prefix is processed correctly
   // (as different schema's can have a different namespace URL for the same prefix and vice versa).
   // Outer map uses SortedMap to ensure schema's are always processed in the same order.
@@ -50,18 +54,26 @@ public class NamespaceMapper {
   // schema name -> namespace prefix -> namespace
   private final SortedMap<String, Map<String, Namespace>> namespaces = new TreeMap<>();
 
-  public NamespaceMapper(Collection<Schema> schemas) {
+  // Namespaces for the schema's themselves.
+  private final Map<String, Namespace> schemaNamespaces = new HashMap<>();
+
+  public NamespaceMapper(String baseUrl, Collection<Schema> schemas) {
+    this.baseUrl = validateUrl(baseUrl);
     addAll(schemas);
   }
 
-  public NamespaceMapper(Schema schema) {
+  public NamespaceMapper(String baseUrl, Schema schema) {
+    this.baseUrl = validateUrl(baseUrl);
     add(schema);
   }
 
-  public NamespaceMapper() {}
+  public NamespaceMapper(String baseUrl) {
+    this.baseUrl = validateUrl(baseUrl);
+  }
 
   private void add(Schema schema) {
     namespaces.put(schema.getName(), getCustomPrefixes(schema));
+    schemaNamespaces.put(schema.getMetadata().getIdentifier(), getSchemaNamespace(baseUrl, schema));
   }
 
   private void addAll(Collection<Schema> schemas) {
@@ -69,9 +81,22 @@ public class NamespaceMapper {
   }
 
   public Set<Namespace> getAllNamespaces(Schema schema) {
+    Set<Namespace> namespaceSet = new HashSet<>();
+    Namespace schemaNamespace = schemaNamespaces.get(schema.getMetadata().getIdentifier());
+    if (schemaNamespace == null) {
+      throw new IllegalArgumentException(
+          "Schema \"" + schema.getMetadata().getIdentifier() + "\" was not processed for mapping");
+    }
+    namespaceSet.add(schemaNamespace);
+
     Map<String, Namespace> customNamespaces = namespaces.get(schema.getName());
-    if (customNamespaces == null) return DEFAULT_NAMESPACES_SET;
-    return customNamespaces.values().stream().collect(Collectors.toUnmodifiableSet());
+    if (customNamespaces == null) {
+      namespaceSet.addAll(DEFAULT_NAMESPACES_SET);
+    } else {
+      namespaceSet.addAll(customNamespaces.values());
+    }
+
+    return namespaceSet;
   }
 
   /**
@@ -96,6 +121,17 @@ public class NamespaceMapper {
               });
     }
 
+    // Add namespaces specific for each schema.
+    schemaNamespaces
+        .values()
+        .forEach(
+            i -> {
+              processedPrefixes.add(i.getPrefix());
+              processedNames.add(i.getName());
+              combinedNameSpaces.add(i);
+            });
+
+    // Add custom namespaces.
     namespaces.values().stream()
         .filter(Objects::nonNull)
         .map(Map::values)
@@ -147,19 +183,27 @@ public class NamespaceMapper {
     return namespaces;
   }
 
-  private IRI map(final String schemaName, final String semantic) {
-    if (!namespaces.containsKey(schemaName)) {
-      throw new MolgenisException("Schema \"" + schemaName + "\" is not defined");
+  public IRI map(final SchemaMetadata schema, final String semantic) {
+    if (!namespaces.containsKey(schema.getName())) {
+      throw new IllegalArgumentException(
+          "Schema \"" + schema.getName() + "\" was not processed for mapping");
     }
 
-    Map<String, Namespace> schemaNamespaces = namespaces.get(schemaName);
-    if (schemaNamespaces == null) schemaNamespaces = DEFAULT_NAMESPACES_MAP;
+    Map<String, Namespace> namespacesToSearch = namespaces.get(schema.getName());
+    if (namespacesToSearch == null) namespacesToSearch = DEFAULT_NAMESPACES_MAP;
 
     String[] semanticSplit = semantic.split(":", 2);
     if (semanticSplit.length == 1) { // If @base is supported, might need to be changed.
-      throw new MolgenisException("Invalid semantics (missing \":\"): " + semantic);
+      throw new IllegalArgumentException("Invalid semantics (missing \":\"): " + semantic);
     }
-    Namespace foundNamespace = schemaNamespaces.get(semanticSplit[0]);
+
+    // If used prefix is schema id -> use schema namespace.
+    if (semanticSplit[0].equals(schema.getIdentifier())) {
+      return Values.iri(schemaNamespaces.get(schema.getIdentifier()), semanticSplit[1]);
+    }
+
+    // Search through schema-specific namespaces.
+    Namespace foundNamespace = namespacesToSearch.get(semanticSplit[0]);
     if (foundNamespace == null) {
       if (logger.isDebugEnabled() && !hasIllegalPrefix(semantic)) {
         logger.debug("Found undefined prefix (unless IRI is expected): \"" + semantic + "\"");
@@ -170,11 +214,7 @@ public class NamespaceMapper {
   }
 
   public IRI map(final Schema schema, final String semantic) {
-    return map(schema.getName(), semantic);
-  }
-
-  public IRI map(final SchemaMetadata schema, final String semantic) {
-    return map(schema.getName(), semantic);
+    return map(schema.getMetadata(), semantic);
   }
 
   @Override

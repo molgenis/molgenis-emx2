@@ -22,7 +22,7 @@ public class RootRdfGenerator extends RdfGenerator {
   }
 
   public void generate(Collection<Schema> schemas) {
-    NamespaceMapper namespaces = new NamespaceMapper(schemas);
+    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), schemas);
     List<Table> tables =
         schemas.stream().map(Schema::getTablesSorted).flatMap(Collection::stream).toList();
     RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));

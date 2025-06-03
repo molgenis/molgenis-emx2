@@ -119,13 +119,13 @@ public class RDFService {
       Set<Table> allTables = new HashSet<>();
 
       for (final Schema schema : schemas) {
-        addSchemaNamespace(builder, schema);
+        //        addSchemaNamespace(builder, schema);
         processCustomRdf(builder, schema);
         if (table == null) describeSchema(builder, schema);
         allTables.addAll(schema.getTablesSorted());
       }
 
-      NamespaceMapper namespaces = new NamespaceMapper(Arrays.stream(schemas).toList());
+      NamespaceMapper namespaces = new NamespaceMapper(baseURL, Arrays.stream(schemas).toList());
       namespaces.getAllNamespaces().forEach(builder::setNamespace);
 
       // Tables to include in output.

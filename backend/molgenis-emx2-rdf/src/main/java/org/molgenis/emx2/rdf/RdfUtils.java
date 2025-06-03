@@ -36,13 +36,13 @@ public abstract class RdfUtils {
    * @param schema the schema
    * @return A namespace that defines a local unique prefix for this schema.
    */
-  static Namespace getSchemaNamespace(final String baseURL, final SchemaMetadata schema) {
+  public static Namespace getSchemaNamespace(final String baseURL, final SchemaMetadata schema) {
     final String prefix = schema.getIdentifier();
     final String url = schemaIRI(baseURL, schema).stringValue() + "/";
     return Values.namespace(prefix, url);
   }
 
-  static Namespace getSchemaNamespace(final String baseURL, final Schema schema) {
+  public static Namespace getSchemaNamespace(final String baseURL, final Schema schema) {
     return getSchemaNamespace(baseURL, schema.getMetadata());
   }
 
