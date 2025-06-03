@@ -7,7 +7,7 @@
     />
     <div>
       <label class="font-weight-bold mr-3">Split by:</label>
-      <div class="d-inline-flex justify-content-around w-50">
+      <div class="d-inline-flex justify-content-around">
         <div>
           <select v-model="splitByColumn" @change="toggleColumn">
             <option value="all">All</option>
@@ -294,11 +294,6 @@ function getFactProperties() {
   };
 }
 
-function toggleColumn() {
-  filters.value = NO_FILTERS;
-  collapseRows();
-}
-
 function sort(column: string) {
   if (sortColumn.value === column) {
     sortAsc.value = !sortAsc;
@@ -344,6 +339,11 @@ function hasAFactToShow(fact: Record<string, any>) {
   return hasSamples || hasDonors || !!fact.sex;
 }
 
+function toggleColumn() {
+  filters.value = NO_FILTERS;
+  collapseRows();
+}
+
 function collapseRows() {
   facts.value = COLUMN_IDS.reduce((accum, columnId) => {
     if (splitByColumn.value === ALL) {
@@ -351,9 +351,13 @@ function collapseRows() {
         (fact: Record<string, any>) => fact[columnId] !== ANY
       );
     } else {
-      return accum.filter(
-        (fact: Record<string, any>) => fact[columnId] === ANY
-      );
+      return accum.filter((fact: Record<string, any>) => {
+        if (splitByColumn.value === columnId) {
+          return fact[columnId] === ANY;
+        } else {
+          return fact[columnId] !== ANY;
+        }
+      });
     }
   }, hardCopy(baseFacts));
 }
