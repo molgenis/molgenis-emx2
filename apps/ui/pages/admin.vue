@@ -7,12 +7,7 @@
       </Button>
 
       <h2>User List ({{ userCount }})</h2>
-      <Pagination
-        v-if="userCount > 100"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
-        @update="updateCurrentPage"
-      />
+
       <Table>
         <template #head>
           <TableHeadRow>
@@ -84,6 +79,7 @@ import {
  * Add confirmation dialog to delete user / updating of passwords
  * Add search bar for users
  * Make buttons double click safe
+ * Implement pagination
  */
 
 definePageMeta({
