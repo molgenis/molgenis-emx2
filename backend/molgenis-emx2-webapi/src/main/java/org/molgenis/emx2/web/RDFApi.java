@@ -24,6 +24,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.rdf.RdfRootService;
 import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.rdf.generators.RdfApiPaths;
 
@@ -91,19 +92,21 @@ public class RDFApi {
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
 
-    final RDFService rdf = new RDFService(extractBaseURL(ctx), format);
-    ctx.contentType(rdf.getMimeType());
-    OutputStream outputStream = ctx.outputStream();
-    db.tx(
-        database -> {
-          for (int i = 0; i < schemas.length; i++) {
-            schemas[i] = (db.getSchema(schemaNamesArr[i]));
-          }
-          rdf.describeAsRDF(outputStream, null, null, null, schemas);
-        });
-
-    outputStream.flush();
-    outputStream.close();
+    format = selectFormat(ctx, format);
+    ctx.contentType(format.getDefaultMIMEType());
+    String baseUrl = extractBaseURL(ctx);
+    try(OutputStream outputStream = ctx.outputStream()) {
+      try (RdfRootService rdf = new RdfRootService(baseUrl, format, outputStream)) {
+        db.tx(
+            database -> {
+              for (int i = 0; i < schemas.length; i++) {
+                schemas[i] = (db.getSchema(schemaNamesArr[i]));
+              }
+              rdf.getGenerator().generate(List.of(schemas));
+            });
+      }
+      outputStream.flush();
+    }
   }
 
   private static void rdfForSchema(Context ctx, RDFFormat format)
