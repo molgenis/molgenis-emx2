@@ -23,7 +23,6 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.PrimaryKey;
-import org.molgenis.emx2.rdf.RDFService;
 import org.molgenis.emx2.rdf.RdfRootService;
 import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.rdf.generators.RdfApiPaths;

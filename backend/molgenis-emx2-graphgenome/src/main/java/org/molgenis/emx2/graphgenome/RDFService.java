@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2.graphgenome;
 
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
@@ -28,6 +28,10 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.WriterConfig;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.rdf.BasicIRI;
+import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
+import org.molgenis.emx2.rdf.PrimaryKey;
+import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.slf4j.Logger;
