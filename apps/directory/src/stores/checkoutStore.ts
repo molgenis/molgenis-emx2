@@ -427,22 +427,23 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       settingsStore.config.negotiatorType === "v3" ||
       settingsStore.config.negotiatorType === "eric-negotiator"
     ) {
-      return _.flatMap(Object.keys(selectedCollections), (biobankName) => {
-        const collectionSelection = selectedCollections[biobankName];
+      return _.flatMap(selectedCollections, (collectionSelection) => {
         return collectionSelection.map((collection) => {
           return toRaw({ id: collection.value, name: collection.label });
         });
       });
     } else if (settingsStore.config.negotiatorType === "v1") {
-      return _.flatMap(Object.keys(selectedCollections), (biobankName) => {
-        const collectionSelection = selectedCollections[biobankName];
-        return collectionSelection.map((collection) => {
-          return toRaw({
-            collectionId: collection.value,
-            biobankId: biobankIdDictionary.value[biobankName],
+      return _.flatMap(
+        selectedCollections,
+        (collectionSelection, biobankName) => {
+          return collectionSelection.map((collection) => {
+            return toRaw({
+              collectionId: collection.value,
+              biobankId: biobankIdDictionary.value[biobankName],
+            });
           });
-        });
-      });
+        }
+      );
     } else {
       throw new Error(
         `Unsupported negotiator type: ${settingsStore.config.negotiatorType}`
@@ -453,8 +454,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   function getServicesToSend(
     selectedServices: Record<string, ILabelValuePair[]>
   ) {
-    return _.flatMap(Object.keys(selectedServices), (biobankName) => {
-      const serviceSelection = selectedServices[biobankName];
+    return _.flatMap(selectedServices, (serviceSelection) => {
       return serviceSelection.map((service) => {
         return toRaw({ id: service.value, name: service.label });
       });
