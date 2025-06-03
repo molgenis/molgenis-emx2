@@ -24,7 +24,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RDFService;
-import org.molgenis.emx2.rdf.RdfService2;
+import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.rdf.generators.RdfApiPaths;
 
 public class RDFApi {
@@ -142,7 +142,7 @@ public class RDFApi {
     String baseUrl = extractBaseURL(ctx);
 
     try (OutputStream out = ctx.outputStream()) {
-      try (RdfService2 rdfService = new RdfService2(baseUrl, format, out)) {
+      try (RdfSchemaService rdfService = new RdfSchemaService(baseUrl, format, out)) {
         method.invoke(rdfService.getGenerator(), methodArgs);
       } catch (InvocationTargetException | IllegalAccessException e) {
         // Any exceptions thrown should purely be due to bugs in this specific code.
