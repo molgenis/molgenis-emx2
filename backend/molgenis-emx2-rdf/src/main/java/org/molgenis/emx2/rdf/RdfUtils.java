@@ -10,7 +10,9 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
 import org.slf4j.Logger;
@@ -54,7 +56,10 @@ public abstract class RdfUtils {
                 schema.getSettingValue(SETTING_CUSTOM_RDF), StandardCharsets.UTF_8),
             RDFFormat.TURTLE);
       } catch (IOException e) {
-        logger.error("An error occured while parsing the custom RDF.");
+        logger.error("An error occurred while parsing the custom RDF.");
+      } catch (RDFParseException e) {
+        throw new MolgenisException(
+            "Custom RDF of schema \"" + schema.getName() + "\" is invalid.");
       }
     }
     return null;
