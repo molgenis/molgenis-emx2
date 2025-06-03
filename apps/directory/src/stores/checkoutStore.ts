@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import { defineStore } from "pinia";
 import { computed, ref, toRaw, watch } from "vue";
 import { createBookmark } from "../functions/bookmarkMapper";
@@ -5,7 +6,6 @@ import { IBiobanks } from "../interfaces/directory";
 import { IBiobankIdentifier } from "../interfaces/interfaces";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
-import _ = require("lodash");
 
 export interface ILabelValuePair {
   label: string;
