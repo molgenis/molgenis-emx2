@@ -5,7 +5,7 @@ import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.PrimaryKey;
 
-/** */
+/** Contains a method for each possible API path that can be requested through the RDF API. */
 public interface RdfApiPaths {
   /** Generate RDF when calling the schema as a whole. */
   void generate(Schema schema);
