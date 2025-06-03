@@ -943,7 +943,7 @@ public class RDFTest {
     // Note that even though the subject has an ID IRI based on table Root, this table is not part
     // of the selected scheme so this table cannot be selected:
     // `tableInherExtTest.getTable("Root")` == `null`
-    InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "ExternalChild");
+    InMemoryRDFHandler handler = parseTableRdf(tableInherExtTest, "ExternalChild");
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), false) // different schema
         .add(ValidationTriple.INHER_ID2.getTriple(), false) // different schema
@@ -962,7 +962,7 @@ public class RDFTest {
     // Note that even though the subject has an ID IRI based on table Root, this table is not part
     // of the selected scheme so this table cannot be selected:
     // `tableInherExtTest.getTable("Root")` == `null`
-    InMemoryRDFHandler handler = parseRowRdf(tableInherTest, "ExternalChild", "id=5");
+    InMemoryRDFHandler handler = parseRowRdf(tableInherExtTest, "ExternalChild", "id=5");
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), false) // not selected
         .add(ValidationTriple.INHER_ID2.getTriple(), false) // not selected
