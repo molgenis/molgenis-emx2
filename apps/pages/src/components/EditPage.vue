@@ -101,9 +101,8 @@
                     </div>
                     <div>
                       <label for="javascript-defer">Defer dependency?</label>
-                      <FormInput
+                      <InputBoolean
                         id="javascript-defer"
-                        columnType="BOOL"
                         :modelValue="dependency.defer"
                         :isClearable="false"
                         @update:modelValue="
@@ -131,10 +130,10 @@
             </form>
           </div>
         </div>
-        <div class="position-relative col-5 p-0 bg-light shadow">
-          <div class="sticky-top top-0">
-            <div class="size-7 bg-white p-2">
-              <h2 class="h6 m-0 ml-2">Preview</h2>
+        <div class="col-5 p-0 bg-light">
+          <div class="position-relative shadow reounded">
+            <div class="px-2 sticky-top bg-white">
+              <h2 class="h6 p-2">Preview</h2>
             </div>
             <div ref="pagePreview" class="px-4 py-2 h-100"></div>
           </div>
@@ -154,7 +153,6 @@ import {
   Spinner,
   ArrayInput,
   InputBoolean,
-  InputHyperlink,
   FormInput,
 } from "molgenis-components";
 import { request } from "graphql-request";
@@ -178,7 +176,6 @@ export default {
     IconAction,
     ArrayInput,
     InputBoolean,
-    InputHyperlink,
     FormInput,
   },
   data() {
