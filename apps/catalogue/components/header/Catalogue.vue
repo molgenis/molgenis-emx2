@@ -94,6 +94,7 @@ if (!cohortOnly.value) {
           :image="
             catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
           "
+          :inverted="true"
         />
         <MainNavigation :navigation="menu" :invert="true" />
         <!--  <div class="w-[450px]">
