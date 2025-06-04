@@ -2,10 +2,11 @@
 import { useRoute, useRuntimeConfig, useHead, useFetch } from "#app";
 import { logError } from "#imports";
 import { computed } from "vue";
-import type { ISetting } from "../../../../../metadata-utils/src/types";
+import type { ISetting } from "../../../metadata-utils/src/types";
 
 const route = useRoute();
 const config = useRuntimeConfig();
+const schema = config.public.schema as string;
 
 const catalogueRouteParam = route.params.catalogue;
 
@@ -113,7 +114,7 @@ const networkFilter = scoped
     }
   : { type: { tags: { equals: "network" } } };
 
-const { data, error } = await useFetch(`/${route.params.schema}/graphql`, {
+const { data, error } = await useFetch(`/${schema}/graphql`, {
   method: "POST",
   key: `lading-page-${catalogueRouteParam}`,
   body: {
@@ -221,7 +222,7 @@ useHead({
 const collectionCount = computed(() => data.value.data?.Collections_agg?.count);
 const networkCount = computed(() => data.value.data?.Networks_agg?.count);
 
-const aboutLink = `/${route.params.schema}/catalogue/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
+const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
 </script>
 
 <template>
@@ -253,7 +254,7 @@ const aboutLink = `/${route.params.schema}/catalogue/${catalogueRouteParam}/netw
           'Collections'
         "
         :count="collectionCount"
-        :link="`/${route.params.schema}/catalogue/${catalogueRouteParam}/collections`"
+        :link="`/${catalogueRouteParam}/collections`"
       />
       <LandingCardPrimary
         v-if="networkCount && !cohortOnly"
@@ -268,7 +269,7 @@ const aboutLink = `/${route.params.schema}/catalogue/${catalogueRouteParam}/netw
           'Networks'
         "
         :count="networkCount"
-        :link="`/${route.params.schema}/catalogue/${catalogueRouteParam}/networks`"
+        :link="`/${catalogueRouteParam}/networks`"
       />
       <LandingCardPrimary
         v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
@@ -282,7 +283,7 @@ const aboutLink = `/${route.params.schema}/catalogue/${catalogueRouteParam}/netw
         :callToAction="
           getSettingValue('CATALOGUE_LANDING_VARIABLES_CTA', settings)
         "
-        :link="`/${route.params.schema}/catalogue/${catalogueRouteParam}/variables`"
+        :link="`/${catalogueRouteParam}/variables`"
       />
       <LandingCardPrimary
         v-if="!cohortOnly && network.id === 'FORCE-NEN collections'"

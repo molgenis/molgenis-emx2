@@ -12,7 +12,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 });
 
 test("filter down resource variables", async ({ page, goto }) => {
-  await goto("/catalogue-demo/catalogue/LongITools/collections/ENVIRONAGE", {
+  await goto("/LongITools/collections/ENVIRONAGE", {
     waitUntil: "hydration",
   });
   await page
