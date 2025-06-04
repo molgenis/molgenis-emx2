@@ -87,17 +87,6 @@ export default {
       const content = newPageContentObject();
       content.html = `<h1>${this.newPage}</h1>`;
 
-      // const initialContent = JSON.stringify({
-      //   html: `<h1>${this.newPage}</h1>`,
-      //   css: "",
-      //   javascript: "",
-      //   dependencies: {
-      //     css: [],
-      //     javascript: [],
-      //     jsDefer: true,
-      //   },
-      // });
-
       const response = await request(
         "graphql",
         `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){status message}}`,
