@@ -615,7 +615,9 @@ export default {
       return graphqlFilter(filter, this.columns, errorCallback);
     },
     rowsWithComputed() {
-      return applyComputed(this.dataRows, this.tableMetadata);
+      return this.tableMetadata
+        ? applyComputed(this.dataRows, this.tableMetadata)
+        : [];
     },
   },
   methods: {
@@ -882,12 +884,18 @@ function graphqlFilter(
         ) {
           filter[col.id] = { equals: conditions };
         } else if (
+          ["DECIMAL", "DECIMAL_ARRAY", "INT", "INT_ARRAY"].includes(
+            col.columnType
+          )
+        ) {
+          filter[col.id] = {
+            between: conditions.flat().map((value) => parseFloat(value)),
+          };
+        } else if (
           [
             "LONG",
             "LONG_ARRAY",
-            "DECIMAL",
             "DECIMAL_ARRAY",
-            "INT",
             "INT_ARRAY",
             "DATE",
             "DATE_ARRAY",
