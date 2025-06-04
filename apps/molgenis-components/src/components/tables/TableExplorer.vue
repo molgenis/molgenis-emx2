@@ -447,6 +447,7 @@ import TableMolgenis from "./TableMolgenis.vue";
 import TableSettings from "./TableSettings.vue";
 import Task from "../task/Task.vue";
 import LayoutModal from "../layout/LayoutModal.vue";
+import { buildGraphqlFilter } from "../forms/formUtils/formUtils";
 
 const View: Record<string, string> = {
   TABLE: "table",
@@ -612,7 +613,7 @@ export default {
       const errorCallback = (msg: string) => {
         this.graphqlError = msg;
       };
-      return graphqlFilter(filter, this.columns, errorCallback);
+      return buildGraphqlFilter(filter, this.columns, errorCallback);
     },
     rowsWithComputed() {
       return this.tableMetadata
@@ -854,67 +855,6 @@ function getCondition(columnType: string, condition: string) {
   } else {
     return [];
   }
-}
-
-function graphqlFilter(
-  defaultFilter: any,
-  columns: IColumn[],
-  errorCallback: any
-) {
-  let filter = deepClone(defaultFilter);
-  if (columns) {
-    columns.forEach((col) => {
-      const conditions = col.conditions
-        ? col.conditions.filter(
-            (condition: string) => condition !== "" && condition !== undefined
-          )
-        : [];
-      if (conditions.length) {
-        if (
-          col.columnType.startsWith("STRING") ||
-          col.columnType.startsWith("TEXT") ||
-          col.columnType.startsWith("JSON")
-        ) {
-          filter[col.id] = { like: conditions };
-        } else if (col.columnType.startsWith("BOOL")) {
-          filter[col.id] = { equals: conditions };
-        } else if (
-          col.columnType.startsWith("REF") ||
-          col.columnType.startsWith("ONTOLOGY")
-        ) {
-          filter[col.id] = { equals: conditions };
-        } else if (
-          ["DECIMAL", "DECIMAL_ARRAY", "INT", "INT_ARRAY"].includes(
-            col.columnType
-          )
-        ) {
-          filter[col.id] = {
-            between: conditions.flat().map((value) => parseFloat(value)),
-          };
-        } else if (
-          [
-            "LONG",
-            "LONG_ARRAY",
-            "DECIMAL_ARRAY",
-            "INT_ARRAY",
-            "DATE",
-            "DATE_ARRAY",
-            "DATETIME",
-            "DATETIME_ARRAY",
-          ].includes(col.columnType)
-        ) {
-          filter[col.id] = {
-            between: conditions.flat(),
-          };
-        } else {
-          errorCallback(
-            `filter unsupported for column type ${col.columnType} (please report a bug)`
-          );
-        }
-      }
-    });
-  }
-  return filter;
 }
 </script>
 
