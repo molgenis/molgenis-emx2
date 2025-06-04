@@ -91,6 +91,7 @@ class StagingMigrator(Client):
             # Remove any downloaded files from disk
             self.cleanup()
 
+
     def create_zip(self):
         """
         Creates a ZIP file containing tables to be uploaded to the target schema.
@@ -129,6 +130,40 @@ class StagingMigrator(Client):
             return upload_stream
         log.info(f"Migrating tables {', '.join(updated_tables)}.")
         return upload_stream
+
+    def delete_resource(self):
+        """Deletes the contents of the source schema from the target schema."""
+
+        # Check if software supports deletion through import
+        if self.version < "13.8.0":
+            raise NotImplementedError("The delete function is not implemented for EMX2 "
+                                      "software running a version below 13.8.0")
+        source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
+                                                    include_system_columns=True)
+
+        source_metadata = self.get_schema_metadata(self.source)
+        upload_stream = BytesIO()
+        updated_tables = list()
+        with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
+              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
+            for file_name in source_archive.namelist():
+                try:
+                    table: Table = source_metadata.get_table('name', Path(file_name).stem)
+                except NoSuchTableException:
+                    log.debug(f"Skipping file {file_name!r}.")
+                    continue
+                log.debug(f"Preparing table {table.name!r} for deletion.")
+                updated_table: pd.DataFrame = self._set_delete(table)
+                if len(updated_table.index) != 0:
+                    upload_archive.writestr(file_name, updated_table.to_csv())
+                    updated_tables.append(Path(file_name).stem)
+
+        if len(updated_tables) == 0:
+            upload_stream.flush()
+            return
+
+        self.upload_zip_stream(upload_stream)
+        self.cleanup()
 
     def _get_filtered(self, table: Table) -> pd.DataFrame:
         """
@@ -171,6 +206,15 @@ class StagingMigrator(Client):
         filtered_df = pd.concat([new_df, updated_df])
 
         return filtered_df
+
+    def _set_delete(self, table: Table) -> pd.DataFrame:
+        """
+        Adds an `mg_delete` column to the table and sets it values to `true`.
+        """
+        source_df = self._load_table('source', table)
+        source_df["mg_delete"] = True
+        return source_df
+
 
     @staticmethod
     def _modify_table(df: pd.DataFrame, table: Table) -> pd.DataFrame:
