@@ -365,9 +365,9 @@ function collapseRows() {
     } else {
       return accum.filter((fact: Record<string, any>) => {
         if (splitByColumn.value === columnId) {
-          return fact[columnId] === ANY;
-        } else {
           return fact[columnId] !== ANY;
+        } else {
+          return fact[columnId] === ANY;
         }
       });
     }
