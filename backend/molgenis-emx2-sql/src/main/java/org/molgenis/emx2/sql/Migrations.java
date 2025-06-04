@@ -183,13 +183,6 @@ public class Migrations {
             executeMigrationFile(tdb, "migration28.sql", "Update admin field original admin user");
           }
 
-          if (version < 30) {
-            executeMigrationFile(
-                tdb,
-                "migration29.sql",
-                "For custom pages, the option to defer js dependencies is added");
-          }
-
           // if success, update version to SOFTWARE_DATABASE_VERSION
           updateDatabaseVersion((SqlDatabase) tdb, SOFTWARE_DATABASE_VERSION);
         });
