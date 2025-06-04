@@ -25,8 +25,15 @@ spec:
   - host: {{ .host | quote }}
     http:
       paths:
-      - path: /[^\/]+/catalogue/
+      - path: ~* ^(/[^/]+)?/(tables|central|molgenis-components|schema|updownload|reports|graphql-playground|tailwind-components|ui|docs|sitemap\.xml)
         pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ $fullName }}
+            port:
+              number: 8080
+      - path: {{ default "/" .path }}
+        pathType: Prefix
         backend:
           service:
             name: ssr-catalogue
@@ -46,12 +53,5 @@ spec:
             name: ssr-catalogue
             port:
               number: 3000
-      - path: {{ default "/" .path }}
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ $fullName }}
-            port:
-              number: 8080
   {{- end }}
 {{- end }}
