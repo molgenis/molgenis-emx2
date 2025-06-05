@@ -39,6 +39,20 @@ spec:
                 name: {{ $fullName }}
                 port:
                   number: 8080
+          - path: /catalogue-demo/graphql
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: 8080
+          - path: /CatalogueOntologies/graphql
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: 8080
           - path: /apps
             pathType: Prefix
             backend:
@@ -46,13 +60,6 @@ spec:
                 name: {{ $fullName }}
                 port:
                   number: 8080
-          - path: /.+/catalogue/
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: ssr-catalogue
-                port:
-                  number: 3000
           - path: /_nuxt/
             pathType: Prefix
             backend:
