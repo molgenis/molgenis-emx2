@@ -17,6 +17,7 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.DC;
 import org.eclipse.rdf4j.model.vocabulary.DCAT;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.LDP;
 import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
@@ -51,6 +52,8 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiPaths {
 
     generatePrefixes(namespaces.getAllNamespaces(schema));
     generateCustomRdf(schema);
+    describeRoot();
+    describeSchema(schema);
     tables.forEach(i -> describeTable(namespaces, i));
     tables.forEach(i -> describeColumns(namespaces, i, null));
     tables.forEach(i -> processRows(namespaces, rdfMapData, i, null));
@@ -58,7 +61,15 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiPaths {
 
   @Override
   public void generate(Table table) {
-    generate(table, (PrimaryKey) null);
+    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
+    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
+
+    generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
+    generateCustomRdf(table.getSchema());
+    describeTable(namespaces, table);
+    describeColumns(namespaces, table, null);
+    tables.forEach(i -> processRows(namespaces, rdfMapData, i, null));
   }
 
   @Override
@@ -69,15 +80,43 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiPaths {
 
     generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
     generateCustomRdf(table.getSchema());
-    describeTable(namespaces, table);
-    describeColumns(namespaces, table, null);
     tables.forEach(i -> processRows(namespaces, rdfMapData, i, primaryKey));
   }
 
   @Override
   public void generate(Table table, Column column) {
     NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
+
+    generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
+    describeTable(namespaces, table);
     describeColumns(namespaces, table, column.getName());
+  }
+
+  void describeRoot() {
+    getWriter().processTriple(Values.iri(getBaseURL()), RDF.TYPE, BasicIRI.SIO_DATABASE);
+    getWriter().processTriple(Values.iri(getBaseURL()), RDFS.LABEL, Values.literal("EMX2"));
+    getWriter()
+        .processTriple(
+            Values.iri(getBaseURL()),
+            DCTERMS.DESCRIPTION,
+            Values.literal("MOLGENIS EMX2 database at " + getBaseURL()));
+    getWriter().processTriple(Values.iri(getBaseURL()), DCTERMS.CREATOR, BasicIRI.MOLGENIS);
+  }
+
+  void describeSchema(final Schema schema) {
+    final IRI subject = schemaIRI(getBaseURL(), schema);
+
+    getWriter().processTriple(subject, RDFS.LABEL, Values.literal(schema.getName()));
+    getWriter().processTriple(subject, DCTERMS.IS_PART_OF, Values.iri(getBaseURL()));
+    getWriter().processTriple(subject, RDF.TYPE, RDFS.CONTAINER);
+    if (schema.getMetadata().getDescription() != null) {
+      getWriter()
+          .processTriple(
+              subject, DCTERMS.DESCRIPTION, Values.literal(schema.getMetadata().getDescription()));
+    }
+    for (final Table table : schema.getTablesSorted()) {
+      getWriter().processTriple(subject, LDP.CONTAINS, tableIRI(getBaseURL(), table));
+    }
   }
 
   void describeTable(final NamespaceMapper namespaces, final Table table) {
