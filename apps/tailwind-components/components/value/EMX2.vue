@@ -84,7 +84,6 @@ defineEmits<{
     v-else-if="metadata.columnType === 'REFBACK'"
     :metadata="metadata as IRefColumn"
     :data="data"
-    @refBackCellClicked="$emit('valueClick', $event)"
   />
 
   <ValueFile
