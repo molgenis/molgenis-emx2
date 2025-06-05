@@ -5,6 +5,7 @@
       :count="filteredFacts.length"
       :limit="100"
     />
+
     <div>
       <label class="font-weight-bold mr-3">Split by:</label>
       <div class="d-inline-flex justify-content-around">
@@ -19,6 +20,7 @@
         </div>
       </div>
     </div>
+
     <table class="table border w-100" :key="tableVersion">
       <thead>
         <tr class="facts-header bg-secondary text-white">
@@ -40,7 +42,7 @@
               aria-hidden="true"
             />
           </th>
-          <th v-if="splitByColumn === AGE_RANGE" @click="sort(AGE_RANGE)">
+          <th v-if="showColumn(AGE_RANGE)" @click="sort(AGE_RANGE)">
             Age range
             <span
               v-if="sortColumn === AGE_RANGE"
@@ -77,6 +79,7 @@
             />
           </th>
         </tr>
+
         <tr class="filter-bar">
           <th v-if="showColumn(SAMPLE_TYPE)">
             <select v-model="filters[SAMPLE_TYPE]" class="w-100">
@@ -102,7 +105,6 @@
               </option>
             </select>
           </th>
-
           <th v-if="showColumn(AGE_RANGE)">
             <select v-model="filters[AGE_RANGE]">
               <option :value="ALL">All</option>
@@ -115,7 +117,6 @@
               </option>
             </select>
           </th>
-
           <th v-if="showColumn(DISEASE)">
             <select v-model="filters[DISEASE]">
               <option :value="ALL">All</option>
@@ -132,6 +133,7 @@
           <th />
         </tr>
       </thead>
+
       <tbody v-if="factsTable.length">
         <template v-for="fact of factsTable" :key="fact.id">
           <tr>
@@ -189,14 +191,19 @@ const FACT_PROPERTIES = [
   NUMBER_OF_DONORS,
 ];
 const COLUMN_IDS = [SAMPLE_TYPE, SEX, AGE_RANGE, DISEASE];
-const NO_FILTERS = { sample_type: ALL, sex: ALL, age_range: ALL, disease: ALL };
+const NO_FILTERS = Object.freeze({
+  sample_type: ALL,
+  sex: ALL,
+  age_range: ALL,
+  disease: ALL,
+});
 
 const currentPage = ref(1);
 const facts = ref<Record<string, any>[]>([]);
 const sortColumn = ref("");
 const sortAsc = ref(false);
 const tableVersion = ref(0);
-const filters = ref<Record<string, any>>(NO_FILTERS);
+const filters = ref<Record<string, any>>(hardCopy(NO_FILTERS));
 const splitByColumn = ref<string>("all");
 const factProperties = ref<Record<string, any>>({});
 
@@ -352,7 +359,7 @@ function hasAFactToShow(fact: Record<string, any>) {
 }
 
 function toggleColumn() {
-  filters.value = NO_FILTERS;
+  filters.value = hardCopy(NO_FILTERS);
   collapseRows();
 }
 
