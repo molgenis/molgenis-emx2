@@ -58,7 +58,7 @@ public class MolgenisWebservice {
                       handler -> {
                         handler.setSessionHandler(sessionManager.getSessionHandler());
                         FilterHolder qosFilter = new FilterHolder(new QoSFilter());
-                        qosFilter.setInitParameter("maxRequests", "10");
+                        qosFilter.setInitParameter("maxRequests", "20");
                         handler.addFilter(qosFilter, "/*", EnumSet.of(DispatcherType.REQUEST));
                       });
                   config.jsonMapper(
