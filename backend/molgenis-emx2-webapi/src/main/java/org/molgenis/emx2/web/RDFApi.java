@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.API_JSONLD;
 import static org.molgenis.emx2.Constants.API_RDF;
 import static org.molgenis.emx2.Constants.API_TTL;
@@ -94,7 +95,7 @@ public class RDFApi {
     format = selectFormat(ctx, format);
     ctx.contentType(format.getDefaultMIMEType());
     String baseUrl = extractBaseURL(ctx);
-    try(OutputStream outputStream = ctx.outputStream()) {
+    try (OutputStream outputStream = ctx.outputStream()) {
       try (RdfRootService rdf = new RdfRootService(baseUrl, format, outputStream)) {
         db.tx(
             database -> {
@@ -134,8 +135,8 @@ public class RDFApi {
       throws IOException, NoSuchMethodException {
     Method method = RdfApiPaths.class.getDeclaredMethod("generate", Table.class, Column.class);
     Table table = getTableByIdOrName(ctx);
-    String columnName = sanitize(ctx.pathParam("column"));
-    runService(ctx, format, method, table, columnName);
+    Column column = column(sanitize(ctx.pathParam("column")));
+    runService(ctx, format, method, table, column);
   }
 
   private static void runService(
