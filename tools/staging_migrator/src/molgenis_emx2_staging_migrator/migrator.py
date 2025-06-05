@@ -37,13 +37,15 @@ class StagingMigrator(Client):
         """Sets up the StagingMigrator by logging in to the client."""
         super().__init__(url=url, token=token)
 
+        self.source = None
+        self.resource_ids = None
         if staging_area is not None:
-            DeprecationWarning("Parameter 'staging_area' is deprecated, use 'source' instead.")
-            self.source = staging_area
+            log.warning("Parameter 'staging_area' is deprecated, use 'source' instead.")
+            self.set_source(staging_area)
         else:
-            self.source = source
+            self.set_source(source)
         if catalogue is not None:
-            DeprecationWarning("Parameter 'catalogue' is deprecated, use 'target' instead.")
+            log.warning("Parameter 'catalogue' is deprecated, use 'target' instead.")
             self.target = catalogue
         else:
             self.target = target
@@ -58,22 +60,30 @@ class StagingMigrator(Client):
         return f"{class_name}({', '.join(args)})"
 
     def set_staging_area(self, staging_area: str):
-        DeprecationWarning("Method 'set_staging_area' is deprecated, use 'set_target' instead.")
+        log.warning("Method 'set_staging_area' is deprecated, use 'set_target' instead.")
+
         return self.set_source(staging_area)
 
     def set_source(self, source: str):
         """Sets the source schema and verifies its existence."""
         self.source = source
         self._verify_schemas()
+        self.resource_ids = self.get_resource_ids()
 
     def set_catalogue(self, catalogue: str):
-        DeprecationWarning("Method 'set_catalogue' is deprecated, use 'set_target' instead.")
+        log.warning("Method 'set_catalogue' is deprecated, use 'set_target' instead.")
         return self.set_target(catalogue)
 
     def set_target(self, target: str):
         """Sets the target schema and verifies its existence."""
         self.target = target
         self._verify_schemas()
+
+    def get_resource_ids(self):
+        """
+        Fetches the identifiers of the resources in the source schema.
+        """
+        return self.get(table="Resources", schema=self.source, as_df=True)["id"].to_list()
 
     def migrate(self, keep_zips: bool = False):
         """Performs the migration of the source schema to the target schema."""
@@ -313,7 +323,7 @@ class StagingMigrator(Client):
                 log.error(f"Migration failed, reason: {upload_description}.")
                 log.debug(self.session.get(response_url).json())
             else:
-                log.info("Migration process completed successfully.")
+                log.info("Upload completed successfully.")
 
 
     def last_change(self, source: str = None) -> datetime | None:
