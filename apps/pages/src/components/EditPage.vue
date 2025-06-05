@@ -116,11 +116,15 @@
                         "
                       />
                     </div>
-                    <IconAction
-                      icon="trash"
-                      tooltip="Remove dependency"
-                      @click="removeJsDependency(dependency, index)"
-                    />
+                    <div
+                      class="d-flex justify-content-center align-items-center"
+                    >
+                      <IconAction
+                        icon="trash"
+                        tooltip="Remove dependency"
+                        @click="removeJsDependency(dependency, index)"
+                      />
+                    </div>
                   </div>
                 </template>
                 <ButtonOutline @click="addJsDependency">
