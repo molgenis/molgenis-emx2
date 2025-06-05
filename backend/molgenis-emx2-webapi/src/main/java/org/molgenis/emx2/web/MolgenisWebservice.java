@@ -12,9 +12,12 @@ import io.javalin.http.Context;
 import io.javalin.json.JavalinJackson;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
+import jakarta.servlet.DispatcherType;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.servlets.QoSFilter;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.URIUtils;
@@ -52,7 +55,12 @@ public class MolgenisWebservice {
                   config.router.ignoreTrailingSlashes = true;
                   config.router.treatMultipleSlashesAsSingleSlash = true;
                   config.jetty.modifyServletContextHandler(
-                      handler -> handler.setSessionHandler(sessionManager.getSessionHandler()));
+                      handler -> {
+                        handler.setSessionHandler(sessionManager.getSessionHandler());
+                        FilterHolder qosFilter = new FilterHolder(new QoSFilter());
+                        qosFilter.setInitParameter("maxRequests", "10");
+                        handler.addFilter(qosFilter, "/*", EnumSet.of(DispatcherType.REQUEST));
+                      });
                   config.jsonMapper(
                       new JavalinJackson()
                           .updateMapper(

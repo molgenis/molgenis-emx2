@@ -19,6 +19,7 @@ dependencies {
     testImplementation 'net.lingala.zip4j:zip4j:2.11.5'
     implementation 'com.github.dfabulich:sitemapgen4j:1.1.2'
     implementation 'de.larsgrefer.sass:sass-embedded-host:1.15.4'
+    implementation 'org.eclipse.jetty:jetty-servlets:11.0.18'
 }
 
 task dev(type: JavaExec) {
