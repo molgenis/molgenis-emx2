@@ -25,7 +25,7 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
-          - path: /.+/tables/
+          - path: ^/[^/]+/tables(/|/.*)
             pathType: ImplementationSpecific
             backend:
               service:
@@ -39,14 +39,14 @@ spec:
                 name: {{ $fullName }}
                 port:
                   number: 8080
-          - path: /catalogue-demo/graphql
+          - path: /catalogue-demo
             pathType: Prefix
             backend:
               service:
                 name: {{ $fullName }}
                 port:
                   number: 8080
-          - path: /CatalogueOntologies/graphql
+          - path: /CatalogueOntologies
             pathType: Prefix
             backend:
               service:
