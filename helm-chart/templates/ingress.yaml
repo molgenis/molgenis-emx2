@@ -25,7 +25,7 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
-          - path: /[^/]+/tables(/|/.*)
+          - path: /[^/]+/(tables|schema|updownload|directory)(/|/.*)
             pathType: ImplementationSpecific
             backend:
               service:
