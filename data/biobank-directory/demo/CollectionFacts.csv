@@ -89,6 +89,14 @@ bbmri-eric:factID:NL_biobank2_00112,bbmri-eric:ID:NL_biobank2:collection:coll2,F
 bbmri-eric:factID:NL_biobank2_00113,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Young Adult,*,ORPHA:3000,8788,6067,2023-11-10,NL
 bbmri-eric:factID:NL_biobank2_00114,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,*,*,ORPHA:3000,10500,8888,2023-11-10,NL
 bbmri-eric:factID:NL_biobank2_00115,bbmri-eric:ID:NL_biobank2:collection:coll2,*,*,*,ORPHA:3000,10897,8963,2023-11-10,NL
+bbmri-eric:factID:NL_biobank2_00116,bbmri-eric:ID:NL_biobank2:collection:coll2,*,*,*,ORPHA:1388,10987,8887,2023-11-10,NL,
+bbmri-eric:factID:NL_biobank2_00117,bbmri-eric:ID:NL_biobank2:collection:coll2,*,*,*,urn:miriam:icd:W00,123,456,2023-11-10,NL,
+bbmri-eric:factID:NL_biobank2_00118,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,*,*,*,11000,9000,2023-11-10,NL,
+bbmri-eric:factID:NL_biobank2_00119,bbmri-eric:ID:NL_biobank2:collection:coll2,MALE,*,*,*,0,0,2023-11-10,NL,
+bbmri-eric:factID:NL_biobank2_00120,bbmri-eric:ID:NL_biobank2:collection:coll2,*,Child,*,*,3500,3001,2023-11-10,NL,
+bbmri-eric:factID:NL_biobank2_00121,bbmri-eric:ID:NL_biobank2:collection:coll2,*,Young Adult,*,*,4512,2255,2023-11-10,NL,
+bbmri-eric:factID:NL_biobank2_00122,bbmri-eric:ID:NL_biobank2:collection:coll2,*,*,URINE,*,4554,9000,2023-11-10,NL,
+bbmri-eric:factID:NL_biobank2_00123,bbmri-eric:ID:NL_biobank2:collection:coll2,*,*,PATHOGEN,*,5445,8123,2023-11-10,NL,
 bbmri-eric:factID:NL_biobank2_00084,bbmri-eric:ID:NL_biobank2:collection:coll2,FEMALE,Young Adult,URINE,ORPHA:3000,91,42,2023-11-10,NL
 bbmri-eric:factID:NL_biobank2_00085,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adolescent,NASAL_SWAB,ORPHA:1388,98,91,2023-11-10,NL
 bbmri-eric:factID:NL_biobank2_00086,bbmri-eric:ID:NL_biobank2:collection:coll2a,MALE,Adult,NASAL_SWAB,ORPHA:1388,18,97,2023-11-10,NL
