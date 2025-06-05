@@ -35,6 +35,7 @@ def main(staging_area: str):
         # df = migrator._get_filtered(schema.get_table('name', 'Resources'))
         # migrator.create_zip()
         migrator.migrate(keep_zips=True)
+        migrator.delete_resource()
         # stream = migrator.create_zip()
         # with open(target_path.parent / "upload.zip", 'wb') as zf:
         #     zf.write(stream.getbuffer())
