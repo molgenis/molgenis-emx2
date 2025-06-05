@@ -26,14 +26,14 @@ spec:
       http:
         paths:
           - path: /.+/tables/
-            pathType: Prefix
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: {{ $fullName }}
                 port:
                   number: 8080
           - path: /.+/graphql/
-            pathType: Prefix
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: {{ $fullName }}
@@ -47,7 +47,7 @@ spec:
                 port:
                   number: 8080
           - path: /.+/catalogue/
-            pathType: Prefix
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: ssr-catalogue
