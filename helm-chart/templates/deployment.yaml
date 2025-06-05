@@ -122,7 +122,7 @@ spec:
               value: {{ .Values.ssrCatalogue.environment.siteTitle | quote }}
             - name: NUXT_PUBLIC_ANALYTICS_KEY
               value: {{ .Values.ssrCatalogue.environment.analyticsKey | quote }}
-            - name: NUXT_PUBLIC_EMX2_SCHEMA
+            - name: NUXT_PUBLIC_SCHEMA
               value: {{ .Values.ssrCatalogue.environment.schema | quote }}
       volumes:
         - name: postgres-initdb
