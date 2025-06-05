@@ -80,6 +80,9 @@
   --border-color-input-hover: var(--color-green-200);
   --border-color-input-focused: var(--color-green-200);
 
+  --border-color-pagination: var(--color-gray-200);
+  --border-color-pagination-hover: var(--color-green-500);
+
   --border-radius-pagination: 3px;
 
   --border-color-form-required: var(--color-gray-300);

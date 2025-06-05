@@ -14,23 +14,23 @@ type Resp<T> = {
   error?: any;
 };
 
-export const useMetaStore = defineStore("meta-data", {
+export const useMetaStore = defineStore("metadata", {
   state: () => {
     return {
-      metaData: {} as Record<string, ISchemaMetaData>,
+      metadata: {} as Record<string, ISchemaMetaData>,
     };
   },
 
   getters: {
     getTableMeta: (state) => {
       return (schemaId: string, tableId: string) => {
-        if (!state.metaData) {
+        if (!state.metadata) {
           throw new Error(`The store is not initialized`);
         }
-        if (!state.metaData[schemaId]) {
+        if (!state.metadata[schemaId]) {
           throw new Error(`Schema with id ${schemaId} not found in store`);
         }
-        const tableMeta = state.metaData[schemaId].tables.find(
+        const tableMeta = state.metadata[schemaId].tables.find(
           (t: ITableMetaData) => t.id.toLowerCase() === tableId.toLowerCase()
         );
         if (!tableMeta) {
