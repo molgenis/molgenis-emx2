@@ -346,7 +346,7 @@ public class RDFService {
         builder.add(subject, RDF.TYPE, OWL.OBJECTPROPERTY);
       } else {
         builder.add(subject, RDF.TYPE, OWL.DATATYPEPROPERTY);
-        builder.add(subject, RDFS.RANGE, getCoreDataType(column));
+        builder.add(subject, RDFS.RANGE, getCoreDataType(column).getIri());
       }
     }
     builder.add(subject, RDFS.LABEL, column.getName());
