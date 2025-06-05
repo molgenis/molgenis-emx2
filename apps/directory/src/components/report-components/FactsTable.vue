@@ -22,7 +22,7 @@
     <table class="table border w-100" :key="tableVersion">
       <thead>
         <tr class="facts-header bg-secondary text-white">
-          <th v-if="splitByColumn !== SAMPLE_TYPE" @click="sort(SAMPLE_TYPE)">
+          <th v-if="showColumn(SAMPLE_TYPE)" @click="sort(SAMPLE_TYPE)">
             Material type
             <span
               v-if="sortColumn === SAMPLE_TYPE"
@@ -31,7 +31,7 @@
               aria-hidden="true"
             />
           </th>
-          <th v-if="splitByColumn !== SEX" @click="sort(SEX)">
+          <th v-if="showColumn(SEX)" @click="sort(SEX)">
             Sex
             <span
               v-if="sortColumn === SEX"
@@ -40,7 +40,7 @@
               aria-hidden="true"
             />
           </th>
-          <th v-if="splitByColumn !== AGE_RANGE" @click="sort(AGE_RANGE)">
+          <th v-if="splitByColumn === AGE_RANGE" @click="sort(AGE_RANGE)">
             Age range
             <span
               v-if="sortColumn === AGE_RANGE"
@@ -49,7 +49,7 @@
               aria-hidden="true"
             />
           </th>
-          <th v-if="splitByColumn !== DISEASE" @click="sort(DISEASE)">
+          <th v-if="showColumn(DISEASE)" @click="sort(DISEASE)">
             Disease codes
             <span
               v-if="sortColumn === DISEASE"
@@ -78,7 +78,7 @@
           </th>
         </tr>
         <tr class="filter-bar">
-          <th v-if="splitByColumn !== SAMPLE_TYPE">
+          <th v-if="showColumn(SAMPLE_TYPE)">
             <select v-model="filters[SAMPLE_TYPE]" class="w-100">
               <option :value="ALL">All</option>
               <option
@@ -90,7 +90,7 @@
               </option>
             </select>
           </th>
-          <th v-if="splitByColumn !== SEX">
+          <th v-if="showColumn(SEX)">
             <select v-model="filters[SEX]">
               <option :value="ALL">All</option>
               <option
@@ -103,7 +103,7 @@
             </select>
           </th>
 
-          <th v-if="splitByColumn !== AGE_RANGE">
+          <th v-if="showColumn(AGE_RANGE)">
             <select v-model="filters[AGE_RANGE]">
               <option :value="ALL">All</option>
               <option
@@ -116,7 +116,7 @@
             </select>
           </th>
 
-          <th v-if="splitByColumn !== DISEASE">
+          <th v-if="showColumn(DISEASE)">
             <select v-model="filters[DISEASE]">
               <option :value="ALL">All</option>
               <option
@@ -136,15 +136,15 @@
         <template v-for="fact of factsTable" :key="fact.id">
           <tr>
             <th
-              v-if="splitByColumn !== SAMPLE_TYPE"
+              v-if="showColumn(SAMPLE_TYPE)"
               scope="row"
               class="pr-1 align-top"
             >
               {{ fact.sample_type }}
             </th>
-            <td v-if="splitByColumn !== SEX">{{ fact.sex }}</td>
-            <td v-if="splitByColumn !== AGE_RANGE">{{ fact.age_range }}</td>
-            <td v-if="splitByColumn !== DISEASE">{{ fact.disease }}</td>
+            <td v-if="showColumn(SEX)">{{ fact.sex }}</td>
+            <td v-if="showColumn(AGE_RANGE)">{{ fact.age_range }}</td>
+            <td v-if="showColumn(DISEASE)">{{ fact.disease }}</td>
             <td>{{ fact.number_of_donors }}</td>
             <td>{{ fact.number_of_samples }}</td>
           </tr>
@@ -372,6 +372,10 @@ function collapseRows() {
       });
     }
   }, hardCopy(baseFacts));
+}
+
+function showColumn(columnId: string) {
+  return splitByColumn.value === columnId || splitByColumn.value === ALL;
 }
 </script>
 
