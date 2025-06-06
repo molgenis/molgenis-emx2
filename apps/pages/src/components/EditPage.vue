@@ -82,27 +82,55 @@
             <Spinner v-if="loading" />
             <form class="p-4" v-else>
               <legend class="h4">Add external dependencies</legend>
-              <div class="">
-                <label class="h6">Add URLs to CSS dependencies</label>
-                <ArrayInput
-                  id="css-urls"
-                  columnType="HYPERLINK_ARRAY"
-                  v-model="content.dependencies.css"
-                />
-              </div>
+              <fieldset class="mb-4">
+                <legend class="h6">Add CSS dependencies</legend>
+                <template
+                  v-if="content.dependencies.css.length"
+                  v-for="(dependency, index) in content.dependencies.css"
+                >
+                  <div class="d-flex flex-row flex-wrap">
+                    <div class="flex-fill mr-4">
+                      <label :for="`css-url-${index}`">
+                        Enter the URL to css dependency
+                      </label>
+                      <FormInput
+                        :id="`css-url-${index}`"
+                        columnType="HYPERLINK"
+                        :modelValue="dependency.url"
+                        @update:modelValue="
+                          (value) =>
+                            updateCssDependency(dependency, index, 'url', value)
+                        "
+                      />
+                    </div>
+                    <div
+                      class="d-flex justify-content-center align-items-center"
+                    >
+                      <IconAction
+                        icon="trash"
+                        tooltip="Remove dependency"
+                        @click="removeCssDependency(dependency, index)"
+                      />
+                    </div>
+                  </div>
+                </template>
+                <ButtonOutline @click="addCssDependency">
+                  Add CSS
+                </ButtonOutline>
+              </fieldset>
               <fieldset>
-                <legend class="h6">Add URLs to JavaScript dependencies</legend>
+                <legend class="h6">Add JavaScript dependencies</legend>
                 <template
                   v-if="content.dependencies.javascript.length"
                   v-for="(dependency, index) in content.dependencies.javascript"
                 >
                   <div class="d-flex flex-row flex-wrap">
                     <div class="flex-fill mr-4">
-                      <label for="javascript-urls"
-                        >Enter the URL to javascript dependency</label
-                      >
+                      <label :for="`javascript-urls-${index}`">
+                        Enter the URL to javascript dependency
+                      </label>
                       <FormInput
-                        id="javascript-urls"
+                        :id="`javascript-urls-${index}`"
                         columnType="HYPERLINK"
                         :modelValue="dependency.url"
                         @update:modelValue="
@@ -112,9 +140,11 @@
                       />
                     </div>
                     <div>
-                      <label for="javascript-defer">Defer dependency?</label>
+                      <label :for="`javascript-defer-${index}`">
+                        Defer dependency?
+                      </label>
                       <InputBoolean
-                        id="javascript-defer"
+                        :id="`javascript-defer-${index}`"
                         :modelValue="dependency.defer"
                         :isClearable="false"
                         @update:modelValue="
@@ -140,7 +170,7 @@
                   </div>
                 </template>
                 <ButtonOutline @click="addJsDependency">
-                  Add dependency
+                  Add JavaScript
                 </ButtonOutline>
               </fieldset>
             </form>
@@ -292,13 +322,38 @@ export default {
       });
     },
 
+    addCssDependency() {
+      this.content.dependencies.css.push({ url: null });
+    },
+
+    removeCssDependency(index) {
+      if (this.content.dependencies.css.length === 1) {
+        this.content.dependencies.css = [];
+      } else {
+        this.content.dependencies.css = this.content.dependencies.css.slice(
+          index,
+          1
+        );
+      }
+    },
+
+    updateCssDependency(dependency, index, key, value) {
+      const newDependency = dependency;
+      newDependency[key] = value;
+      this.content.dependencies.css[index] = newDependency;
+    },
+
     addJsDependency() {
       this.content.dependencies.javascript.push({ url: null, defer: false });
     },
 
     removeJsDependency(index) {
-      this.content.dependencies.javascript =
-        this.content.dependencies.javascript.splice(index, 1);
+      if (this.content.dependencies.javascript.length === 1) {
+        this.content.dependencies.javascript = [];
+      } else {
+        this.content.dependencies.javascript =
+          this.content.dependencies.javascript.splice(index, 1);
+      }
     },
 
     updateJsDependency(dependency, index, key, value) {
