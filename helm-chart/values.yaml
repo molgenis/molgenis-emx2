@@ -59,3 +59,4 @@ ssrCatalogue:
     logo: ""
     siteTitle: "Data catalogue"
     analyticsKey: "6005657"
+    schema: "catalogue-demo"

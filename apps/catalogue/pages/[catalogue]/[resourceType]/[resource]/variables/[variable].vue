@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import variableQuery from "../../../../../../../gql/variable";
+import variableQuery from "../../../../../gql/variable";
 import type { IVariable, IVariableMappings } from "~/interfaces/types";
 import { buildFilterFromKeysObject } from "metadata-utils";
 import { useRoute } from "#app/composables/router";
-import { moduleToString } from "../../../../../../../../tailwind-components/utils/moduleToString";
-import { useFetch, useHead } from "#app";
+import { moduleToString } from "../../../../../../tailwind-components/utils/moduleToString";
+import { useFetch, useHead, useRuntimeConfig } from "#app";
 import {
   useQueryParams,
   calcIndividualVariableHarmonisationStatus,
 } from "#imports";
 import { computed, reactive } from "vue";
 const route = useRoute();
+const config = useRuntimeConfig();
+const schema = config.public.schema as string;
 
 const query = moduleToString(variableQuery);
 const scoped = route.params.catalogue !== "all";
@@ -33,7 +35,7 @@ const resourceFilter = scoped
 type VariableDetailsWithMapping = IVariable &
   IVariableMappings & { nRepeats: number };
 
-const { data } = await useFetch(`/${route.params.schema}/graphql`, {
+const { data } = await useFetch(`/${schema}/graphql`, {
   method: "POST",
   body: { query, variables: { variableFilter, resourceFilter } },
 });
@@ -45,15 +47,13 @@ const resources = computed(() => data.value.data.Resources as { id: string }[]);
 const isRepeating = computed(() => variable.value.repeatUnit?.name);
 
 let crumbs: any = {};
-crumbs[
-  `${route.params.catalogue}`
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
+crumbs[`${route.params.catalogue}`] = `/${route.params.catalogue}`;
 crumbs[
   route.params.resourceType as string
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
+] = `/${route.params.catalogue}/${route.params.resourceType}`;
 crumbs[
   route.params.resource as string
-] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}#Variables`;
+] = `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}#Variables`;
 crumbs["variables"] = "";
 crumbs[variable.value?.name] = "";
 

@@ -53,9 +53,7 @@ const links: Link[] = [];
           class="items-center flex justify-center"
           :class="[compact ? 'w-50px h-50px' : 'h-full w-full']"
         >
-          <NuxtLink
-            :to="`/${schema}/catalogue/${catalogue}/networks/${network.id}`"
-          >
+          <NuxtLink :to="`/${catalogue}/networks/${network.id}`">
             <img :src="network?.logo?.url" />
           </NuxtLink>
         </div>
@@ -65,7 +63,7 @@ const links: Link[] = [];
           <div :class="titleContainerClasses" class="">
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
-                :to="`/${schema}/catalogue/${catalogue}/networks/${network.id}`"
+                :to="`/${catalogue}/networks/${network.id}`"
                 class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
               >
                 {{ network?.acronym || network?.name }}
@@ -83,7 +81,7 @@ const links: Link[] = [];
         -->
             <NuxtLink
               v-if="!compact"
-              :to="`/${schema}/catalogue/${catalogue}/networks/${network.id}`"
+              :to="`/${catalogue}/networks/${network.id}`"
             >
               <IconButton
                 icon="arrow-right"

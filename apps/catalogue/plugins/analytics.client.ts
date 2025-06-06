@@ -4,7 +4,7 @@ import type { Provider } from "../../emx2-analytics/src/types/Provider";
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.hook("page:loading:end", () => {
-    const schema = nuxtApp._route.params["schema"] as string;
+    const schema = nuxtApp.$config.public.schema as string;
     const analyticsKey = nuxtApp.$config.public.analyticsKey;
     if (schema && analyticsKey) {
       console.log("Setup Analytics for: " + schema);

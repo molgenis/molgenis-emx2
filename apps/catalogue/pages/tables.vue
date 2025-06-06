@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useRoute } from "#app";
-import { fetchMetadata } from "#imports";
+import { useRuntimeConfig } from "nuxt/app";
+import fetchMetadata from "../composables/fetchMetadata";
 import { computed } from "vue";
 
-const route = useRoute();
+const config = useRuntimeConfig();
 
-const schemaId = route.params.schema.toString();
+const schemaId = config.public.schema as string;
 const metadata = await fetchMetadata(schemaId);
 
 const tables = computed(() =>
@@ -32,7 +32,7 @@ const tables = computed(() =>
           <template v-for="table in tables">
             <TableRow>
               <TableCell>
-                <NuxtLink :to="`/${schemaId}/catalogue/all/${table.id}`">{{
+                <NuxtLink :to="`/all/${table.id}`">{{
                   table.label
                 }}</NuxtLink></TableCell
               >

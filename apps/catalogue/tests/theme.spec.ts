@@ -12,7 +12,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 });
 
 test("landing-page-molgenis", async ({ page, goto }) => {
-  await goto("/catalogue-demo/catalogue/", {
+  await goto("/", {
     waitUntil: "hydration",
   });
   await expect(page).toHaveScreenshot({
@@ -22,7 +22,7 @@ test("landing-page-molgenis", async ({ page, goto }) => {
 });
 
 test("landing-page-umcg", async ({ page, goto }) => {
-  await goto("/catalogue-demo/catalogue/?theme=umcg", {
+  await goto("/?theme=umcg", {
     waitUntil: "hydration",
   });
   await expect(page).toHaveScreenshot({
@@ -32,7 +32,7 @@ test("landing-page-umcg", async ({ page, goto }) => {
 });
 
 test("landing-page-aumc", async ({ page, goto }) => {
-  await goto("/catalogue-demo/catalogue/?theme=aumc", {
+  await goto("/?theme=aumc", {
     waitUntil: "hydration",
   });
   await expect(page).toHaveScreenshot({

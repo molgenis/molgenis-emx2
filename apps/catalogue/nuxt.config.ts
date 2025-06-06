@@ -17,6 +17,7 @@ export default defineNuxtConfig({
       analyticsKey: "",
       analyticsProvider: "siteimprove",
       cohortOnly: false,
+      schema: "catalogue-demo",
       apiBase:
         process.env.NUXT_PUBLIC_API_BASE ||
         "https://emx2.dev.molgenis.org/",

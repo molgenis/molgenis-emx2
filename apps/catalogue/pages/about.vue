@@ -162,7 +162,7 @@
 </template>
 
 <script setup lang="ts">
-import { useHead } from "#app";
+import { useHead } from "nuxt/app";
 
 const introText = `Developed by the MOLGENIS team of Genomics Coordination Center (GCC)
           at the University Medical Center Groningen (UMCG), the European Health

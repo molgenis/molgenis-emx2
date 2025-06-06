@@ -16,42 +16,70 @@ metadata:
 spec:
   tls:
     {{- range .Values.ingress.hosts }}
-  - hosts: 
-    - {{ .host | quote }}
-    secretName: dev.molgenis.org
+    - hosts:
+        - {{ .host | quote }}
+      secretName: dev.molgenis.org
 
   rules:
 
-  - host: {{ .host | quote }}
-    http:
-      paths:
-      - path: /[^\/]+/catalogue/
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: ssr-catalogue
-            port:
-              number: 3000
-      - path: /_nuxt/
-        pathType: Prefix
-        backend:
-          service:
-            name: ssr-catalogue
-            port:
-              number: 3000
-      - path: /_nuxt-styles/
-        pathType: Prefix
-        backend:
-          service:
-            name: ssr-catalogue
-            port:
-              number: 3000
-      - path: {{ default "/" .path }}
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ $fullName }}
-            port:
-              number: 8080
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          - path: /[^/]+/(metadata-utils|directory|settings|central|schema|tables|updownload|pages|graphql-playground|tailwind-components|molgenis-components|molgenis-viz|cranio-public|cranio-provider|ern-genturis|ern-ithaca|ern-reconnet|ern-skin|helloworld|reports|tasks|gportal|projectmanager|aggregates|imdhub-public|aggregation-dashboard|imdhub-public|emx2-analytics|ui|nestor-public)(?:/.*)?/?$
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: 8080
+          - path: /.+/graphql
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: 8080
+          - path: /catalogue-demo
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: 8080
+          - path: /CatalogueOntologies
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: 8080
+          - path: /apps
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: 8080
+          - path: /_nuxt/
+            pathType: Prefix
+            backend:
+              service:
+                name: ssr-catalogue
+                port:
+                  number: 3000
+          - path: /_nuxt-styles/
+            pathType: Prefix
+            backend:
+              service:
+                name: ssr-catalogue
+                port:
+                  number: 3000
+          - path: {{ default "/" .path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: ssr-catalogue
+                port:
+                  number: 3000
   {{- end }}
 {{- end }}

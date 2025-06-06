@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { useRoute, useRuntimeConfig, useFetch } from "#app";
-
-const route = useRoute();
+import { useRuntimeConfig, useFetch } from "#app";
 
 const config = useRuntimeConfig();
+const schema = config.public.schema as string;
 
-const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/graphql`,
-  {
-    method: "POST",
-    body: {
-      query: `{
+const { data, pending, error, refresh } = await useFetch(`/${schema}/graphql`, {
+  method: "POST",
+  body: {
+    query: `{
         Variables_agg {
           count
         }
@@ -28,9 +25,8 @@ const { data, pending, error, refresh } = await useFetch(
           }
         }
       }`,
-    },
-  }
-);
+  },
+});
 
 function percentageLongitudinal(
   resourcesGroupBy: { count: number; design: { name: string } }[],
@@ -59,14 +55,14 @@ function percentageLongitudinal(
         title="Catalogues"
         description="Browse selected resources per network, topic, study or organisation."
         :count="data.data.Networks_agg.count"
-        :link="`/${route.params.schema}/catalogue/catalogues`"
+        :link="`/catalogues`"
       />
       <LandingCardPrimary
         image="patient-list"
         title="Resources"
         description="Browse in all resources: cohorts, biobanks and databanks"
         :count="data.data.DataResources_agg.count"
-        :link="`/${route.params.schema}/catalogue/all`"
+        :link="`/all`"
       />
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
@@ -74,7 +70,7 @@ function percentageLongitudinal(
         title="Variables"
         description="A listing of all collected, harmonised and standard variables."
         :count="data.data.Variables_agg.count"
-        :link="`/${route.params.schema}/catalogue/all/variables`"
+        :link="`/all/variables`"
       />
     </LandingPrimary>
     <LandingSecondary>
@@ -82,50 +78,50 @@ function percentageLongitudinal(
         icon="demography"
         title="Cohort studies"
         :count="data.data.Cohorts_agg.count"
-        :link="`/${route.params.schema}/catalogue/all/cohorts`"
+        :link="`/all/cohorts`"
       />
       <LandingCardSecondary
         icon="database"
         title="Data sources"
         :count="data.data.DataSources_agg.count"
-        :link="`/${route.params.schema}/catalogue/all/datasources`"
+        :link="`/all/datasources`"
       />
       <LandingCardSecondary
         icon="hub"
         title="Networks"
         :count="data.data.Networks_agg.count"
-        :link="`/${route.params.schema}/catalogue/all/networks`"
+        :link="`/all/networks`"
       />
       <LandingCardSecondary
         icon="institution"
         title="Organisations"
         :count="data.data.Organisations_agg.count"
-        :link="`/${route.params.schema}/catalogue/all/organisations`"
+        :link="`/all/organisations`"
       />
       <LandingCardSecondary
         icon="dataset"
         title="Datasets"
         :count="data.data.Cohorts_agg.count"
-        :link="`/${route.params.schema}/catalogue/all/datasets`"
+        :link="`/all/datasets`"
       />
       <LandingCardSecondary
         icon="list"
         title="Collected variables"
         :count="data.data.Networks_agg.count"
-        :link="`/${route.params.schema}/catalogue/all/variables`"
+        :link="`/all/variables`"
       />
       <!-- todo must split in collected and harmonised -->
       <LandingCardSecondary
         icon="harmonized-variables"
         title="Harmonised variables"
         :count="data.data.Organisations_agg.count"
-        :link="`/${route.params.schema}/catalogue/all/variables`"
+        :link="`/all/variables`"
       />
       <LandingCardSecondary
         icon="dataset-linked"
         title="Standards"
         :count="data.data.Models_agg.count"
-        :link="`/${route.params.schema}/catalogue/all/models`"
+        :link="`/all/models`"
       />
       <LandingCardSecondary
         icon="person"

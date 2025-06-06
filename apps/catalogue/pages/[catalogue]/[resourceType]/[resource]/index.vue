@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { gql } from "graphql-request";
-import subpopulationsQuery from "../../../../../../gql/subpopulations";
-import collectionEventsQuery from "../../../../../../gql/collectionEvents";
-import datasetQuery from "../../../../../../gql/datasets";
-import ontologyFragment from "../../../../../../gql/fragments/ontology";
-import fileFragment from "../../../../../../gql/fragments/file";
-import variablesQuery from "../../../../../../gql/variables";
-import { getKey } from "../../../../../../utils/variableUtils";
-import { resourceIdPath } from "../../../../../../utils/urlHelpers";
+import subpopulationsQuery from "../../../../gql/subpopulations";
+import collectionEventsQuery from "../../../../gql/collectionEvents";
+import datasetQuery from "../../../../gql/datasets";
+import ontologyFragment from "../../../../gql/fragments/ontology";
+import fileFragment from "../../../../gql/fragments/file";
+import variablesQuery from "../../../../gql/variables";
+import { getKey } from "../../../../utils/variableUtils";
+import { resourceIdPath } from "../../../../utils/urlHelpers";
 import type {
   IDefinitionListItem,
   IMgError,
@@ -15,9 +15,9 @@ import type {
   linkTarget,
   DefinitionListItemType,
   IVariable,
-} from "../../../../../../interfaces/types";
-import dateUtils from "../../../../../../utils/dateUtils";
-import type { IResources } from "../../../../../../interfaces/catalogue";
+} from "../../../../interfaces/types";
+import dateUtils from "../../../../utils/dateUtils";
+import type { IResources } from "../../../../interfaces/catalogue";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
 import {
   moduleToString,
@@ -27,6 +27,7 @@ import {
 import { computed, ref } from "vue";
 const config = useRuntimeConfig();
 const route = useRoute();
+const schema = config.public.schema as string;
 
 const query = gql`
   query Resources($id: String) {
@@ -204,7 +205,7 @@ interface IResponse {
   };
 }
 const { data, error } = await useFetch<IResponse, IMgError>(
-  `/${route.params.schema}/graphql`,
+  `/${schema}/graphql`,
   {
     method: "POST",
     body: { query, variables },
@@ -257,7 +258,7 @@ function collectionEventMapper(item: any) {
     })(),
     numberOfParticipants: item.numberOfParticipants,
     _renderComponent: "CollectionEventDisplay",
-    _path: `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/collection-events/${item.name}`,
+    _path: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/collection-events/${item.name}`,
   };
 }
 
@@ -279,7 +280,7 @@ function subpopulationMapper(subpopulation: any) {
     description: subpopulation.description,
     numberOfParticipants: subpopulation.numberOfParticipants,
     _renderComponent: "SubpopulationDisplay",
-    _path: `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/subpopulations/${subpopulation.name}`,
+    _path: `/${route.params.catalogue}/${route.params.resourceType}/${route.params.resource}/subpopulations/${subpopulation.name}`,
   };
 }
 
@@ -291,11 +292,9 @@ function variableMapper(variable: IVariable) {
     name: variable.name,
     dataset: variable.dataset.name,
     _renderComponent: "VariableDisplay",
-    _path: `/${route.params.schema}/catalogue/${route.params.catalogue}/${
-      route.params.resourceType
-    }/${route.params.resource}/variables/${variable.name}${resourceIdPath(
-      key
-    )}`,
+    _path: `/${route.params.catalogue}/${route.params.resourceType}/${
+      route.params.resource
+    }/variables/${variable.name}${resourceIdPath(key)}`,
   };
 }
 
@@ -327,7 +326,7 @@ async function fetchDatasetOptions() {
   const { data, error } = await useFetch<
     { data: { Datasets: { name: string }[] } },
     IMgError
-  >(`/${route.params.schema}/graphql`, {
+  >(`/${schema}/graphql`, {
     method: "POST",
     body: { query, variables },
   });
@@ -586,19 +585,19 @@ const crumbs: any = {};
 if (route.params.catalogue) {
   crumbs[
     cohortOnly.value ? "home" : (route.params.catalogue as string)
-  ] = `/${route.params.schema}/catalogue/${route.params.catalogue}`;
+  ] = `/${route.params.catalogue}`;
   if (route.params.resourceType !== "about")
     crumbs[
       route.params.resourceType as string
-    ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
+    ] = `/${route.params.catalogue}/${route.params.resourceType}`;
   crumbs[route.params.resource as string] = "";
 } else {
-  crumbs["Home"] = `/${route.params.schema}/catalogue/`;
-  crumbs["Browse"] = `/${route.params.schema}/catalogue/all`;
+  crumbs["Home"] = `/`;
+  crumbs["Browse"] = `/all`;
   if (route.params.resourceType !== "about")
     crumbs[
       route.params.resourceType as string
-    ] = `/${route.params.schema}/catalogue/all/${route.params.resourceType}`;
+    ] = `/all/${route.params.resourceType}`;
 }
 
 const peopleInvolvedSortedByRoleAndName = computed(() =>
@@ -863,16 +862,16 @@ const showPopulation = computed(
               :title="network.name"
               :description="network?.description || ''"
               :imageUrl="network?.logo?.url || ''"
-              :url="`/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`"
+              :url="`/${route.params.catalogue}/networks/${network.id}`"
               :links="[
                   network.website ? { title: 'Website', url: network.website, target: '_blank' as linkTarget } : null,
                {title: 'Network details',
-                url: `/${route.params.schema}/catalogue/${route.params.catalogue}/networks/${network.id}`,
+                url: `/${route.params.catalogue}/networks/${network.id}`,
                 },
                network.type?.some( (type) => type.name === 'Catalogue')
                ? {
                 title: 'Catalogue',
-                url: `/${route.params.schema}/catalogue/${network.id}`,
+                url: `/${network.id}`,
               }: null
                 ].filter((link) => link !== null)"
               target="_self"
