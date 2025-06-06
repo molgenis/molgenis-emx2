@@ -6,14 +6,26 @@
         <h1>{{ title }}</h1>
       </div>
       <div class="mt-2 mb-4 d-flex justify-content-end gap-2">
-        <ButtonAction @click="savePageSettings" class="ml-2"
-          >Save changes</ButtonAction
-        >
+        <ButtonAction @click="savePageSettings" class="ml-2">
+          Save changes
+        </ButtonAction>
       </div>
     </div>
     <div class="container-fluid">
-      <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
-      <MessageSuccess v-if="success">{{ success }}</MessageSuccess>
+      <MessageError v-if="graphqlError" class="d-flex align-items-center">
+        <button class="button-plain" @click="graphqlError = null">
+          <span class="visually-hidden">close error message</span>
+          <span class="fas fa-fw fa-times"></span>
+        </button>
+        <span>{{ graphqlError }}</span>
+      </MessageError>
+      <MessageSuccess v-if="success" class="d-flex align-items-center">
+        <button class="button-plain" @click="success = null">
+          <span class="visually-hidden">close message</span>
+          <span class="fas fa-fw fa-times"></span>
+        </button>
+        <span>{{ success }}</span>
+      </MessageSuccess>
       <div class="row">
         <div class="col-7">
           <div class="position-relative shadow rounded">
@@ -146,6 +158,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import {
   InputText,
@@ -218,7 +231,7 @@ export default {
   },
   methods: {
     async savePageSettings() {
-      const response = await request(
+      request(
         "graphql",
         `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){status message}}`,
         {
@@ -227,14 +240,16 @@ export default {
             value: this.contentJSON,
           },
         }
-      );
-      if (Object.hasOwn(response, "change")) {
-        if (response.change.status === "SUCCESS") {
+      )
+        .then((response) => {
+          if (response?.error) {
+            throw new Error(response.error[0].message);
+          }
           this.success = response.change.message;
-        }
-      } else {
-        this.graphqlError = response;
-      }
+        })
+        .catch((err) => {
+          this.graphqlError = err.response.errors[0].message;
+        });
     },
     initEditor(editor) {
       const editorRef = this.$refs[editor];
@@ -351,3 +366,23 @@ export default {
   },
 };
 </script>
+
+<style lang="css" scoped>
+.button-plain {
+  background: none;
+  border: none;
+  color: currentColor;
+  cursor: pointer;
+}
+
+.visually-hidden {
+  position: absolute;
+  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px);
+  overflow: hidden;
+  height: 1px;
+  width: 1px;
+  margin: -1px;
+  white-space: nowrap;
+}
+</style>
