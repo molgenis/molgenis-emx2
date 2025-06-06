@@ -47,8 +47,12 @@ export const buildRecordDetailsQueryFields = (
         case "FILE":
           return `${column.id} ${FILE_FRAGMENT}`;
         case "REF":
+        case "RADIO":
+        case "SELECT":
         case "ONTOLOGY":
         case "REF_ARRAY":
+        case "CHECKBOX":
+        case "MULTISELECT":
         case "REFBACK":
         case "ONTOLOGY_ARRAY":
           return ""; // stop recursion
