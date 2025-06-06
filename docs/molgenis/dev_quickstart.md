@@ -101,7 +101,7 @@ last updated 24 nov 2022
 
 ### Pre-commit hook
 
-We use `gradle format spotlessApply` to ensure code follows standard format. You can use pre-commit build hook in .git/hooks/pre-commit to ensure we don't
+We use `./gradlew format spotlessApply` to ensure code follows standard format. You can use pre-commit build hook in .git/hooks/pre-commit to ensure we don't
 push stuff that breaks the build. We have included a gradle task for this if you like. To automatically apply the formatting and update your commit, you can add:
 
 ```
@@ -139,11 +139,11 @@ rm -rf ./apps/*/dist/
 ### Delete all schemas (destroys all your data!)
 
 If you want to delete all the MOLGENIS generated schemas, roles and users in the postgresql and return to clean state, run
-```gradle cleandb```
+```./gradlew cleandb```
 
 ### Build+test drop/creates schemas in my database
 
-Build test ('gradle test') will create database schemas, users, roles and passwords. If you don't like that than please consider to use a different database
+Build test (`./gradlew test`) will create database schemas, users, roles and passwords. If you don't like that than please consider to use a different database
 instance for 'test'. You can use environment variables MOLGENIS_POSTGRES_** for this. See [Installation guide](run).
 
 ### VS code
