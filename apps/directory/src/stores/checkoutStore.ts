@@ -1,12 +1,13 @@
+import * as _ from "lodash";
 import { defineStore } from "pinia";
 import { computed, ref, toRaw, watch } from "vue";
 import { createBookmark } from "../functions/bookmarkMapper";
-import { useFiltersStore } from "./filtersStore";
-import { useSettingsStore } from "./settingsStore";
 import { IBiobanks } from "../interfaces/directory";
 import { IBiobankIdentifier } from "../interfaces/interfaces";
+import { useFiltersStore } from "./filtersStore";
+import { useSettingsStore } from "./settingsStore";
 
-export interface labelValuePair {
+export interface ILabelValuePair {
   label: string;
   value: string;
 }
@@ -99,7 +100,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
   function addServicesToSelection(
     biobank: IBiobanks,
-    services: labelValuePair[],
+    services: ILabelValuePair[],
     bookmark: boolean
   ) {
     checkoutValid.value = false;
@@ -150,7 +151,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
   function addCollectionsToSelection(
     biobank: IBiobanks,
-    collections: labelValuePair[],
+    collections: ILabelValuePair[],
     bookmark: boolean
   ) {
     checkoutValid.value = false;
@@ -356,39 +357,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   }
 
   async function sendToNegotiator() {
-    const resources = [];
-
-    for (const biobank in selectedCollections.value) {
-      const collectionSelection = selectedCollections.value[biobank];
-
-      for (const collection of collectionSelection) {
-        resources.push(
-          toRaw({
-            id: collection.value,
-            name: collection.label,
-            // todo: This expects an organization object, but its unclear how the organization is supposed to be mapped to the biobank
-            // organization: {
-            //   id: biobank.value,
-            //   externalId: biobank.id,
-            //   name: biobank.label,
-            // },
-          })
-        );
-      }
-    }
-
-    for (const biobank in selectedServices.value) {
-      const serviceSelection = selectedServices.value[biobank];
-
-      for (const service of serviceSelection) {
-        resources.push(
-          toRaw({
-            id: service.value,
-            name: service.label,
-          })
-        );
-      }
-    }
+    const resources = getResourcesToSend();
 
     const url = window.location.origin;
     const humanReadable = getHumanReadableString() + createHistoryJournal();
@@ -445,9 +414,56 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     window.location.href = body.redirectUrl;
   }
 
+  function getResourcesToSend() {
+    const collections = getCollectionsToSend(selectedCollections.value);
+    const services = getServicesToSend(selectedServices.value);
+    return [...collections, ...services];
+  }
+
+  function getCollectionsToSend(
+    selectedCollectionsByBiobank: Record<string, ILabelValuePair[]>
+  ) {
+    if (
+      settingsStore.config.negotiatorType === "v3" ||
+      settingsStore.config.negotiatorType === "eric-negotiator"
+    ) {
+      return _.flatMap(selectedCollectionsByBiobank, (collectionSelection) => {
+        return collectionSelection.map((collection) => {
+          return toRaw({ id: collection.value, name: collection.label });
+        });
+      });
+    } else if (settingsStore.config.negotiatorType === "v1") {
+      return _.flatMap(
+        selectedCollectionsByBiobank,
+        (collectionSelection, biobankName) => {
+          return collectionSelection.map((collection) => {
+            return toRaw({
+              collectionId: collection.value,
+              biobankId: biobankIdDictionary.value[biobankName],
+            });
+          });
+        }
+      );
+    } else {
+      throw new Error(
+        `Unsupported negotiator type: ${settingsStore.config.negotiatorType}`
+      );
+    }
+  }
+
+  function getServicesToSend(
+    selectedServices: Record<string, ILabelValuePair[]>
+  ) {
+    return _.flatMap(selectedServices, (serviceSelection) => {
+      return serviceSelection.map((service) => {
+        return toRaw({ id: service.value, name: service.label });
+      });
+    });
+  }
+
   function isInCart(identifier: string) {
-    for (const biobank in selectedCollections.value) {
-      const collectionSelection = selectedCollections.value[biobank];
+    for (const biobankName in selectedCollections.value) {
+      const collectionSelection = selectedCollections.value[biobankName];
 
       for (const collection of collectionSelection) {
         if (collection.value === identifier) {
@@ -456,8 +472,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       }
     }
 
-    for (const biobank in selectedServices.value) {
-      const serviceSelection = selectedServices.value[biobank];
+    for (const biobankName in selectedServices.value) {
+      const serviceSelection = selectedServices.value[biobankName];
 
       for (const service of serviceSelection) {
         if (service.value === identifier) {
