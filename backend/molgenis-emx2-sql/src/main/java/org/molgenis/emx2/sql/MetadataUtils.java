@@ -7,6 +7,7 @@ import static org.molgenis.emx2.Constants.MG_ROLE_PREFIX;
 import java.util.*;
 import org.jooq.*;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.User;
 import org.slf4j.Logger;
@@ -316,7 +317,8 @@ public class MetadataUtils {
   }
 
   protected static Collection<SchemaInfo> loadSchemaInfos(SqlDatabase db) {
-    List<org.jooq.Record> schemaInfoRecords = db.getJooq().selectFrom(SCHEMA_METADATA).orderBy(DSL.lower(TABLE_SCHEMA)).fetch();
+    List<org.jooq.Record> schemaInfoRecords =
+        db.getJooq().selectFrom(SCHEMA_METADATA).orderBy(DSL.lower(TABLE_SCHEMA)).fetch();
     List<SchemaInfo> schemaInfos = new ArrayList<>();
     for (org.jooq.Record record : schemaInfoRecords) {
       schemaInfos.add(
