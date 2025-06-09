@@ -316,7 +316,7 @@ public class MetadataUtils {
   }
 
   protected static Collection<SchemaInfo> loadSchemaInfos(SqlDatabase db) {
-    List<org.jooq.Record> schemaInfoRecords = db.getJooq().selectFrom(SCHEMA_METADATA).fetch();
+    List<org.jooq.Record> schemaInfoRecords = db.getJooq().selectFrom(SCHEMA_METADATA).orderBy(DSL.lower(SCHEMA_METADATA.TABLE_SCHEMA)).fetch();
     List<SchemaInfo> schemaInfos = new ArrayList<>();
     for (org.jooq.Record record : schemaInfoRecords) {
       schemaInfos.add(
