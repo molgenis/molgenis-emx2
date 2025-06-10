@@ -23,6 +23,20 @@ def prepare_primary_keys(schema: Schema, table_name: str):
     return list(map(lambda col: col.name, table_schema.get_columns(by='key', value=1)))
 
 
+def resource_ref_cols(schema: Schema, table_name: str) -> list[str]:
+    """
+    Finds the columns in a table definition that reference the 'Resources' table.
+    """
+    try:
+        table_schema: Table = schema.get_table(by='name', value=table_name)
+    except ValueError:
+        raise NoSuchTableException(f"{table_name!r} not found in schema.")
+
+    if table_name == "Resources":
+        return ["id"]
+    return list(map(lambda col: col.name, table_schema.get_columns("refTableId", "Resources")))
+
+
 def has_statement_of_consent(table: Table) -> int:
     """Checks whether this table has a column that asks for a statement of consent."""
     consent_cols = ['statement of consent personal data',
