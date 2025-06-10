@@ -83,7 +83,7 @@ export default {
   data() {
     return {
       showDropdown: false,
-      dropdownSearch: "haat",
+      dropdownSearch: "",
     };
   },
   computed: {
