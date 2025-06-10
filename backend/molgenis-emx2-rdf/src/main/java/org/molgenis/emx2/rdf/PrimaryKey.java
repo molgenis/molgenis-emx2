@@ -30,6 +30,19 @@ public class PrimaryKey {
   // "column name", "column value" (non-escaped due to getFilter() functionality)
   private final SortedMap<String, String> keys;
 
+  PrimaryKey(SortedMap<String, String> keys) {
+    if (keys.isEmpty()) {
+      throw new IllegalArgumentException("There must be at least one key.");
+    } else if (keys.containsValue(null)) {
+      throw new IllegalArgumentException("Values are not allowed to be null.");
+    }
+    this.keys = keys;
+  }
+
+  PrimaryKey(Map<String, String> keys) {
+    this(new TreeMap<>(keys));
+  }
+
   /**
    * A table should always have a key=1 column (and it must have a value), so validating on empty
    * values should not be needed.
@@ -110,19 +123,6 @@ public class PrimaryKey {
 
   public static PrimaryKey fromEncodedString(Table table, String encodedValue) {
     return fromEncodedString(table.getMetadata(), encodedValue);
-  }
-
-  PrimaryKey(SortedMap<String, String> keys) {
-    if (keys.isEmpty()) {
-      throw new IllegalArgumentException("There must be at least one key.");
-    } else if (keys.containsValue(null)) {
-      throw new IllegalArgumentException("Values are not allowed to be null.");
-    }
-    this.keys = keys;
-  }
-
-  PrimaryKey(Map<String, String> keys) {
-    this(new TreeMap<>(keys));
   }
 
   String getEncodedString() {

@@ -14,17 +14,17 @@ public abstract class RdfWriter implements AutoCloseable {
   private final OutputStream outputStream;
   private final RDFFormat format;
 
+  public RdfWriter(OutputStream outputStream, RDFFormat format) {
+    this.outputStream = requireNonNull(outputStream);
+    this.format = requireNonNull(format);
+  }
+
   protected OutputStream getOutputStream() {
     return outputStream;
   }
 
   protected RDFFormat getFormat() {
     return format;
-  }
-
-  public RdfWriter(OutputStream outputStream, RDFFormat format) {
-    this.outputStream = requireNonNull(outputStream);
-    this.format = requireNonNull(format);
   }
 
   public abstract void processNamespace(Namespace namespace);

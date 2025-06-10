@@ -24,17 +24,17 @@ public abstract class RdfGenerator {
   private final RdfWriter writer;
   private final String baseURL;
 
+  public RdfGenerator(RdfWriter writer, String baseURL) {
+    this.writer = writer;
+    this.baseURL = formatBaseURL(baseURL);
+  }
+
   protected RdfWriter getWriter() {
     return writer;
   }
 
   protected String getBaseURL() {
     return baseURL;
-  }
-
-  public RdfGenerator(RdfWriter writer, String baseURL) {
-    this.writer = writer;
-    this.baseURL = formatBaseURL(baseURL);
   }
 
   protected List<Row> getRows(final Table table, final PrimaryKey primaryKey) {

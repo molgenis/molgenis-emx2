@@ -10,14 +10,14 @@ public class RdfSchemaService implements AutoCloseable {
   private final RdfWriter writer;
   private final RdfApiGenerator generator;
 
-  public RdfApiGenerator getGenerator() {
-    return generator;
-  }
-
   public RdfSchemaService(String baseUrl, RDFFormat format, OutputStream out) {
     this.config = new RdfConfig(); // placeholder
     this.writer = config.getWriterFactory().create(out, format);
     this.generator = config.getRdfApiGeneratorFactory().create(writer, baseUrl);
+  }
+
+  public RdfApiGenerator getGenerator() {
+    return generator;
   }
 
   @Override

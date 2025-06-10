@@ -10,13 +10,13 @@ public class RdfRootService implements AutoCloseable {
   private final RdfWriter writer;
   private final RootRdfGenerator generator;
 
-  public RootRdfGenerator getGenerator() {
-    return generator;
-  }
-
   public RdfRootService(String baseUrl, RDFFormat format, OutputStream out) {
     this.writer = new RdfModelWriter(out, format);
     this.generator = new RootRdfGenerator(writer, baseUrl);
+  }
+
+  public RootRdfGenerator getGenerator() {
+    return generator;
   }
 
   @Override
