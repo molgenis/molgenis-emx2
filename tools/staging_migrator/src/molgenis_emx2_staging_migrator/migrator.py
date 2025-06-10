@@ -14,7 +14,7 @@ from molgenis_emx2_pyclient.metadata import Table
 from molgenis_emx2_pyclient.utils import convert_dtypes
 
 from .constants import BASE_DIR, changelog_query
-from .utils import prepare_primary_keys, has_statement_of_consent, process_statement
+from .utils import prepare_primary_keys, has_statement_of_consent, process_statement, resource_ref_cols
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
@@ -39,16 +39,16 @@ class StagingMigrator(Client):
 
         self.source = None
         self.resource_ids = None
-        if staging_area is not None:
-            log.warning("Parameter 'staging_area' is deprecated, use 'source' instead.")
-            self.set_source(staging_area)
-        else:
-            self.set_source(source)
         if catalogue is not None:
             log.warning("Parameter 'catalogue' is deprecated, use 'target' instead.")
             self.target = catalogue
         else:
             self.target = target
+        if staging_area is not None:
+            log.warning("Parameter 'staging_area' is deprecated, use 'source' instead.")
+            self.set_source(staging_area)
+        elif source is not None:
+            self.set_source(source)
         self._verify_schemas()
 
     def __repr__(self):
@@ -114,7 +114,7 @@ class StagingMigrator(Client):
         updated_tables = list()
         with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
               zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
-            for file_name in source_archive.namelist():
+            for file_name in reversed(sorted(source_archive.namelist())):
 
                 # Add files in '_files' folder
                 if '_files/' in file_name:
@@ -183,15 +183,20 @@ class StagingMigrator(Client):
         # Specify the primary keys
         primary_keys = prepare_primary_keys(self.get_schema_metadata(self.source), table.name)
 
+        # Find columns that reference 'Resources'
+        ref_cols = resource_ref_cols(self.get_schema_metadata(self.source), table.name)
+
         # Load the data for the table from the ZIP files
         source_df = self._load_table('source', table)
         target_df = self._load_table('target', table)
 
-        if len(source_df.index) == 0:
-            return source_df
+        target_df = target_df.loc[target_df[ref_cols].isin(self.resource_ids).any(axis=1)]
 
         # if "mg_draft" in source_df.columns:
         #     source_df = source_df.loc[~source_df["mg_draft"]]
+
+        if len(source_df.index) + len(target_df.index) == 0:
+            return source_df
 
         # Create mapping of indices from the source table to the target table
         merge_df = source_df.reset_index().merge(target_df.reset_index(), on=primary_keys)
@@ -199,9 +204,11 @@ class StagingMigrator(Client):
         # Filter rows not present in the target's table
         new_df = source_df.loc[~source_df.index.isin(merge_df["index_x"])].copy()
 
+        missing_df = target_df.loc[~target_df.index.isin(merge_df["index_y"])]
+        missing_df["mg_delete"] = 'true'
+
         # Filter updated rows
         merge_df = merge_df.loc[merge_df["mg_updatedOn_x"] > merge_df["mg_updatedOn_y"]]
-
 
         target_table = self.get_schema_metadata(self.target).get_table("id", table.id)
         if "issued" in map(lambda c: c.name, target_table.columns):
@@ -213,13 +220,13 @@ class StagingMigrator(Client):
         if "modified" in map(lambda c: c.name, target_table.columns):
             updated_df["modified"] = updated_df["mg_updatedOn"]
 
-        filtered_df = pd.concat([new_df, updated_df])
+        filtered_df = pd.concat([new_df, updated_df, missing_df])
 
         return filtered_df
 
     def _set_delete(self, table: Table) -> pd.DataFrame:
         """
-        Adds an `mg_delete` column to the table and sets it values to `true`.
+        Adds an `mg_delete` column to the table and sets its values to `true`.
         """
         source_df = self._load_table('source', table)
         source_df["mg_delete"] = True
