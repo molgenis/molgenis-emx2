@@ -1,15 +1,18 @@
 package org.molgenis.emx2.rdf;
 
-// todo: replace placeholder with full implementation
-public class RdfConfig {
-  private final String writer = "MODEL";
-  private final String generator = "EMX2";
+import org.molgenis.emx2.rdf.generators.RdfApiGeneratorFactory;
+import org.molgenis.emx2.rdf.writers.WriterFactory;
 
-  public String getWriter() {
-    return writer;
+// todo: replace placeholder with full implementation that uses advaned setting to store values
+public class RdfConfig {
+  private final WriterFactory writerFactory = WriterFactory.valueOf("MODEL");
+  private final RdfApiGeneratorFactory rdfApiGeneratorFactory = RdfApiGeneratorFactory.valueOf("EMX2");
+
+  public WriterFactory getWriterFactory() {
+    return writerFactory;
   }
 
-  public String getGenerator() {
-    return generator;
+  public RdfApiGeneratorFactory getRdfApiGeneratorFactory() {
+    return rdfApiGeneratorFactory;
   }
 }
