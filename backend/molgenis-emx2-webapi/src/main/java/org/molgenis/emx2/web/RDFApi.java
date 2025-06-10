@@ -26,7 +26,7 @@ import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfRootService;
 import org.molgenis.emx2.rdf.RdfSchemaService;
-import org.molgenis.emx2.rdf.generators.RdfApiPaths;
+import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 
 public class RDFApi {
   public static final String FORMAT = "format";
@@ -111,21 +111,21 @@ public class RDFApi {
 
   private static void rdfForSchema(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
-    Method method = RdfApiPaths.class.getDeclaredMethod("generate", Schema.class);
+    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
     Schema schema = getSchema(ctx);
     runService(ctx, format, method, schema);
   }
 
   private static void rdfForTable(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
-    Method method = RdfApiPaths.class.getDeclaredMethod("generate", Table.class);
+    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class);
     Table table = getTableByIdOrName(ctx);
     runService(ctx, format, method, table);
   }
 
   private static void rdfForRow(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
-    Method method = RdfApiPaths.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class);
+    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class);
     Table table = getTableByIdOrName(ctx);
     PrimaryKey primaryKey = PrimaryKey.fromEncodedString(table, sanitize(ctx.pathParam("row")));
     runService(ctx, format, method, table, primaryKey);
@@ -133,7 +133,7 @@ public class RDFApi {
 
   private static void rdfForColumn(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
-    Method method = RdfApiPaths.class.getDeclaredMethod("generate", Table.class, Column.class);
+    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, Column.class);
     Table table = getTableByIdOrName(ctx);
     Column column = column(sanitize(ctx.pathParam("column")));
     runService(ctx, format, method, table, column);

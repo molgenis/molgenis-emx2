@@ -39,7 +39,7 @@ import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
-public class Emx2RdfGenerator extends RdfGenerator implements RdfApiPaths {
+public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
   public Emx2RdfGenerator(RdfWriter writer, String baseURL) {
     super(writer, baseURL);
   }

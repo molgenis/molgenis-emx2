@@ -7,13 +7,13 @@ public enum RdfApiGeneratorFactory {
   EMX2(Emx2RdfGenerator.class),
   SEMANTIC(SemanticRdfGenerator.class);
 
-  private final Class<? extends RdfApiPaths> rdfGenerator;
+  private final Class<? extends RdfApiGenerator> rdfGenerator;
 
-  RdfApiGeneratorFactory(Class<? extends RdfApiPaths> rdfGenerator) {
+  RdfApiGeneratorFactory(Class<? extends RdfApiGenerator> rdfGenerator) {
     this.rdfGenerator = rdfGenerator;
   }
 
-  public RdfApiPaths create(RdfWriter writer, String baseUrl) {
+  public RdfApiGenerator create(RdfWriter writer, String baseUrl) {
     try {
       return rdfGenerator
           .getConstructor(RdfWriter.class, String.class)
