@@ -24,7 +24,7 @@ public enum RdfApiGeneratorFactory {
         | NoSuchMethodException e) {
       // Any exceptions thrown should purely be due to bugs in this specific code.
       throw new RuntimeException(
-          "An error occurred while trying to run GenericSchemaRdfGenerator: " + e);
+          "An error occurred while trying to run RdfApiGeneratorFactory: " + e);
     }
   }
 }
