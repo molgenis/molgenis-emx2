@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2.rdf.mappers;
 
 import static java.util.Map.entry;
 import static org.junit.jupiter.api.Assertions.*;
