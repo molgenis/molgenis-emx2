@@ -220,10 +220,14 @@ public class NamespaceMapper {
 
   @Override
   public String toString() {
-    return "NamespaceMapper{" +
-            "baseUrl='" + baseUrl + '\'' +
-            ", namespaces=" + namespaces +
-            ", schemaNamespaces=" + schemaNamespaces +
-            '}';
+    return "NamespaceMapper{"
+        + "baseUrl='"
+        + baseUrl
+        + '\''
+        + ", namespaces="
+        + namespaces
+        + ", schemaNamespaces="
+        + schemaNamespaces
+        + '}';
   }
 }

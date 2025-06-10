@@ -125,7 +125,8 @@ public class RDFApi {
 
   private static void rdfForRow(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
-    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class);
+    Method method =
+        RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class);
     Table table = getTableByIdOrName(ctx);
     PrimaryKey primaryKey = PrimaryKey.fromEncodedString(table, sanitize(ctx.pathParam("row")));
     runService(ctx, format, method, table, primaryKey);
