@@ -190,13 +190,15 @@ class StagingMigrator(Client):
         source_df = self._load_table('source', table)
         target_df = self._load_table('target', table)
 
+        # Filter the rows in the target table that reference the Resource identifiers
         target_df = target_df.loc[target_df[ref_cols].isin(self.resource_ids).any(axis=1)]
 
-        # if "mg_draft" in source_df.columns:
-        #     source_df = source_df.loc[~source_df["mg_draft"]]
-
+        # Return if both tables are empty
         if len(source_df.index) + len(target_df.index) == 0:
             return source_df
+
+        # if "mg_draft" in source_df.columns:
+        #     source_df = source_df.loc[source_df["mg_draft"] is not True]
 
         # Create mapping of indices from the source table to the target table
         merge_df = source_df.reset_index().merge(target_df.reset_index(), on=primary_keys)
@@ -204,22 +206,15 @@ class StagingMigrator(Client):
         # Filter rows not present in the target's table
         new_df = source_df.loc[~source_df.index.isin(merge_df["index_x"])].copy()
 
+        # Filter rows not present in the source's table
         missing_df = target_df.loc[~target_df.index.isin(merge_df["index_y"])]
         missing_df["mg_delete"] = 'true'
 
         # Filter updated rows
         merge_df = merge_df.loc[merge_df["mg_updatedOn_x"] > merge_df["mg_updatedOn_y"]]
-
-        target_table = self.get_schema_metadata(self.target).get_table("id", table.id)
-        if "issued" in map(lambda c: c.name, target_table.columns):
-            new_df["issued"] = new_df["mg_insertedOn"]
-        if "modified" in map(lambda c: c.name, target_table.columns):
-            new_df["modified"] = new_df["mg_updatedOn"]
-
         updated_df = source_df.iloc[merge_df["index_x"]]
-        if "modified" in map(lambda c: c.name, target_table.columns):
-            updated_df["modified"] = updated_df["mg_updatedOn"]
 
+        # Combine the new, updated and missing rows
         filtered_df = pd.concat([new_df, updated_df, missing_df])
 
         return filtered_df
