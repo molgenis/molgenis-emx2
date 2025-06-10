@@ -164,7 +164,7 @@ class StagingMigrator(Client):
                     log.debug(f"Skipping file {file_name!r}.")
                     continue
                 log.debug(f"Preparing table {table.name!r} for deletion.")
-                updated_table: pd.DataFrame = self._set_delete(table)
+                updated_table: pd.DataFrame = self._set_all_delete(table)
                 if len(updated_table.index) != 0:
                     upload_archive.writestr(file_name, updated_table.to_csv())
                     updated_tables.append(Path(file_name).stem)
@@ -220,7 +220,7 @@ class StagingMigrator(Client):
 
         return filtered_df
 
-    def _set_delete(self, table: Table) -> pd.DataFrame:
+    def _set_all_delete(self, table: Table) -> pd.DataFrame:
         """
         Adds an `mg_delete` column to the table and sets its values to `true`.
         """
