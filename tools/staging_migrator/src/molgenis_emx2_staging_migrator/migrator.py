@@ -6,6 +6,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import TypeAlias, Literal
 
+import numpy as np
 import pandas as pd
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.constants import DATE, DATETIME
@@ -197,8 +198,8 @@ class StagingMigrator(Client):
         if len(source_df.index) + len(target_df.index) == 0:
             return source_df
 
-        # if "mg_draft" in source_df.columns:
-        #     source_df = source_df.loc[source_df["mg_draft"] is not True]
+        if "mg_draft" in source_df.columns:
+            source_df = source_df.loc[~source_df["mg_draft"].replace({np.nan: False})]
 
         # Create mapping of indices from the source table to the target table
         merge_df = source_df.reset_index().merge(target_df.reset_index(), on=primary_keys)
@@ -207,7 +208,7 @@ class StagingMigrator(Client):
         new_df = source_df.loc[~source_df.index.isin(merge_df["index_x"])].copy()
 
         # Filter rows not present in the source's table
-        missing_df = target_df.loc[~target_df.index.isin(merge_df["index_y"])]
+        missing_df = target_df.loc[~target_df.index.isin(merge_df["index_y"])].copy()
         missing_df["mg_delete"] = 'true'
 
         # Filter updated rows
