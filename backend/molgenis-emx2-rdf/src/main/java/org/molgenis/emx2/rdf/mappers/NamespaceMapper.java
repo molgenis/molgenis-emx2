@@ -55,6 +55,7 @@ public class NamespaceMapper {
   private final SortedMap<String, Map<String, Namespace>> namespaces = new TreeMap<>();
 
   // Namespaces for the schema's themselves.
+  // schema identifier -> schema namespace
   private final Map<String, Namespace> schemaNamespaces = new HashMap<>();
 
   public NamespaceMapper(String baseUrl, Collection<Schema> schemas) {
@@ -77,7 +78,7 @@ public class NamespaceMapper {
   }
 
   private void addAll(Collection<Schema> schemas) {
-    for (Schema schema : schemas) add(schema);
+    schemas.forEach(this::add);
   }
 
   public Set<Namespace> getAllNamespaces(Schema schema) {
@@ -219,6 +220,10 @@ public class NamespaceMapper {
 
   @Override
   public String toString() {
-    return "NamespaceMapper{" + "namespaces=" + namespaces + '}';
+    return "NamespaceMapper{" +
+            "baseUrl='" + baseUrl + '\'' +
+            ", namespaces=" + namespaces +
+            ", schemaNamespaces=" + schemaNamespaces +
+            '}';
   }
 }
