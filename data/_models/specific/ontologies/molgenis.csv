@@ -1,7 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Organisations,,,,,,,,,,,,,Patient registry
 Organisations,,name,string,1,TRUE,,,,,,,,Patient registry
-Organisations,,parent,ref,,,CatalogueOntologies,Organisations,,,,,,Patient registry
+Organisations,,parent,ref,,,,Organisations,,,,,,Patient registry
 Organisations,,codesystem,string,,,,,,,,,,Patient registry
 Organisations,,code,string,,,,,,,,,,Patient registry
 Organisations,,ontologyTermURI,hyperlink,,,,,,,,,,Patient registry
@@ -11,4 +11,4 @@ Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,SIO:000664,A 
 Organisations,,city,string,,,,,,,,SIO:000665,A city is a relatively large and permanent settlement.,Patient registry
 Organisations,,latitude,decimal,,,,,,,,SIO:000319,Latitude is a geographic coordinate which refers to the angle from a point on the Earth's surface to the equatorial plane. Can be considered as the Y-axis,Patient registry
 Organisations,,longitude,decimal,,,,,,,,SIO:000318,Longitude is a geographic position that refers to the angle east or west of a reference meridian between the two geographical poles to another meridian that passes through an arbitrary point. Can be considered as the X-axis,Patient registry
-Organisations,,children,refback,,,CatalogueOntologies,parent,,,,,,Patient registry
+Organisations,,children,refback,,,,Organisations,,parent,,,,Patient registry
