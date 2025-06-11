@@ -402,6 +402,8 @@ name,definition,codesystem,code,ontologyTermURI
 "Nasal Swab or Nose Specimen","Nasal Swab or Nose Specimen","NCIT","C155833","http://purl.obolibrary.org/obo/NCIT_C155833"
 "Nasal Wash Specimen","Nasal Wash Specimen","NCIT","C155834","http://purl.obolibrary.org/obo/NCIT_C155834"
 "Oropharyngeal Swab Specimen","Oropharyngeal Swab Specimen","NCIT","C155835","http://purl.obolibrary.org/obo/NCIT_C155835"
+"cDNA","Single-stranded DNA that is complementary to messenger RNA or DNA that has been synthesized from messenger RNA by reverse transcriptase.","NCIT","C324","http://purl.obolibrary.org/obo/NCIT_C324"
+"MicroRNA","A sequence of single-stranded RNA which is typically 20-25 nucleotides in length and may regulate the expression of other genes. miRNAs are transcribed from DNA, but are not translated into proteins.","NCIT","C25966",http://purl.obolibrary.org/obo/NCIT_C25966
 Blood,Blood that has not been separated into its various components; blood that has not been modified except for the addition of an anticoagulant.,MIABIS-2.0-17,BLOOD,https://github.com/MIABIS/miabis/wiki/Structured-data-and-lists#material-type
 DNA,A long linear double-stranded polymer formed from nucleotides attached to a deoxyribose backbone and found in the nucleus of a cell; associated with the transmission of genetic information.,MIABIS-2.0-17,DNA,https://github.com/MIABIS/miabis/wiki/Structured-data-and-lists#material-type
 Faeces,"The material discharged from the bowel during defecation. It consists of undigested food, intestinal mucus, epithelial cells, and bacteria.",MIABIS-2.0-17,FAECES,https://github.com/MIABIS/miabis/wiki/Structured-data-and-lists#material-type
@@ -415,3 +417,4 @@ Serum,The clear portion of the blood that remains after the removal of the blood
 Tissue (FFPE),"Tissue, formalin fixated and paraffin preserved or equivalent.",MIABIS-2.0-17,TISSUE (FFPE),https://github.com/MIABIS/miabis/wiki/Structured-data-and-lists#material-type
 Tissue (Frozen),"An anatomical structure consisting of similarly specialized cells and intercellular matrix, aggregated according to genetically determined spatial relationships, performing a specific function.",MIABIS-2.0-17,TISSUE (FROZEN),https://github.com/MIABIS/miabis/wiki/Structured-data-and-lists#material-type
 Urine,The fluid that is excreted by the kidneys. It is stored in the bladder and discharged through the urethra.,MIABIS-2.0-17,URINE,https://github.com/MIABIS/miabis/wiki/Structured-data-and-lists#material-type
+*,Any type of biospecimen,,Any,

@@ -80,7 +80,7 @@ Resources,,networks involved,refback,,,,Resources,,resources,,,The consortia or 
 Resources,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this resource is involved in,EMA,,
 Resources,,available data and samples,heading,,,,,,,,,Data model and contents,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging",,
 Resources,,datasets,refback,,,,Datasets,,resource,,,List of datasets contained in this resouce if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging",,
-Resources,,samplesets,refback,,,,Samplesets,,resource,,,List of sample sets contained in this resource if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,
+Resources,,sample collections,refback,,,,Sample collections,,resource,,,List of sample collections contained in this resource if applicable,"DataCatalogueFlat,CohortsStaging,RWEStaging,StudiesStaging",,
 Resources,,areas of information,ontology_array,,,CatalogueOntologies,Areas of information cohorts,,,,,Areas of information that were collected,"DataCatalogueFlat,CohortsStaging",,
 Resources,,areas of information rwd,ontology_array,,,CatalogueOntologies,Areas of information ds,,,,,Areas of information that were collected,"DataCatalogueFlat,EMA,RWEStaging",,
 Resources,,quality of life other,text,,,,,,,,,"If 'other', specify additional quality of life measures","DataCatalogueFlat,EMA,RWEStaging",,
