@@ -51,8 +51,7 @@ public class Row {
   public Row(Map<String, ?> values) {
     this();
     for (Map.Entry<String, ?> entry : values.entrySet()) {
-      // we remove BOM character that sometimes is in CSV files from Windows systems
-      this.set(entry.getKey().replace("\uFEFF", ""), entry.getValue());
+      this.set(entry.getKey(), entry.getValue());
     }
   }
 
