@@ -312,7 +312,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     const additionText = " and ";
     const humanReadableStart: Record<string, string> = {};
 
-    /** Get all the filterdefinitions for current active filters and make a dictionary name: humanreadable */
+    /** Get all the filter definitions for current active filters and make a dictionary name: humanreadable */
     filtersStore.filterFacets
       .filter((fd) => activeFilterNames.includes(fd.facetIdentifier))
       .forEach((filterDefinition) => {
@@ -363,9 +363,16 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     const humanReadable = getHumanReadableString() + createHistoryJournal();
     const negotiatorUrl = settingsStore.config.negotiatorUrl;
 
-    const payload = nToken.value
-      ? { url, humanReadable, resources, nToken: nToken.value }
-      : { url, humanReadable, resources };
+    let payload;
+    if (settingsStore.config.negotiatorType === "v1") {
+      payload = nToken.value
+        ? { url, humanReadable, collections: resources, nToken: nToken.value }
+        : { url, humanReadable, collections: resources };
+    } else {
+      payload = nToken.value
+        ? { url, humanReadable, resources, nToken: nToken.value }
+        : { url, humanReadable, resources };
+    }
 
     // todo: show a success or failure message and close modal if needed.
     const response = await fetch(negotiatorUrl, {
@@ -437,6 +444,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
         selectedCollectionsByBiobank,
         (collectionSelection, biobankName) => {
           return collectionSelection.map((collection) => {
+            if (!biobankIdDictionary.value[biobankName]) {
+              throw new Error(
+                `Biobank ID for ${biobankName} is not defined in the dictionary.`
+              );
+            }
             return toRaw({
               collectionId: collection.value,
               biobankId: biobankIdDictionary.value[biobankName],
