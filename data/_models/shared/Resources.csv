@@ -129,7 +129,7 @@ Resources,,biospecimen access conditions,text,,,,,,,,,"If yes to the above, desc
 Resources,,governance details,text,,,,,,,,,"If available, provide a link to documents or webpages that describe the overall governance of the data source bank (governing data access or utilisation for research purposes by existing DAPs)","DataCatalogueFlat,RWEStaging",,
 Resources,,approval for publication,bool,,,,,,,,,Is an approval needed to publish the results of a study using the data,"DataCatalogueFlat,EMA,RWEStaging",,
 Resources,,updates,heading,,,,,,,,,Information on the regularity of updates and time lags,"DataCatalogueFlat,EMA,RWEStaging",,
-Resources,,release type,ontology,,,CatalogueOntologies,Release types,,,,,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",,
+Resources,,release type,ontology,,,CatalogueOntologies,Release types,,,,dcterms:accrualPeriodicity,Select whether this resource is a closed dataset or whether new data is released continuously or at a termly basis,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",,
 Resources,,release description,text,,,,,,,,,Description of the release cycle of this resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",,
 Resources,,number of records,int,,,,,,,,,Total number of unique records captured in the data bank (most recent count),"DataCatalogueFlat,RWEStaging",,
 Resources,,release frequency,int,,,,,,,,,Refreshing rate (in months),"DataCatalogueFlat,EMA,RWEStaging",,
