@@ -7,10 +7,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -61,8 +62,10 @@ public class TestLoaders {
 
     // create rdf in memory
     OutputStream outputStream = new ByteArrayOutputStream();
-    var rdf = new RDFService("http://localhost:8080", null);
-    rdf.describeAsRDF(outputStream, null, null, null, dataCatalogue);
+    try (RdfSchemaService rdf =
+        new RdfSchemaService("http://localhost:8080", RDFFormat.TURTLE, outputStream)) {
+      rdf.getGenerator().generate(dataCatalogue);
+    }
 
     // check compliance
     testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
