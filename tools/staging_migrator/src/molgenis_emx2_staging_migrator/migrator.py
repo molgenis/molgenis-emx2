@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.constants import DATE, DATETIME
-from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
+from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException, NoSuchColumnException
 from molgenis_emx2_pyclient.metadata import Table
 from molgenis_emx2_pyclient.utils import convert_dtypes
 
@@ -84,7 +84,10 @@ class StagingMigrator(Client):
         """
         Fetches the identifiers of the resources in the source schema.
         """
-        return self.get(table="Resources", schema=self.source, as_df=True)["id"].to_list()
+        try:
+            return self.get(table="Resources", schema=self.source, as_df=True)["id"].to_list()
+        except KeyError:
+            raise NoSuchColumnException(f"Table 'Resources' in schema {self.source!r} has no column 'id'.")
 
     def migrate(self, keep_zips: bool = False):
         """Performs the migration of the source schema to the target schema."""
