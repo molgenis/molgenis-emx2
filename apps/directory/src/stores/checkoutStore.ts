@@ -366,19 +366,33 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     let payload;
     if (settingsStore.config.negotiatorType === "v1") {
       payload = nToken.value
-        ? { url, humanReadable, collections: resources, nToken: nToken.value }
-        : { url, humanReadable, collections: resources };
+        ? {
+            URL: url,
+            humanReadable,
+            collections: resources,
+            nToken: nToken.value,
+          }
+        : { URL: url, humanReadable, collections: resources };
     } else {
       payload = nToken.value
         ? { url, humanReadable, resources, nToken: nToken.value }
         : { url, humanReadable, resources };
     }
 
+    let auth = "";
+    if (settingsStore.config.negotiatorType === "v1") {
+      auth =
+        "Basic " +
+        btoa(
+          `${settingsStore.config.negotiatorUsername}:${settingsStore.config.negotiatorPassword}`
+        );
+    }
     // todo: show a success or failure message and close modal if needed.
     const response = await fetch(negotiatorUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        // Authorization: auth,
       },
       body: JSON.stringify(payload),
     });
