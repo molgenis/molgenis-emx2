@@ -3,7 +3,6 @@ package org.molgenis.emx2.io.readers;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.commons.io.input.BOMInputStream;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvParser;
@@ -15,12 +14,21 @@ public class CsvTableReader {
   }
 
   public static Iterable<Row> read(File f) throws IOException {
-    return read(new InputStreamReader(new BOMInputStream(new FileInputStream(f))));
+    return read(new InputStreamReader(new FileInputStream(f)));
   }
 
   public static Iterable<Row> read(Reader in) {
     try {
       BufferedReader bufferedReader = new BufferedReader(in);
+
+      // skip BOM if exists (issue in some windows edited CSV files)
+      bufferedReader.mark(1);
+      int ch = bufferedReader.read();
+      if (ch != 0xFEFF) {
+        bufferedReader.reset(); // No BOM, rewind
+      }
+
+      // guess separator
       bufferedReader.mark(2000000);
       String firstLine = bufferedReader.readLine();
       String secondLine = bufferedReader.readLine();
