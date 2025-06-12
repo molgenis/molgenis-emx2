@@ -88,6 +88,7 @@
                   v-if="content.dependencies.css.length"
                   v-for="(dependency, index) in content.dependencies.css"
                 >
+                  {{ (index, dependency) }}
                   <div class="d-flex flex-row flex-wrap">
                     <div class="flex-fill mr-4">
                       <label :for="`css-url-${index}`">
@@ -109,7 +110,7 @@
                       <IconAction
                         icon="trash"
                         tooltip="Remove dependency"
-                        @click="removeDependency('css', dependency)"
+                        @click="removeDependency('css', dependency, index)"
                       />
                     </div>
                   </div>
@@ -164,7 +165,9 @@
                       <IconAction
                         icon="trash"
                         tooltip="Remove dependency"
-                        @click="removeDependency('javascript', dependency)"
+                        @click="
+                          removeDependency('javascript', dependency, index)
+                        "
                       />
                     </div>
                   </div>
@@ -329,12 +332,22 @@ export default {
       this.content.dependencies.css.push({ url: null });
     },
 
-    removeDependency(dependencyType, dependencyToRemove) {
-      this.content.dependencies[dependencyType] = this.content.dependencies[
-        dependencyType
-      ].filter((dependency) => {
-        return dependency.url !== dependencyToRemove.url;
-      });
+    removeDependency(dependencyType, dependencyToRemove, indexToRemove) {
+      if (dependencyToRemove.url) {
+        this.content.dependencies[dependencyType] = this.content.dependencies[
+          dependencyType
+        ].filter((dependency) => {
+          return dependency.url !== dependencyToRemove.url;
+        });
+      } else {
+        this.content.dependencies[dependencyType] = this.content.dependencies[
+          dependencyType
+        ].filter((dependency, index) => {
+          if (index !== indexToRemove) {
+            return dependency;
+          }
+        });
+      }
     },
 
     updateCssDependency(dependency, index, key, value) {
