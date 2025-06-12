@@ -136,7 +136,7 @@ public class RDFApi {
       throws IOException, NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, Column.class);
     Table table = getTableByIdOrName(ctx);
-    Column column = column(sanitize(ctx.pathParam("column")));
+    Column column = table.getMetadata().getColumn(sanitize(ctx.pathParam("column")));
     runService(ctx, format, method, table, column);
   }
 
