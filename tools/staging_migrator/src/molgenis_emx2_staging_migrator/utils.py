@@ -2,11 +2,11 @@
 Utility functions for the StagingMigrator class.
 """
 import logging
-from io import BytesIO
 
 import pandas as pd
 from molgenis_emx2_pyclient.exceptions import NoSuchTableException
 from molgenis_emx2_pyclient.metadata import Schema, Table
+from numpy import nan
 
 log = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ def process_statement(df: pd.DataFrame, consent_val: int) -> pd.DataFrame:
 
     # Remove rows without any data consent
     if consent_val % 2 == 1:
-        df = df.loc[df['statement of consent personal data']]
+        df['mg_delete'] = ~df['statement of consent personal data'].replace({nan: False})
     # Replace email values for rows without email consent
     if consent_val > 1:
         df.loc[~df['statement of consent email'], 'email'] = None
