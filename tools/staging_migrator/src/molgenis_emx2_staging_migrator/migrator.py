@@ -118,7 +118,7 @@ class StagingMigrator(Client):
         updated_tables = list()
         with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
               zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
-            for file_name in reversed(sorted(source_archive.namelist())):
+            for file_name in sorted(source_archive.namelist()):
 
                 # Add files in '_files' folder
                 if '_files/' in file_name:
@@ -150,7 +150,7 @@ class StagingMigrator(Client):
 
         # Check if software supports deletion through import
         if self.version < "13.8.0":
-            raise NotImplementedError("The delete function is not implemented for EMX2 "
+            raise NotImplementedError("The delete functionality is not implemented for EMX2 "
                                       "software running a version below 13.8.0")
         source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
                                                     include_system_columns=True)
@@ -201,6 +201,7 @@ class StagingMigrator(Client):
         if len(source_df.index) + len(target_df.index) == 0:
             return source_df
 
+        # Skip drafts from the upload
         if "mg_draft" in source_df.columns:
             source_df = source_df.loc[~source_df["mg_draft"].replace({np.nan: False})]
 
