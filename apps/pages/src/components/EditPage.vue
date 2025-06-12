@@ -109,7 +109,7 @@
                       <IconAction
                         icon="trash"
                         tooltip="Remove dependency"
-                        @click="removeCssDependency(dependency, index)"
+                        @click="removeDependency('css', dependency)"
                       />
                     </div>
                   </div>
@@ -164,7 +164,7 @@
                       <IconAction
                         icon="trash"
                         tooltip="Remove dependency"
-                        @click="removeJsDependency(dependency, index)"
+                        @click="removeDependency('javascript', dependency)"
                       />
                     </div>
                   </div>
@@ -173,11 +173,14 @@
                   Add JavaScript
                 </ButtonOutline>
               </fieldset>
+              <p class="mt-2">
+                Note: Removing external dependencies requires a page refresh
+              </p>
             </form>
           </div>
         </div>
         <div class="col-5 p-0 bg-light">
-          <div class="position-relative shadow reounded">
+          <div class="position-relative shadow rounded">
             <div class="px-2 sticky-top bg-white">
               <h2 class="h6 p-2">Preview</h2>
             </div>
@@ -326,15 +329,12 @@ export default {
       this.content.dependencies.css.push({ url: null });
     },
 
-    removeCssDependency(index) {
-      if (this.content.dependencies.css.length === 1) {
-        this.content.dependencies.css = [];
-      } else {
-        this.content.dependencies.css = this.content.dependencies.css.slice(
-          index,
-          1
-        );
-      }
+    removeDependency(dependencyType, dependencyToRemove) {
+      this.content.dependencies[dependencyType] = this.content.dependencies[
+        dependencyType
+      ].filter((dependency) => {
+        return dependency.url !== dependencyToRemove.url;
+      });
     },
 
     updateCssDependency(dependency, index, key, value) {
@@ -345,15 +345,6 @@ export default {
 
     addJsDependency() {
       this.content.dependencies.javascript.push({ url: null, defer: false });
-    },
-
-    removeJsDependency(index) {
-      if (this.content.dependencies.javascript.length === 1) {
-        this.content.dependencies.javascript = [];
-      } else {
-        this.content.dependencies.javascript =
-          this.content.dependencies.javascript.splice(index, 1);
-      }
     },
 
     updateJsDependency(dependency, index, key, value) {

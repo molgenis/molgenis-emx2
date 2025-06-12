@@ -7,8 +7,8 @@ export function generateHtmlPreview(instance, content, ref) {
 
     if (content.dependencies && Object.keys(content.dependencies).length) {
       if (content.dependencies.css) {
-        content.dependencies.css.forEach((dependency) => {
-          if (dependency.url && dependency.url !== "") {
+        content.dependencies?.css?.forEach((dependency) => {
+          if (dependency.url) {
             const elem = document.createElement("link");
             elem.href = dependency.url;
             elem.rel = "stylesheet";
@@ -18,12 +18,8 @@ export function generateHtmlPreview(instance, content, ref) {
       }
 
       if (content.dependencies.javascript) {
-        content.dependencies.javascript.forEach((dependency) => {
-          if (
-            dependency.url &&
-            dependency.url !== "" &&
-            dependency.url !== null
-          ) {
+        content.dependencies?.javascript?.forEach((dependency) => {
+          if (dependency.url) {
             const elem = document.createElement("script");
             elem.src = dependency.url;
             if (dependency.defer) {
