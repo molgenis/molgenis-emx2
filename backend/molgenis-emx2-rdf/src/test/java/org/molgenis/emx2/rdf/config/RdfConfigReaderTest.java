@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.rdf.RdfUtils;
 import org.molgenis.emx2.rdf.generators.RdfApiGeneratorFactory;
@@ -64,6 +65,28 @@ writer: stream
     assertAll(
         () -> assertEquals(WriterFactory.MODEL, config.getWriterFactory()),
         () -> assertEquals(RdfApiGeneratorFactory.EMX2, config.getRdfApiGeneratorFactory()));
+  }
+
+  @Test
+  void testInvalidEnumValueRdfConfig() {
+    Schema schema =
+        mockSchema(
+            """
+writer: thisValueDoesNotExist
+""");
+
+    assertThrows(MolgenisException.class, () -> RdfConfigReader.read(schema));
+  }
+
+  @Test
+  void testInvalidKeyRdfConfig() {
+    Schema schema =
+        mockSchema(
+            """
+thisKeyDoesNotExist: value
+""");
+
+    assertThrows(MolgenisException.class, () -> RdfConfigReader.read(schema));
   }
 
   private Schema mockSchema(String rdfConfigSetting) {
