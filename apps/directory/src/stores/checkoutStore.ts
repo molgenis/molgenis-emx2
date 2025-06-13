@@ -359,40 +359,35 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   async function sendToNegotiator() {
     const resources = getResourcesToSend();
 
-    const url = window.location.origin;
     const humanReadable = getHumanReadableString() + createHistoryJournal();
-    const negotiatorUrl = settingsStore.config.negotiatorUrl;
+    const config = settingsStore.config;
+    const negotiatorUrl = config.negotiatorUrl;
 
-    let payload;
-    if (settingsStore.config.negotiatorType === "v1") {
-      payload = nToken.value
-        ? {
-            URL: url,
-            humanReadable,
-            collections: resources,
-            nToken: nToken.value,
-          }
-        : { URL: url, humanReadable, collections: resources };
+    let payload: Record<string, any>;
+    if (config.negotiatorType === "v1") {
+      const URL = window.location.href.replace(/&nToken=\w{32}/, "");
+      payload = { URL, humanReadable, collections: resources };
     } else {
-      payload = nToken.value
-        ? { url, humanReadable, resources, nToken: nToken.value }
-        : { url, humanReadable, resources };
+      const url = window.location.origin;
+      payload = { url, humanReadable, resources };
+    }
+
+    if (nToken.value) {
+      payload.nToken = nToken.value;
     }
 
     let auth = "";
-    if (settingsStore.config.negotiatorType === "v1") {
+    if (config.negotiatorType === "v1") {
       auth =
         "Basic " +
-        btoa(
-          `${settingsStore.config.negotiatorUsername}:${settingsStore.config.negotiatorPassword}`
-        );
+        btoa(`${config.negotiatorUsername}:${config.negotiatorPassword}`);
     }
     // todo: show a success or failure message and close modal if needed.
     const response = await fetch(negotiatorUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: auth,
+        Authorization: auth,
       },
       body: JSON.stringify(payload),
     });
@@ -431,7 +426,10 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       }
     }
 
+    const { val, done } = response.body.getReader().read();
+
     const body = await response.json();
+
     window.location.href = body.redirectUrl;
   }
 
@@ -444,25 +442,26 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   function getCollectionsToSend(
     selectedCollectionsByBiobank: Record<string, ILabelValuePair[]>
   ) {
+    const config = settingsStore.config;
     if (
-      settingsStore.config.negotiatorType === "v3" ||
-      settingsStore.config.negotiatorType === "eric-negotiator"
+      config.negotiatorType === "v3" ||
+      config.negotiatorType === "eric-negotiator"
     ) {
       return _.flatMap(selectedCollectionsByBiobank, (collectionSelection) => {
         return collectionSelection.map((collection) => {
           return toRaw({ id: collection.value, name: collection.label });
         });
       });
-    } else if (settingsStore.config.negotiatorType === "v1") {
+    } else if (config.negotiatorType === "v1") {
       return _.flatMap(
         selectedCollectionsByBiobank,
         (collectionSelection, biobankName) => {
           return collectionSelection.map((collection) => {
-            if (!biobankIdDictionary.value[biobankName]) {
-              throw new Error(
-                `Biobank ID for ${biobankName} is not defined in the dictionary.`
-              );
-            }
+            // if (!biobankIdDictionary.value[biobankName]) {
+            //   throw new Error(
+            //     `Biobank ID for ${biobankName} is not defined in the dictionary.`
+            //   );
+            // }
             return toRaw({
               collectionId: collection.value,
               biobankId: biobankIdDictionary.value[biobankName],
@@ -471,9 +470,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
         }
       );
     } else {
-      throw new Error(
-        `Unsupported negotiator type: ${settingsStore.config.negotiatorType}`
-      );
+      throw new Error(`Unsupported negotiator type: ${config.negotiatorType}`);
     }
   }
 
