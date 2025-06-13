@@ -73,11 +73,15 @@ public class TestTypeUtils {
 
   @Test
   void testToBool() {
+    String falseString = "False";
+    String trueString = "True";
     String zero = "0";
     String one = "1";
     String onePointZero = "1.0";
     String five = "5";
     String minusOne = "-1";
+    assertEquals(false, TypeUtils.toBool(falseString));
+    assertEquals(true, TypeUtils.toBool(trueString));
     assertEquals(false, TypeUtils.toBool(zero));
     assertEquals(true, TypeUtils.toBool(one));
     assertThrows(MolgenisException.class, () -> TypeUtils.toBool(onePointZero));
