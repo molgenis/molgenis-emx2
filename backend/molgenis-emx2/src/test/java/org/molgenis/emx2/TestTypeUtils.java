@@ -80,6 +80,7 @@ public class TestTypeUtils {
     String onePointZero = "1.0";
     String five = "5";
     String minusOne = "-1";
+    assertNull(TypeUtils.toBool(null));
     assertEquals(false, TypeUtils.toBool(falseString));
     assertEquals(true, TypeUtils.toBool(trueString));
     assertEquals(false, TypeUtils.toBool(zero));
