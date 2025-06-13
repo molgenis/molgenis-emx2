@@ -211,4 +211,4 @@ Resources,,study design classification,ontology_array,,,CatalogueOntologies,Stud
 Resources,,study design classification other,text,,,,,,,,,Further details on design,EMA,,
 Resources,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study,EMA,,
 Resources,,study scope other,text,,,,,,,,,If scope 'other',EMA,,
-Resources,,theme,hyperlink_array,,,,,,,,dcat:theme,"A main category of the resource. A resource can have multiple themes, for health data theme must at least take the value HEALTH",DataCatalogueFlat,,http://publications.europa.eu/resource/authority/data-theme/HEAL
+Resources,,theme,hyperlink_array,,,,,,,,dcat:theme,"A main category of the resource. A resource can have multiple themes, chosen from http://publications.europa.eu/resource/authority/data-theme, for health data theme must at least take the value HEALTH, which is set as a default","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,http://publications.europa.eu/resource/authority/data-theme/HEAL
