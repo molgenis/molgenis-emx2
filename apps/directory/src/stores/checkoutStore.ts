@@ -357,37 +357,78 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   }
 
   async function sendToNegotiator() {
-    const resources = getResourcesToSend();
-
-    const humanReadable = getHumanReadableString() + createHistoryJournal();
-    const config = settingsStore.config;
-    const negotiatorUrl = config.negotiatorUrl;
-
-    let payload: Record<string, any>;
-    if (config.negotiatorType === "v1") {
-      const URL = window.location.href.replace(/&nToken=\w{32}/, "");
-      payload = { URL, humanReadable, collections: resources };
+    const { negotiatorType } = settingsStore.config;
+    if (negotiatorType === "v1") {
+      doNegotiatorV1Request();
+    } else if (
+      negotiatorType === "v3" ||
+      negotiatorType === "eric-negotiator"
+    ) {
+      doNegotiatorV3Request();
     } else {
-      const url = window.location.origin;
-      payload = { url, humanReadable, resources };
+      throw new Error(
+        `Unsupported negotiator type: ${negotiatorType}. Please check your settings.`
+      );
     }
+  }
+
+  async function doNegotiatorV1Request() {
+    const { negotiatorUrl, negotiatorUsername, negotiatorPassword } =
+      settingsStore.config;
+    const humanReadable = getHumanReadableString() + createHistoryJournal();
+    const collections: any[] = getV1CollectionsToSend();
+    const URL = window.location.href.replace(/&nToken=\w{32}/, "");
+    const payload: Record<string, any> = { URL, humanReadable, collections };
 
     if (nToken.value) {
       payload.nToken = nToken.value;
     }
 
-    let auth = "";
-    if (config.negotiatorType === "v1") {
-      auth =
-        "Basic " +
-        btoa(`${config.negotiatorUsername}:${config.negotiatorPassword}`);
+    const response = await fetch(negotiatorUrl, {
+      method: "POST",
+      redirect: "follow",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization:
+          "Basic " + btoa(`${negotiatorUsername}:${negotiatorPassword}`),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      removeAllFromSelection(false);
+    } else {
+      const jsonResponse = await response.json();
+      const detail = jsonResponse.detail
+        ? ` Detail: ${jsonResponse.detail}`
+        : "";
+
+      throw new Error(
+        `An unknown error occurred with the Negotiator. Please try again later.${detail}`
+      );
     }
-    // todo: show a success or failure message and close modal if needed.
+
+    // const { val, done } = await response?.body?.getReader().read();
+
+    // const body = await response.json();
+
+    // window.location.href = body.redirectUrl;
+  }
+
+  async function doNegotiatorV3Request() {
+    const { negotiatorUrl } = settingsStore.config;
+    const humanReadable = getHumanReadableString() + createHistoryJournal();
+
+    const resources = getResourcesToSend();
+    const url = window.location.origin;
+    const payload: Record<string, any> = { url, humanReadable, resources };
+    if (nToken.value) {
+      payload.nToken = nToken.value;
+    }
     const response = await fetch(negotiatorUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: auth,
       },
       body: JSON.stringify(payload),
     });
@@ -426,11 +467,24 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       }
     }
 
-    const { val, done } = response.body.getReader().read();
-
     const body = await response.json();
 
     window.location.href = body.redirectUrl;
+  }
+
+  function getV1CollectionsToSend() {
+    const selectedCollectionsByBiobank = selectedCollections.value;
+    return _.flatMap(
+      selectedCollectionsByBiobank,
+      (collectionSelection, biobankName) => {
+        return collectionSelection.map((collection) => {
+          return toRaw({
+            collectionId: collection.value,
+            biobankId: biobankIdDictionary.value[biobankName],
+          });
+        });
+      }
+    );
   }
 
   function getResourcesToSend() {
@@ -442,36 +496,11 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   function getCollectionsToSend(
     selectedCollectionsByBiobank: Record<string, ILabelValuePair[]>
   ) {
-    const config = settingsStore.config;
-    if (
-      config.negotiatorType === "v3" ||
-      config.negotiatorType === "eric-negotiator"
-    ) {
-      return _.flatMap(selectedCollectionsByBiobank, (collectionSelection) => {
-        return collectionSelection.map((collection) => {
-          return toRaw({ id: collection.value, name: collection.label });
-        });
+    return _.flatMap(selectedCollectionsByBiobank, (collectionSelection) => {
+      return collectionSelection.map((collection) => {
+        return toRaw({ id: collection.value, name: collection.label });
       });
-    } else if (config.negotiatorType === "v1") {
-      return _.flatMap(
-        selectedCollectionsByBiobank,
-        (collectionSelection, biobankName) => {
-          return collectionSelection.map((collection) => {
-            // if (!biobankIdDictionary.value[biobankName]) {
-            //   throw new Error(
-            //     `Biobank ID for ${biobankName} is not defined in the dictionary.`
-            //   );
-            // }
-            return toRaw({
-              collectionId: collection.value,
-              biobankId: biobankIdDictionary.value[biobankName],
-            });
-          });
-        }
-      );
-    } else {
-      throw new Error(`Unsupported negotiator type: ${config.negotiatorType}`);
-    }
+    });
   }
 
   function getServicesToSend(
