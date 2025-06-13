@@ -30,11 +30,11 @@ def main(args):
 
     staging_areas = args[-1].split(',')
 
-    with StagingMigrator(url=server_url, token=token, catalogue=CATALOGUE) as migrator:
+    with StagingMigrator(url=server_url, token=token, target=CATALOGUE) as migrator:
 
         for sa in staging_areas:
             log.info(f"\nPublishing resources in staging area {sa!r} to {CATALOGUE!r}.")
-            migrator.set_staging_area(sa)
+            migrator.set_source(sa)
             migrator.migrate()
 
 

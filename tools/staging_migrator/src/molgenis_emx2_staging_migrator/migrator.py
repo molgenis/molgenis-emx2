@@ -6,15 +6,16 @@ from io import BytesIO
 from pathlib import Path
 from typing import TypeAlias, Literal
 
+import numpy as np
 import pandas as pd
 from molgenis_emx2_pyclient import Client
 from molgenis_emx2_pyclient.constants import DATE, DATETIME
-from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
+from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException, NoSuchColumnException
 from molgenis_emx2_pyclient.metadata import Table
 from molgenis_emx2_pyclient.utils import convert_dtypes
 
 from .constants import BASE_DIR, changelog_query
-from .utils import prepare_primary_keys, has_statement_of_consent, process_statement
+from .utils import prepare_primary_keys, has_statement_of_consent, process_statement, resource_ref_cols
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
@@ -37,16 +38,18 @@ class StagingMigrator(Client):
         """Sets up the StagingMigrator by logging in to the client."""
         super().__init__(url=url, token=token)
 
-        if staging_area is not None:
-            DeprecationWarning("Parameter 'staging_area' is deprecated, use 'source' instead.")
-            self.source = staging_area
-        else:
-            self.source = source
+        self.source = None
+        self.resource_ids = None
         if catalogue is not None:
-            DeprecationWarning("Parameter 'catalogue' is deprecated, use 'target' instead.")
+            log.warning("Parameter 'catalogue' is deprecated, use 'target' instead.")
             self.target = catalogue
         else:
             self.target = target
+        if staging_area is not None:
+            log.warning("Parameter 'staging_area' is deprecated, use 'source' instead.")
+            self.set_source(staging_area)
+        elif source is not None:
+            self.set_source(source)
         self._verify_schemas()
 
     def __repr__(self):
@@ -58,22 +61,33 @@ class StagingMigrator(Client):
         return f"{class_name}({', '.join(args)})"
 
     def set_staging_area(self, staging_area: str):
-        DeprecationWarning("Method 'set_staging_area' is deprecated, use 'set_target' instead.")
+        log.warning("Method 'set_staging_area' is deprecated, use 'set_target' instead.")
+
         return self.set_source(staging_area)
 
     def set_source(self, source: str):
         """Sets the source schema and verifies its existence."""
         self.source = source
         self._verify_schemas()
+        self.resource_ids = self.get_resource_ids()
 
     def set_catalogue(self, catalogue: str):
-        DeprecationWarning("Method 'set_catalogue' is deprecated, use 'set_target' instead.")
+        log.warning("Method 'set_catalogue' is deprecated, use 'set_target' instead.")
         return self.set_target(catalogue)
 
     def set_target(self, target: str):
         """Sets the target schema and verifies its existence."""
         self.target = target
         self._verify_schemas()
+
+    def get_resource_ids(self):
+        """
+        Fetches the identifiers of the resources in the source schema.
+        """
+        try:
+            return self.get(table="Resources", schema=self.source, as_df=True)["id"].to_list()
+        except KeyError:
+            raise NoSuchColumnException(f"Table 'Resources' in schema {self.source!r} has no column 'id'.")
 
     def migrate(self, keep_zips: bool = False):
         """Performs the migration of the source schema to the target schema."""
@@ -91,6 +105,7 @@ class StagingMigrator(Client):
             # Remove any downloaded files from disk
             self.cleanup()
 
+
     def create_zip(self):
         """
         Creates a ZIP file containing tables to be uploaded to the target schema.
@@ -103,7 +118,7 @@ class StagingMigrator(Client):
         updated_tables = list()
         with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
               zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
-            for file_name in source_archive.namelist():
+            for file_name in sorted(source_archive.namelist()):
 
                 # Add files in '_files' folder
                 if '_files/' in file_name:
@@ -130,6 +145,40 @@ class StagingMigrator(Client):
         log.info(f"Migrating tables {', '.join(updated_tables)}.")
         return upload_stream
 
+    def delete_resource(self):
+        """Deletes the contents of the source schema from the target schema."""
+
+        # Check if software supports deletion through import
+        if self.version < "13.8.0":
+            raise NotImplementedError("The delete functionality is not implemented for EMX2 "
+                                      "software running a version below 13.8.0")
+        source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
+                                                    include_system_columns=True)
+
+        source_metadata = self.get_schema_metadata(self.source)
+        upload_stream = BytesIO()
+        updated_tables = list()
+        with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
+              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
+            for file_name in source_archive.namelist():
+                try:
+                    table: Table = source_metadata.get_table('name', Path(file_name).stem)
+                except NoSuchTableException:
+                    log.debug(f"Skipping file {file_name!r}.")
+                    continue
+                log.debug(f"Preparing table {table.name!r} for deletion.")
+                updated_table: pd.DataFrame = self._set_all_delete(table)
+                if len(updated_table.index) != 0:
+                    upload_archive.writestr(file_name, updated_table.to_csv())
+                    updated_tables.append(Path(file_name).stem)
+
+        if len(updated_tables) == 0:
+            upload_stream.flush()
+            return
+
+        self.upload_zip_stream(upload_stream)
+        self.cleanup()
+
     def _get_filtered(self, table: Table) -> pd.DataFrame:
         """
         Filters the table for rows in present in the source schema
@@ -138,15 +187,23 @@ class StagingMigrator(Client):
         # Specify the primary keys
         primary_keys = prepare_primary_keys(self.get_schema_metadata(self.source), table.name)
 
+        # Find columns that reference 'Resources'
+        ref_cols = resource_ref_cols(self.get_schema_metadata(self.source), table.name)
+
         # Load the data for the table from the ZIP files
         source_df = self._load_table('source', table)
         target_df = self._load_table('target', table)
 
-        if len(source_df.index) == 0:
+        # Filter the rows in the target table that reference the Resource identifiers
+        target_df = target_df.loc[target_df[ref_cols].isin(self.resource_ids).any(axis=1)]
+
+        # Return if both tables are empty
+        if len(source_df.index) + len(target_df.index) == 0:
             return source_df
 
-        # if "mg_draft" in source_df.columns:
-        #     source_df = source_df.loc[~source_df["mg_draft"]]
+        # Skip drafts from the upload
+        if "mg_draft" in source_df.columns:
+            source_df = source_df.loc[~source_df["mg_draft"].replace({np.nan: False})]
 
         # Create mapping of indices from the source table to the target table
         merge_df = source_df.reset_index().merge(target_df.reset_index(), on=primary_keys)
@@ -154,23 +211,27 @@ class StagingMigrator(Client):
         # Filter rows not present in the target's table
         new_df = source_df.loc[~source_df.index.isin(merge_df["index_x"])].copy()
 
+        # Filter rows not present in the source's table
+        missing_df = target_df.loc[~target_df.index.isin(merge_df["index_y"])].copy()
+        missing_df["mg_delete"] = 'true'
+
         # Filter updated rows
         merge_df = merge_df.loc[merge_df["mg_updatedOn_x"] > merge_df["mg_updatedOn_y"]]
-
-
-        target_table = self.get_schema_metadata(self.target).get_table("id", table.id)
-        if "issued" in map(lambda c: c.name, target_table.columns):
-            new_df["issued"] = new_df["mg_insertedOn"]
-        if "modified" in map(lambda c: c.name, target_table.columns):
-            new_df["modified"] = new_df["mg_updatedOn"]
-
         updated_df = source_df.iloc[merge_df["index_x"]]
-        if "modified" in map(lambda c: c.name, target_table.columns):
-            updated_df["modified"] = updated_df["mg_updatedOn"]
 
-        filtered_df = pd.concat([new_df, updated_df])
+        # Combine the new, updated and missing rows
+        filtered_df = pd.concat([new_df, updated_df, missing_df])
 
         return filtered_df
+
+    def _set_all_delete(self, table: Table) -> pd.DataFrame:
+        """
+        Adds an `mg_delete` column to the table and sets its values to `true`.
+        """
+        source_df = self._load_table('source', table)
+        source_df["mg_delete"] = True
+        return source_df
+
 
     @staticmethod
     def _modify_table(df: pd.DataFrame, table: Table) -> pd.DataFrame:
@@ -269,7 +330,7 @@ class StagingMigrator(Client):
                 log.error(f"Migration failed, reason: {upload_description}.")
                 log.debug(self.session.get(response_url).json())
             else:
-                log.info("Migration process completed successfully.")
+                log.info("Upload completed successfully.")
 
 
     def last_change(self, source: str = None) -> datetime | None:
