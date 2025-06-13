@@ -134,26 +134,15 @@ public class TypeUtils {
 
   public static Boolean toBool(Object v) {
     if (v == null) return null; // NOSONAR
-    try {
-      int value = Integer.parseInt(toString(v));
-      if (value == 1) {
-        return true;
-      }
-      if (value == 0) {
-        return false;
-      }
-    } catch (NumberFormatException ignored) {
-
-    }
     if (v instanceof String) {
       String value = toString(v);
       if (value == null) {
         return null; // NOSONAR
       }
-      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value)) {
+      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || value.equals("1")) {
         return true;
       }
-      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value)) {
+      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value) || value.equals("0")) {
         return false;
       }
     }
