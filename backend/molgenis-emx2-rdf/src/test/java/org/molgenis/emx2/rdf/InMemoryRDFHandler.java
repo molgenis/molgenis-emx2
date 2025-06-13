@@ -7,7 +7,7 @@ import org.eclipse.rdf4j.rio.RDFHandler;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 
 /** A RDF Handler that stores the RDF in memory for usage in testing. */
-abstract class InMemoryRDFHandler implements RDFHandler {
+class InMemoryRDFHandler implements RDFHandler {
   public Map<Resource, Map<IRI, Set<Value>>> resources = new HashMap<>();
   public Set<Namespace> namespaces = new HashSet<>();
 

@@ -570,7 +570,10 @@ let fundingAndAcknowledgementItems = computed(() => {
   return items;
 });
 
-useHead({ title: resource.value.acronym || resource.value.name });
+useHead({
+  title: resource.value.acronym || resource.value.name,
+  meta: [{ name: "description", content: resource.value.description }],
+});
 
 const messageFilter = `{"filter": {"id":{"equals":"${route.params.resource}"}}}`;
 
@@ -588,7 +591,7 @@ if (route.params.catalogue) {
     crumbs[
       route.params.resourceType as string
     ] = `/${route.params.schema}/catalogue/${route.params.catalogue}/${route.params.resourceType}`;
-  crumbs[route.params.resource] = "";
+  crumbs[route.params.resource as string] = "";
 } else {
   crumbs["Home"] = `/${route.params.schema}/catalogue/`;
   crumbs["Browse"] = `/${route.params.schema}/catalogue/all`;

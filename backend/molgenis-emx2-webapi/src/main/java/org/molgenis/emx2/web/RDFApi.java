@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.API_JSONLD;
 import static org.molgenis.emx2.Constants.API_RDF;
 import static org.molgenis.emx2.Constants.API_TTL;
@@ -10,16 +11,22 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.eclipse.rdf4j.rio.RDFFormat;
+import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.rdf.PrimaryKey;
+import org.molgenis.emx2.rdf.RdfRootService;
+import org.molgenis.emx2.rdf.RdfSchemaService;
+import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 
 public class RDFApi {
   public static final String FORMAT = "format";
@@ -85,61 +92,70 @@ public class RDFApi {
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
 
-    final RDFService rdf = new RDFService(extractBaseURL(ctx), format);
-    ctx.contentType(rdf.getMimeType());
-    OutputStream outputStream = ctx.outputStream();
-    db.tx(
-        database -> {
-          for (int i = 0; i < schemas.length; i++) {
-            schemas[i] = (db.getSchema(schemaNamesArr[i]));
-          }
-          rdf.describeAsRDF(outputStream, null, null, null, schemas);
-        });
-
-    outputStream.flush();
-    outputStream.close();
-  }
-
-  private static void rdfForSchema(Context ctx, RDFFormat format) throws IOException {
-    Schema schema = getSchema(ctx);
-    if (schema == null) {
-      throw new MolgenisException("Schema " + ctx.pathParam("schema") + " was not found");
+    format = selectFormat(ctx, format);
+    ctx.contentType(format.getDefaultMIMEType());
+    String baseUrl = extractBaseURL(ctx);
+    try (OutputStream outputStream = ctx.outputStream()) {
+      try (RdfRootService rdf = new RdfRootService(baseUrl, format, outputStream)) {
+        db.tx(
+            database -> {
+              for (int i = 0; i < schemas.length; i++) {
+                schemas[i] = (db.getSchema(schemaNamesArr[i]));
+              }
+              rdf.getGenerator().generate(List.of(schemas));
+            });
+      }
+      outputStream.flush();
     }
-    runService(ctx, format, null, null, null, schema);
   }
 
-  private static void rdfForTable(Context ctx, RDFFormat format) throws IOException {
-    Table table = getTableByIdOrName(ctx);
-    runService(ctx, format, table, null, null, table.getSchema());
+  private static void rdfForSchema(Context ctx, RDFFormat format)
+      throws IOException, NoSuchMethodException {
+    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
+    Schema schema = getSchema(ctx);
+    runService(ctx, format, method, schema);
   }
 
-  private static void rdfForColumn(Context ctx, RDFFormat format) throws IOException {
+  private static void rdfForTable(Context ctx, RDFFormat format)
+      throws IOException, NoSuchMethodException {
+    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class);
     Table table = getTableByIdOrName(ctx);
-    String columnName = sanitize(ctx.pathParam("column"));
-    runService(ctx, format, table, null, columnName, table.getSchema());
+    runService(ctx, format, method, table);
   }
 
-  private static void rdfForRow(Context ctx, RDFFormat format) throws IOException {
+  private static void rdfForRow(Context ctx, RDFFormat format)
+      throws IOException, NoSuchMethodException {
+    Method method =
+        RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class);
     Table table = getTableByIdOrName(ctx);
-    String rowId = sanitize(ctx.pathParam("row"));
-    runService(ctx, format, table, rowId, null, table.getSchema());
+    PrimaryKey primaryKey = PrimaryKey.fromEncodedString(table, sanitize(ctx.pathParam("row")));
+    runService(ctx, format, method, table, primaryKey);
+  }
+
+  private static void rdfForColumn(Context ctx, RDFFormat format)
+      throws IOException, NoSuchMethodException {
+    Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, Column.class);
+    Table table = getTableByIdOrName(ctx);
+    Column column = column(sanitize(ctx.pathParam("column")));
+    runService(ctx, format, method, table, column);
   }
 
   private static void runService(
-      final Context ctx,
-      final RDFFormat format,
-      final Table table,
-      final String rowId,
-      final String columnName,
-      final Schema... schemas)
-      throws IOException {
-    RDFService rdf = new RDFService(extractBaseURL(ctx), selectFormat(ctx, format));
-    ctx.contentType(rdf.getMimeType());
+      final Context ctx, RDFFormat format, Method method, Object... methodArgs) throws IOException {
+    format = selectFormat(ctx, format);
+    ctx.contentType(format.getDefaultMIMEType());
+    String baseUrl = extractBaseURL(ctx);
 
-    OutputStream outputStream = ctx.outputStream();
-    rdf.describeAsRDF(outputStream, table, rowId, columnName, schemas);
-    outputStream.flush();
-    outputStream.close();
+    try (OutputStream out = ctx.outputStream()) {
+      try (RdfSchemaService rdfService = new RdfSchemaService(baseUrl, format, out)) {
+        method.invoke(rdfService.getGenerator(), methodArgs);
+      } catch (InvocationTargetException | IllegalAccessException e) {
+        // Any exceptions thrown should purely be due to bugs in this specific code.
+        throw new RuntimeException(
+            "An error occurred while trying to run the RDF API: " + e.getCause());
+      }
+      out.flush();
+    }
   }
 
   private static RDFFormat selectFormat(Context ctx, RDFFormat format) {

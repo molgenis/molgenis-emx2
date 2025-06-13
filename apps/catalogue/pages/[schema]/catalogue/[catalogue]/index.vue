@@ -12,8 +12,6 @@ const catalogueRouteParam = route.params.catalogue;
 const scoped = route.params.catalogue !== "all";
 const catalogue = scoped ? route.params.catalogue : undefined;
 
-useHead({ title: scoped ? `${catalogue} Catalogue` : "Catalogue" });
-
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;
   return routeSetting == "true" || config.public.cohortOnly;
@@ -210,6 +208,16 @@ const description = computed(() => {
   }
 });
 
+useHead({
+  title: scoped ? `${catalogue} Catalogue` : "Catalogue",
+  meta: [
+    {
+      name: "description",
+      content: scoped ? network.value?.description : description.value,
+    },
+  ],
+});
+
 const collectionCount = computed(() => data.value.data?.Collections_agg?.count);
 const networkCount = computed(() => data.value.data?.Networks_agg?.count);
 
@@ -293,7 +301,7 @@ const aboutLink = `/${route.params.schema}/catalogue/${catalogueRouteParam}/netw
       >
         <b>
           {{
-            new Intl.NumberFormat("nl-NL").format(
+            new Intl.NumberFormat("en-GB").format(
               data.data.Collections_agg?._sum?.numberOfParticipants
             )
           }}
@@ -314,7 +322,7 @@ const aboutLink = `/${route.params.schema}/catalogue/${catalogueRouteParam}/netw
       >
         <b
           >{{
-            new Intl.NumberFormat("nl-NL").format(
+            new Intl.NumberFormat("en-GB").format(
               data.data.Collections_agg?._sum?.numberOfParticipantsWithSamples
             )
           }}

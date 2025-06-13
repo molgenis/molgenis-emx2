@@ -37,7 +37,10 @@ if (data.value?.data?.Subpopulations?.length === 0) {
 }
 
 const subpopulation = data.value?.data?.Subpopulations?.[0] as ISubpopulations;
-useHead({ title: subpopulation.name });
+useHead({
+  title: subpopulation.name,
+  meta: [{ name: "description", content: subpopulation.description }],
+});
 
 const cohortOnly = computed(() => {
   const routeSetting = route.query["cohort-only"] as string;

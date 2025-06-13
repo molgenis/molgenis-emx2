@@ -16,6 +16,7 @@ public class GraphqlConstants {
   public static final String KEY = "key";
   public static final String PASSWORD = "password";
   public static final String ENABLED = "enabled";
+  public static final String ADMIN = "admin";
   public static final String EMAIL = "email";
   public static final String NAME = "name";
   public static final String LOCALE = "locale";

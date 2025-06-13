@@ -25,15 +25,58 @@ public class CatalogueSiteMapTest {
     CatalogueSiteMap catalogueSiteMap = new CatalogueSiteMap(schema, "https://my/base/url");
 
     String expected =
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            + "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" >\n"
-            + "  <url>\n"
-            + "    <loc>https://my/base/url/catalogue/all/collections/my-id</loc>\n"
-            + "  </url>\n"
-            + "  <url>\n"
-            + "    <loc>https://my/base/url/catalogue/all/networks/my-second-id</loc>\n"
-            + "  </url>\n"
-            + "</urlset>";
+        """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" >
+      <url>
+        <loc>https://my/base/url/catalogue/all/collections/my-id</loc>
+      </url>
+      <url>
+        <loc>https://my/base/url/catalogue/all/networks/my-second-id</loc>
+      </url>
+    </urlset>""";
+    assertEquals(expected, catalogueSiteMap.buildSiteMap());
+  }
+
+  @Test
+  void buildSiteMapForSchemaWithVariables() {
+    Schema schema = mock(Schema.class);
+    Table resourceTable = mock(Table.class);
+    Table variableTable = mock(Table.class);
+    Query resourceQuery = mock(Query.class);
+    Query variableQuery = mock(Query.class);
+    List<Row> resourceRows =
+        List.of(
+            new Row("id", "my-id", "type", "Data source"),
+            new Row("id", "my-second-id", "type", "Network"));
+    List<Row> variableRows =
+        List.of(new Row("name", "Var name", "resource", "lifetime", "dataset", "core"));
+
+    when(schema.getTable("Resources")).thenReturn(resourceTable);
+    when(schema.getTable("Variables")).thenReturn(variableTable);
+    when(resourceTable.select(any(), any())).thenReturn(resourceQuery);
+    when(resourceQuery.retrieveRows()).thenReturn(resourceRows);
+
+    when(schema.query("Variables")).thenReturn(variableQuery);
+    when(variableQuery.select(any(), any(), any())).thenReturn(variableQuery);
+    when(variableQuery.where(any())).thenReturn(variableQuery);
+    when(variableQuery.retrieveRows()).thenReturn(variableRows);
+    CatalogueSiteMap catalogueSiteMap = new CatalogueSiteMap(schema, "https://my/base/url");
+
+    String expected =
+        """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" >
+      <url>
+        <loc>https://my/base/url/catalogue/all/collections/my-id</loc>
+      </url>
+      <url>
+        <loc>https://my/base/url/catalogue/all/networks/my-second-id</loc>
+      </url>
+      <url>
+        <loc>https://my/base/url/catalogue/all/variables/Var%20name-lifetime-core-lifetime?keys=%7B%22name%22%3A%22Var+name%22%2C%22resource%22%3A%7B%22id%22%3A%22lifetime%22%7D%2C%22dataset%22%3A%7B%22name%22%3A%22core%22%2C%22resource%22%3A%7B%22id%22%3A%22lifetime%22%7D%7D%7D</loc>
+      </url>
+    </urlset>""";
     assertEquals(expected, catalogueSiteMap.buildSiteMap());
   }
 
