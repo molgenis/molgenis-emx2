@@ -204,7 +204,7 @@ Resources,,interventions,text,,,,,,,,,A short description of the study intervent
 Resources,,comparators,text,,,,,,,,,A short description of the study comparators,EMA,,
 Resources,,outcomes,text,,,,,,,,,A short description of the study outcomes,EMA,,
 Resources,,results,text,,,,,,,,,A brief summary of the results of the study on study completion (e.g. from abstract),"DataCatalogueFlat,EMA,StudiesStaging",,
-Resources,,topic,ontology_array,,,CatalogueOntologies,Study topics,,,,dcat:theme,An initial classification of the study purpose,EMA,,
+Resources,,topic,ontology_array,,,CatalogueOntologies,Study topics,,,,dcat:healthTheme,An initial classification of the study purpose,EMA,,
 Resources,,topic other,text,,,,,,,,dcat:keyword,"If the study is not concerning any of the proposed categories, please specify the details",EMA,,
 Resources,,trial regulatory scope,ontology_array,,,CatalogueOntologies,Study trial regulatory scopes,,,,,Classification of the clinical trial in relation to the medicines authorisation,EMA,,
 Resources,,study design classification,ontology_array,,,CatalogueOntologies,Study design classification,,,,,Study design classifications,EMA,,
