@@ -28,7 +28,7 @@ public abstract class ComplianceTest {
     new ImportProfileTask(schema, profile, true).run();
     OutputStream outputStream = new ByteArrayOutputStream();
     try (RdfSchemaService rdf =
-        new RdfSchemaService("http://localhost:8080", RDFFormat.TURTLE, outputStream)) {
+        new RdfSchemaService("http://localhost:8080", schema, RDFFormat.TURTLE, outputStream)) {
       rdf.getGenerator().generate(schema);
     }
     return outputStream.toString();

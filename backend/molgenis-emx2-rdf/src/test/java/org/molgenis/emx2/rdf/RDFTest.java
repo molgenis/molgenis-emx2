@@ -1488,7 +1488,7 @@ example,http://example.com/
     InMemoryRDFHandler handler = new InMemoryRDFHandler();
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, RDFFormat.TURTLE, outputStream)) {
+          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(schema);
       }
       parseResultString(handler, outputStream.toString());
@@ -1502,7 +1502,7 @@ example,http://example.com/
     InMemoryRDFHandler handler = new InMemoryRDFHandler();
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, RDFFormat.TURTLE, outputStream)) {
+          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(table);
       }
       parseResultString(handler, outputStream.toString());
@@ -1518,7 +1518,7 @@ example,http://example.com/
     InMemoryRDFHandler handler = new InMemoryRDFHandler();
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, RDFFormat.TURTLE, outputStream)) {
+          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(table, primaryKey);
       }
       parseResultString(handler, outputStream.toString());
@@ -1534,7 +1534,7 @@ example,http://example.com/
     InMemoryRDFHandler handler = new InMemoryRDFHandler();
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, RDFFormat.TURTLE, outputStream)) {
+          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(table, column);
       }
       parseResultString(handler, outputStream.toString());

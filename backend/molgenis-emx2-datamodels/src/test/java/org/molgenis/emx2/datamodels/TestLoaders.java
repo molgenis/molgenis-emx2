@@ -63,7 +63,8 @@ public class TestLoaders {
     // create rdf in memory
     OutputStream outputStream = new ByteArrayOutputStream();
     try (RdfSchemaService rdf =
-        new RdfSchemaService("http://localhost:8080", RDFFormat.TURTLE, outputStream)) {
+        new RdfSchemaService(
+            "http://localhost:8080", dataCatalogue, RDFFormat.TURTLE, outputStream)) {
       rdf.getGenerator().generate(dataCatalogue);
     }
 
