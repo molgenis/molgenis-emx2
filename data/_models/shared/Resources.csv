@@ -71,10 +71,10 @@ Resources,,population not covered,text,,,,,,,,,"Description of the population co
 Resources,,counts,refback,,,,Resource counts,,resource,,,Counts of e.g. samples defined for this resource,"DataCatalogueFlat,RWEStaging,StudiesStaging,INTEGRATE",,
 Resources,,contributors,heading,,,,,,,,,List of relevant collaborations,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
 Resources,,contact point,ref,,,,Contacts,resource,,,dcat:contactPoint,Primary contact point for this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",,
-Resources,,other contributors,ref_array,,,,Contacts,resource,,,,Persons that contributed to this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",,
+Resources,,persons involved,ref_array,,,,Contacts,resource,,,,Persons that contributed to this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",,
 Resources,,organisations involved,refback,,,,Organisations,,resource,,,Organisations involved and their role(s),"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",,
 Resources,,publisher,ref,,,,Organisations,,,,dcterms:publisher,This attribute is written during migration of data from staging areas and used to produce valid dcat output. Organisation that published this resource,DataCatalogueFlat,,
-Resources,,creator,ref_array,,,,Organisations,,,,dcterms:creator,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. Organisation(s) that created this resource,DataCatalogueFlat,,
+Resources,,creator,ref_array,,,,Organisations,,,,dcterms:creator,People or organisation(s) that created this resource,DataCatalogueFlat,,
 Resources,,networks involved,refback,,,,Resources,,resources,,,The consortia or networks that this resource is part of,"DataCatalogueFlat,EMA",,
 Resources,,networks other,text,,,,,,,,,List the names of any other networks that are not listed and this resource is involved in,EMA,,
 Resources,,available data and samples,heading,,,,,,,,,Data model and contents,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging",,
@@ -211,4 +211,4 @@ Resources,,study design classification,ontology_array,,,CatalogueOntologies,Stud
 Resources,,study design classification other,text,,,,,,,,,Further details on design,EMA,,
 Resources,,study scope,ontology_array,,,CatalogueOntologies,Study scopes,,,,,Scope of the study,EMA,,
 Resources,,study scope other,text,,,,,,,,,If scope 'other',EMA,,
-Resources,,theme,hyperlink_array,,,,,,,,dcat:theme,A main category of the resource. A resource can have multiple themes.,DataCatalogueFlat,,
+Resources,,theme,hyperlink_array,,,,,,,,dcat:theme,"A main category of the resource. A resource can have multiple themes, for health data theme must at least take the value HEALTH",DataCatalogueFlat,,http://publications.europa.eu/resource/authority/data-theme/HEAL
