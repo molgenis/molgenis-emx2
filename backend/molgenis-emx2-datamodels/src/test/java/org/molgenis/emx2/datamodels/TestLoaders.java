@@ -67,10 +67,9 @@ public class TestLoaders {
       rdf.getGenerator().generate(dataCatalogue);
     }
 
-    // check compliance
+    // check compliance - when compliant, add: DCAT_AP_SHACL_FILES and HEALTH_RI_V2_SHACL_FILES
     testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
-    // testShaclCompliance(DCAT_AP_SHACL_FILES, outputStream.toString());
-    testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
+    testShaclCompliance(HEALTH_RI_V1_SHACL_FILES, outputStream.toString());
     testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
   }
 
