@@ -134,6 +134,17 @@ public class TypeUtils {
 
   public static Boolean toBool(Object v) {
     if (v == null) return null; // NOSONAR
+    try {
+      int value = Integer.parseInt(toString(v));
+      if (value == 1) {
+        return true;
+      }
+      if (value == 0) {
+        return false;
+      }
+    } catch (NumberFormatException ignored) {
+
+    }
     if (v instanceof String) {
       String value = toString(v);
       if (value == null) {
