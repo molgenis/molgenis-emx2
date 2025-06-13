@@ -88,7 +88,6 @@
                   v-if="content.dependencies.css.length"
                   v-for="(dependency, index) in content.dependencies.css"
                 >
-                  {{ (index, dependency) }}
                   <div class="d-flex flex-row flex-wrap">
                     <div class="flex-fill mr-4">
                       <label :for="`css-url-${index}`">
