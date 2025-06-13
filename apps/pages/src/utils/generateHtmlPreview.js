@@ -5,31 +5,25 @@ export function generateHtmlPreview(instance, content, ref) {
     const parser = new DOMParser();
     const documentHead = document.getElementsByTagName("head")[0];
 
-    if (content.dependencies && Object.keys(content.dependencies).length) {
-      if (content.dependencies.css) {
-        content.dependencies?.css?.forEach((dependency) => {
-          if (dependency.url) {
-            const elem = document.createElement("link");
-            elem.href = dependency.url;
-            elem.rel = "stylesheet";
-            documentHead.appendChild(elem);
-          }
-        });
+    content.dependencies?.css?.forEach((dependency) => {
+      if (dependency.url) {
+        const elem = document.createElement("link");
+        elem.href = dependency.url;
+        elem.rel = "stylesheet";
+        documentHead.appendChild(elem);
       }
+    });
 
-      if (content.dependencies.javascript) {
-        content.dependencies?.javascript?.forEach((dependency) => {
-          if (dependency.url) {
-            const elem = document.createElement("script");
-            elem.src = dependency.url;
-            if (dependency.defer) {
-              elem.defer = true;
-            }
-            documentHead.appendChild(elem);
-          }
-        });
+    content.dependencies?.javascript?.forEach((dependency) => {
+      if (dependency.url) {
+        const elem = document.createElement("script");
+        elem.src = dependency.url;
+        if (dependency.defer) {
+          elem.defer = true;
+        }
+        documentHead.appendChild(elem);
       }
-    }
+    });
 
     if (content.html) {
       const doc = parser.parseFromString(content.html, "text/html");
