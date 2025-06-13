@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.DC;
@@ -338,18 +337,7 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
           }
           case FILE -> {
             getWriter().processTriple(subject, columnIRI, value);
-            IRI fileSubject = (IRI) value;
-            getWriter().processTriple(fileSubject, RDF.TYPE, BasicIRI.SIO_FILE);
-            Literal fileName = Values.literal(row.getString(column.getName() + "_filename"));
-            getWriter().processTriple(fileSubject, RDFS.LABEL, fileName);
-            getWriter().processTriple(fileSubject, DCTERMS.TITLE, fileName);
-            getWriter()
-                .processTriple(
-                    fileSubject,
-                    DCTERMS.FORMAT,
-                    Values.iri(
-                        "http://www.iana.org/assignments/media-types/"
-                            + row.getString(column.getName() + "_mimetype")));
+            generateFileTriples((IRI) value, row, column);
           }
           default -> {
             getWriter().processTriple(subject, columnIRI, value);
