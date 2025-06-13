@@ -26,7 +26,7 @@ Resources,,end year,int,,,,,,,,dcat:endDate,"The year the resource ceased, e.g. 
 Resources,,time span description,text,,,,,,,,,Description of time span,"DataCatalogueFlat,RWEStaging",,
 Resources,,logo,file,,,,,,,,,"Logo of the resource, for use on homepages etc.","DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
 Resources,,status,ontology,,,CatalogueOntologies,Study status,,,,,Status of the study,"DataCatalogueFlat,EMA,StudiesStaging",,
-Resources,,license,hyperlink,,,,,,,,dcterms:license,A legal document under which this catalogue record is made available,DataCatalogueFlat,,
+Resources,,license,hyperlink,,,,,,,,dcterms:license,A legal document under which this catalogue record is made available,"DataCatalogueFlat,NetworksStaging",,
 Resources,,conforms to,hyperlink,,,,,,,,dcterms:conformsTo,The specification of the catalog metadata schema,DataCatalogueFlat,,
 Resources,,has member relation,hyperlink,,,,,,,,"ldp:hasMemberRelation,dcat:record",This relation points to the URI of the custom relation/predicate used to relate the FAIR Data Point with its member catalogs. The object of this property MUST be fdp-o:metadataCatalog.,DataCatalogueFlat,,
 Resources,,issued,datetime,,,,,,,,"dcterms:issued,https://w3id.org/fdp/fdp-o#metadataIssued",When the resource was first published,"DataCatalogueFlat,EMA,RWEStaging,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,NetworksStaging,INTEGRATE",,
