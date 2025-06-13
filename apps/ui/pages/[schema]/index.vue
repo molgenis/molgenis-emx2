@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { useFetch } from "#app/composables/fetch";
 import { useRoute, navigateTo } from "#app/composables/router";
+import { useHead } from "#app";
 import { computed } from "vue";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
   ? route.params.schema[0]
   : route.params.schema;
+
+useHead({ title: `${schema}  - Molgenis` });
 
 type Resp<T> = {
   data: Record<string, T>;
