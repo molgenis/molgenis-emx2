@@ -301,7 +301,7 @@ const aboutLink = `/${route.params.schema}/catalogue/${catalogueRouteParam}/netw
       >
         <b>
           {{
-            new Intl.NumberFormat("nl-NL").format(
+            new Intl.NumberFormat("en-GB").format(
               data.data.Collections_agg?._sum?.numberOfParticipants
             )
           }}
@@ -322,7 +322,7 @@ const aboutLink = `/${route.params.schema}/catalogue/${catalogueRouteParam}/netw
       >
         <b
           >{{
-            new Intl.NumberFormat("nl-NL").format(
+            new Intl.NumberFormat("en-GB").format(
               data.data.Collections_agg?._sum?.numberOfParticipantsWithSamples
             )
           }}

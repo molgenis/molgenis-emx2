@@ -6,6 +6,8 @@
   --color-umcg-mid-blue: #476ca8;
   --color-umcg-light-blue: #017ffd;
 
+  --text-color-logo-text: var(--color-umcg-dark-blue);
+
   --box-shadow-primary: none;
   --box-shadow-search-input: none;
   --box-shadow-pagination-gray: none;

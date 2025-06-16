@@ -42,12 +42,12 @@ public enum DefaultNamespace {
 
   private final Namespace namespace;
 
-  public Namespace getNamespace() {
-    return namespace;
-  }
-
   DefaultNamespace(String prefix, String namespace) {
     this.namespace = new SimpleNamespace(prefix, namespace);
+  }
+
+  public Namespace getNamespace() {
+    return namespace;
   }
 
   public static Stream<Namespace> streamAll() {
