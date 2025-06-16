@@ -31,6 +31,7 @@ from .model import (
 )
 from .utils import create_csv
 
+csv.field_size_limit(1000000)
 
 @dataclass
 class AttributesRequest:
