@@ -1,6 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Organisations,,,,,,,,,,,,,Patient registry
 Organisations,,name,string,1,TRUE,,,,,,,,Patient registry
+Organisations,,label,string,,,,,,,,,,Patient registry
 Organisations,,parent,ref,,,,Organisations,,,,,,Patient registry
 Organisations,,codesystem,string,,,,,,,,,,Patient registry
 Organisations,,code,string,,,,,,,,,,Patient registry
