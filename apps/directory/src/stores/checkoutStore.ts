@@ -373,24 +373,27 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   }
 
   async function doNegotiatorV1Request() {
-    const { negotiatorUrl, negotiatorUsername, negotiatorPassword } =
+    const { negotiatorUsername, negotiatorPassword, negotiatorUrl } =
       settingsStore.config;
     const humanReadable = getHumanReadableString() + createHistoryJournal();
     const collections: any[] = getV1CollectionsToSend();
     const URL = window.location.href.replace(/&nToken=\w{32}/, "");
-    const payload: Record<string, any> = { URL, humanReadable, collections };
+    const payload: Record<string, any> = {
+      podiumUrl: negotiatorUrl,
+      podiumUsername: negotiatorUsername,
+      podiumPassword: negotiatorPassword,
+      payload: { URL, humanReadable, collections },
+    };
 
     if (nToken.value) {
       payload.nToken = nToken.value;
     }
 
-    const response = await fetch(negotiatorUrl, {
+    const response = await fetch(`/api/podium`, {
       method: "POST",
       redirect: "follow",
       headers: {
         "Content-Type": "application/json",
-        Authorization:
-          "Basic " + btoa(`${negotiatorUsername}:${negotiatorPassword}`),
       },
       body: JSON.stringify(payload),
     });
