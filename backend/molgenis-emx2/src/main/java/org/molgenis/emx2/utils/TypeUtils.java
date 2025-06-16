@@ -139,10 +139,10 @@ public class TypeUtils {
       if (value == null) {
         return null; // NOSONAR
       }
-      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value)) {
+      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || value.equals("1")) {
         return true;
       }
-      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value)) {
+      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value) || value.equals("0")) {
         return false;
       }
     }
