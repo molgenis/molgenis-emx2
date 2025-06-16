@@ -133,18 +133,4 @@ class InMemoryRDFHandler implements RDFHandler {
 
   @Override
   public void handleComment(String comment) throws RDFHandlerException {}
-
-  @Override
-  public boolean equals(Object object) {
-    if (this == object) return true;
-    if (object == null || getClass() != object.getClass()) return false;
-    InMemoryRDFHandler handler = (InMemoryRDFHandler) object;
-    return Objects.equals(resources, handler.resources)
-        && Objects.equals(namespaces, handler.namespaces);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(resources, namespaces);
-  }
 }
