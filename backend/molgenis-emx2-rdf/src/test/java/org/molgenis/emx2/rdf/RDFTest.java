@@ -15,8 +15,10 @@ import static org.molgenis.emx2.rdf.RdfUtils.SETTING_SEMANTIC_PREFIXES;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +40,6 @@ import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.RDFHandler;
 import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.Rio;
 import org.junit.jupiter.api.AfterAll;
@@ -422,6 +423,14 @@ public class RDFTest {
     database.dropSchema(refBackTest.getName());
     database.dropSchema(refLinkTest.getName());
     database.dropSchema(semanticTest.getName());
+  }
+
+  @Test
+  void testPetStoreRdf() throws IOException {
+    InMemoryRDFHandler expected = parseFile("rdf_files/emx2_rdf/pet_store_schema.ttl");
+    InMemoryRDFHandler actual = parseSchemaRdf(petStore_nr1);
+
+    CustomAssertions.equals(expected, actual);
   }
 
   @Test
@@ -1479,9 +1488,8 @@ example,http://example.com/
           new RdfRootService(BASE_URL, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(schemas);
       }
-      parseResultString(handler, outputStream.toString());
+      return parseResult(new StringReader(outputStream.toString()));
     }
-    return handler;
   }
 
   private InMemoryRDFHandler parseSchemaRdf(Schema schema) throws IOException {
@@ -1491,9 +1499,8 @@ example,http://example.com/
           new RdfSchemaService(BASE_URL, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(schema);
       }
-      parseResultString(handler, outputStream.toString());
+      return parseResult(new StringReader(outputStream.toString()));
     }
-    return handler;
   }
 
   private InMemoryRDFHandler parseTableRdf(Schema schema, String tableName) throws IOException {
@@ -1505,9 +1512,8 @@ example,http://example.com/
           new RdfSchemaService(BASE_URL, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(table);
       }
-      parseResultString(handler, outputStream.toString());
+      return parseResult(new StringReader(outputStream.toString()));
     }
-    return handler;
   }
 
   private InMemoryRDFHandler parseRowRdf(Schema schema, String tableName, String rowId)
@@ -1521,9 +1527,8 @@ example,http://example.com/
           new RdfSchemaService(BASE_URL, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(table, primaryKey);
       }
-      parseResultString(handler, outputStream.toString());
+      return parseResult(new StringReader(outputStream.toString()));
     }
-    return handler;
   }
 
   private InMemoryRDFHandler parseColumnRdf(Schema schema, String tableName, String columnName)
@@ -1537,15 +1542,23 @@ example,http://example.com/
           new RdfSchemaService(BASE_URL, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(table, column);
       }
-      parseResultString(handler, outputStream.toString());
+      return parseResult(new StringReader(outputStream.toString()));
     }
-    return handler;
   }
 
-  private void parseResultString(RDFHandler handler, String result) throws IOException {
+  private InMemoryRDFHandler parseFile(String filePath) throws IOException {
+    try (FileReader reader =
+        new FileReader(new File(classLoader.getResource(filePath).getFile()))) {
+      return parseResult(reader);
+    }
+  }
+
+  private InMemoryRDFHandler parseResult(Reader reader) throws IOException {
+    InMemoryRDFHandler handler = new InMemoryRDFHandler();
     RDFParser parser = Rio.createParser(RDFFormat.TURTLE);
     parser.setRDFHandler(handler);
-    parser.parse(new StringReader(result));
+    parser.parse(reader);
+    return handler;
   }
 
   private enum ValidationTriple {
