@@ -21,6 +21,9 @@ import org.slf4j.LoggerFactory;
 public abstract class RdfUtils {
   private static final Logger logger = LoggerFactory.getLogger(RdfUtils.class);
 
+  // Advanced setting containing the YAML-formatted RDF config.
+  public static final String SETTING_RDF_CONFIG = "rdf_config";
+
   // Advanced setting containing valid Turtle-formatted RDF.
   public static final String SETTING_CUSTOM_RDF = "custom_rdf";
 
