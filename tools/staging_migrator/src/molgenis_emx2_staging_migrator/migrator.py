@@ -271,7 +271,7 @@ class StagingMigrator(Client):
             raw_df = pd.read_csv(BytesIO(archive.read(f"{table.name}.csv")), nrows=1)
 
         columns = raw_df.columns
-        dtypes = {c: t for (c, t) in convert_dtypes(table).items() if c in columns}
+        dtypes = {c: convert_dtypes(table).get(c, "string") for c in columns}
 
         bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
         date_columns = [c.name for c in table.columns
