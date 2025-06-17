@@ -160,12 +160,13 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     }
     getWriter().processTriple(subject, RDFS.LABEL, Values.literal(table.getName()));
 
-    if (table.getMetadata().getDescriptions() != null
-        && !table.getMetadata().getDescriptions().isEmpty()) {
+    if (table.getMetadata().getDescriptions() != null) {
       for (final var entry : table.getMetadata().getDescriptions().entrySet()) {
-        getWriter()
-            .processTriple(
-                subject, DCTERMS.DESCRIPTION, Values.literal(entry.getValue(), entry.getKey()));
+        if (!entry.getValue().isEmpty()) {
+          getWriter()
+              .processTriple(
+                  subject, DCTERMS.DESCRIPTION, Values.literal(entry.getValue(), entry.getKey()));
+        }
       }
     }
   }
