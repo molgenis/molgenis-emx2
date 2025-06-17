@@ -391,7 +391,6 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     const response = await fetch(`/api/podium`, {
       method: "POST",
-      redirect: "follow",
       headers: {
         "Content-Type": "application/json",
       },
