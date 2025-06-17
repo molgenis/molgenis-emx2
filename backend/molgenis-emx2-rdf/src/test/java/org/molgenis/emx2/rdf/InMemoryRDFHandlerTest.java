@@ -4,6 +4,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 class InMemoryRDFHandlerTest {
+  // See text behind "#" for inline explanations
   private final String rdfInput =
       """
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
@@ -12,14 +13,18 @@ class InMemoryRDFHandlerTest {
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <http://localhost:8080/pet%20store/api/rdf/User/username=bofke> rdfs:label "bofke";
+  # "a11ac033b28f42dd9760547d622e5eea" should be changed to "8hlbnm.jpg" to enable easy comparison
   foaf:img <http://localhost:8080/pet%20store/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>;
   <http://localhost:8080/pet%20store/api/rdf/User/column/picture> <http://localhost:8080/pet%20store/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>;
+  # custom date should not change
   <http://localhost:8080/pet%20store/api/rdf/User/column/customDate> "2025-06-16T15:01:15"^^xsd:dateTime;
+  # dcterms/"mg_" columns related to creation/modification date should change
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/pet%20store/api/rdf/User/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/pet%20store/api/rdf/User/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
+# "a11ac033b28f42dd9760547d622e5eea" should be changed to "8hlbnm.jpg" to enable easy comparison
 <http://localhost:8080/pet%20store/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea> rdfs:label "8hlbnm.jpg";
   dcterms:title "8hlbnm.jpg";
   dcterms:format <http://www.iana.org/assignments/media-types/image/jpeg> .
@@ -46,9 +51,11 @@ class InMemoryRDFHandlerTest {
   dcterms:format <http://www.iana.org/assignments/media-types/image/jpeg> .
 """;
 
+  // See text behind "#" for inline explanations
   private final String rdfNoFileLabelInput =
       """
 <http://localhost:8080/pet%20store/api/rdf/User/username=bofke>
+  # as no extra data is present for "a11ac033b28f42dd9760547d622e5eea", replace with "identicalFileIRI"
   <http://localhost:8080/pet%20store/api/rdf/User/column/picture> <http://localhost:8080/pet%20store/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea> .
 """;
 
