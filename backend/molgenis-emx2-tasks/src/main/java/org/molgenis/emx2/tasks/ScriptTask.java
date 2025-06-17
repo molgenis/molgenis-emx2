@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipOutputStream;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
@@ -155,9 +156,24 @@ public class ScriptTask extends Task {
     Files.writeString(tempScriptFile, this.script);
     Path requirementsFile = Files.createFile(tempDir.resolve("requirements.txt"));
     Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
-    Path zipFilePath = Files.createFile(tempDir.resolve("zip.zip"));
-    //    Files.write(zipFilePath, this.zipFile != null ? this.zipFile :
-    // "".getBytes(StandardCharsets.UTF_8));
+
+    String zipFileName;
+    byte[] zipFileContent;
+    if (this.zipFile.get("zipFile") != null) {
+      zipFileName = this.zipFile.get("zipFile_filename").toString();
+      zipFileContent =
+//              TODO: get the contents through another way
+          this.zipFile.get("zipFile_contents") != null
+              ? (byte[]) this.zipFile.get("zipFile_contents")
+              : new byte[0];
+    } else {
+      zipFileName = "zip.zip";
+      zipFileContent = new byte[0];
+    }
+    Path zipFilePath = tempDir.resolve(zipFileName);
+    ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zipFilePath.toFile()));
+    zip.write(zipFileContent);
+    zip.close();
 
     // define commands (given tempDir as working directory)
     String createVenvCommand = "python3 -m venv venv";
@@ -254,7 +270,8 @@ public class ScriptTask extends Task {
   public ScriptTask zipFile(Row scriptMetaData) {
     this.zipFile = new HashMap<>();
     this.zipFile.put("zipFile", scriptMetaData.getString("zipFile"));
-    this.zipFile.put("zipFile_mimetype", scriptMetaData.getString("zipFile)_mimetype"));
+    this.zipFile.put("zipFile_mimetype", scriptMetaData.getString("zipFile_mimetype"));
+    this.zipFile.put("zipFile_filename", scriptMetaData.getString("zipFile_filename"));
     this.zipFile.put("zipFile_extension", scriptMetaData.getString("zipFile_extension"));
     this.zipFile.put("zipFile_size", scriptMetaData.getString("zipFile_size"));
     this.zipFile.put("zipFile_contents", scriptMetaData.getBinary("zipFile_contents"));
