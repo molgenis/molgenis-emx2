@@ -30,17 +30,12 @@ public abstract class CustomAssertions {
         if (!expected.resources.containsKey(subject)) {
           failureBuilder
               .message("Actual contains unexpected subject")
-              .expected("")
               .actual(subject)
               .buildAndThrow();
         }
 
         if (!actual.resources.containsKey(subject)) {
-          failureBuilder
-              .message("Actual missing subject")
-              .expected(subject)
-              .actual("")
-              .buildAndThrow();
+          failureBuilder.message("Actual missing subject").expected(subject).buildAndThrow();
         }
 
         Map<IRI, Set<Value>> expectedPredicateMaps = expected.resources.get(subject);
