@@ -35,9 +35,9 @@ class InMemoryRDFHandler implements RDFHandler {
   private static final DatatypeFactory datatypeFactory;
   private static final XMLGregorianCalendar REPLACEMENT_DATE;
 
+  private boolean fixValuesForComparison = true;
   private final Map<Value, Value> fileIriMappings = new HashMap<>();
 
-  private boolean fixValuesForComparison = true;
   public Map<Resource, Map<IRI, Set<Value>>> resources = new HashMap<>();
   public Set<Namespace> namespaces = new HashSet<>();
 
