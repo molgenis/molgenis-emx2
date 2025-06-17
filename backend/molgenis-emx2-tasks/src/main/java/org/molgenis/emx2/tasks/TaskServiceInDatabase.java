@@ -6,6 +6,7 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.utils.TypeUtils.millisecondsToLocalDateTime;
 
@@ -126,8 +127,22 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
     if (rows.size() != 1) {
       throw new MolgenisException("Script " + scriptName + " not found");
     }
+    Row scriptMetadata = rows.getFirst();
 
-    Row scriptMetadata = rows.get(0);
+    String columnName = "zipFile";
+    String fileId = scriptMetadata.getString("zipFile");
+    List<Row> fileRows =
+        systemSchema
+            .getTable("Scripts")
+            .query()
+            .select(s(columnName, s("contents"), s("mimetype"), s("filename"), s("extension")))
+            .where(f(columnName, f("id", EQUALS, fileId)))
+            .retrieveRows();
+    byte[] fileContents = new byte[0];
+    if (!fileRows.isEmpty()) {
+      fileContents = fileRows.getFirst().getBinary(columnName + "_contents");
+    }
+    scriptMetadata.set(columnName + "_contents", fileContents);
     return new ScriptTask(scriptMetadata);
   }
 
