@@ -1,10 +1,13 @@
 package org.molgenis.emx2.rdf;
 
+import static javax.xml.datatype.DatatypeConstants.FIELD_UNDEFINED;
 import static org.molgenis.emx2.Constants.API_FILE;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
@@ -29,11 +32,26 @@ import org.eclipse.rdf4j.rio.RDFHandlerException;
  * This behaviour can be disabled by calling the constructor with `false`.
  */
 class InMemoryRDFHandler implements RDFHandler {
+  private static final DatatypeFactory datatypeFactory;
+  private static final XMLGregorianCalendar REPLACEMENT_DATE;
+
   private final Map<Value, Value> fileIriMappings = new HashMap<>();
 
   private boolean fixValuesForComparison = true;
   public Map<Resource, Map<IRI, Set<Value>>> resources = new HashMap<>();
   public Set<Namespace> namespaces = new HashSet<>();
+
+  static {
+    try {
+      datatypeFactory = DatatypeFactory.newInstance();
+    } catch (DatatypeConfigurationException e) {
+      throw new RuntimeException(e);
+    }
+
+    REPLACEMENT_DATE =
+        datatypeFactory.newXMLGregorianCalendar(
+            2021, 2, 8, 12, 15, 0, FIELD_UNDEFINED, FIELD_UNDEFINED);
+  }
 
   InMemoryRDFHandler() {}
 
@@ -58,7 +76,7 @@ class InMemoryRDFHandler implements RDFHandler {
             || predicate.equals(DCTERMS.MODIFIED)
             || predicate.stringValue().endsWith("/column/mg_insertedOn")
             || predicate.stringValue().endsWith("/column/mg_updatedOn"))) {
-      object = Values.literal(LocalDateTime.parse("2021-02-08T12:15:00"));
+      object = Values.literal(REPLACEMENT_DATE);
     }
 
     addStatement(subject, predicate, object);
