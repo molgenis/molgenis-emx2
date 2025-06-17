@@ -35,9 +35,9 @@ class InMemoryRDFHandler implements RDFHandler {
   public Map<Resource, Map<IRI, Set<Value>>> resources = new HashMap<>();
   public Set<Namespace> namespaces = new HashSet<>();
 
-  public InMemoryRDFHandler() {}
+  InMemoryRDFHandler() {}
 
-  public InMemoryRDFHandler(boolean fixValuesForComparison) {
+  InMemoryRDFHandler(boolean fixValuesForComparison) {
     this.fixValuesForComparison = fixValuesForComparison;
   }
 
