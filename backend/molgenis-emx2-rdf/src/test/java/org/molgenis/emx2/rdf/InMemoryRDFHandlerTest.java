@@ -47,7 +47,7 @@ class InMemoryRDFHandlerTest {
 """;
 
   @Test
-  void handleWithComparisonFix() throws IOException {
+  void testRdfComparisonFixChanges() throws IOException {
     InMemoryRDFHandler handlerFixedString = new InMemoryRDFHandler(false);
     RdfParser.parseString(handlerFixedString, rdfExampleAfterFix);
 
