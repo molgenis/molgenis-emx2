@@ -127,8 +127,8 @@ class InMemoryRDFHandler implements RDFHandler {
   }
 
   private Resource createNewIri(Value value, String identifier) {
-    String[] split = value.stringValue().split(API_FILE);
-    return Values.iri(split[0] + API_FILE + "/" + identifier);
+    int lastSlashPos = value.stringValue().lastIndexOf("/");
+    return Values.iri(value.stringValue().substring(0, lastSlashPos + 1) + identifier);
   }
 
   @Override
