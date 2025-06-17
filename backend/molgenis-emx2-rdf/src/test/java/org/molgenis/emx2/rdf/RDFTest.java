@@ -10,16 +10,18 @@ import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_GRANDCHILD1_
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_GRANDCHILD1_SECOND;
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_ROOT1_FIRST;
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_ROOT2_FIRST;
+import static org.molgenis.emx2.rdf.RdfParser.BASE_URL;
+import static org.molgenis.emx2.rdf.RdfParser.parseColumnRdf;
+import static org.molgenis.emx2.rdf.RdfParser.parseFile;
+import static org.molgenis.emx2.rdf.RdfParser.parseRdfRoot;
+import static org.molgenis.emx2.rdf.RdfParser.parseRdfSchema;
+import static org.molgenis.emx2.rdf.RdfParser.parseRowRdf;
+import static org.molgenis.emx2.rdf.RdfParser.parseTableRdf;
 import static org.molgenis.emx2.rdf.RdfUtils.SETTING_CUSTOM_RDF;
 import static org.molgenis.emx2.rdf.RdfUtils.SETTING_SEMANTIC_PREFIXES;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -39,9 +41,6 @@ import org.eclipse.rdf4j.model.vocabulary.OWL;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
-import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.RDFParser;
-import org.eclipse.rdf4j.rio.Rio;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -57,7 +56,6 @@ public class RDFTest {
    */
   public static final String POOKY_ROWID = "name=pooky";
 
-  static final String BASE_URL = "http://localhost:8080";
   static final String RDF_API_LOCATION = "/api/rdf";
 
   static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
@@ -427,15 +425,19 @@ public class RDFTest {
 
   @Test
   void testPetStoreRdf() throws IOException {
-    InMemoryRDFHandler expected = parseFile("rdf_files/emx2_rdf/pet_store_schema.ttl");
-    InMemoryRDFHandler actual = parseSchemaRdf(petStore_nr1);
+    InMemoryRDFHandler expected = new InMemoryRDFHandler();
+    parseFile(expected, "rdf_files/emx2_rdf/pet_store_schema.ttl");
+
+    InMemoryRDFHandler actual = new InMemoryRDFHandler();
+    parseRdfSchema(actual, petStore_nr1);
 
     CustomAssertions.equals(expected, actual);
   }
 
   @Test
   void testThatColumnsAreAProperty() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfSchema(handler, petStore_nr1);
 
     assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
@@ -454,7 +456,8 @@ public class RDFTest {
 
   @Test
   void testThatTablesAreClasses() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfSchema(handler, petStore_nr1);
 
     assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
@@ -470,7 +473,8 @@ public class RDFTest {
 
   @Test
   void testThatClassesDoNotHaveRangeOrDomain() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfSchema(handler, petStore_nr1);
 
     assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
@@ -490,7 +494,8 @@ public class RDFTest {
 
   @Test
   void testThatColumnsHaveARangeAndDomain() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfSchema(handler, petStore_nr1);
 
     assertFalse(handler.resources.entrySet().isEmpty());
     for (var resource : handler.resources.entrySet()) {
@@ -505,7 +510,8 @@ public class RDFTest {
 
   @Test
   void testThatRDFOnlyIncludesRequestedSchema() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfSchema(handler, petStore_nr1);
 
     assertFalse(handler.resources.keySet().isEmpty());
     for (var resource : handler.resources.keySet()) {
@@ -517,7 +523,8 @@ public class RDFTest {
 
   @Test
   void testThatRDFforColumnOnlyContainsMetadata() throws IOException {
-    InMemoryRDFHandler handler = parseColumnRdf(petStore_nr1, "Pet", "name");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseColumnRdf(handler, petStore_nr1, "Pet", "name");
     List<Value> allowedTypes =
         List.of(
             OWL.CLASS,
@@ -549,7 +556,8 @@ public class RDFTest {
 
   @Test
   void testCompositeKeysPresenceOnFullSchema() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(compositeKeyTest);
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfSchema(handler, compositeKeyTest);
 
     new RdfValidator()
         .add(ValidationTriple.COMP_ROOT1_KEY_REF.getTriple(), true)
@@ -566,9 +574,12 @@ public class RDFTest {
 
   @Test
   void testCompositeKeysRowSelection() throws IOException {
-    InMemoryRDFHandler handler =
-        parseRowRdf(
-            compositeKeyTest, "Child1", "c1a=c1a_second&c1b.gc1a=gc1a_first&c1b.gc1b=gc1b_first");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRowRdf(
+        handler,
+        compositeKeyTest,
+        "Child1",
+        "c1a=c1a_second&c1b.gc1a=gc1a_first&c1b.gc1b=gc1b_first");
 
     new RdfValidator()
         .add(ValidationTriple.COMP_ROOT1_KEY_REF.getTriple(), false)
@@ -585,7 +596,8 @@ public class RDFTest {
 
   @Test
   void testCorrectEndpointIRI() throws IOException {
-    InMemoryRDFHandler handler = parseRowRdf(petStore_nr1, "Pet", POOKY_ROWID);
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRowRdf(handler, petStore_nr1, "Pet", POOKY_ROWID);
 
     Set<Value> endpointIris =
         handler
@@ -601,7 +613,8 @@ public class RDFTest {
 
   @Test
   void testThatInstancesUseReferToDatasetWithTheRightPredicate() throws IOException {
-    InMemoryRDFHandler handler = parseRowRdf(petStore_nr1, "Pet", POOKY_ROWID);
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRowRdf(handler, petStore_nr1, "Pet", POOKY_ROWID);
 
     assertFalse(handler.resources.keySet().isEmpty());
     for (var iri : handler.resources.keySet()) {
@@ -621,7 +634,9 @@ public class RDFTest {
   void testThatColumnPredicatesAreNotSubClasses() throws IOException {
     var database_column = Values.iri("http://semanticscience.org/resource/SIO_000757");
     var measure_property = Values.iri("http://purl.org/linked-data/cube#MeasureProperty");
-    InMemoryRDFHandler handler = parseColumnRdf(petStore_nr1, "Pet", "name");
+
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseColumnRdf(handler, petStore_nr1, "Pet", "name");
 
     assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
@@ -638,7 +653,9 @@ public class RDFTest {
   @Test
   void testThatInstancesAreNotASIODatabaseRow() throws IOException {
     var database_row = Values.iri("http://semanticscience.org/resource/SIO_001187");
-    InMemoryRDFHandler handler = parseRowRdf(petStore_nr1, "Pet", POOKY_ROWID);
+
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRowRdf(handler, petStore_nr1, "Pet", POOKY_ROWID);
 
     assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
@@ -657,7 +674,8 @@ public class RDFTest {
    */
   @Test
   void testThatOntologyTermsAreClasses() throws IOException {
-    InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, ontologyTest, "Diseases");
 
     assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
@@ -670,7 +688,8 @@ public class RDFTest {
 
   @Test
   void testThatOntologyTermsUseRDFSchema() throws IOException {
-    InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, ontologyTest, "Diseases");
 
     assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
@@ -698,7 +717,8 @@ public class RDFTest {
    */
   @Test
   void testThatOntologyTermsDonNotDefineColumnsAsPredicates() throws IOException {
-    InMemoryRDFHandler handler = parseTableRdf(petStore_nr1, "Tag");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, petStore_nr1, "Tag");
 
     assertFalse(handler.resources.keySet().isEmpty());
     for (var subject : handler.resources.keySet()) {
@@ -710,7 +730,8 @@ public class RDFTest {
 
   @Test
   void testThatURLsAreNotSplitForOntologyParentItem() throws IOException {
-    InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Diseases");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, ontologyTest, "Diseases");
 
     var subject =
         Values.iri(
@@ -724,7 +745,8 @@ public class RDFTest {
 
   @Test
   void testDataTableOntologyColumnValue() throws IOException {
-    InMemoryRDFHandler handler = parseTableRdf(ontologyTest, "Patients");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, ontologyTest, "Patients");
 
     Set<Value> expectedSemantic =
         Set.of(
@@ -756,7 +778,8 @@ public class RDFTest {
 
   @Test
   void testCrossSchemaDataTableOntologyColumnValue() throws IOException {
-    InMemoryRDFHandler handler = parseTableRdf(ontologyCrossSchemaTest, "Patients");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, ontologyCrossSchemaTest, "Patients");
 
     Set<Value> expectedSemantic =
         Set.of(
@@ -788,7 +811,8 @@ public class RDFTest {
 
   @Test
   void testTableInheritanceAlwaysSamePredicate() throws IOException {
-    InMemoryRDFHandler handler = parseRootRdf(List.of(tableInherTest, tableInherExtTest));
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfRoot(handler, List.of(tableInherTest, tableInherExtTest));
     // All should use the same predicate for rootColumn:
     // Root (is root of all inheritance)
     // Child extends Root
@@ -831,7 +855,8 @@ public class RDFTest {
 
   @Test
   void testTableInheritanceRetrieveData() throws IOException {
-    InMemoryRDFHandler handler = parseRootRdf(List.of(tableInherTest));
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfRoot(handler, List.of(tableInherTest));
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), true)
         .add(ValidationTriple.INHER_ID2.getTriple(), true)
@@ -847,7 +872,8 @@ public class RDFTest {
 
   @Test
   void testTableInheritanceRetrieveDataWithTableRoot() throws IOException {
-    InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "Root");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, tableInherTest, "Root");
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), true)
         .add(ValidationTriple.INHER_ID2.getTriple(), true)
@@ -864,7 +890,8 @@ public class RDFTest {
   @Test
   void testTableInheritanceRetrieveDataWithTableChild() throws IOException {
     // All subjects still use Root IRIs but offers a way to "filter out parent triples".
-    InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "Child");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, tableInherTest, "Child");
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), false) // parent of selected table
         .add(ValidationTriple.INHER_ID2.getTriple(), true)
@@ -881,7 +908,8 @@ public class RDFTest {
   @Test
   void testTableInheritanceRetrieveDataWithTableGrandchildTypeA() throws IOException {
     // All subjects still use Root IRIs but offers a way to "filter out parent triples".
-    InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "GrandchildTypeA");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, tableInherTest, "GrandchildTypeA");
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), false) // grandparent of selected table
         .add(ValidationTriple.INHER_ID2.getTriple(), false) // parent of selected table
@@ -901,7 +929,8 @@ public class RDFTest {
   @Test
   void testTableInheritanceRetrieveDataWithTableGrandchildTypeB() throws IOException {
     // All subjects still use Root IRIs but offers a way to "filter out parent triples".
-    InMemoryRDFHandler handler = parseTableRdf(tableInherTest, "GrandchildTypeB");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, tableInherTest, "GrandchildTypeB");
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), false) // grandparent of selected table
         .add(ValidationTriple.INHER_ID2.getTriple(), false) // parent of selected table
@@ -917,7 +946,8 @@ public class RDFTest {
 
   @Test
   void testTableInheritanceRetrieveDataWithRowId() throws IOException {
-    InMemoryRDFHandler handler = parseRowRdf(tableInherTest, "Root", "id=4");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRowRdf(handler, tableInherTest, "Root", "id=4");
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), false) // not selected
         .add(ValidationTriple.INHER_ID2.getTriple(), false) // not selected
@@ -933,7 +963,8 @@ public class RDFTest {
 
   @Test
   void testTableInheritanceExternalSchemaRetrieveData() throws IOException {
-    InMemoryRDFHandler handler = parseRootRdf(List.of(tableInherExtTest));
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfRoot(handler, List.of(tableInherExtTest));
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), false) // different schema
         .add(ValidationTriple.INHER_ID2.getTriple(), false) // different schema
@@ -952,7 +983,8 @@ public class RDFTest {
     // Note that even though the subject has an ID IRI based on table Root, this table is not part
     // of the selected scheme so this table cannot be selected:
     // `tableInherExtTest.getTable("Root")` == `null`
-    InMemoryRDFHandler handler = parseTableRdf(tableInherExtTest, "ExternalChild");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, tableInherExtTest, "ExternalChild");
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), false) // different schema
         .add(ValidationTriple.INHER_ID2.getTriple(), false) // different schema
@@ -971,7 +1003,8 @@ public class RDFTest {
     // Note that even though the subject has an ID IRI based on table Root, this table is not part
     // of the selected scheme so this table cannot be selected:
     // `tableInherExtTest.getTable("Root")` == `null`
-    InMemoryRDFHandler handler = parseRowRdf(tableInherExtTest, "ExternalChild", "id=5");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRowRdf(handler, tableInherExtTest, "ExternalChild", "id=5");
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), false) // not selected
         .add(ValidationTriple.INHER_ID2.getTriple(), false) // not selected
@@ -987,7 +1020,8 @@ public class RDFTest {
 
   @Test
   void testTableInheritanceRetrieveDataMultiSchema() throws IOException {
-    InMemoryRDFHandler handler = parseRootRdf(List.of(tableInherTest, tableInherExtTest));
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfRoot(handler, List.of(tableInherTest, tableInherExtTest));
     new RdfValidator()
         .add(ValidationTriple.INHER_ID1.getTriple(), true)
         .add(ValidationTriple.INHER_ID2.getTriple(), true)
@@ -1006,7 +1040,8 @@ public class RDFTest {
     var schema = database.dropCreateSchema("Website");
     var table = schema.create(table("Websites", column("website", ColumnType.HYPERLINK).setKey(1)));
     table.insert(row("website", "https://www.molgenis.org/"));
-    InMemoryRDFHandler handler = parseTableRdf(schema, table.getName());
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, schema, table.getName());
     boolean isObjectProperty = false;
     boolean linkHasLabel = false;
 
@@ -1037,7 +1072,8 @@ public class RDFTest {
 
   @Test
   void testThatAllInstancesHaveALabel() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfSchema(handler, petStore_nr1);
     int instancesWithOutALabel = 0;
 
     assertFalse(handler.resources.keySet().isEmpty());
@@ -1057,7 +1093,8 @@ public class RDFTest {
     Schema schema = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_InheritTable");
     Table root = schema.create(table("root", column("id").setPkey()));
     Table child = schema.create(table("child", column("name")).setInheritName("root"));
-    InMemoryRDFHandler handler = parseTableRdf(schema, child.getName());
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, schema, child.getName());
     var rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
     var childIRI = Values.iri(getApi(schema) + child.getIdentifier());
     var cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
@@ -1082,7 +1119,8 @@ public class RDFTest {
     Schema schema = database.dropCreateSchema(RDFTest.class.getSimpleName() + "_RootTable");
     Table root = schema.create(table("root", column("id").setPkey()));
     Table child = schema.create(table("child", column("name")).setInheritName("root"));
-    InMemoryRDFHandler handler = parseTableRdf(schema, root.getName());
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, schema, root.getName());
     var rootIRI = Values.iri(getApi(schema) + root.getIdentifier());
     var childIRI = Values.iri(getApi(schema) + child.getIdentifier());
     var cubeDataSetIRI = Values.iri("http://purl.org/linked-data/cube#DataSet");
@@ -1122,14 +1160,16 @@ public class RDFTest {
       Schema schema = database.dropCreateSchema("CustomRdfEdit");
       // Test default behaviour.
       assertFalse(schema.hasSetting(SETTING_CUSTOM_RDF));
-      InMemoryRDFHandler handlerBefore = parseSchemaRdf(schema);
+      InMemoryRDFHandler handlerBefore = new InMemoryRDFHandler(false);
+      parseRdfSchema(handlerBefore, schema);
       assertFalse(handlerBefore.resources.containsKey(Values.iri("https://molgenis.org/")));
 
       // Change setting
       schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
 
       // Test behaviour after changing setting.
-      InMemoryRDFHandler handlerAfter = parseSchemaRdf(schema);
+      InMemoryRDFHandler handlerAfter = new InMemoryRDFHandler(false);
+      parseRdfSchema(handlerAfter, schema);
       assertEquals(
           defaultNamespaces, handlerAfter.namespaces); // example prefix should NOT be present
       assertTrue(
@@ -1160,7 +1200,8 @@ public class RDFTest {
     try {
       Schema schema = database.dropCreateSchema("CustomRdfInvalid");
       schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
-      assertThrows(MolgenisException.class, () -> parseSchemaRdf(schema));
+      InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+      assertThrows(MolgenisException.class, () -> parseRdfSchema(handler, schema));
     } finally {
       database.dropSchemaIfExists("CustomRdfInvalid");
     }
@@ -1173,7 +1214,8 @@ public class RDFTest {
     try {
       Schema schema = database.dropCreateSchema("CustomRdfEmpty");
       schema.getMetadata().setSetting(SETTING_CUSTOM_RDF, customRdf);
-      assertDoesNotThrow(() -> parseSchemaRdf(schema));
+      InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+      assertDoesNotThrow(() -> parseRdfSchema(handler, schema));
     } finally {
       database.dropSchemaIfExists("CustomRdfEmpty");
     }
@@ -1208,14 +1250,16 @@ public class RDFTest {
       Schema schema = database.dropCreateSchema("PrefixesEdit");
       // Test default behaviour.
       assertFalse(schema.hasSetting(SETTING_SEMANTIC_PREFIXES));
-      InMemoryRDFHandler handlerBefore = parseSchemaRdf(schema);
+      InMemoryRDFHandler handlerBefore = new InMemoryRDFHandler(false);
+      parseRdfSchema(handlerBefore, schema);
       assertEquals(defaultNamespaces, handlerBefore.namespaces);
 
       // Change setting
       schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
 
       // Test behaviour after changing setting.
-      InMemoryRDFHandler handlerAfter = parseSchemaRdf(schema);
+      InMemoryRDFHandler handlerAfter = new InMemoryRDFHandler(false);
+      parseRdfSchema(handlerAfter, schema);
       assertEquals(customNamespaces, handlerAfter.namespaces);
     } finally {
       database.dropSchemaIfExists("PrefixesEdit");
@@ -1229,7 +1273,8 @@ public class RDFTest {
     try {
       Schema schema = database.dropCreateSchema("PrefixesMissingIri");
       schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
-      assertThrows(MolgenisException.class, () -> parseSchemaRdf(schema));
+      InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+      assertThrows(MolgenisException.class, () -> parseRdfSchema(handler, schema));
     } finally {
       database.dropSchemaIfExists("PrefixesMissingIri");
     }
@@ -1242,7 +1287,8 @@ public class RDFTest {
     try {
       Schema schema = database.dropCreateSchema("PrefixesIllegalPrefix");
       schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
-      assertThrows(MolgenisException.class, () -> parseSchemaRdf(schema));
+      InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+      assertThrows(MolgenisException.class, () -> parseRdfSchema(handler, schema));
     } finally {
       database.dropSchemaIfExists("PrefixesIllegalPrefix");
     }
@@ -1262,7 +1308,8 @@ public class RDFTest {
     try {
       Schema schema = database.dropCreateSchema("PrefixesEmpty");
       schema.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes);
-      InMemoryRDFHandler handler = parseSchemaRdf(schema);
+      InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+      parseRdfSchema(handler, schema);
       assertEquals(expectedNamespaces, handler.namespaces);
     } finally {
       database.dropSchemaIfExists("PrefixesEmpty");
@@ -1390,7 +1437,8 @@ example,http://example.com/
 
   @Test
   void testFileMetadataTriples() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(fileTest);
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfSchema(handler, fileTest);
 
     Set<Value> files =
         handler
@@ -1416,7 +1464,8 @@ example,http://example.com/
 
   @Test
   void refBackInRdf() throws IOException {
-    InMemoryRDFHandler handler = parseSchemaRdf(refBackTest);
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseRdfSchema(handler, refBackTest);
 
     Set<Value> refBacks =
         handler
@@ -1428,8 +1477,8 @@ example,http://example.com/
 
   @Test
   void testRefLinkWorks() throws IOException {
-    var handler = new InMemoryRDFHandler() {};
-    assertDoesNotThrow(() -> parseSchemaRdf(refLinkTest));
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    assertDoesNotThrow(() -> parseRdfSchema(handler, refLinkTest));
   }
 
   @Test
@@ -1439,18 +1488,19 @@ example,http://example.com/
             Values.iri("http://purl.org/dc/terms/title"),
             Values.iri("http://purl.org/dc/terms/description"));
 
-    InMemoryRDFHandler handler = parseTableRdf(semanticTest, "valid");
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseTableRdf(handler, semanticTest, "valid");
     Set<IRI> actualPredicates =
         handler.resources.get(Values.iri(getApi(semanticTest) + "Valid/id=1")).keySet();
     assertTrue(actualPredicates.containsAll(expectedPredicates));
 
-    assertThrows(MolgenisException.class, () -> parseTableRdf(semanticTest, "invalid"));
+    InMemoryRDFHandler handler2 = new InMemoryRDFHandler(false);
+    assertThrows(MolgenisException.class, () -> parseTableRdf(handler2, semanticTest, "invalid"));
   }
 
   /**
    * Helper test method to compare namespaces of 2 schemas.
    *
-   * @param handler handler to be used
    * @param schemaTestprefix prefix for created schemas ("1" & "2" is added to this for the 2
    *     different schemes)
    * @param expectedNamespaces set containing the expected combined namespaces
@@ -1473,92 +1523,13 @@ example,http://example.com/
         schema2.getMetadata().setSetting(SETTING_SEMANTIC_PREFIXES, customPrefixes2);
       }
 
-      InMemoryRDFHandler handler = parseRootRdf(List.of(schema1, schema2));
+      InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+      parseRdfRoot(handler, List.of(schema1, schema2));
       assertEquals(expectedNamespaces, handler.namespaces);
     } finally {
       database.dropSchemaIfExists(schemaTestprefix + "1");
       database.dropSchemaIfExists(schemaTestprefix + "2");
     }
-  }
-
-  private InMemoryRDFHandler parseRootRdf(List<Schema> schemas) throws IOException {
-    InMemoryRDFHandler handler = new InMemoryRDFHandler();
-    try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfRootService rdfService =
-          new RdfRootService(BASE_URL, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(schemas);
-      }
-      return parseResult(new StringReader(outputStream.toString()));
-    }
-  }
-
-  private InMemoryRDFHandler parseSchemaRdf(Schema schema) throws IOException {
-    InMemoryRDFHandler handler = new InMemoryRDFHandler();
-    try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(schema);
-      }
-      return parseResult(new StringReader(outputStream.toString()));
-    }
-  }
-
-  private InMemoryRDFHandler parseTableRdf(Schema schema, String tableName) throws IOException {
-    Table table = schema.getTable(tableName);
-
-    InMemoryRDFHandler handler = new InMemoryRDFHandler();
-    try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(table);
-      }
-      return parseResult(new StringReader(outputStream.toString()));
-    }
-  }
-
-  private InMemoryRDFHandler parseRowRdf(Schema schema, String tableName, String rowId)
-      throws IOException {
-    Table table = schema.getTable(tableName);
-    PrimaryKey primaryKey = PrimaryKey.fromEncodedString(table, rowId);
-
-    InMemoryRDFHandler handler = new InMemoryRDFHandler();
-    try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(table, primaryKey);
-      }
-      return parseResult(new StringReader(outputStream.toString()));
-    }
-  }
-
-  private InMemoryRDFHandler parseColumnRdf(Schema schema, String tableName, String columnName)
-      throws IOException {
-    Table table = schema.getTable(tableName);
-    Column column = column(columnName);
-
-    InMemoryRDFHandler handler = new InMemoryRDFHandler();
-    try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfSchemaService rdfService =
-          new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
-        rdfService.getGenerator().generate(table, column);
-      }
-      return parseResult(new StringReader(outputStream.toString()));
-    }
-  }
-
-  private InMemoryRDFHandler parseFile(String filePath) throws IOException {
-    try (FileReader reader =
-        new FileReader(new File(classLoader.getResource(filePath).getFile()))) {
-      return parseResult(reader);
-    }
-  }
-
-  private InMemoryRDFHandler parseResult(Reader reader) throws IOException {
-    InMemoryRDFHandler handler = new InMemoryRDFHandler();
-    RDFParser parser = Rio.createParser(RDFFormat.TURTLE);
-    parser.setRDFHandler(handler);
-    parser.parse(reader);
-    return handler;
   }
 
   private enum ValidationTriple {
