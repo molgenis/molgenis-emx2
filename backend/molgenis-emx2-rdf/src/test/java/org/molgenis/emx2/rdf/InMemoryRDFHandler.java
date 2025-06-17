@@ -102,7 +102,8 @@ class InMemoryRDFHandler implements RDFHandler {
   }
 
   private void processFileIris() {
-    // Replace UUID in FILE API subjects with the RDFS label (if present).
+    // Replace UUID in FILE API subjects with the RDFS label (if subject is present).
+    // If subject is found, assumes rdfs:label predicate with 1 object is present.
     Set<Value> subjectsToReplace =
         resources.keySet().stream()
             .filter(Resource::isIRI)
@@ -112,7 +113,7 @@ class InMemoryRDFHandler implements RDFHandler {
     for (Value subject : subjectsToReplace) {
       Map<IRI, Set<Value>> value = resources.remove(subject);
       String label = value.get(RDFS.LABEL).stream().findFirst().get().stringValue();
-      Resource newKey = createNewIri(subject, label);
+      Resource newKey = createNewFileIri(subject, label);
       resources.put(newKey, value);
       fileIriMappings.put(subject, newKey);
     }
@@ -126,7 +127,7 @@ class InMemoryRDFHandler implements RDFHandler {
           for (Value object : objects) {
             if (object.isIRI() && object.stringValue().contains(API_FILE)) {
               objects.remove(object);
-              objects.add(createNewIri(object, "identicalFileIRI"));
+              objects.add(createNewFileIri(object, "identicalFileIRI"));
             }
           }
         }
@@ -144,7 +145,7 @@ class InMemoryRDFHandler implements RDFHandler {
     }
   }
 
-  private Resource createNewIri(Value value, String identifier) {
+  private Resource createNewFileIri(Value value, String identifier) {
     int lastSlashPos = value.stringValue().lastIndexOf("/");
     return Values.iri(value.stringValue().substring(0, lastSlashPos + 1) + identifier);
   }
