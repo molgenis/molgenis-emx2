@@ -11,8 +11,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
@@ -171,16 +169,12 @@ public class ScriptTask extends Task {
       zipFileContent = new byte[0];
     }
     Path zipFilePath = tempDir.resolve(zipFileName);
-    ZipEntry entry = new ZipEntry(zipFilePath.toString());
-    ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zipFilePath.toFile()));
-    entry.setSize(zipFileContent.length);
-    zip.putNextEntry(entry);
-    zip.write(zipFileContent);
-    zip.close();
+    FileOutputStream fos = new FileOutputStream(zipFilePath.toFile());
+    fos.write(zipFileContent);
 
     // define commands (given tempDir as working directory)
     String createVenvCommand = "python3 -m venv venv";
-    String extractZipCommand = "unzip -z " + zipFileName;
+    String extractZipCommand = "unzip " + zipFileName + " -d " + tempDir.toAbsolutePath();
     String activateCommand = "source venv/bin/activate";
     String pipUpgradeCommand = "pip3 install --upgrade pip";
     String installRequirementsCommand = "pip3 install -r requirements.txt"; // don't check upgrade
