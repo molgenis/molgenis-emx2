@@ -1,4 +1,4 @@
-name,definition,codesystem,code,OntologyTermURI
+name,definition,codesystem,code,ontologyTermURI
 GRCh38.p4,Genome Reference Consortium Human Build 38 patch release 4 (GRCh38.p4),GCF,000001405.30,https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.30
 GRCh38.p3,Genome Reference Consortium Human Build 38 patch release 3 (GRCh38.p3),GCF,000001405.29,https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.29
 GRCh38.p6,Genome Reference Consortium Human Build 38 patch release 6 (GRCh38.p6),GCF,1405.32,https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.32
