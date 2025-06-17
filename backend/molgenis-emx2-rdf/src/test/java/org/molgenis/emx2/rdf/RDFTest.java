@@ -426,7 +426,7 @@ public class RDFTest {
   @Test
   void testPetStoreRdf() throws IOException {
     InMemoryRDFHandler expected = new InMemoryRDFHandler(true);
-    parseFile(expected, "rdf_files/emx2_rdf/pet_store_schema.ttl");
+    parseFile(expected, "rdf_files/rdf_api/pet_store/emx2/schema.ttl");
 
     InMemoryRDFHandler actual = new InMemoryRDFHandler(true);
     parseSchemaRdf(actual, petStore_nr1);
