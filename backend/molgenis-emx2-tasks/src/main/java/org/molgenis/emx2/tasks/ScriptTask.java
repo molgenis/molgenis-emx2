@@ -8,9 +8,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.molgenis.emx2.ColumnType;
@@ -31,7 +29,7 @@ public class ScriptTask extends Task {
   private String parameters;
   private String token;
   private String dependencies;
-  private byte[] zipFile;
+  private HashMap<String, Object> zipFile;
   private Process process;
   private byte[] output;
   private URL serverUrl;
@@ -47,7 +45,7 @@ public class ScriptTask extends Task {
         .script(scriptMetadata.getString("script"))
         .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
         .dependencies(scriptMetadata.getString("dependencies"))
-        .zipFile(scriptMetadata.getBinary("zipFile_contents"))
+        .zipFile(scriptMetadata)
         .cronExpression(scriptMetadata.getString("cron"))
         .cronUserName(scriptMetadata.getString("cronUser"))
         .failureAddress(scriptMetadata.getString("failureAddress"))
@@ -158,8 +156,8 @@ public class ScriptTask extends Task {
     Path requirementsFile = Files.createFile(tempDir.resolve("requirements.txt"));
     Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
     Path zipFilePath = Files.createFile(tempDir.resolve("zip.zip"));
-    Files.write(
-        zipFilePath, this.zipFile != null ? this.zipFile : "".getBytes(StandardCharsets.UTF_8));
+    //    Files.write(zipFilePath, this.zipFile != null ? this.zipFile :
+    // "".getBytes(StandardCharsets.UTF_8));
 
     // define commands (given tempDir as working directory)
     String createVenvCommand = "python3 -m venv venv";
@@ -253,8 +251,13 @@ public class ScriptTask extends Task {
     return this;
   }
 
-  public ScriptTask zipFile(byte[] zipFile) {
-    this.zipFile = zipFile;
+  public ScriptTask zipFile(Row scriptMetaData) {
+    this.zipFile = new HashMap<>();
+    this.zipFile.put("zipFile", scriptMetaData.getString("zipFile"));
+    this.zipFile.put("zipFile_mimetype", scriptMetaData.getString("zipFile)_mimetype"));
+    this.zipFile.put("zipFile_extension", scriptMetaData.getString("zipFile_extension"));
+    this.zipFile.put("zipFile_size", scriptMetaData.getString("zipFile_size"));
+    this.zipFile.put("zipFile_contents", scriptMetaData.getBinary("zipFile_contents"));
     return this;
   }
 
