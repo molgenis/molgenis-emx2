@@ -1,37 +1,37 @@
 @prefix afr: <http://purl.allotrope.org/ontologies/result#> .
-@prefix ordo: <http://www.orpha.net/ORDO/> .
-@prefix edam: <http://edamontology.org/> .
-@prefix qb: <http://purl.org/linked-data/cube#> .
-@prefix prov: <http://www.w3.org/ns/prov#> .
-@prefix org: <http://www.w3.org/ns/org#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix lnc: <http://purl.bioontology.org/ontology/LNC/> .
-@prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix PetStoreNr1: <http://localhost:8080/petStoreNr1/api/rdf/> .
-@prefix foaf: <http://xmlns.com/foaf/0.1/> .
-@prefix fg: <https://w3id.org/fair-genomes/resource/> .
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix sio: <http://semanticscience.org/resource/> .
-@prefix fdp-o: <https://w3id.org/fdp/fdp-o#> .
-@prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix obo: <http://purl.obolibrary.org/obo/> .
-@prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix healthDCAT-AP: <http://healthdataportal.eu/ns/health#> .
-@prefix snomedct: <http://purl.bioontology.org/ontology/SNOMEDCT/> .
-@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-@prefix dc: <http://purl.org/dc/elements/1.1/> .
-@prefix mesh: <http://purl.bioontology.org/ontology/MESH/> .
-@prefix schema: <http://schema.org/> .
-@prefix ldp: <http://www.w3.org/ns/ldp#> .
-@prefix efo: <http://www.ebi.ac.uk/efo/> .
-@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
-@prefix hl7: <http://purl.bioontology.org/ontology/HL7/> .
-@prefix ensembl: <http://ensembl.org/glossary/> .
-@prefix dcat: <http://www.w3.org/ns/dcat#> .
 @prefix afrl: <http://purl.allotrope.org/ontologies/role#> .
-@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix edam: <http://edamontology.org/> .
+@prefix efo: <http://www.ebi.ac.uk/efo/> .
 @prefix ejp: <https://w3id.org/ejp-rd/vocabulary#> .
+@prefix ensembl: <http://ensembl.org/glossary/> .
+@prefix fdp-o: <https://w3id.org/fdp/fdp-o#> .
+@prefix fg: <https://w3id.org/fair-genomes/resource/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix healthDCAT-AP: <http://healthdataportal.eu/ns/health#> .
+@prefix hl7: <http://purl.bioontology.org/ontology/HL7/> .
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
+@prefix lnc: <http://purl.bioontology.org/ontology/LNC/> .
+@prefix mesh: <http://purl.bioontology.org/ontology/MESH/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix ordo: <http://www.orpha.net/ORDO/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix PetStoreNr1: <http://localhost:8080/petStoreNr1/api/rdf/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix snomedct: <http://purl.bioontology.org/ontology/SNOMEDCT/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <http://localhost:8080> a sio:SIO_000750;
   rdfs:label "EMX2";
@@ -47,8 +47,7 @@
 PetStoreNr1:Category a owl:Class;
   rdfs:subClassOf qb:DataSet, owl:Thing;
   rdfs:isDefinedBy sio:SIO_001055;
-  rdfs:label "Category";
-  dcterms:description ""@en .
+  rdfs:label "Category".
 
 PetStoreNr1:Pet a owl:Class;
   rdfs:subClassOf qb:DataSet, owl:Thing;
@@ -59,14 +58,12 @@ PetStoreNr1:Pet a owl:Class;
 PetStoreNr1:User a owl:Class;
   rdfs:subClassOf qb:DataSet, owl:Thing;
   rdfs:isDefinedBy foaf:Person, sio:SIO_001055;
-  rdfs:label "User";
-  dcterms:description ""@en .
+  rdfs:label "User".
 
 PetStoreNr1:Order a owl:Class;
   rdfs:subClassOf qb:DataSet, owl:Thing;
   rdfs:isDefinedBy sio:SIO_001055;
-  rdfs:label "Order";
-  dcterms:description ""@en .
+  rdfs:label "Order".
 
 PetStoreNr1:Tag a owl:Class;
   rdfs:subClassOf qb:DataSet, owl:Thing, skos:ConceptScheme;
