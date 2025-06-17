@@ -29,17 +29,25 @@ public class PodiumApi {
 
     String basicAuthenticationHeader =
         getBasicAuthenticationHeader(podiumRequest.podiumUsername, podiumRequest.podiumPassword);
+    HttpRequest.BodyPublisher bodyPublisher =
+        HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(podiumRequest.payload));
     HttpRequest request =
         HttpRequest.newBuilder()
             .uri(URI.create(podiumRequest.podiumUrl))
+            .POST(bodyPublisher)
             .header("Authorization", basicAuthenticationHeader)
-            .POST(
-                HttpRequest.BodyPublishers.ofString(
-                    objectMapper.writeValueAsString(podiumRequest.payload)))
             .build();
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-    System.out.println(response);
+
+    if (response.statusCode() == 202) {
+      context.status(201);
+      context.header("Location", response.headers().map().get("Location").getFirst());
+    } else {
+      context.status(response.statusCode());
+    }
+
+    context.result(response.body());
   }
 
   private static String getBasicAuthenticationHeader(String username, String password) {
@@ -52,11 +60,5 @@ public class PodiumApi {
     @JsonProperty public String podiumUsername;
     @JsonProperty public String podiumPassword;
     @JsonProperty public Object payload;
-  }
-
-  private static class PodiumPayload {
-    @JsonProperty public String URL;
-    @JsonProperty public String humanReadable;
-    @JsonProperty public Object[] collections;
   }
 }
