@@ -15,10 +15,10 @@ Files,,created at source by,ref,,,,Contacts,,,,"http://purl.obolibrary.org/obo/N
 Files,,date updated at source,date,,,,,,,,"dcterms:modified,http://purl.obolibrary.org/obo/NCIT_C16493",The date the record was updated at the source,Patient registry
 Files,,updated at source by,ref,,,,Contacts,,,,"http://purl.obolibrary.org/obo/NCIT_C51820,http://purl.obolibrary.org/obo/NCIT_C16493",The person who updated the record at the source,Patient registry
 Files,,comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.",Patient registry
-File locations,,file,ref,1,TRUE,,Files,,,,http://purl.obolibrary.org/obo/NCIT_C171191,The literal identifier for an electronic file,
-File locations,,storage location,ref,1,TRUE,,Storage location,,,,,,
-File locations,,path,string,1,TRUE,,,,,,,,
-File locations,,included in resources,ref_array,,,,Resources,,,,,,
-File locations,,date created at location,date,,,,,,,,,,
-File locations,,created at location by,ref,,,,Contacts,,,,,,
-File locations,,comments,text,,,,,,,,,,
+File locations,,file,ref,1,TRUE,,Files,,,,http://purl.obolibrary.org/obo/NCIT_C171191,The literal identifier for an electronic file,Patient registry
+File locations,,storage location,string,1,TRUE,,,,,,,"The location a file is stored (e.g., server, building, filing cabinet, etc.)",Patient registry
+File locations,,path,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001927,"A file path is an identifier for a file in a file system or network (e.g., a scp compatible <host>:<path>)",Patient registry
+File locations,,included in resources,ref_array,,,,Resources,,,,http://purl.obolibrary.org/obo/HSO_0000370,"A reference to one or more resources that organises records for in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)",Patient registry
+File locations,,date created at location,date,,,,,,,,"dcterms:created,http://purl.obolibrary.org/obo/NCIT_C16493",The date the record was created at the storage location,Patient registry
+File locations,,created at location by,ref,,,,Contacts,,,,"http://purl.obolibrary.org/obo/NCIT_C51820,http://purl.obolibrary.org/obo/NCIT_C16493",The person who created the record at the storage location,Patient registry
+File locations,,comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material",Patient registry
