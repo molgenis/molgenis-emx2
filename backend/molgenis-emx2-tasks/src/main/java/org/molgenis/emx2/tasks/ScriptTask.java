@@ -31,6 +31,7 @@ public class ScriptTask extends Task {
   private String parameters;
   private String token;
   private String dependencies;
+  private byte[] zipFile;
   private Process process;
   private byte[] output;
   private URL serverUrl;
@@ -46,6 +47,7 @@ public class ScriptTask extends Task {
         .script(scriptMetadata.getString("script"))
         .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
         .dependencies(scriptMetadata.getString("dependencies"))
+        .zipFile(scriptMetadata.getBinary("zipFile_contents"))
         .cronExpression(scriptMetadata.getString("cron"))
         .cronUserName(scriptMetadata.getString("cronUser"))
         .failureAddress(scriptMetadata.getString("failureAddress"))
@@ -155,9 +157,13 @@ public class ScriptTask extends Task {
     Files.writeString(tempScriptFile, this.script);
     Path requirementsFile = Files.createFile(tempDir.resolve("requirements.txt"));
     Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
+    Path zipFilePath = Files.createFile(tempDir.resolve("zip.zip"));
+    Files.write(
+        zipFilePath, this.zipFile != null ? this.zipFile : "".getBytes(StandardCharsets.UTF_8));
 
     // define commands (given tempDir as working directory)
     String createVenvCommand = "python3 -m venv venv";
+    String extractZipCommand = "unzip -z " + zipFilePath;
     String activateCommand = "source venv/bin/activate";
     String pipUpgradeCommand = "pip3 install --upgrade pip";
     String installRequirementsCommand = "pip3 install -r requirements.txt"; // don't check upgrade
@@ -165,6 +171,8 @@ public class ScriptTask extends Task {
     String escapedParameters = " " + escapeXSI(this.parameters);
 
     return createVenvCommand
+        + " && "
+        + extractZipCommand
         + " && "
         + activateCommand
         + " && "
@@ -242,6 +250,11 @@ public class ScriptTask extends Task {
 
   public ScriptTask dependencies(String dependencies) {
     this.dependencies = dependencies;
+    return this;
+  }
+
+  public ScriptTask zipFile(byte[] zipFile) {
+    this.zipFile = zipFile;
     return this;
   }
 

@@ -221,7 +221,12 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                         column("dependencies")
                             .setType(ColumnType.TEXT)
                             .setDescription(
-                                "For python, this should match requirements format for 'pip install -r requirements.txt'"),
+                                "For Python, this should match requirements format for 'pip install -r requirements.txt'"),
+                        column("zipFile")
+                            .setLabel("extra files")
+                            .setType(ColumnType.FILE)
+                            .setDescription(
+                                "Upload a ZIP file containing extra files required for running the script"),
                         column("outputFileExtension")
                             .setDescription("Extension, without the '.'. E.g. 'txt' or 'json'"),
                         column("disabled")
