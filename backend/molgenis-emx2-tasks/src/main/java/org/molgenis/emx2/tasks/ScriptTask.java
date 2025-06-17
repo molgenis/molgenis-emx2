@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Constants;
@@ -162,7 +163,6 @@ public class ScriptTask extends Task {
     if (this.zipFile.get("zipFile") != null) {
       zipFileName = this.zipFile.get("zipFile_filename").toString();
       zipFileContent =
-//              TODO: get the contents through another way
           this.zipFile.get("zipFile_contents") != null
               ? (byte[]) this.zipFile.get("zipFile_contents")
               : new byte[0];
@@ -171,13 +171,16 @@ public class ScriptTask extends Task {
       zipFileContent = new byte[0];
     }
     Path zipFilePath = tempDir.resolve(zipFileName);
+    ZipEntry entry = new ZipEntry(zipFilePath.toString());
     ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zipFilePath.toFile()));
+    entry.setSize(zipFileContent.length);
+    zip.putNextEntry(entry);
     zip.write(zipFileContent);
     zip.close();
 
     // define commands (given tempDir as working directory)
     String createVenvCommand = "python3 -m venv venv";
-    String extractZipCommand = "unzip -z " + zipFilePath;
+    String extractZipCommand = "unzip -z " + zipFileName;
     String activateCommand = "source venv/bin/activate";
     String pipUpgradeCommand = "pip3 install --upgrade pip";
     String installRequirementsCommand = "pip3 install -r requirements.txt"; // don't check upgrade
