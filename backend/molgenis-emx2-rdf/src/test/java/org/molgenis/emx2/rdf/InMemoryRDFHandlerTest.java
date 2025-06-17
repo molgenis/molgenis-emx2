@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
 class InMemoryRDFHandlerTest {
-  private final String rdfExample =
+  private final String rdfInput =
       """
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
@@ -25,7 +25,7 @@ class InMemoryRDFHandlerTest {
   dcterms:format <http://www.iana.org/assignments/media-types/image/jpeg> .
 """;
 
-  private final String rdfExampleAfterFix =
+  private final String rdfFixed =
       """
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
@@ -46,13 +46,36 @@ class InMemoryRDFHandlerTest {
   dcterms:format <http://www.iana.org/assignments/media-types/image/jpeg> .
 """;
 
+  private final String rdfNoFileLabelInput =
+      """
+<http://localhost:8080/pet%20store/api/rdf/User/username=bofke>
+  <http://localhost:8080/pet%20store/api/rdf/User/column/picture> <http://localhost:8080/pet%20store/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea> .
+""";
+
+  private final String rdfNoFileLabelFixed =
+      """
+<http://localhost:8080/pet%20store/api/rdf/User/username=bofke>
+  <http://localhost:8080/pet%20store/api/rdf/User/column/picture> <http://localhost:8080/pet%20store/api/file/User/picture/identicalFileIRI> .
+""";
+
   @Test
-  void testRdfComparisonFixChanges() throws IOException {
+  void testRdfComparisonFixes() throws IOException {
     InMemoryRDFHandler handlerFixedString = new InMemoryRDFHandler(false);
-    RdfParser.parseString(handlerFixedString, rdfExampleAfterFix);
+    RdfParser.parseString(handlerFixedString, rdfFixed);
 
     InMemoryRDFHandler handlerWithFix = new InMemoryRDFHandler(true);
-    RdfParser.parseString(handlerWithFix, rdfExample);
+    RdfParser.parseString(handlerWithFix, rdfInput);
+
+    CustomAssertions.equals(handlerFixedString, handlerWithFix);
+  }
+
+  @Test
+  void testRdfComparisonFixesWithNoFileLabel() throws IOException {
+    InMemoryRDFHandler handlerFixedString = new InMemoryRDFHandler(false);
+    RdfParser.parseString(handlerFixedString, rdfNoFileLabelFixed);
+
+    InMemoryRDFHandler handlerWithFix = new InMemoryRDFHandler(true);
+    RdfParser.parseString(handlerWithFix, rdfNoFileLabelInput);
 
     CustomAssertions.equals(handlerFixedString, handlerWithFix);
   }

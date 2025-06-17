@@ -126,7 +126,7 @@ class InMemoryRDFHandler implements RDFHandler {
           for (Value object : objects) {
             if (object.isIRI() && object.stringValue().contains(API_FILE)) {
               objects.remove(object);
-              objects.add(createNewIri(object, "identical"));
+              objects.add(createNewIri(object, "identicalFileIRI"));
             }
           }
         }
