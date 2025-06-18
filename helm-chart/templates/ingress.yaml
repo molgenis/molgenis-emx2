@@ -1,5 +1,5 @@
 {{- if .Values.ingress.enabled }}
-{{- $fullName := include "emx2.fullname" . -}}
+{{ $fullName := include "emx2.fullname" . -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -17,12 +17,14 @@ spec:
   tls:
     {{- range .Values.ingress.hosts }}
     - hosts:
-        - {{ .host | quote }}
-          {{ .catalogueHost | quote }}
+        - .Values.ingress.hosts[0] | quote
+      secretName: dev.molgenis.org
+    - hosts:
+        - .Values.ingress.hosts[1] | quote
       secretName: dev.molgenis.org
 
   rules:
-    - host: {{ .catalogueHost | quote }}
+    - host: .Values.ingress.hosts[1] | quote
       http:
         paths:
             - path: /.+/graphql
@@ -39,10 +41,10 @@ spec:
                   name: ssr-catalogue
                   port:
                     number: 3000
-    - host: {{ .host | quote }}
+    - host: .Values.ingress.hosts[0] | quote
       http:
         paths:
-          - path: {{ default "/" .path }}
+          - path: /
             pathType: Prefix
             backend:
               service:

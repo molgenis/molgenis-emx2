@@ -33,10 +33,10 @@ kubectl create namespace $NAME
 kubectl create secret tls "dev.molgenis.org" --key /tmp/cert_key --cert /tmp/cert_pem -n ${NAME}
 
 helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
---set ingress.hosts[0].host=${NAME}.dev.molgenis.org \
---set spec.tls[0].hosts[0].host=${NAME}.dev.molgenis.org \
---set ingress.hosts[1].catalogueHost=${CATALOGUE}.dev.molgenis.org \
---set spec.tls[0].hosts[1].catalogueHost=${CATALOGUE}.dev.molgenis.org \
+--set ingress.hosts[0]=${NAME}.dev.molgenis.org \
+--set spec.tls[0].hosts[0]=${NAME}.dev.molgenis.org \
+--set ingress.hosts[1]=${CATALOGUE}.dev.molgenis.org \
+--set spec.tls[0].hosts[1]=${CATALOGUE}.dev.molgenis.org \
 --set adminPassword=admin \
 --set image.tag=${TAG_NAME} \
 --set image.repository=${REPO} \
