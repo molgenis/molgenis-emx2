@@ -1,3 +1,3 @@
-name,codesystem,code,ontologyTermURI,definition,aliases,country,city,latitude,longitude
-University Medical Center Groningen,ROR,ROR:03cv38k47,https://ror.org/03cv38k47,,"UMCG,Universitair Medisch Centrum Groningen",Netherlands (the),Groningen,53.21917,6.56667
-University of Groningen,ROR,ROR:012p63287,https://ror.org/012p63287,,"RUG,Rijksuniversiteit Groningen",Netherlands (the),Groningen,53.21917,6.56667
+name,acronym,codesystem,code,ontologyTermURI,definition,aliases,country,city,latitude,longitude
+University Medical Center Groningen,UMCG,ROR,ROR:03cv38k47,https://ror.org/03cv38k47,,"Universitair Medisch Centrum Groningen",Netherlands (the),Groningen,53.21917,6.56667
+University of Groningen,RUG,ROR,ROR:012p63287,https://ror.org/012p63287,,"Rijksuniversiteit Groningen",Netherlands (the),Groningen,53.21917,6.56667
