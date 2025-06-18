@@ -302,7 +302,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
       >
         <b>
           {{
-            new Intl.NumberFormat("nl-NL").format(
+            new Intl.NumberFormat("en-GB").format(
               data.data.Collections_agg?._sum?.numberOfParticipants
             )
           }}
@@ -323,7 +323,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
       >
         <b
           >{{
-            new Intl.NumberFormat("nl-NL").format(
+            new Intl.NumberFormat("en-GB").format(
               data.data.Collections_agg?._sum?.numberOfParticipantsWithSamples
             )
           }}
