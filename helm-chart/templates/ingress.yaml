@@ -18,7 +18,7 @@ spec:
     {{- range .Values.ingress.hosts }}
     - hosts:
         - {{ .host | quote }}
-          {{ .catalogueHost | quote }}
+        - {{ .catalogueHost | quote }}
       secretName: dev.molgenis.org
 
   rules:
