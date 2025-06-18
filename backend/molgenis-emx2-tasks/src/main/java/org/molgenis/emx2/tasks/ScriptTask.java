@@ -29,7 +29,7 @@ public class ScriptTask extends Task {
   private String parameters;
   private String token;
   private String dependencies;
-  private HashMap<String, Object> zipFile;
+  private HashMap<String, Object> extraFile;
   private Process process;
   private byte[] output;
   private URL serverUrl;
@@ -45,7 +45,7 @@ public class ScriptTask extends Task {
         .script(scriptMetadata.getString("script"))
         .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
         .dependencies(scriptMetadata.getString("dependencies"))
-        .zipFile(scriptMetadata)
+        .extraFile(scriptMetadata)
         .cronExpression(scriptMetadata.getString("cron"))
         .cronUserName(scriptMetadata.getString("cronUser"))
         .failureAddress(scriptMetadata.getString("failureAddress"))
@@ -156,42 +156,48 @@ public class ScriptTask extends Task {
     Path requirementsFile = Files.createFile(tempDir.resolve("requirements.txt"));
     Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
 
-    String zipFileName;
-    byte[] zipFileContent;
-    if (this.zipFile.get("zipFile") != null) {
-      zipFileName = this.zipFile.get("zipFile_filename").toString();
-      zipFileContent = (byte[]) this.zipFile.get("zipFile_contents");
-    } else {
-      zipFileName = "zip.zip";
-      zipFileContent = new byte[0];
-    }
-    Path zipFilePath = tempDir.resolve(zipFileName);
+    String extractZipCommand = "";
+    boolean isZip = false;
+    if (this.extraFile.get("extraFile") != null) {
+      String extraFileName = this.extraFile.get("extraFile_filename").toString();
+      byte[] extraFileContent = (byte[]) this.extraFile.get("extraFile_contents");
+      String extraFileExtension = this.extraFile.get("extraFile_extension").toString();
+      Path extraFilePath = tempDir.resolve(extraFileName);
 
-    try (FileOutputStream fos = new FileOutputStream(zipFilePath.toFile())) {
-      fos.write(zipFileContent);
+      try (FileOutputStream fos = new FileOutputStream(extraFilePath.toFile())) {
+        fos.write(extraFileContent);
+      }
+      if (extraFileExtension.equalsIgnoreCase("zip")) {
+        isZip = true;
+        extractZipCommand = "unzip " + extraFileName + " -d " + tempDir.toAbsolutePath();
+      }
     }
 
     // define commands (given tempDir as working directory)
     String createVenvCommand = "python3 -m venv venv";
-    String extractZipCommand = "unzip " + zipFileName + " -d " + tempDir.toAbsolutePath();
     String activateCommand = "source venv/bin/activate";
     String pipUpgradeCommand = "pip3 install --upgrade pip";
     String installRequirementsCommand = "pip3 install -r requirements.txt"; // don't check upgrade
     String runScriptCommand = "python3 -u script.py";
     String escapedParameters = " " + escapeXSI(this.parameters);
 
-    return createVenvCommand
-        + " && "
-        + extractZipCommand
-        + " && "
-        + activateCommand
-        + " && "
-        + pipUpgradeCommand
-        + " && "
-        + installRequirementsCommand
-        + " && "
-        + runScriptCommand
-        + escapedParameters;
+    String shellCommands =
+        createVenvCommand
+            + " && "
+            + activateCommand
+            + " && "
+            + pipUpgradeCommand
+            + " && "
+            + installRequirementsCommand
+            + " && "
+            + runScriptCommand
+            + escapedParameters;
+
+    if (isZip) {
+      shellCommands = extractZipCommand + " && " + shellCommands;
+    }
+
+    return shellCommands;
   }
 
   private void sendFailureMail() {
@@ -263,14 +269,14 @@ public class ScriptTask extends Task {
     return this;
   }
 
-  public ScriptTask zipFile(Row scriptMetaData) {
-    this.zipFile = new HashMap<>();
-    this.zipFile.put("zipFile", scriptMetaData.getString("zipFile"));
-    this.zipFile.put("zipFile_mimetype", scriptMetaData.getString("zipFile_mimetype"));
-    this.zipFile.put("zipFile_filename", scriptMetaData.getString("zipFile_filename"));
-    this.zipFile.put("zipFile_extension", scriptMetaData.getString("zipFile_extension"));
-    this.zipFile.put("zipFile_size", scriptMetaData.getString("zipFile_size"));
-    this.zipFile.put("zipFile_contents", scriptMetaData.getBinary("zipFile_contents"));
+  public ScriptTask extraFile(Row scriptMetaData) {
+    this.extraFile = new HashMap<>();
+    this.extraFile.put("extraFile", scriptMetaData.getString("extraFile"));
+    this.extraFile.put("extraFile_mimetype", scriptMetaData.getString("extraFile_mimetype"));
+    this.extraFile.put("extraFile_filename", scriptMetaData.getString("extraFile_filename"));
+    this.extraFile.put("extraFile_extension", scriptMetaData.getString("extraFile_extension"));
+    this.extraFile.put("extraFile_size", scriptMetaData.getString("extraFile_size"));
+    this.extraFile.put("extraFile_contents", scriptMetaData.getBinary("extraFile_contents"));
     return this;
   }
 

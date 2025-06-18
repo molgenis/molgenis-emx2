@@ -129,8 +129,8 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
     }
     Row scriptMetadata = rows.getFirst();
 
-    String columnName = "zipFile";
-    String fileId = scriptMetadata.getString("zipFile");
+    String columnName = "extraFile";
+    String fileId = scriptMetadata.getString("extraFile");
     List<Row> fileRows =
         t.query()
             .select(s(columnName, s("contents"), s("mimetype"), s("filename"), s("extension")))
@@ -235,11 +235,11 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                             .setType(ColumnType.TEXT)
                             .setDescription(
                                 "For Python, this should match requirements format for 'pip install -r requirements.txt'"),
-                        column("zipFile")
-                            .setLabel("extra files")
+                        column("extraFile")
+                            .setLabel("extra file")
                             .setType(ColumnType.FILE)
                             .setDescription(
-                                "Upload a ZIP file containing extra files required for running the script"),
+                                "Upload a file required for running the script. A ZIP file will be automatically extracted."),
                         column("outputFileExtension")
                             .setDescription("Extension, without the '.'. E.g. 'txt' or 'json'"),
                         column("disabled")
