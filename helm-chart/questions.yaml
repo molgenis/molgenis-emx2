@@ -8,6 +8,13 @@ questions:
     required: true
     default: "emx2.dev.molgenis.org"
     group: "Loadbalancing"
+  - variable: ingress.hosts[1].catalogueHost
+    label: Catalogue Hostname(s)
+    description: "Specify a hostname for this catalogue instance"
+    type: string
+    required: true
+    default: "catalogue.dev.molgenis.org"
+    group: "Loadbalancing"
   - variable: image.repository
     label: Repository
     description: "Specify a repository"

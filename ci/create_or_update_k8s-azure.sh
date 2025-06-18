@@ -3,8 +3,11 @@ NAME=$1
 TAG_NAME=$2
 DELETE=$3
 
+CATALOGUE="${NAME/emx2/catalogue}"
+
 echo "Using namespace $NAME"
 echo "Using docker tag_name $TAG_NAME"
+echo "Using catalogue name $CATALOGUE"
 echo "Delete=$DELETE"
 
 REPO=molgenis/molgenis-emx2
@@ -32,6 +35,8 @@ kubectl create secret tls "dev.molgenis.org" --key /tmp/cert_key --cert /tmp/cer
 helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set ingress.hosts[0].host=${NAME}.dev.molgenis.org \
 --set spec.tls[0].hosts[0].host=${NAME}.dev.molgenis.org \
+--set ingress.hosts[0].host=${CATALOGUE}.dev.molgenis.org \
+--set spec.tls[0].hosts[0].host=${CATALOGUE}.dev.molgenis.org \
 --set adminPassword=admin \
 --set image.tag=${TAG_NAME} \
 --set image.repository=${REPO} \

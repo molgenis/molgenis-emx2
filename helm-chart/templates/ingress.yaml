@@ -18,11 +18,11 @@ spec:
     {{- range .Values.ingress.hosts }}
     - hosts:
         - {{ .host | quote }}
-        - catalogue.dev.molgenis.org
+        - {{ .catalogueHost | quote }}
       secretName: dev.molgenis.org
 
   rules:
-    - host: catalogue.dev.molgenis.org
+    - host: {{ .catalogueHost | quote }}
       http:
         paths:
             - path: /.+/graphql
