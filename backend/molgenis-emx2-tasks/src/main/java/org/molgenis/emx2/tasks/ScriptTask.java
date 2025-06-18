@@ -160,17 +160,16 @@ public class ScriptTask extends Task {
     byte[] zipFileContent;
     if (this.zipFile.get("zipFile") != null) {
       zipFileName = this.zipFile.get("zipFile_filename").toString();
-      zipFileContent =
-          this.zipFile.get("zipFile_contents") != null
-              ? (byte[]) this.zipFile.get("zipFile_contents")
-              : new byte[0];
+      zipFileContent = (byte[]) this.zipFile.get("zipFile_contents");
     } else {
       zipFileName = "zip.zip";
       zipFileContent = new byte[0];
     }
     Path zipFilePath = tempDir.resolve(zipFileName);
-    FileOutputStream fos = new FileOutputStream(zipFilePath.toFile());
-    fos.write(zipFileContent);
+
+    try (FileOutputStream fos = new FileOutputStream(zipFilePath.toFile())) {
+      fos.write(zipFileContent);
+    }
 
     // define commands (given tempDir as working directory)
     String createVenvCommand = "python3 -m venv venv";
