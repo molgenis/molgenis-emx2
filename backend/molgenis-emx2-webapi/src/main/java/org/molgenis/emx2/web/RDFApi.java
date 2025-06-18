@@ -113,14 +113,14 @@ public class RDFApi {
       throws IOException, NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
     Schema schema = getSchema(ctx);
-    runService(ctx, format, method, schema);
+    runService(ctx, schema, format, method, schema);
   }
 
   private static void rdfForTable(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class);
     Table table = getTableByIdOrName(ctx);
-    runService(ctx, format, method, table);
+    runService(ctx, table.getSchema(), format, method, table);
   }
 
   private static void rdfForRow(Context ctx, RDFFormat format)
@@ -129,7 +129,7 @@ public class RDFApi {
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class);
     Table table = getTableByIdOrName(ctx);
     PrimaryKey primaryKey = PrimaryKey.fromEncodedString(table, sanitize(ctx.pathParam("row")));
-    runService(ctx, format, method, table, primaryKey);
+    runService(ctx, table.getSchema(), format, method, table, primaryKey);
   }
 
   private static void rdfForColumn(Context ctx, RDFFormat format)
@@ -137,17 +137,22 @@ public class RDFApi {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, Column.class);
     Table table = getTableByIdOrName(ctx);
     Column column = column(sanitize(ctx.pathParam("column")));
-    runService(ctx, format, method, table, column);
+    runService(ctx, table.getSchema(), format, method, table, column);
   }
 
   private static void runService(
-      final Context ctx, RDFFormat format, Method method, Object... methodArgs) throws IOException {
+      final Context ctx,
+      final Schema schema,
+      RDFFormat format,
+      final Method method,
+      final Object... methodArgs)
+      throws IOException {
     format = selectFormat(ctx, format);
     ctx.contentType(format.getDefaultMIMEType());
     String baseUrl = extractBaseURL(ctx);
 
     try (OutputStream out = ctx.outputStream()) {
-      try (RdfSchemaService rdfService = new RdfSchemaService(baseUrl, format, out)) {
+      try (RdfSchemaService rdfService = new RdfSchemaService(baseUrl, schema, format, out)) {
         method.invoke(rdfService.getGenerator(), methodArgs);
       } catch (InvocationTargetException | IllegalAccessException e) {
         // Any exceptions thrown should purely be due to bugs in this specific code.
