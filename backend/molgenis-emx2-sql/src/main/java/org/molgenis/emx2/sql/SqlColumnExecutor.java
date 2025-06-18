@@ -317,10 +317,10 @@ public class SqlColumnExecutor {
             column("parent")
                 // .setKey(2)  when we upgrade to psql 15 so we can allow parent == null in
                 // constraint
-                .setType(REF)
+                .setType(REF_ARRAY)
                 .setSemantics("http://purl.obolibrary.org/obo/NCIT_C80013")
                 .setRefTable(name)
-                .setDescription("The parent term, in case this code exists in a hierarchy"),
+                .setDescription("The parent term(s), in case this code exists in a hierarchy"),
             column("codesystem")
                 // we allow that multiple terms link to same code
                 // however, in principle we might have cases where we need multiple codes or even
