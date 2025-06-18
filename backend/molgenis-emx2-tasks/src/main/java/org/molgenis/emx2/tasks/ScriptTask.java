@@ -157,7 +157,6 @@ public class ScriptTask extends Task {
     Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
 
     String extractZipCommand = "";
-    boolean isZip = false;
     if (this.extraFile.get("extraFile") != null) {
       String extraFileName = this.extraFile.get("extraFile_filename").toString();
       byte[] extraFileContent = (byte[]) this.extraFile.get("extraFile_contents");
@@ -168,7 +167,6 @@ public class ScriptTask extends Task {
         fos.write(extraFileContent);
       }
       if (extraFileExtension.equalsIgnoreCase("zip")) {
-        isZip = true;
         extractZipCommand = "unzip " + extraFileName + " -d " + tempDir.toAbsolutePath();
       }
     }
@@ -193,7 +191,7 @@ public class ScriptTask extends Task {
             + runScriptCommand
             + escapedParameters;
 
-    if (isZip) {
+    if (!extractZipCommand.isEmpty()) {
       shellCommands = extractZipCommand + " && " + shellCommands;
     }
 
