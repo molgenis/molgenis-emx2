@@ -15,11 +15,13 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   tls:
-    - hosts: {{ .Values.ingress.hosts }}
+    - hosts:
+        - {{ index .Values.ingress.hosts 0 | quote }}
+        - {{ index .Values.ingress.hosts 1 | quote}}
       secretName: dev.molgenis.org
 
   rules:
-    - host: {{ index .Values.ingress.hosts 1 }}
+    - host: {{ index .Values.ingress.hosts 1 | quote }}
       http:
         paths:
             - path: /.+/graphql
@@ -36,7 +38,7 @@ spec:
                   name: ssr-catalogue
                   port:
                     number: 3000
-    - host: {{ index .Values.ingress.hosts 0 }}
+    - host: {{ index .Values.ingress.hosts 0 | quote }}
       http:
         paths:
           - path: /
