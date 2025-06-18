@@ -6,8 +6,8 @@ import org.molgenis.emx2.rdf.writers.WriterFactory;
 
 /**
  * Contains relevant config data for the RDF module. Use {@link RdfConfigReader} to create object
- * with {@link org.molgenis.emx2.Schema} specific values. Use {@link #getDefaults()} to
- * retrieve a singleton containing the default values.
+ * with {@link org.molgenis.emx2.Schema} specific values. Use {@link #getDefaults()} to retrieve a
+ * singleton containing the default values.
  */
 public class RdfConfig {
   private static final RdfConfig DEFAULT_INSTANCE = new RdfConfig();
