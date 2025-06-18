@@ -35,7 +35,8 @@ public class OntologyTableSemantics {
   void OntologyTableSemanticsTest() {
     OutputStream outputStream = new ByteArrayOutputStream();
     try (RdfSchemaService rdf =
-        new RdfSchemaService("http://localhost:8080", RDFFormat.TURTLE, outputStream)) {
+        new RdfSchemaService(
+            "http://localhost:8080", petStoreSchema, RDFFormat.TURTLE, outputStream)) {
       rdf.getGenerator().generate(petStoreSchema.getTable("Tag"));
     }
     String result = outputStream.toString();
@@ -69,7 +70,8 @@ public class OntologyTableSemantics {
 
     outputStream = new ByteArrayOutputStream();
     try (RdfSchemaService rdf =
-        new RdfSchemaService("http://localhost:8080", RDFFormat.TURTLE, outputStream)) {
+        new RdfSchemaService(
+            "http://localhost:8080", petStoreSchema, RDFFormat.TURTLE, outputStream)) {
       rdf.getGenerator().generate(petStoreSchema.getTable("Tag"));
     }
     result = outputStream.toString();
