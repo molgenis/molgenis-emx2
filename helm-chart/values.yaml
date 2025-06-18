@@ -29,6 +29,7 @@ ingress:
   enabled: true
   hosts:
      - host: emx2.dev.molgenis.org
+     - host: catalogue.dev.molgenis.org
   path: /
 
 postgres:
