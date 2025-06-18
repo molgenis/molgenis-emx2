@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 public class CatalogueSiteMap {
   private static final Logger logger = LoggerFactory.getLogger(CatalogueSiteMap.class);
 
-  private static final String APP_NAME = "catalogue";
   private static final String TYPE_NETWORK = "Network";
   private static final String RESOURCE = "resource";
 
@@ -34,7 +33,7 @@ public class CatalogueSiteMap {
     this.schema = schema;
     this.baseUrl = baseUrl;
 
-    this.basePath = baseUrl + '/' + APP_NAME;
+    this.basePath = baseUrl + '/';
   }
 
   public String buildSiteMap() {

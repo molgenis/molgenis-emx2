@@ -28,4 +28,9 @@ public class Constants {
   Optional api request param key to add system columns ( mg_..) to the result
   */
   public static final String INCLUDE_SYSTEM_COLUMNS = "includeSystemColumns";
+
+  /*
+   Optional setting to override the location of the catalogue site map.
+  */
+  public static final String CATALOGUE_SITE_MAP_LOCATION = "catalogueSiteMapLocation";
 }
