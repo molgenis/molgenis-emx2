@@ -36,7 +36,7 @@ spec:
               pathType: Prefix
               backend:
                 service:
-                  name: catalogue-service
+                  name: ssr-catalogue
                   port:
                     number: 3000
     - host: {{ .host | quote }}
