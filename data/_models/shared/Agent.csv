@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Agent,,,,,,,,,,,"foaf:Agent,vcard:Agent","An agent (e.g. person, group, software or physical artifact)",DataCatalogueFlat
 Agent,,resource,ref,1,TRUE,,Resources,,,,,Resource this agent is associated with,DataCatalogueFlat
-Agent,,id,autoid,1,TRUE,,,,,,,Internal identifier,DataCatalogueFlat
+Agent,,id,auto_id,1,TRUE,,,,,,,Internal identifier,DataCatalogueFlat
 Agent,,website,hyperlink,,,,,,,,"foaf:homepage,vcard:hasURL",A website representing this agent,DataCatalogueFlat
 Agent,,email,email,,,,,,,,"foaf:mbox,vcard:hasEmail",E-mail address of this agent,DataCatalogueFlat
