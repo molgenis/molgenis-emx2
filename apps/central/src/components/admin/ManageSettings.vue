@@ -59,7 +59,7 @@
             />
             <InputText
               v-model="settingValue"
-              label="setting-value"
+              label="setting value"
               id="settings-value"
               name="value"
               :readonly="isValueReadOnly"
