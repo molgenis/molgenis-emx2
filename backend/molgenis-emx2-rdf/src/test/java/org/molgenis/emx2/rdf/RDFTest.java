@@ -10,6 +10,8 @@ import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_GRANDCHILD1_
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_GRANDCHILD1_SECOND;
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_ROOT1_FIRST;
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_ROOT2_FIRST;
+import static org.molgenis.emx2.rdf.RdfParser.parseFile;
+import static org.molgenis.emx2.rdf.RdfParser.parseString;
 import static org.molgenis.emx2.rdf.RdfUtils.SETTING_CUSTOM_RDF;
 import static org.molgenis.emx2.rdf.RdfUtils.SETTING_SEMANTIC_PREFIXES;
 
@@ -17,7 +19,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringReader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -39,8 +40,6 @@ import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandler;
-import org.eclipse.rdf4j.rio.RDFParser;
-import org.eclipse.rdf4j.rio.Rio;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -422,6 +421,17 @@ public class RDFTest {
     database.dropSchema(refBackTest.getName());
     database.dropSchema(refLinkTest.getName());
     database.dropSchema(semanticTest.getName());
+  }
+
+  @Test
+  void testPetStoreRdf() throws IOException {
+    InMemoryRDFHandler expected = new InMemoryRDFHandler(true);
+    parseFile(expected, "rdf_files/rdf_api/pet_store/emx2/schema.ttl");
+
+    InMemoryRDFHandler actual = new InMemoryRDFHandler(true);
+    parseSchemaRdf(actual, petStore_nr1);
+
+    CustomAssertions.equals(expected, actual);
   }
 
   @Test
@@ -1441,7 +1451,6 @@ example,http://example.com/
   /**
    * Helper test method to compare namespaces of 2 schemas.
    *
-   * @param handler handler to be used
    * @param schemaTestprefix prefix for created schemas ("1" & "2" is added to this for the 2
    *     different schemes)
    * @param expectedNamespaces set containing the expected combined namespaces
@@ -1473,39 +1482,43 @@ example,http://example.com/
   }
 
   private InMemoryRDFHandler parseRootRdf(List<Schema> schemas) throws IOException {
-    InMemoryRDFHandler handler = new InMemoryRDFHandler();
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfRootService rdfService =
           new RdfRootService(BASE_URL, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(schemas);
       }
-      parseResultString(handler, outputStream.toString());
+      parseString(handler, outputStream.toString());
     }
     return handler;
   }
 
   private InMemoryRDFHandler parseSchemaRdf(Schema schema) throws IOException {
-    InMemoryRDFHandler handler = new InMemoryRDFHandler();
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
+    parseSchemaRdf(handler, schema);
+    return handler;
+  }
+
+  private void parseSchemaRdf(RDFHandler handler, Schema schema) throws IOException {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfSchemaService rdfService =
           new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(schema);
       }
-      parseResultString(handler, outputStream.toString());
+      parseString(handler, outputStream.toString());
     }
-    return handler;
   }
 
   private InMemoryRDFHandler parseTableRdf(Schema schema, String tableName) throws IOException {
     Table table = schema.getTable(tableName);
 
-    InMemoryRDFHandler handler = new InMemoryRDFHandler();
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfSchemaService rdfService =
           new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(table);
       }
-      parseResultString(handler, outputStream.toString());
+      parseString(handler, outputStream.toString());
     }
     return handler;
   }
@@ -1515,13 +1528,13 @@ example,http://example.com/
     Table table = schema.getTable(tableName);
     PrimaryKey primaryKey = PrimaryKey.fromEncodedString(table, rowId);
 
-    InMemoryRDFHandler handler = new InMemoryRDFHandler();
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfSchemaService rdfService =
           new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(table, primaryKey);
       }
-      parseResultString(handler, outputStream.toString());
+      parseString(handler, outputStream.toString());
     }
     return handler;
   }
@@ -1531,21 +1544,15 @@ example,http://example.com/
     Table table = schema.getTable(tableName);
     Column column = column(columnName);
 
-    InMemoryRDFHandler handler = new InMemoryRDFHandler();
+    InMemoryRDFHandler handler = new InMemoryRDFHandler(false);
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfSchemaService rdfService =
           new RdfSchemaService(BASE_URL, schema, RDFFormat.TURTLE, outputStream)) {
         rdfService.getGenerator().generate(table, column);
       }
-      parseResultString(handler, outputStream.toString());
+      parseString(handler, outputStream.toString());
     }
     return handler;
-  }
-
-  private void parseResultString(RDFHandler handler, String result) throws IOException {
-    RDFParser parser = Rio.createParser(RDFFormat.TURTLE);
-    parser.setRDFHandler(handler);
-    parser.parse(new StringReader(result));
   }
 
   private enum ValidationTriple {

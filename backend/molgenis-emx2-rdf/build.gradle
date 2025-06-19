@@ -5,4 +5,6 @@ dependencies {
     testImplementation project(':backend:molgenis-emx2-io')
     testImplementation project(':backend:molgenis-emx2-tasks')
     testImplementation project(':backend:molgenis-emx2-datamodels')
+
+    testImplementation 'org.apache.commons:commons-collections4:4.5.0'
 }
