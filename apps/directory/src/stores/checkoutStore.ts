@@ -6,6 +6,7 @@ import { IBiobanks } from "../interfaces/directory";
 import { IBiobankIdentifier } from "../interfaces/interfaces";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
+import router from "../router";
 
 export interface ILabelValuePair {
   label: string;
@@ -394,11 +395,16 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       headers: {
         "Content-Type": "application/json",
       },
+      redirect: "follow",
       body: JSON.stringify(payload),
     });
 
     if (response.ok) {
       removeAllFromSelection(false);
+      if (typeof response.headers.get("Location") === "string") {
+        console.log(`Redirecting to: ${response.headers.get("Location")}`);
+        window.location.href = response.headers.get("Location") as string;
+      }
     } else {
       const jsonResponse = await response.json();
       const detail = jsonResponse.detail

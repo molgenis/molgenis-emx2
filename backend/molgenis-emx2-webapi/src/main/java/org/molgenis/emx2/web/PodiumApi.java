@@ -36,6 +36,7 @@ public class PodiumApi {
             .uri(URI.create(podiumRequest.podiumUrl))
             .POST(bodyPublisher)
             .header("Authorization", basicAuthenticationHeader)
+            .header("Content-type", "application/json")
             .build();
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
