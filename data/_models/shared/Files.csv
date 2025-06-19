@@ -15,7 +15,7 @@ Files,,created at source by,ref,,,,Contacts,,,,"http://purl.obolibrary.org/obo/N
 Files,,date updated at source,date,,,,,,,,"dcterms:modified,http://purl.obolibrary.org/obo/NCIT_C16493",The date the record was updated at the source,Patient registry
 Files,,updated at source by,ref,,,,Contacts,,,,"http://purl.obolibrary.org/obo/NCIT_C51820,http://purl.obolibrary.org/obo/NCIT_C16493",The person who updated the record at the source,Patient registry
 Files,,comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material.",Patient registry
-File locations,,,,,,,,,,,,File locations refers to the specific places or paths where files are stored on a computer or within a file system,
+File locations,,,,,,,,,,,,File locations refers to the specific places or paths where files are stored on a computer or within a file system,Patient registry
 File locations,,file,ref,1,TRUE,,Files,,,,http://purl.obolibrary.org/obo/NCIT_C171191,The literal identifier for an electronic file,Patient registry
 File locations,,storage location,ref,1,TRUE,,File storage location,,,,,"The location a file is stored (e.g., server, building, filing cabinet, etc.)",Patient registry
 File locations,,path,string,1,TRUE,,,,,,http://purl.allotrope.org/ontologies/result#AFR_0001927,"A file path is an identifier for a file in a file system or network (e.g., a scp compatible <host>:<path>)",Patient registry
