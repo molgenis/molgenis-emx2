@@ -25,21 +25,23 @@ public class PodiumApi {
     ObjectMapper objectMapper = new ObjectMapper();
     String body = context.body();
     PodiumRequest podiumRequest = objectMapper.readValue(body, PodiumRequest.class);
-    HttpClient client = HttpClient.newHttpClient();
+    HttpResponse<String> response;
+    try (HttpClient client = HttpClient.newHttpClient()) {
+      String basicAuthenticationHeader =
+          getBasicAuthenticationHeader(podiumRequest.podiumUsername, podiumRequest.podiumPassword);
+      HttpRequest.BodyPublisher bodyPublisher =
+          HttpRequest.BodyPublishers.ofString(
+              objectMapper.writeValueAsString(podiumRequest.payload));
+      HttpRequest request =
+          HttpRequest.newBuilder()
+              .uri(URI.create(podiumRequest.podiumUrl))
+              .POST(bodyPublisher)
+              .header("Authorization", basicAuthenticationHeader)
+              .header("Content-type", "application/json")
+              .build();
 
-    String basicAuthenticationHeader =
-        getBasicAuthenticationHeader(podiumRequest.podiumUsername, podiumRequest.podiumPassword);
-    HttpRequest.BodyPublisher bodyPublisher =
-        HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(podiumRequest.payload));
-    HttpRequest request =
-        HttpRequest.newBuilder()
-            .uri(URI.create(podiumRequest.podiumUrl))
-            .POST(bodyPublisher)
-            .header("Authorization", basicAuthenticationHeader)
-            .header("Content-type", "application/json")
-            .build();
-
-    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+      response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
 
     if (response.statusCode() == 202) {
       context.status(201);
