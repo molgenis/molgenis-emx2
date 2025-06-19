@@ -23,9 +23,9 @@ File locations,,included in resources,ref_array,,,,Resources,,,,http://purl.obol
 File locations,,date created at location,date,,,,,,,,"dcterms:created,http://purl.obolibrary.org/obo/NCIT_C16493",The date the record was created at the storage location,Patient registry
 File locations,,created at location by,ref,,,,Contacts,,,,"http://purl.obolibrary.org/obo/NCIT_C51820,http://purl.obolibrary.org/obo/NCIT_C16493",The person who created the record at the storage location,Patient registry
 File locations,,comments,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25393,"A written explanation, observation or criticism added to textual material",Patient registry
-File storage location,,,,,,,,,,,http://purl.obolibrary.org/obo/NGBO_6000399,"The storage location where a file is stored (e.g., server, building, filing cabinet, etc.)",
-File storage location,,name,string,1,TRUE,,,,,,,The identifier assigned to a file storage location,
-File storage location,,type,ontology,,,CatalogueOntologies,File storage locations,,,,,The classification of a the file storage location based on its physical or digital nature,
-File storage location,,owner,ref,,,,Contacts,,,,,The person responsible for the file storage location,
-File storage location,,organisation,ref,,,CatalogueOntologies,Organisations,,,,,The geographic location where this file is stored,
-File storage location,,access protocol,text,,,,,,,,,The protocol used for accessing and retrieving files from the storage location,
+File storage location,,,,,,,,,,,"http://purl.obolibrary.org/obo/NGBO_6000399, http://purl.obolibrary.org/obo/OBI_0302893","The storage location where a file is stored (e.g., server, building, filing cabinet, etc.)",Patient registry
+File storage location,,name,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C42614,The name that identifies the file storage location,Patient registry
+File storage location,,type,ontology,,,CatalogueOntologies,File storage locations,,,,http://purl.obolibrary.org/obo/NGBO_6000081,The classification of a file storage location based on its physical or digital nature,Patient registry
+File storage location,,owner,ref,,,,Contacts,,,,http://purl.obolibrary.org/obo/NCIT_C42704,The person responsible of or primary contact for the file storage location,Patient registry
+File storage location,,organisation,ref,,,CatalogueOntologies,Organisations,,,,http://purl.obolibrary.org/obo/OBI_0000245,The organisation where the the file storage is located,Patient registry
+File storage location,,access protocol,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C51820,The protocol used for accessing and retrieving files from the storage location,Patient registry
