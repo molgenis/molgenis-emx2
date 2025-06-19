@@ -36,16 +36,7 @@
     <template #footer="{ hide }">
       <div class="flex width-full justify-end">
         <menu class="flex items-center justify-end h-[82px] gap-[10px]">
-          <Button
-            v-if="refStack.length === 0"
-            type="secondary"
-            size="medium"
-            @click="hide"
-            >Close</Button
-          >
-          <Button type="primary" size="medium" @click=""
-            >Go to {{ refColumnLabel }}</Button
-          >
+          <Button type="primary" size="medium" @click="hide">Close</Button>
         </menu>
       </div>
     </template>
