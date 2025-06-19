@@ -1,0 +1,18 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
+Organisations,,,,,,,,,,,,"Metadata on an organisation (e.g., university, hospital, institution, etc.) including aliases and geolocation (ideally from ROR)"
+Organisations,,name,string,1,TRUE,,,,,,,
+Organisations,,label,string,,,,,,,,,
+Organisations,,acronym,string,,,,,,,,,
+Organisations,,parent,ref,,,,Organisations,,,,,
+Organisations,,codesystem,string,,,,,,,,,
+Organisations,,code,string,,,,,,,,,
+Organisations,,ontologyTermURI,hyperlink,,,,,,,,,
+Organisations,,semantics,string,,,,,,,,,
+Organisations,,type,string_array,,,,,,,,,"One or more values that define the type of organisation. From ROR, this is can be funder, healthcare, etc."
+Organisations,,definition,string,,,,,,,,,
+Organisations,,aliases,string_array,,,,,,,,,Additional names that also refer to an organisation
+Organisations,,country,ontology,,,CatalogueOntologies,Countries,,,,SIO:000664,A country is a region legally identified as a distinct entity in political geography.
+Organisations,,city,string,,,,,,,,SIO:000665,A city is a relatively large and permanent settlement.
+Organisations,,latitude,decimal,,,,,,,,SIO:000319,Latitude is a geographic coordinate which refers to the angle from a point on the Earth's surface to the equatorial plane. Can be considered as the Y-axis
+Organisations,,longitude,decimal,,,,,,,,SIO:000318,Longitude is a geographic position that refers to the angle east or west of a reference meridian between the two geographical poles to another meridian that passes through an arbitrary point. Can be considered as the X-axis
+Organisations,,children,refback,,,,Organisations,,parent,,,

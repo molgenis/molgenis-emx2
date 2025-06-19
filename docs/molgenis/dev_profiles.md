@@ -47,6 +47,7 @@ In addition, more specialized options can be used:
 | setFixedSchemaViewPermission | Apply view permissions to specified user or role to the the schema specified by ontologiesToFixedSchema.                                                                                                                                                                                                                                                                                                                                             |
 | setFixedSchemaEditPermission | Apply editor permissions to specified user or role to the the schema specified by ontologiesToFixedSchema.                                                                                                                                                                                                                                                                                                                                           |
 | firstCreateSchemasIfMissing  | Before creating the schema and ontologies specified by this profile, import one more more other profiles first. Required 3 additional properties to be provided: name, profile and importDemoData. Name specified the name under which the other profile should be imported. Profile points to the profile YAML file. Lastly, importDemoData is either true or false and specified whether the demo data for this profile should be imported or not. |
+| additionalFixedSchemaModel | If `ontologiesToFixedSchema` is defined, you can expand the schema by setting the path to the directory that contains the EMX2 file to import. This allows you to added new tables, extend existing ones, or update the metadata. It is recommend to store the model at `data/_models/specific/<dirname>`. In the yaml profile, add the line: `additionalFixedSchemaModel:...` and the path should be formated as `_models/specific/...`  |
 
 ## Complete example
 
@@ -74,6 +75,7 @@ setEditPermission: user
 ontologiesToFixedSchema: CatalogueOntologies
 setFixedSchemaViewPermission: anonymous
 setFixedSchemaEditPermission: user
+additionalFixedSchemaModel: _models/specific/ontologies
 
 firstCreateSchemasIfMissing:
   - name: catalogue

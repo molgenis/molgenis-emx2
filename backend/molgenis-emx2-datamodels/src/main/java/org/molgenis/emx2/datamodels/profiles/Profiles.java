@@ -26,6 +26,7 @@ public class Profiles {
   private String setFixedSchemaViewPermission;
   private String setFixedSchemaEditPermission;
   private List<CreateSchemas> firstCreateSchemasIfMissing;
+  private String additionalFixedSchemaModel;
 
   public String getSetFixedSchemaViewPermission() {
     return setFixedSchemaViewPermission;
@@ -137,5 +138,13 @@ public class Profiles {
 
   public void setSetViewPermission(String setViewPermission) {
     this.setViewPermission = setViewPermission;
+  }
+
+  public String getAdditionalFixedSchemaModel() {
+    return additionalFixedSchemaModel;
+  }
+
+  public void setAdditionalFixedSchemaModel(String additionalFixedSchemaModel) {
+    this.additionalFixedSchemaModel = additionalFixedSchemaModel;
   }
 }
