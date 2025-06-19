@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 public class CatalogueSiteMap {
   private static final Logger logger = LoggerFactory.getLogger(CatalogueSiteMap.class);
 
-  private static final String APP_NAME = "catalogue";
   private static final String TYPE_NETWORK = "Network";
   private static final String RESOURCE = "resource";
 
@@ -28,13 +27,10 @@ public class CatalogueSiteMap {
 
   private final Schema schema;
   private final String baseUrl;
-  private final String basePath;
 
   public CatalogueSiteMap(Schema schema, String baseUrl) {
     this.schema = schema;
     this.baseUrl = baseUrl;
-
-    this.basePath = baseUrl + '/' + APP_NAME;
   }
 
   public String buildSiteMap() {
@@ -53,7 +49,7 @@ public class CatalogueSiteMap {
                 String collectionId = resource.getString("id");
                 ResourcePath resourcePath = getResourcePath(resource);
                 try {
-                  wsg.addUrl(urlForResource(basePath, resourcePath, collectionId));
+                  wsg.addUrl(urlForResource(baseUrl, resourcePath, collectionId));
                 } catch (MalformedURLException e) {
                   logger.error(
                       "Failed to generate sitemap url (schema: ({} , path: {} , id: {}",
@@ -133,7 +129,7 @@ public class CatalogueSiteMap {
     return new WebSitemapUrl.Options(
             "%s/all/variables/%s%s"
                 .formatted(
-                    basePath,
+                    baseUrl,
                     encodePathSegment(variableIdPathSegment),
                     "?keys=" + encodeQueryParam(variableIdQueryParamValue)))
         .build();

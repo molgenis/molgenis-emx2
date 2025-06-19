@@ -6,6 +6,7 @@ import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -33,8 +34,11 @@ public class OntologyTableSemantics {
   @Test
   void OntologyTableSemanticsTest() {
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService rdf = new RDFService("http://localhost:8080", null);
-    rdf.describeAsRDF(outputStream, petStoreSchema.getTable("Tag"), null, null, petStoreSchema);
+    try (RdfSchemaService rdf =
+        new RdfSchemaService(
+            "http://localhost:8080", petStoreSchema, RDFFormat.TURTLE, outputStream)) {
+      rdf.getGenerator().generate(petStoreSchema.getTable("Tag"));
+    }
     String result = outputStream.toString();
 
     /**
@@ -65,7 +69,11 @@ public class OntologyTableSemantics {
     petStoreSchema.migrate(metadata);
 
     outputStream = new ByteArrayOutputStream();
-    rdf.describeAsRDF(outputStream, petStoreSchema.getTable("Tag"), null, null, petStoreSchema);
+    try (RdfSchemaService rdf =
+        new RdfSchemaService(
+            "http://localhost:8080", petStoreSchema, RDFFormat.TURTLE, outputStream)) {
+      rdf.getGenerator().generate(petStoreSchema.getTable("Tag"));
+    }
     result = outputStream.toString();
 
     /**

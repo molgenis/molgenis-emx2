@@ -149,7 +149,7 @@ jobs:
     - run:
         name: Wait for preview to be up, poll every 10 seconds
         command: |
-          GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/catalogue/testNetwork1"
+          GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/testNetwork1"
           while true; 
               do 
                   STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
@@ -264,7 +264,7 @@ jobs:
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.52.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.53.1-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
@@ -284,7 +284,7 @@ jobs:
       - run:
           name: Wait for catalogue e2e test data to be loaded, poll every 10 seconds
           command: |
-            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/catalogue/testNetwork1"           
+            GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/catalogue/testNetwork1"           
             while true; 
                 do 
                     STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
@@ -302,7 +302,7 @@ jobs:
           command: |
             yarn playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            export E2E_BASE_URL=https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
             yarn e2e
           working_directory: apps/catalogue
