@@ -45,6 +45,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
+import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
+import org.molgenis.emx2.rdf.generators.SemanticRdfGenerator;
+import org.molgenis.emx2.rdf.writers.WriterFactory;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFTest {
@@ -423,8 +426,9 @@ public class RDFTest {
     database.dropSchema(semanticTest.getName());
   }
 
+  // Full RDF output tests.
   @Test
-  void testPetStoreRdf() throws IOException {
+  void testPetStoreRdfEmx2Schema() throws IOException {
     InMemoryRDFHandler expected = new InMemoryRDFHandler(true);
     parseFile(expected, "rdf_files/rdf_api/pet_store/emx2/schema.ttl");
 
@@ -434,6 +438,27 @@ public class RDFTest {
     CustomAssertions.equals(expected, actual);
   }
 
+  @Test
+  void testPetStoreRdfSemanticSchema() throws IOException {
+    InMemoryRDFHandler expected = new InMemoryRDFHandler(true);
+    parseFile(expected, "rdf_files/rdf_api/pet_store/semantic/schema.ttl");
+
+    InMemoryRDFHandler actual = new InMemoryRDFHandler(true);
+    try {
+      RdfParser.parseRdf(
+          actual,
+          WriterFactory.MODEL,
+          SemanticRdfGenerator.class,
+          RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
+          petStore_nr1);
+    } catch (NoSuchMethodException e) {
+      throw new RuntimeException(e);
+    }
+
+    CustomAssertions.equals(expected, actual);
+  }
+
+  // Old selective output tests.
   @Test
   void testThatColumnsAreAProperty() throws IOException {
     InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);

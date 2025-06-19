@@ -1,3 +1,4 @@
+@prefix PetStoreNr1: <http://localhost:8080/petStoreNr1/api/rdf/> .
 @prefix afr: <http://purl.allotrope.org/ontologies/result#> .
 @prefix afrl: <http://purl.allotrope.org/ontologies/role#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
@@ -21,7 +22,6 @@
 @prefix ordo: <http://www.orpha.net/ORDO/> .
 @prefix org: <http://www.w3.org/ns/org#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix PetStoreNr1: <http://localhost:8080/petStoreNr1/api/rdf/> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix qb: <http://purl.org/linked-data/cube#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -33,28 +33,28 @@
 @prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://localhost:8080/pet%20store/api/rdf/Tag/name=colors> rdfs:label "colors".
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=colors> rdfs:label "colors".
 
-<http://localhost:8080/pet%20store/api/rdf/Tag/name=red> rdfs:label "red";
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red> rdfs:label "red";
   owl:sameAs <https://dbpedia.org/page/Red> .
 
-<http://localhost:8080/pet%20store/api/rdf/Tag/name=green> rdfs:label "green";
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green> rdfs:label "green";
   owl:sameAs <https://dbpedia.org/page/Green> .
 
-<http://localhost:8080/pet%20store/api/rdf/Tag/name=blue> rdfs:label "blue".
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue> rdfs:label "blue".
 
-<http://localhost:8080/pet%20store/api/rdf/Tag/name=purple> rdfs:label "purple".
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple> rdfs:label "purple".
 
-<http://localhost:8080/pet%20store/api/rdf/Tag/name=species> rdfs:label "species".
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=species> rdfs:label "species".
 
-<http://localhost:8080/pet%20store/api/rdf/Tag/name=mammals> rdfs:label "mammals".
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=mammals> rdfs:label "mammals".
 
-<http://localhost:8080/pet%20store/api/rdf/Tag/name=mammals> rdfs:label "mammals".
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=mammals> rdfs:label "mammals".
 
-<http://localhost:8080/pet%20store/api/rdf/Tag/name=carnivorous%20mammals> rdfs:label "carnivorous mammals".
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=carnivorous%20mammals> rdfs:label "carnivorous mammals".
 
-<http://localhost:8080/pet%20store/api/rdf/Tag/name=herbivorous%20mammals> rdfs:label "herbivorous mammals".
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=herbivorous%20mammals> rdfs:label "herbivorous mammals".
 
-<http://localhost:8080/pet%20store/api/rdf/Tag/name=birds> rdfs:label "birds".
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=birds> rdfs:label "birds".
 
-<http://localhost:8080/pet%20store/api/rdf/Tag/name=insect> rdfs:label "insect".
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=insect> rdfs:label "insect".
