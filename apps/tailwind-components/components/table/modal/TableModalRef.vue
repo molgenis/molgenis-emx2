@@ -43,13 +43,6 @@
             @click="hide"
             >Close</Button
           >
-          <Button
-            v-else
-            type="secondary"
-            size="medium"
-            @click="handleBackBtnClicked"
-            >Back to {{ backBtnLabel }}</Button
-          >
           <Button type="primary" size="medium" @click=""
             >Go to {{ refColumnLabel }}</Button
           >
@@ -101,7 +94,6 @@ const sourceTableMetadata = ref<ITableMetaData>();
 interface IRefStackItem {
   refRow: IRow;
   refMetadata: ITableMetaData;
-  backBtnLabel?: string;
 }
 const refStack = ref<IRefStackItem[]>([]);
 
@@ -133,13 +125,6 @@ const refSubTitle = computed(() => {
     (column) => column.id === refColumnId.value
   );
   return column?.refTableId ?? props.metadata.refTableId;
-});
-
-const backBtnLabel = computed(() => {
-  if (refStack.value.length === 0) {
-    return "";
-  }
-  return refStack.value[refStack.value.length - 1].backBtnLabel;
 });
 
 async function fetchData(
@@ -212,7 +197,6 @@ function handleValueClicked(event: RefPayload) {
     refStack.value.push({
       refRow: unref(refRow.value),
       refMetadata: unref(refRowMetadata.value),
-      backBtnLabel: refColumnLabel.value,
     });
   }
 
@@ -224,13 +208,5 @@ function handleValueClicked(event: RefPayload) {
     event.metadata.refSchemaId ?? props.schema,
     refRowMetadata.value?.id ?? props.sourceTableId
   );
-}
-
-function handleBackBtnClicked() {
-  const previous = refStack.value.pop();
-  if (previous) {
-    refRow.value = previous.refRow;
-    refRowMetadata.value = previous.refMetadata;
-  }
 }
 </script>
