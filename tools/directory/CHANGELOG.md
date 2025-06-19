@@ -1,4 +1,7 @@
 # Changelog
+## Version 1.2.2
+- Increase csv module's field size limit
+
 ## Version 1.2.1
 - Fix incompatibility issue with latest EMX2-pyclient
 
