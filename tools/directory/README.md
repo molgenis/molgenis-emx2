@@ -141,6 +141,9 @@ Or install locally
 (venv) $ pip install dist/molgenis_emx2_pyclient*.whl
 ```
 
+When releasing a new version, don't forget to update CHANGELOG.md and,
+if applicable, README.md and AUTHORS.md.
+
 ## Note
 
 This project has been set up using PyScaffold 4.0.2. For details and usage
