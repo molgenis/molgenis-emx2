@@ -108,7 +108,8 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     getWriter().processTriple(subject, RDFS.LABEL, Values.literal(schema.getName()));
     getWriter().processTriple(subject, DCTERMS.IS_PART_OF, Values.iri(getBaseURL()));
     getWriter().processTriple(subject, RDF.TYPE, RDFS.CONTAINER);
-    if (schema.getMetadata().getDescription() != null) {
+    if (schema.getMetadata().getDescription() != null
+        && !schema.getMetadata().getDescription().isEmpty()) {
       getWriter()
           .processTriple(
               subject, DCTERMS.DESCRIPTION, Values.literal(schema.getMetadata().getDescription()));
@@ -160,9 +161,11 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
 
     if (table.getMetadata().getDescriptions() != null) {
       for (final var entry : table.getMetadata().getDescriptions().entrySet()) {
-        getWriter()
-            .processTriple(
-                subject, DCTERMS.DESCRIPTION, Values.literal(entry.getValue(), entry.getKey()));
+        if (!entry.getValue().isEmpty()) {
+          getWriter()
+              .processTriple(
+                  subject, DCTERMS.DESCRIPTION, Values.literal(entry.getValue(), entry.getKey()));
+        }
       }
     }
   }

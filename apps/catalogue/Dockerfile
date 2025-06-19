@@ -24,6 +24,9 @@ ENV NUXT_HOST=0.0.0.0
 # Set app port
 ENV NUXT_PORT=$PORT
 
+# Set the catalogue schema
+ENV NUXT_PUBLIC_SCHEMA=$NUXT_PUBLIC_SCHEMA
+
 # Set the base url
 ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
 
