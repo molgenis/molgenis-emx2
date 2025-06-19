@@ -40,9 +40,7 @@
 
 <http://localhost:8080/petStoreNr1/api/rdf> a rdfs:Container;
   rdfs:label "petStoreNr1";
-  dcterms:isPartOf <http://localhost:8080>;
-  ldp:contains PetStoreNr1:Category, PetStoreNr1:Pet, PetStoreNr1:User, PetStoreNr1:Order,
-    PetStoreNr1:Tag .
+  dcterms:isPartOf <http://localhost:8080>.
 
 <http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat> 
   rdfs:label "cat";
