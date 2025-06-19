@@ -137,17 +137,7 @@
   dcterms:modified "2025-06-16T15:01:16"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3Ae27c852c-29e2-4459-bcf1-98d8907ff77b>
-  a PetStoreNr1:Order, qb:Observation;
-  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
-  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3Ae27c852c-29e2-4459-bcf1-98d8907ff77b>;
-  qb:dataSet PetStoreNr1:Order;
   rdfs:label "ORDER:e27c852c-29e2-4459-bcf1-98d8907ff77b";
-  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/orderId> "ORDER:e27c852c-29e2-4459-bcf1-98d8907ff77b";
-  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/pet> <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>;
-  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/quantity> "7"^^xsd:long;
-  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/price> 1.499E1;
-  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/complete> false;
-  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/status> "approved";
   dcterms:created "2025-06-16T15:01:16"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:16"^^xsd:dateTime .
 
