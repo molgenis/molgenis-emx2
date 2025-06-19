@@ -24,14 +24,7 @@ spec:
     - host: {{ index .Values.ingress.hosts 1 | quote }}
       http:
         paths:
-            - path: /.+/graphql
-              pathType: ImplementationSpecific
-              backend:
-                service:
-                  name: {{ $fullName }}
-                  port:
-                    number: 8080
-            - path: /.+/sitemap.xml
+            - path: /.+/(graphql|sitemap\.xml|docs)
               pathType: ImplementationSpecific
               backend:
                 service:
