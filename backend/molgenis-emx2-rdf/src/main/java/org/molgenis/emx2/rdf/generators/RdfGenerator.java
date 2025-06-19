@@ -10,12 +10,20 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
+import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Query;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
+import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
@@ -91,5 +99,24 @@ public abstract class RdfGenerator {
       // only adds triples, does not transfer defined namespaces!
       model.forEach(writer::processTriple);
     }
+  }
+
+  /**
+   * @param fileIri the subject to be used
+   * @param row
+   * @param column should refer to {@link Column} that is {@link org.molgenis.emx2.ColumnType#FILE}
+   */
+  protected void generateFileTriples(IRI fileIri, Row row, Column column) {
+    getWriter().processTriple(fileIri, RDF.TYPE, BasicIRI.SIO_FILE);
+    Literal fileName = Values.literal(row.getString(column.getName() + "_filename"));
+    getWriter().processTriple(fileIri, RDFS.LABEL, fileName);
+    getWriter().processTriple(fileIri, DCTERMS.TITLE, fileName);
+    getWriter()
+        .processTriple(
+            fileIri,
+            DCTERMS.FORMAT,
+            Values.iri(
+                "http://www.iana.org/assignments/media-types/"
+                    + row.getString(column.getName() + "_mimetype")));
   }
 }
