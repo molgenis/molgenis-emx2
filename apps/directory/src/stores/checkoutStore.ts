@@ -6,7 +6,6 @@ import { IBiobanks } from "../interfaces/directory";
 import { IBiobankIdentifier } from "../interfaces/interfaces";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
-import router from "../router";
 
 export interface ILabelValuePair {
   label: string;
@@ -91,10 +90,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
 
     /** only add if this is a different query than before */
-    if (
-      searchHistory.value.length &&
-      searchHistory.value[searchHistory.value.length - 1] !== history
-    ) {
+    if (searchHistory.value![searchHistory.value.length - 1] !== history) {
       searchHistory.value.push(history);
     }
   }
@@ -379,7 +375,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     const humanReadable = getHumanReadableString() + createHistoryJournal();
     const collections: any[] = getV1CollectionsToSend();
     const URL = window.location.href.replace(/&nToken=\w{32}/, "");
-    const payload: Record<string, any> = {
+    const body: Record<string, any> = {
       podiumUrl: negotiatorUrl,
       podiumUsername: negotiatorUsername,
       podiumPassword: negotiatorPassword,
@@ -387,7 +383,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     };
 
     if (nToken.value) {
-      payload.nToken = nToken.value;
+      body.nToken = nToken.value;
     }
 
     const response = await fetch(`/api/podium`, {
@@ -395,14 +391,12 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       headers: {
         "Content-Type": "application/json",
       },
-      redirect: "follow",
-      body: JSON.stringify(payload),
+      body: JSON.stringify(body),
     });
 
     if (response.ok) {
       removeAllFromSelection(false);
       if (typeof response.headers.get("Location") === "string") {
-        console.log(`Redirecting to: ${response.headers.get("Location")}`);
         window.location.href = response.headers.get("Location") as string;
       }
     } else {
@@ -415,12 +409,6 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
         `An unknown error occurred with the Negotiator. Please try again later.${detail}`
       );
     }
-
-    // const { val, done } = await response?.body?.getReader().read();
-
-    // const body = await response.json();
-
-    // window.location.href = body.redirectUrl;
   }
 
   async function doNegotiatorV3Request() {
@@ -443,6 +431,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     if (response.ok) {
       removeAllFromSelection(false);
+      const body = await response.json();
+      window.location.href = body.redirectUrl;
     } else {
       const statusCode = response.status;
       const jsonResponse = await response.json();
@@ -474,10 +464,6 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
           );
       }
     }
-
-    const body = await response.json();
-
-    window.location.href = body.redirectUrl;
   }
 
   function getV1CollectionsToSend() {
@@ -546,21 +532,21 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   }
 
   return {
-    nToken,
-    setSearchHistory,
-    searchHistory,
     checkoutValid,
+    collectionSelectionCount,
     cartUpdated,
-    sendToNegotiator,
+    nToken,
+    searchHistory,
     selectedCollections,
     selectedServices,
-    collectionSelectionCount,
     serviceSelectionCount,
     addCollectionsToSelection,
     addServicesToSelection,
+    isInCart,
+    removeAllFromSelection,
     removeCollectionsFromSelection,
     removeServicesFromSelection,
-    removeAllFromSelection,
-    isInCart,
+    sendToNegotiator,
+    setSearchHistory,
   };
 });
