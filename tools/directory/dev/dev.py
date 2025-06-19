@@ -12,7 +12,9 @@ from tools.directory.src.molgenis_emx2.directory_client.directory import Directo
 from tools.directory.src.molgenis_emx2.directory_client.directory_client import (
     DirectorySession,
 )
-from tools.directory.src.molgenis_emx2.directory_client.pid_service import PidService
+from tools.directory.src.molgenis_emx2.directory_client.pid_service import (
+    DummyPidService,
+)
 
 # Get credentials from .env
 load_dotenv()
@@ -41,10 +43,10 @@ async def sync_directory():
         nodes_to_publish = session.get_nodes()
 
         # Create PidService
-        pid_service = PidService.from_credentials("pyhandle_creds.json")
-        print(f"Script runs on server {pid_service.base_url}")
+        # pid_service = PidService.from_credentials("pyhandle_creds.json")
+        # print(f"Script runs on server {pid_service.base_url}")
         # Use the DummyPidService if testing without interacting with a handle server
-        # pid_service = DummyPidService()
+        pid_service = DummyPidService()
         # Use the NoOpPidService if you want to turn off the PID features completely
         # pid_service = NoOpPidService()
 
