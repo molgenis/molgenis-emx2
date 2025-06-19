@@ -6,7 +6,5 @@ test("test sitemap generation", async ({ request }) => {
     : "http://localhost:8080/";
   const resp = await request.get(location + "catalogue-demo/sitemap.xml");
   const xml = await resp.text();
-  expect(xml).toContain(
-    `<loc>${location}catalogue-demo/catalogue/all/collections/ABCD</loc>`
-  );
+  expect(xml).toContain(`<loc>${location}/all/collections/ABCD</loc>`);
 });
