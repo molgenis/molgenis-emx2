@@ -202,10 +202,6 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     getWriter().processTriple(subject, RDFS.DOMAIN, tableIRI(getBaseURL(), column.getTable()));
     if (column.getSemantics() != null) {
       for (String columnSemantics : column.getSemantics()) {
-        if (columnSemantics.equals("id")) {
-          // todo: need to figure out how to better handle 'id' tagging
-          columnSemantics = BasicIRI.SIO_IDENTIFIER.stringValue();
-        }
         try {
           getWriter()
               .processTriple(
