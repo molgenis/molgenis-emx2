@@ -11,8 +11,8 @@ test('test set custom database level menu', async ({ page }) => {
   await page.getByRole('link', { name: 'Admin' }).click();
   await page.getByRole('link', { name: 'Settings' }).click();
   await page.getByLabel('Add').click();
-  await page.locator('input[type="text"]').first().click();
-  await page.locator('input[type="text"]').first().fill('menu');
+  await page.getByLabel('key').click();
+  await page.getByLabel('key').fill('menu');
   await page.locator('textarea').click();
   await page.locator('textarea').press('ControlOrMeta+Tab');
   await page.locator('textarea').fill('[{"label":"Blabla","href":"https://google.com"}]');
