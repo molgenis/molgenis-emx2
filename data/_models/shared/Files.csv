@@ -27,5 +27,5 @@ File storage location,,,,,,,,,,,"http://purl.obolibrary.org/obo/NGBO_6000399, ht
 File storage location,,name,string,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C42614,The name that identifies the file storage location,Patient registry
 File storage location,,type,ontology,,,CatalogueOntologies,File storage locations,,,,http://purl.obolibrary.org/obo/NGBO_6000081,The classification of a file storage location based on its physical or digital nature,Patient registry
 File storage location,,owner,ref,,,,Contacts,,,,http://purl.obolibrary.org/obo/NCIT_C42704,The person responsible of or primary contact for the file storage location,Patient registry
-File storage location,,organisation,ref,,,CatalogueOntologies,Organisations,,,,http://purl.obolibrary.org/obo/OBI_0000245,The organisation where the the file storage is located,Patient registry
+File storage location,,organisation,ref,,,,Organisations,,,,http://purl.obolibrary.org/obo/OBI_0000245,The organisation where the the file storage is located,Patient registry
 File storage location,,access protocol,text,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C51820,The protocol used for accessing and retrieving files from the storage location,Patient registry
