@@ -52,6 +52,9 @@
     --color-disabled-foreground: var(--color-gray-400);
     --color-disabled-background: var(--color-gray-100);
 
+    --text-color-logo-text: var(--color-white);
+    --text-color-logo-text-inverted: var(--color-blue-500);
+
     --box-shadow-primary: 0px 10px 20px rgba(0, 0, 0, 0.1);
     --box-shadow-input-hover: inset 0 0 1px 1px var(--color-blue-700);
     --box-shadow-search-input: none;
