@@ -1,2 +1,17 @@
-name,definition,codesystem,code,ontologyTermURI
-server,A server is a computer which provides some service for other computers connected to it via a network.,NCIT,NCIT_C48297,http://purl.obolibrary.org/obo/NCIT_C48297
+order,name,parent,definition,codesystem,code,ontologyTermURI
+0,Computer,,A machine for performing calculations automatically.,NCIT,NCIT:C16464,http://purl.obolibrary.org/obo/NCIT_C16464
+1,Server,Computer,A computer which provides some service for other computers connected to it via a network.,NCIT,NCIT:C48297,http://purl.obolibrary.org/obo/NCIT_C48297
+2,Computer Disk,,A flat rotating disk designed for data storage. Data is stored on either or both surfaces of disks in concentric rings called tracks.,NCIT,NCIT:C72073,http://purl.obolibrary.org/obo/NCIT_C72073
+3,CD-ROM,Computer Disk,An optical disc storage system for computers on which data can be read or from which data can be retrieved but not entered or modified.,NCIT,NCIT:C17347,http://purl.obolibrary.org/obo/NCIT_C173477
+4,Compact Disc-Interactive,Computer Disk,"An optical disk that is physically the same as an audio CD, but contains multimedia information (images, sound, etc.) The user can interact with films, games and educational programs.",NCIT,NCIT:C19541,http://purl.obolibrary.org/obo/NCIT_C19541
+5,Computer Hard Disk,Computer Disk,A rigid magnetic disk mounted permanently in a drive unit.,NCIT,NCIT:C72072,http://purl.obolibrary.org/obo/NCIT_C72072
+6,Archive,,"A place or collection containing records, documents, or other materials, especially those of historical interest.",NCIT,NCIT:C156018,http://purl.obolibrary.org/obo/NCIT_C156018
+7,Database,,"An information set with a regular structure. Although it can be applied to any set of information the term was invented to refer to computerized data, and is used almost exclusively in computing.",NCIT,NCIT:C15426,http://purl.obolibrary.org/obo/NCIT_C15426
+8,Digital Data Repository,,A storage location for digital data.,NCIT,NCIT:C114457,http://purl.obolibrary.org/obo/NCIT_C114457
+9,Data Warehouse,Digital Data Repository,A central repository of information in a predefined and fixed schema for the purpose of analyzing the data.,NCIT,NCIT:C203662,http://purl.obolibrary.org/obo/NCIT_C2036622
+10,Digital Archive,Digital Data Repository,A storage location for historical digital data.,NCIT,NCIT:C114463,http://purl.obolibrary.org/obo/NCIT_C1144633
+11,Electronic Document Room,Digital Data Repository,The online repository for electronic FDA CDER submissions; it is an extension of the Central Document Room.,NCIT,NCIT:C156649,http://purl.obolibrary.org/obo/NCIT_C156649
+12,Study Data Repository,Digital Data Repository,A database in which study data are stored for access and use by the scientific community.,NCIT,NCIT:C189151,http://purl.obolibrary.org/obo/NCIT_C189151
+13,Storage Unit,,A physical structure or device capable of holding objects or samples.,NCIT,NCIT:C45322,http://purl.obolibrary.org/obo/NCIT_C45322
+14,Repository,Storage Unit,A facility where items can be deposited for storage or safekeeping.,NCIT,NCIT:C16143,http://purl.obolibrary.org/obo/NCIT_C16143
+15,Research Repository,Repository,A collection of participant data and/or samples that are stored for future research.,NCIT,NCIT:C203936,http://purl.obolibrary.org/obo/NCIT_C203936
