@@ -118,7 +118,14 @@ direction TB
       });
     }
     table.columns.forEach((column) => {
-      if (column.columnType === "REF" || column.columnType === "REF_ARRAY") {
+      if (
+        column.columnType === "REF" ||
+        column.columnType === "REF_ARRAY" ||
+        column.columnType === "RADIO" ||
+        column.columnType === "CHECKBOX" ||
+        column.columnType === "SELECT" ||
+        column.columnType === "MULTISELECT"
+      ) {
         graph += `  class \`${column.refTableName}\`\n`;
         graph += `  \`${column.refTableName}\` <-- \`${column.table}\` : ${column.name} \n`;
       }
