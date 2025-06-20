@@ -33,7 +33,7 @@ const props = defineProps<{
                   v-if="catalogue?.logo?.url"
                   :src="catalogue?.logo?.url"
                   class="h-full object-contain"
-                  alt="Catalogue Logo"
+                  :alt="catalogue.name"
                 />
               </div>
             </NuxtLink>
