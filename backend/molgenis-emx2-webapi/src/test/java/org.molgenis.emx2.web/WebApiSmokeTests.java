@@ -26,6 +26,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
@@ -34,6 +38,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.*;
+import org.mockito.ArgumentMatchers;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -160,11 +167,7 @@ public class WebApiSmokeTests {
               startLatch.await();
 
               String signinResult =
-                  RestAssured.given()
-                      .sessionId(SESSION_ID)
-                      .body(signinQuery)
-                      .post("/api/graphql")
-                      .asString();
+                  given().sessionId(SESSION_ID).body(signinQuery).post("/api/graphql").asString();
 
               try {
                 assertTrue(
@@ -1415,24 +1418,24 @@ public class WebApiSmokeTests {
     db.dropSchemaIfExists("ScriptWithFileUpload");
     String script =
         """
-import asyncio
-import logging
-import os
-from molgenis_emx2_pyclient import Client
+            import asyncio
+            import logging
+            import os
+            from molgenis_emx2_pyclient import Client
 
-async def main():
-    logging.basicConfig(level='INFO')
-    logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
+            async def main():
+                logging.basicConfig(level='INFO')
+                logging.getLogger("requests").setLevel(logging.WARNING)
+                logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
-        await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
-                    template="PET_STORE", include_demo_data=False)
+                async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
+                    await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
+                                template="PET_STORE", include_demo_data=False)
 
-if __name__ == '__main__':
-    asyncio.run(main())
+            if __name__ == '__main__':
+                asyncio.run(main())
 
-""";
+            """;
     jobs.insert(
         row(
             "name",
@@ -1503,8 +1506,8 @@ if __name__ == '__main__':
   private static String getToken(String email, String password) throws JsonProcessingException {
     String mutation =
         """
-        mutation { signin(email: "%s" ,password: "%s" ) { message, token } }
-        """
+            mutation { signin(email: "%s" ,password: "%s" ) { message, token } }
+            """
             .formatted(email, password);
 
     Map<String, String> request = new HashMap<>();
@@ -1591,17 +1594,17 @@ if __name__ == '__main__':
         given()
             .body(
                 """
-          {
-            "query": {
-            "filters": [
-              {
-              "id": "NCIT:C28421",
-              "value": "GSSO_000123",
-              "operator": "="
-              }
-            ]
-            }
-          }""")
+                    {
+                      "query": {
+                      "filters": [
+                        {
+                        "id": "NCIT:C28421",
+                        "value": "GSSO_000123",
+                        "operator": "="
+                        }
+                      ]
+                      }
+                    }""")
             .post("/api/beacon/individuals")
             .asString();
     assertTrue(result.contains("datasets"));
@@ -1730,5 +1733,45 @@ if __name__ == '__main__':
       Thread.sleep(1000);
     }
     return firstJob;
+  }
+
+  @Test
+  void testPodiumApi() {
+    PodiumApi.PodiumRequest podiumBody = new PodiumApi.PodiumRequest();
+    podiumBody.podiumUrl = "http://testUrl.com";
+    podiumBody.podiumUsername = "user1";
+    podiumBody.podiumPassword = "asdf";
+    podiumBody.payload = "";
+
+    HttpResponse<String> mockResponse = Mockito.mock(HttpResponse.class);
+    Mockito.when(mockResponse.statusCode()).thenReturn(202);
+    String responseBody = "";
+    Mockito.when(mockResponse.body()).thenReturn(responseBody);
+    String location = "https://redirect.url";
+    HttpHeaders headerMock = Mockito.mock(HttpHeaders.class);
+    Mockito.when(mockResponse.headers()).thenReturn(headerMock);
+    Map<String, List<String>> map = new HashMap<>();
+    List<String> list = new ArrayList<>();
+    list.add(location);
+    map.put("location", list);
+    Mockito.when(headerMock.map()).thenReturn(map);
+
+    HttpClient clientMock = Mockito.mock(HttpClient.class);
+
+    try (MockedStatic<HttpClient> httpClientMockedStatic = Mockito.mockStatic(HttpClient.class)) {
+      httpClientMockedStatic.when(HttpClient::newHttpClient).thenReturn(clientMock);
+      Mockito.when(
+              clientMock.send(
+                  Mockito.any(HttpRequest.class),
+                  ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
+          .thenReturn(mockResponse);
+
+      Response response = given().when().body(podiumBody).post("/api/podium");
+
+//      assert (response.statusCode() == 201);
+//      assert (response.header("location").equals("https://"));
+    } catch (IOException | InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

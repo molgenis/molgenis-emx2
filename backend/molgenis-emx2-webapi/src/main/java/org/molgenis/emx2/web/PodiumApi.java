@@ -58,10 +58,12 @@ public class PodiumApi {
     return "Basic " + Base64.getEncoder().encodeToString(valueToEncode.getBytes());
   }
 
-  private static class PodiumRequest {
+  public static class PodiumRequest {
     @JsonProperty public String podiumUrl;
     @JsonProperty public String podiumUsername;
     @JsonProperty public String podiumPassword;
     @JsonProperty public Object payload;
+
+    public PodiumRequest() {}
   }
 }
