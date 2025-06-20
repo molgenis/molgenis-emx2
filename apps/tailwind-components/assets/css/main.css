@@ -128,6 +128,8 @@
     --text-color-button-filter: var(--color-blue-500);
     --text-color-button-tree-node-toggle: var(--color-blue-800);
     --text-color-button-tree-node-toggle-hover: var(--color-white);
+    --text-color-button-toggle-active: var(--text-color-button-secondary);
+    --text-color-button-toggle-inactive: var(--color-blue-200);
 
     --text-color-menu: var(--text-color-title);
     --text-color-sub-menu: var(--color-blue-500);
