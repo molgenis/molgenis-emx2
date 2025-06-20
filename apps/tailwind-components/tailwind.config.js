@@ -258,6 +258,7 @@ module.exports = {
         "pagination-input": "var(--text-color-pagination-input)",
         "pagination-hover": "var(--text-color-pagination-hover)",
         "pagination-button": "var(--text-color-pagination-button)",
+        "pagination-button-hover": "var(--text-color-pagination-button-hover)",
         link: "var(--text-color-link)",
         "table-column-header": "var(--text-color-table-column-header)",
         "table-row": "var(--text-color-table-row)",
@@ -302,6 +303,7 @@ module.exports = {
         "search-input": "var(--border-color-search-input)",
         "search-input-mobile": "var(--border-color-search-input-mobile)",
         pagination: "var(--border-color-pagination)",
+        "pagination-hover": "var(--border-color-pagination-hover)",
         checkbox: "var(--border-color-checkbox)",
 
         invalid: "var(--color-invalid-foreground)",
