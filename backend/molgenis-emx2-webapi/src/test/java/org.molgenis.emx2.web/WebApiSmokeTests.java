@@ -1736,6 +1736,7 @@ public class WebApiSmokeTests {
     podiumBody.podiumPassword = "asdf";
     podiumBody.payload = "";
 
-    given().when().body(podiumBody).post("/api/podium");
+    Response response = given().when().body(podiumBody).post("/api/podium");
+    assertEquals(405, response.statusCode());
   }
 }
