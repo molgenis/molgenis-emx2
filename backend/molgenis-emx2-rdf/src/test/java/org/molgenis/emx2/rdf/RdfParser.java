@@ -31,7 +31,6 @@ public abstract class RdfParser {
       throws IOException {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfWriter writer = writerFactory.create(outputStream, RDFFormat.TURTLE)) {
-
         RdfGenerator generator =
             generatorClass
                 .getConstructor(RdfWriter.class, String.class)
