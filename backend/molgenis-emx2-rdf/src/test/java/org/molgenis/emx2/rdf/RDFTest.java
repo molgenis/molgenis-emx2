@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -45,6 +46,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
+import org.molgenis.emx2.rdf.generators.Emx2RdfGenerator;
+import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
+import org.molgenis.emx2.rdf.generators.RdfGenerator;
+import org.molgenis.emx2.rdf.writers.WriterFactory;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFTest {
@@ -424,12 +429,37 @@ public class RDFTest {
   }
 
   @Test
-  void testPetStoreRdf() throws IOException {
+  void testPetStoreRdfEmx2Schema() throws IOException, NoSuchMethodException {
+    compareToValidationFile(
+        "rdf_files/rdf_api/pet_store/emx2/schema.ttl",
+        WriterFactory.MODEL,
+        Emx2RdfGenerator.class,
+        RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
+        petStore_nr1);
+  }
+
+  @Test
+  void testRdfStreaming() throws IOException, NoSuchMethodException {
+    compareToValidationFile(
+        "rdf_files/rdf_api/pet_store/emx2/schema.ttl",
+        WriterFactory.STREAM,
+        Emx2RdfGenerator.class,
+        RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
+        petStore_nr1);
+  }
+
+  private void compareToValidationFile(
+      String validationFilePath,
+      WriterFactory writerFactory,
+      Class<? extends RdfGenerator> generatorClass,
+      Method method,
+      Object... methodArgs)
+      throws IOException {
     InMemoryRDFHandler expected = new InMemoryRDFHandler(true);
-    parseFile(expected, "rdf_files/rdf_api/pet_store/emx2/schema.ttl");
+    parseFile(expected, validationFilePath);
 
     InMemoryRDFHandler actual = new InMemoryRDFHandler(true);
-    parseSchemaRdf(actual, petStore_nr1);
+    RdfParser.parseRdf(actual, writerFactory, generatorClass, method, methodArgs);
 
     CustomAssertions.equals(expected, actual);
   }

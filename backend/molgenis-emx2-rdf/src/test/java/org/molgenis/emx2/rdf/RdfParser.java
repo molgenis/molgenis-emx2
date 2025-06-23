@@ -23,23 +23,23 @@ public abstract class RdfParser {
 
   // Generic functions to load RDF as if processed through the RDF API
   public static void parseRdf(
-          InMemoryRDFHandler handler,
-          WriterFactory writerFactory,
-          Class<? extends RdfGenerator> generatorClass,
-          Method method,
-          Object... methodArgs)
-          throws IOException {
+      InMemoryRDFHandler handler,
+      WriterFactory writerFactory,
+      Class<? extends RdfGenerator> generatorClass,
+      Method method,
+      Object... methodArgs)
+      throws IOException {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
       try (RdfWriter writer = writerFactory.create(outputStream, RDFFormat.TURTLE)) {
         RdfGenerator generator =
-                generatorClass
-                        .getConstructor(RdfWriter.class, String.class)
-                        .newInstance(writer, BASE_URL);
+            generatorClass
+                .getConstructor(RdfWriter.class, String.class)
+                .newInstance(writer, BASE_URL);
         method.invoke(generator, methodArgs);
       } catch (InvocationTargetException
-               | IllegalAccessException
-               | NoSuchMethodException
-               | InstantiationException e) {
+          | IllegalAccessException
+          | NoSuchMethodException
+          | InstantiationException e) {
         throw new RuntimeException(e);
       }
       parseString(handler, outputStream.toString());
@@ -49,7 +49,7 @@ public abstract class RdfParser {
   // Generic functions to load RDF from file/String
   public static void parseFile(RDFHandler handler, String filePath) throws IOException {
     try (FileReader reader =
-                 new FileReader(Objects.requireNonNull(classLoader.getResource(filePath)).getFile())) {
+        new FileReader(Objects.requireNonNull(classLoader.getResource(filePath)).getFile())) {
       parseRdf(handler, reader);
     }
   }
