@@ -12,7 +12,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 });
 
 test("show dataset details on cohorts page", async ({ page, goto }) => {
-  await goto("/catalogue-demo/catalogue/", { waitUntil: "hydration" });
+  await goto("/", { waitUntil: "hydration" });
   await page.getByRole("link", { name: "All collections" }).click();
   // todo temporary fix for the issue with the search bar being cleared by page reload due to async data fetch
   await page.waitForTimeout(3000);
