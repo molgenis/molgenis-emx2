@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import { useHead, useCookie } from "#app";
 const activeTheme = useCookie("theme", {
   default: () => {
-    if (process.client) {
+    if (import.meta.client) {
       return window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
@@ -12,11 +11,6 @@ const activeTheme = useCookie("theme", {
     }
   },
 });
-
-if (process.client) {
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  console.log("Dark mode preferred:", prefersDark);
-}
 
 useHead({
   htmlAttrs: {
