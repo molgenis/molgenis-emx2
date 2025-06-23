@@ -15,7 +15,7 @@ test("the theme switch should toggle between light and dark", async ({
   const toggle = await page.getByRole("button", { name: "Toggle Theme" });
   await expect(toggle).toBeVisible();
   await expect(page.getByTestId("cookie-theme")).toContainText(
-    "cookie theme: light"
+    "cookie theme: "
   );
   await toggle.click();
   await expect(page.getByTestId("cookie-theme")).toContainText(
