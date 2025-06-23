@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { useRuntimeConfig, useRoute, useHead } from '#app';
+import { useRuntimeConfig, useRoute, useRouter, useHead } from '#app';
 
 defineProps(["error"]);
 
 const config = useRuntimeConfig();
 const route = useRoute();
+const router = useRouter();
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
@@ -56,7 +57,7 @@ useHead({
                 </p>
               </div>
               <div class="py-5">
-                <Button @click="$router.go(-1)" label="Go back" size="medium" />
+                <Button @click="router.go(-1)" label="Go back" size="medium" />
               </div>
             </div>
           </div>
