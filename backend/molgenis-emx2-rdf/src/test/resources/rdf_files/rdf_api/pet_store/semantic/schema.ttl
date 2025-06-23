@@ -42,78 +42,63 @@
   rdfs:label "petStoreNr1";
   dcterms:isPartOf <http://localhost:8080>.
 
-<http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat> 
-  rdfs:label "cat";
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat>
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Category/name=dog> 
-  rdfs:label "dog";
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=dog>
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Category/name=mouse>
-  rdfs:label "mouse";
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Category/name=bird> 
-  rdfs:label "bird";
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=bird>
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Category/name=ant> 
-  rdfs:label "ant";
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=ant>
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Category/name=caterpillar> 
-  rdfs:label "caterpillar";
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=caterpillar>
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
-<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky> 
-  rdfs:label "pooky";
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky>
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>
-  rdfs:label "spike";
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tom>
-  rdfs:label "tom";
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=sylvester>
-  rdfs:label "sylvester";
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=jerry>
-  rdfs:label "jerry";
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tweety>
-  rdfs:label "tweety";
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>
-  rdfs:label "the very hungry caterpillar";
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>
-  rdfs:label "fire ant";
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke>
-  rdfs:label "bofke";
   foaf:accountName "bofke";
   foaf:img <http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>;
   <http://localhost:8080/petStoreNr1/api/rdf/User/column/picture> <http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>;
@@ -130,12 +115,10 @@
   dcterms:format <http://www.iana.org/assignments/media-types/image/jpeg> .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3A6fe7a528-2e97-48cc-91e6-a94c689b4919>
-  rdfs:label "ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919";
   dcterms:created "2025-06-16T15:01:16"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:16"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3Ae27c852c-29e2-4459-bcf1-98d8907ff77b>
-  rdfs:label "ORDER:e27c852c-29e2-4459-bcf1-98d8907ff77b";
   dcterms:created "2025-06-16T15:01:16"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:16"^^xsd:dateTime .
 
