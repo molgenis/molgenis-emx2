@@ -472,7 +472,7 @@ public class RDFTest {
 
   @Test
   void testPetStoreRdfSemanticRow() throws IOException, NoSuchMethodException {
-    Table table = petStore_nr1.getTable("User");
+    Table table = petStore_nr1.getTable("Pet");
 
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/semantic/row_fire_ant.ttl",
@@ -480,7 +480,7 @@ public class RDFTest {
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class),
         table,
-        PrimaryKey.fromEncodedString(table, "username=bofke"));
+        PrimaryKey.fromEncodedString(table, "name=fire%20ant"));
   }
 
   private void compareToValidationFile(
