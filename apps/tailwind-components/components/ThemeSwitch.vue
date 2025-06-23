@@ -30,7 +30,7 @@ function toggleTheme() {
     class="relative group w-[72px] border rounded flex items-center cursor-pointer transition-colors"
     @click="toggleTheme"
     aria-label="Toggle theme"
-    :aria-pressed="(activeTheme === 'dark') ? 'true' : 'false'"
+    :aria-pressed="activeTheme === 'dark' ? 'true' : 'false'"
   >
     <span
       :class="
