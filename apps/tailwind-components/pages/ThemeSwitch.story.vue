@@ -6,5 +6,7 @@ const cookieTheme = useCookie("theme");
 
 <template>
   <ThemeSwitch />
-  <div class="mt-4 text-title">cookie theme: {{ cookieTheme }}</div>
+  <div class="mt-4 text-title" data-testid="cookie-theme">
+    cookie theme: {{ cookieTheme }}
+  </div>
 </template>
