@@ -24,7 +24,9 @@ import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.rdf.BasicIRI;
+import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
 import org.molgenis.emx2.rdf.PrimaryKey;
+import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 /** A superclass for any class that contains logic of representing data in RDF. */
@@ -102,9 +104,11 @@ public abstract class RdfGenerator {
   }
 
   /**
-   * @param fileIri the subject to be used
-   * @param row
-   * @param column should refer to {@link Column} that is {@link org.molgenis.emx2.ColumnType#FILE}
+   * @param fileIri the subject to be used (usually generated through {@link ColumnTypeRdfMapper})
+   * @param row belonging to the fileIri (f.e. row used as input for {@link
+   *     ColumnTypeRdfMapper#retrieveValues(RdfMapData, Row, Column)})
+   * @param column belonging to the fileIri (f.e. column used as input for {@link
+   *     ColumnTypeRdfMapper#retrieveValues(RdfMapData, Row, Column)})
    */
   protected void generateFileTriples(IRI fileIri, Row row, Column column) {
     getWriter().processTriple(fileIri, RDF.TYPE, BasicIRI.SIO_FILE);
