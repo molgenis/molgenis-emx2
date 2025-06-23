@@ -1,5 +1,5 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Organisations,Agent,,,,,,,,,,"foaf:Agent,org:Organization",Research departments and research groups. Null values will be generated from RoR,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,FAIR Genomes",
+Organisations,Agents,,,,,,,,,,"foaf:Agent,org:Organization",Research departments and research groups. Null values will be generated from RoR,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,FAIR Genomes",
 Organisations,,pid,hyperlink,,TRUE,,,,,,"dcterms:identifier,org:identifier","External identifier, ideally from ROR","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,FAIR Genomes",
 Organisations,,name,text,,TRUE,,,,,,"foaf:name,skos:prefLabel",Name used in (inter)national projects,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,FAIR Genomes",
 Organisations,,logo,file,,,,,,,,foaf:logo,Logo of the organisation,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,INTEGRATE,FAIR Genomes",
