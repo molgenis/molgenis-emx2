@@ -7,6 +7,10 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}ThemeSwitch.story`);
+  await page
+    .getByText("ThemeSwitch", { exact: true })
+    .first()
+    .click({ delay: 300 });
 });
 
 test("the theme switch should toggle between light and dark", async ({
@@ -17,11 +21,11 @@ test("the theme switch should toggle between light and dark", async ({
   await expect(page.getByTestId("cookie-theme")).toContainText(
     "cookie theme: "
   );
-  await toggle.click();
+  await page.getByRole("button", { name: "Toggle theme" }).first().click();
   await expect(page.getByTestId("cookie-theme")).toContainText(
     "cookie theme: dark"
   );
-  await toggle.click();
+  await page.getByRole("button", { name: "Toggle theme" }).click();
   await expect(page.getByTestId("cookie-theme")).toContainText(
     "cookie theme: light"
   );
