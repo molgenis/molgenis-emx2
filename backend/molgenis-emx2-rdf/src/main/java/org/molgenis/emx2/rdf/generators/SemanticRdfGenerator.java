@@ -57,14 +57,12 @@ public class SemanticRdfGenerator extends RdfGenerator implements RdfApiGenerato
     tables.forEach(i -> processRows(namespaces, rdfMapData, i, primaryKey));
   }
 
+  /**
+   * Does nothing as in semantic mode the column IRIs are non-existing, therefore there is nothing
+   * to describe.
+   */
   @Override
-  public void generate(Table table, Column column) {
-    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
-
-    generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
-    generateCustomRdf(table.getSchema());
-    // todo: describeColumn(namespaces, table, column.getName());
-  }
+  public void generate(Table table, Column column) {}
 
   void processRows(
       NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, PrimaryKey primaryKey) {
