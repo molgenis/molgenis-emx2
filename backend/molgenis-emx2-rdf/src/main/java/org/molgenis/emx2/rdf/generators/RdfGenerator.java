@@ -120,7 +120,7 @@ public abstract class RdfGenerator {
                     + row.getString(column.getName() + "_mimetype")));
   }
 
-  void describeRoot() {
+  protected void describeRoot() {
     getWriter().processTriple(Values.iri(getBaseURL()), RDF.TYPE, BasicIRI.SIO_DATABASE);
     getWriter().processTriple(Values.iri(getBaseURL()), RDFS.LABEL, Values.literal("EMX2"));
     getWriter()
