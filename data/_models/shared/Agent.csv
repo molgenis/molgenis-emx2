@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
-Agent,,,,,,,,,,,"foaf:Agent,vcard:Agent,vcard:Person","An agent (e.g. person, organisation, group, software or physical artifact)",DataCatalogueFlat
-Agent,,resource,ref,1,TRUE,,Resources,,,,,Resource this agent is associated with,DataCatalogueFlat
-Agent,,id,auto_id,1,TRUE,,,,,,,"Internal identifier. Ideally fill out acronym for an organisation and full name for a person, otherwise an identifier is automatically generated",DataCatalogueFlat
-Agent,,website,hyperlink,,,,,,,,"foaf:homepage,vcard:hasURL",A website representing this agent,DataCatalogueFlat
-Agent,,email,email,,,,,,,,"foaf:mbox,vcard:hasEmail",E-mail address of this agent,DataCatalogueFlat
+Agents,,,,,,,,,,,"foaf:Agent,vcard:Agent,vcard:Person","An agent (e.g. person, organisation, group, software or physical artifact)",DataCatalogueFlat
+Agents,,resource,ref,1,TRUE,,Resources,,,,,Resource this agent is associated with,DataCatalogueFlat
+Agents,,id,auto_id,1,TRUE,,,,,,,"Internal identifier. Ideally fill out acronym for an organisation and full name for a person, otherwise an identifier is automatically generated",DataCatalogueFlat
+Agents,,website,hyperlink,,,,,,,,"foaf:homepage,vcard:hasURL",A website representing this agent,DataCatalogueFlat
+Agents,,email,email,,,,,,,,"foaf:mbox,vcard:hasEmail",E-mail address of this agent,DataCatalogueFlat
