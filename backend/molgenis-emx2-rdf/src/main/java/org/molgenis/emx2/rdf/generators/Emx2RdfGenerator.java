@@ -32,13 +32,12 @@ import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
-import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
-public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
+public class Emx2RdfGenerator extends RdfRowsGenerator {
   public Emx2RdfGenerator(RdfWriter writer, String baseURL) {
     super(writer, baseURL);
   }
@@ -69,17 +68,6 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     describeTable(namespaces, table);
     describeColumns(namespaces, table, null);
     tables.forEach(i -> processRows(namespaces, rdfMapData, i, null));
-  }
-
-  @Override
-  public void generate(Table table, PrimaryKey primaryKey) {
-    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
-    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
-    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
-
-    generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
-    generateCustomRdf(table.getSchema());
-    tables.forEach(i -> processRows(namespaces, rdfMapData, i, primaryKey));
   }
 
   @Override
@@ -220,18 +208,8 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     }
   }
 
-  void processRows(
-      NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, PrimaryKey primaryKey) {
-    List<Row> rows = getRows(table, primaryKey);
-
-    switch (table.getMetadata().getTableType()) {
-      case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(rdfMapData, table, row));
-      case DATA -> rows.forEach(row -> dataRowToRdf(namespaces, rdfMapData, table, row));
-      default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
-    }
-  }
-
-  private void ontologyRowToRdf(final RdfMapData rdfMapData, final Table table, final Row row) {
+  @Override
+  protected void ontologyRowToRdf(final RdfMapData rdfMapData, final Table table, final Row row) {
     final IRI tableIRI = tableIRI(getBaseURL(), table);
     final IRI subject = rowIRI(getBaseURL(), table, row);
 
@@ -273,7 +251,8 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     }
   }
 
-  private void dataRowToRdf(
+  @Override
+  protected void dataRowToRdf(
       final NamespaceMapper namespaces,
       final RdfMapData rdfMapData,
       final Table table,

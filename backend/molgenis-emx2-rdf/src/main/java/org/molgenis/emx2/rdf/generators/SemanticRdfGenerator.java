@@ -4,7 +4,6 @@ import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
 import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
 
 import java.util.List;
-import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
@@ -14,7 +13,6 @@ import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.model.vocabulary.SKOS;
 import org.molgenis.emx2.Column;
-import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
@@ -24,7 +22,7 @@ import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
-public class SemanticRdfGenerator extends RdfGenerator implements RdfApiGenerator {
+public class SemanticRdfGenerator extends RdfRowsGenerator {
   public SemanticRdfGenerator(RdfWriter writer, String baseURL) {
     super(writer, baseURL);
   }
@@ -46,17 +44,6 @@ public class SemanticRdfGenerator extends RdfGenerator implements RdfApiGenerato
     generate(table, (PrimaryKey) null);
   }
 
-  @Override
-  public void generate(Table table, PrimaryKey primaryKey) {
-    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
-    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
-    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
-
-    generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
-    generateCustomRdf(table.getSchema());
-    tables.forEach(i -> processRows(namespaces, rdfMapData, i, primaryKey));
-  }
-
   /**
    * Does nothing as in semantic mode the column IRIs are non-existing, therefore there is nothing
    * to describe.
@@ -64,18 +51,8 @@ public class SemanticRdfGenerator extends RdfGenerator implements RdfApiGenerato
   @Override
   public void generate(Table table, Column column) {}
 
-  void processRows(
-      NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, PrimaryKey primaryKey) {
-    List<Row> rows = getRows(table, primaryKey);
-
-    switch (table.getMetadata().getTableType()) {
-      case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(table, row));
-      case DATA -> rows.forEach(row -> dataRowToRdf(namespaces, rdfMapData, table, row));
-      default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
-    }
-  }
-
-  private void ontologyRowToRdf(Table table, Row row) {
+  @Override
+  protected void ontologyRowToRdf(RdfMapData rdfMapData, Table table, Row row) {
     final IRI subject = rowIRI(getBaseURL(), table, row);
 
     if (row.getString("name") != null) {
@@ -90,7 +67,8 @@ public class SemanticRdfGenerator extends RdfGenerator implements RdfApiGenerato
     }
   }
 
-  private void dataRowToRdf(
+  @Override
+  protected void dataRowToRdf(
       NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, Row row) {
     final IRI subject = rowIRI(getBaseURL(), table, row);
 
