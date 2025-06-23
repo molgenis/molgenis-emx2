@@ -31,7 +31,7 @@ import org.eclipse.rdf4j.rio.RDFHandlerException;
  *
  * This behaviour can be disabled by calling the constructor with `false`.
  */
-public class InMemoryRDFHandler implements RDFHandler {
+class InMemoryRDFHandler implements RDFHandler {
   private static final DatatypeFactory datatypeFactory;
   private static final XMLGregorianCalendar REPLACEMENT_DATE;
 
@@ -53,9 +53,9 @@ public class InMemoryRDFHandler implements RDFHandler {
             2021, 2, 8, 12, 15, 0, FIELD_UNDEFINED, FIELD_UNDEFINED);
   }
 
-  public InMemoryRDFHandler() {}
+  InMemoryRDFHandler() {}
 
-  public InMemoryRDFHandler(boolean fixValuesForComparison) {
+  InMemoryRDFHandler(boolean fixValuesForComparison) {
     this.fixValuesForComparison = fixValuesForComparison;
   }
 
