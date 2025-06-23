@@ -37,6 +37,7 @@ public class SemanticRdfGenerator extends RdfGenerator implements RdfApiGenerato
 
     generatePrefixes(namespaces.getAllNamespaces(schema));
     generateCustomRdf(schema);
+    describeRoot();
     tables.forEach(i -> processRows(namespaces, rdfMapData, i, null));
   }
 

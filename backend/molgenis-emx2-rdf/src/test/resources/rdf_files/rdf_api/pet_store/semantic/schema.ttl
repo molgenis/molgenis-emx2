@@ -38,10 +38,6 @@
   dcterms:description "MOLGENIS EMX2 database at http://localhost:8080";
   dcterms:creator <https://molgenis.org> .
 
-<http://localhost:8080/petStoreNr1/api/rdf> a rdfs:Container;
-  rdfs:label "petStoreNr1";
-  dcterms:isPartOf <http://localhost:8080>.
-
 <http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat>
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
@@ -71,37 +67,44 @@
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>;
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tom>
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=sylvester>
+  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=jerry>
+  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue>;
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tweety>
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>;
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
 <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
 
-<http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke>
+<http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke> a foaf:Person;
   foaf:accountName "bofke";
   foaf:img <http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>;
-  <http://localhost:8080/petStoreNr1/api/rdf/User/column/picture> <http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>;
   <http://example.com/petstore#hasPets> <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>,
     <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>,
     <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky>, <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>;

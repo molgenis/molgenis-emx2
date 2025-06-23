@@ -91,17 +91,6 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     describeColumns(namespaces, table, column.getName());
   }
 
-  void describeRoot() {
-    getWriter().processTriple(Values.iri(getBaseURL()), RDF.TYPE, BasicIRI.SIO_DATABASE);
-    getWriter().processTriple(Values.iri(getBaseURL()), RDFS.LABEL, Values.literal("EMX2"));
-    getWriter()
-        .processTriple(
-            Values.iri(getBaseURL()),
-            DCTERMS.DESCRIPTION,
-            Values.literal("MOLGENIS EMX2 database at " + getBaseURL()));
-    getWriter().processTriple(Values.iri(getBaseURL()), DCTERMS.CREATOR, BasicIRI.MOLGENIS);
-  }
-
   void describeSchema(final Schema schema) {
     final IRI subject = schemaIRI(getBaseURL(), schema);
 
