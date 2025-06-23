@@ -26,10 +26,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
@@ -38,9 +34,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.*;
-import org.mockito.ArgumentMatchers;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -1736,42 +1729,43 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  void testPodiumApi() {
+  void testPodiumApi() throws RuntimeException {
     PodiumApi.PodiumRequest podiumBody = new PodiumApi.PodiumRequest();
-    podiumBody.podiumUrl = "http://testUrl.com";
+    podiumBody.podiumUrl = "http://molgenis.org";
     podiumBody.podiumUsername = "user1";
     podiumBody.podiumPassword = "asdf";
     podiumBody.payload = "";
 
-    HttpResponse<String> mockResponse = Mockito.mock(HttpResponse.class);
-    Mockito.when(mockResponse.statusCode()).thenReturn(202);
-    String responseBody = "";
-    Mockito.when(mockResponse.body()).thenReturn(responseBody);
-    String location = "https://redirect.url";
-    HttpHeaders headerMock = Mockito.mock(HttpHeaders.class);
-    Mockito.when(mockResponse.headers()).thenReturn(headerMock);
-    Map<String, List<String>> map = new HashMap<>();
-    List<String> list = new ArrayList<>();
-    list.add(location);
-    map.put("location", list);
-    Mockito.when(headerMock.map()).thenReturn(map);
+    given().when().body(podiumBody).post("/api/podium");
+    //    HttpResponse<String> mockResponse = Mockito.mock(HttpResponse.class);
+    //    Mockito.when(mockResponse.statusCode()).thenReturn(202);
+    //    String responseBody = "";
+    //    Mockito.when(mockResponse.body()).thenReturn(responseBody);
+    //    String location = "https://redirect.url";
+    //    HttpHeaders headerMock = Mockito.mock(HttpHeaders.class);
+    //    Mockito.when(mockResponse.headers()).thenReturn(headerMock);
+    //    Map<String, List<String>> map = new HashMap<>();
+    //    List<String> list = new ArrayList<>();
+    //    list.add(location);
+    //    map.put("location", list);
+    //    Mockito.when(headerMock.map()).thenReturn(map);
 
-    HttpClient clientMock = Mockito.mock(HttpClient.class);
+    //    HttpClient clientMock = Mockito.mock(HttpClient.class);
 
-    try (MockedStatic<HttpClient> httpClientMockedStatic = Mockito.mockStatic(HttpClient.class)) {
-      httpClientMockedStatic.when(HttpClient::newHttpClient).thenReturn(clientMock);
-      Mockito.when(
-              clientMock.send(
-                  Mockito.any(HttpRequest.class),
-                  ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
-          .thenReturn(mockResponse);
+    //    try (MockedStatic<HttpClient> httpClientMockedStatic =
+    // Mockito.mockStatic(HttpClient.class)) {
+    //      httpClientMockedStatic.when(HttpClient::newHttpClient).thenReturn(clientMock);
+    //      Mockito.when(
+    //              clientMock.send(
+    //                  Mockito.any(HttpRequest.class),
+    //                  ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
+    //          .thenReturn(mockResponse);
 
-      Response response = given().when().body(podiumBody).post("/api/podium");
+    //    Response response = given().when().body(podiumBody).post("/api/podium");
 
-//      assert (response.statusCode() == 201);
-//      assert (response.header("location").equals("https://"));
-    } catch (IOException | InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+    //      assert (response.statusCode() == 201);
+    //      assert (response.header("location").equals("https://"));
+    //      verify(mockResponse).statusCode();
+    //    }
   }
 }

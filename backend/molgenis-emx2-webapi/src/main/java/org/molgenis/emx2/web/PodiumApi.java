@@ -22,10 +22,25 @@ public class PodiumApi {
 
   private static void handlePodiumRequest(@NotNull Context context)
       throws IOException, InterruptedException {
-    ObjectMapper objectMapper = new ObjectMapper();
     String body = context.body();
+    HttpResponse<String> response = getResponse(body);
+
+    if (response.statusCode() == 202) {
+      context.status(201);
+      context.header("Location", response.headers().map().get("Location").getFirst());
+    } else {
+      context.status(response.statusCode());
+    }
+
+    context.result(response.body());
+  }
+
+  private static HttpResponse<String> getResponse(String body)
+      throws IOException, InterruptedException {
+    ObjectMapper objectMapper = new ObjectMapper();
     PodiumRequest podiumRequest = objectMapper.readValue(body, PodiumRequest.class);
     HttpResponse<String> response;
+
     try (HttpClient client = HttpClient.newHttpClient()) {
       String basicAuthenticationHeader =
           getBasicAuthenticationHeader(podiumRequest.podiumUsername, podiumRequest.podiumPassword);
@@ -42,15 +57,7 @@ public class PodiumApi {
 
       response = client.send(request, HttpResponse.BodyHandlers.ofString());
     }
-
-    if (response.statusCode() == 202) {
-      context.status(201);
-      context.header("Location", response.headers().map().get("Location").getFirst());
-    } else {
-      context.status(response.statusCode());
-    }
-
-    context.result(response.body());
+    return response;
   }
 
   private static String getBasicAuthenticationHeader(String username, String password) {
@@ -64,6 +71,8 @@ public class PodiumApi {
     @JsonProperty public String podiumPassword;
     @JsonProperty public Object payload;
 
-    public PodiumRequest() {}
+    public PodiumRequest() {
+      // exposed for test
+    }
   }
 }
