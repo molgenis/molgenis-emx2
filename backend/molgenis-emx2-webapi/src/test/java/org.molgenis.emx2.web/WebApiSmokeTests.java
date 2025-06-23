@@ -1737,35 +1737,5 @@ public class WebApiSmokeTests {
     podiumBody.payload = "";
 
     given().when().body(podiumBody).post("/api/podium");
-    //    HttpResponse<String> mockResponse = Mockito.mock(HttpResponse.class);
-    //    Mockito.when(mockResponse.statusCode()).thenReturn(202);
-    //    String responseBody = "";
-    //    Mockito.when(mockResponse.body()).thenReturn(responseBody);
-    //    String location = "https://redirect.url";
-    //    HttpHeaders headerMock = Mockito.mock(HttpHeaders.class);
-    //    Mockito.when(mockResponse.headers()).thenReturn(headerMock);
-    //    Map<String, List<String>> map = new HashMap<>();
-    //    List<String> list = new ArrayList<>();
-    //    list.add(location);
-    //    map.put("location", list);
-    //    Mockito.when(headerMock.map()).thenReturn(map);
-
-    //    HttpClient clientMock = Mockito.mock(HttpClient.class);
-
-    //    try (MockedStatic<HttpClient> httpClientMockedStatic =
-    // Mockito.mockStatic(HttpClient.class)) {
-    //      httpClientMockedStatic.when(HttpClient::newHttpClient).thenReturn(clientMock);
-    //      Mockito.when(
-    //              clientMock.send(
-    //                  Mockito.any(HttpRequest.class),
-    //                  ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
-    //          .thenReturn(mockResponse);
-
-    //    Response response = given().when().body(podiumBody).post("/api/podium");
-
-    //      assert (response.statusCode() == 201);
-    //      assert (response.header("location").equals("https://"));
-    //      verify(mockResponse).statusCode();
-    //    }
   }
 }
