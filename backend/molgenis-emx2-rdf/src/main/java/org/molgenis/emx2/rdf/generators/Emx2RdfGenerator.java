@@ -131,6 +131,12 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     } else {
       getWriter().processTriple(subject, RDFS.SUBCLASSOF, tableIRI(getBaseURL(), parent));
     }
+    // Add 'controlled vocab' and 'concept scheme' for any ONTOLOGIES
+    if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
+      getWriter().processTriple(subject, RDFS.SUBCLASSOF, SKOS.CONCEPT_SCHEME);
+      getWriter().processTriple(subject, RDFS.ISDEFINEDBY, BasicIRI.NCIT_CONTROLLED_VOCABULARY);
+    }
+
     // Any custom semantics are always added, regardless of table type (DATA/ONTOLOGIES)
     if (table.getMetadata().getSemantics() != null) {
       for (final String tableSemantics : table.getMetadata().getSemantics()) {
@@ -152,11 +158,6 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     // Add 'observing' for any DATA
     if (table.getMetadata().getTableType() == TableType.DATA) {
       getWriter().processTriple(subject, RDFS.ISDEFINEDBY, BasicIRI.SIO_OBSERVING);
-    }
-    // Add 'controlled vocab' and 'concept scheme' for any ONTOLOGIES
-    if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
-      getWriter().processTriple(subject, RDFS.ISDEFINEDBY, BasicIRI.NCIT_CONTROLLED_VOCABULARY);
-      getWriter().processTriple(subject, RDFS.SUBCLASSOF, SKOS.CONCEPT_SCHEME);
     }
     getWriter().processTriple(subject, RDFS.LABEL, Values.literal(table.getName()));
 
