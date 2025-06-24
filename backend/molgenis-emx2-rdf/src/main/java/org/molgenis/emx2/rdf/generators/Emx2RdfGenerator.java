@@ -258,7 +258,7 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     }
     if (row.getString("label") != null) {
       getWriter().processTriple(subject, RDFS.LABEL, Values.literal(row.getString("label")));
-      getWriter().processTriple(subject, SKOS.ALT_LABEL, Values.literal(row.getString("name")));
+      getWriter().processTriple(subject, SKOS.ALT_LABEL, Values.literal(row.getString("label")));
     }
     if (row.getString("code") != null) {
       getWriter().processTriple(subject, SKOS.NOTATION, Values.literal(row.getString("code")));
