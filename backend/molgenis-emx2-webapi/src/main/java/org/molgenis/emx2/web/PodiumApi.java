@@ -22,7 +22,6 @@ public class PodiumApi {
   private static void handlePodiumRequest(@NotNull Context context)
       throws IOException, InterruptedException {
     HttpResponse<String> response = podiumService.getResponse(context);
-
     if (response.statusCode() == 202) {
       context.status(201);
       context.header("Location", response.headers().map().get("Location").getFirst());
