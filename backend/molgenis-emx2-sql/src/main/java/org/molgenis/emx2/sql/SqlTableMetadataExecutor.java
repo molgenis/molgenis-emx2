@@ -35,7 +35,17 @@ class SqlTableMetadataExecutor {
     // grant rights to schema manager, editor and viewer role
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.EXISTS.toString()));
+    // todo: Do we need to add RANGE, AGGREGATOR and VIEWER here also?
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.RANGE.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
         jooqTable, name(getRolePrefix(table) + Privileges.AGGREGATOR.toString()));
+    jooq.execute(
+        "GRANT SELECT ON {0} TO {1}",
+        jooqTable, name(getRolePrefix(table) + Privileges.COUNT.toString()));
     jooq.execute(
         "GRANT SELECT ON {0} TO {1}",
         jooqTable, name(getRolePrefix(table) + Privileges.VIEWER.toString()));

@@ -1,0 +1,25 @@
+import "meta.jslt" as meta
+{
+    "$schema" : "../beaconInfoResponse.json",
+    "meta": meta(.),
+    "response": {
+        "id": .id,
+        "name": .name[0],
+        "apiVersion": "v2.0",
+        "createDateTime": .mg_insertedOn,
+        "updateDateTime": .mg_updatedOn,
+        "description": .description[0],
+        "environment": "dev",
+        "organization": {
+            "id": .organisation.ontologyTermURI,
+            "name": .organisation.name,
+            "description": .organisation.definition,
+            "address": .organisation.address,
+            "welcomeUrl": .url,
+            "contactUrl": "mailto:" + .contact,
+            "logoUrl": .logo
+        },
+        "welcomeUrl": .url,
+        "alternativeUrl": .alternativeUrl
+    }
+}

@@ -1,6 +1,6 @@
-import { describe, assert, test } from "vitest";
+import type { ISchemaMetaData } from "metadata-utils";
+import { assert, describe, test, vi } from "vitest";
 import { getColumnIds } from "./queryBuilder";
-import type { ISchemaMetaData } from "meta-data-utils";
 
 describe("getColumnIds", () => {
   const EXPAND_ONE = 1;
@@ -8,16 +8,16 @@ describe("getColumnIds", () => {
 
   //Pet
   //expand 1
-  test("it should return the pet columns expanded, children are not expanded, expect primary keys", () => {
-    const result = getColumnIds("pet store", "Pet", metaData, EXPAND_ONE);
+  test("it should return the pet columns expanded, children are not expanded, expect primary keys", async () => {
+    const result = await getColumnIds("pet store", "Pet", EXPAND_ONE);
     assert.equal(
       result,
       " name category { name } tags {name, label} weight orders { orderId }"
     );
   });
   //expand 2
-  test("it should return the pet columns expanded", () => {
-    const result = getColumnIds("pet store", "Pet", metaData, EXPAND_TWO);
+  test("it should return the pet columns expanded", async () => {
+    const result = await getColumnIds("pet store", "Pet", EXPAND_TWO);
     assert.equal(
       result,
       " name category { name } tags {name, label} weight orders { orderId pet { name } }"
@@ -25,31 +25,31 @@ describe("getColumnIds", () => {
   });
 
   //expand 2
-  test("it should return the order columns expanded, only arrays are not expanded beyond level 0 (so 'pet.tags' is missing)", () => {
+  test("it should return the order columns expanded, only arrays are not expanded beyond level 0 (so 'pet.tags' is missing)", async () => {
     const expectedResult = " orderId pet { name category { name } weight }";
-    const result = getColumnIds("pet store", "Order", metaData, EXPAND_TWO);
+    const result = await getColumnIds("pet store", "Order", EXPAND_TWO);
     assert.equal(result, expectedResult);
   });
 
   //ontology
   //expand 1
-  test("it should return the ontology columns expanded, only children array are not expanded beyond level 0", () => {
+  test("it should return the ontology columns expanded, only children array are not expanded beyond level 0", async () => {
     const expectedResult =
       " order name label parent { name } children { name }";
-    const result = getColumnIds("pet store", "Tag", metaData, EXPAND_ONE);
+    const result = await getColumnIds("pet store", "Tag", EXPAND_ONE);
     assert.equal(result, expectedResult);
   });
   //expand 2
-  test("it should return the ontology columns expanded, only children array are not expanded beyond level 0", () => {
+  test("it should return the ontology columns expanded, only children array are not expanded beyond level 0", async () => {
     const expectedResult =
       " order name label parent { order name label parent { name } } children { order name label parent { name } }";
-    const result = getColumnIds("pet store", "Tag", metaData, EXPAND_TWO);
+    const result = await getColumnIds("pet store", "Tag", EXPAND_TWO);
     assert.equal(result, expectedResult);
   });
 });
 
 // test meta data with mg_columns removed
-const metaData: ISchemaMetaData = {
+const metadata: ISchemaMetaData = {
   id: "pet store",
   label: "Pet store",
   tables: [
@@ -244,3 +244,12 @@ const metaData: ISchemaMetaData = {
     },
   ],
 };
+
+vi.mock("./client", () => {
+  // For use with getColumnIds
+  return {
+    fetchSchemaMetaData: (_schemaId: string) => {
+      return metadata;
+    },
+  };
+});

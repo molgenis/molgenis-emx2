@@ -11,4 +11,20 @@ public class Pagination {
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private int limit = 10;
+
+  public int getSkip() {
+    return skip;
+  }
+
+  public int getLimit() {
+    return limit;
+  }
+
+  public void setSkip(int skip) {
+    this.skip = skip;
+  }
+
+  public void setLimit(int limit) {
+    this.limit = limit;
+  }
 }

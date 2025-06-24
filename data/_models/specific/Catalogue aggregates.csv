@@ -1,0 +1,12 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+FORCE_NEN patients,,,,,,,,,,,,"Resource counts for e.g. samples, clinical data",DataCatalogueAggregates,
+FORCE_NEN patients,,collection,ref,1,TRUE,,Collections,,,,,Network collection id taken from catalogue Collections table,DataCatalogueAggregates,
+FORCE_NEN patients,,research center,ref,1,TRUE,,Collections,,,,,Research center name to be displayed in aggregate dashboard,DataCatalogueAggregates,
+FORCE_NEN patients,,primary tumor site,ontology,1,TRUE,CatalogueOntologies,ICDO topologies,,,,,,DataCatalogueAggregates,
+FORCE_NEN patients,,metastasis,ontology,1,TRUE,CatalogueOntologies,NoYesUnknown,,,,,Distant metastasis at diagnosis,DataCatalogueAggregates,
+FORCE_NEN patients,,year of diagnosis,ontology,1,TRUE,CatalogueOntologies,Time periods,,,,,,DataCatalogueAggregates,
+FORCE_NEN patients,,sex,ontology,1,TRUE,CatalogueOntologies,Sex,,,,,,DataCatalogueAggregates,
+FORCE_NEN patients,,n,int,,TRUE,,,,,,,count,DataCatalogueAggregates,
+Collections,,,,,,,,,,,,"Collections of data, such as cohort studies, biobanks and registries",DataCatalogueAggregates,
+Collections,,id,string,1,TRUE,,,,,,,"IDs taken from the catalogue table 'Collections'",DataCatalogueAggregates,
+Collections,,display name,string,,,,,,,,,Collection name for display in aggregate dashboard,DataCatalogueAggregates,

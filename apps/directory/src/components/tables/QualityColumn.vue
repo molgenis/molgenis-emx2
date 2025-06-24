@@ -7,10 +7,10 @@
       class="d-flex"
     >
       <a
+        v-if="quality.certification_report"
         :href="quality.certification_report"
         target="_blank"
         rel="noopener noreferrer"
-        v-if="quality.certification_report"
       >
         <span v-if="!quality.certification_image_link">
           {{ quality.label }}
@@ -29,7 +29,7 @@
             !quality.certification_image_link && 'quality_standard' in quality
           "
         >
-          {{ getQualityInfo(quality.quality_standard.name).label }}
+          {{ getQualityInfo(quality.quality_standard.name)?.label }}
         </span>
         <span v-else>
           <img
@@ -85,7 +85,7 @@ export default {
   methods: {
     generateQualityLabel(quality) {
       return quality.label !== "Others"
-        ? this.getQualityInfo(quality.quality_standard.name).label
+        ? this.getQualityInfo(quality.quality_standard.name)?.label
         : quality.certification_number;
     },
     getQualityInfo(key) {

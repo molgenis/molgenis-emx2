@@ -2,6 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
@@ -33,7 +33,7 @@ public class TestGraphqlDatabaseFields {
     database = TestDatabaseFactory.getTestDatabase();
     taskService = new TaskServiceInMemory();
     Schema schema = database.dropCreateSchema(schemaName);
-    new PetStoreLoader().load(schema, false);
+    PET_STORE.getImportTask(schema, false).run();
     grapql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
   }
 

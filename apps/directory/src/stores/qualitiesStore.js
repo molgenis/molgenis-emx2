@@ -1,12 +1,11 @@
-import { defineStore } from "pinia";
 import { QueryEMX2 } from "molgenis-components";
-import { useSettingsStore } from "./settingsStore";
+import { defineStore } from "pinia";
 import { ref } from "vue";
+import useErrorHandler from "../composables/errorHandler";
+
+const { setError } = useErrorHandler();
 
 export const useQualitiesStore = defineStore("qualitiesStore", () => {
-  const settingsStore = useSettingsStore();
-  const graphqlEndpoint = settingsStore.config.graphqlEndpoint;
-
   const qualityStandardsDictionary = ref({});
   let waitingOnResults = ref(false);
 
@@ -15,10 +14,18 @@ export const useQualitiesStore = defineStore("qualitiesStore", () => {
       if (!waitingOnResults.value) {
         waitingOnResults.value = true;
 
-        let qualityStandardsQueryResult = await new QueryEMX2(graphqlEndpoint)
-          .table("QualityStandards")
-          .select(["name", "label", "definition"])
-          .execute();
+        const endpoint = `${window.location.protocol}//${window.location.host}/DirectoryOntologies/graphql`;
+
+        let qualityStandardsQueryResult;
+        try {
+          qualityStandardsQueryResult = await new QueryEMX2(endpoint)
+            .table("QualityStandards")
+            .select(["name", "label", "definition"])
+            .execute();
+        } catch (error) {
+          setError(error);
+          return;
+        }
 
         if (qualityStandardsQueryResult.QualityStandards) {
           for (const quality of qualityStandardsQueryResult.QualityStandards) {

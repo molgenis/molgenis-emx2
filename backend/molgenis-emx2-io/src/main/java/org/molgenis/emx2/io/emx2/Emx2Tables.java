@@ -1,5 +1,6 @@
 package org.molgenis.emx2.io.emx2;
 
+import static org.molgenis.emx2.Constants.MG_DRAFT;
 import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.FilterBean.f;
 
@@ -33,34 +34,30 @@ public class Emx2Tables {
                         // directory
                         // get original metadata because download columns are format string instead
                         // of file
-                        || !metadata.getColumn(c.getName()).isFile()
+                        || isFileType(c, metadata)
                         || store instanceof TableAndFileStore)
             .map(Column::getName)
-            .filter(n -> !n.startsWith("mg_") || includeSystemColumns)
+            .filter(
+                name -> name.equals(MG_DRAFT) || !name.startsWith("mg_") || includeSystemColumns)
             .toList();
-    SelectColumn[] select =
-        downloadColumnNames.stream().map(SelectColumn::s).toArray(SelectColumn[]::new);
+
+    Query query = table.query();
 
     if (table.getMetadata().getColumnNames().contains(MG_TABLECLASS)) {
-      store.writeTable(
-          table.getName(),
-          downloadColumnNames,
-          table
-              .query()
-              .select(select)
-              .where(
-                  f(
-                      MG_TABLECLASS,
-                      Operator.EQUALS,
-                      table.getSchema().getName() + "." + table.getName()))
-              .retrieveRows());
-    } else {
-      store.writeTable(table.getName(), downloadColumnNames, table.select(select).retrieveRows());
+      query.where(
+          f(MG_TABLECLASS, Operator.EQUALS, table.getSchema().getName() + "." + table.getName()));
     }
+    store.writeTable(table.getName(), downloadColumnNames, query.retrieveRows());
 
     // in case of zip file we include the attached files
     if (store instanceof TableAndFileStore tableAndFileStore) {
       Emx2Files.outputFiles(tableAndFileStore, table);
     }
+  }
+
+  private static boolean isFileType(Column c, TableMetadata metadata) {
+    if (metadata.getColumn(c.getName()) == null && c.getName().endsWith("_filename")) {
+      return true;
+    } else return !metadata.getColumn(c.getName()).isFile();
   }
 }

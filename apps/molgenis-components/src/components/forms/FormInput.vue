@@ -32,15 +32,19 @@ import InputRefSelect from "../forms/InputRefSelect.vue";
 import InputString from "../forms/InputString.vue";
 import InputText from "../forms/InputText.vue";
 import BaseInput from "../forms/baseInputs/BaseInput.vue";
+import InputEmail from "./InputEmail.vue";
+import InputHyperlink from "./InputHyperlink.vue";
+import InputJson from "./InputJson.vue";
 import InputRefList from "./InputRefList.vue";
 
 const typeToInputMap = {
   AUTO_ID: InputString,
   HEADING: InputHeading,
-  EMAIL: InputString,
-  HYPERLINK: InputString,
+  EMAIL: InputEmail,
+  HYPERLINK: InputHyperlink,
   STRING: InputString,
   TEXT: InputText,
+  JSON: InputJson,
   INT: InputInt,
   LONG: InputLong,
   DECIMAL: InputDecimal,
@@ -50,11 +54,13 @@ const typeToInputMap = {
   REFBACK: InputRefBack,
   FILE: InputFile,
   DATETIME: InputDateTime,
+  PERIOD: InputString,
   ONTOLOGY: InputOntology,
   EMAIL_ARRAY: ArrayInput,
   BOOL_ARRAY: ArrayInput,
   DATE_ARRAY: ArrayInput,
   DATETIME_ARRAY: ArrayInput,
+  PERIOD_ARRAY: ArrayInput,
   DECIMAL_ARRAY: ArrayInput,
   HYPERLINK_ARRAY: ArrayInput,
   INT_ARRAY: ArrayInput,
@@ -94,6 +100,10 @@ export default {
       type: Object,
       required: false,
       default: () => null,
+    },
+    expressionData: {
+      type: Object,
+      required: false,
     },
     refBackId: {
       type: String,
@@ -363,6 +373,17 @@ export default {
     <DemoItem>
       <div>
         <FormInput
+            id="json-example"
+            columnType="JSON"
+            label="Example json input"
+            v-model="jsonValue"
+        />
+      </div>
+      <div>You typed: {{ jsonValue }}</div>
+    </DemoItem>
+    <DemoItem>
+      <div>
+        <FormInput
             id="long-example"
             columnType="LONG"
             label="Example long input"
@@ -519,9 +540,9 @@ export default {
         emailValue: "bla@molgenis.org",
         emailValueInplace: "bla@molgenis.org",
         emailValueArray: ["bla@molgenis.org", "asd@molgenis.org"],
-        hyperlinkValue: "www.molgenis.org",
-        hyperlinkValueInplace: "www.molgenis.org",
-        hyperlinkValueArray: ["www.molgenis.org", "molgenis.org"],
+        hyperlinkValue: "https://molgenis.org",
+        hyperlinkValueInplace: "https://molgenis.org",
+        hyperlinkValueArray: ["https://molgenis.org", "https://www.molgenis.org"],
         ontologyValue: null,
         ontologyArrayValue: [],
         dateValue: null,
@@ -532,6 +553,7 @@ export default {
         intValueArray: [5, 37],
         textValue: "example text",
         textValueArray: ["text", "more text"],
+        jsonValue: '{"name":"bofke"}',
         longValue: "1337",
         longValueArray: ["0", "101"],
         decimalValue: 3.7,

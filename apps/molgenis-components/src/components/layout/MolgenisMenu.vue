@@ -147,28 +147,28 @@ export default {
       return false; // This makes the a tag not use its navigation
     },
     permitted(item) {
-      if (!item.role) {
+      if (!item.role || this.session?.admin) {
         return true;
+      } else if (
+        item.role === "Signed in" &&
+        this.session?.email !== "anonymous"
+      ) {
+        return true;
+      } else if (item.role === "Viewer") {
+        return this.session?.roles?.some((r) =>
+          ["Viewer", "Editor", "Manager", "Owner"].includes(r)
+        );
+      } else if (item.role === "Editor") {
+        return this.session?.roles?.some((r) =>
+          ["Editor", "Manager", "Owner"].includes(r)
+        );
+      } else if (item.role === "Manager") {
+        return this.session?.roles?.some((r) =>
+          ["Manager", "Owner"].includes(r)
+        );
+      } else {
+        return false;
       }
-      if (this.session && Array.isArray(this.session.roles)) {
-        if (this.session.email === "admin") {
-          return true;
-        }
-        if (item.role === "Viewer") {
-          return this.session.roles.some((r) =>
-            ["Viewer", "Editor", "Manager", "Owner"].includes(r)
-          );
-        } else if (item.role === "Editor") {
-          return this.session.roles.some((r) =>
-            ["Editor", "Manager", "Owner"].includes(r)
-          );
-        } else if (item.role === "Manager") {
-          return this.session.roles.some((r) =>
-            ["Manager", "Owner"].includes(r)
-          );
-        }
-      }
-      return false;
     },
   },
 };
@@ -176,11 +176,12 @@ export default {
 
 <docs>
 <template>
-  <div>Simple example
+  <div>Simple example ( should not show admin if user is not in admin role)
     <MolgenisMenu logo="assets/img/molgenis_logo_white.png" :items="[
         {label:'Home',href:'', active:true},
         {label:'My search',href:'http://google.com'},
-        {label:'My movies',href:'http://youtube.com'}
+        {label:'My movies',href:'http://youtube.com'},
+        {label: 'Admin', href: '/apps/central/#/admin', role: 'Admin'}
      ]">Something in the slot
     </MolgenisMenu>
     Example with submenu

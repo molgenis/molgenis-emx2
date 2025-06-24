@@ -4,25 +4,48 @@ const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "pet store";
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
 module.exports = {
-  "/graphql": {
+  "/api/graphql": {
     target: `${HOST}/${SCHEMA}`,
     ...opts,
   },
-  "^/apps/central/graphql$": {
-    target: `${HOST}`,
-    changeOrigin: true,
-    secure: false,
-  },
-  "/apps/central/theme.css": {
-    target: `${HOST}/${SCHEMA}`,
+  "^/[a-zA-Z0-9_.%-]+/api/graphql": {
+    target: HOST,
     ...opts,
   },
-  /* should match only '/schema_name/graphql', previous ** was to eager also matching if graphql was /graphql or /a/b/graphql */
   "^/[a-zA-Z0-9_.%-]+/graphql": {
-    target: `${HOST}`,
+    target: HOST,
     ...opts,
   },
-  "/api": { target: `${HOST}`, ...opts },
-  "/apps": { target: `${HOST}`, ...opts },
-  "/theme.css": { target: `${HOST}/${SCHEMA}`, ...opts },
+  "^/[a-zA-Z0-9_.%-]+/api/reports": {
+    target: HOST,
+    ...opts,
+  },
+  "^/[a-zA-Z0-9_.%-]+/api/file": {
+    target: HOST,
+    ...opts,
+  },
+  "^/[a-zA-Z0-9_.%-]+/api/trigger": {
+    target: HOST,
+    ...opts,
+  },
+  "/api": {
+    target: `${HOST}/api`,
+    ...opts,
+  },
+  "/graphql": {
+    target: `${HOST}/${SCHEMA}/graphql`,
+    ...opts,
+  },
+  "/reports": {
+    target: `${HOST}/${SCHEMA}/api/reports`,
+    ...opts,
+  },
+  "/apps": {
+    target: HOST,
+    ...opts,
+  },
+  "/theme.css": {
+    target: `${HOST}/${SCHEMA}/theme.css`,
+    ...opts,
+  },
 };

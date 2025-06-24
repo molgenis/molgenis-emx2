@@ -17,12 +17,11 @@ public class Table {
   private String inheritName;
   private List<LanguageValue> labels = new ArrayList<>();
   private List<LanguageValue> descriptions = new ArrayList<>();
-  private String schemaName;
-  private String schemaId;
   private Collection<String[]> unique = new ArrayList<>();
   private Collection<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
   private String[] semantics;
+  private String[] profiles = null;
   private String id;
   private TableType tableType;
 
@@ -40,6 +39,7 @@ public class Table {
     this.description = tableMetadata.getDescription();
     this.labels =
         tableMetadata.getLabels().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.id = tableMetadata.getIdentifier();
@@ -51,6 +51,7 @@ public class Table {
     }
     this.descriptions =
         tableMetadata.getDescriptions().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics = tableMetadata.getSemantics();
@@ -58,12 +59,11 @@ public class Table {
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
-    this.schemaName = tableMetadata.getSchemaName();
-    this.schemaId = tableMetadata.getSchema().getName(); // todo? getIdentifier?
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
       this.columns.add(new Column(column, tableMetadata, minimal));
     }
     this.tableType = tableMetadata.getTableType();
+    this.profiles = tableMetadata.getProfiles();
   }
 
   public String getName() {
@@ -130,14 +130,6 @@ public class Table {
     this.settings = settings;
   }
 
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  public void setSchemaName(String schemaName) {
-    this.schemaName = schemaName;
-  }
-
   public String[] getSemantics() {
     return semantics;
   }
@@ -202,11 +194,11 @@ public class Table {
     this.description = description;
   }
 
-  public String getSchemaId() {
-    return schemaId;
+  public String[] getProfiles() {
+    return profiles;
   }
 
-  public void setSchemaId(String schemaId) {
-    this.schemaId = schemaId;
+  public void setProfiles(String[] profiles) {
+    this.profiles = profiles;
   }
 }

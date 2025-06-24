@@ -30,9 +30,9 @@
             :data-value="row[yvar]"
           >
             <rect
+              class="column"
               :data-value-x="row[xvar]"
               :data-value-y="row[yvar]"
-              class="column"
               :x="xAxis(row[xvar])"
               :width="xAxis.bandwidth()"
               :fill="colorPalatte[row[xvar]]"
@@ -45,7 +45,7 @@
               :x="xAxis(row[xvar])"
               :y="yAxis(row[yvar])"
               :dx="xAxis.bandwidth() / 2"
-              dy="-3px"
+              dy="-0.4em"
             >
               {{ row[yvar] }}
             </text>
@@ -353,7 +353,6 @@ export default {
     },
     renderAxes() {
       this.chartArea.select(".chart-axis-x").call(this.chartAxisX);
-
       this.chartArea.select(".chart-axis-y").call(this.chartAxisY);
 
       if (typeof this.xAxisLineBreaker !== "undefined") {

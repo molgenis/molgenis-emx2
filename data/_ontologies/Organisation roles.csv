@@ -4,4 +4,5 @@ order,name,code,parent,ontologyTermURI,definition
 ,Data provider,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029954/terms/200000029943,
 ,Researcher,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029954/terms/200000029944,
 ,Surveillance,,,,
+,Data access provider,,,,
 ,Other,,,https://spor.ema.europa.eu/rmswi/#/lists/200000029954/terms/200000031060,

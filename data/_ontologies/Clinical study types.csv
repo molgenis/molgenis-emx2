@@ -1,0 +1,29 @@
+order,name,label,code,definition,parent,ontologyTermURI
+1,Clinical Trial Randomisation,,,,,
+2,Randomised clinical trial,,,,Clinical Trial Randomisation,
+3,Non-randomised clinical trial,,,,Clinical Trial Randomisation,
+4,Clinical Trial Types,,,,,
+5,Low-interventional clinical trial,,,,Clinical Trial Types,https://spor.ema.europa.eu/rmswi/#/lists/200000030925/terms/200000030936
+6,Single-arm trial,,,,Clinical Trial Types,https://spor.ema.europa.eu/rmswi/#/lists/200000030925/terms/200000030937
+7,Large simple trial,,,,Clinical Trial Types,https://spor.ema.europa.eu/rmswi/#/lists/200000030925/terms/200000030938
+8,Pragmatic clinical trial,,,,Clinical Trial Types,https://spor.ema.europa.eu/rmswi/#/lists/200000030925/terms/200000030939
+9,Cluster randomised trial,,,,Clinical Trial Types,https://spor.ema.europa.eu/rmswi/#/lists/200000030925/terms/200000030940
+10,Non-interventional design,,,,,
+11,Cohort,,,,Non-interventional design,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030949
+12,Case-control,,,,Non-interventional design,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030950
+13,Case-only,,,,Non-interventional design,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030951
+14,Cross-sectional,,,,Non-interventional design,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030952
+15,Ecological,,,,Non-interventional design,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030953
+16,Cluster design,,,,Non-interventional design,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030954
+17,Systematic review and meta-analysis,,,,Non-interventional design,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000030955
+18,Other,,,,Non-interventional design,https://spor.ema.europa.eu/rmswi/#/lists/200000030941/terms/200000031049
+19,Clinical trial phase,,,,,
+20,Human pharmacology (Phase I),,,,Clinical trial phase,https://spor.ema.europa.eu/rmswi/#/lists/100000075935/terms/100000076036
+21,Therapeutic exploratory (Phase II),,,,Clinical trial phase,https://spor.ema.europa.eu/rmswi/#/lists/100000075935/terms/100000076040
+22,Therapeutic confirmatory (Phase III),,,,Clinical trial phase,https://spor.ema.europa.eu/rmswi/#/lists/100000075935/terms/100000076041
+23,Therapeutic use (Phase IV),,,,Clinical trial phase,https://spor.ema.europa.eu/rmswi/#/lists/100000075935/terms/100000076042
+24,Data collection methods,,,,,
+25,Primary data collection,,,,Data collection methods,https://spor.ema.europa.eu/rmswi/#/lists/200000030956/terms/200000030957
+26,Secondary data collection,,,,Data collection methods,https://spor.ema.europa.eu/rmswi/#/lists/200000030956/terms/200000030958
+27,Combined primary and secondary data collection,,,,Data collection methods,https://spor.ema.europa.eu/rmswi/#/lists/200000030956/terms/200000030959
+28,No individual level data collected for the purpose of the study,,,,Data collection methods,https://spor.ema.europa.eu/rmswi/#/lists/200000030956/terms/200000031039

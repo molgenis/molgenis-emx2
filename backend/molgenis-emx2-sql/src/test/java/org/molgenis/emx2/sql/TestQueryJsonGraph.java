@@ -9,6 +9,7 @@ import static org.molgenis.emx2.Operator.TRIGRAM_SEARCH;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +18,6 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.utils.StopWatch;
 
 public class TestQueryJsonGraph {
@@ -31,7 +31,7 @@ public class TestQueryJsonGraph {
 
     schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName());
 
-    new PetStoreLoader().load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
 
     schema.create(
         table("Person")
@@ -175,7 +175,7 @@ public class TestQueryJsonGraph {
   @Test
   public void testAgg() {
     Schema schema = db.dropCreateSchema(TestQueryJsonGraph.class.getSimpleName() + "_testAgg");
-    new PetStoreLoader().load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
 
     String json = schema.query("Order_agg", s("max", s("quantity"))).retrieveJSON();
     assertTrue(json.contains("{\"Order_agg\": {\"max\": {\"quantity\": 7}}}"));

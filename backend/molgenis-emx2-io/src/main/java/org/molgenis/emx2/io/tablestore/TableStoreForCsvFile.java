@@ -56,7 +56,7 @@ public class TableStoreForCsvFile implements TableStore {
   }
 
   @Override
-  public Collection<String> tableNames() {
+  public Collection<String> getTableNames() {
     return List.of(csvFile.toFile().getName());
   }
 }

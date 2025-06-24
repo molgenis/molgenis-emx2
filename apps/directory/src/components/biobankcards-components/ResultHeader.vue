@@ -1,6 +1,6 @@
 <template>
-  <small class="d-inline">
-    <table class="text-right">
+  <small>
+    <table class="table table-sm table-borderless">
       <thead>
         <tr>
           <th colspan="2">Search results</th>
@@ -8,29 +8,32 @@
       </thead>
       <tbody>
         <tr>
-          <td class="pr-1">Organisations:</td>
-          <td>{{ biobanksStore.biobankCardsBiobankCount }}</td>
+          <td class="text-nowrap">
+            Organisations:
+            {{ biobanksStore.biobankCardsBiobankCount }}
+          </td>
         </tr>
         <tr>
-          <td class="pr-1">Collection(s):</td>
-          <td>{{ biobanksStore.biobankCardsCollectionCount }}</td>
+          <td class="text-nowrap">
+            Collections:
+            {{
+              biobanksStore.biobankCardsCollectionCount +
+              biobanksStore.biobankCardsSubcollectionCount
+            }}
+          </td>
         </tr>
-        <tr v-if="biobanksStore.biobankCardsSubcollectionCount > 0">
-          <td class="pr-1">Subcollection(s):</td>
-          <td>{{ biobanksStore.biobankCardsSubcollectionCount }}</td>
+        <tr>
+          <td class="text-nowrap">
+            Services: {{ biobanksStore.biobankCardsServicesCount }}
+          </td>
         </tr>
       </tbody>
     </table>
   </small>
 </template>
 
-<script>
+<script setup lang="ts">
 import { useBiobanksStore } from "../../stores/biobanksStore";
 
-export default {
-  setup() {
-    const biobanksStore = useBiobanksStore();
-    return { biobanksStore };
-  },
-};
+const biobanksStore = useBiobanksStore();
 </script>

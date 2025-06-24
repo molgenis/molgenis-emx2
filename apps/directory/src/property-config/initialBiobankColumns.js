@@ -1,3 +1,6 @@
+import { ContactInfoColumns } from "./contactInfoColumns";
+import { HeadInfoColumns } from "./headInfoColumns";
+
 export const initialBiobankColumns = [
   { label: "Id:", column: "id", type: "string", showCopyIcon: true },
   {
@@ -30,22 +33,45 @@ export const initialBiobankColumns = [
   },
   {
     label: "Biobank capabilities:",
-    column: { capabilities: ["name", "label"] },
+    column: {
+      services: [
+        "id",
+        "name",
+        { biobank: ["id", "name"] },
+        { serviceTypes: ["name", "label", { serviceCategory: ["name"] }] },
+        "acronym",
+        "description",
+        "descriptionUrl",
+        "device",
+        "deviceSystem",
+        { tRL: ["order", "name", "label", "code", "definition"] },
+        "accessDescriptionUrl",
+        "unitOfAccess",
+        "accessDescription",
+        "unitCost",
+        {
+          qualityStandards: [
+            "id",
+            {
+              qualityStandard: ["order", "name", "label", "code", "definition"],
+            },
+            {
+              assessmentLevel: ["order", "name", "label", "code", "definition"],
+            },
+            "certificationNumber",
+            "certificationReport",
+            "certificationImageLink",
+          ],
+        },
+      ],
+    },
     type: "array",
-    showOnBiobankCard: true,
+    showOnBiobankCard: false,
   },
   /** properties that are required but should not be rendered as attributes */
   {
     column: [
       "name",
-      "head.title_before_name",
-      "head.first_name",
-      "head.last_name",
-      "head.role",
-      "contact.first_name",
-      "contact.last_name",
-      "contact.country.name",
-      "contact.country.label",
       "country.label",
       "network.name",
       "network.id",
@@ -54,6 +80,8 @@ export const initialBiobankColumns = [
       "collections.materials.name",
       "also_known.url",
       "also_known.name_system",
+      ...ContactInfoColumns,
+      ...HeadInfoColumns,
     ],
   },
 ];

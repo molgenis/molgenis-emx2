@@ -1,5 +1,6 @@
 package org.molgenis.emx2.tasks;
 
+import static org.jooq.impl.DSL.name;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
@@ -10,21 +11,32 @@ import static org.molgenis.emx2.utils.TypeUtils.millisecondsToLocalDateTime;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.jooq.Result;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TaskServiceInDatabase extends TaskServiceInMemory {
-  private Database database;
+  private SqlDatabase database;
   private String systemSchemaName;
+  private URL hostUrl;
 
-  public TaskServiceInDatabase(String systemSchemaName) {
+  public TaskServiceInDatabase(String systemSchemaName, URL hostUrl) {
     this.database = new SqlDatabase(false);
     this.systemSchemaName = systemSchemaName;
+    this.hostUrl = hostUrl;
     this.init();
+  }
+
+  @Override
+  public List<ScriptTask> getScripts() {
+    Result<org.jooq.Record> result =
+        this.database.getJooq().fetch("select * from {0}", name(systemSchemaName, "Scripts"));
+    return result.stream().map(record -> new ScriptTask(new Row(record.intoMap()))).toList();
   }
 
   @Override
@@ -80,45 +92,43 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   @Override
-  public String submitTaskFromName(final String scriptName, final String parameters) {
+  public String submitTaskFromName(String scriptName, String parameters) {
     StringBuilder result = new StringBuilder();
     String defaultUser = database.getActiveUser();
     database.tx(
         db -> {
           db.becomeAdmin();
           Schema systemSchema = db.getSchema(this.systemSchemaName);
-          // retrieve the script from database
-          List<Row> rows =
-              systemSchema.getTable("Scripts").where(f("name", EQUALS, scriptName)).retrieveRows();
-          if (rows.size() != 1) {
-            throw new MolgenisException("Script " + scriptName + " not found");
-          }
-          Row scriptMetadata = rows.get(0);
-          String user = scriptMetadata.getString("cronUser");
-          if (user == null) {
-            user = defaultUser;
-          }
+
+          ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
+          scriptTask.setServerUrl(hostUrl);
+          String user =
+              scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
+
           db.setActiveUser(user);
-          if (scriptMetadata != null) {
-            if (scriptMetadata.getBoolean("disable") != null
-                && scriptMetadata.getBoolean("disable")) {
-              throw new MolgenisException("Script " + scriptName + " is disabled");
-            }
-            // submit the script
-            result.append(
-                this.submit(
-                    new ScriptTask(scriptMetadata)
-                        .parameters(parameters)
-                        .token(
-                            JWTgenerator.createTemporaryToken(
-                                systemSchema.getDatabase(),
-                                systemSchema.getDatabase().getActiveUser()))
-                        .submitUser(user)));
-          } else {
-            throw new MolgenisException("Script execution failed: " + scriptName + " not found");
-          }
+          // submit the script
+          result.append(
+              this.submit(
+                  scriptTask
+                      .parameters(parameters)
+                      .token(
+                          JWTgenerator.createTemporaryToken(
+                              systemSchema.getDatabase(),
+                              systemSchema.getDatabase().getActiveUser()))
+                      .submitUser(user)));
         });
     return result.toString();
+  }
+
+  private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {
+    List<Row> rows =
+        systemSchema.getTable("Scripts").where(f("name", EQUALS, scriptName)).retrieveRows();
+    if (rows.size() != 1) {
+      throw new MolgenisException("Script " + scriptName + " not found");
+    }
+
+    Row scriptMetadata = rows.get(0);
+    return new ScriptTask(scriptMetadata);
   }
 
   private void save(Task task) {
@@ -186,8 +196,15 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
             schema = db.getSchema(this.systemSchemaName);
           }
 
-          if (!schema.getTableNames().contains("Scripts")) {
-
+          if (schema.getTableNames().contains("Scripts")) {
+            TableMetadata scriptsMetadata = schema.getTable("Scripts").getMetadata();
+            if (!scriptsMetadata.getColumnNames().contains("failureAddress")) {
+              scriptsMetadata.add(
+                  column("failureAddress")
+                      .setType(ColumnType.EMAIL)
+                      .setDescription("Email address to be notified when a job fails"));
+            }
+          } else {
             Table scripTypes =
                 schema.create(table("ScriptTypes").setTableType(TableType.ONTOLOGIES));
             Table jobStatus = schema.create(table("JobStatus").setTableType(TableType.ONTOLOGIES));
@@ -211,6 +228,9 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                             .setType(ColumnType.BOOL)
                             .setDescription(
                                 "Set true to disable the script, it will then not be executable"),
+                        column("failureAddress")
+                            .setType(ColumnType.EMAIL)
+                            .setDescription("Email address to be notified when a job fails"),
                         column("cron")
                             .setDescription(
                                 "If you want to run this script regularly you can add a cron expression. Cron expression. A cron expression is a string comprised of 6 or 7 fields separated by white space. These fields are: Seconds, Minutes, Hours, Day of month, Month, Day of week, and optionally Year. Use * for any and ? for ignore.Note you cannot set 'day of week' and 'day of month' at same time (use ? for one of them). An example input is 0 0 12 * * ? for a job that fires at noon every day. See http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/tutorial-lesson-06.html")));
@@ -268,12 +288,13 @@ f.close()
                     "script",
                     demoScript,
                     "dependencies",
-                    "numpy==1.23.4", // it has a dependency :-)
+                    "numpy==2.2.4",
                     "type",
                     "python",
                     "outputFileExtension",
                     "txt"));
-            scripTypes.insert(row("name", "python")); // lowercase by convention
+            scripTypes.insert(
+                row("name", "python"), row("name", "bash")); // lowercase by convention
             jobStatus.insert(
                 Arrays.stream(TaskStatus.values()).map(value -> row("name", value)).toList());
           } // else, migrations in the future
@@ -310,8 +331,6 @@ f.close()
                   """
 [{"label":"Tasks","href":"tasks","key":"t1yefr","submenu":[],"role":"Manager"},{"label":"Up/Download","href":"updownload","role":"Editor","key":"eq0fcp","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"bifta5","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7rh3b8","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"gq6ixb","submenu":[]}]
 """);
-
-          // todo reload the scheduled jobs to be managed
         });
   }
 

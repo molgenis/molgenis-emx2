@@ -3,6 +3,8 @@
   <RoutedTableExplorer
     tableId="Jobs"
     schemaId="_SYSTEM_"
+    showOrderBy="submitDate"
+    showOrder="DESC"
     :canEdit="true"
     :canManage="true"
   >

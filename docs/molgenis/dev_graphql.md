@@ -112,6 +112,7 @@ system.
 {
   _session {
     email
+    admin
     roles
     schemas
   }
@@ -311,7 +312,11 @@ Finally, for each table there are the following functions:
 
 ### query example
 
-Simple query, including count
+A query can be performed by referring to a table name.
+For every table, aggregate functionality is available by adding <code>_agg</code> to the table name.
+This will expose the </code>count</code> and <code>exists</code> variables.
+
+A simple query, including count:
 
 ```graphql
 {
@@ -327,7 +332,7 @@ Simple query, including count
   Pet_agg {
     count
   }
-  Pet_groupBy{
+  Pet_groupBy {
     sum{weight},
     count,
     tags{name}
@@ -634,6 +639,13 @@ the following function are available:
 - textSearch(value)
 - between(value)
 - notBetween(value)
+- _is_null - use this filter to find null (true) or not null (false) values
+- _match_any(value)
+- _match_all(value)
+- _match_none(value)
+- _match_path(name) - use to filter ontology terms, = or(match_any_including_children(name),match_any_including_parents(name))
+- _match_any_including_children(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
+- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
 
 If you want to filter a ref/mref/categorial or any other 'nested' table result, use:
 

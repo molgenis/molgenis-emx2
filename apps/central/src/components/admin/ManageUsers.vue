@@ -18,7 +18,67 @@
       <ButtonAction @click="alterUser" class="mt-0">Update user</ButtonAction>
     </form>
     <h2>User list</h2>
-    <TableSimple class="bg-white" :rows="users" :columns="['email']" />
+    <TableSimple
+      class="bg-white"
+      :rows="users"
+      :columns="['email', 'enabled', 'admin']"
+    >
+      <template v-slot:rowheader="row">
+        <template
+          v-if="
+            row.row.email !== 'admin' &&
+            row.row.email !== 'anonymous' &&
+            row.row.email !== 'user'
+          "
+        >
+          <IconDanger
+            icon="trash"
+            @click="
+              userToDelete = row.row.email;
+              isModalShown = true;
+            "
+            :tooltip="`Delete ${row.row.email}`"
+          />
+          <IconAction
+            v-if="row.row.enabled"
+            icon="user-check"
+            @click="disableUser(row.row.email)"
+            :tooltip="`disable ${row.row.email}`"
+          />
+          <IconAction
+            v-else
+            icon="user-slash"
+            @click="enableUser(row.row.email)"
+            :tooltip="`re-enable ${row.row.email}`"
+          />
+          <IconAction
+            v-if="row.row.admin"
+            icon="user-tie"
+            @click="setAdmin(row.row.email, false)"
+            :tooltip="`revoke admin rights ${row.row.email}`"
+          />
+          <IconAction
+            v-else
+            icon="user"
+            @click="setAdmin(row.row.email, true)"
+            :tooltip="`grant admin rights ${row.row.email}`"
+          />
+        </template>
+      </template>
+    </TableSimple>
+    <ConfirmModal
+      v-if="isModalShown"
+      title="Delete User"
+      :actionLabel="'Delete ' + userToDelete"
+      actionType="danger"
+      @close="isModalShown = false"
+      @confirmed="
+        removeUser(userToDelete);
+        userToDelete = '';
+        isModalShown = false;
+      "
+    />
+
     <Pagination
       v-model="page"
       :count="userCount"
@@ -39,6 +99,9 @@ import {
   InputString,
   InputPassword,
   ButtonAction,
+  IconDanger,
+  IconAction,
+  ConfirmModal,
 } from "molgenis-components";
 
 export default {
@@ -51,6 +114,9 @@ export default {
     InputString,
     InputPassword,
     ButtonAction,
+    IconDanger,
+    IconAction,
+    ConfirmModal,
   },
   props: {
     session: {
@@ -72,6 +138,8 @@ export default {
       alterSuccess: null,
       alterLoading: false,
       showSigninForm: true,
+      isModalShown: false,
+      userToDelete: "",
     };
   },
   computed: {
@@ -111,7 +179,7 @@ export default {
       this.loading = true;
       request(
         "graphql",
-        `{_admin{users(limit:${this.limit},offset:${this.offset}){email},userCount}}`
+        `{_admin{users(limit:${this.limit},offset:${this.offset}){email, enabled, admin},userCount}}`
       )
         .then((data) => {
           this.users = data._admin.users;
@@ -123,6 +191,103 @@ export default {
           this.error =
             "internal error or permission denied. Did you log in as admin?";
         });
+    },
+    removeUser(user) {
+      this.alterError = null;
+      this.alterLoading = true;
+      request(
+        "graphql",
+        `mutation{removeUser(email: "${user}"){status,message}}`
+      )
+        .then((data) => {
+          if (data.removeUser.status === "SUCCESS") {
+            this.alterSuccess = "Success. removed user: " + user;
+            this.getUserList();
+          } else {
+            this.alterError =
+              "Delete user failed: " + data.changePassword.message;
+          }
+        })
+        .catch((error) => {
+          this.alterError = "Delete user failed: " + error.response.message;
+        });
+      this.alterLoading = false;
+    },
+    setAdmin(user, isAdmin) {
+      request(
+        "graphql",
+        `mutation updateUser($updateUser: InputUpdateUser) {
+    updateUser(updateUser: $updateUser) {
+      status
+      message
+    }
+  }`,
+        {
+          updateUser: {
+            email: user,
+            admin: isAdmin,
+          },
+        }
+      )
+        .then((data) => {
+          console.log(data);
+          if (data.updateUser.status === "SUCCESS") {
+            this.alterSuccess = "Success. updated admin permission: " + user;
+            this.getUserList();
+          } else {
+            this.alterError =
+              "Updating admin permission user failed: " +
+              data.updateUser.message;
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          this.alterError =
+            "update user failed: " + error.response.errors[0].message;
+        });
+    },
+    enableUser(user) {
+      this.alterError = null;
+      this.alterLoading = true;
+      request(
+        "graphql",
+        `mutation{setEnabledUser(email: "${user}", enabled:true){status,message}}`
+      )
+        .then((data) => {
+          if (data.setEnabledUser.status === "SUCCESS") {
+            this.alterSuccess = "Success. enabled user: " + user;
+            this.getUserList();
+          } else {
+            this.alterError =
+              "Enable user failed: " + data.changePassword.message;
+          }
+        })
+        .catch((error) => {
+          this.alterError =
+            "Granting admin rights failed: " + error.response.message;
+        });
+      this.alterLoading = false;
+    },
+    disableUser(user) {
+      this.alterError = null;
+      this.alterLoading = true;
+      request(
+        "graphql",
+        `mutation{setEnabledUser(email: "${user}", enabled:false){status,message}}`
+      )
+        .then((data) => {
+          if (data.setEnabledUser.status === "SUCCESS") {
+            this.alterSuccess = "Success. disabled user: " + user;
+            this.getUserList();
+          } else {
+            this.alterError =
+              "Disable user failed: " + data.changePassword.message;
+          }
+        })
+        .catch((error) => {
+          this.alterError = "Disable user failed: " + error.response.message;
+        });
+      this.alterLoading = false;
     },
   },
   watch: {

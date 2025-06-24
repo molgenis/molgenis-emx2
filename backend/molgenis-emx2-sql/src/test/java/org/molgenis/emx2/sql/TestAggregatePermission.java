@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
 import static org.molgenis.emx2.SelectColumn.s;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlQuery.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 
 public class TestAggregatePermission {
   private static Database db;
@@ -26,17 +26,17 @@ public class TestAggregatePermission {
   public static void setUp() throws SQLException {
     db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestAggregatePermission.class.getSimpleName());
-    new PetStoreLoader().load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
     schema.removeMember(ANONYMOUS);
     schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
     db.setActiveUser("AGGREGATE_TEST_USER");
   }
 
   @Test
-  public void shouldBeAggregatorRoleOnly() {
+  public void shouldBeAggregatorRole() {
     List<String> roles = schema.getInheritedRolesForActiveUser();
-    assertEquals(1, roles.size());
-    assertEquals(AGGREGATOR.toString(), roles.get(0));
+    assertEquals(3, roles.size());
+    assertTrue(roles.contains(AGGREGATOR.toString()));
   }
 
   @Test

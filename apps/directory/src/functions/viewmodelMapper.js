@@ -2,32 +2,33 @@ import { useSettingsStore } from "../stores/settingsStore";
 import { sortCollectionsByName } from "./sorting";
 
 export const getName = (contact) => {
-  const { title_before_name, first_name, last_name, title_after_name } =
+  const { title_before_name, first_name, last_name, title_after_name, role } =
     contact;
 
   let name = "";
 
-  if (title_before_name) name += `${title_before_name} `;
-  if (first_name) name += `${first_name} `;
-  if (last_name) name += `${last_name} `;
+  if (title_before_name) name += `${title_before_name}`;
+  if (first_name) name += ` ${first_name}`;
+  if (last_name) name += ` ${last_name}`;
   if (title_after_name) name += ` ${title_after_name}`;
+  if (role) name += `\n${role}`;
 
   return name !== "" ? name.trim() : undefined;
 };
 
-export const mapToString = (object, property, prefix, suffix) => {
+export const propertyToString = (object, property, prefix, suffix) => {
   if (!object) return "";
-
   if (typeof object === "string") return object;
+  if (!object[property]) return "";
 
-  prefix = prefix ? `${prefix} ` : "";
-  suffix = suffix ? ` ${suffix}` : "";
-  return object[property] ? `${prefix}${object[property]}${suffix}` : "";
+  const spacedPrefix = prefix ? `${prefix} ` : "";
+  const spacedSuffix = suffix ? ` ${suffix}` : "";
+  return `${spacedPrefix}${object[property]}${spacedSuffix}`;
 };
 
 function getUriIfAvailable(item) {
   if (item.uri) return "uri";
-  if (item.url) return "uri";
+  if (item.url) return "url";
   if (item.ontologyTermURI) return "ontologyTermURI";
 
   return "";
@@ -44,50 +45,32 @@ export function mapObjArray(objects) {
     }));
 }
 
-export function mapUrl(url) {
-  return url ? (url.startsWith("http") ? url : "http://" + url) : url;
+export function urlToString(url) {
+  if (url) {
+    return url.startsWith("http") ? url : "https://" + url;
+  } else {
+    return url;
+  }
 }
 
-export function mapRange(min, max, unit) {
-  let range = "";
-  if ((min || min === 0) && max) {
-    range = `${min}-${max} `;
-  } else if (min || min === 0) {
-    range = `> ${min} `;
-  } else if (max) {
-    range = `< ${max} `;
-  }
+export function rangeToString(min, max, unit) {
+  const range = getRange(min, max);
   if (range.length > 0 && unit?.label) {
-    range += unit.label;
+    return range + unit.label;
   } else {
-    range = undefined;
+    return "";
   }
-  return range;
 }
 
-function getObjectForValueExtraction(object, propertyKey) {
-  /** this column is a nested propery */
-  if (typeof propertyKey === "object") {
-    const nextKey = Object.keys(propertyKey)[0];
-
-    return getObjectForValueExtraction(object, nextKey);
-  } else if (typeof object[propertyKey] === "object") {
-    const keys = Object.keys(object[propertyKey]);
-    let nextKey = "";
-
-    /** find the next non-digit key in the array. */
-    for (const key of keys) {
-      if (isNaN(key)) {
-        nextKey = key;
-        break;
-      }
-    }
-    /** found a pure array, return that */
-    if (!nextKey) return object[propertyKey];
-
-    return getObjectForValueExtraction(object[propertyKey], nextKey);
+function getRange(min, max) {
+  if ((min || min === 0) && max) {
+    return `${min}-${max} `;
+  } else if (min || min === 0) {
+    return `> ${min} `;
+  } else if (max) {
+    return `< ${max} `;
   } else {
-    return object[propertyKey];
+    return "";
   }
 }
 
@@ -110,11 +93,11 @@ export function getViewmodel(object, columns) {
     switch (columnInfo.type) {
       case "range": {
         const { min, max, unit } = columnInfo;
-        attributeValue = mapRange(object[min], object[max], object[unit]) || "";
+        attributeValue = rangeToString(object[min], object[max], object[unit]);
         break;
       }
       case "object": {
-        attributeValue = mapToString(
+        attributeValue = propertyToString(
           objectToExtractValueFrom,
           columnInfo.property,
           columnInfo.prefix,
@@ -139,7 +122,7 @@ export function getViewmodel(object, columns) {
         break;
       }
       default: {
-        attributeValue = mapToString(
+        attributeValue = propertyToString(
           object,
           columnInfo.column,
           columnInfo.prefix,
@@ -164,6 +147,32 @@ export function getViewmodel(object, columns) {
   }
 
   return { attributes };
+}
+
+function getObjectForValueExtraction(object, propertyKey) {
+  /** this column is a nested property */
+  if (typeof propertyKey === "object") {
+    const nextKey = Object.keys(propertyKey)[0];
+
+    return getObjectForValueExtraction(object, nextKey);
+  } else if (typeof object[propertyKey] === "object") {
+    const keys = Object.keys(object[propertyKey]);
+    let nextKey = "";
+
+    /** find the next non-digit key in the array. */
+    for (const key of keys) {
+      if (isNaN(key)) {
+        nextKey = key;
+        break;
+      }
+    }
+    /** found a pure array, return that */
+    if (!nextKey) return object[propertyKey];
+
+    return getObjectForValueExtraction(object[propertyKey], nextKey);
+  } else {
+    return object[propertyKey];
+  }
 }
 
 /**
@@ -256,6 +265,16 @@ export function getCollectionDetails(collection, isBiobankWithdrawn) {
   };
 }
 
+export function getStudyDetails(study) {
+  const settingsStore = useSettingsStore();
+  const viewmodel = getViewmodel(study, settingsStore.config.studyColumns);
+
+  return {
+    ...study,
+    viewmodel,
+  };
+}
+
 export const getBiobankDetails = (biobank) => {
   const settingsStore = useSettingsStore();
 
@@ -266,9 +285,7 @@ export const getBiobankDetails = (biobank) => {
     );
     biobank.collectionDetails = [];
 
-    const parentCollections = biobank.collections.filter(
-      (collection) => !collection.parent_collection
-    );
+    const parentCollections = biobank.collections;
 
     const sortedParentCollections = sortCollectionsByName(parentCollections);
 
@@ -284,15 +301,17 @@ export const getBiobankDetails = (biobank) => {
 };
 
 export const collectionReportInformation = (collection) => {
-  const collectionReport = {};
+  let collectionReport = {};
 
-  collectionReport.head = getNameOfHead(collection.head) || undefined;
+  if (collection.head) {
+    collectionReport.head = getName(collection.head);
+  }
 
   if (collection.contact) {
     collectionReport.contact = {
       name: getName(collection.contact),
-      email: collection.contact.email ? collection.contact.email : undefined,
-      phone: collection.contact.phone ? collection.contact.phone : undefined,
+      email: collection.contact.email,
+      phone: collection.contact.phone,
     };
   }
 
@@ -307,12 +326,10 @@ export const collectionReportInformation = (collection) => {
       id: collection.biobank.id,
       name: collection.biobank.name,
       juridical_person: collection.biobank.juridical_person,
-      country: collection.country.label || collection.country.name,
+      country: collection.country?.label,
       report: `/biobank/${collection.biobank.id}`,
       website: collection.biobank.url,
-      email: collection.biobank.contact
-        ? collection.biobank.contact.email
-        : undefined,
+      email: collection.biobank.contact?.email,
     };
   }
 
@@ -325,13 +342,26 @@ export const collectionReportInformation = (collection) => {
     });
   }
 
-  collectionReport.certifications = mapQualityStandards(collection.quality);
+  if (collection.quality) {
+    collectionReport.certifications = mapQualityStandards(collection.quality);
+  }
+
+  if (collection.studies) {
+    collectionReport.studies = collection.studies.map((study) => {
+      return {
+        id: study.id,
+        title: study.title,
+        report: `/study/${study.id}`,
+      };
+    });
+  }
 
   collectionReport.collaboration = [];
 
   if (collection.collaboration_commercial) {
     collectionReport.collaboration.push({ name: "Commercial", value: "yes" });
   }
+
   if (collection.collaboration_non_for_profit) {
     collectionReport.collaboration.push({
       name: "Not for profit",
@@ -347,6 +377,14 @@ export const collectionReportInformation = (collection) => {
   return collectionReport;
 };
 
+export const getStudyReportInformation = (study) => {
+  const studyReport = {};
+
+  studyReport.also_known = study.also_known ? mapAlsoKnownIn(study) : undefined;
+
+  return studyReport;
+};
+
 export const mapNetworkInfo = (data) => {
   return data.network.map((network) => {
     return {
@@ -356,89 +394,14 @@ export const mapNetworkInfo = (data) => {
   });
 };
 
-export const getNameOfHead = (head) => {
-  if (!head) return "";
-
-  const { first_name, last_name, role } = head;
-
-  let name = "";
-
-  if (first_name) name += `${first_name} `;
-  if (last_name) name += `${last_name} `;
-  if (role) name += `(${role})`;
-
-  return name !== "" ? name.trim() : undefined;
-};
-
-export const mapHeadInfo = (instance) => {
-  if (instance.head) {
-    return {
-      name: {
-        value: getName(instance.head),
-        type: "string",
-      },
-      website: { value: mapUrl(instance.head.url), type: "url" },
-      email: {
-        value: instance.head.email,
-        type: "email",
-      },
-      country: {
-        value: instance.head.country
-          ? instance.head.country.label || instance.head.country.name
-          : undefined,
-        type: "string",
-      },
-    };
-  } else {
-    return {};
-  }
-};
-
-export const mapContactInfo = (instance) => {
-  if (instance.contact) {
-    return {
-      name: {
-        value: getName(instance.contact),
-        type: "string",
-      },
-      website: { value: mapUrl(instance.contact.url), type: "url" },
-      email: {
-        value: instance.contact.email,
-        type: "email",
-      },
-      juridical_person: { value: instance.juridical_person, type: "string" },
-      country: {
-        value: instance.contact.country
-          ? instance.contact.country.label || instance.contact.country.name
-          : undefined,
-        type: "string",
-      },
-    };
-  } else {
-    return {};
-  }
-};
-
 export const mapAlsoKnownIn = (instance) => {
-  let arr = [];
-
-  if (instance.also_known) {
-    for (const item of instance.also_known) {
-      arr.push({ value: item.url, type: "url", label: item.name_system });
-    }
-  }
-
-  return arr;
+  return (
+    instance.also_known?.map((item) => {
+      return { value: item.url, type: "url", label: item.name_system };
+    }) || []
+  );
 };
 
 export const mapQualityStandards = (instance) => {
-  let arr = [];
-
-  if (instance) {
-    for (const quality of instance) {
-      arr.push(quality.quality_standard.name);
-    }
-  }
-
-  return arr;
+  return instance.map((quality) => quality.quality_standard.name);
 };

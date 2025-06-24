@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
+import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
@@ -30,7 +30,7 @@ public class TestColumnTypeIsFile {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(SCHEMA_NAME);
-    new PetStoreLoader().load(schema, false);
+    DataModels.Profile.PET_STORE.getImportTask(schema, false).run();
 
     schema
         .getTable("User")
@@ -85,7 +85,7 @@ public class TestColumnTypeIsFile {
         new String(
             userTable
                 .query()
-                .select(s("picture", s("contents"), s("mimetype"), s("extension")))
+                .select(s("picture", s("contents"), s("mimetype"), s("filename"), s("extension")))
                 .retrieveRows()
                 .get(0)
                 .getBinary("picture_contents")));
@@ -106,10 +106,11 @@ public class TestColumnTypeIsFile {
     Row result =
         userTable
             .query()
-            .select(s("picture", s("contents"), s("mimetype"), s("extension")))
+            .select(s("picture", s("contents"), s("mimetype"), s("filename"), s("extension")))
             .retrieveRows()
             .get(0);
     assertEquals("test", new String(result.getBinary("picture_contents")));
+    assertEquals("test.txt", result.getString("picture_filename"));
     assertEquals("txt", result.getString("picture_extension"));
     assertEquals("text/plain", result.getString("picture_mimetype"));
   }

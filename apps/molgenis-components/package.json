@@ -31,25 +31,25 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.4.2",
     "@popperjs/core": "2.11.8",
-    "@vueuse/core": "10.5.0",
-    "@vueuse/integrations": "10.5.0",
-    "axios": "1.6.5",
+    "@vueuse/core": "10.7.0",
+    "@vueuse/integrations": "10.7.0",
+    "axios": "1.8.2",
     "click-outside-vue3": "4.0.1",
     "cross-env": "7.0.3",
-    "meta-data-utils": "*",
+    "metadata-utils": "*",
     "universal-cookie": "4.0.4",
-    "vue": "3.4.15",
+    "vue": "3.5.13",
     "vue-gtag": "2.0.1",
-    "vue-flatpickr-component": "11.0.3",
+    "vue-flatpickr-component": "11.0.5",
     "vue3-cookies": "^1.0.6",
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "4.6.2",
     "prettier": "2.8.8",
-    "vite": "4.5.2",
-    "vitest": "0.34.6",
-    "vue-router": "4.2.5",
+    "vite": "5.4.16",
+    "vitest": "3.0.7",
+    "vue-router": "4.4.3",
     "vue-scrollto": "2.20.0"
   }
 }

@@ -64,13 +64,15 @@ def create_schema():
             $name: String,
             $description: String,
             $template: String,
-            $includeDemoData: Boolean
+            $includeDemoData: Boolean,
+            $parentJob: String
         ) {
             createSchema(
                 name: $name,
                 description: $description,
                 template: $template,
-                includeDemoData: $includeDemoData
+                includeDemoData: $includeDemoData,
+                parentJob: $parentJob
               ) {
                   status
                   message
@@ -131,6 +133,10 @@ def update_schema():
         }
     """
 
+def truncate():
+    """GraphQL query to truncate a table."""
+    return """mutation($table: String) {truncate(tables: [$table]) {message}}"""
+
 
 def list_schemas():
     """GraphQL query to view all available schemas."""
@@ -165,8 +171,6 @@ def list_schema_meta():
                     value
                 }
                 id
-                schemaName
-                schemaId
                 inheritName
                 inheritId
                 descriptions {
@@ -228,19 +232,6 @@ def list_schema_meta():
     """
 
 
-def list_tables():
-    """GraphQL query to list the tables in a schema."""
-    return """
-        {
-          _schema {
-            tables {
-              name
-            }
-          }
-        }
-    """
-
-
 def version_number():
     """GraphQL query to retrieve the server's version number."""
     return (
@@ -253,4 +244,27 @@ def version_number():
           }
         }
         """
+    )
+
+
+def task_status(task_id: str) -> str:
+    """GraphQL query to retrieve a task's status."""
+    return (
+        """
+        {
+          _tasks(id:"%s")
+          {
+            id, description, status, subTasks
+            {
+              id, description, status, subTasks
+              {
+                id, description, status, subTasks
+                {
+                  id, description, status
+                }
+              }
+            }
+          }
+        }
+        """ % task_id
     )

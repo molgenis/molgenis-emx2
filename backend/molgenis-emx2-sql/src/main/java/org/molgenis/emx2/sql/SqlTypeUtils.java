@@ -5,14 +5,13 @@ import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascript;
 import static org.molgenis.emx2.utils.JavaScriptUtils.executeJavascriptOnMap;
 
 import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.TypeUtils;
-import org.molgenis.emx2.utils.generator.IdGenerator;
-import org.molgenis.emx2.utils.generator.IdGeneratorImpl;
+import org.molgenis.emx2.utils.generator.SnowflakeIdGenerator;
 
 public class SqlTypeUtils extends TypeUtils {
-
-  public static final IdGenerator idGenerator = new IdGeneratorImpl();
 
   private SqlTypeUtils() {
     // to hide the public constructor
@@ -27,12 +26,13 @@ public class SqlTypeUtils extends TypeUtils {
 
   public static void applyValidationAndComputed(List<Column> columns, Row row) {
     Map<String, Object> graph = convertRowToMap(columns, row);
+    addJavaScriptBindings(columns, graph);
     for (Column c : columns.stream().filter(c -> !c.isHeading()).toList()) {
       if (Constants.MG_EDIT_ROLE.equals(c.getName())) {
         row.setString(
             c.getName(), Constants.MG_USER_PREFIX + row.getString(Constants.MG_EDIT_ROLE));
       } else if (AUTO_ID.equals(c.getColumnType())) {
-        applyAutoid(c, row);
+        applyAutoId(c, row);
       } else if (c.getDefaultValue() != null && !row.notNull(c.getName())) {
         if (c.getDefaultValue().startsWith("=")) {
           try {
@@ -60,7 +60,8 @@ public class SqlTypeUtils extends TypeUtils {
           row.set(c.getName(), c.getDefaultValue());
         }
       } else if (c.getComputed() != null) {
-        row.set(c.getName(), executeJavascriptOnMap(c.getComputed(), graph));
+        Object computedValue = executeJavascriptOnMap(c.getComputed(), graph);
+        TypeUtils.addFieldObjectToRow(c, computedValue, row);
       } else if (columnIsVisible(c, graph)) {
         checkRequired(c, row, graph);
         checkValidation(c, graph);
@@ -76,16 +77,15 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
-  private static void applyAutoid(Column c, Row row) {
+  private static void applyAutoId(Column c, Row row) {
     if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
+      String id = SnowflakeIdGenerator.getInstance().generateId();
       // do we use a template containing ${mg_autoid} for pre/postfixing ?
       if (c.getComputed() != null) {
-        row.set(
-            c.getName(),
-            c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, idGenerator.generateId()));
+        row.set(c.getName(), c.getComputed().replace(Constants.COMPUTED_AUTOID_TOKEN, id));
       }
       // otherwise simply put the id
-      else row.set(c.getName(), idGenerator.generateId());
+      else row.set(c.getName(), id);
     }
   }
 
@@ -99,6 +99,36 @@ public class SqlTypeUtils extends TypeUtils {
           throw new MolgenisException(
               "column '" + c.getName() + "' is required: " + error + " in " + row);
         }
+      }
+    }
+    if (c.isReference()) {
+      List<Reference> refs = c.getReferences();
+      // PostgreSQL considers the foreign key constraint not applicable if any part of the composite
+      // key is NULL.therefore we must make sure it is complete
+      // exclude overlapping
+      int countNotNullNotOverlapping = 0;
+      int countNotNull = 0;
+      for (Reference ref : refs) {
+        if (!row.isNull(ref.getName(), ref.getPrimitiveType())) {
+          if (!ref.isOverlapping()) {
+            countNotNullNotOverlapping++;
+          }
+          countNotNull++;
+        }
+      }
+      if (countNotNullNotOverlapping > 0 && countNotNull != refs.size()) {
+        throw new MolgenisException(
+            String.format(
+                "Key (%s)=(%s) not present in table \"%s\"",
+                refs.stream().map(ref -> ref.getName()).collect(Collectors.joining(",")),
+                refs.stream()
+                    .map(
+                        ref ->
+                            row.isNull(ref.getName(), ref.getPrimitiveType())
+                                ? "NULL"
+                                : row.getValueMap().get(ref.getName()).toString())
+                    .collect(Collectors.joining(",")),
+                c.getRefTableName()));
       }
     }
   }
@@ -148,10 +178,12 @@ public class SqlTypeUtils extends TypeUtils {
       case DATE_ARRAY -> row.getDateArray(name);
       case DATETIME -> row.getDateTime(name);
       case DATETIME_ARRAY -> row.getDateTimeArray(name);
-      case JSONB -> row.getJsonb(name);
-      case JSONB_ARRAY -> row.getJsonbArray(name);
-      default -> throw new UnsupportedOperationException(
-          "Unsupported columnType found:" + c.getColumnType());
+      case PERIOD -> row.getPeriod(name);
+      case PERIOD_ARRAY -> row.getPeriodArray(name);
+      case JSON -> row.getJsonb(name);
+      default ->
+          throw new UnsupportedOperationException(
+              "Unsupported columnType found:" + c.getColumnType());
     };
   }
 
@@ -177,9 +209,10 @@ public class SqlTypeUtils extends TypeUtils {
       case DATE_ARRAY -> "date[]";
       case DATETIME -> "timestamp without time zone";
       case DATETIME_ARRAY -> "timestamp without time zone[]";
-      case JSONB -> "jsonb";
-      default -> throw new MolgenisException(
-          "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
+      case JSON -> "jsonb";
+      default ->
+          throw new MolgenisException(
+              "Unknown type: Internal error: data cannot be mapped to psqlType " + type);
     };
   }
 
@@ -188,11 +221,25 @@ public class SqlTypeUtils extends TypeUtils {
       column.getColumnType().validate(values.get(column.getName()));
       // validation
       if (column.getValidation() != null) {
+        // check if validation script contains js functions that are bound to java functions
         String errorMessage = checkValidation(column.getValidation(), values);
         if (errorMessage != null)
           throw new MolgenisException(
               "Validation error on column '" + column.getName() + "': " + errorMessage + ".");
       }
+    }
+  }
+
+  private static void addJavaScriptBindings(List<Column> columns, Map<String, Object> values) {
+    if (columns.isEmpty()) return;
+    Column column = columns.get(0);
+    if (column.getTable() == null) return;
+    if (column.getSchema() == null) return;
+    if (column.getSchema().getDatabase() == null) return;
+    Map<String, Supplier<Object>> bindings =
+        column.getSchema().getDatabase().getJavaScriptBindings();
+    for (String key : bindings.keySet()) {
+      values.put(key, bindings.get(key).get());
     }
   }
 

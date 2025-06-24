@@ -1,0 +1,21 @@
+import "ontology.jslt" as ontology
+import "meta.jslt" as meta
+import "response_summary.jslt" as responseSummary
+let host = .requestBody.meta.host
+{
+    "meta": meta(.),
+    "responseSummary": responseSummary(.),
+    "response": {
+        let schemaId = .resultSets[0].id
+        "collections":
+        [for (.resultSets[0].results) {
+            "createDateTime": .mg_insertedOn,
+            "description": .description,
+            "externalUrl": $host + "/api/fdp/dataset/" + $schemaId + "/" + .id,
+            "id": .id,
+            "name": .title,
+            "updateDateTime": .mg_updatedOn,
+            "version": .mg_updatedOn
+        }]
+    }
+}

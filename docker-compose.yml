@@ -1,7 +1,6 @@
-version: "3.0"
 services:
   postgres:
-    image: postgres:14-alpine
+    image: postgres:15-alpine
     environment:
     - POSTGRES_USER=postgres
     - POSTGRES_PASSWORD=postgres
@@ -10,10 +9,22 @@ services:
     - "5432:5432"
     volumes:
     - ./psql_data:/var/lib/postgresql/data
-    - ./.docker/initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
-    command: -c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
+    command:
+      - bash
+      - -c
+      - |
+        docker-entrypoint.sh postgres &
+        until pg_isready -U postgres; do
+          echo 'Waiting for PostgreSQL to be ready...';
+          sleep 2;
+        done;
+        psql -U postgres -d postgres -c "CREATE DATABASE molgenis;"
+        psql -U postgres -d postgres -c "CREATE USER molgenis WITH LOGIN NOSUPERUSER INHERIT CREATEROLE ENCRYPTED PASSWORD 'molgenis';"
+        psql -U postgres -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE molgenis TO molgenis;"
+        wait
+      - c 'shared_buffers=256MB' -c 'max_locks_per_transaction=1024'
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "molgenis"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
       interval: 5s
       timeout: 60s
       retries: 5

@@ -68,6 +68,15 @@
                       ? 'Referenced table is required'
                       : undefined
                   "
+                  :noOptionsProvidedMessage="
+                    'No ' +
+                    (column.columnType.includes('ONTOLOGY')
+                      ? 'ontology table'
+                      : 'data table') +
+                    ' found in schema \'' +
+                    (column.refSchemaName || schema.name) +
+                    '\''
+                  "
                   :options="tableNames"
                   label="refTable"
                 />
@@ -196,8 +205,9 @@
             </div>
             <div class="row">
               <div class="col-4">
-                <InputString
+                <ArrayInput
                   id="column_semantics"
+                  columnType="STRING_ARRAY"
                   v-model="column.semantics"
                   :list="true"
                   label="semantics"
@@ -267,24 +277,27 @@
 
 <script lang="ts">
 import {
-  ButtonAction,
-  ButtonAlt,
-  Client,
-  IconAction,
-  InputBoolean,
-  InputRadio,
-  InputSelect,
-  InputString,
-  InputText,
-  InputTextLocalized,
-  LayoutForm,
-  LayoutModal,
-  MessageError,
-  MessageWarning,
-  RowEdit,
-  Spinner,
-  deepClone,
-  getRowErrors, //@ts-ignore
+  constants,
+  //@ts-ignore
+  ButtonAction, //@ts-ignore
+  ButtonAlt, //@ts-ignore
+  Client, //@ts-ignore
+  IconAction, //@ts-ignore
+  InputBoolean, //@ts-ignore
+  InputRadio, //@ts-ignore
+  InputSelect, //@ts-ignore
+  InputString, //@ts-ignore
+  ArrayInput, //@ts-ignore
+  InputText, //@ts-ignore
+  InputTextLocalized, //@ts-ignore
+  LayoutForm, //@ts-ignore
+  LayoutModal, //@ts-ignore
+  MessageError, //@ts-ignore
+  MessageWarning, //@ts-ignore
+  RowEdit, //@ts-ignore
+  Spinner, //@ts-ignore
+  deepClone, //@ts-ignore
+  getRowErrors,
 } from "molgenis-components";
 import columnTypes from "../columnTypes.js";
 import { addTableIdsLabelsDescription } from "../utils";
@@ -296,6 +309,7 @@ export default {
     LayoutForm,
     InputText,
     InputString,
+    ArrayInput,
     InputBoolean,
     InputSelect,
     InputRadio,
@@ -416,7 +430,7 @@ export default {
     },
     //listing of all tables, used for refs
     tableNames() {
-      if (this.refSchema !== undefined) {
+      if (this.column.refSchemaName && this.refSchema.tables) {
         if (
           this.column.columnType === "ONTOLOGY" ||
           this.column.columnType === "ONTOLOGY_ARRAY"
@@ -444,8 +458,8 @@ export default {
       if (this.column.name === undefined || this.column.name === "") {
         return "Name is required";
       }
-      if (!this.column.name.match(/^[a-zA-Z][a-zA-Z0-9_ ]+$/)) {
-        return "Name should start with letter, followed by letter, number, whitespace or underscore ([a-zA-Z][a-zA-Z0-9_ ]*)";
+      if (!this.column.name.match(constants.COLUMN_NAME_REGEX)) {
+        return "Name must start with a letter, followed by zero or more letters, numbers, spaces or underscores. A space immediately before or after an underscore is not allowed. The character limit is 63.";
       }
       if (
         (this.modelValue === undefined ||
@@ -492,19 +506,15 @@ export default {
         )
         .map((c: Record<string, any>) => c.name);
     },
-    refBackCandidates(
-      fromTable: Record<string, any>,
-      toTable: Record<string, any>
-    ) {
+    refBackCandidates(fromTable: string, toTable: Record<string, any>) {
       const schema =
         this.refSchema !== undefined ? this.refSchema : this.schema;
-
-      const columns = schema.tables
-        .filter((t: Record<string, any>) => t.name === fromTable)
-        .map((t: Record<string, any>) => t.columns)[0];
+      const columns = getRefTableColumns(fromTable, schema.tables);
       return columns
-        ?.filter((c: Record<string, any>) => c.refTableName === toTable)
-        .map((c: Record<string, any>) => c.name);
+        .filter(
+          (column: Record<string, any>) => column.refTableName === toTable
+        )
+        .map((column: Record<string, any>) => column.name);
     },
     async loadRefSchema() {
       this.error = undefined;
@@ -544,7 +554,7 @@ export default {
         this.column = { table: this.tableName, columnType: "STRING" };
       }
       //if reference to external schema
-      if (this.column.refSchema != undefined) {
+      if (this.column.refSchemaName != undefined) {
         this.loadRefSchema();
       }
       this.setupRequiredSelect();
@@ -566,4 +576,21 @@ export default {
   },
   emits: ["add", "update:modelValue"],
 };
+
+function getRefTableColumns(
+  fromTable: string,
+  tables: Record<string, any>[]
+): Record<string, any>[] {
+  const table = tables.find(
+    (table: Record<string, any>) => table.name === fromTable
+  );
+  if (table?.inheritName) {
+    const inheritedTable = tables.find(
+      (otherTable: Record<string, any>) => table.inheritName === otherTable.name
+    );
+    return [...inheritedTable?.columns, ...table?.columns];
+  } else {
+    return table?.columns || [];
+  }
+}
 </script>

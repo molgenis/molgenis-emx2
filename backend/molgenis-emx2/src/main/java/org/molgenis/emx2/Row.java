@@ -6,7 +6,9 @@ import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.*;
+import java.util.stream.Collectors;
 import org.jooq.JSONB;
 import org.molgenis.emx2.utils.TypeUtils;
 
@@ -85,6 +87,14 @@ public class Row {
     return getStringArray(name, true);
   }
 
+  // If a value contains a comma but is not of type array, only return that single value without
+  // forcing it into becoming an array, creating a wrongful representation of that value
+  public String[] getStringArrayPreserveDelimiter(Column column) {
+    return column.isArray()
+        ? getStringArray(column.getName(), true)
+        : new String[] {getString(column.getName())};
+  }
+
   public String[] getStringArray(String name, boolean emptyAsNull) {
     if (values.get(name) == null) {
       // if the key is present but no value, returning an empty array allows updating to an empty
@@ -141,6 +151,14 @@ public class Row {
     return TypeUtils.toTextArray(values.get(name));
   }
 
+  public Period getPeriod(String name) {
+    return TypeUtils.toPeriod(values.get(name));
+  }
+
+  public Period[] getPeriodArray(String name) {
+    return TypeUtils.toPeriodArray(values.get(name));
+  }
+
   public LocalDate getDate(String name) {
     return TypeUtils.toDate(values.get(name));
   }
@@ -159,10 +177,6 @@ public class Row {
 
   public JSONB getJsonb(String name) {
     return TypeUtils.toJsonb(values.get(name));
-  }
-
-  public JSONB[] getJsonbArray(String name) {
-    return TypeUtils.toJsonbArray(values.get(name));
   }
 
   public Row setString(String name, String value) {
@@ -209,12 +223,20 @@ public class Row {
     if (value == null) {
       // fix: this is needed to also empty all file metadata fields
       this.values.put(name, null);
+      this.values.put(name + "_filename", null);
       this.values.put(name + "_extension", null);
       this.values.put(name + "_mimetype", null);
       this.values.put(name + "_size", null);
       this.values.put(name + "_contents", null);
     } else {
-      this.values.put(name, UUID.randomUUID().toString().replace("-", ""));
+      String id = UUID.randomUUID().toString().replace("-", "");
+      this.values.put(name, id);
+      String filename = value.getFileName();
+      if (filename != null && !filename.isEmpty()) {
+        this.values.put(name + "_filename", filename);
+      } else {
+        this.values.put(name + "_filename", id + "." + value.getExtension());
+      }
       this.values.put(name + "_extension", value.getExtension());
       this.values.put(name + "_mimetype", value.getMimeType());
       this.values.put(name + "_size", value.getSize());
@@ -250,6 +272,16 @@ public class Row {
 
   public Row setDateTimeArray(String columnId, LocalDateTime[] value) {
     this.values.put(columnId, value);
+    return this;
+  }
+
+  public Row setPeriod(String columnId, Period value) {
+    this.values.put(columnId, value);
+    return this;
+  }
+
+  public Row setPeriodArray(String name, Period[] value) {
+    this.values.put(name, value);
     return this;
   }
 
@@ -322,8 +354,6 @@ public class Row {
         return (T) getStringArray(name);
       case "JSONB":
         return (T) getJsonb(name);
-      case "JSONB[]":
-        return (T) getJsonbArray(name);
       case "Integer":
         return (T) getInteger(name);
       case "Integer[]":
@@ -340,6 +370,10 @@ public class Row {
         return (T) getDecimal(name);
       case "Double[]":
         return (T) getDecimalArray(name);
+      case "Period":
+        return (T) getPeriod(name);
+      case "Period[]":
+        return (T) getPeriodArray(name);
       case "LocalDate":
         return (T) getDate(name);
       case "LocalDate[]":
@@ -363,17 +397,11 @@ public class Row {
   }
 
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("ROW(");
-    for (Map.Entry<String, Object> col : values.entrySet()) {
-      builder
-          .append(col.getKey())
-          .append("='")
-          .append(TypeUtils.toString(col.getValue()))
-          .append("' ");
-    }
-    builder.append(")");
-    return builder.toString();
+    return "ROW("
+        + values.entrySet().stream()
+            .map(col -> col.getKey() + "='" + TypeUtils.toString(col.getValue()) + "'")
+            .collect(Collectors.joining(" "))
+        + ")";
   }
 
   public boolean containsName(String columnName) {

@@ -3,38 +3,43 @@
   "version": "0.0.1",
   "description": "BBMRI Directory app, for browsing collections and biobanks in EMX2",
   "main": "index.js",
-  "author": "Jelmer Veen <https://github.com/jelmerveen>",
   "license": "LGPL3",
   "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "jest --collectCoverage",
-    "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+    "test": "vitest",
+    "test-ci": "vitest run",
+    "format": "prettier src tests  --write --config ../.prettierrc.js",
+    "checkFormat": "prettier src tests  --check --config ../.prettierrc.js",
+    "e2e": "playwright test",
+    "codegen": "playwright codegen"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "6.4.2",
+    "@fortawesome/fontawesome-free": "6.5.2",
+    "@types/lodash": "4.17.6",
+    "@vueuse/core": "10.7.0",
+    "bootstrap-icons": "1.11.3",
     "graphql-request": "5.2.0",
+    "lodash": "4.17.21",
     "molgenis-components": "*",
-    "monaco-editor": "0.44.0",
+    "monaco-editor": "0.50.0",
     "pinia": "2.1.7",
-    "vue": "3.4.15",
+    "vue": "3.5.13",
     "vue-gtag": "2.0.1",
-    "vue-router": "4.2.5",
+    "vue-router": "4.4.3",
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.53.1",
     "@vitejs/plugin-vue": "4.6.2",
-    "@vue/test-utils": "2.4.4",
+    "@vue/test-utils": "2.4.6",
     "@vue/vue3-jest": "29.2.6",
-    "babel-jest": "29.7.0",
-    "jest": "29.7.0",
-    "jest-environment-jsdom": "29.7.0",
     "prettier": "2.8.8",
-    "vite": "4.5.2",
+    "vite": "4.5.11",
     "vite-plugin-html": "3.2.2",
-    "vite-plugin-monaco-editor": "1.1.0"
+    "vite-plugin-monaco-editor": "1.1.0",
+    "vitest": "0.34.6"
   }
 }

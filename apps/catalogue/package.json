@@ -1,33 +1,57 @@
 {
   "name": "catalogue",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "serve": "vite preview",
-    "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+    "lint": "vue-tsc --noEmit",
+    "build": "nuxt build",
+    "test": "vitest",
+    "test-ci": "vitest run",
+    "e2e": "playwright test",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
+    "format": "prettier components composables gql interfaces pages plugins utils tests stores  --write --config ../.prettierrc.js --gitignore",
+    "checkFormat": "prettier components composables gql interfaces pages plugins utils tests stores --check --config ../.prettierrc.js --gitignore",
+    "typecheck": "nuxi typecheck"
+  },
+  "devDependencies": {
+    "@nuxt/image": "1.7.0",
+    "@nuxt/test-utils": "3.14.4",
+    "@pinia/nuxt": "0.10.1",
+    "@playwright/test": "1.53.1",
+    "@tailwindcss/forms": "0.5.10",
+    "@tailwindcss/typography": "0.5.16",
+    "@vitejs/plugin-vue": "4.6.2",
+    "@vue/test-utils": "2.4.6",
+    "autoprefixer": "10.4.19",
+    "graphql-tag": "2.12.6",
+    "happy-dom": "15.10.2",
+    "if-env": "^1.0.4",
+    "jsdom": "22.1.0",
+    "metadata-utils": "*",
+    "nuxt": "3.17.2",
+    "playwright-core": "1.53.1",
+    "postcss": "8.4.39",
+    "postcss-custom-properties": "13.3.11",
+    "prettier": "2.8.8",
+    "shelljs": "0.8.5",
+    "std-env": "3.7.0",
+    "tailwind-components": "*",
+    "tailwindcss": "3.4.4",
+    "typescript": "5.6.2",
+    "vitest": "2.1.9",
+    "vue-tsc": "2.1.6"
   },
   "dependencies": {
-    "core-js": "3.34.0",
-    "graphql-request": "5.2.0",
-    "import": "^0.0.6",
-    "molgenis-components": "*",
-    "vue": "3.4.15",
-    "vue-router": "4.2.5",
-    "vue-tabler-icons": "2.21.0",
-    "vue-scrollto": "2.20.0",
-    "vuex": "4.1.0"
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions"
-  ],
-  "devDependencies": {
-    "@vitejs/plugin-vue": "4.6.2",
-    "graphql-tag": "2.12.6",
-    "vite": "4.5.2",
-    "prettier": "2.8.8"
+    "@vueuse/core": "10.7.0",
+    "floating-vue": "5.2.2",
+    "metadata-utils": "*",
+    "nuxt-gtag": "3.0.1",
+    "pinia": "3.0.1",
+    "vite": "5.4.16",
+    "vue": "3.5.13"
   }
 }

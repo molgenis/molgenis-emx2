@@ -43,8 +43,8 @@
             :stroke-width="strokeWidth"
             :r="radiusScaled"
             :fill="
-              groupColorMappings && groupingVariable
-                ? groupColorMappings[row[groupingVariable]]
+              groupColorMappings && group
+                ? groupColorMappings[row[group]]
                 : markerColor
             "
             @click.native="enableMarkerClicks && onClick(row)"
@@ -52,8 +52,7 @@
             @mousemove.native="showTooltip && onMouseMove($event)"
             @mouseleave.native="showTooltip && onMouseLeave($event)"
             :style="
-              enableLegendClicks &&
-              legendSelection.indexOf(row[groupingVariable]) > -1
+              enableLegendClicks && legendSelection.indexOf(row[group]) > -1
                 ? 'opacity: 0; cursor: default;'
                 : 'opacity: 1; cursor: pointer;'
             "
@@ -151,7 +150,7 @@ export default {
 
     // the name of the column containing grouping information (i.e., how locations
     // are related, categorised, etc.)
-    groupingVariable: {
+    group: {
       type: String,
     },
 

@@ -5,13 +5,13 @@ export const schemaQuery = gql`
   {
     _session {
       schemas
+      admin
       roles
     }
     _schema {
       name
       tables {
         name
-        schemaName
         tableType
         inheritName
         labels {
@@ -63,10 +63,7 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
     //normal tables
     let tables = !schema.tables
       ? []
-      : schema.tables.filter(
-          (table) =>
-            table.tableType !== "ONTOLOGIES" && table.schemaName === schema.name
-        );
+      : schema.tables.filter((table) => table.tableType !== "ONTOLOGIES");
     tables.forEach((t) => {
       t.oldName = t.name;
       if (t.columns) {
@@ -83,10 +80,7 @@ export function addOldNamesAndRemoveMeta(rawSchema: any) {
     });
     schema.ontologies = !schema.tables
       ? []
-      : schema.tables.filter(
-          (table) =>
-            table.tableType === "ONTOLOGIES" && table.schemaName === schema.name
-        );
+      : schema.tables.filter((table) => table.tableType === "ONTOLOGIES");
     //set old name so we can delete them properly
     schema.ontologies.forEach((o) => {
       o.oldName = o.name;
@@ -205,7 +199,6 @@ export function addTableIdsLabelsDescription(originalTable: ITableMetaData) {
   table.id = convertToPascalCase(table.name);
   table.label = getLocalizedLabel(table);
   table.description = getLocalizedDescription(table, "en");
-  table.schemaId = table.schemaName;
   table.inheritId = convertToPascalCase(table.inheritName);
   table.columns = table.columns.map((column) => {
     column.id = convertToCamelCase(column.name);

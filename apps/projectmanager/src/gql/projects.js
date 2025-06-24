@@ -4,6 +4,9 @@ export default gql`
     Projects(orderby: { name: ASC }) {
       name
       completed
+      startDate
+      endDate
+      notes
       projectUnits(orderby: { unit: ASC }) {
         unit
         planHours
@@ -24,6 +27,7 @@ export default gql`
           startDate
           fTE
           endDate
+          notes
         }
       }
     }

@@ -1,45 +1,46 @@
 tableName,tableType,semantics
+Age groups at onset,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C20587
+Age groups,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C20587
 AgeGroups,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C20587
-AnalysesPerformed,ONTOLOGIES,http://edamontology.org/topic_0003
+Allow recontacting,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C176244
+Analyses performed,ONTOLOGIES,http://edamontology.org/topic_0003
+Anatomical location,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C103264
 Ancestry,ONTOLOGIES,http://purl.obolibrary.org/obo/HANCESTRO_0004
+Biospecimen type,ONTOLOGIES,"http://purl.obolibrary.org/obo/NCIT_C70699,http://purl.obolibrary.org/obo/NCIT_C70713"
+Consent document types,ONTOLOGIES,http://purl.obolibrary.org/obo/ICO_0000001
+Consent representative,ONTOLOGIES,http://purl.obolibrary.org/obo/BFO_0000023
 Countries,ONTOLOGIES,"http://purl.obolibrary.org/obo/GENEPIO_0001830,http://purl.obolibrary.org/obo/NCIT_C25464"
+Data use modifiers,ONTOLOGIES,http://purl.obolibrary.org/obo/DUO_0000017
+Data use permissions,ONTOLOGIES,http://purl.obolibrary.org/obo/DUO_0000001
 DCMITypes,ONTOLOGIES,http://purl.org/dc/terms/DCMIType
-DiseaseStage,ONTOLOGIES,http://purl.obolibrary.org/obo/OBI_0000278
 Diseases,ONTOLOGIES,"http://edamontology.org/data_2800,http://purl.obolibrary.org/obo/NCIT_C15607"
-GenderAtBirth,ONTOLOGIES,http://purl.obolibrary.org/obo/GSSO_009418
+Disease stage,ONTOLOGIES,http://purl.obolibrary.org/obo/OBI_0000278
+Family relations,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C71384
+File formats,ONTOLOGIES,"http://edamontology.org/format_1915,http://purl.obolibrary.org/obo/NCIT_C171252"
+Gender at birth,ONTOLOGIES,http://purl.obolibrary.org/obo/GSSO_009418
+Gender identity,ONTOLOGIES,http://purl.bioontology.org/ontology/MESH/D005783
+Genes,ONTOLOGIES,http://edamontology.org/data_2298
+Genotypic sex,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C168871
+InclusionCriteria,ONTOLOGIES,http://purl.obolibrary.org/obo/OBI_0500027
+Individual status,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C19332
 Languages,ONTOLOGIES,http://lexvo.org/ontology#Language
-LibrarySource,ONTOLOGIES,http://purl.obolibrary.org/obo/GENEPIO_0001965
-ObtentionProcedure,ONTOLOGIES,http://purl.obolibrary.org/obo/OBI_0000659
-PathologicalState,ONTOLOGIES,"http://purl.obolibrary.org/obo/NCIT_C164617,http://purl.obolibrary.org/obo/GO_0001894"
-SampleOriginType,ONTOLOGIES,http://semanticscience.org/resource/SIO_001262
-SequencingInstrumentModels,ONTOLOGIES,http://purl.obolibrary.org/obo/GENEPIO_0001921
+Library layout,ONTOLOGIES,
+Library source,ONTOLOGIES,http://purl.obolibrary.org/obo/GENEPIO_0001965
+Medical history,ONTOLOGIES,http://scdontology.h3abionet.org/ontology/SCDO_1000093
+Medication,ONTOLOGIES,http://edamontology.org/data_3103
+Metabolomic analysis type,ONTOLOGIES,http://purl.obolibrary.org/obo/IAO_0000030
+Metabolomic assay type,ONTOLOGIES,http://purl.obolibrary.org/obo/OBI_0000070
+Metabolomic processing type,ONTOLOGIES,http://purl.obolibrary.org/obo/OBI_0000094
+Organisations,ONTOLOGIES,"http://semanticscience.org/resource/SIO_000688,http://purl.obolibrary.org/obo/NCIT_C25412"
+Pathological state,ONTOLOGIES,"http://purl.obolibrary.org/obo/NCIT_C164617,http://purl.obolibrary.org/obo/GO_0001894"
+Phenotypes,ONTOLOGIES,"https://www.wikidata.org/wiki/Property:P3841,http://purl.obolibrary.org/obo/NCIT_C16977"
+Sequencing enrichment kits,ONTOLOGIES,http://purl.obolibrary.org/obo/GENEPIO_0000081
+Sequencing instrument models,ONTOLOGIES,http://purl.obolibrary.org/obo/GENEPIO_0001921
+Sequencing methods,ONTOLOGIES,"http://purl.obolibrary.org/obo/NCIT_C17565,http://purl.obolibrary.org/obo/FIX_0000704"
+Sequencing platforms,ONTOLOGIES,http://purl.obolibrary.org/obo/GENEPIO_0000071
+Severity,ONTOLOGIES,http://purl.obolibrary.org/obo/HP_0012824
+Storage conditions,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C96145
 StudyDesign,ONTOLOGIES,http://purl.obolibrary.org/obo/OBI_0500000
 Units,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C25709
-VariationCategory,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C25372
-Genes,ONTOLOGIES,http://edamontology.org/data_2298
-Phenotypes,ONTOLOGIES,"https://www.wikidata.org/wiki/Property:P3841,http://purl.obolibrary.org/obo/NCIT_C16977"
-Severity,ONTOLOGIES,http://purl.obolibrary.org/obo/HP_0012824
-FileFormats,ONTOLOGIES,"http://edamontology.org/format_1915,http://purl.obolibrary.org/obo/NCIT_C171252"
-DistributionType,ONTOLOGIES,http://purl.allotrope.org/ontologies/result#AFR_0002205
-Organisations,ONTOLOGIES,"http://semanticscience.org/resource/SIO_000688,http://purl.obolibrary.org/obo/NCIT_C25412"
-InclusionStatus,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C19332
-GenotypicSex,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C168871
-GenderIdentity,ONTOLOGIES,http://purl.bioontology.org/ontology/MESH/D005783
-"AllowRecontacting","ONTOLOGIES","http://purl.obolibrary.org/obo/NCIT_C176244"
-"BiospecimenType","ONTOLOGIES","http://purl.obolibrary.org/obo/NCIT_C70699,http://purl.obolibrary.org/obo/NCIT_C70713"
-"DataUseModifiers","ONTOLOGIES","http://purl.obolibrary.org/obo/DUO_0000017"
-"DataUsePermissions","ONTOLOGIES","http://purl.obolibrary.org/obo/DUO_0000001"
-"FamilyRelations","ONTOLOGIES","http://purl.obolibrary.org/obo/NCIT_C71384"
-"InclusionCriteria","ONTOLOGIES","http://purl.obolibrary.org/obo/OBI_0500027"
-"MedicalHistory","ONTOLOGIES","http://scdontology.h3abionet.org/ontology/SCDO_1000093"
-"Medication","ONTOLOGIES","http://edamontology.org/data_3103"
-"ReferenceGenomeAssemblies","ONTOLOGIES","http://edamontology.org/data_2787"
-"RepresentedBy","ONTOLOGIES","http://purl.obolibrary.org/obo/BFO_0000023"
-"SequencingEnrichmentKits","ONTOLOGIES","http://purl.obolibrary.org/obo/GENEPIO_0000081"
-"SequencingMethods","ONTOLOGIES","http://purl.obolibrary.org/obo/NCIT_C17565,http://purl.obolibrary.org/obo/FIX_0000704"
-"SequencingPlatforms","ONTOLOGIES","http://purl.obolibrary.org/obo/GENEPIO_0000071"
-"StorageConditions","ONTOLOGIES","http://purl.obolibrary.org/obo/NCIT_C96145"
-"MetabolomicAnalysisType","ONTOLOGIES","http://purl.obolibrary.org/obo/IAO_0000030"
-"MetabolomicAssayType","ONTOLOGIES","http://purl.obolibrary.org/obo/OBI_0000070"
-"MetabolomicProcessingType","ONTOLOGIES","http://purl.obolibrary.org/obo/OBI_0000094"
-AnatomicalLocation,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C103264
+Variation category,ONTOLOGIES,http://purl.obolibrary.org/obo/NCIT_C25372
+Variation clinical relevance,ONTOLOGIES,http://edamontology.org/operation_3225

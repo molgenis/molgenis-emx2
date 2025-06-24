@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.TableMetadata;
 
 public class Column {
@@ -38,6 +39,7 @@ public class Column {
   private List<LanguageValue> descriptions = new ArrayList<>();
   private ColumnType columnType = ColumnType.STRING;
   private String[] semantics = null;
+  private String[] profiles = null;
 
   private boolean inherited = false;
 
@@ -58,6 +60,7 @@ public class Column {
     this.name = column.getName();
     this.labels =
         column.getLabels().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.oldName = column.getOldName();
@@ -67,24 +70,33 @@ public class Column {
       this.columnType = column.getColumnType();
     }
     if (column.isReference()) {
-      this.refSchemaId =
-          column.getRefSchemaName().equals(column.getSchemaName())
-              ? null
-              : column.getRefSchemaName();
-      this.refSchemaName = column.getRefSchemaName();
-      this.refTableId = column.getRefTable().getIdentifier();
+      if (column.getSchema().getDatabase() != null) {
+        if (!column.getRefSchemaName().equals(column.getSchemaName())) {
+          this.refSchemaId = column.getRefSchemaName();
+          this.refSchemaName = column.getRefSchemaName();
+        }
+        this.refTableId = column.getRefTable().getIdentifier();
+        this.refLabelDefault = column.getRefLabelDefault();
+      }
       this.refTableName = column.getRefTableName();
       if (column.getRefLinkColumn() != null) {
-        this.refLinkId = column.getRefLinkColumn().getIdentifier();
+        if (column.getTable().getSchema().getDatabase() != null) {
+          this.refLinkId = column.getRefLinkColumn().getIdentifier();
+        }
         this.refLinkName = column.getRefLink();
       }
       if (column.getRefBack() != null) {
-        this.refBackId = column.getRefBackColumn().getIdentifier();
+        if (column.getTable().getSchema().getDatabase() != null) {
+          org.molgenis.emx2.Column refBackColumn = column.getRefBackColumn();
+          if (refBackColumn == null)
+            throw new MolgenisException(
+                "Cannot find refback for " + column.getTableName() + "." + column.getName());
+          this.refBackId = refBackColumn.getIdentifier();
+        }
         this.refBackName = column.getRefBack();
       }
     }
     this.refLabel = column.getRefLabel();
-    this.refLabelDefault = column.getRefLabelDefault();
     // this.cascadeDelete = column.isCascadeDelete();
     this.validation = column.getValidation();
     this.setRequired(column.getRequired());
@@ -92,11 +104,13 @@ public class Column {
     this.defaultValue = column.getDefaultValue();
     this.descriptions =
         column.getDescriptions().entrySet().stream()
+            .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.semantics = column.getSemantics();
     this.visible = column.getVisible();
     this.computed = column.getComputed();
+    this.profiles = column.getProfiles();
 
     // calculated field
     if (table.getInheritName() != null)
@@ -131,6 +145,7 @@ public class Column {
     c.setVisible(visible);
     c.setComputed(computed);
     c.setReadonly(readonly);
+    c.setProfiles(profiles);
 
     // ignore inherited
     return c;
@@ -390,5 +405,13 @@ public class Column {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public String[] getProfiles() {
+    return profiles;
+  }
+
+  public void setProfiles(String[] profiles) {
+    this.profiles = profiles;
   }
 }

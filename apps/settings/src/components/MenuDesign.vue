@@ -49,7 +49,7 @@
               :id="'menu-role-' + element.key"
               v-model="element.role"
               :defaultValue="element.role"
-              :options="['Viewer', 'Editor', 'Manager']"
+              :options="['Signed in', 'Viewer', 'Editor', 'Manager']"
             />
           </div>
           <IconDanger icon="trash" @click="$emit('delete', element.key)" />

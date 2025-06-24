@@ -82,3 +82,47 @@
   justify-content: center;
   align-items: center;
 }
+
+// styling for text inputs
+@mixin textInput {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  border: 1px solid $gray-200;
+  padding: 6px;
+  padding-left: 12px;
+  border-radius: 4px;
+  box-shadow: $box-shadow-inset;
+  margin: 12px 0;
+  font-size: 1rem;
+}
+
+@mixin styleButton(
+  $width: 100%,
+  $background-color: $blue-600,
+  $color: $gray-000,
+  $border-radius: 8pt,
+  $iconSize: 16pt
+) {
+  display: block;
+  width: $width;
+  padding: 0.6em 0;
+  background: none;
+  border: none;
+  background-color: none;
+  text-align: center;
+  background-color: $background-color;
+  color: $color;
+  border-radius: $border-radius;
+
+  svg {
+    width: $iconSize;
+    height: $iconSize;
+    margin-top: -0.2em;
+  }
+}
+
+@mixin inputFocus($color: $molgenis-blue-800) {
+  outline: $color solid 1px;
+}

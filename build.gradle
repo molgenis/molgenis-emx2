@@ -8,7 +8,12 @@ plugins {
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'application'
-    id 'com.palantir.docker' version '0.35.0'
+    id 'com.palantir.docker' version '0.36.0'
+}
+
+ext {
+    javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
+    javaVersion = JavaVersion.VERSION_21
 }
 
 allprojects {
@@ -22,9 +27,6 @@ allprojects {
 println "Corrected version checking for optional snapshot: " + rootProject.version
 
 nyxPublish.dependsOn assemble
-
-targetCompatibility = "17"
-sourceCompatibility = "17"
 
 sonarqube {
     properties {
@@ -49,6 +51,7 @@ dependencies {
 
 mainClassName = 'org.molgenis.emx2.RunMolgenisEmx2'
 shadowJar {
+    zip64 = true
     archiveBaseName = 'molgenis-emx2'
     mergeServiceFiles()
     archiveVersion = project.version.replace("v","")
@@ -76,6 +79,7 @@ if (version.toString().endsWith('-SNAPSHOT')) {
 task ci(type: WriteProperties) {
     outputFile file('build/ci.properties')
     property 'TAG_NAME', tagName
+    property 'FILE_NAME', shadowJar.archiveFile.get().asFile.name
 }
 
 docker {
@@ -99,10 +103,6 @@ String getGitHash() {
     return gitCommitHash
 }
 
-ext {
-    javaMainClass = "org.molgenis.emx2.RunMolgenisEmx2"
-}
-
 application {
     mainClass.set(javaMainClass)
 }
@@ -120,25 +120,10 @@ jar {
     }
 }
 
-task cleandb(type: JavaExec) {
-    group = "Execution"
-    description = "Clean database. Carefull, will delete all MOLGENIS stuff"
-    classpath = sourceSets.main.runtimeClasspath
-    main = "org.molgenis.emx2.AToolToCleanDatabase"
-}
-
 //task to install pre-commit hook that applies formatting
 task installPreCommitGitFormatApplyHook(type: Copy) {
     from new File(rootProject.rootDir, 'pre-commit-format-apply')
     rename 'pre-commit-format-apply', 'pre-commit'
-    into { new File(rootProject.rootDir, '.git/hooks') }
-    fileMode 0775
-}
-
-//task to install pre-commit hook that only checks formatting
-task installPreCommitGitFormatCheckHook(type: Copy) {
-    from new File(rootProject.rootDir, 'pre-commit-format-check')
-    rename 'pre-commit-format-check', 'pre-commit'
     into { new File(rootProject.rootDir, '.git/hooks') }
     fileMode 0775
 }

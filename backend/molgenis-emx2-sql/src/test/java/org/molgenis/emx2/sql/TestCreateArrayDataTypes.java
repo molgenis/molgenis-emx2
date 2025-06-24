@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.Serializable;
@@ -55,10 +55,15 @@ public class TestCreateArrayDataTypes {
   }
 
   @Test
-  public void xtestDateTimeArray() {
+  public void testDateTimeArray() {
     executeTest(
         DATETIME_ARRAY,
         new String[] {"2013-01-01T18:00:00.0", "2013-01-01T18:00:01.0", "2013-01-01T18:00:02.0"});
+  }
+
+  @Test
+  public void testPeriodArray() {
+    executeTest(PERIOD_ARRAY, new String[] {"P24Y", "P34Y11M", "P23Y10M43D"});
   }
 
   @Test
@@ -75,13 +80,6 @@ public class TestCreateArrayDataTypes {
         });
   }
 
-  @Test
-  public void testJSON() {
-    executeTest(
-        JSONB_ARRAY,
-        new String[] {"{\"key\":\"value1\"}", "{\"key\":\"value2\"}", "{\"key\":\"value3\"}"});
-  }
-
   //  @Test
   //  public void testBool()  {
   //    executeTest(BOOL_ARRAY, new Boolean[] {null, true, false});
@@ -93,8 +91,14 @@ public class TestCreateArrayDataTypes {
         database.dropCreateSchema("TestCreateArrayDataTypes" + columnType.toString().toUpperCase());
 
     String aFieldName = columnType + " Col";
+    String aNillableFieldName = aFieldName + "Nillable";
     Table tableA =
-        schema.create(table("A", column("id").setPkey(), column(aFieldName).setType(columnType)));
+        schema.create(
+            table(
+                "A",
+                column("id").setPkey(),
+                column(aFieldName).setType(columnType).setRequired(true),
+                column(aNillableFieldName).setType(columnType)));
 
     Row aRow = new Row().set("id", "one").set(aFieldName, Arrays.copyOfRange(values, 1, 3));
     tableA.insert(aRow);
@@ -118,6 +122,17 @@ public class TestCreateArrayDataTypes {
             ((Object[]) r.get(aFieldName, columnType))[1].toString());
       }
     }
+
+    // IS filters
+    result = tableA.query().where(f(aFieldName, IS_NULL, true)).retrieveRows();
+    assertEquals(0, result.size());
+    result = tableA.query().where(f(aNillableFieldName, IS_NULL, true)).retrieveRows();
+    assertEquals(1, result.size());
+
+    result = tableA.query().where(f(aFieldName, IS_NULL, false)).retrieveRows();
+    assertEquals(1, result.size());
+    result = tableA.query().where(f(aNillableFieldName, IS_NULL, false)).retrieveRows();
+    assertEquals(0, result.size());
 
     // delete of referenced A should fail
     tableA.delete(aRow);

@@ -1,0 +1,38 @@
+import "meta.jslt" as meta
+{
+    "$schema": "../beaconMapResponse.json",
+    "meta": meta(.),
+    "response": {
+        "$schema": "https://raw.githubusercontent.com/ga4gh-beacon/beacon-v2/main/framework/json/configuration/beaconConfigurationSchema.json",
+        "maturityAttributes": {
+            "productionStatus": "DEV"
+        },
+        "securityAttributes": {
+            "defaultGranularity": "record",
+            "securityLevels": [
+                "PUBLIC",
+                "REGISTERED",
+                "CONTROLLED"
+            ]
+        },
+        "entryTypes":
+        {for (.entryTypes)
+            .name: {
+                "id": .id,
+                "name": .name,
+                "partOfSpecification": "Beacon v2.0.0-draft.4",
+                "description": .description,
+                "defaultSchema": {
+                    "id": "ga4gh-beacon-" + .name + "-v2.0.0-draft.4",
+                    "name": "Default schema for " + .name,
+                    "referenceToSchemaDefinition": "./" + .name + "/defaultSchema.json",
+                    "schemaVersion": "v2.0.0-draft.4"
+                },
+                "ontologyTermForThisType": {
+                    "id": .ontologyTerm,
+                    "label": .ontologyLabel
+                }
+            }
+        }
+    }
+}

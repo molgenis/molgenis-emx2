@@ -3,7 +3,7 @@
     <PageHeader
       title="molgenis-viz"
       subtitle="Map Component"
-      imageSrc="map-header.jpg"
+      imageSrc="img/map-header.jpg"
       height="large"
     />
     <PageSection :verticalPadding="0">
@@ -37,7 +37,7 @@
         :chartData="data"
         latitude="latitude"
         longitude="longitude"
-        groupingVariable="status"
+        group="status"
         :groupColorMappings="mapColorGroups"
         :legendData="mapColorGroups"
         :chartScale="6"

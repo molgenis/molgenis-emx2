@@ -13,98 +13,87 @@
         type="text"
         class="form-control"
         :aria-describedby="id"
-        placeholder="Search"
+        :placeholder
+        @keyup="onKeyup"
       />
       <template v-slot:append>
         <button
           v-if="isClearBtnShown"
-          @click="input = null"
+          @click="clearInput"
           class="btn btn-outline-primary"
           type="button"
         >
-          <i class="fas fa-fw fa-times"></i>
+          <i class="fas fa-fw fa-times" />
+        </button>
+        <button @click="search" class="btn btn-outline-primary" type="button">
+          <i class="fas fa-fw fa-search" />
         </button>
       </template>
     </InputGroup>
   </FormGroup>
 </template>
 
-<script>
-import BaseInput from "./baseInputs/BaseInput.vue";
+<script setup lang="ts">
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
+import { defineEmits, ref } from "vue";
 
-export default {
-  name: "InputSearch",
-  extends: BaseInput,
-  components: { FormGroup, InputGroup },
-  props: {
-    debounceTime: {
-      type: Number,
-      required: false,
-      default: () => 300,
-    },
-    isClearBtnShown: {
-      type: Boolean,
-      required: false,
-      default: () => false,
-    },
-  },
-  data() {
-    return {
-      timeout: null,
-      debouncedInput: this.modelValue,
-    };
-  },
-  computed: {
-    input: {
-      get() {
-        return this.debouncedInput;
-      },
-      set(val) {
-        if (this.timeout) {
-          clearTimeout(this.timeout);
-        }
-        this.timeout = setTimeout(() => {
-          this.debouncedInput = val;
-          this.$emit("update:modelValue", this.debouncedInput);
-        }, this.debounceTime);
-      },
-    },
-  },
-};
+const props = withDefaults(
+  defineProps<{
+    modelValue: string;
+    isClearBtnShown?: boolean;
+    isEmitOnType: boolean;
+    id?: string;
+    label?: string;
+    description?: string;
+    errorMessage?: string;
+    placeholder?: string;
+  }>(),
+  { isClearBtnShown: false, isEmitOnType: false, placeholder: "Search" }
+);
+
+const input = ref<string>(props.modelValue || "");
+
+const emit = defineEmits(["update:modelValue"]);
+
+function onKeyup(event: KeyboardEvent) {
+  if (event.key === "Enter" || props.isEmitOnType) {
+    search();
+  }
+}
+
+function search() {
+  emit("update:modelValue", input.value);
+}
+
+function clearInput() {
+  input.value = "";
+  search();
+}
 </script>
 
 <docs>
 <template>
   <div>
-    <label class="font-italic">Basic search field ( with default 300ms debounce)</label>
-    <demo-item>
-      <InputSearch
-          id="input-search-1"
-          v-model="value1"
-      />
+    <label class="font-italic">Basic search field, which searches on button click or enter</label>
+    <DemoItem>
+      <InputSearch id="input-search-1" v-model="value1" />
       <div>You search: {{ value1 }}</div>
-    </demo-item>
+    </DemoItem>
     <label class="font-italic">Pre filled search value and clear button</label>
-    <demo-item>
+    <DemoItem>
       <InputSearch
-          id="input-search-2"
-          v-model="value2"
-          :isClearBtnShown="true"
+        id="input-search-2"
+        v-model="value2"
+        :isClearBtnShown="true"
       />
       <div>You search: {{ value2 }}</div>
-    </demo-item>
+    </DemoItem>
   </div>
 </template>
-<script>
-  export default {
-    data: function () {
-      return {
-        value1: "",
-        value2: "apples",
-      };
-    }
-  };
+<script setup>
+import { ref } from "vue";
+const value1 = ref("");
+const value2 = ref("apples");
 </script>
 </docs>

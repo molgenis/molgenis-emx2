@@ -8,8 +8,6 @@ import static org.molgenis.emx2.Constants.MG_TABLECLASS;
 import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.createRefArrayConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefArrayExecutor.removeRefArrayConstraints;
-import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.createRefBackColumnConstraints;
-import static org.molgenis.emx2.sql.SqlColumnRefBackExecutor.removeRefBackConstraints;
 import static org.molgenis.emx2.sql.SqlColumnRefExecutor.createRefConstraints;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getPsqlType;
 import static org.molgenis.emx2.sql.SqlTypeUtils.getTypedValue;
@@ -30,9 +28,7 @@ public class SqlColumnExecutor {
 
   public static void executeSetRequired(DSLContext jooq, Column column) {
     boolean isRequired = column.isRequired();
-    if (column.isRefback()) {
-      isRequired = false;
-    } else if (column.isReference()) {
+    if (column.isReference()) {
       isRequired = column.getReferences().stream().allMatch(Reference::isRequired) && isRequired;
     } else
     // if has default, we will first update all 'null' to default
@@ -77,7 +73,8 @@ public class SqlColumnExecutor {
     // asumes validated before
     if (!oldColumn.getName().equals(newColumn.getName())) {
       if (newColumn.isFile()) {
-        for (String suffix : new String[] {"", "_extension", "_size", "_contents", "_mimetype"}) {
+        for (String suffix :
+            new String[] {"", "_filename", "_extension", "_size", "_contents", "_mimetype"}) {
           jooq.execute(
               "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
               newColumn.getJooqTable(),
@@ -91,40 +88,41 @@ public class SqlColumnExecutor {
             field(name(oldColumn.getName())),
             field(name(newColumn.getName())));
       }
-    }
-    // also apply to subclasses if pkey (using sql otherwise too expensive)
-    if (newColumn.isPrimaryKey() && newColumn.getTable().getColumn(MG_TABLECLASS) != null) {
-      TableMetadata rootTable = newColumn.getTable();
-      // retrieve using recursive common table expression (CTE):
-      // https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-RECURSIVE
-      List<Record> tableList =
-          jooq
-              .fetch(
-                  """
-                    WITH RECURSIVE RecursiveCTE AS (
-                        SELECT table_schema,table_name,table_inherits
-                        FROM "MOLGENIS"."table_metadata"
-                        WHERE table_schema={0} AND table_name={1}
-                        UNION ALL
-                        SELECT t.table_schema,t.table_name,t.table_inherits
-                        FROM "MOLGENIS"."table_metadata" t
-                                 JOIN RecursiveCTE r ON r.table_schema = COALESCE(t.import_schema,t.table_schema) AND t.table_inherits = r.table_name
-                    )
-                    SELECT *
-                    FROM RecursiveCTE WHERE table_inherits IS NOT NULL;
+
+      // also apply to subclasses if pkey (using sql otherwise too expensive)
+      if (newColumn.isPrimaryKey() && newColumn.getTable().getColumn(MG_TABLECLASS) != null) {
+        TableMetadata rootTable = newColumn.getTable();
+        // retrieve using recursive common table expression (CTE):
+        // https://www.postgresql.org/docs/current/queries-with.html#QUERIES-WITH-RECURSIVE
+        List<Record> tableList =
+            jooq
+                .fetch(
+                    """
+                      WITH RECURSIVE RecursiveCTE AS (
+                          SELECT table_schema,table_name,table_inherits
+                          FROM "MOLGENIS"."table_metadata"
+                          WHERE table_schema={0} AND table_name={1}
+                          UNION ALL
+                          SELECT t.table_schema,t.table_name,t.table_inherits
+                          FROM "MOLGENIS"."table_metadata" t
+                                   JOIN RecursiveCTE r ON r.table_schema = COALESCE(t.import_schema,t.table_schema) AND t.table_inherits = r.table_name
+                      )
+                      SELECT *
+                      FROM RecursiveCTE WHERE table_inherits IS NOT NULL;
                     """,
-                  rootTable.getSchemaName(), rootTable.getTableName())
-              .stream()
-              .toList();
-      for (Record subclassRecord : tableList) {
-        jooq.execute(
-            "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
-            table(
-                name(
-                    subclassRecord.get(TABLE_SCHEMA, String.class),
-                    subclassRecord.get(TABLE_NAME, String.class))),
-            field(name(oldColumn.getName())),
-            field(name(newColumn.getName())));
+                    rootTable.getSchemaName(), rootTable.getTableName())
+                .stream()
+                .toList();
+        for (Record subclassRecord : tableList) {
+          jooq.execute(
+              "ALTER TABLE {0} RENAME COLUMN {1} TO {2}",
+              table(
+                  name(
+                      subclassRecord.get(TABLE_SCHEMA, String.class),
+                      subclassRecord.get(TABLE_NAME, String.class))),
+              field(name(oldColumn.getName())),
+              field(name(newColumn.getName())));
+        }
       }
     }
   }
@@ -203,34 +201,11 @@ public class SqlColumnExecutor {
     }
   }
 
-  static void reapplyRefbackContraints(Column oldColumn, Column newColumn) {
-    if ((oldColumn.isRef() || oldColumn.isRefArray())
-        && (newColumn.isRef() || newColumn.isRefArray())) {
-      for (Column check : newColumn.getRefTable().getNonInheritedColumns()) {
-        if (check.isRefback() && oldColumn.getName().equals(check.getRefBack())) {
-          check.getTable().dropColumn(check.getName());
-          check.getTable().add(check);
-        }
-      }
-    }
-  }
-
-  static void executeRemoveRefback(Column oldColumn, Column newColumn) {
-    if ((oldColumn.isRef() || oldColumn.isRefArray())
-        && !(newColumn.isRef() || newColumn.isRefArray())) {
-      for (Column check : oldColumn.getRefTable().getColumns()) {
-        if (check.isRefback() && oldColumn.getName().equals(check.getRefBack())) {
-          check.getTable().dropColumn(check.getName());
-        }
-      }
-    }
-  }
-
   static void executeCreateColumn(DSLContext jooq, Column column) {
     String current = column.getName(); // for composite ref errors
     try {
       // create the column
-      if (column.isReference()) {
+      if (column.isReference() && !column.isRefback()) {
         if (column.isOntology()) {
           createOntologyTable(column);
         }
@@ -254,7 +229,7 @@ public class SqlColumnExecutor {
         for (Field<?> f : column.getJooqFileFields()) {
           jooq.alterTable(column.getJooqTable()).addColumn(f).execute();
         }
-      } else if (!column.isHeading()) {
+      } else if (!column.isHeading() && !column.isRefback()) {
         jooq.alterTable(column.getJooqTable()).addColumn(column.getJooqField()).execute();
         executeSetDefaultValue(jooq, column);
 
@@ -266,7 +241,7 @@ public class SqlColumnExecutor {
 
       saveColumnMetadata(jooq, column);
 
-      // update the metaData with added column and put back schema info
+      // update the metadata with added column and put back schema info
       var tableMetadata =
           MetadataUtils.loadTable(jooq, column.getSchemaName(), column.getTableName());
       tableMetadata.setSchema(column.getSchema());
@@ -336,6 +311,9 @@ public class SqlColumnExecutor {
                 // constraint so we can ensure unique labels on each level
                 .setDescription("User-friendly label for this term. Should be unique in parent")
                 .setSemantics("http://purl.obolibrary.org/obo/NCIT_C45561"),
+            column("tags")
+                .setType(STRING_ARRAY)
+                .setDescription("Any tags that you might need to slice and dice the ontology"),
             column("parent")
                 // .setKey(2)  when we upgrade to psql 15 so we can allow parent == null in
                 // constraint
@@ -373,60 +351,98 @@ public class SqlColumnExecutor {
   }
 
   static void validateColumn(Column c) {
-    if (c.getName() == null) {
-      throw new MolgenisException("Add column failed: Column name cannot be null");
-    }
-    if (c.getKey() > 0 && c.getTable().getKeyFields(c.getKey()).size() > 1 && !c.isRequired()) {
+    try {
+      if (c.getName() == null) {
+        throw new MolgenisException("Add column failed: Column name cannot be null");
+      }
+      if (c.getKey() > 0 && c.getTable().getKeyFields(c.getKey()).size() > 1 && !c.isRequired()) {
+        throw new MolgenisException(
+            "unique on column '"
+                + c.getTableName()
+                + "."
+                + c.getName()
+                + "' failed: When key spans multiple columns, none of the columns can be nullable");
+      }
+      if (c.isReference() && !c.isOntology() && c.getRefTableName() == null) {
+        throw new MolgenisException(
+            String.format(
+                "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK (tried to find: %s:%s)",
+                c.getTableName(), c.getName(), c.getRefSchemaName(), c.getRefTableName()));
+      }
+      if (c.isRefback() && c.getRefBack() == null) {
+        throw new MolgenisException(
+            "Refback is null for column " + c.getTableName() + "." + c.getName());
+      }
+      if (c.isRefback() && c.getRefBackColumn() == null) {
+        throw new MolgenisException(
+            "Refback '" + c.getRefTableName() + "." + c.getRefBack() + "' could not be found.");
+      }
+      if (c.isRefback() && !c.getRefBackColumn().isReference()) {
+        throw new MolgenisException(
+            "Refback column '" + c.getRefBackColumn() + "' is not of type reference");
+      }
+      if (c.isRefback()
+          && c.getRefBackColumn().isRef()
+          && !c.getTable().getAllInheritNames().contains(c.getRefBackColumn().getRefTableName())) {
+        throw new MolgenisException(
+            "Refback '"
+                + c.getRefTableName()
+                + "."
+                + c.getRefBack()
+                + "' is not a reference to table "
+                + c.getTableName()
+                + " or any of its inherited tables");
+      }
+      if (c.getRefTableName() != null && !c.isReference()) {
+        throw new MolgenisException(
+            "Cannot set refTable '"
+                + c.getRefTableName()
+                + "' for column '"
+                + c.getName()
+                + "': is not a reference but a "
+                + c.getColumnType());
+      }
+      if (c.getRefLink() != null) {
+        if (c.getTable().getColumn(c.getRefLink()) == null) {
+          throw new MolgenisException(
+              String.format(
+                  "Add column '%s.%s' failed: refLink '%s' column cannot be found",
+                  c.getTableName(), c.getName(), c.getRefLink()));
+        }
+        Column refLink = c.getTable().getColumn(c.getRefLink());
+        if (!refLink.isRef() && !refLink.isRefArray()) {
+          throw new MolgenisException(
+              String.format(
+                  "Add column '%s.%s' failed: refLink %s is not a REF,REF_ARRAY",
+                  c.getTableName(), c.getName(), c.getRefLink()));
+        }
+        AtomicBoolean foundOverlap = new AtomicBoolean(false);
+        refLink
+            .getReferences()
+            .forEach(
+                ref -> {
+                  c.getReferences()
+                      .forEach(
+                          ref2 -> {
+                            if (ref.getTargetTable().equals(ref2.getTargetTable())) {
+                              foundOverlap.set(true);
+                            }
+                          });
+                });
+        if (!foundOverlap.get()) {
+          throw new MolgenisException(
+              String.format(
+                  "Add column '%s.%s' failed: refLink '%s' does not have overlapping refTable with '%s'",
+                  c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
+        }
+      }
+      // fix required
+      if (c.getKey() == 1 && !c.isRequired()) {
+        c.setRequired(true);
+      }
+    } catch (MolgenisException e) {
       throw new MolgenisException(
-          "unique on column '"
-              + c.getTableName()
-              + "."
-              + c.getName()
-              + "' failed: When key spans multiple columns, none of the columns can be nullable");
-    }
-    if (c.isReference() && !c.isOntology() && c.getRefTable() == null) {
-      throw new MolgenisException(
-          String.format(
-              "Add column '%s.%s' failed: 'refTable' required for columns of type REF, REF_ARRAY, REFBACK (tried to find: %s:%s)",
-              c.getTableName(), c.getName(), c.getRefSchemaName(), c.getRefTableName()));
-    }
-    if (c.getRefLink() != null) {
-      if (c.getTable().getColumn(c.getRefLink()) == null) {
-        throw new MolgenisException(
-            String.format(
-                "Add column '%s.%s' failed: refLink '%s' column cannot be found",
-                c.getTableName(), c.getName(), c.getRefLink()));
-      }
-      Column refLink = c.getTable().getColumn(c.getRefLink());
-      if (!refLink.isRef() && !refLink.isRefArray()) {
-        throw new MolgenisException(
-            String.format(
-                "Add column '%s.%s' failed: refLink %s is not a REF,REF_ARRAY",
-                c.getTableName(), c.getName(), c.getRefLink()));
-      }
-      AtomicBoolean foundOverlap = new AtomicBoolean(false);
-      refLink
-          .getReferences()
-          .forEach(
-              ref -> {
-                c.getReferences()
-                    .forEach(
-                        ref2 -> {
-                          if (ref.getTargetTable().equals(ref2.getTargetTable())) {
-                            foundOverlap.set(true);
-                          }
-                        });
-              });
-      if (!foundOverlap.get()) {
-        throw new MolgenisException(
-            String.format(
-                "Add column '%s.%s' failed: refLink '%s' does not have overlapping refTable with '%s'",
-                c.getTableName(), c.getName(), c.getRefLink(), c.getName()));
-      }
-    }
-    // fix required
-    if (c.getKey() == 1 && !c.isRequired()) {
-      c.setRequired(true);
+          "Column " + c.getTableName() + "." + c.getName() + " is invalid: " + e.getMessage());
     }
   }
 
@@ -443,7 +459,7 @@ public class SqlColumnExecutor {
     } else if (column.isRefArray()) {
       createRefArrayConstraints(jooq, column);
     } else if (column.isRefback()) {
-      createRefBackColumnConstraints(jooq, column);
+      // no triggers
     }
   }
 
@@ -455,7 +471,17 @@ public class SqlColumnExecutor {
             .dropColumnIfExists(f)
             .execute();
       }
-    } else if (column.isReference()) {
+    } else if (column.isRef() || column.isRefArray()) {
+      // if has refback also drop that automatically
+      if (column.getReferenceRefback() != null) {
+        SqlColumnExecutor.executeRemoveColumn(jooq, column.getReferenceRefback());
+        column
+            .getTable()
+            .getSchema()
+            .getDatabase()
+            .getListener()
+            .schemaChanged(column.getReferenceRefback().getSchemaName());
+      }
       for (Reference ref : column.getReferences()) {
         // check if reference name already exists, composite ref may reuse columns
         // either other column, or a part of a reference
@@ -477,7 +503,7 @@ public class SqlColumnExecutor {
     } else if (column.isRefArray()) {
       removeRefArrayConstraints(jooq, column);
     } else if (column.isRefback()) {
-      removeRefBackConstraints(jooq, column);
+      // no triggers
     }
   }
 

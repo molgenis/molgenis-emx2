@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
- */
+*/
 // require('dotenv').config();
 
 /**
@@ -20,23 +20,34 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI ? [ ['list'],
-                               ['junit', { outputFile: 'results.xml' }]
-                             ] : 'html',
+  reporter: process.env.CI ? [['list'],
+  ['junit', { outputFile: 'results.xml' }]
+  ] : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.E2E_BASE_URL || "https://emx2.dev.molgenis.org/",
+    baseURL: process.env.E2E_BASE_URL || "https://emx2.dev.molgenis.org/", // change to specific http://localhost:*/, preview, etc.
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
+
+  snapshotPathTemplate: '__screenshots__/{testFilePath}/{arg}{ext}',
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      testIgnore: '*/admin!*.spec.ts'
+    },
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'e2e/.auth/user.json'
+      },
+      testMatch: '*/admin!*.spec.ts'
     },
 
     // {

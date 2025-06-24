@@ -26,7 +26,7 @@ public class TestTaskServiceScheduler {
   @Test
   @Disabled
   public void testTaskServiceScheduler() throws InterruptedException, SchedulerException {
-    TaskServiceInDatabase service = new TaskServiceInDatabase(SCHEMA_NAME);
+    TaskServiceInDatabase service = new TaskServiceInDatabase(SCHEMA_NAME, null);
     TaskServiceScheduler scheduler = new TaskServiceScheduler(service);
 
     Row scriptRow = row("name", "test", "script", "print('hello');", "cron", "0/1 * * * * ?");
@@ -68,5 +68,29 @@ public class TestTaskServiceScheduler {
     Thread.sleep(5000);
     // give running python time to terminate
     assertEquals(0, service.getJobTable().retrieveRows().size());
+  }
+
+  @Test
+  public void testCronPersistence() {
+    TaskServiceInDatabase service = new TaskServiceInDatabase(SCHEMA_NAME, null);
+    TaskServiceScheduler scheduler = new TaskServiceScheduler(service);
+
+    // not there from before
+    assertEquals(1, service.getScripts().size());
+
+    // add a new script (listener will submit it)
+    Row scriptRow = row("name", "test", "script", "print('hello');", "cron", "0 0 0 1 * ?");
+    service.getScriptTable().save(scriptRow);
+
+    // ensure it is in the database and can be retrieved
+    assertEquals("test", service.getScripts().get(1).getName());
+
+    // destroy and recreate see if task comes back
+    scheduler.shutdown();
+    service = new TaskServiceInDatabase(SCHEMA_NAME, null);
+
+    // make sure only 'test' is in the scheduled tasks, not other scripts
+    scheduler = new TaskServiceScheduler(service);
+    assertEquals("test", scheduler.scheduledTaskNames().get(0));
   }
 }

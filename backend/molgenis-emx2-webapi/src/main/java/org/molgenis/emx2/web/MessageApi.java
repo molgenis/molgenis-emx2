@@ -1,8 +1,6 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
 import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
-import static spark.Spark.post;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +8,8 @@ import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.parser.Parser;
+import io.javalin.Javalin;
+import io.javalin.http.Context;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +25,6 @@ import org.molgenis.emx2.email.EmailValidator;
 import org.molgenis.emx2.web.actions.SendMessageAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.Request;
-import spark.Response;
 
 public class MessageApi {
 
@@ -39,13 +37,13 @@ public class MessageApi {
     // hide constructor
   }
 
-  public static void create() {
-    post("/:schema/api/message/*", ACCEPT_JSON, MessageApi::send);
+  public static void create(Javalin app) {
+    app.post("/{schema}/api/message/*", MessageApi::send);
   }
 
-  public static String send(Request request, Response response) {
+  public static String send(Context ctx) {
     logger.info("Received message request");
-    Schema schema = MolgenisWebservice.getSchema(request);
+    Schema schema = MolgenisWebservice.getSchema(ctx);
     if (schema == null) {
       String msg = "Cannot handle send action, schema is null";
       logger.error(msg);
@@ -56,12 +54,13 @@ public class MessageApi {
     SendMessageAction sendMessageAction;
     Map<String, Object> validationFilter;
     try {
-      sendMessageAction = objectMapper.readValue(request.body(), SendMessageAction.class);
+      sendMessageAction = objectMapper.readValue(ctx.body(), SendMessageAction.class);
       validationFilter = objectMapper.readValue(sendMessageAction.recipientsFilter(), Map.class);
     } catch (JsonProcessingException e) {
-      response.status(422);
+      ctx.status(422);
       String msg = "Error parsing request: " + e.getMessage();
       logger.error(msg);
+      ctx.result(msg);
       return msg;
     }
 
@@ -78,16 +77,17 @@ public class MessageApi {
       throw new MolgenisException(msg);
     }
 
-    MolgenisSession session = sessionManager.getSession(request);
+    MolgenisSession session = sessionManager.getSession(ctx.req());
     GraphQL gql = session.getGraphqlForSchema(schema.getName());
 
     final ExecutionResult executionResult =
         gql.execute(ExecutionInput.newExecutionInput(recipientsQuery).variables(validationFilter));
     if (!executionResult.getErrors().isEmpty()) {
-      response.status(500);
+      ctx.status(500);
       String msg =
           "Error validating message receivers: " + executionResult.getErrors().get(0).getMessage();
       logger.error(msg);
+      ctx.result(msg);
       return msg;
     }
     Map<String, Object> resultMap = executionResult.toSpecification();
@@ -96,16 +96,18 @@ public class MessageApi {
     try {
       recipients.addAll(EmailValidator.validationResponseToReceivers(resultMap));
     } catch (Exception e) {
-      response.status(500);
+      ctx.status(500);
       String msg = "Error validating message receivers: " + e.getMessage();
       logger.error(msg);
+      ctx.result(msg);
       return msg;
     }
 
     if (recipients.isEmpty()) {
-      response.status(500);
+      ctx.status(500);
       String msg = "No recipients found for given filter";
       logger.error(msg);
+      ctx.result(msg);
       return msg;
     }
 
@@ -128,13 +130,14 @@ public class MessageApi {
             recipients, sendMessageAction.subject(), sendMessageAction.body(), bccRecipient);
     final boolean sendResult = emailService.send(message);
     if (!sendResult) {
-      response.status(500);
+      ctx.status(500);
       logger.error(
           "failed to send message to recipients: {} with subject: {} and message: {}",
           recipients,
           sendMessageAction.subject(),
           sendMessageAction.body());
     }
+    ctx.result(String.valueOf(sendResult));
     return String.valueOf(sendResult);
   }
 

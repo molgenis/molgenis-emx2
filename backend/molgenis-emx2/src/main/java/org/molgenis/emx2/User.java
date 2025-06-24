@@ -2,15 +2,14 @@ package org.molgenis.emx2;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class User extends HasSettings<User> {
   private static final String TOKENS = "access-tokens";
   private String username;
+  private boolean enabled = true;
   private Database database;
+  private boolean isAdmin = false;
 
   User(String username) {
     // for testing protected
@@ -38,6 +37,14 @@ public class User extends HasSettings<User> {
   public void setUsername(String username) {
     assert username != null;
     this.username = username;
+  }
+
+  public Boolean getEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(Boolean enabled) {
+    this.enabled = enabled;
   }
 
   @Override
@@ -73,5 +80,13 @@ public class User extends HasSettings<User> {
     }
     this.setSetting(TOKENS, tokensString);
     database.saveUser(this);
+  }
+
+  public void setAdmin(boolean admin) {
+    this.isAdmin = admin;
+  }
+
+  public boolean isAdmin() {
+    return isAdmin;
   }
 }

@@ -124,11 +124,11 @@ export default defineComponent({
   <div>
     <demo-item>
       <Pagination v-model="pageValue1" :count="29" />
-      page = {{ pageValue1 }}
+      <div>page number = {{ pageValue1 }}</div>
     </demo-item>
 
     <demo-item>
-      <pagination v-model="pageValue2" :count="250" />
+      <pagination v-model="pageValue2" :count="250" :limit="20"/>
       <div>page number: {{ pageValue2 }}</div>
     </demo-item>
   </div>

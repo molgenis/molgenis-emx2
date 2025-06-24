@@ -1,0 +1,1 @@
+CREATE COLLATION IF NOT EXISTS "MOLGENIS".numeric (provider = icu, locale = 'en-u-kn-true');

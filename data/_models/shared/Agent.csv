@@ -1,0 +1,6 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Agent,,,,,,,,,,,"foaf:Agent,vcard:Agent","An agent (eg. person, group, software or physical artifact).",DataCatalogueFlat
+Agent,,name,string,1,TRUE,,,,,,"foaf:name,dcterms:identifier",A name and identifier for this agent.,DataCatalogueFlat
+Agent,,logo,hyperlink,,,,,,,,foaf:logo,A logo representing some thing.,DataCatalogueFlat
+Agent,,url,hyperlink,,,,,,,,vcard:url,An URL representing some thing.,DataCatalogueFlat
+Agent,,mbox,email,,,,,,,,"vcard:hasEmail,foaf:mbox",An email address is an identifier to send mail to particular electronic mailbox of a contact person or organization.,DataCatalogueFlat

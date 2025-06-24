@@ -1,45 +1,44 @@
 package org.molgenis.emx2.beaconv2.endpoints;
 
-import static org.molgenis.emx2.rdf.RDFUtils.extractHost;
-import static org.molgenis.emx2.rdf.RDFUtils.getURI;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.schibsted.spt.data.jslt.Expression;
+import com.schibsted.spt.data.jslt.Parser;
+import org.molgenis.emx2.*;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import java.net.URI;
-import java.net.URISyntaxException;
-import org.molgenis.emx2.beaconv2.common.Meta;
-import org.molgenis.emx2.beaconv2.endpoints.info.InfoResponse;
-import spark.Request;
-
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Info {
 
-  private String $schema;
-  private Meta meta;
-  private InfoResponse response;
+  private static final String ENDPOINT_TABLE = "Endpoint";
+  private static final String JSLT_PATH = "informational/info.jslt";
+  private static final String TABLE_ID = "org.molgeniscloud.beaconv2";
 
-  public Info() {
-    this.$schema = "../beaconInfoResponse.json";
-    this.meta = new Meta("../beaconInfoResponse.json", "info");
-    this.response = new InfoResponse("unknown host");
+  private final Database database;
+
+  public Info(Database database) {
+    this.database = database;
   }
 
-  public Info(Request request) throws URISyntaxException {
-    this.$schema = "../beaconInfoResponse.json";
-    this.meta = new Meta("../beaconInfoResponse.json", "info");
-    URI requestURI = getURI(request.url());
-    String host = extractHost(requestURI);
-    this.response = new InfoResponse(host);
+  public JsonNode getResponse(Schema schema) {
+    JsonNode info = getEndpointInfo(schema);
+    Expression jslt = Parser.compileResource(JSLT_PATH);
+    return jslt.apply(info);
   }
 
-  public String get$schema() {
-    return $schema;
-  }
+  private JsonNode getEndpointInfo(Schema schema) {
+    if (schema == null) {
+      throw new MolgenisException("Informational endpoint is only available on schema level");
+    }
+    if (schema.getTable(ENDPOINT_TABLE) == null) return null;
 
-  public Meta getMeta() {
-    return meta;
-  }
+    String query =
+        """
+            SELECT * FROM "%1$s"."%2$s" WHERE id = '%3$s'
+            """
+            .formatted(schema.getName(), ENDPOINT_TABLE, TABLE_ID);
 
-  public InfoResponse getResponse() {
-    return response;
+    Row row = database.getSchema(schema.getName()).retrieveSql(query).get(0);
+
+    ObjectMapper mapper = new ObjectMapper();
+    return mapper.valueToTree(row.getValueMap());
   }
 }

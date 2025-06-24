@@ -1,21 +1,23 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
-import { IRow } from "../Interfaces/IRow";
-import {
+import axios from "axios";
+import type { AxiosError, AxiosResponse } from "axios";
+import type {
   IColumn,
-  ITableMetaData,
   ISchemaMetaData,
   ISetting,
-} from "meta-data-utils";
+  ITableMetaData,
+} from "../../../metadata-utils/src/types";
+import type { IRow } from "../Interfaces/IRow";
 import { deepClone } from "../components/utils";
-import { IClient, INewClient } from "./IClient";
-import { IQueryMetaData } from "./IQueryMetaData";
-import { getColumnIds } from "./queryBuilder";
 import type { aggFunction } from "./IClient";
+import type { IClient, INewClient } from "./IClient";
+import type { IQueryMetaData } from "./IQueryMetaData";
+import { getColumnIds } from "./queryBuilder";
+import { toFormData } from "../../../tailwind-components/utils/toFormData";
 
 // application wide cache for schema meta data
 const schemaCache = new Map<string, ISchemaMetaData>();
 
-export { request };
+export { request, fetchSchemaMetaData, convertRowToPrimaryKey };
 const client: IClient = {
   newClient: (schemaId?: string): INewClient => {
     return {
@@ -58,12 +60,11 @@ const client: IClient = {
       fetchRowData: async (
         tableId: string,
         rowId: IRow,
-        expandLevel: number = 1
+        expandLevel: number = 2
       ) => {
         const schemaMetaData = await fetchSchemaMetaData(schemaId);
         const tableMetaData = schemaMetaData.tables.find(
-          (table: ITableMetaData) =>
-            table.id === tableId && table.schemaId === schemaMetaData.id
+          (table: ITableMetaData) => table.id === tableId
         );
         const filter = tableMetaData?.columns
           ?.filter((column: IColumn) => column.key === 1)
@@ -76,9 +77,9 @@ const client: IClient = {
             tableId,
             {
               filter,
+              expandLevel,
             },
-            schemaMetaData,
-            expandLevel
+            schemaMetaData
           )
         )[tableId];
 
@@ -163,16 +164,15 @@ const client: IClient = {
 };
 export default client;
 
-const metaDataQuery = `{
+const metadataQuery = `{
   _schema {
     id,
     tables {
-      schemaId,
       id,
+      name,
       label, 
       description,
       tableType,
-      schemaId,
       semantics,
       columns {
         id,
@@ -230,7 +230,7 @@ const deleteRow = async (row: IRow, tableId: string, schemaId?: string) => {
 };
 
 const deleteAllTableData = (tableId: string, schemaId?: string) => {
-  const query = `mutation {truncate(tables:"${tableId}"){message}}`;
+  const query = `mutation {truncate(tables:"${tableId}" async:true){taskId message}}`;
   return axios.post(graphqlURL(schemaId), { query });
 };
 
@@ -242,7 +242,7 @@ const fetchSchemaMetaData = async (
     return schemaCache.get(currentschemaId) as ISchemaMetaData;
   }
   return await axios
-    .post(graphqlURL(schemaId), { query: metaDataQuery })
+    .post(graphqlURL(schemaId), { query: metadataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
       if (schemaId == null) {
@@ -260,18 +260,17 @@ const fetchSchemaMetaData = async (
 const fetchTableData = async (
   tableId: string,
   properties: IQueryMetaData,
-  metaData: ISchemaMetaData,
-  expandLevel: number = 2
+  metadata: ISchemaMetaData
 ) => {
   const limit = properties.limit ? properties.limit : 20;
   const offset = properties.offset ? properties.offset : 0;
-
+  const expandLevel = properties.expandLevel ?? 2;
   const search = properties.searchTerms
     ? ',search:"' + properties.searchTerms.trim() + '"'
     : "";
 
-  const schemaId = metaData.id;
-  const columnIds = getColumnIds(schemaId, tableId, metaData, expandLevel);
+  const schemaId = metadata.id;
+  const columnIds = await getColumnIds(schemaId, tableId, expandLevel);
   const tableDataQuery = `query ${tableId}( $filter:${tableId}Filter, $orderby:${tableId}orderby ) {
         ${tableId}(
           filter:$filter,
@@ -308,6 +307,7 @@ const fetchOntologyOptions = async (
   const tableDataQuery = `query ${tableId} {
         ${tableId}(
           limit:100000
+          orderby: { order: ASC }
           )
           {
           	order 
@@ -353,41 +353,6 @@ const request = async (url: string, graphql: string, variables?: any) => {
     });
 };
 
-const isFileValue = (value: File) => {
-  if (window && "File" in window) {
-    return value instanceof File;
-  } else {
-    throw "Files can only be uploaded via a browser client";
-  }
-};
-
-const toFormData = (rowData: IRow) => {
-  if (!FormData) {
-    throw "Files can only be uploaded via a browser client";
-  }
-  const formData = new FormData();
-  let nonFileValue: { [key: string]: string } = {};
-  let fileValues: { [key: string]: string } = {};
-
-  // split into file and non-file entries
-  for (const [key, value] of Object.entries(rowData)) {
-    isFileValue(value)
-      ? (fileValues[key] = value)
-      : (nonFileValue[key] = value);
-  }
-
-  // add the file objects to the formData and place a link to the object in the variables
-  for (const [key, value] of Object.entries(fileValues)) {
-    const id = Math.random().toString(36);
-    formData.append(id, value);
-    nonFileValue[key] = id;
-  }
-
-  formData.append("variables", JSON.stringify({ value: [nonFileValue] }));
-
-  return formData;
-};
-
 async function convertRowToPrimaryKey(
   row: IRow,
   tableId: string,
@@ -395,8 +360,7 @@ async function convertRowToPrimaryKey(
 ): Promise<Record<string, any>> {
   const schema = await fetchSchemaMetaData(schemaId);
   const tableMetadata = schema.tables.find(
-    (table: ITableMetaData) =>
-      table.id === tableId && table.schemaId === schema.id
+    (table: ITableMetaData) => table.id === tableId
   );
   if (!tableMetadata?.columns) {
     throw new Error("Empty columns in metadata");

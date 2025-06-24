@@ -1,5 +1,4 @@
-import Client from "../src/client/client.ts";
-import { request } from "../src/client/client.ts";
+import Client, { request } from "../src/client/client.ts";
 import QueryEMX2 from "../src/queryEmx2/queryEmx2.ts";
 
 //account
@@ -28,13 +27,12 @@ import FilterWell from "../src/components/filters/FilterWell.vue";
 import FilterWells from "../src/components/filters/FilterWells.vue";
 
 //forms
-import InputTextLocalized from "../src/components/forms/InputTextLocalized.vue";
+import LocaleSwitch from "../src/components/account/LocaleSwitch.vue";
 import ArrayInput from "../src/components/forms/ArrayInput.vue";
 import ButtonAction from "../src/components/forms/ButtonAction.vue";
 import ButtonAlt from "../src/components/forms/ButtonAlt.vue";
 import ButtonDanger from "../src/components/forms/ButtonDanger.vue";
 import ButtonDropdown from "../src/components/forms/ButtonDropdown.vue";
-import HtmlDropdown from "../src/components/forms/HtmlDropdown.vue";
 import ButtonOutline from "../src/components/forms/ButtonOutline.vue";
 import ButtonSubmit from "../src/components/forms/ButtonSubmit.vue";
 import ConfirmModal from "../src/components/forms/ConfirmModal.vue";
@@ -42,20 +40,24 @@ import EditModal from "../src/components/forms/EditModal.vue";
 import FormGroup from "../src/components/forms/FormGroup.vue";
 import FormInput from "../src/components/forms/FormInput.vue";
 import FormMolgenis from "../src/components/forms/FormMolgenis.vue";
+import HtmlDropdown from "../src/components/forms/HtmlDropdown.vue";
 import IconAction from "../src/components/forms/IconAction.vue";
 import IconBar from "../src/components/forms/IconBar.vue";
 import IconDanger from "../src/components/forms/IconDanger.vue";
 import Info from "../src/components/forms/Info.vue";
+import InfoPopover from "../src/components/forms/InfoPopover.vue";
 import InlineInput from "../src/components/forms/InlineInput.vue";
 import InputBoolean from "../src/components/forms/InputBoolean.vue";
 import InputCheckbox from "../src/components/forms/InputCheckbox.vue";
 import InputDate from "../src/components/forms/InputDate.vue";
 import InputDateTime from "../src/components/forms/InputDateTime.vue";
 import InputDecimal from "../src/components/forms/InputDecimal.vue";
-import InputFile from "../src/components/forms/InputFile.vue";
 import InputEmail from "../src/components/forms/InputEmail.vue";
+import InputJson from "../src/components/forms/InputJson.vue";
+import InputFile from "../src/components/forms/InputFile.vue";
 import InputGroup from "../src/components/forms/InputGroup.vue";
 import InputHeading from "../src/components/forms/InputHeading.vue";
+import InputHyperlink from "../src/components/forms/InputHyperlink.vue";
 import InputInt from "../src/components/forms/InputInt.vue";
 import InputLong from "../src/components/forms/InputLong.vue";
 import InputOntology from "../src/components/forms/InputOntology.vue";
@@ -75,10 +77,9 @@ import InputSelect from "../src/components/forms/InputSelect.vue";
 import InputSelectInplace from "../src/components/forms/InputSelectInplace.vue";
 import InputString from "../src/components/forms/InputString.vue";
 import InputText from "../src/components/forms/InputText.vue";
-import InfoPopover from "../src/components/forms/InfoPopover.vue";
-import LocaleSwitch from "../src/components/account/LocaleSwitch.vue";
-import TooltipComponent from "../src/components/forms/TooltipComponent.vue";
+import InputTextLocalized from "../src/components/forms/InputTextLocalized.vue";
 import Tooltip from "../src/components/forms/Tooltip.vue";
+import TooltipComponent from "../src/components/forms/TooltipComponent.vue";
 
 import MessageError from "../src/components/forms/MessageError.vue";
 import MessageSuccess from "../src/components/forms/MessageSuccess.vue";
@@ -94,31 +95,30 @@ import LayoutCard from "../src/components/layout/LayoutCard.vue";
 import LayoutForm from "../src/components/layout/LayoutForm.vue";
 import LayoutModal from "../src/components/layout/LayoutModal.vue";
 import Molgenis from "../src/components/layout/Molgenis.vue";
-import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
 import MolgenisFooter from "../src/components/layout/MolgenisFooter.vue";
+import MolgenisMenu from "../src/components/layout/MolgenisMenu.vue";
 import ReadMore from "../src/components/layout/ReadMore.vue";
-import SimpleModal from "../src/components/layout/SimpleModal.vue";
 import ShowMore from "../src/components/layout/ShowMore.vue";
+import SimpleModal from "../src/components/layout/SimpleModal.vue";
 import Spinner from "../src/components/layout/Spinner.vue";
-import Tab from "../src/components/layout/Tab.vue";
 import Tabs from "../src/components/layout/Tabs.vue";
 import VueTemplate from "../src/components/layout/VueTemplate.vue";
 
 //tables
+import AggregateTable from "../src/components/tables/AggregateTable.vue";
 import DataDisplayCell from "../src/components/tables/DataDisplayCell.vue";
-import RoutedTableExplorer from "../src/components/tables/RoutedTableExplorer.vue";
-import TableExplorer from "../src/components/tables/TableExplorer.vue";
 import Pagination from "../src/components/tables/Pagination.vue";
+import RoutedTableExplorer from "../src/components/tables/RoutedTableExplorer.vue";
 import RowButton from "../src/components/tables/RowButton.vue";
 import RowButtonAdd from "../src/components/tables/RowButtonAdd.vue";
 import RowButtonClone from "../src/components/tables/RowButtonClone.vue";
 import RowButtonDelete from "../src/components/tables/RowButtonDelete.vue";
 import RowButtonEdit from "../src/components/tables/RowButtonEdit.vue";
 import ShowHide from "../src/components/tables/ShowHide.vue";
+import TableExplorer from "../src/components/tables/TableExplorer.vue";
 import TableMolgenis from "../src/components/tables/TableMolgenis.vue";
 import TableSimple from "../src/components/tables/TableSimple.vue";
 import TableStickyHeaders from "../src/components/tables/TableStickyHeaders.vue";
-import AggregateTable from "../src/components/tables/AggregateTable.vue";
 
 //tables/celltypes
 import EmailDisplay from "../src/components/tables/cellTypes/EmailDisplay.vue";
@@ -137,9 +137,9 @@ import TaskManager from "../src/components/task/TaskManager.vue";
 
 //utils
 import {
+  applyJsTemplate,
   deepClone,
   flattenObject,
-  applyJsTemplate,
 } from "../src/components/utils";
 
 import { getRowErrors } from "../src/components/forms/formUtils/formUtils";
@@ -147,45 +147,42 @@ import { getRowErrors } from "../src/components/forms/formUtils/formUtils";
 import constants, { privacyConstants } from "../src/components/constants";
 
 export {
+  AggregateTable,
+  ArrayInput,
+  Breadcrumb,
+  ButtonAction,
+  ButtonAlt,
+  ButtonDanger,
+  ButtonDropdown,
+  ButtonOutline,
+  ButtonSubmit,
+  Client,
+  ConfirmModal,
   ContactDisplay,
-  GridBlock,
-  ImageCard,
-  ImageDisplay,
-  KeyValueBlock,
-  LinksList,
-  PageHeader,
-  PersonDetails,
-  TableDisplay,
-  MessageWarning,
-  InputHeading,
+  CookieWall,
+  DataDisplayCell,
+  EditModal,
   EmailDisplay,
-  HyperlinkDisplay,
+  FileDisplay,
   FilterContainer,
   FilterInput,
   FilterSidebar,
   FilterWell,
   FilterWells,
-  ArrayInput,
-  ButtonAction,
-  ButtonDropdown,
-  ButtonOutline,
-  ButtonAlt,
-  ButtonDanger,
-  ButtonSubmit,
-  Client,
-  ConfirmModal,
-  DataDisplayCell,
-  EditModal,
-  FileDisplay,
   FormGroup,
   FormInput,
   FormMolgenis,
+  GTag,
+  GridBlock,
   HtmlDropdown,
+  HyperlinkDisplay,
   IconAction,
   IconBar,
   IconDanger,
+  ImageCard,
+  ImageDisplay,
   Info,
-  InputTextLocalized,
+  InfoPopover,
   InlineInput,
   InputBoolean,
   InputCheckbox,
@@ -193,17 +190,20 @@ export {
   InputDateTime,
   InputDecimal,
   InputEmail,
+  InputJson,
   InputFile,
   InputGroup,
+  InputHeading,
+  InputHyperlink,
   InputInt,
   InputLong,
   InputOntology,
   InputOntologySubtree,
   InputPassword,
   InputRadio,
-  InputRangeDecimal,
   InputRangeDate,
   InputRangeDateTime,
+  InputRangeDecimal,
   InputRangeInt,
   InputRangeLong,
   InputRefBack,
@@ -214,62 +214,63 @@ export {
   InputSelectInplace,
   InputString,
   InputText,
-  InfoPopover,
-  LocaleSwitch,
-  MessageError,
-  MessageSuccess,
-  RowButtonAdd,
-  RowButtonClone,
-  RowButtonDelete,
-  RowEdit,
-  RowButtonEdit,
-  RowEditFooter,
-  Breadcrumb,
-  CookieWall,
-  GTag,
+  InputTextLocalized,
+  KeyValueBlock,
   LayoutCard,
   LayoutForm,
   LayoutModal,
+  LinksList,
+  ListDisplay,
+  LocaleSwitch,
+  MessageError,
+  MessageSuccess,
+  MessageWarning,
   Molgenis,
-  Pagination,
-  Spinner,
-  VueTemplate,
-  AggregateTable,
-  RoutedTableExplorer,
-  TableExplorer,
-  TableMolgenis,
-  TableSimple,
-  TableStickyHeaders,
-  SubTask,
-  Task,
-  Tab,
-  Tabs,
-  TaskManager,
-  TaskList,
-  TextDisplay,
-  TooltipComponent,
-  Tooltip,
   MolgenisAccount,
   MolgenisFooter,
   MolgenisMenu,
   MolgenisSession,
   MolgenisSignin,
   MolgenisSignup,
+  ObjectDisplay,
+  PageHeader,
+  Pagination,
+  PersonDetails,
   QueryEMX2,
   ReadMore,
+  RoutedTableExplorer,
+  RowButton,
+  RowButtonAdd,
+  RowButtonClone,
+  RowButtonDelete,
+  RowButtonEdit,
+  RowEdit,
+  RowEditFooter,
   ShowHide,
   ShowMore,
   SimpleModal,
+  Spinner,
   StringDisplay,
-  RowButton,
-  ListDisplay,
-  ObjectDisplay,
+  SubTask,
+  TableDisplay,
+  TableExplorer,
+  TableMolgenis,
+  TableSimple,
+  TableStickyHeaders,
+  Tabs,
+  Task,
+  TaskList,
+  TaskManager,
+  TextDisplay,
   TokenManager,
-  deepClone,
+  Tooltip,
+  TooltipComponent,
+  VueTemplate,
+  applyJsTemplate,
   constants,
+  deepClone,
+  flattenObject,
+  getRowErrors,
   privacyConstants,
   request,
-  flattenObject,
-  applyJsTemplate,
-  getRowErrors,
 };

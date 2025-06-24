@@ -1,0 +1,27 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Endpoint,,,,,,,,,,,"schema:Service",General information describing an endpoint,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,id,string,1,TRUE,,,,,,"schema:identifier","A unique proper name or character sequence that identifies this particular person. In Beacon v2: id, in FAIR Genomes: PersonalIdentifier. In RD3: subjectID. In JRC-CDE: Pseudonym","Beacon v2,FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,type,hyperlink_array,,TRUE,,,,,,rdf:type,This row is an instance of one or more of these class(es) other than the Endpoint table.,"FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,name,string_array,,TRUE,,,,,,dcterms:title,A name given to the resource.,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,version,text,,,,,,,,dcterms:hasVersion,An account of the resource version.,DataCatalogueFlat
+Endpoint,,description,text,,,,,,,,dcterms:description,An account of the resource.,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,publisher,ref_array,,TRUE,,Agent,,,,dcterms:publisher,An entity responsible for making the resource available.,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,language,hyperlink_array,,,,,,,,dcterms:language,A language of the resource.,"FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,license,hyperlink,,TRUE,,,,,,dcterms:license,A legal document giving official permission to do something with the resource.,"FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,conformsTo,hyperlink,,TRUE,,,,,,dcterms:conformsTo,An established standard to which the described resource conforms.,"FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,rights,hyperlink_array,,,,,,,,dcterms:rights,Information about rights held in and over the resource.,"FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,accessRights,hyperlink_array,,,,,,,,dcterms:accessRights,Information about who access the resource or an indication of its security status.,"FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,contact,ref,,,,Agent,,,,dcat:contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,keyword,string_array,,,,,,,,dcat:keyword,A keyword or tag describing a resource.,"FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,theme,hyperlink_array,,,,,,,,dcat:theme,A main category of the resource. A resource can have multiple themes.,"FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,url,hyperlink,,,,,,,,dcat:endpointURL,"The root location or primary endpoint of the service (a web-resolvable IRI). For Beacon v2 only, in other cases we want to autogenerate this information.",Beacon v2
+Endpoint,,endPointDescription,hyperlink_array,,,,,,,,dcat:endPointDescription,"A description of the service end-point, including its operations, parameters etc.","FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,metadataCatalog,ref_array,,TRUE,,Resources,,,,fdp-o:metadataCatalog,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",DataCatalogueFlat
+Endpoint,,metadataCatalog,ref_array,,,,Catalog,,,,fdp-o:metadataCatalog,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",FAIRDataPoint
+Endpoint,,organisation,ontology,,,,Organisations,,,,obo:NCIT_C25412,Name of the organisation. E.g. University Medical Center Groningen,Beacon v2
+Endpoint,,alternativeUrl,,,,,,,,,"dcterms:alternative, schema:url",Alternative endpoint URL.,Beacon v2
+Endpoint,,conformsToFdpSpec,hyperlink,,TRUE,,,,,,fdp-o:conformsToFdpSpec,The relation should point to an URI that contains the version of the FDP specifications for which this instance of the FDP conforms to,DataCatalogueFlat
+Endpoint,,EJP_RD_personalData,string,,,,,,,,ejp:personalData,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.","FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,EJP_RD_vpConnection,hyperlink,,,,,,,,ejp:vpConnection,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,"FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,issued,datetime,,,,,,,,"dcterms:issued,fdp-o:metadataIssued",,DataCatalogueFlat
+Endpoint,,modified,datetime,,,,,,,,"dcterms:modified,fdp-o:metadataModified",,DataCatalogueFlat

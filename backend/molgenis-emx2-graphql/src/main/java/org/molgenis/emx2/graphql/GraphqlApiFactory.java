@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import graphql.execution.AsyncExecutionStrategy;
+import graphql.parser.ParserOptions;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import java.io.IOException;
@@ -19,6 +20,15 @@ import org.slf4j.LoggerFactory;
 
 public class GraphqlApiFactory {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
+
+  public GraphqlApiFactory() {
+    if (ParserOptions.getDefaultParserOptions().getMaxTokens() < 1000000) {
+      ParserOptions.setDefaultParserOptions(
+          ParserOptions.newParserOptions().maxTokens(1000000).build());
+      ParserOptions.setDefaultOperationParserOptions(
+          ParserOptions.newParserOptions().maxTokens(1000000).build());
+    }
+  }
 
   public static String convertExecutionResultToJson(ExecutionResult executionResult)
       throws JsonProcessingException {
@@ -50,7 +60,10 @@ public class GraphqlApiFactory {
 
     // admin operations
     if (database.isAdmin()) {
-      queryBuilder.field(GraphlAdminFieldFactory.queryAdminField(database));
+      queryBuilder.field(GraphqlAdminFieldFactory.queryAdminField(database));
+      mutationBuilder.field(GraphqlAdminFieldFactory.removeUser(database));
+      mutationBuilder.field(GraphqlAdminFieldFactory.setEnabledUser(database));
+      mutationBuilder.field(GraphqlAdminFieldFactory.updateUser(database));
     }
 
     // database operations
@@ -58,8 +71,12 @@ public class GraphqlApiFactory {
     queryBuilder.field(db.schemasQuery(database));
     queryBuilder.field(db.settingsQueryField(database));
     queryBuilder.field(db.tasksQueryField(taskService));
+    // todo need to allow for owner ? ( need to filter the query to include only owned schema's)
+    if (database.isAdmin()) {
+      queryBuilder.field(db.lastUpdateQuery(database));
+    }
 
-    mutationBuilder.field(db.createMutation(database));
+    mutationBuilder.field(db.createMutation(database, taskService));
     mutationBuilder.field(db.deleteMutation(database));
     mutationBuilder.field(db.updateMutation(database));
     mutationBuilder.field(db.dropMutation(database));
@@ -122,7 +139,7 @@ public class GraphqlApiFactory {
 
     mutationBuilder.field(schemaFields.changeMutation(schema));
     mutationBuilder.field(schemaFields.dropMutation(schema));
-    mutationBuilder.field(schemaFields.truncateMutation(schema));
+    mutationBuilder.field(schemaFields.truncateMutation(schema, taskService));
     if ((schema.getRoleForActiveUser() != null
             && schema.getRoleForActiveUser().equals(Privileges.MANAGER.toString()))
         || schema.getDatabase().isAdmin()) {
@@ -150,10 +167,7 @@ public class GraphqlApiFactory {
     // assemble and return
     GraphQL result =
         GraphQL.newGraphQL(
-                GraphQLSchema.newSchema()
-                    .query(queryBuilder.build())
-                    .mutation(mutationBuilder.build())
-                    .build())
+                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
             .mutationExecutionStrategy(
                 new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
             .build();

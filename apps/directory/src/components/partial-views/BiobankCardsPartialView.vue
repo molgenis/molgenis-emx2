@@ -10,13 +10,12 @@
       <div
         class="d-flex justify-content-center flex-wrap biobank-cards-container"
       >
-        <biobank-card
+        <BiobankCard
           :style="`width:${cardWidth}px;`"
           v-for="biobank in biobanksShown"
           :key="biobank.id"
           :biobank="biobank"
-        >
-        </biobank-card>
+        />
       </div>
       <pagination-bar class="mt-4" />
     </div>
@@ -66,17 +65,6 @@ export default {
       return this.filtersStore.bookmarkWaitingForApplication
         ? "Loading state"
         : "No biobanks were found";
-    },
-  },
-  watch: {
-    /** on hydrating the state we can have a race condition where biobanks gets queried too soon. */
-    "filtersStore.bookmarkWaitingForApplication"() {
-      if (this.biobanksShown.length === 0) {
-        this.biobanksStore.getBiobankCards();
-      }
-    },
-    biobanksShown() {
-      this.calculateCardWidth();
     },
   },
   methods: {

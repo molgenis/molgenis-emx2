@@ -1,7 +1,10 @@
 import { Axios } from "axios";
-import { IRow } from "../Interfaces/IRow";
-import type { ISetting, ITableMetaData } from "meta-data-utils";
-import { IQueryMetaData } from "./IQueryMetaData";
+import type {
+  ISetting,
+  ITableMetaData,
+} from "../../../metadata-utils/src/types";
+import type { IRow } from "../Interfaces/IRow";
+import type { IQueryMetaData } from "./IQueryMetaData";
 
 export interface IClient {
   newClient: (schemaId?: string, externalAxios?: Axios) => INewClient;

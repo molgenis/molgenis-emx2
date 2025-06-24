@@ -77,10 +77,7 @@ public class TestLegacyImport {
         schema
             .getTable("biobanks")
             .select(
-                s("name"),
-                s("contact_person", s("full_name")),
-                s("principal_investigators", s("full_name")),
-                s("juristic_person", s("name")))
+                s("name"), s("contact_person"), s("principal_investigators"), s("juristic_person"))
             .search("GrONingen")
             .retrieveRows();
     assertEquals(1, rows.size());

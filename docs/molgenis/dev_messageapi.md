@@ -46,6 +46,7 @@ query Resources($filter:ResourcesFilter){
 
 ***BBC option***
 To receive a copy of the message create a setting with key: ```contactBccAddress``` and a valid email address as value.
+To notify the user about the message being forwarded create a setting with key ```CATALOGUE_BCC_MSG``` add a message for the user as value 
 ## Sending email
 
 Configurable settings

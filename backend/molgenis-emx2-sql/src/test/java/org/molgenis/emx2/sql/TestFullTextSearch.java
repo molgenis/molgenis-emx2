@@ -8,12 +8,12 @@ import static org.molgenis.emx2.ColumnType.TEXT;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 
 public class TestFullTextSearch {
   private static Database db;
@@ -77,7 +77,7 @@ public class TestFullTextSearch {
   @Test
   public void nestedSearch() {
     Schema schema = db.dropCreateSchema(TestFullTextSearch.class.getSimpleName() + "nested");
-    new PetStoreLoader().load(schema, true);
+    PET_STORE.getImportTask(schema, true).run();
 
     List<Row> result =
         schema.query("Order").where(f(Operator.TEXT_SEARCH, "Delivered")).retrieveRows();
@@ -105,6 +105,21 @@ public class TestFullTextSearch {
         schema.query("Order").where(f("pet", f(Operator.TEXT_SEARCH, "cat"))).retrieveJSON();
     // would exclude approved order
     assertTrue(!json.contains("approved"));
+
+    // test term1 AND term2
+    json = schema.query("Pet").where(f(Operator.TEXT_SEARCH, "red", "green")).retrieveJSON();
+    // would be spike and fire ant
+    assertTrue(json.contains("spike"));
+    assertTrue(json.contains("fire ant"));
+    assertTrue(!json.contains("tweety"));
+
+    json =
+        schema
+            .query("Order")
+            .where(f("pet", f(Operator.TEXT_SEARCH, "red", "green")))
+            .retrieveJSON();
+    // would be only spike
+    assertTrue(json.contains("spike"));
 
     // nesting example 2
     json =

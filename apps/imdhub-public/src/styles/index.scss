@@ -1,0 +1,82 @@
+.app-page,
+.page-footer {
+  font-family: Helvetica, sans-serif;
+  position: relative;
+
+  p {
+    svg {
+      width: 16pt;
+    }
+  }
+
+  a {
+    &.button-link {
+      @include setLinkAsButton($width: 300px, $border-radius: 32pt);
+      @include textTransform(bold);
+      margin: 0 auto;
+      margin-top: 1em;
+    }
+  }
+
+  a,
+  p,
+  li {
+    .heroicons {
+      @include setIconSize(18pt);
+    }
+  }
+
+  .page-section {
+    &.section-text-center {
+      text-align: center;
+    }
+  }
+}
+.quicklink-cards {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2em;
+
+  .link-card {
+    flex-basis: 100%;
+    background-color: $gray-000;
+    color: currentColor;
+    border-radius: 12pt;
+    text-align: center;
+    padding: 1em;
+
+    svg {
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 1.5em;
+      @include setIconSize(26pt);
+
+      * {
+        stroke: currentColor;
+      }
+    }
+
+    h3 {
+      font-size: 13pt;
+    }
+
+    p {
+      margin: 0;
+      color: $gray-600;
+      font-size: 13pt;
+    }
+
+    a {
+      margin-top: 1em;
+      @include setLinkAsButton($border-radius: 32pt);
+      font-size: 10pt;
+    }
+  }
+
+  @media (min-width: 917px) {
+    flex-wrap: nowrap;
+  }
+}

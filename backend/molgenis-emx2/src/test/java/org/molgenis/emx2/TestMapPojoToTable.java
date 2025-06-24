@@ -13,7 +13,9 @@ public class TestMapPojoToTable {
 
   @Test
   public void testBeanToRowToBean()
-      throws InvocationTargetException, IllegalAccessException, NoSuchMethodException,
+      throws InvocationTargetException,
+          IllegalAccessException,
+          NoSuchMethodException,
           InstantiationException {
     PersonBean b = new PersonBean();
     b.setFirstName("Donald");

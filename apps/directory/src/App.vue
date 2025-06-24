@@ -1,28 +1,47 @@
 <template>
-  <Molgenis v-model="session">
+  <Molgenis v-model="session" style="background-color: white">
+    <template #banner>
+      <div v-html="banner" />
+    </template>
+    <Error />
     <RouterView @click="closeAllDropdownButtons" />
+    <template #footer>
+      <div v-html="footer" />
+    </template>
   </Molgenis>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { useFavicon, usePreferredDark } from "@vueuse/core";
+//@ts-expect-error
 import { Molgenis } from "molgenis-components";
-import { computed, onMounted, watch } from "vue";
-import { applyBookmark } from "./functions/bookmarkMapper";
-import { useRoute } from "vue-router";
-import { useFiltersStore } from "./stores/filtersStore";
+import { computed, onMounted, ref, watch } from "vue";
+import { LocationQuery, useRoute } from "vue-router";
+import Error from "./components/Error.vue";
+import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
 import { useCheckoutStore } from "./stores/checkoutStore";
+import { useFiltersStore } from "./stores/filtersStore";
 import { useSettingsStore } from "./stores/settingsStore";
 
 const route = useRoute();
-
 const query = computed(() => route.query);
 
 const filtersStore = useFiltersStore();
 const checkoutStore = useCheckoutStore();
+const settingsStore = useSettingsStore();
+
+const banner = computed(() => settingsStore.config.banner);
+const footer = computed(() => settingsStore.config.footer);
+
+const session = ref({});
+
+watch(session, () => {
+  settingsStore.setSessionInformation(session.value);
+});
 
 watch(
   query,
-  (newQuery, oldQuery) => {
+  (newQuery: LocationQuery, oldQuery) => {
     if (newQuery && Object.keys(newQuery).length) {
       const remainingKeys = Object.keys(newQuery).filter(
         (key) => key !== "cart"
@@ -37,8 +56,11 @@ watch(
       newQuery &&
       Object.keys(newQuery).length === 0
     ) {
-      filtersStore.clearAllFilters();
-      applyBookmark(newQuery);
+      createBookmark(
+        filtersStore.filters,
+        checkoutStore.selectedCollections,
+        checkoutStore.selectedServices
+      );
     }
 
     if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
@@ -47,84 +69,31 @@ watch(
   },
   { immediate: true, deep: true }
 );
-onMounted(async () => {
-  const settingsStore = useSettingsStore();
-  await settingsStore.initializeConfig();
-});
 
-function closeAllDropdownButtons(event) {
+onMounted(changeFavicon);
+
+function closeAllDropdownButtons(event: any) {
   const allDropdownButtons = document.querySelectorAll(".dropdown-button");
-  if (event.target.id) {
-    for (const dropdownButton of allDropdownButtons) {
-      if (dropdownButton.id !== event.target.id) {
+  if (event.target?.id) {
+    allDropdownButtons.forEach((dropdownButton) => {
+      if (dropdownButton.id !== event.target?.id) {
         dropdownButton.removeAttribute("open");
       }
-    }
+    });
   } else {
-    for (const dropdownButton of allDropdownButtons) {
+    allDropdownButtons.forEach((dropdownButton) => {
       dropdownButton.removeAttribute("open");
-    }
+    });
   }
 }
+
+function changeFavicon() {
+  const faviconUrl = getFaviconUrl();
+  useFavicon(faviconUrl);
+}
+
+function getFaviconUrl() {
+  const isDark = usePreferredDark();
+  return isDark ? "bbmri-darkmode-favicon.ico" : "bbmri-lightmode-favicon.ico";
+}
 </script>
-
-<script>
-export default {
-  data() {
-    return {
-      session: {},
-    };
-  },
-  watch: {
-    session(sessionState) {
-      const settingsStore = useSettingsStore();
-      settingsStore.setSessionInformation(sessionState);
-    },
-  },
-};
-</script>
-
-<style>
-/* removing the built-in nav because it conflicts */
-nav[aria-label="breadcrumb"]:not(.directory-nav) {
-  display: none;
-}
-ol.breadcrumb {
-  margin-top: 0.25rem !important;
-  margin-bottom: 0.25rem !important;
-}
-
-/* emx2 style override */
-#app > div {
-  background-color: white !important;
-}
-nav.navbar {
-  background-color: #e9ecef !important;
-}
-nav.navbar a.nav-link,
-nav.navbar button.btn {
-  color: #495057 !important;
-  background-color: transparent;
-}
-nav.navbar a.nav-link:hover,
-nav.navbar button.btn:hover {
-  color: #ec6707 !important;
-}
-nav.navbar button.btn.btn-outline-light:not(.border-0) {
-  border-color: #495057 !important;
-}
-nav.navbar button.btn.btn-outline-light:not(.border-0):hover {
-  border-color: #ec6707 !important;
-  background-color: #ec6707 !important;
-  color: #dbedff !important;
-}
-
-.filterbar > details.dropdown-button > summary {
-  color: #08205c !important;
-}
-.filterbar > details.dropdown-button[open] > summary,
-.filterbar > details.dropdown-button:hover > summary,
-.filterbar > details.text-white > summary {
-  color: white !important;
-}
-</style>

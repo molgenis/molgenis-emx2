@@ -1,0 +1,14 @@
+---
+name: Studies data model
+description: "This catalogue contains metadata on data generated and obtained in studies."
+
+profileTags: StudiesStaging
+
+# demoData: _demodata/applications/datacatalogue
+
+# settings: _settings/datacatalogue
+
+# special options
+setViewPermission: anonymous
+ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous

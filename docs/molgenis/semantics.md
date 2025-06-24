@@ -1,80 +1,147 @@
 # Using semantic feature
 
-You can create useful json-ld or ttl output (see table viewer) by annotating our model. For this you use the 'semantics'
-column in EMX2. Columns without semantics will be omitted.
+You can create useful RDF output by annotating our model.
+For this you use the `semantics` field in EMX2.
 
-## Example
+## Formatting
 
-Below, we define that
+There are 2 types of data allowed in this field:
+* an IRI (such as `http://purl.org/dc/terms/title`)
+* a prefixed name (such as `dcterms:title`), assuming that prefix [is defined](#defined-namespaces)
+ 
 
-* table 'patients' contains a record of semantic type 'http://purl.obolibrary.org/obo/NCIT_C16960'
-* column 'patients.id' contains an logical 'http://purl.obolibrary.org/obo/NCIT_C83083'
-* column 'patient.phenotypes' contains phenotypes 'http://purl.obolibrary.org/obo/NCIT_C16977'
-* column 'hpo.termIRI' should be used as the '@id' for 'patients.phenotypes'
-  (instead of a local @id, which would be used)
+When processing a semantic field, a check is done to see if it can be interpreted as a prefixed name (based on the defined namespaces for that scheme).
+If not, then it is assumed to be an IRI.
 
-|tableName  |columnName |key |columnType | refTable |semantics                                  |
-|-----------|-----------|----|-----------|----------|-------------------------------------------|
-|patient    |           |1   |           |          |http://purl.obolibrary.org/obo/NCIT_C16960 |
-|patient    |localID     |    |string     |          |http://purl.obolibrary.org/obo/NCIT_C83083 |
-|patient    |phenotypes |    |ref_array  |hpo       |http://purl.obolibrary.org/obo/NCIT_C16977 |
-|hpo        |termlabel  |1   |string     |          |                                           |
-|hpo        |termIRI    |2   |string     |          |id                                         |
+Multiple values can be defined by separating these by a comma (such as `dcterms:title,http://purl.org/dc/terms/description`).
 
-### Produces JSON-LD
+## Defined namespaces
 
-```json
-[
-  {
-    "@context": {
-      "hpo": "http://localhost/patientTest/hpo"
-    },
-    "@id": "http://localhost/patientTest/hpo",
-    "hpo": [
-      {
-        "termlabel": "Microcephaly",
-        "termURI": "http://purl.obolibrary.org/obo/HP_0000252",
-        "@id": "http://purl.obolibrary.org/obo/HP_0000252"
-      },
-      {
-        "termlabel": "Congenital microcephaly",
-        "termURI": "http://purl.obolibrary.org/obo/HP_0011451",
-        "@id": "http://purl.obolibrary.org/obo/HP_0011451"
-      }
-    ]
-  },
-  {
-    "@context": {
-      "patient": "http://localhost/patientTest/patient",
-      "localID": "http://purl.obolibrary.org/obo/NCIT_C83083",
-      "phenotypes": "http://purl.obolibrary.org/obo/NCIT_C16977"
-    },
-    "@id": "http://localhost/patientTest/patient",
-    "patient": [
-      {
-        "localID": "no123",
-        "phenotypes": [
-          "http://purl.obolibrary.org/obo/HP_0000252",
-          "http://purl.obolibrary.org/obo/HP_0011451"
-        ],
-        "@type": "http://purl.obolibrary.org/obo/NCIT_C16960",
-        "@id": "http://localhost/patientTest/patient/no123"
-      }
-    ]
-  }
-]
-```
+By default, the following prefixed names are available:
+<!-- see: https://github.com/molgenis/molgenis-emx2/blob/master/backend/molgenis-emx2-rdf/src/main/java/org/molgenis/emx2/rdf/DefaultNamespace.java -->
+<!-- regex-from: ^.*\("([\w\-]+)", "([\d\w:\/\.\-\#]+)".*$ -->
+<!-- regex-to: | $1 | $2 | -->
 
-### Produces TTL
+| prefix        | IRI                                            |
+|---------------|------------------------------------------------|
+| afr           | http://purl.allotrope.org/ontologies/result#   |
+| afrl          | http://purl.allotrope.org/ontologies/role#     |
+| dc            | http://purl.org/dc/elements/1.1/               |
+| dcat          | http://www.w3.org/ns/dcat#                     |
+| dcterms       | http://purl.org/dc/terms/                      |
+| edam          | http://edamontology.org/                       |
+| efo           | http://www.ebi.ac.uk/efo/                      |
+| ejp           | https://w3id.org/ejp-rd/vocabulary#            |
+| ensembl       | http://ensembl.org/glossary/                   |
+| fdp-o         | https://w3id.org/fdp/fdp-o#                    |
+| fg            | https://w3id.org/fair-genomes/resource/        |
+| foaf          | http://xmlns.com/foaf/0.1/                     |
+| healthDCAT-AP | urn:uuid:a7ef52b2-bd43-4294-a80f-3e7299af35e4# |
+| hl7           | http://purl.bioontology.org/ontology/HL7/      |
+| ldp           | http://www.w3.org/ns/ldp#                      |
+| lnc           | http://purl.bioontology.org/ontology/LNC/      |
+| mesh          | http://purl.bioontology.org/ontology/MESH/     |
+| obo           | http://purl.obolibrary.org/obo/                |
+| oboInOwl      | http://www.geneontology.org/formats/oboInOwl#  |
+| odrl          | http://www.w3.org/ns/odrl/2/                   |
+| ordo          | http://www.orpha.net/ORDO/                     |
+| org           | http://www.w3.org/ns/org#                      |
+| owl           | http://www.w3.org/2002/07/owl#                 |
+| prov          | http://www.w3.org/ns/prov#                     |
+| qb            | http://purl.org/linked-data/cube#              |
+| rdf           | http://www.w3.org/1999/02/22-rdf-syntax-ns#    |
+| rdfs          | http://www.w3.org/2000/01/rdf-schema#          |
+| schema        | http://schema.org/                             |
+| sio           | http://semanticscience.org/resource/           |
+| skos          | http://www.w3.org/2004/02/skos/core#           |
+| snomedct      | http://purl.bioontology.org/ontology/SNOMEDCT/ |
+| vcard         | http://www.w3.org/2006/vcard/ns#               |
+| xsd           | http://www.w3.org/2001/XMLSchema#              |
 
-```ttl
-<http://localhost/patientTest/hpo> <http://localhost/patientTest/hpo> <http://purl.obolibrary.org/obo/HP_0000252>,
-    <http://purl.obolibrary.org/obo/HP_0011451> .
+!> The IRI for healthDCAT-AP is a placeholder as it [currently does not have one defined](https://healthdcat-ap.github.io/#namespaces).
 
-<http://localhost/patientTest/patient> <http://localhost/patientTest/patient> <http://localhost/patientTest/patient/no123> .
+!> The list above can be overridden using a [schema-specific advanced setting](./dev_rdf.md#custom-semantic-prefixes).
 
-<http://localhost/patientTest/patient/no123> a <http://purl.obolibrary.org/obo/NCIT_C16960>;
-  <http://purl.obolibrary.org/obo/NCIT_C16977> "http://purl.obolibrary.org/obo/HP_0000252",
-    "http://purl.obolibrary.org/obo/HP_0011451";
-  <http://purl.obolibrary.org/obo/NCIT_C83083> "no123" .
-```
+## Ontologies
+
+If semantics are defined for a column that refers to an ontology table, a check is made to see if an `ontologyTermURI` is defined for that target reference.
+If this is the case, a triple is generated that uses the `ontologyTermURI` directly as object instead of an IRI that refers to the primary key of the ontology table.
+This way, ontologies can be used to define a list of allowed IRIs for a specific column in a data table.
+
+## Examples
+
+### Semantics in general 
+
+Using the pet store schema with demo data, the User table looks like this:
+
+![image](../img/semantics.png)
+
+In this example, `username` is the <span style="color:#FF8C82">primary key</span> of the table.
+Therefore, it defines the subject of a triple.
+If there is a composite key, the combination of these columns define the subject.
+
+The <span style="color:#94E3FE">semantics value</span> for each column define the predicates.
+No matter if the semantics field is empty or not, EMX2 always generates it's own EMX2 format.
+
+Finally, the actual <span style="color:#B1DD8C">values in a cell</span> define the objects in a triple.
+If the `ColumnType` is an `ARRAY`, multiple objects can be present.
+
+To visualize this using the actual RDF Turtle output generated by this table, specific fields have been colored below similar to the image/text above:
+
+<pre style="white-space: pre-wrap;">
+<span style="color:#FF8C82">&lt;http://localhost:8080/pet%20store/api/rdf/User?username=bofke&gt;</span> a PetStore:User, qb:Observation,
+<span style="color:#94E3FE">foaf:Person</span>;
+qb:dataSet PetStore:User;
+<span style="color:#FF8C82">rdfs:label "bofke"</span>;
+<span style="color:#94E3FE">foaf:accountName</span> <span style="color:#B1DD8C">"bofke"</span>;
+<span style="color:#94E3FE">&lt;http://localhost:8080/pet%20store/api/rdf/User/column/username&gt;</span> <span style="color:#B1DD8C">"bofke"</span>;
+<span style="color:#94E3FE">foaf:img</span> <span style="color:#B1DD8C">&lt;http://localhost:8080/pet%20store/api/file/User/picture/8b6677b7700c44118c953eb79c76d76a&gt;</span>;
+<span style="color:#94E3FE">&lt;http://localhost:8080/pet%20store/api/rdf/User/column/picture&gt;</span> <span style="color:#B1DD8C">&lt;http://localhost:8080/pet%20store/api/file/User/picture/8b6677b7700c44118c953eb79c76d76a&gt;</span>;
+<span style="color:#94E3FE">&lt;http://example.com/petstore#hasPets&gt;</span> <span style="color:#B1DD8C">&lt;http://localhost:8080/pet%20store/api/rdf/Pet?name=the+very+hungry+caterpillar&gt;,
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet?name=spike&gt;, &lt;http://localhost:8080/pet%20store/api/rdf/Pet?name=fire+ant&gt;,
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet?name=pooky&gt;</span>;
+<span style="color:#94E3FE">&lt;http://localhost:8080/pet%20store/api/rdf/User/column/pets&gt;</span> <span style="color:#B1DD8C">&lt;http://localhost:8080/pet%20store/api/rdf/Pet?name=the+very+hungry+caterpillar&gt;,
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet?name=spike&gt;, &lt;http://localhost:8080/pet%20store/api/rdf/Pet?name=fire+ant&gt;,
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet?name=pooky&gt;</span>;
+fdp-o:metadataIssued "2025-02-20T13:46:29"^^xsd:dateTime;
+dcterms:issued "2025-02-20T13:46:29"^^xsd:dateTime;
+&lt;http://localhost:8080/pet%20store/api/rdf/User/column/mg_insertedOn&gt; "2025-02-20T13:46:29"^^xsd:dateTime;
+fdp-o:metadataModified "2025-02-20T13:46:29"^^xsd:dateTime;
+&lt;http://localhost:8080/pet%20store/api/rdf/User/column/mg_updatedOn&gt; "2025-02-20T13:46:29"^^xsd:dateTime .
+</pre>
+
+### References to an ontology table
+
+When a reference is done to an ontology table, it slightly deviates from a regular reference.
+For the example below, keep in mind that the referenced ontology table contains the following rows regarding color:
+
+| name   | parent | ontologyTermURI                |
+|--------|--------|--------------------------------|
+| colors |        |                                |
+| red    | colors | https://dbpedia.org/page/Red   |
+| green  | colors | https://dbpedia.org/page/Green |
+| blue   | colors |                                |
+| purple | colors |                                |
+
+The <span style="color:#FF8C82">objects of the non-semantic predicate</span> are IRIs that refer to the primary key of the ontology table (like a regular reference).  
+
+However, the <span style="color:#94E3FE">objects of the semantic predicate</span> contain the `ontologyTermURI` belonging to that ontology reference, if one was found (as can be seen for "red" and "green"). If no `ontologyTermURI` was defined, it uses the primary key of the ontology table instead (see "purple").
+
+
+<pre style="white-space: pre-wrap;">
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet?name=fire+ant&gt; a PetStore:Pet, qb:Observation;
+dcat:endpointURL &lt;http://localhost:8080/pet%20store/api/rdf/&gt;;
+fdp-o:metadataIdentifier &lt;http://localhost:8080/pet%20store/api/rdf/Pet?name=fire+ant&gt;;
+qb:dataSet PetStore:Pet;
+rdfs:label "fire ant";
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/name&gt; "fire ant";
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/category&gt; &lt;http://localhost:8080/pet%20store/api/rdf/Category?name=ant&gt;;
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/status&gt; "available";
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/tags&gt; <span style="color:#FF8C82">&lt;http://localhost:8080/pet%20store/api/rdf/Tag?name=purple&gt;,
+&lt;http://localhost:8080/pet%20store/api/rdf/Tag?name=green&gt;, &lt;http://localhost:8080/pet%20store/api/rdf/Tag?name=red&gt;</span>;
+&lt;http://example.com/petstore#hasTags&gt; <span style="color:#94E3FE">&lt;http://localhost:8080/pet%20store/api/rdf/Tag?name=purple&gt;,
+&lt;https://dbpedia.org/page/Red&gt;, &lt;https://dbpedia.org/page/Green&gt;</span>;
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/weight&gt; 1.0E-2;
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/mg_insertedOn&gt; "2025-03-18T12:04:55"^^xsd:dateTime;
+&lt;http://localhost:8080/pet%20store/api/rdf/Pet/column/mg_updatedOn&gt; "2025-03-18T12:04:55"^^xsd:dateTime .
+</pre>

@@ -68,10 +68,7 @@ export default {
     },
 
     // A title that describes the chart
-    title: {
-      type: String,
-      required: true,
-    },
+    title: String,
 
     // Additional information to display below the title
     description: String,
@@ -296,7 +293,11 @@ export default {
     colors() {
       if (!this.chartColors) {
         const autoColors = {};
-        const length = Object.keys(this.chartData).length;
+
+        const domain = Object.keys(this.chartData);
+        const length =
+          domain.length === 2 ? 3 : Object.keys(this.chartData).length;
+
         const palette = d3.scaleOrdinal(d3.schemeBlues[length]);
         Object.keys(this.chartData)
           .sort()

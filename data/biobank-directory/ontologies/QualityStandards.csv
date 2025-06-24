@@ -40,3 +40,5 @@ order,name,label,parent,codesystem,code,ontologyTermURI,definition
 ,cen-ts-16827-3-2015,BBMRI audited CEN/TS 16827-3:2015,,,cen-ts-16827-3-2015,,Specifications for pre-examination processes for FFPE tissue - Part 3:  Isolated DNA
 ,iso-17034-2016,ISO 17034:2016,,,iso-17034-2016,,General requirements for the competence of reference material producers
 ,iso-15190,ISO-15190:2020,,,iso-15190,,Medical laboratories – Requirements for safety
+,iso-20186-1-EPND,BBMRI audited ISO 20186-1:2019,,,iso-20186-1-EPND,,"Specifications for pre-examination processes for venous whole blood - Part 1: Isolated cellular RNASpecifications for pre-examination processes for venous whole blood - Part 1: Isolated cellular RNA --EPND, H2020-JTI-IMI2, GA: 101034344--"
+,iso-20186-2-EPND,BBMRI audited ISO 20186-2:2019,,,iso-20186-2-EPND,,"Specifications for pre-examination processes for venous whole blood - Part 2: Isolated genomic DNA --EPND, H2020-JTI-IMI2, GA: 101034344--"

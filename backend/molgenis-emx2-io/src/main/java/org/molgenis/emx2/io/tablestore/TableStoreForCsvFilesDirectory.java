@@ -11,8 +11,8 @@ import java.util.stream.Stream;
 import org.molgenis.emx2.BinaryFileWrapper;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
+import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
-import org.molgenis.emx2.io.readers.RowReaderJackson;
 
 public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
   public static final String CSV_EXTENSION = ".csv";
@@ -66,11 +66,11 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
   }
 
   @Override
-  public List<Row> readTable(String name) {
+  public Iterable<Row> readTable(String name) {
     Path relativePath = directoryPath.resolve(name + CSV_EXTENSION);
     try {
       Reader reader = Files.newBufferedReader(relativePath);
-      return RowReaderJackson.readList(reader, separator);
+      return CsvTableReader.read(reader);
     } catch (Exception ioe) {
       throw new MolgenisException("Import '" + name + "' failed: " + ioe.getMessage(), ioe);
     }
@@ -88,7 +88,7 @@ public class TableStoreForCsvFilesDirectory implements TableAndFileStore {
   }
 
   @Override
-  public Collection<String> tableNames() {
+  public Collection<String> getTableNames() {
     List<String> result = new ArrayList<>();
     for (File f : directoryPath.toFile().listFiles()) {
       result.add(f.getName());

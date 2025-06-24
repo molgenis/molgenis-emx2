@@ -173,7 +173,7 @@ class SqlTable implements Table {
       String mg_table = t.getMgTableClass(t.getMetadata());
       // cascading delete will take care of subclass deletes
       database
-          .getJooq()
+          .getJooqWithExtendedTimeout()
           .deleteFrom(rootTable.getJooqTable())
           .where(field(MG_TABLECLASS).equal(mg_table))
           .execute();
@@ -181,7 +181,7 @@ class SqlTable implements Table {
     // else in normal table simply call delete
     else {
       // truncate would be faster, but then we need add code to remove and re-add foreign keys
-      database.getJooq().deleteFrom(t.getJooqTable()).execute();
+      database.getJooqWithExtendedTimeout().deleteFrom(t.getJooqTable()).execute();
     }
     logger.info(database.getActiveUser() + " truncated table " + tableName);
   }
@@ -285,7 +285,7 @@ class SqlTable implements Table {
 
           // execute any remaining batches
           for (Map.Entry<String, List<Row>> batch : subclassRows.entrySet()) {
-            if (batch.getValue().size() > 0) {
+            if (!batch.getValue().isEmpty()) {
               executeBatch(
                   (SqlSchema) db2.getSchema(batch.getKey().split("\\.")[0]),
                   transactionType,
@@ -311,11 +311,7 @@ class SqlTable implements Table {
   }
 
   private static boolean columnsProvidedAreDifferent(Set<String> columnsProvided, Row row) {
-    if (columnsProvided.size() == 0 || columnsProvided.equals(row.getColumnNames())) {
-      return false;
-    } else {
-      return true;
-    }
+    return !columnsProvided.isEmpty() && !columnsProvided.equals(row.getColumnNames());
   }
 
   private static void executeBatch(
@@ -330,7 +326,9 @@ class SqlTable implements Table {
     SqlTable table = schema.getTable(subclassName.split("\\.")[1]);
     if (UPDATE.equals(transactionType)) {
       List<Column> updateColumns = getUpdateColumns(table, columnsProvided);
-      List<Row> rows = applyValidationAndComputed(updateColumns, subclassRows.get(subclassName));
+      List<Row> rows =
+          applyValidationAndComputed(
+              table.getMetadata().getColumns(), subclassRows.get(subclassName));
       count.set(count.get() + table.updateBatch(table, rows, updateColumns));
     } else if (SAVE.equals(transactionType) || INSERT.equals(transactionType)) {
       List<Column> insertColumns = getInsertColumns(table, columnsProvided);
@@ -653,8 +651,8 @@ class SqlTable implements Table {
   }
 
   @Override
-  public List<Row> retrieveRows() {
-    return this.query().retrieveRows();
+  public List<Row> retrieveRows(Query.Option... options) {
+    return this.query().retrieveRows(options);
   }
 
   @Override

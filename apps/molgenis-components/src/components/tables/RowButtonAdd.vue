@@ -22,7 +22,11 @@
 <script setup lang="ts">
 import RowButton from "./RowButton.vue";
 import ButtonOutline from "../forms/ButtonOutline.vue";
-import { ref } from "vue";
+import { defineAsyncComponent, ref } from "vue";
+
+const EditModal = defineAsyncComponent({
+  loader: () => import("../forms/EditModal.vue"),
+});
 
 withDefaults(
   defineProps<{
@@ -31,9 +35,9 @@ withDefaults(
     schemaId: string;
     label?: string;
     defaultValue?: Record<string, any>;
-    visibleColumns?: any[] | null;
+    visibleColumns?: string[];
   }>(),
-  { label: "", visibleColumns: null }
+  { label: "" }
 );
 
 let isModalShown = ref(false);
@@ -49,10 +53,9 @@ function handleClose() {
 <docs>
 <template>
   <div>
-    <label for="row-add-btn-sample"
-      >composition of RowButton and EditModal configured for row
-      add/insert</label
-    >
+    <label for="row-add-btn-sample">
+      composition of RowButton and EditModal configured for row add/insert
+    </label>
     <div>
       <RowButtonAdd
         id="row-add-btn-sample"

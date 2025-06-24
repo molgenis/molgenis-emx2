@@ -1,7 +1,7 @@
 <template>
   <LayoutModal :title="title" :show="isModalShown" @close="handleClose">
     <template #body>
-      <div class="container" v-if="loaded && tableMetaData">
+      <div class="container" v-if="loaded && tableMetadata">
         <div class="row">
           <div
             class="overflow-auto mr-n3"
@@ -9,12 +9,13 @@
             style="max-height: calc(100vh - 200px)"
           >
             <RowEdit
+              v-if="schemaMetadata"
               :id="id"
               v-model="rowData"
               :pkey="pkey"
               :tableId="tableId"
-              :tableMetaData="tableMetaData"
-              :schemaMetaData="schemaMetaData"
+              :tableMetaData="tableMetadata"
+              :schemaMetaData="schemaMetadata"
               :visibleColumns="
                 myUseChapters
                   ? columnsSplitByHeadings[currentPage - 1]
@@ -93,13 +94,14 @@
   </LayoutModal>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import type {
   IColumn,
   ISchemaMetaData,
   ISetting,
   ITableMetaData,
-} from "meta-data-utils";
+} from "metadata-utils";
+import { computed, onMounted, ref, toRefs } from "vue";
 import type { IRow } from "../../Interfaces/IRow";
 import { INewClient } from "../../client/IClient";
 import Client from "../../client/client";
@@ -119,231 +121,250 @@ import {
   removeKeyColumns,
   splitColumnIdsByHeadings,
 } from "./formUtils/formUtils";
+
+const props = withDefaults(
+  defineProps<{
+    id: string;
+    tableId: string;
+    isModalShown: boolean;
+    schemaId: string;
+    pkey?: Record<string, any>;
+    clone?: boolean;
+    visibleColumns?: string[];
+    useChapters?: boolean | null;
+    defaultValue?: Record<string, any> | null;
+    applyDefaultValues?: boolean;
+  }>(),
+  { clone: false, defaultValue: null, useChapters: null }
+);
+
+const {
+  applyDefaultValues,
+  clone,
+  defaultValue,
+  id,
+  pkey,
+  schemaId,
+  tableId,
+  useChapters,
+  visibleColumns,
+} = props;
+
+const { isModalShown } = toRefs(props);
+
 const { IS_CHAPTERS_ENABLED_FIELD_NAME } = constants;
+const rowData = ref<Record<string, any>>({});
+const rowErrors = ref<Record<string, string>>({});
+const tableMetadata = ref<ITableMetaData>();
+const schemaMetadata = ref<ISchemaMetaData>();
+const client = ref<INewClient>();
+const errorMessage = ref<string>("");
+const loaded = ref<boolean>(false);
+const currentPage = ref<number>(1);
+const myUseChapters = ref<boolean>();
+const saveDisabledMessage = ref<string>("");
 
-export default {
-  name: "EditModal",
-  components: {
-    LayoutModal,
-    RowEditFooter,
-    RowEdit,
-    ButtonAction,
-    Tooltip,
-  },
-  data() {
+const emit = defineEmits(["update:newRow", "close"]);
+
+const label = computed(() => tableMetadata.value?.label);
+
+const titlePrefix = computed(() => {
+  if (pkey && clone) {
+    return "copy";
+  } else if (pkey) {
+    return "update";
+  } else {
+    return "insert";
+  }
+});
+
+const title = computed(
+  () => `${titlePrefix.value} into table: ${label.value} (${tableId})`
+);
+
+const columnsSplitByHeadings = computed(() => {
+  const filteredByVisibilityFilters = filterVisibleColumns(
+    tableMetadata.value?.columns || [],
+    visibleColumns
+  );
+  const filteredByVisibilityExpressions = filteredByVisibilityFilters.filter(
+    (column: IColumn) => {
+      if (tableMetadata.value) {
+        try {
+          return isColumnVisible(column, rowData.value, tableMetadata.value);
+        } catch (error: any) {
+          rowErrors.value[column.id] = error;
+          return true;
+        }
+      }
+    }
+  );
+  const withoutMetadataColumns = filteredByVisibilityExpressions.filter(
+    (column: IColumn) => !column.id.startsWith("mg_")
+  );
+  const splitByHeadings = splitColumnIdsByHeadings(withoutMetadataColumns);
+  const filteredEmptyHeadings = splitByHeadings.filter(
+    (chapter: string[]) => chapter.length > 1
+  );
+  return filteredEmptyHeadings;
+});
+
+const chapterStyleAndErrors = computed(() => {
+  return columnsSplitByHeadings.value.map((page: string[]): IChapterInfo => {
+    const errorFields = page.filter((fieldsInPage: string) =>
+      Boolean(rowErrors.value[fieldsInPage])
+    );
     return {
-      rowData: {} as Record<string, any>,
-      rowErrors: {} as Record<string, string | undefined>,
-      tableMetaData: null as unknown as ITableMetaData,
-      schemaMetaData: null as unknown as ISchemaMetaData,
-      client: null as unknown as INewClient,
-      errorMessage: "",
-      loaded: false,
-      currentPage: 1,
-      myUseChapters: this.useChapters,
-      saveDisabledMessage: "",
+      style: getChapterStyle(page, rowErrors.value),
+      errorFields,
     };
-  },
-  props: {
-    id: {
-      type: String,
-      required: true,
-    },
-    tableId: {
-      type: String,
-      required: true,
-    },
-    isModalShown: {
-      type: Boolean,
-      required: true,
-    },
-    schemaId: {
-      type: String,
-      required: true,
-    },
-    pkey: {
-      type: Object,
-      default: () => null,
-    },
-    clone: {
-      type: Boolean,
-      default: () => false,
-    },
-    visibleColumns: {
-      type: Array,
-      default: () => null,
-    },
-    defaultValue: {
-      type: Object,
-      default: () => null,
-    },
-    useChapters: {
-      type: Boolean,
-      default: () => null,
-    },
-    applyDefaultValues: {
-      type: Boolean,
-    },
-  },
-  computed: {
-    title() {
-      return `${this.titlePrefix} into table: ${this.label} (${this.tableId})`;
-    },
-    label() {
-      if (this.tableMetaData) {
-        return this.tableMetaData.label;
-      }
-    },
-    titlePrefix() {
-      if (this.pkey && this.clone) {
-        return "copy";
-      } else if (this.pkey) {
-        return "update";
-      } else {
-        return "insert";
-      }
-    },
-    columnsSplitByHeadings(): string[][] {
-      const filteredByVisibilityFilters = filterVisibleColumns(
-        this.tableMetaData?.columns || [],
-        this.visibleColumns as string[]
-      );
-      const filteredByVisibilityExpressions =
-        filteredByVisibilityFilters.filter((column: IColumn) => {
-          try {
-            return isColumnVisible(column, this.rowData, this.tableMetaData);
-          } catch (error: any) {
-            this.rowErrors[column.id] = error;
-            return true;
-          }
-        });
-      const withoutMetadataColumns = filteredByVisibilityExpressions.filter(
-        (column: IColumn) => !column.id.startsWith("mg_")
-      );
-      const splitByHeadings = splitColumnIdsByHeadings(withoutMetadataColumns);
-      const filteredEmptyHeadings = splitByHeadings.filter(
-        (chapter: string[]) => chapter.length > 1
-      );
-      return filteredEmptyHeadings;
-    },
-    chapterStyleAndErrors(): IChapterInfo[] {
-      return this.columnsSplitByHeadings.map((page: string[]): IChapterInfo => {
-        const errorFields = page.filter((fieldsInPage: string) =>
-          Boolean(this.rowErrors[fieldsInPage])
-        );
-        return {
-          style: getChapterStyle(page, this.rowErrors),
-          errorFields,
-        };
-      });
-    },
-    saveDraftDisabledMessage() {
-      const hasPrimaryKeyValue = this.tableMetaData?.columns.some(
-        (column) =>
-          column.key === 1 &&
-          column.columnType !== "AUTO_ID" &&
-          !this.rowData[column.id]
-      );
-      if (hasPrimaryKeyValue) {
-        return "Cannot save draft: primary key is required";
-      } else {
-        return "";
-      }
-    },
-    showChapters() {
-      return this.myUseChapters && this.columnsSplitByHeadings.length > 1;
-    },
-  },
-  methods: {
-    setCurrentPage(newPage: number) {
-      this.currentPage = newPage;
-    },
-    handleSaveRequest() {
-      this.save({ ...this.rowData, mg_draft: false });
-    },
-    handleSaveDraftRequest() {
-      this.save({ ...this.rowData, mg_draft: true });
-    },
-    async save(formData: IRow) {
-      this.errorMessage = "";
-      let result;
-      if (this.pkey && !this.clone) {
-        result = await this.client
-          .updateDataRow(formData, this.tableId, this.schemaId)
-          .catch(this.handleSaveError);
-      } else {
-        result = await this.client
-          .insertDataRow(formData, this.tableId, this.schemaId)
-          .catch(this.handleSaveError);
-      }
-      if (result) {
-        this.$emit("update:newRow", formData);
-        this.handleClose();
-      }
-    },
-    handleSaveError(error: any) {
-      if (error.response?.status === 403) {
-        this.errorMessage =
-          "Schema doesn't exist or permission denied. Do you need to Sign In?";
-      } else {
-        this.errorMessage =
-          error.response?.data?.errors[0]?.message ||
-          "An Error occurred during save";
-      }
-    },
-    async fetchRowData() {
-      const result = await this.client?.fetchRowData(this.tableId, this.pkey);
-      if (!result) {
-        this.errorMessage = `Error, unable to fetch data for this row (${this.pkey})`;
-      } else {
-        return result;
-      }
-    },
-    handleClose() {
-      this.errorMessage = "";
-      this.$emit("close");
-    },
-    checkForErrors() {
-      this.rowErrors = getRowErrors(this.tableMetaData, this.rowData);
-      this.saveDisabledMessage = getSaveDisabledMessage(this.rowErrors);
-    },
-    getHeadingLabel(headingId: string) {
-      const column = this.tableMetaData.columns.find(
-        (column) => column.id === headingId
-      );
-      return column?.label || column?.id || headingId;
-    },
-  },
-  async mounted() {
-    this.loaded = false;
-    this.client = Client.newClient(this.schemaId);
-    this.schemaMetaData = await this.client.fetchSchemaMetaData();
-    const settings: ISetting[] = await this.client.fetchSettings();
+  });
+});
 
-    if (this.useChapters === null) {
-      this.myUseChapters =
-        settings.find(
-          (item: ISetting) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME
-        )?.value !== "false";
+const saveDraftDisabledMessage = computed(() => {
+  const hasPrimaryKeyValue = tableMetadata.value?.columns.some(
+    (column) =>
+      column.key === 1 &&
+      column.columnType !== "AUTO_ID" &&
+      !rowData.value[column.id]
+  );
+  if (hasPrimaryKeyValue) {
+    return "Cannot save draft: primary key is required";
+  } else {
+    return "";
+  }
+});
+
+const showChapters = computed(() => {
+  return myUseChapters.value && columnsSplitByHeadings.value.length > 1;
+});
+
+onMounted(async () => {
+  loaded.value = false;
+  client.value = Client.newClient(schemaId);
+  schemaMetadata.value = await client.value.fetchSchemaMetaData();
+  const settings: ISetting[] = await client.value.fetchSettings();
+
+  if (useChapters === null) {
+    myUseChapters.value =
+      settings.find(
+        (item: ISetting) => item.key === IS_CHAPTERS_ENABLED_FIELD_NAME
+      )?.value !== "false";
+  } else {
+    myUseChapters.value = !!useChapters;
+  }
+
+  tableMetadata.value = await client.value.fetchTableMetaData(tableId);
+
+  if (pkey) {
+    const newRowData = await fetchRowData();
+
+    if (clone) {
+      rowData.value = removeKeyColumns(tableMetadata.value, newRowData);
+    } else {
+      rowData.value = newRowData;
     }
+  }
 
-    this.tableMetaData = await this.client.fetchTableMetaData(this.tableId);
+  rowData.value = { ...rowData.value, ...deepClone(defaultValue) };
+  checkForErrors();
+  loaded.value = true;
+});
 
-    if (this.pkey) {
-      const rowData = await this.fetchRowData();
+function setCurrentPage(newPage: number) {
+  currentPage.value = newPage;
+}
 
-      if (this.clone) {
-        this.rowData = removeKeyColumns(this.tableMetaData, rowData);
-      } else {
-        this.rowData = rowData;
+function handleSaveRequest() {
+  save({ ...rowData.value, mg_draft: false });
+}
+
+function handleSaveDraftRequest() {
+  save({ ...rowData.value, mg_draft: true });
+}
+
+async function save(formData: IRow) {
+  errorMessage.value = "";
+  let result;
+
+  const dataWithoutRefbacks = getDataWithoutRefbacks(
+    formData,
+    tableMetadata.value
+  );
+
+  if (pkey && !clone) {
+    result = await client.value
+      ?.updateDataRow(dataWithoutRefbacks, tableId, schemaId)
+      .catch(handleSaveError);
+  } else {
+    result = await client.value
+      ?.insertDataRow(dataWithoutRefbacks, tableId, schemaId)
+      .catch(handleSaveError);
+  }
+  if (result) {
+    emit("update:newRow", formData);
+    handleClose();
+  }
+}
+
+function getDataWithoutRefbacks(
+  formData: IRow,
+  tableMetadata: ITableMetaData | undefined
+): IRow {
+  if (!tableMetadata) {
+    return formData;
+  } else {
+    let dataCopy = { ...formData };
+    tableMetadata.columns.forEach((column: IColumn) => {
+      if (column.columnType === "REFBACK") {
+        delete dataCopy[column.id];
       }
-    }
+    });
+    return dataCopy;
+  }
+}
 
-    this.rowData = { ...this.rowData, ...deepClone(this.defaultValue) };
-    this.checkForErrors();
-    this.loaded = true;
-  },
-};
+function handleSaveError(error: any) {
+  if (error.response?.status === 403) {
+    errorMessage.value =
+      "Schema doesn't exist or permission denied. Do you need to Sign In?";
+  } else {
+    errorMessage.value =
+      error.response?.data?.errors[0]?.message ||
+      "An Error occurred during save";
+  }
+}
+async function fetchRowData() {
+  if (pkey) {
+    const result = await client.value?.fetchRowData(tableId, pkey);
+    if (!result) {
+      errorMessage.value = `Error, unable to fetch data for this row (${pkey})`;
+    } else {
+      return result;
+    }
+  } else {
+    errorMessage.value = "No row key provided";
+  }
+}
+
+function handleClose() {
+  errorMessage.value = "";
+  emit("close");
+}
+
+function checkForErrors() {
+  if (tableMetadata.value) {
+    rowErrors.value = getRowErrors(tableMetadata.value, rowData.value);
+  }
+  saveDisabledMessage.value = getSaveDisabledMessage(rowErrors.value);
+}
+
+function getHeadingLabel(headingId: string) {
+  const column = tableMetadata.value?.columns.find(
+    (column: IColumn) => column.id === headingId
+  );
+  return column?.label || column?.id || headingId;
+}
 
 interface IChapterInfo {
   style: { color?: "red" };

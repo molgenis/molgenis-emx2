@@ -6,6 +6,6 @@
     "isolatedModules": true,
     "allowJs": true,
     "types": ["vite/client"],
-    "lib": ["es2021"]
+    "lib": ["es2021", "dom"]
   }
 }

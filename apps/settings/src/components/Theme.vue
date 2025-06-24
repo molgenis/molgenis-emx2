@@ -15,13 +15,35 @@
       />
       {{ primaryColor }}
       <InputString
+        class="mt-3"
         id="theme-url-input"
         label="Set logo url"
         v-model="logoURL"
       />
+      <InputText
+        id="additional-css-input"
+        label="Additional Css"
+        v-model="additionalCss"
+      />
+      <InputText
+        id="additional-html-footer-input"
+        label="Additional footer HTML"
+        v-model="additionalFooterHtml"
+      />
+      <InputText
+        id="additional-js-input"
+        label="Additional javascript"
+        v-model="additionalJs"
+      />
+
       <ButtonAction @click="saveSettings">Save theme</ButtonAction>
       <br /><br />
-      <a :href="this.session.settings.cssURL">view theme css</a>
+      <a
+        v-if="this.session.settings.cssURL"
+        :href="this.session.settings.cssURL"
+      >
+        view theme css
+      </a>
     </div>
   </div>
 </template>
@@ -30,6 +52,7 @@
 import {
   ButtonAction,
   InputString,
+  InputText,
   MessageError,
   MessageSuccess,
   Spinner,
@@ -41,6 +64,7 @@ import { request } from "graphql-request";
 export default {
   components: {
     InputString,
+    InputText,
     ButtonAction,
     MessageError,
     MessageSuccess,
@@ -58,6 +82,9 @@ export default {
       loading: false,
       graphqlError: null,
       success: null,
+      additionalCss: null,
+      additionalFooterHtml: null,
+      additionalJs: null,
     };
   },
   created() {
@@ -70,8 +97,11 @@ export default {
   },
   methods: {
     loadSettings() {
+      this.additionalCss = this.session?.settings?.additionalCss;
+      this.additionalFooterHtml = this.session?.settings?.additionalFooterHtml;
+      this.additionalJs = this.session?.settings?.additionalJs;
+      this.logoURL = this.session.settings.logoURL;
       if (this.session?.settings?.cssURL) {
-        this.logoURL = this.session.settings.logoURL;
         const urlParams = new URL(
           this.session.settings.cssURL,
           document.baseURI
@@ -84,7 +114,7 @@ export default {
           : null;
       }
     },
-    saveSettings() {
+    async saveSettings() {
       let settingsAlter = [];
       let settingsDrop = [];
       let cssUrl = "theme.css?";
@@ -103,14 +133,34 @@ export default {
       } else {
         settingsDrop.push({ key: "logoURL" });
       }
-      this.$emit("reload");
+      if (this.additionalCss) {
+        settingsAlter.push({ key: "additionalCss", value: this.additionalCss });
+      } else {
+        settingsDrop.push({ key: "additionalCss" });
+      }
+      if (this.additionalFooterHtml) {
+        settingsAlter.push({
+          key: "additionalFooterHtml",
+          value: this.additionalFooterHtml,
+        });
+      } else {
+        settingsDrop.push({ key: "additionalFooterHtml" });
+      }
+      if (this.additionalJs) {
+        settingsAlter.push({
+          key: "additionalJs",
+          value: this.additionalJs,
+        });
+      } else {
+        settingsDrop.push({ key: "additionalJs" });
+      }
       this.loading = true;
       this.loading = true;
       this.graphqlError = null;
       this.success = null;
       //alter
       if (settingsAlter.length > 0) {
-        request(
+        await request(
           "graphql",
           `mutation change($alter:[MolgenisSettingsInput]){change(settings:$alter){message}}`,
           { alter: settingsAlter }
@@ -125,7 +175,7 @@ export default {
       }
       // drop, dunno how to do this in one call!
       if (settingsDrop.length > 0) {
-        request(
+        await request(
           "graphql",
           `mutation drop($drop:[DropSettingsInput]){drop(settings:$drop){message}}`,
           { drop: settingsDrop }
@@ -138,8 +188,14 @@ export default {
           })
           .finally((this.loading = false));
       }
+      /*
+        The nice wat to reload is: 
+          this.$router.go();
+        Safari is not picking up the reload (browser bug) so using the fallback: 
+          window.location.reload();
+      */
+      window.location.reload();
     },
   },
-  emits: ["reload"],
 };
 </script>

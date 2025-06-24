@@ -1,6 +1,6 @@
 package org.molgenis.emx2.beaconv2.requests;
 
-enum Similarity {
+public enum Similarity {
   EXACT,
   HIGH,
   MEDIUM,

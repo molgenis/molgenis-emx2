@@ -25,6 +25,10 @@ class NoSuchTableException(PyclientException):
     """Thrown when a table is requested that is not found in the schema."""
 
 
+class NoSuchColumnException(PyclientException):
+    """Thrown when a column is requested that is not found in the table."""
+
+
 class ServerNotFoundError(PyclientException):
     """Thrown when a server cannot be found from the url."""
 
@@ -55,3 +59,6 @@ class TokenSigninException(PyclientException):
 
 class NonExistentTemplateException(PyclientException):
     """Thrown when creation of schema with non-existent template is attempted."""
+
+class ReferenceException(PyclientException):
+    """Thrown when update or deletion of an entry that is referenced in another table is attempted."""

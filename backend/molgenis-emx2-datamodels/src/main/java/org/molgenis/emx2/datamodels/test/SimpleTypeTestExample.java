@@ -18,7 +18,7 @@ public class SimpleTypeTestExample {
   public static void createSimpleTypeTest(SchemaMetadata schema) {
     TableMetadata typeTestTable = table(TYPE_TEST).add(column("id").setPkey());
     ColumnType[] columnTypes =
-        new ColumnType[] {UUID, STRING, BOOL, INT, LONG, DECIMAL, TEXT, DATE, DATETIME};
+        new ColumnType[] {UUID, STRING, BOOL, INT, LONG, DECIMAL, TEXT, DATE, DATETIME, PERIOD};
     for (ColumnType columnType : columnTypes) {
       typeTestTable.add(
           column("Test " + columnType.toString().toLowerCase())

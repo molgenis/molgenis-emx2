@@ -29,7 +29,7 @@
             rowId="code"
             latitude="latitude"
             longitude="longitude"
-            groupingVariable="hasSubmittedData"
+            group="hasSubmittedData"
             :mapCenter="{
               latitude: 3,
               longitude: 51,

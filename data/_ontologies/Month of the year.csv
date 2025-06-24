@@ -1,0 +1,13 @@
+order,name,codesystem,code,ontologyTermURI
+1,January,NCIT,NCIT:C106180,http://purl.obolibrary.org/obo/NCIT_C106180
+2,February,NCIT,NCIT:C106181,http://purl.obolibrary.org/obo/NCIT_C106181
+3,March,NCIT,NCIT:C106182,http://purl.obolibrary.org/obo/NCIT_C106182
+4,April,NCIT,NCIT:C106183,http://purl.obolibrary.org/obo/NCIT_C106183
+5,May,NCIT,NCIT:C106184,http://purl.obolibrary.org/obo/NCIT_C106184
+6,June,NCIT,NCIT:C106185,http://purl.obolibrary.org/obo/NCIT_C106185
+7,July,NCIT,NCIT:C106186,http://purl.obolibrary.org/obo/NCIT_C106186
+8,August,NCIT,NCIT:C106187,http://purl.obolibrary.org/obo/NCIT_C106187
+9,September,NCIT,NCIT:C106188,http://purl.obolibrary.org/obo/NCIT_C106188
+10,October,NCIT,NCIT:C106189,http://purl.obolibrary.org/obo/NCIT_C106189
+11,November,NCIT,NCIT:C106191,http://purl.obolibrary.org/obo/NCIT_C106191
+12,December,NCIT,NCIT:C106192,http://purl.obolibrary.org/obo/NCIT_C106192

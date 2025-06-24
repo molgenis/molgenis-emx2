@@ -5,12 +5,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.FilterBean.f;
-import static org.molgenis.emx2.Operator.EQUALS;
+import static org.molgenis.emx2.Operator.*;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -59,6 +60,7 @@ public class TestCreateBasicDataColumnTypeColumns {
     row.setText("Test text", "testtext");
     row.setDate("Test date", LocalDate.of(2018, 12, 13));
     row.setDateTime("Test datetime", LocalDateTime.of(2018, 12, 13, 12, 40));
+    row.setPeriod("Test period", Period.of(23, 2, 14));
     t2.insert(row);
 
     // check not null expects exception
@@ -72,6 +74,7 @@ public class TestCreateBasicDataColumnTypeColumns {
     row.setText("Test text nillable", "testtext");
     row.setDate("Test date nillable", LocalDate.of(2018, 12, 13));
     row.setDateTime("Test datetime nillable", LocalDateTime.of(2018, 12, 13, 12, 40));
+    row.setPeriod("Test period nillable", Period.of(23, 2, 14));
     try {
       // should fail on all non  nillable columns
       t2.insert(row);
@@ -94,6 +97,7 @@ public class TestCreateBasicDataColumnTypeColumns {
       assert (res.getText("Test text") instanceof String);
       assert (res.getBoolean("Test bool") instanceof Boolean);
       assert (res.getUuid("Test uuid") instanceof java.util.UUID);
+      assert (res.getPeriod("Test period") instanceof Period);
     }
 
     StopWatch.print("checked getters");
@@ -140,6 +144,11 @@ public class TestCreateBasicDataColumnTypeColumns {
   }
 
   @Test
+  public void testPeriod() {
+    executeTest(PERIOD, new String[] {"P24Y", "P34Y11M", "P23Y10M43D"});
+  }
+
+  @Test
   public void testDecimal() {
     executeTest(DECIMAL, new Double[] {5.0, 6.0, 7.0});
   }
@@ -156,8 +165,8 @@ public class TestCreateBasicDataColumnTypeColumns {
   @Test
   public void testJSON() {
     executeTest(
-        JSONB,
-        new String[] {"{\"key\":\"value1\"}", "{\"key\":\"value2\"}", "{\"key\":\"value3\"}"});
+        JSON,
+        new String[] {"{\"key\": \"value1\"}", "{\"key\": \"value2\"}", "{\"key\": \"value3\"}"});
   }
 
   private void executeTest(ColumnType columnType, Serializable[] values) {
@@ -168,11 +177,13 @@ public class TestCreateBasicDataColumnTypeColumns {
 
     String aKey = columnType + "Key";
     String aColumn = columnType + "Col";
+    String aNillableColumn = columnType + "Col" + "Nillable";
     Table aTable =
         schema.create(
             table("A")
                 .add(column(aKey).setType(columnType).setPkey())
-                .add(column(aColumn).setType(columnType)));
+                .add(column(aColumn).setType(columnType).setRequired(true))
+                .add(column(aNillableColumn).setType(columnType)));
 
     Row aRow = new Row().set(aKey, values[0]).set(aColumn, values[0]);
     Row aRow2 = new Row().set(aKey, values[1]).set(aColumn, values[1]);
@@ -191,6 +202,16 @@ public class TestCreateBasicDataColumnTypeColumns {
     for (Row r : result) {
       System.out.println(r);
     }
+
+    result = aTable.query().where(f(aColumn, IS_NULL, true)).retrieveRows();
+    assertEquals(0, result.size());
+    result = aTable.query().where(f(aNillableColumn, IS_NULL, true)).retrieveRows();
+    assertEquals(2, result.size());
+
+    result = aTable.query().where(f(aColumn, IS_NULL, false)).retrieveRows();
+    assertEquals(2, result.size());
+    result = aTable.query().where(f(aNillableColumn, IS_NULL, false)).retrieveRows();
+    assertEquals(0, result.size());
 
     // delete
     aTable.delete(aRow, aRow2);

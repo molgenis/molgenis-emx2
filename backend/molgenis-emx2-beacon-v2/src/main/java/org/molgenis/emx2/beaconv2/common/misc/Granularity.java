@@ -1,14 +1,28 @@
 package org.molgenis.emx2.beaconv2.common.misc;
 
-/** fixme: still returns uppercase in JSON, cannot use */
-public enum Granularity {
-  BOOLEAN,
-  COUNT,
-  AGGREGATED,
-  RECORD;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-  @Override
-  public String toString() {
-    return name().toLowerCase();
+public enum Granularity {
+  BOOLEAN("boolean"),
+  COUNT("count"),
+  AGGREGATED("aggregated"),
+  RECORD("record"),
+  UNDEFINED("undefined");
+
+  private String key;
+
+  Granularity(String key) {
+    this.key = key;
+  }
+
+  @JsonCreator
+  public static Granularity fromString(String key) {
+    return key == null ? null : Granularity.valueOf(key.toUpperCase());
+  }
+
+  @JsonValue
+  public String getKey() {
+    return key;
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="tableMetadata">
     <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <h1 v-if="showHeader && tableMetadata">{{ tableMetadata.label }}</h1>
     <p v-if="showHeader && tableMetadata">
@@ -40,15 +40,15 @@
             <div>
               <div>
                 <span class="fixed-width">zip</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/zip/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                <ButtonAlt :href="'/' + schemaId + '/api/zip/' + tableId">
+                  all rows
+                </ButtonAlt>
               </div>
               <div>
                 <span class="fixed-width">csv</span>
-                <ButtonAlt :href="'/' + schemaId + '/api/csv/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                <ButtonAlt :href="'/' + schemaId + '/api/csv/' + tableId">
+                  all rows
+                </ButtonAlt>
                 <span v-if="Object.keys(graphqlFilter).length > 0">
                   |
                   <ButtonAlt
@@ -68,8 +68,8 @@
               <div>
                 <span class="fixed-width">excel</span>
                 <ButtonAlt :href="'/' + schemaId + '/api/excel/' + tableId"
-                  >all rows</ButtonAlt
-                >
+                  >all rows
+                </ButtonAlt>
                 <span v-if="Object.keys(graphqlFilter).length > 0">
                   |
                   <ButtonAlt
@@ -172,7 +172,7 @@
     </div>
 
     <div class="d-flex">
-      <div v-if="countFilters" class="col-3 pl-0">
+      <div v-if="filterCount" class="col-3 pl-0">
         <FilterSidebar
           :filters="columns"
           @updateFilters="emitConditions"
@@ -181,7 +181,7 @@
       </div>
       <div
         class="flex-grow-1 pr-0 pl-0"
-        :class="countFilters > 0 ? 'col-9' : 'col-12'"
+        :class="filterCount ? 'col-9' : 'col-12'"
       >
         <FilterWells
           :filters="columns"
@@ -205,7 +205,7 @@
             v-if="view === View.CARDS"
             class="card-columns"
             id="cards"
-            :data="dataRows"
+            :data="rowsWithComputed"
             :columns="columns"
             :tableId="tableId"
             :canEdit="canEdit"
@@ -227,7 +227,7 @@
           <RecordCards
             v-if="view === View.RECORD"
             id="records"
-            :data="dataRows"
+            :data="rowsWithComputed"
             :columns="columns"
             :tableId="tableId"
             :canEdit="canEdit"
@@ -254,7 +254,7 @@
             :columns="columns"
             @update:columns="columns = $event"
             :table-metadata="tableMetadata"
-            :data="dataRows"
+            :data="rowsWithComputed"
             :showSelect="showSelect"
             @column-click="onColumnClick"
             @rowClick="$emit('rowClick', $event)"
@@ -386,11 +386,22 @@
         }}'?
       </p>
     </ConfirmModal>
+
+    <LayoutModal
+      v-if="isTaskModalShown"
+      title="Truncating table"
+      @close="isTaskModalShown = false"
+    >
+      <template #body>
+        <Task :taskId="taskId" @taskUpdated="taskUpdated" />
+      </template>
+    </LayoutModal>
+
     <RefSideModal
       v-if="refSideModalProps"
       :column="refSideModalProps.column"
       :rows="refSideModalProps.rows"
-      :schema="this.schemaId"
+      :schema="schemaId"
       @onClose="refSideModalProps = undefined"
       :showDataOwner="canManage"
     />
@@ -404,8 +415,9 @@
 }
 </style>
 
-<script>
-import Client from "../../client/client.ts";
+<script lang="ts">
+import { IColumn, ISetting, ITableMetaData } from "metadata-utils";
+import Client from "../../client/client";
 import FilterSidebar from "../filters/FilterSidebar.vue";
 import FilterWells from "../filters/FilterWells.vue";
 import ButtonAlt from "../forms/ButtonAlt.vue";
@@ -419,7 +431,12 @@ import InputSelect from "../forms/InputSelect.vue";
 import MessageError from "../forms/MessageError.vue";
 import Spinner from "../layout/Spinner.vue";
 import RowButton from "../tables/RowButton.vue";
-import { convertRowToPrimaryKey, deepClone, isRefType } from "../utils";
+import {
+  applyComputed,
+  convertRowToPrimaryKey,
+  deepClone,
+  isRefType,
+} from "../utils";
 import AggregateTable from "./AggregateTable.vue";
 import Pagination from "./Pagination.vue";
 import RecordCards from "./RecordCards.vue";
@@ -428,15 +445,18 @@ import SelectionBox from "./SelectionBox.vue";
 import ShowHide from "./ShowHide.vue";
 import TableMolgenis from "./TableMolgenis.vue";
 import TableSettings from "./TableSettings.vue";
+import Task from "../task/Task.vue";
+import LayoutModal from "../layout/LayoutModal.vue";
+import { buildGraphqlFilter } from "../forms/formUtils/formUtils";
 
-const View = {
+const View: Record<string, string> = {
   TABLE: "table",
   CARDS: "cards",
   RECORD: "record",
   AGGREGATE: "aggregate",
 };
 
-const ViewButtons = {
+const ViewButtons: Record<string, any> = {
   table: { id: View.TABLE, label: "Table", icon: "th" },
   cards: { id: View.CARDS, label: "Card", icon: "list-alt" },
   record: {
@@ -455,6 +475,8 @@ const ViewButtons = {
 export default {
   name: "TableExplorer",
   components: {
+    LayoutModal,
+    Task,
     ShowHide,
     Pagination,
     ButtonAlt,
@@ -479,15 +501,19 @@ export default {
   },
   data() {
     return {
-      cardTemplate: null,
-      client: null,
-      columns: [],
+      cardTemplate: "",
+      client: null as any,
+      columns: [] as IColumn[],
       count: 0,
       dataRows: [],
       editMode: "add", // add, edit, clone
-      editRowPrimaryKey: null,
-      graphqlError: null,
+      editRowPrimaryKey: undefined,
+      graphqlError: "",
+      taskId: String,
+      taskDone: false,
+      success: false,
       isDeleteAllModalShown: false,
+      isTaskModalShown: false,
       isDeleteModalShown: false,
       isEditModalShown: false,
       limit: this.showLimit,
@@ -495,12 +521,12 @@ export default {
       order: this.showOrder,
       orderByColumn: this.showOrderBy,
       page: this.showPage,
-      recordTemplate: null,
+      recordTemplate: "",
       searchTerms: "",
       selectedItems: [],
-      tableMetadata: null,
+      tableMetadata: null as ITableMetaData | null,
       view: this.canView ? this.showView : View.AGGREGATE,
-      refSideModalProps: undefined,
+      refSideModalProps: undefined as Record<string, any> | undefined,
     };
   },
   props: {
@@ -510,7 +536,7 @@ export default {
     },
     schemaId: {
       type: String,
-      required: false,
+      default: () => "",
     },
     showSelect: {
       type: Boolean,
@@ -576,27 +602,40 @@ export default {
     ViewButtons() {
       return ViewButtons;
     },
-    countFilters() {
-      return this.columns
-        ? this.columns.filter((filter) => filter.showFilter).length
-        : null;
+    filterCount() {
+      return (
+        this.columns?.filter((filter: Record<string, any>) => filter.showFilter)
+          .length || 0
+      );
     },
     graphqlFilter() {
       let filter = this.filter;
-      const errorCallback = (msg) => {
+      const errorCallback = (msg: string) => {
         this.graphqlError = msg;
       };
-      return graphqlFilter(filter, this.columns, errorCallback);
+      return buildGraphqlFilter(filter, this.columns, errorCallback);
+    },
+    rowsWithComputed() {
+      return this.tableMetadata
+        ? applyComputed(this.dataRows, this.tableMetadata)
+        : [];
     },
   },
   methods: {
     convertRowToPrimaryKey,
-    setSearchTerms(newSearchValue) {
+    setSearchTerms(newSearchValue: string) {
       this.searchTerms = newSearchValue;
       this.$emit("searchTerms", newSearchValue);
       this.reload();
     },
-    async handleRowAction(type, key) {
+    taskUpdated(task: any) {
+      if (["COMPLETED", "ERROR"].includes(task.status)) {
+        this.success = true;
+        this.taskDone = true;
+        this.reload();
+      }
+    },
+    async handleRowAction(type: any, key?: Promise<any>) {
       this.editMode = type;
       this.editRowPrimaryKey = await key;
       this.isEditModalShown = true;
@@ -605,29 +644,38 @@ export default {
       this.isEditModalShown = false;
       this.reload();
     },
-    async handleDeleteRowRequest(key) {
+    async handleDeleteRowRequest(key: Promise<any>) {
       this.editRowPrimaryKey = await key;
       this.isDeleteModalShown = true;
     },
     async handleExecuteDelete() {
       this.isDeleteModalShown = false;
       const resp = await this.client
-        .deleteRow(this.editRowPrimaryKey, this.tableId)
+        ?.deleteRow(this.editRowPrimaryKey, this.tableId)
         .catch(this.handleError);
       if (resp) {
         this.reload();
       }
     },
     async handelExecuteDeleteAll() {
-      this.isDeleteAllModalShown = false;
-      const resp = await this.client
-        .deleteAllTableData(this.tableMetadata.id)
-        .catch(this.handleError);
-      if (resp) {
-        this.reload();
-      }
+      await this.client
+        .deleteAllTableData(this.tableMetadata?.id)
+        .then((data: any) => {
+          if (data.data.data.truncate.taskId) {
+            this.taskId = data.data.data.truncate.taskId;
+            this.isTaskModalShown = true;
+            this.isDeleteAllModalShown = false;
+          } else {
+            this.success = data.data.data.truncate.message;
+            this.loading = false;
+          }
+        })
+        .catch((error: any) => {
+          this.isDeleteAllModalShown = false;
+          this.handleError(error);
+        });
     },
-    handleCellClick(event) {
+    handleCellClick(event: any) {
       const { column, cellValue } = event;
       const rowsInRefTable = [cellValue].flat();
       if (isRefType(column?.columnType)) {
@@ -637,7 +685,7 @@ export default {
         };
       }
     },
-    setView(button) {
+    setView(button: Record<string, any>) {
       this.view = button.id;
       if (button.limitOverride) {
         this.limit = button.limitOverride;
@@ -648,7 +696,7 @@ export default {
       this.$emit("updateShowView", button.id, this.limit);
       this.reload();
     },
-    onColumnClick(column) {
+    onColumnClick(column: IColumn) {
       const oldOrderByColumn = this.orderByColumn;
       let order = this.order;
       if (oldOrderByColumn !== column.id) {
@@ -666,11 +714,11 @@ export default {
       });
       this.reload();
     },
-    emitColumns(event) {
+    emitColumns(event: any) {
       this.columns = event;
       this.$emit("updateShowColumns", getColumnIds(this.columns, "showColumn"));
     },
-    emitFilters(event) {
+    emitFilters(event: any) {
       this.columns = event;
       this.$emit("updateShowFilters", getColumnIds(event, "showFilter"));
     },
@@ -679,12 +727,12 @@ export default {
       this.$emit("updateConditions", this.columns);
       this.reload();
     },
-    setPage(page) {
+    setPage(page: any) {
       this.page = page;
       this.$emit("updateShowPage", page);
       this.reload();
     },
-    setLimit(limit) {
+    setLimit(limit: any) {
       this.limit = parseInt(limit);
       if (!Number.isInteger(this.limit) || this.limit < 1) {
         this.limit = 20;
@@ -693,7 +741,7 @@ export default {
       this.$emit("updateShowLimit", limit);
       this.reload();
     },
-    handleError(error) {
+    handleError(error: any) {
       if (Array.isArray(error?.response?.data?.errors)) {
         this.graphqlError = error.response.data.errors[0].message;
       } else {
@@ -701,8 +749,8 @@ export default {
       }
       this.loading = false;
     },
-    setTableMetadata(newTableMetadata) {
-      this.columns = newTableMetadata.columns.map((column) => {
+    setTableMetadata(newTableMetadata: ITableMetaData) {
+      this.columns = newTableMetadata.columns.map((column: IColumn) => {
         const showColumn = this.showColumns.length
           ? this.showColumns.includes(column.id)
           : !column.id.startsWith("mg_");
@@ -718,7 +766,7 @@ export default {
         };
       });
       //table settings
-      newTableMetadata.settings?.forEach((setting) => {
+      newTableMetadata.settings?.forEach((setting: ISetting) => {
         if (setting.key === "cardTemplate") {
           this.cardTemplate = setting.value;
         } else if (setting.key === "recordTemplate") {
@@ -739,7 +787,7 @@ export default {
     },
     async reload() {
       this.loading = true;
-      this.graphqlError = null;
+      this.graphqlError = "";
       const offset = this.limit * (this.page - 1);
       const orderBy = this.orderByColumn
         ? { [this.orderByColumn]: this.order }
@@ -774,13 +822,19 @@ export default {
   ],
 };
 
-function getColumnIds(columns, property) {
-  return columns
-    .filter((column) => column[property] && column.columnType !== "HEADING")
-    .map((column) => column.id);
+function getColumnIds(
+  columns: IColumn[],
+  property: "showColumn" | "showFilter"
+) {
+  return (
+    columns
+      //@ts-ignore TODO: remove column input modification in TableMolgenis
+      .filter((column) => column[property] && column.columnType !== "HEADING")
+      .map((column) => column.id)
+  );
 }
 
-function getCondition(columnType, condition) {
+function getCondition(columnType: string, condition: string) {
   if (condition) {
     switch (columnType) {
       case "REF":
@@ -794,63 +848,13 @@ function getCondition(columnType, condition) {
       case "INT":
       case "LONG":
       case "DECIMAL":
-        return condition.split(",").map((v) => v.split(".."));
+        return condition.split(",").map((v: string) => v.split(".."));
       default:
         return condition.split(",");
     }
   } else {
     return [];
   }
-}
-
-function graphqlFilter(defaultFilter, columns, errorCallback) {
-  let filter = deepClone(defaultFilter);
-  if (columns) {
-    columns.forEach((col) => {
-      const conditions = col.conditions
-        ? col.conditions.filter(
-            (condition) => condition !== "" && condition !== undefined
-          )
-        : [];
-      if (conditions.length) {
-        if (
-          col.columnType.startsWith("STRING") ||
-          col.columnType.startsWith("TEXT")
-        ) {
-          filter[col.id] = { like: conditions };
-        } else if (col.columnType.startsWith("BOOL")) {
-          filter[col.id] = { equals: conditions };
-        } else if (
-          col.columnType.startsWith("REF") ||
-          col.columnType.startsWith("ONTOLOGY")
-        ) {
-          filter[col.id] = { equals: conditions };
-        } else if (
-          [
-            "LONG",
-            "LONG_ARRAY",
-            "DECIMAL",
-            "DECIMAL_ARRAY",
-            "INT",
-            "INT_ARRAY",
-            "DATE",
-            "DATE_ARRAY",
-            "DATETIME",
-            "DATETIME_ARRAY",
-          ].includes(col.columnType)
-        ) {
-          filter[col.id] = {
-            between: conditions.flat(),
-          };
-        } else {
-          errorCallback(
-            `filter unsupported for column type ${col.columnType} (please report a bug)`
-          );
-        }
-      }
-    });
-  }
-  return filter;
 }
 </script>
 
@@ -862,11 +866,13 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
   border-bottom-left-radius: 0;
   border-left: 0;
 }
+
 .btn-group >>> span:not(:last-child) .btn {
   margin-left: 0;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
+
 .inline-form-group {
   margin-bottom: 0;
 }
@@ -878,19 +884,19 @@ function graphqlFilter(defaultFilter, columns, errorCallback) {
     <div class="border p-1 my-1">
       <label>Read only example</label>
       <table-explorer
-        id="my-table-explorer"
-        tableId="Pet"
-        schemaId="pet store"
-        :showColumns="showColumns"
-        :showFilters="showFilters"
-        :urlConditions="urlConditions"
-        :showPage="page"
-        :showLimit="limit"
-        :showOrderBy="showOrderBy"
-        :showOrder="showOrder"
-        :canEdit="canEdit"
-        :canManage="canManage"
-        :canView="true"
+          id="my-table-explorer"
+          tableId="Pet"
+          schemaId="pet store"
+          :showColumns="showColumns"
+          :showFilters="showFilters"
+          :urlConditions="urlConditions"
+          :showPage="page"
+          :showLimit="limit"
+          :showOrderBy="showOrderBy"
+          :showOrder="showOrder"
+          :canEdit="canEdit"
+          :canManage="canManage"
+          :canView="true"
       />
       <div class="border mt-3 p-2">
         <h5>synced props: </h5>

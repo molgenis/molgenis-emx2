@@ -1,6 +1,10 @@
 <template>
   <div class="mg-biobank-card container pb-4">
-    <div v-if="biobank.withdrawn" class="alert alert-warning" role="alert">
+    <div
+      v-if="biobank.withdrawn"
+      class="alert alert-warning ml-n3"
+      role="alert"
+    >
       {{ uiText["biobank_withdrawn"] }}
     </div>
     <div
@@ -11,7 +15,7 @@
       v-if="!biobankDataAvailable"
       class="d-flex justify-content-center align-items-center spinner-container"
     >
-      <spinner />
+      <Spinner />
     </div>
     <div v-else class="container-fluid pl-0">
       <div class="row">
@@ -22,8 +26,9 @@
               [uiText['home']]: '../#/',
               [biobank.name]: '/',
             }"
+            useRouterLink
           />
-          <check-out
+          <CheckOut
             class="ml-auto"
             :disabled="biobank.withdrawn"
             :bookmark="false"
@@ -32,38 +37,80 @@
       </div>
       <div class="row" v-if="biobankDataAvailable">
         <div class="col p-0">
-          <report-title type="Biobank" :name="biobank.name"></report-title>
+          <ReportTitle type="Biobank" :name="biobank.name" />
           <div class="container pl-0">
             <div class="row">
               <div class="col-md-8" v-if="biobankDataAvailable">
-                <view-generator :viewmodel="biobank.viewmodel" />
+                <ViewGenerator
+                  v-if="biobank.viewmodel"
+                  :viewmodel="biobank.viewmodel"
+                />
 
-                <!-- Collection Part -->
-                <h3 class="mt-4">Collections</h3>
-                <div
-                  v-for="(collection, index) in collectionsData"
-                  :key="collection.id"
-                >
-                  <hr v-if="index" />
-                  <div class="d-flex align-items-center">
-                    <collection-title
-                      :title="collection.name"
-                      :id="collection.id"
-                    />
-                    <collection-selector
-                      :disabled="biobank.withdrawn"
-                      class="pl-4 ml-auto"
-                      :biobankData="biobank"
-                      :collectionData="collection"
-                    />
-                  </div>
-                  <collapse-component>
-                    <view-generator
-                      class="collection-view"
-                      :viewmodel="collection.viewmodel"
-                    />
-                  </collapse-component>
+                <div class="d-flex mt-4 justify-content-between">
+                  <small class="w-25">
+                    <table class="table table-sm table-borderless">
+                      <tbody>
+                        <tr>
+                          <td class="text-nowrap">
+                            Collections: {{ collectionsData.length }}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-nowrap">
+                            Subcollections: {{ subcollectionCount }}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-nowrap">
+                            Services: {{ biobank.services?.length || 0 }}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </small>
                 </div>
+
+                <Tabs
+                  v-if="biobank.collections?.length || biobank.services?.length"
+                  :tabs="tabs"
+                  @update:active-tab="changeTab"
+                  class="mt-1"
+                />
+
+                <div v-if="activeTab === 'Collections'">
+                  <div
+                    v-for="(collection, index) in collectionsData"
+                    :key="collection.id"
+                  >
+                    <hr v-if="index" />
+                    <div class="d-flex align-items-center">
+                      <CollectionTitle
+                        :title="collection.name"
+                        :id="collection.id"
+                      />
+                      <CollectionSelector
+                        :disabled="biobank.withdrawn"
+                        class="pl-4 ml-auto"
+                        :biobankData="biobank"
+                        :collectionData="collection"
+                      />
+                    </div>
+                    <CollapseComponent>
+                      <ViewGenerator
+                        class="collection-view"
+                        :viewmodel="collection.viewmodel"
+                      />
+                    </CollapseComponent>
+                  </div>
+                </div>
+
+                <ServiceDetails
+                  v-else-if="activeTab === 'Services'"
+                  v-for="service in biobank.services"
+                  class="ml-2 mt-2 mb-4"
+                  :service="service"
+                  :quality-props="{ label: 'mylabel', value: 'myvalue' }"
+                />
               </div>
               <!-- Right side card -->
               <div class="col-md-4">
@@ -72,26 +119,28 @@
                     <div class="card-text">
                       <h5>Contact Information</h5>
                       <ul class="right-content-list">
-                        <li>
-                          <span class="font-weight-bold mr-1">Head/PI:</span>
+                        <li v-if="head">
+                          <div class="font-weight-bold mr-1">Head/PI:</div>
+                          <div>{{ head }}</div>
                         </li>
-                        <report-details-list
-                          :reportDetails="head"
-                        ></report-details-list>
-                        <span class="font-weight-bold mr-1">Contact:</span>
-                        <report-details-list
-                          :reportDetails="contact"
-                        ></report-details-list>
-                        <h5 v-if="networks && networks.length > 0">Networks</h5>
-                        <report-details-list
-                          :reportDetails="network"
-                          v-for="network in networks"
-                          :key="network.id"
-                        ></report-details-list>
-                        <template v-if="alsoKnownIn.length > 0">
+                        <li>
+                          <ContactInformation
+                            :contactInformation="contact"
+                            :website="biobank.url"
+                          />
+                        </li>
+                        <li v-if="networks?.length">
+                          <h5>Networks</h5>
+                          <ReportDetailsList
+                            :reportDetails="network"
+                            v-for="network in networks"
+                            :key="network.id"
+                          />
+                        </li>
+                        <li v-if="alsoKnownIn?.length">
                           <h5>Also Known In</h5>
                           <ReportDetailsList :reportDetails="alsoKnownIn" />
-                        </template>
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -105,150 +154,164 @@
   </div>
 </template>
 
-<script lang="ts">
-import { ref } from "vue";
+<script setup lang="ts">
+import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 //@ts-ignore
-import { Breadcrumb, Spinner } from "../../../molgenis-components";
+import { Breadcrumb, Spinner } from "molgenis-components";
+import Tabs from "../components/Tabs.vue";
 import CheckOut from "../components/checkout-components/CheckOut.vue";
 import CollectionSelector from "../components/checkout-components/CollectionSelector.vue";
 import ViewGenerator from "../components/generators/ViewGenerator.vue";
+import ServiceDetails from "../components/partial-views/ServiceDetails.vue";
 import CollapseComponent from "../components/report-components/CollapseComponent.vue";
 import CollectionTitle from "../components/report-components/CollectionTitle.vue";
+import ContactInformation from "../components/report-components/ContactInformation.vue";
 import ReportDetailsList from "../components/report-components/ReportDetailsList.vue";
 import ReportTitle from "../components/report-components/ReportTitle.vue";
+import useErrorHandler from "../composables/errorHandler";
 import { mapBiobankToBioschemas } from "../functions/bioschemasMapper";
 import {
   getBiobankDetails,
   getCollectionDetails,
-  mapHeadInfo,
-  mapContactInfo,
-  mapNetworkInfo,
-  mapQualityStandards,
+  getName,
   mapAlsoKnownIn,
+  mapNetworkInfo,
 } from "../functions/viewmodelMapper";
 import { useBiobanksStore } from "../stores/biobanksStore";
 import { useQualitiesStore } from "../stores/qualitiesStore";
 import { useSettingsStore } from "../stores/settingsStore";
+import { IBiobanks } from "../interfaces/directory";
 
-export default {
-  name: "biobank-report-card",
-  components: {
-    Spinner,
-    ReportTitle,
-    CollectionTitle,
-    ViewGenerator,
-    ReportDetailsList,
-    CollapseComponent,
-    CheckOut,
-    CollectionSelector,
-    Breadcrumb,
-  },
-  setup() {
-    const settingsStore = useSettingsStore();
-    const biobanksStore = useBiobanksStore();
-    const qualitiesStore = useQualitiesStore();
+const settingsStore = useSettingsStore();
+const biobanksStore = useBiobanksStore();
+const qualitiesStore = useQualitiesStore();
 
-    const biobank: Record<string, any> = ref({});
-    const route = useRoute();
+const biobank = ref<IBiobanks>({} as IBiobanks);
+const route = useRoute();
+const { setError } = useErrorHandler();
 
-    biobanksStore
-      .getBiobank(route.params.id)
-      .then((result: Record<string, any>) => {
-        biobank.value = result.Biobanks.length
-          ? getBiobankDetails(result.Biobanks[0])
-          : {};
-      });
+qualitiesStore.getQualityStandardInformation();
 
-    return { settingsStore, biobanksStore, qualitiesStore, biobank };
-  },
-  methods: {
-    wrapBioschema(schemaData: Record<string, any>) {
-      /** ignore because it is not useless ;) */
-      return `<script type="application/ld+json">${JSON.stringify(
-        schemaData
-      )}<\/script>`;
-    },
-    filterAndSortCollectionsData(collections: Record<string, any>[]) {
-      return collections
-        .filter(
-          (collection: Record<string, any>) => !collection.parent_collection
-        )
-        .filter(
-          (collection: Record<string, any>): Boolean =>
-            this.biobank.withdrawn || !collection.withdrawn
-        )
-        .map((collection: Record<string, any>) =>
-          getCollectionDetails(collection, this.biobank.withdrawn)
-        )
-        .sort(
-          (
-            collection1: Record<string, any>,
-            collection2: Record<string, any>
-          ) =>
-            collection1.name.localeCompare(collection2.name, "en", {
-              sensitivity: "base",
-            })
-        );
-    },
-  },
-  computed: {
-    uiText() {
-      return this.settingsStore.uiText;
-    },
-    biobankDataAvailable() {
-      return Object.keys(this.biobank).length;
-    },
-    collectionsData() {
-      return this.biobankDataAvailable &&
-        this.biobank.collections &&
-        this.biobank.collections.length
-        ? this.filterAndSortCollectionsData(this.biobank.collections)
-        : [];
-    },
+biobanksStore.getBiobank(route.params.id).then((result: any) => {
+  if (result.Biobanks?.length) {
+    biobank.value = getBiobankDetails(result.Biobanks[0]);
+  } else {
+    setError("Biobank not found");
+  }
+});
 
-    networks() {
-      return this.biobankDataAvailable && this.biobank.network
-        ? mapNetworkInfo(this.biobank)
-        : [];
+type TBiobankDetailTab = "Collections" | "Services";
+const activeTab = ref<TBiobankDetailTab>("Collections");
+
+const tabs = computed(() => {
+  return {
+    Collections: {
+      id: "Collections",
+      label: `Collections`,
+      active: activeTab.value === "Collections",
+      disabled: biobank.value?.collections?.length === 0,
     },
-    head() {
-      return this.biobankDataAvailable && this.biobank.head
-        ? mapHeadInfo(this.biobank)
-        : {};
+    Services: {
+      id: "Services",
+      label: "Services",
+      active: activeTab.value === "Services",
+      disabled: biobank.value?.services?.length === 0,
     },
-    contact() {
-      return this.biobankDataAvailable && this.biobank.contact
-        ? mapContactInfo(this.biobank)
-        : {};
-    },
-    alsoKnownIn() {
-      return this.biobankDataAvailable && this.biobank.also_known
-        ? mapAlsoKnownIn(this.biobank)
-        : [];
-    },
-    quality() {
-      return {
-        Certification: {
-          value: mapQualityStandards(this.biobank.quality),
-          type: "list",
-        },
-      };
-    },
-    bioschemasJsonld() {
-      return this.biobankDataAvailable
-        ? this.wrapBioschema(mapBiobankToBioschemas(this.biobank))
-        : undefined;
-    },
-  },
-  async mounted() {
-    await this.qualitiesStore.getQualityStandardInformation();
-  },
-};
+  };
+});
+
+function changeTab(tab: TBiobankDetailTab) {
+  activeTab.value = tab;
+}
+
+const uiText = computed(() => {
+  return settingsStore.uiText;
+});
+
+const biobankDataAvailable = computed(() => {
+  return Object.keys(biobank.value).length;
+});
+
+const collectionsData = computed(() => {
+  return biobankDataAvailable.value && biobank.value.collections?.length
+    ? filterAndSortCollectionsData(biobank.value.collections)
+    : [];
+});
+
+const subcollectionCount = computed<number>(() => {
+  return (
+    biobank.value?.collections
+      ?.filter(
+        (collection: Record<string, any>) => collection.parent_collection
+      )
+      .filter((collection: Record<string, any>) => !collection.withdrawn)
+      .length || 0
+  );
+});
+
+const networks = computed(() => {
+  return biobankDataAvailable.value && biobank.value?.network
+    ? mapNetworkInfo(biobank.value)
+    : [];
+});
+
+const head = computed(() => {
+  return biobank.value?.head ? getName(biobank.value.head) : null;
+});
+
+const contact = computed(() => {
+  return biobank.value?.contact || {};
+});
+
+const alsoKnownIn = computed(() => {
+  return biobankDataAvailable.value && biobank.value?.also_known
+    ? mapAlsoKnownIn(biobank.value)
+    : [];
+});
+
+const bioschemasJsonld = computed(() => {
+  return biobankDataAvailable.value
+    ? wrapBioschema(mapBiobankToBioschemas(biobank.value))
+    : undefined;
+});
+
+function wrapBioschema(schemaData: Record<string, any>) {
+  /** ignore because it is not useless ;) */
+  return `<script type="application/ld+json">${JSON.stringify(
+    schemaData
+  )}<\/script>`;
+}
+
+function filterAndSortCollectionsData(collections: Record<string, any>[]) {
+  return collections
+    .filter((collection: Record<string, any>) => !collection.parent_collection)
+    .filter(
+      (collection: Record<string, any>): Boolean =>
+        biobank.value.withdrawn || !collection.withdrawn
+    )
+    .map((collection: Record<string, any>) =>
+      getCollectionDetails(collection, biobank.value.withdrawn)
+    )
+    .sort(
+      (collection1: Record<string, any>, collection2: Record<string, any>) =>
+        collection1.name.localeCompare(collection2.name, "en", {
+          sensitivity: "base",
+        })
+    );
+}
 </script>
 
 <style scoped>
 .spinner-container {
   height: 70vh;
+}
+sup {
+  vertical-align: super;
+  font-size: small;
+}
+
+.layout-table {
+  border-collapse: unset;
 }
 </style>

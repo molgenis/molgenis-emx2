@@ -10,7 +10,7 @@ import org.molgenis.emx2.io.readers.CsvTableWriter;
 
 public class TableStoreForCsvInMemory implements TableStore {
   private final Map<String, String> store;
-  private Character separator;
+  private final Character separator;
 
   public TableStoreForCsvInMemory() {
     this(',');
@@ -30,7 +30,7 @@ public class TableStoreForCsvInMemory implements TableStore {
       String existing = "";
       if (store.containsKey(name)) existing = store.get(name);
       // make sure first row has all columnNames
-      Iterator iterator = rows.iterator();
+      Iterator<Row> iterator = rows.iterator();
       if (iterator.hasNext()) {
         Row row = rows.iterator().next();
         for (String columnName : columnNames) {
@@ -46,7 +46,7 @@ public class TableStoreForCsvInMemory implements TableStore {
         writer.write(columnNames.stream().collect(Collectors.joining("" + separator)));
       }
       bufferedWriter.close();
-      store.put(name, existing + writer.toString());
+      store.put(name, existing + writer);
     } catch (IOException ioe) {
       throw new MolgenisException("export failed", ioe);
     }
@@ -73,11 +73,15 @@ public class TableStoreForCsvInMemory implements TableStore {
   }
 
   @Override
-  public Collection<String> tableNames() {
+  public Collection<String> getTableNames() {
     return this.store.keySet();
   }
 
   public String getCsvString(String tableName) {
     return this.store.get(tableName);
+  }
+
+  public void setCsvString(String tableName, String csvString) {
+    this.store.put(tableName, csvString);
   }
 }

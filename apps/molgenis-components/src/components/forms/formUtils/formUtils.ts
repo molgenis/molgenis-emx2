@@ -1,32 +1,52 @@
-import type { IColumn, ITableMetaData } from "meta-data-utils";
-import { IRow } from "../../../Interfaces/IRow";
+import type {
+  columnValue,
+  IColumn,
+  ITableMetaData,
+  recordValue,
+} from "../../../../../metadata-utils/src/types";
+import type { IRow } from "../../../Interfaces/IRow";
 import constants from "../../constants.js";
 import { deepClone, filterObject } from "../../utils";
 
-const { EMAIL_REGEX, HYPERLINK_REGEX, AUTO_ID, HEADING } = constants;
+const {
+  EMAIL_REGEX,
+  HYPERLINK_REGEX,
+  PERIOD_REGEX,
+  AUTO_ID,
+  HEADING,
+  MIN_INT,
+  MAX_INT,
+  MIN_LONG,
+  MAX_LONG,
+} = constants;
+const BIG_INT_ERROR = `Invalid value: must be value from ${MIN_LONG} to ${MAX_LONG}`;
+const INT_ERROR = `Invalid value: must be value from ${MIN_INT} to ${MAX_INT}`;
 
 export function getRowErrors(
   tableMetaData: ITableMetaData,
   rowData: Record<string, any>
-) {
-  return tableMetaData.columns.reduce((accum, column: IColumn) => {
-    accum[column.id] = getColumnError(column, rowData, tableMetaData);
-    return accum;
-  }, {} as Record<string, string | undefined>);
+): Record<string, string> {
+  return tableMetaData.columns.reduce(
+    (accum: Record<string, string>, column: IColumn) => {
+      const error = getColumnError(column, rowData, tableMetaData);
+      if (error) {
+        accum[column.id] = error;
+      }
+      return accum;
+    },
+    {}
+  );
 }
 
-function getColumnError(
+export function getColumnError(
   column: IColumn,
-  rowData: Record<string, any>,
+  rowData: recordValue | undefined,
   tableMetaData: ITableMetaData
-) {
-  const value = rowData[column.id];
+): string | undefined {
+  const value = rowData?.[column.id];
   const type = column.columnType;
-  const isInvalidNumber = isInValidNumericValue(type, value);
-  // FIXME: this function should also check all array types
-  // FIXME: longs are not checked
-
   const missesValue = isMissingValue(value);
+  // FIXME: this function should also check all array types
 
   try {
     if (!isColumnVisible(column, rowData, tableMetaData)) {
@@ -39,66 +59,147 @@ function getColumnError(
   if (column.columnType === AUTO_ID || column.columnType === HEADING) {
     return undefined;
   }
+
   if (column.required) {
     if (isRequired(column.required)) {
+      const isInvalidNumber = isInValidNumericValue(type, value);
       if (missesValue || isInvalidNumber) {
         return column.label + " is required";
       }
     } else {
-      let error = getRequiredExpressionError(
-        column.required,
+      const error = getRequiredExpressionError(
+        column.required as string,
         rowData,
         tableMetaData
       );
-      if (error && missesValue) return error;
+      if (error && missesValue) {
+        return error;
+      }
     }
   }
 
-  if (missesValue) {
+  if (value === undefined || (!type.includes("_ARRAY") && missesValue)) {
     return undefined;
   }
-  if (type === "EMAIL" && !isValidEmail(value)) {
+  if (type === "EMAIL" && isInvalidEmail(value)) {
     return "Invalid email address";
   }
   if (type === "EMAIL_ARRAY" && containsInvalidEmail(value)) {
     return "Invalid email address";
   }
-  if (type === "HYPERLINK" && !isValidHyperlink(value)) {
+  if (type === "HYPERLINK" && isInvalidHyperlink(value)) {
     return "Invalid hyperlink";
   }
   if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
     return "Invalid hyperlink";
   }
+  if (type === "PERIOD" && !isInvalidPeriod(value)) {
+    return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
+  }
+  if (type === "PERIOD_ARRAY" && containsInvalidPeriod(value)) {
+    return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
+  }
+  if (type === "JSON") {
+    try {
+      if (
+        typeof value === "string" &&
+        !isJsonObjectOrArray(JSON.parse(value))
+      ) {
+        return `Root element must be an object or array`;
+      }
+    } catch {
+      return `Please enter valid JSON`;
+    }
+  }
+  if (type === "LONG" && getBigIntError(value as string | undefined)) {
+    return getBigIntError(value as string | undefined);
+  }
+  if (
+    type === "LONG_ARRAY" &&
+    (value as string[]).some((val) => getBigIntError(val))
+  ) {
+    return BIG_INT_ERROR;
+  }
+  if (type === "DECIMAL" && isNaN(parseFloat(value as string))) {
+    return "Invalid number";
+  }
+  if (
+    type === "DECIMAL_ARRAY" &&
+    (value as string[]).some((val) => val && isNaN(parseFloat(val as string)))
+  ) {
+    return "Invalid number";
+  }
+  if (type === "INT") {
+    const intError = getIntError(value as number);
+    if (intError) {
+      return intError;
+    }
+  }
+  if (type === "INT_ARRAY") {
+    const errorInt = (value as number[]).find((val) => getIntError(val));
+    if (errorInt) {
+      return getIntError(errorInt as number);
+    }
+  }
   if (column.validation) {
     return getColumnValidationError(column.validation, rowData, tableMetaData);
-  }
-  if (isRefLinkWithoutOverlap(column, rowData)) {
-    return `value should match your selection in column '${column.refLinkId}'`;
   }
 
   return undefined;
 }
 
+export function getBigIntError(value?: string): string | undefined {
+  if (isInvalidBigInt(value)) {
+    return BIG_INT_ERROR;
+  } else {
+    return undefined;
+  }
+}
+
+export function isInvalidBigInt(value?: string): boolean {
+  const isValidRegex = /^-?\d+$/;
+  if (!value) {
+    return true;
+  }
+  if (isValidRegex.test(value)) {
+    return BigInt(value) > BigInt(MAX_LONG) || BigInt(value) < BigInt(MIN_LONG);
+  } else {
+    return true;
+  }
+}
+
+function getIntError(value: number): string | undefined {
+  if (isNaN(value)) {
+    return "Invalid number";
+  }
+  if (value < MIN_INT || value > MAX_INT) {
+    return INT_ERROR;
+  }
+}
+
 export function isMissingValue(value: any): boolean {
   if (Array.isArray(value)) {
     return value.some((element) => isMissingValue(element));
+  } else {
+    return value === undefined || value === null || value === "";
   }
-  return value === undefined || value === null || value === "";
 }
 
 export function isRequired(value: string | boolean): boolean {
   if (typeof value === "string") {
-    if (value.toLowerCase() === "true") return true;
-    if (value.toLowerCase() === "false") return false;
+    if (value.toLowerCase() === "true") {
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return value;
   }
-  return false;
 }
 
-function isInValidNumericValue(columnType: string, value: number) {
+function isInValidNumericValue(columnType: string, value?: columnValue) {
   if (["DECIMAL", "INT"].includes(columnType)) {
-    return isNaN(value);
+    return value === undefined || (typeof value === "number" && isNaN(value));
   } else {
     return false;
   }
@@ -106,7 +207,7 @@ function isInValidNumericValue(columnType: string, value: number) {
 
 function getRequiredExpressionError(
   expression: string,
-  values: Record<string, any>,
+  values: Record<string, any> | undefined,
   tableMetaData: ITableMetaData
 ): string | undefined {
   try {
@@ -124,7 +225,7 @@ function getRequiredExpressionError(
 
 function getColumnValidationError(
   validation: string,
-  values: Record<string, any>,
+  values: recordValue | undefined,
   tableMetaData: ITableMetaData
 ) {
   try {
@@ -143,16 +244,19 @@ function getColumnValidationError(
 
 export function executeExpression(
   expression: string,
-  values: Record<string, any>,
+  values: recordValue | undefined,
   tableMetaData: ITableMetaData
 ) {
   //make sure all columns have keys to prevent reference errors
   const copy: Record<string, any> = deepClone(values);
-  tableMetaData.columns.forEach((column) => {
+  tableMetaData.columns.forEach((column: IColumn) => {
     if (!copy.hasOwnProperty(column.id)) {
       copy[column.id] = null;
     }
   });
+  if (!copy.mg_tableclass) {
+    copy.mg_tableclass = `${tableMetaData.id}.${tableMetaData.label}`;
+  }
 
   // A simple client for scripts to use to request data.
   // Note: don't overuse this, the API call is blocking.
@@ -180,51 +284,40 @@ export function executeExpression(
     "simplePostClient",
     //@ts-ignore
     Object.keys(copy),
-    //@ts-ignore
     "return eval(`" + expression.replaceAll("`", "\\`") + "`)"
   );
   return func(simplePostClient, ...Object.values(copy));
 }
 
-function isRefLinkWithoutOverlap(column: IColumn, values: Record<string, any>) {
-  if (!column.refLinkId) {
-    return false;
-  }
-  const columnRefLink = column.refLinkId;
-  const refLinkId = columnRefLink;
-
-  const value = values[column.id];
-  const refValue = values[refLinkId];
-
-  if (typeof value === "string" && typeof refValue === "string") {
-    return value && refValue && value !== refValue;
-  } else {
-    //FIXME: empty ref_array => should give 'required' error instead if applicable
-    if (Array.isArray(value) && value.length === 0) {
-      return false;
-    }
-    return (
-      value &&
-      refValue &&
-      !JSON.stringify(value).includes(JSON.stringify(refValue))
-    );
-  }
-}
-
-function isValidHyperlink(value: any) {
-  return HYPERLINK_REGEX.test(String(value).toLowerCase());
+function isInvalidHyperlink(value: any) {
+  return value && !HYPERLINK_REGEX.test(value);
 }
 
 function containsInvalidHyperlink(hyperlinks: any) {
-  return hyperlinks.find((hyperlink: any) => !isValidHyperlink(hyperlink));
+  return hyperlinks.some((hyperlink: string) => isInvalidHyperlink(hyperlink));
 }
 
-function isValidEmail(value: any) {
-  return EMAIL_REGEX.test(String(value).toLowerCase());
+function isInvalidEmail(value: any) {
+  return value && !EMAIL_REGEX.test(value);
 }
 
 function containsInvalidEmail(emails: any) {
-  return emails.find((email: any) => !isValidEmail(email));
+  return emails.some((email: any) => isInvalidEmail(email));
+}
+
+function isInvalidPeriod(value: any) {
+  return !PERIOD_REGEX.test(value);
+}
+
+function containsInvalidPeriod(periods: any) {
+  return periods.some((period: any) => isInvalidPeriod(period));
+}
+
+export function isJsonObjectOrArray(parsedJson: any) {
+  if (typeof parsedJson === "object" && parsedJson !== null) {
+    return true;
+  }
+  return false;
 }
 
 export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
@@ -237,7 +330,7 @@ export function removeKeyColumns(tableMetaData: ITableMetaData, rowData: IRow) {
 
 export function filterVisibleColumns(
   columns: IColumn[],
-  visibleColumns: string[] | null
+  visibleColumns?: string[]
 ): IColumn[] {
   if (!visibleColumns) {
     return columns;
@@ -248,7 +341,7 @@ export function filterVisibleColumns(
 
 export function isColumnVisible(
   column: IColumn,
-  values: Record<string, any>,
+  values: recordValue | undefined,
   tableMetadata: ITableMetaData
 ): boolean {
   const expression = column.visible;
@@ -296,4 +389,62 @@ export function getSaveDisabledMessage(
   return numberOfErrors > 0
     ? `There are ${numberOfErrors} error(s) preventing saving`
     : "";
+}
+export function buildGraphqlFilter(
+  defaultFilter: any,
+  columns: IColumn[],
+  errorCallback: (error: string) => void
+) {
+  let filter = deepClone(defaultFilter);
+  if (columns) {
+    columns.forEach((col) => {
+      const conditions = col.conditions
+        ? col.conditions.filter(
+            (condition: string) => condition !== "" && condition !== undefined
+          )
+        : [];
+      if (conditions.length) {
+        if (
+          col.columnType.startsWith("STRING") ||
+          col.columnType.startsWith("TEXT") ||
+          col.columnType.startsWith("JSON")
+        ) {
+          filter[col.id] = { like: conditions };
+        } else if (col.columnType.startsWith("BOOL")) {
+          filter[col.id] = { equals: conditions };
+        } else if (
+          col.columnType.startsWith("REF") ||
+          col.columnType.startsWith("ONTOLOGY")
+        ) {
+          filter[col.id] = { equals: conditions };
+        } else if (
+          ["DECIMAL", "DECIMAL_ARRAY", "INT", "INT_ARRAY"].includes(
+            col.columnType
+          )
+        ) {
+          filter[col.id] = {
+            between: conditions.flat().map((value) => parseFloat(value)),
+          };
+        } else if (
+          [
+            "LONG",
+            "LONG_ARRAY",
+            "DATE",
+            "DATE_ARRAY",
+            "DATETIME",
+            "DATETIME_ARRAY",
+          ].includes(col.columnType)
+        ) {
+          filter[col.id] = {
+            between: conditions.flat(),
+          };
+        } else {
+          errorCallback(
+            `filter unsupported for column type ${col.columnType} (please report a bug)`
+          );
+        }
+      }
+    });
+  }
+  return filter;
 }

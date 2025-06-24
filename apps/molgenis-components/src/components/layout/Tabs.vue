@@ -2,31 +2,35 @@
   <div>
     <ul class="tabs-header row justify-content-start">
       <li
-        v-for="title in tabTitles"
-        :key="title"
+        v-for="tabId in tabIds"
+        :key="tabId"
         class="tabs-item"
-        :class="{ selected: selectedTitle === title }"
-        @click="setTitle(title)"
+        :class="{ selected: selectedTab === tabId }"
+        @click="setTab(tabId)"
       >
-        {{ title }}
+        <slot :name="`${tabId}-header`" />
       </li>
       <li class="filler-line col"></li>
     </ul>
-
-    <slot class="tab-content" />
+    <div
+      v-for="tabId in tabIds"
+      v-show="tabId === selectedTab"
+      class="tabs-content"
+    >
+      <slot :name="`${tabId}-body`" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useSlots, ref, provide } from "vue";
-const slots = useSlots();
-const tabTitles = ref(slots.default().map((tab) => tab.props?.title));
-const selectedTitle = ref(tabTitles.value[0]);
+import { ref } from "vue";
 
-provide("selectedTitle", selectedTitle);
+const { tabIds } = defineProps<{ tabIds: string[] }>();
 
-function setTitle(newTitle: string) {
-  selectedTitle.value = newTitle;
+const selectedTab = ref(tabIds[0]);
+
+function setTab(newId: string) {
+  selectedTab.value = newId;
 }
 </script>
 
@@ -63,10 +67,13 @@ function setTitle(newTitle: string) {
 </style>
 
 <docs>
-  <template>
-    <Tabs>
-      <Tab title="First tab">This is the first tab</Tab>
-      <Tab title="Second tab">This is the content of the second tab</Tab>
-    </Tabs>
-  </template>
+<template>
+  <Tabs :tabIds="['first', 'second']">
+    <template #first-header>First</template>
+    <template #first-body> This is the first tab </template>
+
+    <template #second-header>Second</template>
+    <template #second-body>This is the content of the second tab</template>
+  </Tabs>
+</template>
 </docs>

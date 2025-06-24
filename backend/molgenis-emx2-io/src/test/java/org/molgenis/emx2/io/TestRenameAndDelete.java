@@ -2,6 +2,7 @@ package org.molgenis.emx2.io;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,7 +13,6 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Row;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.datamodels.PetStoreLoader;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
@@ -90,8 +90,7 @@ public class TestRenameAndDelete {
   @Test
   public void testRenameWhenRefs() throws IOException {
     schema = db.dropCreateSchema(TestRenameAndDelete.class.getSimpleName());
-
-    new PetStoreLoader().load(schema, false);
+    PET_STORE.getImportTask(schema, false).run();
     assertNotNull(schema.getTable("Category"));
 
     // now we gonna rename a table which has a ref from Category to Type

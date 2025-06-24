@@ -56,7 +56,7 @@
             rowId="code"
             latitude="latitude"
             longitude="longitude"
-            groupingVariable="definition"
+            group="definition"
             :groupColorMappings="mapColorPalette"
             :legendData="mapColorPalette"
             :mapCenter="{ latitude: 13, longitude: 50 }"

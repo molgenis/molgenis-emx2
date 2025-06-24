@@ -2,7 +2,7 @@
   <div class="container">
     <h1>Table data client module</h1>
 
-    <h5>Table data for: {{ metaData.label }}</h5>
+    <h5>Table data for: {{ metadata.label }}</h5>
     <div class="form-group">
       <label for="filterInput">filter</label>
       <input
@@ -22,7 +22,7 @@
     <p>{{ tableData }}</p>
 
     <h5>Schema data</h5>
-    <p>{{ metaData }}</p>
+    <p>{{ metadata }}</p>
   </div>
 </template>
 
@@ -36,7 +36,7 @@ export default {
       tableId: "Pet",
       filter: '{"name": {"like": ["pooky"]}}',
       orderby: '{"status": "ASC"}',
-      metaData: {},
+      metadata: {},
       tableData: [],
     };
   },
@@ -44,7 +44,7 @@ export default {
     async fetchData() {
       const filter = this.filter ? JSON.parse(this.filter) : {};
       const orderby = this.orderby ? JSON.parse(this.orderby) : {};
-      this.metaData = await this.client.fetchSchemaMetaData();
+      this.metadata = await this.client.fetchSchemaMetaData();
       this.tableData = await this.client.fetchTableData("Pet", {
         filter,
         orderby,

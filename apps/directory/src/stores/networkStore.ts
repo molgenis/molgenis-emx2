@@ -1,8 +1,13 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+//@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
-import { useSettingsStore } from "./settingsStore";
+import useErrorHandler from "../composables/errorHandler";
+import { ContactInfoColumns } from "../property-config/contactInfoColumns";
 import { useCollectionStore } from "./collectionStore";
+import { useSettingsStore } from "./settingsStore";
+
+const { setError } = useErrorHandler();
 
 export const useNetworkStore = defineStore("networkStore", () => {
   const settingsStore = useSettingsStore();
@@ -14,10 +19,17 @@ export const useNetworkStore = defineStore("networkStore", () => {
   async function loadNetworkReport(netWorkId: string) {
     const biobanksQuery = new QueryEMX2(graphqlEndpoint)
       .table("Biobanks")
-      .select(["name", "id", "description"])
+      .select(["name", "id", "description", "withdrawn"])
       .where("network.id")
-      .like(netWorkId);
-    const biobanksResult = await biobanksQuery.execute();
+      .equals(netWorkId);
+
+    let biobanksResult;
+    try {
+      biobanksResult = await biobanksQuery.execute();
+    } catch (error) {
+      setError(Error);
+      return;
+    }
 
     const reportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Networks")
@@ -27,31 +39,50 @@ export const useNetworkStore = defineStore("networkStore", () => {
         "description",
         "common_network_elements.label",
         "common_network_elements.definition",
-        "contact.first_name",
-        "contact.last_name",
-        "contact.email",
-        "contact.role",
-        "contact.country.label",
         "also_known.url",
         "also_known.name_system",
+        ...ContactInfoColumns,
       ])
       .where("id")
-      .like(netWorkId);
-    const networkResult = await reportQuery.execute();
+      .equals(netWorkId);
+
+    let networkResult;
+    try {
+      networkResult = await reportQuery.execute();
+    } catch (error) {
+      setError(error);
+      return;
+    }
 
     const collectionsColumns = collectionsStore.getCollectionColumns() as any;
     const collectionsQuery = new QueryEMX2(graphqlEndpoint)
       .table("Collections")
       .select(collectionsColumns)
       .where("network.id")
-      .like(netWorkId);
-    const collectionsResult = await collectionsQuery.execute();
+      .equals(netWorkId);
 
-    networkReport.value = {
-      network: networkResult.Networks[0],
-      biobanks: biobanksResult.Biobanks,
-      collections: collectionsResult.Collections,
-    };
+    let collectionsResult;
+    try {
+      collectionsResult = await collectionsQuery.execute();
+    } catch (error) {
+      setError(error);
+      return;
+    }
+
+    if (networkResult?.Networks?.length) {
+      networkReport.value = {
+        network: networkResult?.Networks[0],
+        biobanks: biobanksResult?.Biobanks,
+        collections: collectionsResult?.Collections,
+      };
+    } else {
+      setError("Network not found");
+      networkReport.value = {
+        network: undefined,
+        biobanks: biobanksResult?.Biobanks,
+        collections: collectionsResult?.Collections,
+      };
+    }
   }
 
   return {

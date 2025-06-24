@@ -3,7 +3,7 @@
  */
 
 import { request } from "graphql-request";
-import { IColumn, ITableMetaData } from "../../../meta-data-utils/dist";
+import { IColumn, ITableMetaData } from "../../../metadata-utils/dist";
 
 class QueryEMX2 {
   tableId = "";
@@ -20,6 +20,8 @@ class QueryEMX2 {
   aggregateQuery = false;
   type = "";
   orCount = 0;
+  searchFieldsByProperty: Record<string, string[]> = {};
+  searchValue = "";
 
   /**
    * @param {string} graphqlUrl the endpoint to query
@@ -38,7 +40,7 @@ class QueryEMX2 {
    * @param {string | string[]} columns
    * When you supply an object the Key is the table or REF property and the value is a string or string array
    */
-  select(columns: IColumn[]) {
+  select(columns: any[] | string) {
     let requestedColumns = [];
 
     if (!Array.isArray(columns)) {
@@ -231,6 +233,8 @@ class QueryEMX2 {
     this.filters = {};
     this.findInAllColumns = "";
     this.page = {};
+    this.searchFieldsByProperty = {};
+    this.searchValue = "";
     return this;
   }
 
@@ -385,23 +389,68 @@ class QueryEMX2 {
   // the best query would be for example"
   // Biobanks(orderby: { name: ASC }, filter: {collections: {_and: [{materials: {name: {like: "BUFFY_COAT"}}}, {materials: {name: {like: "CELL_LINES"}}}]}})
   // but this requires another rewrite ;)
-  _createFilterString(filters: Record<string, any>) {
+  _createFilterString(filters: Record<string, any>, property: string) {
     let filterString = "";
 
-    if (!filters) return filterString;
+    const andCount = filters && filters["_and"] ? filters["_and"].length : 0;
+    const orCount = filters && filters["_or"] ? filters["_or"].length : 0;
 
-    if (filters["_and"].length) {
-      filterString += `_and: [ ${filters["_and"].join(", ")} ]`;
+    if (andCount + orCount > 1) {
+      let inner = "";
+      if (filters["_and"].length) {
+        filters["_and"].forEach((andFilter: string) => {
+          if (inner.length) {
+            inner += ", ";
+          }
+          inner += `{ _and: [ ${andFilter} ] }`;
+        });
+      }
+      if (filters["_or"].length) {
+        if (inner.length) {
+          inner += ", ";
+        }
+        filters["_or"].forEach((orFilter: string) => {
+          if (inner.length && !inner.endsWith(", ")) {
+            inner += ", ";
+          }
+          inner += `{ _or: [ ${orFilter} ] }`;
+        });
+      }
+      filterString += `_and: [ ${inner} ]`;
+    } else if (andCount === 1) {
+      const inner = filters["_and"];
+      filterString += `_and: [ ${inner} ]`;
+    } else if (orCount === 1) {
+      const inner = filters["_or"];
+      filterString += `_or: [ ${inner} ]`;
     }
 
-    if (filters["_or"].length) {
-      if (filterString.length) {
-        filterString += ", ";
-      }
+    if (
+      this.searchValue &&
+      Object.keys(this.searchFieldsByProperty).includes(property) &&
+      this.searchFieldsByProperty[property].length
+    ) {
+      let searchString = "";
+      this.searchFieldsByProperty[property].forEach((field) => {
+        if (searchString.length) {
+          searchString += ", ";
+        }
+        searchString += this.buildExpandedLike(field, this.searchValue);
+      });
 
-      filterString += `_or: [ ${filters["_or"].join(", ")} ]`;
+      filterString = filterString.length
+        ? `_and: [ { _or: [ ${searchString} ] } , { ${filterString} } ]`
+        : `_or: [ ${searchString} ]`;
     }
     return filterString;
+  }
+
+  buildExpandedLike(field: string, value: string) {
+    const fieldParts = field.split(".");
+    const str = fieldParts.reduce((acc: string, part: string) => {
+      return acc + `{ ${part}: `;
+    }, "");
+    return str + `{ like: "${value}" } }` + " }".repeat(fieldParts.length - 1);
   }
 
   /** Create a nested object to represent the branches and their properties */
@@ -460,8 +509,10 @@ class QueryEMX2 {
         : ""
     );
 
-    const filterString = this._createFilterString(this.filters[property]);
-
+    const filterString = this._createFilterString(
+      this.filters[property],
+      property
+    );
     if (filterString.length) {
       modifierParts.push(`filter: { ${filterString} }`);
     }
@@ -471,36 +522,49 @@ class QueryEMX2 {
     return filledModifiers.length ? `(${filledModifiers.join(", ")})` : "";
   }
 
-  _createFilterFromPath(path: string, operator: string, value: any) {
+  _createFilterFromPath(
+    path: string,
+    originalOperator: string,
+    value: any | any[]
+  ) {
     const valueArray = Array.isArray(value) ? value : [value];
+    const operator = this._getGqlOperator(originalOperator);
+    const reversedPathParts = path.split(".").reverse();
 
-    for (const value of valueArray) {
-      /** reverse the path, so we can build it from the inside out */
-      const reversedPathParts = path.split(".").reverse();
-      let graphqlValue = typeof value === "boolean" ? `${value}` : `"${value}"`;
-
-      /** if it is an _or and a like, concat them */
-      const queryType = !this.type ? "_and" : this.type;
-      if (operator === "orLike") {
-        graphqlValue = `["${valueArray.join('", "')}"]`;
-        operator = "like"; /** set it to the correct operator for graphQl */
-      }
-
-      if (operator === "in") {
-        graphqlValue = `["${valueArray.join('", "')}"]`;
-        operator = "equals";
-      }
-
-      /** most inner part of the query e.g. 'like: "red" */
-      let filter = `{ ${operator}: ${graphqlValue} }`;
-
+    if (this.type === "_or" && operator === "equals") {
+      let filter = `{ ${operator}: [${valueArray.map((value) =>
+        typeof value === "boolean" ? `${value}` : `"${value}"`
+      )}] }`;
       for (const pathPart of reversedPathParts) {
         filter = `{ ${pathPart}: ${filter} }`;
       }
-      this.filters[this.branch][queryType].push(filter);
+      this.filters[this.branch][this.type].push(filter);
+    } else {
+      for (const itemValue of valueArray) {
+        let graphqlValue =
+          typeof itemValue === "boolean" ? `${itemValue}` : `"${itemValue}"`;
 
-      /** we folded all into one so just return */
-      if (graphqlValue.includes("[")) return;
+        let filter = `{ ${operator}: ${graphqlValue} }`;
+
+        /** reverse the path, so we can build it from the inside out */
+        for (const pathPart of reversedPathParts) {
+          /** most inner part of the query e.g. 'like: "red" */
+          filter = `{ ${pathPart}: ${filter} }`;
+        }
+
+        this.filters[this.branch][this.type].push(filter);
+      }
+    }
+  }
+
+  _getGqlOperator(operator: string) {
+    switch (operator) {
+      case "in":
+        return "equals";
+      case "orLike":
+        return "like";
+      default:
+        return operator;
     }
   }
 
