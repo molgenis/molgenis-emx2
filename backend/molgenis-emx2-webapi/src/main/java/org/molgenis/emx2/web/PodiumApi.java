@@ -1,29 +1,27 @@
 package org.molgenis.emx2.web;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
-import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Base64;
 import org.jetbrains.annotations.NotNull;
+import org.molgenis.emx2.web.service.PodiumService;
 
 public class PodiumApi {
+  private static PodiumService podiumService = null;
+
   private PodiumApi() {}
 
   public static void create(Javalin app) {
     final String reportPath = "/api/podium";
     app.post(reportPath, PodiumApi::handlePodiumRequest);
+    podiumService = new PodiumService(HttpClient.newHttpClient());
   }
 
   private static void handlePodiumRequest(@NotNull Context context)
       throws IOException, InterruptedException {
-    String body = context.body();
-    HttpResponse<String> response = getResponse(body);
+    HttpResponse<String> response = podiumService.getResponse(context);
 
     if (response.statusCode() == 202) {
       context.status(201);
@@ -33,46 +31,5 @@ public class PodiumApi {
     }
 
     context.result(response.body());
-  }
-
-  private static HttpResponse<String> getResponse(String body)
-      throws IOException, InterruptedException {
-    ObjectMapper objectMapper = new ObjectMapper();
-    PodiumRequest podiumRequest = objectMapper.readValue(body, PodiumRequest.class);
-    HttpResponse<String> response;
-
-    try (HttpClient client = HttpClient.newHttpClient()) {
-      String basicAuthenticationHeader =
-          getBasicAuthenticationHeader(podiumRequest.podiumUsername, podiumRequest.podiumPassword);
-      HttpRequest.BodyPublisher bodyPublisher =
-          HttpRequest.BodyPublishers.ofString(
-              objectMapper.writeValueAsString(podiumRequest.payload));
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(URI.create(podiumRequest.podiumUrl))
-              .POST(bodyPublisher)
-              .header("Authorization", basicAuthenticationHeader)
-              .header("Content-type", "application/json")
-              .build();
-
-      response = client.send(request, HttpResponse.BodyHandlers.ofString());
-    }
-    return response;
-  }
-
-  private static String getBasicAuthenticationHeader(String username, String password) {
-    String valueToEncode = username + ":" + password;
-    return "Basic " + Base64.getEncoder().encodeToString(valueToEncode.getBytes());
-  }
-
-  public static class PodiumRequest {
-    @JsonProperty public String podiumUrl;
-    @JsonProperty public String podiumUsername;
-    @JsonProperty public String podiumPassword;
-    @JsonProperty public Object payload;
-
-    public PodiumRequest() {
-      // exposed for test
-    }
   }
 }

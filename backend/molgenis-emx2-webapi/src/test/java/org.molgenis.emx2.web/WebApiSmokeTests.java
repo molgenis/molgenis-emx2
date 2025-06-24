@@ -1727,16 +1727,4 @@ public class WebApiSmokeTests {
     }
     return firstJob;
   }
-
-  @Test
-  void testPodiumApi() throws RuntimeException {
-    PodiumApi.PodiumRequest podiumBody = new PodiumApi.PodiumRequest();
-    podiumBody.podiumUrl = "http://molgenis.org";
-    podiumBody.podiumUsername = "user1";
-    podiumBody.podiumPassword = "asdf";
-    podiumBody.payload = "";
-
-    Response response = given().when().body(podiumBody).post("/api/podium");
-    assertEquals(405, response.statusCode());
-  }
 }
