@@ -431,7 +431,7 @@ public class RDFTest {
 
   // Full RDF output tests.
   @Test
-  void testPetStoreRdfEmx2Schema() throws IOException, NoSuchMethodException {
+  void testPetStoreRdfEmx2SchemaModel() throws IOException, NoSuchMethodException {
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/emx2/schema.ttl",
         WriterFactory.MODEL,
@@ -441,7 +441,7 @@ public class RDFTest {
   }
 
   @Test
-  void testRdfStreaming() throws IOException, NoSuchMethodException {
+  void testPetStoreRdfEmx2SchemaStream() throws IOException, NoSuchMethodException {
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/emx2/schema.ttl",
         WriterFactory.STREAM,
