@@ -333,7 +333,7 @@ PetStoreNr1:Tag a owl:Class;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "pooky";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 9.4E0;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 9.4;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/orders> <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3A6fe7a528-2e97-48cc-91e6-a94c689b4919>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
@@ -349,7 +349,7 @@ PetStoreNr1:Tag a owl:Class;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green>,
     <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red>;
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 1.57E1;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 15.7;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/orders> <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3Ae27c852c-29e2-4459-bcf1-98d8907ff77b>;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
@@ -364,7 +364,7 @@ PetStoreNr1:Tag a owl:Class;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red>;
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 3.14E0;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 3.14;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
@@ -379,7 +379,7 @@ PetStoreNr1:Tag a owl:Class;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
   <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 1.337E0;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 1.337;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
@@ -393,7 +393,7 @@ PetStoreNr1:Tag a owl:Class;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue>;
   <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue>;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 1.8E-1;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 0.18;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
@@ -407,7 +407,7 @@ PetStoreNr1:Tag a owl:Class;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red>;
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 1.0E-1;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 0.1;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
@@ -422,7 +422,7 @@ PetStoreNr1:Tag a owl:Class;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green>;
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 5.0E-1;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 0.5;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
@@ -439,7 +439,7 @@ PetStoreNr1:Tag a owl:Class;
     <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green>;
   <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>,
     <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
-  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 1.0E-2;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 0.01;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
   <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
 
@@ -477,7 +477,7 @@ PetStoreNr1:Tag a owl:Class;
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/orderId> "ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919";
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/pet> <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky>;
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/quantity> "1"^^xsd:long;
-  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/price> 9.99E0;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/price> 9.99;
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/complete> true;
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/status> "delivered";
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_insertedOn> "2025-06-16T15:01:16"^^xsd:dateTime;
@@ -492,7 +492,7 @@ PetStoreNr1:Tag a owl:Class;
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/orderId> "ORDER:e27c852c-29e2-4459-bcf1-98d8907ff77b";
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/pet> <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>;
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/quantity> "7"^^xsd:long;
-  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/price> 1.499E1;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/price> 14.99;
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/complete> false;
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/status> "approved";
   <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_insertedOn> "2025-06-16T15:01:16"^^xsd:dateTime;
