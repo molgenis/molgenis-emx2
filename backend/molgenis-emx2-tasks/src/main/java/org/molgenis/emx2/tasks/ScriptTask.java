@@ -160,13 +160,13 @@ public class ScriptTask extends Task {
     if (this.extraFile.get("extraFile") != null) {
       String extraFileName = this.extraFile.get("extraFile_filename").toString();
       byte[] extraFileContent = (byte[]) this.extraFile.get("extraFile_contents");
-      String extraFileExtension = this.extraFile.get("extraFile_extension").toString();
+      Object extraFileExtension = this.extraFile.get("extraFile_extension");
       Path extraFilePath = tempDir.resolve(extraFileName);
 
       try (FileOutputStream fos = new FileOutputStream(extraFilePath.toFile())) {
         fos.write(extraFileContent);
       }
-      if (extraFileExtension.equalsIgnoreCase("zip")) {
+      if (extraFileExtension != null && extraFileExtension.toString().equalsIgnoreCase("zip")) {
         extractZipCommand = "unzip " + extraFileName + " -d " + tempDir.toAbsolutePath();
       }
     }
