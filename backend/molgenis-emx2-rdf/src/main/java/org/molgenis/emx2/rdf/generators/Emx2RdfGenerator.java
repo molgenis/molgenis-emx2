@@ -251,6 +251,12 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     getWriter().processTriple(subject, RDF.TYPE, OWL.CLASS);
     getWriter().processTriple(subject, RDF.TYPE, SKOS.CONCEPT);
     getWriter().processTriple(subject, RDFS.SUBCLASSOF, tableIRI);
+    if (row.getString("parent") != null) {
+      Set<Value> parents = retrieveValues(rdfMapData, row, table.getMetadata().getColumn("parent"));
+      for (var parent : parents) {
+        getWriter().processTriple(subject, RDFS.SUBCLASSOF, parent);
+      }
+    }
     getWriter().processTriple(subject, SKOS.IN_SCHEME, tableIRI);
     if (row.getString("name") != null) {
       getWriter().processTriple(subject, RDFS.LABEL, Values.literal(row.getString("name")));
@@ -276,12 +282,6 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     }
     if (row.getString("ontologyTermURI") != null) {
       getWriter().processTriple(subject, OWL.SAMEAS, Values.iri(row.getString("ontologyTermURI")));
-    }
-    if (row.getString("parent") != null) {
-      Set<Value> parents = retrieveValues(rdfMapData, row, table.getMetadata().getColumn("parent"));
-      for (var parent : parents) {
-        getWriter().processTriple(subject, RDFS.SUBCLASSOF, parent);
-      }
     }
   }
 
