@@ -159,6 +159,14 @@ public class ScriptTask extends Task {
     String extractZipCommand = "";
     if (this.extraFile.get("extraFile") != null) {
       String extraFileName = this.extraFile.get("extraFile_filename").toString();
+      List<String> forbiddenFiles = Arrays.asList("venv.zip", "requirements.txt", "script.py");
+      if (forbiddenFiles.contains(extraFileName)) {
+        throw new MolgenisException(
+            "Invalid file name '"
+                + extraFileName
+                + "'. "
+                + "Ensure the name of the extra file is not any of 'script.py', 'requirements.txt', or 'venv.zip'.");
+      }
       byte[] extraFileContent = (byte[]) this.extraFile.get("extraFile_contents");
       Object extraFileExtension = this.extraFile.get("extraFile_extension");
       Path extraFilePath = tempDir.resolve(extraFileName);
