@@ -69,6 +69,9 @@
   --text-color-pagination-hover: var(--color-green-500);
   --text-color-input: var(--color-white);
 
+  --text-color-button-toggle-active: var(--text-color-button-secondary);
+  --text-color-button-toggle-inactive: var(--color-green-200);
+
   --border-color-button-primary: var(--color-green-500);
   --border-color-button-primary-hover: var(--color-white);
   --border-color-button-secondary: var(--color-gray-600);
