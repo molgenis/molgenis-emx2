@@ -53,11 +53,15 @@
             <InputString
               v-model="settingKey"
               label="key"
+              id="settings-key"
+              name="key"
               :readonly="isKeyReadOnly"
             />
             <InputText
               v-model="settingValue"
               label="setting value"
+              id="settings-value"
+              name="value"
               :readonly="isValueReadOnly"
             />
           </LayoutForm>
