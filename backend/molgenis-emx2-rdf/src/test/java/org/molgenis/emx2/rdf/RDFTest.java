@@ -49,6 +49,7 @@ import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.rdf.generators.Emx2RdfGenerator;
 import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 import org.molgenis.emx2.rdf.generators.RdfGenerator;
+import org.molgenis.emx2.rdf.generators.SemanticRdfGenerator;
 import org.molgenis.emx2.rdf.writers.WriterFactory;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
@@ -428,6 +429,7 @@ public class RDFTest {
     database.dropSchema(semanticTest.getName());
   }
 
+  // Full RDF output tests.
   @Test
   void testPetStoreRdfEmx2Schema() throws IOException, NoSuchMethodException {
     compareToValidationFile(
@@ -448,6 +450,49 @@ public class RDFTest {
         petStore_nr1);
   }
 
+  @Test
+  void testPetStoreRdfSemanticSchema() throws IOException, NoSuchMethodException {
+    compareToValidationFile(
+        "rdf_files/rdf_api/pet_store/semantic/schema.ttl",
+        WriterFactory.MODEL,
+        SemanticRdfGenerator.class,
+        RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
+        petStore_nr1);
+  }
+
+  @Test
+  void testPetStoreRdfSemanticOntology() throws IOException, NoSuchMethodException {
+    compareToValidationFile(
+        "rdf_files/rdf_api/pet_store/semantic/ontology_tag.ttl",
+        WriterFactory.MODEL,
+        SemanticRdfGenerator.class,
+        RdfApiGenerator.class.getDeclaredMethod("generate", Table.class),
+        petStore_nr1.getTable("Tag"));
+  }
+
+  @Test
+  void testPetStoreRdfSemanticTable() throws IOException, NoSuchMethodException {
+    compareToValidationFile(
+        "rdf_files/rdf_api/pet_store/semantic/table_user.ttl",
+        WriterFactory.MODEL,
+        SemanticRdfGenerator.class,
+        RdfApiGenerator.class.getDeclaredMethod("generate", Table.class),
+        petStore_nr1.getTable("User"));
+  }
+
+  @Test
+  void testPetStoreRdfSemanticRow() throws IOException, NoSuchMethodException {
+    Table table = petStore_nr1.getTable("Pet");
+
+    compareToValidationFile(
+        "rdf_files/rdf_api/pet_store/semantic/row_fire_ant.ttl",
+        WriterFactory.MODEL,
+        SemanticRdfGenerator.class,
+        RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class),
+        table,
+        PrimaryKey.fromEncodedString(table, "name=fire%20ant"));
+  }
+
   private void compareToValidationFile(
       String validationFilePath,
       WriterFactory writerFactory,
@@ -464,6 +509,7 @@ public class RDFTest {
     CustomAssertions.equals(expected, actual);
   }
 
+  // Old selective output tests.
   @Test
   void testThatColumnsAreAProperty() throws IOException {
     InMemoryRDFHandler handler = parseSchemaRdf(petStore_nr1);
