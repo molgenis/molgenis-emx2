@@ -172,14 +172,15 @@ export default {
       focus: false,
       //huge object with all the terms, flattened
       //includes also its children
-      terms: {},
-      search: null,
+      terms: {} as Record<string, any>,
+      search: null as string | null,
       //we use key to force updates
       key: 1,
       //use to block to many search results
       searchResultCount: 0,
-      data: [],
+      data: [] as any[],
       loading: true,
+      limit: 100000, // Added limit property
     };
   },
   computed: {
@@ -219,7 +220,7 @@ export default {
       if (!this.showExpanded) {
         this.focus = !this.focus;
         if (this.focus) {
-          this.$refs.search.focus();
+          (this.$refs.search as HTMLInputElement)?.focus();
         }
       }
     },
@@ -285,7 +286,7 @@ export default {
         });
       }
       this.emitValue();
-      this.$refs.search.focus();
+      (this.$refs.search as HTMLInputElement)?.focus();
       if (!this.isMultiSelect) {
         //close on select
         this.focus = false;
@@ -320,7 +321,7 @@ export default {
         );
       }
       this.emitValue();
-      this.$refs.search.focus();
+      (this.$refs.search as HTMLInputElement)?.focus();
       this.key++;
     },
     clearSelection() {
@@ -330,7 +331,7 @@ export default {
         );
       }
       this.emitValue();
-      this.$refs.search.focus();
+      (this.$refs.search as HTMLInputElement)?.focus();
       this.key++;
     },
     emitValue() {
@@ -346,13 +347,13 @@ export default {
         this.$emit("update:modelValue", selectedTerms[0] || null);
       }
     },
-    applySelection(value: Record<string, any>) {
+    applySelection(value: any) {
       //deselect all
       Object.keys(this.terms).forEach(
         (key) => (this.terms[key].selected = "unselected")
       );
       //apply selection to the tree
-      if (value && this.isMultiSelect) {
+      if (Array.isArray(value) && this.isMultiSelect) {
         //clear existing selection
         value.forEach((v: Record<string, any>) => {
           let term = this.terms[v.name];
@@ -385,7 +386,12 @@ export default {
         });
       }
       //not a list so singular value
-      else if (value) {
+      else if (
+        value &&
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        value.name
+      ) {
         let term = this.terms[value.name];
         if (term) {
           term.selected = "complete";
