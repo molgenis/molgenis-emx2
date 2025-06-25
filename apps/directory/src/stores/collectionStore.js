@@ -60,6 +60,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
         .orLike(idsMissing);
 
       try {
+        clearError();
         const result = await missingCollectionQuery.execute();
         return result.Collections;
       } catch (error) {
@@ -81,6 +82,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
 
     let reportResults = [];
     try {
+      clearError();
       reportResults = await collectionReportQuery.execute();
     } catch (error) {
       setError(error);
@@ -103,6 +105,7 @@ export const useCollectionStore = defineStore("collectionStore", () => {
 
     let factResults = [];
     try {
+      clearError();
       factResults = await factQuery.execute();
     } catch (error) {
       setError(error);

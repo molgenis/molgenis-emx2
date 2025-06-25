@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.DC;
@@ -33,13 +32,12 @@ import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
-import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
-public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
+public class Emx2RdfGenerator extends RdfRowsGenerator {
   public Emx2RdfGenerator(RdfWriter writer, String baseURL) {
     super(writer, baseURL);
   }
@@ -73,34 +71,12 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
   }
 
   @Override
-  public void generate(Table table, PrimaryKey primaryKey) {
-    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
-    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
-    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
-
-    generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
-    generateCustomRdf(table.getSchema());
-    tables.forEach(i -> processRows(namespaces, rdfMapData, i, primaryKey));
-  }
-
-  @Override
   public void generate(Table table, Column column) {
     NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
 
     generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
     describeTable(namespaces, table);
     describeColumns(namespaces, table, column.getName());
-  }
-
-  void describeRoot() {
-    getWriter().processTriple(Values.iri(getBaseURL()), RDF.TYPE, BasicIRI.SIO_DATABASE);
-    getWriter().processTriple(Values.iri(getBaseURL()), RDFS.LABEL, Values.literal("EMX2"));
-    getWriter()
-        .processTriple(
-            Values.iri(getBaseURL()),
-            DCTERMS.DESCRIPTION,
-            Values.literal("MOLGENIS EMX2 database at " + getBaseURL()));
-    getWriter().processTriple(Values.iri(getBaseURL()), DCTERMS.CREATOR, BasicIRI.MOLGENIS);
   }
 
   void describeSchema(final Schema schema) {
@@ -232,18 +208,8 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     }
   }
 
-  void processRows(
-      NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, PrimaryKey primaryKey) {
-    List<Row> rows = getRows(table, primaryKey);
-
-    switch (table.getMetadata().getTableType()) {
-      case ONTOLOGIES -> rows.forEach(row -> ontologyRowToRdf(rdfMapData, table, row));
-      case DATA -> rows.forEach(row -> dataRowToRdf(namespaces, rdfMapData, table, row));
-      default -> throw new MolgenisException("Cannot convert unsupported TableType to RDF");
-    }
-  }
-
-  private void ontologyRowToRdf(final RdfMapData rdfMapData, final Table table, final Row row) {
+  @Override
+  protected void ontologyRowToRdf(final RdfMapData rdfMapData, final Table table, final Row row) {
     final IRI tableIRI = tableIRI(getBaseURL(), table);
     final IRI subject = rowIRI(getBaseURL(), table, row);
 
@@ -285,7 +251,8 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
     }
   }
 
-  private void dataRowToRdf(
+  @Override
+  protected void dataRowToRdf(
       final NamespaceMapper namespaces,
       final RdfMapData rdfMapData,
       final Table table,
@@ -337,18 +304,7 @@ public class Emx2RdfGenerator extends RdfGenerator implements RdfApiGenerator {
           }
           case FILE -> {
             getWriter().processTriple(subject, columnIRI, value);
-            IRI fileSubject = (IRI) value;
-            getWriter().processTriple(fileSubject, RDF.TYPE, BasicIRI.SIO_FILE);
-            Literal fileName = Values.literal(row.getString(column.getName() + "_filename"));
-            getWriter().processTriple(fileSubject, RDFS.LABEL, fileName);
-            getWriter().processTriple(fileSubject, DCTERMS.TITLE, fileName);
-            getWriter()
-                .processTriple(
-                    fileSubject,
-                    DCTERMS.FORMAT,
-                    Values.iri(
-                        "http://www.iana.org/assignments/media-types/"
-                            + row.getString(column.getName() + "_mimetype")));
+            generateFileTriples((IRI) value, row, column);
           }
           default -> {
             getWriter().processTriple(subject, columnIRI, value);

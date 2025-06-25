@@ -56,7 +56,7 @@ const settingsStore = useSettingsStore();
 const studyStore = useStudyStore();
 
 const route = useRoute();
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 const study = ref();
 
 let loaded = ref(false);
@@ -71,6 +71,7 @@ const info = computed(() => {
 
 function loadStudyReport(id) {
   loaded.value = false;
+  clearError();
   studyStore.getStudyReport(id).then((result) => {
     if (result.Studies?.length) {
       study.value = result.Studies[0];

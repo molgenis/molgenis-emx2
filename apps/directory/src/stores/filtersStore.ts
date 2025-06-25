@@ -14,7 +14,7 @@ import flattenOntologyBranch from "../functions/flattenOntologyBranch";
 import { IFilterOption, IOntologyItem } from "../interfaces/interfaces";
 import router from "../router";
 
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 const DIAGNOSIS_AVAILABLE = "Diagnosisavailable";
 
 export const useFiltersStore = defineStore("filtersStore", () => {
@@ -228,6 +228,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     for (const codeBlock of codesToQuery) {
       let ontologyResult;
       try {
+        clearError();
         ontologyResult = await new QueryEMX2(graphqlEndpointOntologyFilter)
           .table(sourceTable)
           .select(attributes)
