@@ -176,9 +176,8 @@ public class MolgenisWebservice {
         ctx.redirect("/" + ctx.pathParam(SCHEMA) + "/tables");
       }
     } catch (Exception e) {
-      // silly default
       logger.debug(e.getMessage());
-      ctx.redirect("/" + ctx.pathParam(SCHEMA) + "/tables");
+      ctx.redirect("/");
     }
   }
 
