@@ -97,7 +97,7 @@ const qualitiesStore = useQualitiesStore();
 const collection = ref();
 const facts = ref({});
 const route = useRoute();
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 
 let loaded = ref(false);
 
@@ -125,6 +125,7 @@ const bioschemasJsonld = computed(() => {
 
 function loadCollectionReport(id) {
   loaded.value = false;
+  clearError();
   const collectionsPromise = collectionStore
     .getCollectionReport(id)
     .then((result) => {

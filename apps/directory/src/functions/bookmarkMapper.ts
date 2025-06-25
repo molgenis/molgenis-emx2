@@ -7,7 +7,7 @@ import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
 let bookmarkApplied = false;
 
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 
 export async function applyBookmark(watchedQuery: LocationQuery) {
   if (bookmarkApplied) {
@@ -189,6 +189,7 @@ export function createBookmark(
 
   if (!filtersStore.bookmarkWaitingForApplication) {
     try {
+      clearError();
       router.push({
         name: router.currentRoute.value.name,
         query: bookmark,
