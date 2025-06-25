@@ -68,7 +68,7 @@ public class GraphqlTableFieldFactory {
       return table.getIdentifier();
     } else {
       // refschema types we prefix with schema
-      return table.getSchema().getIdentifier() + "_" + table.getIdentifier();
+      return table.getSchema().getIdentifier().replace("-", "") + "_" + table.getIdentifier();
     }
   }
 
