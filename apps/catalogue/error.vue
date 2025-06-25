@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { useRuntimeConfig, useRoute, useHead } from '#app';
+import { useRuntimeConfig, useRoute, useHead, useRouter } from "#app";
 
 defineProps(["error"]);
 
 const config = useRuntimeConfig();
 const route = useRoute();
+const router = useRouter();
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
@@ -12,11 +13,10 @@ const faviconHref = config.public.emx2Theme
 
 useHead({
   htmlAttrs: {
-    'data-theme': route.query.theme as string || config.public.emx2Theme || "",
+    "data-theme":
+      (route.query.theme as string) || config.public.emx2Theme || "",
   },
-  link: [
-    { rel: "icon", href: faviconHref },
-  ],
+  link: [{ rel: "icon", href: faviconHref }],
   titleTemplate: (titleChunk) => {
     return titleChunk
       ? `${titleChunk} | ${config.public.siteTitle}`
@@ -56,7 +56,7 @@ useHead({
                 </p>
               </div>
               <div class="py-5">
-                <Button @click="$router.go(-1)" label="Go back" size="medium" />
+                <Button @click="router.go(-1)" label="Go back" size="medium" />
               </div>
             </div>
           </div>
