@@ -1,0 +1,578 @@
+@prefix PetStoreNr1: <http://localhost:8080/petStoreNr1/api/rdf/> .
+@prefix afr: <http://purl.allotrope.org/ontologies/result#> .
+@prefix afrl: <http://purl.allotrope.org/ontologies/role#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix edam: <http://edamontology.org/> .
+@prefix efo: <http://www.ebi.ac.uk/efo/> .
+@prefix ejp: <https://w3id.org/ejp-rd/vocabulary#> .
+@prefix ensembl: <http://ensembl.org/glossary/> .
+@prefix fdp-o: <https://w3id.org/fdp/fdp-o#> .
+@prefix fg: <https://w3id.org/fair-genomes/resource/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix healthDCAT-AP: <http://healthdataportal.eu/ns/health#> .
+@prefix hl7: <http://purl.bioontology.org/ontology/HL7/> .
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
+@prefix lnc: <http://purl.bioontology.org/ontology/LNC/> .
+@prefix mesh: <http://purl.bioontology.org/ontology/MESH/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix ordo: <http://www.orpha.net/ORDO/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix snomedct: <http://purl.bioontology.org/ontology/SNOMEDCT/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://localhost:8080> a sio:SIO_000750;
+  rdfs:label "EMX2";
+  dcterms:description "MOLGENIS EMX2 database at http://localhost:8080";
+  dcterms:creator <https://molgenis.org> .
+
+<http://localhost:8080/petStoreNr1/api/rdf> a rdfs:Container;
+  rdfs:label "petStoreNr1";
+  dcterms:isPartOf <http://localhost:8080>;
+  ldp:contains PetStoreNr1:Category, PetStoreNr1:Pet, PetStoreNr1:User, PetStoreNr1:Order,
+    PetStoreNr1:Tag .
+
+PetStoreNr1:Category a owl:Class;
+  rdfs:subClassOf qb:DataSet, owl:Thing;
+  rdfs:isDefinedBy sio:SIO_001055;
+  rdfs:label "Category".
+
+PetStoreNr1:Pet a owl:Class;
+  rdfs:subClassOf qb:DataSet, owl:Thing;
+  rdfs:isDefinedBy sio:SIO_001055;
+  rdfs:label "Pet";
+  dcterms:description "My pet store example table"@en .
+
+PetStoreNr1:User a owl:Class;
+  rdfs:subClassOf qb:DataSet, owl:Thing;
+  rdfs:isDefinedBy foaf:Person, sio:SIO_001055;
+  rdfs:label "User".
+
+PetStoreNr1:Order a owl:Class;
+  rdfs:subClassOf qb:DataSet, owl:Thing;
+  rdfs:isDefinedBy sio:SIO_001055;
+  rdfs:label "Order".
+
+PetStoreNr1:Tag a owl:Class;
+  rdfs:subClassOf qb:DataSet, owl:Thing, skos:ConceptScheme;
+  rdfs:isDefinedBy obo:NCIT_C48697;
+  rdfs:label "Tag" .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_draft> a owl:DatatypeProperty;
+  rdfs:range xsd:boolean;
+  rdfs:label "mg_draft";
+  rdfs:domain PetStoreNr1:Category .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> a owl:DatatypeProperty;
+  rdfs:range xsd:dateTime;
+  rdfs:label "mg_insertedOn";
+  rdfs:domain PetStoreNr1:Category .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> a owl:DatatypeProperty;
+  rdfs:range xsd:dateTime;
+  rdfs:label "mg_updatedOn";
+  rdfs:domain PetStoreNr1:Category .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "name";
+  rdfs:domain PetStoreNr1:Category .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_draft> a owl:DatatypeProperty;
+  rdfs:range xsd:boolean;
+  rdfs:label "mg_draft";
+  rdfs:domain PetStoreNr1:Pet .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> a owl:DatatypeProperty;
+  rdfs:range xsd:dateTime;
+  rdfs:label "mg_insertedOn";
+  rdfs:domain PetStoreNr1:Pet .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> a owl:DatatypeProperty;
+  rdfs:range xsd:dateTime;
+  rdfs:label "mg_updatedOn";
+  rdfs:domain PetStoreNr1:Pet .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "name";
+  rdfs:domain PetStoreNr1:Pet;
+  dc:description "the name"@en .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> a owl:ObjectProperty;
+  rdfs:range PetStoreNr1:Category;
+  rdfs:label "category";
+  rdfs:domain PetStoreNr1:Pet .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/photoUrls> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "photoUrls";
+  rdfs:domain PetStoreNr1:Pet .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/details> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "details";
+  rdfs:domain PetStoreNr1:Pet;
+  dc:description "Details"@en .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "status";
+  rdfs:domain PetStoreNr1:Pet .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> a owl:ObjectProperty;
+  rdfs:range PetStoreNr1:Tag;
+  rdfs:label "tags";
+  rdfs:domain PetStoreNr1:Pet;
+  rdfs:isDefinedBy <http://example.com/petstore#hasTags> .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> a owl:DatatypeProperty;
+  rdfs:range xsd:decimal;
+  rdfs:label "weight";
+  rdfs:domain PetStoreNr1:Pet .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/heading2> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "Heading2";
+  rdfs:domain PetStoreNr1:Pet .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/column/orders> a owl:ObjectProperty;
+  rdfs:range PetStoreNr1:Order;
+  rdfs:label "orders";
+  rdfs:domain PetStoreNr1:Pet .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/mg_draft> a owl:DatatypeProperty;
+  rdfs:range xsd:boolean;
+  rdfs:label "mg_draft";
+  rdfs:domain PetStoreNr1:User .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/mg_insertedOn> a owl:DatatypeProperty;
+  rdfs:range xsd:dateTime;
+  rdfs:label "mg_insertedOn";
+  rdfs:domain PetStoreNr1:User .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/mg_updatedOn> a owl:DatatypeProperty;
+  rdfs:range xsd:dateTime;
+  rdfs:label "mg_updatedOn";
+  rdfs:domain PetStoreNr1:User .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/username> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "username";
+  rdfs:domain PetStoreNr1:User;
+  rdfs:isDefinedBy foaf:accountName .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/firstName> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "firstName";
+  rdfs:domain PetStoreNr1:User;
+  rdfs:isDefinedBy foaf:firstName .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/lastName> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "lastName";
+  rdfs:domain PetStoreNr1:User;
+  rdfs:isDefinedBy foaf:lastName .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/picture> a owl:DatatypeProperty;
+  rdfs:range xsd:anyURI;
+  rdfs:label "picture";
+  rdfs:domain PetStoreNr1:User;
+  rdfs:isDefinedBy foaf:img .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/email> a owl:DatatypeProperty;
+  rdfs:range xsd:anyURI;
+  rdfs:label "email";
+  rdfs:domain PetStoreNr1:User;
+  rdfs:isDefinedBy foaf:mbox .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/password> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "password";
+  rdfs:domain PetStoreNr1:User .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/phone> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "phone";
+  rdfs:domain PetStoreNr1:User;
+  rdfs:isDefinedBy foaf:phone .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/userStatus> a owl:DatatypeProperty;
+  rdfs:range xsd:int;
+  rdfs:label "userStatus";
+  rdfs:domain PetStoreNr1:User .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/column/pets> a owl:ObjectProperty;
+  rdfs:range PetStoreNr1:Pet;
+  rdfs:label "pets";
+  rdfs:domain PetStoreNr1:User;
+  rdfs:isDefinedBy <http://example.com/petstore#hasPets> .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_draft> a owl:DatatypeProperty;
+  rdfs:range xsd:boolean;
+  rdfs:label "mg_draft";
+  rdfs:domain PetStoreNr1:Order .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_insertedOn> a owl:DatatypeProperty;
+  rdfs:range xsd:dateTime;
+  rdfs:label "mg_insertedOn";
+  rdfs:domain PetStoreNr1:Order .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_updatedOn> a owl:DatatypeProperty;
+  rdfs:range xsd:dateTime;
+  rdfs:label "mg_updatedOn";
+  rdfs:domain PetStoreNr1:Order .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/column/orderId> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "orderId";
+  rdfs:domain PetStoreNr1:Order .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/column/pet> a owl:ObjectProperty;
+  rdfs:range PetStoreNr1:Pet;
+  rdfs:label "pet";
+  rdfs:domain PetStoreNr1:Order .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/column/quantity> a owl:DatatypeProperty;
+  rdfs:range xsd:long;
+  rdfs:label "quantity";
+  rdfs:domain PetStoreNr1:Order .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/column/price> a owl:DatatypeProperty;
+  rdfs:range xsd:decimal;
+  rdfs:label "price";
+  rdfs:domain PetStoreNr1:Order .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/column/complete> a owl:DatatypeProperty;
+  rdfs:range xsd:boolean;
+  rdfs:label "complete";
+  rdfs:domain PetStoreNr1:Order .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/column/status> a owl:DatatypeProperty;
+  rdfs:range xsd:string;
+  rdfs:label "status";
+  rdfs:domain PetStoreNr1:Order .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat> a PetStoreNr1:Category,
+    qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat>;
+  qb:dataSet PetStoreNr1:Category;
+  rdfs:label "cat";
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> "cat";
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=dog> a PetStoreNr1:Category,
+    qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Category/name=dog>;
+  qb:dataSet PetStoreNr1:Category;
+  rdfs:label "dog";
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> "dog";
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=mouse> a PetStoreNr1:Category,
+    qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Category/name=mouse>;
+  qb:dataSet PetStoreNr1:Category;
+  rdfs:label "mouse";
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> "mouse";
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=bird> a PetStoreNr1:Category,
+    qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Category/name=bird>;
+  qb:dataSet PetStoreNr1:Category;
+  rdfs:label "bird";
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> "bird";
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=ant> a PetStoreNr1:Category,
+    qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Category/name=ant>;
+  qb:dataSet PetStoreNr1:Category;
+  rdfs:label "ant";
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> "ant";
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=caterpillar> a PetStoreNr1:Category,
+    qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Category/name=caterpillar>;
+  qb:dataSet PetStoreNr1:Category;
+  rdfs:label "caterpillar";
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/name> "caterpillar";
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Category/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky> a PetStoreNr1:Pet, qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky>;
+  qb:dataSet PetStoreNr1:Pet;
+  rdfs:label "pooky";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "pooky";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 9.4E0;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/orders> <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3A6fe7a528-2e97-48cc-91e6-a94c689b4919>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike> a PetStoreNr1:Pet, qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>;
+  qb:dataSet PetStoreNr1:Pet;
+  rdfs:label "spike";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "spike";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=dog>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "sold";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red>;
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 1.57E1;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/orders> <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3Ae27c852c-29e2-4459-bcf1-98d8907ff77b>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tom> a PetStoreNr1:Pet, qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tom>;
+  qb:dataSet PetStoreNr1:Pet;
+  rdfs:label "tom";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "tom";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red>;
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 3.14E0;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=sylvester> a PetStoreNr1:Pet,
+    qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=sylvester>;
+  qb:dataSet PetStoreNr1:Pet;
+  rdfs:label "sylvester";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "sylvester";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
+  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 1.337E0;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=jerry> a PetStoreNr1:Pet, qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=jerry>;
+  qb:dataSet PetStoreNr1:Pet;
+  rdfs:label "jerry";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "jerry";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=mouse>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue>;
+  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 1.8E-1;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tweety> a PetStoreNr1:Pet, qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tweety>;
+  qb:dataSet PetStoreNr1:Pet;
+  rdfs:label "tweety";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "tweety";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=bird>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red>;
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 1.0E-1;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>
+  a PetStoreNr1:Pet, qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>;
+  qb:dataSet PetStoreNr1:Pet;
+  rdfs:label "the very hungry caterpillar";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "the very hungry caterpillar";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=caterpillar>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green>;
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 5.0E-1;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant> a PetStoreNr1:Pet,
+    qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>;
+  qb:dataSet PetStoreNr1:Pet;
+  rdfs:label "fire ant";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/name> "fire ant";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/category> <http://localhost:8080/petStoreNr1/api/rdf/Category/name=ant>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/status> "available";
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/tags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green>;
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/weight> 1.0E-2;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Pet/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke> a PetStoreNr1:User,
+    qb:Observation, foaf:Person;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke>;
+  qb:dataSet PetStoreNr1:User;
+  rdfs:label "bofke";
+  foaf:accountName "bofke";
+  <http://localhost:8080/petStoreNr1/api/rdf/User/column/username> "bofke";
+  foaf:img <http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>;
+  <http://localhost:8080/petStoreNr1/api/rdf/User/column/picture> <http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>;
+  <http://example.com/petstore#hasPets> <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky>, <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>;
+  <http://localhost:8080/petStoreNr1/api/rdf/User/column/pets> <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky>, <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>;
+  <http://localhost:8080/petStoreNr1/api/rdf/User/column/mg_insertedOn> "2025-06-16T15:01:15"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/User/column/mg_updatedOn> "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>
+  a sio:SIO_000396;
+  rdfs:label "8hlbnm.jpg";
+  dcterms:title "8hlbnm.jpg";
+  dcterms:format <http://www.iana.org/assignments/media-types/image/jpeg> .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3A6fe7a528-2e97-48cc-91e6-a94c689b4919>
+  a PetStoreNr1:Order, qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3A6fe7a528-2e97-48cc-91e6-a94c689b4919>;
+  qb:dataSet PetStoreNr1:Order;
+  rdfs:label "ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919";
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/orderId> "ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919";
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/pet> <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/quantity> "1"^^xsd:long;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/price> 9.99E0;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/complete> true;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/status> "delivered";
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_insertedOn> "2025-06-16T15:01:16"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_updatedOn> "2025-06-16T15:01:16"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3Ae27c852c-29e2-4459-bcf1-98d8907ff77b>
+  a PetStoreNr1:Order, qb:Observation;
+  dcat:endpointURL <http://localhost:8080/petStoreNr1/api/rdf>;
+  fdp-o:metadataIdentifier <http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3Ae27c852c-29e2-4459-bcf1-98d8907ff77b>;
+  qb:dataSet PetStoreNr1:Order;
+  rdfs:label "ORDER:e27c852c-29e2-4459-bcf1-98d8907ff77b";
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/orderId> "ORDER:e27c852c-29e2-4459-bcf1-98d8907ff77b";
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/pet> <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/quantity> "7"^^xsd:long;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/price> 1.499E1;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/complete> false;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/status> "approved";
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_insertedOn> "2025-06-16T15:01:16"^^xsd:dateTime;
+  <http://localhost:8080/petStoreNr1/api/rdf/Order/column/mg_updatedOn> "2025-06-16T15:01:16"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=colors> a obo:NCIT_C95637, owl:Class,
+    skos:Concept;
+  rdfs:subClassOf PetStoreNr1:Tag;
+  skos:inScheme PetStoreNr1:Tag;
+  rdfs:label "colors";
+  skos:prefLabel "colors" .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red> a obo:NCIT_C95637, owl:Class,
+    skos:Concept;
+  rdfs:subClassOf PetStoreNr1:Tag, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=colors>;
+  skos:inScheme PetStoreNr1:Tag;
+  rdfs:label "red";
+  skos:prefLabel "red";
+  owl:sameAs <https://dbpedia.org/page/Red> .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green> a obo:NCIT_C95637, owl:Class,
+    skos:Concept;
+  rdfs:subClassOf PetStoreNr1:Tag, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=colors>;
+  skos:inScheme PetStoreNr1:Tag;
+  rdfs:label "green";
+  skos:prefLabel "green";
+  owl:sameAs <https://dbpedia.org/page/Green> .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue> a obo:NCIT_C95637, owl:Class,
+    skos:Concept;
+  rdfs:subClassOf PetStoreNr1:Tag, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=colors>;
+  skos:inScheme PetStoreNr1:Tag;
+  rdfs:label "blue";
+  skos:prefLabel "blue" .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple> a obo:NCIT_C95637, owl:Class,
+    skos:Concept;
+  rdfs:subClassOf PetStoreNr1:Tag, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=colors>;
+  skos:inScheme PetStoreNr1:Tag;
+  rdfs:label "purple";
+  skos:prefLabel "purple" .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=species> a obo:NCIT_C95637, owl:Class,
+    skos:Concept;
+  rdfs:subClassOf PetStoreNr1:Tag;
+  skos:inScheme PetStoreNr1:Tag;
+  rdfs:label "species";
+  skos:prefLabel "species" .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=mammals> a obo:NCIT_C95637, owl:Class,
+    skos:Concept;
+  rdfs:subClassOf PetStoreNr1:Tag, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=species>;
+  skos:inScheme PetStoreNr1:Tag;
+  rdfs:label "mammals";
+  skos:prefLabel "mammals" .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=carnivorous%20mammals> a obo:NCIT_C95637,
+    owl:Class, skos:Concept;
+  rdfs:subClassOf PetStoreNr1:Tag, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=mammals>;
+  skos:inScheme PetStoreNr1:Tag;
+  rdfs:label "carnivorous mammals";
+  skos:prefLabel "carnivorous mammals" .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=herbivorous%20mammals> a obo:NCIT_C95637,
+    owl:Class, skos:Concept;
+  rdfs:subClassOf PetStoreNr1:Tag, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=mammals>;
+  skos:inScheme PetStoreNr1:Tag;
+  rdfs:label "herbivorous mammals";
+  skos:prefLabel "herbivorous mammals" .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=birds> a obo:NCIT_C95637, owl:Class,
+    skos:Concept;
+  rdfs:subClassOf PetStoreNr1:Tag, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=species>;
+  skos:inScheme PetStoreNr1:Tag;
+  rdfs:label "birds";
+  skos:prefLabel "birds" .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=insect> a obo:NCIT_C95637, owl:Class,
+    skos:Concept;
+  rdfs:subClassOf PetStoreNr1:Tag, <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=species>;
+  skos:inScheme PetStoreNr1:Tag;
+  rdfs:label "insect";
+  skos:prefLabel "insect" .

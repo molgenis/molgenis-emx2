@@ -12,16 +12,16 @@
 </template>
 
 <script setup lang="ts">
+import { useFavicon, usePreferredDark } from "@vueuse/core";
 //@ts-expect-error
 import { Molgenis } from "molgenis-components";
-import { onMounted, computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { LocationQuery, useRoute } from "vue-router";
 import Error from "./components/Error.vue";
 import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
 import { useCheckoutStore } from "./stores/checkoutStore";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useSettingsStore } from "./stores/settingsStore";
-import { useFavicon, usePreferredDark } from "@vueuse/core";
 
 const route = useRoute();
 const query = computed(() => route.query);
@@ -61,7 +61,6 @@ watch(
         checkoutStore.selectedCollections,
         checkoutStore.selectedServices
       );
-      applyBookmark(newQuery);
     }
 
     if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {

@@ -31,8 +31,16 @@ In addition there are three special users:
 
 ## Users can be managed by admin
 
-Individuals can 'sign up' to register themselves to MOLGENIS databases, choosing user name and password. Special user is
+Individuals can 'sign up' to register themselves to MOLGENIS databases, choosing username and password. Special user is
 the 'admin'. Only this user can see and create other users.
+
+## Admin rights can be delegated
+Root admin user can grant admin rights to other users. These users can perform administrative tasks across the system, similar to the root admin.
+
+Details:
+* Only the root admin can grant or revoke admin rights.
+* A user with admin status has full access to manage schemas, users, and permissions across the system.
+* Users with admin status cannot change the root admin's password or remove the root admin account.
 
 # Sign-in using Open ID Connect (OIDC)
 

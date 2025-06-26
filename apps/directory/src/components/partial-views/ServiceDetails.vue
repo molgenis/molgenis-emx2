@@ -99,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps } from "vue";
+import { computed } from "vue";
 import { IBiobanks, IServices } from "../../interfaces/directory";
 import quality from "../../components/generators/view-components/quality.vue";
 import string from "../../components/generators/view-components/string.vue";

@@ -1,4 +1,9 @@
-import type { columnValue, IColumn } from "../../metadata-utils/src/types";
+import type {
+  columnValue,
+  IColumn,
+  IRefColumn,
+  IRow,
+} from "../../metadata-utils/src/types";
 
 export type Resp<T> = {
   data: Record<string, T[]>;
@@ -55,6 +60,7 @@ export type ButtonType =
   | "primary"
   | "secondary"
   | "tertiary"
+  | "text"
   | "outline"
   | "disabled"
   | "filterWell"
@@ -125,4 +131,10 @@ export interface IInputProps {
 
 export interface ISession {
   email: string;
+  admin: boolean;
+}
+
+export interface RefPayload {
+  metadata: IRefColumn;
+  data: IRow;
 }
