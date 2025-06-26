@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Row;
 
 @Tag("slow")
 public class TestScriptTask {
@@ -24,6 +25,7 @@ public class TestScriptTask {
             .dependencies("numpy==2.2.4")
             // example with some characters that need escaping
             .parameters("\"netherlands & world\"")
+            .extraFile(new Row())
             .script(
                 """
 import time
@@ -53,6 +55,7 @@ print('Complete')
     ScriptTask r2 =
         new ScriptTask("error")
             .type(PYTHON)
+            .extraFile(new Row())
             .script(
                 """
 import sys
@@ -89,6 +92,7 @@ failureVariable = fail
 print('unreachable')
 """)
             .setServerUrl(new URL("http://localhost:8080/"))
+            .extraFile(new Row())
             .failureAddress("test@test.com");
     task.run();
     assertEquals(task.getStatus(), ERROR);
