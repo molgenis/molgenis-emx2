@@ -30,6 +30,8 @@
   --background-color-button-outline: var(--color-gray-900);
   --background-color-button-outline-hover: var(--color-gray-900);
 
+  --background-color-content: var(--color-gray-700);
+
   --background-color-form: var(--color-gray-900);
   --background-color-form-legend: var(--color-gray-900);
   --background-color-footer: var(--color-gray-700);
