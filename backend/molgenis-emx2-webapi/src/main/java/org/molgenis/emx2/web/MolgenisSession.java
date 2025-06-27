@@ -4,6 +4,7 @@ import graphql.GraphQL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -16,7 +17,7 @@ public class MolgenisSession {
   private Database database;
   private GraphQL graphqlForDatabase;
   private Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
-  private final static Map<String, GraphQL> anonymousGqlObjectCache = new ConcurrentHashMap<>();
+  private static final Map<String, GraphQL> anonymousGqlObjectCache = new ConcurrentHashMap<>();
 
   public MolgenisSession(Database database) {
     database.setBindings(JavaScriptBindings.getBindingsForSession(this));
@@ -44,10 +45,10 @@ public class MolgenisSession {
 
       // if the user is anonymous, try the system cache first
       if (Objects.equals(getSessionUser(), "anonymous")) {
-        GraphQL anonymousGql = anonymousGqlObjectCache.computeIfAbsent(
-            schemaName,
-            key -> new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService)
-        );
+        GraphQL anonymousGql =
+            anonymousGqlObjectCache.computeIfAbsent(
+                schemaName,
+                key -> new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService));
         graphqlPerSchema.put(schemaName, anonymousGql);
 
       } else {
