@@ -138,7 +138,7 @@ jobs:
         name: Docker-Scout scanning on cve's, break on critical.
         command: |
           curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
-          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code --severity critical 
+          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code --only-severity critical 
 
     - run:
         name: deploy preview to azure
