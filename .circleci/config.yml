@@ -137,7 +137,11 @@ jobs:
     - run:
         name: Docker-Scout scanning on cve's, break on critical. 
         command: |
-          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code critical --severity critical 
+          CRITICAL_COUNT=$(docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --format json | jq '[.[] | select(.severity == "CRITICAL")] | length')
+          if [ "$CRITICAL_COUNT" -gt 0 ]; then
+          echo "Critical vulnerabilities found!"
+          exit 1
+          fi
 
     - run:
         name: deploy preview to azure
