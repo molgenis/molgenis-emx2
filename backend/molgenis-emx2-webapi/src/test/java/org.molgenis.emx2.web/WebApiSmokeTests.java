@@ -1731,4 +1731,10 @@ if __name__ == '__main__':
     }
     return firstJob;
   }
+
+  @Test
+  void unknownSchemaShouldNotResultInRedirect() {
+    given().expect().statusCode(404).when().get("/malicious");
+    given().expect().statusCode(404).when().get("/malicious/");
+  }
 }
