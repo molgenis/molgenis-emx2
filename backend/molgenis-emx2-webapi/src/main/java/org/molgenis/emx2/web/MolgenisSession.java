@@ -47,7 +47,6 @@ public class MolgenisSession {
         GraphQL anonymousGql;
         if (anonymousGqlObjectCache.get(schemaName) != null) {
           anonymousGql = anonymousGqlObjectCache.get(schemaName);
-          graphqlPerSchema.put(schemaName, anonymousGql);
         } else {
           anonymousGql =
               new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService);
