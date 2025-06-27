@@ -26,7 +26,7 @@ Biosamples,,concentration,decimal,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C41
 Biosamples,,concentration unit,ontology,,,CatalogueOntologies,units,,,,http://purl.obolibrary.org/obo/NCIT_C48207,An indication of the type of unit of measure being used to express a concentration.,"Patient registry,FAIR Genomes"
 Biosamples,,volume,decimal,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C74720,The determination of the volume of a sample.,"Patient registry,FAIR Genomes"
 Biosamples,,volume unit,ontology,,,CatalogueOntologies,units,,,,http://purl.obolibrary.org/obo/NCIT_C44279,An indication of the type of unit of measure being used to express a volume.,"Patient registry,FAIR Genomes"
-Biosamples,,QC value,decimal,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0100661,A data field which describes quality control information.,"Patient registry,FAIR Genomes"
+Biosamples,,QC value,,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0100661,A data field which describes quality control information.,"Patient registry,FAIR Genomes"
 Biosamples,,derived from biosample,ref,,,,Biosamples,,,,http://purl.obolibrary.org/obo/OBI_0002077,"If applicable, a reference to a biosample that this material was derived from","Patient registry,FAIR Genomes"
 Biosamples,,failed quality control,bool,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0100564,An indication confirming that quality control processes were carried out and that the sequence did not meet the assessment criteria.,Patient registry
 Biosamples,,files,refback,,,,Files,,biosamples,,http://semanticscience.org/resource/SIO_000396,A reference to one or more files that contain information about this individual,Patient registry
