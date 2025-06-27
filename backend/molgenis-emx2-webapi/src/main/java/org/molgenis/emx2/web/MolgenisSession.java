@@ -44,14 +44,10 @@ public class MolgenisSession {
 
       // if the user is anonymous, try the system cache first
       if (Objects.equals(getSessionUser(), "anonymous")) {
-        GraphQL anonymousGql;
-        if (anonymousGqlObjectCache.get(schemaName) != null) {
-          anonymousGql = anonymousGqlObjectCache.get(schemaName);
-        } else {
-          anonymousGql =
-              new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService);
-          anonymousGqlObjectCache.put(schemaName, anonymousGql);
-        }
+        GraphQL anonymousGql = anonymousGqlObjectCache.computeIfAbsent(
+            schemaName,
+            key -> new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService)
+        );
         graphqlPerSchema.put(schemaName, anonymousGql);
 
       } else {
