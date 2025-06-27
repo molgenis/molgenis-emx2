@@ -135,13 +135,9 @@ jobs:
           docker push molgenis/ssr-catalogue-snapshot --all-tags
     
     - run:
-        name: Docker-Scout scanning on cve's, break on critical. 
+        name: Docker-Scout scanning on cve's
         command: |
-          CRITICAL_COUNT=$(docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --format json | jq '[.[] | select(.severity == "CRITICAL")] | length')
-          if [ "$CRITICAL_COUNT" -gt 0 ]; then
-          echo "Critical vulnerabilities found!"
-          exit 1
-          fi
+          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --severity critical 
 
     - run:
         name: deploy preview to azure
