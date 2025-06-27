@@ -16,7 +16,7 @@ public class MolgenisSession {
   private Database database;
   private GraphQL graphqlForDatabase;
   private Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
-  private final static Map<String, GraphQL> anonymousGqlObjectCache = new LinkedHashMap<>();
+  private final static Map<String, GraphQL> anonymousGqlObjectCache = new ConcurrentHashMap<>();
 
   public MolgenisSession(Database database) {
     database.setBindings(JavaScriptBindings.getBindingsForSession(this));
