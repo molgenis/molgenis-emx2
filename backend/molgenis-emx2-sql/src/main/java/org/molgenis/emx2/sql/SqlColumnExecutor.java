@@ -285,15 +285,17 @@ public class SqlColumnExecutor {
     }
     if (refSchema.getTableMetadata(column.getRefTableName()) == null) {
       TableMetadata tm =
-          getOntologyTableDefinition(column.getRefTableName(), column.getDescriptions());
+          getOntologyTableDefinition(
+              column.getRefTableName(), column.getLabels(), column.getDescriptions());
       // create the table
       refSchema.create(tm);
     }
   }
 
   public static TableMetadata getOntologyTableDefinition(
-      String name, Map<String, String> descriptions) {
+      String name, Map<String, String> labels, Map<String, String> descriptions) {
     return new TableMetadata(name)
+        .setLabels(labels)
         .setDescriptions(descriptions)
         .setTableType(TableType.ONTOLOGIES)
         .add(
