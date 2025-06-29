@@ -867,7 +867,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("/pet store/blaat2"))
+        .header("Location", is("/pet%20store/blaat2"))
         .when()
         .get("/pet store/");
 
@@ -886,7 +886,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("/pet store/blaat"))
+        .header("Location", is("/pet%20store/blaat"))
         .when()
         .get("/pet store/");
 
