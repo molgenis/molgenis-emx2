@@ -91,6 +91,7 @@
     --background-color-button-tree-node-toggle: var(--color-blue-800);
 
     --background-color-app-wrapper: var(--color-white);
+    --background-color-content: var(--color-white);
     --background-color-navigation: var(--color-white);
     --background-color-navigation-sticky: var(--background-color-navigation);
     --background-color-search-results-view-tabs: var(--color-blue-800);

@@ -7,7 +7,7 @@ import { ContactInfoColumns } from "../property-config/contactInfoColumns";
 import { useCollectionStore } from "./collectionStore";
 import { useSettingsStore } from "./settingsStore";
 
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 
 export const useNetworkStore = defineStore("networkStore", () => {
   const settingsStore = useSettingsStore();
@@ -17,6 +17,7 @@ export const useNetworkStore = defineStore("networkStore", () => {
   let networkReport = ref<any>({});
 
   async function loadNetworkReport(netWorkId: string) {
+    clearError();
     const biobanksQuery = new QueryEMX2(graphqlEndpoint)
       .table("Biobanks")
       .select(["name", "id", "description", "withdrawn"])
