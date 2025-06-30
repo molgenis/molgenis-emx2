@@ -838,7 +838,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("/pet store/tables"))
+        .header("Location", is("/pet%20store/tables"))
         .when()
         .get("/pet store/");
 
@@ -863,7 +863,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("/pet store/blaat2"))
+        .header("Location", is("/pet%20store/blaat2"))
         .when()
         .get("/pet store/");
 
@@ -882,7 +882,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("/pet store/blaat"))
+        .header("Location", is("/pet%20store/blaat"))
         .when()
         .get("/pet store/");
 
@@ -1726,5 +1726,11 @@ public class WebApiSmokeTests {
       Thread.sleep(1000);
     }
     return firstJob;
+  }
+
+  @Test
+  void unknownSchemaShouldNotResultInRedirect() {
+    given().expect().statusCode(404).when().get("/malicious");
+    given().expect().statusCode(404).when().get("/malicious/");
   }
 }

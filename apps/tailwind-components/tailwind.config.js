@@ -157,6 +157,7 @@ module.exports = {
         "search-filter-group-toggle":
           "var(--background-color-search-filter-group-toggle)",
         "app-wrapper": "var(--background-color-app-wrapper)",
+        content: "var(--background-color-content)",
         pagination: "var(--background-color-pagination)",
         "pagination-hover": "var(--background-color-pagination-hover)",
         form: "var(--background-color-form)",
