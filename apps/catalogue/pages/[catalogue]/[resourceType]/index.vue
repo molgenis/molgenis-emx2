@@ -43,7 +43,7 @@ const description: string | undefined =
 const image: string | undefined = imageMap[route.params.resourceType as string];
 
 useHead({
-  title: titlePrefix + title,
+  title: titlePrefix + title.charAt(0).toUpperCase() + title.slice(1),
   meta: [{ name: "description", content: description }],
 });
 
