@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install vim python3 python3-venv python3-pip pytho
 RUN python3 -m pip config set global.break-system-packages true
 RUN python3 --version
 
-ENV NODE_VERSION=20.11.0
+ENV NODE_VERSION=20.19.3
 RUN apt install -y curl
 USER molgenis 
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
