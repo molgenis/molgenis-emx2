@@ -44,7 +44,7 @@ export default {
           this.$emit("update:modelValue", flipped);
         }
       }
-      if (!isNumericKey(event)) {
+      if (!isNumericKey(event) || event.key === ".") {
         event.preventDefault();
       }
     },
