@@ -99,6 +99,7 @@
   --text-color-pagination-button: var(--color-white);
   --text-color-pagination-button-hover: var(--color-blue-800);
   --text-color-link: var(--color-yellow-500);
+  --text-color-link-inverted: var(--color-blue-500);
   --text-color-table-column-header: var(--color-gray-600);
 
   --text-color-invalid: var(--color-red-700);
