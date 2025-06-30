@@ -26,7 +26,7 @@ public class TestLoaders {
   public static final String DIRECTORY_STAGING = "DirectoryStaging";
   public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
-  public static final String PORTAL_TEST = "PortalTest";
+  public static final String MOLGENIS_RD4_TEST = "MolgenisRd4Test";
   public static final String PROJECT_MANAGER = "ProjectManager";
   public static final String CATALOGUE_ONTOLOGIES = "CatalogueOntologies";
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
@@ -38,7 +38,7 @@ public class TestLoaders {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     // prevent previous dangling test results
-    database.dropSchemaIfExists(PORTAL_TEST);
+    database.dropSchemaIfExists(MOLGENIS_RD4_TEST);
     database.dropSchemaIfExists(COHORT_STAGING);
     database.dropSchemaIfExists(NETWORK_STAGING);
     database.dropSchemaIfExists(DATA_CATALOGUE);
@@ -161,10 +161,10 @@ public class TestLoaders {
   //  }
 
   @Test
-  void test18PortalLoader() throws URISyntaxException, IOException {
+  void test18MolgenisRd4Loader() throws URISyntaxException, IOException {
     // depends on catalogue test above
-    Schema schema = database.dropCreateSchema(PORTAL_TEST);
-    DataModels.Profile.PATIENT_REGISTRY.getImportTask(schema, false).run();
+    Schema schema = database.dropCreateSchema(MOLGENIS_RD4_TEST);
+    DataModels.Profile.MOLGENIS_RD4.getImportTask(schema, false).run();
     assertEquals(47, schema.getTableNames().size());
   }
 
