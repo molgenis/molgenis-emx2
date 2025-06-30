@@ -8,9 +8,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.molgenis.emx2.ColumnType;
@@ -31,6 +29,7 @@ public class ScriptTask extends Task {
   private String parameters;
   private String token;
   private String dependencies;
+  private HashMap<String, Object> extraFile;
   private Process process;
   private byte[] output;
   private URL serverUrl;
@@ -46,6 +45,7 @@ public class ScriptTask extends Task {
         .script(scriptMetadata.getString("script"))
         .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
         .dependencies(scriptMetadata.getString("dependencies"))
+        .extraFile(scriptMetadata)
         .cronExpression(scriptMetadata.getString("cron"))
         .cronUserName(scriptMetadata.getString("cronUser"))
         .failureAddress(scriptMetadata.getString("failureAddress"))
@@ -156,6 +156,29 @@ public class ScriptTask extends Task {
     Path requirementsFile = Files.createFile(tempDir.resolve("requirements.txt"));
     Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
 
+    String extractZipCommand = "";
+    if (this.extraFile.get("extraFile") != null) {
+      String extraFileName = this.extraFile.get("extraFile_filename").toString();
+      List<String> forbiddenFiles = Arrays.asList("venv.zip", "requirements.txt", "script.py");
+      if (forbiddenFiles.contains(extraFileName)) {
+        throw new MolgenisException(
+            "Invalid file name '"
+                + extraFileName
+                + "'. "
+                + "Ensure the name of the extra file is not any of 'script.py', 'requirements.txt', or 'venv.zip'.");
+      }
+      byte[] extraFileContent = (byte[]) this.extraFile.get("extraFile_contents");
+      Object extraFileExtension = this.extraFile.get("extraFile_extension");
+      Path extraFilePath = tempDir.resolve(extraFileName);
+
+      try (FileOutputStream fos = new FileOutputStream(extraFilePath.toFile())) {
+        fos.write(extraFileContent);
+      }
+      if (extraFileExtension != null && extraFileExtension.toString().equalsIgnoreCase("zip")) {
+        extractZipCommand = "unzip " + extraFileName + " -d " + tempDir.toAbsolutePath();
+      }
+    }
+
     // define commands (given tempDir as working directory)
     String createVenvCommand = "python3 -m venv venv";
     String activateCommand = "source venv/bin/activate";
@@ -164,16 +187,23 @@ public class ScriptTask extends Task {
     String runScriptCommand = "python3 -u script.py";
     String escapedParameters = " " + escapeXSI(this.parameters);
 
-    return createVenvCommand
-        + " && "
-        + activateCommand
-        + " && "
-        + pipUpgradeCommand
-        + " && "
-        + installRequirementsCommand
-        + " && "
-        + runScriptCommand
-        + escapedParameters;
+    String shellCommands =
+        createVenvCommand
+            + " && "
+            + activateCommand
+            + " && "
+            + pipUpgradeCommand
+            + " && "
+            + installRequirementsCommand
+            + " && "
+            + runScriptCommand
+            + escapedParameters;
+
+    if (!extractZipCommand.isEmpty()) {
+      shellCommands = extractZipCommand + " && " + shellCommands;
+    }
+
+    return shellCommands;
   }
 
   private void sendFailureMail() {
@@ -242,6 +272,17 @@ public class ScriptTask extends Task {
 
   public ScriptTask dependencies(String dependencies) {
     this.dependencies = dependencies;
+    return this;
+  }
+
+  public ScriptTask extraFile(Row scriptMetaData) {
+    this.extraFile = new HashMap<>();
+    this.extraFile.put("extraFile", scriptMetaData.getString("extraFile"));
+    this.extraFile.put("extraFile_mimetype", scriptMetaData.getString("extraFile_mimetype"));
+    this.extraFile.put("extraFile_filename", scriptMetaData.getString("extraFile_filename"));
+    this.extraFile.put("extraFile_extension", scriptMetaData.getString("extraFile_extension"));
+    this.extraFile.put("extraFile_size", scriptMetaData.getString("extraFile_size"));
+    this.extraFile.put("extraFile_contents", scriptMetaData.getBinary("extraFile_contents"));
     return this;
   }
 
