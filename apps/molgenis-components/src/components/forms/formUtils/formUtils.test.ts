@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import constants from "../../constants.js";
 import {
   filterVisibleColumns,
@@ -11,6 +11,7 @@ import {
   isRequired,
   isJsonObjectOrArray,
   getBigIntError,
+  buildGraphqlFilter,
 } from "./formUtils";
 import type { ITableMetaData, IColumn } from "metadata-utils";
 const { AUTO_ID, HEADING } = constants;
@@ -584,5 +585,144 @@ describe("isJsonObjectOrArray", () => {
     expect(isJsonObjectOrArray(JSON.parse("true"))).toBe(false);
     expect(isJsonObjectOrArray(JSON.parse("false"))).toBe(false);
     expect(isJsonObjectOrArray(JSON.parse("null"))).toBe(false);
+  });
+});
+
+describe("buildGraphqlFilter", () => {
+  const errorCallback = () => {};
+  const defaultFilter = {};
+
+  test("it should return no filter for no filters", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "STRING",
+        id: "noConditions",
+        conditions: undefined,
+      } as IColumn,
+    ];
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({});
+  });
+
+  test("it should set a like filter for a STRING,TEXT, or JSON filter", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "STRING",
+        id: "stringColumn",
+        conditions: ["string"],
+      } as IColumn,
+      {
+        columnType: "TEXT",
+        id: "textColumn",
+        conditions: ["text"],
+      } as IColumn,
+      {
+        columnType: "JSON",
+        id: "jsonColumn",
+        conditions: ["{id: 'json'}"],
+      } as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      stringColumn: { like: ["string"] },
+      textColumn: { like: ["text"] },
+      jsonColumn: { like: ["{id: 'json'}"] },
+    });
+  });
+
+  test("it should set an equals filter for a boolean filter", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "BOOL",
+        id: "booleanColumn",
+        conditions: ["true"],
+      } as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      booleanColumn: { equals: ["true"] },
+    });
+  });
+
+  test("it should set an equals filter for a ref or ontology filter", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "REF",
+        id: "refColumn",
+        conditions: ["{}"],
+      } as IColumn,
+      {
+        columnType: "ONTOLOGY",
+        id: "ontologyColumn",
+        conditions: ["{}"],
+      } as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      refColumn: { equals: ["{}"] },
+      ontologyColumn: { equals: ["{}"] },
+    });
+  });
+
+  test("it should set a between filter with number for INT or DECIMAL", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "INT",
+        id: "intColumn",
+        conditions: ["1", "10"],
+      } as IColumn,
+      {
+        columnType: "DECIMAL",
+        id: "decimalColumn",
+        conditions: ["1.1", "10.1"],
+      } as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      intColumn: { between: [1, 10] },
+      decimalColumn: { between: [1.1, 10.1] },
+    });
+  });
+
+  test("it should set a between filter with LONG, or DATE formats ", () => {
+    const columns: IColumn[] = [
+      {
+        columnType: "LONG",
+        id: "longColumn",
+        conditions: ["1", "10"],
+      } as IColumn,
+      {
+        columnType: "DATE",
+        id: "dateColumn",
+        conditions: ["2023-01-01", "2023-12-31"],
+      } as IColumn,
+    ];
+
+    const result = buildGraphqlFilter(defaultFilter, columns, errorCallback);
+    expect(result).toEqual({
+      longColumn: { between: ["1", "10"] },
+      dateColumn: { between: ["2023-01-01", "2023-12-31"] },
+    });
+  });
+
+  test("it should call the error callback for invalid column types", () => {
+    const columns: IColumn[] = [
+      //@ts-expect-error
+      {
+        columnType: "INVALID_TYPE",
+        id: "invalidColumn",
+        conditions: ["value"],
+      } as IColumn,
+    ];
+
+    const errorCallbackMock = vi.fn();
+    buildGraphqlFilter(defaultFilter, columns, errorCallbackMock);
+    expect(errorCallbackMock).toHaveBeenCalledWith(
+      "filter unsupported for column type INVALID_TYPE (please report a bug)"
+    );
   });
 });

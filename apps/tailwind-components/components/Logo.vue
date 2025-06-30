@@ -3,27 +3,32 @@ import { useRuntimeConfig } from "#app";
 import { shallowRef } from "vue";
 import { useRoute } from "vue-router";
 
-defineProps<{
-  link?: string;
-  image?: string;
-}>();
+withDefaults(
+  defineProps<{
+    link?: string;
+    image?: string;
+    inverted?: boolean;
+  }>(),
+  {
+    inverted: false,
+  }
+);
 
 const config = useRuntimeConfig();
 const route = useRoute();
 const logoFileName = (route.query.logo as string) || config.public.emx2Logo;
 
-// load the svg data from the assets folder
-let svg = shallowRef();
+// load the svg data from the public folder
+const svg = shallowRef();
 if (logoFileName) {
-  //@ts-ignore
-  svg.value = await assetLoader.load(logoFileName);
+  svg.value = `/_nuxt-styles/logos/${logoFileName}.svg`;
 }
 </script>
 
 <template>
   <NuxtLink :to="link" class="transition-transform hover:scale-105">
     <span class="sr-only">Go to home</span>
-    <i v-if="svg" v-html="svg.default"></i>
+    <img v-if="svg" :src="svg" alt="logo" />
     <img
       v-else-if="image"
       :src="image"
@@ -38,7 +43,7 @@ if (logoFileName) {
       height="50"
     >
       <path
-        fill="#fff"
+        :class="inverted ? 'fill-logo-text-inverted' : 'fill-logo-text'"
         d="M515.536 270.446h-15.3l-23.66-113.61v113.82h-13.87v-142.78h22.23l23.46 114.02 22.63-114.02h22.24v142.78h-15.1v-114.83zM589.446 236.996c0 13.05 5.5 20.6 16.93 20.6 11.63 0 16.93-7.55 16.93-20.6v-75.47c0-12.85-5.3-20.6-16.93-20.6-11.43 0-16.93 7.75-16.93 20.6v75.47zm-15.7-74.65c0-21.82 10.81-35.9 32.64-35.9 22.03 0 32.84 14.08 32.84 35.9v73.84c0 21.62-10.81 35.9-32.84 35.9-21.83 0-32.64-14.28-32.64-35.9v-73.84zM662.016 270.656v-142.78h15.91v128.29h35.42v14.49zM789.936 162.346v12.24h-15.09v-13.06c0-12.85-5.1-20.6-16.72-20.6-11.42 0-16.73 7.75-16.73 20.6v75.47c0 12.85 5.31 20.6 16.73 20.6 11.62 0 16.72-7.75 16.72-20.6v-12.45h-14.69v-14.27h29.78v25.91c0 21.62-10.2 35.89-32.23 35.89-21.82 0-32.02-14.27-32.02-35.89v-73.84c0-21.62 10.2-35.9 32.02-35.9 22.03 0 32.23 14.28 32.23 35.9M861.196 191.106v14.28h-34.88v50.78h42.83v14.49h-58.74v-142.78h58.74v14.49h-42.83v48.74zM903.286 270.656h-14.28v-142.78h20.2l33.04 103.21v-103.21h14.07v142.78h-16.52l-36.51-115.45zM983.376 270.656h15.92v-142.78h-15.92zM1088.146 162.146v3.87h-15.09v-4.69c0-12.85-4.9-20.4-16.31-20.4-11.43 0-16.32 7.55-16.32 20.2 0 32.02 47.93 35.08 47.93 75.26 0 21.62-10.4 35.69-32.23 35.69-21.82 0-32.02-14.07-32.02-35.69v-8.16h14.89v8.97c0 12.85 5.3 20.4 16.72 20.4 11.43 0 16.72-7.55 16.72-20.4 0-31.82-47.73-34.88-47.73-75.06 0-22.03 10.2-35.7 31.62-35.7 21.63.01 31.82 14.09 31.82 35.71"
       />
       <g>

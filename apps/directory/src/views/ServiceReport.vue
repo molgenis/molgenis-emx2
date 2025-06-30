@@ -170,7 +170,7 @@ import { useCheckoutStore } from "../stores/checkoutStore";
 import useErrorHandler from "../composables/errorHandler";
 
 const service = ref<IServices | null>(null);
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 
 new QueryEMX2(useSettingsStore().config.graphqlEndpoint)
   .table("Services")
@@ -230,6 +230,7 @@ new QueryEMX2(useSettingsStore().config.graphqlEndpoint)
   .equals(useRoute().params.id)
   .execute()
   .then((data: any) => {
+    clearError();
     if (data.Services?.length) {
       service.value = data.Services[0];
     } else {

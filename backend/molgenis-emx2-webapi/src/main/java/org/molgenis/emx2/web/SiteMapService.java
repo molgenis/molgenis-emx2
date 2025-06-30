@@ -17,12 +17,18 @@ public class SiteMapService {
     app.get("/{schema}/sitemap.xml", SiteMapService::getSiteMapForSchema);
   }
 
-  public static String getSiteMapForSchema(Context ctx) {
+  public static void getSiteMapForSchema(Context ctx) {
     ctx.res().setContentType("application/xml");
     Schema schema = getSchema(ctx);
+    if (schema == null) {
+      ctx.status(404);
+      ctx.result("Schema not found");
+      return;
+    }
 
-    final String baseUrl = ctx.scheme() + "://" + ctx.host() + "/" + schema.getName();
+    final String baseUrl = "https://" + ctx.host();
 
-    return new CatalogueSiteMap(schema, baseUrl).buildSiteMap();
+    String siteMap = new CatalogueSiteMap(schema, baseUrl).buildSiteMap();
+    ctx.result(siteMap);
   }
 }

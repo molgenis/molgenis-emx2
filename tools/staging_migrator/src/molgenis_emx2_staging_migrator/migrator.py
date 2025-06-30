@@ -6,81 +6,245 @@ from io import BytesIO
 from pathlib import Path
 from typing import TypeAlias, Literal
 
+import numpy as np
+import pandas as pd
 from molgenis_emx2_pyclient import Client
-from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException
-from molgenis_emx2_pyclient.metadata import Schema, Table
+from molgenis_emx2_pyclient.constants import DATE, DATETIME
+from molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, NoSuchTableException, NoSuchColumnException
+from molgenis_emx2_pyclient.metadata import Table
+from molgenis_emx2_pyclient.utils import convert_dtypes
 
 from .constants import BASE_DIR, changelog_query
-from .utils import (find_cohort_references, construct_delete_variables, has_statement_of_consent,
-                    process_statement, prepare_pkey, query_columns_string)
+from .utils import prepare_primary_keys, has_statement_of_consent, process_statement, resource_ref_cols
 
 log = logging.getLogger('Molgenis EMX2 Migrator')
 
 SchemaType: TypeAlias = Literal['source', 'target']
-
-PUBLICATIONS = "Publications"
-RESOURCES = "Resources"
+CATALOGUE = "catalogue"
 
 
 class StagingMigrator(Client):
     """
-    The StagingMigrator class is used to migrate updated data in a staging area to a catalogue.
+    The StagingMigrator class is used to migrate updated data from a source schema to a target.
     The class subclasses the Molgenis EMX2 Pyclient to access the API on the server
     """
 
     def __init__(self, url: str,
+                 source: str = None,
+                 target: str = CATALOGUE,
                  staging_area: str = None,
-                 catalogue: str = 'catalogue',
-                 table: str = 'Resources', token: str = None):
+                 catalogue: str = None,
+                 token: str = None):
         """Sets up the StagingMigrator by logging in to the client."""
         super().__init__(url=url, token=token)
-        self.staging_area = staging_area
-        self.catalogue = catalogue
+
+        self.source = None
+        self.resource_ids = None
+        if catalogue is not None:
+            log.warning("Parameter 'catalogue' is deprecated, use 'target' instead.")
+            self.target = catalogue
+        else:
+            self.target = target
+        if staging_area is not None:
+            log.warning("Parameter 'staging_area' is deprecated, use 'source' instead.")
+            self.set_source(staging_area)
+        elif source is not None:
+            self.set_source(source)
         self._verify_schemas()
-        self.table = self.get_schema_metadata(catalogue).get_table('name', table).id
-        self.extra_tables: list[str] = [PUBLICATIONS] if self.table == RESOURCES else []
 
     def __repr__(self):
         class_name = type(self).__name__
         args = [
-            f"staging_area={self.staging_area!r}",
-            f"catalogue={self.catalogue!r}",
-            f"table={self.table!r}"
+            f"source={self.source!r}",
+            f"target={self.target!r}"
         ]
         return f"{class_name}({', '.join(args)})"
 
     def set_staging_area(self, staging_area: str):
-        """Sets the staging area and verifies its existence."""
-        self.staging_area = staging_area
+        log.warning("Method 'set_staging_area' is deprecated, use 'set_target' instead.")
+
+        return self.set_source(staging_area)
+
+    def set_source(self, source: str):
+        """Sets the source schema and verifies its existence."""
+        self.source = source
         self._verify_schemas()
+        self.resource_ids = self.get_resource_ids()
 
     def set_catalogue(self, catalogue: str):
-        """Sets the catalogue and verifies its existence."""
-        self.catalogue = catalogue
+        log.warning("Method 'set_catalogue' is deprecated, use 'set_target' instead.")
+        return self.set_target(catalogue)
+
+    def set_target(self, target: str):
+        """Sets the target schema and verifies its existence."""
+        self.target = target
         self._verify_schemas()
 
+    def get_resource_ids(self):
+        """
+        Fetches the identifiers of the resources in the source schema.
+        """
+        try:
+            return self.get(table="Resources", schema=self.source, as_df=True)["id"].to_list()
+        except KeyError:
+            raise NoSuchColumnException(f"Table 'Resources' in schema {self.source!r} has no column 'id'.")
+
     def migrate(self, keep_zips: bool = False):
-        """Performs the migration of the staging area to the catalogue."""
+        """Performs the migration of the source schema to the target schema."""
 
-        # Download the target catalogue for upload in case of an error during execution
-        self._download_schema_zip(schema=self.catalogue, schema_type='target', include_system_columns=False)
-
-        # Delete the source tables from the target database
-        log.info("Deleting staging area resource from the catalogue.")
-        self._delete_staging_from_catalogue()
+        # Download data from the target schema for upload in case of an error during execution
+        self.download_schema_zip(schema=self.target, schema_type='target', include_system_columns=True)
 
         # Create zipfile for uploading
-        zip_stream = self._create_upload_zip()
+        zip_stream = self.create_zip()
 
         # Upload the zip to the target schema
-        self._upload_zip_stream(zip_stream)
+        self.upload_zip_stream(zip_stream)
 
         if not keep_zips:
             # Remove any downloaded files from disk
-            self._cleanup()
+            self.cleanup()
 
-    def _download_schema_zip(self, schema: str, schema_type: SchemaType,
-                             include_system_columns: bool = True) -> str:
+
+    def create_zip(self):
+        """
+        Creates a ZIP file containing tables to be uploaded to the target schema.
+        """
+        source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
+                                                    include_system_columns=True)
+
+        source_metadata = self.get_schema_metadata(self.source)
+        upload_stream = BytesIO()
+        updated_tables = list()
+        with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
+              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
+            for file_name in sorted(source_archive.namelist()):
+
+                # Add files in '_files' folder
+                if '_files/' in file_name:
+                    upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
+                    continue
+
+                try:
+                    table: Table = source_metadata.get_table('name', Path(file_name).stem)
+                except NoSuchTableException:
+                    log.debug(f"Skipping file {file_name!r}.")
+                    continue
+                log.debug(f"Processing table {table.name!r}.")
+                updated_table: pd.DataFrame = self._get_filtered(table)
+                modified_table: pd.DataFrame = self._modify_table(updated_table, table)
+                if len(modified_table.index) != 0:
+                    upload_archive.writestr(file_name, modified_table.to_csv())
+                    updated_tables.append(Path(file_name).stem)
+
+        # Return zip
+        if len(updated_tables) == 0:
+            log.info(f"No data to migrate.")
+            upload_stream.flush()
+            return upload_stream
+        log.info(f"Migrating tables {', '.join(updated_tables)}.")
+        return upload_stream
+
+    def delete_resource(self):
+        """Deletes the contents of the source schema from the target schema."""
+
+        # Check if software supports deletion through import
+        if self.version < "13.8.0":
+            raise NotImplementedError("The delete functionality is not implemented for EMX2 "
+                                      "software running a version below 13.8.0")
+        source_file_path = self.download_schema_zip(schema=self.source, schema_type='source',
+                                                    include_system_columns=True)
+
+        source_metadata = self.get_schema_metadata(self.source)
+        upload_stream = BytesIO()
+        updated_tables = list()
+        with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
+              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
+            for file_name in source_archive.namelist():
+                try:
+                    table: Table = source_metadata.get_table('name', Path(file_name).stem)
+                except NoSuchTableException:
+                    log.debug(f"Skipping file {file_name!r}.")
+                    continue
+                log.debug(f"Preparing table {table.name!r} for deletion.")
+                updated_table: pd.DataFrame = self._set_all_delete(table)
+                if len(updated_table.index) != 0:
+                    upload_archive.writestr(file_name, updated_table.to_csv())
+                    updated_tables.append(Path(file_name).stem)
+
+        if len(updated_tables) == 0:
+            upload_stream.flush()
+            return
+
+        self.upload_zip_stream(upload_stream)
+        self.cleanup()
+
+    def _get_filtered(self, table: Table) -> pd.DataFrame:
+        """
+        Filters the table for rows in present in the source schema
+        that have not been updated or published yet in the target schema.
+        """
+        # Specify the primary keys
+        primary_keys = prepare_primary_keys(self.get_schema_metadata(self.source), table.name)
+
+        # Find columns that reference 'Resources'
+        ref_cols = resource_ref_cols(self.get_schema_metadata(self.source), table.name)
+
+        # Load the data for the table from the ZIP files
+        source_df = self._load_table('source', table)
+        target_df = self._load_table('target', table)
+
+        # Filter the rows in the target table that reference the Resource identifiers
+        target_df = target_df.loc[target_df[ref_cols].isin(self.resource_ids).any(axis=1)]
+
+        # Return if both tables are empty
+        if len(source_df.index) + len(target_df.index) == 0:
+            return source_df
+
+        # Skip drafts from the upload
+        if "mg_draft" in source_df.columns:
+            source_df = source_df.loc[~source_df["mg_draft"].replace({np.nan: False})]
+
+        # Create mapping of indices from the source table to the target table
+        merge_df = source_df.reset_index().merge(target_df.reset_index(), on=primary_keys)
+
+        # Filter rows not present in the target's table
+        new_df = source_df.loc[~source_df.index.isin(merge_df["index_x"])].copy()
+
+        # Filter rows not present in the source's table
+        missing_df = target_df.loc[~target_df.index.isin(merge_df["index_y"])].copy()
+        missing_df["mg_delete"] = 'true'
+
+        # Filter updated rows
+        merge_df = merge_df.loc[merge_df["mg_updatedOn_x"] > merge_df["mg_updatedOn_y"]]
+        updated_df = source_df.iloc[merge_df["index_x"]]
+
+        # Combine the new, updated and missing rows
+        filtered_df = pd.concat([new_df, updated_df, missing_df])
+
+        return filtered_df
+
+    def _set_all_delete(self, table: Table) -> pd.DataFrame:
+        """
+        Adds an `mg_delete` column to the table and sets its values to `true`.
+        """
+        source_df = self._load_table('source', table)
+        source_df["mg_delete"] = True
+        return source_df
+
+
+    @staticmethod
+    def _modify_table(df: pd.DataFrame, table: Table) -> pd.DataFrame:
+        """
+        Applies transformation on a table's data given its contents.
+        """
+        if (consent_val := has_statement_of_consent(table)) != 0:
+            return process_statement(df, consent_val=consent_val)
+        return df
+
+
+    def download_schema_zip(self, schema: str, schema_type: SchemaType,
+                            include_system_columns: bool = True) -> Path:
         """Download target schema as zip, save in case upload fails."""
         filepath = BASE_DIR.joinpath(f"{schema_type}.zip")
         if Path(filepath).exists():
@@ -89,9 +253,7 @@ class StagingMigrator(Client):
         api_zip_url = f"{self.url}/{schema}/api/zip"
         if include_system_columns:
             api_zip_url += '?includeSystemColumns=true'
-        resp = self.session.get(api_zip_url,
-                                headers={'x-molgenis-token': self.token},
-                                allow_redirects=True)
+        resp = self.session.get(api_zip_url, allow_redirects=True)
 
         if resp.content:
             Path(filepath).write_bytes(resp.content)
@@ -100,232 +262,84 @@ class StagingMigrator(Client):
             log.error("Error: download failed.")
         return filepath
 
-    def _delete_staging_from_catalogue(self):
+    @staticmethod
+    def _load_table(schema_type: SchemaType, table: Table) -> pd.DataFrame:
+        """Loads the table from a zip file into a DataFrame.
+        Then parses the data by converting the columns' dtypes.
         """
-        Prepares the staging area by deleting data from tables
-        that are later synchronized from the staging area.
-        """
+        with zipfile.ZipFile(BASE_DIR / f"{schema_type}.zip", 'r') as archive:
+            raw_df = pd.read_csv(BytesIO(archive.read(f"{table.name}.csv")), nrows=1)
 
-        # Gather the tables to delete from the target catalogue
-        tables_to_delete = find_cohort_references(self.get_schema_metadata(self.catalogue), self.table)
+        columns = raw_df.columns
+        dtypes = {c: convert_dtypes(table).get(c, "string") for c in columns}
 
-        cohort_ids = self._get_table_pkey_values()
-        for table_id, ref_cols in tables_to_delete.items():
-            # Iterate over the tables that reference the core table of the staging area
-            # Check if any row matches this core table
+        bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
+        date_columns = [c.name for c in table.columns
+                        if c.get('columnType') in (DATE, DATETIME) and c.name in columns]
 
-            delete_rows = self._query_delete_rows(table_id, ref_cols, cohort_ids)
+        with zipfile.ZipFile(BASE_DIR / f"{schema_type}.zip", 'r') as archive:
+            df = pd.read_csv(filepath_or_buffer=BytesIO(archive.read(f"{table.name}.csv")),
+                             dtype=dtypes,
+                             na_values=[""],
+                             keep_default_na=False,
+                             parse_dates=date_columns)
 
-            if len(delete_rows) == 0:
-                continue
-            log.debug(f"Deleting in table {table_id!r} row(s) with primary keys {delete_rows.get(table_id)}.")
+        df[bool_columns] = df[bool_columns].replace({'true': True, 'false': False})
+        df = df.astype(dtypes)
 
-            # Delete the matching rows from the target catalogue table
-            self._delete_table_entries(table_id=table_id,
-                                       pkeys=delete_rows.get(table_id))
+        return df
 
-    def _query_delete_rows(self, table_id: str, ref_cols: str | list,
-                           cohort_ids: list) -> dict:
-        """Queries the rows to be deleted from a table."""
-        schema_meta: Schema = self.get_schema_metadata(self.catalogue)
-        query = self.__construct_pkey_query(schema_meta, table_id)
-        if isinstance(ref_cols, str):
-            ref_cols = [ref_cols]
-        data = dict()
-        for ref_col in ref_cols:
-            variables = construct_delete_variables(self.get_schema_metadata(self.catalogue),
-                                                   cohort_ids, table_id, ref_col)
-
-            response = self.session.post(url=f"{self.url}/{self.catalogue}/graphql",
-                                         json={"query": query, "variables": variables},
-                                         headers={'x-molgenis-token': self.token})
-
-            _data = response.json().get('data')
-            for key, values in _data.items():
-                if key in data.keys():
-                    for row in values:
-                        if row not in _data[key]:
-                            data[key].append(row)
-                else:
-                    data[key] = values
-
-        return data
-
-    def _delete_table_entries(self, table_id: str, pkeys: list):
-        """Deletes the rows marked by the primary keys from the table."""
-        query = (f"mutation delete($pkey:[{table_id}Input]) {{\n"
-                 f"  delete({table_id}:$pkey) {{message}}\n"
-                 f"}}")
-
-        batch_size = 1000
-        for _batch in range(0, len(pkeys), batch_size):
-            variables = {'pkey': pkeys[_batch:_batch + batch_size]}
-            response = self.session.post(
-                url=f"{self.url}/{self.catalogue}/graphql",
-                json={"query": query, "variables": variables},
-                headers={'x-molgenis-token': self.token}
-            )
-            if response.status_code != 200:
-                message = response.json().get('errors')[0].get('message')
-                if 'is still referenced' in message:
-                    log.error(f"Deleting entries from table {table_id} failed.")
-                    log.error(message.split('Details: ')[-1])
-                else:
-                    log.error(response)
-                    log.error(f"Deleting entries from table {table_id} failed.")
-            else:
-                log.info(response.json().get('data').get('delete').get('message'))
-
-    def _cohorts_in_ref_array(self, _table_id: str) -> bool:
-        """Returns True if cohorts are referenced in a referenced array in any column in this table."""
-        try:
-            _table_schema: Table = self.get_schema_metadata(self.catalogue).get_table(by='id', value=_table_id)
-        except ValueError:
-            raise NoSuchTableException(f"No table with id {_table_id!r} in schema {self.catalogue!r}.")
-        return len(_table_schema.get_columns(by=['columnType', 'refTableId'], value=['REF_ARRAY', self.table])) > 0
 
     def _verify_schemas(self):
-        """Ensures the staging area and catalogue are available."""
-        if self.staging_area is not None:
-            if self.staging_area not in self.schema_names:
-                raise NoSuchSchemaException(f"Schema {self.staging_area!r} not found on server."
+        """Ensures the source and target are available."""
+        if self.source is not None:
+            if self.source not in self.schema_names:
+                raise NoSuchSchemaException(f"Schema {self.source!r} not found on server."
                                             f" Available schemas: {', '.join(self.schema_names)}.")
-        if self.catalogue not in self.schema_names:
-            raise NoSuchSchemaException(f"Schema {self.catalogue!r} not found on server."
+        if self.target not in self.schema_names:
+            raise NoSuchSchemaException(f"Schema {self.target!r} not found on server."
                                         f" Available schemas: {', '.join(self.schema_names)}.")
 
-        if self.staging_area == self.catalogue:
-            raise NoSuchSchemaException(f"Catalogue schema must be different from staging area schema.")
+        if self.source == self.target:
+            raise NoSuchSchemaException(f"Target schema must be different from source schema.")
 
-    def _create_upload_zip(self) -> BytesIO:
-        """Combines the relevant tables of the staging area into a zipfile."""
-        tables_to_sync = find_cohort_references(self.get_schema_metadata(self.staging_area), self.table)
 
-        source_file_path = self._download_schema_zip(schema=self.staging_area, schema_type='source',
-                                                     include_system_columns=False)
-
-        upload_stream = BytesIO()
-
-        schema_metadata = self.get_schema_metadata(self.staging_area)
-
-        with (zipfile.ZipFile(source_file_path, 'r') as source_archive,
-              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED, False) as upload_archive):
-            for file_name in source_archive.namelist():
-                if '_files/' in file_name:
-                    upload_archive.writestr(file_name, BytesIO(source_archive.read(file_name)).getvalue())
-                    continue
-                try:
-                    table_id = schema_metadata.get_table('name', Path(file_name).stem).id
-                except NoSuchTableException:
-                    continue
-                if table_id not in [*tables_to_sync.keys(), *self.extra_tables]:
-                    continue
-
-                _table = source_archive.read(file_name)
-                if consent_val := has_statement_of_consent(table_id, self.get_schema_metadata(self.staging_area)):
-                    _table = process_statement(table=_table, consent_val=consent_val)
-                upload_archive.writestr(file_name, BytesIO(_table).getvalue())
-
-        log.info(f"Migrating tables {', '.join(tables_to_sync.keys())}.")
-        return upload_stream
-
-    def _upload_zip_stream(self, zip_stream: BytesIO, is_fallback: bool = False):
-        """Uploads the zip file containing the tables from the staging area
-        to the catalogue.
+    def upload_zip_stream(self, zip_stream: BytesIO):
+        """Uploads the zip file containing the tables from the source schema
+        to the target schema.
         """
-        upload_url = f"{self.url}/{self.catalogue}/api/zip?async=true"
+        upload_url = f"{self.url}/{self.target}/api/zip?async=true"
 
         response = self.session.post(
             url=upload_url,
-            files={'file': (f"{BASE_DIR}/upload.zip", zip_stream.getvalue())},
-            headers={'x-molgenis-token': self.token}
+            files={'file': (f"{BASE_DIR}/upload.zip", zip_stream.getvalue())}
         )
 
         response_status = response.status_code
         if response.status_code != 200:
             log.error(f"Migration failed with error {response_status}:\n{str(response.text)}")
-            log.error("Uploading fallback zip.")
-            self._upload_fallback_zip()
         else:
             response_url = f"{self.url}{response.json().get('url')}"
-            upload_status = self.session.get(response_url,
-                                             headers={'x-molgenis-token': self.token}).json().get('status')
+            upload_status = self.session.get(response_url).json().get('status')
             while upload_status == 'RUNNING':
                 time.sleep(2)
-                upload_status = self.session.get(response_url,
-                                                 headers={'x-molgenis-token': self.token}).json().get('status')
-            upload_description = self.session.get(response_url,
-                                                  headers={'x-molgenis-token': self.token}).json().get('description')
+                upload_status = self.session.get(response_url).json().get('status')
+            upload_description = self.session.get(response_url).json().get('description')
 
             if upload_status == 'ERROR':
                 log.error(f"Migration failed, reason: {upload_description}.")
-                log.debug(self.session.get(response_url, headers={'x-molgenis-token': self.token}).json())
-                if not is_fallback:
-                    log.info("Uploading fallback zip.")
-                    self._upload_fallback_zip()
-                else:
-                    log.error("Restoring fallback zip failed.")
+                log.debug(self.session.get(response_url).json())
             else:
-                if is_fallback:
-                    log.info("Fallback zip restored successfully.")
-                else:
-                    log.info("Migrated successfully.")
+                log.info("Upload completed successfully.")
 
-    def _upload_fallback_zip(self):
-        """Restores the catalogue to the state before deletion by uploading the downloaded target zip."""
-        target_filename = f"{BASE_DIR}/target.zip"
-        upload_stream = BytesIO()
-        # Load the target.zip file as a stream
-        with (zipfile.ZipFile(target_filename, 'r') as target_archive,
-              zipfile.ZipFile(upload_stream, 'w', zipfile.ZIP_DEFLATED) as upload_archive):
-            for file_name in target_archive.namelist():
-                if not file_name.startswith('molgenis'):
-                    upload_archive.writestr(file_name, BytesIO(target_archive.read(file_name)).getvalue())
-        # Upload the stream
-        self._upload_zip_stream(upload_stream, is_fallback=True)
 
-    def _get_table_pkey_values(self):
-        """Fetches the primary key values associated with the staging area's table."""
-
-        staging_schema = self.get_schema_metadata(self.staging_area)
-
-        # Query server for resource id
-        pkeys = [prepare_pkey(schema=staging_schema, table_id=self.table, col_id=col)
-                 for col in prepare_pkey(schema=staging_schema, table_id=self.table)]
-        pkey_print = query_columns_string(pkeys, indent=2)
-        query = """{{\n  {} {{\n  {}\n  }}\n}}""".format(self.table, pkey_print)
-
-        staging_url = f"{self.url}/{self.staging_area}/graphql"
-        response = self.session.post(url=staging_url,
-                                     headers={'x-molgenis-token': self.token},
-                                     json={"query": query})
-        response_data = response.json().get('data')
-        if response_data is None:
-            # Raise new error
-            raise NoSuchTableException(f"Table {self.table!r} not found on schema {self.staging_area!r}.")
-
-        # Return only if there is exactly one id/cohort in the Resources table
-        if self.table in response_data.keys():
-            if len(response_data[self.table]) < 1:
-                raise ValueError(
-                    f"Expected a value in table {self.table!r} in staging area {self.staging_area!r}"
-                    f" but found {len(response_data[self.table])!r}"
-                )
-        else:
-            raise ValueError(
-                f"Expected a value in table {self.table!r} in staging area {self.staging_area!r}"
-                f" but found none."
-            )
-
-        return [resource[pkeys[0]] for resource in response_data[self.table]]
-
-    def last_change(self, staging_area: str = None) -> datetime | None:
-        """Retrieves the datetime of the latest change made on the staging area.
+    def last_change(self, source: str = None) -> datetime | None:
+        """Retrieves the datetime of the latest change made on the source schema.
         Returns None if the changelog is disabled or empty.
         """
-        staging_area = staging_area or self.staging_area
+        source = source or self.source
 
-        response = self.session.post(url=f"{self.url}/{staging_area}/settings/graphql",
+        response = self.session.post(url=f"{self.url}/{source}/settings/graphql",
                                          json={"query": changelog_query}, headers=self.session.headers)
         changelog = response.json().get('data').get('_changes')
         if len(changelog) == 0:
@@ -336,7 +350,7 @@ class StagingMigrator(Client):
         return change_datetime
 
     @staticmethod
-    def _cleanup():
+    def cleanup():
         """Deletes the downloaded files after successful migration."""
         zip_files = ['target.zip', 'source.zip', 'upload.zip']
         for zp in zip_files:
@@ -344,21 +358,3 @@ class StagingMigrator(Client):
             if Path(filename).exists():
                 log.debug(f"Deleting file {zp!r}.")
                 Path(filename).unlink()
-
-    @staticmethod
-    def __construct_pkey_query(db_schema: Schema, table_id: str, all_columns: bool = False):
-        """Constructs a GraphQL query for finding the primary key values in a table."""
-        table_schema: Table = db_schema.get_table(by='id', value=table_id)
-        if all_columns:
-            pkeys = [prepare_pkey(db_schema, table_id, col.id) for col in table_schema.columns]
-            pkeys = [pk for pk in pkeys if pk is not None]
-        else:
-            pkeys = [prepare_pkey(db_schema, table_id, col.id) for col in table_schema.get_columns(by='key', value=1)]
-        table_id = table_schema.id
-        pkeys_print = query_columns_string(pkeys, indent=4)
-        _query = (f"query {table_id}($filter: {table_id}Filter) {{\n"
-                  f"  {table_id}(filter: $filter) {{\n"
-                  f"{pkeys_print}\n"
-                  f"  }}\n"
-                  f"}}")
-        return _query

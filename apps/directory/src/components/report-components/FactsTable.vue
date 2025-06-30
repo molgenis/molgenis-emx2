@@ -5,88 +5,62 @@
       :count="filteredFacts.length"
       :limit="100"
     />
+
     <div>
       <label class="font-weight-bold mr-3">Split by:</label>
-      <div class="d-inline-flex justify-content-around w-50">
-        <label>
-          <input
-            type="checkbox"
-            @change="(event) => toggleColumn(event, 'sample_type')"
-            :checked="splitByColumn['sample_type']"
-          />
-          Material type
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            @change="(event) => toggleColumn(event, 'sex')"
-            :checked="splitByColumn['sex']"
-          />
-          Sex
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            @change="(event) => toggleColumn(event, 'age_range')"
-            :checked="splitByColumn['age_range']"
-          />
-          Age range
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            @change="(event) => toggleColumn(event, 'disease')"
-            :checked="splitByColumn['disease']"
-          />
-          Disease codes
-        </label>
+      <div class="d-inline-flex justify-content-around">
+        <div>
+          <select v-model="splitByColumn" @change="toggleColumn">
+            <option value="all">All</option>
+            <option value="sample_type">Material type</option>
+            <option value="sex">Sex</option>
+            <option value="age_range">Age range</option>
+            <option value="disease">Disease codes</option>
+          </select>
+        </div>
       </div>
     </div>
-    <div v-if="splitByColumnChecked < 4" class="alert alert-dark" role="alert">
-      Because of the adopted method of data creation and collection the number
-      of donors presented in the table below should not be added as it may give
-      the wrong sums.
-    </div>
+
     <table class="table border w-100" :key="tableVersion">
       <thead>
         <tr class="facts-header bg-secondary text-white">
-          <th @click="sort('sample_type')">
+          <th v-if="showColumn(SAMPLE_TYPE)" @click="sort(SAMPLE_TYPE)">
             Material type
             <span
-              v-if="sortColumn === 'sample_type'"
+              v-if="sortColumn === SAMPLE_TYPE"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('sex')">
+          <th v-if="showColumn(SEX)" @click="sort(SEX)">
             Sex
             <span
-              v-if="sortColumn === 'sex'"
+              v-if="sortColumn === SEX"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('age_range')">
+          <th v-if="showColumn(AGE_RANGE)" @click="sort(AGE_RANGE)">
             Age range
             <span
-              v-if="sortColumn === 'age_range'"
+              v-if="sortColumn === AGE_RANGE"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('disease')">
+          <th v-if="showColumn(DISEASE)" @click="sort(DISEASE)">
             Disease codes
             <span
-              v-if="sortColumn === 'disease'"
+              v-if="sortColumn === DISEASE"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('number_of_donors')">
+          <th @click="sort(NUMBER_OF_DONORS)">
             #Donors
             <span
               v-if="sortColumn === 'number_of_donors'"
@@ -95,19 +69,20 @@
               aria-hidden="true"
             />
           </th>
-          <th @click="sort('number_of_samples')">
+          <th @click="sort(NUMBER_OF_SAMPLES)">
             #Samples
             <span
-              v-if="sortColumn === 'number_of_samples'"
+              v-if="sortColumn === NUMBER_OF_SAMPLES"
               class="fa"
               :class="sortAsc ? 'fa-sort-asc' : 'fa-sort-desc'"
               aria-hidden="true"
             />
           </th>
         </tr>
+
         <tr class="filter-bar">
-          <th>
-            <select v-model="filters['sample_type']" class="w-100">
+          <th v-if="showColumn(SAMPLE_TYPE)">
+            <select v-model="filters[SAMPLE_TYPE]" class="w-100">
               <option :value="ALL">All</option>
               <option
                 v-for="material of factProperties.materialTypeOptions"
@@ -118,8 +93,8 @@
               </option>
             </select>
           </th>
-          <th>
-            <select v-model="filters['sex']">
+          <th v-if="showColumn(SEX)">
+            <select v-model="filters[SEX]">
               <option :value="ALL">All</option>
               <option
                 v-for="sex of factProperties.sexOptions"
@@ -130,9 +105,8 @@
               </option>
             </select>
           </th>
-
-          <th>
-            <select v-model="filters['age_range']">
+          <th v-if="showColumn(AGE_RANGE)">
+            <select v-model="filters[AGE_RANGE]">
               <option :value="ALL">All</option>
               <option
                 v-for="ageRange of factProperties.ageRangeOptions"
@@ -143,8 +117,8 @@
               </option>
             </select>
           </th>
-          <th>
-            <select v-model="filters['disease']">
+          <th v-if="showColumn(DISEASE)">
+            <select v-model="filters[DISEASE]">
               <option :value="ALL">All</option>
               <option
                 v-for="disease of factProperties.diseaseOptions"
@@ -159,15 +133,20 @@
           <th />
         </tr>
       </thead>
+
       <tbody v-if="factsTable.length">
         <template v-for="fact of factsTable" :key="fact.id">
           <tr>
-            <th scope="row" class="pr-1 align-top">
+            <th
+              v-if="showColumn(SAMPLE_TYPE)"
+              scope="row"
+              class="pr-1 align-top"
+            >
               {{ fact.sample_type }}
             </th>
-            <td>{{ fact.sex }}</td>
-            <td>{{ fact.age_range }}</td>
-            <td>{{ fact.disease }}</td>
+            <td v-if="showColumn(SEX)">{{ fact.sex }}</td>
+            <td v-if="showColumn(AGE_RANGE)">{{ fact.age_range }}</td>
+            <td v-if="showColumn(DISEASE)">{{ fact.disease }}</td>
             <td>{{ fact.number_of_donors }}</td>
             <td>{{ fact.number_of_samples }}</td>
           </tr>
@@ -195,29 +174,37 @@ const { attribute } = defineProps<{ attribute: any[] }>();
 const ALL = "all";
 const ANY = "Any";
 const UNKNOWN = "Unknown";
-const NO_FILTERS = { sample_type: ALL, sex: ALL, age_range: ALL, disease: ALL };
+const SAMPLE_TYPE = "sample_type";
+const SEX = "sex";
+const AGE_RANGE = "age_range";
+const DISEASE = "disease";
+const NUMBER_OF_DONORS = "number_of_donors";
+const NUMBER_OF_SAMPLES = "number_of_samples";
+
 const FACT_PROPERTIES = [
   "sample_type.label",
   "sex.label",
   "age_range.label",
   "disease.label",
   "disease.name",
-  "number_of_samples",
-  "number_of_donors",
+  NUMBER_OF_SAMPLES,
+  NUMBER_OF_DONORS,
 ];
+const COLUMN_IDS = [SAMPLE_TYPE, SEX, AGE_RANGE, DISEASE];
+const NO_FILTERS = Object.freeze({
+  sample_type: ALL,
+  sex: ALL,
+  age_range: ALL,
+  disease: ALL,
+});
 
 const currentPage = ref(1);
 const facts = ref<Record<string, any>[]>([]);
 const sortColumn = ref("");
 const sortAsc = ref(false);
 const tableVersion = ref(0);
-const filters = ref<Record<string, any>>(NO_FILTERS);
-const splitByColumn = ref<Record<string, boolean>>({
-  sample_type: true,
-  sex: true,
-  age_range: true,
-  disease: true,
-});
+const filters = ref<Record<string, any>>(hardCopy(NO_FILTERS));
+const splitByColumn = ref<string>("all");
 const factProperties = ref<Record<string, any>>({});
 
 let baseFacts: Record<string, any>[] = [];
@@ -226,10 +213,6 @@ onMounted(() => {
   baseFacts = getBaseFacts(attribute);
   collapseRows();
   factProperties.value = getFactProperties();
-});
-
-const splitByColumnChecked = computed(() => {
-  return Object.values(splitByColumn.value).filter((sbc) => sbc).length;
 });
 
 const filteredFacts = computed(() => {
@@ -330,12 +313,6 @@ function getFactProperties() {
   };
 }
 
-function toggleColumn(event: Event, columnName: string) {
-  splitByColumn.value[columnName] = (event.target as HTMLInputElement).checked;
-  filters.value = NO_FILTERS;
-  collapseRows();
-}
-
 function sort(column: string) {
   if (sortColumn.value === column) {
     sortAsc.value = !sortAsc;
@@ -381,18 +358,31 @@ function hasAFactToShow(fact: Record<string, any>) {
   return hasSamples || hasDonors || !!fact.sex;
 }
 
+function toggleColumn() {
+  filters.value = hardCopy(NO_FILTERS);
+  collapseRows();
+}
+
 function collapseRows() {
-  facts.value = Object.keys(splitByColumn.value).reduce((accum, columnId) => {
-    if (splitByColumn.value[columnId]) {
+  facts.value = COLUMN_IDS.reduce((accum, columnId) => {
+    if (splitByColumn.value === ALL) {
       return accum.filter(
         (fact: Record<string, any>) => fact[columnId] !== ANY
       );
     } else {
-      return accum.filter(
-        (fact: Record<string, any>) => fact[columnId] === ANY
-      );
+      return accum.filter((fact: Record<string, any>) => {
+        if (splitByColumn.value === columnId) {
+          return fact[columnId] !== ANY;
+        } else {
+          return fact[columnId] === ANY;
+        }
+      });
     }
   }, hardCopy(baseFacts));
+}
+
+function showColumn(columnId: string) {
+  return splitByColumn.value === columnId || splitByColumn.value === ALL;
 }
 </script>
 

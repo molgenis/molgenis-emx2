@@ -37,6 +37,7 @@ public class Constants {
 
   public static final String MG_TABLECLASS = "mg_tableclass";
   public static final String MG_DRAFT = "mg_draft";
+  public static final String MG_DELETE = "mg_delete";
   public static final String MG_INSERTEDBY = "mg_insertedBy";
   public static final String MG_INSERTEDON = "mg_insertedOn";
   public static final String MG_UPDATEDBY = "mg_updatedBy";
@@ -117,7 +118,7 @@ public class Constants {
   // thank you to
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   // updated to also allow localhost / localhost:8080 as valid hyperlink, needed to testing
-  protected static final String HYPERLINK_REGEX =
+  public static final String HYPERLINK_REGEX =
       "((https?)://)((www.)?[a-zA-Z0-9@:%._\\+~#?&//=-]{2,256}\\.[a-z]{2,6}|localhost)(:[0-9]+)?([-a-zA-Z0-9@:%._\\+~#?!&//=(\\)]*)$";
 
   public static final String PRIVACY_POLICY_LEVEL = "PrivacyPolicyLevel";

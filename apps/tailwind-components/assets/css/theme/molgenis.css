@@ -96,6 +96,8 @@
   --text-color-pagination-inverted: var(--color-gray-400);
   --text-color-pagination-input: var(--color-blue-800);
   --text-color-pagination-hover: var(--color-white);
+  --text-color-pagination-button: var(--color-white);
+  --text-color-pagination-button-hover: var(--color-blue-800);
   --text-color-link: var(--color-yellow-500);
   --text-color-table-column-header: var(--color-gray-600);
 
