@@ -1,7 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
-Materials,,,,,,,,,,,,"Materials (files, samples etc) relating to individual(s)","Patient registry, FAIR Genomes",
+Materials,,,,,,,,,,,http://semanticscience.org/resource/SIO_000015,"Materials (files, samples, etc.) relating to individual(s)","Patient registry, FAIR Genomes",
 Materials,,id,auto_id,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing","Patient registry, FAIR Genomes",
-Materials,,linked to process,ref_array,,,,Processes,,,,http://purl.obolibrary.org/obo/NCIT_C29862,"An event (sequencing run, sample preparation etc) which produces a material","Patient registry, FAIR Genomes",
+Materials,,linked to process,ref_array,,,,Processes,,,,http://purl.obolibrary.org/obo/NCIT_C29862,"An event (sequencing run, sample preparation, etc.) which produces a material","Patient registry, FAIR Genomes",
 Materials,,individuals,ref_array,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C164337,A reference to one or more individuals associated to the material,"Patient registry, FAIR Genomes",
 Materials,,alternate ids,string_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,Additional identifiers that identify a material,"Patient registry, FAIR Genomes",
 Materials,,included in resources,ref_array,,,,Resources,,,,http://purl.obolibrary.org/obo/HSO_0000370,"A reference to one or more resources that organises materials for in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)","Patient registry, FAIR Genomes",
