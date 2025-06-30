@@ -85,7 +85,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   });
 
   const hasActiveBiobankOnlyFilters = computed(() => {
-    return !!getFilterValue("Biobankservices") || !!getFilterValue("Countries");
+    return (
+      !!getFilterValue("Biobankservices") ||
+      !!getFilterValue("Countries") ||
+      !!getFilterValue("search")
+    );
   });
 
   const debouncedFiltersWatch = _.debounce(
