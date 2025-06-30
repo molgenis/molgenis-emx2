@@ -1,6 +1,6 @@
 # Directory admin
 
-This is admin admistration for the directory application and data model.
+This page provides documentation to help the administration of the directory application and data model.
 
 ## Settings
 
