@@ -4,7 +4,7 @@ description: "The \"Set of common data elements for Rare Diseases Registration\"
 
 profileTags: JRC-CDE
 
-demoData: _demodata/applications/patient_registry
+demoData: _demodata/applications/molgenis_rd4
 
 # special options
 setViewPermission: anonymous
