@@ -3,6 +3,8 @@ package org.molgenis.emx2.web;
 import graphql.GraphQL;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -15,6 +17,7 @@ public class MolgenisSession {
   private Database database;
   private GraphQL graphqlForDatabase;
   private Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
+  private static final Map<String, GraphQL> anonymousGqlObjectCache = new ConcurrentHashMap<>();
 
   public MolgenisSession(Database database) {
     database.setBindings(JavaScriptBindings.getBindingsForSession(this));
@@ -39,9 +42,21 @@ public class MolgenisSession {
             "Schema not found: Schema with name '"
                 + schemaName
                 + "' does not exist or permission denied");
-      graphqlPerSchema.put(
-          schemaName, new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService));
-      logger.info("created graphql schema '{}' for user '{}'", schemaName, getSessionUser());
+
+      // if the user is anonymous, try the system cache first
+      if (Objects.equals(getSessionUser(), "anonymous")) {
+        GraphQL anonymousGql =
+            anonymousGqlObjectCache.computeIfAbsent(
+                schemaName,
+                key -> new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService));
+        graphqlPerSchema.put(schemaName, anonymousGql);
+
+      } else {
+        graphqlPerSchema.put(
+            schemaName,
+            new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService));
+        logger.info("created graphql schema '{}' for user '{}'", schemaName, getSessionUser());
+      }
     }
     logger.info("return graphql schema '{}' for user '{}'", schemaName, getSessionUser());
     return graphqlPerSchema.get(schemaName);
