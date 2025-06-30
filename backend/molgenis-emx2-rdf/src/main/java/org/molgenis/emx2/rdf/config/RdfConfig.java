@@ -13,7 +13,7 @@ public class RdfConfig {
   private static final RdfConfig DEFAULT_INSTANCE = new RdfConfig();
 
   @JsonProperty("writer")
-  private final WriterFactory writerFactory = WriterFactory.MODEL;
+  private final WriterFactory writerFactory = WriterFactory.STREAM;
 
   @JsonProperty("generator")
   private final RdfApiGeneratorFactory rdfApiGeneratorFactory = RdfApiGeneratorFactory.EMX2;

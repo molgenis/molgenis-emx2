@@ -23,7 +23,7 @@ public abstract class RdfParser {
 
   // Generic functions to load RDF as if processed through the RDF API
   public static void parseRdf(
-      InMemoryRDFHandler handler,
+      RDFHandler handler,
       WriterFactory writerFactory,
       Class<? extends RdfGenerator> generatorClass,
       Method method,

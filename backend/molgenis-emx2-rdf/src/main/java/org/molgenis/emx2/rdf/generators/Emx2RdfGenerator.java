@@ -107,6 +107,12 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     } else {
       getWriter().processTriple(subject, RDFS.SUBCLASSOF, tableIRI(getBaseURL(), parent));
     }
+    // Add 'controlled vocab' and 'concept scheme' for any ONTOLOGIES
+    if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
+      getWriter().processTriple(subject, RDFS.SUBCLASSOF, SKOS.CONCEPT_SCHEME);
+      getWriter().processTriple(subject, RDFS.ISDEFINEDBY, BasicIRI.NCIT_CONTROLLED_VOCABULARY);
+    }
+
     // Any custom semantics are always added, regardless of table type (DATA/ONTOLOGIES)
     if (table.getMetadata().getSemantics() != null) {
       for (final String tableSemantics : table.getMetadata().getSemantics()) {
@@ -128,11 +134,6 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     // Add 'observing' for any DATA
     if (table.getMetadata().getTableType() == TableType.DATA) {
       getWriter().processTriple(subject, RDFS.ISDEFINEDBY, BasicIRI.SIO_OBSERVING);
-    }
-    // Add 'controlled vocab' and 'concept scheme' for any ONTOLOGIES
-    if (table.getMetadata().getTableType() == TableType.ONTOLOGIES) {
-      getWriter().processTriple(subject, RDFS.ISDEFINEDBY, BasicIRI.NCIT_CONTROLLED_VOCABULARY);
-      getWriter().processTriple(subject, RDFS.SUBCLASSOF, SKOS.CONCEPT_SCHEME);
     }
     getWriter().processTriple(subject, RDFS.LABEL, Values.literal(table.getName()));
 
@@ -217,10 +218,16 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     getWriter().processTriple(subject, RDF.TYPE, OWL.CLASS);
     getWriter().processTriple(subject, RDF.TYPE, SKOS.CONCEPT);
     getWriter().processTriple(subject, RDFS.SUBCLASSOF, tableIRI);
+    if (row.getString("parent") != null) {
+      Set<Value> parents = retrieveValues(rdfMapData, row, table.getMetadata().getColumn("parent"));
+      for (var parent : parents) {
+        getWriter().processTriple(subject, RDFS.SUBCLASSOF, parent);
+      }
+    }
     getWriter().processTriple(subject, SKOS.IN_SCHEME, tableIRI);
     if (row.getString("name") != null) {
-      getWriter().processTriple(subject, RDFS.LABEL, Values.literal(row.getString("name")));
       getWriter().processTriple(subject, SKOS.PREF_LABEL, Values.literal(row.getString("name")));
+      getWriter().processTriple(subject, RDFS.LABEL, Values.literal(row.getString("name")));
     }
     if (row.getString("label") != null) {
       getWriter().processTriple(subject, RDFS.LABEL, Values.literal(row.getString("label")));
@@ -243,12 +250,6 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     if (row.getString("ontologyTermURI") != null) {
       getWriter().processTriple(subject, OWL.SAMEAS, Values.iri(row.getString("ontologyTermURI")));
     }
-    if (row.getString("parent") != null) {
-      Set<Value> parents = retrieveValues(rdfMapData, row, table.getMetadata().getColumn("parent"));
-      for (var parent : parents) {
-        getWriter().processTriple(subject, RDFS.SUBCLASSOF, parent);
-      }
-    }
   }
 
   @Override
@@ -262,14 +263,14 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
     getWriter().processTriple(subject, RDF.TYPE, tableIRI);
     getWriter().processTriple(subject, RDF.TYPE, BasicIRI.LD_OBSERVATION);
-    getWriter()
-        .processTriple(subject, DCAT.ENDPOINT_URL, schemaIRI(getBaseURL(), table.getSchema()));
-    getWriter().processTriple(subject, BasicIRI.FDP_METADATAIDENTIFIER, subject);
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {
         getWriter().processTriple(subject, RDF.TYPE, namespaces.map(table.getSchema(), semantics));
       }
     }
+    getWriter()
+        .processTriple(subject, DCAT.ENDPOINT_URL, schemaIRI(getBaseURL(), table.getSchema()));
+    getWriter().processTriple(subject, BasicIRI.FDP_METADATAIDENTIFIER, subject);
     getWriter().processTriple(subject, BasicIRI.LD_DATASET_PREDICATE, tableIRI);
     getWriter()
         .processTriple(

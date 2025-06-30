@@ -51,7 +51,7 @@ writer: stream
     RdfConfig config = RdfConfigReader.read(schema);
 
     assertAll(
-        () -> assertEquals(WriterFactory.MODEL, config.getWriterFactory()),
+        () -> assertEquals(WriterFactory.STREAM, config.getWriterFactory()),
         () -> assertEquals(RdfApiGeneratorFactory.EMX2, config.getRdfApiGeneratorFactory()));
   }
 
@@ -63,7 +63,7 @@ writer: stream
     RdfConfig config = RdfConfigReader.read(schema);
 
     assertAll(
-        () -> assertEquals(WriterFactory.MODEL, config.getWriterFactory()),
+        () -> assertEquals(WriterFactory.STREAM, config.getWriterFactory()),
         () -> assertEquals(RdfApiGeneratorFactory.EMX2, config.getRdfApiGeneratorFactory()));
   }
 

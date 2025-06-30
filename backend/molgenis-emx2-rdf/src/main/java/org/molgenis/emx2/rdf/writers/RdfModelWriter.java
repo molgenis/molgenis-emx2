@@ -9,9 +9,16 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.WriterConfig;
+import org.eclipse.rdf4j.rio.turtle.TurtleWriterSettings;
 
 public class RdfModelWriter extends RdfWriter {
   private final ModelBuilder builder = new ModelBuilder();
+  private static final WriterConfig config = new WriterConfig();
+
+  static {
+    config.set(TurtleWriterSettings.ABBREVIATE_NUMBERS, false);
+  }
 
   public RdfModelWriter(OutputStream outputStream, RDFFormat format) {
     super(outputStream, format);
@@ -34,6 +41,6 @@ public class RdfModelWriter extends RdfWriter {
 
   @Override
   public void close() {
-    Rio.write(builder.build(), getOutputStream(), getFormat());
+    Rio.write(builder.build(), getOutputStream(), getFormat(), config);
   }
 }
