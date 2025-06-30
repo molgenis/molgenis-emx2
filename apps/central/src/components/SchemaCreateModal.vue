@@ -143,7 +143,7 @@ export default {
         "UMCG_COHORT_STAGING",
         "UMCU_COHORTS_STAGING",
         "INTEGRATE_COHORTS_STAGING",
-        "PATIENT_REGISTRY",
+        "MOLGENIS_RD4",
         "FAIR_GENOMES",
         "JRC_COMMON_DATA_ELEMENTS",
         "ERN_DASHBOARD",

@@ -17,7 +17,7 @@ public class DataModels {
     UMCU_COHORTS_STAGING("_profiles/UMCUCohorts.yaml"),
     INTEGRATE_COHORTS_STAGING("_profiles/INTEGRATECohorts.yaml"),
     FAIR_DATA_HUB("_profiles/FAIRDataHub.yaml"),
-    PATIENT_REGISTRY("_profiles/PatientRegistry.yaml"),
+    MOLGENIS_RD4("_profiles/MOLGENIS_RD4.yaml"),
     JRC_COMMON_DATA_ELEMENTS("_profiles/JRC-CDE.yaml"),
     FAIR_GENOMES("_profiles/FAIRGenomes.yaml"),
     FAIR_DATA_POINT("_profiles/FAIRDataPoint.yaml"),

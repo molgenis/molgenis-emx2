@@ -1,12 +1,12 @@
 ---
-name: Patient registry
+name: MOLGENIS RD4
 description: Patient registry and data catalogue
 
-profileTags: Patient registry, DataCatalogueFlat
+profileTags: MOLGENIS_RD4, DataCatalogueFlat
 
-settings: _settings/patient_registry
+settings: _settings/molgenis_rd4
 
-demoData: _demodata/applications/patient_registry
+demoData: _demodata/applications/molgenis_rd4
 
 # special options
 setViewPermission: anonymous
