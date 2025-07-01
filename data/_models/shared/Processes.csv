@@ -1,0 +1,3 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+Processes,,,,,,,,,,,,,"Patient registry, FAIR Genomes",
+Processes,,id,auto_id,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing","Patient registry, FAIR Genomes",
