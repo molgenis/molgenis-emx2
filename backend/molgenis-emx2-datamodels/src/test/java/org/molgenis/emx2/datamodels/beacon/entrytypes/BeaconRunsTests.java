@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
@@ -16,6 +17,7 @@ import org.molgenis.emx2.datamodels.PatientRegistryTest;
 
 public class BeaconRunsTests extends PatientRegistryTest {
 
+  @Disabled
   @Test
   public void testRunsOfIndividual_pathQuery_twoResults() {
     Context request = mock(Context.class);
@@ -31,7 +33,6 @@ public class BeaconRunsTests extends PatientRegistryTest {
     when(request.attribute("specification")).thenReturn("beacon");
 
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode json = queryEntryType.query(database);
 

@@ -1,4 +1,4 @@
-variant id,variant type,ref,alt,genomic assembly id,refseq assembly id,start position,stop position,geneId,genomic HGVS id,protein HGVS ids,transcript HGVS ids
+id,variant type,ref,alt,genomic assembly id,refseq assembly id,start position,stop position,geneId,genomic HGVS id,protein HGVS ids,transcript HGVS ids
 20:2447951..2447952c>g,SNP,c,g,GRCh37,20,2447951,2447952,SNRPB,NC_000017.11:g.43057063G>A,NP_009225.1:p.Glu1817Ter,NC_000023.10(NM004006.2):c.357+1G
 20:2447955..2447958c>g,SNP,c,g,GRCh37,20,2447955,2447958,SNRPB,,,
 20:2447946..2447950c>g,SNP,c,g,GRCh37,20,2447946,2447950,SNRPB,,,

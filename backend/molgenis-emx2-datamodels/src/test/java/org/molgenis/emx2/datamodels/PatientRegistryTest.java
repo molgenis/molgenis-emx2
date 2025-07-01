@@ -30,6 +30,6 @@ public class PatientRegistryTest {
 
   @Test
   void testSchema() {
-    assertEquals(45, patientRegistrySchema.getTableNames().size());
+    assertEquals(47, patientRegistrySchema.getTableNames().size());
   }
 }
