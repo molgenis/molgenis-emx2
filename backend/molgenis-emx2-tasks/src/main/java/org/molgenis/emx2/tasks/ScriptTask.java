@@ -157,7 +157,7 @@ public class ScriptTask extends Task {
     Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
 
     String extractZipCommand = "";
-    if (this.extraFile.get("extraFile") != null) {
+    if (this.extraFile != null && this.extraFile.get("extraFile") != null) {
       String extraFileName = this.extraFile.get("extraFile_filename").toString();
       List<String> forbiddenFiles = Arrays.asList("venv.zip", "requirements.txt", "script.py");
       if (forbiddenFiles.contains(extraFileName)) {
