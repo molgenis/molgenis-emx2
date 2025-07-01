@@ -217,6 +217,14 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                       .setType(ColumnType.EMAIL)
                       .setDescription("Email address to be notified when a job fails"));
             }
+            if (!scriptsMetadata.getColumnNames().contains("extraFile")) {
+              scriptsMetadata.add(
+                  column("extraFile")
+                      .setLabel("extra file")
+                      .setType(ColumnType.FILE)
+                      .setDescription(
+                          "Upload a file required for running the script. A ZIP file will be automatically extracted."));
+            }
           } else {
             Table scripTypes =
                 schema.create(table("ScriptTypes").setTableType(TableType.ONTOLOGIES));
