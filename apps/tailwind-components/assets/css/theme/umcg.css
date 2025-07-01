@@ -61,7 +61,7 @@
   --text-color-breadcrumb-arrow: var(--color-umcg-mid-blue);
   --text-color-breadcrumb: var(--color-umcg-mid-blue);
   --text-color-title: var(--color-umcg-dark-blue);
-  --text-color-title-contrast: var(--color-umcg-dark-blue);
+  --text-color-title-contrast: var(--color-gray-900);
   --text-color-sub-title-contrast: var(--color-umcg-dark-blue);
   --text-color-search-button: var(--color-umcg-light-blue);
   --text-color-search-button-hover: var(--color-umcg-light-blue);
@@ -88,6 +88,8 @@
   --text-color-pagination-input: var(--color-umcg-dark-blue);
   --text-color-pagination-hover: var(--color-white);
   --text-color-link: var(--color-umcg-mid-blue);
+  --text-color-link-inverted: var(--color-blue-500);
+  --text-color-table-row: var(--color-gray-900);
 
   --border-color-button-primary: var(--color-orange-500);
   --border-color-button-primary-hover: var(--color-orange-500);
