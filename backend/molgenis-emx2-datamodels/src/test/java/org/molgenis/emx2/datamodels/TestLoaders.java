@@ -5,10 +5,11 @@ import static org.molgenis.emx2.rdf.SHACLComplianceTester.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -59,13 +60,15 @@ public class TestLoaders {
 
     // create rdf in memory
     OutputStream outputStream = new ByteArrayOutputStream();
-    var rdf = new RDFService("http://localhost:8080", null);
-    rdf.describeAsRDF(outputStream, null, null, null, dataCatalogue);
+    try (RdfSchemaService rdf =
+        new RdfSchemaService(
+            "http://localhost:8080", dataCatalogue, RDFFormat.TURTLE, outputStream)) {
+      rdf.getGenerator().generate(dataCatalogue);
+    }
 
-    // check compliance
+    // check compliance - when compliant, add: DCAT_AP_SHACL_FILES and HEALTH_RI_V2_SHACL_FILES
     testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
-    // testShaclCompliance(DCAT_AP_SHACL_FILES, outputStream.toString());
-    testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
+    testShaclCompliance(HEALTH_RI_V1_SHACL_FILES, outputStream.toString());
     testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
   }
 

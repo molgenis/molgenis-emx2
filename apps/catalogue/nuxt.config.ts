@@ -4,6 +4,7 @@ import { defineNuxtConfig } from "nuxt/config";
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   devtools: { enabled: true },
+  ignore: ['.gradle/**', '.git/**', 'node_modules/**', 'dist/**', 'coverage/**'],
   modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag", "@pinia/nuxt"],
   tailwindcss: {
     cssPath: "../tailwind-components/assets/css/main.css",
@@ -17,6 +18,7 @@ export default defineNuxtConfig({
       analyticsKey: "",
       analyticsProvider: "siteimprove",
       cohortOnly: false,
+      schema: "catalogue-demo",
       apiBase:
         process.env.NUXT_PUBLIC_API_BASE ||
         "https://emx2.dev.molgenis.org/",

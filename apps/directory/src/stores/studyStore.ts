@@ -4,7 +4,7 @@ import { QueryEMX2 } from "molgenis-components";
 import useErrorHandler from "../composables/errorHandler";
 import { useSettingsStore } from "./settingsStore";
 
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 
 export const useStudyStore = defineStore("studyStore", () => {
   const settingsStore = useSettingsStore();
@@ -27,6 +27,7 @@ export const useStudyStore = defineStore("studyStore", () => {
   }
 
   async function getStudyReport(id: string) {
+    clearError();
     const studyReportQuery = new QueryEMX2(graphqlEndpoint)
       .table("Studies")
       .select(getStudyColumns())
