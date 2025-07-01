@@ -20,19 +20,18 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.eclipse.rdf4j.sail.shacl.ShaclSail;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ShaclResultWriter extends RdfWriter {
   private static final byte[] SHACL_SUCCEED =
-          """
+      """
     @prefix sh: <http://www.w3.org/ns/shacl#> .
-    
+
     [] a sh:ValidationReport;
       sh:conforms true.
     """
-                  .getBytes();
+          .getBytes();
 
   private static final Logger logger = LoggerFactory.getLogger(ShaclResultWriter.class);
   private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
@@ -75,7 +74,8 @@ public class ShaclResultWriter extends RdfWriter {
     connection.add(statement);
     tripleCounter++;
     // MemoryStore is designed for < 100.000 triples.
-    if (tripleCounter == 100000) logger.warn("Exceeding supported number of triples for validation");
+    if (tripleCounter == 100000)
+      logger.warn("Exceeding supported number of triples for validation");
   }
 
   @Override
