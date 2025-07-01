@@ -14,23 +14,49 @@
         {{ displayText }}
       </span>
     </InputListboxToggle>
-    <InputListboxList
+    <div
+      role="listbox"
       :id="`listbox-${id}-options`"
-      :isExpanded="!disabled && isExpanded"
-      :hasFixedHeight="listboxOptions.length > 5"
-      @keydown.prevent="onListboxKeyDown"
+      :aria-expanded="isExpanded"
+      :tabindex="isExpanded ? 1 : 0"
+      class="absolute b-0 w-full z-10 bg-input"
+      :class="{
+        hidden: !disabled && !isExpanded,
+      }"
     >
-      <InputListboxListItem
-        v-for="option in listboxOptions"
-        ref="listbox-li"
-        :id="option.elemId"
-        :isSelected="option.value === '' || isSelected(option.value as IInputValue)"
-        :label="(option.label as string) || (option.value as string)"
-        @click="onListboxOptionClick(option)"
-        @blur="blurListOption(option)"
-        @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
+      <label :for="`listbox-${id}-options-search`" class="sr-only">
+        Search for items
+      </label>
+      <InputSearch
+        ref="listbox-search"
+        :id="`listbox-${id}-options-search`"
+        :aria-labelledby="`listbox-${id}-options-search`"
+        :aria-controls="`listbox-${id}-options-list`"
+        class="!h-[38px]"
+        @update:model-value="(value) => emit('search', value)"
       />
-    </InputListboxList>
+      <ul
+        ref="ul"
+        :id="`listbox-${id}-options-list`"
+        class="overflow-y-scroll z-10 bg-input border"
+        :class="{
+          'h-44': isExpanded && listboxOptions.length > 5,
+          'shadow-inner': !disabled && isExpanded,
+        }"
+        @keydown.prevent="onListboxKeyDown"
+      >
+        <InputListboxListItem
+          v-for="option in listboxOptions"
+          ref="listbox-li"
+          :id="option.elemId"
+          :isSelected="option.value === '' || isSelected(option.value as IInputValue)"
+          :label="(option.label as string) || (option.value as string)"
+          @click="onListboxOptionClick(option)"
+          @blur="blurListOption(option)"
+          @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
+        />
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -46,6 +72,7 @@ import type {
   IListboxLiRef,
 } from "../../types/listbox";
 
+import { InputSearch } from "#components";
 import { InputListboxToggle } from "#components";
 import { type IInputProps } from "../../types/types";
 
@@ -66,6 +93,7 @@ const emit = defineEmits<{
   (e: "error", value: IFieldError[]): void;
   (e: "blur", value: null): void;
   (e: "focus", value: null): void;
+  (e: "search", value: string): void;
 }>();
 
 const sourceDataType = ref<string>("");
@@ -74,6 +102,7 @@ const focusCounter = ref<number>(0);
 const modelValue = defineModel<IInputValue | IInputValueLabel | null>();
 const liElemRefs = useTemplateRef<IListboxLiRef[]>("listbox-li");
 const btnElemRef = ref<InstanceType<typeof InputListboxToggle>>();
+const searchElemRef = useTemplateRef("listbox-search");
 const displayText = ref<string>(props.placeholder);
 const startingCounter = ref<number>(0);
 const selectedElementId = ref<string>("");
@@ -175,7 +204,6 @@ function blurListOption(option: IInternalListboxOption) {
 }
 
 function updateDisplayText(text: string | undefined | null): string {
-  console.log(text);
   if (typeof text === "undefined" || text === null) {
     return props.placeholder;
   }
@@ -238,6 +266,10 @@ function focusListboxButton() {
   btnElemRef.value?.button?.focus();
 }
 
+function focusListBoxSearch() {
+  searchElemRef.value?.$el.getElementsByTagName("input")[0].focus();
+}
+
 function openCloseListbox() {
   btnElemRef.value!.expanded = !btnElemRef.value!.expanded;
   if (isExpanded.value) {
@@ -286,32 +318,23 @@ function onListboxButtonKeyDown(event: KeyboardEvent) {
 
 function onListboxKeyDown(event: KeyboardEvent) {
   const key = event.key;
-  switch (key) {
-    case "ArrowUp":
-      focusPreviousOption();
-      break;
 
-    case "ArrowDown":
-      focusNextOption();
-      break;
-
-    case "PageUp":
-      focusPreviousOption(10);
-      break;
-
-    case "PageDown":
-      focusNextOption(10);
-      break;
-
-    case "Home":
-      focusCounter.value = 0;
-      focusListOption();
-      break;
-
-    case "End":
-      focusCounter.value = listboxOptions.value.length - 1;
-      focusListOption();
-      break;
+  if (event.shiftKey && key === "Tab") {
+    console.log("focusing search");
+    focusListBoxSearch();
+  } else if (key === "ArrowUp") {
+    focusPreviousOption();
+  } else if (key === "ArrowDown") {
+    focusNextOption();
+  } else if (key === "PageUp") {
+    focusPreviousOption(10);
+  } else if (key === "PageDown") {
+    focusNextOption(10);
+  } else if (key === "Home") {
+    focusCounter.value = 0;
+    focusListOption();
+  } else if (key === "End") {
+    focusCounter.value = listboxOptions.value.length - 1;
   }
 }
 
@@ -320,28 +343,16 @@ function onListboxOptionKeyDown(
   option: IInternalListboxOption
 ) {
   const key: string = event.key;
-  switch (key) {
-    case "Enter":
-      updateModelValue(option);
-      break;
 
-    case "Spacebar":
-      updateModelValue(option);
-      break;
-
-    // spacebar (for older browser support)
-    case " ":
-      updateModelValue(option);
-      break;
-
-    case "Tab":
-      updateModelValue(option);
-      break;
-
-    case "Escape":
-      blurListOption(option);
-      openCloseListbox();
-      break;
+  if (event.shiftKey && key === "Tab") {
+    console.log("focusing search");
+  } else if (key === "Enter") {
+    updateModelValue(option);
+  } else if (["Enter", "Spacebar", " ", "Tab"].includes(key)) {
+    updateModelValue(option);
+  } else if (key === "Escape") {
+    blurListOption(option);
+    openCloseListbox();
   }
 }
 

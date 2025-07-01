@@ -70,12 +70,16 @@
       :disabled="listboxState === 'disabled'"
       :placeholder="listboxPlaceholder"
       @update:model-value="(value: any) => (modelValue = value)"
+      @search="(value: string) => searchTerm = value"
     />
     <output class="block w-full mt-6 border py-3 px-2 pl-6">
-      <code
-        >Output {{ listboxDataType === "true" ? "Value" : "Object" }}:
-        {{ modelValue }}</code
-      >
+      <code>Search Term: {{ searchTerm }}</code>
+    </output>
+    <output class="block w-full mt-6 border py-3 px-2 pl-6">
+      <code>
+        Output {{ listboxDataType === "true" ? "Value" : "Object" }}:
+        {{ modelValue }}
+      </code>
     </output>
   </div>
   <div class="mb-2 rounded p-6 text-title">
@@ -92,7 +96,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from "vue";
+import { ref, onBeforeMount, watch } from "vue";
 import type {
   IInputValue,
   IInputValueLabel,
@@ -110,12 +114,38 @@ const lettersWithLabels: IInputValueLabel[] = letters.map((letter: string) => {
 const listboxState = ref<string>("");
 const listboxPlaceholder = ref<string>("Select an option");
 const listboxDataType = ref<string>("string");
+const searchTerm = ref<string | null>(null);
 
-const listboxData = computed<IInputValue[] | IInputValueLabel[]>(() => {
+const listboxData = ref<IInputValue[] | IInputValueLabel[]>([]);
+
+function updateInputData() {
   if (listboxDataType.value === "string") {
     return letters as IInputValue[];
   } else {
     return lettersWithLabels as IInputValueLabel[];
+  }
+}
+
+onBeforeMount(() => {
+  listboxData.value = updateInputData();
+});
+
+watch(listboxDataType, () => {
+  listboxData.value = updateInputData();
+});
+
+watch(searchTerm, () => {
+  const data = updateInputData();
+  if (searchTerm.value !== "") {
+    listboxData.value = data.filter((item) => {
+      if (listboxDataType.value === "string") {
+        return (item as IInputValue) === searchTerm.value;
+      } else {
+        return (item as IInputValueLabel).value === searchTerm.value;
+      }
+    }) as IInputValue[] | IInputValueLabel[];
+  } else {
+    listboxData.value = data;
   }
 });
 </script>
