@@ -30,6 +30,7 @@ public class TestLoaders {
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
   public static final String DASHBOARD_TEST = "UiDashboardTest";
   public static final String PATIENT_REGISTRY_DEMO = "patientRegistryDemo";
+  public static final String PATIENT_REGISTRY_TEST = "patientRegistryTest";
   static Database database;
 
   @BeforeAll
@@ -48,6 +49,8 @@ public class TestLoaders {
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(PROJECT_MANAGER);
     database.dropSchemaIfExists(DASHBOARD_TEST);
+    database.dropSchemaIfExists(PATIENT_REGISTRY_DEMO);
+    database.dropSchemaIfExists(PATIENT_REGISTRY_TEST);
     // delete ontologies last
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
