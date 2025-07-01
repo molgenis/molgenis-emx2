@@ -1,4 +1,4 @@
-package org.molgenis.emx2.rdf;
+package org.molgenis.emx2.rdf.shacl;
 
 import java.io.*;
 import java.net.URL;

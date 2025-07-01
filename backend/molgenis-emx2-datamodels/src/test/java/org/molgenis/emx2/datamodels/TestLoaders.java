@@ -1,7 +1,7 @@
 package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.molgenis.emx2.rdf.SHACLComplianceTester.*;
+import static org.molgenis.emx2.rdf.shacl.SHACLComplianceTester.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
