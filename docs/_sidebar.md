@@ -2,4 +2,4 @@
 
 - [Platform guide](/molgenis/)
 - [Catalogue guide](/catalogue/)
-- [Armadillo guide](/armadillo/)
+- [Armadillo guide](https://molgenis.github.io/molgenis-service-armadillo/)

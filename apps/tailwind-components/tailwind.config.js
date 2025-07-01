@@ -157,6 +157,7 @@ module.exports = {
         "search-filter-group-toggle":
           "var(--background-color-search-filter-group-toggle)",
         "app-wrapper": "var(--background-color-app-wrapper)",
+        content: "var(--background-color-content)",
         pagination: "var(--background-color-pagination)",
         "pagination-hover": "var(--background-color-pagination-hover)",
         form: "var(--background-color-form)",
@@ -262,6 +263,7 @@ module.exports = {
         "pagination-button": "var(--text-color-pagination-button)",
         "pagination-button-hover": "var(--text-color-pagination-button-hover)",
         link: "var(--text-color-link)",
+        "link-inverted": "var(--text-color-link-inverted)",
         "table-column-header": "var(--text-color-table-column-header)",
         "table-row": "var(--text-color-table-row)",
         "form-header": "var(--text-color-form-header)",

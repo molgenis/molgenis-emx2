@@ -46,7 +46,7 @@ const props = defineProps<{
               >
             </NuxtLink>
           </TableCell>
-          <TableCell class="hidden sm:table-cell">
+          <TableCell class="hidden sm:table-cell text-title-contrast">
             <NuxtLink :to="`/${catalogue.id}`">
               {{ catalogue?.name }}
             </NuxtLink>
