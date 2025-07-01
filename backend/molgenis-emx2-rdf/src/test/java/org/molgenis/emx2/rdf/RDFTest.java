@@ -67,7 +67,7 @@ public class RDFTest {
   static final String BASE_URL = "http://localhost:8080";
   static final String RDF_API_LOCATION = "/api/rdf";
 
-  static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
+  static final ClassLoader classLoader = RDFTest.class.getClassLoader();
 
   static Database database;
   static List<Schema> petStoreSchemas;
