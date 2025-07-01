@@ -427,7 +427,7 @@ public class RDFTest {
 
   // Full RDF output tests.
   @Test
-  void testPetStoreRdfEmx2Schema() throws IOException, NoSuchMethodException {
+  void testPetStoreRdfEmx2SchemaModel() throws IOException, NoSuchMethodException {
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/emx2/schema.ttl",
         RdfModelWriter.class,
@@ -437,10 +437,20 @@ public class RDFTest {
   }
 
   @Test
+  void testPetStoreRdfEmx2SchemaStream() throws IOException, NoSuchMethodException {
+    compareToValidationFile(
+        "rdf_files/rdf_api/pet_store/emx2/schema.ttl",
+        RdfStreamWriter.class,
+        Emx2RdfGenerator.class,
+        RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
+        petStore_nr1);
+  }
+
+  @Test
   void testPetStoreRdfSemanticSchema() throws IOException, NoSuchMethodException {
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/semantic/schema.ttl",
-        RdfModelWriter.class,
+        RdfStreamWriter.class,
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
         petStore_nr1);
@@ -450,7 +460,7 @@ public class RDFTest {
   void testPetStoreRdfSemanticOntology() throws IOException, NoSuchMethodException {
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/semantic/ontology_tag.ttl",
-        RdfModelWriter.class,
+        RdfStreamWriter.class,
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class),
         petStore_nr1.getTable("Tag"));
@@ -460,7 +470,7 @@ public class RDFTest {
   void testPetStoreRdfSemanticTable() throws IOException, NoSuchMethodException {
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/semantic/table_user.ttl",
-        RdfModelWriter.class,
+        RdfStreamWriter.class,
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class),
         petStore_nr1.getTable("User"));
@@ -472,7 +482,7 @@ public class RDFTest {
 
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/semantic/row_fire_ant.ttl",
-        RdfModelWriter.class,
+        RdfStreamWriter.class,
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class),
         table,

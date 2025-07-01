@@ -51,7 +51,7 @@ const repeats = computed(() =>
       </div>
       <div class="hidden md:flex md:basis-3/5">
         <p class="text-body-base">
-          {{ variable?.label }}
+          {{ variable?.label || variable?.description }}
         </p>
       </div>
       <div class="hidden basis-1/5 xl:flex xl:justify-end">
