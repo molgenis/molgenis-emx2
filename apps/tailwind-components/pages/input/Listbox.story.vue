@@ -72,14 +72,12 @@
       @update:model-value="(value: any) => (modelValue = value)"
       @search="(value: string) => searchTerm = value"
     />
-    <output class="block w-full mt-6 border py-3 px-2 pl-6">
+    <h4 class="text-heading-md mt-6">Listbox outputs</h4>
+    <output class="block w-full mt-2 border py-3 px-2 pl-6">
       <code>Search Term: {{ searchTerm }}</code>
     </output>
     <output class="block w-full mt-6 border py-3 px-2 pl-6">
-      <code>
-        Output {{ listboxDataType === "true" ? "Value" : "Object" }}:
-        {{ modelValue }}
-      </code>
+      <code> User selection: {{ modelValue }} </code>
     </output>
   </div>
   <div class="mb-2 rounded p-6 text-title">
@@ -97,32 +95,45 @@
 
 <script lang="ts" setup>
 import { ref, onBeforeMount, watch } from "vue";
-import type {
-  IInputValue,
-  IInputValueLabel,
-} from "../../../metadata-utils/src/types";
 
-const modelValue = defineModel<IInputValue | IInputValueLabel>();
-const letters: string[] = [...Array(26).keys()].map((num) =>
-  String.fromCharCode(num + 65)
+interface ListboxDemoData {
+  value: string;
+  label: string;
+}
+
+const modelValue = defineModel<string[] | ListboxDemoData[]>();
+
+const commonBirdNames: string[] = [
+  "Kookaburra",
+  "Sulphur-crested Cockatoo",
+  "Rainbow Lorikeet",
+  "Emu",
+  "Australian Magpie",
+  "Galah",
+  "Superb Fairywren",
+  "Lyrebird",
+  "Budgerigar",
+  "Tawny Frogmouth",
+];
+
+const commonBirdNamesArray: ListboxDemoData[] = commonBirdNames.map(
+  (value: string) => {
+    return { value: value.toLowerCase(), label: value };
+  }
 );
-
-const lettersWithLabels: IInputValueLabel[] = letters.map((letter: string) => {
-  return { value: letter, label: `Group ${letter}` };
-});
 
 const listboxState = ref<string>("");
 const listboxPlaceholder = ref<string>("Select an option");
 const listboxDataType = ref<string>("string");
 const searchTerm = ref<string | null>(null);
 
-const listboxData = ref<IInputValue[] | IInputValueLabel[]>([]);
+const listboxData = ref<string[] | ListboxDemoData[]>([]);
 
 function updateInputData() {
   if (listboxDataType.value === "string") {
-    return letters as IInputValue[];
+    return commonBirdNames;
   } else {
-    return lettersWithLabels as IInputValueLabel[];
+    return commonBirdNamesArray;
   }
 }
 
@@ -139,11 +150,13 @@ watch(searchTerm, () => {
   if (searchTerm.value !== "") {
     listboxData.value = data.filter((item) => {
       if (listboxDataType.value === "string") {
-        return (item as IInputValue) === searchTerm.value;
+        return (item as string).includes(searchTerm.value as string);
       } else {
-        return (item as IInputValueLabel).value === searchTerm.value;
+        return (item as ListboxDemoData).value.includes(
+          searchTerm.value as string
+        );
       }
-    }) as IInputValue[] | IInputValueLabel[];
+    }) as string[] | ListboxDemoData[];
   } else {
     listboxData.value = data;
   }
