@@ -335,6 +335,7 @@ function onListboxKeyDown(event: KeyboardEvent) {
     focusListOption();
   } else if (key === "End") {
     focusCounter.value = listboxOptions.value.length - 1;
+    focusListOption();
   }
 }
 
