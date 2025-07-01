@@ -320,7 +320,6 @@ function onListboxKeyDown(event: KeyboardEvent) {
   const key = event.key;
 
   if (event.shiftKey && key === "Tab") {
-    console.log("focusing search");
     focusListBoxSearch();
   } else if (key === "ArrowUp") {
     focusPreviousOption();
@@ -346,7 +345,7 @@ function onListboxOptionKeyDown(
   const key: string = event.key;
 
   if (event.shiftKey && key === "Tab") {
-    console.log("focusing search");
+    focusListBoxSearch();
   } else if (key === "Enter") {
     updateModelValue(option);
   } else if (["Enter", "Spacebar", " ", "Tab"].includes(key)) {
