@@ -9,7 +9,11 @@ const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ["@nuxtjs/tailwindcss", "@nuxt/test-utils/module"],
+  modules: [
+    "@nuxtjs/tailwindcss",
+    "@nuxt/test-utils/module",
+    "floating-vue/nuxt",
+  ],
   imports: {
     autoImport: false,
   },

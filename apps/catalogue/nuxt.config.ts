@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   devtools: { enabled: true },
   ignore: ['.gradle/**', '.git/**', 'node_modules/**', 'dist/**', 'coverage/**'],
-  modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag", "@pinia/nuxt"],
+  modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag", "@pinia/nuxt", "floating-vue/nuxt"],
   tailwindcss: {
     cssPath: "../tailwind-components/assets/css/main.css",
     configPath: "../tailwind-components/tailwind.config.js",
