@@ -9,7 +9,7 @@ import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.Objects;
 import org.junit.jupiter.api.Tag;
@@ -97,7 +97,7 @@ import sys
 failureVariable = fail
 print('unreachable')
 """)
-            .setServerUrl(new URL("http://localhost:8080/"))
+            .setServerUrl(URI.create("http://localhost:8080/").toURL())
             .failureAddress("test@test.com");
     task.run();
     assertEquals(ERROR, task.getStatus());
@@ -106,7 +106,7 @@ print('unreachable')
   @Test
   public void testPythonExtraFiles() throws MalformedURLException, InterruptedException {
     TaskServiceInDatabase taskService =
-        new TaskServiceInDatabase(SYSTEM_SCHEMA, new URL("http://localhost:8080/"));
+        new TaskServiceInDatabase(SYSTEM_SCHEMA, URI.create("http://localhost:8080/").toURL());
 
     SqlDatabase database = new SqlDatabase(false);
     database.becomeAdmin();
@@ -138,7 +138,7 @@ print('unreachable')
   @Test
   public void testPythonExtraFiles_shouldFail() throws MalformedURLException, InterruptedException {
     TaskServiceInDatabase taskService =
-        new TaskServiceInDatabase(SYSTEM_SCHEMA, new URL("http://localhost:8080/"));
+        new TaskServiceInDatabase(SYSTEM_SCHEMA, URI.create("http://localhost:8080/").toURL());
 
     SqlDatabase database = new SqlDatabase(false);
     database.becomeAdmin();
