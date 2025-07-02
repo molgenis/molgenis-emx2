@@ -22,8 +22,8 @@ public class MolgenisSession {
   private static final Cache<String, GraphQL> anonymousGqlObjectCache =
       Caffeine.newBuilder()
           .maximumSize(100)
-          .expireAfterAccess(1, TimeUnit.MINUTES) // Entry expires 5 minutes after last access
-          .expireAfterWrite(30, TimeUnit.MINUTES) // Entry expires 5 seconds after creation
+          .expireAfterAccess(1, TimeUnit.MINUTES)
+          .expireAfterWrite(30, TimeUnit.MINUTES)
           .build();
 
   public MolgenisSession(Database database) {
