@@ -23,8 +23,12 @@ export default [
   "ONTOLOGY_ARRAY",
   "PERIOD",
   "PERIOD_ARRAY",
-  "REF",
-  "REF_ARRAY",
+  "REF", //deprecated
+  "SELECT",
+  "RADIO",
+  "REF_ARRAY", //deprecated
+  "MULTISELECT",
+  "CHECKBOX",
   "REFBACK",
   "STRING",
   "STRING_ARRAY",
