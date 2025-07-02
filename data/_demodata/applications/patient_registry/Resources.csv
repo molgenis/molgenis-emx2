@@ -4,4 +4,4 @@ main_fdp,EGAD00001008392,Rare Disease Synthetic Dataset,https://ega-archive.org/
 main_fdp,VCFs,VCFs from in the Rare Disease Synthetic Dataset (EGAD00001008392),,Other type,,Genomics,Other type,Primary data collection,2001,Finalised,18,,Closed dataset,EGAD00001008392
 main_fdp,Phenopackets,Phenopackets from the Rare Disease Synthetic Dataset (EGAD00001008392),,Other type,,Genomics,Other type,Primary data collection,2001,Finalised,8,,Closed dataset,EGAD00001008392
 main_fdp,PEDs,PEDs from the Rare Disease Synthetic Dataset (EGAD00001008392),,Other type,,Genomics,Other type,Primary data collection,2001,Finalised,9,,Closed dataset,EGAD00001008392
-,EMX2 API,EMX2 API,,Other type,The purpose of this is to test EMX2 API calls,Genomics,Other type,Other,2025,Finalised,5,5,Closed dataset,
+,EMX2 API,EMX2 API,,Other type,The purpose of this is to test EMX2 API calls,Genomics,Other type,Other,2025,Finalised,5,5,Closed dataset,""

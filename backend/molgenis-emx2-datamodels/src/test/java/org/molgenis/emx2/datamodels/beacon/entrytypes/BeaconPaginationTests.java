@@ -1,15 +1,15 @@
-package org.molgenis.emx2.beaconv2.entrytypes;
+package org.molgenis.emx2.datamodels.beacon.entrytypes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.molgenis.emx2.datamodels.beacon.BeaconTestUtil.mockIndividualsPostRequestRegular;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
+import org.molgenis.emx2.datamodels.PatientRegistryTest;
 
-@Disabled
-public class BeaconPaginationTests extends BeaconModelEndPointTest {
+public class BeaconPaginationTests extends PatientRegistryTest {
 
   @Test
   public void testPagination_TwoItems_Offset0() throws Exception {
@@ -25,12 +25,12 @@ public class BeaconPaginationTests extends BeaconModelEndPointTest {
                             }
                           }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(beaconSchema);
+    JsonNode json = queryEntryType.query(patientRegistrySchema);
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(2, results.size());
-    assertEquals("Ind001", results.get(0).get("id").textValue());
-    assertEquals("Ind002", results.get(1).get("id").textValue());
+    assertEquals("Case1F", results.get(0).get("id").textValue());
+    assertEquals("Case1C", results.get(1).get("id").textValue());
   }
 
   @Test
@@ -47,12 +47,12 @@ public class BeaconPaginationTests extends BeaconModelEndPointTest {
                             }
                           }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(beaconSchema);
+    JsonNode json = queryEntryType.query(patientRegistrySchema);
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(2, results.size());
-    assertEquals("MinIndNoRefs003", results.get(0).get("id").textValue());
-    assertEquals("MinInd004", results.get(1).get("id").textValue());
+    assertEquals("Case1M", results.get(0).get("id").textValue());
+    assertEquals("Case2C", results.get(1).get("id").textValue());
   }
 
   @Test
@@ -69,9 +69,9 @@ public class BeaconPaginationTests extends BeaconModelEndPointTest {
                             }
                           }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(beaconSchema);
+    JsonNode json = queryEntryType.query(patientRegistrySchema);
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
-    assertEquals(5, results.size());
+    assertEquals(23, results.size());
   }
 }

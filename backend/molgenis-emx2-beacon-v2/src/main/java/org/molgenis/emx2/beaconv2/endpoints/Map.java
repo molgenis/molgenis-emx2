@@ -4,6 +4,7 @@ import static org.molgenis.emx2.utils.URIUtils.extractHost;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.Parser;
@@ -22,12 +23,12 @@ public class Map {
   public Map() {}
 
   @JsonIgnore
-  public void getResponse(Context ctx) {
+  public JsonNode getResponse(Context ctx) {
     this.spec = BeaconSpec.findByPath(ctx.attribute("specification"));
     this.entryTypes = EntryType.getEntryTypesOfSpec(spec);
     this.host = extractHost(ctx.url());
     String jsltPath = "informational/map.jslt";
     Expression jslt = Parser.compileResource(jsltPath);
-    ctx.json(jslt.apply(new ObjectMapper().valueToTree(this)));
+    return jslt.apply(new ObjectMapper().valueToTree(this));
   }
 }

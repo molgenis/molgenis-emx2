@@ -4,9 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.rdf.SHACLComplianceTester.*;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
@@ -32,6 +30,7 @@ public class TestLoaders {
   public static final String DIRECTORY_ONTOLOGIES = "DirectoryOntologies";
   public static final String DASHBOARD_TEST = "UiDashboardTest";
   public static final String PATIENT_REGISTRY_DEMO = "patientRegistryDemo";
+
   static Database database;
 
   @BeforeAll
@@ -50,6 +49,7 @@ public class TestLoaders {
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(PROJECT_MANAGER);
     database.dropSchemaIfExists(DASHBOARD_TEST);
+    database.dropSchemaIfExists(PATIENT_REGISTRY_DEMO);
     // delete ontologies last
     database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
   }
@@ -159,14 +159,6 @@ public class TestLoaders {
   //    // testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
   //    // testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
   //  }
-
-  @Test
-  void test18PortalLoader() throws URISyntaxException, IOException {
-    // depends on catalogue test above
-    Schema schema = database.dropCreateSchema(PORTAL_TEST);
-    DataModels.Profile.PATIENT_REGISTRY.getImportTask(schema, false).run();
-    assertEquals(49, schema.getTableNames().size());
-  }
 
   @Test
   public void dashboardTestLoader() {
