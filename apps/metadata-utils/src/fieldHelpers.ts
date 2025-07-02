@@ -70,7 +70,9 @@ export const isRefType = (column: IColumn) => {
   return (
     column.columnType === "REF" ||
     column.columnType === "REFBACK" ||
-    column.columnType === "ONTOLOGY"
+    column.columnType === "ONTOLOGY" ||
+    column.columnType === "SELECT" ||
+    column.columnType === "RADIO"
   );
 };
 

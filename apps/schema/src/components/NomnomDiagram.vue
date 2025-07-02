@@ -42,9 +42,10 @@ export default {
           .filter((column) => column.table === tableName)
           .forEach((column) => {
             if (
-              column.columnType.includes(
-                "REF" || "SELECT" || "RADIO" || "CHECKBOX"
-              ) ||
+              column.columnType.includes("REF") ||
+              column.columnType.includes("SELECT") ||
+              column.columnType.includes("RADIO") ||
+              column.columnType.includes("CHECKBOX") ||
               column.columnType.includes("ONTOLOGY")
             ) {
               result += `${column.name}: ${column.columnType.toLowerCase()}(${
