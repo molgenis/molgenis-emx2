@@ -1,10 +1,12 @@
 package org.molgenis.emx2.web;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import graphql.GraphQL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -17,7 +19,12 @@ public class MolgenisSession {
   private Database database;
   private GraphQL graphqlForDatabase;
   private Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
-  private static final Map<String, GraphQL> anonymousGqlObjectCache = new ConcurrentHashMap<>();
+  private static final Cache<String, GraphQL> anonymousGqlObjectCache =
+      Caffeine.newBuilder()
+          .maximumSize(100)
+          .expireAfterAccess(1, TimeUnit.MINUTES) // Entry expires 5 minutes after last access
+          .expireAfterWrite(30, TimeUnit.MINUTES) // Entry expires 5 seconds after creation
+          .build();
 
   public MolgenisSession(Database database) {
     database.setBindings(JavaScriptBindings.getBindingsForSession(this));
@@ -46,11 +53,10 @@ public class MolgenisSession {
       // if the user is anonymous, try the system cache first
       if (Objects.equals(getSessionUser(), "anonymous")) {
         GraphQL anonymousGql =
-            anonymousGqlObjectCache.computeIfAbsent(
+            anonymousGqlObjectCache.get(
                 schemaName,
                 key -> new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService));
         graphqlPerSchema.put(schemaName, anonymousGql);
-
       } else {
         graphqlPerSchema.put(
             schemaName,
@@ -74,7 +80,7 @@ public class MolgenisSession {
     this.graphqlPerSchema.clear();
     this.graphqlForDatabase = null;
     this.database.clearCache();
-    anonymousGqlObjectCache.clear();
+    anonymousGqlObjectCache.invalidateAll();
     logger.info("cleared database and caches for user {}", getSessionUser());
   }
 }
