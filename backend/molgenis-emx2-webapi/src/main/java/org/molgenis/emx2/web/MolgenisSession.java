@@ -74,6 +74,7 @@ public class MolgenisSession {
     this.graphqlPerSchema.clear();
     this.graphqlForDatabase = null;
     this.database.clearCache();
+    anonymousGqlObjectCache.clear();
     logger.info("cleared database and caches for user {}", getSessionUser());
   }
 }
