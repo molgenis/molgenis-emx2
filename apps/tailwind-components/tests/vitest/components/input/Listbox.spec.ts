@@ -16,7 +16,7 @@ const wrapper = mount(InputListbox, {
 describe("listbox", () => {
   const button = wrapper.find('button[role="combobox"]');
   const listbox = wrapper.find('div[role="listbox"]');
-  const options = wrapper.findAllComponents('ul li[role="option"]');
+  const options = wrapper.findAll('ul li[role="option"]');
 
   it("toggle has required aria attributes", async () => {
     const ariaControls = button.attributes("aria-controls");

@@ -125,7 +125,7 @@ const commonBirdNamesArray: ListboxDemoData[] = commonBirdNames.map(
 const listboxState = ref<string>("");
 const listboxPlaceholder = ref<string>("Select an option");
 const listboxDataType = ref<string>("string");
-const searchTerm = ref<string | null>(null);
+const searchTerm = ref<string>("");
 
 const listboxData = ref<string[] | ListboxDemoData[]>([]);
 

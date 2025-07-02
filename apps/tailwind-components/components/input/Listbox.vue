@@ -21,7 +21,7 @@
       :tabindex="isExpanded ? 1 : 0"
       class="absolute b-0 w-full z-10 bg-input"
       :class="{
-        hidden: !disabled && !isExpanded,
+        hidden: disabled || !isExpanded,
       }"
     >
       <label :for="`listbox-${id}-options-search`" class="sr-only">
@@ -32,7 +32,6 @@
         :id="`listbox-${id}-options-search`"
         :aria-labelledby="`listbox-${id}-options-search`"
         :aria-controls="`listbox-${id}-options-list`"
-        class="!h-[38px]"
         @update:model-value="(value) => emit('search', value)"
       />
       <ul
@@ -102,7 +101,7 @@ const focusCounter = ref<number>(0);
 const modelValue = defineModel<IInputValue | IInputValueLabel | null>();
 const liElemRefs = useTemplateRef<IListboxLiRef[]>("listbox-li");
 const btnElemRef = ref<InstanceType<typeof InputListboxToggle>>();
-const searchElemRef = useTemplateRef("listbox-search");
+const searchElemRef = useTemplateRef<HTMLInputElement>("listbox-search");
 const displayText = ref<string>(props.placeholder);
 const startingCounter = ref<number>(0);
 const selectedElementId = ref<string>("");
@@ -267,7 +266,7 @@ function focusListboxButton() {
 }
 
 function focusListBoxSearch() {
-  searchElemRef.value?.$el.getElementsByTagName("input")[0].focus();
+  searchElemRef.value?.search.focus();
 }
 
 function openCloseListbox() {
