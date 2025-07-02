@@ -2,6 +2,7 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.oidcController;
 
+import com.carrotsearch.sizeof.RamUsageEstimator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
@@ -19,8 +20,11 @@ import org.slf4j.LoggerFactory;
 public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
+  private SessionHandler sessionHandler;
 
-  public MolgenisSessionManager() {}
+  public MolgenisSessionManager() {
+    initSessionHandler();
+  }
 
   public MolgenisSession getSession(HttpServletRequest request) {
     String authTokenKey = findUsedAuthTokenKey(request);
@@ -85,18 +89,15 @@ public class MolgenisSessionManager {
     }
   }
 
-  /**
-   * Because we cannot access jetty outside spark, we override SparkJava EmbeddedServersFactory to
-   * add custom session listener for session create/destroy logic
-   */
   public SessionHandler getSessionHandler() {
-    SessionHandler sessionHandler = new SessionHandler();
-    sessionHandler.setHttpOnly(true);
-    sessionHandler.setMaxInactiveInterval(30 * 60); // Set session timeout to 30 minutes
-
-    // Attach the session listener
-    sessionHandler.addEventListener(createSessionListener());
     return sessionHandler;
+  }
+
+  private void initSessionHandler() {
+    this.sessionHandler = new SessionHandler();
+    sessionHandler.setHttpOnly(true);
+    sessionHandler.setMaxInactiveInterval(30 * 60); // 30 min
+    sessionHandler.addEventListener(createSessionListener());
   }
 
   /**
@@ -117,6 +118,10 @@ public class MolgenisSessionManager {
         MolgenisSession molgenisSession = new MolgenisSession(database);
         sessions.put(httpSessionEvent.getSession().getId(), molgenisSession);
         logger.info("session created: " + httpSessionEvent.getSession().getId());
+        logger.info("active Molgenis sessions: {}", sessions.size());
+        long molgenisSessionTotalSize =
+            sessions.values().stream().mapToLong(RamUsageEstimator::sizeOf).sum();
+        logger.info("Memory size molgenis sessions: {} KB", molgenisSessionTotalSize / 1024);
 
         // create listener
         database.setListener(new MolgenisSessionManagerDatabaseListener(_this, molgenisSession));
@@ -126,6 +131,7 @@ public class MolgenisSessionManager {
         // remove from session pool
         sessions.remove(httpSessionEvent.getSession().getId());
         logger.info("session destroyed: " + httpSessionEvent.getSession().getId());
+        logger.info("active Molgenis sessions: {}", sessions.size());
       }
     };
   }
