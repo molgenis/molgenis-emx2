@@ -2,7 +2,6 @@ package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PATIENT_REGISTRY;
-import static org.molgenis.emx2.datamodels.TestLoaders.PATIENT_REGISTRY_TEST;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,7 @@ public class PatientRegistryTest {
   protected static Database database;
   protected static Schema patientRegistrySchema;
 
-  public static final String SCHEMA_NAME = PATIENT_REGISTRY_TEST;
+  public static final String SCHEMA_NAME = "patientRegistryTest";
 
   @BeforeAll
   public void setup() {
@@ -31,6 +30,6 @@ public class PatientRegistryTest {
 
   @Test
   void testSchema() {
-    assertEquals(47, patientRegistrySchema.getTableNames().size());
+    assertEquals(49, patientRegistrySchema.getTableNames().size());
   }
 }
