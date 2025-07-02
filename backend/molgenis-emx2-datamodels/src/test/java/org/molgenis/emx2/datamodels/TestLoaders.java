@@ -31,7 +31,7 @@ public class TestLoaders {
   public static final String DASHBOARD_TEST = "UiDashboardTest";
   public static final String PATIENT_REGISTRY_DEMO = "patientRegistryDemo";
   public static final String PATIENT_REGISTRY_TEST = "patientRegistryTest";
-  p
+
   static Database database;
 
   @BeforeAll
