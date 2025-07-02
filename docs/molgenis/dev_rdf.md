@@ -7,12 +7,48 @@ Additionally, each database has an API available at `<server>/<database>/api/rdf
 For instance, if your MOLGENIS runs at `https://emx2.test.molgenis.org` and it has a database called `example`, the RDF API location for this database is `https://emx2.test.molgenis.org/example/api/rdf`.
 
 
-## configuration
+## Configuration
 
 The RDF API can be fine-tuned on a schema-based level by adding advanced settings.
 If combining multiple schemas having overlapping/conflicting data, this will be processed in a way that will result in a valid RDF output (details are described below for each advanced setting individually).
 
 To learn more about how to configure the output on a column-specific level, see the documentation regarding the [semantics field](./semantics.md).
+
+### General configuration
+
+Advanced setting key: `rdf_config`
+
+The RDF API can be configured to behave in different ways.
+Each of the key-value pairs in the yaml-formatted value influences the RDF API in a different way.
+It is not required to include every key (a default will be used where possible).
+The value of a fully filled in `rdf_config` would look as follows:
+
+```yaml
+writer: stream
+generator: semantic
+```
+
+Below, each of these keys are explained in detail with their possible values.
+
+#### writer
+
+The writer defines what mechanism will be used to write the RDF.
+
+| option                | description                                                                                                                                                                                                    |
+|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| model                 | <ul><li>Output will be built fully and formatted before being sent.</li><li>Higher human readability (useful while editing a Schema).</li></ul>                                                                |
+| stream<br />(default) | <ul><li>Output is streamed while being processed.</li><li>Faster and lower memory usage.</li><li>Might be possible that some triples with the same subject/predicate aren't always grouped together.</li></ul> |
+
+#### generator
+
+The generator influences which triples will be outputted to the RDF API.
+
+| option   | description                                                                                                                                |
+|----------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| emx2     | Constructs RDF based on the EMX2 data structure with triples describing each table/column.                                                 |
+| semantic<br />(default) | Only write triples where semantics have been filled in and some basic other triples (such as describing the root and for ontology tables). |
+
+Example files of the different generator outputs can be found [here](https://github.com/molgenis/molgenis-emx2/tree/master/backend/molgenis-emx2-rdf/src/test/resources/rdf_files/rdf_api).
 
 ### Generic triples
 
@@ -46,7 +82,7 @@ Conflicts in namespaces will not break the RDF output but might result in unexpe
 * If 2 different namespaces use the same prefix, only one of them will use that prefix while the other simply returns full IRIs in the API output.
 * If 2 identical namespaces exist with a different prefix, only one of the prefixes will be used for all IRIs belonging to that namespace.
 
-## data retrieval
+## Data retrieval
 RDF API retrieve data in different scopes ranging from broad (retrieve everything) to narrow (retrieve one row).
 All data is exported as a stream, which means that the response does not include a size estimate.
 Listed below are the available options.
@@ -73,7 +109,7 @@ For example: `<server>/pet%20store/api/rdf/Pet/column/name`
 The rows from a table within a schema can be filtered based on a column value by adding these as a `key=value` pair to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>?<column-name>=<value>`.
 For example: `<server>/pet%20store/api/rdf/Pet?category=cat`
 
-## data formats
+## Data formats
 Using the content negotiation, RDF can be exported in one of many available formats. For example the following curl command will download the pet store in jsonld:
 
 `curl -H 'Accept: application/ld+json' <server>/pet%20store/api/rdf`
