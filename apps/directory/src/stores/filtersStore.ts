@@ -20,32 +20,30 @@ const DIAGNOSIS_AVAILABLE = "Diagnosisavailable";
 export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
   const checkoutStore = useCheckoutStore();
+  const settingsStore = useSettingsStore();
 
   const { baseQuery, getBiobankCards } = biobankStore;
 
-  const settingsStore = useSettingsStore();
-
   const graphqlEndpointOntologyFilter = "/DirectoryOntologies/graphql";
 
-  let bookmarkWaitingForApplication = ref(false);
-
+  const bookmarkWaitingForApplication = ref(false);
   /** check for url manipulations */
-  let bookmarkTriggeredFilter = ref(false);
-
+  const bookmarkTriggeredFilter = ref(false);
   /** check for filter manipulations */
-  let filterTriggeredBookmark = ref(false);
+  const filterTriggeredBookmark = ref(false);
 
-  let filters = ref<Record<string, any>>({});
-  let filterType = ref<Record<string, any>>({});
+  const filters = ref<Record<string, any>>({});
+  const filterType = ref<Record<string, any>>({});
 
-  let filterOptionsCache = ref<Record<string, IFilterOption[]>>({});
-  let filterFacets = ref<any[]>([]);
+  const filterOptionsCache = ref<Record<string, IFilterOption[]>>({});
+  const filterFacets = ref<any[]>([]);
   const facetDetailsDictionary = ref<Record<string, any>>({});
 
-  let filtersReadyToRender = ref(false);
+  const filtersReadyToRender = ref(false);
 
   const indeterminateDiseases = ref<Record<string, boolean>>({});
   const selectedDiseases = ref<Record<string, boolean>>({});
+  const diseases = ref<Record<string, any>>({});
 
   watch(
     () => settingsStore.configurationFetched,
@@ -116,6 +114,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         clearTimeout(waitForStore);
       }, 350);
     }
+  });
+
+  watch(selectedDiseases, setIndeterminateDiseases, {
+    deep: true,
   });
 
   function checkOntologyDescendantsIfMatches(
@@ -374,8 +376,34 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     bookmarkTriggeredFilter.value = false;
   }
 
-  function setDiseaseIndeterminate(diseaseName: string, value: boolean): void {
-    indeterminateDiseases.value[diseaseName] = value;
+  function setDiseases(newDiseases: IOntologyItem[]): void {
+    const bla = newDiseases.flatMap((diseaseRoot) => {
+      return flattenOntologyBranch(diseaseRoot);
+    });
+    diseases.value = _.keyBy(bla, "name");
+    setIndeterminateDiseases();
+  }
+
+  function setIndeterminateDiseases() {
+    indeterminateDiseases.value = {};
+    const stack = Object.keys(selectedDiseases.value);
+    while (stack.length) {
+      const key: string = stack.pop()!;
+      const node = diseases.value[key];
+      console.log(`Processing indeterminate disease: ${key}`, node);
+      if (node?.parent) {
+        node.parent.forEach((parent: IOntologyItem) => {
+          if (!indeterminateDiseases.value[parent.name]) {
+            indeterminateDiseases.value[parent.name] = true;
+            stack.push(parent.name);
+          }
+        });
+      }
+    }
+  }
+
+  function isIndeterminate(diseaseName: string): boolean {
+    return indeterminateDiseases.value[diseaseName];
   }
 
   return {
@@ -385,8 +413,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     getFilterValue,
     getOntologyOptionsForCodes,
     getValuePropertyForFacet,
+    isIndeterminate,
     ontologyItemMatchesQuery,
-    setDiseaseIndeterminate,
+    setDiseases,
     updateFilter,
     updateFilterType,
     updateOntologyFilter,
@@ -400,7 +429,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filterTriggeredBookmark,
     hasActiveFilters,
     hasActiveBiobankOnlyFilters,
-    indeterminateDiseases,
     selectedDiseases,
   };
 });
