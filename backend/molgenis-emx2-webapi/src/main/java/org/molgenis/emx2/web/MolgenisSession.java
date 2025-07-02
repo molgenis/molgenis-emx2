@@ -25,10 +25,12 @@ public class MolgenisSession {
           .expireAfterAccess(1, TimeUnit.MINUTES)
           .expireAfterWrite(30, TimeUnit.MINUTES)
           .build();
+  private GraphqlApiFactory graphqlApiFactory;
 
-  public MolgenisSession(Database database) {
+  public MolgenisSession(Database database, GraphqlApiFactory graphqlApiFactory) {
     database.setBindings(JavaScriptBindings.getBindingsForSession(this));
     this.database = database;
+    this.graphqlApiFactory = graphqlApiFactory;
   }
 
   public GraphQL getGraphqlForDatabase() {
@@ -55,12 +57,11 @@ public class MolgenisSession {
         GraphQL anonymousGql =
             anonymousGqlObjectCache.get(
                 schemaName,
-                key -> new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService));
+                key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService));
         graphqlPerSchema.put(schemaName, anonymousGql);
       } else {
         graphqlPerSchema.put(
-            schemaName,
-            new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService));
+            schemaName, graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService));
         logger.info("created graphql schema '{}' for user '{}'", schemaName, getSessionUser());
       }
     }

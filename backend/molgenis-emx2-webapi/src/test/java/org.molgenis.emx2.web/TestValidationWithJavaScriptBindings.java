@@ -9,6 +9,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestValidationWithJavaScriptBindings {
@@ -24,7 +25,8 @@ public class TestValidationWithJavaScriptBindings {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(schemaName);
-    JavaScriptBindings.getBindingsForSession(new MolgenisSession(database));
+    JavaScriptBindings.getBindingsForSession(
+        new MolgenisSession(database, new GraphqlApiFactory()));
 
     // validation script that checks if the age inserted in the Test2 table is present in the Test1
     String validationScript =
