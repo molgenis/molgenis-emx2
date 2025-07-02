@@ -165,7 +165,7 @@ public class TestLoaders {
     // depends on catalogue test above
     Schema schema = database.dropCreateSchema(PORTAL_TEST);
     DataModels.Profile.PATIENT_REGISTRY.getImportTask(schema, false).run();
-    assertEquals(45, schema.getTableNames().size());
+    assertEquals(49, schema.getTableNames().size());
   }
 
   @Test

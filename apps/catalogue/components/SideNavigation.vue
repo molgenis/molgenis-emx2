@@ -17,7 +17,7 @@ function setSideMenuStyle(hash: string) {
 
 <template>
   <nav
-    class="text-body-base bg-white rounded-t-3px rounded-b-50px px-12 py-16 shadow-primary"
+    class="text-body-base bg-white rounded-t-3px rounded-b-50px px-12 py-16 shadow-primary mb-18"
   >
     <div v-if="title || image" class="mb-6 font-display text-heading-4xl">
       <NuxtLink
