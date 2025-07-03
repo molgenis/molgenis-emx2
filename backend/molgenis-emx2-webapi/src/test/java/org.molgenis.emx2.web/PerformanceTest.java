@@ -31,7 +31,7 @@ public class PerformanceTest {
   private static final String BASE_URL =
       "http://localhost"; // "https://umcgresearchdatacatalogue-acc.molgeniscloud.org";
   private static final String SCHEMA_NAME = "performancetest"; // "catalogue-demo"; // "UMCG";
-  private static final int PORT = 8081; // other than default so we can see effect
+  private static final int PORT = 8082; // other than default so we can see effect
   private static Database database;
 
   @BeforeAll
