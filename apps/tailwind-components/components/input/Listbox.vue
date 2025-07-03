@@ -72,8 +72,7 @@ import type {
   IListboxLiRef,
 } from "../../types/listbox";
 
-import { InputSearch } from "#components";
-import { InputListboxToggle } from "#components";
+import { InputSearch, InputListboxToggle } from "#components";
 import { type IInputProps } from "../../types/types";
 
 const props = withDefaults(
@@ -155,13 +154,13 @@ const listboxOptions = computed<IInternalListboxOption[]>(() => {
     sourceData.value = processedData as IInputValueLabel[];
   }
 
-  const defaultOption: IInputValueLabel = {
+  const nullOption: IInputValueLabel = {
     value: null,
     label: "None",
   };
 
   const inputData = sourceData.value as IInputValueLabel[];
-  const data: IInputValueLabel[] = [...inputData];
+  const data: IInputValueLabel[] = [nullOption, ...inputData];
 
   return data.map((option: IInputValueLabel, index: number) => {
     return {
@@ -236,6 +235,17 @@ function updateModelValue(
   emit("update:modelValue", modelValue.value);
 
   if (enableToggling) {
+    openCloseListbox();
+  }
+}
+
+function resetModelValue() {
+  updateCounter(0);
+  displayText.value = updateDisplayText();
+  modelValue.value = undefined;
+  emit("update:modelValue", modelValue.value);
+
+  if (isExpanded.value) {
     openCloseListbox();
   }
 }
