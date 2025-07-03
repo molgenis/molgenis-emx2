@@ -377,10 +377,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   function setDiseases(newDiseases: IOntologyItem[]): void {
-    const bla = newDiseases.flatMap((diseaseRoot) => {
+    const allDiseases = newDiseases.flatMap((diseaseRoot) => {
       return flattenOntologyBranch(diseaseRoot);
     });
-    diseases.value = _.keyBy(bla, "name");
+    diseases.value = _.keyBy(allDiseases, "name");
     setIndeterminateDiseases();
   }
 
@@ -390,15 +390,10 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     while (stack.length) {
       const key: string = stack.pop()!;
       const node = diseases.value[key];
-      console.log(`Processing indeterminate disease: ${key}`, node);
-      if (node?.parent) {
-        node.parent.forEach((parent: IOntologyItem) => {
-          if (!indeterminateDiseases.value[parent.name]) {
-            indeterminateDiseases.value[parent.name] = true;
-            stack.push(parent.name);
-          }
-        });
-      }
+      node?.parent?.forEach((parent: IOntologyItem) => {
+        indeterminateDiseases.value[parent.name] = true;
+        stack.push(parent.name);
+      });
     }
   }
 

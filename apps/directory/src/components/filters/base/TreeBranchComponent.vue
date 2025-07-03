@@ -54,9 +54,7 @@ const { facetIdentifier, option, filter } = toRefs(props);
 const open = ref<boolean>(!!filter.value);
 
 const selectedDiseases = computed(() => filtersStore.selectedDiseases);
-const numberOfSelectedChildren = computed(() =>
-  getNumberOfSelectedChildren(option.value)
-);
+const numberOfSelectedChildren = computed(getNumberOfSelectedChildren);
 
 const isSelected = computed<boolean>(
   () => selectedDiseases.value[option.value.name]
@@ -77,9 +75,9 @@ function selectOption(checked: boolean, option: IOntologyItem) {
   filtersStore.updateOntologyFilter(facetIdentifier.value, option, checked);
 }
 
-function getNumberOfSelectedChildren(option: IOntologyItem): number {
+function getNumberOfSelectedChildren(): number {
   return (
-    option.children?.filter(
+    option.value.children?.filter(
       (child: IOntologyItem) => selectedDiseases.value[child.name]
     ).length || 0
   );
