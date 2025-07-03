@@ -20,6 +20,7 @@ import org.molgenis.emx2.email.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class ScriptTask extends Task {
   private static Logger logger = LoggerFactory.getLogger(ScriptTask.class);
   private String name;
@@ -33,6 +34,14 @@ public class ScriptTask extends Task {
   private Process process;
   private byte[] output;
   private URL serverUrl;
+
+  private static final String EXTRAFILE = "extraFile";
+  private static final String EXTRAFILE_FILENAME = EXTRAFILE + "_filename";
+  private static final String EXTRAFILE_CONTENTS = EXTRAFILE + "_contents";
+  private static final String EXTRAFILE_EXTENSION = EXTRAFILE + "_extension";
+  private static final String EXTRAFILE_MIMETYPE = EXTRAFILE + "_mimetype";
+  private static final String EXTRAFILE_SIZE = EXTRAFILE + "_size";
+
 
   public ScriptTask(String name) {
     super("Executing script '" + name + "'");
@@ -157,8 +166,8 @@ public class ScriptTask extends Task {
     Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
 
     String extractZipCommand = "";
-    if (this.extraFile != null && this.extraFile.get("extraFile") != null) {
-      String extraFileName = this.extraFile.get("extraFile_filename").toString();
+    if (this.extraFile != null && this.extraFile.get(EXTRAFILE) != null) {
+      String extraFileName = this.extraFile.get(EXTRAFILE_FILENAME).toString();
       List<String> forbiddenFiles = Arrays.asList("venv.zip", "requirements.txt", "script.py");
       if (forbiddenFiles.contains(extraFileName)) {
         throw new MolgenisException(
@@ -167,8 +176,8 @@ public class ScriptTask extends Task {
                 + "'. "
                 + "Ensure the name of the extra file is not any of 'script.py', 'requirements.txt', or 'venv.zip'.");
       }
-      byte[] extraFileContent = (byte[]) this.extraFile.get("extraFile_contents");
-      Object extraFileExtension = this.extraFile.get("extraFile_extension");
+      byte[] extraFileContent = (byte[]) this.extraFile.get(EXTRAFILE_CONTENTS);
+      Object extraFileExtension = this.extraFile.get(EXTRAFILE_EXTENSION);
       Path extraFilePath = tempDir.resolve(extraFileName);
 
       try (FileOutputStream fos = new FileOutputStream(extraFilePath.toFile())) {
@@ -277,12 +286,12 @@ public class ScriptTask extends Task {
 
   public ScriptTask extraFile(Row scriptMetaData) {
     this.extraFile = new HashMap<>();
-    this.extraFile.put("extraFile", scriptMetaData.getString("extraFile"));
-    this.extraFile.put("extraFile_mimetype", scriptMetaData.getString("extraFile_mimetype"));
-    this.extraFile.put("extraFile_filename", scriptMetaData.getString("extraFile_filename"));
-    this.extraFile.put("extraFile_extension", scriptMetaData.getString("extraFile_extension"));
-    this.extraFile.put("extraFile_size", scriptMetaData.getString("extraFile_size"));
-    this.extraFile.put("extraFile_contents", scriptMetaData.getBinary("extraFile_contents"));
+    this.extraFile.put(EXTRAFILE, scriptMetaData.getString(EXTRAFILE));
+    this.extraFile.put(EXTRAFILE_MIMETYPE, scriptMetaData.getString(EXTRAFILE_MIMETYPE));
+    this.extraFile.put(EXTRAFILE_FILENAME, scriptMetaData.getString(EXTRAFILE_FILENAME));
+    this.extraFile.put(EXTRAFILE_EXTENSION, scriptMetaData.getString(EXTRAFILE_EXTENSION));
+    this.extraFile.put(EXTRAFILE_SIZE, scriptMetaData.getString(EXTRAFILE_SIZE));
+    this.extraFile.put(EXTRAFILE_CONTENTS, scriptMetaData.getBinary(EXTRAFILE_CONTENTS));
     return this;
   }
 
