@@ -28,6 +28,7 @@ import org.molgenis.emx2.rdf.RdfRootService;
 import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.rdf.RdfSchemaValidationService;
 import org.molgenis.emx2.rdf.RdfService;
+import org.molgenis.emx2.rdf.RdfUtils;
 import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 
 public class RDFApi {
@@ -131,10 +132,7 @@ public class RDFApi {
       throws IOException, NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
     Schema schema = getSchema(ctx);
-    // todo: go from shacl string to actual File array.
-    String shaclString = sanitize(ctx.queryParam("validate"));
-    File[] shaclFiles = null;
-    // end todo
+    File[] shaclFiles = RdfUtils.getShaclFiles(sanitize(ctx.queryParam("validate")));
     runRdfValidationService(ctx, schema, format, shaclFiles, method, schema);
   }
 

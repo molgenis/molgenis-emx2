@@ -44,7 +44,7 @@ public class ShaclResultWriter extends RdfWriter {
   /**
    * @param shaclFiles shapes must be Turtle-formatted
    */
-  public ShaclResultWriter(OutputStream outputStream, RDFFormat format, File... shaclFiles)
+  public ShaclResultWriter(OutputStream outputStream, RDFFormat format, File[] shaclFiles)
       throws IOException {
     super(outputStream, format);
     ShaclSail shaclSail = new ShaclSail(new MemoryStore());

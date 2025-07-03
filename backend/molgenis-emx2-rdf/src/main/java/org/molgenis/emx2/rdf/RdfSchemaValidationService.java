@@ -17,7 +17,7 @@ public class RdfSchemaValidationService implements RdfService<RdfApiGenerator> {
   private final RdfApiGenerator generator;
 
   public RdfSchemaValidationService(
-      String baseUrl, Schema schema, RDFFormat format, OutputStream out, File... shaclFiles)
+      String baseUrl, Schema schema, RDFFormat format, OutputStream out, File[] shaclFiles)
       throws IOException {
     this.config = RdfConfigReader.read(schema);
     this.writer = new ShaclResultWriter(out, format, shaclFiles);
