@@ -221,14 +221,12 @@ public class ImportProfileTask extends Task {
 
     synchronized (lock) {
       try {
-        Schema schema = db.getSchema(schemaName);
-        if (schema == null) {
-          schema = db.createSchema(schemaName);
+        Schema synchronizedSchema = db.getSchema(schemaName);
+        if (synchronizedSchema == null) {
+          synchronizedSchema = db.createSchema(schemaName);
         }
-        return schema;
+        return synchronizedSchema;
       } finally {
-        // Cleanup: remove the lock if no other thread is using it
-        // Only remove if we're still the lock holder
         schemaLocks.remove(schemaName, lock);
       }
     }
