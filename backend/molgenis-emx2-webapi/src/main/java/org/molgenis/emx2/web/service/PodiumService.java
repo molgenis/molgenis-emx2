@@ -9,6 +9,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Base64;
+import org.jetbrains.annotations.NotNull;
 
 public class PodiumService {
 
@@ -43,6 +44,15 @@ public class PodiumService {
   private static String getBasicAuthenticationHeader(String username, String password) {
     String valueToEncode = username + ":" + password;
     return "Basic " + Base64.getEncoder().encodeToString(valueToEncode.getBytes());
+  }
+
+  public static void updateContext(@NotNull Context context, HttpResponse<String> response) {
+    if (response.statusCode() == 202) {
+      context.status(201);
+      context.header("Location", response.headers().map().get("Location").getFirst());
+    } else {
+      context.status(response.statusCode());
+    }
   }
 
   public static class PodiumRequest {
