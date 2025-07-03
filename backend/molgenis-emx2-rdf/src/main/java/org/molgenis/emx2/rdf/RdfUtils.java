@@ -33,8 +33,6 @@ public abstract class RdfUtils {
   // Matches with Strings like "urn:" & "urn:uuid:", but allows variations such as "urnamespace:"
   public static final Pattern ILLEGAL_PREFIX = Pattern.compile("^(http(s)?|urn(:.*)?|tag):");
 
-  private static final String SHACL_RESOURCES = "_shacl/";
-
   /**
    * Get the namespace for a schema. A namespace URL does have a trailing slash (as it is used for
    * defining relative paths).
