@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.profiles.CreateSchemas;
 import org.molgenis.emx2.datamodels.profiles.Profiles;
@@ -22,6 +23,7 @@ public class ImportProfileTask extends Task {
   @JsonIgnore private final Schema schema;
   private final String configLocation;
   private final boolean includeDemoData;
+  private final ConcurrentHashMap<String, Object> schemaLocks = new ConcurrentHashMap<>();
 
   public ImportProfileTask(Schema schema, String configLocation, boolean includeDemoData) {
     this.schema = schema;
@@ -214,11 +216,21 @@ public class ImportProfileTask extends Task {
   }
 
   /** Helper to check if schema exists and if not create it */
-  private Schema createSchema(String schema, Database db) {
-    Schema createSchema = db.getSchema(schema);
-    if (createSchema == null) {
-      createSchema = db.createSchema(schema);
+  private Schema createSchema(String schemaName, Database db) {
+    Object lock = schemaLocks.computeIfAbsent(schemaName, key -> new Object());
+
+    synchronized (lock) {
+      try {
+        Schema schema = db.getSchema(schemaName);
+        if (schema == null) {
+          schema = db.createSchema(schemaName);
+        }
+        return schema;
+      } finally {
+        // Cleanup: remove the lock if no other thread is using it
+        // Only remove if we're still the lock holder
+        schemaLocks.remove(schemaName, lock);
+      }
     }
-    return createSchema;
   }
 }
