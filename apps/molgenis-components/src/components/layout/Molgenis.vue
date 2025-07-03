@@ -140,13 +140,12 @@ export default {
       };
       //all databases
       if (this.session?.schemas) {
-        const appName = this.menu[0]?.href || "tables";
         this.session.schemas
           .sort((a: string, b: string) =>
             a.localeCompare(b, undefined, { sensitivity: "base" })
           )
           .forEach((schema: string) => {
-            result[schema] = "../../" + schema + "/" + appName; // all paths are of form /:schema/:app/tables
+            result[schema] = "../../" + schema + "/_index";
           });
       }
       return result;
