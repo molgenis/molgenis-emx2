@@ -32,6 +32,7 @@
         :id="`listbox-${id}-options-search`"
         :aria-labelledby="`listbox-${id}-options-search`"
         :aria-controls="`listbox-${id}-options-list`"
+        placeholder="Search"
         @update:model-value="(value) => emit('search', value)"
       />
       <ul
@@ -156,10 +157,11 @@ const listboxOptions = computed<IInternalListboxOption[]>(() => {
 
   const defaultOption: IInputValueLabel = {
     value: null,
-    label: props.placeholder,
+    label: "None",
   };
+
   const inputData = sourceData.value as IInputValueLabel[];
-  const data: IInputValueLabel[] = [defaultOption, ...inputData];
+  const data: IInputValueLabel[] = [...inputData];
 
   return data.map((option: IInputValueLabel, index: number) => {
     return {
