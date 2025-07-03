@@ -122,7 +122,6 @@ public class MolgenisSessionManager {
         long molgenisSessionTotalSize =
             sessions.values().stream().mapToLong(RamUsageEstimator::sizeOf).sum();
         logger.info("Memory size molgenis sessions: {} KB", molgenisSessionTotalSize / 1024);
-
         // create listener
         database.setListener(new MolgenisSessionManagerDatabaseListener(_this, molgenisSession));
       }
