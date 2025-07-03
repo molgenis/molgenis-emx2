@@ -5,7 +5,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import graphql.GraphQL;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -16,16 +15,17 @@ import org.slf4j.LoggerFactory;
 
 public class MolgenisSession {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSession.class);
-  private Database database;
-  private GraphQL graphqlForDatabase;
-  private Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
   private static final Cache<String, GraphQL> anonymousGqlObjectCache =
       Caffeine.newBuilder()
           .maximumSize(100)
           .expireAfterAccess(1, TimeUnit.MINUTES)
           .expireAfterWrite(30, TimeUnit.MINUTES)
           .build();
-  private GraphqlApiFactory graphqlApiFactory;
+  private static final String ANONYMOUS = "anonymous";
+  private final GraphqlApiFactory graphqlApiFactory;
+  private final Database database;
+  private final Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
+  private GraphQL graphqlForDatabase;
 
   public MolgenisSession(Database database, GraphqlApiFactory graphqlApiFactory) {
     database.setBindings(JavaScriptBindings.getBindingsForSession(this));
@@ -44,29 +44,26 @@ public class MolgenisSession {
 
   public GraphQL getGraphqlForSchema(String schemaName) {
     logger.info("getting graphql schema '{}' for user '{}'", schemaName, getSessionUser());
-    if (graphqlPerSchema.get(schemaName) == null) {
-      Schema schema = database.getSchema(schemaName);
-      if (schema == null)
-        throw new MolgenisException(
-            "Schema not found: Schema with name '"
-                + schemaName
-                + "' does not exist or permission denied");
-
-      // if the user is anonymous, try the system cache first
-      if (Objects.equals(getSessionUser(), "anonymous")) {
-        GraphQL anonymousGql =
-            anonymousGqlObjectCache.get(
-                schemaName,
-                key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService));
-        graphqlPerSchema.put(schemaName, anonymousGql);
-      } else {
-        graphqlPerSchema.put(
-            schemaName, graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService));
-        logger.info("created graphql schema '{}' for user '{}'", schemaName, getSessionUser());
-      }
+    GraphQL graphQL = graphqlPerSchema.get(schemaName);
+    if (graphQL != null) {
+      logger.info("return cached graphql schema '{}' for user '{}'", schemaName, getSessionUser());
+      return graphQL;
     }
-    logger.info("return graphql schema '{}' for user '{}'", schemaName, getSessionUser());
-    return graphqlPerSchema.get(schemaName);
+
+    Schema schema = database.getSchema(schemaName);
+    if (schema == null)
+      throw new MolgenisException(
+          "Schema not found: Schema with name '"
+              + schemaName
+              + "' does not exist or permission denied");
+
+    return database.isAnonymous()
+        ? anonymousGqlObjectCache.get(
+            schemaName,
+            key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService))
+        : graphqlPerSchema.computeIfAbsent(
+            schemaName,
+            key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService));
   }
 
   public Database getDatabase() {

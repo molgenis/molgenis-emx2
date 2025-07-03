@@ -1,27 +1,82 @@
 package org.molgenis.emx2.web;
 
+import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
+import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import io.restassured.RestAssured;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.Database;
+import org.molgenis.emx2.Privileges;
+import org.molgenis.emx2.RunMolgenisEmx2;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.datamodels.DataModels;
+import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Tag("slow")
 public class PerformanceTest {
 
   static final Logger logger = LoggerFactory.getLogger(PerformanceTest.class);
   private static final String BASE_URL =
-      "http://localhost:8080"; // "https://umcgresearchdatacatalogue-acc.molgeniscloud.org";
-  private static final String SCHEMA_NAME = "catalogue-demo"; // "UMCG";
+      "http://localhost"; // "https://umcgresearchdatacatalogue-acc.molgeniscloud.org";
+  private static final String SCHEMA_NAME = "performancetest"; // "catalogue-demo"; // "UMCG";
+  private static final int PORT = 8081; // other than default so we can see effect
+  private static Database database;
 
-  @Disabled("Disabled for CI, run manually to test performance")
+  @BeforeAll
+  public static void before() throws Exception {
+
+    database = TestDatabaseFactory.getTestDatabase();
+    RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
+
+    // set default rest assured settings
+    RestAssured.port = PORT;
+    RestAssured.baseURI = "http://localhost";
+
+    // create an admin session to work with
+    String adminPass =
+        (String)
+            EnvironmentProperty.getParameter(
+                org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+    String adminSessionId =
+        given()
+            .body(
+                "{\"query\":\"mutation{signin(email:\\\""
+                    + database.getAdminUserName()
+                    + "\\\",password:\\\""
+                    + adminPass
+                    + "\\\"){message}}\"}")
+            .when()
+            .post("api/graphql")
+            .sessionId();
+
+    Schema schema = database.dropCreateSchema(SCHEMA_NAME);
+    DataModels.Profile.DATA_CATALOGUE.getImportTask(schema, true).run();
+
+    schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
+  }
+
+  @AfterAll
+  public static void after() {
+    // Always clean up database to avoid instability due to side effects.
+    database.dropSchemaIfExists(SCHEMA_NAME);
+  }
+
+  //  @Disabled("Disabled for CI, run manually to test performance")
   @Test
   void testPerformance() {
-    RestAssured.baseURI = BASE_URL;
+    RestAssured.baseURI = BASE_URL + ":" + PORT;
 
     List<Integer> responseTimes = new ArrayList<>();
 
