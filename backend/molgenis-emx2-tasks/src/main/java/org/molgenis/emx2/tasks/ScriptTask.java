@@ -20,7 +20,6 @@ import org.molgenis.emx2.email.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class ScriptTask extends Task {
   private static Logger logger = LoggerFactory.getLogger(ScriptTask.class);
   private String name;
@@ -41,7 +40,6 @@ public class ScriptTask extends Task {
   private static final String EXTRAFILE_EXTENSION = EXTRAFILE + "_extension";
   private static final String EXTRAFILE_MIMETYPE = EXTRAFILE + "_mimetype";
   private static final String EXTRAFILE_SIZE = EXTRAFILE + "_size";
-
 
   public ScriptTask(String name) {
     super("Executing script '" + name + "'");
