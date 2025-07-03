@@ -47,17 +47,16 @@ public class PerformanceTest {
         (String)
             EnvironmentProperty.getParameter(
                 org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
-    String adminSessionId =
-        given()
-            .body(
-                "{\"query\":\"mutation{signin(email:\\\""
-                    + database.getAdminUserName()
-                    + "\\\",password:\\\""
-                    + adminPass
-                    + "\\\"){message}}\"}")
-            .when()
-            .post("api/graphql")
-            .sessionId();
+    given()
+        .body(
+            "{\"query\":\"mutation{signin(email:\\\""
+                + database.getAdminUserName()
+                + "\\\",password:\\\""
+                + adminPass
+                + "\\\"){message}}\"}")
+        .when()
+        .post("api/graphql")
+        .sessionId();
 
     Schema schema = database.dropCreateSchema(SCHEMA_NAME);
     DataModels.Profile.DATA_CATALOGUE_TEST.getImportTask(schema, true).run();
@@ -78,8 +77,6 @@ public class PerformanceTest {
 
     List<Integer> responseTimes = new ArrayList<>();
 
-    long t0 = new Date().getTime();
-
     int numRequests = 1000;
 
     for (int i = 1; i <= numRequests; i++) {
@@ -87,16 +84,16 @@ public class PerformanceTest {
       String resp = doDemoRequest();
       long t2 = new Date().getTime();
       assertTrue(resp.contains("Contacts"), "Response does not contain expected data: " + resp);
-      logger.info("Response time: " + (t2 - t1) + " ms, ms, request: " + i);
+      logger.info("Response time: {} ms, ms, request: {}", t2 - t1, i);
       responseTimes.add((int) (t2 - t1));
     }
 
     long mean = responseTimes.stream().mapToInt(Integer::intValue).sum() / responseTimes.size();
-    logger.info("Mean response time: " + mean + " ms for " + numRequests + " requests");
+    logger.info("Mean response time: {} ms for {} requests", mean, numRequests);
 
     long max = responseTimes.stream().mapToInt(Integer::intValue).max().orElse(0);
 
-    logger.info("Max response time: " + max + " ms for " + numRequests + " requests");
+    logger.info("Max response time: {} ms for {} requests", max, numRequests);
 
     long variance =
         responseTimes.stream()
@@ -108,11 +105,7 @@ public class PerformanceTest {
 
     long stdDev = (long) Math.sqrt(variance);
     logger.info(
-        "Standard deviation of response times: "
-            + stdDev
-            + " ms for  "
-            + numRequests
-            + "  requests");
+        "Standard deviation of response times: {} ms for  {}  requests", stdDev, numRequests);
 
     assertTrue(
         mean < 3000,

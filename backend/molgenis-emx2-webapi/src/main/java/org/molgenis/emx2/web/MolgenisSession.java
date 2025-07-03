@@ -21,7 +21,6 @@ public class MolgenisSession {
           .expireAfterAccess(1, TimeUnit.MINUTES)
           .expireAfterWrite(30, TimeUnit.MINUTES)
           .build();
-  private static final String ANONYMOUS = "anonymous";
   private final GraphqlApiFactory graphqlApiFactory;
   private final Database database;
   private final Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
