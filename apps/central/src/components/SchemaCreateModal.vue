@@ -145,7 +145,6 @@ export default {
         "INTEGRATE_COHORTS_STAGING",
         "PATIENT_REGISTRY",
         "FAIR_GENOMES",
-        "JRC_COMMON_DATA_ELEMENTS",
         "ERN_DASHBOARD",
         "UI_DASHBOARD",
         "BIOBANK_DIRECTORY",
