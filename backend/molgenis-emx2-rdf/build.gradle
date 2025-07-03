@@ -9,12 +9,8 @@ dependencies {
     testImplementation 'org.apache.commons:commons-collections4:4.5.0'
 }
 //we use shacls from data folder
-sourceSets {
-    main {
-        resources {
-            srcDirs += [
-                    "$rootDir/data/_shacl"
-            ]
-        }
+processResources{
+    from("$rootDir/data/_shacl"){
+        into ("_shacl")
     }
 }
