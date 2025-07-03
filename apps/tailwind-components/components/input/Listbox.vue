@@ -33,7 +33,7 @@
         :aria-labelledby="`listbox-${id}-options-search`"
         :aria-controls="`listbox-${id}-options-list`"
         placeholder="Search"
-        @update:model-value="(value) => emit('search', value)"
+        v-model="searchTerm"
       />
       <ul
         ref="ul"
@@ -87,13 +87,13 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits<{
-  (e: "update:modelValue", value: IInputValue | IInputValueLabel): void;
-  (e: "error", value: IFieldError[]): void;
-  (e: "blur", value: null): void;
-  (e: "focus", value: null): void;
-  (e: "search", value: string): void;
-}>();
+const emit = defineEmits([
+  "update:modelValue",
+  "error",
+  "blur",
+  "focus",
+  "search",
+]);
 
 const sourceDataType = ref<string>("");
 const sourceData = ref<IInputValueLabel[]>();
@@ -101,10 +101,11 @@ const focusCounter = ref<number>(0);
 const modelValue = defineModel<IInputValue | IInputValueLabel | null>();
 const liElemRefs = useTemplateRef<IListboxLiRef[]>("listbox-li");
 const btnElemRef = ref<InstanceType<typeof InputListboxToggle>>();
-const searchElemRef = useTemplateRef<HTMLInputElement>("listbox-search");
+const searchElemRef = ref<InstanceType<typeof InputSearch>>();
 const displayText = ref<string>(props.placeholder);
 const startingCounter = ref<number>(0);
 const selectedElementId = ref<string>("");
+const searchTerm = ref<string>("");
 
 const isExpanded = computed<boolean>(() => {
   return btnElemRef.value?.expanded as boolean;
@@ -130,6 +131,8 @@ watch(
   () => props.placeholder,
   () => (displayText.value = props.placeholder)
 );
+
+watch(searchTerm, () => emit("search", searchTerm.value));
 
 function counterIsInRange(value: number) {
   return value <= listboxOptions.value.length - 1 && value >= 0;
@@ -204,7 +207,7 @@ function blurListOption(option: IInternalListboxOption) {
 }
 
 function updateDisplayText(text: string | undefined | null): string {
-  if (typeof text === "undefined" || text === null) {
+  if (typeof text === "undefined" || text === null || text === "") {
     return props.placeholder;
   }
   return text;
@@ -241,7 +244,7 @@ function updateModelValue(
 
 function resetModelValue() {
   updateCounter(0);
-  displayText.value = updateDisplayText();
+  displayText.value = updateDisplayText("");
   modelValue.value = undefined;
   emit("update:modelValue", modelValue.value);
 
@@ -278,7 +281,7 @@ function focusListboxButton() {
 }
 
 function focusListBoxSearch() {
-  searchElemRef.value?.search.focus();
+  searchElemRef.value?.search?.focus();
 }
 
 function openCloseListbox() {

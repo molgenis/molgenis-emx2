@@ -14,8 +14,13 @@ interface Pet {
   name: string;
 }
 
+interface PostBody {
+  query: string;
+  variables?: { filter: Record<string, any> };
+}
+
 async function getExampleData() {
-  const body = {
+  const body: PostBody = {
     query: `query (\$filter: PetFilter){ Pet(filter: $filter) { name } }`,
   };
 
