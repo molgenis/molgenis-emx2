@@ -156,7 +156,7 @@ const listboxOptions = computed<IInternalListboxOption[]>(() => {
 
   const nullOption: IInputValueLabel = {
     value: null,
-    label: "None",
+    label: props.placeholder,
   };
 
   const inputData = sourceData.value as IInputValueLabel[];
