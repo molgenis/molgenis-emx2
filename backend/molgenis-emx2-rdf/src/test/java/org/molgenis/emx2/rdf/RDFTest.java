@@ -52,6 +52,7 @@ import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 import org.molgenis.emx2.rdf.generators.RdfGenerator;
 import org.molgenis.emx2.rdf.generators.SemanticRdfGenerator;
 import org.molgenis.emx2.rdf.writers.RdfModelWriter;
+import org.molgenis.emx2.rdf.writers.RdfStreamWriter;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 import org.molgenis.emx2.rdf.writers.ShaclResultWriter;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
