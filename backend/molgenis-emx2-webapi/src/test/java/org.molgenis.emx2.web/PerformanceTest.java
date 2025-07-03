@@ -21,6 +21,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Disabled("Disabled for CI, run manually to test performance")
 @Tag("slow")
 public class PerformanceTest {
 
