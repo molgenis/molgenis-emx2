@@ -1,7 +1,7 @@
 package org.molgenis.emx2.rdf.writers;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import org.eclipse.rdf4j.common.exception.ValidationException;
 import org.eclipse.rdf4j.model.IRI;
@@ -20,6 +20,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.eclipse.rdf4j.sail.shacl.ShaclSail;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.rdf.shacl.ShaclSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ public class ShaclResultWriter extends RdfWriter {
   /**
    * @param shaclFiles shapes must be Turtle-formatted
    */
-  public ShaclResultWriter(OutputStream outputStream, RDFFormat format, File[] shaclFiles)
+  public ShaclResultWriter(OutputStream outputStream, RDFFormat format, ShaclSet shaclSet)
       throws IOException {
     super(outputStream, format);
     ShaclSail shaclSail = new ShaclSail(new MemoryStore());
@@ -52,18 +53,20 @@ public class ShaclResultWriter extends RdfWriter {
     repository.init();
     connection = repository.getConnection();
 
-    for (File file : shaclFiles) {
-      addRules(file);
-    }
+    addRules(shaclSet);
 
     // Connection beginning for adding triples through a generator
     connection.begin();
   }
 
-  private void addRules(File file) throws IOException {
-    connection.begin();
-    connection.add(file, null, RDFFormat.TURTLE, RDF4J.SHACL_SHAPE_GRAPH);
-    connection.commit();
+  private void addRules(ShaclSet shaclSet) throws IOException {
+    for (int i = 0; i < shaclSet.files().length; i++) {
+      try (InputStream inputStream = shaclSet.getInputStream(i)) {
+        connection.begin();
+        connection.add(inputStream, null, RDFFormat.TURTLE, RDF4J.SHACL_SHAPE_GRAPH);
+        connection.commit();
+      }
+    }
   }
 
   @Override

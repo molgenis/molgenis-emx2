@@ -8,7 +8,6 @@ import static org.molgenis.emx2.web.MolgenisWebservice.*;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -28,8 +27,9 @@ import org.molgenis.emx2.rdf.RdfRootService;
 import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.rdf.RdfSchemaValidationService;
 import org.molgenis.emx2.rdf.RdfService;
-import org.molgenis.emx2.rdf.RdfUtils;
 import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
+import org.molgenis.emx2.rdf.shacl.ShaclSelector;
+import org.molgenis.emx2.rdf.shacl.ShaclSet;
 
 public class RDFApi {
   public static final String FORMAT = "format";
@@ -132,8 +132,8 @@ public class RDFApi {
       throws IOException, NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
     Schema schema = getSchema(ctx);
-    File[] shaclFiles = RdfUtils.getShaclFiles(sanitize(ctx.queryParam("validate")));
-    runRdfValidationService(ctx, schema, format, shaclFiles, method, schema);
+    ShaclSet shaclSet = ShaclSelector.get(sanitize(ctx.queryParam("validate")));
+    runRdfValidationService(ctx, schema, format, shaclSet, method, schema);
   }
 
   private static void rdfForTable(Context ctx, RDFFormat format)
@@ -184,7 +184,7 @@ public class RDFApi {
       final Context ctx,
       final Schema schema,
       RDFFormat format,
-      final File[] schaclFiles,
+      final ShaclSet shaclSet,
       final Method method,
       final Object... methodArgs)
       throws IOException {
@@ -193,10 +193,12 @@ public class RDFApi {
 
     Class serviceClass = RdfSchemaValidationService.class;
     Class[] serviceArgClasses =
-        new Class[] {String.class, Schema.class, RDFFormat.class, OutputStream.class, File[].class};
+        new Class[] {
+          String.class, Schema.class, RDFFormat.class, OutputStream.class, ShaclSet.class
+        };
 
     try (OutputStream out = ctx.outputStream()) {
-      Object[] serviceArgs = new Object[] {baseUrl, schema, format, out, schaclFiles};
+      Object[] serviceArgs = new Object[] {baseUrl, schema, format, out, shaclSet};
       runService(ctx, format, serviceClass, serviceArgClasses, serviceArgs, method, methodArgs);
     }
   }

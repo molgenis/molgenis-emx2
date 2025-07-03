@@ -2,13 +2,10 @@ package org.molgenis.emx2.rdf;
 
 import static org.molgenis.emx2.rdf.IriGenerator.schemaIRI;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.NoSuchFileException;
 import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.util.Values;
@@ -18,7 +15,6 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.utils.ResourceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,14 +68,6 @@ public abstract class RdfUtils {
       }
     }
     return null;
-  }
-
-  public static File[] getShaclFiles(String shaclName) throws IOException {
-    try {
-      return ResourceLoader.loadFilesFromDir(StringUtils.lowerCase(SHACL_RESOURCES + shaclName));
-    } catch (NoSuchFileException e) {
-      throw new MolgenisException("SHACL set does not exist");
-    }
   }
 
   /**
