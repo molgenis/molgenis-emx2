@@ -10,10 +10,7 @@ import io.restassured.RestAssured;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.RunMolgenisEmx2;
@@ -62,7 +59,7 @@ public class PerformanceTest {
             .sessionId();
 
     Schema schema = database.dropCreateSchema(SCHEMA_NAME);
-    DataModels.Profile.DATA_CATALOGUE.getImportTask(schema, true).run();
+    DataModels.Profile.DATA_CATALOGUE_TEST.getImportTask(schema, true).run();
 
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
   }
