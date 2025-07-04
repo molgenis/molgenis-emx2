@@ -69,6 +69,13 @@ watch(numberOfSelectedChildren, (newValue) => {
   if (!isSelected.value && newValue === option.value.children?.length) {
     selectOption(true, option.value);
   }
+  if (
+    isSelected.value &&
+    option.value.children?.length &&
+    newValue < option.value.children?.length
+  ) {
+    filtersStore.deselectDiseaseLeavingChildren(option.value.name);
+  }
 });
 
 function selectOption(checked: boolean, option: IOntologyItem) {

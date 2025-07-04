@@ -401,9 +401,16 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return indeterminateDiseases.value[diseaseName];
   }
 
+  function deselectDiseaseLeavingChildren(diseaseName: string): void {
+    if (selectedDiseases.value[diseaseName]) {
+      delete selectedDiseases.value[diseaseName];
+    }
+  }
+
   return {
     checkOntologyDescendantsIfMatches,
     clearAllFilters,
+    deselectDiseaseLeavingChildren,
     getFilterType,
     getFilterValue,
     getOntologyOptionsForCodes,
