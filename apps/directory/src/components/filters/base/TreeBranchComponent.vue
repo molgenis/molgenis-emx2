@@ -11,7 +11,7 @@
         :ref="`${option.name}-checkbox`"
         class="mr-1"
         :checked="isSelected"
-        :indeterminate.prop="isIndeterminate"
+        :indeterminate.prop="!isSelected && isIndeterminate"
       />
       <label>
         <span class="code">{{ option.code }}</span> {{ option.label }}
@@ -21,7 +21,7 @@
       v-if="option.children"
       class="border border-right-0 border-bottom-0 border-top-0 indent"
     >
-      <tree-component
+      <TreeComponent
         v-if="open"
         :options="option.children"
         :facetIdentifier="facetIdentifier"
@@ -32,12 +32,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, ref, toRefs, watch } from "vue";
+import { computed, ref, toRefs, watch } from "vue";
 import { IOntologyItem } from "../../../interfaces/interfaces";
 import { useFiltersStore } from "../../../stores/filtersStore";
-
-/** need to lazy load because it gets too large quickly. Over 9000! */
-const TreeComponent = defineAsyncComponent(() => import("./TreeComponent.vue"));
+import TreeComponent from "./TreeComponent.vue";
 
 const filtersStore = useFiltersStore();
 
@@ -55,9 +53,6 @@ const { facetIdentifier, option, filter } = toRefs(props);
 
 const open = ref<boolean>(!!filter.value);
 
-const indeterminateDiseases = computed(
-  () => filtersStore.indeterminateDiseases
-);
 const selectedDiseases = computed(() => filtersStore.selectedDiseases);
 const numberOfSelectedChildren = computed(getNumberOfSelectedChildren);
 
@@ -66,45 +61,28 @@ const isSelected = computed<boolean>(
 );
 
 const isIndeterminate = computed<boolean>(() => {
-  if (lessThenAllChildrenSelected() || hasIndeterminateChild()) {
-    return true;
-  } else {
-    return false;
-  }
+  return filtersStore.isIndeterminate(option.value.name);
 });
 
 watch(filter, (newFilter: string) => (open.value = !!newFilter));
-watch(
-  isIndeterminate,
-  (newValue: boolean) => {
-    filtersStore.setDiseaseIndeterminate(option.value.name, newValue);
-  },
-  { immediate: true }
-);
 watch(numberOfSelectedChildren, (newValue) => {
   if (!isSelected.value && newValue === option.value.children?.length) {
     selectOption(true, option.value);
   }
+  if (
+    isSelected.value &&
+    option.value.children?.length &&
+    newValue < option.value.children?.length
+  ) {
+    filtersStore.deselectDiseaseLeavingChildren(option.value.name);
+  }
 });
-
-function hasIndeterminateChild(): boolean {
-  return !!option.value.children?.some((child) => {
-    return indeterminateDiseases.value[child.name];
-  });
-}
-
-function lessThenAllChildrenSelected(): boolean {
-  return (
-    numberOfSelectedChildren.value > 0 &&
-    numberOfSelectedChildren.value < (option.value.children?.length ?? Infinity)
-  );
-}
 
 function selectOption(checked: boolean, option: IOntologyItem) {
   filtersStore.updateOntologyFilter(facetIdentifier.value, option, checked);
 }
 
-function getNumberOfSelectedChildren() {
+function getNumberOfSelectedChildren(): number {
   return (
     option.value.children?.filter(
       (child: IOntologyItem) => selectedDiseases.value[child.name]
