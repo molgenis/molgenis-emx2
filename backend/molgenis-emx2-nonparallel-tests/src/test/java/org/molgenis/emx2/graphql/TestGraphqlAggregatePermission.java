@@ -37,7 +37,9 @@ public class TestGraphqlAggregatePermission {
     database.setActiveUser("AGGREGATE_TEST_USER");
     taskService = new TaskServiceInMemory();
     grapql =
-        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
+        new GraphqlApiFactory()
+            .createGraphqlForSchema(
+                database.getSchema(schemaName), new GraphqlSession(database, taskService));
   }
 
   @Test

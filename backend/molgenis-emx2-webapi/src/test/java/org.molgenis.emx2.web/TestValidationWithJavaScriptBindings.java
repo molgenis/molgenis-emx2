@@ -24,7 +24,8 @@ public class TestValidationWithJavaScriptBindings {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(schemaName);
-    JavaScriptBindings.getBindingsForSession(new MolgenisSession(database));
+    JavaScriptBindings.getBindingsForSession(
+        new MolgenisSession(new ApiPerUserCache(), new MolgenisSessionManager()));
 
     // validation script that checks if the age inserted in the Test2 table is present in the Test1
     String validationScript =

@@ -1,64 +1,42 @@
 package org.molgenis.emx2.web;
 
 import graphql.GraphQL;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.DatabaseListener;
+import org.molgenis.emx2.graphql.GraphqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MolgenisSession {
+public class MolgenisSession extends GraphqlSession {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSession.class);
-  private Database database;
-  private GraphQL graphqlForDatabase;
-  private Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
+  private ApiPerUserCache cache;
+  private DatabaseListener databaseListener;
 
-  public MolgenisSession(Database database) {
-    database.setBindings(JavaScriptBindings.getBindingsForSession(this));
-    this.database = database;
+  public MolgenisSession(ApiPerUserCache cache, MolgenisSessionManager sessionManager) {
+    super();
+    this.cache = cache;
+    this.databaseListener = new MolgenisSessionManagerDatabaseListener(sessionManager, this);
+  }
+
+  @Override
+  public Database getDatabase() {
+    return cache.getDatabase(this);
   }
 
   public GraphQL getGraphqlForDatabase() {
-    if (graphqlForDatabase == null) {
-      graphqlForDatabase =
-          new GraphqlApiFactory().createGraphqlForDatabase(database, TaskApi.taskService);
-      logger.info("created graphql for user {}", getSessionUser());
-    }
-    return graphqlForDatabase;
+    return cache.getGraphqlForDatabase(this);
   }
 
   public GraphQL getGraphqlForSchema(String schemaName) {
-    logger.info("getting graphql schema '{}' for user '{}'", schemaName, getSessionUser());
-    if (graphqlPerSchema.get(schemaName) == null) {
-      Schema schema = database.getSchema(schemaName);
-      if (schema == null)
-        throw new MolgenisException(
-            "Schema not found: Schema with name '"
-                + schemaName
-                + "' does not exist or permission denied");
-      graphqlPerSchema.put(
-          schemaName, new GraphqlApiFactory().createGraphqlForSchema(schema, TaskApi.taskService));
-      logger.info("created graphql schema '{}' for user '{}'", schemaName, getSessionUser());
-    }
-    logger.info("return graphql schema '{}' for user '{}'", schemaName, getSessionUser());
-    return graphqlPerSchema.get(schemaName);
-  }
-
-  public Database getDatabase() {
-    return database;
-  }
-
-  public String getSessionUser() {
-    return database.getActiveUser();
+    return cache.getGraphqlForSchema(this, schemaName);
   }
 
   public void clearCache() {
-    this.graphqlPerSchema.clear();
-    this.graphqlForDatabase = null;
-    this.database.clearCache();
+    cache.clearCache();
     logger.info("cleared database and caches for user {}", getSessionUser());
+  }
+
+  public DatabaseListener getDatabaseChangeListener() {
+    return databaseListener;
   }
 }

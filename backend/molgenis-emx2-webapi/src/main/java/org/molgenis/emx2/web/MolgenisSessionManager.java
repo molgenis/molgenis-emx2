@@ -11,16 +11,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.sql.JWTgenerator;
-import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.tasks.ScriptTableListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
+  private ApiPerUserCache cache;
 
-  public MolgenisSessionManager() {}
+  public MolgenisSessionManager() {
+    cache = new ApiPerUserCache();
+  }
 
   public MolgenisSession getSession(HttpServletRequest request) {
     String authTokenKey = findUsedAuthTokenKey(request);
@@ -50,12 +51,11 @@ public class MolgenisSessionManager {
 
   private MolgenisSession getNonPersistedSessionBasedOnToken(
       HttpServletRequest request, String authTokenKey) {
-    SqlDatabase database = new SqlDatabase(false);
-    database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
-    String user = JWTgenerator.getUserFromToken(database, request.getHeader(authTokenKey));
-    database.setActiveUser(user);
-    MolgenisSession session = new MolgenisSession(database);
-    database.setListener(new MolgenisSessionManagerDatabaseListener(this, session));
+    MolgenisSession session = new MolgenisSession(cache, this);
+    String user =
+        JWTgenerator.getUserFromToken(session.getDatabase(), request.getHeader(authTokenKey));
+    // sessions are cheap because of the cache
+    session.setSessionUser(user);
     return session;
   }
 
@@ -107,19 +107,9 @@ public class MolgenisSessionManager {
     return new HttpSessionListener() {
       public void sessionCreated(HttpSessionEvent httpSessionEvent) {
         logger.info("Initializing session");
-        // create private database wrapper to session
-        SqlDatabase database = new SqlDatabase(false);
-        database.setActiveUser("anonymous"); // set default use to "anonymous"
-        database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
-
-        // create session and add to sessions lists so we can also access all active
-        // sessions
-        MolgenisSession molgenisSession = new MolgenisSession(database);
+        MolgenisSession molgenisSession = new MolgenisSession(cache, _this);
         sessions.put(httpSessionEvent.getSession().getId(), molgenisSession);
         logger.info("session created: " + httpSessionEvent.getSession().getId());
-
-        // create listener
-        database.setListener(new MolgenisSessionManagerDatabaseListener(_this, molgenisSession));
       }
 
       public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
