@@ -9,7 +9,7 @@ The directory has its own specific app settings which can be found by pressing t
 The JSON settings have the following options:
 | option | default | description |
 | language | "en" | Language of the app, needs configuration of the i18n setting to properly work. |
-| graphqlEndpoint | "graphql" | Endpoint at the backend to which the query go. |
+| graphqlEndpoint | "graphql" | Endpoint at the backend to which the query goes. |
 | negotiatorType | "v3" | Version of the negotiator. Current options are `v1` for Podium or `v3` / `eric-negotiator` for the latest version. |
 | negotiatorUrl | "https://negotiator.acc.bbmri-eric.eu/api/v3/requests" | Url of the negotiator. |
 | negotiatorUsername | "" | Username for the negotiator, used if `v1` is set. |
