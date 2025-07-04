@@ -227,5 +227,7 @@
     --background-color-form-required-btn-hover: var(--color-blue-50);
     --border-color-form-required: var(--color-gray-200);
     --border-radius-form-required: var(--border-radius-3px);
+    
+    --height-input: 56px;
   }
 }
