@@ -160,11 +160,7 @@ public class WebApiSmokeTests {
               startLatch.await();
 
               String signinResult =
-                  RestAssured.given()
-                      .sessionId(SESSION_ID)
-                      .body(signinQuery)
-                      .post("/api/graphql")
-                      .asString();
+                  given().sessionId(SESSION_ID).body(signinQuery).post("/api/graphql").asString();
 
               try {
                 assertTrue(
@@ -1415,24 +1411,24 @@ public class WebApiSmokeTests {
     db.dropSchemaIfExists("ScriptWithFileUpload");
     String script =
         """
-import asyncio
-import logging
-import os
-from molgenis_emx2_pyclient import Client
+            import asyncio
+            import logging
+            import os
+            from molgenis_emx2_pyclient import Client
 
-async def main():
-    logging.basicConfig(level='INFO')
-    logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
+            async def main():
+                logging.basicConfig(level='INFO')
+                logging.getLogger("requests").setLevel(logging.WARNING)
+                logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
-        await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
-                    template="PET_STORE", include_demo_data=False)
+                async with Client('http://localhost:8081', token=os.environ['MOLGENIS_TOKEN'], job="${jobId}") as client:
+                    await client.create_schema(name="ScriptWithFileUpload", description="TestFileUploadScript",
+                                template="PET_STORE", include_demo_data=False)
 
-if __name__ == '__main__':
-    asyncio.run(main())
+            if __name__ == '__main__':
+                asyncio.run(main())
 
-""";
+            """;
     jobs.insert(
         row(
             "name",
@@ -1503,8 +1499,8 @@ if __name__ == '__main__':
   private static String getToken(String email, String password) throws JsonProcessingException {
     String mutation =
         """
-        mutation { signin(email: "%s" ,password: "%s" ) { message, token } }
-        """
+            mutation { signin(email: "%s" ,password: "%s" ) { message, token } }
+            """
             .formatted(email, password);
 
     Map<String, String> request = new HashMap<>();
@@ -1591,17 +1587,17 @@ if __name__ == '__main__':
         given()
             .body(
                 """
-          {
-            "query": {
-            "filters": [
-              {
-              "id": "NCIT:C28421",
-              "value": "GSSO_000123",
-              "operator": "="
-              }
-            ]
-            }
-          }""")
+                    {
+                      "query": {
+                      "filters": [
+                        {
+                        "id": "NCIT:C28421",
+                        "value": "GSSO_000123",
+                        "operator": "="
+                        }
+                      ]
+                      }
+                    }""")
             .post("/api/beacon/individuals")
             .asString();
     assertTrue(result.contains("datasets"));
