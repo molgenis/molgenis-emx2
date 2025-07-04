@@ -43,7 +43,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const indeterminateDiseases = ref<Record<string, boolean>>({});
   const selectedDiseases = ref<Record<string, boolean>>({});
-  const diseases = ref<Record<string, any>>({});
+  const diseases = ref<Record<string, IOntologyItem>>({});
 
   watch(
     () => settingsStore.configurationFetched,
