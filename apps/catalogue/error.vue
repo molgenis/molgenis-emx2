@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRuntimeConfig, useRoute, useHead, useRouter } from "#app";
+import { useRuntimeConfig, useRoute, useHead, useRouter } from '#app';
 
 defineProps(["error"]);
 
