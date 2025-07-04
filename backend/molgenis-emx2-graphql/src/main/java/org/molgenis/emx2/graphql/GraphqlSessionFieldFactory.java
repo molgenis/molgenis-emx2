@@ -24,21 +24,21 @@ public class GraphqlSessionFieldFactory {
     // no instance
   }
 
-  public GraphQLFieldDefinition signoutField(Database database) {
+  public GraphQLFieldDefinition signoutField(GraphqlSession session) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signout")
         .type(GraphqlApiMutationResult.typeForMutationResult)
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String user = database.getActiveUser();
-              database.setActiveUser(GraphqlConstants.ANONYMOUS);
+              String user = session.getSessionUser();
+              session.signOut();
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS, "User '%s' has signed out", user);
             })
         .build();
   }
 
-  public GraphQLFieldDefinition signupField(Database database) {
+  public GraphQLFieldDefinition signupField(GraphqlSession session) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signup")
         .type(GraphqlApiMutationResult.typeForMutationResult)
@@ -48,35 +48,18 @@ public class GraphqlSessionFieldFactory {
             dataFetchingEnvironment -> {
               String userName = dataFetchingEnvironment.getArgument(EMAIL);
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
-              if (passWord == null) {
-                return new GraphqlApiMutationResult(FAILED, "Password cannot be not null");
+              try {
+                session.signUp(userName, passWord);
+              } catch (MolgenisException e) {
+                return new GraphqlApiMutationResult(FAILED, e.getMessage());
               }
-              if (passWord.length() < 8) {
-                return new GraphqlApiMutationResult(FAILED, "Password too short");
-              }
-              if (database.hasUser(userName)) {
-                return new GraphqlApiMutationResult(FAILED, "Email already exists");
-              }
-              database.tx(
-                  db -> {
-                    // uplift permissions
-                    String activeUser = db.getActiveUser();
-                    try {
-                      db.becomeAdmin();
-                      db.addUser(userName);
-                      db.setUserPassword(userName, passWord);
-                    } finally {
-                      // always lift down again
-                      db.setActiveUser(activeUser);
-                    }
-                  });
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS, "User '%s' added", userName);
             })
         .build();
   }
 
-  public GraphQLFieldDefinition signinField(Database database) {
+  public GraphQLFieldDefinition signinField(GraphqlSession session) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signin")
         .type(GraphqlApiMutationResultWithToken.typeForSignResult)
@@ -86,23 +69,17 @@ public class GraphqlSessionFieldFactory {
             dataFetchingEnvironment -> {
               String userName = dataFetchingEnvironment.getArgument(EMAIL);
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
-              if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
-                if (database.getUser(userName).getEnabled()) {
-                  database.setActiveUser(userName);
-                  GraphqlApiMutationResultWithToken result =
-                      new GraphqlApiMutationResultWithToken(
-                          GraphqlApiMutationResult.Status.SUCCESS,
-                          JWTgenerator.createTemporaryToken(database, userName),
-                          "Signed in as '%s'",
-                          userName);
-                  return result;
-                } else {
-                  return new GraphqlApiMutationResult(
-                      FAILED, "User '%s' disabled: check with your administrator", userName);
-                }
-              } else {
-                return new GraphqlApiMutationResult(
-                    FAILED, "Sign in as '%s' failed: user or password unknown", userName);
+              try {
+                session.signIn(userName, passWord);
+                GraphqlApiMutationResultWithToken result =
+                    new GraphqlApiMutationResultWithToken(
+                        GraphqlApiMutationResult.Status.SUCCESS,
+                        JWTgenerator.createTemporaryToken(session.getDatabase(), userName),
+                        "Signed in as '%s'",
+                        userName);
+                return result;
+              } catch (MolgenisException e) {
+                return new GraphqlApiMutationResult(FAILED, e.getMessage());
               }
             })
         .build();
