@@ -13,6 +13,7 @@ sourceSets {
             srcDirs += [
                     "$rootDir/data"
             ]
+            exclude "_shacl/"
         }
     }
 }

@@ -10,6 +10,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
@@ -27,11 +28,17 @@ import org.eclipse.rdf4j.rio.RDFHandlerException;
  *       during comparison).
  *   <li>Datetime predicates regarding creation/modification will be replaced with a single value so
  *       that different creation/modification dates do not make the comparison fail.
+ *   <li>Blank nodes are replaced with ones that have their IDs based on their position in the RDF
+ *       file. This requires the order of the RDF files being compared to be equal!
  * </ul>
  *
  * This behaviour can be disabled by calling the constructor with `false`.
  */
 class InMemoryRDFHandler implements RDFHandler {
+  private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
+
+  private final Map<BNode, BNode> bNodeConversionMap = new HashMap<>();
+
   private static final DatatypeFactory datatypeFactory;
   private static final XMLGregorianCalendar REPLACEMENT_DATE;
 
@@ -70,16 +77,29 @@ class InMemoryRDFHandler implements RDFHandler {
     IRI predicate = st.getPredicate();
     Value object = st.getObject();
 
-    // Replace creation/modified date to prevent failing tests.
-    if (fixValuesForComparison
-        && (predicate.equals(DCTERMS.CREATED)
-            || predicate.equals(DCTERMS.MODIFIED)
-            || predicate.stringValue().endsWith("/column/mg_insertedOn")
-            || predicate.stringValue().endsWith("/column/mg_updatedOn"))) {
-      object = Values.literal(REPLACEMENT_DATE);
+    if (fixValuesForComparison) {
+      // Blank node conversion to allow for comparison (order of BNodes matter!!!)
+      if (subject.isBNode()) subject = getConversionNode((BNode) subject);
+      if (object.isBNode()) object = getConversionNode((BNode) object);
+      // Replace creation/modified date to prevent failing tests.
+      if (predicate.equals(DCTERMS.CREATED)
+          || predicate.equals(DCTERMS.MODIFIED)
+          || predicate.stringValue().endsWith("/column/mg_insertedOn")
+          || predicate.stringValue().endsWith("/column/mg_updatedOn")) {
+        object = Values.literal(REPLACEMENT_DATE);
+      }
     }
 
     addStatement(subject, predicate, object);
+  }
+
+  private BNode getConversionNode(BNode node) {
+    BNode match = bNodeConversionMap.get(node);
+    if (match == null) {
+      match = valueFactory.createBNode(Integer.toString(bNodeConversionMap.size()));
+      bNodeConversionMap.put(node, match);
+    }
+    return match;
   }
 
   private void addStatement(Resource subject, IRI predicate, Value object) {
