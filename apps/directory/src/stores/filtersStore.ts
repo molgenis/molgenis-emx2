@@ -390,7 +390,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     while (stack.length) {
       const key: string = stack.pop()!;
       const node = diseases.value[key];
-      node?.parent?.forEach((parent: IOntologyItem) => {
+      node?.parent?.forEach((parent: Record<string, any>) => {
         indeterminateDiseases.value[parent.name] = true;
         stack.push(parent.name);
       });
