@@ -13,11 +13,10 @@ const faviconHref = config.public.emx2Theme
 
 useHead({
   htmlAttrs: {
-    'data-theme': route.query.theme as string || config.public.emx2Theme || "",
+    "data-theme":
+      (route.query.theme as string) || config.public.emx2Theme || "",
   },
-  link: [
-    { rel: "icon", href: faviconHref },
-  ],
+  link: [{ rel: "icon", href: faviconHref }],
   titleTemplate: (titleChunk) => {
     return titleChunk
       ? `${titleChunk} | ${config.public.siteTitle}`
