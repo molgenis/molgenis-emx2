@@ -24,7 +24,6 @@ public class TestLoaders {
   public static final String DATA_CATALOGUE_AGGREGATES = "AggregatesTest";
   public static final String DIRECTORY_TEST = "DirectoryTest";
   public static final String DIRECTORY_STAGING = "DirectoryStaging";
-  public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
   public static final String PORTAL_TEST = "PortalTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
@@ -46,7 +45,6 @@ public class TestLoaders {
     database.dropSchemaIfExists(DIRECTORY_TEST);
     database.dropSchemaIfExists(DIRECTORY_STAGING);
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
-    database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(PROJECT_MANAGER);
     database.dropSchemaIfExists(DASHBOARD_TEST);
@@ -94,13 +92,6 @@ public class TestLoaders {
     Schema directory = database.createSchema(DIRECTORY_TEST);
     DataModels.Regular.BIOBANK_DIRECTORY.getImportTask(directory, true).run();
     assertEquals(13, directory.getTableNames().size());
-  }
-
-  @Test
-  void test11JRCCDELoader() {
-    Schema JRCCDESchema = database.createSchema(JRC_CDE_TEST);
-    DataModels.Profile.JRC_COMMON_DATA_ELEMENTS.getImportTask(JRCCDESchema, true).run();
-    assertEquals(5, JRCCDESchema.getTableNames().size());
   }
 
   @Disabled
@@ -165,7 +156,7 @@ public class TestLoaders {
     // depends on catalogue test above
     Schema schema = database.dropCreateSchema(PORTAL_TEST);
     DataModels.Profile.PATIENT_REGISTRY.getImportTask(schema, false).run();
-    assertEquals(47, schema.getTableNames().size());
+    assertEquals(49, schema.getTableNames().size());
   }
 
   @Test
