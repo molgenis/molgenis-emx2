@@ -4,7 +4,7 @@ This page provides documentation to help the administration of the directory app
 
 ## Settings
 
-The directory has its own specific app settings which can be found by pressing the setting button (when logged in as admin) or going to: `http://yoururl.com/#/configuration`.
+The directory has its own specific app settings which can be found by pressing the  'Admin' -> 'Settings' button (when logged in as admin) or going to: `http://yoururl.com/#/configuration`.
 
 The JSON settings have the following options:
 | option | default | description |
