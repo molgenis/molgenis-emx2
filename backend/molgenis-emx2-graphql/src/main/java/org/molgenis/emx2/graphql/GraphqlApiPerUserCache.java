@@ -1,4 +1,4 @@
-package org.molgenis.emx2.web;
+package org.molgenis.emx2.graphql;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -6,15 +6,13 @@ import graphql.GraphQL;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.tasks.ScriptTableListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ApiPerUserCache {
+public class GraphqlApiPerUserCache {
   private GraphqlApiFactory graphqlApiFactory = new GraphqlApiFactory();
-  private static final Logger logger = LoggerFactory.getLogger(ApiPerUserCache.class);
+  private static final Logger logger = LoggerFactory.getLogger(GraphqlApiPerUserCache.class);
 
   private Cache<String, Database> databaseCachePerUser =
       Caffeine.newBuilder().maximumSize(1000).expireAfterAccess(30, TimeUnit.MINUTES).build();
@@ -23,34 +21,35 @@ public class ApiPerUserCache {
   private Cache<String, GraphQL> databaseApiCachePerUser =
       Caffeine.newBuilder().maximumSize(1000).expireAfterAccess(30, TimeUnit.MINUTES).build();
 
-  public ApiPerUserCache() {}
+  public GraphqlApiPerUserCache() {}
 
   public void clearCache() {
-    databaseApiCachePerUser.invalidateAll();
+    databaseCachePerUser.invalidateAll();
     schemaApiCachePerUser.invalidateAll();
     databaseApiCachePerUser.invalidateAll();
+    logger.info("cleared caches");
   }
 
-  public Database getDatabase(MolgenisSession session) {
+  public Database getDatabase(UserSession session) {
     Objects.requireNonNull(session);
     String userName = session.getSessionUser();
     Database database =
         databaseCachePerUser.get(
             userName,
             key -> {
+              logger.info("creating database instance for user '{}'", userName);
               SqlDatabase db = new SqlDatabase(false);
               db.setListener(session.getDatabaseChangeListener());
-              db.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
+              // TODO db.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
               db.setActiveUser(userName);
-              db.setBindings(JavaScriptBindings.getBindingsForSession(session));
-              logger.info("created database instance for user '{}'", userName);
+              // TODO db.setBindings(JavaScriptBindings.getBindingsForSession(session));
               return db;
             });
     logger.info("returned cached database instance for user '{}'", userName);
     return database;
   }
 
-  public GraphQL getGraphqlForSchema(MolgenisSession session, String schemaName) {
+  public GraphQL getGraphqlForSchema(UserSession session, String schemaName) {
     Objects.requireNonNull(session);
     Objects.requireNonNull(schemaName);
     String userName = session.getSessionUser();
@@ -59,15 +58,16 @@ public class ApiPerUserCache {
         schemaApiCachePerUser.get(
             userNameAndSchemaName,
             key -> {
+              Database database = getDatabase(session);
               logger.info("creating graphql schema api '{}' for user '{}'", schemaName, userName);
               return graphqlApiFactory.createGraphqlForSchema(
-                  getDatabase(session).getSchema(schemaName), session);
+                  database.getSchema(schemaName), session);
             });
     logger.info("returned cached graphql schema api '{}' for user '{}'", schemaName, userName);
     return graphQL;
   }
 
-  public GraphQL getGraphqlForDatabase(MolgenisSession session) {
+  public GraphQL getGraphqlForDatabase(UserSession session) {
     Objects.requireNonNull(session);
     String userName = session.getSessionUser();
     GraphQL graphQL =

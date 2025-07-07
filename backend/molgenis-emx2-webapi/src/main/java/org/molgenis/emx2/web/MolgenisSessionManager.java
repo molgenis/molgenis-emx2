@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.graphql.GraphqlApiPerUserCache;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,10 @@ import org.slf4j.LoggerFactory;
 public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
-  private ApiPerUserCache cache;
+  private GraphqlApiPerUserCache cache;
 
   public MolgenisSessionManager() {
-    cache = new ApiPerUserCache();
+    cache = new GraphqlApiPerUserCache();
   }
 
   public MolgenisSession getSession(HttpServletRequest request) {

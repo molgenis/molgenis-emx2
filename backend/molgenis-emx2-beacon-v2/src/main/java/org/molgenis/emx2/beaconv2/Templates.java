@@ -12,15 +12,16 @@ import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
-import org.molgenis.emx2.graphql.GraphqlSession;
+import org.molgenis.emx2.graphql.UserSession;
 
 public class Templates {
 
   public static void addTemplatesToDb(Database database) {
-    //why is this done as admin?
+    // why is this done as admin?
     database.becomeAdmin();
     Schema schema = database.getSchema("_SYSTEM_");
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(schema,new GraphqlSession(database));
+    GraphQL graphQL =
+        new GraphqlApiFactory().createGraphqlForSchema(schema, new UserSession(database));
 
     for (EntryType entryType : EntryType.values()) {
       String query =

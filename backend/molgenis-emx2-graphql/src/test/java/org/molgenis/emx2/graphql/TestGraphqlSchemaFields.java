@@ -8,6 +8,7 @@ import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
@@ -15,7 +16,6 @@ import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.ExecutionInput;
-import graphql.GraphQL;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,20 +27,16 @@ import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.tasks.Task;
-import org.molgenis.emx2.tasks.TaskService;
-import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 public class TestGraphqlSchemaFields {
 
-  private static final String schemaName = TestGraphqlSchemaFields.class.getSimpleName();
-  private static GraphQL grapql;
-  private static Database database;
-  private static TaskService taskService;
+  private static String schemaName = TestGraphqlSchemaFields.class.getSimpleName();
   private static Schema schema;
+  private static UserSession session;
 
   @BeforeAll
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    Database database = TestDatabaseFactory.getTestDatabase();
     final String shopviewer = "shopviewer";
     final String shopmanager = "shopmanager";
     final String shopowner = "shopowner";
@@ -60,10 +56,7 @@ public class TestGraphqlSchemaFields {
     DataModels.getImportTask(schema, PET_STORE.name(), true).run();
     schema = database.getSchema(schemaName);
 
-    taskService = new TaskServiceInMemory();
-    grapql =
-        new GraphqlApiFactory()
-            .createGraphqlForSchema(schema, new GraphqlSession(database, taskService));
+    session = new UserSession(ADMIN_USER);
   }
 
   @Test
@@ -151,24 +144,13 @@ public class TestGraphqlSchemaFields {
   @Test
   public void testSession() throws IOException {
     try {
-      database.setActiveUser(ANONYMOUS);
-      grapql =
-          new GraphqlApiFactory()
-              .createGraphqlForSchema(
-                  database.getSchema(schemaName), new GraphqlSession(database, taskService));
+      session.setSessionUser(ANONYMOUS);
       assertEquals(5, execute("{_session{email,roles}}").at("/_session/roles").size());
       execute("mutation { signin(email: \"shopmanager\",password:\"shopmanager\") {message}}");
-      grapql =
-          new GraphqlApiFactory()
-              .createGraphqlForSchema(
-                  database.getSchema(schemaName), new GraphqlSession(database, taskService));
+      session.setSessionUser(ADMIN_USER);
       assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
     } finally {
-      database.becomeAdmin();
-      grapql =
-          new GraphqlApiFactory()
-              .createGraphqlForSchema(
-                  database.getSchema(schemaName), new GraphqlSession(database, taskService));
+      session.setSessionUser(ADMIN_USER);
     }
   }
 
@@ -529,12 +511,6 @@ public class TestGraphqlSchemaFields {
     schema.getTable("Category").getMetadata().alterColumn("name", newCategoryName);
     schema.getTable("Tag").getMetadata().alterColumn("name", newTagName);
 
-    // refresh graphql
-    grapql =
-        new GraphqlApiFactory()
-            .createGraphqlForSchema(
-                database.getSchema(schemaName), new GraphqlSession(database, taskService));
-
     // refs
     JsonNode result = execute("{Pet_groupBy{count,_sum{weight},tagsTest{nameTest}}}");
 
@@ -583,11 +559,6 @@ public class TestGraphqlSchemaFields {
     schema.getTable("Pet").getMetadata().alterColumn("tags test", newTags);
     schema.getTable("Category").getMetadata().alterColumn("name test", newCategoryName);
     schema.getTable("Tag").getMetadata().alterColumn("name test", newTagName);
-    // refresh graphql
-    grapql =
-        new GraphqlApiFactory()
-            .createGraphqlForSchema(
-                database.getSchema(schemaName), new GraphqlSession(database, taskService));
   }
 
   @Test
@@ -645,7 +616,8 @@ public class TestGraphqlSchemaFields {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(grapql.execute(query));
+    String result =
+        convertExecutionResultToJson(session.getGraphqlForSchema(schemaName).execute(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());
@@ -667,16 +639,27 @@ public class TestGraphqlSchemaFields {
   @Test
   public void testAddAlterDropColumn() throws IOException {
     execute("mutation{change(columns:{table:\"Pet\",name:\"test\"}){message}}");
-    assertNotNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
+    assertNotNull(
+        session
+            .getDatabase()
+            .getSchema(schemaName)
+            .getTable("Pet")
+            .getMetadata()
+            .getColumn("test"));
     execute(
         "mutation{change(columns:{table:\"Pet\", oldName:\"test\",name:\"test2\", key:3, columnType:\"INT\"}){message}}");
 
-    database.clearCache(); // cannot know here, server clears caches
-
-    assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test"));
+    assertNull(
+        session
+            .getDatabase()
+            .getSchema(schemaName)
+            .getTable("Pet")
+            .getMetadata()
+            .getColumn("test"));
     assertEquals(
         ColumnType.INT,
-        database
+        session
+            .getDatabase()
             .getSchema(schemaName)
             .getTable("Pet")
             .getMetadata()
@@ -685,16 +668,20 @@ public class TestGraphqlSchemaFields {
 
     execute("mutation{drop(columns:[{table:\"Pet\", column:\"test2\"}]){message}}");
 
-    database.clearCache(); // cannot know here, server clears caches
-
-    assertNull(database.getSchema(schemaName).getTable("Pet").getMetadata().getColumn("test2"));
+    assertNull(
+        session
+            .getDatabase()
+            .getSchema(schemaName)
+            .getTable("Pet")
+            .getMetadata()
+            .getColumn("test2"));
 
     execute(
         "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", visible:\"blaat\"}){message}}");
-    database.clearCache(); // cannot know here, server clears caches
     assertEquals(
         "blaat",
-        database
+        session
+            .getDatabase()
             .getSchema(schemaName)
             .getTable("Pet")
             .getMetadata()
@@ -704,10 +691,10 @@ public class TestGraphqlSchemaFields {
 
     execute(
         "mutation{change(columns:{table:\"Pet\", name:\"test2\", columnType:\"STRING\", computed:\"blaat2\"}){message}}");
-    database.clearCache(); // cannot know here, server clears caches
     assertEquals(
         "blaat2",
-        database
+        session
+            .getDatabase()
             .getSchema(schemaName)
             .getTable("Pet")
             .getMetadata()
@@ -719,7 +706,8 @@ public class TestGraphqlSchemaFields {
   @Test
   public void testNamesWithSpaces() throws IOException {
     try {
-      Schema myschema = database.dropCreateSchema("testNamesWithSpaces");
+      schemaName = "testNamesWithSpaces";
+      Schema myschema = session.getDatabase().dropCreateSchema(schemaName);
 
       // test escaping
       assertEquals("firstName", convertToCamelCase("First name"));
@@ -752,9 +740,6 @@ public class TestGraphqlSchemaFields {
               column("id").setPkey(),
               column("Child details").setType(REF).setRefTable("Child details")));
 
-      grapql =
-          new GraphqlApiFactory()
-              .createGraphqlForSchema(myschema, new GraphqlSession(database, taskService));
       execute(
           "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\",someNumber: 6}){message}}");
 
@@ -838,11 +823,9 @@ public class TestGraphqlSchemaFields {
       assertEquals(
           0, execute("{PersonDetails_agg{count}}").at("/PersonDetails_agg/count").intValue());
 
-      // reset
+      // reset to default schema name
     } finally {
-      grapql =
-          new GraphqlApiFactory()
-              .createGraphqlForSchema(schema, new GraphqlSession(database, taskService));
+      schemaName = TestGraphqlSchemaFields.class.getSimpleName();
     }
   }
 
@@ -856,13 +839,11 @@ public class TestGraphqlSchemaFields {
   @Test
   public void testJsonType() throws IOException {
     try {
-      Schema myschema = database.dropCreateSchema("testJsonType");
+      schemaName = "testJsonType";
+
+      Schema myschema = session.getDatabase().dropCreateSchema(schemaName);
       myschema.create(
           table("TestJson", column("name").setPkey(), column("json").setType(ColumnType.JSON)));
-
-      grapql =
-          new GraphqlApiFactory()
-              .createGraphqlForSchema(myschema, new GraphqlSession(database, taskService));
 
       Table table = myschema.getTable("TestJson");
       String value = "{\"name\":\"bofke\"}";
@@ -874,11 +855,14 @@ public class TestGraphqlSchemaFields {
       Map data = new LinkedHashMap();
       data.put("name", "test");
       data.put("json", value2);
-      grapql.execute(
-          new ExecutionInput.Builder()
-              .query("mutation update($value:[TestJsonInput]){update(TestJson:$value){message}}")
-              .variables(Map.of("value", data))
-              .build());
+      session
+          .getGraphqlForSchema(schemaName)
+          .execute(
+              new ExecutionInput.Builder()
+                  .query(
+                      "mutation update($value:[TestJsonInput]){update(TestJson:$value){message}}")
+                  .variables(Map.of("value", data))
+                  .build());
 
       assertEquals(value2, execute("{TestJson{json}}").at("/TestJson/0/json").asText());
       assertEquals(
@@ -895,22 +879,18 @@ public class TestGraphqlSchemaFields {
       //              .at("/TestJson/0/json")
       //              .asText());
     } finally {
-      grapql =
-          new GraphqlApiFactory()
-              .createGraphqlForSchema(schema, new GraphqlSession(database, taskService));
+      // reset to default schema name
+      schemaName = TestGraphqlSchemaFields.class.getSimpleName();
     }
   }
 
   @Test
   public void testFileType() throws IOException {
     try {
-      Schema myschema = database.dropCreateSchema("testFileType");
+      schemaName = "testFileType";
+      Schema myschema = session.getDatabase().dropCreateSchema(schemaName);
       myschema.create(
           table("TestFile", column("name").setPkey(), column("image").setType(ColumnType.FILE)));
-
-      grapql =
-          new GraphqlApiFactory()
-              .createGraphqlForSchema(myschema, new GraphqlSession(database, taskService));
 
       // insert file (note: ideally here also use mutation but I don't know how to add file part to
       // request)
@@ -928,31 +908,34 @@ public class TestGraphqlSchemaFields {
       Map data = new LinkedHashMap();
       data.put("name", "test");
       data.put("image", Map.of("name", "dummy"));
-      grapql.execute(
-          new ExecutionInput.Builder()
-              .query("mutation update($value:[TestFileInput]){update(TestFile:$value){message}}")
-              .variables(Map.of("value", data))
-              .build());
+      session
+          .getGraphqlForSchema(schemaName)
+          .execute(
+              new ExecutionInput.Builder()
+                  .query(
+                      "mutation update($value:[TestFileInput]){update(TestFile:$value){message}}")
+                  .variables(Map.of("value", data))
+                  .build());
       assertEquals(4, execute("{TestFile{image{size}}}").at("/TestFile/0/image/size").asInt());
 
       // update with null should delete
       data.put("image", null);
-      grapql.execute(
-          new ExecutionInput.Builder()
-              .query("mutation update($value:[TestFileInput]){update(TestFile:$value){message}}")
-              .variables(Map.of("value", data))
-              .build());
+      session
+          .getGraphqlForSchema(schemaName)
+          .execute(
+              new ExecutionInput.Builder()
+                  .query(
+                      "mutation update($value:[TestFileInput]){update(TestFile:$value){message}}")
+                  .variables(Map.of("value", data))
+                  .build());
       assertEquals(
           0,
           execute("{TestFile{image{size,filename,extension,url}}}")
               .at("/TestFile/0/image/size")
               .asInt());
-
-      // reset
     } finally {
-      grapql =
-          new GraphqlApiFactory()
-              .createGraphqlForSchema(schema, new GraphqlSession(database, taskService));
+      // reset to default schema name
+      schemaName = TestGraphqlSchemaFields.class.getSimpleName();
     }
   }
 
@@ -961,7 +944,7 @@ public class TestGraphqlSchemaFields {
     // fake something into taskservice
     Task task = new Task("test");
     task.addSubTask(new Task("subtest"));
-    taskService.submit(task);
+    session.getTaskService().submit(task);
 
     // list all tasks
     assertTrue(
@@ -990,7 +973,7 @@ public class TestGraphqlSchemaFields {
     assertTrue(result.size() > 0 && result2.size() == 0);
 
     // restore
-    schema = database.dropCreateSchema(schemaName);
+    schema = session.getDatabase().dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
   }
 
@@ -1021,21 +1004,15 @@ public class TestGraphqlSchemaFields {
     assertTrue(!preTruncatedResult.isEmpty() && truncatedResult.isEmpty());
 
     // restore
-    schema = database.dropCreateSchema(schemaName);
+    schema = session.getDatabase().dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
-    grapql =
-        new GraphqlApiFactory()
-            .createGraphqlForSchema(
-                database.getSchema(schemaName), new GraphqlSession(database, taskService));
   }
 
   @Test
   public void testReport() throws IOException {
-    schema = database.dropCreateSchema(schemaName);
+    schema = session.getDatabase().dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
-    grapql =
-        new GraphqlApiFactory()
-            .createGraphqlForSchema(schema, new GraphqlSession(database, taskService));
+
     JsonNode result = execute("{_reports(id:\"report1\"){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
     assertEquals(8, result.at("/_reports/count").intValue());

@@ -49,7 +49,7 @@ public class GraphqlApiFactory {
     }
   }
 
-  public GraphQL createGraphqlForDatabase(GraphqlSession session) {
+  public GraphQL createGraphqlForDatabase(UserSession session) {
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
@@ -102,7 +102,7 @@ public class GraphqlApiFactory {
         .build();
   }
 
-  public GraphQL createGraphqlForSchema(Schema schema, GraphqlSession session) {
+  public GraphQL createGraphqlForSchema(Schema schema, UserSession session) {
     long start = System.currentTimeMillis();
     logger.info("creating graphql for schema: {}", schema.getMetadata().getName());
 

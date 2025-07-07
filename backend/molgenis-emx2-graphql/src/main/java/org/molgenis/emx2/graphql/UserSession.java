@@ -2,25 +2,40 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 
+import graphql.GraphQL;
 import org.molgenis.emx2.Database;
+import org.molgenis.emx2.DatabaseListener;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.tasks.TaskService;
+import org.molgenis.emx2.tasks.TaskServiceInMemory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class GraphqlSession {
-  private String userName;
-  private Database database;
-  private TaskService taskService;
+public class UserSession {
+  private static final Logger logger = LoggerFactory.getLogger(UserSession.class);
 
-  protected GraphqlSession() {
-    // for subclasses that know what they are doing
+  // singletons shared between UserSession instances
+  private static GraphqlApiPerUserCache cache = new GraphqlApiPerUserCache();
+  private static TaskService taskService = new TaskServiceInMemory();
+
+  private String userName = ANONYMOUS;
+  private DatabaseListener databaseListener =
+      new DatabaseListener() {
+        @Override
+        public void afterCommit() {
+          clearCache();
+        }
+      };
+
+  public UserSession() {}
+
+  public UserSession(String user) {
+    this.setSessionUser(user);
   }
 
-  public GraphqlSession(Database database) {
-    this.database = database;
-  }
-
-  public GraphqlSession(Database database, TaskService taskService) {
-    this(database);
+  public UserSession(GraphqlApiPerUserCache cache, TaskService taskService) {
+    // changes static, maybe better use setting
+    this.cache = cache;
     this.taskService = taskService;
   }
 
@@ -29,7 +44,6 @@ public class GraphqlSession {
   }
 
   public void signOut() {
-    this.database.clearActiveUser();
     this.userName = ANONYMOUS;
     clearCache();
   }
@@ -60,15 +74,10 @@ public class GraphqlSession {
             });
   }
 
-  public Database getDatabase() {
-    return database;
-  }
-
   public void signIn(String userName, String passWord) {
     if (getDatabase().hasUser(userName)
         && getDatabase().checkUserPassword(userName, passWord)
         && getDatabase().getUser(userName).getEnabled()) {
-      this.database.setActiveUser(userName);
       this.userName = userName;
       clearCache();
     } else {
@@ -79,15 +88,32 @@ public class GraphqlSession {
   }
 
   public void setSessionUser(String user) {
+    logger.info("Changing session from '{}' to '{}'", this.userName, user);
     clearCache();
     this.userName = user;
   }
 
-  public void clearCache() {
-    // not yet implemented here
-  }
-
   public TaskService getTaskService() {
     return taskService;
+  }
+
+  public Database getDatabase() {
+    return cache.getDatabase(this);
+  }
+
+  public GraphQL getGraphqlForDatabase() {
+    return cache.getGraphqlForDatabase(this);
+  }
+
+  public GraphQL getGraphqlForSchema(String schemaName) {
+    return cache.getGraphqlForSchema(this, schemaName);
+  }
+
+  public void clearCache() {
+    cache.clearCache();
+  }
+
+  public DatabaseListener getDatabaseChangeListener() {
+    return databaseListener;
   }
 }

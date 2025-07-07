@@ -5,41 +5,35 @@ import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import graphql.GraphQL;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
-import org.molgenis.emx2.tasks.TaskService;
-import org.molgenis.emx2.tasks.TaskServiceInMemory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
 
-  private static GraphQL grapql;
-  private static Database database;
-  private static TaskService taskService;
+  private static UserSession session;
   private static final String schemaName = "TestGraphqlDatabaseFields";
 
   @BeforeAll
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
-    taskService = new TaskServiceInMemory();
-    Schema schema = database.dropCreateSchema(schemaName);
+    session = new UserSession(ADMIN_USER);
+    Schema schema = session.getDatabase().dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, false).run();
-    grapql =
-        new GraphqlApiFactory().createGraphqlForDatabase(new GraphqlSession(database, taskService));
   }
 
   @Test
   public void testCreateAndDeleteSchema() throws IOException {
+    Database database = session.getDatabase();
+
     // ensure schema doesn't exist
     if (database.getSchema(schemaName + "B") != null) {
       database.dropSchema(schemaName + "B");
@@ -105,7 +99,7 @@ public class TestGraphqlDatabaseFields {
   @Test
   public void testRegisterAndLoginUsers() throws IOException {
 
-    // todo: default user should be anonymous?
+    Database database = session.getDatabase();
     assertTrue(database.isAdmin());
 
     // read admin password from environment if necessary
@@ -119,7 +113,7 @@ public class TestGraphqlDatabaseFields {
             + "\",password:\""
             + adminPass
             + "\") {message}}");
-    assertTrue(database.isAdmin());
+    assertTrue(session.getSessionUser().equals(ADMIN_USER));
 
     if (database.hasUser("pietje")) database.removeUser("pietje");
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
@@ -132,14 +126,14 @@ public class TestGraphqlDatabaseFields {
             .textValue()
             .contains("failed"));
     // still admin
-    assertTrue(database.isAdmin());
+    assertTrue(session.getSessionUser().equals(ADMIN_USER));
 
     assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")
             .at("/data/signin/message")
             .textValue()
             .contains("Signed in"));
-    assertEquals("pietje", database.getActiveUser());
+    assertEquals("pietje", session.getSessionUser());
 
     assertTrue(
         execute("mutation{changePassword(password:\"blaat124\"){message}}")
@@ -149,10 +143,10 @@ public class TestGraphqlDatabaseFields {
     assertTrue(database.checkUserPassword("pietje", "blaat124"));
 
     execute("mutation{signout{message}}");
-    assertEquals("anonymous", database.getActiveUser());
+    assertEquals("anonymous", session.getSessionUser());
 
     // back to superuser
-    database.becomeAdmin();
+    session.setSessionUser(ADMIN_USER);
   }
 
   @Test
@@ -169,7 +163,7 @@ public class TestGraphqlDatabaseFields {
               .textValue());
 
       // test that we can this only for 'ourselves'
-      database.setActiveUser("pietje");
+      session.setSessionUser("pietje");
       execute(
           "mutation{change(users:{email:\"pietje\", settings: {key: \"mykey\", value:\"myvalue\"}}){message}}");
       assertEquals(
@@ -187,7 +181,7 @@ public class TestGraphqlDatabaseFields {
         assertTrue(e.getMessage().contains("permission denied"));
       }
     } finally {
-      database.becomeAdmin();
+      session.setSessionUser(ADMIN_USER);
     }
   }
 
@@ -201,7 +195,10 @@ public class TestGraphqlDatabaseFields {
 
   private JsonNode execute(String query) throws IOException {
     JsonNode result =
-        new ObjectMapper().readTree(convertExecutionResultToJson(grapql.execute(query)));
+        new ObjectMapper()
+            .readTree(
+                convertExecutionResultToJson(
+                    session.getGraphqlForSchema(schemaName).execute(query)));
     if (result.get("errors") != null) {
       throw new MolgenisException(result.get("errors").toString());
     }

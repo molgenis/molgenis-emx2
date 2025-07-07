@@ -35,7 +35,7 @@ public class TestGraphqlCrossSchemaRefs {
     schema2 = database.createSchema(schemaName2);
 
     CrossSchemaReferenceExample.create(schema1, schema2);
-    graphql = new GraphqlApiFactory().createGraphqlForSchema(schema2, new GraphqlSession(database));
+    graphql = new GraphqlApiFactory().createGraphqlForSchema(schema2, new UserSession());
   }
 
   @Test
