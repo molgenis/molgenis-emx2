@@ -1,4 +1,4 @@
-id,individual,date of observation,age at observation,type of visit,location of observation,is solved,date solved,molecular diagnosis gene
+id,individuals,date of observation,age at observation,type of visit,location of observation,is solved,date solved,molecular diagnosis gene
 Case1C,Case1C,2021-04-21,P8Y3M26D,Genetic consultation,University Medical Center Groningen,TRUE,2013-01-01,
 Case1F,Case1F,2021-04-21,,Genetic consultation,University Medical Center Groningen,FALSE,,
 Case1M,Case1M,2021-04-21,,Genetic consultation,University Medical Center Groningen,FALSE,,
