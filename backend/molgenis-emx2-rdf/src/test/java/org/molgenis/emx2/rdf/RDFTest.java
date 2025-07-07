@@ -51,6 +51,7 @@ import org.molgenis.emx2.rdf.generators.Emx2RdfGenerator;
 import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 import org.molgenis.emx2.rdf.generators.RdfGenerator;
 import org.molgenis.emx2.rdf.generators.SemanticRdfGenerator;
+import org.molgenis.emx2.rdf.shacl.ShaclSet;
 import org.molgenis.emx2.rdf.writers.RdfModelWriter;
 import org.molgenis.emx2.rdf.writers.RdfStreamWriter;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
@@ -492,13 +493,15 @@ public class RDFTest {
 
   @Test
   void testPetStoreShaclSimpleEmx2() throws IOException, NoSuchMethodException {
-    File[] shaclFiles = new File[] {getFile("shacl_files/pet_store/simple/shacl.ttl")};
+    ShaclSet shaclSet =
+        new ShaclSet(
+            "test", null, null, null, new String[] {"shacl_files/pet_store/simple/shacl.ttl"});
 
     compareToValidationFile(
         "shacl_files/pet_store/simple/output_emx2.ttl",
         ShaclResultWriter.class,
-        Arrays.asList(OutputStream.class, RDFFormat.class, File[].class),
-        Arrays.asList(null, RDFFormat.TURTLE, shaclFiles),
+        Arrays.asList(OutputStream.class, RDFFormat.class, ShaclSet.class),
+        Arrays.asList(null, RDFFormat.TURTLE, shaclSet),
         Emx2RdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
         petStore_nr1);
@@ -506,13 +509,15 @@ public class RDFTest {
 
   @Test
   void testPetStoreShaclSimpleSemantic() throws IOException, NoSuchMethodException {
-    File[] shaclFiles = new File[] {getFile("shacl_files/pet_store/simple/shacl.ttl")};
+    ShaclSet shaclSet =
+        new ShaclSet(
+            "test", null, null, null, new String[] {"shacl_files/pet_store/simple/shacl.ttl"});
 
     compareToValidationFile(
         "shacl_files/pet_store/simple/output_semantic.ttl",
         ShaclResultWriter.class,
-        Arrays.asList(OutputStream.class, RDFFormat.class, File[].class),
-        Arrays.asList(null, RDFFormat.TURTLE, shaclFiles),
+        Arrays.asList(OutputStream.class, RDFFormat.class, ShaclSet.class),
+        Arrays.asList(null, RDFFormat.TURTLE, shaclSet),
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
         petStore_nr1);

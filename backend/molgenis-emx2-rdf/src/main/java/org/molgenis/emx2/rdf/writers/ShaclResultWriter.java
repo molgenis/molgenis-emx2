@@ -42,9 +42,6 @@ public class ShaclResultWriter extends RdfWriter {
 
   private int tripleCounter = 0;
 
-  /**
-   * @param shaclFiles shapes must be Turtle-formatted
-   */
   public ShaclResultWriter(OutputStream outputStream, RDFFormat format, ShaclSet shaclSet)
       throws IOException {
     super(outputStream, format);
