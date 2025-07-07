@@ -1,3 +1,8 @@
+plugins {
+    id 'java-library'
+    id 'java-test-fixtures'
+}
+
 dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-graphql')
@@ -6,7 +11,13 @@ dependencies {
     testImplementation project(':backend:molgenis-emx2-tasks')
     testImplementation project(':backend:molgenis-emx2-datamodels')
 
-    testImplementation 'org.apache.commons:commons-collections4:4.5.0'
+    testFixturesImplementation project(':backend:molgenis-emx2')
+    testFixturesImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
+    testFixturesImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
+    testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-rio-api:5.0.1'
+    testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-rio-turtle:5.0.1'
+    testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-shacl:5.0.1'
+    testFixturesImplementation 'org.apache.commons:commons-collections4:4.5.0'
 }
 //we use shacls from data folder
 processResources{

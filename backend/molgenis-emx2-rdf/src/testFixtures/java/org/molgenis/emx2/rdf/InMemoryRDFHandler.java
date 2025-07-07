@@ -34,7 +34,7 @@ import org.eclipse.rdf4j.rio.RDFHandlerException;
  *
  * This behaviour can be disabled by calling the constructor with `false`.
  */
-class InMemoryRDFHandler implements RDFHandler {
+public class InMemoryRDFHandler implements RDFHandler {
   private static final SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
   private final Map<BNode, BNode> bNodeConversionMap = new HashMap<>();
