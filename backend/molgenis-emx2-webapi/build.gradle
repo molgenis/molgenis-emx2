@@ -16,6 +16,8 @@ dependencies {
     testImplementation 'org.apache.poi:poi:4.1.2'
     testImplementation 'org.apache.poi:poi-ooxml:4.1.2'
     testImplementation 'net.lingala.zip4j:zip4j:2.11.5'
+    testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.8'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
     implementation 'com.github.dfabulich:sitemapgen4j:1.1.2'
     implementation 'de.larsgrefer.sass:sass-embedded-host:1.15.4'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.2.1'

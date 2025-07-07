@@ -1,5 +1,8 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.util.EnvHelpers.getEnvInt;
+import static org.molgenis.emx2.web.util.EnvHelpers.getEnvLong;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import graphql.GraphQL;
@@ -20,9 +23,9 @@ public class MolgenisSession {
       Caffeine.newBuilder()
           .maximumSize(getEnvInt("ANONYMOUS_GQL_CACHE_MAX_SIZE", 100))
           .expireAfterAccess(
-              getEnvLong("ANONYMOUS_GQL_CACHE_EXPIRE_ACCESS_MIN", 1), TimeUnit.MINUTES)
+              getEnvLong("ANONYMOUS_GQL_CACHE_EXPIRE_ACCESS_MIN", 1L), TimeUnit.MINUTES)
           .expireAfterWrite(
-              getEnvLong("ANONYMOUS_GQL_CACHE_EXPIRE_WRITE_MIN", 30), TimeUnit.MINUTES)
+              getEnvLong("ANONYMOUS_GQL_CACHE_EXPIRE_WRITE_MIN", 30L), TimeUnit.MINUTES)
           .build();
   private final GraphqlApiFactory graphqlApiFactory;
   private final Database database;
@@ -82,30 +85,5 @@ public class MolgenisSession {
     this.database.clearCache();
     anonymousGqlObjectCache.invalidateAll();
     logger.info("cleared database and caches for user {}", getSessionUser());
-  }
-
-  private static int getEnvInt(String name, int defaultValue) {
-    String value = System.getenv(name);
-    if (value != null) {
-      try {
-        return Integer.parseInt(value);
-      } catch (NumberFormatException e) {
-        logger.error(
-            "Invalid integer for {}: '{}'. Using default: {}\n", name, value, defaultValue);
-      }
-    }
-    return defaultValue;
-  }
-
-  private static long getEnvLong(String name, long defaultValue) {
-    String value = System.getenv(name);
-    if (value != null) {
-      try {
-        return Long.parseLong(value);
-      } catch (NumberFormatException e) {
-        logger.error("Invalid long for {}: '{}'. Using default: {}\n", name, value, defaultValue);
-      }
-    }
-    return defaultValue;
   }
 }
