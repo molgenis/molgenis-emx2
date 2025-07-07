@@ -19,7 +19,6 @@ The JSON settings have the following options:
 | collectionColumns | `see config file` | Columns to be shown in collection reports. |
 | studyColumns | `see config file` | Columns to be shown in study reports. |
 | filterFacets | `see config file` | Filters that users can set on the app. |
-| filterMenuInitiallyFolded | false | ?? |
 | biobankCardShowCollections | true | Wether to show collections on biobank cards. |
 | landingpage | `see config file` | Configuration for setting a landing page. |
 | pageSize | 12 | Number of biobanks shown per page. |
