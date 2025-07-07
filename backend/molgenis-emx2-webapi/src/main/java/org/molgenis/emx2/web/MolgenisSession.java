@@ -15,11 +15,14 @@ import org.slf4j.LoggerFactory;
 
 public class MolgenisSession {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSession.class);
+
   private static final Cache<String, GraphQL> anonymousGqlObjectCache =
       Caffeine.newBuilder()
-          .maximumSize(100)
-          .expireAfterAccess(1, TimeUnit.MINUTES)
-          .expireAfterWrite(30, TimeUnit.MINUTES)
+          .maximumSize(getEnvInt("ANONYMOUS_GQL_CACHE_MAX_SIZE", 100))
+          .expireAfterAccess(
+              getEnvLong("ANONYMOUS_GQL_CACHE_EXPIRE_ACCESS_MIN", 1), TimeUnit.MINUTES)
+          .expireAfterWrite(
+              getEnvLong("ANONYMOUS_GQL_CACHE_EXPIRE_WRITE_MIN", 30), TimeUnit.MINUTES)
           .build();
   private final GraphqlApiFactory graphqlApiFactory;
   private final Database database;
@@ -79,5 +82,30 @@ public class MolgenisSession {
     this.database.clearCache();
     anonymousGqlObjectCache.invalidateAll();
     logger.info("cleared database and caches for user {}", getSessionUser());
+  }
+
+  private static int getEnvInt(String name, int defaultValue) {
+    String value = System.getenv(name);
+    if (value != null) {
+      try {
+        return Integer.parseInt(value);
+      } catch (NumberFormatException e) {
+        logger.error(
+            "Invalid integer for {}: '{}'. Using default: {}\n", name, value, defaultValue);
+      }
+    }
+    return defaultValue;
+  }
+
+  private static long getEnvLong(String name, long defaultValue) {
+    String value = System.getenv(name);
+    if (value != null) {
+      try {
+        return Long.parseLong(value);
+      } catch (NumberFormatException e) {
+        logger.error("Invalid long for {}: '{}'. Using default: {}\n", name, value, defaultValue);
+      }
+    }
+    return defaultValue;
   }
 }
