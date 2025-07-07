@@ -10,7 +10,6 @@ public class DataModels {
 
   public enum Profile {
     DATA_CATALOGUE("_profiles/DataCatalogue.yaml"),
-    DATA_CATALOGUE_TEST("_profiles/DataCatalogueTest.yaml"),
     DATA_CATALOGUE_COHORT_STAGING("_profiles/CohortsStaging.yaml"),
     DATA_CATALOGUE_NETWORK_STAGING("_profiles/NetworksStaging.yaml"),
     DATA_CATALOGUE_AGGREGATES("_profiles/DataCatalogueAggregates.yaml"),

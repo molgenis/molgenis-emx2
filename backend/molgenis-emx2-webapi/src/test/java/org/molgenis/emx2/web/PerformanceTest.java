@@ -26,10 +26,9 @@ import org.slf4j.LoggerFactory;
 public class PerformanceTest {
 
   static final Logger logger = LoggerFactory.getLogger(PerformanceTest.class);
-  private static final String BASE_URL =
-      "http://localhost"; // "https://umcgresearchdatacatalogue-acc.molgeniscloud.org";
-  private static final String SCHEMA_NAME = "performancetest"; // "catalogue-demo"; // "UMCG";
-  private static final int PORT = 8082; // other than default so we can see effect
+  private static final String BASE_URL = "http://localhost";
+  private static final String SCHEMA_NAME = "catalogue-demo";
+  private static final int PORT = 8082;
   private static Database database;
 
   @BeforeAll
@@ -59,7 +58,7 @@ public class PerformanceTest {
         .sessionId();
 
     Schema schema = database.dropCreateSchema(SCHEMA_NAME);
-    DataModels.Profile.DATA_CATALOGUE_TEST.getImportTask(schema, true).run();
+    DataModels.Profile.DATA_CATALOGUE.getImportTask(schema, true).run();
 
     schema.addMember(ANONYMOUS, Privileges.VIEWER.toString());
   }
