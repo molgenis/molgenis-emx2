@@ -35,7 +35,8 @@ public class RunRDFExportAndCheckCompliance {
 
     // Create new Data Catalogue and export to RDF
     if (performFreshRDFExport) {
-      String rdf = ComplianceTest.createSchemaExportRDF("datacatl", "_profiles/DataCatalogue.yaml");
+      String rdf =
+          ComplianceTest.createSchemaExportRDF("catalogue", "_profiles/DataCatalogue.yaml");
       try (PrintWriter out = new PrintWriter(rdfExportLoc)) {
         out.println(rdf);
       }
@@ -47,7 +48,8 @@ public class RunRDFExportAndCheckCompliance {
     // Test compliance against one or more sets of SHACL files
     testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, catalogueSchemaRDF);
     testShaclCompliance(DCAT_AP_SHACL_FILES, catalogueSchemaRDF);
-    testShaclCompliance(HEALTH_RI_SHACL_FILES, catalogueSchemaRDF);
+    testShaclCompliance(HEALTH_RI_V1_SHACL_FILES, catalogueSchemaRDF);
+    testShaclCompliance(HEALTH_RI_V2_SHACL_FILES, catalogueSchemaRDF);
     testShaclCompliance(EJP_RD_VP_SHACL_FILES, catalogueSchemaRDF);
   }
 }

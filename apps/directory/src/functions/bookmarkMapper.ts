@@ -2,12 +2,12 @@ import { LocationQuery } from "vue-router";
 import useErrorHandler from "../composables/errorHandler";
 import { IOntologyItem } from "../interfaces/interfaces";
 import router from "../router";
-import { labelValuePair, useCheckoutStore } from "../stores/checkoutStore";
+import { ILabelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
 let bookmarkApplied = false;
 
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 
 export async function applyBookmark(watchedQuery: LocationQuery) {
   if (bookmarkApplied) {
@@ -97,8 +97,8 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
 
 export function createBookmark(
   filters: Record<string, any>,
-  collectionCart: Record<string, labelValuePair[]>,
-  serviceCart: Record<string, labelValuePair[]>
+  collectionCart: Record<string, ILabelValuePair[]>,
+  serviceCart: Record<string, ILabelValuePair[]>
 ) {
   const filtersStore = useFiltersStore();
   const bookmark: Record<string, string> = {};
@@ -189,6 +189,7 @@ export function createBookmark(
 
   if (!filtersStore.bookmarkWaitingForApplication) {
     try {
+      clearError();
       router.push({
         name: router.currentRoute.value.name,
         query: bookmark,

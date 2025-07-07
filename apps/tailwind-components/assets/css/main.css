@@ -52,6 +52,9 @@
     --color-disabled-foreground: var(--color-gray-400);
     --color-disabled-background: var(--color-gray-100);
 
+    --text-color-logo-text: var(--color-white);
+    --text-color-logo-text-inverted: var(--color-blue-500);
+
     --box-shadow-primary: 0px 10px 20px rgba(0, 0, 0, 0.1);
     --box-shadow-input-hover: inset 0 0 1px 1px var(--color-blue-700);
     --box-shadow-search-input: none;
@@ -88,12 +91,13 @@
     --background-color-button-tree-node-toggle: var(--color-blue-800);
 
     --background-color-app-wrapper: var(--color-white);
+    --background-color-content: var(--color-white);
     --background-color-navigation: var(--color-white);
     --background-color-navigation-sticky: var(--background-color-navigation);
     --background-color-search-results-view-tabs: var(--color-blue-800);
     --background-color-search-filter-group-toggle: var(--color-blue-800);
-    --background-color-pagination: var(--color-blue-800);
-    --background-color-pagination-hover: var(--color-blue-900);
+    --background-color-pagination: var(--color-white);
+    --background-color-pagination-hover: var(--color-white);
     --background-color-pagination-input: var(--color-white);
     --background-color-footer: var(--color-white);
     --background-color-form: var(--color-white);
@@ -125,6 +129,8 @@
     --text-color-button-filter: var(--color-blue-500);
     --text-color-button-tree-node-toggle: var(--color-blue-800);
     --text-color-button-tree-node-toggle-hover: var(--color-white);
+    --text-color-button-toggle-active: var(--text-color-button-secondary);
+    --text-color-button-toggle-inactive: var(--color-blue-200);
 
     --text-color-menu: var(--text-color-title);
     --text-color-sub-menu: var(--color-blue-500);
@@ -158,11 +164,12 @@
     --text-color-search-filter-group-toggle-inverted: var(--color-black);
     --text-color-tooltip-hover-dark: var(--color-blue-500);
     --text-color-tooltip-hover-light: var(--color-blue-800);
-    --text-color-pagination: var(--text-color-title);
+    --text-color-pagination: var(--color-blue-500);
     --text-color-pagination-inverted: var(--color-gray-400);
     --text-color-pagination-input: var(--text-color-title);
-    --text-color-pagination-hover: var(--color-white);
-    --text-color-pagination-button: var(--color-white);
+    --text-color-pagination-hover: var(--color-blue-800);
+    --text-color-pagination-button: var(--color-blue-500);
+    --text-color-pagination-button-hover: var(--color-blue-800);
     --text-color-link: var(--color-blue-500);
     --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);
@@ -192,7 +199,8 @@
     --border-color-search-button: var(--color-white);
     --border-color-search-input: var(--color-white);
     --border-color-search-input-mobile: var(--color-gray-100);
-    --border-color-pagination: var(--color-transparent);
+    --border-color-pagination: var(--color-gray-200);
+    --border-color-pagination-hover: var(--color-blue-800);
     --border-color-input-hover: var(--color-blue-500);
     --border-color-input: var(--color-gray-400);
     --border-color-input-hover: var(--color-blue-500);

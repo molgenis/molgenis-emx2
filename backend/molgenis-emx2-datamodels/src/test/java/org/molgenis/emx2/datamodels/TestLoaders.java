@@ -7,10 +7,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -23,7 +24,6 @@ public class TestLoaders {
   public static final String DATA_CATALOGUE_AGGREGATES = "AggregatesTest";
   public static final String DIRECTORY_TEST = "DirectoryTest";
   public static final String DIRECTORY_STAGING = "DirectoryStaging";
-  public static final String JRC_CDE_TEST = "JRCCDETest";
   public static final String FAIR_GENOMES = "FAIRGenomesTest";
   public static final String PORTAL_TEST = "PortalTest";
   public static final String PROJECT_MANAGER = "ProjectManager";
@@ -45,7 +45,6 @@ public class TestLoaders {
     database.dropSchemaIfExists(DIRECTORY_TEST);
     database.dropSchemaIfExists(DIRECTORY_STAGING);
     database.dropSchemaIfExists(DIRECTORY_ONTOLOGIES);
-    database.dropSchemaIfExists(JRC_CDE_TEST);
     database.dropSchemaIfExists(FAIR_GENOMES);
     database.dropSchemaIfExists(PROJECT_MANAGER);
     database.dropSchemaIfExists(DASHBOARD_TEST);
@@ -61,13 +60,15 @@ public class TestLoaders {
 
     // create rdf in memory
     OutputStream outputStream = new ByteArrayOutputStream();
-    var rdf = new RDFService("http://localhost:8080", null);
-    rdf.describeAsRDF(outputStream, null, null, null, dataCatalogue);
+    try (RdfSchemaService rdf =
+        new RdfSchemaService(
+            "http://localhost:8080", dataCatalogue, RDFFormat.TURTLE, outputStream)) {
+      rdf.getGenerator().generate(dataCatalogue);
+    }
 
-    // check compliance
+    // check compliance - when compliant, add: DCAT_AP_SHACL_FILES and HEALTH_RI_V2_SHACL_FILES
     testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
-    // testShaclCompliance(DCAT_AP_SHACL_FILES, outputStream.toString());
-    testShaclCompliance(HEALTH_RI_SHACL_FILES, outputStream.toString());
+    testShaclCompliance(HEALTH_RI_V1_SHACL_FILES, outputStream.toString());
     testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
   }
 
@@ -91,13 +92,6 @@ public class TestLoaders {
     Schema directory = database.createSchema(DIRECTORY_TEST);
     DataModels.Regular.BIOBANK_DIRECTORY.getImportTask(directory, true).run();
     assertEquals(13, directory.getTableNames().size());
-  }
-
-  @Test
-  void test11JRCCDELoader() {
-    Schema JRCCDESchema = database.createSchema(JRC_CDE_TEST);
-    DataModels.Profile.JRC_COMMON_DATA_ELEMENTS.getImportTask(JRCCDESchema, true).run();
-    assertEquals(5, JRCCDESchema.getTableNames().size());
   }
 
   @Disabled
@@ -162,7 +156,7 @@ public class TestLoaders {
     // depends on catalogue test above
     Schema schema = database.dropCreateSchema(PORTAL_TEST);
     DataModels.Profile.PATIENT_REGISTRY.getImportTask(schema, false).run();
-    assertEquals(45, schema.getTableNames().size());
+    assertEquals(49, schema.getTableNames().size());
   }
 
   @Test

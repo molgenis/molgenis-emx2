@@ -4,16 +4,23 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import org.eclipse.rdf4j.rio.RDFHandler;
+import org.eclipse.rdf4j.rio.turtle.TurtleWriter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
+import org.molgenis.emx2.Table;
 import org.molgenis.emx2.io.ImportProfileTask;
 import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
+import org.molgenis.emx2.rdf.generators.Emx2RdfGenerator;
+import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
+import org.molgenis.emx2.rdf.writers.WriterFactory;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class OntologyTableSemantics {
@@ -31,10 +38,18 @@ public class OntologyTableSemantics {
   }
 
   @Test
-  void OntologyTableSemanticsTest() {
+  void OntologyTableSemanticsTest() throws NoSuchMethodException, IOException {
+    Table tagTable = petStoreSchema.getTable("Tag");
+
     OutputStream outputStream = new ByteArrayOutputStream();
-    RDFService rdf = new RDFService("http://localhost:8080", null);
-    rdf.describeAsRDF(outputStream, petStoreSchema.getTable("Tag"), null, null, petStoreSchema);
+    RDFHandler handler = new TurtleWriter(outputStream);
+    RdfParser.parseRdf(
+        handler,
+        WriterFactory.MODEL,
+        Emx2RdfGenerator.class,
+        RdfApiGenerator.class.getDeclaredMethod("generate", Table.class),
+        tagTable);
+    outputStream.close();
     String result = outputStream.toString();
 
     /**
@@ -65,7 +80,14 @@ public class OntologyTableSemantics {
     petStoreSchema.migrate(metadata);
 
     outputStream = new ByteArrayOutputStream();
-    rdf.describeAsRDF(outputStream, petStoreSchema.getTable("Tag"), null, null, petStoreSchema);
+    handler = new TurtleWriter(outputStream);
+    RdfParser.parseRdf(
+        handler,
+        WriterFactory.MODEL,
+        Emx2RdfGenerator.class,
+        RdfApiGenerator.class.getDeclaredMethod("generate", Table.class),
+        tagTable);
+    outputStream.close();
     result = outputStream.toString();
 
     /**
@@ -79,6 +101,6 @@ public class OntologyTableSemantics {
         result.contains("SemanticPetStore:Tag a owl:Class;"),
         "Tag should be an instance of owl:Class");
     assertTrue(
-        result.contains("rdfs:isDefinedBy <https://w3id.org/reproduceme#Tag>, obo:NCIT_C48697;"));
+        result.contains("rdfs:isDefinedBy obo:NCIT_C48697, <https://w3id.org/reproduceme#Tag>;"));
   }
 }
