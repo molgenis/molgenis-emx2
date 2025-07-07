@@ -26,4 +26,9 @@ class ShaclSelectorTest {
     ShaclSet actual = ShaclSelector.get("dcat-ap-v3");
     assertEquals(expected, actual);
   }
+
+  @Test
+  void testShaclSelectorNonExisting() {
+    assertNull(ShaclSelector.get("nonExistingValue"));
+  }
 }
