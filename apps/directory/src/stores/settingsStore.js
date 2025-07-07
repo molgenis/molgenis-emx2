@@ -33,7 +33,6 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     collectionColumns: initialCollectionColumns,
     studyColumns: initialStudyColumns,
     filterFacets: initialFilterFacets,
-    filterMenuInitiallyFolded: false,
     biobankCardShowCollections: true,
     landingpage: initialLandingpage,
     pageSize: 12,
