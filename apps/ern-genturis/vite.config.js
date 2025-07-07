@@ -18,7 +18,7 @@ export default defineConfig(() => {
       },
     },
     plugins: [vue()],
-    base: "apps/ern-genturus/",
+    base: "apps/ern-genturis/",
     server: {
       proxy: require("../dev-proxy.config"),
     },
