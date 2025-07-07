@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import org.molgenis.emx2.MolgenisException;
 
 public abstract class ShaclSelector {
@@ -33,6 +34,10 @@ public abstract class ShaclSelector {
     for (ShaclSet shaclSet : ShaclSetArray) {
       shaclSetMap.put(shaclSet.name(), shaclSet);
     }
+  }
+
+  public static Set<String> getNames() {
+    return shaclSetMap.keySet();
   }
 
   public static ShaclSet get(String name) {

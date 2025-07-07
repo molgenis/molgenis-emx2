@@ -38,7 +38,7 @@
     - https://github.com/Health-RI/health-ri-metadata/releases/tag/v2.0.0
   files:
     - SHACL/Health-RI/v2.0.0/HRI-Datamodel-shapes.ttl
-- name: EJP_RD_VP
+- name: ejp_rd_vp
   description: European Joint Programme - Rare Disease - Virtual Platform
   version: 01-08-2024
   sources:

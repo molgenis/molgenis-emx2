@@ -132,7 +132,7 @@ public class RDFApi {
       throws IOException, NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
     Schema schema = getSchema(ctx);
-    ShaclSet shaclSet = ShaclSelector.get(sanitize(ctx.queryParam("validate")));
+    ShaclSet shaclSet = retrieveShaclSet(sanitize(ctx.queryParam("validate")));
     runRdfValidationService(ctx, schema, format, shaclSet, method, schema);
   }
 
@@ -224,6 +224,15 @@ public class RDFApi {
       throw new RuntimeException(
           "An error occurred while trying to run the RDF API: " + e.getCause());
     }
+  }
+
+  private static ShaclSet retrieveShaclSet(String name) {
+    ShaclSet shaclSet = ShaclSelector.get(name);
+    if (shaclSet == null)
+      throw new MolgenisException(
+          "The given name for a validation set was not found. Allowed values: "
+              + ShaclSelector.getNames().stream().sorted().toList());
+    return shaclSet;
   }
 
   private static RDFFormat selectFormat(Context ctx, RDFFormat format) {
