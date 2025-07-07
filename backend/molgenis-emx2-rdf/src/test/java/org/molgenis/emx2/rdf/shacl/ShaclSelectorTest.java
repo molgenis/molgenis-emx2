@@ -20,6 +20,7 @@ class ShaclSelectorTest {
               "dcat-ap/v3.0.0/mdr-vocabularies.shape.ttl",
               "dcat-ap/v3.0.0/mdr_imports.ttl",
               "dcat-ap/v3.0.0/range.ttl",
+              "dcat-ap/v3.0.0/shapes.ttl",
               "dcat-ap/v3.0.0/shapes_recommended.ttl"
             });
     ShaclSet actual = ShaclSelector.get("dcat-ap-v3");
