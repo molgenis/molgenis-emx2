@@ -1,23 +1,19 @@
 package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.molgenis.emx2.rdf.CustomAssertions.adheresToShacl;
 import static org.molgenis.emx2.rdf.shacl.SHACLComplianceTester.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URISyntaxException;
-import org.eclipse.rdf4j.rio.RDFFormat;
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
 public class TestLoaders {
-
   public static final String DATA_CATALOGUE = "catalogue";
   public static final String COHORT_STAGING = "CohortStaging";
   public static final String NETWORK_STAGING = "NetworkStaging";
@@ -60,18 +56,10 @@ public class TestLoaders {
     DataModels.Profile.DATA_CATALOGUE.getImportTask(dataCatalogue, true).run();
     assertEquals(24, dataCatalogue.getTableNames().size());
 
-    // create rdf in memory
-    OutputStream outputStream = new ByteArrayOutputStream();
-    try (RdfSchemaService rdf =
-        new RdfSchemaService(
-            "http://localhost:8080", dataCatalogue, RDFFormat.TURTLE, outputStream)) {
-      rdf.getGenerator().generate(dataCatalogue);
-    }
-
     // check compliance - when compliant, add: DCAT_AP_SHACL_FILES and HEALTH_RI_V2_SHACL_FILES
-    testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
-    testShaclCompliance(HEALTH_RI_V1_SHACL_FILES, outputStream.toString());
-    testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
+    adheresToShacl(dataCatalogue, "fdp-v1.2");
+    adheresToShacl(dataCatalogue, "hri-v1");
+    adheresToShacl(dataCatalogue, "ejp-rd-vp");
   }
 
   @Test

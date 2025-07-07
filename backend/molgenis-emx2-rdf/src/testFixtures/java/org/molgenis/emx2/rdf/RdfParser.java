@@ -19,7 +19,7 @@ import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 public abstract class RdfParser {
   static final ClassLoader classLoader = RdfParser.class.getClassLoader();
-  static final String BASE_URL = "http://localhost:8080";
+  public static final String BASE_URL = "http://localhost:8080";
 
   // Generic functions to load RDF as if processed through the RDF API
 

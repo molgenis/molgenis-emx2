@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ShaclResultWriter extends RdfWriter {
-  private static final byte[] SHACL_SUCCEED =
+  public static final byte[] SHACL_SUCCEED =
       """
     @prefix sh: <http://www.w3.org/ns/shacl#> .
 
