@@ -3,6 +3,8 @@ package org.molgenis.emx2.web;
 import com.google.common.io.ByteStreams;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import jakarta.servlet.ServletException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -70,11 +72,7 @@ public class StaticFileMapper {
     addFileToContext(ctx, path, null);
   }
 
-  private static void returnIndexFile(Context ctx) {
-    if (!ctx.path().endsWith("/")) {
-      ctx.redirect(ctx.path() + "/");
-      return;
-    }
+  private static void returnIndexFile(Context ctx) throws ServletException, IOException {
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/index.html";
     addFileToContext(ctx, path, "text/html");
   }

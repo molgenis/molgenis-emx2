@@ -12,7 +12,7 @@ export default defineConfig(() => {
         languages: ["editorWorkerService", "html", "css", "typescript"],
     }),
   ],
-  base: "",
+  base: "apps/pages/",
   server: {
     proxy: require("../dev-proxy.config"),
   },

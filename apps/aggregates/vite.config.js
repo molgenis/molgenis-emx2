@@ -18,7 +18,7 @@ export default defineConfig(() => {
       },
     },
     plugins: [vue()],
-    base: "",
+    base: "apps/aggregates/",
     server: {
       proxy: require("../dev-proxy.config")
     },

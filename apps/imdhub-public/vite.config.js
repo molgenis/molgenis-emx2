@@ -19,7 +19,7 @@ export default defineConfig(() => {
       },
     },
     plugins: [vue()],
-    base: "",
+    base: "/imdhub-public/",
     server: {
       proxy: require("../dev-proxy.config"),
     },

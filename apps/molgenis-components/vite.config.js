@@ -9,7 +9,7 @@ const BACKEND_LOCATION =
 // basic build conf fo both library and showCase builds
 let conf = {
   plugins: [docTagPlugin(), vue()],
-  base: "",
+  base: "apps/molgenis-components/",
   server: {
     proxy: {
       "/apps/molgenis-components/assets/img/molgenis_logo_white.png": {

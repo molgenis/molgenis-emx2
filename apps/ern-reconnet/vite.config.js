@@ -6,7 +6,7 @@ export default defineConfig(() => {
 
   return {
     plugins: [vue()],
-    base: "",
+    base: "/apps/ern/reconnect/",
     server: {
       proxy: require("../dev-proxy.config"),
     },

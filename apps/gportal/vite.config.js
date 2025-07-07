@@ -19,7 +19,7 @@ export default defineConfig(() => {
         },
       },
     },
-    base: "",
+    base: "apps/gportal/",
     server: {
       proxy: require("../dev-proxy.config"),
     },

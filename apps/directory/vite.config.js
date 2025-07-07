@@ -11,7 +11,7 @@ const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
-  base: "",
+  base: "apps/directory/",
   build: { sourcemap: true },
   plugins: [
     vue(),

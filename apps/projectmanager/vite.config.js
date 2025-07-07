@@ -6,7 +6,7 @@ export default defineConfig(() => {
   
   return {   
     plugins: [vue()],
-    base: "",
+    base: "apps/projectmanager/",
     server: {
       proxy: require("../dev-proxy.config"),
     },

@@ -18,7 +18,7 @@ export default defineConfig(() => {
       },
     },
     plugins: [vue()],
-    base: "",
+    base: "apps/cranio-provider/",
     server: {
       proxy: require("../dev-proxy.config"),
     },
