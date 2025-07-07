@@ -1,7 +1,6 @@
 package org.molgenis.emx2.rdf.writers;
 
 import java.io.OutputStream;
-import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
@@ -27,9 +26,8 @@ public class RdfStreamWriter extends RdfWriter {
   public RdfStreamWriter(OutputStream outputStream, RDFFormat format) {
     super(outputStream, format);
     writer = Rio.createWriter(getFormat(), getOutputStream());
+    writer.setWriterConfig(config);
     writer.startRDF();
-    // Failsafe as code is still untested (will enable in separate PR that includes tests)
-    throw new NotImplementedException();
   }
 
   @Override

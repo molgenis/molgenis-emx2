@@ -4,7 +4,11 @@ import { defineNuxtConfig } from "nuxt/config";
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   devtools: { enabled: true },
-  modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag", "@pinia/nuxt"],
+  experimental: {
+    watcher: 'parcel'
+  },
+  modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag", "@pinia/nuxt", "floating-vue/nuxt"],
+  ignore: ['.gradle/**', '.git/**', 'node_modules/**', 'dist/**', 'coverage/**'],
   tailwindcss: {
     cssPath: "../tailwind-components/assets/css/main.css",
     configPath: "../tailwind-components/tailwind.config.js",

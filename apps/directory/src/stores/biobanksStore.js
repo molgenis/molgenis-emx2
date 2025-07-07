@@ -12,7 +12,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
   const collectionStore = useCollectionStore();
   const filtersStore = useFiltersStore();
-  const { setError } = useErrorHandler();
+  const { setError, clearError } = useErrorHandler();
 
   const biobankReportColumns = settingsStore.config.biobankReportColumns;
   const biobankColumns = settingsStore.config.biobankColumns;
@@ -126,6 +126,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
 
       let biobankResult = [];
       try {
+        clearError();
         biobankResult = await baseQuery.execute();
       } catch (error) {
         setError(error);
@@ -158,6 +159,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       .where("id")
       .equals(id);
     try {
+      clearError();
       return await biobankReportQuery.execute();
     } catch (error) {
       setError(error);

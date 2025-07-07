@@ -14,7 +14,7 @@ import initialStudyColumns from "../property-config/initialStudyColumns";
  * This means that user config from the database is merged with the defaults here.
  */
 
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 
 export const useSettingsStore = defineStore("settingsStore", () => {
   const session = ref({});
@@ -24,8 +24,10 @@ export const useSettingsStore = defineStore("settingsStore", () => {
   const config = ref({
     language: "en",
     graphqlEndpoint: "graphql",
-    negotiatorType: "eric-negotiator",
+    negotiatorType: "v3",
     negotiatorUrl: "https://negotiator.acc.bbmri-eric.eu/api/v3/requests",
+    negotiatorUsername: "",
+    negotiatorPassword: "",
     biobankColumns: initialBiobankColumns,
     biobankReportColumns: initialBiobankReportColumns,
     collectionColumns: initialCollectionColumns,
@@ -58,6 +60,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
 
   async function loadConfig() {
     configurationFetched.value = false;
+    clearError();
 
     let configPromise;
     try {

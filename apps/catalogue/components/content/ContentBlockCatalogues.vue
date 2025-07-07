@@ -28,8 +28,13 @@ const props = defineProps<{
         >
           <TableCell class="hidden sm:table-cell">
             <NuxtLink :to="`/${catalogue.id}`">
-              <div class="items-center flex justify-center w-32">
-                <img :src="catalogue?.logo?.url" />
+              <div class="items-center flex justify-center w-32 h-12">
+                <img
+                  v-if="catalogue?.logo?.url"
+                  :src="catalogue?.logo?.url"
+                  class="h-full object-contain"
+                  :alt="catalogue.name"
+                />
               </div>
             </NuxtLink>
           </TableCell>
@@ -41,7 +46,7 @@ const props = defineProps<{
               >
             </NuxtLink>
           </TableCell>
-          <TableCell class="hidden sm:table-cell">
+          <TableCell class="hidden sm:table-cell text-title-contrast">
             <NuxtLink :to="`/${catalogue.id}`">
               {{ catalogue?.name }}
             </NuxtLink>
