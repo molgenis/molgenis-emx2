@@ -57,8 +57,10 @@ public class TestLoaders {
     assertEquals(24, dataCatalogue.getTableNames().size());
 
     // check compliance - when compliant, add: DCAT_AP_SHACL_FILES and HEALTH_RI_V2_SHACL_FILES
+    //    adheresToShacl(dataCatalogue, "dcat-ap-v3");
     adheresToShacl(dataCatalogue, "fdp-v1.2");
     adheresToShacl(dataCatalogue, "hri-v1");
+    //    adheresToShacl(dataCatalogue, "hri-v2");
     adheresToShacl(dataCatalogue, "ejp-rd-vp");
   }
 

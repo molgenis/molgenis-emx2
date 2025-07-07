@@ -228,10 +228,7 @@ public class RDFApi {
 
   private static ShaclSet retrieveShaclSet(String name) {
     ShaclSet shaclSet = ShaclSelector.get(name);
-    if (shaclSet == null)
-      throw new MolgenisException(
-          "The given name for a validation set was not found. Allowed values: "
-              + ShaclSelector.getNames().stream().sorted().toList());
+    if (shaclSet == null) throw new MolgenisException("Validation set could not be found.");
     return shaclSet;
   }
 
