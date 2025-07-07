@@ -3,6 +3,8 @@ package org.molgenis.emx2.rdf.writers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.eclipse.rdf4j.common.exception.ValidationException;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Model;
@@ -57,6 +59,9 @@ public class ShaclResultWriter extends RdfWriter {
   }
 
   private void addRules(ShaclSet shaclSet) throws IOException {
+    logger.debug(
+        "Adding SHACL validation files: "
+            + Arrays.stream(shaclSet.files()).collect(Collectors.joining(", ")));
     for (int i = 0; i < shaclSet.files().length; i++) {
       try (InputStream inputStream = shaclSet.getInputStream(i)) {
         connection.begin();

@@ -493,9 +493,9 @@ public class RDFTest {
 
   @Test
   void testPetStoreShaclSimpleEmx2() throws IOException, NoSuchMethodException {
+    // ShaclSet prepends "_shacl" to simulate folder where data would be reachable in production.
     ShaclSet shaclSet =
-        new ShaclSet(
-            "test", null, null, null, new String[] {"shacl_files/pet_store/simple/shacl.ttl"});
+        new ShaclSet("test", null, null, null, new String[] {"pet_store_simple/shacl.ttl"});
 
     compareToValidationFile(
         "shacl_files/pet_store/simple/output_emx2.ttl",
@@ -509,9 +509,9 @@ public class RDFTest {
 
   @Test
   void testPetStoreShaclSimpleSemantic() throws IOException, NoSuchMethodException {
+    // ShaclSet prepends "_shacl" to simulate folder where data would be reachable in production.
     ShaclSet shaclSet =
-        new ShaclSet(
-            "test", null, null, null, new String[] {"shacl_files/pet_store/simple/shacl.ttl"});
+        new ShaclSet("test", null, null, null, new String[] {"pet_store_simple/shacl.ttl"});
 
     compareToValidationFile(
         "shacl_files/pet_store/simple/output_semantic.ttl",

@@ -6,10 +6,14 @@ import java.util.Objects;
 
 public record ShaclSet(
     String name, String description, String version, String[] sources, String[] files) {
+  // YAML stores path based on sets.yaml location while this variable contains any path adjustments
+  // relevant for using the classLoader (based on where build.gradle actually places the files).
+  public static final String PATH_PREFIX = "_shacl/";
+
   private static final ClassLoader classLoader = ShaclSet.class.getClassLoader();
 
   public InputStream getInputStream(int i) {
-    return classLoader.getResourceAsStream(files[i]);
+    return classLoader.getResourceAsStream(PATH_PREFIX + files[i]);
   }
 
   @Override
