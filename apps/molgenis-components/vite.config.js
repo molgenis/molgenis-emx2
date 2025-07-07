@@ -68,7 +68,7 @@ if (process.env.SHOW_CASE !== "on") {
     outDir: "./showCase",
   };
 
-  conf.base = ""; // use relative base path for use in public_html/app folder
+  conf.base = "apps/molgenis-components/";
 }
 
 // https://vitejs.dev/config/

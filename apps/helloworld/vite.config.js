@@ -1,10 +1,10 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [vue()],
-  base: "apps/helloworld/",
+  base: command === "serve" ? "/" : "apps/helloworld/",
   server: {
     proxy: require("../dev-proxy.config"),
   },
-});
+}));

@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
-export default defineConfig(() => {
+export default defineConfig((command) => {
   require("dotenv").config({ path: `./.env` });
 
   return {
@@ -18,7 +18,7 @@ export default defineConfig(() => {
       },
     },
     plugins: [vue()],
-    base: "apps/cranio-provider/",
+    base: command === "serve" ? "/" : "apps/cranio-provider/",
     server: {
       proxy: require("../dev-proxy.config"),
     },

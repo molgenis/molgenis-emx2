@@ -1,8 +1,8 @@
 import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  base: "apps/graphql-playground/",
+export default defineConfig(({ command }) => ({
+  base: command === "serve" ? "/" : "apps/graphql-playground/",
   server: {
     proxy: require("../dev-proxy.config"),
   },
@@ -12,4 +12,4 @@ export default defineConfig({
     },
     target: "esnext",
   },
-});
+}));

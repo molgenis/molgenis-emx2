@@ -34,6 +34,7 @@ export default defineConfig(({ command, mode }) => {
   if (command === 'serve') {
     return {
       ...conf,
+      base: "/",
       server: {
         proxy: require("../dev-proxy.config"),
       },
