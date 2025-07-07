@@ -1,14 +1,16 @@
 - name: fdp-v1.2
   description: FAIR Data Point
   version: 1.2
-  sources: https://specs.fairdatapoint.org/fdp-specs-v1.2.html
+  sources:
+    - https://specs.fairdatapoint.org/fdp-specs-v1.2.html
   files:
     - fair_data_point/v1.2/CatalogShape.ttl
     - fair_data_point/v1.2/FAIRDataPointShape.ttl
 - name: dcat-ap-v3
   description: DCAT-AP
   version: 3.0.0
-  sources: https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
+  sources:
+    - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
   files:
     - dcat-ap/v3.0.0/imports.ttl
     - dcat-ap/v3.0.0/mdr-vocabularies.shape.ttl
@@ -31,7 +33,8 @@
 - name: hri-v2
   description: Health RI
   version: 2
-  sources: https://github.com/Health-RI/health-ri-metadata/releases/tag/v2.0.0
+  sources:
+    - https://github.com/Health-RI/health-ri-metadata/releases/tag/v2.0.0
   files:
     - SHACL/Health-RI/v2.0.0/HRI-Datamodel-shapes.ttl
 - name: EJP_RD_VP
