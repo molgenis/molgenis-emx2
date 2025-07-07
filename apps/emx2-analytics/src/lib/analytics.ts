@@ -1,5 +1,5 @@
-import type { Provider, siteImproveOptions } from "../types/Provider";
-import { type Trigger } from "../types/Trigger";
+import { Provider, siteImproveOptions } from "../types/Provider";
+import { Trigger } from "../types/Trigger";
 import {
   handleEvent as siteImprove,
   initialize as siteImproveInit,
