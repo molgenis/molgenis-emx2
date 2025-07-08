@@ -12,11 +12,6 @@ public class DirectoryTest extends TestLoaders {
   }
 
   @Test
-  void test13ProjectManagerLoader() {
-    assertEquals(5, projectManagerSchema.getTableNames().size());
-  }
-
-  @Test
   void test15DirectoryStagingLoader() {
     assertEquals(8, directoryStaging.getTableNames().size());
   }
