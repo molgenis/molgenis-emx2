@@ -1,0 +1,16 @@
+#!/bin/sh
+
+exit_code=0
+start_commit=$(git rev-parse HEAD);
+
+while read local_ref local_oid remote_ref remote_oid
+do
+  git checkout "${local_ref}"
+  if ! ./gradlew spotlessCheck ; then
+    exit_code=1
+    break
+  fi
+done
+
+git checkout "${start_commit}"
+exit "${exit_code}"

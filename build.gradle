@@ -127,3 +127,10 @@ task installPreCommitGitFormatApplyHook(type: Copy) {
     into { new File(rootProject.rootDir, '.git/hooks') }
     fileMode 0775
 }
+
+task installPrePushGitHook(type: Copy) {
+    from new File(rootProject.rootDir, 'pre-push-hook')
+    rename 'pre-push-hook', 'pre-push'
+    into { new File(rootProject.rootDir, '.git/hooks') }
+    fileMode 0775
+}
