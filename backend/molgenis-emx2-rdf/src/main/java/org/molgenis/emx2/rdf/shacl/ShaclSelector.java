@@ -11,6 +11,8 @@ import java.util.Set;
 import org.molgenis.emx2.MolgenisException;
 
 public abstract class ShaclSelector {
+  private static final String SETS_YAML_PATH = "_shacl/sets.yaml";
+
   private static final ClassLoader classLoader = ShaclSelector.class.getClassLoader();
   private static final Map<String, ShaclSet> shaclSetMap = new HashMap<>();
 
@@ -22,7 +24,7 @@ public abstract class ShaclSelector {
     shaclSetMap.clear();
 
     ShaclSet[] ShaclSetArray;
-    try (InputStream inputStream = classLoader.getResourceAsStream("_shacl/sets.yaml")) {
+    try (InputStream inputStream = classLoader.getResourceAsStream(SETS_YAML_PATH)) {
       String yaml = new String(Objects.requireNonNull(inputStream).readAllBytes());
       ShaclSetArray =
           JsonMapper.builder(new YAMLFactory()).build().readValue(yaml, ShaclSet[].class);
