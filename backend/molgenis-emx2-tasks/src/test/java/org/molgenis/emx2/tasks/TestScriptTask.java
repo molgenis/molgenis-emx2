@@ -108,7 +108,7 @@ print('unreachable')
     TaskServiceInDatabase taskService =
         new TaskServiceInDatabase(SYSTEM_SCHEMA, URI.create("http://localhost:8080/").toURL());
 
-    SqlDatabase database = new SqlDatabase(false);
+    SqlDatabase database = new SqlDatabase(true);
     database.becomeAdmin();
     Schema schema = database.getSchema(SYSTEM_SCHEMA);
 
@@ -140,7 +140,7 @@ print('unreachable')
     TaskServiceInDatabase taskService =
         new TaskServiceInDatabase(SYSTEM_SCHEMA, URI.create("http://localhost:8080/").toURL());
 
-    SqlDatabase database = new SqlDatabase(false);
+    SqlDatabase database = new SqlDatabase(true);
     database.becomeAdmin();
     Schema schema = database.getSchema(SYSTEM_SCHEMA);
 
