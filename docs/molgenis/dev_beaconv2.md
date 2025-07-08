@@ -207,7 +207,7 @@ This enables more flexible data handling and ensures your data conforms to the G
 your specific use cases.
 
 #### Accessing the Template Editor
-- Log in to as admin.
+- Log in as admin.
 - Click the Templates tab.
 - Click on the entity type you want to configure.
 - Select the schema/database for the template.
