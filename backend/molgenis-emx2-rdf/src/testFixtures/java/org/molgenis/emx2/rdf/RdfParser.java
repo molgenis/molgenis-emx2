@@ -1,5 +1,7 @@
 package org.molgenis.emx2.rdf;
 
+import static org.eclipse.rdf4j.rio.helpers.BasicParserSettings.PRESERVE_BNODE_IDS;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -80,6 +82,7 @@ public abstract class RdfParser {
 
   private static void parseRdf(RDFHandler handler, Reader reader) throws IOException {
     RDFParser parser = Rio.createParser(RDFFormat.TURTLE);
+    parser.set(PRESERVE_BNODE_IDS, true);
     parser.setRDFHandler(handler);
     parser.parse(reader);
   }
