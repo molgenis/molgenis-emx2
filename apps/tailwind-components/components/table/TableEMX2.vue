@@ -1,12 +1,12 @@
 <template>
   <div class="flex pb-[30px] justify-between">
-    <FilterSearch
+    <InputSearch
       class="w-3/5 xl:w-2/5 2xl:w-1/5"
-      :modelValue="settings.search"
+      v-model="settings.search"
       @update:modelValue="handleSearchRequest"
-      :inverted="true"
-    >
-    </FilterSearch>
+      :placeholder="`Search ${props.tableId}`"
+      id="search-input"
+    />
 
     <div class="flex gap-[10px]">
       <AddModal

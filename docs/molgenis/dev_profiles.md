@@ -33,7 +33,7 @@ The most common options for profiles are:
 |-------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | name        | Short name of this profile.                                                                                                                                 |
 | description | Longer description of this profile.                                                                                                                         |
-| profileTags | Tags that should match tagged tables or columns in the shared data model. Use comma to add multiple, e.g. "DCAT, RD3, JRC-CDE".                             |
+| profileTags | Tags that should match tagged tables or columns in the shared data model. Use comma to add multiple, e.g. "DCAT, RD3".                                      |
 | demoData    | Folder with demonstration (i.e. example) data sets of specific application data. Use comma to add multiple, "_demodata/folder1, otherdata/folder2".         |
 | settings    | Folder with settings files such as molgenis_settings.csv or molgenis_members.csv. Use comma to add multiple, "mysettings1.csv, folder1/othersettings2.csv". |
 
@@ -61,7 +61,6 @@ profileTags:  SharedStaging,
               GDI T8.2 union,
               DCAT,
               RD3,
-              JRC-CDE,
               FAIR Genomes,
               Beacon v2
 demoData: _demodata/applications/datacatalogue_sharedstaging
