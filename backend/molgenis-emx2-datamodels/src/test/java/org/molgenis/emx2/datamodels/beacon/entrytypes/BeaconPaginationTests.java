@@ -7,9 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.PatientRegistryTest;
+import org.molgenis.emx2.datamodels.TestLoaders;
 
-public class BeaconPaginationTests extends PatientRegistryTest {
+public class BeaconPaginationTests extends TestLoaders {
 
   @Test
   public void testPagination_TwoItems_Offset0() throws Exception {
@@ -25,7 +25,7 @@ public class BeaconPaginationTests extends PatientRegistryTest {
                             }
                           }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(2, results.size());
@@ -47,7 +47,7 @@ public class BeaconPaginationTests extends PatientRegistryTest {
                             }
                           }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(2, results.size());
@@ -69,7 +69,7 @@ public class BeaconPaginationTests extends PatientRegistryTest {
                             }
                           }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(23, results.size());

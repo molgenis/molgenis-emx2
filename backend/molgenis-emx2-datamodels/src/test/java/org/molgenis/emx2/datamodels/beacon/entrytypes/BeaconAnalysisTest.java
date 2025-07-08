@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.PatientRegistryTest;
+import org.molgenis.emx2.datamodels.TestLoaders;
 import org.molgenis.emx2.datamodels.beacon.BeaconTestUtil;
 
-public class BeaconAnalysisTest extends PatientRegistryTest {
+public class BeaconAnalysisTest extends TestLoaders {
 
   @Test
   public void testAnalyses_NoParams() {

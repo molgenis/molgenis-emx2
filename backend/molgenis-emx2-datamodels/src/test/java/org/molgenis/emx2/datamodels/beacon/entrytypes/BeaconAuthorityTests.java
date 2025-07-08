@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.PatientRegistryTest;
+import org.molgenis.emx2.datamodels.TestLoaders;
 
-public class BeaconAuthorityTests extends PatientRegistryTest {
+public class BeaconAuthorityTests extends TestLoaders {
 
   public static final String VIEWER_TEST_USER = "VIEWER_TEST_USER";
   public static final String AGGREGATOR_TEST_USER = "AGGREGATOR_TEST_USER";
@@ -30,31 +30,31 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
   @BeforeAll
   public void setup() {
     super.setup();
-    patientRegistrySchema.addMember(VIEWER_TEST_USER, VIEWER.toString());
-    patientRegistrySchema.addMember(AGGREGATOR_TEST_USER, AGGREGATOR.toString());
-    patientRegistrySchema.addMember(COUNT_TEST_USER, COUNT.toString());
-    patientRegistrySchema.addMember(EXISTS_TEST_USER, EXISTS.toString());
-    patientRegistrySchema.addMember(RANGE_TEST_USER, RANGE.toString());
-    patientRegistrySchema.removeMember(ANONYMOUS);
+    patientRegistry.addMember(VIEWER_TEST_USER, VIEWER.toString());
+    patientRegistry.addMember(AGGREGATOR_TEST_USER, AGGREGATOR.toString());
+    patientRegistry.addMember(COUNT_TEST_USER, COUNT.toString());
+    patientRegistry.addMember(EXISTS_TEST_USER, EXISTS.toString());
+    patientRegistry.addMember(RANGE_TEST_USER, RANGE.toString());
+    patientRegistry.removeMember(ANONYMOUS);
     database.setActiveUser(VIEWER_TEST_USER);
   }
 
   @AfterAll
   public void after() {
     database.becomeAdmin();
-    patientRegistrySchema = database.getSchema(SCHEMA_NAME);
-    patientRegistrySchema.addMember(ANONYMOUS, VIEWER.toString());
+    patientRegistry = database.getSchema(PATIENT_REGISTRY);
+    patientRegistry.addMember(ANONYMOUS, VIEWER.toString());
   }
 
   @Test
   public void testRecordQueryAsViewerUser_tenRecords() {
     database.setActiveUser(VIEWER_TEST_USER);
-    patientRegistrySchema = database.getSchema(SCHEMA_NAME);
+    patientRegistry = database.getSchema(PATIENT_REGISTRY);
     Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
 
     assertEquals(10, results.size());
@@ -63,12 +63,12 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
   @Test
   public void testRecordQueryAsAggregateUser_noRecords() {
     database.setActiveUser(AGGREGATOR_TEST_USER);
-    patientRegistrySchema = database.getSchema(SCHEMA_NAME);
+    patientRegistry = database.getSchema(PATIENT_REGISTRY);
     Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     JsonNode resultsSets = json.get("response").get("resultSets");
 
     assertEquals(0, resultsSets.size());
@@ -77,7 +77,7 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
   @Test
   public void testCountQueryAsAggregatorUser() throws JsonProcessingException {
     database.setActiveUser(AGGREGATOR_TEST_USER);
-    patientRegistrySchema = database.getSchema(SCHEMA_NAME);
+    patientRegistry = database.getSchema(PATIENT_REGISTRY);
     BeaconRequestBody beaconRequest =
         mockIndividualsPostRequestRegular(
             """
@@ -87,7 +87,7 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
                             }
                           }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
     assertEquals(23, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
     assertNull(json.get("response").get("resultSets").get(0).get("results"));
@@ -97,7 +97,7 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
   public void testCountQueryAsExistsUser_noRecords()
       throws JsonProcessingException, InterruptedException {
     database.setActiveUser(EXISTS_TEST_USER);
-    patientRegistrySchema = database.getSchema(SCHEMA_NAME);
+    patientRegistry = database.getSchema(PATIENT_REGISTRY);
     BeaconRequestBody beaconRequest =
         mockIndividualsPostRequestRegular(
             """
@@ -107,7 +107,7 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
                             }
                           }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertFalse(json.get("responseSummary").get("exists").booleanValue());
     assertEquals(0, json.get("responseSummary").get("numTotalResults").intValue());
   }
@@ -115,7 +115,7 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
   @Test
   public void testExistsQueryAsExistsUser_true() throws JsonProcessingException {
     database.setActiveUser(EXISTS_TEST_USER);
-    patientRegistrySchema = database.getSchema(SCHEMA_NAME);
+    patientRegistry = database.getSchema(PATIENT_REGISTRY);
     BeaconRequestBody beaconRequest =
         mockIndividualsPostRequestRegular(
             """
@@ -125,7 +125,7 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
                             }
                           }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
     assertFalse(json.get("response").get("resultSets").get(0).has("resultsCount"));
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
@@ -134,12 +134,12 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
   @Test
   public void testRecordQueryAsExistsUser_noRecords() {
     database.setActiveUser(EXISTS_TEST_USER);
-    patientRegistrySchema = database.getSchema(SCHEMA_NAME);
+    patientRegistry = database.getSchema(PATIENT_REGISTRY);
     Context request = mockEntryTypeRequestRegular(EntryType.INDIVIDUALS.getId(), new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     JsonNode resultsSets = json.get("response").get("resultSets");
 
     assertEquals(0, resultsSets.size());
@@ -148,7 +148,7 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
   @Test
   public void testCountQueryAsRangeUser_range() throws JsonProcessingException {
     database.setActiveUser(RANGE_TEST_USER);
-    patientRegistrySchema = database.getSchema(SCHEMA_NAME);
+    patientRegistry = database.getSchema(PATIENT_REGISTRY);
     BeaconRequestBody beaconRequestBody =
         mockIndividualsPostRequestRegular(
             """
@@ -158,7 +158,7 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
                 }
               }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequestBody);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
     JsonNode resultSet = json.get("response").get("resultSets").get(0);
     assertTrue(resultSet.has("resultsCount"));
@@ -172,7 +172,7 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
   @Test
   public void testCountQueryAsCountUser_fiveResults() throws JsonProcessingException {
     database.setActiveUser(COUNT_TEST_USER);
-    patientRegistrySchema = database.getSchema(SCHEMA_NAME);
+    patientRegistry = database.getSchema(PATIENT_REGISTRY);
     BeaconRequestBody beaconRequestBody =
         mockIndividualsPostRequestRegular(
             """
@@ -182,7 +182,7 @@ public class BeaconAuthorityTests extends PatientRegistryTest {
                 }
               }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequestBody);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
     JsonNode resultSet = json.get("response").get("resultSets").get(0);
     assertTrue(resultSet.has("resultsCount"));

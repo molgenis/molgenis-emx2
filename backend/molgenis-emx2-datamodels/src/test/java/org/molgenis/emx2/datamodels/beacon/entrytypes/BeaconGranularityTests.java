@@ -10,10 +10,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.PatientRegistryTest;
+import org.molgenis.emx2.datamodels.TestLoaders;
 import org.molgenis.emx2.datamodels.beacon.BeaconTestUtil;
 
-public class BeaconGranularityTests extends PatientRegistryTest {
+public class BeaconGranularityTests extends TestLoaders {
 
   @Test
   public void testRequestedGranularity_requestBoolean() throws Exception {
@@ -26,7 +26,7 @@ public class BeaconGranularityTests extends PatientRegistryTest {
                             }
                           }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertNull(json.get("response").get("resultSets").get(0).get("results"));
     assertNull(json.get("response").get("resultSets").get(0).get("resultsCount"));
@@ -43,7 +43,7 @@ public class BeaconGranularityTests extends PatientRegistryTest {
                             }
                           }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertEquals(23, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
     assertNull(json.get("response").get("resultSets").get(0).get("results"));
   }
@@ -55,7 +55,7 @@ public class BeaconGranularityTests extends PatientRegistryTest {
         new BeaconRequestBody(BeaconTestUtil.mockEntryTypeRequestRegular("Individuals", params));
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertEquals(23, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
     assertNull(json.get("response").get("resultSets").get(0).get("results"));
   }

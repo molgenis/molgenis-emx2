@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.PatientRegistryTest;
+import org.molgenis.emx2.datamodels.TestLoaders;
 
 @Disabled
-public class BeaconCohortsTests extends PatientRegistryTest {
+public class BeaconCohortsTests extends TestLoaders {
 
   @Test
   public void testCohorts_NoParams() {

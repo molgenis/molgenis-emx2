@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.PatientRegistryTest;
+import org.molgenis.emx2.datamodels.TestLoaders;
 import org.molgenis.emx2.datamodels.beacon.BeaconTestUtil;
 
-public class BeaconGenomicVariantTest extends PatientRegistryTest {
+public class BeaconGenomicVariantTest extends TestLoaders {
 
   @Test
   public void testGenomicVariants_SequenceQuery() {
@@ -29,7 +29,7 @@ public class BeaconGenomicVariantTest extends PatientRegistryTest {
                 "alternateBases", List.of("g")));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode queryResult = queryEntryType.query(patientRegistrySchema);
+    JsonNode queryResult = queryEntryType.query(patientRegistry);
     JsonNode results = queryResult.get("response").get("resultSets").get(0).get("results");
 
     assertEquals(1, results.size());
@@ -48,7 +48,7 @@ public class BeaconGenomicVariantTest extends PatientRegistryTest {
                 "alternateBases", List.of("a")));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode result = queryEntryType.query(patientRegistrySchema);
+    JsonNode result = queryEntryType.query(patientRegistry);
     assertFalse(result.get("responseSummary").get("exists").booleanValue());
   }
 
@@ -65,7 +65,7 @@ public class BeaconGenomicVariantTest extends PatientRegistryTest {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode queryResult = queryEntryType.query(patientRegistrySchema);
+    JsonNode queryResult = queryEntryType.query(patientRegistry);
     assertEquals(2, queryResult.get("responseSummary").get("numTotalResults").intValue());
     JsonNode results = queryResult.get("response").get("resultSets").get(0).get("results");
 
@@ -80,7 +80,7 @@ public class BeaconGenomicVariantTest extends PatientRegistryTest {
             "g_variants", Map.of("geneId", List.of("SNRPB")));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode result = queryEntryType.query(patientRegistrySchema);
+    JsonNode result = queryEntryType.query(patientRegistry);
     assertEquals(3, result.get("responseSummary").get("numTotalResults").intValue());
   }
 
@@ -95,7 +95,7 @@ public class BeaconGenomicVariantTest extends PatientRegistryTest {
                 "referenceName", List.of("20")));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode queryResult = queryEntryType.query(patientRegistrySchema);
+    JsonNode queryResult = queryEntryType.query(patientRegistry);
 
     JsonNode results = queryResult.get("response").get("resultSets").get(0).get("results");
 
@@ -129,7 +129,7 @@ public class BeaconGenomicVariantTest extends PatientRegistryTest {
     BeaconRequestBody beaconRequest = mapper.readValue(body, BeaconRequestBody.class);
     beaconRequest.addRequestParameters(request);
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(3, results.size());
   }

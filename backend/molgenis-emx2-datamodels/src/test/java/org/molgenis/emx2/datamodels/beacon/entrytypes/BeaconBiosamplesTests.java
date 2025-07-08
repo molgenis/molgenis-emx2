@@ -14,9 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.PatientRegistryTest;
+import org.molgenis.emx2.datamodels.TestLoaders;
 
-public class BeaconBiosamplesTests extends PatientRegistryTest {
+public class BeaconBiosamplesTests extends TestLoaders {
 
   @Test
   public void testBiosamples_NoParams() {

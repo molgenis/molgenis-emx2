@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.datamodels.PatientRegistryTest;
+import org.molgenis.emx2.datamodels.TestLoaders;
 import org.molgenis.emx2.datamodels.beacon.BeaconTestUtil;
 
-public class BeaconIndividualsTests extends PatientRegistryTest {
+public class BeaconIndividualsTests extends TestLoaders {
 
   @Test
   public void testIndividuals_NoParams() {
@@ -69,7 +69,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(8, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
@@ -96,7 +96,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertFalse(json.get("responseSummary").get("exists").booleanValue());
   }
 
@@ -117,7 +117,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(20, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
@@ -139,7 +139,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(8, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
@@ -161,7 +161,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertEquals("[NCIT_C28421]", json.get("info").get("unsupportedFilters").textValue());
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
@@ -185,7 +185,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -208,7 +208,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("responseSummary").get("numTotalResults").intValue());
   }
@@ -235,7 +235,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
   }
@@ -257,7 +257,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -280,7 +280,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
     assertFalse(json.get("responseSummary").get("exists").booleanValue());
   }
 
@@ -302,7 +302,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -326,7 +326,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertFalse(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
   }
@@ -349,7 +349,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(3, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -373,7 +373,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -397,7 +397,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -421,7 +421,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertFalse(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
   }
@@ -443,7 +443,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -466,7 +466,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertFalse(json.get("responseSummary").get("exists").booleanValue());
   }
@@ -488,7 +488,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -511,7 +511,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertFalse(json.get("responseSummary").get("exists").booleanValue());
   }
@@ -533,7 +533,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -556,7 +556,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -579,7 +579,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(4, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -602,7 +602,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertEquals("[ncit:C15642]", json.get("info").get("unsupportedFilters").textValue());
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
@@ -625,7 +625,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -648,7 +648,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -671,7 +671,7 @@ public class BeaconIndividualsTests extends PatientRegistryTest {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistrySchema);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
