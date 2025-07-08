@@ -15,7 +15,6 @@ public abstract class ShaclSelector {
   private static final Map<String, ShaclSet> shaclSetMap = new HashMap<>();
 
   static {
-    // todo: fix "Could not initialize class org.molgenis.emx2.rdf.shacl.ShaclSelector"
     update();
   }
 
