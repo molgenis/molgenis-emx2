@@ -88,26 +88,49 @@ All data is exported as a stream, which means that the response does not include
 Listed below are the available options.
 
 ### Retrieve everything / multiple schemas
-Using `<server>/api/rdf`, all data from this MOLGENIS instance is retrieved and exported as RDF.
-Optionally use 'schemas' parameter to filter what schemas to be included. E.g. `<server>/api/rdf?schemas=foo,bar` will only retrieve from schemas 'foo' and 'bar'
+Path: `<server>/api/rdf`  
+Parameters (optional):
+- `schemas=<schema-name>,...` -> only retrieve data from schema's defined in comma separated list
+
+This API point retrieves all data available in this MOLGENIS instance as RDF.
+
+The optional `schemas` parameter filters the output so that only those schema's are included in the output.
+For example, `<server>/api/rdf?schemas=foo,bar` will only retrieve from schemas 'foo' and 'bar'.
 Of course, this is limited to data to which the currently logged-in user (or anonymous user) has access to.
 
 ### Retrieve one schema
+Path: `<server>/<schema>/api/rdf`  
+Example: `<server>/pet%20store/api/rdf`  
+Parameters (optional):
+- `validate=<name>` -> instead of retrieving the RDF output, validate on the validation set `name` instead ([default allowed values](https://github.com/molgenis/molgenis-emx2/blob/master/data/_shacl/sets.yaml))
+
 By including a database schema name in the URL, data from one particular schema is retrieved and exported as RDF.
 The schema name is added between the server location and RDF API location: `<server>/<schema>/api/rdf`.
-For example: `<server>/pet%20store/api/rdf`.
+
+If the optional parameter `validate` is added together with a validation set name, the API point will return SHACL
+validation results instead of the RDF output.
+For example, `<server>/pet%20store/api/rdf?validate=fdp-v1.2` would validate the `pet store` schema whether it is compliant with the SHACLs for FAIR Data Point version 1.2.
+The allowed values are defined through a `sets.yaml` which can be found [here](https://github.com/molgenis/molgenis-emx2/blob/master/data/_shacl/sets.yaml).
 
 ### Retrieve one table
-One particular table from a schema can be retrieved by adding a table name to a URL that also contains schema name: `<server>/<schema>/api/rdf/<table>`.
-For example: `<server>/pet%20store/api/rdf/Pet`
+Path: `<server>/<schema>/api/rdf/<table>`  
+Example: `<server>/pet%20store/api/rdf/Pet`
+
+One particular table from a schema can be retrieved by adding a table name to a URL that also contains schema name.
 
 ### Retrieve one column
-One particular column from a table within a schema can be retrieved by adding a column name to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>/column/<column-name>`.
-For example: `<server>/pet%20store/api/rdf/Pet/column/name`
+Path: `<server>/<schema>/api/rdf/<table>/column/<column-name>`
+Example: `<server>/pet%20store/api/rdf/Pet/column/name`  
+  
+Details about one particular column from a table within a schema can be retrieved by adding a column name to a URL that also contains schema and table name.
+
+!> This only works if `emx2` is selected as [generator](#generator)
 
 ### Filter rows
-The rows from a table within a schema can be filtered based on a column value by adding these as a `key=value` pair to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>?<column-name>=<value>`.
-For example: `<server>/pet%20store/api/rdf/Pet?category=cat`
+Path: `<server>/<schema>/api/rdf/<table>?<column-name>=<value>`  
+Example: `<server>/pet%20store/api/rdf/Pet?category=cat`
+
+The rows from a table within a schema can be filtered based on a column value by adding these as a `key=value` pair to a URL that also contains schema and table name.
 
 ## Data formats
 Using the content negotiation, RDF can be exported in one of many available formats. For example the following curl command will download the pet store in jsonld:
