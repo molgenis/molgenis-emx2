@@ -23,14 +23,8 @@ information about how to create a database is found [here](use_database.md).
 This will add a number of tables that define the content of your Beacon v2, for
 example [Analyses](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Analyses.csv)
 and [Biosamples](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Biosamples.csv).
-Using the 'FAIR_DATA_HUB' template including the example data will result in an instantly working Beacon v2 API.
+Using the 'PATIENT_REGISTRY' template including the example data will result in an instantly working Beacon v2 API.
 The example data can be used as a reference on how to enter data into the system, but can be safely removed or replaced.
-
-The following data templates include a Beacon profile:
-
-- BeaconV2
-- FAIRDataHub <More info about these profiles?>
-- GDI
 
 After setup, the API is available at `<server>/<database>/api/beacon`.
 For instance, if your MOLGENIS runs at `https://emx2.test.molgenis.org` and your database name is `fdp` the Beacon v2
