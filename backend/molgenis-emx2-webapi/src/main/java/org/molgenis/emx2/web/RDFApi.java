@@ -71,11 +71,11 @@ public class RDFApi {
   }
 
   private static void rdfHead(Context ctx, RDFFormat format) {
-    ctx.contentType(selectFormat(ctx, format).getDefaultMIMEType());
+    setFormat(ctx, format);
   }
 
   private static void rdfForDatabase(Context ctx, RDFFormat format) throws IOException {
-    format = selectFormat(ctx, format); // defines format if null
+    format = setFormat(ctx, format);
 
     Database db = sessionManager.getSession(ctx.req()).getDatabase();
     Collection<String> availableSchemas = getSchemaNames(ctx);
@@ -95,8 +95,6 @@ public class RDFApi {
     String[] schemaNamesArr = schemaNames.toArray(new String[schemaNames.size()]);
     Schema[] schemas = new Schema[schemaNames.size()];
 
-    format = selectFormat(ctx, format);
-    ctx.contentType(format.getDefaultMIMEType());
     String baseUrl = extractBaseURL(ctx);
     try (OutputStream outputStream = ctx.outputStream()) {
       try (RdfRootService rdf = new RdfRootService(baseUrl, format, outputStream)) {
@@ -132,7 +130,7 @@ public class RDFApi {
       throws IOException, NoSuchMethodException {
     Method method = RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class);
     Schema schema = getSchema(ctx);
-    ShaclSet shaclSet = retrieveShaclSet(sanitize(ctx.queryParam("validate")));
+    ShaclSet shaclSet = retrieveShaclSet(ctx, sanitize(ctx.queryParam("validate")));
     runRdfValidationService(ctx, schema, format, shaclSet, method, schema);
   }
 
@@ -167,7 +165,7 @@ public class RDFApi {
       final Method method,
       final Object... methodArgs)
       throws IOException {
-    format = selectFormat(ctx, format); // defines format if null
+    format = setFormat(ctx, format);
     String baseUrl = extractBaseURL(ctx);
 
     Class serviceClass = RdfSchemaService.class;
@@ -188,7 +186,7 @@ public class RDFApi {
       final Method method,
       final Object... methodArgs)
       throws IOException {
-    format = selectFormat(ctx, format); // defines format if null
+    format = setFormat(ctx, format);
     String baseUrl = extractBaseURL(ctx);
 
     Class serviceClass = RdfSchemaValidationService.class;
@@ -226,14 +224,19 @@ public class RDFApi {
     }
   }
 
-  private static ShaclSet retrieveShaclSet(String name) {
+  private static ShaclSet retrieveShaclSet(Context ctx, String name) {
     ShaclSet shaclSet = ShaclSelector.get(name);
-    if (shaclSet == null) throw new MolgenisException("Validation set could not be found.");
+    if (shaclSet == null) {
+      ctx.status(404);
+      throw new MolgenisException("Validation set could not be found.");
+    }
     return shaclSet;
   }
 
-  private static RDFFormat selectFormat(Context ctx, RDFFormat format) {
-    return format == null ? selectFormat(ctx) : format;
+  private static RDFFormat setFormat(Context ctx, RDFFormat format) {
+    if (format == null) format = selectFormat(ctx);
+    ctx.contentType(format.getDefaultMIMEType());
+    return format;
   }
 
   public static RDFFormat selectFormat(Context ctx) {

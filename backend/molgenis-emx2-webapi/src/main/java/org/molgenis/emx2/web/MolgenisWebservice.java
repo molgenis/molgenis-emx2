@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 import io.javalin.json.JavalinJackson;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -131,7 +132,8 @@ public class MolgenisWebservice {
         Exception.class,
         (e, ctx) -> {
           logger.error(e.getMessage(), e);
-          ctx.status(400);
+          // If no explicit status code is set, default of org.eclipse.jetty.server.Response == 200
+          ctx.status((ctx.status().equals(HttpStatus.OK) ? HttpStatus.BAD_REQUEST : ctx.status()));
           ctx.json(molgenisExceptionToJson(e));
         });
   }

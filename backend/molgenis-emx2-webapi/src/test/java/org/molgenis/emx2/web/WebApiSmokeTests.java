@@ -51,6 +51,8 @@ public class WebApiSmokeTests {
 
   static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
 
+  private static final String EXCEPTION_CONTENT_TYPE = "application/json";
+
   public static final String DATA_PET_STORE = "/pet store/api/csv";
   public static final String PET_SHOP_OWNER = "pet_shop_owner";
   public static final String PET_SHOP_VIEWER = "shopviewer";
@@ -1023,6 +1025,19 @@ public class WebApiSmokeTests {
         .head(urlPrefix + "/pet store/api/jsonld");
     rdfApiContentTypeRequest(200, jsonldContentType, ttlContentType)
         .head(urlPrefix + "/pet store/api/ttl");
+
+    // Validate SHACL validation requests
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf?validate=fdp-v1.2");
+    rdfApiRequest(404, EXCEPTION_CONTENT_TYPE)
+        .get(urlPrefix + "/pet store/api/rdf?validate=nonExisting");
+
+    // TODO: Fix HEAD to be equal to GET requests
+    //  (out-of-scope because changes also influence other requests to RDF API)
+    // Validate head for SHACL validation requests
+    //    rdfApiRequest(200, defaultContentType).head(urlPrefix + "/pet
+    // store/api/rdf?validate=fdp-v1.2");
+    //    rdfApiRequest(404, EXCEPTION_CONTENT_TYPE)
+    //            .head(urlPrefix + "/pet store/api/rdf?validate=nonExisting");
   }
 
   @Test
