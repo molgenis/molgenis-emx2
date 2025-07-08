@@ -132,7 +132,8 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
     String columnName = "extraFile";
     String fileId = scriptMetadata.getString("extraFile");
     List<Row> fileRows =
-        table.query()
+        table
+            .query()
             .select(s(columnName, s("contents"), s("mimetype"), s("filename"), s("extension")))
             .where(f(columnName, f("id", EQUALS, fileId)))
             .retrieveRows();
