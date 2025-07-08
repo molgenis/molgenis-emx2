@@ -93,10 +93,10 @@ Parameters (optional):
 - `schemas=<schema-name>,...` -> only retrieve data from schema's defined in comma separated list
 
 This API point retrieves all data available in this MOLGENIS instance as RDF.
+Of course, this is limited to data to which the currently logged-in user (or anonymous user) has access to.
 
 The optional `schemas` parameter filters the output so that only those schema's are included in the output.
 For example, `<server>/api/rdf?schemas=foo,bar` will only retrieve from schemas 'foo' and 'bar'.
-Of course, this is limited to data to which the currently logged-in user (or anonymous user) has access to.
 
 ### Retrieve one schema
 Path: `<server>/<schema>/api/rdf`  
