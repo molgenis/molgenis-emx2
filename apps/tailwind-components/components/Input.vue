@@ -171,6 +171,15 @@
     @blur="emit('blur')"
     :is-array="true"
   />
+  <InputRefBack
+    v-else-if="['REFBACK'].includes(typeUpperCase)"
+    v-model="modelValue as columnValueObject[]"
+    :id="id"
+    :refSchemaId="refSchemaId as string"
+    :refTableId="refTableId as string"
+    :refLabel="refLabel as string"
+  />
+
   <InputOntology
     v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
     :modelValue="modelValue as columnValueObject ? (modelValue as columnValueObject)['name'] as string : undefined"
