@@ -1,0 +1,27 @@
+POST http://localhost:8080/cvTest/api/cafevariome/record
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ3NVRkaDJ1a3lvLTRVd1VXYUY0REJMUU8tT3k0N25meHNTOUxiTkVlWk4wIn0.eyJleHAiOjE3NDA1NzY1MDAsImlhdCI6MTc0MDU3NDcwMCwianRpIjoiMzM4MjY1NzUtYWZlZi00Y2ZhLWI4MzgtNWY4MGZjMTdhYzIyIiwiaXNzIjoiaHR0cHM6Ly9hdXRoMS5tb2xnZW5pcy5uZXQvcmVhbG1zL0NhZmUtVmFyaW9tZSIsImF1ZCI6WyJNb2xnZW5pc0F1dGgiLCJyZWFsbS1tYW5hZ2VtZW50IiwiYWNjb3VudCJdLCJzdWIiOiI5Nzg5OWVlZi1jYjAyLTRmMDktOGQzYi00ZDkxZWE1ZDUwM2QiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJDYWZlLVZhcmlvbWUtVjMiLCJzaWQiOiJjNGJjODI3My04OTY5LTRmM2YtODU4OS03MTNjZjU4ZDZhZDgiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vcmRuZXh1czIubW9sZ2VuaXMubmV0Il0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIiwiZGVmYXVsdC1yb2xlcy1jYWZlLXZhcmlvbWUiXX0sInJlc291cmNlX2FjY2VzcyI6eyJyZWFsbS1tYW5hZ2VtZW50Ijp7InJvbGVzIjpbInZpZXctaWRlbnRpdHktcHJvdmlkZXJzIiwidmlldy1yZWFsbSIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwicmVhbG0tYWRtaW4iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwicXVlcnktcmVhbG1zIiwidmlldy1hdXRob3JpemF0aW9uIiwicXVlcnktY2xpZW50cyIsInF1ZXJ5LXVzZXJzIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiLCJxdWVyeS1ncm91cHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmFtZSI6Ikhhcm0gQnJ1Z2dlIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiaGFybSIsImdpdmVuX25hbWUiOiJIYXJtIiwiZmFtaWx5X25hbWUiOiJCcnVnZ2UiLCJlbWFpbCI6Imhhcm1icnVnZ2VAZ21haWwuY29tIn0.A4eNe3IbCExmN3r8JGk0p-mlQfGoKneAVWsSjeK2RLMqE1W5umqP8rJr0cvFh6mLSyILetOj-sZckcbQYe4UL8lydis79d7hOTy9t_4N3jVbPVQJJYqrzUm2LmJ-32-Jx983wCdBF8atC_MEjSKx8Gk6Cz1v4nWESEg3-sMCpqUfvRtOG1PFwqsvc8Xw46zaaI5IXjpS_Mpjr0CwuTaYe_SSpEl4ElU7rN6rzPTiLiJMfq2tQqiwRpB82zpk3eVag42qw02dpBeYcRsKECT6BofVWpSuDWrHXR-bTO-b4xLYoRue7Wc5TqFTXEb3qd0T8WawzNwje1zbsoy8SSaciw
+
+{
+  "advanced": {
+    "granularity": "count",
+    "requiredFilters": {
+      "subject": false,
+      "hpo": false,
+      "ordo": false,
+      "genes": false,
+      "snomed": false,
+      "variant": false,
+      "source": false,
+      "eav": false,
+      "subjectCapability": {
+        "age": false,
+        "gender": false,
+        "familyType": false,
+        "affected": false
+      }
+    }
+  }
+}
+
+###
