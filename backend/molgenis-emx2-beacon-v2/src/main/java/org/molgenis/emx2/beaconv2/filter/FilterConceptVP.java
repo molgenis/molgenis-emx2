@@ -11,20 +11,17 @@ import org.molgenis.emx2.MolgenisException;
 public enum FilterConceptVP {
   AGE_THIS_YEAR("ncit:C83164", "{ yearOfBirth: { between: [%s, %s] } }"),
   AGE_OF_ONSET(
-      "ncit:C124353",
-      "{ clinicalObservations: { diseases: { ageOfOnset: { between: [%s, %s] } } } }"),
+      "ncit:C124353", "{ processes: { diseases: { ageOfOnset: { between: [%s, %s] } } } }"),
   AGE_AT_DIAG(
-      "ncit:C156420",
-      "{ clinicalObservations: { diseases: { ageAtDiagnosis: { between: [%s, %s] } }  } }"),
+      "ncit:C156420", "{ processes: { diseases: { ageAtDiagnosis: { between: [%s, %s] } }  } }"),
   CAUSAL_GENE(
-      "edam:data_2295",
-      "{ clinicalObservations: { molecularDiagnosisGene: { name: { equals: \"%s\" } } } }"),
+      "edam:data_2295", "{ processes: { molecularDiagnosisGene: { name: { equals: \"%s\" } } } }"),
   DISEASE(
       "ncit:C2991",
-      "{ clinicalObservations: { diseases: { disease: { ontologyTermURI: { like: \"%s\" } } } } }"),
+      "{ processes: { diseases: { disease: { ontologyTermURI: { like: \"%s\" } } } } }"),
   PHENOTYPE(
       "sio:SIO_010056",
-      "{ phenotypicFeatures: { featureType: { ontologyTermURI: { like: \"%s\" } } } }"),
+      "{ processes: { phenotypes: { type: { ontologyTermURI: { like: \"%s\" } } } } }"),
   SEX(
       "ncit:C28421",
       "{ genderAtBirth: { ontologyTermURI: { like: \"%s\" } } }",
