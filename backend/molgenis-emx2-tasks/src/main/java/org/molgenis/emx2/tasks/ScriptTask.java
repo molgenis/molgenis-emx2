@@ -34,12 +34,12 @@ public class ScriptTask extends Task {
   private byte[] output;
   private URL serverUrl;
 
-  private static final String EXTRAFILE = "extraFile";
-  private static final String EXTRAFILE_FILENAME = EXTRAFILE + "_filename";
-  private static final String EXTRAFILE_CONTENTS = EXTRAFILE + "_contents";
-  private static final String EXTRAFILE_EXTENSION = EXTRAFILE + "_extension";
-  private static final String EXTRAFILE_MIMETYPE = EXTRAFILE + "_mimetype";
-  private static final String EXTRAFILE_SIZE = EXTRAFILE + "_size";
+  private static final String EXTRA_FILE = "extraFile";
+  private static final String EXTRA_FILE_FILENAME = EXTRA_FILE + "_filename";
+  private static final String EXTRA_FILE_CONTENTS = EXTRA_FILE + "_contents";
+  private static final String EXTRA_FILE_EXTENSION = EXTRA_FILE + "_extension";
+  private static final String EXTRA_FILE_MIMETYPE = EXTRA_FILE + "_mimetype";
+  private static final String EXTRA_FILE_SIZE = EXTRA_FILE + "_size";
 
   public ScriptTask(String name) {
     super("Executing script '" + name + "'");
@@ -164,8 +164,8 @@ public class ScriptTask extends Task {
     Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
 
     String extractZipCommand = "";
-    if (this.extraFile != null && this.extraFile.get(EXTRAFILE) != null) {
-      String extraFileName = this.extraFile.get(EXTRAFILE_FILENAME).toString();
+    if (this.extraFile != null && this.extraFile.get(EXTRA_FILE) != null) {
+      String extraFileName = this.extraFile.get(EXTRA_FILE_FILENAME).toString();
       List<String> forbiddenFiles = Arrays.asList("venv.zip", "requirements.txt", "script.py");
       if (forbiddenFiles.contains(extraFileName)) {
         throw new MolgenisException(
@@ -174,8 +174,8 @@ public class ScriptTask extends Task {
                 + "'. "
                 + "Ensure the name of the extra file is not any of 'script.py', 'requirements.txt', or 'venv.zip'.");
       }
-      byte[] extraFileContent = (byte[]) this.extraFile.get(EXTRAFILE_CONTENTS);
-      Object extraFileExtension = this.extraFile.get(EXTRAFILE_EXTENSION);
+      byte[] extraFileContent = (byte[]) this.extraFile.get(EXTRA_FILE_CONTENTS);
+      Object extraFileExtension = this.extraFile.get(EXTRA_FILE_EXTENSION);
       Path extraFilePath = tempDir.resolve(extraFileName);
 
       try (FileOutputStream fos = new FileOutputStream(extraFilePath.toFile())) {
@@ -284,12 +284,12 @@ public class ScriptTask extends Task {
 
   public ScriptTask extraFile(Row scriptMetaData) {
     this.extraFile = new HashMap<>();
-    this.extraFile.put(EXTRAFILE, scriptMetaData.getString(EXTRAFILE));
-    this.extraFile.put(EXTRAFILE_MIMETYPE, scriptMetaData.getString(EXTRAFILE_MIMETYPE));
-    this.extraFile.put(EXTRAFILE_FILENAME, scriptMetaData.getString(EXTRAFILE_FILENAME));
-    this.extraFile.put(EXTRAFILE_EXTENSION, scriptMetaData.getString(EXTRAFILE_EXTENSION));
-    this.extraFile.put(EXTRAFILE_SIZE, scriptMetaData.getString(EXTRAFILE_SIZE));
-    this.extraFile.put(EXTRAFILE_CONTENTS, scriptMetaData.getBinary(EXTRAFILE_CONTENTS));
+    this.extraFile.put(EXTRA_FILE, scriptMetaData.getString(EXTRA_FILE));
+    this.extraFile.put(EXTRA_FILE_MIMETYPE, scriptMetaData.getString(EXTRA_FILE_MIMETYPE));
+    this.extraFile.put(EXTRA_FILE_FILENAME, scriptMetaData.getString(EXTRA_FILE_FILENAME));
+    this.extraFile.put(EXTRA_FILE_EXTENSION, scriptMetaData.getString(EXTRA_FILE_EXTENSION));
+    this.extraFile.put(EXTRA_FILE_SIZE, scriptMetaData.getString(EXTRA_FILE_SIZE));
+    this.extraFile.put(EXTRA_FILE_CONTENTS, scriptMetaData.getBinary(EXTRA_FILE_CONTENTS));
     return this;
   }
 
