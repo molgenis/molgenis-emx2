@@ -116,8 +116,8 @@ print('unreachable')
     Path path =
         new File(Objects.requireNonNull(classLoader.getResource("TestScriptTask")).getFile())
             .toPath();
-    ImportDirectoryTask t = new ImportDirectoryTask(path, schema, false);
-    t.run();
+    ImportDirectoryTask importDirectoryTask = new ImportDirectoryTask(path, schema, false);
+    importDirectoryTask.run();
 
     Task csvTask = taskService.getTask(taskService.submitTaskFromName("CSV attachment test", ""));
     TaskStatus csvTaskStatus = csvTask.getStatus();
@@ -148,8 +148,8 @@ print('unreachable')
     Path path =
         new File(Objects.requireNonNull(classLoader.getResource("TestScriptTask")).getFile())
             .toPath();
-    ImportDirectoryTask t = new ImportDirectoryTask(path, schema, false);
-    t.run();
+    ImportDirectoryTask importDirectoryTask = new ImportDirectoryTask(path, schema, false);
+    importDirectoryTask.run();
 
     Task venvTask =
         taskService.getTask(taskService.submitTaskFromName("Invalid filename test", ""));

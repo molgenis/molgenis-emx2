@@ -122,8 +122,8 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {
-    Table t = systemSchema.getTable("Scripts");
-    List<Row> rows = t.where(f("name", EQUALS, scriptName)).retrieveRows();
+    Table table = systemSchema.getTable("Scripts");
+    List<Row> rows = table.where(f("name", EQUALS, scriptName)).retrieveRows();
     if (rows.size() != 1) {
       throw new MolgenisException("Script " + scriptName + " not found");
     }
@@ -132,7 +132,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
     String columnName = "extraFile";
     String fileId = scriptMetadata.getString("extraFile");
     List<Row> fileRows =
-        t.query()
+        table.query()
             .select(s(columnName, s("contents"), s("mimetype"), s("filename"), s("extension")))
             .where(f(columnName, f("id", EQUALS, fileId)))
             .retrieveRows();
