@@ -49,7 +49,7 @@ public abstract class RdfParser {
 
       try (RdfWriter writer =
           writerClass
-              .getConstructor(writerArgClasses.toArray(new Class[0]))
+              .getConstructor(writerArgClasses.toArray(Class[]::new))
               .newInstance(writerArgs.toArray())) {
         RdfGenerator generator =
             generatorClass
