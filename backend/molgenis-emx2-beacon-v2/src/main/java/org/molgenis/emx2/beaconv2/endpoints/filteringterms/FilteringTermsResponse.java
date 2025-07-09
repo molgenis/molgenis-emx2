@@ -36,7 +36,6 @@ public class FilteringTermsResponse {
     this.filteringTerms =
         this.database.getSchemaNames().stream()
             .flatMap(schema -> getFilteringTermsFromTables(BEACON_TABLES, schema).stream())
-            .distinct()
             .toArray(FilteringTerm[]::new);
   }
 
