@@ -1,9 +1,14 @@
 package org.molgenis.emx2.cafevariome;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CafeVariomeRecordIndexTest {
+import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.datamodels.TestLoaders;
+
+public class CafeVariomeRecordIndexTest extends TestLoaders {
 
   @Test
-  public void testRecordIndex() {}
+  public void testRecordIndex() {
+    assertEquals(86, patientRegistryDemo.getTableNames().size());
+  }
 }
