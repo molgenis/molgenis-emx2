@@ -23,8 +23,8 @@ import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.beaconv2.EntryType;
-import org.molgenis.emx2.beaconv2.endpoints.FilteringTerms;
 import org.molgenis.emx2.beaconv2.endpoints.filteringterms.FilteringTerm;
+import org.molgenis.emx2.beaconv2.endpoints.filteringterms.FilteringTermsResponse;
 import org.molgenis.emx2.cafevariome.CafeVariomeQuery;
 import org.molgenis.emx2.cafevariome.QueryRecord;
 import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
@@ -62,26 +62,28 @@ public class CafeVariomeApi {
     if (!session.getDatabase().isAnonymous()) {
       return;
     }
-    HttpClient client = HttpClient.newHttpClient();
+    HttpResponse<String> response;
+    try (HttpClient client = HttpClient.newHttpClient()) {
 
-    Enumeration<String> authHeaders = ctx.req().getHeaders(AUTHORIZATION);
-    String authHeader = authHeaders.nextElement();
-    String accessToken = authHeader.split(" ")[1];
-    String formData =
-        "client_id="
-            + URLEncoder.encode(CV_CLIENT_ID, StandardCharsets.UTF_8)
-            + "&client_secret="
-            + URLEncoder.encode(CV_CLIENT_SECRET, StandardCharsets.UTF_8)
-            + "&token="
-            + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
+      Enumeration<String> authHeaders = ctx.req().getHeaders(AUTHORIZATION);
+      String authHeader = authHeaders.nextElement();
+      String accessToken = authHeader.split(" ")[1];
+      String formData =
+          "client_id="
+              + URLEncoder.encode(CV_CLIENT_ID, StandardCharsets.UTF_8)
+              + "&client_secret="
+              + URLEncoder.encode(CV_CLIENT_SECRET, StandardCharsets.UTF_8)
+              + "&token="
+              + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
 
-    HttpRequest request =
-        HttpRequest.newBuilder()
-            .header(CONTENT_TYPE, ACCEPT_FORM_URL_ENC)
-            .uri(URI.create(CV_INTROSPECT_URI))
-            .POST(HttpRequest.BodyPublishers.ofString(formData))
-            .build();
-    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+      HttpRequest request =
+          HttpRequest.newBuilder()
+              .header(CONTENT_TYPE, ACCEPT_FORM_URL_ENC)
+              .uri(URI.create(CV_INTROSPECT_URI))
+              .POST(HttpRequest.BodyPublishers.ofString(formData))
+              .build();
+      response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
     if (response.statusCode() != 200) {
       ctx.status(response.statusCode());
     }
@@ -117,16 +119,10 @@ public class CafeVariomeApi {
     Map<String, String> values = new HashMap<>();
     Map<String, List<String>> mappings = new HashMap<>();
 
-    Set<FilteringTerm> filteringTermsSet = new HashSet<>();
-
-    // Reuse beacon logic
-    new FilteringTerms(database)
-        .getResponse()
-        .getFilteringTermsFromTables(
-            database,
-            List.of(EntryType.INDIVIDUALS.getName()),
-            filteringTermsSet,
-            schema.getName());
+    Set<FilteringTerm> filteringTermsSet =
+        new FilteringTermsResponse(database)
+            .getFilteringTermsFromTables(
+                List.of(EntryType.INDIVIDUALS.getName()), schema.getName());
 
     for (FilteringTerm filteringTerm : filteringTermsSet) {
       if (filteringTerm.getType().equals("ontology")) {

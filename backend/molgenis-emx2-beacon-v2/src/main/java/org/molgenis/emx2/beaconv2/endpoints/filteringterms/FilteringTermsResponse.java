@@ -20,6 +20,8 @@ public class FilteringTermsResponse {
           "Individuals",
           "Runs");
 
+  private final Database database;
+
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private FilteringTerm[] filteringTerms;
 
@@ -30,50 +32,42 @@ public class FilteringTermsResponse {
    * @param database
    */
   public FilteringTermsResponse(Database database) {
-    this.filteringTerms = new FilteringTerm[] {};
-    Set<FilteringTerm> filteringTermsSet = new HashSet<>();
-    for (String schemaName : database.getSchemaNames()) {
-      getFilteringTermsFromTables(database, BEACON_TABLES, filteringTermsSet, schemaName);
-    }
-    this.filteringTerms = filteringTermsSet.toArray(new FilteringTerm[0]);
+    this.database = database;
+    this.filteringTerms =
+        this.database.getSchemaNames().stream()
+            .flatMap(schema -> getFilteringTermsFromTables(BEACON_TABLES, schema).stream())
+            .distinct()
+            .toArray(FilteringTerm[]::new);
   }
 
   /**
    * Loop over all tables in a schema and query each for filtering terms
    *
-   * @param database
    * @param tableNames
-   * @param filteringTermsSet
    * @param schemaName
    */
-  public void getFilteringTermsFromTables(
-      Database database,
-      List<String> tableNames,
-      Set<FilteringTerm> filteringTermsSet,
-      String schemaName) {
+  public Set<FilteringTerm> getFilteringTermsFromTables(
+      List<String> tableNames, String schemaName) {
+    Set<FilteringTerm> filteringTerms = new HashSet<>();
     for (String tableToQuery : tableNames) {
       Collection<String> tableNamesInSchema = database.getSchema(schemaName).getTableNames();
-      getFilteringTermsFromOneTable(
-          database, filteringTermsSet, schemaName, tableToQuery, tableNamesInSchema);
+      filteringTerms.addAll(
+          getFilteringTermsFromOneTable(schemaName, tableToQuery, tableNamesInSchema));
     }
+    return filteringTerms;
   }
 
   /**
    * Check of a table is present in schema, add non-referencing terms immediately, launch native SQL
    * query for others and loop over rows
    *
-   * @param database
-   * @param filteringTermsSet
    * @param schemaName
    * @param tableToQuery
    * @param tableNamesInSchema
    */
-  private void getFilteringTermsFromOneTable(
-      Database database,
-      Set<FilteringTerm> filteringTermsSet,
-      String schemaName,
-      String tableToQuery,
-      Collection<String> tableNamesInSchema) {
+  public Set<FilteringTerm> getFilteringTermsFromOneTable(
+      String schemaName, String tableToQuery, Collection<String> tableNamesInSchema) {
+    Set<FilteringTerm> filteringTerms = new HashSet<>();
     if (tableNamesInSchema.contains(tableToQuery)) {
       TableMetadata metadata = database.getSchema(schemaName).getTable(tableToQuery).getMetadata();
       // todo: now extended columns are ignored because make the query super complicated
@@ -81,7 +75,7 @@ public class FilteringTermsResponse {
         if (column.getColumnType().isAtomicType() && !column.getIdentifier().startsWith("mg_")) {
           FilteringTerm filteringTerm =
               new FilteringTerm("alphanumeric", column.getName(), tableToQuery);
-          filteringTermsSet.add(filteringTerm);
+          filteringTerms.add(filteringTerm);
         } else if (column.isOntology()) {
           String schema = metadata.getSchemaName();
           String refSchema = column.getRefTable().getSchemaName();
@@ -127,7 +121,7 @@ public class FilteringTermsResponse {
                     codesystem + ":" + code,
                     row.getString("name"),
                     tableToQuery);
-            filteringTermsSet.add(filteringTerm);
+            filteringTerms.add(filteringTerm);
           }
         } else {
           // ignore any non-atomic, non-ontology fields, which are headings, files and regular
@@ -135,14 +129,6 @@ public class FilteringTermsResponse {
         }
       }
     }
-  }
-
-  /**
-   * Getter for filteringTerms
-   *
-   * @return
-   */
-  public FilteringTerm[] getFilteringTerms() {
     return filteringTerms;
   }
 }
