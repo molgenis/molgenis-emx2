@@ -1,5 +1,9 @@
 package org.molgenis.emx2.web;
 
+import static org.apache.http.HttpHeaders.AUTHORIZATION;
+import static org.molgenis.emx2.ColumnType.STRING;
+import static org.molgenis.emx2.web.Constants.ACCEPT_FORM_URL_ENC;
+import static org.molgenis.emx2.web.Constants.CONTENT_TYPE;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,14 +19,17 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.endpoints.FilteringTerms;
 import org.molgenis.emx2.beaconv2.endpoints.filteringterms.FilteringTerm;
 import org.molgenis.emx2.cafevariome.CafeVariomeQuery;
 import org.molgenis.emx2.cafevariome.QueryRecord;
 import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
 import org.molgenis.emx2.cafevariome.response.RecordResponse;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,12 +38,16 @@ public class CafeVariomeApi {
   private static MolgenisSessionManager sessionManager;
   private static final Logger logger = LoggerFactory.getLogger(CafeVariomeApi.class);
 
-  // TODO !! change these to ENV settings again !!
-  private static final String CLIENT_SECRET = "SVTwkFLI1Oy58eHZwq4qr6lfG0FjJiAt";
-  private static final String CLIENT_ID = "MolgenisAuth";
-  // TODO: get introspect URI from discover URI?
-  private static final String INTROSPECT_URI =
-      "https://auth1.molgenis.net/realms/Cafe-Variome/protocol/openid-connect/token/introspect";
+  private static final String CV_CLIENT_SECRET =
+      (String) EnvironmentProperty.getParameter(Constants.CV_CLIENT_SECRET, null, STRING);
+  private static final String CV_CLIENT_ID =
+      (String) EnvironmentProperty.getParameter(Constants.CV_CLIENT_ID, "MolgenisAuth", STRING);
+  private static final String CV_INTROSPECT_URI =
+      (String)
+          EnvironmentProperty.getParameter(
+              Constants.CV_INTROSPECT_URI,
+              "https://auth1.molgenis.net/realms/Cafe-Variome/protocol/openid-connect/token/introspect",
+              STRING);
 
   public static void create(Javalin app, MolgenisSessionManager sm) {
     sessionManager = sm;
@@ -53,21 +64,21 @@ public class CafeVariomeApi {
     }
     HttpClient client = HttpClient.newHttpClient();
 
-    Enumeration<String> authHeaders = ctx.req().getHeaders("Authorization");
+    Enumeration<String> authHeaders = ctx.req().getHeaders(AUTHORIZATION);
     String authHeader = authHeaders.nextElement();
     String accessToken = authHeader.split(" ")[1];
     String formData =
         "client_id="
-            + URLEncoder.encode(CLIENT_ID, StandardCharsets.UTF_8)
+            + URLEncoder.encode(CV_CLIENT_ID, StandardCharsets.UTF_8)
             + "&client_secret="
-            + URLEncoder.encode(CLIENT_SECRET, StandardCharsets.UTF_8)
+            + URLEncoder.encode(CV_CLIENT_SECRET, StandardCharsets.UTF_8)
             + "&token="
             + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
 
     HttpRequest request =
         HttpRequest.newBuilder()
-            .header("Content-Type", "application/x-www-form-urlencoded")
-            .uri(URI.create(INTROSPECT_URI))
+            .header(CONTENT_TYPE, ACCEPT_FORM_URL_ENC)
+            .uri(URI.create(CV_INTROSPECT_URI))
             .POST(HttpRequest.BodyPublishers.ofString(formData))
             .build();
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -112,7 +123,10 @@ public class CafeVariomeApi {
     new FilteringTerms(database)
         .getResponse()
         .getFilteringTermsFromTables(
-            database, List.of("Individuals"), filteringTermsSet, schema.getName());
+            database,
+            List.of(EntryType.INDIVIDUALS.getName()),
+            filteringTermsSet,
+            schema.getName());
 
     for (FilteringTerm filteringTerm : filteringTermsSet) {
       if (filteringTerm.getType().equals("ontology")) {

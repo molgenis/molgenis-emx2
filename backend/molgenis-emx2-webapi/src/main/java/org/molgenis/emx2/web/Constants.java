@@ -21,6 +21,7 @@ public class Constants {
   public static final String ACCEPT_FORMDATA = "multipart/form-data";
   public static final String ACCEPT_EXCEL =
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  public static final String ACCEPT_FORM_URL_ENC = "application/x-www-form-urlencoded";
 
   public static final String DETAIL = "detail";
 

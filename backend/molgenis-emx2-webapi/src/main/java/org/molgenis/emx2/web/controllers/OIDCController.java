@@ -109,7 +109,7 @@ public class OIDCController {
     if (requestedUrlList.isPresent()) {
       ArrayList<String> requestedUrl = (ArrayList<String>) requestedUrlList.get();
       if (requestedUrl.size() == 1) {
-        ctx.redirect(requestedUrl.get(0));
+        ctx.redirect(requestedUrl.getFirst());
       } else {
         ctx.redirect("/");
       }
