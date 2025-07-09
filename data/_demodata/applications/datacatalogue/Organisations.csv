@@ -79,9 +79,9 @@ EUROCAT NNL,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,
 FORCE-NEN,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
 FORCE-NEN collections,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
 PSYCONN,UMCG,,University Medical Center Groningen,UMCG,,,Netherlands (the),,,true
-testCohort2,test lead organisation 2,https://pid-for-leadorg2.org,name for test lead organisation 2,acronym for test lead organisation 2,,,"""Bonaire, Sint Eustatius and Saba""",,Data provider,true
-testCohort1,test lead organisation 2,https://pid-for-leadorg2.org,name for test lead organisation 2,acronym for test lead organisation 2,,,"""Bonaire, Sint Eustatius and Saba"",Réunion",,"Data provider,Other",true
-testCohort1,Test lead organisation 1,https://pid-for-leadorg1.org,Name for lead organisation 1,ACRONYM FOR LEADORG1,,,"Botswana,Holy See (the)",,"Data originator,Data holder,Data provider,Researcher,Surveillance,Other",true
+testCohort2,test lead organisation 2,https://pid-for-leadorg2.org,name for test lead organisation 2,acronym for test lead organisation 2,TEST logo for lead org 2,TEST logo for lead org 2.jpg,"""Bonaire, Sint Eustatius and Saba""",,Data provider,true
+testCohort1,test lead organisation 2,https://pid-for-leadorg2.org,name for test lead organisation 2,acronym for test lead organisation 2,TEST logo for lead org 2,TEST logo for lead org 2.jpg,"""Bonaire, Sint Eustatius and Saba"",Réunion",,"Data provider,Other",true
+testCohort1,Test lead organisation 1,https://pid-for-leadorg1.org,Name for lead organisation 1,ACRONYM FOR LEADORG1,test logo lead organisation,test logo lead organisation.jpg,"Botswana,Holy See (the)",,"Data originator,Data holder,Data provider,Researcher,Surveillance,Other",true
 testNetwork2,AMC,,Amsterdam Medical Center ,AMC,,,Netherlands (the),,,
 testNetworkofNetworks,AMC,,Amsterdam Medical Center ,AMC,,,Netherlands (the),,,
 testNetwork1,AMC,,Amsterdam Medical Center ,AMC,,,Netherlands (the),,,
@@ -135,9 +135,9 @@ ACCESS,JORDIGOL,,Institut de Recerca en Atenció Primària Jordi Gol,JORDIGOL,,,
 IPEC,UCPH,,University of Copenhagen,UCPH,,,Denmark,https://www.ku.dk/english/,,
 OOM,UB,,"Université de Bordeaux, Bordeaux PharmacoEpi",UB-BPE,,,France,http://www.bordeauxpharmacoepi.eu/en/,Researcher,
 ACCESS,LIPRE,,Leibniz Institute for Prevention Research and Epidemiology,LIPRE,,,Germany,,,
-testCohort1,Test additional organisation 1,https://pid-for-additionalorg1.org,name of test additional organisation 1,acronym for test additional organisation 1,,,"Canada,Western Sahara*",,"Researcher,Surveillance",
-testCohort2,id for test additional organisation 2,https://pid-for-additionalorg2.org,name for test additional organisation 2,acronym for test additional organisation 2,,,Bosnia and Herzegovina,,"Data provider,Surveillance",
-testCohort1,id for test additional organisation 2,https://pid-for-additionalorg2.org,name for test additional organisation 2,acronym for test additional organisation 2,,,"Bosnia and Herzegovina,Mayotte",,"Data provider,Surveillance",
+testCohort1,Test additional organisation 1,https://pid-for-additionalorg1.org,name of test additional organisation 1,acronym for test additional organisation 1,Test logo for additional organisation,Test logo for additional organisation.jpg,"Canada,Western Sahara*",,"Researcher,Surveillance",
+testCohort2,id for test additional organisation 2,https://pid-for-additionalorg2.org,name for test additional organisation 2,acronym for test additional organisation 2,TEST logo for additional org 2,TEST logo for additional org 2.jpg,Bosnia and Herzegovina,,"Data provider,Surveillance",
+testCohort1,id for test additional organisation 2,https://pid-for-additionalorg2.org,name for test additional organisation 2,acronym for test additional organisation 2,TEST logo for additional org 2,TEST logo for additional org 2.jpg,"Bosnia and Herzegovina,Mayotte",,"Data provider,Surveillance",
 LifeCycle,EMC,,Erasmus MC,EMC,,,Netherlands (the),,,
 HPV,UOULU,,University of Oulu,UOULU,,,Finland,,,
 LongITools,UOULU,,University of Oulu,UOULU,,,Finland,,,

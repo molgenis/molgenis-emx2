@@ -74,6 +74,14 @@ export interface IColumn {
   defaultValue?: string;
 }
 
+export interface IRefColumn extends IColumn {
+  refTableId: string;
+  refSchemaId: string;
+  refLabel: string;
+  refLabelDefault: string;
+  refLinkId: string;
+}
+
 export interface ITableMetaData {
   id: string;
   name?: string;
@@ -109,8 +117,10 @@ export type columnValue =
   | number
   | boolean
   | null
+  | undefined
   | columnValueObject
-  | columnValue[];
+  | columnValue[]
+  | fileValue;
 
 export type recordValue = Record<string, columnValue>;
 
@@ -118,9 +128,19 @@ export interface columnValueObject {
   [x: string]: columnValue;
 }
 
+export type fileValue = {
+  id: string;
+  size: number;
+  filename: string;
+  extension: string;
+  url: string;
+};
+
 export type IInputValue = string | number | boolean;
 
 export type IInputValueLabel = {
   value: IInputValue | IInputValue[] | null;
   label?: string;
 };
+
+export type IRow = Record<columnId, columnValue>;

@@ -1,13 +1,14 @@
 <script setup lang="ts">
-const route = useRoute();
-const config = useRuntimeConfig();
+import { useRuntimeConfig, useFetch } from "#app";
+import type { ISetting } from "../../../metadata-utils/src/types";
 
-const { data, pending, error, refresh } = await useFetch(
-  `/${route.params.schema}/graphql`,
-  {
-    method: "POST",
-    body: {
-      query: `{
+const config = useRuntimeConfig();
+const schema = config.public.schema as string;
+
+const { data, pending, error, refresh } = await useFetch(`/${schema}/graphql`, {
+  method: "POST",
+  body: {
+    query: `{
         Variables_agg {
           count
         }
@@ -53,9 +54,8 @@ const { data, pending, error, refresh } = await useFetch(
           value 
         }
       }`,
-    },
-  }
-);
+  },
+});
 
 function percentageLongitudinal(
   cohortsGroupBy: { count: number; design: { name: string } }[],
@@ -106,7 +106,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           getSettingValue('CATALOGUE_LANDING_COHORTS_CTA', data.data._settings)
         "
         :count="data.data.Cohorts_agg.count"
-        :link="`/${route.params.schema}/catalogue/cohorts/`"
+        :link="`/cohorts/`"
       />
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
@@ -123,7 +123,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           getSettingValue('CATALOGUE_LANDING_NETWORKS_CTA', data.data._settings)
         "
         :count="data.data.Networks_agg.count"
-        :link="`/${route.params.schema}/catalogue/networks/`"
+        :link="`/networks/`"
       />
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
@@ -142,7 +142,7 @@ function getSettingValue(settingKey: string, settings: ISetting[]) {
           )
         "
         :count="data.data.Variables_agg.count"
-        :link="`/${route.params.schema}/catalogue/variables/`"
+        :link="`/variables/`"
       />
     </div>
 

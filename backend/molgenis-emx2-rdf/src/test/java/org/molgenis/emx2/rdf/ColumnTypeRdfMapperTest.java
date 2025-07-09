@@ -18,6 +18,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 /**
@@ -31,13 +32,12 @@ class ColumnTypeRdfMapperTest {
   static final String REFBACK_TABLE = "TestRefBackTable";
   static final String COMPOSITE_REF_TABLE = "TestCompositeRefTable";
   static final String COMPOSITE_REFBACK_TABLE = "TestCompositeRefbackTable";
-  static final String ONT_TABLE = "TestOntology";
+  static final String ONT_TABLE = "Test Ontology";
+  static final String ONT_TABLE_URL = "TestOntology";
 
   static final String BASE_URL = "http://localhost:8080/";
   static final String RDF_API_URL_PREFIX = BASE_URL + TEST_SCHEMA + "/api/rdf/";
   static final String FILE_API_URL_PREFIX = BASE_URL + TEST_SCHEMA + "/api/file/";
-
-  static final ColumnTypeRdfMapper mapper = new ColumnTypeRdfMapper(BASE_URL);
 
   static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
   static final File TEST_FILE =
@@ -50,6 +50,7 @@ class ColumnTypeRdfMapperTest {
   static Database database;
   static Schema allColumnTypes;
   static List<Row> testRows;
+  static RdfMapData rdfMapData;
 
   @BeforeAll
   public static void setup() {
@@ -114,7 +115,7 @@ class ColumnTypeRdfMapperTest {
         .insert(
             row("name", "aa", "ontologyTermURI", "http://example.com/aa"),
             row("name", "bb", "ontologyTermURI", "http://example.com/bb"),
-            row("name", "cc", "ontologyTermURI", "http://example.com/cc"));
+            row("name", "c+c")); // actual +, not escaped character
 
     allColumnTypes.getTable(REF_TABLE).insert(row("id", "1"), row("id", "2"), row("id", "3"));
 
@@ -188,7 +189,7 @@ class ColumnTypeRdfMapperTest {
                 ColumnType.ONTOLOGY.name(),
                 "aa",
                 ColumnType.ONTOLOGY_ARRAY.name(),
-                "bb,cc",
+                "bb,c+c",
                 ColumnType.EMAIL.name(),
                 "aap@example.com",
                 ColumnType.EMAIL_ARRAY.name(),
@@ -220,6 +221,10 @@ class ColumnTypeRdfMapperTest {
     // Describes rows for easy access.
     // exclude mg columns because they might be not empty for the empty test
     testRows = allColumnTypes.getTable(TEST_TABLE).retrieveRows(Query.Option.EXCLUDE_MG_COLUMNS);
+
+    // Prepares RdfMapData
+    rdfMapData =
+        new RdfMapData(BASE_URL, new OntologyIriMapper(allColumnTypes.getTable(ONT_TABLE)));
   }
 
   @AfterAll
@@ -232,6 +237,13 @@ class ColumnTypeRdfMapperTest {
     return retrieveValues(columnName, 0);
   }
 
+  private Set<Value> retrieveValues(String columnName, int row) {
+    return ColumnTypeRdfMapper.retrieveValues(
+        rdfMapData,
+        testRows.get(row),
+        allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName));
+  }
+
   /** Only primary key & AUTO_ID is filled. */
   private Set<Value> retrieveEmptyValues(String columnName) {
     // REFBACK causes duplicate row (with only REFBACK values being different).
@@ -240,9 +252,18 @@ class ColumnTypeRdfMapperTest {
     return retrieveValues(columnName, 1);
   }
 
-  private Set<Value> retrieveValues(String columnName, int row) {
-    return mapper.retrieveValues(
-        testRows.get(row), allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName));
+  private Set<Value> retrieveValuesCustom(
+      String columnName, ColumnTypeRdfMapper.RdfColumnType rdfColumnType) {
+    return retrieveValuesCustom(columnName, 0, rdfColumnType);
+  }
+
+  private Set<Value> retrieveValuesCustom(
+      String columnName, int row, ColumnTypeRdfMapper.RdfColumnType rdfColumnType) {
+    return ColumnTypeRdfMapper.retrieveValues(
+        rdfMapData,
+        testRows.get(row),
+        allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumn(columnName),
+        rdfColumnType);
   }
 
   private Value retrieveFirstValue(String columnName) {
@@ -271,38 +292,97 @@ class ColumnTypeRdfMapperTest {
 
     assertAll(
         // SIMPLE
-        () -> assertTrue(retrieveFirstValue(ColumnType.BOOL.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.UUID.name()).isIRI()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.FILE.name()).isIRI()),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.BOOL.name()).isLiteral(),
+                ColumnType.BOOL.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.UUID.name()).isIRI(),
+                ColumnType.UUID.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.FILE.name()).isIRI(),
+                ColumnType.FILE.name() + " failed"),
         // STRING
-        () -> assertTrue(retrieveFirstValue(ColumnType.STRING.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.TEXT.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.JSON.name()).isLiteral()),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.STRING.name()).isLiteral(),
+                ColumnType.STRING.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.TEXT.name()).isLiteral(),
+                ColumnType.TEXT.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.JSON.name()).isLiteral(),
+                ColumnType.JSON.name() + " failed"),
 
         // NUMERIC
-        () -> assertTrue(retrieveFirstValue(ColumnType.INT.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.LONG.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.DECIMAL.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.DATE.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.DATETIME.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.PERIOD.name()).isLiteral()),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.INT.name()).isLiteral(),
+                ColumnType.INT.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.LONG.name()).isLiteral(),
+                ColumnType.LONG.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.DECIMAL.name()).isLiteral(),
+                ColumnType.DECIMAL.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.DATE.name()).isLiteral(),
+                ColumnType.DATE.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.DATETIME.name()).isLiteral(),
+                ColumnType.DATETIME.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.PERIOD.name()).isLiteral(),
+                ColumnType.PERIOD.name() + " failed"),
 
         // RELATIONSHIP
-        () -> assertTrue(retrieveFirstValue(ColumnType.REF.name()).isIRI()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.REFBACK.name()).isIRI()),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.REF.name()).isIRI(),
+                ColumnType.REF.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.REFBACK.name()).isIRI(),
+                ColumnType.REFBACK.name() + " failed"),
 
         // LAYOUT and other constants
         // ColumnType.HEADING.name() -> no Value should be present to validate on
 
         // format flavors that extend a baseType
-        () -> assertTrue(retrieveFirstValue(ColumnType.AUTO_ID.name()).isLiteral()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.ONTOLOGY.name()).isIRI()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.EMAIL.name()).isIRI()),
-        () -> assertTrue(retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI()),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.AUTO_ID.name()).isLiteral(),
+                ColumnType.AUTO_ID.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.ONTOLOGY.name()).isIRI(),
+                ColumnType.ONTOLOGY.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.EMAIL.name()).isIRI(),
+                ColumnType.EMAIL.name() + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(ColumnType.HYPERLINK.name()).isIRI(),
+                ColumnType.HYPERLINK.name() + " failed"),
 
         // Composite keys
-        () -> assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REF).isIRI()),
-        () -> assertTrue(retrieveFirstValue(COLUMN_COMPOSITE_REFBACK).isIRI()));
+        () ->
+            assertTrue(
+                retrieveFirstValue(COLUMN_COMPOSITE_REF).isIRI(), COLUMN_COMPOSITE_REF + " failed"),
+        () ->
+            assertTrue(
+                retrieveFirstValue(COLUMN_COMPOSITE_REFBACK).isIRI(),
+                COLUMN_COMPOSITE_REFBACK + " failed"));
   }
 
   @Test
@@ -420,17 +500,17 @@ class ColumnTypeRdfMapperTest {
         // RELATIONSHIP
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=1")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "/id=1")),
                 retrieveValues(ColumnType.REF.name())),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=2"),
-                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "?id=3")),
+                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "/id=2"),
+                    Values.iri(RDF_API_URL_PREFIX + REF_TABLE + "/id=3")),
                 retrieveValues(ColumnType.REF_ARRAY.name())),
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + REFBACK_TABLE + "?id=1")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + REFBACK_TABLE + "/id=1")),
                 retrieveValues(ColumnType.REFBACK.name())),
         // LAYOUT and other constants -> should return empty sets as they should be excluded
         () -> assertEquals(Set.of(), retrieveValues(ColumnType.HEADING.name())),
@@ -444,13 +524,13 @@ class ColumnTypeRdfMapperTest {
                     .matches("[0-9a-zA-Z]+")),
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=aa")),
+                Set.of(Values.iri("http://example.com/aa")),
                 retrieveValues(ColumnType.ONTOLOGY.name())),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=bb"),
-                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE + "?name=cc")),
+                    Values.iri("http://example.com/bb"),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "/name=c%2Bc")),
                 retrieveValues(ColumnType.ONTOLOGY_ARRAY.name())),
         () ->
             assertEquals(
@@ -473,20 +553,40 @@ class ColumnTypeRdfMapperTest {
         // Composite reference / refback
         () ->
             assertEquals(
-                Set.of(Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=1&ids=a")),
+                Set.of(Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "/idi=1&ids=a")),
                 retrieveValues(COLUMN_COMPOSITE_REF)),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=2&ids=b"),
-                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "?idi=3&ids=c")),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "/idi=2&ids=b"),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REF_TABLE + "/idi=3&ids=c")),
                 retrieveValues(COLUMN_COMPOSITE_REF_ARRAY)),
         () ->
             assertEquals(
                 Set.of(
-                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=a&id2=b"),
-                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "?id1=c&id2=d")),
-                actualRefback));
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "/id1=a&id2=b"),
+                    Values.iri(RDF_API_URL_PREFIX + COMPOSITE_REFBACK_TABLE + "/id1=c&id2=d")),
+                actualRefback),
+        // Overriding default behaviour
+        // ontology as reference (key=1 instead of ontologyTermURI)
+        () ->
+            assertEquals(
+                Set.of(Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "/name=aa")),
+                retrieveValuesCustom(
+                    ColumnType.ONTOLOGY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
+        () ->
+            assertEquals(
+                Set.of(
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "/name=bb"),
+                    Values.iri(RDF_API_URL_PREFIX + ONT_TABLE_URL + "/name=c%2Bc")),
+                retrieveValuesCustom(
+                    ColumnType.ONTOLOGY_ARRAY.name(), ColumnTypeRdfMapper.RdfColumnType.REFERENCE)),
+        // email as regular string
+        () ->
+            assertEquals(
+                Set.of(Values.literal("aap@example.com")),
+                retrieveValuesCustom(
+                    ColumnType.EMAIL.name(), ColumnTypeRdfMapper.RdfColumnType.STRING)));
   }
 
   @Test
@@ -509,7 +609,10 @@ class ColumnTypeRdfMapperTest {
 
   @Test
   void validateUnmodifiable() {
-    allColumnTypes.getTable(TEST_TABLE).getMetadata().getColumns().stream()
+    allColumnTypes
+        .getTable(TEST_TABLE)
+        .getMetadata()
+        .getColumns()
         .forEach(
             c -> {
               assertThrows(

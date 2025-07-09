@@ -17,13 +17,10 @@ public class DataModels {
     UMCU_COHORTS_STAGING("_profiles/UMCUCohorts.yaml"),
     INTEGRATE_COHORTS_STAGING("_profiles/INTEGRATECohorts.yaml"),
     FAIR_DATA_HUB("_profiles/FAIRDataHub.yaml"),
-    RD3("_profiles/RD3.yaml"),
-    JRC_COMMON_DATA_ELEMENTS("_profiles/JRC-CDE.yaml"),
+    PATIENT_REGISTRY("_profiles/PatientRegistry.yaml"),
     FAIR_GENOMES("_profiles/FAIRGenomes.yaml"),
-    DCAT("_profiles/DCAT.yaml"),
     FAIR_DATA_POINT("_profiles/FAIRDataPoint.yaml"),
     BEACON_V2("_profiles/BeaconV2.yaml"),
-    GDI("_profiles/GDI.yaml"),
     SHARED_STAGING("_profiles/SharedStaging.yaml"),
     IMAGE_TEST("_profiles/ImageTest.yaml"),
     PET_STORE("_profiles/PetStore.yaml"),
@@ -55,7 +52,6 @@ public class DataModels {
     PATIENT_REGISTRY_DEMO(PatientRegistryDemoLoader::new),
     PROJECTMANAGER(ProjectManagerLoader::new),
     BIOBANK_DIRECTORY(BiobankDirectoryLoader::new),
-    RD3_V2(RD3v2Loader::new),
     BIOBANK_DIRECTORY_STAGING(
         ((schema, includeDemoData) ->
             new BiobankDirectoryLoader(schema, includeDemoData).setStaging(true)));

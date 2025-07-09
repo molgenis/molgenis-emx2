@@ -12,7 +12,6 @@ dependencies {
     implementation project(':backend:molgenis-emx2-tasks')
     implementation project(':backend:molgenis-emx2-email')
     implementation project(':backend:molgenis-emx2-analytics')
-    implementation 'org.eclipse.rdf4j:rdf4j-rio-api:4.3.12'
     implementation 'io.swagger.parser.v3:swagger-parser:2.1.22'
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
     implementation 'com.squareup.okhttp3:okhttp-brotli:4.11.0'
@@ -20,8 +19,11 @@ dependencies {
     testImplementation 'org.apache.poi:poi:4.1.2'
     testImplementation 'org.apache.poi:poi-ooxml:4.1.2'
     testImplementation 'net.lingala.zip4j:zip4j:2.11.5'
+    testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.8'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     implementation 'com.github.dfabulich:sitemapgen4j:1.1.2'
     implementation 'de.larsgrefer.sass:sass-embedded-host:1.15.4'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.1'
 }
 
 task dev(type: JavaExec) {

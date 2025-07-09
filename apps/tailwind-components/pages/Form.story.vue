@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import type {
+  columnId,
   columnValue,
-  IFieldError,
   ISchemaMetaData,
 } from "../../metadata-utils/src/types";
-import { useRoute } from "#app/composables/router";
-import type { FormFields } from "#components";
+import { useRoute, useRouter } from "#app/composables/router";
+import Legend from "../components/form/Legend.vue";
+import { useFetch, useAsyncData } from "#app";
+import { fetchMetadata, fetchTableData, useSections } from "#imports";
+import { ref, computed, watch } from "vue";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -18,6 +21,7 @@ interface Schema {
 }
 
 const route = useRoute();
+const router = useRouter();
 const schemaId = ref((route.query.schema as string) ?? "type test");
 const tableId = ref((route.query.table as string) ?? "Types");
 const rowIndex = ref<null | number>(null);
@@ -26,9 +30,7 @@ if (route.query.rowIndex) {
 }
 
 const numberOfRows = ref(0);
-const formFields = ref<InstanceType<typeof FormFields>>();
 const formValues = ref<Record<string, columnValue>>({});
-const errors = ref<Record<string, IFieldError[]>>({});
 
 const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   key: "schemas",
@@ -43,11 +45,9 @@ const schemaIds = computed(
       .map((s) => s.id) ?? []
 );
 
-const {
-  data: schemaMeta,
-  refresh,
-  status,
-} = await useAsyncData("form sample", () => fetchMetadata(schemaId.value));
+const { data: schemaMeta, refresh } = await useAsyncData("form sample", () =>
+  fetchMetadata(schemaId.value)
+);
 
 async function getNumberOfRows() {
   const resp = await $fetch(`/${schemaId.value}/graphql`, {
@@ -76,15 +76,17 @@ const schemaTablesIds = computed(() =>
   (schemaMeta.value as ISchemaMetaData)?.tables.map((table) => table.id)
 );
 
-const tableMeta = computed(() => {
-  return schemaMeta.value === null
-    ? null
-    : schemaMeta.value.tables.find((table) => table.id === tableId.value);
+const metadata = computed(() => {
+  const tableMetadata = (schemaMeta.value as ISchemaMetaData)?.tables.find(
+    (table) => table.id === tableId.value
+  );
+  if (!tableMetadata) {
+    throw new Error(
+      `Table ${tableId.value} not found in schema ${schemaId.value}`
+    );
+  }
+  return tableMetadata;
 });
-
-function onErrors(newErrors: Record<string, IFieldError[]>) {
-  errors.value = newErrors;
-}
 
 watch(
   () => schemaId.value,
@@ -92,7 +94,7 @@ watch(
     if (schemaMeta.value) {
       await refresh();
       tableId.value = schemaMeta.value.tables[0].id;
-      useRouter().push({
+      router.push({
         query: {
           schema: schemaId.value,
         },
@@ -115,7 +117,7 @@ watch(
       query.rowIndex = rowIndex.value;
     }
 
-    useRouter().push({ query });
+    router.push({ query });
     getNumberOfRows();
     formValues.value = {};
   },
@@ -132,7 +134,7 @@ watch(
     if (rowIndex.value !== null) {
       query.rowIndex = rowIndex.value;
     }
-    useRouter().push({ query });
+    router.push({ query });
 
     formValues.value = {};
 
@@ -142,22 +144,53 @@ watch(
   },
   { immediate: true }
 );
+
+const numberOfFieldsWithErrors = computed(
+  () => Object.values(errorMap.value).filter((error) => error.length > 0).length
+);
+
+const activeChapterId = ref<string>("_scroll_to_top");
+const errorMap = ref<Record<columnId, string>>({});
+
+const sections = useSections(metadata, activeChapterId, errorMap);
+
+function scrollToElementInside(containerId: string, elementId: string) {
+  const container = document.getElementById(containerId);
+  const element = document.getElementById(elementId);
+  if (container && element) {
+    container.scrollTop = element.offsetTop - container.offsetTop;
+    element.scrollIntoView();
+  }
+}
 </script>
 
 <template>
   <div class="flex flex-row">
-    <div class="2/3 p-8 border-l">
-      <FormFields
-        id="forms-story"
-        v-if="schemaId && tableMeta && status === 'success'"
-        ref="formFields"
-        :schemaId="schemaId"
-        :metadata="tableMeta"
-        v-model="formValues"
-        @error="onErrors($event)"
+    <div class="p-8 grow flex flex-row">
+      <Legend
+        v-if="sections?.length"
+        :sections="sections"
+        @goToSection="
+          scrollToElementInside('forms-story-fields-container', $event)
+        "
+        class="pr-2 mr-4"
       />
+      <div
+        id="forms-story-fields-container"
+        class="grow h-screen overflow-y-scroll border p-10"
+      >
+        <FormFields
+          class="grow"
+          :schemaId="schemaId"
+          :sections="sections"
+          :metadata="metadata"
+          v-model:errors="errorMap"
+          v-model="formValues"
+          @update:active-chapter-id="activeChapterId = $event"
+        />
+      </div>
     </div>
-    <div class="basis-1/3 ml-2 h-screen">
+    <div class="ml-2 h-screen">
       <h2>Demo controls, settings and status</h2>
 
       <div class="p-4 border-2 mb-2 flex flex-col gap-4">
@@ -208,8 +241,8 @@ watch(
           </div>
         </div>
 
-        <div class="mt-4 flex flex-row">
-          <div v-if="Object.keys(formValues).length" class="basis-1/2">
+        <div class="mt-4">
+          <div v-if="Object.keys(formValues).length">
             <h3 class="text-label">Values</h3>
             <dl class="flex flex-col">
               <template v-for="(value, key) in formValues">
@@ -220,11 +253,14 @@ watch(
               </template>
             </dl>
           </div>
-          <div v-if="Object.keys(errors).length" class="basis-1/2">
+          <div>
+            <div>number of error: {{ numberOfFieldsWithErrors }}</div>
+          </div>
+          <div v-if="Object.keys(errorMap).length">
             <h3 class="text-label">Errors</h3>
 
             <dl class="flex flex-col">
-              <template v-for="(value, key) in errors">
+              <template v-for="(value, key) in errorMap">
                 <dt class="font-bold">{{ key }}:</dt>
                 <dd v-if="value.length" class="ml-1">{{ value }}</dd>
               </template>

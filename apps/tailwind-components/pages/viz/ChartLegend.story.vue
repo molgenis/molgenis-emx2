@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 const legendItemHovered = ref<string>();
 const legendItemClicked = ref<string[]>();
 const legendItemClickedSingle = ref<string[]>([]);

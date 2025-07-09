@@ -1,3 +1,5 @@
+import { useRoute, useRuntimeConfig } from "#app";
+import { logError } from "#imports";
 import type { UIResource } from "~/interfaces/types";
 
 interface Resp<T> {
@@ -14,11 +16,13 @@ interface IHeaderQuery {
 
 export async function useHeaderData() {
   const route = useRoute();
+  const config = useRuntimeConfig();
+  const schema = config.public.schema as string;
   const scoped = route.params.catalogue !== "all";
   const catalogueRouteParam = route.params.catalogue;
 
   const { data, error } = await $fetch<Resp<IHeaderQuery>>(
-    `/${route.params.schema}/graphql`,
+    `/${schema}/graphql`,
     {
       method: "POST",
       body: {

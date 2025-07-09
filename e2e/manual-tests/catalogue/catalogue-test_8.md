@@ -1,16 +1,14 @@
-# Number
+# Test Plan 8
 
-8
-
-# Role
+## Role
 
 Naïve user of the data catalogue
 
-# Goal
+## Goal
 
 A naïve visitor to the data catalogue can click around through items in the menu ribbon and end up where they would expect
 
-# Steps
+## Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- |----------------- | --------------- |
@@ -100,7 +98,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 83 | Hover over the `VARIABLES` button | `VARIABLES` underlined | | |
 | 84 | Click on the `VARIABLES` button | The user goes to [/catalogue/all/variables](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/variables) | | |
 | 85 | Use the browser's ⬅️ button | The user goes back to [/catalogue/all/networks](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/networks) | | |
-| 86 | Hover over `MORE` | A drop-down menu is presented with `Other catalogues` and `Upload data` as options | | |
+| 86 | Hover over `MORE` | A drop-down menu is presented with `Other catalogues`, `Upload data` and `Manuals` as options | | |
 | 87 | Click on `Other catalogues` | The user goes to [/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | | |
 | | | | | |
 | 88 | Click on **testnetwork1** | The user goes to [/catalogue/testNetwork1](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/testNetwork1). | | |
@@ -115,7 +113,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 99b | Use the browser's ⬅️ button | The user goes back to [/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | | |
 | 100a | Click on **OOM** under *Project Catalogues* | The user goes to [/catalogue/OOM](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/OOM). | | |
 | 100b | | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `ABOUT`, `MORE` | | |
-| 101 | Hover on `MORE` | 2 options are provided: `Other catalogues`, `Upload data` | | |
+| 101 | Hover on `MORE` | 2 options are provided: `Other catalogues`, `Upload data`,'Manuals' | | |
 | 102 | Click on `Other Catalogues` | The user goes to [/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | | |
 | | [THIS EXTRA TEST STEP CAN BE RENDERED INVALID BY PRODUCTION DATA FOR LONGITOOLS BEING COPIED INTO ACC - SEE IT AS A BONUS STEP!] | | | |
 | 103a | Click on **LongITools** under *Project Catalogues* | The user goes to [/catalogue/LongITools](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/LongITools). | | |

@@ -2,10 +2,11 @@ package org.molgenis.emx2.datamodels;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.io.ImportProfileTask;
-import org.molgenis.emx2.rdf.RDFService;
+import org.molgenis.emx2.rdf.RdfSchemaService;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 /**
@@ -26,8 +27,10 @@ public abstract class ComplianceTest {
     Schema schema = database.dropCreateSchema(schemaName);
     new ImportProfileTask(schema, profile, true).run();
     OutputStream outputStream = new ByteArrayOutputStream();
-    var rdf = new RDFService("http://localhost:8080", "api/rdf", null);
-    rdf.describeAsRDF(outputStream, null, null, null, schema);
+    try (RdfSchemaService rdf =
+        new RdfSchemaService("http://localhost:8080", schema, RDFFormat.TURTLE, outputStream)) {
+      rdf.getGenerator().generate(schema);
+    }
     return outputStream.toString();
   }
 }

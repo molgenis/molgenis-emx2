@@ -3,13 +3,14 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import useErrorHandler from "../composables/errorHandler";
 
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 
 export const useQualitiesStore = defineStore("qualitiesStore", () => {
   const qualityStandardsDictionary = ref({});
   let waitingOnResults = ref(false);
 
   async function getQualityStandardInformation() {
+    clearError();
     if (Object.keys(qualityStandardsDictionary.value).length === 0) {
       if (!waitingOnResults.value) {
         waitingOnResults.value = true;

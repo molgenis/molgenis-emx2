@@ -7,12 +7,12 @@
       <MessageWarning v-if="count == 0 && session.email == 'anonymous'">
         No public databases found. You might have more luck when you sign in.
       </MessageWarning>
-      <MessageWarning v-else-if="count == 0 && session.email != 'admin'">
+      <MessageWarning v-else-if="count == 0 && !session.admin">
         You don't have permission to view any database. Please ask a database
         owner for permission to see their data.
       </MessageWarning>
     </IconBar>
-    <div v-if="count > 0 || search || (session && session.email == 'admin')">
+    <div v-if="count > 0 || search || (session && session.admin)">
       <InputSearch
         id="groups-search-input"
         placeholder="search in schemas"
@@ -25,7 +25,7 @@
         <thead>
           <th style="width: 1px">
             <IconAction
-              v-if="session && session.email == 'admin'"
+              v-if="session && session.admin"
               icon="plus"
               @click="openCreateSchema"
             />
@@ -57,19 +57,19 @@
             <td>
               <div style="display: flex">
                 <IconAction
-                  v-if="session && session.email == 'admin'"
+                  v-if="session && session.admin"
                   icon="edit"
                   @click="openEditSchema(schema.id, schema.description)"
                 />
                 <IconDanger
-                  v-if="session && session.email == 'admin'"
+                  v-if="session && session.admin"
                   icon="trash"
                   @click="openDeleteSchema(schema.id)"
                 />
               </div>
             </td>
             <td>
-              <a :href="'/' + schema.id">{{ schema.label }}</a>
+              <a :href="'/' + schema.id + '/tables'">{{ schema.label }}</a>
             </td>
             <td>
               {{ schema.description }}
@@ -159,14 +159,14 @@ export default {
     },
     hasManagerPermission() {
       return (
-        this.session.email == "admin" ||
+        this.session.admin ||
         (this.session &&
           this.session.roles &&
           this.session.roles.includes("Manager"))
       );
     },
     showChangeColumn() {
-      return this.session.email == "admin";
+      return this.session.admin;
     },
   },
   created() {

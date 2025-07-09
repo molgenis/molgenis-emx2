@@ -2,7 +2,7 @@
   <InputGroupContainer
     :id="`${id}-checkbox-group`"
     :aria-describedby="describedBy"
-    class="border-l-4 border-transparent"
+    class="border-l-2 border-transparent"
     :class="{
       'border-l-invalid': invalid,
       'border-l-valid': valid,
@@ -16,7 +16,7 @@
         class="group flex justify-start items-center relative"
         :class="{
           'text-disabled cursor-not-allowed': disabled,
-          'text-title cursor-pointer ': !disabled,
+          'text-title-contrast cursor-pointer ': !disabled,
         }"
       >
         <input
@@ -25,13 +25,13 @@
           :name="id"
           :value="option.value"
           v-model="modelValue"
-          :checked="modelValue!.includes(option.value)"
+          :checked="modelValue ? modelValue.includes(option.value) : false"
           :disabled="disabled"
           @change="toggleSelect"
           class="ml-4 mt-2 sr-only"
         />
         <InputCheckboxIcon
-          :checked="modelValue!.includes(option.value)"
+          :checked="modelValue ? modelValue.includes(option.value) : false"
           :invalid="invalid"
           :valid="valid"
           :disabled="disabled"
@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts" setup>
-import { type IInputProps, type IValueLabel } from "~/types/types";
+import { type IInputProps, type IValueLabel } from "../../types/types";
 import type { columnValue } from "../../../metadata-utils/src/types";
 
 withDefaults(

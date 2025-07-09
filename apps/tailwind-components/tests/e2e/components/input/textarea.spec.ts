@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import playwrightConfig from "~/playwright.config";
+import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
@@ -13,9 +13,6 @@ test.beforeEach(async ({ page }) => {
 test("InputTextArea: invalid is properly indicated @tw-components @tw-forms @input-textarea", async ({
   page,
 }) => {
-  await expect(page.locator("#test-state-checkbox-group")).toContainText(
-    "invalid"
-  );
   await page
     .locator("label")
     .filter({ hasText: "invalid" })

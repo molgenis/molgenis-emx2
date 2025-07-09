@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { onMounted, useId } from "vue";
+
 const pageInputId = useId();
 
 const props = withDefaults(
@@ -67,9 +69,9 @@ function changeCurrentPage(event: Event) {
         <a
           href="#"
           @click.prevent="onPrevClick"
-          class="flex justify-center border border-pagination rounded-pagination bg-pagination text-pagination-button h-15 w-15"
+          class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15"
           :class="{
-            'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
+            'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
               currentPage > 1,
           }"
         >
@@ -91,7 +93,7 @@ function changeCurrentPage(event: Event) {
         </div>
         <input
           :id="pageInputId"
-          class="sm:px-12 px-7.5 w-32 text-center border border-input rounded-pagination bg-input text-pagination-input h-15 flex items-center tracking-widest"
+          class="sm:px-12 px-7.5 w-32 text-center border border-input rounded-theme bg-input text-pagination-input hover:text-pagination-hover hover:border-pagination-hover hover:bg-pagination-hover h-15 flex items-center tracking-widest"
           :value="currentPage"
           @change="changeCurrentPage"
         />
@@ -110,9 +112,9 @@ function changeCurrentPage(event: Event) {
         <a
           href="#"
           @click.prevent="onNextClick"
-          class="flex justify-center border border-pagination rounded-pagination bg-pagination text-pagination-button h-15 w-15"
+          class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15"
           :class="{
-            'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
+            'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
               currentPage < totalPages,
           }"
         >

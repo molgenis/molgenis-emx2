@@ -16,6 +16,7 @@ public class GraphqlConstants {
   public static final String KEY = "key";
   public static final String PASSWORD = "password";
   public static final String ENABLED = "enabled";
+  public static final String ADMIN = "admin";
   public static final String EMAIL = "email";
   public static final String NAME = "name";
   public static final String LOCALE = "locale";
@@ -38,6 +39,7 @@ public class GraphqlConstants {
   public static final String FILTER_MATCH_ANY = "_match_any";
   public static final String FILTER_MATCH_ALL = "_match_all";
   public static final String FILTER_SEARCH = "_search";
+  public static final String FILTER_SEARCH_INCLUDING_PARENTS = "_search_including_parents";
   public static final String FILTER_OR = "_or";
   public static final String FILTER_AND = "_and";
   public static final String FILTER_MATCH_INCLUDING_CHILDREN = "_match_any_including_children";
@@ -81,6 +83,7 @@ public class GraphqlConstants {
   public static final String REF_LINK_ID = "refLinkId";
   public static final String REF_BACK_ID = "refBackId";
   public static final String TABLE_ID = "tableId";
+  public static final String ASYNC = "async";
 
   private GraphqlConstants() {
     // hide constructor

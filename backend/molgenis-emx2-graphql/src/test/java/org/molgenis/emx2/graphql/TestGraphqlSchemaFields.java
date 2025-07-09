@@ -66,9 +66,33 @@ public class TestGraphqlSchemaFields {
 
   @Test
   void testMatchInParentsAndChildren() throws IOException {
-    // just to check syntax works, the real tests live in sql
     String result =
+        execute("{Tag(filter:{_match_any_including_children:[\"colors\"]}){name}}").toString();
+    assertTrue(result.contains("red"));
+    assertFalse(result.contains("mammals"));
+
+    result = execute("{Tag(filter:{_match_any_including_parents:[\"red\"]}){name}}").toString();
+    assertTrue(result.contains("colors"));
+    assertFalse(result.contains("mammals"));
+
+    result = execute("{Tag(filter:{_search_including_parents:[\"re\"]}){name}}").toString();
+    assertTrue(result.contains("colors"));
+    assertTrue(result.contains("green"));
+    assertTrue(result.contains("red"));
+    assertFalse(result.contains("mammals"));
+
+    // just to check syntax works, the real tests live in sql
+    result =
         execute("{Pet(filter:{tags:{_match_any_including_children:\"colors\"}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertFalse(result.contains("pooky")); // poor pooky has no color
+
+    result =
+        execute("{Pet(filter:{tags:{_match_any_including_parents:\"red\"}}){name}}").toString();
+    assertTrue(result.contains("tom"));
+    assertFalse(result.contains("pooky")); // poor pooky has no color
+
+    result = execute("{Pet(filter:{tags:{_search_including_parents:\"re\"}}){name}}").toString();
     assertTrue(result.contains("tom"));
     assertFalse(result.contains("pooky")); // poor pooky has no color
 
@@ -580,7 +604,8 @@ public class TestGraphqlSchemaFields {
   @Test
   public void testTableAlterDropOperations() throws IOException {
     // simple meta
-    assertEquals(5, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
+    int tables = execute("{_schema{tables{name}}}").at("/_schema/tables").size();
+    assertEquals(5, tables);
 
     // add table
     execute(
@@ -946,6 +971,39 @@ public class TestGraphqlSchemaFields {
     // restore
     schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
+  }
+
+  @Test
+  public void testTruncateAsync() throws IOException, InterruptedException {
+    List<Row> preTruncatedResult = schema.getTable("Order").retrieveRows();
+    String taskId =
+        execute("mutation {truncate(tables: \"Order\" async:true){ taskId message}}")
+            .at("/truncate/taskId")
+            .asText();
+
+    String status = "";
+    int pollCount = 0;
+    while (!"COMPLETED".equals(status) && !"ERROR".equals(status)) {
+      status =
+          execute("{ _tasks( id: \"" + taskId + "\"){ status }}")
+              .get("_tasks")
+              .get(0)
+              .get("status")
+              .asText();
+      if (pollCount++ > 5) {
+        throw new MolgenisException("failed: polling took too long, result is: " + status);
+      }
+      Thread.sleep(1000);
+    }
+
+    List<Row> truncatedResult = schema.getTable("Order").retrieveRows();
+    assertTrue(!preTruncatedResult.isEmpty() && truncatedResult.isEmpty());
+
+    // restore
+    schema = database.dropCreateSchema(schemaName);
+    PET_STORE.getImportTask(schema, true).run();
+    grapql =
+        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
   }
 
   @Test

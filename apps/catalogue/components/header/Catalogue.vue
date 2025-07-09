@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { useRoute, useRuntimeConfig } from "#app";
+import { useDatasetStore } from "#imports";
+import { computed, ref } from "vue";
 import type { UIResource } from "~/interfaces/types";
 
 const route = useRoute();
 const config = useRuntimeConfig();
+const datasetStore = useDatasetStore();
 
 const props = defineProps<{
   catalogue?: UIResource;
@@ -20,6 +24,8 @@ const catalogueRouteParam = route.params.catalogue as string;
 
 const menu: { label: string; link: string }[] = [];
 
+const showCartModal = ref<boolean>(false);
+
 // the variable route does not set the resourceType param, therefore check the route name
 if (
   route.params.resourceType ||
@@ -27,46 +33,46 @@ if (
 ) {
   menu.push({
     label: "overview",
-    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}`,
+    link: `/${catalogueRouteParam}`,
   });
 }
 
 if (props.collectionCount > 0) {
   menu.push({
     label: "Collections",
-    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/collections`,
+    link: `/${catalogueRouteParam}/collections`,
   });
 }
 
 if (props.networkCount > 0 && !cohortOnly.value) {
   menu.push({
     label: "Networks",
-    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/networks`,
+    link: `/${catalogueRouteParam}/networks`,
   });
 }
 
 if (props.variableCount > 0 && !cohortOnly.value)
   menu.push({
     label: "Variables",
-    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/variables`,
+    link: `/${catalogueRouteParam}/variables`,
   });
 
 if (cohortOnly.value) {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/about`,
+    link: `/${catalogueRouteParam}/about`,
   });
 } else if (catalogueRouteParam && catalogueRouteParam !== "all") {
   menu.push({
     label: "About",
-    link: `/${route.params.schema}/catalogue/${catalogueRouteParam}/about/${catalogueRouteParam}`,
+    link: `/${catalogueRouteParam}/about/${catalogueRouteParam}`,
   });
 }
 
 if (!cohortOnly.value) {
   menu.push({
     label: "Other catalogues",
-    link: `/${route.params.schema}/catalogue`,
+    link: `/`,
   });
   menu.push({
     label: "Upload data",
@@ -84,18 +90,22 @@ if (!cohortOnly.value) {
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
         <Logo
-          :link="`/${route.params.schema}/catalogue/${catalogueRouteParam}`"
+          :link="`/${catalogueRouteParam}`"
           :image="
             catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
           "
+          :inverted="true"
         />
         <MainNavigation :navigation="menu" :invert="true" />
         <!--  <div class="w-[450px]">
            <SearchBar />
         </div>-->
 
-        <!-- <HeaderButton label="Favorites" icon="star" />
-        <HeaderButton label="Account" icon="user" /> -->
+        <StoreHeaderButton
+          @click="showCartModal = !showCartModal"
+          v-if="datasetStore.isEnabled"
+        />
+        <!-- <HeaderButton label="Account" icon="user" /> -->
       </div>
 
       <div class="pt-5 xl:hidden">
@@ -103,7 +113,7 @@ if (!cohortOnly.value) {
           <HamburgerMenu :navigation="menu" />
           <div class="absolute -translate-x-1/2 left-1/2">
             <LogoMobile
-              :link="`/${route.params.schema}/catalogue/${catalogueRouteParam}`"
+              :link="`/${catalogueRouteParam}`"
               :image="
                 catalogueRouteParam === 'all' ? undefined : catalogue?.logo?.url
               "
@@ -111,8 +121,11 @@ if (!cohortOnly.value) {
           </div>
 
           <div class="flex gap-3">
-            <!-- <HeaderButton label="Favorites" icon="star" />
-            <HeaderButton label="Account" icon="user" /> -->
+            <StoreHeaderButton
+              @click="showCartModal = !showCartModal"
+              v-if="datasetStore.isEnabled"
+            />
+            <!-- <HeaderButton label="Account" icon="user" /> -->
           </div>
         </div>
 
@@ -122,5 +135,6 @@ if (!cohortOnly.value) {
         </div>
       </div>
     </Container>
+    <StoreModal :show="showCartModal" @close="showCartModal = false" />
   </header>
 </template>

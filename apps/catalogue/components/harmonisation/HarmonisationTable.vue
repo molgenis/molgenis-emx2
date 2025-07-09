@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import type { IResources } from "~/interfaces/catalogue";
+import { useRoute } from "#app/composables/router";
+import { computed, ref } from "vue";
+import type { IResources } from "../../interfaces/catalogue";
 import type { IVariableWithMappings } from "~/interfaces/types";
-import { getKey } from "~/utils/variableUtils";
+import { calcAggregatedHarmonisationStatus } from "~/utils/harmonisation";
+import { getKey } from "../../utils/variableUtils";
+import { resourceIdPath } from "../../utils/urlHelpers";
 const route = useRoute();
 
 const props = defineProps<{
@@ -35,7 +39,11 @@ let activeVariablePath = computed(() =>
     <HarmonisationLegendMatrix size="small" />
     <div class="overflow-x-auto xl:max-w-table border-t">
       <TableSticky
-        :columns="resources"
+        :columns="
+          resources.sort((a, b) =>
+            a.id.toLowerCase().localeCompare(b.id.toLowerCase())
+          )
+        "
         :rows="variables"
         class="h-screen overflow-auto"
       >
@@ -93,7 +101,7 @@ let activeVariablePath = computed(() =>
 
       <template #footer>
         <NuxtLink
-          :to="`/${route.params.schema}/catalogue/${route.params.catalogue}/variables/${activeVariablePath}`"
+          :to="`/${route.params.catalogue}/variables/${activeVariablePath}`"
         >
           <Button type="primary" size="small" label="More details " />
         </NuxtLink>

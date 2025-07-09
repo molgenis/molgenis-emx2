@@ -4,7 +4,11 @@ import { defineNuxtConfig } from "nuxt/config";
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   devtools: { enabled: true },
-  modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag"],
+  experimental: {
+    watcher: 'parcel'
+  },
+  modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag", "@pinia/nuxt", "floating-vue/nuxt"],
+  ignore: ['.gradle/**', '.git/**', 'node_modules/**', 'dist/**', 'coverage/**'],
   tailwindcss: {
     cssPath: "../tailwind-components/assets/css/main.css",
     configPath: "../tailwind-components/tailwind.config.js",
@@ -17,6 +21,7 @@ export default defineNuxtConfig({
       analyticsKey: "",
       analyticsProvider: "siteimprove",
       cohortOnly: false,
+      schema: "catalogue-demo",
       apiBase:
         process.env.NUXT_PUBLIC_API_BASE ||
         "https://emx2.dev.molgenis.org/",
@@ -32,6 +37,9 @@ export default defineNuxtConfig({
     prerender: {
       ignore: ["/_tailwind/"],
     },
+  },
+  pinia: {
+    storesDirs: ['./stores/**'],
   },
   app: {
     head: {

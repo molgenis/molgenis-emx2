@@ -44,15 +44,19 @@ public class SHACLComplianceTester {
    * Information: https://www.health-ri.nl/health-ri-roadmap-plateauplanning Source files:
    * https://github.com/Health-RI/metadata-shacl-validation/blob/master/validator/resources/healthri/config.properties
    */
-  public static final String[] HEALTH_RI_SHACL_FILES =
+  public static final String[] HEALTH_RI_V1_SHACL_FILES =
       new String[] {
-        "SHACL/Health-RI_core_plateau_1/v1.0.0/Catalog.ttl",
-        "SHACL/Health-RI_core_plateau_1/v1.0.0/DataService.ttl",
-        "SHACL/Health-RI_core_plateau_1/v1.0.0/Dataset.ttl",
-        "SHACL/Health-RI_core_plateau_1/v1.0.0/DatasetSeries.ttl",
-        "SHACL/Health-RI_core_plateau_1/v1.0.0/Distribution.ttl",
-        "SHACL/Health-RI_core_plateau_1/v1.0.0/Resource.ttl"
+        "SHACL/Health-RI/v1.0.0/Catalog.ttl",
+        "SHACL/Health-RI/v1.0.0/DataService.ttl",
+        "SHACL/Health-RI/v1.0.0/Dataset.ttl",
+        "SHACL/Health-RI/v1.0.0/DatasetSeries.ttl",
+        "SHACL/Health-RI/v1.0.0/Distribution.ttl",
+        "SHACL/Health-RI/v1.0.0/Resource.ttl"
       };
+
+  /** See: https://github.com/Health-RI/health-ri-metadata/releases/tag/v2.0.0 */
+  public static final String[] HEALTH_RI_V2_SHACL_FILES =
+      new String[] {"SHACL/Health-RI/v2.0.0/HRI-Datamodel-shapes.ttl"};
 
   /**
    * Information: https://vp-onboarding-doc.readthedocs.io/en/latest/level_1/index.html Source

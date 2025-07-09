@@ -21,7 +21,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.2.4
+    - image: molgenis/ci-build:1.3.7
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -30,7 +30,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.2.4
+    - image: molgenis/ci-build:1.3.7
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -44,7 +44,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.2.4
+      - image: molgenis/ci-build:1.3.7
       - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
@@ -135,6 +135,12 @@ jobs:
           docker push molgenis/ssr-catalogue-snapshot --all-tags
     
     - run:
+        name: Docker-Scout scanning on cve's, break on critical.
+        command: |
+          curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
+          docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code --only-severity critical 
+
+    - run:
         name: deploy preview to azure
         command: |
           export $( cat build/ci.properties | xargs )
@@ -144,7 +150,7 @@ jobs:
     - run:
         name: Wait for preview to be up, poll every 10 seconds
         command: |
-          GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/catalogue/testNetwork1"
+          GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/testNetwork1"
           while true; 
               do 
                   STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
@@ -181,11 +187,18 @@ jobs:
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
     - run:
+        name: lint the code
+        command: |
+          ./gradlew lint ci --no-daemon \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
+
+
+    - run:
         name: run tests and push to sonar
         command: |
           ./gradlew test jacocoMergedReport sonar --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+          -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
           -Dsonar.pullrequest.key=${CIRCLE_PULL_REQUEST##*/} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH}
 
     - post_steps
@@ -205,13 +218,19 @@ jobs:
         name: prepare sql test database
         command: psql -h 127.0.0.1 -p 5432 -U postgres < .circleci/initdb.sql
 
-    # we might be optimistic and skip tests here
+    - run:
+        name: lint the code
+        command: |
+          ./gradlew lint ci --no-daemon \
+          -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
+
+      # we might be optimistic and skip tests here
     - run:
         name: Run tests, merge test results using jacoco and push test results to sonar for the branch (or fail)
         command: |
           ./gradlew shadowJar test jacocoMergedReport sonar ci --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password \
-          -Dsonar.login=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
+          -Dsonar.token=${SONAR_TOKEN} -Dsonar.organization=molgenis -Dsonar.host.url=https://sonarcloud.io -Dsonar.verbose=true \
 
     - run:
         name: either release or push only snapshots to docker
@@ -239,14 +258,14 @@ jobs:
         command: |
           export $( cat build/ci.properties | xargs )
           curl -d "token=${SLACK_TOKEN}" \
-          -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.net" \
+          -d "text=EMX2 version: ${TAG_NAME} is released. Check it out: https://emx2.dev.molgenis.org" \
           -d "channel=C02AZDG6QQ7" \
           -X POST https://slack.com/api/chat.postMessage  
 
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.50.0-jammy
+      - image: mcr.microsoft.com/playwright:v1.53.1-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
@@ -266,7 +285,7 @@ jobs:
       - run:
           name: Wait for catalogue e2e test data to be loaded, poll every 10 seconds
           command: |
-            GETURL="https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/catalogue/testNetwork1"           
+            GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/catalogue-demo/catalogue/testNetwork1"           
             while true; 
                 do 
                     STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
@@ -284,7 +303,7 @@ jobs:
           command: |
             yarn playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
-            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            export E2E_BASE_URL=https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
             yarn e2e
           working_directory: apps/catalogue
@@ -313,6 +332,15 @@ jobs:
             echo $E2E_BASE_URL
             yarn e2e
           working_directory: apps/directory
+      - run:
+          name: UI tests
+          command: |
+            yarn playwright install chrome
+            echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
+            export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
+            echo $E2E_BASE_URL
+            yarn e2e
+          working_directory: apps/ui
       - run:
             name: Run non ssr e2e tests
             command: |

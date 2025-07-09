@@ -12,9 +12,10 @@
 </template>
 
 <script setup lang="ts">
+import { useFavicon, usePreferredDark } from "@vueuse/core";
 //@ts-expect-error
 import { Molgenis } from "molgenis-components";
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { LocationQuery, useRoute } from "vue-router";
 import Error from "./components/Error.vue";
 import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
@@ -60,7 +61,6 @@ watch(
         checkoutStore.selectedCollections,
         checkoutStore.selectedServices
       );
-      applyBookmark(newQuery);
     }
 
     if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
@@ -69,6 +69,8 @@ watch(
   },
   { immediate: true, deep: true }
 );
+
+onMounted(changeFavicon);
 
 function closeAllDropdownButtons(event: any) {
   const allDropdownButtons = document.querySelectorAll(".dropdown-button");
@@ -83,5 +85,15 @@ function closeAllDropdownButtons(event: any) {
       dropdownButton.removeAttribute("open");
     });
   }
+}
+
+function changeFavicon() {
+  const faviconUrl = getFaviconUrl();
+  useFavicon(faviconUrl);
+}
+
+function getFaviconUrl() {
+  const isDark = usePreferredDark();
+  return isDark ? "bbmri-darkmode-favicon.ico" : "bbmri-lightmode-favicon.ico";
 }
 </script>

@@ -1,16 +1,16 @@
 import { LocationQuery } from "vue-router";
 import useErrorHandler from "../composables/errorHandler";
+import { IOntologyItem } from "../interfaces/interfaces";
 import router from "../router";
-import { labelValuePair, useCheckoutStore } from "../stores/checkoutStore";
+import { ILabelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
 let bookmarkApplied = false;
 
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 
 export async function applyBookmark(watchedQuery: LocationQuery) {
   if (bookmarkApplied) {
-    bookmarkApplied = false;
     return;
   }
 
@@ -71,12 +71,14 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
         const diagnosisFacetDetails = filtersStore.facetDetails[filterName];
         /** the diagnosis available has been encoded, to discourage messing with the tree and breaking stuff. */
         const queryValues = atob(filtersToAdd).split(",");
-        const options = await filtersStore.getOntologyOptionsForCodes(
-          diagnosisFacetDetails,
-          queryValues
-        );
-        filtersStore.updateOntologyFilter(filterName, options, true, true);
-        /** retrieve these from the server, this is easier than tree traversal */
+        const options: IOntologyItem[] =
+          await filtersStore.getOntologyOptionsForCodes(
+            diagnosisFacetDetails,
+            queryValues
+          );
+        options.forEach((option) => {
+          filtersStore.updateOntologyFilter(filterName, option, true, true);
+        });
       } else {
         const filterOptions = filtersStore.filterOptionsCache[filterName];
         if (filterOptions) {
@@ -90,12 +92,13 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
     }
   }
   filtersStore.bookmarkWaitingForApplication = false;
+  bookmarkApplied = true;
 }
 
 export function createBookmark(
   filters: Record<string, any>,
-  collectionCart: Record<string, labelValuePair[]>,
-  serviceCart: Record<string, labelValuePair[]>
+  collectionCart: Record<string, ILabelValuePair[]>,
+  serviceCart: Record<string, ILabelValuePair[]>
 ) {
   const filtersStore = useFiltersStore();
   const bookmark: Record<string, string> = {};
@@ -186,6 +189,7 @@ export function createBookmark(
 
   if (!filtersStore.bookmarkWaitingForApplication) {
     try {
+      clearError();
       router.push({
         name: router.currentRoute.value.name,
         query: bookmark,

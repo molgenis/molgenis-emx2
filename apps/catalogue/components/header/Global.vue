@@ -1,28 +1,27 @@
-<script setup>
+<script setup lang="ts">
+import { useRuntimeConfig } from "#app";
+
 const config = useRuntimeConfig();
-let schema;
-if (useRoute) {
-  schema = useRoute().params.schema;
-}
+
 const menu = [
-  { label: "Home", link: `/${schema}/catalogue` },
+  { label: "Home", link: `/` },
   config.public.cohortOnly
-    ? { label: "Cohorts", link: `/${schema}/catalogue/all/cohorts` }
+    ? { label: "Cohorts", link: `/all/cohorts` }
     : {
         label: "All collections",
-        link: `/${schema}/catalogue/all/collections`,
+        link: `/all/collections`,
       },
   config.public.cohortOnly
     ? undefined
     : {
         label: "All variables",
-        link: `/${schema}/catalogue/all/variables`,
+        link: `/all/variables`,
       },
   config.public.cohortOnly
     ? undefined
     : {
         label: "All networks",
-        link: `/${schema}/catalogue/all/networks`,
+        link: `/all/networks`,
       },
   {
     label: "Upload data",
@@ -37,8 +36,11 @@ const menu = [
   // { label: "Tables", link: "#" },
   // { label: "Manuals", link: "#" },
   config.public.cohortOnly
-    ? { label: "About", link: `/${schema}/catalogue/all/about` }
-    : undefined,
+    ? { label: "About", link: `/all/about` }
+    : {
+        label: "About",
+        link: `/about`,
+      },
 ].filter((item) => item !== undefined);
 </script>
 
@@ -46,7 +48,7 @@ const menu = [
   <header class="antialiased px-5 lg:px-0 xl:bg-navigation">
     <Container>
       <div class="items-center justify-between hidden xl:flex h-25">
-        <Logo :link="`/${schema}/catalogue`" />
+        <Logo :link="`/`" />
         <MainNavigation :navigation="menu" />
         <!--  <div class="w-[450px]">
            <SearchBar />
@@ -61,7 +63,7 @@ const menu = [
           <HamburgerMenu :navigation="menu" />
 
           <div class="absolute -translate-x-1/2 left-1/2">
-            <LogoMobile :link="`/${schema}/catalogue`" />
+            <LogoMobile link="/" />
           </div>
 
           <div class="flex gap-3">

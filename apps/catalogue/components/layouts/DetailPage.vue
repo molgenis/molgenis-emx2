@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { useRoute } from "#app";
+import { useHeaderData, useBannerData } from "#imports";
+import { computed } from "vue";
+
 const route = useRoute();
 const headerData = await useHeaderData();
 

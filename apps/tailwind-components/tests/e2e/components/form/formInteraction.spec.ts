@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import playwrightConfig from "~/playwright.config";
+import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
@@ -23,11 +23,22 @@ test("it should update the model value when a field is filled out", async ({
 test("it should not jump around when selecting a checkbox", async ({
   page,
 }) => {
-  await page.getByRole("link", { name: "details" }).click();
-  await page.getByText("red", { exact: true }).click();
+  await page.goto(`${route}Form.story?schema=pet+store&table=User`);
+  await page.evaluate(() => location.reload()); //help nuxt
+  await page.getByText("username", { exact: true }).waitFor();
+
+  //scroll into view
+  await page.evaluate(() => {
+    const div = document.querySelector(
+      "#forms-story-fields-container"
+    ) as HTMLElement;
+    if (div) div.scrollTop = div.scrollHeight;
+  });
+  await page.getByText("pooky", { exact: true }).click();
+  //check still visible
   await page
-    .locator("#tags-form-field-checkbox-group")
-    .getByText("colors")
+    .locator("#pets-form-field-input-checkbox-group")
+    .getByText("spike")
     .click();
-  await expect(page.locator("#details")).toContainText("red");
+  await expect(page.locator("#pets-form-field")).toContainText("pooky");
 });

@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import type { ITableSettings, Resp, Schema } from "~/types/types";
+import { useFetch, useLazyAsyncData } from "#app";
+import { fetchMetadata } from "#imports";
+import { computed, ref, watch } from "vue";
+import type { ITableSettings, Resp, Schema } from "../../types/types";
 
 const tableSettings = ref<ITableSettings>({
   page: 1,
@@ -7,6 +10,8 @@ const tableSettings = ref<ITableSettings>({
   orderby: { column: "", direction: "ASC" },
   search: "",
 });
+
+const isEditable = ref(false);
 
 const { data } = await useFetch<Resp<Schema>>("/graphql", {
   key: "databases",
@@ -16,14 +21,31 @@ const { data } = await useFetch<Resp<Schema>>("/graphql", {
 
 const databases = computed(
   () =>
-    data.value?.data?._schemas.sort((a, b) => a.label.localeCompare(b.label)) ??
-    []
+    data.value?.data?._schemas.sort((a: any, b: any) =>
+      a.label.localeCompare(b.label)
+    ) ?? []
 );
 
 const schemaId = ref(
   databases.value.find(
-    (d) => d.label === "pet store" || d.id === "catalogue-demo"
+    (database: any) =>
+      database.label === "pet store" || database.id === "catalogue-demo"
   )?.id || ""
+);
+
+watch(
+  schemaId,
+  async () => {
+    if (schemaId.value) {
+      const { data: metadata } = await useLazyAsyncData("my meta data", () =>
+        fetchMetadata(schemaId.value)
+      );
+      if (metadata.value) {
+        tableId.value = metadata.value.tables[0].id;
+      }
+    }
+  },
+  { immediate: true }
 );
 
 const tableId = ref(
@@ -35,7 +57,7 @@ const tableId = ref(
 );
 
 const schemaOptions = computed(() =>
-  databases.value.map((schema) => schema.id)
+  databases.value.map((schema: any) => schema.id)
 );
 
 const { data: metadata, refresh: refetchMetadata } = await useLazyAsyncData(
@@ -54,47 +76,6 @@ const tableOptions = computed(() => {
     return [];
   }
 });
-
-const {
-  data: tableData,
-  error,
-  refresh: refetchTableData,
-} = await useLazyAsyncData("my data", () =>
-  fetchTableData(schemaId.value, tableId.value)
-);
-
-watch(schemaId, async () => {
-  refetchMetadata().then(() => {
-    if (metadata.value) {
-      tableId.value = metadata.value.tables[0].id;
-      refetchTableData();
-    }
-  });
-});
-
-watch(tableId, async () => {
-  refetchTableData();
-});
-
-const tableColumns = computed(() => {
-  return (
-    metadata.value?.tables
-      .find((t) => t.id === tableId.value)
-      ?.columns.filter((column) => !column.id.startsWith("mg")) ?? []
-  );
-});
-
-const dataRows = computed(() => {
-  if (!tableData.value) return [];
-
-  return tableData.value.rows.map((row) => {
-    return Object.fromEntries(
-      Object.entries(row).filter(([key]) => !key.startsWith("mg"))
-    );
-  });
-});
-
-const numberOfRows = computed(() => tableData?.value?.count ?? 0);
 </script>
 
 <template>
@@ -116,18 +97,29 @@ const numberOfRows = computed(() => tableData?.value?.count ?? 0);
         </option>
       </select>
     </div>
+    <div class="m-2">
+      <label for="table-id-select">Edit mode: </label>
+      <InputBoolean
+        v-model="isEditable"
+        id="edit-mode-input"
+        :showClearButton="false"
+      />
+    </div>
   </div>
 
   <div>
+    <div><span class="text-title">tableId:</span> {{ tableId }}</div>
+    <div class="mb-4">
+      <span class="text-title">schemaId:</span> {{ schemaId }}
+    </div>
+
     <TableEMX2
       v-if="tableId && schemaId"
+      :key="`${schemaId}-${tableId}`"
+      :schema-id="schemaId"
       :table-id="tableId"
-      :columns="tableColumns"
-      :rows="dataRows"
-      :count="numberOfRows"
-      @update:settings="(value: ITableSettings) => tableSettings = value"
-      :settings="tableSettings"
+      v-model:settings="tableSettings"
+      :is-editable="isEditable"
     />
   </div>
 </template>
-d

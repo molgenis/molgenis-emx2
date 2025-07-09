@@ -3,12 +3,15 @@ export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   ssr: false,
   devtools: { enabled: true },
+  experimental: {
+    watcher: "parcel",
+  },
   runtimeConfig: {
     logLevel: 4,
   },
   tailwindcss: {
-    cssPath: '../tailwind-components/assets/css/main.css',
-    configPath: '../tailwind-components/tailwind.config.js'
+    cssPath: "../tailwind-components/assets/css/main.css",
+    configPath: "../tailwind-components/tailwind.config.js",
   },
 
   // runtimeConfig: {
@@ -18,10 +21,10 @@ export default defineNuxtConfig({
   //   },
   // },
   vite: {
-    base: "."
+    base: ".",
   },
 
-  modules: [ '@pinia/nuxt' ],
+  modules: ["@pinia/nuxt"],
 
   components: [
     {
@@ -32,4 +35,4 @@ export default defineNuxtConfig({
       global: true,
     },
   ],
-})
+});

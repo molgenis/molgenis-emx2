@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const route = useRoute();
-import type { INetwork } from "~/interfaces/types";
+import type { INetwork } from "../interfaces/types";
 import { computed } from "vue";
+import { useRoute } from "#app/composables/router";
 
 const props = withDefaults(
   defineProps<{
@@ -36,22 +37,12 @@ const iconStarClasses = computed(() => {
   return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
 });
 
-//TODO: morris believes we don't need this anymore with the catalogues.
-//instead we would like to link to their catalogues, if applicable?
-const links = [];
-//   {
-//     title: "Network",
-//     url: `/${props.schema}/catalogue/${catalogue}/networks/${props.network.id}`,
-//   },
-//   {
-//     title: "Cohorts",
-//     url: `/${props.schema}/catalogue/${catalogue}/networks/${props.network.id}#cohorts`,
-//   },
-//   {
-//     title: "Variables",
-//     url: `/${props.schema}/catalogue/${catalogue}/networks/${props.network.id}#variables`,
-//   },
-// ];
+interface Link {
+  url: string;
+  title: string;
+}
+
+const links: Link[] = [];
 </script>
 
 <template>
@@ -62,9 +53,7 @@ const links = [];
           class="items-center flex justify-center"
           :class="[compact ? 'w-50px h-50px' : 'h-full w-full']"
         >
-          <NuxtLink
-            :to="`/${schema}/catalogue/${catalogue}/networks/${network.id}`"
-          >
+          <NuxtLink :to="`/${catalogue}/networks/${network.id}`">
             <img :src="network?.logo?.url" />
           </NuxtLink>
         </div>
@@ -74,7 +63,7 @@ const links = [];
           <div :class="titleContainerClasses" class="">
             <h2 class="min-w-[160px] mr-4 md:inline-block block">
               <NuxtLink
-                :to="`/${schema}/catalogue/${catalogue}/networks/${network.id}`"
+                :to="`/${catalogue}/networks/${network.id}`"
                 class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
               >
                 {{ network?.acronym || network?.name }}
@@ -92,7 +81,7 @@ const links = [];
         -->
             <NuxtLink
               v-if="!compact"
-              :to="`/${schema}/catalogue/${catalogue}/networks/${network.id}`"
+              :to="`/${catalogue}/networks/${network.id}`"
             >
               <IconButton
                 icon="arrow-right"

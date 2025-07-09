@@ -113,12 +113,12 @@ public class SqlSchemaMetadata extends SchemaMetadata {
         .tx(
             database -> {
               SqlSchema s = (SqlSchema) database.getSchema(getName());
+              SqlSchemaMetadata sm = s.getMetadata();
               if (tables.length > 1) {
                 // make use of dependency sorting etc
                 s.migrate(new SchemaMetadata().create(tables));
               } else {
                 TableMetadata table = tables[0];
-                SqlSchemaMetadata sm = s.getMetadata();
                 List<TableMetadata> tableList = new ArrayList<>();
                 tableList.addAll(List.of(tables));
                 validateTableIdentifierIsUnique(sm, table);
@@ -128,14 +128,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                       new SqlTableMetadata(
                           sm,
                           getOntologyTableDefinition(
-                              table.getTableName(), table.getDescriptions()));
+                              table.getTableName(), table.getLabels(), table.getDescriptions()));
                 } else {
                   result = new SqlTableMetadata(sm, table);
                 }
                 sm.tables.put(table.getTableName(), result);
                 executeCreateTable(((SqlDatabase) database).getJooq(), result);
-                sync(sm);
               }
+              sync(sm);
             });
     getDatabase().getListener().schemaChanged(getName());
     return this;
@@ -243,13 +243,13 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     return (SqlDatabase) super.getDatabase();
   }
 
-  public List<String> getIneritedRolesForUser(String user) {
-    if (user == null) return new ArrayList<>();
-    if (ADMIN_USER.equals(user)) {
+  public List<String> getInheritedRolesForUser(String username) {
+    if (username == null) return new ArrayList<>();
+    User user = getDatabase().getUser(username);
+    if (user.isAdmin()) {
       // admin has all roles
       return executeGetRoles(getJooq(), getName());
     }
-    final String username = user.trim();
     List<String> result = new ArrayList<>();
     // need elevated privileges, so clear user and run as root
     getDatabase()
@@ -257,14 +257,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
             adminJooq ->
                 result.addAll(
                     SqlSchemaMetadataExecutor.getInheritedRoleForUser(
-                        adminJooq, getName(), username)));
+                        adminJooq, getName(), username.trim())));
     return result;
   }
 
   public List<String> getInheritedRolesForActiveUser() {
     // add cache because this function is called often
     if (rolesCache == null) {
-      rolesCache = getIneritedRolesForUser(getDatabase().getActiveUser());
+      rolesCache = getInheritedRolesForUser(getDatabase().getActiveUser());
     }
     return rolesCache;
   }

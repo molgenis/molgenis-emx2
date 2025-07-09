@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import type { IInputProps } from "~/types/types";
+import { ref, useTemplateRef } from "vue";
+import type { IInputProps } from "../../types/types";
+
 const modelValue = defineModel<string | number>();
+const search = useTemplateRef<HTMLInputElement>("search");
+
 defineProps<
   IInputProps & {
     type?: string;
   }
 >();
+
+defineExpose({ search });
 
 const emit = defineEmits(["update:modelValue", "focus", "blur"]);
 
@@ -46,6 +52,7 @@ function handleInput(input: string) {
     </div>
     <input
       :id="id"
+      ref="search"
       type="search"
       :value="modelValue"
       :placeholder="placeholder"

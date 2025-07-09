@@ -8,6 +8,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.io.tablestore.TableStore;
+import org.molgenis.emx2.utils.TypeUtils;
 
 public class Emx2 {
 
@@ -26,6 +27,7 @@ public class Emx2 {
   public static final String REF_JS_TEMPLATE = "refLabel";
   public static final String REF_BACK = "refBack";
   public static final String REQUIRED = "required";
+  public static final String READ_ONLY = "readonly";
   public static final String DEFAULT_VALUE = "defaultValue";
   private static final String VALIDATION = "validation";
   private static final String VISIBLE = "visible";
@@ -44,8 +46,8 @@ public class Emx2 {
     int lineNo = 1; // use as position
     int columnPosition = 0;
 
-    for (Row r : rows) {
-      String tableName = r.getString(TABLE_NAME);
+    for (Row row : rows) {
+      String tableName = row.getString(TABLE_NAME);
       if (tableName == null) {
         throw new MolgenisException(
             "Parsing of sheet molgenis failed: Required column "
@@ -59,50 +61,51 @@ public class Emx2 {
       }
 
       // load table metadata, this is when columnName is empty
-      if (r.getString(COLUMN_NAME) == null) {
-        schema.getTableMetadata(tableName).setInheritName(r.getString(TABLE_EXTENDS));
-        schema.getTableMetadata(tableName).setImportSchema(r.getString(REF_SCHEMA));
-        schema.getTableMetadata(tableName).setSemantics(r.getStringArray(SEMANTICS, false));
-        schema.getTableMetadata(tableName).setProfiles(r.getStringArray(PROFILES, false));
-        if (r.getString(TABLE_TYPE) != null) {
+      if (row.getString(COLUMN_NAME) == null) {
+        schema.getTableMetadata(tableName).setInheritName(row.getString(TABLE_EXTENDS));
+        schema.getTableMetadata(tableName).setImportSchema(row.getString(REF_SCHEMA));
+        schema.getTableMetadata(tableName).setSemantics(row.getStringArray(SEMANTICS, false));
+        schema.getTableMetadata(tableName).setProfiles(row.getStringArray(PROFILES, false));
+        if (row.getString(TABLE_TYPE) != null) {
           schema
               .getTableMetadata(tableName)
-              .setTableType(TableType.valueOf(r.getString(TABLE_TYPE)));
+              .setTableType(TableType.valueOf(row.getString(TABLE_TYPE)));
         }
 
-        if (r.getString(OLD_NAME) != null) {
-          schema.getTableMetadata(tableName).setOldName(r.getString(OLD_NAME));
+        if (row.getString(OLD_NAME) != null) {
+          schema.getTableMetadata(tableName).setOldName(row.getString(OLD_NAME));
         }
-        if (!r.isNull(DROP, BOOL) && r.getBoolean(DROP)) {
+        if (!row.isNull(DROP, BOOL) && row.getBoolean(DROP)) {
           schema.getTableMetadata(tableName).drop();
         }
-        if (r.containsName(LABEL)) schema.getTableMetadata(tableName).setLabel(r.getString(LABEL));
+        if (row.containsName(LABEL))
+          schema.getTableMetadata(tableName).setLabel(row.getString(LABEL));
         // labels i18n
-        r.getColumnNames().stream()
+        row.getColumnNames().stream()
             .filter(name -> name.startsWith(LABEL + ":"))
             .forEach(
                 value -> {
                   schema
                       .getTableMetadata(tableName)
-                      .setLabel(r.getString(value, false), (value.split(":")[1]));
+                      .setLabel(row.getString(value, false), (value.split(":")[1]));
                 });
-        if (r.containsName(DESCRIPTION))
-          schema.getTableMetadata(tableName).setDescription(r.getString(DESCRIPTION, false));
+        if (row.containsName(DESCRIPTION))
+          schema.getTableMetadata(tableName).setDescription(row.getString(DESCRIPTION, false));
         // description i18n
-        r.getColumnNames().stream()
+        row.getColumnNames().stream()
             .filter(name -> name.startsWith(DESCRIPTION + ":"))
             .forEach(
                 value -> {
                   schema
                       .getTableMetadata(tableName)
-                      .setDescription(r.getString(value, false), (value.split(":")[1]));
+                      .setDescription(row.getString(value, false), (value.split(":")[1]));
                 });
       }
 
       // load column metadata
       else {
         try {
-          if (r.getString(TABLE_EXTENDS) != null) {
+          if (row.getString(TABLE_EXTENDS) != null) {
             throw new MolgenisException(
                 "Parsing of sheet molgenis failed: Column "
                     + TABLE_EXTENDS
@@ -110,46 +113,49 @@ public class Emx2 {
                     + lineNo);
           }
 
-          Column column = column(r.getString(COLUMN_NAME));
-          if (r.notNull(COLUMN_TYPE))
-            column.setType(ColumnType.valueOf(r.getString(COLUMN_TYPE).toUpperCase().trim()));
-          if (r.notNull(KEY)) column.setKey(r.getInteger(KEY));
-          if (r.notNull(REF_SCHEMA)) column.setRefSchemaName(r.getString(REF_SCHEMA));
-          if (r.notNull(REF_TABLE)) column.setRefTable(r.getString(REF_TABLE));
-          if (r.notNull(REF_LINK)) column.setRefLink(r.getString(REF_LINK));
-          if (r.notNull(REF_BACK)) column.setRefBack(r.getString(REF_BACK));
-          if (r.notNull(REQUIRED)) column.setRequired(r.getString(REQUIRED));
-          if (r.notNull(DEFAULT_VALUE)) column.setDefaultValue(r.getString(DEFAULT_VALUE));
-          if (r.notNull(DESCRIPTION)) column.setDescription(r.getString(DESCRIPTION));
+          Column column = column(row.getString(COLUMN_NAME));
+          if (row.notNull(COLUMN_TYPE))
+            column.setType(ColumnType.valueOf(row.getString(COLUMN_TYPE).toUpperCase().trim()));
+          if (row.notNull(KEY)) column.setKey(row.getInteger(KEY));
+          if (row.notNull(REF_SCHEMA)) column.setRefSchemaName(row.getString(REF_SCHEMA));
+          if (row.notNull(REF_TABLE)) column.setRefTable(row.getString(REF_TABLE));
+          if (row.notNull(REF_LINK)) column.setRefLink(row.getString(REF_LINK));
+          if (row.notNull(REF_BACK)) column.setRefBack(row.getString(REF_BACK));
+          if (row.notNull(REQUIRED)) column.setRequired(row.getString(REQUIRED));
+          if (row.notNull(DEFAULT_VALUE)) column.setDefaultValue(row.getString(DEFAULT_VALUE));
+          if (row.notNull(DESCRIPTION)) column.setDescription(row.getString(DESCRIPTION));
           // description i18n
-          r.getColumnNames().stream()
+          row.getColumnNames().stream()
               .filter(name -> name.startsWith(DESCRIPTION + ":"))
               .forEach(
                   value -> {
-                    column.setDescription(r.getString(value), (value.split(":")[1]));
+                    column.setDescription(row.getString(value), (value.split(":")[1]));
                   });
-          if (r.notNull(VALIDATION)) column.setValidation(r.getString(VALIDATION));
-          if (r.notNull(VISIBLE)) column.setVisible(r.getString(VISIBLE));
-          if (r.notNull(COMPUTED)) column.setComputed(r.getString(COMPUTED));
-          if (r.notNull(SEMANTICS)) column.setSemantics(r.getStringArray(SEMANTICS));
-          if (r.notNull(PROFILES)) column.setProfiles(r.getStringArray(PROFILES));
-          if (r.notNull(REF_JS_TEMPLATE)) column.setRefLabel(r.getString(REF_JS_TEMPLATE));
-          if (r.notNull(COLUMN_POSITION)) column.setPosition(r.getInteger(COLUMN_POSITION));
-          if (r.notNull(OLD_NAME)) column.setOldName(r.getString(OLD_NAME));
-          if (!r.isNull(DROP, BOOL) && r.getBoolean(DROP)) column.drop();
-          else
-            column.setPosition(
-                columnPosition++); // this ensures positions accross table hiearchy matches those in
-          // imported
-          // file
+          if (row.notNull(VALIDATION)) column.setValidation(row.getString(VALIDATION));
+          if (row.notNull(VISIBLE)) column.setVisible(row.getString(VISIBLE));
+          if (row.notNull(COMPUTED)) column.setComputed(row.getString(COMPUTED));
+          if (row.notNull(SEMANTICS)) column.setSemantics(row.getStringArray(SEMANTICS));
+          if (row.notNull(PROFILES)) column.setProfiles(row.getStringArray(PROFILES));
+          if (row.notNull(REF_JS_TEMPLATE)) column.setRefLabel(row.getString(REF_JS_TEMPLATE));
+          if (row.notNull(COLUMN_POSITION)) column.setPosition(row.getInteger(COLUMN_POSITION));
+          if (row.notNull(OLD_NAME)) column.setOldName(row.getString(OLD_NAME));
+          if (row.notNull(READ_ONLY))
+            column.setReadonly(TypeUtils.toBool(row.getString(READ_ONLY)));
+
+          if (!row.isNull(DROP, BOOL) && row.getBoolean(DROP)) {
+            column.drop();
+          } else {
+            column.setPosition(columnPosition++);
+            // this ensures positions accross table hiearchy matches those in imported file
+          }
           // get labels
-          if (r.notNull(LABEL)) column.setLabel(r.getString(LABEL));
+          if (row.notNull(LABEL)) column.setLabel(row.getString(LABEL));
           // labels i18n
-          r.getColumnNames().stream()
+          row.getColumnNames().stream()
               .filter(name -> name.startsWith(LABEL + ":"))
               .forEach(
                   value -> {
-                    column.setLabel(r.getString(value), (value.split(":")[1]));
+                    column.setLabel(row.getString(value), (value.split(":")[1]));
                   });
 
           schema.getTableMetadata(tableName).add(column);
@@ -183,6 +189,7 @@ public class Emx2 {
             COLUMN_TYPE,
             KEY,
             REQUIRED,
+            READ_ONLY,
             REF_SCHEMA,
             REF_TABLE,
             REF_LINK,
@@ -222,18 +229,28 @@ public class Emx2 {
             .toList(); // NOSONAR cannot use toList because immutable
 
     List<Row> result = new ArrayList<>();
-    for (TableMetadata t : tables) {
-
+    // fix https://github.com/molgenis/molgenis-emx2/issues/2805
+    // export ontology table metadata if label or description are set
+    for (TableMetadata table :
+        schema.getTables().stream()
+            .filter(
+                t ->
+                    !t.getTableType().equals(TableType.ONTOLOGIES)
+                        || t.getDescription() != null
+                        || t.getLabel() != null)
+            .toList()) {
       Row row = new Row();
       // set null columns to ensure sensible order
-      row.setString(TABLE_NAME, t.getTableName());
-      row.setString(TABLE_EXTENDS, t.getInheritName());
-      row.setString(TABLE_TYPE, null);
+      row.setString(TABLE_NAME, table.getTableName());
+      row.setString(TABLE_EXTENDS, table.getInheritName());
+      row.setString(
+          TABLE_TYPE, table.getTableType().equals(TableType.ONTOLOGIES) ? "ONTOLOGIES" : null);
       row.setString(COLUMN_NAME, null);
       row.setString(COLUMN_TYPE, null);
       row.setString(KEY, null);
       row.setString(REQUIRED, null);
       row.setString(DEFAULT_VALUE, null);
+      row.setString(READ_ONLY, null);
       row.setString(REF_SCHEMA, null);
       row.setString(REF_TABLE, null);
       row.setString(REF_LINK, null);
@@ -241,16 +258,16 @@ public class Emx2 {
       row.setString(VALIDATION, null);
       row.setString(VISIBLE, null);
       row.setString(COMPUTED, null);
-      if (t.getSemantics() != null) row.setStringArray(SEMANTICS, t.getSemantics());
-      if (t.getProfiles() != null) row.setStringArray(PROFILES, t.getProfiles());
-      for (Map.Entry<String, String> entry : t.getLabels().entrySet()) {
+      if (table.getSemantics() != null) row.setStringArray(SEMANTICS, table.getSemantics());
+      if (table.getProfiles() != null) row.setStringArray(PROFILES, table.getProfiles());
+      for (Map.Entry<String, String> entry : table.getLabels().entrySet()) {
         if (entry.getKey().equals("en")) {
           row.set(LABEL, entry.getValue());
         } else {
           row.set(LABEL + ":" + entry.getKey(), entry.getValue());
         }
       }
-      for (Map.Entry<String, String> entry : t.getDescriptions().entrySet()) {
+      for (Map.Entry<String, String> entry : table.getDescriptions().entrySet()) {
         if (entry.getKey().equals("en")) {
           row.set(DESCRIPTION, entry.getValue());
         } else {
@@ -262,35 +279,38 @@ public class Emx2 {
     }
 
     // output the columns
-    for (Column c : columns) {
-      if (!c.isSystemColumn()) {
+    for (Column column : columns) {
+      if (!column.isSystemColumn()) {
         Row row = new Row();
-        row.setString(TABLE_NAME, c.getTableName());
-        row.setString(COLUMN_NAME, c.getName());
-        if (!c.getColumnType().equals(STRING))
-          row.setString(COLUMN_TYPE, c.getColumnType().toString().toLowerCase());
-        if (c.getRequired() != null) row.setString(REQUIRED, c.getRequired());
-        if (c.getDefaultValue() != null) row.setString(DEFAULT_VALUE, c.getDefaultValue());
-        if (c.getKey() > 0) row.setInt(KEY, c.getKey());
-        if (c.getRefSchemaName() != null && !c.getRefSchemaName().equals(c.getSchemaName()))
-          row.setString(REF_SCHEMA, c.getRefSchemaName());
-        if (c.getRefTableName() != null) row.setString(REF_TABLE, c.getRefTableName());
-        if (c.getRefLink() != null) row.setString(REF_LINK, c.getRefLink());
-        if (c.getRefBack() != null) row.setString(REF_BACK, c.getRefBack());
-        if (c.getRefLabel() != null) row.setString(REF_JS_TEMPLATE, c.getRefLabel());
-        for (Map.Entry<String, String> label : c.getDescriptions().entrySet()) {
+        row.setString(TABLE_NAME, column.getTableName());
+        row.setString(COLUMN_NAME, column.getName());
+        if (!column.getColumnType().equals(STRING))
+          row.setString(COLUMN_TYPE, column.getColumnType().toString().toLowerCase());
+        if (column.getRequired() != null) row.setString(REQUIRED, column.getRequired());
+        if (column.isReadonly()) row.setString(READ_ONLY, column.isReadonly().toString());
+        if (column.getDefaultValue() != null)
+          row.setString(DEFAULT_VALUE, column.getDefaultValue());
+        if (column.getKey() > 0) row.setInt(KEY, column.getKey());
+        if (column.getRefSchemaName() != null
+            && !column.getRefSchemaName().equals(column.getSchemaName()))
+          row.setString(REF_SCHEMA, column.getRefSchemaName());
+        if (column.getRefTableName() != null) row.setString(REF_TABLE, column.getRefTableName());
+        if (column.getRefLink() != null) row.setString(REF_LINK, column.getRefLink());
+        if (column.getRefBack() != null) row.setString(REF_BACK, column.getRefBack());
+        if (column.getRefLabel() != null) row.setString(REF_JS_TEMPLATE, column.getRefLabel());
+        for (Map.Entry<String, String> label : column.getDescriptions().entrySet()) {
           if (label.getKey().equals("en")) {
             row.set(DESCRIPTION, label.getValue());
           } else {
             row.set(DESCRIPTION + ":" + label.getKey(), label.getValue());
           }
         }
-        if (c.getValidation() != null) row.set(VALIDATION, c.getValidation());
-        if (c.getComputed() != null) row.set(COMPUTED, c.getComputed());
-        if (c.getVisible() != null) row.set(VISIBLE, c.getVisible());
-        if (c.getSemantics() != null) row.set(SEMANTICS, c.getSemantics());
-        if (c.getProfiles() != null) row.set(PROFILES, c.getProfiles());
-        for (Map.Entry<String, String> label : c.getLabels().entrySet()) {
+        if (column.getValidation() != null) row.set(VALIDATION, column.getValidation());
+        if (column.getComputed() != null) row.set(COMPUTED, column.getComputed());
+        if (column.getVisible() != null) row.set(VISIBLE, column.getVisible());
+        if (column.getSemantics() != null) row.set(SEMANTICS, column.getSemantics());
+        if (column.getProfiles() != null) row.set(PROFILES, column.getProfiles());
+        for (Map.Entry<String, String> label : column.getLabels().entrySet()) {
           if (label.getKey().equals("en")) {
             row.set(LABEL, label.getValue());
           } else {

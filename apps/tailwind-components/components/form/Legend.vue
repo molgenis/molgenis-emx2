@@ -1,23 +1,23 @@
 <template>
-  <nav class="pt-4 pb-8">
-    <h3 class="text-disabled p-4 ml-1">Jump to</h3>
+  <nav class="pt-4 pb-8" v-if="sections.length > 1">
+    <h3 class="text-disabled p-4 ml-4">Jump to</h3>
     <ul class="list-none space-y-3">
       <li
         v-for="section in sections"
-        class="group flex items-center cursor-pointer"
+        class="group/chapter flex items-center cursor-pointer"
       >
         <div
-          class="h-[24px] w-1 group-hover:bg-button-primary"
+          class="h-[24px] w-1 group-hover/chapter:bg-button-primary"
           :class="{ 'bg-button-primary': section.isActive }"
         />
         <a
-          class="pl-4 flex items-center"
+          class="pl-7 flex items-center"
           href="#"
           :aria-current="section.isActive"
           @click.prevent="emit('goToSection', section.id)"
         >
           <span
-            class="text-title capitalize"
+            class="text-title-contrast capitalize"
             :class="{ 'font-bold': section.isActive }"
           >
             {{ section.label }}

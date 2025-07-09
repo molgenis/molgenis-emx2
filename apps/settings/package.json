@@ -6,6 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
+    "lint": "vite lint",
     "format": "prettier src --write --config ../.prettierrc.js",
     "checkFormat": "prettier src --check --config ../.prettierrc.js"
   },
@@ -19,7 +20,7 @@
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
-    "vite": "5.4.12",
+    "vite": "5.4.16",
     "@vitejs/plugin-vue": "4.6.2",
     "prettier": "2.8.8"
   },

@@ -68,7 +68,7 @@ public class GraphqlTableFieldFactory {
       return table.getIdentifier();
     } else {
       // refschema types we prefix with schema
-      return table.getSchema().getIdentifier() + "_" + table.getIdentifier();
+      return table.getSchema().getIdentifier().replace("-", "") + "_" + table.getIdentifier();
     }
   }
 
@@ -150,7 +150,7 @@ public class GraphqlTableFieldFactory {
       tableTypes.put(tableObjectType, GraphQLTypeReference.typeRef(tableObjectType));
       // build the object
       GraphQLObjectType.Builder tableBuilder = GraphQLObjectType.newObject().name(tableObjectType);
-      for (Column col : table.getColumnsWithoutHeadings()) {
+      for (Column col : table.getColumnsIncludingSubclassesExcludingHeadings()) {
         createTableField(col, tableBuilder);
       }
       tableTypes.put(tableObjectType, tableBuilder.build());
@@ -309,7 +309,7 @@ public class GraphqlTableFieldFactory {
       groupByBuilder.field(
           GraphQLFieldDefinition.newFieldDefinition().name("count").type(Scalars.GraphQLInt));
       List<Column> aggCols =
-          table.getColumns().stream()
+          table.getColumnsIncludingSubclasses().stream()
               .filter(
                   c ->
                       ColumnType.INT.equals(c.getColumnType())
@@ -329,7 +329,7 @@ public class GraphqlTableFieldFactory {
             GraphQLFieldDefinition.newFieldDefinition().name(SUM_FIELD).type(sumBuilder.build()));
       }
 
-      for (Column column : table.getColumns()) {
+      for (Column column : table.getColumnsIncludingSubclasses()) {
         // for now only 'ref' types. We might want to have truncating actions for the other types.
         if (column.isReference() && (hasViewPermission(table) || column.isOntology())) {
           groupByBuilder.field(
@@ -366,7 +366,7 @@ public class GraphqlTableFieldFactory {
     }
     if (schema.hasActiveUserRole(VIEWER) || table.getTableType().equals(ONTOLOGIES)) {
       List<Column> aggCols =
-          table.getColumns().stream()
+          table.getColumnsIncludingSubclasses().stream()
               .filter(
                   c ->
                       ColumnType.INT.equals(c.getColumnType())
@@ -441,6 +441,11 @@ public class GraphqlTableFieldFactory {
                 .build());
         filterBuilder.field(
             GraphQLInputObjectField.newInputObjectField()
+                .name(FILTER_SEARCH_INCLUDING_PARENTS)
+                .type(GraphQLList.list(Scalars.GraphQLString))
+                .build());
+        filterBuilder.field(
+            GraphQLInputObjectField.newInputObjectField()
                 .name(FILTER_MATCH_PATH)
                 .type(GraphQLList.list(Scalars.GraphQLString))
                 .build());
@@ -460,7 +465,7 @@ public class GraphqlTableFieldFactory {
               .name(FILTER_AND)
               .type(GraphQLList.list(GraphQLTypeReference.typeRef(tableFilterInputType)))
               .build());
-      for (Column col : table.getColumns()) {
+      for (Column col : table.getColumnsIncludingSubclasses()) {
         if (col.isReference()) {
           filterBuilder.field(
               GraphQLInputObjectField.newInputObjectField()
@@ -511,7 +516,7 @@ public class GraphqlTableFieldFactory {
       // build the type
       GraphQLInputObjectType.Builder orderByBuilder =
           GraphQLInputObjectType.newInputObject().name(tableOrderByInputType);
-      for (Column col : table.getColumns()) {
+      for (Column col : table.getColumnsIncludingSubclasses()) {
         orderByBuilder.field(
             GraphQLInputObjectField.newInputObjectField()
                 .name(col.getIdentifier())
@@ -615,22 +620,31 @@ public class GraphqlTableFieldFactory {
       } else if (entry.getKey().equals(FILTER_MATCH_INCLUDING_CHILDREN)
           || entry.getKey().equals(FILTER_MATCH_INCLUDING_PARENTS)
           || entry.getKey().equals(FILTER_MATCH_PATH)
-          || entry.getKey().equals(FILTER_IS_NULL)
+          || entry.getKey().equals(FILTER_SEARCH_INCLUDING_PARENTS)
           || entry.getKey().equals(FILTER_MATCH_ALL)) {
-        // skip, handled on parent column. Need re-architecture in next major release.
+        switch (entry.getKey()) {
+          case FILTER_MATCH_INCLUDING_CHILDREN ->
+              subFilters.add(
+                  f(Operator.MATCH_ANY_INCLUDING_CHILDREN, ((List) entry.getValue()).toArray()));
+          case FILTER_MATCH_INCLUDING_PARENTS ->
+              subFilters.add(
+                  f(Operator.MATCH_ANY_INCLUDING_PARENTS, ((List) entry.getValue()).toArray()));
+          case FILTER_MATCH_PATH ->
+              subFilters.add(f(Operator.MATCH_PATH, ((List) entry.getValue()).toArray()));
+          case FILTER_SEARCH_INCLUDING_PARENTS ->
+              subFilters.add(
+                  f(Operator.SEARCH_INCLUDING_PARENTS, ((List) entry.getValue()).toArray()));
+        }
+        // skip match all, handled on parent column
       } else {
         // find column by escaped name
-        Optional<Column> optional =
-            table.getColumns().stream()
-                .filter(c -> c.getIdentifier().equals(entry.getKey()))
-                .findFirst();
-        if (optional.isEmpty())
+        Column c = table.getColumnByIdentifier(entry.getKey());
+        if (c == null)
           throw new GraphqlException(
               "Graphql API error: Column "
                   + entry.getKey()
                   + " unknown in table "
                   + table.getTableName());
-        Column c = optional.get();
         Map value = (Map) entry.getValue();
         // although nested, this should apply on this level, not sublevel
         if (value.containsKey(FILTER_MATCH_INCLUDING_CHILDREN)) {
@@ -640,13 +654,13 @@ public class GraphqlTableFieldFactory {
                   Operator.MATCH_ANY_INCLUDING_CHILDREN,
                   ((List) value.get(FILTER_MATCH_INCLUDING_CHILDREN)).toArray(new String[0])));
           value.remove(FILTER_MATCH_INCLUDING_CHILDREN);
-        } else if (value.containsKey(FILTER_MATCH_INCLUDING_PARENTS)) {
+        } else if (value.containsKey(FILTER_SEARCH_INCLUDING_PARENTS)) {
           subFilters.add(
               f(
                   c.getName(),
-                  Operator.MATCH_ANY_INCLUDING_PARENTS,
-                  ((List) value.get(FILTER_MATCH_INCLUDING_PARENTS)).toArray(new String[0])));
-          value.remove(FILTER_MATCH_INCLUDING_PARENTS);
+                  Operator.SEARCH_INCLUDING_PARENTS,
+                  ((List) value.get(FILTER_SEARCH_INCLUDING_PARENTS)).toArray(new String[0])));
+          value.remove(FILTER_SEARCH_INCLUDING_PARENTS);
         } else if (value.containsKey(FILTER_MATCH_PATH)) {
           subFilters.add(
               f(
@@ -792,7 +806,7 @@ public class GraphqlTableFieldFactory {
 
   private static Optional<Column> findColumnById(TableMetadata aTable, String id) {
     if (aTable != null) {
-      return aTable.getColumns().stream()
+      return aTable.getColumnsIncludingSubclasses().stream()
           .filter(
               c ->
                   c.getIdentifier().equals(id)
@@ -869,7 +883,7 @@ public class GraphqlTableFieldFactory {
             .type(typeForMutationResult)
             .dataFetcher(fetcher(schema, type));
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (!table.getColumnsWithoutHeadings().isEmpty()) {
+      if (!table.getColumnsIncludingSubclassesExcludingHeadings().isEmpty()) {
         fieldBuilder.argument(
             GraphQLArgument.newArgument()
                 .name(table.getIdentifier())
@@ -958,7 +972,7 @@ public class GraphqlTableFieldFactory {
       rowInputTypes.put(rowInputType, GraphQLTypeReference.typeRef(rowInputType + INPUT));
       GraphQLInputObjectType.Builder inputBuilder =
           GraphQLInputObjectType.newInputObject().name(rowInputType + INPUT);
-      for (Column col : table.getColumnsWithoutHeadings()) {
+      for (Column col : table.getColumnsIncludingSubclassesExcludingHeadings()) {
         GraphQLInputType type;
         if (col.isReference()) {
           if (col.isRef()) {

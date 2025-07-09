@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import dateUtils from "~/utils/dateUtils";
 import type { IResources } from "~/interfaces/catalogue";
+import { computed, ref, watch } from "vue";
+import { useRoute } from "#app";
+import { useDatasetStore } from "#imports";
+
+const datasetStore = useDatasetStore();
+
 const cutoff = 250;
 
 const route = useRoute();
@@ -18,6 +24,7 @@ const props = withDefaults(
 );
 
 const startEndYear = dateUtils.startEndYear;
+const isInShoppingCart = ref<boolean>(false);
 
 const articleClasses = computed(() => {
   return props.compact ? "py-5 lg:px-12.5 p-5" : "lg:px-12.5 py-12.5 px-5";
@@ -35,8 +42,18 @@ const headerClasses = computed(() => {
   return props.compact ? "" : "items-start xl:items-center";
 });
 
-const iconStarClasses = computed(() => {
-  return props.compact ? "" : "items-baseline xl:items-center mt-0.5 xl:mt-0";
+function onInput() {
+  console.log(props.resource);
+  isInShoppingCart.value = datasetStore.resourceIsInCart(props.resource.id);
+  if (isInShoppingCart.value) {
+    datasetStore.removeFromCart(props.resource.id);
+  } else {
+    datasetStore.addToCart(props.resource);
+  }
+}
+
+watch([datasetStore.datasets], () => {
+  isInShoppingCart.value = datasetStore.resourceIsInCart(props.resource.id);
 });
 </script>
 
@@ -46,7 +63,7 @@ const iconStarClasses = computed(() => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/catalogue/${catalogue}/${route.params.resourceType}/${resource.id}`"
+            :to="`/${catalogue}/${route.params.resourceType}/${resource.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ resource?.acronym || resource?.name }}
@@ -58,16 +75,26 @@ const iconStarClasses = computed(() => {
         </span>
       </div>
       <div class="flex">
-        <!--
-        <IconButton
-          icon="star"
-          :class="iconStarClasses"
-          class="text-blue-500 xl:justify-end"
-        />
-        -->
-        <NuxtLink
-          :to="`/${schema}/catalogue/${catalogue}/resources/${resource.id}`"
+        <label
+          v-if="datasetStore.isEnabled"
+          :for="`${resource.id}-shopping-cart-input`"
+          class="xl:flex xl:justify-end px-2 py-1 rounded-3px cursor-pointer text-blue-500 hover:text-blue-800 focus:text-blue-800"
+          :class="{
+            'items-baseline xl:items-center mt-0.5 xl:mt-0': !compact,
+            'bg-blue-500 text-white hover:text-white': isInShoppingCart,
+          }"
         >
+          <BaseIcon name="shopping-cart-add" :width="21" />
+          <span class="sr-only"></span>
+          <input
+            type="checkbox"
+            :id="`${resource.id}-shopping-cart-input`"
+            class="sr-only"
+            v-model="isInShoppingCart"
+            @input="onInput"
+          />
+        </label>
+        <NuxtLink :to="`/${catalogue}/resources/${resource.id}`">
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"
@@ -95,12 +122,7 @@ const iconStarClasses = computed(() => {
         <div>
           <dt class="flex-auto block text-gray-600">Duration</dt>
           <dd>
-            {{
-              startEndYear(
-                resource?.startYear?.toString(),
-                resource?.endYear?.toString()
-              )
-            }}
+            {{ startEndYear(resource?.startYear, resource?.endYear) }}
           </dd>
         </div>
       </dl>

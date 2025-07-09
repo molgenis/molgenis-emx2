@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { resourceIdPath } from "#imports";
+import { computed } from "vue";
 import type { IVariable } from "~/interfaces/types";
 import { getKey } from "~/utils/variableUtils";
 
@@ -33,14 +35,14 @@ const repeats = computed(() =>
       <div class="md:basis-2/5 p-2">
         <h2>
           <NuxtLink
-            :to="`/${schema}/catalogue/${catalogue}/variables/${resourcePathId}`"
+            :to="`/${catalogue}/variables/${resourcePathId}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ variable?.name }}
           </NuxtLink>
           <div
             v-if="repeats"
-            class="bg-blue-50 text-title-contrast justify-center rounded-full px-2 py-1 font-bold text-heading-sm hover:cursor-help"
+            class="bg-blue-50 text-title-contrast justify-center rounded-full px-2 py-1 font-bold text-heading-sm"
             style="display: inline-flex; flex-wrap: wrap"
           >
             {{ repeats }}
@@ -49,13 +51,11 @@ const repeats = computed(() =>
       </div>
       <div class="hidden md:flex md:basis-3/5">
         <p class="text-body-base">
-          {{ variable?.label }}
+          {{ variable?.label || variable?.description }}
         </p>
       </div>
       <div class="hidden basis-1/5 xl:flex xl:justify-end">
-        <NuxtLink
-          :to="`/${schema}/catalogue/${catalogue}/variables/${resourcePathId}`"
-        >
+        <NuxtLink :to="`/${catalogue}/variables/${resourcePathId}`">
           <ArrowRight width="24" class="text-blue-500" />
           <span class="sr-only">go to page on {{ variable.name }}</span>
         </NuxtLink>
