@@ -15,7 +15,6 @@ defineProps<
   }
 >();
 
-const emits = defineEmits(["update:modelValue"]);
 const modelValue = defineModel<IInputValue>();
 </script>
 
@@ -23,7 +22,11 @@ const modelValue = defineModel<IInputValue>();
   <div
     class="relative flex items-center border rounded w-fit group bg-button-switch"
   >
-    <div v-for="option in options" class="w-[36px]">
+    <div
+      v-for="option in options"
+      class="w-button-switch"
+      :key="(option.value as string)"
+    >
       <input
         :id="`${id}-switch-${option.value}`"
         class="peer sr-only"
@@ -31,7 +34,6 @@ const modelValue = defineModel<IInputValue>();
         :name="id"
         :value="option.value"
         v-model="modelValue"
-        @input="emits('update:modelValue', modelValue)"
       />
       <label
         :for="`${id}-switch-${option.value}`"

@@ -104,6 +104,9 @@ module.exports = {
         95: "23.75rem",
         82.5: "20.625rem",
       },
+      width: {
+        "button-switch": "var(--width-button-switch)",
+      },
       minWidth: {
         95: "23.75rem",
       },
