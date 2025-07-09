@@ -123,7 +123,8 @@ module.exports = {
         title: "10rem",
       },
       transitionDuration: {
-        default: "500",
+        default: "500ms",
+        popup: "300ms",
       },
       backgroundImage: {
         "sidebar-gradient": "var(--background-image-sidebar-gradient)",
