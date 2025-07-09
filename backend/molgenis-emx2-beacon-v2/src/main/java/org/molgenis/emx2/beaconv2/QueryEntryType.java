@@ -24,7 +24,7 @@ import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
 public class QueryEntryType {
 
-  private static final int MAX_QUERY_DEPTH = 2;
+  private static final int MAX_QUERY_DEPTH = 3;
 
   private final BeaconRequestBody request;
   private final BeaconQuery beaconQuery;
@@ -55,8 +55,11 @@ public class QueryEntryType {
 
     int numTotalResults = 0;
     ArrayNode resultSets = mapper.createArrayNode();
-    if (schema != null && isAuthorized(schema.getInheritedRolesForActiveUser())) {
+    if (isAuthorized(schema.getInheritedRolesForActiveUser())) {
       Table table = schema.getTable(entryType.getId());
+      if (table == null) {
+        throw new MolgenisException("Table " + entryType.getId() + " does not exist");
+      }
       numTotalResults = queryTable(table, filterParser, resultSets);
     }
 
