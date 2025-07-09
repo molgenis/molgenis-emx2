@@ -43,13 +43,13 @@ defineExpose({
   >
     <div>
       <!-- show label or inputs -->
-       <slot>
-       </slot>
+      <slot> </slot>
     </div>
     <button
       :id="`${id}-input-toggle`"
       :aria-controls="elemIdControlledByToggle"
       :aria-expanded="isExpanded"
+      :aria-haspopup="true"
       @click="onClick()"
     >
       <BaseIcon :width="18" name="caret-down" class="mx-auto" />
