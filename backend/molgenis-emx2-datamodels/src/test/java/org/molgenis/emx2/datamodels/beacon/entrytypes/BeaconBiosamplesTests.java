@@ -24,7 +24,7 @@ public class BeaconBiosamplesTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode biosamples = queryEntryType.query(database);
+    JsonNode biosamples = queryEntryType.query(patientRegistry);
     assertEquals(20, biosamples.get("responseSummary").get("numTotalResults").intValue());
   }
 
@@ -36,7 +36,7 @@ public class BeaconBiosamplesTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode biosamples = queryEntryType.query(database);
+    JsonNode biosamples = queryEntryType.query(patientRegistry);
     assertEquals(0, biosamples.get("responseSummary").get("numTotalResults").intValue());
     assertFalse(biosamples.get("responseSummary").get("exists").booleanValue());
   }
@@ -49,7 +49,7 @@ public class BeaconBiosamplesTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode biosamples = queryEntryType.query(database);
+    JsonNode biosamples = queryEntryType.query(patientRegistry);
     assertEquals(1, biosamples.get("responseSummary").get("numTotalResults").intValue());
     assertTrue(biosamples.get("responseSummary").get("exists").booleanValue());
     JsonNode sample = biosamples.get("response").get("resultSets").get(0).get("results").get(0);

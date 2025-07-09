@@ -1,8 +1,5 @@
 package org.molgenis.emx2.datamodels;
 
-import static org.molgenis.emx2.datamodels.DataModels.Profile.PATIENT_REGISTRY;
-import static org.molgenis.emx2.rdf.SHACLComplianceTester.*;
-
 import org.junit.jupiter.api.*;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
