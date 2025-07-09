@@ -9,8 +9,7 @@ import "range.jslt" as range
     "info": .info,
     "response": {
         "resultSets":
-        [for (.resultSets)
-        {
+        [for (.resultSets) {
             "id": .id,
             "type": "dataset",
             "setType": "individuals",
@@ -20,43 +19,49 @@ import "range.jslt" as range
             "results":
             [for (.results) {
                 "id": .id,
-                "sex": ontology(.sex),
+                "sex": ontology(.genderAtBirth),
                 "age": {
-                    "ageGroup": ontology(.age_ageGroup),
-                    "age": { "iso8601duration": .age_age_iso8601duration }
+                    "ageGroup": ontology(.ageGroup),
+                    "age": { "iso8601duration": .yearOfBirth } // TODO: parse to period
                 },
                 "diseaseCausalGenes":
-                [for (.diseaseCausalGenes)
-                     ontology(.)
+                [for (.clinicalObservations)
+                    ontology(.molecularDiagnosisGene[0])
                 ],
                 "ethnicity": ontology(.ethnicity),
                 "geographicOrigin": ontology(.geographicOrigin),
                 "disease":
-                [for (.diseases) {
-                    "diseaseCode": ontology(.diseaseCode),
+                // Clinical observations -> [ diseases ]
+                [for (.clinicalObservations)  {// TODO: handle multiple disease per clinical observation?
+                    let disease = .diseases[0]
+                    "diseaseCode": ontology($disease.disease),
                     "ageOfOnset": {
-                        "ageGroup": ontology(.ageOfOnset_ageGroup),
-                        "age": { "iso8601duration": .ageOfOnset_age_iso8601duration }
+                        "ageGroup": ontology($disease.ageOfOnset_ageGroup),
+                        "age": { "iso8601duration": $disease.ageOfOnset_age_iso8601duration }
                     },
                     "ageAtDiagnosis": {
-                        "ageGroup": ontology(.ageAtDiagnosis_ageGroup),
-                        "age": { "iso8601duration": .ageAtDiagnosis_age_iso8601duration }
+                        "ageGroup": ontology($disease.ageAtDiagnosis_ageGroup),
+                        "age": { "iso8601duration": $disease.ageAtDiagnosis_age_iso8601duration }
 
                     },
-                    "severity": ontology(.severity)
-                }
+                    "severity": ontology($disease.severity)
+                    }
                 ],
+
                 "measures":
-                [for (.measures) {
-                    "assayCode": ontology(.assayCode),
-                    "date": .date,
-                    "measurementVariable": .measurementVariable,
-                    "measurementValue": {
-                        "value": .measurementValue_value,
-                        "unit": ontology(.measurementValue_units)
-                    },
-                    "observationMoment": { "age": { "iso8601duration": .observationMoment_age_iso8601duration } }
-                }]
+                // Clinical observations -> [ measurements }
+                [for (.clinicalObservations)
+                    [for (.measurements) {
+                        "assayCode": ontology(.code),
+                        "date": .clinicalObservation.dateOfObservation,
+                        "measurementVariable": .variable,
+                        "measurementValue": {
+                            "value": .value,
+                            "unit": ontology(.unit)
+                        },
+                        "observationMoment": { "age": { "iso8601duration": .clinicalObservation.ageAtObservation } }
+                    }]
+                ]
             }]
         }]
     }

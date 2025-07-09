@@ -1,16 +1,16 @@
 package org.molgenis.emx2.beaconv2;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Table;
-import org.molgenis.emx2.TableMetadata;
 
 public class QueryBuilder {
 
-  private Table table;
+  private static final Set<String> EXCLUDED_COLUMNS = Set.of("parent", "children");
+
+  private final Table table;
   private List<String> filters;
-  private StringBuilder columnSb;
+  private final StringBuilder columnSb;
   private StringBuilder query;
   private Integer limit;
   private Integer offset;
@@ -22,13 +22,18 @@ public class QueryBuilder {
   }
 
   public QueryBuilder addAllColumns(int maxDepth) {
-    this.addColumns(this.table.getMetadata().getColumnsWithoutHeadings(), maxDepth);
-    return this;
+    return this.addColumns(this.table.getMetadata().getColumnsWithoutHeadings(), maxDepth);
   }
 
   public QueryBuilder addColumns(List<Column> columns, int maxDepth) {
-    int currentDepth = 0;
-    queryColumnsRecursively(columns, maxDepth, currentDepth);
+    Map<String, Integer> tableMinDepths = new HashMap<>();
+    Set<String> visited = new HashSet<>();
+    String rootTable = table.getName().toLowerCase();
+    tableMinDepths.put(rootTable, 0);
+    visited.add(rootTable);
+
+    collectMinDepths(columns, 0, tableMinDepths, visited);
+    buildQuery(columns, maxDepth, 0, tableMinDepths, new HashSet<>());
 
     return this;
   }
@@ -50,7 +55,7 @@ public class QueryBuilder {
 
   public String getQuery() {
     query = new StringBuilder("{");
-    query.append(table.getName());
+    query.append(table.getIdentifier());
     if (hasFilterArguments()) {
       query.append("(");
       if (limit != null) query.append("limit: ").append(limit).append(",");
@@ -75,7 +80,7 @@ public class QueryBuilder {
 
   private String getAggregateQuery(String variable) {
     query = new StringBuilder("{");
-    query.append(table.getName()).append("_agg");
+    query.append(table.getIdentifier()).append("_agg");
 
     if (filters != null && !filters.isEmpty()) {
       query.append("(");
@@ -105,25 +110,81 @@ public class QueryBuilder {
     query.append("] }");
   }
 
-  private int queryColumnsRecursively(List<Column> columns, int maxDepth, int currentDepth) {
-    for (Column column : columns) {
-      if (column.isReference()) {
-        if (currentDepth < maxDepth) {
-          TableMetadata refTable = column.getRefTable();
+  private void collectMinDepths(
+      List<Column> columns,
+      int currentDepth,
+      Map<String, Integer> tableMinDepths,
+      Set<String> visitedTables) {
 
-          currentDepth++;
-          columnSb.append(column.getIdentifier()).append("{");
-          currentDepth =
-              queryColumnsRecursively(refTable.getColumnsWithoutHeadings(), maxDepth, currentDepth);
-          columnSb.append("}");
+    for (Column column : columns) {
+      if (!column.isReference()
+          || column.isOntology()
+          || EXCLUDED_COLUMNS.contains(column.getName())) {
+        continue;
+      }
+
+      String refTableName = column.getRefTableName().toLowerCase();
+      Integer recordedDepth = tableMinDepths.get(refTableName);
+
+      if (recordedDepth == null || currentDepth < recordedDepth) {
+        tableMinDepths.put(refTableName, currentDepth);
+        if (visitedTables.add(refTableName)) {
+          collectMinDepths(
+              column.getRefTable().getColumnsWithoutHeadings(),
+              currentDepth + 1,
+              tableMinDepths,
+              visitedTables);
+          visitedTables.remove(refTableName);
         }
+      }
+    }
+  }
+
+  private void buildQuery(
+      List<Column> columns,
+      int maxDepth,
+      int currentDepth,
+      Map<String, Integer> tableMinDepths,
+      Set<String> includedTables) {
+
+    for (Column column : columns) {
+      String columnName = column.getName();
+
+      if (EXCLUDED_COLUMNS.contains(columnName)) continue;
+
+      if (column.isReference()) {
+        String refTableName = column.getRefTableName().toLowerCase();
+
+        if (column.isOntology()) {
+          columnSb.append(column.getIdentifier()).append("{");
+          for (Column subCol : column.getRefTable().getColumnsWithoutHeadings()) {
+            if (!EXCLUDED_COLUMNS.contains(subCol.getName())) {
+              columnSb.append(subCol.getIdentifier()).append(",");
+            }
+          }
+          columnSb.append("},");
+          continue;
+        }
+
+        Integer requiredDepth = tableMinDepths.get(refTableName);
+        if (requiredDepth != null && requiredDepth == currentDepth && currentDepth < maxDepth) {
+          if (includedTables.add(refTableName)) {
+            columnSb.append(column.getIdentifier()).append("{");
+            buildQuery(
+                column.getRefTable().getColumnsWithoutHeadings(),
+                maxDepth,
+                currentDepth + 1,
+                tableMinDepths,
+                includedTables);
+            columnSb.append("},");
+          }
+        }
+
       } else if (column.isFile()) {
         columnSb.append("%s { url },".formatted(column.getIdentifier()));
       } else {
         columnSb.append(column.getIdentifier()).append(",");
       }
     }
-    currentDepth--;
-    return currentDepth;
   }
 }

@@ -73,6 +73,10 @@ public class Constants {
 
   public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
 
+  public static final String CV_CLIENT_ID = "CV_CLIENT_ID";
+  public static final String CV_CLIENT_SECRET = "CV_CLIENT_SECRET";
+  public static final String CV_INTROSPECT_URI = "CV_INTROSPECT_URI";
+
   public static final String OIDC_LOGIN_PATH = "_login";
   public static final String OIDC_CALLBACK_PATH = "_callback";
   public static final String ASYNC = "async";
