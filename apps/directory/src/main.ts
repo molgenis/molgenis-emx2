@@ -1,20 +1,15 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import VueGtag from "vue-gtag";
+// @ts-expect-error
+import VueMatomo from "vue-matomo";
 
 import App from "./App.vue";
 import router from "./router";
 
 import "molgenis-components/dist/style.css";
 
-/** When in devmode use this stylesheet */
-if (import.meta.env.DEV) {
-  import("./dev-assets/mg-bbmri-eric-4.css");
-}
-/** else???? emx2 does have also css but probably this one is too specific anyway? */
-{
-  import("./dev-assets/mg-bbmri-eric-4.css");
-}
+import("./dev-assets/mg-bbmri-eric-4.css");
 
 /** Add font awesome icons */
 import "@fortawesome/fontawesome-free/css/all.css";
@@ -28,5 +23,9 @@ export const app = createApp(App);
 app.use(createPinia());
 app.use(router);
 app.use(VueGtag, { bootstrap: false }, router);
+app.use(VueMatomo, { host: "https://molgeni", siteId: 1 });
 
 app.mount("#app");
+
+window._paq = window._paq || [];
+window._paq.push(["trackPageView"]);

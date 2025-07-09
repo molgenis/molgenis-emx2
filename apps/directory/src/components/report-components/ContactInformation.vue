@@ -3,7 +3,10 @@
     <div class="font-weight-bold mr-1">Contact:</div>
     <div v-if="name">{{ name }}</div>
     <div v-if="contactInformation.email">
-      <a :href="'mailto:' + contactInformation.email">
+      <a
+        :href="'mailto:' + contactInformation.email"
+        onclick="_paq.push(['trackEvent', 'Contact', 'Email Link Click', 'name@example.com']);"
+      >
         <i class="fa fa-fw fa-paper-plane" aria-hidden="true" />
         <span class="mg-icon-text">{{ uiText["email"] }}</span>
       </a>
