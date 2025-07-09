@@ -158,10 +158,11 @@ const networkReport = computed(() => networkStore.networkReport);
 const collections = computed(() =>
   filterCollections(networkReport.value.collections)
 );
-const biobanks = computed(() =>
-  networkReport.value.biobanks.filter((biobank: Record<string, any>) => {
-    return !biobank.withdrawn;
-  })
+const biobanks = computed(
+  () =>
+    networkReport.value.biobanks?.filter((biobank: Record<string, any>) => {
+      return !biobank.withdrawn;
+    }) || []
 );
 const network = computed(() => networkReport.value.network);
 const alsoKnownIn = computed(() => mapAlsoKnownIn(network.value));
