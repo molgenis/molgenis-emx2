@@ -145,7 +145,6 @@ export default {
         "INTEGRATE_COHORTS_STAGING",
         "PATIENT_REGISTRY",
         "FAIR_GENOMES",
-        "JRC_COMMON_DATA_ELEMENTS",
         "ERN_DASHBOARD",
         "UI_DASHBOARD",
         "BIOBANK_DIRECTORY",
@@ -180,7 +179,7 @@ export default {
       ) {
         return undefined;
       } else {
-        return "Table name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
+        return "Schema name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
       }
     },
     executeCreateSchema() {

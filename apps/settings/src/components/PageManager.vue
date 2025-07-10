@@ -52,6 +52,8 @@
 </template>
 
 <script>
+import { newPageContentObject } from "../../../pages/src/utils/newPageContentObject";
+
 import {
   ButtonAction,
   IconAction,
@@ -82,15 +84,8 @@ export default {
   },
   methods: {
     async savePageSetting() {
-      const initialContent = JSON.stringify({
-        html: `<h1>${this.newPage}</h1>`,
-        css: "",
-        javascript: "",
-        dependencies: {
-          css: [],
-          javascript: [],
-        },
-      });
+      const content = newPageContentObject();
+      content.html = `<h1>${this.newPage}</h1>`;
 
       const response = await request(
         "graphql",
@@ -98,7 +93,7 @@ export default {
         {
           settings: {
             key: `page.${this.newPage}`,
-            value: initialContent,
+            value: JSON.stringify(content),
           },
         }
       );

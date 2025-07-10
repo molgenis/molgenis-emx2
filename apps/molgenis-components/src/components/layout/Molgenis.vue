@@ -140,9 +140,13 @@ export default {
       };
       //all databases
       if (this.session?.schemas) {
-        this.session.schemas.forEach((schema: string) => {
-          result[schema] = "../../" + schema; // all paths are of form /:schema/:app
-        });
+        this.session.schemas
+          .sort((a: string, b: string) =>
+            a.localeCompare(b, undefined, { sensitivity: "base" })
+          )
+          .forEach((schema: string) => {
+            result[schema] = "../../" + schema; // all paths are of form /:schema/:app
+          });
       }
       return result;
     },

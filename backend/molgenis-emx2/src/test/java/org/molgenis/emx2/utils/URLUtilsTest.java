@@ -2,6 +2,7 @@ package org.molgenis.emx2.utils;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.utils.URLUtils.extractBaseURL;
+import static org.molgenis.emx2.utils.URLUtils.validateUrl;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -103,5 +104,15 @@ class URLUtilsTest {
         () -> assertFalse(URLUtils.isDefaultPort("http", "8080")),
         () -> assertTrue(URLUtils.isDefaultPort("https", "443")),
         () -> assertFalse(URLUtils.isDefaultPort("https", "80")));
+  }
+
+  @Test
+  void testIsValidUrl() {
+    assertAll(
+        () -> assertDoesNotThrow(() -> validateUrl("http://molgenis.org")),
+        () ->
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> validateUrl("urn:uuid:91658785-076a-4e46-9378-79ff70ff874e")));
   }
 }
