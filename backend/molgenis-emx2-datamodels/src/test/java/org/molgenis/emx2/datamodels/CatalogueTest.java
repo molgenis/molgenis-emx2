@@ -1,7 +1,7 @@
 package org.molgenis.emx2.datamodels;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.molgenis.emx2.rdf.SHACLComplianceTester.*;
+import static org.molgenis.emx2.rdf.CustomAssertions.adheresToShacl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -25,9 +25,11 @@ public class CatalogueTest extends TestLoaders {
     }
 
     // check compliance - when compliant, add: DCAT_AP_SHACL_FILES and HEALTH_RI_V2_SHACL_FILES
-    testShaclCompliance(FAIR_DATA_POINT_SHACL_FILES, outputStream.toString());
-    testShaclCompliance(HEALTH_RI_V1_SHACL_FILES, outputStream.toString());
-    testShaclCompliance(EJP_RD_VP_SHACL_FILES, outputStream.toString());
+    //    adheresToShacl(dataCatalogue, "dcat-ap-v3");
+    adheresToShacl(dataCatalogue, "fdp-v1.2");
+    adheresToShacl(dataCatalogue, "hri-v1");
+    //    adheresToShacl(dataCatalogue, "hri-v2");
+    adheresToShacl(dataCatalogue, "ejp-rd-vp");
   }
 
   @Test
