@@ -28,7 +28,7 @@
         Search for items
       </label>
       <InputSearch
-        v-if="enableSearch || listboxOptions.length > 20"
+        v-if="enableSearch"
         ref="listbox-search"
         :id="`listbox-${id}-options-search`"
         :aria-labelledby="`listbox-${id}-options-search`"
