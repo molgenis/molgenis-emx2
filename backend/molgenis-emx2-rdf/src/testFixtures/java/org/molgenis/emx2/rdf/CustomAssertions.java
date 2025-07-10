@@ -1,15 +1,27 @@
 package org.molgenis.emx2.rdf;
 
 import static org.junit.jupiter.api.AssertionFailureBuilder.assertionFailure;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.molgenis.emx2.rdf.RdfParser.BASE_URL;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.junit.jupiter.api.AssertionFailureBuilder;
+import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
+import org.molgenis.emx2.rdf.shacl.ShaclSelector;
+import org.molgenis.emx2.rdf.shacl.ShaclSet;
+import org.molgenis.emx2.rdf.writers.ShaclResultWriter;
 
 public abstract class CustomAssertions {
   public static void equals(InMemoryRDFHandler expected, InMemoryRDFHandler actual) {
@@ -50,5 +62,19 @@ public abstract class CustomAssertions {
         }
       }
     }
+  }
+
+  public static void adheresToShacl(Schema schema, String shaclSetName) throws IOException {
+    ShaclSet shaclSet = Objects.requireNonNull(ShaclSelector.get(shaclSetName));
+
+    OutputStream outputStream = new ByteArrayOutputStream();
+    try (RdfService<RdfApiGenerator> rdfService =
+        new RdfSchemaValidationService(
+            BASE_URL, schema, RDFFormat.TURTLE, outputStream, shaclSet)) {
+      rdfService.getGenerator().generate(schema);
+    }
+    outputStream.flush();
+    outputStream.close();
+    assertEquals(new String(ShaclResultWriter.SHACL_SUCCEED), outputStream.toString());
   }
 }

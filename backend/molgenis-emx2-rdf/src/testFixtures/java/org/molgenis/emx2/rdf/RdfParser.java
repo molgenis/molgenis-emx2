@@ -1,5 +1,7 @@
 package org.molgenis.emx2.rdf;
 
+import static org.eclipse.rdf4j.rio.helpers.BasicParserSettings.PRESERVE_BNODE_IDS;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -8,6 +10,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Objects;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandler;
@@ -15,22 +18,39 @@ import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.Rio;
 import org.molgenis.emx2.rdf.generators.RdfGenerator;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
-import org.molgenis.emx2.rdf.writers.WriterFactory;
 
 public abstract class RdfParser {
   static final ClassLoader classLoader = RdfParser.class.getClassLoader();
-  static final String BASE_URL = "http://localhost:8080";
+  public static final String BASE_URL = "http://localhost:8080";
 
   // Generic functions to load RDF as if processed through the RDF API
+
+  /**
+   * @param handler
+   * @param writerClass
+   * @param writerArgClasses should contain {@link OutputStream} as first item
+   * @param writerArgs first item should be null so that {@link OutputStream} can be placed there
+   * @param generatorClass
+   * @param method
+   * @param methodArgs
+   * @throws IOException
+   */
   public static void parseRdf(
       RDFHandler handler,
-      WriterFactory writerFactory,
+      Class<? extends RdfWriter> writerClass,
+      List<Class> writerArgClasses,
+      List<Object> writerArgs,
       Class<? extends RdfGenerator> generatorClass,
       Method method,
       Object... methodArgs)
       throws IOException {
     try (OutputStream outputStream = new ByteArrayOutputStream()) {
-      try (RdfWriter writer = writerFactory.create(outputStream, RDFFormat.TURTLE)) {
+      writerArgs.set(0, outputStream);
+
+      try (RdfWriter writer =
+          writerClass
+              .getConstructor(writerArgClasses.toArray(Class[]::new))
+              .newInstance(writerArgs.toArray())) {
         RdfGenerator generator =
             generatorClass
                 .getConstructor(RdfWriter.class, String.class)
@@ -62,6 +82,7 @@ public abstract class RdfParser {
 
   private static void parseRdf(RDFHandler handler, Reader reader) throws IOException {
     RDFParser parser = Rio.createParser(RDFFormat.TURTLE);
+    parser.set(PRESERVE_BNODE_IDS, true);
     parser.setRDFHandler(handler);
     parser.parse(reader);
   }

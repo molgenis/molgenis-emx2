@@ -5,6 +5,7 @@ dependencies {
     implementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-rdf')
     testImplementation project(':backend:molgenis-emx2-beacon-v2')
+    testImplementation testFixtures(project(':backend:molgenis-emx2-rdf'))
 }
 
 //we use data models from data folder
@@ -14,6 +15,7 @@ sourceSets {
             srcDirs += [
                     "$rootDir/data"
             ]
+            exclude "_shacl/"
         }
     }
 }

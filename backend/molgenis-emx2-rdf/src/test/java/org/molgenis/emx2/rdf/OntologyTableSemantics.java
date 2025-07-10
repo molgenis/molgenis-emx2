@@ -7,6 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Arrays;
+import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandler;
 import org.eclipse.rdf4j.rio.turtle.TurtleWriter;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,7 +22,7 @@ import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.rdf.generators.Emx2RdfGenerator;
 import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
-import org.molgenis.emx2.rdf.writers.WriterFactory;
+import org.molgenis.emx2.rdf.writers.RdfModelWriter;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class OntologyTableSemantics {
@@ -45,7 +47,9 @@ public class OntologyTableSemantics {
     RDFHandler handler = new TurtleWriter(outputStream);
     RdfParser.parseRdf(
         handler,
-        WriterFactory.MODEL,
+        RdfModelWriter.class,
+        Arrays.asList(OutputStream.class, RDFFormat.class),
+        Arrays.asList(outputStream, RDFFormat.TURTLE),
         Emx2RdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class),
         tagTable);
@@ -83,7 +87,9 @@ public class OntologyTableSemantics {
     handler = new TurtleWriter(outputStream);
     RdfParser.parseRdf(
         handler,
-        WriterFactory.MODEL,
+        RdfModelWriter.class,
+        Arrays.asList(OutputStream.class, RDFFormat.class),
+        Arrays.asList(outputStream, RDFFormat.TURTLE),
         Emx2RdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class),
         tagTable);
