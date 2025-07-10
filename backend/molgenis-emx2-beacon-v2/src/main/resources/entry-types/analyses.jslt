@@ -19,9 +19,9 @@ import "range.jslt" as range
                 [for (.results) {
                     "id": .id,
                     "runId": .runId.id,
-                    "biosampleId": .biosampleId.id,
-                    "individualId": .individualId.id,
-                    "analysisDate": .analysisDate,
+                    "biosampleId": .inputBiosamples[0].id,
+                    "individualId": .individual.id,
+                    "analysisDate": .dateComplete,
                     "pipelineName": .pipelineName,
                     "pipelineRef": .pipelineRef,
                     "aligner": .aligner,
