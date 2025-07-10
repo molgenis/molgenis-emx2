@@ -36,17 +36,22 @@ public enum EntryType {
       List.of(BEACON_VP),
       List.of(DISEASE, PHENOTYPE, RESOURCE_TYPE)),
   GENOMIC_VARIANT(
-      "GenomicVariations",
+      "GenomicVariants",
       "g_variants",
       "GenomicVariant",
       "ENSGLOSSARY:0000092",
       "Variant",
       List.of(BEACON_V2)),
-  DATASETS("Dataset", "datasets", "Dataset", "NCIT:C47824", "Data set", List.of(BEACON_V2)),
+  DATASETS("Datasets", "datasets", "Dataset", "NCIT:C47824", "Data set", List.of(BEACON_V2)),
   ANALYSES(
-      "Analyses", "analyses", "Analysis", "edam:operation_2945", "Analysis", List.of(BEACON_V2)),
+      "IndividualAnalyses",
+      "analyses",
+      "Analysis",
+      "edam:operation_2945",
+      "Analysis",
+      List.of(BEACON_V2)),
   COHORTS("Cohorts", "cohorts", "Cohort", "NCIT:C61512", "Cohort", List.of(BEACON_V2)),
-  RUNS("Runs", "runs", "Run", "NCIT:C148088", "Sequencing run", List.of(BEACON_V2));
+  RUNS("SequencingRuns", "runs", "Run", "NCIT:C148088", "Sequencing run", List.of(BEACON_V2));
 
   EntryType(
       String id,
