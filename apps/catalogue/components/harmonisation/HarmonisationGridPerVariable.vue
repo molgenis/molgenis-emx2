@@ -61,7 +61,7 @@ const repeats = computed(() => {
               variable.mappings?.find(
                 (m) =>
                   m.source.id === cell.value.column &&
-                  m.repeats.split(',').includes('' + cell.value.row)
+                  m.repeats.split(',').map(repeatIndex => repeatIndex.trim()).includes('' + cell.value.row)
               )?.match.name || 'unmapped'
             "
           />
