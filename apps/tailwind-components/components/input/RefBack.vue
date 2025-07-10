@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { IInputProps } from "~/types/types";
 import type { columnValueObject } from "../../../metadata-utils/src/types";
+import InputRefListItem from "./ref/ListItem.vue";
 
 const props = withDefaults(
   defineProps<
@@ -25,7 +26,7 @@ const modelValue = defineModel<columnValueObject[]>();
   <ul class="border divide-y divide-gray-200">
     <InputRefListItem
       v-for="ref in modelValue"
-      :data="ref"
+      :refData="ref"
       :refLabel="props.refLabel"
       :canEdit="props.canEdit"
     />

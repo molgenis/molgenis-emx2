@@ -89,6 +89,7 @@
     --background-color-button-filter: var(--color-blue-50);
     --background-color-button-filter-hover: var(--color-white);
     --background-color-button-tree-node-toggle: var(--color-blue-800);
+    --background-color-button-inline-hover: var(--color-gray-200);
 
     --background-color-app-wrapper: var(--color-white);
     --background-color-content: var(--color-white);

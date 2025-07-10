@@ -148,6 +148,7 @@ module.exports = {
         "button-filter-hover": "var(--background-color-button-filter-hover)",
         "button-tree-node-toggle":
           "var(--background-color-button-tree-node-toggle)",
+        "button-inline-hover": "var(--background-color-button-inline-hover)",
         "search-button": "var(--background-color-search-button)",
         "search-button-hover": "var(--background-color-search-button-hover)",
         navigation: "var(--background-color-navigation)",
