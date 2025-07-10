@@ -1,4 +1,4 @@
-id,biosample type,biosample availability,collected from individual,affiliated organisations,included in resources,data source,date created at source
+id,sample type,sample availability,individuals,affiliated organisations,included in resources,data source,date created at source
 SAMEA10450711,DNA,Available,Case1F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
 SAMEA10450712,DNA,Available,Case1C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
 SAMEA10450713,DNA,Available,Case1M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
