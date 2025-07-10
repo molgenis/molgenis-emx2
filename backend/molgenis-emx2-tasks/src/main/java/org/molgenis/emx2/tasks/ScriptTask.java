@@ -8,9 +8,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.molgenis.emx2.ColumnType;
@@ -31,9 +29,17 @@ public class ScriptTask extends Task {
   private String parameters;
   private String token;
   private String dependencies;
+  private HashMap<String, Object> extraFile;
   private Process process;
   private byte[] output;
   private URL serverUrl;
+
+  private static final String EXTRA_FILE = "extraFile";
+  private static final String EXTRA_FILE_FILENAME = EXTRA_FILE + "_filename";
+  private static final String EXTRA_FILE_CONTENTS = EXTRA_FILE + "_contents";
+  private static final String EXTRA_FILE_EXTENSION = EXTRA_FILE + "_extension";
+  private static final String EXTRA_FILE_MIMETYPE = EXTRA_FILE + "_mimetype";
+  private static final String EXTRA_FILE_SIZE = EXTRA_FILE + "_size";
 
   public ScriptTask(String name) {
     super("Executing script '" + name + "'");
@@ -46,6 +52,7 @@ public class ScriptTask extends Task {
         .script(scriptMetadata.getString("script"))
         .outputFileExtension(scriptMetadata.getString("outputFileExtension"))
         .dependencies(scriptMetadata.getString("dependencies"))
+        .extraFile(scriptMetadata)
         .cronExpression(scriptMetadata.getString("cron"))
         .cronUserName(scriptMetadata.getString("cronUser"))
         .failureAddress(scriptMetadata.getString("failureAddress"))
@@ -156,24 +163,55 @@ public class ScriptTask extends Task {
     Path requirementsFile = Files.createFile(tempDir.resolve("requirements.txt"));
     Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
 
+    String extractZipCommand = "";
+    if (this.extraFile != null && this.extraFile.get(EXTRA_FILE) != null) {
+      String extraFileName = this.extraFile.get(EXTRA_FILE_FILENAME).toString();
+      List<String> forbiddenFiles = Arrays.asList("venv.zip", "requirements.txt", "script.py");
+      if (forbiddenFiles.contains(extraFileName)) {
+        throw new MolgenisException(
+            "Invalid file name '"
+                + extraFileName
+                + "'. "
+                + "Ensure the name of the extra file is not any of 'script.py', 'requirements.txt', or 'venv.zip'.");
+      }
+      byte[] extraFileContent = (byte[]) this.extraFile.get(EXTRA_FILE_CONTENTS);
+      Object extraFileExtension = this.extraFile.get(EXTRA_FILE_EXTENSION);
+      Path extraFilePath = tempDir.resolve(extraFileName);
+
+      try (FileOutputStream fos = new FileOutputStream(extraFilePath.toFile())) {
+        fos.write(extraFileContent);
+      }
+      if (extraFileExtension != null && extraFileExtension.toString().equalsIgnoreCase("zip")) {
+        extractZipCommand = "unzip " + extraFileName + " -d " + tempDir.toAbsolutePath();
+      }
+    }
+
     // define commands (given tempDir as working directory)
     String createVenvCommand = "python3 -m venv venv";
     String activateCommand = "source venv/bin/activate";
     String pipUpgradeCommand = "pip3 install --upgrade pip";
-    String installRequirementsCommand = "pip3 install -r requirements.txt"; // don't check upgrade
+    String installRequirementsCommand =
+        "pip3 install -r requirements.txt --quiet"; // don't check upgrade
     String runScriptCommand = "python3 -u script.py";
     String escapedParameters = " " + escapeXSI(this.parameters);
 
-    return createVenvCommand
-        + " && "
-        + activateCommand
-        + " && "
-        + pipUpgradeCommand
-        + " && "
-        + installRequirementsCommand
-        + " && "
-        + runScriptCommand
-        + escapedParameters;
+    String shellCommands =
+        createVenvCommand
+            + " && "
+            + activateCommand
+            + " && "
+            + pipUpgradeCommand
+            + " && "
+            + installRequirementsCommand
+            + " && "
+            + runScriptCommand
+            + escapedParameters;
+
+    if (!extractZipCommand.isEmpty()) {
+      shellCommands = extractZipCommand + " && " + shellCommands;
+    }
+
+    return shellCommands;
   }
 
   private void sendFailureMail() {
@@ -242,6 +280,17 @@ public class ScriptTask extends Task {
 
   public ScriptTask dependencies(String dependencies) {
     this.dependencies = dependencies;
+    return this;
+  }
+
+  public ScriptTask extraFile(Row scriptMetaData) {
+    this.extraFile = new HashMap<>();
+    this.extraFile.put(EXTRA_FILE, scriptMetaData.getString(EXTRA_FILE));
+    this.extraFile.put(EXTRA_FILE_MIMETYPE, scriptMetaData.getString(EXTRA_FILE_MIMETYPE));
+    this.extraFile.put(EXTRA_FILE_FILENAME, scriptMetaData.getString(EXTRA_FILE_FILENAME));
+    this.extraFile.put(EXTRA_FILE_EXTENSION, scriptMetaData.getString(EXTRA_FILE_EXTENSION));
+    this.extraFile.put(EXTRA_FILE_SIZE, scriptMetaData.getString(EXTRA_FILE_SIZE));
+    this.extraFile.put(EXTRA_FILE_CONTENTS, scriptMetaData.getBinary(EXTRA_FILE_CONTENTS));
     return this;
   }
 
