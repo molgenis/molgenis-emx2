@@ -28,6 +28,7 @@
         Search for items
       </label>
       <InputSearch
+        v-if="enableSearch || listboxOptions.length > 20"
         ref="listbox-search"
         :id="`listbox-${id}-options-search`"
         :aria-labelledby="`listbox-${id}-options-search`"
@@ -80,10 +81,12 @@ const props = withDefaults(
     IInputProps & {
       options: IInputValue[] | IInputValueLabel[];
       value?: IInputValue | IInputValueLabel;
+      enableSearch?: boolean;
     }
   >(),
   {
     placeholder: "Select an option",
+    enableSearch: false,
   }
 );
 

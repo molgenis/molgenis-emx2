@@ -5,10 +5,7 @@ const modelValue = ref<string>("");
 const listboxData = ref<string[]>([]);
 const listboxState = ref<string>("");
 const searchTerm = ref<string>("");
-
-type Resp<T> = {
-  data: Record<string, T[]>;
-};
+const enableSearchField = ref<boolean>(false);
 
 interface Pet {
   name: string;
@@ -74,6 +71,7 @@ onBeforeMount(() => {
         :disabled="listboxState === 'disabled'"
         @update:model-value="(value: any) => (modelValue = value)"
         @search="(value: string) => searchTerm = value"
+        :enable-search="enableSearchField"
       />
     </div>
     <form class="[&>div]:py-2 [&>div>label]:block">
@@ -100,6 +98,25 @@ onBeforeMount(() => {
             },
           ]"
           :showClearButton="true"
+        />
+      </div>
+      <div class="p-2">
+        <InputLabel for="listbox-search-enabled" class="pl-0">
+          Enable search field
+        </InputLabel>
+        <InputRadioGroup
+          id="listbox-search-enabled"
+          v-model="enableSearchField"
+          :options="[
+            {
+              value: false,
+              label: 'Disabled',
+            },
+            {
+              value: true,
+              label: 'Enabled',
+            },
+          ]"
         />
       </div>
     </form>
