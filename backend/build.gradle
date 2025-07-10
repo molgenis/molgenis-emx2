@@ -86,6 +86,7 @@ subprojects {
         testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-rio-ntriples:5.0.1'
         testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-rio-nquads:5.0.1'
         testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-shacl:5.0.1'
+        testFixturesImplementation 'org.apache.commons:commons-collections4:4.5.0'
     }
 
     jacoco {
