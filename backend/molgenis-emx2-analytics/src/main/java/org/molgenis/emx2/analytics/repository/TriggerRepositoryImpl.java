@@ -26,27 +26,21 @@ public class TriggerRepositoryImpl implements TriggerRepository {
   public TriggerRepositoryImpl(Database database) {
     this.database = database;
     String currentUser = database.getActiveUser();
-    this.database.tx(
+    this.database.runAsAdmin(
         db -> {
-          try {
-            db.becomeAdmin();
+          Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
+          if (sysSchema == null) {
+            throw new MolgenisException("failed to setup Analytics TriggerRepository");
+          }
 
-            Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
-            if (sysSchema == null) {
-              throw new MolgenisException("failed to setup Analytics TriggerRepository");
-            }
-
-            if (!sysSchema.getTableNames().contains(TRIGGER_TABLE_NAME)) {
-              sysSchema.create(
-                  table(
-                      TRIGGER_TABLE_NAME,
-                      column(NAME).setPkey(),
-                      column(CSS_SELECTOR).setType(ColumnType.TEXT).setRequired(true),
-                      column(APP_NAME).setRequired(false),
-                      column(SCHEMA_NAME).setRequired(false)));
-            }
-          } finally {
-            db.setActiveUser(currentUser);
+          if (!sysSchema.getTableNames().contains(TRIGGER_TABLE_NAME)) {
+            sysSchema.create(
+                table(
+                    TRIGGER_TABLE_NAME,
+                    column(NAME).setPkey(),
+                    column(CSS_SELECTOR).setType(ColumnType.TEXT).setRequired(true),
+                    column(APP_NAME).setRequired(false),
+                    column(SCHEMA_NAME).setRequired(false)));
           }
         });
   }
@@ -85,47 +79,39 @@ public class TriggerRepositoryImpl implements TriggerRepository {
   @Override
   public List<Trigger> getTriggersForSchema(Schema schema) {
     List<Trigger> triggers = new ArrayList<>();
-    this.database.tx(
+    this.database.runAsAdmin(
         db -> {
-          String currentUser = database.getActiveUser();
-
           if (!schema.getInheritedRolesForActiveUser().contains(Privileges.VIEWER.toString())) {
             throw new MolgenisException(
                 "failed fetch analytics triggers for schema " + schema.getName());
           }
-          try {
-            db.becomeAdmin();
 
-            Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
-            if (sysSchema == null) {
-              throw new MolgenisException(
-                  "failed fetch analytics triggers for schema " + schema.getName());
-            }
-
-            Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
-            List<Trigger> list =
-                triggerTable
-                    .select(
-                        SelectColumn.s(NAME),
-                        SelectColumn.s(CSS_SELECTOR),
-                        SelectColumn.s(SCHEMA_NAME),
-                        SelectColumn.s(APP_NAME))
-                    .where(f(SCHEMA_NAME, EQUALS, schema.getName()))
-                    .retrieveRows()
-                    .stream()
-                    .map(
-                        r ->
-                            new Trigger(
-                                r.getString(NAME),
-                                r.getText(CSS_SELECTOR),
-                                r.getString(SCHEMA_NAME),
-                                r.getString(APP_NAME)))
-                    .toList();
-            triggers.addAll(list);
-
-          } finally {
-            db.setActiveUser(currentUser);
+          Schema sysSchema = db.getSchema(SYSTEM_SCHEMA);
+          if (sysSchema == null) {
+            throw new MolgenisException(
+                "failed fetch analytics triggers for schema " + schema.getName());
           }
+
+          Table triggerTable = sysSchema.getTable(TRIGGER_TABLE_NAME);
+          List<Trigger> list =
+              triggerTable
+                  .select(
+                      SelectColumn.s(NAME),
+                      SelectColumn.s(CSS_SELECTOR),
+                      SelectColumn.s(SCHEMA_NAME),
+                      SelectColumn.s(APP_NAME))
+                  .where(f(SCHEMA_NAME, EQUALS, schema.getName()))
+                  .retrieveRows()
+                  .stream()
+                  .map(
+                      r ->
+                          new Trigger(
+                              r.getString(NAME),
+                              r.getText(CSS_SELECTOR),
+                              r.getString(SCHEMA_NAME),
+                              r.getString(APP_NAME)))
+                  .toList();
+          triggers.addAll(list);
         });
     return triggers;
   }

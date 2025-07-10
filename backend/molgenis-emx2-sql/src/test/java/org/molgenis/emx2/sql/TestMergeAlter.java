@@ -27,7 +27,7 @@ public class TestMergeAlter {
 
   @BeforeAll
   public static void setup() {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     schema = db.dropCreateSchema(TestMergeAlter.class.getSimpleName());
   }
 

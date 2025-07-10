@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Privileges.*;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,7 +16,7 @@ public class TestSettings {
 
   @BeforeAll
   public static void setUp() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = new SqlDatabase(ADMIN_USER);
   }
 
   @Test
@@ -32,7 +33,7 @@ public class TestSettings {
           schema.addMember("testsettingseditor", EDITOR.toString());
           schema.addMember("testsettingsmanager", MANAGER.toString());
 
-          db.setActiveUser("testsettingseditor");
+          db = new SqlDatabase("testsettingseditor");
           try {
             schema = db.getSchema("testSchemaSettings"); // reload schema
             schema.getMetadata().setSetting("key", "value");
@@ -41,7 +42,7 @@ public class TestSettings {
             // failed correctly
           }
 
-          db.setActiveUser("testsettingsmanager");
+          db = new SqlDatabase("testsettingsmanager");
           try {
             schema = db.getSchema("testSchemaSettings"); // reload schema
             schema.getMetadata().setSetting("key", "value");
@@ -58,7 +59,7 @@ public class TestSettings {
 
           assertEquals("value", db.getSchema("testSchemaSettings").getMetadata().getSetting("key"));
 
-          db.becomeAdmin();
+          db = new SqlDatabase(ADMIN_USER);
         });
   }
 
@@ -77,7 +78,7 @@ public class TestSettings {
 
           s.create(table("test").add(column("test")));
 
-          db.setActiveUser("testtablesettingsviewer");
+          db = new SqlDatabase("testtablesettingsviewer");
           try {
             Table t = db.getSchema("testTableSettings").getTable("test");
             t.getMetadata().setSetting("key", "value");
@@ -86,7 +87,7 @@ public class TestSettings {
             // failed correctly
           }
 
-          db.setActiveUser("testtablesettingseditor");
+          db = new SqlDatabase("testtablesettingseditor");
           try {
             Table t = db.getSchema("testTableSettings").getTable("test");
             t.getMetadata().setSetting("key", "value");
@@ -105,15 +106,14 @@ public class TestSettings {
               "value",
               db.getSchema("testTableSettings").getTable("test").getMetadata().getSetting("key"));
 
-          db.becomeAdmin();
+          db = new SqlDatabase(ADMIN_USER);
         });
   }
 
   @Test
   public void testDatabaseSetting() {
-    database.tx(
+    database.runAsAdmin(
         db -> {
-          db.setActiveUser("admin");
           db.setSetting("it-db-setting-key", "it-db-setting-value");
           assertEquals("it-db-setting-value", db.getSetting("it-db-setting-key"));
         });
@@ -124,9 +124,9 @@ public class TestSettings {
     assertThrows(
         MolgenisException.class,
         () -> {
-          database.tx(
+          database.runAsUser(
+              "testsettingsmanager",
               db -> {
-                db.setActiveUser("testsettingsmanager");
                 db.setSetting("it-db-setting-key", "it-db-setting-value");
               });
         });
@@ -135,24 +135,22 @@ public class TestSettings {
   @Test
   public void testDeleteDatabaseSetting() {
     // setup
-    database.tx(
+    database.runAsAdmin(
         db -> {
-          db.setActiveUser("admin");
           db.setSetting("delete-me", "life is short");
         });
 
     // note, we refresh session on these changes so reload db
-    database = TestDatabaseFactory.getTestDatabase();
+    database = new SqlDatabase(ADMIN_USER);
     assertEquals(database.getSetting("delete-me"), "life is short");
 
     // execute
-    database.tx(
+    database.runAsAdmin(
         db -> {
-          db.setActiveUser("admin");
           db.removeSetting("delete-me");
         });
 
-    database = TestDatabaseFactory.getTestDatabase();
+    database = new SqlDatabase(ADMIN_USER);
     assertNull(database.getSetting("delete-me"));
   }
 
@@ -161,9 +159,9 @@ public class TestSettings {
     assertThrows(
         MolgenisException.class,
         () -> {
-          database.tx(
+          database.runAsUser(
+              "testsettingsmanager",
               db -> {
-                db.setActiveUser("testsettingsmanager");
                 db.removeSetting("delete-me");
               });
         });

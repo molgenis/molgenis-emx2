@@ -66,11 +66,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private DatabaseListener listener =
       new DatabaseListener() {
         @Override
-        public void userChanged() {
-          clearCache();
-        }
-
-        @Override
         public void afterCommit() {
           clearCache();
           super.afterCommit();
@@ -101,11 +96,15 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     this.javaScriptBindings.putAll(copy.javaScriptBindings);
   }
 
+  public SqlDatabase(String user) {
+    this(user, false);
+  }
+
   private void setJooq(DSLContext ctx) {
     this.jooq = ctx;
   }
 
-  public SqlDatabase(boolean init) {
+  public SqlDatabase(String user, boolean init) {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, DEFAULT_JOOQ_SETTINGS);
@@ -121,7 +120,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
-    logger.info("Database was created using version: {} ", this.databaseVersion);
+    this.setActiveUser(user);
+    logger.info("Database was created for user {} using version: {} ", user, this.databaseVersion);
   }
 
   private static void initDataSource() {
@@ -447,16 +447,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       long start = System.currentTimeMillis();
       // need elevated privileges, so clear user and run as root
       // this is not thread safe therefore must be in a transaction
-      tx(
-          db -> {
-            String currentUser = db.getActiveUser();
-            try {
-              db.becomeAdmin();
-              executeCreateUser((SqlDatabase) db, userNameTrimmed);
-            } finally {
-              db.setActiveUser(currentUser);
-            }
-          });
+      runAsAdmin(db -> executeCreateUser((SqlDatabase) db, userNameTrimmed));
       log(start, "created user " + userNameTrimmed);
     }
     return getUser(userNameTrimmed);
@@ -590,8 +581,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     log(start, "granted create schema to user " + user);
   }
 
-  @Override
-  public void setActiveUser(String username) {
+  private void setActiveUser(String username) {
     if (username == null || username.isEmpty()) {
       throw new MolgenisException("setActiveUser failed: username cannot be null");
     }
@@ -608,14 +598,9 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       } catch (DataAccessException dae) {
         throw new SqlMolgenisException("Set active user failed", dae);
       }
-    } else {
-      if (!Objects.equals(username, connectionProvider.getActiveUser())) {
-        listener.userChanged();
-      }
     }
     this.connectionProvider.setActiveUser(username);
     this.connectionProvider.setAdmin(user != null && user.isAdmin());
-    this.clearCache();
   }
 
   @Override
@@ -624,26 +609,29 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void clearActiveUser() {
-    if (inTx) {
-      // then we don't use the connection provider
-      try {
-        setActiveUser(ANONYMOUS);
-      } catch (DataAccessException dae) {
-        throw new SqlMolgenisException("Clear active user failed", dae);
-      }
-    }
-    this.connectionProvider.clearActiveUser();
+  public void tx(Transaction transaction) {
+    tx(getActiveUser(), transaction);
   }
 
   @Override
-  public void tx(Transaction transaction) {
+  public void runAsAdmin(Transaction transaction) {
+    tx(ADMIN_USER, transaction);
+  }
+
+  @Override
+  public void runAsUser(String user, Transaction transaction) {
+    tx(user, transaction);
+  }
+
+  public void tx(String user, Transaction transaction) {
     if (inTx) {
+      setActiveUser(user);
       // we do not nest transactions
       transaction.run(this);
     } else {
       // we create a new instance, isolated from 'this' until end of transaction
       SqlDatabase db = new SqlDatabase(jooq, this);
+      db.setActiveUser(user);
       this.tableListeners.forEach(db::addTableListener);
       try {
         jooq.transaction(
@@ -657,9 +645,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             });
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
-        if (!Objects.equals(db.getActiveUser(), getActiveUser())) {
-          this.getListener().userChanged();
-        }
         if (db.getListener().isDirty()) {
           this.getListener().afterCommit();
         }
@@ -787,11 +772,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   @Override
   public boolean isAnonymous() {
     return ANONYMOUS.equals(getActiveUser());
-  }
-
-  @Override
-  public void becomeAdmin() {
-    this.setActiveUser(getAdminUserName());
   }
 
   @Override

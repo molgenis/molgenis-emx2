@@ -51,17 +51,17 @@ public interface Database extends HasSettingsInterface<Database> {
 
   void setAdminUser(String name, boolean admin);
 
-  void setActiveUser(String username);
-
   String getActiveUser();
-
-  void clearActiveUser();
 
   void grantCreateSchema(String user);
 
   void setListener(DatabaseListener listener);
 
   DatabaseListener getListener();
+
+  void runAsAdmin(Transaction transaction);
+
+  void runAsUser(String user, Transaction transaction);
 
   boolean inTx();
 
@@ -80,13 +80,6 @@ public interface Database extends HasSettingsInterface<Database> {
    * <p>Shorthand for getAdminUserName().equals(getActiveUser()) to help understand code
    */
   boolean isAdmin();
-
-  /**
-   * change active user to admin
-   *
-   * <p>Shorthand for setActiveUser(getAdminUserName()) to help understand code
-   */
-  void becomeAdmin();
 
   boolean isOidcEnabled();
 

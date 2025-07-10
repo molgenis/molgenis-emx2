@@ -39,7 +39,7 @@ import org.molgenis.emx2.Order;
 import org.molgenis.emx2.io.tablestore.TableStore;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +68,7 @@ public class WebApiSmokeTests {
   public static void before() throws Exception {
     // FIXME: beforeAll fails under windows
     // setup test schema
-    db = TestDatabaseFactory.getTestDatabase();
+    db = new SqlDatabase(ADMIN_USER);
 
     // start web service for testing, including env variables
     RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
@@ -887,7 +887,6 @@ public class WebApiSmokeTests {
         .get("/pet store/");
 
     schema.getMetadata().removeSetting("menu");
-    db.becomeAdmin();
   }
 
   @Test

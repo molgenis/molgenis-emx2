@@ -14,7 +14,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.test.CrossSchemaReferenceExample;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TestGraphqlCrossSchemaRefs {
 
@@ -27,15 +27,14 @@ public class TestGraphqlCrossSchemaRefs {
 
   @BeforeAll
   public static void setup() {
-    Database database = TestDatabaseFactory.getTestDatabase();
-    database.becomeAdmin();
+    Database database = new SqlDatabase(SqlDatabase.ADMIN_USER);
     database.dropSchemaIfExists(schemaName2);
     database.dropSchemaIfExists(schemaName1);
     schema1 = database.createSchema(schemaName1);
     schema2 = database.createSchema(schemaName2);
 
     CrossSchemaReferenceExample.create(schema1, schema2);
-    graphql = new GraphqlApiFactory().createGraphqlForSchema(schema2, new UserSession());
+    graphql = new GraphqlApiFactory().createGraphqlForSchema(schema2, new GraphqlSession());
   }
 
   @Test

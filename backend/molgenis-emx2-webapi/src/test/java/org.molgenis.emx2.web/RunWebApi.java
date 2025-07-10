@@ -6,7 +6,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.sql.SqlDatabase;
 
 public class RunWebApi {
 
@@ -21,7 +21,7 @@ public class RunWebApi {
     dataSource.setPassword("molgenis");
 
     // setup
-    Database db = TestDatabaseFactory.getTestDatabase();
+    Database db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     Schema schema = db.dropCreateSchema("pet store");
     PET_STORE.getImportTask(schema, true).run();
 

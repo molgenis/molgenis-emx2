@@ -17,7 +17,7 @@ public class TestFileType {
 
   @BeforeAll
   public static void setUp() {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     schema = db.dropCreateSchema(TestFileType.class.getSimpleName());
   }
 

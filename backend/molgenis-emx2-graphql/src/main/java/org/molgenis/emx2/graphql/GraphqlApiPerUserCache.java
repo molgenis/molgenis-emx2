@@ -30,7 +30,7 @@ public class GraphqlApiPerUserCache {
     logger.info("cleared caches");
   }
 
-  public Database getDatabase(UserSession session) {
+  public Database getDatabase(GraphqlSession session) {
     Objects.requireNonNull(session);
     String userName = session.getSessionUser();
     Database database =
@@ -38,10 +38,9 @@ public class GraphqlApiPerUserCache {
             userName,
             key -> {
               logger.info("creating database instance for user '{}'", userName);
-              SqlDatabase db = new SqlDatabase(false);
+              SqlDatabase db = new SqlDatabase(userName);
               db.setListener(session.getDatabaseChangeListener());
               // TODO db.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
-              db.setActiveUser(userName);
               // TODO db.setBindings(JavaScriptBindings.getBindingsForSession(session));
               return db;
             });
@@ -49,7 +48,7 @@ public class GraphqlApiPerUserCache {
     return database;
   }
 
-  public GraphQL getGraphqlForSchema(UserSession session, String schemaName) {
+  public GraphQL getGraphqlForSchema(GraphqlSession session, String schemaName) {
     Objects.requireNonNull(session);
     Objects.requireNonNull(schemaName);
     String userName = session.getSessionUser();
@@ -67,7 +66,7 @@ public class GraphqlApiPerUserCache {
     return graphQL;
   }
 
-  public GraphQL getGraphqlForDatabase(UserSession session) {
+  public GraphQL getGraphqlForDatabase(GraphqlSession session) {
     Objects.requireNonNull(session);
     String userName = session.getSessionUser();
     GraphQL graphQL =

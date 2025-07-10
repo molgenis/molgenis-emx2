@@ -19,11 +19,12 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TestGraphqlAdminFields {
 
   private static GraphQL grapql;
-  private static UserSession session;
+  private static GraphqlSession session;
   private static final String schemaName = TestGraphqlAdminFields.class.getSimpleName();
   private static final String TEST_PERSOON = "testPersoon";
   private static final String ANOTHER_SCHEMA_NAME =
@@ -31,15 +32,13 @@ public class TestGraphqlAdminFields {
 
   @BeforeAll
   public static void setup() {
-    session = new UserSession(ADMIN_USER);
+    session = new GraphqlSession(ADMIN_USER);
   }
 
   @Test
   void testUsers() {
     // put in transaction so user count is not affected by other operations
     Database tdb = session.getDatabase();
-
-    tdb.becomeAdmin();
     tdb.dropCreateSchema(schemaName);
 
     session.setSessionUser(ADMIN_USER);
@@ -66,7 +65,7 @@ public class TestGraphqlAdminFields {
   @Test
   void testUpdateUser() throws JsonProcessingException {
     try {
-      Database testDatabase = session.getDatabase();
+      Database testDatabase = new SqlDatabase(ADMIN_USER);
 
       // setup
       testDatabase.dropCreateSchema(schemaName);

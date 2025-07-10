@@ -11,8 +11,8 @@ import org.molgenis.emx2.tasks.TaskServiceInMemory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UserSession {
-  private static final Logger logger = LoggerFactory.getLogger(UserSession.class);
+public class GraphqlSession {
+  private static final Logger logger = LoggerFactory.getLogger(GraphqlSession.class);
 
   // singletons shared between UserSession instances
   private static GraphqlApiPerUserCache cache = new GraphqlApiPerUserCache();
@@ -27,13 +27,13 @@ public class UserSession {
         }
       };
 
-  public UserSession() {}
+  public GraphqlSession() {}
 
-  public UserSession(String user) {
+  public GraphqlSession(String user) {
     this.setSessionUser(user);
   }
 
-  public UserSession(GraphqlApiPerUserCache cache, TaskService taskService) {
+  public GraphqlSession(GraphqlApiPerUserCache cache, TaskService taskService) {
     // changes static, maybe better use setting
     this.cache = cache;
     this.taskService = taskService;
@@ -59,18 +59,10 @@ public class UserSession {
       throw new MolgenisException("Email already exists");
     }
     getDatabase()
-        .tx(
+        .runAsAdmin(
             db -> {
-              // uplift permissions
-              String activeUser = db.getActiveUser();
-              try {
-                db.becomeAdmin();
-                db.addUser(userName);
-                db.setUserPassword(userName, passWord);
-              } finally {
-                // always lift down again
-                db.setActiveUser(activeUser);
-              }
+              db.addUser(userName);
+              db.setUserPassword(userName, passWord);
             });
   }
 

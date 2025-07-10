@@ -25,18 +25,18 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.Task;
 
 public class TestGraphqlSchemaFields {
 
   private static String schemaName = TestGraphqlSchemaFields.class.getSimpleName();
   private static Schema schema;
-  private static UserSession session;
+  private static GraphqlSession session;
 
   @BeforeAll
   public static void setup() {
-    Database database = TestDatabaseFactory.getTestDatabase();
+    Database database = new SqlDatabase(ADMIN_USER);
     final String shopviewer = "shopviewer";
     final String shopmanager = "shopmanager";
     final String shopowner = "shopowner";
@@ -56,7 +56,7 @@ public class TestGraphqlSchemaFields {
     DataModels.getImportTask(schema, PET_STORE.name(), true).run();
     schema = database.getSchema(schemaName);
 
-    session = new UserSession(ADMIN_USER);
+    session = new GraphqlSession(ADMIN_USER);
   }
 
   @Test

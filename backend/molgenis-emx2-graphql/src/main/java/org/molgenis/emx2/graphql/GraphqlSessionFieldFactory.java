@@ -24,7 +24,7 @@ public class GraphqlSessionFieldFactory {
     // no instance
   }
 
-  public GraphQLFieldDefinition signoutField(UserSession session) {
+  public GraphQLFieldDefinition signoutField(GraphqlSession session) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signout")
         .type(GraphqlApiMutationResult.typeForMutationResult)
@@ -38,7 +38,7 @@ public class GraphqlSessionFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition signupField(UserSession session) {
+  public GraphQLFieldDefinition signupField(GraphqlSession session) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signup")
         .type(GraphqlApiMutationResult.typeForMutationResult)
@@ -59,7 +59,7 @@ public class GraphqlSessionFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition signinField(UserSession session) {
+  public GraphQLFieldDefinition signinField(GraphqlSession session) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signin")
         .type(GraphqlApiMutationResultWithToken.typeForSignResult)

@@ -22,7 +22,7 @@ public class TestBatchRequestsForSpeed {
   @BeforeAll
   public static void setUp() throws SQLException {
     // jdbc:postgresql://mswertz-test-psql1.postgres.database.azure.com:5432/{your_database}?user=molgenis@mswertz-test-psql1&password={your_password}&sslmode=require
-    db = TestDatabaseFactory.getTestDatabase();
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
   }
 
   @Test

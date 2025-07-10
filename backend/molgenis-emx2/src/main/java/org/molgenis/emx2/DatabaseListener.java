@@ -29,8 +29,6 @@ public class DatabaseListener {
     return this.schemaRemoved;
   }
 
-  public void userChanged() {}
-
   /** Abstract method, called on each commit. When override call to reset the listener */
   public void afterCommit() {
     this.schemaRemoved.clear();

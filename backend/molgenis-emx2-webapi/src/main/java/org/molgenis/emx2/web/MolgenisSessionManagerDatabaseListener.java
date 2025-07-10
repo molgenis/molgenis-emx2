@@ -18,12 +18,6 @@ public class MolgenisSessionManagerDatabaseListener extends DatabaseListener {
   }
 
   @Override
-  public void userChanged() {
-    logger.info("cleared cache for this session because user changed");
-    session.clearCache();
-  }
-
-  @Override
   public void afterCommit() {
     super.afterCommit();
     sessionManager.clearAllCaches();

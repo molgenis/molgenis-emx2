@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TestSumQuery {
 
@@ -37,7 +37,7 @@ public class TestSumQuery {
 
   @BeforeAll
   public static void setUp() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = new SqlDatabase(SqlDatabase.ADMIN_USER);
 
     // createColumn a schema to test with
     schema = database.dropCreateSchema(TEST_SUM_QUERY);
@@ -175,7 +175,7 @@ public class TestSumQuery {
     assertTrue(json.contains("9")); // for Type b, Type a
 
     // test that the graphql also works
-    GraphQL graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, new UserSession());
+    GraphQL graphql = new GraphqlApiFactory().createGraphqlForSchema(schema, new GraphqlSession());
     ExecutionResult result =
         graphql.execute(
             """

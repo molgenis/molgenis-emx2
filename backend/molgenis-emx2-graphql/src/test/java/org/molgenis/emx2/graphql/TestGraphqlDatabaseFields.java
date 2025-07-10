@@ -20,12 +20,12 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
 
-  private static UserSession session;
+  private static GraphqlSession session;
   private static final String schemaName = "TestGraphqlDatabaseFields";
 
   @BeforeAll
   public static void setup() {
-    session = new UserSession(ADMIN_USER);
+    session = new GraphqlSession(ADMIN_USER);
     Schema schema = session.getDatabase().dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, false).run();
   }

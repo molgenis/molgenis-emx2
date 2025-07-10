@@ -26,7 +26,7 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   private URL hostUrl;
 
   public TaskServiceInDatabase(String systemSchemaName, URL hostUrl) {
-    this.database = new SqlDatabase(false);
+    this.database = new SqlDatabase(SqlDatabase.ADMIN_USER);
     this.systemSchemaName = systemSchemaName;
     this.hostUrl = hostUrl;
     this.init();
@@ -71,9 +71,8 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
 
   public Task getTaskFromDatabase(String id) {
     final StringBuilder json = new StringBuilder();
-    database.tx(
+    database.runAsAdmin(
         db -> {
-          db.becomeAdmin();
           List<Row> rows =
               db.getSchema(systemSchemaName)
                   .getTable("Jobs")
@@ -95,9 +94,8 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   public String submitTaskFromName(String scriptName, String parameters) {
     StringBuilder result = new StringBuilder();
     String defaultUser = database.getActiveUser();
-    database.tx(
+    database.runAsAdmin(
         db -> {
-          db.becomeAdmin();
           Schema systemSchema = db.getSchema(this.systemSchemaName);
 
           ScriptTask scriptTask = retrieveTaskFromDatabase(systemSchema, scriptName);
@@ -105,7 +103,9 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
           String user =
               scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
 
-          db.setActiveUser(user);
+          // TODO check if we need to submit as other user
+          // db.setActiveUser(user);
+
           // submit the script
           result.append(
               this.submit(
@@ -147,9 +147,8 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
       jobRow.set("parameters", scriptTask.getParameters());
     }
 
-    database.tx(
+    database.runAsAdmin(
         db -> {
-          db.becomeAdmin();
           if (db.getSchema(systemSchemaName)
               .getTable("Jobs")
               .where(f("id", EQUALS, jobRow.getString("id")))
@@ -185,10 +184,8 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   private void init() {
-    this.database.tx(
+    this.database.runAsAdmin(
         db -> {
-          db.becomeAdmin();
-
           Schema schema = null;
           if (!db.hasSchema(this.systemSchemaName)) {
             schema = db.createSchema(this.systemSchemaName);

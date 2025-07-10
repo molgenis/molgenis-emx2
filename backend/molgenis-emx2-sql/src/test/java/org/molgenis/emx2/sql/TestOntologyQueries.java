@@ -22,7 +22,7 @@ public class TestOntologyQueries {
 
   @BeforeEach
   public void setUp() {
-    Database database = TestDatabaseFactory.getTestDatabase();
+    Database database = new SqlDatabase(SqlDatabase.ADMIN_USER);
     schema = (SqlSchema) database.dropCreateSchema(TestOntologyQueries.class.getSimpleName());
     DataModels.Profile.PET_STORE.getImportTask(schema, true).run();
   }

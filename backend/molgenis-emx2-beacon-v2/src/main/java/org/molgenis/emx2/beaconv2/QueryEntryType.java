@@ -137,7 +137,6 @@ public class QueryEntryType {
 
     String template = null;
     if (database != null && schema != null) {
-      database.becomeAdmin();
       Schema systemSchema = database.getSchema(SYSTEM_SCHEMA);
       Table templatesTable = systemSchema.getTable("Templates");
       List<Row> templates = templatesTable.retrieveRows();
