@@ -2,9 +2,14 @@ package org.molgenis.emx2.rdf.generators;
 
 import java.util.Collection;
 import java.util.List;
+import org.eclipse.rdf4j.model.util.Values;
+import org.eclipse.rdf4j.model.vocabulary.DCTERMS;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.Table;
 import org.molgenis.emx2.TableType;
+import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
@@ -39,5 +44,16 @@ public class RootRdfGenerator extends RdfGenerator {
     tables.forEach(i -> emx2RdfGenerator.describeTable(namespaces, i));
     tables.forEach(i -> emx2RdfGenerator.describeColumns(namespaces, i, null));
     tables.forEach(i -> emx2RdfGenerator.processRows(namespaces, rdfMapData, i, null));
+  }
+
+  private void describeRoot() {
+    getWriter().processTriple(Values.iri(getBaseURL()), RDF.TYPE, BasicIRI.SIO_DATABASE);
+    getWriter().processTriple(Values.iri(getBaseURL()), RDFS.LABEL, Values.literal("EMX2"));
+    getWriter()
+        .processTriple(
+            Values.iri(getBaseURL()),
+            DCTERMS.DESCRIPTION,
+            Values.literal("MOLGENIS EMX2 database at " + getBaseURL()));
+    getWriter().processTriple(Values.iri(getBaseURL()), DCTERMS.CREATOR, BasicIRI.MOLGENIS);
   }
 }

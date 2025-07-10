@@ -32,6 +32,7 @@ import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.rdf.BasicIRI;
 import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
+import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
@@ -50,7 +51,6 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
 
     generatePrefixes(namespaces.getAllNamespaces(schema));
     generateCustomRdf(schema);
-    describeRoot();
     describeSchema(schema);
     tables.forEach(i -> describeTable(namespaces, i));
     tables.forEach(i -> describeColumns(namespaces, i, null));
@@ -68,6 +68,18 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     describeTable(namespaces, table);
     describeColumns(namespaces, table, null);
     tables.forEach(i -> processRows(namespaces, rdfMapData, i, null));
+  }
+
+  @Override
+  public void generate(Table table, PrimaryKey primaryKey) {
+    Set<Table> tables = tablesToDescribe(table.getSchema(), table);
+    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
+
+    generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
+    generateCustomRdf(table.getSchema());
+    describeColumns(namespaces, table, null);
+    tables.forEach(i -> processRows(namespaces, rdfMapData, i, primaryKey));
   }
 
   @Override

@@ -3,7 +3,7 @@ package org.molgenis.emx2.rdf.generators;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
 import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
 
-import java.util.List;
+import java.util.Collection;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.util.Values;
@@ -29,19 +29,26 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
 
   @Override
   public void generate(Schema schema) {
-    List<Table> tables = schema.getTablesSorted();
-    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
-    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), schema);
-
-    generatePrefixes(namespaces.getAllNamespaces(schema));
-    generateCustomRdf(schema);
-    describeRoot();
-    tables.forEach(i -> processRows(namespaces, rdfMapData, i, null));
+    generateRdf(schema, schema.getTablesSorted(), null);
   }
 
   @Override
   public void generate(Table table) {
     generate(table, (PrimaryKey) null);
+  }
+
+  @Override
+  public void generate(Table table, PrimaryKey primaryKey) {
+    generateRdf(table.getSchema(), tablesToDescribe(table.getSchema(), table), primaryKey);
+  }
+
+  private void generateRdf(Schema schema, Collection<Table> tables, PrimaryKey primaryKey) {
+    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+    NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), schema);
+
+    generatePrefixes(namespaces.getAllNamespaces(schema));
+    generateCustomRdf(schema);
+    tables.forEach(i -> processRows(namespaces, rdfMapData, i, primaryKey));
   }
 
   /**

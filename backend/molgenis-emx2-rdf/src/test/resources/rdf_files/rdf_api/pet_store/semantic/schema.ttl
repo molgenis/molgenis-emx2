@@ -33,11 +33,6 @@
 @prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://localhost:8080> a sio:SIO_000750;
-  rdfs:label "EMX2";
-  dcterms:description "MOLGENIS EMX2 database at http://localhost:8080";
-  dcterms:creator <https://molgenis.org> .
-
 <http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat>
   dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
   dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
