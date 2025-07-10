@@ -30,6 +30,7 @@ public class JavaScriptBindings {
     Map<String, Supplier<Object>> bindings = new HashMap<>();
     bindings.put(SIMPLE_POST_CLIENT, () -> createSimplePostClient(session));
     // Add more bindings here in a similar way if needed
+
     return bindings;
   }
 }

@@ -57,6 +57,7 @@ public class MolgenisSessionManager {
         JWTgenerator.getUserFromToken(session.getDatabase(), request.getHeader(authTokenKey));
     // sessions are cheap because of the cache
     session.setSessionUser(user);
+
     return session;
   }
 
@@ -109,6 +110,7 @@ public class MolgenisSessionManager {
       public void sessionCreated(HttpSessionEvent httpSessionEvent) {
         logger.info("Initializing session");
         MolgenisSession molgenisSession = new MolgenisSession(cache, _this);
+
         sessions.put(httpSessionEvent.getSession().getId(), molgenisSession);
         logger.info("session created: " + httpSessionEvent.getSession().getId());
       }

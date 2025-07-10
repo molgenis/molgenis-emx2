@@ -62,8 +62,6 @@ public class RunMolgenisEmx2 {
     // setup database
     Database db = new SqlDatabase(SqlDatabase.ADMIN_USER, true);
 
-    // elevate privileges for init
-
     if (!EXCLUDE_PETSTORE_DEMO && db.getSchema("pet store") == null) {
       Schema schema = db.createSchema("pet store");
       DataModels.Profile.PET_STORE.getImportTask(schema, true).run();

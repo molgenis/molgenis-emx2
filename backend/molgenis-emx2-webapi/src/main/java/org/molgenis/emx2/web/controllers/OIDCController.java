@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.web.SecurityConfigFactory;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.CallContext;
@@ -101,7 +102,6 @@ public class OIDCController {
       logger.info("Add new OIDC user({}) to database", user);
       database.addUser(user);
     }
-
     logger.info("OIDC sign in for user: {}", user);
 
     ctx.status(302);
