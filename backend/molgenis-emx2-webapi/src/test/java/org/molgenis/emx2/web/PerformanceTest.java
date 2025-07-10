@@ -3,8 +3,7 @@ package org.molgenis.emx2.web;
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
+import static org.molgenis.emx2.sql.SqlDatabase.*;
 
 import io.restassured.RestAssured;
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import org.molgenis.emx2.Privileges;
 import org.molgenis.emx2.RunMolgenisEmx2;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.DataModels;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,7 @@ public class PerformanceTest {
   @BeforeAll
   public static void before() throws Exception {
 
-    database = TestDatabaseFactory.getTestDatabase();
+    database = new SqlDatabase(ADMIN_USER);
     RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
 
     // set default rest assured settings

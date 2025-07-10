@@ -2,6 +2,7 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
@@ -22,7 +23,7 @@ public class TestUsersAndPermissions {
 
   @BeforeAll
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = new SqlDatabase(ADMIN_USER);
   }
 
   @AfterAll
@@ -58,30 +59,31 @@ public class TestUsersAndPermissions {
         database.removeUser(user1);
       }
       database.addUser(user1);
-      database.setActiveUser(user1);
+      database = new SqlDatabase(user1);
       assertEquals(user1, database.getActiveUser());
 
       // remove active user
-      database.becomeAdmin();
+      database = new SqlDatabase(ADMIN_USER);
       assertTrue(database.isAdmin());
 
       // create schema
       Schema schema1 = database.dropCreateSchema("TestActiveUser1");
 
       // create table without permission should fail
-      database.setActiveUser(user1);
+      database = new SqlDatabase(user1);
 
       try {
-        schema1.create(table("Test"));
-        fail("should have failed");
+        schema1 = database.getSchema("TestActiveUser1");
+        assertNull(schema1);
       } catch (MolgenisException e) {
         System.out.println("Failed correctly on create schema:\n" + e.toString());
       }
 
       // retry with proper permission
-      database.becomeAdmin(); // god mode so I can edit membership
+      database = new SqlDatabase(ADMIN_USER);
+      schema1 = database.getSchema("TestActiveUser1");
       schema1.addMember(user1, Privileges.MANAGER.toString());
-      database.setActiveUser(user1);
+      database = new SqlDatabase(user1);
       try {
         schema1.create(table("Test"));
       } catch (MolgenisException e) {
@@ -89,7 +91,7 @@ public class TestUsersAndPermissions {
       }
 
     } finally {
-      database.becomeAdmin();
+      database = new SqlDatabase(ADMIN_USER);
     }
   }
 
@@ -121,11 +123,11 @@ public class TestUsersAndPermissions {
 
   @Test
   void testGrantAdminByNonRootAdmin_shouldThrow() {
-    database.becomeAdmin();
+    database = new SqlDatabase(ADMIN_USER);
     database.addUser(TEST_ADMIN_USER);
     database.setAdminUser(TEST_ADMIN_USER, true);
     // Become non-root admin user
-    database.setActiveUser(TEST_ADMIN_USER);
+    database = new SqlDatabase(TEST_ADMIN_USER);
     database.addUser(TEST_ADMIN_USER_2);
     // Should throw only root admin can set admin
     assertThrows(MolgenisException.class, () -> database.setAdminUser(TEST_ADMIN_USER_2, true));
@@ -136,7 +138,7 @@ public class TestUsersAndPermissions {
     database.addUser(TEST_ADMIN_USER);
     database.setAdminUser(TEST_ADMIN_USER, true);
     // Become non-root admin user
-    database.setActiveUser(TEST_ADMIN_USER);
+    database = new SqlDatabase(TEST_ADMIN_USER);
     // Should throw only root admin can set admin password
     assertThrows(MolgenisException.class, () -> database.setUserPassword(ADMIN, "somePassword"));
   }
@@ -226,14 +228,14 @@ public class TestUsersAndPermissions {
       assertFalse(database.checkUserPassword("donald", "blaat2"));
 
       // check if user can change their own password
-      database.setActiveUser("donald");
+      database = new SqlDatabase("donald");
       assertTrue(database.checkUserPassword("donald", "blaat"));
       assertFalse(database.checkUserPassword("donald", "blaat2"));
 
       // ensure otherwise fails
-      database.becomeAdmin();
+      database = new SqlDatabase(ADMIN_USER);
       database.addUser("katrien");
-      database.setActiveUser("katrien");
+      database = new SqlDatabase("katrien");
       try {
         database.setUserPassword("donald", "blaat");
         fail("should have failed");
@@ -241,7 +243,7 @@ public class TestUsersAndPermissions {
         // ok
       }
     } finally {
-      database.becomeAdmin();
+      database = new SqlDatabase(ADMIN_USER);
       database.removeUser("donald");
       database.removeUser("katrien");
     }

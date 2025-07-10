@@ -9,7 +9,7 @@ import java.util.Set;
  * <p>In particular, we use it now to ensure sessions are refreshed if users change, or if there are
  * transactions that may have changed schema structure and/or permissions.
  */
-public abstract class DatabaseListener {
+public class DatabaseListener {
   private Set<String> schemaChanged = new HashSet<>();
   private Set<String> schemaRemoved = new HashSet<>();
 
@@ -28,8 +28,6 @@ public abstract class DatabaseListener {
   public Set<String> getSchemaRemoved() {
     return this.schemaRemoved;
   }
-
-  public abstract void userChanged();
 
   /** Abstract method, called on each commit. When override call to reset the listener */
   public void afterCommit() {

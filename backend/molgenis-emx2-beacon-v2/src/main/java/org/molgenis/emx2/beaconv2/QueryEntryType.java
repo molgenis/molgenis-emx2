@@ -140,7 +140,6 @@ public class QueryEntryType {
 
     String template = null;
     if (database != null && schema != null) {
-      database.becomeAdmin();
       Schema systemSchema = database.getSchema(SYSTEM_SCHEMA);
       Table templatesTable = systemSchema.getTable("Templates");
       List<Row> templates = templatesTable.retrieveRows();
@@ -199,7 +198,7 @@ public class QueryEntryType {
   }
 
   private ArrayNode doGraphQlQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema(), null);
 
     String graphQlQuery =
         new QueryBuilder(table)
@@ -218,7 +217,7 @@ public class QueryEntryType {
   }
 
   private int doCountQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema(), null);
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getCountQuery();
 
     ExecutionResult result = graphQL.execute(graphQlQuery);
@@ -228,7 +227,7 @@ public class QueryEntryType {
   }
 
   private boolean doExistsQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema(), null);
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getExistsQuery();
 
     ExecutionResult result = graphQL.execute(graphQlQuery);

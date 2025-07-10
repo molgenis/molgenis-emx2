@@ -29,7 +29,7 @@ public class AnalyticsApi {
 
   public static void create(Javalin app) {
 
-    new TriggerRepositoryImpl(new SqlDatabase(false));
+    new TriggerRepositoryImpl(new SqlDatabase(SqlDatabase.ADMIN_USER));
 
     app.post("/{schema}/api/trigger", AnalyticsApi::addTrigger);
     app.get("/{schema}/api/trigger", AnalyticsApi::listSchemaTriggers);

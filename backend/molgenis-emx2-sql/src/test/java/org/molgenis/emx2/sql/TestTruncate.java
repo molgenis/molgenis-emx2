@@ -15,7 +15,7 @@ public class TestTruncate {
 
   @Test
   public void testTruncate() {
-    Database db = TestDatabaseFactory.getTestDatabase();
+    Database db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     Schema schema = db.dropCreateSchema(TestTruncate.class.getSimpleName());
 
     // create simple table, add data, and truncate

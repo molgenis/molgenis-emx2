@@ -22,7 +22,7 @@ public class TestQueryExpandIntoReferences {
 
   @BeforeAll
   public static void setUp() throws SQLException {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
 
     // createColumn a schema to test with
     Schema schema = db.dropCreateSchema("TestQueryWithRefArray");

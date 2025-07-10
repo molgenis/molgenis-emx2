@@ -18,7 +18,7 @@ public class TestOrderByWithCollation {
 
   @BeforeAll
   public static void setUp() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = new SqlDatabase(SqlDatabase.ADMIN_USER);
 
     // createColumn a schema to test with
     schema = database.dropCreateSchema("TestOrderByWithCollation");

@@ -20,7 +20,7 @@ public class TestCreateForeignKeysArrays {
 
   @BeforeAll
   public static void setup() {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
   }
 
   @Test

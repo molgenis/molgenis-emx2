@@ -20,7 +20,7 @@ public class TestQueryOntologySearchQueryExpansion {
 
   @BeforeAll
   public static void setUp() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = new SqlDatabase(SqlDatabase.ADMIN_USER);
     schema = database.dropCreateSchema("TestQueryOntologySearchQueryExpansion");
 
     myTable =

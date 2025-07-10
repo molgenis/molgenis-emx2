@@ -27,7 +27,7 @@ public class BeaconApi {
   }
 
   private static void createTemplates() {
-    Database database = new SqlDatabase(false);
+    Database database = new SqlDatabase(SqlDatabase.ADMIN_USER);
     Templates.addTemplatesToDb(database);
   }
 

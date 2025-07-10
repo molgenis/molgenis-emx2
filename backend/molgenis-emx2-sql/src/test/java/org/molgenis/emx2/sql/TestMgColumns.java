@@ -18,7 +18,7 @@ public class TestMgColumns {
 
   @BeforeAll
   public static void setUp() {
-    Database database = TestDatabaseFactory.getTestDatabase();
+    Database database = new SqlDatabase(SqlDatabase.ADMIN_USER);
     schema = database.dropCreateSchema(TestMgColumns.class.getSimpleName());
   }
 

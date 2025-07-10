@@ -1,6 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.util.List;
 import org.jooq.DSLContext;
@@ -16,15 +17,14 @@ public class AToolToCleanDatabase {
   }
 
   public static void deleteAll() {
-    SqlDatabase db = new SqlDatabase(true);
+    SqlDatabase db = new SqlDatabase(ADMIN_USER, true);
     jooq = db.getJooq();
-    db.becomeAdmin();
     jooq.dropSchemaIfExists("MOLGENIS").cascade().execute();
     deleteAllForeignKeyConstraints();
     deleteAllSchemas();
     deleteAllRoles();
     MetadataUtils.resetVersion();
-    new SqlDatabase(true);
+    new SqlDatabase(ADMIN_USER, true);
   }
 
   private static void deleteAllRoles() {

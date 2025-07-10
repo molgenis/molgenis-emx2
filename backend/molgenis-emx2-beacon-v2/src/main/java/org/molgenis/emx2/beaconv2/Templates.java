@@ -10,15 +10,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import org.molgenis.emx2.Database;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.GraphqlSession;
 
 public class Templates {
 
   public static void addTemplatesToDb(Database database) {
-    database.becomeAdmin();
-    Schema schema = database.getSchema("_SYSTEM_");
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    // why is this done as admin?
+    GraphQL graphQL = new GraphqlSession("ADMIN").getGraphqlForSchema("_SYSTEM_");
 
     for (EntryType entryType : EntryType.values()) {
       String query =

@@ -26,7 +26,7 @@ public class TestCrossSchemaForeignKeysAndInheritance {
 
   @BeforeAll
   public static void setUp() {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
     db.dropSchemaIfExists(schemaName2);
     db.dropSchemaIfExists(schemaName1);
     schema1 = db.createSchema(schemaName1);

@@ -23,7 +23,7 @@ public class TestQuery {
 
   @BeforeAll
   public static void setUp() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = new SqlDatabase(SqlDatabase.ADMIN_USER);
 
     // createColumn a schema to test with
     schema = database.dropCreateSchema("TestQuery");

@@ -14,7 +14,7 @@ public class TestRefBackChangeCascade {
 
   @BeforeAll
   public static void setUp() {
-    database = TestDatabaseFactory.getTestDatabase();
+    database = new SqlDatabase(SqlDatabase.ADMIN_USER);
   }
 
   private static void loadSchemas(Schema schema, Schema schemaOther) {

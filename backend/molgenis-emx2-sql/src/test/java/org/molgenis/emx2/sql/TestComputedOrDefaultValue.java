@@ -18,7 +18,7 @@ public class TestComputedOrDefaultValue {
 
   @BeforeAll
   public static void setup() {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
 
     schema = db.dropCreateSchema(TestComputedOrDefaultValue.class.getSimpleName());
   }

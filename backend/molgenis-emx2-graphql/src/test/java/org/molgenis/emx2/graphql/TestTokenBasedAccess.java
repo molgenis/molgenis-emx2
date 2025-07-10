@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.sql.JWTgenerator;
-import org.molgenis.emx2.sql.TestDatabaseFactory;
+import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TestTokenBasedAccess {
-  Database db = TestDatabaseFactory.getTestDatabase();
+  Database db = new SqlDatabase(SqlDatabase.ADMIN_USER);
 
   @Test
   public void testJWTgenerator() {
@@ -31,7 +31,7 @@ public class TestTokenBasedAccess {
     assertEquals(user, "tokentest2");
 
     // check cannot make token for user if not authorized
-    db.setActiveUser("tokentest1");
+    db = new SqlDatabase("tokentest1");
     try {
       result = gen.createNamedTokenForUser(db, "tokentest2", "mytoken");
       fail("should not be able to make token for other user, unless admin");

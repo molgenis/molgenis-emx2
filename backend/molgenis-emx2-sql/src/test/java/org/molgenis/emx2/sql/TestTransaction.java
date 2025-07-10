@@ -14,7 +14,7 @@ public class TestTransaction {
 
   @BeforeAll
   public static void setUp() throws SQLException {
-    db = TestDatabaseFactory.getTestDatabase();
+    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
   }
 
   @Test

@@ -28,7 +28,7 @@ class MolgenisSessionTest {
     // Mock the GraphqlApiFactory to return a GraphQL instance
     GraphQL mockGraphQL = mock(GraphQL.class);
     when(graphQlApiFactory.createGraphqlForSchema(any(), any())).thenReturn(mockGraphQL);
-    MolgenisSession molgenisSession = new MolgenisSession(database, graphQlApiFactory);
+    MolgenisSession molgenisSession = new MolgenisSession();
     GraphQL graphqlForSchema = molgenisSession.getGraphqlForSchema("testSchema");
     assertNotNull(graphqlForSchema, "GraphQL schema should not be null");
 
