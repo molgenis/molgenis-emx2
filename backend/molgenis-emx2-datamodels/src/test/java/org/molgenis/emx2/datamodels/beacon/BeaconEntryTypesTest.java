@@ -1,21 +1,18 @@
-package org.molgenis.emx2.beaconv2;
+package org.molgenis.emx2.datamodels.beacon;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Context;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.endpoints.EntryTypes;
 
 @Tag("slow")
-public class Beaconv2_EntryTypesTest {
+public class BeaconEntryTypesTest {
 
   private Context mockRequest() {
     Context request = mock(Context.class);
@@ -26,13 +23,10 @@ public class Beaconv2_EntryTypesTest {
   }
 
   @Test
-  @Disabled
-  public void testEntryTypes() throws JsonProcessingException {
+  public void testEntryTypes() {
     Context context = mockRequest();
     EntryTypes entryTypes = new EntryTypes();
-    entryTypes.getResponse(context);
-
-    JsonNode result = new ObjectMapper().readTree(context.result());
+    JsonNode result = entryTypes.getResponse(context);
 
     assertEquals("org.molgenis.beaconv2", result.get("meta").get("beaconId").textValue());
     assertEquals(
@@ -41,7 +35,7 @@ public class Beaconv2_EntryTypesTest {
 
     JsonNode analysis = result.get("response").get("entryTypes").get("analyses");
     assertTrue(analysis.isObject());
-    assertEquals("Analyses", analysis.get("id").textValue());
+    assertEquals("IndividualAnalyses", analysis.get("id").textValue());
     assertEquals("analyses", analysis.get("name").textValue());
     assertEquals(
         "edam:operation_2945", analysis.get("ontologyTermForThisType").get("id").textValue());
@@ -60,13 +54,13 @@ public class Beaconv2_EntryTypesTest {
 
     JsonNode datasets = result.get("response").get("entryTypes").get("datasets");
     assertTrue(datasets.isObject());
-    assertEquals("Dataset", datasets.get("id").textValue());
+    assertEquals("Datasets", datasets.get("id").textValue());
     assertEquals("datasets", datasets.get("name").textValue());
     assertEquals("NCIT:C47824", datasets.get("ontologyTermForThisType").get("id").textValue());
 
     JsonNode genomicVariants = result.get("response").get("entryTypes").get("g_variants");
     assertTrue(genomicVariants.isObject());
-    assertEquals("GenomicVariations", genomicVariants.get("id").textValue());
+    assertEquals("GenomicVariants", genomicVariants.get("id").textValue());
     assertEquals("g_variants", genomicVariants.get("name").textValue());
     assertEquals(
         "ENSGLOSSARY:0000092",
@@ -80,7 +74,7 @@ public class Beaconv2_EntryTypesTest {
 
     JsonNode runs = result.get("response").get("entryTypes").get("runs");
     assertTrue(runs.isObject());
-    assertEquals("Runs", runs.get("id").textValue());
+    assertEquals("SequencingRuns", runs.get("id").textValue());
     assertEquals("runs", runs.get("name").textValue());
     assertEquals("NCIT:C148088", runs.get("ontologyTermForThisType").get("id").textValue());
   }
