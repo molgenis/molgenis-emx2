@@ -1,4 +1,4 @@
-package org.molgenis.emx2.beaconv2.entrytypes;
+package org.molgenis.emx2.datamodels.beacon.entrytypes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -13,18 +13,19 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
+import org.molgenis.emx2.datamodels.TestLoaders;
 
-@Disabled
-public class BeaconRunsTests extends BeaconModelEndPointTest {
+public class BeaconRunsTests extends TestLoaders {
 
+  @Disabled
   @Test
   public void testRunsOfIndividual_pathQuery_twoResults() {
     Context request = mock(Context.class);
     when(request.url()).thenReturn("http://localhost:8080/api/beacon");
     Map<String, String> urlParams =
         Map.of(
-            "entry_type_id", EntryType.INDIVIDUALS.getId(),
-            "entry_type", EntryType.RUNS.getId(),
+            "entry_type_id", EntryType.INDIVIDUALS.getName(),
+            "entry_type", EntryType.RUNS.getName(),
             "id", "Ind001");
 
     when(request.pathParamMap()).thenReturn(urlParams);
@@ -32,7 +33,6 @@ public class BeaconRunsTests extends BeaconModelEndPointTest {
     when(request.attribute("specification")).thenReturn("beacon");
 
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
-
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode json = queryEntryType.query(database);
 
