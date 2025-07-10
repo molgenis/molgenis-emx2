@@ -108,4 +108,8 @@ public class GraphqlSession {
   public DatabaseListener getDatabaseChangeListener() {
     return databaseListener;
   }
+
+  protected void setDatabaseListener(DatabaseListener databaseListener) {
+    this.databaseListener = databaseListener;
+  }
 }

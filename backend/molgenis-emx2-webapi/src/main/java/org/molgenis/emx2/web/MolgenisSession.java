@@ -5,11 +5,7 @@ import org.molgenis.emx2.graphql.GraphqlSession;
 
 public class MolgenisSession extends GraphqlSession {
 
-  public MolgenisSession() {
-    super();
-  }
-
   public MolgenisSession(GraphqlApiPerUserCache cache, MolgenisSessionManager sessionManager) {
-    // this.databaseListener = new MolgenisSessionManagerDatabaseListener(sessionManager, this);
+    super.setDatabaseListener(new MolgenisSessionManagerDatabaseListener(sessionManager, this));
   }
 }
