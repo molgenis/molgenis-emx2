@@ -68,7 +68,7 @@ class MolgenisSessionTest {
     when(database.isAnonymous()).thenReturn(false);
 
     // Create two threads for getting the GraphQL for the schema
-    int threadCount = 2;
+    int threadCount = 10;
     ExecutorService executor = Executors.newFixedThreadPool(threadCount);
     CountDownLatch readyLatch = new CountDownLatch(threadCount);
     CountDownLatch startLatch = new CountDownLatch(1);
@@ -86,7 +86,7 @@ class MolgenisSessionTest {
             } catch (ConcurrentModificationException cme) {
               failures.add(cme);
             } catch (InterruptedException ignore) {
-
+              // The latches require interruptions to be caught
             } finally {
               doneLatch.countDown();
             }
