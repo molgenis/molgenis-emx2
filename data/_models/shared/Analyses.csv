@@ -4,7 +4,7 @@ Analyses,,id,auto_id,1,,,,,,,,http://semanticscience.org/resource/SIO_000115,A u
 Analyses,,date completed,date,,,,,,,,,http://semanticscience.org/resource/SIO_000032,The date on which the analysis was completed,Patient registry
 Analyses,,persons involved,ref_array,,,,Contacts,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,Reference to one or more individuals involved in the analysis,Patient registry
 Analyses,,files used,ref_array,,,,Files,,,,,http://semanticscience.org/resource/SIO_000396,Reference to one or more files involved in the analysis,Patient registry
-Analyses,,input samples,ref_array,,,,Samples,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,Reference to one or more biosamples involved in the analysis,Patient registry
+Analyses,,input samples,ref_array,,,,Samples,,,,,http://purl.obolibrary.org/obo/NCIT_C93400,Reference to one or more samples involved in the analysis,Patient registry
 Analyses,,data source,ref,,,,Resources,,,,,http://purl.obolibrary.org/obo/NCIT_C16493,"The source or origin of the record. For example, an organisation, database, system, etc.",Patient registry
 Analyses,,date created at source,date,,,,,,,,,"dcterms:created,http://purl.obolibrary.org/obo/NCIT_C16493",The date the record was created at the source,Patient registry
 Analyses,,created at source by,ref,,,,Contacts,,,,,"http://purl.obolibrary.org/obo/NCIT_C51820,http://purl.obolibrary.org/obo/NCIT_C16493",The person who created the record at the source,Patient registry
