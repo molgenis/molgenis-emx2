@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { rowToString } from "../../../utils/rowToString";
-import type { columnValueObject } from "../../../../metadata-utils/src/types";
-import { ref } from "vue";
-import Button from "~/components/Button.vue";
+import type {
+  columnValueObject,
+  ITableMetaData,
+} from "../../../../metadata-utils/src/types";
+import { computed, ref } from "vue";
+import Button from "../../../components/Button.vue";
+import { rowToSections } from "../../../utils/rowToSections";
 
 const props = withDefaults(
   defineProps<{
     refData: columnValueObject;
+    refMetadata: ITableMetaData;
     refLabel?: string;
     canEdit?: boolean;
   }>(),
@@ -15,11 +20,27 @@ const props = withDefaults(
   }
 );
 
+const emits = defineEmits<{
+  (e: "remove", row: columnValueObject): void;
+  (e: "duplicate", row: columnValueObject): void;
+  (e: "edit", row: columnValueObject): void;
+  (e: "expand", row: columnValueObject): void;
+}>();
+
 const expanded = ref<boolean>(false);
 
 function toLabel(row: columnValueObject) {
   return rowToString(row, props.refLabel ?? "");
 }
+
+function expandRow() {
+  expanded.value = !expanded.value;
+  emits("expand", props.refData);
+}
+
+const sections = computed(() =>
+  rowToSections(props.refData, props.refMetadata)
+);
 </script>
 
 <template>
@@ -55,7 +76,7 @@ function toLabel(row: columnValueObject) {
             :icon="expanded ? 'caret-up' : 'caret-down'"
             type="inline"
             label="Details"
-            @click="expanded = !expanded"
+            @click="expandRow"
           ></Button>
         </div>
       </div>
@@ -65,8 +86,10 @@ function toLabel(row: columnValueObject) {
       :class="expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'"
     >
       <div class="mt-4">
-        This is the content inside the expanding div. You can put anything here
-        — text, images, components.
+        <ContentEMX2Section
+          v-for="section in sections"
+          :section="section"
+        ></ContentEMX2Section>
       </div>
     </div>
   </li>

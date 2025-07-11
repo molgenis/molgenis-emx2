@@ -2,6 +2,9 @@
 import type { IInputProps } from "~/types/types";
 import type { columnValueObject } from "../../../metadata-utils/src/types";
 import InputRefListItem from "./ref/ListItem.vue";
+import fetchRowData from "../../composables/fetchRowData";
+import fetchTableMetadata from "../../composables/fetchTableMetadata";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 
 const props = withDefaults(
   defineProps<
@@ -17,7 +20,21 @@ const props = withDefaults(
   }
 );
 
+const metadata = await fetchTableMetadata(props.refSchemaId, props.refTableId);
+
 const modelValue = defineModel<columnValueObject[]>();
+
+async function fetchRowDetails(rowIndex: number) {
+  if (modelValue.value && modelValue.value[rowIndex]) {
+    const rowKey = await fetchRowPrimaryKey(modelValue.value[rowIndex], props.refTableId, props.refSchemaId);
+    const rowData = await fetchRowData(
+      props.refSchemaId,
+      props.refTableId,
+      rowKey
+    );
+    modelValue.value[rowIndex] = rowData;
+  }
+}
 </script>
 <template>
   <Button v-if="canEdit" icon="plus" type="text" size="small"
@@ -25,10 +42,12 @@ const modelValue = defineModel<columnValueObject[]>();
   >
   <ul class="border divide-y divide-gray-200">
     <InputRefListItem
-      v-for="ref in modelValue"
+      v-for="(ref, index) in modelValue"
       :refData="ref"
       :refLabel="props.refLabel"
+      :refMetadata="metadata"
       :canEdit="props.canEdit"
+      @expand="fetchRowDetails(index)"
     />
   </ul>
 </template>
