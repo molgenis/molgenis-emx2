@@ -34,7 +34,13 @@ async function getExampleData() {
     body: body,
   });
 
-  listboxData.value = response.data.Pet.map((entry: Pet) => entry.name).sort();
+  if (response.data.Pet) {
+    listboxData.value = response.data.Pet.map(
+      (entry: Pet) => entry.name
+    ).sort();
+  } else {
+    listboxData.value = [];
+  }
 }
 
 watch(searchTerm, async () => {

@@ -35,6 +35,7 @@
         :aria-controls="`listbox-${id}-options-list`"
         placeholder="Search"
         v-model="searchTerm"
+        @update:model-value="emit('search', searchTerm)"
       />
       <ul
         ref="ul"
@@ -56,6 +57,12 @@
           @blur="blurListOption(option)"
           @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
         />
+        <li
+          v-if="listboxOptions.length === 1 && listboxOptions[0].value === null"
+          class="flex justify-center items-center h-[56px] pl-3 py-1 bg-input border-b-[1px] last:border-b-0 text-input italic"
+        >
+          No options found
+        </li>
       </ul>
     </div>
   </div>
@@ -64,7 +71,6 @@
 <script lang="ts" setup>
 import { ref, useTemplateRef, nextTick, watch, onMounted, computed } from "vue";
 import type {
-  IFieldError,
   IInputValue,
   IInputValueLabel,
 } from "../../../metadata-utils/src/types";
@@ -108,7 +114,7 @@ const searchElemRef = ref<InstanceType<typeof InputSearch>>();
 const displayText = ref<string>(props.placeholder);
 const startingCounter = ref<number>(0);
 const selectedElementId = ref<string>("");
-const searchTerm = ref<string>("");
+const searchTerm = defineModel<string>("");
 
 const isExpanded = computed<boolean>(() => {
   return btnElemRef.value?.expanded as boolean;
@@ -135,7 +141,10 @@ watch(
   () => (displayText.value = props.placeholder)
 );
 
-watch(searchTerm, () => emit("search", searchTerm.value));
+watch(isExpanded, () => {
+  searchTerm.value = "";
+  emit("search", searchTerm.value);
+});
 
 function counterIsInRange(value: number) {
   return value <= listboxOptions.value.length - 1 && value >= 0;
