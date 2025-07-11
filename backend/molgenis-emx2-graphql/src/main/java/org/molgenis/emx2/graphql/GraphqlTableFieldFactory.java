@@ -638,7 +638,7 @@ public class GraphqlTableFieldFactory {
         // skip match all, handled on parent column
       } else {
         // find column by escaped name
-        Column c = table.getColumnByIdentifier(entry.getKey());
+        Column c = table.getColumnByIdIncludingSubclasses(entry.getKey());
         if (c == null)
           throw new GraphqlException(
               "Graphql API error: Column "
