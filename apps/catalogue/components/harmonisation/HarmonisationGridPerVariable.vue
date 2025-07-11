@@ -63,7 +63,7 @@ const repeats = computed(() => {
                   m.source.id === cell.value.column &&
                   m.repeats
                     .split(',')
-                    .map((repeatIndex) => repeatIndex.trim())
+                    .map((repeatIndex) => repeatIndex?.trim())
                     .includes('' + cell.value.row)
               )?.match.name || 'unmapped'
             "
