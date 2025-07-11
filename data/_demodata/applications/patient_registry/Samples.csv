@@ -1,19 +1,19 @@
-id,sample type,sample availability,individuals,affiliated organisations,included in resources,data source,date created at source
-SAMEA10450711,DNA,Available,Case1F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450712,DNA,Available,Case1C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450713,DNA,Available,Case1M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450714,DNA,Available,Case2C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450715,DNA,Available,Case2F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450716,DNA,Available,Case2M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450723,DNA,Available,Case3C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450724,DNA,Available,Case3F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450725,DNA,Available,Case3M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450726,DNA,Available,Case4C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450728,DNA,Available,Case4F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450729,DNA,Available,Case4M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450730,DNA,Available,Case5C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450731,DNA,Available,Case5M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450732,DNA,Available,Case5F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450733,DNA,Available,Case6C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450734,DNA,Available,Case6F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
-SAMEA10450735,DNA,Available,Case6M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+id,sample type,sample availability,target enrichment kit,individuals,affiliated organisations,included in resources,data source,date created at source
+SAMEA10450711,DNA,Available,Illumina TruSeq DNA PCR-Free,Case1F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450712,DNA,Available,Illumina TruSeq DNA PCR-Free,Case1C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450713,DNA,Available,Illumina TruSeq DNA PCR-Free,Case1M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450714,DNA,Available,Illumina TruSeq DNA PCR-Free,Case2C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450715,DNA,Available,Illumina TruSeq DNA PCR-Free,Case2F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450716,DNA,Available,Illumina TruSeq DNA PCR-Free,Case2M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450723,DNA,Available,Illumina TruSeq DNA PCR-Free,Case3C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450724,DNA,Available,Illumina TruSeq DNA PCR-Free,Case3F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450725,DNA,Available,Illumina TruSeq DNA PCR-Free,Case3M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450726,DNA,Available,Illumina TruSeq DNA PCR-Free,Case4C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450728,DNA,Available,Illumina TruSeq DNA PCR-Free,Case4F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450729,DNA,Available,Illumina TruSeq DNA PCR-Free,Case4M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450730,DNA,Available,Illumina TruSeq DNA PCR-Free,Case5C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450731,DNA,Available,Illumina TruSeq DNA PCR-Free,Case5M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450732,DNA,Available,Illumina TruSeq DNA PCR-Free,Case5F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450733,DNA,Available,Illumina TruSeq DNA PCR-Free,Case6C,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450734,DNA,Available,Illumina TruSeq DNA PCR-Free,Case6F,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
+SAMEA10450735,DNA,Available,Illumina TruSeq DNA PCR-Free,Case6M,University Medical Center Groningen,EGAD00001008392,EGAS00001005702,2021-10-22
