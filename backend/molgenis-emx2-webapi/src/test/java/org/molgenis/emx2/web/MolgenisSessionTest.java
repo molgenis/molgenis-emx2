@@ -51,7 +51,7 @@ class MolgenisSessionTest {
   }
 
   @Test
-  void concurrentAccess() throws InterruptedException {
+  void concurrentGetGraphQL() throws InterruptedException {
     Database database = mock(Database.class);
 
     // Mock the database to return a schema when requested
