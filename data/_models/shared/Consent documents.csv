@@ -8,4 +8,5 @@ Consent documents,,date of approval,date,,,,,,,,http://semanticscience.org/resou
 Consent documents,,date valid from,date,,,,,,,,http://semanticscience.org/resource/SIO_000031,The date on which this document is valid,"Patient registry, FAIR Genomes"
 Consent documents,,date valid until,date,,,,,,,,http://semanticscience.org/resource/SIO_000032,The last date on which this document is valid,"Patient registry, FAIR Genomes"
 Consent documents,,authors,ref_array,,,,Contacts,,,,http://semanticscience.org/resource/SIO_001315,The persons involved in creating or maintaining this document,"Patient registry, FAIR Genomes"
+Consent documents,,document location,ref,,,,Files,,,,"http://purl.obolibrary.org/obo/STATO_0000002,http://purl.obolibrary.org/obo/NCIT_C42883",A reference to the file and the current location,Patient registry
 Consent documents,,related to documents,ref_array,,,,Consent documents,,,,http://semanticscience.org/resource/SIO_000295,Reference to one or more relevant documents,"Patient registry, FAIR Genomes"
