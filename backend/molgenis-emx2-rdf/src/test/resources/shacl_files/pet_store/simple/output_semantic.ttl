@@ -1,0 +1,24 @@
+@prefix dash: <http://datashapes.org/dash#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rsx: <http://rdf4j.org/shacl-extensions#> .
+@prefix rdf4j: <http://rdf4j.org/schema/rdf4j#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+[] a sh:ValidationReport;
+  sh:conforms false;
+  rdf4j:truncated false;
+  sh:result [ a sh:ValidationResult;
+      sh:focusNode <http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke>;
+      rsx:shapesGraph rdf4j:SHACLShapeGraph;
+      sh:resultPath <http://localhost:8080/petStoreNr1/api/rdf/User/column/username>;
+      sh:sourceConstraintComponent sh:MinCountConstraintComponent;
+      sh:resultSeverity sh:Violation;
+      sh:sourceShape [ a sh:PropertyShape;
+          sh:name "username";
+          sh:path <http://localhost:8080/petStoreNr1/api/rdf/User/column/username>;
+          sh:minCount 1
+        ]
+    ] .
