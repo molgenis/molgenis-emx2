@@ -18,7 +18,7 @@ public class TestCreateForeignKeys {
 
   @BeforeAll
   public static void setup() {
-    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

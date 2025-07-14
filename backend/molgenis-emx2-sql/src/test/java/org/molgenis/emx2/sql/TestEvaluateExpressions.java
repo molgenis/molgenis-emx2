@@ -21,7 +21,7 @@ public class TestEvaluateExpressions {
 
   @BeforeAll
   public static void setUp() {
-    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestEvaluateExpressions.class.getSimpleName());
   }
 

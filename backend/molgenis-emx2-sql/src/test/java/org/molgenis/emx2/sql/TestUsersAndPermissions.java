@@ -23,7 +23,7 @@ public class TestUsersAndPermissions {
 
   @BeforeAll
   public static void setup() {
-    database = new SqlDatabase(ADMIN_USER);
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @AfterAll

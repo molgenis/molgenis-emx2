@@ -14,7 +14,7 @@ public class TestOntologyTableIsGenerated {
 
   @BeforeAll
   public static void setUp() {
-    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

@@ -2,41 +2,50 @@ package org.molgenis.emx2.graphql;
 
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import graphql.GraphQL;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DatabaseListener;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Lightweight session that uses caches to maintain the bigger objects */
 public class GraphqlSession {
   private static final Logger logger = LoggerFactory.getLogger(GraphqlSession.class);
 
-  // singletons shared between UserSession instances
-  private static GraphqlApiPerUserCache cache = new GraphqlApiPerUserCache();
+  // static caches between the sessions
+  private static GraphqlApiFactory graphqlApiFactory = new GraphqlApiFactory();
+  private static Cache<String, Database> databaseCachePerUser =
+      Caffeine.newBuilder().maximumSize(1000).expireAfterAccess(5, TimeUnit.MINUTES).build();
+  private static Cache<String, GraphQL> schemaApiCachePerUser =
+      Caffeine.newBuilder().maximumSize(1000).expireAfterAccess(5, TimeUnit.MINUTES).build();
+  private static Cache<String, GraphQL> databaseApiCachePerUser =
+      Caffeine.newBuilder().maximumSize(1000).expireAfterAccess(5, TimeUnit.MINUTES).build();
   private static TaskService taskService = new TaskServiceInMemory();
 
   private String userName = ANONYMOUS;
+
   private DatabaseListener databaseListener =
       new DatabaseListener() {
         @Override
         public void afterCommit() {
-          clearCache();
+          if (isDirty()) {
+            clearCache();
+            // clean commit cache
+            super.afterCommit();
+          }
         }
       };
 
-  public GraphqlSession() {}
-
   public GraphqlSession(String user) {
     this.setSessionUser(user);
-  }
-
-  public GraphqlSession(GraphqlApiPerUserCache cache, TaskService taskService) {
-    // changes static, maybe better use setting
-    this.cache = cache;
-    this.taskService = taskService;
   }
 
   public String getSessionUser() {
@@ -90,19 +99,57 @@ public class GraphqlSession {
   }
 
   public Database getDatabase() {
-    return cache.getDatabase(this);
+    String userName = this.getSessionUser();
+    Database database =
+        databaseCachePerUser.get(
+            userName,
+            key -> {
+              logger.info("creating database instance for user '{}'", userName);
+              SqlDatabase db = new SqlDatabase(userName);
+              db.setListener(this.getDatabaseChangeListener());
+              // TODO db.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
+              // TODO db.setBindings(JavaScriptBindings.getBindingsForSession(session));
+              return db;
+            });
+    logger.info("returned cached database instance for user '{}'", userName);
+    return database;
   }
 
   public GraphQL getGraphqlForDatabase() {
-    return cache.getGraphqlForDatabase(this);
+    String userName = this.getSessionUser();
+    GraphQL graphQL =
+        databaseApiCachePerUser.get(
+            userName,
+            key -> {
+              logger.info("creating graphql database api for user '{}'", userName);
+              return graphqlApiFactory.createGraphqlForDatabase(this);
+            });
+    logger.info("returned cached graphql database api for user '{}'", userName);
+    return graphQL;
   }
 
   public GraphQL getGraphqlForSchema(String schemaName) {
-    return cache.getGraphqlForSchema(this, schemaName);
+    Objects.requireNonNull(schemaName);
+    String userName = this.getSessionUser();
+    String userNameAndSchemaName = userName + ":" + schemaName;
+    GraphQL graphQL =
+        schemaApiCachePerUser.get(
+            userNameAndSchemaName,
+            key -> {
+              Database database = getDatabase();
+              logger.info("creating graphql schema api '{}' for user '{}'", schemaName, userName);
+              return graphqlApiFactory.createGraphqlForSchema(database.getSchema(schemaName), this);
+            });
+    logger.info("returned cached graphql schema api '{}' for user '{}'", schemaName, userName);
+    return graphQL;
   }
 
   public void clearCache() {
-    cache.clearCache();
+    // todo make more finegrained
+    databaseCachePerUser.invalidateAll();
+    schemaApiCachePerUser.invalidateAll();
+    databaseApiCachePerUser.invalidateAll();
+    logger.info("cleared caches");
   }
 
   public DatabaseListener getDatabaseChangeListener() {

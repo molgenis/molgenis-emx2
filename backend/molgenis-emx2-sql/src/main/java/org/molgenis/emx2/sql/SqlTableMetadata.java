@@ -82,6 +82,7 @@ class SqlTableMetadata extends TableMetadata {
         }
         log(tm, start, "added column '" + newColumn.getName() + "' to table " + tm.getTableName());
       }
+      db.getListener().schemaChanged(schemaName);
     }
     return tm;
   }
@@ -218,6 +219,7 @@ class SqlTableMetadata extends TableMetadata {
                         getSchemaName(), getTableName(), columnName, column, db)));
     // reload the state
     ((SqlSchemaMetadata) getSchema()).sync(getDatabase().getSchema(getSchemaName()).getMetadata());
+    getDatabase().getListener().schemaChanged(getSchemaName());
     return this;
   }
 

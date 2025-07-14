@@ -19,7 +19,7 @@ public class TestValidation {
 
   @BeforeAll
   public static void setup() {
-    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestValidation.class.getSimpleName());
     PET_STORE.getImportTask(schema, true).run();
   }

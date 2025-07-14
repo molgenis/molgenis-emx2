@@ -32,24 +32,25 @@ public class TestGraphqlDatabaseFields {
 
   @Test
   public void testCreateAndDeleteSchema() throws IOException {
-    Database database = session.getDatabase();
+
+    // should use session.getDatabase() to test the clear cache
 
     // ensure schema doesn't exist
-    if (database.getSchema(schemaName + "B") != null) {
-      database.dropSchema(schemaName + "B");
+    if (session.getDatabase().getSchema(schemaName + "B") != null) {
+      session.getDatabase().dropSchema(schemaName + "B");
     }
 
-    assertNull(database.getSchema(schemaName + "B"));
+    assertNull(session.getDatabase().getSchema(schemaName + "B"));
     String result = execute("{_schemas{name}}").at("/data/_schemas").toString();
     assertFalse(result.contains(schemaName + "B"));
 
     execute("mutation{createSchema(name:\"" + schemaName + "B\"){message}}");
-    assertNotNull(database.getSchema(schemaName + "B"));
+    assertNotNull(session.getDatabase().getSchema(schemaName + "B"));
     result = execute("{_schemas{name}}").at("/data/_schemas").toString();
     assertTrue(result.contains(schemaName + "B"));
 
     execute("mutation{deleteSchema(id:\"" + schemaName + "B\"){message}}");
-    assertNull(database.getSchema(schemaName + "B"));
+    assertNull(session.getDatabase().getSchema(schemaName + "B"));
   }
 
   @Test
@@ -196,9 +197,7 @@ public class TestGraphqlDatabaseFields {
   private JsonNode execute(String query) throws IOException {
     JsonNode result =
         new ObjectMapper()
-            .readTree(
-                convertExecutionResultToJson(
-                    session.getGraphqlForSchema(schemaName).execute(query)));
+            .readTree(convertExecutionResultToJson(session.getGraphqlForDatabase().execute(query)));
     if (result.get("errors") != null) {
       throw new MolgenisException(result.get("errors").toString());
     }

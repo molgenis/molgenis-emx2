@@ -20,7 +20,7 @@ public class TestRefBack {
 
   @BeforeAll
   public static void setUp() {
-    Database database = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    Database database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(TestRefBack.class.getSimpleName());
   }
 

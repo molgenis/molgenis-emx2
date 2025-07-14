@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.web.MolgenisWebservice.oidcController;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +11,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.graphql.GraphqlApiPerUserCache;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +18,8 @@ import org.slf4j.LoggerFactory;
 public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
-  private GraphqlApiPerUserCache cache;
 
-  public MolgenisSessionManager() {
-    cache = new GraphqlApiPerUserCache();
-  }
+  public MolgenisSessionManager() {}
 
   public MolgenisSession getSession(HttpServletRequest request) {
     String authTokenKey = findUsedAuthTokenKey(request);
@@ -52,12 +49,11 @@ public class MolgenisSessionManager {
 
   private MolgenisSession getNonPersistedSessionBasedOnToken(
       HttpServletRequest request, String authTokenKey) {
-    MolgenisSession session = new MolgenisSession(cache, this);
+    MolgenisSession session = new MolgenisSession(ANONYMOUS);
     String user =
         JWTgenerator.getUserFromToken(session.getDatabase(), request.getHeader(authTokenKey));
     // sessions are cheap because of the cache
     session.setSessionUser(user);
-
     return session;
   }
 
@@ -109,8 +105,7 @@ public class MolgenisSessionManager {
     return new HttpSessionListener() {
       public void sessionCreated(HttpSessionEvent httpSessionEvent) {
         logger.info("Initializing session");
-        MolgenisSession molgenisSession = new MolgenisSession(cache, _this);
-
+        MolgenisSession molgenisSession = new MolgenisSession(ANONYMOUS);
         sessions.put(httpSessionEvent.getSession().getId(), molgenisSession);
         logger.info("session created: " + httpSessionEvent.getSession().getId());
       }

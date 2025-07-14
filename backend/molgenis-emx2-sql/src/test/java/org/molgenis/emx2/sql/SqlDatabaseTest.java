@@ -19,7 +19,7 @@ class SqlDatabaseTest {
 
   @BeforeEach
   void setUp() {
-    sqlDatabase = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    sqlDatabase = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

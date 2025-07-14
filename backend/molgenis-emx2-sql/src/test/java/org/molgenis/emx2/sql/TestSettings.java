@@ -16,7 +16,7 @@ public class TestSettings {
 
   @BeforeAll
   public static void setUp() {
-    database = new SqlDatabase(ADMIN_USER);
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test
@@ -33,33 +33,39 @@ public class TestSettings {
           schema.addMember("testsettingseditor", EDITOR.toString());
           schema.addMember("testsettingsmanager", MANAGER.toString());
 
-          db = new SqlDatabase("testsettingseditor");
-          try {
-            schema = db.getSchema("testSchemaSettings"); // reload schema
-            schema.getMetadata().setSetting("key", "value");
-            fail("editors should not be able to change schema settings");
-          } catch (Exception e) {
-            // failed correctly
-          }
+          db.runAsUser(
+              "testsettingseditor",
+              dbUser -> {
+                try {
+                  Schema schemaUser = dbUser.getSchema("testSchemaSettings"); // reload schema
+                  schemaUser.getMetadata().setSetting("key", "value");
+                  fail("editors should not be able to change schema settings");
+                } catch (Exception e) {
+                  // failed correctly
+                }
+              });
 
-          db = new SqlDatabase("testsettingsmanager");
-          try {
-            schema = db.getSchema("testSchemaSettings"); // reload schema
-            schema.getMetadata().setSetting("key", "value");
-          } catch (Exception e) {
-            e.printStackTrace();
-            fail("managers should  be able to change schema settings");
-          }
+          db.runAsUser(
+              "testsettingsmanager",
+              dbUser -> {
+                Schema schemaUser = db.getSchema("testSchemaSettings"); // reload schema
+                try {
+                  schemaUser.getMetadata().setSetting("key", "value");
+                } catch (Exception e) {
+                  e.printStackTrace();
+                  fail("managers should  be able to change schema settings");
+                }
 
-          assertEquals("value", schema.getMetadata().getSetting("key"));
+                assertEquals("value", schemaUser.getMetadata().getSetting("key"));
 
-          assertEquals("value", db.getSchema("testSchemaSettings").getMetadata().getSetting("key"));
+                assertEquals(
+                    "value",
+                    dbUser.getSchema("testSchemaSettings").getMetadata().getSetting("key"));
 
-          db.clearCache();
-
-          assertEquals("value", db.getSchema("testSchemaSettings").getMetadata().getSetting("key"));
-
-          db = new SqlDatabase(ADMIN_USER);
+                assertEquals(
+                    "value",
+                    dbUser.getSchema("testSchemaSettings").getMetadata().getSetting("key"));
+              });
         });
   }
 
@@ -78,23 +84,29 @@ public class TestSettings {
 
           s.create(table("test").add(column("test")));
 
-          db = new SqlDatabase("testtablesettingsviewer");
-          try {
-            Table t = db.getSchema("testTableSettings").getTable("test");
-            t.getMetadata().setSetting("key", "value");
-            fail("viewers should not be able to change schema settings");
-          } catch (Exception e) {
-            // failed correctly
-          }
+          db.runAsUser(
+              "testtablesettingsviewer",
+              userDb -> {
+                try {
+                  Table t = userDb.getSchema("testTableSettings").getTable("test");
+                  t.getMetadata().setSetting("key", "value");
+                  fail("viewers should not be able to change schema settings");
+                } catch (Exception e) {
+                  // failed correctly
+                }
+              });
 
-          db = new SqlDatabase("testtablesettingseditor");
-          try {
-            Table t = db.getSchema("testTableSettings").getTable("test");
-            t.getMetadata().setSetting("key", "value");
-          } catch (Exception e) {
-            e.printStackTrace();
-            fail("managers should  be able to change schema settings");
-          }
+          db.runAsUser(
+              "testtablesettingseditor",
+              userDb -> {
+                try {
+                  Table t = userDb.getSchema("testTableSettings").getTable("test");
+                  t.getMetadata().setSetting("key", "value");
+                } catch (Exception e) {
+                  e.printStackTrace();
+                  fail("managers should  be able to change schema settings");
+                }
+              });
 
           db.clearCache();
           Map<String, String> test =
@@ -105,8 +117,6 @@ public class TestSettings {
           assertEquals(
               "value",
               db.getSchema("testTableSettings").getTable("test").getMetadata().getSetting("key"));
-
-          db = new SqlDatabase(ADMIN_USER);
         });
   }
 
@@ -141,7 +151,6 @@ public class TestSettings {
         });
 
     // note, we refresh session on these changes so reload db
-    database = new SqlDatabase(ADMIN_USER);
     assertEquals(database.getSetting("delete-me"), "life is short");
 
     // execute

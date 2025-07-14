@@ -31,7 +31,6 @@ import org.molgenis.emx2.tasks.Task;
 public class TestGraphqlSchemaFields {
 
   private static String schemaName = TestGraphqlSchemaFields.class.getSimpleName();
-  private static Schema schema;
   private static GraphqlSession session;
 
   @BeforeAll
@@ -48,13 +47,12 @@ public class TestGraphqlSchemaFields {
     database.setUserPassword(shopowner, shopowner);
     database.setUserPassword(costumer, costumer);
 
-    schema = database.dropCreateSchema(schemaName);
+    Schema schema = database.dropCreateSchema(schemaName);
     schema.addMember(shopmanager, "Manager");
     schema.addMember(shopviewer, "Viewer");
     schema.addMember(shopowner, "Owner");
     schema.addMember(costumer, "Range");
     DataModels.getImportTask(schema, PET_STORE.name(), true).run();
-    schema = database.getSchema(schemaName);
 
     session = new GraphqlSession(ADMIN_USER);
   }
@@ -214,7 +212,15 @@ public class TestGraphqlSchemaFields {
     // remove value
     execute("mutation{drop(settings:[{tableId:\"Pet\", key:\"test\"}]){message}}");
 
-    assertEquals(0, schema.getTable("Pet").getMetadata().getSettings().size());
+    assertEquals(
+        0,
+        session
+            .getDatabase()
+            .getSchema(schemaName)
+            .getTable("Pet")
+            .getMetadata()
+            .getSettings()
+            .size());
     assertEquals(
         0,
         execute("{_schema{tables{settings{key,value}}}}").at("/_schema/tables/2/settings").size());
@@ -232,7 +238,15 @@ public class TestGraphqlSchemaFields {
     // remove value
     execute("mutation{drop(settings:[{tableId:\"Pet\", key:\"test\"}]){message}}");
 
-    assertEquals(0, schema.getTable("Pet").getMetadata().getSettings().size());
+    assertEquals(
+        0,
+        session
+            .getDatabase()
+            .getSchema(schemaName)
+            .getTable("Pet")
+            .getMetadata()
+            .getSettings()
+            .size());
     assertEquals(
         0,
         execute("{_schema{tables{settings{key,value}}}}").at("/_schema/tables/2/settings").size());
@@ -498,18 +512,22 @@ public class TestGraphqlSchemaFields {
   @Test
   public void testGroupByWithSpaces() throws IOException {
     // rename column 'category' to 'category_test' and 'tag' to 'tag test' and 'name' to 'name test'
-    Column newCategory = schema.getTable("Pet").getMetadata().getColumn("category");
-    newCategory.setName("category test");
-    Column newTags = schema.getTable("Pet").getMetadata().getColumn("tags");
-    newTags.setName("tags test");
-    Column newCategoryName = schema.getTable("Category").getMetadata().getColumn("name");
-    newCategoryName.setName("name test");
-    Column newTagName = schema.getTable("Tag").getMetadata().getColumn("name");
-    newTagName.setName("name test");
-    schema.getTable("Pet").getMetadata().alterColumn("category", newCategory);
-    schema.getTable("Pet").getMetadata().alterColumn("tags", newTags);
-    schema.getTable("Category").getMetadata().alterColumn("name", newCategoryName);
-    schema.getTable("Tag").getMetadata().alterColumn("name", newTagName);
+    // in a block so we don't accidentally forget to use session
+    {
+      Schema schema = session.getDatabase().getSchema(schemaName);
+      Column newCategory = schema.getTable("Pet").getMetadata().getColumn("category");
+      newCategory.setName("category test");
+      Column newTags = schema.getTable("Pet").getMetadata().getColumn("tags");
+      newTags.setName("tags test");
+      Column newCategoryName = schema.getTable("Category").getMetadata().getColumn("name");
+      newCategoryName.setName("name test");
+      Column newTagName = schema.getTable("Tag").getMetadata().getColumn("name");
+      newTagName.setName("name test");
+      schema.getTable("Pet").getMetadata().alterColumn("category", newCategory);
+      schema.getTable("Pet").getMetadata().alterColumn("tags", newTags);
+      schema.getTable("Category").getMetadata().alterColumn("name", newCategoryName);
+      schema.getTable("Tag").getMetadata().alterColumn("name", newTagName);
+    }
 
     // refs
     JsonNode result = execute("{Pet_groupBy{count,_sum{weight},tagsTest{nameTest}}}");
@@ -547,18 +565,21 @@ public class TestGraphqlSchemaFields {
     // N.B. in case arrays are involved total might more than count!!!
 
     // undo rename column with spaces for any other test
-    newCategory = schema.getTable("Pet").getMetadata().getColumn("category test");
-    newCategory.setName("category");
-    newTags = schema.getTable("Pet").getMetadata().getColumn("tags test");
-    newTags.setName("tags");
-    newCategoryName = schema.getTable("Category").getMetadata().getColumn("name test");
-    newCategoryName.setName("name");
-    newTagName = schema.getTable("Tag").getMetadata().getColumn("name test");
-    newTagName.setName("name");
-    schema.getTable("Pet").getMetadata().alterColumn("category test", newCategory);
-    schema.getTable("Pet").getMetadata().alterColumn("tags test", newTags);
-    schema.getTable("Category").getMetadata().alterColumn("name test", newCategoryName);
-    schema.getTable("Tag").getMetadata().alterColumn("name test", newTagName);
+    {
+      Schema schema = session.getDatabase().getSchema(schemaName);
+      Column newCategory = schema.getTable("Pet").getMetadata().getColumn("category test");
+      newCategory.setName("category");
+      Column newTags = schema.getTable("Pet").getMetadata().getColumn("tags test");
+      newTags.setName("tags");
+      Column newCategoryName = schema.getTable("Category").getMetadata().getColumn("name test");
+      newCategoryName.setName("name");
+      Column newTagName = schema.getTable("Tag").getMetadata().getColumn("name test");
+      newTagName.setName("name");
+      schema.getTable("Pet").getMetadata().alterColumn("category test", newCategory);
+      schema.getTable("Pet").getMetadata().alterColumn("tags test", newTags);
+      schema.getTable("Category").getMetadata().alterColumn("name test", newCategoryName);
+      schema.getTable("Tag").getMetadata().alterColumn("name test", newTagName);
+    }
   }
 
   @Test
@@ -965,21 +986,22 @@ public class TestGraphqlSchemaFields {
 
   @Test
   public void testTruncate() throws IOException {
-    List<Row> result = schema.getTable("Order").retrieveRows();
+    List<Row> result = session.getDatabase().getSchema(schemaName).getTable("Order").retrieveRows();
     String message =
         execute("mutation {truncate(tables: \"Order\"){message}}").at("/truncate/message").asText();
     assertTrue(message.contains("Truncated"));
-    List<Row> result2 = schema.getTable("Order").retrieveRows();
+    List<Row> result2 =
+        session.getDatabase().getSchema(schemaName).getTable("Order").retrieveRows();
     assertTrue(result.size() > 0 && result2.size() == 0);
 
     // restore
-    schema = session.getDatabase().dropCreateSchema(schemaName);
-    PET_STORE.getImportTask(schema, true).run();
+    PET_STORE.getImportTask(session.getDatabase().getSchema(schemaName), true).run();
   }
 
   @Test
   public void testTruncateAsync() throws IOException, InterruptedException {
-    List<Row> preTruncatedResult = schema.getTable("Order").retrieveRows();
+    List<Row> preTruncatedResult =
+        session.getDatabase().getSchema(schemaName).getTable("Order").retrieveRows();
     String taskId =
         execute("mutation {truncate(tables: \"Order\" async:true){ taskId message}}")
             .at("/truncate/taskId")
@@ -1000,17 +1022,18 @@ public class TestGraphqlSchemaFields {
       Thread.sleep(1000);
     }
 
-    List<Row> truncatedResult = schema.getTable("Order").retrieveRows();
+    List<Row> truncatedResult =
+        session.getDatabase().getSchema(schemaName).getTable("Order").retrieveRows();
     assertTrue(!preTruncatedResult.isEmpty() && truncatedResult.isEmpty());
 
     // restore
-    schema = session.getDatabase().dropCreateSchema(schemaName);
-    PET_STORE.getImportTask(schema, true).run();
+    Schema schema = session.getDatabase().dropCreateSchema(schemaName);
+    PET_STORE.getImportTask(session.getDatabase().getSchema(schemaName), true).run();
   }
 
   @Test
   public void testReport() throws IOException {
-    schema = session.getDatabase().dropCreateSchema(schemaName);
+    Schema schema = session.getDatabase().dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
 
     JsonNode result = execute("{_reports(id:\"report1\"){data,count}}");

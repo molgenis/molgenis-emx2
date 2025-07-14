@@ -2,7 +2,6 @@ package org.molgenis.emx2.sql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
-import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +17,7 @@ public class TestSqlRawQueryForSchema {
 
   @BeforeAll
   public static void setUp() {
-    database = new SqlDatabase(ADMIN_USER);
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

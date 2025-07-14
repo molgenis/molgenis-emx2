@@ -18,7 +18,8 @@ import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GraphqlApiFactory {
+// only use in context of GraphqlSession, should not be used directly except for testing
+class GraphqlApiFactory {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
 
   public GraphqlApiFactory() {
@@ -49,7 +50,7 @@ public class GraphqlApiFactory {
     }
   }
 
-  public GraphQL createGraphqlForDatabase(GraphqlSession session) {
+  GraphQL createGraphqlForDatabase(GraphqlSession session) {
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
@@ -102,7 +103,7 @@ public class GraphqlApiFactory {
         .build();
   }
 
-  public GraphQL createGraphqlForSchema(Schema schema, GraphqlSession session) {
+  GraphQL createGraphqlForSchema(Schema schema, GraphqlSession session) {
     long start = System.currentTimeMillis();
     logger.info("creating graphql for schema: {}", schema.getMetadata().getName());
 

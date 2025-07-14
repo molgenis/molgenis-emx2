@@ -15,7 +15,7 @@ public class TestCreateTransactionForMultipleOperations {
 
   @BeforeAll
   public static void setUp() throws SQLException {
-    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    db = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

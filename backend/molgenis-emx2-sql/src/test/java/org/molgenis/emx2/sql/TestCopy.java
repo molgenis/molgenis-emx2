@@ -21,7 +21,7 @@ public class TestCopy {
 
   @BeforeAll
   public static void setup() {
-    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    db = TestDatabaseFactory.getTestDatabase();
 
     schema = db.dropCreateSchema(TestCopy.class.getSimpleName());
   }

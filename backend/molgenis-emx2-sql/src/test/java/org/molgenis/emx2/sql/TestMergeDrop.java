@@ -18,7 +18,7 @@ public class TestMergeDrop {
 
   @BeforeAll
   public static void setup() {
-    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestMergeDrop.class.getSimpleName());
   }
 

@@ -2,22 +2,18 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.GraphQL;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
-import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TestGraphQLCompositeKeys {
 
-  private static GraphQL grapql;
-  private static Database database;
+  private static GraphqlSession session;
   private static final String schemaName = TestGraphQLCompositeKeys.class.getSimpleName();
 
   // need ref
@@ -26,9 +22,8 @@ public class TestGraphQLCompositeKeys {
 
   @BeforeAll
   public static void setup() {
-    database = new SqlDatabase(SqlDatabase.ADMIN_USER);
-    Schema schema = database.dropCreateSchema(schemaName);
-    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, new GraphqlSession());
+    session = new GraphqlSession(ADMIN_USER);
+    session.getDatabase().dropCreateSchema(schemaName);
   }
 
   @Test
@@ -61,13 +56,6 @@ public class TestGraphQLCompositeKeys {
     execute(
         "mutation {change(columns: [{table: \"TargetTable\" name: \"refBacks\" columnType:"
             + " \"REFBACK\" refTableName: \"RefTable\" refBackName: \"ref\"}]) {message}}");
-
-    // have to reload graphql
-    grapql =
-        new GraphqlApiFactory()
-            .createGraphqlForSchema(
-                database.getSchema(TestGraphQLCompositeKeys.class.getSimpleName()),
-                new GraphqlSession());
 
     // insert some data, enough to check if foreign keys are joined correctly
     execute(
@@ -223,7 +211,8 @@ public class TestGraphQLCompositeKeys {
   //  }
 
   private static JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(grapql.execute(query));
+    String result =
+        convertExecutionResultToJson(session.getGraphqlForSchema(schemaName).execute(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());

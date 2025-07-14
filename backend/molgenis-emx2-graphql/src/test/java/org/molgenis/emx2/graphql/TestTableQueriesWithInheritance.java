@@ -5,6 +5,7 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,26 +18,22 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.SqlDatabase;
-import org.molgenis.emx2.tasks.TaskService;
-import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 public class TestTableQueriesWithInheritance {
   private static final String schemaName = TestTableQueriesWithInheritance.class.getSimpleName();
   private static GraphQL grapql;
   private static Database database;
-  private static TaskService taskService;
   private static Schema schema;
 
   @BeforeAll
   public static void setup() {
-    database = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    database = new SqlDatabase(ADMIN_USER);
     schema = database.dropCreateSchema(schemaName);
     schema.create(table("Person", column("name").setPkey()));
     schema.create(
         table("Employee", column("salary").setType(ColumnType.INT)).setInheritName("Person"));
     schema.getTable("Employee").insert(row("name", "pooky", "salary", 1000));
-    taskService = new TaskServiceInMemory();
-    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, new GraphqlSession());
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, new GraphqlSession(ADMIN_USER));
   }
 
   @Test

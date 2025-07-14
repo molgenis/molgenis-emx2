@@ -20,7 +20,7 @@ public class TestCreateArrayDataTypes {
 
   @BeforeAll
   public static void setup() {
-    database = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test

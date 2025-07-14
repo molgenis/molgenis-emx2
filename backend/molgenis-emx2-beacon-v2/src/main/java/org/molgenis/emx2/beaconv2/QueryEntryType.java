@@ -20,7 +20,6 @@ import org.molgenis.emx2.beaconv2.filter.FilterParser;
 import org.molgenis.emx2.beaconv2.filter.FilterParserFactory;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
 public class QueryEntryType {
 

@@ -121,7 +121,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
     this.setActiveUser(user);
-    logger.info("Database was created for user {} using version: {} ", user, this.databaseVersion);
+    logger.info(
+        "Database interface was created for user {} using version: {} ",
+        user,
+        this.databaseVersion);
   }
 
   private static void initDataSource() {
@@ -601,6 +604,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
     this.connectionProvider.setActiveUser(username);
     this.connectionProvider.setAdmin(user != null && user.isAdmin());
+    this.clearCache();
   }
 
   @Override
@@ -609,29 +613,28 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
-  public void tx(Transaction transaction) {
-    tx(getActiveUser(), transaction);
-  }
-
-  @Override
   public void runAsAdmin(Transaction transaction) {
-    tx(ADMIN_USER, transaction);
+    runAsUser(ADMIN_USER, transaction);
   }
 
   @Override
   public void runAsUser(String user, Transaction transaction) {
-    tx(user, transaction);
+    String currentUser = getActiveUser();
+    try {
+      setActiveUser(user);
+      transaction.run(this);
+    } finally {
+      setActiveUser(currentUser);
+    }
   }
 
-  public void tx(String user, Transaction transaction) {
+  public void tx(Transaction transaction) {
     if (inTx) {
-      setActiveUser(user);
       // we do not nest transactions
       transaction.run(this);
     } else {
       // we create a new instance, isolated from 'this' until end of transaction
       SqlDatabase db = new SqlDatabase(jooq, this);
-      db.setActiveUser(user);
       this.tableListeners.forEach(db::addTableListener);
       try {
         jooq.transaction(

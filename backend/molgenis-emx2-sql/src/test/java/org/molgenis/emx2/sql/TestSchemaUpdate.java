@@ -12,7 +12,7 @@ public class TestSchemaUpdate {
 
   @BeforeAll
   public static void setUp() {
-    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    db = TestDatabaseFactory.getTestDatabase();
     db.dropCreateSchema(TestSchemaUpdate.class.getSimpleName(), desc);
   }
 

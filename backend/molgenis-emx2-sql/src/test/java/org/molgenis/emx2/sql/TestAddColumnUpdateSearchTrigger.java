@@ -19,7 +19,7 @@ public class TestAddColumnUpdateSearchTrigger {
 
   @BeforeAll
   public static void setUp() {
-    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    db = TestDatabaseFactory.getTestDatabase();
     Schema schema = db.dropCreateSchema(TestAddColumnUpdateSearchTrigger.class.getSimpleName());
     table =
         schema.create(

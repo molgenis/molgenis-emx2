@@ -19,7 +19,7 @@ class ChangeLogExecutorTest {
 
   @BeforeEach
   void setUp() {
-    sqlDatabase = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    sqlDatabase = (SqlDatabase) TestDatabaseFactory.getTestDatabase();
 
     sqlDatabase.dropCreateSchema("ChangeLogExecutorTestA");
     sqlDatabase.dropCreateSchema("ChangeLogExecutorTestB");

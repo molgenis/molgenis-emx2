@@ -18,13 +18,13 @@ public class TestChangelog {
 
   @BeforeAll
   public static void setUp() {
-    database = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test
   public void testChangelog() {
 
-    database.runAsAdmin(
+    database.tx(
         // prevent side effect of user changes on other tests using tx
         db -> {
           db.dropSchemaIfExists("testSchemaChanges");
@@ -42,7 +42,7 @@ public class TestChangelog {
   @Test
   public void testGetChangesCount() {
 
-    database.runAsAdmin(
+    database.tx(
         // prevent side effect of user changes on other tests using tx
         db -> {
           db.dropSchemaIfExists("testSchemaChangesChangeCount");

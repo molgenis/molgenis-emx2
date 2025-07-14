@@ -16,7 +16,7 @@ public class Benchmark {
 
   public void testCopyInAndOut() {
 
-    Database database = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    Database database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(Benchmark.class.getSimpleName());
 
     int aSize = 50;

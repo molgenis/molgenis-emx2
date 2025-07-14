@@ -34,7 +34,7 @@ class SqlQueryBuilderHelpersTest {
 
   @BeforeAll
   static void beforeAll() {
-    testDb = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    testDb = TestDatabaseFactory.getTestDatabase();
   }
 
   @BeforeEach

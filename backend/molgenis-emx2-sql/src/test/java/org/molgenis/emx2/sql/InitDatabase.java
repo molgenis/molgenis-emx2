@@ -14,7 +14,7 @@ public class InitDatabase {
 
   @Test
   void testJitIsOff() {
-    Database db = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    Database db = TestDatabaseFactory.getTestDatabase();
     org.jooq.Record record = ((SqlDatabase) db).getJooq().fetch("show jit").get(0);
     if (!"off".equals(record.get(0))) {
       fail("ensure that postgresql SET jit='off' is applied");

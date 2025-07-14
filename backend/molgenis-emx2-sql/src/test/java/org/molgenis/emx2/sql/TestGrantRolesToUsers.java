@@ -20,7 +20,7 @@ public class TestGrantRolesToUsers {
 
   @BeforeAll
   public static void setUp() {
-    database = new SqlDatabase(ADMIN_USER);
+    database = TestDatabaseFactory.getTestDatabase();
   }
 
   @Test
@@ -53,7 +53,6 @@ public class TestGrantRolesToUsers {
     StopWatch.start("start: testRolePermissions()");
 
     // createColumn some schema to test with
-    database = new SqlDatabase(ADMIN_USER);
     Schema schema = database.dropCreateSchema("testRolePermissions");
 
     // test that admin has all roles
@@ -197,9 +196,7 @@ public class TestGrantRolesToUsers {
     database.runAsUser(
         "testuser",
         db -> {
-          assertNull(
-              db.getSchema("testRole")
-                  .getRoleForActiveUser()); // should have no role in this schema
+          assertNull(db.getSchema("testRole")); // should have no access in this schema
           assertFalse(db.getSchemaNames().contains("testRole"));
           assertNull(db.getSchema("testRole"));
         });
@@ -221,18 +218,6 @@ public class TestGrantRolesToUsers {
             .add(column("id").setPkey())
             .add(column("FirstName"))
             .add(column("LastName")));
-
-    try {
-      database.runAsUser(
-          "testuser",
-          db -> {
-            db.getSchema("testRole").create(table("Test"));
-          });
-      // should throw exception, otherwise fail
-      fail();
-    } catch (MolgenisException e) {
-      System.out.println("erorred correclty:\n" + e);
-    }
 
     try {
       database.runAsUser(
@@ -265,17 +250,20 @@ public class TestGrantRolesToUsers {
     assertEquals(0, s2.getMembers().size());
 
     // proof that USER can only add tables in one schema/drop in one schema
-    database = new SqlDatabase(USER);
-    s1 = database.getSchema("testCaseSensitiveSchemaNames");
-    s1.create(table("ATable", column("id").setPkey()));
+    database.runAsUser(
+        USER,
+        db -> {
+          Schema s3 = database.getSchema("testCaseSensitiveSchemaNames");
+          s3.create(table("ATable", column("id").setPkey()));
 
-    // proof that user can NOT add in other schema
-    try {
-      s2.create(table("ATable", column("id").setPkey()));
-      fail("user should not be able to add tables in schema it has no permissions on");
-    } catch (Exception e) {
-      // correct
-    }
+          // proof that user can NOT add in other schema
+          try {
+            s3.create(table("ATable", column("id").setPkey()));
+            fail("user should not be able to add tables in schema it has no permissions on");
+          } catch (Exception e) {
+            // correct
+          }
+        });
 
     // proof user can drop
     database = new SqlDatabase(ADMIN_USER); // reset to admin

@@ -10,8 +10,13 @@ import java.util.Set;
  * transactions that may have changed schema structure and/or permissions.
  */
 public class DatabaseListener {
+  private boolean databaseChanged = false;
   private Set<String> schemaChanged = new HashSet<>();
   private Set<String> schemaRemoved = new HashSet<>();
+
+  public void databaseChanged() {
+    this.databaseChanged = true;
+  }
 
   public void schemaRemoved(String schemaName) {
     this.schemaRemoved.add(schemaName);
@@ -19,6 +24,10 @@ public class DatabaseListener {
 
   public void schemaChanged(String schemaName) {
     this.schemaChanged.add(schemaName);
+  }
+
+  public boolean getDatabaseChanged() {
+    return this.databaseChanged;
   }
 
   public Set<String> getSchemaChanged() {
@@ -31,11 +40,12 @@ public class DatabaseListener {
 
   /** Abstract method, called on each commit. When override call to reset the listener */
   public void afterCommit() {
+    this.databaseChanged = false;
     this.schemaRemoved.clear();
     this.schemaChanged.clear();
   }
 
   public boolean isDirty() {
-    return !this.schemaChanged.isEmpty() || !this.schemaRemoved.isEmpty();
+    return this.databaseChanged || !this.schemaChanged.isEmpty() || !this.schemaRemoved.isEmpty();
   }
 }

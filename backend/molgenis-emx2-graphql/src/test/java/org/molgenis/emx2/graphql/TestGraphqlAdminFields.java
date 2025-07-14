@@ -19,11 +19,9 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.sql.SqlDatabase;
 
 public class TestGraphqlAdminFields {
 
-  private static GraphQL grapql;
   private static GraphqlSession session;
   private static final String schemaName = TestGraphqlAdminFields.class.getSimpleName();
   private static final String TEST_PERSOON = "testPersoon";
@@ -32,80 +30,69 @@ public class TestGraphqlAdminFields {
 
   @BeforeAll
   public static void setup() {
-    session = new GraphqlSession(ADMIN_USER);
+    // using session so we can test its full behavior
+    session = new GraphqlSession(ANONYMOUS);
   }
 
   @Test
-  void testUsers() {
+  void testUsers() throws IOException {
     // put in transaction so user count is not affected by other operations
-    Database tdb = session.getDatabase();
-    tdb.dropCreateSchema(schemaName);
-
     session.setSessionUser(ADMIN_USER);
-    grapql = session.getGraphqlForDatabase();
+    Database database = session.getDatabase();
+    database.dropCreateSchema(schemaName);
 
-    try {
-      JsonNode result = execute("{_admin{users{email} userCount}}");
-      assertTrue(result.at("/_admin/userCount").intValue() > 0);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-    // test that only admin can do this
-    session.setSessionUser(ANONYMOUS);
-    grapql = session.getGraphqlForDatabase();
+    JsonNode result = execute(ADMIN_USER, "{_admin{users{email} userCount}}");
+    assertTrue(result.at("/_admin/userCount").intValue() > 0);
 
+    // test only admin can do this
     try {
-      assertEquals(null, execute("{_admin{userCount}}").textValue());
+      assertEquals(null, execute(ANONYMOUS, "{_admin{userCount}}").textValue());
     } catch (Exception e) {
       assertTrue(e.getMessage().contains("FieldUndefined"));
     }
-    session.setSessionUser(ADMIN_USER);
   }
 
   @Test
   void testUpdateUser() throws JsonProcessingException {
-    try {
-      Database testDatabase = new SqlDatabase(ADMIN_USER);
+    session.setSessionUser(ADMIN_USER);
+    Database testDatabase = session.getDatabase();
+    GraphQL graphql = session.getGraphqlForDatabase();
 
-      // setup
-      testDatabase.dropCreateSchema(schemaName);
-      testDatabase.dropCreateSchema(ANOTHER_SCHEMA_NAME);
-      testDatabase.addUser(TEST_PERSOON);
-      testDatabase.setEnabledUser(TEST_PERSOON, true);
-      testDatabase.getSchema(schemaName).addMember(TEST_PERSOON, "Owner");
-      testDatabase.getSchema(ANOTHER_SCHEMA_NAME).addMember(TEST_PERSOON, "Viewer");
+    // setup
+    testDatabase.dropCreateSchema(schemaName);
+    testDatabase.dropCreateSchema(ANOTHER_SCHEMA_NAME);
+    testDatabase.addUser(TEST_PERSOON);
+    testDatabase.setEnabledUser(TEST_PERSOON, true);
+    testDatabase.getSchema(schemaName).addMember(TEST_PERSOON, "Owner");
+    testDatabase.getSchema(ANOTHER_SCHEMA_NAME).addMember(TEST_PERSOON, "Viewer");
 
-      // test
-      GraphQL graphql = session.getGraphqlForDatabase();
-      String query =
-          "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
-      Map<String, Object> variables = createUpdateUserVar();
-      ExecutionInput build =
-          ExecutionInput.newExecutionInput().query(query).variables(variables).build();
-      String queryResult = convertExecutionResultToJson(graphql.execute(build));
-      JsonNode node = new ObjectMapper().readTree(queryResult);
-      if (node.get("errors") != null) {
-        throw new MolgenisException(node.get("errors").get(0).get("message").asText());
-      }
-
-      // assert results
-      User user = testDatabase.getUser(TEST_PERSOON);
-      assertEquals("testPersoon", user.getUsername());
-      assertFalse(user.getEnabled());
-
-      List<Member> members = testDatabase.getSchema(schemaName).getMembers();
-      assertTrue(members.isEmpty());
-
-      Member anotherSchemaMember =
-          testDatabase.getSchema(ANOTHER_SCHEMA_NAME).getMembers().stream().findFirst().get();
-      assertEquals("Owner", anotherSchemaMember.getRole());
-      assertEquals(TEST_PERSOON, anotherSchemaMember.getUser());
-
-      // clean up
-      testDatabase.removeUser(TEST_PERSOON);
-    } finally {
-      session.setSessionUser(ADMIN_USER);
+    // test
+    String query =
+        "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
+    Map<String, Object> variables = createUpdateUserVar();
+    ExecutionInput build =
+        ExecutionInput.newExecutionInput().query(query).variables(variables).build();
+    String queryResult = convertExecutionResultToJson(graphql.execute(build));
+    JsonNode node = new ObjectMapper().readTree(queryResult);
+    if (node.get("errors") != null) {
+      throw new MolgenisException(node.get("errors").get(0).get("message").asText());
     }
+
+    // assert results
+    User user = testDatabase.getUser(TEST_PERSOON);
+    assertEquals("testPersoon", user.getUsername());
+    assertFalse(user.getEnabled());
+
+    List<Member> members = testDatabase.getSchema(schemaName).getMembers();
+    assertTrue(members.isEmpty());
+
+    Member anotherSchemaMember =
+        testDatabase.getSchema(ANOTHER_SCHEMA_NAME).getMembers().stream().findFirst().get();
+    assertEquals("Owner", anotherSchemaMember.getRole());
+    assertEquals(TEST_PERSOON, anotherSchemaMember.getUser());
+
+    // clean up
+    testDatabase.removeUser(TEST_PERSOON);
   }
 
   @NotNull
@@ -134,7 +121,8 @@ public class TestGraphqlAdminFields {
     return variables;
   }
 
-  private JsonNode execute(String query) throws IOException {
+  private JsonNode execute(String user, String query) throws IOException {
+    GraphQL grapql = session.getGraphqlForDatabase();
     String result = convertExecutionResultToJson(grapql.execute(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {

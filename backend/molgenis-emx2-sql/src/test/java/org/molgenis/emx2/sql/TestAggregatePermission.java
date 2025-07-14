@@ -19,18 +19,18 @@ import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 
 public class TestAggregatePermission {
-  private static Database db;
   static Schema schema;
 
   @BeforeAll
   public static void setUp() throws SQLException {
-    db = new SqlDatabase(SqlDatabase.ADMIN_USER);
+    Database db = TestDatabaseFactory.getTestDatabase();
     schema = db.dropCreateSchema(TestAggregatePermission.class.getSimpleName());
     PET_STORE.getImportTask(schema, true).run();
     schema.removeMember(ANONYMOUS);
     schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
-    db = new SqlDatabase("AGGREGATE_TEST_USER");
-    schema = db.getSchema(TestAggregatePermission.class.getSimpleName());
+    schema =
+        new SqlDatabase("AGGREGATE_TEST_USER")
+            .getSchema(TestAggregatePermission.class.getSimpleName());
   }
 
   @Test
