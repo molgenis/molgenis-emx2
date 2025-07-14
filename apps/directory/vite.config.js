@@ -13,6 +13,9 @@ const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 export default defineConfig(({ command }) => ({
   base: command === "serve" ? "/" : "apps/directory/",
   build: { sourcemap: true },
+  optimizeDeps: {
+    exclude: ["vue-matomo"],
+  },
   plugins: [
     vue(),
     createHtmlPlugin({

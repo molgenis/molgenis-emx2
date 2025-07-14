@@ -5,7 +5,13 @@
     <div v-if="contactInformation.email">
       <a
         :href="'mailto:' + contactInformation.email"
-        onclick="_paq.push(['trackEvent', 'Contact', 'Email Link Click', 'name@example.com']);"
+        @click="
+          trackMatomoEvent(
+            'Contact',
+            'Email Link Click',
+            contactInformation.email
+          )
+        "
       >
         <i class="fa fa-fw fa-paper-plane" aria-hidden="true" />
         <span class="mg-icon-text">{{ uiText["email"] }}</span>
@@ -34,6 +40,7 @@ import { computed } from "vue";
 import { getName } from "../../functions/viewmodelMapper";
 import { useSettingsStore } from "../../stores/settingsStore";
 import { IPersons } from "../../interfaces/directory";
+import trackMatomoEvent from "../../functions/trackMatomoEvent";
 
 const settingsStore = useSettingsStore();
 
