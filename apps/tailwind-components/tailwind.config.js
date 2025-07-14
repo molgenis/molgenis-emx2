@@ -225,6 +225,7 @@ module.exports = {
         "title-contrast": "var(--text-color-title-contrast)",
         "title-contrast-pop": "var(--text-color-title-contrast-pop)",
         "sub-title-contrast": "var(--text-color-sub-title-contrast)",
+        "definition-list-term": "var(--text-color-definition-list-term)",
         "search-button": "var(--text-color-search-button)",
         "search-button-hover": "var(--text-color-search-button-hover)",
         favorite: "var(--text-color-favorite)",

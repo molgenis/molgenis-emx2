@@ -8,8 +8,8 @@ defineProps<{
 
 <template>
   <section
-    class="px-8 first:pt-[50px] last:pb-[50px]"
-    :class="section.heading ? 'pt-[50px]' : ''"
+    class="pr-8 first:pt-[5px] last:pb-[25px]"
+    :class="section.heading ? 'pt-[25px]' : ''"
   >
     <h3
       v-if="section.heading"
@@ -19,7 +19,8 @@ defineProps<{
     </h3>
     <DefinitionList :compact="false">
       <template v-for="field in section.fields">
-        <DefinitionListTerm class="text-title-contrast"
+        <DefinitionListTerm
+          class="text-definition-list-term text-body-base font-light capitalize"
           >{{ field.metadata.label }}
         </DefinitionListTerm>
         <DefinitionListDefinition class="text-title-contrast">

@@ -45,8 +45,13 @@ const sections = computed(() =>
 
 <template>
   <li class="py-5 px-[30px] transition-all duration-500 overflow-hidden">
-    <div class="flex items-center justify-between">
-      <h3 class="text-title-contrast font-bold">{{ toLabel(refData) }}</h3>
+    <div
+      @click="expandRow"
+      class="flex items-center justify-between group hover:cursor-pointer"
+    >
+      <h3 class="text-title-contrast font-bold group-hover:underline">
+        {{ toLabel(refData) }}
+      </h3>
 
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-2" v-if="props.canEdit">
@@ -55,12 +60,14 @@ const sections = computed(() =>
             icon="trash"
             type="inline"
             label="Remove"
+            @click.stop="$emit('remove', refData)"
           ></Button>
           <Button
             :icon-only="true"
             icon="copy"
             type="inline"
             label="Duplicate"
+            @click.stop="$emit('duplicate', refData)"
           ></Button>
           <Button
             class="hover:bg-gray-200 rounded-full"
@@ -68,6 +75,7 @@ const sections = computed(() =>
             icon="edit"
             type="inline"
             label="Edit"
+            @click.stop="$emit('edit', refData)"
           ></Button>
         </div>
         <div class="flex items-center gap-2">
@@ -76,7 +84,7 @@ const sections = computed(() =>
             :icon="expanded ? 'caret-up' : 'caret-down'"
             type="inline"
             label="Details"
-            @click="expandRow"
+            @click.stop="expandRow"
           ></Button>
         </div>
       </div>
@@ -85,7 +93,7 @@ const sections = computed(() =>
       class="transition-all duration-500 overflow-hidden"
       :class="expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'"
     >
-      <div class="mt-4">
+      <div class="mt-1" @click="$event.stopPropagation()">
         <ContentEMX2Section
           v-for="section in sections"
           :section="section"

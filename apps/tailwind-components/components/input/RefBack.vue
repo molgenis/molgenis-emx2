@@ -26,7 +26,11 @@ const modelValue = defineModel<columnValueObject[]>();
 
 async function fetchRowDetails(rowIndex: number) {
   if (modelValue.value && modelValue.value[rowIndex]) {
-    const rowKey = await fetchRowPrimaryKey(modelValue.value[rowIndex], props.refTableId, props.refSchemaId);
+    const rowKey = await fetchRowPrimaryKey(
+      modelValue.value[rowIndex],
+      props.refTableId,
+      props.refSchemaId
+    );
     const rowData = await fetchRowData(
       props.refSchemaId,
       props.refTableId,
