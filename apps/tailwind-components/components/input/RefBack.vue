@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { IInputProps } from "~/types/types";
+import type { IInputProps } from "../../types/types";
 import type { columnValueObject } from "../../../metadata-utils/src/types";
 import InputRefListItem from "./ref/ListItem.vue";
 import fetchRowData from "../../composables/fetchRowData";
