@@ -25,14 +25,14 @@
     "lodash": "4.17.21",
     "molgenis-components": "*",
     "monaco-editor": "0.50.0",
-    "pinia": "2.1.7",
+    "pinia": "3.0.3",
     "vue": "3.5.13",
     "vue-gtag": "2.0.1",
     "vue-router": "4.4.3",
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.52.0",
+    "@playwright/test": "1.54.0",
     "@vitejs/plugin-vue": "4.6.2",
     "@vue/test-utils": "2.4.6",
     "@vue/vue3-jest": "29.2.6",

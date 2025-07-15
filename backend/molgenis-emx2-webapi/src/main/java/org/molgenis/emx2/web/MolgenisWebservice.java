@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
 import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
 import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
 import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.util.EncodingHelpers.encodePathSegment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -111,11 +112,11 @@ public class MolgenisWebservice {
     TaskApi.create(app);
     GraphqlApi.createGraphQLservice(app, sessionManager);
     RDFApi.create(app, sessionManager);
-    GraphGenomeApi.create(app, sessionManager);
     BeaconApi.create(app, sessionManager);
     BootstrapThemeService.create(app);
     ProfilesApi.create(app);
     AnalyticsApi.create(app);
+    PodiumApi.create(app);
 
     app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
@@ -170,16 +171,18 @@ public class MolgenisWebservice {
                 .toList();
         if (!menu.isEmpty()) {
           String location =
-              "/" + ctx.pathParam(SCHEMA) + "/" + menu.get(0).get("href").replace("../", "");
+              "/"
+                  + encodePathSegment(ctx.pathParam(SCHEMA))
+                  + "/"
+                  + menu.get(0).get("href").replace("../", "");
           ctx.redirect(location);
         }
       } else {
-        ctx.redirect("/" + ctx.pathParam(SCHEMA) + "/tables");
+        ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
       }
     } catch (Exception e) {
-      // silly default
       logger.debug(e.getMessage());
-      ctx.redirect("/" + ctx.pathParam(SCHEMA) + "/tables");
+      ctx.redirect("/");
     }
   }
 

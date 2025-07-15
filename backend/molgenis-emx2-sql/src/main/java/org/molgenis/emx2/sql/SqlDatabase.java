@@ -442,7 +442,8 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
 
   @Override
   public User addUser(String userName) {
-    if (!hasUser(userName)) {
+    String userNameTrimmed = userName.trim();
+    if (!hasUser(userNameTrimmed)) {
       long start = System.currentTimeMillis();
       // need elevated privileges, so clear user and run as root
       // this is not thread safe therefore must be in a transaction
@@ -451,14 +452,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             String currentUser = db.getActiveUser();
             try {
               db.becomeAdmin();
-              executeCreateUser((SqlDatabase) db, userName);
+              executeCreateUser((SqlDatabase) db, userNameTrimmed);
             } finally {
               db.setActiveUser(currentUser);
             }
           });
-      log(start, "created user " + userName);
+      log(start, "created user " + userNameTrimmed);
     }
-    return getUser(userName);
+    return getUser(userNameTrimmed);
   }
 
   @Override
