@@ -1,6 +1,7 @@
 package org.molgenis.emx2.beaconv2.endpoints.filteringterms;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
 import org.molgenis.emx2.Column;
 
@@ -11,7 +12,7 @@ public class FilteringTerm {
   private String id;
   private String label;
   private String scope;
-  private Column column;
+  @JsonIgnore private Column column;
 
   public FilteringTerm(Column column, String type, String id, String label, String scope) {
     this.column = column;
