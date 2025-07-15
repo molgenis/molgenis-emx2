@@ -20,7 +20,7 @@ public class BeaconBiosamplesTests extends TestLoaders {
 
   @Test
   public void testBiosamples_NoParams() {
-    Context request = mockEntryTypeRequestRegular(EntryType.BIOSAMPLES.getId(), new HashMap<>());
+    Context request = mockEntryTypeRequestRegular(EntryType.BIOSAMPLES.getName(), new HashMap<>());
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
@@ -32,7 +32,7 @@ public class BeaconBiosamplesTests extends TestLoaders {
   public void testBiosamples_NoHits() {
     Context request =
         mockEntryTypeRequestRegular(
-            EntryType.BIOSAMPLES.getId(), Map.of("id", List.of("Sample0003")));
+            EntryType.BIOSAMPLES.getName(), Map.of("id", List.of("Sample0003")));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
@@ -45,7 +45,7 @@ public class BeaconBiosamplesTests extends TestLoaders {
   public void testBiosamples_IdQuery() {
     Context request =
         mockEntryTypeRequestRegular(
-            EntryType.BIOSAMPLES.getId(), Map.of("id", List.of("Sample0002")));
+            EntryType.BIOSAMPLES.getName(), Map.of("id", List.of("Sample0002")));
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);

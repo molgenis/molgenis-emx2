@@ -1,4 +1,4 @@
-id,input biosamples,date completed,individual
+id,input samples,date completed,individual
 A01,Sample0001,2021-01-21,Ind001
 A02,Sample0001,2021-02-12,Ind001
 A03,Sample0001,2022-01-10,Ind001
