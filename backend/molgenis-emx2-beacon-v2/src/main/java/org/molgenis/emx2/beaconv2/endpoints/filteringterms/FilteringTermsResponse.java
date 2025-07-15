@@ -20,7 +20,7 @@ public class FilteringTermsResponse {
           "Individuals",
           "Runs");
 
-  private final Database database;
+  @JsonIgnore private final Database database;
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
   private FilteringTerm[] filteringTerms;
