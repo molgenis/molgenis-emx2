@@ -11,6 +11,7 @@ import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.Templates;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
+import org.molgenis.emx2.graphql.GraphqlSession;
 import org.molgenis.emx2.sql.SqlDatabase;
 
 public class BeaconApi {
@@ -97,12 +98,12 @@ public class BeaconApi {
   private static void entryTypeRequest(Context ctx, BeaconRequestBody requestBody) {
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
 
+    GraphqlSession session = sessionManager.getSession(ctx.req());
     Schema schema = getSchema(ctx);
     if (schema != null) {
-      ctx.json(queryEntryType.query(schema));
+      ctx.json(queryEntryType.query(session));
     } else {
-      Database database = sessionManager.getSession(ctx.req()).getDatabase();
-      ctx.json(queryEntryType.query(database));
+      ctx.json(queryEntryType.query(session));
     }
   }
 }

@@ -20,6 +20,7 @@ import org.molgenis.emx2.beaconv2.filter.FilterParser;
 import org.molgenis.emx2.beaconv2.filter.FilterParserFactory;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
+import org.molgenis.emx2.graphql.GraphqlSession;
 
 public class QueryEntryType {
 
@@ -43,10 +44,10 @@ public class QueryEntryType {
     this.includeStrategy = request.getQuery().getIncludeResultsetResponses();
   }
 
-  public JsonNode query(Schema schema) {
-    if (schema != null) {
-      this.database = schema.getDatabase();
-      this.schema = schema;
+  public JsonNode query(GraphqlSession session, String schemaName) {
+    if (schemaName != null) {
+      this.database = session.getDatabase();
+      this.schema = this.database.getSchema(schemaName);
     }
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
@@ -59,7 +60,7 @@ public class QueryEntryType {
       if (table == null) {
         throw new MolgenisException("Table " + entryType.getId() + " does not exist");
       }
-      numTotalResults = queryTable(table, filterParser, resultSets);
+      numTotalResults = queryTable(session, table, filterParser, resultSets);
     }
 
     if (!granularity.equals(Granularity.BOOLEAN)) {
@@ -69,8 +70,8 @@ public class QueryEntryType {
     return getJsltResponse(response);
   }
 
-  public JsonNode query(Database database) throws JsltException {
-    this.database = database;
+  public JsonNode query(GraphqlSession session) throws JsltException {
+    this.database = session.getDatabase();
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
     FilterParser filterParser = parseFilters(response);
@@ -80,7 +81,7 @@ public class QueryEntryType {
 
     List<Table> entryTypeTables = database.getTablesFromAllSchemas(entryType.getId());
     for (Table table : entryTypeTables) {
-      numTotalResults += queryTable(table, filterParser, resultSets);
+      numTotalResults += queryTable(session, table, filterParser, resultSets);
     }
     if (!granularity.equals(Granularity.BOOLEAN)) {
       response.put("numTotalResults", numTotalResults);
@@ -89,7 +90,8 @@ public class QueryEntryType {
     return getJsltResponse(response);
   }
 
-  private int queryTable(Table table, FilterParser filterParser, ArrayNode resultSets) {
+  private int queryTable(
+      GraphqlSession session, Table table, FilterParser filterParser, ArrayNode resultSets) {
     if (!isAuthorized(table.getSchema().getInheritedRolesForActiveUser())) return 0;
     int numTotalResults = 0;
     ObjectNode resultSet = mapper.createObjectNode();
@@ -98,9 +100,9 @@ public class QueryEntryType {
 
     switch (granularity) {
       case RECORD, UNDEFINED:
-        ArrayNode resultsArray = doGraphQlQuery(table, filterParser.getGraphQlFilters());
+        ArrayNode resultsArray = doGraphQlQuery(session, table, filterParser.getGraphQlFilters());
         if (hasResult(resultsArray)) {
-          int count = doCountQuery(table, filterParser.getGraphQlFilters());
+          int count = doCountQuery(session, table, filterParser.getGraphQlFilters());
           numTotalResults += count;
           resultSet.set("results", resultsArray);
           resultSet.put("count", count);
@@ -110,7 +112,7 @@ public class QueryEntryType {
         }
         break;
       case COUNT, AGGREGATED:
-        int count = doCountQuery(table, filterParser.getGraphQlFilters());
+        int count = doCountQuery(session, table, filterParser.getGraphQlFilters());
         if (count > 0) {
           resultSet.put("exist", true);
           numTotalResults += count;
@@ -121,7 +123,7 @@ public class QueryEntryType {
         }
         break;
       case BOOLEAN:
-        boolean exists = doExistsQuery(table, filterParser.getGraphQlFilters());
+        boolean exists = doExistsQuery(session, table, filterParser.getGraphQlFilters());
         if (exists) {
           resultSet.put("exist", true);
           resultSets.add(resultSet);
@@ -137,22 +139,26 @@ public class QueryEntryType {
   private ObjectNode getJsltResponse(ObjectNode response) {
     ArrayNode resultSets = response.withArray("resultSets");
 
-    String template = null;
+    StringBuffer templateBuffer = new StringBuffer();
     if (database != null && schema != null) {
-      Schema systemSchema = database.getSchema(SYSTEM_SCHEMA);
-      Table templatesTable = systemSchema.getTable("Templates");
-      List<Row> templates = templatesTable.retrieveRows();
-      template =
-          templates.stream()
-              .filter(
-                  r ->
-                      r.getString("schema").equals(schema.getName())
-                          && r.getString("endpoint").equals("beacon_" + entryType.getName()))
-              .map(r -> r.get("template", String.class))
-              .findFirst()
-              .orElse(null);
+      database.runAsAdmin(
+          adminDb -> {
+            Schema systemSchema = adminDb.getSchema(SYSTEM_SCHEMA);
+            Table templatesTable = systemSchema.getTable("Templates");
+            List<Row> templates = templatesTable.retrieveRows();
+            templateBuffer.append(
+                templates.stream()
+                    .filter(
+                        r ->
+                            r.getString("schema").equals(schema.getName())
+                                && r.getString("endpoint").equals("beacon_" + entryType.getName()))
+                    .map(r -> r.get("template", String.class))
+                    .findFirst()
+                    .orElse(null));
+          });
     }
 
+    String template = templateBuffer.toString();
     Expression jslt;
     if (template != null) {
       jslt = Parser.compileString(template);
@@ -196,8 +202,8 @@ public class QueryEntryType {
     return filterParser;
   }
 
-  private ArrayNode doGraphQlQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema(), null);
+  private ArrayNode doGraphQlQuery(GraphqlSession session, Table table, List<String> filters) {
+    GraphQL graphQL = session.getGraphqlForSchema(table.getSchema().getName());
 
     String graphQlQuery =
         new QueryBuilder(table)
@@ -215,8 +221,8 @@ public class QueryEntryType {
     return (ArrayNode) entryTypeResult;
   }
 
-  private int doCountQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema(), null);
+  private int doCountQuery(GraphqlSession session, Table table, List<String> filters) {
+    GraphQL graphQL = session.getGraphqlForSchema(table.getSchema().getName());
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getCountQuery();
 
     ExecutionResult result = graphQL.execute(graphQlQuery);
@@ -225,8 +231,8 @@ public class QueryEntryType {
     return results.get(entryType.getId() + "_agg").get("count").intValue();
   }
 
-  private boolean doExistsQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema(), null);
+  private boolean doExistsQuery(GraphqlSession session, Table table, List<String> filters) {
+    GraphQL graphQL = session.getGraphqlForSchema(table.getSchema().getName());
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getExistsQuery();
 
     ExecutionResult result = graphQL.execute(graphQlQuery);

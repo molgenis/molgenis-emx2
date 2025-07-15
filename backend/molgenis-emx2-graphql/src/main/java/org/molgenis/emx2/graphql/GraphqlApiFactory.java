@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // only use in context of GraphqlSession, should not be used directly except for testing
-class GraphqlApiFactory {
+public class GraphqlApiFactory {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
 
   public GraphqlApiFactory() {
