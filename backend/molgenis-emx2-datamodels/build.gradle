@@ -1,8 +1,3 @@
-plugins {
-    id 'java-library'
-    id 'java-test-fixtures'
-}
-
 dependencies {
     implementation project(':backend:molgenis-emx2')
     implementation project(':backend:molgenis-emx2-io')
@@ -11,13 +6,6 @@ dependencies {
     testImplementation project(':backend:molgenis-emx2-rdf')
     testImplementation project(':backend:molgenis-emx2-beacon-v2')
     testImplementation testFixtures(project(':backend:molgenis-emx2-rdf'))
-    testImplementation project(':backend:molgenis-emx2-beacon-v2')
-    testFixturesImplementation project(':backend:molgenis-emx2')
-    testFixturesImplementation project(':backend:molgenis-emx2-sql')
-    testFixturesImplementation project(':backend:molgenis-emx2-tasks')
-    testFixturesImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
-    testFixturesImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
-    testFixturesImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
 }
 
 //we use data models from data folder
