@@ -25,7 +25,7 @@ Sequencing runs,,run ID,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C11705
 Sequencing runs,,sequencing centre,ref,,,CatalogueOntologies,Organisations,,,,http://purl.obolibrary.org/obo/GENEPIO_0001202,A data field which describes the name of the third party company or laboratory that provided services.,"Patient registry, FAIR Genomes"
 Sequencing runs,,persons involved,ref_array,,,,Contacts,,,,,Who was involved in the processing,"Patient registry, FAIR Genomes"
 Sequencing runs,,input samples,ref_array,,,,Samples,,,,,links to samples used as input,Patient registry
-Sequencing runs,,output files,ref_array,,,,Files,,,,,links to output of files,"Patient registry"
+Sequencing runs,,output files,refback,,,,Files,,produced by sequencing run,,,links to output of files,"Patient registry"
 Sequencing runs,,sequencing run date,datetime,,,,,,,,,When the run happened,"Patient registry, FAIR Genomes"
 Sequencing runs,,library source,ontology,,,CatalogueOntologies,Library source,,,,http://purl.obolibrary.org/obo/GENEPIO_0001965,E.g. genomic source,"Patient registry, FAIR Genomes"
 Sequencing runs,,library selection,string,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001940,E.g. RANDOM method,"Patient registry, FAIR Genomes"

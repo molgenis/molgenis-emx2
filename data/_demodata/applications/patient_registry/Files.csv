@@ -1,4 +1,4 @@
-id,md5 checksum,format,individuals,samples,produced by process,included in resources
+id,md5 checksum,format,individuals,samples,produced by sequencing run,included in resources
 Case1_F.1.g.vcf.gz.cip,1a1f9e8167be6d7eb819019421df544f,VCF,Case1F,SAMEA10450711,"EGAX00002583870","EGAD00001008392,VCFs"
 Case1_F.10.g.vcf.gz.cip,e64e7e1b82e6150f5524a37a7f20c512,VCF,Case1F,SAMEA10450711,"EGAX00002583870","EGAD00001008392,VCFs"
 Case1_F.11.g.vcf.gz.cip,b63ecaa151cc3cffe73ad69c82cc1159,VCF,Case1F,SAMEA10450711,"EGAX00002583870","EGAD00001008392,VCFs"
