@@ -1,5 +1,5 @@
-import { siteImproveOptions } from "../../types/Provider";
-import { Trigger } from "../../types/Trigger";
+import { type siteImproveOptions } from "../../types/Provider";
+import { type Trigger } from "../../types/Trigger";
 
 declare const _sz: any;
 
