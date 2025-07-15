@@ -35,7 +35,7 @@ public class BeaconConfigurationTest {
         "Sequencing run",
         entryTypes.get("runs").get("ontologyTermForThisType").get("label").asText());
 
-    assertEquals("IndividualAnalyses", entryTypes.get("analyses").get("id").asText());
+    assertEquals("Analyses", entryTypes.get("analyses").get("id").asText());
     assertEquals("Biosamples", entryTypes.get("biosamples").get("id").asText());
     assertEquals("Cohorts", entryTypes.get("cohorts").get("id").asText());
     assertEquals("Datasets", entryTypes.get("datasets").get("id").asText());

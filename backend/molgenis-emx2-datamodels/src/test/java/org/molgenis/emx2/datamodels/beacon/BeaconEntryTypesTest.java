@@ -35,7 +35,7 @@ public class BeaconEntryTypesTest {
 
     JsonNode analysis = result.get("response").get("entryTypes").get("analyses");
     assertTrue(analysis.isObject());
-    assertEquals("IndividualAnalyses", analysis.get("id").textValue());
+    assertEquals("Analyses", analysis.get("id").textValue());
     assertEquals("analyses", analysis.get("name").textValue());
     assertEquals(
         "edam:operation_2945", analysis.get("ontologyTermForThisType").get("id").textValue());
