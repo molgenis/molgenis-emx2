@@ -49,7 +49,6 @@ export default defineNuxtConfig({
     },
   },
   components: [
-
     {
       path: "../tailwind-components/components",
     },
@@ -62,33 +61,34 @@ export default defineNuxtConfig({
   gtag: {
     initMode: 'manual',
   },
-  //proxy the cms to api base
-  vite: {
-    server: {
-      proxy: {
-        // Proxy all requests starting with /cms to your backend
-        // todo: test if this fails for big uploads when data managing..., otherwise we must use nginx or something
-        '/cms': {
-          target: process.env.NUXT_PUBLIC_API_BASE ||
-              "https://emx2.dev.molgenis.org/",  // or http://localhost:8080/
-          changeOrigin: true,
-          rewrite: (path) => {
-            // If path matches /cms/<something>/favicon.ico
-            const faviconMatch = path.match(/^\/cms\/[^\/]+\/favicon\.ico$/);
-            if (faviconMatch) {
-              // Rewrite all such requests to root /favicon.ico on backend
-              return '/favicon.ico';
-            }
-            // Otherwise, strip only /cms prefix
-            return path.replace(/^\/cms/, '');
-          },
-        },
-        '/apps': {
-          target: process.env.NUXT_PUBLIC_API_BASE ||
-              "https://emx2.dev.molgenis.org/",  // or http://localhost:8080/
-          changeOrigin: true,
-        },
-      },
-    },
-  },
+  //dev server, proxy
+  // vite: {
+  //   server: {
+  //     proxy: {
+  //       // Proxy all requests starting with /cms to your backend
+  //       // todo: test if this fails for big uploads when data managing..., otherwise we must use nginx or something
+  //       '/cms': {
+  //         target: process.env.NUXT_PUBLIC_API_BASE ||
+  //             "https://emx2.dev.molgenis.org/",  // or http://localhost:8080/
+  //         changeOrigin: true,
+  //         rewrite: (path) => {
+  //           // If path matches /cms/favicon.ico
+  //           // todo: will we have app or schema specific favicon at some future point?
+  //           const faviconMatch = path.endsWith('favicon.ico');
+  //           if (faviconMatch) {
+  //             // Rewrite all such requests to root /favicon.ico on backend
+  //             return '/favicon.ico';
+  //           }
+  //           // Otherwise, strip only /cms prefix
+  //           return path.replace(/^\/cms/, '');
+  //         },
+  //       },
+  //       '/apps': {
+  //         target: process.env.NUXT_PUBLIC_API_BASE ||
+  //             "https://emx2.dev.molgenis.org/",  // or http://localhost:8080/
+  //         changeOrigin: true,
+  //       },
+  //     },
+  //   },
+  // },
 });
