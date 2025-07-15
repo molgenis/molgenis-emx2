@@ -1,0 +1,7 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
+Genomic variants observed,,,,,,,,,,,,Ability to store complete VCF,Patient registry
+Genomic variants observed,,samples,ref,1,,,Biosamples,,,,http://purl.obolibrary.org/obo/NCIT_C93400,A reference to the sample where this variant is detected,Patient registry
+Genomic variants observed,,variant,ref,1,,,Genomic variants,,,,"http://purl.obolibrary.org/obo/NCIT_C164813,bc2:variantInternalId",A unique identifier maintained by an authoritative database that represents a genetic variation.,Patient registry
+Genomic variants observed,,VCF file,ref,,,,Files,,,,http://semanticscience.org/resource/SIO_000396,"A reference to one or more files that contain information about this sample, variant, individual, etc.",Patient registry
+Genomic variants observed,,cohort,ref,,,,Subpopulations,,,,,,Patient registry
+Genomic variants observed,,count,int,,,,,,,,,,Patient registry

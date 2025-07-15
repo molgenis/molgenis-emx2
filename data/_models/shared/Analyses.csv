@@ -24,9 +24,6 @@ Individual variant analysis,,classification summary,text,,,,,,,,,http://purl.obo
 Individual variant analysis,,inheritance,ontology,,,CatalogueOntologies,Inheritance pattern,,,,,http://purl.obolibrary.org/obo/GENO_0000141,"The pattern in which a genetic trait or condition is passed from one generation to the next, as determined by genetic interactions between alleles of the causal gene, and interactions between these alleles and the environment.",Patient registry
 Individual variant analysis,,effect,ontology,,,CatalogueOntologies,Diseases,,,,,http://purl.obolibrary.org/obo/NCIT_C15607,E.g. Spinocerebellar ataxia type 34,Patient registry
 Individual variant analysis,,category,ontology,,,CatalogueOntologies,Variation category,,,,,http://semanticscience.org/resource/SIO_001331,"The diagnosis assigned for this particular observation (e.g., ""Spinocerebellar ataxia type 34"")",Patient registry
-Individual variant analysis,,disease,,,,,,,,,,,,
-Individual variant analysis,,disease status,,,,,,,,,,,,
-Individual variant analysis,,,,,,,,,,,,,,
 Individual analysis consensus,,analysis,ref,1,,,Individual analyses,,,,,http://purl.obolibrary.org/obo/NCIT_C25391,Reference to the specific analysis,Patient registry
 Individual analysis consensus,,variant,ref,,,,Individual variant analysis,,,,,http://purl.obolibrary.org/obo/NCIT_C164813,"If applicable, a reference to one or more variants involved in the consensus process",Patient registry
 Individual analysis consensus,,name of commenter,ref_array,,,,Contacts,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,The name of the person making the comment,Patient registry
