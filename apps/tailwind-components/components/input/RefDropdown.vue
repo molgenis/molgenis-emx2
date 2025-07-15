@@ -1,22 +1,19 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 
-import { InputSearch, Button } from "#components";
+import { InputSearch, InputLabel, InputCheckboxIcon, InputRadioIcon, Button } from "#components";
 import InputDropdownToggle from "./Dropdown/Toggle.vue";
 import InputDropdownContainer from "./Dropdown/Container.vue";
 import InputDropdownToolbar from "./Dropdown/Toolbar.vue";
 
 import { type IInputProps } from "../../types/types";
-import type {
-  IInputValue,
-  IInputValueLabel,
-} from "../../../metadata-utils/src/types";
+import type { IInputValueLabel } from "../../../metadata-utils/src/types";
 
 const props = withDefaults(
   defineProps<
     IInputProps & {
-      options: IInputValue[] | IInputValueLabel[];
-      value?: IInputValue | IInputValueLabel;
+      options: IInputValueLabel[];
+      value?: IInputValueLabel;
       multiselect?: boolean;
     }
   >(),
@@ -37,7 +34,15 @@ const emit = defineEmits([
 const isExpanded = ref<boolean>(false);
 const toggleElemRef = ref<InstanceType<typeof InputDropdownToggle>>();
 const displayText = ref<string>(props.placeholder);
-const searchTerm = ref<string>("");
+const searchTerm = defineModel<string>("");
+const options = ref<IInputValueLabel[]>([]);
+const selections = defineModel<IInputValueLabel[]>();
+
+// function: to check if the option is *in* the selections
+function optionIsChecked (option: IInputValueLabel) {
+  console.log(option)
+}
+
 </script>
 
 <template>
@@ -77,5 +82,11 @@ const searchTerm = ref<string>("");
         </div>
       </div>
     </InputDropdownContainer>
+    <fieldset :id="`${id}-ref-dropdown-options`">
+      <label></label>
+      <div v-for="option in options">
+        
+      </div>
+    </fieldset>
   </div>
 </template>
