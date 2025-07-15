@@ -41,6 +41,6 @@ public class BeaconConfigurationTest {
     assertEquals("Datasets", entryTypes.get("datasets").get("id").asText());
     assertEquals("GenomicVariants", entryTypes.get("g_variants").get("id").asText());
     assertEquals("Individuals", entryTypes.get("individuals").get("id").asText());
-    assertEquals("SequencingRuns", entryTypes.get("runs").get("id").asText());
+    assertEquals("Runs", entryTypes.get("runs").get("id").asText());
   }
 }

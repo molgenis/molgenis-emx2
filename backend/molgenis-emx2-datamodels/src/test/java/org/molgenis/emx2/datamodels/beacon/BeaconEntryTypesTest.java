@@ -74,7 +74,7 @@ public class BeaconEntryTypesTest {
 
     JsonNode runs = result.get("response").get("entryTypes").get("runs");
     assertTrue(runs.isObject());
-    assertEquals("SequencingRuns", runs.get("id").textValue());
+    assertEquals("Runs", runs.get("id").textValue());
     assertEquals("runs", runs.get("name").textValue());
     assertEquals("NCIT:C148088", runs.get("ontologyTermForThisType").get("id").textValue());
   }
