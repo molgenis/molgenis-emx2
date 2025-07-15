@@ -13,7 +13,7 @@ Genomic variants,,transcript HGVS ids,string_array,,,,,,,,http://purl.obolibrary
 Genomic variants,,protein HGVS ids,string_array,,,,,,,,http://ensembl.org/glossary/ENSGLOSSARY_0000274,E.g. NP_009225.1:p.Glu1817Ter,Patient registry,
 Genomic variants,,genomic assembly id,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C164388,E.g. GRCh37,Patient registry,
 Genomic variants,,refseq assembly id,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C45335,E.g. 11,Patient registry,
-Genomic variants,,genes,ontology_array,,,CatalogueOntologies,Genes,,,,http://purl.obolibrary.org/obo/NCIT_C48664,E.g. TTN,Patient registry,
+Genomic variants,,gene id,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C48664,E.g. TTN,Patient registry,
 Genomic variants,,chromosomal region,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000614,An extended part of a chromosome representing a term of convenience in order to hierarchically organize morphologically defined chromosome features: chromosome > arm > region > band > sub-band.,Patient registry,
 Genomic variants,,chrom,string,,,,,,,,, An identifier from the reference genome or pointing to a contig in the assembly,Patient registry,
 Genomic variants,,start position,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000894,The starting position of a sequence feature or interval. E.g. 2447955,Patient registry,
