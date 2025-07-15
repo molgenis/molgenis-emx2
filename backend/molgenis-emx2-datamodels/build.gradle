@@ -10,6 +10,8 @@ dependencies {
     implementation project(':backend:molgenis-emx2-sql')
     testImplementation project(':backend:molgenis-emx2-rdf')
     testImplementation project(':backend:molgenis-emx2-beacon-v2')
+    testImplementation testFixtures(project(':backend:molgenis-emx2-rdf'))
+    testImplementation project(':backend:molgenis-emx2-beacon-v2')
     testFixturesImplementation project(':backend:molgenis-emx2')
     testFixturesImplementation project(':backend:molgenis-emx2-sql')
     testFixturesImplementation project(':backend:molgenis-emx2-tasks')
@@ -25,6 +27,7 @@ sourceSets {
             srcDirs += [
                     "$rootDir/data"
             ]
+            exclude "_shacl/"
         }
     }
 }
