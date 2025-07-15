@@ -44,4 +44,11 @@ public abstract class ShaclSelector {
   public static ShaclSet get(String name) {
     return shaclSetMap.get(name);
   }
+
+  /** Returns all {@link ShaclSet}s but removed any data not needed for front-end. */
+  public static ShaclSet[] getAllFiltered() {
+    return shaclSetMap.values().stream()
+        .map(i -> new ShaclSet(i.name(), i.description(), i.version(), i.sources(), null))
+        .toArray(ShaclSet[]::new);
+  }
 }
