@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 
-export default defineConfig((command) => {
+export default defineConfig(() => {
   require("dotenv").config({ path: `./.env` });
   
   return {
@@ -12,7 +12,7 @@ export default defineConfig((command) => {
         languages: ["editorWorkerService", "html", "css", "typescript"],
     }),
   ],
-  base: command === "serve" ? "/" :"apps/pages/",
+  base: "",
   server: {
     proxy: require("../dev-proxy.config"),
   },

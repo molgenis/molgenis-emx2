@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
-export default defineConfig((command) => {
+export default defineConfig(() => {
   require("dotenv").config({ path: `./.env` });
   
   return {
@@ -19,7 +19,7 @@ export default defineConfig((command) => {
         },
       },
     },
-    base: command === "serve" ? "/" : "apps/gportal/",
+    base: "",
     server: {
       proxy: require("../dev-proxy.config"),
     },
