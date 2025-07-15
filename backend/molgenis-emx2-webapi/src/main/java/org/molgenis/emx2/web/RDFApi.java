@@ -35,7 +35,6 @@ import org.molgenis.emx2.rdf.shacl.ShaclSelector;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
 
 public class RDFApi {
-  public static final String FORMAT = "format";
   private static MolgenisSessionManager sessionManager;
 
   private static final List<RDFFormat> acceptedRdfFormats =
