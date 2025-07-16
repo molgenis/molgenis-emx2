@@ -127,7 +127,7 @@ print('unreachable')
     }
     Task zipTask = taskService.getTask(taskService.submitTaskFromName("ZIP attachment test", ""));
     TaskStatus zipTaskStatus = zipTask.getStatus();
-    while (zipTaskStatus != COMPLETED && csvTaskStatus != ERROR) {
+    while (zipTaskStatus != COMPLETED && zipTaskStatus != ERROR) {
       Thread.sleep(1000);
       zipTaskStatus = zipTask.getStatus();
     }

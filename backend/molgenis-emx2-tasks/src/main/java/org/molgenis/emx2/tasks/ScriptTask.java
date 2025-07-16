@@ -11,6 +11,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.MolgenisException;
@@ -163,7 +165,6 @@ public class ScriptTask extends Task {
     Path requirementsFile = Files.createFile(tempDir.resolve("requirements.txt"));
     Files.writeString(requirementsFile, this.dependencies != null ? this.dependencies : "");
 
-    String extractZipCommand = "";
     if (this.extraFile != null && this.extraFile.get(EXTRA_FILE) != null) {
       String extraFileName = this.extraFile.get(EXTRA_FILE_FILENAME).toString();
       List<String> forbiddenFiles = Arrays.asList("venv.zip", "requirements.txt", "script.py");
@@ -182,7 +183,24 @@ public class ScriptTask extends Task {
         fos.write(extraFileContent);
       }
       if (extraFileExtension != null && extraFileExtension.toString().equalsIgnoreCase("zip")) {
-        extractZipCommand = "unzip " + extraFileName + " -d " + tempDir.toAbsolutePath();
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(extraFilePath.toFile()))) {
+          byte[] buffer = new byte[1024];
+          ZipEntry entry;
+          while ((entry = zis.getNextEntry()) != null) {
+            File newFile = new File(tempDir.toFile(), entry.getName());
+            if (entry.isDirectory()) {
+              newFile.mkdirs();
+            } else {
+              new File(newFile.getParent()).mkdirs();
+              try (FileOutputStream fos = new FileOutputStream(newFile)) {
+                int length;
+                while ((length = zis.read(buffer)) > 0) {
+                  fos.write(buffer, 0, length);
+                }
+              }
+            }
+          }
+        }
       }
     }
 
@@ -195,23 +213,16 @@ public class ScriptTask extends Task {
     String runScriptCommand = "python3 -u script.py";
     String escapedParameters = " " + escapeXSI(this.parameters);
 
-    String shellCommands =
-        createVenvCommand
-            + " && "
-            + activateCommand
-            + " && "
-            + pipUpgradeCommand
-            + " && "
-            + installRequirementsCommand
-            + " && "
-            + runScriptCommand
-            + escapedParameters;
-
-    if (!extractZipCommand.isEmpty()) {
-      shellCommands = extractZipCommand + " && " + shellCommands;
-    }
-
-    return shellCommands;
+    return createVenvCommand
+        + " && "
+        + activateCommand
+        + " && "
+        + pipUpgradeCommand
+        + " && "
+        + installRequirementsCommand
+        + " && "
+        + runScriptCommand
+        + escapedParameters;
   }
 
   private void sendFailureMail() {
