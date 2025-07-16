@@ -29,18 +29,25 @@ spec:
     - host: {{ index .Values.ingress.hosts 1 | quote }}
       http:
         paths:
-            - path: /cms(/|$)(.*)
+            - path: /cms/
               pathType: Prefix
               backend:
                 service:
                   name: {{ $fullName }}
                   port:
                     number: 8080
-            - path: ~^/(apps|api)(/|$)(.*)
-              pathType: ImplementationSpecific
+            - path: /api/
+              pathType: Prefix
               backend:
                 service:
                   name: {{ $fullName }}
+                  port:
+                    number: 8080
+            - path: /apps/
+              pathType: Prefix
+              backend:
+                service:
+                  name: {{$fullName}}
                   port:
                     number: 8080
             - path: /.+/(sitemap\.xml|docs)
