@@ -16,7 +16,7 @@ function initialize(options: siteImproveOptions) {
 }
 
 function handleEvent(event: Event, trigger: Trigger, element: Element) {
-  console.log("handel site improve event", event, trigger, element.tagName);
+  console.log("handle site improve event", event, trigger, element.tagName);
 
   if (_sz) {
     _sz.push(["event", "demo cat", "demo action", trigger.name]);
