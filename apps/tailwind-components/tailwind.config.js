@@ -265,6 +265,7 @@ module.exports = {
         "pagination-button": "var(--text-color-pagination-button)",
         "pagination-button-hover": "var(--text-color-pagination-button-hover)",
         link: "var(--text-color-link)",
+        "link-hover": "var(--text-color-link-hover)",
         "link-inverted": "var(--text-color-link-inverted)",
         "table-column-header": "var(--text-color-table-column-header)",
         "table-row": "var(--text-color-table-row)",

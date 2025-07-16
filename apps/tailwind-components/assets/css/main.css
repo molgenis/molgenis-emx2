@@ -147,7 +147,7 @@
     --text-color-search-button-hover: var(--color-blue-800);
     --text-color-favorite: var(--color-blue-800);
     --text-color-favorite-hover: var(--color-blue-800);
-    --text-color-button-text: var(--color-blue-800);
+    --text-color-button-text: var(--color-blue-500);
     --text-color-search-button: var(--color-blue-500);
     --text-color-search-button-hover: var(--color-blue-800);
     --text-color-search-results-view-tabs: var(--color-blue-500);
@@ -173,6 +173,7 @@
     --text-color-pagination-button: var(--color-blue-500);
     --text-color-pagination-button-hover: var(--color-blue-800);
     --text-color-link: var(--color-blue-500);
+    --text-color-link-hover: var(--color-blue-800);
     --text-color-button-input-toggle: var(--color-black);
     --text-color-table-column-header: var(--color-gray-600);
     --text-color-table-row: var(--color-blue-800);

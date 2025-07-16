@@ -113,6 +113,7 @@ function afterRowEdited(row: columnValueObject) {
 <template>
   <Button
     v-if="canEdit"
+    class="my-[10px]"
     icon="plus"
     type="text"
     size="small"

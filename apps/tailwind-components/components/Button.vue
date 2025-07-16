@@ -40,7 +40,7 @@ const COLOR_MAPPING = {
     "tracking-widest uppercase rounded-input font-display bg-button-secondary text-button-secondary border-button-secondary hover:bg-button-secondary-hover hover:text-button-secondary-hover hover:border-button-secondary-hover",
   tertiary:
     "tracking-widest uppercase rounded-input font-display bg-button-tertiary text-button-tertiary border-button-tertiary hover:bg-button-tertiary-hover hover:text-button-tertiary-hover hover:border-button-tertiary-hover",
-  text: "group flex items-center text-button-text cursor-pointer disabled:cursor-not-allowed disabled:text-disabled border-none h-auto !p-[inherit]",
+  text: "group pl-0 pr-0 flex items-center text-button-text hover:bg-hover hover:text-link-hover cursor-pointer disabled:cursor-not-allowed disabled:text-disabled border-none h-auto",
   outline:
     "tracking-widest uppercase rounded-input font-display bg-button-outline text-button-outline border-button-outline hover:bg-button-outline-hover hover:text-button-outline-hover hover:border-button-outline-hover",
   disabled:
@@ -51,7 +51,7 @@ const COLOR_MAPPING = {
     "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-button-inline-hover",
 };
 
-const TEXT_STYLING = "text-title-contrast group-enabled:hover:underline";
+const TEXT_STYLING = "text-button-text hover:bg-hover hover:text-link-hover";
 
 const SIZE_MAPPING = {
   tiny: "h-8 px-5 text-heading-sm gap-3",
