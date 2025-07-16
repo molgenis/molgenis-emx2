@@ -6,8 +6,8 @@ import static org.molgenis.emx2.web.util.EnvHelpers.getEnvLong;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import graphql.GraphQL;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
@@ -29,7 +29,7 @@ public class MolgenisSession {
           .build();
   private final GraphqlApiFactory graphqlApiFactory;
   private final Database database;
-  private final Map<String, GraphQL> graphqlPerSchema = new LinkedHashMap<>();
+  private final Map<String, GraphQL> graphqlPerSchema = new ConcurrentHashMap<>();
   private GraphQL graphqlForDatabase;
 
   public MolgenisSession(Database database, GraphqlApiFactory graphqlApiFactory) {
