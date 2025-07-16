@@ -1,6 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Genomic variants,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17248,Beacon v2 GenomicVariation see also https://www.ga4gh.org/product/categorical-variation-catvar/,Patient registry
 Genomic variants,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164813,bc2:variantInternalId",A unique identifier maintained by an authoritative database that represents a genetic variation. E.g. 20:2447955..2447958c>g,Patient registry
+Genomic variants,,alternative ids,string_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,A backup sequence of characters used to identify an entity,Patient registry
 Genomic variants,,variant status,ontology,,,CatalogueOntologies,Status,,,,http://semanticscience.org/resource/SIO_000033,"An characterisation of the variant that indicates the state of a variant (e.g., confirmed, to be verified, etc.)",Patient registry
 Genomic variants,,variant type,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000773,E.g. SNP,Patient registry
 Genomic variants,,genomic HGVS id,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172243,E.g. NC_000017.11:g.43057063G>A,Patient registry
