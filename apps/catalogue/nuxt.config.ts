@@ -1,6 +1,9 @@
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 import { defineNuxtConfig } from "nuxt/config";
 
+//API_BASE shouldn't have a '/' at the end
+const API_BASE = process.env.NUXT_PUBLIC_API_BASE || "https://emx2.dev.molgenis.org/";
+
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   devtools: { enabled: true },
@@ -22,9 +25,7 @@ export default defineNuxtConfig({
       analyticsProvider: "siteimprove",
       cohortOnly: false,
       schema: "catalogue-demo",
-      apiBase:
-        process.env.NUXT_PUBLIC_API_BASE ||
-        "https://emx2.dev.molgenis.org/",
+      apiBase: API_BASE,
     },
   },
   imports: {
@@ -37,6 +38,18 @@ export default defineNuxtConfig({
     prerender: {
       ignore: ["/_tailwind/"],
     },
+    routeRules: {
+      '/cms/**': {
+        proxy: {
+          to: API_BASE + '/**'
+        }
+      },
+      '/apps/**': {
+        proxy: {
+          to: API_BASE + '/apps/**'
+        }
+      }
+    }
   },
   pinia: {
     storesDirs: ['./stores/**'],
