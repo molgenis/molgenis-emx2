@@ -1,0 +1,35 @@
+# ingress-cms.yaml
+{{- if .Values.ingress.enabled }}
+  {{ $fullName := include "emx2.fullname" . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}-cms
+  labels:
+    app: {{ template "emx2.name" . }}
+    chart: {{ template "emx2.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Forwarded-Prefix /cms;
+spec:
+  tls:
+  - hosts:
+    - {{ index .Values.ingress.hosts 1 | quote }}
+    secretName: dev.molgenis.org
+  rules:
+  - host: {{ index .Values.ingress.hosts 1 | quote }}
+    http:
+      paths:
+      - path: /cms/(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ $fullName }}
+            port:
+              number: 8080
+{{- end }}
