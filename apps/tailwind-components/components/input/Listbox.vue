@@ -28,20 +28,21 @@
         Search for items
       </label>
       <InputSearch
+        v-if="enableSearch"
         ref="listbox-search"
         :id="`listbox-${id}-options-search`"
         :aria-labelledby="`listbox-${id}-options-search`"
         :aria-controls="`listbox-${id}-options-list`"
         placeholder="Search"
         v-model="searchTerm"
+        @update:model-value="emit('search', searchTerm)"
       />
       <ul
         ref="ul"
         :id="`listbox-${id}-options-list`"
         class="overflow-y-scroll z-10 bg-input border"
         :class="{
-          'h-44': isExpanded && listboxOptions.length > 5,
-          'shadow-inner': !disabled && isExpanded,
+          'max-h-56': isExpanded,
         }"
         @keydown.prevent="onListboxKeyDown"
       >
@@ -55,6 +56,12 @@
           @blur="blurListOption(option)"
           @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
         />
+        <li
+          v-if="listboxOptions.length === 1 && listboxOptions[0].value === null"
+          class="flex justify-center items-center h-[56px] pl-3 py-1 bg-input border-b-[1px] last:border-b-0 text-input italic"
+        >
+          No options found
+        </li>
       </ul>
     </div>
   </div>
@@ -63,7 +70,6 @@
 <script lang="ts" setup>
 import { ref, useTemplateRef, nextTick, watch, onMounted, computed } from "vue";
 import type {
-  IFieldError,
   IInputValue,
   IInputValueLabel,
 } from "../../../metadata-utils/src/types";
@@ -80,10 +86,12 @@ const props = withDefaults(
     IInputProps & {
       options: IInputValue[] | IInputValueLabel[];
       value?: IInputValue | IInputValueLabel;
+      enableSearch?: boolean;
     }
   >(),
   {
     placeholder: "Select an option",
+    enableSearch: false,
   }
 );
 
@@ -105,7 +113,7 @@ const searchElemRef = ref<InstanceType<typeof InputSearch>>();
 const displayText = ref<string>(props.placeholder);
 const startingCounter = ref<number>(0);
 const selectedElementId = ref<string>("");
-const searchTerm = ref<string>("");
+const searchTerm = defineModel<string>("");
 
 const isExpanded = computed<boolean>(() => {
   return btnElemRef.value?.expanded as boolean;
@@ -132,7 +140,10 @@ watch(
   () => (displayText.value = props.placeholder)
 );
 
-watch(searchTerm, () => emit("search", searchTerm.value));
+watch(isExpanded, () => {
+  searchTerm.value = "";
+  emit("search", searchTerm.value);
+});
 
 function counterIsInRange(value: number) {
   return value <= listboxOptions.value.length - 1 && value >= 0;
