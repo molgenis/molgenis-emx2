@@ -1,3 +1,3 @@
-analysis,individual,variant id,allele origin,zygosity,classification,classification summary,inheritance,effect,category,mg_draft
-A01,Case1C,20:2447951..2447952c>g,unknown allele origin,homozygous,Likely pathogenic,,chromosomal inheritance,,Disease associated,false
-A02,Case2C,20:2447951..2447952c>g,unknown allele origin,homozygous,Likely pathogenic,,undetermined inheritance,,Disease associated,false
+analysis,individual,variant sets,allele origin,zygosity,classification,classification summary,inheritance,effect,category
+A01,Case1C,GV_Set_01,unknown allele origin,homozygous,Likely pathogenic,,chromosomal inheritance,,Disease associated
+A02,Case2C,GV_Set_01,unknown allele origin,homozygous,Likely pathogenic,,undetermined inheritance,,Disease associated
