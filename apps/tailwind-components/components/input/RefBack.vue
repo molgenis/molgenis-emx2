@@ -48,7 +48,8 @@ async function reloadItems() {
       },
     },
   });
-  console.log("Fetched items:", resp);
+  console.log("Fetched items:", resp.rows);
+  modelValue.value = resp.rows;
 }
 
 async function fetchRowDetails(rowIndex: number) {
@@ -91,14 +92,14 @@ async function removeRefBackItem(rowIndex: number) {
 }
 
 function afterRowDeleted(row: columnValueObject) {
-  // todo:  remove the row from modelValue
   crudRow.value = null;
   showDeleteModal.value = false;
+  reloadItems();
 }
 
 function afterRowAdded(row: columnValueObject) {
-  // todo: add the new row to the modelValue array
   showAddModal.value = false;
+  reloadItems();
 }
 
 watch(showDeleteModal, (newValue) => {
