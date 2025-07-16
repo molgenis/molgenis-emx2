@@ -62,13 +62,13 @@ const sections = computed(() =>
             label="Remove"
             @click.stop="$emit('remove', refData)"
           ></Button>
-          <Button
+          <!-- <Button not yet implemented
             :icon-only="true"
             icon="copy"
             type="inline"
             label="Duplicate"
             @click.stop="$emit('duplicate', refData)"
-          ></Button>
+          ></Button> -->
           <Button
             class="hover:bg-gray-200 rounded-full"
             :icon-only="true"

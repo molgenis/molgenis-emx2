@@ -74,9 +74,12 @@ const props = withDefaults(
   {}
 );
 
-const emit = defineEmits(["update:deleted"]);
+const emit = defineEmits(["update:deleted", "update:cancelled"]);
 
-const visible = ref(false);
+const visible = defineModel("visible", {
+  type: Boolean,
+  default: false,
+});
 
 const deleteErrorMessage = ref<string>("");
 
@@ -89,9 +92,18 @@ const isDraft = ref(false);
 
 function onCancel() {
   visible.value = false;
+  emit("update:cancelled");
 }
 
 async function onDeleteConfirm() {
+  const { deleteRecord } = useForm(
+    props.metadata,
+    props.formValues,
+    ref<Record<columnId, string>>({}),
+    (fieldId: string) => {
+      return fieldId;
+    }
+  );
   const resp = await deleteRecord(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error deleting data", err);
@@ -108,13 +120,4 @@ async function onDeleteConfirm() {
   visible.value = false;
   emit("update:deleted", resp);
 }
-
-const { deleteRecord } = useForm(
-  props.metadata,
-  props.formValues,
-  ref<Record<columnId, string>>({}),
-  (fieldId: string) => {
-    return fieldId;
-  }
-);
 </script>
