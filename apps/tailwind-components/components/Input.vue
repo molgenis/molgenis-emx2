@@ -178,6 +178,8 @@
     :refSchemaId="refSchemaId as string"
     :refTableId="refTableId as string"
     :refLabel="refLabel as string"
+    :refBackColumn="refBackId as string"
+    :refBackPrimaryKey="rowKey"
   />
 
   <InputOntology
@@ -278,6 +280,8 @@ const props = defineProps<
     refSchemaId?: string;
     refTableId?: string;
     refLabel?: string;
+    refBackId?: string;
+    rowKey?: any;
     options?: IValueLabel[];
     trueLabel?: string;
     falseLabel?: string;

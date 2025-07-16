@@ -5,6 +5,7 @@ import type {
   columnValue,
   IColumn,
   IFormLegendSection,
+  IRow,
   ITableMetaData,
   recordValue,
 } from "../../../metadata-utils/src/types";
@@ -15,6 +16,7 @@ import {
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import logger from "../../utils/logger";
 import { vIntersectionObserver } from "@vueuse/components";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 
 const props = defineProps<{
   schemaId: string;
@@ -24,7 +26,7 @@ const props = defineProps<{
 
 const visibleMap = reactive<Record<columnId, boolean>>({});
 
-const modelValue = defineModel<recordValue>("modelValue", {
+const modelValue = defineModel<IRow>("modelValue", {
   required: true,
 });
 
@@ -137,6 +139,12 @@ props.metadata.columns
         column.visible
     );
   });
+
+const rowKey = await fetchRowPrimaryKey(
+  modelValue.value,
+  props.metadata.id,
+  props.schemaId
+);
 </script>
 
 <template>
@@ -177,11 +185,13 @@ props.metadata.columns
         :type="column.columnType"
         :label="column.label"
         :description="column.description"
+        :row-key="rowKey"
         :required="isRequired(column.required ?? false)"
         :error-message="errors[column.id]"
         :ref-schema-id="column.refSchemaId || schemaId"
         :ref-table-id="column.refTableId"
         :ref-label="column.refLabel || column.refLabelDefault"
+        :ref-back-id="column.refBackId"
         :invalid="errors[column.id]?.length > 0"
         @update:modelValue="onUpdate(column, $event ?? '')"
         @blur="onBlur(column)"

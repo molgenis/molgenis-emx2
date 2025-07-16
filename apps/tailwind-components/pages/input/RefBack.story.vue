@@ -5,6 +5,7 @@
     :refSchemaId="refSchemaId"
     :refTableId="refTableId"
     :refLabel="refLabel"
+    :refBackColumn="refBackColumn"
     :canEdit="canEdit"
   />
 </template>
@@ -17,12 +18,11 @@ const refTableId = "Order";
 const refLabel = "${orderId}";
 const canEdit = true;
 
-const columnType = "REFBACK";
 const id = "orders";
 const label = "orders";
 const name = "orders";
 const position = 10;
-const refBackId = "pet";
+const refBackColumn = "pet";
 
 const modelValue = defineModel<columnValueObject[]>();
 
