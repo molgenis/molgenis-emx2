@@ -1,2 +1,2 @@
-id,type of document,title,version,date of approval,date valid from,date valid until,authors.resource,authors.first name,authors.last name,document location,related to documents,mg_draft
-IC_Research_Doc,informed consent form,Example informed consent for participation in clinical research,v1,2025-01-01,2025-01-01,2025-12-31,,,,,,false
+id,type of document,title,version,date of approval,date valid from,date valid until,authors.resource,authors.first name,authors.last name,related to documents,mg_draft
+IC_Research_Doc,informed consent form,Example informed consent for participation in clinical research,v1,2025-01-01,2025-01-01,2025-12-31,,,,,false

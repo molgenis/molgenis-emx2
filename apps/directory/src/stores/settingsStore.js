@@ -39,6 +39,8 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     i18n,
     banner: ``,
     footer: ``,
+    matomoUrl: undefined,
+    matomoSiteId: undefined,
   });
 
   const showSettings = computed(() => {
@@ -112,8 +114,8 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     showSettings,
     uiText,
     initializeConfig,
-    setSessionInformation,
     SaveApplicationConfiguration,
+    setSessionInformation,
     UpdateConfig,
   };
 });
