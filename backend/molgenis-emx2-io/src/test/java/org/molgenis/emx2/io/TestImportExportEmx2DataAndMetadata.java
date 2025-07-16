@@ -15,6 +15,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.datamodels.test.ProductComponentPartsExample;
 import org.molgenis.emx2.datamodels.util.CompareTools;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.StopWatch;
 
@@ -75,7 +76,7 @@ public class TestImportExportEmx2DataAndMetadata {
       // test if we can also download as aggregator
       excelFile = tmp.resolve("test2.xlsx");
       schema1.addMember(ANONYMOUS, AGGREGATOR.toString());
-      database.setActiveUser(ANONYMOUS);
+      database = new SqlDatabase(SqlDatabase.ANONYMOUS);
       schema1 = database.getSchema(getClass().getSimpleName() + "1");
       MolgenisIO.toExcelFile(excelFile, schema1, true);
 

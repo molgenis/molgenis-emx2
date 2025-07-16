@@ -1,6 +1,7 @@
 package org.molgenis.emx2.datamodels.beacon.entrytypes;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
@@ -13,6 +14,7 @@ import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.datamodels.TestLoaders;
 import org.molgenis.emx2.datamodels.beacon.BeaconTestUtil;
+import org.molgenis.emx2.graphql.GraphqlSession;
 
 public class BeaconAnalysisTest extends TestLoaders {
 
@@ -22,7 +24,7 @@ public class BeaconAnalysisTest extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode analyses = queryEntryType.query(database);
+    JsonNode analyses = queryEntryType.query(new GraphqlSession(ADMIN_USER));
     assertEquals(4, analyses.get("responseSummary").get("numTotalResults").intValue());
   }
 
@@ -34,7 +36,7 @@ public class BeaconAnalysisTest extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode analyses = queryEntryType.query(database);
+    JsonNode analyses = queryEntryType.query(new GraphqlSession(ADMIN_USER));
     assertFalse(analyses.get("responseSummary").get("exists").booleanValue());
   }
 
@@ -46,7 +48,7 @@ public class BeaconAnalysisTest extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode analyses = queryEntryType.query(database);
+    JsonNode analyses = queryEntryType.query(new GraphqlSession(ADMIN_USER));
     assertTrue(analyses.get("responseSummary").get("exists").booleanValue());
     assertEquals(1, analyses.get("responseSummary").get("numTotalResults").intValue());
   }

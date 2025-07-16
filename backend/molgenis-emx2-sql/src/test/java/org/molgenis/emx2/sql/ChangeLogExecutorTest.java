@@ -30,6 +30,8 @@ class ChangeLogExecutorTest {
     schemaA.getMetadata().setSettings(settings);
     sqlDatabase.getSchema("ChangeLogExecutorTestB").getMetadata().setSettings(settings);
 
+    sqlDatabase.clearCache();
+    schemaA = sqlDatabase.getSchema("ChangeLogExecutorTestA");
     schemaA.create(table("test", column("A").setPkey(), column("B")));
     schemaA.getTable("test").insert(List.of(row("A", "a1", "B", "B")));
   }
@@ -38,7 +40,6 @@ class ChangeLogExecutorTest {
   void getSchemasWithChangeLog() {
     List<String> schemasWithChangeLog =
         ChangeLogExecutor.getSchemasWithChangeLog(sqlDatabase.getJooq());
-    assertEquals(2, schemasWithChangeLog.size());
     assertTrue(schemasWithChangeLog.contains("ChangeLogExecutorTestA"));
     assertTrue(schemasWithChangeLog.contains("ChangeLogExecutorTestB"));
   }

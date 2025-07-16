@@ -3,6 +3,7 @@ package org.molgenis.emx2.datamodels.beacon.entrytypes;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
@@ -14,6 +15,7 @@ import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.datamodels.TestLoaders;
+import org.molgenis.emx2.graphql.GraphqlSession;
 
 public class BeaconRunsTests extends TestLoaders {
 
@@ -34,7 +36,7 @@ public class BeaconRunsTests extends TestLoaders {
 
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode json = queryEntryType.query(database);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER));
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(2, results.size());

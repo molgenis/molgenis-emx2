@@ -9,14 +9,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import org.molgenis.emx2.Database;
 import org.molgenis.emx2.graphql.GraphqlSession;
 
 public class Templates {
 
-  public static void addTemplatesToDb(Database database) {
-    // why is this done as admin?
-    GraphQL graphQL = new GraphqlSession("ADMIN").getGraphqlForSchema("_SYSTEM_");
+  public static void addTemplatesToDb() {
+    GraphQL graphQL = new GraphqlSession("admin").getGraphqlForSchema("_SYSTEM_");
 
     for (EntryType entryType : EntryType.values()) {
       String query =

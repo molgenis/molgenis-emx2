@@ -9,7 +9,6 @@ import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResult
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.GraphQL;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,29 +16,19 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
-import org.molgenis.emx2.tasks.TaskService;
-import org.molgenis.emx2.tasks.TaskServiceInMemory;
 
 public class TestGraphqlAggregatePermission {
-  private static GraphQL grapql;
-  private static Database database;
   private static final String schemaName = TestGraphqlAggregatePermission.class.getSimpleName();
-  private static Schema schema;
-  private static TaskService taskService;
+  private static GraphqlSession session;
 
   @BeforeAll
   public static void setup() {
-    database = TestDatabaseFactory.getTestDatabase();
-    schema = database.dropCreateSchema(schemaName);
+    Database database = TestDatabaseFactory.getTestDatabase();
+    Schema schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
     schema.removeMember(ANONYMOUS);
     schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
-    database.setActiveUser("AGGREGATE_TEST_USER");
-    taskService = new TaskServiceInMemory();
-    grapql =
-        new GraphqlApiFactory()
-            .createGraphqlForSchema(
-                database.getSchema(schemaName), new GraphqlSession(database, taskService));
+    session = new GraphqlSession("AGGREGATE_TEST_USER");
   }
 
   @Test
@@ -68,7 +57,8 @@ public class TestGraphqlAggregatePermission {
   }
 
   private JsonNode execute(String query) throws IOException {
-    String result = convertExecutionResultToJson(grapql.execute(query));
+    String result =
+        convertExecutionResultToJson(session.getGraphqlForSchema(schemaName).execute(query));
     JsonNode node = new ObjectMapper().readTree(result);
     if (node.get("errors") != null) {
       throw new MolgenisException(node.get("errors").get(0).get("message").asText());

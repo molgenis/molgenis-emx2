@@ -2,6 +2,7 @@ package org.molgenis.emx2.datamodels.beacon.entrytypes;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.datamodels.beacon.BeaconTestUtil.mockEntryTypeRequestRegular;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
@@ -14,6 +15,7 @@ import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.datamodels.TestLoaders;
+import org.molgenis.emx2.graphql.GraphqlSession;
 
 @Disabled
 public class BeaconCohortsTests extends TestLoaders {
@@ -24,7 +26,7 @@ public class BeaconCohortsTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode cohorts = queryEntryType.query(database);
+    JsonNode cohorts = queryEntryType.query(new GraphqlSession(ADMIN_USER));
     assertTrue(cohorts.get("response").get("collections").size() >= 3);
   }
 
@@ -36,7 +38,7 @@ public class BeaconCohortsTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode cohorts = queryEntryType.query(database);
+    JsonNode cohorts = queryEntryType.query(new GraphqlSession(ADMIN_USER));
 
     //    String json = JsonUtil.getWriter().writeValueAsString(cohorts);
     //    assertTrue(json.contains("\"collections\" : [ ]"));

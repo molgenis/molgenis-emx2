@@ -3,6 +3,7 @@ package org.molgenis.emx2.datamodels.beacon.entrytypes;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
@@ -15,6 +16,7 @@ import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.datamodels.TestLoaders;
 import org.molgenis.emx2.datamodels.beacon.BeaconTestUtil;
+import org.molgenis.emx2.graphql.GraphqlSession;
 
 public class BeaconIndividualsTests extends TestLoaders {
 
@@ -25,7 +27,7 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode json = queryEntryType.query(database);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER));
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(10, results.size());
@@ -45,7 +47,7 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode json = queryEntryType.query(database);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER));
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(1, results.size());
@@ -69,7 +71,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER));
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(8, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
@@ -96,7 +98,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
     assertFalse(json.get("responseSummary").get("exists").booleanValue());
   }
 
@@ -117,7 +119,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(20, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
@@ -139,7 +141,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(8, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
   }
@@ -161,7 +163,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertEquals("[NCIT_C28421]", json.get("info").get("unsupportedFilters").textValue());
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
@@ -185,7 +187,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -208,7 +210,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("responseSummary").get("numTotalResults").intValue());
   }
@@ -235,7 +237,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
   }
@@ -257,7 +259,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -280,7 +282,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
     assertFalse(json.get("responseSummary").get("exists").booleanValue());
   }
 
@@ -302,7 +304,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -326,7 +328,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertFalse(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
   }
@@ -349,7 +351,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(3, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -373,7 +375,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -397,7 +399,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -421,7 +423,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertFalse(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
   }
@@ -443,7 +445,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -466,7 +468,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertFalse(json.get("responseSummary").get("exists").booleanValue());
   }
@@ -488,7 +490,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -511,7 +513,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertFalse(json.get("responseSummary").get("exists").booleanValue());
   }
@@ -533,7 +535,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -556,7 +558,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -579,7 +581,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(4, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -602,7 +604,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertEquals("[ncit:C15642]", json.get("info").get("unsupportedFilters").textValue());
     assertTrue(json.get("responseSummary").get("exists").booleanValue());
@@ -625,7 +627,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -648,7 +650,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(1, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());
@@ -671,7 +673,7 @@ public class BeaconIndividualsTests extends TestLoaders {
                               }
                             }""");
     QueryEntryType queryEntryType = new QueryEntryType(beaconRequest);
-    JsonNode json = queryEntryType.query(patientRegistry);
+    JsonNode json = queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
 
     assertTrue(json.get("response").get("resultSets").get(0).get("exists").booleanValue());
     assertEquals(2, json.get("response").get("resultSets").get(0).get("resultsCount").intValue());

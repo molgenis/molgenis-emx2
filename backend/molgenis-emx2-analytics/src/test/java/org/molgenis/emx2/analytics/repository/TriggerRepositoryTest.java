@@ -1,6 +1,7 @@
 package org.molgenis.emx2.analytics.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,8 +22,7 @@ class TriggerRepositoryTest {
 
   @BeforeAll
   static void setUp() {
-    database = new SqlDatabase(true);
-    database.setActiveUser(database.getAdminUserName());
+    database = new SqlDatabase(ADMIN_USER, true);
 
     database = TestDatabaseFactory.getTestDatabase();
     testTriggerRepo =

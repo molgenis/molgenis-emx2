@@ -13,6 +13,7 @@ import com.schibsted.spt.data.jslt.Parser;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import java.util.List;
+import java.util.Objects;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.common.misc.Granularity;
 import org.molgenis.emx2.beaconv2.common.misc.IncludedResultsetResponses;
@@ -33,8 +34,6 @@ public class QueryEntryType {
   private final IncludedResultsetResponses includeStrategy;
 
   private final ObjectMapper mapper = new ObjectMapper();
-  private Database database;
-  private Schema schema;
 
   public QueryEntryType(BeaconRequestBody request) {
     this.request = request;
@@ -45,10 +44,11 @@ public class QueryEntryType {
   }
 
   public JsonNode query(GraphqlSession session, String schemaName) {
-    if (schemaName != null) {
-      this.database = session.getDatabase();
-      this.schema = this.database.getSchema(schemaName);
-    }
+    Objects.requireNonNull(schemaName);
+
+    Database database = session.getDatabase();
+    Schema schema = database.getSchema(schemaName);
+
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
     FilterParser filterParser = parseFilters(response);
@@ -67,11 +67,11 @@ public class QueryEntryType {
       response.put("numTotalResults", numTotalResults);
     }
     response.set("resultSets", resultSets);
-    return getJsltResponse(response);
+    return getJsltResponse(database, schema, response);
   }
 
   public JsonNode query(GraphqlSession session) throws JsltException {
-    this.database = session.getDatabase();
+    Database database = session.getDatabase();
     ObjectNode response = mapper.createObjectNode();
     response.set("requestBody", mapper.valueToTree(request));
     FilterParser filterParser = parseFilters(response);
@@ -87,7 +87,7 @@ public class QueryEntryType {
       response.put("numTotalResults", numTotalResults);
     }
     response.set("resultSets", resultSets);
-    return getJsltResponse(response);
+    return getJsltResponse(database, null, response);
   }
 
   private int queryTable(
@@ -136,7 +136,7 @@ public class QueryEntryType {
     return numTotalResults;
   }
 
-  private ObjectNode getJsltResponse(ObjectNode response) {
+  private ObjectNode getJsltResponse(Database database, Schema schema, ObjectNode response) {
     ArrayNode resultSets = response.withArray("resultSets");
 
     StringBuffer templateBuffer = new StringBuffer();
@@ -154,11 +154,11 @@ public class QueryEntryType {
                                 && r.getString("endpoint").equals("beacon_" + entryType.getName()))
                     .map(r -> r.get("template", String.class))
                     .findFirst()
-                    .orElse(null));
+                    .orElse(""));
           });
     }
 
-    String template = templateBuffer.toString();
+    String template = templateBuffer.length() > 0 ? templateBuffer.toString() : null;
     Expression jslt;
     if (template != null) {
       jslt = Parser.compileString(template);

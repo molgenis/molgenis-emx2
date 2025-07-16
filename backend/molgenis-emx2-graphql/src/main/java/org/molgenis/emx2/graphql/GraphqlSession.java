@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DatabaseListener;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.TableListener;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.TaskService;
 import org.molgenis.emx2.tasks.TaskServiceInMemory;
@@ -21,6 +22,7 @@ public class GraphqlSession {
   private static final Logger logger = LoggerFactory.getLogger(GraphqlSession.class);
 
   // static caches between the sessions
+  private static TableListener tableListener;
   private static GraphqlApiFactory graphqlApiFactory = new GraphqlApiFactory();
   private static Cache<String, Database> databaseCachePerUser =
       Caffeine.newBuilder().maximumSize(1000).expireAfterAccess(5, TimeUnit.MINUTES).build();
@@ -107,7 +109,9 @@ public class GraphqlSession {
               logger.info("creating database instance for user '{}'", userName);
               SqlDatabase db = new SqlDatabase(userName);
               db.setListener(this.getDatabaseChangeListener());
-              // TODO db.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
+              if (tableListener != null) {
+                db.addTableListener(tableListener);
+              }
               // TODO db.setBindings(JavaScriptBindings.getBindingsForSession(session));
               return db;
             });
@@ -158,5 +162,9 @@ public class GraphqlSession {
 
   protected void setDatabaseListener(DatabaseListener databaseListener) {
     this.databaseListener = databaseListener;
+  }
+
+  public static void setStaticTableListener(TableListener newTableListener) {
+    tableListener = newTableListener;
   }
 }

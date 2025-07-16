@@ -103,18 +103,12 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
           String user =
               scriptTask.getCronUserName() == null ? defaultUser : scriptTask.getCronUserName();
 
-          // TODO check if we need to submit as other user
-          // db.setActiveUser(user);
-
           // submit the script
           result.append(
               this.submit(
                   scriptTask
                       .parameters(parameters)
-                      .token(
-                          JWTgenerator.createTemporaryToken(
-                              systemSchema.getDatabase(),
-                              systemSchema.getDatabase().getActiveUser()))
+                      .token(JWTgenerator.createTemporaryToken(systemSchema.getDatabase(), user))
                       .submitUser(user)));
         });
     return result.toString();

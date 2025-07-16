@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.graphql.GraphqlSession;
 import org.molgenis.emx2.sql.JWTgenerator;
+import org.molgenis.emx2.tasks.ScriptTableListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +21,10 @@ public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
 
-  public MolgenisSessionManager() {}
+  public MolgenisSessionManager() {
+    // set static settigs
+    GraphqlSession.setStaticTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
+  }
 
   public MolgenisSession getSession(HttpServletRequest request) {
     String authTokenKey = findUsedAuthTokenKey(request);

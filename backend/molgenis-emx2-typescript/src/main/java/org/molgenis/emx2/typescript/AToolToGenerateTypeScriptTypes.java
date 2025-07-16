@@ -24,9 +24,8 @@ public class AToolToGenerateTypeScriptTypes {
   }
 
   public static void generate(String schemaName, String fileFullPath) {
-    SqlDatabase db = new SqlDatabase(false);
+    SqlDatabase db = new SqlDatabase(SqlDatabase.ADMIN_USER, false);
     db.getJooq();
-    db.becomeAdmin();
     Schema schema = db.getSchema(schemaName);
     if (schema == null) {
       System.out.println("Schema " + schemaName + " not found");

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.molgenis.emx2.datamodels.beacon.BeaconTestUtil.mockEntryTypeRequestRegular;
+import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_USER;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.javalin.http.Context;
@@ -15,6 +16,7 @@ import org.molgenis.emx2.beaconv2.EntryType;
 import org.molgenis.emx2.beaconv2.QueryEntryType;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.datamodels.TestLoaders;
+import org.molgenis.emx2.graphql.GraphqlSession;
 
 public class BeaconBiosamplesTests extends TestLoaders {
 
@@ -24,7 +26,8 @@ public class BeaconBiosamplesTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode biosamples = queryEntryType.query(patientRegistry);
+    JsonNode biosamples =
+        queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
     assertEquals(20, biosamples.get("responseSummary").get("numTotalResults").intValue());
   }
 
@@ -36,7 +39,8 @@ public class BeaconBiosamplesTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode biosamples = queryEntryType.query(patientRegistry);
+    JsonNode biosamples =
+        queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
     assertEquals(0, biosamples.get("responseSummary").get("numTotalResults").intValue());
     assertFalse(biosamples.get("responseSummary").get("exists").booleanValue());
   }
@@ -49,7 +53,8 @@ public class BeaconBiosamplesTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode biosamples = queryEntryType.query(patientRegistry);
+    JsonNode biosamples =
+        queryEntryType.query(new GraphqlSession(ADMIN_USER), patientRegistry.getName());
     assertEquals(1, biosamples.get("responseSummary").get("numTotalResults").intValue());
     assertTrue(biosamples.get("responseSummary").get("exists").booleanValue());
     JsonNode sample = biosamples.get("response").get("resultSets").get(0).get("results").get(0);

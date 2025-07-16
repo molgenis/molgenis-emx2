@@ -12,7 +12,6 @@ import org.molgenis.emx2.beaconv2.Templates;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.graphql.GraphqlSession;
-import org.molgenis.emx2.sql.SqlDatabase;
 
 public class BeaconApi {
 
@@ -28,8 +27,7 @@ public class BeaconApi {
   }
 
   private static void createTemplates() {
-    Database database = new SqlDatabase(SqlDatabase.ADMIN_USER);
-    Templates.addTemplatesToDb(database);
+    Templates.addTemplatesToDb();
   }
 
   private static void defineRoutes(Javalin app, String basePath) {
