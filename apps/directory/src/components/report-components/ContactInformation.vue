@@ -6,11 +6,11 @@
       <a
         :href="'mailto:' + contactInformation.email"
         @click="
-          trackMatomoEvent(
-            'Contact',
-            'Email Link Click',
-            contactInformation.email
-          )
+          trackMatomoEvent({
+            category: 'Contact',
+            action: 'Email Link Click',
+            name: contactInformation.email,
+          })
         "
       >
         <i class="fa fa-fw fa-paper-plane" aria-hidden="true" />
