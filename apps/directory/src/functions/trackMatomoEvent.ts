@@ -2,7 +2,7 @@ export default function trackMatomoEvent(
   category: string,
   action: string,
   name: string,
-  value?: any
+  value?: string | number | undefined
 ) {
   if (window._paq) {
     if (value !== undefined) {
