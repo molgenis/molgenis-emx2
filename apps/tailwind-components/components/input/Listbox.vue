@@ -42,8 +42,7 @@
         :id="`listbox-${id}-options-list`"
         class="overflow-y-scroll z-10 bg-input border"
         :class="{
-          'h-44': isExpanded && listboxOptions.length > 5,
-          'shadow-inner': !disabled && isExpanded,
+          'max-h-56': isExpanded,
         }"
         @keydown.prevent="onListboxKeyDown"
       >
