@@ -61,6 +61,16 @@ public class MolgenisWebservice {
                 })
             .start(port);
 
+    // Add before-handler to rewrite context path if X-Forwarded-Prefix is set
+    app.before(
+        ctx -> {
+          String forwardedPrefix = ctx.header("X-Forwarded-Prefix");
+          if (forwardedPrefix != null && !forwardedPrefix.isEmpty()) {
+            // Wrap the request to override getContextPath and getRequestURI if needed
+            ctx.attribute("X-Forwarded-Prefix", forwardedPrefix);
+          }
+        });
+
     try {
       hostUrl = new URL(URIUtils.extractHost(app.jettyServer().server().getURI()));
     } catch (Exception ignored) {
@@ -79,10 +89,12 @@ public class MolgenisWebservice {
           // check for setting
           String landingPagePath =
               sessionManager.getSession(ctx.req()).getDatabase().getSetting(LANDING_PAGE);
+          String prefix = ctx.attribute("X-Forwarded-Prefix");
+          prefix = prefix != null ? prefix : "";
           if (landingPagePath != null) {
-            ctx.redirect(landingPagePath);
+            ctx.redirect(prefix + landingPagePath);
           } else {
-            ctx.redirect("/apps/central/");
+            ctx.redirect(prefix + "/apps/central/");
           }
         });
 
@@ -118,7 +130,6 @@ public class MolgenisWebservice {
     AnalyticsApi.create(app);
     PodiumApi.create(app);
 
-    app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
     // greedy proxy stuff, always put last!
@@ -146,6 +157,8 @@ public class MolgenisWebservice {
   }
 
   private static void redirectSchemaToFirstMenuItem(Context ctx) {
+    String prefix = ctx.attribute("X-Forwarded-Prefix");
+    prefix = (prefix != null ? prefix : "");
     try {
       Schema schema = getSchema(ctx);
       if (schema == null) {
@@ -175,14 +188,14 @@ public class MolgenisWebservice {
                   + encodePathSegment(ctx.pathParam(SCHEMA))
                   + "/"
                   + menu.get(0).get("href").replace("../", "");
-          ctx.redirect(location);
+          ctx.redirect(prefix + location);
         }
       } else {
-        ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
+        ctx.redirect(prefix + "/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables/");
       }
     } catch (Exception e) {
       logger.debug(e.getMessage());
-      ctx.redirect("/");
+      ctx.redirect(prefix + "/");
     }
   }
 
