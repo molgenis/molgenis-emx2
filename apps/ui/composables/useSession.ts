@@ -3,18 +3,16 @@ import { computed, ref } from "vue";
 import type { ISession } from "../../tailwind-components/types/types";
 
 const session = ref<ISession | null>();
-const sessionPromise = ref<Promise<{ data: any; error: any }> | null>(null);
 
-export const useSession = () => {
-  function loadSession() {
-    useAsyncData("session", async () => {
-      sessionPromise.value = $fetch("/api/graphql", {
+export const useSession = async () => {
+  async function loadSession() {
+    await useAsyncData("session", async () => {
+      const { data, error } = await $fetch("/api/graphql", {
         method: "POST",
         body: JSON.stringify({
           query: `{_session { email, admin, roles, token }}`,
         }),
       });
-      const { data, error } = await sessionPromise.value;
 
       if (error) {
         console.error("Error fetching session", error);
@@ -25,7 +23,7 @@ export const useSession = () => {
     });
   }
 
-  loadSession();
+  await loadSession();
 
   function reload() {
     session.value = null;
@@ -34,5 +32,5 @@ export const useSession = () => {
 
   const isAdmin = computed(() => session.value?.email === "admin");
 
-  return { isAdmin, session, sessionPromise, reload };
+  return { isAdmin, session, reload };
 };
