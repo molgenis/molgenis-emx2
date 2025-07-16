@@ -8,7 +8,7 @@ import org.molgenis.emx2.rdf.config.RdfConfigReader;
 import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
-public class RdfSchemaService implements AutoCloseable {
+public class RdfSchemaService implements RdfService<RdfApiGenerator> {
   private final RdfConfig config;
   private final RdfWriter writer;
   private final RdfApiGenerator generator;
@@ -19,6 +19,7 @@ public class RdfSchemaService implements AutoCloseable {
     this.generator = config.getRdfApiGeneratorFactory().create(writer, baseUrl);
   }
 
+  @Override
   public RdfApiGenerator getGenerator() {
     return generator;
   }

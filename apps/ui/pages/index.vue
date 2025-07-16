@@ -39,18 +39,15 @@ const filter = ref("");
   <Container>
     <PageHeader title="Databases" />
 
-    <ContentBlock class="mt-1" title="" description="">
-      <div class="flex flex-row justify-center items-center mb-4">
-        <FilterSearch
-          class="w-3/5 xl:w-2/5 2xl:w-3/5"
-          placeholder="Type to filter the databases"
-          label="Filter"
-          :modelValue="filter"
-          @update:modelValue="handleSearchRequest"
-          :inverted="true"
-        />
-      </div>
+    <div class="flex flex-row justify-center items-center mb-4">
+      <InputSearch
+        v-model="filter"
+        placeholder="Search databases"
+        id="search-input"
+      />
+    </div>
 
+    <ContentBlock class="mt-1" title="" description="">
       <Table>
         <template #head>
           <TableHeadRow>

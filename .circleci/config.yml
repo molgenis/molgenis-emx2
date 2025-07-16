@@ -21,7 +21,7 @@ orbs:
 definitions:
   build_config: &build_config
     docker:
-    - image: molgenis/ci-build:1.3.4
+    - image: molgenis/ci-build:1.3.7
     working_directory: ~/repo
     resource_class: large
     environment:
@@ -30,7 +30,7 @@ definitions:
       TERM: dumb
   test_config: &test_config
     docker:
-    - image: molgenis/ci-build:1.3.4
+    - image: molgenis/ci-build:1.3.7
     - image: postgres:15-alpine
       environment:
         POSTGRES_USER: postgres
@@ -44,7 +44,7 @@ definitions:
       TERM: dumb
   release_config: &release_config
     docker:
-      - image: molgenis/ci-build:1.3.4
+      - image: molgenis/ci-build:1.3.7
       - image: postgres:15-alpine
         environment:
           POSTGRES_USER: postgres
@@ -135,8 +135,9 @@ jobs:
           docker push molgenis/ssr-catalogue-snapshot --all-tags
     
     - run:
-        name: Docker-Scout scanning on cve's, break on critical. 
+        name: Docker-Scout scanning on cve's, break on critical.
         command: |
+          curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s
           docker scout cves molgenis/molgenis-emx2-snapshot:${TAG_NAME} --exit-code --only-severity critical 
 
     - run:
@@ -264,7 +265,7 @@ jobs:
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.53.1-jammy
+      - image: mcr.microsoft.com/playwright:v1.54.0-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test
