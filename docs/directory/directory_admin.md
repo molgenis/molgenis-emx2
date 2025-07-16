@@ -7,7 +7,9 @@ This page provides documentation to help the administration of the directory app
 The directory has its own specific app settings which can be found by pressing the 'Settings' button (when logged in as admin) or going to: `http://yoururl.com/#/configuration`.
 
 The JSON settings have the following options:
+
 | option | default | description |
+|--------|---------|-------------|
 | language | "en" | Language of the app, needs configuration of the i18n setting to properly work. |
 | graphqlEndpoint | "graphql" | Endpoint at the backend to which the query goes. |
 | negotiatorType | "v3" | Version of the negotiator. Current options are `v1` for Podium or `v3` / `eric-negotiator` for the latest version. |
