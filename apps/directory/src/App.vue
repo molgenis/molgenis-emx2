@@ -22,6 +22,7 @@ import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
 import { useCheckoutStore } from "./stores/checkoutStore";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useSettingsStore } from "./stores/settingsStore";
+import router from "./router";
 
 const route = useRoute();
 const query = computed(() => route.query);
@@ -34,6 +35,15 @@ const banner = computed(() => settingsStore.config.banner);
 const footer = computed(() => settingsStore.config.footer);
 
 const session = ref({});
+
+watch(
+  () => settingsStore.configurationFetched,
+  () => {
+    if (settingsStore.configurationFetched) {
+      initMatomo();
+    }
+  }
+);
 
 watch(session, () => {
   settingsStore.setSessionInformation(session.value);
@@ -95,5 +105,40 @@ function changeFavicon() {
 function getFaviconUrl() {
   const isDark = usePreferredDark();
   return isDark ? "bbmri-darkmode-favicon.ico" : "bbmri-lightmode-favicon.ico";
+}
+
+function initMatomo() {
+  const { matomoUrl, matomoSiteId } = settingsStore.config;
+  if (matomoUrl && matomoSiteId) {
+    const _paq = (window._paq = window._paq || []);
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(["trackPageView"]);
+    _paq.push(["enableLinkTracking"]);
+    (function () {
+      _paq.push(["setTrackerUrl", matomoUrl + "matomo.php"]);
+      _paq.push(["setSiteId", matomoSiteId]);
+      const doc = document;
+      const newScriptElement = doc.createElement("script");
+      const firstFoundScriptElement = doc.getElementsByTagName("script")[0];
+      newScriptElement.async = true;
+      newScriptElement.src = matomoUrl + "matomo.js";
+      firstFoundScriptElement.parentNode?.insertBefore(
+        newScriptElement,
+        firstFoundScriptElement
+      );
+    })();
+
+    router.afterEach(() => {
+      if (window._paq) {
+        window._paq.push(["setCustomUrl", window.location.href]);
+        window._paq.push(["setDocumentTitle", document.title]);
+        window._paq.push(["trackPageView"]);
+      }
+    });
+  } else {
+    console.warn(
+      `Matomo URL (${matomoUrl}) or Site ID (${matomoSiteId}) is not set in the configuration.`
+    );
+  }
 }
 </script>
