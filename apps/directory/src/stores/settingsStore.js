@@ -33,13 +33,14 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     collectionColumns: initialCollectionColumns,
     studyColumns: initialStudyColumns,
     filterFacets: initialFilterFacets,
-    filterMenuInitiallyFolded: false,
     biobankCardShowCollections: true,
     landingpage: initialLandingpage,
     pageSize: 12,
     i18n,
     banner: ``,
     footer: ``,
+    matomoUrl: undefined,
+    matomoSiteId: undefined,
   });
 
   const showSettings = computed(() => {
@@ -113,8 +114,8 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     showSettings,
     uiText,
     initializeConfig,
-    setSessionInformation,
     SaveApplicationConfiguration,
+    setSessionInformation,
     UpdateConfig,
   };
 });
