@@ -22,7 +22,7 @@ public class BeaconAnalysisTest extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode analyses = queryEntryType.query(database);
+    JsonNode analyses = queryEntryType.query(patientRegistry);
     assertEquals(4, analyses.get("responseSummary").get("numTotalResults").intValue());
   }
 
@@ -34,7 +34,7 @@ public class BeaconAnalysisTest extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode analyses = queryEntryType.query(database);
+    JsonNode analyses = queryEntryType.query(patientRegistry);
     assertFalse(analyses.get("responseSummary").get("exists").booleanValue());
   }
 
@@ -46,7 +46,7 @@ public class BeaconAnalysisTest extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode analyses = queryEntryType.query(database);
+    JsonNode analyses = queryEntryType.query(patientRegistry);
     assertTrue(analyses.get("responseSummary").get("exists").booleanValue());
     assertEquals(1, analyses.get("responseSummary").get("numTotalResults").intValue());
   }
