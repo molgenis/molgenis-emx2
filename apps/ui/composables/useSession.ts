@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import type { ISession } from "../../tailwind-components/types/types";
 
 const session = ref<ISession | null>();
+const sessionLoaded = ref(false);
 
 export const useSession = () => {
   function loadSession() {
@@ -20,6 +21,7 @@ export const useSession = () => {
       }
 
       session.value = data._session;
+      sessionLoaded.value = true;
     });
   }
 
@@ -27,10 +29,11 @@ export const useSession = () => {
 
   function reload() {
     session.value = null;
+    sessionLoaded.value = false;
     loadSession();
   }
 
   const isAdmin = computed(() => session.value?.email === "admin");
 
-  return { session, reload, isAdmin };
+  return { isAdmin, session, sessionLoaded, reload };
 };
