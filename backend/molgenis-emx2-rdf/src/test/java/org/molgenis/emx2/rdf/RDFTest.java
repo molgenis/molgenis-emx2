@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.TestResourceLoader.getFile;
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_CHILD1_FIRST;
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_CHILD1_SECOND;
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_GRANDCHILD1_FIRST;
@@ -16,7 +17,6 @@ import static org.molgenis.emx2.rdf.RdfUtils.SETTING_CUSTOM_RDF;
 import static org.molgenis.emx2.rdf.RdfUtils.SETTING_SEMANTIC_PREFIXES;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
@@ -68,8 +68,6 @@ public class RDFTest {
 
   static final String BASE_URL = "http://localhost:8080";
   static final String RDF_API_LOCATION = "/api/rdf";
-
-  static final ClassLoader classLoader = RDFTest.class.getClassLoader();
 
   static Database database;
   static List<Schema> petStoreSchemas;
@@ -1793,9 +1791,5 @@ example,http://example.com/
     ValidationSubjects(String resource) {
       this.value = Values.iri(getApi(compositeKeyTest) + resource);
     }
-  }
-
-  private static File getFile(String filepath) {
-    return new File(Objects.requireNonNull(classLoader.getResource(filepath)).getFile());
   }
 }

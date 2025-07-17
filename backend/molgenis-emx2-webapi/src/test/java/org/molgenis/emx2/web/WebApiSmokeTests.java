@@ -12,6 +12,7 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.TestResourceLoader.getFileAsString;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.web.Constants.*;
@@ -1061,6 +1062,15 @@ public class WebApiSmokeTests {
             .getBody()
             .asString();
 
+    // Output shacl sets
+    String resultShaclSetsYaml =
+        given()
+            .sessionId(SESSION_ID)
+            .when()
+            .get("http://localhost:" + PORT + "/api/rdf?shacls")
+            .getBody()
+            .asString();
+
     // Output schema API call.
     String resultSchema =
         given()
@@ -1085,7 +1095,8 @@ public class WebApiSmokeTests {
         () ->
             assertTrue(
                 resultSchema.contains(
-                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")));
+                    "http://localhost:" + PORT + "/pet%20store/api/rdf/Category/column/name")),
+        () -> assertEquals(getFileAsString("api/rdf/shacl_sets.yaml"), resultShaclSetsYaml));
   }
 
   /**

@@ -6,6 +6,9 @@ import static org.molgenis.emx2.Constants.API_TTL;
 import static org.molgenis.emx2.utils.URLUtils.extractBaseURL;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.IOException;
@@ -32,7 +35,6 @@ import org.molgenis.emx2.rdf.shacl.ShaclSelector;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
 
 public class RDFApi {
-  public static final String FORMAT = "format";
   private static MolgenisSessionManager sessionManager;
 
   private static final List<RDFFormat> acceptedRdfFormats =
@@ -57,9 +59,9 @@ public class RDFApi {
   }
 
   private static void defineApiRoutes(Javalin app, String apiLocation, RDFFormat format) {
-    app.get(apiLocation, (ctx) -> rdfForDatabase(ctx, format));
-    app.head(apiLocation, (ctx) -> rdfHead(ctx, format));
-    app.get("{schema}" + apiLocation, (ctx) -> schemaPath(ctx, format));
+    app.get(apiLocation, (ctx) -> databaseGet(ctx, format));
+    app.head(apiLocation, (ctx) -> databaseHead(ctx, format));
+    app.get("{schema}" + apiLocation, (ctx) -> schemaGet(ctx, format));
     app.head("{schema}" + apiLocation, (ctx) -> rdfHead(ctx, format));
     app.get("{schema}" + apiLocation + "/{table}", (ctx) -> rdfForTable(ctx, format));
     app.head("{schema}" + apiLocation + "/{table}", (ctx) -> rdfHead(ctx, format));
@@ -72,6 +74,45 @@ public class RDFApi {
 
   private static void rdfHead(Context ctx, RDFFormat format) {
     setFormat(ctx, format);
+  }
+
+  private static void databaseHead(Context ctx, RDFFormat format) throws IOException {
+    if (ctx.queryParam("shacls") != null) {
+      setYamlFormat(ctx);
+    } else {
+      setFormat(ctx, format);
+    }
+  }
+
+  private static void databaseGet(Context ctx, RDFFormat format) throws IOException {
+    if (ctx.queryParam("shacls") != null) {
+      shaclSetsYaml(ctx);
+    } else {
+      rdfForDatabase(ctx, format);
+    }
+  }
+
+  private static void shaclSetsYaml(Context ctx) throws IOException {
+    setYamlFormat(ctx);
+
+    // Only show available SHACLs if there are any schema's available to validate on.
+    if (sessionManager.getSession(ctx.req()).getDatabase().getSchemaNames().isEmpty()) {
+      throw new MolgenisException("No permission to view any schema to use SHACLs on");
+    }
+
+    // Output is not identical to input. Nested arrays do not have extra indent:
+    // .enable(YAMLGenerator.Feature.INDENT_ARRAYS) -> causes newline in root array items
+    // .enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR) -> all lines have extra indent
+    ObjectMapper mapper =
+        new ObjectMapper(
+            YAMLFactory.builder()
+                .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
+                .build());
+
+    try (OutputStream outputStream = ctx.outputStream()) {
+      mapper.writeValue(outputStream, ShaclSelector.getAllFiltered());
+    }
   }
 
   private static void rdfForDatabase(Context ctx, RDFFormat format) throws IOException {
@@ -110,7 +151,7 @@ public class RDFApi {
     }
   }
 
-  private static void schemaPath(Context ctx, RDFFormat format)
+  private static void schemaGet(Context ctx, RDFFormat format)
       throws IOException, NoSuchMethodException {
     if (ctx.queryParam("validate") != null) {
       shaclForSchema(ctx, format);
@@ -257,5 +298,11 @@ public class RDFApi {
     }
     // Default to TURTLE
     return RDFFormat.TURTLE;
+  }
+
+  private static void setYamlFormat(Context ctx) {
+    // application/yaml does not show output in browser but downloads instead, so uses suffix:
+    // https://www.iana.org/assignments/media-type-structured-suffix/media-type-structured-suffix.xhtml
+    ctx.contentType("text/plain+yaml");
   }
 }

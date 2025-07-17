@@ -1,9 +1,11 @@
 package org.molgenis.emx2.rdf.shacl;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Objects;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ShaclSet(
     String name, String description, String version, String[] sources, String[] files) {
   // YAML stores path based on sets.yaml location while this variable contains any path adjustments

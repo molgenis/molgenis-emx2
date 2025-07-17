@@ -73,6 +73,8 @@ subprojects {
         testImplementation 'org.mockito:mockito-core:5.6.0'
         // allows to set environment variables in test
         testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
+        // Allow generic test fixtures to be available everywhere
+        testImplementation testFixtures(project(':backend:molgenis-emx2'))
 
         // test fixture dependencies
         testFixturesImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
