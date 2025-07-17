@@ -109,6 +109,7 @@ public class RDFApi {
                 .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
                 .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
                 .build());
+    
     try (OutputStream outputStream = ctx.outputStream()) {
       mapper.writeValue(outputStream, ShaclSelector.getAllFiltered());
     }
