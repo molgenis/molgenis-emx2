@@ -54,7 +54,10 @@ const sections = computed(() =>
       </h3>
 
       <div class="flex items-center gap-4">
-        <div class="flex items-center gap-2" v-if="props.canEdit">
+        <div
+          class="flex items-center gap-2 text-button-text"
+          v-if="props.canEdit"
+        >
           <Button
             :icon-only="true"
             icon="trash"
@@ -78,7 +81,7 @@ const sections = computed(() =>
             @click.stop="$emit('edit', refData)"
           ></Button>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 text-button-text">
           <Button
             :icon-only="true"
             :icon="expanded ? 'caret-up' : 'caret-down'"
