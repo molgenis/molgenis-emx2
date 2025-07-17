@@ -132,6 +132,10 @@ export interface IInputProps {
 export interface ISession {
   email: string;
   admin: boolean;
+  roles?: string[];
+  schemas?: string[];
+  token?: string;
+  settings?: any[];
 }
 
 export interface RefPayload {
