@@ -48,7 +48,6 @@ async function reloadItems() {
       },
     },
   });
-  console.log("Fetched items:", resp.rows);
   modelValue.value = resp.rows;
 }
 
@@ -74,7 +73,6 @@ const showAddModal = ref(false);
 const crudRow = ref<Record<string, columnValue> | null>(null);
 
 async function removeRefBackItem(rowIndex: number) {
-  console.log("Removing row at index:", rowIndex);
   if (modelValue.value && modelValue.value[rowIndex]) {
     const rowKey = await fetchRowPrimaryKey(
       modelValue.value[rowIndex],
@@ -126,7 +124,6 @@ async function editRefBackItem(rowIndex: number) {
 }
 
 function afterRowEdited(row: columnValueObject) {
-  console.log("Row edited:", row);
   showEditModal.value = false;
   crudRow.value = null;
 }
