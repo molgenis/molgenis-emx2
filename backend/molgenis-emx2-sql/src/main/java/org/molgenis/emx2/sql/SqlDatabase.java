@@ -621,10 +621,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public void runAsUser(String user, Transaction transaction) {
     String currentUser = getActiveUser();
     try {
-      setActiveUser(user);
+      this.setActiveUser(user);
       transaction.run(this);
     } finally {
-      setActiveUser(currentUser);
+      this.setActiveUser(currentUser);
     }
   }
 

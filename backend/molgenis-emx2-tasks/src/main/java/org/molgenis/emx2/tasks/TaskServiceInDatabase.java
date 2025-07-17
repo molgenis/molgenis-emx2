@@ -179,84 +179,92 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
 
   private void init() {
     this.database.runAsAdmin(
-        db -> {
-          Schema schema = null;
-          if (!db.hasSchema(this.systemSchemaName)) {
-            schema = db.createSchema(this.systemSchemaName);
-          } else {
-            schema = db.getSchema(this.systemSchemaName);
-          }
+        adminDb -> {
+          adminDb.tx(
+              db -> {
+                Schema schema = null;
+                if (!db.hasSchema(this.systemSchemaName)) {
+                  schema = db.createSchema(this.systemSchemaName);
+                } else {
+                  schema = db.getSchema(this.systemSchemaName);
+                }
 
-          if (schema.getTableNames().contains("Scripts")) {
-            TableMetadata scriptsMetadata = schema.getTable("Scripts").getMetadata();
-            if (!scriptsMetadata.getColumnNames().contains("failureAddress")) {
-              scriptsMetadata.add(
-                  column("failureAddress")
-                      .setType(ColumnType.EMAIL)
-                      .setDescription("Email address to be notified when a job fails"));
-            }
-          } else {
-            Table scripTypes =
-                schema.create(table("ScriptTypes").setTableType(TableType.ONTOLOGIES));
-            Table jobStatus = schema.create(table("JobStatus").setTableType(TableType.ONTOLOGIES));
-            Table scripts =
-                schema.create(
-                    table(
-                        "Scripts",
-                        column("name").setPkey(),
-                        column("type")
-                            .setType(ColumnType.ONTOLOGY)
-                            .setRefTable("ScriptTypes")
-                            .setDefaultValue("python"),
-                        column("script").setType(ColumnType.TEXT),
-                        column("dependencies")
-                            .setType(ColumnType.TEXT)
-                            .setDescription(
-                                "For python, this should match requirements format for 'pip install -r requirements.txt'"),
-                        column("outputFileExtension")
-                            .setDescription("Extension, without the '.'. E.g. 'txt' or 'json'"),
-                        column("disabled")
-                            .setType(ColumnType.BOOL)
-                            .setDescription(
-                                "Set true to disable the script, it will then not be executable"),
+                if (schema.getTableNames().contains("Scripts")) {
+                  TableMetadata scriptsMetadata = schema.getTable("Scripts").getMetadata();
+                  if (!scriptsMetadata.getColumnNames().contains("failureAddress")) {
+                    scriptsMetadata.add(
                         column("failureAddress")
                             .setType(ColumnType.EMAIL)
-                            .setDescription("Email address to be notified when a job fails"),
-                        column("cron")
-                            .setDescription(
-                                "If you want to run this script regularly you can add a cron expression. Cron expression. A cron expression is a string comprised of 6 or 7 fields separated by white space. These fields are: Seconds, Minutes, Hours, Day of month, Month, Day of week, and optionally Year. Use * for any and ? for ignore.Note you cannot set 'day of week' and 'day of month' at same time (use ? for one of them). An example input is 0 0 12 * * ? for a job that fires at noon every day. See http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/tutorial-lesson-06.html")));
-            Table jobs =
-                schema.create(
-                    table(
-                        "Jobs",
-                        column("id").setPkey(),
-                        column("status").setType(ColumnType.ONTOLOGY).setRefTable("JobStatus"),
-                        column("type").setDescription("Type of the task, typically its class"),
-                        column("description")
-                            .setType(ColumnType.TEXT)
-                            .setDescription("As provided by the task"),
-                        column("parameters")
-                            .setType(ColumnType.TEXT)
-                            .setDescription("As provided by user who started the script"),
-                        column("script").setDescription("Contents of the script that was run"),
-                        column("submitUser").setDescription("User that submitted the job"),
-                        column("submitDate").setType(ColumnType.DATETIME),
-                        column("startDate")
-                            .setType(ColumnType.DATETIME)
-                            .setDescription("When the job moved from submitted to running"),
-                        column("duration")
-                            .setType(ColumnType.INT)
-                            .setDescription("Duration in milliseconds"),
-                        column("log")
-                            .setType(ColumnType.TEXT)
-                            .setDescription("Log of task execution in JSON format"),
-                        column("output")
-                            .setType(ColumnType.FILE)
-                            .setDescription(
-                                "output of the script, if output extension != null and based on OUTPUT_FILE environment variable")));
-            // import defaults
-            String demoScript =
-                """
+                            .setDescription("Email address to be notified when a job fails"));
+                  }
+                } else {
+                  Table scripTypes =
+                      schema.create(table("ScriptTypes").setTableType(TableType.ONTOLOGIES));
+                  Table jobStatus =
+                      schema.create(table("JobStatus").setTableType(TableType.ONTOLOGIES));
+                  Table scripts =
+                      schema.create(
+                          table(
+                              "Scripts",
+                              column("name").setPkey(),
+                              column("type")
+                                  .setType(ColumnType.ONTOLOGY)
+                                  .setRefTable("ScriptTypes")
+                                  .setDefaultValue("python"),
+                              column("script").setType(ColumnType.TEXT),
+                              column("dependencies")
+                                  .setType(ColumnType.TEXT)
+                                  .setDescription(
+                                      "For python, this should match requirements format for 'pip install -r requirements.txt'"),
+                              column("outputFileExtension")
+                                  .setDescription(
+                                      "Extension, without the '.'. E.g. 'txt' or 'json'"),
+                              column("disabled")
+                                  .setType(ColumnType.BOOL)
+                                  .setDescription(
+                                      "Set true to disable the script, it will then not be executable"),
+                              column("failureAddress")
+                                  .setType(ColumnType.EMAIL)
+                                  .setDescription("Email address to be notified when a job fails"),
+                              column("cron")
+                                  .setDescription(
+                                      "If you want to run this script regularly you can add a cron expression. Cron expression. A cron expression is a string comprised of 6 or 7 fields separated by white space. These fields are: Seconds, Minutes, Hours, Day of month, Month, Day of week, and optionally Year. Use * for any and ? for ignore.Note you cannot set 'day of week' and 'day of month' at same time (use ? for one of them). An example input is 0 0 12 * * ? for a job that fires at noon every day. See http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/tutorial-lesson-06.html")));
+                  Table jobs =
+                      schema.create(
+                          table(
+                              "Jobs",
+                              column("id").setPkey(),
+                              column("status")
+                                  .setType(ColumnType.ONTOLOGY)
+                                  .setRefTable("JobStatus"),
+                              column("type")
+                                  .setDescription("Type of the task, typically its class"),
+                              column("description")
+                                  .setType(ColumnType.TEXT)
+                                  .setDescription("As provided by the task"),
+                              column("parameters")
+                                  .setType(ColumnType.TEXT)
+                                  .setDescription("As provided by user who started the script"),
+                              column("script")
+                                  .setDescription("Contents of the script that was run"),
+                              column("submitUser").setDescription("User that submitted the job"),
+                              column("submitDate").setType(ColumnType.DATETIME),
+                              column("startDate")
+                                  .setType(ColumnType.DATETIME)
+                                  .setDescription("When the job moved from submitted to running"),
+                              column("duration")
+                                  .setType(ColumnType.INT)
+                                  .setDescription("Duration in milliseconds"),
+                              column("log")
+                                  .setType(ColumnType.TEXT)
+                                  .setDescription("Log of task execution in JSON format"),
+                              column("output")
+                                  .setType(ColumnType.FILE)
+                                  .setDescription(
+                                      "output of the script, if output extension != null and based on OUTPUT_FILE environment variable")));
+                  // import defaults
+                  String demoScript =
+                      """
 import os;
 import numpy as np
 import sys
@@ -272,56 +280,57 @@ f = open(OUTPUT_FILE, "a")
 f.write("Readme")
 f.close()
 """;
-            scripts.insert(
-                row(
-                    "name",
-                    "hello world",
-                    "script",
-                    demoScript,
-                    "dependencies",
-                    "numpy==2.2.4",
-                    "type",
-                    "python",
-                    "outputFileExtension",
-                    "txt"));
-            scripTypes.insert(
-                row("name", "python"), row("name", "bash")); // lowercase by convention
-            jobStatus.insert(
-                Arrays.stream(TaskStatus.values()).map(value -> row("name", value)).toList());
-          } // else, migrations in the future
+                  scripts.insert(
+                      row(
+                          "name",
+                          "hello world",
+                          "script",
+                          demoScript,
+                          "dependencies",
+                          "numpy==2.2.4",
+                          "type",
+                          "python",
+                          "outputFileExtension",
+                          "txt"));
+                  scripTypes.insert(
+                      row("name", "python"), row("name", "bash")); // lowercase by convention
+                  jobStatus.insert(
+                      Arrays.stream(TaskStatus.values()).map(value -> row("name", value)).toList());
+                } // else, migrations in the future
 
-          // check that there are no 'waiting' or 'running' tasks from before server restarted
-          Table jobsTable = schema.getTable("Jobs");
-          List<Row> faultyJobRows =
-              jobsTable
-                  .where(
-                      f(
-                          "status",
-                          or(
-                              f("name", Operator.EQUALS, TaskStatus.WAITING),
-                              f("name", Operator.EQUALS, TaskStatus.RUNNING))))
-                  .retrieveRows()
-                  .stream()
-                  .map(
-                      row -> {
-                        row.set("status", TaskStatus.ERROR);
-                        row.set(
-                            "result",
-                            String.format(
-                                "{'description':'%s failed because of restart'}",
-                                row.getString("description")));
-                        return row;
-                      })
-                  .collect(Collectors.toList());
-          jobsTable.save(faultyJobRows);
+                // check that there are no 'waiting' or 'running' tasks from before server restarted
+                Table jobsTable = schema.getTable("Jobs");
+                List<Row> faultyJobRows =
+                    jobsTable
+                        .where(
+                            f(
+                                "status",
+                                or(
+                                    f("name", Operator.EQUALS, TaskStatus.WAITING),
+                                    f("name", Operator.EQUALS, TaskStatus.RUNNING))))
+                        .retrieveRows()
+                        .stream()
+                        .map(
+                            row -> {
+                              row.set("status", TaskStatus.ERROR);
+                              row.set(
+                                  "result",
+                                  String.format(
+                                      "{'description':'%s failed because of restart'}",
+                                      row.getString("description")));
+                              return row;
+                            })
+                        .collect(Collectors.toList());
+                jobsTable.save(faultyJobRows);
 
-          schema
-              .getMetadata()
-              .setSetting(
-                  "menu",
-                  """
+                schema
+                    .getMetadata()
+                    .setSetting(
+                        "menu",
+                        """
 [{"label":"Tasks","href":"tasks","key":"t1yefr","submenu":[],"role":"Manager"},{"label":"Up/Download","href":"updownload","role":"Editor","key":"eq0fcp","submenu":[]},{"label":"Graphql","href":"graphql-playground","role":"Viewer","key":"bifta5","submenu":[]},{"label":"Settings","href":"settings","role":"Manager","key":"7rh3b8","submenu":[]},{"label":"Help","href":"docs","role":"Viewer","key":"gq6ixb","submenu":[]}]
 """);
+              });
         });
   }
 

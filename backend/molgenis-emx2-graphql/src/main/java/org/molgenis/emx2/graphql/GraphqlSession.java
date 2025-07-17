@@ -112,7 +112,7 @@ public class GraphqlSession {
               if (tableListener != null) {
                 db.addTableListener(tableListener);
               }
-              // TODO db.setBindings(JavaScriptBindings.getBindingsForSession(session));
+              db.setBindings(JavaScriptBindings.getBindingsForSession(this));
               return db;
             });
     logger.info("returned cached database instance for user '{}'", userName);

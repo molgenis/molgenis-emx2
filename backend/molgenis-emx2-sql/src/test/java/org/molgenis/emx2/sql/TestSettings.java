@@ -122,11 +122,9 @@ public class TestSettings {
 
   @Test
   public void testDatabaseSetting() {
-    database.runAsAdmin(
-        db -> {
-          db.setSetting("it-db-setting-key", "it-db-setting-value");
-          assertEquals("it-db-setting-value", db.getSetting("it-db-setting-key"));
-        });
+    database = TestDatabaseFactory.getTestDatabase();
+    database.setSetting("it-db-setting-key", "it-db-setting-value");
+    assertEquals("it-db-setting-value", database.getSetting("it-db-setting-key"));
   }
 
   @Test
