@@ -1,14 +1,14 @@
 <template>
-  <h2>Email component</h2>
-  <p>Using a form with input of type email you can have email validation</p>
-  <FormFields
-    id="email-form"
-    schemaId="type test"
-    v-model="model"
-    :metadata="metadata"
-    v-model:errors="errorMap"
-    :sections="sections"
-  />
+  <div id="fields-container" class="col-span-3 py-50px overflow-y-auto">
+    <FormFields
+      id="email-form"
+      schemaId="type test"
+      v-model="model"
+      :metadata="metadata"
+      v-model:errors="errorMap"
+      :sections="sections"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">

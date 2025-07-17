@@ -1,16 +1,14 @@
 <template>
-  <p>
-    The <code>Hyperlink Component</code> enables you to use the String component
-    with the added validation of the input being a hyperlink.
-  </p>
-  <FormFields
-    id="form-hyperlink"
-    schemaId="type test"
-    :metadata="metadata"
-    v-model="model"
-    v-model:errors="errorMap"
-    :sections="sections"
-  />
+  <div id="fields-container" class="col-span-3 py-50px overflow-y-auto">
+    <FormFields
+      id="form-hyperlink"
+      schemaId="type test"
+      :metadata="metadata"
+      v-model="model"
+      v-model:errors="errorMap"
+      :sections="sections"
+    />
+  </div>
 </template>
 <script setup lang="ts">
 import { useSections } from "#imports";
