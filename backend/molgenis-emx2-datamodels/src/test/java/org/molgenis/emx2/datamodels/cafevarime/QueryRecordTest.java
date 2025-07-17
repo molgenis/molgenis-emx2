@@ -1,10 +1,12 @@
 package org.molgenis.emx2.datamodels.cafevarime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.cafevariome.QueryRecord;
+import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
 import org.molgenis.emx2.cafevariome.response.RecordResponse;
 import org.molgenis.emx2.datamodels.TestLoaders;
 
@@ -43,5 +45,44 @@ public class QueryRecordTest extends TestLoaders {
         """;
     RecordResponse response = QueryRecord.post(patientRegistry, request);
     assertEquals(response.recordCount(), 1);
+  }
+
+  @Test
+  void testNoFilters() throws JsonProcessingException {
+    String request =
+        """
+        {
+          "advanced": {
+            "granularity": "count",
+            "requiredFilters": {
+              "subject": false,
+              "hpo": false,
+              "ordo": false,
+              "genes": false,
+              "snomed": false,
+              "variant": false,
+              "source": false,
+              "eav": false,
+              "subjectCapability": {
+                "age": false,
+                "gender": false,
+                "familyType": false,
+                "affected": false
+              }
+            }
+          }
+        }
+        """;
+    RecordResponse response = QueryRecord.post(patientRegistry, request);
+    assertEquals(response.recordCount(), 23);
+  }
+
+  @Test
+  void testRecordIndex() {
+    RecordIndexResponse indexResponse = QueryRecord.getRecordIndex(database, patientRegistry);
+    assertEquals(23, indexResponse.recordCount());
+    assertTrue(indexResponse.capability().subject());
+    assertTrue(indexResponse.capability().eav());
+    assertTrue(indexResponse.eavIndex().attributes().containsKey("date of birth"));
   }
 }
