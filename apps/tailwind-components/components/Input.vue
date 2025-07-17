@@ -272,6 +272,23 @@ import type {
   columnValueObject,
 } from "../../metadata-utils/src/types";
 import { computed } from "vue";
+import InputString from "./input/String.vue";
+import InputArray from "./input/Array.vue";
+import InputDecimal from "./input/Decimal.vue";
+import InputInt from "./input/Int.vue";
+import InputLong from "./input/Long.vue";
+import InputBoolean from "./input/Boolean.vue";
+import InputTextArea from "./input/TextArea.vue";
+import InputRadioGroup from "./input/RadioGroup.vue";
+import InputCheckboxGroup from "./input/CheckboxGroup.vue";
+import InputRef from "./input/Ref.vue";
+import InputRefBack from "./input/RefBack.vue";
+import InputOntology from "./input/Ontology.vue";
+import InputFile from "./input/File.vue";
+import InputDate from "./input/Date.vue";
+import InputDateTime from "./input/DateTime.vue";
+import InputPlaceHolder from "./input/PlaceHolder.vue";
+
 const modelValue = defineModel<columnValue | columnValue[]>();
 const props = defineProps<
   IInputProps & {
