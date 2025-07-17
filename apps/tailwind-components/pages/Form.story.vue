@@ -190,7 +190,7 @@ function scrollToElementInside(containerId: string, elementId: string) {
         />
       </div>
     </div>
-    <!-- <div class="ml-2 h-screen">
+    <div class="ml-2 h-screen">
       <h2>Demo controls, settings and status</h2>
 
       <div class="p-4 border-2 mb-2 flex flex-col gap-4">
@@ -268,6 +268,6 @@ function scrollToElementInside(containerId: string, elementId: string) {
           </div>
         </div>
       </div>
-    </div> -->
+    </div>
   </div>
 </template>
