@@ -1,4 +1,4 @@
-import type { Section } from "~/types/types";
+import type { Section } from "../types/types";
 import type { IRow, ITableMetaData } from "../../metadata-utils/src/types";
 
 export function rowToSections(
