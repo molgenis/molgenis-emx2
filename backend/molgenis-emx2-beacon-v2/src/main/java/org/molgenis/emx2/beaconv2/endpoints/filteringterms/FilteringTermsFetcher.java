@@ -2,13 +2,12 @@ package org.molgenis.emx2.beaconv2.endpoints.filteringterms;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.beaconv2.EntryType;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class FilteringTermsResponse {
+public class FilteringTermsFetcher {
 
   @JsonIgnore
   public static final List<String> BEACON_TABLES =
@@ -16,14 +15,12 @@ public class FilteringTermsResponse {
           EntryType.ANALYSES.getId(),
           EntryType.BIOSAMPLES.getId(),
           EntryType.COHORTS.getId(),
-          EntryType.DATASETS.getId(),
+          // EntryType.DATASETS.getId(),
           EntryType.GENOMIC_VARIANT.getId(),
           EntryType.INDIVIDUALS.getId(),
           EntryType.RUNS.getId());
 
   @JsonIgnore private final Database database;
-
-  @JsonInclude private FilteringTerm[] filteringTerms;
 
   /**
    * From a database, get all schemas and add filtering terms to filteringTerms queried from all
@@ -31,12 +28,14 @@ public class FilteringTermsResponse {
    *
    * @param database
    */
-  public FilteringTermsResponse(Database database) {
+  public FilteringTermsFetcher(Database database) {
     this.database = database;
-    this.filteringTerms =
-        this.database.getSchemaNames().stream()
-            .flatMap(schema -> getFilteringTermsFromTables(BEACON_TABLES, schema).stream())
-            .toArray(FilteringTerm[]::new);
+  }
+
+  public FilteringTerm[] getAllFilteringTerms() {
+    return this.database.getSchemaNames().stream()
+        .flatMap(schema -> getFilteringTermsFromTables(BEACON_TABLES, schema).stream())
+        .toArray(FilteringTerm[]::new);
   }
 
   /**

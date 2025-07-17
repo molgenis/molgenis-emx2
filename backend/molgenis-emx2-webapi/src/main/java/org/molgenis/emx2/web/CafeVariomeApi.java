@@ -22,13 +22,7 @@ import java.util.*;
 import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.beaconv2.EntryType;
-import org.molgenis.emx2.beaconv2.endpoints.filteringterms.FilteringTerm;
-import org.molgenis.emx2.beaconv2.endpoints.filteringterms.FilteringTermsResponse;
-import org.molgenis.emx2.cafevariome.CafeVariomeQuery;
 import org.molgenis.emx2.cafevariome.QueryRecord;
-import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
-import org.molgenis.emx2.cafevariome.response.RecordResponse;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,41 +105,8 @@ public class CafeVariomeApi {
 
   private static void getRecordIndex(Context ctx) {
     Schema schema = getSchema(ctx);
-
     Database database = sessionManager.getSession(ctx.req()).getDatabase();
 
-    Map<String, String> attributes = new HashMap<>();
-    Map<String, String> values = new HashMap<>();
-    Map<String, List<String>> mappings = new HashMap<>();
-
-    Set<FilteringTerm> filteringTermsSet =
-        new FilteringTermsResponse(database)
-            .getFilteringTermsFromTables(
-                List.of(EntryType.INDIVIDUALS.getName()), schema.getName());
-
-    for (FilteringTerm filteringTerm : filteringTermsSet) {
-      if (filteringTerm.getType().equals("ontology")) {
-        String filteringTermName = filteringTerm.getColumn().getName();
-        attributes.put(filteringTermName, filteringTermName);
-        values.put(filteringTerm.getId(), filteringTerm.getLabel());
-        if (mappings.containsKey(filteringTermName)) {
-          List<String> terms = mappings.get(filteringTermName);
-          terms.add(filteringTerm.getId());
-        } else {
-          List<String> terms = new ArrayList<>();
-          terms.add(filteringTerm.getId());
-          mappings.put(filteringTermName, terms);
-        }
-      } else if (filteringTerm.getType().equals("alphanumeric")) {
-        attributes.put(filteringTerm.getId(), filteringTerm.getId());
-      }
-    }
-
-    RecordResponse records = QueryRecord.post(schema, new CafeVariomeQuery());
-    RecordIndexResponse response =
-        new RecordIndexResponse(
-            records.recordCount(), new RecordIndexResponse.EavIndex(attributes, values, mappings));
-
-    ctx.json(response);
+    ctx.json(QueryRecord.getRecordIndex(database, schema));
   }
 }
