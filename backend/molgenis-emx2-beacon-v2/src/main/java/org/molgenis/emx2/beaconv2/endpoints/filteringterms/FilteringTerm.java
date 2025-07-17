@@ -15,11 +15,11 @@ public class FilteringTerm {
   @JsonIgnore private Column column;
 
   public FilteringTerm(Column column, String type, String id, String label, String scope) {
-    this.column = column;
-    this.type = type;
-    this.id = id;
-    this.label = label;
-    this.scope = Character.toLowerCase(scope.charAt(0)) + scope.substring(1);
+    setColumn(column);
+    setType(type);
+    setId(id);
+    setLabel(label);
+    setScope(Character.toLowerCase(scope.charAt(0)) + scope.substring(1));
   }
 
   public FilteringTerm(String type, String id, String scope) {
