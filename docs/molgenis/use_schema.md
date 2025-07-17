@@ -420,9 +420,10 @@ Will respectively
 
 ## Changelog
 
-Data changes made by a user can be tracked via a changelog. When enabled, all (data) changes made by a user are stored in a changelog table. The changelog can
-only be enabled or disabled for the entire schema. Admin or Manager users can view changes made by going to `[server]/[schema]/settings/#/changelog` ( Settings
-app -> select the 'Changelog' tab).
+You can track user-made data changes by enabling the changelog. When it’s turned on, the system logs all user edits in a dedicated changelog table. The changelog applies to the entire schema and can only be enabled or disabled at the schema level.
 
-The changelog can be enabled after schema creation via adding a setting with key `isChangelogEnabled`, and setting the value to `true`. Disabling the changelog
-is done the setting the value to `false` or removing the setting
+Admins and Managers can view the changelog by visiting:
+[server]/[schema]/settings/#/changelog
+(Open the Settings app and click the Changelog tab.)
+
+To enable the changelog after creating a schema, add a setting with the key ```isChangelogEnabled``` and set it to ```true```. To disable it, change the value to ```false``` or remove the setting.
