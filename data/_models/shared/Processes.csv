@@ -2,7 +2,7 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Processes,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C29862,"An event (e.g., a sequencing run, a clinical observation) that belongs to an individual","Patient registry, FAIR Genomes"
 Processes,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C29862,"An event (e.g., a sequencing run, a clinical observation) that belongs to an individual","Patient registry, FAIR Genomes"
 Processes,,id,auto_id,1,TRUE,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing","Patient registry, FAIR Genomes"
-Processes,,individuals,ref_array,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C164337,A reference to one or more individuals associated to the process,"Patient registry, FAIR Genomes"
+Processes,,individual,ref,,,,Individuals,,,,http://purl.obolibrary.org/obo/NCIT_C164337,A reference to one or more individuals associated to the process,"Patient registry, FAIR Genomes"
 Processes,,alternate ids,string_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,Additional identifiers that identify a process,"Patient registry, FAIR Genomes"
 Processes,,affiliated organisations,ref_array,,,CatalogueOntologies,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,One or more associations between the individual and an organisation.,"Patient registry, FAIR Genomes"
 Processes,,affiliated organisations,ref_array,,,CatalogueOntologies,Organisations,,,,http://purl.obolibrary.org/obo/NCIT_C25412,One or more associations between the individual and an organisation.,"Patient registry, FAIR Genomes"

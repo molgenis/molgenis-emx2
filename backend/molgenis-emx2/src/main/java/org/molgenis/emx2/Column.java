@@ -197,17 +197,21 @@ public class Column extends HasLabelsDescriptionsAndSettings<Column> implements 
       }
     }
 
+    TableMetadata result = null;
     if (this.refTable != null && getTable() != null) {
       // self relation (same name, same schema), prevent endless loop
       if ((schema == null || getSchema().getName().equals(schema.getName()))
           && this.refTable.equals(getTable().getTableName())) {
-        return getTable(); // this table
+        result = getTable(); // this table
       }
 
       // other relation
       else if (schema != null) {
-        return schema.getTableMetadata(this.refTable);
+        result = schema.getTableMetadata(this.refTable);
       }
+    }
+    if (result != null) {
+      return result;
     }
     throw new MolgenisException(
         "refTable " + this.refTable + " could not be found for column " + this.getQualifiedName());
