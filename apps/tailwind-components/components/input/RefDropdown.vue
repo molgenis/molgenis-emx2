@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 
-import { InputSearch, InputLabel, InputCheckboxIcon, InputRadioIcon, Button } from "#components";
-import InputDropdownToggle from "./Dropdown/Toggle.vue";
-import InputDropdownContainer from "./Dropdown/Container.vue";
-import InputDropdownToolbar from "./Dropdown/Toolbar.vue";
+import { InputSearch, Button } from "#components";
+import InputDropdownOption from "./dropdown/InputOption.vue";
+import InputDropdownToggle from "./dropdown/Toggle.vue";
+import InputDropdownContainer from "./dropdown/Container.vue";
+import InputDropdownToolbar from "./dropdown/Toolbar.vue";
 
 import { type IInputProps } from "../../types/types";
 import type { IInputValueLabel } from "../../../metadata-utils/src/types";
@@ -84,8 +85,12 @@ function optionIsChecked (option: IInputValueLabel) {
     </InputDropdownContainer>
     <fieldset :id="`${id}-ref-dropdown-options`">
       <label></label>
+      <!-- need to implement :checked on input option component -->
       <div v-for="option in options">
-        
+        <InputDropdownOption 
+          :id="(option.value as string)"
+          :option="(option as IInputValueLabel)"
+        />
       </div>
     </fieldset>
   </div>

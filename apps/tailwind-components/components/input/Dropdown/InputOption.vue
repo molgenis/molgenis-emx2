@@ -8,6 +8,7 @@ const props = withDefaults(
   defineProps<
     IInputProps & {
       option: IInputValueLabel;
+      checked?: boolean;
       multiselect?: boolean;
     }
   >(),
@@ -21,7 +22,7 @@ const isExpanded = ref<boolean>(false);
 const value = defineModel<IInputValueLabel>();
 
 const optionElemId = computed<string>(() => {
-  return (props.option.value as string).replace(/\\s+/g, "").toLowerCase();
+  return props.id.replace(/\\s+/g, "").toLowerCase();
 });
 </script>
 
@@ -35,18 +36,18 @@ const optionElemId = computed<string>(() => {
         'text-title-contrast cursor-pointer ': !disabled,
       }"
     >
-      <!-- need to implement :checked on input and icon elements -->
       <input
         :id="`${id}-ref-dropdown-option-${optionElemId}-input`"
         :type="multiselect ? 'checkbox' : 'radio'"
         :name="`${id}-ref-dropdown`"
         v-model="value"
         :disabled="disabled"
+        :checked="checked"
         class="ml-4 mt-2 sr-only"
       />
 
-      <InputCheckboxIcon v-if="multiselect" />
-      <InputRadioIcon v-else />
+      <InputCheckboxIcon v-if="multiselect" :checked="checked" />
+      <InputRadioIcon v-else :checked="checked" />
 
       <span class="block">
         {{ option.label || option.value }}
