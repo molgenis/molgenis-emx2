@@ -105,7 +105,10 @@ public class RDFApi {
     try (OutputStream outputStream = ctx.outputStream()) {
       ObjectMapper mapper =
           new ObjectMapper(
-              YAMLFactory.builder().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER).build());
+              YAMLFactory.builder()
+                  .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                  .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
+                  .build());
       mapper.writeValue(outputStream, ShaclSelector.getAllFiltered());
     }
   }
