@@ -30,7 +30,7 @@ export const useSession = async () => {
     loadSession();
   }
 
-  const isAdmin = computed(() => session.value?.email === "admin");
+  const isAdmin = computed(() => session.value?.admin || false);
 
   return { isAdmin, session, reload };
 };
