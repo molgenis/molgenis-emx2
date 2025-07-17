@@ -6,6 +6,8 @@ dependencies {
     implementation project(':backend:molgenis-emx2-datamodels')
     implementation project(':backend:molgenis-emx2-rdf')
     implementation project(':backend:molgenis-emx2-beacon-v2')
+    implementation project(':backend:molgenis-emx2-cafevariome')
+    implementation project(':backend:molgenis-emx2-fairdatapoint')
     implementation project(':backend:molgenis-emx2-tasks')
     implementation project(':backend:molgenis-emx2-email')
     implementation project(':backend:molgenis-emx2-analytics')

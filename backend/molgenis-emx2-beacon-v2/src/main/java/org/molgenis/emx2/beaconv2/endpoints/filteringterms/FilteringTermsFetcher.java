@@ -2,26 +2,25 @@ package org.molgenis.emx2.beaconv2.endpoints.filteringterms;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.beaconv2.EntryType;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class FilteringTermsResponse {
+public class FilteringTermsFetcher {
 
   @JsonIgnore
   public static final List<String> BEACON_TABLES =
       Arrays.asList(
-          "Analyses",
-          "Biosamples",
-          "Cohorts",
-          "Dataset",
-          "GenomicVariations",
-          "Individuals",
-          "Runs");
+          EntryType.ANALYSES.getId(),
+          EntryType.BIOSAMPLES.getId(),
+          EntryType.COHORTS.getId(),
+          // EntryType.DATASETS.getId(),
+          EntryType.GENOMIC_VARIANT.getId(),
+          EntryType.INDIVIDUALS.getId(),
+          EntryType.RUNS.getId());
 
-  @JsonInclude(JsonInclude.Include.ALWAYS)
-  private FilteringTerm[] filteringTerms;
+  @JsonIgnore private final Database database;
 
   /**
    * From a database, get all schemas and add filtering terms to filteringTerms queried from all
@@ -29,51 +28,44 @@ public class FilteringTermsResponse {
    *
    * @param database
    */
-  public FilteringTermsResponse(Database database) {
-    this.filteringTerms = new FilteringTerm[] {};
-    Set<FilteringTerm> filteringTermsSet = new HashSet<>();
-    for (String schemaName : database.getSchemaNames()) {
-      getFilteringTermsFromTables(database, BEACON_TABLES, filteringTermsSet, schemaName);
-    }
-    this.filteringTerms = filteringTermsSet.toArray(new FilteringTerm[0]);
+  public FilteringTermsFetcher(Database database) {
+    this.database = database;
+  }
+
+  public FilteringTerm[] getAllFilteringTerms() {
+    return this.database.getSchemaNames().stream()
+        .flatMap(schema -> getFilteringTermsFromTables(BEACON_TABLES, schema).stream())
+        .toArray(FilteringTerm[]::new);
   }
 
   /**
    * Loop over all tables in a schema and query each for filtering terms
    *
-   * @param database
    * @param tableNames
-   * @param filteringTermsSet
    * @param schemaName
    */
-  private void getFilteringTermsFromTables(
-      Database database,
-      List<String> tableNames,
-      Set<FilteringTerm> filteringTermsSet,
-      String schemaName) {
+  public Set<FilteringTerm> getFilteringTermsFromTables(
+      List<String> tableNames, String schemaName) {
+    Set<FilteringTerm> filteringTerms = new HashSet<>();
     for (String tableToQuery : tableNames) {
       Collection<String> tableNamesInSchema = database.getSchema(schemaName).getTableNames();
-      getFilteringTermsFromOneTable(
-          database, filteringTermsSet, schemaName, tableToQuery, tableNamesInSchema);
+      filteringTerms.addAll(
+          getFilteringTermsFromOneTable(schemaName, tableToQuery, tableNamesInSchema));
     }
+    return filteringTerms;
   }
 
   /**
    * Check of a table is present in schema, add non-referencing terms immediately, launch native SQL
    * query for others and loop over rows
    *
-   * @param database
-   * @param filteringTermsSet
    * @param schemaName
    * @param tableToQuery
    * @param tableNamesInSchema
    */
-  private void getFilteringTermsFromOneTable(
-      Database database,
-      Set<FilteringTerm> filteringTermsSet,
-      String schemaName,
-      String tableToQuery,
-      Collection<String> tableNamesInSchema) {
+  public Set<FilteringTerm> getFilteringTermsFromOneTable(
+      String schemaName, String tableToQuery, Collection<String> tableNamesInSchema) {
+    Set<FilteringTerm> filteringTerms = new HashSet<>();
     if (tableNamesInSchema.contains(tableToQuery)) {
       TableMetadata metadata = database.getSchema(schemaName).getTable(tableToQuery).getMetadata();
       // todo: now extended columns are ignored because make the query super complicated
@@ -81,7 +73,7 @@ public class FilteringTermsResponse {
         if (column.getColumnType().isAtomicType() && !column.getIdentifier().startsWith("mg_")) {
           FilteringTerm filteringTerm =
               new FilteringTerm("alphanumeric", column.getName(), tableToQuery);
-          filteringTermsSet.add(filteringTerm);
+          filteringTerms.add(filteringTerm);
         } else if (column.isOntology()) {
           String schema = metadata.getSchemaName();
           String refSchema = column.getRefTable().getSchemaName();
@@ -122,8 +114,12 @@ public class FilteringTermsResponse {
             code = code == null || code.isBlank() ? "NULL" : code;
             FilteringTerm filteringTerm =
                 new FilteringTerm(
-                    "ontology", codesystem + ":" + code, row.getString("name"), tableToQuery);
-            filteringTermsSet.add(filteringTerm);
+                    column,
+                    "ontology",
+                    codesystem + ":" + code,
+                    row.getString("name"),
+                    tableToQuery);
+            filteringTerms.add(filteringTerm);
           }
         } else {
           // ignore any non-atomic, non-ontology fields, which are headings, files and regular
@@ -131,14 +127,6 @@ public class FilteringTermsResponse {
         }
       }
     }
-  }
-
-  /**
-   * Getter for filteringTerms
-   *
-   * @return
-   */
-  public FilteringTerm[] getFilteringTerms() {
     return filteringTerms;
   }
 }

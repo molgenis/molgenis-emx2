@@ -1,0 +1,30 @@
+POST http://localhost:8080/patientRegistry/api/cafevariome/record
+Content-Type: application/json
+
+{
+  "subject": {
+    "affectedOnly": false,
+    "ageFirstDiagnosis": {
+      "min": 18,
+      "max": 65
+    },
+    "familyType": {
+      "family": false,
+      "singletons": false,
+      "trios": false
+    },
+    "gender": "female"
+  },
+  "hpo": [
+    {
+      "terms": [
+        "1955"
+      ]
+    }
+  ],
+  "advanced": {
+    "granularity": "count"
+  }
+}
+
+###

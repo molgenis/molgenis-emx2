@@ -32,7 +32,7 @@ public class QueryEntryType {
   private final Granularity granularity;
   private final IncludedResultsetResponses includeStrategy;
 
-  private final ObjectMapper mapper = new ObjectMapper();
+  private static final ObjectMapper mapper = new ObjectMapper();
   private Database database;
   private Schema schema;
 
@@ -217,24 +217,24 @@ public class QueryEntryType {
     return (ArrayNode) entryTypeResult;
   }
 
-  private int doCountQuery(Table table, List<String> filters) {
+  public static int doCountQuery(Table table, List<String> filters) {
     GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getCountQuery();
 
     ExecutionResult result = graphQL.execute(graphQlQuery);
     JsonNode results = mapper.valueToTree(result.getData());
 
-    return results.get(entryType.getId() + "_agg").get("count").intValue();
+    return results.get(table.getIdentifier() + "_agg").get("count").intValue();
   }
 
-  private boolean doExistsQuery(Table table, List<String> filters) {
+  public static boolean doExistsQuery(Table table, List<String> filters) {
     GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getExistsQuery();
 
     ExecutionResult result = graphQL.execute(graphQlQuery);
     JsonNode results = mapper.valueToTree(result.getData());
 
-    return results.get(entryType.getId() + "_agg").get("exists").booleanValue();
+    return results.get(table.getIdentifier() + "_agg").get("exists").booleanValue();
   }
 
   private boolean isAuthorized(List<String> roles) {
