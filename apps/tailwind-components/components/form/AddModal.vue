@@ -113,9 +113,12 @@ const props = withDefaults(
   {}
 );
 
-const emit = defineEmits(["update:added"]);
+const emit = defineEmits(["update:added", "update:cancelled"]);
 
-const visible = ref(false);
+const visible = defineModel("visible", {
+  type: Boolean,
+  default: false,
+});
 
 const saveErrorMessage = ref<string>("");
 
@@ -128,6 +131,7 @@ const isDraft = ref(false);
 
 function onCancel() {
   visible.value = false;
+  emit("update:cancelled");
 }
 
 async function onSaveDraft() {

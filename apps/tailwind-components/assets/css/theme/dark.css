@@ -70,6 +70,7 @@
   --text-color-pagination-button: var(--color-green-500);
   --text-color-pagination-hover: var(--color-green-500);
   --text-color-input: var(--color-white);
+  --text-color-definition-list-term: var(--color-gray-400);
 
   --text-color-button-toggle-active: var(--text-color-button-secondary);
   --text-color-button-toggle-inactive: var(--color-green-200);
