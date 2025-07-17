@@ -102,6 +102,10 @@ public class RDFApi {
 
     // application/yaml does not show output in browser but downloads instead, so uses suffix:
     // https://www.iana.org/assignments/media-type-structured-suffix/media-type-structured-suffix.xhtml
+
+    // Output is not identical to input. Nested arrays do not have extra indent:
+    // .enable(YAMLGenerator.Feature.INDENT_ARRAYS) -> causes newline in root array items
+    // .enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR) -> all lines have extra indent
     try (OutputStream outputStream = ctx.outputStream()) {
       ObjectMapper mapper =
           new ObjectMapper(

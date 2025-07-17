@@ -2,26 +2,26 @@
   description: FAIR Data Point
   version: 1.2
   sources:
-    - https://specs.fairdatapoint.org/fdp-specs-v1.2.html
+  - https://specs.fairdatapoint.org/fdp-specs-v1.2.html
 - name: dcat-ap-v3
   description: DCAT-AP
   version: 3.0.0
   sources:
-    - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
+  - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
 - name: hri-v1
   description: Health RI
   version: 1
   sources:
-    - https://www.health-ri.nl/health-ri-roadmap-plateauplanning
-    - https://github.com/Health-RI/metadata-shacl-validation/blob/master/validator/resources/healthri/config.properties
+  - https://www.health-ri.nl/health-ri-roadmap-plateauplanning
+  - https://github.com/Health-RI/metadata-shacl-validation/blob/master/validator/resources/healthri/config.properties
 - name: hri-v2
   description: Health RI
   version: 2
   sources:
-    - https://github.com/Health-RI/health-ri-metadata/releases/tag/v2.0.0
+  - https://github.com/Health-RI/health-ri-metadata/releases/tag/v2.0.0
 - name: ejp-rd-vp
   description: European Joint Programme - Rare Disease - Virtual Platform
   version: 01-08-2024
   sources:
-    - https://vp-onboarding-doc.readthedocs.io/en/latest/level_1/index.html
-    - https://github.com/ejp-rd-vp/FDP-Reference-Implementation-Configuration/tree/main/shacl
+  - https://vp-onboarding-doc.readthedocs.io/en/latest/level_1/index.html
+  - https://github.com/ejp-rd-vp/FDP-Reference-Implementation-Configuration/tree/main/shacl
