@@ -1,7 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
 Organisations,Agents,,,,,,,,,,"foaf:Agent,org:Organization",Research departments and research groups. Null values will be generated from RoR,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,FAIR Genomes",
 Organisations,,pid,hyperlink,,,,,,,,"dcterms:identifier,org:identifier","External identifier, ideally from ROR: https://ror.org/","DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,FAIR Genomes",
-Organisations,,name,ref,,TRUE,,,,,,"foaf:name,skos:prefLabel","Organisation name, ideally from ROR: https://ror.org/","DataCatalogueFlat,EMA",
+Organisations,,name,ref,,TRUE,CatalogueOntologies,Organisations,,,,"foaf:name,skos:prefLabel","Organisation name, ideally from ROR: https://ror.org/","DataCatalogueFlat,EMA",
 Organisations,,name,text,,TRUE,,,,,,"foaf:name,skos:prefLabel","Organisation name, ideally from ROR: https://ror.org/","CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,FAIR Genomes",
 Organisations,,department,,,,,,,,,,Name of department within the organisation,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,INTEGRATE",
 Organisations,,logo,file,,,,,,,,foaf:logo,Logo of the organisation,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,INTEGRATE,FAIR Genomes",
