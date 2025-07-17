@@ -135,7 +135,6 @@ export interface ISession {
   roles?: string[];
   schemas?: string[];
   token?: string;
-  settings?: any[];
 }
 
 export interface RefPayload {
