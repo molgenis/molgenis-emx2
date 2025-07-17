@@ -1,13 +1,35 @@
 <template>
-  <InputRefBack
-    id="ref-back-story-item"
-    v-model="modelValue"
-    :refSchemaId="refSchemaId"
-    :refTableId="refTableId"
-    :refLabel="refLabel"
-    :refBackColumn="refBackColumn"
-    :canEdit="canEdit"
-  />
+  <div class="flex flex-col gap-8">
+    <div>
+      <h3 class="text-title">Refback where source keys is empty</h3>
+      <InputRefBack
+        id="ref-back-story-item"
+        v-model="modelValue"
+        :refSchemaId="refSchemaId"
+        :refTableId="refTableId"
+        :refLabel="refLabel"
+        :refBackColumn="refBackColumn"
+        :canEdit="canEdit"
+      />
+    </div>
+
+    <div>
+      <h3 class="text-title">Refback where source keys set</h3>
+      <InputRefBack
+        id="ref-back-story-item"
+        v-model="modelValue"
+        :refSchemaId="refSchemaId"
+        :refTableId="refTableId"
+        :refLabel="refLabel"
+        :refBackColumn="refBackColumn"
+        :refBackPrimaryKey="[
+          'ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919',
+          'ORDER:7ztyXho2Qi',
+        ]"
+        :canEdit="canEdit"
+      />
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -18,10 +40,6 @@ const refTableId = "Order";
 const refLabel = "${orderId}";
 const canEdit = true;
 
-const id = "orders";
-const label = "orders";
-const name = "orders";
-const position = 10;
 const refBackColumn = "pet";
 
 const modelValue = defineModel<columnValueObject[]>();
