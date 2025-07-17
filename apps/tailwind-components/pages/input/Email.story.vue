@@ -3,7 +3,7 @@
   <p>Using a form with input of type email you can have email validation</p>
   <FormFields
     id="email-form"
-    schemaId="schema-email"
+    schemaId="type test"
     v-model="model"
     :metadata="metadata"
     v-model:errors="errorMap"
@@ -18,12 +18,12 @@ import type { ColumnType } from "../../../metadata-utils/src/types";
 
 const model = ref({});
 const metadata = ref({
-  id: "email-form",
+  id: "Types",
   label: "Email Form",
   tableType: "FORM",
   columns: [
     {
-      id: "input-email",
+      id: "emailType",
       columnType: "EMAIL" as ColumnType,
       label: "Input an email address",
     },

@@ -5,7 +5,7 @@
   </p>
   <FormFields
     id="form-hyperlink"
-    schemaId="schema-hyperlink"
+    schemaId="type test"
     :metadata="metadata"
     v-model="model"
     v-model:errors="errorMap"
@@ -20,11 +20,11 @@ import type { ColumnType } from "../../../metadata-utils/src/types";
 const model = ref({});
 const metadata = {
   label: "Hyperlink",
-  id: "hyperlink",
+  id: "Types",
   tableType: "my kind of table",
   columns: [
     {
-      id: "input-hyperlink",
+      id: "hyperlinkType",
       columnType: "HYPERLINK" as ColumnType,
       label: "Input a hyperlink",
     },
