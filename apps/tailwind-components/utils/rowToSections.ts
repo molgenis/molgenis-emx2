@@ -1,9 +1,5 @@
-import type {
-  columnValue,
-  IColumn,
-  IRow,
-  ITableMetaData,
-} from "../../metadata-utils/src/types";
+import type { Section } from "~/types/types";
+import type { IRow, ITableMetaData } from "../../metadata-utils/src/types";
 
 export function rowToSections(
   rowData: IRow,
@@ -44,7 +40,7 @@ export function rowToSections(
         acc[acc.length - 1].fields.push(item);
       }
       return acc;
-    }, [] as { heading: string; fields: { key: string; value: columnValue; metadata: IColumn }[] }[])
+    }, [] as Section[])
     .filter((section) => {
       // Filter out empty sections
       return section.fields.length > 0;
