@@ -7,6 +7,7 @@ import type {
 import { computed, ref } from "vue";
 import Button from "../../../components/Button.vue";
 import { rowToSections } from "../../../utils/rowToSections";
+import ContentEMX2Section from "../../../components/content/EMX2Section.vue";
 
 const props = withDefaults(
   defineProps<{
