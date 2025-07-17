@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.*;
 import org.molgenis.emx2.*;
+import org.molgenis.emx2.beaconv2.EntryType;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class FilteringTermsResponse {
@@ -12,18 +13,17 @@ public class FilteringTermsResponse {
   @JsonIgnore
   public static final List<String> BEACON_TABLES =
       Arrays.asList(
-          "Analyses",
-          "Biosamples",
-          "Cohorts",
-          "Dataset",
-          "GenomicVariations",
-          "Individuals",
-          "Runs");
+          EntryType.ANALYSES.getId(),
+          EntryType.BIOSAMPLES.getId(),
+          EntryType.COHORTS.getId(),
+          EntryType.DATASETS.getId(),
+          EntryType.GENOMIC_VARIANT.getId(),
+          EntryType.INDIVIDUALS.getId(),
+          EntryType.RUNS.getId());
 
   @JsonIgnore private final Database database;
 
-  @JsonInclude(JsonInclude.Include.ALWAYS)
-  private FilteringTerm[] filteringTerms;
+  @JsonInclude private FilteringTerm[] filteringTerms;
 
   /**
    * From a database, get all schemas and add filtering terms to filteringTerms queried from all

@@ -62,6 +62,7 @@ public class CafeVariomeApi {
     if (!session.getDatabase().isAnonymous()) {
       return;
     }
+    if (!hasKeycloakConfiguration()) return;
     HttpResponse<String> response;
     try (HttpClient client = HttpClient.newHttpClient()) {
 
@@ -100,14 +101,12 @@ public class CafeVariomeApi {
     logger.info("Sign in for user: {}", user);
   }
 
+  private static boolean hasKeycloakConfiguration() {
+    return CV_CLIENT_SECRET != null && CV_CLIENT_ID != null && CV_INTROSPECT_URI != null;
+  }
+
   private static void postRecord(Context ctx) throws JsonProcessingException {
-    ObjectMapper mapper = new ObjectMapper();
-    CafeVariomeQuery query = mapper.readValue(ctx.body(), CafeVariomeQuery.class);
-
-    Schema schema = getSchema(ctx);
-    Object result = QueryRecord.post(schema, query);
-
-    ctx.json(result);
+    ctx.json(QueryRecord.post(getSchema(ctx), ctx.body()));
   }
 
   private static void getRecordIndex(Context ctx) {
