@@ -100,19 +100,16 @@ public class RDFApi {
       throw new MolgenisException("No permission to view any schema to use SHACLs on");
     }
 
-    // application/yaml does not show output in browser but downloads instead, so uses suffix:
-    // https://www.iana.org/assignments/media-type-structured-suffix/media-type-structured-suffix.xhtml
-
     // Output is not identical to input. Nested arrays do not have extra indent:
     // .enable(YAMLGenerator.Feature.INDENT_ARRAYS) -> causes newline in root array items
     // .enable(YAMLGenerator.Feature.INDENT_ARRAYS_WITH_INDICATOR) -> all lines have extra indent
+    ObjectMapper mapper =
+        new ObjectMapper(
+            YAMLFactory.builder()
+                .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
+                .build());
     try (OutputStream outputStream = ctx.outputStream()) {
-      ObjectMapper mapper =
-          new ObjectMapper(
-              YAMLFactory.builder()
-                  .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
-                  .enable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
-                  .build());
       mapper.writeValue(outputStream, ShaclSelector.getAllFiltered());
     }
   }
@@ -303,6 +300,8 @@ public class RDFApi {
   }
 
   private static void setYamlFormat(Context ctx) {
+    // application/yaml does not show output in browser but downloads instead, so uses suffix:
+    // https://www.iana.org/assignments/media-type-structured-suffix/media-type-structured-suffix.xhtml
     ctx.contentType("text/plain+yaml");
   }
 }
