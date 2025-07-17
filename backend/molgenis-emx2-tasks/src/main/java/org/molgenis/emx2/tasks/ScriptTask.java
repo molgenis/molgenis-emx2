@@ -188,7 +188,7 @@ public class ScriptTask extends Task {
           ZipEntry entry;
           while ((entry = zis.getNextEntry()) != null) {
             File newFile = new File(tempDir.toFile(), entry.getName());
-            if (!newFile.toString().startsWith(tempDir.toFile().getAbsolutePath())) {
+            if (!newFile.getCanonicalPath().startsWith(tempDir.toFile().getAbsolutePath())) {
               throw new MolgenisException(
                   "ZIP archive contains files with illegal path: " + entry.getName());
             }
