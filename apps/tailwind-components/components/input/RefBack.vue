@@ -145,7 +145,6 @@ function afterRowEdited(row: columnValueObject) {
       @click="showAddModal = true"
       >Add{{ props.refTableId }}</Button
     >
-    <Button type="secondary" size="small" @click="reloadItems">reload</Button>
     <ul class="border divide-y divide-gray-200">
       <InputRefListItem
         v-for="(ref, index) in modelValue"
