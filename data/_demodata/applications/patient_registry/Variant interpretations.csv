@@ -1,3 +1,4 @@
-id,date started,date completed,individual,status,variants,allele origin,zygosity,classification,classification summary,inheritance,effect,category
-IVA_A01,2025-03-01,2025-03-04,Case1C,completed,"20:2447951..2447952c>g,20:2447955..2447958c>g",maternal allele origin,homozygous,Likely pathogenic,,chromosomal inheritance,,Disease associated
-IVA_A02,2025-03-01,2025-03-04,Case2C,completed,"20:2447955..2447958c>g",maternal allele origin,homozygous,Likely pathogenic,,undetermined inheritance,,Disease associated
+id,affiliated organisations,date started,date completed,individuals,input samples,status,variants,allele origin,zygosity,classification,inheritance,category,solved,date solved
+VI_A01,University Medical Center Groningen,2025-03-01,2025-03-04,Case1C,SAMEA10450712,completed,20:2447951..2447952c>g,maternal allele origin,homozygous,Pathogenic,chromosomal inheritance,Disease associated,TRUE,2025-03-04
+VI_A02,University Medical Center Groningen,2025-04-01,2025-04-20,Case2C,SAMEA10450714,completed,"20:2447955..2447958c>g,20:2447946..2447950c>g",maternal allele origin,homozygous,Pathogenic,undetermined inheritance,Disease associated,TRUE,2025-04-20
+VI_A03,University Medical Center Groningen,2025-06-01,,Case3C,SAMEA10450723,ongoing,20:2447951..2447952c>g,,,,,,,
