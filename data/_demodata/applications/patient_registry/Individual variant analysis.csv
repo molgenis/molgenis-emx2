@@ -1,3 +1,3 @@
-analysis,individual,variant sets,allele origin,zygosity,classification,classification summary,inheritance,effect,category
-A01,Case1C,GV_Set_01,unknown allele origin,homozygous,Likely pathogenic,,chromosomal inheritance,,Disease associated
-A02,Case2C,GV_Set_01,unknown allele origin,homozygous,Likely pathogenic,,undetermined inheritance,,Disease associated
+id,date started,date completed,individual,status,variants,allele origin,zygosity,classification,classification summary,inheritance,effect,category
+IVA_A01,2025-03-01,2025-03-04,Case1C,completed,"20:2447951..2447952c>g,20:2447955..2447958c>g",maternal allele origin,homozygous,Likely pathogenic,,chromosomal inheritance,,Disease associated
+IVA_A02,2025-03-01,2025-03-04,Case2C,completed,"20:2447955..2447958c>g",maternal allele origin,homozygous,Likely pathogenic,,undetermined inheritance,,Disease associated
