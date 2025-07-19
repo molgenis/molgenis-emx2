@@ -120,6 +120,7 @@ public class MolgenisWebservice {
 
     app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
+    app.get("/{schema}/index", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
     // greedy proxy stuff, always put last!
     StaticFileMapper.create(app);
@@ -178,7 +179,7 @@ public class MolgenisWebservice {
           ctx.redirect(location);
         }
       } else {
-        ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
+        ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables/");
       }
     } catch (Exception e) {
       logger.debug(e.getMessage());
