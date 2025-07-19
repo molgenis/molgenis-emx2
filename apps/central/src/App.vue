@@ -10,26 +10,26 @@
 import { Molgenis } from "molgenis-components";
 import { request, gql } from "graphql-request";
 const defaultMenuItems = [
-  { label: "Databases", href: "/apps/central/", active: true },
+  { label: "Databases", href: "../central/", active: true },
   {
     label: "GraphQL API",
-    href: "/apps/graphql-playground/",
+    href: "../graphql-playground/",
   },
   {
     label: "Components (for developers)",
-    href: "/apps/molgenis-components/",
+    href: "../molgenis-components/",
   },
   {
     label: "New Components (Beta)",
-    href: "/apps/tailwind-components/",
+    href: "../tailwind-components/",
   },
   {
     label: "New UI (Alpha)",
-    href: "/apps/ui/",
+    href: "../ui/",
   },
   {
     label: "Help",
-    href: "/apps/docs/",
+    href: "../docs/",
   },
 ];
 export default {
