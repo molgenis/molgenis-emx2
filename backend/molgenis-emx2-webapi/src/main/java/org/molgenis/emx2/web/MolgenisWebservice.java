@@ -118,6 +118,7 @@ public class MolgenisWebservice {
     AnalyticsApi.create(app);
     PodiumApi.create(app);
 
+    app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/index", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
@@ -178,7 +179,7 @@ public class MolgenisWebservice {
           ctx.redirect(location);
         }
       } else {
-        ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables");
+        ctx.redirect("/" + encodePathSegment(ctx.pathParam(SCHEMA)) + "/tables/");
       }
     } catch (Exception e) {
       logger.debug(e.getMessage());
