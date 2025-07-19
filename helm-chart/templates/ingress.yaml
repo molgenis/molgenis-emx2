@@ -24,7 +24,7 @@ spec:
     - host: {{ index .Values.ingress.hosts 1 | quote }}
       http:
         paths:
-            - path: /[^/]+/(index|tables|central|molgenis-components|schema|updownload|reports|graphql-playground|tailwind-components|ui|docs|graphql|sitemap\.xml)
+            - path: /[^/]+/(index|tables|central|molgenis-components|schema|updownload|reports|graphql-playground|tailwind-components|ui|docs|graphql|sitemap\.xml|theme\.css)
               pathType: ImplementationSpecific
               backend:
                 service:
