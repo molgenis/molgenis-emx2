@@ -10,14 +10,14 @@ const SCHEMA = process.env.MOLGENIS_APPS_SCHEMA || "directory-demo";
 const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
 // https://vitejs.dev/config/
-export default defineConfig(() => ({
-  base: "",
+export default defineConfig(({ command }) => ({
+  base: command === "serve" ? "/" : "apps/directory/",
   build: { sourcemap: true },
   plugins: [
     vue(),
     createHtmlPlugin({
       entry: "src/main.ts",
-      template: "index.html",
+      template: command === "serve" ? "dev-index.html" : "index.html",
     }),
     monacoEditorPlugin({
       languages: ["editorWorkerService", "json"],
