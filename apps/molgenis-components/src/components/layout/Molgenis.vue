@@ -64,40 +64,40 @@ import CookieWall from "./CookieWall.vue";
 import { request, gql } from "graphql-request";
 
 const defaultSchemaMenuItems = [
-  { label: "Tables", href: "../tables/", role: "Viewer" },
+  { label: "Tables", href: "tables", role: "Viewer" },
   {
     label: "Schema",
-    href: "../schema/",
+    href: "schema",
     role: "Viewer",
   },
   {
     label: "Up/Download",
-    href: "../updownload/",
+    href: "updownload",
     role: "Viewer",
   },
   {
     label: "Reports",
-    href: "../reports/",
+    href: "reports",
     role: "Viewer",
   },
   {
     label: "Jobs & Scripts",
-    href: "../tasks/",
+    href: "tasks",
     role: "Manager",
   },
   {
     label: "Graphql",
-    href: "../graphql-playground/",
+    href: "graphql-playground",
     role: "Viewer",
   },
   {
     label: "Settings",
-    href: "../settings/",
+    href: "settings",
     role: "Manager",
   },
   {
     label: "Help",
-    href: "../docs/",
+    href: "docs",
     role: "Viewer",
   },
 ];
@@ -136,7 +136,7 @@ export default {
   computed: {
     schemaUrlsForCrumbs() {
       let result: Record<string, any> = {
-        "list all databases": "../../apps/central/",
+        "list all databases": "/apps/central/",
       };
       //all databases
       if (this.session?.schemas) {
@@ -145,7 +145,7 @@ export default {
             a.localeCompare(b, undefined, { sensitivity: "base" })
           )
           .forEach((schema: string) => {
-            result[schema] = "../../" + schema + "/tables/"; // all paths are of form /:schema/:app
+            result[schema] = "../../" + schema; // all paths are of form /:schema/:app
           });
       }
       return result;
@@ -157,7 +157,7 @@ export default {
           window.location.pathname.replace(location.search, "")
         ).split("/");
         let url = "/";
-        if (!window.location.pathname.endsWith("/apps/central/")) {
+        if (window.location.pathname != "/apps/central/") {
           path.forEach((el) => {
             if (el !== "") {
               url += el + "/";

@@ -76,7 +76,7 @@ if (!cohortOnly.value) {
   });
   menu.push({
     label: "Upload data",
-    link: "/cms/apps/central/#/",
+    link: "/apps/central/#/",
   });
   menu.push({
     label: "Manuals",

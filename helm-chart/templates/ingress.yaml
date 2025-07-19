@@ -24,21 +24,7 @@ spec:
     - host: {{ index .Values.ingress.hosts 1 | quote }}
       http:
         paths:
-            - path: /api/
-              pathType: Prefix
-              backend:
-                service:
-                  name: {{ $fullName }}
-                  port:
-                    number: 8080
-            - path: /apps/
-              pathType: Prefix
-              backend:
-                service:
-                  name: {{$fullName}}
-                  port:
-                    number: 8080
-            - path: /.+/(sitemap\.xml|docs)
+            - path: /.+/(index|tables|central|molgenis-components|schema|updownload|reports|graphql-playground|tailwind-components|ui|docs|graphql|sitemap\.xml)
               pathType: ImplementationSpecific
               backend:
                 service:

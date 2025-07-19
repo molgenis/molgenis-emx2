@@ -25,7 +25,7 @@ const menu = [
       },
   {
     label: "Upload data",
-    link: "/cms/apps/central/#/",
+    link: "/apps/central/#/",
   },
   {
     label: "Manuals",

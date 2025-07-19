@@ -840,7 +840,7 @@ public class WebApiSmokeTests {
         .follow(false)
         .expect()
         .statusCode(302)
-        .header("Location", is("/pet%20store/tables/"))
+        .header("Location", is("/pet%20store/tables"))
         .when()
         .get("/pet store/");
 
