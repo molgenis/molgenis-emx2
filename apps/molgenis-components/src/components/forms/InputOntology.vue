@@ -32,10 +32,10 @@
           class="p-2 fa fa-times"
           style="vertical-align: middle"
           @click.stop="clearSelection"
-          v-if="showExpanded && selectionWithoutChildren.length > 0"
+          v-show="showExpanded && selectionWithoutChildren.length > 0"
         />
         <span :class="{ 'input-group': showExpanded }">
-          <div v-if="showExpanded" class="input-group-prepend">
+          <div v-show="showExpanded" class="input-group-prepend">
             <button
               class="btn border-right-0 border btn-outline-primary"
               type="button"
@@ -61,25 +61,25 @@
             <i
               class="p-2 fa fa-times"
               style="vertical-align: middle"
-              v-if="!showExpanded && selectionWithoutChildren.length > 0"
+              v-show="!showExpanded && selectionWithoutChildren.length > 0"
             ></i>
           </span>
           <i
             class="p-2 fa fa-caret-down"
             style="vertical-align: middle"
-            v-if="!showExpanded"
+            v-show="!showExpanded"
           />
         </span>
       </div>
       <div
         class="w-100 show p-0 overflow-auto"
         :class="{ 'dropdown-menu': !showExpanded }"
-        v-if="focus || showExpanded"
+        v-show="focus || showExpanded"
         v-click-outside="loseFocusWhenClickedOutside"
       >
         <span
           class="pl-4"
-          v-if="
+          v-show="
             search && Object.keys(terms).length > 50 && searchResultCount >= 0
           "
         >
@@ -345,6 +345,8 @@ export default {
         //need explicit 'null' to ensure value is emitted in form
         this.$emit("update:modelValue", selectedTerms[0] || null);
       }
+      //clear search on change selection
+      this.search = null;
     },
     applySelection(value: Record<string, any>) {
       //deselect all

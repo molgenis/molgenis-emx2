@@ -1,53 +1,53 @@
 <template>
   <ul style="list-style-type: none">
-    <li
-      v-for="term in terms
-        .filter((t) => t.visible)
-        .sort((a, b) => a.order - b.order)"
+    <template
+      v-for="term in terms.sort((a, b) => a.order - b.order)"
       :key="term.name + term.selected + term.expanded"
     >
-      <!--show if selected or search-->
-      <span @click.stop="toggleExpand(term)">
-        <i
-          class="fa-fw pl-2 pt-1 ml-3"
-          role="button"
-          :class="getExpandState(term)"
-        />
-      </span>
-      <span @click.stop="toggleSelect(term)">
-        <i
-          v-if="term.selectable"
-          class="fa-fw text-primary pl-2 pt-1"
-          :class="getSelectState(term)"
-          role="button"
-        />
-      </span>
-      <span
-        @click.stop="toggleExpandOrSelect(term)"
-        class="flex-grow-1 pl-2"
-        role="button"
-      >
-        {{ term.label ? term.label : term.name }}
-        <span v-if="term.code">
-          (<span v-if="term.codesystem"> {{ term.codesystem }}: </span>
-          {{ term.code }})
+      <li v-show="term.visible">
+        <!--show if selected or search-->
+        <span @click.stop="toggleExpand(term)">
+          <i
+            class="fa-fw pl-2 pt-1 ml-3"
+            role="button"
+            :class="getExpandState(term)"
+          />
         </span>
-        <small v-if="term.definition" class="text-muted">
-          <i> - {{ term.definition }}</i>
-        </small>
-        <span v-if="term.children && countVisibleChildren(term) > 0">
-          ({{ countVisibleChildren(term) }})
+        <span @click.stop="toggleSelect(term)">
+          <i
+            v-if="term.selectable"
+            class="fa-fw text-primary pl-2 pt-1"
+            :class="getSelectState(term)"
+            role="button"
+          />
         </span>
-      </span>
-      <InputOntologySubtree
-        v-if="term.expanded"
-        :terms="term.children"
-        :isMultiSelect="isMultiSelect"
-        @select="$emit('select', $event)"
-        @deselect="$emit('deselect', $event)"
-        @toggleExpand="$emit('toggleExpand', $event)"
-      />
-    </li>
+        <span
+          @click.stop="toggleExpandOrSelect(term)"
+          class="flex-grow-1 pl-2"
+          role="button"
+        >
+          {{ term.label ? term.label : term.name }}
+          <span v-if="term.code">
+            (<span v-if="term.codesystem"> {{ term.codesystem }}: </span>
+            {{ term.code }})
+          </span>
+          <small v-if="term.definition" class="text-muted">
+            <i> - {{ term.definition }}</i>
+          </small>
+          <span v-if="term.children && countVisibleChildren(term) > 0">
+            ({{ countVisibleChildren(term) }})
+          </span>
+        </span>
+        <InputOntologySubtree
+          v-show="term.expanded"
+          :terms="term.children"
+          :isMultiSelect="isMultiSelect"
+          @select="$emit('select', $event)"
+          @deselect="$emit('deselect', $event)"
+          @toggleExpand="$emit('toggleExpand', $event)"
+        />
+      </li>
+    </template>
   </ul>
 </template>
 
