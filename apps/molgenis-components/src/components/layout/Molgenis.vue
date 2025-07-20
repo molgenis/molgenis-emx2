@@ -145,7 +145,7 @@ export default {
             a.localeCompare(b, undefined, { sensitivity: "base" })
           )
           .forEach((schema: string) => {
-            result[schema] = "../../" + schema; // all paths are of form /:schema/:app
+            result[schema] = "/" + schema + "/index"; // all paths are of form /:schema/:app, index will do routing to default app in schema
           });
       }
       return result;
