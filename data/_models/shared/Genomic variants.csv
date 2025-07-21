@@ -3,8 +3,7 @@ Genomic variants,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17248,Beacon v2 
 Genomic variants,,Variant definition,heading,,,,,,,,,,Patient registry
 Genomic variants,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164813,bc2:variantInternalId",A unique identifier maintained by an authoritative database that represents a genetic variation. E.g. 20:2447955..2447958c>g,Patient registry
 Genomic variants,,alternative ids,string_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,A backup sequence of characters used to identify an entity,Patient registry
-Genomic variants,,variant status,ontology,,,CatalogueOntologies,Status,,,,http://semanticscience.org/resource/SIO_000033,"An characterisation of the variant that indicates the state or progress (e.g., confirmed, to be verified, etc.)",Patient registry
-Genomic variants,,variant type,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000773,E.g. SNP,Patient registry
+Genomic variants,,variant type,ontology,,,CatalogueOntologies,Variant types,,,,http://purl.obolibrary.org/obo/NCIT_C17004,"The regular and simultaneous occurrence of alternative nucleotide sequences at equivalent locations of the genetic material among individuals of a single interbreeding population that are not maintained by recurrent mutation. Polymorphisms may range in size from single nucleotide to large nucleotide sequence variation visible at the chromosomal level. e.g. SNP",Patient registry
 Genomic variants,,genomic HGVS id,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172243,E.g. NC_000017.11:g.43057063G>A,Patient registry
 Genomic variants,,transcript HGVS ids,string_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C172244,E.g. NC_000023.10(NM004006.2):c.357+1G,Patient registry
 Genomic variants,,protein HGVS ids,string_array,,,,,,,,http://ensembl.org/glossary/ENSGLOSSARY_0000274,E.g. NP_009225.1:p.Glu1817Ter,Patient registry
