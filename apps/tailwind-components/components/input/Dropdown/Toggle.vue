@@ -28,7 +28,7 @@ defineExpose({
   <div
     role="combobox"
     :aria-required="required"
-    class="h-input w-full text-left pl-11 border rounded-input"
+    class="h-input w-full text-left pl-11 border rounded-input flex justify-start items-center"
     :class="{
       'bg-input border-invalid text-invalid': invalid && !disabled,
       'bg-input border-valid text-valid': valid && !disabled,
@@ -41,9 +41,9 @@ defineExpose({
         !disabled && !invalid && !valid,
     }"
   >
-    <div>
+    <div class="w-full">
       <!-- show label or inputs -->
-      <slot> </slot>
+      <slot name="ref-dropdown-label"> </slot>
     </div>
     <button
       :id="`${id}-input-toggle`"
@@ -51,9 +51,12 @@ defineExpose({
       :aria-expanded="isExpanded"
       :aria-haspopup="true"
       @click="onClick()"
+      class="mr-4 p-4"
     >
       <BaseIcon :width="18" name="caret-down" class="mx-auto" />
-      <slot name="dropdown-label"></slot>
+      <div class="sr-only">
+        <slot name="ref-dropdown-label"></slot>
+      </div>
     </button>
   </div>
 </template>
