@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,defaultValue,semantics,description,profiles
 Variant interpretations,,,,,,,,,,,,http://purl.obolibrary.org/obo/NGBO_6000125, A genetic variation analysis which assign a formal classification to a detected genetic variant.,Patient registry
-Variant interpretations,,id,auto_id,1,TRUE,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing","Patient registry, FAIR Genomes"
+Variant interpretations,,id,auto_id,1,TRUE,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing","Patient registry"
 Variant interpretations,,interpretation analysis,ref,,,,Variant interpretation analyses,,,,,,,Patient registry
 Variant interpretations,,Variant definition,heading,,,,,,,,,,,Patient registry
 Variant interpretations,,status,ontology,,,CatalogueOntologies,Status,,,,,http://semanticscience.org/resource/SIO_000033,"An characterisation of the variant that indicates the state or progress (e.g., confirmed, to be verified, etc.)",Patient registry
@@ -14,3 +14,10 @@ Variant interpretations,,disease,ontology,,,CatalogueOntologies,Diseases,,,,,htt
 Variant interpretations,,classification,ontology,,,CatalogueOntologies,Variant classifications,,,,,http://purl.obolibrary.org/obo/NGBO_6000303,"A clinical variant interpretation that represents a sequence variant that is previously reported and is a recognized cause of the disorder (e.g., ""Pathogenic"")",Patient registry
 Variant interpretations,,classification summary,text,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C86073,Context or an explanation on how the variant classification was derived,Patient registry
 Variant interpretations,,consensus,refback,,,,Interpretation consensus,,variant interpretation,,,http://purl.obolibrary.org/obo/NCIT_C64197,Agreement as the result of multiple results or opinions on genomic variants,Patient registry
+Interpretation consensus,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C64197,Agreement as the result of multiple results or opinions on genomic variants,Patient registry
+Interpretation consensus,,id,auto_id,1,TRUE,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing","Patient registry"
+Interpretation consensus,,variant interpretation,ref,,,,Variant interpretations,,,,,http://purl.obolibrary.org/obo/NGBO_6000125,"If applicable, a reference to one or more variants involved in the consensus process",Patient registry
+Interpretation consensus,,name of commenter,ref,,,,Contacts,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,The name of the person making the comment,Patient registry
+Interpretation consensus,,classification,ontology,,,CatalogueOntologies,Variation clinical relevance,,,,,http://edamontology.org/operation_3225,"Classification of the clinical relevance of the variant (e.g., ""Pathogenic"")",Patient registry
+Interpretation consensus,,summary,text,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C86073,Context or an explanation on how the variant classification was derived,Patient registry
+Interpretation consensus,,timestamp,datetime,,,,,,,,timestamp === null ? new Date().toISOString() : timestamp,http://purl.obolibrary.org/obo/NCIT_C54086,The date and time a comment was made,Patient registry
