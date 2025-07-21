@@ -1,10 +1,10 @@
 package org.molgenis.emx2.datamodels.cafevarime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.cafevariome.QueryRecord;
 import org.molgenis.emx2.cafevariome.response.RecordIndexResponse;
 import org.molgenis.emx2.cafevariome.response.RecordResponse;
@@ -45,6 +45,85 @@ public class QueryRecordTest extends TestLoaders {
         """;
     RecordResponse response = QueryRecord.post(patientRegistry, request);
     assertEquals(response.recordCount(), 1);
+  }
+
+  @Test
+  void testDiagnosisBool_shouldExist() throws JsonProcessingException {
+    String request =
+        """
+        {
+          "hpo": [
+            {
+              "terms": [
+                "1955"
+              ]
+            }
+          ],
+          "advanced": {
+            "granularity": "boolean"
+          }
+        }
+
+        """;
+    RecordResponse response = QueryRecord.post(patientRegistry, request);
+    assertTrue(response.exist());
+  }
+
+  @Test
+  void testDiagnosisBool_shouldNotExist() throws JsonProcessingException {
+    String request =
+        """
+        {
+          "hpo": [
+            {
+              "terms": [
+                "1956"
+              ]
+            }
+          ],
+          "advanced": {
+            "granularity": "boolean"
+          }
+        }
+
+        """;
+    RecordResponse response = QueryRecord.post(patientRegistry, request);
+    assertFalse(response.exist());
+  }
+
+  @Test
+  void testDetailedList_shouldThrow() {
+    String request =
+        """
+        {
+          "ordo": [
+            {
+              "terms": [
+                "1956"
+              ],
+              "useHPO": true
+            }
+          ],
+          "genes": [
+            {
+              "alleles": [
+                {
+                  "gene": "SNORD1"
+                }
+              ]
+            }
+          ],
+          "variant": {
+            "maxAf": 0.1,
+            "useLocalAf": false
+          },
+          "advanced": {
+            "granularity": "list"
+          }
+        }
+
+        """;
+    assertThrows(MolgenisException.class, () -> QueryRecord.post(patientRegistry, request));
   }
 
   @Test

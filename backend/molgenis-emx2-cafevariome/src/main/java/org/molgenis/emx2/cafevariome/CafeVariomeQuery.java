@@ -10,7 +10,7 @@ public record CafeVariomeQuery(
     List<HPO> hpo,
     List<ORDO> ordo,
     List<Gene> genes,
-    List<Variant> variant,
+    Variant variant,
     Advanced advanced) {
   public CafeVariomeQuery() {
     this(
