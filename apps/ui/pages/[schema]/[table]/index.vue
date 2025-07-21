@@ -73,7 +73,7 @@ const currentBreadCrumb = computed(
 
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
-const { isAdmin } = useSession();
+const { isAdmin } = await useSession();
 </script>
 <template>
   <section class="mx-auto lg:px-[30px] px-0">
