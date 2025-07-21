@@ -41,7 +41,6 @@ public class QueryRecordTest extends TestLoaders {
             "granularity": "count"
           }
         }
-
         """;
     RecordResponse response = QueryRecord.post(patientRegistry, request);
     assertEquals(response.recordCount(), 1);
