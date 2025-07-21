@@ -989,6 +989,8 @@ public class WebApiSmokeTests {
     final String defaultContentType = "text/turtle";
     final String jsonldContentType = "application/ld+json";
     final String ttlContentType = "text/turtle";
+    final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8"; // charset is ignored
+    final String yamlContentType = "text/plain+yaml";
 
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
@@ -1001,6 +1003,10 @@ public class WebApiSmokeTests {
     rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category/name=cat");
     rdfApiRequestMinimalExpect(400).get(urlPrefix + "/pet store/api/rdf/doesnotexist");
     rdfApiRequest(200, defaultContentType).get(urlPrefix + "/api/rdf?schemas=pet store");
+
+    // Validate API point with charset
+    rdfApiContentTypeRequest(200, defaultContentTypeWithCharset, defaultContentType)
+        .get(urlPrefix + "/pet store/api/rdf");
 
     // Validate convenience API points
     rdfApiRequest(200, jsonldContentType).get(urlPrefix + "/pet store/api/jsonld");
@@ -1039,6 +1045,16 @@ public class WebApiSmokeTests {
     // store/api/rdf?validate=fdp-v1.2");
     //    rdfApiRequest(404, EXCEPTION_CONTENT_TYPE)
     //            .head(urlPrefix + "/pet store/api/rdf?validate=nonExisting");
+
+    // Validate SHACL SETS API request
+    rdfApiRequest(200, yamlContentType).get(urlPrefix + "/api/rdf?shacls");
+    rdfApiContentTypeRequest(200, defaultContentType, yamlContentType)
+        .get(urlPrefix + "/api/rdf?shacls");
+
+    // Validate head for SHACL SETS API request
+    rdfApiRequest(200, yamlContentType).head(urlPrefix + "/api/rdf?shacls");
+    rdfApiContentTypeRequest(200, defaultContentType, yamlContentType)
+        .head(urlPrefix + "/api/rdf?shacls");
   }
 
   @Test
