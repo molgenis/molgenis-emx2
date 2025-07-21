@@ -41,7 +41,7 @@ the [Cafe Variome documentation on record-level indices](https://v3doc.cafevario
 ### 2. Record Query
 
 This POST endpoint is used to query individual records in Cafe Variome, using the filters provided in the `record-index`
-response
+response.
 
 ```/[schema]/api/cafevariome/record```
 
