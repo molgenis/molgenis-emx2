@@ -998,7 +998,7 @@ public class WebApiSmokeTests {
     rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category");
     rdfApiRequest(200, defaultContentType)
         .get(urlPrefix + "/pet store/api/rdf/Category/column/name");
-    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category?name=cat");
+    rdfApiRequest(200, defaultContentType).get(urlPrefix + "/pet store/api/rdf/Category/name=cat");
     rdfApiRequestMinimalExpect(400).get(urlPrefix + "/pet store/api/rdf/doesnotexist");
     rdfApiRequest(200, defaultContentType).get(urlPrefix + "/api/rdf?schemas=pet store");
 
