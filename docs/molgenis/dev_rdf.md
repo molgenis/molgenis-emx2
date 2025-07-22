@@ -103,14 +103,14 @@ For example, `<server>/api/rdf?schemas=foo,bar` will only retrieve from schemas 
 Path: `<server>/<schema>/api/rdf`  
 Example: `http://localhost:8080/pet%20store/api/rdf`  
 Parameters (optional):
-- `validate=<name>` -> instead of retrieving the RDF output, validate on the validation set `name` instead ([see 'name' field in the default allowed values](https://github.com/molgenis/molgenis-emx2/blob/master/data/_shacl/sets.yaml))
+- `validate=<name>` -> instead of retrieving the RDF output, return the validation results for the selected validation set (`name`)
 
 By including a database schema name in the URL, data from one particular schema is retrieved and exported as RDF.
 
 If the optional parameter `validate` is added together with a validation set name, the API point will return SHACL
 validation results instead of the RDF output.
 For example, `<server>/<schema>/api/rdf?validate=fdp-v1.2` would validate the given schema whether it is compliant with the SHACLs for FAIR Data Point version 1.2.
-The allowed values are defined through a `sets.yaml` which can be found [here](https://github.com/molgenis/molgenis-emx2/blob/master/data/_shacl/sets.yaml).
+The allowed values can be retrieved through the [available validation SHACL sets](#retrieve-available-validation-shacl-sets) API call (see the `name` fields in the YAML output).
 
 ### Retrieve one table
 Path: `<server>/<schema>/api/rdf/<table>`  
@@ -131,6 +131,22 @@ Path: `<server>/<schema>/api/rdf/<table>?<column-name>=<value>`
 Example: `http://localhost:8080/pet%20store/api/rdf/Pet?category=cat`
 
 The rows from a table within a schema can be filtered based on a column value by adding these as a `key=value` pair to a URL that also contains schema and table name.
+
+### Retrieve available validation SHACL sets
+Path: `<server>/api/rdf?shacls`  
+Example: `http://localhost:8080/api/rdf?shacls`
+
+Retrieves a yaml-formatted document with the available SHACL validation sets (and additional information about them).
+
+Example output:
+```yaml
+- name: dcat-ap-v3
+  description: DCAT-AP
+  version: 3.0.0
+  sources:
+  - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
+```
+
 
 ## Data formats
 Using the content negotiation, RDF can be exported in one of many available formats. For example the following curl command will download the pet store in jsonld:
