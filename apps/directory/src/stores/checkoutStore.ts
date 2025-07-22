@@ -14,6 +14,8 @@ export interface ILabelValuePair {
 }
 
 const { setError, clearError } = useErrorHandler();
+const NEGOTIATOR_ERROR =
+  "An error occurred while communicating with the Negotiator. Please try again later.";
 
 export const useCheckoutStore = defineStore("checkoutStore", () => {
   const filtersStore = useFiltersStore();
@@ -367,9 +369,10 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     ) {
       doNegotiatorV3Request();
     } else {
-      setError(
+      console.error(
         `Unsupported negotiator type: ${negotiatorType}. Please check your settings.`
       );
+      setError(NEGOTIATOR_ERROR);
     }
   }
 
@@ -411,9 +414,10 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       const statusString = response.status
         ? ` Status: ${response.status} (${response.statusText}).`
         : "";
-      setError(
-        `An error occurred with the Negotiator.${statusString} Please try again later. ${detail}`
+      console.error(
+        `Error communicating with the Negotiator: ${statusString} ${detail}`
       );
+      setError(NEGOTIATOR_ERROR);
     }
   }
 
@@ -445,27 +449,28 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       const detail = jsonResponse.detail
         ? ` Detail: ${jsonResponse.detail}`
         : "";
+      setError(NEGOTIATOR_ERROR);
       switch (statusCode) {
         case 400:
-          setError(
+          console.error(
             `Negotiator responded with code 400, invalid input.${detail}`
           );
         case 401:
-          setError(
+          console.error(
             `Negotiator responded with code 401, not authorised.${detail}`
           );
         case 404:
-          setError(`Negotiator not found, error code 404.${detail}`);
+          console.error(`Negotiator not found, error code 404.${detail}`);
         case 413:
-          setError(
+          console.error(
             `Negotiator responded with code 413, request too large.${detail}`
           );
         case 500:
-          setError(
+          console.error(
             `Negotiator responded with code 500, internal server error.${detail}`
           );
         default:
-          setError(
+          console.error(
             `An unknown error occurred with the Negotiator. Please try again later.${detail}`
           );
       }
