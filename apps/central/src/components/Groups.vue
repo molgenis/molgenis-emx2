@@ -69,7 +69,7 @@
               </div>
             </td>
             <td>
-              <a :href="'/' + schema.id">{{ schema.label }}</a>
+              <a :href="'/' + schema.id + '/tables'">{{ schema.label }}</a>
             </td>
             <td>
               {{ schema.description }}

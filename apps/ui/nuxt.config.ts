@@ -3,6 +3,9 @@ export default defineNuxtConfig({
   extends: ["../tailwind-components"],
   ssr: false,
   devtools: { enabled: true },
+  experimental: {
+    watcher: "parcel",
+  },
   runtimeConfig: {
     logLevel: 4,
   },

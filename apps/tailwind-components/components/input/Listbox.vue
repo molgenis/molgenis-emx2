@@ -14,30 +14,62 @@
         {{ displayText }}
       </span>
     </InputListboxToggle>
-    <InputListboxList
+    <div
+      role="listbox"
       :id="`listbox-${id}-options`"
-      :isExpanded="!disabled && isExpanded"
-      :hasFixedHeight="listboxOptions.length > 5"
-      @keydown.prevent="onListboxKeyDown"
+      :aria-expanded="isExpanded"
+      :tabindex="isExpanded ? 1 : 0"
+      class="absolute b-0 w-full z-10 bg-input"
+      :class="{
+        hidden: disabled || !isExpanded,
+      }"
     >
-      <InputListboxListItem
-        v-for="option in listboxOptions"
-        ref="listbox-li"
-        :id="option.elemId"
-        :isSelected="option.value === '' || isSelected(option.value as IInputValue)"
-        :label="(option.label as string) || (option.value as string)"
-        @click="onListboxOptionClick(option)"
-        @blur="blurListOption(option)"
-        @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
+      <label :for="`listbox-${id}-options-search`" class="sr-only">
+        Search for items
+      </label>
+      <InputSearch
+        v-if="enableSearch"
+        ref="listbox-search"
+        :id="`listbox-${id}-options-search`"
+        :aria-labelledby="`listbox-${id}-options-search`"
+        :aria-controls="`listbox-${id}-options-list`"
+        placeholder="Search"
+        v-model="searchTerm"
+        @update:model-value="emit('search', searchTerm)"
       />
-    </InputListboxList>
+      <ul
+        ref="ul"
+        :id="`listbox-${id}-options-list`"
+        class="overflow-y-scroll z-10 bg-input border"
+        :class="{
+          'max-h-56': isExpanded,
+        }"
+        @keydown.prevent="onListboxKeyDown"
+      >
+        <InputListboxListItem
+          v-for="option in listboxOptions"
+          ref="listbox-li"
+          :id="option.elemId"
+          :isSelected="option.value === '' || isSelected(option.value as IInputValue)"
+          :label="(option.label as string) || (option.value as string)"
+          @click="onListboxOptionClick(option)"
+          @blur="blurListOption(option)"
+          @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
+        />
+        <li
+          v-if="listboxOptions.length === 1 && listboxOptions[0].value === null"
+          class="flex justify-center items-center h-[56px] pl-3 py-1 bg-input border-b-[1px] last:border-b-0 text-input italic"
+        >
+          No options found
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, useTemplateRef, nextTick, watch, onMounted, computed } from "vue";
 import type {
-  IFieldError,
   IInputValue,
   IInputValueLabel,
 } from "../../../metadata-utils/src/types";
@@ -46,7 +78,7 @@ import type {
   IListboxLiRef,
 } from "../../types/listbox";
 
-import { InputListboxToggle } from "#components";
+import { InputSearch, InputListboxToggle } from "#components";
 import { type IInputProps } from "../../types/types";
 
 const props = withDefaults(
@@ -54,19 +86,22 @@ const props = withDefaults(
     IInputProps & {
       options: IInputValue[] | IInputValueLabel[];
       value?: IInputValue | IInputValueLabel;
+      enableSearch?: boolean;
     }
   >(),
   {
     placeholder: "Select an option",
+    enableSearch: false,
   }
 );
 
-const emit = defineEmits<{
-  (e: "update:modelValue", value: IInputValue | IInputValueLabel): void;
-  (e: "error", value: IFieldError[]): void;
-  (e: "blur", value: null): void;
-  (e: "focus", value: null): void;
-}>();
+const emit = defineEmits([
+  "update:modelValue",
+  "error",
+  "blur",
+  "focus",
+  "search",
+]);
 
 const sourceDataType = ref<string>("");
 const sourceData = ref<IInputValueLabel[]>();
@@ -74,9 +109,11 @@ const focusCounter = ref<number>(0);
 const modelValue = defineModel<IInputValue | IInputValueLabel | null>();
 const liElemRefs = useTemplateRef<IListboxLiRef[]>("listbox-li");
 const btnElemRef = ref<InstanceType<typeof InputListboxToggle>>();
+const searchElemRef = ref<InstanceType<typeof InputSearch>>();
 const displayText = ref<string>(props.placeholder);
 const startingCounter = ref<number>(0);
 const selectedElementId = ref<string>("");
+const searchTerm = defineModel<string>("");
 
 const isExpanded = computed<boolean>(() => {
   return btnElemRef.value?.expanded as boolean;
@@ -103,6 +140,11 @@ watch(
   () => (displayText.value = props.placeholder)
 );
 
+watch(isExpanded, () => {
+  searchTerm.value = "";
+  emit("search", searchTerm.value);
+});
+
 function counterIsInRange(value: number) {
   return value <= listboxOptions.value.length - 1 && value >= 0;
 }
@@ -126,12 +168,13 @@ const listboxOptions = computed<IInternalListboxOption[]>(() => {
     sourceData.value = processedData as IInputValueLabel[];
   }
 
-  const defaultOption: IInputValueLabel = {
+  const nullOption: IInputValueLabel = {
     value: null,
     label: props.placeholder,
   };
+
   const inputData = sourceData.value as IInputValueLabel[];
-  const data: IInputValueLabel[] = [defaultOption, ...inputData];
+  const data: IInputValueLabel[] = [nullOption, ...inputData];
 
   return data.map((option: IInputValueLabel, index: number) => {
     return {
@@ -175,8 +218,7 @@ function blurListOption(option: IInternalListboxOption) {
 }
 
 function updateDisplayText(text: string | undefined | null): string {
-  console.log(text);
-  if (typeof text === "undefined" || text === null) {
+  if (typeof text === "undefined" || text === null || text === "") {
     return props.placeholder;
   }
   return text;
@@ -211,6 +253,17 @@ function updateModelValue(
   }
 }
 
+function resetModelValue() {
+  updateCounter(0);
+  displayText.value = updateDisplayText("");
+  modelValue.value = undefined;
+  emit("update:modelValue", modelValue.value);
+
+  if (isExpanded.value) {
+    openCloseListbox();
+  }
+}
+
 function isSelected(value: IInputValue): boolean {
   if (modelValue.value) {
     return (
@@ -236,6 +289,10 @@ function focusNextOption(by: number = 1) {
 
 function focusListboxButton() {
   btnElemRef.value?.button?.focus();
+}
+
+function focusListBoxSearch() {
+  searchElemRef.value?.search?.focus();
 }
 
 function openCloseListbox() {
@@ -286,32 +343,23 @@ function onListboxButtonKeyDown(event: KeyboardEvent) {
 
 function onListboxKeyDown(event: KeyboardEvent) {
   const key = event.key;
-  switch (key) {
-    case "ArrowUp":
-      focusPreviousOption();
-      break;
 
-    case "ArrowDown":
-      focusNextOption();
-      break;
-
-    case "PageUp":
-      focusPreviousOption(10);
-      break;
-
-    case "PageDown":
-      focusNextOption(10);
-      break;
-
-    case "Home":
-      focusCounter.value = 0;
-      focusListOption();
-      break;
-
-    case "End":
-      focusCounter.value = listboxOptions.value.length - 1;
-      focusListOption();
-      break;
+  if (event.shiftKey && key === "Tab") {
+    focusListBoxSearch();
+  } else if (key === "ArrowUp") {
+    focusPreviousOption();
+  } else if (key === "ArrowDown") {
+    focusNextOption();
+  } else if (key === "PageUp") {
+    focusPreviousOption(10);
+  } else if (key === "PageDown") {
+    focusNextOption(10);
+  } else if (key === "Home") {
+    focusCounter.value = 0;
+    focusListOption();
+  } else if (key === "End") {
+    focusCounter.value = listboxOptions.value.length - 1;
+    focusListOption();
   }
 }
 
@@ -320,28 +368,16 @@ function onListboxOptionKeyDown(
   option: IInternalListboxOption
 ) {
   const key: string = event.key;
-  switch (key) {
-    case "Enter":
-      updateModelValue(option);
-      break;
 
-    case "Spacebar":
-      updateModelValue(option);
-      break;
-
-    // spacebar (for older browser support)
-    case " ":
-      updateModelValue(option);
-      break;
-
-    case "Tab":
-      updateModelValue(option);
-      break;
-
-    case "Escape":
-      blurListOption(option);
-      openCloseListbox();
-      break;
+  if (event.shiftKey && key === "Tab") {
+    focusListBoxSearch();
+  } else if (key === "Enter") {
+    updateModelValue(option);
+  } else if (["Enter", "Spacebar", " ", "Tab"].includes(key)) {
+    updateModelValue(option);
+  } else if (key === "Escape") {
+    blurListOption(option);
+    openCloseListbox();
   }
 }
 

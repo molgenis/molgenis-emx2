@@ -30,6 +30,8 @@
   --background-color-button-outline: var(--color-gray-900);
   --background-color-button-outline-hover: var(--color-gray-900);
 
+  --background-color-content: var(--color-gray-700);
+
   --background-color-form: var(--color-gray-900);
   --background-color-form-legend: var(--color-gray-900);
   --background-color-footer: var(--color-gray-700);
@@ -69,6 +71,9 @@
   --text-color-pagination-hover: var(--color-green-500);
   --text-color-input: var(--color-white);
 
+  --text-color-button-toggle-active: var(--text-color-button-secondary);
+  --text-color-button-toggle-inactive: var(--color-green-200);
+
   --border-color-button-primary: var(--color-green-500);
   --border-color-button-primary-hover: var(--color-white);
   --border-color-button-secondary: var(--color-gray-600);
@@ -79,6 +84,9 @@
   --border-color-input: var(--color-gray-400);
   --border-color-input-hover: var(--color-green-200);
   --border-color-input-focused: var(--color-green-200);
+
+  --border-color-pagination: var(--color-gray-200);
+  --border-color-pagination-hover: var(--color-green-500);
 
   --border-radius-pagination: 3px;
 
