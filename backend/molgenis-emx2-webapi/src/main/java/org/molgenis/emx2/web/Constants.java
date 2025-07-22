@@ -15,6 +15,9 @@ public class Constants {
   public static final String ACCEPT_HTML =
       "text/html, application/xhtml+xml, application/xml;q=0.9, image/webp, */*;q=0.8";
   public static final String ACCEPT_JSON = "application/json";
+  // TODO: investigate as "text/yaml" is deprecated: https://www.rfc-editor.org/rfc/rfc9512.html
+  // Perhaps use "text/plain+yaml" as "application/yaml" downloads instead of shows in browser?
+  // https://www.iana.org/assignments/media-type-structured-suffix/media-type-structured-suffix.xhtml
   public static final String ACCEPT_YAML = "text/yaml";
   public static final String ACCEPT_CSV = "text/csv";
   public static final String ACCEPT_ZIP = "application/zip";

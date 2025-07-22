@@ -4,6 +4,7 @@ import static org.molgenis.emx2.Constants.API_JSONLD;
 import static org.molgenis.emx2.Constants.API_RDF;
 import static org.molgenis.emx2.Constants.API_TTL;
 import static org.molgenis.emx2.utils.URLUtils.extractBaseURL;
+import static org.molgenis.emx2.web.Constants.ACCEPT_YAML;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,10 +37,6 @@ import org.molgenis.emx2.rdf.shacl.ShaclSet;
 
 public class RDFApi {
   private static MolgenisSessionManager sessionManager;
-
-  // application/yaml does not show output in browser but downloads instead, so uses suffix:
-  // https://www.iana.org/assignments/media-type-structured-suffix/media-type-structured-suffix.xhtml
-  static final String YAML_CONTENT_TYPE = "text/plain+yaml";
 
   private static final List<RDFFormat> acceptedRdfFormats =
       List.of(
@@ -82,7 +79,7 @@ public class RDFApi {
 
   private static void databaseHead(Context ctx, RDFFormat format) throws IOException {
     if (ctx.queryParam("shacls") != null) {
-      ctx.contentType(YAML_CONTENT_TYPE);
+      ctx.contentType(ACCEPT_YAML);
     } else {
       setFormat(ctx, format);
     }
@@ -97,7 +94,7 @@ public class RDFApi {
   }
 
   private static void shaclSetsYaml(Context ctx) throws IOException {
-    ctx.contentType(YAML_CONTENT_TYPE);
+    ctx.contentType(ACCEPT_YAML);
 
     // Only show available SHACLs if there are any schema's available to validate on.
     if (sessionManager.getSession(ctx.req()).getDatabase().getSchemaNames().isEmpty()) {

@@ -16,7 +16,6 @@ import static org.molgenis.emx2.TestResourceLoader.getFileAsString;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.web.Constants.*;
-import static org.molgenis.emx2.web.RDFApi.YAML_CONTENT_TYPE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -1047,13 +1046,13 @@ public class WebApiSmokeTests {
     //            .head(urlPrefix + "/pet store/api/rdf?validate=nonExisting");
 
     // Validate SHACL SETS API request
-    rdfApiRequest(200, YAML_CONTENT_TYPE).get(urlPrefix + "/api/rdf?shacls");
-    rdfApiContentTypeRequest(200, defaultContentType, YAML_CONTENT_TYPE)
+    rdfApiRequest(200, ACCEPT_YAML).get(urlPrefix + "/api/rdf?shacls");
+    rdfApiContentTypeRequest(200, defaultContentType, ACCEPT_YAML)
         .get(urlPrefix + "/api/rdf?shacls");
 
     // Validate head for SHACL SETS API request
-    rdfApiRequest(200, YAML_CONTENT_TYPE).head(urlPrefix + "/api/rdf?shacls");
-    rdfApiContentTypeRequest(200, defaultContentType, YAML_CONTENT_TYPE)
+    rdfApiRequest(200, ACCEPT_YAML).head(urlPrefix + "/api/rdf?shacls");
+    rdfApiContentTypeRequest(200, defaultContentType, ACCEPT_YAML)
         .head(urlPrefix + "/api/rdf?shacls");
   }
 
