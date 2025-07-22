@@ -16,6 +16,7 @@ import static org.molgenis.emx2.TestResourceLoader.getFileAsString;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.sql.SqlDatabase.*;
 import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.RDFApi.YAML_CONTENT_TYPE;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -990,7 +991,6 @@ public class WebApiSmokeTests {
     final String jsonldContentType = "application/ld+json";
     final String ttlContentType = "text/turtle";
     final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8"; // charset is ignored
-    final String yamlContentType = "text/plain+yaml";
 
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
@@ -1047,13 +1047,13 @@ public class WebApiSmokeTests {
     //            .head(urlPrefix + "/pet store/api/rdf?validate=nonExisting");
 
     // Validate SHACL SETS API request
-    rdfApiRequest(200, yamlContentType).get(urlPrefix + "/api/rdf?shacls");
-    rdfApiContentTypeRequest(200, defaultContentType, yamlContentType)
+    rdfApiRequest(200, YAML_CONTENT_TYPE).get(urlPrefix + "/api/rdf?shacls");
+    rdfApiContentTypeRequest(200, defaultContentType, YAML_CONTENT_TYPE)
         .get(urlPrefix + "/api/rdf?shacls");
 
     // Validate head for SHACL SETS API request
-    rdfApiRequest(200, yamlContentType).head(urlPrefix + "/api/rdf?shacls");
-    rdfApiContentTypeRequest(200, defaultContentType, yamlContentType)
+    rdfApiRequest(200, YAML_CONTENT_TYPE).head(urlPrefix + "/api/rdf?shacls");
+    rdfApiContentTypeRequest(200, defaultContentType, YAML_CONTENT_TYPE)
         .head(urlPrefix + "/api/rdf?shacls");
   }
 

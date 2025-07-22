@@ -37,6 +37,10 @@ import org.molgenis.emx2.rdf.shacl.ShaclSet;
 public class RDFApi {
   private static MolgenisSessionManager sessionManager;
 
+  // application/yaml does not show output in browser but downloads instead, so uses suffix:
+  // https://www.iana.org/assignments/media-type-structured-suffix/media-type-structured-suffix.xhtml
+  static final String YAML_CONTENT_TYPE = "text/plain+yaml";
+
   private static final List<RDFFormat> acceptedRdfFormats =
       List.of(
           RDFFormat.TURTLE,
@@ -78,7 +82,7 @@ public class RDFApi {
 
   private static void databaseHead(Context ctx, RDFFormat format) throws IOException {
     if (ctx.queryParam("shacls") != null) {
-      setYamlFormat(ctx);
+      ctx.contentType(YAML_CONTENT_TYPE);
     } else {
       setFormat(ctx, format);
     }
@@ -93,7 +97,7 @@ public class RDFApi {
   }
 
   private static void shaclSetsYaml(Context ctx) throws IOException {
-    setYamlFormat(ctx);
+    ctx.contentType(YAML_CONTENT_TYPE);
 
     // Only show available SHACLs if there are any schema's available to validate on.
     if (sessionManager.getSession(ctx.req()).getDatabase().getSchemaNames().isEmpty()) {
@@ -298,11 +302,5 @@ public class RDFApi {
     }
     // Default to TURTLE
     return RDFFormat.TURTLE;
-  }
-
-  private static void setYamlFormat(Context ctx) {
-    // application/yaml does not show output in browser but downloads instead, so uses suffix:
-    // https://www.iana.org/assignments/media-type-structured-suffix/media-type-structured-suffix.xhtml
-    ctx.contentType("text/plain+yaml");
   }
 }
