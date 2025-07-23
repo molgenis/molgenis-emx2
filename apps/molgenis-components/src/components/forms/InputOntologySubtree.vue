@@ -4,7 +4,7 @@
       v-for="term in terms.sort((a, b) => a.order - b.order)"
       :key="term.name + term.selected + term.expanded"
     >
-      <li v-show="term.visible">
+      <li v-if="term.visible">
         <!--show if selected or search-->
         <span @click.stop="toggleExpand(term)">
           <i
@@ -39,7 +39,7 @@
           </span>
         </span>
         <InputOntologySubtree
-          v-show="term.expanded"
+          v-if="term.expanded"
           :terms="term.children"
           :isMultiSelect="isMultiSelect"
           @select="$emit('select', $event)"

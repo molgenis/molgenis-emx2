@@ -67,19 +67,19 @@
           <i
             class="p-2 fa fa-caret-down"
             style="vertical-align: middle"
-            v-show="!showExpanded"
+            v-if="!showExpanded"
           />
         </span>
       </div>
       <div
         class="w-100 show p-0 overflow-auto"
         :class="{ 'dropdown-menu': !showExpanded }"
-        v-show="focus || showExpanded"
+        v-if="focus || showExpanded"
         v-click-outside="loseFocusWhenClickedOutside"
       >
         <span
           class="pl-4"
-          v-show="
+          v-if="
             search && Object.keys(terms).length > 50 && searchResultCount >= 0
           "
         >
@@ -345,8 +345,6 @@ export default {
         //need explicit 'null' to ensure value is emitted in form
         this.$emit("update:modelValue", selectedTerms[0] || null);
       }
-      //clear search on change selection
-      this.search = null;
     },
     applySelection(value: Record<string, any>) {
       //deselect all
@@ -468,6 +466,7 @@ export default {
     modelValue: {
       deep: true,
       handler() {
+        this.search = null;
         this.applySelection(this.modelValue);
         //vue has problem to react on changes deep changes in selection tree
         //therefore we use this key to force updates in this component
