@@ -70,8 +70,8 @@
             <p>
               Export all data as
               <a :href="`/${schema}/api/excel`">excel</a> /
-              <a :href="`/${schema}//api/zip`">csv.zip</a> /
-              <a :href="`/${schema}//api/ttl`">ttl</a> /
+              <a :href="`/${schema}/api/zip`">csv.zip</a> /
+              <a :href="`/${schema}/api/ttl`">ttl</a> /
               <a :href="`/${schema}/api/jsonld`">jsonld</a>
             </p>
             <div v-if="visibleTables?.length" :key="tablesHash">
