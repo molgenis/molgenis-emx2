@@ -1,4 +1,4 @@
-id,variant type,variant status,reference allele,alternate allele,genomic assembly id,ref seq assembly id,chromosome,start position,stop position,gene id,genomic HGVS id,protein HGVS ids,transcript HGVS ids
+id,variant type,variant status,reference allele,alternate allele,genomic assembly id,refseq assembly id,chromosome,start position,stop position,gene id,genomic HGVS id,protein HGVS ids,transcript HGVS ids
 20:2447951..2447952c>g,Single Nucleotide Polymorphism,completed,c,g,GRCh37,20,20,2447951,2447952,SNRPB,NC_000017.11:g.43057063G>A,NP_009225.1:p.Glu1817Ter,NC_000023.10(NM004006.2):c.357+1G
 20:2447955..2447958c>g,Single Nucleotide Polymorphism,completed,c,g,GRCh37,20,20,2447955,2447958,SNRPB,,,
 20:2447946..2447950c>g,Single Nucleotide Polymorphism,completed,c,g,GRCh37,20,20,2447946,2447950,SNRPB,,,
