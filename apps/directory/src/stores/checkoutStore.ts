@@ -6,11 +6,16 @@ import { IBiobanks } from "../interfaces/directory";
 import { IBiobankIdentifier } from "../interfaces/interfaces";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
+import useErrorHandler from "../composables/errorHandler";
 
 export interface ILabelValuePair {
   label: string;
   value: string;
 }
+
+const { setError, clearError } = useErrorHandler();
+const NEGOTIATOR_ERROR =
+  "An error occurred while communicating with the Negotiator. Please try again later.";
 
 export const useCheckoutStore = defineStore("checkoutStore", () => {
   const filtersStore = useFiltersStore();
@@ -355,6 +360,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
   async function sendToNegotiator() {
     const { negotiatorType } = settingsStore.config;
+    clearError();
     if (negotiatorType === "v1") {
       doNegotiatorV1Request();
     } else if (
@@ -363,9 +369,10 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     ) {
       doNegotiatorV3Request();
     } else {
-      throw new Error(
+      console.error(
         `Unsupported negotiator type: ${negotiatorType}. Please check your settings.`
       );
+      setError(NEGOTIATOR_ERROR);
     }
   }
 
@@ -404,10 +411,13 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       const detail = jsonResponse.detail
         ? ` Detail: ${jsonResponse.detail}`
         : "";
-
-      throw new Error(
-        `An unknown error occurred with the Negotiator. Please try again later.${detail}`
+      const statusString = response.status
+        ? ` Status: ${response.status} (${response.statusText}).`
+        : "";
+      console.error(
+        `Error communicating with the Negotiator: ${statusString} ${detail}`
       );
+      setError(NEGOTIATOR_ERROR);
     }
   }
 
@@ -439,27 +449,28 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       const detail = jsonResponse.detail
         ? ` Detail: ${jsonResponse.detail}`
         : "";
+      setError(NEGOTIATOR_ERROR);
       switch (statusCode) {
         case 400:
-          throw new Error(
+          console.error(
             `Negotiator responded with code 400, invalid input.${detail}`
           );
         case 401:
-          throw new Error(
+          console.error(
             `Negotiator responded with code 401, not authorised.${detail}`
           );
         case 404:
-          throw new Error(`Negotiator not found, error code 404.${detail}`);
+          console.error(`Negotiator not found, error code 404.${detail}`);
         case 413:
-          throw new Error(
+          console.error(
             `Negotiator responded with code 413, request too large.${detail}`
           );
         case 500:
-          throw new Error(
+          console.error(
             `Negotiator responded with code 500, internal server error.${detail}`
           );
         default:
-          throw new Error(
+          console.error(
             `An unknown error occurred with the Negotiator. Please try again later.${detail}`
           );
       }
