@@ -160,7 +160,7 @@ export default {
         if (window.location.pathname != "/apps/central/") {
           path.forEach((el) => {
             if (el !== "") {
-              url += el + "/";
+              url += el + "/index";
               result[el] = url;
             }
           });
