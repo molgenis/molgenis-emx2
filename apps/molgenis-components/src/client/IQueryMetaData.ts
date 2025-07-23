@@ -3,6 +3,6 @@ export interface IQueryMetaData {
   offset?: number;
   searchTerms?: string;
   filter?: Object;
-  orderby?: Object;
+  orderby?: Record<string,string>;
   expandLevel?: number;
 }

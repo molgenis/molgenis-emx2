@@ -18,7 +18,12 @@ function onBlur() {
 </script>
 
 <template>
-  <InputTestContainer show-state v-slot="{ invalid, valid, disabled }">
+  <InputTestContainer
+    show-state
+    v-slot="{ invalid, valid, disabled, multiple }"
+    :show-multiple="true"
+    :show-required="true"
+  >
     <label for="story-ref-dropdown">
       <span class="text-title font-bold">Select pets by name</span>
       <span class="text-disabled text-body-sm ml-3"> Required </span>
@@ -29,8 +34,9 @@ function onBlur() {
       placeholder="Select a pet"
       :refSchemaId="schemaId"
       :refTableId="tableId"
-      :limit="5"
       :refLabel="labelTemplate"
+      :limit="5"
+      :multiselect="multiple"
       :valid="valid"
       :invalid="refExampleError || invalid"
       :disabled="disabled"

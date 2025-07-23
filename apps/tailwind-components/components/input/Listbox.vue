@@ -10,7 +10,7 @@
       :selected-element-id="selectedElementId"
       @keydown="onListboxButtonKeyDown"
     >
-      <span class="w-full">
+      <span class="w-full whitespace-nowrap">
         {{ displayText }}
       </span>
     </InputListboxToggle>

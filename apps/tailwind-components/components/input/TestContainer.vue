@@ -8,6 +8,7 @@
         :disabled="disabled"
         :placeholder="placeholder"
         :required="required"
+        :multiple="multiple"
         :errorMessage="errorMessage"
         :onFocus="handleFocus"
         :onBlur="handleBlur"
@@ -54,6 +55,16 @@
           id="test-container-required"
           description="set to true to show required tags"
         />
+        <FormField
+          v-if="showMultiple"
+          type="BOOL"
+          label="multiple"
+          v-model="multiple"
+          trueLabel="Multiple"
+          falseLabel="Singular"
+          id="test-container-multiple"
+          description="set to true to enable multiple selection"
+        />
         <slot name="settings"></slot>
         <p v-if="showBlurCount">focusCount = {{ focusCount }}</p>
         <p v-if="showBlurCount">blurCount = {{ blurCount }}</p>
@@ -72,6 +83,7 @@ defineProps<{
   showErrorMessage?: boolean;
   showFocusCount?: boolean;
   showBlurCount?: boolean;
+  showMultiple?: boolean;
 }>();
 const placeholder = ref("");
 const state = ref([] as string[]);
@@ -79,6 +91,7 @@ const errorMessage = ref("");
 const required = ref(false);
 const focusCount = ref(0);
 const blurCount = ref(0);
+const multiple = ref(false);
 const valid = computed(() => state.value.includes("valid"));
 const invalid = computed(() => state.value.includes("invalid"));
 const disabled = computed(() => state.value.includes("disabled"));

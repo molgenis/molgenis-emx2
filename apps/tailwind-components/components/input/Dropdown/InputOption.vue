@@ -1,13 +1,17 @@
 <script lang="ts" setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { InputLabel, InputCheckboxIcon, InputRadioIcon } from "#components";
 import { type IInputProps } from "../../../types/types";
-import type { IInputValueLabel } from "../../../../metadata-utils/src/types";
+import type {
+  IInputValueLabel,
+  recordValue,
+} from "../../../../metadata-utils/src/types";
 
 const props = withDefaults(
   defineProps<
     IInputProps & {
-      option: IInputValueLabel;
+      label: string;
+      option: recordValue;
       checked?: boolean;
       multiselect?: boolean;
     }
@@ -19,55 +23,73 @@ const props = withDefaults(
 );
 
 const isExpanded = ref<boolean>(false);
-const value = defineModel<IInputValueLabel>();
 
 const optionElemId = computed<string>(() => {
   return props.id.replace(/\\s+/g, "").toLowerCase();
 });
+
+const emit = defineEmits(["select", "deselect"]);
+
+function toggleSelect(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target.checked) {
+    emit("select", props.label);
+  } else {
+    emit("deselect", props.label);
+  }
+}
 </script>
 
 <template>
-  <div class="flex justify-start items-center gap-4">
-    <InputLabel
-      :for="`${id}-ref-dropdown-option-${option.value}-input`"
-      class="group flex justify-start items-center relative"
+  <div class="border p-4">
+    <div class="grid grid-cols-[2fr_40px] justify-start items-center">
+      <InputLabel
+        :for="`${id}-ref-dropdown-option-${optionElemId}-input`"
+        class="group flex justify-start items-center relative gap-4"
+        :class="{
+          'text-disabled cursor-not-allowed': disabled,
+          'text-title-contrast cursor-pointer ': !disabled,
+        }"
+      >
+        <input
+          :id="`${id}-ref-dropdown-option-${optionElemId}-input`"
+          :type="multiselect ? 'checkbox' : 'radio'"
+          :name="`${id}-ref-dropdown`"
+          :value="label"
+          :disabled="disabled"
+          :checked="checked"
+          class="sr-only"
+          @change="toggleSelect"
+        />
+        <InputCheckboxIcon v-if="multiselect" :checked="checked" />
+        <InputRadioIcon v-else :checked="checked" />
+        <span class="block text-title-contrast font-bold">
+          {{ label }}
+        </span>
+      </InputLabel>
+      <button
+        :id="`${id}-ref-dropdown-option-${optionElemId}-toggle`"
+        class="w-[60px]"
+        :aria-controls="`${id}-ref-dropdown-option-${optionElemId}-content`"
+        :aria-expanded="isExpanded"
+        :aria-haspopup="true"
+        @click="isExpanded = !isExpanded"
+      >
+        <span class="sr-only"> {{ label }} information </span>
+        <BaseIcon name="caret-down" />
+      </button>
+    </div>
+    <div
+      :id="`${id}-ref-dropdown-option-${optionElemId}-content`"
+      :aria-labelledby="`${id}-ref-dropdown-option-${optionElemId}-toggle`"
+      class="px-4"
       :class="{
-        'text-disabled cursor-not-allowed': disabled,
-        'text-title-contrast cursor-pointer ': !disabled,
+        hidden: disabled || !isExpanded,
       }"
     >
-      <input
-        :id="`${id}-ref-dropdown-option-${optionElemId}-input`"
-        :type="multiselect ? 'checkbox' : 'radio'"
-        :name="`${id}-ref-dropdown`"
-        v-model="value"
-        :disabled="disabled"
-        :checked="checked"
-        class="ml-4 mt-2 sr-only"
-      />
-
-      <InputCheckboxIcon v-if="multiselect" :checked="checked" />
-      <InputRadioIcon v-else :checked="checked" />
-
-      <span class="block">
-        {{ option.label || option.value }}
-      </span>
-    </InputLabel>
-    <button
-      :id="`${id}-ref-dropdown-option-${optionElemId}-toggle`"
-      class="w-[60px]"
-      :aria-controls="`${id}-ref-dropdown-option-${optionElemId}-content`"
-      :aria-expanded="isExpanded"
-      :aria-haspopup="true"
-    >
-      <span class="sr-only"
-        >{{ option.label || option.value }} information</span
-      >
-      <BaseIcon name="caret-down" />
-    </button>
+      <div class="pl-[30px]">
+        <slot></slot>
+      </div>
+    </div>
   </div>
-  <div
-    :id="`${id}-ref-dropdown-option-${optionElemId}-content`"
-    :aria-labelledby="`${id}-ref-dropdown-option-${optionElemId}-toggle`"
-  ></div>
 </template>
