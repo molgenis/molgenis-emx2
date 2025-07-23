@@ -4,9 +4,9 @@ import type { ISession } from "../../tailwind-components/types/types";
 
 const session = ref<ISession | null>();
 
-export const useSession = () => {
-  function loadSession() {
-    useAsyncData("session", async () => {
+export const useSession = async () => {
+  async function loadSession() {
+    await useAsyncData("session", async () => {
       const { data, error } = await $fetch("/api/graphql", {
         method: "POST",
         body: JSON.stringify({
@@ -23,14 +23,14 @@ export const useSession = () => {
     });
   }
 
-  loadSession();
+  await loadSession();
 
   function reload() {
     session.value = null;
     loadSession();
   }
 
-  const isAdmin = computed(() => session.value?.email === "admin");
+  const isAdmin = computed(() => session.value?.admin || false);
 
-  return { session, reload, isAdmin };
+  return { isAdmin, session, reload };
 };

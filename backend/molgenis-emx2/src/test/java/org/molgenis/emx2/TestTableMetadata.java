@@ -1,6 +1,5 @@
 package org.molgenis.emx2;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -9,8 +8,6 @@ import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.List;
-
-
 import org.junit.jupiter.api.Test;
 
 public class TestTableMetadata {
