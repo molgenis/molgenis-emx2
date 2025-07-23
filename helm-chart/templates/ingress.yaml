@@ -31,7 +31,14 @@ spec:
                   name: {{ $fullName }}
                   port:
                     number: 8080
-            - path: /[^/]+/(api|index|tables|molgenis-components|schema|updownload|reports|graphql-playground|tailwind-components|ui|docs|graphql|sitemap\.xml|theme\.css)
+            - path: /api
+              pathType: Prefix
+              backend:
+                service:
+                  name: {{ $fullName }}
+                  port:
+                    number: 8080
+            - path: /[^/]+/(api|index|aggregates|cranio-provider|cranio-public|directory|ern-genturis|ern-ithaca|ern-reconnect|ern-skin|gportal|graphql-playground|helloworld|imdhub-public|molgenis-components|molgenis-viz|nestor-public|pages|projectmanager|reports|schema|settings|tailwind-components|tasks|ui|updownload|docs|graphql|sitemap\.xml|theme\.css)
               pathType: ImplementationSpecific
               backend:
                 service:
