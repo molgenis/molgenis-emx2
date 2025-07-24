@@ -24,7 +24,21 @@ spec:
     - host: {{ index .Values.ingress.hosts 1 | quote }}
       http:
         paths:
-            - path: /.+/(graphql|sitemap\.xml|docs)
+            - path: /apps
+              pathType: Prefix
+              backend:
+                service:
+                  name: {{ $fullName }}
+                  port:
+                    number: 8080
+            - path: /api
+              pathType: Prefix
+              backend:
+                service:
+                  name: {{ $fullName }}
+                  port:
+                    number: 8080
+            - path: /[^/]+/(aggregates|central|cranio-provider|cranio-public|directory|ern-genturis|ern-ithaca|ern-reconnect|ern-skin|gportal|graphql-playground|helloworld|imdhub-public|molgenis-components|molgenis-viz|nestor-public|pages|projectmanager|reports|schema|settings|tables|tailwind-components|tasks|ui|updownload|docs|graphql|api|index|sitemap\.xml|theme\.css)
               pathType: ImplementationSpecific
               backend:
                 service:
