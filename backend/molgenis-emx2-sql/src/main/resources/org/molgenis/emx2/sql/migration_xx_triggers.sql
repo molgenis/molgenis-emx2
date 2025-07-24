@@ -245,9 +245,10 @@ FROM "MOLGENIS".group_permissions gp
          JOIN pg_roles r ON pg_has_role(r.rolname, gp.group_name, 'MEMBER')
 WHERE r.rolname LIKE 'MG_USER:%'
 WITH NO DATA;
+GRANT SELECT ON "MOLGENIS".user_permissions_mv TO PUBLIC; -- TODO: added this is this ok?
 REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
 CREATE INDEX IF NOT EXISTS idx_user_permissions_user_schema
-    ON "MOLGENIS".user_permissions_mv(user_name, table_schema, table_name)
+    ON "MOLGENIS".user_permissions_mv(user_name, table_schema, table_name);
 -- Trigger Function for updating materialized view
 CREATE OR REPLACE FUNCTION "MOLGENIS".user_permissions_mv_trigger_function()
     RETURNS TRIGGER AS
