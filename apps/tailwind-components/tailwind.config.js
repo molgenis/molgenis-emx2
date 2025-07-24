@@ -104,6 +104,9 @@ module.exports = {
         95: "23.75rem",
         82.5: "20.625rem",
       },
+      width: {
+        "button-switch": "var(--width-button-switch)",
+      },
       minWidth: {
         95: "23.75rem",
       },
@@ -123,7 +126,8 @@ module.exports = {
         title: "10rem",
       },
       transitionDuration: {
-        default: "500",
+        default: "500ms",
+        popup: "300ms",
       },
       backgroundImage: {
         "sidebar-gradient": "var(--background-image-sidebar-gradient)",
@@ -197,6 +201,11 @@ module.exports = {
         "code-output": "var(--background-color-code-output)",
         "button-toggle-active": "var(--text-color-button-toggle-active)",
         "button-toggle-inactive": "var(--text-color-button-toggle-inactive)",
+
+        "button-switch": "var(--background-color-button-switch)",
+        "button-switch-selected":
+          "var(--background-color-button-switch-selected)",
+        "button-switch-hover": "var(--background-color-button-switch-hover)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -289,6 +298,10 @@ module.exports = {
         "code-output": "var(--text-color-code-output)",
         "button-toggle-active": "var(--text-color-button-toggle-active)",
         "button-toggle-inactive": "var(--text-color-button-toggle-inactive)",
+
+        "button-switch": "var(--text-color-button-switch)",
+        "button-switch-selected": "var(--text-color-button-switch-selected)",
+        "button-switch-hover": "var(--text-color-button-switch-hover)",
       }),
       borderColor: ({ theme }) => ({
         theme: "var(--border-color-theme)",
@@ -323,6 +336,10 @@ module.exports = {
         listbox: "var(--border-color-search-input)",
         "listbox-option": "var(--border-color-listbox-option)",
         "form-required": "var(--border-color-form-required)",
+
+        "button-switch": "var(--border-color-button-switch)",
+        "button-switch-selected": "var(--border-color-button-switch-selected)",
+        "button-switch-hover": "var(--border-color-button-switch-hover)",
       }),
       stroke: ({ theme }) => ({
         input: "var(--border-color-input)",
