@@ -2,11 +2,15 @@
 import { ref, computed, watch, onMounted } from "vue";
 import type { Ref } from "vue";
 
-import { InputSearch, InputListbox, DisplayRecord } from "#components";
-import InputDropdownOption from "./dropdown/InputOption.vue";
-import InputDropdownToggle from "./dropdown/Toggle.vue";
-import InputDropdownContainer from "./dropdown/Container.vue";
-import InputDropdownToolbar from "./dropdown/Toolbar.vue";
+import {
+  InputSearch,
+  InputListbox,
+  DisplayRecord,
+  InputDropdownContainer,
+  InputDropdownInputOption,
+  InputDropdownToggle,
+  InputDropdownToolbar,
+} from "#components";
 
 import fetchTableData from "../../composables/fetchTableData";
 
@@ -332,7 +336,7 @@ watch(
             v-for="(option, label) in optionMap"
             class="border-b last:border-none"
           >
-            <InputDropdownOption
+            <InputDropdownInputOption
               :id="(label as string)"
               :label="label"
               :option="(option as recordValue)"
@@ -346,7 +350,7 @@ watch(
                 :input-row-data="(option as recordValue)"
                 :showMgColumns="showMgColumns"
               />
-            </InputDropdownOption>
+            </InputDropdownInputOption>
           </div>
         </template>
         <div
