@@ -37,7 +37,7 @@ defineExpose({
         valid && disabled,
       'bg-disabled border-invalid text-invalid cursor-not-allowed':
         invalid && disabled,
-      'bg-input text-input hover:border-input-hover focus:border-input-focused':
+      'bg-input text-input hover:border-input-hover focus:border-input-focused cursor-pointer':
         !disabled && !invalid && !valid,
     }"
   >
@@ -53,7 +53,14 @@ defineExpose({
       @click="onClick()"
       class="mr-4 p-4"
     >
-      <BaseIcon :width="18" name="caret-down" class="mx-auto" />
+      <BaseIcon
+        :width="18"
+        name="caret-down"
+        class="m-auto transition-all duration-default origin-center"
+        :class="{
+          'rotate-180': isExpanded,
+        }"
+      />
       <div class="sr-only">
         <slot name="ref-dropdown-label"></slot>
       </div>

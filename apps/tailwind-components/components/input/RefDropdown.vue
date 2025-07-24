@@ -8,7 +8,6 @@ import InputDropdownToggle from "./dropdown/Toggle.vue";
 import InputDropdownContainer from "./dropdown/Container.vue";
 import InputDropdownToolbar from "./dropdown/Toolbar.vue";
 
-import logger from "../../utils/logger";
 import fetchTableData from "../../composables/fetchTableData";
 
 import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQueryMetaData.ts";
@@ -49,28 +48,22 @@ const emit = defineEmits([
   "search",
 ]);
 
-const isExpanded = ref<boolean>(false);
-const toggleElemRef = ref<InstanceType<typeof InputDropdownToggle>>();
+const modelValue = defineModel<columnValueObject[] | columnValueObject>();
+const tableMetadata = ref<ITableMetaData>();
+const optionMap: Ref<recordValue> = ref({});
+const selectionMap: Ref<recordValue> = ref({});
+
+const initialCount = ref<number>(0);
+const counter = ref<number>(0);
+const counterOffset = ref<number>(0);
+const hasNoResults = ref<boolean>(true);
+
 const displayText = ref<string>(props.placeholder);
 const searchTerm = defineModel<string>("");
 const sortMethod = ref<string>();
+const isExpanded = ref<boolean>(false);
 
-const modelValue = defineModel<columnValueObject[] | columnValueObject>();
-const tableMetadata = ref<ITableMetaData>();
-
-const count = ref<number>(0);
-const offset = ref<number>(0);
-const selectionMap: Ref<recordValue> = ref({});
-const optionMap: Ref<recordValue> = ref({});
-const initialCount = ref<number>(0);
-const hasNoResults = ref<boolean>(true);
-
-function updateDisplayText(text: string | undefined | null): string {
-  if (typeof text === "undefined" || text === null || text === "") {
-    return props.placeholder;
-  }
-  return text;
-}
+const toggleElemRef = ref<InstanceType<typeof InputDropdownToggle>>();
 
 async function prepareModel() {
   tableMetadata.value = await fetchTableMetadata(
@@ -82,11 +75,13 @@ async function prepareModel() {
     Array.isArray(modelValue.value) && modelValue.value.length > 0
       ? (modelValue.value as []).map((value) => extractPrimaryKey(value))
       : extractPrimaryKey(modelValue.value);
+
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
     props.refTableId,
     { filter: { equals: filters } }
   );
+
   if (data.rows) {
     hasNoResults.value = false;
     data.rows.forEach(
@@ -95,7 +90,29 @@ async function prepareModel() {
   }
 
   await loadOptions({ limit: props.limit });
-  initialCount.value = count.value;
+  initialCount.value = counter.value;
+}
+
+const orderByColumnNames = computed<IInputValueLabel[]>(() => {
+  return (
+    tableMetadata.value?.columns
+      .filter((column) => {
+        return (
+          (column.columnType !== "HEADING" && !column.id.startsWith("mg_")) ||
+          props.showMgColumns
+        );
+      })
+      .map((column) => {
+        return { value: column.id, label: column.label };
+      }) || []
+  );
+});
+
+function updateDisplayText(text: string | undefined | null): string {
+  if (typeof text === "undefined" || text === null || text === "") {
+    return props.placeholder;
+  }
+  return text;
 }
 
 function applyTemplate(template: string, row: Record<string, any>): string {
@@ -111,6 +128,7 @@ async function loadOptions(filter: IQueryMetaData) {
     filter.orderby = {};
     filter.orderby[sortMethod.value] = "ASC";
   }
+
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
     props.refTableId,
@@ -124,11 +142,10 @@ async function loadOptions(filter: IQueryMetaData) {
     data.rows.forEach(
       (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
     );
-    count.value = data.count;
+    counter.value = data.count;
   } else {
     hasNoResults.value = true;
   }
-  logger.debug("loaded options for " + props.id);
 }
 
 function extractPrimaryKey(value: any) {
@@ -170,7 +187,7 @@ function deselect(label: string) {
 
 function updateSearch(newSearchTerms: string | undefined) {
   optionMap.value = {};
-  offset.value = 0;
+  counterOffset.value = 0;
   searchTerm.value = newSearchTerms;
   loadOptions({ limit: props.limit, searchTerms: searchTerm.value });
 }
@@ -182,13 +199,15 @@ function clearSelection() {
 }
 
 function loadMore() {
-  offset.value += props.limit;
+  counterOffset.value += props.limit;
   loadOptions({
-    offset: offset.value,
+    offset: counterOffset.value,
     limit: props.limit,
     searchTerms: searchTerm.value,
   });
 }
+
+onMounted(() => prepareModel());
 
 watch(
   () => props.refSchemaId,
@@ -223,31 +242,23 @@ watch(
   }
 );
 
-function getColumns() {
-  return (
-    tableMetadata.value?.columns.filter(
-      (column) =>
-        (column.columnType != "HEADING" && !column.id.startsWith("mg")) ||
-        props.showMgColumns
-    ) || []
-  );
-}
-
 watch([props.placeholder], () => {
   displayText.value = updateDisplayText("");
 });
 
 watch(
   () => searchTerm.value,
-  () => updateSearch(searchTerm.value)
-);
-watch(
-  () => sortMethod.value,
-  () => loadOptions({ limit: props.limit, searchTerms: searchTerm.value })
+  () => {
+    updateSearch(searchTerm.value);
+  }
 );
 
-// onMounted(() => prepareModel());
-prepareModel();
+watch(
+  () => sortMethod.value,
+  () => {
+    loadOptions({ limit: props.limit, searchTerms: searchTerm.value });
+  }
+);
 </script>
 
 <template>
@@ -276,10 +287,10 @@ prepareModel();
       class="border rounded"
       :class="{
         hidden: disabled || !isExpanded,
+        'max-h-82.5': isExpanded,
       }"
     >
-      <!-- for background -->
-      <InputDropdownToolbar class="">
+      <InputDropdownToolbar class="grid grid-cols-[2fr_1fr]">
         <div class="w-full">
           <label :for="`${id}-ref-dropdown-search`" class="sr-only">
             search for values
@@ -290,7 +301,7 @@ prepareModel();
             placeholder="Search"
           />
         </div>
-        <div class="w-[175px]">
+        <div>
           <label
             :id="`${id}-ref-dropdown-sort-input-label`"
             :for="`${id}-ref-dropdown-sort-input`"
@@ -301,37 +312,53 @@ prepareModel();
           <InputListbox
             :id="`${id}-ref-dropdown-sorting`"
             :labelId="`${id}-ref-dropdown-sort-input-label`"
-            :options="
-              getColumns().map((column) => {
-                return { value: column.id, label: column.label };
-              })
-            "
-            @update:model-value="(value: string) => (sortMethod = value?.value)"
+            :options="orderByColumnNames"
+            @update:model-value="(value: IInputValueLabel) => (sortMethod = value?.value as string)"
             :enable-search="false"
-            placeholder="Sort data by"
+            placeholder="Sort by"
           />
         </div>
       </InputDropdownToolbar>
       <fieldset :id="`${id}-ref-dropdown-options`">
-        <label></label>
-        <!-- need to implement :checked on input option component -->
-
-        <div v-for="(option, label) in optionMap">
-          <InputDropdownOption
-            :id="(label as string)"
-            :label="label"
-            :option="(option as recordValue)"
-            :multiselect="multiselect"
-            :checked="Object.hasOwn(selectionMap, label)"
-            @select="select"
-            @deselect="deselect"
+        <label class="sr-only">
+          {{
+            props.multiselect
+              ? "select one or more options"
+              : "select an option"
+          }}
+        </label>
+        <template v-if="!hasNoResults">
+          <div
+            v-for="(option, label) in optionMap"
+            class="border-b last:border-none"
           >
-            <DisplayRecord
-              :table-metadata="tableMetadata"
-              :row="(option as recordValue)"
-              :showMgColumns="showMgColumns"
-            />
-          </InputDropdownOption>
+            <InputDropdownOption
+              :id="(label as string)"
+              :label="label"
+              :option="(option as recordValue)"
+              :multiselect="multiselect"
+              :checked="Object.hasOwn(selectionMap, label)"
+              @select="select"
+              @deselect="deselect"
+            >
+              <DisplayRecord
+                :table-metadata="tableMetadata"
+                :input-row-data="(option as recordValue)"
+                :showMgColumns="showMgColumns"
+              />
+            </InputDropdownOption>
+          </div>
+        </template>
+        <div
+          :id="`${id}-ref-dropdown-options-status`"
+          class="flex justify-center items-center"
+          :class="{
+            'h-[56px]': hasNoResults,
+          }"
+          role="status"
+          aria-atomic="true"
+        >
+          <TextNoResultsMessage v-if="hasNoResults" />
         </div>
       </fieldset>
     </InputDropdownContainer>

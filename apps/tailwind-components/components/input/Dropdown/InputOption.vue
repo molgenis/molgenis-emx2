@@ -1,11 +1,8 @@
 <script lang="ts" setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed } from "vue";
 import { InputLabel, InputCheckboxIcon, InputRadioIcon } from "#components";
 import { type IInputProps } from "../../../types/types";
-import type {
-  IInputValueLabel,
-  recordValue,
-} from "../../../../metadata-utils/src/types";
+import type { recordValue } from "../../../../metadata-utils/src/types";
 
 const props = withDefaults(
   defineProps<
@@ -41,8 +38,8 @@ function toggleSelect(event: Event) {
 </script>
 
 <template>
-  <div class="border p-4">
-    <div class="grid grid-cols-[2fr_40px] justify-start items-center">
+  <div class="p-5 max-h-54 overflow-y-scroll bg-input">
+    <div class="grid grid-cols-[2fr_42.5px] justify-start items-center">
       <InputLabel
         :for="`${id}-ref-dropdown-option-${optionElemId}-input`"
         class="group flex justify-start items-center relative gap-4"
@@ -61,22 +58,31 @@ function toggleSelect(event: Event) {
           class="sr-only"
           @change="toggleSelect"
         />
-        <InputCheckboxIcon v-if="multiselect" :checked="checked" />
-        <InputRadioIcon v-else :checked="checked" />
-        <span class="block text-title-contrast font-bold">
+        <div class="-mt-1">
+          <InputCheckboxIcon v-if="multiselect" :checked="checked" />
+          <InputRadioIcon v-else :checked="checked" />
+        </div>
+        <span class="block text-input font-bold">
           {{ label }}
         </span>
       </InputLabel>
       <button
         :id="`${id}-ref-dropdown-option-${optionElemId}-toggle`"
-        class="w-[60px]"
         :aria-controls="`${id}-ref-dropdown-option-${optionElemId}-content`"
         :aria-expanded="isExpanded"
         :aria-haspopup="true"
         @click="isExpanded = !isExpanded"
+        class="text-input"
       >
         <span class="sr-only"> {{ label }} information </span>
-        <BaseIcon name="caret-down" />
+        <BaseIcon
+          :width="18"
+          name="caret-down"
+          class="m-auto transition-all duration-default origin-center"
+          :class="{
+            'rotate-180': isExpanded,
+          }"
+        />
       </button>
     </div>
     <div
