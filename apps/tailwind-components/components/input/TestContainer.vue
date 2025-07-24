@@ -54,6 +54,7 @@
           falseLabel="Required is false"
           id="test-container-required"
           description="set to true to show required tags"
+          align="vertical"
         />
         <FormField
           v-if="showMultiple"
@@ -63,6 +64,7 @@
           trueLabel="Multiple"
           falseLabel="Singular"
           id="test-container-multiple"
+          align="vertical"
           description="set to true to enable multiple selection"
         />
         <slot name="settings"></slot>
