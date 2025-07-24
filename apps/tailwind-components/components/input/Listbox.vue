@@ -58,9 +58,9 @@
         />
         <li
           v-if="listboxOptions.length === 1 && listboxOptions[0].value === null"
-          class="flex justify-center items-center h-[56px] pl-3 py-1 bg-input border-b-[1px] last:border-b-0 text-input italic"
+          class="flex justify-center items-center h-[56px] pl-3 py-1 bg-input border-b-[1px] last:border-b-0"
         >
-          No options found
+          <TextNoResultsMessage />
         </li>
       </ul>
     </div>
@@ -78,7 +78,11 @@ import type {
   IListboxLiRef,
 } from "../../types/listbox";
 
-import { InputSearch, InputListboxToggle } from "#components";
+import {
+  InputSearch,
+  InputListboxToggle,
+  TextNoResultsMessage,
+} from "#components";
 import { type IInputProps } from "../../types/types";
 
 const props = withDefaults(
