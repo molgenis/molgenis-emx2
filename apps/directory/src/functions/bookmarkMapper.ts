@@ -98,9 +98,10 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
 export function createBookmark(
   filters: Record<string, any>,
   collectionCart: Record<string, ILabelValuePair[]>,
-  serviceCart: Record<string, ILabelValuePair[]>
+  serviceCart: Record<string, ILabelValuePair[]>,
+  filterTypes: Record<string, any>,
+  bookmarkWaitingForApplication: boolean
 ) {
-  const filtersStore = useFiltersStore();
   const bookmark: Record<string, string> = {};
   const matchAll = [];
 
@@ -119,7 +120,7 @@ export function createBookmark(
         continue;
       }
 
-      const filterType = filtersStore.getFilterType(filterName);
+      const filterType = filterTypes[filterName] || "any";
 
       if (filterType === "all") {
         matchAll.push(filterName);
@@ -187,7 +188,7 @@ export function createBookmark(
     bookmark.serviceCart = encodeURI(encodedCart);
   }
 
-  if (!filtersStore.bookmarkWaitingForApplication) {
+  if (!bookmarkWaitingForApplication) {
     try {
       clearError();
       router.push({
