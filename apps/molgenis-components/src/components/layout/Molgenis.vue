@@ -158,10 +158,12 @@ export default {
         ).split("/");
         let url = "/";
         if (window.location.pathname != "/apps/central/") {
+          let appPath = "index"; //use to get 'index' added to first breadcrumb
           path.forEach((el) => {
             if (el !== "") {
               url += el + "/";
-              result[el] = url + "/index";
+              result[el] = url + appPath;
+              appPath = ""; //only on /schema/index after that nothing
             }
           });
         }
