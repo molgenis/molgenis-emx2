@@ -1,3 +1,10 @@
-order,name,code,parent,ontologyTermURI,definition
-,draft,,,,
-,final,,,,
+order,name,codesystem,code,parent,ontologyTermURI,definition
+,draft,,,,,
+,final,,,,,
+,not started,sio,SIO_000963,,http://semanticscience.org/resource/SIO_000963,not started is the status of a process that is predicted to exist but has not yet begun.
+,cancelled,sio,SIO_000996,not started,http://semanticscience.org/resource/SIO_000996,"cancelled is a process status in which the process, while planned to occur, will not occur."
+,planned,sio,SIO_001060,not started,http://semanticscience.org/resource/SIO_001060,"planned is a process status for a process that has not yet started, but is referred to in a plan."
+,aborted,sio,SIO_000997,,http://semanticscience.org/resource/SIO_000997,aborted is a process status in which a started process will not complete as intended.
+,suspended,sio,SIO_000995,,http://semanticscience.org/resource/SIO_000995,suspended is the status of a process that is no longer progressing towards completion.
+,ongoing,sio,SIO_000035,,http://semanticscience.org/resource/SIO_000035,ongoing is the status of a process that is not yet complete.
+,completed,sio,SIO_000034,,http://semanticscience.org/resource/SIO_000034,completed is that status of a process that successfully unfolds.
