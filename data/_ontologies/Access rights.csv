@@ -1,0 +1,4 @@
+order,name,code,parent,ontologyTermURI,definition
+1,Open access,,,http://publications.europa.eu/resource/authority/access-right/PUBLIC,Data for this resource is publically available. This option must be chosen when no personal data is contained by the resource
+2,Restricted access,,,http://publications.europa.eu/resource/authority/access-right/RESTRICTED,Access to the data of this resource is restricted
+3,Non public,,Data access must be set to non public when personal data is contained in the resource,http://publications.europa.eu/resource/authority/access-right/NON_PUBLIC,
