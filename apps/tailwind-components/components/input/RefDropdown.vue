@@ -1,5 +1,13 @@
 <script lang="ts" setup>
-import { ref, computed, watch, onMounted, useTemplateRef } from "vue";
+import {
+  ref,
+  computed,
+  watch,
+  onMounted,
+  useTemplateRef,
+  shallowRef,
+} from "vue";
+import { useIntersectionObserver } from "@vueuse/core";
 import type { Ref } from "vue";
 
 import {
@@ -12,6 +20,7 @@ import {
   InputDropdownToolbar,
 } from "#components";
 
+import { fetchGraphql } from "#imports";
 import fetchTableData from "../../composables/fetchTableData";
 
 import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQueryMetaData.ts";
@@ -67,6 +76,7 @@ const optionsToDisplay = computed(() => {
 const initialCount = ref<number>(0);
 const counter = ref<number>(0);
 const counterOffset = ref<number>(0);
+const maxTableRows = ref<number>(0);
 const hasNoResults = ref<boolean>(true);
 
 const displayText = ref<string>(props.placeholder);
@@ -78,6 +88,8 @@ const showSelectionMap = ref<boolean>(false);
 
 const toggleElemRef = ref<InstanceType<typeof InputDropdownToggle>>();
 const optionElemsRef = useTemplateRef<HTMLDivElement>("refOptionsContainer");
+const loadMoreTarget = useTemplateRef<HTMLDivElement>("inputOptionsTarget");
+const targetIsVisible = shallowRef<boolean>(false);
 
 async function prepareModel() {
   tableMetadata.value = await fetchTableMetadata(
@@ -142,8 +154,6 @@ async function loadOptions(filter: IQueryMetaData) {
     filter
   );
 
-  optionMap.value = {};
-
   if (data.rows) {
     hasNoResults.value = false;
     data.rows.forEach(
@@ -207,12 +217,22 @@ function clearSelection() {
 
 function loadMore() {
   counterOffset.value += props.limit;
-  loadOptions({
-    offset: counterOffset.value,
-    limit: props.limit,
-    searchTerms: searchTerm.value,
-  });
+
+  if (counterOffset.value < maxTableRows.value) {
+    loadOptions({
+      offset: counterOffset.value,
+      limit: props.limit,
+      searchTerms: searchTerm.value,
+    });
+  }
 }
+
+const { stop } = useIntersectionObserver(
+  loadMoreTarget,
+  ([entry], observerElement) => {
+    targetIsVisible.value = entry?.isIntersecting || false;
+  }
+);
 
 function updateDisplayText() {
   const selectionMapKeys = Object.keys(selectionMap.value);
@@ -226,6 +246,13 @@ function updateDisplayText() {
 onMounted(async () => {
   await prepareModel();
   updateDisplayText();
+
+  const data = await fetchGraphql(
+    props.refSchemaId,
+    `query {${props.refTableId}_agg { count }} `,
+    {}
+  );
+  maxTableRows.value = data[`${props.refTableId}_agg`].count;
 });
 
 watch(
@@ -289,6 +316,11 @@ watch(
   () => {
     updateDisplayText();
   }
+);
+
+watch(
+  () => targetIsVisible.value,
+  () => loadMore()
 );
 </script>
 
@@ -419,6 +451,7 @@ watch(
                 />
               </InputDropdownInputOption>
             </div>
+            <div ref="inputOptionsTarget" class="h-1" />
           </template>
           <div
             :id="`${id}-ref-dropdown-options-status`"
