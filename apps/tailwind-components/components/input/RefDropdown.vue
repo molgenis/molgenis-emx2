@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, useTemplateRef } from "vue";
 import type { Ref } from "vue";
 
 import {
@@ -56,6 +56,13 @@ const modelValue = defineModel<columnValueObject[] | columnValueObject>();
 const tableMetadata = ref<ITableMetaData>();
 const optionMap: Ref<recordValue> = ref({});
 const selectionMap: Ref<recordValue> = ref({});
+const optionsToDisplay = computed(() => {
+  if (showSelectionMap.value) {
+    return selectionMap.value;
+  } else {
+    return optionMap.value;
+  }
+});
 
 const initialCount = ref<number>(0);
 const counter = ref<number>(0);
@@ -66,8 +73,11 @@ const displayText = ref<string>(props.placeholder);
 const searchTerm = defineModel<string>("");
 const sortMethod = ref<string>();
 const isExpanded = ref<boolean>(false);
+const expandAllOptions = ref<boolean>(false);
+const showSelectionMap = ref<boolean>(false);
 
 const toggleElemRef = ref<InstanceType<typeof InputDropdownToggle>>();
+const optionElemsRef = useTemplateRef<HTMLDivElement>("refOptionsContainer");
 
 async function prepareModel() {
   tableMetadata.value = await fetchTableMetadata(
@@ -111,13 +121,6 @@ const orderByColumnNames = computed<IInputValueLabel[]>(() => {
       }) || []
   );
 });
-
-function updateDisplayText(text: string | undefined | null): string {
-  if (typeof text === "undefined" || text === null || text === "") {
-    return props.placeholder;
-  }
-  return text;
-}
 
 function applyTemplate(template: string, row: Record<string, any>): string {
   const ids = Object.keys(row);
@@ -197,9 +200,9 @@ function updateSearch(newSearchTerms: string | undefined) {
 }
 
 function clearSelection() {
+  showSelectionMap.value = false;
   selectionMap.value = {};
   emit("update:modelValue", props.multiselect ? [] : undefined);
-  updateSearch(""); //reset
 }
 
 function loadMore() {
@@ -211,7 +214,19 @@ function loadMore() {
   });
 }
 
-onMounted(() => prepareModel());
+function updateDisplayText() {
+  const selectionMapKeys = Object.keys(selectionMap.value);
+  if (selectionMapKeys.length) {
+    displayText.value = selectionMapKeys.join(", ");
+  } else {
+    displayText.value = props.placeholder;
+  }
+}
+
+onMounted(async () => {
+  await prepareModel();
+  updateDisplayText();
+});
 
 watch(
   () => props.refSchemaId,
@@ -220,6 +235,15 @@ watch(
 watch(
   () => props.refTableId,
   () => prepareModel
+);
+
+watch(
+  () => isExpanded.value,
+  () => {
+    if (optionElemsRef.value) {
+      optionElemsRef.value.scrollTop = 0;
+    }
+  }
 );
 
 watch(
@@ -246,10 +270,6 @@ watch(
   }
 );
 
-watch([props.placeholder], () => {
-  displayText.value = updateDisplayText("");
-});
-
 watch(
   () => searchTerm.value,
   () => {
@@ -261,6 +281,13 @@ watch(
   () => sortMethod.value,
   () => {
     loadOptions({ limit: props.limit, searchTerms: searchTerm.value });
+  }
+);
+
+watch(
+  () => selectionMap.value,
+  () => {
+    updateDisplayText();
   }
 );
 </script>
@@ -277,6 +304,9 @@ watch(
       :elemIdControlledByToggle="`${id}-ref-dropdown-content`"
       ref="toggleElemRef"
       @click="isExpanded = !isExpanded"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
     >
       <template #ref-dropdown-label>
         <span class="w-full">
@@ -285,86 +315,127 @@ watch(
       </template>
     </InputDropdownToggle>
     <InputDropdownContainer
+      ref="refDropdownContainer"
       :id="`${id}-ref-dropdown-content`"
       :aria-expanded="isExpanded"
       :tabindex="isExpanded ? 1 : 0"
-      class="border rounded"
+      class="border rounded relative"
       :class="{
         hidden: disabled || !isExpanded,
-        'max-h-82.5': isExpanded,
       }"
     >
-      <InputDropdownToolbar class="grid grid-cols-[2fr_1fr]">
-        <div class="w-full">
-          <label :for="`${id}-ref-dropdown-search`" class="sr-only">
-            search for values
-          </label>
-          <InputSearch
-            :id="`${id}ref-dropdown-search`"
-            v-model="searchTerm"
-            placeholder="Search"
-          />
+      <InputDropdownToolbar class="flex flex-col gap-4">
+        <div class="w-full grid grid-cols-[2fr_1fr] gap-5">
+          <div>
+            <label :for="`${id}-ref-dropdown-search`" class="sr-only">
+              search for values
+            </label>
+            <InputSearch
+              :id="`${id}ref-dropdown-search`"
+              v-model="searchTerm"
+              placeholder="Search"
+            />
+          </div>
+          <div>
+            <label
+              :id="`${id}-ref-dropdown-sort-input-label`"
+              :for="`${id}-ref-dropdown-sort-input`"
+              class="sr-only"
+            >
+              sort data by
+            </label>
+            <InputListbox
+              :id="`${id}-ref-dropdown-sorting`"
+              :labelId="`${id}-ref-dropdown-sort-input-label`"
+              :options="orderByColumnNames"
+              @update:model-value="(value: IInputValueLabel) => (sortMethod = value?.value as string)"
+              :enable-search="false"
+              placeholder="Sort by"
+            />
+          </div>
         </div>
-        <div>
-          <label
-            :id="`${id}-ref-dropdown-sort-input-label`"
-            :for="`${id}-ref-dropdown-sort-input`"
-            class="sr-only"
+        <div class="grid grid-cols-1 md:grid-cols-[125px_100px_175px] gap-1">
+          <ButtonText
+            :id="`${id}-ref-dropdown-btn-clear`"
+            @click="clearSelection"
           >
-            sort data by
-          </label>
-          <InputListbox
-            :id="`${id}-ref-dropdown-sorting`"
-            :labelId="`${id}-ref-dropdown-sort-input-label`"
-            :options="orderByColumnNames"
-            @update:model-value="(value: IInputValueLabel) => (sortMethod = value?.value as string)"
-            :enable-search="false"
-            placeholder="Sort by"
-          />
+            Clear selection
+          </ButtonText>
+          <ButtonText
+            :id="`${id}-ref-dropdown-btn-expand`"
+            @click="expandAllOptions = !expandAllOptions"
+          >
+            {{ expandAllOptions ? "Collapse" : "Expand" }} all
+          </ButtonText>
+          <ButtonText
+            :id="`${id}-ref-dropdown-btn-show`"
+            @click="showSelectionMap = !showSelectionMap"
+            :disabled="!Object.keys(selectionMap).length"
+            :class="{
+              'cursor-not-allowed': hasNoResults,
+            }"
+          >
+            Show {{ showSelectionMap ? "all" : "selected" }}
+          </ButtonText>
         </div>
       </InputDropdownToolbar>
-      <fieldset :id="`${id}-ref-dropdown-options`">
-        <label class="sr-only">
-          {{
-            props.multiselect
-              ? "select one or more options"
-              : "select an option"
-          }}
-        </label>
-        <template v-if="!hasNoResults">
-          <div
-            v-for="(option, label) in optionMap"
-            class="border-b last:border-none"
-          >
-            <InputDropdownInputOption
-              :id="(label as string)"
-              :label="label"
-              :option="(option as recordValue)"
-              :multiselect="multiselect"
-              :checked="Object.hasOwn(selectionMap, label)"
-              @select="select"
-              @deselect="deselect"
+      <div
+        ref="refOptionsContainer"
+        class="overflow-y-scroll"
+        :class="{
+          'max-h-[300px]': isExpanded,
+        }"
+      >
+        <fieldset :id="`${id}-ref-dropdown-options`">
+          <label class="sr-only">
+            {{
+              props.multiselect
+                ? "select one or more options"
+                : "select an option"
+            }}
+          </label>
+          <template v-if="!hasNoResults">
+            <div
+              v-for="(option, label) in optionsToDisplay"
+              class="border-b last:border-none"
             >
-              <DisplayRecord
-                :table-metadata="tableMetadata"
-                :input-row-data="(option as recordValue)"
-                :showMgColumns="showMgColumns"
-              />
-            </InputDropdownInputOption>
+              <InputDropdownInputOption
+                :id="(label as string)"
+                :group-id="id"
+                :label="label"
+                :option="(option as recordValue)"
+                :multiselect="multiselect"
+                :checked="Object.hasOwn(selectionMap, label)"
+                @select="select"
+                @deselect="deselect"
+                :expand-hidden-content="
+                  !isExpanded ? false : expandAllOptions ? true : null
+                "
+              >
+                <DisplayRecord
+                  :table-metadata="tableMetadata"
+                  :input-row-data="(option as recordValue)"
+                  :showMgColumns="showMgColumns"
+                />
+              </InputDropdownInputOption>
+            </div>
+          </template>
+          <div
+            :id="`${id}-ref-dropdown-options-status`"
+            class="flex justify-center items-center"
+            :class="{
+              'h-[56px]': hasNoResults,
+            }"
+            role="status"
+            aria-atomic="true"
+          >
+            <TextNoResultsMessage v-if="hasNoResults" />
           </div>
-        </template>
-        <div
-          :id="`${id}-ref-dropdown-options-status`"
-          class="flex justify-center items-center"
-          :class="{
-            'h-[56px]': hasNoResults,
-          }"
-          role="status"
-          aria-atomic="true"
-        >
-          <TextNoResultsMessage v-if="hasNoResults" />
-        </div>
-      </fieldset>
+        </fieldset>
+      </div>
+      <div
+        class="absolute w-full bottom-0 shadow-[0_0_4px_3px_rgba(0,0,0,0.08)]"
+      />
     </InputDropdownContainer>
   </InputGroupContainer>
 </template>
