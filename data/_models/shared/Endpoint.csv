@@ -11,7 +11,7 @@ Endpoint,,license,hyperlink,,TRUE,,,,,,dcterms:license,A legal document giving o
 Endpoint,,conformsTo,hyperlink,,TRUE,,,,,,dcterms:conformsTo,An established standard to which the described resource conforms.,"FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,rights,hyperlink_array,,,,,,,,dcterms:rights,Information about rights held in and over the resource.,"FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,accessRights,hyperlink_array,,,,,,,,dcterms:accessRights,Information about who access the resource or an indication of its security status.,"FAIRDataPoint,DataCatalogueFlat"
-Endpoint,,contact,ref,,,,Contacts,,,,dcat:contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,contact,ref,,,,Agents,,,,dcat:contactPoint,Relevant contact information for the cataloged resource. Use of vCard is recommended [VCARD-RDF].,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,keyword,string_array,,,,,,,,dcat:keyword,A keyword or tag describing a resource.,"FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,theme,hyperlink_array,,,,,,,,dcat:theme,A main category of the resource. A resource can have multiple themes.,"FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,url,hyperlink,,,,,,,,dcat:endpointURL,"The root location or primary endpoint of the service (a web-resolvable IRI). For Beacon v2 only, in other cases we want to autogenerate this information.",Beacon v2
