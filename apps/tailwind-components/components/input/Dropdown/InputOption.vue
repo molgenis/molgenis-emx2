@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { InputLabel, InputCheckboxIcon, InputRadioIcon } from "#components";
 import { type IInputProps } from "../../../types/types";
 import type { recordValue } from "../../../../metadata-utils/src/types";
@@ -7,15 +7,18 @@ import type { recordValue } from "../../../../metadata-utils/src/types";
 const props = withDefaults(
   defineProps<
     IInputProps & {
+      groupId: string;
       label: string;
       option: recordValue;
       checked?: boolean;
       multiselect?: boolean;
+      expandHiddenContent?: boolean | null;
     }
   >(),
   {
     placeholder: "Select an option",
     multiselect: false,
+    expandHiddenContent: false,
   }
 );
 
@@ -35,6 +38,17 @@ function toggleSelect(event: Event) {
     emit("deselect", props.label);
   }
 }
+
+watch(
+  () => props.expandHiddenContent,
+  () => {
+    if (!props.expandHiddenContent) {
+      isExpanded.value = false;
+    } else {
+      isExpanded.value = true;
+    }
+  }
+);
 </script>
 
 <template>
@@ -51,7 +65,7 @@ function toggleSelect(event: Event) {
         <input
           :id="`${id}-ref-dropdown-option-${optionElemId}-input`"
           :type="multiselect ? 'checkbox' : 'radio'"
-          :name="`${id}-ref-dropdown`"
+          :name="`${groupId}-ref-dropdown`"
           :value="label"
           :disabled="disabled"
           :checked="checked"
