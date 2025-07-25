@@ -28,7 +28,7 @@ defineExpose({
   <div
     role="combobox"
     :aria-required="required"
-    class="h-input w-full text-left pl-11 border rounded-input flex justify-start items-center"
+    class="flex justify-start items-center h-input w-full text-left pl-11 border rounded-input cursor-pointer"
     :class="{
       'bg-input border-invalid text-invalid': invalid && !disabled,
       'bg-input border-valid text-valid': valid && !disabled,
@@ -37,12 +37,11 @@ defineExpose({
         valid && disabled,
       'bg-disabled border-invalid text-invalid cursor-not-allowed':
         invalid && disabled,
-      'bg-input text-input hover:border-input-hover focus:border-input-focused cursor-pointer':
+      'bg-input text-input hover:border-input-hover focus:border-input-focused':
         !disabled && !invalid && !valid,
     }"
   >
     <div class="w-full">
-      <!-- show label or inputs -->
       <slot name="ref-dropdown-label"> </slot>
     </div>
     <button
@@ -52,6 +51,9 @@ defineExpose({
       :aria-haspopup="true"
       @click="onClick()"
       class="mr-4 p-4"
+      :class="{
+        'cursor-not-allowed': disabled,
+      }"
     >
       <BaseIcon
         :width="18"
