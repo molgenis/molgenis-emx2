@@ -1,0 +1,474 @@
+<script lang="ts" setup>
+import {
+  ref,
+  computed,
+  watch,
+  onMounted,
+  useTemplateRef,
+  shallowRef,
+} from "vue";
+import { useIntersectionObserver } from "@vueuse/core";
+import type { Ref } from "vue";
+
+import {
+  InputSearch,
+  InputListbox,
+  DisplayRecord,
+  InputRefSelectContainer,
+  InputRefSelectInputOption,
+  InputRefSelectToggle,
+  InputRefSelectToolbar,
+} from "#components";
+
+import { fetchGraphql } from "#imports";
+import fetchTableData from "../../composables/fetchTableData";
+
+import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQueryMetaData.ts";
+import { fetchTableMetadata } from "#imports";
+import type { ITableDataResponse } from "../../composables/fetchTableData";
+import type { IInputProps } from "../../types/types";
+import type {
+  ITableMetaData,
+  columnValueObject,
+  recordValue,
+  IInputValueLabel,
+} from "../../../metadata-utils/src/types";
+
+const props = withDefaults(
+  defineProps<
+    IInputProps & {
+      refSchemaId: string;
+      refTableId: string;
+      refLabel: string;
+      multiselect?: boolean;
+      limit?: number;
+      showMgColumns?: boolean;
+    }
+  >(),
+  {
+    placeholder: "Select an option",
+    multiselect: false,
+    limit: 10,
+    showMgColumns: false,
+  }
+);
+
+const emit = defineEmits([
+  "update:modelValue",
+  "error",
+  "blur",
+  "focus",
+  "search",
+]);
+
+const modelValue = defineModel<columnValueObject[] | columnValueObject>();
+const tableMetadata = ref<ITableMetaData>();
+const optionMap: Ref<recordValue> = ref({});
+const selectionMap: Ref<recordValue> = ref({});
+const optionsToDisplay = computed(() => {
+  if (showSelectionMap.value) {
+    return selectionMap.value;
+  } else {
+    return optionMap.value;
+  }
+});
+
+const initialCount = ref<number>(0);
+const counter = ref<number>(0);
+const counterOffset = ref<number>(0);
+const maxTableRows = ref<number>(0);
+const hasNoResults = ref<boolean>(true);
+
+const displayText = ref<string>(props.placeholder);
+const searchTerm = defineModel<string>("");
+const sortMethod = ref<string>();
+const isExpanded = ref<boolean>(false);
+const expandAllOptions = ref<boolean>(false);
+const showSelectionMap = ref<boolean>(false);
+
+const toggleElemRef = ref<InstanceType<typeof InputRefSelectToggle>>();
+const optionElemsRef = useTemplateRef<HTMLDivElement>("refOptionsContainer");
+const loadMoreTarget = useTemplateRef<HTMLDivElement>("inputOptionsTarget");
+const targetIsVisible = shallowRef<boolean>(false);
+
+async function prepareModel() {
+  tableMetadata.value = await fetchTableMetadata(
+    props.refSchemaId,
+    props.refTableId
+  );
+
+  const filters =
+    Array.isArray(modelValue.value) && modelValue.value.length > 0
+      ? (modelValue.value as []).map((value) => extractPrimaryKey(value))
+      : extractPrimaryKey(modelValue.value);
+
+  const data: ITableDataResponse = await fetchTableData(
+    props.refSchemaId,
+    props.refTableId,
+    { filter: { equals: filters } }
+  );
+
+  if (data.rows) {
+    hasNoResults.value = false;
+    data.rows.forEach(
+      (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
+    );
+  }
+
+  await loadOptions({ limit: props.limit });
+  initialCount.value = counter.value;
+}
+
+const orderByColumnNames = computed<IInputValueLabel[]>(() => {
+  return (
+    tableMetadata.value?.columns
+      .filter((column) => {
+        return (
+          (column.columnType !== "HEADING" && !column.id.startsWith("mg_")) ||
+          props.showMgColumns
+        );
+      })
+      .map((column) => {
+        return { value: column.id, label: column.label };
+      }) || []
+  );
+});
+
+function applyTemplate(template: string, row: Record<string, any>): string {
+  const ids = Object.keys(row);
+  const vals = Object.values(row);
+  const label = new Function(...ids, "return `" + template + "`;")(...vals);
+  return label;
+}
+
+async function loadOptions(filter: IQueryMetaData) {
+  hasNoResults.value = true;
+  if (sortMethod.value) {
+    filter.orderby = {};
+    filter.orderby[sortMethod.value] = "ASC";
+  }
+
+  const data: ITableDataResponse = await fetchTableData(
+    props.refSchemaId,
+    props.refTableId,
+    filter
+  );
+
+  if (data.rows) {
+    hasNoResults.value = false;
+    data.rows.forEach(
+      (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
+    );
+    counter.value = data.count;
+  } else {
+    hasNoResults.value = true;
+  }
+}
+
+function extractPrimaryKey(value: any) {
+  const result = {} as columnValueObject;
+  tableMetadata.value?.columns
+    .filter((column) => column.key === 1)
+    .forEach((column) => {
+      result[column.id] = value[column.id];
+    });
+  return result;
+}
+
+function select(label: string) {
+  if (!props.multiselect) {
+    selectionMap.value = {};
+  }
+  selectionMap.value[label] = optionMap.value[label];
+  emit(
+    "update:modelValue",
+    props.multiselect
+      ? Object.values(selectionMap.value).map((value) =>
+          extractPrimaryKey(value)
+        )
+      : extractPrimaryKey(optionMap.value[label])
+  );
+}
+
+function deselect(label: string) {
+  delete selectionMap.value[label];
+  emit(
+    "update:modelValue",
+    props.multiselect
+      ? Object.values(selectionMap.value).map((value) =>
+          extractPrimaryKey(value)
+        )
+      : undefined
+  );
+}
+
+function updateSearch(newSearchTerms: string | undefined) {
+  optionMap.value = {};
+  counterOffset.value = 0;
+  searchTerm.value = newSearchTerms;
+  loadOptions({ limit: props.limit, searchTerms: searchTerm.value });
+}
+
+function clearSelection() {
+  showSelectionMap.value = false;
+  selectionMap.value = {};
+  emit("update:modelValue", props.multiselect ? [] : undefined);
+}
+
+function loadMore() {
+  counterOffset.value += props.limit;
+
+  if (counterOffset.value < maxTableRows.value) {
+    loadOptions({
+      offset: counterOffset.value,
+      limit: props.limit,
+      searchTerms: searchTerm.value,
+    });
+  }
+}
+
+const { stop } = useIntersectionObserver(
+  loadMoreTarget,
+  ([entry], observerElement) => {
+    targetIsVisible.value = entry?.isIntersecting || false;
+  }
+);
+
+function updateDisplayText() {
+  const selectionMapKeys = Object.keys(selectionMap.value);
+  if (selectionMapKeys.length) {
+    displayText.value = selectionMapKeys.join(", ");
+  } else {
+    displayText.value = props.placeholder;
+  }
+}
+
+onMounted(async () => {
+  await prepareModel();
+  updateDisplayText();
+
+  const data = await fetchGraphql(
+    props.refSchemaId,
+    `query {${props.refTableId}_agg { count }} `,
+    {}
+  );
+  maxTableRows.value = data[`${props.refTableId}_agg`].count;
+});
+
+watch(
+  () => props.refSchemaId,
+  () => prepareModel
+);
+watch(
+  () => props.refTableId,
+  () => prepareModel
+);
+
+watch(
+  () => isExpanded.value,
+  () => {
+    if (optionElemsRef.value) {
+      optionElemsRef.value.scrollTop = 0;
+    }
+  }
+);
+
+watch(
+  () => modelValue.value,
+  () => {
+    if (!props.multiselect) {
+      delete selectionMap.value[Object.keys(selectionMap.value)[0]];
+      if (modelValue.value) {
+        selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
+          modelValue.value;
+      }
+    } else {
+      selectionMap.value = {};
+      if (
+        modelValue.value &&
+        Array.isArray(modelValue.value) &&
+        modelValue.value.length > 0
+      ) {
+        modelValue.value.forEach((value) => {
+          selectionMap.value[applyTemplate(props.refLabel, value)] = value;
+        });
+      }
+    }
+  }
+);
+
+watch(
+  () => searchTerm.value,
+  () => {
+    updateSearch(searchTerm.value);
+  }
+);
+
+watch(
+  () => sortMethod.value,
+  () => {
+    loadOptions({ limit: props.limit, searchTerms: searchTerm.value });
+  }
+);
+
+watch(
+  () => selectionMap.value,
+  () => {
+    updateDisplayText();
+  }
+);
+
+watch(
+  () => targetIsVisible.value,
+  () => loadMore()
+);
+</script>
+
+<template>
+  <InputGroupContainer
+    :id="`${id}-ref-dropdown`"
+    class="w-full relative"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+  >
+    <InputRefSelectToggle
+      :id="id"
+      :elemIdControlledByToggle="`${id}-ref-dropdown-content`"
+      ref="toggleElemRef"
+      @click="isExpanded = !isExpanded"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
+    >
+      <template #ref-dropdown-label>
+        <span class="w-full">
+          {{ displayText }}
+        </span>
+      </template>
+    </InputRefSelectToggle>
+    <InputRefSelectContainer
+      ref="refDropdownContainer"
+      :id="`${id}-ref-dropdown-content`"
+      :aria-expanded="isExpanded"
+      :tabindex="isExpanded ? 1 : 0"
+      class="border rounded relative"
+      :class="{
+        hidden: disabled || !isExpanded,
+      }"
+    >
+      <InputRefSelectToolbar class="flex flex-col gap-4">
+        <div class="w-full grid grid-cols-[2fr_1fr] gap-5">
+          <div>
+            <label :for="`${id}-ref-dropdown-search`" class="sr-only">
+              search for values
+            </label>
+            <InputSearch
+              :id="`${id}ref-dropdown-search`"
+              v-model="searchTerm"
+              placeholder="Search"
+            />
+          </div>
+          <div>
+            <label
+              :id="`${id}-ref-dropdown-sort-input-label`"
+              :for="`${id}-ref-dropdown-sort-input`"
+              class="sr-only"
+            >
+              sort data by
+            </label>
+            <InputListbox
+              :id="`${id}-ref-dropdown-sorting`"
+              :labelId="`${id}-ref-dropdown-sort-input-label`"
+              :options="orderByColumnNames"
+              @update:model-value="(value: IInputValueLabel) => (sortMethod = value?.value as string)"
+              :enable-search="false"
+              placeholder="Sort by"
+            />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-[125px_100px_175px] gap-1">
+          <ButtonText
+            :id="`${id}-ref-dropdown-btn-clear`"
+            @click="clearSelection"
+          >
+            Clear selection
+          </ButtonText>
+          <ButtonText
+            :id="`${id}-ref-dropdown-btn-expand`"
+            @click="expandAllOptions = !expandAllOptions"
+          >
+            {{ expandAllOptions ? "Collapse" : "Expand" }} all
+          </ButtonText>
+          <ButtonText
+            :id="`${id}-ref-dropdown-btn-show`"
+            @click="showSelectionMap = !showSelectionMap"
+            :disabled="!Object.keys(selectionMap).length"
+            :class="{
+              'cursor-not-allowed': hasNoResults,
+            }"
+          >
+            Show {{ showSelectionMap ? "all" : "selected" }}
+          </ButtonText>
+        </div>
+      </InputRefSelectToolbar>
+      <div
+        ref="refOptionsContainer"
+        class="overflow-y-scroll"
+        :class="{
+          'max-h-[300px]': isExpanded,
+        }"
+      >
+        <fieldset :id="`${id}-ref-dropdown-options`">
+          <label class="sr-only">
+            {{
+              props.multiselect
+                ? "select one or more options"
+                : "select an option"
+            }}
+          </label>
+          <template v-if="!hasNoResults">
+            <div
+              v-for="(option, label) in optionsToDisplay"
+              class="border-b last:border-none"
+            >
+              <InputRefSelectInputOption
+                :id="(label as string)"
+                :group-id="id"
+                :label="label"
+                :option="(option as recordValue)"
+                :multiselect="multiselect"
+                :checked="Object.hasOwn(selectionMap, label)"
+                @select="select"
+                @deselect="deselect"
+                :expand-hidden-content="
+                  !isExpanded ? false : expandAllOptions ? true : null
+                "
+              >
+                <DisplayRecord
+                  :table-metadata="tableMetadata"
+                  :input-row-data="(option as recordValue)"
+                  :showMgColumns="showMgColumns"
+                />
+              </InputRefSelectInputOption>
+            </div>
+            <div ref="inputOptionsTarget" class="h-1" />
+          </template>
+          <div
+            :id="`${id}-ref-dropdown-options-status`"
+            class="flex justify-center items-center"
+            :class="{
+              'h-[56px]': hasNoResults,
+            }"
+            role="status"
+            aria-atomic="true"
+          >
+            <TextNoResultsMessage v-if="hasNoResults" />
+          </div>
+        </fieldset>
+      </div>
+      <div
+        class="absolute w-full bottom-0 shadow-[0_0_4px_3px_rgba(0,0,0,0.08)]"
+      />
+    </InputRefSelectContainer>
+  </InputGroupContainer>
+</template>

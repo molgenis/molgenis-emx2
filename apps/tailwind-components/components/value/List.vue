@@ -2,10 +2,16 @@
 import { computed } from "vue";
 import type { IColumn } from "../../../metadata-utils/src/types";
 
-const props = defineProps<{
-  metadata: IColumn;
-  data: string[] | number[] | Record<string, any>;
-}>();
+const props = withDefaults(
+  defineProps<{
+    metadata: IColumn;
+    data: string[] | number[] | Record<string, any>;
+    hideListSeparator?: boolean;
+  }>(),
+  {
+    hideListSeparator: false,
+  }
+);
 
 const elementType = computed(() => props.metadata.columnType.split("_")[0]);
 </script>
@@ -64,6 +70,10 @@ const elementType = computed(() => props.metadata.columnType.split("_")[0]);
     />
 
     <span v-else>{{ elementType }}</span>
-    <span v-if="Number(data.length) - 1 !== Number(index)">,&nbsp;</span>
+    <span
+      v-if="Number(data.length) - 1 !== Number(index) && !hideListSeparator"
+    >
+      ,&nbsp;
+    </span>
   </template>
 </template>

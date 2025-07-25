@@ -20,6 +20,7 @@ defineProps<
     options?: IValueLabel[];
     trueLabel?: string;
     falseLabel?: string;
+    align?: "horizontal" | "vertical";
   }
 >();
 const emit = defineEmits(["focus", "blur"]);
@@ -57,6 +58,7 @@ const emit = defineEmits(["focus", "blur"]);
       :falseLabel="falseLabel"
       @blur="emit('blur')"
       @focus="emit('focus')"
+      :align="align"
     />
     <div :id="`${id}-input-error`">
       <Message v-if="errorMessage" invalid :id="`${id}-input-error`">

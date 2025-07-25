@@ -1,7 +1,3 @@
-<template>
-  {{ data.filename }}
-</template>
-
 <script setup lang="ts">
 import type { fileValue, IColumn } from "../../../metadata-utils/src/types";
 defineProps<{
@@ -9,3 +5,7 @@ defineProps<{
   data: fileValue;
 }>();
 </script>
+
+<template>
+  <span>{{ data.filename }}</span>
+</template>
