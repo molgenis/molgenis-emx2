@@ -5,8 +5,6 @@ const schemaId = ref<string>("pet store");
 const tableId = ref<string>("Pet");
 const labelTemplate = ref<string>("${name}");
 const value = ref([{ name: "spike" }]);
-
-const refExampleError = ref<boolean>(false);
 </script>
 
 <template>
@@ -22,7 +20,7 @@ const refExampleError = ref<boolean>(false);
         Required
       </span>
     </label>
-    <InputRefDropdown
+    <InputRefSelect
       id="story-ref-dropdown"
       v-model="value"
       placeholder="Select a pet"
@@ -35,7 +33,6 @@ const refExampleError = ref<boolean>(false);
       :invalid="invalid"
       :disabled="disabled"
       :required="true"
-      @blur="onBlur"
     />
   </InputTestContainer>
 </template>

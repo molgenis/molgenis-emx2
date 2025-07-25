@@ -14,10 +14,10 @@ import {
   InputSearch,
   InputListbox,
   DisplayRecord,
-  InputDropdownContainer,
-  InputDropdownInputOption,
-  InputDropdownToggle,
-  InputDropdownToolbar,
+  InputRefSelectContainer,
+  InputRefSelectInputOption,
+  InputRefSelectToggle,
+  InputRefSelectToolbar,
 } from "#components";
 
 import { fetchGraphql } from "#imports";
@@ -86,7 +86,7 @@ const isExpanded = ref<boolean>(false);
 const expandAllOptions = ref<boolean>(false);
 const showSelectionMap = ref<boolean>(false);
 
-const toggleElemRef = ref<InstanceType<typeof InputDropdownToggle>>();
+const toggleElemRef = ref<InstanceType<typeof InputRefSelectToggle>>();
 const optionElemsRef = useTemplateRef<HTMLDivElement>("refOptionsContainer");
 const loadMoreTarget = useTemplateRef<HTMLDivElement>("inputOptionsTarget");
 const targetIsVisible = shallowRef<boolean>(false);
@@ -331,7 +331,7 @@ watch(
     @focus="emit('focus')"
     @blur="emit('blur')"
   >
-    <InputDropdownToggle
+    <InputRefSelectToggle
       :id="id"
       :elemIdControlledByToggle="`${id}-ref-dropdown-content`"
       ref="toggleElemRef"
@@ -345,8 +345,8 @@ watch(
           {{ displayText }}
         </span>
       </template>
-    </InputDropdownToggle>
-    <InputDropdownContainer
+    </InputRefSelectToggle>
+    <InputRefSelectContainer
       ref="refDropdownContainer"
       :id="`${id}-ref-dropdown-content`"
       :aria-expanded="isExpanded"
@@ -356,7 +356,7 @@ watch(
         hidden: disabled || !isExpanded,
       }"
     >
-      <InputDropdownToolbar class="flex flex-col gap-4">
+      <InputRefSelectToolbar class="flex flex-col gap-4">
         <div class="w-full grid grid-cols-[2fr_1fr] gap-5">
           <div>
             <label :for="`${id}-ref-dropdown-search`" class="sr-only">
@@ -410,7 +410,7 @@ watch(
             Show {{ showSelectionMap ? "all" : "selected" }}
           </ButtonText>
         </div>
-      </InputDropdownToolbar>
+      </InputRefSelectToolbar>
       <div
         ref="refOptionsContainer"
         class="overflow-y-scroll"
@@ -431,7 +431,7 @@ watch(
               v-for="(option, label) in optionsToDisplay"
               class="border-b last:border-none"
             >
-              <InputDropdownInputOption
+              <InputRefSelectInputOption
                 :id="(label as string)"
                 :group-id="id"
                 :label="label"
@@ -449,7 +449,7 @@ watch(
                   :input-row-data="(option as recordValue)"
                   :showMgColumns="showMgColumns"
                 />
-              </InputDropdownInputOption>
+              </InputRefSelectInputOption>
             </div>
             <div ref="inputOptionsTarget" class="h-1" />
           </template>
@@ -469,6 +469,6 @@ watch(
       <div
         class="absolute w-full bottom-0 shadow-[0_0_4px_3px_rgba(0,0,0,0.08)]"
       />
-    </InputDropdownContainer>
+    </InputRefSelectContainer>
   </InputGroupContainer>
 </template>
