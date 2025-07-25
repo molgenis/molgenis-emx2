@@ -47,6 +47,10 @@ export const buildRecordDetailsQueryFields = (
         case "FILE":
           return `${column.id} ${FILE_FRAGMENT}`;
         case "REF":
+        case "SELECT":
+        case "CHECKBOX":
+        case "RADIO":
+        case "MULTISELECT":
         case "ONTOLOGY":
         case "REF_ARRAY":
         case "REFBACK":
@@ -71,6 +75,10 @@ export const buildRecordDetailsQueryFields = (
         return `${column.id} ${FILE_FRAGMENT}`;
       case "REF":
       case "ONTOLOGY":
+      case "SELECT":
+      case "CHECKBOX":
+      case "RADIO":
+      case "MULTISELECT":
       case "REF_ARRAY":
       case "REFBACK":
       case "ONTOLOGY_ARRAY":
