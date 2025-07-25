@@ -200,6 +200,7 @@ module.exports = {
         "code-output": "var(--background-color-code-output)",
         "button-toggle-active": "var(--text-color-button-toggle-active)",
         "button-toggle-inactive": "var(--text-color-button-toggle-inactive)",
+        "ref-toolbar": "var(--background-color-ref-dropdown-toolbar);",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",

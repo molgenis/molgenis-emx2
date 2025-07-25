@@ -116,6 +116,8 @@
     --background-color-notification: var(--color-red-700);
     --background-color-code-output: var(--color-gray-100);
 
+    --background-color-ref-dropdown-toolbar: var(--color-gray-100);
+
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-white);
     --text-color-button-secondary: var(--color-blue-500);
