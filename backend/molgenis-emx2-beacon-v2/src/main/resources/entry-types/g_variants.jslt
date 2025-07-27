@@ -21,8 +21,8 @@ import "range.jslt" as range
                     "variantInternalId": .id,
                     "variation": {
                         "variantType": .variantType,
-                        "referenceBases": uppercase(.ref),
-                        "alternateBases": uppercase(.alt),
+                        "referenceBases": uppercase(.referenceAllele),
+                        "alternateBases": uppercase(.alternateAllele),
                         "location": {
                             "sequence_id": .refseqAssembyId,
                             "type": "SequenceLocation",
