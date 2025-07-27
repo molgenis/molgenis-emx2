@@ -26,7 +26,7 @@ const props = withDefaults(
   >(),
   {
     isArray: true,
-    limit: 10,
+    limit: 30,
   }
 );
 
@@ -140,8 +140,6 @@ async function loadOptions(filter: IQueryMetaData) {
     filter
   );
 
-  optionMap.value = {};
-
   if (data.rows) {
     hasNoResults.value = false;
     data.rows.forEach(
@@ -171,6 +169,7 @@ function select(label: string) {
     selectionMap.value = {};
   }
   selectionMap.value[label] = optionMap.value[label];
+  if(searchTerms.value) toggleSearch();
   emit(
     "update:modelValue",
     props.isArray
@@ -193,6 +192,7 @@ function extractPrimaryKey(value: any) {
 
 function deselect(label: string) {
   delete selectionMap.value[label];
+  if(searchTerms.value) toggleSearch();
   emit(
     "update:modelValue",
     props.isArray
@@ -223,6 +223,7 @@ prepareModel();
 
 <template>
   <InputGroupContainer @focus="emit('focus')" @blur="emit('blur')">
+    <template v-if="initialCount > limit">
     <div
       class="flex flex-wrap gap-2 mb-2"
       v-if="isArray ? selection.length : selection"
@@ -237,25 +238,26 @@ prepareModel();
       >
         {{ label }}
       </Button>
+      <ButtonText @click="clearSelection">Clear</ButtonText>
     </div>
-    <div class="flex flex-wrap gap-2 mb-2">
-      <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
-        Search
-      </ButtonText>
-      <ButtonText @click="clearSelection"> Clear all </ButtonText>
-    </div>
-    <template v-if="showSearch && initialCount > limit">
-      <InputLabel :for="`search-for-${id}`" class="sr-only">
-        search in {{ columnName }}
-      </InputLabel>
-      <InputSearch
-        :id="`search-for-${id}`"
-        :modelValue="searchTerms"
-        @update:modelValue="updateSearch"
-        class="mb-2"
-        :placeholder="`Search in ${columnName}`"
-        :aria-hidden="!showSearch"
-      />
+      <div v-if="initialCount > limit" class="flex flex-wrap gap-2 mb-2">
+        <InputLabel :for="`search-for-${id}`" class="sr-only">
+          search in {{ columnName }}
+        </InputLabel>
+        <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
+          Search
+        </ButtonText>
+        <InputSearch
+            v-if="showSearch"
+            :id="`search-for-${id}`"
+            size="tiny"
+            :modelValue="searchTerms"
+            @update:modelValue="updateSearch"
+            class="mb-2"
+            :placeholder="`Search in ${columnName}`"
+            :aria-hidden="!showSearch"
+        />
+      </div>
     </template>
     <template v-if="!hasNoResults">
       <InputCheckboxGroup
@@ -280,9 +282,10 @@ prepareModel();
         :valid="valid"
         :disabled="disabled"
       />
-      <ButtonText @click="loadMore" v-if="offset + limit < count">
-        load {{ entitiesLeftToLoad }} more
-      </ButtonText>
+        <ButtonText @click="loadMore" v-if="offset + limit < count">
+          load {{ entitiesLeftToLoad }} more
+        </ButtonText>
+      <ButtonText v-if="initialCount <= limit && (isArray ? selection.length > 0 : selection)" @click="clearSelection">Clear</ButtonText>
     </template>
     <ButtonText v-else>No results found</ButtonText>
   </InputGroupContainer>

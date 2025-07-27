@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-8">
     <h3 class="text-2xl text-title">Large</h3>
     <div class="flex gap-4">
       <Button type="primary" size="large">Primary</Button>
@@ -97,14 +97,34 @@
         <Button iconOnly icon="caret-down" label="next" type="disabled" />
         <Button iconOnly icon="caret-down" label="next" type="filterWell" />
       </div>
-      <div class="flex flex-col items-start gap-4">
-        <Button type="text" size="small" iconPosition="left">
-          Text button
-        </Button>
-        <Button type="text" size="small" icon="star" iconPosition="left">
-          Text button with icon
-        </Button>
+      <h3 class="text-2xl text-title">Text button</h3>
+      <div class="flex flex-col gap-4">
+        <div class="flex items-start gap-4">
+          <Button type="text" size="small" iconPosition="left">
+            Click me
+          </Button>
+          <Button type="text" size="small" icon="star" iconPosition="left">
+            Star me
+          </Button>
+        </div>
       </div>
+
+      <h3 class="text-2xl text-title">Inline button</h3>
+      <div class="flex flex-col gap-4">
+        <div class="flex gap-4">
+          <Button type="inline" :icon-only="true" icon="plus" />
+          <Button type="inline" :icon-only="true" icon="trash" />
+          <Button type="inline" :icon-only="true" icon="edit" />
+          <Button type="inline" :icon-only="true" icon="caret-up" />
+          <Button type="inline" :icon-only="true" icon="caret-down" />
+          <Button type="inline" icon="plus" label="Add" />
+          <Button type="inline" icon="trash" label="Remove" />
+          <Button type="inline" icon="edit" label="Edit" />
+          <Button type="inline" icon="caret-up" label="Previous" />
+          <Button type="inline" icon="caret-down" label="Next" />
+        </div>
+      </div>
+
       <!-- do not render by default to avoid errors on clean load-->
       <div v-if="route.query.showError" class="flex gap-4">
         <!-- this should result in an error ( due to missing label)-->

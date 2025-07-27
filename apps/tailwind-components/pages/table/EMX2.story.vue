@@ -37,9 +37,8 @@ watch(
   schemaId,
   async () => {
     if (schemaId.value) {
-      const { data: metadata } = await useLazyAsyncData("my meta data", () =>
-        fetchMetadata(schemaId.value)
-      );
+      const result = await fetchMetadata(schemaId.value);
+      metadata.value = result;
       if (metadata.value) {
         tableId.value = metadata.value.tables[0].id;
       }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { IInputProps, ITreeNodeState } from "../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
-import { onMounted, ref, watch, type Ref } from "vue";
+import {onMounted, ref, watch, type Ref, computed} from "vue";
 import { fetchGraphql } from "#imports";
 
 const props = defineProps<
@@ -179,7 +179,6 @@ function toggleSelect(node: ITreeNodeState) {
         modelValue.value?.includes(parent.name)
       )
     ) {
-      console.log("here");
       const itemsToBeRemoved = [
         node.name,
         ...getAllParents(node).map((parent) => parent.name),
@@ -220,6 +219,7 @@ function toggleSelect(node: ITreeNodeState) {
       ];
     }
   }
+  if(searchTerms.value) toggleSearch();
   emit("focus");
 }
 
@@ -261,6 +261,7 @@ function deselect(name: string) {
   } else {
     modelValue.value = undefined;
   }
+  if(searchTerms.value) toggleSearch();
 }
 
 function clearSelection() {
@@ -270,6 +271,7 @@ function clearSelection() {
 
 function toggleSearch() {
   showSearch.value = !showSearch.value;
+  searchTerms.value = "";
   if (!showSearch.value) init();
 }
 
@@ -277,6 +279,8 @@ async function updateSearch(value: string) {
   searchTerms.value = value;
   await init();
 }
+
+const hasChildren = computed( () => ontologyTree.value?.some(node => node.children?.length));
 </script>
 
 <template>
@@ -306,18 +310,20 @@ async function updateSearch(value: string) {
         >
           {{ valueLabels[name] }}
         </Button>
+        <ButtonText @click="clearSelection">Clear</ButtonText>
       </div>
-      <div class="flex flex-wrap gap-2 mb-2">
+      <div class="flex flex-wrap gap-2"
+           :class="{'pl-8': hasChildren}">
         <InputLabel :for="`search-for-${id}`" class="sr-only">
           search in ontology
         </InputLabel>
         <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
           Search
         </ButtonText>
-        <ButtonText @click="clearSelection"> Clear all </ButtonText>
         <InputSearch
-          v-if="showSearch"
+          v-show="showSearch"
           :id="`search-for-${id}`"
+          size="tiny"
           :modelValue="searchTerms"
           @update:modelValue="updateSearch"
           class="mb-2"
@@ -334,13 +340,11 @@ async function updateSearch(value: string) {
           :valid="valid"
           :invalid="invalid"
           :disabled="disabled"
+          :multiselect="isArray"
           @toggleExpand="toggleExpand"
           @toggleSelect="toggleSelect"
-          class="border-l-2 border-transparent pl-4 pb-2 max-h-[500px] overflow-y-auto"
-          :class="{
-            'border-l-invalid': invalid,
-            'border-l-valid': valid,
-          }"
+          class="pb-2 max-h-[500px] overflow-y-auto"
+          :class="{'pl-4': hasChildren}"
         />
       </fieldset>
     </InputGroupContainer>

@@ -24,6 +24,7 @@
       />
     </div>
     <Button
+      class="my-[10px]"
       type="text"
       size="tiny"
       icon="plus"

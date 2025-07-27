@@ -10,7 +10,7 @@ defineProps<{
 
 <template>
   <label
-    class="pl-3 text-body-base"
+    class="text-body-base"
     :class="{
       'sr-only': hideLabel,
       'text-disabled': disabled,
