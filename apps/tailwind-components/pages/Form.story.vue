@@ -45,7 +45,7 @@ const schemaIds = computed(
       .map((s) => s.id) ?? []
 );
 
-const { data: schemaMeta, refresh } = await useAsyncData("form sample", () =>
+const { data: schemaMeta, refresh } = await useAsyncData(schemaId.value + " form data", () =>
   fetchMetadata(schemaId.value)
 );
 
