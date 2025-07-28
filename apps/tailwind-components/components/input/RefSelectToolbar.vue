@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 bg-ref-toolbar">
+  <div class="px-4 pt-4 pb-2 bg-ref-toolbar">
     <slot></slot>
   </div>
 </template>

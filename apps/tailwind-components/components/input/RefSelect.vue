@@ -90,6 +90,7 @@ const toggleElemRef = ref<InstanceType<typeof InputRefSelectToggle>>();
 const optionElemsRef = useTemplateRef<HTMLDivElement>("refOptionsContainer");
 const loadMoreTarget = useTemplateRef<HTMLDivElement>("inputOptionsTarget");
 const targetIsVisible = shallowRef<boolean>(false);
+const showListboxShadow = ref<boolean>(true);
 
 async function prepareModel() {
   tableMetadata.value = await fetchTableMetadata(
@@ -108,6 +109,8 @@ async function prepareModel() {
     { filter: { equals: filters } }
   );
 
+  await getMaxTableRows();
+
   if (data.rows) {
     hasNoResults.value = false;
     data.rows.forEach(
@@ -119,7 +122,32 @@ async function prepareModel() {
   initialCount.value = counter.value;
 }
 
-const orderByColumnNames = computed<IInputValueLabel[]>(() => {
+async function loadOptions(filter: IQueryMetaData) {
+  if (sortMethod.value) {
+    filter.orderby = {};
+    filter.orderby[sortMethod.value] = "ASC";
+  }
+
+  const data: ITableDataResponse = await fetchTableData(
+    props.refSchemaId,
+    props.refTableId,
+    filter
+  );
+
+  await getMaxTableRows();
+
+  if (data.rows) {
+    hasNoResults.value = false;
+    data.rows.forEach(
+      (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
+    );
+    counter.value = data.count;
+  } else {
+    hasNoResults.value = true;
+  }
+}
+
+const namesForOrderByInput = computed<IInputValueLabel[]>(() => {
   return (
     tableMetadata.value?.columns
       .filter((column) => {
@@ -139,30 +167,6 @@ function applyTemplate(template: string, row: Record<string, any>): string {
   const vals = Object.values(row);
   const label = new Function(...ids, "return `" + template + "`;")(...vals);
   return label;
-}
-
-async function loadOptions(filter: IQueryMetaData) {
-  hasNoResults.value = true;
-  if (sortMethod.value) {
-    filter.orderby = {};
-    filter.orderby[sortMethod.value] = "ASC";
-  }
-
-  const data: ITableDataResponse = await fetchTableData(
-    props.refSchemaId,
-    props.refTableId,
-    filter
-  );
-
-  if (data.rows) {
-    hasNoResults.value = false;
-    data.rows.forEach(
-      (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
-    );
-    counter.value = data.count;
-  } else {
-    hasNoResults.value = true;
-  }
 }
 
 function extractPrimaryKey(value: any) {
@@ -243,16 +247,20 @@ function updateDisplayText() {
   }
 }
 
-onMounted(async () => {
-  await prepareModel();
-  updateDisplayText();
-
+async function getMaxTableRows() {
   const data = await fetchGraphql(
     props.refSchemaId,
-    `query {${props.refTableId}_agg { count }} `,
+    `query {${props.refTableId}_agg(search: "${
+      searchTerm.value || ""
+    }") { count }} `,
     {}
   );
   maxTableRows.value = data[`${props.refTableId}_agg`].count;
+}
+
+onMounted(async () => {
+  await prepareModel();
+  updateDisplayText();
 });
 
 watch(
@@ -320,7 +328,19 @@ watch(
 
 watch(
   () => targetIsVisible.value,
-  () => loadMore()
+  () => {
+    if (targetIsVisible.value) {
+      if (counterOffset.value < maxTableRows.value) {
+        loadMore();
+      }
+
+      if (counter.value === maxTableRows.value) {
+        showListboxShadow.value = false;
+      }
+    } else {
+      showListboxShadow.value = true;
+    }
+  }
 );
 </script>
 
@@ -356,8 +376,8 @@ watch(
         hidden: disabled || !isExpanded,
       }"
     >
-      <InputRefSelectToolbar class="flex flex-col gap-4">
-        <div class="w-full grid grid-cols-[2fr_1fr] gap-5">
+      <InputRefSelectToolbar class="flex flex-col gap-2">
+        <div class="w-full grid grid-cols-[2fr_1fr] gap-4">
           <div>
             <label :for="`${id}-ref-dropdown-search`" class="sr-only">
               search for values
@@ -379,35 +399,40 @@ watch(
             <InputListbox
               :id="`${id}-ref-dropdown-sorting`"
               :labelId="`${id}-ref-dropdown-sort-input-label`"
-              :options="orderByColumnNames"
+              :options="namesForOrderByInput"
               @update:model-value="(value: IInputValueLabel) => (sortMethod = value?.value as string)"
               :enable-search="false"
               placeholder="Sort by"
             />
           </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-[125px_100px_175px] gap-1">
+        <div
+          class="grid grid-cols-1 gap-2 md:grid-cols-[135px_165px] [&>button>span]:text-body-sm"
+        >
           <ButtonText
             :id="`${id}-ref-dropdown-btn-clear`"
+            icon="Trash"
             @click="clearSelection"
           >
             Clear selection
           </ButtonText>
           <ButtonText
-            :id="`${id}-ref-dropdown-btn-expand`"
-            @click="expandAllOptions = !expandAllOptions"
-          >
-            {{ expandAllOptions ? "Collapse" : "Expand" }} all
-          </ButtonText>
-          <ButtonText
             :id="`${id}-ref-dropdown-btn-show`"
+            :icon="showSelectionMap ? 'filter-alt-off' : 'filter-alt'"
             @click="showSelectionMap = !showSelectionMap"
             :disabled="!Object.keys(selectionMap).length"
             :class="{
               'cursor-not-allowed': hasNoResults,
             }"
           >
-            Show {{ showSelectionMap ? "all" : "selected" }}
+            Show
+            {{
+              showSelectionMap
+                ? "all"
+                : multiselect
+                ? "selected values"
+                : "selected value"
+            }}
           </ButtonText>
         </div>
       </InputRefSelectToolbar>
@@ -467,7 +492,8 @@ watch(
         </fieldset>
       </div>
       <div
-        class="absolute w-full bottom-0 shadow-[0_0_4px_3px_rgba(0,0,0,0.08)]"
+        v-if="showListboxShadow"
+        class="absolute w-full bottom-0 shadow-[0_0_5px_5px_rgba(0,0,0,0.08)]"
       />
     </InputRefSelectContainer>
   </InputGroupContainer>
