@@ -1,0 +1,2 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible,computed
+Contacts points,Contacts,,,,,,,,,,"vcard:Kind,vcard:Individual",Listing of contact persons per resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
