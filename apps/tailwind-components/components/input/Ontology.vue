@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { IInputProps, ITreeNodeState } from "../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
-import {onMounted, ref, watch, type Ref, computed} from "vue";
+import { onMounted, ref, watch, type Ref, computed } from "vue";
 import { fetchGraphql } from "#imports";
 
 const props = defineProps<
@@ -219,7 +219,7 @@ function toggleSelect(node: ITreeNodeState) {
       ];
     }
   }
-  if(searchTerms.value) toggleSearch();
+  if (searchTerms.value) toggleSearch();
   emit("focus");
 }
 
@@ -261,7 +261,7 @@ function deselect(name: string) {
   } else {
     modelValue.value = undefined;
   }
-  if(searchTerms.value) toggleSearch();
+  if (searchTerms.value) toggleSearch();
 }
 
 function clearSelection() {
@@ -280,7 +280,9 @@ async function updateSearch(value: string) {
   await init();
 }
 
-const hasChildren = computed( () => ontologyTree.value?.some(node => node.children?.length));
+const hasChildren = computed(() =>
+  ontologyTree.value?.some((node) => node.children?.length)
+);
 </script>
 
 <template>
@@ -312,8 +314,7 @@ const hasChildren = computed( () => ontologyTree.value?.some(node => node.childr
         </Button>
         <ButtonText @click="clearSelection">Clear</ButtonText>
       </div>
-      <div class="flex flex-wrap gap-2"
-           :class="{'pl-8': hasChildren}">
+      <div class="flex flex-wrap gap-2" :class="{ 'pl-8': hasChildren }">
         <InputLabel :for="`search-for-${id}`" class="sr-only">
           search in ontology
         </InputLabel>
@@ -344,7 +345,7 @@ const hasChildren = computed( () => ontologyTree.value?.some(node => node.childr
           @toggleExpand="toggleExpand"
           @toggleSelect="toggleSelect"
           class="pb-2 max-h-[500px] overflow-y-auto"
-          :class="{'pl-4': hasChildren}"
+          :class="{ 'pl-4': hasChildren }"
         />
       </fieldset>
     </InputGroupContainer>

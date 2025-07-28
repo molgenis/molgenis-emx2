@@ -45,8 +45,9 @@ const schemaIds = computed(
       .map((s) => s.id) ?? []
 );
 
-const { data: schemaMeta, refresh } = await useAsyncData(schemaId.value + " form data", () =>
-  fetchMetadata(schemaId.value)
+const { data: schemaMeta, refresh } = await useAsyncData(
+  schemaId.value + " form data",
+  () => fetchMetadata(schemaId.value)
 );
 
 async function getNumberOfRows() {

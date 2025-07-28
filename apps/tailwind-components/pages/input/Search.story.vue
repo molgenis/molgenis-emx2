@@ -22,24 +22,24 @@ const searchValue = ref<string>("");
     value: {{ searchValue }}
     <h2>large</h2>
     <InputSearch
-        v-model="searchValue"
-        size="large"
-        :placeholder="placeholder"
-        :valid="valid"
-        :invalid="invalid"
-        :disabled="disabled"
-        id="search-input"
+      v-model="searchValue"
+      size="large"
+      :placeholder="placeholder"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
+      id="search-input"
     />
     value: {{ searchValue }}
     <h2>tiny</h2>
     <InputSearch
-        v-model="searchValue"
-        size="tiny"
-        :placeholder="placeholder"
-        :valid="valid"
-        :invalid="invalid"
-        :disabled="disabled"
-        id="search-input"
+      v-model="searchValue"
+      size="tiny"
+      :placeholder="placeholder"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
+      id="search-input"
     />
     value: {{ searchValue }}
   </InputTestContainer>

@@ -18,7 +18,7 @@ const props = withDefaults(
   {
     inverted: false,
     isRoot: false,
-    multiselect:true,
+    multiselect: true,
   }
 );
 const emit = defineEmits(["toggleSelect", "toggleExpand"]);
@@ -31,7 +31,9 @@ function toggleExpand(node: ITreeNodeState) {
   emit("toggleExpand", node);
 }
 
-const hasChildren = computed( () => props.nodes?.some(node => node.children?.length));
+const hasChildren = computed(() =>
+  props.nodes?.some((node) => node.children?.length)
+);
 </script>
 
 <template>
@@ -82,8 +84,9 @@ const hasChildren = computed( () => props.nodes?.some(node => node.children?.len
           />
         </template>
       </div>
-      <div class="flex justify-start items-center"
-           :class="{'ml-4': !isRoot || hasChildren}"
+      <div
+        class="flex justify-start items-center"
+        :class="{ 'ml-4': !isRoot || hasChildren }"
       >
         <input
           v-if="node.selectable"
@@ -116,16 +119,16 @@ const hasChildren = computed( () => props.nodes?.some(node => node.children?.len
             :disabled="disabled"
           />
           <InputRadioIcon
-              v-else-if="node.selectable"
-              :indeterminate="node.selected === 'intermediate'"
-              :checked="node.selected === 'selected'"
-              class="min-w-[20px] mr-[6px] mt-[2px]"
-              :class="{
+            v-else-if="node.selectable"
+            :indeterminate="node.selected === 'intermediate'"
+            :checked="node.selected === 'selected'"
+            class="min-w-[20px] mr-[6px] mt-[2px]"
+            :class="{
               '[&>rect]:stroke-gray-400': inverted,
             }"
-              :invalid="invalid"
-              :valid="valid"
-              :disabled="disabled"
+            :invalid="invalid"
+            :valid="valid"
+            :disabled="disabled"
           />
           <span class="block text-body-sm leading-normal pl-1"
             >{{ node.label || node.name }}
