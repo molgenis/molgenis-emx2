@@ -3,6 +3,7 @@ import { useRoute, useRuntimeConfig, useHead, useFetch } from "#app";
 import { logError } from "#imports";
 import { computed } from "vue";
 import type { ISetting } from "../../../metadata-utils/src/types";
+import { createError } from 'h3'
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -188,6 +189,12 @@ const settings = computed(() => {
 });
 
 const network = computed(() => {
+  if(!data.value.data?.Resources) {
+  }
+  throw createError({
+    statusCode: 404,
+    statusMessage: 'Catalogue Not Found'
+  })
   return data.value.data?.Resources[0];
 });
 
