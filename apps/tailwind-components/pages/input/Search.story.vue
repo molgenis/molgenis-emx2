@@ -21,7 +21,7 @@ const searchValue3 = ref<string>("");
       :disabled="disabled"
       id="search-input"
     />
-    value: {{ searchValu1e }}
+    value: {{ searchValue1 }}
     <h2>large</h2>
     <InputSearch
       v-model="searchValue2"
