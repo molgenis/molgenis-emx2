@@ -457,8 +457,9 @@ watch(
           </label>
           <template v-if="!hasNoResults">
             <div
-              v-for="(option, label) in optionsToDisplay"
+              v-for="(option, label, index) in optionsToDisplay"
               class="border-b last:border-none"
+              :ref="index === counterOffset ? 'inputOptionsTarget' : ''"
             >
               <InputRefSelectInputOption
                 :id="(label as string)"
@@ -480,7 +481,6 @@ watch(
                 />
               </InputRefSelectInputOption>
             </div>
-            <div ref="inputOptionsTarget" class="h-1" />
           </template>
           <div
             v-if="hasNoResults"
