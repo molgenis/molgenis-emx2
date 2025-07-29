@@ -18,7 +18,7 @@ export async function applyFiltersToQuery(
     switch (filterDetail.component) {
       case "StringFilter": {
         if (filterKey === "search" && filterValue) {
-          baseQuery.searchValue = filterValue;
+          baseQuery.searchValue = filterValue.replaceAll('"', "");
           baseQuery.searchFieldsByProperty = {
             root: [
               "id",

@@ -1,0 +1,3 @@
+GET http://localhost:8080/patientRegistry/api/cafevariome/record-index
+
+###

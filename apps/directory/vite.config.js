@@ -16,7 +16,7 @@ export default defineConfig(({ command }) => ({
   plugins: [
     vue(),
     createHtmlPlugin({
-      entry: "src/main.js",
+      entry: "src/main.ts",
       template: command === "serve" ? "dev-index.html" : "index.html",
     }),
     monacoEditorPlugin({

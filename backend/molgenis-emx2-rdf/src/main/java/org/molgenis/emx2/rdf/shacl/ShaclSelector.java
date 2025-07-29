@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.Set;
 import org.molgenis.emx2.MolgenisException;
@@ -14,7 +13,7 @@ public abstract class ShaclSelector {
   private static final String SETS_YAML_PATH = "_shacl/sets.yaml";
 
   private static final ClassLoader classLoader = ShaclSelector.class.getClassLoader();
-  private static final Map<String, ShaclSet> shaclSetMap = new HashMap<>();
+  private static final LinkedHashMap<String, ShaclSet> shaclSetMap = new LinkedHashMap<>();
 
   static {
     update();
@@ -43,5 +42,12 @@ public abstract class ShaclSelector {
 
   public static ShaclSet get(String name) {
     return shaclSetMap.get(name);
+  }
+
+  /** Returns all {@link ShaclSet}s but removed any data not needed for front-end. */
+  public static ShaclSet[] getAllFiltered() {
+    return shaclSetMap.values().stream()
+        .map(i -> new ShaclSet(i.name(), i.description(), i.version(), i.sources(), null))
+        .toArray(ShaclSet[]::new);
   }
 }
