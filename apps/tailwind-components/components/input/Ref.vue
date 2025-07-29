@@ -154,7 +154,7 @@ async function loadOptions(filter: IQueryMetaData) {
 
 function toggleSearch() {
   showSearch.value = !showSearch.value;
-  if (!showSearch.value) updateSearch("");
+  if (searchTerms.value) updateSearch("");
 }
 
 function updateSearch(newSearchTerms: string) {
