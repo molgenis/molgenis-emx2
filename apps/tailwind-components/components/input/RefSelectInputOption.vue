@@ -76,7 +76,7 @@ watch(
           <InputCheckboxIcon v-if="multiselect" :checked="checked" />
           <InputRadioIcon v-else :checked="checked" />
         </div>
-        <span class="block text-input font-bold">
+        <span class="block text-input font-bold max-w-[475px] flex-1 truncate">
           {{ label }}
         </span>
       </InputLabel>

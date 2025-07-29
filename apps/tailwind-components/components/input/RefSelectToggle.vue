@@ -11,6 +11,7 @@ defineProps<{
   disabled?: boolean;
 }>();
 
+const combobox = useTemplateRef<HTMLDivElement>("combobox");
 const isExpanded = ref<boolean>(false);
 
 function onClick() {
@@ -27,6 +28,7 @@ defineExpose({
 <template>
   <div
     role="combobox"
+    ref="combobox"
     :aria-required="required"
     class="flex justify-start items-center h-input w-full text-left pl-11 border rounded-input cursor-pointer"
     :class="{
@@ -41,7 +43,7 @@ defineExpose({
         !disabled && !invalid && !valid,
     }"
   >
-    <div class="w-full">
+    <div class="max-w-[40vw] flex-1 truncate">
       <slot name="ref-dropdown-label"> </slot>
     </div>
     <button

@@ -114,7 +114,7 @@ async function prepareModel() {
   if (data.rows) {
     hasNoResults.value = false;
     data.rows.forEach(
-      (row) => (selectionMap.value[applyTemplate(props.refLabel, row)] = row)
+      (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
     );
   }
 
@@ -278,6 +278,10 @@ watch(
     if (optionElemsRef.value) {
       optionElemsRef.value.scrollTop = 0;
     }
+
+    if (!isExpanded.value) {
+      updateSearch("");
+    }
   }
 );
 
@@ -361,7 +365,7 @@ watch(
       :disabled="disabled"
     >
       <template #ref-dropdown-label>
-        <span class="w-full">
+        <span>
           {{ displayText }}
         </span>
       </template>
@@ -440,7 +444,7 @@ watch(
         ref="refOptionsContainer"
         class="overflow-y-scroll"
         :class="{
-          'max-h-[300px]': isExpanded,
+          'max-h-[275px]': isExpanded,
         }"
       >
         <fieldset :id="`${id}-ref-dropdown-options`">
@@ -479,11 +483,9 @@ watch(
             <div ref="inputOptionsTarget" class="h-1" />
           </template>
           <div
+            v-if="hasNoResults"
             :id="`${id}-ref-dropdown-options-status`"
-            class="flex justify-center items-center"
-            :class="{
-              'h-[56px]': hasNoResults,
-            }"
+            class="flex justify-center items-center h-56"
             role="status"
             aria-atomic="true"
           >
@@ -493,7 +495,7 @@ watch(
       </div>
       <div
         v-if="showListboxShadow"
-        class="absolute w-full bottom-0 shadow-[0_0_5px_5px_rgba(0,0,0,0.08)]"
+        class="absolute w-full bottom-0 shadow-[0_0_3px_2px_rgba(0,0,0,0.08)]"
       />
     </InputRefSelectContainer>
   </InputGroupContainer>
