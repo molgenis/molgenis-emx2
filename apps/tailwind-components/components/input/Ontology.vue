@@ -315,7 +315,7 @@ const hasChildren = computed(() =>
           {{ valueLabels[name] }}
         </Button>
       </div>
-      <div class="flex flex-wrap gap-2" :class="{ 'pl-8': hasChildren }">
+      <div class="flex flex-wrap gap-2">
         <InputLabel :for="`search-for-${id}`" class="sr-only">
           search in ontology
         </InputLabel>
