@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useNuxtApp } from "#app";
-import { computed } from "vue";
+import { ref, computed, useTemplateRef } from "vue";
 import { useRoute } from "vue-router";
 import PlaygroundNavBar from "../PlaygroundNavBar.vue";
 
@@ -43,24 +43,40 @@ const storyName = computed(() => {
 });
 
 const { $sourceCodeMap } = useNuxtApp();
+
+const menuIsOpen = ref<boolean>(true);
+const container = useTemplateRef<HTMLDivElement>("playgroundContainer");
+
+function scrollToTop() {
+  container.value?.scrollIntoView();
+}
 </script>
 
 <template>
   <div
+    ref="playgroundContainer"
     class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden pt-15"
   >
-    <PlaygroundNavBar />
+    <PlaygroundNavBar @menu-is-open="(value) => (menuIsOpen = value)" />
     <div
       class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient"
     >
       <BackgroundGradient class="z-10" />
     </div>
-    <div class="z-30 relative min-h-screen flex flex-col">
+    <div class="z-30 relative min-h-screen">
       <main class="mb-auto">
         <div id="header-place-holder"></div>
-        <div class="xl:flex">
+        <div
+          class="grid xl:grid-cols-1"
+          :class="{
+            'xl:grid-cols-[350px_2fr]': menuIsOpen,
+          }"
+        >
           <aside
-            class="xl:min-w-95 xl:w-95 hidden xl:block pl-6 bg-sidebar-gradient"
+            class="hidden xl:block pl-6 bg-sidebar-gradient"
+            :class="{
+              'xl:hidden': !menuIsOpen,
+            }"
           >
             <h2 class="text-2xl text-title font-bold my-5">Theme Styles</h2>
             <NuxtLink class="hover:underline text-title" to="/Styles.other"
@@ -97,11 +113,19 @@ const { $sourceCodeMap } = useNuxtApp();
               >Data fetching</NuxtLink
             >
           </aside>
-          <Story :title="storyName" class="grow">
+          <Story :title="storyName" class="max-w-[calc(100%-1rem)]">
             <slot></slot>
           </Story>
         </div>
       </main>
+    </div>
+    <div
+      class="hidden z-40 fixed bottom-0 left-0 w-[100%] md:flex justify-end px-4 pb-4"
+    >
+      <Button size="small" type="outline" id="scrollToTop" @click="scrollToTop">
+        <BaseIcon name="ArrowUp" :width="24" />
+        <span class="sr-only">scroll to top</span>
+      </Button>
     </div>
   </div>
 </template>
