@@ -301,7 +301,7 @@ const hasChildren = computed(() =>
         v-if="Object.keys(valueLabels).length > 0"
       >
         <Button @click="clearSelection" v-if="Array.isArray(modelValue) && modelValue.length > 1" type="filterWell" size="tiny"           icon="cross"
-                iconPosition="right" class="mr-3">Clear all</Button>
+                iconPosition="right" class="mr-2">Clear all</Button>
         <Button
           v-for="name in Array.isArray(modelValue)
             ? (modelValue as string[]).sort()

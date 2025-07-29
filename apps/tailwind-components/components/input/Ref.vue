@@ -229,7 +229,7 @@ prepareModel();
         v-if="isArray ? selection.length : selection"
       >
         <Button @click="clearSelection" v-if="isArray && selection.length > 1" type="filterWell" size="tiny"           icon="cross"
-                iconPosition="right" class="mr-3">Clear all</Button>
+                iconPosition="right" class="mr-2">Clear all</Button>
         <Button
           v-for="label in isArray ? selection : [selection]"
           icon="cross"
