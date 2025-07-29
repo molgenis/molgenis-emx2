@@ -193,7 +193,7 @@ const network = computed(() => {
   }
   throw createError({
     statusCode: 404,
-    statusMessage: 'Catalogue "'+catalogueRouteParam+'" Not Found'
+    statusMessage: 'Catalogue "'+catalogueRouteParam+'" Not Found.'
   })
   return data.value.data?.Resources[0];
 });
