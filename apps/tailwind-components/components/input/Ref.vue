@@ -228,8 +228,16 @@ prepareModel();
         class="flex flex-wrap gap-2 mb-2"
         v-if="isArray ? selection.length : selection"
       >
-        <Button @click="clearSelection" v-if="isArray && selection.length > 1" type="filterWell" size="tiny"           icon="cross"
-                iconPosition="right" class="mr-2">Clear all</Button>
+        <Button
+          @click="clearSelection"
+          v-if="isArray && selection.length > 1"
+          type="filterWell"
+          size="tiny"
+          icon="cross"
+          iconPosition="right"
+          class="mr-2"
+          >Clear all</Button
+        >
         <Button
           v-for="label in isArray ? selection : [selection]"
           icon="cross"

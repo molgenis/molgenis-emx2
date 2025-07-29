@@ -300,8 +300,16 @@ const hasChildren = computed(() =>
         class="flex flex-wrap gap-2 mb-2 max-h-[300px] overflow-y-auto"
         v-if="Object.keys(valueLabels).length > 0"
       >
-        <Button @click="clearSelection" v-if="Array.isArray(modelValue) && modelValue.length > 1" type="filterWell" size="tiny"           icon="cross"
-                iconPosition="right" class="mr-2">Clear all</Button>
+        <Button
+          @click="clearSelection"
+          v-if="Array.isArray(modelValue) && modelValue.length > 1"
+          type="filterWell"
+          size="tiny"
+          icon="cross"
+          iconPosition="right"
+          class="mr-2"
+          >Clear all</Button
+        >
         <Button
           v-for="name in Array.isArray(modelValue)
             ? (modelValue as string[]).sort()

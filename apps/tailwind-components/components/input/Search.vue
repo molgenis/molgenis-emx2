@@ -30,7 +30,7 @@ function handleInput(input: string) {
 }
 
 const HEIGHT_MAPPING = {
-  tiny: "h-8 px-5 text-heading-sm gap-3",
+  tiny: "h-8 px-5 text-heading-sm gap-2",
   small: "h-10.5 px-5 text-heading-lg gap-3",
   medium: "h-14 px-7.5 text-heading-xl gap-4",
   large: "h-18 px-8.75 text-heading-xl gap-5",
