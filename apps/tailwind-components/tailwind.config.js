@@ -107,6 +107,12 @@ module.exports = {
       height: ({ theme }) => ({
         input: "var(--height-input)",
       }),
+      height: ({ theme }) => ({
+        input: "var(--height-input)",
+      }),
+      width: {
+        "button-switch": "var(--width-button-switch)",
+      },
       minWidth: {
         95: "23.75rem",
       },
@@ -126,7 +132,8 @@ module.exports = {
         title: "10rem",
       },
       transitionDuration: {
-        default: "500",
+        default: "500ms",
+        popup: "300ms",
       },
       backgroundImage: {
         "sidebar-gradient": "var(--background-image-sidebar-gradient)",
@@ -202,6 +209,12 @@ module.exports = {
         "button-toggle-active": "var(--text-color-button-toggle-active)",
         "button-toggle-inactive": "var(--text-color-button-toggle-inactive)",
         "ref-toolbar": "var(--background-color-ref-dropdown-toolbar);",
+        "ref-toolbar": "var(--background-color-ref-dropdown-toolbar);",
+
+        "button-switch": "var(--background-color-button-switch)",
+        "button-switch-selected":
+          "var(--background-color-button-switch-selected)",
+        "button-switch-hover": "var(--background-color-button-switch-hover)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -299,6 +312,13 @@ module.exports = {
         "record-heading": "var(--text-color-record-heading)",
         "record-label": "var(--text-color-record-label)",
         "record-value": "var(--text-color-record-value)",
+        "record-heading": "var(--text-color-record-heading)",
+        "record-label": "var(--text-color-record-label)",
+        "record-value": "var(--text-color-record-value)",
+
+        "button-switch": "var(--text-color-button-switch)",
+        "button-switch-selected": "var(--text-color-button-switch-selected)",
+        "button-switch-hover": "var(--text-color-button-switch-hover)",
       }),
       borderColor: ({ theme }) => ({
         theme: "var(--border-color-theme)",
@@ -333,6 +353,10 @@ module.exports = {
         listbox: "var(--border-color-search-input)",
         "listbox-option": "var(--border-color-listbox-option)",
         "form-required": "var(--border-color-form-required)",
+
+        "button-switch": "var(--border-color-button-switch)",
+        "button-switch-selected": "var(--border-color-button-switch-selected)",
+        "button-switch-hover": "var(--border-color-button-switch-hover)",
       }),
       stroke: ({ theme }) => ({
         input: "var(--border-color-input)",
