@@ -104,6 +104,9 @@ module.exports = {
         95: "23.75rem",
         82.5: "20.625rem",
       },
+      height: ({ theme }) => ({
+        input: "var(--height-input)",
+      }),
       minWidth: {
         95: "23.75rem",
       },
@@ -198,6 +201,7 @@ module.exports = {
         "code-output": "var(--background-color-code-output)",
         "button-toggle-active": "var(--text-color-button-toggle-active)",
         "button-toggle-inactive": "var(--text-color-button-toggle-inactive)",
+        "ref-toolbar": "var(--background-color-ref-dropdown-toolbar);",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -292,6 +296,9 @@ module.exports = {
         "code-output": "var(--text-color-code-output)",
         "button-toggle-active": "var(--text-color-button-toggle-active)",
         "button-toggle-inactive": "var(--text-color-button-toggle-inactive)",
+        "record-heading": "var(--text-color-record-heading)",
+        "record-label": "var(--text-color-record-label)",
+        "record-value": "var(--text-color-record-value)",
       }),
       borderColor: ({ theme }) => ({
         theme: "var(--border-color-theme)",
