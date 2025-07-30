@@ -116,17 +116,15 @@ BEGIN
                     schema_id, table_id);
 
             EXECUTE format('ALTER TABLE %I.%I ADD COLUMN IF NOT EXISTS mg_group VARCHAR', schema_id, table_id);
-            EXECUTE format('ALTER TABLE %I.%I ENABLE ROW LEVEL SECURITY',schema_id, table_id);
+            EXECUTE format('ALTER TABLE %I.%I ENABLE ROW LEVEL SECURITY', schema_id, table_id);
             EXECUTE format(
                     'CREATE POLICY select_policy ON %I.%I FOR SELECT USING (pg_has_role(''MG_PERM:%s:%s:SELECT'',current_user,''MEMBER'') OR (pg_has_role(''MG_PERM:%s:%s:GROUP_SELECT'',''MEMBER'') AND pg_has_role(mg_group, current_user,''MEMBER'')))',
                     schema_id, table_id, schema_id, table_id, schema_id, table_id
                     );
         END LOOP;
-EXCEPTION WHEN OTHERS THEN
-    RAISE NOTICE 'Error during GRANT execution: %', SQLERRM;
-    RAISE;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Error during GRANT execution: %', SQLERRM;
+        RAISE;
 END
 $$;
-
--- test on the pet store
-SELECT "MOLGENIS"."create_permissions"('pet store');
