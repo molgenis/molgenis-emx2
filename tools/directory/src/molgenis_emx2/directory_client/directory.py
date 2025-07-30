@@ -123,8 +123,6 @@ class Directory:
         for node in nodes:
             self.printer.print_node_title(node)
             try:
-                if isinstance(node, ExternalServerNode):
-                    await self._stage_node(node, state.report)
                 node_data = self.preparator.prepare(node, state)
                 state.data_to_publish.merge(node_data)
             except DirectoryError as e:
