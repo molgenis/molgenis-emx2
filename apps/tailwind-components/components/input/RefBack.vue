@@ -127,6 +127,7 @@ async function editRefBackItem(rowIndex: number) {
 function afterRowEdited(row: columnValueObject) {
   showEditModal.value = false;
   crudRow.value = null;
+  reloadItems();
 }
 
 const addModalConstantValues = computed(() => {
