@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { BaseIcon } from "#components";
-import type { IInputProps } from "~/types/types";
+import type { IInputProps } from "../../types/types";
 import type { IInputValue } from "../../../metadata-utils/src/types";
 
 interface SwitchOption {
