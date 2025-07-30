@@ -41,9 +41,14 @@
       <FormError
         v-show="deleteErrorMessage"
         :message="deleteErrorMessage"
-        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        :show-prev-next-buttons="false"
+        class="sticky mx-4 bottom-0 transition-all transition-discrete"
       />
     </Transition>
+
+    <div class="w-[90%] m-auto py-4">
+      <DisplayRecord :table-metadata="metadata" :input-row-data="formValues" />
+    </div>
 
     <template #footer>
       <div class="flex justify-between items-center">
@@ -64,6 +69,7 @@ import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
+import DisplayRecord from "../display/Record.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -74,9 +80,12 @@ const props = withDefaults(
   {}
 );
 
-const emit = defineEmits(["update:deleted"]);
+const emit = defineEmits(["update:deleted", "update:cancelled"]);
 
-const visible = ref(false);
+const visible = defineModel("visible", {
+  type: Boolean,
+  default: false,
+});
 
 const deleteErrorMessage = ref<string>("");
 
@@ -89,9 +98,18 @@ const isDraft = ref(false);
 
 function onCancel() {
   visible.value = false;
+  emit("update:cancelled");
 }
 
 async function onDeleteConfirm() {
+  const { deleteRecord } = useForm(
+    props.metadata,
+    props.formValues,
+    ref<Record<columnId, string>>({}),
+    (fieldId: string) => {
+      return fieldId;
+    }
+  );
   const resp = await deleteRecord(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error deleting data", err);
@@ -108,13 +126,4 @@ async function onDeleteConfirm() {
   visible.value = false;
   emit("update:deleted", resp);
 }
-
-const { deleteRecord } = useForm(
-  props.metadata,
-  props.formValues,
-  ref<Record<columnId, string>>({}),
-  (fieldId: string) => {
-    return fieldId;
-  }
-);
 </script>

@@ -11,6 +11,11 @@ export default async function fetchRowPrimaryKey(
   schemaId: string
 ): Promise<Record<string, string>> {
   const schema = await fetchMetadata(schemaId);
+  if (!schema || !schema.tables) {
+    throw new Error(
+      `Unable to fetch primary row key, Schema with id ${schemaId} not found`
+    );
+  }
   const tableMetadata = schema.tables.find(
     (table: ITableMetaData) => table.id === tableId
   );

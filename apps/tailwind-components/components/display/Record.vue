@@ -3,11 +3,16 @@ import { computed } from "vue";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { recordValue } from "../../../metadata-utils/src/types";
 
-const props = defineProps<{
-  tableMetadata?: ITableMetaData;
-  inputRowData: recordValue;
-  showMgColumns: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    tableMetadata?: ITableMetaData;
+    inputRowData: recordValue;
+    showMgColumns?: boolean;
+  }>(),
+  {
+    showMgColumns: false,
+  }
+);
 
 const filteredTableMetadata = computed(() => {
   return props.tableMetadata?.columns.filter(

@@ -72,6 +72,7 @@
   --text-color-pagination-button: var(--color-green-500);
   --text-color-pagination-hover: var(--color-green-500);
   --text-color-input: var(--color-white);
+  --text-color-definition-list-term: var(--color-gray-400);
   --text-color-record-heading: var(--color-white);
   --text-color-record-label: var(--color-gray-200);
   --text-color-record-value: var(--color-gray-200);

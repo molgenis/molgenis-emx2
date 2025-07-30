@@ -190,7 +190,7 @@ function scrollToElementInside(containerId: string, elementId: string) {
         />
       </div>
     </div>
-    <div class="ml-2 h-screen">
+    <div class="ml-2 h-screen max-w-[325px]">
       <h2>Demo controls, settings and status</h2>
 
       <div class="p-4 border-2 mb-2 flex flex-col gap-4">

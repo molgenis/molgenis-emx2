@@ -44,7 +44,7 @@
         </span>
       </InputLabel>
     </div>
-    <ButtonText
+    <ButtonInline
       v-if="showClearButton"
       type="reset"
       :id="`${id}-checkbox-group-clear`"
@@ -54,7 +54,7 @@
       :disabled="disabled || null"
     >
       Clear
-    </ButtonText>
+    </ButtonInline>
   </InputGroupContainer>
 </template>
 
