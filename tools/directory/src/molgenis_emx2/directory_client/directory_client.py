@@ -35,6 +35,7 @@ from .utils import create_csv
 # Value is 1/4th of max. CSV line size in Molgenis
 csv.field_size_limit(2097152)
 
+
 @dataclass
 class AttributesRequest:
     persons: List[str]
@@ -266,9 +267,12 @@ class DirectorySession(Session):
                 table=self.NODES_TABLE, query_filter=f"id == {codes}", as_df=True
             )
         else:
-            df_nodes = self.get(table=self.NODES_TABLE, as_df=True)
+            df_nodes = self.get(
+                table=self.NODES_TABLE,
+                query_filter="data_refresh.name == external_server",
+                as_df=True,
+            )
 
-        df_nodes = df_nodes.loc[df_nodes["dns"] != ""]
         nodes = df_nodes.to_dict("records")
 
         if codes:
