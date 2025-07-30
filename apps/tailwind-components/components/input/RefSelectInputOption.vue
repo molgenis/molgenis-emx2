@@ -12,13 +12,13 @@ const props = withDefaults(
       option: recordValue;
       checked?: boolean;
       multiselect?: boolean;
-      expandHiddenContent?: boolean | null;
+      collapseHiddenContent?: boolean | null;
     }
   >(),
   {
     placeholder: "Select an option",
     multiselect: false,
-    expandHiddenContent: false,
+    collapseHiddenContent: true,
   }
 );
 
@@ -40,9 +40,9 @@ function toggleSelect(event: Event) {
 }
 
 watch(
-  () => props.expandHiddenContent,
+  () => props.collapseHiddenContent,
   () => {
-    if (!props.expandHiddenContent) {
+    if (!props.collapseHiddenContent) {
       isExpanded.value = false;
     } else {
       isExpanded.value = true;

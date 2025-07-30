@@ -83,7 +83,7 @@ const displayText = ref<string>(props.placeholder);
 const searchTerm = defineModel<string>("");
 const sortMethod = ref<string>();
 const isExpanded = ref<boolean>(false);
-const expandAllOptions = ref<boolean>(false);
+const collapseAllOptions = ref<boolean>(false);
 const showSelectionMap = ref<boolean>(false);
 
 const toggleElemRef = ref<InstanceType<typeof InputRefSelectToggle>>();
@@ -141,9 +141,10 @@ async function loadOptions(filter: IQueryMetaData) {
     data.rows.forEach(
       (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
     );
-    counter.value = data.count;
+    counter.value = Object.keys(optionMap.value).length;
   } else {
     hasNoResults.value = true;
+    counter.value = 0;
   }
 }
 
@@ -457,9 +458,8 @@ watch(
           </label>
           <template v-if="!hasNoResults">
             <div
-              v-for="(option, label, index) in optionsToDisplay"
+              v-for="(option, label) in optionsToDisplay"
               class="border-b last:border-none"
-              :ref="index === counterOffset ? 'inputOptionsTarget' : ''"
             >
               <InputRefSelectInputOption
                 :id="(label as string)"
@@ -470,9 +470,7 @@ watch(
                 :checked="Object.hasOwn(selectionMap, label)"
                 @select="select"
                 @deselect="deselect"
-                :expand-hidden-content="
-                  !isExpanded ? false : expandAllOptions ? true : null
-                "
+                :collapse-hidden-content="!isExpanded ? true : null"
               >
                 <DisplayRecord
                   :table-metadata="tableMetadata"
@@ -481,6 +479,7 @@ watch(
                 />
               </InputRefSelectInputOption>
             </div>
+            <div ref="inputOptionsTarget" />
           </template>
           <div
             v-if="hasNoResults"
