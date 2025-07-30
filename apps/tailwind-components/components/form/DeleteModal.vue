@@ -41,9 +41,14 @@
       <FormError
         v-show="deleteErrorMessage"
         :message="deleteErrorMessage"
-        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        :show-prev-next-buttons="false"
+        class="sticky mx-4 bottom-0 transition-all transition-discrete"
       />
     </Transition>
+
+    <div class="w-[90%] m-auto py-4">
+      <DisplayRecord :table-metadata="metadata" :input-row-data="formValues" />
+    </div>
 
     <template #footer>
       <div class="flex justify-between items-center">
@@ -64,6 +69,7 @@ import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
+import { DisplayRecord } from "#components";
 
 const props = withDefaults(
   defineProps<{
