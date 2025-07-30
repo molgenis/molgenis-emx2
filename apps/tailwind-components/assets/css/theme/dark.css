@@ -48,6 +48,8 @@
 
   --background-color-table: var(--color-gray-700);
 
+  --background-color-ref-dropdown-toolbar: var(--color-gray-900);
+
   --text-color-link: var(--color-green-500);
   --text-color-button-primary: var(--color-gray-800);
   --text-color-button-primary-hover: var(--color-gray-800);
@@ -70,6 +72,9 @@
   --text-color-pagination-button: var(--color-green-500);
   --text-color-pagination-hover: var(--color-green-500);
   --text-color-input: var(--color-white);
+  --text-color-record-heading: var(--color-white);
+  --text-color-record-label: var(--color-gray-200);
+  --text-color-record-value: var(--color-gray-200);
 
   --text-color-button-toggle-active: var(--text-color-button-secondary);
   --text-color-button-toggle-inactive: var(--color-green-200);
