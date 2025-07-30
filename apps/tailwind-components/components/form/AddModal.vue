@@ -55,6 +55,7 @@
           :schemaId="schemaId"
           :metadata="metadata"
           :sections="sections"
+          :constantValues="constantValues"
           v-model:errors="errorMap"
           v-model="formValues"
           @update:active-chapter-id="activeChapterId = $event"
@@ -100,7 +101,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import type { ITableMetaData } from "../../../metadata-utils/src";
-import type { columnId, columnValue } from "../../../metadata-utils/src/types";
+import type {
+  columnId,
+  columnValue,
+  IRow,
+} from "../../../metadata-utils/src/types";
 import useSections from "../../composables/useSections";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
@@ -109,6 +114,7 @@ const props = withDefaults(
   defineProps<{
     metadata: ITableMetaData;
     schemaId: string;
+    constantValues?: IRow;
   }>(),
   {}
 );

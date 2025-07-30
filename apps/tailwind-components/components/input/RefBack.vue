@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { IInputProps } from "../../types/types";
 import type {
+  IRow,
   columnValue,
   columnValueObject,
 } from "../../../metadata-utils/src/types";
@@ -127,6 +128,12 @@ function afterRowEdited(row: columnValueObject) {
   showEditModal.value = false;
   crudRow.value = null;
 }
+
+const addModalConstantValues = computed(() => {
+  const result: IRow = {};
+  result[props.refBackColumn as string] = props.refBackPrimaryKey;
+  return result;
+});
 </script>
 <template>
   <div v-if="!hasPrimaryKey" class="my-3">
@@ -164,6 +171,7 @@ function afterRowEdited(row: columnValueObject) {
       v-if="showAddModal"
       :schemaId="props.refSchemaId"
       :metadata="metadata"
+      :constantValues="addModalConstantValues"
       @update:added="afterRowAdded"
       v-model:visible="showAddModal"
     />

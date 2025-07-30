@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import type {
   columnId,
   columnValue,
@@ -22,6 +22,7 @@ const props = defineProps<{
   schemaId: string;
   sections: IFormLegendSection[];
   metadata: ITableMetaData;
+  constantValues?: IRow;
 }>();
 
 const visibleMap = reactive<Record<columnId, boolean>>({});
@@ -142,6 +143,12 @@ props.metadata.columns
 
 const rowKey = ref<columnValue>();
 
+function copyConstantValuesToModelValue() {
+  if (props.constantValues) {
+    modelValue.value = Object.assign({}, props.constantValues);
+  }
+}
+
 watch(
   () => modelValue.value,
   async () => {
@@ -154,6 +161,17 @@ watch(
     }
   }
 );
+
+watch(
+  () => props.constantValues,
+  () => {
+    copyConstantValuesToModelValue();
+  }
+);
+
+onMounted(() => {
+  copyConstantValuesToModelValue();
+});
 </script>
 
 <template>
@@ -188,7 +206,10 @@ watch(
       ></div>
       <FormField
         class="pb-8"
-        v-else-if="visibleMap[column.id] === true"
+        v-else-if="
+          visibleMap[column.id] === true &&
+          !Object.keys(constantValues || {}).includes(column.id)
+        "
         v-model="modelValue[column.id]"
         :id="`${column.id}-form-field`"
         :type="column.columnType"
