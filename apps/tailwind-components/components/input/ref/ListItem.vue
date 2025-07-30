@@ -1,13 +1,12 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { rowToString } from "../../../utils/rowToString";
+import { Button, DisplayRecord } from "#components";
+
 import type {
   columnValueObject,
   ITableMetaData,
 } from "../../../../metadata-utils/src/types";
-import { computed, ref } from "vue";
-import Button from "../../../components/Button.vue";
-import { rowToSections } from "../../../utils/rowToSections";
-import ContentEMX2Section from "../../../components/content/EMX2Section.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -38,10 +37,6 @@ function expandRow() {
   expanded.value = !expanded.value;
   emits("expand", props.refData);
 }
-
-const sections = computed(() =>
-  rowToSections(props.refData, props.refMetadata)
-);
 </script>
 
 <template>
@@ -98,10 +93,10 @@ const sections = computed(() =>
       :class="expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'"
     >
       <div class="mt-1" @click="$event.stopPropagation()">
-        <ContentEMX2Section
-          v-for="section in sections"
-          :section="section"
-        ></ContentEMX2Section>
+        <DisplayRecord
+          :table-metadata="refMetadata"
+          :input-row-data="refData"
+        />
       </div>
     </div>
   </li>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 import type {
   columnId,
   columnValue,
@@ -140,10 +140,19 @@ props.metadata.columns
     );
   });
 
-const rowKey = await fetchRowPrimaryKey(
-  modelValue.value,
-  props.metadata.id,
-  props.schemaId
+const rowKey = ref<columnValue>();
+
+watch(
+  () => modelValue.value,
+  async () => {
+    if (modelValue.value) {
+      rowKey.value = await fetchRowPrimaryKey(
+        modelValue.value,
+        props.metadata.id,
+        props.schemaId
+      );
+    }
+  }
 );
 </script>
 

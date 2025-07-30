@@ -143,8 +143,9 @@ function afterRowEdited(row: columnValueObject) {
       type="text"
       size="small"
       @click="showAddModal = true"
-      >Add{{ props.refTableId }}</Button
     >
+      Add {{ metadata.label }}
+    </Button>
     <ul class="border divide-y divide-gray-200">
       <InputRefListItem
         v-for="(ref, index) in modelValue"
