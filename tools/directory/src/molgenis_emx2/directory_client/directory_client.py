@@ -277,6 +277,8 @@ class DirectorySession(Session):
 
         if codes:
             self._validate_codes(codes, nodes)
+        else:
+            self._check_dns(nodes)
         return self._to_nodes(nodes)
 
     @staticmethod
@@ -288,19 +290,18 @@ class DirectorySession(Session):
                 raise KeyError(f"Unknown code: {code}")
 
     @staticmethod
+    def _check_dns(nodes: List[dict]):
+        """Raises a ValueError if the external server node has no dns specified"""
+        for node in nodes:
+            if not node['dns']:
+                raise ValueError(f"Missing dns value for node {node['id']}")
+
+    @staticmethod
     def _to_nodes(nodes: List[dict]):
         """Maps rows to Node or ExternalServerNode objects."""
-        result = list()
+        result = []
         for node in nodes:
-            if "dns" not in node:
-                result.append(
-                    Node(
-                        code=node["id"],
-                        description=node["description"],
-                        date_end=node.get("date_end"),
-                    )
-                )
-            else:
+            if node['data_refresh'] == 'external_server':
                 result.append(
                     ExternalServerNode(
                         code=node["id"],
@@ -308,6 +309,14 @@ class DirectorySession(Session):
                         date_end=node.get("date_end"),
                         url=node["dns"],
                         token=os.getenv(f"{node['id']}_user"),
+                    )
+                )
+            else:
+                result.append(
+                    Node(
+                        code=node["id"],
+                        description=node["description"],
+                        date_end=node.get("date_end"),
                     )
                 )
 
