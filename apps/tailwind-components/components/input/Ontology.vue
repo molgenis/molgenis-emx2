@@ -310,10 +310,10 @@ async function updateSearch(value: string) {
         <InputLabel :for="`search-for-${id}`" class="sr-only">
           search in ontology
         </InputLabel>
-        <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
+        <ButtonInline @click="toggleSearch" :aria-controls="`search-for-${id}`">
           Search
-        </ButtonText>
-        <ButtonText @click="clearSelection"> Clear all </ButtonText>
+        </ButtonInline>
+        <ButtonInline @click="clearSelection"> Clear all </ButtonInline>
         <InputSearch
           v-if="showSearch"
           :id="`search-for-${id}`"

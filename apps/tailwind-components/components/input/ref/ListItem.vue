@@ -40,7 +40,9 @@ function expandRow() {
 </script>
 
 <template>
-  <li class="py-5 px-[30px] transition-all duration-500 overflow-hidden">
+  <li
+    class="py-5 px-[30px] transition-all duration-500 overflow-hidden bg-input"
+  >
     <div
       @click="expandRow"
       class="flex items-center justify-between group hover:cursor-pointer"
@@ -51,16 +53,16 @@ function expandRow() {
 
       <div class="flex items-center gap-4">
         <div
-          class="flex items-center gap-2 text-button-text"
+          class="flex items-center gap-2 text-button-outline"
           v-if="props.canEdit"
         >
-          <Button
+          <ButtonInline
             :icon-only="true"
             icon="trash"
             type="inline"
             label="Remove"
             @click.stop="$emit('remove', refData)"
-          ></Button>
+          ></ButtonInline>
           <!-- <Button not yet implemented
             :icon-only="true"
             icon="copy"
@@ -68,23 +70,21 @@ function expandRow() {
             label="Duplicate"
             @click.stop="$emit('duplicate', refData)"
           ></Button> -->
-          <Button
+          <ButtonInline
             class="hover:bg-gray-200 rounded-full"
             :icon-only="true"
             icon="edit"
             type="inline"
             label="Edit"
             @click.stop="$emit('edit', refData)"
-          ></Button>
-        </div>
-        <div class="flex items-center gap-2 text-button-text">
-          <Button
+          ></ButtonInline>
+          <ButtonInline
             :icon-only="true"
             :icon="expanded ? 'caret-up' : 'caret-down'"
             type="inline"
             label="Details"
             @click.stop="expandRow"
-          ></Button>
+          ></ButtonInline>
         </div>
       </div>
     </div>

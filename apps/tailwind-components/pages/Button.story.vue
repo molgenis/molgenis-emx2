@@ -112,18 +112,36 @@
       </div>
 
       <h3 class="text-2xl text-title">Inline button</h3>
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-4 text-title">
         <div class="flex gap-4">
-          <Button type="inline" :icon-only="true" icon="plus" />
-          <Button type="inline" :icon-only="true" icon="trash" />
-          <Button type="inline" :icon-only="true" icon="edit" />
-          <Button type="inline" :icon-only="true" icon="caret-up" />
-          <Button type="inline" :icon-only="true" icon="caret-down" />
-          <Button type="inline" icon="plus" label="Add" />
-          <Button type="inline" icon="trash" label="Remove" />
-          <Button type="inline" icon="edit" label="Edit" />
-          <Button type="inline" icon="caret-up" label="Previous" />
-          <Button type="inline" icon="caret-down" label="Next" />
+          <ButtonInline icon="plus" />
+          <ButtonInline icon="trash" />
+          <ButtonInline icon="edit" />
+          <ButtonInline icon="caret-up" />
+          <ButtonInline icon="caret-down" />
+          <ButtonInline icon="plus">Add</ButtonInline>
+          <ButtonInline icon="trash">Remove</ButtonInline>
+          <ButtonInline icon="edit">Edit</ButtonInline>
+          <ButtonInline icon="caret-up">Previous</ButtonInline>
+          <ButtonInline icon="caret-down">Remove</ButtonInline>
+        </div>
+      </div>
+
+      <h3 class="text-2xl text-title">
+        Inline button against a form background
+      </h3>
+      <div class="flex flex-col gap-4 bg-input">
+        <div class="flex gap-4 m-4 text-button-outline">
+          <ButtonInline icon="plus" :inverted="true" />
+          <ButtonInline icon="trash" :inverted="true" />
+          <ButtonInline icon="edit" :inverted="true" />
+          <ButtonInline icon="caret-up" :inverted="true" />
+          <ButtonInline icon="caret-down" :inverted="true" />
+          <ButtonInline icon="plus" :inverted="true">Add</ButtonInline>
+          <ButtonInline icon="trash" :inverted="true">Remove</ButtonInline>
+          <ButtonInline icon="edit" :inverted="true">Edit</ButtonInline>
+          <ButtonInline icon="caret-up" :inverted="true">Previous</ButtonInline>
+          <ButtonInline icon="caret-down" :inverted="true">Remove</ButtonInline>
         </div>
       </div>
 

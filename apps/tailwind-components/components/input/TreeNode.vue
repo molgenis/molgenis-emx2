@@ -189,10 +189,10 @@ function toggleExpand(node: ITreeNodeState) {
               : ""
           }}</span
         >
-        <ButtonText
+        <ButtonInline
           class="ml-2"
           @click="nodes.forEach((node) => (node.visible = true))"
-          >(show)</ButtonText
+          >(show)</ButtonInline
         >
       </div>
     </li>
