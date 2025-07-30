@@ -49,7 +49,7 @@ public enum EntryType {
   DATASETS(
       "Datasets", "Datasets", "datasets", "Dataset", "NCIT:C47824", "Data set", List.of(BEACON_V2)),
   ANALYSES(
-      "IndividualAnalyses",
+      "VariantInterpretationAnalyses",
       "Analyses",
       "analyses",
       "Analysis",
