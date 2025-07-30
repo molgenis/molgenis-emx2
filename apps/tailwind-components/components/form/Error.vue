@@ -8,6 +8,7 @@
 
     <ButtonBar v-if="showPrevNextButtons">
       <Button
+        v-if="hasPreviousError"
         class="border-gray-200"
         :icon-only="true"
         type="tertiary"
@@ -16,6 +17,7 @@
         @click="$emit('error-prev')"
       />
       <Button
+        v-if="hasNextError"
         class="border-gray-200"
         :icon-only="true"
         type="tertiary"
@@ -29,10 +31,12 @@
 </template>
 
 <script setup lang="ts">
-const props = withDefaults(
+withDefaults(
   defineProps<{
     message: string;
     showPrevNextButtons?: boolean;
+    hasNextError?: boolean;
+    hasPreviousError?: boolean;
   }>(),
   {
     showPrevNextButtons: true,

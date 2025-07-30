@@ -16,7 +16,7 @@
           <h2
             class="uppercase text-heading-4xl font-display text-title-contrast"
           >
-            Update {{ rowType }}
+            Edit {{ rowType }}
           </h2>
 
           <span
@@ -54,6 +54,7 @@
           :schemaId="schemaId"
           :metadata="metadata"
           :sections="sections"
+          :constant-values="constantValues"
           v-model:errors="errorMap"
           v-model="editFormValues"
           @update:active-chapter-id="activeChapterId = $event"
@@ -65,6 +66,8 @@
         v-show="errorMessage"
         :message="errorMessage"
         class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        :hasPreviousError="hasPreviousError"
+        :hasNextError="hasNextError"
         @error-prev="gotoPreviousError"
         @error-next="gotoNextError"
       />
@@ -104,14 +107,12 @@ import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import { errorToMessage } from "../../utils/errorToMessage";
 
-const props = withDefaults(
-  defineProps<{
-    schemaId: string;
-    metadata: ITableMetaData;
-    formValues: Record<columnId, columnValue>;
-  }>(),
-  {}
-);
+const props = defineProps<{
+  schemaId: string;
+  metadata: ITableMetaData;
+  constantValues?: Record<columnId, columnValue>;
+  formValues: Record<columnId, columnValue>;
+}>();
 
 const emit = defineEmits(["update:updated", "update:cancelled"]);
 
@@ -131,7 +132,10 @@ function setVisible() {
 }
 
 const rowType = computed(() => props.metadata.id);
-const isDraft = ref(false);
+
+const isDraft = computed(() => {
+  return editFormValues.value.mg_draft === true;
+});
 
 function onCancel() {
   visible.value = false;
@@ -139,6 +143,7 @@ function onCancel() {
 }
 
 async function onUpdateDraft() {
+  editFormValues.value.mg_draft = true;
   const resp = await updateInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error saving data", err);
@@ -151,11 +156,11 @@ async function onUpdateDraft() {
     return;
   }
 
-  isDraft.value = true;
   emit("update:updated", resp);
 }
 
 async function onUpdate() {
+  editFormValues.value.mg_draft = false;
   const resp = await updateInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error saving data", err);
@@ -168,7 +173,6 @@ async function onUpdate() {
     return;
   }
 
-  isDraft.value = false;
   visible.value = false;
   emit("update:updated", resp);
 }
@@ -194,6 +198,8 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
+  hasNextError,
+  hasPreviousError,
   updateInto,
 } = useForm(props.metadata, editFormValues, errorMap, (fieldId: string) => {
   scrollToElementInside("fields-container", fieldId);

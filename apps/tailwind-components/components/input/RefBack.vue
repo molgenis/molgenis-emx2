@@ -167,7 +167,6 @@ const addModalConstantValues = computed(() => {
         @edit="editRefBackItem(index)"
       />
     </ul>
-
     <AddModal
       v-if="showAddModal"
       :schemaId="props.refSchemaId"

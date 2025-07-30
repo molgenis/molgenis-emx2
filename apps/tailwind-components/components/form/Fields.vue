@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref, toRaw, watch } from "vue";
 import type {
   columnId,
   columnValue,
@@ -20,7 +20,7 @@ import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 
 const props = defineProps<{
   schemaId: string;
-  sections: IFormLegendSection[];
+  sections?: IFormLegendSection[];
   metadata: ITableMetaData;
   constantValues?: IRow;
 }>();
@@ -144,20 +144,24 @@ props.metadata.columns
 const rowKey = ref<columnValue>();
 
 function copyConstantValuesToModelValue() {
-  if (props.constantValues) {
-    modelValue.value = Object.assign({}, props.constantValues);
+  if (props.constantValues !== undefined) {
+    modelValue.value = JSON.parse(JSON.stringify(props.constantValues));
   }
+}
+
+async function updateRowKey() {
+  rowKey.value = await fetchRowPrimaryKey(
+    modelValue.value,
+    props.metadata.id,
+    props.schemaId
+  );
 }
 
 watch(
   () => modelValue.value,
   async () => {
     if (modelValue.value) {
-      rowKey.value = await fetchRowPrimaryKey(
-        modelValue.value,
-        props.metadata.id,
-        props.schemaId
-      );
+      await updateRowKey();
     }
   }
 );
@@ -170,6 +174,7 @@ watch(
 );
 
 onMounted(() => {
+  updateRowKey();
   copyConstantValuesToModelValue();
 });
 </script>
