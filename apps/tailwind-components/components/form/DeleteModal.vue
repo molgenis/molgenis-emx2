@@ -69,7 +69,7 @@ import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
-import { DisplayRecord } from "#components";
+import DisplayRecord from "../display/Record.vue";
 
 const props = withDefaults(
   defineProps<{
