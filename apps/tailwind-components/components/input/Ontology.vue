@@ -297,7 +297,7 @@ const hasChildren = computed(() =>
       @focus="emit('focus')"
     >
       <div
-        class="flex flex-wrap gap-2 mb-2 max-h-[300px] overflow-y-auto"
+        class="flex flex-wrap gap-1 mb-2 max-h-[300px] overflow-y-auto"
         v-if="Object.keys(valueLabels).length > 0"
       >
         <Button
@@ -307,7 +307,7 @@ const hasChildren = computed(() =>
           size="tiny"
           icon="cross"
           iconPosition="right"
-          class="mr-2"
+          class="mr-4"
           >Clear all</Button
         >
         <Button

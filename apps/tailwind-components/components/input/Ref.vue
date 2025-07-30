@@ -269,28 +269,31 @@ prepareModel();
       </div>
     </template>
     <template v-if="!hasNoResults">
-      <InputCheckboxGroup
-        v-if="isArray"
-        :id="id"
-        :options="listOptions"
-        :modelValue="(selection as string[])"
-        @select="select"
-        @deselect="deselect"
-        :invalid="invalid"
-        :valid="valid"
-        :disabled="disabled"
-      />
-      <InputRadioGroup
-        v-else
-        :id="id"
-        :options="listOptions"
-        :modelValue="(selection as string)"
-        @select="select"
-        @deselect="deselect"
-        :invalid="invalid"
-        :valid="valid"
-        :disabled="disabled"
-      />
+      <fieldset>
+        <legend class="sr-only">select {{ columnName }} options</legend>
+        <InputCheckboxGroup
+          v-if="isArray"
+          :id="id"
+          :options="listOptions"
+          :modelValue="(selection as string[])"
+          @select="select"
+          @deselect="deselect"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
+        />
+        <InputRadioGroup
+          v-else
+          :id="id"
+          :options="listOptions"
+          :modelValue="(selection as string)"
+          @select="select"
+          @deselect="deselect"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
+        />
+      </fieldset>
       <ButtonText @click="loadMore" v-if="offset + limit < count">
         load {{ entitiesLeftToLoad }} more
       </ButtonText>
