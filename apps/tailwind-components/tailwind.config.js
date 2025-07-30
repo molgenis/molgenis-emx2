@@ -104,6 +104,9 @@ module.exports = {
         95: "23.75rem",
         82.5: "20.625rem",
       },
+      height: ({ theme }) => ({
+        input: "var(--height-input)",
+      }),
       width: {
         "button-switch": "var(--width-button-switch)",
       },
@@ -201,6 +204,7 @@ module.exports = {
         "code-output": "var(--background-color-code-output)",
         "button-toggle-active": "var(--text-color-button-toggle-active)",
         "button-toggle-inactive": "var(--text-color-button-toggle-inactive)",
+        "ref-toolbar": "var(--background-color-ref-dropdown-toolbar);",
 
         "button-switch": "var(--background-color-button-switch)",
         "button-switch-selected":
@@ -298,6 +302,9 @@ module.exports = {
         "code-output": "var(--text-color-code-output)",
         "button-toggle-active": "var(--text-color-button-toggle-active)",
         "button-toggle-inactive": "var(--text-color-button-toggle-inactive)",
+        "record-heading": "var(--text-color-record-heading)",
+        "record-label": "var(--text-color-record-label)",
+        "record-value": "var(--text-color-record-value)",
 
         "button-switch": "var(--text-color-button-switch)",
         "button-switch-selected": "var(--text-color-button-switch-selected)",
