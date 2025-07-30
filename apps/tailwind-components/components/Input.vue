@@ -98,6 +98,7 @@
     :describedBy="describedBy"
     :trueLabel="trueLabel"
     :falseLabel="falseLabel"
+    :align="align"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -125,6 +126,7 @@
     :options="options as IValueLabel[]"
     @focus="emit('focus')"
     @blur="emit('blur')"
+    :align="align"
   />
   <InputCheckboxGroup
     v-else-if="['CHECKBOX'].includes(typeUpperCase)"
@@ -274,6 +276,7 @@ const props = defineProps<
     options?: IValueLabel[];
     trueLabel?: string;
     falseLabel?: string;
+    align?: "horizontal" | "vertical";
   }
 >();
 const emit = defineEmits(["focus", "blur"]);
