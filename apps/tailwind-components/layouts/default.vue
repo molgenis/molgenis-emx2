@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useNuxtApp } from "#app";
-import { ref, computed, useTemplateRef } from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import PlaygroundNavBar from "../PlaygroundNavBar.vue";
+
+const menuIsOpen = ref<boolean>(true);
 
 const modules = import.meta.glob("../**/*.story.vue", {
   import: "default",
@@ -44,18 +46,14 @@ const storyName = computed(() => {
 
 const { $sourceCodeMap } = useNuxtApp();
 
-const menuIsOpen = ref<boolean>(true);
-const container = useTemplateRef<HTMLDivElement>("playgroundContainer");
-
 function scrollToTop() {
-  container.value?.scrollIntoView();
+  window.scrollTo(0, 0);
 }
 </script>
 
 <template>
   <div
-    ref="playgroundContainer"
-    class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden pt-15"
+    class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden"
   >
     <PlaygroundNavBar @menu-is-open="(value) => (menuIsOpen = value)" />
     <div
@@ -63,17 +61,17 @@ function scrollToTop() {
     >
       <BackgroundGradient class="z-10" />
     </div>
-    <div class="z-30 relative min-h-screen">
+    <div class="z-30 relative min-h-screen mt-[54px]">
       <main class="mb-auto">
         <div id="header-place-holder"></div>
         <div
           class="grid xl:grid-cols-1"
           :class="{
-            'xl:grid-cols-[350px_2fr]': menuIsOpen,
+            'xl:grid-cols-[300px_1fr]': menuIsOpen,
           }"
         >
           <aside
-            class="hidden xl:block pl-6 bg-sidebar-gradient"
+            class="grow hidden xl:block pl-6 bg-sidebar-gradient"
             :class="{
               'xl:hidden': !menuIsOpen,
             }"
@@ -99,9 +97,9 @@ function scrollToTop() {
             <h2 class="text-2xl text-title font-bold my-5">Components</h2>
             <ul class="list-none">
               <li class="py-2" v-for="story in stories">
-                <NuxtLink class="hover:underline text-title" :to="story.path">{{
-                  story.name
-                }}</NuxtLink>
+                <NuxtLink class="hover:underline text-title" :to="story.path">
+                  {{ story.name }}
+                </NuxtLink>
               </li>
             </ul>
 
@@ -113,14 +111,14 @@ function scrollToTop() {
               >Data fetching</NuxtLink
             >
           </aside>
-          <Story :title="storyName" class="max-w-[calc(100%-1rem)]">
+          <Story :title="storyName" class="w-full">
             <slot></slot>
           </Story>
         </div>
       </main>
     </div>
     <div
-      class="hidden z-40 fixed bottom-0 left-0 w-[100%] md:flex justify-end px-4 pb-4"
+      class="hidden z-40 fixed bottom-0 left-0 w-[100%] md:flex justify-end px-6 pb-4"
     >
       <Button size="small" type="outline" id="scrollToTop" @click="scrollToTop">
         <BaseIcon name="ArrowUp" :width="24" />

@@ -7,8 +7,9 @@
         id="toggleLayoutBtn"
         @click="setMenuIsOpen"
         class="ml-4 mr-2 text-title"
+        :tooltip="menuIsOpen ? 'hide menu' : 'show menu'"
       >
-        <BaseIcon name="Menu" :width="24" />
+        <BaseIcon :name="menuIsOpen ? 'MenuOpen' : 'Menu'" :width="24" />
         <span class="sr-only">
           {{ menuIsOpen ? "hide menu" : "show menu" }}
         </span>
