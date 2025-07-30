@@ -26,6 +26,7 @@ directory_schema = os.getenv("DIRECTORY")
 
 
 async def sync_directory():
+    """Stage external nodes and publish them to the directory schema"""
     # Set up the logger
     logging.basicConfig(level="INFO", format=" %(levelname)s: %(name)s: %(message)s")
     logging.getLogger("requests").setLevel(logging.WARNING)
