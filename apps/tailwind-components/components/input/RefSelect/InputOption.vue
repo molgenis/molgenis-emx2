@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from "vue";
 import { InputLabel, InputCheckboxIcon, InputRadioIcon } from "#components";
-import { type IInputProps } from "../../types/types";
-import type { recordValue } from "../../../metadata-utils/src/types";
+import { type IInputProps } from "../../../types/types";
+import type { recordValue } from "../../../../metadata-utils/src/types";
 
 const props = withDefaults(
   defineProps<
