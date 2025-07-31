@@ -138,10 +138,10 @@ const addModalConstantValues = computed(() => {
 </script>
 <template>
   <div v-if="!hasPrimaryKey" class="my-3">
-    <Message class="p-6" id="`${id}-key-msg`"
-      >This {{ props.refTableId }} can only be filled in after you have saved
-      (or saved draft).</Message
-    >
+    <Message class="p-6" id="`${id}-key-msg`">
+      This {{ props.refTableId }} can only be filled in after you have saved (or
+      saved draft).
+    </Message>
   </div>
   <template v-else>
     <Button

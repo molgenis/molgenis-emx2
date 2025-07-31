@@ -143,6 +143,14 @@ props.metadata.columns
 
 const rowKey = ref<columnValue>();
 
+async function updateRowKey() {
+  rowKey.value = await fetchRowPrimaryKey(
+    modelValue.value,
+    props.metadata.id,
+    props.schemaId
+  );
+}
+
 function copyConstantValuesToModelValue() {
   if (props.constantValues) {
     modelValue.value = Object.assign({}, props.constantValues);
@@ -153,11 +161,7 @@ watch(
   () => modelValue.value,
   async () => {
     if (modelValue.value) {
-      rowKey.value = await fetchRowPrimaryKey(
-        modelValue.value,
-        props.metadata.id,
-        props.schemaId
-      );
+      updateRowKey();
     }
   }
 );
@@ -170,6 +174,7 @@ watch(
 );
 
 onMounted(() => {
+  updateRowKey();
   copyConstantValuesToModelValue();
 });
 </script>
@@ -215,7 +220,7 @@ onMounted(() => {
         :type="column.columnType"
         :label="column.label"
         :description="column.description"
-        :row-key="rowKey"
+        :rowKey="rowKey"
         :required="isRequired(column.required ?? false)"
         :error-message="errors[column.id]"
         :ref-schema-id="column.refSchemaId || schemaId"
