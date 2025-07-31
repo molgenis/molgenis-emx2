@@ -70,7 +70,7 @@ FROM "pet_store"."Pet";
 RESET ROLE;
 -- Give access to the 7 other rows
 UPDATE "pet_store"."Pet"
-SET mg_group = COALESCE(mg_group, ARRAY[]::TEXT[]) || ARRAY['pet_store_VIEWER']
+SET mg_group = ARRAY['pet_store_VIEWER']
 WHERE mg_group IS NULL;
 REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv; -- this should be triggerd
 
