@@ -120,17 +120,14 @@ EXECUTE FUNCTION "MOLGENIS".group_metadata_trigger_function();
 -- Create groups permissions table
 CREATE TABLE IF NOT EXISTS "MOLGENIS".group_permissions
 (
-    group_name       TEXT    NOT NULL,
-    table_schema     TEXT    NULL,
-    table_name       TEXT    NULL,
-    has_select       BOOLEAN NOT NULL DEFAULT FALSE,
-    has_insert       BOOLEAN NOT NULL DEFAULT FALSE,
-    has_update       BOOLEAN NOT NULL DEFAULT FALSE,
-    has_delete       BOOLEAN NOT NULL DEFAULT FALSE,
-    has_group_select BOOLEAN NOT NULL DEFAULT FALSE,
-    has_group_update BOOLEAN NOT NULL DEFAULT FALSE,
-    has_group_delete BOOLEAN NOT NULL DEFAULT FALSE,
-    has_admin        BOOLEAN NOT NULL DEFAULT FALSE, -- only for schema
+    group_name   TEXT    NOT NULL,
+    table_schema TEXT    NULL,
+    table_name   TEXT    NULL,
+    has_select   BOOLEAN NOT NULL DEFAULT FALSE,
+    has_insert   BOOLEAN NOT NULL DEFAULT FALSE,
+    has_update   BOOLEAN NOT NULL DEFAULT FALSE,
+    has_delete   BOOLEAN NOT NULL DEFAULT FALSE,
+    has_admin    BOOLEAN NOT NULL DEFAULT FALSE, -- only for schema
     PRIMARY KEY (group_name),
     CONSTRAINT fk_table_metadata FOREIGN KEY (table_schema, table_name)
         REFERENCES "MOLGENIS".table_metadata (table_schema, table_name)
@@ -154,9 +151,58 @@ DECLARE
     table_id  TEXT;
     role_name TEXT;
 BEGIN
-    role_name := 'MG_ROLE_' || NEW.group_name;
-    -- Handle revoking permissions for OLD values
-    IF OLD IS NOT NULL THEN
+    IF TG_OP = 'INSERT' THEN
+        role_name := 'MG_ROLE_' || NEW.group_name;
+        RAISE NOTICE 'Granting usage on % to group %', NEW.table_schema, role_name;
+        EXECUTE format('GRANT USAGE ON SCHEMA %I TO %I', NEW.table_schema, role_name);
+        IF NEW.table_name IS NULL THEN
+            -- get tables in the schema
+            SELECT ARRAY_AGG(table_name)
+            INTO table_ids
+            FROM "MOLGENIS".table_metadata t
+            WHERE t.table_schema = NEW.table_schema
+              AND t.table_type = 'BASE TABLE';
+            IF table_ids IS NOT NULL THEN
+
+                FOREACH table_id IN ARRAY table_ids
+                    LOOP
+                        IF NEW.has_select THEN
+                            EXECUTE format('GRANT SELECT ON TABLE %I.%I TO %I', NEW.table_schema, table_id, role_name);
+                        END IF;
+                        IF NEW.has_insert THEN
+                            EXECUTE format('GRANT INSERT ON TABLE %I.%I TO %I', NEW.table_schema, table_id,
+                                           role_name);
+                        END IF;
+                        IF NEW.has_update THEN
+                            EXECUTE format('GRANT UPDATE ON TABLE %I.%I TO %I', NEW.table_schema, table_id,
+                                           role_name);
+                        END IF;
+                        IF NEW.has_delete THEN
+                            EXECUTE format('GRANT DELETE ON TABLE %I.%I TO %I', NEW.table_schema, table_id,
+                                           role_name);
+                        END IF;
+                    END LOOP;
+            END IF;
+        ELSE
+            IF NEW.has_select THEN
+                RAISE NOTICE 'Granting select on %.% to group %', NEW.table_schema, NEW.table_name, role_name;
+                EXECUTE format('GRANT SELECT ON %I.%I TO %I', NEW.table_schema, NEW.table_name, role_name);
+            END IF;
+            IF NEW.has_insert THEN
+                EXECUTE format('GRANT INSERT ON %I.%I TO %I', NEW.table_schema, NEW.table_name, role_name);
+            END IF;
+            IF NEW.has_update THEN
+                EXECUTE format('GRANT UPDATE ON %I.%I TO %I', NEW.table_schema, NEW.table_name, role_name);
+            END IF;
+            IF NEW.has_delete THEN
+                EXECUTE format('GRANT DELETE ON %I.%I TO %I', NEW.table_schema, NEW.table_name, role_name);
+            END IF;
+        END IF;
+    ELSIF TG_OP = 'DELETE' THEN -- TODO: handle update and delete... this is a mess
+        role_name := 'MG_ROLE_' || OLD.group_name;
+        RAISE NOTICE 'Group permission trigger (DELETE) for %', role_name;
+
+        -- Handle revoking permissions for OLD values
         IF OLD.table_name IS NULL THEN
             -- get tables in the schema
             SELECT ARRAY_AGG(table_name)
@@ -169,7 +215,7 @@ BEGIN
             END IF;
             FOREACH table_id IN ARRAY table_ids
                 LOOP
-                    IF OLD.has_admin OR OLD.has_select OR OLD.has_group_select THEN
+                    IF OLD.has_admin OR OLD.has_select THEN
                         EXECUTE format('REVOKE SELECT ON TABLE %I.%I FROM %I', NEW.table_schema, table_id,
                                        NEW.group_name);
                     END IF;
@@ -177,17 +223,17 @@ BEGIN
                         EXECUTE format('REVOKE INSERT ON TABLE %I.%I FROM %I', NEW.table_schema, table_id,
                                        NEW.group_name);
                     END IF;
-                    IF OLD.has_admin OR OLD.has_update OR OLD.has_group_update THEN
+                    IF OLD.has_admin OR OLD.has_update THEN
                         EXECUTE format('REVOKE UPDATE ON TABLE %I.%I FROM %I', NEW.table_schema, table_id,
                                        NEW.group_name);
                     END IF;
-                    IF OLD.has_admin OR OLD.has_delete OR OLD.has_group_update THEN
+                    IF OLD.has_admin OR OLD.has_delete THEN
                         EXECUTE format('REVOKE DELETE ON TABLE %I.%I FROM %I', NEW.table_schema, table_id,
                                        NEW.group_name);
                     END IF;
                 END LOOP;
         ELSE
-            IF OLD.has_admin OR OLD.has_select OR OLD.has_group_select THEN
+            IF OLD.has_admin OR OLD.has_select THEN
                 EXECUTE format('REVOKE SELECT ON TABLE %I.%I FROM %I', NEW.table_schema, NEW.table_name,
                                NEW.group_name);
             END IF;
@@ -195,11 +241,11 @@ BEGIN
                 EXECUTE format('REVOKE INSERT ON TABLE %I.%I FROM %I', NEW.table_schema, NEW.table_name,
                                NEW.group_name);
             END IF;
-            IF OLD.has_admin OR OLD.has_update OR OLD.has_group_update THEN
+            IF OLD.has_admin OR OLD.has_update THEN
                 EXECUTE format('REVOKE UPDATE ON TABLE %I.%I FROM %I', NEW.table_schema, NEW.table_name,
                                NEW.group_name);
             END IF;
-            IF OLD.has_admin OR OLD.has_delete OR OLD.has_group_update THEN
+            IF OLD.has_admin OR OLD.has_delete THEN
                 EXECUTE format('REVOKE DELETE ON TABLE %I.%I FROM %I', NEW.table_schema, NEW.table_name,
                                NEW.group_name);
             END IF;
@@ -212,60 +258,6 @@ BEGIN
         -- If no other permissions exist, revoke USAGE on the schema
         IF NOT FOUND THEN
             EXECUTE format('REVOKE USAGE ON SCHEMA %I FROM %I', NEW.table_schema, NEW.group_name);
-        END IF;
-    END IF;
-
-    -- Handle granting permissions for NEW values
-    IF
-        (NEW.has_admin)
-    THEN
-        NEW.has_select = TRUE;
-        NEW.has_update = TRUE;
-        NEW.has_insert = TRUE;
-        NEW.has_delete = TRUE;
-    END IF;
-    IF NEW IS NOT NULL THEN
-        EXECUTE format('GRANT USAGE ON SCHEMA %I TO %I', NEW.table_schema, role_name);
-        RAISE NOTICE 'Granting usage on % to group %', NEW.table_schema, role_name;
-        IF NEW.table_name IS NULL THEN
-            -- get tables in the schema
-            SELECT ARRAY_AGG(table_name)
-            INTO table_ids
-            FROM "MOLGENIS".table_metadata t
-            WHERE t.table_schema = NEW.table_schema
-              AND t.table_type = 'BASE TABLE';
-            FOREACH table_id IN ARRAY table_ids
-                LOOP
-                    IF NEW.has_select OR NEW.has_group_select THEN
-                        EXECUTE format('GRANT SELECT ON TABLE %I.%I TO %I', NEW.table_schema, table_id, role_name);
-                    END IF;
-                    IF NEW.has_insert THEN
-                        EXECUTE format('GRANT INSERT ON TABLE %I.%I TO %I', NEW.table_schema, table_id,
-                                       role_name);
-                    END IF;
-                    IF NEW.has_update OR NEW.has_group_update THEN
-                        EXECUTE format('GRANT UPDATE ON TABLE %I.%I TO %I', NEW.table_schema, table_id,
-                                       role_name);
-                    END IF;
-                    IF NEW.has_delete OR NEW.has_group_update THEN
-                        EXECUTE format('GRANT DELETE ON TABLE %I.%I TO %I', NEW.table_schema, table_id,
-                                       role_name);
-                    END IF;
-                END LOOP;
-        ELSE
-            IF NEW.has_select OR NEW.has_group_select THEN
-                RAISE NOTICE 'Granting select on %.% to group %', NEW.table_schema, NEW.table_name, role_name;
-                EXECUTE format('GRANT SELECT ON %I.%I TO %I', NEW.table_schema, NEW.table_name, role_name);
-            END IF;
-            IF NEW.has_insert THEN
-                EXECUTE format('GRANT INSERT ON %I.%I TO %I', NEW.table_schema, NEW.table_name, role_name);
-            END IF;
-            IF NEW.has_update OR NEW.has_group_update THEN
-                EXECUTE format('GRANT UPDATE ON %I.%I TO %I', NEW.table_schema, NEW.table_name, role_name);
-            END IF;
-            IF NEW.has_delete OR NEW.has_group_update THEN
-                EXECUTE format('GRANT DELETE ON %I.%I TO %I', NEW.table_schema, NEW.table_name, role_name);
-            END IF;
         END IF;
     END IF;
 
@@ -290,9 +282,6 @@ SELECT gp.group_name,
        gp.has_insert,
        gp.has_update,
        gp.has_delete,
-       gp.has_group_select,
-       gp.has_group_update,
-       gp.has_group_delete,
        gp.has_admin,
        r.rolname AS user_name
 FROM "MOLGENIS".group_permissions gp
@@ -302,7 +291,7 @@ WHERE r.rolname LIKE 'MG_USER_%'
 WITH NO DATA;
 ALTER MATERIALIZED VIEW "MOLGENIS".user_permissions_mv
     OWNER TO molgenis;
-GRANT SELECT ON "MOLGENIS".user_permissions_mv TO PUBLIC; -- TODO: added this is this ok?
+GRANT SELECT ON "MOLGENIS".user_permissions_mv TO PUBLIC;
 REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
 CREATE INDEX IF NOT EXISTS idx_user_permissions_user_schema
     ON "MOLGENIS".user_permissions_mv (user_name, table_schema, table_name);
@@ -331,13 +320,14 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".create_or_update_schema_groups(
 $$
 DECLARE
     group_name TEXT;
-    role_name TEXT;
+    role_name  TEXT;
 BEGIN
-    -- Ensure global admin group exists -- TODO do this somewhere else
+    -- Ensure global admin group exists -- TODO do this somewhere else?
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'MG_ROLE_ADMIN') THEN
         INSERT INTO "MOLGENIS".group_metadata(group_name) VALUES ('ADMIN');
-        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_admin)
-        VALUES ('ADMIN', schema_id, true)
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_update, has_delete,
+                                                 has_insert, has_admin)
+        VALUES ('ADMIN', schema_id, true, true, true, true, true)
         ON CONFLICT DO NOTHING;
     END IF;
 
@@ -349,6 +339,9 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
         INSERT INTO "MOLGENIS".group_metadata(group_name, users)
         VALUES (group_name, ARRAY []::varchar[]);
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_update, has_insert, has_delete,
+                                                 has_select, has_admin)
+        VALUES (group_name, schema_id, true, true, true, true, true);
     END IF;
 
     -- Create _VIEWER group with select permissions
@@ -375,17 +368,6 @@ BEGIN
         VALUES (group_name, schema_id, true, true, true, true);
     END IF;
 
-    -- Create _ADMIN group with admin permissions todo: do we need this?
-    group_name := format('%I_ADMIN', schema_id);
-    role_name := format('MG_ROLE_%I', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-        VALUES (group_name, ARRAY []::varchar[])
-        ON CONFLICT DO NOTHING;
-
-        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_admin)
-        VALUES (group_name, schema_id, true);
-    END IF;
 END;
 $$;
 
@@ -395,7 +377,7 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".enable_RLS_on_table(schema_id TEXT, table_
 $$
 DECLARE
     policies_exists TEXT[];
-    safe_schema_id  TEXT := replace(schema_id, ' ', '_'); -- todo: remove this...
+    safe_schema_id  TEXT := replace(schema_id, ' ', '_'); -- todo: change this toCamelCase
     safe_table_id   TEXT := replace(table_id, ' ', '_');
 BEGIN
     -- check if table exists
@@ -406,40 +388,43 @@ BEGIN
         RAISE EXCEPTION 'Table %.% does not exist.', schema_id, table_id;
     END IF;
 
--- Ensure the 'mg_group' column exists
+    -- Ensure the 'mg_group' column exists
     EXECUTE format(
-            'ALTER TABLE %I.%I ADD COLUMN IF NOT EXISTS mg_group TEXT DEFAULT NULL',
+            'ALTER TABLE %I.%I ADD COLUMN IF NOT EXISTS mg_group TEXT[] DEFAULT NULL',
             schema_id, table_id
             );
 
--- Fetch existing policies
+    EXECUTE format(
+            'ALTER TABLE %I.%I ENABLE ROW LEVEL SECURITY',
+            schema_id, table_id
+            );
+
+    -- Fetch existing policies
     SELECT COALESCE(array_agg(policyname), ARRAY []::TEXT[])
     INTO policies_exists
     FROM pg_policies
     WHERE schemaname = schema_id
       AND tablename = table_id;
 
--- Create SELECT policy if not exists
+    -- Create SELECT policy if not exists
     IF NOT ('select_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
-        EXECUTE format(
-                'CREATE POLICY select_policy_%s_%s ON %I.%I FOR SELECT USING (
-                    EXISTS (
-                        SELECT 1
-                        FROM "MOLGENIS".user_permissions_mv u
-                        WHERE u.user_name = current_user
-                          AND u.table_schema = %L
-                          AND (u.table_name = %L OR u.table_name IS NULL)
-                          AND (
-                              u.has_select
-                              OR (u.has_group_select AND u.group_name = mg_group)
-                          )
-                    )
-                )',
-                safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
+        EXECUTE format('CREATE POLICY select_policy_%s_%s ON %I.%I FOR SELECT USING (
+                            EXISTS (
+                                SELECT 1
+                                FROM "MOLGENIS".user_permissions_mv u
+                                WHERE u.user_name = current_user
+                                  AND u.table_schema = %L
+                                  AND (u.table_name = %L OR u.table_name IS NULL)
+                                  AND u.has_select
+                                  AND u.group_name = ANY(mg_group)
+                            )
+                        )',
+                       safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
                 );
+        RAISE NOTICE 'Select policy created on %.%', schema_id, table_id;
     END IF;
 
--- Create INSERT policy if not exists
+    -- Create INSERT policy if not exists
     IF NOT ('insert_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
         EXECUTE format(
                 'CREATE POLICY insert_policy_%s_%s ON %I.%I FOR INSERT WITH CHECK (
@@ -454,9 +439,11 @@ BEGIN
                 )',
                 safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
                 );
+        RAISE NOTICE 'Insert policy created on %.%', schema_id, table_id;
+
     END IF;
 
--- Create UPDATE policy if not exists
+    -- Create UPDATE policy if not exists
     IF NOT ('update_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
         EXECUTE format(
                 'CREATE POLICY update_policy_%s_%s ON %I.%I FOR UPDATE USING (
@@ -466,17 +453,16 @@ BEGIN
                         WHERE u.user_name = current_user
                           AND u.table_schema = %L
                           AND (u.table_name = %L OR u.table_name IS NULL)
-                          AND (
-                              u.has_update
-                              OR (u.has_group_update AND u.group_name = mg_group)
-                          )
+                          AND u.has_update
+                          AND u.group_name = ANY(mg_group)
                     )
                 )',
                 safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
                 );
+        RAISE NOTICE 'Update policy created on %.%', schema_id, table_id;
     END IF;
 
--- Create DELETE policy if not exists
+    -- Create DELETE policy if not exists
     IF NOT ('delete_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
         EXECUTE format(
                 'CREATE POLICY delete_policy_%s_%s ON %I.%I FOR DELETE USING (
@@ -486,14 +472,13 @@ BEGIN
                         WHERE u.user_name = current_user
                           AND u.table_schema = %L
                           AND (u.table_name = %L OR u.table_name IS NULL)
-                          AND (
-                              u.has_delete
-                              OR (u.has_group_delete AND u.group_name = mg_group)
-                          )
+                          AND u.has_delete
+                          AND u.group_name = ANY(mg_group)
                     )
                 )',
                 safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
                 );
+        RAISE NOTICE 'Delete policy created on %.%', schema_id, table_id;
     END IF;
 END;
 $$ LANGUAGE plpgsql;
