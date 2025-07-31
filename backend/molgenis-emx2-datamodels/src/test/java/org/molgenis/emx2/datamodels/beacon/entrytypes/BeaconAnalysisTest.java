@@ -23,7 +23,7 @@ public class BeaconAnalysisTest extends TestLoaders {
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
     JsonNode analyses = queryEntryType.query(patientRegistry);
-    assertEquals(4, analyses.get("responseSummary").get("numTotalResults").intValue());
+    assertEquals(7, analyses.get("responseSummary").get("numTotalResults").intValue());
   }
 
   @Test

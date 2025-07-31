@@ -1,7 +1,7 @@
-id,variant type,ref,alt,genomic assembly id,refseq assembly id,start position,stop position,geneId,genomic HGVS id,protein HGVS ids,transcript HGVS ids
-20:2447951..2447952c>g,SNP,c,g,GRCh37,20,2447951,2447952,SNRPB,NC_000017.11:g.43057063G>A,NP_009225.1:p.Glu1817Ter,NC_000023.10(NM004006.2):c.357+1G
-20:2447955..2447958c>g,SNP,c,g,GRCh37,20,2447955,2447958,SNRPB,,,
-20:2447946..2447950c>g,SNP,c,g,GRCh37,20,2447946,2447950,SNRPB,,,
-20:2447961..2447963c>g,SNP,c,g,GRCh37,20,2447961,2447963,SNORD119,,,
-CaseLevelVar1,SNP,c,g,GRCh37,20,2447971,2447973,SNORD119,,,
-CaseLevelVar2,SNP,t,a,GRCh37,20,2447981,2447983,SNORD119,,,
+id,variant type,variant status,reference allele,alternate allele,genomic assembly id,refseq assembly id,chromosome,start position,stop position,gene id,genomic HGVS id,protein HGVS ids,transcript HGVS ids
+20:2447951..2447952c>g,Single Nucleotide Polymorphism,completed,c,g,GRCh37,20,20,2447951,2447952,SNRPB,NC_000017.11:g.43057063G>A,NP_009225.1:p.Glu1817Ter,NC_000023.10(NM004006.2):c.357+1G
+20:2447955..2447958c>g,Single Nucleotide Polymorphism,completed,c,g,GRCh37,20,20,2447955,2447958,SNRPB,,,
+20:2447946..2447950c>g,Single Nucleotide Polymorphism,completed,c,g,GRCh37,20,20,2447946,2447950,SNRPB,,,
+20:2447961..2447963c>g,Single Nucleotide Polymorphism,completed,c,g,GRCh37,20,20,2447961,2447963,SNORD119,,,
+CaseLevelVar1,Single Nucleotide Polymorphism,completed,c,g,GRCh37,20,20,2447971,2447973,SNORD119,,,
+CaseLevelVar2,Single Nucleotide Polymorphism,completed,t,a,GRCh37,20,20,2447981,2447983,SNORD119,,,
