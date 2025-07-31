@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { rowToString } from "../../../utils/rowToString";
 import { Button, DisplayRecord } from "#components";
 
@@ -27,6 +27,12 @@ const emits = defineEmits<{
   (e: "expand", row: columnValueObject): void;
 }>();
 
+const label = computed<string | undefined>(() => {
+  if (props.refData) {
+    return toLabel(props.refData);
+  }
+});
+
 const expanded = ref<boolean>(false);
 
 function toLabel(row: columnValueObject) {
@@ -40,14 +46,23 @@ function expandRow() {
 </script>
 
 <template>
-  <li class="py-5 px-[30px] transition-all duration-500 overflow-hidden">
+  <li
+    :id="`input-refback-item-${label}`"
+    class="py-5 px-[30px] transition-all duration-500 overflow-hidden"
+  >
     <div
       @click="expandRow"
       class="flex items-center justify-between group hover:cursor-pointer"
     >
-      <h3 class="text-title-contrast font-bold group-hover:underline">
-        {{ toLabel(refData) }}
-      </h3>
+      <button
+        :id="`input-refback-item-${label}-btn-label-expand`"
+        :aria-controls="`input-refback-item-${label}-content-record`"
+        :aria-expanded="expanded"
+        :aria-haspopup="true"
+        class="text-title-contrast font-bold group-hover:underline"
+      >
+        {{ label }}
+      </button>
 
       <div class="flex items-center gap-4">
         <div
@@ -55,12 +70,17 @@ function expandRow() {
           v-if="props.canEdit"
         >
           <Button
+            :id="`input-refback-item-${label}-btn-remove`"
+            class="hover:bg-button-secondary-hover"
             :icon-only="true"
+            :aria-controls="`input-refback-item-${label}-content-record`"
+            :aria-expanded="expanded"
+            :aria-haspopup="true"
             icon="trash"
             type="inline"
             label="Remove"
             @click.stop="$emit('remove', refData)"
-          ></Button>
+          />
           <!-- <Button not yet implemented
             :icon-only="true"
             icon="copy"
@@ -69,17 +89,26 @@ function expandRow() {
             @click.stop="$emit('duplicate', refData)"
           ></Button> -->
           <Button
-            class="hover:bg-gray-200 rounded-full"
+            :id="`input-refback-item-${label}-btn-remove`"
+            class="hover:bg-button-secondary-hover"
             :icon-only="true"
+            :aria-controls="`input-refback-item-${label}-content-record`"
+            :aria-expanded="expanded"
+            :aria-haspopup="true"
             icon="edit"
             type="inline"
             label="Edit"
             @click.stop="$emit('edit', refData)"
-          ></Button>
+          />
         </div>
         <div class="flex items-center gap-2 text-button-text">
           <Button
+            :id="`input-refback-item-${label}-btn-remove`"
+            class="hover:bg-button-secondary-hover"
             :icon-only="true"
+            :aria-controls="`input-refback-item-${label}-content-record`"
+            :aria-expanded="expanded"
+            :aria-haspopup="true"
             :icon="expanded ? 'caret-up' : 'caret-down'"
             type="inline"
             label="Details"
@@ -89,6 +118,7 @@ function expandRow() {
       </div>
     </div>
     <div
+      :id="`input-refback-item-${label}-content-record`"
       class="transition-all duration-500 overflow-hidden"
       :class="expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'"
     >
