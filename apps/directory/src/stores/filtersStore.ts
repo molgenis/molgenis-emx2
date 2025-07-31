@@ -291,7 +291,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     createBookmark(
       filters.value,
       checkoutStore.selectedCollections,
-      checkoutStore.selectedServices
+      checkoutStore.selectedServices,
+      filterType.value,
+      bookmarkWaitingForApplication.value
     );
   }
 
@@ -370,7 +372,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       createBookmark(
         newFilters,
         checkoutStore.selectedCollections,
-        checkoutStore.selectedServices
+        checkoutStore.selectedServices,
+        filterType.value,
+        bookmarkWaitingForApplication.value
       );
     }
     bookmarkTriggeredFilter.value = false;
@@ -429,6 +433,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filtersReadyToRender,
     filters,
     filterTriggeredBookmark,
+    filterType,
     hasActiveFilters,
     hasActiveBiobankOnlyFilters,
     selectedDiseases,

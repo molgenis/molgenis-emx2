@@ -140,7 +140,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
         createBookmark(
           filtersStore.filters,
           selectedCollections.value,
-          selectedServices.value
+          selectedServices.value,
+          filtersStore.filterType,
+          filtersStore.filterTriggeredBookmark
         );
       } else {
         /** we should not refresh on a cart update, so track this */
@@ -191,7 +193,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       createBookmark(
         filtersStore.filters,
         selectedCollections.value,
-        selectedServices.value
+        selectedServices.value,
+        filtersStore.filterType,
+        filtersStore.filterTriggeredBookmark
       );
     } else {
       /** we should not refresh on a cart update, so track this */
@@ -236,7 +240,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       createBookmark(
         filtersStore.filters,
         selectedCollections.value,
-        selectedServices.value
+        selectedServices.value,
+        filtersStore.filterType,
+        filtersStore.filterTriggeredBookmark
       );
     } else {
       /** we should not refresh on a cart update, so track this */
@@ -281,7 +287,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       createBookmark(
         filtersStore.filters,
         selectedCollections.value,
-        selectedServices.value
+        selectedServices.value,
+        filtersStore.filterType,
+        filtersStore.filterTriggeredBookmark
       );
     } else {
       /** we should not refresh on a cart update, so track this */
@@ -300,7 +308,9 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       createBookmark(
         filtersStore.filters,
         selectedCollections.value,
-        selectedServices.value
+        selectedServices.value,
+        filtersStore.filterType,
+        filtersStore.filterTriggeredBookmark
       );
     }
   }
