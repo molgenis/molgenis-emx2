@@ -246,7 +246,7 @@ const rootNodes = computed(() => {
 </script>
 
 <template>
-  <ButtonInline
+  <ButtonText
     :id="`${id}-tree-search-button-toggle`"
     icon="Search"
     @click="toggleSearch"
@@ -254,7 +254,7 @@ const rootNodes = computed(() => {
     :aria-expanded="showOptionsSearch"
   >
     <span>Search for options</span>
-  </ButtonInline>
+  </ButtonText>
   <div v-if="showOptionsSearch" :id="`${id}-tree-search-input-container`">
     <label :for="`${id}-tree-search-input`" class="sr-only">search</label>
     <InputSearch

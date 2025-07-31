@@ -48,7 +48,7 @@
         </template>
       </InputLabel>
     </div>
-    <ButtonInline
+    <ButtonText
       v-if="showClearButton"
       type="reset"
       :id="`${id}-radio-group-clear`"
@@ -58,7 +58,7 @@
       :disabled="disabled || null"
     >
       Clear
-    </ButtonInline>
+    </ButtonText>
   </InputGroupContainer>
 </template>
 

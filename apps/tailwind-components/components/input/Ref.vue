@@ -239,10 +239,10 @@ prepareModel();
       </Button>
     </div>
     <div class="flex flex-wrap gap-2 mb-2">
-      <ButtonInline @click="toggleSearch" :aria-controls="`search-for-${id}`">
+      <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
         Search
-      </ButtonInline>
-      <ButtonInline @click="clearSelection"> Clear all </ButtonInline>
+      </ButtonText>
+      <ButtonText @click="clearSelection"> Clear all </ButtonText>
     </div>
     <template v-if="showSearch && initialCount > limit">
       <InputLabel :for="`search-for-${id}`" class="sr-only">
@@ -280,10 +280,10 @@ prepareModel();
         :valid="valid"
         :disabled="disabled"
       />
-      <ButtonInline @click="loadMore" v-if="offset + limit < count">
+      <ButtonText @click="loadMore" v-if="offset + limit < count">
         load {{ entitiesLeftToLoad }} more
-      </ButtonInline>
+      </ButtonText>
     </template>
-    <ButtonInline v-else>No results found</ButtonInline>
+    <ButtonText v-else>No results found</ButtonText>
   </InputGroupContainer>
 </template>
