@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useFetch, useLazyAsyncData } from "#app";
+import { useFetch } from "#app";
 import { fetchMetadata } from "#imports";
 import { computed, ref, watch } from "vue";
 import type { ITableSettings, Resp, Schema } from "../../types/types";
@@ -108,13 +108,15 @@ const tableOptions = computed(() => {
       <span class="text-title">schemaId:</span> {{ schemaId }}
     </div>
 
-    <TableEMX2
-      v-if="tableId && schemaId"
-      :key="`${schemaId}-${tableId}`"
-      :schema-id="schemaId"
-      :table-id="tableId"
-      v-model:settings="tableSettings"
-      :is-editable="isEditable"
-    />
+    <div>
+      <TableEMX2
+        v-if="tableId && schemaId"
+        :key="`${schemaId}-${tableId}`"
+        :schema-id="schemaId"
+        :table-id="tableId"
+        v-model:settings="tableSettings"
+        :is-editable="isEditable"
+      />
+    </div>
   </div>
 </template>
