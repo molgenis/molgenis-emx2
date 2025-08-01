@@ -17,7 +17,7 @@ from tools.directory.src.molgenis_emx2.directory_client.pid_service import (
 )
 
 # Get credentials from .env
-load_dotenv()
+load_dotenv('./tools/directory/dev/.env')
 
 target = os.getenv("TARGET")
 username = os.getenv("USERNAME")
