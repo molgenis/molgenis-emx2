@@ -1,25 +1,78 @@
-# Permissions
+# Group and permission system
 
-## Standard roles
+MOLGENIS provides fine-grained access control using the following components:
 
-Currently we have as standard roles:
+* **Users**: Individual accounts that interact with the system.
+* **Groups**: Collections of users sharing permissions.
+* **Permissions**: Rules defining the actions users of a group can perform.
 
-* **manager** - context: schema. Has permissions to assign roles to users in its schema. Can create/change/remove tables and
-  columns (i.e. change the schema)
-* **editor** - context: schema. Has permission to insert, update, delete rows in tables. Can NOT change schema.
-* **viewer** - context: schema. Has permission to view data.
-* **aggregator** - context: schema. Has permission to count table rows (unless <10), and to view ontology data
+Permissions can apply to individual tables or entire schemas.
 
-In addition we have special roles to allow for specific permissions around aggregation which currently only have effect on graphql and beacon APIs"
+## permissions
+Permissions define what actions a user can do.
 
-* **count** - context: schema. Has permission to count table rows, and to view ontology data
-* **range** - context: schema: Has permission to count table rows, with a step-size of 10 (e.g. 10,20..120,130 etc.), and to view ontology data
-* **exists** - context: schema: Has permission to see if data exists given certain filters, and to view ontology data
+| Permission       | Definition                                                                                                     |
+|------------------|----------------------------------------------------------------------------------------------------------------|
+| select           | Allows selecting all rows.                                                                                     |
+| insert           | Allows creating new rows. <br/>If a user belongs to multiple groups, they must specify the group for the new row. |
+| update           | Allows updating all rows, including the 'group' field.                                                         |                                                                               |
+| delete           | Allows deleting all rows.                                                                                      |                                                                                            |
+| group_select     | Restricts ```select``` to rows in groups user is member of.                                                    |
+| group_update     | Restricts ```update``` to rows in groups user is member of. Does not permit changing the row's group.          |                                     |
+| group_delete     | Restricts ```delete``` to rows in groups user is member of.                                                    |
+| aggregate        | Allows running group-by queries* to calculate aggregated values (e.g., counts, sums, averages).                |
+| aggregate_exist  | Restricts ```aggregate``` to "yes/no" responses                                                                |
+| aggregate_range  | Restricts ```aggregate``` to counts returned in increments of 10 (e.g., 10, 20, ... 130).                      |
+| aggregate_count  | Restricts ```aggregate``` to counts only.                                                                      |
+| admin_metadata   | Allows creating, altering, and dropping tables.                                                                |
+| admin_permission | Allows granting and revoking permissions for groups.                                                           |
+| admin_group      | Allows adding and removing users from groups.                                                                  |
+
+**Note on Group-By Queries**: Group-by queries are limited to filtering on ref, ref_array, ontology, or ontology_array fields. To prevent potential identification risks, additional safeguards (e.g., minimum thresholds for counts) may apply.
+
+## default groups per schema
+
+MOLGENIS creates following default groups for each schema:
+
+| default group | permissions                                                                                                    |
+|---------------|----------------------------------------------------------------------------------------------------------------|
+| viewers       | Allows ```select``` on all tables.                                                                             |
+| group_viewers | Restricts ```viewers``` to ```group_select``` on **data** tables and select on all **ontology** tables         |
+| editors       | Extends ```viewers``` by adding ```insert```, ```update```, ```delete``` on all tables.                        |
+| group_editors | Restricts ```editors``` to ```group_insert```, ```group_update```, ```group_delete``` on  **data** tables only |
+| managers      | Extends```editors``` by adding ```admin_group_members``` (allows managing group memberships).                  |
+| admins        | Extends ```managers``` by adding ```admin_metadata``` and ```admin_group_permissions```  (enables schema-level administration).                       |
+
+**Note on ```data``` and ```ontology``` tables**:
+* Data Tables: Contain sensitive user or entity-related data. Restrictions such as ```group_select```, ```group_update```, and ```group_delete``` apply here..
+* Ontology Tables: Contain non-sensitive reference data (e.g., code lists). These are typically accessed with unrestricted ```select``` permissions.
+
+## Custom groups
+
+In addition to the default groups, MOLGENIS allows administrators to define custom groups tailored to specific use cases. Custom groups can be configured with any combination of schema-level and table-level permissions.
+
+Features of Custom Groups:
+* **Granular Permissions**: Combine permissions like select, group_select, update, group_update, etc., to suit specific needs.
+* **Schema-Level Permissions**: Apply permissions across an entire schema, streamlining access control for groups working on multiple tables.
+* **Table-Level Permissions**: Restrict permissions to specific tables for precise data management.
+
+## Examples
+
+Here’s an example of how a "group editor" might interact with a data table:
+* Scenario: A user is part of a "research_team" group.
+* Permissions: The user has group_update on a samples table.
+* Result: The user can update rows in the samples table only if those rows are assigned to the research_team group.
+
+## Implementation notes
+
+n.b. we use postgresql roles to implement all this:
+- a 'group' is a role that has no password and that is only meant as intermediate between users and permissions.
+- a 'permission' is a role that has no password and that has relevant grants (select, update, delete, create, alter, drop, grant) and which is also used to check in row level security policies
 
 
-## Users can get roles in a schema
+## Users can become member of one or more group
 
-Access to databases is controlled by providing roles to users. A user with a role we call a 'member' of a
+Access to databases is controlled by adding users to groups. A user with a role we call a 'member' of a
 database/schema. See: [database settings](use_database_settings.md).
 
 In addition there are three special users:
@@ -27,7 +80,6 @@ In addition there are three special users:
   user (i.e, make anonymous member of your schema)
 * user - context: whole database. Is any user that has signed in. E.g. you can give 'edit' permission to 'user' to say that all authenticated users are authorized to edit
 * admin - context: whole database. Has rights to view and edit everything (cannot be changed).
-
 
 ## Users can be managed by admin
 
