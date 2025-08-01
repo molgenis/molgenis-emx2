@@ -280,6 +280,13 @@ class ExternalServerNode(Node):
     token: str | None = None
 
 
+@dataclass(frozen=True)
+class FileIngestNode(Node):
+    """Represents a node that provides its data as files on an external server."""
+
+    url: str | None = None
+
+
 class Source(Enum):
     EXTERNAL_SERVER = "external_server"
     STAGING = "staging"

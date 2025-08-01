@@ -63,13 +63,13 @@ async def test_stager(mocker):
     source_data = MagicMock()
     stager._clear_staging_area = MagicMock(name="_clear_staging_area")
     stager._import_node = AsyncMock(name="_import_node")
-    stager._get_source_data = MagicMock(name="_get_mock_data")
-    stager._get_source_data.return_value = source_data
+    stager._get_external_server_data = MagicMock(name="_get_mock_data")
+    stager._get_external_server_data.return_value = source_data
     node = ExternalServerNode("NL", "NL", url="url")
 
     await stager.stage(node)
 
-    stager._get_source_data.assert_called_with(node)
+    stager._get_external_server_data.assert_called_with(node)
     stager._clear_staging_area.assert_called_with(node)
     stager._import_node.assert_called_with(source_data)
 
@@ -85,7 +85,7 @@ def test_get_source_data(external_server_init):
     source_session_mock_instance.node.get_schema_id.return_value = "BBMRI-NL"
     source_session_mock_instance.get_node_data.return_value = node_data
 
-    source_data = Stager(MagicMock(), Printer())._get_source_data(node)
+    source_data = Stager(MagicMock(), Printer())._get_external_server_data(node)
 
     external_server_init.assert_called_with(node=node)
     assert source_data == node_data

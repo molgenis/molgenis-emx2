@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from .directory_client import AttributesRequest, DirectorySession
 from .errors import DirectoryError, ErrorReport, requests_error_handler
-from .model import ExternalServerNode, Node
+from .model import ExternalServerNode, FileIngestNode, Node
 from .pid_manager import PidManagerFactory
 from .pid_service import BasePidService
 from .printer import Printer
@@ -36,13 +36,13 @@ class Directory:
             self.publisher = Publisher(self.session, self.printer, self.pid_manager)
 
     async def stage_external_nodes(
-        self, nodes: List[ExternalServerNode]
+        self, nodes: List[ExternalServerNode | FileIngestNode]
     ) -> ErrorReport:
         """
         Stages all data from the provided external nodes in the BBMRI Biobank Directory.
 
         Parameters:
-            nodes (List[ExternalServerNode]): The list of external nodes to stage
+            nodes: The list of external nodes to stage
         """
         report = ErrorReport(nodes)
         for node in nodes:
@@ -123,8 +123,6 @@ class Directory:
         for node in nodes:
             self.printer.print_node_title(node)
             try:
-                if isinstance(node, ExternalServerNode):
-                    await self._stage_node(node, state.report)
                 node_data = self.preparator.prepare(node, state)
                 state.data_to_publish.merge(node_data)
             except DirectoryError as e:
