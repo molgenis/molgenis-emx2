@@ -174,7 +174,7 @@
     :is-array="true"
   />
   <InputRefSelect
-    v-else-if="'SELECT' == typeUpperCase"
+    v-else-if="'SELECT' === typeUpperCase"
     v-model="modelValue as columnValueObject"
     :id="id"
     :valid="valid"
@@ -190,7 +190,7 @@
     :align="align"
   />
   <InputRefSelect
-    v-else-if="'MULTISELECT' == typeUpperCase"
+    v-else-if="'MULTISELECT' === typeUpperCase"
     v-model="modelValue as columnValueObject[]"
     :multiselect="true"
     :id="id"

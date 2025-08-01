@@ -127,6 +127,8 @@ watch(
 watch(
   () => rowIndex.value,
   async () => {
+    formValues.value = {};
+
     const query: { schema: string; table: string; rowIndex?: number } = {
       schema: schemaId.value,
       table: tableId.value,
@@ -135,8 +137,6 @@ watch(
       query.rowIndex = rowIndex.value;
     }
     router.push({ query });
-
-    formValues.value = {};
 
     if (rowIndex.value !== null) {
       fetchRow(rowIndex.value - 1);

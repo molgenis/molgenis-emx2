@@ -313,7 +313,8 @@ watch(
 
 watch(
   () => modelValue.value,
-  () => applyModelValueToSelection
+  (newVal, oldVal) => applyModelValueToSelection(),
+  { deep: true }
 );
 
 watch(
