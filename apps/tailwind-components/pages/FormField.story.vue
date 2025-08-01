@@ -25,7 +25,6 @@
           :invalid="invalid"
           :disabled="disabled"
           :errorMessage="errorMessage || null"
-          :options="demoOptions"
           :label="'Demo input for type=' + type"
           :required="required"
           refSchemaId="pet store"
@@ -52,9 +51,10 @@ import type { CellValueType } from "../../metadata-utils/src/types";
 
 const demoValue = ref<Record<string, any>>({
   string: "test string",
-  checkbox: [1],
-  radio: 1,
-  select: 1,
+  select: { name: "pooky" },
+  radio: { name: "pooky" },
+  checkbox: [{ name: "pooky" }, { name: "spike" }],
+  multiselect: [{ name: "pooky" }, { name: "spike" }],
   text: "some demo text",
   ref: null,
   bool: true,

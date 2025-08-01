@@ -259,8 +259,30 @@ async function getMaxTableRows() {
   maxTableRows.value = data[`${props.refTableId}_agg`].count;
 }
 
+function applyModelValueToSelection() {
+  if (!props.multiselect) {
+    delete selectionMap.value[Object.keys(selectionMap.value)[0]];
+    if (modelValue.value) {
+      selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
+        modelValue.value;
+    }
+  } else {
+    selectionMap.value = {};
+    if (
+      modelValue.value &&
+      Array.isArray(modelValue.value) &&
+      modelValue.value.length > 0
+    ) {
+      modelValue.value.forEach((value) => {
+        selectionMap.value[applyTemplate(props.refLabel, value)] = value;
+      });
+    }
+  }
+}
+
 onMounted(async () => {
   await prepareModel();
+  applyModelValueToSelection();
   updateDisplayText();
 });
 
@@ -288,26 +310,7 @@ watch(
 
 watch(
   () => modelValue.value,
-  () => {
-    if (!props.multiselect) {
-      delete selectionMap.value[Object.keys(selectionMap.value)[0]];
-      if (modelValue.value) {
-        selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
-          modelValue.value;
-      }
-    } else {
-      selectionMap.value = {};
-      if (
-        modelValue.value &&
-        Array.isArray(modelValue.value) &&
-        modelValue.value.length > 0
-      ) {
-        modelValue.value.forEach((value) => {
-          selectionMap.value[applyTemplate(props.refLabel, value)] = value;
-        });
-      }
-    }
-  }
+  () => applyModelValueToSelection
 );
 
 watch(
