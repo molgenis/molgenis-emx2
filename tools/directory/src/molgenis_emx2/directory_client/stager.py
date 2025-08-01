@@ -1,5 +1,6 @@
 import csv
 from typing import List
+from urllib.error import ContentTooShortError, HTTPError, URLError
 from urllib.request import urlretrieve
 
 from molgenis_emx2_pyclient.metadata import Column
@@ -165,8 +166,11 @@ class Stager:
         """
         Download the .csv-file from the file ingest server
         """
-
-        filename, headers = urlretrieve(f"{node.url}/{table_type.value}.csv")
+        file_path = f"{node.url}/{table_type.value}.csv"
+        try:
+            filename, headers = urlretrieve(file_path)
+        except (URLError, HTTPError, ContentTooShortError) as e:
+            raise DirectoryError(f"Failed at retrieving {file_path}") from e
         if headers['Content-Type'] != 'text/csv; charset=utf-8':
             warning = DirectoryWarning(
                 f"Node {node.code} has no file {table_type.value}.csv "
