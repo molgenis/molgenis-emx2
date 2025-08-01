@@ -26,10 +26,11 @@ username = os.getenv("USERNAME")
 password = os.getenv("PASSWORD")
 directory_schema = os.getenv("DIRECTORY")
 
+
 async def sync_directory():
     """
     Stage external nodes and publish them to the directory schema
-    
+
     Note: when staging an external server-type node the .env file should include
     a "node"_user="token" with view permissions on the external staging area
     """
@@ -53,20 +54,19 @@ async def sync_directory():
             pid_service = PidService.from_credentials("pyhandle_creds.json")
             print(f"Script runs on server {pid_service.base_url}")
         elif pid_service == 'dummy':
-            # Use the DummyPidService if testing without interacting with a handle server
+            # Use DummyPidService if testing without interacting with a handle server
             pid_service = DummyPidService()
         else:
-            # Use the NoOpPidService if you want to turn off the PID features completely
+            # Use NoOpPidService if you want to turn off the PID features completely
             pid_service = NoOpPidService()
 
         # Instantiate the Directory class and do some work
         directory = Directory(session, pid_service)
         staging_report = await directory.stage_external_nodes(nodes_to_stage)
-        publishing_report = await directory.publish_nodes(nodes_to_publish)
-
         if staging_report.has_errors():
-            raise ValueError("Some nodes did not publish correctly")
+            raise ValueError("Some nodes did not stage correctly")
 
+        publishing_report = await directory.publish_nodes(nodes_to_publish)
         if publishing_report.has_errors():
             raise ValueError("Some nodes did not publish correctly")
 
