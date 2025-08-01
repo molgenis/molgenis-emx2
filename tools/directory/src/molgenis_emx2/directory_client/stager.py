@@ -64,55 +64,24 @@ class Stager:
 
     def _ingest_files(self, node: FileIngestNode) -> NodeData:
         """
-        Gets a node's data from the files on an
-        external file ingest server.
+        Gets a node's data from the files on an external file ingest server.
 
         :return a NodeData object
         """
         self.printer.print(f"📦 Retrieving node's data from {node.url}")
         tables = {}
         for table_type in TableType.get_import_order():
-            filename = table_type.value
-            try:
-                temp_file, headers = urlretrieve(f"{node.url}/{filename}.csv")
-                if headers['Content-Type'] != 'text/csv; charset=utf-8':
-                    tables[table_type.value] = Table.of_empty(
-                        table_type,
-                        TableMeta(
-                            meta=[Column(name='id', key=1, table=table_type.base_id)]
-                        ),
-                    )
-                    raise NoSuchTableException
-                else:
-                    rows = []
-                    with open(temp_file, 'r', newline='', encoding='utf-8') as file:
-                        reader = csv.DictReader(file)
-                        for row in reader:
-                            rows.append(row)
-                    # Create table metadata
-                    metadata = []
-                    for column in rows[0]:
-                        if column == 'id':
-                            column_meta = Column(
-                                name=column, key=1, table=table_type.base_id
-                            )
-                        else:
-                            column_meta = Column(
-                                name=column, key=None, table=table_type.base_id
-                            )
-                        metadata.append(column_meta)
-                    tables[table_type.value] = Table.of(
-                        table_type=table_type,
-                        meta=TableMeta(meta=metadata),
-                        rows=rows,  # List of rows as dicts
-                    )
-            except NoSuchTableException:
-                warning = DirectoryWarning(
-                    f"Node {node.code} has no file {table_type.value}.csv "
-                    f"for table {table_type.base_id}"
+            file = self._download_file(node, table_type)
+            if not file:
+                # No file? Create dummy Table
+                dummy_meta = [Column(name='id', key=1, table=table_type.base_id)]
+                table = Table.of_empty(
+                    table_type,
+                    TableMeta(meta=dummy_meta),
                 )
-                self.printer.print_warning(warning, indent=1)
-                self.warnings.append(warning)
+            else:
+                table = self._file_to_table(file, table_type)
+            tables[table_type.value] = table
 
         return NodeData.from_dict(
             node=node, source=Source.EXTERNAL_SERVER, tables=tables
@@ -166,6 +135,47 @@ class Stager:
                     table=node.get_staging_id(table_type),
                     data=ids,
                 )
+
+    def _file_to_table(self, filename: str, table_type: List[TableType]) -> Table:
+        """
+        Get csv file, transform into Table object
+        """
+        rows = []
+        with open(filename, 'r', newline='', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                rows.append(row)
+        # Create table metadata
+        metadata = []
+        for column in rows[0]:
+            if column == 'id':
+                column_meta = Column(name=column, key=1, table=table_type.base_id)
+            else:
+                column_meta = Column(name=column, key=None, table=table_type.base_id)
+            metadata.append(column_meta)
+        return Table.of(
+            table_type=table_type,
+            meta=TableMeta(meta=metadata),
+            rows=rows,
+        )
+
+    def _download_file(
+        self, node: FileIngestNode, table_type: List[TableType]
+    ) -> str | None:
+        """
+        Download the .csv-file from the file ingest server
+        """
+
+        filename, headers = urlretrieve(f"{node.url}/{table_type.value}.csv")
+        if headers['Content-Type'] != 'text/csv; charset=utf-8':
+            warning = DirectoryWarning(
+                f"Node {node.code} has no file {table_type.value}.csv "
+                f"for table {table_type.base_id}"
+            )
+            self.printer.print_warning(warning, indent=1)
+            self.warnings.append(warning)
+            return None
+        return filename
 
     async def _import_node(self, source_data: NodeData):
         """
