@@ -175,10 +175,7 @@ function scrollToElementInside(containerId: string, elementId: string) {
         "
         class="pr-2 mr-4"
       />
-      <div
-        id="forms-story-fields-container"
-        class="grow h-screen overflow-y-scroll border p-10"
-      >
+      <div id="forms-story-fields-container" class="grow border p-10">
         <FormFields
           class="grow"
           :schemaId="schemaId"

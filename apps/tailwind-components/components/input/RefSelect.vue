@@ -79,8 +79,7 @@ const counterOffset = ref<number>(0);
 const maxTableRows = ref<number>(0);
 const hasNoResults = ref<boolean>(true);
 
-const displayText = ref<string>(props.placeholder);
-const searchTerm = defineModel<string>("");
+const searchTerm = defineModel<string>("search");
 const sortMethod = ref<string>();
 const isExpanded = ref<boolean>(false);
 const collapseAllOptions = ref<boolean>(false);
@@ -101,7 +100,9 @@ async function prepareModel() {
   const filters =
     Array.isArray(modelValue.value) && modelValue.value.length > 0
       ? (modelValue.value as []).map((value) => extractPrimaryKey(value))
-      : extractPrimaryKey(modelValue.value);
+      : modelValue.value
+      ? extractPrimaryKey(modelValue.value)
+      : undefined;
 
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
@@ -239,14 +240,14 @@ const { stop } = useIntersectionObserver(
   }
 );
 
-function updateDisplayText() {
+const displayText = computed(() => {
   const selectionMapKeys = Object.keys(selectionMap.value);
   if (selectionMapKeys.length) {
-    displayText.value = selectionMapKeys.join(", ");
+    return selectionMapKeys.join(", ");
   } else {
-    displayText.value = props.placeholder;
+    return props.placeholder;
   }
-}
+});
 
 async function getMaxTableRows() {
   const data = await fetchGraphql(
@@ -260,6 +261,9 @@ async function getMaxTableRows() {
 }
 
 function applyModelValueToSelection() {
+  if (modelValue.value === undefined && props.multiselect) {
+    modelValue.value = [];
+  }
   if (!props.multiselect) {
     delete selectionMap.value[Object.keys(selectionMap.value)[0]];
     if (modelValue.value) {
@@ -283,7 +287,6 @@ function applyModelValueToSelection() {
 onMounted(async () => {
   await prepareModel();
   applyModelValueToSelection();
-  updateDisplayText();
 });
 
 watch(
@@ -324,13 +327,6 @@ watch(
   () => sortMethod.value,
   () => {
     loadOptions({ limit: props.limit, searchTerms: searchTerm.value });
-  }
-);
-
-watch(
-  () => selectionMap.value,
-  () => {
-    updateDisplayText();
   }
 );
 
@@ -463,6 +459,7 @@ watch(
             <div
               v-for="(option, label) in optionsToDisplay"
               class="border-b last:border-none"
+              :key="label + Object.hasOwn(selectionMap, label)"
             >
               <InputRefSelectInputOption
                 :id="(label as string)"
@@ -470,7 +467,7 @@ watch(
                 :label="label"
                 :option="(option as recordValue)"
                 :multiselect="multiselect"
-                :checked="Object.hasOwn(selectionMap, label)"
+                :checked="selectionMap[label] !== undefined"
                 @select="select"
                 @deselect="deselect"
                 :collapse-hidden-content="!isExpanded ? true : null"
