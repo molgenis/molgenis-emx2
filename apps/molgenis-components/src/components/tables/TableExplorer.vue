@@ -842,6 +842,10 @@ function getCondition(columnType: string, condition: string) {
       case "REFBACK":
       case "ONTOLOGY":
       case "ONTOLOGY_ARRAY":
+      case "RADIO":
+      case "SELECT":
+      case "MULTISELECT":
+      case "CHECKBOX":
         return JSON.parse(condition);
       case "DATE":
       case "DATETIME":

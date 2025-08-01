@@ -22,7 +22,11 @@ const typeMap: { [key: string]: string } = {
   TEXT: "TextDisplay",
   JSON: "TextDisplay",
   REFBACK: "ListDisplay",
+  MULTISELECT: "ListDisplay",
+  CHECKBOX: "ListDisplay",
   REF: "ObjectDisplay",
+  SELECT: "ObjectDisplay",
+  RADIO: "ObjectDisplay",
   ONTOLOGY: "ObjectDisplay",
   EMAIL: "EmailDisplay",
   HYPERLINK: "HyperlinkDisplay",
@@ -56,7 +60,11 @@ export default defineComponent({
         : typeMap[this.metadata.columnType] || "StringDisplay";
     },
     isArrayType() {
-      return this.metadata.columnType.includes("ARRAY") > 0;
+      return (
+        this.metadata.columnType.includes("ARRAY") > 0 ||
+        this.metadata.columnType === "MULTISELECT" ||
+        this.metadata.columnType === "CHECKBOX"
+      );
     },
     isEmpty() {
       return (

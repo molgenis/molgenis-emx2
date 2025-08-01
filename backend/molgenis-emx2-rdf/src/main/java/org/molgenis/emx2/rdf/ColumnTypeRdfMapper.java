@@ -60,6 +60,10 @@ public abstract class ColumnTypeRdfMapper {
 
           // RELATIONSHIP
           entry(ColumnType.REF, RdfColumnType.REFERENCE),
+          entry(ColumnType.SELECT, RdfColumnType.REFERENCE),
+          entry(ColumnType.RADIO, RdfColumnType.REFERENCE),
+          entry(ColumnType.MULTISELECT, RdfColumnType.REFERENCE),
+          entry(ColumnType.CHECKBOX, RdfColumnType.REFERENCE),
           entry(ColumnType.REF_ARRAY, RdfColumnType.REFERENCE),
           entry(ColumnType.REFBACK, RdfColumnType.REFERENCE),
 

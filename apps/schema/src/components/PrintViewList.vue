@@ -214,7 +214,14 @@ function figureForSchemaSVG(schema) {
     [<table>${table.name}]
     `;
     table.columns.forEach((column) => {
-      if (column.columnType == "REF" || column.columnType == "REF_ARRAY") {
+      if (
+        column.columnType == "REF" ||
+        column.columnType == "REF_ARRAY" ||
+        column.columnType == "SELECT" ||
+        column.columnType == "RADIO" ||
+        column.columnType == "MULTISELECT" ||
+        column.columnType == "CHECKBOX"
+      ) {
         result += `[<table>${findRootTable(schema, column.refTable)}]<- ${
           column.name
         } [<table>${table.name}]\n`;

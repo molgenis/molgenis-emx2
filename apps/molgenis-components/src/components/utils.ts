@@ -10,9 +10,17 @@ import { executeExpression } from "./forms/formUtils/formUtils";
 const { CODE_0, CODE_9, CODE_PERIOD, AUTO_ID } = constants;
 
 export function isRefType(columnType: string): boolean {
-  return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-    columnType
-  );
+  return [
+    "REF",
+    "REF_ARRAY",
+    "REFBACK",
+    "ONTOLOGY",
+    "ONTOLOGY_ARRAY",
+    "RADIO",
+    "SELECT",
+    "CHECKBOX",
+    "MULTISELECT",
+  ].includes(columnType);
 }
 
 export function isNumericKey(event: KeyboardEvent): boolean {

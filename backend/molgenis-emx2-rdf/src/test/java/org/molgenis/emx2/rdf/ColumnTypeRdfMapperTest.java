@@ -69,7 +69,7 @@ class ColumnTypeRdfMapperTest {
     for (Column column : columnList) {
       switch (column.getColumnType()) {
         case STRING -> column.setPkey();
-        case REF, REF_ARRAY -> column.setRefTable(REF_TABLE);
+        case REF, REF_ARRAY, SELECT, CHECKBOX, RADIO, MULTISELECT -> column.setRefTable(REF_TABLE);
         case REFBACK -> column.setRefTable(REFBACK_TABLE).setRefBack("ref");
         case ONTOLOGY, ONTOLOGY_ARRAY -> column.setRefTable(ONT_TABLE);
       }

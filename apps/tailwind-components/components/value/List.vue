@@ -59,7 +59,11 @@ const elementType = computed(() => props.metadata.columnType.split("_")[0]);
       :data="listElement as string"
     />
     <ValueObject
-      v-else-if="elementType === 'REF'"
+      v-else-if="
+        elementType === 'REF' ||
+        elementType === 'MULTISELECT' ||
+        elementType === 'CHECKBOX'
+      "
       :metadata="metadata"
       :data="listElement"
     />
