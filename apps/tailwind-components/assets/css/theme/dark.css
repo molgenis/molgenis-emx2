@@ -72,6 +72,7 @@
   --text-color-pagination-button: var(--color-green-500);
   --text-color-pagination-hover: var(--color-green-500);
   --text-color-input: var(--color-white);
+  --text-color-definition-list-term: var(--color-gray-400);
   --text-color-record-heading: var(--color-white);
   --text-color-record-label: var(--color-gray-200);
   --text-color-record-value: var(--color-gray-200);
@@ -100,4 +101,15 @@
   --background-color-form-required: var(--color-gray-900);
   --background-color-form-required-btn: var(--color-gray-900);
   --background-color-form-required-btn-hover: var(--color-gray-300);
+
+  /** input switch styles */
+  --background-color-button-switch: var(--color-gray-900);
+  --background-color-button-switch-hover: var(--color-gray-900);
+  --background-color-button-switch-selected: var(--color-green-200);
+  --text-color-button-switch: var(--color-gray-400);
+  --text-color-button-switch-selected: var(--color-gray-900);
+  --text-color-button-switch-hover: var(--color-gray-200);
+  --border-color-button-switch: var(--color-gray-900);
+  --border-color-button-switch-selected: var(--color-green-200);
+  --border-color-button-switch-hover: var(--color-green-200);
 }
