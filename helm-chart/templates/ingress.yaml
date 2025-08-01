@@ -24,7 +24,21 @@ spec:
     - host: {{ index .Values.ingress.hosts 1 | quote }}
       http:
         paths:
-            - path: /.+/(graphql|sitemap\.xml|docs)
+            - path: /api/
+              pathType: Prefix
+              backend:
+                service:
+                  name: {{ $fullName }}
+                  port:
+                    number: 8080
+            - path: /apps/
+              pathType: Prefix
+              backend:
+                service:
+                  name: {{$fullName}}
+                  port:
+                    number: 8080
+            - path: /.+/(sitemap\.xml|docs)
               pathType: ImplementationSpecific
               backend:
                 service:

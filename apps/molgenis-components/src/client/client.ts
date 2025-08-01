@@ -205,7 +205,7 @@ const metadataQuery = `{
 }`;
 
 const graphqlURL = (schemaId?: string) => {
-  return schemaId ? "/" + schemaId + "/graphql" : "graphql";
+  return schemaId ? "../../" + schemaId + "/graphql" : "graphql";
 };
 
 const insertDataRow = (rowData: IRow, tableId: string, schemaId: string) => {
