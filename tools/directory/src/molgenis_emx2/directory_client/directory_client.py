@@ -19,6 +19,7 @@ from .errors import MolgenisRequestError
 from .model import (
     DirectoryData,
     ExternalServerNode,
+    FileIngestNode,
     MixedData,
     Node,
     NodeData,
@@ -255,7 +256,9 @@ class DirectorySession(Session):
         self._validate_codes([code], nodes)
         return self._to_nodes(nodes)[0]
 
-    def get_external_nodes(self, codes: List[str] = None) -> List[ExternalServerNode]:
+    def get_external_nodes(
+        self, codes: List[str] = None
+    ) -> List[ExternalServerNode | FileIngestNode]:
         """
         Retrieves a list of ExternalServerNode objects from the national nodes table.
         Will return all nodes or some nodes if 'codes' is specified.
@@ -269,7 +272,7 @@ class DirectorySession(Session):
         else:
             df_nodes = self.get(
                 table=self.NODES_TABLE,
-                query_filter="data_refresh.name == external_server",
+                query_filter="data_refresh.name == ['file_ingest', 'external_server']",
                 as_df=True,
             )
 
@@ -291,7 +294,7 @@ class DirectorySession(Session):
 
     @staticmethod
     def _check_dns(nodes: List[dict]):
-        """Raises a ValueError if the external server node has no dns specified"""
+        """Raises a ValueError if the external node has no dns specified"""
         for node in nodes:
             if not node['dns']:
                 raise ValueError(f"Missing dns value for node {node['id']}")
@@ -309,6 +312,15 @@ class DirectorySession(Session):
                         date_end=node.get("date_end"),
                         url=node["dns"],
                         token=os.getenv(f"{node['id']}_user"),
+                    )
+                )
+            elif node['data_refresh'] == 'file_ingest':
+                result.append(
+                    FileIngestNode(
+                        code=node["id"],
+                        description=node["description"],
+                        date_end=node.get("date_end"),
+                        url=node["dns"],
                     )
                 )
             else:
@@ -464,7 +476,7 @@ class ExternalServerSession(DirectorySession):
 
     def get_node_data(self) -> NodeData:
         """
-        Gets the six tables of this node's external server.
+        Gets the tables of this node's external server.
 
         :return: a NodeData object
         """

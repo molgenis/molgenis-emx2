@@ -1,4 +1,8 @@
+import csv
 from typing import List
+from urllib.request import urlretrieve
+
+from molgenis_emx2_pyclient.metadata import Column
 
 from .directory_client import (
     DirectorySession,
@@ -6,7 +10,15 @@ from .directory_client import (
     NoSuchTableException,
 )
 from .errors import DirectoryError, DirectoryWarning, requests_error_handler
-from .model import ExternalServerNode, NodeData, TableType
+from .model import (
+    ExternalServerNode,
+    FileIngestNode,
+    NodeData,
+    Source,
+    Table,
+    TableMeta,
+    TableType,
+)
 from .printer import Printer
 
 
@@ -23,18 +35,21 @@ class Stager:
         self.warnings: List[DirectoryWarning] = list()
 
     @requests_error_handler
-    async def stage(self, node: ExternalServerNode):
+    async def stage(self, node: ExternalServerNode | FileIngestNode):
         """
         Stages all data from the provided external node in the Directory.
         """
         self.warnings = []
-        source_data = self._get_source_data(node)
+        if isinstance(node, ExternalServerNode):
+            source_data = self._get_external_server_data(node)
+        else:
+            source_data = self._ingest_files(node)
         self._clear_staging_area(node)
         await self._import_node(source_data)
 
         return self.warnings
 
-    def _get_source_data(self, node: ExternalServerNode) -> NodeData:
+    def _get_external_server_data(self, node: ExternalServerNode) -> NodeData:
         """
         Gets a node's data from an external server.
         First check if:
@@ -46,6 +61,62 @@ class Stager:
         self._check_permissions(source_session)
         self._check_tables(source_session)
         return source_session.get_node_data()
+
+    def _ingest_files(self, node: FileIngestNode) -> NodeData:
+        """
+        Gets a node's data from the files on an
+        external file ingest server.
+
+        :return a NodeData object
+        """
+        self.printer.print(f"📦 Retrieving node's data from {node.url}")
+        tables = {}
+        for table_type in TableType.get_import_order():
+            filename = table_type.value
+            try:
+                temp_file, headers = urlretrieve(f"{node.url}/{filename}.csv")
+                if headers['Content-Type'] != 'text/csv; charset=utf-8':
+                    tables[table_type.value] = Table.of_empty(
+                        table_type,
+                        TableMeta(
+                            meta=[Column(name='id', key=1, table=table_type.base_id)]
+                        ),
+                    )
+                    raise NoSuchTableException
+                else:
+                    rows = []
+                    with open(temp_file, 'r', newline='', encoding='utf-8') as file:
+                        reader = csv.DictReader(file)
+                        for row in reader:
+                            rows.append(row)
+                    # Create table metadata
+                    metadata = []
+                    for column in rows[0]:
+                        if column == 'id':
+                            column_meta = Column(
+                                name=column, key=1, table=table_type.base_id
+                            )
+                        else:
+                            column_meta = Column(
+                                name=column, key=None, table=table_type.base_id
+                            )
+                        metadata.append(column_meta)
+                    tables[table_type.value] = Table.of(
+                        table_type=table_type,
+                        meta=TableMeta(meta=metadata),
+                        rows=rows,  # List of rows as dicts
+                    )
+            except NoSuchTableException:
+                warning = DirectoryWarning(
+                    f"Node {node.code} has no file {table_type.value}.csv "
+                    f"for table {table_type.base_id}"
+                )
+                self.printer.print_warning(warning, indent=1)
+                self.warnings.append(warning)
+
+        return NodeData.from_dict(
+            node=node, source=Source.EXTERNAL_SERVER, tables=tables
+        )
 
     @staticmethod
     def _check_permissions(session: ExternalServerSession):
