@@ -62,17 +62,18 @@ function hide() {
 </script>
 
 <template>
-  <section
+  <div
     v-show="visible"
     role="dialog"
     :aria-labelledby="title"
+    :aria-modal="true"
     ref="dialog"
-    class="fixed min-h-lvh w-full top-0 left-0 flex z-20 overscroll-behavior: contain"
+    class="fixed min-h-lvh w-full top-0 left-0 flex z-30 overscroll-contain"
   >
-    <a
+    <div
       id="backdrop"
       @click="visible = false"
-      class="w-full h-full absolute left-0 bg-black/60 overscroll-behavior: contain"
+      class="w-full h-full absolute left-0 bg-black/60 overscroll-contain"
       tabindex="-1"
     />
 
@@ -112,5 +113,5 @@ function hide() {
         <slot name="footer" :hide="hide" />
       </footer>
     </div>
-  </section>
+  </div>
 </template>

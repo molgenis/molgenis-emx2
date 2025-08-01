@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, watchEffect } from "vue";
+import { computed, ref, toRaw } from "vue";
 import useForm from "../../composables/useForm";
 import useSections from "../../composables/useSections";
 import type { ITableMetaData } from "../../../metadata-utils/src";

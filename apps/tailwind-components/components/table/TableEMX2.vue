@@ -92,40 +92,22 @@
                 v-if="isEditable && index === 0"
                 class="flex items-center gap-1 flex-none invisible group-hover:visible h-4 py-6 px-4 absolute right-7 bg-hover"
               >
-                <DeleteModal
-                  v-if="data?.tableMetadata"
-                  :schemaId="props.schemaId"
-                  :metadata="data.tableMetadata"
-                  :formValues="row"
-                  v-slot="{ setVisible }"
-                  @update:deleted="afterRowDeleted"
-                >
-                  <Button
-                    :icon-only="true"
-                    type="inline"
-                    icon="trash"
-                    size="small"
-                    label="delete"
-                    @click="setVisible"
-                  />
-                </DeleteModal>
-                <EditModal
-                  v-if="data?.tableMetadata"
-                  :schemaId="props.schemaId"
-                  :metadata="data.tableMetadata"
-                  :formValues="row"
-                  v-slot="{ setVisible }"
-                  @update:updated="afterRowUpdated"
-                >
-                  <Button
-                    :icon-only="true"
-                    type="inline"
-                    icon="edit"
-                    size="small"
-                    label="edit"
-                    @click="setVisible"
-                  />
-                </EditModal>
+                <Button
+                  :icon-only="true"
+                  type="inline"
+                  icon="trash"
+                  size="small"
+                  label="delete"
+                  @click="onShowDeleteModal(row)"
+                />
+                <Button
+                  :icon-only="true"
+                  type="inline"
+                  icon="edit"
+                  size="small"
+                  label="edit"
+                  @click="onShowEditModal(row)"
+                />
               </div>
             </TableCellEMX2>
           </tr>
@@ -146,9 +128,33 @@
     v-model:visible="showModal"
     :metadata="refTableColumn"
     :row="refTableRow"
-    :schema="props.schemaId"
+    :schema="schemaId"
     :sourceTableId="refSourceTableId"
     :showDataOwner="false"
+  />
+
+  <DeleteModal
+    v-if="data?.tableMetadata && rowDataForModal"
+    :schemaId="props.schemaId"
+    :metadata="data.tableMetadata"
+    :formValues="rowDataForModal"
+    v-model:visible="showDeleteModal"
+    @update:deleted="
+      afterRowDeleted;
+      showDeleteModal = false;
+    "
+  />
+
+  <EditModal
+    v-if="data?.tableMetadata && rowDataForModal"
+    :schemaId="props.schemaId"
+    :metadata="data.tableMetadata"
+    :formValues="rowDataForModal"
+    v-model:visible="showEditModal"
+    @update:updated="
+      afterRowUpdated;
+      showEditModal = false;
+    "
   />
 </template>
 
@@ -158,6 +164,7 @@ import type {
   IRow,
   IColumn,
   IRefColumn,
+  columnValue,
 } from "../../../metadata-utils/src/types";
 import type {
   ITableSettings,
@@ -172,6 +179,10 @@ import AddModal from "../form/AddModal.vue";
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import TableModalRef from "./modal/TableModalRef.vue";
+
+const showDeleteModal = ref<boolean>(false);
+const showEditModal = ref<boolean>(false);
+const rowDataForModal = ref();
 
 const props = withDefaults(
   defineProps<{
@@ -302,6 +313,16 @@ function handleCellClick(
       : (column as IRefColumn); // todo other types of column
 
   showModal.value = true;
+}
+
+function onShowDeleteModal(row: Record<string, columnValue>) {
+  rowDataForModal.value = row;
+  showDeleteModal.value = true;
+}
+
+function onShowEditModal(row: Record<string, columnValue>) {
+  rowDataForModal.value = row;
+  showEditModal.value = true;
 }
 
 function afterRowAdded() {
