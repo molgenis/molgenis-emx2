@@ -11,12 +11,12 @@ const opts = { changeOrigin: true, secure: false, logLevel: "debug" };
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => ({
-  base: "",
+  base: command === "serve" ? "/" : "apps/directory/",
   build: { sourcemap: true },
   plugins: [
     vue(),
     createHtmlPlugin({
-      entry: "src/main.js",
+      entry: "src/main.ts",
       template: command === "serve" ? "dev-index.html" : "index.html",
     }),
     monacoEditorPlugin({

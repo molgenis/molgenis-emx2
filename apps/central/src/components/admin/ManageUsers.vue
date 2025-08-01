@@ -170,7 +170,7 @@ export default {
           })
           .catch((error) => {
             this.alterError =
-              "Create/alter user failed: " + error.response.message;
+              "Create/alter user failed: " + error.response.errors[0].message;
           });
         this.alterLoading = false;
       }

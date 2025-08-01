@@ -1,0 +1,6 @@
+order,name,parent,codesystem,code,ontologyTermURI,definition,
+1,Benign,,NGBO,NGBO_6000307,http://purl.obolibrary.org/obo/NGBO_6000307,A clinical variant interpretation that represents a sequence variant previously classified or reported as a recognized neutral variant,
+2,Likely benign,,NGBO,NGBO_6000306,http://purl.obolibrary.org/obo/NGBO_6000306,A clinical variant interpretation that represents a sequence variant that is previously unreported and is probably not causative of disease,
+3,Likely pathogenic,,NGBO,NGBO_6000304,http://purl.obolibrary.org/obo/NGBO_6000304,A clinical variant interpretation that represents a sequence variant that is previously unreported and is of the type which is expected to cause the disorder.,
+4,Pathogenic,,NGBO,NGBO_6000303,http://purl.obolibrary.org/obo/NGBO_6000303,A clinical variant interpretation that represents a sequence variant that is previously reported and is a recognized cause of the disorder.,
+5,Variant of unknown significance,,NGBO,NGBO_6000305,http://purl.obolibrary.org/obo/NGBO_6000305,A clinical variant interpretation that represents a sequence variant that is previously unreported and is of the type which may or may not be causative of the disorder.,

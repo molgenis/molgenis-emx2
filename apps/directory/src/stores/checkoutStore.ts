@@ -1,15 +1,21 @@
+import * as _ from "lodash";
 import { defineStore } from "pinia";
 import { computed, ref, toRaw, watch } from "vue";
 import { createBookmark } from "../functions/bookmarkMapper";
-import { useFiltersStore } from "./filtersStore";
-import { useSettingsStore } from "./settingsStore";
 import { IBiobanks } from "../interfaces/directory";
 import { IBiobankIdentifier } from "../interfaces/interfaces";
+import { useFiltersStore } from "./filtersStore";
+import { useSettingsStore } from "./settingsStore";
+import useErrorHandler from "../composables/errorHandler";
 
-export interface labelValuePair {
+export interface ILabelValuePair {
   label: string;
   value: string;
 }
+
+const { setError, clearError } = useErrorHandler();
+const NEGOTIATOR_ERROR =
+  "An error occurred while communicating with the Negotiator. Please try again later.";
 
 export const useCheckoutStore = defineStore("checkoutStore", () => {
   const filtersStore = useFiltersStore();
@@ -89,17 +95,14 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     }
 
     /** only add if this is a different query than before */
-    if (
-      searchHistory.value.length &&
-      searchHistory.value[searchHistory.value.length - 1] !== history
-    ) {
+    if (searchHistory.value![searchHistory.value.length - 1] !== history) {
       searchHistory.value.push(history);
     }
   }
 
   function addServicesToSelection(
     biobank: IBiobanks,
-    services: labelValuePair[],
+    services: ILabelValuePair[],
     bookmark: boolean
   ) {
     checkoutValid.value = false;
@@ -150,7 +153,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
   function addCollectionsToSelection(
     biobank: IBiobanks,
-    collections: labelValuePair[],
+    collections: ILabelValuePair[],
     bookmark: boolean
   ) {
     checkoutValid.value = false;
@@ -311,7 +314,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     const additionText = " and ";
     const humanReadableStart: Record<string, string> = {};
 
-    /** Get all the filterdefinitions for current active filters and make a dictionary name: humanreadable */
+    /** Get all the filter definitions for current active filters and make a dictionary name: humanreadable */
     filtersStore.filterFacets
       .filter((fd) => activeFilterNames.includes(fd.facetIdentifier))
       .forEach((filterDefinition) => {
@@ -356,49 +359,78 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   }
 
   async function sendToNegotiator() {
-    const resources = [];
-
-    for (const biobank in selectedCollections.value) {
-      const collectionSelection = selectedCollections.value[biobank];
-
-      for (const collection of collectionSelection) {
-        resources.push(
-          toRaw({
-            id: collection.value,
-            name: collection.label,
-            // todo: This expects an organization object, but its unclear how the organization is supposed to be mapped to the biobank
-            // organization: {
-            //   id: biobank.value,
-            //   externalId: biobank.id,
-            //   name: biobank.label,
-            // },
-          })
-        );
-      }
+    const { negotiatorType } = settingsStore.config;
+    clearError();
+    if (negotiatorType === "v1") {
+      doNegotiatorV1Request();
+    } else if (
+      negotiatorType === "v3" ||
+      negotiatorType === "eric-negotiator"
+    ) {
+      doNegotiatorV3Request();
+    } else {
+      console.error(
+        `Unsupported negotiator type: ${negotiatorType}. Please check your settings.`
+      );
+      setError(NEGOTIATOR_ERROR);
     }
+  }
 
-    for (const biobank in selectedServices.value) {
-      const serviceSelection = selectedServices.value[biobank];
-
-      for (const service of serviceSelection) {
-        resources.push(
-          toRaw({
-            id: service.value,
-            name: service.label,
-          })
-        );
-      }
-    }
-
-    const url = window.location.origin;
+  async function doNegotiatorV1Request() {
+    const { negotiatorUsername, negotiatorPassword, negotiatorUrl } =
+      settingsStore.config;
     const humanReadable = getHumanReadableString() + createHistoryJournal();
-    const negotiatorUrl = settingsStore.config.negotiatorUrl;
+    const collections: any[] = getV1CollectionsToSend();
+    const URL = window.location.href.replace(/&nToken=\w{32}/, "");
+    const body: Record<string, any> = {
+      podiumUrl: negotiatorUrl,
+      podiumUsername: negotiatorUsername,
+      podiumPassword: negotiatorPassword,
+      payload: { URL, humanReadable, collections },
+    };
 
-    const payload = nToken.value
-      ? { url, humanReadable, resources, nToken: nToken.value }
-      : { url, humanReadable, resources };
+    if (nToken.value) {
+      body.nToken = nToken.value;
+    }
 
-    // todo: show a success or failure message and close modal if needed.
+    const response = await fetch(`/api/podium`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (response.ok) {
+      removeAllFromSelection(false);
+      if (typeof response.headers.get("Location") === "string") {
+        window.location.href = response.headers.get("Location") as string;
+      }
+    } else {
+      const jsonResponse = await response.json();
+      const detail = jsonResponse.detail
+        ? ` Detail: ${jsonResponse.detail}`
+        : "";
+      const statusString = response.status
+        ? ` Status: ${response.status} (${response.statusText}).`
+        : "";
+      console.error(
+        `Error communicating with the Negotiator: ${statusString} ${detail}`
+      );
+      setError(NEGOTIATOR_ERROR);
+    }
+  }
+
+  async function doNegotiatorV3Request() {
+    const { negotiatorUrl } = settingsStore.config;
+    const humanReadable = getHumanReadableString() + createHistoryJournal();
+
+    const resources = getResourcesToSend();
+    const url = window.location.origin;
+    const payload: Record<string, any> = { url, humanReadable, resources };
+    if (nToken.value) {
+      payload.nToken = nToken.value;
+    }
     const response = await fetch(negotiatorUrl, {
       method: "POST",
       headers: {
@@ -409,45 +441,86 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
 
     if (response.ok) {
       removeAllFromSelection(false);
+      const body = await response.json();
+      window.location.href = body.redirectUrl;
     } else {
       const statusCode = response.status;
       const jsonResponse = await response.json();
       const detail = jsonResponse.detail
         ? ` Detail: ${jsonResponse.detail}`
         : "";
+      setError(NEGOTIATOR_ERROR);
       switch (statusCode) {
         case 400:
-          throw new Error(
+          console.error(
             `Negotiator responded with code 400, invalid input.${detail}`
           );
         case 401:
-          throw new Error(
+          console.error(
             `Negotiator responded with code 401, not authorised.${detail}`
           );
         case 404:
-          throw new Error(`Negotiator not found, error code 404.${detail}`);
+          console.error(`Negotiator not found, error code 404.${detail}`);
         case 413:
-          throw new Error(
+          console.error(
             `Negotiator responded with code 413, request too large.${detail}`
           );
         case 500:
-          throw new Error(
+          console.error(
             `Negotiator responded with code 500, internal server error.${detail}`
           );
         default:
-          throw new Error(
+          console.error(
             `An unknown error occurred with the Negotiator. Please try again later.${detail}`
           );
       }
     }
+  }
 
-    const body = await response.json();
-    window.location.href = body.redirectUrl;
+  function getV1CollectionsToSend() {
+    const selectedCollectionsByBiobank = selectedCollections.value;
+    return _.flatMap(
+      selectedCollectionsByBiobank,
+      (collectionSelection, biobankName) => {
+        return collectionSelection.map((collection) => {
+          return toRaw({
+            collectionId: collection.value,
+            biobankId: biobankIdDictionary.value[biobankName],
+          });
+        });
+      }
+    );
+  }
+
+  function getResourcesToSend() {
+    const collections = getCollectionsToSend(selectedCollections.value);
+    const services = getServicesToSend(selectedServices.value);
+    return [...collections, ...services];
+  }
+
+  function getCollectionsToSend(
+    selectedCollectionsByBiobank: Record<string, ILabelValuePair[]>
+  ) {
+    return _.flatMap(selectedCollectionsByBiobank, (collectionSelection) => {
+      return collectionSelection.map((collection) => {
+        return toRaw({ id: collection.value, name: collection.label });
+      });
+    });
+  }
+
+  function getServicesToSend(
+    selectedServices: Record<string, ILabelValuePair[]>
+  ) {
+    return _.flatMap(selectedServices, (serviceSelection) => {
+      return serviceSelection.map((service) => {
+        return toRaw({ id: service.value, name: service.label });
+      });
+    });
   }
 
   function isInCart(identifier: string) {
-    for (const biobank in selectedCollections.value) {
-      const collectionSelection = selectedCollections.value[biobank];
+    for (const biobankName in selectedCollections.value) {
+      const collectionSelection = selectedCollections.value[biobankName];
 
       for (const collection of collectionSelection) {
         if (collection.value === identifier) {
@@ -456,8 +529,8 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
       }
     }
 
-    for (const biobank in selectedServices.value) {
-      const serviceSelection = selectedServices.value[biobank];
+    for (const biobankName in selectedServices.value) {
+      const serviceSelection = selectedServices.value[biobankName];
 
       for (const service of serviceSelection) {
         if (service.value === identifier) {
@@ -470,21 +543,21 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
   }
 
   return {
-    nToken,
-    setSearchHistory,
-    searchHistory,
     checkoutValid,
+    collectionSelectionCount,
     cartUpdated,
-    sendToNegotiator,
+    nToken,
+    searchHistory,
     selectedCollections,
     selectedServices,
-    collectionSelectionCount,
     serviceSelectionCount,
     addCollectionsToSelection,
     addServicesToSelection,
+    isInCart,
+    removeAllFromSelection,
     removeCollectionsFromSelection,
     removeServicesFromSelection,
-    removeAllFromSelection,
-    isInCart,
+    sendToNegotiator,
+    setSearchHistory,
   };
 });

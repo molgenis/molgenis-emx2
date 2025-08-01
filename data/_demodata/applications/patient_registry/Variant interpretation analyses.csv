@@ -1,0 +1,8 @@
+id,date started,date completed,individuals,affiliated organisations,input samples,status,solved,date solved
+VIA_Case1C,2025-03-01,2025-03-04,Case1C,University Medical Center Groningen,SAMEA10450712,completed,TRUE,2025-03-04
+VIA_Case2C,2025-04-01,2025-04-20,Case2C,University Medical Center Groningen,SAMEA10450714,completed,TRUE,2025-04-20
+VIA_Case3C,2025-06-01,,Case3C,University Medical Center Groningen,SAMEA10450723,ongoing,,
+A01,2021-01-21,2021-01-21,Ind001,University Medical Center Groningen,Sample0001,,,
+A02,2021-02-12,2021-02-12,Ind001,University Medical Center Groningen,Sample0001,,,
+A03,2022-01-10,2022-01-10,Ind001,University Medical Center Groningen,Sample0001,,,
+A04,2022-02-11,2022-02-11,Ind002,University Medical Center Groningen,Sample0002,,,

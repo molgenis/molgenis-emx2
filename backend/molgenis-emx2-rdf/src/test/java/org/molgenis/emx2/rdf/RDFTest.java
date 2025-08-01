@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.TestResourceLoader.getFile;
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_CHILD1_FIRST;
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_CHILD1_SECOND;
 import static org.molgenis.emx2.rdf.RDFTest.ValidationSubjects.COMP_GRANDCHILD1_FIRST;
@@ -16,10 +17,10 @@ import static org.molgenis.emx2.rdf.RdfUtils.SETTING_CUSTOM_RDF;
 import static org.molgenis.emx2.rdf.RdfUtils.SETTING_SEMANTIC_PREFIXES;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +51,11 @@ import org.molgenis.emx2.rdf.generators.Emx2RdfGenerator;
 import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 import org.molgenis.emx2.rdf.generators.RdfGenerator;
 import org.molgenis.emx2.rdf.generators.SemanticRdfGenerator;
-import org.molgenis.emx2.rdf.writers.WriterFactory;
+import org.molgenis.emx2.rdf.shacl.ShaclSet;
+import org.molgenis.emx2.rdf.writers.RdfModelWriter;
+import org.molgenis.emx2.rdf.writers.RdfStreamWriter;
+import org.molgenis.emx2.rdf.writers.RdfWriter;
+import org.molgenis.emx2.rdf.writers.ShaclResultWriter;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class RDFTest {
@@ -63,8 +68,6 @@ public class RDFTest {
 
   static final String BASE_URL = "http://localhost:8080";
   static final String RDF_API_LOCATION = "/api/rdf";
-
-  static final ClassLoader classLoader = ColumnTypeRdfMapperTest.class.getClassLoader();
 
   static Database database;
   static List<Schema> petStoreSchemas;
@@ -324,14 +327,7 @@ public class RDFTest {
             column("id").setType(ColumnType.STRING).setPkey(),
             column("file").setType(ColumnType.FILE)));
 
-    fileTest
-        .getTable("myFiles")
-        .insert(
-            row(
-                "id",
-                "1",
-                "file",
-                new File(classLoader.getResource("testfiles/molgenis.png").getFile())));
+    fileTest.getTable("myFiles").insert(row("id", "1", "file", getFile("testfiles/molgenis.png")));
 
     // Refback test (petstore refback uses auto id)
     refBackTest = database.dropCreateSchema("refBackTest");
@@ -431,10 +427,20 @@ public class RDFTest {
 
   // Full RDF output tests.
   @Test
-  void testPetStoreRdfEmx2Schema() throws IOException, NoSuchMethodException {
+  void testPetStoreRdfEmx2SchemaModel() throws IOException, NoSuchMethodException {
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/emx2/schema.ttl",
-        WriterFactory.MODEL,
+        RdfModelWriter.class,
+        Emx2RdfGenerator.class,
+        RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
+        petStore_nr1);
+  }
+
+  @Test
+  void testPetStoreRdfEmx2SchemaStream() throws IOException, NoSuchMethodException {
+    compareToValidationFile(
+        "rdf_files/rdf_api/pet_store/emx2/schema.ttl",
+        RdfStreamWriter.class,
         Emx2RdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
         petStore_nr1);
@@ -444,7 +450,7 @@ public class RDFTest {
   void testPetStoreRdfSemanticSchema() throws IOException, NoSuchMethodException {
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/semantic/schema.ttl",
-        WriterFactory.MODEL,
+        RdfStreamWriter.class,
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
         petStore_nr1);
@@ -454,7 +460,7 @@ public class RDFTest {
   void testPetStoreRdfSemanticOntology() throws IOException, NoSuchMethodException {
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/semantic/ontology_tag.ttl",
-        WriterFactory.MODEL,
+        RdfStreamWriter.class,
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class),
         petStore_nr1.getTable("Tag"));
@@ -464,7 +470,7 @@ public class RDFTest {
   void testPetStoreRdfSemanticTable() throws IOException, NoSuchMethodException {
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/semantic/table_user.ttl",
-        WriterFactory.MODEL,
+        RdfStreamWriter.class,
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class),
         petStore_nr1.getTable("User"));
@@ -476,16 +482,67 @@ public class RDFTest {
 
     compareToValidationFile(
         "rdf_files/rdf_api/pet_store/semantic/row_fire_ant.ttl",
-        WriterFactory.MODEL,
+        RdfStreamWriter.class,
         SemanticRdfGenerator.class,
         RdfApiGenerator.class.getDeclaredMethod("generate", Table.class, PrimaryKey.class),
         table,
         PrimaryKey.fromEncodedString(table, "name=fire%20ant"));
   }
 
+  @Test
+  void testPetStoreShaclSimpleEmx2() throws IOException, NoSuchMethodException {
+    // ShaclSet prepends "_shacl" to simulate folder where data would be reachable in production.
+    ShaclSet shaclSet =
+        new ShaclSet("test", null, null, null, new String[] {"pet_store_simple/shacl.ttl"});
+
+    compareToValidationFile(
+        "shacl_files/pet_store/simple/output_emx2.ttl",
+        ShaclResultWriter.class,
+        Arrays.asList(OutputStream.class, RDFFormat.class, ShaclSet.class),
+        Arrays.asList(null, RDFFormat.TURTLE, shaclSet),
+        Emx2RdfGenerator.class,
+        RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
+        petStore_nr1);
+  }
+
+  @Test
+  void testPetStoreShaclSimpleSemantic() throws IOException, NoSuchMethodException {
+    // ShaclSet prepends "_shacl" to simulate folder where data would be reachable in production.
+    ShaclSet shaclSet =
+        new ShaclSet("test", null, null, null, new String[] {"pet_store_simple/shacl.ttl"});
+
+    compareToValidationFile(
+        "shacl_files/pet_store/simple/output_semantic.ttl",
+        ShaclResultWriter.class,
+        Arrays.asList(OutputStream.class, RDFFormat.class, ShaclSet.class),
+        Arrays.asList(null, RDFFormat.TURTLE, shaclSet),
+        SemanticRdfGenerator.class,
+        RdfApiGenerator.class.getDeclaredMethod("generate", Schema.class),
+        petStore_nr1);
+  }
+
   private void compareToValidationFile(
       String validationFilePath,
-      WriterFactory writerFactory,
+      Class<? extends RdfWriter> rdfWriterClass,
+      Class<? extends RdfGenerator> generatorClass,
+      Method method,
+      Object... methodArgs)
+      throws IOException {
+    compareToValidationFile(
+        validationFilePath,
+        rdfWriterClass,
+        Arrays.asList(OutputStream.class, RDFFormat.class),
+        Arrays.asList(null, RDFFormat.TURTLE),
+        generatorClass,
+        method,
+        methodArgs);
+  }
+
+  private void compareToValidationFile(
+      String validationFilePath,
+      Class<? extends RdfWriter> rdfWriterClass,
+      List<Class> writerArgClasses,
+      List<Object> writerArgs,
       Class<? extends RdfGenerator> generatorClass,
       Method method,
       Object... methodArgs)
@@ -494,7 +551,8 @@ public class RDFTest {
     parseFile(expected, validationFilePath);
 
     InMemoryRDFHandler actual = new InMemoryRDFHandler(true);
-    RdfParser.parseRdf(actual, writerFactory, generatorClass, method, methodArgs);
+    RdfParser.parseRdf(
+        actual, rdfWriterClass, writerArgClasses, writerArgs, generatorClass, method, methodArgs);
 
     CustomAssertions.equals(expected, actual);
   }

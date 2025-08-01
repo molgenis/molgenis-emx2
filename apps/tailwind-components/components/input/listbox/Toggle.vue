@@ -6,7 +6,7 @@
     :aria-required="required"
     :aria-expanded="isExpanded"
     :aria-activedescendant="selectedElementId"
-    class="flex justify-start items-center h-10 w-full text-left pl-11 border rounded-input"
+    class="flex justify-start items-center h-[56px] w-full text-left pl-4 border rounded-input"
     :class="{
       'bg-input border-invalid text-invalid': invalid && !disabled,
       'bg-input border-valid text-valid': valid && !disabled,

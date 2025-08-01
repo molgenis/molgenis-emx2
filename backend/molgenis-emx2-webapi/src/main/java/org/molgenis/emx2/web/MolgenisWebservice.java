@@ -113,9 +113,11 @@ public class MolgenisWebservice {
     GraphqlApi.createGraphQLservice(app, sessionManager);
     RDFApi.create(app, sessionManager);
     BeaconApi.create(app, sessionManager);
+    CafeVariomeApi.create(app, sessionManager);
     BootstrapThemeService.create(app);
     ProfilesApi.create(app);
     AnalyticsApi.create(app);
+    PodiumApi.create(app);
 
     app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);

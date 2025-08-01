@@ -7,12 +7,48 @@ Additionally, each database has an API available at `<server>/<database>/api/rdf
 For instance, if your MOLGENIS runs at `https://emx2.test.molgenis.org` and it has a database called `example`, the RDF API location for this database is `https://emx2.test.molgenis.org/example/api/rdf`.
 
 
-## configuration
+## Configuration
 
 The RDF API can be fine-tuned on a schema-based level by adding advanced settings.
 If combining multiple schemas having overlapping/conflicting data, this will be processed in a way that will result in a valid RDF output (details are described below for each advanced setting individually).
 
 To learn more about how to configure the output on a column-specific level, see the documentation regarding the [semantics field](./semantics.md).
+
+### General configuration
+
+Advanced setting key: `rdf_config`
+
+The RDF API can be configured to behave in different ways.
+Each of the key-value pairs in the yaml-formatted value influences the RDF API in a different way.
+It is not required to include every key (a default will be used where possible).
+The value of a fully filled in `rdf_config` would look as follows:
+
+```yaml
+writer: stream
+generator: semantic
+```
+
+Below, each of these keys are explained in detail with their possible values.
+
+#### writer
+
+The writer defines what mechanism will be used to write the RDF.
+
+| option                | description                                                                                                                                                                                                    |
+|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| model                 | <ul><li>Output will be built fully and formatted before being sent.</li><li>Higher human readability (useful while editing a Schema).</li></ul>                                                                |
+| stream<br />(default) | <ul><li>Output is streamed while being processed.</li><li>Faster and lower memory usage.</li><li>Might be possible that some triples with the same subject/predicate aren't always grouped together.</li></ul> |
+
+#### generator
+
+The generator influences which triples will be outputted to the RDF API.
+
+| option   | description                                                                                                                                |
+|----------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| emx2     | Constructs RDF based on the EMX2 data structure with triples describing each table/column.                                                 |
+| semantic<br />(default) | Only write triples where semantics have been filled in and some basic other triples (such as describing the root and for ontology tables). |
+
+Example files of the different generator outputs can be found [here](https://github.com/molgenis/molgenis-emx2/tree/master/backend/molgenis-emx2-rdf/src/test/resources/rdf_files/rdf_api).
 
 ### Generic triples
 
@@ -46,34 +82,73 @@ Conflicts in namespaces will not break the RDF output but might result in unexpe
 * If 2 different namespaces use the same prefix, only one of them will use that prefix while the other simply returns full IRIs in the API output.
 * If 2 identical namespaces exist with a different prefix, only one of the prefixes will be used for all IRIs belonging to that namespace.
 
-## data retrieval
-RDF API retrieve data in different scopes ranging from broad (retrieve everything) to narrow (retrieve one row).
+## Data retrieval
+The RDF API allows data retrieval in different scopes, ranging from broad (retrieve everything) to narrow (retrieve one row).
 All data is exported as a stream, which means that the response does not include a size estimate.
+What data can be retrieved through the RDF API is defined by permissions for each schema (see [schema permissions](./use_permissions.md#users-can-get-roles-in-a-schema)). 
 Listed below are the available options.
 
 ### Retrieve everything / multiple schemas
-Using `<server>/api/rdf`, all data from this MOLGENIS instance is retrieved and exported as RDF.
-Optionally use 'schemas' parameter to filter what schemas to be included. E.g. `<server>/api/rdf?schemas=foo,bar` will only retrieve from schemas 'foo' and 'bar'
-Of course, this is limited to data to which the currently logged-in user (or anonymous user) has access to.
+Path: `<server>/api/rdf`  
+Example: `http://localhost:8080/api/rdf`  
+Parameters (optional):
+- `schemas=<schema-name>,...` -> only retrieve data from schema's defined in comma separated list
+
+This API point retrieves all data available in this MOLGENIS instance as RDF.
+
+The optional `schemas` parameter filters the output so that only those schema's are included in the output.
+For example, `<server>/api/rdf?schemas=foo,bar` will only retrieve from schemas 'foo' and 'bar'.
 
 ### Retrieve one schema
+Path: `<server>/<schema>/api/rdf`  
+Example: `http://localhost:8080/pet%20store/api/rdf`  
+Parameters (optional):
+- `validate=<name>` -> instead of retrieving the RDF output, return the validation results for the selected validation set (`name`)
+
 By including a database schema name in the URL, data from one particular schema is retrieved and exported as RDF.
-The schema name is added between the server location and RDF API location: `<server>/<schema>/api/rdf`.
-For example: `<server>/pet%20store/api/rdf`.
+
+If the optional parameter `validate` is added together with a validation set name, the API point will return SHACL
+validation results instead of the RDF output.
+For example, `<server>/<schema>/api/rdf?validate=fdp-v1.2` would validate the given schema whether it is compliant with the SHACLs for FAIR Data Point version 1.2.
+The allowed values can be retrieved through the [available validation SHACL sets](#retrieve-available-validation-shacl-sets) API call (see the `name` fields in the YAML output).
 
 ### Retrieve one table
-One particular table from a schema can be retrieved by adding a table name to a URL that also contains schema name: `<server>/<schema>/api/rdf/<table>`.
-For example: `<server>/pet%20store/api/rdf/Pet`
+Path: `<server>/<schema>/api/rdf/<table>`  
+Example: `http://localhost:8080/pet%20store/api/rdf/Pet`
+
+One particular table from a schema can be retrieved by adding a table name to a URL that also contains schema name.
 
 ### Retrieve one column
-One particular column from a table within a schema can be retrieved by adding a column name to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>/column/<column-name>`.
-For example: `<server>/pet%20store/api/rdf/Pet/column/name`
+Path: `<server>/<schema>/api/rdf/<table>/column/<column-name>`  
+Example: `http://localhost:8080/pet%20store/api/rdf/Pet/column/name`  
+  
+Details about one particular column from a table within a schema can be retrieved by adding a column name to a URL that also contains schema and table name.
+
+!> This only works if `emx2` is selected as [generator](#generator)
 
 ### Filter rows
-The rows from a table within a schema can be filtered based on a column value by adding these as a `key=value` pair to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>?<column-name>=<value>`.
-For example: `<server>/pet%20store/api/rdf/Pet?category=cat`
+Path: `<server>/<schema>/api/rdf/<table>?<column-name>=<value>`  
+Example: `http://localhost:8080/pet%20store/api/rdf/Pet?category=cat`
 
-## data formats
+The rows from a table within a schema can be filtered based on a column value by adding these as a `key=value` pair to a URL that also contains schema and table name.
+
+### Retrieve available validation SHACL sets
+Path: `<server>/api/rdf?shacls`  
+Example: `http://localhost:8080/api/rdf?shacls`
+
+Retrieves a yaml-formatted document with the available SHACL validation sets (and additional information about them).
+
+Example output:
+```yaml
+- name: dcat-ap-v3
+  description: DCAT-AP
+  version: 3.0.0
+  sources:
+  - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
+```
+
+
+## Data formats
 Using the content negotiation, RDF can be exported in one of many available formats. For example the following curl command will download the pet store in jsonld:
 
 `curl -H 'Accept: application/ld+json' <server>/pet%20store/api/rdf`
