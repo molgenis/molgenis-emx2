@@ -14,6 +14,8 @@ from tools.directory.src.molgenis_emx2.directory_client.directory_client import 
 )
 from tools.directory.src.molgenis_emx2.directory_client.pid_service import (
     DummyPidService,
+    NoOpPidService,
+    PidService,
 )
 
 # Get credentials from .env
@@ -24,9 +26,13 @@ username = os.getenv("USERNAME")
 password = os.getenv("PASSWORD")
 directory_schema = os.getenv("DIRECTORY")
 
-
 async def sync_directory():
-    """Stage external nodes and publish them to the directory schema"""
+    """
+    Stage external nodes and publish them to the directory schema
+    
+    Note: when staging an external server-type node the .env file should include
+    a "node"_user="token" with view permissions on the external staging area
+    """
     # Set up the logger
     logging.basicConfig(level="INFO", format=" %(levelname)s: %(name)s: %(message)s")
     logging.getLogger("requests").setLevel(logging.WARNING)
@@ -38,18 +44,20 @@ async def sync_directory():
         session.signin(username, password)
 
         # Get the nodes you want to work with
-        # When staging a node the .env file should include a "node"_user="token"
-        # with view permissions on the external staging area
-        nodes_to_stage = session.get_external_nodes(["NL"])
+        nodes_to_stage = session.get_external_nodes()
         nodes_to_publish = session.get_nodes()
 
         # Create PidService
-        # pid_service = PidService.from_credentials("pyhandle_creds.json")
-        # print(f"Script runs on server {pid_service.base_url}")
-        # Use the DummyPidService if testing without interacting with a handle server
-        pid_service = DummyPidService()
-        # Use the NoOpPidService if you want to turn off the PID features completely
-        # pid_service = NoOpPidService()
+        pid_service = 'dummy'  # Select from: ['production', 'dummy', 'none']
+        if pid_service == 'production':
+            pid_service = PidService.from_credentials("pyhandle_creds.json")
+            print(f"Script runs on server {pid_service.base_url}")
+        elif pid_service == 'dummy':
+            # Use the DummyPidService if testing without interacting with a handle server
+            pid_service = DummyPidService()
+        else:
+            # Use the NoOpPidService if you want to turn off the PID features completely
+            pid_service = NoOpPidService()
 
         # Instantiate the Directory class and do some work
         directory = Directory(session, pid_service)
