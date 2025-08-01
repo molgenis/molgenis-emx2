@@ -33,13 +33,13 @@ const schemaId = ref(
   )?.id || ""
 );
 
+const metadata = ref(await fetchMetadata(schemaId.value));
+
 watch(
   schemaId,
   async () => {
     if (schemaId.value) {
-      const { data: metadata } = await useLazyAsyncData("my meta data", () =>
-        fetchMetadata(schemaId.value)
-      );
+      metadata.value = await fetchMetadata(schemaId.value);
       if (metadata.value) {
         tableId.value = metadata.value.tables[0].id;
       }
@@ -58,11 +58,6 @@ const tableId = ref(
 
 const schemaOptions = computed(() =>
   databases.value.map((schema: any) => schema.id)
-);
-
-const { data: metadata, refresh: refetchMetadata } = await useLazyAsyncData(
-  "my meta data",
-  () => fetchMetadata(schemaId.value)
 );
 
 if (metadata.value) {
