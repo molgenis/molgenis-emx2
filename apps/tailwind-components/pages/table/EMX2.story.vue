@@ -108,15 +108,13 @@ const tableOptions = computed(() => {
       <span class="text-title">schemaId:</span> {{ schemaId }}
     </div>
 
-    <div>
-      <TableEMX2
-        v-if="tableId && schemaId"
-        :key="`${schemaId}-${tableId}`"
-        :schema-id="schemaId"
-        :table-id="tableId"
-        v-model:settings="tableSettings"
-        :is-editable="isEditable"
-      />
-    </div>
+    <TableEMX2
+      v-if="tableId && schemaId"
+      :key="`${schemaId}-${tableId}`"
+      :schema-id="schemaId"
+      :table-id="tableId"
+      v-model:settings="tableSettings"
+      :is-editable="isEditable"
+    />
   </div>
 </template>
