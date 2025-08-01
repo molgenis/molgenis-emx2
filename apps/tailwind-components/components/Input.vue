@@ -173,6 +173,35 @@
     @blur="emit('blur')"
     :is-array="true"
   />
+  <InputRefSelect
+    v-else-if="'SELECT' == typeUpperCase"
+    v-model="modelValue as columnValue"
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    :options="options as IValueLabel[]"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+    :align="align"
+  />
+  <InputRefSelect
+    v-else-if="'MULTISELECT' == typeUpperCase"
+    v-model="modelValue as columnValue"
+    :multiselect="true"
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    :options="options as IValueLabel[]"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+    :align="align"
+  />
   <InputRefBack
     v-else-if="['REFBACK'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject[]"

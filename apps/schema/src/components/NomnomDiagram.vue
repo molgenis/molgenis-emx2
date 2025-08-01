@@ -45,7 +45,6 @@ export default {
               column.columnType.includes("REF") ||
               column.columnType.includes("SELECT") ||
               column.columnType.includes("RADIO") ||
-              column.columnType.includes("CHECKBOX") ||
               column.columnType.includes("ONTOLOGY")
             ) {
               result += `${column.name}: ${column.columnType.toLowerCase()}(${

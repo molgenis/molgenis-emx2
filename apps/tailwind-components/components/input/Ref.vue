@@ -225,7 +225,7 @@ prepareModel();
   <InputGroupContainer @focus="emit('focus')" @blur="emit('blur')">
     <div
       class="flex flex-wrap gap-2 mb-2"
-      v-if=" initialCount > limit && isArray && selection.length > 1"
+      v-if="initialCount > limit && isArray && selection.length > 1"
     >
       <Button
         v-for="label in isArray ? selection : [selection]"
@@ -239,10 +239,19 @@ prepareModel();
       </Button>
     </div>
     <div class="flex flex-wrap gap-2 mb-2">
-      <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`" v-if="initialCount > limit">
+      <ButtonText
+        @click="toggleSearch"
+        :aria-controls="`search-for-${id}`"
+        v-if="initialCount > limit"
+      >
         Search
       </ButtonText>
-      <ButtonText @click="clearSelection" v-if="isArray && selection.length > 1"> Clear all </ButtonText>
+      <ButtonText
+        @click="clearSelection"
+        v-if="isArray && selection.length > 1"
+      >
+        Clear all
+      </ButtonText>
     </div>
     <template v-if="showSearch && initialCount > limit">
       <InputLabel :for="`search-for-${id}`" class="sr-only">
