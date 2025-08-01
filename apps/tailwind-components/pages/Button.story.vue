@@ -60,6 +60,7 @@
         CaretDown
       </Button>
     </div>
+
     <h3 class="text-2xl text-title">Icon only</h3>
     <div class="flex flex-col gap-4">
       <div class="flex gap-4">
@@ -97,6 +98,7 @@
         <Button iconOnly icon="caret-down" label="next" type="disabled" />
         <Button iconOnly icon="caret-down" label="next" type="filterWell" />
       </div>
+
       <h3 class="text-2xl text-title">Text button</h3>
       <div class="flex flex-col gap-4">
         <div class="flex items-start gap-4">
@@ -112,21 +114,12 @@
       <h3 class="text-2xl text-title">Inline button</h3>
       <div class="flex flex-col gap-4">
         <div class="flex gap-4">
-          <Button type="inline" :icon-only="true" icon="plus" label="add" />
-          <Button type="inline" :icon-only="true" icon="trash" label="remove" />
-          <Button type="inline" :icon-only="true" icon="edit" label="edit" />
-          <Button
-            type="inline"
-            :icon-only="true"
-            icon="caret-up"
-            label="next"
-          />
-          <Button
-            type="inline"
-            :icon-only="true"
-            icon="caret-down"
-            label="previous"
-          />
+
+          <Button type="inline" :icon-only="true" icon="plus" />
+          <Button type="inline" :icon-only="true" icon="trash" />
+          <Button type="inline" :icon-only="true" icon="edit" />
+          <Button type="inline" :icon-only="true" icon="caret-up" />
+          <Button type="inline" :icon-only="true" icon="caret-down" />
           <Button type="inline" icon="plus" label="Add" />
           <Button type="inline" icon="trash" label="Remove" />
           <Button type="inline" icon="edit" label="Edit" />

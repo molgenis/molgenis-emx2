@@ -119,6 +119,8 @@
 
     --background-color-ref-dropdown-toolbar: var(--color-gray-100);
 
+    --background-color-ref-dropdown-toolbar: var(--color-gray-100);
+
     --text-color-button-primary: var(--color-white);
     --text-color-button-primary-hover: var(--color-white);
     --text-color-button-secondary: var(--color-blue-500);
@@ -149,7 +151,7 @@
     --text-color-search-button-hover: var(--color-blue-800);
     --text-color-favorite: var(--color-blue-800);
     --text-color-favorite-hover: var(--color-blue-800);
-    --text-color-button-text: var(--color-blue-800);
+    --text-color-button-text: var(--color-blue-500);
     --text-color-search-button: var(--color-blue-500);
     --text-color-search-button-hover: var(--color-blue-800);
     --text-color-search-results-view-tabs: var(--color-blue-500);
@@ -235,6 +237,20 @@
     --background-color-form-required-btn-hover: var(--color-blue-50);
     --border-color-form-required: var(--color-gray-200);
     --border-radius-form-required: var(--border-radius-3px);
+
+    --height-input: 56px;
+
+    /** input switch styles */
+    --width-button-switch: 36px;
+    --background-color-button-switch: var(--color-white);
+    --background-color-button-switch-hover: var(--color-blue-100);
+    --background-color-button-switch-selected: var(--color-white);
+    --text-color-button-switch: var(--color-blue-200);
+    --text-color-button-switch-selected: var(--color-blue-900);
+    --text-color-button-switch-hover: var(--color-gray-900);
+    --border-color-button-switch: var(--color-blue-900);
+    --border-color-button-switch-selected: var(--color-gray-400);
+    --border-color-button-switch-hover: var(--color-blue-900);
 
     --height-input: 56px;
   }
