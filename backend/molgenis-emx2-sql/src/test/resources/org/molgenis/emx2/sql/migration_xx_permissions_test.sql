@@ -1,14 +1,18 @@
 RESET ROLE;
 CREATE ROLE "MG_USER_test@test.com" WITH NOLOGIN;
 CREATE ROLE "MG_USER_test2@test.com" WITH NOLOGIN;
+CREATE ROLE "MG_USER_test3@test.com" WITH NOLOGIN;
 GRANT "MG_USER_user" TO "MG_USER_test@test.com";
 GRANT "MG_USER_user" TO "MG_USER_test2@test.com";
+GRANT "MG_USER_user" TO "MG_USER_test3@test.com";
 
 
 INSERT INTO "MOLGENIS".users_metadata (username, password, enabled, settings, admin)
 VALUES ('test@test.com', null, true, '{}', false);
 INSERT INTO "MOLGENIS".users_metadata (username, password, enabled, settings, admin)
 VALUES ('test2@test.com', null, true, '{}', false);
+INSERT INTO "MOLGENIS".users_metadata (username, password, enabled, settings, admin)
+VALUES ('test3@test.com', null, true, '{}', false);
 
 SET ROLE "MG_USER_test@test.com";
 SELECT *
@@ -55,11 +59,15 @@ SELECT *
 FROM "pet_store"."Pet";
 
 RESET ROLE;
-UPDATE "MOLGENIS".group_metadata -- TODO: bug a non admin user can do this?
+UPDATE "MOLGENIS".group_metadata
 SET users = '{test@test.com, test2@test.com}'
 WHERE group_name = 'pet_store_VIEWER';
 GRANT "MG_ROLE_pet_store_VIEWER" TO "MG_USER_test2@test.com"; --todo: trigger fail?
 GRANT SELECT ON "pet_store"."Pet" TO "MG_ROLE_pet_store_VIEWER"; --todo: trigger fail?
+
+UPDATE "MOLGENIS".group_metadata -- TODO: bug a non admin user can do this?
+SET users = '{test@test.com, test2@test.com, test3@test.com, test4@test.com}'
+WHERE group_name = 'pet_store_VIEWER';
 
 
 SET ROLE "MG_USER_test2@test.com";
@@ -78,3 +86,12 @@ REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv; -- this should be trig
 SET ROLE "MG_USER_test2@test.com";
 SELECT *
 FROM "pet_store"."Pet";
+
+Granting role MG_ROLE_pet_store_VIEWER to user test2@test.com
+EXECUTE format('GRANT %I TO %I', role_name, 'MG_USER_' || user_var);
+GRANT "MG_ROLE_pet_store_VIEWER" TO "MG_USER_test2@test.com"; --todo: trigger fail?
+
+
+
+
+GRANT "MG_ROLE_pet_store_VIEWER" TO "test2@test.com"
