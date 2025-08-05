@@ -61,7 +61,7 @@ export default defineComponent({
     },
     isArrayType() {
       return (
-        this.metadata.columnType.includes("ARRAY") > 0 ||
+        this.metadata.columnType.includes("ARRAY") ||
         this.metadata.columnType === "MULTISELECT" ||
         this.metadata.columnType === "CHECKBOX"
       );

@@ -248,7 +248,7 @@ prepareModel();
       </ButtonText>
       <ButtonText
         @click="clearSelection"
-        v-if="isArray && selection.length > 1"
+        v-if="isArray ? selection.length > 0 : selection"
       >
         Clear all
       </ButtonText>

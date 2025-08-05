@@ -242,10 +242,10 @@ const { stop } = useIntersectionObserver(
 
 const displayText = computed(() => {
   const selectionMapKeys = Object.keys(selectionMap.value);
-  if (selectionMapKeys.length) {
+  if (selectionMapKeys.length > 0) {
     return selectionMapKeys.join(", ");
   } else {
-    return props.placeholder;
+    return props.placeholder || "Select option";
   }
 });
 
