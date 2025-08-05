@@ -179,7 +179,6 @@ function toggleSelect(node: ITreeNodeState) {
         modelValue.value?.includes(parent.name)
       )
     ) {
-      console.log("here");
       const itemsToBeRemoved = [
         node.name,
         ...getAllParents(node).map((parent) => parent.name),
