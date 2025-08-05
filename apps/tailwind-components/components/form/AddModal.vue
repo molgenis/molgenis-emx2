@@ -55,7 +55,8 @@
         <FormFields
           v-if="visible"
           :schemaId="schemaId"
-          :metadata="createMetadata"
+          :metadata="metadata"
+          :sections="sections"
           :constantValues="constantValues"
           v-model:errors="errorMap"
           v-model="formValues"

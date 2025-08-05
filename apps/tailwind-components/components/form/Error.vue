@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
+const props = withDefaults(
   defineProps<{
     message: string;
     showPrevNextButtons?: boolean;
