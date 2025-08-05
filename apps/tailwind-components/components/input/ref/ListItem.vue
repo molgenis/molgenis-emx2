@@ -27,7 +27,6 @@ const emits = defineEmits<{
   (e: "expand", row: columnValueObject): void;
 }>();
 
-
 const label = computed<string | undefined>(() => {
   if (props.refData) {
     return toLabel(props.refData);
@@ -81,6 +80,7 @@ function expandRow() {
             type="inline"
             label="Remove"
             @click.stop="$emit('remove', refData)"
+          />
           <!-- <Button not yet implemented
             :icon-only="true"
             icon="copy"

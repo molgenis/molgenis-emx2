@@ -6,6 +6,7 @@ withDefaults(
     title?: string;
     subtitle?: string;
     maxWidth?: string;
+    height: string;
   }>(),
   {
     maxWidth: "max-w-xl",
@@ -77,7 +78,7 @@ function hide() {
     />
 
     <div
-      class="bg-modal w-3/4 relative m-auto rounded-t-none rounded-b-theme"
+      class="bg-modal w-3/4 h-full relative m-auto rounded-t-none rounded-b-theme"
       :class="maxWidth"
     >
       <slot name="header">

@@ -29,10 +29,14 @@ const emit = defineEmits(["focus", "blur"]);
 </script>
 
 <template>
-  <div :id="id">
+  <div :id="id" :class="{ 'text-disabled': disabled }">
     <template v-if="label">
       <label :for="`${id}-input`">
-        <span class="text-title-contrast font-bold">{{ label }}</span>
+        <span
+          class="font-bold"
+          :class="disabled ? 'text-disabled' : 'text-title-contrast'"
+          >{{ label }}</span
+        >
         <span class="text-disabled text-body-sm ml-3" v-if="required">
           Required
         </span>

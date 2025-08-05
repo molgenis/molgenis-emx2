@@ -222,6 +222,7 @@ onMounted(() => {
         :description="column.description"
         :row-key="rowKey"
         :required="isRequired(column.required ?? false)"
+        :disabled="column.readonly ? true : false"
         :error-message="errors[column.id]"
         :ref-schema-id="column.refSchemaId || schemaId"
         :ref-table-id="column.refTableId"

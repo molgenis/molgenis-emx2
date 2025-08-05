@@ -46,7 +46,14 @@
     </template>
 
     <section class="grid grid-cols-4 gap-1">
-      <div class="col-span-1 bg-form-legend"></div>
+      <div class="col-span-1 bg-form-legend p-4">
+        Fill [{{
+          createMetadata.columns
+            ?.filter((c) => c.key === 1)
+            .map((c) => c.label)
+            .join(", ")
+        }}] and click create to create and edit a new record.
+      </div>
 
       <div
         id="fields-container"
@@ -55,8 +62,7 @@
         <FormFields
           v-if="visible"
           :schemaId="schemaId"
-          :metadata="metadata"
-          :sections="sections"
+          :metadata="createMetadata"
           :constantValues="constantValues"
           v-model:errors="errorMap"
           v-model="formValues"
@@ -170,7 +176,12 @@ const errorMap = ref<Record<columnId, string>>({});
 
 const createMetadata: ComputedRef<ITableMetaData> = computed(() => {
   const result = JSON.parse(JSON.stringify(props.metadata)) as ITableMetaData;
-  result.columns = result.columns.filter((column) => column.key === 1);
+  result.columns = result.columns.map((c) => {
+    if (c.key !== 1) {
+      c.readonly = true;
+    }
+    return c;
+  });
   return result;
 });
 
