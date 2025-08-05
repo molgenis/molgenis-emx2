@@ -8,12 +8,12 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}Form.story?schema=pet+store&table=Pet&rowIndex=1`);
-  await page.getByText("Jump to", { exact: true }).click({ delay: 300 });
+  await page.getByText("Jump to", { exact: true }).click({ delay: 1000 });
 });
 
 test("the form should show the row data", async ({ page }) => {
   await expect(
     page.getByRole("textbox", { name: "name Required" })
   ).toHaveValue("pooky");
-  await expect(page.getByRole("button", { name: "cat" })).toBeVisible();
+  await expect(page.getByLabel("cat")).toBeVisible();
 });

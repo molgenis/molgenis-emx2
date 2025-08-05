@@ -28,12 +28,7 @@ test("it should not jump around when selecting a checkbox", async ({
   await page.getByText("username", { exact: true }).waitFor();
 
   //scroll into view
-  await page.evaluate(() => {
-    const div = document.querySelector(
-      "#forms-story-fields-container"
-    ) as HTMLElement;
-    if (div) div.scrollTop = div.scrollHeight;
-  });
+  await page.getByText("Show source code").scrollIntoViewIfNeeded();
   await page.getByText("pooky", { exact: true }).click();
   //check still visible
   await page
