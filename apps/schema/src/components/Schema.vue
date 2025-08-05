@@ -18,14 +18,14 @@
             {{ showDiagram ? "Hide" : "Show" }} Diagram
           </ButtonAction>
           <ButtonAction
-            href="`${schema.name}/schema/#/print`"
+            href="`/${schema.name}/schema/#/print`"
             target="_blank"
             class="ml-2"
           >
             Show printable table
           </ButtonAction>
           <ButtonAction
-            href="`${schema.name}/schema/#/print-list"
+            href="`/${schema.name}/schema/#/print-list"
             target="_blank"
             class="ml-2"
           >
