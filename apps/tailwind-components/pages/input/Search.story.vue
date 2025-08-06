@@ -13,15 +13,6 @@ const searchValue3 = ref<string>("");
     v-slot="{ placeholder, valid, invalid, disabled }"
   >
     <label for="search-input"> Search </label>
-    <InputSearch
-      v-model="searchValue1"
-      :placeholder="placeholder"
-      :valid="valid"
-      :invalid="invalid"
-      :disabled="disabled"
-      id="search-input"
-    />
-    value: {{ searchValue1 }}
     <h2>large</h2>
     <InputSearch
       v-model="searchValue2"
@@ -33,6 +24,15 @@ const searchValue3 = ref<string>("");
       id="search-input"
     />
     value: {{ searchValue2 }}
+    <InputSearch
+      v-model="searchValue1"
+      :placeholder="placeholder"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
+      id="search-input"
+    />
+    value: {{ searchValue1 }}
     <h2>tiny</h2>
     <InputSearch
       v-model="searchValue3"

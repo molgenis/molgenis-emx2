@@ -331,7 +331,7 @@ const hasChildren = computed(() =>
           Search
         </ButtonText>
         <InputSearch
-          v-show="showSearch"
+          :class="showSearch ? 'visible' : 'invisible pointer-events-none'"
           :id="`search-for-${id}`"
           size="tiny"
           :modelValue="searchTerms"

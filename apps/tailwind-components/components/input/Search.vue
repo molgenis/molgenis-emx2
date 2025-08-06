@@ -36,6 +36,17 @@ const HEIGHT_MAPPING = {
   large: "h-18 px-8.75 text-heading-xl gap-5",
 };
 
+const ICON_SIZE_MAPPING = {
+  tiny: 18,
+  small: 24,
+  medium: 36,
+  large: 48,
+};
+
+const iconSize = computed(() => {
+  return ICON_SIZE_MAPPING[props.size];
+});
+
 const heightClasses = computed(() => {
   return HEIGHT_MAPPING[props.size];
 });
@@ -62,7 +73,7 @@ const heightClasses = computed(() => {
     <div class="w-[44px] ps-3 text-center pointer-events-none">
       <BaseIcon
         name="search"
-        :width="21"
+        :width="iconSize"
         class="text-input"
         :class="{
           'text-valid': valid,
