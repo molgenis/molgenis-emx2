@@ -114,7 +114,6 @@
       <h3 class="text-2xl text-title">Inline button</h3>
       <div class="flex flex-col gap-4">
         <div class="flex gap-4">
-
           <Button type="inline" :icon-only="true" icon="plus" />
           <Button type="inline" :icon-only="true" icon="trash" />
           <Button type="inline" :icon-only="true" icon="edit" />
