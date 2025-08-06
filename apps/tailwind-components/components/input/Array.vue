@@ -24,8 +24,9 @@
       />
     </div>
     <Button
+      class="my-[10px]"
       type="text"
-      size="tiny"
+      size="small"
       icon="plus"
       label="Add an additional item"
       @click="addItem(values)"

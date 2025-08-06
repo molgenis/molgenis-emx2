@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import type { IColumn, IRefColumn } from "../../../metadata-utils/src/types";
 import type { RefPayload } from "../../types/types";
-defineProps<{
-  metadata: IColumn;
-  data: any;
-}>();
+withDefaults(
+  defineProps<{
+    metadata: IColumn;
+    data: any;
+    hideListSeparator?: boolean;
+  }>(),
+  {
+    hideListSeparator: false,
+  }
+);
 
 defineEmits<{
   (e: "valueClick", payload: RefPayload): void;
@@ -17,6 +23,7 @@ defineEmits<{
     v-else-if="metadata.columnType.endsWith('ARRAY')"
     :metadata="metadata"
     :data="data"
+    :hideListSeparator="hideListSeparator"
   />
 
   <ValueString
