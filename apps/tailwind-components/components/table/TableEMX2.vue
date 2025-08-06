@@ -99,6 +99,9 @@
                   size="small"
                   label="delete"
                   @click="onShowDeleteModal(row)"
+                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+                  aria-haspopup="dialog"
+                  :aria-expanded="showDeleteModal"
                 />
                 <Button
                   :icon-only="true"
@@ -107,6 +110,9 @@
                   size="small"
                   label="edit"
                   @click="onShowEditModal(row)"
+                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+                  aria-haspopup="dialog"
+                  :aria-expanded="showEditModal"
                 />
               </div>
             </TableCellEMX2>
@@ -124,6 +130,7 @@
   />
 
   <TableModalRef
+    :id="`table-emx2-${schemaId}-${tableId}-modal-ref`"
     v-if="showModal && refTableRow && refTableColumn"
     v-model:visible="showModal"
     :metadata="refTableColumn"
@@ -134,7 +141,9 @@
   />
 
   <DeleteModal
+    :id="`table-emx2-${schemaId}-${tableId}-modal-delete`"
     v-if="data?.tableMetadata && rowDataForModal"
+    :showButton="false"
     :schemaId="props.schemaId"
     :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
@@ -146,7 +155,9 @@
   />
 
   <EditModal
+    :id="`table-emx2-${schemaId}-${tableId}-modal-edit`"
     v-if="data?.tableMetadata && rowDataForModal"
+    :showButton="false"
     :schemaId="props.schemaId"
     :metadata="data.tableMetadata"
     :formValues="rowDataForModal"

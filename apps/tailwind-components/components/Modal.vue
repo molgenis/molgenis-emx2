@@ -63,7 +63,7 @@ function hide() {
 
 <template>
   <div
-    v-show="visible"
+    v-if="visible"
     role="dialog"
     :aria-labelledby="title"
     :aria-modal="true"
