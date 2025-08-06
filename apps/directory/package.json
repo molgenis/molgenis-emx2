@@ -21,7 +21,7 @@
     "@types/lodash": "4.17.6",
     "@vueuse/core": "10.7.0",
     "bootstrap-icons": "1.11.3",
-    "graphql-request": "5.2.0",
+    "graphql-request": "7.2.0",
     "lodash": "4.17.21",
     "molgenis-components": "*",
     "monaco-editor": "0.50.0",

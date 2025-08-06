@@ -126,14 +126,14 @@
 </style>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import TableStickyHeaders from "./TableStickyHeaders.vue";
-import IAggregateData from "./IAggregateData";
-import Client from "../../client/client";
-import InputSelect from "../forms/InputSelect.vue";
-import { INewClient, aggFunction } from "../../client/IClient";
 import type { IColumn } from "metadata-utils";
+import { defineComponent } from "vue";
+import Client from "../../client/client";
+import { INewClient } from "../../client/IClient";
 import InputRadio from "../forms/InputRadio.vue";
+import InputSelect from "../forms/InputSelect.vue";
+import IAggregateData from "./IAggregateData";
+import TableStickyHeaders from "./TableStickyHeaders.vue";
 
 const AGG_FIELD_TYPES = ["INT", "LONG", "DECIMAL"];
 
