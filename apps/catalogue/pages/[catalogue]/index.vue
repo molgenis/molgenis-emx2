@@ -190,11 +190,11 @@ const settings = computed(() => {
 
 const network = computed(() => {
   if (!data.value.data?.Resources) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Catalogue "' + catalogueRouteParam + '" Not Found.',
+    });
   }
-  throw createError({
-    statusCode: 404,
-    statusMessage: 'Catalogue "' + catalogueRouteParam + '" Not Found.',
-  });
   return data.value.data?.Resources[0];
 });
 
