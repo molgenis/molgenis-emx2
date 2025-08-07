@@ -351,8 +351,8 @@ watch(
 
 <template>
   <InputGroupContainer
-    :id="`${id}-ref-dropdown`"
     class="w-full relative"
+    :id="`${id}-ref-dropdown`"
     @focus="emit('focus')"
     @blur="emit('blur')"
   >
@@ -376,7 +376,6 @@ watch(
       :id="`${id}-ref-dropdown-content`"
       :aria-expanded="isExpanded"
       :tabindex="isExpanded ? 1 : 0"
-      class="border rounded relative"
       :class="{
         hidden: disabled || !isExpanded,
       }"
