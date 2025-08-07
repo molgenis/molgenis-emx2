@@ -51,7 +51,7 @@ const COLOR_MAPPING = {
   filterWell:
     "whitespace-nowrap bg-button-filter rounded-input text-button-filter border-button-filter hover:bg-button-filter-hover hover:border-button-filter-hover",
   inline:
-    "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary rounded-full hover:bg-button-inline-hover",
+    "tracking-widest bg-none text-button-inline border-none hover:text-button-secondary",
 };
 
 const TEXT_STYLING = "text-button-text hover:bg-hover hover:text-link-hover";

@@ -35,6 +35,95 @@
       >
         <thead>
           <tr>
+            <TableHeadCell v-if="isEditable" class="!w-18">
+              <span class="sr-only">manage records</span>
+            </TableHeadCell>
+            <TableHeadCell v-for="column in sortedVisibleColumns">
+              <button
+                @click="handleSortRequest(column.id)"
+                :id="`table-emx2-${column.label}-sort-by`"
+                class="overflow-ellipsis whitespace-nowrap max-w-56 overflow-hidden inline-block text-left text-table-column-header font-normal align-middle"
+                :ariaSort="
+                  settings.orderby.column === column.id
+                    ? mgAriaSortMappings[settings.orderby.direction]
+                    : 'none'
+                "
+              >
+                <span class="">{{ column.label }}</span>
+              </button>
+              <ArrowUp
+                v-if="
+                  column.id === settings.orderby.column &&
+                  settings.orderby.direction === 'ASC'
+                "
+                aria-hidden="true"
+                class="h-4 w-4 text-table-column-header font-normal"
+              />
+              <ArrowDown
+                v-if="
+                  column.id === settings.orderby.column &&
+                  settings.orderby.direction === 'DESC'
+                "
+                aria-hidden="true"
+                class="h-4 w-4 text-table-column-header font-normal"
+              />
+            </TableHeadCell>
+          </tr>
+        </thead>
+        <tbody
+          class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-5"
+        >
+          <tr
+            v-for="row in rows"
+            class="hover:bg-hover group"
+            :class="{ 'hover:cursor-pointer': props.isEditable }"
+          >
+            <TableBodyCell
+              v-if="isEditable"
+              class="flex justify-start items-center !w-32"
+            >
+              <Button
+                :icon-only="true"
+                type="inline"
+                icon="edit"
+                size="small"
+                @click="onShowEditModal(row)"
+                :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+                aria-haspopup="dialog"
+                :aria-expanded="showEditModal"
+              >
+                <span class="sr-only"
+                  >edit {{ columns.map((col) => row[col.id]).join("-") }}</span
+                >
+              </Button>
+              <Button
+                :icon-only="true"
+                type="inline"
+                icon="trash"
+                size="small"
+                @click="onShowDeleteModal(row)"
+                :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+                aria-haspopup="dialog"
+                :aria-expanded="showDeleteModal"
+              >
+                <span class="sr-only"
+                  >edit {{ columns.map((col) => row[col.id]).join("-") }}</span
+                >
+              </Button>
+            </TableBodyCell>
+            <TableCellEMX2
+              v-for="column in sortedVisibleColumns"
+              class="text-table-row"
+              :scope="column.key === 1 ? 'row' : null"
+              :metadata="column"
+              :data="row[column.id]"
+              @cellClicked="handleCellClick($event, column, row)"
+            >
+            </TableCellEMX2>
+          </tr>
+        </tbody>
+        <!-- <thead>
+          <tr>
             <th
               v-for="column in sortedVisibleColumns"
               class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64 overflow-hidden whitespace-nowrap align-middle"
@@ -71,8 +160,8 @@
               </span>
             </th>
           </tr>
-        </thead>
-        <tbody
+        </thead> -->
+        <!-- <tbody
           class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-5"
         >
           <tr
@@ -117,7 +206,7 @@
               </div>
             </TableCellEMX2>
           </tr>
-        </tbody>
+        </tbody> -->
       </table>
     </div>
   </div>
@@ -186,6 +275,10 @@ import { sortColumns } from "../../utils/sortColumns";
 
 import { useAsyncData } from "#app/composables/asyncData";
 import { fetchTableData, fetchTableMetadata } from "#imports";
+
+import TableCellEMX2 from "./CellEMX2.vue";
+import TableHeadCell from "./TableHeadCell.vue";
+
 import AddModal from "../form/AddModal.vue";
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";

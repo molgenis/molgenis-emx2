@@ -1,11 +1,9 @@
 <template>
-  <td
-    class="h-4 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 overflow-ellipsis whitespace-nowrap overflow-hidden"
-  >
-    <div class="flex justify-between">
-      <span
-        class="py-2.5 text-body-base flex items-center shrink overflow-ellipsis whitespace-nowrap overflow-hidden flex-0"
-      >
+  <!-- class="h-4 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 overflow-ellipsis whitespace-nowrap overflow-hidden" -->
+  <TableBodyCell>
+    <div class="">
+      <!-- class="py-2.5 text-body-base flex items-center shrink overflow-ellipsis whitespace-nowrap overflow-hidden flex-0" -->
+      <span>
         <template v-if="data == null || data === undefined"></template>
         <ValueList
           v-else-if="metadata.columnType.endsWith('ARRAY')"
@@ -91,12 +89,14 @@
       </span>
       <slot />
     </div>
-  </td>
+  </TableBodyCell>
 </template>
 
 <script setup lang="ts">
 import type { IColumn, IRefColumn } from "../../../metadata-utils/src/types";
 import type { RefPayload } from "../../types/types";
+import TableBodyCell from "./TableBodyCell.vue";
+
 defineProps<{
   metadata: IColumn;
   data: any;
