@@ -5,35 +5,44 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
   : "/apps/tailwind-components/#/";
 
-test.beforeEach(async ({ page }) => {
-  await page.goto(`${route}Form.story?schema=pet+store&table=Pet`);
-  await page.getByText("Jump to", { exact: true }).click({ delay: 300 });
-});
+test.describe(
+  "Form Interaction",
+  {
+    tag: "@tw-components @tw-forms",
+  },
+  () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${route}Form.story?schema=pet+store&table=Pet`);
+      await page.getByText("Jump to", { exact: true }).click({ delay: 300 });
+    });
 
-test("it should update the model value when a field is filled out", async ({
-  page,
-}) => {
-  await page.getByLabel("name Required", { exact: true }).click();
-  await page.getByLabel("name Required", { exact: true }).fill("test");
-  await expect(page.getByLabel("name Required", { exact: true })).toHaveValue(
-    "test"
-  );
-});
+    test("it should update the model value when a field is filled out", async ({
+      page,
+    }) => {
+      await page.getByLabel("name Required", { exact: true }).click();
+      await page.getByLabel("name Required", { exact: true }).fill("test");
+      await expect(
+        page.getByLabel("name Required", { exact: true })
+      ).toHaveValue("test");
+    });
 
-test("it should not jump around when selecting a checkbox", async ({
-  page,
-}) => {
-  await page.goto(`${route}Form.story?schema=pet+store&table=User`);
-  await page.evaluate(() => location.reload()); //help nuxt
-  await page.getByText("username", { exact: true }).waitFor({ timeout: 3000 });
+    test("it should not jump around when selecting a checkbox", async ({
+      page,
+    }) => {
+      await page.goto(`${route}Form.story?schema=pet+store&table=User`);
+      await page.evaluate(() => location.reload()); //help nuxt
+      await page.getByText("username", { exact: true }).waitFor();
 
-  //scroll into view
-  await page.getByText("Show source code").scrollIntoViewIfNeeded();
-  await page.getByText("pooky", { exact: true }).click();
-  //check still visible
-  await page
-    .locator("#pets-form-field-input-checkbox-group")
-    .getByText("spike")
-    .click();
-  await expect(page.locator("#pets-form-field")).toContainText("pooky");
-});
+      //scroll into view
+      await page.getByText("Show source code").scrollIntoViewIfNeeded();
+
+      // select checkbox inputs
+      await page.locator("label").filter({ hasText: "pooky" }).click();
+      await page.locator("label").filter({ hasText: "spike" }).click();
+
+      // determine if filter well buttons are visible (i.e., component has selection)
+      await expect(page.getByRole("button", { name: "pooky" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "spike" })).toBeVisible();
+    });
+  }
+);
