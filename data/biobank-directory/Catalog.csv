@@ -1,0 +1,13 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
+Catalog,,,,,,,,,,,dcat:Catalog v2 catalog entries.
+Catalog,,id,string,1,TRUE,,,,,,afr:AFR_0000919,Local database identifier of the catalog.
+Catalog,,title,string,,TRUE,,,,,,dcterms:title,Name of the catalog with the language tag.
+Catalog,,hasVersion,string,,,,,,,,dcterms:hasVersion,Version of the catalog.
+Catalog,,description,string,,,,,,,,dcterms:description,Description of the catalog with the language tag.
+Catalog,,publisher,ref_array,,,,Agent,,,,dcterms:publisher,An entity responsible for making the resource available.
+Catalog,,language,hyperlink_array,,,,,,,,dcterms:language,The language(s) used in the catalog.
+Catalog,,license,hyperlink,,TRUE,,,,,,dcterms:license,The reference to the usage license of the catalog.
+Catalog,,conformsTo,hyperlink,,true,,,,,,dcterms:conformsTo,The specification of the catalog metadata schema.
+Catalog,,themeTaxonomy,hyperlink_array,,TRUE,,,,,,dcat:themeTaxonomy,"A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar."
+Catalog,,biobanks,refBack,,,,Biobanks,,belongsToCatalog,,dcat:dataset,"The relation between the catalog and its items. This is the most general predicate for membership of a catalog. It is recommended to use more specific sub-properties such as dcat:dataset, dcat:catalog, dcat:service, or a custom sub-property."
+Catalog,,propertyValue,string_array,,,,,,,,schema:PropertyValue,"A property-value pair, e.g. representing a feature of a product or place."
