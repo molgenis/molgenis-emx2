@@ -10,7 +10,7 @@ const props = withDefaults(
     nodes: ITreeNodeState[];
     inverted?: boolean;
     isRoot: boolean;
-    multiselect: boolean;
+    multiselect?: boolean;
     valid?: boolean;
     invalid?: boolean;
     disabled?: boolean;
