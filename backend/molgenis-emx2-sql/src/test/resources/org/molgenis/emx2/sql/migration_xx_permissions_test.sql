@@ -22,9 +22,9 @@ RESET ROLE;
 INSERT INTO "MOLGENIS".group_metadata (group_name, group_description, users)
 VALUES ('pet_store_SPECIAL', 'pet store special', '{test@test.com}');
 
-INSERT INTO "MOLGENIS".group_permissions (group_name, table_schema, table_name, has_select, has_insert, has_update,
+INSERT INTO "MOLGENIS".group_permissions (group_name, is_row_level, table_schema, table_name, has_select, has_insert, has_update,
                                           has_delete, has_admin)
-VALUES ('pet_store_SPECIAL', 'pet_store', 'Pet', true, true, true, false, false);
+VALUES ('pet_store_SPECIAL', false,'pet_store', 'Pet', true, true, true, false, false);
 
 -- test@test is part of pet_store_SPECIAL and can select all rows
 SET ROLE "MG_USER_test@test.com";
@@ -52,6 +52,16 @@ SELECT COUNT(*)
 FROM "pet_store"."Pet";
 SELECT *
 FROM "pet_store"."Pet";
+
+RESET ROLE;
+UPDATE "MOLGENIS".group_permissions SET is_row_level = true WHERE group_name = 'pet_store_SPECIAL';
+
+SET ROLE "MG_USER_test@test.com"
+SELECT COUNT(*)
+FROM "pet_store"."Pet";
+SELECT *
+FROM "pet_store"."Pet";
+;
 
 -- Still no access
 SET ROLE "MG_USER_test2@test.com";

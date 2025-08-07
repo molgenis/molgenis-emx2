@@ -9,24 +9,22 @@ MOLGENIS provides fine-grained access control using the following components:
 Permissions can apply to individual tables or entire schemas.
 
 ## permissions
-Permissions define what actions a user can do.
+Permissions define what actions a user can do. If there are multiple applicable permissions in this table the most permissive is applied.
 
-| Permission       | Definition                                                                                                     |
-|------------------|----------------------------------------------------------------------------------------------------------------|
-| select           | Allows selecting all rows.                                                                                     |
+| Permission       | Definition                                                                                                        |
+|------------------|-------------------------------------------------------------------------------------------------------------------|
+| select           | Allows selecting all rows.                                                                                        |
 | insert           | Allows creating new rows. <br/>If a user belongs to multiple groups, they must specify the group for the new row. |
-| update           | Allows updating all rows, including the 'group' field.                                                         |                                                                               |
-| delete           | Allows deleting all rows.                                                                                      |                                                                                            |
-| group_select     | Restricts ```select``` to rows in groups user is member of.                                                    |
-| group_update     | Restricts ```update``` to rows in groups user is member of. Does not permit changing the row's group.          |                                     |
-| group_delete     | Restricts ```delete``` to rows in groups user is member of.                                                    |
-| aggregate        | Allows running group-by queries* to calculate aggregated values (e.g., counts, sums, averages).                |
-| aggregate_exist  | Restricts ```aggregate``` to "yes/no" responses                                                                |
-| aggregate_range  | Restricts ```aggregate``` to counts returned in increments of 10 (e.g., 10, 20, ... 130).                      |
-| aggregate_count  | Restricts ```aggregate``` to counts only.                                                                      |
-| admin_metadata   | Allows creating, altering, and dropping tables.                                                                |
-| admin_permission | Allows granting and revoking permissions for groups.                                                           |
-| admin_group      | Allows adding and removing users from groups.                                                                  |
+| update           | Allows updating all rows, including the 'group' field.                                                            |                                                                               |
+| delete           | Allows deleting all rows.                                                                                         |                                                                                            |
+| is_row_level     | Restricts ```select, insert, update, delete``` to only rows in groups user is member of.                          |
+| aggregate        | Allows running group-by queries* to calculate aggregated values (e.g., counts, sums, averages).                   |
+| aggregate_exist  | Restricts ```aggregate``` to "yes/no" responses                                                                   |
+| aggregate_range  | Restricts ```aggregate``` to counts returned in increments of 10 (e.g., 10, 20, ... 130).                         |
+| aggregate_count  | Restricts ```aggregate``` to counts only.                                                                         |
+| admin_metadata   | Allows creating, altering, and dropping tables (aka grant create/alter on schema/tables).                         |
+| admin_permission | Allows granting and revoking permissions for other groups.                                                        |
+| admin_group      | Allows adding and removing users from groups (aka grant to users of current role).                                |
 
 **Note on Group-By Queries**: Group-by queries are limited to filtering on ref, ref_array, ontology, or ontology_array fields. To prevent potential identification risks, additional safeguards (e.g., minimum thresholds for counts) may apply.
 

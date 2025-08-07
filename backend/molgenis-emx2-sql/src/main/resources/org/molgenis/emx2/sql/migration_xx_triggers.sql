@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS "MOLGENIS".group_permissions
     group_name   TEXT    NOT NULL,
     table_schema TEXT    NULL,
     table_name   TEXT    NULL,
+    is_row_level BOOLEAN NOT NULL DEFAULT FALSE,
     has_select   BOOLEAN NOT NULL DEFAULT FALSE,
     has_insert   BOOLEAN NOT NULL DEFAULT FALSE,
     has_update   BOOLEAN NOT NULL DEFAULT FALSE,
@@ -44,6 +45,7 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS "MOLGENIS".user_permissions_mv AS
 SELECT gp.group_name,
        gp.table_schema,
        gp.table_name,
+       gp.is_row_level,
        gp.has_select,
        gp.has_insert,
        gp.has_update,
@@ -164,7 +166,7 @@ BEGIN
                 END LOOP;
         END IF;
 
-    -- Handle DELETE operation: when a group is deleted
+        -- Handle DELETE operation: when a group is deleted
     ELSIF TG_OP = 'DELETE' THEN
         FOREACH user_var IN ARRAY OLD.users
             LOOP
@@ -172,7 +174,7 @@ BEGIN
                 EXECUTE format('REVOKE %I FROM %I', OLD.group_name, user_var);
             END LOOP;
 
-    -- Handle UPDATE operation: when users are added or removed in the updated array
+        -- Handle UPDATE operation: when users are added or removed in the updated array
     ELSIF TG_OP = 'UPDATE' THEN
         -- Grant roles to new users in the updated list
         FOREACH user_var IN ARRAY NEW.users
@@ -426,7 +428,7 @@ END;
 $$;
 
 -- Function to enable RLS
-CREATE OR REPLACE FUNCTION "MOLGENIS".enable_RLS_on_table(schema_id TEXT, table_id TEXT)
+CREATE OR REPLACE FUNCTION "MOLGENIS".enable_RLS_on_table(schema_id TEXT, table_id TEXT) -- TODO: add disable RLS function?
     RETURNS void AS
 $$
 DECLARE
@@ -463,16 +465,19 @@ BEGIN
     -- Create SELECT policy if not exists
     IF NOT ('select_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
         EXECUTE format('CREATE POLICY select_policy_%s_%s ON %I.%I FOR SELECT USING (
-                            EXISTS (
-                                SELECT 1
-                                FROM "MOLGENIS".user_permissions_mv u
-                                WHERE u.user_name = current_user
-                                  AND u.table_schema = %L
-                                  AND (u.table_name = %L OR u.table_name IS NULL)
-                                  AND u.has_select
-                                  AND u.group_name = ANY(mg_group)
-                            )
-                        )',
+                        EXISTS (
+                            SELECT 1
+                            FROM "MOLGENIS".user_permissions_mv u
+                            WHERE u.user_name = current_user
+                              AND u.table_schema = %L
+                              AND (u.table_name = %L OR u.table_name IS NULL)
+                              AND u.has_select
+                              AND (
+                                (NOT u.is_row_level) OR
+                                (u.is_row_level AND u.group_name = ANY(mg_group))
+                              )
+                        )
+                    )',
                        safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
                 );
         RAISE NOTICE 'Select policy created on %.%', schema_id, table_id;
