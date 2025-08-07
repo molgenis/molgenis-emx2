@@ -38,6 +38,7 @@ Biobanks,,collaboration_commercial,Commercial Collaboration,bool,,false,,The bio
 Biobanks,,collaboration_non_for_profit,Non-for-profit Collaboration,bool,,false,,The biobank can be used for collaboration with non-for-profit partners.,,,,,,,,,
 Biobanks,,national_node,National Node,ref,,true,,The biobank originates from this national node.,,NationalNodes,,${description},,,,,
 Biobanks,,withdrawn,Withdrawn,bool,,true,,This biobank is withdrawn from the Directory.,,,,,false,,,,
+Biobanks,,belongs_to_catalog,,ref_array,,,,,,Catalog,,,,,,,dcat:Catalog
 CollectionFacts,,,,,,,,Collection Facts,,,,,,,,,
 CollectionFacts,,id,ID,string,1,true,true,Unique ID of the fact.,,,,,,,,,
 CollectionFacts,,collection,Collection ID,ref,,true,,ID of the collection where the fact belongs to.,,Collections,,${name},,,,,

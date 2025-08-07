@@ -13,5 +13,5 @@ Catalog,,modified,datetime,,true,,,,,,"dcterms:modified,https://w3id.org/fdp/fdp
 Catalog,,conforms_to,hyperlink,,true,,,,,,dcterms:conformsTo,The specification of the catalog metadata schema.
 Catalog,,rights,hyperlink_array,,,,,,,,dct:rights,"Information about rights held in and over the resource. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights."
 Catalog,,access_rights,hyperlink_array,,,,,,,,dct:accessRights,"Information about who can access the resource or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies."
-Catalog,,biobanks,refBack,,,,Biobanks,,belongsToCatalog,,dcat:dataset,"The relation between the catalog and its items."
+Catalog,,biobanks,refBack,,,,Biobanks,,belongs_to_catalog,,dcat:dataset,"The relation between the catalog and its items."
 Catalog,,theme_taxonomy,hyperlink_array,,TRUE,,,,,,dcat:themeTaxonomy,"A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar."
