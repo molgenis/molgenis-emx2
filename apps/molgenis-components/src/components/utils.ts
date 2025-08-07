@@ -42,7 +42,7 @@ export function flattenObject(object: Record<string, any>): string {
 export async function convertRowToPrimaryKey(
   row: IRow,
   tableId: string,
-  schemaId: string
+  schemaId?: string
 ): Promise<Record<string, any>> {
   const client = Client.newClient(schemaId);
   const tableMetadata = await client.fetchTableMetaData(tableId);
@@ -57,7 +57,7 @@ export async function convertRowToPrimaryKey(
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
-            column.refSchemaId || schemaId
+            column.refSchemaId || schemaId || ""
           );
         }
         return accum;
