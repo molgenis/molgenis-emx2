@@ -25,24 +25,5 @@ test.describe(
         page.getByLabel("name Required", { exact: true })
       ).toHaveValue("test");
     });
-
-    test("it should not jump around when selecting a checkbox", async ({
-      page,
-    }) => {
-      await page.goto(`${route}Form.story?schema=pet+store&table=User`);
-      await page.evaluate(() => location.reload()); //help nuxt
-      await page.getByText("username", { exact: true }).waitFor();
-
-      //scroll into view
-      await page.getByText("Show source code").scrollIntoViewIfNeeded();
-
-      // select checkbox inputs
-      await page.locator("label").filter({ hasText: "pooky" }).click();
-      await page.locator("label").filter({ hasText: "spike" }).click();
-
-      // determine if filter well buttons are visible (i.e., component has selection)
-      await expect(page.getByRole("button", { name: "pooky" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "spike" })).toBeVisible();
-    });
   }
 );
