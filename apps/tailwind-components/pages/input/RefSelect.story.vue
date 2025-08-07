@@ -6,7 +6,8 @@ const tableId = ref<string>("Pet");
 const labelTemplate = ref<string>("${name}");
 const value_singular = ref({ name: "spike" });
 const value_multiple = ref([{ name: "spike" }]);
-const value_undefined = ref();
+const value_undefined_singular = ref();
+const value_undefined_multiple = ref();
 </script>
 
 <template>
@@ -16,7 +17,7 @@ const value_undefined = ref();
     :show-multiple="true"
     :show-required="true"
   >
-    <label for="story-ref-dropdown">
+    <label :for="'story-ref-dropdown-' + multiple ? 'multiple' : 'singular'">
       <span class="text-title font-bold">Select pets by name</span>
       <span class="text-disabled text-body-sm ml-3" v-if="required">
         Required
@@ -24,22 +25,38 @@ const value_undefined = ref();
     </label>
     <InputRefSelect
       v-if="multiple"
-      id="story-ref-dropdown"
+      id="story-ref-dropdown-multiple"
       v-model="value_multiple"
       placeholder="Select a pet"
       :refSchemaId="schemaId"
       :refTableId="tableId"
       :refLabel="labelTemplate"
       :limit="5"
-      :multiselect="multiple"
+      :multiselect="true"
       :valid="valid"
       :invalid="invalid"
       :disabled="disabled"
       :required="true"
     />
-    /> value: {{ multiple ? value_multiple : value_singular }}
+    <InputRefSelect
+      v-else
+      id="story-ref-dropdown-singular"
+      v-model="value_singular"
+      placeholder="Select a pet"
+      :refSchemaId="schemaId"
+      :refTableId="tableId"
+      :refLabel="labelTemplate"
+      :limit="5"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
+      :required="true"
+    />
+    value: {{ multiple ? value_multiple : value_singular }}
     <br />
-    <label for="story-ref-dropdown">
+    <label
+      :for="'story-ref-dropdown-no-value-' + multiple ? 'multiple' : 'singular'"
+    >
       <span class="text-title font-bold"
         >Select pets by name (no initial value selected)</span
       >
@@ -48,8 +65,9 @@ const value_undefined = ref();
       </span>
     </label>
     <InputRefSelect
-      id="story-ref-dropdown-no-value"
-      v-model="value_undefined"
+      v-if="multiple"
+      id="story-ref-dropdown-no-value-multiple"
+      v-model="value_undefined_multiple"
       placeholder="Select a pet"
       :refSchemaId="schemaId"
       :refTableId="tableId"
@@ -61,6 +79,22 @@ const value_undefined = ref();
       :disabled="disabled"
       :required="true"
     />
-    value: {{ value_undefined }}
+    <InputRefSelect
+      v-else
+      id="story-ref-dropdown-no-value-singular"
+      v-model="value_undefined_singular"
+      placeholder="Select a pet"
+      :refSchemaId="schemaId"
+      :refTableId="tableId"
+      :refLabel="labelTemplate"
+      :limit="5"
+      :multiselect="multiple"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
+      :required="true"
+    />
   </InputTestContainer>
+  <br />
+  value: {{ multiple ? value_undefined_multiple : value_undefined_singular }}
 </template>

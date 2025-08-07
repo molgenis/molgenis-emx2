@@ -463,7 +463,7 @@ watch(
               :key="label + Object.hasOwn(selectionMap, label)"
             >
               <InputRefSelectInputOption
-                :id="(label as string)"
+                :id="id + (label as string)"
                 :group-id="id"
                 :label="label"
                 :option="(option as recordValue)"

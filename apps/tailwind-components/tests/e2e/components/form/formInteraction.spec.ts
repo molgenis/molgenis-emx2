@@ -25,7 +25,7 @@ test("it should not jump around when selecting a checkbox", async ({
 }) => {
   await page.goto(`${route}Form.story?schema=pet+store&table=User`);
   await page.evaluate(() => location.reload()); //help nuxt
-  await page.getByText("username", { exact: true }).waitFor();
+  await page.getByText("username", { exact: true }).waitFor({ timeout: 3000 });
 
   //scroll into view
   await page.getByText("Show source code").scrollIntoViewIfNeeded();
