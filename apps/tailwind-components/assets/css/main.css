@@ -131,7 +131,7 @@
     --text-color-button-outline-hover: var(--color-blue-700);
     --text-color-button-disabled: var(--color-gray-600);
     --text-color-button-disabled-hover: var(--color-gray-600);
-    --text-color-button-filter: var(--color-blue-500);
+    --text-color-button-filter: var(--color-blue-800);
     --text-color-button-tree-node-toggle: var(--color-blue-800);
     --text-color-button-tree-node-toggle-hover: var(--color-white);
     --text-color-button-toggle-active: var(--text-color-button-secondary);
