@@ -15,7 +15,7 @@ Endpoint,,contact,ref,,,,Agent,,,,dcat:contactPoint,Relevant contact information
 Endpoint,,keyword,string_array,,,,,,,,dcat:keyword,Keyword(s) describing the endpoint.
 Endpoint,,theme,hyperlink_array,,,,,,,,dcat:theme,A main category or concept relating to the resource. A resource can have multiple themes.
 Endpoint,,url,hyperlink,,,,,,,,dcat:endpointURL,The root location of the endpoint (a web-resolvable IRI).
-Endpoint,,end_point_description,hyperlink_array,,,,,,,,dcat:endPointDescription,"The URL of the document describing the endpoint, its operations, services, parameters, etc. The description should be expressed in a machine-readable format, such as an OpenAPI or SmartAPI description."
+Endpoint,,end_point_description,hyperlink_array,,,,,,,,dcat:endpointDescription,"The URL of the document describing the endpoint, its operations, services, parameters, etc. The description should be expressed in a machine-readable format, such as an OpenAPI or SmartAPI description."
 Endpoint,,issued,datetime,,true,,,,,,"dcterms:issued,fdp-o:metadataIssued",When the metadata for this resource was first published. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.
 Endpoint,,modified,datetime,,true,,,,,,"dcterms:modified,fdp-o:metadataModified",When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.
 Endpoint,,start_date,datetime,,,,,,,,"fdp-o:startDate",Date when the metadata service started its operations.
