@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "core-js": "3.34.0",
-    "graphql-request": "5.2.0",
+    "graphql-request": "7.2.0",
     "molgenis-components": "*",
     "monaco-editor": "0.52.2",
     "vue": "3.5.13",
@@ -20,7 +20,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "4.6.2",
     "prettier": "2.8.8",
-    "vite": "5.4.16",
+    "vite": "5.4.19",
     "vite-plugin-html": "3.2.2",
     "vite-plugin-monaco-editor": "1.1.0"
   },
