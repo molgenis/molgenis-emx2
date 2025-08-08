@@ -1,8 +1,8 @@
-tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Agent,,,,,,,,,,,"foaf:Agent,vcard:Agent","An agent (e.g. person, group, software or physical artifact)."
-Agent,,name,string,1,TRUE,,,,,,"foaf:name,dcterms:identifier",A name and identifier for this agent.
-Agent,,description,string,,,,,,,,dct:description,Description of the agent.
-Agent,,type,hyperlink_array,,,,,,,,rdf:type,"This agent is of the following type(s) (e.g. http://xmlns.com/foaf/0.1/Person)"
-Agent,,url,hyperlink,,,,,,,,"vcard:url,foaf:homepage,dcat:landingPage",The homepage of the agent.
-Agent,,logo,hyperlink,,,,,,,,foaf:logo,The logo of the agent.
-Agent,,mbox,email,,,,,,,,"vcard:hasEmail,foaf:mbox",E-mail address of the agent.
+tableName,tableExtends,columnName,label,columnType,key,required,isReadonly,description,refSchema,refTable,refBack,refLabel,defaultValue,validation,message,computed,semantics
+Agent,,,,,,,,"An agent (e.g. person, group, software or physical artifact).",,,,,,,,,"foaf:Agent,vcard:Agent"
+Agent,,name,,string,1,TRUE,,A name and identifier for this agent.,,,,,,,,,"foaf:name,dcterms:identifier"
+Agent,,description,,string,,,,Description of the agent.,,,,,,,,,dct:description
+Agent,,type,,hyperlink_array,,,,This agent is of the following type(s) (e.g. http://xmlns.com/foaf/0.1/Person),,,,,,,,,rdf:type
+Agent,,url,,hyperlink,,,,The homepage of the agent.,,,,,,,,,"vcard:url,foaf:homepage,dcat:landingPage"
+Agent,,logo,,hyperlink,,,,The logo of the agent.,,,,,,,,,foaf:logo
+Agent,,mbox,,email,,,,E-mail address of the agent.,,,,,,,,,"vcard:hasEmail,foaf:mbox"
