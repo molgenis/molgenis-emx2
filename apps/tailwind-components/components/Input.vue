@@ -144,6 +144,7 @@
   <InputRef
     v-else-if="['REF', 'RADIO'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject"
+    :limit="50"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -160,6 +161,7 @@
   <InputRef
     v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject[]"
+    :limit="50"
     :id="id"
     :valid="valid"
     :invalid="invalid"
