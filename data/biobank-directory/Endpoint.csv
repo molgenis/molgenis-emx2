@@ -4,7 +4,7 @@ Endpoint,,id,,string,1,TRUE,,Identifier of the metadata entry.,,,,,,,,,"schema:i
 Endpoint,,type,,hyperlink_array,,TRUE,,This row is an instance of one or more of these class(es) other than the Endpoint table.,,,,,,,,,rdf:type
 Endpoint,,name,,string_array,,TRUE,,A name given to the endpoint.,,,,,,,,,dcterms:title
 Endpoint,,description,,text,,,,A description of the endpoint.,,,,,,,,,dcterms:description
-Endpoint,,metadata_catalog,,ref_array,,TRUE,,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",,NationalNodes,,,,,,,fdp-o:metadataCatalog
+Endpoint,,metadata_catalog,,ref_array,,TRUE,,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",,Catalog,,,,,,,fdp-o:metadataCatalog
 Endpoint,,publisher,,ref_array,,TRUE,,The entity (person or organisation) or entities responsible for making the endpoint available.,,Agent,,,,,,,dcterms:publisher
 Endpoint,,language,,hyperlink_array,,,,The language(s) used in the metadata record(s).,,,,,,,,,dcterms:language
 Endpoint,,license,,hyperlink,,TRUE,,A reference to the usage license of the endpoint.,,,,,,,,,dcterms:license
