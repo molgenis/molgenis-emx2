@@ -184,12 +184,7 @@ const errorMap = ref<Record<columnId, string>>({});
 
 const createMetadata: ComputedRef<ITableMetaData> = computed(() => {
   const result = JSON.parse(JSON.stringify(props.metadata)) as ITableMetaData;
-  result.columns = result.columns.map((c) => {
-    if (c.key !== 1) {
-      c.readonly = true;
-    }
-    return c;
-  });
+  result.columns = result.columns.filter((c) => c.key === 1);
   return result;
 });
 
