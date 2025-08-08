@@ -6,7 +6,6 @@ withDefaults(
     title?: string;
     subtitle?: string;
     maxWidth?: string;
-    height: string;
   }>(),
   {
     maxWidth: "max-w-xl",

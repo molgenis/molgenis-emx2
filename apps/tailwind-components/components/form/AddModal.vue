@@ -10,17 +10,17 @@
         >Add {{ rowType }}</Button
       >
     </slot>
-    <FormEditModal
-      v-if="recordIsCreated && visible"
-      :metadata="metadata"
-      :schemaId="schemaId"
-      :form-values="formValues"
-      :constantValues="constantValues"
-      v-model:visible="visible"
-      @update:updated="onUpdate"
-    />
   </template>
-  <Modal v-if="!visible" v-model:visible="visible" max-width="max-w-9/10">
+  <FormEditModal
+    v-if="recordIsCreated && visible"
+    :metadata="metadata"
+    :schemaId="schemaId"
+    :form-values="formValues"
+    :constantValues="constantValues"
+    v-model:visible="visible"
+    @update:updated="onUpdate"
+  />
+  <Modal v-else-if="visible" v-model:visible="visible" max-width="max-w-9/10">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
         <div class="mb-5 relative flex items-center">

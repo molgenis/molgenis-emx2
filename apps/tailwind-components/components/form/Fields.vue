@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, toRaw, watch } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import type {
   columnId,
   columnValue,
@@ -143,18 +143,18 @@ props.metadata.columns
 
 const rowKey = ref<columnValue>();
 
-function copyConstantValuesToModelValue() {
-  if (props.constantValues !== undefined) {
-    modelValue.value = JSON.parse(JSON.stringify(props.constantValues));
-  }
-}
-
 async function updateRowKey() {
   rowKey.value = await fetchRowPrimaryKey(
     modelValue.value,
     props.metadata.id,
     props.schemaId
   );
+}
+
+function copyConstantValuesToModelValue() {
+  if (props.constantValues !== undefined) {
+    modelValue.value = JSON.parse(JSON.stringify(props.constantValues));
+  }
 }
 
 watch(
@@ -220,7 +220,7 @@ onMounted(() => {
         :type="column.columnType"
         :label="column.label"
         :description="column.description"
-        :row-key="rowKey"
+        :rowKey="rowKey"
         :required="isRequired(column.required ?? false)"
         :disabled="column.readonly ? true : false"
         :error-message="errors[column.id]"

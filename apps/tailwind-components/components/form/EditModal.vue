@@ -109,22 +109,11 @@ import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import { errorToMessage } from "../../utils/errorToMessage";
 
-const props = withDefaults(defineProps<{
-  schemaId: string;
-  metadata: ITableMetaData;
-  constantValues?: Record<columnId, columnValue>;
-  formValues: Record<columnId, columnValue>;
-  showButton?: boolean;
-}>(),
-    {
-      showButton: true,
-    }
-);
-=======
 const props = withDefaults(
   defineProps<{
     schemaId: string;
     metadata: ITableMetaData;
+    constantValues?: Record<columnId, columnValue>;
     formValues: Record<columnId, columnValue>;
     showButton?: boolean;
   }>(),
@@ -151,7 +140,6 @@ function setVisible() {
 }
 
 const rowType = computed(() => props.metadata.id);
-
 const isDraft = computed(() => {
   return editFormValues.value.mg_draft === true;
 });
