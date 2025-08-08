@@ -323,7 +323,10 @@ const hasChildren = computed(() =>
           {{ valueLabels[name] }}
         </Button>
       </div>
-      <div class="flex flex-wrap gap-2">
+      <div
+        class="flex flex-wrap gap-2"
+        v-if="hasChildren || ontologyTree.length > 20"
+      >
         <InputLabel :for="`search-for-${id}`" class="sr-only">
           search in ontology
         </InputLabel>
