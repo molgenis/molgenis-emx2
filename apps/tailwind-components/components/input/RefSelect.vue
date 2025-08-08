@@ -79,8 +79,7 @@ const counterOffset = ref<number>(0);
 const maxTableRows = ref<number>(0);
 const hasNoResults = ref<boolean>(true);
 
-const displayText = ref<string>(props.placeholder);
-const searchTerm = defineModel<string>("");
+const searchTerm = defineModel<string>("search");
 const sortMethod = ref<string>();
 const isExpanded = ref<boolean>(false);
 const collapseAllOptions = ref<boolean>(false);
@@ -101,7 +100,9 @@ async function prepareModel() {
   const filters =
     Array.isArray(modelValue.value) && modelValue.value.length > 0
       ? (modelValue.value as []).map((value) => extractPrimaryKey(value))
-      : extractPrimaryKey(modelValue.value);
+      : modelValue.value
+      ? extractPrimaryKey(modelValue.value)
+      : undefined;
 
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
@@ -239,14 +240,14 @@ const { stop } = useIntersectionObserver(
   }
 );
 
-function updateDisplayText() {
+const displayText = computed(() => {
   const selectionMapKeys = Object.keys(selectionMap.value);
-  if (selectionMapKeys.length) {
-    displayText.value = selectionMapKeys.join(", ");
+  if (selectionMapKeys.length > 0) {
+    return selectionMapKeys.join(", ");
   } else {
-    displayText.value = props.placeholder;
+    return props.placeholder || "Select option";
   }
-}
+});
 
 async function getMaxTableRows() {
   const data = await fetchGraphql(
@@ -259,9 +260,33 @@ async function getMaxTableRows() {
   maxTableRows.value = data[`${props.refTableId}_agg`].count;
 }
 
+function applyModelValueToSelection() {
+  if (modelValue.value === undefined && props.multiselect) {
+    modelValue.value = [];
+  }
+  if (!props.multiselect) {
+    delete selectionMap.value[Object.keys(selectionMap.value)[0]];
+    if (modelValue.value) {
+      selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
+        modelValue.value;
+    }
+  } else {
+    selectionMap.value = {};
+    if (
+      modelValue.value &&
+      Array.isArray(modelValue.value) &&
+      modelValue.value.length > 0
+    ) {
+      modelValue.value.forEach((value) => {
+        selectionMap.value[applyTemplate(props.refLabel, value)] = value;
+      });
+    }
+  }
+}
+
 onMounted(async () => {
   await prepareModel();
-  updateDisplayText();
+  applyModelValueToSelection();
 });
 
 watch(
@@ -288,26 +313,8 @@ watch(
 
 watch(
   () => modelValue.value,
-  () => {
-    if (!props.multiselect) {
-      delete selectionMap.value[Object.keys(selectionMap.value)[0]];
-      if (modelValue.value) {
-        selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
-          modelValue.value;
-      }
-    } else {
-      selectionMap.value = {};
-      if (
-        modelValue.value &&
-        Array.isArray(modelValue.value) &&
-        modelValue.value.length > 0
-      ) {
-        modelValue.value.forEach((value) => {
-          selectionMap.value[applyTemplate(props.refLabel, value)] = value;
-        });
-      }
-    }
-  }
+  (newVal, oldVal) => applyModelValueToSelection(),
+  { deep: true }
 );
 
 watch(
@@ -321,13 +328,6 @@ watch(
   () => sortMethod.value,
   () => {
     loadOptions({ limit: props.limit, searchTerms: searchTerm.value });
-  }
-);
-
-watch(
-  () => selectionMap.value,
-  () => {
-    updateDisplayText();
   }
 );
 
@@ -351,8 +351,8 @@ watch(
 
 <template>
   <InputGroupContainer
-    :id="`${id}-ref-dropdown`"
     class="w-full relative"
+    :id="`${id}-ref-dropdown`"
     @focus="emit('focus')"
     @blur="emit('blur')"
   >
@@ -376,7 +376,6 @@ watch(
       :id="`${id}-ref-dropdown-content`"
       :aria-expanded="isExpanded"
       :tabindex="isExpanded ? 1 : 0"
-      class="border rounded relative"
       :class="{
         hidden: disabled || !isExpanded,
       }"
@@ -460,14 +459,15 @@ watch(
             <div
               v-for="(option, label) in optionsToDisplay"
               class="border-b last:border-none"
+              :key="label + Object.hasOwn(selectionMap, label)"
             >
               <InputRefSelectInputOption
-                :id="(label as string)"
+                :id="id + (label as string)"
                 :group-id="id"
                 :label="label"
                 :option="(option as recordValue)"
                 :multiselect="multiselect"
-                :checked="Object.hasOwn(selectionMap, label)"
+                :checked="selectionMap[label] !== undefined"
                 @select="select"
                 @deselect="deselect"
                 :collapse-hidden-content="!isExpanded ? true : null"

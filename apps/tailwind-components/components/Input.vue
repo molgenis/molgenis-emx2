@@ -115,7 +115,7 @@
     @blur="emit('blur')"
   />
   <InputRadioGroup
-    v-else-if="['RADIO'].includes(typeUpperCase)"
+    v-else-if="['RADIO'].includes(typeUpperCase) && options"
     v-model="modelValue as columnValue"
     :id="id"
     :valid="valid"
@@ -129,7 +129,7 @@
     :align="align"
   />
   <InputCheckboxGroup
-    v-else-if="['CHECKBOX'].includes(typeUpperCase)"
+    v-else-if="['CHECKBOX'].includes(typeUpperCase) && options"
     v-model="modelValue as columnValue[]"
     :id="id"
     :valid="valid"
@@ -142,7 +142,7 @@
     @blur="emit('blur')"
   />
   <InputRef
-    v-else-if="['REF'].includes(typeUpperCase)"
+    v-else-if="['REF', 'RADIO'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject"
     :limit="50"
     :id="id"
@@ -159,7 +159,7 @@
     :is-array="false"
   />
   <InputRef
-    v-else-if="['REF_ARRAY'].includes(typeUpperCase)"
+    v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject[]"
     :limit="50"
     :id="id"
@@ -174,6 +174,39 @@
     @focus="emit('focus')"
     @blur="emit('blur')"
     :is-array="true"
+  />
+  <InputRefSelect
+    v-else-if="'SELECT' === typeUpperCase"
+    v-model="modelValue as columnValueObject"
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    :refSchemaId="refSchemaId as string"
+    :refTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+    :align="align"
+  />
+  <InputRefSelect
+    v-else-if="'MULTISELECT' === typeUpperCase"
+    v-model="modelValue as columnValueObject[]"
+    :multiselect="true"
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    :refSchemaId="refSchemaId as string"
+    :refTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+    :align="align"
   />
   <InputRefBack
     v-else-if="['REFBACK'].includes(typeUpperCase)"

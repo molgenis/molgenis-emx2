@@ -69,7 +69,9 @@ watch(
       createBookmark(
         filtersStore.filters,
         checkoutStore.selectedCollections,
-        checkoutStore.selectedServices
+        checkoutStore.selectedServices,
+        filtersStore.filterType,
+        filtersStore.filterTriggeredBookmark
       );
     }
 

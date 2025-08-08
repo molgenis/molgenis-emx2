@@ -27,9 +27,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const graphqlEndpointOntologyFilter = "/DirectoryOntologies/graphql";
 
   const bookmarkWaitingForApplication = ref(false);
-  /** check for url manipulations */
   const bookmarkTriggeredFilter = ref(false);
-  /** check for filter manipulations */
   const filterTriggeredBookmark = ref(false);
 
   const filters = ref<Record<string, any>>({});
@@ -92,6 +90,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       Record<string, any>
     ]) => {
       settingsStore.currentPage = 1;
+      bookmarkWaitingForApplication.value = false;
       updateQueryAndBookmark(newFilters, newFilterType);
       getBiobankCards();
     },
@@ -291,7 +290,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     createBookmark(
       filters.value,
       checkoutStore.selectedCollections,
-      checkoutStore.selectedServices
+      checkoutStore.selectedServices,
+      filterType.value,
+      bookmarkWaitingForApplication.value
     );
   }
 
@@ -370,7 +371,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       createBookmark(
         newFilters,
         checkoutStore.selectedCollections,
-        checkoutStore.selectedServices
+        checkoutStore.selectedServices,
+        filterType.value,
+        bookmarkWaitingForApplication.value
       );
     }
     bookmarkTriggeredFilter.value = false;
@@ -429,6 +432,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filtersReadyToRender,
     filters,
     filterTriggeredBookmark,
+    filterType,
     hasActiveFilters,
     hasActiveBiobankOnlyFilters,
     selectedDiseases,
