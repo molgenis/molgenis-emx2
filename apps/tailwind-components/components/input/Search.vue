@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, useTemplateRef } from "vue";
+import { useTemplateRef } from "vue";
 import type { IInputProps, ButtonSize } from "../../types/types";
 
 const modelValue = defineModel<string | number>();
 const search = useTemplateRef<HTMLInputElement>("search");
 
-const props = withDefaults(
+withDefaults(
   defineProps<
     IInputProps & {
       type?: string;
@@ -28,57 +28,38 @@ function handleInput(input: string) {
     emit("update:modelValue", input);
   }, 500);
 }
-
-const HEIGHT_MAPPING = {
-  tiny: "h-8 px-5 text-heading-sm gap-2",
-  small: "h-10.5 px-5 text-heading-lg gap-3",
-  medium: "h-14 px-7.5 text-heading-xl gap-4",
-  large: "h-18 px-8.75 text-heading-xl gap-5",
-};
-
-const ICON_SIZE_MAPPING = {
-  tiny: 18,
-  small: 24,
-  medium: 36,
-  large: 48,
-};
-
-const iconSize = computed(() => {
-  return ICON_SIZE_MAPPING[props.size];
-});
-
-const heightClasses = computed(() => {
-  return HEIGHT_MAPPING[props.size];
-});
 </script>
 <template>
   <div
     class="relative flex items-center border outline-none rounded-input"
-    :class="[
-      heightClasses,
-      {
-        'bg-input border-valid text-valid': valid && !disabled,
-        'bg-input border-invalid text-invalid': invalid && !disabled,
-        'border-disabled text-disabled bg-disabled cursor-not-allowed':
-          disabled,
-        'bg-disabled border-valid text-valid cursor-not-allowed':
-          valid && disabled,
-        'bg-disabled border-invalid text-invalid cursor-not-allowed':
-          invalid && disabled,
-        'bg-input text-input hover:border-input-hover focus-within:border-input-focused':
-          !disabled && !invalid && !valid,
-      },
-    ]"
+    :class="{
+      'bg-input border-valid text-valid': valid && !disabled,
+      'bg-input border-invalid text-invalid': invalid && !disabled,
+      'border-disabled text-disabled bg-disabled cursor-not-allowed': disabled,
+      'bg-disabled border-valid text-valid cursor-not-allowed':
+        valid && disabled,
+      'bg-disabled border-invalid text-invalid cursor-not-allowed':
+        invalid && disabled,
+      'bg-input text-input hover:border-input-hover focus-within:border-input-focused':
+        !disabled && !invalid && !valid,
+      'h-input-tiny pl-5 pr-5 text-heading-sm gap-2': size === 'tiny',
+      'h-input-small pl-5 pr-5 text-heading-sm gap-3': size === 'small',
+      'h-input pl-5 pr-7.5 text-heading-md gap-4': size === 'medium',
+      'h-input-large pl-5 pr-8.75 text-heading-lg gap-5': size === 'large',
+    }"
   >
-    <div class="w-[44px] ps-3 text-center pointer-events-none">
+    <div class="w-auto text-center pointer-events-none">
       <BaseIcon
         name="search"
-        :width="iconSize"
         class="text-input"
         :class="{
           'text-valid': valid,
           'text-invalid': invalid,
           'text-disabled': disabled,
+          'w-[12px]': size === 'tiny',
+          'w-[16px]': size === 'small',
+          'w-[21px]': size === 'medium',
+          'w-[26px]': size === 'large',
         }"
       />
     </div>

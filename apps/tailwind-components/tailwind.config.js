@@ -109,6 +109,9 @@ module.exports = {
       }),
       height: ({ theme }) => ({
         input: "var(--height-input)",
+        "input-tiny": "var(--height-input-tiny)",
+        "input-small": "var(--height-input-small)",
+        "input-large": "var(--height-input-large)",
       }),
       width: {
         "button-switch": "var(--width-button-switch)",
