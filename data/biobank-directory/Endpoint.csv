@@ -14,7 +14,6 @@ Endpoint,,access_rights,,hyperlink_array,,,,"Information about who can access th
 Endpoint,,contact,,ref,,,,Relevant contact information for the endpoint.,,Agent,,,,,,,dcat:contactPoint
 Endpoint,,keyword,,string_array,,,,Keyword(s) describing the endpoint.,,,,,,,,,dcat:keyword
 Endpoint,,theme,,hyperlink_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,,,,,,,,,dcat:theme
-Endpoint,,url,,hyperlink,,,,The root location of the endpoint (a web-resolvable IRI).,,,,,,,,,dcat:endpointURL
 Endpoint,,end_point_description,,hyperlink_array,,,,"The URL of the document describing the endpoint, its operations, services, parameters, etc. The description should be expressed in a machine-readable format, such as an OpenAPI or SmartAPI description.",,,,,,,,,dcat:endpointDescription
 Endpoint,,issued,,datetime,,true,,When the metadata for this resource was first published. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:issued,fdp-o:metadataIssued"
 Endpoint,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:modified,fdp-o:metadataModified"
