@@ -1,7 +1,8 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
-Agent,,,,,,,,,,,"foaf:Agent,vcard:Agent","An agent (eg. person, group, software or physical artifact)."
+Agent,,,,,,,,,,,"foaf:Agent,vcard:Agent","An agent (e.g. person, group, software or physical artifact)."
 Agent,,name,string,1,TRUE,,,,,,"foaf:name,dcterms:identifier",A name and identifier for this agent.
 Agent,,description,string,,,,,,,,dct:description,Description of the agent.
+Agent,,type,hyperlink_array,,,,,,,,rdf:type,"This agent is of the following type(s) (e.g. http://xmlns.com/foaf/0.1/Person)"
 Agent,,url,hyperlink,,,,,,,,"vcard:url,foaf:homepage,dcat:landingPage",The homepage of the agent.
 Agent,,logo,hyperlink,,,,,,,,foaf:logo,The logo of the agent.
 Agent,,mbox,email,,,,,,,,"vcard:hasEmail,foaf:mbox",E-mail address of the agent.
