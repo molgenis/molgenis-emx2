@@ -5,6 +5,8 @@ import router from "../router";
 import { ILabelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
+import * as _ from "lodash";
+
 let bookmarkApplied = false;
 
 const { setError, clearError } = useErrorHandler();
@@ -98,83 +100,48 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
 export function createBookmark(
   filters: Record<string, any>,
   collectionCart: Record<string, ILabelValuePair[]>,
-  serviceCart: Record<string, ILabelValuePair[]>
+  serviceCart: Record<string, ILabelValuePair[]>,
+  filterTypes: Record<string, any>,
+  bookmarkWaitingForApplication: boolean
 ) {
-  const filtersStore = useFiltersStore();
-  const bookmark: Record<string, string> = {};
+  const bookmarkQuery: Record<string, string> = {};
   const matchAll = [];
 
-  if (filters) {
-    const activeFilters = Object.keys(filters);
-    for (const filterName of activeFilters) {
-      let value = filters[filterName];
+  const activeFilters = Object.keys(filters);
+  for (const filterName of activeFilters) {
+    let value = filters[filterName];
 
-      /** can't do if(!value) because that would also trigger if value === 0 */
-      if (
-        value === "" ||
-        value === null ||
-        value === undefined ||
-        value.length === 0
-      ) {
-        continue;
-      }
+    /** can't do if(!value) because that would also trigger if value === 0 */
+    if (
+      value === "" ||
+      value === null ||
+      value === undefined ||
+      value.length === 0
+    ) {
+      continue;
+    }
 
-      const filterType = filtersStore.getFilterType(filterName);
+    const filterType = filterTypes[filterName] || "any";
 
-      if (filterType === "all") {
-        matchAll.push(filterName);
-      }
+    if (filterType === "all") {
+      matchAll.push(filterName);
+    }
 
-      if (Array.isArray(value) && value.length > 0) {
-        const extractedValues = value.map(
-          /** ontology / checkbox / other */
-          (value) => value["code"] || value["value"] || value["name"]
-        );
-
-        let bookmarkValue = extractedValues.join(",");
-
-        /** you may not alter this in the url, because that will mess up the tree.
-         * discourage this behaviour by encoding it.
-         */
-        if (filterName === "Diagnosisavailable") {
-          bookmarkValue = btoa(bookmarkValue);
-        }
-
-        bookmark[filterName] = encodeURI(bookmarkValue);
-      } else if (typeof value === "object") {
-        let bookmarkValue = value["code"] || value["value"] || value["name"];
-
-        if (filterName === "Diagnosisavailable") {
-          bookmarkValue = btoa(bookmarkValue);
-        }
-
-        bookmark[filterName] = encodeURI(value);
-      } else {
-        let bookmarkValue = value;
-        if (filterName === "Diagnosisavailable") {
-          bookmarkValue = btoa(bookmarkValue);
-        }
-
-        bookmark[filterName] = encodeURI(value);
-      }
+    if (Array.isArray(value) && value.length) {
+      bookmarkQuery[filterName] = createBookmarkForArray(value, filterName);
+    } else if (typeof value === "object") {
+      bookmarkQuery[filterName] = createBookmarkForObject(value, filterName);
+    } else {
+      bookmarkQuery[filterName] = createBookmarkForOther(value, filterName);
     }
   }
 
   if (matchAll.length) {
-    bookmark.matchAll = encodeURI(matchAll.join(","));
+    bookmarkQuery.matchAll = encodeURI(matchAll.join(","));
   }
 
-  /** This manages the selection in the cart */
   if (collectionCart && Object.keys(collectionCart).length) {
-    const bookmarkIds = [];
-    for (const biobank in collectionCart) {
-      bookmarkIds.push(
-        collectionCart[biobank].map((collection) => collection.value)
-      );
-    }
-
-    const encodedCart = btoa(bookmarkIds.join(","));
-    bookmark.cart = encodeURI(encodedCart);
+    bookmarkQuery.cart = createBookmarkForCart(collectionCart);
   }
 
   if (serviceCart && Object.keys(serviceCart).length) {
@@ -184,15 +151,15 @@ export function createBookmark(
     }
 
     const encodedCart = btoa(bookmarkIds.join(","));
-    bookmark.serviceCart = encodeURI(encodedCart);
+    bookmarkQuery.serviceCart = encodeURI(encodedCart);
   }
 
-  if (!filtersStore.bookmarkWaitingForApplication) {
+  if (!bookmarkWaitingForApplication) {
     try {
       clearError();
       router.push({
         name: router.currentRoute.value.name,
-        query: bookmark,
+        query: bookmarkQuery,
       });
     } catch (error) {
       setError(error);
@@ -200,6 +167,44 @@ export function createBookmark(
   }
 }
 
-export default {
-  createBookmark,
-};
+function createBookmarkForArray(value: any[], filterName: string) {
+  const extractedValues = value.map(
+    /** ontology / checkbox / other */
+    (val) => val["code"] || val["value"] || val["name"]
+  );
+  const bookmarkValue = extractedValues.join(",");
+  return filterName === "Diagnosisavailable"
+    ? encodeURI(btoa(bookmarkValue))
+    : encodeURI(bookmarkValue);
+}
+
+function createBookmarkForObject(
+  value: Record<string, any>,
+  filterName: string
+) {
+  const bookmarkValue = value["code"] || value["value"] || value["name"];
+  return filterName === "Diagnosisavailable"
+    ? encodeURI(btoa(bookmarkValue))
+    : encodeURI(bookmarkValue);
+}
+
+function createBookmarkForOther(value: any, filterName: string) {
+  return filterName === "Diagnosisavailable"
+    ? encodeURI(btoa(value))
+    : encodeURI(value);
+}
+
+function createBookmarkForCart(
+  collectionCart: Record<string, ILabelValuePair[]>
+) {
+  /** This manages the selection in the cart */
+  const bookmarkIds = [];
+  for (const biobankId in collectionCart) {
+    bookmarkIds.push(
+      collectionCart[biobankId].map((collection) => collection.value)
+    );
+  }
+
+  const encodedCart = btoa(bookmarkIds.join(","));
+  return encodeURI(encodedCart);
+}

@@ -1,14 +1,16 @@
 <template>
-  <slot :setVisible="setVisible">
-    <Button
-      class="m-10"
-      type="primary"
-      size="small"
-      icon="plus"
-      @click="visible = true"
-      >Update {{ rowType }}</Button
-    >
-  </slot>
+  <template v-if="showButton">
+    <slot :setVisible="setVisible">
+      <Button
+        class="m-10"
+        type="primary"
+        size="small"
+        icon="plus"
+        @click="visible = true"
+        >Update {{ rowType }}</Button
+      >
+    </slot>
+  </template>
   <Modal v-model:visible="visible" max-width="max-w-9/10">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
@@ -100,19 +102,36 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, watchEffect } from "vue";
+import { computed, ref, toRaw } from "vue";
 import useForm from "../../composables/useForm";
 import useSections from "../../composables/useSections";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import { errorToMessage } from "../../utils/errorToMessage";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   schemaId: string;
   metadata: ITableMetaData;
   constantValues?: Record<columnId, columnValue>;
   formValues: Record<columnId, columnValue>;
-}>();
+  showButton?: boolean;
+}>(),
+    {
+      showButton: true,
+    }
+);
+=======
+const props = withDefaults(
+  defineProps<{
+    schemaId: string;
+    metadata: ITableMetaData;
+    formValues: Record<columnId, columnValue>;
+    showButton?: boolean;
+  }>(),
+  {
+    showButton: true,
+  }
+);
 
 const emit = defineEmits(["update:updated", "update:cancelled"]);
 

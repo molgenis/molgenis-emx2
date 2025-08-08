@@ -1,24 +1,26 @@
 <template>
-  <slot :setVisible="setVisible">
-    <Button
-      class="m-10"
-      type="primary"
-      size="small"
-      icon="plus"
-      @click="visible = true"
-      >Add {{ rowType }}</Button
-    >
-  </slot>
-  <FormEditModal
-    v-if="recordIsCreated && visible"
-    :metadata="metadata"
-    :schemaId="schemaId"
-    :form-values="formValues"
-    :constantValues="constantValues"
-    v-model:visible="visible"
-    @update:updated="onUpdate"
-  />
-  <Modal v-else-if="visible" v-model:visible="visible" max-width="max-w-9/10">
+  <template v-if="showButton">
+    <slot :setVisible="setVisible">
+      <Button
+        class="m-10"
+        type="primary"
+        size="small"
+        icon="plus"
+        @click="visible = true"
+        >Add {{ rowType }}</Button
+      >
+    </slot>
+    <FormEditModal
+      v-if="recordIsCreated && visible"
+      :metadata="metadata"
+      :schemaId="schemaId"
+      :form-values="formValues"
+      :constantValues="constantValues"
+      v-model:visible="visible"
+      @update:updated="onUpdate"
+    />
+  </template>
+  <Modal v-if="!visible" v-model:visible="visible" max-width="max-w-9/10">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
         <div class="mb-5 relative flex items-center">
@@ -119,11 +121,17 @@ import useSections from "../../composables/useSections";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
 
-const props = defineProps<{
-  metadata: ITableMetaData;
-  schemaId: string;
-  constantValues?: IRow;
-}>();
+const props = withDefaults(
+  defineProps<{
+    metadata: ITableMetaData;
+    schemaId: string;
+    constantValues?: IRow;
+    showButton?: boolean;
+  }>(),
+  {
+    showButton: true,
+  }
+);
 
 const emit = defineEmits(["update:added", "update:cancelled"]);
 

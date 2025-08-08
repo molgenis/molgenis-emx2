@@ -26,7 +26,7 @@ const props = withDefaults(
   >(),
   {
     isArray: true,
-    limit: 10,
+    limit: 5,
   }
 );
 
@@ -225,7 +225,7 @@ prepareModel();
   <InputGroupContainer @focus="emit('focus')" @blur="emit('blur')">
     <div
       class="flex flex-wrap gap-2 mb-2"
-      v-if="isArray ? selection.length : selection"
+      v-if="initialCount > limit && isArray && selection.length > 1"
     >
       <Button
         v-for="label in isArray ? selection : [selection]"
@@ -239,10 +239,19 @@ prepareModel();
       </Button>
     </div>
     <div class="flex flex-wrap gap-2 mb-2">
-      <ButtonInline @click="toggleSearch" :aria-controls="`search-for-${id}`">
+      <ButtonText
+        @click="toggleSearch"
+        :aria-controls="`search-for-${id}`"
+        v-if="initialCount > limit"
+      >
         Search
-      </ButtonInline>
-      <ButtonInline @click="clearSelection"> Clear all </ButtonInline>
+      </ButtonText>
+      <ButtonText
+        @click="clearSelection"
+        v-if="isArray ? selection.length > 0 : selection"
+      >
+        Clear all
+      </ButtonText>
     </div>
     <template v-if="showSearch && initialCount > limit">
       <InputLabel :for="`search-for-${id}`" class="sr-only">
@@ -280,10 +289,10 @@ prepareModel();
         :valid="valid"
         :disabled="disabled"
       />
-      <ButtonInline @click="loadMore" v-if="offset + limit < count">
+      <ButtonText @click="loadMore" v-if="offset + limit < count">
         load {{ entitiesLeftToLoad }} more
-      </ButtonInline>
+      </ButtonText>
     </template>
-    <ButtonInline v-else>No results found</ButtonInline>
+    <ButtonText v-else>No results found</ButtonText>
   </InputGroupContainer>
 </template>
