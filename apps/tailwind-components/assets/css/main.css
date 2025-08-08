@@ -238,7 +238,11 @@
     --border-color-form-required: var(--color-gray-200);
     --border-radius-form-required: var(--border-radius-3px);
 
-    --height-input: 56px;
+    /** input heights */
+    --height-input: 3.5rem;
+    --height-input-tiny: 2rem;
+    --height-input-small: 2.5rem;
+    --height-input-large: 4.5rem;
 
     /** input switch styles */
     --width-button-switch: 36px;
@@ -251,7 +255,5 @@
     --border-color-button-switch: var(--color-blue-900);
     --border-color-button-switch-selected: var(--color-gray-400);
     --border-color-button-switch-hover: var(--color-blue-900);
-
-    --height-input: 56px;
   }
 }

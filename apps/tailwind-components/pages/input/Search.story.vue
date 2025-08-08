@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const searchValue1 = ref<string>("");
-const searchValue2 = ref<string>("");
-const searchValue3 = ref<string>("");
+const searchValueLarge = ref<string>("this is a large sized search input");
+const searchValueMedium = ref<string>("this is a medium sized search input");
+const searchValueSmall = ref<string>("this is a small sized search input");
+const searchValueTiny = ref<string>("this is a tiny sized search input");
+
+import ComponentOutput from "../../components/story/ComponentOutput.vue";
 </script>
 
 <template>
@@ -12,37 +15,78 @@ const searchValue3 = ref<string>("");
     show-state
     v-slot="{ placeholder, valid, invalid, disabled }"
   >
-    <label for="search-input"> Search </label>
-    <h2>large</h2>
-    <InputSearch
-      v-model="searchValue2"
-      size="large"
-      :placeholder="placeholder"
-      :valid="valid"
-      :invalid="invalid"
-      :disabled="disabled"
-      id="search-input"
-    />
-    value: {{ searchValue2 }}
-    <InputSearch
-      v-model="searchValue1"
-      :placeholder="placeholder"
-      :valid="valid"
-      :invalid="invalid"
-      :disabled="disabled"
-      id="search-input"
-    />
-    value: {{ searchValue1 }}
-    <h2>tiny</h2>
-    <InputSearch
-      v-model="searchValue3"
-      size="tiny"
-      :placeholder="placeholder"
-      :valid="valid"
-      :invalid="invalid"
-      :disabled="disabled"
-      id="search-input"
-    />
-    value: {{ searchValue3 }}
+    <div class="flex flex-col flex-nowrap gap-10">
+      <div>
+        <label for="search-input-large" class="block text-title mb-2">
+          <span class="font-bold">Search</span>
+          <span class="ml-1 text-heading-sm">(size=large)</span>
+        </label>
+        <InputSearch
+          id="search-input-large"
+          v-model="searchValueLarge"
+          size="large"
+          :placeholder="placeholder"
+          :valid="valid"
+          :invalid="invalid"
+          :disabled="disabled"
+        />
+        <ComponentOutput class="mt-4">
+          <code>Value: {{ searchValueLarge }}</code>
+        </ComponentOutput>
+      </div>
+      <div>
+        <label for="search-input-medium" class="block text-title mb-2">
+          <span class="font-bold">Search</span>
+          <span class="ml-1 text-heading-sm">(size=medium, default)</span>
+        </label>
+        <InputSearch
+          id="search-input-medium"
+          v-model="searchValueMedium"
+          :placeholder="placeholder"
+          :valid="valid"
+          :invalid="invalid"
+          :disabled="disabled"
+        />
+        <ComponentOutput class="mt-4">
+          <code>Value: {{ searchValueMedium }}</code>
+        </ComponentOutput>
+      </div>
+      <div>
+        <label for="search-input-small" class="block text-title mb-2">
+          <span class="font-bold">Search</span>
+          <span class="ml-1 text-heading-sm">(size=small)</span>
+        </label>
+        <InputSearch
+          id="search-input-small"
+          v-model="searchValueSmall"
+          size="small"
+          :placeholder="placeholder"
+          :valid="valid"
+          :invalid="invalid"
+          :disabled="disabled"
+        />
+        <ComponentOutput class="mt-4">
+          <code>Value: {{ searchValueSmall }}</code>
+        </ComponentOutput>
+      </div>
+      <div>
+        <label for="search-input-tiny" class="block text-title mb-2">
+          <span class="font-bold">Search</span>
+          <span class="ml-1 text-heading-sm">(size=tiny)</span>
+        </label>
+        <InputSearch
+          id="search-input-tiny"
+          v-model="searchValueTiny"
+          size="tiny"
+          :placeholder="placeholder"
+          :valid="valid"
+          :invalid="invalid"
+          :disabled="disabled"
+        />
+        <ComponentOutput class="mt-4">
+          <code>Value: {{ searchValueTiny }}</code>
+        </ComponentOutput>
+      </div>
+    </div>
   </InputTestContainer>
 </template>
