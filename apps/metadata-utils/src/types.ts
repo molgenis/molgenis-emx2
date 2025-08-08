@@ -35,8 +35,8 @@ export type CellValueType =
   | "REF"
   | "REF_ARRAY"
   | "REFBACK"
-  | "CHECKBOX" //planned future extensions are CHECKBOX and RADIO
   | "RADIO"
+  | "SELECT"
   | "HEADING"
   | "AUTO_ID"
   | "ONTOLOGY"
@@ -45,7 +45,8 @@ export type CellValueType =
   | "EMAIL_ARRAY"
   | "HYPERLINK"
   | "HYPERLINK_ARRAY"
-  | "CHECKBOX";
+  | "CHECKBOX"
+  | "MULTISELECT";
 
 export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
