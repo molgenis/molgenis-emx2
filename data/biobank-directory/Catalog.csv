@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,label,columnType,key,required,isReadonly,description,refSchema,refTable,refBack,refLabel,defaultValue,validation,message,computed,semantics
 Catalog,,,,,,,,DCAT v2 catalog entry,,,,,,,,,"dcat:Catalog,ldp:DirectContainer"
-Catalog,,id,,string,1,TRUE,,Local database identifier of the catalog. Identifier of the metadata entry.,,,,,,,,,"afr:AFR_0000919,fdp-o:metadataIdentifier"
+Catalog,,id,,string,1,TRUE,,Local database identifier of the catalog. Identifier of the metadata entry.,,,,,,,,,"afr:AFR_0000919"
 Catalog,,title,,string,,TRUE,,Name of the catalog..,,,,,,,,,dcterms:title
 Catalog,,url,,hyperlink,,,,The URL of the catalog HTML version.,,,,,,,,,foaf:homepage
 Catalog,,has_version,,string,,,,Version of the catalog.,,,,,,,,,dcterms:hasVersion
