@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,label,columnType,key,required,isReadonly,description,refSchema,refTable,refBack,refLabel,defaultValue,validation,message,computed,semantics
 Endpoint,,,,,,,,General information describing an endpoint,,,,,,,,,schema:Service
-Endpoint,,id,,string,1,TRUE,,Identifier of the metadata entry.,,,,,,,,,"schema:identifier,fdp-o:metadataIdentifier"
+Endpoint,,id,,string,1,TRUE,,Identifier of the metadata entry.,,,,,,,,,"schema:identifier"
 Endpoint,,type,,hyperlink_array,,TRUE,,This row is an instance of one or more of these class(es) other than the Endpoint table.,,,,,,,,,rdf:type
 Endpoint,,name,,string_array,,TRUE,,A name given to the endpoint.,,,,,,,,,dcterms:title
 Endpoint,,description,,text,,,,A description of the endpoint.,,,,,,,,,dcterms:description
