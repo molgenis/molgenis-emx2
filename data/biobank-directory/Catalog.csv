@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description
 Catalog,,,,,,,,,,,dcat:Catalog,DCAT v2 catalog entry
-Catalog,,id,string,1,TRUE,,,,,,"afr:AFR_0000919,https://w3id.org/fdp/fdp-o#metadataIdentifier",Local database identifier of the catalog. Identifier of the metadata entry.
+Catalog,,id,string,1,TRUE,,,,,,"afr:AFR_0000919,fdp-o:metadataIdentifier",Local database identifier of the catalog. Identifier of the metadata entry.
 Catalog,,title,string,,TRUE,,,,,,dcterms:title,Name of the catalog..
 Catalog,,url,hyperlink,,,,,,,,foaf:homepage,The URL of the catalog HTML version.
 Catalog,,has_version,string,,,,,,,,dcterms:hasVersion,Version of the catalog.
@@ -8,8 +8,8 @@ Catalog,,description,string,,,,,,,,dcterms:description,Description of the catalo
 Catalog,,publisher,ref_array,,,,Agent,,,,dcterms:publisher,The entity or entities (person or organization) responsible for the catalog.
 Catalog,,language,hyperlink_array,,,,,,,,dcterms:language,The language(s) used in the catalog.
 Catalog,,license,hyperlink,,TRUE,,,,,,dcterms:license,The reference to the usage license of the catalog.
-Catalog,,issued,datetime,,true,,,,,,"dcterms:issued,https://w3id.org/fdp/fdp-o#metadataIssued",When the metadata for this resource was first published in the catalogue. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.
-Catalog,,modified,datetime,,true,,,,,,"dcterms:modified,https://w3id.org/fdp/fdp-o#metadataModified",When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.
+Catalog,,issued,datetime,,true,,,,,,"dcterms:issued,fdp-o:metadataIssued",When the metadata for this resource was first published in the catalogue. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.
+Catalog,,modified,datetime,,true,,,,,,"dcterms:modified,fdp-o:metadataModified",When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.
 Catalog,,conforms_to,hyperlink,,true,,,,,,dcterms:conformsTo,The specification of the catalog metadata schema.
 Catalog,,rights,hyperlink_array,,,,,,,,dct:rights,"Information about rights held in and over the resource. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights."
 Catalog,,access_rights,hyperlink_array,,,,,,,,dct:accessRights,"Information about who can access the resource or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies."
