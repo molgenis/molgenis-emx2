@@ -7,7 +7,6 @@ import type {
   IFormLegendSection,
   IRow,
   ITableMetaData,
-  recordValue,
 } from "../../../metadata-utils/src/types";
 import {
   isColumnVisible,
@@ -104,42 +103,26 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   }
 }
 
-function checkVisibleExpression(column: IColumn) {
-  if (
-    !column.visible ||
-    isColumnVisible(column, modelValue.value, props.metadata!)
-  ) {
-    visibleMap[column.id] = true;
-  } else {
-    visibleMap[column.id] = false;
+//initialize visibility
+props.metadata.columns.forEach((column) => {
+  if (props.metadata) {
+    logger.debug(isColumnVisible(column, modelValue.value, props.metadata));
   }
+  visibleMap[column.id] =
+    !column.visible ||
+    (props.metadata &&
+      isColumnVisible(column, modelValue.value, props.metadata))
+      ? true
+      : false;
   logger.debug(
-    "checking visibility of " + column.id + "=" + visibleMap[column.id]
+    "check heading " +
+      column.id +
+      "=" +
+      visibleMap[column.id] +
+      " expression " +
+      column.visible
   );
-}
-
-//initialize visibility for headers
-props.metadata.columns
-  .filter((column) => column.columnType === "HEADING")
-  .forEach((column) => {
-    if (props.metadata) {
-      logger.debug(isColumnVisible(column, modelValue.value, props.metadata));
-    }
-    visibleMap[column.id] =
-      !column.visible ||
-      (props.metadata &&
-        isColumnVisible(column, modelValue.value, props.metadata))
-        ? true
-        : false;
-    logger.debug(
-      "check heading " +
-        column.id +
-        "=" +
-        visibleMap[column.id] +
-        " expression " +
-        column.visible
-    );
-  });
+});
 
 const rowKey = ref<columnValue>();
 
@@ -201,17 +184,9 @@ onMounted(() => {
           {{ column.label }}
         </h2>
       </div>
-
-      <div
-        style="height: 100px"
-        v-on-first-view="() => checkVisibleExpression(column)"
-        v-else-if="
-          !column.id.startsWith('mg_') && visibleMap[column.id] === undefined
-        "
-      ></div>
       <FormField
         class="pb-8"
-        v-else-if="
+        else-if="
           visibleMap[column.id] === true &&
           !Object.keys(constantValues || {}).includes(column.id)
         "
