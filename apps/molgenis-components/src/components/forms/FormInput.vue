@@ -567,7 +567,7 @@ export default {
         booleanValue: true,
         booleanValueArray: [true, false],
         refValue: null,
-        refValueArray: [null, null],
+        refValueArray: [{name: "spike"}, {name: "pooky"}],
         fileValue: null,
       };
     },
