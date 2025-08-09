@@ -78,7 +78,7 @@ function hide() {
     />
 
     <div
-      class="bg-modal w-3/4 relative m-auto rounded-t-none rounded-b-theme"
+      class="bg-modal w-3/4 h-full relative m-auto rounded-t-none rounded-b-theme mt-16"
       :class="maxWidth"
     >
       <slot name="header">
@@ -103,7 +103,7 @@ function hide() {
         </header>
       </slot>
 
-      <div class="overflow-y-auto max-h-[calc(95vh-232px)]">
+      <div class="overflow-y-auto h-[calc(95vh-252px)]">
         <slot />
       </div>
 

@@ -19,12 +19,13 @@
         type="secondary"
         icon="trash"
         label="Remove item"
-        v-if="values.length > 1"
+        v-if="values.length > 1 && !disabled"
         @click="clearInput(values, index)"
       />
     </div>
     <Button
       class="my-[10px]"
+      :disabled="disabled"
       type="text"
       size="small"
       icon="plus"
@@ -46,6 +47,7 @@ const props = defineProps<
   IInputProps & {
     modelValue: columnValue[] | undefined;
     type: string;
+    disabled: boolean;
   }
 >();
 
