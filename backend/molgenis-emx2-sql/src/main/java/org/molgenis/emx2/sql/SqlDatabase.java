@@ -577,12 +577,6 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     log(start, (admin ? "Granting" : "Revoking") + " admin rights to user " + user);
   }
 
-  public void addRole(String role) {
-    long start = System.currentTimeMillis();
-    executeCreateRole(getJooq(), role);
-    log(start, "created role " + role);
-  }
-
   @Override
   public void grantCreateSchema(String user) {
     long start = System.currentTimeMillis();
