@@ -155,12 +155,23 @@ const errorMap = ref<Record<columnId, string>>({});
 
 const sections = useSections(metadata, activeChapterId, errorMap);
 
-function scrollToElementInside(containerId: string, elementId: string) {
+const visibleSection = ref(sections.value[0].id);
+function goToSection(containerId: string, elementId: string) {
+  console.log(elementId);
+  //if section, we change active section
+  if (
+    sections.value.some(
+      (section) => section.id === elementId && section.type === "SECTION"
+    )
+  ) {
+    visibleSection.value = elementId;
+  }
+
+  //then we scroll if needed
   const container = document.getElementById(containerId);
   const element = document.getElementById(elementId);
   if (container && element) {
     container.scrollTop = element.offsetTop - container.offsetTop;
-    element.scrollIntoView();
   }
 }
 </script>
@@ -171,13 +182,15 @@ function scrollToElementInside(containerId: string, elementId: string) {
       <Legend
         v-if="sections?.length"
         :sections="sections"
-        @goToSection="
-          scrollToElementInside('forms-story-fields-container', $event)
-        "
+        @goToSection="goToSection('forms-story-fields-container', $event)"
         class="pr-2 mr-4"
       />
-      <div id="forms-story-fields-container" class="grow border p-10">
+      <div
+        id="forms-story-fields-container"
+        class="grow border p-10 overflow-y-auto max-h-[calc(95vh-232px)]"
+      >
         <FormFields
+          :visible-section="visibleSection"
           class="grow"
           :schemaId="schemaId"
           :sections="sections"

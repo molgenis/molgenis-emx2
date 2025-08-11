@@ -14,6 +14,7 @@ const {
   PERIOD_REGEX,
   AUTO_ID,
   HEADING,
+  SECTION,
   MIN_INT,
   MAX_INT,
   MIN_LONG,
@@ -56,7 +57,11 @@ export function getColumnError(
     return error as string;
   }
 
-  if (column.columnType === AUTO_ID || column.columnType === HEADING) {
+  if (
+    column.columnType === AUTO_ID ||
+    column.columnType === HEADING ||
+    column.columnType === SECTION
+  ) {
     return undefined;
   }
 
