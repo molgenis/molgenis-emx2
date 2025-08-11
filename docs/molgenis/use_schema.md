@@ -98,8 +98,8 @@ Arrays (i.e. list of values)
 Layout (static content, not an input):
 
 - heading: will show the 'name' of your column as header, and optionally description below. Can be used to partition your forms/reports.
-- section: same as 'heading' below except that each section will be shown on separate page in the form. Particularly useful for very big forms. Headings will 
-  then be treated as subheaders in case of two-layered forms.
+- section: same as 'heading' except that each section will be shown on separate page in the form. Particularly useful for very big forms. When used, columns of 
+  type=heading will be treated as subheaders.
 
 ### key
 
