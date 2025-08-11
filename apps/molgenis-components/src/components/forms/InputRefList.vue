@@ -106,6 +106,7 @@
 <script lang="ts">
 import { KeyObject } from "metadata-utils";
 import { ITableMetaData } from "metadata-utils/src";
+import { IInputValue } from "metadata-utils/src/types";
 import { IRow } from "../../Interfaces/IRow";
 import { INewClient } from "../../client/IClient";
 import { IQueryMetaData } from "../../client/IQueryMetaData";
@@ -173,7 +174,8 @@ export default {
   },
   computed: {
     title() {
-      return "Select " + this.tableMetadata?.label;
+      const label = this.tableMetadata?.label || this.tableId;
+      return "Select " + label;
     },
     showMultipleColumns() {
       const itemsPerColumn = 12;
@@ -235,13 +237,17 @@ export default {
       this.showSelect = false;
     },
     async loadOptions() {
+      if (!this.client) {
+        console.error("Tried loading options before client is initialised");
+        return;
+      }
       this.loading = true;
       const options: IQueryMetaData = {
         limit: this.maxNum,
         filter: this.filter,
         orderby: this.orderby,
       };
-      const response = await this.client?.fetchTableData(this.tableId, options);
+      const response = await this.client.fetchTableData(this.tableId, options);
       const responseRows = response[this.tableId] || [];
       const keyList = responseRows.map(async (row: IRow) =>
         convertRowToPrimaryKey(row, this.tableId, this.schemaId)

@@ -65,7 +65,7 @@ export async function convertRowToPrimaryKey(
           accum[column.id] = await getKeyValue(
             cellValue,
             column,
-            column.refSchemaId || schemaId || ""
+            column.refSchemaId || schemaId
           );
         }
         return accum;
@@ -75,7 +75,7 @@ export async function convertRowToPrimaryKey(
   }
 }
 
-async function getKeyValue(cellValue: any, column: IColumn, schemaId: string) {
+async function getKeyValue(cellValue: any, column: IColumn, schemaId?: string) {
   if (typeof cellValue === "string") {
     return cellValue;
   } else {
