@@ -105,7 +105,10 @@
 
 <script lang="ts">
 import { KeyObject } from "metadata-utils";
+import { ITableMetaData } from "metadata-utils/src";
+import { IInputValue } from "metadata-utils/src/types";
 import { IRow } from "../../Interfaces/IRow";
+import { INewClient } from "../../client/IClient";
 import { IQueryMetaData } from "../../client/IQueryMetaData";
 import Client from "../../client/client";
 import FilterWell from "../filters/FilterWell.vue";
@@ -128,12 +131,12 @@ export default {
   extends: BaseInput,
   data: function () {
     return {
-      client: null,
+      client: null as null | INewClient,
       showSelect: false,
-      data: [],
+      data: [] as any[],
       selection: deepClone(this.modelValue),
       count: 0,
-      tableMetadata: null,
+      tableMetadata: null as null | ITableMetaData,
       loading: false,
     };
   },
@@ -171,7 +174,8 @@ export default {
   },
   computed: {
     title() {
-      return "Select " + this.tableMetadata.label;
+      const label = this.tableMetadata?.label || this.tableId;
+      return "Select " + label;
     },
     showMultipleColumns() {
       const itemsPerColumn = 12;
@@ -233,6 +237,10 @@ export default {
       this.showSelect = false;
     },
     async loadOptions() {
+      if (!this.client) {
+        console.error("Tried loading options before client is initialised");
+        return;
+      }
       this.loading = true;
       const options: IQueryMetaData = {
         limit: this.maxNum,
