@@ -28,7 +28,7 @@
               >{{ profile }}</span
             >
           </p>
-          <InputSearch v-model="search" />
+          <InputSearch v-model="search" id="search-profile-input" />
           <ul class="list-group sticky-top">
             <li
               v-for="table in tables"
