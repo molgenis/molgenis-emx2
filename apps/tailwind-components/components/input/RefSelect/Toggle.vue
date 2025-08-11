@@ -30,7 +30,7 @@ defineExpose({
     role="combobox"
     ref="combobox"
     :aria-required="required"
-    class="flex justify-start items-center h-input w-full text-left pl-11 border rounded-input cursor-pointer"
+    class="flex justify-between items-center h-input w-full text-left pl-11 border rounded-input cursor-pointer"
     :class="{
       'bg-input border-invalid text-invalid': invalid && !disabled,
       'bg-input border-valid text-valid': valid && !disabled,
@@ -43,7 +43,7 @@ defineExpose({
         !disabled && !invalid && !valid,
     }"
   >
-    <div class="max-w-[40vw] flex-1 truncate">
+    <div class="max-w-[324px] lg:max-w-[90%] flex-1 truncate">
       <slot name="ref-dropdown-label"> </slot>
     </div>
     <button

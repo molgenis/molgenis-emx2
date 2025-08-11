@@ -6,7 +6,11 @@
       <span>
         <template v-if="data == null || data === undefined"></template>
         <ValueList
-          v-else-if="metadata.columnType.endsWith('ARRAY')"
+          v-else-if="
+            metadata.columnType.endsWith('ARRAY') ||
+            metadata.columnType === 'MULTISELECT' ||
+            metadata.columnType === 'CHECKBOX'
+          "
           :metadata="metadata"
           :data="data"
         />
@@ -42,7 +46,11 @@
         />
 
         <ValueRef
-          v-else-if="metadata.columnType === 'REF'"
+          v-else-if="
+            metadata.columnType === 'REF' ||
+            metadata.columnType === 'RADIO' ||
+            metadata.columnType === 'SELECT'
+          "
           :metadata="metadata as IRefColumn"
           :data="data"
           @refCellClicked="$emit('cellClicked', $event)"
