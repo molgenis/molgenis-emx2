@@ -1,6 +1,6 @@
 import { useAsyncData } from "#app/composables/asyncData";
 import { computed, ref } from "vue";
-import type { ISession } from "../../tailwind-components/types/types";
+import type { ISession } from "../types/types";
 
 const session = ref<ISession | null>();
 

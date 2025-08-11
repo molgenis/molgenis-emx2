@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { navigateTo, useRoute, useRouter } from "#app/composables/router";
 import { ref } from "vue";
-import { useSession } from "../composables/useSession";
+import { useSession } from "../../tailwind-components/composables/useSession";
 
 const route = useRoute();
 const router = useRouter();

@@ -6,7 +6,7 @@ import type {
 } from "../../../../tailwind-components/types/types";
 import fetchTableMetadata from "../../../../tailwind-components/composables/fetchTableMetadata";
 import { useRoute, useRouter } from "#app/composables/router";
-import { useSession } from "../../../../ui/composables/useSession";
+import { useSession } from "../../../../tailwind-components/composables/useSession";
 import { watch } from "vue";
 import { useHead } from "#app";
 
