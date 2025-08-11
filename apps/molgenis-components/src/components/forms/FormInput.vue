@@ -51,6 +51,9 @@ const typeToInputMap = {
   BOOL: InputBoolean,
   DATE: InputDate,
   REF: InputRefSelect,
+  //bootstrap will be deprecated so here we don't differentiate
+  SELECT: InputRefSelect,
+  RADIO: InputRefSelect,
   REFBACK: InputRefBack,
   FILE: InputFile,
   DATETIME: InputDateTime,
@@ -67,6 +70,9 @@ const typeToInputMap = {
   LONG_ARRAY: ArrayInput,
   ONTOLOGY_ARRAY: InputOntology,
   REF_ARRAY: InputRefList,
+  //bootstrap will be deprecated so here we don't differentiate
+  CHECKBOX: InputRefList,
+  MULTISELECT: InputRefList,
   STRING_ARRAY: ArrayInput,
   TEXT_ARRAY: ArrayInput,
 };
