@@ -80,11 +80,11 @@ names are case insensitive):
     - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
 - refback : to describe link back to ref/ref_array (aka one_to_many/many_to_many)
 
-##### Form types
+#### Form types
 
 Ref types have default displays in the webforms (e.g., checkboxes for arrays, radio for single values, etc.). If you would like to specify the form input for a ref column (e.g., show a dropdown menu instead of radio buttons), then use the following types instead of `ref` or `ref_array`.
 
-| ref type  | form type   | form input                             |
+| ref type  | form type   | form input                               |
 |-----------|-------------|------------------------------------------|
 | ref       | radio       | radio inputs                             |
 | ref       | select      | radio inputs                             |
