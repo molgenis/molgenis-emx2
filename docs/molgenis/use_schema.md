@@ -84,12 +84,12 @@ names are case insensitive):
 
 Ref types have default displays in the webforms (e.g., checkboxes for arrays, radio for single values, etc.). If you would like to specify the form input for a ref column (e.g., show a dropdown menu instead of radio buttons), then use the following types instead of `ref` or `ref_array`.
 
-| ref type  | form type   | form input                               |
-|-----------|-------------|------------------------------------------|
-| ref       | radio       | radio inputs                             |
-| ref       | select      | radio inputs                             |
-| ref_array | checkbox    | radio inputs are show in a dropdown menu |
-| ref_array | multiselect | checkboxes are shown in a dropdown menu  |
+| ref type  | form type   | form input displayed                              |
+|-----------|-------------|-----------------------------------------|
+| ref       | radio       | radio inputs                            |
+| ref       | select      | radio inputs are shown in a dropdown    |
+| ref_array | checkbox    | cheeckbox inputs                        |
+| ref_array | multiselect | checkboxes are shown in a dropdown menu |
 
 These form types correspond to input components that have a range of features enabled (e.g., searching, filtering, sorting, etc.). For more information on the forms, see the [Forms guide](./use_forms.md).
 
