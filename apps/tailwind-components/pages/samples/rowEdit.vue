@@ -26,9 +26,9 @@ const crumbs = computed(() => {
   let crumb: { [key: string]: string } = {};
   crumb["Catalogue example"] = `/catalogue-example`;
   crumb["Cohorts"] = `/catalogue-example/cohorts`;
+  crumb["Edit cohort: CONSTANCES"] = "";
   return crumb;
 });
-const current = computed(() => "Edit cohort: CONSTANCES");
 const formValues = ref<Record<string, columnValue>>({});
 
 const metadata = cohortTableMetadata as ITableMetaData;
@@ -71,7 +71,7 @@ function onCancel() {
   <Container>
     <PageHeader title="Edit cohort: CONSTANCES" align="left">
       <template #prefix>
-        <BreadCrumbs :align="'left'" :crumbs="crumbs" :current="current" />
+        <BreadCrumbs :align="'left'" :crumbs="crumbs" />
       </template>
       <template #title-prefix>
         <Button

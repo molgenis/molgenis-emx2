@@ -1,0 +1,8 @@
+order,name,definition,codesystem,code,ontologyTermURI,parent
+1,Available,The quality of being obtainable or accessible and ready for use or service.,NCIT,NCIT:C25429,http://purl.obolibrary.org/obo/NCIT_C25429,
+2,Not Available,The desired information is not available.,NCIT,NCIT:C126101,http://purl.obolibrary.org/obo/NCIT_C126101,
+3,Biospecimen Retained and/or Contains DNA Indicator,An indication as to whether biospecimens have been retained and/or whether those retained biospecimens contain DNA.,NCIT,NCIT:C126058,http://purl.obolibrary.org/obo/NCIT_C126058,
+4,Biospecimens Not Retained,An indication that no biospecimen samples were retained as reserve samples,NCIT,NCIT:C127776,http://purl.obolibrary.org/obo/NCIT_C127776,Biospecimen Retained and/or Contains DNA Indicator
+6,Retained Specimens Contain DNA,An indication that the retained biospecimens contain DNA.,NCIT,NCIT:C127777,http://purl.obolibrary.org/obo/NCIT_C127777,Biospecimen Retained and/or Contains DNA Indicator
+7,Retained Specimens Do Not Contain DNA,An indication that the retained biospecimens do not contain DNA.,NCIT,NCIT:C127778,http://purl.obolibrary.org/obo/NCIT_C127778,Biospecimen Retained and/or Contains DNA Indicator
+8,Do Not Process,An indication that a biospecimen should not be subjected to any treatment.,NCIT,NCIT:C154309,http://purl.obolibrary.org/obo/NCIT_C154309,

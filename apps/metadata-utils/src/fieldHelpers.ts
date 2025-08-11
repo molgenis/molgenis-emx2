@@ -25,6 +25,10 @@ export const fieldTypes = () => {
     "ONTOLOGY_ARRAY",
     "REF",
     "REF_ARRAY",
+    "SELECT",
+    "MULTISELECT",
+    "RADIO",
+    "CHECKBOX",
     "REFBACK",
     "STRING",
     "STRING_ARRAY",
@@ -66,7 +70,9 @@ export const isRefType = (column: IColumn) => {
   return (
     column.columnType === "REF" ||
     column.columnType === "REFBACK" ||
-    column.columnType === "ONTOLOGY"
+    column.columnType === "ONTOLOGY" ||
+    column.columnType === "SELECT" ||
+    column.columnType === "RADIO"
   );
 };
 

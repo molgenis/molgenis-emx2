@@ -1,14 +1,84 @@
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import type { ITableMetaData } from "../../../metadata-utils/src";
+import type { columnId, columnValue } from "../../../metadata-utils/src/types";
+import useForm from "../../composables/useForm";
+import { errorToMessage } from "../../utils/errorToMessage";
+import DisplayRecord from "../display/Record.vue";
+
+const props = withDefaults(
+  defineProps<{
+    schemaId: string;
+    metadata: ITableMetaData;
+    formValues: Record<columnId, columnValue>;
+    showButton?: boolean;
+  }>(),
+  {
+    showButton: true,
+  }
+);
+
+const emit = defineEmits(["update:deleted", "update:cancelled"]);
+
+const visible = defineModel("visible", {
+  type: Boolean,
+  default: false,
+});
+
+const deleteErrorMessage = ref<string>("");
+
+function setVisible() {
+  visible.value = true;
+}
+
+const rowType = computed(() => props.metadata.id);
+const isDraft = ref(false);
+
+function onCancel() {
+  visible.value = false;
+  emit("update:cancelled");
+}
+
+async function onDeleteConfirm() {
+  const { deleteRecord } = useForm(
+    props.metadata,
+    props.formValues,
+    ref<Record<columnId, string>>({}),
+    (fieldId: string) => {
+      return fieldId;
+    }
+  );
+  const resp = await deleteRecord(props.schemaId, props.metadata.id).catch(
+    (err) => {
+      console.error("Error deleting data", err);
+      deleteErrorMessage.value = errorToMessage(err, "Error deleting record");
+      return null;
+    }
+  );
+
+  if (!resp) {
+    return;
+  }
+
+  isDraft.value = false;
+  visible.value = false;
+  emit("update:deleted", resp);
+}
+</script>
+
 <template>
-  <slot :setVisible="setVisible">
-    <Button
-      class="m-10"
-      type="primary"
-      size="small"
-      icon="plus"
-      @click="visible = true"
-      >Delete {{ rowType }}</Button
-    >
-  </slot>
+  <template v-if="showButton">
+    <slot :setVisible="setVisible">
+      <Button
+        class="m-10"
+        type="primary"
+        size="small"
+        icon="plus"
+        @click="visible = true"
+        >Delete {{ rowType }}</Button
+      >
+    </slot>
+  </template>
   <Modal v-model:visible="visible" max-width="max-w-9/10">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
@@ -41,9 +111,14 @@
       <FormError
         v-show="deleteErrorMessage"
         :message="deleteErrorMessage"
-        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        :show-prev-next-buttons="false"
+        class="sticky mx-4 bottom-0 transition-all transition-discrete"
       />
     </Transition>
+
+    <div class="w-[90%] m-auto py-4">
+      <DisplayRecord :table-metadata="metadata" :input-row-data="formValues" />
+    </div>
 
     <template #footer>
       <div class="flex justify-between items-center">
@@ -57,64 +132,3 @@
     </template>
   </Modal>
 </template>
-
-<script setup lang="ts">
-import { computed, ref } from "vue";
-import type { ITableMetaData } from "../../../metadata-utils/src";
-import type { columnId, columnValue } from "../../../metadata-utils/src/types";
-import useForm from "../../composables/useForm";
-import { errorToMessage } from "../../utils/errorToMessage";
-
-const props = withDefaults(
-  defineProps<{
-    schemaId: string;
-    metadata: ITableMetaData;
-    formValues: Record<columnId, columnValue>;
-  }>(),
-  {}
-);
-
-const emit = defineEmits(["update:deleted"]);
-
-const visible = ref(false);
-
-const deleteErrorMessage = ref<string>("");
-
-function setVisible() {
-  visible.value = true;
-}
-
-const rowType = computed(() => props.metadata.id);
-const isDraft = ref(false);
-
-function onCancel() {
-  visible.value = false;
-}
-
-async function onDeleteConfirm() {
-  const resp = await deleteRecord(props.schemaId, props.metadata.id).catch(
-    (err) => {
-      console.error("Error deleting data", err);
-      deleteErrorMessage.value = errorToMessage(err, "Error deleting record");
-      return null;
-    }
-  );
-
-  if (!resp) {
-    return;
-  }
-
-  isDraft.value = false;
-  visible.value = false;
-  emit("update:deleted", resp);
-}
-
-const { deleteRecord } = useForm(
-  props.metadata,
-  props.formValues,
-  ref<Record<columnId, string>>({}),
-  (fieldId: string) => {
-    return fieldId;
-  }
-);
-</script>

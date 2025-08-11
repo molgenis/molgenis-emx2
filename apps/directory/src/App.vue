@@ -12,16 +12,17 @@
 </template>
 
 <script setup lang="ts">
+import { useFavicon, usePreferredDark } from "@vueuse/core";
 //@ts-expect-error
 import { Molgenis } from "molgenis-components";
-import { onMounted, computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { LocationQuery, useRoute } from "vue-router";
 import Error from "./components/Error.vue";
 import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
 import { useCheckoutStore } from "./stores/checkoutStore";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useSettingsStore } from "./stores/settingsStore";
-import { useFavicon, usePreferredDark } from "@vueuse/core";
+import router from "./router";
 
 const route = useRoute();
 const query = computed(() => route.query);
@@ -34,6 +35,15 @@ const banner = computed(() => settingsStore.config.banner);
 const footer = computed(() => settingsStore.config.footer);
 
 const session = ref({});
+
+watch(
+  () => settingsStore.configurationFetched,
+  () => {
+    if (settingsStore.configurationFetched) {
+      initMatomo();
+    }
+  }
+);
 
 watch(session, () => {
   settingsStore.setSessionInformation(session.value);
@@ -59,9 +69,10 @@ watch(
       createBookmark(
         filtersStore.filters,
         checkoutStore.selectedCollections,
-        checkoutStore.selectedServices
+        checkoutStore.selectedServices,
+        filtersStore.filterType,
+        filtersStore.filterTriggeredBookmark
       );
-      applyBookmark(newQuery);
     }
 
     if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
@@ -96,5 +107,40 @@ function changeFavicon() {
 function getFaviconUrl() {
   const isDark = usePreferredDark();
   return isDark ? "bbmri-darkmode-favicon.ico" : "bbmri-lightmode-favicon.ico";
+}
+
+function initMatomo() {
+  const { matomoUrl, matomoSiteId } = settingsStore.config;
+  if (matomoUrl && matomoSiteId) {
+    const _paq = (window._paq = window._paq || []);
+    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    _paq.push(["trackPageView"]);
+    _paq.push(["enableLinkTracking"]);
+    (function () {
+      _paq.push(["setTrackerUrl", matomoUrl + "matomo.php"]);
+      _paq.push(["setSiteId", matomoSiteId]);
+      const doc = document;
+      const newScriptElement = doc.createElement("script");
+      const firstFoundScriptElement = doc.getElementsByTagName("script")[0];
+      newScriptElement.async = true;
+      newScriptElement.src = matomoUrl + "matomo.js";
+      firstFoundScriptElement.parentNode?.insertBefore(
+        newScriptElement,
+        firstFoundScriptElement
+      );
+    })();
+
+    router.afterEach(() => {
+      if (window._paq) {
+        window._paq.push(["setCustomUrl", window.location.href]);
+        window._paq.push(["setDocumentTitle", document.title]);
+        window._paq.push(["trackPageView"]);
+      }
+    });
+  } else {
+    console.warn(
+      `Matomo URL (${matomoUrl}) or Site ID (${matomoSiteId}) is not set in the configuration.`
+    );
+  }
 }
 </script>

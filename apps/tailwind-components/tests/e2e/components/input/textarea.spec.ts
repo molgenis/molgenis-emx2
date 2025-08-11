@@ -7,7 +7,7 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.beforeEach(async ({ page }) => {
   await page.goto(`${route}FormField.story`);
-  await page.getByRole("heading", { name: "FormField" }).click({ delay: 300 });
+  await page.getByRole("heading", { name: "FormField" }).click({ delay: 1000 });
 });
 
 test("InputTextArea: invalid is properly indicated @tw-components @tw-forms @input-textarea", async ({

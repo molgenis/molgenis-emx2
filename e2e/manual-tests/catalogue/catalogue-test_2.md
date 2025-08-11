@@ -1,16 +1,15 @@
-# Number
+# Test Plan 2
 
-2
-
-# Role
+## Role
 
 Naïve user of the data catalogue
 
-# Goal
+## Goal
 
-A naïve visitor to the data catalogue can click around in the catalogue and understand what they are seeing when viewing a network, in both of the network overview pages.
+A naïve visitor to the data catalogue can click around in the catalogue and
+understand what they are seeing when viewing a network, in both of the network overview pages.
 
-# Steps
+## Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ----------------- | -----------------|
@@ -48,6 +47,6 @@ A naïve visitor to the data catalogue can click around in the catalogue and und
 |    | | Name, Description | | |
 |    | | cdm_1 -> | | |
 | 28 | NETWORKS | Part of networks | | |
-|    | | name for test network of networks, > Website, -> | | |
+|    | | name for test network of networks, > Website > Network details > Catalogue, -> | | |
 | 29 | PUBLICATIONS | Two publications: 'Sustainability...phase 3 trials.' and 'Ten-year...randomized trial.' | | |
 | 30 | FUNDING & ACKNOWLEDGEMENTS | lorem ipsum text, check that "until now" is shown at the end of both fields so that you know the full text has been displayed | | |

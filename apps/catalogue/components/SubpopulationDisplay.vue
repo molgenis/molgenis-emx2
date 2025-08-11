@@ -3,10 +3,12 @@ import subpopulationGql from "~~/gql/subpopulation";
 import dateUtils from "~/utils/dateUtils";
 import type { ISubpopulations } from "~/interfaces/catalogue";
 import type { Resp } from "../../tailwind-components/types/types";
-import { useRoute, useFetch, showError } from "#app";
+import { useRoute, useFetch, showError, useRuntimeConfig } from "#app";
 import { moduleToString, removeChildIfParentSelected } from "#imports";
 import { computed } from "vue";
 const route = useRoute();
+const config = useRuntimeConfig();
+const schema = config.public.schema as string;
 
 const { id } = defineProps<{
   id: string;
@@ -15,7 +17,7 @@ const { id } = defineProps<{
 const query = moduleToString(subpopulationGql);
 
 const { data, error } = await useFetch<Resp<ISubpopulations>>(
-  `/${route.params.schema}/graphql`,
+  `/${schema}/graphql`,
   {
     method: "POST",
     body: {

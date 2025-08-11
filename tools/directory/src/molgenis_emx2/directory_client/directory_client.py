@@ -31,6 +31,9 @@ from .model import (
 )
 from .utils import create_csv
 
+# Increase max. field size to accommodate e.g. long lists of refbacks
+# Value is 1/4th of max. CSV line size in Molgenis
+csv.field_size_limit(2097152)
 
 @dataclass
 class AttributesRequest:

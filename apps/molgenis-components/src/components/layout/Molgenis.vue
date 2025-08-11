@@ -140,9 +140,13 @@ export default {
       };
       //all databases
       if (this.session?.schemas) {
-        this.session.schemas.forEach((schema: string) => {
-          result[schema] = "../../" + schema; // all paths are of form /:schema/:app
-        });
+        this.session.schemas
+          .sort((a: string, b: string) =>
+            a.localeCompare(b, undefined, { sensitivity: "base" })
+          )
+          .forEach((schema: string) => {
+            result[schema] = "/" + schema + "/index"; // all paths are of form /:schema/:app, index will do routing to default app in schema
+          });
       }
       return result;
     },
@@ -154,10 +158,12 @@ export default {
         ).split("/");
         let url = "/";
         if (window.location.pathname != "/apps/central/") {
+          let appPath = "index"; //use to get 'index' added to first breadcrumb
           path.forEach((el) => {
             if (el !== "") {
               url += el + "/";
-              result[el] = url;
+              result[el] = url + appPath;
+              appPath = ""; //only on /schema/index after that nothing
             }
           });
         }

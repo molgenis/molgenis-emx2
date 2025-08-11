@@ -1,16 +1,18 @@
-# Number
+# Test Plan 10
 
-10
-
-# Role
+## Role
 
 Technical tester
 
-# Goal
+## Goal
 
-This test plan checks various specific, unrelated elements of the catalogue making use of a dataset copied from production (eg ATHLETE project, or LIFECYCLE project), which is larger than the test dataset we currently have in ACC.  With the large dataset a technical tester can check (eg) that pagination is working correctly or that long variable names are correctly displayed.
+This test plan checks various specific, unrelated elements of the catalogue making use of
+a dataset copied from production (e.g. ATHLETE project, or LIFECYCLE project),
+which is larger than the test dataset we currently have in ACC.
+With the large dataset a technical tester can check, for example, that pagination is working correctly
+or that long variable names are correctly displayed.
 
-# Steps
+## Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |

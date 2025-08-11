@@ -1,10 +1,11 @@
-import { useRoute, useFetch } from "#app";
+import { useFetch, useRuntimeConfig } from "#app";
 
 export async function useBannerData() {
-  const route = useRoute();
+  const config = useRuntimeConfig();
+  const schema = config.public.schema;
   const CATALOGUE_BANNER_HTML = "CATALOGUE_BANNER_HTML";
 
-  return useFetch(`/${route.params.schema}/graphql`, {
+  return useFetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
       query: `{_settings (keys: ["${CATALOGUE_BANNER_HTML}"]){ key, value }}`,

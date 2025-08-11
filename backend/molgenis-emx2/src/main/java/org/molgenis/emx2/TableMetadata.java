@@ -617,6 +617,52 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
     }
   }
 
+  public List<Column> getColumnsIncludingSubclasses() {
+    // get all tables in current schema that inherit this
+    List<Column> result = new ArrayList<>();
+    result.addAll(this.getColumns());
+    result.addAll(getColumnsFromSubclasses());
+    return result;
+  }
+
+  public List<Column> getColumnsIncludingSubclassesExcludingHeadings() {
+    return getColumnsIncludingSubclasses().stream().filter(c -> !c.isHeading()).toList();
+  }
+
+  private List<Column> getColumnsFromSubclasses() {
+    List<Column> result = new ArrayList<>();
+    for (TableMetadata table : getSubclassTables()) {
+      result.addAll(table.getLocalColumns());
+      result.addAll(table.getColumnsFromSubclasses());
+    }
+    return result;
+  }
+
+  public Column getColumnByNameIncludingSubclasses(String columnName) {
+    return getColumnsIncludingSubclasses().stream()
+        .filter(c -> c.getName().equals(columnName))
+        .findFirst()
+        .orElseGet(() -> null);
+  }
+
+  public Column getColumnByIdIncludingSubclasses(String columnId) {
+    return getColumnsIncludingSubclasses().stream()
+        .filter(c -> c.getIdentifier().equals(columnId))
+        .findFirst()
+        .orElseGet(() -> null);
+  }
+
+  public List<TableMetadata> getSubclassTables() {
+    List<TableMetadata> result = new ArrayList();
+    for (TableMetadata table : getSchema().getTables()) {
+      if (this.getTableName().equals(table.getInheritName())) {
+        result.add(table);
+        result.addAll(table.getSubclassTables());
+      }
+    }
+    return result;
+  }
+
   public TableMetadata getRootTable() {
     TableMetadata table = this;
     while (table.getInheritName() != null) {

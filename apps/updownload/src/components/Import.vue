@@ -63,24 +63,24 @@
           <p>Export data by downloading various file formats:</p>
           <div>
             <p>
-              Export schema as <a :href="'../api/csv'">csv</a> /
-              <a :href="'../api/json'">json</a> /
-              <a :href="'../api/yaml'">yaml</a>
+              Export schema as <a :href="`/${schema}/api/csv`">csv</a> /
+              <a :href="`/${schema}/api/json`">json</a> /
+              <a :href="`/${schema}/api/yaml`">yaml</a>
             </p>
             <p>
               Export all data as
-              <a :href="'../api/excel'">excel</a> /
-              <a :href="'../api/zip'">csv.zip</a> /
-              <a :href="'../api/ttl'">ttl</a> /
-              <a :href="'../api/jsonld'">jsonld</a>
+              <a :href="`/${schema}/api/excel`">excel</a> /
+              <a :href="`/${schema}/api/zip`">csv.zip</a> /
+              <a :href="`/${schema}/api/ttl`">ttl</a> /
+              <a :href="`/${schema}/api/jsonld`">jsonld</a>
             </p>
             <div v-if="visibleTables?.length" :key="tablesHash">
               Export specific tables:
               <ul>
                 <li v-for="table in visibleTables" :key="table.id">
                   {{ table.label }}:
-                  <a :href="'../api/csv/' + table.id">csv</a> /
-                  <a :href="'../api/excel/' + table.id">excel</a>
+                  <a :href="`/${schema}/api/csv/` + table.id">csv</a> /
+                  <a :href="`/${schema}/api/excel/` + table.id">excel</a>
                 </li>
               </ul>
             </div>

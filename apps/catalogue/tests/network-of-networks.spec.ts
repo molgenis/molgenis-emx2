@@ -12,7 +12,7 @@ test.beforeEach(async ({ context, baseURL }) => {
 });
 
 test("show network of networks", async ({ page, goto }) => {
-  await goto("/catalogue-demo/catalogue/testNetworkofNetworks", {
+  await goto("/testNetworkofNetworks", {
     waitUntil: "hydration",
   });
   await expect(page.getByText("8", { exact: true })).toBeVisible();
@@ -20,7 +20,7 @@ test("show network of networks", async ({ page, goto }) => {
   await expect(page.getByText("2", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Collections" }).click();
   await expect(page.getByText("8 collections")).toBeVisible();
-  await goto("/catalogue-demo/catalogue/testNetworkofNetworks", {
+  await goto("/testNetworkofNetworks", {
     waitUntil: "hydration",
   });
   await page.getByRole("button", { name: "Variables" }).click();

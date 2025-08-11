@@ -6,6 +6,7 @@ import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.FilterBean.or;
 import static org.molgenis.emx2.Operator.EQUALS;
 import static org.molgenis.emx2.Row.row;
+import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.utils.TypeUtils.millisecondsToLocalDateTime;
 
@@ -121,13 +122,26 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
   }
 
   private ScriptTask retrieveTaskFromDatabase(Schema systemSchema, String scriptName) {
-    List<Row> rows =
-        systemSchema.getTable("Scripts").where(f("name", EQUALS, scriptName)).retrieveRows();
+    Table table = systemSchema.getTable("Scripts");
+    List<Row> rows = table.where(f("name", EQUALS, scriptName)).retrieveRows();
     if (rows.size() != 1) {
       throw new MolgenisException("Script " + scriptName + " not found");
     }
+    Row scriptMetadata = rows.getFirst();
 
-    Row scriptMetadata = rows.get(0);
+    String columnName = "extraFile";
+    String fileId = scriptMetadata.getString("extraFile");
+    List<Row> fileRows =
+        table
+            .query()
+            .select(s(columnName, s("contents"), s("mimetype"), s("filename"), s("extension")))
+            .where(f(columnName, f("id", EQUALS, fileId)))
+            .retrieveRows();
+    byte[] fileContents = new byte[0];
+    if (!fileRows.isEmpty()) {
+      fileContents = fileRows.getFirst().getBinary(columnName + "_contents");
+    }
+    scriptMetadata.set(columnName + "_contents", fileContents);
     return new ScriptTask(scriptMetadata);
   }
 
@@ -204,6 +218,14 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                       .setType(ColumnType.EMAIL)
                       .setDescription("Email address to be notified when a job fails"));
             }
+            if (!scriptsMetadata.getColumnNames().contains("extraFile")) {
+              scriptsMetadata.add(
+                  column("extraFile")
+                      .setLabel("extra file")
+                      .setType(ColumnType.FILE)
+                      .setDescription(
+                          "Upload a file required for running the script. A ZIP file will be automatically extracted."));
+            }
           } else {
             Table scripTypes =
                 schema.create(table("ScriptTypes").setTableType(TableType.ONTOLOGIES));
@@ -221,7 +243,12 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
                         column("dependencies")
                             .setType(ColumnType.TEXT)
                             .setDescription(
-                                "For python, this should match requirements format for 'pip install -r requirements.txt'"),
+                                "For Python, this should match requirements format for 'pip install -r requirements.txt'"),
+                        column("extraFile")
+                            .setLabel("extra file")
+                            .setType(ColumnType.FILE)
+                            .setDescription(
+                                "Upload a file required for running the script. A ZIP file will be automatically extracted."),
                         column("outputFileExtension")
                             .setDescription("Extension, without the '.'. E.g. 'txt' or 'json'"),
                         column("disabled")

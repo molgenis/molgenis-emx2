@@ -1,3 +1,13 @@
+<script setup lang="ts">
+import { useRuntimeConfig } from "#imports";
+
+const config = useRuntimeConfig();
+
+// only show the theme switch if the emx2Theme is not set to a specific theme ( for example molgenis )
+const showThemeSwitch =
+  config.public?.emx2Theme === "" ||
+  !["light", "dark"].includes(config.public?.emx2Theme as string);
+</script>
 <template>
   <header
     class="antialiased px-5 lg:px-0 xl:bg-navigation border-b-theme border-color-theme box-border"
@@ -13,6 +23,8 @@
           </div>
 
           <slot name="admin" />
+
+          <ThemeSwitch v-if="showThemeSwitch" />
 
           <slot name="account">
             <!-- <HeaderButton label="Favorites" icon="star" /> -->

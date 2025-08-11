@@ -971,7 +971,7 @@ export interface IResourceTypes_agg {
 
 export interface IResources {
   rdfType?: string;
-  membershipResource?: string;
+  fdpEndpoint?: string;
   ldpMembershipRelation?: string;
   id: string;
   pid?: string;

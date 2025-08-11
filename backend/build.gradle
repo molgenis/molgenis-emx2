@@ -1,6 +1,7 @@
 plugins {
     id "jacoco"
     id "java"
+    id 'java-test-fixtures'
     id "com.diffplug.spotless" version "6.25.0" apply false
 }
 
@@ -13,6 +14,7 @@ repositories {
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'java-test-fixtures'
     apply plugin: 'jacoco'
     apply plugin: "com.diffplug.spotless"
 
@@ -71,6 +73,22 @@ subprojects {
         testImplementation 'org.mockito:mockito-core:5.6.0'
         // allows to set environment variables in test
         testImplementation 'com.github.stefanbirkner:system-lambda:1.2.1'
+        // Allow generic test fixtures to be available everywhere
+        testImplementation testFixtures(project(':backend:molgenis-emx2'))
+
+        // test fixture dependencies
+        testFixturesImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
+        testFixturesImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.3'
+        testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-rio-api:5.0.1'
+        testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-rio-jsonld:5.0.1'
+        testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-rio-turtle:5.0.1'
+        testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-rio-n3:5.0.1'
+        testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-rio-trig:5.0.1'
+        testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-rio-rdfxml:5.0.1'
+        testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-rio-ntriples:5.0.1'
+        testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-rio-nquads:5.0.1'
+        testFixturesImplementation 'org.eclipse.rdf4j:rdf4j-shacl:5.0.1'
+        testFixturesImplementation 'org.apache.commons:commons-collections4:4.5.0'
     }
 
     jacoco {

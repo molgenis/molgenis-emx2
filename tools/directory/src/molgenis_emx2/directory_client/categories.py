@@ -153,6 +153,7 @@ class CategoryMapper:
         self._map_paediatric(collection, categories)
         self._map_diseases(collection, categories)
         self._map_collection_types(collection, categories)
+        self._map_networks(collection, categories)
 
         return list(set(categories))
 
@@ -222,6 +223,13 @@ class CategoryMapper:
 
             if self._contains_orphanet(diagnoses):
                 categories.append(Category.RARE_DISEASE.value)
+
+    def _map_networks(self, collection: dict, categories: List[str]):
+        if (
+            "bbmri-eric:networkID:EU_BBMRI-ERIC:networks:COVID19"
+            in collection["network"]
+        ):
+            categories.append(Category.COVID19.value)
 
     def _contains_orphanet(self, diagnoses: List[str]) -> bool:
         for diagnosis in diagnoses:

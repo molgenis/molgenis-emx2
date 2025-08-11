@@ -15,7 +15,7 @@ test("should not show about menu item on non catalogue specific page", async ({
   page,
   goto,
 }) => {
-  await goto("/catalogue-demo/catalogue/all", { waitUntil: "hydration" });
+  await goto("/all", { waitUntil: "hydration" });
   await expect(
     page.getByRole("link", { name: "About", exact: true })
   ).toHaveCount(0);
@@ -25,7 +25,7 @@ test("should show about menu item on catalogue specific page", async ({
   page,
   goto,
 }) => {
-  await goto("/catalogue-demo/catalogue/IPEC", { waitUntil: "hydration" });
+  await goto("/IPEC", { waitUntil: "hydration" });
   await expect(
     page.getByRole("link", { name: "About", exact: true })
   ).toHaveCount(1);

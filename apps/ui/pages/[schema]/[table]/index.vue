@@ -8,11 +8,14 @@ import fetchTableMetadata from "../../../../tailwind-components/composables/fetc
 import { useRoute, useRouter } from "#app/composables/router";
 import { useSession } from "../../../../ui/composables/useSession";
 import { watch } from "vue";
+import { useHead } from "#app";
 
 const route = useRoute();
 const router = useRouter();
 const schemaId = route.params.schema as string;
 const tableId = route.params.table as string;
+
+useHead({ title: `${tableId} - ${schemaId}  - Molgenis` });
 
 const currentPage = computed(() => {
   const queryPageNumber = Number(route.query?.page);
@@ -60,6 +63,7 @@ function handleSettingsUpdate() {
 const crumbs = computed(() => {
   let crumb: { [key: string]: string } = {};
   crumb[schemaId] = `/${schemaId}`;
+  crumb[tableMetadata.label || tableMetadata.id] = "";
   return crumb;
 });
 
@@ -69,11 +73,12 @@ const currentBreadCrumb = computed(
 
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
-const { isAdmin } = useSession();
+const { isAdmin } = await useSession();
 </script>
 <template>
   <section class="mx-auto lg:px-[30px] px-0">
     <PageHeader :title="tableMetadata?.label ?? ''" align="left">
+      {{ tableMetadata }}
       <template #prefix>
         <BreadCrumbs
           :align="'left'"

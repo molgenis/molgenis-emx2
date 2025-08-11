@@ -7,12 +7,7 @@
       </Button>
 
       <h2>User List ({{ userCount }})</h2>
-      <Pagination
-        v-if="userCount > 100"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
-        @update="updateCurrentPage"
-      />
+
       <Table>
         <template #head>
           <TableHeadRow>
@@ -66,9 +61,8 @@
 </template>
 
 <script setup lang="ts">
-import type { EditUserModal, NewUserModal } from "#build/components";
 import { definePageMeta } from "#imports";
-import { ref, computed } from "vue";
+import { computed, ref } from "vue";
 import {
   createUser,
   deleteUser,
@@ -85,6 +79,7 @@ import {
  * Add confirmation dialog to delete user / updating of passwords
  * Add search bar for users
  * Make buttons double click safe
+ * Implement pagination
  */
 
 definePageMeta({
@@ -92,7 +87,7 @@ definePageMeta({
 });
 
 const LIMIT = 100;
-const showEditUserModal = ref(false)
+const showEditUserModal = ref(false);
 const showNewUserModal = ref(false);
 const selectedUser = ref<IUser | null>(null);
 

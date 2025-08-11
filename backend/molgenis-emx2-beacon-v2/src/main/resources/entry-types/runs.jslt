@@ -17,14 +17,14 @@ import "range.jslt" as range
                 "info": range(.),
                 "results":
                 [for (.results) {
-                    "id": .id,
-                    "biosampleId": .biosampleId.id,
-                    "individualId": .individualId.id,
-                    "runDate": .runDate,
+                    "id": .identifier,
+                    "biosampleId": .inputBiosample[0].id,
+                    "individualId": .individual.id,
+                    "runDate": .date,
                     "librarySource": ontology(.librarySource),
                     "librarySelection": .librarySelection,
                     "libraryStrategy": .libraryStrategy.name,
-                    "libraryLayout": .libraryLayout,
+                    "libraryLayout": .libraryLayout.name,
                     "platform": .platform.name,
                     "platformModel": ontology(.platformModel)
                 }]

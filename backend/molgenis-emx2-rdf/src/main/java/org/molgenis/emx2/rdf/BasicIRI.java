@@ -28,7 +28,6 @@ public class BasicIRI {
   public static final IRI SIO_DATABASE_TABLE =
       iri("http://semanticscience.org/resource/SIO_000754");
   public static final IRI SIO_FILE = iri("http://semanticscience.org/resource/SIO_000396");
-  public static final IRI SIO_IDENTIFIER = iri("http://semanticscience.org/resource/SIO_000115");
 
   /**
    * SIO:001055 = observing (definition: observing is a process of passive interaction in which one

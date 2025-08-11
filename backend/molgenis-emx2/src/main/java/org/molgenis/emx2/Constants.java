@@ -37,6 +37,7 @@ public class Constants {
 
   public static final String MG_TABLECLASS = "mg_tableclass";
   public static final String MG_DRAFT = "mg_draft";
+  public static final String MG_DELETE = "mg_delete";
   public static final String MG_INSERTEDBY = "mg_insertedBy";
   public static final String MG_INSERTEDON = "mg_insertedOn";
   public static final String MG_UPDATEDBY = "mg_updatedBy";
@@ -71,6 +72,10 @@ public class Constants {
       "MOLGENIS_INCLUDE_PATIENT_REGISTRY_DEMO";
 
   public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
+
+  public static final String CV_CLIENT_ID = "CV_CLIENT_ID";
+  public static final String CV_CLIENT_SECRET = "CV_CLIENT_SECRET";
+  public static final String CV_INTROSPECT_URI = "CV_INTROSPECT_URI";
 
   public static final String OIDC_LOGIN_PATH = "_login";
   public static final String OIDC_CALLBACK_PATH = "_callback";
@@ -117,7 +122,7 @@ public class Constants {
   // thank you to
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   // updated to also allow localhost / localhost:8080 as valid hyperlink, needed to testing
-  protected static final String HYPERLINK_REGEX =
+  public static final String HYPERLINK_REGEX =
       "((https?)://)((www.)?[a-zA-Z0-9@:%._\\+~#?&//=-]{2,256}\\.[a-z]{2,6}|localhost)(:[0-9]+)?([-a-zA-Z0-9@:%._\\+~#?!&//=(\\)]*)$";
 
   public static final String PRIVACY_POLICY_LEVEL = "PrivacyPolicyLevel";

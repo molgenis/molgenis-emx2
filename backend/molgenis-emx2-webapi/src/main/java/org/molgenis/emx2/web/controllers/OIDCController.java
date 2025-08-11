@@ -107,7 +107,6 @@ public class OIDCController {
     ctx.status(302);
 
     if (requestedUrlList.isPresent()) {
-      @SuppressWarnings("unchecked")
       ArrayList<String> requestedUrl = (ArrayList<String>) requestedUrlList.get();
       if (requestedUrl.size() == 1) {
         ctx.redirect(requestedUrl.get(0));

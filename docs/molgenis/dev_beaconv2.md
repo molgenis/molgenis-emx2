@@ -23,14 +23,8 @@ information about how to create a database is found [here](use_database.md).
 This will add a number of tables that define the content of your Beacon v2, for
 example [Analyses](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Analyses.csv)
 and [Biosamples](https://github.com/molgenis/molgenis-emx2/blob/master/data/fairdatahub/beaconv2/demodata/Biosamples.csv).
-Using the 'FAIR_DATA_HUB' template including the example data will result in an instantly working Beacon v2 API.
+Using the 'PATIENT_REGISTRY' template including the example data will result in an instantly working Beacon v2 API.
 The example data can be used as a reference on how to enter data into the system, but can be safely removed or replaced.
-
-The following data templates include a Beacon profile:
-
-- BeaconV2
-- FAIRDataHub <More info about these profiles?>
-- GDI
 
 After setup, the API is available at `<server>/<database>/api/beacon`.
 For instance, if your MOLGENIS runs at `https://emx2.test.molgenis.org` and your database name is `fdp` the Beacon v2
@@ -201,6 +195,26 @@ endpoint.
   query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?start=32953990,32953999&end=32954003,32954015&referenceName=13)
 - Gene query, [example](https://vkgl-emx2.molgeniscloud.org/api/beacon/g_variants?geneId=TERC)
 
+### Templates
+
+The Template Editor allows administrators to customize the data structure for each entity type in accordance with the
+Beacon specification.
+
+Use the Template Editor to define or edit the schema used for each entity type (e.g., individual, biosample,
+genomicVariant, cohort, etc.). This template governs how data should be formatted retrieved from the
+Beacon API.
+This enables more flexible data handling and ensures your data conforms to the GA4GH Beacon standard while supporting
+your specific use cases.
+
+#### Accessing the Template Editor
+- Log in as admin.
+- Click the Templates tab.
+- Click on the entity type you want to configure.
+- Select the schema/database for the template.
+- Edit the template using the built-in editor.
+- Save your changes — they will be immediately applied to the API responses.
+
+
 ### Semantics
 
 All tables and columns of the Beacon
@@ -236,23 +250,28 @@ expanded the dataset to a total of 5.4 million records by duplicating the varian
 queries and assess how performance scales as the dataset size increases.
 
 ### Azure VM
+
 #### Dataset
+
 [VKGL_public_consensus_apr](https://vkgl-emx2.molgeniscloud.org/)
 
 #### Software
+
 MOLGENIS version: v11.2.1.\
 Database version: v21.\
 PostgreSQL version: v14.10.
 
 #### Hardware
+
 [Azure B2ms](https://learn.microsoft.com/nl-nl/azure/virtual-machines/sizes-b-series-burstable) (2vCPU, 8GB memory)
 
 #### Query performance
+
 Median value of 9 request
+
 - No parameters, `/g_variants`
 - Gene id query, `/g_variants?geneId=COL3A1`
 - Range query, `/g_variants?start=32953990,32953999&end=32954003,32954015&referenceName=13`
-
 
 | nRecords | No params | geneId | range |
 |----------|-----------|--------|-------|
@@ -262,6 +281,7 @@ Median value of 9 request
 | 5.4M     | 1871ms    | 830ms  | 794ms |
 
 #### Total request time
+
 Median value of 9 request
 
 | nRecords | No params | geneId | range |
@@ -272,9 +292,13 @@ Median value of 9 request
 | 5.4M     | 2012ms    | 1023ms | 918ms |
 
 ### Local
+
 To gain more insight on the influence of hardware, we also benchmarked performance on a local machine.
+
 #### Hardware
+
 MacBook PRO (M1 PRO, 16GB memory)
+
 #### Query performance (median value of 9 request)
 
 | nRecords | No params | geneId | range |

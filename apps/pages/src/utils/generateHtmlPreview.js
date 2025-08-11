@@ -3,6 +3,27 @@ export function generateHtmlPreview(instance, content, ref) {
     instance.$refs[ref].replaceChildren();
 
     const parser = new DOMParser();
+    const documentHead = document.getElementsByTagName("head")[0];
+
+    content.dependencies?.css?.forEach((dependency) => {
+      if (dependency.url) {
+        const elem = document.createElement("link");
+        elem.href = dependency.url;
+        elem.rel = "stylesheet";
+        documentHead.appendChild(elem);
+      }
+    });
+
+    content.dependencies?.javascript?.forEach((dependency) => {
+      if (dependency.url) {
+        const elem = document.createElement("script");
+        elem.src = dependency.url;
+        if (dependency.defer) {
+          elem.defer = true;
+        }
+        documentHead.appendChild(elem);
+      }
+    });
 
     if (content.html) {
       const doc = parser.parseFromString(content.html, "text/html");
@@ -20,32 +41,11 @@ export function generateHtmlPreview(instance, content, ref) {
     if (content.javascript) {
       const scriptElement = document.createElement("script");
       scriptElement.setAttribute("type", "text/javascript");
-      scriptElement.text = content.javascript;
+      scriptElement.text = `setTimeout(() => {
+        /** timeout is required for correctly loading external dependencies */
+        ${content.javascript}
+      }, 200)`;
       instance.$refs[ref].appendChild(scriptElement);
-    }
-
-    if (content.dependencies && Object.keys(content.dependencies).length) {
-      if (content.dependencies.css.length) {
-        content.dependencies.css.forEach((url) => {
-          if (url && url !== "") {
-            const elem = document.createElement("link");
-            elem.href = url;
-            elem.rel = "stylesheet";
-            instance.$refs[ref].appendChild(elem);
-          }
-        });
-      }
-
-      if (content.dependencies.javascript.length) {
-        content.dependencies.javascript.forEach((url) => {
-          if (url && url !== "") {
-            const elem = document.createElement("link");
-            elem.src = url;
-            elem.defer = true;
-            instance.$refs[ref].appendChild(elem);
-          }
-        });
-      }
     }
   } else {
     const parser = new DOMParser();

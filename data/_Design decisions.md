@@ -27,8 +27,8 @@ output
 
 proposals:
 
-1. create two tables, biosamples and protocol application. 
-2. create one table, biosamples, and record a list of protocols that are applied to this sample.
+1. create two tables, samples and protocol application.
+2. create one table, samples, and record a list of protocols that are applied to this sample.
 decision: simplify using protocol(-deviation) to clarify what happened to the sample
 
 ### how to model when consent is removed / use is prohibited for specific studies
@@ -45,7 +45,7 @@ we should have a way to add additional tables to collect these. For example 'sam
 
 proposals:
 
-1. have Sample preparation (or Xyz protocol) refer to the Biosamples table as a way to add details to that sample. Could have many tables like this.Drawback: no refback possible.
+1. have Sample preparation (or Xyz protocol) refer to the samples table as a way to add details to that sample. Could have many tables like this.Drawback: no refback possible.
 2. have table hierarchy with some abstract 'Protocol parameters' and use subclasses. This would allow a refback to exist to all these tables.
 3. use key/value table, so each parameter would become a key, and the parameter value a value. Drawback is loss of forms, validation, cohesion and all that goodness
 

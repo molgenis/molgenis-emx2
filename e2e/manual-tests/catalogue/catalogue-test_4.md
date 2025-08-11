@@ -1,16 +1,15 @@
-# Number
+# Test Plan 4
 
-4
-
-# Role
+## Role
 
 Researcher searching for specific variables of a project.
 
-# Goal
+## Goal
 
-A researcher working in consortium X (*example: testNetwork1*) searches for specific variables (*example: all ADHD variables*) to check which cohorts have these available.
+A researcher working in consortium X (*example: testNetwork1*) searches for specific variables
+(*example: all ADHD variables*) to check which cohorts have these available.
 
-# Steps
+## Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |

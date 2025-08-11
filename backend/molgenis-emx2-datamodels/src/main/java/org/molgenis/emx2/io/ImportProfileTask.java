@@ -85,6 +85,17 @@ public class ImportProfileTask extends Task {
       ontologySchema = schema;
     }
 
+    // special options: import additional models into ontology schema (schema=refs+ontologies)
+    if (profiles.getAdditionalFixedSchemaModel() != null) {
+      // load schema and data
+      String fixedModelPath = profiles.getAdditionalFixedSchemaModel();
+      TableStore fixedModelStore = new TableStoreForCsvFilesClasspath(fixedModelPath);
+      Task importSchemaTask = new ImportSchemaTask(fixedModelStore, ontologySchema, false);
+      importSchemaTask.setDescription("Import additional EMX into the ontology schema");
+      this.addSubTask(importSchemaTask);
+      importSchemaTask.run();
+    }
+
     // import the schema
     schema.migrate(schemaMetadata);
     this.addSubTask("Loaded tables and columns from profile(s)").complete();

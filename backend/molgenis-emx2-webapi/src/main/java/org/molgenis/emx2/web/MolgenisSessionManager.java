@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
@@ -54,7 +55,7 @@ public class MolgenisSessionManager {
     database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
     String user = JWTgenerator.getUserFromToken(database, request.getHeader(authTokenKey));
     database.setActiveUser(user);
-    MolgenisSession session = new MolgenisSession(database);
+    MolgenisSession session = new MolgenisSession(database, new GraphqlApiFactory());
     database.setListener(new MolgenisSessionManagerDatabaseListener(this, session));
     return session;
   }
@@ -114,7 +115,7 @@ public class MolgenisSessionManager {
 
         // create session and add to sessions lists so we can also access all active
         // sessions
-        MolgenisSession molgenisSession = new MolgenisSession(database);
+        MolgenisSession molgenisSession = new MolgenisSession(database, new GraphqlApiFactory());
         sessions.put(httpSessionEvent.getSession().getId(), molgenisSession);
         logger.info("session created: " + httpSessionEvent.getSession().getId());
 

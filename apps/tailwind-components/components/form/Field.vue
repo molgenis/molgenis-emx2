@@ -17,9 +17,12 @@ defineProps<
     refSchemaId?: string;
     refTableId?: string;
     refLabel?: string;
+    refBackId?: string;
+    rowKey?: any;
     options?: IValueLabel[];
     trueLabel?: string;
     falseLabel?: string;
+    align?: "horizontal" | "vertical";
   }
 >();
 const emit = defineEmits(["focus", "blur"]);
@@ -49,14 +52,17 @@ const emit = defineEmits(["focus", "blur"]);
       :disabled="disabled"
       :describedBy="`${id}-input-description ${id}-input-error`"
       :placeholder="placeholder"
+      :rowKey="rowKey"
       :options="options"
       :refSchemaId="(refSchemaId as string)"
       :refTableId="(refTableId as string)"
       :refLabel="(refLabel as string)"
+      :refBackColumn="(refBackId as string)"
       :trueLabel="trueLabel"
       :falseLabel="falseLabel"
       @blur="emit('blur')"
       @focus="emit('focus')"
+      :align="align"
     />
     <div :id="`${id}-input-error`">
       <Message v-if="errorMessage" invalid :id="`${id}-input-error`">

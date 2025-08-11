@@ -1,0 +1,152 @@
+@prefix PetStoreNr1: <http://localhost:8080/petStoreNr1/api/rdf/> .
+@prefix afr: <http://purl.allotrope.org/ontologies/result#> .
+@prefix afrl: <http://purl.allotrope.org/ontologies/role#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix edam: <http://edamontology.org/> .
+@prefix efo: <http://www.ebi.ac.uk/efo/> .
+@prefix ejp: <https://w3id.org/ejp-rd/vocabulary#> .
+@prefix ensembl: <http://ensembl.org/glossary/> .
+@prefix fdp-o: <https://w3id.org/fdp/fdp-o#> .
+@prefix fg: <https://w3id.org/fair-genomes/resource/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix healthDCAT-AP: <http://healthdataportal.eu/ns/health#> .
+@prefix hl7: <http://purl.bioontology.org/ontology/HL7/> .
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
+@prefix lnc: <http://purl.bioontology.org/ontology/LNC/> .
+@prefix mesh: <http://purl.bioontology.org/ontology/MESH/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix oboInOwl: <http://www.geneontology.org/formats/oboInOwl#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix ordo: <http://www.orpha.net/ORDO/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix snomedct: <http://purl.bioontology.org/ontology/SNOMEDCT/> .
+@prefix vcard: <http://www.w3.org/2006/vcard/ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://localhost:8080> a sio:SIO_000750;
+  rdfs:label "EMX2";
+  dcterms:description "MOLGENIS EMX2 database at http://localhost:8080";
+  dcterms:creator <https://molgenis.org> .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=cat>
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=dog>
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=mouse>
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=bird>
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=ant>
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Category/name=caterpillar>
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky>
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>;
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tom>
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=sylvester>
+  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=jerry>
+  <http://example.com/petstore#hasTags> <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue>;
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=tweety>
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Red>;
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>;
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>
+  <http://example.com/petstore#hasTags> <https://dbpedia.org/page/Green>, <https://dbpedia.org/page/Red>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple>;
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/User/username=bofke> a foaf:Person;
+  foaf:accountName "bofke";
+  foaf:img <http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>;
+  <http://example.com/petstore#hasPets> <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=fire%20ant>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=the%20very%20hungry%20caterpillar>,
+    <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=pooky>, <http://localhost:8080/petStoreNr1/api/rdf/Pet/name=spike>;
+  dcterms:created "2025-06-16T15:01:15"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:15"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea>
+  a sio:SIO_000396;
+  rdfs:label "8hlbnm.jpg";
+  dcterms:title "8hlbnm.jpg";
+  dcterms:format <http://www.iana.org/assignments/media-types/image/jpeg> .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3A6fe7a528-2e97-48cc-91e6-a94c689b4919>
+  dcterms:created "2025-06-16T15:01:16"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:16"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Order/orderId=ORDER%3Ae27c852c-29e2-4459-bcf1-98d8907ff77b>
+  dcterms:created "2025-06-16T15:01:16"^^xsd:dateTime;
+  dcterms:modified "2025-06-16T15:01:16"^^xsd:dateTime .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=colors> rdfs:label "colors".
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=red> rdfs:label "red";
+  owl:sameAs <https://dbpedia.org/page/Red> .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=green> rdfs:label "green";
+  owl:sameAs <https://dbpedia.org/page/Green> .
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=blue> rdfs:label "blue".
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=purple> rdfs:label "purple".
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=species> rdfs:label "species".
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=mammals> rdfs:label "mammals".
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=mammals> rdfs:label "mammals".
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=carnivorous%20mammals> rdfs:label "carnivorous mammals".
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=herbivorous%20mammals> rdfs:label "herbivorous mammals".
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=birds> rdfs:label "birds".
+
+<http://localhost:8080/petStoreNr1/api/rdf/Tag/name=insect> rdfs:label "insect".

@@ -9,7 +9,7 @@ const BACKEND_LOCATION =
 // basic build conf fo both library and showCase builds
 let conf = {
   plugins: [docTagPlugin(), vue()],
-  base: "",
+  base: "apps/molgenis-components/",
   server: {
     proxy: {
       "/apps/molgenis-components/assets/img/molgenis_logo_white.png": {
@@ -68,7 +68,7 @@ if (process.env.SHOW_CASE !== "on") {
     outDir: "./showCase",
   };
 
-  conf.base = ""; // use relative base path for use in public_html/app folder
+  conf.base = "apps/molgenis-components/";
 }
 
 // https://vitejs.dev/config/

@@ -1,8 +1,8 @@
-name,code,order,definition,comments,parent,ontologyTermURI
-prof. dr.,,1,,,,
-dr.,,2,,,,
-ir.,,3,,,,
-dr. ir.,,4,,,,
-prof. dr. ir.,,5,,,,
-prof.,,6,,,,
-drs.,,7,,,,
+name,code,order,definition,parent,ontologyTermURI
+prof. dr.,,1,,,
+dr.,,2,,,
+ir.,,3,,,
+dr. ir.,,4,,,
+prof. dr. ir.,,5,,,
+prof.,,6,,,
+drs.,,7,,,

@@ -24,7 +24,8 @@
       />
     </div>
     <Button
-      type="secondary"
+      class="my-[10px]"
+      type="text"
       size="small"
       icon="plus"
       label="Add an additional item"

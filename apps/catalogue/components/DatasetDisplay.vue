@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { useRoute, useFetch } from "#app";
+import { useRoute, useFetch, useRuntimeConfig } from "#app";
 import { moduleToString } from "#imports";
 import { computed } from "vue";
 import type { IDefinitionListItem } from "~/interfaces/types";
 import datasetGql from "~~/gql/datasetDetails";
 const route = useRoute();
+const config = useRuntimeConfig();
+const schema = config.public.schema as string;
 
 const { name, resourceId } = defineProps<{
   name: string;
@@ -13,7 +15,7 @@ const { name, resourceId } = defineProps<{
 
 const query = moduleToString(datasetGql);
 
-const { data } = await useFetch(`/${route.params.schema}/graphql`, {
+const { data } = await useFetch(`/${schema}/graphql`, {
   method: "POST",
   body: {
     query: query,

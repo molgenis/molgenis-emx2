@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { useGqlFetch } from "../../composables/useGqlFetch";
-import type { IManifestResponse, IMgError } from "../../interfaces/types";
-import { useRoute } from "vue-router";
+import { useRuntimeConfig } from "#app";
 
-const route = useRoute();
+const config = useRuntimeConfig();
+const schema = config.public.schema as string;
 
-const { data } = await $fetch(`/${route.params.schema}/graphql`, {
+const { data } = await $fetch(`/${schema}/graphql`, {
   key: `manifest`,
   method: "POST",
   body: {

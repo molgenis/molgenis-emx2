@@ -1,12 +1,14 @@
 categories:
   - EMX2
 questions:
-  - variable: ingress.hosts[0].host
+  - variable: ingress.hosts
     label: Hostname(s)
-    description: "Specify a hostname for this EMX2 instance"
-    type: string
+    description: "Specify a list of hostnames for this EMX2 instance"
+    type: array
     required: true
-    default: "emx2.dev.molgenis.org"
+    default:
+      - "emx2.dev.molgenis.org"
+      - "catalogue.dev.molgenis.org"
     group: "Loadbalancing"
   - variable: image.repository
     label: Repository

@@ -15,7 +15,7 @@ test("Catalogue test number 1: Athlete network manager", async ({
   page,
   goto,
 }) => {
-  await goto("catalogue-demo/catalogue/", { waitUntil: "hydration" });
+  await goto("/", { waitUntil: "hydration" });
 
   await expect(page.locator("h1")).toContainText(
     "European Health Research Data and Sample Catalogue"

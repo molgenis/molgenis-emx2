@@ -16,7 +16,7 @@ test.describe(
       await page
         .getByText("Listbox component", { exact: true })
         .first()
-        .click({ delay: 300 });
+        .click({ delay: 3000 });
     });
 
     test(

@@ -1,12 +1,12 @@
 <template>
   <div class="flex pb-[30px] justify-between">
-    <FilterSearch
+    <InputSearch
       class="w-3/5 xl:w-2/5 2xl:w-1/5"
-      :modelValue="settings.search"
+      v-model="settings.search"
       @update:modelValue="handleSearchRequest"
-      :inverted="true"
-    >
-    </FilterSearch>
+      :placeholder="`Search ${props.tableId}`"
+      id="search-input"
+    />
 
     <div class="flex gap-[10px]">
       <AddModal
@@ -80,53 +80,42 @@
             class="static hover:bg-hover group h-4"
             :class="{ 'hover:cursor-pointer': props.isEditable }"
           >
-            <TableCellTypesEMX2
+            <TableCellEMX2
               v-for="(column, index) in sortedVisibleColumns"
               class="text-table-row"
               :scope="column.key === 1 ? 'row' : null"
-              :metaData="column"
+              :metadata="column"
               :data="row[column.id]"
+              @cellClicked="handleCellClick($event, column, row)"
             >
               <div
                 v-if="isEditable && index === 0"
                 class="flex items-center gap-1 flex-none invisible group-hover:visible h-4 py-6 px-4 absolute right-7 bg-hover"
               >
-                <DeleteModal
-                  v-if="data?.tableMetadata"
-                  :schemaId="props.schemaId"
-                  :metadata="data.tableMetadata"
-                  :formValues="row"
-                  v-slot="{ setVisible }"
-                  @update:deleted="afterRowDeleted"
-                >
-                  <Button
-                    :icon-only="true"
-                    type="inline"
-                    icon="trash"
-                    size="small"
-                    label="delete"
-                    @click="setVisible"
-                  />
-                </DeleteModal>
-                <EditModal
-                  v-if="data?.tableMetadata"
-                  :schemaId="props.schemaId"
-                  :metadata="data.tableMetadata"
-                  :formValues="row"
-                  v-slot="{ setVisible }"
-                  @update:updated="afterRowUpdated"
-                >
-                  <Button
-                    :icon-only="true"
-                    type="inline"
-                    icon="edit"
-                    size="small"
-                    label="edit"
-                    @click="setVisible"
-                  />
-                </EditModal>
+                <Button
+                  :icon-only="true"
+                  type="inline"
+                  icon="trash"
+                  size="small"
+                  label="delete"
+                  @click="onShowDeleteModal(row)"
+                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+                  aria-haspopup="dialog"
+                  :aria-expanded="showDeleteModal"
+                />
+                <Button
+                  :icon-only="true"
+                  type="inline"
+                  icon="edit"
+                  size="small"
+                  label="edit"
+                  @click="onShowEditModal(row)"
+                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+                  aria-haspopup="dialog"
+                  :aria-expanded="showEditModal"
+                />
               </div>
-            </TableCellTypesEMX2>
+            </TableCellEMX2>
           </tr>
         </tbody>
       </table>
@@ -139,12 +128,60 @@
     :totalPages="Math.ceil(count / settings.pageSize)"
     @update="handlePagingRequest($event)"
   />
+
+  <TableModalRef
+    :id="`table-emx2-${schemaId}-${tableId}-modal-ref`"
+    v-if="showModal && refTableRow && refTableColumn"
+    v-model:visible="showModal"
+    :metadata="refTableColumn"
+    :row="refTableRow"
+    :schema="schemaId"
+    :sourceTableId="refSourceTableId"
+    :showDataOwner="false"
+  />
+
+  <DeleteModal
+    :id="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+    v-if="data?.tableMetadata && rowDataForModal"
+    :showButton="false"
+    :schemaId="props.schemaId"
+    :metadata="data.tableMetadata"
+    :formValues="rowDataForModal"
+    v-model:visible="showDeleteModal"
+    @update:deleted="
+      afterRowDeleted;
+      showDeleteModal = false;
+    "
+  />
+
+  <EditModal
+    :id="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+    v-if="data?.tableMetadata && rowDataForModal"
+    :showButton="false"
+    :schemaId="props.schemaId"
+    :metadata="data.tableMetadata"
+    :formValues="rowDataForModal"
+    v-model:visible="showEditModal"
+    @update:updated="
+      afterRowUpdated;
+      showEditModal = false;
+    "
+  />
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import type { IColumn } from "../../../metadata-utils/src/types";
-import type { ITableSettings, sortDirection } from "../../types/types";
+import type {
+  IRow,
+  IColumn,
+  IRefColumn,
+  columnValue,
+} from "../../../metadata-utils/src/types";
+import type {
+  ITableSettings,
+  RefPayload,
+  sortDirection,
+} from "../../types/types";
 import { sortColumns } from "../../utils/sortColumns";
 
 import { useAsyncData } from "#app/composables/asyncData";
@@ -152,6 +189,11 @@ import { fetchTableData, fetchTableMetadata } from "#imports";
 import AddModal from "../form/AddModal.vue";
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
+import TableModalRef from "./modal/TableModalRef.vue";
+
+const showDeleteModal = ref<boolean>(false);
+const showEditModal = ref<boolean>(false);
+const rowDataForModal = ref();
 
 const props = withDefaults(
   defineProps<{
@@ -187,6 +229,7 @@ const { data, status, error, refresh, clear } = useAsyncData(
       props.schemaId,
       props.tableId
     );
+
     const tableData = await fetchTableData(props.schemaId, props.tableId, {
       limit: settings.value.pageSize,
       offset: (settings.value.page - 1) * settings.value.pageSize,
@@ -195,6 +238,7 @@ const { data, status, error, refresh, clear } = useAsyncData(
         : {},
       searchTerms: settings.value.search,
     });
+
     return {
       tableMetadata,
       tableData,
@@ -260,6 +304,36 @@ function handleSearchRequest(search: string) {
 function handlePagingRequest(page: number) {
   settings.value.page = page;
   refresh();
+}
+
+const showModal = ref(false);
+const refTableRow = ref<IRow>();
+const refTableColumn = ref<IRefColumn>();
+// initially set to the current tableId
+const refSourceTableId = ref<string>(props.tableId);
+
+function handleCellClick(
+  event: RefPayload,
+  column: IColumn,
+  row: Record<string, any>
+) {
+  refTableRow.value = event.data;
+  refTableColumn.value =
+    column.columnType === "REF"
+      ? (column as IRefColumn)
+      : (column as IRefColumn); // todo other types of column
+
+  showModal.value = true;
+}
+
+function onShowDeleteModal(row: Record<string, columnValue>) {
+  rowDataForModal.value = row;
+  showDeleteModal.value = true;
+}
+
+function onShowEditModal(row: Record<string, columnValue>) {
+  rowDataForModal.value = row;
+  showEditModal.value = true;
 }
 
 function afterRowAdded() {

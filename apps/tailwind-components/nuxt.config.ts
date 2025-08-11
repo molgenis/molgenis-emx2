@@ -9,7 +9,22 @@ const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: ["@nuxtjs/tailwindcss", "@nuxt/test-utils/module"],
+  experimental: {
+    watcher: "parcel",
+  },
+  modules: [
+    "@nuxt/image",
+    "@nuxt/test-utils/module",
+    "floating-vue/nuxt",
+    "@nuxtjs/tailwindcss",
+  ],
+  ignore: [
+    ".gradle/**",
+    ".git/**",
+    "node_modules/**",
+    "dist/**",
+    "coverage/**",
+  ],
   imports: {
     autoImport: false,
   },

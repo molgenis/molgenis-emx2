@@ -1,16 +1,14 @@
-# Number
+# Test Plan 11
 
-11
-
-# Role
+## Role
 
 Naïve user of the data catalogue.
 
-# Goal
+## Goal
 
 A naïve visitor to the data catalogue can click around the 'browse all catalogue content'-screen and search within 'all resources'-screen.
 
-# Steps
+## Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |

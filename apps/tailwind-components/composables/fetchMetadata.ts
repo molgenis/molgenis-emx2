@@ -31,8 +31,6 @@ export default async (schemaId: string): Promise<ISchemaMetaData> => {
 
     // Update the cache
     cached.value = data._schema;
-  } else {
-    console.log(`Getting value from cache for schema ${schemaId}`);
   }
 
   return cached.value;

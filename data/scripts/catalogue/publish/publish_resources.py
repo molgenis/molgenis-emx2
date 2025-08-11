@@ -1,5 +1,5 @@
 """
-Script to publish a resource in a catalogue from a staging area.
+Script to publish a resource in a catalogue from a staging area on the EMX2 script task environment.
 
 Add this script as a script task (see https://molgenis.github.io/molgenis-emx2/#/molgenis/use_scripts_jobs),
 supply the latest version of the StagingMigration package as follows: molgenis_emx2_staging_migrator>={latest version}.
@@ -33,11 +33,11 @@ def main(args):
 
     staging_areas = args[-1].split(',')
 
-    with StagingMigrator(url=SERVER_URL, token=token, catalogue=CATALOGUE) as migrator:
+    with StagingMigrator(url=SERVER_URL, token=token, target=CATALOGUE) as migrator:
 
         for sa in staging_areas:
             log.info(f"\nPublishing resources in staging area {sa!r} to {CATALOGUE!r}.")
-            migrator.set_staging_area(sa)
+            migrator.set_source(sa)
             migrator.migrate()
 
 

@@ -229,13 +229,22 @@ public class Emx2 {
             .toList(); // NOSONAR cannot use toList because immutable
 
     List<Row> result = new ArrayList<>();
-    for (TableMetadata table : tables) {
-
+    // fix https://github.com/molgenis/molgenis-emx2/issues/2805
+    // export ontology table metadata if label or description are set
+    for (TableMetadata table :
+        schema.getTables().stream()
+            .filter(
+                t ->
+                    !t.getTableType().equals(TableType.ONTOLOGIES)
+                        || t.getDescription() != null
+                        || t.getLabel() != null)
+            .toList()) {
       Row row = new Row();
       // set null columns to ensure sensible order
       row.setString(TABLE_NAME, table.getTableName());
       row.setString(TABLE_EXTENDS, table.getInheritName());
-      row.setString(TABLE_TYPE, null);
+      row.setString(
+          TABLE_TYPE, table.getTableType().equals(TableType.ONTOLOGIES) ? "ONTOLOGIES" : null);
       row.setString(COLUMN_NAME, null);
       row.setString(COLUMN_TYPE, null);
       row.setString(KEY, null);

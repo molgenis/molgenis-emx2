@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import type {
   columnId,
   columnValue,
   IColumn,
   IFormLegendSection,
+  IRow,
   ITableMetaData,
   recordValue,
 } from "../../../metadata-utils/src/types";
@@ -15,16 +16,18 @@ import {
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import logger from "../../utils/logger";
 import { vIntersectionObserver } from "@vueuse/components";
+import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 
 const props = defineProps<{
   schemaId: string;
   sections: IFormLegendSection[];
   metadata: ITableMetaData;
+  constantValues?: IRow;
 }>();
 
 const visibleMap = reactive<Record<columnId, boolean>>({});
 
-const modelValue = defineModel<recordValue>("modelValue", {
+const modelValue = defineModel<IRow>("modelValue", {
   required: true,
 });
 
@@ -137,6 +140,43 @@ props.metadata.columns
         column.visible
     );
   });
+
+const rowKey = ref<columnValue>();
+
+async function updateRowKey() {
+  rowKey.value = await fetchRowPrimaryKey(
+    modelValue.value,
+    props.metadata.id,
+    props.schemaId
+  );
+}
+
+function copyConstantValuesToModelValue() {
+  if (props.constantValues) {
+    modelValue.value = Object.assign({}, props.constantValues);
+  }
+}
+
+watch(
+  () => modelValue.value,
+  async () => {
+    if (modelValue.value) {
+      updateRowKey();
+    }
+  }
+);
+
+watch(
+  () => props.constantValues,
+  () => {
+    copyConstantValuesToModelValue();
+  }
+);
+
+onMounted(() => {
+  updateRowKey();
+  copyConstantValuesToModelValue();
+});
 </script>
 
 <template>
@@ -171,17 +211,22 @@ props.metadata.columns
       ></div>
       <FormField
         class="pb-8"
-        v-else-if="visibleMap[column.id] === true"
+        v-else-if="
+          visibleMap[column.id] === true &&
+          !Object.keys(constantValues || {}).includes(column.id)
+        "
         v-model="modelValue[column.id]"
         :id="`${column.id}-form-field`"
         :type="column.columnType"
         :label="column.label"
         :description="column.description"
+        :rowKey="rowKey"
         :required="isRequired(column.required ?? false)"
         :error-message="errors[column.id]"
         :ref-schema-id="column.refSchemaId || schemaId"
         :ref-table-id="column.refTableId"
         :ref-label="column.refLabel || column.refLabelDefault"
+        :ref-back-id="column.refBackId"
         :invalid="errors[column.id]?.length > 0"
         @update:modelValue="onUpdate(column, $event ?? '')"
         @blur="onBlur(column)"

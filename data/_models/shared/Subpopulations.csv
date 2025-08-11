@@ -22,4 +22,4 @@ Subpopulations,,creator,ref_array,,,,Organisations,resource,,,dcterms:creator,Th
 Subpopulations,,license,hyperlink,,,,,,,,dcterms:license,A legal document under which this catalogue record is made available,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,issued,datetime,,,,,,,,dcterms:issued,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was first published in the catalogue,DataCatalogueFlat,
 Subpopulations,,modified,datetime,,,,,,,,dcterms:modified,This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output. When the metadata for this resource was last modified,DataCatalogueFlat,
-Subpopulations,,theme,hyperlink_array,,,,,,,,dcat:theme,A main category of the subpopulation. A subpopulation can have multiple themes.,DataCatalogueFlat
+Subpopulations,,theme,hyperlink_array,,,,,,,,dcat:theme,A main category of the subpopulation. A subpopulation can have multiple themes.,DataCatalogueFlat,

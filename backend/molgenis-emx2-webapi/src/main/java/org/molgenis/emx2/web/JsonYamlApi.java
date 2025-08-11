@@ -35,14 +35,14 @@ public class JsonYamlApi {
     SchemaMetadata schema = yamlToSchema(ctx.body());
     getSchema(ctx).discard(schema);
     ctx.status(200);
-    ctx.result("removed metadata items success");
+    ctx.result("{ \"message\": \"remove metadata success\" }");
   }
 
   static void postSchemaYAML(Context ctx) throws IOException {
     SchemaMetadata otherSchema = yamlToSchema(ctx.body());
     getSchema(ctx).migrate(otherSchema);
     ctx.status(200);
-    ctx.result("patch metadata success");
+    ctx.result("{ \"message\": \"add/update metadata success\" }");
   }
 
   static void getSchemaYAML(Context ctx) throws IOException {
@@ -61,7 +61,7 @@ public class JsonYamlApi {
     SchemaMetadata schema = jsonToSchema(ctx.body());
     getSchema(ctx).discard(schema);
     ctx.status(200);
-    ctx.result("removed metadata items success");
+    ctx.result("{ \"message\": \"removed metadata items success\" }");
   }
 
   static void postSchemaJSON(Context ctx) throws IOException {
@@ -69,7 +69,7 @@ public class JsonYamlApi {
     SchemaMetadata otherSchema = jsonToSchema(ctx.body());
     schema.migrate(otherSchema);
     ctx.status(200);
-    ctx.result("patch metadata success");
+    ctx.result("{ \"message\": \"add/update metadata success\" }");
   }
 
   static void getSchemaJSON(Context ctx) throws IOException {

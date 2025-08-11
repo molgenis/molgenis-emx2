@@ -48,11 +48,11 @@ public class IriGenerator {
             + escaper.escape(table.getIdentifier()));
   }
 
-  static IRI tableIRI(String baseURL, Table table) {
+  public static IRI tableIRI(String baseURL, Table table) {
     return tableIRI(baseURL, table.getMetadata());
   }
 
-  static IRI columnIRI(String baseURL, Column column) {
+  public static IRI columnIRI(String baseURL, Column column) {
     return Values.iri(
         baseURL
             + "/"
@@ -64,7 +64,7 @@ public class IriGenerator {
             + escaper.escape(column.getIdentifier()));
   }
 
-  static IRI rowIRI(String baseURL, TableMetadata table, PrimaryKey primaryKey) {
+  public static IRI rowIRI(String baseURL, TableMetadata table, PrimaryKey primaryKey) {
     return Values.iri(
         baseURL
             + "/"
@@ -76,19 +76,19 @@ public class IriGenerator {
             + primaryKey.getEncodedString());
   }
 
-  static IRI rowIRI(String baseURL, Table table, PrimaryKey primaryKey) {
+  public static IRI rowIRI(String baseURL, Table table, PrimaryKey primaryKey) {
     return rowIRI(baseURL, table.getMetadata(), primaryKey);
   }
 
-  static IRI rowIRI(String baseURL, TableMetadata table, Row row) {
+  public static IRI rowIRI(String baseURL, TableMetadata table, Row row) {
     return rowIRI(baseURL, table, PrimaryKey.fromRow(table, row));
   }
 
-  static IRI rowIRI(String baseURL, Table table, Row row) {
+  public static IRI rowIRI(String baseURL, Table table, Row row) {
     return rowIRI(baseURL, table.getMetadata(), row);
   }
 
-  static IRI fileIRI(String baseURL, Row row, Column column) {
+  public static IRI fileIRI(String baseURL, Row row, Column column) {
     return Values.iri(
         baseURL
             + "/"

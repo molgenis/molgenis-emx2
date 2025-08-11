@@ -1,12 +1,14 @@
-import { useRoute } from "#app/composables/router";
+import { useRuntimeConfig } from "#app";
 
 export const fetchSetting = (settingKey: string) => {
   let body = {
     query: `{_settings (keys: ["${settingKey}"]){ key, value }}`,
   };
 
-  const route = useRoute();
-  return $fetch(`/${route.params.schema}/graphql`, {
+  const config = useRuntimeConfig();
+  const schema = config.public.schema;
+
+  return $fetch(`/${schema}/graphql`, {
     method: "POST",
     body,
   });

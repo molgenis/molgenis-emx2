@@ -228,7 +228,7 @@ public class TestGrantRolesToUsers {
               .add(column("LastName")));
 
       try {
-        database.setActiveUser(Constants.MG_ROLE_PREFIX + "TESTROLE_VIEW");
+        database.setActiveUser("testuser");
         database.tx(
             db -> {
               db.getSchema("testRole").create(table("Test"));

@@ -1,6 +1,6 @@
 import { defu } from "defu";
 import type { DocumentNode } from "graphql";
-import { moduleToString, logError, useRoute, useFetch } from "#imports";
+import { moduleToString, logError, useRuntimeConfig, useFetch } from "#imports";
 import { type Ref, isRef } from "vue";
 import type { UseFetchOptions } from "#app";
 
@@ -29,7 +29,8 @@ export function useGqlFetch<T, E>(
       : options.variables;
     body.variables = variablesValue;
   }
-  const schema = options.schemaId ?? useRoute().params.schema;
+  const config = useRuntimeConfig();
+  const schema = options.schemaId ?? (config.public.schema as string);
   const url = `/${schema}/graphql`;
   const defaults: UseFetchOptions<T> = {
     method: "POST",

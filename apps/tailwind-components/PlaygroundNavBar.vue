@@ -3,6 +3,17 @@
     class="text-title bg-navigation-sticky fixed top-0 w-[100%] z-50 p-2 flex flex-row justify-start items-center gap-2 shadow-sm"
   >
     <div class="grow flex gap-4">
+      <button
+        id="toggleLayoutBtn"
+        @click="setMenuIsOpen"
+        class="ml-4 mr-2 text-title"
+        :tooltip="menuIsOpen ? 'hide menu' : 'show menu'"
+      >
+        <BaseIcon :name="menuIsOpen ? 'MenuOpen' : 'Menu'" :width="24" />
+        <span class="sr-only">
+          {{ menuIsOpen ? "hide menu" : "show menu" }}
+        </span>
+      </button>
       <NuxtLink class="hover:underline" to="/">
         <img
           format="svg"
@@ -12,9 +23,6 @@
         />
         <span class="sr-only">Home</span>
       </NuxtLink>
-      <Button type="outline" size="small" @click="toggleLayout">{{
-        isFocusLayout ? "show side" : "focus"
-      }}</Button>
     </div>
 
     <div class=" ">
@@ -30,6 +38,7 @@
             type="radio"
             v-model="theme"
             value=""
+            name="theme"
           />
           <label class="hover:cursor-pointer" for="default-theme">
             Light
@@ -42,6 +51,7 @@
             type="radio"
             v-model="theme"
             value="dark"
+            name="theme"
           />
           <label class="hover:cursor-pointer" for="dark-theme"> Dark </label>
         </div>
@@ -52,6 +62,7 @@
             type="radio"
             v-model="theme"
             value="molgenis"
+            name="theme"
           />
           <label class="hover:cursor-pointer" for="molgenis-theme">
             Molgenis
@@ -64,6 +75,7 @@
             type="radio"
             v-model="theme"
             value="umcg"
+            name="theme"
           />
           <label class="hover:cursor-pointer" for="umcg-theme"> UMCG </label>
         </div>
@@ -74,6 +86,7 @@
             type="radio"
             v-model="theme"
             value="aumc"
+            name="theme"
           />
           <label class="hover:cursor-pointer" for="aumc-theme"> AUMC </label>
         </div>
@@ -83,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { setPageLayout, useCookie, useHead } from "#app";
+import { useCookie, useHead } from "#app";
 import { ref } from "vue";
 
 const theme = useCookie("theme", {
@@ -103,15 +116,11 @@ useHead({
   },
 });
 
-const isFocusLayout = ref<boolean>(false);
+const emit = defineEmits(["menuIsOpen"]);
+const menuIsOpen = ref<boolean>(true);
 
-function toggleLayout() {
-  if (isFocusLayout.value) {
-    isFocusLayout.value = false;
-    setPageLayout("default");
-  } else {
-    isFocusLayout.value = true;
-    setPageLayout("focus");
-  }
+function setMenuIsOpen() {
+  menuIsOpen.value = !menuIsOpen.value;
+  emit("menuIsOpen", menuIsOpen.value);
 }
 </script>

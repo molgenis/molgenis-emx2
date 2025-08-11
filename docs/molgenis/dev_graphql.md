@@ -112,6 +112,7 @@ system.
 {
   _session {
     email
+    admin
     roles
     schemas
   }
