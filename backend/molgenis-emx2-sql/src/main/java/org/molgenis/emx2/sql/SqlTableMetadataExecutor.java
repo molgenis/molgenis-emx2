@@ -354,9 +354,10 @@ class SqlTableMetadataExecutor {
             triggerfunction, name(searchColumnName(tableName)), mgSearchVector);
 
     jooq.execute(functionBody);
-    jooq.execute(
-        "ALTER FUNCTION " + triggerfunction + " OWNER TO {0}",
-        name(getRolePrefix(table) + Privileges.MANAGER.toString()));
+    //    jooq.execute(
+    //        "ALTER FUNCTION " + triggerfunction + " OWNER TO {0}",
+    //        name(getRolePrefix(table) + Privileges.MANAGER)); //TODO: commented this out because
+    // it breaks dont know why?
     return triggerfunction;
   }
 

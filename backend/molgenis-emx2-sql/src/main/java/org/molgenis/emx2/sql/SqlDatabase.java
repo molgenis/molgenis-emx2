@@ -14,12 +14,14 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
+import org.jooq.Configuration;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.SQLDialect;
 import org.jooq.conf.Settings;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
+import org.jooq.impl.DefaultConfiguration;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.RandomString;
@@ -40,6 +42,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS);
   private static final Settings PROLONGED_TIMEOUT_JOOQ_SETTINGS =
       new Settings().withQueryTimeout(MAX_EXECUTION_TIME_IN_SECONDS_PROLONGED);
+
   private static final Random random = new SecureRandom();
 
   // shared between all instances
@@ -108,7 +111,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   public SqlDatabase(boolean init) {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
-    this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, DEFAULT_JOOQ_SETTINGS);
+    Configuration config =
+        new DefaultConfiguration()
+            .set(connectionProvider)
+            .set(DEFAULT_JOOQ_SETTINGS)
+            .set(SQLDialect.POSTGRES)
+            .set(new NoticeListener());
+
+    this.jooq = DSL.using(config);
     if (init) {
       try {
         // elevate privileges for init (prevent reload)

@@ -168,12 +168,13 @@ BEGIN
 
         -- Handle DELETE operation: when a group is deleted
     ELSIF TG_OP = 'DELETE' THEN
-        FOREACH user_var IN ARRAY OLD.users
-            LOOP
-                -- Revoke the group role from the user
-                EXECUTE format('REVOKE %I FROM %I', OLD.group_name, user_var);
-            END LOOP;
-
+        IF NEW.users IS NOT NULL THEN
+            FOREACH user_var IN ARRAY OLD.users
+                LOOP
+                    -- Revoke the group role from the user
+                    EXECUTE format('REVOKE %I FROM %I', OLD.group_name, user_var);
+                END LOOP;
+        END IF;
         -- Handle UPDATE operation: when users are added or removed in the updated array
     ELSIF TG_OP = 'UPDATE' THEN
         -- Grant roles to new users in the updated list
@@ -255,8 +256,13 @@ BEGIN
             WHERE table_schema = OLD.table_schema;
 
             IF OLD.has_admin THEN
-                RAISE NOTICE 'Revoking CREATE on schema % from %', OLD.table_schema, role_name;
-                EXECUTE format('REVOKE CREATE ON SCHEMA %I FROM %I', OLD.table_schema, role_name);
+                PERFORM 1 FROM pg_roles WHERE rolname = role_name;
+                IF FOUND THEN
+                    RAISE NOTICE 'Revoking CREATE on schema % from %', OLD.table_schema, role_name;
+                    EXECUTE format('REVOKE CREATE ON SCHEMA %I FROM %I', OLD.table_schema, role_name);
+                ELSE
+                    RAISE NOTICE 'Skipping revoke: role % does not exist', role_name;
+                END IF;
             END IF;
 
             IF table_ids IS NOT NULL THEN
@@ -276,8 +282,17 @@ BEGIN
           AND table_schema = OLD.table_schema;
 
         IF NOT FOUND THEN
-            RAISE NOTICE 'Revoking USAGE on schema % from group %', OLD.table_schema, OLD.group_name;
-            EXECUTE format('REVOKE USAGE ON SCHEMA %I FROM %I', OLD.table_schema, OLD.group_name);
+            -- Check if the role exists before revoking
+            PERFORM 1
+            FROM pg_roles
+            WHERE rolname = OLD.group_name;
+
+            IF FOUND THEN
+                RAISE NOTICE 'Revoking USAGE on schema % from group %', OLD.table_schema, OLD.group_name;
+                EXECUTE format('REVOKE USAGE ON SCHEMA %I FROM %I', OLD.table_schema, OLD.group_name);
+            ELSE
+                RAISE NOTICE 'Skipping revoke: role % does not exist', OLD.group_name;
+            END IF;
         END IF;
     END IF;
 
@@ -388,11 +403,13 @@ BEGIN
     END IF;
 
     EXECUTE format('GRANT ALL ON SCHEMA %I TO %I', schema_id, 'MG_ROLE_ADMIN');
+    EXECUTE format('GRANT %I TO %I', 'MG_ROLE_ADMIN', SESSION_USER);
 
     -- Create _ADMIN group for the schema
-    group_name := format('%I_ADMIN', schema_id);
-    role_name := format('MG_ROLE_%I', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+    group_name := format('%s/Admin', schema_id);
+    role_name := format('MG_ROLE_%s', group_name);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
+    THEN
         INSERT INTO "MOLGENIS".group_metadata(group_name, users)
         VALUES (group_name, ARRAY []::varchar[]);
         INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_update, has_insert, has_delete,
@@ -400,10 +417,57 @@ BEGIN
         VALUES (group_name, schema_id, true, true, true, true, true);
     END IF;
 
+    group_name := format('%s/Exists', schema_id);
+    role_name := format('MG_ROLE_%s', group_name);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
+    THEN
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[]);
+
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
+        VALUES (group_name, schema_id, true);
+    END IF;
+
+    group_name := format('%s/Range', schema_id);
+    role_name := format('MG_ROLE_%s', group_name);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
+    THEN
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[]);
+
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
+        VALUES (group_name, schema_id, true);
+    END IF;
+
+    group_name := format('%s/Aggregator', schema_id);
+    role_name := format('MG_ROLE_%s', group_name);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
+    THEN
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[]);
+
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
+        VALUES (group_name, schema_id, true);
+    END IF;
+
+    group_name := format('%s/Count', schema_id);
+    role_name := format('MG_ROLE_%s', group_name);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
+    THEN
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[]);
+
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
+        VALUES (group_name, schema_id, true);
+    END IF;
+
+
+
     -- Create _VIEWER group with select permissions
-    group_name := format('%I_VIEWER', schema_id);
-    role_name := format('MG_ROLE_%I', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+    group_name := format('%s/Viewer', schema_id);
+    role_name := format('MG_ROLE_%s', group_name);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
+    THEN
         INSERT INTO "MOLGENIS".group_metadata(group_name, users)
         VALUES (group_name, ARRAY []::varchar[]);
 
@@ -412,9 +476,10 @@ BEGIN
     END IF;
 
     -- Create _EDITOR group with select, insert, update, delete permissions
-    group_name := format('%I_EDITOR', schema_id);
-    role_name := format('MG_ROLE_%I', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+    group_name := format('%s/Editor', schema_id);
+    role_name := format('MG_ROLE_%s', group_name);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
+    THEN
         INSERT INTO "MOLGENIS".group_metadata(group_name, users)
         VALUES (group_name, ARRAY []::varchar[])
         ON CONFLICT DO NOTHING;
@@ -424,6 +489,33 @@ BEGIN
         VALUES (group_name, schema_id, true, true, true, true);
     END IF;
 
+    --TODO: set the correct permission (this is just for testing)
+    group_name := format('%s/Manager', schema_id);
+    role_name := format('MG_ROLE_%s', group_name);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
+    THEN
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[])
+        ON CONFLICT DO NOTHING;
+
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
+                                                 has_delete)
+        VALUES (group_name, schema_id, true, true, true, true);
+    END IF;
+
+    --TODO: set the correct permission (this is just for testing)
+    group_name := format('%s/Owner', schema_id);
+    role_name := format('MG_ROLE_%s', group_name);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
+    THEN
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[])
+        ON CONFLICT DO NOTHING;
+
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
+                                                 has_delete)
+        VALUES (group_name, schema_id, true, true, true, true);
+    END IF;
 END;
 $$;
 

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.jooq.DDLQuery;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
@@ -21,8 +20,8 @@ class SqlSchemaMetadataExecutor {
   }
 
   static void executeCreateSchema(SqlDatabase db, SchemaMetadata schema) {
-    DDLQuery step = db.getJooq().createSchema(schema.getName());
-    step.execute();
+    db.getJooq().execute("DO $$ BEGIN RAISE NOTICE 'Hello from PG'; END $$;");
+    db.getJooq().createSchema(schema.getName()).execute();
 
     //    String schemaName = schema.getName();
     //    String exists = getRolePrefix(schemaName) + EXISTS;
@@ -53,7 +52,7 @@ class SqlSchemaMetadataExecutor {
     //    db.getJooq().execute("GRANT {0} TO {1}", name(count), name(viewer));
     //    // make editor also viewer
     //    db.getJooq().execute("GRANT {0} TO {1}", name(viewer), name(editor));
-
+    //
     //    // make manager also editor, viewer and aggregator
     //    db.getJooq()
     //        .execute(
@@ -65,7 +64,7 @@ class SqlSchemaMetadataExecutor {
     //        .execute(
     //            "GRANT {0},{1},{2},{3} TO {4} WITH ADMIN OPTION",
     //            name(aggregator), name(viewer), name(editor), name(manager), name(owner));
-
+    //
     //    String currentUser = db.getJooq().fetchOne("SELECT current_user").get(0, String.class);
     //    String sessionUser = db.getJooq().fetchOne("SELECT session_user").get(0, String.class);
     //
@@ -246,6 +245,7 @@ class SqlSchemaMetadataExecutor {
       List<Table> tables = db.getSchema(schemaName).getTablesSorted();
       Collections.reverse(tables);
       tables.forEach(table -> executeDropTable(db.getJooq(), table.getMetadata()));
+
       // drop schema
       db.getJooq().dropSchema(name(schemaName)).execute();
 
