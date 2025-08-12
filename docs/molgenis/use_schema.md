@@ -1,11 +1,10 @@
 # Schema definition
 
-A MOLGENIS [database](use_database.md) is defined by its schema. The schema enables rich data modelling using tables and columns, as well as the relationships between tables. Custom database schemas can be created using the molgenis schema editor or by uploading a 'EMX2' schema file format. There are two different methods to organising the schema metadata.
+A MOLGENIS [database](use_database.md) is defined by its schema. The schema enables rich data modelling using tables, columns and relationships.
 
-1. By creating a sheet in an Excel file named `molgenis` or
-2. By creating a `molgenis.csv` or `molgenis.tsv` file (which can be uploaded as part of a zip file).
-
-Note: you can upload the data in the same file as well. For that make sure each Excel sheet or .tsv/.csv file is named in your molgenis metadata sheet.
+You can create complete custom database schemas using the molgenis schema editor or by uploading a 'EMX2' schema file format. First create a sheet in Excel
+named `molgenis`. Or create a molgenis.csv or molgenis.tsv sheet and upload it as part of a zip file. Note: you can upload the data in the same file as well.
+For that make sure each Excel sheet or .tsv/.csv file is named in your molgenis metadata sheet.
 
 ## Example of a 'molgenis' schema
 
@@ -74,24 +73,24 @@ names are case insensitive):
 
 #### Relationships
 
-- ref : foreign key (aka many to one)
+- radio: foreign key (many-to-one)
+    - values are shown as a radio group
+- checkbox: multiple foreign key (many-to-many)
+    - values are shown as a checkbox group
+- select: foreign key (many-to-one)
+    - values are shown in a dropdown menu as a radio group
+- multiselect: multiple foreign key (many-to-many)
+    - values are shown in a dropdown menu as a checkbox group
+- refback: to describe link back to ref/ref_array (aka one_to_many/many_to_many)
+    - values shown as an expandable card which displays the complete record when expanded. The foreign record can be edited or deleted if a user has permission to do so.
+- ref (deprecated) : foreign key (aka many-to-one)
     - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
-- ref_array : multiple foreign key (aka many to many).
+- ref_array (deprecated): multiple foreign key (aka many-to-many).
     - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
-- refback : to describe link back to ref/ref_array (aka one_to_many/many_to_many)
 
-#### Form types
+In the forms, checkbox and radio types will display a limited number of foreign keys. Additional values can be shown by clicking the _show more_ button. A search field will be shown for larger reference datasets. For select and multiselect types, a limited number of foreign keys will be displayed by default (e.g., the first ten values) when the dropdown menu is expanded, and additional values will be shown upon scroll. Users can further customise the display of the dropdown menu by searching for values and sorting by columns in the foreign table, as well as filtering for selected values or removing all selected foreign keys.
 
-Ref types have default displays in the webforms (e.g., checkboxes for arrays, radio for single values, etc.). If you would like to specify the form input for a ref column (e.g., show a dropdown menu instead of radio buttons), then use the following types instead of `ref` or `ref_array`.
-
-| ref type  | form type   | form input displayed                    |
-|-----------|-------------|-----------------------------------------|
-| ref       | radio       | radio inputs                            |
-| ref       | select      | radio inputs are shown in a dropdown    |
-| ref_array | checkbox    | cheeckbox inputs                        |
-| ref_array | multiselect | checkboxes are shown in a dropdown menu |
-
-These form types correspond to input components that have a range of features enabled (e.g., searching, filtering, sorting, etc.). For more information on the forms, see the [Forms guide](./use_forms.md).
+NOTE: when using any of the above relationship types, the "refTable" must also be provided.
 
 #### Arrays (i.e. list of values)
 
@@ -178,23 +177,23 @@ Text value that describes the column, or when columnName is empty, the table.
 
 ## Cross-references
 
-You can define cross-references from one table to another using columnType=ref (single reference) or columnType=ref_array (multiple references). In postgresql these translate to foreign keys, and array of foreign key with triggers protecting foreign key constraints respectively. You need to define refTable.
+You can define cross-references from one table to another by using the types listed in the [relationship types](#relationships) section. In postgresql, these cross-references translate, and array of foreign key with triggers protecting foreign key constraints respectively. When using cross-references, the name of the reference table (_refTable_) is required.
 
 ### refTable
 
-This metadata is used to define relationships between tables. When columnType is 'ref' or 'ref_array' then you must provide refTable. In simple cases, this is all you need. The value of refTable should a defined tableName. N.B. if your columnType is not of a 'ref' than having refTable will produce an error. Default value: empty
+This metadata is used to define relationships between tables. When columnType is radio/checkbox/select/multiselect, then you must provide refTable. In simple cases, this is all you need. The value of refTable is the name of the table (a _tableName_). You can also reference a table in another schema. To do so, provide the name of the schema in _refSchema_. N.B. if your columnType is not one of these types, then having refTable will produce an error. Default value: empty
 
 A simple reference:
 
-| tableName | columName | type | key | refTable | required | description               |
-| --------- | --------- | ---- | --- | -------- | -------- | ------------------------- |
-| Person    |           |      |     |          |          | my person table           |
-| Person    | id        | int  | 1   |          |          | id is part of primary key |
-| Person    | firstName |      | 2   |          | TRUE     |                           |
-| Person    | lastName  |      | 2   |          | TRUE     |                           |
-| Pet       | name      |      | 1   |          |          |                           |
-| Pet       | species   |      |     |          | TRUE     |                           |
-| Pet       | owner     | ref  |     | Person   | TRUE     | foreign key to Person     |
+| tableName | columName | type  | key | refTable | required | description               |
+|-----------|-----------|-------|-----|----------|----------|---------------------------|
+| Person    |           |       |     |          |          | my person table           |
+| Person    | id        | int   | 1   |          |          | id is part of primary key |
+| Person    | firstName |       | 2   |          | TRUE     |                           |
+| Person    | lastName  |       | 2   |          | TRUE     |                           |
+| Pet       | name      |       | 1   |          |          |                           |
+| Pet       | species   |       |     |          | TRUE     |                           |
+| Pet       | owner     | radio |     | Person   | TRUE     | foreign key to Person     |
 
 Note: when key=1 then automatically required=TRUE
 
