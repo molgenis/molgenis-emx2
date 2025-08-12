@@ -35,43 +35,51 @@
       >
         <thead>
           <tr>
-            <TableHeadCell v-if="isEditable" class="!w-18">
+            <TableHeadCell
+              v-if="isEditable"
+              :class="{
+                '!w-[32px] !max-w-[32px]': columns.length === 1,
+                '!w-[62px]': columns.length > 2,
+              }"
+            >
               <span class="sr-only">manage records</span>
             </TableHeadCell>
             <TableHeadCell v-for="column in sortedVisibleColumns">
-              <button
-                @click="handleSortRequest(column.id)"
-                :id="`table-emx2-${column.label}-sort-by`"
-                class="overflow-ellipsis whitespace-nowrap max-w-56 overflow-hidden inline-block text-left text-table-column-header font-normal align-middle"
-                :ariaSort="
-                  settings.orderby.column === column.id
-                    ? mgAriaSortMappings[settings.orderby.direction]
-                    : 'none'
-                "
-              >
-                <span class="">{{ column.label }}</span>
-              </button>
-              <ArrowUp
-                v-if="
-                  column.id === settings.orderby.column &&
-                  settings.orderby.direction === 'ASC'
-                "
-                aria-hidden="true"
-                class="h-4 w-4 text-table-column-header font-normal"
-              />
-              <ArrowDown
-                v-if="
-                  column.id === settings.orderby.column &&
-                  settings.orderby.direction === 'DESC'
-                "
-                aria-hidden="true"
-                class="h-4 w-4 text-table-column-header font-normal"
-              />
+              <div class="flex justify-start items-center gap-1">
+                <button
+                  :id="`table-emx2-${schemaId}-${tableId}-${column.label}-sort-btn`"
+                  @click="handleSortRequest(column.id)"
+                  class="overflow-ellipsis whitespace-nowrap max-w-56 overflow-hidden inline-block text-left text-table-column-header font-normal align-middle"
+                  :ariaSort="
+                    settings.orderby.column === column.id
+                      ? mgAriaSortMappings[settings.orderby.direction]
+                      : 'none'
+                  "
+                >
+                  <span>{{ column.label }}</span>
+                </button>
+                <ArrowUp
+                  v-if="
+                    column.id === settings.orderby.column &&
+                    settings.orderby.direction === 'ASC'
+                  "
+                  aria-hidden="true"
+                  class="h-4 w-4 text-table-column-header font-normal"
+                />
+                <ArrowDown
+                  v-if="
+                    column.id === settings.orderby.column &&
+                    settings.orderby.direction === 'DESC'
+                  "
+                  aria-hidden="true"
+                  class="h-4 w-4 text-table-column-header font-normal"
+                />
+              </div>
             </TableHeadCell>
           </tr>
         </thead>
         <tbody
-          class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-5"
+          class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-4 [&_tr:last-child_td_button]:mt-3"
         >
           <tr
             v-for="row in rows"
@@ -80,36 +88,35 @@
           >
             <TableBodyCell
               v-if="isEditable"
-              class="flex justify-start items-center !w-32"
+              class="text-table-row flex flex-row items-stretch justify-end h-12 flex-nowrap gap-1 w-auto"
+              :truncate="false"
             >
-              <Button
-                :icon-only="true"
-                type="inline"
-                icon="edit"
-                size="small"
+              <button
+                :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
+                  row
+                )}-edit-row-button`"
+                class="invisible group-hover:visible"
                 @click="onShowEditModal(row)"
                 :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
                 aria-haspopup="dialog"
                 :aria-expanded="showEditModal"
               >
-                <span class="sr-only"
-                  >edit {{ columns.map((col) => row[col.id]).join("-") }}</span
-                >
-              </Button>
-              <Button
-                :icon-only="true"
-                type="inline"
-                icon="trash"
-                size="small"
+                <BaseIcon name="edit" :width="18" />
+                <span class="sr-only">edit {{ getRowId(row) }}</span>
+              </button>
+              <button
+                :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
+                  row
+                )}-delete-row-button`"
+                class="invisible group-hover:visible"
                 @click="onShowDeleteModal(row)"
                 :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
                 aria-haspopup="dialog"
                 :aria-expanded="showDeleteModal"
               >
-                <span class="sr-only"
-                  >edit {{ columns.map((col) => row[col.id]).join("-") }}</span
-                >
-              </Button>
+                <BaseIcon name="trash" :width="18" />
+                <span class="sr-only">delete {{ getRowId(row) }}</span>
+              </button>
             </TableBodyCell>
             <TableCellEMX2
               v-for="column in sortedVisibleColumns"
@@ -122,91 +129,6 @@
             </TableCellEMX2>
           </tr>
         </tbody>
-        <!-- <thead>
-          <tr>
-            <th
-              v-for="column in sortedVisibleColumns"
-              class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64 overflow-hidden whitespace-nowrap align-middle"
-              :ariaSort="
-                settings.orderby.column === column.id
-                  ? mgAriaSortMappings[settings.orderby.direction]
-                  : 'none'
-              "
-              scope="col"
-            >
-              <span
-                class="whitespace-nowrap max-w-60 w-64 overflow-hidden inline-block"
-              >
-                <button
-                  @click="handleSortRequest(column.id)"
-                  class="overflow-ellipsis whitespace-nowrap max-w-56 overflow-hidden inline-block text-left text-table-column-header font-normal align-middle"
-                >
-                  {{ column.label }}
-                </button>
-                <ArrowUp
-                  v-if="
-                    column.id === settings.orderby.column &&
-                    settings.orderby.direction === 'ASC'
-                  "
-                  class="w-4 h-4 inline-block ml-1 text-table-column-header font-normal"
-                />
-                <ArrowDown
-                  v-if="
-                    column.id === settings.orderby.column &&
-                    settings.orderby.direction === 'DESC'
-                  "
-                  class="w-4 h-4 inline-block ml-1 text-table-column-header font-normal"
-                />
-              </span>
-            </th>
-          </tr>
-        </thead> -->
-        <!-- <tbody
-          class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-5"
-        >
-          <tr
-            v-for="row in rows"
-            class="static hover:bg-hover group h-4"
-            :class="{ 'hover:cursor-pointer': props.isEditable }"
-          >
-            <TableCellEMX2
-              v-for="(column, index) in sortedVisibleColumns"
-              class="text-table-row"
-              :scope="column.key === 1 ? 'row' : null"
-              :metadata="column"
-              :data="row[column.id]"
-              @cellClicked="handleCellClick($event, column, row)"
-            >
-              <div
-                v-if="isEditable && index === 0"
-                class="flex items-center gap-1 flex-none invisible group-hover:visible h-4 py-6 px-4 absolute right-7 bg-hover"
-              >
-                <Button
-                  :icon-only="true"
-                  type="inline"
-                  icon="trash"
-                  size="small"
-                  label="delete"
-                  @click="onShowDeleteModal(row)"
-                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
-                  aria-haspopup="dialog"
-                  :aria-expanded="showDeleteModal"
-                />
-                <Button
-                  :icon-only="true"
-                  type="inline"
-                  icon="edit"
-                  size="small"
-                  label="edit"
-                  @click="onShowEditModal(row)"
-                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
-                  aria-haspopup="dialog"
-                  :aria-expanded="showEditModal"
-                />
-              </div>
-            </TableCellEMX2>
-          </tr>
-        </tbody> -->
       </table>
     </div>
   </div>
@@ -348,6 +270,15 @@ const rows = computed(() => {
 const count = computed(() => data.value?.tableData?.count ?? 0);
 
 const columns = ref<IColumn[]>([]);
+const primaryKeys = computed(() => {
+  return columns.value
+    ?.map((col) => {
+      if (Object.hasOwn(col, "key")) {
+        return col.id;
+      }
+    })
+    .filter((value) => value);
+});
 
 watch(
   () => data.value?.tableMetadata,
@@ -417,6 +348,10 @@ function handleCellClick(
       : (column as IRefColumn); // todo other types of column
 
   showModal.value = true;
+}
+
+function getRowId(row: IRow) {
+  return primaryKeys.value.map((key) => row[key as string]).join("-");
 }
 
 function onShowDeleteModal(row: Record<string, columnValue>) {
