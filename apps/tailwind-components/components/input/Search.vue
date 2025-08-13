@@ -51,11 +51,11 @@ function handleInput(input: string) {
     <div class="w-auto text-center pointer-events-none">
       <BaseIcon
         name="search"
-        class="text-input"
         :class="{
           'text-valid': valid,
           'text-invalid': invalid,
           'text-disabled': disabled,
+          'text-input': !disabled && !valid && !invalid,
           'w-[12px]': size === 'tiny',
           'w-[16px]': size === 'small',
           'w-[21px]': size === 'medium',
