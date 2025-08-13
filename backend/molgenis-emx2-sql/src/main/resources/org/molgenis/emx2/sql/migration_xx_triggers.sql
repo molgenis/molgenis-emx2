@@ -172,7 +172,7 @@ BEGIN
             FOREACH user_var IN ARRAY OLD.users
                 LOOP
                     -- Revoke the group role from the user
-                    EXECUTE format('REVOKE %I FROM %I', OLD.group_name, user_var);
+                    EXECUTE format('REVOKE %I FROM %I', 'MG_ROLE_' || OLD.group_name, 'MG_USER_' || user_var);
                 END LOOP;
         END IF;
         -- Handle UPDATE operation: when users are added or removed in the updated array
@@ -187,7 +187,7 @@ BEGIN
                     -- Grant the role only if the user was not already in the group
                 ELSIF NOT user_var = ANY (OLD.users) THEN
                     RAISE NOTICE 'Granting role % to user %', role_name, user_var;
-                    EXECUTE format('GRANT %I TO %I', NEW.group_name, 'MG_USER_' || user_var);
+                    EXECUTE format('GRANT %I TO %I', role_name, 'MG_USER_' || user_var);
                 ELSE
                     RAISE NOTICE 'User % already existed in group %', user_var, NEW.group_name; -- TODO: remove me
                 END IF;
@@ -197,7 +197,7 @@ BEGIN
         FOREACH user_var IN ARRAY OLD.users
             LOOP
                 IF NOT user_var = ANY (NEW.users) THEN
-                    EXECUTE format('REVOKE %I FROM %I', OLD.group_name, user_var);
+                    EXECUTE format('REVOKE %I FROM %I', 'MG_ROLE_' || OLD.group_name, 'MG_USER_' || user_var);
                 END IF;
             END LOOP;
 
@@ -383,6 +383,7 @@ $$ LANGUAGE plpgsql;
 
 
 -- Function to create or update schema-level permissions for a schema
+-- Function to create or update schema-level permissions for a schema
 CREATE OR REPLACE FUNCTION "MOLGENIS".create_or_update_schema_groups(
     schema_id TEXT
 )
@@ -393,7 +394,7 @@ DECLARE
     group_name TEXT;
     role_name  TEXT;
 BEGIN
-    -- Ensure global admin group exists -- TODO do this somewhere else -> in migration script
+    -- Ensure global admin group exists
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'MG_ROLE_ADMIN') THEN
         INSERT INTO "MOLGENIS".group_metadata(group_name) VALUES ('ADMIN');
         INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_update, has_delete,
@@ -405,118 +406,128 @@ BEGIN
     EXECUTE format('GRANT ALL ON SCHEMA %I TO %I', schema_id, 'MG_ROLE_ADMIN');
     EXECUTE format('GRANT %I TO %I', 'MG_ROLE_ADMIN', SESSION_USER);
 
-    -- Create _ADMIN group for the schema
-    group_name := format('%s/Admin', schema_id);
-    role_name := format('MG_ROLE_%s', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
-    THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-        VALUES (group_name, ARRAY []::varchar[]);
-        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_update, has_insert, has_delete,
-                                                 has_select, has_admin)
-        VALUES (group_name, schema_id, true, true, true, true, true);
-    END IF;
-
+    -- Exists
     group_name := format('%s/Exists', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
-    THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
         INSERT INTO "MOLGENIS".group_metadata(group_name, users)
         VALUES (group_name, ARRAY []::varchar[]);
-
         INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
         VALUES (group_name, schema_id, true);
     END IF;
 
+    -- Range
     group_name := format('%s/Range', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
-    THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-        VALUES (group_name, ARRAY []::varchar[]);
-
-        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
-        VALUES (group_name, schema_id, true);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+    VALUES (group_name, ARRAY []::varchar[]);
+    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
+    VALUES (group_name, schema_id, true);
     END IF;
+    -- Grant Exists to Range
+    EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Exists'),
+                                      format('MG_ROLE_%s/%s', schema_id, 'Range'));
 
+    -- Aggregator
     group_name := format('%s/Aggregator', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
-    THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-        VALUES (group_name, ARRAY []::varchar[]);
-
-        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
-        VALUES (group_name, schema_id, true);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+    VALUES (group_name, ARRAY []::varchar[]);
+    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
+    VALUES (group_name, schema_id, true);
     END IF;
+    -- Grant Range to Aggregator
+    EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Range'),
+                                      format('MG_ROLE_%s/%s', schema_id, 'Aggregator'));
 
+    -- Count
     group_name := format('%s/Count', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
-    THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-        VALUES (group_name, ARRAY []::varchar[]);
-
-        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
-        VALUES (group_name, schema_id, true);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+    VALUES (group_name, ARRAY []::varchar[]);
+    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
+    VALUES (group_name, schema_id, true);
     END IF;
+    -- Grant Aggregator to Count
+    EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Aggregator'),
+                                      format('MG_ROLE_%s/%s', schema_id, 'Count'));
 
-
-
-    -- Create _VIEWER group with select permissions
+    -- Viewer
     group_name := format('%s/Viewer', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
-    THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-        VALUES (group_name, ARRAY []::varchar[]);
-
-        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
-        VALUES (group_name, schema_id, true);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+    VALUES (group_name, ARRAY []::varchar[]);
+    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
+    VALUES (group_name, schema_id, true);
     END IF;
+    -- Grant Count to Viewer
+    EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Count'),
+                                      format('MG_ROLE_%s/%s', schema_id, 'Viewer'));
 
-    -- Create _EDITOR group with select, insert, update, delete permissions
+    -- Editor
     group_name := format('%s/Editor', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
-    THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-        VALUES (group_name, ARRAY []::varchar[])
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+    VALUES (group_name, ARRAY []::varchar[])
         ON CONFLICT DO NOTHING;
-
-        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
+    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
                                                  has_delete)
-        VALUES (group_name, schema_id, true, true, true, true);
+    VALUES (group_name, schema_id, true, true, true, true);
     END IF;
+    -- Grant Viewer to Editor
+    EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Viewer'),
+                                      format('MG_ROLE_%s/%s', schema_id, 'Editor'));
 
-    --TODO: set the correct permission (this is just for testing)
+    -- Manager
     group_name := format('%s/Manager', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
-    THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-        VALUES (group_name, ARRAY []::varchar[])
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+    VALUES (group_name, ARRAY []::varchar[])
         ON CONFLICT DO NOTHING;
-
-        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
+    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
                                                  has_delete)
-        VALUES (group_name, schema_id, true, true, true, true);
+    VALUES (group_name, schema_id, true, true, true, true);
     END IF;
+    -- Grant Editor to Manager
+    EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Editor'),
+                                      format('MG_ROLE_%s/%s', schema_id, 'Manager'));
 
-    --TODO: set the correct permission (this is just for testing)
+    -- Owner
     group_name := format('%s/Owner', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name)
-    THEN
-        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-        VALUES (group_name, ARRAY []::varchar[])
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+    VALUES (group_name, ARRAY []::varchar[])
         ON CONFLICT DO NOTHING;
-
-        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
+    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
                                                  has_delete)
-        VALUES (group_name, schema_id, true, true, true, true);
+    VALUES (group_name, schema_id, true, true, true, true);
     END IF;
-END;
+    -- Grant Manager to Owner
+    EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Manager'),
+                                      format('MG_ROLE_%s/%s', schema_id, 'Owner'));
+
+    -- Admin
+    group_name := format('%s/Admin', schema_id);
+    role_name := format('MG_ROLE_%s', group_name);
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
+    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+    VALUES (group_name, ARRAY []::varchar[]);
+    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_update, has_insert, has_delete,
+                                                 has_select, has_admin)
+    VALUES (group_name, schema_id, true, true, true, true, true);
+    END IF;
+    -- Grant Owner to Admin
+    EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Owner'),
+                                      format('MG_ROLE_%s/%s', schema_id, 'Admin'));
+
+    END;
 $$;
 
 -- Function to enable RLS

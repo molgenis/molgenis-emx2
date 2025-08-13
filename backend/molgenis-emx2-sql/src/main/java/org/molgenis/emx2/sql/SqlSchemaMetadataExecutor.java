@@ -1,7 +1,7 @@
 package org.molgenis.emx2.sql;
 
 import static org.jooq.impl.DSL.name;
-import static org.molgenis.emx2.Privileges.*;
+import static org.molgenis.emx2.sql.MetadataUtils.*;
 import static org.molgenis.emx2.sql.SqlTableMetadataExecutor.executeDropTable;
 
 import java.util.ArrayList;
@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
 import org.molgenis.emx2.*;
 
 class SqlSchemaMetadataExecutor {
@@ -20,75 +21,13 @@ class SqlSchemaMetadataExecutor {
   }
 
   static void executeCreateSchema(SqlDatabase db, SchemaMetadata schema) {
-    db.getJooq().execute("DO $$ BEGIN RAISE NOTICE 'Hello from PG'; END $$;");
     db.getJooq().createSchema(schema.getName()).execute();
-
-    //    String schemaName = schema.getName();
-    //    String exists = getRolePrefix(schemaName) + EXISTS;
-    //    String range = getRolePrefix(schemaName) + RANGE;
-    //    String aggregator = getRolePrefix(schemaName) + AGGREGATOR;
-    //    String count = getRolePrefix(schemaName) + COUNT;
-    //    String viewer = getRolePrefix(schemaName) + VIEWER;
-    //    String editor = getRolePrefix(schemaName) + EDITOR;
-    //    String manager = getRolePrefix(schemaName) + MANAGER;
-    //    String owner = getRolePrefix(schemaName) + OWNER;
-    //
-    //    db.addRole(exists);
-    //    db.addRole(range);
-    //    db.addRole(aggregator);
-    //    db.addRole(count);
-    //    db.addRole(viewer);
-    //    db.addRole(editor);
-    //    db.addRole(manager);
-    //    db.addRole(owner);
-    //
-    //    // grant range role also exists role
-    //    db.getJooq().execute("GRANT {0} TO {1}", name(exists), name(range));
-    //    // grant aggregator role also exists role
-    //    db.getJooq().execute("GRANT {0} TO {1}", name(range), name(aggregator));
-    //    // make counter also aggregator
-    //    db.getJooq().execute("GRANT {0} TO {1}", name(aggregator), name(count));
-    //    // make viewer also counter
-    //    db.getJooq().execute("GRANT {0} TO {1}", name(count), name(viewer));
-    //    // make editor also viewer
-    //    db.getJooq().execute("GRANT {0} TO {1}", name(viewer), name(editor));
-    //
-    //    // make manager also editor, viewer and aggregator
-    //    db.getJooq()
-    //        .execute(
-    //            "GRANT {0},{1},{2} TO {3} WITH ADMIN OPTION",
-    //            name(aggregator), name(viewer), name(editor), name(manager));
-    //
-    //    // make owner also editor, manager, member
-    //    db.getJooq()
-    //        .execute(
-    //            "GRANT {0},{1},{2},{3} TO {4} WITH ADMIN OPTION",
-    //            name(aggregator), name(viewer), name(editor), name(manager), name(owner));
-    //
-    //    String currentUser = db.getJooq().fetchOne("SELECT current_user").get(0, String.class);
-    //    String sessionUser = db.getJooq().fetchOne("SELECT session_user").get(0, String.class);
-    //
-    //    // make current user the owner
-    //    if (!sessionUser.equals(currentUser)) {
-    //      db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(currentUser));
-    //    }
-    //
-    //    // make admin owner
-    //    db.getJooq().execute("GRANT {0} TO {1}", name(manager), name(sessionUser));
-    //
-    //    // grant the permissions
-    //    db.getJooq().execute("GRANT USAGE ON SCHEMA {0} TO {1}", name(schema.getName()),
-    // name(exists));
-    //    // grant the permissions
-    //    db.getJooq().execute("GRANT ALL ON SCHEMA {0} TO {1}", name(schema.getName()),
-    // name(manager));
 
     MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
   }
 
   static void executeAddMembers(DSLContext jooq, Schema schema, Member member) {
     List<String> currentRoles = schema.getRoles();
-    List<Member> currentMembers = schema.getMembers();
 
     if (!currentRoles.contains(member.getRole())) {
       throw new MolgenisException(
@@ -99,47 +38,23 @@ class SqlSchemaMetadataExecutor {
               + "'. Existing roles are: "
               + currentRoles);
     }
-    String username = Constants.MG_USER_PREFIX + member.getUser();
-    String roleprefix = getRolePrefix(schema.getMetadata().getName());
-    String rolename = roleprefix + member.getRole();
 
-    // execute updates database
-    updateMembershipForUser(
-        jooq,
-        schema.getDatabase(),
-        schema.getMetadata(),
-        currentMembers,
-        member,
-        username,
-        rolename);
-  }
-
-  private static void updateMembershipForUser(
-      DSLContext jooq,
-      Database db,
-      SchemaMetadata schema,
-      List<Member> currentMembers,
-      Member m,
-      String username,
-      String rolename) {
-    try {
-      // add user if not exists
-      if (!db.hasUser(m.getUser())) {
-        db.addUser(m.getUser());
-      }
-
-      // revoke other roles if user has them
-      for (Member old : currentMembers) {
-        if (old.getUser().equals(m.getUser())) {
-          jooq.execute(
-              "REVOKE {0} FROM {1}",
-              name(getRolePrefix(schema.getName()) + old.getRole()), name(username));
-        }
-      }
-      jooq.execute("GRANT {0} TO {1}", name(rolename), name(username));
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException("Add member failed", dae);
+    if (schema.getDatabase().hasUser(member.getUser())) {
+      schema.getDatabase().addUser(member.getUser());
     }
+
+    // Trigger wil grant permissions todo: add remove logic for possible old role (here or in
+    // trigger)
+    String groupName = schema.getName() + "/" + member.getRole();
+    jooq.update(GROUP_METADATA)
+        .set(
+            USERS,
+            DSL.when(
+                    DSL.not(DSL.condition("? = any(" + USERS + ")", member.getUser())),
+                    DSL.arrayAppend(USERS, member.getUser()))
+                .otherwise(USERS))
+        .where(GROUP_NAME.eq(groupName))
+        .execute();
   }
 
   static String getRolePrefix(String name) {
@@ -160,7 +75,7 @@ class SqlSchemaMetadataExecutor {
   static List<Member> executeGetMembers(DSLContext jooq, SchemaMetadata schema) {
     List<Member> members = new ArrayList<>();
 
-    // retrieve all role members
+    // retrieve all role members TODO: get this from group_metadata?
     String roleFilter = getRolePrefix(schema.getName());
     String userFilter = Constants.MG_USER_PREFIX;
     List<Record> result =
@@ -187,16 +102,14 @@ class SqlSchemaMetadataExecutor {
       List<String> usernames = new ArrayList<>();
       for (Member m : members) usernames.add(m.getUser());
 
-      String userprefix = Constants.MG_USER_PREFIX;
-      String roleprefix = getRolePrefix(schema.getMetadata().getName());
-
       for (Member m : schema.getMembers()) {
         if (usernames.contains(m.getUser())) {
-
+          String groupName = schema.getName() + "/" + m.getRole();
           db.getJooq()
-              .execute(
-                  "REVOKE {0} FROM {1}",
-                  name(roleprefix + m.getRole()), name(userprefix + m.getUser()));
+              .update(GROUP_METADATA)
+              .set(USERS, DSL.arrayRemove(USERS, m.getUser()))
+              .where(GROUP_NAME.eq(groupName))
+              .execute();
         }
       }
     } catch (DataAccessException dae) {
@@ -204,6 +117,7 @@ class SqlSchemaMetadataExecutor {
     }
   }
 
+  // TODO: get this form group_metadata?
   static List<String> executeGetRoles(DSLContext jooq, String schemaName) {
     List<String> result = new ArrayList<>();
     for (Record r :

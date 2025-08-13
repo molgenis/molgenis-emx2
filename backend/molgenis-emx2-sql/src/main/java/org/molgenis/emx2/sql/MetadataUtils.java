@@ -25,6 +25,8 @@ public class MetadataUtils {
   private static final org.jooq.Table TABLE_METADATA = table(name(MOLGENIS, "table_metadata"));
   private static final org.jooq.Table COLUMN_METADATA = table(name(MOLGENIS, "column_metadata"));
   public static final org.jooq.Table USERS_METADATA = table(name(MOLGENIS, "users_metadata"));
+  public static final org.jooq.Table GROUP_METADATA = table(name(MOLGENIS, "group_metadata"));
+  public static final org.jooq.Table GROUP_PERMISSIONS = table(name(MOLGENIS, "group_permissions"));
   private static final org.jooq.Table SETTINGS_METADATA =
       table(name(MOLGENIS, "settings_metadata"));
 
@@ -102,6 +104,11 @@ public class MetadataUtils {
   private static final Field<String> USER_PASS = field(name("password"), VARCHAR);
   public static final Field<Boolean> USER_ENABLED = field(name("enabled"), BOOLEAN.nullable(false));
   public static final Field<Boolean> USER_ADMIN = field(name("admin"), BOOLEAN);
+
+  public static final Field<String[]> USERS =
+      field(name("users"), VARCHAR.nullable(true).getArrayType());
+  static final org.jooq.Field<String> GROUP_NAME =
+      field(name("group_name"), VARCHAR.nullable(false));
 
   // settings field, reused by all other metadata
   static final org.jooq.Field SETTINGS = field(name(org.molgenis.emx2.Constants.SETTINGS), JSON);
