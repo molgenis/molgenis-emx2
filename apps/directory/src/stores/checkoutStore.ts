@@ -142,7 +142,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
           selectedCollections.value,
           selectedServices.value,
           filtersStore.filterType,
-          filtersStore.filterTriggeredBookmark
+          filtersStore.bookmarkWaitingForApplication
         );
       } else {
         /** we should not refresh on a cart update, so track this */
@@ -195,7 +195,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
         selectedCollections.value,
         selectedServices.value,
         filtersStore.filterType,
-        filtersStore.filterTriggeredBookmark
+        filtersStore.bookmarkWaitingForApplication
       );
     } else {
       /** we should not refresh on a cart update, so track this */
@@ -242,7 +242,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
         selectedCollections.value,
         selectedServices.value,
         filtersStore.filterType,
-        filtersStore.filterTriggeredBookmark
+        filtersStore.bookmarkWaitingForApplication
       );
     } else {
       /** we should not refresh on a cart update, so track this */
@@ -289,7 +289,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
         selectedCollections.value,
         selectedServices.value,
         filtersStore.filterType,
-        filtersStore.filterTriggeredBookmark
+        filtersStore.bookmarkWaitingForApplication
       );
     } else {
       /** we should not refresh on a cart update, so track this */
@@ -310,7 +310,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
         selectedCollections.value,
         selectedServices.value,
         filtersStore.filterType,
-        filtersStore.filterTriggeredBookmark
+        filtersStore.bookmarkWaitingForApplication
       );
     }
   }

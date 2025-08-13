@@ -1,16 +1,15 @@
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
-import { useFiltersStore } from "../stores/filtersStore";
 import { IOntologyItem } from "../interfaces/interfaces";
+import { useFiltersStore } from "../stores/filtersStore";
 
-/** Async so we can fire and forget for performance. */
-async function cache(facetIdentifier: any, filterOptions: any) {
-  const { filterOptionsCache } = useFiltersStore() as any;
+function cache(facetIdentifier: string, filterOptions: any) {
+  const { filterOptionsCache } = useFiltersStore();
   filterOptionsCache[facetIdentifier] = filterOptions;
 }
 
 function retrieveFromCache(facetIdentifier: any) {
-  const { filterOptionsCache } = useFiltersStore() as any;
+  const { filterOptionsCache } = useFiltersStore();
   return filterOptionsCache[facetIdentifier] || [];
 }
 
@@ -27,7 +26,7 @@ function removeOptions(filterOptions: any, filterFacet: any) {
   );
 }
 
-export const customFilterOptions = (filterFacet: any) => {
+export const customFilterOptions = (filterFacet: IFilterFacet) => {
   const { facetIdentifier, customOptions } = filterFacet;
   return () =>
     new Promise((resolve) => {
@@ -74,16 +73,7 @@ function getExtraAttributes(row: Record<string, any>, attributes: string[]) {
   }, {});
 }
 
-export const genericFilterOptions = (filterFacet: {
-  sourceTable: string;
-  sourceSchema: string;
-  facetIdentifier: string;
-  filterLabelAttribute: string;
-  filterValueAttribute: string;
-  extraAttributes?: string[];
-  sortColumn: string;
-  sortDirection: "ASC" | "DESC";
-}) => {
+export const genericFilterOptions = (filterFacet: IFilterFacet) => {
   const {
     sourceTable,
     sourceSchema,
@@ -159,7 +149,7 @@ function getAttributeSelection(
   }
 }
 
-export const ontologyFilterOptions = (filterFacet: any) => {
+export const ontologyFilterOptions = (filterFacet: IFilterFacet) => {
   const {
     ontologyIdentifiers,
     sourceSchema,
@@ -193,7 +183,7 @@ export const ontologyFilterOptions = (filterFacet: any) => {
             .then((response: any) => {
               const itemsSplitByOntology = getItemsSplitByOntology(
                 response[sourceTable],
-                ontologyIdentifiers
+                ontologyIdentifiers!
               );
 
               cache(facetIdentifier, itemsSplitByOntology);
@@ -280,4 +270,17 @@ export function getSchema(sourceSchema: string | undefined) {
   return sourceSchema
     ? `${window.location.protocol}//${window.location.host}/${sourceSchema}`
     : "graphql";
+}
+
+interface IFilterFacet {
+  sourceTable: string;
+  sourceSchema: string;
+  facetIdentifier: string;
+  filterLabelAttribute: string;
+  filterValueAttribute: string;
+  extraAttributes?: string[];
+  sortColumn: string;
+  sortDirection: "ASC" | "DESC";
+  ontologyIdentifiers?: string[];
+  customOptions?: any;
 }

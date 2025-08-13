@@ -49,25 +49,10 @@ watch(session, () => {
   settingsStore.setSessionInformation(session.value);
 });
 
-watch(
-  query,
-  (newQuery: LocationQuery, oldQuery) => {
-    if (newQuery && Object.keys(newQuery).length) {
-      const remainingKeys = Object.keys(newQuery).filter(
-        (key) => key !== "cart"
-      );
-      /** if we only have a cart we do not need to wait for the filters to be applied before updating the biobank cards. */
-      if (remainingKeys.length > 0) {
-        filtersStore.bookmarkWaitingForApplication = true;
-      }
-    }
-
-    if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
-      applyBookmark(newQuery);
-    }
-  },
-  { immediate: true, deep: true }
-);
+watch(query, async (newQuery: LocationQuery) => {
+  await router.isReady();
+  applyBookmark(newQuery);
+});
 
 onMounted(changeFavicon);
 
