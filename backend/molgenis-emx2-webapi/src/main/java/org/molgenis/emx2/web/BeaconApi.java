@@ -23,7 +23,7 @@ public class BeaconApi {
     defineRoutes(app, "/{schema}/api/beacon_vp");
     defineRoutes(app, "/api/beacon");
     defineRoutes(app, "/api/beacon_vp");
-    // createTemplates(); TODO: breaks when creating _SYSTEM_ graphql
+    createTemplates();
   }
 
   private static void createTemplates() {

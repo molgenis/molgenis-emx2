@@ -73,7 +73,7 @@ CREATE OR REPLACE FUNCTION "MOLGENIS".schema_metadata_trigger_function()
     RETURNS TRIGGER AS
 $$
 BEGIN
-    IF TG_OP = 'INSERT' THEN -- TODO: handle update and delete
+    IF TG_OP = 'INSERT' THEN
         PERFORM "MOLGENIS".create_or_update_schema_groups(NEW.table_schema);
     ELSIF TG_OP = 'DELETE' THEN
         DELETE FROM "MOLGENIS".group_metadata
