@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 
-import { InputSwitch } from "#components";
+import InputSwitch from "../../components/input/Switch.vue";
 import { type IInputValue } from "../../../metadata-utils/src/types";
 
 const selection = ref<IInputValue>("compact");

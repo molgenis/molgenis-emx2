@@ -10,9 +10,17 @@ import { executeExpression } from "./forms/formUtils/formUtils";
 const { CODE_0, CODE_9, CODE_PERIOD, AUTO_ID } = constants;
 
 export function isRefType(columnType: string): boolean {
-  return ["REF", "REF_ARRAY", "REFBACK", "ONTOLOGY", "ONTOLOGY_ARRAY"].includes(
-    columnType
-  );
+  return [
+    "REF",
+    "REF_ARRAY",
+    "REFBACK",
+    "ONTOLOGY",
+    "ONTOLOGY_ARRAY",
+    "RADIO",
+    "SELECT",
+    "CHECKBOX",
+    "MULTISELECT",
+  ].includes(columnType);
 }
 
 export function isNumericKey(event: KeyboardEvent): boolean {
@@ -42,7 +50,7 @@ export function flattenObject(object: Record<string, any>): string {
 export async function convertRowToPrimaryKey(
   row: IRow,
   tableId: string,
-  schemaId: string
+  schemaId?: string
 ): Promise<Record<string, any>> {
   const client = Client.newClient(schemaId);
   const tableMetadata = await client.fetchTableMetaData(tableId);
@@ -67,7 +75,7 @@ export async function convertRowToPrimaryKey(
   }
 }
 
-async function getKeyValue(cellValue: any, column: IColumn, schemaId: string) {
+async function getKeyValue(cellValue: any, column: IColumn, schemaId?: string) {
   if (typeof cellValue === "string") {
     return cellValue;
   } else {

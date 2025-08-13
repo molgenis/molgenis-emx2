@@ -109,6 +109,9 @@ module.exports = {
       }),
       height: ({ theme }) => ({
         input: "var(--height-input)",
+        "input-tiny": "var(--height-input-tiny)",
+        "input-small": "var(--height-input-small)",
+        "input-large": "var(--height-input-large)",
       }),
       width: {
         "button-switch": "var(--width-button-switch)",
@@ -158,6 +161,7 @@ module.exports = {
         "button-filter-hover": "var(--background-color-button-filter-hover)",
         "button-tree-node-toggle":
           "var(--background-color-button-tree-node-toggle)",
+        "button-inline-hover": "var(--background-color-button-inline-hover)",
         "search-button": "var(--background-color-search-button)",
         "search-button-hover": "var(--background-color-search-button-hover)",
         navigation: "var(--background-color-navigation)",
@@ -241,6 +245,7 @@ module.exports = {
         "title-contrast": "var(--text-color-title-contrast)",
         "title-contrast-pop": "var(--text-color-title-contrast-pop)",
         "sub-title-contrast": "var(--text-color-sub-title-contrast)",
+        "definition-list-term": "var(--text-color-definition-list-term)",
         "search-button": "var(--text-color-search-button)",
         "search-button-hover": "var(--text-color-search-button-hover)",
         favorite: "var(--text-color-favorite)",
@@ -280,6 +285,7 @@ module.exports = {
         "pagination-button": "var(--text-color-pagination-button)",
         "pagination-button-hover": "var(--text-color-pagination-button-hover)",
         link: "var(--text-color-link)",
+        "link-hover": "var(--text-color-link-hover)",
         "link-inverted": "var(--text-color-link-inverted)",
         "table-column-header": "var(--text-color-table-column-header)",
         "table-row": "var(--text-color-table-row)",

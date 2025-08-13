@@ -141,3 +141,12 @@ export interface RefPayload {
   metadata: IRefColumn;
   data: IRow;
 }
+
+export interface Section {
+  heading: string;
+  fields: {
+    key: string;
+    value: columnValue;
+    metadata: IColumn;
+  }[];
+}
