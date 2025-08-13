@@ -95,7 +95,6 @@
                 :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
                   row
                 )}-edit-row-button`"
-                class="invisible group-hover:visible"
                 @click="onShowEditModal(row)"
                 :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
                 aria-haspopup="dialog"
@@ -108,7 +107,6 @@
                 :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
                   row
                 )}-delete-row-button`"
-                class="invisible group-hover:visible"
                 @click="onShowDeleteModal(row)"
                 :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
                 aria-haspopup="dialog"

@@ -19,7 +19,6 @@ const props = withDefaults(
     disabled?: boolean;
     iconOnly?: boolean;
     tooltip?: string;
-    showTooltip?: boolean;
   }>(),
   {
     type: "primary",
@@ -28,7 +27,6 @@ const props = withDefaults(
     iconPosition: "left",
     disabled: false,
     iconOnly: false,
-    showTooltip: true,
   }
 );
 
@@ -103,10 +101,7 @@ const iconSize = computed(() => {
 });
 
 const tooltipText = computed(() => {
-  return (props.tooltip && props.showTooltip) ||
-    (props.iconOnly && props.showTooltip)
-    ? props.label
-    : "";
+  return props.tooltip || props.iconOnly ? props.label : "";
 });
 </script>
 
