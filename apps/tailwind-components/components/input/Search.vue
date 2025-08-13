@@ -55,7 +55,7 @@ function handleInput(input: string) {
           'text-valid': valid,
           'text-invalid': invalid,
           'text-disabled': disabled,
-          'text-input': !disabled && !valid && !invalid,
+          'text-input': !disabled,
           'w-[12px]': size === 'tiny',
           'w-[16px]': size === 'small',
           'w-[21px]': size === 'medium',
