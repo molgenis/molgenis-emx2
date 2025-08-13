@@ -39,7 +39,7 @@ class SqlSchemaMetadataExecutor {
               + currentRoles);
     }
 
-    if (schema.getDatabase().hasUser(member.getUser())) {
+    if (!schema.getDatabase().hasUser(member.getUser())) {
       schema.getDatabase().addUser(member.getUser());
     }
 
