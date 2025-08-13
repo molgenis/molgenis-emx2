@@ -75,6 +75,9 @@ $$
 BEGIN
     IF TG_OP = 'INSERT' THEN -- TODO: handle update and delete
         PERFORM "MOLGENIS".create_or_update_schema_groups(NEW.table_schema);
+    ELSIF TG_OP = 'DELETE' THEN
+        DELETE FROM "MOLGENIS".group_metadata
+        WHERE group_name LIKE OLD.table_schema || '/%';
     END IF;
 
     RETURN NEW;
@@ -381,8 +384,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
--- Function to create or update schema-level permissions for a schema
 -- Function to create or update schema-level permissions for a schema
 CREATE OR REPLACE FUNCTION "MOLGENIS".create_or_update_schema_groups(
     schema_id TEXT
