@@ -37,9 +37,20 @@ async function signin() {
     if (signinResp.data.signin.status === "SUCCESS") {
       console.log(signinResp.data.signin);
       (await useSession()).reload();
-      route.redirectedFrom || router.getRoutes().length
-        ? router.back()
-        : navigateTo({ path: "/" });
+
+      // Send a message to the opener
+      if (window && window.opener) {
+        window.opener.postMessage(
+          { status: "reAuthenticated" },
+          window.location.origin // restrict to same origin
+        );
+
+        window.close();
+      } else {
+        route.redirectedFrom || router.getRoutes().length
+          ? router.back()
+          : navigateTo({ path: "/" });
+      }
     } else {
       console.log(signinResp.data.signin.message);
       error.value = signinResp.data.signin.message;

@@ -53,7 +53,9 @@ export const useSession = async () => {
     }
   }
 
-  await loadSession();
+  if (!session.value) {
+    await loadSession();
+  }
 
   function reload() {
     session.value = null;

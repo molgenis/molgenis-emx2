@@ -77,6 +77,22 @@
       <FormError
         v-show="saveErrorMessage"
         :message="saveErrorMessage"
+        :show-prev-next-buttons="!showSignInButton"
+        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+      >
+        <Button
+          v-if="showSignInButton"
+          type="outline"
+          size="small"
+          @click="reAuthenticate"
+          >Re-authenticate</Button
+        >
+      </FormError>
+    </Transition>
+    <Transition name="slide-up">
+      <FormMessage
+        v-show="formMessage"
+        :message="formMessage"
         class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
       />
     </Transition>
@@ -111,6 +127,7 @@ import type {
 import useSections from "../../composables/useSections";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
+import { SessionExpiredError } from "../../utils/sessionExpiredError";
 
 const props = withDefaults(
   defineProps<{
@@ -132,6 +149,8 @@ const visible = defineModel("visible", {
 });
 
 const saveErrorMessage = ref<string>("");
+const formMessage = ref<string>("");
+const showSignInButton = ref<boolean>(false);
 
 function setVisible() {
   visible.value = true;
@@ -165,8 +184,14 @@ async function onSaveDraft() {
 async function onSave() {
   const resp = await insertInto(props.schemaId, props.metadata.id).catch(
     (err) => {
-      console.error("Error saving data", err);
-      saveErrorMessage.value = errorToMessage(err, "Error saving data");
+      console.log("Error saving data", err);
+      if (err instanceof SessionExpiredError) {
+        saveErrorMessage.value =
+          "Your session has expired. Please sign in to complete this action.";
+        showSignInButton.value = true;
+      } else {
+        saveErrorMessage.value = errorToMessage(err, "Error saving data");
+      }
 
       return null;
     }
@@ -201,6 +226,8 @@ function resetState() {
   errorMap.value = {};
   saveErrorMessage.value = "";
   isDraft.value = false;
+  showSignInButton.value = false;
+  formMessage.value = "";
 }
 
 watch(visible, (newValue, oldValue) => {
@@ -220,4 +247,30 @@ const {
 } = useForm(props.metadata, formValues, errorMap, (fieldId) => {
   scrollToElementInside("fields-container", fieldId);
 });
+
+function reAuthenticate() {
+  const topWindow = window.top ?? window;
+  const y = topWindow.outerHeight / 2 + topWindow.screenY - 400 / 2;
+  const x = topWindow.outerWidth / 2 + topWindow.screenX - 600 / 2;
+  const reAuthWindow = window.open(
+    "/login",
+    "_blank",
+    `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=600, height=400, top=${y}, left=${x}`
+  );
+  window.addEventListener("message", (event) => {
+    if (event.origin !== window.location.origin) {
+      saveErrorMessage.value = "Error re-authenticating; Invalid origin";
+      return;
+    }
+    if (event.data.status === "reAuthenticated") {
+      saveErrorMessage.value = "";
+      showSignInButton.value = false;
+      formMessage.value =
+        "Re-authenticated, please click 'save' to persist the form changes";
+      if (reAuthWindow) {
+        reAuthWindow.close();
+      }
+    }
+  });
+}
 </script>
