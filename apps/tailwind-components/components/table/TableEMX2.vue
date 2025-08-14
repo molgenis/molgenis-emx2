@@ -28,15 +28,16 @@
     </div>
   </div>
 
-  <div class="overflow-auto rounded-b-theme">
+  <div
+    class="overflow-auto rounded-b-theme border border-theme border-color-theme"
+  >
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
-      <table
-        class="text-left table-fixed w-full border border-theme border-color-theme"
-      >
+      <table class="text-left table-fixed w-full">
         <thead>
           <tr>
             <TableHeadCell
               v-if="isEditable"
+              class="sticky -left-1 z-10 bg-table"
               :class="{
                 '!w-[32px] !max-w-[32px]': columns.length === 1,
                 '!w-[62px]': columns.length > 2,
@@ -88,33 +89,39 @@
           >
             <TableBodyCell
               v-if="isEditable"
-              class="text-table-row flex flex-row items-stretch justify-end h-12 flex-nowrap gap-1 w-auto"
+              class="sticky -left-1 z-10 text-table-row bg-table group-hover:bg-hover"
               :truncate="false"
             >
-              <button
-                :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
-                  row
-                )}-edit-row-button`"
-                @click="onShowEditModal(row)"
-                :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
-                aria-haspopup="dialog"
-                :aria-expanded="showEditModal"
+              <div
+                class="flex flex-row items-stretch justify-end h-12 flex-nowrap gap-1 w-auto invisible group-hover:visible"
               >
-                <BaseIcon name="edit" :width="18" />
-                <span class="sr-only">edit {{ getRowId(row) }}</span>
-              </button>
-              <button
-                :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
-                  row
-                )}-delete-row-button`"
-                @click="onShowDeleteModal(row)"
-                :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
-                aria-haspopup="dialog"
-                :aria-expanded="showDeleteModal"
-              >
-                <BaseIcon name="trash" :width="18" />
-                <span class="sr-only">delete {{ getRowId(row) }}</span>
-              </button>
+                <button
+                  :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
+                    row
+                  )}-edit-row-button`"
+                  class="text-button-icon hover:text-button-icon-hover"
+                  @click="onShowEditModal(row)"
+                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+                  aria-haspopup="dialog"
+                  :aria-expanded="showEditModal"
+                >
+                  <BaseIcon name="edit" :width="18" />
+                  <span class="sr-only">edit {{ getRowId(row) }}</span>
+                </button>
+                <button
+                  :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
+                    row
+                  )}-delete-row-button`"
+                  class="text-button-icon hover:text-button-icon-hover"
+                  @click="onShowDeleteModal(row)"
+                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+                  aria-haspopup="dialog"
+                  :aria-expanded="showDeleteModal"
+                >
+                  <BaseIcon name="trash" :width="18" />
+                  <span class="sr-only">delete {{ getRowId(row) }}</span>
+                </button>
+              </div>
             </TableBodyCell>
             <TableCellEMX2
               v-for="column in sortedVisibleColumns"
