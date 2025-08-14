@@ -73,7 +73,8 @@ import { computed } from "vue";
 
 const config = useRuntimeConfig();
 const route = useRoute();
-const { session, reload: reloadSession } = await useSession();
+const schema = computed(() => route.params.schema as string);
+const { session, reload: reloadSession } = await useSession(schema.value);
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
@@ -104,8 +105,6 @@ const isSignedIn = computed(
   () => !!session.value?.email && session.value?.email !== "anonymous"
 );
 const isAdmin = computed(() => session.value?.admin);
-
-const schema = computed(() => route.params.schema as string);
 
 const navigation = computed(() => {
   const items = [

@@ -4,26 +4,47 @@ import type { ISession } from "../types/types";
 
 const session = ref<ISession | null>();
 
-export const useSession = async () => {
+export const useSession = async (schemaId?: string) => {
   async function fetchSessionDetails() {
     return await $fetch("/api/graphql", {
       method: "POST",
       body: JSON.stringify({
-        query: `{_session { email, admin, roles, token }}`,
+        query: `{_session { email, admin, token }}`,
+      }),
+    });
+  }
+
+  async function fetchSchemaRoles(schemaId: string) {
+    return await $fetch(`/${schemaId}/graphql`, {
+      method: "POST",
+      body: JSON.stringify({
+        query: `{_session { roles }}`,
       }),
     });
   }
 
   async function loadSession() {
-    await useAsyncData("session", async () => {
-      const { data, error } = await fetchSessionDetails();
-      if (error) {
-        console.error("Error fetching session", error);
-        return null;
-      }
+    const schemaRolesPromise = schemaId
+      ? useAsyncData("schemaRoles_" + schemaId, () => fetchSchemaRoles(schemaId))
+      : Promise.resolve(null);
 
-      session.value = data._session;
-    });
+    const sessionPromise = useAsyncData("session", () => fetchSessionDetails());
+
+    // parallel requests
+    const [schemaRolesResult, sessionResult] = await Promise.all([
+      schemaRolesPromise,
+      sessionPromise,
+    ]);
+
+    if (sessionResult.error.value || schemaRolesResult?.error.value) {
+      console.error("Error fetching session", sessionResult.error.value);
+    }
+
+    session.value = sessionResult.data.value?.data._session;
+
+    if(session.value && schemaId) {
+      session.value.roles = schemaRolesResult?.data.value?.data._session.roles;
+    }
   }
 
   await loadSession();
