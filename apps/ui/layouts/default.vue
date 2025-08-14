@@ -74,7 +74,7 @@ import { computed } from "vue";
 const config = useRuntimeConfig();
 const route = useRoute();
 const schema = computed(() => route.params.schema as string);
-const { session, reload: reloadSession } = await useSession(schema.value);
+const { session, reload: reloadSession } = await useSession();
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`

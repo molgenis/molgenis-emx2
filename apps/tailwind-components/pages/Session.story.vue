@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useSession } from "../composables/useSession";
-
 const { isAdmin, session, reload, hasSessionTimeout } = await useSession();
 
 const timeoutCheckResponse = ref("unknown");

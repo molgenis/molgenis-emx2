@@ -1,10 +1,14 @@
 import { useAsyncData } from "#app/composables/asyncData";
 import { computed, ref } from "vue";
+import { useRoute } from "#app/composables/router";
 import type { ISession } from "../types/types";
 
 const session = ref<ISession | null>();
 
-export const useSession = async (schemaId?: string) => {
+export const useSession = async () => {
+  const route = useRoute();
+  const schemaId = route.params.schema as string | null;
+
   async function fetchSessionDetails() {
     return await $fetch("/api/graphql", {
       method: "POST",
@@ -25,7 +29,9 @@ export const useSession = async (schemaId?: string) => {
 
   async function loadSession() {
     const schemaRolesPromise = schemaId
-      ? useAsyncData("schemaRoles_" + schemaId, () => fetchSchemaRoles(schemaId))
+      ? useAsyncData("schemaRoles_" + schemaId, () =>
+          fetchSchemaRoles(schemaId)
+        )
       : Promise.resolve(null);
 
     const sessionPromise = useAsyncData("session", () => fetchSessionDetails());
@@ -42,7 +48,7 @@ export const useSession = async (schemaId?: string) => {
 
     session.value = sessionResult.data.value?.data._session;
 
-    if(session.value && schemaId) {
+    if (session.value && schemaId) {
       session.value.roles = schemaRolesResult?.data.value?.data._session.roles;
     }
   }

@@ -2,17 +2,13 @@
 import { useFetch } from "#app/composables/fetch";
 import { computed, ref } from "vue";
 import type { Resp } from "../../tailwind-components/types/types";
-import { navigateTo, useRoute } from "#app/composables/router";
-import { useSession } from "../../tailwind-components/composables/useSession";
+import { navigateTo } from "#app/composables/router";
 
 interface Schema {
   id: string;
   label: string;
   description: string;
 }
-
-const schemaId = useRoute().params.schema as string;
-const { isAdmin, session } = await useSession();
 
 const { data } = await useFetch<Resp<Schema>>("/graphql", {
   key: "databases",
