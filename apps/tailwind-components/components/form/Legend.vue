@@ -1,5 +1,5 @@
 <template>
-  <nav class="pt-4 pb-8" v-if="sections.length > 1">
+  <nav class="pt-4 pb-8 bg-form-legend" v-if="sections.length > 1">
     <h3 class="text-disabled p-4 ml-4">Jump to</h3>
     <ul class="list-none">
       <li
@@ -20,10 +20,13 @@
             {{ section.label }}
           </span>
           <span v-if="(section.errorCount ?? 0) > 0" class="sr-only">
-            {{ section.errorCount === 1 ? "error" : "errors" }}
+            {{ section.errorCount }} error{{
+              section.errorCount > 1 || section.errorCount === 0 ? "s" : ""
+            }}
           </span>
         </a>
         <div
+          v-if="(section.errorCount ?? 0) > 0"
           class="inline-flex h-6 w-6 shrink-0 grow-0 items-center justify-center rounded-full bg-notification text-legend-error-count"
         >
           {{ (section.errorCount ?? 0) > 9 ? "9+" : section.errorCount }}
