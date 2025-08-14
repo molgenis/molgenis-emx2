@@ -31,7 +31,8 @@
     "imdhub-public",
     "emx2-analytics",
     "ui",
-    "nestor-public"
+    "nestor-public",
+    "validation"
   ],
   "scripts": {
     "build:libs": "yarn workspace molgenis-components run build && yarn workspace molgenis-viz run build"
