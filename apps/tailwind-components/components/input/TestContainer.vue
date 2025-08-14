@@ -55,6 +55,7 @@
           id="test-container-required"
           description="set to true to show required tags"
           align="vertical"
+          @required="emits('required', required)"
         />
         <FormField
           v-if="showMultiple"
@@ -66,6 +67,7 @@
           id="test-container-multiple"
           align="vertical"
           description="set to true to enable multiple selection"
+          @change="emits('multiple', multiple)"
         />
         <slot name="settings"></slot>
         <p v-if="showBlurCount">focusCount = {{ focusCount }}</p>
@@ -87,6 +89,12 @@ defineProps<{
   showBlurCount?: boolean;
   showMultiple?: boolean;
 }>();
+
+const emits = defineEmits<{
+  (e: "required", value: boolean): void;
+  (e: "multiple", value: boolean): void;
+}>();
+
 const placeholder = ref("");
 const state = ref([] as string[]);
 const errorMessage = ref("");

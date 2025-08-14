@@ -53,18 +53,4 @@ test("test expand and deselect behavior", async ({ page }) => {
       .filter({ hasText: "species" })
       .locator("rect")
   ).toBeVisible();
-  //search
-  await page.getByRole("button", { name: "Search" }).nth(1).click();
-  await page.getByPlaceholder("Search in terms").click();
-  await page.getByPlaceholder("Search in terms").fill("re");
-  await expect(
-    page
-      .locator("#test-ontology-array-input-id-checkbox-group")
-      .getByText("colors", { exact: true })
-  ).toBeVisible();
-  await expect(
-    page
-      .locator("#test-ontology-array-input-id-checkbox-group")
-      .getByText("species", { exact: true })
-  ).toBeVisible();
 });

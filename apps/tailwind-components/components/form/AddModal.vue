@@ -1,14 +1,16 @@
 <template>
-  <slot :setVisible="setVisible">
-    <Button
-      class="m-10"
-      type="primary"
-      size="small"
-      icon="plus"
-      @click="visible = true"
-      >Add {{ rowType }}</Button
-    >
-  </slot>
+  <template v-if="showButton">
+    <slot :setVisible="setVisible">
+      <Button
+        class="m-10"
+        type="primary"
+        size="small"
+        icon="plus"
+        @click="visible = true"
+        >Add {{ rowType }}</Button
+      >
+    </slot>
+  </template>
   <Modal v-model:visible="visible" max-width="max-w-9/10">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
@@ -115,8 +117,11 @@ const props = withDefaults(
     metadata: ITableMetaData;
     schemaId: string;
     constantValues?: IRow;
+    showButton?: boolean;
   }>(),
-  {}
+  {
+    showButton: true,
+  }
 );
 
 const emit = defineEmits(["update:added", "update:cancelled"]);
