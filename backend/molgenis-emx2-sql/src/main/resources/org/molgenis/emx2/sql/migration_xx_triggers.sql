@@ -1,6 +1,8 @@
 -- ========================================
 -- Tables
 -- ========================================
+ALTER TABLE "MOLGENIS".table_metadata
+    ADD row_level_security BOOLEAN DEFAULT FALSE;
 
 -- Create groups metadata table, which will also trigger group creation, update, drop
 CREATE TABLE IF NOT EXISTS "MOLGENIS".group_metadata
@@ -76,7 +78,8 @@ BEGIN
     IF TG_OP = 'INSERT' THEN
         PERFORM "MOLGENIS".create_or_update_schema_groups(NEW.table_schema);
     ELSIF TG_OP = 'DELETE' THEN
-        DELETE FROM "MOLGENIS".group_metadata
+        DELETE
+        FROM "MOLGENIS".group_metadata
         WHERE group_name LIKE OLD.table_schema || '/%';
     END IF;
 
@@ -421,124 +424,123 @@ BEGIN
     group_name := format('%s/Range', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
-    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-    VALUES (group_name, ARRAY []::varchar[]);
-    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
-    VALUES (group_name, schema_id, true);
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[]);
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
+        VALUES (group_name, schema_id, true);
     END IF;
     -- Grant Exists to Range
     EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Exists'),
-                                      format('MG_ROLE_%s/%s', schema_id, 'Range'));
+                   format('MG_ROLE_%s/%s', schema_id, 'Range'));
 
     -- Aggregator
     group_name := format('%s/Aggregator', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
-    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-    VALUES (group_name, ARRAY []::varchar[]);
-    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
-    VALUES (group_name, schema_id, true);
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[]);
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
+        VALUES (group_name, schema_id, true);
     END IF;
     -- Grant Range to Aggregator
     EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Range'),
-                                      format('MG_ROLE_%s/%s', schema_id, 'Aggregator'));
+                   format('MG_ROLE_%s/%s', schema_id, 'Aggregator'));
 
     -- Count
     group_name := format('%s/Count', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
-    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-    VALUES (group_name, ARRAY []::varchar[]);
-    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
-    VALUES (group_name, schema_id, true);
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[]);
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
+        VALUES (group_name, schema_id, true);
     END IF;
     -- Grant Aggregator to Count
     EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Aggregator'),
-                                      format('MG_ROLE_%s/%s', schema_id, 'Count'));
+                   format('MG_ROLE_%s/%s', schema_id, 'Count'));
 
     -- Viewer
     group_name := format('%s/Viewer', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
-    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-    VALUES (group_name, ARRAY []::varchar[]);
-    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
-    VALUES (group_name, schema_id, true);
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[]);
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select)
+        VALUES (group_name, schema_id, true);
     END IF;
     -- Grant Count to Viewer
     EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Count'),
-                                      format('MG_ROLE_%s/%s', schema_id, 'Viewer'));
+                   format('MG_ROLE_%s/%s', schema_id, 'Viewer'));
 
     -- Editor
     group_name := format('%s/Editor', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
-    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-    VALUES (group_name, ARRAY []::varchar[])
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[])
         ON CONFLICT DO NOTHING;
-    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
                                                  has_delete)
-    VALUES (group_name, schema_id, true, true, true, true);
+        VALUES (group_name, schema_id, true, true, true, true);
     END IF;
     -- Grant Viewer to Editor
     EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Viewer'),
-                                      format('MG_ROLE_%s/%s', schema_id, 'Editor'));
+                   format('MG_ROLE_%s/%s', schema_id, 'Editor'));
 
     -- Manager
     group_name := format('%s/Manager', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
-    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-    VALUES (group_name, ARRAY []::varchar[])
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[])
         ON CONFLICT DO NOTHING;
-    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
                                                  has_delete)
-    VALUES (group_name, schema_id, true, true, true, true);
+        VALUES (group_name, schema_id, true, true, true, true);
     END IF;
     -- Grant Editor to Manager
     EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Editor'),
-                                      format('MG_ROLE_%s/%s', schema_id, 'Manager'));
+                   format('MG_ROLE_%s/%s', schema_id, 'Manager'));
 
     -- Owner
     group_name := format('%s/Owner', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
-    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-    VALUES (group_name, ARRAY []::varchar[])
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[])
         ON CONFLICT DO NOTHING;
-    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_select, has_insert, has_update,
                                                  has_delete)
-    VALUES (group_name, schema_id, true, true, true, true);
+        VALUES (group_name, schema_id, true, true, true, true);
     END IF;
     -- Grant Manager to Owner
     EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Manager'),
-                                      format('MG_ROLE_%s/%s', schema_id, 'Owner'));
+                   format('MG_ROLE_%s/%s', schema_id, 'Owner'));
 
     -- Admin
     group_name := format('%s/Admin', schema_id);
     role_name := format('MG_ROLE_%s', group_name);
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name) THEN
-    INSERT INTO "MOLGENIS".group_metadata(group_name, users)
-    VALUES (group_name, ARRAY []::varchar[]);
-    INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_update, has_insert, has_delete,
+        INSERT INTO "MOLGENIS".group_metadata(group_name, users)
+        VALUES (group_name, ARRAY []::varchar[]);
+        INSERT INTO "MOLGENIS".group_permissions(group_name, table_schema, has_update, has_insert, has_delete,
                                                  has_select, has_admin)
-    VALUES (group_name, schema_id, true, true, true, true, true);
+        VALUES (group_name, schema_id, true, true, true, true, true);
     END IF;
     -- Grant Owner to Admin
     EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Owner'),
-                                      format('MG_ROLE_%s/%s', schema_id, 'Admin'));
+                   format('MG_ROLE_%s/%s', schema_id, 'Admin'));
 
-    END;
+END;
 $$;
 
 -- Function to enable RLS
-CREATE OR REPLACE FUNCTION "MOLGENIS".enable_RLS_on_table(schema_id TEXT, table_id TEXT) -- TODO: add disable RLS function?
+CREATE OR REPLACE FUNCTION "MOLGENIS".enable_RLS_on_table(schema_id TEXT, table_id TEXT)
     RETURNS void AS
 $$
 DECLARE
-    policies_exists TEXT[];
-    safe_schema_id  TEXT := replace(schema_id, ' ', '_'); -- todo: change this toCamelCase
-    safe_table_id   TEXT := replace(table_id, ' ', '_');
+    safe_schema_id TEXT := replace(schema_id, ' ', '_'); -- todo: change this toCamelCase
+    safe_table_id  TEXT := replace(table_id, ' ', '_');
 BEGIN
     -- check if table exists
     IF NOT EXISTS (SELECT 1
@@ -547,6 +549,10 @@ BEGIN
                      AND table_name = table_id) THEN
         RAISE EXCEPTION 'Table %.% does not exist.', schema_id, table_id;
     END IF;
+
+    INSERT INTO "MOLGENIS".column_metadata (table_schema, table_name, column_name, "columnType", key, position, cascade,
+                                            readonly)
+    VALUES (schema_id, table_id, 'mg_group', 'STRING_ARRAY', 0, 0, false, false);
 
     -- Ensure the 'mg_group' column exists
     EXECUTE format(
@@ -559,36 +565,35 @@ BEGIN
             schema_id, table_id
             );
 
-    -- Fetch existing policies
-    SELECT COALESCE(array_agg(policyname), ARRAY []::TEXT[])
-    INTO policies_exists
-    FROM pg_policies
-    WHERE schemaname = schema_id
-      AND tablename = table_id;
-
-    -- Create SELECT policy if not exists
-    IF NOT ('select_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
-        EXECUTE format('CREATE POLICY select_policy_%s_%s ON %I.%I FOR SELECT USING (
-                        EXISTS (
-                            SELECT 1
-                            FROM "MOLGENIS".user_permissions_mv u
-                            WHERE u.user_name = current_user
-                              AND u.table_schema = %L
-                              AND (u.table_name = %L OR u.table_name IS NULL)
-                              AND u.has_select
-                              AND (
-                                (NOT u.is_row_level) OR
-                                (u.is_row_level AND u.group_name = ANY(mg_group))
-                              )
-                        )
-                    )',
-                       safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
+    -- SELECT policy
+    IF NOT EXISTS (SELECT 1
+                   FROM pg_policies
+                   WHERE schemaname = schema_id
+                     AND tablename = table_id
+                     AND policyname = 'select_policy_' || safe_schema_id || '_' || safe_table_id) THEN
+        EXECUTE format(
+                'CREATE POLICY select_policy_%s_%s ON %I.%I FOR SELECT USING (
+                    EXISTS (
+                        SELECT 1
+                        FROM "MOLGENIS".user_permissions_mv u
+                        WHERE u.user_name = current_user
+                          AND u.table_schema = %L
+                          AND (u.table_name = %L OR u.table_name IS NULL)
+                          AND u.has_select
+                          AND ((NOT u.is_row_level) OR (u.is_row_level AND u.group_name = ANY(mg_group)))
+                    )
+                )',
+                safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
                 );
         RAISE NOTICE 'Select policy created on %.%', schema_id, table_id;
     END IF;
 
-    -- Create INSERT policy if not exists
-    IF NOT ('insert_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
+    -- INSERT policy
+    IF NOT EXISTS (SELECT 1
+                   FROM pg_policies
+                   WHERE schemaname = schema_id
+                     AND tablename = table_id
+                     AND policyname = 'insert_policy_' || safe_schema_id || '_' || safe_table_id) THEN
         EXECUTE format(
                 'CREATE POLICY insert_policy_%s_%s ON %I.%I FOR INSERT WITH CHECK (
                     EXISTS (
@@ -603,11 +608,14 @@ BEGIN
                 safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
                 );
         RAISE NOTICE 'Insert policy created on %.%', schema_id, table_id;
-
     END IF;
 
-    -- Create UPDATE policy if not exists
-    IF NOT ('update_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
+    -- UPDATE policy
+    IF NOT EXISTS (SELECT 1
+                   FROM pg_policies
+                   WHERE schemaname = schema_id
+                     AND tablename = table_id
+                     AND policyname = 'update_policy_' || safe_schema_id || '_' || safe_table_id) THEN
         EXECUTE format(
                 'CREATE POLICY update_policy_%s_%s ON %I.%I FOR UPDATE USING (
                     EXISTS (
@@ -625,8 +633,12 @@ BEGIN
         RAISE NOTICE 'Update policy created on %.%', schema_id, table_id;
     END IF;
 
-    -- Create DELETE policy if not exists
-    IF NOT ('delete_policy_' || safe_schema_id || '_' || safe_table_id = ANY (policies_exists)) THEN
+    -- DELETE policy
+    IF NOT EXISTS (SELECT 1
+                   FROM pg_policies
+                   WHERE schemaname = schema_id
+                     AND tablename = table_id
+                     AND policyname = 'delete_policy_' || safe_schema_id || '_' || safe_table_id) THEN
         EXECUTE format(
                 'CREATE POLICY delete_policy_%s_%s ON %I.%I FOR DELETE USING (
                     EXISTS (
@@ -643,5 +655,6 @@ BEGIN
                 );
         RAISE NOTICE 'Delete policy created on %.%', schema_id, table_id;
     END IF;
-END;
+
+END ;
 $$ LANGUAGE plpgsql;

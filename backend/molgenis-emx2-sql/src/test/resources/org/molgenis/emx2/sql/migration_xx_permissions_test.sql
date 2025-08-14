@@ -56,12 +56,12 @@ FROM "pet_store"."Pet";
 RESET ROLE;
 UPDATE "MOLGENIS".group_permissions SET is_row_level = true WHERE group_name = 'pet_store_SPECIAL';
 
-SET ROLE "MG_USER_test@test.com"
+SET ROLE "MG_USER_test@test.com";
 SELECT COUNT(*)
 FROM "pet_store"."Pet";
 SELECT *
 FROM "pet_store"."Pet";
-;
+
 
 -- Still no access
 SET ROLE "MG_USER_test2@test.com";

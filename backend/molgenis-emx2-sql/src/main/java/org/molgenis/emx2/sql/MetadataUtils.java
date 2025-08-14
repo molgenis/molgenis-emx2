@@ -57,6 +57,8 @@ public class MetadataUtils {
   private static final Field<String[]> TABLE_SEMANTICS =
       field(name("table_semantics"), VARCHAR.getArrayDataType().nullable(true));
   private static final Field<String> TABLE_TYPE = field(name("table_type"), VARCHAR.nullable(true));
+  private static final Field<Boolean> ROW_LEVEL_SECURITY =
+      field(name("row_level_security"), BOOLEAN.nullable(false));
 
   // column
   private static final Field<String> COLUMN_NAME =
@@ -362,6 +364,7 @@ public class MetadataUtils {
               TABLE_DESCRIPTION,
               TABLE_SEMANTICS,
               TABLE_TYPE,
+              ROW_LEVEL_SECURITY,
               SETTINGS)
           .values(
               table.getSchema().getName(),
@@ -372,6 +375,7 @@ public class MetadataUtils {
               table.getDescriptions(),
               table.getSemantics(),
               Objects.toString(table.getTableType(), null),
+              table.hasRowLevelSecurity(),
               table.getSettings())
           .onConflict(TABLE_SCHEMA, TABLE_NAME)
           .doUpdate()
@@ -381,6 +385,7 @@ public class MetadataUtils {
           .set(TABLE_DESCRIPTION, table.getDescriptions())
           .set(TABLE_SEMANTICS, table.getSemantics())
           .set(TABLE_TYPE, Objects.toString(table.getTableType(), null))
+          .set(ROW_LEVEL_SECURITY, table.hasRowLevelSecurity())
           .set(SETTINGS, table.getSettings())
           .execute();
     } catch (Exception e) {
@@ -501,6 +506,7 @@ public class MetadataUtils {
     TableMetadata table = new TableMetadata(r.get(TABLE_NAME, String.class));
     table.setInheritName(r.get(TABLE_INHERITS, String.class));
     table.setImportSchema(r.get(TABLE_IMPORT_SCHEMA, String.class));
+    table.setRowLevelSecurity(r.get(ROW_LEVEL_SECURITY, Boolean.class));
     table.setLabels(r.get(TABLE_LABEL) != null ? r.get(TABLE_LABEL, Map.class) : new TreeMap<>());
     table.setDescriptions(
         r.get(TABLE_DESCRIPTION) != null ? r.get(TABLE_DESCRIPTION, Map.class) : new TreeMap<>());
@@ -727,5 +733,24 @@ public class MetadataUtils {
 
   public static void resetVersion() {
     version = null;
+  }
+
+  public static void setRowLevelSecurity(SqlSchemaMetadata schema, TableMetadata table) {
+    if (table.hasRowLevelSecurity()) {
+      Field<Object> rlsFunction =
+          function(
+              "\"MOLGENIS\".enable_RLS_on_table",
+              Object.class,
+              val(schema.getName()),
+              val(table.getIdentifier()));
+      schema.getJooq().select(rlsFunction).execute();
+    } else {
+      schema
+          .getJooq()
+          .query(
+              "ALTER TABLE {0}.{1} DISABLE ROW LEVEL SECURITY",
+              name(schema.getName()), name(table.getIdentifier()))
+          .execute();
+    }
   }
 }

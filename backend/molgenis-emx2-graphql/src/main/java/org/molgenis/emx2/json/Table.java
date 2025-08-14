@@ -10,6 +10,7 @@ public class Table {
   private String name;
   private String label;
   private String description;
+  private Boolean rowLevelSecurity;
   private String oldName;
   private boolean drop;
   private String[] pkey;
@@ -37,6 +38,7 @@ public class Table {
     this.name = tableMetadata.getTableName();
     this.label = tableMetadata.getLabel();
     this.description = tableMetadata.getDescription();
+    this.rowLevelSecurity = tableMetadata.hasRowLevelSecurity();
     this.labels =
         tableMetadata.getLabels().entrySet().stream()
             .filter(entry -> entry.getValue() != null && entry.getValue().trim().length() > 0)
@@ -200,5 +202,13 @@ public class Table {
 
   public void setProfiles(String[] profiles) {
     this.profiles = profiles;
+  }
+
+  public Boolean hasRowLevelSecurity() {
+    return rowLevelSecurity;
+  }
+
+  public void setRowLevelSecurity(Boolean rowLevelSecurity) {
+    this.rowLevelSecurity = rowLevelSecurity;
   }
 }

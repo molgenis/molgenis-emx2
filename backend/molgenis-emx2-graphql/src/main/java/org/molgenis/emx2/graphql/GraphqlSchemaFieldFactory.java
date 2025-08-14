@@ -477,7 +477,7 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
-                  .name(ROW_LEVEL_SEC)
+                  .name(ROW_LEVEL_SECURITY)
                   .type(Scalars.GraphQLBoolean))
           .build();
 
