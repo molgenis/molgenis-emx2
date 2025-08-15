@@ -13,7 +13,6 @@ definePageMeta({
   middleware: [
     async function (to, from) {
       const settings = await useSettings();
-      console.log("Login middleware called", settings);
       if (settings.value?.isOidcEnabled) {
         let redirectAfterLogin = window.location.href;
         if (to.query.reauthenticate === "true") {
