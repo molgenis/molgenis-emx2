@@ -2,6 +2,7 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Subpopulations,,,,,,,,,,,dcat:Dataset,Subpopulations defined for this resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,resource,ref,1,TRUE,,Resources,,,,dcat:inSeries,Resource this subpopulation is part of,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,name,,1,TRUE,,,,,,"dcterms:title,dcterms:identifier","Subpopulation name, e.g. 'mothers in first trimester','newborns'","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
+Subpopulations,,pid,hyperlink,,,,,,,,dcterms:identifier,Persistent identifier for this subpopulation,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,description,text,,,,,,,,dcterms:description,Subpopulation description,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,number of participants,int,,,,,,,,,Number of participants in this subpopulation,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,counts,refback,,,,Subpopulation counts,,subpopulation,,,"Total number of unique individuals per age(group), gender and year","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts",
