@@ -18,11 +18,11 @@ import { Molgenis } from "molgenis-components";
 import { computed, onMounted, ref, watch } from "vue";
 import { LocationQuery, useRoute } from "vue-router";
 import Error from "./components/Error.vue";
-import { applyBookmark, createBookmark } from "./functions/bookmarkMapper";
+import { applyBookmark } from "./functions/bookmarkMapper";
+import router from "./router";
 import { useCheckoutStore } from "./stores/checkoutStore";
 import { useFiltersStore } from "./stores/filtersStore";
 import { useSettingsStore } from "./stores/settingsStore";
-import router from "./router";
 
 const route = useRoute();
 const query = computed(() => route.query);

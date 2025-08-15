@@ -26,7 +26,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const graphqlEndpointOntologyFilter = "/DirectoryOntologies/graphql";
 
-  const bookmarkWaitingForApplication = ref(false);
   const bookmarkTriggeredFilter = ref(false);
   const filterTriggeredBookmark = ref(false);
 
@@ -90,8 +89,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       Record<string, any>
     ]) => {
       settingsStore.currentPage = 1;
-      bookmarkWaitingForApplication.value = false;
-      updateQueryAndBookmark(newFilters, newFilterType);
+      updateQuery(newFilters, newFilterType);
+      updateBookmark(newFilters);
       getBiobankCards();
     },
     750
@@ -291,8 +290,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       filters.value,
       checkoutStore.selectedCollections,
       checkoutStore.selectedServices,
-      filterType.value,
-      bookmarkWaitingForApplication.value
+      filterType.value
     );
   }
 
@@ -356,7 +354,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return filterType.value[filterName] || "any";
   }
 
-  function updateQueryAndBookmark(
+  function updateQuery(
     newFilters: Record<string, any>,
     newFilterTypes: Record<string, any>
   ) {
@@ -366,17 +364,19 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       facetDetails.value,
       newFilterTypes
     );
+  }
 
+  function updateBookmark(newFilters: Record<string, any>) {
     if (!bookmarkTriggeredFilter.value) {
       createBookmark(
         newFilters,
         checkoutStore.selectedCollections,
         checkoutStore.selectedServices,
-        filterType.value,
-        bookmarkWaitingForApplication.value
+        filterType.value
       );
+    } else {
+      bookmarkTriggeredFilter.value = false;
     }
-    bookmarkTriggeredFilter.value = false;
   }
 
   function setDiseases(newDiseases: IOntologyItem[]): void {
@@ -424,7 +424,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     updateFilter,
     updateFilterType,
     updateOntologyFilter,
-    bookmarkWaitingForApplication,
     facetDetails,
     filterFacets,
     filterOptionsCache,

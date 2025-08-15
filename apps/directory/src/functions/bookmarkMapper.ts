@@ -25,6 +25,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
     const cartIds = cartIdString.split(",");
     const missingCollections =
       await collectionStore.getMissingCollectionInformation(cartIds);
+
     if (missingCollections && Object.keys(missingCollections).length) {
       for (const collection of missingCollections) {
         checkoutStore.addCollectionsToSelection(
@@ -88,16 +89,13 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
       filtersStore.updateFilter(filterName, undefined, true);
     }
   }
-
-  filtersStore.bookmarkWaitingForApplication = false;
 }
 
 export function createBookmark(
   filters: Record<string, any>,
   collectionCart: Record<string, ILabelValuePair[]>,
   serviceCart: Record<string, ILabelValuePair[]>,
-  filterTypes: Record<string, any>,
-  bookmarkWaitingForApplication: boolean
+  filterTypes: Record<string, any>
 ) {
   const query: Record<string, any> = {};
   const queryFilters = createBookmarkFilters(filters, filterTypes);
@@ -116,16 +114,14 @@ export function createBookmark(
     query.serviceCart = encodeURI(encodedCart);
   }
 
-  if (!bookmarkWaitingForApplication) {
-    try {
-      clearError();
-      router.push({
-        name: router.currentRoute.value.name,
-        query: { ...query, ...queryFilters },
-      });
-    } catch (error) {
-      setError(error);
-    }
+  try {
+    clearError();
+    router.push({
+      name: router.currentRoute.value.name,
+      query: { ...query, ...queryFilters },
+    });
+  } catch (error) {
+    setError(error);
   }
 }
 
