@@ -27,7 +27,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const graphqlEndpointOntologyFilter = "/DirectoryOntologies/graphql";
 
   const bookmarkTriggeredFilter = ref(false);
-  const filterTriggeredBookmark = ref(false);
 
   const filters = ref<Record<string, any>>({});
   const filterType = ref<Record<string, any>>({});
@@ -430,7 +429,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filtersReady,
     filtersReadyToRender,
     filters,
-    filterTriggeredBookmark,
     filterType,
     hasActiveFilters,
     hasActiveBiobankOnlyFilters,
