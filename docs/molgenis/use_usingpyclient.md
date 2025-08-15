@@ -287,7 +287,7 @@ Throws the `NoSuchSchemaException` if the schema is not found on the server.
 | parameter | type | description                                        | required | default               |
 |-----------|------|----------------------------------------------------|----------|-----------------------|
 | `table`   | str  | the name of a table                                | True     |                       |
-| `schema`  | str  | the name of a schema                               | False    | client.default_schema |
+| `name`    | str  | the name of a schema                               | False    | client.default_schema |
 | `file`    | str  | the location of a `csv` file with data             | False    | None                  |
 | `data`    | list | data as a list of dictionaries or pandas DataFrame | False    | None                  |
 
