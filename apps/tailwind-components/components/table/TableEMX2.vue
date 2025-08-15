@@ -43,7 +43,7 @@
           <tr class="h-4">
             <TableHeadCell
               v-if="isEditable"
-              class="absolute left-0 w-[1px] p-0 m-0 border-none"
+              class="absolute left-0 w-[1px] !p-0 m-0 border-none"
             >
               <span class="sr-only">manage records</span>
             </TableHeadCell>
@@ -96,11 +96,11 @@
           >
             <TableBodyCell
               v-if="isEditable"
-              class="absolute -left-2 z-10 h-10 w-[112px] text-table-row group-hover:bg-hover invisible group-hover:visible border-none mt-1"
+              class="absolute left-0 h-10 w-[100px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none mt-1"
               :truncate="false"
             >
               <div
-                class="flex flex-row items-center justify-start flex-nowrap gap-1 [&_button]:relative [&_button]:mt-[-10px]"
+                class="flex flex-row items-center justify-start flex-nowrap gap-1 [&_button]:relative [&_button]:mt-[-11px]"
               >
                 <Button
                   :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
@@ -140,8 +140,7 @@
               :metadata="column"
               :data="row[column.id]"
               @cellClicked="handleCellClick($event, column, row)"
-            >
-            </TableCellEMX2>
+            />
           </tr>
         </tbody>
       </table>
