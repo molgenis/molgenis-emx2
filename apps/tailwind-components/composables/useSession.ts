@@ -53,31 +53,27 @@ export const useSession = async () => {
     }
   }
 
-  if (!session.value) {
+  async function reload() {
+    session.value = null;
     await loadSession();
   }
 
-  function reload() {
-    session.value = null;
-    loadSession();
-  }
-
-  const isAdmin = computed(() => session.value?.admin || false);
-
-  const hasSessionTimeout = async () => {
+  async function hasSessionTimeout() {
     const { data, error } = await fetchSessionDetails();
     if (error) {
       console.error("Error testing session timeout", error);
       return false;
     }
 
-    if (session.value?.email !== data._session.email) {
-      console.warn("Session has expired");
-      return true;
-    }
+    // compare the current frontend session user to the current backend session user
+    return session.value?.email !== data._session.email;
+  }
 
-    return false;
-  };
+  const isAdmin = computed(() => session.value?.admin || false);
+
+  if (!session.value) {
+    await loadSession();
+  }
 
   return { isAdmin, session, reload, hasSessionTimeout };
 };

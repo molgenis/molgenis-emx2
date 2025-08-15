@@ -36,7 +36,7 @@ async function signin() {
 
     if (signinResp.data.signin.status === "SUCCESS") {
       console.log(signinResp.data.signin);
-      (await useSession()).reload();
+      await (await useSession()).reload();
 
       // Send a message to the opener
       if (window && window.opener) {

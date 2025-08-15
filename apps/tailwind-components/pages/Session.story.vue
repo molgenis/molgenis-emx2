@@ -27,7 +27,7 @@ async function signin() {
     });
 
     if (signinResp.data.signin.status === "SUCCESS") {
-      reload();
+      await reload();
       timeoutCheckResponse.value = "unknown";
     } else {
       console.log(signinResp.data.signin.message);
