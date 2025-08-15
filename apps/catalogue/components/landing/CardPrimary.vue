@@ -36,12 +36,9 @@ withDefaults(defineProps<Props>(), {
           v-else
           :to="link"
           :target="openLinkInNewTab ? '_blank' : undefined"
+          class="font-display md:text-heading-5xl text-heading-5xl text-title-contrast-pop px-3"
         >
-          <h1
-            class="font-display md:text-heading-5xl text-heading-5xl text-title-contrast-pop px-3"
-          >
-            {{ title }}
-          </h1>
+          {{ title }}
         </NuxtLink>
       </div>
       <slot name="title-suffix">
