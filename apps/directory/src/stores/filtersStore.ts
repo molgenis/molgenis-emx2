@@ -64,15 +64,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return facetDetailsDictionary.value;
   });
 
-  const filtersReady = computed(() => {
-    return filterOptionsCache.value
-      ? Object.keys(filterOptionsCache.value).length > 0
-      : false;
-  });
-
-  function getValuePropertyForFacet(facetIdentifier: string) {
-    return facetDetails.value[facetIdentifier].filterValueAttribute;
-  }
+  // const filtersReady = computed(() => {
+  //   return filterOptionsCache.value
+  //     ? Object.keys(filterOptionsCache.value).length > 0
+  //     : false;
+  // });
 
   const hasActiveFilters = computed(() => {
     return Object.keys(filters.value).length > 0;
@@ -100,22 +96,26 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     immediate: true,
   });
 
-  watch(filtersReady, (filtersReady) => {
-    const route = router.currentRoute.value;
-    if (filtersReady) {
-      const waitForStore = setTimeout(() => {
-        if (route.query) {
-          applyBookmark(route.query as Record<string, string>);
-        }
+  // watch(filtersReady, (filtersReady) => {
+  //   const route = router.currentRoute.value;
+  //   if (filtersReady) {
+  //     const waitForStore = setTimeout(() => {
+  //       if (route.query) {
+  //         applyBookmark(route.query as Record<string, string>);
+  //       }
 
-        clearTimeout(waitForStore);
-      }, 350);
-    }
-  });
+  //       clearTimeout(waitForStore);
+  //     }, 350);
+  //   }
+  // });
 
   watch(selectedDiseases, setIndeterminateDiseases, {
     deep: true,
   });
+
+  function getValuePropertyForFacet(facetIdentifier: string) {
+    return facetDetails.value[facetIdentifier].filterValueAttribute;
+  }
 
   function checkOntologyDescendantsIfMatches(
     ontologyDescendants: IOntologyItem[],
@@ -426,7 +426,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     facetDetails,
     filterFacets,
     filterOptionsCache,
-    filtersReady,
     filtersReadyToRender,
     filters,
     filterType,
