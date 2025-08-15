@@ -240,6 +240,8 @@
     --border-color-form-required: var(--color-gray-200);
     --border-radius-form-required: var(--border-radius-3px);
 
+    --padding-table-body-last-row-cell: 0.625rem;
+
     /** input heights */
     --height-input: 3.5rem;
     --height-input-tiny: 2rem;

@@ -29,23 +29,30 @@
   </div>
 
   <div
-    class="overflow-auto rounded-b-theme border border-theme border-color-theme"
+    class="relative overflow-auto rounded-b-theme border border-theme border-color-theme"
   >
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
-      <table class="text-left table-fixed w-full">
+      <table
+        class="text-left w-full"
+        :class="{
+          'table-fixed': columns.length > 1,
+          'table-auto': columns.length === 0,
+        }"
+      >
         <thead>
-          <tr>
+          <tr class="h-4">
             <TableHeadCell
               v-if="isEditable"
-              class="sticky -left-1 z-10 bg-table"
-              :class="{
-                '!w-[32px] !max-w-[32px]': columns.length === 1,
-                '!w-[62px]': columns.length > 2,
-              }"
+              class="absolute left-0 w-[1px] p-0 m-0 border-none"
             >
               <span class="sr-only">manage records</span>
             </TableHeadCell>
-            <TableHeadCell v-for="column in sortedVisibleColumns">
+            <TableHeadCell
+              v-for="column in sortedVisibleColumns"
+              :class="{
+                'w-full': columns.length === 1,
+              }"
+            >
               <div class="flex justify-start items-center gap-1">
                 <button
                   :id="`table-emx2-${schemaId}-${tableId}-${column.label}-sort-btn`"
@@ -80,7 +87,7 @@
           </tr>
         </thead>
         <tbody
-          class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-4 [&_tr:last-child_td_button]:mt-3"
+          class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:pb-last-row-cell"
         >
           <tr
             v-for="row in rows"
@@ -89,38 +96,41 @@
           >
             <TableBodyCell
               v-if="isEditable"
-              class="sticky -left-1 z-10 text-table-row bg-table group-hover:bg-hover"
+              class="absolute -left-2 z-10 h-10 w-[112px] text-table-row group-hover:bg-hover invisible group-hover:visible border-none mt-1"
               :truncate="false"
             >
               <div
-                class="flex flex-row items-stretch justify-end h-12 flex-nowrap gap-1 w-auto invisible group-hover:visible"
+                class="flex flex-row items-center justify-start flex-nowrap gap-1 [&_button]:relative [&_button]:mt-[-10px]"
               >
-                <button
+                <Button
                   :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
                     row
                   )}-edit-row-button`"
-                  class="text-button-icon hover:text-button-icon-hover"
-                  @click="onShowEditModal(row)"
-                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
-                  aria-haspopup="dialog"
-                  :aria-expanded="showEditModal"
-                >
-                  <BaseIcon name="edit" :width="18" />
-                  <span class="sr-only">edit {{ getRowId(row) }}</span>
-                </button>
-                <button
-                  :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
-                    row
-                  )}-delete-row-button`"
-                  class="text-button-icon hover:text-button-icon-hover"
+                  :icon-only="true"
+                  type="inline"
+                  icon="trash"
+                  size="small"
+                  label="delete"
                   @click="onShowDeleteModal(row)"
                   :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
                   aria-haspopup="dialog"
                   :aria-expanded="showDeleteModal"
-                >
-                  <BaseIcon name="trash" :width="18" />
-                  <span class="sr-only">delete {{ getRowId(row) }}</span>
-                </button>
+                />
+
+                <Button
+                  :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
+                    row
+                  )}-delete-row-button`"
+                  :icon-only="true"
+                  type="inline"
+                  icon="edit"
+                  size="small"
+                  label="edit"
+                  @click="onShowEditModal(row)"
+                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+                  aria-haspopup="dialog"
+                  :aria-expanded="showEditModal"
+                />
               </div>
             </TableBodyCell>
             <TableCellEMX2
