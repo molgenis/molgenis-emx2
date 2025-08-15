@@ -26,9 +26,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const graphqlEndpointOntologyFilter = "/DirectoryOntologies/graphql";
 
-  const bookmarkWaitingForApplication = ref(false);
   const bookmarkTriggeredFilter = ref(false);
-  const filterTriggeredBookmark = ref(false);
 
   const filters = ref<Record<string, any>>({});
   const filterType = ref<Record<string, any>>({});
@@ -66,15 +64,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return facetDetailsDictionary.value;
   });
 
-  const filtersReady = computed(() => {
-    return filterOptionsCache.value
-      ? Object.keys(filterOptionsCache.value).length > 0
-      : false;
-  });
-
-  function getValuePropertyForFacet(facetIdentifier: string) {
-    return facetDetails.value[facetIdentifier].filterValueAttribute;
-  }
+  // const filtersReady = computed(() => {
+  //   return filterOptionsCache.value
+  //     ? Object.keys(filterOptionsCache.value).length > 0
+  //     : false;
+  // });
 
   const hasActiveFilters = computed(() => {
     return Object.keys(filters.value).length > 0;
@@ -90,8 +84,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       Record<string, any>
     ]) => {
       settingsStore.currentPage = 1;
-      bookmarkWaitingForApplication.value = false;
-      updateQueryAndBookmark(newFilters, newFilterType);
+      updateQuery(newFilters, newFilterType);
+      updateBookmark(newFilters);
       getBiobankCards();
     },
     750
@@ -102,22 +96,26 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     immediate: true,
   });
 
-  watch(filtersReady, (filtersReady) => {
-    const route = router.currentRoute.value;
-    if (filtersReady) {
-      const waitForStore = setTimeout(() => {
-        if (route.query) {
-          applyBookmark(route.query as Record<string, string>);
-        }
+  // watch(filtersReady, (filtersReady) => {
+  //   const route = router.currentRoute.value;
+  //   if (filtersReady) {
+  //     const waitForStore = setTimeout(() => {
+  //       if (route.query) {
+  //         applyBookmark(route.query as Record<string, string>);
+  //       }
 
-        clearTimeout(waitForStore);
-      }, 350);
-    }
-  });
+  //       clearTimeout(waitForStore);
+  //     }, 350);
+  //   }
+  // });
 
   watch(selectedDiseases, setIndeterminateDiseases, {
     deep: true,
   });
+
+  function getValuePropertyForFacet(facetIdentifier: string) {
+    return facetDetails.value[facetIdentifier].filterValueAttribute;
+  }
 
   function checkOntologyDescendantsIfMatches(
     ontologyDescendants: IOntologyItem[],
@@ -291,8 +289,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       filters.value,
       checkoutStore.selectedCollections,
       checkoutStore.selectedServices,
-      filterType.value,
-      bookmarkWaitingForApplication.value
+      filterType.value
     );
   }
 
@@ -356,7 +353,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return filterType.value[filterName] || "any";
   }
 
-  function updateQueryAndBookmark(
+  function updateQuery(
     newFilters: Record<string, any>,
     newFilterTypes: Record<string, any>
   ) {
@@ -366,17 +363,19 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       facetDetails.value,
       newFilterTypes
     );
+  }
 
+  function updateBookmark(newFilters: Record<string, any>) {
     if (!bookmarkTriggeredFilter.value) {
       createBookmark(
         newFilters,
         checkoutStore.selectedCollections,
         checkoutStore.selectedServices,
-        filterType.value,
-        bookmarkWaitingForApplication.value
+        filterType.value
       );
+    } else {
+      bookmarkTriggeredFilter.value = false;
     }
-    bookmarkTriggeredFilter.value = false;
   }
 
   function setDiseases(newDiseases: IOntologyItem[]): void {
@@ -424,14 +423,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     updateFilter,
     updateFilterType,
     updateOntologyFilter,
-    bookmarkWaitingForApplication,
     facetDetails,
     filterFacets,
     filterOptionsCache,
-    filtersReady,
     filtersReadyToRender,
     filters,
-    filterTriggeredBookmark,
     filterType,
     hasActiveFilters,
     hasActiveBiobankOnlyFilters,

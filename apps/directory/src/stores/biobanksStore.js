@@ -118,35 +118,30 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   /** This method is called upon page load and when a filter is applied. */
   /** Therefore it can be executed multiple times in parallel. */
   async function getBiobankCards() {
-    if (!filtersStore.bookmarkWaitingForApplication) {
-      waitingForResponse.value = true;
+    waitingForResponse.value = true;
 
-      const requestTime = Date.now();
-      lastRequestTime = requestTime;
+    const requestTime = Date.now();
+    lastRequestTime = requestTime;
 
-      let biobankResult = [];
-      try {
-        clearError();
-        biobankResult = await baseQuery.execute();
-      } catch (error) {
-        setError(error);
+    let biobankResult = [];
+    try {
+      clearError();
+      biobankResult = await baseQuery.execute();
+    } catch (error) {
+      setError(error);
+    }
+
+    /* Update biobankCards only if the result is the most recent one*/
+    if (requestTime === lastRequestTime) {
+      let foundBiobanks = biobankResult.Biobanks;
+      if (
+        filtersStore.hasActiveFilters &&
+        !filtersStore.hasActiveBiobankOnlyFilters
+      ) {
+        foundBiobanks = foundBiobanks?.filter((biobank) => biobank.collections);
       }
-
-      /* Update biobankCards only if the result is the most recent one*/
-      if (requestTime === lastRequestTime) {
-        let foundBiobanks = biobankResult.Biobanks;
-        if (
-          filtersStore.hasActiveFilters &&
-          !filtersStore.hasActiveBiobankOnlyFilters
-        ) {
-          foundBiobanks = foundBiobanks?.filter(
-            (biobank) => biobank.collections
-          );
-        }
-        biobankCards.value = filterWithdrawn(foundBiobanks);
-        waitingForResponse.value = false;
-        filtersStore.bookmarkWaitingForApplication = false;
-      }
+      biobankCards.value = filterWithdrawn(foundBiobanks);
+      waitingForResponse.value = false;
     }
   }
 
