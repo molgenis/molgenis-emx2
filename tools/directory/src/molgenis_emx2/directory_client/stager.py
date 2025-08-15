@@ -1,3 +1,4 @@
+"""Defines the Stager class, which implements all staging-related functionality"""
 import csv
 from typing import List
 from urllib.error import ContentTooShortError, HTTPError, URLError
