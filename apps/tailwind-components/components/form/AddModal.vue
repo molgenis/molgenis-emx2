@@ -253,7 +253,8 @@ function reAuthenticate() {
   const y = topWindow.outerHeight / 2 + topWindow.screenY - 400 / 2;
   const x = topWindow.outerWidth / 2 + topWindow.screenX - 600 / 2;
   const reAuthWindow = window.open(
-    "/login",
+    "/login?reauthenticate=true&redirect=" +
+      encodeURIComponent(window.location.href),
     "_blank",
     `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=600, height=400, top=${y}, left=${x}`
   );

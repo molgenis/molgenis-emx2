@@ -3,9 +3,34 @@ import { useRouter } from "#app/composables";
 import { navigateTo, useRoute } from "#app/composables/router";
 import { ref } from "vue";
 import { useSession } from "../../tailwind-components/composables/useSession";
+import { useSettings } from "../../tailwind-components/composables/useSettings";
+import { definePageMeta } from "#imports";
 
 const route = useRoute();
 const router = useRouter();
+
+definePageMeta({
+  middleware: [
+    async function (to, from) {
+      const settings = await useSettings();
+      console.log("Login middleware called", settings);
+      if (settings.value?.isOidcEnabled) {
+        let redirectAfterLogin = window.location.href;
+        if (to.query.reauthenticate === "true") {
+          const url = new URL(window.location.href);
+          url.pathname = "/reauthenticated";
+          url.searchParams.delete("reauthenticate");
+          url.searchParams.delete("redirect");
+          redirectAfterLogin = url.toString();
+        }
+
+        return navigateTo("/oidc-login" + `?redirect=${redirectAfterLogin}`, {
+          external: true,
+        });
+      }
+    },
+  ],
+});
 
 const username = ref("");
 const password = ref("");
