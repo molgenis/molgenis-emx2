@@ -103,9 +103,9 @@
                 class="flex flex-row items-center justify-start flex-nowrap gap-1 [&_button]:relative [&_button]:mt-[-11px]"
               >
                 <Button
-                  :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
-                    row
-                  )}-edit-row-button`"
+                  :id="`table-emx2-${encodeURI(schemaId)}-${encodeURI(
+                    tableId
+                  )}-${getRowId(row)}-edit-row-button`"
                   :icon-only="true"
                   type="inline"
                   icon="trash"
@@ -115,7 +115,9 @@
                   :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
                   aria-haspopup="dialog"
                   :aria-expanded="showDeleteModal"
-                />
+                >
+                  {{ getRowId(row) }}
+                </Button>
 
                 <Button
                   :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
@@ -130,7 +132,9 @@
                   :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
                   aria-haspopup="dialog"
                   :aria-expanded="showEditModal"
-                />
+                >
+                  {{ getRowId(row) }}
+                </Button>
               </div>
             </TableBodyCell>
             <TableCellEMX2
@@ -365,7 +369,10 @@ function handleCellClick(
 }
 
 function getRowId(row: IRow) {
-  return primaryKeys.value.map((key) => row[key as string]).join("-");
+  return primaryKeys.value
+    .map((key) => row[key as string])
+    .join("-")
+    .replaceAll(" ", "-");
 }
 
 function onShowDeleteModal(row: Record<string, columnValue>) {
