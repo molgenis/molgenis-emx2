@@ -18,7 +18,10 @@
         >
           <span
             class="text-title-contrast capitalize"
-            :class="{ 'font-bold': section.isActive }"
+            :class="{
+              'font-bold': section.isActive,
+              'ml-2 italic': hasSections && section.type === 'HEADING',
+            }"
           >
             {{ section.label }}
           </span>
@@ -39,9 +42,14 @@
 
 <script lang="ts" setup>
 import type { IFormLegendSection } from "../../../metadata-utils/src/types";
+import { computed } from "vue";
 
-defineProps<{
+const props = defineProps<{
   sections: IFormLegendSection[];
 }>();
 const emit = defineEmits(["goToSection"]);
+
+const hasSections = computed(() => {
+  return props.sections.some((section) => section.type === "SECTION");
+});
 </script>
