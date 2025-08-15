@@ -1,0 +1,2 @@
+﻿tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,visible,defaultValue,semantics,description,profiles
+Publishers,Agents,,,,,,,,,,,,"foaf:Agent,org:Organization",,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
