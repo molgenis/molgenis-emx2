@@ -78,7 +78,7 @@
         v-show="saveErrorMessage"
         :message="saveErrorMessage"
         :show-prev-next-buttons="!showSignInButton"
-        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       >
         <Button
           v-if="showSignInButton"
