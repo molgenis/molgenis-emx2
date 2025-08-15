@@ -20,10 +20,12 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.afterEach(async ({ page }) => {
-  await expect(
-    page.getByRole("cell", { name: "e2e", exact: true })
-  ).toBeVisible();
-  await page.getByRole("button", { name: "delete e2e" }).click();
+  const targetCell = await page.getByRole("cell", { name: "e2e", exact: true });
+  await expect(targetCell).toBeVisible();
+  await page
+    .getByText("deletee2e", { exact: true })
+    .filter({ visible: false })
+    .dispatchEvent("click");
   await page.getByRole("button", { name: "Delete", exact: true }).click();
 });
 
