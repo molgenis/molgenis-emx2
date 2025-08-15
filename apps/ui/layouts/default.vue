@@ -68,11 +68,12 @@
 <script setup lang="ts">
 import { useRuntimeConfig, useHead } from "#app";
 import { useRoute, navigateTo } from "#app/composables/router";
-import { useSession } from "#imports";
+import { useSession } from "../../tailwind-components/composables/useSession";
 import { computed } from "vue";
 
 const config = useRuntimeConfig();
 const route = useRoute();
+const schema = computed(() => route.params.schema as string);
 const { session, reload: reloadSession } = await useSession();
 
 const faviconHref = config.public.emx2Theme
@@ -104,8 +105,6 @@ const isSignedIn = computed(
   () => !!session.value?.email && session.value?.email !== "anonymous"
 );
 const isAdmin = computed(() => session.value?.admin);
-
-const schema = computed(() => route.params.schema as string);
 
 const navigation = computed(() => {
   const items = [

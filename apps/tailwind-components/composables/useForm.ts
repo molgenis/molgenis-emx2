@@ -7,6 +7,8 @@ import type {
 } from "../../metadata-utils/src/types";
 import { toFormData } from "../utils/toFormData";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
+import { useSession } from "#imports";
+import { SessionExpiredError } from "../utils/sessionExpiredError";
 
 export default function useForm(
   metadata: MaybeRef<ITableMetaData>,
@@ -116,6 +118,18 @@ export default function useForm(
     return $fetch(`/${schemaId}/graphql`, {
       method: "POST",
       body: formData,
+    }).catch(async (error) => {
+      if (error.statusCode && error.statusCode >= 400) {
+        const { hasSessionTimeout } = await useSession();
+        if (await hasSessionTimeout()) {
+          console.log("Session has timed out, ask for re-authentication");
+          throw new SessionExpiredError(
+            "Session has expired, please log in again."
+          );
+        }
+      } else {
+        console.log("Error on inserting into database", error);
+      }
     });
   };
 
