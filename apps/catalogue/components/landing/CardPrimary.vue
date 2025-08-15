@@ -5,14 +5,14 @@ interface Props {
   callToAction?: string;
   count?: number;
   link: string;
-  renderAsAnchorElem?: boolean;
+  isExternalLink?: boolean;
   openLinkInNewTab?: boolean;
   image: string;
 }
 
 withDefaults(defineProps<Props>(), {
   callToAction: "",
-  renderAsAnchorElem: false,
+  isExternalLink: false,
 });
 </script>
 <template>
@@ -27,7 +27,7 @@ withDefaults(defineProps<Props>(), {
         <a
           class="font-display md:text-heading-5xl text-heading-5xl text-title-contrast-pop px-3"
           :href="link"
-          v-if="renderAsAnchorElem"
+          v-if="isExternalLink"
           :target="openLinkInNewTab ? '_blank' : undefined"
         >
           {{ title }}
@@ -56,7 +56,7 @@ withDefaults(defineProps<Props>(), {
         class="md:hidden absolute right-0 mr-3 hover:text-blue-800 text-blue-500"
       >
         <a
-          v-if="renderAsAnchorElem"
+          v-if="isExternalLink"
           :href="link"
           :target="openLinkInNewTab ? '_blank' : undefined"
         >
@@ -80,7 +80,7 @@ withDefaults(defineProps<Props>(), {
     </p>
 
     <a
-      v-if="renderAsAnchorElem"
+      v-if="isExternalLink"
       class="md:block hidden mt-auto"
       :href="link"
       :target="openLinkInNewTab ? '_blank' : undefined"
