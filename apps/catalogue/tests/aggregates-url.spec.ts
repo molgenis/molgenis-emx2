@@ -19,9 +19,9 @@ test.describe("Aggregates URL", () => {
   });
 
   test("Aggregates URLs are properly defined", async ({ page }) => {
-    const targetHref = "/Aggregates/aggregates/#/";
+    const targetHref = "/Aggregates/aggregates/";
     await expect(
-      page.getByRole("link", { name: "Aggregates" }).nth(0)
+      page.getByRole("link", { name: "Aggregates" }).first()
     ).toHaveAttribute("href", targetHref);
     await expect(
       page.getByRole("link", { name: "Aggregates" }).nth(1)
