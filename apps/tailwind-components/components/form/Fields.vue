@@ -23,9 +23,20 @@ const props = defineProps<{
   sections: IFormLegendSection[];
   metadata: ITableMetaData;
   constantValues?: IRow;
+  visibleSection?: string;
 }>();
 
 const visibleMap = reactive<Record<columnId, boolean>>({});
+const columnSectionMap = ref<Record<string, string>>({});
+
+//initialize section map
+let currentSection = "_scroll_to_top";
+props.metadata.columns.forEach((column) => {
+  if (column.columnType === "SECTION") {
+    currentSection = column.id;
+  }
+  columnSectionMap.value[column.id] = currentSection;
+});
 
 const modelValue = defineModel<IRow>("modelValue", {
   required: true,
@@ -71,12 +82,21 @@ function onUpdate(column: IColumn, $event: columnValue) {
   props.metadata.columns
     .filter((c) => c.visible?.includes(column.id))
     .forEach((c) => {
-      visibleMap[c.id] = isColumnVisible(c, modelValue.value, props.metadata)
-        ? true
-        : false;
+      visibleMap[c.id] =
+        isColumnSectionVisible(c) &&
+        isColumnVisible(c, modelValue.value, props.metadata)
+          ? true
+          : false;
       logger.debug("updating visibility for " + c.id + "=" + visibleMap[c.id]);
     });
   previousColumn.value = column;
+}
+
+function isColumnSectionVisible(column: IColumn) {
+  return (
+    !props.visibleSection ||
+    columnSectionMap.value[column.id] === props.visibleSection
+  );
 }
 
 function onFocus(column: IColumn) {
@@ -100,7 +120,22 @@ function updateActiveChapter(sectionId: string) {
 function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   const highest = entries.find((entry) => entry.isIntersecting);
   if (highest) {
-    updateActiveChapter(highest.target.id);
+    //based on currently visible column if that is the highest
+    if (highest.target.id.includes("form-field")) {
+      //find the section it is part of
+      let currentSection = "_scroll_to_top";
+      for (const col of props.metadata.columns) {
+        if (col.columnType === "HEADING" || col.columnType === "SECTION") {
+          currentSection = col.id;
+        }
+        if (highest.target.id === `${col.id}-form-field`) {
+          break;
+        }
+      }
+      updateActiveChapter(currentSection);
+    } else {
+      updateActiveChapter(highest.target.id);
+    }
   }
 }
 
@@ -120,7 +155,10 @@ function checkVisibleExpression(column: IColumn) {
 
 //initialize visibility for headers
 props.metadata.columns
-  .filter((column) => column.columnType === "HEADING")
+  .filter(
+    (column) =>
+      column.columnType === "HEADING" || column.columnType === "SECTION"
+  )
   .forEach((column) => {
     if (props.metadata) {
       logger.debug(isColumnVisible(column, modelValue.value, props.metadata));
@@ -190,7 +228,10 @@ onMounted(() => {
         <span v-intersection-observer="onIntersectionObserver"></span>
       </div>
       <div
-        v-if="column.columnType === 'HEADING'"
+        v-if="
+          (!visibleSection || visibleSection === columnSectionMap[column.id]) &&
+          (column.columnType === 'HEADING' || column.columnType === 'SECTION')
+        "
         :id="column.id"
         v-intersection-observer="onIntersectionObserver"
       >
@@ -198,7 +239,7 @@ onMounted(() => {
           class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
           v-if="column.id !== '_scroll_to_top' && visibleMap[column.id]"
         >
-          {{ column.label }}
+          {{ column.label }} ({{ column.columnType }})
         </h2>
       </div>
 
@@ -212,9 +253,11 @@ onMounted(() => {
       <FormField
         class="pb-8"
         v-else-if="
+          (!visibleSection || visibleSection === columnSectionMap[column.id]) &&
           visibleMap[column.id] === true &&
           !Object.keys(constantValues || {}).includes(column.id)
         "
+        v-intersection-observer="onIntersectionObserver"
         v-model="modelValue[column.id]"
         :id="`${column.id}-form-field`"
         :type="column.columnType"

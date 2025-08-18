@@ -118,7 +118,7 @@ export const getColumnIds = async (
         gqlFields = gqlFields + " " + col.id + " {name, label}";
       } else if (col.columnType === "FILE") {
         gqlFields += ` ${col.id} { id, size, filename, extension, url }`;
-      } else if (col.columnType !== "HEADING") {
+      } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
         gqlFields += ` ${col.id}`;
       }
     }

@@ -347,12 +347,13 @@ class SqlTable implements Table {
   }
 
   private static List<Column> getInsertColumns(SqlTable table, Set<String> columnsProvided) {
-    return table.getMetadata().getColumns().stream()
+    return table.getMetadata().getColumnsWithoutHeadings().stream()
         .filter(
             c ->
                 !c.isRefback()
-                    || c.getReferences().stream()
-                        .anyMatch(r -> columnsProvided.contains(r.getName())))
+                    || (c.isReference()
+                        && c.getReferences().stream()
+                            .anyMatch(r -> columnsProvided.contains(r.getName()))))
         .toList();
   }
 
