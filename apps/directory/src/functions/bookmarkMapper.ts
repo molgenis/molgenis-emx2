@@ -5,7 +5,7 @@ import router from "../router";
 import { ILabelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
-import * as _ from "lodash";
+import { useSettingsStore } from "../stores/settingsStore";
 
 const { setError, clearError } = useErrorHandler();
 
@@ -13,6 +13,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
   const checkoutStore = useCheckoutStore();
   const collectionStore = useCollectionStore();
   const filtersStore = useFiltersStore();
+  const settingsStore = useSettingsStore();
 
   /**  negotiator token */
   if (watchedQuery.nToken) {
@@ -46,8 +47,6 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
     checkoutStore.removeAllFromSelection(false);
   }
 
-  /** we load the filters, grab the names, so we can loop over it to map the selections */
-  const filters = Object.keys(filtersStore.facetDetails);
   if (watchedQuery.matchAll) {
     const matchAllFilters = decodeURIComponent(
       watchedQuery.matchAll as string
@@ -57,6 +56,11 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
     }
   }
 
+  /** we load the filters, grab the names, so we can loop over it to map the selections */
+  if (!filtersStore.filtersReadyToRender) {
+    await settingsStore.configurationPromise;
+  }
+  const filters = Object.keys(filtersStore.facetDetails);
   for (const filterName of filters) {
     if (watchedQuery[filterName]) {
       const filtersToAdd: string = decodeURIComponent(

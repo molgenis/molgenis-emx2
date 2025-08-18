@@ -16,21 +16,15 @@ import { useFavicon, usePreferredDark } from "@vueuse/core";
 //@ts-expect-error
 import { Molgenis } from "molgenis-components";
 import { computed, onMounted, ref, watch } from "vue";
-import { LocationQuery, useRoute } from "vue-router";
+import { useRoute } from "vue-router";
 import Error from "./components/Error.vue";
 import { applyBookmark } from "./functions/bookmarkMapper";
 import router from "./router";
-import { useCheckoutStore } from "./stores/checkoutStore";
-import { useFiltersStore } from "./stores/filtersStore";
 import { useSettingsStore } from "./stores/settingsStore";
 
 const route = useRoute();
-const query = computed(() => route.query);
 
-const filtersStore = useFiltersStore();
-const checkoutStore = useCheckoutStore();
 const settingsStore = useSettingsStore();
-
 const banner = computed(() => settingsStore.config.banner);
 const footer = computed(() => settingsStore.config.footer);
 
@@ -49,9 +43,9 @@ watch(session, () => {
   settingsStore.setSessionInformation(session.value);
 });
 
-watch(query, async (newQuery: LocationQuery) => {
+onMounted(async () => {
   await router.isReady();
-  applyBookmark(newQuery);
+  applyBookmark(route.query);
 });
 
 onMounted(changeFavicon);

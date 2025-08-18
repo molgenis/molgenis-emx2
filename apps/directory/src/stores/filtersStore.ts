@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 import { createFilters } from "../filter-config/facetConfigurator";
 import { applyFiltersToQuery } from "../functions/applyFiltersToQuery";
-import { applyBookmark, createBookmark } from "../functions/bookmarkMapper";
+import { createBookmark } from "../functions/bookmarkMapper";
 import { useBiobanksStore } from "./biobanksStore";
 import { useCheckoutStore } from "./checkoutStore";
 import { useSettingsStore } from "./settingsStore";
@@ -12,7 +12,6 @@ import { QueryEMX2 } from "molgenis-components";
 import useErrorHandler from "../composables/errorHandler";
 import flattenOntologyBranch from "../functions/flattenOntologyBranch";
 import { IFilterOption, IOntologyItem } from "../interfaces/interfaces";
-import router from "../router";
 
 const { setError, clearError } = useErrorHandler();
 const DIAGNOSIS_AVAILABLE = "Diagnosisavailable";
@@ -21,8 +20,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const biobankStore = useBiobanksStore();
   const checkoutStore = useCheckoutStore();
   const settingsStore = useSettingsStore();
-
-  const { baseQuery, getBiobankCards } = biobankStore;
 
   const graphqlEndpointOntologyFilter = "/DirectoryOntologies/graphql";
 
@@ -33,42 +30,40 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const filterOptionsCache = ref<Record<string, IFilterOption[]>>({});
   const filterFacets = ref<any[]>([]);
-  const facetDetailsDictionary = ref<Record<string, any>>({});
 
   const filtersReadyToRender = ref(false);
+  const filterPromise = ref<Promise<any> | null>(null);
 
   const indeterminateDiseases = ref<Record<string, boolean>>({});
   const selectedDiseases = ref<Record<string, boolean>>({});
   const diseases = ref<Record<string, IOntologyItem>>({});
 
-  watch(
-    () => settingsStore.configurationFetched,
-    () => {
-      filterFacets.value = createFilters(settingsStore.config.filterFacets);
-      filtersReadyToRender.value = true;
-    }
-  );
+  const facetDetails = ref<Record<string, any>>({});
 
-  const facetDetails = computed<Record<string, any>>(() => {
-    if (
-      !Object.keys(facetDetailsDictionary.value).length &&
-      settingsStore.configurationFetched
-    )
-      /** extract the components types so we can use that in adding the correct query parts */
-      filterFacets.value.forEach((filterFacet) => {
-        facetDetailsDictionary.value[filterFacet.facetIdentifier] = {
-          ...filterFacet,
-        };
-      });
-
-    return facetDetailsDictionary.value;
+  filterPromise.value = settingsStore.configurationPromise.then(() => {
+    filterFacets.value = createFilters(settingsStore.config.filterFacets);
+    filterFacets.value.forEach((filterFacet) => {
+      facetDetails.value[filterFacet.facetIdentifier] = {
+        ...filterFacet,
+      };
+    });
+    filtersReadyToRender.value = true;
   });
 
-  // const filtersReady = computed(() => {
-  //   return filterOptionsCache.value
-  //     ? Object.keys(filterOptionsCache.value).length > 0
-  //     : false;
-  // });
+  watch(
+    () => settingsStore.configurationFetched,
+    async () => {
+      if (settingsStore.configurationFetched) {
+        filterFacets.value = createFilters(settingsStore.config.filterFacets);
+        filterFacets.value.forEach((filterFacet) => {
+          facetDetails.value[filterFacet.facetIdentifier] = {
+            ...filterFacet,
+          };
+        });
+        filtersReadyToRender.value = true;
+      }
+    }
+  );
 
   const hasActiveFilters = computed(() => {
     return Object.keys(filters.value).length > 0;
@@ -77,37 +72,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const hasActiveBiobankOnlyFilters = computed(() => {
     return !!getFilterValue("Biobankservices") || !!getFilterValue("Countries");
   });
-
-  const debouncedFiltersWatch = _.debounce(
-    ([newFilters, newFilterType]: [
-      Record<string, any>,
-      Record<string, any>
-    ]) => {
-      settingsStore.currentPage = 1;
-      updateQuery(newFilters, newFilterType);
-      updateBookmark(newFilters);
-      getBiobankCards();
-    },
-    750
-  );
-
-  watch([filters, filterType], debouncedFiltersWatch, {
-    deep: true,
-    immediate: true,
-  });
-
-  // watch(filtersReady, (filtersReady) => {
-  //   const route = router.currentRoute.value;
-  //   if (filtersReady) {
-  //     const waitForStore = setTimeout(() => {
-  //       if (route.query) {
-  //         applyBookmark(route.query as Record<string, string>);
-  //       }
-
-  //       clearTimeout(waitForStore);
-  //     }, 350);
-  //   }
-  // });
 
   watch(selectedDiseases, setIndeterminateDiseases, {
     deep: true,
@@ -166,6 +130,17 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       addOntologyOptions(filterName, processedValues);
     } else {
       removeOntologyOptions(filterName, processedValues);
+    }
+
+    updateQuery();
+
+    if (!fromBookmark) {
+      createBookmark(
+        filters.value,
+        checkoutStore.selectedCollections,
+        checkoutStore.selectedServices,
+        filterType.value
+      );
     }
   }
 
@@ -285,6 +260,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filters.value = {};
     selectedDiseases.value = {};
     indeterminateDiseases.value = {};
+    updateQuery();
+
     createBookmark(
       filters.value,
       checkoutStore.selectedCollections,
@@ -320,6 +297,17 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       delete filters.value[filterName];
       checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
     }
+
+    updateQuery();
+
+    if (!fromBookmark) {
+      createBookmark(
+        filters.value,
+        checkoutStore.selectedCollections,
+        checkoutStore.selectedServices,
+        filterType.value
+      );
+    }
   }
 
   function getFilterValue(filterName: string) {
@@ -353,29 +341,13 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return filterType.value[filterName] || "any";
   }
 
-  function updateQuery(
-    newFilters: Record<string, any>,
-    newFilterTypes: Record<string, any>
-  ) {
+  function updateQuery() {
     applyFiltersToQuery(
-      baseQuery,
-      newFilters,
+      biobankStore.getBaseQuery(),
+      filters.value,
       facetDetails.value,
-      newFilterTypes
+      filterType.value
     );
-  }
-
-  function updateBookmark(newFilters: Record<string, any>) {
-    if (!bookmarkTriggeredFilter.value) {
-      createBookmark(
-        newFilters,
-        checkoutStore.selectedCollections,
-        checkoutStore.selectedServices,
-        filterType.value
-      );
-    } else {
-      bookmarkTriggeredFilter.value = false;
-    }
   }
 
   function setDiseases(newDiseases: IOntologyItem[]): void {
@@ -427,6 +399,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filterFacets,
     filterOptionsCache,
     filtersReadyToRender,
+    filterPromise,
     filters,
     filterType,
     hasActiveFilters,
