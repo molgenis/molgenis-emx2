@@ -24,7 +24,8 @@ test("Re-authentication flow", async ({ page }) => {
   await page.getByRole("textbox", { name: "name Required" }).click();
   await page.getByRole("textbox", { name: "name Required" }).fill("reauth");
 
-  const pageTwo = await page.context().newPage();
+  const pageTwoPromise = await page.context().newPage();
+  const pageTwo = await pageTwoPromise;
   await pageTwo.goto(`${route}/pet%20store/Category`);
 
   await pageTwo.getByRole("button", { name: "Account" }).click();
