@@ -1,5 +1,5 @@
 from typing import List
-from unittest.mock import ANY, AsyncMock, MagicMock, call, patch
+from unittest.mock import AsyncMock, MagicMock, call, patch
 
 import pytest
 
@@ -75,7 +75,7 @@ async def test_publish_node_prepare_fails(eric, report_init):
     report = await eric.publish_nodes([nl])
 
     eric.printer.print_node_title.assert_called_once_with(nl)
-    eric.preparator.prepare.assert_called_with(nl, ANY)
+    eric.preparator.prepare.assert_called_with(nl, state)
     assert await eric.publisher.publish.called_with(state)
     assert report.node_errors[nl] == error
     eric.printer.print_summary.assert_called_once_with(report)
