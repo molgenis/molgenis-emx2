@@ -89,12 +89,10 @@ async def test_publish_nodes(eric, report_init):
 
     error = DirectoryError("error")
     eric.publisher.publish.side_effect = error
-    eric.stager.stage.return_value = []
 
     report = await eric.publish_nodes([no, nl])
 
     assert eric.printer.print_node_title.mock_calls == [call(no), call(nl)]
-    eric.stager.stage.assert_has_calls([call(nl)])
     eric.preparator.prepare.assert_has_calls(
         [call(no, state), call(nl, state)], any_order=True
     )
