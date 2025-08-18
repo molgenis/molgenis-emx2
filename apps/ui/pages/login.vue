@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { useRouter } from "#app/composables";
-import { navigateTo, useRoute } from "#app/composables/router";
+import { navigateTo, useRoute, useRouter } from "#app/composables/router";
 import { ref } from "vue";
 import { useSession } from "../../tailwind-components/composables/useSession";
 import { useSettings } from "../../tailwind-components/composables/useSettings";
 import { definePageMeta } from "#imports";
 
 const route = useRoute();
-const router = useRouter();
 
 definePageMeta({
   middleware: [
     async function (to, from) {
       const settings = await useSettings();
+      const router = useRouter();
       if (settings.value?.isOidcEnabled) {
         let redirectAfterLogin = window.location.href;
         if (to.query.reauthenticate === "true") {
@@ -82,6 +81,8 @@ async function signin() {
     }
   }
 }
+
+const router = useRouter();
 </script>
 <template>
   <Container class="flex flex-col items-center">
