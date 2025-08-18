@@ -33,6 +33,9 @@ export async function applyFiltersToQuery(
               "collections.diagnosis_available.definition",
               "collections.materials.name",
               "collections.materials.label",
+              "network.id",
+              "network.name",
+              "network.acronym",
             ],
             collections: [
               "id",
@@ -43,6 +46,9 @@ export async function applyFiltersToQuery(
               "diagnosis_available.code",
               "diagnosis_available.label",
               "diagnosis_available.definition",
+              "network.id",
+              "network.name",
+              "network.acronym",
             ],
           };
         } else {
