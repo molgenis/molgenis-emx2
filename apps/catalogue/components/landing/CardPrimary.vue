@@ -39,7 +39,7 @@ withDefaults(defineProps<Props>(), {
       <slot name="title-suffix">
         <span
           class="bg-blue-50 text-title-contrast-pop flex justify-center rounded-full px-3 py-1 font-bold text-heading-sm"
-          v-if="(typeof count != 'undefined')"
+          v-if="typeof count != 'undefined'"
         >
           {{ count }}
         </span>
