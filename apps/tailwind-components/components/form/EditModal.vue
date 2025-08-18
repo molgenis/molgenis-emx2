@@ -75,6 +75,22 @@
       <FormError
         v-show="updateErrorMessage"
         :message="updateErrorMessage"
+        :show-prev-next-buttons="!showReAuthenticateButton"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
+      >
+        <Button
+          v-if="showReAuthenticateButton"
+          type="outline"
+          size="small"
+          @click="reAuthenticate"
+          >Re-authenticate</Button
+        >
+      </FormError>
+    </Transition>
+    <Transition name="slide-up">
+      <FormMessage
+        v-show="formMessage"
+        :message="formMessage"
         class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       />
     </Transition>
@@ -105,6 +121,8 @@ import useSections from "../../composables/useSections";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import { errorToMessage } from "../../utils/errorToMessage";
+import { useSession } from "../../composables/useSession";
+import { SessionExpiredError } from "../../utils/sessionExpiredError";
 
 const props = withDefaults(
   defineProps<{
@@ -131,6 +149,11 @@ const visible = defineModel("visible", {
 
 const updateErrorMessage = ref<string>("");
 
+const session = await useSession();
+const saveErrorMessage = ref<string>("");
+const formMessage = ref<string>("");
+const showReAuthenticateButton = ref<boolean>(false);
+
 function setVisible() {
   visible.value = true;
 }
@@ -147,8 +170,14 @@ async function onUpdateDraft() {
   const resp = await updateInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error saving data", err);
-      updateErrorMessage.value = errorToMessage(err, "Error updating draft");
-      return null;
+
+      if (err instanceof SessionExpiredError) {
+        saveErrorMessage.value =
+          "Your session has expired. Please re-authenticate to continue.";
+        showReAuthenticateButton.value = true;
+      } else {
+        saveErrorMessage.value = errorToMessage(err, "Error updating draft");
+      }
     }
   );
 
@@ -164,7 +193,15 @@ async function onUpdate() {
   const resp = await updateInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error saving data", err);
-      updateErrorMessage.value = errorToMessage(err, "Error updating record");
+
+      if (err instanceof SessionExpiredError) {
+        saveErrorMessage.value =
+          "Your session has expired. Please re-authenticate to continue.";
+        showReAuthenticateButton.value = true;
+      } else {
+        saveErrorMessage.value = errorToMessage(err, "Error updating record");
+      }
+
       return null;
     }
   );
@@ -203,4 +240,12 @@ const {
 } = useForm(props.metadata, editFormValues, errorMap, (fieldId: string) => {
   scrollToElementInside("fields-container", fieldId);
 });
+
+function reAuthenticate() {
+  session.reAuthenticate(
+    saveErrorMessage,
+    showReAuthenticateButton,
+    formMessage
+  );
+}
 </script>

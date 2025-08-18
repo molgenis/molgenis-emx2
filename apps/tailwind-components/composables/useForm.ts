@@ -118,19 +118,9 @@ export default function useForm(
     return $fetch(`/${schemaId}/graphql`, {
       method: "POST",
       body: formData,
-    }).catch(async (error) => {
-      if (error.statusCode && error.statusCode >= 400) {
-        const { hasSessionTimeout } = await useSession();
-        if (await hasSessionTimeout()) {
-          console.log("Session has timed out, ask for re-authentication");
-          throw new SessionExpiredError(
-            "Session has expired, please log in again."
-          );
-        }
-      } else {
-        console.log("Error on inserting into database", error);
-      }
-    });
+    }).catch((error) =>
+      handleFetchError(error, "Error on inserting into database")
+    );
   };
 
   const updateInto = (schemaId: string, tableId: string) => {
@@ -141,7 +131,7 @@ export default function useForm(
     return $fetch(`/${schemaId}/graphql`, {
       method: "POST",
       body: formData,
-    });
+    }).catch((error) => handleFetchError(error, "Error on updating database"));
   };
 
   const deleteRecord = async (schemaId: string, tableId: string) => {
@@ -155,8 +145,24 @@ export default function useForm(
         query,
         variables,
       },
-    });
+    }).catch((error) =>
+      handleFetchError(error, "Error on delete form database")
+    );
   };
+
+  async function handleFetchError(error: any, message: string) {
+    if (error.statusCode && error.statusCode >= 400) {
+      const { hasSessionTimeout } = await useSession();
+      if (await hasSessionTimeout()) {
+        console.log("Session has timed out, ask for re-authentication");
+        throw new SessionExpiredError(
+          "Session has expired, please log in again."
+        );
+      }
+    } else {
+      console.log(message, error);
+    }
+  }
 
   return {
     requiredFields,

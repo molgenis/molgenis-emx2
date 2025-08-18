@@ -77,11 +77,11 @@
       <FormError
         v-show="saveErrorMessage"
         :message="saveErrorMessage"
-        :show-prev-next-buttons="!showSignInButton"
+        :show-prev-next-buttons="!showReAuthenticateButton"
         class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       >
         <Button
-          v-if="showSignInButton"
+          v-if="showReAuthenticateButton"
           type="outline"
           size="small"
           @click="reAuthenticate"
@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type {
   columnId,
@@ -128,7 +128,7 @@ import useSections from "../../composables/useSections";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
-import { useRouter } from "#app/composables/router";
+import { useSession } from "../../composables/useSession";
 
 const props = withDefaults(
   defineProps<{
@@ -142,8 +142,6 @@ const props = withDefaults(
   }
 );
 
-const router = useRouter();
-
 const emit = defineEmits(["update:added", "update:cancelled"]);
 
 const visible = defineModel("visible", {
@@ -151,9 +149,10 @@ const visible = defineModel("visible", {
   default: false,
 });
 
+const session = await useSession();
 const saveErrorMessage = ref<string>("");
 const formMessage = ref<string>("");
-const showSignInButton = ref<boolean>(false);
+const showReAuthenticateButton = ref<boolean>(false);
 
 function setVisible() {
   visible.value = true;
@@ -171,8 +170,13 @@ async function onSaveDraft() {
   const resp = await insertInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error saving data", err);
-      saveErrorMessage.value = errorToMessage(err, "Error saving draft");
-      return null;
+      if (err instanceof SessionExpiredError) {
+        saveErrorMessage.value =
+          "Your session has expired. Please re-authenticate to continue.";
+        showReAuthenticateButton.value = true;
+      } else {
+        saveErrorMessage.value = errorToMessage(err, "Error saving draft");
+      }
     }
   );
 
@@ -190,8 +194,8 @@ async function onSave() {
       console.log("Error saving data", err);
       if (err instanceof SessionExpiredError) {
         saveErrorMessage.value =
-          "Your session has expired. Please sign in to complete this action.";
-        showSignInButton.value = true;
+          "Your session has expired. Please re-authenticate to continue.";
+        showReAuthenticateButton.value = true;
       } else {
         saveErrorMessage.value = errorToMessage(err, "Error saving data");
       }
@@ -229,7 +233,7 @@ function resetState() {
   errorMap.value = {};
   saveErrorMessage.value = "";
   isDraft.value = false;
-  showSignInButton.value = false;
+  showReAuthenticateButton.value = false;
   formMessage.value = "";
 }
 
@@ -251,52 +255,11 @@ const {
   scrollToElementInside("fields-container", fieldId);
 });
 
-let messageHandler: ((event: MessageEvent) => void) | null = null;
-
 function reAuthenticate() {
-  const topWindow = window.top ?? window;
-  const y = topWindow.outerHeight / 2 + topWindow.screenY - 400 / 2;
-  const x = topWindow.outerWidth / 2 + topWindow.screenX - 600 / 2;
-  const url = router.resolve({
-    name: "login",
-    query: {
-      reauthenticate: "true",
-      redirect: encodeURIComponent(window.location.href),
-    },
-  });
-  const reAuthWindow = window.open(
-    url.href,
-    "_blank",
-    `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=600, height=400, top=${y}, left=${x}`
+  session.reAuthenticate(
+    saveErrorMessage,
+    showReAuthenticateButton,
+    formMessage
   );
-
-  messageHandler = (event) => {
-    if (event.origin !== window.location.origin) {
-      saveErrorMessage.value = "Error re-authenticating; Invalid origin";
-      return;
-    }
-    if (event.data.status === "reAuthenticated") {
-      saveErrorMessage.value = "";
-      showSignInButton.value = false;
-      formMessage.value =
-        "Re-authenticated, please click 'save' to persist the form changes";
-      if (reAuthWindow) {
-        reAuthWindow.close();
-      }
-      if (messageHandler) {
-        // remove after handling the message
-        window.removeEventListener("message", messageHandler);
-      }
-    }
-  };
-
-  window.addEventListener("message", messageHandler);
 }
-
-onUnmounted(() => {
-  if (messageHandler) {
-    // if for some reason the messageHandler is still set, remove it
-    window.removeEventListener("message", messageHandler);
-  }
-});
 </script>

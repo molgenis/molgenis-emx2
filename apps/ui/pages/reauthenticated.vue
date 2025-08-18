@@ -5,15 +5,23 @@ definePageMeta({
   layout: false, // disables all layouts
 });
 
-window.opener.postMessage(
+window?.opener?.postMessage(
   { status: "reAuthenticated" },
   window.location.origin // restrict to same origin
 );
 setTimeout(() => {
-  window.close();
+  if (window?.opener) {
+    window.close();
+  }
 }, 3000);
+
+if (!window.opener) {
+  window.location.href = "/";
+}
 </script>
 
 <template>
-  <h1>Re-authenticated, this window will close automatically.</h1>
+  <h1 class="text-center p-4 text-heading-xl">
+    Re-authenticated, this window will close automatically.
+  </h1>
 </template>
