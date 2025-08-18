@@ -150,7 +150,6 @@ const visible = defineModel("visible", {
 const updateErrorMessage = ref<string>("");
 
 const session = await useSession();
-const saveErrorMessage = ref<string>("");
 const formMessage = ref<string>("");
 const showReAuthenticateButton = ref<boolean>(false);
 
@@ -172,11 +171,11 @@ async function onUpdateDraft() {
       console.error("Error saving data", err);
 
       if (err instanceof SessionExpiredError) {
-        saveErrorMessage.value =
+        updateErrorMessage.value =
           "Your session has expired. Please re-authenticate to continue.";
         showReAuthenticateButton.value = true;
       } else {
-        saveErrorMessage.value = errorToMessage(err, "Error updating draft");
+        updateErrorMessage.value = errorToMessage(err, "Error updating draft");
       }
     }
   );
@@ -195,11 +194,11 @@ async function onUpdate() {
       console.error("Error saving data", err);
 
       if (err instanceof SessionExpiredError) {
-        saveErrorMessage.value =
+        updateErrorMessage.value =
           "Your session has expired. Please re-authenticate to continue.";
         showReAuthenticateButton.value = true;
       } else {
-        saveErrorMessage.value = errorToMessage(err, "Error updating record");
+        updateErrorMessage.value = errorToMessage(err, "Error updating record");
       }
 
       return null;
@@ -243,7 +242,7 @@ const {
 
 function reAuthenticate() {
   session.reAuthenticate(
-    saveErrorMessage,
+    updateErrorMessage,
     showReAuthenticateButton,
     formMessage
   );
