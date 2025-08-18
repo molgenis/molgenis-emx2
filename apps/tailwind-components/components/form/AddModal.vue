@@ -68,7 +68,7 @@
       <FormError
         v-show="errorMessage"
         :message="errorMessage"
-        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
         @error-prev="gotoPreviousError"
         @error-next="gotoNextError"
       />
@@ -93,7 +93,7 @@
       <FormMessage
         v-show="formMessage"
         :message="formMessage"
-        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       />
     </Transition>
 
