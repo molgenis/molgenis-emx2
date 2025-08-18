@@ -16,11 +16,12 @@ definePageMeta({
       if (settings.value?.isOidcEnabled) {
         let redirectAfterLogin = window.location.href;
         if (to.query.reauthenticate === "true") {
-          const url = new URL(window.location.href);
-          url.pathname = "/reauthenticated";
-          url.searchParams.delete("reauthenticate");
-          url.searchParams.delete("redirect");
-          redirectAfterLogin = url.toString();
+          const url = router.resolve({
+            name: "reauthenticated",
+            query: {},
+          });
+
+          redirectAfterLogin = encodeURIComponent(url.href);
         }
 
         return navigateTo("/oidc-login" + `?redirect=${redirectAfterLogin}`, {
