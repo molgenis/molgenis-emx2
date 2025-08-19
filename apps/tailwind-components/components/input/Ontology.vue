@@ -330,43 +330,26 @@ async function loadMoreTerms() {
       @blur="emit('blur')"
       @focus="emit('focus')"
     >
-      <!-- <div
-        class="flex flex-wrap gap-2 mb-2 pr-2 max-h-[100px] overflow-y-auto bg-input"
+      <ButtonFilterWellContainer
         v-if="Object.keys(valueLabels).length > 0"
-      > -->
-      <ButtonFilterWellContainer v-if="Object.keys(valueLabels).length > 0">
-        <template #column-clear-button>
-          <Button
-            v-if="Array.isArray(modelValue) && modelValue.length > 1"
-            @click="clearSelection"
-            type="filterWell"
-            size="tiny"
-            icon="cross"
-            iconPosition="right"
-            class="mr-4"
-          >
-            Clear all
-          </Button>
-        </template>
-        <template #filterButtons>
-          <Button
-            v-for="name in Array.isArray(modelValue)
-              ? (modelValue as string[]).sort()
-              : modelValue ? [modelValue] : []"
-            icon="cross"
-            iconPosition="right"
-            type="filterWell"
-            size="tiny"
-            @click="deselect(name as string)"
-          >
-            {{ valueLabels[name] }}
-          </Button>
-        </template>
+        @clear="clearSelection"
+      >
+        <Button
+          v-for="name in Array.isArray(modelValue)
+            ? (modelValue as string[]).sort()
+            : modelValue ? [modelValue] : []"
+          icon="cross"
+          iconPosition="right"
+          type="filterWell"
+          size="tiny"
+          @click="deselect(name as string)"
+        >
+          {{ valueLabels[name] }}
+        </Button>
       </ButtonFilterWellContainer>
-      <!-- </div> -->
       <div
         class="flex flex-wrap gap-2"
-        v-if="hasChildren || ontologyTree.length > 20"
+        v-if="hasChildren || ontologyTree.length > limit"
       >
         <InputLabel :for="`search-for-${id}`" class="sr-only">
           search in ontology
