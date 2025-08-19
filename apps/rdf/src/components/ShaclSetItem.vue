@@ -90,7 +90,7 @@ $border-radius: 6px;
 .accordion {
   font-family: inherit;
   box-sizing: border-box;
-  margin: 24px 0;
+  margin: 12px 0;
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: $border-radius;
 
@@ -99,7 +99,7 @@ $border-radius: 6px;
     justify-content: flex-start;
     align-items: center;
     margin: 0;
-    padding: 16px 12px;
+    padding: 8px 8px;
     font-size: 14pt;
     color: #495057;
     background-color: rgba(0, 0, 0, 0.03);
