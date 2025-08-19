@@ -7,9 +7,9 @@
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item" v-for="item in navTabs" :key="item.id">
             <router-link
-                class="nav-link"
-                :class="{active: selected == item.id}"
-                         :to="item.id"
+              class="nav-link"
+              :class="{ active: selected == item.id }"
+              :to="item.id"
               >{{ item.name }}
             </router-link>
           </li>
@@ -34,7 +34,7 @@ import {
   Spinner,
 } from "molgenis-components";
 import { ref, computed } from "vue";
-import { useRouter} from "vue-router";
+import { useRouter } from "vue-router";
 
 const session = ref(null);
 const error = ref(null);
@@ -44,5 +44,7 @@ const navTabs = ref([
   { id: "table", name: "Table" },
 ]);
 
-const selected = computed(() => {return useRouter().currentRoute.value.name})
+const selected = computed(() => {
+  return useRouter().currentRoute.value.name;
+});
 </script>
