@@ -297,7 +297,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
         image="image-data-warehouse"
         title="Aggregates"
         callToAction="Aggregates"
-        :link="`/Aggregates/aggregates/`"
+        link="/Aggregates/aggregates/#/"
         :isExternalLink="true"
         :openLinkInNewTab="true"
       />

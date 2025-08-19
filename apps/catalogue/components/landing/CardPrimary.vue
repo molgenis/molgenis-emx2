@@ -24,10 +24,18 @@ withDefaults(defineProps<Props>(), {
         <BaseIcon :name="image" :width="55" />
       </span>
       <div class="relative">
+        <a
+          v-if="isExternalLink"
+          class="font-display md:text-heading-5xl text-heading-5xl text-title-contrast-pop px-3"
+          :href="link"
+          :target="openLinkInNewTab ? '_blank' : undefined"
+        >
+          {{ title }}
+        </a>
         <NuxtLink
+          v-else
           :to="link"
           :target="openLinkInNewTab ? '_blank' : undefined"
-          :external="isExternalLink"
         >
           <h1
             class="font-display md:text-heading-5xl text-heading-5xl text-title-contrast-pop px-3"
@@ -47,10 +55,17 @@ withDefaults(defineProps<Props>(), {
       <span
         class="md:hidden absolute right-0 mr-3 hover:text-blue-800 text-blue-500"
       >
+        <a
+          v-if="isExternalLink"
+          :href="link"
+          :target="openLinkInNewTab ? '_blank' : undefined"
+        >
+          <IconButton icon="arrow-right" />
+        </a>
         <NuxtLink
+          v-else
           :to="link"
           :target="openLinkInNewTab ? '_blank' : undefined"
-          :external="isExternalLink"
         >
           <IconButton icon="arrow-right" />
         </NuxtLink>
@@ -63,11 +78,19 @@ withDefaults(defineProps<Props>(), {
     >
       {{ description }}
     </p>
+    <a
+      v-if="isExternalLink"
+      class="md:block hidden mt-auto"
+      :href="link"
+      :target="openLinkInNewTab ? '_blank' : undefined"
+    >
+      <Button :label="callToAction || title" type="primary" size="medium" />
+    </a>
     <NuxtLink
+      v-else
       class="md:block hidden mt-auto"
       :to="link"
       :target="openLinkInNewTab ? '_blank' : undefined"
-      :external="isExternalLink"
     >
       <Button :label="callToAction || title" type="primary" size="medium" />
     </NuxtLink>
