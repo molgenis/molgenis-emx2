@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const ontologySchemaId = ref<string>("pet store");
-const ontologyTableId = ref<string>("Tag");
-const modelValue = ref("green");
-const modelValueArray = ref(["colors", "mammals"]);
+// const ontologySchemaId = ref<string>("pet store");
+// const ontologyTableId = ref<string>("Tag");
+// const modelValue = ref("green");
+// const modelValueArray = ref(["colors", "mammals"]);
+
+const ontologySchemaId = ref<string>("CatalogueOntologies");
+const ontologyTableId = ref<string>("Countries");
+const modelValue = ref("Austria");
+const modelValueArray = ref(["Austria", "Brazil"]);
 </script>
 
 <template>

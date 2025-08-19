@@ -4,14 +4,21 @@ import TreeNode from "../../components/input/TreeNode.vue";
 import { onMounted, ref, watch, type Ref, computed } from "vue";
 import { fetchGraphql } from "#imports";
 
-const props = defineProps<
-  IInputProps & {
-    isArray?: boolean;
-    //todo: do we need to change to radio button instead of checkboxes when !isArray?
-    ontologySchemaId: string;
-    ontologyTableId: string;
+const props = withDefaults(
+  defineProps<
+    IInputProps & {
+      isArray?: boolean;
+      //todo: do we need to change to radio button instead of checkboxes when !isArray?
+      ontologySchemaId: string;
+      ontologyTableId: string;
+      limit?: number;
+    }
+  >(),
+  {
+    limit: 10,
   }
->();
+);
+
 const emit = defineEmits(["focus", "blur"]);
 //the selected values
 const modelValue = defineModel<string[] | string>();
@@ -28,10 +35,17 @@ const searchTerms: Ref<string> = ref("");
 //initial loading state
 const initLoading = ref(true);
 
+const initialCount = ref<number>(0);
+const counter = ref<number>(0);
+const counterOffset = ref<number>(0);
+const maxTableRows = ref<number>(0);
+const hasNoResults = ref<boolean>(true);
+
 onMounted(() => {
   init();
   initLoading.value = false;
 });
+
 watch(() => props.ontologySchemaId, init);
 watch(() => props.ontologyTableId, init);
 watch(() => modelValue.value, applySelectedStates);
@@ -54,11 +68,11 @@ async function retrieveTerms(
 
   let query = searchTerms.value
     ? `query myquery($termFilter:${props.ontologyTableId}Filter, $searchFilter:${props.ontologyTableId}Filter) {
-        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:1000, orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
-        searchMatch: ${props.ontologyTableId}(filter:$searchFilter, limit:1000, orderby:{order:ASC,name:ASC}){name}
+        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:1000, offset:${counterOffset.value} orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
+        searchMatch: ${props.ontologyTableId}(filter:$searchFilter, limit:${props.limit}, orderby:{order:ASC,name:ASC}){name}
        }`
     : `query myquery($termFilter:${props.ontologyTableId}Filter) {
-        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:1000, orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
+        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:${props.limit},offset:${counterOffset.value}, orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
        }`;
 
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
@@ -114,8 +128,9 @@ async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<void> {
 
 /** initial load */
 async function init() {
-  ontologyTree.value = await retrieveTerms();
+  ontologyTree.value = [...ontologyTree.value, ...(await retrieveTerms())];
   await applySelectedStates();
+  await getMaxTableRows();
 }
 
 /** apply selection UI state on selection changes */
@@ -277,12 +292,31 @@ function toggleSearch() {
 
 async function updateSearch(value: string) {
   searchTerms.value = value;
+  counterOffset.value = 0;
   await init();
 }
 
 const hasChildren = computed(() =>
   ontologyTree.value?.some((node) => node.children?.length)
 );
+
+async function getMaxTableRows() {
+  const data = await fetchGraphql(
+    props.ontologySchemaId,
+    `query {${props.ontologyTableId}_agg(search: "${
+      searchTerms.value || ""
+    }") { count }} `,
+    {}
+  );
+  maxTableRows.value = data[`${props.ontologyTableId}_agg`].count;
+}
+
+async function loadMoreTerms() {
+  counterOffset.value += props.limit;
+  if (counterOffset.value < maxTableRows.value) {
+    await init();
+  }
+}
 </script>
 
 <template>
@@ -296,33 +330,40 @@ const hasChildren = computed(() =>
       @blur="emit('blur')"
       @focus="emit('focus')"
     >
-      <div
-        class="flex flex-wrap gap-1 mb-2 max-h-[300px] overflow-y-auto"
+      <!-- <div
+        class="flex flex-wrap gap-2 mb-2 pr-2 max-h-[100px] overflow-y-auto bg-input"
         v-if="Object.keys(valueLabels).length > 0"
-      >
-        <Button
-          @click="clearSelection"
-          v-if="Array.isArray(modelValue) && modelValue.length > 1"
-          type="filterWell"
-          size="tiny"
-          icon="cross"
-          iconPosition="right"
-          class="mr-4"
-          >Clear all</Button
-        >
-        <Button
-          v-for="name in Array.isArray(modelValue)
-            ? (modelValue as string[]).sort()
-            : modelValue ? [modelValue] : []"
-          icon="cross"
-          iconPosition="right"
-          type="filterWell"
-          size="tiny"
-          @click="deselect(name as string)"
-        >
-          {{ valueLabels[name] }}
-        </Button>
-      </div>
+      > -->
+      <ButtonFilterWellContainer v-if="Object.keys(valueLabels).length > 0">
+        <template #column-clear-button>
+          <Button
+            v-if="Array.isArray(modelValue) && modelValue.length > 1"
+            @click="clearSelection"
+            type="filterWell"
+            size="tiny"
+            icon="cross"
+            iconPosition="right"
+            class="mr-4"
+          >
+            Clear all
+          </Button>
+        </template>
+        <template #filterButtons>
+          <Button
+            v-for="name in Array.isArray(modelValue)
+              ? (modelValue as string[]).sort()
+              : modelValue ? [modelValue] : []"
+            icon="cross"
+            iconPosition="right"
+            type="filterWell"
+            size="tiny"
+            @click="deselect(name as string)"
+          >
+            {{ valueLabels[name] }}
+          </Button>
+        </template>
+      </ButtonFilterWellContainer>
+      <!-- </div> -->
       <div
         class="flex flex-wrap gap-2"
         v-if="hasChildren || ontologyTree.length > 20"
@@ -356,9 +397,15 @@ const hasChildren = computed(() =>
           :multiselect="isArray"
           @toggleExpand="toggleExpand"
           @toggleSelect="toggleSelect"
-          class="pb-2 max-h-[500px] overflow-y-auto"
+          class="pb-2"
           :class="{ 'pl-4': hasChildren }"
         />
+        <ButtonText
+          :id="`${id}-ontology-tree-load-more`"
+          @click="loadMoreTerms"
+        >
+          Load more
+        </ButtonText>
       </fieldset>
     </InputGroupContainer>
   </div>
