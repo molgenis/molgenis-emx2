@@ -16,6 +16,10 @@ module.exports = {
     target: HOST,
     ...opts,
   },
+  "/api/rdf": {
+    target: HOST,
+    ...opts,
+  },
   "^/[a-zA-Z0-9_.%-]+/api/reports": {
     target: HOST,
     ...opts,
