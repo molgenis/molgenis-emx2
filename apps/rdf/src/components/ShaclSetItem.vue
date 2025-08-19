@@ -91,7 +91,7 @@ $border-radius: 6px;
   font-family: inherit;
   box-sizing: border-box;
   margin: 24px 0;
-  border: 1px solid $gray-200;
+  border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: $border-radius;
 
   .accordion-heading {
@@ -101,7 +101,8 @@ $border-radius: 6px;
     margin: 0;
     padding: 16px 12px;
     font-size: 14pt;
-    background-color: $gray-050;
+    color: #495057;
+    background-color: rgba(0, 0, 0, 0.03);
     border-radius: $border-radius;
 
     .accordion-toggle {
@@ -142,7 +143,7 @@ $border-radius: 6px;
   }
 
   .accordion-content {
-    margin: 0;
+    margin: 0 0 12px 0;
     box-sizing: content-box;
   }
 
