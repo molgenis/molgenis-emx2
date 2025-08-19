@@ -1,6 +1,6 @@
 <template>
   <div v-for="shaclSet in shaclSets">
-    <Accordion :id="shaclSet.name" :title="shaclSet.name">
+    <ShaclSetItem :id="shaclSet.name" :title="shaclSet.name">
       <table class="table">
         <tr>
         <th style="width:10%">name</th>
@@ -16,15 +16,7 @@
         </tr>
       </table>
       <LayoutCard title="SHACL output" />
-    </Accordion>
-    <button
-        type="button"
-        :class="light ? 'btn btn-outline-light' : 'btn btn-outline-primary'"
-        :disabled="disabled"
-        @click.prevent="onClick"
-    >
-      validate
-    </button>
+    </ShaclSetItem>
   </div>
 </template>
 
@@ -32,7 +24,7 @@
 import { ref } from "vue";
 import { parse } from "yaml";
 import { TableDisplay, LayoutCard } from "molgenis-components";
-import { Accordion } from "molgenis-viz";
+import ShaclSetItem from "../components/ShaclSetItem.vue";
 
 const shaclSets = ref("");
 async function fetchShacls() {
