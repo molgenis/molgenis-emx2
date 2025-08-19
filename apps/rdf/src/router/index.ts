@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import Shacls from "../components/Shacls.vue";
-import Table from "../components/Table.vue";
+import Sparql from "../components/Sparql.vue";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -16,10 +16,10 @@ const router = createRouter({
       name: "shacl",
     },
     {
-      path: "/table",
-      component: Table,
+      path: "/sparql",
+      component: Sparql,
       props: true,
-      name: "table",
+      name: "sparql",
     },
   ],
 });

@@ -1,7 +1,7 @@
 <template>
   <Molgenis v-model="session" @error="error = $event">
-    <h3>Validation</h3>
-
+    <h3>RDF</h3>
+    <p>For information about the RDF in EMX2, please view the docs about the <a href="https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_rdf" target="_blank">RDF API</a> and the <a href="https://molgenis.github.io/molgenis-emx2/#/molgenis/semantics" target="_blank">semantics</a> field.</p>
     <div v-if="session" class="card">
       <div class="card-header">
         <ul class="nav nav-tabs card-header-tabs">
@@ -40,8 +40,8 @@ const session = ref(null);
 const error = ref(null);
 
 const navTabs = ref([
+  { id: "sparql", name: "SPARQL" },
   { id: "shacl", name: "SHACL" },
-  { id: "table", name: "Table" },
 ]);
 
 const selected = computed(() => {

@@ -15,7 +15,7 @@ export default defineConfig(({ command }) => ({
       },
     },
   },
-  base: command === "serve" ? "/" : "apps/validation/",
+  base: command === "serve" ? "/" : "apps/rdf/",
   server: {
     proxy: require("../dev-proxy.config"),
   },
