@@ -7,19 +7,9 @@ import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
 import * as _ from "lodash";
 
-let bookmarkApplied = false;
-
 const { setError, clearError } = useErrorHandler();
 
 export async function applyBookmark(watchedQuery: LocationQuery) {
-  if (bookmarkApplied) {
-    return;
-  }
-
-  if (!watchedQuery || !(Object.keys(watchedQuery).length > 0)) {
-    return;
-  }
-
   const checkoutStore = useCheckoutStore();
   const collectionStore = useCollectionStore();
   const filtersStore = useFiltersStore();
@@ -52,6 +42,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
       );
     }
   }
+
   /** we load the filters, grab the names, so we can loop over it to map the selections */
   const filters = Object.keys(filtersStore.facetDetails);
   if (watchedQuery.matchAll) {
@@ -91,10 +82,12 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
           filtersStore.updateFilter(filterName, activeFilters, true);
         }
       }
+    } else {
+      filtersStore.updateFilter(filterName, undefined, true);
     }
   }
+
   filtersStore.bookmarkWaitingForApplication = false;
-  bookmarkApplied = true;
 }
 
 export function createBookmark(
