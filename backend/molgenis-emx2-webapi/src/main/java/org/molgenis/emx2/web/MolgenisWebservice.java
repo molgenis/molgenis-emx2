@@ -11,6 +11,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.json.JavalinJackson;
+import io.prometheus.metrics.exporter.servlet.jakarta.PrometheusMetricsServlet;
+import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
+import io.prometheus.metrics.model.registry.PrometheusRegistry;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
@@ -66,6 +69,15 @@ public class MolgenisWebservice {
     } catch (Exception ignored) {
       // should we handle this?
     }
+
+    // Register default JVM metrics (GC, memory, threads, etc.)
+    JvmMetrics.builder().register();
+    app.get(
+        "/metrics",
+        ctx -> {
+          new PrometheusMetricsServlet(PrometheusRegistry.defaultRegistry)
+              .service(ctx.req(), ctx.res());
+        });
 
     MessageApi.create(app);
 
