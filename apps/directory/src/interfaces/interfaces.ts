@@ -14,3 +14,17 @@ export interface IFilterOption {
   text: string;
   value: string;
 }
+
+export interface IFilterFacet {
+  sourceTable: string;
+  sourceSchema: string;
+  facetIdentifier: string;
+  filterLabelAttribute: string;
+  filterValueAttribute: string;
+  extraAttributes?: string[];
+  sortColumn: string;
+  sortDirection: "ASC" | "DESC";
+  ontologyIdentifiers?: string[];
+  removeOptions?: string[];
+  customOptions?: any;
+}
