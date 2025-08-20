@@ -51,6 +51,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
       );
     }
   }
+
   /** we load the filters, grab the names, so we can loop over it to map the selections */
   const filters = Object.keys(filtersStore.facetDetails);
   if (watchedQuery.matchAll) {
@@ -98,6 +99,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
       }
     }
   }
+
   filtersStore.bookmarkWaitingForApplication = false;
   bookmarkApplied = true;
 }

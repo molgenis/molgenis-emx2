@@ -1,7 +1,7 @@
 import { ContactInfoColumns } from "./contactInfoColumns";
 import { HeadInfoColumns } from "./headInfoColumns";
 
-export const initialBiobankColumns = [
+export const initialBiobankColumns: Record<string, any>[] = [
   { label: "Id:", column: "id", type: "string", showCopyIcon: true },
   {
     label: "PID:",
