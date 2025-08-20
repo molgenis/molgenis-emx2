@@ -32,7 +32,7 @@
     "emx2-analytics",
     "ui",
     "nestor-public",
-    "validation"
+    "rdf"
   ],
   "scripts": {
     "build:libs": "yarn workspace molgenis-components run build && yarn workspace molgenis-viz run build"
