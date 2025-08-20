@@ -102,7 +102,7 @@ export function createBookmark(
   collectionCart: Record<string, ILabelValuePair[]>,
   serviceCart: Record<string, ILabelValuePair[]>,
   filterTypes: Record<string, any>,
-  bookmarkWaitingForApplication: boolean
+  bookmarkWaitingForApplication: boolean = false
 ) {
   const bookmarkQuery: Record<string, string> = {};
   const matchAll = [];

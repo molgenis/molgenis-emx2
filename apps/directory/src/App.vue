@@ -70,8 +70,7 @@ watch(
         filtersStore.filters,
         checkoutStore.selectedCollections,
         checkoutStore.selectedServices,
-        filtersStore.filterType,
-        filtersStore.filterTriggeredBookmark
+        filtersStore.filterType
       );
     }
 
