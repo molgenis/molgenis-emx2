@@ -25,5 +25,6 @@ export interface IFilterFacet {
   sortColumn: string;
   sortDirection: "ASC" | "DESC";
   ontologyIdentifiers?: string[];
+  removeOptions?: string[];
   customOptions?: any;
 }
