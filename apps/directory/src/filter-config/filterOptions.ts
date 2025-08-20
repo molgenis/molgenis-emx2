@@ -1,6 +1,18 @@
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
-import { IFilterFacet, IOntologyItem } from "../interfaces/interfaces";
+import { useFiltersStore } from "../stores/filtersStore";
+import { IOntologyItem } from "../interfaces/interfaces";
+
+/** Async so we can fire and forget for performance. */
+async function cache(facetIdentifier: any, filterOptions: any) {
+  const { filterOptionsCache } = useFiltersStore() as any;
+  filterOptionsCache[facetIdentifier] = filterOptions;
+}
+
+function retrieveFromCache(facetIdentifier: any) {
+  const { filterOptionsCache } = useFiltersStore() as any;
+  return filterOptionsCache[facetIdentifier] || [];
+}
 
 /** Configurable array of values to filter out, for example 'Other, unknown' that make no sense to the user. */
 function removeOptions(filterOptions: any, filterFacet: any) {
@@ -14,6 +26,21 @@ function removeOptions(filterOptions: any, filterFacet: any) {
       !optionsToRemove.includes(filterOption.text.toLowerCase())
   );
 }
+
+export const customFilterOptions = (filterFacet: any) => {
+  const { facetIdentifier, customOptions } = filterFacet;
+  return () =>
+    new Promise((resolve) => {
+      const cachedOptions = retrieveFromCache(facetIdentifier);
+
+      if (!cachedOptions.length) {
+        cache(facetIdentifier, customOptions);
+        resolve(customOptions);
+      } else {
+        resolve(customOptions);
+      }
+    });
+};
 
 function _mapToOptions(
   row: Record<string, any>,
@@ -47,10 +74,20 @@ function getExtraAttributes(row: Record<string, any>, attributes: string[]) {
   }, {});
 }
 
-export async function genericFilterOptions(filterFacet: IFilterFacet) {
+export const genericFilterOptions = (filterFacet: {
+  sourceTable: string;
+  sourceSchema: string;
+  facetIdentifier: string;
+  filterLabelAttribute: string;
+  filterValueAttribute: string;
+  extraAttributes?: string[];
+  sortColumn: string;
+  sortDirection: "ASC" | "DESC";
+}) => {
   const {
     sourceTable,
     sourceSchema,
+    facetIdentifier,
     filterLabelAttribute,
     filterValueAttribute,
     extraAttributes,
@@ -58,48 +95,57 @@ export async function genericFilterOptions(filterFacet: IFilterFacet) {
     sortDirection,
   } = filterFacet;
 
-  const selection = getAttributeSelection(
-    filterLabelAttribute,
-    filterValueAttribute,
-    extraAttributes
-  );
-
-  return new QueryEMX2(getSchema(sourceSchema))
-    .table(sourceTable)
-    .select(selection)
-    .orderBy(sourceTable, sortColumn, sortDirection)
-    .execute()
-    .then((response: Record<string, Record<string, any>>) => {
-      let filterOptions = response[sourceTable].map(
-        (row: Record<string, any>) => {
-          let result = _mapToOptions(
-            row,
-            filterLabelAttribute,
-            filterValueAttribute,
-            extraAttributes
-          );
-          const parent = row.parent
-            ? row.parent[filterValueAttribute]
-            : undefined;
-          if (parent) {
-            result[parent] = parent;
-          }
-          const children = row.children?.map(
-            (child: any) => child[filterValueAttribute]
-          );
-          if (children) {
-            result[children] = children;
-          }
-          return result;
-        }
+  return () =>
+    new Promise((resolve) => {
+      const cachedOptions = retrieveFromCache(facetIdentifier);
+      const selection = getAttributeSelection(
+        filterLabelAttribute,
+        filterValueAttribute,
+        extraAttributes
       );
 
-      /**  remove unwanted options if applicable */
-      filterOptions = removeOptions(filterOptions, filterFacet);
+      if (!cachedOptions.length) {
+        new QueryEMX2(getSchema(sourceSchema))
+          .table(sourceTable)
+          .select(selection)
+          .orderBy(sourceTable, sortColumn, sortDirection)
+          .execute()
+          .then((response: Record<string, Record<string, any>>) => {
+            let filterOptions = response[sourceTable].map(
+              (row: Record<string, any>) => {
+                let result = _mapToOptions(
+                  row,
+                  filterLabelAttribute,
+                  filterValueAttribute,
+                  extraAttributes
+                );
+                const parent = row.parent
+                  ? row.parent[filterValueAttribute]
+                  : undefined;
+                if (parent) {
+                  result[parent] = parent;
+                }
+                const children = row.children?.map(
+                  (child: any) => child[filterValueAttribute]
+                );
+                if (children) {
+                  result[children] = children;
+                }
+                return result;
+              }
+            );
 
-      return filterOptions;
+            /**  remove unwanted options if applicable */
+            filterOptions = removeOptions(filterOptions, filterFacet);
+
+            cache(facetIdentifier, filterOptions);
+            resolve(filterOptions);
+          });
+      } else {
+        resolve(cachedOptions);
+      }
     });
-}
+};
 
 function getAttributeSelection(
   filterLabelAttribute: string,
@@ -113,40 +159,53 @@ function getAttributeSelection(
   }
 }
 
-export function ontologyFilterOptions(filterFacet: IFilterFacet) {
+export const ontologyFilterOptions = (filterFacet: any) => {
   const {
     ontologyIdentifiers,
     sourceSchema,
     sourceTable,
+    facetIdentifier,
     filterLabelAttribute,
     filterValueAttribute,
     sortColumn,
     sortDirection,
   } = filterFacet;
 
-  const selection = [
-    filterLabelAttribute,
-    filterValueAttribute,
-    "code",
-    `parent.${filterValueAttribute}`,
-  ];
+  return () =>
+    new Promise((resolve) => {
+      const cachedOptions = retrieveFromCache(facetIdentifier);
 
-  /** make it query after all the others, saves 50% of initial load */
-  setTimeout(() => {}, 1000);
-  return new QueryEMX2(getSchema(sourceSchema))
-    .table(sourceTable)
-    .select(selection)
-    .orderBy(sourceTable, sortColumn, sortDirection)
-    .execute()
-    .then((response: any) => {
-      const itemsSplitByOntology = getItemsSplitByOntology(
-        response[sourceTable],
-        ontologyIdentifiers!
-      );
+      const selection = [
+        filterLabelAttribute,
+        filterValueAttribute,
+        "code",
+        `parent.${filterValueAttribute}`,
+      ];
 
-      return itemsSplitByOntology;
+      if (!cachedOptions.length) {
+        /** make it query after all the others, saves 50% of initial load */
+        const waitAfterBiobanks = setTimeout(() => {
+          new QueryEMX2(getSchema(sourceSchema))
+            .table(sourceTable)
+            .select(selection)
+            .orderBy(sourceTable, sortColumn, sortDirection)
+            .execute()
+            .then((response: any) => {
+              const itemsSplitByOntology = getItemsSplitByOntology(
+                response[sourceTable],
+                ontologyIdentifiers
+              );
+
+              cache(facetIdentifier, itemsSplitByOntology);
+              resolve(itemsSplitByOntology);
+            });
+          clearTimeout(waitAfterBiobanks);
+        }, 1000);
+      } else {
+        resolve(cachedOptions);
+      }
     });
-}
+};
 
 function getItemsSplitByOntology(
   ontologyItems: IOntologyItem[],

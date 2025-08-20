@@ -1,10 +1,7 @@
 import * as _ from "lodash";
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
-import {
-  createFilters,
-  getFilterOptions,
-} from "../filter-config/facetConfigurator";
+import { createFilters } from "../filter-config/facetConfigurator";
 import { applyFiltersToQuery } from "../functions/applyFiltersToQuery";
 import { createBookmark } from "../functions/bookmarkMapper";
 import { useBiobanksStore } from "./biobanksStore";
@@ -43,15 +40,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   filterPromise.value = settingsStore.configurationPromise.then(async () => {
     filterFacets.value = createFilters(settingsStore.config.filterFacets);
     filterFacetsById.value = _.keyBy(filterFacets.value, "facetIdentifier");
-    filterOptions.value = _.reduce(
-      filterFacets.value,
-      async (accum: Record<string, any>, filterFacet) => {
-        const options = getFilterOptions(filterFacet);
-        accum[filterFacet.facetIdentifier] = await options;
-        return accum;
-      },
-      {}
-    );
     filtersReadyToRender.value = true;
   });
 
