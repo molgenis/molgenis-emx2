@@ -101,7 +101,8 @@ export function createBookmark(
   filters: Record<string, any>,
   collectionCart: Record<string, ILabelValuePair[]>,
   serviceCart: Record<string, ILabelValuePair[]>,
-  filterTypes: Record<string, any>
+  filterTypes: Record<string, any>,
+  bookmarkWaitingForApplication: boolean = false
 ) {
   const bookmarkQuery: Record<string, string> = {};
   const matchAll = [];
@@ -153,14 +154,16 @@ export function createBookmark(
     bookmarkQuery.serviceCart = encodeURI(encodedCart);
   }
 
-  try {
-    clearError();
-    router.push({
-      name: router.currentRoute.value.name,
-      query: bookmarkQuery,
-    });
-  } catch (error) {
-    setError(error);
+  if (!bookmarkWaitingForApplication) {
+    try {
+      clearError();
+      router.push({
+        name: router.currentRoute.value.name,
+        query: bookmarkQuery,
+      });
+    } catch (error) {
+      setError(error);
+    }
   }
 }
 
