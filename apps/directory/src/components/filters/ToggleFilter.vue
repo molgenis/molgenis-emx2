@@ -23,7 +23,7 @@ export default {
       required: true,
     },
     options: {
-      type: [Function],
+      type: [Array],
       required: true,
     },
     trueOption: {

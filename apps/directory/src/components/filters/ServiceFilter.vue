@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useFiltersStore } from "../../stores/filtersStore";
 import { useSettingsStore } from "../../stores/settingsStore";
 import CheckboxComponent from "./base/CheckboxComponent.vue";
@@ -39,18 +39,10 @@ const settingsStore = useSettingsStore();
 
 const { facetIdentifier, options } = defineProps<{
   facetIdentifier: string;
-  options: Function;
+  options: IOption[];
 }>();
 
-const resolvedOptions = ref<IOption[]>([]);
-const groupedOptions = ref<Record<string, IOption[]>>({});
-
-onMounted(() => {
-  options().then((response: IOption[]) => {
-    resolvedOptions.value = response;
-    groupedOptions.value = groupOptions(response);
-  });
-});
+const groupedOptions = ref<Record<string, IOption[]>>(groupOptions(options));
 
 const groupNames = computed(() => Object.keys(groupedOptions.value).sort());
 
@@ -108,7 +100,7 @@ function toggleSelect() {
   if (filterSelection.value?.length) {
     filterSelection.value = [];
   } else {
-    filterSelection.value = resolvedOptions.value;
+    filterSelection.value = options;
   }
 }
 

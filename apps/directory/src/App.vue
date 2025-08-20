@@ -30,25 +30,17 @@ const footer = computed(() => settingsStore.config.footer);
 
 const session = ref({});
 
-watch(
-  () => settingsStore.configurationFetched,
-  () => {
-    if (settingsStore.configurationFetched) {
-      initMatomo();
-    }
-  }
-);
-
 watch(session, () => {
   settingsStore.setSessionInformation(session.value);
 });
 
 onMounted(async () => {
   await router.isReady();
+  await settingsStore.configurationPromise;
   applyBookmark(route.query);
+  initMatomo();
+  changeFavicon();
 });
-
-onMounted(changeFavicon);
 
 function closeAllDropdownButtons(event: any) {
   const allDropdownButtons = document.querySelectorAll(".dropdown-button");

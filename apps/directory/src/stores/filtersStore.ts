@@ -1,7 +1,10 @@
 import * as _ from "lodash";
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
-import { createFilters } from "../filter-config/facetConfigurator";
+import {
+  createFilters,
+  getFilterOptions,
+} from "../filter-config/facetConfigurator";
 import { applyFiltersToQuery } from "../functions/applyFiltersToQuery";
 import { createBookmark } from "../functions/bookmarkMapper";
 import { useBiobanksStore } from "./biobanksStore";
@@ -23,13 +26,12 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const graphqlEndpointOntologyFilter = "/DirectoryOntologies/graphql";
 
-  const bookmarkTriggeredFilter = ref(false);
-
   const filters = ref<Record<string, any>>({});
   const filterType = ref<Record<string, any>>({});
 
-  const filterOptionsCache = ref<Record<string, IFilterOption[]>>({});
-  const filterFacets = ref<any[]>([]);
+  const filterFacets = ref<Record<string, any>[]>([]); //Facet = settings of the filters
+  const filterFacetsById = ref<Record<string, any>>({});
+  const filterOptions = ref<Record<string, IFilterOption[]>>({});
 
   const filtersReadyToRender = ref(false);
   const filterPromise = ref<Promise<any> | null>(null);
@@ -38,32 +40,20 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const selectedDiseases = ref<Record<string, boolean>>({});
   const diseases = ref<Record<string, IOntologyItem>>({});
 
-  const facetDetails = ref<Record<string, any>>({});
-
-  filterPromise.value = settingsStore.configurationPromise.then(() => {
+  filterPromise.value = settingsStore.configurationPromise.then(async () => {
     filterFacets.value = createFilters(settingsStore.config.filterFacets);
-    filterFacets.value.forEach((filterFacet) => {
-      facetDetails.value[filterFacet.facetIdentifier] = {
-        ...filterFacet,
-      };
-    });
+    filterFacetsById.value = _.keyBy(filterFacets.value, "facetIdentifier");
+    filterOptions.value = _.reduce(
+      filterFacets.value,
+      async (accum: Record<string, any>, filterFacet) => {
+        const options = getFilterOptions(filterFacet);
+        accum[filterFacet.facetIdentifier] = await options;
+        return accum;
+      },
+      {}
+    );
     filtersReadyToRender.value = true;
   });
-
-  watch(
-    () => settingsStore.configurationFetched,
-    async () => {
-      if (settingsStore.configurationFetched) {
-        filterFacets.value = createFilters(settingsStore.config.filterFacets);
-        filterFacets.value.forEach((filterFacet) => {
-          facetDetails.value[filterFacet.facetIdentifier] = {
-            ...filterFacet,
-          };
-        });
-        filtersReadyToRender.value = true;
-      }
-    }
-  );
 
   const hasActiveFilters = computed(() => {
     return Object.keys(filters.value).length > 0;
@@ -78,7 +68,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   });
 
   function getValuePropertyForFacet(facetIdentifier: string) {
-    return facetDetails.value[facetIdentifier].filterValueAttribute;
+    return filterFacetsById.value[facetIdentifier].filterValueAttribute;
   }
 
   function checkOntologyDescendantsIfMatches(
@@ -121,8 +111,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     add: boolean,
     fromBookmark: any = false
   ) {
-    bookmarkTriggeredFilter.value = fromBookmark;
-
     const childValues = flattenOntologyBranch(value);
     const processedValues = _.uniqBy(childValues, "code");
 
@@ -275,8 +263,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     value?: IFilterOption[] | string | boolean,
     fromBookmark?: boolean
   ) {
-    bookmarkTriggeredFilter.value = fromBookmark ?? false;
-
     if (typeof value === "string" || typeof value === "boolean") {
       if (value === "") {
         delete filters.value[filterName];
@@ -314,11 +300,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     return filters.value[filterName];
   }
 
-  function updateFilterType(
-    filterName: string,
-    value: any,
-    fromBookmark: boolean
-  ) {
+  function updateFilterType(filterName: string, value: any) {
     if (
       filterName === DIAGNOSIS_AVAILABLE &&
       (filterType.value[filterName] === "any" ||
@@ -327,8 +309,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     ) {
       filters.value[filterName] = filters.value[filterName].slice(0, 50);
     }
-
-    bookmarkTriggeredFilter.value = fromBookmark;
 
     if (value === "" || value === undefined || value.length === 0) {
       delete filterType.value[filterName];
@@ -345,7 +325,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     applyFiltersToQuery(
       biobankStore.getBaseQuery(),
       filters.value,
-      facetDetails.value,
+      filterFacetsById.value,
       filterType.value
     );
   }
@@ -395,12 +375,12 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     updateFilter,
     updateFilterType,
     updateOntologyFilter,
-    facetDetails,
+    facetDetails: filterFacetsById,
     filterFacets,
-    filterOptionsCache,
     filtersReadyToRender,
     filterPromise,
     filters,
+    filterOptions,
     filterType,
     hasActiveFilters,
     hasActiveBiobankOnlyFilters,

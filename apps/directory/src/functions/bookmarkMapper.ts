@@ -52,7 +52,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
       watchedQuery.matchAll as string
     ).split(",");
     for (const filterName of matchAllFilters) {
-      filtersStore.updateFilterType(filterName, "all", true);
+      filtersStore.updateFilterType(filterName, "all");
     }
   }
 
@@ -80,11 +80,12 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
           filtersStore.updateOntologyFilter(filterName, option, true, true);
         });
       } else {
-        const filterOptions = filtersStore.filterOptionsCache[filterName];
+        const filterOptions = filtersStore.filterOptions[filterName];
         if (filterOptions) {
           const queryValues = filtersToAdd.split(",");
-          const activeFilters = filterOptions.filter((filterOption) =>
-            queryValues.includes(filterOption.value)
+          const activeFilters = filterOptions.filter(
+            (filterOption: Record<string, any>) =>
+              queryValues.includes(filterOption.value)
           );
           filtersStore.updateFilter(filterName, activeFilters, true);
         }

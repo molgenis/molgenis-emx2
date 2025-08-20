@@ -1,8 +1,4 @@
-import {
-  customFilterOptions,
-  genericFilterOptions,
-  ontologyFilterOptions,
-} from "./filterOptions";
+import { genericFilterOptions, ontologyFilterOptions } from "./filterOptions";
 import { useSettingsStore } from "../stores/settingsStore";
 
 function getFacetIdentifier(facet) {
@@ -34,19 +30,15 @@ export const filterTemplate = {
 export function createFilters(filters) {
   const settingsStore = useSettingsStore();
 
-  const filterFacets = [];
-
-  for (const facet of settingsStore.config.filterFacets) {
-    filterFacets.push({
+  const filterFacets = settingsStore.config.filterFacets.map((facet) => {
+    return {
       facetTitle:
         facet.facetTitle ||
         facet.applyToColumn /** a custom 'human readable' text for on the button */,
       facetIdentifier: getFacetIdentifier(facet),
-      component:
-        facet.component ||
-        "CheckboxFilter" /** a custom specified component, or just the default */,
-      sourceTable:
-        facet.sourceTable /** the table where the options are coming from. */,
+      component: facet.component || "CheckboxFilter",
+      sourceTable: facet.sourceTable,
+      sourceSchema: facet.sourceSchema,
       applyToColumn:
         facet.applyToColumn /** the column in the main table to apply the filter on. */,
       filterValueAttribute:
@@ -55,10 +47,6 @@ export function createFilters(filters) {
       filterLabelAttribute:
         facet.filterLabelAttribute ||
         "name" /** specify if you want to use another column as the label for the filter option, instead of name */,
-      options: getFilterOptions({
-        ...facet,
-        facetIdentifier: getFacetIdentifier(facet),
-      }) /** uses the removeOptions array provided in the configuration */,
       ontologyIdentifiers:
         facet.ontologyIdentifiers ||
         [] /** for use when you have multiple ontologies in a single table, e.g. orhpa and icd */,
@@ -78,19 +66,25 @@ export function createFilters(filters) {
       adaptive:
         facet.adaptive ||
         false /** if the filters options should react on search results */,
-      sortColumn: "name" /** specify a column to apply sorting on */,
-      sortDirection: "asc" /** the direction to sort */,
-    });
-  }
+      sortColumn: "name",
+      sortDirection: "asc",
+    };
+  });
+
   return filterFacets;
 }
 
-function getFilterOptions(filterFacet) {
+export async function getFilterOptions(filterFacet) {
   if (filterFacet.customOptions && filterFacet.customOptions.length > 0) {
-    return customFilterOptions(filterFacet);
+    return filterFacet.customOptions;
   } else if (filterFacet.component === "OntologyFilter") {
-    return ontologyFilterOptions(filterFacet);
+    return await ontologyFilterOptions(filterFacet);
+  } else if (
+    filterFacet.component === "StringFilter" ||
+    filterFacet.component === "ToggleFilter"
+  ) {
+    return [];
   } else {
-    return genericFilterOptions(filterFacet);
+    return await genericFilterOptions(filterFacet);
   }
 }

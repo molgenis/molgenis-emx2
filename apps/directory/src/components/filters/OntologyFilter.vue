@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useFiltersStore } from "../../stores/filtersStore";
 import TreeComponent from "./base/TreeComponent.vue";
 //@ts-ignore
@@ -78,24 +78,21 @@ const { facetIdentifier, ontologyIdentifiers, options, showMatchTypeSelector } =
   defineProps<{
     facetIdentifier: string;
     ontologyIdentifiers: string[];
-    options: Function;
+    options: any;
     showMatchTypeSelector: boolean;
   }>();
 
 const ontologyQuery = ref("");
-const resolvedOptions = ref<Record<string, any> | undefined>(undefined);
 const selectedOntology = ref(ontologyIdentifiers[0]);
 
-options()
-  .then((response: any) => {
-    resolvedOptions.value = response || {};
-    filtersStore.setDiseases(
-      resolvedOptions.value![selectedOntology.value] || []
-    );
-  })
-  .catch((error: any) => {
-    console.log(`Error resolving ontology facet options: ${error}`);
-  });
+watch(
+  () => options,
+  (newOptions) => {
+    if (!newOptions) return;
+    filtersStore.setDiseases(newOptions[selectedOntology.value] || []);
+  },
+  { immediate: true }
+);
 
 const selectionOverflow = computed(() => {
   return (
@@ -106,13 +103,13 @@ const selectionOverflow = computed(() => {
 });
 
 const displayOptions = computed(() => {
-  if (!resolvedOptions.value) return [];
+  if (!options) return [];
   if (!ontologyQuery.value) {
-    return resolvedOptions.value[selectedOntology.value] || [];
+    return options[selectedOntology.value] || [];
   }
 
   let matchingOptions = [];
-  for (const ontologyItem of resolvedOptions.value[selectedOntology.value]) {
+  for (const ontologyItem of options[selectedOntology.value]) {
     if (
       filtersStore.ontologyItemMatchesQuery(ontologyItem, ontologyQuery.value)
     ) {
@@ -137,7 +134,7 @@ const handleSearchFieldChanged = _.debounce((event: any) => {
 
 function setSelectedOntology(ontologyId: string) {
   selectedOntology.value = ontologyId;
-  filtersStore.setDiseases(resolvedOptions.value![ontologyId] || []);
+  filtersStore.setDiseases(options[ontologyId] || []);
 }
 </script>
 

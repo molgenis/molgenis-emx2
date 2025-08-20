@@ -240,6 +240,9 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     if (!baseQuery.value) {
       baseQuery.value = initBaseQuery();
     }
+    if (!baseQuery.value) {
+      console.error("Base query is not initialized properly.");
+    }
     return baseQuery.value;
   }
 
@@ -255,7 +258,6 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     biobankCardsServicesCount,
     biobankCardsSubcollectionCount,
     biobankCards,
-    baseQuery,
   };
 });
 
