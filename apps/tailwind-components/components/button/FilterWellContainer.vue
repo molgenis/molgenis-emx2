@@ -47,32 +47,44 @@ function updateFilterButtons() {
   }
 }
 
-function showPreviousItem() {
-  focusCounter.value -= 1;
-  if (focusCounter.value <= minFocusCounter.value) {
-    focusCounter.value = minFocusCounter.value;
-  }
+function addFilterButtonClass(button: HTMLButtonElement) {
+  button.classList.add("bg-button-filter-hover");
+  button.classList.add("border-button-filter-hover");
+}
 
+function removeFilterButtonClass(button: HTMLButtonElement) {
+  button.classList.remove("bg-button-filter-hover");
+  button.classList.remove("border-button-filter-hover");
+}
+
+function showPreviousItem() {
   if (filterButtons.value) {
-    const previousButton = filterButtons.value[
-      focusCounter.value as number
-    ] as HTMLButtonElement;
-    previousButton.focus();
+    // const currentButton = filterButtons.value[(focusCounter.value as number)];
+    // removeFilterButtonClass(currentButton as HTMLButtonElement);
+
+    focusCounter.value -= 1;
+    if (focusCounter.value <= minFocusCounter.value) {
+      focusCounter.value = minFocusCounter.value;
+    }
+
+    const previousButton = filterButtons.value[focusCounter.value as number];
+    // addFilterButtonClass(previousButton as HTMLButtonElement);
     previousButton.scrollIntoView(scrollConfig);
   }
 }
 
 function showNextItem() {
-  focusCounter.value += 1;
-  if (focusCounter.value >= maxFocusCounter.value - 1) {
-    focusCounter.value = maxFocusCounter.value - 1;
-  }
-
   if (filterButtons.value) {
-    const nextButton = filterButtons.value[
-      focusCounter.value as number
-    ] as HTMLButtonElement;
-    nextButton.focus();
+    // const currentButton = filterButtons.value[(focusCounter.value as number)];
+    // removeFilterButtonClass(currentButton as HTMLButtonElement);
+
+    focusCounter.value += 1;
+    if (focusCounter.value >= maxFocusCounter.value - 1) {
+      focusCounter.value = maxFocusCounter.value - 1;
+    }
+
+    const nextButton = filterButtons.value[focusCounter.value as number];
+    // addFilterButtonClass(nextButton as HTMLButtonElement);
     nextButton.scrollIntoView(scrollConfig);
   }
 }
