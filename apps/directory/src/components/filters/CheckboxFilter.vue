@@ -59,7 +59,7 @@ export default {
      * { text: 'foo', value: 'bar' }
      */
     options: {
-      type: [Object],
+      type: [Function],
       required: true,
     },
     currentlyActive: {
@@ -91,6 +91,7 @@ export default {
   },
   data() {
     return {
+      resolvedOptions: [],
       reducedOptions: [],
     };
   },
@@ -118,13 +119,13 @@ export default {
           (selection) => selection.value
         );
 
-        return this.options.filter(
+        return this.resolvedOptions.filter(
           (option) =>
             this.reducedOptions.includes(option.value) ||
             selectedValues.includes(option.value)
         );
       } else {
-        return this.options;
+        return this.resolvedOptions;
       }
     },
     filterSelection: {
@@ -147,6 +148,10 @@ export default {
   },
   created() {
     this.reducedOptions = this.optionsFilter || [];
+
+    this.options().then((response) => {
+      this.resolvedOptions = response;
+    });
   },
 };
 </script>

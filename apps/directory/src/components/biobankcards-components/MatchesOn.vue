@@ -22,13 +22,30 @@ const filtersStore = useFiltersStore();
 const { viewmodel } = defineProps<{
   viewmodel: Record<string, any>;
 }>();
+const filterInfoDictionary = computed(() => {
+  return filtersStore.filterFacets.reduce(
+    (
+      accum: Record<string, { column: any; label: string }>,
+      filter: {
+        facetIdentifier: string;
+        applyToColumn: any;
+        facetTitle: string;
+      }
+    ) => {
+      accum[filter.facetIdentifier] = {
+        column: filter.applyToColumn,
+        label: filter.facetTitle,
+      };
+      return accum;
+    },
+    {}
+  );
+});
 
 const matches = computed(() => {
   let matches: IMatch[] = [];
   const filters: Record<string, any> = filtersStore.filters;
   const filterIds = Object.keys(filters);
-  const facetDetails = filtersStore.facetDetails;
-
   for (const filterId of filterIds) {
     const activeFilterValues = filters[filterId];
 
@@ -36,24 +53,23 @@ const matches = computed(() => {
       /** no need to check further if there are no active filters */
 
       const filterColumn: string | string[] =
-        facetDetails[filterId].applyToColumn;
+        filterInfoDictionary.value[filterId].column;
       const columns: string[] = Array.isArray(filterColumn)
         ? filterColumn
         : [filterColumn];
 
       for (const columnId of columns) {
-        const filterName = facetDetails[filterId].facetTitle;
+        const filterName = filterInfoDictionary.value[filterId].label;
         const potentialMatch = extractValue(columnId, viewmodel);
 
         if (!potentialMatch) {
           continue;
         }
-
         const match: IMatch = getMatch(
           potentialMatch,
           filterName,
           activeFilterValues,
-          filtersStore.filterOptions,
+          filtersStore.filterOptionsCache,
           filterId
         );
 
