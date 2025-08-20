@@ -38,6 +38,10 @@ export const customFilterOptions = (filterFacet: IFilterFacet) => {
   const { facetIdentifier, customOptions } = filterFacet;
   return () =>
     new Promise((resolve) => {
+      if (!facetIdentifier) {
+        resolve([]);
+        return;
+      }
       const cachedOptions = retrieveFromCache(facetIdentifier);
 
       if (!cachedOptions.length) {
@@ -95,6 +99,15 @@ export const genericFilterOptions = (filterFacet: IFilterFacet) => {
 
   return () =>
     new Promise((resolve) => {
+      if (
+        !facetIdentifier ||
+        !filterLabelAttribute ||
+        !filterValueAttribute ||
+        !sourceTable
+      ) {
+        resolve([]);
+        return;
+      }
       const cachedOptions = retrieveFromCache(facetIdentifier);
       const selection = getAttributeSelection(
         filterLabelAttribute,
@@ -171,6 +184,10 @@ export const ontologyFilterOptions = (filterFacet: IFilterFacet) => {
 
   return () =>
     new Promise((resolve) => {
+      if (!facetIdentifier || !sourceTable) {
+        resolve([]);
+        return;
+      }
       const cachedOptions = retrieveFromCache(facetIdentifier);
 
       const selection = [

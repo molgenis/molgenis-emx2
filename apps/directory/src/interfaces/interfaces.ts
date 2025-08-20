@@ -12,19 +12,29 @@ export interface IBiobankIdentifier {
 
 export interface IFilterOption {
   text: string;
-  value: string;
+  value: string | boolean;
 }
 
 export interface IFilterFacet {
-  sourceTable: string;
-  sourceSchema: string;
-  facetIdentifier: string;
-  filterLabelAttribute: string;
-  filterValueAttribute: string;
+  component: string;
+  facetTitle: string;
+  negotiatorRequestString: string;
+  applyToColumn?: string;
+  showFacet?: boolean;
+  adaptive?: boolean;
+  builtIn?: boolean;
+  customOptions?: any;
   extraAttributes?: string[];
-  sortColumn: string;
-  sortDirection: "ASC" | "DESC";
+  facetIdentifier?: string;
+  filterLabelAttribute?: string;
+  filterValueAttribute?: string;
+  name?: string;
   ontologyIdentifiers?: string[];
   removeOptions?: string[];
-  customOptions?: any;
+  showMatchTypeSelector?: boolean;
+  sourceSchema?: string;
+  sourceTable?: string;
+  sortColumn?: string;
+  sortDirection?: "ASC" | "DESC" | "asc" | "desc";
+  trueOption?: IFilterOption;
 }
