@@ -31,21 +31,25 @@
       role="region"
       v-show="visible"
     >
+      <i class="fa-li fa" :class="icon" />
       Sources:
       <ul>
         <li v-for="source in shaclSet.sources">
           <a :href="source" target="_blank">{{ source }}</a>
         </li>
       </ul>
-      <LayoutCard title="SHACL output"><pre>{{ shaclOutput }}</pre></LayoutCard>
+      <LayoutCard title="SHACL output">
+        <pre>{{ shaclOutput }}</pre>
+      </LayoutCard>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { watch, computed, ref } from "vue";
 import { ChevronDownIcon } from "@heroicons/vue/24/outline";
 import { LayoutCard } from "molgenis-components";
+import { Task, SubTask } from "molgenis-components";
 import { parse } from "yaml";
 import { useRouter } from "vue-router";
 
@@ -67,11 +71,40 @@ function toggleOpen() {
   visible.value = !visible.value;
 }
 
-const shaclOutput = ref(false);
+const shaclOutput = ref(null);
+const shaclStatus = ref(null);
 async function runShacl() {
+  shaclOutput.value = null
+  shaclStatus.value = "RUNNING"
   const res = await fetch("../api/rdf?validate=" + props.shaclSet.name);
   shaclOutput.value = await res.text();
+  if(shaclOutput.value.includes('[] a sh:ValidationReport;\n' +
+      '  sh:conforms true.')) {
+    shaclStatus.value = "VALID"
+  } else {
+    shaclStatus.value = "INVALID"
+  }
 }
+
+const icon = ref(null);
+function updateIcon() {
+  switch (shaclStatus.value) {
+    case "VALID":
+      icon.value = "fa-check";
+      return;
+    case "INVALID":
+      icon.value = "fa-times";
+      return;
+    case "RUNNING":
+      icon.value = "fa-spinner fa-spin";
+      return;
+    default:
+      icon.value =  "fa-question";
+      return;
+  }
+}
+
+watch(shaclStatus, updateIcon)
 </script>
 
 <style lang="scss">
