@@ -70,9 +70,11 @@ function toggleVisible() {
   visible.value = !visible.value;
 }
 
+const disabled = ref(false);
 const shaclOutput = ref(null);
 const shaclStatus = ref(null);
 async function runShacl() {
+  disabled.value = true;
   shaclOutput.value = null;
   shaclStatus.value = "RUNNING";
   const res = await fetch("../api/rdf?validate=" + props.shaclSet.name);
@@ -86,6 +88,7 @@ async function runShacl() {
   } else {
     shaclStatus.value = "INVALID";
   }
+  disabled.value = false;
 }
 
 const icon = ref(null);
