@@ -52,6 +52,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
       );
     }
   }
+
   /** we load the filters, grab the names, so we can loop over it to map the selections */
   const filters = Object.keys(filtersStore.facetDetails);
   if (watchedQuery.matchAll) {
@@ -93,6 +94,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
       }
     }
   }
+
   filtersStore.bookmarkWaitingForApplication = false;
   bookmarkApplied = true;
 }
@@ -102,7 +104,7 @@ export function createBookmark(
   collectionCart: Record<string, ILabelValuePair[]>,
   serviceCart: Record<string, ILabelValuePair[]>,
   filterTypes: Record<string, any>,
-  bookmarkWaitingForApplication: boolean
+  bookmarkWaitingForApplication: boolean = false
 ) {
   const bookmarkQuery: Record<string, string> = {};
   const matchAll = [];

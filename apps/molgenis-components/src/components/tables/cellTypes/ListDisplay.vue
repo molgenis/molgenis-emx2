@@ -58,6 +58,8 @@ import HyperlinkDisplay from "./HyperlinkDisplay.vue";
 
 const typeMap = {
   REF_ARRAY: "ObjectDisplay",
+  MULTISELECT: "ObjectDisplay",
+  CHECKBOX: "ObjectDisplay",
   ONTOLOGY_ARRAY: "ObjectDisplay",
   REFBACK: "ObjectDisplay",
   EMAIL_ARRAY: "EmailDisplay",

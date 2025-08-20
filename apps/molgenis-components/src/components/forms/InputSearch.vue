@@ -42,8 +42,8 @@ const props = withDefaults(
   defineProps<{
     modelValue: string;
     isClearBtnShown?: boolean;
-    isEmitOnType: boolean;
-    id?: string;
+    isEmitOnType?: boolean;
+    id: string;
     label?: string;
     description?: string;
     errorMessage?: string;

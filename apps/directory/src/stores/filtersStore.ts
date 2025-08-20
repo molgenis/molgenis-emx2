@@ -28,7 +28,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const bookmarkWaitingForApplication = ref(false);
   const bookmarkTriggeredFilter = ref(false);
-  const filterTriggeredBookmark = ref(false);
 
   const filters = ref<Record<string, any>>({});
   const filterType = ref<Record<string, any>>({});
@@ -431,7 +430,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filtersReady,
     filtersReadyToRender,
     filters,
-    filterTriggeredBookmark,
     filterType,
     hasActiveFilters,
     hasActiveBiobankOnlyFilters,

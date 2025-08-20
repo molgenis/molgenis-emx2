@@ -45,8 +45,9 @@ const schemaIds = computed(
       .map((s) => s.id) ?? []
 );
 
-const { data: schemaMeta, refresh } = await useAsyncData("form sample", () =>
-  fetchMetadata(schemaId.value)
+const { data: schemaMeta, refresh } = await useAsyncData(
+  schemaId.value + " form data",
+  () => fetchMetadata(schemaId.value)
 );
 
 async function getNumberOfRows() {
@@ -127,6 +128,8 @@ watch(
 watch(
   () => rowIndex.value,
   async () => {
+    formValues.value = {};
+
     const query: { schema: string; table: string; rowIndex?: number } = {
       schema: schemaId.value,
       table: tableId.value,
@@ -135,8 +138,6 @@ watch(
       query.rowIndex = rowIndex.value;
     }
     router.push({ query });
-
-    formValues.value = {};
 
     if (rowIndex.value !== null) {
       fetchRow(rowIndex.value - 1);
@@ -175,10 +176,7 @@ function scrollToElementInside(containerId: string, elementId: string) {
         "
         class="pr-2 mr-4"
       />
-      <div
-        id="forms-story-fields-container"
-        class="grow h-screen overflow-y-scroll border p-10"
-      >
+      <div id="forms-story-fields-container" class="grow border p-10">
         <FormFields
           class="grow"
           :schemaId="schemaId"
