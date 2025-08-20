@@ -60,6 +60,19 @@ watch(
       if (remainingKeys.length > 0) {
         filtersStore.bookmarkWaitingForApplication = true;
       }
+    } else if (
+      oldQuery &&
+      Object.keys(oldQuery).length > 0 &&
+      newQuery &&
+      Object.keys(newQuery).length === 0
+    ) {
+      createBookmark(
+        filtersStore.filters,
+        checkoutStore.selectedCollections,
+        checkoutStore.selectedServices,
+        filtersStore.filterType,
+        filtersStore.filterTriggeredBookmark
+      );
     }
 
     if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
