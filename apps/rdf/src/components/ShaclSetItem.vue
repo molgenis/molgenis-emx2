@@ -1,87 +1,77 @@
 <!-- based on molgenis-viz "Accordion.vue" -->
 <template>
-  <div
-      :id="`accordion-${id}`"
-      :class="visible ? 'accordion visible' : 'accordion'"
-  >
+  <div :id="shaclSet.name" :class="visible ? 'accordion visible' : 'accordion'">
     <h3 class="accordion-heading">
       <button
-          type="button"
-          :id="`accordion-toggle-${id}`"
-          class="accordion-toggle"
-          :aria-controls="`accordion-content-${id}`"
-          :aria-expanded="visible"
-          v-on:click="onclick"
+        type="button"
+        :id="`accordion-toggle-${shaclSet.name}`"
+        class="accordion-toggle"
+        :aria-controls="`accordion-content-${shaclSet.name}`"
+        :aria-expanded="visible"
+        @click="toggleOpen()"
       >
         <ChevronDownIcon
-            :class="visible ? 'toggle-icon rotated' : 'toggle-icon'"
+          :class="visible ? 'toggle-icon rotated' : 'toggle-icon'"
         />
-        <span class="toggle-label">{{ title }}</span>
+        <span class="toggle-label">{{ shaclSetItemTitle() }}</span>
       </button>
       <button
-          type="button"
-          :class="light ? 'btn btn-outline-light' : 'btn btn-outline-primary'"
-          :disabled="disabled"
-          @click.prevent="onClick(id)"
+        type="button"
+        class="btn btn-outline-primary"
+        :disabled="disabled"
+        @click.prevent="runShacl()"
       >
         validate
       </button>
     </h3>
     <section
-        :id="`accordion-content-${id}`"
-        class="accordion-content"
-        :aria-labelledby="`accordion-toggle-${id}`"
-        role="region"
-        v-show="visible"
+      :id="`accordion-content-${shaclSet.name}`"
+      class="accordion-content"
+      :aria-labelledby="`accordion-toggle-${shaclSet.name}`"
+      role="region"
+      v-show="visible"
     >
-      <!-- Content to be hidden or shown -->
-      <slot />
+      Sources:
+      <ul>
+        <li v-for="source in shaclSet.sources">
+          <a :href="source" target="_blank">{{ source }}</a>
+        </li>
+      </ul>
+      <LayoutCard title="SHACL output"><pre>{{ shaclOutput }}</pre></LayoutCard>
     </section>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, ref } from "vue";
 import { ChevronDownIcon } from "@heroicons/vue/24/outline";
+import { LayoutCard } from "molgenis-components";
+import { parse } from "yaml";
+import { useRouter } from "vue-router";
 
-// @displayName ShaclSetItem
-// Create a collapsible element for hiding and showing content. For example, the
-// accordion component is a good option for structuring an FAQ page. ShaclSetItem state
-// (i.e., open or closed) can be accessed using the following event `@isOpen`.
-export default {
-  props: {
-    // A unique identifier for the accordion
-    id: {
-      type: String,
-      required: true,
-    },
-    // A label that describes the hidden content
-    title: {
-      type: String,
-      required: true,
-    },
-    // If true, the accordion will be opened on render
-    isOpenByDefault: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
+const props = defineProps({
+  shaclSet: {
+    type: Array<String, String>,
+    required: true,
   },
-  components: { ChevronDownIcon },
-  data() {
-    return {
-      visible: false,
-    };
-  },
-  methods: {
-    onclick() {
-      this.visible = !this.visible;
-      this.$emit("isOpen", this.visible);
-    },
-  },
-  mounted() {
-    this.visible = this.isOpenByDefault ? this.isOpenByDefault : this.visible;
-  },
-};
+});
+
+function shaclSetItemTitle() {
+  return (
+    props.shaclSet.description + " (version: " + props.shaclSet.version + ")"
+  );
+}
+
+const visible = ref(false);
+function toggleOpen() {
+  visible.value = !visible.value;
+}
+
+const shaclOutput = ref(false);
+async function runShacl() {
+  const res = await fetch("../api/rdf?validate=" + props.shaclSet.name);
+  shaclOutput.value = await res.text();
+}
 </script>
 
 <style lang="scss">

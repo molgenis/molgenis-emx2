@@ -1,7 +1,21 @@
 <template>
   <Molgenis v-model="session" @error="error = $event">
     <h3>RDF</h3>
-    <p>For information about the RDF in EMX2, please view the docs about the <a href="https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_rdf" target="_blank">RDF API</a> and the <a href="https://molgenis.github.io/molgenis-emx2/#/molgenis/semantics" target="_blank">semantics</a> field.</p>
+    <p>
+      For information about the RDF in EMX2, please view the docs about the
+      <a
+        href="https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_rdf"
+        target="_blank"
+        >RDF API</a
+      >
+      and the
+      <a
+        href="https://molgenis.github.io/molgenis-emx2/#/molgenis/semantics"
+        target="_blank"
+        >semantics</a
+      >
+      field.
+    </p>
     <div v-if="session" class="card">
       <div class="card-header">
         <ul class="nav nav-tabs card-header-tabs">
