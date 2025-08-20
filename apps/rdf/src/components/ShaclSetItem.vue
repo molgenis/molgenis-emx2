@@ -1,6 +1,9 @@
 <!-- based on molgenis-viz "Accordion.vue" -->
 <template>
-  <div :id="shaclSet.name" :class="visible ? 'accordion visible' : 'accordion'">
+  <div
+    :id="`accordion-${shaclSet.name}`"
+    :class="visible ? 'accordion visible' : 'accordion'"
+  >
     <h3 class="accordion-heading">
       <button
         type="button"
@@ -8,16 +11,17 @@
         class="accordion-toggle"
         :aria-controls="`accordion-content-${shaclSet.name}`"
         :aria-expanded="visible"
-        @click="toggleOpen()"
+        @click="toggleVisible()"
       >
         <ChevronDownIcon
           :class="visible ? 'toggle-icon rotated' : 'toggle-icon'"
         />
-        <span class="toggle-label">{{ shaclSetItemTitle() }}</span>
+        <span class="toggle-label">{{ shaclSetTitle() }}</span>
       </button>
+      <i class="shacl-status fa" :class="icon" />
       <button
         type="button"
-        class="btn btn-outline-primary"
+        class="run-shacl btn btn-outline-primary"
         :disabled="disabled"
         @click.prevent="runShacl()"
       >
@@ -28,10 +32,8 @@
       :id="`accordion-content-${shaclSet.name}`"
       class="accordion-content"
       :aria-labelledby="`accordion-toggle-${shaclSet.name}`"
-      role="region"
       v-show="visible"
     >
-      <i class="fa-li fa" :class="icon" />
       Sources:
       <ul>
         <li v-for="source in shaclSet.sources">
@@ -46,12 +48,9 @@
 </template>
 
 <script setup lang="ts">
-import { watch, computed, ref } from "vue";
+import { watch, ref } from "vue";
 import { ChevronDownIcon } from "@heroicons/vue/24/outline";
 import { LayoutCard } from "molgenis-components";
-import { Task, SubTask } from "molgenis-components";
-import { parse } from "yaml";
-import { useRouter } from "vue-router";
 
 const props = defineProps({
   shaclSet: {
@@ -60,29 +59,32 @@ const props = defineProps({
   },
 });
 
-function shaclSetItemTitle() {
+function shaclSetTitle() {
   return (
     props.shaclSet.description + " (version: " + props.shaclSet.version + ")"
   );
 }
 
 const visible = ref(false);
-function toggleOpen() {
+function toggleVisible() {
   visible.value = !visible.value;
 }
 
 const shaclOutput = ref(null);
 const shaclStatus = ref(null);
 async function runShacl() {
-  shaclOutput.value = null
-  shaclStatus.value = "RUNNING"
+  shaclOutput.value = null;
+  shaclStatus.value = "RUNNING";
   const res = await fetch("../api/rdf?validate=" + props.shaclSet.name);
   shaclOutput.value = await res.text();
-  if(shaclOutput.value.includes('[] a sh:ValidationReport;\n' +
-      '  sh:conforms true.')) {
-    shaclStatus.value = "VALID"
+  if (
+    shaclOutput.value
+      .substring(0, 100)
+      .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.")
+  ) {
+    shaclStatus.value = "VALID";
   } else {
-    shaclStatus.value = "INVALID"
+    shaclStatus.value = "INVALID";
   }
 }
 
@@ -99,12 +101,12 @@ function updateIcon() {
       icon.value = "fa-spinner fa-spin";
       return;
     default:
-      icon.value =  "fa-question";
+      icon.value = "fa-question";
       return;
   }
 }
 
-watch(shaclStatus, updateIcon)
+watch(shaclStatus, updateIcon);
 </script>
 
 <style lang="scss">
@@ -162,6 +164,11 @@ $border-radius: 6px;
           transform: rotate(180deg);
         }
       }
+    }
+
+    i.shacl-status {
+      position: relative;
+      margin: 0 10px;
     }
   }
 
