@@ -96,6 +96,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
   }
 
   filtersStore.bookmarkWaitingForApplication = false;
+  bookmarkApplied = true;
 }
 
 export function createBookmark(
