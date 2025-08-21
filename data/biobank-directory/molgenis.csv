@@ -45,7 +45,6 @@ Biobanks,,collaboration_commercial,Commercial Collaboration,bool,,false,,The bio
 Biobanks,,collaboration_non_for_profit,Non-for-profit Collaboration,bool,,false,,The biobank can be used for collaboration with non-for-profit partners.,,,,,,,,,
 Biobanks,,national_node,National Node,ref,,true,,The biobank originates from this national node.,,NationalNodes,,${description},,,,,
 Biobanks,,withdrawn,Withdrawn,bool,,true,,This biobank is withdrawn from the Directory.,,,,,false,,,,
-Biobanks,,belongs_to_catalog,,ref_array,,,,,,Catalog,,,,,,,dcat:Catalog
 Catalog,,,,,,,,DCAT v2 catalog entry,,,,,,,,,"dcat:Catalog,ldp:DirectContainer"
 Catalog,,id,,string,1,TRUE,,Local database identifier of the catalog. Identifier of the metadata entry.,,,,,,,,,"afr:AFR_0000919"
 Catalog,,title,,string,,TRUE,,Name of the catalog..,,,,,,,,,dcterms:title
@@ -60,10 +59,10 @@ Catalog,,modified,,datetime,,true,,When the metadata for this resource was last 
 Catalog,,conforms_to,,hyperlink,,true,,The specification of the catalog metadata schema.,,,,,,,,,dcterms:conformsTo
 Catalog,,rights,,hyperlink_array,,,,"Information about rights held in and over the resource. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dct:rights
 Catalog,,access_rights,,hyperlink_array,,,,"Information about who can access the resource or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dct:accessRights
-Catalog,,biobanks,,refback,,,,The relation between the catalog and its items.,,Biobanks,belongs_to_catalog,,,,,,"ldp:contains,dcat:Dataset"
+Catalog,,collections,,refback,,,,The component collections of this catalog.,,Collections,catalog,,,,,,"ldp:contains,dcat:hasPart"
 Catalog,,theme_taxonomy,,hyperlink_array,,TRUE,,"A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.",,,,,,,,,dcat:themeTaxonomy
-Catalog,,ldp_membership_relation,,hyperlink,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the endpoint with its member catalogs.,,,,,https://w3id.org/fdp/fdp-o#metadataCatalog,,,,ldp:hasMemberRelation
-Catalog,,endpoint,,refback,,,,This relation points to the identifier of the endpoint that is related to this container.,,Endpoint,metadata_catalog,,,,,,ldp:membershipResource
+Catalog,,ldp_membership_relation,,hyperlink_array,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the catalog with its member resources.,,,,,"=['http://www.w3.org/ns/dcat#hasPart','http://www.w3.org/ns/dcat#service']",,,,ldp:hasMemberRelation
+Catalog,,ldp_membership_resource,,ref,,,,This attribute points to the container containing all the members of the catalog.,,Catalog,,,,,,,ldp:membershipResource
 CollectionFacts,,,,,,,,Collection Facts,,,,,,,,,
 CollectionFacts,,id,ID,string,1,true,true,Unique ID of the fact.,,,,,,,,,
 CollectionFacts,,collection,Collection ID,ref,,true,,ID of the collection where the fact belongs to.,,Collections,,${name},,,,,
@@ -83,7 +82,7 @@ QualityInfoCollections,,assess_level_col,Assessment Level,ontology,,true,,,Direc
 QualityInfoCollections,,certification_number,Certification Number,string,,false,,,,,,,,,,,
 QualityInfoCollections,,certification_report,Certification Report,hyperlink,,false,,,,,,,,,,,
 QualityInfoCollections,,certification_image_link,Certification Image,hyperlink,,false,,,,,,,,,,,
-Collections,,,,,,,,"Description of the data and samples collected within a biobank, collections may be divided in sub-collections.",,,,,,,,,"ejp:Biobank,ldp:DirectContainer"
+Collections,,,,,,,,"Description of the data and samples collected within a biobank, collections may be divided in sub-collections.",,,,,,,,,"ejp:Biobank"
 Collections,,descriptives,Descriptives,heading,,false,,Collection Descriptives,,,,,,,,,
 Collections,,id,ID,string,1,true,true,"Unique collection ID within BBMRI-ERIC based on MIABIS 2.0 standard, constructed from biobankID prefix + :collection: + local collection ID string - MIABIS-2.0-01.",,,,,,,,,dcterms:identifier
 Collections,,name,Name,string,,true,,Collection name according to MIABIS 2.0 - MIABIS-2.0-03.,,,,,,,,,dcterms:title
@@ -143,18 +142,22 @@ Collections,,access_joint_project,Access via Join Projects to,ontology_array,,fa
 Collections,,access_description,Access Description,text,,false,,Short description of the access rules.,,,,,,,,,
 Collections,,access_uri,Access URI,hyperlink,,false,,URI describing the access policy.,,,,,,,,,dcterms:accessRights
 Collections,,sop,PD/SOPs,ontology_array,,false,,Availability of Process Descriptions (PDs) and/or Standard Operating Procedures (SOPs).,DirectoryOntologies,SOPs,,${label},,,,,
+Collections,,rdf_helpers,RDF helpers,heading,,false,,Helper attributes to make RDF output compliant with various standards.,,,,,,,,,
+Collections,,catalog,,ref_array,,,,The FDP catalog(s) to which this collection belongs.,,Catalog,,,,,,,ldp:membershipResource
+Collections,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
+Collections,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
 ContactPersonsNationalNodes,,,,,,,,Contact persons national nodes,,,,,,,,,
 ContactPersonsNationalNodes,,id,ID,string,1,true,true,Unique ID.,,,,,,,,,
 ContactPersonsNationalNodes,,first_name,First name,string,,false,,First name.,,,,,,,,,
 ContactPersonsNationalNodes,,last_name,Last name,string,,true,,Last name.,,,,,,,,,
 ContactPersonsNationalNodes,,email,Email,email,,true,,Email address.,,,,,,,,,
 ContactPersonsNationalNodes,,role,Contact Role,string,,true,,Role of the contact person within the national node.,,,,,,,,,
-Endpoint,,,,,,,,General information describing an endpoint,,,,,,,,,schema:Service
+Endpoint,,,,,,,,General information describing an endpoint,,,,,,,,,"schema:Service,ldp:DirectContainer"
 Endpoint,,id,,string,1,TRUE,,Identifier of the metadata entry.,,,,,,,,,"schema:identifier"
 Endpoint,,type,,hyperlink_array,,TRUE,,This row is an instance of one or more of these class(es) other than the Endpoint table.,,,,,,,,,rdf:type
 Endpoint,,name,,string_array,,TRUE,,A name given to the endpoint.,,,,,,,,,dcterms:title
 Endpoint,,description,,text,,,,A description of the endpoint.,,,,,,,,,dcterms:description
-Endpoint,,metadata_catalog,,ref_array,,TRUE,,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",,Catalog,,,,,,,fdp-o:metadataCatalog
+Endpoint,,metadata_catalog,,ref_array,,TRUE,,"With the definition of the FDP as a type of metadata service that serves metadata catalogs, the relation between the Metadata Service and dcat:Catalog is represented by this predicate.",,Catalog,,,,,,,"fdp-o:metadataCatalog,ldp:contains"
 Endpoint,,publisher,,ref_array,,TRUE,,The entity (person or organisation) or entities responsible for making the endpoint available.,,Agent,,,,,,,dcterms:publisher
 Endpoint,,language,,hyperlink_array,,,,The language(s) used in the metadata record(s).,,,,,,,,,dcterms:language
 Endpoint,,license,,hyperlink,,TRUE,,A reference to the usage license of the endpoint.,,,,,,,,,dcterms:license
@@ -174,6 +177,8 @@ Endpoint,,version,,text,,,,Version of the metadata service software which expose
 Endpoint,,conforms_to_FDP_spec,,hyperlink,,TRUE,,The relation should point to an URI that contains the version of the FDP specifications this instance of the endpoint conforms to.,,,,,,,,,fdp-o:conformsToFdpSpec
 Endpoint,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
 Endpoint,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
+Endpoint,,ldp_membership_relation,,hyperlink,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the endpoint with its member catalogs.,,,,,https://w3id.org/fdp/fdp-o#metadataCatalog,,,,ldp:hasMemberRelation
+Endpoint,,ldp_membership_resource,,ref,,,,This attribute points to the container containing all the members of the endpoint.,,Endpoint,,,,,,,ldp:membershipResource
 NationalNodes,,,,,,,,National Node Information,,,,,,,,,
 NationalNodes,,id,ID,string,1,true,true,Unique national node ID (in most of the cases a two letter country code).,,,,,,,,,
 NationalNodes,,description,Description,string,2,true,,Description,,,,,,,,,
