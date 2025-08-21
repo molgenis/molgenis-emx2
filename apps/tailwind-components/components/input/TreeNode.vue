@@ -88,24 +88,24 @@ const hasChildren = computed(() =>
         class="flex justify-start items-center"
         :class="{ 'ml-4': !isRoot || hasChildren }"
       >
-        <input
-          v-if="node.selectable"
-          type="checkbox"
-          :indeterminate="node.selected === 'intermediate'"
-          :id="id + '-' + node.name + '-input'"
-          :name="node.name"
-          :checked="node.selected === 'selected'"
-          @click.stop="toggleSelect(node)"
-          class="sr-only"
-        />
         <InputLabel
           :for="id + '-' + node.name + '-input'"
-          class="flex justify-center items-start"
+          class="group flex justify-center items-start"
           :class="{
             'text-disabled cursor-not-allowed': disabled,
             'text-title cursor-pointer ': !disabled,
           }"
         >
+          <input
+            v-if="node.selectable"
+            type="checkbox"
+            :indeterminate="node.selected === 'intermediate'"
+            :id="id + '-' + node.name + '-input'"
+            :name="node.name"
+            :checked="node.selected === 'selected'"
+            @click.stop="toggleSelect(node)"
+            class="sr-only"
+          />
           <InputCheckboxIcon
             v-if="node.selectable && multiselect"
             :indeterminate="node.selected === 'intermediate'"
