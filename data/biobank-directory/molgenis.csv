@@ -9,7 +9,7 @@ QualityInfoBiobanks,,certification_report,Certification Report,hyperlink,,false,
 QualityInfoBiobanks,,certification_image_link,Certification Image,hyperlink,,false,,,,,,,,,,,
 Agent,,,,,,,,"An agent (e.g. person, group, software or physical artifact).",,,,,,,,,"foaf:Agent,vcard:Agent"
 Agent,,name,,string,1,TRUE,,A name and identifier for this agent.,,,,,,,,,"foaf:name,dcterms:identifier"
-Agent,,description,,string,,,,Description of the agent.,,,,,,,,,dct:description
+Agent,,description,,string,,,,Description of the agent.,,,,,,,,,dcterms:description
 Agent,,type,,hyperlink_array,,,,This agent is of the following type(s) (e.g. http://xmlns.com/foaf/0.1/Person),,,,,,,,,rdf:type
 Agent,,url,,hyperlink,,,,The homepage of the agent.,,,,,,,,,"vcard:url,foaf:homepage,dcat:landingPage"
 Agent,,logo,,hyperlink,,,,The logo of the agent.,,,,,,,,,foaf:logo
@@ -57,8 +57,8 @@ Catalog,,license,,hyperlink,,TRUE,,The reference to the usage license of the cat
 Catalog,,issued,,datetime,,true,,When the metadata for this resource was first published in the catalogue. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:issued,fdp-o:metadataIssued"
 Catalog,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:modified,fdp-o:metadataModified"
 Catalog,,conforms_to,,hyperlink,,true,,The specification of the catalog metadata schema.,,,,,,,,,dcterms:conformsTo
-Catalog,,rights,,hyperlink_array,,,,"Information about rights held in and over the resource. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dct:rights
-Catalog,,access_rights,,hyperlink_array,,,,"Information about who can access the resource or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dct:accessRights
+Catalog,,rights,,hyperlink_array,,,,"Information about rights held in and over the resource. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dcterms:rights
+Catalog,,access_rights,,hyperlink_array,,,,"Information about who can access the resource or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dcterms:accessRights
 Catalog,,collections,,refback,,,,The component collections of this catalog.,,Collections,catalog,,,,,,"ldp:contains,dcat:hasPart"
 Catalog,,theme_taxonomy,,hyperlink_array,,TRUE,,"A knowledge organization system (KOS) used to classify the cataloged resources that are part of this catalog. It is recommended that the taxonomy is organized in a skos:ConceptScheme, skos:Collection, owl:Ontology or similar.",,,,,,,,,dcat:themeTaxonomy
 Catalog,,ldp_membership_relation,,hyperlink_array,,TRUE,,This relation points to the URI of the custom relation/predicate used to relate the catalog with its member resources.,,,,,"=['http://www.w3.org/ns/dcat#hasPart','http://www.w3.org/ns/dcat#service']",,,,ldp:hasMemberRelation
@@ -162,8 +162,8 @@ Endpoint,,publisher,,ref_array,,TRUE,,The entity (person or organisation) or ent
 Endpoint,,language,,hyperlink_array,,,,The language(s) used in the metadata record(s).,,,,,,,,,dcterms:language
 Endpoint,,license,,hyperlink,,TRUE,,A reference to the usage license of the endpoint.,,,,,,,,,dcterms:license
 Endpoint,,conformsTo,,hyperlink,,TRUE,,A reference to an established standard to which the endpoint conforms.,,,,,,,,,dcterms:conformsTo
-Endpoint,,rights,,hyperlink_array,,,,"Information about rights held in and over the endpoint. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dct:rights
-Endpoint,,access_rights,,hyperlink_array,,,,"Information about who can access the endpoint or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dct:accessRights
+Endpoint,,rights,,hyperlink_array,,,,"Information about rights held in and over the endpoint. Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.",,,,,,,,,dcterms:rights
+Endpoint,,access_rights,,hyperlink_array,,,,"Information about who can access the endpoint or an indication of its security status. Access Rights may include information regarding access or restrictions based on privacy, security, or other policies.",,,,,,,,,dcterms:accessRights
 Endpoint,,contact,,ref,,,,Relevant contact information for the endpoint.,,Agent,,,,,,,dcat:contactPoint
 Endpoint,,keyword,,string_array,,,,Keyword(s) describing the endpoint.,,,,,,,,,dcat:keyword
 Endpoint,,theme,,hyperlink_array,,,,A main category or concept relating to the resource. A resource can have multiple themes.,,,,,,,,,dcat:theme
@@ -172,8 +172,8 @@ Endpoint,,issued,,datetime,,true,,When the metadata for this resource was first 
 Endpoint,,modified,,datetime,,true,,When the metadata for this resource was last modified. This attribute is read only and written during migration of data from staging areas and used to produce valid dcat output.,,,,,,,,,"dcterms:modified,fdp-o:metadataModified"
 Endpoint,,start_date,,date,,,,Date when the metadata service started its operations.,,,,,,,,,fdp-o:startDate
 Endpoint,,end_date,,date,,,,Date when the metadata service ended its operations.,,,,,,,,,fdp-o:endDate
-Endpoint,,ui_language,,hyperlink_array,,,,"The user interface language(s) of the endpoint, which is different from the dcat:Resource property of dct:language that relates to the language of the metadata record.",,,,,,,,,fdp-o:uiLanguage
-Endpoint,,version,,text,,,,Version of the metadata service software which exposes the endpoint.,,,,,,,,,"dcterms:hasVersion,fdp-o:hasSoftwareVersion"
+Endpoint,,ui_language,,hyperlink_array,,,,"The user interface language(s) of the endpoint, which is different from the dcat:Resource property of dcterms:language that relates to the language of the metadata record.",,,,,,,,,fdp-o:uiLanguage
+Endpoint,,version,,text,,,,Version of the metadata service software which exposes the endpoint.,,,,,,,,,"dcterms:hasVersion,fdp-o:hasSoftwareVersion,dcat:version"
 Endpoint,,conforms_to_FDP_spec,,hyperlink,,TRUE,,The relation should point to an URI that contains the version of the FDP specifications this instance of the endpoint conforms to.,,,,,,,,,fdp-o:conformsToFdpSpec
 Endpoint,,EJP_RD_personalData,,string,,,,"Set to true if the resource onboarded to the EJP-RD Virtual Platform contains personal data, personal data meaning data related to identified or identifiable persons (as per GDPR definition), otherwise false. Must be String as workaround for current FDP reference implementation limitations.",,,,,,,,,ejp:personalData
 Endpoint,,EJP_RD_vpConnection,,hyperlink,,,,This property must be attached to every entity that you wish the EJP-RD Virtual Platform to explore.,,,,,,,,,ejp:vpConnection
