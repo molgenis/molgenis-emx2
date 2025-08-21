@@ -9,7 +9,13 @@ import { ref } from "vue";
 const ontologySchemaId = ref<string>("CatalogueOntologies");
 const ontologyTableId = ref<string>("Countries");
 const modelValue = ref("Austria");
-const modelValueArray = ref(["Austria", "Brazil"]);
+const modelValueArray = ref([
+  "Algeria",
+  "Andorra",
+  "Austria",
+  "Brazil",
+  "Spain",
+]);
 </script>
 
 <template>
