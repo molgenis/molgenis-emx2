@@ -20,7 +20,7 @@ import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 
 const props = defineProps<{
   schemaId: string;
-  sections: IFormLegendSection[];
+  sections?: IFormLegendSection[];
   metadata: ITableMetaData;
   constantValues?: IRow;
 }>();
@@ -152,8 +152,8 @@ async function updateRowKey() {
 }
 
 function copyConstantValuesToModelValue() {
-  if (props.constantValues) {
-    modelValue.value = Object.assign({}, props.constantValues);
+  if (props.constantValues !== undefined) {
+    modelValue.value = JSON.parse(JSON.stringify(props.constantValues));
   }
 }
 
@@ -161,7 +161,7 @@ watch(
   () => modelValue.value,
   async () => {
     if (modelValue.value) {
-      updateRowKey();
+      await updateRowKey();
     }
   }
 );
@@ -222,6 +222,7 @@ onMounted(() => {
         :description="column.description"
         :rowKey="rowKey"
         :required="isRequired(column.required ?? false)"
+        :disabled="column.readonly ? true : false"
         :error-message="errors[column.id]"
         :ref-schema-id="column.refSchemaId || schemaId"
         :ref-table-id="column.refTableId"

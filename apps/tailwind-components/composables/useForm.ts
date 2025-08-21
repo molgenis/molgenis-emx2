@@ -89,6 +89,12 @@ export default function useForm(
 
   const currentErrorFieldId = ref<columnId | null>(null);
 
+  const hasPreviousError = computed(() => {
+    const keys = Object.keys(errorMap.value);
+    const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
+    return currentIndex > 0;
+  });
+
   const gotoPreviousError = () => {
     const keys = Object.keys(errorMap.value);
     const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
@@ -107,6 +113,12 @@ export default function useForm(
 
     scrollTo(`${nextErrorColumnId}-form-field`);
   };
+
+  const hasNextError = computed(() => {
+    const keys = Object.keys(errorMap.value);
+    const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
+    return currentIndex !== -1 && currentIndex < keys.length - 1;
+  });
 
   const insertInto = (schemaId: string, tableId: string) => {
     const formData = toFormData(toRef(formValues).value);
@@ -153,6 +165,8 @@ export default function useForm(
     gotoPreviousRequiredField,
     gotoNextError,
     gotoPreviousError,
+    hasNextError,
+    hasPreviousError,
     insertInto,
     updateInto,
     deleteRecord,

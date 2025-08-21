@@ -48,7 +48,7 @@ function expandRow() {
 <template>
   <li
     :id="`input-refback-item-${label}`"
-    class="py-5 px-[30px] transition-all duration-500 overflow-hidden"
+    class="py-5 px-[30px] transition-all duration-500 overflow-hidden bg-input"
   >
     <div
       @click="expandRow"
