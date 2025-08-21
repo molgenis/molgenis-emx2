@@ -54,6 +54,7 @@
       >
         <FormFields
           v-if="visible"
+          ref="formFields"
           :schemaId="schemaId"
           :metadata="metadata"
           :sections="sections"
@@ -127,6 +128,7 @@ import type {
 import useSections from "../../composables/useSections";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
+import FormFields from "./Fields.vue";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
 import { useSession } from "../../composables/useSession";
 
@@ -143,6 +145,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(["update:added", "update:cancelled"]);
+const formFields = ref<InstanceType<typeof FormFields>>();
 
 const visible = defineModel("visible", {
   type: Boolean,
@@ -189,6 +192,10 @@ async function onSaveDraft() {
 }
 
 async function onSave() {
+  const isValid = formFields.value?.validate();
+  if (!isValid) {
+    return;
+  }
   const resp = await insertInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.log("Error saving data", err);
