@@ -198,13 +198,13 @@ Networks,,parent_network,Parent Network,ref_array,,false,,"Reference to a networ
 Networks,,common_network_elements,Common Network Elements,ontology_array,,false,,Selection of elements that are the same for all biobanks/collections within the network.,DirectoryOntologies,CommonNetworkElements,,${label},,,,,
 Networks,,national_node,National Node,ref,,true,,The network originates from this national node.,,NationalNodes,,${description},,,,,
 Networks,,withdrawn,Withdrawn,bool,,true,,The network is withdrawn from the Directory.,,,,,false,,,,
-Persons,,,,,,,,"Information of the contact persons of a biobank, collection of network, like name, address and e-mail address.",,,,,,,,,
+Persons,,,,,,,,"Information of the contact persons of a biobank, collection of network, like name, address and e-mail address.",,,,,,,,,"vcard:Kind,vcard:Individual"
 Persons,,id,ID,string,1,true,true,"Unique ID of the person, prefixed with bbmri-eric:contactID:",,,,,,,,,
 Persons,,title_before_name,Title before Name,string,,false,,"Title before name, values like ""prof. mr.""",,,,,,,,,
-Persons,,first_name,First Name,string,,false,,First name according to MIABIS 2.0 - MIABIS-2.0-07-A.,,,,,,,,,
-Persons,,last_name,Last Name,string,,false,,Last name according to MIABIS 2.0 - MIABIS-2.0-07-B.,,,,,,,,,
+Persons,,first_name,First Name,string,,false,,First name according to MIABIS 2.0 - MIABIS-2.0-07-A.,,,,,,,,,vcard:hasGivenName
+Persons,,last_name,Last Name,string,,false,,Last name according to MIABIS 2.0 - MIABIS-2.0-07-B.,,,,,,,,,vcard:hasFamilyName
 Persons,,title_after_name,Title after Name,string,,false,,"Title after name, values like ""Bsc.""",,,,,,,,,
-Persons,,email,Email address,email,,true,,Email address according to MIABIS 2.0 - MIABIS-2.0-07-D.,,,,,,,,,
+Persons,,email,Email address,email,,true,,Email address according to MIABIS 2.0 - MIABIS-2.0-07-D.,,,,,,,,,"vcard:email,vcard:hasEmail"
 Persons,,phone,Phone Number,string,,false,,Phone number according to MIABIS 2.0 including international prefix (+99999999999 form with no spaces) compliant also to E.123 norm - MIABIS-2.0-07-C.,,,,,,,,,
 Persons,,address,Address,text,,false,,Address according to MIABIS 2.0 - MIABIS-2.0-07-E.,,,,,,,,,
 Persons,,zip,Zip code,string,,false,,ZIP or postal code according to MIABIS 2.0 - MIABIS-2.0-07-F.,,,,,,,,,
