@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import type { IInputProps, ITreeNodeState } from "../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
-import { onMounted, ref, watch, type Ref, computed } from "vue";
+import {
+  onMounted,
+  ref,
+  watch,
+  type Ref,
+  computed,
+  useTemplateRef,
+  nextTick,
+} from "vue";
 import { fetchGraphql } from "#imports";
 
 const props = withDefaults(
@@ -35,15 +43,22 @@ const searchTerms: Ref<string> = ref("");
 //initial loading state
 const initLoading = ref(true);
 
-const initialCount = ref<number>(0);
-const counter = ref<number>(0);
 const counterOffset = ref<number>(0);
 const maxTableRows = ref<number>(0);
-const hasNoResults = ref<boolean>(true);
 
-onMounted(() => {
-  init();
+const treeContainer = useTemplateRef<HTMLUListElement>("treeContainer");
+const treeInputs = ref<NodeList>();
+
+function setTreeInputs() {
+  treeInputs.value = treeContainer.value?.querySelectorAll("ul li");
+}
+
+onMounted(async () => {
+  await init();
   initLoading.value = false;
+
+  await nextTick();
+  setTreeInputs();
 });
 
 watch(() => props.ontologySchemaId, init);
@@ -293,6 +308,7 @@ function toggleSearch() {
 async function updateSearch(value: string) {
   searchTerms.value = value;
   counterOffset.value = 0;
+  ontologyTree.value = [];
   await init();
 }
 
@@ -315,6 +331,20 @@ async function loadMoreTerms() {
   counterOffset.value += props.limit;
   if (counterOffset.value < maxTableRows.value) {
     await init();
+    await nextTick();
+    setTreeInputs();
+
+    if (treeInputs.value) {
+      const itemToFocus = treeInputs.value[
+        counterOffset.value - 1
+      ] as HTMLLIElement;
+      itemToFocus.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+      itemToFocus.querySelector("input")?.focus();
+    }
   }
 }
 </script>
@@ -325,50 +355,45 @@ async function loadMoreTerms() {
   </div>
   <div v-else>
     <InputGroupContainer
-      :id="`${id}-checkbox-group`"
+      :id="`${id}-ontology`"
       class="border-l-4 border-transparent"
       @blur="emit('blur')"
       @focus="emit('focus')"
     >
       <ButtonFilterWellContainer
-        v-if="Object.keys(valueLabels).length > 0"
+        ref="selectionContainer"
+        :id="`${id}-ontology-selections`"
         @clear="clearSelection"
       >
-        <Button
-          v-for="name in Array.isArray(modelValue)
-            ? (modelValue as string[]).sort()
-            : modelValue ? [modelValue] : []"
-          icon="cross"
-          iconPosition="right"
-          type="filterWell"
-          size="tiny"
-          @click="deselect(name as string)"
-        >
-          {{ valueLabels[name] }}
-        </Button>
+        <template v-if="Object.keys(valueLabels).length > 0">
+          <Button
+            v-for="name in Array.isArray(modelValue)
+              ? (modelValue as string[]).sort()
+              : modelValue ? [modelValue] : []"
+            icon="cross"
+            iconPosition="right"
+            type="filterWell"
+            size="tiny"
+            @click="deselect(name as string)"
+          >
+            {{ valueLabels[name] }}
+          </Button>
+        </template>
       </ButtonFilterWellContainer>
-      <div
-        class="flex flex-wrap gap-2"
-        v-if="hasChildren || ontologyTree.length > limit"
-      >
-        <InputLabel :for="`search-for-${id}`" class="sr-only">
+      <div class="my-4" v-if="hasChildren || ontologyTree.length > limit">
+        <label :for="`search-for-${id}`" class="sr-only">
           search in ontology
-        </InputLabel>
-        <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
-          Search
-        </ButtonText>
+        </label>
         <InputSearch
-          :class="showSearch ? 'visible' : 'invisible pointer-events-none'"
           :id="`search-for-${id}`"
-          size="tiny"
           :modelValue="searchTerms"
           @update:modelValue="updateSearch"
-          class="mb-2"
+          size="small"
           placeholder="Search in terms"
           :aria-hidden="!showSearch"
         />
       </div>
-      <fieldset>
+      <fieldset ref="treeContainer">
         <legend class="sr-only">select ontology terms</legend>
         <TreeNode
           :id="id"
@@ -382,6 +407,8 @@ async function loadMoreTerms() {
           @toggleSelect="toggleSelect"
           class="pb-2"
           :class="{ 'pl-4': hasChildren }"
+          aria-live="polite"
+          aria-atomic="true"
         />
         <ButtonText
           :id="`${id}-ontology-tree-load-more`"
