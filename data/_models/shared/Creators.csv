@@ -1,3 +1,0 @@
-﻿tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,visible,defaultValue,semantics,description,profiles
-Creators,Agents,,,,,,,,,,,,"foaf:Agent,org:Organization",,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE"
-Creators,,is lead organisation,bool,,TRUE,,,,,,type?.name === 'Organisation',,,Whether the organisation is the lead organisation of this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,FAIR Genomes"
