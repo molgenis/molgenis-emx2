@@ -1,14 +1,16 @@
 <script lang="ts" setup>
 import { ref, useTemplateRef, watch, onMounted, onBeforeUnmount } from "vue";
 
+defineProps<{
+  id: string;
+}>();
+
 const buttonContainer = useTemplateRef<HTMLDivElement>("filterButtonContainer");
 const widthObserver = ref();
-const showButtons = ref<boolean>(false);
+const showExpandButton = ref<boolean>(false);
 const hasFilterWellButtons = ref<boolean>(false);
 const filterButtons = ref<HTMLCollection>();
-const focusCounter = ref<number>(0);
-const minFocusCounter = ref<number>(0);
-const maxFocusCounter = ref<number>(0);
+const isExpanded = ref<boolean>(false);
 
 const scrollConfig = {
   behavior: "smooth",
@@ -28,11 +30,12 @@ const emit = defineEmits(["clear"]);
 function observeScrollWidth() {
   if (
     buttonContainer.value &&
-    buttonContainer.value.scrollWidth > buttonContainer.value.offsetWidth
+    buttonContainer.value.scrollHeight > buttonContainer.value.offsetHeight
   ) {
-    showButtons.value = true;
+    showExpandButton.value = true;
   } else {
-    showButtons.value = false;
+    showExpandButton.value = false;
+    isExpanded.value = false;
   }
 
   updateFilterButtons();
@@ -40,52 +43,9 @@ function observeScrollWidth() {
 
 function updateFilterButtons() {
   filterButtons.value = buttonContainer.value?.children as HTMLCollection;
-  maxFocusCounter.value = filterButtons.value.length;
 
   if (buttonContainer.value) {
     hasFilterWellButtons.value = buttonContainer.value.children.length > 1;
-  }
-}
-
-function addFilterButtonClass(button: HTMLButtonElement) {
-  button.classList.add("bg-button-filter-hover");
-  button.classList.add("border-button-filter-hover");
-}
-
-function removeFilterButtonClass(button: HTMLButtonElement) {
-  button.classList.remove("bg-button-filter-hover");
-  button.classList.remove("border-button-filter-hover");
-}
-
-function showPreviousItem() {
-  if (filterButtons.value) {
-    // const currentButton = filterButtons.value[(focusCounter.value as number)];
-    // removeFilterButtonClass(currentButton as HTMLButtonElement);
-
-    focusCounter.value -= 1;
-    if (focusCounter.value <= minFocusCounter.value) {
-      focusCounter.value = minFocusCounter.value;
-    }
-
-    const previousButton = filterButtons.value[focusCounter.value as number];
-    // addFilterButtonClass(previousButton as HTMLButtonElement);
-    previousButton.scrollIntoView(scrollConfig);
-  }
-}
-
-function showNextItem() {
-  if (filterButtons.value) {
-    // const currentButton = filterButtons.value[(focusCounter.value as number)];
-    // removeFilterButtonClass(currentButton as HTMLButtonElement);
-
-    focusCounter.value += 1;
-    if (focusCounter.value >= maxFocusCounter.value - 1) {
-      focusCounter.value = maxFocusCounter.value - 1;
-    }
-
-    const nextButton = filterButtons.value[focusCounter.value as number];
-    // addFilterButtonClass(nextButton as HTMLButtonElement);
-    nextButton.scrollIntoView(scrollConfig);
   }
 }
 
@@ -110,51 +70,38 @@ watch(
   <div
     ref="filterWell"
     role="group"
-    class="grid flex-nowrap justify-start items-center gap-2 mb-2 py-3 pr-2"
-    :class="{
-      'grid-cols-1': !hasFilterWellButtons,
-      'grid-cols-[100px_1fr]': hasFilterWellButtons && !showButtons,
-      'grid-cols-[100px_35px_1fr_35px]': hasFilterWellButtons && showButtons,
-    }"
+    class="grid flex-nowrap justify-start items-center gap-2"
   >
-    <div v-if="hasFilterWellButtons">
-      <Button
+    <div class="flex gap-4" v-if="hasFilterWellButtons">
+      <ButtonText
+        :id="`${id}-button-clear`"
         @click="emit('clear', true)"
         type="filterWell"
         size="tiny"
-        icon="cross"
-        iconPosition="right"
       >
         Clear all
-      </Button>
-    </div>
-    <div v-if="showButtons">
-      <Button
-        :icon-only="true"
-        type="filterWell"
-        icon="CaretLeft"
-        label="Show previous term"
-        size="tiny"
-        :disabled="focusCounter === minFocusCounter"
-        @click="showPreviousItem"
-      />
+      </ButtonText>
+      <ButtonText
+        :id="`${id}-button-expand`"
+        @click="isExpanded = !isExpanded"
+        v-if="showExpandButton"
+        :aria-expanded="isExpanded"
+        :aria-controls="`${id}-collapsible-content`"
+        :aria-haspopup="true"
+      >
+        {{ isExpanded ? "Show less" : "Show more" }}
+      </ButtonText>
     </div>
     <div
+      :id="`${id}-collapsible-content`"
       ref="filterButtonContainer"
-      class="flex flex-row flex-nowrap gap-2 justify-start items-center overflow-x-auto"
+      class="flex flex-wrap gap-2 justify-start items-center"
+      :class="{
+        'overflow-y-hidden max-h-8': !isExpanded,
+        'overflow-y-visible max-h-auto': isExpanded,
+      }"
     >
       <slot></slot>
-    </div>
-    <div v-if="showButtons">
-      <Button
-        :icon-only="true"
-        type="filterWell"
-        icon="CaretRight"
-        label="Show next term"
-        size="tiny"
-        :disabled="focusCounter === maxFocusCounter"
-        @click="showNextItem"
-      />
     </div>
   </div>
 </template>
