@@ -21,20 +21,20 @@ AlsoKnownIn,,pid,Persistent Identifier,string,,false,,"Persistent Identifier of 
 AlsoKnownIn,,url,URL,hyperlink,,true,,"Link to the biobank, collection or network in the other source.",,,,,,,,,
 AlsoKnownIn,,national_node,National Node,ref,,true,,"The biobank, collection or network where this also known In refers to originates from this national node.",,NationalNodes,,${description},,,,,
 AlsoKnownIn,,label,Name of the System,string,,false,true,"Name of the source in which the biobank, collection or network also exists.",,,,,,,,name_system,
-Biobanks,,,,,,,,"Description of the biobank organisation, like name, location, network, contact person, collaboration opportunities and quality assessments.",,,,,,,,,
-Biobanks,,id,ID,string,1,true,true,"Unique biobank ID within BBMRI-ERIC based on MIABIS 2.0 standard (ISO 3166-1 alpha-2 + underscore + biobank national ID or name), prefixed with bbmri-eric:ID: string - MIABIS-2.0-01.",,,,,,,,,
+Biobanks,,,,,,,,"Description of the biobank organisation, like name, location, network, contact person, collaboration opportunities and quality assessments.",,,,,,,,,"obo:OBIB_0000623,foaf:Organization"
+Biobanks,,id,ID,string,1,true,true,"Unique biobank ID within BBMRI-ERIC based on MIABIS 2.0 standard (ISO 3166-1 alpha-2 + underscore + biobank national ID or name), prefixed with bbmri-eric:ID: string - MIABIS-2.0-01.",,,,,,,,,dcterms:identifier
 Biobanks,,pid,PID,string,2,true,true,Persistent Identifier.,,,,,,,,,
-Biobanks,,name,Name,string,,true,,Biobank name according to MIABIS 2.0 - MIABIS-2.0-03.,,,,,,,,,
+Biobanks,,name,Name,string,,true,,Biobank name according to MIABIS 2.0 - MIABIS-2.0-03.,,,,,,,,,foaf:name
 Biobanks,,acronym,Acronym,string,,false,,Biobank acronym - MIABIS-2.0-02.,,,,,,,,,
-Biobanks,,description,Description,text,,true,,Biobank description - MIABIS-2.0-08.,,,,,,,,,
-Biobanks,,url,URL,hyperlink,,false,,Biobank URL - MIABIS-2.0-04.,,,,,,,,,
-Biobanks,,location,Location,string,,false,,The city where the biobank is located.,,,,,,,,,
+Biobanks,,description,Description,text,,true,,Biobank description - MIABIS-2.0-08.,,,,,,,,,dcterms:description
+Biobanks,,url,URL,hyperlink,,false,,Biobank URL - MIABIS-2.0-04.,,,,,,,,,dcat:landingPage
+Biobanks,,location,Location,string,,false,,The city where the biobank is located.,,,,,,,,,dcterms:location
 Biobanks,,country,Country,ontology,,true,,Country hosting the biobank according to MIABIS 2.0 - MIABIS-2.0-06.,DirectoryOntologies,Countries,,${label},,,,,
 Biobanks,,latitude,Latitude,string,,false,,"Latitude of the biobank in the WGS84 system (the one used by GPS), positive is northern hemisphere.",,,,,,,,,
 Biobanks,,longitude,Longitude,string,,false,,"Longitude of the biobank in the WGS84 system (the one used by GPS), positive is to the East of Greenwich.",,,,,,,,,
 Biobanks,,head,Head of the Biobank,ref,,false,,Person in charge of the biobank.,,Persons,,${email},,,,,
-Biobanks,,contact,Contact Person,ref,,true,,Contact person of the biobank.,,Persons,,${email},,,,,
-Biobanks,,juridical_person,Juridical Person,string,,true,,Juristic person of a biobank according to MIABIS 2.0 - MIABIS-2.0-05.,,,,,,,,,
+Biobanks,,contact,Contact Person,ref,,true,,Contact person of the biobank.,,Persons,,${email},,,,,dcat:contactPoint
+Biobanks,,juridical_person,Juridical Person,string,,true,,Juristic person of a biobank according to MIABIS 2.0 - MIABIS-2.0-05.,,,,,,,,,obo:OMRSE_00000038
 Biobanks,,network,Networks,ref_array,,false,,"Reference to a biobank network ID, to which the biobank belongs.",,Networks,,${name},,,,,
 Biobanks,,combined_network,Combined Network,ref_array,,false,,"Reference to one or more network IDs, to which the biobank belongs directly or indirectly (i.e., either the biobank is explicitly marked as part of the network or its network is).",,Networks,,${name},,,,,
 Biobanks,,also_known,Also Known In,ref_array,,false,,The biobank also exists in …,,AlsoKnownIn,,${name_system},,,,,
