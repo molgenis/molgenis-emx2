@@ -74,7 +74,7 @@ watch(
       );
     }
 
-    if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
+    if (filtersStore.filterOptionsReady && !checkoutStore.cartUpdated) {
       applyBookmark(newQuery);
     }
   },
