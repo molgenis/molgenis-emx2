@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { watch, ref } from "vue";
 import { ChevronDownIcon } from "@heroicons/vue/24/outline";
-import { LayoutCard } from "molgenis-components";
+import { LayoutCard, MessageError } from "molgenis-components";
 
 const props = defineProps({
   shaclSet: {
@@ -80,9 +80,9 @@ async function runShacl() {
   shaclOutput.value = "";
   shaclStatus.value = "RUNNING";
   const res = await fetch("../api/rdf?validate=" + props.shaclSet.name);
-  if(res.status !== 200) {
+  if (res.status !== 200) {
     shaclStatus.value = "ERROR";
-    error.value = "Validation gave error code: " + res.status
+    error.value = "Validation gave error code: " + res.status;
     disabled.value = false;
     return;
   }
