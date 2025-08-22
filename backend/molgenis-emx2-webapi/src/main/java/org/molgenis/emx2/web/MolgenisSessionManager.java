@@ -138,7 +138,7 @@ public class MolgenisSessionManager {
         // remove from session pool
         sessions.remove(httpSessionEvent.getSession().getId());
         // Decrement metrics gauge
-        // sessionGauge.dec();
+        sessionGauge.dec();
         logger.info("session destroyed: " + httpSessionEvent.getSession().getId());
       }
     };
