@@ -16,7 +16,7 @@
         <ChevronDownIcon
           :class="visible ? 'toggle-icon rotated' : 'toggle-icon'"
         />
-        <span class="toggle-label">{{ shaclSetTitle() }}</span>
+        <span class="toggle-label">{{ shaclSetTitle }}</span>
       </button>
       <i class="shacl-status fa" :class="icon" />
       <button
@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref } from "vue";
+import { watch, computed, ref } from "vue";
 import { ChevronDownIcon } from "@heroicons/vue/24/outline";
 import { LayoutCard, MessageError } from "molgenis-components";
 
@@ -60,11 +60,9 @@ const props = defineProps({
   },
 });
 
-function shaclSetTitle() {
-  return (
-    props.shaclSet.description + " (version: " + props.shaclSet.version + ")"
-  );
-}
+const shaclSetTitle = computed(() => {
+      return props.shaclSet.description + " (version: " + props.shaclSet.version + ")"
+})
 
 const visible = ref(false);
 function toggleVisible() {
@@ -80,16 +78,10 @@ async function runShacl() {
   shaclOutput.value = "";
   shaclStatus.value = "RUNNING";
   const res = await fetch("../api/rdf?validate=" + props.shaclSet.name);
+  shaclOutput.value = await res.text();
   if (res.status !== 200) {
     shaclStatus.value = "ERROR";
-    error.value = "Validation gave error code: " + res.status;
-    disabled.value = false;
-    return;
-  }
-
-  shaclOutput.value = await res.text();
-  if (shaclOutput.value.substring(0, 1) == "{") {
-    shaclStatus.value = "ERROR";
+    error.value = "Error (status code: " + res.status + ")";
   } else if (
     shaclOutput.value
       .substring(0, 100)
@@ -121,7 +113,6 @@ function updateIcon() {
       icon.value = "fa-question";
   }
 }
-
 watch(shaclStatus, updateIcon);
 </script>
 
