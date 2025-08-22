@@ -1,11 +1,10 @@
 import { LocationQuery } from "vue-router";
 import useErrorHandler from "../composables/errorHandler";
-import { IOntologyItem } from "../interfaces/interfaces";
+import { IFilterOption, IOntologyItem } from "../interfaces/interfaces";
 import router from "../router";
 import { ILabelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
-import * as _ from "lodash";
 
 let bookmarkApplied = false;
 
@@ -84,10 +83,16 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
         });
       } else {
         const filterOptions = filtersStore.filterOptionsCache[filterName];
-        if (filterOptions) {
+        if (filterOptions && Array.isArray(filterOptions)) {
           const queryValues = filtersToAdd.split(",");
-          const activeFilters = filterOptions.filter((filterOption) =>
-            queryValues.includes(filterOption.value)
+          const activeFilters = filterOptions.filter(
+            (filterOption: IFilterOption) => {
+              if (typeof filterOption.value === "boolean") {
+                return false;
+              } else {
+                return queryValues.includes(filterOption.value);
+              }
+            }
           );
           filtersStore.updateFilter(filterName, activeFilters, true);
         }
