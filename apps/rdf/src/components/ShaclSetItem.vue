@@ -108,7 +108,7 @@ function updateIcon() {
     case "RUNNING":
       icon.value = "fa-spinner fa-spin";
       break;
-    case "ERROR": // EMX2 error message found instead of RDF
+    case "ERROR":
       icon.value = "fa-exclamation-circle";
       break;
     default:
