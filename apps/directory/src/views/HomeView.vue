@@ -6,27 +6,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
 import ApplicationHeaderPartialView from "../components/partial-views/ApplicationHeaderPartialView.vue";
 import BiobankCardsPartialView from "../components/partial-views/BiobankCardsPartialView.vue";
-import { createBookmark } from "../functions/bookmarkMapper";
-import { useCheckoutStore } from "../stores/checkoutStore";
-import { useFiltersStore } from "../stores/filtersStore";
-
-const checkoutStore = useCheckoutStore();
-const filtersStore = useFiltersStore();
-
-onMounted(() => {
-  /** mutated cart on another page */
-  if (!checkoutStore.checkoutValid) {
-    createBookmark(
-      filtersStore.filters,
-      checkoutStore.selectedCollections,
-      checkoutStore.selectedServices
-    );
-    checkoutStore.checkoutValid = true;
-  }
-});
 </script>
 
 <style>
