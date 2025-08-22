@@ -54,7 +54,6 @@ const session = ref(null);
 const error = ref(null);
 
 const navTabs = ref([
-  { id: "sparql", name: "SPARQL" },
   { id: "shacl", name: "SHACL" },
 ]);
 
