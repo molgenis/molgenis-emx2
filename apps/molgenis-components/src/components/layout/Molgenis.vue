@@ -92,7 +92,7 @@ const defaultSchemaMenuItems = [
   },
   {
     label: "RDF",
-    href: "rdf",
+    href: "rdf/",
     role: "Viewer",
   },
   {
