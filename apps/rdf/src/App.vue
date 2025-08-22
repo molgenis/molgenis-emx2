@@ -53,9 +53,7 @@ import { useRouter } from "vue-router";
 const session = ref(null);
 const error = ref(null);
 
-const navTabs = ref([
-  { id: "shacl", name: "SHACL" },
-]);
+const navTabs = ref([{ id: "shacl", name: "SHACL" }]);
 
 const selected = computed(() => {
   return useRouter().currentRoute.value.name;
