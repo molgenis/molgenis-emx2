@@ -71,15 +71,19 @@ function toggleVisible() {
 }
 
 const disabled = ref(false);
-const shaclOutput = ref(null);
-const shaclStatus = ref(null);
+const shaclOutput = ref("");
+const shaclStatus = ref("UNKNOWN");
 async function runShacl() {
   disabled.value = true;
-  shaclOutput.value = null;
+  shaclOutput.value = "";
   shaclStatus.value = "RUNNING";
   const res = await fetch("../api/rdf?validate=" + props.shaclSet.name);
   shaclOutput.value = await res.text();
   if (
+    shaclOutput.value.substring(0, 1) == "{"
+  ) {
+    shaclStatus.value = "ERROR";
+  } else if (
     shaclOutput.value
       .substring(0, 100)
       .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.")
@@ -91,21 +95,23 @@ async function runShacl() {
   disabled.value = false;
 }
 
-const icon = ref(null);
+const icon = ref("");
 function updateIcon() {
   switch (shaclStatus.value) {
     case "VALID":
       icon.value = "fa-check";
-      return;
+      break;
     case "INVALID":
       icon.value = "fa-times";
-      return;
+      break;
     case "RUNNING":
       icon.value = "fa-spinner fa-spin";
-      return;
+      break;
+    case "ERROR": // EMX2 error message found instead of RDF
+      icon.value = "fa-exclamation-circle";
+      break;
     default:
       icon.value = "fa-question";
-      return;
   }
 }
 
