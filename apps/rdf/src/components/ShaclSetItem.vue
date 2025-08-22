@@ -61,8 +61,10 @@ const props = defineProps({
 });
 
 const shaclSetTitle = computed(() => {
-      return props.shaclSet.description + " (version: " + props.shaclSet.version + ")"
-})
+  return (
+    props.shaclSet.description + " (version: " + props.shaclSet.version + ")"
+  );
+});
 
 const visible = ref(false);
 function toggleVisible() {
