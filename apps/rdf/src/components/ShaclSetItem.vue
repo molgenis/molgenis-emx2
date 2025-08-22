@@ -40,7 +40,7 @@
           <a :href="source" target="_blank">{{ source }}</a>
         </li>
       </ul>
-      <LayoutCard title="SHACL output">
+      <LayoutCard title="output">
         <pre>{{ shaclOutput }}</pre>
       </LayoutCard>
     </section>
