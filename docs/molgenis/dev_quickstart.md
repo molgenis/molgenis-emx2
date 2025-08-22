@@ -153,3 +153,7 @@ Some of us also develop using VS code:
 * It automatically will discover the gradle tasks
 * To enable autoformatting of java using spottless,
   install [spottles plugin](https://marketplace.visualstudio.com/items?itemName=richardwillis.vscode-spotless-gradle)
+
+### To enable metrics while running using gradle
+
+MOLGENIS_METRICS_ENABLED=true ./gradlew run  
