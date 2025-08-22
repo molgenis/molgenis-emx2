@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -35,6 +36,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -42,12 +44,16 @@ import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.molgenis.emx2.web.controllers.MetricsController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
+@ExtendWith(SystemStubsExtension.class)
 public class WebApiSmokeTests {
 
   static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
@@ -74,7 +80,12 @@ public class WebApiSmokeTests {
     db = TestDatabaseFactory.getTestDatabase();
 
     // start web service for testing, including env variables
-    RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
+    new EnvironmentVariables(
+            org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
+        .execute(
+            () -> {
+              RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
+            });
 
     // set default rest assured settings
     RestAssured.port = PORT;
@@ -1773,5 +1784,17 @@ public class WebApiSmokeTests {
   void unknownSchemaShouldNotResultInRedirect() {
     given().expect().statusCode(404).when().get("/malicious");
     given().expect().statusCode(404).when().get("/malicious/");
+  }
+
+  @Test
+  @ExtendWith(SystemStubsExtension.class)
+  void testMetricsEndpoint() throws Exception {
+
+    given()
+        .expect()
+        .statusCode(200)
+        .body(containsString("jvm_memory_used_bytes"))
+        .when()
+        .get(MetricsController.METRICS_PATH);
   }
 }

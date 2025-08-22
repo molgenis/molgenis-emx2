@@ -1,6 +1,5 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
 import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
 import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
@@ -12,9 +11,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.json.JavalinJackson;
-import io.prometheus.metrics.exporter.servlet.jakarta.PrometheusMetricsServlet;
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
-import io.prometheus.metrics.model.registry.PrometheusRegistry;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
@@ -22,8 +19,8 @@ import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
-import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.URIUtils;
+import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,24 +69,11 @@ public class MolgenisWebservice {
       // should we handle this?
     }
 
-    // Register default JVM metrics (GC, memory, threads, etc.)
-    Boolean metricsEnabled =
-        (Boolean)
-            EnvironmentProperty.getParameter(
-                org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, false, ColumnType.BOOL);
-
-    String metricsPath =
-        (String)
-            EnvironmentProperty.getParameter(
-                org.molgenis.emx2.Constants.MOLGENIS_METRICS_PATH, "/api/metrics", STRING);
-    if (metricsEnabled) {
+    if (MetricsController.METRICS_ENABLED) {
+      logger.info("Enabling metrics endpoint /{}", MetricsController.METRICS_PATH);
       JvmMetrics.builder().register();
-      app.get(
-          metricsPath,
-          ctx -> {
-            new PrometheusMetricsServlet(PrometheusRegistry.defaultRegistry)
-                .service(ctx.req(), ctx.res());
-          });
+      MetricsController metricsController = new MetricsController();
+      app.get("/" + MetricsController.METRICS_PATH, metricsController::handleRequest);
     }
 
     MessageApi.create(app);
