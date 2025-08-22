@@ -54,7 +54,7 @@ import { LayoutCard } from "molgenis-components";
 
 const props = defineProps({
   shaclSet: {
-    type: Array<String, String>,
+    type: Object,
     required: true,
   },
 });
@@ -143,7 +143,6 @@ $border-radius: 6px;
       border: none;
       position: relative;
       background: none;
-      background-color: none;
       margin: 0;
       padding: 0;
       cursor: pointer;

@@ -43,7 +43,6 @@
 <script setup lang="ts">
 import {
   MessageError,
-  MessageWarning,
   Molgenis,
   Spinner,
 } from "molgenis-components";
