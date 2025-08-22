@@ -1787,9 +1787,7 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  @ExtendWith(SystemStubsExtension.class)
-  void testMetricsEndpoint() throws Exception {
-
+  void testMetricsEndpoint() {
     given()
         .expect()
         .statusCode(200)

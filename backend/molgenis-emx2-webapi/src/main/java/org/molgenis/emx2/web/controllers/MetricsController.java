@@ -12,7 +12,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class MetricsController {
 
-  public static final Boolean METRICS_ENABLED =
+  public static final boolean METRICS_ENABLED =
       (Boolean)
           EnvironmentProperty.getParameter(
               org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, false, ColumnType.BOOL);
