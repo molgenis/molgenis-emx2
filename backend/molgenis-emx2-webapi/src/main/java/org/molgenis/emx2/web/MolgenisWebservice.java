@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
 import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
 import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
@@ -21,6 +22,7 @@ import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
@@ -71,13 +73,24 @@ public class MolgenisWebservice {
     }
 
     // Register default JVM metrics (GC, memory, threads, etc.)
-    JvmMetrics.builder().register();
-    app.get(
-        "/metrics",
-        ctx -> {
-          new PrometheusMetricsServlet(PrometheusRegistry.defaultRegistry)
-              .service(ctx.req(), ctx.res());
-        });
+    Boolean metricsEnabled =
+        (Boolean)
+            EnvironmentProperty.getParameter(
+                org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, false, ColumnType.BOOL);
+
+    String metricsPath =
+        (String)
+            EnvironmentProperty.getParameter(
+                org.molgenis.emx2.Constants.MOLGENIS_METRICS_PATH, "/api/metrics", STRING);
+    if (metricsEnabled) {
+      JvmMetrics.builder().register();
+      app.get(
+          metricsPath,
+          ctx -> {
+            new PrometheusMetricsServlet(PrometheusRegistry.defaultRegistry)
+                .service(ctx.req(), ctx.res());
+          });
+    }
 
     MessageApi.create(app);
 
