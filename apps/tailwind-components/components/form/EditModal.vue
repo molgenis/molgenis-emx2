@@ -53,6 +53,7 @@
         class="col-span-3 px-4 py-50px overflow-y-auto"
       >
         <FormFields
+          ref="formFields"
           :schemaId="schemaId"
           :metadata="metadata"
           :sections="sections"
@@ -105,6 +106,7 @@ import useSections from "../../composables/useSections";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import { errorToMessage } from "../../utils/errorToMessage";
+import FormFields from "./Fields.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -128,6 +130,8 @@ const visible = defineModel("visible", {
   type: Boolean,
   default: false,
 });
+
+const formFields = ref<InstanceType<typeof FormFields>>();
 
 const updateErrorMessage = ref<string>("");
 
@@ -161,6 +165,10 @@ async function onUpdateDraft() {
 }
 
 async function onUpdate() {
+  const isValid = formFields.value?.validate();
+  if (!isValid) {
+    return;
+  }
   const resp = await updateInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error saving data", err);
