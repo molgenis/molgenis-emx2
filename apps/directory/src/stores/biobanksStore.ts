@@ -1,4 +1,4 @@
-//@ts-ignore
+//@ts-expect-error
 import { QueryEMX2 } from "molgenis-components";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
@@ -30,9 +30,8 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   let lastRequestTime = 0;
 
   const collectionColumns = collectionStore.getCollectionColumns();
-  const biobankProperties: any[] = biobankColumns
+  const biobankProperties = biobankColumns
     .flatMap((biobankColumn) => biobankColumn.column)
-    //@ts-ignore
     .concat({ collections: collectionColumns });
 
   const baseQuery = ref<QueryEMX2>(initBaseQuery());
