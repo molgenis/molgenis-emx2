@@ -1,14 +1,15 @@
+import { IFilterFacet } from "../interfaces/interfaces";
+import { useSettingsStore } from "../stores/settingsStore";
 import {
   customFilterOptions,
   genericFilterOptions,
   ontologyFilterOptions,
 } from "./filterOptions";
-import { useSettingsStore } from "../stores/settingsStore";
 
-function getFacetIdentifier(facet) {
+function getFacetIdentifier(facet: IFilterFacet): string {
   return facet.facetTitle
     ? facet.facetTitle.replaceAll(" ", "")
-    : facet.applyToColumn;
+    : facet.applyToColumn || "";
 }
 
 export const filterTemplate = {
@@ -31,7 +32,7 @@ export const filterTemplate = {
   showFacet: true,
 };
 
-export function createFilters(filters) {
+export function createFilters(filters: Record<string, any>) {
   const settingsStore = useSettingsStore();
 
   const filterFacets = [];
@@ -64,7 +65,8 @@ export function createFilters(filters) {
         [] /** for use when you have multiple ontologies in a single table, e.g. orhpa and icd */,
       trueOption: facet.trueOption /** use this for a togglefilter */,
       filters:
-        filters[facet.name] || [] /** adds the currently active options */,
+        filters[facet.name || "nofiltername"] ||
+        [] /** adds the currently active options */,
       matchTypeForFilter:
         "any" /** if it has been selected from bookmark, it will be applied here. */,
       showMatchTypeSelector:
@@ -85,7 +87,7 @@ export function createFilters(filters) {
   return filterFacets;
 }
 
-function getFilterOptions(filterFacet) {
+function getFilterOptions(filterFacet: IFilterFacet) {
   if (filterFacet.customOptions && filterFacet.customOptions.length > 0) {
     return customFilterOptions(filterFacet);
   } else if (filterFacet.component === "OntologyFilter") {

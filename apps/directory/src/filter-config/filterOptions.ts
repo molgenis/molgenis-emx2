@@ -1,10 +1,17 @@
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
+import {
+  IFilterFacet,
+  IFilterOption,
+  IOntologyItem,
+} from "../interfaces/interfaces";
 import { useFiltersStore } from "../stores/filtersStore";
-import { IFilterFacet, IOntologyItem } from "../interfaces/interfaces";
 
 /** Async so we can fire and forget for performance. */
-async function cache(facetIdentifier: string, filterOptions: any) {
+async function cache(
+  facetIdentifier: string,
+  filterOptions: IFilterOption[] | Record<string, IOntologyItem[]>
+) {
   const { filterOptionsCache } = useFiltersStore();
   filterOptionsCache[facetIdentifier] = filterOptions;
 }
@@ -27,10 +34,14 @@ function removeOptions(filterOptions: string[], filterFacet: IFilterFacet) {
   );
 }
 
-export const customFilterOptions = (filterFacet: any) => {
+export const customFilterOptions = (filterFacet: IFilterFacet) => {
   const { facetIdentifier, customOptions } = filterFacet;
   return () =>
     new Promise((resolve) => {
+      if (!facetIdentifier) {
+        resolve([]);
+        return;
+      }
       const cachedOptions = retrieveFromCache(facetIdentifier);
 
       if (!cachedOptions.length) {
@@ -88,6 +99,15 @@ export const genericFilterOptions = (filterFacet: IFilterFacet) => {
 
   return () =>
     new Promise((resolve) => {
+      if (
+        !facetIdentifier ||
+        !filterLabelAttribute ||
+        !filterValueAttribute ||
+        !sourceTable
+      ) {
+        resolve([]);
+        return;
+      }
       const cachedOptions = retrieveFromCache(facetIdentifier);
       const selection = getAttributeSelection(
         filterLabelAttribute,
@@ -164,6 +184,10 @@ export const ontologyFilterOptions = (filterFacet: IFilterFacet) => {
 
   return () =>
     new Promise((resolve) => {
+      if (!facetIdentifier || !sourceTable) {
+        resolve([]);
+        return;
+      }
       const cachedOptions = retrieveFromCache(facetIdentifier);
 
       const selection = [
@@ -184,7 +208,7 @@ export const ontologyFilterOptions = (filterFacet: IFilterFacet) => {
             .then((response: any) => {
               const itemsSplitByOntology = getItemsSplitByOntology(
                 response[sourceTable],
-                ontologyIdentifiers
+                ontologyIdentifiers || []
               );
 
               cache(facetIdentifier, itemsSplitByOntology);
@@ -201,7 +225,7 @@ export const ontologyFilterOptions = (filterFacet: IFilterFacet) => {
 function getItemsSplitByOntology(
   ontologyItems: IOntologyItem[],
   ontologyIdentifiers: string[]
-): Record<string, IOntologyItem[] | Record<string, IOntologyItem>> {
+): Record<string, IOntologyItem[]> {
   const childrenPerParent = getChildrenPerParent(ontologyItems);
   const itemsWithChildren = getItemsWithChildren(
     ontologyItems,
