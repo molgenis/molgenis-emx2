@@ -79,9 +79,7 @@ async function runShacl() {
   shaclStatus.value = "RUNNING";
   const res = await fetch("../api/rdf?validate=" + props.shaclSet.name);
   shaclOutput.value = await res.text();
-  if (
-    shaclOutput.value.substring(0, 1) == "{"
-  ) {
+  if (shaclOutput.value.substring(0, 1) == "{") {
     shaclStatus.value = "ERROR";
   } else if (
     shaclOutput.value
