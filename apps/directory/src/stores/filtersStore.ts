@@ -32,7 +32,9 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const filters = ref<Record<string, any>>({});
   const filterType = ref<Record<string, any>>({});
 
-  const filterOptionsCache = ref<Record<string, IFilterOption[]>>({});
+  const filterOptionsCache = ref<
+    Record<string, IFilterOption[] | Record<string, IOntologyItem[]>>
+  >({});
   const filterFacets = ref<any[]>([]);
   const facetDetailsDictionary = ref<Record<string, any>>({});
 
