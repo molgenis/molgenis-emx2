@@ -157,3 +157,20 @@ Some of us also develop using VS code:
 ### To enable metrics while running using gradle
 
 MOLGENIS_METRICS_ENABLED=true ./gradlew run  
+
+You could for example use prometheus to then view the metrics:
+- install prometheus from https://prometheus.io/docs/prometheus/latest/getting_started/
+- use the following prometheus.yml config 
+```
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+
+scrape_configs:
+  - job_name: "molgenis"
+    static_configs:
+      - targets: ["localhost:8080"]
+         metrics_path: /api/metrics
+        labels:
+          app: "molgenis-dev"
+```
