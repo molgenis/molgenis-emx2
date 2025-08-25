@@ -151,11 +151,11 @@ const numberOfFieldsWithErrors = computed(
 );
 
 const activeChapterId = ref<string>("_scroll_to_top");
-const errorMap = ref<Record<columnId, string>>({});
 
 const sections = useSections(metadata, activeChapterId, errorMap);
 
 const visibleSection = ref(sections.value[0].id);
+
 function goToSection(containerId: string, elementId: string) {
   console.log(elementId);
   //if section, we change active section

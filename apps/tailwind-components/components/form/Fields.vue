@@ -26,9 +26,6 @@ const props = defineProps<{
   visibleSection?: string;
 }>();
 
-const visibleMap = reactive<Record<columnId, boolean>>({});
-const columnSectionMap = ref<Record<string, string>>({});
-
 //initialize section map
 let currentSection = "_scroll_to_top";
 props.metadata.columns.forEach((column) => {
@@ -48,56 +45,7 @@ const errors = defineModel<Record<columnId, string>>("errors", {
 
 const emit = defineEmits(["error", "update:activeChapterId"]);
 
-function validateColumn(column: IColumn) {
-  logger.debug("validate " + column.id);
-
-  const error = getColumnError(column, modelValue.value, props.metadata);
-
-  if (error) {
-    errors.value[column.id] = error;
-  } else {
-    errors.value[column.id] = props.metadata.columns
-      .filter((c) => c.validation?.includes(column.id))
-      .map((c) => {
-        const result = getColumnError(c, modelValue.value, props.metadata);
-        return result;
-      })
-      .join("");
-  }
-
-  // remove empty entries from the map
-  Object.entries(errors.value).forEach(([key, value]) => {
-    if (value == "" || value == undefined || value == null) {
-      delete errors.value[key];
-    }
-  });
-}
-
 const previousColumn = ref<IColumn>();
-
-function onUpdate(column: IColumn, $event: columnValue) {
-  if (errors.value[column.id]) {
-    validateColumn(column);
-  }
-  props.metadata.columns
-    .filter((c) => c.visible?.includes(column.id))
-    .forEach((c) => {
-      visibleMap[c.id] =
-        isColumnSectionVisible(c) &&
-        isColumnVisible(c, modelValue.value, props.metadata)
-          ? true
-          : false;
-      logger.debug("updating visibility for " + c.id + "=" + visibleMap[c.id]);
-    });
-  previousColumn.value = column;
-}
-
-function isColumnSectionVisible(column: IColumn) {
-  return (
-    !props.visibleSection ||
-    columnSectionMap.value[column.id] === props.visibleSection
-  );
-}
 
 function onFocus(column: IColumn) {
   logger.debug("focus " + column.id + " previous " + previousColumn.value);
