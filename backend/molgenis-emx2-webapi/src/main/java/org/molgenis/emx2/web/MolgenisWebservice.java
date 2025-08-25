@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.json.JavalinJackson;
+import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.URIUtils;
+import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +67,13 @@ public class MolgenisWebservice {
       hostUrl = new URL(URIUtils.extractHost(app.jettyServer().server().getURI()));
     } catch (Exception ignored) {
       // should we handle this?
+    }
+
+    if (MetricsController.METRICS_ENABLED) {
+      logger.info("Enabling metrics endpoint /{}", MetricsController.METRICS_PATH);
+      JvmMetrics.builder().register();
+      MetricsController metricsController = new MetricsController();
+      app.get("/" + MetricsController.METRICS_PATH, metricsController::handleRequest);
     }
 
     MessageApi.create(app);
