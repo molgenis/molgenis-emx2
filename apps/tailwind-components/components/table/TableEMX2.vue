@@ -148,10 +148,7 @@
     :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
     v-model:visible="showDeleteModal"
-    @update:deleted="
-      afterRowDeleted;
-      showDeleteModal = false;
-    "
+    @update:deleted="afterRowDeleted"
   />
 
   <EditModal
@@ -162,10 +159,7 @@
     :metadata="data.tableMetadata"
     :formValues="rowDataForModal"
     v-model:visible="showEditModal"
-    @update:updated="
-      afterRowUpdated;
-      showEditModal = false;
-    "
+    @update:updated="afterRowUpdated"
   />
 </template>
 
@@ -221,7 +215,6 @@ const mgAriaSortMappings = {
   DESC: "descending",
 };
 
-// use useAsyncData to have control of status, error, and refresh
 const { data, status, error, refresh, clear } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
   async () => {
