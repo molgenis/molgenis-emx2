@@ -6,7 +6,7 @@ import type {
 } from "../../../../tailwind-components/types/types";
 import fetchTableMetadata from "../../../../tailwind-components/composables/fetchTableMetadata";
 import { useRoute, useRouter } from "#app/composables/router";
-import { useSession } from "../../../../ui/composables/useSession";
+import { useSession } from "../../../../tailwind-components/composables/useSession";
 import { watch } from "vue";
 import { useHead } from "#app";
 
@@ -73,7 +73,7 @@ const currentBreadCrumb = computed(
 
 watch(tableSettings, handleSettingsUpdate, { deep: true });
 
-const { isAdmin } = await useSession();
+const { isAdmin, session } = await useSession();
 </script>
 <template>
   <section class="mx-auto lg:px-[30px] px-0">
@@ -92,7 +92,7 @@ const { isAdmin } = await useSession();
       :schemaId="schemaId"
       :tableId="tableId"
       v-model:settings="tableSettings"
-      :isEditable="isAdmin"
+      :isEditable="session?.roles?.includes('Editor') || isAdmin"
     />
   </section>
 </template>
