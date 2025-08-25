@@ -80,7 +80,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
           filtersStore.updateOntologyFilter(filterName, option, true, true);
         });
       } else {
-        const filterOptions = filtersStore.filterOptionsCache[filterName];
+        const filterOptions = filtersStore.filterOptions[filterName];
         if (filterOptions && Array.isArray(filterOptions)) {
           const queryValues = filtersToAdd.split(",");
           const activeFilters = filterOptions.filter(

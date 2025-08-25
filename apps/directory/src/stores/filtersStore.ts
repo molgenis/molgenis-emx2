@@ -26,12 +26,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const filters = ref<Record<string, any>>({});
   const filterType = ref<Record<string, any>>({});
 
-  const filterFacets = ref<Record<string, any>[]>([]); //Facet = settings of the filters
-  const filterFacetsById = ref<Record<string, any>>({});
-  const filterOptions = ref<Record<string, IFilterOption[]>>({});
-  const filterOptionsCache = ref<
+  const filterOptions = ref<
     Record<string, IFilterOption[] | Record<string, IOntologyItem[]>>
   >({});
+  const filterFacets = ref<any[]>([]);
+  const filterFacetsById = ref<Record<string, any>>({});
 
   const filtersReadyToRender = ref(false);
   const filterPromise = ref<Promise<any> | null>(null);
@@ -372,7 +371,6 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     filterPromise,
     filters,
     filterOptions,
-    filterOptionsCache,
     filterType,
     hasActiveFilters,
     hasActiveBiobankOnlyFilters,
