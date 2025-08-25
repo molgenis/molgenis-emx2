@@ -475,6 +475,10 @@ public class GraphqlSchemaFieldFactory {
               GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(ROW_LEVEL_SECURITY)
+                  .type(Scalars.GraphQLBoolean))
           .build();
 
   public GraphqlSchemaFieldFactory() {

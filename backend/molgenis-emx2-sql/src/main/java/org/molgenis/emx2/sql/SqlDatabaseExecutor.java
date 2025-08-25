@@ -38,16 +38,6 @@ class SqlDatabaseExecutor {
     }
   }
 
-  static void executeGrantCreateSchema(DSLContext jooq, String user) {
-    try {
-      String databaseName = jooq.fetchOne("SELECT current_database()").get(0, String.class);
-      jooq.execute(
-          "GRANT CREATE ON DATABASE {0} TO {1}", name(databaseName), name(MG_USER_PREFIX + user));
-    } catch (DataAccessException dae) {
-      throw new SqlMolgenisException(dae);
-    }
-  }
-
   static void executeCreateRole(DSLContext jooq, String role) {
     jooq.execute(
         "DO $$\n"
@@ -58,5 +48,15 @@ class SqlDatabaseExecutor {
             + "END\n"
             + "$$;\n",
         inline(role), name(role));
+  }
+
+  static void executeGrantCreateSchema(DSLContext jooq, String user) {
+    try {
+      String databaseName = jooq.fetchOne("SELECT current_database()").get(0, String.class);
+      jooq.execute(
+          "GRANT CREATE ON DATABASE {0} TO {1}", name(databaseName), name(MG_USER_PREFIX + user));
+    } catch (DataAccessException dae) {
+      throw new SqlMolgenisException(dae);
+    }
   }
 }
