@@ -20,6 +20,7 @@ import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.Assert;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -1739,7 +1740,18 @@ public class WebApiSmokeTests {
 
   private void getAndAssertContains(String path, String expectedSubstring) {
     String result = given().get(path).getBody().asString();
-    assertTrue(result.contains(expectedSubstring));
+    ObjectMapper mapper = new ObjectMapper();
+    String prettyJson;
+    try {
+      Object json = mapper.readValue(result, Object.class);
+      ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+      prettyJson = writer.writeValueAsString(json);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+    assertTrue(
+        result.contains(expectedSubstring),
+        "expecting:\n" + expectedSubstring + "\nin:\n" + prettyJson);
   }
 
   @Test
