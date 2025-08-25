@@ -20,6 +20,9 @@
     v-model="modelValue"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
+    :config="{
+      allowInput: true,
+    }"
   />
 </template>
 
