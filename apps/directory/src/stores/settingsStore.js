@@ -42,6 +42,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     matomoUrl: undefined,
     matomoSiteId: undefined,
   });
+  const configurationPromise = ref();
 
   const showSettings = computed(() => {
     return session.value.roles?.includes("Manager");
@@ -63,9 +64,8 @@ export const useSettingsStore = defineStore("settingsStore", () => {
     configurationFetched.value = false;
     clearError();
 
-    let configPromise;
     try {
-      configPromise = new QueryEMX2(config.value.graphqlEndpoint)
+      configurationPromise.value = new QueryEMX2(config.value.graphqlEndpoint)
         .table("_settings")
         .select(["key", "value"])
         .execute();
@@ -74,7 +74,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
       return;
     }
 
-    const response = await configPromise;
+    const response = await configurationPromise.value;
 
     const savedDirectoryConfig = response._settings.find(
       (setting) => setting.key === "directory"
@@ -109,6 +109,7 @@ export const useSettingsStore = defineStore("settingsStore", () => {
   return {
     config,
     configurationFetched,
+    configurationPromise,
     configUpdateStatus,
     currentPage,
     showSettings,

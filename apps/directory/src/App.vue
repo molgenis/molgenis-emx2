@@ -36,15 +36,6 @@ const footer = computed(() => settingsStore.config.footer);
 
 const session = ref({});
 
-watch(
-  () => settingsStore.configurationFetched,
-  () => {
-    if (settingsStore.configurationFetched) {
-      initMatomo();
-    }
-  }
-);
-
 watch(session, () => {
   settingsStore.setSessionInformation(session.value);
 });
@@ -81,7 +72,11 @@ watch(
   { immediate: true, deep: true }
 );
 
-onMounted(changeFavicon);
+onMounted(async () => {
+  await settingsStore.configurationPromise;
+  initMatomo();
+  changeFavicon();
+});
 
 function closeAllDropdownButtons(event: any) {
   const allDropdownButtons = document.querySelectorAll(".dropdown-button");
