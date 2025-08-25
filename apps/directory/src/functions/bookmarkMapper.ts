@@ -67,33 +67,38 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
         watchedQuery[filterName] as string
       );
 
-      if (filterName === "Diagnosisavailable") {
-        const diagnosisFacetDetails = filtersStore.facetDetails[filterName];
-        /** the diagnosis available has been encoded, to discourage messing with the tree and breaking stuff. */
-        const queryValues = atob(filtersToAdd).split(",");
-        const options: IOntologyItem[] =
-          await filtersStore.getOntologyOptionsForCodes(
-            diagnosisFacetDetails,
-            queryValues
-          );
-        options.forEach((option) => {
-          filtersStore.updateOntologyFilter(filterName, option, true, true);
-        });
-      } else {
-        const filterOptions = filtersStore.filterOptions[filterName];
-        if (filterOptions && Array.isArray(filterOptions)) {
-          const queryValues = filtersToAdd.split(",");
-          const activeFilters = filterOptions.filter(
-            (filterOption: IFilterOption) => {
-              if (typeof filterOption.value === "boolean") {
-                return false;
-              } else {
-                return queryValues.includes(filterOption.value);
+      switch (filterName) {
+        case "Diagnosisavailable":
+          const diagnosisFacetDetails = filtersStore.facetDetails[filterName];
+          /** the diagnosis available has been encoded, to discourage messing with the tree and breaking stuff. */
+          const queryValues = atob(filtersToAdd).split(",");
+          const options: IOntologyItem[] =
+            await filtersStore.getOntologyOptionsForCodes(
+              diagnosisFacetDetails,
+              queryValues
+            );
+          options.forEach((option) => {
+            filtersStore.updateOntologyFilter(filterName, option, true, true);
+          });
+          break;
+        case "search":
+          filtersStore.updateFilter(filterName, filtersToAdd, true);
+          break;
+        default:
+          const filterOptions = filtersStore.filterOptions[filterName];
+          if (filterOptions && Array.isArray(filterOptions)) {
+            const queryValues = filtersToAdd.split(",");
+            const activeFilters = filterOptions.filter(
+              (filterOption: IFilterOption) => {
+                if (typeof filterOption.value === "boolean") {
+                  return false;
+                } else {
+                  return queryValues.includes(filterOption.value);
+                }
               }
-            }
-          );
-          filtersStore.updateFilter(filterName, activeFilters, true);
-        }
+            );
+            filtersStore.updateFilter(filterName, activeFilters, true);
+          }
       }
     } else {
       filtersStore.updateFilter(filterName, undefined, true);
