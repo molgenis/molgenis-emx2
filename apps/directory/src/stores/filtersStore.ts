@@ -411,10 +411,24 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
+  function setFilterOptions(
+    filterName: string,
+    newFilterOptions: IFilterOption[] | Record<string, IOntologyItem[]>
+  ) {
+    filterOptions.value[filterName] = newFilterOptions;
+  }
+
+  function getFilterOptions(
+    filterName: string
+  ): IFilterOption[] | Record<string, IOntologyItem[]> {
+    return filterOptions.value[filterName] || [];
+  }
+
   return {
     checkOntologyDescendantsIfMatches,
     clearAllFilters,
     deselectDiseaseLeavingChildren,
+    getFilterOptions,
     getFilterType,
     getFilterValue,
     getOntologyOptionsForCodes,
@@ -422,6 +436,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     isIndeterminate,
     ontologyItemMatchesQuery,
     setDiseases,
+    setFilterOptions,
     updateFilter,
     updateFilterType,
     updateOntologyFilter,
