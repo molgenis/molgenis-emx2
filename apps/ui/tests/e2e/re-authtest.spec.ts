@@ -1,11 +1,14 @@
 import { test, expect } from "@playwright/test";
 import playwrightConfig from "../../playwright.config";
-import { afterEach } from "vitest";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
   : "/apps/ui/";
 
+test.skip(
+  !!process.env.CI,
+  "Skipping in CI, due to inability to handle multiple pages in current test setup"
+);
 test("Re-authentication flow", async ({ page }) => {
   await page.goto(`${route}pet%20store/Category`);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
