@@ -151,11 +151,16 @@
     @update:deleted="afterRowDeleted"
   />
 
-  <EditModal :id="`table-emx2-${schemaId}-${tableId}-modal-edit`"
-  v-if="data?.tableMetadata && rowDataForModal" :showButton="false"
-  :schemaId="props.schemaId" :metadata="data.tableMetadata"
-  :formValues="rowDataForModal" v-model:visible="showEditModal"
-  @update:updated="afterRowUpdated" " />
+  <EditModal
+    :id="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+    v-if="data?.tableMetadata && rowDataForModal"
+    :showButton="false"
+    :schemaId="props.schemaId"
+    :metadata="data.tableMetadata"
+    :formValues="rowDataForModal"
+    v-model:visible="showEditModal"
+    @update:updated="afterRowUpdated"
+  />
 </template>
 
 <script setup lang="ts">
