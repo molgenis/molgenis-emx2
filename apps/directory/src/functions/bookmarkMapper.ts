@@ -5,8 +5,7 @@ import router from "../router";
 import { ILabelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
-
-let bookmarkApplied = false;
+import { useSettingsStore } from "../stores/settingsStore";
 
 const { setError, clearError } = useErrorHandler();
 
@@ -14,6 +13,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
   const checkoutStore = useCheckoutStore();
   const collectionStore = useCollectionStore();
   const filtersStore = useFiltersStore();
+  const settingsStore = useSettingsStore();
 
   /**  negotiator token */
   if (watchedQuery.nToken) {
@@ -26,6 +26,7 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
     const cartIds = cartIdString.split(",");
     const missingCollections =
       await collectionStore.getMissingCollectionInformation(cartIds);
+
     if (missingCollections && Object.keys(missingCollections).length) {
       for (const collection of missingCollections) {
         checkoutStore.addCollectionsToSelection(
@@ -46,17 +47,20 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
     checkoutStore.removeAllFromSelection(false);
   }
 
-  /** we load the filters, grab the names, so we can loop over it to map the selections */
-  const filters = Object.keys(filtersStore.facetDetails);
   if (watchedQuery.matchAll) {
     const matchAllFilters = decodeURIComponent(
       watchedQuery.matchAll as string
     ).split(",");
     for (const filterName of matchAllFilters) {
-      filtersStore.updateFilterType(filterName, "all", true);
+      filtersStore.updateFilterType(filterName, "all");
     }
   }
 
+  /** we load the filters, grab the names, so we can loop over it to map the selections */
+  if (!filtersStore.filtersReadyToRender) {
+    await settingsStore.configurationPromise;
+  }
+  const filters = Object.keys(filtersStore.facetDetails);
   for (const filterName of filters) {
     if (watchedQuery[filterName]) {
       const filtersToAdd: string = decodeURIComponent(
@@ -100,19 +104,47 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
       filtersStore.updateFilter(filterName, undefined, true);
     }
   }
-
-  filtersStore.bookmarkWaitingForApplication = false;
-  bookmarkApplied = true;
 }
 
 export function createBookmark(
   filters: Record<string, any>,
   collectionCart: Record<string, ILabelValuePair[]>,
   serviceCart: Record<string, ILabelValuePair[]>,
-  filterTypes: Record<string, any>,
-  bookmarkWaitingForApplication: boolean = false
+  filterTypes: Record<string, any>
 ) {
-  const bookmarkQuery: Record<string, string> = {};
+  const query: Record<string, any> = {};
+  const queryFilters = createBookmarkFilters(filters, filterTypes);
+
+  if (collectionCart && Object.keys(collectionCart).length) {
+    query.cart = createBookmarkForCart(collectionCart);
+  }
+
+  if (serviceCart && Object.keys(serviceCart).length) {
+    const bookmarkIds = [];
+    for (const service in serviceCart) {
+      bookmarkIds.push(serviceCart[service].map((service) => service.value));
+    }
+
+    const encodedCart = btoa(bookmarkIds.join(","));
+    query.serviceCart = encodeURI(encodedCart);
+  }
+
+  try {
+    clearError();
+    router.push({
+      name: router.currentRoute.value.name,
+      query: { ...query, ...queryFilters },
+    });
+  } catch (error) {
+    setError(error);
+  }
+}
+
+function createBookmarkFilters(
+  filters: Record<string, any>,
+  filterTypes: Record<string, any>
+) {
+  const bookmarkFilters: Record<string, string> = {};
   const matchAll = [];
 
   const activeFilters = Object.keys(filters);
@@ -136,43 +168,19 @@ export function createBookmark(
     }
 
     if (Array.isArray(value) && value.length) {
-      bookmarkQuery[filterName] = createBookmarkForArray(value, filterName);
+      bookmarkFilters[filterName] = createBookmarkForArray(value, filterName);
     } else if (typeof value === "object") {
-      bookmarkQuery[filterName] = createBookmarkForObject(value, filterName);
+      bookmarkFilters[filterName] = createBookmarkForObject(value, filterName);
     } else {
-      bookmarkQuery[filterName] = createBookmarkForOther(value, filterName);
+      bookmarkFilters[filterName] = createBookmarkForOther(value, filterName);
     }
   }
 
   if (matchAll.length) {
-    bookmarkQuery.matchAll = encodeURI(matchAll.join(","));
+    bookmarkFilters.matchAll = encodeURI(matchAll.join(","));
   }
 
-  if (collectionCart && Object.keys(collectionCart).length) {
-    bookmarkQuery.cart = createBookmarkForCart(collectionCart);
-  }
-
-  if (serviceCart && Object.keys(serviceCart).length) {
-    const bookmarkIds = [];
-    for (const service in serviceCart) {
-      bookmarkIds.push(serviceCart[service].map((service) => service.value));
-    }
-
-    const encodedCart = btoa(bookmarkIds.join(","));
-    bookmarkQuery.serviceCart = encodeURI(encodedCart);
-  }
-
-  if (!bookmarkWaitingForApplication) {
-    try {
-      clearError();
-      router.push({
-        name: router.currentRoute.value.name,
-        query: bookmarkQuery,
-      });
-    } catch (error) {
-      setError(error);
-    }
-  }
+  return bookmarkFilters;
 }
 
 function createBookmarkForArray(value: any[], filterName: string) {

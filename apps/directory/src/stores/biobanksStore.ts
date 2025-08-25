@@ -2,13 +2,13 @@
 import { QueryEMX2 } from "molgenis-components";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import { extractValue } from "../functions/extractValue.js";
-import { getPropertyByPath } from "../functions/getPropertyByPath.js";
-import { useCollectionStore } from "./collectionStore.js";
-import { useFiltersStore } from "./filtersStore.js";
-import { useSettingsStore } from "./settingsStore.js";
-import useErrorHandler from "../composables/errorHandler.js";
-import { IBiobanks, ICollections } from "../interfaces/directory.js";
+import useErrorHandler from "../composables/errorHandler";
+import { extractValue } from "../functions/extractValue";
+import { getPropertyByPath } from "../functions/getPropertyByPath";
+import { IBiobanks, ICollections } from "../interfaces/directory";
+import { useCollectionStore } from "./collectionStore";
+import { useFiltersStore } from "./filtersStore";
+import { useSettingsStore } from "./settingsStore";
 
 export const useBiobanksStore = defineStore("biobanksStore", () => {
   const settingsStore = useSettingsStore();
@@ -24,7 +24,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   );
 
   let facetBiobankColumnDetails = ref<string[]>([]);
-  let biobankCards = ref<Record<string, any>[]>([]);
+  let biobankCards = ref<IBiobanks[]>([]);
   let waitingForResponse = ref(true);
 
   let lastRequestTime = 0;
@@ -34,11 +34,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     .flatMap((biobankColumn) => biobankColumn.column)
     .concat({ collections: collectionColumns });
 
-  const baseQuery = new QueryEMX2(graphqlEndpoint)
-    .table("Biobanks")
-    .select([...biobankCardGraphql, ...getFacetColumnDetails()])
-    .orderBy("Biobanks", "name", "asc")
-    .orderBy("collections", "id", "asc");
+  const baseQuery = ref<QueryEMX2>(initBaseQuery());
 
   const biobankCardsHaveResults = computed(
     () => !waitingForResponse.value && biobankCards.value?.length
@@ -58,7 +54,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       return biobankCards.value
         .filter((bc) => bc.collections)
         .flatMap((biobank) =>
-          biobank.collections.filter(
+          biobank.collections?.filter(
             (collection: ICollections) =>
               !collection.withdrawn && collection.parent_collection
           )
@@ -70,9 +66,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     const totalCount = biobankCards.value
       .filter((bc) => bc.collections)
       .flatMap((biobank) =>
-        biobank.collections.filter(
-          (collection: ICollections) => !collection.withdrawn
-        )
+        biobank.collections?.filter((collection) => !collection.withdrawn)
       ).length;
     return totalCount - biobankCardsSubcollectionCount.value;
   });
@@ -122,35 +116,34 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
   /** This method is called upon page load and when a filter is applied. */
   /** Therefore it can be executed multiple times in parallel. */
   async function getBiobankCards() {
-    if (!filtersStore.bookmarkWaitingForApplication) {
-      waitingForResponse.value = true;
+    waitingForResponse.value = true;
 
-      const requestTime = Date.now();
-      lastRequestTime = requestTime;
+    const requestTime = Date.now();
+    lastRequestTime = requestTime;
 
-      let biobankResult = [];
-      try {
-        clearError();
-        biobankResult = await baseQuery.execute();
-      } catch (error) {
-        setError(error);
+    let biobankResult: { Biobanks: IBiobanks[] };
+    try {
+      clearError();
+      biobankResult = (await baseQuery.value.execute()) as {
+        Biobanks: IBiobanks[];
+      };
+    } catch (error) {
+      setError(error);
+    }
+
+    /* Update biobankCards only if the result is the most recent one*/
+    if (requestTime === lastRequestTime) {
+      let foundBiobanks = biobankResult!.Biobanks;
+      if (
+        filtersStore.hasActiveFilters &&
+        !filtersStore.hasActiveBiobankOnlyFilters
+      ) {
+        foundBiobanks = foundBiobanks?.filter(
+          (biobank: IBiobanks) => biobank.collections
+        );
       }
-
-      /* Update biobankCards only if the result is the most recent one*/
-      if (requestTime === lastRequestTime) {
-        let foundBiobanks = biobankResult.Biobanks;
-        if (
-          filtersStore.hasActiveFilters &&
-          !filtersStore.hasActiveBiobankOnlyFilters
-        ) {
-          foundBiobanks = foundBiobanks?.filter(
-            (biobank: IBiobanks) => biobank.collections
-          );
-        }
-        biobankCards.value = filterWithdrawn(foundBiobanks);
-        waitingForResponse.value = false;
-        filtersStore.bookmarkWaitingForApplication = false;
-      }
+      biobankCards.value = filterWithdrawn(foundBiobanks);
+      waitingForResponse.value = false;
     }
   }
 
@@ -187,7 +180,7 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
       columnPath = [applyToColumn];
     }
 
-    let valuesKnown;
+    let valuesKnown: any[] = [];
 
     for (const path of columnPath) {
       const pathParts = path.split(".");
@@ -230,14 +223,33 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
         }
       }
     }
-    //@ts-ignore
+    //@ts-expect-error
     return [...new Set(valuesKnown)];
+  }
+
+  function initBaseQuery() {
+    return new QueryEMX2(graphqlEndpoint)
+      .table("Biobanks")
+      .select([...biobankCardGraphql, ...getFacetColumnDetails()])
+      .orderBy("Biobanks", "name", "asc")
+      .orderBy("collections", "id", "asc");
+  }
+
+  function getBaseQuery() {
+    if (!baseQuery.value) {
+      baseQuery.value = initBaseQuery();
+    }
+    if (!baseQuery.value) {
+      console.error("Base query is not initialized properly.");
+    }
+    return baseQuery.value;
   }
 
   return {
     getBiobankCards,
     getBiobank,
     getPresentFilterOptions,
+    getBaseQuery,
     waiting: waitingForResponse,
     biobankCardsHaveResults,
     biobankCardsBiobankCount,
@@ -245,11 +257,10 @@ export const useBiobanksStore = defineStore("biobanksStore", () => {
     biobankCardsServicesCount,
     biobankCardsSubcollectionCount,
     biobankCards,
-    baseQuery,
   };
 });
 
-function filterWithdrawn(biobanks: IBiobanks[] | undefined): IBiobanks[] {
+function filterWithdrawn(biobanks: IBiobanks[]) {
   let filteredBanks = biobanks?.filter((biobank) => !biobank.withdrawn) || [];
   filteredBanks.forEach((biobank) => {
     biobank.collections = biobank.collections?.filter(

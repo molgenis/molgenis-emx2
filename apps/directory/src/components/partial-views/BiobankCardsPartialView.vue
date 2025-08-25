@@ -62,9 +62,7 @@ export default {
       );
     },
     noResultsText() {
-      return this.filtersStore.bookmarkWaitingForApplication
-        ? "Loading state"
-        : "No biobanks were found";
+      return "No biobanks were found";
     },
   },
   methods: {
