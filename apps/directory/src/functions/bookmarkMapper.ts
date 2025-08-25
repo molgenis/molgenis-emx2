@@ -11,14 +11,6 @@ let bookmarkApplied = false;
 const { setError, clearError } = useErrorHandler();
 
 export async function applyBookmark(watchedQuery: LocationQuery) {
-  if (bookmarkApplied) {
-    return;
-  }
-
-  if (!watchedQuery || !(Object.keys(watchedQuery).length > 0)) {
-    return;
-  }
-
   const checkoutStore = useCheckoutStore();
   const collectionStore = useCollectionStore();
   const filtersStore = useFiltersStore();
@@ -50,6 +42,8 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
         "Starting with a preselected list of collections"
       );
     }
+  } else {
+    checkoutStore.removeAllFromSelection(false);
   }
 
   /** we load the filters, grab the names, so we can loop over it to map the selections */
@@ -97,6 +91,8 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
           filtersStore.updateFilter(filterName, activeFilters, true);
         }
       }
+    } else {
+      filtersStore.updateFilter(filterName, undefined, true);
     }
   }
 
