@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { useRuntimeConfig, useHead } from "#app";
 import { useRoute, navigateTo } from "#app/composables/router";
-import { useSession } from "#imports";
+import { useSession } from "../../tailwind-components/composables/useSession";
 import { computed } from "vue";
 
 const config = useRuntimeConfig();
