@@ -119,3 +119,10 @@ questions:
         type: string
         required: true
         group: "Authentication"
+  - variable: metrics.enabled
+    label: is metrics enabled
+    description: "Key for analytics call"
+    type: string
+    required: false
+    default: false
+    group: "Provisioning"
