@@ -43,6 +43,17 @@ const errors = defineModel<Record<columnId, string>>("errors", {
   required: true,
 });
 
+function validate() {
+  props.metadata.columns.forEach((column) => {
+    if (visibleMap[column.id]) {
+      validateColumn(column);
+    }
+  });
+  return Object.keys(errors.value).length === 0;
+}
+
+defineExpose({ validate });
+
 const emit = defineEmits(["error", "update:activeChapterId"]);
 
 const previousColumn = ref<IColumn>();

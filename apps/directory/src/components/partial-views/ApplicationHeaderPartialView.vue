@@ -25,8 +25,8 @@
               {{
                 biobanksStore.biobankCardsCollectionCount +
                 biobanksStore.biobankCardsSubcollectionCount
-              }}</span
-            >
+              }}
+            </span>
           </button>
         </div>
         <div>
@@ -40,8 +40,8 @@
           >
             Select all services
             <span class="badge badge-light ml-2">
-              {{ biobanksStore.biobankCardsServicesCount }}</span
-            >
+              {{ biobanksStore.biobankCardsServicesCount }}
+            </span>
           </button>
         </div>
         <div>

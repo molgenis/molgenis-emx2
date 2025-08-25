@@ -1,17 +1,17 @@
 <template>
-  <nav class="pt-4 pb-8" v-if="sections.length > 1">
+  <nav class="pt-4 pb-8 bg-form-legend" v-if="sections.length > 1">
     <h3 class="text-disabled p-4 ml-4">Jump to</h3>
-    <ul class="list-none space-y-3">
+    <ul class="list-none">
       <li
         v-for="section in sections"
-        class="group/chapter flex items-center cursor-pointer"
+        class="py-2 pr-4 relative group/chapter cursor-pointer flex items-center gap-2 justify-start h-full"
       >
         <div
-          class="h-[24px] w-1 group-hover/chapter:bg-button-primary"
+          class="absolute left-0 top-0 h-full w-1 group-hover/chapter:bg-button-primary transition-translate duration-100 ease-in-out origin-left -translate-full group-hover/chapter:translate-0"
           :class="{ 'bg-button-primary': section.isActive }"
         />
         <a
-          class="pl-7 flex items-center"
+          class="pl-7 truncate hover:overflow-visible bg-form-legend"
           href="#"
           :aria-current="section.isActive"
           @click.prevent="emit('goToSection', section.id)"
@@ -25,16 +25,18 @@
           >
             {{ section.label }}
           </span>
-          <span
-            v-if="(section.errorCount ?? 0) > 0"
-            class="ml-2 flex h-6 w-6 shrink-0 grow-0 items-center justify-center rounded-full bg-notification text-legend-error-count"
-          >
-            {{ (section.errorCount ?? 0) > 9 ? "9+" : section.errorCount }}
-            <span class="sr-only">{{
-              section.errorCount === 1 ? "error" : "errors"
-            }}</span>
+          <span v-if="(section.errorCount ?? 0) > 0" class="sr-only">
+            {{ section.errorCount }} error{{
+              section.errorCount > 1 || section.errorCount === 0 ? "s" : ""
+            }}
           </span>
         </a>
+        <div
+          v-if="(section.errorCount ?? 0) > 0"
+          class="inline-flex h-6 w-6 shrink-0 grow-0 items-center justify-center rounded-full bg-notification text-legend-error-count"
+        >
+          {{ (section.errorCount ?? 0) > 9 ? "9+" : section.errorCount }}
+        </div>
       </li>
     </ul>
   </nav>

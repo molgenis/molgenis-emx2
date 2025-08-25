@@ -56,7 +56,7 @@ watch(
       const remainingKeys = Object.keys(newQuery).filter(
         (key) => key !== "cart"
       );
-      /** if we only have a cart we do not need to wait for the filters to be applied before updating the biobankcards. */
+      /** if we only have a cart we do not need to wait for the filters to be applied before updating the biobank cards. */
       if (remainingKeys.length > 0) {
         filtersStore.bookmarkWaitingForApplication = true;
       }
@@ -70,12 +70,11 @@ watch(
         filtersStore.filters,
         checkoutStore.selectedCollections,
         checkoutStore.selectedServices,
-        filtersStore.filterType,
-        filtersStore.filterTriggeredBookmark
+        filtersStore.filterType
       );
     }
 
-    if (filtersStore.filtersReady && !checkoutStore.cartUpdated) {
+    if (filtersStore.filterOptionsReady && !checkoutStore.cartUpdated) {
       applyBookmark(newQuery);
     }
   },
