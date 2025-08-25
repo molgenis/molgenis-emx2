@@ -45,6 +45,7 @@ const initLoading = ref(true);
 
 const counterOffset = ref<number>(0);
 const maxTableRows = ref<number>(0);
+const maxOntologyNodes = ref<number>(0);
 
 const treeContainer = useTemplateRef<HTMLUListElement>("treeContainer");
 const treeInputs = ref<NodeList>();
@@ -59,6 +60,8 @@ onMounted(async () => {
 
   await nextTick();
   setTreeInputs();
+
+  await getMaxParentNodes();
 });
 
 watch(() => props.ontologySchemaId, init);
@@ -327,6 +330,15 @@ async function getMaxTableRows() {
   maxTableRows.value = data[`${props.ontologyTableId}_agg`].count;
 }
 
+async function getMaxParentNodes() {
+  const data = await fetchGraphql(
+    props.ontologySchemaId,
+    `query { ${props.ontologyTableId}_agg (filter: { parent: { _is_null: true } } ) { count } }`,
+    {}
+  );
+  maxOntologyNodes.value = data[`${props.ontologyTableId}_agg`].count;
+}
+
 async function loadMoreTerms() {
   counterOffset.value += props.limit;
   if (counterOffset.value < maxTableRows.value) {
@@ -410,9 +422,11 @@ async function loadMoreTerms() {
           aria-live="polite"
           aria-atomic="true"
         />
+
         <ButtonText
           :id="`${id}-ontology-tree-load-more`"
           @click="loadMoreTerms"
+          v-if="ontologyTree.length <= maxOntologyNodes - 1"
         >
           Load more
         </ButtonText>
