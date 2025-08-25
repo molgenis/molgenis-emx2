@@ -1600,62 +1600,146 @@ public class WebApiSmokeTests {
         .get("/pet store/api/ttl/Pet");
   }
 
+  //  @Test
+  //  public void testBeaconApiSmokeTests() {
+  //    String result = given().get("/api/beacon/configuration").getBody().asString();
+  //    assertTrue(result.contains("productionStatus"));
+  //
+  //    result = given().get("/api/beacon/map").getBody().asString();
+  //    assertTrue(result.contains("endpointSets"));
+  //
+  //    result = given().get("/pet store/api/beacon/info").getBody().asString();
+  //    assertTrue(result.contains("beaconInfoResponse"));
+  //
+  //    result = given().get("/api/beacon/filtering_terms").getBody().asString();
+  //    assertTrue(result.contains("filteringTerms"));
+  //
+  //    result = given().get("/api/beacon/entry_types").getBody().asString();
+  //    assertTrue(result.contains("entry"));
+  //
+  //    result = given().get("/api/beacon/datasets").getBody().asString();
+  //    assertTrue(result.contains("datasets"));
+  //
+  //    result = given().get("/api/beacon/g_variants").getBody().asString();
+  //    assertTrue(result.contains("datasets"));
+  //
+  //    result = given().get("/api/beacon/analyses").getBody().asString();
+  //    assertTrue(result.contains("datasets"));
+  //
+  //    result = given().get("/api/beacon/biosamples").getBody().asString();
+  //    assertTrue(result.contains("datasets"));
+  //
+  //    result = given().get("/api/beacon/cohorts").getBody().asString();
+  //    assertTrue(result.contains("datasets"));
+  //
+  //    result = given().get("/api/beacon/individuals").getBody().asString();
+  //    assertTrue(result.contains("datasets"));
+  //
+  //    result =
+  //        given()
+  //            .body(
+  //                """
+  //                    {
+  //                      "query": {
+  //                      "filters": [
+  //                        {
+  //                        "id": "NCIT:C28421",
+  //                        "value": "GSSO_000123",
+  //                        "operator": "="
+  //                        }
+  //                      ]
+  //                      }
+  //                    }""")
+  //            .post("/api/beacon/individuals")
+  //            .asString();
+  //    assertTrue(result.contains("datasets"));
+  //
+  //    result = given().get("/api/beacon/runs").getBody().asString();
+  //    assertTrue(result.contains("datasets"));
+  //  }
+
   @Test
-  public void testBeaconApiSmokeTests() {
-    String result = given().get("/api/beacon/configuration").getBody().asString();
-    assertTrue(result.contains("productionStatus"));
+  void testBeaconConfiguration() {
+    getAndAssertContains("/api/beacon/configuration", "productionStatus");
+  }
 
-    result = given().get("/api/beacon/map").getBody().asString();
-    assertTrue(result.contains("endpointSets"));
+  @Test
+  void testBeaconMap() {
+    getAndAssertContains("/api/beacon/map", "endpointSets");
+  }
 
-    result = given().get("/pet store/api/beacon/info").getBody().asString();
-    assertTrue(result.contains("beaconInfoResponse"));
+  @Test
+  void testBeaconInfo() {
+    getAndAssertContains("/pet store/api/beacon/info", "beaconInfoResponse");
+  }
 
-    result = given().get("/api/beacon/filtering_terms").getBody().asString();
-    assertTrue(result.contains("filteringTerms"));
+  @Test
+  void testBeaconFilteringTerms() {
+    getAndAssertContains("/api/beacon/filtering_terms", "filteringTerms");
+  }
 
-    result = given().get("/api/beacon/entry_types").getBody().asString();
-    assertTrue(result.contains("entry"));
+  @Test
+  void testBeaconEntryTypes() {
+    getAndAssertContains("/api/beacon/entry_types", "entry");
+  }
 
-    result = given().get("/api/beacon/datasets").getBody().asString();
+  @Test
+  void testBeaconDatasets() {
+    getAndAssertContains("/api/beacon/datasets", "datasets");
+  }
+
+  @Test
+  void testBeaconGVariants() {
+    getAndAssertContains("/api/beacon/g_variants", "datasets");
+  }
+
+  @Test
+  void testBeaconAnalyses() {
+    getAndAssertContains("/api/beacon/analyses", "datasets");
+  }
+
+  @Test
+  void testBeaconBiosamples() {
+    getAndAssertContains("/api/beacon/biosamples", "datasets");
+  }
+
+  @Test
+  void testBeaconCohorts() {
+    getAndAssertContains("/api/beacon/cohorts", "datasets");
+  }
+
+  @Test
+  void testBeaconIndividualsGet() {
+    getAndAssertContains("/api/beacon/individuals", "datasets");
+  }
+
+  @Test
+  void testBeaconIndividualsPostFilter() {
+    String body =
+        """
+      {
+        "query": {
+          "filters": [
+            {
+              "id": "NCIT:C28421",
+              "value": "GSSO_000123",
+              "operator": "="
+            }
+          ]
+        }
+      }""";
+    String result = given().body(body).post("/api/beacon/individuals").asString();
     assertTrue(result.contains("datasets"));
+  }
 
-    result = given().get("/api/beacon/g_variants").getBody().asString();
-    assertTrue(result.contains("datasets"));
+  @Test
+  void testBeaconRuns() {
+    getAndAssertContains("/api/beacon/runs", "datasets");
+  }
 
-    result = given().get("/api/beacon/analyses").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/biosamples").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/cohorts").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/individuals").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result =
-        given()
-            .body(
-                """
-                    {
-                      "query": {
-                      "filters": [
-                        {
-                        "id": "NCIT:C28421",
-                        "value": "GSSO_000123",
-                        "operator": "="
-                        }
-                      ]
-                      }
-                    }""")
-            .post("/api/beacon/individuals")
-            .asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/runs").getBody().asString();
-    assertTrue(result.contains("datasets"));
+  private void getAndAssertContains(String path, String expectedSubstring) {
+    String result = given().get(path).getBody().asString();
+    assertTrue(result.contains(expectedSubstring));
   }
 
   @Test
