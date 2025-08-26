@@ -81,8 +81,8 @@ yarn playwright install
 Make sure the [Test Automation](https://plugins.jetbrains.com/plugin/20175-test-automation) plugin is installed.
 
 You can now use IDEA's run functionality to run pre-configured test configurations and add new ones.
-Note that when running directly from the file context or creating a new test, a testwright template will pre-configure certain settings.
-When creating a run configuration that runs multiple tests at the same time, consider remove `--headed`.
+Note that when running an individual test (file), the template will cause it to run in UI mode.
+When creating more complex test configurations, consider removing `--ui`.
 
 
 ## Adding tests
