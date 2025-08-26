@@ -86,7 +86,7 @@ async function retrieveTerms(
 
   let query = searchTerms.value
     ? `query myquery($termFilter:${props.ontologyTableId}Filter, $searchFilter:${props.ontologyTableId}Filter) {
-        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:1000, offset:${counterOffset.value} orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
+        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:${props.limit}, offset:${counterOffset.value} orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
         searchMatch: ${props.ontologyTableId}(filter:$searchFilter, limit:${props.limit}, orderby:{order:ASC,name:ASC}){name}
        }`
     : `query myquery($termFilter:${props.ontologyTableId}Filter) {
@@ -362,8 +362,8 @@ async function loadMoreTerms() {
 </script>
 
 <template>
-  <div v-if="initLoading">
-    <BaseIcon name="progress-activity" />
+  <div v-if="initLoading" class="h-20 flex justify-start items-center">
+    <BaseIcon name="progress-activity" class="animate-spin text-input" />
   </div>
   <div v-else>
     <InputGroupContainer
