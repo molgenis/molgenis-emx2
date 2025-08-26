@@ -77,6 +77,7 @@ const shaclOutput = ref("");
 const shaclStatus = ref("UNKNOWN");
 async function runShacl() {
   disabled.value = true;
+  error.value = "";
   shaclOutput.value = "";
   shaclStatus.value = "RUNNING";
   const res = await fetch("../api/rdf?validate=" + props.shaclSet.name);
