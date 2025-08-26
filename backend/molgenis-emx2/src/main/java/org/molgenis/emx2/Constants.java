@@ -111,7 +111,7 @@ public class Constants {
           .toArray(Operator[]::new);
 
   // n.b. we allow _SYSTEM_
-  protected static final String SCHEMA_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,62}$";
+  public static final String SCHEMA_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,62}$";
 
   protected static final String TABLE_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$";
 
