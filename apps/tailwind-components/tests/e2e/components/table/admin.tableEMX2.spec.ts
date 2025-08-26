@@ -39,9 +39,15 @@ test("the row should be removed from the table after deletion", async ({
   await page.getByRole("button", { name: "Save", exact: true }).click();
 
   // delete
-  await expect(page.getByText("testdel")).toBeVisible();
-  await page.getByText("testdel").hover();
-  await page.getByRole("button", { name: "delete" }).click();
+  await expect(
+    page.getByRole("cell", { name: "testdel", exact: true })
+  ).toBeVisible();
+
+  await page
+    .getByText("deletetestdel", { exact: true })
+    .filter({ visible: false })
+    .dispatchEvent("click");
+
   await expect(
     page.getByRole("heading", { name: "Delete Category" })
   ).toBeVisible();
@@ -51,5 +57,7 @@ test("the row should be removed from the table after deletion", async ({
   await page.waitForTimeout(1000); // wait for the table to update
 
   // check
-  await expect(page.getByText("testdel")).not.toBeVisible();
+  await expect(
+    page.getByRole("cell", { name: "testdel", exact: true })
+  ).not.toBeVisible();
 });
