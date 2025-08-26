@@ -104,6 +104,9 @@ module.exports = {
         95: "23.75rem",
         82.5: "20.625rem",
       },
+      padding: ({ theme }) => ({
+        "last-row-cell": "var(--padding-table-body-last-row-cell)",
+      }),
       height: ({ theme }) => ({
         input: "var(--height-input)",
       }),
@@ -232,6 +235,8 @@ module.exports = {
         "button-disabled-hover": "var(--text-color-button-disabled-hover)",
         "button-filter": "var(--text-color-button-filter)",
         "button-text": "var(--text-color-button-text)",
+        "button-icon": "var(--text-color-button-icon)",
+        "button-icon-hover": "var(--text-color-button-icon-hover)",
         menu: "var(--text-color-menu)",
         "button-tree-node-toggle": "var(--text-color-button-tree-node-toggle)",
         "button-tree-node-toggle-hover":
