@@ -44,13 +44,12 @@ public class StaticFileMapper {
           }
         });
 
-    // todo, could we map any other /schema/app/**/* to redirect resources?
     app.get("*/{app}/assets/<asset>", StaticFileMapper::redirectAssets);
     app.get("*/{app}/img/<asset>", StaticFileMapper::redirectImg);
     app.get("/apps/{app}/<asset>", StaticFileMapper::redirectResources);
 
-    app.get("{schema}/{app}/index.html", StaticFileMapper::returnIndexFile);
-    app.get("{schema}/{app}", StaticFileMapper::returnIndexFile);
+    app.get("*/{app}/index.html", StaticFileMapper::returnIndexFile);
+    app.get("*/{app}", StaticFileMapper::returnIndexFile);
   }
 
   private static void redirectDirectory(Context ctx) {
