@@ -31,7 +31,7 @@ Experiments,,instrument barcode,string,,,,,,,,,http://purl.obolibrary.org/obo/NC
 Experiments,,sequencing centre,ref,,,CatalogueOntologies,Organisations,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001202,A data field which describes the name of the third party company or laboratory that provided services.,Patient registry
 Experiments,,persons involved,ref_array,,,,Contacts,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,Who was involved in the processing,"Patient registry, FAIR Genomes"
 Experiments,,output files,refback,,,,Files,,produced by experiment,,,http://edamontology.org/topic_3168,links to output of files,Patient registry
-Experiments,,sequencing run date,datetime,,,,,,,,,,When the run happened,"Patient registry, FAIR Genomes"
+Experiments,,date of experiment,datetime,,,,,,,,,,"When the experiment (e.g., the sequencing run or the mapping) took place","Patient registry, FAIR Genomes"
 Experiments,,library source,ontology,,,CatalogueOntologies,Library source,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001965,E.g. genomic source,"Patient registry, FAIR Genomes"
 Experiments,,library selection,string,,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001940,E.g. RANDOM method,"Patient registry, FAIR Genomes"
 Experiments,,library strategy,ontology,,,CatalogueOntologies,Sequencing methods,,,,,http://purl.obolibrary.org/obo/FIX_0000704,Method used to determine the order of bases in a nucleic acid sequence. In FAIR Genomes: SequencingMethod.,"Patient registry, FAIR Genomes"
@@ -50,6 +50,7 @@ Experiments,,flow cell,string,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0400043
 Experiments,,sequencing lane identifier,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C182081,The numerical identifier for the lane or machine unit where a sample was located during nucleotide sequencing.,"Patient registry, FAIR Genomes"
 Experiments,,general sample information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Experiments,,sample id,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a sample","Patient registry, FAIR Genomes"
+Experiments,,aliquot id,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C173074,A unique identifier assigned to an aliquot containing a portion of a biospecimen,"Patient registry, FAIR Genomes"
 Experiments,,sample type,ontology,,,CatalogueOntologies,Sample type,,,,,http://purl.obolibrary.org/obo/FBcv_0003044,"The type of sample as characterized by its biological source material collected for testing, diagnostic, propagation, treatment or research purposes","Patient registry,FAIR Genomes"
 Experiments,,sample type other,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C126072,"If the sample type is other, provide a description of the sample.","Patient registry,FAIR Genomes"
 Experiments,,sample availability,ontology,,,CatalogueOntologies,Sample availability,,,,,http://purl.obolibrary.org/obo/NCIT_C19065,"An indication if the sample is available (i.e., retained, available for use, etc.)","Patient registry,FAIR Genomes"
