@@ -7,7 +7,6 @@ out
 dist
 
 .DS_Store
-.idea
 target/
 .settings/
 .project
@@ -26,9 +25,6 @@ derby.log
 .metadata/
 .RData
 .RHistory
-.idea/*
-.idea/fileTemplates/*/
-!.idea/fileTemplates/
 **/npm-debug.log
 **/.factorypath
 **/node_modules
@@ -80,3 +76,8 @@ apps/tailwind-components/test-results/.last-run.json
 *.code-workspace
 apps/**/test-results/
 apps/tailwind-components/playwright/.auth/user.json
+
+# IntelliJ IDEA
+.idea/*
+!.idea/runConfigurations/
+!.idea/fileTemplates/

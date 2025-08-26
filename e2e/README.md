@@ -69,6 +69,22 @@ When running tests in files which name start with `admin!`, be sure to run `auth
 
 As the monorepo contains multiple `playwright.config.ts` files, not all test files might appear in the test explorer by default. One can toggle the selected config files in the "Playwright" menu within the "Tesing" tab. Here, click the gear icon to the right of the current active playwright config path to select one or more config files. If selecting multiple config files, the combination of their tests will be shown, though keep in mind tests need their specific config file to be the active one because otherwise they might not function properly.
 
+## Playwright through IntelliJ IDEA
+Install playwright (similar to CLI version):
+```bash
+# Run from e2e directory 
+yarn install
+# Run if playwright dependencies (such as browsers) have not yet been installed on this system 
+yarn playwright install
+```
+
+Make sure the [Test Automation](https://plugins.jetbrains.com/plugin/20175-test-automation) plugin is installed.
+
+You can now use IDEA's run functionality to run pre-configured test configurations and add new ones.
+Note that when running directly from the file context or creating a new test, a testwright template will pre-configure certain settings.
+When creating a run configuration that runs multiple tests at the same time, consider remove `--headed`.
+
+
 ## Adding tests
 
 We suggest to use the vscode plugin for [creating/recording](https://playwright.dev/docs/codegen) new tests. The `playwright.config.ts` file contains the test configuration including the default server path. It is suggested to use relative server paths ( instead of `https://my-server.com/my-page` use `/my-page` ) to make it possible for test to run against different servers.
