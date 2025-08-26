@@ -80,6 +80,8 @@ yarn playwright install
 
 Make sure the [Test Automation](https://plugins.jetbrains.com/plugin/20175-test-automation) plugin is installed.
 
+Before running any tests, ensure EMX2 is running on http://localhost:8080/.
+
 You can now use IDEA's run functionality to run pre-configured test configurations and add new ones.
 Note that when running an individual test (file), the template will cause it to run in UI mode.
 When creating more complex test configurations, consider removing `--ui`.
