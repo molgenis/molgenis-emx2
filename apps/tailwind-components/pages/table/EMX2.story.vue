@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import type { ITableSettings, Resp, Schema } from "../../types/types";
-import DemoDataControles from "../../DemoDataControles.vue";
+import DemoDataControls from "../../DemoDataControls.vue";
 import type { ITableMetaData } from "../../../metadata-utils/src/types";
 
 const tableSettings = ref<ITableSettings>({
@@ -26,7 +26,7 @@ const tableId = computed(() => {
 
 <template>
   <div class="py-5 space-y-2">
-    <DemoDataControles
+    <DemoDataControls
       :include-row-select="false"
       v-model:metadata="metadata"
       v-model:schemaId="schemaId"
