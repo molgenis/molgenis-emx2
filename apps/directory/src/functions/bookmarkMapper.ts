@@ -11,14 +11,6 @@ let bookmarkApplied = false;
 const { setError, clearError } = useErrorHandler();
 
 export async function applyBookmark(watchedQuery: LocationQuery) {
-  if (bookmarkApplied) {
-    return;
-  }
-
-  if (!watchedQuery || !(Object.keys(watchedQuery).length > 0)) {
-    return;
-  }
-
   const checkoutStore = useCheckoutStore();
   const collectionStore = useCollectionStore();
   const filtersStore = useFiltersStore();
@@ -50,6 +42,8 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
         "Starting with a preselected list of collections"
       );
     }
+  } else {
+    checkoutStore.removeAllFromSelection(false);
   }
 
   /** we load the filters, grab the names, so we can loop over it to map the selections */
@@ -69,34 +63,41 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
         watchedQuery[filterName] as string
       );
 
-      if (filterName === "Diagnosisavailable") {
-        const diagnosisFacetDetails = filtersStore.facetDetails[filterName];
-        /** the diagnosis available has been encoded, to discourage messing with the tree and breaking stuff. */
-        const queryValues = atob(filtersToAdd).split(",");
-        const options: IOntologyItem[] =
-          await filtersStore.getOntologyOptionsForCodes(
-            diagnosisFacetDetails,
-            queryValues
-          );
-        options.forEach((option) => {
-          filtersStore.updateOntologyFilter(filterName, option, true, true);
-        });
-      } else {
-        const filterOptions = filtersStore.filterOptionsCache[filterName];
-        if (filterOptions && Array.isArray(filterOptions)) {
-          const queryValues = filtersToAdd.split(",");
-          const activeFilters = filterOptions.filter(
-            (filterOption: IFilterOption) => {
-              if (typeof filterOption.value === "boolean") {
-                return false;
-              } else {
-                return queryValues.includes(filterOption.value);
+      switch (filterName) {
+        case "Diagnosisavailable":
+          const diagnosisFacetDetails = filtersStore.facetDetails[filterName];
+          /** the diagnosis available has been encoded, to discourage messing with the tree and breaking stuff. */
+          const queryValues = atob(filtersToAdd).split(",");
+          const options: IOntologyItem[] =
+            await filtersStore.getOntologyOptionsForCodes(
+              diagnosisFacetDetails,
+              queryValues
+            );
+          options.forEach((option) => {
+            filtersStore.updateOntologyFilter(filterName, option, true, true);
+          });
+          break;
+        case "search":
+          filtersStore.updateFilter(filterName, filtersToAdd, true);
+          break;
+        default:
+          const filterOptions = filtersStore.filterOptions[filterName];
+          if (filterOptions && Array.isArray(filterOptions)) {
+            const queryValues = filtersToAdd.split(",");
+            const activeFilters = filterOptions.filter(
+              (filterOption: IFilterOption) => {
+                if (typeof filterOption.value === "boolean") {
+                  return false;
+                } else {
+                  return queryValues.includes(filterOption.value);
+                }
               }
-            }
-          );
-          filtersStore.updateFilter(filterName, activeFilters, true);
-        }
+            );
+            filtersStore.updateFilter(filterName, activeFilters, true);
+          }
       }
+    } else {
+      filtersStore.updateFilter(filterName, undefined, true);
     }
   }
 

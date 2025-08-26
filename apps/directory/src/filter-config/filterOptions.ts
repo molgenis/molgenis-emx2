@@ -7,18 +7,17 @@ import {
 } from "../interfaces/interfaces";
 import { useFiltersStore } from "../stores/filtersStore";
 
-/** Async so we can fire and forget for performance. */
-async function cache(
+function cache(
   facetIdentifier: string,
-  filterOptions: IFilterOption[] | Record<string, IOntologyItem[]>
+  newFilterOptions: IFilterOption[] | Record<string, IOntologyItem[]>
 ) {
-  const { filterOptionsCache } = useFiltersStore();
-  filterOptionsCache[facetIdentifier] = filterOptions;
+  const { filterOptions } = useFiltersStore();
+  filterOptions[facetIdentifier] = newFilterOptions;
 }
 
 function retrieveFromCache(facetIdentifier: string) {
-  const { filterOptionsCache } = useFiltersStore();
-  return filterOptionsCache[facetIdentifier] || [];
+  const { filterOptions } = useFiltersStore();
+  return filterOptions[facetIdentifier] || [];
 }
 
 /** Configurable array of values to filter out, for example 'Other, unknown' that make no sense to the user. */
