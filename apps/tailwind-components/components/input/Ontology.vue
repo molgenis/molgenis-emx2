@@ -54,14 +54,19 @@ function setTreeInputs() {
   treeInputs.value = treeContainer.value?.querySelectorAll("ul li");
 }
 
-onMounted(async () => {
-  await init();
-  initLoading.value = false;
-
-  await nextTick();
-  setTreeInputs();
-
-  await getMaxParentNodes();
+onMounted(() => {
+  init()
+    .then(async () => {
+      await getMaxParentNodes();
+      await nextTick();
+      setTreeInputs();
+    })
+    .catch((err) => {
+      throw new Error(err);
+    })
+    .finally(() => {
+      initLoading.value = false;
+    });
 });
 
 watch(() => props.ontologySchemaId, init);
@@ -365,7 +370,7 @@ async function loadMoreTerms() {
   <div v-if="initLoading" class="h-20 flex justify-start items-center">
     <BaseIcon name="progress-activity" class="animate-spin text-input" />
   </div>
-  <div v-else>
+  <div v-else-if="!initLoading && ontologyTree.length">
     <InputGroupContainer
       :id="`${id}-ontology`"
       class="border-l-4 border-transparent"
@@ -432,5 +437,13 @@ async function loadMoreTerms() {
         </ButtonText>
       </fieldset>
     </InputGroupContainer>
+  </div>
+  <div
+    v-else
+    class="py-4 flex justify-start items-center text-input-description"
+  >
+    <TextNoResultsMessage
+      :label="`Ontology '${props.ontologyTableId}' in schema '${props.ontologySchemaId}' is empty`"
+    />
   </div>
 </template>
