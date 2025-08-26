@@ -145,4 +145,6 @@
   --border-radius-form-required: var(--border-radius-theme);
   --background-color-form-required-btn-hover: var(--color-blue-300);
   --border-color-form-required: var(--color-blue-300);
+
+  --padding-table-body-last-row-cell: 1.5rem;
 }
