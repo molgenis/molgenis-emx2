@@ -13,6 +13,8 @@ export default gql`
         columns {
           id
           label
+          section
+          heading
           columnType
           key
           refTableId

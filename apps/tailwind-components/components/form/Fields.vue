@@ -1,17 +1,13 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import type {
   columnId,
   columnValue,
   IColumn,
-  IFormLegendSection,
   IRow,
-  ITableMetaData,
-  recordValue,
 } from "../../../metadata-utils/src/types";
 import {
-  isColumnVisible,
-  getColumnError,
+  //todo: can we have required calculation done in useForm?
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import logger from "../../utils/logger";
@@ -20,20 +16,15 @@ import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 
 const props = defineProps<{
   schemaId: string;
-  sections: IFormLegendSection[];
-  metadata: ITableMetaData;
+  tableId: string;
+  columns: IColumn[];
+  onUpdate: (column: IColumn, event: any) => void;
+  onFocus: (column: IColumn) => void;
+  onBlur: (column: IColumn) => void;
   constantValues?: IRow;
-  visibleSection?: string;
 }>();
 
-//initialize section map
-let currentSection = "_scroll_to_top";
-props.metadata.columns.forEach((column) => {
-  if (column.columnType === "SECTION") {
-    currentSection = column.id;
-  }
-  columnSectionMap.value[column.id] = currentSection;
-});
+const emit = defineEmits(["error", "update:activeChapterId"]);
 
 const modelValue = defineModel<IRow>("modelValue", {
   required: true,
@@ -42,35 +33,6 @@ const modelValue = defineModel<IRow>("modelValue", {
 const errors = defineModel<Record<columnId, string>>("errors", {
   required: true,
 });
-
-function validate() {
-  props.metadata.columns.forEach((column) => {
-    if (visibleMap[column.id]) {
-      validateColumn(column);
-    }
-  });
-  return Object.keys(errors.value).length === 0;
-}
-
-defineExpose({ validate });
-
-const emit = defineEmits(["error", "update:activeChapterId"]);
-
-const previousColumn = ref<IColumn>();
-
-function onFocus(column: IColumn) {
-  logger.debug("focus " + column.id + " previous " + previousColumn.value);
-  //will validate previous column, because checkbox, radio don't have 'blur'
-  if (previousColumn.value) {
-    validateColumn(previousColumn.value);
-  }
-  previousColumn.value = column;
-}
-
-function onBlur(column: IColumn) {
-  previousColumn.value = column;
-  validateColumn(column);
-}
 
 function updateActiveChapter(sectionId: string) {
   emit("update:activeChapterId", sectionId);
@@ -83,7 +45,7 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
     if (highest.target.id.includes("form-field")) {
       //find the section it is part of
       let currentSection = "_scroll_to_top";
-      for (const col of props.metadata.columns) {
+      for (const col of props.columns) {
         if (col.columnType === "HEADING" || col.columnType === "SECTION") {
           currentSection = col.id;
         }
@@ -98,52 +60,12 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   }
 }
 
-function checkVisibleExpression(column: IColumn) {
-  if (
-    !column.visible ||
-    isColumnVisible(column, modelValue.value, props.metadata!)
-  ) {
-    visibleMap[column.id] = true;
-  } else {
-    visibleMap[column.id] = false;
-  }
-  logger.debug(
-    "checking visibility of " + column.id + "=" + visibleMap[column.id]
-  );
-}
-
-//initialize visibility for headers
-props.metadata.columns
-  .filter(
-    (column) =>
-      column.columnType === "HEADING" || column.columnType === "SECTION"
-  )
-  .forEach((column) => {
-    if (props.metadata) {
-      logger.debug(isColumnVisible(column, modelValue.value, props.metadata));
-    }
-    visibleMap[column.id] =
-      !column.visible ||
-      (props.metadata &&
-        isColumnVisible(column, modelValue.value, props.metadata))
-        ? true
-        : false;
-    logger.debug(
-      "check heading " +
-        column.id +
-        "=" +
-        visibleMap[column.id] +
-        " expression " +
-        column.visible
-    );
-  });
-
 const rowKey = ref<columnValue>();
 
 async function updateRowKey() {
   rowKey.value = await fetchRowPrimaryKey(
     modelValue.value,
-    props.metadata.id,
+    props.tableId,
     props.schemaId
   );
 }
@@ -158,7 +80,7 @@ watch(
   () => modelValue.value,
   async () => {
     if (modelValue.value) {
-      updateRowKey();
+      await updateRowKey();
     }
   }
 );
@@ -178,44 +100,35 @@ onMounted(() => {
 
 <template>
   <div>
-    <template v-for="(column, index) in metadata.columns">
+    <template v-for="(column, index) in columns">
       <div
         id="_scroll_to_top"
-        v-if="index === 0 && column.columnType !== 'HEADING'"
+        v-if="
+          index === 0 &&
+          column.columnType !== 'HEADING' &&
+          column.columnType !== 'SECTION'
+        "
         class="-mt-10"
       >
         <span v-intersection-observer="onIntersectionObserver"></span>
       </div>
       <div
         v-if="
-          (!visibleSection || visibleSection === columnSectionMap[column.id]) &&
-          (column.columnType === 'HEADING' || column.columnType === 'SECTION')
+          column.columnType === 'HEADING' || column.columnType === 'SECTION'
         "
         :id="column.id"
         v-intersection-observer="onIntersectionObserver"
       >
         <h2
           class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
-          v-if="column.id !== '_scroll_to_top' && visibleMap[column.id]"
+          v-if="column.id !== '_scroll_to_top'"
         >
-          {{ column.label }} ({{ column.columnType }})
+          {{ column.label }}
         </h2>
       </div>
-
-      <div
-        style="height: 100px"
-        v-on-first-view="() => checkVisibleExpression(column)"
-        v-else-if="
-          !column.id.startsWith('mg_') && visibleMap[column.id] === undefined
-        "
-      ></div>
       <FormField
         class="pb-8"
-        v-else-if="
-          (!visibleSection || visibleSection === columnSectionMap[column.id]) &&
-          visibleMap[column.id] === true &&
-          !Object.keys(constantValues || {}).includes(column.id)
-        "
+        v-else-if="!Object.keys(constantValues || {}).includes(column.id)"
         v-intersection-observer="onIntersectionObserver"
         v-model="modelValue[column.id]"
         :id="`${column.id}-form-field`"

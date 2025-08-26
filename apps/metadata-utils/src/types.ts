@@ -54,6 +54,8 @@ export interface IColumn {
   columnType: ColumnType;
   id: columnId;
   label: string;
+  section: string;
+  heading: string;
   computed?: string;
   conditions?: string[];
   description?: string;

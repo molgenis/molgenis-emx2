@@ -9,6 +9,7 @@ import Legend from "../components/form/Legend.vue";
 import { useFetch, useAsyncData } from "#app";
 import { fetchMetadata, fetchTableData, useSections } from "#imports";
 import { ref, computed, watch } from "vue";
+import useForm from "~/composables/useForm";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -118,8 +119,8 @@ watch(
       query.rowIndex = rowIndex.value;
     }
 
-    router.push({ query });
-    getNumberOfRows();
+    await router.push({ query });
+    await getNumberOfRows();
     formValues.value = {};
   },
   { immediate: true }
@@ -146,39 +147,61 @@ watch(
   { immediate: true }
 );
 
-const numberOfFieldsWithErrors = computed(
-  () => Object.values(errorMap.value).filter((error) => error.length > 0).length
-);
-
 const activeChapterId = ref<string>("_scroll_to_top");
 
-const sections = useSections(metadata, activeChapterId, errorMap);
+const {
+  sections,
+  visibleColumns,
+  invisibleColumns,
+  requiredMessage,
+  errorMessage,
+  gotoPreviousRequiredField,
+  gotoNextRequiredField,
+  gotoNextError,
+  gotoPreviousError,
+} = useForm(metadata.value, formValues.value, () => {
+  console.log("hello");
+});
 
-const visibleSection = ref(sections.value[0].id);
+// const numberOfFieldsWithErrors = computed(
+//   () => Object.values(errorMap.value).filter((error) => error.length > 0).length
+// );
 
-function goToSection(containerId: string, elementId: string) {
-  console.log(elementId);
-  //if section, we change active section
-  if (
-    sections.value.some(
-      (section) => section.id === elementId && section.type === "SECTION"
-    )
-  ) {
-    visibleSection.value = elementId;
-  }
-
-  //then we scroll if needed
-  const container = document.getElementById(containerId);
-  const element = document.getElementById(elementId);
-  if (container && element) {
-    container.scrollTop = element.offsetTop - container.offsetTop;
-  }
-}
+// const activeChapterId = ref<string>("_scroll_to_top");
+//
+// const visibleSection = ref(sections.value[0].id);
+//
+// function goToSection(containerId: string, elementId: string) {
+//   console.log(elementId);
+//   //if section, we change active section
+//   if (
+//     sections.value.some(
+//       (section) => section.id === elementId && section.type === "SECTION"
+//     )
+//   ) {
+//     visibleSection.value = elementId;
+//   }
+//
+//   //then we scroll if needed
+//   const container = document.getElementById(containerId);
+//   const element = document.getElementById(elementId);
+//   if (container && element) {
+//     container.scrollTop = element.offsetTop - container.offsetTop;
+//   }
+// }
 </script>
 
 <template>
+  all sections:
+  <pre>{{ sections }}</pre>
+  <br />
+  visible columns:
+  <pre>{{ visibleColumns }}</pre>
+  <br />
+  invisible columns:
+  <pre>{{ invisibleColumns }}</pre>
   <div class="flex flex-row">
-    <div class="p-8 grow flex flex-row">
+    <!--div class="p-8 grow flex flex-row">
       <Legend
         v-if="sections?.length"
         :sections="sections"
@@ -200,7 +223,7 @@ function goToSection(containerId: string, elementId: string) {
           @update:active-chapter-id="activeChapterId = $event"
         />
       </div>
-    </div>
+    </div-->
     <div class="ml-2 h-screen max-w-[325px]">
       <h2>Demo controls, settings and status</h2>
 
@@ -252,7 +275,7 @@ function goToSection(containerId: string, elementId: string) {
           </div>
         </div>
 
-        <div class="mt-4">
+        <!--div class="mt-4">
           <div v-if="Object.keys(formValues).length">
             <h3 class="text-label">Values</h3>
             <dl class="flex flex-col">
@@ -277,7 +300,7 @@ function goToSection(containerId: string, elementId: string) {
               </template>
             </dl>
           </div>
-        </div>
+        </div-->
       </div>
     </div>
   </div>

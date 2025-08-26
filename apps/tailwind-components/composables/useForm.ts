@@ -15,85 +15,85 @@ import {
   isColumnVisible,
 } from "../../molgenis-components/src/components/forms/formUtils/formUtils";
 
-/**
- * Form consist of sections (if none defined a default will be created)
- * sections can contain headings and normal columns
- *
- * @param metadata
- * @param formValues
- * @param scrollTo
- */
 export default function useForm(
   metadata: MaybeRef<ITableMetaData>,
   formValues: MaybeRef<Record<columnId, columnValue>>,
   scrollTo: (id: string) => void
 ) {
-  const activeChapterId = ref<columnId>();
-
-  /** if user wants to select only one section */
-  const visibleSection = ref<string>();
-  /** keep track of all errors */
-  const errorMap = ref<Record<columnId, string>>({});
-  /** keep track of visibility based on visible expressions */
   const visibleMap = reactive<Record<columnId, boolean>>({});
-  /** keep track what section a column belongs to */
-  const columnSectionMap = ref<Record<string, string>>({});
+  const errorMap = ref<Record<columnId, string>>({});
+  const currentSection = ref<columnId>();
+  const currentHeading = ref<columnId>();
 
-  /** model of the sections panel */
+  //initialize visibleMap
+  toRef(metadata).value.columns.forEach((c) => {
+    switch (c.columnType) {
+      case "SECTION":
+        visibleMap[c.id] = isColumnVisible(
+          c,
+          toRef(formValues).value,
+          toRef(metadata).value
+        )
+          ? true
+          : false;
+        break;
+      case "HEADING":
+        visibleMap[c.id] =
+          visibleMap[c.section] &&
+          isColumnVisible(c, toRef(formValues).value, toRef(metadata).value)
+            ? true
+            : false;
+        break;
+      default:
+        visibleMap[c.id] =
+          visibleMap[c.section] &&
+          visibleMap[c.heading] &&
+          isColumnVisible(c, toRef(formValues).value, toRef(metadata).value)
+            ? true
+            : false;
+    }
+    //todo we should hide sections / headings without any visible children
+    console.log(
+      "updating visibility for " +
+        c.id +
+        "=" +
+        visibleMap[c.id] +
+        " " +
+        JSON.stringify(c)
+    );
+  });
+
+  /** model of the legend panel */
   const sections = computed(() => {
-    const sections: IFormLegendSection[] = [];
-
-    let currentSection = null;
-    let currentHeader = null;
+    const sectionList: IFormLegendSection[] = [];
     for (const column of toRef(metadata).value.columns) {
       let isActive = false;
-      if (column.id === activeChapterId.value) {
-        hasActiveBeenSet = true;
+      if (
+        column.id === currentSection.value ||
+        column.id === currentHeading.value
+      ) {
+        //hasActiveBeenSet = true;
         isActive = true;
       }
-      if (["HEADING", "SECTION"].includes(column.columnType)) {
+      if (
+        ["HEADING", "SECTION"].includes(column.columnType) &&
+        visibleMap[column.id]
+      ) {
         const heading = {
           label: column.label,
           id: column.id,
           isActive,
-          errorCount: 0,
-          type: (column.columnType === "HEADING"
-            ? "HEADING"
-            : "SECTION") as HeadingType,
+          errorCount: toRef(metadata).value.columns.filter(
+            (subcol) =>
+              (subcol.heading === column.id || subcol.section === column.id) &&
+              errorMap.value[subcol.id]
+          ).length,
+          type: column.columnType as HeadingType,
         };
-        sections.push(heading);
-        if (column.columnType === "SECTION") {
-          currentSection = heading;
-        }
-        currentHeader = heading;
-      } else {
-        const errorCount = errorMap.value[column.id] ? 1 : 0;
-        if (currentHeader) {
-          currentHeader.errorCount += errorCount;
-        }
-        if (currentSection) {
-          currentSection.errorCount += errorCount;
-        }
+        sectionList.push(heading);
       }
     }
-
-    // Add a section for the top of the page if the first column is not a heading
-    if (
-      (currentSection || currentHeader) &&
-      !["HEADING", "SECTION"].includes(
-        toRef(metadata).value.columns[0].columnType
-      )
-    ) {
-      sections.push({
-        label: "_top",
-        id: "_scroll_to_top",
-        isActive: "_scroll_to_top" === activeChapterId.value,
-        type: "SECTION",
-        errorCount: 0,
-      });
-    }
-
-    return sections;
+    return sectionList;
   });
 
   /** return required, visible fields across all sections */
@@ -129,26 +129,44 @@ export default function useForm(
       : "";
   });
 
-  const currentRequiredFieldId = ref<columnId | null>(null);
-
+  const currentRequiredField = ref<IColumn | null>(null);
   const gotoNextRequiredField = () => {
     if (!emptyRequiredFields.value || emptyRequiredFields.value.length === 0) {
       return;
     }
-    if (currentRequiredFieldId.value === null) {
-      currentRequiredFieldId.value = emptyRequiredFields.value[0].id;
+    if (currentRequiredField.value === null) {
+      currentRequiredField.value = emptyRequiredFields.value[0];
     } else {
       const currentIndex = emptyRequiredFields.value
         .map((column) => column.id)
-        .indexOf(currentRequiredFieldId.value);
+        .indexOf(currentRequiredField.value.id);
       const nextIndex = currentIndex + 1;
-      currentRequiredFieldId.value =
+      currentRequiredField.value =
         emptyRequiredFields.value[
           nextIndex >= emptyRequiredFields.value.length ? 0 : nextIndex
-        ].id;
+        ];
     }
-
-    scrollTo(`${currentRequiredFieldId.value}-form-field`);
+    currentSection.value = currentRequiredField.value.section;
+    scrollTo(`${currentRequiredField.value.id}-form-field`);
+  };
+  const gotoPreviousRequiredField = () => {
+    if (!emptyRequiredFields.value) {
+      return;
+    }
+    if (currentRequiredField.value === null) {
+      currentRequiredField.value = emptyRequiredFields.value[0];
+    } else {
+      const currentIndex = emptyRequiredFields.value
+        .map((column) => column.id)
+        .indexOf(currentRequiredField.value.id);
+      const prevIndex = currentIndex - 1;
+      currentRequiredField.value =
+        emptyRequiredFields.value[
+          prevIndex < 0 ? emptyRequiredFields.value.length - 1 : prevIndex
+        ];
+    }
+    currentSection.value = currentRequiredField.value.section;
+    scrollTo(`${currentRequiredField.value.id}-form-field`);
   };
 
   const validateColumn = (column: IColumn) => {
@@ -184,44 +202,32 @@ export default function useForm(
     });
   };
 
-  const gotoPreviousRequiredField = () => {
-    if (!emptyRequiredFields.value) {
-      return;
-    }
-    if (currentRequiredFieldId.value === null) {
-      currentRequiredFieldId.value = emptyRequiredFields.value[0].id;
-    } else {
-      const currentIndex = emptyRequiredFields.value
-        .map((column) => column.id)
-        .indexOf(currentRequiredFieldId.value);
-      const prevIndex = currentIndex - 1;
-      currentRequiredFieldId.value =
-        emptyRequiredFields.value[
-          prevIndex < 0 ? emptyRequiredFields.value.length - 1 : prevIndex
-        ].id;
-    }
-
-    scrollTo(`${currentRequiredFieldId.value}-form-field`);
-  };
-
-  const currentErrorFieldId = ref<columnId | null>(null);
+  const currentErrorField = ref<IColumn | null>(null);
 
   const gotoPreviousError = () => {
     const keys = Object.keys(errorMap.value);
-    const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
+    if (keys.length === null) {
+      return;
+    }
+    const currentIndex = keys.indexOf(currentErrorField.value?.id ?? "");
     const prevIndex = currentIndex - 1;
     const previousErrorColumnId =
       keys[prevIndex < 0 ? keys.length - 1 : prevIndex];
 
+    currentSection.value = currentErrorField.value?.section;
     scrollTo(`${previousErrorColumnId}-form-field`);
   };
 
   const gotoNextError = () => {
     const keys = Object.keys(errorMap.value);
-    const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
+    if (keys.length === null) {
+      return;
+    }
+    const currentIndex = keys.indexOf(currentErrorField.value?.id ?? "");
     const nextIndex = currentIndex + 1;
     const nextErrorColumnId = keys[nextIndex >= keys.length ? 0 : nextIndex];
 
+    currentSection.value = currentErrorField.value?.section;
     scrollTo(`${nextErrorColumnId}-form-field`);
   };
 
@@ -261,22 +267,19 @@ export default function useForm(
     });
   };
 
-  const isColumnSectionVisible = (column: IColumn) => {
-    return (
-      !visibleSection.value ||
-      columnSectionMap.value[column.id] === visibleSection.value
-    );
-  };
-
   const onUpdateColumn = (column: IColumn, $event: columnValue) => {
+    //update error map for this column
     if (errorMap.value[column.id]) {
       validateColumn(column);
     }
+    //update visibility map for any expression that includes this column id
     toRef(metadata)
       .value.columns.filter((c) => c.visible?.includes(column.id))
       .forEach((c) => {
         visibleMap[c.id] =
-          isColumnSectionVisible(c) &&
+          //columns are not shown if section/heading is invisible
+          (c.columnType === "SECTION" || visibleMap[c.section]) &&
+          (c.columnType === "HEADING" || visibleMap[c.heading]) &&
           isColumnVisible(c, toRef(formValues).value, toRef(metadata).value)
             ? true
             : false;
@@ -286,9 +289,19 @@ export default function useForm(
       });
   };
 
+  const visibleColumns = computed(() => {
+    return toRef(metadata).value.columns.filter(
+      (column) => visibleMap[column.id]
+    );
+  });
+
+  const invisibleColumns = computed(() => {
+    return toRef(metadata).value.columns.filter(
+      (column) => !visibleMap[column.id]
+    );
+  });
+
   return {
-    errorMap,
-    visibleMap,
     requiredFields,
     emptyRequiredFields,
     requiredMessage,
@@ -302,5 +315,7 @@ export default function useForm(
     deleteRecord,
     onUpdateColumn,
     sections,
+    visibleColumns,
+    invisibleColumns,
   };
 }
