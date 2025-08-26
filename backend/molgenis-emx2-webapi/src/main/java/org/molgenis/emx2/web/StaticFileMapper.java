@@ -4,8 +4,11 @@ import com.google.common.io.ByteStreams;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -78,23 +81,28 @@ public class StaticFileMapper {
   private static void returnIndexFile(Context ctx) {
     // redirect apps from /schema/app to /schema/app
     if (!ctx.path().endsWith("/")) {
-      // validate valid app path
-      List<String> path =
-          Arrays.stream(ctx.path().split("/")).filter(item -> item.length() > 0).toList();
-      if (path.size() != 2) {
-        throw new MolgenisException("invalid app path. Needs to be /schema/app");
+      try {
+        String unescapedPath = URLDecoder.decode(ctx.path(), StandardCharsets.UTF_8.name());
+        // validate valid app path
+        List<String> path =
+            Arrays.stream(unescapedPath.split("/")).filter(item -> item.length() > 0).toList();
+        if (path.size() != 2) {
+          throw new MolgenisException("invalid app path. Needs to be /schema/app");
+        }
+        // validate that it is a valid schema name (%20 is ' ' and also okay)
+        if (!path.get(0).replace("%20", " ").matches(Constants.SCHEMA_NAME_REGEX)) {
+          throw new MolgenisException(
+              "path invalid: schema name '" + path.get(0) + "' is invalid.");
+        }
+        // validate that it is a known app
+        URL app = StaticFileMapper.class.getResource("/public_html/apps/" + path.get(1));
+        if (app == null) {
+          throw new MolgenisException("path invalid: app '" + path.get(1) + "' is unknown.");
+        }
+        ctx.redirect("/" + path.get(0) + "/" + path.get(1) + "/");
+      } catch (UnsupportedEncodingException e) {
+        throw new MolgenisException("path invalid: " + e.getMessage());
       }
-      // validate that it is a valid schema name
-      if (!path.get(0).matches(Constants.SCHEMA_NAME_REGEX)) {
-        throw new MolgenisException(
-            "path invalid: schema name '" + ctx.pathParam("schema") + "' is invalid.");
-      }
-      // validate that it is a known app
-      URL app = StaticFileMapper.class.getResource("/public_html/apps/" + ctx.pathParam("app"));
-      if (app == null) {
-        throw new MolgenisException("path invalid: app '" + ctx.pathParam("app") + "' is unknown.");
-      }
-      ctx.redirect("/" + path.get(0) + "/" + path.get(1) + "/");
     }
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/index.html";
     addFileToContext(ctx, path, "text/html");
