@@ -80,4 +80,3 @@ apps/tailwind-components/playwright/.auth/user.json
 # IntelliJ IDEA
 .idea/*
 !.idea/runConfigurations/
-!.idea/fileTemplates/
