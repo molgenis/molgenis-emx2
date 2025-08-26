@@ -92,12 +92,13 @@ public class StaticFileMapper {
         // validate that it is a valid schema name (%20 is ' ' and also okay)
         if (!path.get(0).replace("%20", " ").matches(Constants.SCHEMA_NAME_REGEX)) {
           throw new MolgenisException(
-              "path invalid: schema name '" + path.get(0) + "' is invalid.");
+              "path invalid: schema parameter is invalid. Please provide a valid /schema/app");
         }
         // validate that it is a known app
         URL app = StaticFileMapper.class.getResource("/public_html/apps/" + path.get(1));
         if (app == null) {
-          throw new MolgenisException("path invalid: app '" + path.get(1) + "' is unknown.");
+          throw new MolgenisException(
+              "path invalid: app parameter is unknown. Please provide a valid /schema/app");
         }
         ctx.redirect("/" + path.get(0) + "/" + path.get(1) + "/");
       } catch (UnsupportedEncodingException e) {
