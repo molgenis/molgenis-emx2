@@ -23,7 +23,7 @@ const props = withDefaults(
     }
   >(),
   {
-    limit: 10,
+    limit: 25,
   }
 );
 
