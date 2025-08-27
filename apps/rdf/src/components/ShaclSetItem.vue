@@ -49,18 +49,25 @@
 </template>
 
 <script setup lang="ts">
-import { watch, computed, ref } from "vue";
+import { watch, computed, ref, PropType } from "vue";
 import { ChevronDownIcon } from "@heroicons/vue/24/outline";
 import { LayoutCard, MessageError } from "molgenis-components";
 
+interface SchalSet {
+  name: string;
+  description: string;
+  version: string;
+  sources: string[];
+}
+
 const props = defineProps({
   shaclSet: {
-    type: Object,
+    type: Object as PropType<SchalSet>,
     required: true,
   },
 });
 
-const shaclSetTitle = computed(() => {
+const shaclSetTitle = computed<string>(() => {
   return (
     props.shaclSet.description + " (version: " + props.shaclSet.version + ")"
   );
@@ -125,7 +132,7 @@ $border-radius: 6px;
 .accordion {
   font-family: inherit;
   box-sizing: border-box;
-  margin: 12px 0;
+  margin: 24px 0;
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: $border-radius;
 
@@ -134,7 +141,7 @@ $border-radius: 6px;
     justify-content: flex-start;
     align-items: center;
     margin: 0;
-    padding: 8px 8px;
+    padding: 16px 12px;
     font-size: 14pt;
     color: #495057;
     background-color: rgba(0, 0, 0, 0.03);
