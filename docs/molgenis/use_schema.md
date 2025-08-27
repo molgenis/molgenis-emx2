@@ -111,6 +111,8 @@ NOTE: when using any of the above relationship types, the "refTable" must also b
 #### Layout (static content, not an input)
 
 - heading: will show the 'name' of your column as header, and optionally description below. Can be used to partition your forms/reports.
+- section: same as 'heading' except that each section will be shown on separate page in the form. Particularly useful for very big forms. When used, columns of 
+  type=heading will be treated as subheaders.
 
 ### key
 

@@ -3,12 +3,14 @@ import type {
   columnId,
   columnValue,
   ISchemaMetaData,
+  ITableMetaData,
 } from "../../metadata-utils/src/types";
 import { useRoute, useRouter } from "#app/composables/router";
 import Legend from "../components/form/Legend.vue";
 import { useFetch, useAsyncData } from "#app";
 import { fetchMetadata, fetchTableData, useSections } from "#imports";
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, type Ref, toValue, type MaybeRef } from "vue";
+import useForm from "~/composables/useForm";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -118,8 +120,8 @@ watch(
       query.rowIndex = rowIndex.value;
     }
 
-    router.push({ query });
-    getNumberOfRows();
+    await router.push({ query });
+    await getNumberOfRows();
     formValues.value = {};
   },
   { immediate: true }
@@ -146,45 +148,80 @@ watch(
   { immediate: true }
 );
 
+const activeChapterId = ref<string>("_scroll_to_top");
+
+const containerId = "forms-story-fields-container";
+function scrollToElementInside(elementId: string) {
+  const container = document.getElementById(containerId);
+  const element = document.getElementById(elementId);
+
+  if (!container || !element) return;
+
+  const containerRect = container.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
+
+  const style = getComputedStyle(container);
+  const paddingTop = parseFloat(style.paddingTop);
+  const borderTop = container.clientTop; // usually same as clientTop
+
+  // Calculate how much to scroll so element's top aligns with container's inner top
+  const offset = elementRect.top - containerRect.top - paddingTop - borderTop;
+  container.scrollTo({
+    //just 1 pixel more, otherwise menu shows previous
+    top: container.scrollTop + offset + 1,
+  });
+}
+
+const {
+  sections,
+  visibleColumns,
+  invisibleColumns,
+  errorMap,
+  requiredMessage,
+  errorMessage,
+  gotoSectionOrHeading,
+  gotoPreviousRequiredField,
+  gotoNextRequiredField,
+  gotoNextError,
+  gotoPreviousError,
+  validateAllColumns,
+  onUpdateColumn,
+  onBlurColumn,
+  onViewColumn,
+} = useForm(metadata, formValues, scrollToElementInside);
+
 const numberOfFieldsWithErrors = computed(
   () => Object.values(errorMap.value).filter((error) => error.length > 0).length
 );
 
-const activeChapterId = ref<string>("_scroll_to_top");
-const errorMap = ref<Record<columnId, string>>({});
-
-const sections = useSections(metadata, activeChapterId, errorMap);
-
-function scrollToElementInside(containerId: string, elementId: string) {
-  const container = document.getElementById(containerId);
-  const element = document.getElementById(elementId);
-  if (container && element) {
-    container.scrollTop = element.offsetTop - container.offsetTop;
-    element.scrollIntoView();
-  }
-}
+// const activeChapterId = ref<string>("_scroll_to_top");
 </script>
 
 <template>
   <div class="flex flex-row">
-    <div class="p-8 grow flex flex-row">
+    <div class="grid grid-cols-4 gap-1">
       <Legend
         v-if="sections?.length"
         :sections="sections"
-        @goToSection="
-          scrollToElementInside('forms-story-fields-container', $event)
-        "
-        class="pr-2 mr-4"
+        @goToSection="gotoSectionOrHeading"
+        class="col-span-1 overflow-y-auto max-h-[calc(95vh-232px)]"
       />
-      <div id="forms-story-fields-container" class="grow border p-10">
+      <div
+        id="forms-story-fields-container"
+        class="overflow-y-auto max-h-[calc(95vh-232px)] min-w-1000px"
+        :class="sections.length > 0 ? 'col-span-3' : 'col-span-4'"
+      >
         <FormFields
           class="grow"
           :schemaId="schemaId"
-          :sections="sections"
-          :metadata="metadata"
-          v-model:errors="errorMap"
+          :tableId="tableId"
+          :columns="visibleColumns"
+          :errorMap="errorMap"
+          :on-update="onUpdateColumn"
           v-model="formValues"
-          @update:active-chapter-id="activeChapterId = $event"
+          @update="onUpdateColumn"
+          @blur="onBlurColumn"
+          @view="onViewColumn"
         />
       </div>
     </div>
@@ -265,6 +302,13 @@ function scrollToElementInside(containerId: string, elementId: string) {
             </dl>
           </div>
         </div>
+        <Button
+          type="outline"
+          @click="validateAllColumns"
+          class="blue"
+          size="small"
+          >validate all</Button
+        >
       </div>
     </div>
   </div>

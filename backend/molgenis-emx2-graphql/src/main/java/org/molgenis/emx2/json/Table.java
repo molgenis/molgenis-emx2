@@ -1,8 +1,12 @@
 package org.molgenis.emx2.json;
 
+import static org.molgenis.emx2.Constants.DEFAULT_HEADING;
+import static org.molgenis.emx2.Constants.DEFAULT_SECTION;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
 
@@ -59,8 +63,36 @@ public class Table {
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
+    String currentSectionId = null;
+    String currentHeadingId = null;
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
-      this.columns.add(new Column(column, tableMetadata, minimal));
+      if (column.getColumnType().equals(ColumnType.SECTION)) {
+        currentSectionId = column.getIdentifier();
+        currentHeadingId = null;
+      } else if (column.getColumnType().equals(ColumnType.HEADING)) {
+        currentHeadingId = column.getIdentifier();
+      } else {
+        // normal column, then there should be a section and heading before
+        if (currentSectionId == null) {
+          Column sectionColumn = new Column();
+          sectionColumn.setId(DEFAULT_SECTION);
+          sectionColumn.setColumnType(ColumnType.SECTION);
+          this.columns.add(sectionColumn);
+          currentSectionId = sectionColumn.getId();
+        }
+        if (currentHeadingId == null) {
+          Column headingColumn = new Column();
+          headingColumn.setId(currentSectionId + "." + DEFAULT_HEADING);
+          headingColumn.setColumnType(ColumnType.HEADING);
+          headingColumn.setSection(currentSectionId);
+          this.columns.add(headingColumn);
+          currentHeadingId = headingColumn.getId();
+        }
+      }
+      Column jsonColumn = new Column(column, tableMetadata, minimal);
+      jsonColumn.setSection(currentSectionId);
+      jsonColumn.setHeading(currentHeadingId);
+      this.columns.add(jsonColumn);
     }
     this.tableType = tableMetadata.getTableType();
     this.profiles = tableMetadata.getProfiles();

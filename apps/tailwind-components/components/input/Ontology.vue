@@ -121,9 +121,11 @@ async function init() {
 /** apply selection UI state on selection changes */
 async function applySelectedStates() {
   await retrieveSelectedPathsAndLabelsForModelValue();
-  ontologyTree.value.forEach((term) => {
-    applyStateToNode(term);
-  });
+  if (ontologyTree.value) {
+    ontologyTree.value.forEach((term) => {
+      applyStateToNode(term);
+    });
+  }
 }
 
 function applyStateToNode(node: ITreeNodeState): void {
@@ -298,7 +300,7 @@ const hasChildren = computed(() =>
     >
       <div
         class="flex flex-wrap gap-1 mb-2 max-h-[300px] overflow-y-auto"
-        v-if="Object.keys(valueLabels).length > 0"
+        v-if="Object.keys(valueLabels)?.length > 0"
       >
         <Button
           @click="clearSelection"
@@ -325,7 +327,7 @@ const hasChildren = computed(() =>
       </div>
       <div
         class="flex flex-wrap gap-2"
-        v-if="hasChildren || ontologyTree.length > 20"
+        v-if="hasChildren || ontologyTree?.length > 20"
       >
         <InputLabel :for="`search-for-${id}`" class="sr-only">
           search in ontology
@@ -347,6 +349,7 @@ const hasChildren = computed(() =>
       <fieldset>
         <legend class="sr-only">select ontology terms</legend>
         <TreeNode
+          v-if="ontologyTree"
           :id="id"
           :nodes="ontologyTree"
           :isRoot="true"
@@ -359,6 +362,7 @@ const hasChildren = computed(() =>
           class="pb-2 max-h-[500px] overflow-y-auto"
           :class="{ 'pl-4': hasChildren }"
         />
+        <span v-else>No items found</span>
       </fieldset>
     </InputGroupContainer>
   </div>
