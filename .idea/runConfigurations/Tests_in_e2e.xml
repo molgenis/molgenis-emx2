@@ -3,6 +3,7 @@
     <node-interpreter value="project" />
     <playwright-package value="$PROJECT_DIR$/e2e/node_modules/@playwright/test" />
     <working-dir value="$PROJECT_DIR$/e2e" />
+    <cli-options value="--project=chromium --project=chromium-admin" />
     <envs>
       <env name="E2E_BASE_URL" value="http://localhost:8080/" />
     </envs>
