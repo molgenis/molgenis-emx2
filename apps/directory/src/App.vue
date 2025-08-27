@@ -34,6 +34,11 @@ const footer = computed(() => settingsStore.config.footer);
 
 const session = ref({});
 
+window.onpopstate = function () {
+  filtersStore.bookmarkWaitingForApplication = true;
+  applyBookmark(query.value);
+};
+
 watch(
   () => settingsStore.configurationFetched,
   () => {
