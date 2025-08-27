@@ -395,7 +395,6 @@ async function loadMoreTerms() {
       :id="`${id}-ontology`"
       class="border-l-4 border-transparent"
       @blur="emit('blur')"
-      @focus="emit('focus')"
     >
       <ButtonFilterWellContainer
         ref="selectionContainer"
