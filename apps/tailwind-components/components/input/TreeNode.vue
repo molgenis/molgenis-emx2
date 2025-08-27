@@ -21,7 +21,11 @@ const props = withDefaults(
     multiselect: true,
   }
 );
-const emit = defineEmits(["toggleSelect", "toggleExpand"]);
+const emit = defineEmits([
+  "toggleSelect",
+  "toggleExpand",
+  "showOutsideResults",
+]);
 
 function toggleSelect(node: ITreeNodeState) {
   emit("toggleSelect", node);
@@ -214,7 +218,10 @@ const hasChildren = computed(() =>
         >
         <ButtonText
           class="ml-2"
-          @click="nodes.forEach((node) => (node.visible = true))"
+          @click="
+            nodes.forEach((node) => (node.visible = true));
+            emit('showOutsideResults');
+          "
           >(show)</ButtonText
         >
       </div>

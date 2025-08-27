@@ -3,6 +3,7 @@ import type { IInputProps, ITreeNodeState } from "../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
 import {
   onMounted,
+  onBeforeUnmount,
   ref,
   watch,
   type Ref,
@@ -47,8 +48,9 @@ const counterOffset = ref<number>(0);
 const maxTableRows = ref<number>(0);
 const maxOntologyNodes = ref<number>(0);
 
+const noTreeInputsFound = ref<boolean>(false);
 const treeContainer = useTemplateRef<HTMLUListElement>("treeContainer");
-const treeInputs = ref<NodeList>();
+const treeInputs = ref();
 
 function setTreeInputs() {
   treeInputs.value = treeContainer.value?.querySelectorAll("ul li");
@@ -72,6 +74,16 @@ onMounted(() => {
 watch(() => props.ontologySchemaId, init);
 watch(() => props.ontologyTableId, init);
 watch(() => modelValue.value, applySelectedStates);
+watch(
+  () => treeContainer.value,
+  async () => {
+    await nextTick();
+    setTreeInputs();
+    if (!treeInputs.value) {
+      noTreeInputsFound.value = true;
+    }
+  }
+);
 
 /* retrieves terms, optionally as children to a parent */
 async function retrieveTerms(
@@ -99,6 +111,7 @@ async function retrieveTerms(
        }`;
 
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
+  await getMaxParentNodes(variables);
 
   return data.retrieveTerms?.map((row: any) => {
     return {
@@ -335,18 +348,25 @@ async function getMaxTableRows() {
   maxTableRows.value = data[`${props.ontologyTableId}_agg`].count;
 }
 
-async function getMaxParentNodes() {
-  const data = await fetchGraphql(
-    props.ontologySchemaId,
-    `query { ${props.ontologyTableId}_agg (filter: { parent: { _is_null: true } } ) { count } }`,
-    {}
-  );
+async function getMaxParentNodes(variables?: any) {
+  const gqlVariables = {
+    filter: { parent: { _is_null: true } },
+    search: variables?.searchTerms || "",
+  };
+
+  const query = `query GetNodes ($filter: ${props.ontologyTableId}Filter, $search: String) {
+    ${props.ontologyTableId}_agg (filter:$filter, search:$search) {
+      count
+    }
+  }`;
+  const data = await fetchGraphql(props.ontologySchemaId, query, gqlVariables);
   maxOntologyNodes.value = data[`${props.ontologyTableId}_agg`].count;
 }
 
 async function loadMoreTerms() {
   counterOffset.value += props.limit;
   if (counterOffset.value < maxTableRows.value) {
+    treeInputs.value = [];
     await init();
     await nextTick();
     setTreeInputs();
@@ -414,6 +434,7 @@ async function loadMoreTerms() {
         <legend class="sr-only">select ontology terms</legend>
         <TreeNode
           :id="id"
+          ref="tree"
           :nodes="ontologyTree"
           :isRoot="true"
           :valid="valid"
@@ -422,16 +443,18 @@ async function loadMoreTerms() {
           :multiselect="isArray"
           @toggleExpand="toggleExpand"
           @toggleSelect="toggleSelect"
+          @show-outside-results="noTreeInputsFound = false"
           class="pb-2"
           :class="{ 'pl-4': hasChildren }"
           aria-live="polite"
           aria-atomic="true"
         />
-
         <ButtonText
           :id="`${id}-ontology-tree-load-more`"
           @click="loadMoreTerms"
-          v-if="ontologyTree.length <= maxOntologyNodes - 1"
+          v-if="
+            !noTreeInputsFound && ontologyTree.length < maxOntologyNodes - 1
+          "
         >
           Load more
         </ButtonText>
