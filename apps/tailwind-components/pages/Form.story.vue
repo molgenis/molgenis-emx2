@@ -166,11 +166,9 @@ function scrollToElementInside(elementId: string) {
 
   // Calculate how much to scroll so element's top aligns with container's inner top
   const offset = elementRect.top - containerRect.top - paddingTop - borderTop;
-
   container.scrollTo({
     //just 1 pixel more, otherwise menu shows previous
     top: container.scrollTop + offset + 1,
-    behavior: "smooth",
   });
 }
 

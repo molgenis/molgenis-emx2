@@ -7,7 +7,6 @@ import {
   type MaybeRef,
   toRef,
   toValue,
-  type MaybeRefOrGetter,
 } from "vue";
 import type {
   columnValue,
@@ -24,11 +23,13 @@ import {
   getColumnError,
   isColumnVisible,
 } from "../../molgenis-components/src/components/forms/formUtils/formUtils";
+import { useSession } from "#imports";
+import { SessionExpiredError } from "../utils/sessionExpiredError";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
   formValueRef: MaybeRef<Record<columnId, columnValue>>,
-  scrollTo: (id: string) => void
+  scrollTo: (id: string) => Promise<void>
 ) {
   const visibleMap = reactive<Record<columnId, boolean>>({});
   const errorMap = ref<Record<columnId, string>>({});
@@ -45,7 +46,7 @@ export default function useForm(
           visibleMap[c.id] = isColumnVisible(
             c,
             formValues.value,
-            toRef(metadata).value
+            metadata.value
           )
             ? true
             : false;
@@ -53,7 +54,7 @@ export default function useForm(
         case "HEADING":
           visibleMap[c.id] =
             visibleMap[c.section] &&
-            isColumnVisible(c, formValues.value, toRef(metadata).value)
+            isColumnVisible(c, formValues.value, metadata.value)
               ? true
               : false;
           break;
@@ -61,7 +62,7 @@ export default function useForm(
           visibleMap[c.id] =
             visibleMap[c.section] &&
             visibleMap[c.heading] &&
-            isColumnVisible(c, formValues.value, toRef(metadata).value)
+            isColumnVisible(c, formValues.value, metadata.value)
               ? true
               : false;
       }
@@ -77,8 +78,8 @@ export default function useForm(
 
   const sections = computed(() => {
     const sectionList: IFormLegendSection[] = [];
-    if (!toRef(metadata).value) return sectionList;
-    for (const column of toRef(metadata).value.columns) {
+    if (!metadata.value) return sectionList;
+    for (const column of metadata.value.columns) {
       let isActive = false;
       if (
         column.id === currentSection.value ||
@@ -95,7 +96,7 @@ export default function useForm(
           label: column.label,
           id: column.id,
           isActive,
-          errorCount: toRef(metadata).value.columns.filter(
+          errorCount: metadata.value.columns.filter(
             (subcol) =>
               (subcol.heading === column.id || subcol.section === column.id) &&
               errorMap.value[subcol.id]
@@ -113,26 +114,24 @@ export default function useForm(
   });
 
   const gotoSectionOrHeading = (id: string) => {
-    toRef(metadata).value.columns.forEach((col) => {
+    metadata.value.columns.forEach((col) => {
       //apply to the right id
       if (col.id === id) {
-        let headingId = id;
         if (col.columnType === "HEADING") {
           currentSection.value = col.section;
-          //scroll within the section
-          headingId = id;
+          currentHeading.value = col.id;
         } else {
-          //scroll to the section heading, on top of page.
           currentSection.value = id;
+          currentHeading.value = undefined;
         }
-        scrollTo(headingId + "-form-field");
+        scrollTo(id + "-form-field");
       }
     });
   };
 
   /** return required, visible fields across all sections */
   const requiredFields = computed(() => {
-    return toRef(metadata).value?.columns.filter(
+    return metadata.value?.columns.filter(
       (column: IColumn) => visibleMap[column.id] && column.required
     );
   });
@@ -210,23 +209,15 @@ export default function useForm(
   };
 
   const validateColumn = (column: IColumn) => {
-    const error = getColumnError(
-      column,
-      formValues.value,
-      toRef(metadata).value
-    );
+    const error = getColumnError(column, formValues.value, metadata.value);
 
     if (error) {
       errorMap.value[column.id] = error;
     } else {
-      errorMap.value[column.id] = toRef(metadata)
-        .value.columns.filter((c) => c.validation?.includes(column.id))
+      errorMap.value[column.id] = metadata.value.columns
+        .filter((c) => c.validation?.includes(column.id))
         .map((c) => {
-          const result = getColumnError(
-            c,
-            formValues.value,
-            toRef(metadata).value
-          );
+          const result = getColumnError(c, formValues.value, metadata.value);
           return result;
         })
         .join("");
@@ -277,7 +268,9 @@ export default function useForm(
     return $fetch(`/${schemaId}/graphql`, {
       method: "POST",
       body: formData,
-    });
+    }).catch((error) =>
+      handleFetchError(error, "Error on inserting into database")
+    );
   };
 
   const updateInto = (schemaId: string, tableId: string) => {
@@ -288,7 +281,7 @@ export default function useForm(
     return $fetch(`/${schemaId}/graphql`, {
       method: "POST",
       body: formData,
-    });
+    }).catch((error) => handleFetchError(error, "Error on updating database"));
   };
 
   const deleteRecord = async (schemaId: string, tableId: string) => {
@@ -302,7 +295,9 @@ export default function useForm(
         query,
         variables,
       },
-    });
+    }).catch((error) =>
+      handleFetchError(error, "Error on delete form database")
+    );
   };
 
   const updateVisibilityOnColumnChange = (column: IColumn) => {
@@ -313,7 +308,7 @@ export default function useForm(
           //columns are not shown if section/heading is invisible
           (c.columnType === "SECTION" || visibleMap[c.section]) &&
           (c.columnType === "HEADING" || visibleMap[c.heading]) &&
-          isColumnVisible(c, formValues.value, toRef(metadata).value)
+          isColumnVisible(c, formValues.value, metadata.value)
             ? true
             : false;
         logger.debug(
@@ -359,6 +354,20 @@ export default function useForm(
       (column) => !visibleMap[column.id]
     );
   });
+
+  async function handleFetchError(error: any, message: string) {
+    if (error.statusCode && error.statusCode >= 400) {
+      const { hasSessionTimeout } = await useSession();
+      if (await hasSessionTimeout()) {
+        console.log("Session has timed out, ask for re-authentication");
+        throw new SessionExpiredError(
+          "Session has expired, please log in again."
+        );
+      }
+    } else {
+      console.log(message, error);
+    }
+  }
 
   return {
     requiredFields,
