@@ -350,9 +350,9 @@ export function isColumnVisible(
   tableMetadata: ITableMetaData
 ): boolean {
   const expression = column.visible;
-  if (expression) {
+  if (expression !== undefined) {
     try {
-      return executeExpression(expression, values, tableMetadata);
+      return executeExpression(expression, values || {}, tableMetadata);
     } catch (error) {
       throw `Invalid visibility expression, reason: ${error}`;
     }

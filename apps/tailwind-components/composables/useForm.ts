@@ -1,4 +1,14 @@
-import { type MaybeRef, type Ref, computed, toRef, ref, reactive } from "vue";
+import {
+  type Ref,
+  computed,
+  ref,
+  reactive,
+  watch,
+  type MaybeRef,
+  toRef,
+  toValue,
+  type MaybeRefOrGetter,
+} from "vue";
 import type {
   columnValue,
   ITableMetaData,
@@ -16,8 +26,8 @@ import {
 } from "../../molgenis-components/src/components/forms/formUtils/formUtils";
 
 export default function useForm(
-  metadata: MaybeRef<ITableMetaData>,
-  formValues: MaybeRef<Record<columnId, columnValue>>,
+  tableMetadata: MaybeRef<ITableMetaData>,
+  formValueRef: MaybeRef<Record<columnId, columnValue>>,
   scrollTo: (id: string) => void
 ) {
   const visibleMap = reactive<Record<columnId, boolean>>({});
@@ -25,47 +35,49 @@ export default function useForm(
   const currentSection = ref<columnId>();
   const currentHeading = ref<columnId>();
 
-  //initialize visibleMap
-  toRef(metadata).value.columns.forEach((c) => {
-    switch (c.columnType) {
-      case "SECTION":
-        visibleMap[c.id] = isColumnVisible(
-          c,
-          toRef(formValues).value,
-          toRef(metadata).value
-        )
-          ? true
-          : false;
-        break;
-      case "HEADING":
-        visibleMap[c.id] =
-          visibleMap[c.section] &&
-          isColumnVisible(c, toRef(formValues).value, toRef(metadata).value)
-            ? true
-            : false;
-        break;
-      default:
-        visibleMap[c.id] =
-          visibleMap[c.section] &&
-          visibleMap[c.heading] &&
-          isColumnVisible(c, toRef(formValues).value, toRef(metadata).value)
-            ? true
-            : false;
-    }
-    //todo we should hide sections / headings without any visible children
-    console.log(
-      "updating visibility for " +
-        c.id +
-        "=" +
-        visibleMap[c.id] +
-        " " +
-        JSON.stringify(c)
-    );
-  });
+  const metadata = computed(() => toValue(tableMetadata));
+  const formValues = toRef(formValueRef);
 
-  /** model of the legend panel */
+  const initVisibleMap = () => {
+    metadata.value?.columns.forEach((c) => {
+      switch (c.columnType) {
+        case "SECTION":
+          visibleMap[c.id] = isColumnVisible(
+            c,
+            formValues.value,
+            toRef(metadata).value
+          )
+            ? true
+            : false;
+          break;
+        case "HEADING":
+          visibleMap[c.id] =
+            visibleMap[c.section] &&
+            isColumnVisible(c, formValues.value, toRef(metadata).value)
+              ? true
+              : false;
+          break;
+        default:
+          visibleMap[c.id] =
+            visibleMap[c.section] &&
+            visibleMap[c.heading] &&
+            isColumnVisible(c, formValues.value, toRef(metadata).value)
+              ? true
+              : false;
+      }
+    });
+  };
+  watch(
+    tableMetadata,
+    () => {
+      initVisibleMap();
+    },
+    { immediate: true }
+  );
+
   const sections = computed(() => {
     const sectionList: IFormLegendSection[] = [];
+    if (!toRef(metadata).value) return sectionList;
     for (const column of toRef(metadata).value.columns) {
       let isActive = false;
       if (
@@ -93,12 +105,34 @@ export default function useForm(
         sectionList.push(heading);
       }
     }
+    if (!sectionList.some((section) => section.label)) {
+      //no real sections included
+      return [];
+    }
     return sectionList;
   });
 
+  const gotoSectionOrHeading = (id: string) => {
+    toRef(metadata).value.columns.forEach((col) => {
+      //apply to the right id
+      if (col.id === id) {
+        let headingId = id;
+        if (col.columnType === "HEADING") {
+          currentSection.value = col.section;
+          //scroll within the section
+          headingId = id;
+        } else {
+          //scroll to the section heading, on top of page.
+          currentSection.value = id;
+        }
+        scrollTo(headingId + "-form-field");
+      }
+    });
+  };
+
   /** return required, visible fields across all sections */
   const requiredFields = computed(() => {
-    return toRef(metadata).value.columns.filter(
+    return toRef(metadata).value?.columns.filter(
       (column: IColumn) => visibleMap[column.id] && column.required
     );
   });
@@ -106,7 +140,7 @@ export default function useForm(
   /** return required and empty, visible fields across all sections */
   const emptyRequiredFields = computed(() => {
     return requiredFields.value.filter(
-      (column: IColumn) => !toRef(formValues).value[column.id]
+      (column: IColumn) => !formValues.value[column.id]
     );
   });
 
@@ -169,12 +203,16 @@ export default function useForm(
     scrollTo(`${currentRequiredField.value.id}-form-field`);
   };
 
-  const validateColumn = (column: IColumn) => {
-    logger.debug("validate " + column.id);
+  const validateAllColumns = () => {
+    metadata.value.columns.forEach((column) => {
+      validateColumn(column);
+    });
+  };
 
+  const validateColumn = (column: IColumn) => {
     const error = getColumnError(
       column,
-      toRef(formValues).value,
+      formValues.value,
       toRef(metadata).value
     );
 
@@ -186,7 +224,7 @@ export default function useForm(
         .map((c) => {
           const result = getColumnError(
             c,
-            toRef(formValues).value,
+            formValues.value,
             toRef(metadata).value
           );
           return result;
@@ -232,7 +270,7 @@ export default function useForm(
   };
 
   const insertInto = (schemaId: string, tableId: string) => {
-    const formData = toFormData(toRef(formValues).value);
+    const formData = toFormData(formValues.value);
     const query = `mutation insert($value:[${tableId}Input]){insert(${tableId}:$value){message}}`;
     formData.append("query", query);
 
@@ -243,7 +281,7 @@ export default function useForm(
   };
 
   const updateInto = (schemaId: string, tableId: string) => {
-    const formData = toFormData(toRef(formValues).value);
+    const formData = toFormData(formValues.value);
     const query = `mutation update($value:[${tableId}Input]){update(${tableId}:$value){message}}`;
     formData.append("query", query);
 
@@ -254,7 +292,7 @@ export default function useForm(
   };
 
   const deleteRecord = async (schemaId: string, tableId: string) => {
-    const key = await getPrimaryKey(toRef(formValues).value, tableId, schemaId);
+    const key = await getPrimaryKey(formValues.value, tableId, schemaId);
     const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
     const variables = { pkey: [key] };
 
@@ -267,20 +305,15 @@ export default function useForm(
     });
   };
 
-  const onUpdateColumn = (column: IColumn, $event: columnValue) => {
-    //update error map for this column
-    if (errorMap.value[column.id]) {
-      validateColumn(column);
-    }
-    //update visibility map for any expression that includes this column id
-    toRef(metadata)
-      .value.columns.filter((c) => c.visible?.includes(column.id))
+  const updateVisibilityOnColumnChange = (column: IColumn) => {
+    metadata.value.columns
+      .filter((c) => c.visible?.includes(column.id))
       .forEach((c) => {
         visibleMap[c.id] =
           //columns are not shown if section/heading is invisible
           (c.columnType === "SECTION" || visibleMap[c.section]) &&
           (c.columnType === "HEADING" || visibleMap[c.heading]) &&
-          isColumnVisible(c, toRef(formValues).value, toRef(metadata).value)
+          isColumnVisible(c, formValues.value, toRef(metadata).value)
             ? true
             : false;
         logger.debug(
@@ -289,14 +322,40 @@ export default function useForm(
       });
   };
 
+  const onBlurColumn = (column: IColumn) => {
+    validateColumn(column);
+    updateVisibilityOnColumnChange(column);
+  };
+
+  const onUpdateColumn = (column: IColumn) => {
+    //only update error map if error already shown so it is removed
+    if (errorMap.value[column.id]) {
+      validateColumn(column);
+    }
+    updateVisibilityOnColumnChange(column);
+  };
+
+  const onViewColumn = (column: IColumn) => {
+    if (column.columnType === "SECTION") {
+      currentSection.value = column.id;
+      currentHeading.value = undefined;
+    } else if (column.columnType === "HEADING") {
+      currentSection.value = column.section;
+      currentHeading.value = column.id;
+    } else {
+      currentSection.value = column.section;
+      currentHeading.value = column.heading;
+    }
+  };
+
   const visibleColumns = computed(() => {
-    return toRef(metadata).value.columns.filter(
+    return toRef(metadata).value?.columns.filter(
       (column) => visibleMap[column.id]
     );
   });
 
   const invisibleColumns = computed(() => {
-    return toRef(metadata).value.columns.filter(
+    return toRef(metadata).value?.columns.filter(
       (column) => !visibleMap[column.id]
     );
   });
@@ -306,6 +365,7 @@ export default function useForm(
     emptyRequiredFields,
     requiredMessage,
     errorMessage,
+    gotoSectionOrHeading,
     gotoNextRequiredField,
     gotoPreviousRequiredField,
     gotoNextError,
@@ -314,8 +374,12 @@ export default function useForm(
     updateInto,
     deleteRecord,
     onUpdateColumn,
+    onBlurColumn,
+    onViewColumn,
     sections,
     visibleColumns,
     invisibleColumns,
+    errorMap,
+    validateAllColumns,
   };
 }

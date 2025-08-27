@@ -1,9 +1,8 @@
 <template>
   <nav class="pt-4 pb-8 bg-form-legend" v-if="sections.length > 1">
-    <h3 class="text-disabled p-4 ml-4">Jump to</h3>
     <ul class="list-none">
       <li
-        v-for="section in sections"
+        v-for="section in sections.filter((section) => section.label)"
         class="py-2 pr-4 relative group/chapter cursor-pointer flex items-center gap-2 justify-start h-full"
       >
         <div
@@ -52,6 +51,9 @@ const props = defineProps<{
 const emit = defineEmits(["goToSection"]);
 
 const hasSections = computed(() => {
-  return props.sections.some((section) => section.type === "SECTION");
+  //anonymous sections don't have a label
+  return props.sections.some(
+    (section) => section.type === "SECTION" && section.label
+  );
 });
 </script>

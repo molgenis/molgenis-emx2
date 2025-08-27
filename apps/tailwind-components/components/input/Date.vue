@@ -17,7 +17,8 @@
       'bg-input text-input hover:border-input-hover focus:border-input-focused':
         !disabled && !invalid && !valid,
     }"
-    v-model="modelValue"
+    :modelValue="modelValue ?? null"
+    @update:modelValue="(val) => emit('update:modelValue', val)"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
   />
@@ -27,6 +28,7 @@
 import flatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 import type { IInputProps } from "../../types/types";
+import { onMounted, watch } from "vue";
 const modelValue = defineModel<any>();
 defineProps<
   IInputProps & {

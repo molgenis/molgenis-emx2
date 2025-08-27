@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, useTemplateRef, watch } from "vue";
 import type {
   columnId,
   columnValue,
@@ -18,45 +18,62 @@ const props = defineProps<{
   schemaId: string;
   tableId: string;
   columns: IColumn[];
-  onUpdate: (column: IColumn, event: any) => void;
-  onFocus: (column: IColumn) => void;
+  onUpdate: (column: IColumn) => void;
   onBlur: (column: IColumn) => void;
+  onView: (column: IColumn) => void;
   constantValues?: IRow;
+  errorMap: Record<columnId, string>;
 }>();
-
-const emit = defineEmits(["error", "update:activeChapterId"]);
 
 const modelValue = defineModel<IRow>("modelValue", {
   required: true,
 });
 
-const errors = defineModel<Record<columnId, string>>("errors", {
-  required: true,
-});
-
-function updateActiveChapter(sectionId: string) {
-  emit("update:activeChapterId", sectionId);
-}
-
+const container = useTemplateRef<HTMLDivElement>("container");
+const visibleEntries = new Map<string, IntersectionObserverEntry>();
 function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
-  const highest = entries.find((entry) => entry.isIntersecting);
-  if (highest) {
-    //based on currently visible column if that is the highest
-    if (highest.target.id.includes("form-field")) {
-      //find the section it is part of
-      let currentSection = "_scroll_to_top";
-      for (const col of props.columns) {
-        if (col.columnType === "HEADING" || col.columnType === "SECTION") {
-          currentSection = col.id;
-        }
-        if (highest.target.id === `${col.id}-form-field`) {
-          break;
-        }
-      }
-      updateActiveChapter(currentSection);
-    } else {
-      updateActiveChapter(highest.target.id);
-    }
+  if (!container.value) return;
+
+  // Update currently visible entries
+  for (const entry of entries) {
+    if (entry.isIntersecting) visibleEntries.set(entry.target.id, entry);
+    else visibleEntries.delete(entry.target.id);
+  }
+
+  if (!visibleEntries.size) return;
+
+  const containerRect = container.value.getBoundingClientRect();
+  const style = getComputedStyle(container.value);
+  const paddingTop = parseFloat(style.paddingTop);
+  const paddingBottom = parseFloat(style.paddingBottom);
+
+  const containerTop = containerRect.top + paddingTop;
+  const containerBottom = containerRect.bottom - paddingBottom;
+
+  // Filter only elements fully visible inside the container
+  const fullyVisible = Array.from(visibleEntries.values())
+    .map((entry) => {
+      const el = entry.target as HTMLElement;
+      const elRect = el.getBoundingClientRect();
+      const isFullyVisible =
+        elRect.top >= containerTop && elRect.bottom <= containerBottom;
+      return { entry, isFullyVisible, top: elRect.top };
+    })
+    .filter((e) => e.isFullyVisible);
+
+  if (!fullyVisible.length) return;
+
+  // Pick the element closest to the top of the container
+  const topMost = fullyVisible.reduce((prev, curr) =>
+    curr.top < prev.top ? curr : prev
+  ).entry;
+
+  // Call your callback
+  if (topMost?.target.id.includes("form-field")) {
+    const col = props.columns.find(
+      (c) => topMost.target.id === `${c.id}-form-field`
+    );
+    if (col) props.onView(col);
   }
 }
 
@@ -92,6 +109,7 @@ watch(
   }
 );
 
+const fields = ref<HTMLElement[]>([]);
 onMounted(() => {
   updateRowKey();
   copyConstantValuesToModelValue();
@@ -99,37 +117,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div ref="container">
     <template v-for="(column, index) in columns">
-      <div
-        id="_scroll_to_top"
-        v-if="
-          index === 0 &&
-          column.columnType !== 'HEADING' &&
-          column.columnType !== 'SECTION'
-        "
-        class="-mt-10"
-      >
-        <span v-intersection-observer="onIntersectionObserver"></span>
-      </div>
       <div
         v-if="
           column.columnType === 'HEADING' || column.columnType === 'SECTION'
         "
-        :id="column.id"
-        v-intersection-observer="onIntersectionObserver"
+        :id="`${column.id}-form-field`"
+        v-intersection-observer="[onIntersectionObserver, { root: container }]"
       >
         <h2
           class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
-          v-if="column.id !== '_scroll_to_top'"
+          v-if="column.label"
         >
           {{ column.label }}
         </h2>
       </div>
       <FormField
+        ref="fields"
         class="pb-8"
         v-else-if="!Object.keys(constantValues || {}).includes(column.id)"
-        v-intersection-observer="onIntersectionObserver"
+        v-intersection-observer="[onIntersectionObserver, { root: container }]"
         v-model="modelValue[column.id]"
         :id="`${column.id}-form-field`"
         :type="column.columnType"
@@ -137,15 +145,14 @@ onMounted(() => {
         :description="column.description"
         :rowKey="rowKey"
         :required="isRequired(column.required ?? false)"
-        :error-message="errors[column.id]"
+        :error-message="errorMap[column.id]"
         :ref-schema-id="column.refSchemaId || schemaId"
         :ref-table-id="column.refTableId"
         :ref-label="column.refLabel || column.refLabelDefault"
         :ref-back-id="column.refBackId"
-        :invalid="errors[column.id]?.length > 0"
-        @update:modelValue="onUpdate(column, $event ?? '')"
+        :invalid="errorMap[column.id]?.length > 0"
+        @update:modelValue="onUpdate(column)"
         @blur="onBlur(column)"
-        @focus="onFocus(column)"
       />
     </template>
   </div>
