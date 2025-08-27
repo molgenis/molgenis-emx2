@@ -39,15 +39,6 @@ window.onpopstate = function () {
   applyBookmark(query.value);
 };
 
-watch(
-  () => settingsStore.configurationFetched,
-  () => {
-    if (settingsStore.configurationFetched) {
-      initMatomo();
-    }
-  }
-);
-
 watch(session, () => {
   settingsStore.setSessionInformation(session.value);
 });
@@ -56,6 +47,7 @@ onMounted(async () => {
   filtersStore.bookmarkWaitingForApplication = true;
   await router.isReady();
   applyBookmark(query.value);
+  initMatomo();
   changeFavicon();
 });
 
