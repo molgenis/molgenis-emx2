@@ -89,8 +89,6 @@ export async function getKeyValue(
         column.refTableId,
         schemaId
       );
-    } else {
-      throw new Error("Unexpected key type");
     }
   }
 }
