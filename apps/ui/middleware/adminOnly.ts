@@ -1,5 +1,5 @@
 import { defineNuxtRouteMiddleware, navigateTo } from "#app";
-import { useSession } from "#imports";
+import { useSession } from "../../tailwind-components/composables/useSession";
 
 export default defineNuxtRouteMiddleware(async () => {
   const { isAdmin } = await useSession();

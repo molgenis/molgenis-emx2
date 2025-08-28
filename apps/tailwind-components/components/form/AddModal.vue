@@ -54,6 +54,7 @@
       >
         <FormFields
           v-if="visible"
+          ref="formFields"
           :schemaId="schemaId"
           :metadata="metadata"
           :sections="sections"
@@ -68,7 +69,7 @@
       <FormError
         v-show="errorMessage"
         :message="errorMessage"
-        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
         @error-prev="gotoPreviousError"
         @error-next="gotoNextError"
       />
@@ -77,7 +78,23 @@
       <FormError
         v-show="saveErrorMessage"
         :message="saveErrorMessage"
-        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        :show-prev-next-buttons="!showReAuthenticateButton"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
+      >
+        <Button
+          v-if="showReAuthenticateButton"
+          type="outline"
+          size="small"
+          @click="reAuthenticate"
+          >Re-authenticate</Button
+        >
+      </FormError>
+    </Transition>
+    <Transition name="slide-up">
+      <FormMessage
+        v-show="formMessage"
+        :message="formMessage"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       />
     </Transition>
 
@@ -111,6 +128,9 @@ import type {
 import useSections from "../../composables/useSections";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
+import FormFields from "./Fields.vue";
+import { SessionExpiredError } from "../../utils/sessionExpiredError";
+import { useSession } from "../../composables/useSession";
 
 const props = withDefaults(
   defineProps<{
@@ -125,13 +145,17 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(["update:added", "update:cancelled"]);
+const formFields = ref<InstanceType<typeof FormFields>>();
 
 const visible = defineModel("visible", {
   type: Boolean,
   default: false,
 });
 
+const session = await useSession();
 const saveErrorMessage = ref<string>("");
+const formMessage = ref<string>("");
+const showReAuthenticateButton = ref<boolean>(false);
 
 function setVisible() {
   visible.value = true;
@@ -149,8 +173,13 @@ async function onSaveDraft() {
   const resp = await insertInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error saving data", err);
-      saveErrorMessage.value = errorToMessage(err, "Error saving draft");
-      return null;
+      if (err instanceof SessionExpiredError) {
+        saveErrorMessage.value =
+          "Your session has expired. Please re-authenticate to continue.";
+        showReAuthenticateButton.value = true;
+      } else {
+        saveErrorMessage.value = errorToMessage(err, "Error saving draft");
+      }
     }
   );
 
@@ -163,10 +192,20 @@ async function onSaveDraft() {
 }
 
 async function onSave() {
+  const isValid = formFields.value?.validate();
+  if (!isValid) {
+    return;
+  }
   const resp = await insertInto(props.schemaId, props.metadata.id).catch(
     (err) => {
-      console.error("Error saving data", err);
-      saveErrorMessage.value = errorToMessage(err, "Error saving data");
+      console.log("Error saving data", err);
+      if (err instanceof SessionExpiredError) {
+        saveErrorMessage.value =
+          "Your session has expired. Please re-authenticate to continue.";
+        showReAuthenticateButton.value = true;
+      } else {
+        saveErrorMessage.value = errorToMessage(err, "Error saving data");
+      }
 
       return null;
     }
@@ -201,6 +240,8 @@ function resetState() {
   errorMap.value = {};
   saveErrorMessage.value = "";
   isDraft.value = false;
+  showReAuthenticateButton.value = false;
+  formMessage.value = "";
 }
 
 watch(visible, (newValue, oldValue) => {
@@ -220,4 +261,12 @@ const {
 } = useForm(props.metadata, formValues, errorMap, (fieldId) => {
   scrollToElementInside("fields-container", fieldId);
 });
+
+function reAuthenticate() {
+  session.reAuthenticate(
+    saveErrorMessage,
+    showReAuthenticateButton,
+    formMessage
+  );
+}
 </script>
