@@ -44,23 +44,6 @@ describe("isRefType", () => {
   });
 });
 
-describe("getKeyValue", () => {
-  test("it should return the value if the cellValue is of type number", async () => {
-    const column = {
-      columnType: "INT" as CellValueType,
-      id: "someId",
-      label: "someId",
-    };
-    const actualValue = await getKeyValue(1, column);
-
-    assert.deepEqual(actualValue, 1);
-  });
-
-  test("it should return false for other types", () => {
-    assert.isFalse(isRefType("SOME_OTHER_TYPE"));
-  });
-});
-
 describe("isNumericKey", () => {
   test("code is CODE_0 (48)", () => {
     const keyboardEvent = { which: CODE_0 } as KeyboardEvent;

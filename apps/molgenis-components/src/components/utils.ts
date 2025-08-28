@@ -80,7 +80,7 @@ export async function getKeyValue(
   column: IColumn,
   schemaId?: string
 ) {
-  if (typeof cellValue === "string" || typeof cellValue === "number") {
+  if (typeof cellValue === "string") {
     return cellValue;
   } else {
     if (column.refTableId) {
