@@ -4,7 +4,8 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.core.AnyOf.anyOf;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -37,6 +38,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -843,6 +846,77 @@ public class WebApiSmokeTests {
     // should fail
     css = given().when().get("/pet store/tables/theme.css?primaryColor=pink").asString();
     Assert.assertTrue(css.contains("pink"));
+  }
+
+  @Test
+  public void testRedirectForAppsPathWithoutSlashAtEnd() {
+    // Disable automatic redirect following
+    Response response = given().redirects().follow(false).when().get("/validschemaname/tables");
+
+    // Check redirect status code
+    response.then().statusCode(is(302));
+
+    // Check the "Location" header
+    response.then().header("Location", endsWith("/validschemaname/tables/"));
+  }
+
+  @Test
+  public void testRedirectForAppsPathWithoutSlashAtEnd_shouldFailWhenNonApp() {
+    given()
+        .redirects()
+        .follow(false) // don't auto-follow
+        .when()
+        .get("/validschemaname/notanapp")
+        .then()
+        .statusCode(400);
+  }
+
+  @Test
+  void testRedirectForAppsPathWithoutSlashAtEnd_shouldRejectInvalidSchema() {
+    given()
+        .redirects()
+        .follow(false)
+        .when()
+        .get("/invalid-schema!/tables")
+        .then()
+        .statusCode(400)
+        .body(containsString("schema parameter is invalid"));
+  }
+
+  @Test
+  void testRedirectForAppsPathWithoutSlashAtEnd_shouldRejectScriptInjection() {
+    given()
+        .redirects()
+        .follow(false)
+        .when()
+        .get("/<script>alert(1)</script>/tables")
+        .then()
+        .statusCode(400) // or whatever MolgenisException maps to
+        .body(containsString("invalid app path"));
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {"Schema<>App", "Schema<script>", "..%2Fetc%2Fpasswd", "Schema%E2%80%8FApp"})
+  void testRedirectForAppsPathWithoutSlashAtEnd_shouldRejectInvalidSchemaNames(String schema) {
+    given().redirects().follow(false).when().get("/" + schema + "/tables").then().statusCode(400);
+  }
+
+  @Test
+  void testRedirectForAppsPathWithoutSlashAtEnd_shouldRejectPathTraversal() {
+    String[] evilPaths = {
+      "/validschemaname/../../etc/passwd",
+      "/validschemaname/..%2F..%2Fetc/passwd", // URL encoded
+      "/validschemaname/%2e%2e/%2e%2e/etc/passwd",
+      "/validschemaname/..;/..;/etc/passwd" // trick variant
+    };
+
+    for (String path : evilPaths) {
+      Response response = given().redirects().follow(false).when().get(path);
+
+      // assert that the API does NOT serve the file
+      response.then().statusCode(anyOf(is(400), is(404), is(403)));
+    }
   }
 
   @Test

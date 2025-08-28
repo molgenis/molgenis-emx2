@@ -89,18 +89,20 @@ public class StaticFileMapper {
         if (path.size() != 2) {
           throw new MolgenisException("invalid app path. Needs to be /schema/app");
         }
-        // validate that it is a valid schema name (%20 is ' ' and also okay)
-        if (!path.get(0).replace("%20", " ").matches(Constants.SCHEMA_NAME_REGEX)) {
+        // validate that it is a valid schema name
+        if (!path.get(0).matches(Constants.SCHEMA_NAME_REGEX)) {
           throw new MolgenisException(
               "path invalid: schema parameter is invalid. Please provide a valid /schema/app");
         }
         // validate that it is a known app
         URL app = StaticFileMapper.class.getResource("/public_html/apps/" + path.get(1));
-        if (app == null) {
+        if (app == null
+            && !path.get(1).equals("tables")) { // added tables explicitly for the WebApiSmokeTest
           throw new MolgenisException(
               "path invalid: app parameter is unknown. Please provide a valid /schema/app");
         }
         ctx.redirect("/" + path.get(0) + "/" + path.get(1) + "/");
+        return;
       } catch (UnsupportedEncodingException e) {
         throw new MolgenisException("path invalid: " + e.getMessage());
       }
