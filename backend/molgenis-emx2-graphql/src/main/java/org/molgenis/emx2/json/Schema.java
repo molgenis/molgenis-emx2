@@ -18,10 +18,10 @@ public class Schema {
   }
 
   public Schema(SchemaMetadata schema) {
-    this(schema, false);
+    this(schema, false, false);
   }
 
-  public Schema(SchemaMetadata schema, boolean minimal) {
+  public Schema(SchemaMetadata schema, boolean minimal, boolean enhance) {
     this.settings =
         schema.getSettings().entrySet().stream()
             .filter(entry -> !MOLGENIS_JWT_SHARED_SECRET.equals(entry.getKey()))
@@ -33,7 +33,7 @@ public class Schema {
     Collections.sort(list);
     // add these tables
     for (TableMetadata t : list) {
-      tables.add(new Table(t, minimal));
+      tables.add(new Table(t, minimal, enhance));
     }
   }
 

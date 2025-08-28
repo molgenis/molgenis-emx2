@@ -7,7 +7,10 @@ import { moduleToString } from "#imports";
 
 const query = moduleToString(metadataGql);
 
-export default async (schemaId: string): Promise<ISchemaMetaData> => {
+export default async (
+  schemaId: string,
+  enhance = true
+): Promise<ISchemaMetaData> => {
   // Use sessionStorage to cache data
   const cached = useSessionStorage<ISchemaMetaData>(schemaId, null, {
     serializer: StorageSerializers.object,
@@ -18,6 +21,9 @@ export default async (schemaId: string): Promise<ISchemaMetaData> => {
       method: "POST",
       body: {
         query,
+        variables: {
+          enhance: enhance,
+        },
       },
     }).catch((error) => {
       console.error(`Could not fetch metadata for schema ${schemaId}, `, error);

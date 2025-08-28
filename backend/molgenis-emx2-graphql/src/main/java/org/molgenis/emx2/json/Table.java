@@ -34,10 +34,15 @@ public class Table {
   }
 
   public Table(TableMetadata tableMetadata) {
-    this(tableMetadata, false);
+    this(tableMetadata, false, false);
   }
 
-  public Table(TableMetadata tableMetadata, boolean minimal) {
+  /**
+   * @param tableMetadata
+   * @param minimal
+   * @param enhance will add additional metadata useful for form generation
+   */
+  public Table(TableMetadata tableMetadata, boolean minimal, boolean enhance) {
     this.name = tableMetadata.getTableName();
     this.label = tableMetadata.getLabel();
     this.description = tableMetadata.getDescription();
@@ -47,6 +52,7 @@ public class Table {
             .map(entry -> new LanguageValue(entry.getKey(), entry.getValue()))
             .toList();
     this.id = tableMetadata.getIdentifier();
+    this.drop = tableMetadata.isDrop();
     this.drop = tableMetadata.isDrop();
     this.oldName = tableMetadata.getOldName();
     if (tableMetadata.getInheritName() != null) {
@@ -71,8 +77,9 @@ public class Table {
         currentHeadingId = null;
       } else if (column.getColumnType().equals(ColumnType.HEADING)) {
         currentHeadingId = column.getIdentifier();
-      } else {
-        // normal column, then there should be a section and heading before
+      } else if (enhance) {
+        // normal column, then there should be a section and heading before when rendering ui
+        // 'enhance' will add these metadata even if not in original molgenis model
         if (currentSectionId == null) {
           Column sectionColumn = new Column();
           sectionColumn.setId(DEFAULT_SECTION);
