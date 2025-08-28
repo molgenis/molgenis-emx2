@@ -34,6 +34,8 @@ public class MolgenisWebservice {
   public static final long MAX_REQUEST_SIZE = 10_000_000L;
   static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
+  public static final String NUXT_OIDC_LOGOUT_PATH =
+      "oidc-login"; // in nuxt '_' indicates a dynamic route
   private static final String ROBOTS_TXT = "robots.txt";
   private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
   public static MolgenisSessionManager sessionManager;
@@ -80,6 +82,7 @@ public class MolgenisWebservice {
 
     app.get("/" + OIDC_CALLBACK_PATH, MolgenisWebservice::handleLoginCallback);
     app.get("/" + OIDC_LOGIN_PATH, oidcController::handleLoginRequest);
+    app.get("/" + NUXT_OIDC_LOGOUT_PATH, oidcController::handleLoginRequest);
     app.get("/" + ROBOTS_TXT, MolgenisWebservice::robotsDotTxt);
 
     app.get(
