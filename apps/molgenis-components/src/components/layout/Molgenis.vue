@@ -187,13 +187,16 @@ export default {
       );
     },
     menu() {
+      let result = {};
       if (this.menuItems) {
-        return this.menuItems;
+        result = this.menuItems;
       } else if (this.session?.settings?.menu) {
-        return this.session.settings.menu;
+        result = this.session.settings.menu;
       } else {
-        return defaultSchemaMenuItems;
+        result = defaultSchemaMenuItems;
       }
+      this.rewriteHrefs(result);
+      return result;
     },
   },
   watch: {
@@ -219,6 +222,25 @@ export default {
   methods: {
     toggle() {
       this.fullscreen = !this.fullscreen;
+    },
+    rewriteHrefs(obj) {
+      //rewrite href, also in submenu. If singular 'app' name replace with /schema/app/
+      const schemaName = window.location.pathname.split("/").filter(Boolean)[0];
+      if (schemaName) {
+        const pattern = /^[-a-zA-Z0-9]+$/;
+        if (Array.isArray(obj)) {
+          obj.forEach(this.rewriteHrefs);
+        } else if (obj && typeof obj === "object") {
+          for (const key in obj) {
+            if (key === "href" && pattern.test(obj[key])) {
+              obj[key] = `/${schemaName}/${obj[key]}/`;
+            } else {
+              //may be submenu
+              this.rewriteHrefs(obj[key]);
+            }
+          }
+        }
+      }
     },
   },
   emits: ["update:modelValue", "error"],
