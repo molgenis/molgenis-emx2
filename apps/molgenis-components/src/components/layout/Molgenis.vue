@@ -224,7 +224,7 @@ export default {
       this.fullscreen = !this.fullscreen;
     },
     rewriteHrefs(obj) {
-      //all href should be checked, if singular 'app' name replace with /schema/app
+      //rewrite href, also in submenu. If singular 'app' name replace with /schema/app/
       const schemaName = window.location.pathname.split("/").filter(Boolean)[0];
       if (schemaName) {
         const pattern = /^[-a-zA-Z0-9]+$/;
