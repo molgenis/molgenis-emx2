@@ -1,40 +1,37 @@
 <template>
-  <flat-pickr
+  <vue-date-picker
     :id="id"
+    type="date"
     :aria-describedby="describedBy"
-    :type="type || 'text'"
     :placeholder="placeholder"
     :disabled="disabled"
-    class="w-full h-[56px] pr-4 pl-3 border outline-none rounded-input"
-    :class="{
-      'bg-input border-valid text-valid': valid && !disabled,
-      'bg-input border-invalid text-invalid': invalid && !disabled,
-      'border-disabled text-disabled bg-disabled cursor-not-allowed': disabled,
-      'bg-disabled border-valid text-valid cursor-not-allowed':
-        valid && disabled,
-      'bg-disabled border-invalid text-invalid cursor-not-allowed':
-        invalid && disabled,
-      'bg-input text-input hover:border-input-hover focus:border-input-focused':
-        !disabled && !invalid && !valid,
-    }"
     v-model="modelValue"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
-    :config="{
-      allowInput: true,
+    :enable-time-picker="false"
+    month-name-format="long"
+    :text-input="{
+      enterSubmit: true,
+      tabSubmit: true,
+      selectOnFocus: true,
+      escClose: true,
+      format: 'yyyy-MM-dd',
     }"
+    format="yyyy-MM-dd"
   />
 </template>
 
 <script setup lang="ts">
-import flatPickr from "vue-flatpickr-component";
-import "flatpickr/dist/flatpickr.css";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 import type { IInputProps } from "../../types/types";
-const modelValue = defineModel<any>();
+
 defineProps<
   IInputProps & {
     type?: string;
   }
 >();
+
+const modelValue = defineModel<any>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 </script>
