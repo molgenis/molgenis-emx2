@@ -110,11 +110,16 @@ public class Constants {
       Stream.concat(Arrays.stream(EQUALITY_OPERATORS), Stream.of(MATCH_ALL))
           .toArray(Operator[]::new);
 
-  // n.b. we allow _SYSTEM_
+  // 1–63 characters long starting with a letter, may contain letters, digits, spaces, hyphens,
+  // underscores, can't end wih space, underscore (space, underscore cannot be next to each other)
+  // todo (last rule we might now be able to drop because we now produce identifiers ignoring
+  // spaces)
   public static final String SCHEMA_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][-a-zA-Z0-9 _]{0,62}$";
-
+  // 1–31 characters long that starts with a letter, may contain letters, digits, spaces, or
+  // underscores, (space, underscore cannot be next to each other)
   protected static final String TABLE_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,30}$";
-
+  // 1–62 characters long that starts with a letter, may contain letters, digits, spaces, or
+  // underscores, (space, underscore cannot be next to each other)
   protected static final String COLUMN_NAME_REGEX = "^(?!.* _|.*_ )[a-zA-Z][a-zA-Z0-9 _]{0,62}$";
 
   protected static final String EMAIL_REGEX =
