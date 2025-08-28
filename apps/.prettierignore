@@ -4,3 +4,4 @@ coverage
 .output
 .gradle
 sourceCodeMap.json
+playwright-report
