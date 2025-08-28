@@ -231,11 +231,13 @@ export default {
         if (Array.isArray(obj)) {
           obj.forEach(this.rewriteHrefs);
         } else if (obj && typeof obj === "object") {
-          if (obj.href && pattern.test(obj.href)) {
-            obj.href = `/${schemaName}/${obj.href}/`;
-          }
-          if (obj.sub) {
-            this.rewriteHrefs(obj.sub);
+          for (const key in obj) {
+            if (key === "href" && pattern.test(obj[key])) {
+              obj[key] = `/some/${obj[key]}`;
+            } else {
+              //may be submenu
+              this.rewriteHrefs(obj[key]);
+            }
           }
         }
       }
