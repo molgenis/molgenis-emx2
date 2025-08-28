@@ -861,6 +861,20 @@ public class WebApiSmokeTests {
   }
 
   @Test
+  public void testRedirectForAppsPathWithoutSlashAtEnd_shouldNotRedirectWhenTrailingSlash() {
+    given()
+        .redirects()
+        .follow(false) // don't auto-follow
+        .when()
+        .get("/validschemaname/tables/")
+        .then()
+        .statusCode(
+            404); // will be error because the app doesn't exist in this test env but this proofs no
+    // redirect is
+    // happening
+  }
+
+  @Test
   public void testRedirectForAppsPathWithoutSlashAtEnd_shouldFailWhenNonApp() {
     given()
         .redirects()
