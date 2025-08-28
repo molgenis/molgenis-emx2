@@ -57,7 +57,6 @@ class Validator:
     def _validate_networks(self):
         for network in self.node_data.networks.rows:
             self._validate_xref(network, "contact")
-            self._validate_mref(network, "parent_network")
 
     def _validate_biobanks(self):
         for biobank in self.node_data.biobanks.rows:
