@@ -45,7 +45,7 @@ describe("isRefType", () => {
 });
 
 describe("getKeyValue", () => {
-  test("it should return the value if of type number", async () => {
+  test("it should return the value if the cellValue is of type number", async () => {
     const column = {
       columnType: "INT" as CellValueType,
       id: "someId",
