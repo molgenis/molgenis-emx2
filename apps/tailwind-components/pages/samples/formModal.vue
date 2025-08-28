@@ -50,6 +50,9 @@
             :columns="metadata.columns"
             :error-map="errorMap"
             v-model="formValues"
+            @update="onUpdateColumn"
+            @blur="onBlurColumn"
+            @view="onViewColumn"
           />
         </div>
       </section>
@@ -151,6 +154,9 @@ const {
   gotoPreviousError,
   errorMap,
   sections,
+  onUpdateColumn,
+  onBlurColumn,
+  onViewColumn,
 } = useForm(metadata, formValues, (fieldId) => {
   scrollToElementInside("fields-container", fieldId);
 });

@@ -48,6 +48,9 @@ const {
   gotoPreviousError,
   errorMap,
   sections,
+  onViewColumn,
+  onBlurColumn,
+  onUpdateColumn,
 } = useForm(metadata, formValues, scrollTo);
 
 function onSave() {
@@ -122,11 +125,13 @@ function onCancel() {
         <FormFields
           class="px-32 bg-form"
           schemaId="catalogue-demo"
-          :metadata="metadata"
-          :sections="sections"
-          v-model:errors="errorMap"
+          :tableId="metadata.id"
+          :columns="metadata.columns"
+          :errorMap="errorMap"
           v-model="formValues"
-          @update:active-chapter-id="activeChapterId = $event"
+          @update="onUpdateColumn"
+          @blur="onBlurColumn"
+          @view="onViewColumn"
         />
       </div>
     </section>
