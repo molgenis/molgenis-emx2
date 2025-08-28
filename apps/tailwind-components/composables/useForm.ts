@@ -1,5 +1,4 @@
 import {
-  type Ref,
   computed,
   ref,
   reactive,
@@ -29,7 +28,7 @@ import { SessionExpiredError } from "../utils/sessionExpiredError";
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
   formValueRef: MaybeRef<Record<columnId, columnValue>>,
-  scrollTo: (id: string) => Promise<void>
+  scrollTo: (id: string) => void = () => {}
 ) {
   const visibleMap = reactive<Record<columnId, boolean>>({});
   const errorMap = ref<Record<columnId, string>>({});
@@ -53,15 +52,15 @@ export default function useForm(
           break;
         case "HEADING":
           visibleMap[c.id] =
-            visibleMap[c.section] &&
+            (!c.section || visibleMap[c.section]) &&
             isColumnVisible(c, formValues.value, metadata.value)
               ? true
               : false;
           break;
         default:
           visibleMap[c.id] =
-            visibleMap[c.section] &&
-            visibleMap[c.heading] &&
+            (!c.section || visibleMap[c.section]) &&
+            (!c.heading || visibleMap[c.heading]) &&
             isColumnVisible(c, formValues.value, metadata.value)
               ? true
               : false;
@@ -306,8 +305,8 @@ export default function useForm(
       .forEach((c) => {
         visibleMap[c.id] =
           //columns are not shown if section/heading is invisible
-          (c.columnType === "SECTION" || visibleMap[c.section]) &&
-          (c.columnType === "HEADING" || visibleMap[c.heading]) &&
+          (c.columnType === "SECTION" || !c.section || visibleMap[c.section]) &&
+          (c.columnType === "HEADING" || !c.heading || visibleMap[c.heading]) &&
           isColumnVisible(c, formValues.value, metadata.value)
             ? true
             : false;

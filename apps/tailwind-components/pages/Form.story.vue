@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import type {
-  columnId,
   columnValue,
   ISchemaMetaData,
-  ITableMetaData,
 } from "../../metadata-utils/src/types";
 import { useRoute, useRouter } from "#app/composables/router";
 import Legend from "../components/form/Legend.vue";
 import { useFetch, useAsyncData } from "#app";
-import { fetchMetadata, fetchTableData, useSections } from "#imports";
-import { ref, computed, watch, type Ref, toValue, type MaybeRef } from "vue";
+import { fetchMetadata, fetchTableData } from "#imports";
+import { ref, computed, watch } from "vue";
 import useForm from "~/composables/useForm";
 
 type Resp<T> = {

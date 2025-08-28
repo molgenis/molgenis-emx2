@@ -10,20 +10,26 @@ import {
   //todo: can we have required calculation done in useForm?
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
-import logger from "../../utils/logger";
 import { vIntersectionObserver } from "@vueuse/components";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 
-const props = defineProps<{
-  schemaId: string;
-  tableId: string;
-  columns: IColumn[];
-  onUpdate: (column: IColumn) => void;
-  onBlur: (column: IColumn) => void;
-  onView: (column: IColumn) => void;
-  constantValues?: IRow;
-  errorMap: Record<columnId, string>;
-}>();
+const props = withDefaults(
+  defineProps<{
+    schemaId: string;
+    tableId: string;
+    columns: IColumn[];
+    onUpdate: (column: IColumn) => void;
+    onBlur: (column: IColumn) => void;
+    onView: (column: IColumn) => void;
+    constantValues?: IRow;
+    errorMap: Record<columnId, string>;
+  }>(),
+  {
+    onUpdate: () => {},
+    onBlur: () => {},
+    onView: () => {},
+  }
+);
 
 const modelValue = defineModel<IRow>("modelValue", {
   required: true,
@@ -31,6 +37,7 @@ const modelValue = defineModel<IRow>("modelValue", {
 
 const container = useTemplateRef<HTMLDivElement>("container");
 const visibleEntries = new Map<string, IntersectionObserverEntry>();
+
 function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
   if (!container.value) return;
 
