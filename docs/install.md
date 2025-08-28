@@ -30,7 +30,7 @@ Note:
   expected behaviour.
 * the data of the PostgreSQL database will be stored in 'psql_data' folder. Remove this folder you want a clean start.
 * if you want to use a specific [molgenis-emx2 version](https://hub.docker.com/repository/registry-1.docker.io/mswertz/emx2/tags?page=1)
-  add the version number in the docker-compose.yml file with the key `molgenis/molgenis-emx2:version`
+  add the version number in the docker-compose.yml file with the key `molgenis/molgenis-emx2:version`.
 
 ## Using Java and your local PostgreSQL database
 
