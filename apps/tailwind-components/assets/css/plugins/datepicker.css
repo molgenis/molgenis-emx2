@@ -1,0 +1,154 @@
+.dp__main .dp__input_wrap .dp__input {
+  @apply h-input bg-input text-input border rounded-input;
+}
+
+.dp__main .dp__input_wrap .dp__input_icon {
+  @apply text-input;
+}
+
+/* Override calendar background color */
+.dp__main .dp__outer_menu_wrap .dp__menu {
+  @apply bg-input;
+}
+
+/* override days of the week header */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_header_item {
+  @apply text-input;
+}
+
+/* override dates (non-past/future text elements ) */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_row
+  .dp__calendar_item
+  .dp__cell_inner {
+  @apply text-input;
+}
+
+/* override offset dates (i.e., overflow of dates from the previous month) */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_row
+  .dp__calendar_item
+  .dp__cell_offset {
+  @apply text-gray-400;
+}
+
+/* overrides for "today" button */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_row
+  .dp__calendar_item
+  .dp__cell_inner.dp__today {
+  @apply text-button-outline border-button-outline;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_row
+  .dp__calendar_item
+  .dp__cell_inner.dp__today:hover {
+  @apply text-button-outline-hover border-button-outline-hover bg-button-outline-hover;
+}
+
+/* override for date hover */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_row
+  .dp__calendar_item
+  .dp__cell_inner.dp__date_hover:hover {
+  @apply text-button-primary-hover border-button-primary-hover bg-button-primary-hover;
+}
+
+/* override for active date (i.e., selected) */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp__calendar
+  .dp__calendar_row
+  .dp__calendar_item
+  .dp__cell_inner.dp__active_date {
+  @apply text-button-primary border-button-primary bg-button-primary;
+}
+
+/* Overrides for "Cancel" and "select" buttons */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_select {
+  @apply bg-button-primary text-button-primary border-button-primary;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_select:hover,
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_select:focus {
+  @apply bg-button-primary-hover text-button-primary-hover border-button-primary-hover;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_cancel,
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_cancel {
+  @apply bg-button-outline text-button-outline border-button-outline;
+}
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_cancel:hover,
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__action_row
+  .dp__action_buttons
+  .dp__action_cancel:focus {
+  @apply bg-button-outline-hover text-button-outline-hover border-button-outline-hover;
+}
