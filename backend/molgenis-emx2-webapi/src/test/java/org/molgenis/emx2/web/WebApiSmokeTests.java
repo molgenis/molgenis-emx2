@@ -1681,6 +1681,7 @@ public class WebApiSmokeTests {
   }
 
   private void getAndAssertContains(String path, String expectedSubstring) {
+    db.clearCache();
     String result = given().get(path).getBody().asString();
     ObjectMapper mapper = new ObjectMapper();
     String prettyJson;
