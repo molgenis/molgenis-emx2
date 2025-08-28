@@ -233,7 +233,7 @@ export default {
         } else if (obj && typeof obj === "object") {
           for (const key in obj) {
             if (key === "href" && pattern.test(obj[key])) {
-              obj[key] = `/${schemaName}/${obj[key]}`;
+              obj[key] = `/${schemaName}/${obj[key]}/`;
             } else {
               //may be submenu
               this.rewriteHrefs(obj[key]);
