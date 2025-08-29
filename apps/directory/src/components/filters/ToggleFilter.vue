@@ -3,6 +3,8 @@
     @click="filterSelection = !filterSelection"
     class="btn btn-outline-secondary"
     :class="filterSelection ? 'bg-secondary text-white' : 'bg-white'"
+    type="button"
+    :aria-label="`${trueOption.text}-filter`"
   >
     <input type="checkbox" v-model="filterSelection" />
     {{ trueOption.text }}
