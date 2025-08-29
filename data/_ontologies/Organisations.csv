@@ -71,7 +71,7 @@ Utrecht University,,ROR,ROR:04pp8hn57,https://ror.org/04pp8hn57,,Rijksuniversite
 University of British Columbia,UBC,ROR,ROR:03rmrcq20,https://ror.org/03rmrcq20,,,Canada,Vancouver,49.24966,-123.11934
 University of Oulu,,ROR,ROR:03yj89h83,https://ror.org/03yj89h83,,,Finland,Oulu,65.01236,25.46816
 Máxima Medisch Centrum,MMC,ROR,ROR:02x6rcb77,https://ror.org/02x6rcb77,,,Netherlands (the),Veldhoven,51.41833,5.40278
-The Netherlands Cancer Institute,NKI; NKI-AVL,ROR,ROR:03xqtf034,https://ror.org/03xqtf034,,Nederlands Kanker Instituut - Antoni van Leeuwenhoekziekenhuis; Netherlands Cancer Institute; Netherlands Cancer Institute - Antoni van Leeuwenhoek Hospital,Netherlands (the),Amsterdam,52.37403,4.88969
+Netherlands (the) Cancer Institute,NKI; NKI-AVL,ROR,ROR:03xqtf034,https://ror.org/03xqtf034,,Nederlands Kanker Instituut - Antoni van Leeuwenhoekziekenhuis; Netherlands Cancer Institute; Netherlands Cancer Institute - Antoni van Leeuwenhoek Hospital,Netherlands (the),Amsterdam,52.37403,4.88969
 "i3S - Instituto de Investigação e Inovação em Saúde, Universidade do Porto",,ROR,ROR:04wjk1035,https://ror.org/04wjk1035,,,Portugal,Porto,41.14961,-8.61099
 Children's Hospital Agia Sophia,,ROR,ROR:0315ea826,https://ror.org/0315ea826,,,Greece,Athens,37.98376,23.72784
 Cyprus Institute of Neurology and Genetics,CING,ROR,ROR:01ggsp920,https://ror.org/01ggsp920,,,Cyprus,Nicosia,35.17531,33.3642
@@ -242,3 +242,44 @@ University of Southampton,,ROR,ROR:01ryk1543,https://ror.org/01ryk1543,,,United 
 Accare,,ROR,ROR:02h4pw461,https://ror.org/02h4pw461,,,Netherlands (the),Groningen,53.21917,6.56667
 Parnassia Groep,,ROR,ROR:002wh3v03,https://ror.org/002wh3v03,,,Netherlands (the),The Hague,52.07667,4.29861
 University of Surrey,,ROR,ROR:00ks66431,https://ror.org/00ks66431,,,United Kingdom of Great Britain and Northern Ireland (the),Guildford,51.23536,-0.57427
+Agencia Española de Medicamentos y Productos Sanitarios,AEMPS,ROR,ROR:043fs9135,https://ror.org/043fs9135,,,Spain,Madrid,40.4165,-3.70256
+Agenzia Regionale di Sanità della Toscana,ARS,ROR,ROR:059vkfm47,https://ror.org/059vkfm47,,,Italy,Florence,43.77925,11.24626
+Aarhus University,AU,ROR,ROR:01aj84f44,https://ror.org/01aj84f44,,,Denmark,Aarhus,56.15674,10.21076
+Biobanking and Biomolecular Resources Research Infrastructure Consortium,BBMRI-ERIC,ROR,ROR:00pwncn89,https://ror.org/00pwncn89,,,Austria,Graz,47.06667,15.45
+Istituto di Fisiologia Clinica,CNR IFC; IFC,ROR,ROR:01kdj2848,https://ror.org/01kdj2848,,Institute of Clinical Physiology,Italy,Pisa,43.70853,10.4036
+Finnish Institute for Health and Welfare,THL,ROR,ROR:03tf0c761,https://ror.org/03tf0c761,,Terveyden ja Hyvinvoinnin Laitos,Finland,Helsinki,60.16952,24.93545
+Fundación para el Fomento de la Investigación Sanitaria y Biomédica de la Comunitat Valenciana,FISABIO,ROR,ROR:0116vew40,https://ror.org/0116vew40,,,Spain,Valencia,39.47391,-0.37966
+GlaxoSmithKline (United Kingdom),GSK,ROR,ROR:01xsqw823,https://ror.org/01xsqw823,,,United Kingdom of Great Britain and Northern Ireland (the),London,51.50853,-0.12574
+Duke Institute for Health Innovation,DIHI,ROR,ROR:031n1rn61,https://ror.org/031n1rn61,,,United States of America (the),Durham,35.99403,-78.89862
+Barcelona Institute for Global Health,BIGH; BIGH-CERCA,ROR,ROR:03hjgt059,https://ror.org/03hjgt059,,ISGlobal,Spain,Barcelona,41.38879,2.15899
+Universidade do Porto,,ROR,ROR:043pwc612,https://ror.org/043pwc612,,U.Porto,Portugal,Porto,41.14961,-8.61099
+Institut Universitari d'Investigació en Atenció Primària Jordi Gol,,ROR,ROR:0370bpp07,https://ror.org/0370bpp07,,IDIAP Jordi Gol,Spain,Barcelona,41.38879,2.15899
+KU Leuven,KUL,ROR,ROR:05f950310,https://ror.org/05f950310,,Catholic University of Leuven; University of Leuven,Belgium,Leuven,50.87959,4.70093
+Netherlands Pharmacovigilance Centre Lareb,,ROR,ROR:04fp8ns78,https://ror.org/04fp8ns78,,,Netherlands (the),'s-Hertogenbosch,51.69917,5.30417
+Leibniz Institute for Prevention Research and Epidemiology - BIPS,BIPS,ROR,ROR:02c22vc57,https://ror.org/02c22vc57,,Bremen Institute for Prevention Research and Social Medicine,Germany,Bremen,53.07582,8.80717
+Novartis (Netherlands),,ROR,ROR:01a80cj23,https://ror.org/01a80cj23,,Novartis Pharma,Netherlands (the),Arnhem,51.98,5.91111
+Otto-von-Guericke University Magdeburg,OvGU,ROR,ROR:00ggpsq73,https://ror.org/00ggpsq73,,,Germany,Magdeburg,52.12773,11.62916
+Pharmo Institute,,ROR,ROR:01wfg6h04,https://ror.org/01wfg6h04,,,Netherlands (the),Utrecht,52.09083,5.12222
+Sanofi (France),,ROR,ROR:02n6c9837,https://ror.org/02n6c9837,,Sanofi-Aventis,France,Paris,48.85341,2.3488
+Takeda (Japan),,ROR,ROR:04hjbmv12,https://ror.org/04hjbmv12,,,Japan,Osaka,34.69379,135.50107
+Université de Bordeaux,,ROR,ROR:057qpr032,https://ror.org/057qpr032,,,France,Bordeaux,44.84044,-0.5805
+University College London,UCL,ROR,ROR:02jx3x895,https://ror.org/02jx3x895,,"London University; University College, London",United Kingdom of Great Britain and Northern Ireland (the),London,51.50853,-0.12574
+University of KwaZulu-Natal,UKZN ,ROR,ROR:04qzfn040,https://ror.org/04qzfn040,,,South Africa,Durban,-29.8579,31.0292
+University of Ulster,UU,ROR,ROR:01yp9g959,https://ror.org/01yp9g959,,,United Kingdom of Great Britain and Northern Ireland (the),Coleraine,55.13333,-6.66667
+University of Messina,UNIME,ROR,ROR:05ctdxz19,https://ror.org/05ctdxz19,,,Italy,Messina,38.19394,15.55256
+University of Dundee,,ROR,ROR:03h2bxq36,https://ror.org/03h2bxq36,,Universitas Dundensis,United Kingdom of Great Britain and Northern Ireland (the),Dundee,56.46913,-2.97489
+Uppsala University,,ROR,ROR:048a87296,https://ror.org/048a87296,,,Sweden,Uppsala,59.85882,17.63889
+Swansea University,,ROR,ROR:053fq8t95,https://ror.org/053fq8t95,,,United Kingdom of Great Britain and Northern Ireland (the),Swansea,51.62079,-3.94323
+Huisartsenpraktijk Meander,,ROR,ROR:01q9pd408,https://ror.org/01q9pd408,,,Netherlands (the),Coevorden,52.66103,6.74046
+HuisartsenOrganisatie Oost-Gelderland,HOOG,ROR,ROR:05xmrvj69,https://ror.org/05xmrvj69,,Multicenter General Practitioners Organisation; Multicenter General Practitioners Organisation 'HuisartsenOrganisatie Oost-Gelderland',Netherlands (the),Apeldoorn,52.18722,5.91969
+Parkinson Platform Noord Nederland,PPNN,ROR,ROR:02j8tjh47,https://ror.org/02j8tjh47,,PPNN Study Group,Netherlands (the),Groningen,53.21917,6.56667
+Verslavingszorg Noord Nederland,VNN,ROR,ROR:0564c7p76,https://ror.org/0564c7p76,,,Netherlands (the),Groningen,53.21917,6.56667
+University Clinic of Pulmonary and Allergic Diseases Golnik,,ROR,ROR:01yxj7x74,https://ror.org/01yxj7x74,,,Slovenia,Golnik,46.33333,14.33333
+University of Catania,,ROR,ROR:03a64bh57,https://ror.org/03a64bh57,,,Italy,Catania,37.49223,15.07041
+University Hospital of Geneva,HUG,ROR,ROR:01m1pv723,https://ror.org/01m1pv723,,,Switzerland,Geneva,46.20222,6.14569
+Serviço Nacional de Saúde,SNS,ROR,ROR:020j5zv28,https://ror.org/020j5zv28,,,Portugal,Lisbon,38.71667,-9.13333
+Krankenhaus Bethanien,,ROR,ROR:03ndabk35,https://ror.org/03ndabk35,,,Germany,Solingen,51.17343,7.0845
+Ommelander Ziekenhuis Groningen,OZG,ROR,ROR:02mh2ah12,https://ror.org/02mh2ah12,,OZG Ziekenhuis; Ommelander Ziekenhuis; Ommelander Ziekenhuis Groep; Ommelander Ziekenhuis OZG,Netherlands (the),Scheemda,53.17333,6.97222
+Dutch Initiative on Crohn and Colitis,ICC; ICC-IBD,ROR,ROR:03a1ym388,https://ror.org/03a1ym388,,Initiative on Crohn and Colitis,Netherlands (the),Urmond,50.99083,5.77222
+Hanze University of Applied Sciences,UAS,ROR,ROR:00xqtxw43,https://ror.org/00xqtxw43,,,Netherlands (the),Groningen,53.21917,6.56667
+Netherlands Organisation for Applied Scientific Research,TNO,ROR,ROR:01bnjb948,https://ror.org/01bnjb948,,,Netherlands (the),Delft,52.00667,4.35556
