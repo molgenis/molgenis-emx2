@@ -1,9 +1,9 @@
 <template>
   Validate the RDF API output for the complete schema
-  <InfoPopover
-    >output is deemed valid if nodes adhere to the requirements or those nodes
-    are not present</InfoPopover
-  >
+  <InfoPopover>
+    output is deemed valid if nodes adhere to the requirements or those nodes
+    are not present
+  </InfoPopover>
   <MessageError v-if="error">{{ error }}</MessageError>
   <ShaclSetItem v-for="shaclSet in shaclSets" :shaclSet="shaclSet" />
 </template>

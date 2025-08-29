@@ -4,7 +4,7 @@
     :id="`accordion-${shaclSet.name}`"
     :class="visible ? 'accordion visible' : 'accordion'"
   >
-    <h3 class="accordion-heading">
+    <div class="accordion-heading">
       <button
         type="button"
         :id="`accordion-toggle-${shaclSet.name}`"
@@ -18,7 +18,15 @@
         />
         <span class="toggle-label">{{ shaclSetTitle }}</span>
       </button>
-      <i class="shacl-status fa" :class="icon" />
+      <div
+        class="shacl-status fa"
+        :class="{
+          'fa-check': shaclStatus === 'VALID',
+          'fa-times': shaclStatus === 'INVALID',
+          'fa-spinner fa-spin': shaclStatus === 'RUNNING',
+          'fa-exclamation-circle': shaclStatus === 'ERROR',
+        }"
+      />
       <button
         type="button"
         class="run-shacl btn btn-outline-primary"
@@ -27,14 +35,14 @@
       >
         validate
       </button>
-    </h3>
-    <section
+    </div>
+    <div
       :id="`accordion-content-${shaclSet.name}`"
       class="accordion-content"
       :aria-labelledby="`accordion-toggle-${shaclSet.name}`"
       v-show="visible"
     >
-      Sources:
+      <p>Sources:</p>
       <ul>
         <li v-for="source in shaclSet.sources">
           <a :href="source" target="_blank">{{ source }}</a>
@@ -44,7 +52,7 @@
       <LayoutCard title="output">
         <pre>{{ shaclOutput }}</pre>
       </LayoutCard>
-    </section>
+    </div>
   </div>
 </template>
 
@@ -103,27 +111,6 @@ async function runShacl() {
   }
   disabled.value = false;
 }
-
-const icon = ref("");
-function updateIcon() {
-  switch (shaclStatus.value) {
-    case "VALID":
-      icon.value = "fa-check";
-      break;
-    case "INVALID":
-      icon.value = "fa-times";
-      break;
-    case "RUNNING":
-      icon.value = "fa-spinner fa-spin";
-      break;
-    case "ERROR":
-      icon.value = "fa-exclamation-circle";
-      break;
-    default:
-      icon.value = "fa-question";
-  }
-}
-watch(shaclStatus, updateIcon);
 </script>
 
 <style lang="scss">
@@ -182,7 +169,7 @@ $border-radius: 6px;
       }
     }
 
-    i.shacl-status {
+    .shacl-status {
       position: relative;
       margin: 0 10px;
     }
