@@ -11,6 +11,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { parse } from "yaml";
+// @ts-expect-error
 import { InfoPopover, MessageError } from "molgenis-components";
 import ShaclSetItem from "../components/ShaclSetItem.vue";
 

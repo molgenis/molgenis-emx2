@@ -18,15 +18,21 @@
         />
         <span class="toggle-label">{{ shaclSetTitle }}</span>
       </button>
-      <div
-        class="shacl-status fa"
-        :class="{
-          'fa-check': shaclStatus === 'VALID',
-          'fa-times': shaclStatus === 'INVALID',
-          'fa-spinner fa-spin': shaclStatus === 'RUNNING',
-          'fa-exclamation-circle': shaclStatus === 'ERROR',
-        }"
-      />
+      <div>
+        <div
+          class="shacl-status fa"
+          :aria-describedby="`${shaclSet.name}-status`"
+          :class="{
+            'fa-check': shaclStatus === 'VALID',
+            'fa-times': shaclStatus === 'INVALID',
+            'fa-spinner fa-spin': shaclStatus === 'RUNNING',
+            'fa-exclamation-circle': shaclStatus === 'ERROR',
+          }"
+        />
+        <span :id="`${shaclSet.name}-status`" class="visually-hidden">
+          status: {{ shaclStatus }}
+        </span>
+      </div>
       <button
         type="button"
         class="run-shacl btn btn-outline-primary"
@@ -50,7 +56,9 @@
       </ul>
       <MessageError v-if="error">{{ error }}</MessageError>
       <LayoutCard title="output">
-        <pre>{{ shaclOutput }}</pre>
+        <div class="shacl-output-card">
+          <pre>{{ shaclOutput }}</pre>
+        </div>
       </LayoutCard>
     </div>
   </div>
@@ -59,17 +67,16 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { ChevronDownIcon } from "@heroicons/vue/24/outline";
+// @ts-expect-error
 import { LayoutCard, MessageError } from "molgenis-components";
 
-interface SchalSet {
-  name: string;
-  description: string;
-  version: string;
-  sources: string[];
-}
-
 const props = defineProps<{
-  schalSet:SchalSet
+  shaclSet: {
+    name: string;
+    description: string;
+    version: string;
+    sources: string[];
+  };
 }>();
 
 const shaclSetTitle = computed<string>(() => {
@@ -78,15 +85,17 @@ const shaclSetTitle = computed<string>(() => {
   );
 });
 
-const visible = ref(false);
+const visible = ref<boolean>(false);
+
 function toggleVisible() {
   visible.value = !visible.value;
 }
 
 const disabled = ref(false);
-const error = ref("");
+const error = ref<string>("");
 const shaclOutput = ref("");
-const shaclStatus = ref("UNKNOWN");
+const shaclStatus = ref<string>("UNKNOWN");
+
 async function runShacl() {
   disabled.value = true;
   error.value = "";
@@ -183,6 +192,18 @@ $border-radius: 6px;
     }
     .accordion-content {
       padding: 0 12px;
+    }
+  }
+}
+
+.card {
+  .shacl-output-card {
+    max-height: 30em;
+    overflow-y: scroll;
+  }
+  &.card-fullscreen {
+    .shacl-output-card {
+      max-height: 100vh;
     }
   }
 }

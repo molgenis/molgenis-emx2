@@ -37,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+// @ts-expect-error
 import { Molgenis } from "molgenis-components";
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
