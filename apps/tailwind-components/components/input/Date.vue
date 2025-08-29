@@ -1,15 +1,19 @@
 <template>
+  {{ modelValue }}
   <vue-date-picker
-    :id="id"
-    type="date"
-    :aria-describedby="describedBy"
+    :uid="id"
     :placeholder="placeholder"
+    :aria-describedby="describedBy"
     :disabled="disabled"
+    :data-valid="valid"
+    :data-invalid="invalid"
+    type="Date"
     v-model="modelValue"
-    @focus="$emit('focus')"
-    @blur="$emit('blur')"
-    :enable-time-picker="false"
+    model-type="format"
+    format="yyyy-MM-dd"
     month-name-format="long"
+    :enable-time-picker="false"
+    :auto-apply="true"
     :text-input="{
       enterSubmit: true,
       tabSubmit: true,
@@ -17,7 +21,8 @@
       escClose: true,
       format: 'yyyy-MM-dd',
     }"
-    format="yyyy-MM-dd"
+    @focus="$emit('focus')"
+    @blur="$emit('blur')"
   />
 </template>
 
