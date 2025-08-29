@@ -16,14 +16,6 @@ public class CatalogueTest extends TestLoaders {
   void test06DataCatalogueLoader() throws Exception {
     assertEquals(24, dataCatalogue.getTableNames().size());
 
-    // create rdf in memory
-    OutputStream outputStream = new ByteArrayOutputStream();
-    try (RdfSchemaService rdf =
-        new RdfSchemaService(
-            "http://localhost:8080", dataCatalogue, RDFFormat.TURTLE, outputStream)) {
-      rdf.getGenerator().generate(dataCatalogue);
-    }
-
     // check compliance - when compliant, add: DCAT_AP_SHACL_FILES and HEALTH_RI_V2_SHACL_FILES
     //    adheresToShacl(dataCatalogue, "dcat-ap-v3");
     adheresToShacl(dataCatalogue, "fdp-v1.2");
