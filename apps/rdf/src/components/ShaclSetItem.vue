@@ -57,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, computed, ref, PropType } from "vue";
+import { computed, ref } from "vue";
 import { ChevronDownIcon } from "@heroicons/vue/24/outline";
 import { LayoutCard, MessageError } from "molgenis-components";
 
@@ -68,12 +68,9 @@ interface SchalSet {
   sources: string[];
 }
 
-const props = defineProps({
-  shaclSet: {
-    type: Object as PropType<SchalSet>,
-    required: true,
-  },
-});
+const props = defineProps<{
+  schalSet:SchalSet
+}>();
 
 const shaclSetTitle = computed<string>(() => {
   return (
