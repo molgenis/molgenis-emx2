@@ -3,12 +3,8 @@ package org.molgenis.emx2.datamodels;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.molgenis.emx2.rdf.CustomAssertions.adheresToShacl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import org.eclipse.rdf4j.rio.RDFFormat;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.molgenis.emx2.rdf.RdfSchemaService;
 
 public class CatalogueTest extends TestLoaders {
 
