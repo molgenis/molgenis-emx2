@@ -14,6 +14,6 @@ Contacts,,organisation,ref,,,,Organisations,resource,,,foaf:Organization,Affilia
 Contacts,,organisation,ref,,,,Organisations,,,,foaf:Organization,Affiliated organisation of the contact person,"FAIR Genomes,Beacon v2",,
 Contacts,,email,email,,,,,,,,"vcard:hasEmail,foaf:mbox",Contact's email address,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,FAIR Genomes",,
 Contacts,,orcid,,,,,,,,,dcterms:identifier,Orcid of the contact person,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
-Contacts,,homepage,hyperlink,,,,,,,,"vcard:url,foaf:workplaceHomepage,vcard:hasURL",Link to contact's homepage,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,INTEGRATE",,
+Contacts,,homepage,hyperlink,,,,,,,,"vcard:url,foaf:workplaceHomepage,vcard:hasURL",Link to contact's homepage,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",,
 Contacts,,photo,file,,,,,,,,foaf:img,Contact's photograph,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging",,
 Contacts,,expertise,,,,,,,,,,Description of contact's expertise,"DataCatalogueFlat,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,INTEGRATE",,
