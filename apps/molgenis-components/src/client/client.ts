@@ -7,7 +7,7 @@ import type {
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import type { IRow } from "../Interfaces/IRow";
-import { deepClone } from "../components/utils";
+import { deepClone, getKeyValue } from "../components/utils";
 import type { aggFunction } from "./IClient";
 import type { IClient, INewClient } from "./IClient";
 import type { IQueryMetaData } from "./IQueryMetaData";
@@ -380,23 +380,5 @@ async function convertRowToPrimaryKey(
       },
       Promise.resolve({})
     );
-  }
-
-  async function getKeyValue(
-    cellValue: any,
-    column: IColumn,
-    schemaId: string
-  ) {
-    if (typeof cellValue === "string") {
-      return cellValue;
-    } else {
-      if (column.refTableId) {
-        return await convertRowToPrimaryKey(
-          cellValue,
-          column.refTableId,
-          schemaId
-        );
-      }
-    }
   }
 }

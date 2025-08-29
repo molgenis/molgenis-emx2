@@ -292,8 +292,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       filters.value,
       checkoutStore.selectedCollections,
       checkoutStore.selectedServices,
-      filterType.value,
-      bookmarkWaitingForApplication.value
+      filterType.value
     );
   }
 
@@ -373,8 +372,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         newFilters,
         checkoutStore.selectedCollections,
         checkoutStore.selectedServices,
-        filterType.value,
-        bookmarkWaitingForApplication.value
+        newFilterTypes
       );
     }
     bookmarkTriggeredFilter.value = false;
