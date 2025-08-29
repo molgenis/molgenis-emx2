@@ -1,3 +1,8 @@
+<script setup lang="ts">
+import { ref } from "vue";
+const date = ref<string>("");
+</script>
+
 <template>
   <InputTestContainer
     show-placeholder
@@ -7,6 +12,7 @@
     <label for="input-date" class="text-title"> Enter a date </label>
     <InputDateTime
       id="input-date-time"
+      v-model="date"
       :placeholder="placeholder"
       :valid="valid"
       :invalid="invalid"

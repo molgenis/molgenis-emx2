@@ -10,16 +10,16 @@
     type="Date"
     v-model="modelValue"
     model-type="format"
-    format="yyyy-MM-dd"
     month-name-format="long"
-    :enable-time-picker="false"
+    format="yyyy-MM-dd"
     :auto-apply="true"
+    :enable-time-picker="false"
     :text-input="{
       enterSubmit: true,
       tabSubmit: true,
       selectOnFocus: true,
       escClose: true,
-      format: 'yyyy-MM-dd',
+      // format: 'yyyy-MM-dd',
     }"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
