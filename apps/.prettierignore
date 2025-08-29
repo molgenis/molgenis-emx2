@@ -1,4 +1,7 @@
 build
+dist
+.vscode
+playwright-report
 coverage
 .nuxt
 .output
