@@ -1,251 +1,251 @@
-name,definition,codesystem,code,ontologyTermURI
-Worldwide,,,,
-"Afghanistan","Afghanistan",ISO3166,AF,https://www.iso.org/obp/ui/#iso:code:3166:AF
-"Albania","Albania",ISO3166,AL,https://www.iso.org/obp/ui/#iso:code:3166:AL
-"Algeria","Algeria",ISO3166,DZ,https://www.iso.org/obp/ui/#iso:code:3166:DZ
-"American Samoa","American Samoa",ISO3166,AS,https://www.iso.org/obp/ui/#iso:code:3166:AS
-"Andorra","Andorra",ISO3166,AD,https://www.iso.org/obp/ui/#iso:code:3166:AD
-"Angola","Angola",ISO3166,AO,https://www.iso.org/obp/ui/#iso:code:3166:AO
-"Anguilla","Anguilla",ISO3166,AI,https://www.iso.org/obp/ui/#iso:code:3166:AI
-"Antarctica","Antarctica",ISO3166,AQ,https://www.iso.org/obp/ui/#iso:code:3166:AQ
-"Antigua and Barbuda","Antigua and Barbuda",ISO3166,AG,https://www.iso.org/obp/ui/#iso:code:3166:AG
-"Argentina","Argentina",ISO3166,AR,https://www.iso.org/obp/ui/#iso:code:3166:AR
-"Armenia","Armenia",ISO3166,AM,https://www.iso.org/obp/ui/#iso:code:3166:AM
-"Aruba","Aruba",ISO3166,AW,https://www.iso.org/obp/ui/#iso:code:3166:AW
-"Australia","Australia",ISO3166,AU,https://www.iso.org/obp/ui/#iso:code:3166:AU
-"Austria","Austria",ISO3166,AT,https://www.iso.org/obp/ui/#iso:code:3166:AT
-"Azerbaijan","Azerbaijan",ISO3166,AZ,https://www.iso.org/obp/ui/#iso:code:3166:AZ
-"Bahamas (the)","Bahamas (the)",ISO3166,BS,https://www.iso.org/obp/ui/#iso:code:3166:BS
-"Bahrain","Bahrain",ISO3166,BH,https://www.iso.org/obp/ui/#iso:code:3166:BH
-"Bangladesh","Bangladesh",ISO3166,BD,https://www.iso.org/obp/ui/#iso:code:3166:BD
-"Barbados","Barbados",ISO3166,BB,https://www.iso.org/obp/ui/#iso:code:3166:BB
-"Belarus","Belarus",ISO3166,BY,https://www.iso.org/obp/ui/#iso:code:3166:BY
-"Belgium","Belgium",ISO3166,BE,https://www.iso.org/obp/ui/#iso:code:3166:BE
-"Belize","Belize",ISO3166,BZ,https://www.iso.org/obp/ui/#iso:code:3166:BZ
-"Benin","Benin",ISO3166,BJ,https://www.iso.org/obp/ui/#iso:code:3166:BJ
-"Bermuda","Bermuda",ISO3166,BM,https://www.iso.org/obp/ui/#iso:code:3166:BM
-"Bhutan","Bhutan",ISO3166,BT,https://www.iso.org/obp/ui/#iso:code:3166:BT
-"Bolivia (Plurinational State of)","Bolivia (Plurinational State of)",ISO3166,BO,https://www.iso.org/obp/ui/#iso:code:3166:BO
-"Bonaire, Sint Eustatius and Saba","Bonaire, Sint Eustatius and Saba",ISO3166,BQ,https://www.iso.org/obp/ui/#iso:code:3166:BQ
-"Bosnia and Herzegovina","Bosnia and Herzegovina",ISO3166,BA,https://www.iso.org/obp/ui/#iso:code:3166:BA
-"Botswana","Botswana",ISO3166,BW,https://www.iso.org/obp/ui/#iso:code:3166:BW
-"Bouvet Island","Bouvet Island",ISO3166,BV,https://www.iso.org/obp/ui/#iso:code:3166:BV
-"Brazil","Brazil",ISO3166,BR,https://www.iso.org/obp/ui/#iso:code:3166:BR
-"British Indian Ocean Territory (the)","British Indian Ocean Territory (the)",ISO3166,IO,https://www.iso.org/obp/ui/#iso:code:3166:IO
-"Brunei Darussalam","Brunei Darussalam",ISO3166,BN,https://www.iso.org/obp/ui/#iso:code:3166:BN
-"Bulgaria","Bulgaria",ISO3166,BG,https://www.iso.org/obp/ui/#iso:code:3166:BG
-"Burkina Faso","Burkina Faso",ISO3166,BF,https://www.iso.org/obp/ui/#iso:code:3166:BF
-"Burundi","Burundi",ISO3166,BI,https://www.iso.org/obp/ui/#iso:code:3166:BI
-"Cabo Verde","Cabo Verde",ISO3166,CV,https://www.iso.org/obp/ui/#iso:code:3166:CV
-"Cambodia","Cambodia",ISO3166,KH,https://www.iso.org/obp/ui/#iso:code:3166:KH
-"Cameroon","Cameroon",ISO3166,CM,https://www.iso.org/obp/ui/#iso:code:3166:CM
-"Canada","Canada",ISO3166,CA,https://www.iso.org/obp/ui/#iso:code:3166:CA
-"Cayman Islands (the)","Cayman Islands (the)",ISO3166,KY,https://www.iso.org/obp/ui/#iso:code:3166:KY
-"Central African Republic (the)","Central African Republic (the)",ISO3166,CF,https://www.iso.org/obp/ui/#iso:code:3166:CF
-"Chad","Chad",ISO3166,TD,https://www.iso.org/obp/ui/#iso:code:3166:TD
-"Chile","Chile",ISO3166,CL,https://www.iso.org/obp/ui/#iso:code:3166:CL
-"China","China",ISO3166,CN,https://www.iso.org/obp/ui/#iso:code:3166:CN
-"Christmas Island","Christmas Island",ISO3166,CX,https://www.iso.org/obp/ui/#iso:code:3166:CX
-"Cocos (Keeling) Islands (the)","Cocos (Keeling) Islands (the)",ISO3166,CC,https://www.iso.org/obp/ui/#iso:code:3166:CC
-"Colombia","Colombia",ISO3166,CO,https://www.iso.org/obp/ui/#iso:code:3166:CO
-"Comoros (the)","Comoros (the)",ISO3166,KM,https://www.iso.org/obp/ui/#iso:code:3166:KM
-"Congo (the Democratic Republic of the)","Congo (the Democratic Republic of the)",ISO3166,CD,https://www.iso.org/obp/ui/#iso:code:3166:CD
-"Congo (the)","Congo (the)",ISO3166,CG,https://www.iso.org/obp/ui/#iso:code:3166:CG
-"Cook Islands (the)","Cook Islands (the)",ISO3166,CK,https://www.iso.org/obp/ui/#iso:code:3166:CK
-"Costa Rica","Costa Rica",ISO3166,CR,https://www.iso.org/obp/ui/#iso:code:3166:CR
-"Croatia","Croatia",ISO3166,HR,https://www.iso.org/obp/ui/#iso:code:3166:HR
-"Cuba","Cuba",ISO3166,CU,https://www.iso.org/obp/ui/#iso:code:3166:CU
-"Curaçao","Curaçao",ISO3166,CW,https://www.iso.org/obp/ui/#iso:code:3166:CW
-"Cyprus","Cyprus",ISO3166,CY,https://www.iso.org/obp/ui/#iso:code:3166:CY
-"Czechia","Czechia",ISO3166,CZ,https://www.iso.org/obp/ui/#iso:code:3166:CZ
-"Côte d'Ivoire","Côte d'Ivoire",ISO3166,CI,https://www.iso.org/obp/ui/#iso:code:3166:CI
-"Denmark","Denmark",ISO3166,DK,https://www.iso.org/obp/ui/#iso:code:3166:DK
-"Djibouti","Djibouti",ISO3166,DJ,https://www.iso.org/obp/ui/#iso:code:3166:DJ
-"Dominica","Dominica",ISO3166,DM,https://www.iso.org/obp/ui/#iso:code:3166:DM
-"Dominican Republic (the)","Dominican Republic (the)",ISO3166,DO,https://www.iso.org/obp/ui/#iso:code:3166:DO
-"Ecuador","Ecuador",ISO3166,EC,https://www.iso.org/obp/ui/#iso:code:3166:EC
-"Egypt","Egypt",ISO3166,EG,https://www.iso.org/obp/ui/#iso:code:3166:EG
-"El Salvador","El Salvador",ISO3166,SV,https://www.iso.org/obp/ui/#iso:code:3166:SV
-"Equatorial Guinea","Equatorial Guinea",ISO3166,GQ,https://www.iso.org/obp/ui/#iso:code:3166:GQ
-"Eritrea","Eritrea",ISO3166,ER,https://www.iso.org/obp/ui/#iso:code:3166:ER
-"Estonia","Estonia",ISO3166,EE,https://www.iso.org/obp/ui/#iso:code:3166:EE
-"Eswatini","Eswatini",ISO3166,SZ,https://www.iso.org/obp/ui/#iso:code:3166:SZ
-"Ethiopia","Ethiopia",ISO3166,ET,https://www.iso.org/obp/ui/#iso:code:3166:ET
-"Falkland Islands (the) [Malvinas]","Falkland Islands (the) [Malvinas]",ISO3166,FK,https://www.iso.org/obp/ui/#iso:code:3166:FK
-"Faroe Islands (the)","Faroe Islands (the)",ISO3166,FO,https://www.iso.org/obp/ui/#iso:code:3166:FO
-"Fiji","Fiji",ISO3166,FJ,https://www.iso.org/obp/ui/#iso:code:3166:FJ
-"Finland","Finland",ISO3166,FI,https://www.iso.org/obp/ui/#iso:code:3166:FI
-"France","France",ISO3166,FR,https://www.iso.org/obp/ui/#iso:code:3166:FR
-"French Guiana","French Guiana",ISO3166,GF,https://www.iso.org/obp/ui/#iso:code:3166:GF
-"French Polynesia","French Polynesia",ISO3166,PF,https://www.iso.org/obp/ui/#iso:code:3166:PF
-"French Southern Territories (the)","French Southern Territories (the)",ISO3166,TF,https://www.iso.org/obp/ui/#iso:code:3166:TF
-"Gabon","Gabon",ISO3166,GA,https://www.iso.org/obp/ui/#iso:code:3166:GA
-"Gambia (the)","Gambia (the)",ISO3166,GM,https://www.iso.org/obp/ui/#iso:code:3166:GM
-"Georgia","Georgia",ISO3166,GE,https://www.iso.org/obp/ui/#iso:code:3166:GE
-"Germany","Germany",ISO3166,DE,https://www.iso.org/obp/ui/#iso:code:3166:DE
-"Ghana","Ghana",ISO3166,GH,https://www.iso.org/obp/ui/#iso:code:3166:GH
-"Gibraltar","Gibraltar",ISO3166,GI,https://www.iso.org/obp/ui/#iso:code:3166:GI
-"Greece","Greece",ISO3166,GR,https://www.iso.org/obp/ui/#iso:code:3166:GR
-"Greenland","Greenland",ISO3166,GL,https://www.iso.org/obp/ui/#iso:code:3166:GL
-"Grenada","Grenada",ISO3166,GD,https://www.iso.org/obp/ui/#iso:code:3166:GD
-"Guadeloupe","Guadeloupe",ISO3166,GP,https://www.iso.org/obp/ui/#iso:code:3166:GP
-"Guam","Guam",ISO3166,GU,https://www.iso.org/obp/ui/#iso:code:3166:GU
-"Guatemala","Guatemala",ISO3166,GT,https://www.iso.org/obp/ui/#iso:code:3166:GT
-"Guernsey","Guernsey",ISO3166,GG,https://www.iso.org/obp/ui/#iso:code:3166:GG
-"Guinea","Guinea",ISO3166,GN,https://www.iso.org/obp/ui/#iso:code:3166:GN
-"Guinea-Bissau","Guinea-Bissau",ISO3166,GW,https://www.iso.org/obp/ui/#iso:code:3166:GW
-"Guyana","Guyana",ISO3166,GY,https://www.iso.org/obp/ui/#iso:code:3166:GY
-"Haiti","Haiti",ISO3166,HT,https://www.iso.org/obp/ui/#iso:code:3166:HT
-"Heard Island and McDonald Islands","Heard Island and McDonald Islands",ISO3166,HM,https://www.iso.org/obp/ui/#iso:code:3166:HM
-"Holy See (the)","Holy See (the)",ISO3166,VA,https://www.iso.org/obp/ui/#iso:code:3166:VA
-"Honduras","Honduras",ISO3166,HN,https://www.iso.org/obp/ui/#iso:code:3166:HN
-"Hong Kong","Hong Kong",ISO3166,HK,https://www.iso.org/obp/ui/#iso:code:3166:HK
-"Hungary","Hungary",ISO3166,HU,https://www.iso.org/obp/ui/#iso:code:3166:HU
-"Iceland","Iceland",ISO3166,IS,https://www.iso.org/obp/ui/#iso:code:3166:IS
-"India","India",ISO3166,IN,https://www.iso.org/obp/ui/#iso:code:3166:IN
-"Indonesia","Indonesia",ISO3166,ID,https://www.iso.org/obp/ui/#iso:code:3166:ID
-"Iran (Islamic Republic of)","Iran (Islamic Republic of)",ISO3166,IR,https://www.iso.org/obp/ui/#iso:code:3166:IR
-"Iraq","Iraq",ISO3166,IQ,https://www.iso.org/obp/ui/#iso:code:3166:IQ
-"Ireland","Ireland",ISO3166,IE,https://www.iso.org/obp/ui/#iso:code:3166:IE
-"Isle of Man","Isle of Man",ISO3166,IM,https://www.iso.org/obp/ui/#iso:code:3166:IM
-"Israel","Israel",ISO3166,IL,https://www.iso.org/obp/ui/#iso:code:3166:IL
-"Italy","Italy",ISO3166,IT,https://www.iso.org/obp/ui/#iso:code:3166:IT
-"Jamaica","Jamaica",ISO3166,JM,https://www.iso.org/obp/ui/#iso:code:3166:JM
-"Japan","Japan",ISO3166,JP,https://www.iso.org/obp/ui/#iso:code:3166:JP
-"Jersey","Jersey",ISO3166,JE,https://www.iso.org/obp/ui/#iso:code:3166:JE
-"Jordan","Jordan",ISO3166,JO,https://www.iso.org/obp/ui/#iso:code:3166:JO
-"Kazakhstan","Kazakhstan",ISO3166,KZ,https://www.iso.org/obp/ui/#iso:code:3166:KZ
-"Kenya","Kenya",ISO3166,KE,https://www.iso.org/obp/ui/#iso:code:3166:KE
-"Kiribati","Kiribati",ISO3166,KI,https://www.iso.org/obp/ui/#iso:code:3166:KI
-"Korea (the Democratic People's Republic of)","Korea (the Democratic People's Republic of)",ISO3166,KP,https://www.iso.org/obp/ui/#iso:code:3166:KP
-"Korea (the Republic of)","Korea (the Republic of)",ISO3166,KR,https://www.iso.org/obp/ui/#iso:code:3166:KR
-"Kuwait","Kuwait",ISO3166,KW,https://www.iso.org/obp/ui/#iso:code:3166:KW
-"Kyrgyzstan","Kyrgyzstan",ISO3166,KG,https://www.iso.org/obp/ui/#iso:code:3166:KG
-"Lao People's Democratic Republic (the)","Lao People's Democratic Republic (the)",ISO3166,LA,https://www.iso.org/obp/ui/#iso:code:3166:LA
-"Latvia","Latvia",ISO3166,LV,https://www.iso.org/obp/ui/#iso:code:3166:LV
-"Lebanon","Lebanon",ISO3166,LB,https://www.iso.org/obp/ui/#iso:code:3166:LB
-"Lesotho","Lesotho",ISO3166,LS,https://www.iso.org/obp/ui/#iso:code:3166:LS
-"Liberia","Liberia",ISO3166,LR,https://www.iso.org/obp/ui/#iso:code:3166:LR
-"Libya","Libya",ISO3166,LY,https://www.iso.org/obp/ui/#iso:code:3166:LY
-"Liechtenstein","Liechtenstein",ISO3166,LI,https://www.iso.org/obp/ui/#iso:code:3166:LI
-"Lithuania","Lithuania",ISO3166,LT,https://www.iso.org/obp/ui/#iso:code:3166:LT
-"Luxembourg","Luxembourg",ISO3166,LU,https://www.iso.org/obp/ui/#iso:code:3166:LU
-"Macao","Macao",ISO3166,MO,https://www.iso.org/obp/ui/#iso:code:3166:MO
-"Madagascar","Madagascar",ISO3166,MG,https://www.iso.org/obp/ui/#iso:code:3166:MG
-"Malawi","Malawi",ISO3166,MW,https://www.iso.org/obp/ui/#iso:code:3166:MW
-"Malaysia","Malaysia",ISO3166,MY,https://www.iso.org/obp/ui/#iso:code:3166:MY
-"Maldives","Maldives",ISO3166,MV,https://www.iso.org/obp/ui/#iso:code:3166:MV
-"Mali","Mali",ISO3166,ML,https://www.iso.org/obp/ui/#iso:code:3166:ML
-"Malta","Malta",ISO3166,MT,https://www.iso.org/obp/ui/#iso:code:3166:MT
-"Marshall Islands (the)","Marshall Islands (the)",ISO3166,MH,https://www.iso.org/obp/ui/#iso:code:3166:MH
-"Martinique","Martinique",ISO3166,MQ,https://www.iso.org/obp/ui/#iso:code:3166:MQ
-"Mauritania","Mauritania",ISO3166,MR,https://www.iso.org/obp/ui/#iso:code:3166:MR
-"Mauritius","Mauritius",ISO3166,MU,https://www.iso.org/obp/ui/#iso:code:3166:MU
-"Mayotte","Mayotte",ISO3166,YT,https://www.iso.org/obp/ui/#iso:code:3166:YT
-"Mexico","Mexico",ISO3166,MX,https://www.iso.org/obp/ui/#iso:code:3166:MX
-"Micronesia (Federated States of)","Micronesia (Federated States of)",ISO3166,FM,https://www.iso.org/obp/ui/#iso:code:3166:FM
-"Moldova (the Republic of)","Moldova (the Republic of)",ISO3166,MD,https://www.iso.org/obp/ui/#iso:code:3166:MD
-"Monaco","Monaco",ISO3166,MC,https://www.iso.org/obp/ui/#iso:code:3166:MC
-"Mongolia","Mongolia",ISO3166,MN,https://www.iso.org/obp/ui/#iso:code:3166:MN
-"Montenegro","Montenegro",ISO3166,ME,https://www.iso.org/obp/ui/#iso:code:3166:ME
-"Montserrat","Montserrat",ISO3166,MS,https://www.iso.org/obp/ui/#iso:code:3166:MS
-"Morocco","Morocco",ISO3166,MA,https://www.iso.org/obp/ui/#iso:code:3166:MA
-"Mozambique","Mozambique",ISO3166,MZ,https://www.iso.org/obp/ui/#iso:code:3166:MZ
-"Myanmar","Myanmar",ISO3166,MM,https://www.iso.org/obp/ui/#iso:code:3166:MM
-"Namibia","Namibia",ISO3166,NA,https://www.iso.org/obp/ui/#iso:code:3166:NA
-"Nauru","Nauru",ISO3166,NR,https://www.iso.org/obp/ui/#iso:code:3166:NR
-"Nepal","Nepal",ISO3166,NP,https://www.iso.org/obp/ui/#iso:code:3166:NP
-"Netherlands (the)","Netherlands (the)",ISO3166,NL,https://www.iso.org/obp/ui/#iso:code:3166:NL
-"New Caledonia","New Caledonia",ISO3166,NC,https://www.iso.org/obp/ui/#iso:code:3166:NC
-"New Zealand","New Zealand",ISO3166,NZ,https://www.iso.org/obp/ui/#iso:code:3166:NZ
-"Nicaragua","Nicaragua",ISO3166,NI,https://www.iso.org/obp/ui/#iso:code:3166:NI
-"Niger (the)","Niger (the)",ISO3166,NE,https://www.iso.org/obp/ui/#iso:code:3166:NE
-"Nigeria","Nigeria",ISO3166,NG,https://www.iso.org/obp/ui/#iso:code:3166:NG
-"Niue","Niue",ISO3166,NU,https://www.iso.org/obp/ui/#iso:code:3166:NU
-"Norfolk Island","Norfolk Island",ISO3166,NF,https://www.iso.org/obp/ui/#iso:code:3166:NF
-"North Macedonia","North Macedonia",ISO3166,MK,https://www.iso.org/obp/ui/#iso:code:3166:MK
-"Northern Mariana Islands (the)","Northern Mariana Islands (the)",ISO3166,MP,https://www.iso.org/obp/ui/#iso:code:3166:MP
-"Norway","Norway",ISO3166,NO,https://www.iso.org/obp/ui/#iso:code:3166:NO
-"Oman","Oman",ISO3166,OM,https://www.iso.org/obp/ui/#iso:code:3166:OM
-"Pakistan","Pakistan",ISO3166,PK,https://www.iso.org/obp/ui/#iso:code:3166:PK
-"Palau","Palau",ISO3166,PW,https://www.iso.org/obp/ui/#iso:code:3166:PW
-"Palestine, State of","Palestine, State of",ISO3166,PS,https://www.iso.org/obp/ui/#iso:code:3166:PS
-"Panama","Panama",ISO3166,PA,https://www.iso.org/obp/ui/#iso:code:3166:PA
-"Papua New Guinea","Papua New Guinea",ISO3166,PG,https://www.iso.org/obp/ui/#iso:code:3166:PG
-"Paraguay","Paraguay",ISO3166,PY,https://www.iso.org/obp/ui/#iso:code:3166:PY
-"Peru","Peru",ISO3166,PE,https://www.iso.org/obp/ui/#iso:code:3166:PE
-"Philippines (the)","Philippines (the)",ISO3166,PH,https://www.iso.org/obp/ui/#iso:code:3166:PH
-"Pitcairn","Pitcairn",ISO3166,PN,https://www.iso.org/obp/ui/#iso:code:3166:PN
-"Poland","Poland",ISO3166,PL,https://www.iso.org/obp/ui/#iso:code:3166:PL
-"Portugal","Portugal",ISO3166,PT,https://www.iso.org/obp/ui/#iso:code:3166:PT
-"Puerto Rico","Puerto Rico",ISO3166,PR,https://www.iso.org/obp/ui/#iso:code:3166:PR
-"Qatar","Qatar",ISO3166,QA,https://www.iso.org/obp/ui/#iso:code:3166:QA
-"Romania","Romania",ISO3166,RO,https://www.iso.org/obp/ui/#iso:code:3166:RO
-"Russian Federation (the)","Russian Federation (the)",ISO3166,RU,https://www.iso.org/obp/ui/#iso:code:3166:RU
-"Rwanda","Rwanda",ISO3166,RW,https://www.iso.org/obp/ui/#iso:code:3166:RW
-"Réunion","Réunion",ISO3166,RE,https://www.iso.org/obp/ui/#iso:code:3166:RE
-"Saint Barthélemy","Saint Barthélemy",ISO3166,BL,https://www.iso.org/obp/ui/#iso:code:3166:BL
-"Saint Helena, Ascension and Tristan da Cunha","Saint Helena, Ascension and Tristan da Cunha",ISO3166,SH,https://www.iso.org/obp/ui/#iso:code:3166:SH
-"Saint Kitts and Nevis","Saint Kitts and Nevis",ISO3166,KN,https://www.iso.org/obp/ui/#iso:code:3166:KN
-"Saint Lucia","Saint Lucia",ISO3166,LC,https://www.iso.org/obp/ui/#iso:code:3166:LC
-"Saint Martin (French part)","Saint Martin (French part)",ISO3166,MF,https://www.iso.org/obp/ui/#iso:code:3166:MF
-"Saint Pierre and Miquelon","Saint Pierre and Miquelon",ISO3166,PM,https://www.iso.org/obp/ui/#iso:code:3166:PM
-"Saint Vincent and the Grenadines","Saint Vincent and the Grenadines",ISO3166,VC,https://www.iso.org/obp/ui/#iso:code:3166:VC
-"Samoa","Samoa",ISO3166,WS,https://www.iso.org/obp/ui/#iso:code:3166:WS
-"San Marino","San Marino",ISO3166,SM,https://www.iso.org/obp/ui/#iso:code:3166:SM
-"Sao Tome and Principe","Sao Tome and Principe",ISO3166,ST,https://www.iso.org/obp/ui/#iso:code:3166:ST
-"Saudi Arabia","Saudi Arabia",ISO3166,SA,https://www.iso.org/obp/ui/#iso:code:3166:SA
-"Senegal","Senegal",ISO3166,SN,https://www.iso.org/obp/ui/#iso:code:3166:SN
-"Serbia","Serbia",ISO3166,RS,https://www.iso.org/obp/ui/#iso:code:3166:RS
-"Seychelles","Seychelles",ISO3166,SC,https://www.iso.org/obp/ui/#iso:code:3166:SC
-"Sierra Leone","Sierra Leone",ISO3166,SL,https://www.iso.org/obp/ui/#iso:code:3166:SL
-"Singapore","Singapore",ISO3166,SG,https://www.iso.org/obp/ui/#iso:code:3166:SG
-"Sint Maarten (Dutch part)","Sint Maarten (Dutch part)",ISO3166,SX,https://www.iso.org/obp/ui/#iso:code:3166:SX
-"Slovakia","Slovakia",ISO3166,SK,https://www.iso.org/obp/ui/#iso:code:3166:SK
-"Slovenia","Slovenia",ISO3166,SI,https://www.iso.org/obp/ui/#iso:code:3166:SI
-"Solomon Islands","Solomon Islands",ISO3166,SB,https://www.iso.org/obp/ui/#iso:code:3166:SB
-"Somalia","Somalia",ISO3166,SO,https://www.iso.org/obp/ui/#iso:code:3166:SO
-"South Africa","South Africa",ISO3166,ZA,https://www.iso.org/obp/ui/#iso:code:3166:ZA
-"South Georgia and the South Sandwich Islands","South Georgia and the South Sandwich Islands",ISO3166,GS,https://www.iso.org/obp/ui/#iso:code:3166:GS
-"South Sudan","South Sudan",ISO3166,SS,https://www.iso.org/obp/ui/#iso:code:3166:SS
-"Spain","Spain",ISO3166,ES,https://www.iso.org/obp/ui/#iso:code:3166:ES
-"Sri Lanka","Sri Lanka",ISO3166,LK,https://www.iso.org/obp/ui/#iso:code:3166:LK
-"Sudan (the)","Sudan (the)",ISO3166,SD,https://www.iso.org/obp/ui/#iso:code:3166:SD
-"Suriname","Suriname",ISO3166,SR,https://www.iso.org/obp/ui/#iso:code:3166:SR
-"Svalbard and Jan Mayen","Svalbard and Jan Mayen",ISO3166,SJ,https://www.iso.org/obp/ui/#iso:code:3166:SJ
-"Sweden","Sweden",ISO3166,SE,https://www.iso.org/obp/ui/#iso:code:3166:SE
-"Switzerland","Switzerland",ISO3166,CH,https://www.iso.org/obp/ui/#iso:code:3166:CH
-"Syrian Arab Republic (the)","Syrian Arab Republic (the)",ISO3166,SY,https://www.iso.org/obp/ui/#iso:code:3166:SY
-"Taiwan (Province of China)","Taiwan (Province of China)",ISO3166,TW,https://www.iso.org/obp/ui/#iso:code:3166:TW
-"Tajikistan","Tajikistan",ISO3166,TJ,https://www.iso.org/obp/ui/#iso:code:3166:TJ
-"Tanzania, the United Republic of","Tanzania, the United Republic of",ISO3166,TZ,https://www.iso.org/obp/ui/#iso:code:3166:TZ
-"Thailand","Thailand",ISO3166,TH,https://www.iso.org/obp/ui/#iso:code:3166:TH
-"Timor-Leste","Timor-Leste",ISO3166,TL,https://www.iso.org/obp/ui/#iso:code:3166:TL
-"Togo","Togo",ISO3166,TG,https://www.iso.org/obp/ui/#iso:code:3166:TG
-"Tokelau","Tokelau",ISO3166,TK,https://www.iso.org/obp/ui/#iso:code:3166:TK
-"Tonga","Tonga",ISO3166,TO,https://www.iso.org/obp/ui/#iso:code:3166:TO
-"Trinidad and Tobago","Trinidad and Tobago",ISO3166,TT,https://www.iso.org/obp/ui/#iso:code:3166:TT
-"Tunisia","Tunisia",ISO3166,TN,https://www.iso.org/obp/ui/#iso:code:3166:TN
-"Turkey","Turkey",ISO3166,TR,https://www.iso.org/obp/ui/#iso:code:3166:TR
-"Turkmenistan","Turkmenistan",ISO3166,TM,https://www.iso.org/obp/ui/#iso:code:3166:TM
-"Turks and Caicos Islands (the)","Turks and Caicos Islands (the)",ISO3166,TC,https://www.iso.org/obp/ui/#iso:code:3166:TC
-"Tuvalu","Tuvalu",ISO3166,TV,https://www.iso.org/obp/ui/#iso:code:3166:TV
-"Uganda","Uganda",ISO3166,UG,https://www.iso.org/obp/ui/#iso:code:3166:UG
-"Ukraine","Ukraine",ISO3166,UA,https://www.iso.org/obp/ui/#iso:code:3166:UA
-"United Arab Emirates (the)","United Arab Emirates (the)",ISO3166,AE,https://www.iso.org/obp/ui/#iso:code:3166:AE
-"United Kingdom of Great Britain and Northern Ireland (the)","United Kingdom of Great Britain and Northern Ireland (the)",ISO3166,GB,https://www.iso.org/obp/ui/#iso:code:3166:GB
-"United States Minor Outlying Islands (the)","United States Minor Outlying Islands (the)",ISO3166,UM,https://www.iso.org/obp/ui/#iso:code:3166:UM
-"United States of America (the)","United States of America (the)",ISO3166,US,https://www.iso.org/obp/ui/#iso:code:3166:US
-"Uruguay","Uruguay",ISO3166,UY,https://www.iso.org/obp/ui/#iso:code:3166:UY
-"Uzbekistan","Uzbekistan",ISO3166,UZ,https://www.iso.org/obp/ui/#iso:code:3166:UZ
-"Vanuatu","Vanuatu",ISO3166,VU,https://www.iso.org/obp/ui/#iso:code:3166:VU
-"Venezuela (Bolivarian Republic of)","Venezuela (Bolivarian Republic of)",ISO3166,VE,https://www.iso.org/obp/ui/#iso:code:3166:VE
-"Viet Nam","Viet Nam",ISO3166,VN,https://www.iso.org/obp/ui/#iso:code:3166:VN
-"Virgin Islands (British)","Virgin Islands (British)",ISO3166,VG,https://www.iso.org/obp/ui/#iso:code:3166:VG
-"Virgin Islands (U.S.)","Virgin Islands (U.S.)",ISO3166,VI,https://www.iso.org/obp/ui/#iso:code:3166:VI
-"Wallis and Futuna","Wallis and Futuna",ISO3166,WF,https://www.iso.org/obp/ui/#iso:code:3166:WF
-"Western Sahara*","Western Sahara*",ISO3166,EH,https://www.iso.org/obp/ui/#iso:code:3166:EH
-"Yemen","Yemen",ISO3166,YE,https://www.iso.org/obp/ui/#iso:code:3166:YE
-"Zambia","Zambia",ISO3166,ZM,https://www.iso.org/obp/ui/#iso:code:3166:ZM
-"Zimbabwe","Zimbabwe",ISO3166,ZW,https://www.iso.org/obp/ui/#iso:code:3166:ZW
-"Åland Islands","Åland Islands",ISO3166,AX,https://www.iso.org/obp/ui/#iso:code:3166:AX
+﻿order,name,label,tags,parent,codesystem,code,ontologyTermURI,definition,children
+1,Worldwide,,,,,,,,
+2,Afghanistan,,,,ISO3166,AFG,http://publications.europa.eu/resource/authority/country/AFG,Afghanistan,
+3,Åland Islands,,,,ISO3166,ALA,http://publications.europa.eu/resource/authority/country/ALA,Åland Islands,
+4,Albania,,,,ISO3166,ALB,http://publications.europa.eu/resource/authority/country/ALB,Albania,
+5,Algeria,,,,ISO3166,DZA,http://publications.europa.eu/resource/authority/country/DZA,Algeria,
+6,American Samoa,,,,ISO3166,ASM,http://publications.europa.eu/resource/authority/country/ASM,American Samoa,
+7,Andorra,,,,ISO3166,AND,http://publications.europa.eu/resource/authority/country/AND,Andorra,
+8,Angola,,,,ISO3166,AGO,http://publications.europa.eu/resource/authority/country/AGO,Angola,
+9,Anguilla,,,,ISO3166,AIA,http://publications.europa.eu/resource/authority/country/AIA,Anguilla,
+10,Antarctica,,,,ISO3166,ATA,http://publications.europa.eu/resource/authority/country/ATA,Antarctica,
+11,Antigua and Barbuda,,,,ISO3166,ATG,http://publications.europa.eu/resource/authority/country/ATG,Antigua and Barbuda,
+12,Argentina,,,,ISO3166,ARG,http://publications.europa.eu/resource/authority/country/ARG,Argentina,
+13,Armenia,,,,ISO3166,ARM,http://publications.europa.eu/resource/authority/country/ARM,Armenia,
+14,Aruba,,,,ISO3166,ABW,http://publications.europa.eu/resource/authority/country/ABW,Aruba,
+15,Australia,,,,ISO3166,AUS,http://publications.europa.eu/resource/authority/country/AUS,Australia,
+16,Austria,,,,ISO3166,AUT,http://publications.europa.eu/resource/authority/country/AUT,Austria,
+17,Azerbaijan,,,,ISO3166,AZE,http://publications.europa.eu/resource/authority/country/AZE,Azerbaijan,
+18,Bahamas (the),,,,ISO3166,BHS,http://publications.europa.eu/resource/authority/country/BHS,Bahamas (the),
+19,Bahrain,,,,ISO3166,BHR,http://publications.europa.eu/resource/authority/country/BHR,Bahrain,
+20,Bangladesh,,,,ISO3166,BGD,http://publications.europa.eu/resource/authority/country/BGD,Bangladesh,
+21,Barbados,,,,ISO3166,BRB,http://publications.europa.eu/resource/authority/country/BRB,Barbados,
+22,Belarus,,,,ISO3166,BLR,http://publications.europa.eu/resource/authority/country/BLR,Belarus,
+23,Belgium,,,,ISO3166,BEL,http://publications.europa.eu/resource/authority/country/BEL,Belgium,
+24,Belize,,,,ISO3166,BLZ,http://publications.europa.eu/resource/authority/country/BLZ,Belize,
+25,Benin,,,,ISO3166,BEN,http://publications.europa.eu/resource/authority/country/BEN,Benin,
+26,Bermuda,,,,ISO3166,BMU,http://publications.europa.eu/resource/authority/country/BMU,Bermuda,
+27,Bhutan,,,,ISO3166,BTN,http://publications.europa.eu/resource/authority/country/BTN,Bhutan,
+28,Bolivia (Plurinational State of),,,,ISO3166,BOL,http://publications.europa.eu/resource/authority/country/BOL,Bolivia (Plurinational State of),
+29,"Bonaire, Sint Eustatius and Saba",,,,ISO3166,BES,http://publications.europa.eu/resource/authority/country/BES,"Bonaire, Sint Eustatius and Saba",
+30,Bosnia and Herzegovina,,,,ISO3166,BIH,http://publications.europa.eu/resource/authority/country/BIH,Bosnia and Herzegovina,
+31,Botswana,,,,ISO3166,BWA,http://publications.europa.eu/resource/authority/country/BWA,Botswana,
+32,Bouvet Island,,,,ISO3166,BVT,http://publications.europa.eu/resource/authority/country/BVT,Bouvet Island,
+33,Brazil,,,,ISO3166,BRA,http://publications.europa.eu/resource/authority/country/BRA,Brazil,
+34,British Indian Ocean Territory (the),,,,ISO3166,IOT,http://publications.europa.eu/resource/authority/country/IOT,British Indian Ocean Territory (the),
+35,Brunei Darussalam,,,,ISO3166,BRN,http://publications.europa.eu/resource/authority/country/BRN,Brunei Darussalam,
+36,Bulgaria,,,,ISO3166,BGR,http://publications.europa.eu/resource/authority/country/BGR,Bulgaria,
+37,Burkina Faso,,,,ISO3166,BFA,http://publications.europa.eu/resource/authority/country/BFA,Burkina Faso,
+38,Burundi,,,,ISO3166,BDI,http://publications.europa.eu/resource/authority/country/BDI,Burundi,
+39,Cabo Verde,,,,ISO3166,CPV,http://publications.europa.eu/resource/authority/country/CPV,Cabo Verde,
+40,Cambodia,,,,ISO3166,KHM,http://publications.europa.eu/resource/authority/country/KHM,Cambodia,
+41,Cameroon,,,,ISO3166,CMR,http://publications.europa.eu/resource/authority/country/CMR,Cameroon,
+42,Canada,,,,ISO3166,CAN,http://publications.europa.eu/resource/authority/country/CAN,Canada,
+43,Cayman Islands (the),,,,ISO3166,CYM,http://publications.europa.eu/resource/authority/country/CYM,Cayman Islands (the),
+44,Central African Republic (the),,,,ISO3166,CAF,http://publications.europa.eu/resource/authority/country/CAF,Central African Republic (the),
+45,Chad,,,,ISO3166,TCD,http://publications.europa.eu/resource/authority/country/TCD,Chad,
+46,Chile,,,,ISO3166,CHL,http://publications.europa.eu/resource/authority/country/CHL,Chile,
+47,China,,,,ISO3166,CHN,http://publications.europa.eu/resource/authority/country/CHN,China,
+48,Christmas Island,,,,ISO3166,CXR,http://publications.europa.eu/resource/authority/country/CXR,Christmas Island,
+49,Cocos (Keeling) Islands (the),,,,ISO3166,CCK,http://publications.europa.eu/resource/authority/country/CCK,Cocos (Keeling) Islands (the),
+50,Colombia,,,,ISO3166,COL,http://publications.europa.eu/resource/authority/country/COL,Colombia,
+51,Comoros (the),,,,ISO3166,COM,http://publications.europa.eu/resource/authority/country/COM,Comoros (the),
+52,Congo (the Democratic Republic of the),,,,ISO3166,COD,http://publications.europa.eu/resource/authority/country/COD,Congo (the Democratic Republic of the),
+53,Congo (the),,,,ISO3166,COG,http://publications.europa.eu/resource/authority/country/COG,Congo (the),
+54,Cook Islands (the),,,,ISO3166,COK,http://publications.europa.eu/resource/authority/country/COK,Cook Islands (the),
+55,Costa Rica,,,,ISO3166,CRI,http://publications.europa.eu/resource/authority/country/CRI,Costa Rica,
+56,Côte d'Ivoire,,,,ISO3166,CIV,http://publications.europa.eu/resource/authority/country/CIV,Côte d'Ivoire,
+57,Croatia,,,,ISO3166,HRV,http://publications.europa.eu/resource/authority/country/HRV,Croatia,
+58,Cuba,,,,ISO3166,CUB,http://publications.europa.eu/resource/authority/country/CUB,Cuba,
+59,Curaçao,,,,ISO3166,CUW,http://publications.europa.eu/resource/authority/country/CUW,Curaçao,
+60,Cyprus,,,,ISO3166,CYP,http://publications.europa.eu/resource/authority/country/CYP,Cyprus,
+61,Czechia,,,,ISO3166,CZE,http://publications.europa.eu/resource/authority/country/CZE,Czechia,
+62,Denmark,,,,ISO3166,DNK,http://publications.europa.eu/resource/authority/country/DNK,Denmark,
+63,Djibouti,,,,ISO3166,DJI,http://publications.europa.eu/resource/authority/country/DJI,Djibouti,
+64,Dominica,,,,ISO3166,DMA,http://publications.europa.eu/resource/authority/country/DMA,Dominica,
+65,Dominican Republic (the),,,,ISO3166,DOM,http://publications.europa.eu/resource/authority/country/DOM,Dominican Republic (the),
+66,Ecuador,,,,ISO3166,ECU,http://publications.europa.eu/resource/authority/country/ECU,Ecuador,
+67,Egypt,,,,ISO3166,EGY,http://publications.europa.eu/resource/authority/country/EGY,Egypt,
+68,El Salvador,,,,ISO3166,SLV,http://publications.europa.eu/resource/authority/country/SLV,El Salvador,
+69,Equatorial Guinea,,,,ISO3166,GNQ,http://publications.europa.eu/resource/authority/country/GNQ,Equatorial Guinea,
+70,Eritrea,,,,ISO3166,ERI,http://publications.europa.eu/resource/authority/country/ERI,Eritrea,
+71,Estonia,,,,ISO3166,EST,http://publications.europa.eu/resource/authority/country/EST,Estonia,
+72,Eswatini,,,,ISO3166,SWZ,http://publications.europa.eu/resource/authority/country/SWZ,Eswatini,
+73,Ethiopia,,,,ISO3166,ETH,http://publications.europa.eu/resource/authority/country/ETH,Ethiopia,
+74,Falkland Islands (the) [Malvinas],,,,ISO3166,FLK,http://publications.europa.eu/resource/authority/country/FLK,Falkland Islands (the) [Malvinas],
+75,Faroe Islands (the),,,,ISO3166,FRO,http://publications.europa.eu/resource/authority/country/FRO,Faroe Islands (the),
+76,Fiji,,,,ISO3166,FJI,http://publications.europa.eu/resource/authority/country/FJI,Fiji,
+77,Finland,,,,ISO3166,FIN,http://publications.europa.eu/resource/authority/country/FIN,Finland,
+78,France,,,,ISO3166,FRA,http://publications.europa.eu/resource/authority/country/FRA,France,
+79,French Guiana,,,,ISO3166,GUF,http://publications.europa.eu/resource/authority/country/GUF,French Guiana,
+80,French Polynesia,,,,ISO3166,PYF,http://publications.europa.eu/resource/authority/country/PYF,French Polynesia,
+81,French Southern Territories (the),,,,ISO3166,ATF,http://publications.europa.eu/resource/authority/country/ATF,French Southern Territories (the),
+82,Gabon,,,,ISO3166,GAB,http://publications.europa.eu/resource/authority/country/GAB,Gabon,
+83,Gambia (the),,,,ISO3166,GMB,http://publications.europa.eu/resource/authority/country/GMB,Gambia (the),
+84,Georgia,,,,ISO3166,GEO,http://publications.europa.eu/resource/authority/country/GEO,Georgia,
+85,Germany,,,,ISO3166,DEU,http://publications.europa.eu/resource/authority/country/DEU,Germany,
+86,Ghana,,,,ISO3166,GHA,http://publications.europa.eu/resource/authority/country/GHA,Ghana,
+87,Gibraltar,,,,ISO3166,GIB,http://publications.europa.eu/resource/authority/country/GIB,Gibraltar,
+88,Greece,,,,ISO3166,GRC,http://publications.europa.eu/resource/authority/country/GRC,Greece,
+89,Greenland,,,,ISO3166,GRL,http://publications.europa.eu/resource/authority/country/GRL,Greenland,
+90,Grenada,,,,ISO3166,GRD,http://publications.europa.eu/resource/authority/country/GRD,Grenada,
+91,Guadeloupe,,,,ISO3166,GLP,http://publications.europa.eu/resource/authority/country/GLP,Guadeloupe,
+92,Guam,,,,ISO3166,GUM,http://publications.europa.eu/resource/authority/country/GUM,Guam,
+93,Guatemala,,,,ISO3166,GTM,http://publications.europa.eu/resource/authority/country/GTM,Guatemala,
+94,Guernsey,,,,ISO3166,GGY,http://publications.europa.eu/resource/authority/country/GGY,Guernsey,
+95,Guinea,,,,ISO3166,GIN,http://publications.europa.eu/resource/authority/country/GIN,Guinea,
+96,Guinea-Bissau,,,,ISO3166,GNB,http://publications.europa.eu/resource/authority/country/GNB,Guinea-Bissau,
+97,Guyana,,,,ISO3166,GUY,http://publications.europa.eu/resource/authority/country/GUY,Guyana,
+98,Haiti,,,,ISO3166,HTI,http://publications.europa.eu/resource/authority/country/HTI,Haiti,
+99,Heard Island and McDonald Islands,,,,ISO3166,HMD,http://publications.europa.eu/resource/authority/country/HMD,Heard Island and McDonald Islands,
+100,Holy See (the),,,,ISO3166,VAT,http://publications.europa.eu/resource/authority/country/VAT,Holy See (the),
+101,Honduras,,,,ISO3166,HND,http://publications.europa.eu/resource/authority/country/HND,Honduras,
+102,Hong Kong,,,,ISO3166,HKG,http://publications.europa.eu/resource/authority/country/HKG,Hong Kong,
+103,Hungary,,,,ISO3166,HUN,http://publications.europa.eu/resource/authority/country/HUN,Hungary,
+104,Iceland,,,,ISO3166,ISL,http://publications.europa.eu/resource/authority/country/ISL,Iceland,
+105,India,,,,ISO3166,IND,http://publications.europa.eu/resource/authority/country/IND,India,
+106,Indonesia,,,,ISO3166,IDN,http://publications.europa.eu/resource/authority/country/IDN,Indonesia,
+107,Iran (Islamic Republic of),,,,ISO3166,IRN,http://publications.europa.eu/resource/authority/country/IRN,Iran (Islamic Republic of),
+108,Iraq,,,,ISO3166,IRQ,http://publications.europa.eu/resource/authority/country/IRQ,Iraq,
+109,Ireland,,,,ISO3166,IRL,http://publications.europa.eu/resource/authority/country/IRL,Ireland,
+110,Isle of Man,,,,ISO3166,IMN,http://publications.europa.eu/resource/authority/country/IMN,Isle of Man,
+111,Israel,,,,ISO3166,ISR,http://publications.europa.eu/resource/authority/country/ISR,Israel,
+112,Italy,,,,ISO3166,ITA,http://publications.europa.eu/resource/authority/country/ITA,Italy,
+113,Jamaica,,,,ISO3166,JAM,http://publications.europa.eu/resource/authority/country/JAM,Jamaica,
+114,Japan,,,,ISO3166,JPN,http://publications.europa.eu/resource/authority/country/JPN,Japan,
+115,Jersey,,,,ISO3166,JEY,http://publications.europa.eu/resource/authority/country/JEY,Jersey,
+116,Jordan,,,,ISO3166,JOR,http://publications.europa.eu/resource/authority/country/JOR,Jordan,
+117,Kazakhstan,,,,ISO3166,KAZ,http://publications.europa.eu/resource/authority/country/KAZ,Kazakhstan,
+118,Kenya,,,,ISO3166,KEN,http://publications.europa.eu/resource/authority/country/KEN,Kenya,
+119,Kiribati,,,,ISO3166,KIR,http://publications.europa.eu/resource/authority/country/KIR,Kiribati,
+120,Korea (the Democratic People's Republic of),,,,ISO3166,PRK,http://publications.europa.eu/resource/authority/country/PRK,Korea (the Democratic People's Republic of),
+121,Korea (the Republic of),,,,ISO3166,KOR,http://publications.europa.eu/resource/authority/country/KOR,Korea (the Republic of),
+122,Kuwait,,,,ISO3166,KWT,http://publications.europa.eu/resource/authority/country/KWT,Kuwait,
+123,Kyrgyzstan,,,,ISO3166,KGZ,http://publications.europa.eu/resource/authority/country/KGZ,Kyrgyzstan,
+124,Lao People's Democratic Republic (the),,,,ISO3166,LAO,http://publications.europa.eu/resource/authority/country/LAO,Lao People's Democratic Republic (the),
+125,Latvia,,,,ISO3166,LVA,http://publications.europa.eu/resource/authority/country/LVA,Latvia,
+126,Lebanon,,,,ISO3166,LBN,http://publications.europa.eu/resource/authority/country/LBN,Lebanon,
+127,Lesotho,,,,ISO3166,LSO,http://publications.europa.eu/resource/authority/country/LSO,Lesotho,
+128,Liberia,,,,ISO3166,LBR,http://publications.europa.eu/resource/authority/country/LBR,Liberia,
+129,Libya,,,,ISO3166,LBY,http://publications.europa.eu/resource/authority/country/LBY,Libya,
+130,Liechtenstein,,,,ISO3166,LIE,http://publications.europa.eu/resource/authority/country/LIE,Liechtenstein,
+131,Lithuania,,,,ISO3166,LTU,http://publications.europa.eu/resource/authority/country/LTU,Lithuania,
+132,Luxembourg,,,,ISO3166,LUX,http://publications.europa.eu/resource/authority/country/LUX,Luxembourg,
+133,Macao,,,,ISO3166,MAC,http://publications.europa.eu/resource/authority/country/MAC,Macao,
+134,Madagascar,,,,ISO3166,MDG,http://publications.europa.eu/resource/authority/country/MDG,Madagascar,
+135,Malawi,,,,ISO3166,MWI,http://publications.europa.eu/resource/authority/country/MWI,Malawi,
+136,Malaysia,,,,ISO3166,MYS,http://publications.europa.eu/resource/authority/country/MYS,Malaysia,
+137,Maldives,,,,ISO3166,MDV,http://publications.europa.eu/resource/authority/country/MDV,Maldives,
+138,Mali,,,,ISO3166,MLI,http://publications.europa.eu/resource/authority/country/MLI,Mali,
+139,Malta,,,,ISO3166,MLT,http://publications.europa.eu/resource/authority/country/MLT,Malta,
+140,Marshall Islands (the),,,,ISO3166,MHL,http://publications.europa.eu/resource/authority/country/MHL,Marshall Islands (the),
+141,Martinique,,,,ISO3166,MTQ,http://publications.europa.eu/resource/authority/country/MTQ,Martinique,
+142,Mauritania,,,,ISO3166,MRT,http://publications.europa.eu/resource/authority/country/MRT,Mauritania,
+143,Mauritius,,,,ISO3166,MUS,http://publications.europa.eu/resource/authority/country/MUS,Mauritius,
+144,Mayotte,,,,ISO3166,MYT,http://publications.europa.eu/resource/authority/country/MYT,Mayotte,
+145,Mexico,,,,ISO3166,MEX,http://publications.europa.eu/resource/authority/country/MEX,Mexico,
+146,Micronesia (Federated States of),,,,ISO3166,FSM,http://publications.europa.eu/resource/authority/country/FSM,Micronesia (Federated States of),
+147,Moldova (the Republic of),,,,ISO3166,MDA,http://publications.europa.eu/resource/authority/country/MDA,Moldova (the Republic of),
+148,Monaco,,,,ISO3166,MCO,http://publications.europa.eu/resource/authority/country/MCO,Monaco,
+149,Mongolia,,,,ISO3166,MNG,http://publications.europa.eu/resource/authority/country/MNG,Mongolia,
+150,Montenegro,,,,ISO3166,MNE,http://publications.europa.eu/resource/authority/country/MNE,Montenegro,
+151,Montserrat,,,,ISO3166,MSR,http://publications.europa.eu/resource/authority/country/MSR,Montserrat,
+152,Morocco,,,,ISO3166,MAR,http://publications.europa.eu/resource/authority/country/MAR,Morocco,
+153,Mozambique,,,,ISO3166,MOZ,http://publications.europa.eu/resource/authority/country/MOZ,Mozambique,
+154,Myanmar,,,,ISO3166,MMR,http://publications.europa.eu/resource/authority/country/MMR,Myanmar,
+155,Namibia,,,,ISO3166,NAM,http://publications.europa.eu/resource/authority/country/NAM,Namibia,
+156,Nauru,,,,ISO3166,NRU,http://publications.europa.eu/resource/authority/country/NRU,Nauru,
+157,Nepal,,,,ISO3166,NPL,http://publications.europa.eu/resource/authority/country/NPL,Nepal,
+158,Netherlands (the),,,,ISO3166,NLD,http://publications.europa.eu/resource/authority/country/NLD,Netherlands (the),
+159,New Caledonia,,,,ISO3166,NCL,http://publications.europa.eu/resource/authority/country/NCL,New Caledonia,
+160,New Zealand,,,,ISO3166,NZL,http://publications.europa.eu/resource/authority/country/NZL,New Zealand,
+161,Nicaragua,,,,ISO3166,NIC,http://publications.europa.eu/resource/authority/country/NIC,Nicaragua,
+162,Niger (the),,,,ISO3166,NER,http://publications.europa.eu/resource/authority/country/NER,Niger (the),
+163,Nigeria,,,,ISO3166,NGA,http://publications.europa.eu/resource/authority/country/NGA,Nigeria,
+164,Niue,,,,ISO3166,NIU,http://publications.europa.eu/resource/authority/country/NIU,Niue,
+165,Norfolk Island,,,,ISO3166,NFK,http://publications.europa.eu/resource/authority/country/NFK,Norfolk Island,
+166,North Macedonia,,,,ISO3166,MKD,http://publications.europa.eu/resource/authority/country/MKD,North Macedonia,
+167,Northern Mariana Islands (the),,,,ISO3166,MNP,http://publications.europa.eu/resource/authority/country/MNP,Northern Mariana Islands (the),
+168,Norway,,,,ISO3166,NOR,http://publications.europa.eu/resource/authority/country/NOR,Norway,
+169,Oman,,,,ISO3166,OMN,http://publications.europa.eu/resource/authority/country/OMN,Oman,
+170,Pakistan,,,,ISO3166,PAK,http://publications.europa.eu/resource/authority/country/PAK,Pakistan,
+171,Palau,,,,ISO3166,PLW,http://publications.europa.eu/resource/authority/country/PLW,Palau,
+172,"Palestine, State of",,,,ISO3166,PSE,http://publications.europa.eu/resource/authority/country/PSE,"Palestine, State of",
+173,Panama,,,,ISO3166,PAN,http://publications.europa.eu/resource/authority/country/PAN,Panama,
+174,Papua New Guinea,,,,ISO3166,PNG,http://publications.europa.eu/resource/authority/country/PNG,Papua New Guinea,
+175,Paraguay,,,,ISO3166,PRY,http://publications.europa.eu/resource/authority/country/PRY,Paraguay,
+176,Peru,,,,ISO3166,PER,http://publications.europa.eu/resource/authority/country/PER,Peru,
+177,Philippines (the),,,,ISO3166,PHL,http://publications.europa.eu/resource/authority/country/PHL,Philippines (the),
+178,Pitcairn,,,,ISO3166,PCN,http://publications.europa.eu/resource/authority/country/PCN,Pitcairn,
+179,Poland,,,,ISO3166,POL,http://publications.europa.eu/resource/authority/country/POL,Poland,
+180,Portugal,,,,ISO3166,PRT,http://publications.europa.eu/resource/authority/country/PRT,Portugal,
+181,Puerto Rico,,,,ISO3166,PRI,http://publications.europa.eu/resource/authority/country/PRI,Puerto Rico,
+182,Qatar,,,,ISO3166,QAT,http://publications.europa.eu/resource/authority/country/QAT,Qatar,
+183,Réunion,,,,ISO3166,REU,http://publications.europa.eu/resource/authority/country/REU,Réunion,
+184,Romania,,,,ISO3166,ROU,http://publications.europa.eu/resource/authority/country/ROU,Romania,
+185,Russian Federation (the),,,,ISO3166,RUS,http://publications.europa.eu/resource/authority/country/RUS,Russian Federation (the),
+186,Rwanda,,,,ISO3166,RWA,http://publications.europa.eu/resource/authority/country/RWA,Rwanda,
+187,Saint Barthélemy,,,,ISO3166,BLM,http://publications.europa.eu/resource/authority/country/BLM,Saint Barthélemy,
+188,"Saint Helena, Ascension and Tristan da Cunha",,,,ISO3166,SHN,http://publications.europa.eu/resource/authority/country/SHN,"Saint Helena, Ascension and Tristan da Cunha",
+189,Saint Kitts and Nevis,,,,ISO3166,KNA,http://publications.europa.eu/resource/authority/country/KNA,Saint Kitts and Nevis,
+190,Saint Lucia,,,,ISO3166,LCA,http://publications.europa.eu/resource/authority/country/LCA,Saint Lucia,
+191,Saint Martin (French part),,,,ISO3166,MAF,http://publications.europa.eu/resource/authority/country/MAF,Saint Martin (French part),
+192,Saint Pierre and Miquelon,,,,ISO3166,SPM,http://publications.europa.eu/resource/authority/country/SPM,Saint Pierre and Miquelon,
+193,Saint Vincent and the Grenadines,,,,ISO3166,VCT,http://publications.europa.eu/resource/authority/country/VCT,Saint Vincent and the Grenadines,
+194,Samoa,,,,ISO3166,WSM,http://publications.europa.eu/resource/authority/country/WSM,Samoa,
+195,San Marino,,,,ISO3166,SMR,http://publications.europa.eu/resource/authority/country/SMR,San Marino,
+196,Sao Tome and Principe,,,,ISO3166,STP,http://publications.europa.eu/resource/authority/country/STP,Sao Tome and Principe,
+197,Saudi Arabia,,,,ISO3166,SAU,http://publications.europa.eu/resource/authority/country/SAU,Saudi Arabia,
+198,Senegal,,,,ISO3166,SEN,http://publications.europa.eu/resource/authority/country/SEN,Senegal,
+199,Serbia,,,,ISO3166,SRB,http://publications.europa.eu/resource/authority/country/SRB,Serbia,
+200,Seychelles,,,,ISO3166,SYC,http://publications.europa.eu/resource/authority/country/SYC,Seychelles,
+201,Sierra Leone,,,,ISO3166,SLE,http://publications.europa.eu/resource/authority/country/SLE,Sierra Leone,
+202,Singapore,,,,ISO3166,SGP,http://publications.europa.eu/resource/authority/country/SGP,Singapore,
+203,Sint Maarten (Dutch part),,,,ISO3166,SXM,http://publications.europa.eu/resource/authority/country/SXM,Sint Maarten (Dutch part),
+204,Slovakia,,,,ISO3166,SVK,http://publications.europa.eu/resource/authority/country/SVK,Slovakia,
+205,Slovenia,,,,ISO3166,SVN,http://publications.europa.eu/resource/authority/country/SVN,Slovenia,
+206,Solomon Islands,,,,ISO3166,SLB,http://publications.europa.eu/resource/authority/country/SLB,Solomon Islands,
+207,Somalia,,,,ISO3166,SOM,http://publications.europa.eu/resource/authority/country/SOM,Somalia,
+208,South Africa,,,,ISO3166,ZAF,http://publications.europa.eu/resource/authority/country/ZAF,South Africa,
+209,South Georgia and the South Sandwich Islands,,,,ISO3166,SGS,http://publications.europa.eu/resource/authority/country/SGS,South Georgia and the South Sandwich Islands,
+210,South Sudan,,,,ISO3166,SSD,http://publications.europa.eu/resource/authority/country/SSD,South Sudan,
+211,Spain,,,,ISO3166,ESP,http://publications.europa.eu/resource/authority/country/ESP,Spain,
+212,Sri Lanka,,,,ISO3166,LKA,http://publications.europa.eu/resource/authority/country/LKA,Sri Lanka,
+213,Sudan (the),,,,ISO3166,SDN,http://publications.europa.eu/resource/authority/country/SDN,Sudan (the),
+214,Suriname,,,,ISO3166,SUR,http://publications.europa.eu/resource/authority/country/SUR,Suriname,
+215,Svalbard and Jan Mayen,,,,ISO3166,SJM,http://publications.europa.eu/resource/authority/country/SJM,Svalbard and Jan Mayen,
+216,Sweden,,,,ISO3166,SWE,http://publications.europa.eu/resource/authority/country/SWE,Sweden,
+217,Switzerland,,,,ISO3166,CHE,http://publications.europa.eu/resource/authority/country/CHE,Switzerland,
+218,Syrian Arab Republic (the),,,,ISO3166,SYR,http://publications.europa.eu/resource/authority/country/SYR,Syrian Arab Republic (the),
+219,Taiwan (Province of China),,,,ISO3166,TWN,http://publications.europa.eu/resource/authority/country/TWN,Taiwan (Province of China),
+220,Tajikistan,,,,ISO3166,TJK,http://publications.europa.eu/resource/authority/country/TJK,Tajikistan,
+221,"Tanzania, the United Republic of",,,,ISO3166,TZA,http://publications.europa.eu/resource/authority/country/TZA,"Tanzania, the United Republic of",
+222,Thailand,,,,ISO3166,THA,http://publications.europa.eu/resource/authority/country/THA,Thailand,
+223,Timor-Leste,,,,ISO3166,TLS,http://publications.europa.eu/resource/authority/country/TLS,Timor-Leste,
+224,Togo,,,,ISO3166,TGO,http://publications.europa.eu/resource/authority/country/TGO,Togo,
+225,Tokelau,,,,ISO3166,TKL,http://publications.europa.eu/resource/authority/country/TKL,Tokelau,
+226,Tonga,,,,ISO3166,TON,http://publications.europa.eu/resource/authority/country/TON,Tonga,
+227,Trinidad and Tobago,,,,ISO3166,TTO,http://publications.europa.eu/resource/authority/country/TTO,Trinidad and Tobago,
+228,Tunisia,,,,ISO3166,TUN,http://publications.europa.eu/resource/authority/country/TUN,Tunisia,
+229,Turkey,,,,ISO3166,TUR,http://publications.europa.eu/resource/authority/country/TUR,Turkey,
+230,Turkmenistan,,,,ISO3166,TKM,http://publications.europa.eu/resource/authority/country/TKM,Turkmenistan,
+231,Turks and Caicos Islands (the),,,,ISO3166,TCA,http://publications.europa.eu/resource/authority/country/TCA,Turks and Caicos Islands (the),
+232,Tuvalu,,,,ISO3166,TUV,http://publications.europa.eu/resource/authority/country/TUV,Tuvalu,
+233,Uganda,,,,ISO3166,UGA,http://publications.europa.eu/resource/authority/country/UGA,Uganda,
+234,Ukraine,,,,ISO3166,UKR,http://publications.europa.eu/resource/authority/country/UKR,Ukraine,
+235,United Arab Emirates (the),,,,ISO3166,ARE,http://publications.europa.eu/resource/authority/country/ARE,United Arab Emirates (the),
+236,United Kingdom of Great Britain and Northern Ireland (the),,,,ISO3166,GBR,http://publications.europa.eu/resource/authority/country/GBR,United Kingdom of Great Britain and Northern Ireland (the),
+237,United States Minor Outlying Islands (the),,,,ISO3166,UMI,http://publications.europa.eu/resource/authority/country/UMI,United States Minor Outlying Islands (the),
+238,United States of America (the),,,,ISO3166,USA,http://publications.europa.eu/resource/authority/country/USA,United States of America (the),
+239,Uruguay,,,,ISO3166,URY,http://publications.europa.eu/resource/authority/country/URY,Uruguay,
+240,Uzbekistan,,,,ISO3166,UZB,http://publications.europa.eu/resource/authority/country/UZB,Uzbekistan,
+241,Vanuatu,,,,ISO3166,VUT,http://publications.europa.eu/resource/authority/country/VUT,Vanuatu,
+242,Venezuela (Bolivarian Republic of),,,,ISO3166,VEN,http://publications.europa.eu/resource/authority/country/VEN,Venezuela (Bolivarian Republic of),
+243,Viet Nam,,,,ISO3166,VNM,http://publications.europa.eu/resource/authority/country/VNM,Viet Nam,
+244,Virgin Islands (British),,,,ISO3166,VGB,http://publications.europa.eu/resource/authority/country/VGB,Virgin Islands (British),
+245,Virgin Islands (U.S.),,,,ISO3166,VIR,http://publications.europa.eu/resource/authority/country/VIR,Virgin Islands (U.S.),
+246,Wallis and Futuna,,,,ISO3166,WLF,http://publications.europa.eu/resource/authority/country/WLF,Wallis and Futuna,
+247,Western Sahara*,,,,ISO3166,ESH,http://publications.europa.eu/resource/authority/country/ESH,Western Sahara*,
+248,Yemen,,,,ISO3166,YEM,http://publications.europa.eu/resource/authority/country/YEM,Yemen,
+249,Zambia,,,,ISO3166,ZMB,http://publications.europa.eu/resource/authority/country/ZMB,Zambia,
+250,Zimbabwe,,,,ISO3166,ZWE,http://publications.europa.eu/resource/authority/country/ZWE,Zimbabwe,
