@@ -344,7 +344,8 @@ export default function useForm(
 
   const visibleColumns = computed(() => {
     return toRef(metadata).value?.columns.filter(
-      (column) => visibleMap[column.id]
+      (column) =>
+        visibleMap[column.id] && column.section === currentSection.value
     );
   });
 
