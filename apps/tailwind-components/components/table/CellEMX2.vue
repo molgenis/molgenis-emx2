@@ -18,7 +18,11 @@
         />
 
         <ValueString
-          v-else-if="metadata.columnType === 'STRING'"
+          v-else-if="
+            metadata.columnType === 'STRING' ||
+            metadata.columnType === 'DATE' ||
+            metadata.columnType === 'DATETIME'
+          "
           :metadata="metadata"
           :data="data"
         />
