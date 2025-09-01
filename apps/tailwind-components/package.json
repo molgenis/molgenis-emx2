@@ -24,7 +24,7 @@
     "typecheck": "nuxi typecheck"
   },
   "dependencies": {
-    "@vuepic/vue-datepicker": "^11.0.2",
+    "@vuepic/vue-datepicker": "11.0.1",
     "@vueuse/components": "12.8.2",
     "@vueuse/core": "12.8.2",
     "consola": "3.2.3",

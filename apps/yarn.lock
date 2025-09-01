@@ -3571,10 +3571,10 @@
     source-map "0.5.6"
     tsconfig "^7.0.0"
 
-"@vuepic/vue-datepicker@^11.0.2":
-  version "11.0.2"
-  resolved "https://registry.yarnpkg.com/@vuepic/vue-datepicker/-/vue-datepicker-11.0.2.tgz#3641fda890b6906a9e97b96d1e91e0cdc37a2aec"
-  integrity sha512-uHh78mVBXCEjam1uVfTzZ/HkyDwut/H6b2djSN9YTF+l/EA+XONfdCnOVSi1g+qVGSy65DcQAwyBNidAssnudQ==
+"@vuepic/vue-datepicker@11.0.1":
+  version "11.0.1"
+  resolved "https://registry.yarnpkg.com/@vuepic/vue-datepicker/-/vue-datepicker-11.0.1.tgz#c5793d8728f0906417ef06a2f04b7cf5019d83a0"
+  integrity sha512-xtGbgZAftBiU1H8pwM54vOCutLzEHsHiolRuDn+memTjqpfzT0x1Ml1tykJ53PLvdkCTyb6sB+1muv5Gsd4nQA==
   dependencies:
     date-fns "^4.1.0"
 
