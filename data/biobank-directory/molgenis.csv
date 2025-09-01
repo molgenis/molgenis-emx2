@@ -143,7 +143,6 @@ Networks,,also_known,Also Known In,ref_array,,false,,The network is also known i
 Networks,,url,URL,hyperlink,,false,,Network URL,,,,,,,,,
 Networks,,juridical_person,Juridical Person,string,,false,,Juristic person of the network to MIABIS 2.0 - MIABIS-2.0-05.,,,,,,,,,
 Networks,,contact,Contact Person,ref,,true,,Contact person of the network.,,Persons,,${email},,,,,
-Networks,,parent_network,Parent Network,ref_array,,false,,"Reference to a network ID, refers to the superior network.",,Networks,,${name},,,,,
 Networks,,common_network_elements,Common Network Elements,ontology_array,,false,,Selection of elements that are the same for all biobanks/collections within the network.,DirectoryOntologies,CommonNetworkElements,,${label},,,,,
 Networks,,national_node,National Node,ref,,true,,The network originates from this national node.,,NationalNodes,,${description},,,,,
 Networks,,withdrawn,Withdrawn,bool,,true,,The network is withdrawn from the Directory.,,,,,false,,,,
