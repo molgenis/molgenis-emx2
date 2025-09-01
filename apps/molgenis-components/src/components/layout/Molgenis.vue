@@ -63,7 +63,15 @@ import Breadcrumb from "./Breadcrumb.vue";
 import CookieWall from "./CookieWall.vue";
 import { request, gql } from "graphql-request";
 
-const defaultSchemaMenuItems = [
+interface MenuItem {
+  label: string;
+  href: string;
+  active?: boolean;
+  role?: string;
+  [key: string]: any;
+}
+
+const defaultSchemaMenuItems: MenuItem[] = [
   { label: "Tables", href: "tables", role: "Viewer" },
   {
     label: "Schema",
@@ -115,7 +123,8 @@ export default {
   },
   props: {
     menuItems: {
-      type: Array,
+      type: [Array, Object] as unknown as () => MenuItem[] | MenuItem,
+      default: null,
     },
     title: String,
     showCrumbs: {
@@ -187,7 +196,7 @@ export default {
       );
     },
     menu() {
-      let result = {};
+      let result;
       if (this.menuItems) {
         result = this.menuItems;
       } else if (this.session?.settings?.menu) {
@@ -195,8 +204,8 @@ export default {
       } else {
         result = defaultSchemaMenuItems;
       }
-      this.rewriteHrefs(result);
-      return result;
+
+      return this.toEmx2AppLocation(result);
     },
   },
   watch: {
@@ -223,24 +232,49 @@ export default {
     toggle() {
       this.fullscreen = !this.fullscreen;
     },
-    rewriteHrefs(obj) {
-      //rewrite href, also in submenu. If singular 'app' name replace with /schema/app/
-      const schemaName = window.location.pathname.split("/").filter(Boolean)[0];
-      if (schemaName) {
-        const pattern = /^[-a-zA-Z0-9]+$/;
-        if (Array.isArray(obj)) {
-          obj.forEach(this.rewriteHrefs);
-        } else if (obj && typeof obj === "object") {
-          for (const key in obj) {
-            if (key === "href" && pattern.test(obj[key])) {
-              obj[key] = `/${schemaName}/${obj[key]}/`;
-            } else {
-              //may be submenu
-              this.rewriteHrefs(obj[key]);
+    toEmx2AppLocation(menuItems: MenuItem[] | MenuItem): MenuItem[] | MenuItem {
+      const schemaName = window?.location?.pathname
+        .split("/")
+        ?.filter(Boolean)[0];
+
+      if (!schemaName) {
+        return menuItems;
+      }
+
+      if (Array.isArray(menuItems)) {
+        return menuItems.map((item) =>
+          this.toEmx2AppLocation(item)
+        ) as MenuItem[];
+      } else if (menuItems && typeof menuItems === "object") {
+        const menuItem = menuItems as MenuItem;
+        for (const prop in menuItem) {
+          const value = menuItem[prop];
+          if (prop === "href" && typeof value === "string") {
+            let location = `/${schemaName}/${value}`;
+            const hashLocation = location.indexOf("#");
+            if (hashLocation !== -1) {
+              const charBeforeHash = location.substring(
+                hashLocation - 1,
+                hashLocation
+              );
+              if (charBeforeHash !== "/") {
+                location =
+                  location.substring(0, hashLocation) +
+                  "/" +
+                  location.substring(hashLocation);
+              }
             }
+            menuItem[prop] = hashLocation !== -1 ? location : location + "/";
+          } else if (typeof value === "object" || Array.isArray(value)) {
+            //may be submenu
+            menuItem[prop] = this.toEmx2AppLocation(value);
           }
         }
+        return menuItem;
       }
+
+      // Always return menuItems if none of the above conditions are met
+      return menuItems;
     },
   },
   emits: ["update:modelValue", "error"],
