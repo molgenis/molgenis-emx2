@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-const date = ref<Date | string | null>(null);
+const date = ref<Date | string | null | undefined>();
 </script>
 
 <template>
@@ -13,7 +13,8 @@ const date = ref<Date | string | null>(null);
     <InputDate
       id="input-date"
       :placeholder="placeholder"
-      v-model="date"
+      :v-model="date"
+      :value="date"
       :valid="valid"
       :invalid="invalid"
       :disabled="disabled"
