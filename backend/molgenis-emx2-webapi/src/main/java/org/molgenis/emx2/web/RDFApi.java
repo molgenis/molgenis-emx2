@@ -34,6 +34,7 @@ import org.molgenis.emx2.rdf.RdfService;
 import org.molgenis.emx2.rdf.generators.RdfApiGenerator;
 import org.molgenis.emx2.rdf.shacl.ShaclSelector;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
+import org.molgenis.emx2.web.util.ContextHelpers;
 
 public class RDFApi {
   private static MolgenisSessionManager sessionManager;
@@ -95,9 +96,10 @@ public class RDFApi {
 
   private static void shaclSetsYaml(Context ctx) throws IOException {
     ctx.contentType(ACCEPT_YAML);
+    Database database = ContextHelpers.getDatabaseForContext(ctx);
 
     // Only show available SHACLs if there are any schema's available to validate on.
-    if (sessionManager.getSession(ctx.req()).getDatabase().getSchemaNames().isEmpty()) {
+    if (database.getSchemaNames().isEmpty()) {
       throw new MolgenisException("No permission to view any schema to use SHACLs on");
     }
 

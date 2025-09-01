@@ -14,6 +14,7 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.IOException;
@@ -22,8 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.graphql.GraphqlException;
+import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.tasks.ScriptTableListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +39,8 @@ public class GraphqlApi {
   public static final String VARIABLES = "variables";
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
   private static MolgenisSessionManager sessionManager;
+  private static SqlDatabase database;
+  private static GraphQL anonymousGqlDatabase;
 
   private GraphqlApi() {
     // hide constructor
@@ -42,6 +48,11 @@ public class GraphqlApi {
 
   public static void createGraphQLservice(Javalin app, MolgenisSessionManager sm) {
     sessionManager = sm;
+    database = new SqlDatabase(false);
+    database.setActiveUser("anonymous"); // set default use to "anonymous"
+    database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
+    anonymousGqlDatabase =
+        new GraphqlApiFactory().createGraphqlForDatabase(database, TaskApi.taskService);
 
     // per schema graphql calls from app
     final String appSchemaGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
@@ -70,14 +81,29 @@ public class GraphqlApi {
   }
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
+    HttpServletRequest request = ctx.req();
+    MolgenisSession session = null;
+    if (request.getSession(false) != null) {
+      session = sessionManager.getSession(request);
+    }
+    GraphQL graphqlForDatabase;
+    if (session == null) {
+      graphqlForDatabase = anonymousGqlDatabase;
+    } else {
+      graphqlForDatabase = session.getGraphqlForDatabase();
+    }
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
-    String result = executeQuery(session.getGraphqlForDatabase(), ctx);
+    String result = executeQuery(graphqlForDatabase, ctx);
     ctx.json(result);
   }
 
   public static void handleSchemaRequests(Context ctx) throws IOException {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
+    HttpServletRequest request = ctx.req();
+    MolgenisSession session = null;
+    if (request.getSession(false) != null) {
+      session = sessionManager.getSession(request);
+    }
+
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
 
     // apps and api is not a schema but a resource
@@ -91,7 +117,17 @@ public class GraphqlApi {
       throw new GraphqlException(
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
-    GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
+
+    GraphQL graphqlForSchema;
+    if (session == null) {
+
+      Schema schema = database.getSchema(schemaName);
+      AnonymousGqlSchemaCache anonymousGqlSchemaCache = AnonymousGqlSchemaCache.getInstance();
+      graphqlForSchema = anonymousGqlSchemaCache.get(schema);
+    } else {
+      graphqlForSchema = session.getGraphqlForSchema(schemaName);
+    }
+
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     ctx.json(executeQuery(graphqlForSchema, ctx));
   }

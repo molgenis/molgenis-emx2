@@ -24,6 +24,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.cafevariome.QueryRecord;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.molgenis.emx2.web.util.ContextHelpers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,8 +53,8 @@ public class CafeVariomeApi {
   }
 
   private static void checkAuth(Context ctx) throws IOException, InterruptedException {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
-    if (!session.getDatabase().isAnonymous()) {
+    Database database = ContextHelpers.getDatabaseForContext(ctx);
+    if (database.isAnonymous()) {
       return;
     }
     if (!hasKeycloakConfiguration()) return;
@@ -86,7 +87,6 @@ public class CafeVariomeApi {
     JsonNode jsonResponse = objectMapper.readTree(response.body());
     String user = String.valueOf(jsonResponse.get("email"));
 
-    Database database = session.getDatabase();
     if (!database.hasUser(user)) {
       logger.info("Add new user({}) to database", user);
       database.addUser(user);
@@ -105,7 +105,7 @@ public class CafeVariomeApi {
 
   private static void getRecordIndex(Context ctx) {
     Schema schema = getSchema(ctx);
-    Database database = sessionManager.getSession(ctx.req()).getDatabase();
+    Database database = ContextHelpers.getDatabaseForContext(ctx);
 
     ctx.json(QueryRecord.getRecordIndex(database, schema));
   }

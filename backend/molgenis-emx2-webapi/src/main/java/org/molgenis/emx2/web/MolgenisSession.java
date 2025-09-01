@@ -1,14 +1,8 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.util.EnvHelpers.getEnvInt;
-import static org.molgenis.emx2.web.util.EnvHelpers.getEnvLong;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import graphql.GraphQL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
@@ -18,15 +12,8 @@ import org.slf4j.LoggerFactory;
 
 public class MolgenisSession {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSession.class);
-
-  private static final Cache<String, GraphQL> anonymousGqlObjectCache =
-      Caffeine.newBuilder()
-          .maximumSize(getEnvInt("ANONYMOUS_GQL_CACHE_MAX_SIZE", 100))
-          .expireAfterAccess(
-              getEnvLong("ANONYMOUS_GQL_CACHE_EXPIRE_ACCESS_MIN", 1L), TimeUnit.MINUTES)
-          .expireAfterWrite(
-              getEnvLong("ANONYMOUS_GQL_CACHE_EXPIRE_WRITE_MIN", 30L), TimeUnit.MINUTES)
-          .build();
+  private final AnonymousGqlSchemaCache anonymousGqlSchemaCache =
+      AnonymousGqlSchemaCache.getInstance();
   private final GraphqlApiFactory graphqlApiFactory;
   private final Database database;
   private final Map<String, GraphQL> graphqlPerSchema = new ConcurrentHashMap<>();
@@ -63,9 +50,7 @@ public class MolgenisSession {
               + "' does not exist or permission denied");
 
     return database.isAnonymous()
-        ? anonymousGqlObjectCache.get(
-            schemaName,
-            key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService))
+        ? anonymousGqlSchemaCache.get(schema)
         : graphqlPerSchema.computeIfAbsent(
             schemaName,
             key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService));
@@ -83,7 +68,7 @@ public class MolgenisSession {
     this.graphqlPerSchema.clear();
     this.graphqlForDatabase = null;
     this.database.clearCache();
-    anonymousGqlObjectCache.invalidateAll();
+    anonymousGqlSchemaCache.invalidate();
     logger.info("cleared database and caches for user {}", getSessionUser());
   }
 }

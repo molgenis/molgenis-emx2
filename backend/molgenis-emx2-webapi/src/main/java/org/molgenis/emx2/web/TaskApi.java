@@ -16,6 +16,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.tasks.*;
+import org.molgenis.emx2.web.util.ContextHelpers;
 
 // TODO make the tasks private to schema; then you need schema edit or manager to view them
 // TODO move into graphql api, so it is documentation and less silly
@@ -73,7 +74,8 @@ public class TaskApi {
 
   private static void postScript(Context ctx) {
     MolgenisSession session = sessionManager.getSession(ctx.req());
-    if (!session.getDatabase().isAdmin()) {
+    Database database = ContextHelpers.getDatabaseForContext(ctx);
+    if (database.isAdmin()) {
       throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
     }
     String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
@@ -84,8 +86,8 @@ public class TaskApi {
   }
 
   private static void getScript(Context ctx) throws InterruptedException {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
-    if (!session.getDatabase().isAdmin()) {
+    Database database = ContextHelpers.getDatabaseForContext(ctx);
+    if (database.isAdmin()) {
       throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
     }
     String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
@@ -120,8 +122,9 @@ public class TaskApi {
   }
 
   private static void getTaskOutput(Context ctx) throws IOException {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
-    Schema adminSchema = session.getDatabase().getSchema(SYSTEM_SCHEMA);
+
+    Database database = ContextHelpers.getDatabaseForContext(ctx);
+    Schema adminSchema = database.getSchema(SYSTEM_SCHEMA);
     String jobId = ctx.pathParam("id");
     Row jobMetadata =
         adminSchema

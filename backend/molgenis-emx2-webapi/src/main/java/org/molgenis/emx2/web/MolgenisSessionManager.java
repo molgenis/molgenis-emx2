@@ -5,6 +5,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.oidcController;
 
 import io.prometheus.metrics.core.metrics.Gauge;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
 import java.util.EventListener;
@@ -41,20 +42,21 @@ public class MolgenisSessionManager {
   }
 
   private MolgenisSession getPersistentSessionBasedOnSessionId(HttpServletRequest request) {
-    if (request.getSession().isNew()) {
+    HttpSession session = request.getSession(false);
+    if (session.isNew()) {
       request.getSession(true); // see createCustomJettyServerFactoryWithCustomSessionListener
     }
-    MolgenisSession session = sessions.get(request.getSession().getId());
-    if (session.getSessionUser() == null) {
+    MolgenisSession molgenisSession = sessions.get(request.getSession().getId());
+    if (molgenisSession.getSessionUser() == null) {
       throw new MolgenisException(
           "Invalid session found with user == null. This should not happen so please report as a bug");
     } else {
       logger.info(
           "get session for user({}) and key ({})",
-          session.getSessionUser(),
+          molgenisSession.getSessionUser(),
           request.getSession().getId());
     }
-    return session;
+    return molgenisSession;
   }
 
   private MolgenisSession getNonPersistedSessionBasedOnToken(
