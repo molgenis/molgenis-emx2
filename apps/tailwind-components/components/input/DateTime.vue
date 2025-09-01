@@ -1,5 +1,4 @@
 <template>
-  {{ modelValue }}
   <vue-date-picker
     :uid="id"
     :placeholder="datePlaceholder"
@@ -54,14 +53,7 @@ function setPlaceholder(value?: string) {
 }
 
 function setModelValue(value: DateValue) {
-  if (value) {
-    modelValue.value = value;
-  } else {
-    const currentDate = new Date().toISOString();
-    const date = currentDate.split("T")[0];
-    const time = currentDate.split("T")[1].split(":").slice(0, 2).join(":");
-    modelValue.value = [date, time].join(" ");
-  }
+  modelValue.value = value;
 }
 
 onBeforeMount(() => {
