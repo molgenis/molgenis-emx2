@@ -29,6 +29,44 @@ import org.slf4j.LoggerFactory;
 public class GraphqlSchemaFieldFactory {
   private static final Logger logger = LoggerFactory.getLogger(SqlDatabase.class);
 
+  public static final GraphQLInputObjectType inputPermissionsMetadataType =
+      new GraphQLInputObjectType.Builder()
+          .name("MolgenisPermissionsInput")
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(TABLE_ID)
+                  .type(Scalars.GraphQLString)
+                  .description("Optional, if a permission should be applied on level of tableId"))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(GROUP_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(IS_ROW_LEVEL)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(HAS_SELECT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(HAS_INSERT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(HAS_UPDATE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(HAS_DELETE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
+                  .name(HAS_ADMIN)
+                  .type(Scalars.GraphQLBoolean))
+          .build();
+
   public static final GraphQLInputObjectType inputSettingsMetadataType =
       new GraphQLInputObjectType.Builder()
           .name("MolgenisSettingsInput")
@@ -473,6 +511,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(GraphQLList.list(inputSettingsMetadataType)))
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(PERMISSIONS)
+                  .type(GraphQLList.list(inputPermissionsMetadataType)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(TABLE_TYPE)
                   .type(Scalars.GraphQLString))
           .field(
@@ -676,6 +718,10 @@ public class GraphqlSchemaFieldFactory {
         .dataFetcher(dataFetchingEnvironment -> schema.getChangesCount());
   }
 
+  public GraphQLFieldDefinition.Builder permissionsQuery(Schema schema) {
+    return null;
+  }
+
   public GraphQLFieldDefinition.Builder settingsQuery(Schema schema) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_settings")
@@ -724,6 +770,10 @@ public class GraphqlSchemaFieldFactory {
                 .type(GraphQLList.list(inputMembersMetadataType)))
         .argument(
             GraphQLArgument.newArgument()
+                .name(Constants.PERMISSIONS)
+                .type(GraphQLList.list(inputPermissionsMetadataType)))
+        .argument(
+            GraphQLArgument.newArgument()
                 .name(Constants.SETTINGS)
                 .type(GraphQLList.list(inputSettingsMetadataType)))
         .argument(
@@ -745,6 +795,7 @@ public class GraphqlSchemaFieldFactory {
                   changeMembers(s, dataFetchingEnvironment);
                   changeColumns(s, dataFetchingEnvironment);
                   changeSettings(s, dataFetchingEnvironment);
+                  changePermissions(s, dataFetchingEnvironment);
                   // this sync is a bit sad.
                   ((SqlSchemaMetadata) schema.getMetadata())
                       .sync((SqlSchemaMetadata) s.getMetadata());
@@ -817,6 +868,24 @@ public class GraphqlSchemaFieldFactory {
             } else {
               schema.getMetadata().setSetting(entry.get(KEY), entry.get(VALUE));
             }
+          });
+    }
+  }
+
+  private void changePermissions(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
+    List<Permission> permissions = dataFetchingEnvironment.getArgument(PERMISSIONS);
+    if (permissions != null) {
+      permissions.forEach(
+          entry -> {
+            //            if (entry.get(TABLE_ID) != null) {
+            //              Table table = schema.getTableById(entry.get(TABLE_ID));
+            //              if (table == null)
+            //                throw new MolgenisException(
+            //                    "changeSettings failed: Table with id="
+            //                        + entry.get(TABLE_ID)
+            //                        + " cannot be found");
+            //            }
+            //            schema.getMetadata();
           });
     }
   }

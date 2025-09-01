@@ -194,6 +194,23 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     }
   }
 
+  @Override
+  public void setPermissions(List<Permission> permissions) {
+    getDatabase()
+        .tx(
+            db -> {
+              sync(setPermissionsTransaction((SqlDatabase) db, getName(), permissions));
+            });
+  }
+
+  private static SqlSchemaMetadata setPermissionsTransaction(
+      SqlDatabase db, String schemaName, List<Permission> permissions) {
+    SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
+    permissions.forEach(permission -> {});
+
+    return schema;
+  }
+
   private static SqlSchemaMetadata setSettingsTransaction(
       SqlDatabase db, String schemaName, Map<String, String> settings) {
     SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();

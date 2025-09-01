@@ -51,6 +51,8 @@ public class Constants {
   public static final String SETTINGS_VALUE = "value";
   public static final String SETTINGS_USER = "user";
 
+  public static final String PERMISSIONS = "permissions";
+
   public static final String MOLGENIS_POSTGRES_URI = "MOLGENIS_POSTGRES_URI";
   public static final String MOLGENIS_POSTGRES_USER = "MOLGENIS_POSTGRES_USER";
   public static final String MOLGENIS_POSTGRES_PASS = "MOLGENIS_POSTGRES_PASS";
