@@ -1231,19 +1231,12 @@ public class WebApiSmokeTests {
   }
 
   private Response downloadPet(String requestString) {
-    return given()
-        .sessionId(SESSION_ID)
-        .accept(ACCEPT_EXCEL)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get(requestString);
+    return given().accept(ACCEPT_EXCEL).expect().statusCode(200).when().get(requestString);
   }
 
   @Test
   void testRoot() {
     given()
-        .sessionId(SESSION_ID)
         .redirects()
         .follow(false)
         .expect()
@@ -1566,7 +1559,6 @@ public class WebApiSmokeTests {
   @Test
   void testJSONLDonJSONLDEndpoint() {
     given()
-        .sessionId(SESSION_ID)
         .expect()
         .contentType("application/ld+json")
         .statusCode(200)
@@ -1574,7 +1566,6 @@ public class WebApiSmokeTests {
         .get("/pet store/api/jsonld");
 
     given()
-        .sessionId(SESSION_ID)
         .expect()
         .contentType("application/ld+json")
         .statusCode(200)
@@ -1584,13 +1575,7 @@ public class WebApiSmokeTests {
 
   @Test
   void testTurtleOnTTLEndpoint() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .contentType("text/turtle")
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/ttl");
+    given().expect().contentType("text/turtle").statusCode(200).when().get("/pet store/api/ttl");
 
     given()
         .sessionId(SESSION_ID)
@@ -1701,33 +1686,13 @@ public class WebApiSmokeTests {
   void testThatTablesWithSpaceCanBeDownloaded() {
     var table = schema.getTable(TABLE_WITH_SPACES);
 
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/jsonld/" + table.getIdentifier());
+    given().expect().statusCode(200).when().get("/pet store/api/jsonld/" + table.getIdentifier());
 
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/ttl/" + table.getIdentifier());
+    given().expect().statusCode(200).when().get("/pet store/api/ttl/" + table.getIdentifier());
 
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/excel/" + table.getIdentifier());
+    given().expect().statusCode(200).when().get("/pet store/api/excel/" + table.getIdentifier());
 
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/csv/" + table.getIdentifier());
+    given().expect().statusCode(200).when().get("/pet store/api/csv/" + table.getIdentifier());
   }
 
   @Test
