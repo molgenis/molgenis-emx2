@@ -3,7 +3,8 @@ package org.molgenis.emx2;
 public class Permission {
 
   private boolean isRowLevel;
-  private String group;
+  private String groupName;
+  private String tableId;
 
   private boolean hasSelect;
   private boolean hasInsert;
@@ -20,7 +21,7 @@ public class Permission {
       boolean hasDelete,
       boolean hasAdmin) {
     this.isRowLevel = isRowLevel;
-    this.group = group;
+    this.groupName = group;
     this.hasSelect = hasSelect;
     this.hasInsert = hasInsert;
     this.hasUpdate = hasUpdate;
@@ -38,12 +39,20 @@ public class Permission {
     isRowLevel = rowLevel;
   }
 
-  public String getGroup() {
-    return group;
+  public String getGroupName() {
+    return groupName;
   }
 
-  public void setGroup(String group) {
-    this.group = group;
+  public void setGroupName(String groupName) {
+    this.groupName = groupName;
+  }
+
+  public String getTableId() {
+    return tableId;
+  }
+
+  public void setTableId(String tableId) {
+    this.tableId = tableId;
   }
 
   public boolean hasSelect() {
@@ -92,7 +101,7 @@ public class Permission {
         + "isRowLevel="
         + isRowLevel
         + ", group='"
-        + group
+        + groupName
         + '\''
         + ", hasSelect="
         + hasSelect

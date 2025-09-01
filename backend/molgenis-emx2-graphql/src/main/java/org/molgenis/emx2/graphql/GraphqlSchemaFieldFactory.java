@@ -876,16 +876,16 @@ public class GraphqlSchemaFieldFactory {
     List<Permission> permissions = dataFetchingEnvironment.getArgument(PERMISSIONS);
     if (permissions != null) {
       permissions.forEach(
-          entry -> {
-            //            if (entry.get(TABLE_ID) != null) {
-            //              Table table = schema.getTableById(entry.get(TABLE_ID));
-            //              if (table == null)
-            //                throw new MolgenisException(
-            //                    "changeSettings failed: Table with id="
-            //                        + entry.get(TABLE_ID)
-            //                        + " cannot be found");
-            //            }
-            //            schema.getMetadata();
+          permission -> {
+            if (permission.getTableId() != null) {
+              Table table = schema.getTableById(permission.getTableId());
+              if (table == null)
+                throw new MolgenisException(
+                    "changeSettings failed: Table with id="
+                        + permission.getTableId()
+                        + " cannot be found");
+            }
+            schema.getMetadata();
           });
     }
   }
