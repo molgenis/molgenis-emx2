@@ -5,7 +5,6 @@ import router from "../router";
 import { ILabelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
-import { filter } from "lodash";
 
 let bookmarkApplied = false;
 
