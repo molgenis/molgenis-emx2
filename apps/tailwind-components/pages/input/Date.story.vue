@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-const date = ref<string>("2025-06-01");
+const date = ref<Date | string | null>(null);
 </script>
 
 <template>

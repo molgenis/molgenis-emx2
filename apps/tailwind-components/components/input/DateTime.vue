@@ -2,7 +2,7 @@
   {{ modelValue }}
   <vue-date-picker
     :uid="id"
-    :placeholder="placeholder"
+    :placeholder="datePlaceholder"
     :aria-describedby="describedBy"
     :disabled="disabled"
     :data-valid="valid"
@@ -11,10 +11,9 @@
     v-model="modelValue"
     model-type="format"
     month-name-format="long"
-    format="yyyy-MM-dd HH:mm:ss"
-    :auto-apply="true"
+    :format="inputDateFormat"
+    :auto-apply="false"
     :time-picker-inline="true"
-    :enable-seconds="true"
     :text-input="{
       enterSubmit: true,
       tabSubmit: true,
@@ -30,13 +29,30 @@
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import type { IInputProps } from "../../types/types";
+import { watch, ref } from "vue";
 
-defineProps<
+const props = defineProps<
   IInputProps & {
     type?: string;
   }
 >();
 
-const modelValue = defineModel<any>();
+const inputDateFormat: string = "yyyy-MM-dd HH:mm";
+const datePlaceholder = ref<string>(inputDateFormat);
+const modelValue = defineModel<Date | string | null | undefined>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+
+function setPlaceholder() {
+  if (props.placeholder) {
+    datePlaceholder.value = props.placeholder;
+  } else {
+    datePlaceholder.value = inputDateFormat;
+  }
+}
+
+setPlaceholder();
+watch(
+  () => props.placeholder,
+  () => setPlaceholder
+);
 </script>
