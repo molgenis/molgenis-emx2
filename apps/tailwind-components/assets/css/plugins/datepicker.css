@@ -162,3 +162,34 @@
   .dp__time_picker_inline_container {
   @apply pb-4;
 }
+
+/* apply styling for valid state */
+.dp__main[data-valid="true"] .dp__input_wrap .dp__input {
+  @apply border-valid text-valid;
+}
+
+.dp__main[data-valid="true"] .dp__input_wrap .dp__input_icon {
+  @apply text-valid;
+}
+
+/* apply styling for invalid state */
+.dp__main[data-invalid="true"] .dp__input_wrap .dp__input {
+  @apply border-invalid text-invalid;
+}
+
+.dp__main[data-invalid="true"] .dp__input_wrap .dp__input_icon {
+  @apply text-invalid;
+}
+
+/* apply stying for disabled state */
+.dp__main .dp__input_wrap .dp__input[aria-disabled="true"] {
+  @apply border-disabled text-disabled bg-disabled cursor-not-allowed;
+}
+
+.dp__main
+  .dp__input_wrap
+  .dp__input[aria-disabled="true"]
+  + div
+  > .dp__input_icon {
+  @apply text-disabled;
+}
