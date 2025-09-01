@@ -29,4 +29,16 @@ test("Refreshing and going back should correctly set the filters in the url", as
   await page.goBack();
   await expect(page.getByRole("main")).toContainText("Request1");
   await expect(page.getByRole("main")).toContainText("Organisations: 1");
+
+  //reset filters
+  await page.getByRole("button", { name: "Clear all filters" }).click();
+  await expect(page.getByRole("main")).toContainText("Organisations: 3");
+
+  // Togglefilter
+  await page
+    .getByRole("button", { name: "Available to commercial use" })
+    .click();
+  await expect(page.getByRole("main")).toContainText("Organisations: 2");
+  await page.reload();
+  await expect(page.getByRole("main")).toContainText("Organisations: 2");
 });
