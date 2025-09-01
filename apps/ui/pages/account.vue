@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { navigateTo, useRoute, useRouter } from "#app/composables/router";
 import { ref } from "vue";
-import { useSession } from "../composables/useSession";
+import { useSession } from "../../tailwind-components/composables/useSession";
 
 const route = useRoute();
 const router = useRouter();
@@ -26,7 +26,7 @@ async function signout() {
   if (data.signout.status === "SUCCESS") {
     console.log(data.signout.message);
 
-    reloadSession();
+    await reloadSession();
     route.redirectedFrom ? router.go(-1) : navigateTo({ path: "/" });
   } else {
     console.log(data.signout.message);
