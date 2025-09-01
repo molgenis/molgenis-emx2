@@ -181,6 +181,40 @@
   @apply pb-4;
 }
 
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp--tp-wrap
+  .dp__time_picker_inline_container
+  .dp__time_input
+  button.dp__time_display {
+  @apply text-input;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp--tp-wrap
+  .dp__time_picker_inline_container
+  .dp__time_input
+  .dp__inc_dec_button_inline
+  span {
+  @apply bg-button-primary;
+}
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp--tp-wrap
+  .dp__time_picker_inline_container
+  .dp__time_input
+  .dp__inc_dec_button_inline:hover
+  span {
+  @apply bg-button-primary-hover;
+}
+
 /* apply styling for valid state */
 .dp__main[data-valid="true"] .dp__input_wrap .dp__input {
   @apply border-valid text-valid;
