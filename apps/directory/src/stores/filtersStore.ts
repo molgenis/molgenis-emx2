@@ -32,11 +32,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const filters = ref<Record<string, any>>({});
   const filterType = ref<Record<string, any>>({});
 
-  const filterOptionsCache = ref<
+  const filterOptions = ref<
     Record<string, IFilterOption[] | Record<string, IOntologyItem[]>>
   >({});
   const filterFacets = ref<any[]>([]);
-  const facetDetailsDictionary = ref<Record<string, any>>({});
+  const filterFacetsById = ref<Record<string, any>>({});
 
   const filtersReadyToRender = ref(false);
 
@@ -54,22 +54,22 @@ export const useFiltersStore = defineStore("filtersStore", () => {
 
   const facetDetails = computed<Record<string, any>>(() => {
     if (
-      !Object.keys(facetDetailsDictionary.value).length &&
+      !Object.keys(filterFacetsById.value).length &&
       settingsStore.configurationFetched
     )
       /** extract the components types so we can use that in adding the correct query parts */
       filterFacets.value.forEach((filterFacet) => {
-        facetDetailsDictionary.value[filterFacet.facetIdentifier] = {
+        filterFacetsById.value[filterFacet.facetIdentifier] = {
           ...filterFacet,
         };
       });
 
-    return facetDetailsDictionary.value;
+    return filterFacetsById.value;
   });
 
-  const filtersReady = computed(() => {
-    return filterOptionsCache.value
-      ? Object.keys(filterOptionsCache.value).length > 0
+  const filterOptionsReady = computed(() => {
+    return filterOptions.value
+      ? Object.keys(filterOptions.value).length > 0
       : false;
   });
 
@@ -103,7 +103,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     immediate: true,
   });
 
-  watch(filtersReady, (filtersReady) => {
+  watch(filterOptionsReady, (filtersReady) => {
     const route = router.currentRoute.value;
     if (filtersReady) {
       const waitForStore = setTimeout(() => {
@@ -292,8 +292,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       filters.value,
       checkoutStore.selectedCollections,
       checkoutStore.selectedServices,
-      filterType.value,
-      bookmarkWaitingForApplication.value
+      filterType.value
     );
   }
 
@@ -373,8 +372,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         newFilters,
         checkoutStore.selectedCollections,
         checkoutStore.selectedServices,
-        filterType.value,
-        bookmarkWaitingForApplication.value
+        newFilterTypes
       );
     }
     bookmarkTriggeredFilter.value = false;
@@ -411,10 +409,24 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
+  function setFilterOptions(
+    filterName: string,
+    newFilterOptions: IFilterOption[] | Record<string, IOntologyItem[]>
+  ) {
+    filterOptions.value[filterName] = newFilterOptions;
+  }
+
+  function getFilterOptions(
+    filterName: string
+  ): IFilterOption[] | Record<string, IOntologyItem[]> {
+    return filterOptions.value[filterName] || [];
+  }
+
   return {
     checkOntologyDescendantsIfMatches,
     clearAllFilters,
     deselectDiseaseLeavingChildren,
+    getFilterOptions,
     getFilterType,
     getFilterValue,
     getOntologyOptionsForCodes,
@@ -422,14 +434,15 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     isIndeterminate,
     ontologyItemMatchesQuery,
     setDiseases,
+    setFilterOptions,
     updateFilter,
     updateFilterType,
     updateOntologyFilter,
     bookmarkWaitingForApplication,
     facetDetails,
     filterFacets,
-    filterOptionsCache,
-    filtersReady,
+    filterOptions,
+    filterOptionsReady,
     filtersReadyToRender,
     filters,
     filterType,
