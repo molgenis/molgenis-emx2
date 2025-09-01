@@ -5,6 +5,7 @@ import router from "../router";
 import { ILabelValuePair, useCheckoutStore } from "../stores/checkoutStore";
 import { useCollectionStore } from "../stores/collectionStore";
 import { useFiltersStore } from "../stores/filtersStore";
+import { filter } from "lodash";
 
 let bookmarkApplied = false;
 
@@ -79,6 +80,9 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
           break;
         case "search":
           filtersStore.updateFilter(filterName, filtersToAdd, true);
+          break;
+        case "Collaborationtype":
+          filtersStore.updateFilter(filterName, filtersToAdd === "true", true);
           break;
         default:
           const filterOptions = await filtersStore.facetDetails[
