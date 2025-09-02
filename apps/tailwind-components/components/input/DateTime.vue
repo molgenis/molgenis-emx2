@@ -13,6 +13,7 @@
     :format="inputDateFormat"
     :auto-apply="true"
     :time-picker-inline="true"
+    :enable-seconds="true"
     :text-input="{
       enterSubmit: true,
       tabSubmit: true,
@@ -39,7 +40,7 @@ const props = defineProps<
   }
 >();
 
-const inputDateFormat: string = "yyyy-MM-dd HH:mm";
+const inputDateFormat: string = "yyyy-MM-dd HH:mm:ss";
 const datePlaceholder = ref<string>(inputDateFormat);
 const modelValue = defineModel<Date | string | null | undefined>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
