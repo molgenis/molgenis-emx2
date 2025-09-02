@@ -59,8 +59,10 @@ public class RDFApi {
   }
 
   private static final Comparator<MediaType> MEDIA_TYPE_COMPARATOR =
-      Comparator.comparing(
-              (MediaType mediaType) -> {
+      Comparator.comparing((MediaType mediaType) -> mediaType.type().equals("*"))
+        .thenComparing(mediaType -> mediaType.subtype().equals("*"))
+        .thenComparing(
+              mediaType -> {
                 try {
                   return Double.parseDouble(mediaType.parameters().get("q").getFirst());
                 } catch (NoSuchElementException e) {
@@ -69,9 +71,7 @@ public class RDFApi {
               },
               Comparator.reverseOrder())
           .thenComparing( // RDF-specific
-              mediaType -> mediaType.subtype().contains("turtle"), Comparator.reverseOrder())
-          .thenComparing(mediaType -> mediaType.subtype().equals("*"))
-          .thenComparing(mediaType -> mediaType.type().equals("*"));
+              mediaType -> mediaType.subtype().contains("turtle"), Comparator.reverseOrder());
 
   public static void create(Javalin app, MolgenisSessionManager sm) {
     // ideally, we estimate/calculate the content length and inform the client using
