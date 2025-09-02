@@ -69,7 +69,7 @@ watch(
 );
 
 const selectAllText = computed(() => {
-  if (filterSelection.value && filterSelection.value.length > 0) {
+  if (filterSelection.value?.length) {
     return settingsStore.uiText.value["deselect_all"];
   } else {
     return settingsStore.uiText.value["select_all"];
