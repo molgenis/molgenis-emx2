@@ -68,7 +68,7 @@ watch(
   { immediate: true }
 );
 
-const selectAllText = computed(() => {
+const selectAllText = computed<string>(() => {
   if (filterSelection.value?.length) {
     return settingsStore.uiText.value["deselect_all"];
   } else {
@@ -76,7 +76,7 @@ const selectAllText = computed(() => {
   }
 });
 
-const checkboxOptions = computed(() => {
+const checkboxOptions = computed<IFilterOption[]>(() => {
   if (reducedOptions.value.length) {
     const selectedValues = filterSelection.value.map(
       (selection: IFilterOption) => selection.value
@@ -92,7 +92,7 @@ const checkboxOptions = computed(() => {
   }
 });
 
-const filterSelection = computed({
+const filterSelection = computed<IFilterOption[]>({
   get() {
     return filtersStore.getFilterValue(props.facetIdentifier) || [];
   },
