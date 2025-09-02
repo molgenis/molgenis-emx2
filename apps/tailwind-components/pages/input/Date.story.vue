@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-const date = ref<Date | string | null | undefined>();
+import type { DateValue } from "../../../metadata-utils/src/types";
+const date = ref<DateValue>(new Date().toISOString().split("T")[0]);
 </script>
 
 <template>
@@ -14,10 +15,14 @@ const date = ref<Date | string | null | undefined>();
       id="input-date"
       :placeholder="placeholder"
       :v-model="date"
-      :value="date"
+      :value="(date as string)"
       :valid="valid"
       :invalid="invalid"
       :disabled="disabled"
     />
+    <h3 class="mt-10 mb-2 text-title">Component output</h3>
+    <StoryComponentOutput>
+      {{ date }}
+    </StoryComponentOutput>
   </InputTestContainer>
 </template>

@@ -29,9 +29,8 @@
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import type { IInputProps } from "../../types/types";
+import type { DateValue } from "../../../metadata-utils/src/types";
 import { watch, ref, onBeforeMount } from "vue";
-
-type DateValue = Date | string | undefined | null;
 
 const props = defineProps<
   IInputProps & {
@@ -42,7 +41,7 @@ const props = defineProps<
 
 const inputDateFormat: string = "yyyy-MM-dd HH:mm:ss";
 const datePlaceholder = ref<string>(inputDateFormat);
-const modelValue = defineModel<Date | string | null | undefined>();
+const modelValue = defineModel<DateValue>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
 function setPlaceholder(value?: string) {

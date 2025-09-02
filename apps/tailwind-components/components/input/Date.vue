@@ -28,9 +28,8 @@
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import type { IInputProps } from "../../types/types";
+import type { DateValue } from "../../../metadata-utils/src/types";
 import { watch, ref, onBeforeMount } from "vue";
-
-type DateValue = Date | string | undefined | null;
 
 const props = defineProps<
   IInputProps & {
