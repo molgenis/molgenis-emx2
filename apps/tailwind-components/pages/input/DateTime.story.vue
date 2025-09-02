@@ -2,10 +2,10 @@
 import { ref } from "vue";
 import type { DateValue } from "../../../metadata-utils/src/types";
 
-function currentDateTime() {
-  const current = new Date().toISOString();
-  const date = current.split("T")[0];
-  const time = current.split("T")[1].split(".")[0];
+function currentDateTime(): string {
+  const now: string = new Date().toISOString();
+  const date: string = now.split("T")[0];
+  const time: string = now.split("T")[1].split(".")[0];
   return [date, time].join(" ");
 }
 
@@ -27,6 +27,7 @@ const date = ref<DateValue>(currentDateTime());
       :valid="valid"
       :invalid="invalid"
       :disabled="disabled"
+      @update:model-value="(value) => (date = value)"
     />
     <h3 class="mt-10 mb-2 text-title">Component output</h3>
     <StoryComponentOutput>

@@ -14,11 +14,11 @@ const date = ref<DateValue>(new Date().toISOString().split("T")[0]);
     <InputDate
       id="input-date"
       :placeholder="placeholder"
-      :v-model="date"
-      :value="(date as string)"
+      :modelValue="date"
       :valid="valid"
       :invalid="invalid"
       :disabled="disabled"
+      @update:model-value="(value) => (date = value)"
     />
     <h3 class="mt-10 mb-2 text-title">Component output</h3>
     <StoryComponentOutput>

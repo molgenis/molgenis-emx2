@@ -8,7 +8,6 @@
       <Input
         :id="id + '_' + index"
         :modelValue="values[index]"
-        :value="(values[index] as string)"
         v-bind="getPartialProps($props)"
         :type="getNonArrayType(props.type || 'STRING_ARRAY')"
         @blur="emit('blur')"
@@ -40,7 +39,6 @@ import type { IInputProps } from "../../types/types";
 import type {
   CellValueType,
   columnValue,
-  DateValue,
 } from "../../../metadata-utils/src/types";
 import { ref } from "vue";
 
@@ -48,7 +46,6 @@ const props = defineProps<
   IInputProps & {
     modelValue: columnValue[] | undefined;
     type: string;
-    value?: DateValue;
   }
 >();
 

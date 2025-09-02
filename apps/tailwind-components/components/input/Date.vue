@@ -33,8 +33,7 @@ import { watch, ref, onBeforeMount } from "vue";
 
 const props = defineProps<
   IInputProps & {
-    type?: string;
-    value?: DateValue;
+    modelValue: DateValue;
   }
 >();
 
@@ -43,9 +42,9 @@ const datePlaceholder = ref<string>(inputDateFormat);
 const modelValue = defineModel<DateValue>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
-function setPlaceholder(value?: string) {
+function setPlaceholder(value?: DateValue) {
   if (value) {
-    datePlaceholder.value = value;
+    datePlaceholder.value = value as string;
   } else {
     datePlaceholder.value = inputDateFormat;
   }
@@ -56,12 +55,21 @@ function setModelValue(value: DateValue) {
 }
 
 onBeforeMount(() => {
-  setModelValue(props.value);
-  setPlaceholder();
+  setModelValue(props.modelValue);
+  setPlaceholder(props.modelValue);
 });
 
 watch(
   () => props.placeholder,
-  (value) => setPlaceholder(value as string)
+  (value) => {
+    setPlaceholder(value);
+  }
+);
+
+watch(
+  () => modelValue.value,
+  () => {
+    emit("update:modelValue", modelValue.value);
+  }
 );
 </script>
