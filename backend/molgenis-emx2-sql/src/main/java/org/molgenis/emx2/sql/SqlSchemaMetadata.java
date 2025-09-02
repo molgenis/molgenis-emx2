@@ -196,19 +196,17 @@ public class SqlSchemaMetadata extends SchemaMetadata {
 
   @Override
   public void setPermissions(List<Permission> permissions) {
-    getDatabase()
-        .tx(
-            db -> {
-              sync(setPermissionsTransaction((SqlDatabase) db, getName(), permissions));
-            });
+    getDatabase().tx(db -> setPermissionsTransaction((SqlDatabase) db, getName(), permissions));
   }
 
-  private static SqlSchemaMetadata setPermissionsTransaction(
+  private static void setPermissionsTransaction(
       SqlDatabase db, String schemaName, List<Permission> permissions) {
-    SqlSchemaMetadata schema = db.getSchema(schemaName).getMetadata();
-    permissions.forEach(permission -> {});
-
-    return schema;
+    permissions.forEach(
+        permission -> {
+          MetadataUtils.saveGroupMetadata(
+              db.getJooq(), permission.getGroupName(), permission.getUsers());
+          MetadataUtils.savePermissions(db.getJooq(), schemaName, permission);
+        });
   }
 
   private static SqlSchemaMetadata setSettingsTransaction(

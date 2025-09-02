@@ -1,33 +1,19 @@
 package org.molgenis.emx2;
 
+import java.util.List;
+
 public class Permission {
 
   private boolean isRowLevel;
   private String groupName;
   private String tableId;
+  private List<String> users;
 
   private boolean hasSelect;
   private boolean hasInsert;
   private boolean hasUpdate;
   private boolean hasDelete;
   private boolean hasAdmin;
-
-  public Permission(
-      boolean isRowLevel,
-      String group,
-      boolean hasSelect,
-      boolean hasInsert,
-      boolean hasUpdate,
-      boolean hasDelete,
-      boolean hasAdmin) {
-    this.isRowLevel = isRowLevel;
-    this.groupName = group;
-    this.hasSelect = hasSelect;
-    this.hasInsert = hasInsert;
-    this.hasUpdate = hasUpdate;
-    this.hasDelete = hasDelete;
-    this.hasAdmin = hasAdmin;
-  }
 
   public Permission() {}
 
@@ -114,5 +100,13 @@ public class Permission {
         + ", hasAdmin="
         + hasAdmin
         + '}';
+  }
+
+  public List<String> getUsers() {
+    return users;
+  }
+
+  public void setUsers(List<String> users) {
+    this.users = users;
   }
 }

@@ -111,6 +111,18 @@ public class MetadataUtils {
       field(name("users"), VARCHAR.nullable(true).getArrayType());
   static final org.jooq.Field<String> GROUP_NAME =
       field(name("group_name"), VARCHAR.nullable(false));
+  static final org.jooq.Field<Boolean> IS_ROW_LEVEL =
+      field(name("is_row_level"), BOOLEAN.nullable(false));
+  static final org.jooq.Field<Boolean> HAS_SELECT =
+      field(name("has_select"), BOOLEAN.nullable(false));
+  static final org.jooq.Field<Boolean> HAS_INSERT =
+      field(name("has_insert"), BOOLEAN.nullable(false));
+  static final org.jooq.Field<Boolean> HAS_UPDATE =
+      field(name("has_update"), BOOLEAN.nullable(false));
+  static final org.jooq.Field<Boolean> HAS_DELETE =
+      field(name("has_delete"), BOOLEAN.nullable(false));
+  static final org.jooq.Field<Boolean> HAS_ADMIN =
+      field(name("has_admin"), BOOLEAN.nullable(false));
 
   // settings field, reused by all other metadata
   static final org.jooq.Field SETTINGS = field(name(org.molgenis.emx2.Constants.SETTINGS), JSON);
@@ -752,5 +764,50 @@ public class MetadataUtils {
               name(schema.getName()), name(table.getIdentifier()))
           .execute();
     }
+  }
+
+  public static void savePermissions(DSLContext jooq, String schemaName, Permission permission) {
+    jooq.insertInto(GROUP_PERMISSIONS)
+        .columns(
+            GROUP_NAME,
+            TABLE_SCHEMA,
+            TABLE_NAME,
+            IS_ROW_LEVEL,
+            HAS_SELECT,
+            HAS_INSERT,
+            HAS_UPDATE,
+            HAS_DELETE,
+            HAS_ADMIN)
+        .values(
+            permission.getGroupName(),
+            schemaName,
+            permission.getTableId(),
+            permission.isRowLevel(),
+            permission.hasSelect(),
+            permission.hasInsert(),
+            permission.hasUpdate(),
+            permission.hasDelete(),
+            permission.hasAdmin())
+        .onConflict(GROUP_NAME)
+        .doUpdate()
+        .set(TABLE_SCHEMA, schemaName)
+        .set(TABLE_NAME, permission.getTableId())
+        .set(IS_ROW_LEVEL, permission.isRowLevel())
+        .set(HAS_SELECT, permission.hasSelect())
+        .set(HAS_INSERT, permission.hasInsert())
+        .set(HAS_UPDATE, permission.hasUpdate())
+        .set(HAS_DELETE, permission.hasDelete())
+        .set(HAS_ADMIN, permission.hasAdmin())
+        .execute();
+  }
+
+  public static void saveGroupMetadata(DSLContext jooq, String groupName, List<String> users) {
+    jooq.insertInto(GROUP_METADATA)
+        .columns(GROUP_NAME, USERS)
+        .values(groupName, users)
+        .onConflict(GROUP_NAME)
+        .doUpdate()
+        .set(USERS, users)
+        .execute();
   }
 }

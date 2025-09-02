@@ -43,6 +43,10 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLInputObjectField.newInputObjectField()
+                  .name(USERS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLInputObjectField.newInputObjectField()
                   .name(IS_ROW_LEVEL)
                   .type(Scalars.GraphQLBoolean))
           .field(
@@ -873,20 +877,32 @@ public class GraphqlSchemaFieldFactory {
   }
 
   private void changePermissions(Schema schema, DataFetchingEnvironment dataFetchingEnvironment) {
-    List<Permission> permissions = dataFetchingEnvironment.getArgument(PERMISSIONS);
-    if (permissions != null) {
-      permissions.forEach(
-          permission -> {
-            if (permission.getTableId() != null) {
-              Table table = schema.getTableById(permission.getTableId());
-              if (table == null)
-                throw new MolgenisException(
-                    "changeSettings failed: Table with id="
-                        + permission.getTableId()
-                        + " cannot be found");
-            }
-            schema.getMetadata();
-          });
+    List<Map<String, Object>> permissionMaps = dataFetchingEnvironment.getArgument("permissions");
+    if (permissionMaps != null) {
+      ObjectMapper mapper = new ObjectMapper();
+
+      List<Permission> permissions =
+          permissionMaps.stream()
+              .map(
+                  map -> {
+                    Permission permission = mapper.convertValue(map, Permission.class);
+
+                    String tableId = permission.getTableId();
+                    if (tableId != null) {
+                      Table table = schema.getTableById(tableId);
+
+                      if (table == null) {
+                        throw new MolgenisException(
+                            "changePermissions failed: Table with id="
+                                + tableId
+                                + " cannot be found");
+                      }
+                    }
+                    return permission;
+                  })
+              .toList();
+
+      schema.getMetadata().setPermissions(permissions);
     }
   }
 
