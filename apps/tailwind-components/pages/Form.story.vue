@@ -8,7 +8,7 @@ import Legend from "../components/form/Legend.vue";
 import { useFetch, useAsyncData } from "#app";
 import { fetchMetadata, fetchTableData } from "#imports";
 import { ref, computed, watch } from "vue";
-import useForm from "~/composables/useForm";
+import useForm from "../composables/useForm";
 
 type Resp<T> = {
   data: Record<string, T[]>;

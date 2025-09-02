@@ -17,14 +17,14 @@ import type {
 } from "../../metadata-utils/src/types";
 import { toFormData } from "../utils/toFormData";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
-import logger from "~/utils/logger";
+import logger from "../utils/logger";
 import {
   getColumnError,
   isColumnVisible,
 } from "../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { useSession } from "#imports";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
-import fetchRowPrimaryKey from "~/composables/fetchRowPrimaryKey";
+import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
@@ -379,7 +379,7 @@ export default function useForm(
     rowKey.value = await fetchRowPrimaryKey(
       formValues.value,
       metadata.value.id,
-      metadata.value.schemaId
+      metadata.value.schemaId as string
     );
   }
   watch(
