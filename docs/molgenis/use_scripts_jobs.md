@@ -97,7 +97,7 @@ Get all scheduled jobs:
 curl -X GET   https://<server>/api/tasks/scheduled
 ```
 
-Clear all running jobs:
+Clear all non-running jobs:
 ```bash
 curl -X POST  https://<server>/api/tasks/clear
 ```
