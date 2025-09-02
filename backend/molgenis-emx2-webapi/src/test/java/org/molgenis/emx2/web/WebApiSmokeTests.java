@@ -1001,9 +1001,7 @@ public class WebApiSmokeTests {
     final String defaultContentType = "text/turtle";
     final String jsonldContentType = "application/ld+json";
     final String ttlContentType = "text/turtle";
-    final String ntriplesContentType = "application/n-triples";
     final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8"; // charset is ignored
-    final String multipleContentTypes = "text/turtle; q=0.5, application/n-triples";
 
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
@@ -1070,7 +1068,10 @@ public class WebApiSmokeTests {
         .head(urlPrefix + "/api/rdf?shacls");
 
     // Validate multi-content type negotiation
-    rdfApiContentTypeRequest(200, multipleContentTypes, ntriplesContentType)
+    rdfApiContentTypeRequest(
+            200, "text/turtle; q=0.5, application/n-triples", "application/n-triples")
+        .head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(200, "application/trig; q=0.5, text/*", "application/trig")
         .head(urlPrefix + "/pet store/api/rdf");
   }
 

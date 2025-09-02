@@ -60,8 +60,8 @@ public class RDFApi {
 
   private static final Comparator<MediaType> MEDIA_TYPE_COMPARATOR =
       Comparator.comparing((MediaType mediaType) -> mediaType.type().equals("*"))
-        .thenComparing(mediaType -> mediaType.subtype().equals("*"))
-        .thenComparing(
+          .thenComparing(mediaType -> mediaType.subtype().equals("*"))
+          .thenComparing(
               mediaType -> {
                 try {
                   return Double.parseDouble(mediaType.parameters().get("q").getFirst());
