@@ -16,9 +16,9 @@ const props = withDefaults(
   defineProps<{
     columns: IColumn[];
     rowKey?: columnValue;
-    onUpdate: (column: IColumn) => void;
-    onBlur: (column: IColumn) => void;
-    onView: (column: IColumn) => void;
+    onUpdate?: (column: IColumn) => void;
+    onBlur?: (column: IColumn) => void;
+    onView?: (column: IColumn) => void;
     constantValues?: IRow; //provides values that shouldn't be edited
     errorMap: Record<columnId, string>; //map of errors if available
   }>(),

@@ -88,7 +88,7 @@ export interface IRefColumn extends IColumn {
 
 export interface ITableMetaData {
   id: string;
-  schemaId: string;
+  schemaId?: string;
   name?: string;
   label: string;
   description?: string;
