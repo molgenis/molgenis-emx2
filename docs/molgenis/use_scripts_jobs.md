@@ -39,7 +39,7 @@ If specified the output file can be obtained from here.
 Using the `MOLGENIS_TOKEN` you can also use the Task API to submit jobs (change server URL to your server):
 
 ### Authentication Header
-To authenticate a request can include your `MOLGENIS_TOKEN` in the header:
+To authenticate a request include your `MOLGENIS_TOKEN` in the header:
 ```bash
 -H "x-molgenis-token: $MOLGENIS_TOKEN"
 ```
