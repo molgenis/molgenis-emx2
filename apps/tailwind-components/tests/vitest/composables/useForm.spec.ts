@@ -1,9 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
-import type {
-  columnId,
-  columnValue,
-} from "../../../../metadata-utils/src/types";
+import type { columnValue } from "../../../../metadata-utils/src/types";
 import useForm from "../../../composables/useForm";
 import { ref } from "vue";
 
@@ -287,9 +284,10 @@ describe("useForm", () => {
     const { sections } = useForm(tableMetadata, formValues, scrollTo);
     expect(sections.value[0]).toEqual({
       errorCount: 0,
-      label: "_top",
-      id: "_scroll_to_top",
-      isActive: true,
+      id: "h1",
+      isActive: false,
+      label: "heading 1",
+      type: "HEADING",
     });
   });
 });
