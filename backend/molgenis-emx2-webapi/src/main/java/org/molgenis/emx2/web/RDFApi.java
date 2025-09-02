@@ -10,16 +10,15 @@ import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.google.common.net.MediaType;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.Header;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
@@ -38,6 +37,7 @@ import org.molgenis.emx2.rdf.shacl.ShaclSet;
 public class RDFApi {
   private static MolgenisSessionManager sessionManager;
 
+  // Defines order of priority!
   private static final List<RDFFormat> acceptedRdfFormats =
       List.of(
           RDFFormat.TURTLE,
@@ -47,6 +47,31 @@ public class RDFApi {
           RDFFormat.RDFXML,
           RDFFormat.TRIG,
           RDFFormat.JSONLD);
+
+  private static final Map<MediaType, RDFFormat> acceptedMediaTypes = new LinkedHashMap<>();
+
+  static {
+    for (RDFFormat format : acceptedRdfFormats) {
+      for (String mime : format.getMIMETypes()) {
+        acceptedMediaTypes.put(MediaType.parse(mime), format);
+      }
+    }
+  }
+
+  private static final Comparator<MediaType> MEDIA_TYPE_COMPARATOR =
+      Comparator.comparing(
+              (MediaType mediaType) -> {
+                try {
+                  return Double.parseDouble(mediaType.parameters().get("q").getFirst());
+                } catch (NoSuchElementException e) {
+                  return 1.0;
+                }
+              },
+              Comparator.reverseOrder())
+          .thenComparing( // RDF-specific
+              mediaType -> mediaType.subtype().contains("turtle"), Comparator.reverseOrder())
+          .thenComparing(mediaType -> mediaType.subtype().equals("*"))
+          .thenComparing(mediaType -> mediaType.type().equals("*"));
 
   public static void create(Javalin app, MolgenisSessionManager sm) {
     // ideally, we estimate/calculate the content length and inform the client using
@@ -282,22 +307,30 @@ public class RDFApi {
   }
 
   public static RDFFormat selectFormat(Context ctx) {
-    var accept = ctx.header("Accept");
-    // Accept header gives a list of comma separated mime types, optionally with a weight
-    // Mime types can be exact or wildcard (e.g. text/* or */*).
-    // To simplify our use case we ignore weight and wildcards
-    for (var type : accept.split(",")) {
-      if (type.contains(";")) {
-        // Strip everything after a semicolon
-        type = type.split(";")[0];
-      }
-      for (var format : acceptedRdfFormats) {
-        if (format.hasDefaultMIMEType(type)) {
-          return format;
+    String acceptHeader = ctx.header(Header.ACCEPT);
+    if (acceptHeader == null) return RDFFormat.TURTLE;
+
+    List<MediaType> mediaTypes =
+        Arrays.stream(acceptHeader.split(","))
+            .map(String::trim)
+            .map(MediaType::parse)
+            .sorted(MEDIA_TYPE_COMPARATOR)
+            .toList();
+
+    for (MediaType mediaType : mediaTypes) {
+      RDFFormat foundFormat = acceptedMediaTypes.get(mediaType.withoutParameters());
+      if (foundFormat != null) return foundFormat;
+
+      if (mediaType.hasWildcard()) {
+        for (MediaType acceptedType : acceptedMediaTypes.keySet()) {
+          if (acceptedType.is(mediaType)) {
+            return acceptedMediaTypes.get(acceptedType);
+          }
         }
       }
     }
-    // Default to TURTLE
-    return RDFFormat.TURTLE;
+
+    throw new IllegalArgumentException(
+        "No allowed media type was found (while Accept header was defined).");
   }
 }
