@@ -52,7 +52,7 @@ function setPlaceholder(value?: DateValue) {
 }
 
 function setModelValue(value: DateValue) {
-  modelValue.value = (value as string).split("T").join(" ");
+  modelValue.value = value ? (value as string).split("T").join(" ") : value;
 }
 
 onBeforeMount(() => {
