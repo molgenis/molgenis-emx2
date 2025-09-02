@@ -208,6 +208,7 @@ describe("useForm", () => {
           columnType: "STRING",
           id: "col2",
           label: "columns 2",
+          heading: "col1",
         },
         {
           columnType: "HEADING",
@@ -218,6 +219,7 @@ describe("useForm", () => {
           columnType: "STRING",
           id: "col4",
           label: "columns 4",
+          heading: "h2",
         },
       ],
     };
