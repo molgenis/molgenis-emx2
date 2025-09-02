@@ -344,3 +344,40 @@
   div:focus {
   @apply bg-button-primary-hover text-button-primary-hover border-button-primary-hover;
 }
+
+/* override submenu back button: year/month => calendar */
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay
+  .dp__btn.dp__button_bottom {
+  @apply bg-button-secondary text-button-secondary;
+}
+
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay
+  .dp__btn.dp__button_bottom:hover,
+.dp__main
+  .dp__outer_menu_wrap
+  .dp__menu
+  .dp__instance_calendar
+  .dp__menu_inner
+  .dp--header-wrap
+  .dp__month_year_wrap
+  .dp__month_year_wrap
+  .dp__overlay
+  .dp__btn.dp__button_bottom:focus {
+  @apply bg-button-secondary-hover text-button-secondary-hover;
+}
