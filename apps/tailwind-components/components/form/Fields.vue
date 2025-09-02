@@ -5,6 +5,7 @@ import type {
   columnValue,
   IColumn,
   IRow,
+  ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import {
   //todo: can we have required calculation done in useForm?
@@ -16,13 +17,13 @@ import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 const props = withDefaults(
   defineProps<{
     schemaId: string;
-    tableId: string;
-    columns: IColumn[];
+    metadata: ITableMetaData;
+    section?: string; //filter on active section only
     onUpdate: (column: IColumn) => void;
     onBlur: (column: IColumn) => void;
     onView: (column: IColumn) => void;
-    constantValues?: IRow;
-    errorMap: Record<columnId, string>;
+    constantValues?: IRow; //provides values that shouldn't be edited
+    errorMap: Record<columnId, string>; //map of errors if available
   }>(),
   {
     onUpdate: () => {},
@@ -77,7 +78,7 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
 
   // Call your callback
   if (topMost?.target.id.includes("form-field")) {
-    const col = props.columns.find(
+    const col = props.metadata.columns.find(
       (c) => topMost.target.id === `${c.id}-form-field`
     );
     if (col) props.onView(col);
@@ -89,7 +90,7 @@ const rowKey = ref<columnValue>();
 async function updateRowKey() {
   rowKey.value = await fetchRowPrimaryKey(
     modelValue.value,
-    props.tableId,
+    props.metadata.id,
     props.schemaId
   );
 }
@@ -125,7 +126,11 @@ onMounted(() => {
 
 <template>
   <div ref="container">
-    <template v-for="(column, index) in columns">
+    <template
+      v-for="(column, index) in metadata?.columns.filter(
+        (c) => !section || c.section === section || c.id === c.section
+      )"
+    >
       <div
         v-if="
           column.columnType === 'HEADING' || column.columnType === 'SECTION'

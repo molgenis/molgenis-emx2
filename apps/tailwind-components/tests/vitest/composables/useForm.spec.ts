@@ -225,12 +225,16 @@ describe("useForm", () => {
       ],
     };
 
-    const { sections, errorMap } = useForm(tableMetadata, formValues, scrollTo);
+    const { sections, errorMap, gotoSectionOrHeading } = useForm(
+      tableMetadata,
+      formValues,
+      scrollTo
+    );
     errorMap.value = {
       col4: "error",
     };
 
-    activeChapterId = ref<columnId>("h2");
+    gotoSectionOrHeading("h2");
 
     expect(sections.value).toEqual([
       {
@@ -238,12 +242,14 @@ describe("useForm", () => {
         id: "col1",
         isActive: false,
         errorCount: 0,
+        type: "HEADING",
       },
       {
         label: "heading 2",
         id: "h2",
         isActive: true,
         errorCount: 1,
+        type: "HEADING",
       },
     ]);
   });

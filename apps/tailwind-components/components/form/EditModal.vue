@@ -55,10 +55,10 @@
         <FormFields
           ref="formFields"
           :schemaId="schemaId"
-          :columns="visibleColumns"
-          v-model:errors="errorMap"
+          :metadata="metadata"
+          :errorMap="errorMap"
           v-model="editFormValues"
-          @update:model-value="onUpdateColumn"
+          @update="onUpdateColumn"
           @blur="onBlurColumn"
           @view="onViewColumn"
         />

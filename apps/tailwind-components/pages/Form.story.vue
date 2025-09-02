@@ -145,9 +145,6 @@ watch(
   },
   { immediate: true }
 );
-
-const activeChapterId = ref<string>("_scroll_to_top");
-
 const containerId = "forms-story-fields-container";
 function scrollToElementInside(elementId: string) {
   const container = document.getElementById(containerId);
@@ -172,6 +169,7 @@ function scrollToElementInside(elementId: string) {
 
 const {
   sections,
+  currentSection,
   visibleColumns,
   invisibleColumns,
   errorMap,
@@ -191,13 +189,12 @@ const {
 const numberOfFieldsWithErrors = computed(
   () => Object.values(errorMap.value).filter((error) => error.length > 0).length
 );
-
-// const activeChapterId = ref<string>("_scroll_to_top");
 </script>
 
 <template>
   <div class="flex flex-row">
     <div class="grid grid-cols-4 gap-1">
+      currentSection = {{ currentSection }}
       <Legend
         v-if="sections?.length"
         :sections="sections"
@@ -212,10 +209,9 @@ const numberOfFieldsWithErrors = computed(
         <FormFields
           class="grow"
           :schemaId="schemaId"
-          :tableId="tableId"
-          :columns="visibleColumns"
+          :metadata="metadata"
           :errorMap="errorMap"
-          :on-update="onUpdateColumn"
+          :section="currentSection"
           v-model="formValues"
           @update="onUpdateColumn"
           @blur="onBlurColumn"
@@ -225,7 +221,6 @@ const numberOfFieldsWithErrors = computed(
     </div>
     <div class="ml-2 h-screen max-w-[325px]">
       <h2>Demo controls, settings and status</h2>
-
       <div class="p-4 border-2 mb-2 flex flex-col gap-4">
         <div class="flex flex-col">
           <label for="table-select" class="text-title font-bold"

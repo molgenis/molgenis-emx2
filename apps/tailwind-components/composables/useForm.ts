@@ -38,7 +38,7 @@ export default function useForm(
   const metadata = computed(() => toValue(tableMetadata));
   const formValues = toRef(formValueRef);
 
-  const initVisibleMap = () => {
+  const init = () => {
     metadata.value?.columns.forEach((c) => {
       switch (c.columnType) {
         case "SECTION":
@@ -66,11 +66,13 @@ export default function useForm(
               : false;
       }
     });
+    //reset currentSection
+    currentSection.value = undefined;
   };
   watch(
-    tableMetadata,
+    metadata,
     () => {
-      initVisibleMap();
+      init();
     },
     { immediate: true }
   );
@@ -78,13 +80,12 @@ export default function useForm(
   const sections = computed(() => {
     const sectionList: IFormLegendSection[] = [];
     if (!metadata.value) return sectionList;
-    for (const column of metadata.value.columns) {
+    for (const column of metadata.value?.columns) {
       let isActive = false;
       if (
         column.id === currentSection.value ||
         column.id === currentHeading.value
       ) {
-        //hasActiveBeenSet = true;
         isActive = true;
       }
       if (
@@ -106,7 +107,7 @@ export default function useForm(
       }
     }
     if (!sectionList.some((section) => section.label)) {
-      //no real sections included
+      //no real sections included, then empty list so no section menu will be shown
       return [];
     }
     return sectionList;
@@ -386,6 +387,7 @@ export default function useForm(
     onBlurColumn,
     onViewColumn,
     sections,
+    currentSection,
     visibleColumns,
     invisibleColumns,
     errorMap,
