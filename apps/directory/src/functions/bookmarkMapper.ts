@@ -80,6 +80,9 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
         case "search":
           filtersStore.updateFilter(filterName, filtersToAdd, true);
           break;
+        case "Collaborationtype":
+          filtersStore.updateFilter(filterName, filtersToAdd === "true", true);
+          break;
         default:
           const filterOptions = await filtersStore.facetDetails[
             filterName
