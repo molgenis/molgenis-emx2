@@ -118,8 +118,8 @@ watch(
       query.rowIndex = rowIndex.value;
     }
 
-    await router.push({ query });
-    await getNumberOfRows();
+    router.push({ query });
+    getNumberOfRows();
     formValues.value = {};
   },
   { immediate: true }
@@ -169,17 +169,9 @@ function scrollToElementInside(elementId: string) {
 
 const {
   sections,
-  currentSection,
   visibleColumns,
-  invisibleColumns,
   errorMap,
-  requiredMessage,
-  errorMessage,
   gotoSectionOrHeading,
-  gotoPreviousRequiredField,
-  gotoNextRequiredField,
-  gotoNextError,
-  gotoPreviousError,
   validateAllColumns,
   onUpdateColumn,
   onBlurColumn,
@@ -194,7 +186,6 @@ const numberOfFieldsWithErrors = computed(
 <template>
   <div class="flex flex-row">
     <div class="grid grid-cols-4 gap-1">
-      currentSection = {{ currentSection }}
       <Legend
         v-if="sections?.length"
         :sections="sections"
@@ -208,10 +199,8 @@ const numberOfFieldsWithErrors = computed(
       >
         <FormFields
           class="grow"
-          :schemaId="schemaId"
-          :metadata="metadata"
+          :columns="visibleColumns"
           :errorMap="errorMap"
-          :section="currentSection"
           v-model="formValues"
           @update="onUpdateColumn"
           @blur="onBlurColumn"
@@ -300,7 +289,7 @@ const numberOfFieldsWithErrors = computed(
           @click="validateAllColumns"
           class="blue"
           size="small"
-          >validate all</Button
+          >validate all fields</Button
         >
       </div>
     </div>

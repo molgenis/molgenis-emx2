@@ -2,8 +2,6 @@
   <div id="fields-container" class="col-span-3 py-50px overflow-y-auto">
     <FormFields
       id="form-hyperlink"
-      schemaId="type test"
-      table-id="Types"
       :columns="metadata.columns"
       v-model="model"
       :error-map="errorMap"

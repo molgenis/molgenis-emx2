@@ -24,6 +24,7 @@ import {
 } from "../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { useSession } from "#imports";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
+import fetchRowPrimaryKey from "~/composables/fetchRowPrimaryKey";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
@@ -39,11 +40,12 @@ export default function useForm(
   const formValues = toRef(formValueRef);
 
   const init = () => {
-    metadata.value?.columns.forEach((c) => {
-      switch (c.columnType) {
+    console.log("init form");
+    metadata.value?.columns.forEach((column) => {
+      switch (column.columnType) {
         case "SECTION":
-          visibleMap[c.id] = isColumnVisible(
-            c,
+          visibleMap[column.id] = isColumnVisible(
+            column,
             formValues.value,
             metadata.value
           )
@@ -51,17 +53,17 @@ export default function useForm(
             : false;
           break;
         case "HEADING":
-          visibleMap[c.id] =
-            (!c.section || visibleMap[c.section]) &&
-            isColumnVisible(c, formValues.value, metadata.value)
+          visibleMap[column.id] =
+            (!column.section || visibleMap[column.section]) &&
+            isColumnVisible(column, formValues.value, metadata.value)
               ? true
               : false;
           break;
         default:
-          visibleMap[c.id] =
-            (!c.section || visibleMap[c.section]) &&
-            (!c.heading || visibleMap[c.heading]) &&
-            isColumnVisible(c, formValues.value, metadata.value)
+          visibleMap[column.id] =
+            (!column.section || visibleMap[column.section]) &&
+            (!column.heading || visibleMap[column.heading]) &&
+            isColumnVisible(column, formValues.value, metadata.value)
               ? true
               : false;
       }
@@ -70,7 +72,7 @@ export default function useForm(
     currentSection.value = undefined;
   };
   watch(
-    metadata,
+    () => toRef(tableMetadata).value,
     () => {
       init();
     },
@@ -344,16 +346,16 @@ export default function useForm(
   };
 
   const visibleColumns = computed(() => {
-    return toRef(metadata).value?.columns.filter(
+    return metadata.value?.columns.filter(
       (column) =>
-        visibleMap[column.id] && column.section === currentSection.value
+        visibleMap[column.id] &&
+        (currentSection.value === undefined ||
+          column.section === currentSection.value)
     );
   });
 
   const invisibleColumns = computed(() => {
-    return toRef(metadata).value?.columns.filter(
-      (column) => !visibleMap[column.id]
-    );
+    return metadata.value?.columns.filter((column) => !visibleMap[column.id]);
   });
 
   async function handleFetchError(error: any, message: string) {
@@ -369,6 +371,25 @@ export default function useForm(
       console.log(message, error);
     }
   }
+
+  const rowKey = ref<columnValue>();
+  //todo, find another way to produce rowkey
+  //if we refactor backend to give each row an internal molgenis_id we don't need this magic anymore
+  async function updateRowKey() {
+    rowKey.value = await fetchRowPrimaryKey(
+      formValues.value,
+      metadata.value.id,
+      metadata.value.schemaId
+    );
+  }
+  watch(
+    () => formValues.value,
+    async () => {
+      if (formValues.value) {
+        await updateRowKey();
+      }
+    }
+  );
 
   return {
     requiredFields,
@@ -392,5 +413,6 @@ export default function useForm(
     invisibleColumns,
     errorMap,
     validateAllColumns,
+    rowKey,
   };
 }

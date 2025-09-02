@@ -5,20 +5,17 @@ import type {
   columnValue,
   IColumn,
   IRow,
-  ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import {
   //todo: can we have required calculation done in useForm?
   isRequired,
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { vIntersectionObserver } from "@vueuse/components";
-import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 
 const props = withDefaults(
   defineProps<{
-    schemaId: string;
-    metadata: ITableMetaData;
-    section?: string; //filter on active section only
+    columns: IColumn[];
+    rowKey?: columnValue;
     onUpdate: (column: IColumn) => void;
     onBlur: (column: IColumn) => void;
     onView: (column: IColumn) => void;
@@ -78,21 +75,11 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
 
   // Call your callback
   if (topMost?.target.id.includes("form-field")) {
-    const col = props.metadata.columns.find(
+    const col = props.columns.find(
       (c) => topMost.target.id === `${c.id}-form-field`
     );
     if (col) props.onView(col);
   }
-}
-
-const rowKey = ref<columnValue>();
-
-async function updateRowKey() {
-  rowKey.value = await fetchRowPrimaryKey(
-    modelValue.value,
-    props.metadata.id,
-    props.schemaId
-  );
 }
 
 function copyConstantValuesToModelValue() {
@@ -100,15 +87,6 @@ function copyConstantValuesToModelValue() {
     modelValue.value = Object.assign({}, props.constantValues);
   }
 }
-
-watch(
-  () => modelValue.value,
-  async () => {
-    if (modelValue.value) {
-      await updateRowKey();
-    }
-  }
-);
 
 watch(
   () => props.constantValues,
@@ -119,18 +97,13 @@ watch(
 
 const fields = ref<HTMLElement[]>([]);
 onMounted(() => {
-  updateRowKey();
   copyConstantValuesToModelValue();
 });
 </script>
 
 <template>
   <div ref="container">
-    <template
-      v-for="(column, index) in metadata?.columns.filter(
-        (c) => !section || c.section === section || c.id === c.section
-      )"
-    >
+    <template v-for="column in columns">
       <div
         v-if="
           column.columnType === 'HEADING' || column.columnType === 'SECTION'
@@ -158,7 +131,7 @@ onMounted(() => {
         :rowKey="rowKey"
         :required="isRequired(column.required ?? false)"
         :error-message="errorMap[column.id]"
-        :ref-schema-id="column.refSchemaId || schemaId"
+        :ref-schema-id="column.refSchemaId"
         :ref-table-id="column.refTableId"
         :ref-label="column.refLabel || column.refLabelDefault"
         :ref-back-id="column.refBackId"

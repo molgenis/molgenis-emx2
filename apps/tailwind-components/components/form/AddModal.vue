@@ -44,7 +44,7 @@
           v-if="visible && sections"
           class="sticky top-0"
           :sections="sections"
-          @goToSection="scrollToElementInside('fields-container', $event)"
+          @goToSection="gotoSectionOrHeading"
         />
       </div>
 
@@ -55,8 +55,8 @@
         <FormFields
           v-if="visible"
           ref="formFields"
-          :schemaId="schemaId"
-          :metadata="metadata"
+          :row-key="rowKey"
+          :columns="visibleColumns"
           :constantValues="constantValues"
           :errorMap="errorMap"
           v-model="formValues"
@@ -249,12 +249,16 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
+  gotoSectionOrHeading,
   insertInto,
   errorMap,
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
   validateAllColumns,
+  rowKey,
+  sections,
+  visibleColumns,
 } = useForm(props.metadata, formValues, (fieldId) => {
   scrollToElementInside("fields-container", fieldId);
 });

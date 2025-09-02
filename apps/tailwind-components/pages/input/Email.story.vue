@@ -2,8 +2,6 @@
   <div id="fields-container" class="col-span-3 py-50px overflow-y-auto">
     <FormFields
       id="email-form"
-      schemaId="type test"
-      :table-id="metadata.id"
       v-model="model"
       :columns="metadata.columns"
       :error-map="errorMap"

@@ -73,10 +73,8 @@ public class Column {
     }
     if (column.isReference()) {
       if (column.getSchema().getDatabase() != null) {
-        if (!column.getRefSchemaName().equals(column.getSchemaName())) {
-          this.refSchemaId = column.getRefSchemaName();
-          this.refSchemaName = column.getRefSchemaName();
-        }
+        this.refSchemaId = column.getRefSchemaName();
+        this.refSchemaName = column.getRefSchemaName();
         this.refTableId = column.getRefTable().getIdentifier();
         this.refLabelDefault = column.getRefLabelDefault();
       }

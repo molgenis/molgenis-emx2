@@ -1,6 +1,5 @@
 package org.molgenis.emx2.json;
 
-import static org.molgenis.emx2.Constants.DEFAULT_HEADING;
 import static org.molgenis.emx2.Constants.DEFAULT_SECTION;
 
 import java.util.ArrayList;
@@ -11,6 +10,7 @@ import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
 
 public class Table {
+  private String schemaId;
   private String name;
   private String label;
   private String description;
@@ -43,6 +43,7 @@ public class Table {
    * @param enhance will add additional metadata useful for form generation
    */
   public Table(TableMetadata tableMetadata, boolean minimal, boolean enhance) {
+    this.schemaId = tableMetadata.getSchemaName();
     this.name = tableMetadata.getTableName();
     this.label = tableMetadata.getLabel();
     this.description = tableMetadata.getDescription();
@@ -86,14 +87,6 @@ public class Table {
           sectionColumn.setColumnType(ColumnType.SECTION);
           this.columns.add(sectionColumn);
           currentSectionId = sectionColumn.getId();
-        }
-        if (currentHeadingId == null) {
-          Column headingColumn = new Column();
-          headingColumn.setId(currentSectionId + "." + DEFAULT_HEADING);
-          headingColumn.setColumnType(ColumnType.HEADING);
-          headingColumn.setSection(currentSectionId);
-          this.columns.add(headingColumn);
-          currentHeadingId = headingColumn.getId();
         }
       }
       Column jsonColumn = new Column(column, tableMetadata, minimal);
@@ -239,5 +232,13 @@ public class Table {
 
   public void setProfiles(String[] profiles) {
     this.profiles = profiles;
+  }
+
+  public String getSchemaId() {
+    return schemaId;
+  }
+
+  public void setSchemaId(String schemaId) {
+    this.schemaId = schemaId;
   }
 }

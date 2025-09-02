@@ -6,6 +6,7 @@ export default gql`
       label
       tables {
         id
+        schemaId
         label
         tableType
         description

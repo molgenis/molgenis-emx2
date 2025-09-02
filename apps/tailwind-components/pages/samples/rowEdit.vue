@@ -51,6 +51,7 @@ const {
   onViewColumn,
   onBlurColumn,
   onUpdateColumn,
+  visibleColumns,
 } = useForm(metadata, formValues, scrollTo);
 
 function onSave() {
@@ -125,8 +126,7 @@ function onCancel() {
         <FormFields
           class="px-32 bg-form"
           schemaId="catalogue-demo"
-          :tableId="metadata.id"
-          :columns="metadata.columns"
+          :columns="visibleColumns"
           :errorMap="errorMap"
           v-model="formValues"
           @update="onUpdateColumn"

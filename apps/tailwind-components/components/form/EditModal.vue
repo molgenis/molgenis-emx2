@@ -54,8 +54,7 @@
       >
         <FormFields
           ref="formFields"
-          :schemaId="schemaId"
-          :metadata="metadata"
+          :columns="visibleColumns"
           :errorMap="errorMap"
           v-model="editFormValues"
           @update="onUpdateColumn"

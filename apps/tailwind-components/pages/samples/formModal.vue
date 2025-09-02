@@ -46,8 +46,7 @@
         >
           <FormFields
             schemaId="catalogue-demo"
-            :tableId="metadata.id"
-            :columns="metadata.columns"
+            :columns="visibleColumns"
             :error-map="errorMap"
             v-model="formValues"
             @update="onUpdateColumn"
@@ -109,7 +108,7 @@ import { definePageMeta } from "#imports";
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import type { ITableMetaData } from "../../../metadata-utils/src";
-import type { columnId, columnValue } from "../../../metadata-utils/src/types";
+import type { columnValue } from "../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
 import cohortTableMetadata from "./data/cohort-table-metadata";
 
@@ -157,6 +156,7 @@ const {
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
+  visibleColumns,
 } = useForm(metadata, formValues, (fieldId) => {
   scrollToElementInside("fields-container", fieldId);
 });
