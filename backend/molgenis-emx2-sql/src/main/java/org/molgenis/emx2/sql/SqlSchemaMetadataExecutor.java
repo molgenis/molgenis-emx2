@@ -43,8 +43,7 @@ class SqlSchemaMetadataExecutor {
       schema.getDatabase().addUser(member.getUser());
     }
 
-    // Trigger wil grant permissions todo: add remove logic for possible old role (here or in
-    // trigger)
+    // Trigger wil grant permissions
     String groupName = schema.getName() + "/" + member.getRole();
     jooq.update(GROUP_METADATA)
         .set(

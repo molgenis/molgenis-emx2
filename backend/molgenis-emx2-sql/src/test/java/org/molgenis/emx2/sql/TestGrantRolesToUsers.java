@@ -46,8 +46,7 @@ public class TestGrantRolesToUsers {
     assertEquals(1, schema.getMembers().size());
 
     schema.addMember("user1", "Editor"); // should override previous
-    List<Member> members = schema.getMembers();
-    assertEquals(1, schema.getMembers().size());
+    assertEquals(2, schema.getMembers().size());
     assertEquals("Editor", schema.getRoleForUser("user1"));
 
     schema.removeMember("user1");

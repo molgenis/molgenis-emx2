@@ -203,6 +203,7 @@ BEGIN
         FOREACH user_var IN ARRAY OLD.users
             LOOP
                 IF NOT user_var = ANY (NEW.users) THEN
+                    RAISE NOTICE 'REVOKING role % from user %', 'MG_ROLE_' || OLD.group_name, 'MG_USER_' || user_var;
                     EXECUTE format('REVOKE %I FROM %I', 'MG_ROLE_' || OLD.group_name, 'MG_USER_' || user_var);
                 END IF;
             END LOOP;
@@ -498,9 +499,14 @@ BEGIN
                                                  has_delete)
         VALUES (group_name, schema_id, true, true, true, true);
     END IF;
-    -- Grant Editor to Manager
-    EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Editor'),
+    -- Grant Editor to Manager (need the with admin option to other roles to be able the grant them)
+    EXECUTE format('GRANT %I, %I, %I TO %I WITH ADMIN OPTION',
+                   format('MG_ROLE_%s/%s', schema_id, 'Editor'),
+                   format('MG_ROLE_%s/%s', schema_id, 'Viewer'),
+                   format('MG_ROLE_%s/%s', schema_id, 'Aggregator'),
                    format('MG_ROLE_%s/%s', schema_id, 'Manager'));
+    -- Grant Manager access to create on schema
+    EXECUTE format('GRANT ALL ON SCHEMA %I TO %I', schema_id, format('MG_ROLE_%s/%s', schema_id, 'Manager'));
 
     -- Owner
     group_name := format('%s/Owner', schema_id);
@@ -513,8 +519,12 @@ BEGIN
                                                  has_delete)
         VALUES (group_name, schema_id, true, true, true, true);
     END IF;
-    -- Grant Manager to Owner
-    EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Manager'),
+    -- Grant Manager to Owner (need the with admin option to other roles to be able the grant them)
+    EXECUTE format('GRANT %I, %I, %I, %I TO %I WITH ADMIN OPTION',
+                   format('MG_ROLE_%s/%s', schema_id, 'Editor'),
+                   format('MG_ROLE_%s/%s', schema_id, 'Viewer'),
+                   format('MG_ROLE_%s/%s', schema_id, 'Aggregator'),
+                   format('MG_ROLE_%s/%s', schema_id, 'Manager'),
                    format('MG_ROLE_%s/%s', schema_id, 'Owner'));
 
     -- Admin
