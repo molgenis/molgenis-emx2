@@ -1,30 +1,30 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,defaultValue,semantics,description,profiles
 Processes,,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C29862,"An event (e.g., an experiment, a clinical observation) that belongs to an individual","Patient registry, FAIR Genomes"
-Processes,,general process information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
+Processes,,General Process Information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Processes,,id,auto_id,1,TRUE,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a thing","Patient registry, FAIR Genomes"
 Processes,,individuals,ref_array,,,,Individuals,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,A reference to one or more individuals associated to the process,"Patient registry, FAIR Genomes"
 Processes,,alternate ids,string_array,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,Additional identifiers that identify a process,"Patient registry, FAIR Genomes"
 Processes,,affiliated organisations,ref_array,,,CatalogueOntologies,Organisations,,,,,http://purl.obolibrary.org/obo/NCIT_C25412,One or more associations between the individual and an organisation.,"Patient registry, FAIR Genomes"
 Analyses,Processes,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C25391,http://edamontology.org/operation_2945",,"Patient registry, FAIR Genomes"
-Analyses,,analyses information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
+Analyses,,Analyses Information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Analyses,,date started,date,,,,,,,,,http://semanticscience.org/resource/SIO_000031,A start date is a time instant pertaining to the date of the beginning of a analysis.,"Patient registry, FAIR Genomes"
 Analyses,,date completed,date,,,,,,,,,http://semanticscience.org/resource/SIO_000032,An end date is a time instant pertaining to date of the end of an analysis,"Patient registry, FAIR Genomes"
 Analyses,,persons involved,ref_array,,,,Contacts,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,Reference to one or more individuals involved in the analysis,"Patient registry, FAIR Genomes"
 Variant interpretation analyses,Analyses,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25391,Analyses relating to specific individuals,Patient registry
-Variant interpretation analyses,,variant interpretation analyses,heading,,,,,,,,,,,Patient registry
+Variant interpretation analyses,,Variant Interpretation Analyses,heading,,,,,,,,,,,Patient registry
 Variant interpretation analyses,,experiment,ref_array,,,,Experiments,,,,,http://purl.obolibrary.org/obo/NCIT_C43376,links to experiment,Patient registry
 Variant interpretation analyses,,status,ref,,,CatalogueOntologies,Status,,,,,http://semanticscience.org/resource/SIO_000033,"An characterisation of the analysis that indicates the current state or progress (e.g., confirmed, to be verified, etc.)",Patient registry
 Variant interpretation analyses,,solved,bool,,,,,,,,,http://purl.obolibrary.org/obo/IAO_0000136,A reference to the individual whom this analysis is about,Patient registry
 Variant interpretation analyses,,date solved,date,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25587,An indication that diagnosis is given and the case is no longer considered unsolved.,Patient registry
 Variant interpretation analyses,,variant interpretation,refback,,,,Variant interpretations,,interpretation analysis,,,,,Patient registry
 Observations,Processes,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25398,Findings and circumstances relating to the examination and treatment of a individual,"Patient registry, FAIR Genomes"
-Observations,,observations information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
+Observations,,Observations Information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Observations,,date of observation,date,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C119798,The date on which an observation took place,"Patient registry, FAIR Genomes"
 Observations,,age at observation,period,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C192236,"The age of the individual at the time of observation (e.g., ""P55Y8M12D"")",Patient registry
 Observations,,type of visit,ontology,,,CatalogueOntologies,Visit type,,,,,http://purl.obolibrary.org/obo/NCIT_C103165,"The kind of visit undertaken by the individual within a study such as inpatient, outpatient, telephone, baseline, follow up, etc.","Patient registry, FAIR Genomes"
 Observations,,location of observation,ref,,,CatalogueOntologies,Organisations,,,,,http://purl.obolibrary.org/obo/NCIT_C119804,The site in or on the body at which the observation is made.,Patient registry
 Experiments,Processes,,,,,,,,,,,http://semanticscience.org/resource/SIO_000994,"An experiment is an investigation that has the goal of verifying, falsifying, or establishing the validity of a hypothesis.","Patient registry, FAIR Genomes"
-Experiments,,general sample information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
+Experiments,,General Sample Information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Experiments,,sample id,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a sample","Patient registry, FAIR Genomes"
 Experiments,,local sample id,,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Experiments,,aliquot id,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C173074,A unique identifier assigned to an aliquot containing a portion of a biospecimen,"Patient registry, FAIR Genomes"
@@ -36,7 +36,7 @@ Experiments,,failed quality control,bool,,,,,,,,,http://purl.obolibrary.org/obo/
 Experiments,,volume,int,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C74720,The determination of the volume of a sample.,"Patient registry, FAIR Genomes"
 Experiments,,volume unit,ontology,,,CatalogueOntologies,Units,,,,,http://purl.obolibrary.org/obo/NCIT_C44279,An indication of the type of unit of measure being used to express a volume.,"Patient registry, FAIR Genomes"
 Experiments,,percentage tumor cells,decimal,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C127771,"	The percentage of tumor cells compared to total cells present in this sample.","Patient registry, FAIR Genomes"
-Experiments,,sample collection,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
+Experiments,,Sample Collection,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Experiments,,sample type,ontology,,,CatalogueOntologies,Sample type,,,,,http://purl.obolibrary.org/obo/FBcv_0003044,"The type of sample as characterized by its biological source material collected for testing, diagnostic, propagation, treatment or research purposes","Patient registry,FAIR Genomes"
 Experiments,,sample type other,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C126072,"If the sample type is other, provide a description of the sample.","Patient registry,FAIR Genomes"
 Experiments,,collected at organisation,ref,,,CatalogueOntologies,Organisations,,,,,http://purl.obolibrary.org/obo/OBIB_0000085,The geographic location where sample collection took place,Patient registry
@@ -53,9 +53,9 @@ Experiments RNA,,number of aliquots,int,,,,,,,,,"http://purl.obolibrary.org/obo/
 Experiments lrGS,NGS sequencing,,,,,,,,,,,,A long-read Genome Sequencing (lrGS) experiment,Patient registry
 Experiments lrGS,,number of aliquots,int,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C25414, http://purl.obolibrary.org/obo/NCIT_C25463","The number of aliquots (= pertaining to a portion of the whole; any one of two or more samples of something, of the same volume or weight)",Patient registry
 NGS sequencing,Experiments,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C101293,Technologies that facilitate the rapid determination of the nucleotide sequence of large numbers of strands or segments of DNA or RNA,"Patient registry, FAIR Genomes"
-Experiments RNA,,RNA extraction,heading,,,,,,,,,,,Patient registry
-Experiments lrGS,,DNA extraction,heading,,,,,,,,,,,Patient registry
-Experiments srDNA,,DNA extraction,heading,,,,,,,,,,,Patient registry
+Experiments RNA,,RNA Extraction,heading,,,,,,,,,,,Patient registry
+Experiments lrGS,,DNA Extraction,heading,,,,,,,,,,,Patient registry
+Experiments srDNA,,DNA Extraction,heading,,,,,,,,,,,Patient registry
 NGS sequencing,,extraction kit,,,,,,,,,,,,Patient registry
 NGS sequencing,,extraction date,date,,,,,,,,,,,Patient registry
 Experiments OGM,,storage buffer,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C70815,An ionic compound that resists changes in its pH. The buffer containing the DNA/RNA.,Patient registry
@@ -67,7 +67,7 @@ Experiments lrGS,,concentration,decimal,,,,,,,,,http://purl.obolibrary.org/obo/N
 Experiments lrGS,,concentration unit,ontology,,,CatalogueOntologies,Units,,,,,http://purl.obolibrary.org/obo/NCIT_C48207,An indication of the type of unit of measure being used to express a concentration.,Patient registry
 Experiments lrGS,,DIN QC value,decimal,,,,,,,"if(parseFloat(dINQCValue) < 1 || parseFloat(dINQCValue) > 10) ""Only values between 1 and 10 are allowed.""",,http://purl.obolibrary.org/obo/GENEPIO_0100661,A data field which describes quality control information,Patient registry
 Experiments RNA,,RIN QC value,decimal,,,,,,,"if(parseFloat(rINQCValue) < 1 || parseFloat(rINQCValue) > 10) ""Only values between 1 and 10 are allowed.""",,http://purl.obolibrary.org/obo/GENEPIO_0100661,A data field which describes quality control information,Patient registry
-NGS sequencing,,library preparation,heading,,,,,,,,,,,Patient registry
+NGS sequencing,,Library Preparation,heading,,,,,,,,,,,Patient registry
 NGS sequencing,,library source,ontology,,,CatalogueOntologies,Library source,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001965,E.g. genomic source,"Patient registry, FAIR Genomes"
 NGS sequencing,,library selection,string,,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001940,E.g. RANDOM method,"Patient registry, FAIR Genomes"
 NGS sequencing,,library strategy,ontology,,,CatalogueOntologies,Sequencing methods,,,,,http://purl.obolibrary.org/obo/FIX_0000704,Method used to determine the order of bases in a nucleic acid sequence. In FAIR Genomes: SequencingMethod.,"Patient registry, FAIR Genomes"
@@ -80,7 +80,7 @@ NGS sequencing,,UMIs present,bool,,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0010199,I
 NGS sequencing,,intended insert size,int,,,,,,,,,https://w3id.org/fair-genomes/resource/FG_0000001,"In paired-end sequencing, the DNA between the adapter sequences is the insert. The length of this sequence is known as the insert size, not to be confused with the inner distance between reads. So, fragment length equals read adapter length (2x) plus insert size, and insert size equals read lenght (2x) plus inner distance.","Patient registry, FAIR Genomes"
 NGS sequencing,,intended read length,int,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C153362,The number of nucleotides intended to be ordered from each side of a nucleic acid fragment obtained after the completion of a sequencing process.,"Patient registry, FAIR Genomes"
 NGS sequencing,,barcode,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C43361,A machine-readable representation of information in a visual format on a surface.,Patient registry
-NGS sequencing,,sequencing,heading,,,,,,,,,,,Patient registry
+NGS sequencing,,Sequencing,heading,,,,,,,,,,,Patient registry
 Experiments,,instrument id,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C178947,"The unique number assigned to an instrument (e.g., a sequencer)",Patient registry
 Experiments,,persons involved,ref_array,,,,Contacts,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,Who was involved in the processing,"Patient registry, FAIR Genomes"
 Experiments,,output files,refback,,,,Files,,produced by experiment,,,http://edamontology.org/topic_3168,links to output of files,Patient registry
@@ -104,7 +104,7 @@ Experiments OGM,Experiments,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C1161
 Experiments RNA,,sample batch,,,,,,,,,,http://purl.obolibrary.org/obo/MS_1000053,Sample batch lot identifier,Patient registry
 Experiments srDNA,NGS sequencing,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C153598, http://edamontology.org/operation_3198",A short-read DNA sequencing experiment,Patient registry
 Clinical observations,Observations,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C87853,This table extends observations with clinical details compatible with phenopacket,"Patient registry, FAIR Genomes"
-Clinical observations,,clinical observations information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
+Clinical observations,,Clinical Observations Information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Clinical observations,,observation performed by,ref,,,,Contacts,,,,,http://purl.obolibrary.org/obo/NCIT_C48206,"The individual that performed the clinical observation (e.g., made the diagnosis, performed the evaluation, etc.)","Patient registry, FAIR Genomes"
 Clinical observations,,phenotypes,refback,,,,Phenotype observations,,part of clinical observation,,,http://purl.obolibrary.org/obo/NCIT_C16977,"The assemblage of traits or outward appearance of an individual. It is the product of interactions between genes and between genes and the environment. In medical context,  these are often the symptoms caused by a disease.","Patient registry, FAIR Genomes"
 Clinical observations,,diseases,refback,,,,Disease history,,part of clinical observation,,,http://purl.obolibrary.org/obo/NCIT_C15607,"Any abnormal condition of the body or mind that causes discomfort, dysfunction, or distress to the person affected or those in contact with the person. The term is often used broadly to include injuries, disabilities, syndromes, symptoms, deviant behaviors, and atypical variations of structure and function.","Patient registry, FAIR Genomes"
@@ -143,7 +143,7 @@ Clinical measurements,,variable,string,1,TRUE,,,,,,,http://purl.obolibrary.org/o
 Clinical measurements,,value,int,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25712,"The value that was measured, collected, derived, etc. (e.g. ""55345"")","Patient registry, FAIR Genomes"
 Clinical measurements,,unit,ontology,,,CatalogueOntologies,Units,,,,,http://purl.obolibrary.org/obo/NCIT_C25709,"A value that specifes the measured value (e.g., ""Per Millimeter"")","Patient registry, FAIR Genomes"
 Metabolomic material processing,Processes,,,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0000073,A metabolomics material processing is a protocol application including material enrollments and biomaterial transformations.,FAIR Genomes metabolomics add-on
-Metabolomic material processing,,metabolomic material processing,heading,,,,,,,,,,,FAIR Genomes metabolomics add-on
+Metabolomic material processing,,Metabolomic Material Processing,heading,,,,,,,,,,,FAIR Genomes metabolomics add-on
 Metabolomic material processing,,processing type,ontology,,,CatalogueOntologies,Metabolomic processing type,,,,,http://purl.obolibrary.org/obo/OBI_0000094,A planned process which results in physical changes in a specified input material.,FAIR Genomes metabolomics add-on
 Metabolomic material processing,,sample extraction,string,,,,,,,,,http://purl.obolibrary.org/obo/CHMO_0001577,The transfer of a solute from a liquid phase to another immiscible or partially-miscible liquid phase in contact with it.,FAIR Genomes metabolomics add-on
 Metabolomic material processing,,filter used,string,,,,,,,,,http://purl.obolibrary.org/obo/CHMO_0001640,"The filter used in separating of suspended solids from a liquid or gas, usually by forcing a carrier gas or liquid through a porous medium.",FAIR Genomes metabolomics add-on
@@ -151,7 +151,7 @@ Metabolomic material processing,,passing rate,int,,,,,,,,,http://purl.obolibrary
 Metabolomic material processing,,SPE cartridge,string,,,,,,,,,http://purl.obolibrary.org/obo/OMIT_0025161,"A sample preparation technique using a solid adsorbent contained most commonly in a cartridge device, or on a disk to adsorb select species from solution.",FAIR Genomes metabolomics add-on
 Metabolomic material processing,,washing protocol,text,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0302888,Washing is a process by which a material entity acting as contaminant (e.g. excess staining reagent) is removed by application of one or more cycles of solution in flow.,FAIR Genomes metabolomics add-on
 Metabolomic mass spec assays,Processes,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C60819,A qualitative or quantitative analysis performed to determine the amount of a particular constituent in a sample or the biological or pharmacological properties of a drug.,FAIR Genomes metabolomics add-on
-Metabolomic mass spec assays,,metabolomic mass spec assays,heading,,,,,,,,,,,FAIR Genomes metabolomics add-on
+Metabolomic mass spec assays,,Metabolomic Mass Spec Assays,heading,,,,,,,,,,,FAIR Genomes metabolomics add-on
 Metabolomic mass spec assays,,assay type,ontology,,,CatalogueOntologies,Metabolomic assay type,,,,,http://purl.obolibrary.org/obo/CHMO_0000470,Spectrometry where the sample is converted into gaseous ions which are characterised by their mass-to-charge ratio and relative abundance.,FAIR Genomes metabolomics add-on
 Metabolomic mass spec assays,,inlet port valve,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C50251,A valve that controls the flow of fluids in through the wall of a chamber.,FAIR Genomes metabolomics add-on
 Metabolomic mass spec assays,,mass spectrometer,string,,,,,,,,,http://purl.obolibrary.org/obo/CHMO_0000982,"A piece of apparatus that consists of at least an ion source, a mass-to-charge analyser, a detector and a vacuum system and is used to measure mass spectra.",FAIR Genomes metabolomics add-on
@@ -160,7 +160,7 @@ Metabolomic mass spec assays,,chromatography column,string,,,,,,,,,http://purl.o
 Metabolomic mass spec assays,,phase separation protocol,text,,,,,,,,,http://purl.obolibrary.org/obo/CHMO_0002214,Any method for the synthesis of polymer membranes that involves the polymer transforming from the liquid phase of the cast solution to the solid phase.,FAIR Genomes metabolomics add-on
 Metabolomic mass spec assays,,source conditions,string,,,,,,,,,http://purl.obolibrary.org/obo/ZECO_0000104,Condition in which variables of the experiment are manipulated to determine the variables effect by comparing to a control condition.,FAIR Genomes metabolomics add-on
 Metabolomic analyses,Processes,,,,,,,,,,,http://edamontology.org/data_0949,"Basic information, annotation or documentation concerning a metabolomics analysis workflow (but not the workflow itself).",FAIR Genomes metabolomics add-on
-Metabolomic analyses,,metabolomic analyses,heading,,,,,,,,,,,FAIR Genomes metabolomics add-on
+Metabolomic analyses,,Metabolomic Analyses,heading,,,,,,,,,,,FAIR Genomes metabolomics add-on
 Metabolomic analyses,,analysis type,ontology,,,CatalogueOntologies,Metabolomic analysis type,,,,,http://edamontology.org/operation_2945,Apply analytical methods to existing data of a specific type.,FAIR Genomes metabolomics add-on
 Metabolomic analyses,,workflow definition,text,,,,,,,,,http://semanticscience.org/resource/SIO_000127,"File content or location that encapsulates the analysis workflow, i.e. a sequence of operations to achieve one or more objectives.",FAIR Genomes metabolomics add-on
 Metabolomic analyses,,workflow engine,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C48293,"The engine used to execute the workflow such as Papermill, Jupyter, Galaxy or Nextflow.",FAIR Genomes metabolomics add-on
@@ -171,7 +171,7 @@ Metabolomic analyses,,parameters,string,,,,,,,,,http://purl.obolibrary.org/obo/N
 Metabolomic analyses,,dataformats stored,ontology_array,,,CatalogueOntologies,File formats,,,,,http://purl.obolibrary.org/obo/NCIT_C142494,"Which data file formats (i.e. defined ways or layouts of representing and structuring data in a computer file, blob, string, message, or elsewhere) are stored and potentially available.",FAIR Genomes metabolomics add-on
 Metabolomic analyses,,standards used,string,,,,,,,,,http://semanticscience.org/resource/SIO_000618,"Any socially-agreed upon specifications used such as Common Workflow Language, mzML, ISA-TAB, FAIR Genomes, etc.",FAIR Genomes metabolomics add-on
 Metabolomic analyses,,statistical methods applied,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C19044,"A method of analyzing or representing statistical data or a procedure for calculating a statistic, such as principal component analysis, affinity propagation clustering, T-test, etc.",FAIR Genomes metabolomics add-on
-Processes,,additional process information,heading,,,,,,,,,,,"Patient registry,FAIR Genomes"
+Processes,,Additional Process Information,heading,,,,,,,,,,,"Patient registry,FAIR Genomes"
 Processes,,included in resources,ref_array,,,,Resources,,,,,http://purl.obolibrary.org/obo/HSO_0000370,"A reference to one or more resources that organises processes in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)","Patient registry, FAIR Genomes"
 Processes,,included in datasets,ref_array,,,,Datasets,,,,,http://purl.obolibrary.org/obo/HSO_0000370,"A reference to one or more datasets that organises records for in a meaningful way (e.g., data releases, subpopulations, cohorts, etc.)",Patient registry
 Processes,,data source,ref,,,,Resources,,,,,http://purl.obolibrary.org/obo/NCIT_C16493,"The source or origin of the record. For example, an organisation, database, system, etc.","Patient registry, FAIR Genomes"
