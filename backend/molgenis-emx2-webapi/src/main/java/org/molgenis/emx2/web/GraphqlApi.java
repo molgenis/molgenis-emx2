@@ -155,6 +155,7 @@ public class GraphqlApi {
       executionResult = g.execute(query);
     }
 
+    // todo if query is a signin request, then we need to update the session
     String result = GraphqlApiFactory.convertExecutionResultToJson(executionResult);
 
     for (GraphQLError err : executionResult.getErrors()) {
