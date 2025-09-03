@@ -46,8 +46,6 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
     checkoutStore.removeAllFromSelection(false);
   }
 
-  /** we load the filters, grab the names, so we can loop over it to map the selections */
-  const filters = Object.keys(filtersStore.facetDetails);
   if (watchedQuery.matchAll) {
     const matchAllFilters = decodeURIComponent(
       watchedQuery.matchAll as string
@@ -57,7 +55,9 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
     }
   }
 
-  for (const filterName of filters) {
+  /** we load the filters, grab the names, so we can loop over it to map the selections */
+  const filterNames = Object.keys(filtersStore.facetDetails);
+  for (const filterName of filterNames) {
     if (watchedQuery[filterName]) {
       const filtersToAdd: string = decodeURIComponent(
         watchedQuery[filterName] as string
