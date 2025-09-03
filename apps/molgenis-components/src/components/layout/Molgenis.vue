@@ -237,7 +237,7 @@ export default {
         .split("/")
         ?.filter(Boolean)[0];
 
-      if (!schemaName) {
+      if (!schemaName || schemaName === "apps") {
         return menuItems;
       }
 
@@ -251,7 +251,7 @@ export default {
           const value = menuItem[prop];
           if (prop === "href" && typeof value === "string") {
             let location = `/${schemaName}/${value}`;
-            const hashLocation = location.indexOf("#");
+            let hashLocation = location.indexOf("#");
             if (hashLocation !== -1) {
               const charBeforeHash = location.substring(
                 hashLocation - 1,
@@ -261,13 +261,19 @@ export default {
                 location =
                   location.substring(0, hashLocation) +
                   "/" +
-                  location.substring(hashLocation);
+                  location.substring(hashLocation, location.length);
               }
             }
-            menuItem[prop] = hashLocation !== -1 ? location : location + "/";
+            hashLocation = location.indexOf("#");
+            menuItem[prop] =
+              hashLocation !== -1
+                ? location
+                : location.endsWith("/")
+                ? location
+                : location + "/";
           } else if (typeof value === "object" || Array.isArray(value)) {
             //may be submenu
-            menuItem[prop] = this.toEmx2AppLocation(value);
+            // menuItem[prop] = this.toEmx2AppLocation(value);
           }
         }
         return menuItem;
