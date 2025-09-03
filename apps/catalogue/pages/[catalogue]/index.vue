@@ -281,7 +281,7 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
       <LandingCardPrimary
         v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
         image="image-diagram-2"
-        title="Variables"
+        title="Harmonized Variables"
         :description="
           getSettingValue('CATALOGUE_LANDING_VARIABLES_TEXT', settings) ||
           'Harmonised variables'
@@ -291,6 +291,17 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
           getSettingValue('CATALOGUE_LANDING_VARIABLES_CTA', settings)
         "
         :link="`/${catalogueRouteParam}/variables`"
+      />
+      <LandingCardPrimary
+        v-if="data.data.Variables_agg?.count > 0 && !cohortOnly"
+        image="image-diagram-2"
+        title="Collected Variables"
+        description="Collected variables"
+        :count="999"
+        :callToAction="
+          getSettingValue('CATALOGUE_LANDING_VARIABLES_CTA', settings)
+        "
+        :link="`/${catalogueRouteParam}/collectedvariables`"
       />
       <LandingCardPrimary
         v-if="!cohortOnly && network.id === 'FORCE-NEN collections'"

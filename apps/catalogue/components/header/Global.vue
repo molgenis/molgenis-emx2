@@ -14,8 +14,14 @@ const menu = [
   config.public.cohortOnly
     ? undefined
     : {
-        label: "All variables",
+        label: "Harmonized variables",
         link: `/all/variables`,
+      },
+  config.public.cohortOnly
+    ? undefined
+    : {
+        label: "Collected variables",
+        link: `/all/collectedvariables`,
       },
   config.public.cohortOnly
     ? undefined
