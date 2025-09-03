@@ -12,7 +12,7 @@ Analyses,,date completed,date,,,,,,,,,http://semanticscience.org/resource/SIO_00
 Analyses,,persons involved,ref_array,,,,Contacts,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,Reference to one or more individuals involved in the analysis,"Patient registry, FAIR Genomes"
 Variant interpretation analyses,Analyses,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25391,Analyses relating to specific individuals,Patient registry
 Variant interpretation analyses,,Variant Interpretation Analyses,heading,,,,,,,,,,,Patient registry
-Variant interpretation analyses,,experiment,ref_array,,,,Experiments,,,,,http://purl.obolibrary.org/obo/NCIT_C43376,links to experiment,Patient registry
+Variant interpretation analyses,,experiment,ref_array,,,,Experiments,,,,,http://purl.obolibrary.org/obo/NCIT_C43376,Links to experiment,Patient registry
 Variant interpretation analyses,,status,ref,,,CatalogueOntologies,Status,,,,,http://semanticscience.org/resource/SIO_000033,"An characterisation of the analysis that indicates the current state or progress (e.g., confirmed, to be verified, etc.)",Patient registry
 Variant interpretation analyses,,solved,bool,,,,,,,,,http://purl.obolibrary.org/obo/IAO_0000136,A reference to the individual whom this analysis is about,Patient registry
 Variant interpretation analyses,,date solved,date,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25587,An indication that diagnosis is given and the case is no longer considered unsolved.,Patient registry
