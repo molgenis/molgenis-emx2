@@ -304,7 +304,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     bookmarkTriggeredFilter.value = fromBookmark ?? false;
 
     if (typeof value === "string" || typeof value === "boolean") {
-      if (value === "") {
+      if (!value) {
         delete filters.value[filterName];
         checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
       } else {
