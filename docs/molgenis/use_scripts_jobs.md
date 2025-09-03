@@ -36,20 +36,68 @@ If specified the output file can be obtained from here.
 
 ## API
 
-Using the `MOLGENIS_TOKEN` you can also use API to submit jobs (change server URL to your server):
+Using the `MOLGENIS_TOKEN` you can also use the Task API to submit jobs (change server URL to your server):
 
-`
-curl -X POST https://localhost:8080/api/tasks/ -v
-`
+### Authentication Header
+To authenticate a request include your `MOLGENIS_TOKEN` in the header:
+```bash
+-H "x-molgenis-token: $MOLGENIS_TOKEN"
+```
 
-or with parameters
-`
-curl -X POST https://localhost/api/tasks -v -d 'my parameters, as text or json or whever you like'  
-`
+---
 
-You will receive a taskID, you can use that to inspect status of the running task
+### Submit a Job
 
-E.g. to retrieve task 123123:
-`
-curl GET https://server/api/tasks/123123
-`
+Submit a script by name (replace `<server>` and `<script-name>` with your values):
+```bash
+curl -X POST   -H "x-molgenis-token: <MOLGENIS_TOKEN>"   https://<server>/api/script/<script-name>
+```
+
+Submit a script with parameters:
+```bash
+curl -X POST   -d 'params'   https://<server>/api/script/<script-name>
+```
+
+On success, you will receive a `taskID` that you can use to check the status of the job.
+
+You can also run a job synchronously using a GET request:
+```bash
+curl -X GET   -d 'params'   https://<server>/api/script/<script-name>
+```
+This will return the result status of the job, or in case of a file the resulting file.
+
+### Check Task Status
+
+Retrieve the status of a specific task:
+```bash
+curl -X GET   https://<server>/api/tasks/<taskID>
+```
+
+### Retrieve Script Output
+
+If the script produces a file, you can download it using:
+```bash
+curl -X GET   https://<server>/api/tasks/<taskID>/output
+```
+
+### Manage Tasks
+
+Delete a task:
+```bash
+curl -X DELETE   https://<server>/api/tasks/<taskID>
+```
+
+List all tasks:
+```bash
+curl -X GET   https://<server>/api/tasks
+```
+
+Get all scheduled jobs:
+```bash
+curl -X GET   https://<server>/api/tasks/scheduled
+```
+
+Clear all non-running jobs:
+```bash
+curl -X POST  https://<server>/api/tasks/clear
+```
