@@ -80,8 +80,13 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
         case "search":
           filtersStore.updateFilter(filterName, filtersToAdd, true);
           break;
+        case "Collaborationtype":
+          filtersStore.updateFilter(filterName, filtersToAdd === "true", true);
+          break;
         default:
-          const filterOptions = filtersStore.filterOptions[filterName];
+          const filterOptions = await filtersStore.facetDetails[
+            filterName
+          ].options();
           if (filterOptions && Array.isArray(filterOptions)) {
             const queryValues = filtersToAdd.split(",");
             const activeFilters = filterOptions.filter(
@@ -101,7 +106,6 @@ export async function applyBookmark(watchedQuery: LocationQuery) {
     }
   }
 
-  filtersStore.bookmarkWaitingForApplication = false;
   bookmarkApplied = true;
 }
 
@@ -109,8 +113,7 @@ export function createBookmark(
   filters: Record<string, any>,
   collectionCart: Record<string, ILabelValuePair[]>,
   serviceCart: Record<string, ILabelValuePair[]>,
-  filterTypes: Record<string, any>,
-  bookmarkWaitingForApplication: boolean = false
+  filterTypes: Record<string, any>
 ) {
   const bookmarkQuery: Record<string, string> = {};
   const matchAll = [];
@@ -162,16 +165,14 @@ export function createBookmark(
     bookmarkQuery.serviceCart = encodeURI(encodedCart);
   }
 
-  if (!bookmarkWaitingForApplication) {
-    try {
-      clearError();
-      router.push({
-        name: router.currentRoute.value.name,
-        query: bookmarkQuery,
-      });
-    } catch (error) {
-      setError(error);
-    }
+  try {
+    clearError();
+    router.push({
+      name: router.currentRoute.value.name,
+      query: bookmarkQuery,
+    });
+  } catch (error) {
+    setError(error);
   }
 }
 

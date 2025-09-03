@@ -292,8 +292,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
       filters.value,
       checkoutStore.selectedCollections,
       checkoutStore.selectedServices,
-      filterType.value,
-      bookmarkWaitingForApplication.value
+      filterType.value
     );
   }
 
@@ -305,7 +304,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     bookmarkTriggeredFilter.value = fromBookmark ?? false;
 
     if (typeof value === "string" || typeof value === "boolean") {
-      if (value === "") {
+      if (!value) {
         delete filters.value[filterName];
         checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
       } else {
@@ -373,8 +372,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
         newFilters,
         checkoutStore.selectedCollections,
         checkoutStore.selectedServices,
-        filterType.value,
-        bookmarkWaitingForApplication.value
+        newFilterTypes
       );
     }
     bookmarkTriggeredFilter.value = false;
@@ -411,10 +409,24 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     }
   }
 
+  function setFilterOptions(
+    filterName: string,
+    newFilterOptions: IFilterOption[] | Record<string, IOntologyItem[]>
+  ) {
+    filterOptions.value[filterName] = newFilterOptions;
+  }
+
+  function getFilterOptions(
+    filterName: string
+  ): IFilterOption[] | Record<string, IOntologyItem[]> {
+    return filterOptions.value[filterName] || [];
+  }
+
   return {
     checkOntologyDescendantsIfMatches,
     clearAllFilters,
     deselectDiseaseLeavingChildren,
+    getFilterOptions,
     getFilterType,
     getFilterValue,
     getOntologyOptionsForCodes,
@@ -422,6 +434,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     isIndeterminate,
     ontologyItemMatchesQuery,
     setDiseases,
+    setFilterOptions,
     updateFilter,
     updateFilterType,
     updateOntologyFilter,
