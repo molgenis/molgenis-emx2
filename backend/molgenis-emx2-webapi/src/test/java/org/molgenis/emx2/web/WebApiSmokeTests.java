@@ -1071,12 +1071,11 @@ public class WebApiSmokeTests {
     rdfApiContentTypeRequest(
             200, "text/turtle; q=0.5, application/n-triples", "application/n-triples")
         .head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(200, "application/trig; q=0.5, text/*", "text/xml")
+    rdfApiContentTypeRequest(200, "application/trig; q=0.5, text/*", "text/turtle")
         .head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(200, "application/trig; q=0.5, text/*, text/xml; q=0.5", "text/plain")
-      .head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(406, "image/jpeg", "text/json")
-      .head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(200, "application/trig; q=0.5, text/*, text/turtle; q=0.5", "text/xml")
+        .head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(406, "image/jpeg", "text/json").head(urlPrefix + "/pet store/api/rdf");
   }
 
   @Test
