@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GraphqlApiFactory {
-  private static Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
+  private static final Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
 
   public GraphqlApiFactory() {
     if (ParserOptions.getDefaultParserOptions().getMaxTokens() < 1000000) {
@@ -151,7 +151,7 @@ public class GraphqlApiFactory {
     // table
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (table.getColumns().size() > 0) {
+      if (!table.getColumns().isEmpty()) {
         if (table.getTableType().equals(TableType.ONTOLOGIES)
             || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
           queryBuilder.field(tableField.tableQueryField(table));
