@@ -62,51 +62,57 @@ import MolgenisFooter from "./MolgenisFooter.vue";
 import Breadcrumb from "./Breadcrumb.vue";
 import CookieWall from "./CookieWall.vue";
 import { request, gql } from "graphql-request";
-
-interface MenuItem {
-  label: string;
-  href: string;
-  active?: boolean;
-  role?: string;
-  [key: string]: any;
-}
+import { MenuItem } from "../../Interfaces/MenuItem";
+import { unref } from "vue";
 
 const defaultSchemaMenuItems: MenuItem[] = [
-  { label: "Tables", href: "tables", role: "Viewer" },
+  {
+    label: "Tables",
+    href: "tables",
+    role: "Viewer",
+    submenu: [],
+  },
   {
     label: "Schema",
     href: "schema",
     role: "Viewer",
+    submenu: [],
   },
   {
     label: "Up/Download",
     href: "updownload",
     role: "Viewer",
+    submenu: [],
   },
   {
     label: "Reports",
     href: "reports",
     role: "Viewer",
+    submenu: [],
   },
   {
     label: "Jobs & Scripts",
     href: "tasks",
     role: "Manager",
+    submenu: [],
   },
   {
     label: "Graphql",
     href: "graphql-playground",
     role: "Viewer",
+    submenu: [],
   },
   {
     label: "Settings",
     href: "settings",
     role: "Manager",
+    submenu: [],
   },
   {
     label: "Help",
     href: "docs",
     role: "Viewer",
+    submenu: [],
   },
 ];
 
@@ -123,7 +129,7 @@ export default {
   },
   props: {
     menuItems: {
-      type: [Array, Object] as unknown as () => MenuItem[] | MenuItem,
+      type: Array as () => MenuItem[],
       default: null,
     },
     title: String,
@@ -196,16 +202,13 @@ export default {
       );
     },
     menu() {
-      let result;
       if (this.menuItems) {
-        result = this.menuItems;
+        return this.toEmx2AppLocation(unref(this.menuItems));
       } else if (this.session?.settings?.menu) {
-        result = this.session.settings.menu;
+        return this.toEmx2AppLocation(unref(this.session.settings.menu));
       } else {
-        result = defaultSchemaMenuItems;
+        return this.toEmx2AppLocation(defaultSchemaMenuItems);
       }
-
-      return this.toEmx2AppLocation(result);
     },
   },
   watch: {
@@ -232,55 +235,51 @@ export default {
     toggle() {
       this.fullscreen = !this.fullscreen;
     },
-    toEmx2AppLocation(menuItems: MenuItem[] | MenuItem): MenuItem[] | MenuItem {
+    toEmx2AppLocation(menuItems: MenuItem[]): MenuItem[] {
+      console.log("toEmx2AppLocation", menuItems);
       const schemaName = window?.location?.pathname
         .split("/")
         ?.filter(Boolean)[0];
+      console.log("schemaName 3", schemaName);
 
       if (!schemaName || schemaName === "apps") {
         return menuItems;
       }
 
-      if (Array.isArray(menuItems)) {
-        return menuItems.map((item) =>
-          this.toEmx2AppLocation(item)
-        ) as MenuItem[];
-      } else if (menuItems && typeof menuItems === "object") {
-        const menuItem = menuItems as MenuItem;
-        for (const prop in menuItem) {
-          const value = menuItem[prop];
-          if (prop === "href" && typeof value === "string") {
-            let location = `/${schemaName}/${value}`;
-            let hashLocation = location.indexOf("#");
-            if (hashLocation !== -1) {
-              const charBeforeHash = location.substring(
-                hashLocation - 1,
-                hashLocation
-              );
-              if (charBeforeHash !== "/") {
-                location =
-                  location.substring(0, hashLocation) +
-                  "/" +
-                  location.substring(hashLocation, location.length);
-              }
-            }
-            hashLocation = location.indexOf("#");
-            menuItem[prop] =
-              hashLocation !== -1
-                ? location
-                : location.endsWith("/")
-                ? location
-                : location + "/";
-          } else if (typeof value === "object" || Array.isArray(value)) {
-            //may be submenu
-            // menuItem[prop] = this.toEmx2AppLocation(value);
+      function rewriteHref(href: string): string {
+        let location = `/${schemaName}/${href}`;
+        let hashLocation = location.indexOf("#");
+        if (hashLocation !== -1) {
+          const charBeforeHash = location.substring(
+            hashLocation - 1,
+            hashLocation
+          );
+          if (charBeforeHash !== "/") {
+            location =
+              location.substring(0, hashLocation) +
+              "/" +
+              location.substring(hashLocation, location.length);
           }
         }
-        return menuItem;
+        hashLocation = location.indexOf("#");
+        return hashLocation !== -1
+          ? location
+          : location.endsWith("/")
+          ? location
+          : location + "/";
       }
 
-      // Always return menuItems if none of the above conditions are met
-      return menuItems;
+      const parsed = menuItems.map((menuItem: MenuItem) => {
+        menuItem.href = rewriteHref(menuItem.href);
+
+        menuItem.submenu = menuItem.submenu.map((subItem) => {
+          subItem.href = rewriteHref(subItem.href);
+          return subItem;
+        });
+        return menuItem;
+      });
+
+      return parsed;
     },
   },
   emits: ["update:modelValue", "error"],
