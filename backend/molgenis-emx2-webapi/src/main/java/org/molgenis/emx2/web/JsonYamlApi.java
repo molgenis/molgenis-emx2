@@ -74,7 +74,7 @@ public class JsonYamlApi {
 
   static void getSchemaJSON(Context ctx) throws IOException {
     Schema schema = getSchema(ctx);
-    String json = JsonUtil.schemaToJson(schema.getMetadata(), true);
+    String json = JsonUtil.schemaToJson(schema.getMetadata(), true, false);
     ctx.status(200);
     String date = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
     ctx.header(

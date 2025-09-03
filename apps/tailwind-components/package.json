@@ -12,7 +12,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "if-env CI=true && nuxt prepare || echo 'CI is not set'",
-    "format": "prettier . --write --config ../.prettierrc.js --ignore-path ../.prettierignore",
+    "format": "prettier . --write --cache --config ../.prettierrc.js --ignore-path ../.prettierignore",
     "checkFormat": "prettier . --check --config ../.prettierrc.js --ignore-path ../.prettierignore",
     "test": "vitest",
     "coverage": "vitest run --coverage",

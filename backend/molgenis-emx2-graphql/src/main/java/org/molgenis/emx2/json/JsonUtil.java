@@ -45,18 +45,19 @@ public class JsonUtil {
   }
 
   public static String schemaToJson(SchemaMetadata schema) throws IOException {
-    return schemaToJson(schema, true);
+    return schemaToJson(schema, true, false);
   }
 
   public static String schemaToYaml(SchemaMetadata schema, boolean minimal) throws IOException {
-    Schema s = new Schema(schema, minimal);
+    Schema s = new Schema(schema, minimal, false);
     StringWriter out = new StringWriter();
     getYamlWriter().writeValue(out, s);
     return out.toString();
   }
 
-  public static String schemaToJson(SchemaMetadata schema, boolean minimal) throws IOException {
-    Schema s = new Schema(schema, minimal);
+  public static String schemaToJson(SchemaMetadata schema, boolean minimal, boolean enhance)
+      throws IOException {
+    Schema s = new Schema(schema, minimal, enhance);
     StringWriter out = new StringWriter();
     getWriter().writeValue(out, s);
     return out.toString();

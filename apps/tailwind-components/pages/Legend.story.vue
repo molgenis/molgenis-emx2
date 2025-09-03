@@ -25,35 +25,48 @@ function handleGoToRequest(id: string) {
 
 const sections = ref<IFormLegendSection[]>([
   {
+    label: "Main",
+    id: "main",
+    isActive: true,
+    errorCount: 3,
+    type: "SECTION",
+  },
+  {
     label: "Overview",
     id: "overview",
     isActive: true,
     errorCount: 1,
+    type: "HEADING",
   },
   {
     label: "Population",
     id: "population",
     errorCount: 2,
+    type: "HEADING",
   },
   {
     label: "Contents",
     id: "contents",
     errorCount: 0,
+    type: "HEADING",
   },
   {
     label: "Access",
     id: "access",
     errorCount: 0,
+    type: "HEADING",
   },
   {
     label: "Registration",
     id: "data-registration",
     errorCount: 16,
+    type: "HEADING",
   },
   {
     label: "Information",
     id: "information",
     errorCount: 0,
+    type: "HEADING",
   },
 ]);
 </script>

@@ -157,6 +157,14 @@ public class GraphqlSchemaFieldFactory {
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.SECTION)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.HEADING)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.DESCRIPTION)
                   .type(Scalars.GraphQLString))
           .field(
@@ -283,6 +291,10 @@ public class GraphqlSchemaFieldFactory {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.ID)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(SCHEMA_ID)
                   .type(Scalars.GraphQLString))
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
@@ -483,9 +495,15 @@ public class GraphqlSchemaFieldFactory {
 
   private static DataFetcher<?> queryFetcher(Schema schema) {
     return dataFetchingEnvironment -> {
+      // check for 'expanded' parameter
+      boolean enhance = false;
+      if (dataFetchingEnvironment.getArgument(GraphqlConstants.ENHANCE) != null
+          && dataFetchingEnvironment.getArgument(GraphqlConstants.ENHANCE).equals(true)) {
+        enhance = true;
+      }
 
       // add tables
-      String json = JsonUtil.schemaToJson(schema.getMetadata(), false);
+      String json = JsonUtil.schemaToJson(schema.getMetadata(), false, enhance);
       Map<String, Object> result = new ObjectMapper().readValue(json, Map.class);
 
       // add members
@@ -650,7 +668,14 @@ public class GraphqlSchemaFieldFactory {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("_schema")
         .type(outputMetadataType)
-        .dataFetcher(GraphqlSchemaFieldFactory.queryFetcher(schema));
+        .dataFetcher(GraphqlSchemaFieldFactory.queryFetcher(schema))
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(ENHANCE)
+                .description(
+                    "this will expand metadata with calculated details, such as sections and heading metadata, to help UI generation")
+                .type(Scalars.GraphQLBoolean)
+                .build());
   }
 
   public GraphQLFieldDefinition.Builder changeLogQuery(Schema schema) {
