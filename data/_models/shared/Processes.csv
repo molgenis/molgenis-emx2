@@ -5,7 +5,7 @@ Processes,,id,auto_id,1,TRUE,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"O
 Processes,,individuals,ref_array,,,,Individuals,,,,,http://purl.obolibrary.org/obo/NCIT_C164337,A reference to one or more individuals associated to the process,"Patient registry, FAIR Genomes"
 Processes,,alternate ids,string_array,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,Additional identifiers that identify a process,"Patient registry, FAIR Genomes"
 Processes,,affiliated organisations,ref_array,,,CatalogueOntologies,Organisations,,,,,http://purl.obolibrary.org/obo/NCIT_C25412,One or more associations between the individual and an organisation.,"Patient registry, FAIR Genomes"
-Analyses,Processes,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C25391,http://edamontology.org/operation_2945",,"Patient registry, FAIR Genomes"
+Analyses,Processes,,,,,,,,,,,"http://purl.obolibrary.org/obo/NCIT_C25391,http://edamontology.org/operation_2945",An analysis (examination and interpretation) relating to an individual,"Patient registry, FAIR Genomes"
 Analyses,,Analyses Information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Analyses,,date started,date,,,,,,,,,http://semanticscience.org/resource/SIO_000031,A start date is a time instant pertaining to the date of the beginning of a analysis.,"Patient registry, FAIR Genomes"
 Analyses,,date completed,date,,,,,,,,,http://semanticscience.org/resource/SIO_000032,An end date is a time instant pertaining to date of the end of an analysis,"Patient registry, FAIR Genomes"
@@ -16,13 +16,13 @@ Variant interpretation analyses,,experiment,ref_array,,,,Experiments,,,,,http://
 Variant interpretation analyses,,status,ref,,,CatalogueOntologies,Status,,,,,http://semanticscience.org/resource/SIO_000033,"An characterisation of the analysis that indicates the current state or progress (e.g., confirmed, to be verified, etc.)",Patient registry
 Variant interpretation analyses,,solved,bool,,,,,,,,,http://purl.obolibrary.org/obo/IAO_0000136,A reference to the individual whom this analysis is about,Patient registry
 Variant interpretation analyses,,date solved,date,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25587,An indication that diagnosis is given and the case is no longer considered unsolved.,Patient registry
-Variant interpretation analyses,,variant interpretation,refback,,,,Variant interpretations,,interpretation analysis,,,,,Patient registry
-Observations,Processes,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25398,Findings and circumstances relating to the examination and treatment of a individual,"Patient registry, FAIR Genomes"
+Variant interpretation analyses,,variant interpretation,refback,,,,Variant interpretations,,interpretation analysis,,,http://purl.obolibrary.org/obo/NGBO_6000125,Links to variant interpretation(s),Patient registry
+Observations,Processes,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25398,Findings and circumstances relating to the examination and treatment of an individual,"Patient registry, FAIR Genomes"
 Observations,,Observations Information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Observations,,date of observation,date,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C119798,The date on which an observation took place,"Patient registry, FAIR Genomes"
-Observations,,age at observation,period,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C192236,"The age of the individual at the time of observation (e.g., ""P55Y8M12D"")",Patient registry
+Observations,,age at observation,period,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C192236,"The age of the individual at the time of observation (e.g., ""P55Y8M12D"")","Patient registry, FAIR Genomes"
 Observations,,type of visit,ontology,,,CatalogueOntologies,Visit type,,,,,http://purl.obolibrary.org/obo/NCIT_C103165,"The kind of visit undertaken by the individual within a study such as inpatient, outpatient, telephone, baseline, follow up, etc.","Patient registry, FAIR Genomes"
-Observations,,location of observation,ref,,,CatalogueOntologies,Organisations,,,,,http://purl.obolibrary.org/obo/NCIT_C119804,The site in or on the body at which the observation is made.,Patient registry
+Observations,,location of observation,ref,,,CatalogueOntologies,Organisations,,,,,http://purl.obolibrary.org/obo/NCIT_C119804,The site in or on the body at which the observation is made.,"Patient registry, FAIR Genomes"
 Experiments,Processes,,,,,,,,,,,http://semanticscience.org/resource/SIO_000994,"An experiment is an investigation that has the goal of verifying, falsifying, or establishing the validity of a hypothesis.","Patient registry, FAIR Genomes"
 Experiments,,General Sample Information,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Experiments,,sample id,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25364,"One or more characters used to identify, name, or characterize the nature, properties, or contents of a sample","Patient registry, FAIR Genomes"
@@ -32,18 +32,18 @@ Experiments,,sample availability,ontology,,,CatalogueOntologies,Sample availabil
 Experiments,,pathological state,ontology,,,CatalogueOntologies,Pathological state,,,,,http://purl.obolibrary.org/obo/NCIT_C28257,"An examination that is performed to determine the extent of the spread of cancer based on histopathologic examination of one or more pathology specimens. Pathologic staging uses evidence acquired during the process of clinical staging, supplemented by histopathologic examination of surgical specimens.","Patient registry, FAIR Genomes"
 Experiments,,anatomical location,ontology,,,CatalogueOntologies,Anatomical location,,,,,http://purl.obolibrary.org/obo/NCIT_C170983,The specific anatomical or biological region associated with a tissue or organ specimen.,"Patient registry, FAIR Genomes"
 Experiments,,anatomical location other,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C170983,Additional description on the anatomical or biological region associated with a tissue or organ specimen,"Patient registry, FAIR Genomes"
-Experiments,,failed quality control,bool,,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0100564,An indication confirming that quality control processes were carried out and that the sequence did not meet the assessment criteria.,Patient registry
+Experiments,,failed quality control,bool,,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0100564,An indication confirming that quality control processes were carried out and that the sequence did not meet the assessment criteria.,"Patient registry, FAIR Genomes"
 Experiments,,volume,int,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C74720,The determination of the volume of a sample.,"Patient registry, FAIR Genomes"
 Experiments,,volume unit,ontology,,,CatalogueOntologies,Units,,,,,http://purl.obolibrary.org/obo/NCIT_C44279,An indication of the type of unit of measure being used to express a volume.,"Patient registry, FAIR Genomes"
-Experiments,,percentage tumor cells,decimal,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C127771,"	The percentage of tumor cells compared to total cells present in this sample.","Patient registry, FAIR Genomes"
+Experiments,,percentage tumor cells,decimal,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C127771,"The percentage of tumor cells compared to total cells present in this sample.","Patient registry, FAIR Genomes"
 Experiments,,Sample Collection,heading,,,,,,,,,,,"Patient registry, FAIR Genomes"
 Experiments,,sample type,ontology,,,CatalogueOntologies,Sample type,,,,,http://purl.obolibrary.org/obo/FBcv_0003044,"The type of sample as characterized by its biological source material collected for testing, diagnostic, propagation, treatment or research purposes","Patient registry,FAIR Genomes"
 Experiments,,sample type other,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C126072,"If the sample type is other, provide a description of the sample.","Patient registry,FAIR Genomes"
-Experiments,,collected at organisation,ref,,,CatalogueOntologies,Organisations,,,,,http://purl.obolibrary.org/obo/OBIB_0000085,The geographic location where sample collection took place,Patient registry
-Experiments,,collected by,ref_array,,,,Contacts,,,,,http://purl.obolibrary.org/obo/OBI_0001769,The person or persons responsible for sample collection,Patient registry
+Experiments,,collected at organisation,ref,,,CatalogueOntologies,Organisations,,,,,http://purl.obolibrary.org/obo/OBIB_0000085,The geographic location where sample collection took place,"Patient registry,FAIR Genomes"
+Experiments,,collected by,ref_array,,,,Contacts,,,,,http://purl.obolibrary.org/obo/OBI_0001769,The person or persons responsible for sample collection,"Patient registry,FAIR Genomes"
 Experiments,,date of collection,date,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C82515,Date on which the sample was collected,"Patient registry, FAIR Genomes"
 Experiments,,age group of individual at collection,ontology,,,CatalogueOntologies,Age groups,,,,,http://purl.obolibrary.org/obo/NCIT_C20587,"A categorical value that groups this individual by age at the time of collection (e.g., ""Adult"", ""18-24 years"", etc.)","Patient registry, FAIR Genomes"
-Experiments,,age of individual at collection,period,,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001775,The age of the individual at the time of collection,Patient registry
+Experiments,,age of individual at collection,period,,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001775,The age of the individual at the time of collection,"Patient registry,FAIR Genomes"
 Experiments,,registration timestamp,datetime,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C25646,"Date and time at which this sample was listed or recorded officially, i.e. officially qualified or enrolled.","Patient registry,FAIR Genomes"
 Experiments,,input amount,int,,,,,,,,,http://purl.allotrope.org/ontologies/role#AFRL_0000010,Amount of input material in nanogram (ng).,"Patient registry, FAIR Genomes"
 Experiments OGM,,number of cells per million,decimal,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C202259,"The number of cells (million) in a sample, sample volume, field, or other delimiter.",Patient registry
@@ -56,8 +56,8 @@ NGS sequencing,Experiments,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C101293
 Experiments RNA,,RNA Extraction,heading,,,,,,,,,,,Patient registry
 Experiments lrGS,,DNA Extraction,heading,,,,,,,,,,,Patient registry
 Experiments srDNA,,DNA Extraction,heading,,,,,,,,,,,Patient registry
-NGS sequencing,,extraction kit,,,,,,,,,,,,Patient registry
-NGS sequencing,,extraction date,date,,,,,,,,,,,Patient registry
+NGS sequencing,,extraction kit,,,,,,,,,,,An assay kit used for the technique of extracting nucleic acids from a biological sample,"Patient registry,FAIR Genomes"
+NGS sequencing,,extraction date,date,,,,,,,,,http://purl.obolibrary.org/obo/OBI_0003081,A time measurement datum that specifies when some material was extracted from an input material,"Patient registry,FAIR Genomes"
 Experiments OGM,,storage buffer,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C70815,An ionic compound that resists changes in its pH. The buffer containing the DNA/RNA.,Patient registry
 Experiments lrGS,,storage buffer,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C70815,An ionic compound that resists changes in its pH. The buffer containing the DNA/RNA.,Patient registry
 Experiments,,storage conditions,ontology,,,CatalogueOntologies,Storage conditions,,,,,http://purl.obolibrary.org/obo/NCIT_C96145,The conditions under which this sample was stored.,"Patient registry,FAIR Genomes"
@@ -67,25 +67,25 @@ Experiments lrGS,,concentration,decimal,,,,,,,,,http://purl.obolibrary.org/obo/N
 Experiments lrGS,,concentration unit,ontology,,,CatalogueOntologies,Units,,,,,http://purl.obolibrary.org/obo/NCIT_C48207,An indication of the type of unit of measure being used to express a concentration.,Patient registry
 Experiments lrGS,,DIN QC value,decimal,,,,,,,"if(parseFloat(dINQCValue) < 1 || parseFloat(dINQCValue) > 10) ""Only values between 1 and 10 are allowed.""",,http://purl.obolibrary.org/obo/GENEPIO_0100661,A data field which describes quality control information,Patient registry
 Experiments RNA,,RIN QC value,decimal,,,,,,,"if(parseFloat(rINQCValue) < 1 || parseFloat(rINQCValue) > 10) ""Only values between 1 and 10 are allowed.""",,http://purl.obolibrary.org/obo/GENEPIO_0100661,A data field which describes quality control information,Patient registry
-NGS sequencing,,Library Preparation,heading,,,,,,,,,,,Patient registry
+NGS sequencing,,Library Preparation,heading,,,,,,,,,,,"Patient registry,FAIR Genomes"
 NGS sequencing,,library source,ontology,,,CatalogueOntologies,Library source,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001965,E.g. genomic source,"Patient registry, FAIR Genomes"
 NGS sequencing,,library selection,string,,,,,,,,,http://purl.obolibrary.org/obo/GENEPIO_0001940,E.g. RANDOM method,"Patient registry, FAIR Genomes"
 NGS sequencing,,library strategy,ontology,,,CatalogueOntologies,Sequencing methods,,,,,http://purl.obolibrary.org/obo/FIX_0000704,Method used to determine the order of bases in a nucleic acid sequence. In FAIR Genomes: SequencingMethod.,"Patient registry, FAIR Genomes"
 NGS sequencing,,library layout,ontology,,,CatalogueOntologies,Library layout,,,,,http://purl.obolibrary.org/obo/FBcv_0003208,Either PAIRED or SINGLE,"Patient registry, FAIR Genomes"
-NGS sequencing,,sequencer barcode,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C43361,"A machine-readable representation of an instrument (e.g., a sequencer) in a visual format on a surface",Patient registry
+NGS sequencing,,sequencer barcode,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C43361,"A machine-readable representation of an instrument (e.g., a sequencer) in a visual format on a surface","Patient registry,FAIR Genomes"
 NGS sequencing,,library preparation kit,ontology,,,CatalogueOntologies,Sequencing enrichment kits,,,,,http://purl.obolibrary.org/obo/GENEPIO_0000085,"Pre-filled, ready-to-use reagent cartridges intented to improve chemistry, cluster density and read length as well as improve quality (Q) scores for this sample. Reagent components are encoded to interact with the sequencing system to validate compatibility with user-defined applications.","Patient registry, FAIR Genomes"
 NGS sequencing,,PCR free,bool,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17003,Indicates whether a polymerase chain reaction (PCR) was used to prepare this sample. PCR is a method for amplifying a DNA base sequence using multiple rounds of heat denaturation of the DNA and annealing of oligonucleotide primers complementary to flanking regions in the presence of a heat-stable polymerase.,"Patient registry, FAIR Genomes"
 NGS sequencing,,target enrichment kit,ontology,,,CatalogueOntologies,Sequencing enrichment kits,,,,,http://purl.obolibrary.org/obo/NCIT_C154307,Indicates which target enrichment kit was used to prepare this sample. Target enrichment is a pre-sequencing DNA preparation step where DNA sequences are either directly amplified (amplicon or multiplex PCR-based) or captured (hybrid capture-based) in order to only focus on specific regions of a genome or DNA sample.,"Patient registry, FAIR Genomes"
 NGS sequencing,,UMIs present,bool,,,,,,,,,http://www.ebi.ac.uk/efo/EFO_0010199,Indicates whether any unique molecular identifiers (UMIs) are present. An UMI barcode is a short nucleotide sequence that is used to identify reads originating from an individual mRNA molecule.,"Patient registry, FAIR Genomes"
 NGS sequencing,,intended insert size,int,,,,,,,,,https://w3id.org/fair-genomes/resource/FG_0000001,"In paired-end sequencing, the DNA between the adapter sequences is the insert. The length of this sequence is known as the insert size, not to be confused with the inner distance between reads. So, fragment length equals read adapter length (2x) plus insert size, and insert size equals read lenght (2x) plus inner distance.","Patient registry, FAIR Genomes"
 NGS sequencing,,intended read length,int,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C153362,The number of nucleotides intended to be ordered from each side of a nucleic acid fragment obtained after the completion of a sequencing process.,"Patient registry, FAIR Genomes"
-NGS sequencing,,barcode,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C43361,A machine-readable representation of information in a visual format on a surface.,Patient registry
-NGS sequencing,,Sequencing,heading,,,,,,,,,,,Patient registry
-Experiments,,instrument id,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C178947,"The unique number assigned to an instrument (e.g., a sequencer)",Patient registry
+NGS sequencing,,barcode,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C43361,A machine-readable representation of information in a visual format on a surface.,"Patient registry,FAIR Genomes"
+NGS sequencing,,Sequencing,heading,,,,,,,,,,,"Patient registry,FAIR Genomes"
+Experiments,,instrument id,string,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C178947,"The unique number assigned to an instrument (e.g., a sequencer). This could either be the serial number, a unique ID generated by the data provider/owner, or another character string used to identify the instrument","Patient registry,FAIR Genomes"
 Experiments,,persons involved,ref_array,,,,Contacts,,,,,http://purl.obolibrary.org/obo/NCIT_C25461,Who was involved in the processing,"Patient registry, FAIR Genomes"
-Experiments,,output files,refback,,,,Files,,produced by experiment,,,http://edamontology.org/topic_3168,links to output of files,Patient registry
+Experiments,,output files,refback,,,,Files,,produced by experiment,,,http://edamontology.org/topic_3168,links to output of files,"Patient registry,FAIR Genomes"
 NGS sequencing,,date of sequencing,datetime,,,,,,,,,,"When the sequencing run took place","Patient registry, FAIR Genomes"
-Experiments OGM,,date of mapping,datetime,,,,,,,,,,When the mapping experiment took place,"Patient registry, FAIR Genomes"
+Experiments OGM,,date of mapping,datetime,,,,,,,,,,When the mapping experiment took place,"Patient registry"
 Experiments,,reference genome used,ontology,,,CatalogueOntologies,Genome accessions,,,,,http://purl.obolibrary.org/obo/NCIT_C164815,The source-specific version of the published genome assembly.,"Patient registry, FAIR Genomes"
 Experiments,,mean read depth,decimal,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C155320,"The mean number of times a particular locus (site, nucleotide, amplicon, region) was sequenced.","Patient registry, FAIR Genomes"
 Experiments,,median read depth,decimal,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C155320,"The median number of times a particular locus (site, nucleotide, amplicon, region) was sequenced.","Patient registry, FAIR Genomes"
