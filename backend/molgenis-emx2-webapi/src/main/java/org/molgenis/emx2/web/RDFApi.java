@@ -6,6 +6,7 @@ import static org.molgenis.emx2.Constants.API_TTL;
 import static org.molgenis.emx2.utils.URLUtils.extractBaseURL;
 import static org.molgenis.emx2.web.Constants.ACCEPT_YAML;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
+import static org.molgenis.emx2.web.util.HttpHeaderUtils.getContentType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -13,7 +14,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.google.common.net.MediaType;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import io.javalin.http.Header;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -57,21 +57,6 @@ public class RDFApi {
       }
     }
   }
-
-  private static final Comparator<MediaType> MEDIA_TYPE_COMPARATOR =
-      Comparator.comparing((MediaType mediaType) -> mediaType.type().equals("*"))
-          .thenComparing(mediaType -> mediaType.subtype().equals("*"))
-          .thenComparing(
-              mediaType -> {
-                try {
-                  return Double.parseDouble(mediaType.parameters().get("q").getFirst());
-                } catch (NoSuchElementException e) {
-                  return 1.0;
-                }
-              },
-              Comparator.reverseOrder())
-          .thenComparing( // RDF-specific
-              mediaType -> mediaType.subtype().contains("turtle"), Comparator.reverseOrder());
 
   public static void create(Javalin app, MolgenisSessionManager sm) {
     // ideally, we estimate/calculate the content length and inform the client using
@@ -307,30 +292,7 @@ public class RDFApi {
   }
 
   public static RDFFormat selectFormat(Context ctx) {
-    String acceptHeader = ctx.header(Header.ACCEPT);
-    if (acceptHeader == null) return RDFFormat.TURTLE;
-
-    List<MediaType> mediaTypes =
-        Arrays.stream(acceptHeader.split(","))
-            .map(String::trim)
-            .map(MediaType::parse)
-            .sorted(MEDIA_TYPE_COMPARATOR)
-            .toList();
-
-    for (MediaType mediaType : mediaTypes) {
-      RDFFormat foundFormat = acceptedMediaTypes.get(mediaType.withoutParameters());
-      if (foundFormat != null) return foundFormat;
-
-      if (mediaType.hasWildcard()) {
-        for (MediaType acceptedType : acceptedMediaTypes.keySet()) {
-          if (acceptedType.is(mediaType)) {
-            return acceptedMediaTypes.get(acceptedType);
-          }
-        }
-      }
-    }
-
-    throw new IllegalArgumentException(
-        "No allowed media type was found (while Accept header was defined).");
+    MediaType mediaType = getContentType(ctx, acceptedMediaTypes.keySet().stream().toList());
+    return acceptedMediaTypes.get(mediaType);
   }
 }
