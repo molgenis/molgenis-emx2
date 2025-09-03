@@ -63,7 +63,15 @@ import Breadcrumb from "./Breadcrumb.vue";
 import CookieWall from "./CookieWall.vue";
 import { request, gql } from "graphql-request";
 
-const defaultSchemaMenuItems = [
+interface MenuItem {
+  label: string;
+  href: string;
+  active?: boolean;
+  role?: string;
+  [key: string]: any;
+}
+
+const defaultSchemaMenuItems: MenuItem[] = [
   { label: "Tables", href: "tables", role: "Viewer" },
   {
     label: "Schema",
@@ -115,7 +123,8 @@ export default {
   },
   props: {
     menuItems: {
-      type: Array,
+      type: [Array, Object] as unknown as () => MenuItem[] | MenuItem,
+      default: null,
     },
     title: String,
     showCrumbs: {
@@ -187,13 +196,16 @@ export default {
       );
     },
     menu() {
+      let result;
       if (this.menuItems) {
-        return this.menuItems;
+        result = this.menuItems;
       } else if (this.session?.settings?.menu) {
-        return this.session.settings.menu;
+        result = this.session.settings.menu;
       } else {
-        return defaultSchemaMenuItems;
+        result = defaultSchemaMenuItems;
       }
+
+      return this.toEmx2AppLocation(result);
     },
   },
   watch: {
@@ -219,6 +231,56 @@ export default {
   methods: {
     toggle() {
       this.fullscreen = !this.fullscreen;
+    },
+    toEmx2AppLocation(menuItems: MenuItem[] | MenuItem): MenuItem[] | MenuItem {
+      const schemaName = window?.location?.pathname
+        .split("/")
+        ?.filter(Boolean)[0];
+
+      if (!schemaName || schemaName === "apps") {
+        return menuItems;
+      }
+
+      if (Array.isArray(menuItems)) {
+        return menuItems.map((item) =>
+          this.toEmx2AppLocation(item)
+        ) as MenuItem[];
+      } else if (menuItems && typeof menuItems === "object") {
+        const menuItem = menuItems as MenuItem;
+        for (const prop in menuItem) {
+          const value = menuItem[prop];
+          if (prop === "href" && typeof value === "string") {
+            let location = `/${schemaName}/${value}`;
+            let hashLocation = location.indexOf("#");
+            if (hashLocation !== -1) {
+              const charBeforeHash = location.substring(
+                hashLocation - 1,
+                hashLocation
+              );
+              if (charBeforeHash !== "/") {
+                location =
+                  location.substring(0, hashLocation) +
+                  "/" +
+                  location.substring(hashLocation, location.length);
+              }
+            }
+            hashLocation = location.indexOf("#");
+            menuItem[prop] =
+              hashLocation !== -1
+                ? location
+                : location.endsWith("/")
+                ? location
+                : location + "/";
+          } else if (typeof value === "object" || Array.isArray(value)) {
+            //may be submenu
+            // menuItem[prop] = this.toEmx2AppLocation(value);
+          }
+        }
+        return menuItem;
+      }
+
+      // Always return menuItems if none of the above conditions are met
+      return menuItems;
     },
   },
   emits: ["update:modelValue", "error"],
