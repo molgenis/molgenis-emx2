@@ -14,6 +14,19 @@ export default defineNuxtConfig({
     configPath: "../tailwind-components/tailwind.config.js",
   },
 
+  routeRules: {
+    "/api/rdf": {
+      proxy: {
+        to: "http://localhost:8080/api/rdf",
+      },
+    },
+    "/pet%20store/api/rdf": {
+      proxy: {
+        to: "http://localhost:8080/",
+      },
+    },
+  },
+
   // runtimeConfig: {
   //   public: {
   //     apiBase: "https://emx2.dev.molgenis.org/"
