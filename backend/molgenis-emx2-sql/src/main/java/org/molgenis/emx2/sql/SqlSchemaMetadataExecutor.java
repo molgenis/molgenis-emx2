@@ -21,9 +21,9 @@ class SqlSchemaMetadataExecutor {
   }
 
   static void executeCreateSchema(SqlDatabase db, SchemaMetadata schema) {
-    db.getJooq().createSchema(schema.getName()).execute();
+    db.getJooqWithExtendedTimeout().createSchema(schema.getName()).execute();
 
-    MetadataUtils.saveSchemaMetadata(db.getJooq(), schema);
+    MetadataUtils.saveSchemaMetadata(db.getJooqWithExtendedTimeout(), schema);
   }
 
   static void executeAddMembers(DSLContext jooq, Schema schema, Member member) {
