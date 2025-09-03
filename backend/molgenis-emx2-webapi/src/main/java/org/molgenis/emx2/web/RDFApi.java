@@ -41,12 +41,12 @@ public class RDFApi {
   private static final List<RDFFormat> acceptedRdfFormats =
       List.of(
           RDFFormat.TURTLE,
-          RDFFormat.N3,
+          RDFFormat.JSONLD,
+          RDFFormat.RDFXML,
           RDFFormat.NTRIPLES,
           RDFFormat.NQUADS,
-          RDFFormat.RDFXML,
           RDFFormat.TRIG,
-          RDFFormat.JSONLD);
+          RDFFormat.N3);
 
   private static final Map<MediaType, RDFFormat> acceptedMediaTypes = new LinkedHashMap<>();
 
