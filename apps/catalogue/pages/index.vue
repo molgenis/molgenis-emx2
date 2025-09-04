@@ -128,6 +128,12 @@ const projectCatalogues = computed(() => {
       :catalogues="thematicCatalogues"
     />
     <ContentBlockCatalogues
+      v-if="organizationCatalogues?.length > 0"
+      title="Organization catalogues"
+      description="Catalogues maintained by individual research organizations:"
+      :catalogues="organizationCatalogues"
+    />
+    <ContentBlockCatalogues
       v-if="projectCatalogues?.length > 0"
       title="Project catalogues"
       description="Catalogues maintained by individual research projects or consortia:"
