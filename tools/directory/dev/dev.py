@@ -25,6 +25,9 @@ target = os.getenv("TARGET")
 username = os.getenv("USERNAME")
 password = os.getenv("PASSWORD")
 directory_schema = os.getenv("DIRECTORY")
+pid_service_type = os.getenv(
+    "PID_SERVICE"
+)  # Select from: ['production', 'dummy', 'none']
 
 
 async def sync_directory():
@@ -49,11 +52,10 @@ async def sync_directory():
         nodes_to_publish = session.get_nodes()
 
         # Create PidService
-        pid_service = 'dummy'  # Select from: ['production', 'dummy', 'none']
-        if pid_service == 'production':
+        if pid_service_type == 'production':
             pid_service = PidService.from_credentials("pyhandle_creds.json")
             print(f"Script runs on server {pid_service.base_url}")
-        elif pid_service == 'dummy':
+        elif pid_service_type == 'dummy':
             # Use DummyPidService if testing without interacting with a handle server
             pid_service = DummyPidService()
         else:
