@@ -137,19 +137,19 @@ const organizationCatalogues = computed(() => {
       :catalogues="thematicCatalogues"
     />
     <ContentBlockCatalogues
-      v-if="organizationCatalogues?.length > 0"
-      title="Organization catalogues"
-      description="Catalogues maintained by organizations:"
-      :catalogues="organizationCatalogues"
-    />
-    <ContentBlockCatalogues
       v-if="projectCatalogues?.length > 0"
       title="Project catalogues"
       description="Catalogues maintained by individual research projects or consortia:"
       :catalogues="projectCatalogues"
     />
+    <ContentBlockCatalogues
+      v-if="organizationCatalogues?.length > 0"
+      title="Organization catalogues"
+      description="Catalogues maintained by organizations:"
+      :catalogues="organizationCatalogues"
+    />
     <ContentBlock
-      v-if="projectCatalogues.length === 0 && thematicCatalogues.length === 0"
+      v-if="projectCatalogues.length === 0 && thematicCatalogues.length === 0 && organizationCatalogues?.length === 0"
       title="No Catalogues found"
       description="Please add catalogues via admin user interface"
     />
