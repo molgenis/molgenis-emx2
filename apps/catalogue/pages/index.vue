@@ -92,6 +92,16 @@ const projectCatalogues = computed(() => {
   result.sort((a, b) => a.id.localeCompare(b.id));
   return result;
 });
+
+const organizationCatalogues = computed(() => {
+  let result = data?.value?.data?.Resources
+    ? data.value?.data?.Resources?.filter(
+        (c) => c.catalogueType?.name === "organisation"
+      )
+    : [];
+  result.sort((a, b) => a.id.localeCompare(b.id));
+  return result;
+});
 </script>
 
 <template>
