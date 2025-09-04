@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useRoute } from "#app/composables/router";
-import { ref, computed } from "vue";
+import { ref } from "vue";
+import { useFetch } from "#app";
 import type { ShaclSetItem } from "../../../metadata-utils/src/rdf";
 
 const route = useRoute();
@@ -15,59 +16,60 @@ const props = withDefaults(
   {}
 );
 
-enum ShaclStatus {
-  UNKNOWN,
-  VALID = "check",
-  INVALID = "exclamation",
-  RUNNING = "progress-activity",
-  ERROR = "exclamation",
-}
+type Resp<T> = {
+  data: Record<string, T>;
+};
 
+type ShaclStatus = "ERROR" | "INVALID" | "RUNNING" | "UNKNOWN" | "VALID";
+
+const shaclStatus = ref<ShaclStatus>("UNKNOWN");
+const shaclOutput = ref<string>("Validate schema to view output");
+const shaclError = ref<string>("");
 const isExpanded = ref<boolean>(false);
 const isDisabled = ref<boolean>(false);
-const shaclOutput = ref<string>("");
-const shaclStatus = ref<ShaclStatus>(ShaclStatus.UNKNOWN);
-const error = ref<string>("");
+const showModal = ref<boolean>(false);
 
-const shaclSetTitle = computed<string>(() => {
-  return (
-    props.shaclSet.description + " (version: " + props.shaclSet.version + ")"
-  );
-});
+function validateShaclOutput(output: string): boolean {
+  const outputSubstring = output.substring(0, 100);
+  const match1 = outputSubstring.match(/(\[\] a sh:ValidationReport)/) as string[];
+  const match2 = outputSubstring.match(/(sh:conforms true\.)/) as string[]; 
+  return match1.length > 0 && match2.length > 0;
+}
 
 async function runShacl() {
   isDisabled.value = true;
-  error.value = "";
   shaclOutput.value = "";
-  shaclStatus.value = ShaclStatus.RUNNING;
+  shaclStatus.value = "RUNNING";
+  shaclError.value = "";
 
-  const res = await fetch(`/${schema}/api/rdf?validate=${props.shaclSet.name}`);
-  shaclOutput.value = await res.text();
-  if (res.status !== 200) {
-    shaclStatus.value = ShaclStatus.ERROR;
-    error.value = "Error (status code: " + res.status + ")";
-  } else if (
-    shaclOutput.value
-      .substring(0, 100)
-      .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.")
-  ) {
-    shaclStatus.value = ShaclStatus.VALID;
+  const { data, error, status } = await useFetch<Resp<string>>(
+    `/${schema}/api/rdf?validate=${props.shaclSet.name}`
+  );
+  
+  shaclOutput.value = ((data.value as unknown) as string);
+  
+  if (!data.value || error.value || status.value === "error") {
+    shaclError.value = `ERROR: ${error.value}`;
+    shaclStatus.value = "ERROR";
+  } else if (validateShaclOutput(shaclOutput.value)) {
+    shaclStatus.value = "VALID";
   } else {
-    shaclStatus.value = ShaclStatus.INVALID;
+    shaclStatus.value = "INVALID";
   }
+  
   isDisabled.value = false;
 }
 </script>
 
 <template>
-  <div :id="shaclSet.name" class="border-b border-b-input">
-    <div class="flex justify-start items-center">
+  <div :id="shaclSet.name" class="border-t border-input">
+    <div class="flex justify-start items-center gap-2">
       <button
         :id="`shacl-set-${shaclSet.name}-toggle`"
         :aria-controls="`shacl-set-${shaclSet.name}-content`"
         :aria-expanded="isExpanded"
         @click="isExpanded = !isExpanded"
-        class="py-5 pl-2 w-full flex justify-start items-center"
+        class="py-5 pl-2 w-full flex justify-start items-center gap-2"
       >
         <BaseIcon
           name="caret-down"
@@ -77,10 +79,15 @@ async function runShacl() {
             'rotate-180': isExpanded,
           }"
         />
-        <span>{{ shaclSetTitle }}</span>
+        <span
+          >{{ shaclSet.description }} (version: {{ shaclSet.version }})</span
+        >
       </button>
       <div>
-        <BaseIcon :name="shaclStatus" />
+        <BaseIcon name="progress-activity" class="animate-spin" v-if="shaclStatus === 'RUNNING'" />
+        <BaseIcon name="check" v-else-if="shaclStatus === 'VALID'" />
+        <BaseIcon name="cross" v-else-if="shaclStatus === 'INVALID'" />
+        <BaseIcon name="exclamation" v-else-if="shaclStatus === 'ERROR'" />
       </div>
       <Button
         type="outline"
@@ -94,12 +101,38 @@ async function runShacl() {
       </Button>
     </div>
     <div
-      class="p-2"
+      class="py-2 pb-6"
       :class="{
         hidden: !isExpanded,
       }"
     >
-      <p>{{ shaclSet.description }}</p>
+      <div class="p-2 flex justify-start items-center">
+        <p class="w-full">Validation Report</p>
+        <Button
+          type="outline"
+          :icon-only="true"
+          icon="plus"
+          size="tiny"
+          label="View in full screen"
+          @click="showModal = !showModal"
+        />
+      </div>
+      <Message
+        :id="`shacl-set-${shaclSet.name}-output-error-message`"
+        :invalid="true"
+        class="my-2"
+        v-if="shaclError"
+      >
+        <span>{{ shaclError }}</span>
+      </Message>
+      <DisplayOutput>
+        <pre>{{ shaclOutput }}</pre>
+      </DisplayOutput>
     </div>
   </div>
+  <Modal v-model:visible="showModal" :title="shaclSet.name" subtitle="Validation Report">
+    <DisplayOutput class="px-8 my-8">
+      <pre>{{ shaclOutput }}</pre>
+    </DisplayOutput>
+  </Modal>
 </template>

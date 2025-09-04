@@ -32,30 +32,36 @@ const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
 
 const crumbs: Record<string, string> = {};
 crumbs[schema] = `/${schema}`;
-crumbs["rdf"] = "";
+crumbs["rdf"] = `/${schema}/rdf`;
 crumbs["shacl"] = "/rdf/shacl";
 
 const shaclSets = ref<ShaclSetItem[]>();
 const loading = ref<boolean>(true);
-const error = ref<string>("");
-async function fetchShacls() {
-  const res = await fetch("/api/rdf?shacls");
-  if (res.status !== 200) {
-    const err = await res.text;
-    throw new Error(err);
+const error = ref<string>();
+
+async function fetchShacls(): Promise<string> {
+  const { data, error, status } = await useFetch<Resp<string>>(
+    `/${schema}/api/rdf?shacls`
+  );
+
+  if (!data.value || error.value || status.value === "error") {
+    throw new Error(
+      `Could not load available SHACL sets. Please check if you have access to any schema's to validate. ${status.value}`
+    );
   }
 
-  const yaml = await res.text();
-  return parse(yaml);
+  const output = (data.value as unknown) as string;
+  const yaml = parse(output);
+  return yaml;
 }
 
 onMounted(async () => {
   Promise.resolve(fetchShacls())
     .then((data) => {
-      shaclSets.value = data;
+      shaclSets.value = (data as unknown) as ShaclSetItem[];
     })
     .catch((err) => {
-      error.value = `Could not load available SHACL sets. Please check if you have access to any schema's to validate. ${err}`;
+      error.value = err;
     })
     .finally(() => {
       loading.value = false;
@@ -81,7 +87,7 @@ onMounted(async () => {
           content="Output is deemed valid if nodes adhere to the requirements or those nodes are not present."
         />
       </p>
-      <div>
+      <div class="mt-8">
         <div class="h-40 flex item-center justify-center" v-if="loading">
           <div class="text-center">
             <BaseIcon
@@ -89,13 +95,14 @@ onMounted(async () => {
               class="animate-spin m-auto"
               :width="32"
             />
-            <p class="">Loading SHACL sets...</p>
+            <p>Loading SHACL sets...</p>
           </div>
         </div>
         <Message
           id="shacl-sets-error-message"
+          class="my-2"
           :invalid="true"
-          v-else="!loading && error"
+          v-else-if="error"
         >
           <span>{{ error }}</span>
         </Message>
