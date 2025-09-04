@@ -31,8 +31,10 @@ const showModal = ref<boolean>(false);
 
 function validateShaclOutput(output: string): boolean {
   const outputSubstring = output.substring(0, 100);
-  const match1 = outputSubstring.match(/(\[\] a sh:ValidationReport)/) as string[];
-  const match2 = outputSubstring.match(/(sh:conforms true\.)/) as string[]; 
+  const match1 = outputSubstring.match(
+    /(\[\] a sh:ValidationReport)/
+  ) as string[];
+  const match2 = outputSubstring.match(/(sh:conforms true\.)/) as string[];
   return match1.length > 0 && match2.length > 0;
 }
 
@@ -45,9 +47,9 @@ async function runShacl() {
   const { data, error, status } = await useFetch<Resp<string>>(
     `/${schema}/api/rdf?validate=${props.shaclSet.name}`
   );
-  
-  shaclOutput.value = ((data.value as unknown) as string);
-  
+
+  shaclOutput.value = data.value as unknown as string;
+
   if (!data.value || error.value || status.value === "error") {
     shaclError.value = `ERROR: ${error.value}`;
     shaclStatus.value = "ERROR";
@@ -56,7 +58,7 @@ async function runShacl() {
   } else {
     shaclStatus.value = "INVALID";
   }
-  
+
   isDisabled.value = false;
 }
 </script>
@@ -84,7 +86,11 @@ async function runShacl() {
         >
       </button>
       <div>
-        <BaseIcon name="progress-activity" class="animate-spin" v-if="shaclStatus === 'RUNNING'" />
+        <BaseIcon
+          name="progress-activity"
+          class="animate-spin"
+          v-if="shaclStatus === 'RUNNING'"
+        />
         <BaseIcon name="check" v-else-if="shaclStatus === 'VALID'" />
         <BaseIcon name="cross" v-else-if="shaclStatus === 'INVALID'" />
         <BaseIcon name="exclamation" v-else-if="shaclStatus === 'ERROR'" />
@@ -130,7 +136,11 @@ async function runShacl() {
       </DisplayOutput>
     </div>
   </div>
-  <Modal v-model:visible="showModal" :title="shaclSet.name" subtitle="Validation Report">
+  <Modal
+    v-model:visible="showModal"
+    :title="shaclSet.name"
+    subtitle="Validation Report"
+  >
     <DisplayOutput class="px-8 my-8">
       <pre>{{ shaclOutput }}</pre>
     </DisplayOutput>
