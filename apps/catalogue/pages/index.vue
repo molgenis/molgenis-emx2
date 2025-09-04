@@ -92,7 +92,6 @@ const projectCatalogues = computed(() => {
   result.sort((a, b) => a.id.localeCompare(b.id));
   return result;
 });
-
 </script>
 
 <template>
