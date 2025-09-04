@@ -38,3 +38,26 @@ export interface IFilterFacet {
   sortDirection?: "ASC" | "DESC" | "asc" | "desc";
   trueOption?: IFilterOption;
 }
+
+export interface IFilterDetails {
+  adaptive: boolean;
+  builtIn: boolean;
+  component: string; // filter components.
+  facetIdentifier: string;
+  facetTitle: string;
+  filterLabelAttribute: string;
+  filterValueAttribute: string;
+  matchTypeForFilter: string;
+  negotiatorRequestString: string;
+  ontologyIdentifiers: any[];
+  options: Function;
+  sortColumn: string;
+  sortDirection: SortDirection;
+  showFacet: boolean;
+  showMatchTypeSelector: boolean;
+  applyToColumn?: string;
+  sourceTable?: string;
+  trueOption?: IFilterOption;
+}
+
+export type SortDirection = "asc" | "desc";

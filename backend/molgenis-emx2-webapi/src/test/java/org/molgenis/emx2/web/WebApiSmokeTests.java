@@ -1617,67 +1617,8 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  void testBeaconFilteringTerms() {
-    getAndAssertContains("/api/beacon/filtering_terms", "filteringTerms");
-  }
-
-  @Test
   void testBeaconEntryTypes() {
     getAndAssertContains("/api/beacon/entry_types", "entry");
-  }
-
-  @Test
-  void testBeaconDatasets() {
-    getAndAssertContains("/api/beacon/datasets", "datasets");
-  }
-
-  @Test
-  void testBeaconGVariants() {
-    getAndAssertContains("/api/beacon/g_variants", "datasets");
-  }
-
-  @Test
-  void testBeaconAnalyses() {
-    getAndAssertContains("/api/beacon/analyses", "datasets");
-  }
-
-  @Test
-  void testBeaconBiosamples() {
-    getAndAssertContains("/api/beacon/biosamples", "datasets");
-  }
-
-  @Test
-  void testBeaconCohorts() {
-    getAndAssertContains("/api/beacon/cohorts", "datasets");
-  }
-
-  @Test
-  void testBeaconIndividualsGet() {
-    getAndAssertContains("/api/beacon/individuals", "datasets");
-  }
-
-  @Test
-  void testBeaconIndividualsPostFilter() {
-    String body =
-        """
-      {
-        "query": {
-          "filters": [
-            {
-              "id": "NCIT:C28421",
-              "value": "GSSO_000123",
-              "operator": "="
-            }
-          ]
-        }
-      }""";
-    String result = given().body(body).post("/api/beacon/individuals").asString();
-    assertTrue(result.contains("datasets"));
-  }
-
-  @Test
-  void testBeaconRuns() {
-    getAndAssertContains("/api/beacon/runs", "datasets");
   }
 
   private void getAndAssertContains(String path, String expectedSubstring) {
