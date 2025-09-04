@@ -11,7 +11,7 @@
         :logo="logoURLorDefault"
         active="My search"
         :items="menu"
-        :session="session"
+        :session="session ?? undefined"
       >
         <MolgenisSession
           v-model="session"
@@ -55,15 +55,18 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import MolgenisMenu from "./MolgenisMenu.vue";
 import MolgenisSession from "../account/MolgenisSession.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
 import Breadcrumb from "./Breadcrumb.vue";
 import CookieWall from "./CookieWall.vue";
-import { request, gql } from "graphql-request";
+import Client from "../../client/client";
 import { MenuItem } from "../../Interfaces/MenuItem";
-import { unref } from "vue";
+import { computed, ref, unref, watch } from "vue";
+import { useRoute } from "vue-router";
+import { onMounted } from "vue";
+import { ISetting } from "metadata-utils/src";
 
 const defaultSchemaMenuItems: MenuItem[] = [
   {
@@ -116,199 +119,170 @@ const defaultSchemaMenuItems: MenuItem[] = [
   },
 ];
 
-/**
- Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
- */
-export default {
-  components: {
-    MolgenisSession,
-    MolgenisMenu,
-    MolgenisFooter,
-    Breadcrumb,
-    CookieWall,
-  },
-  props: {
-    menuItems: {
-      type: Array as () => MenuItem[],
-      default: null,
-    },
-    title: String,
-    showCrumbs: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  data: function () {
-    return {
-      session: {} as Record<string, any>,
-      logoURL: null,
-      fullscreen: false,
-      timestamp: Date.now(),
-      analyticsId: null,
-      cookieWallContent: null,
-    };
-  },
-  computed: {
-    schemaUrlsForCrumbs() {
-      let result: Record<string, any> = {
-        "list all databases": "/apps/central/",
-      };
-      //all databases
-      if (this.session?.schemas) {
-        this.session.schemas
-          .sort((a: string, b: string) =>
-            a.localeCompare(b, undefined, { sensitivity: "base" })
-          )
-          .forEach((schema: string) => {
-            result[schema] = "/" + schema + "/index"; // all paths are of form /:schema/:app, index will do routing to default app in schema
-          });
-      }
-      return result;
-    },
-    crumbs() {
-      let result: Record<string, any> = {};
-      if (window && location) {
-        let path = decodeURI(
-          window.location.pathname.replace(location.search, "")
-        ).split("/");
-        let url = "/";
-        if (window.location.pathname != "/apps/central/") {
-          let appPath = "index"; //use to get 'index' added to first breadcrumb
-          path.forEach((el) => {
-            if (el !== "") {
-              url += el + "/";
-              result[el] = url + appPath;
-              appPath = ""; //only on /schema/index after that nothing
-            }
-          });
-        }
-        if (this.$route) {
-          path = decodeURI(location.hash.split("?")[0]).substr(1).split("/");
-          url += "#";
-          path.forEach((el) => {
-            if (el !== "") {
-              url += "/" + el;
-              result[el] = url;
-            }
-          });
-        }
-      }
-      return result;
-    },
-    logoURLorDefault() {
-      return (
-        this.logoURL ||
-        "/apps/molgenis-components/assets/img/molgenis_logo_white.png"
-      );
-    },
-    menu() {
-      if (this.menuItems) {
-        return this.toEmx2AppLocation(unref(this.menuItems));
-      } else if (this.session?.settings?.menu) {
-        return this.toEmx2AppLocation(unref(this.session.settings.menu));
-      } else {
-        return this.toEmx2AppLocation(defaultSchemaMenuItems);
-      }
-    },
-  },
-  watch: {
-    session: {
-      deep: true,
-      handler() {
-        if (this.session?.settings?.logoURL) {
-          this.logoURL = this.session.settings.logoURL;
-        }
-        const additionalJs: string = this.session?.settings?.additionalJs;
-        if (additionalJs) {
-          try {
-            ("use strict");
-            eval?.(`(function() {"use strict"; ${additionalJs}})()`);
-          } catch (error) {
-            console.log(error);
-          }
-        }
-        this.$emit("update:modelValue", this.session);
-      },
-    },
-  },
-  methods: {
-    toggle() {
-      this.fullscreen = !this.fullscreen;
-    },
-    toEmx2AppLocation(menuItems: MenuItem[]): MenuItem[] {
-      console.log("toEmx2AppLocation", menuItems);
-      const schemaName = window?.location?.pathname
-        .split("/")
-        ?.filter(Boolean)[0];
-      console.log("schemaName 3", schemaName);
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    menuItems?: MenuItem[];
+    showCrumbs?: boolean;
+  }>(),
+  { menuItems: () => [], showCrumbs: true }
+);
 
-      if (!schemaName || schemaName === "apps") {
-        return menuItems;
-      }
+const menu = ref<MenuItem[]>([]);
 
-      function rewriteHref(href: string): string {
-        let location = `/${schemaName}/${href}`;
-        let hashLocation = location.indexOf("#");
-        if (hashLocation !== -1) {
-          const charBeforeHash = location.substring(
-            hashLocation - 1,
-            hashLocation
-          );
-          if (charBeforeHash !== "/") {
-            location =
-              location.substring(0, hashLocation) +
-              "/" +
-              location.substring(hashLocation, location.length);
-          }
-        }
-        hashLocation = location.indexOf("#");
-        return hashLocation !== -1
-          ? location
-          : location.endsWith("/")
-          ? location
-          : location + "/";
-      }
+if (props.menuItems.length) {
+  menu.value = toEmx2AppLocation(unref(props.menuItems));
+} else {
+  menu.value = toEmx2AppLocation(defaultSchemaMenuItems);
+}
 
-      const parsed = menuItems.map((menuItem: MenuItem) => {
-        menuItem.href = rewriteHref(menuItem.href);
+const emit = defineEmits<{
+  (e: "update:modelValue", value: Record<string, any> | null): void;
+  (e: "error", error: any): void;
+}>();
 
-        menuItem.submenu = menuItem.submenu.map((subItem) => {
-          subItem.href = rewriteHref(subItem.href);
-          return subItem;
-        });
-        return menuItem;
+const route = useRoute();
+
+const session = ref<Record<string, any> | null>(null);
+const logoURL = ref<string | null>(null);
+const timestamp = ref(Date.now());
+const analyticsId = ref<string | null>(null);
+const cookieWallContent = ref<string | null>(null);
+
+const schemaUrlsForCrumbs = computed(() => {
+  let result: Record<string, any> = {
+    "list all databases": "/apps/central/",
+  };
+  //all databases
+  if (session.value?.schemas) {
+    session.value.schemas
+      .sort((a: string, b: string) =>
+        a.localeCompare(b, undefined, { sensitivity: "base" })
+      )
+      .forEach((schema: string) => {
+        result[schema] = "/" + schema + "/index"; // all paths are of form /:schema/:app, index will do routing to default app in schema
       });
+  }
+  return result;
+});
 
-      return parsed;
-    },
-  },
-  emits: ["update:modelValue", "error"],
-  created() {
-    request(
-      "graphql",
-      gql`
-        {
-          _settings {
-            key
-            value
-          }
+const crumbs = computed(() => {
+  let result: Record<string, any> = {};
+  if (window && location) {
+    let path = decodeURI(
+      window.location.pathname.replace(location.search, "")
+    ).split("/");
+    let url = "/";
+    if (window.location.pathname != "/apps/central/") {
+      let appPath = "index"; //use to get 'index' added to first breadcrumb
+      path.forEach((el) => {
+        if (el !== "") {
+          url += el + "/";
+          result[el] = url + appPath;
+          appPath = ""; //only on /schema/index after that nothing
         }
-      `
-    ).then((data: any) => {
-      const analyticsSetting = data._settings.find(
-        (setting: Record<string, any>) => setting.key === "ANALYTICS_ID"
-      );
-      this.analyticsId = analyticsSetting ? analyticsSetting.value : null;
-      const analyticsCookieWallContentSetting = data._settings.find(
-        (setting: Record<string, any>) =>
-          setting.key === "ANALYTICS_COOKIE_WALL_CONTENT"
-      );
-      this.cookieWallContent = analyticsCookieWallContentSetting
-        ? analyticsCookieWallContentSetting.value
-        : null;
+      });
+    }
+    if (route) {
+      path = decodeURI(location.hash.split("?")[0]).substr(1).split("/");
+      url += "#";
+      path.forEach((el) => {
+        if (el !== "") {
+          url += "/" + el;
+          result[el] = url;
+        }
+      });
+    }
+  }
+  return result;
+});
+
+const logoURLorDefault = computed(() => {
+  return (
+    logoURL.value ??
+    "/apps/molgenis-components/assets/img/molgenis_logo_white.png"
+  );
+});
+
+watch(session, (newValue) => {
+  if (newValue?.settings?.logoURL) {
+    logoURL.value = newValue.settings.logoURL;
+  }
+  const additionalJs: string = newValue?.settings?.additionalJs;
+  if (additionalJs) {
+    try {
+      ("use strict");
+      eval?.(`(function() {"use strict"; ${additionalJs}})()`);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  if (!props.menuItems.length && newValue?.settings?.menu) {
+    menu.value = newValue.settings.menu;
+  }
+  emit("update:modelValue", newValue);
+});
+
+function toEmx2AppLocation(menuItems: MenuItem[]) {
+  const schemaName = window?.location?.pathname.split("/")?.filter(Boolean)[0];
+
+  if (!schemaName || schemaName === "apps") {
+    return menuItems;
+  }
+
+  function rewriteHref(href: string): string {
+    let location = `/${schemaName}/${href}`;
+    let hashLocation = location.indexOf("#");
+    if (hashLocation !== -1) {
+      const charBeforeHash = location.substring(hashLocation - 1, hashLocation);
+      if (charBeforeHash !== "/") {
+        location =
+          location.substring(0, hashLocation) +
+          "/" +
+          location.substring(hashLocation, location.length);
+      }
+    }
+    hashLocation = location.indexOf("#");
+    if (hashLocation !== -1) {
+      return location;
+    }
+    if (!location.endsWith("/")) {
+      return location + "/";
+    }
+    return location;
+  }
+
+  const parsed = menuItems.map((menuItem: MenuItem) => {
+    menuItem.href = rewriteHref(menuItem.href);
+
+    menuItem.submenu = menuItem.submenu.map((subItem) => {
+      subItem.href = rewriteHref(subItem.href);
+      return subItem;
     });
-  },
-};
+    return menuItem;
+  });
+
+  return parsed;
+}
+
+onMounted(async () => {
+  const client = Client.newClient();
+  const settingsResp = await client.fetchSettings();
+
+  const analyticsSetting = settingsResp._settings.find(
+    (setting: ISetting) => setting.key === "ANALYTICS_ID"
+  );
+
+  analyticsId.value = analyticsSetting ? analyticsSetting.value : null;
+  const analyticsCookieWallContentSetting = settingsResp._settings.find(
+    (setting: ISetting) => setting.key === "ANALYTICS_COOKIE_WALL_CONTENT"
+  );
+
+  cookieWallContent.value = analyticsCookieWallContentSetting
+    ? analyticsCookieWallContentSetting.value
+    : null;
+});
 </script>
 
 <docs>
