@@ -6,6 +6,7 @@
 @import url("./theme/umcg.css");
 @import url("./theme/aumc.css");
 @import url("./plugins/popper.css");
+@import url("./plugins/datepicker.css");
 
 @layer components {
   :root {
@@ -116,9 +117,6 @@
     --background-color-hover: var(--color-blue-50);
     --background-color-notification: var(--color-red-700);
     --background-color-code-output: var(--color-gray-100);
-
-    --background-color-ref-dropdown-toolbar: var(--color-gray-100);
-
     --background-color-ref-dropdown-toolbar: var(--color-gray-100);
 
     --text-color-button-primary: var(--color-white);
