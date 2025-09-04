@@ -11,7 +11,11 @@ import { useSettingsStore } from "./settingsStore";
 import { QueryEMX2 } from "molgenis-components";
 import useErrorHandler from "../composables/errorHandler";
 import flattenOntologyBranch from "../functions/flattenOntologyBranch";
-import { IFilterOption, IOntologyItem } from "../interfaces/interfaces";
+import {
+  IFilterDetails,
+  IFilterOption,
+  IOntologyItem,
+} from "../interfaces/interfaces";
 import router from "../router";
 
 const { setError, clearError } = useErrorHandler();
@@ -35,8 +39,8 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   const filterOptions = ref<
     Record<string, IFilterOption[] | Record<string, IOntologyItem[]>>
   >({});
-  const filterFacets = ref<any[]>([]);
-  const filterFacetsById = ref<Record<string, any>>({});
+  const filterFacets = ref<IFilterDetails[]>([]);
+  const filterFacetsById = ref<Record<string, IFilterDetails>>({});
 
   const filtersReadyToRender = ref(false);
 
@@ -47,25 +51,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   watch(
     () => settingsStore.configurationFetched,
     () => {
-      filterFacets.value = createFilters(settingsStore.config.filterFacets);
+      filterFacetsById.value = createFilters(settingsStore.config.filterFacets);
+      filterFacets.value = Object.values(filterFacetsById.value);
       filtersReadyToRender.value = true;
     }
   );
-
-  const facetDetails = computed<Record<string, any>>(() => {
-    if (
-      !Object.keys(filterFacetsById.value).length &&
-      settingsStore.configurationFetched
-    )
-      /** extract the components types so we can use that in adding the correct query parts */
-      filterFacets.value.forEach((filterFacet) => {
-        filterFacetsById.value[filterFacet.facetIdentifier] = {
-          ...filterFacet,
-        };
-      });
-
-    return filterFacetsById.value;
-  });
 
   const filterOptionsReady = computed(() => {
     return filterOptions.value
@@ -74,7 +64,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   });
 
   function getValuePropertyForFacet(facetIdentifier: string) {
-    return facetDetails.value[facetIdentifier].filterValueAttribute;
+    return filterFacetsById.value[facetIdentifier].filterValueAttribute;
   }
 
   const hasActiveFilters = computed(() => {
@@ -218,11 +208,11 @@ export const useFiltersStore = defineStore("filtersStore", () => {
   }
 
   async function getOntologyOptionsForCodes(
-    filterFacet: Record<string, any>,
+    filterDetails: IFilterDetails,
     codes: any[]
   ) {
-    const { sourceTable, sortColumn, sortDirection } = filterFacet;
-    const attributes = getOntologyAttributes(filterFacet);
+    const { sourceTable, sortColumn, sortDirection } = filterDetails;
+    const attributes = getOntologyAttributes(filterDetails);
 
     const codesToQuery = _.chunk(codes, 600);
     const ontologyResults = [];
@@ -304,7 +294,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     bookmarkTriggeredFilter.value = fromBookmark ?? false;
 
     if (typeof value === "string" || typeof value === "boolean") {
-      if (value === "") {
+      if (!value) {
         delete filters.value[filterName];
         checkoutStore.setSearchHistory(`Filter ${filterName} removed`);
       } else {
@@ -363,7 +353,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     applyFiltersToQuery(
       baseQuery,
       newFilters,
-      facetDetails.value,
+      filterFacetsById.value,
       newFilterTypes
     );
 
@@ -439,7 +429,7 @@ export const useFiltersStore = defineStore("filtersStore", () => {
     updateFilterType,
     updateOntologyFilter,
     bookmarkWaitingForApplication,
-    facetDetails,
+    facetDetails: filterFacetsById,
     filterFacets,
     filterOptions,
     filterOptionsReady,

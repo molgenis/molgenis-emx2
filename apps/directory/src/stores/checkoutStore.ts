@@ -3,7 +3,11 @@ import { defineStore } from "pinia";
 import { computed, ref, toRaw, watch } from "vue";
 import { createBookmark } from "../functions/bookmarkMapper";
 import { IBiobanks } from "../interfaces/directory";
-import { IBiobankIdentifier } from "../interfaces/interfaces";
+import {
+  IBiobankIdentifier,
+  IFilterDetails,
+  IFilterFacet,
+} from "../interfaces/interfaces";
 import { useFiltersStore } from "./filtersStore";
 import { useSettingsStore } from "./settingsStore";
 import useErrorHandler from "../composables/errorHandler";
@@ -322,7 +326,7 @@ export const useCheckoutStore = defineStore("checkoutStore", () => {
     /** Get all the filter definitions for current active filters and make a dictionary name: humanreadable */
     filtersStore.filterFacets
       .filter((fd) => activeFilterNames.includes(fd.facetIdentifier))
-      .forEach((filterDefinition) => {
+      .forEach((filterDefinition: IFilterDetails) => {
         humanReadableStart[filterDefinition.facetIdentifier] =
           filterDefinition.negotiatorRequestString;
       });

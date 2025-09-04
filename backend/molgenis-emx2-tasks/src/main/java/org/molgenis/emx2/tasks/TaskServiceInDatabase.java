@@ -10,11 +10,13 @@ import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.utils.TypeUtils.millisecondsToLocalDateTime;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.jooq.Result;
 import org.molgenis.emx2.*;
@@ -86,7 +88,9 @@ public class TaskServiceInDatabase extends TaskServiceInMemory {
           }
         });
     try {
-      return (new ObjectMapper().readValue(json.toString(), Task.class));
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      return (mapper.readValue(json.toString(), Task.class));
     } catch (Exception e) {
       throw new MolgenisException("getTask(" + id + ") failed", e);
     }
@@ -367,5 +371,12 @@ f.close()
 
   public Table getJobTable() {
     return database.getSchema(systemSchemaName).getTable("Jobs");
+  }
+
+  @Override
+  public Set<String> getJobIds() {
+    return getJobTable().retrieveRows().stream()
+        .map(row -> row.getString("id"))
+        .collect(Collectors.toSet());
   }
 }
