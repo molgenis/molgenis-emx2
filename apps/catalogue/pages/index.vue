@@ -93,15 +93,6 @@ const projectCatalogues = computed(() => {
   return result;
 });
 
-const organizationCatalogues = computed(() => {
-  let result = data?.value?.data?.Resources
-    ? data.value?.data?.Resources?.filter(
-        (c) => c.catalogueType?.name === "organisation"
-      )
-    : [];
-  result.sort((a, b) => a.id.localeCompare(b.id));
-  return result;
-});
 </script>
 
 <template>
@@ -136,12 +127,6 @@ const organizationCatalogues = computed(() => {
       title="Thematic catalogues"
       description="Catalogues focused on a particular theme, developed by a collaboration of projects, networks and/or organisations:"
       :catalogues="thematicCatalogues"
-    />
-    <ContentBlockCatalogues
-      v-if="organizationCatalogues?.length > 0"
-      title="Organization catalogues"
-      description="Catalogues maintained by individual research organizations:"
-      :catalogues="organizationCatalogues"
     />
     <ContentBlockCatalogues
       v-if="projectCatalogues?.length > 0"
