@@ -64,7 +64,6 @@ import CookieWall from "./CookieWall.vue";
 import Client from "../../client/client";
 import { MenuItem } from "../../Interfaces/MenuItem";
 import { computed, ref, unref, watch } from "vue";
-import { useRoute } from "vue-router";
 import { onMounted } from "vue";
 import { ISetting } from "metadata-utils/src";
 
@@ -141,8 +140,6 @@ const emit = defineEmits<{
   (e: "error", error: any): void;
 }>();
 
-const route = useRoute();
-
 const session = ref<Record<string, any> | null>(null);
 const logoURL = ref<string | null>(null);
 const timestamp = ref(Date.now());
@@ -183,16 +180,15 @@ const crumbs = computed(() => {
         }
       });
     }
-    if (route) {
-      path = decodeURI(location.hash.split("?")[0]).substr(1).split("/");
-      url += "#";
-      path.forEach((el) => {
-        if (el !== "") {
-          url += "/" + el;
-          result[el] = url;
-        }
-      });
-    }
+
+    path = decodeURI(location?.hash?.split("?")[0]).substr(1).split("/");
+    url += "#";
+    path.forEach((el) => {
+      if (el !== "") {
+        url += "/" + el;
+        result[el] = url;
+      }
+    });
   }
   return result;
 });
@@ -240,7 +236,7 @@ function toEmx2AppLocation(menuItems: MenuItem[]) {
         location =
           location.substring(0, hashLocation) +
           "/" +
-          location.substring(hashLocation, location.length);
+          location.substring(hashLocation, location?.length);
       }
     }
     hashLocation = location.indexOf("#");
@@ -268,14 +264,14 @@ function toEmx2AppLocation(menuItems: MenuItem[]) {
 
 onMounted(async () => {
   const client = Client.newClient();
-  const settingsResp = await client.fetchSettings();
+  const settings = await client.fetchSettings();
 
-  const analyticsSetting = settingsResp._settings.find(
+  const analyticsSetting = settings.find(
     (setting: ISetting) => setting.key === "ANALYTICS_ID"
   );
 
   analyticsId.value = analyticsSetting ? analyticsSetting.value : null;
-  const analyticsCookieWallContentSetting = settingsResp._settings.find(
+  const analyticsCookieWallContentSetting = settings.find(
     (setting: ISetting) => setting.key === "ANALYTICS_COOKIE_WALL_CONTENT"
   );
 

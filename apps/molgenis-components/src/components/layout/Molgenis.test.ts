@@ -3,9 +3,19 @@ import { mount } from "@vue/test-utils";
 import Molgenis from "./Molgenis.vue";
 import { MenuItem } from "../../Interfaces/MenuItem";
 
+vi.mock("axios", () => ({
+  default: {
+    get: vi.fn().mockResolvedValue({ data: [] }),
+    post: vi.fn().mockResolvedValue({ data: { data: { _settings: [] } } }),
+    // add other axios methods if needed
+  },
+  get: vi.fn().mockResolvedValue({ data: [] }),
+  post: vi.fn().mockResolvedValue({ data: { data: { _settings: [] } } }),
+}));
+
 describe("Molgenis component", () => {
   describe("rewriteHref", () => {
-    test("simple app names such as 'tables' are rewritten as /schemaname/tables/", async () => {
+    test("simple app names such as 'tables' are rewritten as /schemaname/tables/", () => {
       const items = [
         {
           label: "Tables",
@@ -15,11 +25,12 @@ describe("Molgenis component", () => {
       ] as MenuItem[];
       vi.stubGlobal("location", { pathname: "/my-schema/tables#/" });
 
-      const wrapper = await mount(Molgenis, {
+      const wrapper = mount(Molgenis, {
         props: {
           title: "Test Title",
           menuItems: items,
         },
+        mocks: { $route: { path: "/my-schema/tables#/" } },
       });
 
       expect(wrapper.html()).toContain([
@@ -43,12 +54,13 @@ describe("Molgenis component", () => {
           menuItems: items,
         },
       });
+
       expect(wrapper.html()).toContain([
         '<li class="nav-item dropdown"><a class="nav-link" href="/my-schema/pages/#/mypage" target="_self">Pages</a></li>',
       ]);
     });
 
-    test("app names with 'wrong' has parameters such as 'pages#/mypage' are rewritten as /schemaname/pages/#/mypage", async () => {
+    test("app names with 'wrong' has parameters such as 'pages#/mypage' are rewritten as /schemaname/pages/#/mypage", () => {
       const items = [
         {
           label: "Pages",
@@ -59,12 +71,13 @@ describe("Molgenis component", () => {
 
       vi.stubGlobal("location", { pathname: "/my-schema/pages/#/mypage" });
 
-      const wrapper = await mount(Molgenis, {
+      const wrapper = mount(Molgenis, {
         props: {
           title: "Test Title",
           menuItems: items,
         },
       });
+
       expect(wrapper.html()).toContain([
         '<li class="nav-item dropdown"><a class="nav-link" href="/my-schema/pages/#/mypage" target="_self">Pages</a></li>',
       ]);
