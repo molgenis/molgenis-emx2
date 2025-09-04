@@ -130,7 +130,7 @@ const props = withDefaults(
 const menu = ref<MenuItem[]>([]);
 
 if (props.menuItems.length) {
-  menu.value = toEmx2AppLocation(unref(props.menuItems));
+  menu.value = toEmx2AppLocation(props.menuItems);
 } else {
   menu.value = toEmx2AppLocation(defaultSchemaMenuItems);
 }
@@ -200,25 +200,40 @@ const logoURLorDefault = computed(() => {
   );
 });
 
-watch(session, (newValue) => {
-  if (newValue?.settings?.logoURL) {
-    logoURL.value = newValue.settings.logoURL;
-  }
-  const additionalJs: string = newValue?.settings?.additionalJs;
-  if (additionalJs) {
-    try {
-      ("use strict");
-      eval?.(`(function() {"use strict"; ${additionalJs}})()`);
-    } catch (error) {
-      console.log(error);
+watch(
+  session,
+  (newValue) => {
+    if (newValue?.settings?.logoURL) {
+      logoURL.value = newValue.settings.logoURL;
+    }
+    const additionalJs: string = newValue?.settings?.additionalJs;
+    if (additionalJs) {
+      try {
+        ("use strict");
+        eval?.(`(function() {"use strict"; ${additionalJs}})()`);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    if (!props.menuItems.length && newValue?.settings?.menu) {
+      menu.value = newValue.settings.menu;
+    }
+    emit("update:modelValue", newValue);
+  },
+  { deep: true }
+);
+
+watch(
+  () => props.menuItems,
+  (newValue) => {
+    if (newValue.length) {
+      menu.value = toEmx2AppLocation(newValue);
+    } else {
+      menu.value = toEmx2AppLocation(defaultSchemaMenuItems);
     }
   }
-
-  if (!props.menuItems.length && newValue?.settings?.menu) {
-    menu.value = newValue.settings.menu;
-  }
-  emit("update:modelValue", newValue);
-});
+);
 
 function toEmx2AppLocation(menuItems: MenuItem[]) {
   const schemaName = window?.location?.pathname.split("/")?.filter(Boolean)[0];
