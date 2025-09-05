@@ -1,0 +1,9 @@
+tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles,visible
+Profiles,,,,,,,,,,,,DataCatalogueFlat,DataCatalogueFlat,
+Profiles,,,,,,,,,,,,EMA,EMA,
+Profiles,,,,,,,,,,,,RWEStaging,RWEStaging,
+Profiles,,,,,,,,,,,,CohortsStaging,CohortsStaging,
+Profiles,,,,,,,,,,,,UMCGCohortsStaging,UMCGCohortsStaging,
+Profiles,,,,,,,,,,,,NetworksStaging,NetworksStaging,
+Profiles,,,,,,,,,,,,UMCUCohorts,UMCUCohorts,
+Profiles,,,,,,,,,,,,INTEGRATE,INTEGRATE,
