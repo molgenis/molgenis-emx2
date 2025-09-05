@@ -58,5 +58,10 @@ public class GraphqlApiMutationResult {
                   .name("message")
                   .type(Scalars.GraphQLString)
                   .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name("user")
+                  .type(Scalars.GraphQLString)
+                  .build())
           .build();
 }

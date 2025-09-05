@@ -5,6 +5,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.oidcController;
 
 import io.prometheus.metrics.core.metrics.Gauge;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
 import java.util.EventListener;
@@ -16,6 +17,7 @@ import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
+import org.molgenis.emx2.web.util.ContextHelpers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +34,7 @@ public class MolgenisSessionManager {
   public MolgenisSessionManager() {}
 
   public MolgenisSession getSession(HttpServletRequest request) {
-    String authTokenKey = findUsedAuthTokenKey(request);
+    String authTokenKey = ContextHelpers.findUsedAuthTokenKey(request);
     if (authTokenKey != null) {
       return getNonPersistedSessionBasedOnToken(request, authTokenKey);
     } else {
@@ -41,23 +43,24 @@ public class MolgenisSessionManager {
   }
 
   private MolgenisSession getPersistentSessionBasedOnSessionId(HttpServletRequest request) {
-    if (request.getSession().isNew()) {
+    HttpSession session = request.getSession(false);
+    if (session.isNew()) {
       request.getSession(true); // see createCustomJettyServerFactoryWithCustomSessionListener
     }
-    MolgenisSession session = sessions.get(request.getSession().getId());
-    if (session.getSessionUser() == null) {
+    MolgenisSession molgenisSession = sessions.get(request.getSession().getId());
+    if (molgenisSession.getSessionUser() == null) {
       throw new MolgenisException(
           "Invalid session found with user == null. This should not happen so please report as a bug");
     } else {
       logger.info(
           "get session for user({}) and key ({})",
-          session.getSessionUser(),
+          molgenisSession.getSessionUser(),
           request.getSession().getId());
     }
-    return session;
+    return molgenisSession;
   }
 
-  private MolgenisSession getNonPersistedSessionBasedOnToken(
+  public MolgenisSession getNonPersistedSessionBasedOnToken(
       HttpServletRequest request, String authTokenKey) {
     SqlDatabase database = new SqlDatabase(false);
     database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
@@ -66,22 +69,6 @@ public class MolgenisSessionManager {
     MolgenisSession session = new MolgenisSession(database, new GraphqlApiFactory());
     database.setListener(new MolgenisSessionManagerDatabaseListener(this, session));
     return session;
-  }
-
-  /**
-   * From the request, get the name of the auth token key that was used to supply the auth token in
-   * the header, or return null if none of the options are present.
-   *
-   * @param request
-   * @return
-   */
-  public String findUsedAuthTokenKey(HttpServletRequest request) {
-    for (String authTokenKey : Constants.MOLGENIS_TOKEN) {
-      if (request.getHeader(authTokenKey) != null) {
-        return authTokenKey;
-      }
-    }
-    return null;
   }
 
   /**
@@ -115,6 +102,7 @@ public class MolgenisSessionManager {
     MolgenisSessionManager _this = this;
     return new HttpSessionListener() {
       public void sessionCreated(HttpSessionEvent httpSessionEvent) {
+
         logger.info("Initializing session");
         // create private database wrapper to session
         SqlDatabase database = new SqlDatabase(false);

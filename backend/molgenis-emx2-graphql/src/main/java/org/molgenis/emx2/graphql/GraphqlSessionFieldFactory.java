@@ -178,7 +178,6 @@ public class GraphqlSessionFieldFactory {
                   GraphqlApiMutationResult.Status.SUCCESS,
                   JWTgenerator.createNamedTokenForUser(database, userName, tokenId),
                   "Token '%s' created for user '%s'",
-                  tokenId,
                   userName);
             })
         .build();
