@@ -24,34 +24,20 @@ spec:
     - host: {{ index .Values.ingress.hosts 1 | quote }}
       http:
         paths:
-            - path: /apps
-              pathType: Prefix
-              backend:
-                service:
-                  name: {{ $fullName }}
-                  port:
-                    number: 8080
-            - path: /api
-              pathType: Prefix
-              backend:
-                service:
-                  name: {{ $fullName }}
-                  port:
-                    number: 8080
-            - path: /[^/]+/(aggregates|central|cranio-provider|cranio-public|directory|ern-genturis|ern-ithaca|ern-reconnect|ern-skin|gportal|graphql-playground|helloworld|imdhub-public|molgenis-components|molgenis-viz|nestor-public|pages|projectmanager|reports|schema|settings|tables|tailwind-components|tasks|ui|updownload|docs|graphql|api|index|sitemap\.xml|theme\.css)
-              pathType: ImplementationSpecific
-              backend:
-                service:
-                  name: {{ $fullName }}
-                  port:
-                    number: 8080
-            - path: /
-              pathType: Prefix
-              backend:
-                service:
-                  name: ssr-catalogue
-                  port:
-                    number: 3000
+          - path: /.+/(graphql|sitemap\.xml|docs)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: 8080
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ssr-catalogue
+                port:
+                  number: 3000
     - host: {{ index .Values.ingress.hosts 0 | quote }}
       http:
         paths:
