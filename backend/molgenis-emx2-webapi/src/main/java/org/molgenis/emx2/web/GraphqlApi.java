@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.graphql.GraphqlException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
@@ -40,7 +41,7 @@ public class GraphqlApi {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
   private static MolgenisSessionManager sessionManager;
   private static SqlDatabase database;
-  private static GraphQL anonymousGqlDatabase;
+  private static GraphQL anonymousGql;
 
   private GraphqlApi() {
     // hide constructor
@@ -51,8 +52,7 @@ public class GraphqlApi {
     database = new SqlDatabase(false);
     database.setActiveUser("anonymous"); // set default use to "anonymous"
     database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
-    anonymousGqlDatabase =
-        new GraphqlApiFactory().createGraphqlForDatabase(database, TaskApi.taskService);
+    anonymousGql = new GraphqlApiFactory().createGraphqlForDatabase(database, TaskApi.taskService);
 
     // per schema graphql calls from app
     final String appSchemaGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
@@ -88,7 +88,7 @@ public class GraphqlApi {
     }
     GraphQL graphqlForDatabase;
     if (session == null) {
-      graphqlForDatabase = anonymousGqlDatabase;
+      graphqlForDatabase = anonymousGql;
     } else {
       graphqlForDatabase = session.getGraphqlForDatabase();
     }
@@ -120,7 +120,6 @@ public class GraphqlApi {
 
     GraphQL graphqlForSchema;
     if (session == null) {
-
       Schema schema = database.getSchema(schemaName);
       AnonymousGqlSchemaCache anonymousGqlSchemaCache = AnonymousGqlSchemaCache.getInstance();
       graphqlForSchema = anonymousGqlSchemaCache.get(schema);
@@ -155,7 +154,14 @@ public class GraphqlApi {
       executionResult = g.execute(query);
     }
 
-    // todo if query is a signin request, then we need to update the session
+    if (isSignInRequest(query) && isSuccessfulSignResult(executionResult)) {
+      synchronized (sessionManager) {
+        String userNameFromSignIn = signInUserFromResult(executionResult);
+        ctx.req().getSession(); // has sideeffect of creating session if not exists
+        MolgenisSession session = sessionManager.getSession(ctx.req());
+        session.getDatabase().setActiveUser(userNameFromSignIn);
+      }
+    }
     String result = GraphqlApiFactory.convertExecutionResultToJson(executionResult);
 
     for (GraphQLError err : executionResult.getErrors()) {
@@ -163,14 +169,41 @@ public class GraphqlApi {
         logger.error(err.getMessage());
       }
     }
-    if (executionResult.getErrors().size() > 0) {
-      throw new MolgenisException(executionResult.getErrors().get(0).getMessage());
+    if (!executionResult.getErrors().isEmpty()) {
+      throw new MolgenisException(executionResult.getErrors().getFirst().getMessage());
     }
 
     if (logger.isInfoEnabled())
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
 
     return result;
+  }
+
+  private static boolean isSignInRequest(String query) {
+    return query.startsWith("mutation") && query.contains("signin") || query.contains("SignIn");
+  }
+
+  private static boolean isSuccessfulSignResult(ExecutionResult result) {
+    if (!result.getErrors().isEmpty()) {
+      return false;
+    }
+    Map<String, Object> specification = result.toSpecification();
+    Object data = specification.get("data");
+    if (data instanceof Map dataMap) {
+      Map<String, Object> signinMap = (Map) dataMap.get("signin");
+      return signinMap != null && "SUCCESS".equals(signinMap.get(GraphqlConstants.STATUS));
+    }
+    return false;
+  }
+
+  private static String signInUserFromResult(ExecutionResult result) {
+    Map<String, Object> specification = result.toSpecification();
+    Object data = specification.get("data");
+    if (data instanceof Map dataMap) {
+      Map<String, Object> signinMap = (Map) dataMap.get("signin");
+      return (String) signinMap.get(GraphqlConstants.USER);
+    }
+    throw new MolgenisException("Unexpected result from signin mutation");
   }
 
   private static String getQueryFromRequest(Context ctx) throws IOException {

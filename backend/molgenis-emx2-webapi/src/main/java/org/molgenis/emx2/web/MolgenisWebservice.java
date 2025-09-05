@@ -43,7 +43,7 @@ public class MolgenisWebservice {
   public static MolgenisSessionManager sessionManager;
   public static OIDCController oidcController;
   static URL hostUrl;
-  private static Database database = new SqlDatabase(false);
+  private static Database anonymousDatabase = new SqlDatabase(false);
 
   private MolgenisWebservice() {
     // hide constructor
@@ -87,12 +87,11 @@ public class MolgenisWebservice {
     app.get("/" + NUXT_OIDC_LOGOUT_PATH, oidcController::handleLoginRequest);
     app.get("/" + ROBOTS_TXT, MolgenisWebservice::robotsDotTxt);
 
-    Database finalDatabase = database;
     app.get(
         "/",
         ctx -> {
           // check for setting
-          String landingPagePath = finalDatabase.getSetting(LANDING_PAGE);
+          String landingPagePath = anonymousDatabase.getSetting(LANDING_PAGE);
           if (landingPagePath != null) {
             ctx.redirect(landingPagePath);
           } else {

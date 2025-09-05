@@ -102,6 +102,7 @@ public class MolgenisSessionManager {
     MolgenisSessionManager _this = this;
     return new HttpSessionListener() {
       public void sessionCreated(HttpSessionEvent httpSessionEvent) {
+
         logger.info("Initializing session");
         // create private database wrapper to session
         SqlDatabase database = new SqlDatabase(false);

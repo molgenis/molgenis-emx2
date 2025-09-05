@@ -10,15 +10,14 @@ public class GraphqlApiMutationResultWithToken {
   private final String message;
   private final GraphqlApiMutationResult.Status status;
   private final String token;
+  private final String user;
 
   public GraphqlApiMutationResultWithToken(
-      GraphqlApiMutationResult.Status status,
-      String token,
-      String message,
-      Object... formatValues) {
+      GraphqlApiMutationResult.Status status, String token, String message, String userName) {
     this.status = status;
-    this.message = String.format(message, formatValues);
+    this.message = String.format(message, userName);
     this.token = token;
+    this.user = userName;
   }
 
   public static final GraphQLObjectType typeForSignResult =
@@ -37,6 +36,11 @@ public class GraphqlApiMutationResultWithToken {
           .field(
               GraphQLFieldDefinition.newFieldDefinition()
                   .name(GraphqlConstants.TOKEN)
+                  .type(Scalars.GraphQLString)
+                  .build())
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GraphqlConstants.USER)
                   .type(Scalars.GraphQLString)
                   .build())
           .build();
