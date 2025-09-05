@@ -123,4 +123,4 @@ PELAGIE,Primary contact,,Bob,Ross,Bob Ross,,BR,dr.,INSERM,bob.ross@paintings.eu,
 PELAGIE,Primary contact,,Jack,Ross,Jack Ross,,JR,prof.,INSERM,jack.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Carpenting
 PSYCONN,Primary contact,,Bob,Ross,Bob Ross,,,,,bob.ross@paintings.eu,,,,,
 UMCG,"Principal Investigator,Primary contact",boss person,Bob,Ross,Bob Ross,van der,B.U.M.C.G.,prof. dr. ir.,,umcg@example.org,,,,,
-testUMC,"Principal Investigator,Primary contact",leader,Rob,Boss,Rob Boss,,,,,,,,,,
+testUMC,"Principal Investigator,Primary contact",leader,Rob,Boss,Rob Boss,,,,,tumc@example.org,,,,,
