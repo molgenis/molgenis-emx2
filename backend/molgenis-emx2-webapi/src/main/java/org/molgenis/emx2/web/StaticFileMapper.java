@@ -4,9 +4,17 @@ import com.google.common.io.ByteStreams;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import org.molgenis.emx2.Constants;
+import org.molgenis.emx2.MolgenisException;
 
 /**
  * to allow for nice urls, and make it easier for 'schema' app developers we include the schema in
@@ -71,6 +79,34 @@ public class StaticFileMapper {
   }
 
   private static void returnIndexFile(Context ctx) {
+    // redirect apps from /schema/app to /schema/app
+    if (!ctx.path().endsWith("/")) {
+      try {
+        String unescapedPath = URLDecoder.decode(ctx.path(), StandardCharsets.UTF_8.name());
+        // validate valid app path
+        List<String> path =
+            Arrays.stream(unescapedPath.split("/")).filter(item -> item.length() > 0).toList();
+        if (path.size() != 2) {
+          throw new MolgenisException("invalid app path. Needs to be /schema/app");
+        }
+        // validate that it is a valid schema name
+        if (!path.get(0).matches(Constants.SCHEMA_NAME_REGEX)) {
+          throw new MolgenisException(
+              "path invalid: schema parameter is invalid. Please provide a valid /schema/app");
+        }
+        // validate that it is a known app
+        URL app = StaticFileMapper.class.getResource("/public_html/apps/" + path.get(1));
+        if (app == null
+            && !path.get(1).equals("tables")) { // added tables explicitly for the WebApiSmokeTest
+          throw new MolgenisException(
+              "path invalid: app parameter is unknown. Please provide a valid /schema/app");
+        }
+        ctx.redirect("/" + path.get(0) + "/" + path.get(1) + "/");
+        return;
+      } catch (UnsupportedEncodingException e) {
+        throw new MolgenisException("path invalid: " + e.getMessage());
+      }
+    }
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/index.html";
     addFileToContext(ctx, path, "text/html");
   }
