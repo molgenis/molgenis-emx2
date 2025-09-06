@@ -1001,7 +1001,9 @@ public class WebApiSmokeTests {
     final String defaultContentType = "text/turtle";
     final String jsonldContentType = "application/ld+json";
     final String ttlContentType = "text/turtle";
-    final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8"; // charset is ignored
+    final String nTriplesContentType = "application/n-triples";
+    final String n3ContentType = "text/n3";
+    final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8";
 
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
@@ -1016,7 +1018,7 @@ public class WebApiSmokeTests {
     rdfApiRequest(200, defaultContentType).get(urlPrefix + "/api/rdf?schemas=pet store");
 
     // Validate API point with charset
-    rdfApiContentTypeRequest(200, defaultContentTypeWithCharset, defaultContentType)
+    rdfApiContentTypeRequest(406, defaultContentTypeWithCharset, EXCEPTION_CONTENT_TYPE)
         .get(urlPrefix + "/pet store/api/rdf");
 
     // Validate convenience API points
@@ -1068,21 +1070,20 @@ public class WebApiSmokeTests {
         .head(urlPrefix + "/api/rdf?shacls");
 
     // Validate multi-content type negotiation
-    rdfApiContentTypeRequest(
-        200, "text/turtle; q=0.5, application/n-triples", "application/n-triples");
-    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, text/*", "text/n3")
+    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, application/n-triples", nTriplesContentType);
+    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, text/*", n3ContentType)
         .head(urlPrefix + "/pet store/api/rdf");
     rdfApiContentTypeRequest(
             200,
             "application/n-triples; q=0.8, text/*; q=0.5, application/*; q=0.6",
             "application/n-triples")
         .head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(200, "*/*; q=0.2, application/*; q=0.5", "application/ld+json")
+    rdfApiContentTypeRequest(200, "*/*; q=0.2, application/*; q=0.5", jsonldContentType)
         .head(urlPrefix + "/pet store/api/rdf");
     rdfApiContentTypeRequest( // typo
-            400, "text/turtle q=0.3, text/*; q=0.5", "application/json")
+            400, "text/turtle q=0.3, text/*; q=0.5", EXCEPTION_CONTENT_TYPE)
         .head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(406, "image/jpeg", "application/json")
+    rdfApiContentTypeRequest(406, "image/jpeg", EXCEPTION_CONTENT_TYPE)
         .head(urlPrefix + "/pet store/api/rdf");
   }
 

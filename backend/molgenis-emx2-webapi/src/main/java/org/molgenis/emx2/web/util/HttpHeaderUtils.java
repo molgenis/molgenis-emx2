@@ -19,15 +19,16 @@ public class HttpHeaderUtils {
    *
    * <p>IMPORTANT: Currently we do not process any additional ACCEPT parameters (f.e. {@code
    * text/plain; charset=utf-8}). Therefore, any media type that is more specific than type/subtype
-   * is deemed unsupported. If only media types with parameters are given (excluding `q`), this
-   * would result in no matches.
+   * is deemed unsupported. If only media types with parameters are given (excluding {@code q}),
+   * this would result in no matches.
    *
    * <p>Returns:
    *
    * <ul>
    *   <li>The first {@code allowedMediaType} if no ACCEPT header is present.
-   *   <li>Matching {@link MediaType} if one is found
-   *   <li>{@code null} if no match was found
+   *   <li>{@link MediaType} with highest q-value (with allowedMediaTypes order as tiebraker) if one
+   *       or more matches were found
+   *   <li>{@code null} if no match was found.
    * </ul>
    *
    * @param allowedMediaTypes Allowed types in order of priority (in case of equal q-values).
@@ -52,7 +53,6 @@ public class HttpHeaderUtils {
     Map<MediaType, Double> allowedMediaTypeScores = new LinkedHashMap<>();
     allowedMediaTypes.forEach(i -> allowedMediaTypeScores.put(i, null));
 
-    // Order ensures more specific media types overwrite less specific ones.
     List<MediaType> mediaTypes =
         Arrays.stream(acceptHeader.split(","))
             .map(String::trim)
@@ -68,6 +68,7 @@ public class HttpHeaderUtils {
             .filter(
                 mediaType ->
                     mediaType.parameters().keySet().stream().allMatch(key -> key.equals("q")))
+            // Order ensures more specific media types overwrite less specific ones.
             .sorted(MEDIA_TYPE_COMPARATOR)
             .toList();
 
