@@ -152,7 +152,7 @@ public class MolgenisWebservice {
         });
 
     // handling of Javalin exceptions
-    // Override default behavior for more consistency with generic exceptions.
+    // Override default behavior for more consistency with EMX2 exceptions.
     // See also: https://javalin.io/documentation#default-responses
     app.exception(
         HttpResponseException.class,
