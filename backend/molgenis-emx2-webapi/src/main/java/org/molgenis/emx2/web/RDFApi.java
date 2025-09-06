@@ -37,22 +37,25 @@ import org.molgenis.emx2.rdf.shacl.ShaclSet;
 public class RDFApi {
   private static MolgenisSessionManager sessionManager;
 
-  // Defines order of priority!
-  private static final List<RDFFormat> acceptedRdfFormats =
-      List.of(
-          RDFFormat.TURTLE,
-          RDFFormat.JSONLD,
-          RDFFormat.RDFXML,
-          RDFFormat.NTRIPLES,
-          RDFFormat.NQUADS,
-          RDFFormat.TRIG,
-          RDFFormat.N3);
-
-  private static final Map<MediaType, RDFFormat> acceptedMediaTypes = new LinkedHashMap<>();
+  private static final Map<MediaType, RDFFormat> mediaTypeRdfFormatMap = new HashMap<>();
+  private static final List<MediaType> acceptedMediaTypes = new ArrayList<>(); // order of priority
 
   static {
+    // Defines order of priority!
+    List<RDFFormat> acceptedRdfFormats =
+      List.of(
+        RDFFormat.TURTLE,
+        RDFFormat.JSONLD,
+        RDFFormat.RDFXML,
+        RDFFormat.NTRIPLES,
+        RDFFormat.NQUADS,
+        RDFFormat.TRIG,
+        RDFFormat.N3);
+
     for (RDFFormat format : acceptedRdfFormats) {
-      acceptedMediaTypes.put(MediaType.parse(format.getDefaultMIMEType()), format);
+      MediaType mediaType = MediaType.parse(format.getDefaultMIMEType());
+      mediaTypeRdfFormatMap.put(mediaType, format);
+      acceptedMediaTypes.add(mediaType);
     }
   }
 
@@ -290,7 +293,7 @@ public class RDFApi {
   }
 
   public static RDFFormat selectFormat(Context ctx) {
-    MediaType mediaType = getContentType(ctx, acceptedMediaTypes.keySet().stream().toList());
-    return acceptedMediaTypes.get(mediaType);
+    MediaType mediaType = getContentType(ctx, acceptedMediaTypes);
+    return mediaTypeRdfFormatMap.get(mediaType);
   }
 }
