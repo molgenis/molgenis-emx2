@@ -31,7 +31,7 @@
               >
                 <slot name="account-dropdown">
                   <section class="flex flex-col p-4">
-                    <div class="mb-1">Hi {{ session?.email }}</div>
+                    <div class="mb-1 text-title">Hi {{ session?.email }}</div>
 
                     <Button size="small" type="primary" @click="signout"
                       >Sign out</Button

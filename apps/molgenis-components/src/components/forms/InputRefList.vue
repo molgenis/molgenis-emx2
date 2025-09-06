@@ -17,7 +17,7 @@
           />
         </div>
         <ButtonAlt
-          v-if="modelValue?.length"
+          v-if="Array.isArray(modelValue) && modelValue.length"
           class="pl-1"
           icon="fa fa-clear"
           @click="clearValue"
@@ -104,9 +104,10 @@
 </template>
 
 <script lang="ts">
-import { KeyObject } from "metadata-utils";
-import { ITableMetaData } from "metadata-utils/src";
-import { IInputValue } from "metadata-utils/src/types";
+import {
+  KeyObject,
+  ITableMetaData,
+} from "../../../../metadata-utils/src/types";
 import { IRow } from "../../Interfaces/IRow";
 import { INewClient } from "../../client/IClient";
 import { IQueryMetaData } from "../../client/IQueryMetaData";
@@ -154,6 +155,7 @@ export default {
     schemaId: {
       type: String,
       required: false,
+      default: "",
     },
     filter: Object,
     orderby: Object,
