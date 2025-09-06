@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 class HttpHeaderUtilsTest {
   private final MediaType json = MediaType.parse("application/json");
   private final MediaType plain = MediaType.parse("text/plain");
+  private final MediaType plainFormat = MediaType.parse("text/plain;format=flowed");
+  private final MediaType plainInvalidAllowed = MediaType.parse("text/plain; q=0.5");
   private final MediaType html = MediaType.parse("text/html");
   private final MediaType jpeg = MediaType.parse("image/jpeg");
 
@@ -25,9 +27,6 @@ class HttpHeaderUtilsTest {
     when(ctx.header(Header.ACCEPT))
         .thenReturn("application/json; q=0.5, text/plain; q=0.8, image/jpeg");
     assertEquals(json, getContentType(ctx, List.of(json, html)));
-
-    when(ctx.header(Header.ACCEPT)).thenReturn("application/json; q=0.5, text/*; q=0.8");
-    assertEquals(html, getContentType(ctx, List.of(json, html)));
 
     when(ctx.header(Header.ACCEPT)).thenReturn("application/json; q=0.5, text/*; q=0.8");
     assertEquals(plain, getContentType(ctx, List.of(json, plain, html)));
@@ -43,24 +42,30 @@ class HttpHeaderUtilsTest {
         .thenReturn("application/json; q=0.5, text/*; q=0.8, text/plain; q=0.9");
     assertEquals(plain, getContentType(ctx, List.of(json, html, plain)));
 
-    when(ctx.header(Header.ACCEPT)).thenReturn("text/*; q=0.8, text/plain; q=0.5, */*; q=0.6");
-    assertEquals(html, getContentType(ctx, List.of(json, html, plain)));
-
-    // "text/plain;format=flowed; q=0.8" is ignored
     when(ctx.header(Header.ACCEPT))
-        .thenReturn("text/plain; q=0.2, text/plain;format=flowed; q=0.8, text/html; q=0.5");
-    assertEquals(html, getContentType(ctx, List.of(json, html, plain)));
+        .thenReturn("application/*; q=0.7, text/html; q=0.5, */*; q=0.8");
+    assertEquals(plain, getContentType(ctx, List.of(json, html, plain)));
 
-    // "text/plain;format=flowed; q=0.8" is ignored
     when(ctx.header(Header.ACCEPT))
-        .thenReturn("text/plain;format=flowed; q=0.8, text/plain; q=0.2, text/html; q=0.5");
-    assertEquals(html, getContentType(ctx, List.of(json, html, plain)));
+        .thenReturn("text/plain; q=0.5, text/plain; format=flowed; q=0.8, text/html; q=0.2");
+    assertEquals(plain, getContentType(ctx, List.of(html, plain)));
+
+    when(ctx.header(Header.ACCEPT))
+        .thenReturn(
+            "text/plain; q=0.2, text/plain; format=flowed; q=0.8, */*; q=0.1, text/html; q=0.5, text/*; q=0.7");
+    assertEquals(plainFormat, getContentType(ctx, List.of(json, html, plain, plainFormat)));
+
+    when(ctx.header(Header.ACCEPT))
+        .thenReturn(
+            "text/plain;format=flowed; q=0.8, text/plain; q=0.2, */*; q=0.1, text/html; q=0.5, text/*; q=0.7");
+    assertEquals(plainFormat, getContentType(ctx, List.of(json, html, plain, plainFormat)));
 
     // "text/plain q=0.8" has a typo: missing ";"
     when(ctx.header(Header.ACCEPT)).thenReturn("text/plain q=0.8, text/html; q=0.5");
     assertThrows(
         IllegalArgumentException.class, () -> getContentType(ctx, List.of(json, html, plain)));
 
+    // if media type negotiation fails
     when(ctx.header(Header.ACCEPT)).thenReturn("image/jpeg");
     NotAcceptableResponse exception =
         assertThrows(
