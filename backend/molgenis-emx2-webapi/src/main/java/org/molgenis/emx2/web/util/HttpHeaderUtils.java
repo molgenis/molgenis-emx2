@@ -66,11 +66,7 @@ public class HttpHeaderUtils {
                 .thenComparing(entry -> allowedMediaTypes.indexOf(entry.getKey())))
         .findFirst()
         .map(Map.Entry::getKey)
-        .orElseThrow(
-            () ->
-                new NotAcceptableResponse(
-                    "Only the following accept-header values are supported: "
-                        + allowedMediaTypes.stream().map(MediaType::toString).toList()));
+        .orElse(null);
   }
 
   public static Double getQualityScore(MediaType mediaType) {

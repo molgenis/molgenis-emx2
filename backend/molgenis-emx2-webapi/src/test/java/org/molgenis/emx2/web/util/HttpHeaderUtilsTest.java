@@ -85,11 +85,6 @@ class HttpHeaderUtilsTest {
 
     // if media type negotiation fails
     when(ctx.header(Header.ACCEPT)).thenReturn("image/jpeg");
-    NotAcceptableResponse exception =
-        assertThrows(
-            NotAcceptableResponse.class, () -> getContentType(ctx, List.of(json, html, plain)));
-    assertEquals(
-        "Only the following accept-header values are supported: [application/json, text/html, text/plain]",
-        exception.getMessage());
+    assertNull(getContentType(ctx, List.of(json, html, plain)));
   }
 }

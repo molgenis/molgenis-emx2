@@ -14,6 +14,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.google.common.net.MediaType;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.NotAcceptableResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -294,6 +295,11 @@ public class RDFApi {
 
   public static RDFFormat selectFormat(Context ctx) {
     MediaType mediaType = getContentType(ctx, acceptedMediaTypes);
+    if (mediaType == null) {
+      throw new NotAcceptableResponse(
+          "Only the following accept-header values are supported: "
+              + acceptedMediaTypes.stream().map(MediaType::toString).toList());
+    }
     return mediaTypeRdfFormatMap.get(mediaType);
   }
 }
