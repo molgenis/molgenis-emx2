@@ -52,9 +52,7 @@ public class RDFApi {
 
   static {
     for (RDFFormat format : acceptedRdfFormats) {
-      for (String mime : format.getMIMETypes()) {
-        acceptedMediaTypes.put(MediaType.parse(mime), format);
-      }
+      acceptedMediaTypes.put(MediaType.parse(format.getDefaultMIMEType()), format);
     }
   }
 

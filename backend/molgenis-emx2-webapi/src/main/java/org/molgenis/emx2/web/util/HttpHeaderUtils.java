@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.net.MediaType;
 import io.javalin.http.Context;
 import io.javalin.http.Header;
+import io.javalin.http.NotAcceptableResponse;
 import java.util.*;
 import org.jspecify.annotations.NonNull;
 
@@ -53,7 +54,11 @@ public class HttpHeaderUtils {
                 .thenComparing(entry -> allowedMediaTypes.indexOf(entry.getKey())))
         .findFirst()
         .map(Map.Entry::getKey)
-        .orElse(null);
+        .orElseThrow(
+            () ->
+                new NotAcceptableResponse(
+                    "Only the following accept-header values are supported: "
+                        + allowedMediaTypes.stream().map(MediaType::toString).toList()));
   }
 
   public static Double getQualityScore(MediaType mediaType) {
