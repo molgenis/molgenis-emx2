@@ -1001,7 +1001,6 @@ public class WebApiSmokeTests {
     final String defaultContentType = "text/turtle";
     final String jsonldContentType = "application/ld+json";
     final String ttlContentType = "text/turtle";
-    final String nTriplesContentType = "application/n-triples";
     final String n3ContentType = "text/n3";
     final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8";
 
@@ -1070,7 +1069,7 @@ public class WebApiSmokeTests {
         .head(urlPrefix + "/api/rdf?shacls");
 
     // Validate multi-content type negotiation
-    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, application/n-triples", nTriplesContentType);
+    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, application/ld+json", jsonldContentType);
     rdfApiContentTypeRequest(200, "text/turtle; q=0.5, text/*", n3ContentType)
         .head(urlPrefix + "/pet store/api/rdf");
     rdfApiContentTypeRequest(406, "image/jpeg", EXCEPTION_CONTENT_TYPE)
