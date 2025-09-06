@@ -17,10 +17,9 @@ class HttpHeaderUtilsTest {
   private final MediaType plain = MediaType.parse("text/plain");
   private final MediaType plainCharset = MediaType.parse("text/plain; charset=utf-8");
   private final MediaType html = MediaType.parse("text/html");
-  private final MediaType jpeg = MediaType.parse("image/jpeg");
 
   @Test
-  void testContentType() throws Exception {
+  void testContentType() {
     Context ctx = mock(Context.class);
 
     when(ctx.header(Header.ACCEPT))
