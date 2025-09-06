@@ -4,34 +4,46 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.net.MediaType;
 import io.javalin.http.Context;
 import io.javalin.http.Header;
-import io.javalin.http.NotAcceptableResponse;
 import java.util.*;
 import org.jspecify.annotations.NonNull;
+import org.molgenis.emx2.MolgenisException;
 
 public class HttpHeaderUtils {
   private static final Comparator<MediaType> MEDIA_TYPE_COMPARATOR =
-      Comparator.comparing(
-              (MediaType mediaType) -> mediaType.withParameter("q", "0").parameters().size())
-          .thenComparing(mediaType -> !mediaType.type().equals("*"))
+      Comparator.comparing((MediaType mediaType) -> !mediaType.type().equals("*"))
           .thenComparing(mediaType -> !mediaType.subtype().equals("*"));
 
   /**
    * Returns what media type to use as defined in <a
    * href="https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2">rfc7231 section 5.3.2</a>.
    *
-   * <p>Comparison is based on type, subtype & parameters except the quality value (f.e. in
-   * "text/plain; format=flowed; q=0.5" only the "q=0.5" will be ignored).
+   * <p>IMPORTANT: Currently we do not process any additional ACCEPT parameters (f.e. {@code
+   * text/plain; charset=utf-8}). Therefore, any media type that is more specific than type/subtype
+   * is deemed unsupported. If only media types with parameters are given (excluding `q`), this
+   * would result in no matches.
    *
-   * <p>Missing ACCEPT header will result in the first allowed media type to be returned.
+   * <p>Returns:
+   *
+   * <ul>
+   *   <li>The first {@code allowedMediaType} if no ACCEPT header is present.
+   *   <li>Matching {@link MediaType} if one is found
+   *   <li>{@code null} if no match was found
+   * </ul>
    *
    * @param allowedMediaTypes Allowed types in order of priority (in case of equal q-values).
-   * @return matching {@link MediaType} (if any q-value is present, this the q-value as present in
-   *     {@code allowedMediaTypes} and NOT the {@link Context}!)
-   * @throws NotAcceptableResponse if no valid match was found
+   * @throws IllegalArgumentException if {@code allowedMediaTypes} is empty or an item in it has a
+   *     non-empty {@link MediaType#parameters} (currently unsupported)
    */
   public static MediaType getContentType(Context ctx, List<MediaType> allowedMediaTypes) {
     if (allowedMediaTypes.isEmpty()) {
-      throw new IllegalArgumentException("Empty collection not allowed.");
+      throw new IllegalArgumentException("Empty collection (allowedMediaTypes) not allowed.");
+    }
+    if (allowedMediaTypes.stream()
+        .anyMatch(
+            mediaType ->
+                mediaType.parameters().keySet().stream().anyMatch(key -> !key.equals("q")))) {
+      throw new IllegalArgumentException(
+          "allowedMediaTypes should not contain parameters! (currently not supported)");
     }
 
     String acceptHeader = ctx.header(Header.ACCEPT);
@@ -44,7 +56,18 @@ public class HttpHeaderUtils {
     List<MediaType> mediaTypes =
         Arrays.stream(acceptHeader.split(","))
             .map(String::trim)
-            .map(MediaType::parse)
+            .map(
+                mediaTypeString -> {
+                  try {
+                    return MediaType.parse(mediaTypeString);
+                  } catch (IllegalArgumentException e) {
+                    throw new MolgenisException("Could not parse media type: " + mediaTypeString);
+                  }
+                })
+            // Filters out any media types in header with non-q parameters (not supported).
+            .filter(
+                mediaType ->
+                    mediaType.parameters().keySet().stream().allMatch(key -> key.equals("q")))
             .sorted(MEDIA_TYPE_COMPARATOR)
             .toList();
 
@@ -52,7 +75,7 @@ public class HttpHeaderUtils {
     for (MediaType mediaType : mediaTypes) {
       for (MediaType allowedMediaType : allowedMediaTypeScores.keySet()) {
         // Equalizes q-value for comparison.
-        if (allowedMediaType.withParameter("q", "0").is(mediaType.withParameter("q", "0"))) {
+        if (allowedMediaType.is(mediaType.withoutParameters())) {
           allowedMediaTypeScores.put(allowedMediaType, getQualityScore(mediaType));
         }
       }
