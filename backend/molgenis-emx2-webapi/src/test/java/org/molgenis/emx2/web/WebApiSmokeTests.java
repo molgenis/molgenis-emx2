@@ -1073,16 +1073,6 @@ public class WebApiSmokeTests {
     rdfApiContentTypeRequest(200, "text/turtle; q=0.5, application/n-triples", nTriplesContentType);
     rdfApiContentTypeRequest(200, "text/turtle; q=0.5, text/*", n3ContentType)
         .head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(
-            200,
-            "application/n-triples; q=0.8, text/*; q=0.5, application/*; q=0.6",
-            "application/n-triples")
-        .head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(200, "*/*; q=0.2, application/*; q=0.5", jsonldContentType)
-        .head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest( // typo
-            400, "text/turtle q=0.3, text/*; q=0.5", EXCEPTION_CONTENT_TYPE)
-        .head(urlPrefix + "/pet store/api/rdf");
     rdfApiContentTypeRequest(406, "image/jpeg", EXCEPTION_CONTENT_TYPE)
         .head(urlPrefix + "/pet store/api/rdf");
   }

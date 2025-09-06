@@ -75,7 +75,6 @@ public class HttpHeaderUtils {
     // Assign a q-value to each allowedMediaTypes.
     for (MediaType mediaType : mediaTypes) {
       for (MediaType allowedMediaType : allowedMediaTypeScores.keySet()) {
-        // Equalizes q-value for comparison.
         if (allowedMediaType.is(mediaType.withoutParameters())) {
           allowedMediaTypeScores.put(allowedMediaType, getQualityScore(mediaType));
         }
@@ -84,7 +83,7 @@ public class HttpHeaderUtils {
 
     return allowedMediaTypeScores.entrySet().stream()
         .filter(i -> i.getValue() != null)
-        .sorted( // If score is equal, uses allowed media type order as tiebreaker.
+        .sorted( // If score is equal, uses allowedMediaTypes order as tiebreaker.
             Map.Entry.<MediaType, Double>comparingByValue()
                 .reversed()
                 .thenComparing(entry -> allowedMediaTypes.indexOf(entry.getKey())))
