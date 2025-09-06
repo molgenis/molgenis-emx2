@@ -43,14 +43,14 @@ public class RDFApi {
   static {
     // Defines order of priority!
     List<RDFFormat> acceptedRdfFormats =
-      List.of(
-        RDFFormat.TURTLE,
-        RDFFormat.JSONLD,
-        RDFFormat.RDFXML,
-        RDFFormat.NTRIPLES,
-        RDFFormat.NQUADS,
-        RDFFormat.TRIG,
-        RDFFormat.N3);
+        List.of(
+            RDFFormat.TURTLE,
+            RDFFormat.JSONLD,
+            RDFFormat.RDFXML,
+            RDFFormat.NTRIPLES,
+            RDFFormat.NQUADS,
+            RDFFormat.TRIG,
+            RDFFormat.N3);
 
     for (RDFFormat format : acceptedRdfFormats) {
       MediaType mediaType = MediaType.parse(format.getDefaultMIMEType());
