@@ -15,9 +15,16 @@ public class HttpHeaderUtils {
           .thenComparing(mediaType -> mediaType.subtype().equals("*"), Comparator.reverseOrder());
 
   /**
+   * <p>Returns what media type to use as defined in <a
+   * href="https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2">rfc7231 section 5.3.2</a>,
+   * except that any specificity above type/subtype (so extra parameters besides "q") is not supported and wil
+   * be ignored.
+   * </p>
+   * <p>Missing ACCEPT header will result in the first allowed media type to be returned.</p>
+   *
    * @param allowedMediaTypes Allowed types in order of priority (in case of equal q-values).
-   *     Missing ACCEPT header means the first allowed media type is used.
-   * @return matching {@link MediaType} or {@code null} if no match was found.
+   * @return matching {@link MediaType} (does not contain any parameters as present in the context!)
+   * @throws NotAcceptableResponse if no valid match was found
    */
   public static MediaType getContentType(Context ctx, List<MediaType> allowedMediaTypes) {
     if (allowedMediaTypes.isEmpty()) {
@@ -35,6 +42,11 @@ public class HttpHeaderUtils {
         Arrays.stream(acceptHeader.split(","))
             .map(String::trim)
             .map(MediaType::parse)
+            // Remove any media types with more parameters than "q" to prevent these from causing
+            // issues.
+            .filter(
+                mediaType ->
+                    mediaType.parameters().keySet().stream().allMatch(key -> key.equals("q")))
             .sorted(MEDIA_TYPE_COMPARATOR)
             .toList();
 

@@ -46,7 +46,18 @@ class HttpHeaderUtilsTest {
     when(ctx.header(Header.ACCEPT)).thenReturn("text/*; q=0.8, text/plain; q=0.5, */*; q=0.6");
     assertEquals(html, getContentType(ctx, List.of(json, html, plain)));
 
-    when(ctx.header(Header.ACCEPT)).thenReturn("text/plain q=0.8, text/html; q=0.5"); // has typo
+    // "text/plain;format=flowed; q=0.8" is ignored
+    when(ctx.header(Header.ACCEPT))
+        .thenReturn("text/plain; q=0.2, text/plain;format=flowed; q=0.8, text/html; q=0.5");
+    assertEquals(html, getContentType(ctx, List.of(json, html, plain)));
+
+    // "text/plain;format=flowed; q=0.8" is ignored
+    when(ctx.header(Header.ACCEPT))
+        .thenReturn("text/plain;format=flowed; q=0.8, text/plain; q=0.2, text/html; q=0.5");
+    assertEquals(html, getContentType(ctx, List.of(json, html, plain)));
+
+    // "text/plain q=0.8" has a typo: missing ";"
+    when(ctx.header(Header.ACCEPT)).thenReturn("text/plain q=0.8, text/html; q=0.5");
     assertThrows(
         IllegalArgumentException.class, () -> getContentType(ctx, List.of(json, html, plain)));
 
