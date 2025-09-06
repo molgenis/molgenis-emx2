@@ -11,8 +11,7 @@ import org.jspecify.annotations.NonNull;
 public class HttpHeaderUtils {
   private static final Comparator<MediaType> MEDIA_TYPE_COMPARATOR =
       Comparator.comparing(
-              (MediaType mediaType) ->
-                  mediaType.parameters().keySet().stream().anyMatch(key -> !key.equals("q")))
+              (MediaType mediaType) -> mediaType.withParameter("q", "0").parameters().size())
           .thenComparing(mediaType -> !mediaType.type().equals("*"))
           .thenComparing(mediaType -> !mediaType.subtype().equals("*"));
 

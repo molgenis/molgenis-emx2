@@ -15,7 +15,10 @@ import org.junit.jupiter.api.Test;
 class HttpHeaderUtilsTest {
   private final MediaType json = MediaType.parse("application/json");
   private final MediaType plain = MediaType.parse("text/plain");
-  private final MediaType plainFormat = MediaType.parse("text/plain;format=flowed");
+  private final MediaType plainCharset = MediaType.parse("text/plain; charset=utf-8");
+  private final MediaType plainFormat = MediaType.parse("text/plain; format=flowed");
+  private final MediaType plainCharsetFormat =
+      MediaType.parse("text/plain; charset=utf-8; format=flowed");
   private final MediaType plainInvalidAllowed = MediaType.parse("text/plain; q=0.5");
   private final MediaType html = MediaType.parse("text/html");
   private final MediaType jpeg = MediaType.parse("image/jpeg");
@@ -57,8 +60,23 @@ class HttpHeaderUtilsTest {
 
     when(ctx.header(Header.ACCEPT))
         .thenReturn(
-            "text/plain;format=flowed; q=0.8, text/plain; q=0.2, */*; q=0.1, text/html; q=0.5, text/*; q=0.7");
+            "text/plain; format=flowed; q=0.8, text/plain; q=0.2, */*; q=0.1, text/html; q=0.5, text/*; q=0.7");
     assertEquals(plainFormat, getContentType(ctx, List.of(json, html, plain, plainFormat)));
+
+    when(ctx.header(Header.ACCEPT))
+        .thenReturn(
+            "text/plain; format=flowed; charset=utf-8; q=0.8, text/plain; q=0.2, text/plain; format=flowed; q=0.6");
+    assertEquals(
+        plainCharsetFormat,
+        getContentType(ctx, List.of(json, html, plain, plainFormat, plainCharsetFormat)));
+
+    when(ctx.header(Header.ACCEPT))
+        .thenReturn("text/*; charset=utf-8; q=0.8, text/*; q=0.6, text/plain; q=0.4");
+    assertEquals(plainCharset, getContentType(ctx, List.of(plain, plainCharset, html)));
+
+    when(ctx.header(Header.ACCEPT))
+        .thenReturn("text/*; charset=utf-8; q=0.8, text/*; q=0.6, text/plain; q=0.4");
+    assertEquals(html, getContentType(ctx, List.of(plain, html)));
 
     // "text/plain q=0.8" has a typo: missing ";"
     when(ctx.header(Header.ACCEPT)).thenReturn("text/plain q=0.8, text/html; q=0.5");
