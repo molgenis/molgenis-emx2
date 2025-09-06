@@ -1069,8 +1069,7 @@ public class WebApiSmokeTests {
 
     // Validate multi-content type negotiation
     rdfApiContentTypeRequest(
-            200, "text/turtle; q=0.5, application/n-triples", "application/n-triples")
-        .head(urlPrefix + "/pet store/api/rdf");
+        200, "text/turtle; q=0.5, application/n-triples", "application/n-triples");
     rdfApiContentTypeRequest(200, "text/turtle; q=0.5, text/*", "text/n3")
         .head(urlPrefix + "/pet store/api/rdf");
     rdfApiContentTypeRequest(
@@ -1080,7 +1079,11 @@ public class WebApiSmokeTests {
         .head(urlPrefix + "/pet store/api/rdf");
     rdfApiContentTypeRequest(200, "*/*; q=0.2, application/*; q=0.5", "application/ld+json")
         .head(urlPrefix + "/pet store/api/rdf");
-    rdfApiContentTypeRequest(406, "image/jpeg", "text/json").head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest( // typo
+            400, "text/turtle q=0.3, text/*; q=0.5", "application/json")
+        .head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(406, "image/jpeg", "application/json")
+        .head(urlPrefix + "/pet store/api/rdf");
   }
 
   @Test
