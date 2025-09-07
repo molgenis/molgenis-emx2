@@ -71,8 +71,20 @@ class Transform:
         # transformations per table
         self.agents()
         self.organisations()
+        self.resources()
         if self.profile == 'UMCGCohortsStaging':
             self.contacts()
+
+    def agents(self):
+        """ Transform data in Agents
+        """
+        df_agents = pd.read_csv(self.path + 'Agent.csv', dtype='object')
+        df_agents.rename(columns={'name': 'id',
+                                  'url': 'website',
+                                  'mbox': 'email'}, inplace=True)
+
+        # write table to file
+        df_agents.to_csv(self.path + 'Agents.csv', index=False)
 
     def organisations(self):
         """ Transform data in Organisations
@@ -93,16 +105,30 @@ class Transform:
             # write table to file
             df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
-    def agents(self):
-        """ Transform data in Agents
+    def resources(self):
+        """ Transform data in Resources
         """
-        df_agents = pd.read_csv(self.path + 'Agent.csv', dtype='object')
-        df_agents.rename(columns={'name': 'id',
-                                  'url': 'website',
-                                  'mbox': 'email'}, inplace=True)
+        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+
+        # get publisher and creator from Organisations table
+        df_organisations = pd.read_csv(self.path + 'Organisations.csv', dtype='object')
+        df_resources['publisher.resource'] = ''
+        df_resources['publisher.id'] = ''
+        df_resources['creator.resource'] = ''
+        df_resources['creator.id'] = ''
+
+        i = 0
+        for r in df_resources['id']:
+            df_organisations_c = df_organisations[df_organisations['resource'] == r]
+            df_resources.loc[i, 'creator.resource'] = ','.join(df_organisations_c['resource'])
+            df_resources.loc[i, 'creator.id'] = ','.join(df_organisations_c['id'])
+            df_organisations_p = df_organisations_c[df_organisations_c['is lead organisation'] == 'true']
+            df_resources.loc[i, 'publisher.resource'] = ','.join(df_organisations_p['resource'])
+            df_resources.loc[i, 'publisher.id'] = ','.join(df_organisations_p['id'])
+            i += 1
 
         # write table to file
-        df_agents.to_csv(self.path + 'Agents.csv', index=False)
+        df_resources.to_csv(self.path + 'Resources.csv', index=False)
 
     def contacts(self):
         """ Transform data in Contacts
