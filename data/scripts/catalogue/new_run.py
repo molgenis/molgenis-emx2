@@ -48,6 +48,7 @@ source = Client(SOURCE_SERVER_URL, schema='catalogue', token=SOURCE_SERVER_TOKEN
 # target = Client(TARGET_SERVER_URL, schema='catalogue', token=TARGET_SERVER_TOKEN)
 
 # ETL for catalogue schema data:
+print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
 asyncio.run(source.export(filename=CATALOGUE_SCHEMA_NAME + '_data.zip'))
 # transform data from schema
 print('Transform data from ' + CATALOGUE_SCHEMA_NAME)
@@ -71,7 +72,7 @@ schema_names = source.schema_names
 for schema_name in schema_names:
     if schema_name not in ['CatalogueOntologies', CATALOGUE_SCHEMA_NAME, '_SYSTEM_', 'Pet store']:
         # extract data
-        print('Extract data from ' + schema_name + ': ' + schema_name + '.zip')
+        print('Extract data from ' + schema_name + ': ' + schema_name + '_data.zip')
         asyncio.run(source.export(filename=schema_name + '_data.zip'))
 
         # transform data from schema
@@ -80,13 +81,15 @@ for schema_name in schema_names:
         zip_handling = Zip(schema_name)
         zip_handling.unzip_data()
 
-        # determine schema profile:
+        # determine schema profile (for molgeniscatalogue.org, otherwise profile is UMCU or UMCG or CohortsStaging):
         path_to_data = Path().cwd().joinpath(schema_name + '_data')
         tables = os.listdir(path_to_data)
         if 'Linkages.csv' in tables:
             profile = 'RWEStaging'
-        elif all(x in tables for x in ['Collection events.csv', 'Variables.csv', 'Internal identifiers.csv']):
+        elif all(x in tables for x in ['Collection events.csv', 'Variable mappings.csv', 'Internal identifiers.csv']):
             profile = 'CohortsStaging'
+        elif 'Variable.csv' in tables:
+            profile = 'NetworksStaging'
         else:
             profile = 'INTEGRATE'
         #else:
