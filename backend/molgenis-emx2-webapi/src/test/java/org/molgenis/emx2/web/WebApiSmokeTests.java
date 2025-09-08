@@ -104,7 +104,7 @@ public class WebApiSmokeTests {
                     + db.getAdminUserName()
                     + "\\\",password:\\\""
                     + adminPass
-                    + "\\\"){message}}\"}")
+                    + "\\\"){status, message, user}}\"}")
             .when()
             .post("api/graphql")
             .sessionId();
@@ -153,7 +153,7 @@ public class WebApiSmokeTests {
             + testUser
             + "\\\",password:\\\""
             + password
-            + "\\\"){message}}\"}";
+            + "\\\"){message, user}}\"}";
 
     String sessionQuery = "{ \"query\": \"{ _session { email } } \"}";
 
@@ -766,7 +766,7 @@ public class WebApiSmokeTests {
                     + db.getAdminUserName()
                     + "\\\",password:\\\""
                     + adminPass
-                    + "\\\"){message}}\"}")
+                    + "\\\"){message, user}}\"}")
             .when()
             .post(path)
             .asString();
@@ -867,7 +867,7 @@ public class WebApiSmokeTests {
     String shopViewerSessionId =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"shopviewer\\\",password:\\\"shopviewer\\\"){message}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"shopviewer\\\",password:\\\"shopviewer\\\"){message, user}}\"}")
             .when()
             .post("/api/graphql")
             .sessionId();
@@ -886,7 +886,7 @@ public class WebApiSmokeTests {
     String shopManagerSessionId =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){message}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){message, user}}\"}")
             .when()
             .post("/api/graphql")
             .sessionId();
@@ -958,7 +958,7 @@ public class WebApiSmokeTests {
     result =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token, user}}\"}")
             .when()
             .post("/api/graphql")
             .getBody()

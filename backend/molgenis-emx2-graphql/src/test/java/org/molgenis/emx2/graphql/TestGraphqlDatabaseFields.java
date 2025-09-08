@@ -126,7 +126,7 @@ public class TestGraphqlDatabaseFields {
     assertTrue(database.checkUserPassword("pietje", "blaat123"));
 
     assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}")
+        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message, user}}")
             .at("/data/signin/message")
             .textValue()
             .contains("failed"));
@@ -134,7 +134,7 @@ public class TestGraphqlDatabaseFields {
     assertTrue(database.isAdmin());
 
     assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")
+        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message, user}}")
             .at("/data/signin/message")
             .textValue()
             .contains("Signed in"));
