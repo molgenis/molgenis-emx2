@@ -43,10 +43,11 @@ understand what they are seeing when viewing a network, in both of the network o
 | 25 | POPULATION | Central African Republic (the), Chad | | |
 | 26 | ORGANISATIONS | Lead organisations, University Medical Center Groningen (UMCG), Netherlands (the) | | |
 |    | | Additional organisations, Amsterdam Medical Center (AMC), Netherlands (the), Cynexo (CYN), Italy | | |
-| 27 | DATASETS | Datasets, List of datasets for this resource | | |
+| 27 | CONTRIBUTORS | Bob Ross, `bob.ross@paintings.eu`, Primary contact | | |
+| 28 | DATASETS | Datasets, List of datasets for this resource | | |
 |    | | Name, Description | | |
 |    | | cdm_1 -> | | |
-| 28 | NETWORKS | Part of networks | | |
+| 29 | NETWORKS | Part of networks | | |
 |    | | name for test network of networks, > Website > Network details > Catalogue, -> | | |
-| 29 | PUBLICATIONS | Two publications: 'Sustainability...phase 3 trials.' and 'Ten-year...randomized trial.' | | |
-| 30 | FUNDING & ACKNOWLEDGEMENTS | lorem ipsum text, check that "until now" is shown at the end of both fields so that you know the full text has been displayed | | |
+| 30 | PUBLICATIONS | Two publications: 'Sustainability...phase 3 trials.' and 'Ten-year...randomized trial.' | | |
+| 31 | FUNDING & ACKNOWLEDGEMENTS | lorem ipsum text, check that "until now" is shown at the end of both fields so that you know the full text has been displayed | | |
