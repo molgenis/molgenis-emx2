@@ -44,9 +44,15 @@ understand what they are seeing when viewing a network, in both of the network o
 | 26 | ORGANISATIONS | Lead organisations, University Medical Center Groningen (UMCG), Netherlands (the) | | |
 |    | | Additional organisations, Amsterdam Medical Center (AMC), Netherlands (the), Cynexo (CYN), Italy | | |
 | 27 | CONTRIBUTORS | Bob Ross, `bob.ross@paintings.eu`, Primary contact | | |
-| 28 | DATASETS | Datasets, List of datasets for this resource | | |
+| 28a | DATASET VARIABLES | Datasets, Datasets and their description | | |
 |    | | Name, Description | | |
 |    | | cdm_1 -> | | |
+|    | | Dataset variables, Dataset variables and their description | | |
+|    | | Filter by dataset, All datasets, Filter by variable | | |
+|    | | variable, Dataset | | |
+|    | | 7 rows of variables: 'testVar...', 'cdm_1', '-->' | | |
+| 28b | Set 'Filter by dataset' to 'cdm_1' | Nothing changes | | |
+| 28c | Type 'cat' into 'Filter by variable' | Only the row containing testVarCategorical_ is shown | | |
 | 29 | NETWORKS | Part of networks | | |
 |    | | name for test network of networks, > Website > Network details > Catalogue, -> | | |
 | 30 | PUBLICATIONS | Two publications: 'Sustainability...phase 3 trials.' and 'Ten-year...randomized trial.' | | |
