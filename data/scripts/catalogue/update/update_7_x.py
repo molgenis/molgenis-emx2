@@ -101,7 +101,7 @@ class Transform:
             df_ror = df_ror[['ontologyTermURI', 'name']]
             dict_ror = dict(zip(df_ror.ontologyTermURI, df_ror.name))
             # get ror name from pid
-            df_organisations['organisation'] = df_organisations['pid'].apply(get_ror_name, dict_ror=dict_ror)
+            df_organisations['organisation name'] = df_organisations['pid'].apply(get_ror_name, dict_ror=dict_ror)
             # get other organisation names not found in ror
             df_organisations['other organisation'] = df_organisations.apply(get_other_name, dict_ror=dict_ror, axis=1)
 
