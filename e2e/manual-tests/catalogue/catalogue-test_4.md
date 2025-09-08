@@ -13,7 +13,7 @@ A researcher working in consortium X (*example: testNetwork1*) searches for spec
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
-| 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. Ensure that testCatalogue scheme has been uploaded into the Acceptance server before you start testing | | |
+| 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. Make sure to upload a fresh set of test data to the catalogue schema on the acceptance server before you start testing. | | |
 | 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | Landing page: European health research data and sample catalogue | | |
 | 2 | Scroll down to the catalogue 'testNetwork1', under 'Thematic catalogues' | from left to right: network logo, network acronym (link), network name, arrow right (link) | | |
 | 3 | Hover over the testNetwork1 row | Row should be highlighted | | |
