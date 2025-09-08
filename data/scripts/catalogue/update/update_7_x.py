@@ -7,6 +7,7 @@ import re
 import numpy as np
 from decouple import config
 from molgenis_emx2_pyclient import Client
+import numpy as np
 
 CATALOGUE_SCHEMA_NAME = config('MG_CATALOGUE_SCHEMA_NAME')
 
@@ -72,6 +73,7 @@ class Transform:
         self.agents()
         self.organisations()
         self.resources()
+        self.endpoint()
         if self.profile == 'UMCGCohortsStaging':
             self.contacts()
 
@@ -82,6 +84,7 @@ class Transform:
         df_agents.rename(columns={'name': 'id',
                                   'url': 'website',
                                   'mbox': 'email'}, inplace=True)
+        df_agents['resource'] = 'MOLGENIS'
 
         # write table to file
         df_agents.to_csv(self.path + 'Agents.csv', index=False)
@@ -100,10 +103,10 @@ class Transform:
             # get ror name from pid
             df_organisations['organisation'] = df_organisations['pid'].apply(get_ror_name, dict_ror=dict_ror)
             # get other organisation names not found in ror
-            df_organisations['other organisation'] = df_organisations.apply(get_other_name, axis=1)
+            df_organisations['other organisation'] = df_organisations.apply(get_other_name, dict_ror=dict_ror, axis=1)
 
-            # write table to file
-            df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+        # write table to file
+        df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
     def resources(self):
         """ Transform data in Resources
@@ -122,9 +125,26 @@ class Transform:
             df_organisations_c = df_organisations[df_organisations['resource'] == r]
             df_resources.loc[i, 'creator.resource'] = ','.join(df_organisations_c['resource'])
             df_resources.loc[i, 'creator.id'] = ','.join(df_organisations_c['id'])
-            df_organisations_p = df_organisations_c[df_organisations_c['is lead organisation'] == 'true']
-            df_resources.loc[i, 'publisher.resource'] = ','.join(df_organisations_p['resource'])
-            df_resources.loc[i, 'publisher.id'] = ','.join(df_organisations_p['id'])
+            df_organisations_p = df_organisations_c[df_organisations_c['is lead organisation'] == 'true'].reset_index()
+            if not len(df_organisations_p) == 0:
+                df_resources.loc[i, 'publisher.resource'] = df_organisations_p['resource'][0]
+                df_resources.loc[i, 'publisher.id'] = df_organisations_p['id'][0]
+            i += 1
+
+        # get contact point from Contacts table
+        df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
+        df_resources['contact point.resource'] = ''
+        df_resources['contact point.first name'] = ''
+        df_resources['contact point.last name'] = ''
+
+        i = 0
+        for r in df_resources['id']:
+            df_contacts_r = df_contacts[df_contacts['resource'] == r]
+            df_contacts_p = df_contacts_r[df_contacts_r['role'] == 'Primary contact'].reset_index()
+            if not len(df_contacts_p) == 0:
+                df_resources.loc[i, 'contact point.resource'] = df_contacts_p['resource'][0]
+                df_resources.loc[i, 'contact point.first name'] = df_contacts_p['first name'][0]
+                df_resources.loc[i, 'contact point.last name'] = df_contacts_p['last name'][0]
             i += 1
 
         # write table to file
@@ -139,20 +159,36 @@ class Transform:
         # write table to file
         df_contacts.to_csv(self.path + 'Contacts.csv', index=False)
 
+    def endpoint(self):
+        """ Transform data in Endpoint
+        """
+        df_endpoint = pd.read_csv(self.path + 'Endpoint.csv', dtype='object')
+
+        df_endpoint.rename(columns={'publisher': 'publisher.id'}, inplace=True)
+        df_endpoint['publisher.resource'] = 'MOLGENIS'  # change dependent on server
+
+        # write table to file
+        df_endpoint.to_csv(self.path + 'Endpoint.csv', index=False)
+
 
 def get_ror_name(pid, dict_ror):
     if not pd.isna(pid):
-        organisation_name = dict_ror[pid]
-        return organisation_name
-    else:
-        return None
+        try:
+            organisation_name = dict_ror[pid]
+            return organisation_name
+        except KeyError:
+            return None
 
 
-def get_other_name(row):
+def get_other_name(row, dict_ror):
     if pd.isna(row['pid']):
         return row['name']
     else:
-        return None
+        try:
+            valid_pid = dict_ror[row['pid']]
+            return None
+        except KeyError:
+            return row['pid']
 
 
 def calculate_consent(row):

@@ -42,10 +42,10 @@ if not os.path.isdir('./files'):
 os.chdir('./files')
 
 # instantiate Client for source server:
-source = Client(SOURCE_SERVER_URL, schema='catalogue', token=SOURCE_SERVER_TOKEN)
+source = Client(SOURCE_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=SOURCE_SERVER_TOKEN)
 
 # # instantiate Client for target server:
-# target = Client(TARGET_SERVER_URL, schema='catalogue', token=TARGET_SERVER_TOKEN)
+# target = Client(TARGET_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
 
 # ETL for catalogue schema data:
 print('Extract data from ' + CATALOGUE_SCHEMA_NAME + ': ' + CATALOGUE_SCHEMA_NAME + '_data.zip')
@@ -66,46 +66,3 @@ zip_handling.zip_data()
 # log into target server
 # upload catalogue data to target server
 
-
-# ETL for other schemas:
-schema_names = source.schema_names
-for schema_name in schema_names:
-    if schema_name not in ['CatalogueOntologies', CATALOGUE_SCHEMA_NAME, '_SYSTEM_', 'Pet store']:
-        # extract data
-        print('Extract data from ' + schema_name + ': ' + schema_name + '_data.zip')
-        asyncio.run(source.export(filename=schema_name + '_data.zip'))
-
-        # transform data from schema
-        print('Transform data from ' + schema_name)
-        # unzip schema data
-        zip_handling = Zip(schema_name)
-        zip_handling.unzip_data()
-
-        # determine schema profile (for molgeniscatalogue.org, otherwise profile is UMCU or UMCG or CohortsStaging):
-        path_to_data = Path().cwd().joinpath(schema_name + '_data')
-        tables = os.listdir(path_to_data)
-        if 'Linkages.csv' in tables:
-            profile = 'RWEStaging'
-        elif all(x in tables for x in ['Collection events.csv', 'Variable mappings.csv', 'Internal identifiers.csv']):
-            profile = 'CohortsStaging'
-        elif 'Variable.csv' in tables:
-            profile = 'NetworksStaging'
-        else:
-            profile = 'INTEGRATE'
-        #else:
-            #profile = 'UMCUCohorts'
-        #else:
-            #profile = 'UMCGCohorts'
-
-        # transform schema data:
-        update = Transform(schema_name=schema_name, profile=profile)
-        # update data model file
-        update.delete_data_model_file()
-        update.update_data_model_file()
-        update.transform_data()
-        zip_handling.zip_data()
-        # upload zipped data to target server
-
-
-# data checks:
-    # move some sub-organisations to Organisations.department
