@@ -1,40 +1,41 @@
 //@ts-ignore
 import { QueryEMX2 } from "molgenis-components";
+import {
+  IFilterFacet,
+  IFilterOption,
+  IOntologyItem,
+} from "../interfaces/interfaces";
 import { useFiltersStore } from "../stores/filtersStore";
-import { IOntologyItem } from "../interfaces/interfaces";
-
-/** Async so we can fire and forget for performance. */
-async function cache(facetIdentifier: any, filterOptions: any) {
-  const { filterOptionsCache } = useFiltersStore() as any;
-  filterOptionsCache[facetIdentifier] = filterOptions;
-}
-
-function retrieveFromCache(facetIdentifier: any) {
-  const { filterOptionsCache } = useFiltersStore() as any;
-  return filterOptionsCache[facetIdentifier] || [];
-}
 
 /** Configurable array of values to filter out, for example 'Other, unknown' that make no sense to the user. */
-function removeOptions(filterOptions: any, filterFacet: any) {
+function removeOptions(
+  filterOptions: IFilterOption[],
+  filterFacet: IFilterFacet
+) {
   const optionsToRemove = filterFacet.removeOptions;
 
   if (!optionsToRemove || !optionsToRemove.length) return filterOptions;
 
   optionsToRemove.map((option: any) => option.toLowerCase());
   return filterOptions.filter(
-    (filterOption: any) =>
+    (filterOption: IFilterOption) =>
       !optionsToRemove.includes(filterOption.text.toLowerCase())
   );
 }
 
-export const customFilterOptions = (filterFacet: any) => {
+export const customFilterOptions = (filterFacet: IFilterFacet) => {
+  const filtersStore = useFiltersStore();
   const { facetIdentifier, customOptions } = filterFacet;
   return () =>
     new Promise((resolve) => {
-      const cachedOptions = retrieveFromCache(facetIdentifier);
+      if (!facetIdentifier) {
+        resolve([]);
+        return;
+      }
+      const options = filtersStore.getFilterOptions(facetIdentifier);
 
-      if (!cachedOptions.length) {
-        cache(facetIdentifier, customOptions);
+      if (!options.length) {
+        filtersStore.setFilterOptions(facetIdentifier, customOptions);
         resolve(customOptions);
       } else {
         resolve(customOptions);
@@ -74,16 +75,8 @@ function getExtraAttributes(row: Record<string, any>, attributes: string[]) {
   }, {});
 }
 
-export const genericFilterOptions = (filterFacet: {
-  sourceTable: string;
-  sourceSchema: string;
-  facetIdentifier: string;
-  filterLabelAttribute: string;
-  filterValueAttribute: string;
-  extraAttributes?: string[];
-  sortColumn: string;
-  sortDirection: "ASC" | "DESC";
-}) => {
+export const genericFilterOptions = (filterFacet: IFilterFacet) => {
+  const filtersStore = useFiltersStore();
   const {
     sourceTable,
     sourceSchema,
@@ -97,23 +90,32 @@ export const genericFilterOptions = (filterFacet: {
 
   return () =>
     new Promise((resolve) => {
-      const cachedOptions = retrieveFromCache(facetIdentifier);
+      if (
+        !facetIdentifier ||
+        !filterLabelAttribute ||
+        !filterValueAttribute ||
+        !sourceTable
+      ) {
+        resolve([]);
+        return;
+      }
+      const filterOptions = filtersStore.getFilterOptions(facetIdentifier);
       const selection = getAttributeSelection(
         filterLabelAttribute,
         filterValueAttribute,
         extraAttributes
       );
 
-      if (!cachedOptions.length) {
+      if (!filterOptions.length) {
         new QueryEMX2(getSchema(sourceSchema))
           .table(sourceTable)
           .select(selection)
           .orderBy(sourceTable, sortColumn, sortDirection)
           .execute()
           .then((response: Record<string, Record<string, any>>) => {
-            let filterOptions = response[sourceTable].map(
+            const newOptions = response[sourceTable].map(
               (row: Record<string, any>) => {
-                let result = _mapToOptions(
+                const result = _mapToOptions(
                   row,
                   filterLabelAttribute,
                   filterValueAttribute,
@@ -135,14 +137,12 @@ export const genericFilterOptions = (filterFacet: {
               }
             );
 
-            /**  remove unwanted options if applicable */
-            filterOptions = removeOptions(filterOptions, filterFacet);
-
-            cache(facetIdentifier, filterOptions);
-            resolve(filterOptions);
+            const filteredOptions = removeOptions(newOptions, filterFacet);
+            filtersStore.setFilterOptions(facetIdentifier, filteredOptions);
+            resolve(filteredOptions);
           });
       } else {
-        resolve(cachedOptions);
+        resolve(filterOptions);
       }
     });
 };
@@ -159,7 +159,8 @@ function getAttributeSelection(
   }
 }
 
-export const ontologyFilterOptions = (filterFacet: any) => {
+export const ontologyFilterOptions = (filterFacet: IFilterFacet) => {
+  const filtersStore = useFiltersStore();
   const {
     ontologyIdentifiers,
     sourceSchema,
@@ -173,7 +174,11 @@ export const ontologyFilterOptions = (filterFacet: any) => {
 
   return () =>
     new Promise((resolve) => {
-      const cachedOptions = retrieveFromCache(facetIdentifier);
+      if (!facetIdentifier || !sourceTable) {
+        resolve([]);
+        return;
+      }
+      const options = filtersStore.getFilterOptions(facetIdentifier);
 
       const selection = [
         filterLabelAttribute,
@@ -182,7 +187,7 @@ export const ontologyFilterOptions = (filterFacet: any) => {
         `parent.${filterValueAttribute}`,
       ];
 
-      if (!cachedOptions.length) {
+      if (!options.length) {
         /** make it query after all the others, saves 50% of initial load */
         const waitAfterBiobanks = setTimeout(() => {
           new QueryEMX2(getSchema(sourceSchema))
@@ -193,16 +198,19 @@ export const ontologyFilterOptions = (filterFacet: any) => {
             .then((response: any) => {
               const itemsSplitByOntology = getItemsSplitByOntology(
                 response[sourceTable],
-                ontologyIdentifiers
+                ontologyIdentifiers || []
               );
 
-              cache(facetIdentifier, itemsSplitByOntology);
+              filtersStore.setFilterOptions(
+                facetIdentifier,
+                itemsSplitByOntology
+              );
               resolve(itemsSplitByOntology);
             });
           clearTimeout(waitAfterBiobanks);
         }, 1000);
       } else {
-        resolve(cachedOptions);
+        resolve(options);
       }
     });
 };
@@ -210,7 +218,7 @@ export const ontologyFilterOptions = (filterFacet: any) => {
 function getItemsSplitByOntology(
   ontologyItems: IOntologyItem[],
   ontologyIdentifiers: string[]
-): Record<string, IOntologyItem[] | Record<string, IOntologyItem>> {
+): Record<string, IOntologyItem[]> {
   const childrenPerParent = getChildrenPerParent(ontologyItems);
   const itemsWithChildren = getItemsWithChildren(
     ontologyItems,

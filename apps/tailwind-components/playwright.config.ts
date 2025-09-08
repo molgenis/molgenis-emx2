@@ -8,9 +8,9 @@ export default defineConfig<ConfigOptions>({
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 2,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
     ? [["list"], ["junit", { outputFile: "results.xml" }]]
@@ -34,6 +34,10 @@ export default defineConfig<ConfigOptions>({
   /* Configure projects for major browsers */
   projects: [
     {
+      name: "auth.setup",
+      testMatch: /auth\.setup\.ts/, // <-- only runs this file
+    },
+    {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
       testIgnore: "*/admin!*.spec.ts",
@@ -45,6 +49,7 @@ export default defineConfig<ConfigOptions>({
         storageState: "e2e/.auth/user.json",
       },
       testMatch: "*/admin!*.spec.ts",
+      dependencies: ["auth.setup"],
     },
   ],
 });

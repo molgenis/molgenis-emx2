@@ -6,8 +6,8 @@ public enum GenomicQueryType {
       { _and: [
         { startPosition: { equals: %d } },
         { refseqAssemblyId: {equals: "%s" } },
-        { ref: { like: "%s" } },
-        { alt: {like: "%s" } }
+        { referenceAllele: { like: "%s" } },
+        { alternateAllele: {like: "%s" } }
       ]}"""),
   RANGE(
       """

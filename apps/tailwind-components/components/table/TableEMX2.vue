@@ -28,106 +28,123 @@
     </div>
   </div>
 
-  <div class="overflow-auto rounded-b-theme">
+  <div
+    class="relative overflow-auto rounded-b-theme border border-theme border-color-theme"
+  >
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
       <table
-        class="text-left table-fixed w-full border border-theme border-color-theme"
+        class="text-left w-full"
+        :class="{
+          'table-fixed': columns.length > 1,
+          'table-auto': columns.length === 0,
+        }"
       >
         <thead>
-          <tr>
-            <th
-              v-for="column in sortedVisibleColumns"
-              class="py-2.5 px-2.5 border-b border-gray-200 first:pl-0 last:pr-0 sm:first:pl-2.5 sm:last:pr-2.5 text-left w-64 overflow-hidden whitespace-nowrap align-middle"
-              :ariaSort="
-                settings.orderby.column === column.id
-                  ? mgAriaSortMappings[settings.orderby.direction]
-                  : 'none'
-              "
-              scope="col"
+          <tr class="h-4">
+            <TableHeadCell
+              v-if="isEditable"
+              class="absolute left-0 w-[1px] !p-0 m-0 border-none"
             >
-              <span
-                class="whitespace-nowrap max-w-60 w-64 overflow-hidden inline-block"
-              >
+              <span class="sr-only">manage records</span>
+            </TableHeadCell>
+            <TableHeadCell
+              v-for="column in sortedVisibleColumns"
+              :class="{
+                'w-full': columns.length === 1,
+              }"
+            >
+              <div class="flex justify-start items-center gap-1">
                 <button
+                  :id="`table-emx2-${schemaId}-${tableId}-${column.label}-sort-btn`"
                   @click="handleSortRequest(column.id)"
                   class="overflow-ellipsis whitespace-nowrap max-w-56 overflow-hidden inline-block text-left text-table-column-header font-normal align-middle"
+                  :ariaSort="
+                    settings.orderby.column === column.id
+                      ? mgAriaSortMappings[settings.orderby.direction]
+                      : 'none'
+                  "
                 >
-                  {{ column.label }}
+                  <span>{{ column.label }}</span>
                 </button>
                 <ArrowUp
                   v-if="
                     column.id === settings.orderby.column &&
                     settings.orderby.direction === 'ASC'
                   "
-                  class="w-4 h-4 inline-block ml-1 text-table-column-header font-normal"
+                  aria-hidden="true"
+                  class="h-4 w-4 text-table-column-header font-normal"
                 />
                 <ArrowDown
                   v-if="
                     column.id === settings.orderby.column &&
                     settings.orderby.direction === 'DESC'
                   "
-                  class="w-4 h-4 inline-block ml-1 text-table-column-header font-normal"
+                  aria-hidden="true"
+                  class="h-4 w-4 text-table-column-header font-normal"
                 />
-              </span>
-            </th>
+              </div>
+            </TableHeadCell>
           </tr>
         </thead>
         <tbody
-          class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:mb-5"
+          class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:pb-last-row-cell"
         >
           <tr
             v-for="row in rows"
-            class="static hover:bg-hover group h-4"
+            class="hover:bg-hover group"
             :class="{ 'hover:cursor-pointer': props.isEditable }"
           >
+            <TableBodyCell
+              v-if="isEditable"
+              class="absolute left-0 h-10 w-[100px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none mt-1"
+              :truncate="false"
+            >
+              <div
+                class="flex flex-row items-center justify-start flex-nowrap gap-1 [&_button]:relative [&_button]:mt-[-11px]"
+              >
+                <Button
+                  :id="`table-emx2-${encodeURI(schemaId)}-${encodeURI(
+                    tableId
+                  )}-${getRowId(row)}-edit-row-button`"
+                  :icon-only="true"
+                  type="inline"
+                  icon="trash"
+                  size="small"
+                  label="delete"
+                  @click="onShowDeleteModal(row)"
+                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+                  aria-haspopup="dialog"
+                  :aria-expanded="showDeleteModal"
+                >
+                  {{ getRowId(row) }}
+                </Button>
+
+                <Button
+                  :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
+                    row
+                  )}-delete-row-button`"
+                  :icon-only="true"
+                  type="inline"
+                  icon="edit"
+                  size="small"
+                  label="edit"
+                  @click="onShowEditModal(row)"
+                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+                  aria-haspopup="dialog"
+                  :aria-expanded="showEditModal"
+                >
+                  {{ getRowId(row) }}
+                </Button>
+              </div>
+            </TableBodyCell>
             <TableCellEMX2
-              v-for="(column, index) in sortedVisibleColumns"
+              v-for="column in sortedVisibleColumns"
               class="text-table-row"
               :scope="column.key === 1 ? 'row' : null"
               :metadata="column"
               :data="row[column.id]"
               @cellClicked="handleCellClick($event, column, row)"
-            >
-              <div
-                v-if="isEditable && index === 0"
-                class="flex items-center gap-1 flex-none invisible group-hover:visible h-4 py-6 px-4 absolute right-7 bg-hover"
-              >
-                <DeleteModal
-                  v-if="data?.tableMetadata"
-                  :schemaId="props.schemaId"
-                  :metadata="data.tableMetadata"
-                  :formValues="row"
-                  v-slot="{ setVisible }"
-                  @update:deleted="afterRowDeleted"
-                >
-                  <Button
-                    :icon-only="true"
-                    type="inline"
-                    icon="trash"
-                    size="small"
-                    label="delete"
-                    @click="setVisible"
-                  />
-                </DeleteModal>
-                <EditModal
-                  v-if="data?.tableMetadata"
-                  :schemaId="props.schemaId"
-                  :metadata="data.tableMetadata"
-                  :formValues="row"
-                  v-slot="{ setVisible }"
-                  @update:updated="afterRowUpdated"
-                >
-                  <Button
-                    :icon-only="true"
-                    type="inline"
-                    icon="edit"
-                    size="small"
-                    label="edit"
-                    @click="setVisible"
-                  />
-                </EditModal>
-              </div>
-            </TableCellEMX2>
+            />
           </tr>
         </tbody>
       </table>
@@ -142,13 +159,36 @@
   />
 
   <TableModalRef
+    :id="`table-emx2-${schemaId}-${tableId}-modal-ref`"
     v-if="showModal && refTableRow && refTableColumn"
     v-model:visible="showModal"
     :metadata="refTableColumn"
     :row="refTableRow"
-    :schema="props.schemaId"
+    :schema="schemaId"
     :sourceTableId="refSourceTableId"
     :showDataOwner="false"
+  />
+
+  <DeleteModal
+    :id="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+    v-if="data?.tableMetadata && rowDataForModal"
+    :showButton="false"
+    :schemaId="props.schemaId"
+    :metadata="data.tableMetadata"
+    :formValues="rowDataForModal"
+    v-model:visible="showDeleteModal"
+    @update:deleted="afterRowDeleted"
+  />
+
+  <EditModal
+    :id="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+    v-if="data?.tableMetadata && rowDataForModal"
+    :showButton="false"
+    :schemaId="props.schemaId"
+    :metadata="data.tableMetadata"
+    :formValues="rowDataForModal"
+    v-model:visible="showEditModal"
+    @update:updated="afterRowUpdated"
   />
 </template>
 
@@ -158,6 +198,7 @@ import type {
   IRow,
   IColumn,
   IRefColumn,
+  columnValue,
 } from "../../../metadata-utils/src/types";
 import type {
   ITableSettings,
@@ -168,10 +209,18 @@ import { sortColumns } from "../../utils/sortColumns";
 
 import { useAsyncData } from "#app/composables/asyncData";
 import { fetchTableData, fetchTableMetadata } from "#imports";
+
+import TableCellEMX2 from "./CellEMX2.vue";
+import TableHeadCell from "./TableHeadCell.vue";
+
 import AddModal from "../form/AddModal.vue";
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import TableModalRef from "./modal/TableModalRef.vue";
+
+const showDeleteModal = ref<boolean>(false);
+const showEditModal = ref<boolean>(false);
+const rowDataForModal = ref();
 
 const props = withDefaults(
   defineProps<{
@@ -199,7 +248,6 @@ const mgAriaSortMappings = {
   DESC: "descending",
 };
 
-// use useAsyncData to have control of status, error, and refresh
 const { data, status, error, refresh, clear } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
   async () => {
@@ -233,6 +281,15 @@ const rows = computed(() => {
 const count = computed(() => data.value?.tableData?.count ?? 0);
 
 const columns = ref<IColumn[]>([]);
+const primaryKeys = computed(() => {
+  return columns.value
+    ?.map((col) => {
+      if (Object.hasOwn(col, "key")) {
+        return col.id;
+      }
+    })
+    .filter((value) => value);
+});
 
 watch(
   () => data.value?.tableMetadata,
@@ -302,6 +359,23 @@ function handleCellClick(
       : (column as IRefColumn); // todo other types of column
 
   showModal.value = true;
+}
+
+function getRowId(row: IRow) {
+  return primaryKeys.value
+    .map((key) => row[key as string])
+    .join("-")
+    .replaceAll(" ", "-");
+}
+
+function onShowDeleteModal(row: Record<string, columnValue>) {
+  rowDataForModal.value = row;
+  showDeleteModal.value = true;
+}
+
+function onShowEditModal(row: Record<string, columnValue>) {
+  rowDataForModal.value = row;
+  showEditModal.value = true;
 }
 
 function afterRowAdded() {

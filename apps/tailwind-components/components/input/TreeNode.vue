@@ -2,6 +2,7 @@
 import type { ITreeNodeState } from "../../types/types";
 import BaseIcon from "../BaseIcon.vue";
 import CustomTooltip from "../CustomTooltip.vue";
+import { computed } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -9,6 +10,7 @@ const props = withDefaults(
     nodes: ITreeNodeState[];
     inverted?: boolean;
     isRoot: boolean;
+    multiselect?: boolean;
     valid?: boolean;
     invalid?: boolean;
     disabled?: boolean;
@@ -16,9 +18,14 @@ const props = withDefaults(
   {
     inverted: false,
     isRoot: false,
+    multiselect: true,
   }
 );
-const emit = defineEmits(["toggleSelect", "toggleExpand"]);
+const emit = defineEmits([
+  "toggleSelect",
+  "toggleExpand",
+  "showOutsideResults",
+]);
 
 function toggleSelect(node: ITreeNodeState) {
   emit("toggleSelect", node);
@@ -27,6 +34,10 @@ function toggleSelect(node: ITreeNodeState) {
 function toggleExpand(node: ITreeNodeState) {
   emit("toggleExpand", node);
 }
+
+const hasChildren = computed(() =>
+  props.nodes?.some((node) => node.children?.length)
+);
 </script>
 
 <template>
@@ -46,7 +57,7 @@ function toggleExpand(node: ITreeNodeState) {
         <button
           v-if="node.children?.length"
           @click.stop="toggleExpand(node)"
-          class="-left-[11px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
+          class="-left-[15px] top-0 rounded-full hover:cursor-pointer h-6 w-6 flex items-center justify-center absolute z-20"
           :class="{
             'text-search-filter-group-toggle-inverted hover:bg-search-filter-group-toggle-inverted':
               inverted,
@@ -67,40 +78,43 @@ function toggleExpand(node: ITreeNodeState) {
             v-if="node.children?.length"
             name="collapsible-list-item-sub"
             :width="20"
-            class="text-blue-200 absolute -top-[9px]"
+            class="text-blue-200 absolute -top-[9px] -left-[5px]"
           />
           <BaseIcon
             v-else
             name="collapsible-list-item"
             :width="20"
-            class="text-blue-200 absolute -top-[9px]"
+            class="text-blue-200 absolute -top-[9px] -left-1"
           />
         </template>
       </div>
-      <div class="flex justify-start items-center ml-4">
-        <input
-          v-if="node.selectable"
-          type="checkbox"
-          :indeterminate="node.selected === 'intermediate'"
-          :id="id + '-' + node.name + '-input'"
-          :name="node.name"
-          :checked="node.selected === 'selected'"
-          @click.stop="toggleSelect(node)"
-          class="sr-only"
-        />
+      <div
+        class="flex justify-start items-center"
+        :class="{ 'ml-4': !isRoot || hasChildren }"
+      >
         <InputLabel
           :for="id + '-' + node.name + '-input'"
-          class="flex justify-center items-start"
+          class="group flex justify-center items-start"
           :class="{
             'text-disabled cursor-not-allowed': disabled,
             'text-title cursor-pointer ': !disabled,
           }"
         >
-          <InputCheckboxIcon
+          <input
             v-if="node.selectable"
+            type="checkbox"
+            :indeterminate="node.selected === 'intermediate'"
+            :id="id + '-' + node.name + '-input'"
+            :name="node.name"
+            :checked="node.selected === 'selected'"
+            @click.stop="toggleSelect(node)"
+            class="sr-only"
+          />
+          <InputCheckboxIcon
+            v-if="node.selectable && multiselect"
             :indeterminate="node.selected === 'intermediate'"
             :checked="node.selected === 'selected'"
-            class="ml-[-6px] min-w-[20px]"
+            class="min-w-[20px]"
             :class="{
               '[&>rect]:stroke-gray-400': inverted,
             }"
@@ -108,7 +122,19 @@ function toggleExpand(node: ITreeNodeState) {
             :valid="valid"
             :disabled="disabled"
           />
-          <span class="block text-body-sm leading-normal"
+          <InputRadioIcon
+            v-else-if="node.selectable"
+            :indeterminate="node.selected === 'intermediate'"
+            :checked="node.selected === 'selected'"
+            class="min-w-[20px] mr-[6px] mt-[2px]"
+            :class="{
+              '[&>rect]:stroke-gray-400': inverted,
+            }"
+            :invalid="invalid"
+            :valid="valid"
+            :disabled="disabled"
+          />
+          <span class="block text-body-sm leading-normal pl-1"
             >{{ node.label || node.name }}
             <template
               v-if="node.code || (node.label && node.label !== node.name)"
@@ -155,6 +181,7 @@ function toggleExpand(node: ITreeNodeState) {
         :invalid="invalid"
         :valid="valid"
         :disabled="disabled"
+        :multiselect="multiselect"
         @toggleSelect="toggleSelect"
         @toggleExpand="toggleExpand"
       />
@@ -191,7 +218,10 @@ function toggleExpand(node: ITreeNodeState) {
         >
         <ButtonText
           class="ml-2"
-          @click="nodes.forEach((node) => (node.visible = true))"
+          @click="
+            nodes.forEach((node) => (node.visible = true));
+            emit('showOutsideResults');
+          "
           >(show)</ButtonText
         >
       </div>

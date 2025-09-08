@@ -6,7 +6,7 @@ import org.molgenis.emx2.rdf.generators.RootRdfGenerator;
 import org.molgenis.emx2.rdf.writers.RdfStreamWriter;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
-public class RdfRootService implements AutoCloseable {
+public class RdfRootService implements RdfService<RootRdfGenerator> {
   private final RdfWriter writer;
   private final RootRdfGenerator generator;
 
@@ -15,6 +15,7 @@ public class RdfRootService implements AutoCloseable {
     this.generator = new RootRdfGenerator(writer, baseUrl);
   }
 
+  @Override
   public RootRdfGenerator getGenerator() {
     return generator;
   }

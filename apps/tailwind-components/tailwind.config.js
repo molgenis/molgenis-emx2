@@ -104,6 +104,21 @@ module.exports = {
         95: "23.75rem",
         82.5: "20.625rem",
       },
+      padding: ({ theme }) => ({
+        "last-row-cell": "var(--padding-table-body-last-row-cell)",
+      }),
+      height: ({ theme }) => ({
+        input: "var(--height-input)",
+      }),
+      height: ({ theme }) => ({
+        input: "var(--height-input)",
+        "input-tiny": "var(--height-input-tiny)",
+        "input-small": "var(--height-input-small)",
+        "input-large": "var(--height-input-large)",
+      }),
+      width: {
+        "button-switch": "var(--width-button-switch)",
+      },
       minWidth: {
         95: "23.75rem",
       },
@@ -123,7 +138,8 @@ module.exports = {
         title: "10rem",
       },
       transitionDuration: {
-        default: "500",
+        default: "500ms",
+        popup: "300ms",
       },
       backgroundImage: {
         "sidebar-gradient": "var(--background-image-sidebar-gradient)",
@@ -148,6 +164,7 @@ module.exports = {
         "button-filter-hover": "var(--background-color-button-filter-hover)",
         "button-tree-node-toggle":
           "var(--background-color-button-tree-node-toggle)",
+        "button-inline-hover": "var(--background-color-button-inline-hover)",
         "search-button": "var(--background-color-search-button)",
         "search-button-hover": "var(--background-color-search-button-hover)",
         navigation: "var(--background-color-navigation)",
@@ -197,6 +214,13 @@ module.exports = {
         "code-output": "var(--background-color-code-output)",
         "button-toggle-active": "var(--text-color-button-toggle-active)",
         "button-toggle-inactive": "var(--text-color-button-toggle-inactive)",
+        "ref-toolbar": "var(--background-color-ref-dropdown-toolbar);",
+        "ref-toolbar": "var(--background-color-ref-dropdown-toolbar);",
+
+        "button-switch": "var(--background-color-button-switch)",
+        "button-switch-selected":
+          "var(--background-color-button-switch-selected)",
+        "button-switch-hover": "var(--background-color-button-switch-hover)",
       }),
       textColor: ({ theme }) => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -211,6 +235,8 @@ module.exports = {
         "button-disabled-hover": "var(--text-color-button-disabled-hover)",
         "button-filter": "var(--text-color-button-filter)",
         "button-text": "var(--text-color-button-text)",
+        "button-icon": "var(--text-color-button-icon)",
+        "button-icon-hover": "var(--text-color-button-icon-hover)",
         menu: "var(--text-color-menu)",
         "button-tree-node-toggle": "var(--text-color-button-tree-node-toggle)",
         "button-tree-node-toggle-hover":
@@ -224,6 +250,7 @@ module.exports = {
         "title-contrast": "var(--text-color-title-contrast)",
         "title-contrast-pop": "var(--text-color-title-contrast-pop)",
         "sub-title-contrast": "var(--text-color-sub-title-contrast)",
+        "definition-list-term": "var(--text-color-definition-list-term)",
         "search-button": "var(--text-color-search-button)",
         "search-button-hover": "var(--text-color-search-button-hover)",
         favorite: "var(--text-color-favorite)",
@@ -263,6 +290,7 @@ module.exports = {
         "pagination-button": "var(--text-color-pagination-button)",
         "pagination-button-hover": "var(--text-color-pagination-button-hover)",
         link: "var(--text-color-link)",
+        "link-hover": "var(--text-color-link-hover)",
         "link-inverted": "var(--text-color-link-inverted)",
         "table-column-header": "var(--text-color-table-column-header)",
         "table-row": "var(--text-color-table-row)",
@@ -289,6 +317,16 @@ module.exports = {
         "code-output": "var(--text-color-code-output)",
         "button-toggle-active": "var(--text-color-button-toggle-active)",
         "button-toggle-inactive": "var(--text-color-button-toggle-inactive)",
+        "record-heading": "var(--text-color-record-heading)",
+        "record-label": "var(--text-color-record-label)",
+        "record-value": "var(--text-color-record-value)",
+        "record-heading": "var(--text-color-record-heading)",
+        "record-label": "var(--text-color-record-label)",
+        "record-value": "var(--text-color-record-value)",
+
+        "button-switch": "var(--text-color-button-switch)",
+        "button-switch-selected": "var(--text-color-button-switch-selected)",
+        "button-switch-hover": "var(--text-color-button-switch-hover)",
       }),
       borderColor: ({ theme }) => ({
         theme: "var(--border-color-theme)",
@@ -323,6 +361,10 @@ module.exports = {
         listbox: "var(--border-color-search-input)",
         "listbox-option": "var(--border-color-listbox-option)",
         "form-required": "var(--border-color-form-required)",
+
+        "button-switch": "var(--border-color-button-switch)",
+        "button-switch-selected": "var(--border-color-button-switch-selected)",
+        "button-switch-hover": "var(--border-color-button-switch-hover)",
       }),
       stroke: ({ theme }) => ({
         input: "var(--border-color-input)",
