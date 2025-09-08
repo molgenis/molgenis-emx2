@@ -22,9 +22,9 @@ understand what they are seeing when viewing a network, in both of the network o
 | 4 | Click on the testNetwork1 logo | The page doesn't change | | |
 | 5 | Click on the 'Collections' button at the top | Should be directed to the list of collections for testNetwork1 | | |
 | 6 | In the filters on the left hand side for 'Collection type' select 'Biobank' | Should find 0 collections and text: 'No resources found with current filters' | | |
-| 7 | In the filters on the left hand side for 'Collection type' select 'Cohort study' | Should find 4 collections | | |
-| 8 | In the filters on the left hand side for 'Collection type' select 'Databank' | Should find 3 collections | | |
-| 9 | In the filters on the left hand side for 'Collection type' select 'Data source' and 'Cohort study' | Should find 5 collections | | |
+| 7 | In the filters on the left hand side for 'Collection type' uncheck 'Biobank' and select 'Cohort study' | Should find 4 collections | | |
+| 8 | In the filters on the left hand side for 'Collection type' uncheck 'Cohort study' and select 'Databank' | Should find 3 collections | | |
+| 9 | In the filters on the left hand side for 'Collection type' uncheck 'Databank' and select 'Data source' and 'Cohort study' | Should find 5 collections | | |
 | 10 | Click on the testNetwork1 logo | Should be directed back to the home page for testNetwork1 | | |
 | 11 | Click on 'Variables' in the ribbon | Should be directed to the list of variables for testNetwork1 | | |
 | 12 | Click on the 'Overview' button at the top | Should be directed back to the home page for testNetwork1 | | |
