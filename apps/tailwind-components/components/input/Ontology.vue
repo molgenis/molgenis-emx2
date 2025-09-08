@@ -3,7 +3,6 @@ import type { IInputProps, ITreeNodeState } from "../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
 import {
   onMounted,
-  onBeforeUnmount,
   ref,
   watch,
   type Ref,
