@@ -28,13 +28,13 @@ understand what they are seeing when viewing a network, in both of the network o
 | 10 | Click on the testNetwork1 logo | Should be directed back to the home page for testNetwork1 | | |
 | 11 | Click on 'Variables' in the ribbon | Should be directed to the list of variables for testNetwork1 | | |
 | 12 | Click on the 'Overview' button at the top | Should be directed back to the home page for testNetwork1 | | |
-| 13 | Click on 'About' button | Should be directed to the detailed network page for testNetwork1 with logo, website, description, general design, population, organisations, datasets, networks, publications, funding & acknowledgements | | |
+| 13 | Click on 'About' button | Should be directed to the detailed network page for testNetwork1 with logo, website, description, general design, population, organisations, contributors, dataset variables, networks, publications, funding & acknowledgements | | |
 | 14 | Click on 'More' -> 'Other catalogues' | Should be directed to the landing page showing all thematic and project catalogues, entitled "European Health Research Data and Sample Catalogue" | | |
 | 15 | Click on Upload data | Should be directed to the 'old' interface apps/central for the user to be able to sign in and upload data | | |
 | 16 | Click on back in the browser | Should be directed back to the landing page showing all thematic and project catalogues | | |
 | 17 | Click on testNetwork1 | Should be directed to the testNetwork1 home page with 'Welcome to the catalogue of testNetwork1: [etc]', and Collections (8), Variables (7) buttons | | |
 | 18 | Click on the underlined name of the catalogue in the "Welcome to the catalogue of..." text | ACRONYM FOR TESTNETWORK 1, name for testnetwork1 | | |
-| 19 | Menu on the left hand side | Logo, Description, General Design, Population, Organisations, Datasets, Networks, Publications, Funding & Acknowledgements | | |
+| 19 | Menu on the left hand side | Logo, Description, General Design, Population, Organisations, Contributors, Dataset variables, Networks, Publications, Funding & Acknowledgements | | |
 | 20 | First block | Logo, <https://www.molgenis.org> | | |
 | 21 | Click on URL | You are taken to the Molgenis website in a separate window | | |
 | 22 | Go back to the catalogue window | | | |
