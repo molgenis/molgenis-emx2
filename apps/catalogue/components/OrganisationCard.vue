@@ -13,8 +13,9 @@ defineProps<{
   >
     <div class="flex items-start flex-col h-full">
       <span class="block">
-        <span class="font-bold" v-if="organisation?.name">
-          {{ organisation?.name }}&nbsp;<template v-if="organisation.acronym"
+        <span class="font-bold" v-if="organisation?.organisationName.name">
+          {{ organisation?.organisationName.name }}&nbsp;<template
+            v-if="organisation.acronym"
             >({{ organisation.acronym }})</template
           >
         </span>
