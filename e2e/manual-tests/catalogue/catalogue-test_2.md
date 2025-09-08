@@ -39,7 +39,7 @@ understand what they are seeing when viewing a network, in both of the network o
 | 21 | Click on URL | You are taken to the Molgenis website in a separate window | | |
 | 22 | Go back to the catalogue window | | | |
 | 23 | DESCRIPTION | test description for new test network | | |
-| 24 | GENERAL DESIGN | Type Network, Network type EU4Health - Prevention, Start/End data collection 1975 until 2010, PID `https://pid-for-testnetwork1.org` | | |
+| 24 | GENERAL DESIGN | Type Catalogue, Network, Network type EU4Health - Prevention, Start/End data collection 1975 until 2010, PID `https://pid-for-testnetwork1.org`, License `https://www.gnu.org/licenses/lgpl-3.0.rdf` | | |
 | 25 | POPULATION | Central African Republic (the), Chad | | |
 | 26 | ORGANISATIONS | Lead organisations, University Medical Center Groningen (UMCG), Netherlands (the) | | |
 |    | | Additional organisations, Amsterdam Medical Center (AMC), Netherlands (the), Cynexo (CYN), Italy | | |
