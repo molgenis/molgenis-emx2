@@ -44,9 +44,10 @@ public class MolgenisSessionManager {
 
   private MolgenisSession getPersistentSessionBasedOnSessionId(HttpServletRequest request) {
     HttpSession session = request.getSession(false);
-    if (session.isNew()) {
-      request.getSession(true); // see createCustomJettyServerFactoryWithCustomSessionListener
+    if (session == null) {
+      request.getSession();
     }
+
     MolgenisSession molgenisSession = sessions.get(request.getSession().getId());
     if (molgenisSession.getSessionUser() == null) {
       throw new MolgenisException(

@@ -31,6 +31,10 @@ public class ContextHelpers {
     }
   }
 
+  public static boolean hasAuthTokenSet(HttpServletRequest request) {
+    return findUsedAuthTokenKey(request) != null;
+  }
+
   /**
    * From the request, get the name of the auth token key that was used to supply the auth token in
    * the header, or return null if none of the options are present.

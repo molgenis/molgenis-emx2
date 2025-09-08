@@ -15,7 +15,7 @@ public class GraphqlApiMutationResultWithToken {
   public GraphqlApiMutationResultWithToken(
       GraphqlApiMutationResult.Status status, String token, String message, String userName) {
     this.status = status;
-    this.message = String.format(message, userName);
+    this.message = message;
     this.token = token;
     this.user = userName;
   }

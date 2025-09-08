@@ -3,6 +3,8 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
 import static org.molgenis.emx2.web.Constants.CONTENT_TYPE;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
+import static org.molgenis.emx2.web.util.ContextHelpers.findUsedAuthTokenKey;
+import static org.molgenis.emx2.web.util.ContextHelpers.hasAuthTokenSet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -40,19 +42,20 @@ public class GraphqlApi {
   public static final String VARIABLES = "variables";
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
   private static MolgenisSessionManager sessionManager;
-  private static SqlDatabase database;
-  private static GraphQL anonymousGql;
 
   private GraphqlApi() {
     // hide constructor
   }
 
-  public static void createGraphQLservice(Javalin app, MolgenisSessionManager sm) {
-    sessionManager = sm;
-    database = new SqlDatabase(false);
+  private static GraphQL buildAnonymousGql() {
+    SqlDatabase database = new SqlDatabase(false);
     database.setActiveUser("anonymous"); // set default use to "anonymous"
     database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
-    anonymousGql = new GraphqlApiFactory().createGraphqlForDatabase(database, TaskApi.taskService);
+    return new GraphqlApiFactory().createGraphqlForDatabase(database, TaskApi.taskService);
+  }
+
+  public static void createGraphQLservice(Javalin app, MolgenisSessionManager sm) {
+    sessionManager = sm;
 
     // per schema graphql calls from app
     final String appSchemaGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
@@ -81,14 +84,11 @@ public class GraphqlApi {
   }
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
-    HttpServletRequest request = ctx.req();
-    MolgenisSession session = null;
-    if (request.getSession(false) != null) {
-      session = sessionManager.getSession(request);
-    }
+    MolgenisSession session = findSessionForContest(ctx);
+
     GraphQL graphqlForDatabase;
     if (session == null) {
-      graphqlForDatabase = anonymousGql;
+      graphqlForDatabase = buildAnonymousGql();
     } else {
       graphqlForDatabase = session.getGraphqlForDatabase();
     }
@@ -98,12 +98,7 @@ public class GraphqlApi {
   }
 
   public static void handleSchemaRequests(Context ctx) throws IOException {
-    HttpServletRequest request = ctx.req();
-    MolgenisSession session = null;
-    if (request.getSession(false) != null) {
-      session = sessionManager.getSession(request);
-    }
-
+    MolgenisSession session = findSessionForContest(ctx);
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
 
     // apps and api is not a schema but a resource
@@ -120,6 +115,9 @@ public class GraphqlApi {
 
     GraphQL graphqlForSchema;
     if (session == null) {
+      SqlDatabase database = new SqlDatabase(false);
+      database.setActiveUser("anonymous"); // set default use to "anonymous"
+      database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
       Schema schema = database.getSchema(schemaName);
       AnonymousGqlSchemaCache anonymousGqlSchemaCache = AnonymousGqlSchemaCache.getInstance();
       graphqlForSchema = anonymousGqlSchemaCache.get(schema);
@@ -129,6 +127,21 @@ public class GraphqlApi {
 
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     ctx.json(executeQuery(graphqlForSchema, ctx));
+  }
+
+  private static MolgenisSession findSessionForContest(Context ctx) {
+    HttpServletRequest request = ctx.req();
+
+    if (hasAuthTokenSet(request)) {
+      // session based on token, not persisted
+      String authTokenKey = findUsedAuthTokenKey(request);
+      return sessionManager.getNonPersistedSessionBasedOnToken(request, authTokenKey);
+    } else if (request.getSession(false) != null) {
+      // persistent session based on session id
+      return sessionManager.getSession(request);
+    } else {
+      return null;
+    }
   }
 
   private static String executeQuery(GraphQL g, Context ctx) throws IOException {
@@ -154,12 +167,14 @@ public class GraphqlApi {
       executionResult = g.execute(query);
     }
 
-    if (isSignInRequest(query) && isSuccessfulSignResult(executionResult)) {
-      synchronized (sessionManager) {
-        String userNameFromSignIn = signInUserFromResult(executionResult);
-        ctx.req().getSession(); // has sideeffect of creating session if not exists
-        MolgenisSession session = sessionManager.getSession(ctx.req());
-        session.getDatabase().setActiveUser(userNameFromSignIn);
+    if (isUserSignInRequest(query) && isSuccessfulSignResult(executionResult)) {
+
+      String userNameFromSignIn = signInUserFromResult(executionResult);
+
+      if (userNameFromSignIn != null) {
+        synchronized (sessionManager.getSession(ctx.req()).getDatabase()) {
+          sessionManager.getSession(ctx.req()).getDatabase().setActiveUser(userNameFromSignIn);
+        }
       }
     }
     String result = GraphqlApiFactory.convertExecutionResultToJson(executionResult);
@@ -179,8 +194,8 @@ public class GraphqlApi {
     return result;
   }
 
-  private static boolean isSignInRequest(String query) {
-    return query.startsWith("mutation") && query.contains("signin") || query.contains("SignIn");
+  private static boolean isUserSignInRequest(String query) {
+    return query.startsWith("mutation") && query.contains("signin");
   }
 
   private static boolean isSuccessfulSignResult(ExecutionResult result) {
@@ -190,8 +205,9 @@ public class GraphqlApi {
     Map<String, Object> specification = result.toSpecification();
     Object data = specification.get("data");
     if (data instanceof Map dataMap) {
-      Map<String, Object> signinMap = (Map) dataMap.get("signin");
-      return signinMap != null && "SUCCESS".equals(signinMap.get(GraphqlConstants.STATUS));
+      Map<String, Object> signinResultMap = (Map) dataMap.get("signin");
+      return signinResultMap != null
+          && "SUCCESS".equals(signinResultMap.get(GraphqlConstants.STATUS));
     }
     return false;
   }

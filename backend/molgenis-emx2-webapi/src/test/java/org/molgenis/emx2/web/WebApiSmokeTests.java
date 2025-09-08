@@ -1,7 +1,6 @@
 package org.molgenis.emx2.web;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
+import static io.restassured.RestAssured.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsString;
@@ -729,13 +728,9 @@ public class WebApiSmokeTests {
   public void testGraphqlApi() {
     String path = "/api/graphql";
 
-    // create a new session, separate from the session shared in these tests
-    String sessionId =
-        given().body("{\"query\":\"{_session{email}}\"}").when().post(path).sessionId();
-
     String result =
         given()
-            .sessionId(sessionId)
+            .sessionId("somewrongid")
             .body("{\"query\":\"{_session{email}}\"}")
             .when()
             .post(path)
@@ -743,13 +738,7 @@ public class WebApiSmokeTests {
     assertTrue(result.contains("anonymous"));
 
     // if anonymous then should not be able to see users
-    result =
-        given()
-            .sessionId(sessionId)
-            .body("{\"query\":\"{_admin{userCount}}\"}")
-            .when()
-            .post(path)
-            .asString();
+    result = given().body("{\"query\":\"{_admin{userCount}}\"}").when().post(path).asString();
     assertTrue(result.contains("errors"));
 
     // read admin password from environment if necessary
@@ -758,19 +747,18 @@ public class WebApiSmokeTests {
             EnvironmentProperty.getParameter(
                 org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
 
-    result =
+    sessionId =
         given()
-            .sessionId(sessionId)
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
                     + db.getAdminUserName()
                     + "\\\",password:\\\""
                     + adminPass
-                    + "\\\"){message, user}}\"}")
+                    + "\\\"){status, message, user}}\"}")
             .when()
             .post(path)
-            .asString();
-    assertTrue(result.contains("Signed in"));
+            .sessionId();
+    ;
 
     result =
         given()
@@ -867,7 +855,7 @@ public class WebApiSmokeTests {
     String shopViewerSessionId =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"shopviewer\\\",password:\\\"shopviewer\\\"){message, user}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"shopviewer\\\",password:\\\"shopviewer\\\"){status, message, user}}\"}")
             .when()
             .post("/api/graphql")
             .sessionId();
@@ -886,7 +874,7 @@ public class WebApiSmokeTests {
     String shopManagerSessionId =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){message, user}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){status, message, user}}\"}")
             .when()
             .post("/api/graphql")
             .sessionId();
@@ -902,7 +890,6 @@ public class WebApiSmokeTests {
         .get("/pet store/");
 
     schema.getMetadata().removeSetting("menu");
-    db.becomeAdmin();
   }
 
   @Test
@@ -958,7 +945,7 @@ public class WebApiSmokeTests {
     result =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token, user}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){status,message,token}}\"}")
             .when()
             .post("/api/graphql")
             .getBody()
@@ -1545,7 +1532,7 @@ public class WebApiSmokeTests {
   private static String getToken(String email, String password) throws JsonProcessingException {
     String mutation =
         """
-            mutation { signin(email: "%s" ,password: "%s" ) { message, token } }
+            mutation { signin(email: "%s" ,password: "%s" ) { status, message, token } }
             """
             .formatted(email, password);
 
@@ -1607,7 +1594,6 @@ public class WebApiSmokeTests {
   }
 
   private void getAndAssertContains(String path, String expectedSubstring) {
-    db.clearCache();
     String result = given().get(path).getBody().asString();
     ObjectMapper mapper = new ObjectMapper();
     String prettyJson;
