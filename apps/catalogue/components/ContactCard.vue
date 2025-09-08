@@ -33,7 +33,9 @@ defineProps<{
         <span v-if="contact?.prefix"> {{ contact?.prefix }}&nbsp;</span>
         <span v-if="contact?.lastName"> {{ contact?.lastName }} </span>
       </span>
-      <span v-if="contact.organisation">{{ contact.organisation?.name }}</span>
+      <span v-if="contact.organisation">{{
+        contact.organisation?.organisationName.name
+      }}</span>
       <a
         class="text-blue-500 block hover:underline"
         v-if="contact?.email"
