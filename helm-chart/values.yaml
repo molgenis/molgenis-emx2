@@ -21,6 +21,9 @@ oidc:
 #  discovery_url: "https://auth.molgenis.org/.well-known/openid-configuration/"
 #  callback_url:
 
+metrics:
+  enabled: false
+
 service:
   type: ClusterIP
   port: 80

@@ -1,14 +1,16 @@
 <template>
-  <slot :setVisible="setVisible">
-    <Button
-      class="m-10"
-      type="primary"
-      size="small"
-      icon="plus"
-      @click="visible = true"
-      >Update {{ rowType }}</Button
-    >
-  </slot>
+  <template v-if="showButton">
+    <slot :setVisible="setVisible">
+      <Button
+        class="m-10"
+        type="primary"
+        size="small"
+        icon="plus"
+        @click="visible = true"
+        >Update {{ rowType }}</Button
+      >
+    </slot>
+  </template>
   <Modal v-model:visible="visible" max-width="max-w-9/10">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
@@ -51,6 +53,7 @@
         class="col-span-3 px-4 py-50px overflow-y-auto"
       >
         <FormFields
+          ref="formFields"
           :schemaId="schemaId"
           :metadata="metadata"
           :sections="sections"
@@ -64,7 +67,7 @@
       <FormError
         v-show="errorMessage"
         :message="errorMessage"
-        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
         @error-prev="gotoPreviousError"
         @error-next="gotoNextError"
       />
@@ -73,7 +76,23 @@
       <FormError
         v-show="updateErrorMessage"
         :message="updateErrorMessage"
-        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        :show-prev-next-buttons="!showReAuthenticateButton"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
+      >
+        <Button
+          v-if="showReAuthenticateButton"
+          type="outline"
+          size="small"
+          @click="reAuthenticate"
+          >Re-authenticate</Button
+        >
+      </FormError>
+    </Transition>
+    <Transition name="slide-up">
+      <FormMessage
+        v-show="formMessage"
+        :message="formMessage"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       />
     </Transition>
 
@@ -97,31 +116,46 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw, watchEffect } from "vue";
+import { computed, ref, toRaw } from "vue";
 import useForm from "../../composables/useForm";
 import useSections from "../../composables/useSections";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import { errorToMessage } from "../../utils/errorToMessage";
+import FormFields from "./Fields.vue";
+import { useSession } from "../../composables/useSession";
+import { SessionExpiredError } from "../../utils/sessionExpiredError";
 
 const props = withDefaults(
   defineProps<{
     schemaId: string;
     metadata: ITableMetaData;
     formValues: Record<columnId, columnValue>;
+    showButton?: boolean;
   }>(),
-  {}
+  {
+    showButton: true,
+  }
 );
 
-const emit = defineEmits(["update:updated"]);
+const emit = defineEmits(["update:updated", "update:cancelled"]);
 
 const editFormValues = ref<Record<columnId, columnValue>>(
   structuredClone(toRaw(props.formValues))
 );
 
-const visible = ref(false);
+const visible = defineModel("visible", {
+  type: Boolean,
+  default: false,
+});
+
+const formFields = ref<InstanceType<typeof FormFields>>();
 
 const updateErrorMessage = ref<string>("");
+
+const session = await useSession();
+const formMessage = ref<string>("");
+const showReAuthenticateButton = ref<boolean>(false);
 
 function setVisible() {
   visible.value = true;
@@ -132,14 +166,21 @@ const isDraft = ref(false);
 
 function onCancel() {
   visible.value = false;
+  emit("update:cancelled");
 }
 
 async function onUpdateDraft() {
   const resp = await updateInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error saving data", err);
-      updateErrorMessage.value = errorToMessage(err, "Error updating draft");
-      return null;
+
+      if (err instanceof SessionExpiredError) {
+        updateErrorMessage.value =
+          "Your session has expired. Please re-authenticate to continue.";
+        showReAuthenticateButton.value = true;
+      } else {
+        updateErrorMessage.value = errorToMessage(err, "Error updating draft");
+      }
     }
   );
 
@@ -152,10 +193,22 @@ async function onUpdateDraft() {
 }
 
 async function onUpdate() {
+  const isValid = formFields.value?.validate();
+  if (!isValid) {
+    return;
+  }
   const resp = await updateInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error saving data", err);
-      updateErrorMessage.value = errorToMessage(err, "Error updating record");
+
+      if (err instanceof SessionExpiredError) {
+        updateErrorMessage.value =
+          "Your session has expired. Please re-authenticate to continue.";
+        showReAuthenticateButton.value = true;
+      } else {
+        updateErrorMessage.value = errorToMessage(err, "Error updating record");
+      }
+
       return null;
     }
   );
@@ -194,4 +247,12 @@ const {
 } = useForm(props.metadata, editFormValues, errorMap, (fieldId: string) => {
   scrollToElementInside("fields-container", fieldId);
 });
+
+function reAuthenticate() {
+  session.reAuthenticate(
+    updateErrorMessage,
+    showReAuthenticateButton,
+    formMessage
+  );
+}
 </script>

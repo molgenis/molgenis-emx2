@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.json.JavalinJackson;
+import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
 import io.swagger.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.utils.URIUtils;
+import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,8 @@ public class MolgenisWebservice {
   public static final long MAX_REQUEST_SIZE = 10_000_000L;
   static final String TEMPFILES_DELETE_ON_EXIT = "tempfiles-delete-on-exit";
   static final Logger logger = LoggerFactory.getLogger(MolgenisWebservice.class);
+  public static final String NUXT_OIDC_LOGOUT_PATH =
+      "oidc-login"; // in nuxt '_' indicates a dynamic route
   private static final String ROBOTS_TXT = "robots.txt";
   private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
   public static MolgenisSessionManager sessionManager;
@@ -67,10 +71,18 @@ public class MolgenisWebservice {
       // should we handle this?
     }
 
+    if (MetricsController.METRICS_ENABLED) {
+      logger.info("Enabling metrics endpoint /{}", MetricsController.METRICS_PATH);
+      JvmMetrics.builder().register();
+      MetricsController metricsController = new MetricsController();
+      app.get("/" + MetricsController.METRICS_PATH, metricsController::handleRequest);
+    }
+
     MessageApi.create(app);
 
     app.get("/" + OIDC_CALLBACK_PATH, MolgenisWebservice::handleLoginCallback);
     app.get("/" + OIDC_LOGIN_PATH, oidcController::handleLoginRequest);
+    app.get("/" + NUXT_OIDC_LOGOUT_PATH, oidcController::handleLoginRequest);
     app.get("/" + ROBOTS_TXT, MolgenisWebservice::robotsDotTxt);
 
     app.get(
@@ -113,6 +125,7 @@ public class MolgenisWebservice {
     GraphqlApi.createGraphQLservice(app, sessionManager);
     RDFApi.create(app, sessionManager);
     BeaconApi.create(app, sessionManager);
+    CafeVariomeApi.create(app, sessionManager);
     BootstrapThemeService.create(app);
     ProfilesApi.create(app);
     AnalyticsApi.create(app);
@@ -120,6 +133,7 @@ public class MolgenisWebservice {
 
     app.get("/{schema}", MolgenisWebservice::redirectSchemaToFirstMenuItem);
     app.get("/{schema}/", MolgenisWebservice::redirectSchemaToFirstMenuItem);
+    app.get("/{schema}/index", MolgenisWebservice::redirectSchemaToFirstMenuItem);
 
     // greedy proxy stuff, always put last!
     StaticFileMapper.create(app);

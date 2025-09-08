@@ -36,6 +36,7 @@
     - [Batch API](dev_batchapi.md)
     - [Message API](dev_messageapi.md)
     - [Beacon v2](dev_beaconv2.md)
+    - [Cafe Variome](dev_cafevariome.md)
     - [RDF](dev_rdf.md)
     - [Building frontend apps](dev_apps.md)
     - [App profiles](dev_profiles.md)

@@ -31,7 +31,7 @@
               >
                 <slot name="account-dropdown">
                   <section class="flex flex-col p-4">
-                    <div class="mb-1">Hi {{ session?.email }}</div>
+                    <div class="mb-1 text-title">Hi {{ session?.email }}</div>
 
                     <Button size="small" type="primary" @click="signout"
                       >Sign out</Button
@@ -68,12 +68,13 @@
 <script setup lang="ts">
 import { useRuntimeConfig, useHead } from "#app";
 import { useRoute, navigateTo } from "#app/composables/router";
-import { useSession } from "#imports";
+import { useSession } from "../../tailwind-components/composables/useSession";
 import { computed } from "vue";
 
 const config = useRuntimeConfig();
 const route = useRoute();
-const { session, reload: reloadSession } = useSession();
+const schema = computed(() => route.params.schema as string);
+const { session, reload: reloadSession } = await useSession();
 
 const faviconHref = config.public.emx2Theme
   ? `/_nuxt-styles/img/${config.public.emx2Theme}.ico`
@@ -104,8 +105,6 @@ const isSignedIn = computed(
   () => !!session.value?.email && session.value?.email !== "anonymous"
 );
 const isAdmin = computed(() => session.value?.admin);
-
-const schema = computed(() => route.params.schema as string);
 
 const navigation = computed(() => {
   const items = [

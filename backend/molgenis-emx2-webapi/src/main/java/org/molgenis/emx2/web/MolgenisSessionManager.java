@@ -1,7 +1,9 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.Constants.EMX_2_METRICS_SESSION_TOTAL;
 import static org.molgenis.emx2.web.MolgenisWebservice.oidcController;
 
+import io.prometheus.metrics.core.metrics.Gauge;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
@@ -20,6 +22,12 @@ import org.slf4j.LoggerFactory;
 public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
+
+  static final Gauge sessionGauge =
+      Gauge.builder()
+          .name(EMX_2_METRICS_SESSION_TOTAL)
+          .help("Total number of active sessions")
+          .register();
 
   public MolgenisSessionManager() {}
 
@@ -121,11 +129,16 @@ public class MolgenisSessionManager {
 
         // create listener
         database.setListener(new MolgenisSessionManagerDatabaseListener(_this, molgenisSession));
+
+        // Increment metrics gauge
+        sessionGauge.inc();
       }
 
       public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
         // remove from session pool
         sessions.remove(httpSessionEvent.getSession().getId());
+        // Decrement metrics gauge
+        sessionGauge.dec();
         logger.info("session destroyed: " + httpSessionEvent.getSession().getId());
       }
     };

@@ -54,7 +54,8 @@ helm upgrade --install ${NAME} ./helm-chart --namespace ${NAME} \
 --set oidc.client_secret=${OIDC_SECRET} \
 --set oidc.client_name=${NAME} \
 --set oidc.discovery_url=${OIDC_DISCOVERYURL} \
---set oidc.callback_url=https://${NAME}.dev.molgenis.org
+--set oidc.callback_url=https://${NAME}.dev.molgenis.org \
+--set metrics.enabled=true
 
 
 rm /tmp/cert_key

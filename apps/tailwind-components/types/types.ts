@@ -132,9 +132,21 @@ export interface IInputProps {
 export interface ISession {
   email: string;
   admin: boolean;
+  roles?: string[];
+  schemas?: string[];
+  token?: string;
 }
 
 export interface RefPayload {
   metadata: IRefColumn;
   data: IRow;
+}
+
+export interface Section {
+  heading: string;
+  fields: {
+    key: string;
+    value: columnValue;
+    metadata: IColumn;
+  }[];
 }

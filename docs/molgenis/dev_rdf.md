@@ -83,31 +83,70 @@ Conflicts in namespaces will not break the RDF output but might result in unexpe
 * If 2 identical namespaces exist with a different prefix, only one of the prefixes will be used for all IRIs belonging to that namespace.
 
 ## Data retrieval
-RDF API retrieve data in different scopes ranging from broad (retrieve everything) to narrow (retrieve one row).
+The RDF API allows data retrieval in different scopes, ranging from broad (retrieve everything) to narrow (retrieve one row).
 All data is exported as a stream, which means that the response does not include a size estimate.
+What data can be retrieved through the RDF API is defined by permissions for each schema (see [schema permissions](./use_permissions.md#users-can-get-roles-in-a-schema)). 
 Listed below are the available options.
 
 ### Retrieve everything / multiple schemas
-Using `<server>/api/rdf`, all data from this MOLGENIS instance is retrieved and exported as RDF.
-Optionally use 'schemas' parameter to filter what schemas to be included. E.g. `<server>/api/rdf?schemas=foo,bar` will only retrieve from schemas 'foo' and 'bar'
-Of course, this is limited to data to which the currently logged-in user (or anonymous user) has access to.
+Path: `<server>/api/rdf`  
+Example: `http://localhost:8080/api/rdf`  
+Parameters (optional):
+- `schemas=<schema-name>,...` -> only retrieve data from schema's defined in comma separated list
+
+This API point retrieves all data available in this MOLGENIS instance as RDF.
+
+The optional `schemas` parameter filters the output so that only those schema's are included in the output.
+For example, `<server>/api/rdf?schemas=foo,bar` will only retrieve from schemas 'foo' and 'bar'.
 
 ### Retrieve one schema
+Path: `<server>/<schema>/api/rdf`  
+Example: `http://localhost:8080/pet%20store/api/rdf`  
+Parameters (optional):
+- `validate=<name>` -> instead of retrieving the RDF output, return the validation results for the selected validation set (`name`)
+
 By including a database schema name in the URL, data from one particular schema is retrieved and exported as RDF.
-The schema name is added between the server location and RDF API location: `<server>/<schema>/api/rdf`.
-For example: `<server>/pet%20store/api/rdf`.
+
+If the optional parameter `validate` is added together with a validation set name, the API point will return SHACL
+validation results instead of the RDF output.
+For example, `<server>/<schema>/api/rdf?validate=fdp-v1.2` would validate the given schema whether it is compliant with the SHACLs for FAIR Data Point version 1.2.
+The allowed values can be retrieved through the [available validation SHACL sets](#retrieve-available-validation-shacl-sets) API call (see the `name` fields in the YAML output).
 
 ### Retrieve one table
-One particular table from a schema can be retrieved by adding a table name to a URL that also contains schema name: `<server>/<schema>/api/rdf/<table>`.
-For example: `<server>/pet%20store/api/rdf/Pet`
+Path: `<server>/<schema>/api/rdf/<table>`  
+Example: `http://localhost:8080/pet%20store/api/rdf/Pet`
+
+One particular table from a schema can be retrieved by adding a table name to a URL that also contains schema name.
 
 ### Retrieve one column
-One particular column from a table within a schema can be retrieved by adding a column name to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>/column/<column-name>`.
-For example: `<server>/pet%20store/api/rdf/Pet/column/name`
+Path: `<server>/<schema>/api/rdf/<table>/column/<column-name>`  
+Example: `http://localhost:8080/pet%20store/api/rdf/Pet/column/name`  
+  
+Details about one particular column from a table within a schema can be retrieved by adding a column name to a URL that also contains schema and table name.
+
+!> This only works if `emx2` is selected as [generator](#generator)
 
 ### Filter rows
-The rows from a table within a schema can be filtered based on a column value by adding these as a `key=value` pair to a URL that also contains schema and table name: `<server>/<schema>/api/rdf/<table>?<column-name>=<value>`.
-For example: `<server>/pet%20store/api/rdf/Pet?category=cat`
+Path: `<server>/<schema>/api/rdf/<table>?<column-name>=<value>`  
+Example: `http://localhost:8080/pet%20store/api/rdf/Pet?category=cat`
+
+The rows from a table within a schema can be filtered based on a column value by adding these as a `key=value` pair to a URL that also contains schema and table name.
+
+### Retrieve available validation SHACL sets
+Path: `<server>/api/rdf?shacls`  
+Example: `http://localhost:8080/api/rdf?shacls`
+
+Retrieves a yaml-formatted document with the available SHACL validation sets (and additional information about them).
+
+Example output:
+```yaml
+- name: dcat-ap-v3
+  description: DCAT-AP
+  version: 3.0.0
+  sources:
+  - https://semiceu.github.io/DCAT-AP/releases/3.0.0/#validation-of-dcat-ap
+```
+
 
 ## Data formats
 Using the content negotiation, RDF can be exported in one of many available formats. For example the following curl command will download the pet store in jsonld:

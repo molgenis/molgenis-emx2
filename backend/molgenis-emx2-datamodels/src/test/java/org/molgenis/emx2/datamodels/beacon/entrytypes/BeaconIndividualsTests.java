@@ -25,7 +25,7 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode json = queryEntryType.query(database);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(10, results.size());
@@ -45,7 +45,7 @@ public class BeaconIndividualsTests extends TestLoaders {
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
 
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode json = queryEntryType.query(database);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(1, results.size());

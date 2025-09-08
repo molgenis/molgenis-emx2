@@ -6,9 +6,9 @@
           <Breadcrumb
             class="directory-nav"
             :crumbs="{
-              ['Back to catalogue']: '../#/',
+              ['Back to catalogue']: '../',
               [service.biobank.name]: `../biobank/${service.biobank.id}`,
-              [service.name]: `../#/service/${service.id}`,
+              [service.name]: `../service/${service.id}`,
             }"
             useRouterLink
           />
