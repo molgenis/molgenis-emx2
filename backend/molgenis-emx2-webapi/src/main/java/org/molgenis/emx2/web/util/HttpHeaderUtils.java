@@ -86,8 +86,8 @@ public class HttpHeaderUtils {
                   for (String key : paramKeys) {
                     if (!(key.equals("q") || key.equals("charset"))) return false;
                     if (key.equals("charset")
-                        && !mediaType.parameters().get("charset").stream()
-                            .allMatch(i -> i.equalsIgnoreCase("utf-8"))) return false;
+                        && mediaType.parameters().get("charset").stream()
+                            .noneMatch(i -> i.equalsIgnoreCase("utf-8"))) return false;
                   }
                   return true;
                 })
