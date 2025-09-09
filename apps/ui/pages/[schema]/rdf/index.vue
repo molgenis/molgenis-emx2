@@ -8,7 +8,7 @@ const schema = Array.isArray(route.params.schema)
   ? route.params.schema[0]
   : route.params.schema;
 
-useHead({ title: `RDF - ${schema}  - Molgenis` });
+useHead({ title: `RDF - ${schema} - Molgenis` });
 
 type Resp<T> = {
   data: Record<string, T>;

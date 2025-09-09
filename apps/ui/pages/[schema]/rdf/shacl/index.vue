@@ -79,7 +79,7 @@ onMounted(async () => {
         <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
     </PageHeader>
-    <ContentBlock class="mt-1" title="RDF" description="">
+    <ContentBlock class="mt-1" title="SHACL validation" description="">
       <p class="flex justify-start">
         Validate the RDF API output for the complete schema.
         <CustomTooltip
