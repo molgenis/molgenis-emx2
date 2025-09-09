@@ -55,11 +55,11 @@ class HttpHeaderUtilsTest {
     assertThrows(MolgenisException.class, () -> getContentType(ctx, List.of(json, html, plain)));
 
     // if allowed media types is empty
-    when(ctx.header(Header.ACCEPT)).thenReturn("image/jpeg");
+    when(ctx.header(Header.ACCEPT)).thenReturn("text/plain");
     assertThrows(IllegalArgumentException.class, () -> getContentType(ctx, List.of()));
 
     // if allowed media types contain parameters
-    when(ctx.header(Header.ACCEPT)).thenReturn("image/jpeg");
+    when(ctx.header(Header.ACCEPT)).thenReturn("text/plain");
     assertThrows(
         IllegalArgumentException.class, () -> getContentType(ctx, List.of(plain, plainCharset)));
 
