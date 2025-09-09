@@ -93,6 +93,7 @@ class Transform:
         """ Transform data in Organisations
         """
         df_organisations = pd.read_csv(self.path + 'Organisations.csv', dtype='object')
+        df_organisations['type'] = 'Organisation'
 
         if len(df_organisations) != 0:
             # load organisations ontology
@@ -105,7 +106,8 @@ class Transform:
             # get other organisation names not found in ror
             df_organisations['other organisation'] = df_organisations.apply(get_other_name, dict_ror=dict_ror, axis=1)
 
-        # write table to file
+        # drop columns and write table to file
+        df_organisations.drop(labels='name', axis=1, inplace=True)
         df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
     def resources(self):
