@@ -35,7 +35,7 @@ public class HttpHeaderUtils {
    * <p>Returns:
    *
    * <ul>
-   *   <li>The first {@code allowedMediaType} if no ACCEPT header is present.
+   *   <li>The first {@code allowedMediaType} if no {@code ACCEPT} header is present.
    *   <li>{@link MediaType} (from allowedMediaType) with highest q-value (with allowedMediaTypes
    *       order as tiebraker) if one or more matches were found
    *   <li>{@code null} if no match was found.
