@@ -46,7 +46,8 @@ class HttpHeaderUtilsTest {
 
     // charset=utf-8 should take priority over non-charset version
     when(ctx.header(Header.ACCEPT))
-        .thenReturn("text/*; q=0.4, text/plain; charset=utf-8; q=0.8, application/json; q=0.6");
+        .thenReturn(
+            "text/*; q=0.4, text/plain; q=0.2, text/plain; charset=utf-8; q=0.8, application/json; q=0.6");
     assertEquals(plain, getContentType(ctx, List.of(json, html, plain)));
 
     // "text/plain q=0.8" has a typo: missing ";"
