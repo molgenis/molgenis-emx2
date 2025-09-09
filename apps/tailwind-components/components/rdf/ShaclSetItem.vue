@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useRoute } from "#app/composables/router";
-import { ref } from "vue";
+import {computed, ref} from "vue";
 import { useFetch } from "#app";
 import type { ShaclSetItem } from "../../../metadata-utils/src/rdf";
 
@@ -15,6 +15,12 @@ const props = withDefaults(
   }>(),
   {}
 );
+
+const shaclSetTitle = computed<string>(() => {
+  return (
+      props.shaclSet.description + " (version: " + props.shaclSet.version + ")"
+  );
+});
 
 type Resp<T> = {
   data: Record<string, T>;
@@ -82,7 +88,7 @@ async function runShacl() {
           }"
         />
         <span
-          >{{ shaclSet.description }} (version: {{ shaclSet.version }})</span
+          >{{ shaclSetTitle }}</span
         >
       </button>
       <div>
@@ -138,7 +144,7 @@ async function runShacl() {
   </div>
   <Modal
     v-model:visible="showModal"
-    :title="shaclSet.name"
+    :title="shaclSetTitle"
     subtitle="Validation Report"
   >
     <DisplayOutput class="px-8 my-8">
