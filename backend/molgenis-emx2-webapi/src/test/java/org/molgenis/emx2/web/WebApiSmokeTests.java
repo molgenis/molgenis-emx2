@@ -1003,6 +1003,7 @@ public class WebApiSmokeTests {
     final String ttlContentType = "text/turtle";
     final String n3ContentType = "text/n3";
     final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8";
+    final String defaultContentTypeWithInvalidCharset = "text/turtle; charset=utf-16";
 
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
@@ -1017,7 +1018,9 @@ public class WebApiSmokeTests {
     rdfApiRequest(200, defaultContentType).get(urlPrefix + "/api/rdf?schemas=pet store");
 
     // Validate API point with charset
-    rdfApiContentTypeRequest(406, defaultContentTypeWithCharset, EXCEPTION_CONTENT_TYPE)
+    rdfApiContentTypeRequest(200, defaultContentTypeWithCharset, defaultContentType)
+        .get(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(406, defaultContentTypeWithInvalidCharset, EXCEPTION_CONTENT_TYPE)
         .get(urlPrefix + "/pet store/api/rdf");
 
     // Validate convenience API points

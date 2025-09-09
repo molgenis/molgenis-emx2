@@ -44,9 +44,10 @@ class HttpHeaderUtilsTest {
         .thenReturn("application/*; q=0.7, text/html; q=0.5, */*; q=0.8");
     assertEquals(plain, getContentType(ctx, List.of(json, html, plain)));
 
+    // charset=utf-8 should take priority over non-charset version
     when(ctx.header(Header.ACCEPT))
-        .thenReturn("text/plain; q=0.4, text/plain; charset=utf-8; q=0.8, text/html; q=0.6");
-    assertEquals(html, getContentType(ctx, List.of(html, plain)));
+        .thenReturn("text/*; q=0.4, text/plain; charset=utf-8; q=0.8, application/json; q=0.6");
+    assertEquals(plain, getContentType(ctx, List.of(json, html, plain)));
 
     // "text/plain q=0.8" has a typo: missing ";"
     when(ctx.header(Header.ACCEPT)).thenReturn("text/plain q=0.8, text/html; q=0.5");
@@ -61,8 +62,12 @@ class HttpHeaderUtilsTest {
     assertThrows(
         IllegalArgumentException.class, () -> getContentType(ctx, List.of(plain, plainCharset)));
 
-    // if media type negotiation fails
+    // if media type negotiation fails due to non-supported media type
     when(ctx.header(Header.ACCEPT)).thenReturn("image/jpeg");
     assertNull(getContentType(ctx, List.of(json, html, plain)));
+
+    // if media type negotiation fails due to non-supported charset
+    when(ctx.header(Header.ACCEPT)).thenReturn("text/plain; charset=utf-16");
+    assertNull(getContentType(ctx, List.of(html, plain)));
   }
 }

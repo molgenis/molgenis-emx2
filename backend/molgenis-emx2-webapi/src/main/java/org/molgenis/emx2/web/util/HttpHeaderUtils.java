@@ -9,8 +9,11 @@ import org.jspecify.annotations.NonNull;
 import org.molgenis.emx2.MolgenisException;
 
 public class HttpHeaderUtils {
+  // Sort order: see https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2
   private static final Comparator<MediaType> MEDIA_TYPE_COMPARATOR =
-      Comparator.comparing((MediaType mediaType) -> !mediaType.type().equals("*"))
+      Comparator.comparing( // ensures q-value does not influence sorting.
+              (MediaType mediaType) -> mediaType.withParameter("q", "0").parameters().size() > 1)
+          .thenComparing(mediaType -> !mediaType.type().equals("*"))
           .thenComparing(mediaType -> !mediaType.subtype().equals("*"));
 
   /**
@@ -26,8 +29,8 @@ public class HttpHeaderUtils {
    *
    * <ul>
    *   <li>The first {@code allowedMediaType} if no ACCEPT header is present.
-   *   <li>{@link MediaType} with highest q-value (with allowedMediaTypes order as tiebraker) if one
-   *       or more matches were found
+   *   <li>{@link MediaType} (from allowedMediaType) with highest q-value (with allowedMediaTypes
+   *       order as tiebraker) if one or more matches were found
    *   <li>{@code null} if no match was found.
    * </ul>
    *
@@ -64,12 +67,23 @@ public class HttpHeaderUtils {
                     throw new MolgenisException("Could not parse media type: " + mediaTypeString);
                   }
                 })
-            // Filters out any media types in header with non-q parameters (not supported).
-            .filter(
-                mediaType ->
-                    mediaType.parameters().keySet().stream().allMatch(key -> key.equals("q")))
             // Order ensures more specific media types overwrite less specific ones.
             .sorted(MEDIA_TYPE_COMPARATOR)
+            // Filters out any media types in header with non-q parameters (not supported).
+            // Exception to this is if parameter is "charset=utf-8" to ensure these do get processed
+            // correctly (and take higher priority over non-charset definition).
+            .filter(
+                mediaType -> {
+                  Set<String> paramKeys = mediaType.parameters().keySet();
+                  if (paramKeys.isEmpty()) return true;
+                  for (String key : paramKeys) {
+                    if (!(key.equals("q") || key.equals("charset"))) return false;
+                    if (key.equals("charset")
+                        && !mediaType.parameters().get("charset").stream()
+                            .allMatch(i -> i.equalsIgnoreCase("utf-8"))) return false;
+                  }
+                  return true;
+                })
             .toList();
 
     // Assign a q-value to each allowedMediaTypes.
@@ -92,7 +106,7 @@ public class HttpHeaderUtils {
         .orElse(null);
   }
 
-  public static Double getQualityScore(MediaType mediaType) {
+  private static Double getQualityScore(MediaType mediaType) {
     ImmutableList<@NonNull String> param = mediaType.parameters().get("q");
     if (param.isEmpty()) return 1.0;
     return Double.parseDouble(param.getFirst());
