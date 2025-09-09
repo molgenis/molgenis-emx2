@@ -20,10 +20,17 @@ public class HttpHeaderUtils {
    * Returns what media type to use as defined in <a
    * href="https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.2">rfc7231 section 5.3.2</a>.
    *
-   * <p>IMPORTANT: Currently we do not process any additional ACCEPT parameters (f.e. {@code
-   * text/plain; charset=utf-8}). Therefore, any media type that is more specific than type/subtype
-   * is deemed unsupported. If only media types with parameters are given (excluding {@code q}),
-   * this would result in no matches.
+   * <p>IMPORTANT: Currently we do not process any additional {@code ACCEPT} parameters except:
+   *
+   * <ul>
+   *   <li>The <a href="https://datatracker.ietf.org/doc/html/rfc7231#section-5.3.1">quality value
+   *       (key is {@code q})</a>
+   *   <li>The exact key-valyue pair {@code charset=utf-8} (other charsets are treated as
+   *       unsupported)
+   * </ul>
+   *
+   * Any other parameters will cause the media type to be treated as unsupported and will be ignored
+   * during content negotiation.
    *
    * <p>Returns:
    *
@@ -97,9 +104,10 @@ public class HttpHeaderUtils {
 
     return allowedMediaTypeScores.entrySet().stream()
         .filter(i -> i.getValue() != null)
-        .sorted( // If score is equal, uses allowedMediaTypes order as tiebreaker.
+        .sorted(
             Map.Entry.<MediaType, Double>comparingByValue()
                 .reversed()
+                // If score is equal, uses allowedMediaTypes order as tiebreaker.
                 .thenComparing(entry -> allowedMediaTypes.indexOf(entry.getKey())))
         .findFirst()
         .map(Map.Entry::getKey)
