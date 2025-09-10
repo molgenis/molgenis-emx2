@@ -1,9 +1,8 @@
-import { describe, expect, test, vi, beforeEach } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type { columnValue } from "../../../../metadata-utils/src/types";
 import useForm from "../../../composables/useForm";
 import { type Ref, ref } from "vue";
-import consola from "consola";
 
 describe("useForm", () => {
   const tableMetadata: Ref<ITableMetaData> = ref({
@@ -339,7 +338,6 @@ describe("useForm", () => {
       formValues,
       scrollTo
     );
-    consola.level = 4;
     expect(sections.value[0]).toEqual({
       errorCount: 0,
       id: "h1",
