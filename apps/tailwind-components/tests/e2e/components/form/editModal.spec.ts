@@ -1,5 +1,4 @@
 import { test, expect } from "@playwright/test";
-
 import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
@@ -8,13 +7,15 @@ const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
 
 test.beforeEach(async ({ page }) => {
   await page.goto(
-    `${route}form/EditModal.story?schema=pet+store&table=Pet&rowIndex=1`
+    `${route}form/EditModal.story?schema=pet+store&table=Pet&rowIndex=3`,
+    { waitUntil: "networkidle" }
   );
-  await expect(page.getByText("Update Pet").first()).toBeVisible();
+  await expect(page.getByText("Update Pet")).toBeVisible();
 });
 
 test("should show the edit modal", async ({ page }) => {
-  await page.getByRole("button", { name: "Update Pet" }).first().click();
+  await expect(page.getByText("Update Pet")).toBeVisible();
+  await page.getByRole("button", { name: "Update Pet" }).click();
   await expect(page.getByRole("link", { name: "_top" })).toBeVisible();
   await expect(
     page.getByRole("listitem").filter({ hasText: "details" })
@@ -29,4 +30,19 @@ test("should show the edit modal", async ({ page }) => {
     page.getByRole("button", { name: "Save", exact: true })
   ).toBeVisible();
   await expect(page.getByText("name Required the name")).toBeVisible();
+});
+
+test("should validate form before updating", async ({ page }) => {
+  await expect(page.getByText("Update Pet")).toBeVisible();
+  await page.getByRole("button", { name: "Update Pet" }).click();
+
+  await page.getByRole("textbox", { name: "name Required" }).click();
+  await page.getByRole("textbox", { name: "name Required" }).fill("");
+
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(
+    page.getByText("1 field requires attention before you can save this cohort")
+  ).toBeVisible();
+  await page.getByRole("button", { name: "go to next error" }).click();
+  await expect(page.getByText("name is required")).toBeVisible();
 });

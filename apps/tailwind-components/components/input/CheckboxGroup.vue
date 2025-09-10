@@ -1,3 +1,43 @@
+<script lang="ts" setup>
+import { type IInputProps, type IValueLabel } from "../../types/types";
+import type { columnValue } from "../../../metadata-utils/src/types";
+
+withDefaults(
+  defineProps<
+    IInputProps & {
+      options: IValueLabel[];
+      showClearButton?: boolean;
+    }
+  >(),
+  {
+    showClearButton: false,
+  }
+);
+
+const modelValue = defineModel<columnValue[]>();
+const emit = defineEmits([
+  "update:modelValue",
+  "select",
+  "deselect",
+  "blur",
+  "focus",
+]);
+
+function toggleSelect(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target.checked) {
+    emit("select", target.value);
+  } else {
+    emit("deselect", target.value);
+  }
+  emit("focus");
+}
+
+function resetModelValue() {
+  modelValue.value = [];
+}
+</script>
+
 <template>
   <InputGroupContainer
     :id="`${id}-checkbox-group`"
@@ -52,43 +92,3 @@
     </ButtonText>
   </InputGroupContainer>
 </template>
-
-<script lang="ts" setup>
-import { type IInputProps, type IValueLabel } from "../../types/types";
-import type { columnValue } from "../../../metadata-utils/src/types";
-
-withDefaults(
-  defineProps<
-    IInputProps & {
-      options: IValueLabel[];
-      showClearButton?: boolean;
-    }
-  >(),
-  {
-    showClearButton: false,
-  }
-);
-
-const modelValue = defineModel<columnValue[]>();
-const emit = defineEmits([
-  "update:modelValue",
-  "select",
-  "deselect",
-  "blur",
-  "focus",
-]);
-
-function toggleSelect(event: Event) {
-  const target = event.target as HTMLInputElement;
-  if (target.checked) {
-    emit("select", target.value);
-  } else {
-    emit("deselect", target.value);
-  }
-  emit("focus");
-}
-
-function resetModelValue() {
-  modelValue.value = [];
-}
-</script>

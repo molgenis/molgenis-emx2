@@ -23,6 +23,13 @@ dependencies {
     implementation 'com.github.dfabulich:sitemapgen4j:1.1.2'
     implementation 'de.larsgrefer.sass:sass-embedded-host:1.15.4'
     implementation 'com.github.ben-manes.caffeine:caffeine:3.2.1'
+
+    implementation 'io.prometheus:prometheus-metrics-core:1.4.1'
+    implementation 'io.prometheus:prometheus-metrics-instrumentation-jvm:1.4.1'
+    implementation 'io.prometheus:prometheus-metrics-exporter-httpserver:1.4.1'
+    implementation 'io.prometheus:prometheus-metrics-exporter-servlet-jakarta:1.4.1'
+
+
 }
 
 task dev(type: JavaExec) {

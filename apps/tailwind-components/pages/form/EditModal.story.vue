@@ -8,12 +8,12 @@
   ></FormEditModal>
 
   <div>
-    <DemoDataControles
+    <DemoDataControls
       v-model:metadata="metadata"
       v-model:schemaId="schemaId"
       v-model:formValues="formValues"
     >
-    </DemoDataControles>
+    </DemoDataControls>
   </div>
 </template>
 
@@ -24,7 +24,7 @@ import type {
   columnValue,
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
-import DemoDataControles from "../../DemoDataControles.vue";
+import DemoDataControls from "../../DemoDataControls.vue";
 
 const metadata = ref<ITableMetaData>();
 const schemaId = ref<string>("type test");

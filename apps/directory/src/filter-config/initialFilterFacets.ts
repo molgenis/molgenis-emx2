@@ -1,6 +1,8 @@
+import { IFilterFacet } from "../interfaces/interfaces";
+
 const ontologySchema = "DirectoryOntologies/graphql";
 
-export const initialFilterFacets = [
+export const initialFilterFacets: IFilterFacet[] = [
   {
     facetTitle: "Diagnosis available",
     component: "OntologyFilter",

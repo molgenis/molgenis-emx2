@@ -258,6 +258,7 @@
     :ontologySchemaId="refSchemaId as string"
     :ontologyTableId="refTableId as string"
     :refLabel="refLabel as string"
+    :limit="limit"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -327,21 +328,27 @@ import InputDateTime from "./input/DateTime.vue";
 import InputPlaceHolder from "./input/PlaceHolder.vue";
 
 const modelValue = defineModel<columnValue | columnValue[]>();
-const props = defineProps<
-  IInputProps & {
-    type: CellValueType;
-    describedBy?: string;
-    refSchemaId?: string;
-    refTableId?: string;
-    refLabel?: string;
-    refBackId?: string;
-    rowKey?: any;
-    options?: IValueLabel[];
-    trueLabel?: string;
-    falseLabel?: string;
-    align?: "horizontal" | "vertical";
+const props = withDefaults(
+  defineProps<
+    IInputProps & {
+      type: CellValueType;
+      describedBy?: string;
+      refSchemaId?: string;
+      refTableId?: string;
+      refLabel?: string;
+      refBackId?: string;
+      rowKey?: any;
+      options?: IValueLabel[];
+      trueLabel?: string;
+      falseLabel?: string;
+      align?: "horizontal" | "vertical";
+      limit?: number;
+    }
+  >(),
+  {
+    limit: 25,
   }
->();
+);
 const emit = defineEmits(["focus", "blur"]);
 const typeUpperCase = computed(() => props.type.toUpperCase());
 

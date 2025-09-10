@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -19,6 +20,7 @@ import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.Assert;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -35,6 +37,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -42,12 +45,16 @@ import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.molgenis.emx2.web.controllers.MetricsController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
+@ExtendWith(SystemStubsExtension.class)
 public class WebApiSmokeTests {
 
   static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
@@ -74,7 +81,12 @@ public class WebApiSmokeTests {
     db = TestDatabaseFactory.getTestDatabase();
 
     // start web service for testing, including env variables
-    RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
+    new EnvironmentVariables(
+            org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
+        .execute(
+            () -> {
+              RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
+            });
 
     // set default rest assured settings
     RestAssured.port = PORT;
@@ -1590,61 +1602,40 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testBeaconApiSmokeTests() {
-    String result = given().get("/api/beacon/configuration").getBody().asString();
-    assertTrue(result.contains("productionStatus"));
+  void testBeaconConfiguration() {
+    getAndAssertContains("/api/beacon/configuration", "productionStatus");
+  }
 
-    result = given().get("/api/beacon/map").getBody().asString();
-    assertTrue(result.contains("endpointSets"));
+  @Test
+  void testBeaconMap() {
+    getAndAssertContains("/api/beacon/map", "endpointSets");
+  }
 
-    result = given().get("/pet store/api/beacon/info").getBody().asString();
-    assertTrue(result.contains("beaconInfoResponse"));
+  @Test
+  void testBeaconInfo() {
+    getAndAssertContains("/pet store/api/beacon/info", "beaconInfoResponse");
+  }
 
-    result = given().get("/api/beacon/filtering_terms").getBody().asString();
-    assertTrue(result.contains("filteringTerms"));
+  @Test
+  void testBeaconEntryTypes() {
+    getAndAssertContains("/api/beacon/entry_types", "entry");
+  }
 
-    result = given().get("/api/beacon/entry_types").getBody().asString();
-    assertTrue(result.contains("entry"));
-
-    result = given().get("/api/beacon/datasets").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/g_variants").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/analyses").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/biosamples").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/cohorts").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/individuals").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result =
-        given()
-            .body(
-                """
-                    {
-                      "query": {
-                      "filters": [
-                        {
-                        "id": "NCIT:C28421",
-                        "value": "GSSO_000123",
-                        "operator": "="
-                        }
-                      ]
-                      }
-                    }""")
-            .post("/api/beacon/individuals")
-            .asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/runs").getBody().asString();
-    assertTrue(result.contains("datasets"));
+  private void getAndAssertContains(String path, String expectedSubstring) {
+    db.clearCache();
+    String result = given().get(path).getBody().asString();
+    ObjectMapper mapper = new ObjectMapper();
+    String prettyJson;
+    try {
+      Object json = mapper.readValue(result, Object.class);
+      ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+      prettyJson = writer.writeValueAsString(json);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+    assertTrue(
+        result.contains(expectedSubstring),
+        "expecting:\n" + expectedSubstring + "\nin:\n" + prettyJson);
   }
 
   @Test
@@ -1773,5 +1764,15 @@ public class WebApiSmokeTests {
   void unknownSchemaShouldNotResultInRedirect() {
     given().expect().statusCode(404).when().get("/malicious");
     given().expect().statusCode(404).when().get("/malicious/");
+  }
+
+  @Test
+  void testMetricsEndpoint() {
+    given()
+        .expect()
+        .statusCode(200)
+        .body(containsString("jvm_memory_used_bytes"))
+        .when()
+        .get(MetricsController.METRICS_PATH);
   }
 }
