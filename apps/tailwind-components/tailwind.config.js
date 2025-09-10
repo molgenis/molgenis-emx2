@@ -197,6 +197,7 @@ module.exports = {
         neutral: "var(--color-neutral-background)",
 
         input: "var(--background-color-input)",
+        "input-busy": "var(--background-color-input-busy)",
         listbox: "var(--background-color-listbox)",
         "listbox-hover": "var(--background-color-listbox-hover)",
         "listbox-selected": "var(--background-color-listbox-selected)",

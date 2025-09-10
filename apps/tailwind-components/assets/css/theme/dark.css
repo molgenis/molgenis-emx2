@@ -49,6 +49,7 @@
   --background-color-table: var(--color-gray-700);
 
   --background-color-ref-dropdown-toolbar: var(--color-gray-900);
+  --background-color-input-busy: var(--color-gray-600);
 
   --text-color-link: var(--color-green-500);
   --text-color-button-primary: var(--color-gray-800);

@@ -4,13 +4,13 @@ import { ref } from "vue";
 const schemaId = ref<string>("pet store");
 const tableId = ref<string>("Pet");
 const labelTemplate = ref<string>("${name}");
-const value = ref([{ name: "spike" }]);
+const value1 = ref([{ name: "spike" }]);
 const value2 = ref([{ name: "spike" }]);
 
 const refExampleError = ref<boolean>(false);
 
 function onBlur() {
-  if (!value.value.length) {
+  if (!value1.value.length) {
     refExampleError.value = true;
   } else {
     refExampleError.value = false;
@@ -20,14 +20,14 @@ function onBlur() {
 
 <template>
   <InputTestContainer show-state v-slot="{ invalid, valid, disabled }">
-    <div>
+    <div class="mb-4">
       <label for="story-ref-array">
         <span class="text-title font-bold">Select pets by name</span>
         <span class="text-disabled text-body-sm ml-3"> Required </span>
       </label>
       <InputRef
         id="story-ref-array"
-        v-model="value"
+        v-model="value1"
         :refSchemaId="schemaId"
         :refTableId="tableId"
         :limit="5"
@@ -51,10 +51,13 @@ function onBlur() {
           <span>A generic error message</span>
         </Message>
       </div>
-      <div class="pt-5">value selected: {{ value }}</div>
+      <h3 class="mt-4 text-title">Selected value</h3>
+      <StoryComponentOutput>
+        <code>{{ value1 }}</code>
+      </StoryComponentOutput>
     </div>
     <div class="pt-5">
-      <label for="story-ref-array">
+      <label for="story-ref" class="block mb-2">
         <span class="text-title font-bold">Select pets by name</span>
       </label>
       <InputRef
@@ -69,7 +72,10 @@ function onBlur() {
         :invalid="invalid"
         :disabled="disabled"
       />
+      <h3 class="mt-4 text-title">Selected value</h3>
+      <StoryComponentOutput>
+        <code>{{ value2 }}</code>
+      </StoryComponentOutput>
     </div>
-    <div class="pt-5">value selected: {{ value2 }}</div>
   </InputTestContainer>
 </template>

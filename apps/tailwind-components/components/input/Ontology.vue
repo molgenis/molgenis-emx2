@@ -386,9 +386,7 @@ async function loadMoreTerms() {
 </script>
 
 <template>
-  <div v-if="initLoading" class="h-20 flex justify-start items-center">
-    <BaseIcon name="progress-activity" class="animate-spin text-input" />
-  </div>
+  <InputBusyIndicator v-if="initLoading" />
   <div v-else-if="!initLoading && ontologyTree.length">
     <InputGroupContainer
       :id="`${id}-ontology`"

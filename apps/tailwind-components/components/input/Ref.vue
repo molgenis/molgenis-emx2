@@ -10,8 +10,9 @@ import type {
 import { type IInputProps, type IValueLabel } from "../../types/types";
 import logger from "../../utils/logger";
 import { fetchTableMetadata } from "#imports";
-import { ref, type Ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted, useTemplateRef, nextTick } from "vue";
 import fetchTableData from "../../composables/fetchTableData";
+import { fetchGraphql } from "#imports";
 
 const props = withDefaults(
   defineProps<
@@ -26,7 +27,7 @@ const props = withDefaults(
   >(),
   {
     isArray: true,
-    limit: 30,
+    limit: 25,
   }
 );
 
@@ -34,14 +35,23 @@ const modelValue = defineModel<columnValueObject[] | columnValueObject>();
 const tableMetadata = ref<ITableMetaData>();
 
 const emit = defineEmits(["focus", "blur", "error", "update:modelValue"]);
-const optionMap: Ref<recordValue> = ref({});
-const selectionMap: Ref<recordValue> = ref({});
+
+const isLoading = ref<boolean>(true);
+const loadingError = ref<string>("");
+
+const optionMap = ref<recordValue>({});
+const selectionMap = ref<recordValue>({});
+
 const initialCount = ref<number>(0);
 const count = ref<number>(0);
 const offset = ref<number>(0);
-const showSearch = ref<boolean>(false);
-const searchTerms: Ref<string> = ref("");
+const searchTerms = ref<string>("");
 const hasNoResults = ref<boolean>(true);
+const maxTableRows = ref<number>(0);
+
+const refInputContainer = useTemplateRef("refInputContainer");
+const refInputs = ref<HTMLInputElement[]>();
+
 const columnName = computed<string>(() => {
   return props.refLabel.replace(/[\{\}\$]/g, "");
 });
@@ -50,16 +60,37 @@ const entitiesLeftToLoad = computed<number>(() => {
   return Math.min(count.value - offset.value - props.limit, props.limit);
 });
 
-//computed elements to translate to CheckboxGroup or
-const listOptions = computed(() => {
+const listOptions = computed<IValueLabel[]>(() => {
   return Object.keys(optionMap.value).map((label) => {
     return { value: label } as IValueLabel;
   });
 });
-const selection = computed(() =>
-  props.isArray
+
+const selection = computed<string | string[]>(() => {
+  const values = props.isArray
     ? (Object.keys(selectionMap.value) as string[])
-    : (Object.keys(selectionMap.value)[0] as string)
+    : (Object.keys(selectionMap.value)[0] as string);
+  return values;
+});
+
+onMounted(() => {
+  prepareModel()
+    .then(() => {
+      getMaxTableRows();
+      initialCount.value = props.limit;
+    })
+    .catch((err) => {
+      loadingError.value = err;
+      throw new Error(err);
+    })
+    .finally(() => (isLoading.value = false));
+});
+
+watch(
+  () => refInputContainer.value,
+  () => {
+    setRefInputs();
+  }
 );
 
 async function prepareModel() {
@@ -78,6 +109,7 @@ async function prepareModel() {
       props.refTableId,
       { filter: { equals: extractPrimaryKey(modelValue.value) } }
     );
+
     if (data.rows) {
       hasNoResults.value = false;
       data.rows.forEach(
@@ -90,32 +122,23 @@ async function prepareModel() {
   initialCount.value = count.value;
 }
 
-watch(
-  () => props.refSchemaId,
-  () => prepareModel
-);
-watch(
-  () => props.refTableId,
-  () => prepareModel
-);
-
 // the selectionMap can not be a computed property because it needs to initialized asynchronously therefore use a watcher instead of a computed property
 // todo: move the options fetch to the outside of the component and pass it as a (synchronous) prop
 watch(
   () => modelValue.value,
   () => {
-    if (props.isArray === false) {
+    if (!props.isArray) {
       delete selectionMap.value[Object.keys(selectionMap.value)[0]];
       if (modelValue.value) {
         selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
           modelValue.value;
       }
-    } else {
+    } else if (props.isArray) {
       selectionMap.value = {};
       if (
         modelValue.value &&
         Array.isArray(modelValue.value) &&
-        modelValue.value.length > 0
+        modelValue.value.length
       ) {
         modelValue.value.forEach((value) => {
           selectionMap.value[applyTemplate(props.refLabel, value)] = value;
@@ -134,6 +157,7 @@ function applyTemplate(template: string, row: Record<string, any>): string {
 
 async function loadOptions(filter: IQueryMetaData) {
   hasNoResults.value = true;
+
   const data: ITableDataResponse = await fetchTableData(
     props.refSchemaId,
     props.refTableId,
@@ -142,19 +166,16 @@ async function loadOptions(filter: IQueryMetaData) {
 
   if (data.rows) {
     hasNoResults.value = false;
-    data.rows.forEach(
-      (row) => (optionMap.value[applyTemplate(props.refLabel, row)] = row)
-    );
+    data.rows.forEach((row) => {
+      const newRow = {} as recordValue;
+      newRow[applyTemplate(props.refLabel, row)] = row;
+      Object.assign(optionMap.value, newRow);
+    });
     count.value = data.count;
   } else {
     hasNoResults.value = true;
   }
   logger.debug("loaded options for " + props.id);
-}
-
-function toggleSearch() {
-  showSearch.value = !showSearch.value;
-  if (searchTerms.value) updateSearch("");
 }
 
 function updateSearch(newSearchTerms: string) {
@@ -169,7 +190,6 @@ function select(label: string) {
     selectionMap.value = {};
   }
   selectionMap.value[label] = optionMap.value[label];
-  if (searchTerms.value) toggleSearch();
   emit(
     "update:modelValue",
     props.isArray
@@ -191,85 +211,107 @@ function extractPrimaryKey(value: any) {
 }
 
 function deselect(label: string) {
-  delete selectionMap.value[label];
-  if (searchTerms.value) toggleSearch();
-  emit(
-    "update:modelValue",
-    props.isArray
-      ? Object.values(selectionMap.value).map((value) =>
-          extractPrimaryKey(value)
-        )
-      : undefined
-  );
+  if (!props.disabled) {
+    delete selectionMap.value[label];
+    emit(
+      "update:modelValue",
+      props.isArray
+        ? Object.values(selectionMap.value).map((value) =>
+            extractPrimaryKey(value)
+          )
+        : undefined
+    );
+  }
 }
 
 function clearSelection() {
   selectionMap.value = {};
   emit("update:modelValue", props.isArray ? [] : undefined);
-  updateSearch(""); //reset
 }
 
-function loadMore() {
+async function loadMore() {
   offset.value += props.limit;
-  loadOptions({
-    offset: offset.value,
-    limit: props.limit,
-    searchTerms: searchTerms.value,
-  });
+
+  if (offset.value < maxTableRows.value) {
+    refInputs.value = [];
+
+    await loadOptions({
+      offset: offset.value,
+      limit: props.limit,
+      searchTerms: searchTerms.value,
+    });
+
+    await nextTick();
+    setRefInputs();
+
+    if (refInputs.value) {
+      const itemToFocus = refInputs.value[offset.value - 1];
+      itemToFocus.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+      itemToFocus.focus();
+    }
+  }
 }
 
-prepareModel();
+function setRefInputs() {
+  refInputs.value = refInputContainer.value?.querySelectorAll(
+    "input"
+  ) as unknown as HTMLInputElement[];
+}
+
+async function getMaxTableRows() {
+  const data = await fetchGraphql(
+    props.refSchemaId,
+    `query {${props.refTableId}_agg(search: "${
+      searchTerms.value || ""
+    }") { count }} `,
+    {}
+  );
+  maxTableRows.value = data[`${props.refTableId}_agg`].count;
+}
 </script>
 
 <template>
-  <InputGroupContainer @focus="emit('focus')" @blur="emit('blur')">
-    <template v-if="initialCount > limit">
-      <div
-        class="flex flex-wrap gap-2 mb-2"
-        v-if="isArray ? selection.length : selection"
-      >
-        <Button
-          @click="clearSelection"
-          v-if="isArray && selection.length > 1"
-          type="filterWell"
-          size="tiny"
-          icon="cross"
-          iconPosition="right"
-          class="mr-2"
-          >Clear all</Button
-        >
+  <InputBusyIndicator v-if="isLoading" height="xl" />
+  <Message :id="`${id}-ref-error`" :invalid="true" v-else-if="loadingError">
+    <span>{{ loadingError }}</span>
+  </Message>
+  <InputGroupContainer v-else @focus="emit('focus')" @blur="emit('blur')">
+    <ButtonFilterWellContainer
+      ref="selectionContainer"
+      :id="`${id}-ref-selections`"
+      @clear="clearSelection"
+    >
+      <template v-if="selection">
         <Button
           v-for="label in isArray ? selection : [selection]"
           icon="cross"
-          iconPosition="right"
+          icon-position="right"
           type="filterWell"
           size="tiny"
           @click="deselect(label as string)"
         >
           {{ label }}
         </Button>
-      </div>
-      <div v-if="initialCount > limit" class="flex flex-wrap gap-2 mb-2">
-        <InputLabel :for="`search-for-${id}`" class="sr-only">
-          search in {{ columnName }}
-        </InputLabel>
-        <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
-          Search
-        </ButtonText>
-        <InputSearch
-          :class="showSearch ? 'visible' : 'invisible pointer-events-none'"
-          :id="`search-for-${id}`"
-          size="tiny"
-          :modelValue="searchTerms"
-          @update:modelValue="updateSearch"
-          class="mb-2"
-          :placeholder="`Search in ${columnName}`"
-          :aria-hidden="!showSearch"
-        />
-      </div>
-    </template>
+      </template>
+    </ButtonFilterWellContainer>
+    <div class="my-4" v-if="maxTableRows > props.limit">
+      <label :for="`search-for-${id}`" class="sr-only">
+        search in {{ columnName }}
+      </label>
+      <InputSearch
+        :id="`search-for-${id}`"
+        size="small"
+        :modelValue="searchTerms"
+        @update:modelValue="updateSearch"
+        :placeholder="`Search in ${columnName}`"
+      />
+    </div>
     <template v-if="!hasNoResults">
-      <fieldset>
+      <fieldset ref="refInputContainer">
         <legend class="sr-only">select {{ columnName }} options</legend>
         <InputCheckboxGroup
           v-if="isArray"
@@ -281,6 +323,7 @@ prepareModel();
           :invalid="invalid"
           :valid="valid"
           :disabled="disabled"
+          class="[&_label]:text-body-sm"
         />
         <InputRadioGroup
           v-else
@@ -292,18 +335,12 @@ prepareModel();
           :invalid="invalid"
           :valid="valid"
           :disabled="disabled"
+          class="[&_label]:text-body-sm"
         />
       </fieldset>
       <ButtonText @click="loadMore" v-if="offset + limit < count">
         load {{ entitiesLeftToLoad }} more
       </ButtonText>
-      <ButtonText
-        v-if="
-          initialCount <= limit && (isArray ? selection.length > 0 : selection)
-        "
-        @click="clearSelection"
-        >Clear</ButtonText
-      >
     </template>
     <ButtonText v-else>No results found</ButtonText>
   </InputGroupContainer>
