@@ -46,11 +46,12 @@
         >
           <FormFields
             schemaId="catalogue-demo"
-            :metadata="metadata"
-            :sections="sections"
-            v-model:errors="errorMap"
+            :columns="visibleColumns"
+            :error-map="errorMap"
             v-model="formValues"
-            @update:active-chapter-id="activeChapterId = $event"
+            @update="onUpdateColumn"
+            @blur="onBlurColumn"
+            @view="onViewColumn"
           />
         </div>
       </section>
@@ -107,9 +108,8 @@ import { definePageMeta } from "#imports";
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import type { ITableMetaData } from "../../../metadata-utils/src";
-import type { columnId, columnValue } from "../../../metadata-utils/src/types";
+import type { columnValue } from "../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
-import useSections from "../../composables/useSections";
 import cohortTableMetadata from "./data/cohort-table-metadata";
 
 definePageMeta({
@@ -126,10 +126,6 @@ const visible = ref<boolean>(false);
 
 const formValues = ref<Record<string, columnValue>>({});
 const metadata = cohortTableMetadata as ITableMetaData;
-const errorMap = ref<Record<columnId, string>>({});
-
-const activeChapterId = ref<string>("_scroll_to_top");
-const sections = useSections(metadata, activeChapterId, errorMap);
 
 function onSave() {
   alert("Do Save");
@@ -155,7 +151,13 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
-} = useForm(metadata, formValues, errorMap, (fieldId) => {
+  errorMap,
+  sections,
+  onUpdateColumn,
+  onBlurColumn,
+  onViewColumn,
+  visibleColumns,
+} = useForm(metadata, formValues, (fieldId) => {
   scrollToElementInside("fields-container", fieldId);
 });
 </script>

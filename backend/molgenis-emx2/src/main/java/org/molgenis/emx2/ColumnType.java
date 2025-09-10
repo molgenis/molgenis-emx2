@@ -46,8 +46,9 @@ public enum ColumnType {
   REF_ARRAY(Object[].class, MATCH_ANY, MATCH_ALL, EQUALS, MATCH_NONE, IS_NULL),
   REFBACK(Object[].class, REF_ARRAY.operators), // same as ref_array
 
-  // LAYOUT and other constants
-  HEADING(String.class), // use for layout elements or constant values
+  // LAYOUT
+  HEADING(String.class),
+  SECTION(HEADING), // more coarse grained than heading to show large forms split in pages
 
   // format flavors that extend a baseType
   AUTO_ID(STRING),

@@ -1,11 +1,12 @@
 import gql from "graphql-tag";
 export default gql`
-  {
-    _schema {
+  query _schema($enhance: Boolean = false) {
+    _schema(enhance: $enhance) {
       id
       label
       tables {
         id
+        schemaId
         label
         tableType
         description
@@ -13,6 +14,8 @@ export default gql`
         columns {
           id
           label
+          section
+          heading
           columnType
           key
           refTableId
