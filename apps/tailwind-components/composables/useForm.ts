@@ -38,7 +38,6 @@ export default function useForm(
   const formValues = toRef(formValueRef);
 
   const init = () => {
-    console.log("init form");
     metadata.value?.columns.forEach((column) => {
       switch (column.columnType) {
         case "HEADING":
@@ -62,6 +61,8 @@ export default function useForm(
   watch(
     () => toRef(tableMetadata).value,
     () => {
+      //necessary to init visible map
+      //we could maybe try to make that a compute
       init();
     },
     { immediate: true }
