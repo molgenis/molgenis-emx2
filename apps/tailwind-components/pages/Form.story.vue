@@ -171,7 +171,7 @@ const {
   sections,
   visibleColumns,
   errorMap,
-  gotoSectionOrHeading,
+  gotoSection,
   validateAllColumns,
   onUpdateColumn,
   onBlurColumn,
@@ -189,7 +189,7 @@ const numberOfFieldsWithErrors = computed(
       <Legend
         v-if="sections?.length"
         :sections="sections"
-        @goToSection="gotoSectionOrHeading"
+        @goToSection="gotoSection"
         class="col-span-1 overflow-y-auto max-h-[calc(95vh-232px)]"
       />
       <div

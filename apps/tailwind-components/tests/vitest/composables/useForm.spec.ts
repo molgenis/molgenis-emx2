@@ -224,7 +224,7 @@ describe("useForm", () => {
       ],
     };
 
-    const { sections, errorMap, gotoSectionOrHeading } = useForm(
+    const { sections, errorMap, gotoSection } = useForm(
       tableMetadata,
       formValues,
       scrollTo
@@ -233,7 +233,7 @@ describe("useForm", () => {
       col4: "error",
     };
 
-    gotoSectionOrHeading("h2");
+    gotoSection("h2");
 
     expect(sections.value).toEqual([
       {

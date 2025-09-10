@@ -12,26 +12,18 @@ import {
 } from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { vIntersectionObserver } from "@vueuse/components";
 
-const props = withDefaults(
-  defineProps<{
-    columns: IColumn[];
-    rowKey?: columnValue;
-    onUpdate?: (column: IColumn) => void;
-    onBlur?: (column: IColumn) => void;
-    onView?: (column: IColumn) => void;
-    constantValues?: IRow; //provides values that shouldn't be edited
-    errorMap: Record<columnId, string>; //map of errors if available
-  }>(),
-  {
-    onUpdate: () => {},
-    onBlur: () => {},
-    onView: () => {},
-  }
-);
+const props = defineProps<{
+  columns: IColumn[];
+  rowKey?: columnValue;
+  constantValues?: IRow; //provides values that shouldn't be edited
+  errorMap: Record<columnId, string>; //map of errors if available
+}>();
 
 const modelValue = defineModel<IRow>("modelValue", {
   required: true,
 });
+
+const emit = defineEmits(["update", "view", "blur"]);
 
 const container = useTemplateRef<HTMLDivElement>("container");
 const visibleEntries = new Map<string, IntersectionObserverEntry>();
@@ -78,7 +70,7 @@ function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
     const col = props.columns.find(
       (c) => topMost.target.id === `${c.id}-form-field`
     );
-    if (col) props.onView(col);
+    if (col) emit("view", col);
   }
 }
 
@@ -105,9 +97,7 @@ onMounted(() => {
   <div ref="container">
     <template v-for="column in columns">
       <div
-        v-if="
-          column.columnType === 'HEADING' || column.columnType === 'SECTION'
-        "
+        v-if="column.columnType === 'HEADING'"
         :id="`${column.id}-form-field`"
         v-intersection-observer="[onIntersectionObserver, { root: container }]"
       >
@@ -136,8 +126,8 @@ onMounted(() => {
         :ref-label="column.refLabel || column.refLabelDefault"
         :ref-back-id="column.refBackId"
         :invalid="errorMap[column.id]?.length > 0"
-        @update:modelValue="onUpdate(column)"
-        @blur="onBlur(column)"
+        @update:modelValue="emit('update', column)"
+        @blur="emit('blur', column)"
       />
     </template>
   </div>

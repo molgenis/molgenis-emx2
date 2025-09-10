@@ -188,8 +188,8 @@ async function onSaveDraft() {
 }
 
 async function onSave() {
-  const isValid = formFields.value?.validate();
-  if (!isValid) {
+  validateAllColumns();
+  if (Object.keys(errorMap.value).length > 0) {
     return;
   }
   const resp = await insertInto(props.schemaId, props.metadata.id).catch(
