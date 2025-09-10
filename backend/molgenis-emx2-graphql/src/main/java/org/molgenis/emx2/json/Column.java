@@ -12,6 +12,7 @@ public class Column {
   private String id;
   private String name;
   private String label;
+  private String heading;
   private String description;
   private List<LanguageValue> labels = new ArrayList<>();
   private boolean drop = false; // needed in case of migrations
@@ -71,10 +72,8 @@ public class Column {
     }
     if (column.isReference()) {
       if (column.getSchema().getDatabase() != null) {
-        if (!column.getRefSchemaName().equals(column.getSchemaName())) {
-          this.refSchemaId = column.getRefSchemaName();
-          this.refSchemaName = column.getRefSchemaName();
-        }
+        this.refSchemaId = column.getRefSchemaName();
+        this.refSchemaName = column.getRefSchemaName();
         this.refTableId = column.getRefTable().getIdentifier();
         this.refLabelDefault = column.getRefLabelDefault();
       }
@@ -413,5 +412,13 @@ public class Column {
 
   public void setProfiles(String[] profiles) {
     this.profiles = profiles;
+  }
+
+  public String getHeading() {
+    return heading;
+  }
+
+  public void setHeading(String heading) {
+    this.heading = heading;
   }
 }

@@ -16,8 +16,13 @@
           :aria-current="section.isActive"
           @click.prevent="emit('goToSection', section.id)"
         >
-          <span class="text-title-contrast capitalize">
-            {{ section.label }}
+          <span
+            class="text-title-contrast capitalize"
+            :class="{
+              'font-bold': section.isActive,
+            }"
+          >
+            {{ section.label || "_top" }}
           </span>
           <span v-if="(section.errorCount ?? 0) > 0" class="sr-only">
             {{ section.errorCount }} error{{
@@ -38,6 +43,7 @@
 
 <script lang="ts" setup>
 import type { IFormLegendSection } from "../../../metadata-utils/src/types";
+import { computed } from "vue";
 
 defineProps<{
   sections: IFormLegendSection[];

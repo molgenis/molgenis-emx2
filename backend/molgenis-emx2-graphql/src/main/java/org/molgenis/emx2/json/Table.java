@@ -3,10 +3,12 @@ package org.molgenis.emx2.json;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.molgenis.emx2.ColumnType;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
 
 public class Table {
+  private String schemaId;
   private String name;
   private String label;
   private String description;
@@ -34,6 +36,7 @@ public class Table {
   }
 
   public Table(TableMetadata tableMetadata, boolean minimal) {
+    this.schemaId = tableMetadata.getSchemaName();
     this.name = tableMetadata.getTableName();
     this.label = tableMetadata.getLabel();
     this.description = tableMetadata.getDescription();
@@ -59,8 +62,14 @@ public class Table {
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
+    String currentHeadingId = null;
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
-      this.columns.add(new Column(column, tableMetadata, minimal));
+      if (column.getColumnType().equals(ColumnType.HEADING)) {
+        currentHeadingId = column.getIdentifier();
+      }
+      Column jsonColumn = new Column(column, tableMetadata, minimal);
+      jsonColumn.setHeading(currentHeadingId);
+      this.columns.add(jsonColumn);
     }
     this.tableType = tableMetadata.getTableType();
     this.profiles = tableMetadata.getProfiles();
@@ -200,5 +209,13 @@ public class Table {
 
   public void setProfiles(String[] profiles) {
     this.profiles = profiles;
+  }
+
+  public String getSchemaId() {
+    return schemaId;
+  }
+
+  public void setSchemaId(String schemaId) {
+    this.schemaId = schemaId;
   }
 }

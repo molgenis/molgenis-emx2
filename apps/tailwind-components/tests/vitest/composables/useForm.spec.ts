@@ -1,9 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
-import type {
-  columnId,
-  columnValue,
-} from "../../../../metadata-utils/src/types";
+import type { columnValue } from "../../../../metadata-utils/src/types";
 import useForm from "../../../composables/useForm";
 import { ref } from "vue";
 
@@ -40,14 +37,8 @@ describe("useForm", () => {
 
   test("should return a list of required fields", () => {
     const formValues = ref<Record<string, columnValue>>({});
-    const errorMap = ref<Record<columnId, string>>({});
     const scrollTo = vi.fn();
-    const { requiredFields } = useForm(
-      tableMetadata,
-      formValues,
-      errorMap,
-      scrollTo
-    );
+    const { requiredFields } = useForm(tableMetadata, formValues, scrollTo);
     expect(requiredFields.value).toEqual([
       {
         columnType: "STRING",
@@ -66,12 +57,10 @@ describe("useForm", () => {
 
   test("should return a list of empty required fields", () => {
     const formValues = ref<Record<string, columnValue>>({});
-    const errorMap = ref<Record<columnId, string>>({});
     const scrollTo = vi.fn();
     const { emptyRequiredFields } = useForm(
       tableMetadata,
       formValues,
-      errorMap,
       scrollTo
     );
     expect(emptyRequiredFields.value).toEqual([
@@ -92,12 +81,10 @@ describe("useForm", () => {
 
   test("should go to the next required field", () => {
     const formValues = ref<Record<string, columnValue>>({});
-    const errorMap = ref<Record<columnId, string>>({});
     const scrollTo = vi.fn();
     const { gotoNextRequiredField } = useForm(
       tableMetadata,
       formValues,
-      errorMap,
       scrollTo
     );
     gotoNextRequiredField();
@@ -108,12 +95,10 @@ describe("useForm", () => {
 
   test("should go to the previous required field", () => {
     const formValues = ref<Record<string, columnValue>>({});
-    const errorMap = ref<Record<columnId, string>>({});
     const scrollTo = vi.fn();
     const { gotoPreviousRequiredField } = useForm(
       tableMetadata,
       formValues,
-      errorMap,
       scrollTo
     );
     gotoPreviousRequiredField();
@@ -124,12 +109,10 @@ describe("useForm", () => {
 
   test("setting a value on required field should update the message", () => {
     const formValues = ref<Record<string, columnValue>>({});
-    const errorMap = ref<Record<columnId, string>>({});
     const scrollTo = vi.fn();
     const { requiredMessage, emptyRequiredFields } = useForm(
       tableMetadata,
       formValues,
-      errorMap,
       scrollTo
     );
     expect(requiredMessage.value).toBe("2/2 required fields left");
@@ -149,12 +132,10 @@ describe("useForm", () => {
 
   test("setting an error should update the message", () => {
     const formValues = ref<Record<string, columnValue>>({});
-    const errorMap = ref<Record<columnId, string>>({});
     const scrollTo = vi.fn();
-    const { errorMessage } = useForm(
+    const { errorMessage, errorMap } = useForm(
       tableMetadata,
       formValues,
-      errorMap,
       scrollTo
     );
     expect(errorMessage.value).toBe("");
@@ -167,35 +148,148 @@ describe("useForm", () => {
 
   test("should go to the next error", () => {
     const formValues = ref<Record<string, columnValue>>({});
-    const errorMap = ref<Record<columnId, string>>({
-      col2: "some error",
-      col4: "some error",
-    });
     const scrollTo = vi.fn();
-    const { gotoNextError } = useForm(
+    const { gotoNextError, errorMap } = useForm(
       tableMetadata,
       formValues,
-      errorMap,
       scrollTo
     );
+    errorMap.value = {
+      col2: "some error",
+      col4: "some error",
+    };
     gotoNextError();
     expect(scrollTo).toHaveBeenCalledWith("col2-form-field");
   });
 
   test("should go to the previous error", () => {
     const formValues = ref<Record<string, columnValue>>({});
-    const errorMap = ref<Record<columnId, string>>({
-      col2: "some error",
-      col4: "some error",
-    });
     const scrollTo = vi.fn();
-    const { gotoPreviousError } = useForm(
+    const { gotoPreviousError, errorMap } = useForm(
       tableMetadata,
       formValues,
-      errorMap,
       scrollTo
     );
+    errorMap.value = {
+      col2: "some error",
+      col4: "some error",
+    };
     gotoPreviousError();
     expect(scrollTo).toHaveBeenCalledWith("col4-form-field");
+  });
+
+  test("should return empty list in case of table meta without columns", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const scrollTo = vi.fn();
+    const tableMetadata: ITableMetaData = {
+      id: "vi test table metadata",
+      label: "vi test table metadata",
+      tableType: "some table type",
+      columns: [],
+    };
+    const { sections } = useForm(tableMetadata, formValues, scrollTo);
+    expect(sections.value).toEqual([]);
+  });
+
+  test("should return a list of sections with error count", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const scrollTo = vi.fn();
+    const tableMetadata: ITableMetaData = {
+      id: "vi test table metadata",
+      label: "vi test table metadata",
+      tableType: "some table type",
+      columns: [
+        {
+          columnType: "HEADING",
+          id: "col1",
+          label: "columns 1",
+        },
+        {
+          columnType: "STRING",
+          id: "col2",
+          label: "columns 2",
+          heading: "col1",
+        },
+        {
+          columnType: "HEADING",
+          id: "h2",
+          label: "heading 2",
+        },
+        {
+          columnType: "STRING",
+          id: "col4",
+          label: "columns 4",
+          heading: "h2",
+        },
+      ],
+    };
+
+    const { sections, errorMap, gotoSectionOrHeading } = useForm(
+      tableMetadata,
+      formValues,
+      scrollTo
+    );
+    errorMap.value = {
+      col4: "error",
+    };
+
+    gotoSectionOrHeading("h2");
+
+    expect(sections.value).toEqual([
+      {
+        label: "columns 1",
+        id: "col1",
+        isActive: false,
+        errorCount: 0,
+        type: "HEADING",
+      },
+      {
+        label: "heading 2",
+        id: "h2",
+        isActive: true,
+        errorCount: 1,
+        type: "HEADING",
+      },
+    ]);
+  });
+
+  test("should add a heading at the start if the first col is not a header but the table has headings", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const scrollTo = vi.fn();
+    const tableMetadata: ITableMetaData = {
+      id: "vi test table metadata",
+      label: "vi test table metadata",
+      tableType: "some table type",
+      columns: [
+        {
+          columnType: "STRING",
+          id: "col1",
+          label: "columns 1",
+        },
+        {
+          columnType: "STRING",
+          id: "col2",
+          label: "columns 2",
+        },
+        {
+          columnType: "HEADING",
+          id: "h1",
+          label: "heading 1",
+        },
+        {
+          columnType: "STRING",
+          id: "col3",
+          label: "columns 3",
+        },
+      ],
+    };
+    const { sections } = useForm(tableMetadata, formValues, scrollTo);
+    expect(sections.value[0]).toEqual({
+      errorCount: 0,
+      id: "h1",
+      isActive: false,
+      label: "heading 1",
+      type: "HEADING",
+    });
   });
 });
