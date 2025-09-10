@@ -149,7 +149,11 @@ const organizationCatalogues = computed(() => {
       :catalogues="organizationCatalogues"
     />
     <ContentBlock
-      v-if="projectCatalogues.length === 0 && thematicCatalogues.length === 0 && organizationCatalogues?.length === 0"
+      v-if="
+        projectCatalogues.length === 0 &&
+        thematicCatalogues.length === 0 &&
+        organizationCatalogues?.length === 0
+      "
       title="No Catalogues found"
       description="Please add catalogues via admin user interface"
     />
