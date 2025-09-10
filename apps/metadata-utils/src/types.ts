@@ -150,3 +150,5 @@ export type IInputValueLabel = {
 };
 
 export type IRow = Record<columnId, columnValue>;
+
+export type DateValue = Date | string | undefined | null;

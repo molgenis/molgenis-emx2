@@ -1,40 +1,76 @@
 <template>
-  <flat-pickr
-    :id="id"
+  <vue-date-picker
+    :uid="id"
+    :placeholder="datePlaceholder"
     :aria-describedby="describedBy"
-    :type="type || 'text'"
-    :placeholder="placeholder"
     :disabled="disabled"
-    class="w-full h-[56px] pr-4 pl-3 border outline-none rounded-input"
-    :class="{
-      'bg-input border-valid text-valid': valid && !disabled,
-      'bg-input border-invalid text-invalid': invalid && !disabled,
-      'border-disabled text-disabled bg-disabled cursor-not-allowed': disabled,
-      'bg-disabled border-valid text-valid cursor-not-allowed':
-        valid && disabled,
-      'bg-disabled border-invalid text-invalid cursor-not-allowed':
-        invalid && disabled,
-      'bg-input text-input hover:border-input-hover focus:border-input-focused':
-        !disabled && !invalid && !valid,
+    :data-valid="valid"
+    :data-invalid="invalid"
+    type="Date"
+    v-model="modelValue"
+    model-type="format"
+    month-name-format="long"
+    :format="inputDateFormat"
+    :auto-apply="true"
+    :time-picker-inline="true"
+    :enable-seconds="true"
+    :text-input="{
+      enterSubmit: true,
+      tabSubmit: true,
+      selectOnFocus: true,
+      escClose: true,
     }"
-    :modelValue="modelValue ?? null"
-    @update:modelValue="(val) => emit('update:modelValue', val)"
     @focus="$emit('focus')"
     @blur="$emit('blur')"
-    :config="{ dateFormat: 'Y-m-dTH:i:S', enableTime: true }"
   />
 </template>
 
 <script setup lang="ts">
-import flatPickr from "vue-flatpickr-component";
-import "flatpickr/dist/flatpickr.css";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 import type { IInputProps } from "../../types/types";
-import { onMounted, watch } from "vue";
-const modelValue = defineModel<any>();
-defineProps<
+import type { DateValue } from "../../../metadata-utils/src/types";
+import { watch, ref, onBeforeMount } from "vue";
+
+const props = defineProps<
   IInputProps & {
-    type?: string;
+    modelValue: DateValue;
   }
 >();
+
+const inputDateFormat: string = "yyyy-MM-dd HH:mm:ss";
+const datePlaceholder = ref<string>(inputDateFormat);
+const modelValue = defineModel<DateValue>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+
+function setPlaceholder(value?: DateValue) {
+  if (value) {
+    datePlaceholder.value = value as string;
+  } else {
+    datePlaceholder.value = inputDateFormat;
+  }
+}
+
+function setModelValue(value: DateValue) {
+  modelValue.value = value ? (value as string).split("T").join(" ") : value;
+}
+
+onBeforeMount(() => {
+  setModelValue(props.modelValue);
+  setPlaceholder(props.modelValue);
+});
+
+watch(
+  () => props.placeholder,
+  (value) => {
+    setPlaceholder(value);
+  }
+);
+
+watch(
+  () => modelValue.value,
+  () => {
+    emit("update:modelValue", modelValue.value);
+  }
+);
 </script>
