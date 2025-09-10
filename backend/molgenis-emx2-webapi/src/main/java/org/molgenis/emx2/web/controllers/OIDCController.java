@@ -108,11 +108,9 @@ public class OIDCController {
 
     if (requestedUrlList.isPresent()) {
       ArrayList<String> requestedUrl = (ArrayList<String>) requestedUrlList.get();
-      if (requestedUrl.size() == 1) {
-        ctx.redirect(requestedUrl.get(0));
-      } else {
-        ctx.redirect("/");
-      }
+      String location = (requestedUrl.size() == 1) ? requestedUrl.get(0) : "/";
+      logger.info("redirect using OIDC requested URL: {}", location);
+      ctx.redirect(location);
     } else {
       ctx.redirect("/");
     }

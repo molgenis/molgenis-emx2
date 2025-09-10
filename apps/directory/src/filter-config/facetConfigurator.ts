@@ -1,14 +1,18 @@
 import {
+  IFilterDetails,
+  IFilterFacet,
+  SortDirection,
+} from "../interfaces/interfaces";
+import {
   customFilterOptions,
   genericFilterOptions,
   ontologyFilterOptions,
 } from "./filterOptions";
-import { useSettingsStore } from "../stores/settingsStore";
 
-function getFacetIdentifier(facet) {
+function getFacetIdentifier(facet: IFilterFacet): string {
   return facet.facetTitle
     ? facet.facetTitle.replaceAll(" ", "")
-    : facet.applyToColumn;
+    : facet.applyToColumn || "";
 }
 
 export const filterTemplate = {
@@ -31,17 +35,19 @@ export const filterTemplate = {
   showFacet: true,
 };
 
-export function createFilters(filters) {
-  const settingsStore = useSettingsStore();
+export function createFilters(
+  filterFacets: IFilterFacet[]
+): Record<string, IFilterDetails> {
+  const filterDetails: Record<string, IFilterDetails> = {};
 
-  const filterFacets = [];
-
-  for (const facet of settingsStore.config.filterFacets) {
-    filterFacets.push({
+  for (const facet of filterFacets) {
+    const facetId = getFacetIdentifier(facet);
+    filterDetails[facetId] = {
       facetTitle:
         facet.facetTitle ||
-        facet.applyToColumn /** a custom 'human readable' text for on the button */,
-      facetIdentifier: getFacetIdentifier(facet),
+        facet.applyToColumn ||
+        "invalidFacetTitle" /** a custom 'human readable' text for on the button */,
+      facetIdentifier: facetId,
       component:
         facet.component ||
         "CheckboxFilter" /** a custom specified component, or just the default */,
@@ -57,35 +63,33 @@ export function createFilters(filters) {
         "name" /** specify if you want to use another column as the label for the filter option, instead of name */,
       options: getFilterOptions({
         ...facet,
-        facetIdentifier: getFacetIdentifier(facet),
-      }) /** uses the removeOptions array provided in the configuration */,
+        facetIdentifier: facetId,
+      }),
       ontologyIdentifiers:
         facet.ontologyIdentifiers ||
         [] /** for use when you have multiple ontologies in a single table, e.g. orhpa and icd */,
       trueOption: facet.trueOption /** use this for a togglefilter */,
-      filters:
-        filters[facet.name] || [] /** adds the currently active options */,
       matchTypeForFilter:
         "any" /** if it has been selected from bookmark, it will be applied here. */,
-      showMatchTypeSelector:
-        facet.showMatchTypeSelector ??
-        true /** if you want to make match all / match any available */,
-      negotiatorRequestString:
-        facet.negotiatorRequestString /** the part that will be send to the negotiator as to indicate what it is */,
+      showMatchTypeSelector: facet.showMatchTypeSelector ?? true,
+      negotiatorRequestString: facet.negotiatorRequestString,
       builtIn:
-        facet.builtIn /** if this filter should be ignored for dropdown filters generation */,
-      showFacet: facet.showFacet /** if this filter should be shown at all */,
+        facet.builtIn ||
+        false /** if this filter should be ignored for dropdown filters generation */,
+      showFacet: facet.showFacet || false,
       adaptive:
         facet.adaptive ||
         false /** if the filters options should react on search results */,
-      sortColumn: "name" /** specify a column to apply sorting on */,
-      sortDirection: "asc" /** the direction to sort */,
-    });
+      sortColumn:
+        facet.sortColumn || "name" /** specify a column to apply sorting on */,
+      sortDirection:
+        (facet.sortDirection?.toLowerCase() as SortDirection) || "asc",
+    };
   }
-  return filterFacets;
+  return filterDetails;
 }
 
-function getFilterOptions(filterFacet) {
+function getFilterOptions(filterFacet: IFilterFacet) {
   if (filterFacet.customOptions && filterFacet.customOptions.length > 0) {
     return customFilterOptions(filterFacet);
   } else if (filterFacet.component === "OntologyFilter") {

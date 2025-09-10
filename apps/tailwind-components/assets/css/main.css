@@ -6,6 +6,7 @@
 @import url("./theme/umcg.css");
 @import url("./theme/aumc.css");
 @import url("./plugins/popper.css");
+@import url("./plugins/datepicker.css");
 
 @layer components {
   :root {
@@ -116,9 +117,6 @@
     --background-color-hover: var(--color-blue-50);
     --background-color-notification: var(--color-red-700);
     --background-color-code-output: var(--color-gray-100);
-
-    --background-color-ref-dropdown-toolbar: var(--color-gray-100);
-
     --background-color-ref-dropdown-toolbar: var(--color-gray-100);
 
     --text-color-button-primary: var(--color-white);
@@ -152,6 +150,8 @@
     --text-color-favorite: var(--color-blue-800);
     --text-color-favorite-hover: var(--color-blue-800);
     --text-color-button-text: var(--color-blue-500);
+    --text-color-button-icon: var(--color-blue-500);
+    --text-color-button-icon-hover: var(--color-blue-800);
     --text-color-search-button: var(--color-blue-500);
     --text-color-search-button-hover: var(--color-blue-800);
     --text-color-search-results-view-tabs: var(--color-blue-500);
@@ -237,6 +237,8 @@
     --background-color-form-required-btn-hover: var(--color-blue-50);
     --border-color-form-required: var(--color-gray-200);
     --border-radius-form-required: var(--border-radius-3px);
+
+    --padding-table-body-last-row-cell: 0.625rem;
 
     /** input heights */
     --height-input: 3.5rem;
