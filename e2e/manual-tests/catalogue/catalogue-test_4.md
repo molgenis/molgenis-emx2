@@ -36,4 +36,4 @@ A researcher working in consortium X (*example: testNetwork1*) searches for spec
 | 16 | Open 'Harmonisations' tab | Harmonisations tab should show only variables ('testVarNoRepeats' and 'testVarRepeats_') and the sources which are part of the network; Show correct statuses for harmonisation (testCohort1: has info; testCohort2: no info; testCohort3: has info; testCohort4: has info) | | |
 | 17 | Hover over 'about statuses' | Pop up should show 'Available: source has data available for the variable'; 'No data: source does not have data available for the variable' | | |
 | 18 | Click first variable 'testVarNoRepeats' | Should show pop up/dialog with information about variable | | |
-| 19 | Click 'more details' in dialog | Should redirect to variable detailed view | | |
+| 19 | Click 'More details' in dialog | Should redirect to variable detailed view | | |
