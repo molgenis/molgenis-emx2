@@ -92,6 +92,15 @@ const projectCatalogues = computed(() => {
   result.sort((a, b) => a.id.localeCompare(b.id));
   return result;
 });
+const organizationCatalogues = computed(() => {
+  let result = data?.value?.data?.Resources
+    ? data.value?.data?.Resources?.filter(
+        (c) => c.catalogueType?.name === "organisation"
+      )
+    : [];
+  result.sort((a, b) => a.id.localeCompare(b.id));
+  return result;
+});
 </script>
 
 <template>
@@ -133,8 +142,18 @@ const projectCatalogues = computed(() => {
       description="Catalogues maintained by individual research projects or consortia:"
       :catalogues="projectCatalogues"
     />
+    <ContentBlockCatalogues
+      v-if="organizationCatalogues?.length > 0"
+      title="Organization catalogues"
+      description="Catalogues maintained by organizations:"
+      :catalogues="organizationCatalogues"
+    />
     <ContentBlock
-      v-if="projectCatalogues.length === 0 && thematicCatalogues.length === 0"
+      v-if="
+        projectCatalogues.length === 0 &&
+        thematicCatalogues.length === 0 &&
+        organizationCatalogues?.length === 0
+      "
       title="No Catalogues found"
       description="Please add catalogues via admin user interface"
     />
