@@ -2,10 +2,10 @@ import { describe, expect, test, vi } from "vitest";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type { columnValue } from "../../../../metadata-utils/src/types";
 import useForm from "../../../composables/useForm";
-import { ref } from "vue";
+import { type Ref, ref } from "vue";
 
 describe("useForm", () => {
-  const tableMetadata: ITableMetaData = {
+  const tableMetadata: Ref<ITableMetaData> = ref({
     id: "vi test table metadata",
     label: "vi test table metadata",
     tableType: "some table type",
@@ -33,7 +33,7 @@ describe("useForm", () => {
         required: true,
       },
     ],
-  };
+  });
 
   test("should return a list of required fields", () => {
     const formValues = ref<Record<string, columnValue>>({});
@@ -181,12 +181,12 @@ describe("useForm", () => {
   test("should return empty list in case of table meta without columns", () => {
     const formValues = ref<Record<string, columnValue>>({});
     const scrollTo = vi.fn();
-    const tableMetadata: ITableMetaData = {
+    const tableMetadata: Ref<ITableMetaData> = ref({
       id: "vi test table metadata",
       label: "vi test table metadata",
       tableType: "some table type",
       columns: [],
-    };
+    });
     const { sections } = useForm(tableMetadata, formValues, scrollTo);
     expect(sections.value).toEqual([]);
   });
@@ -194,7 +194,7 @@ describe("useForm", () => {
   test("should return a list of sections with error count", () => {
     const formValues = ref<Record<string, columnValue>>({});
     const scrollTo = vi.fn();
-    const tableMetadata: ITableMetaData = {
+    const tableMetadata: Ref<ITableMetaData> = ref({
       id: "vi test table metadata",
       label: "vi test table metadata",
       tableType: "some table type",
@@ -222,7 +222,7 @@ describe("useForm", () => {
           heading: "h2",
         },
       ],
-    };
+    });
 
     const { sections, errorMap, gotoSection } = useForm(
       tableMetadata,
@@ -241,14 +241,12 @@ describe("useForm", () => {
         id: "col1",
         isActive: false,
         errorCount: 0,
-        type: "HEADING",
       },
       {
         label: "heading 2",
         id: "h2",
         isActive: true,
         errorCount: 1,
-        type: "HEADING",
       },
     ]);
   });
@@ -256,7 +254,7 @@ describe("useForm", () => {
   test("should add a heading at the start if the first col is not a header but the table has headings", () => {
     const formValues = ref<Record<string, columnValue>>({});
     const scrollTo = vi.fn();
-    const tableMetadata: ITableMetaData = {
+    const tableMetadata: Ref<ITableMetaData> = ref({
       id: "vi test table metadata",
       label: "vi test table metadata",
       tableType: "some table type",
@@ -282,14 +280,13 @@ describe("useForm", () => {
           label: "columns 3",
         },
       ],
-    };
+    });
     const { sections } = useForm(tableMetadata, formValues, scrollTo);
     expect(sections.value[0]).toEqual({
       errorCount: 0,
       id: "h1",
       isActive: false,
       label: "heading 1",
-      type: "HEADING",
     });
   });
 });

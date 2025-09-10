@@ -6,6 +6,7 @@ import {
   type MaybeRef,
   toRef,
   toValue,
+  type Ref,
 } from "vue";
 import type {
   columnValue,
@@ -26,16 +27,13 @@ import { SessionExpiredError } from "../utils/sessionExpiredError";
 import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
 
 export default function useForm(
-  tableMetadata: MaybeRef<ITableMetaData>,
-  formValueRef: MaybeRef<Record<columnId, columnValue>>,
+  metadata: Ref<ITableMetaData>,
+  formValues: Ref<Record<columnId, columnValue>>,
   scrollTo: (id: string) => void = () => {}
 ) {
   const visibleMap = reactive<Record<columnId, boolean>>({});
   const errorMap = ref<Record<columnId, string>>({});
   const currentHeading = ref<columnId>();
-
-  const metadata = computed(() => toValue(tableMetadata));
-  const formValues = toRef(formValueRef);
 
   const init = () => {
     metadata.value?.columns.forEach((column) => {
@@ -59,10 +57,10 @@ export default function useForm(
     });
   };
   watch(
-    () => toRef(tableMetadata).value,
+    () => metadata?.value,
     () => {
       //necessary to init visible map
-      //we could maybe try to make that a compute
+      //we could maybe try to make that a computed field maybe?
       init();
     },
     { immediate: true }
