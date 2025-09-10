@@ -1,4 +1,12 @@
-import { computed, ref, reactive, watch, type Ref } from "vue";
+import {
+  computed,
+  ref,
+  reactive,
+  watch,
+  type MaybeRef,
+  unref,
+  isRef,
+} from "vue";
 import type {
   columnValue,
   ITableMetaData,
@@ -18,44 +26,28 @@ import { SessionExpiredError } from "../utils/sessionExpiredError";
 import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
 
 export default function useForm(
-  metadata: Ref<ITableMetaData>,
-  formValues: Ref<Record<columnId, columnValue>>,
+  tableMetadata: MaybeRef<ITableMetaData>,
+  formValuesRef: MaybeRef<Record<columnId, columnValue>>,
   scrollTo: (id: string) => void = () => {}
 ) {
+  const metadata = ref(unref(tableMetadata));
+  if (isRef(tableMetadata)) {
+    watch(tableMetadata, (val) => (metadata.value = val), {
+      immediate: true,
+      deep: true,
+    });
+  }
+  const formValues = ref(unref(formValuesRef));
+  if (isRef(formValuesRef)) {
+    watch(formValuesRef, (val) => (formValues.value = val), {
+      immediate: true,
+      deep: true,
+    });
+  }
+
   const visibleMap = reactive<Record<columnId, boolean>>({});
   const errorMap = ref<Record<columnId, string>>({});
   const currentHeading = ref<columnId>();
-
-  const init = () => {
-    metadata.value?.columns.forEach((column) => {
-      switch (column.columnType) {
-        case "HEADING":
-          visibleMap[column.id] = isColumnVisible(
-            column,
-            formValues.value,
-            metadata.value
-          )
-            ? true
-            : false;
-          break;
-        default:
-          visibleMap[column.id] =
-            (!column.heading || visibleMap[column.heading]) &&
-            isColumnVisible(column, formValues.value, metadata.value)
-              ? true
-              : false;
-      }
-    });
-  };
-  watch(
-    () => metadata?.value,
-    () => {
-      //necessary to init visible map
-      //we could maybe try to make that a computed field maybe?
-      init();
-    },
-    { immediate: true }
-  );
 
   const sections = computed(() => {
     const sectionList: IFormLegendSection[] = [];
@@ -268,25 +260,48 @@ export default function useForm(
     );
   };
 
-  const updateVisibilityOnColumnChange = (column: IColumn) => {
-    metadata.value.columns
-      .filter((c) => c.visible?.includes(column.id))
-      .forEach((c) => {
-        visibleMap[c.id] =
-          //columns are not shown if heading is invisible
-          (c.columnType === "HEADING" || !c.heading || visibleMap[c.heading]) &&
-          isColumnVisible(c, formValues.value, metadata.value)
-            ? true
-            : false;
-        logger.debug(
-          "updating visibility for " + c.id + "=" + visibleMap[c.id]
-        );
-      });
+  const updateVisibility = () => {
+    logger.debug("updateVisibility");
+    let currentHeading: IColumn | undefined = undefined;
+    let headingColumns: string[] = [];
+    metadata.value.columns.forEach((c) => {
+      if (c.columnType === "HEADING") {
+        if (currentHeading) {
+          //heading is only visible if some columns are also visible
+          visibleMap[currentHeading.id] =
+            visibleMap[currentHeading.id] &&
+            headingColumns.some((columnId) => visibleMap[columnId]);
+        }
+        headingColumns = [];
+        currentHeading = c;
+      } else {
+        headingColumns.push(c.id);
+      }
+      //column is shown if heading is visible and the column is visible
+      visibleMap[c.id] =
+        (c.columnType === "HEADING" ||
+          !currentHeading ||
+          visibleMap[currentHeading.id]) &&
+        isColumnVisible(c, formValues.value, metadata.value)
+          ? true
+          : false;
+      //empty invisible columns
+      // (tricky business, users might be hurt, and we require visible expressions to point 'backwards' never 'forwards')
+      if (!visibleMap[c.id]) {
+        formValues.value[c.id] = undefined;
+      }
+    });
+    //check visibility of last heading
+    if (currentHeading) {
+      visibleMap[(currentHeading as IColumn).id] =
+        visibleMap[(currentHeading as IColumn).id] &&
+        headingColumns.some((columnId) => visibleMap[columnId]);
+    }
   };
 
   const onBlurColumn = (column: IColumn) => {
     validateColumn(column);
-    updateVisibilityOnColumnChange(column);
+    updateVisibility();
   };
 
   const onUpdateColumn = (column: IColumn) => {
@@ -294,7 +309,6 @@ export default function useForm(
     if (errorMap.value[column.id]) {
       validateColumn(column);
     }
-    updateVisibilityOnColumnChange(column);
   };
 
   const onViewColumn = (column: IColumn) => {
@@ -340,14 +354,23 @@ export default function useForm(
       metadata.value.schemaId as string
     );
   }
+
+  watch(
+    () => metadata?.value,
+    () => {
+      //update visible expressions
+      //no arg is all columns
+      updateVisibility();
+    },
+    { immediate: true }
+  );
   watch(
     () => formValues.value,
     async () => {
       if (formValues.value) {
         await updateRowKey();
       }
-    },
-    { immediate: true }
+    }
   );
 
   return {

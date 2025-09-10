@@ -1,8 +1,9 @@
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi, beforeEach } from "vitest";
 import type { ITableMetaData } from "../../../../metadata-utils/src";
 import type { columnValue } from "../../../../metadata-utils/src/types";
 import useForm from "../../../composables/useForm";
 import { type Ref, ref } from "vue";
+import consola from "consola";
 
 describe("useForm", () => {
   const tableMetadata: Ref<ITableMetaData> = ref({
@@ -288,5 +289,84 @@ describe("useForm", () => {
       isActive: false,
       label: "heading 1",
     });
+  });
+
+  test("headings should be shown if at least one field is shown", () => {
+    const formValues = ref<Record<string, columnValue>>({});
+    const scrollTo = vi.fn();
+    const tableMetadata: Ref<ITableMetaData> = ref({
+      id: "vi test table metadata",
+      label: "vi test table metadata",
+      tableType: "some table type",
+      columns: [
+        {
+          columnType: "HEADING",
+          id: "h1",
+          label: "heading 1",
+        },
+        {
+          columnType: "STRING",
+          id: "col1",
+          label: "columns 1",
+        },
+        {
+          columnType: "HEADING",
+          id: "h2",
+          label: "heading 2",
+        },
+        {
+          columnType: "STRING",
+          id: "col2",
+          label: "columns 2",
+          visible: "col1",
+        },
+        {
+          columnType: "HEADING",
+          id: "h3",
+          label: "heading 3",
+          visible: "col2",
+        },
+        {
+          columnType: "STRING",
+          id: "col3",
+          label: "columns 3",
+        },
+      ],
+    });
+
+    const { sections, visibleColumns, onBlurColumn } = useForm(
+      tableMetadata,
+      formValues,
+      scrollTo
+    );
+    consola.level = 4;
+    expect(sections.value[0]).toEqual({
+      errorCount: 0,
+      id: "h1",
+      isActive: false,
+      label: "heading 1",
+    });
+    expect(sections.value.length).toEqual(1);
+    expect(visibleColumns.value.length).toEqual(2);
+
+    //simulate update on col1
+    formValues.value["col1"] = true;
+    onBlurColumn(tableMetadata.value.columns[1]);
+    expect(sections.value.length).toEqual(2);
+    expect(visibleColumns.value.length).toEqual(4);
+
+    //simulate update on col2
+    formValues.value["col2"] = true;
+    onBlurColumn(tableMetadata.value.columns[3]);
+    expect(sections.value.length).toEqual(3);
+    expect(visibleColumns.value.length).toEqual(6);
+
+    //simulate update on col1
+    //should invisible fields be emptied ???
+    formValues.value["col1"] = false;
+    onBlurColumn(tableMetadata.value.columns[1]);
+    console.log(JSON.stringify(visibleColumns.value));
+    expect(sections.value.length).toEqual(1);
+    expect(visibleColumns.value.length).toEqual(2);
   });
 });
