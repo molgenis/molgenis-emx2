@@ -1,6 +1,6 @@
 ﻿tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,visible,defaultValue,semantics,description,profiles,computed
 Organisations,Agents,,,,,,,,,,,,"foaf:Agent,org:Organization",,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
 Organisations,,is lead organisation,bool,,TRUE,,,,,,type?.name === 'Organisation',,,Whether the organisation is the lead organisation of this resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,FAIR Genomes",
-Organisations,,organisation name,,,,,,,,,,,foaf:name,,"DataCatalogueFlat,EMA",organisationName?.name
-Organisations,,organisation pid,,,,,,,,,,,dct:identifier,,"DataCatalogueFlat,EMA",
-Organisations,,organisation website,,,,,,,,,,,,,"DataCatalogueFlat,EMA",
+Organisations,,organisation name,,,,,,,,,,,foaf:name,"Organisation name, computed value from ROR ontology for DCAT generation","DataCatalogueFlat,EMA",organisationName?.name
+Organisations,,organisation pid,,,,,,,,,,,dct:identifier,"ROR id, computed value from ROR ontology for DCAT generation","DataCatalogueFlat,EMA",organisationName?.ontologyTermURI
+Organisations,,organisation website,,,,,,,,,,,foaf:homepage,"Organisation website, computed value from roR ontology for DCAT generation","DataCatalogueFlat,EMA",organisationName?.website
