@@ -26,49 +26,12 @@ const modelValue = defineModel<IRow>("modelValue", {
 const emit = defineEmits(["update", "view", "blur"]);
 
 const container = useTemplateRef<HTMLDivElement>("container");
-const visibleEntries = new Map<string, IntersectionObserverEntry>();
 
 function onIntersectionObserver(entries: IntersectionObserverEntry[]) {
-  if (!container.value) return;
-
-  // Update currently visible entries
-  for (const entry of entries) {
-    if (entry.isIntersecting) visibleEntries.set(entry.target.id, entry);
-    else visibleEntries.delete(entry.target.id);
-  }
-
-  if (!visibleEntries.size) return;
-
-  const containerRect = container.value.getBoundingClientRect();
-  const style = getComputedStyle(container.value);
-  const paddingTop = parseFloat(style.paddingTop);
-  const paddingBottom = parseFloat(style.paddingBottom);
-
-  const containerTop = containerRect.top + paddingTop;
-  const containerBottom = containerRect.bottom - paddingBottom;
-
-  // Filter only elements fully visible inside the container
-  const fullyVisible = Array.from(visibleEntries.values())
-    .map((entry) => {
-      const el = entry.target as HTMLElement;
-      const elRect = el.getBoundingClientRect();
-      const isFullyVisible =
-        elRect.top >= containerTop && elRect.bottom <= containerBottom;
-      return { entry, isFullyVisible, top: elRect.top };
-    })
-    .filter((e) => e.isFullyVisible);
-
-  if (!fullyVisible.length) return;
-
-  // Pick the element closest to the top of the container
-  const topMost = fullyVisible.reduce((prev, curr) =>
-    curr.top < prev.top ? curr : prev
-  ).entry;
-
-  // Call your callback
-  if (topMost?.target.id.includes("form-field")) {
+  const highest = entries.find((entry) => entry.isIntersecting);
+  if (highest) {
     const col = props.columns.find(
-      (c) => topMost.target.id === `${c.id}-form-field`
+      (c) => highest.target.id === `${c.id}-form-field`
     );
     if (col) emit("view", col);
   }
@@ -109,7 +72,6 @@ onMounted(() => {
         </h2>
       </div>
       <FormField
-        ref="fields"
         class="pb-8"
         v-else-if="!Object.keys(constantValues || {}).includes(column.id)"
         v-intersection-observer="[onIntersectionObserver, { root: container }]"
