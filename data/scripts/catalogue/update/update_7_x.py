@@ -76,6 +76,9 @@ class Transform:
         self.endpoint()
         if self.profile == 'UMCGCohortsStaging':
             self.contacts()
+        if self.schema_name == 'testCatalogue':
+            self.collection_events()
+            self.subpopulations()
 
     def agents(self):
         """ Transform data in Agents
@@ -114,6 +117,12 @@ class Transform:
         """ Transform data in Resources
         """
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+        df_resources.rename(columns={'resources': 'data resources'}, inplace=True)
+
+        # for demo data only: delete issued and modified
+        if self.schema_name == 'testCatalogue':
+            df_resources['issued'] = ''
+            df_resources['modified'] = ''
 
         # get publisher and creator from Organisations table
         df_organisations = pd.read_csv(self.path + 'Organisations.csv', dtype='object')
@@ -124,30 +133,44 @@ class Transform:
 
         i = 0
         for r in df_resources['id']:
-            df_organisations_c = df_organisations[df_organisations['resource'] == r]
+            # get creator(s)
+            df_organisations_c = df_organisations[df_organisations['resource'] == r].reset_index()
             df_resources.loc[i, 'creator.resource'] = ','.join(df_organisations_c['resource'])
             df_resources.loc[i, 'creator.id'] = ','.join(df_organisations_c['id'])
             df_organisations_p = df_organisations_c[df_organisations_c['is lead organisation'] == 'true'].reset_index()
+            # get publisher from lead organisation
             if not len(df_organisations_p) == 0:
                 df_resources.loc[i, 'publisher.resource'] = df_organisations_p['resource'][0]
                 df_resources.loc[i, 'publisher.id'] = df_organisations_p['id'][0]
+            # for demo data only: otherwise get first organisation in list as publisher
+            if self.schema_name == 'testCatalogue':
+                if not len(df_organisations_c) == 0:
+                    df_resources.loc[i, 'publisher.resource'] = df_organisations_c['resource'][0]
+                    df_resources.loc[i, 'publisher.id'] = df_organisations_c['id'][0]
             i += 1
 
-        # get contact point from Contacts table
-        df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
-        df_resources['contact point.resource'] = ''
-        df_resources['contact point.first name'] = ''
-        df_resources['contact point.last name'] = ''
+        # get contact point from Contacts table for demo data only
+        if self.schema_name == 'testCatalogue':
+            df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
+            df_resources['contact point.resource'] = ''
+            df_resources['contact point.first name'] = ''
+            df_resources['contact point.last name'] = ''
 
-        i = 0
-        for r in df_resources['id']:
-            df_contacts_r = df_contacts[df_contacts['resource'] == r]
-            df_contacts_p = df_contacts_r[df_contacts_r['role'] == 'Primary contact'].reset_index()
-            if not len(df_contacts_p) == 0:
-                df_resources.loc[i, 'contact point.resource'] = df_contacts_p['resource'][0]
-                df_resources.loc[i, 'contact point.first name'] = df_contacts_p['first name'][0]
-                df_resources.loc[i, 'contact point.last name'] = df_contacts_p['last name'][0]
-            i += 1
+            i = 0
+            for r in df_resources['id']:
+                df_contacts_r = df_contacts[df_contacts['resource'] == r].reset_index()
+                df_contacts_p = df_contacts_r[df_contacts_r['role'] == 'Primary contact'].reset_index()
+                # get contact point from primary contact
+                if not len(df_contacts_p) == 0:
+                    df_resources.loc[i, 'contact point.resource'] = df_contacts_p['resource'][0]
+                    df_resources.loc[i, 'contact point.first name'] = df_contacts_p['first name'][0]
+                    df_resources.loc[i, 'contact point.last name'] = df_contacts_p['last name'][0]
+                # otherwise get first contact as contact point
+                elif not len(df_contacts_r) == 0:
+                    df_resources.loc[i, 'contact point.resource'] = df_contacts_r['resource'][0]
+                    df_resources.loc[i, 'contact point.first name'] = df_contacts_r['first name'][0]
+                    df_resources.loc[i, 'contact point.last name'] = df_contacts_r['last name'][0]
+                i += 1
 
         # write table to file
         df_resources.to_csv(self.path + 'Resources.csv', index=False)
@@ -171,6 +194,29 @@ class Transform:
 
         # write table to file
         df_endpoint.to_csv(self.path + 'Endpoint.csv', index=False)
+
+    def collection_events(self):
+        """ Transform data in Endpoint
+        """
+        df_col_event = pd.read_csv(self.path + 'Collection events.csv', dtype='object')
+
+        df_col_event['issued'] = ''
+        df_col_event['modified'] = ''
+
+        # write table to file
+        df_col_event.to_csv(self.path + 'Collection events.csv', index=False)
+
+    def subpopulations(self):
+        """ Transform data in Endpoint
+        """
+        df_subpopulations = pd.read_csv(self.path + 'Subpopulations.csv', dtype='object')
+
+        df_subpopulations['issued'] = ''
+        df_subpopulations['modified'] = ''
+
+        # write table to file
+        df_subpopulations.to_csv(self.path + 'Subpopulations.csv', index=False)
+
 
 
 def get_ror_name(pid, dict_ror):
