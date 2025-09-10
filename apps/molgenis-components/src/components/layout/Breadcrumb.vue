@@ -64,11 +64,13 @@
 
 <script>
 import InputSearch from "../forms/InputSearch.vue";
+import { RouterLink } from "vue-router";
 
 export default {
   name: "Breadcrumb",
   components: {
     InputSearch,
+    RouterLink,
   },
   props: {
     /* list of crumbs, map of  {'label':'url'} */

@@ -34,6 +34,10 @@ export default defineConfig<ConfigOptions>({
   /* Configure projects for major browsers */
   projects: [
     {
+      name: "auth.setup",
+      testMatch: /auth\.setup\.ts/, // <-- only runs this file
+    },
+    {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
       testIgnore: "*/admin!*.spec.ts",
@@ -45,6 +49,7 @@ export default defineConfig<ConfigOptions>({
         storageState: "e2e/.auth/user.json",
       },
       testMatch: "*/admin!*.spec.ts",
+      dependencies: ["auth.setup"],
     },
   ],
 });

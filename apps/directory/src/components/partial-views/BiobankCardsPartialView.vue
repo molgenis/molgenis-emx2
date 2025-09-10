@@ -1,6 +1,9 @@
 <template>
   <div class="border-bottom pt-3">
-    <div v-if="biobanksStore.biobankCardsHaveResults">
+    <div v-if="biobanksStore.waiting" class="status-text text-center">
+      <spinner class="mt-2" />
+    </div>
+    <div v-else-if="biobanksStore.biobankCardsHaveResults">
       <div class="d-flex mb-4 justify-content-between">
         <result-header class="w-25" />
         <pagination-bar class="align-self-center" />
@@ -19,11 +22,8 @@
       </div>
       <pagination-bar class="mt-4" />
     </div>
-    <div v-else-if="!biobanksStore.waiting" class="status-text">
+    <div v-else class="status-text">
       <h4>{{ noResultsText }}</h4>
-    </div>
-    <div v-else class="status-text text-center">
-      <spinner class="mt-2" />
     </div>
   </div>
 </template>

@@ -36,6 +36,16 @@ For example:
 java -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:mydatabase -DMOLGENIS_HTTP_PORT=9090 -jar molgenis-emx2-<version>-all.jar
 ```
 
+# METRICS
+
+MOLGENIS enables metrics api for example to use with prometheus. By default this is disabled. Please on use configure carefully to avoid abuse.
+
+* `MOLGENIS_METRICS_ENABLED=true` enables the metrics on path /api/metrics
+* `MOLGENIS_METRICS_PATH=/api/metric` enables the metrics path to be customized
+
+For example:
+java -DMOLGENIS_METRICS_ENABLED=true -jar molgenis-emx2-<version>-all.jar
+
 # Tips
 
 ## On mac you can install postgres using [homebrew](https://formulae.brew.sh/formula/postgresql)

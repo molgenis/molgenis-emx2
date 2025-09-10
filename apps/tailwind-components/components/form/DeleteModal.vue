@@ -5,6 +5,8 @@ import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
 import DisplayRecord from "../display/Record.vue";
+import { useSession } from "../../composables/useSession";
+import { SessionExpiredError } from "../../utils/sessionExpiredError";
 
 const props = withDefaults(
   defineProps<{
@@ -26,6 +28,10 @@ const visible = defineModel("visible", {
 });
 
 const deleteErrorMessage = ref<string>("");
+
+const session = await useSession();
+const formMessage = ref<string>("");
+const showReAuthenticateButton = ref<boolean>(false);
 
 function setVisible() {
   visible.value = true;
@@ -51,7 +57,15 @@ async function onDeleteConfirm() {
   const resp = await deleteRecord(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error deleting data", err);
-      deleteErrorMessage.value = errorToMessage(err, "Error deleting record");
+
+      if (err instanceof SessionExpiredError) {
+        deleteErrorMessage.value =
+          "Your session has expired. Please re-authenticate to continue.";
+        showReAuthenticateButton.value = true;
+      } else {
+        deleteErrorMessage.value = errorToMessage(err, "Error deleting record");
+      }
+
       return null;
     }
   );
@@ -63,6 +77,14 @@ async function onDeleteConfirm() {
   isDraft.value = false;
   visible.value = false;
   emit("update:deleted", resp);
+}
+
+function reAuthenticate() {
+  session.reAuthenticate(
+    deleteErrorMessage,
+    showReAuthenticateButton,
+    formMessage
+  );
 }
 </script>
 
@@ -113,6 +135,21 @@ async function onDeleteConfirm() {
         :message="deleteErrorMessage"
         :show-prev-next-buttons="false"
         class="sticky mx-4 bottom-0 transition-all transition-discrete"
+      >
+        <Button
+          v-if="showReAuthenticateButton"
+          type="outline"
+          size="small"
+          @click="reAuthenticate"
+          >Re-authenticate</Button
+        >
+      </FormError>
+    </Transition>
+    <Transition name="slide-up">
+      <FormMessage
+        v-show="formMessage"
+        :message="formMessage"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       />
     </Transition>
 

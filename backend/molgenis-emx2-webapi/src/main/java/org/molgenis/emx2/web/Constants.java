@@ -32,4 +32,6 @@ public class Constants {
   Optional api request param key to add system columns ( mg_..) to the result
   */
   public static final String INCLUDE_SYSTEM_COLUMNS = "includeSystemColumns";
+
+  public static final String EMX_2_METRICS_SESSION_TOTAL = "emx2_active_sessions";
 }

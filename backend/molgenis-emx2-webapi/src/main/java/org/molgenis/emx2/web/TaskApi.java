@@ -11,9 +11,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.tasks.*;
 
@@ -119,7 +122,7 @@ public class TaskApi {
     }
   }
 
-  private static void getTaskOutput(Context ctx) throws IOException {
+  private static void getTaskOutput(Context ctx) {
     MolgenisSession session = sessionManager.getSession(ctx.req());
     Schema adminSchema = session.getDatabase().getSchema(SYSTEM_SCHEMA);
     String jobId = ctx.pathParam("id");
@@ -131,7 +134,7 @@ public class TaskApi {
             .select(s("output", s("contents"), s("mimetype"), s("filename"), s("extension")))
             .where(f("id", Operator.EQUALS, jobId))
             .retrieveRows()
-            .get(0);
+            .getFirst();
 
     if (jobMetadata == null) {
       throw new MolgenisException(
@@ -152,20 +155,31 @@ public class TaskApi {
   }
 
   private static void listTasks(Context ctx) {
-    String clearUrl = "/" + ctx.pathParam("schema") + "/api/tasks/clear";
-    String result = String.format("{\"clearUrl\":\"%s\", \"tasks\":[", clearUrl);
+    String schema = ctx.pathParamMap().get("schema");
+    String urlRoot = schema == null ? "api/tasks/" : schema + "/api/tasks/";
+    String clearUrl = urlRoot + "clear";
 
-    for (String id : taskService.getJobIds()) {
-      Task task = taskService.getTask(id);
-      String getUrl = "/" + ctx.pathParam("schema") + "/api/tasks/" + id;
-      String deleteUrl = getUrl + "/delete";
-      result +=
-          String.format(
-              "{\"id\":\"%s\", \"description\":\"%s\", \"status\":\"%s\", \"url\":\"%s\", \"deleteUrl\":\"%s\"}",
-              id, task.getDescription(), task.getStatus(), getUrl, deleteUrl);
-    }
-    result += "]}";
-    ctx.result(result);
+    Map<String, Object> response = new HashMap<>();
+    response.put("clearUrl", clearUrl);
+
+    List<Map<String, Object>> tasks =
+        taskService.getJobIds().stream()
+            .map(
+                id -> {
+                  Task task = taskService.getTask(id);
+                  Map<String, Object> map = new HashMap<>();
+                  map.put("id", id);
+                  map.put("description", task.getDescription());
+                  map.put("status", task.getStatus());
+                  map.put("url", urlRoot + id);
+                  map.put("deleteUrl", urlRoot + id + "/delete");
+                  return map;
+                })
+            .collect(Collectors.toList());
+
+    response.put("tasks", tasks);
+
+    ctx.json(response);
   }
 
   private static void getTask(Context ctx) {
