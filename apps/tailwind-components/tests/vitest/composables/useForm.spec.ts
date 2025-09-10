@@ -365,7 +365,6 @@ describe("useForm", () => {
     //should invisible fields be emptied ???
     formValues.value["col1"] = false;
     onBlurColumn(tableMetadata.value.columns[1]);
-    console.log(JSON.stringify(visibleColumns.value));
     expect(sections.value.length).toEqual(1);
     expect(visibleColumns.value.length).toEqual(2);
   });

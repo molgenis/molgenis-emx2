@@ -359,7 +359,6 @@ export default function useForm(
     () => metadata?.value,
     () => {
       //update visible expressions
-      //no arg is all columns
       updateVisibility();
     },
     { immediate: true }
@@ -368,6 +367,8 @@ export default function useForm(
     () => formValues.value,
     async () => {
       if (formValues.value) {
+        //should watch only pkey fields
+        //we could make this a prop
         await updateRowKey();
       }
     }
