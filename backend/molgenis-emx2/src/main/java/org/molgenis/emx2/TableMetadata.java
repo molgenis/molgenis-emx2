@@ -39,6 +39,8 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
   // profiles to which this table belongs
   private String[] profiles;
 
+  private Boolean rowLevelSecurity;
+
   public String[] getSemantics() {
     return semantics;
   }
@@ -101,6 +103,7 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       this.labels = metadata.getLabels();
       this.descriptions = metadata.getDescriptions();
       this.oldName = metadata.getOldName();
+      this.rowLevelSecurity = metadata.hasRowLevelSecurity();
       this.setSettingsWithoutReload(metadata.getSettings());
       for (Column c : metadata.columns.values()) {
         this.columns.put(c.getName(), new Column(this, c));
@@ -669,5 +672,13 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
       table = table.getInheritedTable();
     }
     return table;
+  }
+
+  public Boolean hasRowLevelSecurity() {
+    return rowLevelSecurity;
+  }
+
+  public void setRowLevelSecurity(Boolean rowLevelSecurity) {
+    this.rowLevelSecurity = rowLevelSecurity;
   }
 }
