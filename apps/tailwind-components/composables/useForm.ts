@@ -1,13 +1,4 @@
-import {
-  computed,
-  ref,
-  reactive,
-  watch,
-  type MaybeRef,
-  toRef,
-  toValue,
-  type Ref,
-} from "vue";
+import { computed, ref, reactive, watch, type Ref } from "vue";
 import type {
   columnValue,
   ITableMetaData,
@@ -117,8 +108,10 @@ export default function useForm(
 
   /** return required and empty, visible fields across all sections */
   const emptyRequiredFields = computed(() => {
-    return requiredFields.value.filter(
-      (column: IColumn) => !formValues.value[column.id]
+    return (
+      requiredFields.value?.filter(
+        (column: IColumn) => !formValues.value[column.id]
+      ) || []
     );
   });
 
@@ -338,6 +331,9 @@ export default function useForm(
   //todo, find another way to produce rowkey
   //if we refactor backend to give each row an internal molgenis_id we don't need this magic anymore
   async function updateRowKey() {
+    console.log(
+      "update row key, is expensive should only fire when creating an update form"
+    );
     rowKey.value = await fetchRowPrimaryKey(
       formValues.value,
       metadata.value.id,
@@ -350,7 +346,8 @@ export default function useForm(
       if (formValues.value) {
         await updateRowKey();
       }
-    }
+    },
+    { immediate: true }
   );
 
   return {

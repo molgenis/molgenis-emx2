@@ -50,7 +50,6 @@ watch(
   }
 );
 
-const fields = ref<HTMLElement[]>([]);
 onMounted(() => {
   copyConstantValuesToModelValue();
 });
