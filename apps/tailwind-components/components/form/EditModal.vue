@@ -56,6 +56,7 @@
           ref="formFields"
           :columns="visibleColumns"
           :errorMap="errorMap"
+          :row-key="rowKey"
           v-model="editFormValues"
           @update="onUpdateColumn"
           @blur="onBlurColumn"
@@ -240,6 +241,7 @@ const {
   gotoSection,
   updateInto,
   errorMap,
+  rowKey,
   sections,
   visibleColumns,
   onUpdateColumn,
