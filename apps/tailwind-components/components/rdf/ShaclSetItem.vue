@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useRoute } from "#app/composables/router";
-import {computed, ref} from "vue";
+import { computed, ref } from "vue";
 import { useFetch } from "#app";
 import type { ShaclSetItem } from "../../../metadata-utils/src/rdf";
 
@@ -18,7 +18,7 @@ const props = withDefaults(
 
 const shaclSetTitle = computed<string>(() => {
   return (
-      props.shaclSet.description + " (version: " + props.shaclSet.version + ")"
+    props.shaclSet.description + " (version: " + props.shaclSet.version + ")"
   );
 });
 
@@ -87,9 +87,7 @@ async function runShacl() {
             'rotate-180': isExpanded,
           }"
         />
-        <span
-          >{{ shaclSetTitle }}</span
-        >
+        <span>{{ shaclSetTitle }}</span>
       </button>
       <div>
         <BaseIcon
