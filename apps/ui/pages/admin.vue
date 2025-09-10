@@ -14,8 +14,8 @@
         <template #head>
           <TableHeadRow>
             <TableHead></TableHead>
-            <TableHead>Name / Email</TableHead>
             <TableHead>Enabled</TableHead>
+            <TableHead>Name / Email</TableHead>
             <TableHead>Roles</TableHead>
             <TableHead>Tokens</TableHead>
           </TableHeadRow>
@@ -25,15 +25,6 @@
             <TableCell>
               <div class="flex gap-1">
                 <Button
-                  v-if="canDelete(user)"
-                  iconOnly
-                  icon="trash"
-                  type="secondary"
-                  size="small"
-                  label="Delete user"
-                  @click="removeUser(user)"
-                />
-                <Button
                   iconOnly
                   icon="user"
                   type="secondary"
@@ -41,13 +32,32 @@
                   label="Edit user"
                   @click="editUser(user)"
                 />
+                <Button
+                  v-if="canDelete(user)"
+                  iconOnly
+                  class="hover:text-red-500"
+                  icon="trash"
+                  type="secondary"
+                  size="small"
+                  label="Delete user"
+                  @click="removeUser(user)"
+                />
               </div>
             </TableCell>
+            <TableCell>
+              <BaseIcon :class="user.enabled?'text-green-800':'text-red-500'" :name="user.enabled?'Check':'Cross'" />
+            </TableCell>
             <TableCell>{{ user.email }}</TableCell>
-            <TableCell>{{ user.enabled }}</TableCell>
             <TableCell>
               <div v-if="user.roles?.length>3">
-                <Button type="secondary" size="tiny" @click="">show all {{ user.roles?.length }} roles</Button>
+                <ShowMore>
+                  <template v-slot:button>
+                    <Button type="secondary" size="tiny">show all {{ user.roles?.length }} roles</Button>
+                  </template>
+                  <div v-for="role in user.roles">
+                    {{ role.schemaId }} ({{ role.role }})
+                  </div>
+                </ShowMore>
               </div>
               <div v-else v-for="role in user.roles">
                 {{ role.schemaId }} ({{ role.role }})

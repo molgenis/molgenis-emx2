@@ -1,5 +1,6 @@
 <template>
   <Modal v-model:visible="visible" title="Create User">
+    <div class="p-5">
     <label>Username</label>
     <InputString
       id="New username"
@@ -22,22 +23,27 @@
       :hasError="password !== password2"
       type="password"
     />
-
+      </div>
     <template #footer>
-      <div>
+      <div class="m-1">
         <div v-if="isDuplicateName">Username already exists</div>
         <div v-if="password !== password2">Passwords do not match</div>
-        <div v-if="password.length < 8">
+        <div v-if="password.length < 8 && password.length > 0">
           Password must be at least 8 characters
         </div>
-      </div>
+      <div class="flex gap-1">
+
       <Button
+      icon="Plus" size="small" 
         @click="addUser(username, password, password2)"
         :disabled="!isValidUser()"
       >
         Add user
       </Button>
-      <Button @click="closeModal">Close</Button>
+      <Button icon="Close" size="small"  @click="closeModal">Close</Button>
+      </div>
+    </div>
+
     </template>
   </Modal>
 </template>
