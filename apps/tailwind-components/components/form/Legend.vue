@@ -4,14 +4,14 @@
     <ul class="list-none">
       <li
         v-for="section in sections"
-        class="py-2 pr-4 relative group/chapter cursor-pointer flex items-center gap-2 justify-start h-full"
+        class="py-2 pr-4 relative group/chapter flex items-center gap-2 justify-start h-full"
       >
         <div
           class="absolute left-0 top-0 h-full w-1 group-hover/chapter:bg-button-primary transition-translate duration-100 ease-in-out origin-left -translate-full group-hover/chapter:translate-0"
           :class="{ 'bg-button-primary': section.isActive }"
         />
         <a
-          class="pl-7 truncate hover:overflow-visible bg-form-legend"
+          class="pl-7 truncate hover:overflow-visible bg-form-legend cursor-pointer"
           href="#"
           :aria-current="section.isActive"
           @click.prevent="emit('goToSection', section.id)"

@@ -44,7 +44,7 @@
           v-if="sections"
           class="sticky top-0"
           :sections="sections"
-          @goToSection="scrollToElementInside('fields-container', $event)"
+          @goToSection="gotoSection"
         />
       </div>
 
@@ -221,7 +221,6 @@ async function onUpdate() {
   emit("update:updated", resp);
 }
 
-const activeChapterId = ref<string>("_scroll_to_top");
 function scrollToElementInside(containerId: string, elementId: string) {
   const container = document.getElementById(containerId);
   const element = document.getElementById(elementId);
@@ -238,6 +237,7 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
+  gotoSection,
   updateInto,
   errorMap,
   sections,
