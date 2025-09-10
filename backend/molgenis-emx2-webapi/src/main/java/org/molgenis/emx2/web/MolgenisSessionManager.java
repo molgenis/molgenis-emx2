@@ -1,7 +1,9 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.Constants.EMX_2_METRICS_SESSION_TOTAL;
 import static org.molgenis.emx2.web.MolgenisWebservice.oidcController;
 
+import io.prometheus.metrics.core.metrics.Gauge;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
@@ -10,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
@@ -19,6 +22,12 @@ import org.slf4j.LoggerFactory;
 public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
+
+  static final Gauge sessionGauge =
+      Gauge.builder()
+          .name(EMX_2_METRICS_SESSION_TOTAL)
+          .help("Total number of active sessions")
+          .register();
 
   public MolgenisSessionManager() {}
 
@@ -54,7 +63,7 @@ public class MolgenisSessionManager {
     database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
     String user = JWTgenerator.getUserFromToken(database, request.getHeader(authTokenKey));
     database.setActiveUser(user);
-    MolgenisSession session = new MolgenisSession(database);
+    MolgenisSession session = new MolgenisSession(database, new GraphqlApiFactory());
     database.setListener(new MolgenisSessionManagerDatabaseListener(this, session));
     return session;
   }
@@ -114,17 +123,22 @@ public class MolgenisSessionManager {
 
         // create session and add to sessions lists so we can also access all active
         // sessions
-        MolgenisSession molgenisSession = new MolgenisSession(database);
+        MolgenisSession molgenisSession = new MolgenisSession(database, new GraphqlApiFactory());
         sessions.put(httpSessionEvent.getSession().getId(), molgenisSession);
         logger.info("session created: " + httpSessionEvent.getSession().getId());
 
         // create listener
         database.setListener(new MolgenisSessionManagerDatabaseListener(_this, molgenisSession));
+
+        // Increment metrics gauge
+        sessionGauge.inc();
       }
 
       public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
         // remove from session pool
         sessions.remove(httpSessionEvent.getSession().getId());
+        // Decrement metrics gauge
+        sessionGauge.dec();
         logger.info("session destroyed: " + httpSessionEvent.getSession().getId());
       }
     };

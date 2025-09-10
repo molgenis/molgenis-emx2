@@ -177,3 +177,5 @@ FARMACEUTICA,place-holder-organisation,,Place holder organisation,,,,,,,
 VCN,place-holder-organisation,,Place holder organisation,,,,,,,
 SALM,place-holder-organisation,,Place holder organisation,,,,,,,
 SPA,place-holder-organisation,,Place holder organisation,,,,,,,
+UMCG,UMCG,,UMCG,UMCG,,,Netherlands (the),https://umcg.nl,Data originator,true
+testUMC,TUMC,,TestUMC,tUMC,,,Austria,https://test-umc@example.org,Data holder,false

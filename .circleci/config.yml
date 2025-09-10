@@ -151,18 +151,30 @@ jobs:
         name: Wait for preview to be up, poll every 10 seconds
         command: |
           GETURL="https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/testNetwork1"
-          while true; 
-              do 
-                  STATUS=$(curl --silent --head $GETURL | awk '/^HTTP/{print $2}')
-                  echo ${STATUS}
-                  if [[ "$STATUS" == "200" ]]; then 
-                      echo "preview is up";
-                      break; 
-                  else 
-                      echo "preview is not ready yet, waiting 10 seconds...";
-                  fi; 
-                  sleep 10; 
-              done
+          MAX_RETRIES=30
+          RETRY=0
+          
+          while true; do
+            # Run curl, suppress output, get status code only
+            STATUS=$(curl --silent --output /dev/null --write-out "%{http_code}" "$GETURL" || echo "")
+          
+            echo "HTTP status: ${STATUS:-none}"
+            
+            if [[ "$STATUS" == "200" ]]; then
+            echo "✅ Preview is up"
+            break
+            else
+            echo "⏳ Preview not ready yet, waiting 10 seconds..."
+            fi
+            
+            RETRY=$((RETRY + 1))
+            if [[ "$RETRY" -ge "$MAX_RETRIES" ]]; then
+            echo "❌ Gave up after $MAX_RETRIES attempts"
+            exit 1
+            fi
+            
+            sleep 10
+          done
 
     - run:
         name: message slack about preview
@@ -265,7 +277,7 @@ jobs:
     - post_steps
   e2e-test:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.53.1-jammy
+      - image: mcr.microsoft.com/playwright:v1.55.0-jammy
     steps:
       - checkout
       - run: npm i -D @playwright/test

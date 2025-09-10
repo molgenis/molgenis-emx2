@@ -645,6 +645,13 @@ public class TableMetadata extends HasLabelsDescriptionsAndSettings<TableMetadat
         .orElseGet(() -> null);
   }
 
+  public Column getColumnByIdIncludingSubclasses(String columnId) {
+    return getColumnsIncludingSubclasses().stream()
+        .filter(c -> c.getIdentifier().equals(columnId))
+        .findFirst()
+        .orElseGet(() -> null);
+  }
+
   public List<TableMetadata> getSubclassTables() {
     List<TableMetadata> result = new ArrayList();
     for (TableMetadata table : getSchema().getTables()) {

@@ -73,12 +73,18 @@ public class Constants {
 
   public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
 
+  public static final String CV_CLIENT_ID = "CV_CLIENT_ID";
+  public static final String CV_CLIENT_SECRET = "CV_CLIENT_SECRET";
+  public static final String CV_INTROSPECT_URI = "CV_INTROSPECT_URI";
+
   public static final String OIDC_LOGIN_PATH = "_login";
   public static final String OIDC_CALLBACK_PATH = "_callback";
   public static final String ASYNC = "async";
   public static final String ANONYMOUS = "anonymous";
   public static final String LOCALES = "locales";
   public static final String LOCALES_DEFAULT = "[\"en\"]";
+  public static final String MOLGENIS_METRICS_ENABLED = "MOLGENIS_METRICS_ENABLED";
+  public static final String MOLGENIS_METRICS_PATH = "MOLGENIS_METRICS_PATH";
 
   protected static final Operator[] EXISTS_OPERATIONS = {EQUALS};
 

@@ -4,7 +4,7 @@ import useErrorHandler from "../composables/errorHandler";
 import { useCheckoutStore } from "./checkoutStore";
 import { useSettingsStore } from "./settingsStore";
 
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 export const useCollectionStore = defineStore("collectionStore", () => {
   const settingsStore = useSettingsStore();
 

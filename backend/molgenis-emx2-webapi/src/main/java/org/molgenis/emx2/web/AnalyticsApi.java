@@ -71,7 +71,8 @@ public class AnalyticsApi {
 
   private static void addTrigger(Context ctx) {
     ctx.contentType("application/json");
-    var createTriggerAction = actionTransformer.transform(ctx.body(), CreateTriggerAction.class);
+    CreateTriggerAction createTriggerAction =
+        actionTransformer.transform(ctx.body(), CreateTriggerAction.class);
     MolgenisSession session = sessionManager.getSession(ctx.req());
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
     Database database = session.getDatabase();
@@ -86,7 +87,7 @@ public class AnalyticsApi {
 
   private static void updateTrigger(Context ctx) {
     ctx.contentType("application/json");
-    var action = actionTransformer.transform(ctx.body(), UpdateTriggerAction.class);
+    UpdateTriggerAction action = actionTransformer.transform(ctx.body(), UpdateTriggerAction.class);
     MolgenisSession session = sessionManager.getSession(ctx.req());
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
     Database database = session.getDatabase();

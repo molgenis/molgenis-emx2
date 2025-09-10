@@ -51,11 +51,11 @@ class InMemoryRDFHandlerTest {
   dcterms:format <http://www.iana.org/assignments/media-types/image/jpeg> .
 """;
 
-  // See text behind "#" for inline explanations
+  // As there is no extra data is present for "a11ac033b28f42dd9760547d622e5eea", dynamic part of
+  // the object will be replaced with "identicalFileIRI" instead.
   private final String rdfNoFileLabelInput =
       """
 <http://localhost:8080/pet%20store/api/rdf/User/username=bofke>
-  # as no extra data is present for "a11ac033b28f42dd9760547d622e5eea", replace with "identicalFileIRI"
   <http://localhost:8080/pet%20store/api/rdf/User/column/picture> <http://localhost:8080/pet%20store/api/file/User/picture/a11ac033b28f42dd9760547d622e5eea> .
 """;
 
@@ -63,6 +63,18 @@ class InMemoryRDFHandlerTest {
       """
 <http://localhost:8080/pet%20store/api/rdf/User/username=bofke>
   <http://localhost:8080/pet%20store/api/rdf/User/column/picture> <http://localhost:8080/pet%20store/api/file/User/picture/identicalFileIRI> .
+""";
+
+  private final String rdfBNode =
+      """
+[] a <http://xmlns.com/foaf/0.1/Person> .
+[] a <http://xmlns.com/foaf/0.1/Organization> .
+""";
+
+  private final String rdfBNodeFixed =
+      """
+_:0 a <http://xmlns.com/foaf/0.1/Person> .
+_:1 a <http://xmlns.com/foaf/0.1/Organization> .
 """;
 
   @Test
@@ -83,6 +95,17 @@ class InMemoryRDFHandlerTest {
 
     InMemoryRDFHandler handlerWithFix = new InMemoryRDFHandler(true);
     RdfParser.parseString(handlerWithFix, rdfNoFileLabelInput);
+
+    CustomAssertions.equals(handlerFixedString, handlerWithFix);
+  }
+
+  @Test
+  void testRdfComparisonFixesBlankNode() throws IOException {
+    InMemoryRDFHandler handlerFixedString = new InMemoryRDFHandler(false);
+    RdfParser.parseString(handlerFixedString, rdfBNodeFixed);
+
+    InMemoryRDFHandler handlerWithFix = new InMemoryRDFHandler(true);
+    RdfParser.parseString(handlerWithFix, rdfBNode);
 
     CustomAssertions.equals(handlerFixedString, handlerWithFix);
   }

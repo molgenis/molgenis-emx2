@@ -5,7 +5,7 @@ import vue from "@vitejs/plugin-vue";
 // basic build conf fo both library
 let conf = {
   plugins: [vue()],
-  base: "",
+  base: "apps/molgenis-viz/",
   resolve: {
     alias: {
       vue: require.resolve("vue/dist/vue.runtime.esm-bundler.js"),
@@ -34,6 +34,7 @@ export default defineConfig(({ command, mode }) => {
   if (command === 'serve') {
     return {
       ...conf,
+      base: "/",
       server: {
         proxy: require("../dev-proxy.config"),
       },

@@ -7,7 +7,7 @@ import "meta.jslt" as meta
         "entryTypes":
         {for (.entryTypes)
             .name: {
-                "id": .id,
+                "id": .externalId,
                 "name": .name,
                 "partOfSpecification": .partOfSpecification,
                 "description": .description,

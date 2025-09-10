@@ -11,7 +11,7 @@ from setuptools import setup
 if __name__ == "__main__":
     try:
         setup(
-            version="1.2.2",  # bumpversion.sh needs single-quotes # noqa : E261, W291,
+            version='1.3.0',  # bumpversion.sh needs single-quotes
             use_scm_version={"version_scheme": "no-guess-dev"},
         )
     except:  # noqa

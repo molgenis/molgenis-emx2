@@ -78,3 +78,5 @@ apps/tailwind-components/test-results/.last-run.json
 
 # vscode
 *.code-workspace
+apps/**/test-results/
+apps/tailwind-components/playwright/.auth/user.json
