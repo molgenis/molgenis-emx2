@@ -3,6 +3,7 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
 import static org.molgenis.emx2.web.Constants.CONTENT_TYPE;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
+import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 import static org.molgenis.emx2.web.util.ContextHelpers.findUsedAuthTokenKey;
 import static org.molgenis.emx2.web.util.ContextHelpers.hasAuthTokenSet;
 
@@ -17,6 +18,7 @@ import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.File;
 import java.io.IOException;
@@ -26,11 +28,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
+import org.molgenis.emx2.graphql.EMX2GraphQL;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
-import org.molgenis.emx2.graphql.GraphqlConstants;
 import org.molgenis.emx2.graphql.GraphqlException;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
+import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,18 +43,13 @@ import org.slf4j.LoggerFactory;
 public class GraphqlApi {
   public static final String QUERY = "query";
   public static final String VARIABLES = "variables";
+  private static final String ANONYMOUS = "anonymous";
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
   private static MolgenisSessionManager sessionManager;
+  private static final TaskService taskService = TaskApi.taskService;
 
   private GraphqlApi() {
     // hide constructor
-  }
-
-  private static GraphQL buildAnonymousGql() {
-    SqlDatabase database = new SqlDatabase(false);
-    database.setActiveUser("anonymous"); // set default use to "anonymous"
-    database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
-    return new GraphqlApiFactory().createGraphqlForDatabase(database, TaskApi.taskService);
   }
 
   public static void createGraphQLservice(Javalin app, MolgenisSessionManager sm) {
@@ -86,14 +84,16 @@ public class GraphqlApi {
   private static void handleDatabaseRequests(Context ctx) throws IOException {
     MolgenisSession session = findSessionForContext(ctx);
 
-    GraphQL graphqlForDatabase;
+    EMX2GraphQL emx2GraphQL;
     if (session == null) {
-      graphqlForDatabase = buildAnonymousGql();
+      emx2GraphQL = new GraphqlApiFactory().createGraphql(ANONYMOUS, taskService);
+
     } else {
-      graphqlForDatabase = session.getGraphqlForDatabase();
+      String sessionUser = session.getSessionUser();
+      emx2GraphQL = session.getGraphqlForDatabase(sessionUser, taskService);
     }
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
-    String result = executeQuery(graphqlForDatabase, ctx);
+    String result = executeQuery(emx2GraphQL, ctx);
     ctx.json(result);
   }
 
@@ -113,14 +113,13 @@ public class GraphqlApi {
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
 
-    GraphQL graphqlForSchema;
+    EMX2GraphQL graphqlForSchema;
     if (session == null) {
-      SqlDatabase database = new SqlDatabase(false);
-      database.setActiveUser("anonymous"); // set default use to "anonymous"
+      SqlDatabase database = new SqlDatabase(ANONYMOUS);
       database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
       Schema schema = database.getSchema(schemaName);
       AnonymousGqlSchemaCache anonymousGqlSchemaCache = AnonymousGqlSchemaCache.getInstance();
-      graphqlForSchema = anonymousGqlSchemaCache.get(schema);
+      graphqlForSchema = new EMX2GraphQL(database, anonymousGqlSchemaCache.get(schema));
     } else {
       graphqlForSchema = session.getGraphqlForSchema(schemaName);
     }
@@ -144,7 +143,7 @@ public class GraphqlApi {
     }
   }
 
-  private static String executeQuery(GraphQL g, Context ctx) throws IOException {
+  private static String executeQuery(EMX2GraphQL eg, Context ctx) throws IOException {
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
 
@@ -161,22 +160,14 @@ public class GraphqlApi {
 
     // tests show overhead of this step is about 20ms (jooq takes the rest)
     ExecutionResult executionResult = null;
+    GraphQL g = eg.getGraphQL();
+    String userBeforeExecute = eg.getDatabase().getActiveUser();
     if (variables != null) {
       executionResult = g.execute(ExecutionInput.newExecutionInput(query).variables(variables));
     } else {
       executionResult = g.execute(query);
     }
 
-    if (isUserSignInRequest(query) && isSuccessfulSignResult(executionResult)) {
-
-      String userNameFromSignIn = signInUserFromResult(executionResult);
-
-      if (userNameFromSignIn != null) {
-        synchronized (sessionManager.getSession(ctx.req()).getDatabase()) {
-          sessionManager.getSession(ctx.req()).getDatabase().setActiveUser(userNameFromSignIn);
-        }
-      }
-    }
     String result = GraphqlApiFactory.convertExecutionResultToJson(executionResult);
 
     for (GraphQLError err : executionResult.getErrors()) {
@@ -188,38 +179,25 @@ public class GraphqlApi {
       throw new MolgenisException(executionResult.getErrors().getFirst().getMessage());
     }
 
+    String userAfterExecute = eg.getDatabase().getActiveUser();
+    if (!userBeforeExecute.equals(userAfterExecute)) {
+      if (ctx.req().getSession(false) != null) {
+        // do logout
+        logger.info("do logout ");
+        HttpSession session = ctx.req().getSession();
+        sessionManager.removeSession(session.getId());
+      } else {
+        // create http session
+        HttpSession session = ctx.req().getSession();
+        // store db, session combination in session manager
+        sessionManager.addSession(session, eg.getDatabase());
+      }
+    }
+
     if (logger.isInfoEnabled())
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
 
     return result;
-  }
-
-  private static boolean isUserSignInRequest(String query) {
-    return query.startsWith("mutation") && query.contains("signin");
-  }
-
-  private static boolean isSuccessfulSignResult(ExecutionResult result) {
-    if (!result.getErrors().isEmpty()) {
-      return false;
-    }
-    Map<String, Object> specification = result.toSpecification();
-    Object data = specification.get("data");
-    if (data instanceof Map dataMap) {
-      Map<String, Object> signinResultMap = (Map) dataMap.get("signin");
-      return signinResultMap != null
-          && "SUCCESS".equals(signinResultMap.get(GraphqlConstants.STATUS));
-    }
-    return false;
-  }
-
-  private static String signInUserFromResult(ExecutionResult result) {
-    Map<String, Object> specification = result.toSpecification();
-    Object data = specification.get("data");
-    if (data instanceof Map dataMap) {
-      Map<String, Object> signinMap = (Map) dataMap.get("signin");
-      return (String) signinMap.get(GraphqlConstants.USER);
-    }
-    throw new MolgenisException("Unexpected result from signin mutation");
   }
 
   private static String getQueryFromRequest(Context ctx) throws IOException {

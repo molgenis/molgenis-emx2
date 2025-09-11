@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.EMX_2_METRICS_SESSION_TOTAL;
 import static org.molgenis.emx2.web.MolgenisWebservice.oidcController;
 
@@ -12,6 +13,7 @@ import java.util.EventListener;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jetty.server.session.SessionHandler;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.sql.JWTgenerator;
@@ -63,7 +65,7 @@ public class MolgenisSessionManager {
 
   public MolgenisSession getNonPersistedSessionBasedOnToken(
       HttpServletRequest request, String authTokenKey) {
-    SqlDatabase database = new SqlDatabase(false);
+    SqlDatabase database = new SqlDatabase(ANONYMOUS);
     database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
     String user = JWTgenerator.getUserFromToken(database, request.getHeader(authTokenKey));
     database.setActiveUser(user);
@@ -96,6 +98,19 @@ public class MolgenisSessionManager {
     return sessionHandler;
   }
 
+  public void addSession(HttpSession httpSession, Database database) {
+    MolgenisSession molgenisSession = new MolgenisSession(database, new GraphqlApiFactory());
+    sessions.put(httpSession.getId(), molgenisSession);
+    logger.info(
+        "added session for user({}) and key ({})",
+        molgenisSession.getSessionUser(),
+        httpSession.getId());
+  }
+
+  public void removeSession(String sessionId) {
+    sessions.remove(sessionId);
+  }
+
   /**
    * takes care of creating and destroying session attributes when Jetty creates/destroys sessions
    */
@@ -104,20 +119,7 @@ public class MolgenisSessionManager {
     return new HttpSessionListener() {
       public void sessionCreated(HttpSessionEvent httpSessionEvent) {
 
-        logger.info("Initializing session");
-        // create private database wrapper to session
-        SqlDatabase database = new SqlDatabase(false);
-        database.setActiveUser("anonymous"); // set default use to "anonymous"
-        database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
-
-        // create session and add to sessions lists so we can also access all active
-        // sessions
-        MolgenisSession molgenisSession = new MolgenisSession(database, new GraphqlApiFactory());
-        sessions.put(httpSessionEvent.getSession().getId(), molgenisSession);
         logger.info("session created: " + httpSessionEvent.getSession().getId());
-
-        // create listener
-        database.setListener(new MolgenisSessionManagerDatabaseListener(_this, molgenisSession));
 
         // Increment metrics gauge
         sessionGauge.inc();

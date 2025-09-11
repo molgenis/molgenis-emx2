@@ -92,8 +92,7 @@ public class GraphqlSessionFieldFactory {
                   return new GraphqlApiMutationResultWithToken(
                       GraphqlApiMutationResult.Status.SUCCESS,
                       JWTgenerator.createTemporaryToken(database, userName),
-                      String.format("Signed in as '%s'", userName),
-                      userName);
+                      String.format("Signed in as '%s'", userName));
                 } else {
                   return new GraphqlApiMutationResult(
                       FAILED, "User '%s' disabled: check with your administrator", userName);
@@ -176,8 +175,7 @@ public class GraphqlSessionFieldFactory {
               return new GraphqlApiMutationResultWithToken(
                   GraphqlApiMutationResult.Status.SUCCESS,
                   token,
-                  String.format("Token '%s' created for user '%s'", token, userName),
-                  userName);
+                  String.format("Token '%s' created for user '%s'", token, userName));
             })
         .build();
   }

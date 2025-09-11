@@ -199,7 +199,8 @@ public class QueryEntryType {
   }
 
   private ArrayNode doGraphQlQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphQL graphQL =
+        new GraphqlApiFactory().createGraphqlForSchema(table.getSchema()).getGraphQL();
 
     String graphQlQuery =
         new QueryBuilder(table)
@@ -218,7 +219,8 @@ public class QueryEntryType {
   }
 
   public static int doCountQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphQL graphQL =
+        new GraphqlApiFactory().createGraphqlForSchema(table.getSchema()).getGraphQL();
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getCountQuery();
 
     ExecutionResult result = graphQL.execute(graphQlQuery);
@@ -228,7 +230,8 @@ public class QueryEntryType {
   }
 
   public static boolean doExistsQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphQL graphQL =
+        new GraphqlApiFactory().createGraphqlForSchema(table.getSchema()).getGraphQL();
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getExistsQuery();
 
     ExecutionResult result = graphQL.execute(graphQlQuery);

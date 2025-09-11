@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +50,19 @@ public class GraphqlApiFactory {
     }
   }
 
-  public GraphQL createGraphqlForDatabase(Database database, TaskService taskService) {
+  public EMX2GraphQL createGraphql(String user, TaskService taskService) {
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
+
+    SqlDatabase database = new SqlDatabase(user);
+    database.setListener(
+        new DatabaseListener() {
+          @Override
+          public void userChanged(Database database) {
+            database.clearCache();
+          }
+        });
 
     // add login
     // all the same between schemas
@@ -94,17 +104,20 @@ public class GraphqlApiFactory {
     }
 
     // notice we here add custom exception handler for mutations
-    return GraphQL.newGraphQL(
-            GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
-        .mutationExecutionStrategy(new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
-        .build();
+    return new EMX2GraphQL(
+        database,
+        GraphQL.newGraphQL(
+                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
+            .mutationExecutionStrategy(
+                new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
+            .build());
   }
 
-  public GraphQL createGraphqlForSchema(Schema schema) {
+  public EMX2GraphQL createGraphqlForSchema(Schema schema) {
     return createGraphqlForSchema(schema, null);
   }
 
-  public GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
+  public EMX2GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
     long start = System.currentTimeMillis();
     logger.info("creating graphql for schema: {}", schema.getMetadata().getName());
 
@@ -179,6 +192,6 @@ public class GraphqlApiFactory {
           (System.currentTimeMillis() - start));
     }
 
-    return result;
+    return new EMX2GraphQL(schema.getDatabase(), result);
   }
 }

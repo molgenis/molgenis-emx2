@@ -44,6 +44,6 @@ public class AnonymousGqlSchemaCache {
   public GraphQL get(Schema schema) {
     return anonymousGqlObjectCache.get(
         schema.getName(),
-        key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService));
+        key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService).getGraphQL());
   }
 }

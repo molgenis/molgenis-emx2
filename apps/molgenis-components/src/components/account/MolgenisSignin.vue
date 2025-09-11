@@ -113,7 +113,7 @@ export default defineComponent({
         this.loading = true;
         request(
           "/api/graphql",
-          `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message,user}}`
+          `mutation{signin(email: "${this.email}", password: "${this.password}"){status,message}}`
         )
           .then(
             (data: {

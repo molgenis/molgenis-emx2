@@ -18,7 +18,7 @@ public class Templates {
   public static void addTemplatesToDb(Database database) {
     database.becomeAdmin();
     Schema schema = database.getSchema("_SYSTEM_");
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(schema).getGraphQL();
 
     for (EntryType entryType : EntryType.values()) {
       String query =
