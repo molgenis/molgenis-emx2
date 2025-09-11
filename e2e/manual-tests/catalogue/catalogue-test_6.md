@@ -23,7 +23,7 @@ to check which cohorts have these available.
 | 5b | Open topic 'Symptoms and signs' > 'Symptoms and signs involving cognition, perception, emotional state and behaviour (R40-R46)' > 'Behavioral problem domains' > select 'ADHD symptoms'.| Variables should be filtered on ADHD variables (10); active filters should show 'Topics - 1'; most of the variables are repeated and should have the unit of repeats next to or under the variable name | | |
 | 6 | Click on the name of variable 'testVarRepeats_'| Should redirect to variable detailed view: 1) Definition, 2) Harmonisation status per source, 3) Harmonisation details per source with tabs for each cohort showing mappings and details (variables used, syntax) | | |
 | 7 | In "Harmonisation status per source", hover over 'ⓘ About statuses' | Tooltip should show 'Completed: source was able to fully map to the harmonised variables'; 'Partial: source was able to partially map to the harmonised variable'; 'No data: no harmonisation information is available'. | | |
-| 8 | In "Harmonisation details per cohort", click on the second tab | Tab should show information for the second source in the list | | |
+| 8 | In "Harmonisation details per source", click on the second tab | Tab should show information for the second source in the list | | |
 | 9 | Click first variable used | Popup is displayed showing information about the source variable | | |
 | 10 | Click the browser's back button to return to previous page | Should be redirected to network variable explorer with previously selected filters | | |
 | 11 | Click the `HARMONISATIONS` toggle | Harmonisation matrix is shown with 10 ADHD variables and all sources of data, scroll to the right to see that there are sources of data with information | | |
