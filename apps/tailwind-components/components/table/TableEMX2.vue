@@ -105,6 +105,7 @@
               'hover:cursor-pointer': props.isEditable,
               'inline-flex justify-start items-center w-full':
                 shouldOverrideWidth,
+              'max-w-64 w-60': !shouldOverrideWidth,
             }"
           >
             <TableBodyCell
@@ -155,6 +156,7 @@
               class="text-table-row"
               :class="{
                 'w-full': columns.length === 1 || shouldOverrideWidth,
+                'max-w-64 w-60': !shouldOverrideWidth,
               }"
               :scope="column.key === 1 ? 'row' : null"
               :metadata="column"
