@@ -1,6 +1,6 @@
 tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,refLink,refBack,validation,semantics,description,profiles
 Genomic variants,,,,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C17248,Beacon v2 GenomicVariation see also https://www.ga4gh.org/product/categorical-variation-catvar/,Patient registry
-Genomic variants,,Variant definition,heading,,,,,,,,,,Patient registry
+Genomic variants,,Variant Definition,heading,,,,,,,,,,Patient registry
 Genomic variants,,id,string,1,TRUE,,,,,,"http://purl.obolibrary.org/obo/NCIT_C164813,bc2:variantInternalId",A unique identifier maintained by an authoritative database that represents a genetic variation. E.g. 20:2447955..2447958c>g,Patient registry
 Genomic variants,,alternative ids,string_array,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C90353,A backup sequence of characters used to identify an entity,Patient registry
 Genomic variants,,variant type,ontology,,,CatalogueOntologies,Variant types,,,,http://purl.obolibrary.org/obo/NCIT_C17004,The regular and simultaneous occurrence of alternative nucleotide sequences at equivalent locations of the genetic material among individuals of a single interbreeding population that are not maintained by recurrent mutation. Polymorphisms may range in size from single nucleotide to large nucleotide sequence variation visible at the chromosomal level. e.g. SNP,Patient registry
@@ -18,5 +18,5 @@ Genomic variants,,stop position,long,,,,,,,,http://purl.obolibrary.org/obo/GENO_
 Genomic variants,,reference allele,string,,,,,,,,http://purl.obolibrary.org/obo/GENO_0000036,An allele whose sequence matches what is consdiered to be the reference sequence at that location in the genome.,Patient registry
 Genomic variants,,alternate allele,string,,,,,,,,"http://purl.obolibrary.org/obo/GENO_0000002,http://ensembl.org/glossary/ENSGLOSSARY_0000109",Any allele of a variant which is not the in the reference genome currently being studied. The alternative allele is not necessarily the minor allele.,Patient registry
 Genomic variants,,cDNA,string,,,,,,,,http://purl.obolibrary.org/obo/NCIT_C324,Single-stranded DNA that is complementary to messenger RNA or DNA that has been synthesized from messenger RNA by reverse transcriptase.,Patient registry
-Genomic variants,,Consensus classification,heading,,,,,,,,,,Patient registry
+Genomic variants,,Consensus Classification,heading,,,,,,,,,,Patient registry
 Genomic variants,,used in interpretations,refback,,,,Variant interpretations,,variants,,http://purl.obolibrary.org/obo/NGBO_6000125,"A reference to one or more processes (i.e., variant interpretations) where a variant was used",Patient registry
