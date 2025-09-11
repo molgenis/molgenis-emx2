@@ -13,14 +13,17 @@ pip install molgenis-emx2-pyclient
 Releases of the Molgenis EMX2 Pyclient follow the release number of the accompanying release of the Molgenis EMX2 software.
 Therefore, releases of the Pyclient are less frequent than those of EMX2 and the latest version of the Pyclient may differ from the latest version of Molgenis EMX2.
 
+#### 13.18.11
+Fixed: no longer convert NA-like strings to pandas' NaN, only do this for missing values (i.e. empty strings).
+
 #### 11.61.2
-Fixed: problem where the schema metadata could not be updated with `upload_file` and a `molgenis.csv` file 
+Fixed: problem where the schema metadata could not be updated with `upload_file` and a `molgenis.csv` file.
 
 #### 11.57.0
 - Added: feature 'truncate' to remove all entries from a table
 - Added: option to filter results of `get` method by columns
 - Added: method `get_graphql` implements the GraphQL API
-- Improved: added additional parsing for data returned from the CSV API to pandas DataFrame in `get` method 
+- Improved: added additional parsing for data returned from the CSV API to pandas DataFrame in `get` method
 - Fixed: log level was set to `DEBUG` without possibility to change this. The user can now set the log level again at their preferred level
 
 #### 11.47.1
@@ -89,13 +92,13 @@ with Client('https://example.molgeniscloud.org') as client:
         ...
     Version: v10.10.1
     """
-    
+
     # Retrieve data from a table on a schema
     data = client.get(schema='ExampleSchema', table='Cohorts')
-    
+
     # Create a new schema on the server
     client.create_schema(name='New Schema')
-    
+
     # Delete a schema from the server
     client.delete_schema(name='New Schema')
 
@@ -122,7 +125,7 @@ with Client('https://example.molgeniscloud.org', token=token) as client:
         ...
     Version: v10.32.1
     """
-    
+
     ...
     ...
 
