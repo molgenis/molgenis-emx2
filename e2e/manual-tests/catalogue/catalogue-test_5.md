@@ -39,7 +39,8 @@ and understand what they are seeing when viewing a resource in detail.
 | 20 | Hover on the ⓘ next to 'Longitudinal' | The hover text is 'repeated observations at different time-points'. | | |
 | 21 | Design description | Description of the design used for cohort 2 | | |
 | 22 | Design schematic | Design schematic | | |
-| 23 | Click on Design schematic | An image (from FORCE NEN) is downloaded. | | |
+| 23a | Click on Design schematic | An image (from FORCE NEN) is shown. | | |
+| 23b | Go back to the resource information page | | | |
 | 24 | Start/End data collection | 1955 (ongoing) | | |
 | 25 | Design paper | Birth of a cohort — the first 20 years of the Raine study. | | |
 | 26a | Click on the design paper | Opens [the article](https://onlinelibrary.wiley.com/doi/10.5694/mja12.10698) in a new window. | | |
