@@ -45,7 +45,8 @@ and understand what they are seeing when viewing a resource in detail.
 | 26a | Click on the design paper | Opens [the article](https://onlinelibrary.wiley.com/doi/10.5694/mja12.10698) in a new window. | | |
 | 26b | Return to the catalogue display window. | | | |
 | 27 | PID | `https://pid-for-testcohort2.org` | | |
-| 27b| External identifiers| EUDRACT number: test external identifier for cohort 2 | | |
+| 27b | External identifiers| EUDRACT number: test external identifier for cohort 2 | | |
+| 27c | License | `https://license-placeholder.nl` | | |
 | 28 | POPULATION | | | |
 | 29 | Countries | United Kingdom of Great Britain and Northern Ireland (the) | | |
 | 30 | Regions | Bradford | | |
