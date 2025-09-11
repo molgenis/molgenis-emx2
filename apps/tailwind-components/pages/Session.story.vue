@@ -20,7 +20,7 @@ async function signin() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        query: `mutation{signin(email: "${username.value}", password: "${password.value}"){status,message,user}}`,
+        query: `mutation{signin(email: "${username.value}", password: "${password.value}"){status,message}}`,
       }),
     }).catch((error) => {
       error.value = "internal server graphqlError" + error;
