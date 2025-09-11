@@ -793,7 +793,7 @@ export interface IOrganisations {
   resource: IResources;
   id: string;
   pid?: string;
-  name: string;
+  organisationName: IOntologyNode;
   acronym?: string;
   logo?: IFile;
   country?: IOntologyNode[];
