@@ -32,21 +32,9 @@
     class="relative overflow-auto rounded-b-theme border border-theme border-color-theme"
   >
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
-      <table
-        ref="table"
-        class="text-left w-full"
-        :class="{
-          'table-fixed': columns.length > 1,
-          'table-auto': columns.length === 0,
-        }"
-      >
+      <table ref="table" class="text-left w-full table-auto lg:table-fixed">
         <thead>
-          <tr
-            :class="{
-              'inline-flex justify-start items-center w-full':
-                shouldOverrideWidth,
-            }"
-          >
+          <tr>
             <TableHeadCell
               v-if="isEditable"
               class="absolute left-0 w-[1px] !p-0 m-0 border-none"
@@ -56,9 +44,8 @@
             <TableHeadCell
               v-for="column in sortedVisibleColumns"
               :class="{
-                'w-full': columns.length === 1,
-                grow: shouldOverrideWidth,
-                'max-w-64 w-60': !shouldOverrideWidth,
+                'w-full': columns.length <= 5,
+                'w-60': columns.length > 5,
               }"
             >
               <div class="flex justify-start items-center gap-1">
@@ -100,12 +87,9 @@
           <tr
             v-if="rows"
             v-for="row in rows"
-            class="hover:bg-hover group"
+            class="group"
             :class="{
               'hover:cursor-pointer': props.isEditable,
-              'inline-flex justify-start items-center w-full':
-                shouldOverrideWidth,
-              'max-w-64 w-60': !shouldOverrideWidth,
             }"
           >
             <TableBodyCell
@@ -153,10 +137,11 @@
             </TableBodyCell>
             <TableCellEMX2
               v-for="column in sortedVisibleColumns"
-              class="text-table-row"
+              class="text-table-row group-hover:bg-hover"
               :class="{
-                'w-full': columns.length === 1 || shouldOverrideWidth,
-                'max-w-64 w-60': !shouldOverrideWidth,
+                'w-full': columns.length < 5,
+                'w-60': columns.length > 5,
+                'h-11': !row[column.id] || row[column.id] === '',
               }"
               :scope="column.key === 1 ? 'row' : null"
               :metadata="column"
@@ -164,16 +149,17 @@
               @cellClicked="handleCellClick($event, column, row)"
             />
           </tr>
-          <tr v-else>
-            <TableBodyCell>
-              <TextNoResultsMessage
-                class="w-full text-center flex justify-center items-center"
-                label="No records found"
-              />
-            </TableBodyCell>
-          </tr>
         </tbody>
       </table>
+      <div
+        class="sticky left-0 flex justify-center items-center py-2.5"
+        v-if="!rows"
+      >
+        <TextNoResultsMessage
+          class="w-full text-center"
+          label="No records found"
+        />
+      </div>
     </div>
   </div>
 
@@ -219,7 +205,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, useTemplateRef } from "vue";
+import { computed, ref, watch } from "vue";
 import type {
   IRow,
   IColumn,
@@ -255,9 +241,6 @@ const props = withDefaults(
   }
 );
 
-const table = useTemplateRef<HTMLTableElement>("table");
-const shouldOverrideWidth = ref<boolean>(false);
-
 const showDeleteModal = ref<boolean>(false);
 const showEditModal = ref<boolean>(false);
 const rowDataForModal = ref();
@@ -267,23 +250,6 @@ const refTableColumn = ref<IRefColumn>();
 // initially set to the current tableId
 const refSourceTableId = ref<string>(props.tableId);
 const columns = ref<IColumn[]>([]);
-
-function setTableWidths() {
-  const tableWidth = table.value?.getBoundingClientRect().width || 0;
-  const currentColumnWidth = columns.value.length * 256 * 0.9; // w-60 as px
-  return currentColumnWidth < tableWidth;
-}
-
-watch(
-  () => table.value,
-  () => (shouldOverrideWidth.value = setTableWidths())
-);
-watch(
-  () => columns.value,
-  () => {
-    shouldOverrideWidth.value = setTableWidths();
-  }
-);
 
 const settings = defineModel<ITableSettings>("settings", {
   required: false,
