@@ -103,7 +103,7 @@ public class WebApiSmokeTests {
                     + db.getAdminUserName()
                     + "\\\",password:\\\""
                     + adminPass
-                    + "\\\"){status, message, user}}\"}")
+                    + "\\\"){status, message}}\"}")
             .when()
             .post("api/graphql")
             .sessionId();
@@ -152,7 +152,7 @@ public class WebApiSmokeTests {
             + testUser
             + "\\\",password:\\\""
             + password
-            + "\\\"){message, user}}\"}";
+            + "\\\"){message}}\"}";
 
     String sessionQuery = "{ \"query\": \"{ _session { email } } \"}";
 
@@ -754,7 +754,7 @@ public class WebApiSmokeTests {
                     + db.getAdminUserName()
                     + "\\\",password:\\\""
                     + adminPass
-                    + "\\\"){status, message, user}}\"}")
+                    + "\\\"){status, message}}\"}")
             .when()
             .post(path)
             .sessionId();
@@ -855,7 +855,7 @@ public class WebApiSmokeTests {
     String shopViewerSessionId =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"shopviewer\\\",password:\\\"shopviewer\\\"){status, message, user}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"shopviewer\\\",password:\\\"shopviewer\\\"){status, message}}\"}")
             .when()
             .post("/api/graphql")
             .sessionId();
@@ -874,7 +874,7 @@ public class WebApiSmokeTests {
     String shopManagerSessionId =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){status, message, user}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){status, message}}\"}")
             .when()
             .post("/api/graphql")
             .sessionId();
