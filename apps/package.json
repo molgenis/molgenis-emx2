@@ -33,7 +33,7 @@
   "scripts": {
     "build:libs": "yarn workspace molgenis-components run build && yarn workspace molgenis-viz run build"
   },
-  "overrides": {
+  "resolutions": {
     "chalk": "5.3.0",
     "strip-ansi": "7.1.0",
     "color-convert": "2.0.1",
