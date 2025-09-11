@@ -11,7 +11,7 @@ withDefaults(
 
 <template>
   <td
-    class="p-2.5 border-b border-gray-200 max-w-60 w-60 min-h-4 text-left"
+    class="p-2.5 border-b border-gray-200 min-h-4 text-left"
     :class="{
       truncate: truncate,
     }"

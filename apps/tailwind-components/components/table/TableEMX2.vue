@@ -33,6 +33,7 @@
   >
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
       <table
+        ref="table"
         class="text-left w-full"
         :class="{
           'table-fixed': columns.length > 1,
@@ -40,7 +41,12 @@
         }"
       >
         <thead>
-          <tr class="h-4">
+          <tr
+            :class="{
+              'inline-flex justify-start items-center w-full':
+                shouldOverrideWidth,
+            }"
+          >
             <TableHeadCell
               v-if="isEditable"
               class="absolute left-0 w-[1px] !p-0 m-0 border-none"
@@ -51,6 +57,8 @@
               v-for="column in sortedVisibleColumns"
               :class="{
                 'w-full': columns.length === 1,
+                grow: shouldOverrideWidth,
+                'max-w-64 w-60': !shouldOverrideWidth,
               }"
             >
               <div class="flex justify-start items-center gap-1">
@@ -90,9 +98,14 @@
           class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:pb-last-row-cell"
         >
           <tr
+            v-if="rows"
             v-for="row in rows"
             class="hover:bg-hover group"
-            :class="{ 'hover:cursor-pointer': props.isEditable }"
+            :class="{
+              'hover:cursor-pointer': props.isEditable,
+              'inline-flex justify-start items-center w-full':
+                shouldOverrideWidth,
+            }"
           >
             <TableBodyCell
               v-if="isEditable"
@@ -140,11 +153,22 @@
             <TableCellEMX2
               v-for="column in sortedVisibleColumns"
               class="text-table-row"
+              :class="{
+                'w-full': columns.length === 1 || shouldOverrideWidth,
+              }"
               :scope="column.key === 1 ? 'row' : null"
               :metadata="column"
               :data="row[column.id]"
               @cellClicked="handleCellClick($event, column, row)"
             />
+          </tr>
+          <tr v-else>
+            <TableBodyCell>
+              <TextNoResultsMessage
+                class="w-full text-center flex justify-center items-center"
+                label="No records found"
+              />
+            </TableBodyCell>
           </tr>
         </tbody>
       </table>
@@ -193,7 +217,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, useTemplateRef } from "vue";
 import type {
   IRow,
   IColumn,
@@ -218,10 +242,6 @@ import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import TableModalRef from "./modal/TableModalRef.vue";
 
-const showDeleteModal = ref<boolean>(false);
-const showEditModal = ref<boolean>(false);
-const rowDataForModal = ref();
-
 const props = withDefaults(
   defineProps<{
     schemaId: string;
@@ -230,6 +250,36 @@ const props = withDefaults(
   }>(),
   {
     isEditable: () => false,
+  }
+);
+
+const table = useTemplateRef<HTMLTableElement>("table");
+const shouldOverrideWidth = ref<boolean>(false);
+
+const showDeleteModal = ref<boolean>(false);
+const showEditModal = ref<boolean>(false);
+const rowDataForModal = ref();
+const showModal = ref(false);
+const refTableRow = ref<IRow>();
+const refTableColumn = ref<IRefColumn>();
+// initially set to the current tableId
+const refSourceTableId = ref<string>(props.tableId);
+const columns = ref<IColumn[]>([]);
+
+function setTableWidths() {
+  const tableWidth = table.value?.getBoundingClientRect().width || 0;
+  const currentColumnWidth = columns.value.length * 256 * 0.9; // w-60 as px
+  return currentColumnWidth < tableWidth;
+}
+
+watch(
+  () => table.value,
+  () => (shouldOverrideWidth.value = setTableWidths())
+);
+watch(
+  () => columns.value,
+  () => {
+    shouldOverrideWidth.value = setTableWidths();
   }
 );
 
@@ -280,7 +330,6 @@ const rows = computed(() => {
 
 const count = computed(() => data.value?.tableData?.count ?? 0);
 
-const columns = ref<IColumn[]>([]);
 const primaryKeys = computed(() => {
   return columns.value
     ?.map((col) => {
@@ -340,12 +389,6 @@ function handlePagingRequest(page: number) {
   settings.value.page = page;
   refresh();
 }
-
-const showModal = ref(false);
-const refTableRow = ref<IRow>();
-const refTableColumn = ref<IRefColumn>();
-// initially set to the current tableId
-const refSourceTableId = ref<string>(props.tableId);
 
 function handleCellClick(
   event: RefPayload,
