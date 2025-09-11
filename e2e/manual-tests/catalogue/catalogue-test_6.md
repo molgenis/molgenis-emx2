@@ -16,7 +16,7 @@ to check which cohorts have these available.
 | 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org](https://data-catalogue-acc.molgeniscloud.org) | Landing page: European health research data and sample catalogue| | |
 | 2 | Hover over 'All variables' button in menu bar | Button should be underlined | | |
 | 3 | Click 'All variables' button | Should be redirected to the variable explorer. VARIABLES, A complete overview of harmonised variables. `LIST OF VARIABLES`/`HARMONISATIONS`-toggle button. A list of variables with variable names in full, with appropriate repeated units given underneath repeated variables, variable labels and a filter panel on the left hand side of the page. | | |
-| 4 | Search 'ADHD' in search bar | Variables should be filtered on ADHD variables (14 variables shown); active filters should show 'Search in variables: ADHD' | | |
+| 4 | Search 'ADHD' in search bar | Variables should be filtered on ADHD variables (16 variables shown); active filters should show 'Search in variables: ADHD' | | |
 | 4a| Remove 'ADHD' from the search bar | The list of variables returns to its initial form and no filters are shown above the list | | |
 | 5 | Expand the Topics-tree and click on 'Search for options' above the topics on the left hand side | A pop-up with the list of topics is displayed | | |
 | 5a | Type 'Symptoms' in the search field in the pop-up | Four sections of the topic tree with checkboxes are displayed | | |
