@@ -84,7 +84,7 @@ public class GraphqlApi {
   }
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
-    MolgenisSession session = findSessionForContest(ctx);
+    MolgenisSession session = findSessionForContext(ctx);
 
     GraphQL graphqlForDatabase;
     if (session == null) {
@@ -98,7 +98,7 @@ public class GraphqlApi {
   }
 
   public static void handleSchemaRequests(Context ctx) throws IOException {
-    MolgenisSession session = findSessionForContest(ctx);
+    MolgenisSession session = findSessionForContext(ctx);
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
 
     // apps and api is not a schema but a resource
@@ -129,7 +129,7 @@ public class GraphqlApi {
     ctx.json(executeQuery(graphqlForSchema, ctx));
   }
 
-  private static MolgenisSession findSessionForContest(Context ctx) {
+  private static MolgenisSession findSessionForContext(Context ctx) {
     HttpServletRequest request = ctx.req();
 
     if (hasAuthTokenSet(request)) {
