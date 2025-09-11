@@ -33,7 +33,6 @@
   "scripts": {
     "build:libs": "yarn workspace molgenis-components run build && yarn workspace molgenis-viz run build"
   },
-  // lock to 'safe' version, related to sept 2025 chalk supply chain atttack
   "overrides": {
     "chalk": "5.3.0",
     "strip-ansi": "7.1.0",
