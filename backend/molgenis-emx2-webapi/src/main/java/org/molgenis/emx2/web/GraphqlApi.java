@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.ACCEPT_JSON;
 import static org.molgenis.emx2.web.Constants.CONTENT_TYPE;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
@@ -28,7 +29,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.graphql.EMX2GraphQL;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.graphql.GraphqlException;
 import org.molgenis.emx2.sql.SqlDatabase;
@@ -84,16 +84,26 @@ public class GraphqlApi {
   private static void handleDatabaseRequests(Context ctx) throws IOException {
     MolgenisSession session = findSessionForContext(ctx);
 
-    EMX2GraphQL emx2GraphQL;
+    GraphQL emx2GraphQL;
     if (session == null) {
-      emx2GraphQL = new GraphqlApiFactory().createGraphql(ANONYMOUS, taskService);
+      emx2GraphQL = new GraphqlApiFactory().createGraphql(ANONYMOUS, taskService, ctx.req());
 
     } else {
       String sessionUser = session.getSessionUser();
-      emx2GraphQL = session.getGraphqlForDatabase(sessionUser, taskService);
+      emx2GraphQL = session.getGraphqlForDatabase(sessionUser, taskService, ctx.req());
     }
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     String result = executeQuery(emx2GraphQL, ctx);
+
+    if (ctx.req().getSession(false) != null) {
+      HttpSession httpSession = ctx.req().getSession(false);
+      // httpSession.isNew();
+      String loginUser = (String) httpSession.getAttribute("login-user");
+      if (loginUser != null) {
+        httpSession.removeAttribute("login-user");
+        sessionManager.addSession(httpSession, new SqlDatabase(loginUser));
+      }
+    }
     ctx.json(result);
   }
 
@@ -113,15 +123,15 @@ public class GraphqlApi {
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
 
-    EMX2GraphQL graphqlForSchema;
+    GraphQL graphqlForSchema;
     if (session == null) {
       SqlDatabase database = new SqlDatabase(ANONYMOUS);
       database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
       Schema schema = database.getSchema(schemaName);
       AnonymousGqlSchemaCache anonymousGqlSchemaCache = AnonymousGqlSchemaCache.getInstance();
-      graphqlForSchema = new EMX2GraphQL(database, anonymousGqlSchemaCache.get(schema));
+      graphqlForSchema = anonymousGqlSchemaCache.get(schema, ctx.req());
     } else {
-      graphqlForSchema = session.getGraphqlForSchema(schemaName);
+      graphqlForSchema = session.getGraphqlForSchema(schemaName, ctx.req());
     }
 
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
@@ -143,7 +153,7 @@ public class GraphqlApi {
     }
   }
 
-  private static String executeQuery(EMX2GraphQL eg, Context ctx) throws IOException {
+  private static String executeQuery(GraphQL g, Context ctx) throws IOException {
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
 
@@ -160,8 +170,7 @@ public class GraphqlApi {
 
     // tests show overhead of this step is about 20ms (jooq takes the rest)
     ExecutionResult executionResult = null;
-    GraphQL g = eg.getGraphQL();
-    String userBeforeExecute = eg.getDatabase().getActiveUser();
+
     if (variables != null) {
       executionResult = g.execute(ExecutionInput.newExecutionInput(query).variables(variables));
     } else {
@@ -177,21 +186,6 @@ public class GraphqlApi {
     }
     if (!executionResult.getErrors().isEmpty()) {
       throw new MolgenisException(executionResult.getErrors().getFirst().getMessage());
-    }
-
-    String userAfterExecute = eg.getDatabase().getActiveUser();
-    if (!userBeforeExecute.equals(userAfterExecute)) {
-      if (ctx.req().getSession(false) != null) {
-        // do logout
-        logger.info("do logout ");
-        HttpSession session = ctx.req().getSession();
-        sessionManager.removeSession(session.getId());
-      } else {
-        // create http session
-        HttpSession session = ctx.req().getSession();
-        // store db, session combination in session manager
-        sessionManager.addSession(session, eg.getDatabase());
-      }
     }
 
     if (logger.isInfoEnabled())

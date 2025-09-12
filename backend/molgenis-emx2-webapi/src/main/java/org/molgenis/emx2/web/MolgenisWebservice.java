@@ -50,7 +50,7 @@ public class MolgenisWebservice {
   }
 
   public static void start(int port) {
-    sessionManager = new MolgenisSessionManager();
+    sessionManager = MolgenisSessionManager.getInstance();
     oidcController = new OIDCController();
     Javalin app =
         Javalin.create(

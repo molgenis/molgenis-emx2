@@ -1,11 +1,12 @@
 package org.molgenis.emx2.web;
 
+import graphql.GraphQL;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.graphql.EMX2GraphQL;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
@@ -17,8 +18,8 @@ public class MolgenisSession {
       AnonymousGqlSchemaCache.getInstance();
   private final GraphqlApiFactory graphqlApiFactory;
   private final Database database;
-  private final Map<String, EMX2GraphQL> graphqlPerSchema = new ConcurrentHashMap<>();
-  private EMX2GraphQL graphqlForDatabase;
+  private final Map<String, GraphQL> graphqlPerSchema = new ConcurrentHashMap<>();
+  private GraphQL graphqlForDatabase;
 
   public MolgenisSession(Database database, GraphqlApiFactory graphqlApiFactory) {
     database.setBindings(JavaScriptBindings.getBindingsForSession(this));
@@ -26,17 +27,18 @@ public class MolgenisSession {
     this.graphqlApiFactory = graphqlApiFactory;
   }
 
-  public EMX2GraphQL getGraphqlForDatabase(String user, TaskService taskService) {
+  public GraphQL getGraphqlForDatabase(
+      String user, TaskService taskService, HttpServletRequest request) {
     if (graphqlForDatabase == null) {
-      graphqlForDatabase = new GraphqlApiFactory().createGraphql(user, taskService);
+      graphqlForDatabase = new GraphqlApiFactory().createGraphql(user, taskService, request);
       logger.info("created graphql for user {}", getSessionUser());
     }
     return graphqlForDatabase;
   }
 
-  public EMX2GraphQL getGraphqlForSchema(String schemaName) {
+  public GraphQL getGraphqlForSchema(String schemaName, HttpServletRequest request) {
     logger.info("getting graphql schema '{}' for user '{}'", schemaName, getSessionUser());
-    EMX2GraphQL emx2GraphQL = graphqlPerSchema.get(schemaName);
+    GraphQL emx2GraphQL = graphqlPerSchema.get(schemaName);
     if (emx2GraphQL != null) {
       logger.info("return cached graphql schema '{}' for user '{}'", schemaName, getSessionUser());
       return emx2GraphQL;
@@ -50,10 +52,10 @@ public class MolgenisSession {
               + "' does not exist or permission denied");
 
     return database.isAnonymous()
-        ? new EMX2GraphQL(schema.getDatabase(), anonymousGqlSchemaCache.get(schema))
+        ? anonymousGqlSchemaCache.get(schema, request)
         : graphqlPerSchema.computeIfAbsent(
             schemaName,
-            key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService));
+            key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService, request));
   }
 
   public Database getDatabase() {

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
+  private static MolgenisSessionManager instance;
 
   static final Gauge sessionGauge =
       Gauge.builder()
@@ -33,7 +34,14 @@ public class MolgenisSessionManager {
           .help("Total number of active sessions")
           .register();
 
-  public MolgenisSessionManager() {}
+  private MolgenisSessionManager() {}
+
+  public static MolgenisSessionManager getInstance() {
+    if (instance == null) {
+      instance = new MolgenisSessionManager();
+    }
+    return instance;
+  }
 
   public MolgenisSession getSession(HttpServletRequest request) {
     String authTokenKey = ContextHelpers.findUsedAuthTokenKey(request);

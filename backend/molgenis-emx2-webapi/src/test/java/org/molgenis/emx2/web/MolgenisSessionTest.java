@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.SchemaMetadata;
-import org.molgenis.emx2.graphql.EMX2GraphQL;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 
 class MolgenisSessionTest {
@@ -32,23 +31,21 @@ class MolgenisSessionTest {
     when(database.getSchema("testSchema")).thenReturn(schema);
     GraphqlApiFactory graphQlApiFactory = mock(GraphqlApiFactory.class);
     // Mock the GraphqlApiFactory to return a GraphQL instance
-    EMX2GraphQL mockGraphQL = mock(EMX2GraphQL.class);
-    when(mockGraphQL.getGraphQL()).thenReturn(mock(GraphQL.class));
+    GraphQL mockGraphQL = mock(GraphQL.class);
     when(graphQlApiFactory.createGraphqlForSchema(any(), any())).thenReturn(mockGraphQL);
     MolgenisSession molgenisSession = new MolgenisSession(database, graphQlApiFactory);
-    GraphQL graphqlForSchema = molgenisSession.getGraphqlForSchema("testSchema").getGraphQL();
+    GraphQL graphqlForSchema = molgenisSession.getGraphqlForSchema("testSchema", null);
     assertNotNull(graphqlForSchema, "GraphQL schema should not be null");
 
     assertSame(
         mockGraphQL, graphqlForSchema, "Returned GraphQL instance should match the mock instance");
 
     when(database.getActiveUser()).thenReturn("anonymous");
-    GraphQL anonymousGraphql = molgenisSession.getGraphqlForSchema("testSchema").getGraphQL();
+    GraphQL anonymousGraphql = molgenisSession.getGraphqlForSchema("testSchema", null);
     assertNotNull(anonymousGraphql, "Anonymous GraphQL schema should not be null");
 
     molgenisSession.clearCache();
-    GraphQL anonymousGraphqlAfterClear =
-        molgenisSession.getGraphqlForSchema("testSchema").getGraphQL();
+    GraphQL anonymousGraphqlAfterClear = molgenisSession.getGraphqlForSchema("testSchema", null);
     assertNotNull(anonymousGraphqlAfterClear, "Anonymous GraphQL schema should not be null");
     assertEquals(anonymousGraphql, anonymousGraphqlAfterClear);
   }
@@ -65,8 +62,7 @@ class MolgenisSessionTest {
     when(database.getSchema("testSchema")).thenReturn(schema);
     GraphqlApiFactory graphQlApiFactory = mock(GraphqlApiFactory.class);
     // Mock the GraphqlApiFactory to return a GraphQL instance
-    EMX2GraphQL mockGraphQL = mock(EMX2GraphQL.class);
-    when(mockGraphQL.getGraphQL()).thenReturn(mock(GraphQL.class));
+    GraphQL mockGraphQL = mock(GraphQL.class);
     when(graphQlApiFactory.createGraphqlForSchema(any(), any())).thenReturn(mockGraphQL);
     MolgenisSession molgenisSession = new MolgenisSession(database, graphQlApiFactory);
     when(database.isAnonymous()).thenReturn(false);
@@ -86,7 +82,7 @@ class MolgenisSessionTest {
             try {
               readyLatch.countDown();
               startLatch.await();
-              molgenisSession.getGraphqlForSchema("testSchema");
+              molgenisSession.getGraphqlForSchema("testSchema", null);
             } catch (ConcurrentModificationException cme) {
               failures.add(cme);
             } catch (InterruptedException ignore) {

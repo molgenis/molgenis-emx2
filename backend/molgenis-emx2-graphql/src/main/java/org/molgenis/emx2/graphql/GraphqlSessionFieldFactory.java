@@ -13,6 +13,8 @@ import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.molgenis.emx2.*;
@@ -76,7 +78,7 @@ public class GraphqlSessionFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition signinField(Database database) {
+  public GraphQLFieldDefinition signinField(Database database, HttpServletRequest request) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signin")
         .type(GraphqlApiMutationResultWithToken.typeForSignResult)
@@ -89,6 +91,9 @@ public class GraphqlSessionFieldFactory {
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
                 if (database.getUser(userName).getEnabled()) {
                   database.setActiveUser(userName);
+
+                  HttpSession session = request.getSession(true);
+                  session.setAttribute("login-user", userName);
                   return new GraphqlApiMutationResultWithToken(
                       GraphqlApiMutationResult.Status.SUCCESS,
                       JWTgenerator.createTemporaryToken(database, userName),

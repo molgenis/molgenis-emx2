@@ -78,7 +78,7 @@ public class MessageApi {
     }
 
     MolgenisSession session = sessionManager.getSession(ctx.req());
-    GraphQL gql = session.getGraphqlForSchema(schema.getName()).getGraphQL();
+    GraphQL gql = session.getGraphqlForSchema(schema.getName(), ctx.req());
 
     final ExecutionResult executionResult =
         gql.execute(ExecutionInput.newExecutionInput(recipientsQuery).variables(validationFilter));

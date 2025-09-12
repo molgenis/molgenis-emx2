@@ -19,7 +19,7 @@ public class JavaScriptBindings {
 
   private static SimplePostClient createSimplePostClient(MolgenisSession session) {
     return (query, variables, schemaId) -> {
-      GraphQL graphQL = session.getGraphqlForSchema(schemaId).getGraphQL();
+      GraphQL graphQL = session.getGraphqlForSchema(schemaId, null);
       return graphQL
           .execute(ExecutionInput.newExecutionInput(query).variables(variables))
           .getData();

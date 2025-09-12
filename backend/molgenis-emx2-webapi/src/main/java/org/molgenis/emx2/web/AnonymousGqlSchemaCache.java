@@ -6,6 +6,7 @@ import static org.molgenis.emx2.web.util.EnvHelpers.getEnvLong;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import graphql.GraphQL;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -41,9 +42,9 @@ public class AnonymousGqlSchemaCache {
     anonymousGqlObjectCache.invalidateAll();
   }
 
-  public GraphQL get(Schema schema) {
+  public GraphQL get(Schema schema, HttpServletRequest request) {
     return anonymousGqlObjectCache.get(
         schema.getName(),
-        key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService).getGraphQL());
+        key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService, request));
   }
 }

@@ -10,6 +10,7 @@ import graphql.execution.AsyncExecutionStrategy;
 import graphql.parser.ParserOptions;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
 import org.molgenis.emx2.*;
@@ -50,7 +51,7 @@ public class GraphqlApiFactory {
     }
   }
 
-  public EMX2GraphQL createGraphql(String user, TaskService taskService) {
+  public GraphQL createGraphql(String user, TaskService taskService, HttpServletRequest request) {
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
@@ -95,7 +96,7 @@ public class GraphqlApiFactory {
     // account operations
     GraphqlSessionFieldFactory session = new GraphqlSessionFieldFactory();
     queryBuilder.field(session.sessionQueryField(database, null));
-    mutationBuilder.field(session.signinField(database));
+    mutationBuilder.field(session.signinField(database, request));
     mutationBuilder.field(session.signupField(database));
     if (!database.isAnonymous()) {
       mutationBuilder.field(session.signoutField(database));
@@ -104,20 +105,18 @@ public class GraphqlApiFactory {
     }
 
     // notice we here add custom exception handler for mutations
-    return new EMX2GraphQL(
-        database,
-        GraphQL.newGraphQL(
-                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
-            .mutationExecutionStrategy(
-                new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
-            .build());
+    return GraphQL.newGraphQL(
+            GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
+        .mutationExecutionStrategy(new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
+        .build();
   }
 
-  public EMX2GraphQL createGraphqlForSchema(Schema schema) {
-    return createGraphqlForSchema(schema, null);
+  public GraphQL createGraphqlForSchema(Schema schema, HttpServletRequest request) {
+    return createGraphqlForSchema(schema, null, request);
   }
 
-  public EMX2GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
+  public GraphQL createGraphqlForSchema(
+      Schema schema, TaskService taskService, HttpServletRequest request) {
     long start = System.currentTimeMillis();
     logger.info("creating graphql for schema: {}", schema.getMetadata().getName());
 
@@ -140,7 +139,7 @@ public class GraphqlApiFactory {
     // _session query
     GraphqlSessionFieldFactory sessionFieldFactory = new GraphqlSessionFieldFactory();
     queryBuilder.field(sessionFieldFactory.sessionQueryField(schema.getDatabase(), schema));
-    mutationBuilder.field(sessionFieldFactory.signinField(schema.getDatabase()));
+    mutationBuilder.field(sessionFieldFactory.signinField(schema.getDatabase(), request));
     mutationBuilder.field(sessionFieldFactory.signupField(schema.getDatabase()));
 
     // authenticated user operations
@@ -192,6 +191,6 @@ public class GraphqlApiFactory {
           (System.currentTimeMillis() - start));
     }
 
-    return new EMX2GraphQL(schema.getDatabase(), result);
+    return result;
   }
 }

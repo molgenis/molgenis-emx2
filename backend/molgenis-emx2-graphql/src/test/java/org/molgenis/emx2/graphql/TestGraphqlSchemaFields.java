@@ -61,7 +61,7 @@ public class TestGraphqlSchemaFields {
     schema = database.getSchema(schemaName);
 
     taskService = new TaskServiceInMemory();
-    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService).getGraphQL();
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
   }
 
   @Test
@@ -152,21 +152,18 @@ public class TestGraphqlSchemaFields {
       database.setActiveUser(ANONYMOUS);
       grapql =
           new GraphqlApiFactory()
-              .createGraphqlForSchema(database.getSchema(schemaName), taskService)
-              .getGraphQL();
+              .createGraphqlForSchema(database.getSchema(schemaName), taskService);
       assertEquals(5, execute("{_session{email,roles}}").at("/_session/roles").size());
       execute("mutation { signin(email: \"shopmanager\",password:\"shopmanager\") {message}}");
       grapql =
           new GraphqlApiFactory()
-              .createGraphqlForSchema(database.getSchema(schemaName), taskService)
-              .getGraphQL();
+              .createGraphqlForSchema(database.getSchema(schemaName), taskService);
       assertTrue(execute("{_session{email,roles}}").toString().contains("Manager"));
     } finally {
       database.becomeAdmin();
       grapql =
           new GraphqlApiFactory()
-              .createGraphqlForSchema(database.getSchema(schemaName), taskService)
-              .getGraphQL();
+              .createGraphqlForSchema(database.getSchema(schemaName), taskService);
     }
   }
 
@@ -529,9 +526,7 @@ public class TestGraphqlSchemaFields {
 
     // refresh graphql
     grapql =
-        new GraphqlApiFactory()
-            .createGraphqlForSchema(database.getSchema(schemaName), taskService)
-            .getGraphQL();
+        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
 
     // refs
     JsonNode result = execute("{Pet_groupBy{count,_sum{weight},tagsTest{nameTest}}}");
@@ -583,9 +578,7 @@ public class TestGraphqlSchemaFields {
     schema.getTable("Tag").getMetadata().alterColumn("name test", newTagName);
     // refresh graphql
     grapql =
-        new GraphqlApiFactory()
-            .createGraphqlForSchema(database.getSchema(schemaName), taskService)
-            .getGraphQL();
+        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
   }
 
   @Test
@@ -750,7 +743,7 @@ public class TestGraphqlSchemaFields {
               column("id").setPkey(),
               column("Child details").setType(REF).setRefTable("Child details")));
 
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService).getGraphQL();
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
       execute(
           "mutation{insert(PersonDetails:{firstName:\"blaata\",last_name:\"blaata2\",someNumber: 6}){message}}");
 
@@ -836,7 +829,7 @@ public class TestGraphqlSchemaFields {
 
       // reset
     } finally {
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService).getGraphQL();
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     }
   }
 
@@ -854,7 +847,7 @@ public class TestGraphqlSchemaFields {
       myschema.create(
           table("TestJson", column("name").setPkey(), column("json").setType(ColumnType.JSON)));
 
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService).getGraphQL();
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
 
       Table table = myschema.getTable("TestJson");
       String value = "{\"name\":\"bofke\"}";
@@ -887,7 +880,7 @@ public class TestGraphqlSchemaFields {
       //              .at("/TestJson/0/json")
       //              .asText());
     } finally {
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService).getGraphQL();
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     }
   }
 
@@ -898,7 +891,7 @@ public class TestGraphqlSchemaFields {
       myschema.create(
           table("TestFile", column("name").setPkey(), column("image").setType(ColumnType.FILE)));
 
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService).getGraphQL();
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(myschema, taskService);
 
       // insert file (note: ideally here also use mutation but I don't know how to add file part to
       // request)
@@ -938,7 +931,7 @@ public class TestGraphqlSchemaFields {
 
       // reset
     } finally {
-      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService).getGraphQL();
+      grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     }
   }
 
@@ -1010,16 +1003,14 @@ public class TestGraphqlSchemaFields {
     schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
     grapql =
-        new GraphqlApiFactory()
-            .createGraphqlForSchema(database.getSchema(schemaName), taskService)
-            .getGraphQL();
+        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
   }
 
   @Test
   public void testReport() throws IOException {
     schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, true).run();
-    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService).getGraphQL();
+    grapql = new GraphqlApiFactory().createGraphqlForSchema(schema, taskService);
     JsonNode result = execute("{_reports(id:\"report1\"){data,count}}");
     assertTrue(result.at("/_reports/data").textValue().contains("pooky"));
     assertEquals(8, result.at("/_reports/count").intValue());

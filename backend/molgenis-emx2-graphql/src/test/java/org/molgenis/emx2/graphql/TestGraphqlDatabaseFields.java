@@ -34,8 +34,7 @@ public class TestGraphqlDatabaseFields {
     taskService = new TaskServiceInMemory();
     Schema schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, false).run();
-    grapql =
-        new GraphqlApiFactory().createGraphql(database.getActiveUser(), taskService).getGraphQL();
+    grapql = new GraphqlApiFactory().createGraphql(database.getActiveUser(), taskService, null);
   }
 
   @Test
