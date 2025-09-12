@@ -13,6 +13,8 @@ import graphql.schema.GraphQLArgument;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.GraphQLList;
 import graphql.schema.GraphQLObjectType;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.molgenis.emx2.*;
@@ -76,7 +78,7 @@ public class GraphqlSessionFieldFactory {
         .build();
   }
 
-  public GraphQLFieldDefinition signinField(Database database) {
+  public GraphQLFieldDefinition signinField(Database database, HttpServletRequest request) {
     return GraphQLFieldDefinition.newFieldDefinition()
         .name("signin")
         .type(GraphqlApiMutationResultWithToken.typeForSignResult)
@@ -89,13 +91,13 @@ public class GraphqlSessionFieldFactory {
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
                 if (database.getUser(userName).getEnabled()) {
                   database.setActiveUser(userName);
-                  GraphqlApiMutationResultWithToken result =
-                      new GraphqlApiMutationResultWithToken(
-                          GraphqlApiMutationResult.Status.SUCCESS,
-                          JWTgenerator.createTemporaryToken(database, userName),
-                          "Signed in as '%s'",
-                          userName);
-                  return result;
+
+                  HttpSession session = request.getSession(true);
+                  session.setAttribute("login-user", userName);
+                  return new GraphqlApiMutationResultWithToken(
+                      GraphqlApiMutationResult.Status.SUCCESS,
+                      JWTgenerator.createTemporaryToken(database, userName),
+                      String.format("Signed in as '%s'", userName));
                 } else {
                   return new GraphqlApiMutationResult(
                       FAILED, "User '%s' disabled: check with your administrator", userName);
@@ -174,12 +176,11 @@ public class GraphqlSessionFieldFactory {
                 throw new MolgenisException(
                     "Create token failed: Only admins can create tokens for other users");
               }
+              String token = JWTgenerator.createNamedTokenForUser(database, userName, tokenId);
               return new GraphqlApiMutationResultWithToken(
                   GraphqlApiMutationResult.Status.SUCCESS,
-                  JWTgenerator.createNamedTokenForUser(database, userName, tokenId),
-                  "Token '%s' created for user '%s'",
-                  tokenId,
-                  userName);
+                  token,
+                  String.format("Token '%s' created for user '%s'", token, userName));
             })
         .build();
   }

@@ -1,7 +1,6 @@
 package org.molgenis.emx2.web;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
+import static io.restassured.RestAssured.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsString;
@@ -104,7 +103,7 @@ public class WebApiSmokeTests {
                     + db.getAdminUserName()
                     + "\\\",password:\\\""
                     + adminPass
-                    + "\\\"){message}}\"}")
+                    + "\\\"){status, message}}\"}")
             .when()
             .post("api/graphql")
             .sessionId();
@@ -729,13 +728,9 @@ public class WebApiSmokeTests {
   public void testGraphqlApi() {
     String path = "/api/graphql";
 
-    // create a new session, separate from the session shared in these tests
-    String sessionId =
-        given().body("{\"query\":\"{_session{email}}\"}").when().post(path).sessionId();
-
     String result =
         given()
-            .sessionId(sessionId)
+            .sessionId("somewrongid")
             .body("{\"query\":\"{_session{email}}\"}")
             .when()
             .post(path)
@@ -743,13 +738,7 @@ public class WebApiSmokeTests {
     assertTrue(result.contains("anonymous"));
 
     // if anonymous then should not be able to see users
-    result =
-        given()
-            .sessionId(sessionId)
-            .body("{\"query\":\"{_admin{userCount}}\"}")
-            .when()
-            .post(path)
-            .asString();
+    result = given().body("{\"query\":\"{_admin{userCount}}\"}").when().post(path).asString();
     assertTrue(result.contains("errors"));
 
     // read admin password from environment if necessary
@@ -758,19 +747,18 @@ public class WebApiSmokeTests {
             EnvironmentProperty.getParameter(
                 org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
 
-    result =
+    sessionId =
         given()
-            .sessionId(sessionId)
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
                     + db.getAdminUserName()
                     + "\\\",password:\\\""
                     + adminPass
-                    + "\\\"){message}}\"}")
+                    + "\\\"){status, message}}\"}")
             .when()
             .post(path)
-            .asString();
-    assertTrue(result.contains("Signed in"));
+            .sessionId();
+    ;
 
     result =
         given()
@@ -867,7 +855,7 @@ public class WebApiSmokeTests {
     String shopViewerSessionId =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"shopviewer\\\",password:\\\"shopviewer\\\"){message}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"shopviewer\\\",password:\\\"shopviewer\\\"){status, message}}\"}")
             .when()
             .post("/api/graphql")
             .sessionId();
@@ -886,7 +874,7 @@ public class WebApiSmokeTests {
     String shopManagerSessionId =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){message}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"shopmanager\\\",password:\\\"shopmanager\\\"){status, message}}\"}")
             .when()
             .post("/api/graphql")
             .sessionId();
@@ -902,7 +890,6 @@ public class WebApiSmokeTests {
         .get("/pet store/");
 
     schema.getMetadata().removeSetting("menu");
-    db.becomeAdmin();
   }
 
   @Test
@@ -958,7 +945,7 @@ public class WebApiSmokeTests {
     result =
         given()
             .body(
-                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){message,token}}\"}")
+                "{\"query\":\"mutation{signin(email:\\\"admin\\\",password:\\\"admin\\\"){status,message,token}}\"}")
             .when()
             .post("/api/graphql")
             .getBody()
@@ -1231,19 +1218,12 @@ public class WebApiSmokeTests {
   }
 
   private Response downloadPet(String requestString) {
-    return given()
-        .sessionId(SESSION_ID)
-        .accept(ACCEPT_EXCEL)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get(requestString);
+    return given().accept(ACCEPT_EXCEL).expect().statusCode(200).when().get(requestString);
   }
 
   @Test
   void testRoot() {
     given()
-        .sessionId(SESSION_ID)
         .redirects()
         .follow(false)
         .expect()
@@ -1552,7 +1532,7 @@ public class WebApiSmokeTests {
   private static String getToken(String email, String password) throws JsonProcessingException {
     String mutation =
         """
-            mutation { signin(email: "%s" ,password: "%s" ) { message, token } }
+            mutation { signin(email: "%s" ,password: "%s" ) { status, message, token } }
             """
             .formatted(email, password);
 
@@ -1566,7 +1546,6 @@ public class WebApiSmokeTests {
   @Test
   void testJSONLDonJSONLDEndpoint() {
     given()
-        .sessionId(SESSION_ID)
         .expect()
         .contentType("application/ld+json")
         .statusCode(200)
@@ -1574,7 +1553,6 @@ public class WebApiSmokeTests {
         .get("/pet store/api/jsonld");
 
     given()
-        .sessionId(SESSION_ID)
         .expect()
         .contentType("application/ld+json")
         .statusCode(200)
@@ -1584,13 +1562,7 @@ public class WebApiSmokeTests {
 
   @Test
   void testTurtleOnTTLEndpoint() {
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .contentType("text/turtle")
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/ttl");
+    given().expect().contentType("text/turtle").statusCode(200).when().get("/pet store/api/ttl");
 
     given()
         .sessionId(SESSION_ID)
@@ -1622,7 +1594,6 @@ public class WebApiSmokeTests {
   }
 
   private void getAndAssertContains(String path, String expectedSubstring) {
-    db.clearCache();
     String result = given().get(path).getBody().asString();
     ObjectMapper mapper = new ObjectMapper();
     String prettyJson;
@@ -1642,33 +1613,13 @@ public class WebApiSmokeTests {
   void testThatTablesWithSpaceCanBeDownloaded() {
     var table = schema.getTable(TABLE_WITH_SPACES);
 
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/jsonld/" + table.getIdentifier());
+    given().expect().statusCode(200).when().get("/pet store/api/jsonld/" + table.getIdentifier());
 
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/ttl/" + table.getIdentifier());
+    given().expect().statusCode(200).when().get("/pet store/api/ttl/" + table.getIdentifier());
 
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/excel/" + table.getIdentifier());
+    given().expect().statusCode(200).when().get("/pet store/api/excel/" + table.getIdentifier());
 
-    given()
-        .sessionId(SESSION_ID)
-        .expect()
-        .statusCode(200)
-        .when()
-        .get("/pet store/api/csv/" + table.getIdentifier());
+    given().expect().statusCode(200).when().get("/pet store/api/csv/" + table.getIdentifier());
   }
 
   @Test

@@ -34,18 +34,18 @@ class MolgenisSessionTest {
     GraphQL mockGraphQL = mock(GraphQL.class);
     when(graphQlApiFactory.createGraphqlForSchema(any(), any())).thenReturn(mockGraphQL);
     MolgenisSession molgenisSession = new MolgenisSession(database, graphQlApiFactory);
-    GraphQL graphqlForSchema = molgenisSession.getGraphqlForSchema("testSchema");
+    GraphQL graphqlForSchema = molgenisSession.getGraphqlForSchema("testSchema", null);
     assertNotNull(graphqlForSchema, "GraphQL schema should not be null");
 
     assertSame(
         mockGraphQL, graphqlForSchema, "Returned GraphQL instance should match the mock instance");
 
     when(database.getActiveUser()).thenReturn("anonymous");
-    GraphQL anonymousGraphql = molgenisSession.getGraphqlForSchema("testSchema");
+    GraphQL anonymousGraphql = molgenisSession.getGraphqlForSchema("testSchema", null);
     assertNotNull(anonymousGraphql, "Anonymous GraphQL schema should not be null");
 
     molgenisSession.clearCache();
-    GraphQL anonymousGraphqlAfterClear = molgenisSession.getGraphqlForSchema("testSchema");
+    GraphQL anonymousGraphqlAfterClear = molgenisSession.getGraphqlForSchema("testSchema", null);
     assertNotNull(anonymousGraphqlAfterClear, "Anonymous GraphQL schema should not be null");
     assertEquals(anonymousGraphql, anonymousGraphqlAfterClear);
   }
@@ -82,7 +82,7 @@ class MolgenisSessionTest {
             try {
               readyLatch.countDown();
               startLatch.await();
-              molgenisSession.getGraphqlForSchema("testSchema");
+              molgenisSession.getGraphqlForSchema("testSchema", null);
             } catch (ConcurrentModificationException cme) {
               failures.add(cme);
             } catch (InterruptedException ignore) {

@@ -52,7 +52,7 @@ public class PerformanceTest {
                 + database.getAdminUserName()
                 + "\\\",password:\\\""
                 + adminPass
-                + "\\\"){message}}\"}")
+                + "\\\"){status, message, user}}\"}")
         .when()
         .post("api/graphql")
         .sessionId();

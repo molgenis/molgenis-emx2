@@ -1,27 +1,32 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.EMX_2_METRICS_SESSION_TOTAL;
 import static org.molgenis.emx2.web.MolgenisWebservice.oidcController;
 
 import io.prometheus.metrics.core.metrics.Gauge;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
 import java.util.EventListener;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jetty.server.session.SessionHandler;
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
+import org.molgenis.emx2.web.util.ContextHelpers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MolgenisSessionManager {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSessionManager.class);
   private Map<String, MolgenisSession> sessions = new ConcurrentHashMap<>();
+  private static MolgenisSessionManager instance;
 
   static final Gauge sessionGauge =
       Gauge.builder()
@@ -29,10 +34,17 @@ public class MolgenisSessionManager {
           .help("Total number of active sessions")
           .register();
 
-  public MolgenisSessionManager() {}
+  private MolgenisSessionManager() {}
+
+  public static MolgenisSessionManager getInstance() {
+    if (instance == null) {
+      instance = new MolgenisSessionManager();
+    }
+    return instance;
+  }
 
   public MolgenisSession getSession(HttpServletRequest request) {
-    String authTokenKey = findUsedAuthTokenKey(request);
+    String authTokenKey = ContextHelpers.findUsedAuthTokenKey(request);
     if (authTokenKey != null) {
       return getNonPersistedSessionBasedOnToken(request, authTokenKey);
     } else {
@@ -41,47 +53,33 @@ public class MolgenisSessionManager {
   }
 
   private MolgenisSession getPersistentSessionBasedOnSessionId(HttpServletRequest request) {
-    if (request.getSession().isNew()) {
-      request.getSession(true); // see createCustomJettyServerFactoryWithCustomSessionListener
+    HttpSession session = request.getSession(false);
+    if (session == null) {
+      request.getSession();
     }
-    MolgenisSession session = sessions.get(request.getSession().getId());
-    if (session.getSessionUser() == null) {
+
+    MolgenisSession molgenisSession = sessions.get(request.getSession().getId());
+    if (molgenisSession.getSessionUser() == null) {
       throw new MolgenisException(
           "Invalid session found with user == null. This should not happen so please report as a bug");
     } else {
       logger.info(
           "get session for user({}) and key ({})",
-          session.getSessionUser(),
+          molgenisSession.getSessionUser(),
           request.getSession().getId());
     }
-    return session;
+    return molgenisSession;
   }
 
-  private MolgenisSession getNonPersistedSessionBasedOnToken(
+  public MolgenisSession getNonPersistedSessionBasedOnToken(
       HttpServletRequest request, String authTokenKey) {
-    SqlDatabase database = new SqlDatabase(false);
+    SqlDatabase database = new SqlDatabase(ANONYMOUS);
     database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
     String user = JWTgenerator.getUserFromToken(database, request.getHeader(authTokenKey));
     database.setActiveUser(user);
     MolgenisSession session = new MolgenisSession(database, new GraphqlApiFactory());
     database.setListener(new MolgenisSessionManagerDatabaseListener(this, session));
     return session;
-  }
-
-  /**
-   * From the request, get the name of the auth token key that was used to supply the auth token in
-   * the header, or return null if none of the options are present.
-   *
-   * @param request
-   * @return
-   */
-  public String findUsedAuthTokenKey(HttpServletRequest request) {
-    for (String authTokenKey : Constants.MOLGENIS_TOKEN) {
-      if (request.getHeader(authTokenKey) != null) {
-        return authTokenKey;
-      }
-    }
-    return null;
   }
 
   /**
@@ -108,6 +106,19 @@ public class MolgenisSessionManager {
     return sessionHandler;
   }
 
+  public void addSession(HttpSession httpSession, Database database) {
+    MolgenisSession molgenisSession = new MolgenisSession(database, new GraphqlApiFactory());
+    sessions.put(httpSession.getId(), molgenisSession);
+    logger.info(
+        "added session for user({}) and key ({})",
+        molgenisSession.getSessionUser(),
+        httpSession.getId());
+  }
+
+  public void removeSession(String sessionId) {
+    sessions.remove(sessionId);
+  }
+
   /**
    * takes care of creating and destroying session attributes when Jetty creates/destroys sessions
    */
@@ -115,20 +126,8 @@ public class MolgenisSessionManager {
     MolgenisSessionManager _this = this;
     return new HttpSessionListener() {
       public void sessionCreated(HttpSessionEvent httpSessionEvent) {
-        logger.info("Initializing session");
-        // create private database wrapper to session
-        SqlDatabase database = new SqlDatabase(false);
-        database.setActiveUser("anonymous"); // set default use to "anonymous"
-        database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
 
-        // create session and add to sessions lists so we can also access all active
-        // sessions
-        MolgenisSession molgenisSession = new MolgenisSession(database, new GraphqlApiFactory());
-        sessions.put(httpSessionEvent.getSession().getId(), molgenisSession);
         logger.info("session created: " + httpSessionEvent.getSession().getId());
-
-        // create listener
-        database.setListener(new MolgenisSessionManagerDatabaseListener(_this, molgenisSession));
 
         // Increment metrics gauge
         sessionGauge.inc();

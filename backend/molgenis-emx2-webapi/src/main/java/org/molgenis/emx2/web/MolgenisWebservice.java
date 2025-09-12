@@ -19,9 +19,11 @@ import java.net.URL;
 import java.util.*;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
+import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.utils.URIUtils;
 import org.molgenis.emx2.web.controllers.MetricsController;
 import org.molgenis.emx2.web.controllers.OIDCController;
+import org.molgenis.emx2.web.util.ContextHelpers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +43,14 @@ public class MolgenisWebservice {
   public static MolgenisSessionManager sessionManager;
   public static OIDCController oidcController;
   static URL hostUrl;
+  private static Database anonymousDatabase = new SqlDatabase(false);
 
   private MolgenisWebservice() {
     // hide constructor
   }
 
   public static void start(int port) {
-
-    sessionManager = new MolgenisSessionManager();
+    sessionManager = MolgenisSessionManager.getInstance();
     oidcController = new OIDCController();
     Javalin app =
         Javalin.create(
@@ -89,8 +91,7 @@ public class MolgenisWebservice {
         "/",
         ctx -> {
           // check for setting
-          String landingPagePath =
-              sessionManager.getSession(ctx.req()).getDatabase().getSetting(LANDING_PAGE);
+          String landingPagePath = anonymousDatabase.getSetting(LANDING_PAGE);
           if (landingPagePath != null) {
             ctx.redirect(landingPagePath);
           } else {
@@ -207,7 +208,7 @@ public class MolgenisWebservice {
         "graphql: <a href=\"/api/graphql/\">/api/graphql    </a> <a href=\"/api/playground.html?schema=/api/graphql\">playground</a>");
 
     result.append("<p/>Schema APIs:<ul>");
-    for (String name : sessionManager.getSession(ctx.req()).getDatabase().getSchemaNames()) {
+    for (String name : ContextHelpers.getDatabaseForContext(ctx).getSchemaNames()) {
       result.append("<li>").append(name);
       result.append(" <a href=\"/" + name + "/api/openapi\">openapi</a>");
       result.append(
@@ -278,7 +279,10 @@ public class MolgenisWebservice {
     if (schemaName == null) {
       return null;
     }
-    return sessionManager.getSession(ctx.req()).getDatabase().getSchema(sanitize(schemaName));
+
+    Database database = ContextHelpers.getDatabaseForContext(ctx);
+
+    return database.getSchema(sanitize(schemaName));
   }
 
   public static Collection<String> getSchemaNames(Context ctx) {

@@ -34,7 +34,7 @@ public class TestGraphqlDatabaseFields {
     taskService = new TaskServiceInMemory();
     Schema schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, false).run();
-    grapql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
+    grapql = new GraphqlApiFactory().createGraphql(database.getActiveUser(), taskService, null);
   }
 
   @Test
@@ -126,7 +126,7 @@ public class TestGraphqlDatabaseFields {
     assertTrue(database.checkUserPassword("pietje", "blaat123"));
 
     assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}")
+        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message, user}}")
             .at("/data/signin/message")
             .textValue()
             .contains("failed"));
@@ -134,7 +134,7 @@ public class TestGraphqlDatabaseFields {
     assertTrue(database.isAdmin());
 
     assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")
+        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message, user}}")
             .at("/data/signin/message")
             .textValue()
             .contains("Signed in"));

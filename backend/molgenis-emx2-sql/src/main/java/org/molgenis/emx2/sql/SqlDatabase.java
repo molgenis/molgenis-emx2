@@ -66,7 +66,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private DatabaseListener listener =
       new DatabaseListener() {
         @Override
-        public void userChanged() {
+        public void userChanged(Database database) {
           clearCache();
         }
 
@@ -106,6 +106,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   public SqlDatabase(boolean init) {
+    this(ANONYMOUS, init);
+  }
+
+  public SqlDatabase(String user) {
+    this(user, false);
+  }
+
+  public SqlDatabase(String user, boolean init) {
     initDataSource();
     this.connectionProvider = new SqlUserAwareConnectionProvider(source);
     this.jooq = DSL.using(connectionProvider, SQLDialect.POSTGRES, DEFAULT_JOOQ_SETTINGS);
@@ -121,7 +129,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     }
     // get database version if exists
     databaseVersion = MetadataUtils.getVersion(jooq);
-    logger.info("Database was created using version: {} ", this.databaseVersion);
+    this.setActiveUser(user);
+    logger.info(
+        "Database interface was created for user {} using version: {} ",
+        user,
+        this.databaseVersion);
   }
 
   private static void initDataSource() {
@@ -610,7 +622,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
     } else {
       if (!Objects.equals(username, connectionProvider.getActiveUser())) {
-        listener.userChanged();
+        listener.userChanged(this);
       }
     }
     this.connectionProvider.setActiveUser(username);
@@ -658,7 +670,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
         if (!Objects.equals(db.getActiveUser(), getActiveUser())) {
-          this.getListener().userChanged();
+          this.getListener().userChanged(db);
         }
         if (db.getListener().isDirty()) {
           this.getListener().afterCommit();

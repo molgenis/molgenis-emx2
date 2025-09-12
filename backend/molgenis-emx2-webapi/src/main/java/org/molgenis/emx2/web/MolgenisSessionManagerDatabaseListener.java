@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DatabaseListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ public class MolgenisSessionManagerDatabaseListener extends DatabaseListener {
   }
 
   @Override
-  public void userChanged() {
+  public void userChanged(Database database) {
     logger.info("cleared cache for this session because user changed");
     session.clearCache();
   }

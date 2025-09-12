@@ -1,32 +1,21 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.util.EnvHelpers.getEnvInt;
-import static org.molgenis.emx2.web.util.EnvHelpers.getEnvLong;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import graphql.GraphQL;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MolgenisSession {
   private static final Logger logger = LoggerFactory.getLogger(MolgenisSession.class);
-
-  private static final Cache<String, GraphQL> anonymousGqlObjectCache =
-      Caffeine.newBuilder()
-          .maximumSize(getEnvInt("ANONYMOUS_GQL_CACHE_MAX_SIZE", 100))
-          .expireAfterAccess(
-              getEnvLong("ANONYMOUS_GQL_CACHE_EXPIRE_ACCESS_MIN", 1L), TimeUnit.MINUTES)
-          .expireAfterWrite(
-              getEnvLong("ANONYMOUS_GQL_CACHE_EXPIRE_WRITE_MIN", 30L), TimeUnit.MINUTES)
-          .build();
+  private final AnonymousGqlSchemaCache anonymousGqlSchemaCache =
+      AnonymousGqlSchemaCache.getInstance();
   private final GraphqlApiFactory graphqlApiFactory;
   private final Database database;
   private final Map<String, GraphQL> graphqlPerSchema = new ConcurrentHashMap<>();
@@ -38,21 +27,21 @@ public class MolgenisSession {
     this.graphqlApiFactory = graphqlApiFactory;
   }
 
-  public GraphQL getGraphqlForDatabase() {
+  public GraphQL getGraphqlForDatabase(
+      String user, TaskService taskService, HttpServletRequest request) {
     if (graphqlForDatabase == null) {
-      graphqlForDatabase =
-          new GraphqlApiFactory().createGraphqlForDatabase(database, TaskApi.taskService);
+      graphqlForDatabase = new GraphqlApiFactory().createGraphql(user, taskService, request);
       logger.info("created graphql for user {}", getSessionUser());
     }
     return graphqlForDatabase;
   }
 
-  public GraphQL getGraphqlForSchema(String schemaName) {
+  public GraphQL getGraphqlForSchema(String schemaName, HttpServletRequest request) {
     logger.info("getting graphql schema '{}' for user '{}'", schemaName, getSessionUser());
-    GraphQL graphQL = graphqlPerSchema.get(schemaName);
-    if (graphQL != null) {
+    GraphQL emx2GraphQL = graphqlPerSchema.get(schemaName);
+    if (emx2GraphQL != null) {
       logger.info("return cached graphql schema '{}' for user '{}'", schemaName, getSessionUser());
-      return graphQL;
+      return emx2GraphQL;
     }
 
     Schema schema = database.getSchema(schemaName);
@@ -63,12 +52,10 @@ public class MolgenisSession {
               + "' does not exist or permission denied");
 
     return database.isAnonymous()
-        ? anonymousGqlObjectCache.get(
-            schemaName,
-            key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService))
+        ? anonymousGqlSchemaCache.get(schema, request)
         : graphqlPerSchema.computeIfAbsent(
             schemaName,
-            key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService));
+            key -> graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService, request));
   }
 
   public Database getDatabase() {
@@ -83,7 +70,7 @@ public class MolgenisSession {
     this.graphqlPerSchema.clear();
     this.graphqlForDatabase = null;
     this.database.clearCache();
-    anonymousGqlObjectCache.invalidateAll();
+    anonymousGqlSchemaCache.invalidate();
     logger.info("cleared database and caches for user {}", getSessionUser());
   }
 }

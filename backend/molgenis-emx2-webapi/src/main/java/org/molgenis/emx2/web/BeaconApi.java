@@ -12,6 +12,7 @@ import org.molgenis.emx2.beaconv2.Templates;
 import org.molgenis.emx2.beaconv2.endpoints.*;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
 import org.molgenis.emx2.sql.SqlDatabase;
+import org.molgenis.emx2.web.util.ContextHelpers;
 
 public class BeaconApi {
 
@@ -62,7 +63,7 @@ public class BeaconApi {
     ctx.contentType(Constants.ACCEPT_JSON);
     Schema schema = getSchema(ctx);
 
-    Database database = sessionManager.getSession(ctx.req()).getDatabase();
+    Database database = ContextHelpers.getDatabaseForContext(ctx);
     ctx.json(new Info(database).getResponse(schema));
   }
 
@@ -79,7 +80,7 @@ public class BeaconApi {
   }
 
   private static void getFilteringTerms(Context ctx) {
-    Database database = sessionManager.getSession(ctx.req()).getDatabase();
+    Database database = ContextHelpers.getDatabaseForContext(ctx);
     ctx.json(new FilteringTerms(database));
   }
 
@@ -101,7 +102,7 @@ public class BeaconApi {
     if (schema != null) {
       ctx.json(queryEntryType.query(schema));
     } else {
-      Database database = sessionManager.getSession(ctx.req()).getDatabase();
+      Database database = ContextHelpers.getDatabaseForContext(ctx);
       ctx.json(queryEntryType.query(database));
     }
   }

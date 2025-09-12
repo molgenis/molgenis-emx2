@@ -12,12 +12,9 @@ public class GraphqlApiMutationResultWithToken {
   private final String token;
 
   public GraphqlApiMutationResultWithToken(
-      GraphqlApiMutationResult.Status status,
-      String token,
-      String message,
-      Object... formatValues) {
+      GraphqlApiMutationResult.Status status, String token, String message) {
     this.status = status;
-    this.message = String.format(message, formatValues);
+    this.message = message;
     this.token = token;
   }
 
