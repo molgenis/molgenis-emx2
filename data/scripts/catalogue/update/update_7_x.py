@@ -226,7 +226,6 @@ class Transform:
         df_subpopulations['issued'] = ''
         df_subpopulations['modified'] = ''
         df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_resources)
-
         # write table to file
         df_subpopulations.to_csv(self.path + 'Subpopulations.csv', index=False)
 
