@@ -124,13 +124,13 @@ class Transform:
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
         df_resources.rename(columns={'resources': 'data resources'}, inplace=True)
 
-        # for demo data only: delete issued and modified
+        # for demo data only
         if self.schema_name == 'testCatalogue':
             df_resources['issued'] = ''
             df_resources['modified'] = ''
-
-        # for demo data only: add keywords
-        df_resources['keywords'] = df_resources['keywords'].apply(add_keywords)
+            df_resources['keywords'] = df_resources['keywords'].apply(add_keywords)
+            df_resources['pid'] = 'https://placeholder-pid/' + df_resources['id'].str.lower() + '.org'
+            df_resources['pid'] = df_resources['pid'].str.replace(' ', '')
 
         # get publisher and creator from Organisations table
         df_organisations = pd.read_csv(self.path + 'Organisations.csv', dtype='object')
@@ -216,6 +216,12 @@ class Transform:
         df_col_event['modified'] = ''
         df_col_event['keywords'] = df_col_event['resource'].apply(get_keywords, dict_keywords=dict_resources)
 
+        # only for demo data:
+        if self.schema_name == 'testCatalogue':
+            df_col_event['pid'] = 'https://placeholder-pid/' + df_col_event['resource'].str.lower() + '/' + \
+                                       df_col_event['name'].str.lower() + '.org'
+            df_col_event['pid'] = df_col_event['pid'].str.replace(' ', '').str.replace('(', '').str.replace(')', '').str.replace("'", "")
+
         # write table to file
         df_col_event.to_csv(self.path + 'Collection events.csv', index=False)
 
@@ -231,6 +237,13 @@ class Transform:
         df_subpopulations['issued'] = ''
         df_subpopulations['modified'] = ''
         df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_resources)
+
+        # only for demo data:
+        if self.schema_name == 'testCatalogue':
+            df_subpopulations['pid'] = 'https://placeholder-pid/' + df_subpopulations['resource'].str.lower() + '/' + \
+                                       df_subpopulations['name'].str.lower() + '.org'
+            df_subpopulations['pid'] = df_subpopulations['pid'].str.replace(' ', '').str.replace('(', '').str.replace(')', '')
+
         # write table to file
         df_subpopulations.to_csv(self.path + 'Subpopulations.csv', index=False)
 
