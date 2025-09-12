@@ -101,7 +101,7 @@ class Transform:
         df_organisations['type'] = 'Organisation'
         # get demo email for demo data only
         if self.schema_name == 'testCatalogue':
-            df_organisations['email'] = 'test-email.com'
+            df_organisations['email'] = 'test@email.com'
 
         if len(df_organisations) != 0:
             # load organisations ontology
