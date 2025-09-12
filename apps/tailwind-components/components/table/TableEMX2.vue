@@ -32,7 +32,7 @@
     class="relative overflow-auto rounded-b-theme border border-theme border-color-theme"
   >
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
-      <table ref="table" class="text-left w-full table-auto lg:table-fixed">
+      <table ref="table" class="text-left w-full table-fixed">
         <thead>
           <tr>
             <TableHeadCell
@@ -44,7 +44,7 @@
             <TableHeadCell
               v-for="column in sortedVisibleColumns"
               :class="{
-                'w-full': columns.length <= 5,
+                'w-60 lg:w-full': columns.length <= 5,
                 'w-60': columns.length > 5,
               }"
             >
@@ -139,7 +139,7 @@
               v-for="column in sortedVisibleColumns"
               class="text-table-row group-hover:bg-hover"
               :class="{
-                'w-full': columns.length < 5,
+                'w-60 lg:w-full': columns.length <= 5,
                 'w-60': columns.length > 5,
                 'h-11': !row[column.id] || row[column.id] === '',
               }"
