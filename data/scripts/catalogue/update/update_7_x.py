@@ -124,6 +124,9 @@ class Transform:
             df_resources['issued'] = ''
             df_resources['modified'] = ''
 
+        # for demo data only: add keywords
+        df_resources['keywords'] = df_resources['keywords'].apply(add_keywords)
+
         # get publisher and creator from Organisations table
         df_organisations = pd.read_csv(self.path + 'Organisations.csv', dtype='object')
         df_resources['publisher.resource'] = ''
@@ -199,9 +202,14 @@ class Transform:
         """ Transform data in Endpoint
         """
         df_col_event = pd.read_csv(self.path + 'Collection events.csv', dtype='object')
+        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+        df_resources = df_resources[['id', 'keywords']]
+        dict_resources = dict(zip(df_resources.id, df_resources.keywords))
 
+        # transformations
         df_col_event['issued'] = ''
         df_col_event['modified'] = ''
+        df_col_event['keywords'] = df_col_event['resource'].apply(get_keywords, dict_keywords=dict_resources)
 
         # write table to file
         df_col_event.to_csv(self.path + 'Collection events.csv', index=False)
@@ -210,13 +218,17 @@ class Transform:
         """ Transform data in Endpoint
         """
         df_subpopulations = pd.read_csv(self.path + 'Subpopulations.csv', dtype='object')
+        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+        df_resources = df_resources[['id', 'keywords']]
+        dict_resources = dict(zip(df_resources.id, df_resources.keywords))
 
+        # transformations
         df_subpopulations['issued'] = ''
         df_subpopulations['modified'] = ''
+        df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_resources)
 
         # write table to file
         df_subpopulations.to_csv(self.path + 'Subpopulations.csv', index=False)
-
 
 
 def get_ror_name(pid, dict_ror):
@@ -246,3 +258,14 @@ def calculate_consent(row):
         return False
     elif row['statement of consent email'] is False:
         return False
+
+
+def add_keywords(keywords):
+    if pd.isna(keywords):
+        keywords = 'test1, test2'
+    return keywords
+
+
+def get_keywords(resource, dict_keywords):
+    keywords = dict_keywords[resource]
+    return keywords
