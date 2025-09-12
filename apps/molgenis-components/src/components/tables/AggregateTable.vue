@@ -67,7 +67,7 @@
               />
             </td>
           </tr>
-          <tr v-if="aggFunction === 'sum'">
+          <tr v-if="aggFunction === '_sum'">
             <td class="align-top">
               <label
                 class="mx-2 col-form-label form-group mb-0 mr-3 pt-0"
@@ -125,158 +125,144 @@
 }
 </style>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import TableStickyHeaders from "./TableStickyHeaders.vue";
-import IAggregateData from "./IAggregateData";
-import Client from "../../client/client";
-import InputSelect from "../forms/InputSelect.vue";
-import { INewClient, aggFunction } from "../../client/IClient";
+<script setup lang="ts">
 import type { IColumn } from "metadata-utils";
+import { computed, ref, watch } from "vue";
+import Client from "../../client/client";
+import { INewClient, type AggFunction } from "../../client/IClient";
 import InputRadio from "../forms/InputRadio.vue";
+import InputSelect from "../forms/InputSelect.vue";
+import IAggregateData from "./IAggregateData";
+import TableStickyHeaders from "./TableStickyHeaders.vue";
 
 const AGG_FIELD_TYPES = ["INT", "LONG", "DECIMAL"];
 
-export default defineComponent({
-  name: "AggregateTable",
-  components: { TableStickyHeaders, InputSelect, InputRadio },
-  props: {
-    canView: {
-      type: Boolean,
-      required: true,
-    },
-    schemaId: {
-      type: String,
-      required: true,
-    },
-    allColumns: {
-      type: Array,
-      required: true,
-    },
-    tableId: {
-      type: String,
-      required: true,
-    },
-    minimumValue: {
-      type: Number,
-      default: 1,
-    },
-    graphqlFilter: {
-      type: Object,
-      default: {},
-    },
-  },
-  data: function () {
-    return {
-      selectedColumn: "",
-      selectedRow: "",
-      refColumns: [] as string[],
-      loading: false,
-      aggFunction: "count",
-      aggField: "",
-      rows: [] as string[],
-      columns: [] as string[],
-      aggregateData: {} as IAggregateData,
-      noResults: false,
-      errorMessage: undefined,
-      client: {} as INewClient,
-    };
-  },
-  computed: {
-    aggFieldOptions() {
-      return (this.allColumns as IColumn[])
-        .filter((column: IColumn) => {
-          return AGG_FIELD_TYPES.includes(column.columnType);
-        })
-        .map((column: IColumn) => column.id);
-    },
-  },
-  methods: {
-    async fetchData() {
-      this.loading = true;
-      this.errorMessage = undefined;
-      this.rows = [];
-      this.columns = [];
-      this.aggregateData = {};
-      if (this.aggFunction === "sum" && !this.aggField) {
-        this.loading = false;
-        return;
-      }
-      const responseData = await this.client
-        .fetchAggregateData(
-          this.tableId,
-          {
-            id: this.selectedColumn,
-            column: "name",
-          },
-          {
-            id: this.selectedRow,
-            column: "name",
-          },
-          this.graphqlFilter,
-          this.aggFunction === "count" ? "count" : "_sum",
-          this.aggField
-        )
-        .catch((error) => {
-          this.errorMessage = error;
-        });
-      if (responseData && responseData[this.tableId + "_groupBy"]) {
-        responseData[this.tableId + "_groupBy"].forEach((item: any) =>
-          this.addItem(item)
-        );
-        this.noResults = !this.columns.length;
-      } else {
-        this.noResults = true;
-      }
-      this.loading = false;
-    },
-    addItem(item: any) {
-      const column: string = item[this.selectedColumn]?.name || "not specified";
-      const row: string = item[this.selectedRow]?.name || "not specified";
+const props = withDefaults(
+  defineProps<{
+    canView: boolean;
+    schemaId: string;
+    allColumns: IColumn[];
+    tableId: string;
+    minimumValue?: number;
+    graphqlFilter?: Record<string, any>;
+  }>(),
+  {
+    minimumValue: 1,
+    graphqlFilter: () => ({}),
+  }
+);
+const selectedColumn = ref("");
+const selectedRow = ref("");
+const refColumns = ref<string[]>([]);
+const loading = ref(false);
+const aggFunction = ref<AggFunction>("count");
+const aggField = ref("");
+const rows = ref<string[]>([]);
+const columns = ref<string[]>([]);
+const aggregateData = ref<IAggregateData>({});
+const noResults = ref(false);
+const errorMessage = ref<string | undefined>(undefined);
+const client = ref<INewClient>(Client.newClient(props.schemaId));
 
-      const aggRespField = this.aggFunction === "count" ? "count" : "_sum";
-      const aggColValue =
-        this.aggFunction === "count"
-          ? item[aggRespField]
-          : item[aggRespField][this.aggField];
-
-      if (!this.aggregateData[row]) {
-        this.aggregateData[row] = { [column]: aggColValue };
-      } else {
-        this.aggregateData[row][column] = aggColValue;
-      }
-
-      if (!this.columns.includes(column)) {
-        this.columns.push(column);
-      }
-      if (!this.rows.includes(row)) {
-        this.rows.push(row);
-      }
-    },
-    initialize() {
-      if (this.allColumns.length > 0) {
-        this.refColumns = getRefTypeColumns(
-          this.allColumns as IColumn[],
-          this.canView
-        );
-      }
-      if (this.refColumns?.length > 0) {
-        this.selectedColumn = this.refColumns[0];
-        this.selectedRow = this.refColumns[1] || this.refColumns[0];
-        this.fetchData();
-      }
-    },
-  },
-  watch: {
-    allColumns() {
-      this.initialize();
-    },
-  },
-  mounted() {
-    this.client = Client.newClient(this.schemaId);
-    this.initialize();
-  },
+const aggFieldOptions = computed(() => {
+  return props.allColumns
+    .filter((column: IColumn) => {
+      return AGG_FIELD_TYPES.includes(column.columnType);
+    })
+    .map((column: IColumn) => column.id);
 });
+
+initialize();
+
+watch(
+  () => props.allColumns,
+  () => {
+    initialize();
+  }
+);
+
+function fetchData() {
+  loading.value = true;
+  errorMessage.value = undefined;
+  rows.value = [];
+  columns.value = [];
+  aggregateData.value = {};
+  if (aggFunction.value === "_sum" && !aggField.value) {
+    loading.value = false;
+    return;
+  }
+  client.value
+    .fetchAggregateData(
+      props.tableId,
+      {
+        id: selectedColumn.value,
+        column: "name",
+      },
+      {
+        id: selectedRow.value,
+        column: "name",
+      },
+      props.graphqlFilter,
+      aggFunction.value === "count" ? "count" : "_sum",
+      aggField.value
+    )
+    .then((responseData) => {
+      if (responseData && responseData[props.tableId + "_groupBy"]) {
+        responseData[props.tableId + "_groupBy"].forEach((item: any) =>
+          addItem(item)
+        );
+        noResults.value = !columns.value.length;
+      } else {
+        noResults.value = true;
+      }
+      loading.value = false;
+    })
+    .catch((error) => {
+      errorMessage.value = error;
+      loading.value = false;
+    });
+}
+
+function addItem(item: any) {
+  const column: string = item[selectedColumn.value]?.name || "not specified";
+  const row: string = item[selectedRow.value]?.name || "not specified";
+
+  const aggRespField = aggFunction.value === "count" ? "count" : "_sum";
+  const aggColValue =
+    aggFunction.value === "count"
+      ? item[aggRespField]
+      : item[aggRespField][aggField.value];
+
+  if (!aggregateData.value[row]) {
+    aggregateData.value[row] = { [column]: aggColValue };
+  } else {
+    aggregateData.value[row][column] = aggColValue;
+  }
+
+  if (!columns.value.includes(column)) {
+    columns.value.push(column);
+  }
+  if (!rows.value.includes(row)) {
+    rows.value.push(row);
+  }
+}
+
+function initialize() {
+  if (props.allColumns.length > 0) {
+    refColumns.value = getRefTypeColumns(
+      props.allColumns as IColumn[],
+      props.canView
+    );
+  }
+  if (refColumns.value?.length) {
+    selectedColumn.value = refColumns.value[0];
+    selectedRow.value = refColumns.value[1] || refColumns.value[0];
+    // if (aggFunction.value === "_sum" && aggFieldOptions.value.length) {
+    //   aggField.value = aggFieldOptions.value[0];
+    // }
+    fetchData();
+  }
+}
 
 function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
   return columns
