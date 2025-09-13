@@ -2,6 +2,7 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.web.Constants.EMX_2_METRICS_SESSION_TOTAL;
+import static org.pac4j.core.util.Pac4jConstants.USERNAME;
 
 import io.prometheus.metrics.core.metrics.Gauge;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,16 +32,19 @@ public class HttpMolgenisSessionManager implements MolgenisSessionManager {
   @Override
   public void createSession(String username) {
     HttpSession oldSession = request.getSession(false);
-    if (oldSession != null) oldSession.invalidate();
-    HttpSession session = request.getSession(true);
+    if (oldSession != null && oldSession.getAttribute(USERNAME).equals(username)) {
+      return;
+    }
+    destroySession();
+    HttpSession session = request.getSession(); // get session or create
     session.setMaxInactiveInterval(30 * 60); // 30 minutes
-    session.setAttribute("username", username);
+    session.setAttribute(USERNAME, username);
 
     // register this session
     userSessions.computeIfAbsent(username, k -> ConcurrentHashMap.newKeySet()).add(session);
     sessionGauge.inc(1);
 
-    logger.debug(
+    logger.info(
         "Session {} created. User {} now has {} sessions with {} total",
         session.getId(),
         username,
@@ -50,7 +54,8 @@ public class HttpMolgenisSessionManager implements MolgenisSessionManager {
 
   @Override
   public void destroySession() {
-    HttpSession session = request.getSession(false);
+    HttpSession session =
+        request.getSession(false); // omitting false probably reason for many sessions before
     if (session != null) {
       String username = (String) session.getAttribute("username");
       session.invalidate();
@@ -63,7 +68,7 @@ public class HttpMolgenisSessionManager implements MolgenisSessionManager {
         sessions.remove(session);
         sessionCountForUser = sessions.size();
       }
-      logger.debug(
+      logger.info(
           "session {} destroyed. User {} now has {} sessions with {} total",
           session.getId(),
           username,

@@ -42,10 +42,11 @@ public class MolgenisBackendCache {
     return databaseCache.get(
         getUser(ctx),
         userName -> {
-          logger.debug("create database cache for user {}", getUser(ctx));
+          logger.info("create database cache for user {}", getUser(ctx));
           SqlDatabase database = new SqlDatabase(false);
           database.setActiveUser(userName);
           database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
+          database.setBindings(JavaScriptBindings.getBindingsForContext(ctx));
           database.setListener(
               new DatabaseListener() {
 
@@ -71,7 +72,7 @@ public class MolgenisBackendCache {
     return schemaCache.get(
         new UserSchema(getUser(ctx), schemaName),
         k -> {
-          logger.debug("create schema '{}' cache for user {}", schemaName, getUser(ctx));
+          logger.info("create schema '{}' cache for user {}", schemaName, getUser(ctx));
           return getDatabase(ctx).getSchema(schemaName);
         });
   }
@@ -80,7 +81,7 @@ public class MolgenisBackendCache {
     return graphqlDatabaseCache.get(
         getUser(ctx),
         k -> {
-          logger.debug("create graphqlDatabaseApi cache for user {}", getUser(ctx));
+          logger.info("create graphqlDatabaseApi cache for user {}", getUser(ctx));
           return graphqlApiFactory.createGraphqlForDatabase(
               getDatabase(ctx), null /* not forget task service */);
         });
@@ -90,7 +91,7 @@ public class MolgenisBackendCache {
     return graphqlSchemaCache.get(
         new UserSchema(getUser(ctx), schemaName),
         k -> {
-          logger.debug("create graphqlSchemaApi '{}' cache for user {}", schemaName, getUser(ctx));
+          logger.info("create graphqlSchemaApi '{}' cache for user {}", schemaName, getUser(ctx));
           return graphqlApiFactory.createGraphqlForSchema(getSchema(schemaName, ctx));
         });
   }
@@ -101,14 +102,15 @@ public class MolgenisBackendCache {
     // check if we are in a session
     HttpSession session = ctx.req().getSession(false);
     if (session != null) {
-      return (String) session.getAttribute(USERNAME);
+      String username = (String) session.getAttribute(USERNAME);
+      logger.info("found a session for user " + username);
+      return username;
     }
 
-    // check if we have a token
+    // check if we have a token using local admin database
     String authTokenKey = findUsedAuthTokenKey(request);
     if (authTokenKey != null) {
       SqlDatabase database = new SqlDatabase(false);
-      database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
       return JWTgenerator.getUserFromToken(database, request.getHeader(authTokenKey));
     }
 
@@ -134,6 +136,6 @@ public class MolgenisBackendCache {
     schemaCache.invalidateAll();
     graphqlSchemaCache.invalidateAll();
     graphqlDatabaseCache.invalidateAll();
-    logger.debug("cleared all caches");
+    logger.info("cleared all caches");
   }
 }

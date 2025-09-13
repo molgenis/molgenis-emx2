@@ -29,7 +29,7 @@ public class JavaScriptBindings {
     };
   }
 
-  public static Map<String, Supplier<Object>> getBindingsForSession(Context ctx) {
+  public static Map<String, Supplier<Object>> getBindingsForContext(Context ctx) {
     Map<String, Supplier<Object>> bindings = new HashMap<>();
     bindings.put(SIMPLE_POST_CLIENT, () -> createSimplePostClient(ctx));
     // Add more bindings here in a similar way if needed

@@ -38,7 +38,7 @@ public class MolgenisWebservice {
       "oidc-login"; // in nuxt '_' indicates a dynamic route
   private static final String ROBOTS_TXT = "robots.txt";
   private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
-  public static MolgenisBackendCache backend;
+  public static MolgenisBackendCache backend = new MolgenisBackendCache();
   public static OIDCController oidcController;
   static URL hostUrl;
 
@@ -47,7 +47,6 @@ public class MolgenisWebservice {
   }
 
   public static void start(int port) {
-    backend = new MolgenisBackendCache();
     oidcController = new OIDCController();
     Javalin app =
         Javalin.create(

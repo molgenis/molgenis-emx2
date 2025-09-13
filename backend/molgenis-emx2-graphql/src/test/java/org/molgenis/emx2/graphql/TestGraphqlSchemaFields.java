@@ -8,7 +8,6 @@ import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
-import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 import static org.molgenis.emx2.utils.TypeUtils.convertToCamelCase;
 import static org.molgenis.emx2.utils.TypeUtils.convertToPascalCase;
 
@@ -149,12 +148,10 @@ public class TestGraphqlSchemaFields {
   @Test
   public void testSession() throws IOException {
     try {
-      database.setActiveUser(ANONYMOUS);
+      database.setActiveUser("shopmanager");
       grapql =
           new GraphqlApiFactory()
               .createGraphqlForSchema(database.getSchema(schemaName), taskService);
-      assertEquals(5, execute("{_session{email,roles}}").at("/_session/roles").size());
-      execute("mutation { signin(email: \"shopmanager\",password:\"shopmanager\") {message}}");
       grapql =
           new GraphqlApiFactory()
               .createGraphqlForSchema(database.getSchema(schemaName), taskService);

@@ -38,6 +38,7 @@ public class GraphqlApi {
   }
 
   public static void createGraphQLservice(Javalin app) {
+
     // per schema graphql calls from app
     final String appSchemaGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
     app.get(appSchemaGqlPath, GraphqlApi::handleSchemaRequests);
@@ -92,8 +93,8 @@ public class GraphqlApi {
   private static String executeQuery(GraphQL g, Context ctx) throws IOException {
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
-    MolgenisSessionManager sessionHandler = new HttpMolgenisSessionManager(ctx.req());
-    Map graphQLContext = Map.of(MolgenisSessionManager.class, sessionHandler);
+    MolgenisSessionManager sessionManager = new HttpMolgenisSessionManager(ctx.req());
+    Map graphQLContext = Map.of(MolgenisSessionManager.class, sessionManager);
 
     long start = System.currentTimeMillis();
 

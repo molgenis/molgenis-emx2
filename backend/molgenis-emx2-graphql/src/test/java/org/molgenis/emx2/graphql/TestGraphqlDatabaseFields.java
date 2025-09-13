@@ -9,8 +9,10 @@ import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import graphql.ExecutionInput;
 import graphql.GraphQL;
 import java.io.IOException;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.Database;
@@ -112,13 +114,36 @@ public class TestGraphqlDatabaseFields {
         (String)
             EnvironmentProperty.getParameter(
                 org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
+    MolgenisSessionManager sessionManager =
+        new MolgenisSessionManager() {
+          private String user;
+
+          @Override
+          public void createSession(String username) {
+            this.user = username;
+          }
+
+          @Override
+          public void destroySession() {
+            this.user = null;
+          }
+
+          @Override
+          public String getCurrentUser() {
+            return user;
+          }
+
+          @Override
+          public void invalidateAll(String username) {}
+        };
     execute(
         "mutation { signin(email: \""
             + database.getAdminUserName()
             + "\",password:\""
             + adminPass
-            + "\") {message}}");
-    assertTrue(database.isAdmin());
+            + "\") {message}}",
+        sessionManager);
+    assertTrue(sessionManager.getCurrentUser().equals(database.getAdminUserName()));
 
     if (database.hasUser("pietje")) database.removeUser("pietje");
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
@@ -126,20 +151,21 @@ public class TestGraphqlDatabaseFields {
     assertTrue(database.checkUserPassword("pietje", "blaat123"));
 
     assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}")
+        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}", sessionManager)
             .at("/data/signin/message")
             .textValue()
             .contains("failed"));
     // still admin
-    assertTrue(database.isAdmin());
+    assertTrue(sessionManager.getCurrentUser().equals(database.getAdminUserName()));
 
     assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")
+        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}", sessionManager)
             .at("/data/signin/message")
             .textValue()
             .contains("Signed in"));
-    assertEquals("pietje", database.getActiveUser());
+    assertEquals("pietje", sessionManager.getCurrentUser());
 
+    database.setActiveUser("pietje");
     assertTrue(
         execute("mutation{changePassword(password:\"blaat124\"){message}}")
             .at("/data/changePassword/message")
@@ -147,8 +173,8 @@ public class TestGraphqlDatabaseFields {
             .contains("Password changed"));
     assertTrue(database.checkUserPassword("pietje", "blaat124"));
 
-    execute("mutation{signout{message}}");
-    assertEquals("anonymous", database.getActiveUser());
+    execute("mutation{signout{message}}", sessionManager);
+    assertNull(sessionManager.getCurrentUser());
 
     // back to superuser
     database.becomeAdmin();
@@ -199,8 +225,20 @@ public class TestGraphqlDatabaseFields {
   }
 
   private JsonNode execute(String query) throws IOException {
+    return execute(query, null);
+  }
+
+  private JsonNode execute(String query, MolgenisSessionManager sessionManager) throws IOException {
+    Map graphQLContext =
+        sessionManager != null ? Map.of(MolgenisSessionManager.class, sessionManager) : Map.of();
     JsonNode result =
-        new ObjectMapper().readTree(convertExecutionResultToJson(grapql.execute(query)));
+        new ObjectMapper()
+            .readTree(
+                convertExecutionResultToJson(
+                    grapql.execute(
+                        ExecutionInput.newExecutionInput(query)
+                            .graphQLContext(graphQLContext)
+                            .build())));
     if (result.get("errors") != null) {
       throw new MolgenisException(result.get("errors").toString());
     }
