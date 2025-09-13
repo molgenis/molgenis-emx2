@@ -44,7 +44,7 @@
           v-if="sections"
           class="sticky top-0"
           :sections="sections"
-          @goToSection="scrollToElementInside('fields-container', $event)"
+          @goToSection="gotoSection"
         />
       </div>
 
@@ -54,12 +54,13 @@
       >
         <FormFields
           ref="formFields"
-          :schemaId="schemaId"
-          :metadata="metadata"
-          :sections="sections"
-          v-model:errors="errorMap"
+          :columns="visibleColumns"
+          :errorMap="errorMap"
+          :row-key="rowKey"
           v-model="editFormValues"
-          @update:active-chapter-id="activeChapterId = $event"
+          @update="onUpdateColumn"
+          @blur="onBlurColumn"
+          @view="onViewColumn"
         />
       </div>
     </section>
@@ -118,7 +119,6 @@
 <script setup lang="ts">
 import { computed, ref, toRaw } from "vue";
 import useForm from "../../composables/useForm";
-import useSections from "../../composables/useSections";
 import type { ITableMetaData } from "../../../metadata-utils/src";
 import type { columnId, columnValue } from "../../../metadata-utils/src/types";
 import { errorToMessage } from "../../utils/errorToMessage";
@@ -193,8 +193,8 @@ async function onUpdateDraft() {
 }
 
 async function onUpdate() {
-  const isValid = formFields.value?.validate();
-  if (!isValid) {
+  validateAllColumns();
+  if (Object.keys(errorMap.value).length > 0) {
     return;
   }
   const resp = await updateInto(props.schemaId, props.metadata.id).catch(
@@ -222,11 +222,6 @@ async function onUpdate() {
   emit("update:updated", resp);
 }
 
-const errorMap = ref<Record<columnId, string>>({});
-
-const activeChapterId = ref<string>("_scroll_to_top");
-const sections = useSections(props.metadata, activeChapterId, errorMap);
-
 function scrollToElementInside(containerId: string, elementId: string) {
   const container = document.getElementById(containerId);
   const element = document.getElementById(elementId);
@@ -243,8 +238,17 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
+  gotoSection,
   updateInto,
-} = useForm(props.metadata, editFormValues, errorMap, (fieldId: string) => {
+  errorMap,
+  rowKey,
+  sections,
+  visibleColumns,
+  onUpdateColumn,
+  onBlurColumn,
+  onViewColumn,
+  validateAllColumns,
+} = useForm(props.metadata, editFormValues, (fieldId: string) => {
   scrollToElementInside("fields-container", fieldId);
 });
 

@@ -49,7 +49,6 @@ async function onDeleteConfirm() {
   const { deleteRecord } = useForm(
     props.metadata,
     props.formValues,
-    ref<Record<columnId, string>>({}),
     (fieldId: string) => {
       return fieldId;
     }
