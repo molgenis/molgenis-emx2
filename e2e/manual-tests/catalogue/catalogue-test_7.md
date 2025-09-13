@@ -14,7 +14,7 @@ and the network-specific explorer
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
 | 'ALL VARIABLES' VARIABLE EXPLORER | | | | |
-| 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. Ensure that testCatalogue schema has been uploaded into the Acceptance server before you start testing| | |
+| 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. Make sure to upload a fresh set of test data to the catalogue schema on the acceptance server before you start testing. | | |
 | 1 | Go to <https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/all/variables> | The user goes to overview of all harmonised variables across all networks:         2249 variables | | |
 | 2 | Type ‘adhd’ in search bar | 14 variables are listed | | |
 | 3 | Click on Harmonisations button | Harmonisation matrix is opened | | |

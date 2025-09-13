@@ -13,7 +13,7 @@ to check which cohorts have these available.
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
-| 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | Landing page: European health research data and sample catalogue| | |
+| 1 | Navigate to [https://data-catalogue-acc.molgeniscloud.org](https://data-catalogue-acc.molgeniscloud.org) | Landing page: European health research data and sample catalogue| | |
 | 2 | Hover over 'All variables' button in menu bar | Button should be underlined | | |
 | 3 | Click 'All variables' button | Should be redirected to the variable explorer. VARIABLES, A complete overview of harmonised variables. `LIST OF VARIABLES`/`HARMONISATIONS`-toggle button. A list of variables with variable names in full, with appropriate repeated units given underneath repeated variables, variable labels and a filter panel on the left hand side of the page. | | |
 | 4 | Search 'ADHD' in search bar | Variables should be filtered on ADHD variables (14 variables shown); active filters should show 'Search in variables: ADHD' | | |
