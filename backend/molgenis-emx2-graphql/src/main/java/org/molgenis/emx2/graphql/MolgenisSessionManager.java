@@ -7,6 +7,4 @@ public interface MolgenisSessionManager {
   void destroySession();
 
   String getCurrentUser();
-
-  void invalidateAll(String username);
 }

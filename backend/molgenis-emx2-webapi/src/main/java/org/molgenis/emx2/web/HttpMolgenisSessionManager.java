@@ -83,18 +83,4 @@ public class HttpMolgenisSessionManager implements MolgenisSessionManager {
     if (session == null || session.getAttribute("username") == null) return ANONYMOUS;
     else return (String) session.getAttribute("username");
   }
-
-  @Override
-  public void invalidateAll(String username) {
-    Set<HttpSession> sessions = userSessions.get(username);
-    if (sessions != null) {
-      sessions.forEach(
-          session -> {
-            session.invalidate();
-            sessionGauge.dec(1);
-          });
-      sessions.clear();
-    }
-    userSessions.remove(username);
-  }
 }
