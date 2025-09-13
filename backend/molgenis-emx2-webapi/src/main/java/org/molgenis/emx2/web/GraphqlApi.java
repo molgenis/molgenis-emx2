@@ -6,10 +6,7 @@ import static org.molgenis.emx2.web.MolgenisWebservice.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import graphql.ExecutionInput;
-import graphql.ExecutionResult;
-import graphql.GraphQL;
-import graphql.GraphQLError;
+import graphql.*;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
@@ -24,6 +21,7 @@ import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.graphql.GraphqlException;
+import org.molgenis.emx2.graphql.MolgenisSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,15 +32,12 @@ public class GraphqlApi {
   public static final String QUERY = "query";
   public static final String VARIABLES = "variables";
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
-  private static MolgenisSessionManager sessionManager;
 
   private GraphqlApi() {
     // hide constructor
   }
 
-  public static void createGraphQLservice(Javalin app, MolgenisSessionManager sm) {
-    sessionManager = sm;
-
+  public static void createGraphQLservice(Javalin app) {
     // per schema graphql calls from app
     final String appSchemaGqlPath = "apps/{app}/{schema}/graphql"; // NOSONAR
     app.get(appSchemaGqlPath, GraphqlApi::handleSchemaRequests);
@@ -70,14 +65,12 @@ public class GraphqlApi {
   }
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
-    String result = executeQuery(session.getGraphqlForDatabase(), ctx);
+    String result = executeQuery(backend.getGraphql(ctx), ctx);
     ctx.json(result);
   }
 
   public static void handleSchemaRequests(Context ctx) throws IOException {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
 
     // apps and api is not a schema but a resource
@@ -91,7 +84,7 @@ public class GraphqlApi {
       throw new GraphqlException(
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
-    GraphQL graphqlForSchema = session.getGraphqlForSchema(schemaName);
+    GraphQL graphqlForSchema = backend.getGraphqlForSchema(schemaName, ctx);
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     ctx.json(executeQuery(graphqlForSchema, ctx));
   }
@@ -99,6 +92,8 @@ public class GraphqlApi {
   private static String executeQuery(GraphQL g, Context ctx) throws IOException {
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
+    MolgenisSessionManager sessionHandler = new HttpMolgenisSessionManager(ctx.req());
+    Map graphQLContext = Map.of(MolgenisSessionManager.class, sessionHandler);
 
     long start = System.currentTimeMillis();
 
@@ -114,9 +109,15 @@ public class GraphqlApi {
     // tests show overhead of this step is about 20ms (jooq takes the rest)
     ExecutionResult executionResult = null;
     if (variables != null) {
-      executionResult = g.execute(ExecutionInput.newExecutionInput(query).variables(variables));
+      executionResult =
+          g.execute(
+              ExecutionInput.newExecutionInput(query)
+                  .graphQLContext(graphQLContext)
+                  .variables(variables)
+                  .build());
     } else {
-      executionResult = g.execute(query);
+      executionResult =
+          g.execute(ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build());
     }
 
     String result = GraphqlApiFactory.convertExecutionResultToJson(executionResult);

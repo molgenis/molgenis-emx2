@@ -30,10 +30,13 @@ public class GraphqlSessionFieldFactory {
         .type(GraphqlApiMutationResult.typeForMutationResult)
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String user = database.getActiveUser();
-              database.setActiveUser(GraphqlConstants.ANONYMOUS);
+              MolgenisSessionManager sessionHandler =
+                  dataFetchingEnvironment.getGraphQlContext().get(MolgenisSessionManager.class);
+              sessionHandler.destroySession();
               return new GraphqlApiMutationResult(
-                  GraphqlApiMutationResult.Status.SUCCESS, "User '%s' has signed out", user);
+                  GraphqlApiMutationResult.Status.SUCCESS,
+                  "User '%s' has signed out",
+                  database.getActiveUser());
             })
         .build();
   }
@@ -88,14 +91,14 @@ public class GraphqlSessionFieldFactory {
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
                 if (database.getUser(userName).getEnabled()) {
-                  database.setActiveUser(userName);
-                  GraphqlApiMutationResultWithToken result =
-                      new GraphqlApiMutationResultWithToken(
-                          GraphqlApiMutationResult.Status.SUCCESS,
-                          JWTgenerator.createTemporaryToken(database, userName),
-                          "Signed in as '%s'",
-                          userName);
-                  return result;
+                  MolgenisSessionManager sessionHandler =
+                      dataFetchingEnvironment.getGraphQlContext().get(MolgenisSessionManager.class);
+                  sessionHandler.createSession(userName);
+                  return new GraphqlApiMutationResultWithToken(
+                      GraphqlApiMutationResult.Status.SUCCESS,
+                      JWTgenerator.createTemporaryToken(database, userName),
+                      "Signed in as '%s'",
+                      userName);
                 } else {
                   return new GraphqlApiMutationResult(
                       FAILED, "User '%s' disabled: check with your administrator", userName);
