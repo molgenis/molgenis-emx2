@@ -2,7 +2,7 @@ tableName,tableExtends,columnName,columnType,key,required,refSchema,refTable,ref
 Subpopulations,,,,,,,,,,,dcat:Dataset,Subpopulations defined for this resource,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,resource,ref,1,TRUE,,Resources,,,,dcat:inSeries,Resource this subpopulation is part of,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,name,,1,TRUE,,,,,,dcterms:title,"Subpopulation name, e.g. 'mothers in first trimester','newborns'","DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
-Subpopulations,,pid,hyperlink,,,,,,,,dcterms:identifier,Persistent identifier for this subpopulation,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
+Subpopulations,,pid,,,,,,,,,dcterms:identifier,Persistent identifier for this subpopulation,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,description,text,,,,,,,,dcterms:description,Subpopulation description,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,keywords,string_array,,,,,,,,dcat:keyword,Keywords to increase findability of this subpopulation. Try to use words that are not used in the description. Keywords are not displayed on the subpopulation page,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,NetworksStaging,UMCUCohorts,INTEGRATE",
 Subpopulations,,number of participants,int,,,,,,,,healthdcatap:numberOfUniqueIndividuals,Number of participants in this subpopulation,"DataCatalogueFlat,CohortsStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE",
