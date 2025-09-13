@@ -1001,7 +1001,9 @@ public class WebApiSmokeTests {
     final String defaultContentType = "text/turtle";
     final String jsonldContentType = "application/ld+json";
     final String ttlContentType = "text/turtle";
-    final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8"; // charset is ignored
+    final String n3ContentType = "text/n3";
+    final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8";
+    final String defaultContentTypeWithInvalidCharset = "text/turtle; charset=utf-16";
 
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
@@ -1017,6 +1019,8 @@ public class WebApiSmokeTests {
 
     // Validate API point with charset
     rdfApiContentTypeRequest(200, defaultContentTypeWithCharset, defaultContentType)
+        .get(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(406, defaultContentTypeWithInvalidCharset, EXCEPTION_CONTENT_TYPE)
         .get(urlPrefix + "/pet store/api/rdf");
 
     // Validate convenience API points
@@ -1066,6 +1070,13 @@ public class WebApiSmokeTests {
     rdfApiRequest(200, ACCEPT_YAML).head(urlPrefix + "/api/rdf?shacls");
     rdfApiContentTypeRequest(200, defaultContentType, ACCEPT_YAML)
         .head(urlPrefix + "/api/rdf?shacls");
+
+    // Validate multi-content type negotiation
+    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, application/ld+json", jsonldContentType);
+    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, text/*", n3ContentType)
+        .head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(406, "image/jpeg", EXCEPTION_CONTENT_TYPE)
+        .head(urlPrefix + "/pet store/api/rdf");
   }
 
   @Test
