@@ -1,6 +1,8 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
@@ -10,6 +12,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import graphql.GraphQL;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -34,7 +38,11 @@ public class TestGraphqlDatabaseFields {
     taskService = new TaskServiceInMemory();
     Schema schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, false).run();
-    grapql = new GraphqlApiFactory().createGraphql(database.getActiveUser(), taskService, null);
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    HttpSession session = mock(HttpSession.class);
+    when(request.getSession(true)).thenReturn(session);
+    when(session.getAttribute("login-user")).thenReturn("foobar");
+    grapql = new GraphqlApiFactory().createGraphql(database.getActiveUser(), taskService, request);
   }
 
   @Test
@@ -126,7 +134,7 @@ public class TestGraphqlDatabaseFields {
     assertTrue(database.checkUserPassword("pietje", "blaat123"));
 
     assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message, user}}")
+        execute("mutation{signin(email:\"pietje\",password:\"blaat12\"){message}}")
             .at("/data/signin/message")
             .textValue()
             .contains("failed"));
@@ -134,7 +142,7 @@ public class TestGraphqlDatabaseFields {
     assertTrue(database.isAdmin());
 
     assertTrue(
-        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message, user}}")
+        execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}")
             .at("/data/signin/message")
             .textValue()
             .contains("Signed in"));
