@@ -28,6 +28,7 @@ By default, the following prefixed names are available:
 | afrl          | http://purl.allotrope.org/ontologies/role#     |
 | dc            | http://purl.org/dc/elements/1.1/               |
 | dcat          | http://www.w3.org/ns/dcat#                     |
+| dcatap        | http://data.europa.eu/r5r/                     |
 | dcterms       | http://purl.org/dc/terms/                      |
 | edam          | http://edamontology.org/                       |
 | efo           | http://www.ebi.ac.uk/efo/                      |
