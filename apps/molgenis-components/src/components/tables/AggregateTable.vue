@@ -172,6 +172,13 @@ const aggFieldOptions = computed(() => {
     .map((column: IColumn) => column.id);
 });
 
+const optionsById = computed(() => {
+  return props.allColumns.reduce((accum: Record<string, IColumn>, column) => {
+    accum[column.id] = column;
+    return accum;
+  }, {});
+});
+
 initialize();
 
 watch(
@@ -191,16 +198,24 @@ function fetchData() {
     loading.value = false;
     return;
   }
+
+  const row = optionsById.value[selectedRow.value];
+  const column = optionsById.value[selectedColumn.value];
+  const rowColumn =
+    row.columnType === "REFBACK" ? `${row.refBackId} { name }` : "name";
+  const columnColumn =
+    column.columnType === "REFBACK" ? `${column.refBackId} { name }` : "name";
+
   client.value
     .fetchAggregateData(
       props.tableId,
       {
         id: selectedColumn.value,
-        column: "name",
+        column: columnColumn,
       },
       {
         id: selectedRow.value,
-        column: "name",
+        column: rowColumn,
       },
       props.graphqlFilter,
       aggFunction.value === "count" ? "count" : "_sum",
@@ -257,9 +272,6 @@ function initialize() {
   if (refColumns.value?.length) {
     selectedColumn.value = refColumns.value[0];
     selectedRow.value = refColumns.value[1] || refColumns.value[0];
-    // if (aggFunction.value === "_sum" && aggFieldOptions.value.length) {
-    //   aggField.value = aggFieldOptions.value[0];
-    // }
     fetchData();
   }
 }
@@ -336,6 +348,7 @@ export default {
         {
           id: "orders",
           columnType: "REFBACK",
+          refBackId: "pet",
         },
       ],
       graphqlFilter: { name: { like: ["pooky"] } },
