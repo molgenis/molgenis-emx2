@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.JWTgenerator;
+import org.molgenis.emx2.sql.SqlDatabase;
 
 public class GraphqlSessionFieldFactory {
 
@@ -30,10 +31,13 @@ public class GraphqlSessionFieldFactory {
         .type(GraphqlApiMutationResult.typeForMutationResult)
         .dataFetcher(
             dataFetchingEnvironment -> {
-              String user = database.getActiveUser();
-              database.setActiveUser(GraphqlConstants.ANONYMOUS);
+              MolgenisSessionManager sessionManager =
+                  dataFetchingEnvironment.getGraphQlContext().get(MolgenisSessionManager.class);
+              sessionManager.destroySession();
               return new GraphqlApiMutationResult(
-                  GraphqlApiMutationResult.Status.SUCCESS, "User '%s' has signed out", user);
+                  GraphqlApiMutationResult.Status.SUCCESS,
+                  "User '%s' has signed out",
+                  database.getActiveUser());
             })
         .build();
   }
@@ -88,14 +92,17 @@ public class GraphqlSessionFieldFactory {
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
                 if (database.getUser(userName).getEnabled()) {
-                  database.setActiveUser(userName);
-                  GraphqlApiMutationResultWithToken result =
-                      new GraphqlApiMutationResultWithToken(
-                          GraphqlApiMutationResult.Status.SUCCESS,
-                          JWTgenerator.createTemporaryToken(database, userName),
-                          "Signed in as '%s'",
-                          userName);
-                  return result;
+                  MolgenisSessionManager sessionManager =
+                      dataFetchingEnvironment.getGraphQlContext().get(MolgenisSessionManager.class);
+                  sessionManager.createSession(userName);
+                  // token can only be created as that user
+                  Database temp = new SqlDatabase(false);
+                  temp.setActiveUser(userName);
+                  return new GraphqlApiMutationResultWithToken(
+                      GraphqlApiMutationResult.Status.SUCCESS,
+                      JWTgenerator.createTemporaryToken(temp, userName),
+                      "Signed in as '%s'",
+                      userName);
                 } else {
                   return new GraphqlApiMutationResult(
                       FAILED, "User '%s' disabled: check with your administrator", userName);

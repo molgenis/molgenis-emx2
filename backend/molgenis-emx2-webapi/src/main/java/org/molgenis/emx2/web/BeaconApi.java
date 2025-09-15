@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.backend;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,10 +16,7 @@ import org.molgenis.emx2.sql.SqlDatabase;
 
 public class BeaconApi {
 
-  private static MolgenisSessionManager sessionManager;
-
-  public static void create(Javalin app, MolgenisSessionManager sm) {
-    sessionManager = sm;
+  public static void create(Javalin app) {
     defineRoutes(app, "/{schema}/api/beacon");
     defineRoutes(app, "/{schema}/api/beacon_vp");
     defineRoutes(app, "/api/beacon");
@@ -62,7 +60,7 @@ public class BeaconApi {
     ctx.contentType(Constants.ACCEPT_JSON);
     Schema schema = getSchema(ctx);
 
-    Database database = sessionManager.getSession(ctx.req()).getDatabase();
+    Database database = backend.getDatabase(ctx);
     ctx.json(new Info(database).getResponse(schema));
   }
 
@@ -79,7 +77,7 @@ public class BeaconApi {
   }
 
   private static void getFilteringTerms(Context ctx) {
-    Database database = sessionManager.getSession(ctx.req()).getDatabase();
+    Database database = backend.getDatabase(ctx);
     ctx.json(new FilteringTerms(database));
   }
 
@@ -101,7 +99,7 @@ public class BeaconApi {
     if (schema != null) {
       ctx.json(queryEntryType.query(schema));
     } else {
-      Database database = sessionManager.getSession(ctx.req()).getDatabase();
+      Database database = backend.getDatabase(ctx);
       ctx.json(queryEntryType.query(database));
     }
   }

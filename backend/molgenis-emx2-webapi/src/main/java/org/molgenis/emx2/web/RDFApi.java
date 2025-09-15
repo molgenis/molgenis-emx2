@@ -36,8 +36,6 @@ import org.molgenis.emx2.rdf.shacl.ShaclSelector;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
 
 public class RDFApi {
-  private static MolgenisSessionManager sessionManager;
-
   private static final List<RDFFormat> acceptedRdfFormats =
       List.of(
           RDFFormat.TURTLE,
@@ -48,12 +46,10 @@ public class RDFApi {
           RDFFormat.TRIG,
           RDFFormat.JSONLD);
 
-  public static void create(Javalin app, MolgenisSessionManager sm) {
+  public static void create(Javalin app) {
     // ideally, we estimate/calculate the content length and inform the client using
     // response.raw().setContentLengthLong(x) but since the output is streaming and the triples
     // created on-the-fly, there is no way of knowing (or is there?)
-    sessionManager = sm;
-
     defineApiRoutes(app, API_RDF, null);
     defineApiRoutes(app, API_TTL, RDFFormat.TURTLE);
     defineApiRoutes(app, API_JSONLD, RDFFormat.JSONLD);
@@ -77,7 +73,7 @@ public class RDFApi {
     setFormat(ctx, format);
   }
 
-  private static void databaseHead(Context ctx, RDFFormat format) throws IOException {
+  private static void databaseHead(Context ctx, RDFFormat format) {
     if (ctx.queryParam("shacls") != null) {
       ctx.contentType(ACCEPT_YAML);
     } else {
@@ -97,7 +93,7 @@ public class RDFApi {
     ctx.contentType(ACCEPT_YAML);
 
     // Only show available SHACLs if there are any schema's available to validate on.
-    if (sessionManager.getSession(ctx.req()).getDatabase().getSchemaNames().isEmpty()) {
+    if (backend.getDatabase(ctx).getSchemaNames().isEmpty()) {
       throw new MolgenisException("No permission to view any schema to use SHACLs on");
     }
 
@@ -119,7 +115,7 @@ public class RDFApi {
   private static void rdfForDatabase(Context ctx, RDFFormat format) throws IOException {
     format = setFormat(ctx, format);
 
-    Database db = sessionManager.getSession(ctx.req()).getDatabase();
+    Database db = backend.getDatabase(ctx);
     Collection<String> availableSchemas = getSchemaNames(ctx);
     Collection<String> schemaNames = new ArrayList<>();
     if (ctx.queryParam("schemas") != null) {

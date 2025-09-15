@@ -4,6 +4,7 @@ import static org.apache.http.HttpHeaders.AUTHORIZATION;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.web.Constants.ACCEPT_FORM_URL_ENC;
 import static org.molgenis.emx2.web.Constants.CONTENT_TYPE;
+import static org.molgenis.emx2.web.MolgenisWebservice.backend;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,8 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CafeVariomeApi {
-
-  private static MolgenisSessionManager sessionManager;
   private static final Logger logger = LoggerFactory.getLogger(CafeVariomeApi.class);
 
   private static final String CV_CLIENT_SECRET =
@@ -43,8 +42,7 @@ public class CafeVariomeApi {
               "https://auth1.molgenis.net/realms/Cafe-Variome/protocol/openid-connect/token/introspect",
               STRING);
 
-  public static void create(Javalin app, MolgenisSessionManager sm) {
-    sessionManager = sm;
+  public static void create(Javalin app) {
     app.before("/{schema}/api/cafevariome/record", CafeVariomeApi::checkAuth);
     app.post("/{schema}/api/cafevariome/record", CafeVariomeApi::postRecord);
     app.before("/{schema}/api/cafevariome/record-index", CafeVariomeApi::checkAuth);
@@ -52,8 +50,8 @@ public class CafeVariomeApi {
   }
 
   private static void checkAuth(Context ctx) throws IOException, InterruptedException {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
-    if (!session.getDatabase().isAnonymous()) {
+    Database database = backend.getDatabase(ctx);
+    if (!database.isAnonymous()) {
       return;
     }
     if (!hasKeycloakConfiguration()) return;
@@ -86,7 +84,6 @@ public class CafeVariomeApi {
     JsonNode jsonResponse = objectMapper.readTree(response.body());
     String user = String.valueOf(jsonResponse.get("email"));
 
-    Database database = session.getDatabase();
     if (!database.hasUser(user)) {
       logger.info("Add new user({}) to database", user);
       database.addUser(user);
@@ -105,8 +102,7 @@ public class CafeVariomeApi {
 
   private static void getRecordIndex(Context ctx) {
     Schema schema = getSchema(ctx);
-    Database database = sessionManager.getSession(ctx.req()).getDatabase();
-
+    Database database = backend.getDatabase(ctx);
     ctx.json(QueryRecord.getRecordIndex(database, schema));
   }
 }
