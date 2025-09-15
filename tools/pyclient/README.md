@@ -18,7 +18,7 @@ Releases of the Molgenis EMX2 Pyclient follow the release number of the accompan
 Therefore, releases of the Pyclient are less frequent than those of EMX2 and the latest version of the Pyclient may differ
 from the latest version of Molgenis EMX2.
 
-### 13.18.11
+### 13.40.2
 
 Fixed: no longer convert NA-like strings to pandas' NaN, only do this for missing values (i.e. empty strings).
 
