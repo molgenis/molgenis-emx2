@@ -37,17 +37,27 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-      testIgnore: '*/admin!*.spec.ts'
+      name: "auth.setup",
+      testMatch: 'auth.setup.spec.ts', // <-- only runs this file
     },
     {
       name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+      testIgnore: ['*/admin!*.spec.ts', '*/oidc!*.spec.ts', 'auth.setup.spec.ts']
+    },
+    {
+      name: 'chromium-admin',
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'e2e/.auth/user.json'
       },
-      testMatch: '*/admin!*.spec.ts'
+      testMatch: '*/admin!*.spec.ts',
+      dependencies: ["auth.setup"]
+    },
+    {
+      name: 'chromium-oidc',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: '*/oidc!*.spec.ts',
     },
 
     // {
