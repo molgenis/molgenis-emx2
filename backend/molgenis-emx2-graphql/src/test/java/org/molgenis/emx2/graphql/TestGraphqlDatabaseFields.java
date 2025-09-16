@@ -25,13 +25,12 @@ public class TestGraphqlDatabaseFields {
 
   private static GraphQL grapql;
   private static Database database;
-  private static TaskService taskService;
   private static final String schemaName = "TestGraphqlDatabaseFields";
 
   @BeforeAll
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
-    taskService = new TaskServiceInMemory();
+    TaskService taskService = new TaskServiceInMemory();
     Schema schema = database.dropCreateSchema(schemaName);
     PET_STORE.getImportTask(schema, false).run();
     grapql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
@@ -195,7 +194,7 @@ public class TestGraphqlDatabaseFields {
     String result =
         execute("{_manifest{DatabaseVersion}}").at("/data/_manifest/DatabaseVersion").textValue();
     // should be a number
-    assertTrue(Integer.valueOf(result) > 0);
+    assertTrue(Integer.parseInt(result) > 0);
   }
 
   private JsonNode execute(String query) throws IOException {

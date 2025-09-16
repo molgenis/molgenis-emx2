@@ -1,5 +1,6 @@
 package org.molgenis.emx2;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import java.util.List;
 
 public class Permission {
@@ -7,6 +8,7 @@ public class Permission {
   private boolean isRowLevel;
   private String groupName;
   private String tableName;
+  private String tableId;
   private String tableSchema;
   private List<String> users;
 
@@ -22,6 +24,7 @@ public class Permission {
     return isRowLevel;
   }
 
+  @JsonAlias("isRowLevel")
   public void setRowLevel(boolean rowLevel) {
     isRowLevel = rowLevel;
   }
@@ -117,5 +120,13 @@ public class Permission {
 
   public void setTableSchema(String tableSchema) {
     this.tableSchema = tableSchema;
+  }
+
+  public String getTableId() {
+    return tableId;
+  }
+
+  public void setTableId(String tableId) {
+    this.tableId = tableId;
   }
 }
