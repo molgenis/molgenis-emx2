@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
   static final Logger logger = LoggerFactory.getLogger(MolgenisSessionHandler.class);
-  private static final Map<String, Set<HttpSession>> userSessions = new ConcurrentHashMap<>();
+  private static final Map<String, Set<String>> userSessions = new ConcurrentHashMap<>();
   static final Gauge sessionGauge =
       Gauge.builder()
           .name(EMX_2_METRICS_SESSION_TOTAL)
@@ -31,19 +31,20 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
 
   @Override
   public void createSession(String username) {
-    HttpSession session = request.getSession(); // get existing session or create
-    if (session.getAttribute(USERNAME).equals(username)) {
-      return;
-    }
+    HttpSession session = request.getSession();
     session.setMaxInactiveInterval(30 * 60); // 30 minutes
     session.setAttribute(USERNAME, username);
 
     // register this session
-    userSessions.computeIfAbsent(username, k -> ConcurrentHashMap.newKeySet()).add(session);
-    sessionGauge.inc(1);
+    Set<String> sessions =
+        userSessions.computeIfAbsent(username, k -> ConcurrentHashMap.newKeySet());
+    if (!sessions.contains(session.getId())) {
+      sessions.add(session.getId());
+      sessionGauge.inc(1);
+    }
 
     logger.info(
-        "Session {} created. User {} now has {} sessions with {} total",
+        "Session {} linked to user {}. This user now has {} sessions with {} total",
         session.getId(),
         username,
         userSessions.get(username).size(),
@@ -59,14 +60,14 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
       sessionGauge.dec(1);
 
       // remove from registry
-      Set<HttpSession> sessions = userSessions.get(username);
+      Set<String> sessions = userSessions.get(username);
       int sessionCountForUser = 0;
       if (sessions != null) {
-        sessions.remove(session);
+        sessions.remove(session.getId());
         sessionCountForUser = sessions.size();
       }
       logger.info(
-          "session {} destroyed. User {} now has {} sessions with {} total",
+          "session {} invalidated. User {} now has {} sessions with {} total",
           session.getId(),
           username,
           sessionCountForUser,
