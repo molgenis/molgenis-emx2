@@ -117,22 +117,19 @@ BEGIN
                 PERFORM "MOLGENIS".grant_table_permissions(rec, role_name, NEW.table_name);
             END LOOP;
     ELSIF TG_OP = 'DELETE' THEN
-        IF OLD.row_level_security = true THEN
-            -- Loop over all policies on the deleted table and drop them
-            FOR pol IN
-                SELECT policyname
-                FROM pg_policies
-                WHERE schemaname = OLD.table_schema
-                  AND tablename = OLD.table_name
-                LOOP
-                    EXECUTE format(
-                            'DROP POLICY IF EXISTS %I ON %I.%I',
-                            pol.policyname,
-                            OLD.table_schema,
-                            OLD.table_name
-                            );
-                END LOOP;
-        END IF;
+        FOR pol IN
+            SELECT policyname
+            FROM pg_policies
+            WHERE schemaname = OLD.table_schema
+              AND tablename = OLD.table_name
+            LOOP
+                EXECUTE format(
+                        'DROP POLICY IF EXISTS %I ON %I.%I',
+                        pol.policyname,
+                        OLD.table_schema,
+                        OLD.table_name
+                        );
+            END LOOP;
     END IF;
 
     RETURN NEW;
