@@ -198,7 +198,6 @@ const numberOfFieldsWithErrors = computed(
         class="overflow-y-auto max-h-[calc(95vh-232px)] min-w-1000px"
         :class="sections.length > 0 ? 'col-span-3' : 'col-span-4'"
       >
-        rowKey={{ rowKey }}
         <FormFields
           class="grow"
           :columns="visibleColumns"
