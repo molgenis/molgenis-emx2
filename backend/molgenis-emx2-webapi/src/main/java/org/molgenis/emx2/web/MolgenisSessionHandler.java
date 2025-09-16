@@ -35,7 +35,6 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
     if (oldSession != null && oldSession.getAttribute(USERNAME).equals(username)) {
       return;
     }
-    destroySession();
     HttpSession session = request.getSession(); // get session or create
     session.setMaxInactiveInterval(30 * 60); // 30 minutes
     session.setAttribute(USERNAME, username);
@@ -53,9 +52,8 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
   }
 
   @Override
-  public void destroySession() {
-    HttpSession session =
-        request.getSession(false); // omitting false probably reason for many sessions before
+  public synchronized void destroySession() {
+    HttpSession session = request.getSession(false);
     if (session != null) {
       String username = (String) session.getAttribute("username");
       session.invalidate();

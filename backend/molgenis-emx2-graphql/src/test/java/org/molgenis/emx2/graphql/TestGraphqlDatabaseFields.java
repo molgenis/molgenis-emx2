@@ -132,9 +132,6 @@ public class TestGraphqlDatabaseFields {
           public String getCurrentUser() {
             return user;
           }
-
-          @Override
-          public void invalidateAll(String username) {}
         };
     execute(
         "mutation { signin(email: \""

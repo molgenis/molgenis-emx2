@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.backend;
+import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,7 +60,7 @@ public class BeaconApi {
     ctx.contentType(Constants.ACCEPT_JSON);
     Schema schema = getSchema(ctx);
 
-    Database database = backend.getDatabaseForUserContext(ctx);
+    Database database = applicationCache.getDatabaseForUser(ctx);
     ctx.json(new Info(database).getResponse(schema));
   }
 
@@ -77,7 +77,7 @@ public class BeaconApi {
   }
 
   private static void getFilteringTerms(Context ctx) {
-    Database database = backend.getDatabaseForUserContext(ctx);
+    Database database = applicationCache.getDatabaseForUser(ctx);
     ctx.json(new FilteringTerms(database));
   }
 
@@ -99,7 +99,7 @@ public class BeaconApi {
     if (schema != null) {
       ctx.json(queryEntryType.query(schema));
     } else {
-      Database database = backend.getDatabaseForUserContext(ctx);
+      Database database = applicationCache.getDatabaseForUser(ctx);
       ctx.json(queryEntryType.query(database));
     }
   }

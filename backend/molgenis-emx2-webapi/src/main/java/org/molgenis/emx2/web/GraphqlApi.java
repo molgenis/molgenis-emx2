@@ -67,7 +67,7 @@ public class GraphqlApi {
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
-    String result = executeQuery(backend.getDatabaseGraphqlForUserContext(ctx), ctx);
+    String result = executeQuery(applicationCache.getDatabaseGraphqlForUser(ctx), ctx);
     ctx.json(result);
   }
 
@@ -85,7 +85,7 @@ public class GraphqlApi {
       throw new GraphqlException(
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
-    GraphQL graphqlForSchema = backend.getSchemaGraphqlForUserContext(schemaName, ctx);
+    GraphQL graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     ctx.json(executeQuery(graphqlForSchema, ctx));
   }

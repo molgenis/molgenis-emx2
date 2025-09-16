@@ -46,7 +46,7 @@ public class AnalyticsApi {
     ctx.contentType("application/json");
     var action = new DeleteTriggerAction(sanitize(ctx.pathParam(TRIGGER_PARAM)));
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
-    Database database = backend.getDatabaseForUserContext(ctx);
+    Database database = applicationCache.getDatabaseForUser(ctx);
     Schema schema = database.getSchema(schemaName);
 
     TriggerRepositoryImpl triggerRepository = new TriggerRepositoryImpl(database);
@@ -59,7 +59,7 @@ public class AnalyticsApi {
   private static void listSchemaTriggers(Context ctx) {
     ctx.contentType("application/json");
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
-    Database database = backend.getDatabaseForUserContext(ctx);
+    Database database = applicationCache.getDatabaseForUser(ctx);
     Schema schema = database.getSchema(schemaName);
 
     TriggerRepositoryImpl triggerRepository = new TriggerRepositoryImpl(database);
@@ -72,7 +72,7 @@ public class AnalyticsApi {
     CreateTriggerAction createTriggerAction =
         actionTransformer.transform(ctx.body(), CreateTriggerAction.class);
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
-    Database database = backend.getDatabaseForUserContext(ctx);
+    Database database = applicationCache.getDatabaseForUser(ctx);
     Schema schema = database.getSchema(schemaName);
 
     TriggerRepositoryImpl triggerRepository = new TriggerRepositoryImpl(database);
@@ -86,7 +86,7 @@ public class AnalyticsApi {
     ctx.contentType("application/json");
     UpdateTriggerAction action = actionTransformer.transform(ctx.body(), UpdateTriggerAction.class);
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
-    Database database = backend.getDatabaseForUserContext(ctx);
+    Database database = applicationCache.getDatabaseForUser(ctx);
     Schema schema = database.getSchema(schemaName);
 
     TriggerRepositoryImpl triggerRepository = new TriggerRepositoryImpl(database);

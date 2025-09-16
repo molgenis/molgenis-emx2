@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.backend;
+import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -77,7 +77,7 @@ public class MessageApi {
       throw new MolgenisException(msg);
     }
 
-    GraphQL gql = backend.getSchemaGraphqlForUserContext(schema.getName(), ctx);
+    GraphQL gql = applicationCache.getSchemaGraphqlForUser(schema.getName(), ctx);
 
     final ExecutionResult executionResult =
         gql.execute(ExecutionInput.newExecutionInput(recipientsQuery).variables(validationFilter));

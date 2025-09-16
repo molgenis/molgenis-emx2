@@ -22,25 +22,44 @@ import org.molgenis.emx2.tasks.ScriptTableListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DatabaseAndGraphqApiCachePerUser {
+public class ApplicationCachePerUser {
   // use this as a key in the cache
   private record UserSchema(String userName, String schemaName) {}
   ;
 
-  private static Logger logger = LoggerFactory.getLogger(DatabaseAndGraphqApiCachePerUser.class);
+  private static Logger logger = LoggerFactory.getLogger(ApplicationCachePerUser.class);
 
-  private Cache<String, Database> databaseCache =
-      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(1)).maximumSize(10_000).build();
-  private Cache<UserSchema, Schema> schemaCache =
-      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(1)).maximumSize(10_000).build();
-  private Cache<String, GraphQL> graphqlDatabaseCache =
-      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(1)).maximumSize(10_000).build();
-  private Cache<UserSchema, GraphQL> graphqlSchemaCache =
-      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(1)).maximumSize(10_000).build();
+  private Cache<String, Database> databaseCache;
+  private Cache<UserSchema, Schema> schemaCache;
+  private Cache<String, GraphQL> graphqlDatabaseCache;
+  private Cache<UserSchema, GraphQL> graphqlSchemaCache;
 
   GraphqlApiFactory graphqlApiFactory = new GraphqlApiFactory();
 
-  public Database getDatabaseForUserContext(Context ctx) {
+  public ApplicationCachePerUser(int cacheDurationInMinutes) {
+    databaseCache =
+        Caffeine.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(cacheDurationInMinutes))
+            .maximumSize(10_000)
+            .build();
+    schemaCache =
+        Caffeine.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(cacheDurationInMinutes))
+            .maximumSize(10_000)
+            .build();
+    graphqlDatabaseCache =
+        Caffeine.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(cacheDurationInMinutes))
+            .maximumSize(10_000)
+            .build();
+    graphqlSchemaCache =
+        Caffeine.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(cacheDurationInMinutes))
+            .maximumSize(10_000)
+            .build();
+  }
+
+  public Database getDatabaseForUser(Context ctx) {
     return databaseCache.get(
         getUser(ctx),
         userName -> {
@@ -74,31 +93,31 @@ public class DatabaseAndGraphqApiCachePerUser {
         });
   }
 
-  public Schema getSchemaForUserContext(String schemaName, Context ctx) {
+  public Schema getSchemaForUser(String schemaName, Context ctx) {
     return schemaCache.get(
         new UserSchema(getUser(ctx), schemaName),
         k -> {
           logger.info("create schema '{}' cache for user {}", schemaName, getUser(ctx));
-          return getDatabaseForUserContext(ctx).getSchema(schemaName);
+          return getDatabaseForUser(ctx).getSchema(schemaName);
         });
   }
 
-  public GraphQL getDatabaseGraphqlForUserContext(Context ctx) {
+  public GraphQL getDatabaseGraphqlForUser(Context ctx) {
     return graphqlDatabaseCache.get(
         getUser(ctx),
         k -> {
           logger.info("create graphqlDatabaseApi cache for user {}", getUser(ctx));
           return graphqlApiFactory.createGraphqlForDatabase(
-              getDatabaseForUserContext(ctx), null /* not forget task service */);
+              getDatabaseForUser(ctx), null /* not forget task service */);
         });
   }
 
-  public GraphQL getSchemaGraphqlForUserContext(String schemaName, Context ctx) {
+  public GraphQL getSchemaGraphqlForUser(String schemaName, Context ctx) {
     return graphqlSchemaCache.get(
         new UserSchema(getUser(ctx), schemaName),
         k -> {
           logger.info("create graphqlSchemaApi '{}' cache for user {}", schemaName, getUser(ctx));
-          return graphqlApiFactory.createGraphqlForSchema(getSchemaForUserContext(schemaName, ctx));
+          return graphqlApiFactory.createGraphqlForSchema(getSchemaForUser(schemaName, ctx));
         });
   }
 
