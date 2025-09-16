@@ -12,6 +12,7 @@ import type {
   ITableMetaData,
   IColumn,
   columnId,
+  HeadingType,
   IFormLegendSection,
 } from "../../metadata-utils/src/types";
 import { toFormData } from "../utils/toFormData";
@@ -47,6 +48,7 @@ export default function useForm(
 
   const visibleMap = reactive<Record<columnId, boolean>>({});
   const errorMap = ref<Record<columnId, string>>({});
+  const currentSection = ref<columnId>();
   const currentHeading = ref<columnId>();
 
   const sections = computed(() => {
@@ -64,8 +66,10 @@ export default function useForm(
           isActive,
           errorCount: metadata.value.columns.filter(
             (subcol) =>
-              subcol.heading === column.id && errorMap.value[subcol.id]
+              (subcol.heading === column.id || subcol.section === column.id) &&
+              errorMap.value[subcol.id]
           ).length,
+          type: column.columnType as HeadingType,
         };
         sectionList.push(heading);
       }
@@ -82,8 +86,10 @@ export default function useForm(
       //apply to the right id
       if (col.id === id) {
         if (col.columnType === "HEADING") {
+          currentSection.value = col.section;
           currentHeading.value = col.id;
         } else {
+          currentSection.value = id;
           currentHeading.value = undefined;
         }
         scrollTo(id + "-form-field");
@@ -143,6 +149,7 @@ export default function useForm(
           nextIndex >= emptyRequiredFields.value.length ? 0 : nextIndex
         ];
     }
+    currentSection.value = currentRequiredField.value.section;
     scrollTo(`${currentRequiredField.value.id}-form-field`);
   };
   const gotoPreviousRequiredField = () => {
@@ -161,6 +168,7 @@ export default function useForm(
           prevIndex < 0 ? emptyRequiredFields.value.length - 1 : prevIndex
         ];
     }
+    currentSection.value = currentRequiredField.value.section;
     scrollTo(`${currentRequiredField.value.id}-form-field`);
   };
 
@@ -305,9 +313,14 @@ export default function useForm(
   };
 
   const onViewColumn = (column: IColumn) => {
-    if (column.columnType === "HEADING") {
+    if (column.columnType === "SECTION") {
+      currentSection.value = column.id;
+      currentHeading.value = undefined;
+    } else if (column.columnType === "HEADING") {
+      currentSection.value = column.section;
       currentHeading.value = column.id;
     } else {
+      currentSection.value = column.section;
       currentHeading.value = column.heading;
     }
   };
@@ -384,6 +397,7 @@ export default function useForm(
     onBlurColumn,
     onViewColumn,
     sections,
+    currentSection,
     visibleColumns,
     invisibleColumns,
     errorMap,
