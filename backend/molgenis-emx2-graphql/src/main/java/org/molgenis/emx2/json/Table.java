@@ -1,7 +1,5 @@
 package org.molgenis.emx2.json;
 
-import static org.molgenis.emx2.Column.column;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
