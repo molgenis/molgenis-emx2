@@ -374,6 +374,13 @@ const tocItems = computed(() => {
     });
   }
 
+  if (resource.value.collectionEvents) {
+    tableOffContents.push({
+      label: "Available data & samples",
+      id: "AvailableData",
+    });
+  }
+
   if (variableCount.value ?? 0 > 0) {
     tableOffContents.push({ label: "Dataset variables", id: "DataVariables" });
   } else if (resource.value.datasets?.length) {
@@ -697,6 +704,13 @@ const showPopulation = computed(
           :contributors="peopleInvolvedSortedByRoleAndName"
         >
         </ContentBlockContact>
+
+        <ContentBlockData
+          v-if="resource?.collectionEvents"
+          id="AvailableData"
+          title="Available Data &amp; Samples"
+          :collectionEvents="resource?.collectionEvents"
+        />
 
         <TableContent
           v-if="resource.datasets && !variableCount"

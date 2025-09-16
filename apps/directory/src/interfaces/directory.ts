@@ -181,7 +181,6 @@ export interface ICollections {
   biobank: IBiobanks;
   biobank_label: string;
   network?: INetworks[];
-  combined_network?: INetworks[];
   also_known?: IAlsoKnownIn[];
   studies?: IStudies[];
   type: IOntologyNode[];
