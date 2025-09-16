@@ -1,5 +1,7 @@
 package org.molgenis.emx2.json;
 
+import static org.molgenis.emx2.Column.column;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +22,7 @@ public class Table {
   private List<LanguageValue> labels = new ArrayList<>();
   private List<LanguageValue> descriptions = new ArrayList<>();
   private Collection<String[]> unique = new ArrayList<>();
-  private Collection<Column> columns = new ArrayList<>();
+  private List<Column> columns = new ArrayList<>();
   private List<Setting> settings = new ArrayList<>();
   private String[] semantics;
   private String[] profiles = null;
@@ -71,6 +73,15 @@ public class Table {
       jsonColumn.setHeading(currentHeadingId);
       this.columns.add(jsonColumn);
     }
+    // should always have a heading as first column
+    if (this.columns.size() > 0 && !this.columns.get(0).getColumnType().isHeading()) {
+      Column firstHeading = new Column();
+      firstHeading.setId("_mg_top_of_form");
+      firstHeading.setName("_mg_top_of_form");
+      firstHeading.setLabel("_top");
+      firstHeading.setColumnType(ColumnType.HEADING);
+      this.columns.add(0, firstHeading);
+    }
     this.tableType = tableMetadata.getTableType();
     this.profiles = tableMetadata.getProfiles();
   }
@@ -103,7 +114,7 @@ public class Table {
     return columns;
   }
 
-  public void setColumns(Collection<Column> columns) {
+  public void setColumns(List<Column> columns) {
     this.columns = columns;
   }
 

@@ -1,2 +1,2 @@
 ALTER TABLE "MOLGENIS".users_metadata
-    ADD admin boolean DEFAULT false;
+    ADD COLUMN IF NOT EXISTS admin boolean DEFAULT false;

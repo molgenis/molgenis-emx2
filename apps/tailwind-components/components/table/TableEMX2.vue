@@ -32,15 +32,9 @@
     class="relative overflow-auto rounded-b-theme border border-theme border-color-theme"
   >
     <div class="overflow-x-auto overscroll-x-contain bg-table rounded-t-3px">
-      <table
-        class="text-left w-full"
-        :class="{
-          'table-fixed': columns.length > 1,
-          'table-auto': columns.length === 0,
-        }"
-      >
+      <table ref="table" class="text-left w-full table-fixed">
         <thead>
-          <tr class="h-4">
+          <tr>
             <TableHeadCell
               v-if="isEditable"
               class="absolute left-0 w-[1px] !p-0 m-0 border-none"
@@ -50,7 +44,8 @@
             <TableHeadCell
               v-for="column in sortedVisibleColumns"
               :class="{
-                'w-full': columns.length === 1,
+                'w-60 lg:w-full': columns.length <= 5,
+                'w-60': columns.length > 5,
               }"
             >
               <div class="flex justify-start items-center gap-1">
@@ -90,9 +85,12 @@
           class="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:pb-last-row-cell"
         >
           <tr
+            v-if="rows"
             v-for="row in rows"
-            class="hover:bg-hover group"
-            :class="{ 'hover:cursor-pointer': props.isEditable }"
+            class="group"
+            :class="{
+              'hover:cursor-pointer': props.isEditable,
+            }"
           >
             <TableBodyCell
               v-if="isEditable"
@@ -139,7 +137,12 @@
             </TableBodyCell>
             <TableCellEMX2
               v-for="column in sortedVisibleColumns"
-              class="text-table-row"
+              class="text-table-row group-hover:bg-hover"
+              :class="{
+                'w-60 lg:w-full': columns.length <= 5,
+                'w-60': columns.length > 5,
+                'h-11': !row[column.id] || row[column.id] === '',
+              }"
               :scope="column.key === 1 ? 'row' : null"
               :metadata="column"
               :data="row[column.id]"
@@ -148,6 +151,15 @@
           </tr>
         </tbody>
       </table>
+      <div
+        class="sticky left-0 flex justify-center items-center py-2.5"
+        v-if="!rows"
+      >
+        <TextNoResultsMessage
+          class="w-full text-center"
+          label="No records found"
+        />
+      </div>
     </div>
   </div>
 
@@ -218,10 +230,6 @@ import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import TableModalRef from "./modal/TableModalRef.vue";
 
-const showDeleteModal = ref<boolean>(false);
-const showEditModal = ref<boolean>(false);
-const rowDataForModal = ref();
-
 const props = withDefaults(
   defineProps<{
     schemaId: string;
@@ -232,6 +240,16 @@ const props = withDefaults(
     isEditable: () => false,
   }
 );
+
+const showDeleteModal = ref<boolean>(false);
+const showEditModal = ref<boolean>(false);
+const rowDataForModal = ref();
+const showModal = ref(false);
+const refTableRow = ref<IRow>();
+const refTableColumn = ref<IRefColumn>();
+// initially set to the current tableId
+const refSourceTableId = ref<string>(props.tableId);
+const columns = ref<IColumn[]>([]);
 
 const settings = defineModel<ITableSettings>("settings", {
   required: false,
@@ -280,7 +298,6 @@ const rows = computed(() => {
 
 const count = computed(() => data.value?.tableData?.count ?? 0);
 
-const columns = ref<IColumn[]>([]);
 const primaryKeys = computed(() => {
   return columns.value
     ?.map((col) => {
@@ -342,12 +359,6 @@ function handlePagingRequest(page: number) {
   settings.value.page = page;
   refresh();
 }
-
-const showModal = ref(false);
-const refTableRow = ref<IRow>();
-const refTableColumn = ref<IRefColumn>();
-// initially set to the current tableId
-const refSourceTableId = ref<string>(props.tableId);
 
 function handleCellClick(
   event: RefPayload,

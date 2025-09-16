@@ -24,7 +24,7 @@ const elementType = computed(() => props.metadata.columnType.split("_")[0]);
       :data="listElement as string"
     />
     <ValueString
-      v-if="elementType === 'TEXT'"
+      v-else-if="elementType === 'TEXT'"
       :metadata="metadata"
       :data="listElement as string"
     />

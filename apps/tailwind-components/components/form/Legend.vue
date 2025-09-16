@@ -23,7 +23,7 @@
               'ml-2 italic': hasSections && section.type === 'HEADING',
             }"
           >
-            {{ section.label || "_top" }}
+            {{ section.label }}
           </span>
           <span v-if="(section.errorCount ?? 0) > 0" class="sr-only">
             {{ section.errorCount }} error{{
