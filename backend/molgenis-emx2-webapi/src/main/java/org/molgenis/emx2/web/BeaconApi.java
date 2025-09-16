@@ -60,7 +60,7 @@ public class BeaconApi {
     ctx.contentType(Constants.ACCEPT_JSON);
     Schema schema = getSchema(ctx);
 
-    Database database = backend.getDatabase(ctx);
+    Database database = backend.getDatabaseForUserContext(ctx);
     ctx.json(new Info(database).getResponse(schema));
   }
 
@@ -77,7 +77,7 @@ public class BeaconApi {
   }
 
   private static void getFilteringTerms(Context ctx) {
-    Database database = backend.getDatabase(ctx);
+    Database database = backend.getDatabaseForUserContext(ctx);
     ctx.json(new FilteringTerms(database));
   }
 
@@ -99,7 +99,7 @@ public class BeaconApi {
     if (schema != null) {
       ctx.json(queryEntryType.query(schema));
     } else {
-      Database database = backend.getDatabase(ctx);
+      Database database = backend.getDatabaseForUserContext(ctx);
       ctx.json(queryEntryType.query(database));
     }
   }

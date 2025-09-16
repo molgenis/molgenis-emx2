@@ -50,7 +50,7 @@ public class CafeVariomeApi {
   }
 
   private static void checkAuth(Context ctx) throws IOException, InterruptedException {
-    Database database = backend.getDatabase(ctx);
+    Database database = backend.getDatabaseForUserContext(ctx);
     if (!database.isAnonymous()) {
       return;
     }
@@ -102,7 +102,7 @@ public class CafeVariomeApi {
 
   private static void getRecordIndex(Context ctx) {
     Schema schema = getSchema(ctx);
-    Database database = backend.getDatabase(ctx);
+    Database database = backend.getDatabaseForUserContext(ctx);
     ctx.json(QueryRecord.getRecordIndex(database, schema));
   }
 }

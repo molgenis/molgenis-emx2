@@ -31,8 +31,10 @@ public class GraphqlSessionFieldFactory {
         .type(GraphqlApiMutationResult.typeForMutationResult)
         .dataFetcher(
             dataFetchingEnvironment -> {
-              MolgenisSessionManager sessionManager =
-                  dataFetchingEnvironment.getGraphQlContext().get(MolgenisSessionManager.class);
+              GraphqlSessionHandlerInterface sessionManager =
+                  dataFetchingEnvironment
+                      .getGraphQlContext()
+                      .get(GraphqlSessionHandlerInterface.class);
               sessionManager.destroySession();
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS,
@@ -92,8 +94,10 @@ public class GraphqlSessionFieldFactory {
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
                 if (database.getUser(userName).getEnabled()) {
-                  MolgenisSessionManager sessionManager =
-                      dataFetchingEnvironment.getGraphQlContext().get(MolgenisSessionManager.class);
+                  GraphqlSessionHandlerInterface sessionManager =
+                      dataFetchingEnvironment
+                          .getGraphQlContext()
+                          .get(GraphqlSessionHandlerInterface.class);
                   sessionManager.createSession(userName);
                   // token can only be created as that user
                   // to make sure we don't change database user we create new instance

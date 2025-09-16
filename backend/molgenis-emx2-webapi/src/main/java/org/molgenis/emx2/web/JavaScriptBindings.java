@@ -22,7 +22,7 @@ public class JavaScriptBindings {
 
   private static SimplePostClient createSimplePostClient(Context ctx) {
     return (query, variables, schemaId) -> {
-      GraphQL graphQL = backend.getGraphqlForSchema(schemaId, ctx);
+      GraphQL graphQL = backend.getSchemaGraphqlForUserContext(schemaId, ctx);
       return graphQL
           .execute(ExecutionInput.newExecutionInput(query).variables(variables))
           .getData();

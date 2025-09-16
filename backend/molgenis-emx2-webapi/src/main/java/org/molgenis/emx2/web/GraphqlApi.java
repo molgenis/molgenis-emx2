@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.graphql.GraphqlException;
-import org.molgenis.emx2.graphql.MolgenisSessionManager;
+import org.molgenis.emx2.graphql.GraphqlSessionHandlerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +67,7 @@ public class GraphqlApi {
 
   private static void handleDatabaseRequests(Context ctx) throws IOException {
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
-    String result = executeQuery(backend.getGraphql(ctx), ctx);
+    String result = executeQuery(backend.getDatabaseGraphqlForUserContext(ctx), ctx);
     ctx.json(result);
   }
 
@@ -85,7 +85,7 @@ public class GraphqlApi {
       throw new GraphqlException(
           "Schema '" + schemaName + "' unknown. Might you need to sign in or ask permission?");
     }
-    GraphQL graphqlForSchema = backend.getGraphqlForSchema(schemaName, ctx);
+    GraphQL graphqlForSchema = backend.getSchemaGraphqlForUserContext(schemaName, ctx);
     ctx.header(CONTENT_TYPE, ACCEPT_JSON);
     ctx.json(executeQuery(graphqlForSchema, ctx));
   }
@@ -93,8 +93,8 @@ public class GraphqlApi {
   private static String executeQuery(GraphQL g, Context ctx) throws IOException {
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
-    MolgenisSessionManager sessionManager = new HttpMolgenisSessionManager(ctx.req());
-    Map graphQLContext = Map.of(MolgenisSessionManager.class, sessionManager);
+    GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
+    Map graphQLContext = Map.of(GraphqlSessionHandlerInterface.class, sessionManager);
 
     long start = System.currentTimeMillis();
 

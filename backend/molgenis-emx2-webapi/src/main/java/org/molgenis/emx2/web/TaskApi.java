@@ -75,7 +75,7 @@ public class TaskApi {
   }
 
   private static void postScript(Context ctx) {
-    Database database = backend.getDatabase(ctx);
+    Database database = backend.getDatabaseForUserContext(ctx);
     if (!database.isAdmin()) {
       throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
     }
@@ -87,7 +87,7 @@ public class TaskApi {
   }
 
   private static void getScript(Context ctx) throws InterruptedException {
-    Database database = backend.getDatabase(ctx);
+    Database database = backend.getDatabaseForUserContext(ctx);
     if (!database.isAdmin()) {
       throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
     }
@@ -123,7 +123,7 @@ public class TaskApi {
   }
 
   private static void getTaskOutput(Context ctx) {
-    Database database = backend.getDatabase(ctx);
+    Database database = backend.getDatabaseForUserContext(ctx);
     Schema adminSchema = database.getSchema(SYSTEM_SCHEMA);
     String jobId = ctx.pathParam("id");
     Row jobMetadata =

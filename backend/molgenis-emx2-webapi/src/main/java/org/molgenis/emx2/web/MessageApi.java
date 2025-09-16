@@ -77,7 +77,7 @@ public class MessageApi {
       throw new MolgenisException(msg);
     }
 
-    GraphQL gql = backend.getGraphqlForSchema(schema.getName(), ctx);
+    GraphQL gql = backend.getSchemaGraphqlForUserContext(schema.getName(), ctx);
 
     final ExecutionResult executionResult =
         gql.execute(ExecutionInput.newExecutionInput(recipientsQuery).variables(validationFilter));

@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpSession;
 import java.time.Duration;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DatabaseListener;
+import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
 import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.sql.JWTgenerator;
@@ -21,29 +22,33 @@ import org.molgenis.emx2.tasks.ScriptTableListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MolgenisBackendCache {
+public class DatabaseAndGraphqApiCachePerUser {
   // use this as a key in the cache
   private record UserSchema(String userName, String schemaName) {}
   ;
 
-  private static Logger logger = LoggerFactory.getLogger(MolgenisBackendCache.class);
+  private static Logger logger = LoggerFactory.getLogger(DatabaseAndGraphqApiCachePerUser.class);
+
   private Cache<String, Database> databaseCache =
-      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(5)).maximumSize(10_000).build();
+      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(1)).maximumSize(10_000).build();
   private Cache<UserSchema, Schema> schemaCache =
-      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(5)).maximumSize(10_000).build();
+      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(1)).maximumSize(10_000).build();
   private Cache<String, GraphQL> graphqlDatabaseCache =
-      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(5)).maximumSize(10_000).build();
+      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(1)).maximumSize(10_000).build();
   private Cache<UserSchema, GraphQL> graphqlSchemaCache =
-      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(5)).maximumSize(10_000).build();
+      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(1)).maximumSize(10_000).build();
 
   GraphqlApiFactory graphqlApiFactory = new GraphqlApiFactory();
 
-  public Database getDatabase(Context ctx) {
+  public Database getDatabaseForUserContext(Context ctx) {
     return databaseCache.get(
         getUser(ctx),
         userName -> {
           logger.info("create database cache for user {}", getUser(ctx));
           SqlDatabase database = new SqlDatabase(false);
+          if (!database.hasUser(userName)) {
+            throw new MolgenisException("User " + userName + " does not exist");
+          }
           database.setActiveUser(userName);
           database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
           database.setBindings(JavaScriptBindings.getBindingsForContext(ctx));
@@ -64,35 +69,36 @@ public class MolgenisBackendCache {
                   clearAllCaches();
                 }
               });
+
           return database;
         });
   }
 
-  public Schema getSchema(String schemaName, Context ctx) {
+  public Schema getSchemaForUserContext(String schemaName, Context ctx) {
     return schemaCache.get(
         new UserSchema(getUser(ctx), schemaName),
         k -> {
           logger.info("create schema '{}' cache for user {}", schemaName, getUser(ctx));
-          return getDatabase(ctx).getSchema(schemaName);
+          return getDatabaseForUserContext(ctx).getSchema(schemaName);
         });
   }
 
-  public GraphQL getGraphql(Context ctx) {
+  public GraphQL getDatabaseGraphqlForUserContext(Context ctx) {
     return graphqlDatabaseCache.get(
         getUser(ctx),
         k -> {
           logger.info("create graphqlDatabaseApi cache for user {}", getUser(ctx));
           return graphqlApiFactory.createGraphqlForDatabase(
-              getDatabase(ctx), null /* not forget task service */);
+              getDatabaseForUserContext(ctx), null /* not forget task service */);
         });
   }
 
-  public GraphQL getGraphqlForSchema(String schemaName, Context ctx) {
+  public GraphQL getSchemaGraphqlForUserContext(String schemaName, Context ctx) {
     return graphqlSchemaCache.get(
         new UserSchema(getUser(ctx), schemaName),
         k -> {
           logger.info("create graphqlSchemaApi '{}' cache for user {}", schemaName, getUser(ctx));
-          return graphqlApiFactory.createGraphqlForSchema(getSchema(schemaName, ctx));
+          return graphqlApiFactory.createGraphqlForSchema(getSchemaForUserContext(schemaName, ctx));
         });
   }
 

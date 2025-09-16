@@ -10,12 +10,12 @@ import jakarta.servlet.http.HttpSession;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.molgenis.emx2.graphql.MolgenisSessionManager;
+import org.molgenis.emx2.graphql.GraphqlSessionHandlerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpMolgenisSessionManager implements MolgenisSessionManager {
-  static final Logger logger = LoggerFactory.getLogger(HttpMolgenisSessionManager.class);
+public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
+  static final Logger logger = LoggerFactory.getLogger(MolgenisSessionHandler.class);
   private static final Map<String, Set<HttpSession>> userSessions = new ConcurrentHashMap<>();
   static final Gauge sessionGauge =
       Gauge.builder()
@@ -25,7 +25,7 @@ public class HttpMolgenisSessionManager implements MolgenisSessionManager {
 
   private final HttpServletRequest request;
 
-  public HttpMolgenisSessionManager(HttpServletRequest request) {
+  public MolgenisSessionHandler(HttpServletRequest request) {
     this.request = request;
   }
 
@@ -80,7 +80,9 @@ public class HttpMolgenisSessionManager implements MolgenisSessionManager {
   @Override
   public String getCurrentUser() {
     HttpSession session = request.getSession(false);
-    if (session == null || session.getAttribute("username") == null) return ANONYMOUS;
-    else return (String) session.getAttribute("username");
+    if (session == null) return ANONYMOUS;
+    String username = (String) session.getAttribute(USERNAME);
+    if (username == null || username.isEmpty()) return ANONYMOUS;
+    return username;
   }
 }
