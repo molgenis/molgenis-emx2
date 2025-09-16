@@ -22,7 +22,7 @@
               'font-bold': section.isActive,
             }"
           >
-            {{ section.label || "_top" }}
+            {{ section.label }}
           </span>
           <span v-if="(section.errorCount ?? 0) > 0" class="sr-only">
             {{ section.errorCount }} error{{

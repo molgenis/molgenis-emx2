@@ -52,12 +52,12 @@ export default function useForm(
   const sections = computed(() => {
     const sectionList: IFormLegendSection[] = [];
     if (!metadata.value) return sectionList;
-    for (const column of metadata.value?.columns) {
+    for (const column of visibleColumns.value) {
       let isActive = false;
       if (column.id === currentHeading.value) {
         isActive = true;
       }
-      if (["HEADING"].includes(column.columnType) && visibleMap[column.id]) {
+      if (["HEADING"].includes(column.columnType)) {
         const heading = {
           label: column.label,
           id: column.id,
