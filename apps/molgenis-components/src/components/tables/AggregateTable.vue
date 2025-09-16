@@ -137,7 +137,6 @@ import InputRadio from "../forms/InputRadio.vue";
 import InputSelect from "../forms/InputSelect.vue";
 import IAggregateData from "./IAggregateData";
 import TableStickyHeaders from "./TableStickyHeaders.vue";
-import { I } from "vitest/dist/chunks/reporters.QZ837uWx";
 
 const AGG_FIELD_TYPES = ["INT", "LONG", "DECIMAL"];
 
