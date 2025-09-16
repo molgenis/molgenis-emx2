@@ -102,9 +102,7 @@ public class OIDCController {
       logger.info("Add new OIDC user({}) to database", user);
       database.addUser(user);
     }
-
     new MolgenisSessionHandler(ctx.req()).createSession(user);
-
     logger.info("OIDC sign in for user: {}", user);
 
     ctx.status(302);

@@ -65,8 +65,9 @@ public class ApplicationCachePerUser {
         userName -> {
           logger.info("create database cache for user {}", getUser(ctx));
           SqlDatabase database = new SqlDatabase(false);
-          if (!database.hasUser(userName)) {
-            throw new MolgenisException("User " + userName + " does not exist");
+          if (!database.hasUser(userName) || !database.getUser(userName).getEnabled()) {
+            throw new MolgenisException(
+                "User " + userName + " does not exist or has been disabled");
           }
           database.setActiveUser(userName);
           database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
@@ -82,9 +83,10 @@ public class ApplicationCachePerUser {
                 }
 
                 @Override
-                public void afterCommit() {
+                public void afterCommitOfSchemaChanges() {
                   // just to make sure we now clear all caches
                   // we can make it smarter to only invalidate per schema
+                  // nb this only fires after commit of schema changes, not of row updates
                   clearAllCaches();
                 }
               });

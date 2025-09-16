@@ -31,11 +31,11 @@ public class GraphqlSessionFieldFactory {
         .type(GraphqlApiMutationResult.typeForMutationResult)
         .dataFetcher(
             dataFetchingEnvironment -> {
-              GraphqlSessionHandlerInterface sessionManager =
+              GraphqlSessionHandlerInterface sessionHandler =
                   dataFetchingEnvironment
                       .getGraphQlContext()
                       .get(GraphqlSessionHandlerInterface.class);
-              sessionManager.destroySession();
+              sessionHandler.destroySession();
               return new GraphqlApiMutationResult(
                   GraphqlApiMutationResult.Status.SUCCESS,
                   "User '%s' has signed out",
@@ -94,11 +94,11 @@ public class GraphqlSessionFieldFactory {
               String passWord = dataFetchingEnvironment.getArgument(PASSWORD);
               if (database.hasUser(userName) && database.checkUserPassword(userName, passWord)) {
                 if (database.getUser(userName).getEnabled()) {
-                  GraphqlSessionHandlerInterface sessionManager =
+                  GraphqlSessionHandlerInterface sessionHandler =
                       dataFetchingEnvironment
                           .getGraphQlContext()
                           .get(GraphqlSessionHandlerInterface.class);
-                  sessionManager.createSession(userName);
+                  sessionHandler.createSession(userName);
                   // token can only be created as that user
                   // to make sure we don't change database user we create new instance
                   Database temp = new SqlDatabase(false);
