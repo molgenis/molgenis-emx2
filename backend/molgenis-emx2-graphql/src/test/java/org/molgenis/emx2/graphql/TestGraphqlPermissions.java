@@ -95,7 +95,7 @@ public class TestGraphqlPermissions {
                   }
                   """);
 
-    JsonNode order = executeSchema("query { Order { orderId } }").get(0);
+    JsonNode order = executeSchema("query { Order { orderId } }").get("data").get("Order").get(0);
 
     JsonNode message =
         executeSchema(

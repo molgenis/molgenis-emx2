@@ -159,6 +159,9 @@ class SqlSchemaMetadataExecutor {
                         });
               });
 
+      // update metadata before so policy triggers fire
+      MetadataUtils.deleteSchema(db.getJooq(), schemaName);
+
       // remove tables individually to trigger foreign key error if appropriate
       List<Table> tables = db.getSchema(schemaName).getTablesSorted();
       Collections.reverse(tables);
@@ -170,7 +173,6 @@ class SqlSchemaMetadataExecutor {
       for (String role : executeGetRoles(db.getJooq(), schemaName)) {
         db.getJooq().execute("DROP ROLE IF EXISTS {0}", name(getRolePrefix(schemaName) + role));
       }
-      MetadataUtils.deleteSchema(db.getJooq(), schemaName);
     } catch (Exception e) {
       throw new SqlMolgenisException("Drop schema failed", e);
     }
