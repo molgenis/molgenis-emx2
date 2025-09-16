@@ -126,7 +126,7 @@ export const initialFilterFacets: IFilterFacet[] = [
     facetTitle: "Network",
     component: "CheckboxFilter",
     sourceTable: "Networks",
-    applyToColumn: "collections.combined_network.id",
+    applyToColumn: "collections.network.id",
     filterValueAttribute: "id",
     filterLabelAttribute: "name",
     negotiatorRequestString: "Network(s):",
