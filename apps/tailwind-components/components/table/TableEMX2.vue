@@ -315,7 +315,7 @@ watch(
       columns.value = newMetadata.columns.filter(
         (c) =>
           !c.id.startsWith("mg") &&
-          ["HEADING", "SECTION"].includes(c.columnType)
+          !["HEADING", "SECTION"].includes(c.columnType)
       );
     }
   },

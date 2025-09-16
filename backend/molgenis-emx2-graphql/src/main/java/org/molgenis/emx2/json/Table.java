@@ -1,7 +1,5 @@
 package org.molgenis.emx2.json;
 
-import static org.molgenis.emx2.Column.column;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -64,7 +62,7 @@ public class Table {
         tableMetadata.getSettings().entrySet().stream()
             .map(entry -> new Setting(entry.getKey(), entry.getValue()))
             .toList();
-    String currentSectionId = null;
+    String currentSectionId = "_mg_top_of_form"; // default first section
     String currentHeadingId = null;
     for (org.molgenis.emx2.Column column : tableMetadata.getColumns()) {
       if (column.getColumnType().equals(ColumnType.SECTION)) {
@@ -75,6 +73,7 @@ public class Table {
       }
       Column jsonColumn = new Column(column, tableMetadata, minimal);
       jsonColumn.setHeading(currentHeadingId);
+      jsonColumn.setSection(currentSectionId);
       this.columns.add(jsonColumn);
     }
     // should always have a section as first column

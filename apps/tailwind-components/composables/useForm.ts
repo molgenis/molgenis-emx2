@@ -54,12 +54,17 @@ export default function useForm(
   const sections = computed(() => {
     const sectionList: IFormLegendSection[] = [];
     if (!metadata.value) return sectionList;
-    for (const column of visibleColumns.value) {
+    for (const column of metadata.value?.columns.filter(
+      (c) => visibleMap[c.id]
+    )) {
       let isActive = false;
-      if (column.id === currentHeading.value) {
+      if (
+        column.id === currentSection.value ||
+        column.id === currentHeading.value
+      ) {
         isActive = true;
       }
-      if (["HEADING"].includes(column.columnType)) {
+      if (["HEADING", "SECTION"].includes(column.columnType)) {
         const heading = {
           label: column.label,
           id: column.id,
@@ -206,6 +211,7 @@ export default function useForm(
     const previousErrorColumnId =
       keys[prevIndex < 0 ? keys.length - 1 : prevIndex];
 
+    currentSection.value = currentErrorField.value?.section;
     scrollTo(`${previousErrorColumnId}-form-field`);
   };
 
@@ -218,6 +224,7 @@ export default function useForm(
     const nextIndex = currentIndex + 1;
     const nextErrorColumnId = keys[nextIndex >= keys.length ? 0 : nextIndex];
 
+    currentSection.value = currentErrorField.value?.section;
     scrollTo(`${nextErrorColumnId}-form-field`);
   };
 
@@ -263,6 +270,8 @@ export default function useForm(
 
   const updateVisibility = () => {
     logger.debug("updateVisibility");
+    let currentSection: IColumn | undefined = undefined;
+    let sectionColumns: string[] = [];
     let currentHeading: IColumn | undefined = undefined;
     let headingColumns: string[] = [];
     metadata.value.columns.forEach((c) => {
@@ -275,10 +284,22 @@ export default function useForm(
         }
         headingColumns = [];
         currentHeading = c;
+      } else if (c.columnType === "SECTION") {
+        if (currentSection) {
+          //section is only visible if some columns are also visible
+          visibleMap[currentSection.id] =
+            visibleMap[currentSection.id] &&
+            sectionColumns.some((columnId) => visibleMap[columnId]);
+        }
+        sectionColumns = [];
+        headingColumns = []; //section also resets heading
+        currentSection = c;
+        currentHeading = undefined;
       } else {
         headingColumns.push(c.id);
+        sectionColumns.push(c.id);
       }
-      //column is shown if heading is visible and the column is visible
+      //column is shown if section is visible AND heading is visible AND the column is visible
       visibleMap[c.id] =
         (c.columnType === "HEADING" ||
           !currentHeading ||
@@ -297,6 +318,12 @@ export default function useForm(
       visibleMap[(currentHeading as IColumn).id] =
         visibleMap[(currentHeading as IColumn).id] &&
         headingColumns.some((columnId) => visibleMap[columnId]);
+    }
+    //check visibility of last section
+    if (currentSection) {
+      visibleMap[(currentSection as IColumn).id] =
+        visibleMap[(currentSection as IColumn).id] &&
+        sectionColumns.some((columnId) => visibleMap[columnId]);
     }
   };
 
@@ -326,7 +353,13 @@ export default function useForm(
   };
 
   const visibleColumns = computed(() => {
-    return metadata.value?.columns.filter((column) => visibleMap[column.id]);
+    if (!currentSection.value) {
+      currentSection.value = metadata.value?.columns[0]?.id;
+    }
+    return metadata.value?.columns.filter(
+      (column) =>
+        visibleMap[column.id] && currentSection.value === column.section
+    );
   });
 
   const invisibleColumns = computed(() => {

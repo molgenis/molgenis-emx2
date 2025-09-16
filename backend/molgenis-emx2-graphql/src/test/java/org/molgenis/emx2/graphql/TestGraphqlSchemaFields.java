@@ -613,8 +613,8 @@ public class TestGraphqlSchemaFields {
     JsonNode node =
         execute(
             "{_schema{tables{name,labels{locale,value},descriptions{locale,value},columns{name,key,defaultValue,labels{locale,value},descriptions{locale,value}}}}}");
-    assertEquals(1, node.at("/_schema/tables/5/columns/0/key").intValue());
-    assertEquals("bla", node.at("/_schema/tables/5/columns/0/defaultValue").asText());
+    assertEquals(1, node.at("/_schema/tables/5/columns/1/key").intValue());
+    assertEquals("bla", node.at("/_schema/tables/5/columns/1/defaultValue").asText());
 
     assertEquals("en", node.at("/_schema/tables/5/labels/0/locale").asText());
     assertEquals("table1", node.at("/_schema/tables/5/labels/0/value").asText());
@@ -622,11 +622,11 @@ public class TestGraphqlSchemaFields {
     assertEquals("en", node.at("/_schema/tables/5/descriptions/0/locale").asText());
     assertEquals("desc1", node.at("/_schema/tables/5/descriptions/0/value").asText());
 
-    assertEquals("en", node.at("/_schema/tables/5/columns/0/labels/0/locale").asText());
-    assertEquals("column1", node.at("/_schema/tables/5/columns/0/labels/0/value").asText());
+    assertEquals("en", node.at("/_schema/tables/5/columns/1/labels/0/locale").asText());
+    assertEquals("column1", node.at("/_schema/tables/5/columns/1/labels/0/value").asText());
 
-    assertEquals("en", node.at("/_schema/tables/5/columns/0/descriptions/0/locale").asText());
-    assertEquals("desc11", node.at("/_schema/tables/5/columns/0/descriptions/0/value").asText());
+    assertEquals("en", node.at("/_schema/tables/5/columns/1/descriptions/0/locale").asText());
+    assertEquals("desc11", node.at("/_schema/tables/5/columns/1/descriptions/0/value").asText());
 
     assertEquals(6, execute("{_schema{tables{name}}}").at("/_schema/tables").size());
 

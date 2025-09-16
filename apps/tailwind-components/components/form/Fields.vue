@@ -59,12 +59,19 @@ onMounted(() => {
   <div ref="container">
     <template v-for="column in columns">
       <div
-        v-if="column.columnType === 'HEADING'"
+        v-if="
+          column.columnType === 'HEADING' || column.columnType === 'SECTION'
+        "
         :id="`${column.id}-form-field`"
         v-intersection-observer="[onIntersectionObserver, { root: container }]"
       >
         <h2
-          class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
+          class="first:pt-0 pt-10 font-display text-form-header pb-8"
+          :class="
+            column.columnType === 'HEADING'
+              ? 'md:text-heading-4xl text-heading-4xl'
+              : 'md:text-heading-5xl text-heading-5xl'
+          "
           v-if="column.label"
         >
           {{ column.label }}

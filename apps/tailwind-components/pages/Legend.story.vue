@@ -54,7 +54,7 @@ const sections = ref<IFormLegendSection[]>([
     label: "Access",
     id: "access",
     errorCount: 0,
-    type: "HEADING",
+    type: "SECTION",
   },
   {
     label: "Registration",

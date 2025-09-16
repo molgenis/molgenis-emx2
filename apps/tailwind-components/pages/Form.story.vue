@@ -169,6 +169,7 @@ function scrollToElementInside(elementId: string) {
 
 const {
   sections,
+  currentSection,
   visibleColumns,
   errorMap,
   gotoSection,
