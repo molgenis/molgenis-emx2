@@ -439,6 +439,11 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   }
 
   @Override
+  public List<Permission> getPermissions() {
+    return MetadataUtils.loadPermissions(this);
+  }
+
+  @Override
   public Database setSettings(Map<String, String> settings) {
     if (!isAdmin()) {
       throw new MolgenisException("Insufficient rights to create database level setting");

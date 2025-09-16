@@ -6,7 +6,8 @@ public class Permission {
 
   private boolean isRowLevel;
   private String groupName;
-  private String tableId;
+  private String tableName;
+  private String tableSchema;
   private List<String> users;
 
   private boolean hasSelect;
@@ -33,12 +34,12 @@ public class Permission {
     this.groupName = groupName;
   }
 
-  public String getTableId() {
-    return tableId;
+  public String getTableName() {
+    return tableName;
   }
 
-  public void setTableId(String tableId) {
-    this.tableId = tableId;
+  public void setTableName(String tableName) {
+    this.tableName = tableName;
   }
 
   public boolean hasSelect() {
@@ -108,5 +109,13 @@ public class Permission {
 
   public void setUsers(List<String> users) {
     this.users = users;
+  }
+
+  public String getTableSchema() {
+    return tableSchema;
+  }
+
+  public void setTableSchema(String tableSchema) {
+    this.tableSchema = tableSchema;
   }
 }

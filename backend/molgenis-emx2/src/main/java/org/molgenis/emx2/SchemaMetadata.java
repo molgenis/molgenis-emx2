@@ -189,4 +189,8 @@ public class SchemaMetadata extends HasSettings<SchemaMetadata> {
   }
 
   public void setPermissions(List<Permission> permissions) {}
+
+  public List<Permission> getPermissions() {
+    return null;
+  }
 }

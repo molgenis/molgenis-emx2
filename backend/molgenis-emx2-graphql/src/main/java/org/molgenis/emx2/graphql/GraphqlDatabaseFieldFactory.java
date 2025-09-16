@@ -19,6 +19,51 @@ import org.molgenis.emx2.tasks.TaskService;
 
 public class GraphqlDatabaseFieldFactory {
 
+  public static final GraphQLObjectType permissionsMetadataType =
+      new GraphQLObjectType.Builder()
+          .name("MolgenisPermissionsType")
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TABLE_SCHEMA)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(TABLE_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(GROUP_NAME)
+                  .type(Scalars.GraphQLString))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(USERS)
+                  .type(GraphQLList.list(Scalars.GraphQLString)))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(IS_ROW_LEVEL)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(HAS_SELECT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(HAS_INSERT)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(HAS_UPDATE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(HAS_DELETE)
+                  .type(Scalars.GraphQLBoolean))
+          .field(
+              GraphQLFieldDefinition.newFieldDefinition()
+                  .name(HAS_ADMIN)
+                  .type(Scalars.GraphQLBoolean))
+          .build();
+
   static final GraphQLType lastUpdateMetadataType =
       new GraphQLObjectType.Builder()
           .name("ChangesType")
@@ -152,6 +197,17 @@ public class GraphqlDatabaseFieldFactory {
 
               return mapSettingsToGraphql(filtered);
             });
+  }
+
+  public GraphQLFieldDefinition.Builder permissionsQuery(Database database) {
+    return GraphQLFieldDefinition.newFieldDefinition()
+        .name("_permissions")
+        .argument(
+            GraphQLArgument.newArgument()
+                .name(GraphqlConstants.KEYS)
+                .type(GraphQLList.list(Scalars.GraphQLString)))
+        .type(GraphQLList.list(permissionsMetadataType))
+        .dataFetcher(dataFetchingEnvironment -> database.getPermissions());
   }
 
   public GraphQLFieldDefinition.Builder schemasQuery(Database database) {

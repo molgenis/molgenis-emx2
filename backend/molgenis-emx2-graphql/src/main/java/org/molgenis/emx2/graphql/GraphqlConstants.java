@@ -27,6 +27,8 @@ public class GraphqlConstants {
   public static final String IS_ROW_LEVEL = "isRowLevel";
   public static final String HAS_INSERT = "hasInsert";
   public static final String GROUP_NAME = "groupName";
+  public static final String TABLE_NAME = "tableName";
+  public static final String TABLE_SCHEMA = "tableSchema";
   public static final String HAS_UPDATE = "hasUpdate";
   public static final String HAS_SELECT = "hasSelect";
   public static final String HAS_ADMIN = "hasAdmin";

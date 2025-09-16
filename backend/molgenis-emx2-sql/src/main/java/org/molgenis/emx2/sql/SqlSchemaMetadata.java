@@ -199,6 +199,10 @@ public class SqlSchemaMetadata extends SchemaMetadata {
     getDatabase().tx(db -> setPermissionsTransaction((SqlDatabase) db, getName(), permissions));
   }
 
+  public List<Permission> getPermissions(List<Permission> permissions) {
+    return null;
+  }
+
   private static void setPermissionsTransaction(
       SqlDatabase db, String schemaName, List<Permission> permissions) {
     permissions.forEach(

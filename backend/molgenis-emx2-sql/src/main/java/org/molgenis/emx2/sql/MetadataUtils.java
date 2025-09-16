@@ -781,7 +781,7 @@ public class MetadataUtils {
         .values(
             permission.getGroupName(),
             schemaName,
-            permission.getTableId(),
+            permission.getTableName(),
             permission.isRowLevel(),
             permission.hasSelect(),
             permission.hasInsert(),
@@ -791,7 +791,7 @@ public class MetadataUtils {
         .onConflict(GROUP_NAME)
         .doUpdate()
         .set(TABLE_SCHEMA, schemaName)
-        .set(TABLE_NAME, permission.getTableId())
+        .set(TABLE_NAME, permission.getTableName())
         .set(IS_ROW_LEVEL, permission.isRowLevel())
         .set(HAS_SELECT, permission.hasSelect())
         .set(HAS_INSERT, permission.hasInsert())
@@ -809,5 +809,16 @@ public class MetadataUtils {
         .doUpdate()
         .set(USERS, users)
         .execute();
+  }
+
+  public static List<Permission> loadPermissions(SqlDatabase db) {
+    return db.getJooq()
+        .select()
+        .from(GROUP_PERMISSIONS)
+        .leftJoin(GROUP_METADATA)
+        .on(
+            field(name(MOLGENIS, "group_metadata", "group_name"), String.class)
+                .eq(field(name(MOLGENIS, "group_permissions", "group_name"), String.class)))
+        .fetchInto(Permission.class);
   }
 }
