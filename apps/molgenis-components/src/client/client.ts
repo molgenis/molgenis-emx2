@@ -170,7 +170,7 @@ async function getPrimaryKeyFields(
   tableId: string
 ): Promise<string[]> {
   return fetchSchemaMetaData(schemaId).then((schema) => {
-    const table = schema.tables.find((t) => t.id === tableId);
+    const table = schema.tables.find((table) => table.id === tableId);
     if (!table) {
       throw new Error(`Table ${tableId} not found in schema ${schemaId}`);
     }
