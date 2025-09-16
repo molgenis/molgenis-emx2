@@ -137,6 +137,7 @@ import InputRadio from "../forms/InputRadio.vue";
 import InputSelect from "../forms/InputSelect.vue";
 import IAggregateData from "./IAggregateData";
 import TableStickyHeaders from "./TableStickyHeaders.vue";
+import { I } from "vitest/dist/chunks/reporters.QZ837uWx";
 
 const AGG_FIELD_TYPES = ["INT", "LONG", "DECIMAL"];
 
@@ -159,7 +160,7 @@ const selectedRow = ref("");
 const refColumns = ref<string[]>([]);
 const loading = ref(false);
 const aggFunction = ref<"sum" | "count">("count");
-const sumField = ref(
+const sumField = ref<string>(
   props.allColumns.find((col) => AGG_FIELD_TYPES.includes(col.columnType))
     ?.id || ""
 );
@@ -187,7 +188,7 @@ const optionsById = computed(() => {
 
 initialize();
 
-function fetchData() {
+async function fetchData() {
   loading.value = true;
   errorMessage.value = undefined;
   rows.value = [];
@@ -200,10 +201,8 @@ function fetchData() {
 
   const row = optionsById.value[selectedRow.value];
   const column = optionsById.value[selectedColumn.value];
-  const rowColumn =
-    row.columnType === "REFBACK" ? `${row.refBackId} { name }` : "name";
-  const columnColumn =
-    column.columnType === "REFBACK" ? `${column.refBackId} { name }` : "name";
+  const rowColumn = await getPrimaryKeyColumn(row);
+  const columnColumn = await getPrimaryKeyColumn(column);
 
   client.value
     .fetchAggregateData(
@@ -235,6 +234,27 @@ function fetchData() {
       errorMessage.value = error;
       loading.value = false;
     });
+}
+
+async function getPrimaryKeyColumn(column: IColumn) {
+  if (column.columnType.startsWith("ONTOLOGY")) {
+    return "name";
+  }
+
+  const schemaId = column.refSchemaId || props.schemaId;
+  const tableId = column.refTableId || props.tableId;
+  const keys = await client.value.getPrimaryKeyFields(schemaId, tableId);
+
+  if (keys.length === 1) {
+    if (column.columnType === "REFBACK") {
+      return `${column.refBackId} { ${keys[0]} }`;
+    } else {
+      return keys[0];
+    }
+  } else {
+    console.warn("Composite primary keys not supported in AggregateTable");
+    return "name";
+  }
 }
 
 function addItem(item: Record<string, any>) {
@@ -293,7 +313,8 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
     .filter((column: IColumn) => {
       return (
         (column.columnType.startsWith("REF") && canView) ||
-        column.columnType.startsWith("ONTOLOGY")
+        column.columnType.startsWith("ONTOLOGY") ||
+        (column.columnType === "RADIO" && canView)
       );
     })
     .map((column: IColumn) => column.id);
@@ -351,7 +372,7 @@ export default {
         },
         {
           id: "category",
-          columnType: "REF",
+          columnType: "RADIO",
         },
         {
           id: "tags",
@@ -361,7 +382,7 @@ export default {
           id: "orders",
           columnType: "REFBACK",
           refBackId: "pet",
-        },
+        }
       ],
       graphqlFilter: { name: { like: ["pooky"] } },
       sumExampleCols: [

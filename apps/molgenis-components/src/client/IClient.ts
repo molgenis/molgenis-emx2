@@ -55,4 +55,5 @@ export interface INewClient {
     tableId: string
   ) => Promise<Record<string, any>>;
   fetchOntologyOptions: (tableName: string) => Promise<any>;
+  getPrimaryKeyFields: (schemaId: string, tableId: string) => Promise<string[]>;
 }
