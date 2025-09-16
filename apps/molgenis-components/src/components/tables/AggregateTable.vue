@@ -198,10 +198,12 @@ async function fetchData() {
     return;
   }
 
-  const row = optionsById.value[selectedRow.value];
-  const column = optionsById.value[selectedColumn.value];
-  const rowColumn = await getPrimaryKeyColumn(row);
-  const columnColumn = await getPrimaryKeyColumn(column);
+  const rowColumn = await getPrimaryKeyColumn(
+    optionsById.value[selectedRow.value]
+  );
+  const columnColumn = await getPrimaryKeyColumn(
+    optionsById.value[selectedColumn.value]
+  );
 
   client.value
     .fetchAggregateData(
