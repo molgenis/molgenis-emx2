@@ -20,6 +20,7 @@
             class="text-title-contrast capitalize"
             :class="{
               'font-bold': section.isActive,
+              'ml-2 italic': hasSections && section.type === 'HEADING',
             }"
           >
             {{ section.label || "_top" }}
@@ -45,8 +46,15 @@
 import type { IFormLegendSection } from "../../../metadata-utils/src/types";
 import { computed } from "vue";
 
-defineProps<{
+const props = defineProps<{
   sections: IFormLegendSection[];
 }>();
 const emit = defineEmits(["goToSection"]);
+
+const hasSections = computed(() => {
+  //anonymous sections don't have a label
+  return props.sections.some(
+    (section) => section.type === "SECTION" && section.label
+  );
+});
 </script>
