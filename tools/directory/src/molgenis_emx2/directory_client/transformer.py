@@ -41,9 +41,8 @@ class Transformer:
         5. Sets the quality info field for biobanks and collections
         6. Adds PIDs to biobanks
         7. Add biobank labels (biobank name) to collections
-        8. Adds the combined networks' ids to collections
-        9. Adds the combined qualities to collections
-        10. Sets the collections' categories
+        8. Adds the combined qualities to collections
+        9. Sets the collections' categories
 
         """
         self._set_national_node_code()
@@ -53,7 +52,6 @@ class Transformer:
         self._set_quality_info()
         self._set_biobank_pids()
         self._set_biobank_labels()
-        self._set_combined_networks()
         self._set_combined_qualities()
         self._set_collection_categories()
         return self.warnings
@@ -154,18 +152,6 @@ class Transformer:
         for collection in self.node_data.collections.rows:
             biobank = self.node_data.biobanks.rows_by_id[collection["biobank"]]
             collection["biobank_label"] = biobank["name"]
-
-    def _set_combined_networks(self):
-        """
-        For every collection of the Node, adds to the `combined_network` field, the
-        union of the networks of the collection itself and the ones of its biobank.
-        """
-        self.printer.print("Adding combined networks")
-        for collection in self.node_data.collections.rows:
-            biobank = self.node_data.biobanks.rows_by_id[collection["biobank"]]
-            collection["combined_network"] = list(
-                set(biobank["network"] + collection["network"])
-            )
 
     def _set_combined_qualities(self):
         """
