@@ -241,16 +241,20 @@ async function getPrimaryKeyColumn(column: IColumn) {
     return "name";
   }
 
+  if (column.columnType === "REFBACK") {
+    const keys = await client.value.getPrimaryKeyFields(
+      props.schemaId,
+      props.tableId
+    );
+    return `${column.refBackId} { ${keys[0]} }`;
+  }
+
   const schemaId = column.refSchemaId || props.schemaId;
   const tableId = column.refTableId || props.tableId;
   const keys = await client.value.getPrimaryKeyFields(schemaId, tableId);
 
   if (keys.length === 1) {
-    if (column.columnType === "REFBACK") {
-      return `${column.refBackId} { ${keys[0]} }`;
-    } else {
-      return keys[0];
-    }
+    return keys[0];
   } else {
     console.warn("Composite primary keys not supported in AggregateTable");
     return "name";
