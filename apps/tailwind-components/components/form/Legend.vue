@@ -29,7 +29,7 @@
         </a>
         <div
           v-if="(section.errorCount ?? 0) > 0"
-          :id="`form-legend-section-${section.id})-error-count`"
+          :id="`form-legend-section-${section.id}-error-count`"
           class="inline-flex h-6 w-6 shrink-0 grow-0 items-center justify-center rounded-full bg-notification text-legend-error-count"
         >
           <span>{{
