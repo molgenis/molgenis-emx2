@@ -94,7 +94,7 @@ public class GraphqlApi {
     String query = getQueryFromRequest(ctx);
     Map<String, Object> variables = getVariablesFromRequest(ctx);
     GraphqlSessionHandlerInterface sessionManager = new MolgenisSessionHandler(ctx.req());
-    Map graphQLContext = Map.of(GraphqlSessionHandlerInterface.class, sessionManager);
+    Map<?, Object> graphQLContext = Map.of(GraphqlSessionHandlerInterface.class, sessionManager);
 
     long start = System.currentTimeMillis();
 

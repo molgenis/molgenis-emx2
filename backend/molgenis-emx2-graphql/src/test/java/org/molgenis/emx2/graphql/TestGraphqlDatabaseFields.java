@@ -140,7 +140,7 @@ public class TestGraphqlDatabaseFields {
             + adminPass
             + "\") {message}}",
         sessionManager);
-    assertTrue(sessionManager.getCurrentUser().equals(database.getAdminUserName()));
+    assertEquals(sessionManager.getCurrentUser(), database.getAdminUserName());
 
     if (database.hasUser("pietje")) database.removeUser("pietje");
     execute("mutation{signup(email:\"pietje\",password:\"blaat123\"){message}}");
@@ -153,7 +153,7 @@ public class TestGraphqlDatabaseFields {
             .textValue()
             .contains("failed"));
     // still admin
-    assertTrue(sessionManager.getCurrentUser().equals(database.getAdminUserName()));
+    assertEquals(sessionManager.getCurrentUser(), database.getAdminUserName());
 
     assertTrue(
         execute("mutation{signin(email:\"pietje\",password:\"blaat123\"){message}}", sessionManager)
