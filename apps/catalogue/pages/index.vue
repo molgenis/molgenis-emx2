@@ -76,8 +76,8 @@ const { data } = await useFetch<Resp<IResources, IResources_agg>>(
 
 const catalogues = data.value?.data?.Resources;
 const groupedCatalogues = catalogues
-  ? Object.groupBy(catalogues, (c) => c.catalogueType?.name ?? "thematic")
-  : { thematic: [], project: [], organisation: [] };
+  ? Object.groupBy(catalogues, (c) => c.catalogueType?.name ?? "theme")
+  : { theme: [], project: [], organisation: [] };
 Object.keys(groupedCatalogues).forEach((key) => {
   groupedCatalogues[key]?.sort((a, b) => a.id.localeCompare(b.id));
 });
@@ -109,7 +109,7 @@ Object.keys(groupedCatalogues).forEach((key) => {
       </template>
     </PageHeader>
     <ContentBlockCatalogues
-      v-if="groupedCatalogues?.thematic?.length"
+      v-if="groupedCatalogues?.theme?.length"
       title="Thematic catalogues"
       description="Catalogues focused on a particular theme, developed by a collaboration of projects, networks and/or organisations:"
       :catalogues="groupedCatalogues?.thematic"
