@@ -32,7 +32,7 @@
     "if-env": "^1.0.4",
     "jsdom": "22.1.0",
     "metadata-utils": "*",
-    "nuxt": "3.17.2",
+    "nuxt": "3.19.0",
     "playwright-core": "1.55.0",
     "postcss": "8.4.39",
     "postcss-custom-properties": "13.3.11",
