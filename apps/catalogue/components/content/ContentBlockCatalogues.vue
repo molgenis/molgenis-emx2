@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import type { IResources } from "~/interfaces/catalogue";
+import type { IResources } from "../../interfaces/catalogue";
 import { navigateTo } from "#app/composables/router";
-
-const props = defineProps<{
+defineProps<{
   catalogues: IResources[];
   title: string;
   description: string;
