@@ -166,10 +166,7 @@ async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<void> {
 
 /** initial load */
 async function init() {
-  ontologyTree.value = [
-    ...(ontologyTree.value || []),
-    ...(await retrieveTerms()),
-  ];
+  ontologyTree.value = [...ontologyTree.value, ...(await retrieveTerms())];
   await applySelectedStates();
   await getMaxTableRows();
 }
