@@ -4,7 +4,7 @@ import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.web.FileApi.addFileColumnToResponse;
-import static org.molgenis.emx2.web.MolgenisWebservice.backend;
+import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 import static org.molgenis.emx2.web.MolgenisWebservice.hostUrl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -75,7 +75,7 @@ public class TaskApi {
   }
 
   private static void postScript(Context ctx) {
-    Database database = backend.getDatabase(ctx);
+    Database database = applicationCache.getDatabaseForUser(ctx);
     if (!database.isAdmin()) {
       throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
     }
@@ -87,7 +87,7 @@ public class TaskApi {
   }
 
   private static void getScript(Context ctx) throws InterruptedException {
-    Database database = backend.getDatabase(ctx);
+    Database database = applicationCache.getDatabaseForUser(ctx);
     if (!database.isAdmin()) {
       throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
     }
@@ -123,7 +123,7 @@ public class TaskApi {
   }
 
   private static void getTaskOutput(Context ctx) {
-    Database database = backend.getDatabase(ctx);
+    Database database = applicationCache.getDatabaseForUser(ctx);
     Schema adminSchema = database.getSchema(SYSTEM_SCHEMA);
     String jobId = ctx.pathParam("id");
     Row jobMetadata =

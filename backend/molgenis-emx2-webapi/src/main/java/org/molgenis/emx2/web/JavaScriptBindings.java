@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.backend;
+import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 
 import graphql.ExecutionInput;
 import graphql.GraphQL;
@@ -22,7 +22,7 @@ public class JavaScriptBindings {
 
   private static SimplePostClient createSimplePostClient(Context ctx) {
     return (query, variables, schemaId) -> {
-      GraphQL graphQL = backend.getGraphqlForSchema(schemaId, ctx);
+      GraphQL graphQL = applicationCache.getSchemaGraphqlForUser(schemaId, ctx);
       return graphQL
           .execute(ExecutionInput.newExecutionInput(query).variables(variables))
           .getData();

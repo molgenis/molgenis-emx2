@@ -4,7 +4,7 @@ import static org.apache.http.HttpHeaders.AUTHORIZATION;
 import static org.molgenis.emx2.ColumnType.STRING;
 import static org.molgenis.emx2.web.Constants.ACCEPT_FORM_URL_ENC;
 import static org.molgenis.emx2.web.Constants.CONTENT_TYPE;
-import static org.molgenis.emx2.web.MolgenisWebservice.backend;
+import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -50,7 +50,7 @@ public class CafeVariomeApi {
   }
 
   private static void checkAuth(Context ctx) throws IOException, InterruptedException {
-    Database database = backend.getDatabase(ctx);
+    Database database = applicationCache.getDatabaseForUser(ctx);
     if (!database.isAnonymous()) {
       return;
     }
@@ -102,7 +102,7 @@ public class CafeVariomeApi {
 
   private static void getRecordIndex(Context ctx) {
     Schema schema = getSchema(ctx);
-    Database database = backend.getDatabase(ctx);
+    Database database = applicationCache.getDatabaseForUser(ctx);
     ctx.json(QueryRecord.getRecordIndex(database, schema));
   }
 }

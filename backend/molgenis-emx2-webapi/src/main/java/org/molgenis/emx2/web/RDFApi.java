@@ -105,7 +105,7 @@ public class RDFApi {
     ctx.contentType(ACCEPT_YAML);
 
     // Only show available SHACLs if there are any schema's available to validate on.
-    if (backend.getDatabase(ctx).getSchemaNames().isEmpty()) {
+    if (applicationCache.getDatabaseForUser(ctx).getSchemaNames().isEmpty()) {
       throw new MolgenisException("No permission to view any schema to use SHACLs on");
     }
 
@@ -127,7 +127,7 @@ public class RDFApi {
   private static void rdfForDatabase(Context ctx, RDFFormat format) throws IOException {
     format = setFormat(ctx, format);
 
-    Database db = backend.getDatabase(ctx);
+    Database db = applicationCache.getDatabaseForUser(ctx);
     Collection<String> availableSchemas = getSchemaNames(ctx);
     Collection<String> schemaNames = new ArrayList<>();
     if (ctx.queryParam("schemas") != null) {

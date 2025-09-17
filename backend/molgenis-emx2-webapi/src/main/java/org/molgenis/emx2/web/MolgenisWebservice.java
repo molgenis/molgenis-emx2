@@ -40,7 +40,7 @@ public class MolgenisWebservice {
       "oidc-login"; // in nuxt '_' indicates a dynamic route
   private static final String ROBOTS_TXT = "robots.txt";
   private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
-  public static MolgenisBackendCache backend = new MolgenisBackendCache();
+  public static ApplicationCachePerUser applicationCache = new ApplicationCachePerUser(5);
   public static OIDCController oidcController;
   static URL hostUrl;
 
@@ -87,7 +87,8 @@ public class MolgenisWebservice {
         "/",
         ctx -> {
           // check for setting
-          String landingPagePath = backend.getDatabase(ctx).getSetting(LANDING_PAGE);
+          String landingPagePath =
+              applicationCache.getDatabaseForUser(ctx).getSetting(LANDING_PAGE);
           if (landingPagePath != null) {
             ctx.redirect(landingPagePath);
           } else {
@@ -215,7 +216,7 @@ public class MolgenisWebservice {
         "graphql: <a href=\"/api/graphql/\">/api/graphql    </a> <a href=\"/api/playground.html?schema=/api/graphql\">playground</a>");
 
     result.append("<p/>Schema APIs:<ul>");
-    for (String name : backend.getDatabase(ctx).getSchemaNames()) {
+    for (String name : applicationCache.getDatabaseForUser(ctx).getSchemaNames()) {
       result.append("<li>").append(name);
       result.append(" <a href=\"/" + name + "/api/openapi\">openapi</a>");
       result.append(
@@ -286,10 +287,10 @@ public class MolgenisWebservice {
     if (schemaName == null) {
       return null;
     }
-    return backend.getSchema(sanitize(schemaName), ctx);
+    return applicationCache.getSchemaForUser(sanitize(schemaName), ctx);
   }
 
   public static Collection<String> getSchemaNames(Context ctx) {
-    return backend.getDatabase(ctx).getSchemaNames();
+    return applicationCache.getDatabaseForUser(ctx).getSchemaNames();
   }
 }

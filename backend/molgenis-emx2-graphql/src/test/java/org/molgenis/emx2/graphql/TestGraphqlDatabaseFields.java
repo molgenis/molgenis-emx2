@@ -114,8 +114,8 @@ public class TestGraphqlDatabaseFields {
         (String)
             EnvironmentProperty.getParameter(
                 org.molgenis.emx2.Constants.MOLGENIS_ADMIN_PW, ADMIN_PW_DEFAULT, STRING);
-    MolgenisSessionManager sessionManager =
-        new MolgenisSessionManager() {
+    GraphqlSessionHandlerInterface sessionManager =
+        new GraphqlSessionHandlerInterface() {
           private String user;
 
           @Override
@@ -132,9 +132,6 @@ public class TestGraphqlDatabaseFields {
           public String getCurrentUser() {
             return user;
           }
-
-          @Override
-          public void invalidateAll(String username) {}
         };
     execute(
         "mutation { signin(email: \""
@@ -228,9 +225,12 @@ public class TestGraphqlDatabaseFields {
     return execute(query, null);
   }
 
-  private JsonNode execute(String query, MolgenisSessionManager sessionManager) throws IOException {
+  private JsonNode execute(String query, GraphqlSessionHandlerInterface sessionManager)
+      throws IOException {
     Map graphQLContext =
-        sessionManager != null ? Map.of(MolgenisSessionManager.class, sessionManager) : Map.of();
+        sessionManager != null
+            ? Map.of(GraphqlSessionHandlerInterface.class, sessionManager)
+            : Map.of();
     JsonNode result =
         new ObjectMapper()
             .readTree(
