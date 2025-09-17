@@ -9,7 +9,9 @@ import static org.molgenis.emx2.web.util.EncodingHelpers.encodePathSegment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.javalin.Javalin;
+import io.javalin.http.ContentType;
 import io.javalin.http.Context;
+import io.javalin.http.HttpResponseException;
 import io.javalin.json.JavalinJackson;
 import io.prometheus.metrics.instrumentation.jvm.JvmMetrics;
 import io.swagger.util.Yaml;
@@ -135,12 +137,23 @@ public class MolgenisWebservice {
 
     // schema members operations
 
-    // handling of exceptions
+    // handling of EMX2 exceptions
     app.exception(
         Exception.class,
         (e, ctx) -> {
           logger.error(e.getMessage(), e);
           ctx.status(400);
+          ctx.json(molgenisExceptionToJson(e));
+        });
+
+    // handling of Javalin exceptions
+    // Override default behavior for more consistency with EMX2 exceptions.
+    // See also: https://javalin.io/documentation#default-responses
+    app.exception(
+        HttpResponseException.class,
+        (e, ctx) -> {
+          ctx.contentType(ContentType.JSON);
+          ctx.status(e.getStatus());
           ctx.json(molgenisExceptionToJson(e));
         });
   }
