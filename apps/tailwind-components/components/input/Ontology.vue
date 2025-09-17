@@ -64,8 +64,6 @@ onMounted(() => {
       setTreeInputs();
     })
     .catch((err) => {
-      console.error(err);
-      debug;
       throw new Error(err);
     })
     .finally(() => {
@@ -116,24 +114,24 @@ async function retrieveTerms(
   await getMaxParentNodes(variables);
 
   return data.retrieveTerms?.map((row: any) => {
-    return {
-      name: row.name,
-      parentNode: parentNode,
-      label: row.label,
-      description: row.definition,
-      code: row.code,
-      codeSystem: row.codeSystem,
-      uri: row.ontologyTermURI,
-      selectable: true,
-      children: row.children,
-      //visibility is used for search hiding
-      visible: searchTerms.value
-        ? data.searchMatch?.some(
-            (match: boolean) => (match as any).name === row.name
-          ) || false
-        : true,
-    };
-  });
+      return {
+        name: row.name,
+        parentNode: parentNode,
+        label: row.label,
+        description: row.definition,
+        code: row.code,
+        codeSystem: row.codeSystem,
+        uri: row.ontologyTermURI,
+        selectable: true,
+        children: row.children,
+        //visibility is used for search hiding
+        visible: searchTerms.value
+          ? data.searchMatch?.some(
+              (match: boolean) => (match as any).name === row.name
+            ) || false
+          : true,
+      };
+    }) || [];
 }
 
 async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<void> {
