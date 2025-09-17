@@ -184,6 +184,13 @@ export default function useForm(
         })
         .join("");
     }
+
+    // remove empty entries from the map
+    Object.entries(errorMap.value).forEach(([key, value]) => {
+      if (value == "" || value == undefined || value == null) {
+        delete errorMap.value[key];
+      }
+    });
   };
 
   const currentErrorField = ref<IColumn | null>(null);
