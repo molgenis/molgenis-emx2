@@ -113,7 +113,8 @@ async function retrieveTerms(
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
   await getMaxParentNodes(variables);
 
-  return data.retrieveTerms?.map((row: any) => {
+  return (
+    data.retrieveTerms?.map((row: any) => {
       return {
         name: row.name,
         parentNode: parentNode,
@@ -131,7 +132,8 @@ async function retrieveTerms(
             ) || false
           : true,
       };
-    }) || [];
+    }) || []
+  );
 }
 
 async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<void> {
