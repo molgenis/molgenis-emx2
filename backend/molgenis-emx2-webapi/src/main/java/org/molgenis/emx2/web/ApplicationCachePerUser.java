@@ -131,7 +131,9 @@ public class ApplicationCachePerUser {
     if (session != null) {
       String username = (String) session.getAttribute(USERNAME);
       logger.info("found a session for user " + username);
-      return username;
+      if (username != null && !username.isEmpty()) {
+        return username;
+      }
     }
 
     // check if we have a token using local admin database
