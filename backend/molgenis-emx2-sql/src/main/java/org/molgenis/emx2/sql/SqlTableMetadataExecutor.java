@@ -366,6 +366,7 @@ class SqlTableMetadataExecutor {
 
   private static void executeAddMetaColumns(TableMetadata table) {
     // negative positions so they don't interfere with the positions of user provided columns
+    table.add(column(MG_GROUP).setType(STRING_ARRAY).setPosition(-6));
     table.add(column(MG_DRAFT).setType(BOOL).setPosition(-5));
     table.add(column(MG_INSERTEDBY).setPosition(-4));
     table.add(column(MG_INSERTEDON).setType(DATETIME).setPosition(-3));

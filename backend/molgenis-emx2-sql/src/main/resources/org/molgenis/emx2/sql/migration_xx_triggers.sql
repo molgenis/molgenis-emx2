@@ -575,15 +575,15 @@ BEGIN
         RAISE EXCEPTION 'Table %.% does not exist.', schema_id, table_id;
     END IF;
 
+    -- TODO: Add this to back-end and remove here?
     INSERT INTO "MOLGENIS".column_metadata (table_schema, table_name, column_name, "columnType", key, position, cascade,
                                             readonly)
-    VALUES (schema_id, table_id, 'mg_group', 'STRING_ARRAY', 0, 0, false, false);
-
-    -- Ensure the 'mg_group' column exists
+    VALUES (schema_id, table_id, 'mg_group', 'STRING_ARRAY', 0, -5, false, false) ON CONFLICT DO NOTHING;
     EXECUTE format(
             'ALTER TABLE %I.%I ADD COLUMN IF NOT EXISTS mg_group TEXT[] DEFAULT NULL',
             schema_id, table_id
             );
+    -- END TODO
 
     EXECUTE format(
             'ALTER TABLE %I.%I ENABLE ROW LEVEL SECURITY',

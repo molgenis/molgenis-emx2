@@ -45,7 +45,7 @@ public class TestGraphqlPermissions {
             mutation {
               change(permissions: [
                 {
-                  groupName: "TestGraphqlPermissions_special",
+                  groupName: "TestGraphqlPermissions/specialEditor",
                   tableId: "Order",
                   isRowLevel: true,
                   hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false,
@@ -74,7 +74,8 @@ public class TestGraphqlPermissions {
     ArrayNode list = (ArrayNode) permissions.path("data").path("_permissions");
     JsonNode specialPermission =
         StreamSupport.stream(list.spliterator(), false)
-            .filter(n -> "TestGraphqlPermissions_special".equals(n.path("groupName").asText()))
+            .filter(
+                n -> "TestGraphqlPermissions/specialEditor".equals(n.path("groupName").asText()))
             .findFirst()
             .orElse(null);
 
@@ -104,8 +105,8 @@ public class TestGraphqlPermissions {
                   update(
                     Order: [
                       {
-                        mg_group: ["pet_store/Owner"],
-                        orderId: %s
+                        mg_group: ["TestGraphqlPermissions/specialEditor"],
+                        orderId: "%s"
                       }
                     ]
                   ) {
@@ -113,7 +114,7 @@ public class TestGraphqlPermissions {
                   }
                 }
                 """
-                .formatted(order.get("TestGraphqlPermissions_special").asText()));
+                .formatted(order.get("orderId").asText()));
 
     String test = "Test";
   }
