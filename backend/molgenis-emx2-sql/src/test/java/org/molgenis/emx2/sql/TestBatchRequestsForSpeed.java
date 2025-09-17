@@ -151,7 +151,7 @@ public class TestBatchRequestsForSpeed {
       // good stuff
     }
     personTable.getMetadata().dropColumn("Father");
-    assertEquals(8, personTable.getMetadata().getColumns().size());
+    assertEquals(9, personTable.getMetadata().getColumns().size());
 
     // drop a fromTable
     db.getSchema("testCreate").getMetadata().drop(personTable.getName());
