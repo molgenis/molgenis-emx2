@@ -185,115 +185,119 @@ const numberOfFieldsWithErrors = computed(
 </script>
 
 <template>
-  <div class="flex flex-row">
-    <div class="grid grid-cols-4 gap-1">
-      <Legend
-        v-if="sections?.length"
-        :sections="sections"
-        @goToSection="gotoSection"
-        class="col-span-1 overflow-y-auto max-h-[calc(95vh-232px)]"
-      />
-      <div
-        id="forms-story-fields-container"
-        class="overflow-y-auto max-h-[calc(95vh-232px)] min-w-1000px"
-        :class="sections.length > 0 ? 'col-span-3' : 'col-span-4'"
-      >
-        <FormFields
-          class="grow"
-          :columns="visibleColumns"
-          :errorMap="errorMap"
-          :row-key="rowKey"
-          v-model="formValues"
-          @update="onUpdateColumn"
-          @blur="onBlurColumn"
-          @view="onViewColumn"
+  <client-only>
+    <div class="flex flex-row">
+      <div class="grid grid-cols-4 gap-1">
+        <Legend
+          v-if="sections?.length"
+          :sections="sections"
+          @goToSection="gotoSection"
+          class="col-span-1 overflow-y-auto max-h-[calc(95vh-232px)]"
         />
+        <div
+          id="forms-story-fields-container"
+          class="overflow-y-auto max-h-[calc(95vh-232px)] min-w-1000px"
+          :class="sections.length > 0 ? 'col-span-3' : 'col-span-4'"
+        >
+          <FormFields
+            class="grow"
+            :columns="visibleColumns"
+            :errorMap="errorMap"
+            :row-key="rowKey"
+            v-model="formValues"
+            @update="onUpdateColumn"
+            @blur="onBlurColumn"
+            @view="onViewColumn"
+          />
+        </div>
       </div>
-    </div>
-    <div class="ml-2 h-screen max-w-[325px]">
-      <h2>Demo controls, settings and status</h2>
-      <div class="p-4 border-2 mb-2 flex flex-col gap-4">
-        <div class="flex flex-col">
-          <label for="table-select" class="text-title font-bold"
-            >Schema:
-          </label>
-          <select
-            id="table-select"
-            v-model="schemaId"
-            class="border border-black"
-          >
-            <option v-for="schemaId in schemaIds" :value="schemaId">
-              {{ schemaId }}
-            </option>
-          </select>
-        </div>
-
-        <div class="flex flex-col">
-          <label for="table-select" class="text-title font-bold">Table: </label>
-          <select
-            id="table-select"
-            v-model="tableId"
-            class="border border-black"
-          >
-            <option v-for="tableId in schemaTablesIds" :value="tableId">
-              {{ tableId }}
-            </option>
-          </select>
-        </div>
-
-        <div>
-          This table has {{ numberOfRows }} rows
+      <div class="ml-2 h-screen max-w-[325px]">
+        <h2>Demo controls, settings and status</h2>
+        <div class="p-4 border-2 mb-2 flex flex-col gap-4">
           <div class="flex flex-col">
-            <label for="row-select" class="text-title font-bold"
-              >Show row:
+            <label for="table-select" class="text-title font-bold"
+              >Schema:
             </label>
             <select
-              id="row-select"
-              v-model="rowIndex"
+              id="table-select"
+              v-model="schemaId"
               class="border border-black"
             >
-              <option :value="null">none</option>
-              <option v-for="index in numberOfRows" :value="index">
-                {{ index }}
+              <option v-for="schemaId in schemaIds" :value="schemaId">
+                {{ schemaId }}
               </option>
             </select>
           </div>
-        </div>
 
-        <div class="mt-4">
-          <div v-if="Object.keys(formValues).length">
-            <h3 class="text-label">Values</h3>
-            <dl class="flex flex-col">
-              <template v-for="(value, key) in formValues">
-                <dt class="font-bold">{{ key }}:</dt>
-                <dd v-if="value !== null && value !== undefined" class="pl-3">
-                  {{ value }}
-                </dd>
-              </template>
-            </dl>
+          <div class="flex flex-col">
+            <label for="table-select" class="text-title font-bold"
+              >Table:
+            </label>
+            <select
+              id="table-select"
+              v-model="tableId"
+              class="border border-black"
+            >
+              <option v-for="tableId in schemaTablesIds" :value="tableId">
+                {{ tableId }}
+              </option>
+            </select>
           </div>
+
           <div>
-            <div>number of error: {{ numberOfFieldsWithErrors }}</div>
+            This table has {{ numberOfRows }} rows
+            <div class="flex flex-col">
+              <label for="row-select" class="text-title font-bold"
+                >Show row:
+              </label>
+              <select
+                id="row-select"
+                v-model="rowIndex"
+                class="border border-black"
+              >
+                <option :value="null">none</option>
+                <option v-for="index in numberOfRows" :value="index">
+                  {{ index }}
+                </option>
+              </select>
+            </div>
           </div>
-          <div v-if="Object.keys(errorMap).length">
-            <h3 class="text-label">Errors</h3>
 
-            <dl class="flex flex-col">
-              <template v-for="(value, key) in errorMap">
-                <dt class="font-bold">{{ key }}:</dt>
-                <dd v-if="value.length" class="ml-1">{{ value }}</dd>
-              </template>
-            </dl>
+          <div class="mt-4">
+            <div v-if="Object.keys(formValues).length">
+              <h3 class="text-label">Values</h3>
+              <dl class="flex flex-col">
+                <template v-for="(value, key) in formValues">
+                  <dt class="font-bold">{{ key }}:</dt>
+                  <dd v-if="value !== null && value !== undefined" class="pl-3">
+                    {{ value }}
+                  </dd>
+                </template>
+              </dl>
+            </div>
+            <div>
+              <div>number of error: {{ numberOfFieldsWithErrors }}</div>
+            </div>
+            <div v-if="Object.keys(errorMap).length">
+              <h3 class="text-label">Errors</h3>
+
+              <dl class="flex flex-col">
+                <template v-for="(value, key) in errorMap">
+                  <dt class="font-bold">{{ key }}:</dt>
+                  <dd v-if="value.length" class="ml-1">{{ value }}</dd>
+                </template>
+              </dl>
+            </div>
           </div>
+          <Button
+            type="outline"
+            @click="validateAllColumns"
+            class="blue"
+            size="small"
+            >validate all fields</Button
+          >
         </div>
-        <Button
-          type="outline"
-          @click="validateAllColumns"
-          class="blue"
-          size="small"
-          >validate all fields</Button
-        >
       </div>
     </div>
-  </div>
+  </client-only>
 </template>

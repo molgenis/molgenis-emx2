@@ -30,11 +30,9 @@ test("the legend should show number of errors per chapter (if any)", async ({
   await page.getByLabel("name Required", { exact: true }).click();
   // skip a required field
   await page.getByLabel("name Required", { exact: true }).press("Tab");
-  await expect(
-    page
-      .locator('[id="form-legend-section-overview)-error-count"]')
-      .getByText("1")
-  ).toBeVisible();
+
+  const elem = await page.locator("#form-legend-section-overview-error-count");
+  await expect(elem).toHaveText("1 error in overview");
 });
 
 test("clicking on the chapter should scroll to the chapter", async ({
