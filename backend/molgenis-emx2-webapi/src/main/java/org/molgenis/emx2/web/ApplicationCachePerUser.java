@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.ColumnType.*;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.web.MolgenisWebservice.oidcController;
 import static org.pac4j.core.util.Pac4jConstants.USERNAME;
@@ -19,57 +20,109 @@ import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
+import org.molgenis.emx2.utils.EnvironmentProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ApplicationCachePerUser {
-  // use this as a key in the cache
-  private record UserSchema(String userName, String schemaName) {}
-  ;
+  private static final long DEFAULT_APP_CACHE_SIZE = 10_000;
+  public static final Integer APP_CACHE_DURATION =
+      (Integer)
+          EnvironmentProperty.getParameter(
+              org.molgenis.emx2.Constants.MOLGENIS_APP_CACHE_DURATION, 5, INT);
 
-  private static Logger logger = LoggerFactory.getLogger(ApplicationCachePerUser.class);
+  public static final Long APP_DB_CACHE_SIZE =
+      (Long)
+          EnvironmentProperty.getParameter(
+              org.molgenis.emx2.Constants.MOLGENIS_APP_DB_CACHE_SIZE, DEFAULT_APP_CACHE_SIZE, LONG);
 
-  private Cache<String, Database> databaseCache;
-  private Cache<UserSchema, Schema> schemaCache;
-  private Cache<String, GraphQL> graphqlDatabaseCache;
-  private Cache<UserSchema, GraphQL> graphqlSchemaCache;
+  public static final Long APP_SCHEMA_CACHE_SIZE =
+      (Long)
+          EnvironmentProperty.getParameter(
+              org.molgenis.emx2.Constants.MOLGENIS_APP_SCHEMA_CACHE_SIZE,
+              DEFAULT_APP_CACHE_SIZE,
+              LONG);
+
+  public static final Long APP_GQL_DB_CACHE_SIZE =
+      (Long)
+          EnvironmentProperty.getParameter(
+              org.molgenis.emx2.Constants.MOLGENIS_APP_GQL_DB_CACHE_SIZE,
+              DEFAULT_APP_CACHE_SIZE,
+              LONG);
+
+  public static final Long APP_GQL_SCHEMA_CACHE_SIZE =
+      (Long)
+          EnvironmentProperty.getParameter(
+              org.molgenis.emx2.Constants.MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE,
+              DEFAULT_APP_CACHE_SIZE,
+              LONG);
+
+  private record UserKey(String userName) {
+    public UserKey {
+      if (userName == null || userName.isEmpty()) {
+        throw new IllegalArgumentException("userName cannot be null or empty");
+      }
+    }
+  }
+
+  private record UserSchemaKey(UserKey userKey, String schemaName) {
+    public UserSchemaKey {
+      if (schemaName == null || schemaName.isEmpty()) {
+        throw new IllegalArgumentException("schemaName cannot be null or empty");
+      }
+    }
+  }
+
+  private static final Logger logger = LoggerFactory.getLogger(ApplicationCachePerUser.class);
+
+  private final Cache<UserKey, Database> databaseCache;
+  private final Cache<UserSchemaKey, Schema> schemaCache;
+  private final Cache<UserKey, GraphQL> graphqlDatabaseCache;
+  private final Cache<UserSchemaKey, GraphQL> graphqlSchemaCache;
 
   GraphqlApiFactory graphqlApiFactory = new GraphqlApiFactory();
 
-  public ApplicationCachePerUser(int cacheDurationInMinutes) {
+  private static final ApplicationCachePerUser INSTANCE = new ApplicationCachePerUser();
+
+  private ApplicationCachePerUser() {
     databaseCache =
         Caffeine.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(cacheDurationInMinutes))
-            .maximumSize(10_000)
+            .expireAfterAccess(Duration.ofMinutes(APP_CACHE_DURATION))
+            .maximumSize(APP_DB_CACHE_SIZE)
             .build();
     schemaCache =
         Caffeine.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(cacheDurationInMinutes))
-            .maximumSize(10_000)
+            .expireAfterAccess(Duration.ofMinutes(APP_CACHE_DURATION))
+            .maximumSize(APP_SCHEMA_CACHE_SIZE)
             .build();
     graphqlDatabaseCache =
         Caffeine.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(cacheDurationInMinutes))
-            .maximumSize(10_000)
+            .expireAfterAccess(Duration.ofMinutes(APP_CACHE_DURATION))
+            .maximumSize(APP_GQL_DB_CACHE_SIZE)
             .build();
     graphqlSchemaCache =
         Caffeine.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(cacheDurationInMinutes))
-            .maximumSize(10_000)
+            .expireAfterAccess(Duration.ofMinutes(APP_CACHE_DURATION))
+            .maximumSize(APP_GQL_SCHEMA_CACHE_SIZE)
             .build();
+  }
+
+  public static ApplicationCachePerUser getInstance() {
+    return INSTANCE;
   }
 
   public Database getDatabaseForUser(Context ctx) {
     return databaseCache.get(
-        getUser(ctx),
-        userName -> {
+        new UserKey(getUser(ctx)),
+        userKey -> {
           logger.info("create database cache for user {}", getUser(ctx));
           SqlDatabase database = new SqlDatabase(false);
-          if (!database.hasUser(userName) || !database.getUser(userName).getEnabled()) {
+          if (!database.hasUser(userKey.userName)
+              || !database.getUser(userKey.userName).getEnabled()) {
             throw new MolgenisException(
-                "User " + userName + " does not exist or has been disabled");
+                "User " + userKey.userName + " does not exist or has been disabled");
           }
-          database.setActiveUser(userName);
+          database.setActiveUser(userKey.userName);
           database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
           database.setBindings(JavaScriptBindings.getBindingsForContext(ctx));
           database.setListener(
@@ -97,7 +150,7 @@ public class ApplicationCachePerUser {
 
   public Schema getSchemaForUser(String schemaName, Context ctx) {
     return schemaCache.get(
-        new UserSchema(getUser(ctx), schemaName),
+        new UserSchemaKey(new UserKey(getUser(ctx)), schemaName),
         k -> {
           logger.info("create schema '{}' cache for user {}", schemaName, getUser(ctx));
           return getDatabaseForUser(ctx).getSchema(schemaName);
@@ -106,7 +159,7 @@ public class ApplicationCachePerUser {
 
   public GraphQL getDatabaseGraphqlForUser(Context ctx) {
     return graphqlDatabaseCache.get(
-        getUser(ctx),
+        new UserKey(getUser(ctx)),
         k -> {
           logger.info("create graphqlDatabaseApi cache for user {}", getUser(ctx));
           return graphqlApiFactory.createGraphqlForDatabase(
@@ -116,7 +169,7 @@ public class ApplicationCachePerUser {
 
   public GraphQL getSchemaGraphqlForUser(String schemaName, Context ctx) {
     return graphqlSchemaCache.get(
-        new UserSchema(getUser(ctx), schemaName),
+        new UserSchemaKey(new UserKey(getUser(ctx)), schemaName),
         k -> {
           logger.info("create graphqlSchemaApi '{}' cache for user {}", schemaName, getUser(ctx));
           return graphqlApiFactory.createGraphqlForSchema(getSchemaForUser(schemaName, ctx));
@@ -130,7 +183,7 @@ public class ApplicationCachePerUser {
     HttpSession session = ctx.req().getSession(false);
     if (session != null) {
       String username = (String) session.getAttribute(USERNAME);
-      logger.info("found a session for user " + username);
+      logger.info("found a session for user {}", username);
       if (username != null && !username.isEmpty()) {
         return username;
       }
