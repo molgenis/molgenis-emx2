@@ -112,7 +112,7 @@ Object.keys(groupedCatalogues).forEach((key) => {
       v-if="groupedCatalogues?.theme?.length"
       title="Thematic catalogues"
       description="Catalogues focused on a particular theme, developed by a collaboration of projects, networks and/or organisations:"
-      :catalogues="groupedCatalogues?.thematic"
+      :catalogues="groupedCatalogues?.theme ?? []"
     />
     <ContentBlockCatalogues
       v-if="groupedCatalogues?.project?.length"
@@ -122,8 +122,8 @@ Object.keys(groupedCatalogues).forEach((key) => {
     />
     <ContentBlockCatalogues
       v-if="groupedCatalogues?.organisation?.length"
-      title="Organization catalogues"
-      description="Catalogues maintained by organizations:"
+      title="Organisation catalogues"
+      description="Catalogues maintained by organisations:"
       :catalogues="groupedCatalogues?.organisation"
     />
     <ContentBlock
