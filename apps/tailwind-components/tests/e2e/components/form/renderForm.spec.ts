@@ -21,9 +21,7 @@ test("it should handle input", async ({ page }) => {
   await page
     .getByLabel("name Required", { exact: true })
     .pressSequentially("test");
-  await expect(page.getByLabel("name Required", { exact: true })).toHaveValue(
-    "test"
-  );
+  await expect(page.getByText("1 error in overview")).toBeVisible();
 });
 
 test("it should show the chapters in the legend", async ({ page }) => {
