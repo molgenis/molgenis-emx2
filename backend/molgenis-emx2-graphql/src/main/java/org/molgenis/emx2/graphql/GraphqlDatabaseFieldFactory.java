@@ -107,7 +107,7 @@ public class GraphqlDatabaseFieldFactory {
                 String id = taskService.submit(task);
                 result.setTaskId(id);
               } else {
-                database.getListener().afterCommitOfSchemaChanges();
+                database.getListener().onSchemaChange();
               }
 
               return result;

@@ -113,9 +113,9 @@ public class ApplicationCachePerUser {
 
   public Database getDatabaseForUser(Context ctx) {
     return databaseCache.get(
-        new UserKey(getUser(ctx)),
+        getUserKey(ctx),
         userKey -> {
-          logger.info("create database cache for user {}", getUser(ctx));
+          logger.info("create database cache for user {}", getUserKey(ctx));
           SqlDatabase database = new SqlDatabase(false);
           if (!database.hasUser(userKey.userName)
               || !database.getUser(userKey.userName).getEnabled()) {
@@ -129,14 +129,14 @@ public class ApplicationCachePerUser {
               new DatabaseListener() {
 
                 @Override
-                public void userChanged() {
+                public void onUserChange() {
                   // should never happen anymore
                   logger.error("user changed, that should never happen");
                   clearAllCaches();
                 }
 
                 @Override
-                public void afterCommitOfSchemaChanges() {
+                public void onSchemaChange() {
                   // just to make sure we now clear all caches
                   // we can make it smarter to only invalidate per schema
                   // nb this only fires after commit of schema changes, not of row updates
@@ -150,33 +150,34 @@ public class ApplicationCachePerUser {
 
   public Schema getSchemaForUser(String schemaName, Context ctx) {
     return schemaCache.get(
-        new UserSchemaKey(new UserKey(getUser(ctx)), schemaName),
+        new UserSchemaKey(getUserKey(ctx), schemaName),
         k -> {
-          logger.info("create schema '{}' cache for user {}", schemaName, getUser(ctx));
+          logger.info("create schema '{}' cache for user {}", schemaName, getUserKey(ctx));
           return getDatabaseForUser(ctx).getSchema(schemaName);
         });
   }
 
   public GraphQL getDatabaseGraphqlForUser(Context ctx) {
     return graphqlDatabaseCache.get(
-        new UserKey(getUser(ctx)),
+        getUserKey(ctx),
         k -> {
-          logger.info("create graphqlDatabaseApi cache for user {}", getUser(ctx));
+          logger.info("create graphqlDatabaseApi cache for user {}", getUserKey(ctx));
           return graphqlApiFactory.createGraphqlForDatabase(
-              getDatabaseForUser(ctx), null /* not forget task service */);
+              getDatabaseForUser(ctx), TaskApi.taskService);
         });
   }
 
   public GraphQL getSchemaGraphqlForUser(String schemaName, Context ctx) {
     return graphqlSchemaCache.get(
-        new UserSchemaKey(new UserKey(getUser(ctx)), schemaName),
+        new UserSchemaKey(getUserKey(ctx), schemaName),
         k -> {
-          logger.info("create graphqlSchemaApi '{}' cache for user {}", schemaName, getUser(ctx));
+          logger.info(
+              "create graphqlSchemaApi '{}' cache for user {}", schemaName, getUserKey(ctx));
           return graphqlApiFactory.createGraphqlForSchema(getSchemaForUser(schemaName, ctx));
         });
   }
 
-  private String getUser(Context ctx) {
+  private UserKey getUserKey(Context ctx) {
     HttpServletRequest request = ctx.req();
 
     // check if we are in a session
@@ -185,7 +186,7 @@ public class ApplicationCachePerUser {
       String username = (String) session.getAttribute(USERNAME);
       logger.info("found a session for user {}", username);
       if (username != null && !username.isEmpty()) {
-        return username;
+        return new UserKey(username);
       }
     }
 
@@ -193,11 +194,11 @@ public class ApplicationCachePerUser {
     String authTokenKey = findUsedAuthTokenKey(request);
     if (authTokenKey != null) {
       SqlDatabase database = new SqlDatabase(false);
-      return JWTgenerator.getUserFromToken(database, request.getHeader(authTokenKey));
+      return new UserKey(JWTgenerator.getUserFromToken(database, request.getHeader(authTokenKey)));
     }
 
     // default user
-    return ANONYMOUS;
+    return new UserKey(ANONYMOUS);
   }
 
   public String findUsedAuthTokenKey(HttpServletRequest request) {
