@@ -39,9 +39,8 @@ test("the legend should show number of errors per chapter (if any)", async ({
   await page.getByLabel("name Required", { exact: true }).click();
   // skip a required field
   await page.getByLabel("name Required", { exact: true }).press("Tab");
-  await expect(
-    page.getByRole("link", { name: "overview 1 error" })
-  ).toBeVisible();
+  await  expect(page.getByText('overview1 error1
+  await page.goto('http://localhost:3000/Form.story?schema=catalogue-demo&table=Resources');')).toBeVisible;
 });
 
 test("clicking on the chapter should scroll to the chapter", async ({
