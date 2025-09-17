@@ -55,7 +55,7 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
   public synchronized void destroySession() {
     HttpSession session = request.getSession(false);
     if (session != null) {
-      String username = (String) session.getAttribute("username");
+      String username = (String) session.getAttribute(USERNAME);
       session.invalidate();
       sessionGauge.dec(1);
 
