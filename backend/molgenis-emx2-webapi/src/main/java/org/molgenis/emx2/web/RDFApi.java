@@ -6,20 +6,20 @@ import static org.molgenis.emx2.Constants.API_TTL;
 import static org.molgenis.emx2.utils.URLUtils.extractBaseURL;
 import static org.molgenis.emx2.web.Constants.ACCEPT_YAML;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
+import static org.molgenis.emx2.web.util.HttpHeaderUtils.getContentType;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.google.common.net.MediaType;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import io.javalin.http.NotAcceptableResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.molgenis.emx2.Column;
 import org.molgenis.emx2.Database;
@@ -38,15 +38,27 @@ import org.molgenis.emx2.rdf.shacl.ShaclSet;
 public class RDFApi {
   private static MolgenisSessionManager sessionManager;
 
-  private static final List<RDFFormat> acceptedRdfFormats =
-      List.of(
-          RDFFormat.TURTLE,
-          RDFFormat.N3,
-          RDFFormat.NTRIPLES,
-          RDFFormat.NQUADS,
-          RDFFormat.RDFXML,
-          RDFFormat.TRIG,
-          RDFFormat.JSONLD);
+  private static final Map<MediaType, RDFFormat> mediaTypeRdfFormatMap = new HashMap<>();
+  private static final List<MediaType> acceptedMediaTypes = new ArrayList<>(); // order of priority
+
+  static {
+    // Defines order of priority!
+    List<RDFFormat> acceptedRdfFormats =
+        List.of(
+            RDFFormat.TURTLE,
+            RDFFormat.JSONLD,
+            RDFFormat.RDFXML,
+            RDFFormat.NTRIPLES,
+            RDFFormat.NQUADS,
+            RDFFormat.TRIG,
+            RDFFormat.N3);
+
+    for (RDFFormat format : acceptedRdfFormats) {
+      MediaType mediaType = MediaType.parse(format.getDefaultMIMEType());
+      mediaTypeRdfFormatMap.put(mediaType, format);
+      acceptedMediaTypes.add(mediaType);
+    }
+  }
 
   public static void create(Javalin app, MolgenisSessionManager sm) {
     // ideally, we estimate/calculate the content length and inform the client using
@@ -282,22 +294,12 @@ public class RDFApi {
   }
 
   public static RDFFormat selectFormat(Context ctx) {
-    var accept = ctx.header("Accept");
-    // Accept header gives a list of comma separated mime types, optionally with a weight
-    // Mime types can be exact or wildcard (e.g. text/* or */*).
-    // To simplify our use case we ignore weight and wildcards
-    for (var type : accept.split(",")) {
-      if (type.contains(";")) {
-        // Strip everything after a semicolon
-        type = type.split(";")[0];
-      }
-      for (var format : acceptedRdfFormats) {
-        if (format.hasDefaultMIMEType(type)) {
-          return format;
-        }
-      }
+    MediaType mediaType = getContentType(ctx, acceptedMediaTypes);
+    if (mediaType == null) {
+      throw new NotAcceptableResponse(
+          "Only the following accept-header values are supported: "
+              + acceptedMediaTypes.stream().map(MediaType::toString).toList());
     }
-    // Default to TURTLE
-    return RDFFormat.TURTLE;
+    return mediaTypeRdfFormatMap.get(mediaType);
   }
 }

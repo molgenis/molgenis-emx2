@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.TableMetadata;
 import org.molgenis.emx2.TableType;
 
@@ -79,8 +80,8 @@ public class Table {
     // should always have a section as first column
     if (this.columns.size() > 0 && !this.columns.get(0).getColumnType().isHeading()) {
       Column firstHeading = new Column();
-      firstHeading.setId("_mg_top_of_form");
-      firstHeading.setName("_mg_top_of_form");
+      firstHeading.setId(Constants.MG_TOP_OF_FORM);
+      firstHeading.setName(Constants.MG_TOP_OF_FORM);
       firstHeading.setLabel("_top");
       firstHeading.setColumnType(ColumnType.SECTION);
       this.columns.add(0, firstHeading);

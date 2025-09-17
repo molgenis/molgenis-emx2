@@ -11,6 +11,8 @@
           :class="{ 'bg-button-primary': section.isActive }"
         />
         <a
+          :id="`form-legend-section-${section.id})`"
+          :aria-describedby="`form-legend-section-${section.id})-error-count`"
           class="pl-7 truncate hover:overflow-visible bg-form-legend cursor-pointer"
           href="#"
           :aria-current="section.isActive"
@@ -25,17 +27,21 @@
           >
             {{ section.label }}
           </span>
-          <span v-if="(section.errorCount ?? 0) > 0" class="sr-only">
-            {{ section.errorCount }} error{{
-              section.errorCount > 1 || section.errorCount === 0 ? "s" : ""
-            }}
-          </span>
         </a>
         <div
           v-if="(section.errorCount ?? 0) > 0"
+          :id="`form-legend-section-${section.id}-error-count`"
           class="inline-flex h-6 w-6 shrink-0 grow-0 items-center justify-center rounded-full bg-notification text-legend-error-count"
         >
-          {{ (section.errorCount ?? 0) > 9 ? "9+" : section.errorCount }}
+          <span>{{
+            (section.errorCount ?? 0) > 9 ? "9+" : section.errorCount
+          }}</span>
+          <span class="sr-only">
+            error{{
+              section.errorCount > 1 || section.errorCount === 0 ? "s" : ""
+            }}
+            in {{ section.label }}
+          </span>
         </div>
       </li>
     </ul>
