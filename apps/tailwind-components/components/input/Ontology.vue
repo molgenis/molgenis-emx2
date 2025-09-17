@@ -3,6 +3,7 @@ import type { IInputProps, ITreeNodeState } from "../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
 import {
   onMounted,
+  onBeforeUnmount,
   ref,
   watch,
   type Ref,
@@ -63,6 +64,8 @@ onMounted(() => {
       setTreeInputs();
     })
     .catch((err) => {
+      console.error(err);
+      debug;
       throw new Error(err);
     })
     .finally(() => {
@@ -163,7 +166,10 @@ async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<void> {
 
 /** initial load */
 async function init() {
-  ontologyTree.value = [...ontologyTree.value, ...(await retrieveTerms())];
+  ontologyTree.value = [
+    ...(ontologyTree.value || []),
+    ...(await retrieveTerms()),
+  ];
   await applySelectedStates();
   await getMaxTableRows();
 }
@@ -171,7 +177,7 @@ async function init() {
 /** apply selection UI state on selection changes */
 async function applySelectedStates() {
   await retrieveSelectedPathsAndLabelsForModelValue();
-  ontologyTree.value.forEach((term) => {
+  ontologyTree.value?.forEach((term) => {
     applyStateToNode(term);
   });
 }
@@ -432,7 +438,6 @@ async function loadMoreTerms() {
       <fieldset ref="treeContainer">
         <legend class="sr-only">select ontology terms</legend>
         <TreeNode
-          v-if="ontologyTree"
           :id="id"
           ref="tree"
           :nodes="ontologyTree"

@@ -30,7 +30,7 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import type { IInputProps } from "../../types/types";
 import type { DateValue } from "../../../metadata-utils/src/types";
-import { watch, ref, onBeforeMount } from "vue";
+import { watch, ref, onMounted } from "vue";
 
 const props = defineProps<
   IInputProps & {
@@ -65,7 +65,7 @@ function handleBlur() {
   }
 }
 
-onBeforeMount(() => {
+onMounted(() => {
   internalValue.value = props.modelValue;
   setPlaceholder(props.modelValue);
 });
