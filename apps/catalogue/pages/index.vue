@@ -77,7 +77,7 @@ console.log("Catalogues loaded", data);
 const thematicCatalogues = computed(() => {
   let result = data?.value?.data?.Resources
     ? data.value?.data?.Resources?.filter(
-        (c) => c.catalogueType?.name === "theme"
+        (c) => c.catalogueType?.name !== "organisation" && c.catalogueType?.name !== "project"
       )
     : [];
   result.sort((a, b) => a.id.localeCompare(b.id));
