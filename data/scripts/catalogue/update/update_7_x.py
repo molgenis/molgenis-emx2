@@ -107,12 +107,16 @@ class Transform:
             # load organisations ontology
             ontology_path = str(Path().cwd().joinpath('..', '..', '..', '_ontologies'))
             df_ror = pd.read_csv(ontology_path + '/Organisations.csv')
-            df_ror = df_ror[['ontologyTermURI', 'name']]
-            dict_ror = dict(zip(df_ror.ontologyTermURI, df_ror.name))
-            # get ror name from pid
-            df_organisations['organisation'] = df_organisations['pid'].apply(get_ror_name, dict_ror=dict_ror)
-            # get other organisation names not found in ror
-            df_organisations['other organisation'] = df_organisations.apply(get_other_name, dict_ror=dict_ror, axis=1)
+            df_ror = df_ror[['ontologyTermURI', 'name', 'website']]
+            df_ror.rename(columns={'ontologyTermURI': 'pid',
+                                   'name': 'organisation name',
+                                   'website': 'organisation website'}, inplace=True)
+            # get organisation details
+            df_organisations = df_organisations.merge(df_ror, how='left', on='pid')
+            # get organisation name in ref column
+            df_organisations['organisation'] = df_organisations['organisation name']
+            # get other organisation name or pid not found in ror
+            df_organisations['other organisation'] = df_organisations.apply(get_other_name, axis=1)
 
         # drop columns and write table to file
         df_organisations.drop(labels='name', axis=1, inplace=True)
@@ -257,15 +261,13 @@ def get_ror_name(pid, dict_ror):
             return None
 
 
-def get_other_name(row, dict_ror):
+def get_other_name(row):
     if pd.isna(row['pid']):
         return row['name']
+    elif pd.isna(row['organisation']):
+        return row['pid']
     else:
-        try:
-            valid_pid = dict_ror[row['pid']]
-            return None
-        except KeyError:
-            return row['pid']
+        return None
 
 
 def calculate_consent(row):
