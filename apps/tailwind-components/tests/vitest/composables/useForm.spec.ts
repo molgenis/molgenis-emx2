@@ -241,12 +241,14 @@ describe("useForm", () => {
         id: "col1",
         isActive: false,
         errorCount: 0,
+        type: "HEADING",
       },
       {
         label: "heading 2",
         id: "h2",
         isActive: true,
         errorCount: 1,
+        type: "HEADING",
       },
     ]);
   });
@@ -287,6 +289,7 @@ describe("useForm", () => {
       id: "h1",
       isActive: false,
       label: "heading 1",
+      type: "HEADING",
     });
   });
 
@@ -299,36 +302,51 @@ describe("useForm", () => {
       tableType: "some table type",
       columns: [
         {
+          columnType: "SECTION",
+          id: "main",
+          label: "we always need a section",
+          section: "main",
+        },
+        {
           columnType: "HEADING",
           id: "h1",
           label: "heading 1",
+          section: "main",
         },
         {
           columnType: "STRING",
           id: "col1",
           label: "columns 1",
+          section: "main",
+          heading: "h1",
         },
         {
           columnType: "HEADING",
           id: "h2",
           label: "heading 2",
+          section: "main",
         },
         {
           columnType: "STRING",
           id: "col2",
           label: "columns 2",
           visible: "col1",
+          section: "main",
+          heading: "h2",
         },
         {
           columnType: "HEADING",
           id: "h3",
           label: "heading 3",
           visible: "col2",
+          section: "main",
         },
         {
           columnType: "STRING",
           id: "col3",
           label: "columns 3",
+          section: "main",
+          heading: "h3",
         },
       ],
     });
@@ -338,32 +356,33 @@ describe("useForm", () => {
       formValues,
       scrollTo
     );
-    expect(sections.value[0]).toEqual({
+    expect(sections.value[1]).toEqual({
       errorCount: 0,
       id: "h1",
       isActive: false,
       label: "heading 1",
+      type: "HEADING",
     });
-    expect(sections.value.length).toEqual(1);
-    expect(visibleColumns.value.length).toEqual(2);
+    expect(sections.value.length).toEqual(2); //section and heading
+    expect(visibleColumns.value.length).toEqual(3);
 
     //simulate update on col1
     formValues.value["col1"] = true;
     onBlurColumn(tableMetadata.value.columns[1]);
-    expect(sections.value.length).toEqual(2);
-    expect(visibleColumns.value.length).toEqual(4);
+    expect(sections.value.length).toEqual(3);
+    expect(visibleColumns.value.length).toEqual(5);
 
     //simulate update on col2
     formValues.value["col2"] = true;
     onBlurColumn(tableMetadata.value.columns[3]);
-    expect(sections.value.length).toEqual(3);
-    expect(visibleColumns.value.length).toEqual(6);
+    expect(sections.value.length).toEqual(4);
+    expect(visibleColumns.value.length).toEqual(7);
 
     //simulate update on col1
     //should invisible fields be emptied ???
     formValues.value["col1"] = false;
     onBlurColumn(tableMetadata.value.columns[1]);
-    expect(sections.value.length).toEqual(1);
-    expect(visibleColumns.value.length).toEqual(2);
+    expect(sections.value.length).toEqual(2);
+    expect(visibleColumns.value.length).toEqual(3);
   });
 });
