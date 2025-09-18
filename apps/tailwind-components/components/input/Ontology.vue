@@ -113,25 +113,27 @@ async function retrieveTerms(
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
   await getMaxParentNodes(variables);
 
-  return data.retrieveTerms?.map((row: any) => {
-    return {
-      name: row.name,
-      parentNode: parentNode,
-      label: row.label,
-      description: row.definition,
-      code: row.code,
-      codeSystem: row.codeSystem,
-      uri: row.ontologyTermURI,
-      selectable: true,
-      children: row.children,
-      //visibility is used for search hiding
-      visible: searchTerms.value
-        ? data.searchMatch?.some(
-            (match: boolean) => (match as any).name === row.name
-          ) || false
-        : true,
-    };
-  });
+  return (
+    data.retrieveTerms?.map((row: any) => {
+      return {
+        name: row.name,
+        parentNode: parentNode,
+        label: row.label,
+        description: row.definition,
+        code: row.code,
+        codeSystem: row.codeSystem,
+        uri: row.ontologyTermURI,
+        selectable: true,
+        children: row.children,
+        //visibility is used for search hiding
+        visible: searchTerms.value
+          ? data.searchMatch?.some(
+              (match: boolean) => (match as any).name === row.name
+            ) || false
+          : true,
+      };
+    }) || []
+  );
 }
 
 async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<void> {
@@ -172,7 +174,7 @@ async function init() {
 /** apply selection UI state on selection changes */
 async function applySelectedStates() {
   await retrieveSelectedPathsAndLabelsForModelValue();
-  ontologyTree.value.forEach((term) => {
+  ontologyTree.value?.forEach((term) => {
     applyStateToNode(term);
   });
 }
