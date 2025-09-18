@@ -136,7 +136,7 @@ const query = gql`
       }
       organisationsInvolved(orderby: {name: ASC})  {
         id
-        name
+        organisationsName ${moduleToString(ontologyFragment)}
         website
         acronym
         isLeadOrganisation

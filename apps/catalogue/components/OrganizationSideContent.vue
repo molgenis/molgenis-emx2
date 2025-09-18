@@ -6,7 +6,7 @@ const props = defineProps<{
 </script>
 <template>
   <ContentBlockModal
-    :title="props.organisation.name ?? ''"
+    :title="props.organisation.organisationName.name ?? ''"
     description="Lead organisation"
   >
     <CatalogueItemList
