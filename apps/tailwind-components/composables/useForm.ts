@@ -431,9 +431,6 @@ export default function useForm(
       const target = document.getElementById(elementId);
       if (container && target) {
         const offset = target.offsetTop - container.offsetTop;
-        console.log("container clientHeight:", container.clientHeight);
-        console.log("container scrollHeight:", container.scrollHeight);
-        console.log("container scrollTop:", container.scrollTop);
         container.scrollTo({ top: offset, behavior: "smooth" });
       } else {
         // try again on the next frame until the element exists
