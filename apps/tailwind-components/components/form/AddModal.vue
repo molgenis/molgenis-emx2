@@ -275,6 +275,8 @@ const {
   rowKey,
   sections,
   visibleColumns,
+  currentSection,
+  visibleMap,
 } = useForm(props.metadata, formValues, "fields-container");
 
 function reAuthenticate() {

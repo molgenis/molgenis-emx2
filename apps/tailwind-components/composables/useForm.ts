@@ -85,6 +85,9 @@ export default function useForm(
       //no real sections included, then empty list so no section menu will be shown
       return [];
     }
+    if (!currentSection.value) {
+      currentSection.value = sectionList[0].id;
+    }
     return sectionList;
   });
 
@@ -279,59 +282,56 @@ export default function useForm(
 
   const updateVisibility = () => {
     logger.debug("updateVisibility");
-    let currentSection: IColumn | undefined = undefined;
+    let previousSection: IColumn | undefined = undefined;
     let sectionColumns: string[] = [];
-    let currentHeading: IColumn | undefined = undefined;
+    let previousHeading: IColumn | undefined = undefined;
     let headingColumns: string[] = [];
     metadata.value.columns.forEach((c) => {
       if (c.columnType === "HEADING") {
-        if (currentHeading) {
+        if (previousHeading) {
           //heading is only visible if some columns are also visible
-          visibleMap[currentHeading.id] =
-            visibleMap[currentHeading.id] &&
+          visibleMap[previousHeading.id] =
+            visibleMap[previousHeading.id] &&
             headingColumns.some((columnId) => visibleMap[columnId]);
         }
         headingColumns = [];
-        currentHeading = c;
+        previousHeading = c;
+        sectionColumns.push(c.id);
       } else if (c.columnType === "SECTION") {
-        if (currentSection) {
+        if (previousSection) {
           //section is only visible if some columns are also visible
-          visibleMap[currentSection.id] =
-            visibleMap[currentSection.id] &&
+          visibleMap[previousSection.id] =
+            visibleMap[previousSection.id] &&
             sectionColumns.some((columnId) => visibleMap[columnId]);
         }
         sectionColumns = [];
         headingColumns = []; //section also resets heading
-        currentSection = c;
-        currentHeading = undefined;
+        previousSection = c;
+        previousHeading = undefined;
       } else {
         headingColumns.push(c.id);
         sectionColumns.push(c.id);
       }
       //column is shown if section is visible AND heading is visible AND the column is visible
-      visibleMap[c.id] =
-        (c.columnType === "HEADING" ||
-          !currentHeading ||
-          visibleMap[currentHeading.id]) &&
-        isColumnVisible(c, formValues.value, metadata.value)
-          ? true
-          : false;
-      //empty invisible columns
+      visibleMap[c.id] = isColumnVisible(c, formValues.value, metadata.value)
+        ? true
+        : false;
+      // empty invisible columns
       // (tricky business, users might be hurt, and we require visible expressions to point 'backwards' never 'forwards')
       if (!visibleMap[c.id]) {
         formValues.value[c.id] = undefined;
       }
     });
     //check visibility of last heading
-    if (currentHeading) {
-      visibleMap[(currentHeading as IColumn).id] =
-        visibleMap[(currentHeading as IColumn).id] &&
+    if (previousHeading) {
+      visibleMap[(previousHeading as IColumn).id] =
+        visibleMap[(previousHeading as IColumn).id] &&
         headingColumns.some((columnId) => visibleMap[columnId]);
     }
     //check visibility of last section
-    if (currentSection) {
-      visibleMap[(currentSection as IColumn).id] =
-        visibleMap[(currentSection as IColumn).id] &&
+    if (previousSection) {
+      visibleMap[(previousSection as IColumn).id] =
+        visibleMap[(previousSection as IColumn).id] &&
         sectionColumns.some((columnId) => visibleMap[columnId]);
     }
   };
@@ -362,6 +362,9 @@ export default function useForm(
   };
 
   const visibleColumns = computed(() => {
+    if (!currentSection.value) {
+      currentSection.value = sections.value[0]?.id;
+    }
     return metadata.value?.columns.filter(
       (column) =>
         visibleMap[column.id] && currentSection.value === column.section
@@ -444,9 +447,6 @@ export default function useForm(
   watch(
     () => metadata?.value,
     () => {
-      if (!currentSection.value) {
-        currentSection.value = metadata.value?.columns[0]?.id;
-      }
       //update visible expressions
       updateVisibility();
     },
@@ -487,6 +487,7 @@ export default function useForm(
     invisibleColumns,
     errorMap,
     validateAllColumns,
+    visibleMap,
     rowKey,
     lastScrollTo, //for debug
   };

@@ -72,7 +72,7 @@ onMounted(() => {
               ? 'md:text-heading-4xl text-heading-4xl'
               : 'md:text-heading-5xl text-heading-5xl'
           "
-          v-if="column.label"
+          v-if="column.id != '_mg_top_of_form'"
         >
           {{ column.label }}
         </h2>

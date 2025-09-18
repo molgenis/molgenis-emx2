@@ -19,6 +19,7 @@
           @click.prevent="emit('goToSection', section.id)"
         >
           <span
+            v-if="section.id != '_mg_top_of_form'"
             class="text-title-contrast capitalize"
             :class="{
               'font-bold': section.isActive,
@@ -60,7 +61,7 @@ const emit = defineEmits(["goToSection"]);
 const hasSections = computed(() => {
   //anonymous sections don't have a label
   return props.sections.some(
-    (section) => section.type === "SECTION" && section.label
+    (section) => section.type === "SECTION" && section.id !== "_mg_top_of_form"
   );
 });
 </script>
