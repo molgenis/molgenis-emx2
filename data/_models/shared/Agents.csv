@@ -13,4 +13,4 @@ Agents,,logo,file,,,,,,,,type?.name === 'Organisation',,foaf:logo,Logo of the or
 Agents,,role,ontology_array,,,CatalogueOntologies,Organisation roles,,,,type?.name === 'Organisation',,,Type(s) of contribution or role in the resource,"DataCatalogueFlat,EMA,CohortsStaging,RWEStaging,NetworksStaging,StudiesStaging,UMCGCohortsStaging,UMCUCohorts,INTEGRATE,FAIR Genomes",
 Agents,,organisation name,,,,,,,,,,,foaf:name,"Organisation name, copied value from ROR ontology for DCAT conform RDF generation","DataCatalogueFlat,EMA",
 Agents,,organisation pid,,,,,,,,,,,dcterms:identifier,"ROR id, copied value from ROR ontology for DCAT conform RDF generation","DataCatalogueFlat,EMA",
-Agents,,organisation website,,,,,,,,,,,foaf:homepage,"Organisation website, copied value from ROR ontology for DCAT conform RDF generation","DataCatalogueFlat,EMA",
+Agents,,organisation website,hyperlink,,,,,,,,,,foaf:homepage,"Organisation website, copied value from ROR ontology for DCAT conform RDF generation","DataCatalogueFlat,EMA",
