@@ -1,5 +1,4 @@
-import { ISchemaMetaData } from "../../src/types";
-
+import type { ISchemaMetaData } from "../../src/types";
 
 export const petStoreMetadata: ISchemaMetaData = {
   id: "pet store",
