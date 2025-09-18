@@ -1,6 +1,7 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
 
@@ -35,11 +36,19 @@ public class TestGraphqlPermissions {
     PET_STORE.getImportTask(schema, true).run();
     graphQLDatabase = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
     graphQLSchema = new GraphqlApiFactory().createGraphqlForSchema(schema);
+
+    if (database.hasUser("testViewer")) database.removeUser("testViewer");
+    if (database.hasUser("testEditorSpecial")) database.removeUser("testEditorSpecial");
+    if (database.hasUser("testEditor")) database.removeUser("testEditor");
   }
 
   @Test
   @Order(1)
   public void testCreatePermissionGroup() throws IOException {
+    executeDb("mutation{signup(email:\"testViewer\",password:\"test123456\"){message}}");
+    executeDb("mutation{signup(email:\"testEditorSpecial\",password:\"test123456\"){message}}");
+    executeDb("mutation{signup(email:\"testEditor\",password:\"test123456\"){message}}");
+
     executeSchema(
         """
             mutation {
@@ -49,7 +58,22 @@ public class TestGraphqlPermissions {
                   tableId: "Order",
                   isRowLevel: true,
                   hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false,
-                  users: ["test@test.com", "test2@test.com"]
+                  users: ["testEditorSpecial", "someOtherUser@test.com"]
+                }
+              ]) {
+                message
+              }
+            }""");
+
+    // TODO: this overwrites the permissions when left empty
+    executeSchema(
+        """
+            mutation {
+              change(permissions: [
+                {
+                  groupName: "TestGraphqlPermissions/Editor",
+                  hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false,
+                  users: ["testEditor"]
                 }
               ]) {
                 message
@@ -116,7 +140,17 @@ public class TestGraphqlPermissions {
                 """
                 .formatted(order.get("orderId").asText()));
 
-    String test = "Test";
+    executeDb("mutation{signin(email:\"testViewer\",password:\"test123456\"){message}}");
+    assertThrows(
+        MolgenisException.class,
+        () ->
+            executeSchema(
+                "mutation {insert(Order: {pet: {name: \"pooky\"}, quantity: 5 }) { message }}"));
+
+    assertEquals("testViewer", database.getActiveUser());
+    executeDb("mutation{signin(email:\"testEditor\",password:\"test123456\"){message}}");
+    assertEquals("testEditor", database.getActiveUser());
+    executeSchema("mutation {insert(Order: {pet: {name: \"pooky\"}, quantity: 5 }) { message }}");
   }
 
   private JsonNode executeSchema(String query) throws IOException {
