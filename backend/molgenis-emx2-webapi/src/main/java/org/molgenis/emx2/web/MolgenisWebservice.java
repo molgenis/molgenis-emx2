@@ -1,9 +1,9 @@
 package org.molgenis.emx2.web;
 
-import static org.molgenis.emx2.Constants.OIDC_CALLBACK_PATH;
-import static org.molgenis.emx2.Constants.OIDC_LOGIN_PATH;
+import static org.molgenis.emx2.Constants.*;
 import static org.molgenis.emx2.json.JsonExceptionMapper.molgenisExceptionToJson;
 import static org.molgenis.emx2.web.Constants.*;
+import static org.molgenis.emx2.web.Constants.TABLE;
 import static org.molgenis.emx2.web.util.EncodingHelpers.encodePathSegment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,7 +40,8 @@ public class MolgenisWebservice {
       "oidc-login"; // in nuxt '_' indicates a dynamic route
   private static final String ROBOTS_TXT = "robots.txt";
   private static final String USER_AGENT_ALLOW = "User-agent: *\nAllow: /";
-  public static MolgenisSessionManager sessionManager;
+  public static final ApplicationCachePerUser applicationCache =
+      ApplicationCachePerUser.getInstance();
   public static OIDCController oidcController;
   static URL hostUrl;
 
@@ -49,8 +50,6 @@ public class MolgenisWebservice {
   }
 
   public static void start(int port) {
-
-    sessionManager = new MolgenisSessionManager();
     oidcController = new OIDCController();
     Javalin app =
         Javalin.create(
@@ -58,8 +57,6 @@ public class MolgenisWebservice {
                   config.http.maxRequestSize = MAX_REQUEST_SIZE;
                   config.router.ignoreTrailingSlashes = true;
                   config.router.treatMultipleSlashesAsSingleSlash = true;
-                  config.jetty.modifyServletContextHandler(
-                      handler -> handler.setSessionHandler(sessionManager.getSessionHandler()));
                   config.jsonMapper(
                       new JavalinJackson()
                           .updateMapper(
@@ -92,7 +89,7 @@ public class MolgenisWebservice {
         ctx -> {
           // check for setting
           String landingPagePath =
-              sessionManager.getSession(ctx.req()).getDatabase().getSetting(LANDING_PAGE);
+              applicationCache.getDatabaseForUser(ctx).getSetting(LANDING_PAGE);
           if (landingPagePath != null) {
             ctx.redirect(landingPagePath);
           } else {
@@ -124,10 +121,10 @@ public class MolgenisWebservice {
     FileApi.create(app);
     JsonYamlApi.create(app);
     TaskApi.create(app);
-    GraphqlApi.createGraphQLservice(app, sessionManager);
-    RDFApi.create(app, sessionManager);
-    BeaconApi.create(app, sessionManager);
-    CafeVariomeApi.create(app, sessionManager);
+    GraphqlApi.createGraphQLservice(app);
+    RDFApi.create(app);
+    BeaconApi.create(app);
+    CafeVariomeApi.create(app);
     BootstrapThemeService.create(app);
     ProfilesApi.create(app);
     AnalyticsApi.create(app);
@@ -220,7 +217,7 @@ public class MolgenisWebservice {
         "graphql: <a href=\"/api/graphql/\">/api/graphql    </a> <a href=\"/api/playground.html?schema=/api/graphql\">playground</a>");
 
     result.append("<p/>Schema APIs:<ul>");
-    for (String name : sessionManager.getSession(ctx.req()).getDatabase().getSchemaNames()) {
+    for (String name : applicationCache.getDatabaseForUser(ctx).getSchemaNames()) {
       result.append("<li>").append(name);
       result.append(" <a href=\"/" + name + "/api/openapi\">openapi</a>");
       result.append(
@@ -291,10 +288,10 @@ public class MolgenisWebservice {
     if (schemaName == null) {
       return null;
     }
-    return sessionManager.getSession(ctx.req()).getDatabase().getSchema(sanitize(schemaName));
+    return applicationCache.getSchemaForUser(sanitize(schemaName), ctx);
   }
 
   public static Collection<String> getSchemaNames(Context ctx) {
-    return sessionManager.getSession(ctx.req()).getDatabase().getSchemaNames();
+    return applicationCache.getDatabaseForUser(ctx).getSchemaNames();
   }
 }
