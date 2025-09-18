@@ -113,8 +113,11 @@ class Transform:
                                    'website': 'organisation website'}, inplace=True)
             # get organisation details
             df_organisations = df_organisations.merge(df_ror, how='left', on='pid')
+            df_organisations.rename(columns={'pid': 'organisation pid'}, inplace=True)
             # get organisation name in ref column
             df_organisations['organisation'] = df_organisations['organisation name']
+            # get pids not in ror out of organisation pid column
+            df_organisations['organisation pid'] = df_organisations.apply(clean_pid, axis=1)
             # get other organisation name or pid not found in ror
             df_organisations['other organisation'] = df_organisations.apply(get_other_name, axis=1)
 
@@ -252,11 +255,18 @@ class Transform:
         df_subpopulations.to_csv(self.path + 'Subpopulations.csv', index=False)
 
 
+def clean_pid(row):
+    if pd.isna('organisation'):
+        return None
+    else:
+        return row['organisation pid']
+
+
 def get_other_name(row):
-    if pd.isna(row['pid']):
+    if pd.isna(row['organisation pid']):
         return row['name']
     elif pd.isna(row['organisation']):
-        return row['pid']
+        return row['organisation pid']
     else:
         return None
 
