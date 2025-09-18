@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type {
   IFilter,
+  IFilterCondition,
   IOntologyFilter,
   IRefArrayFilter,
 } from "~/interfaces/types";
@@ -42,10 +43,10 @@ function handleFilerUpdate(filter: IFilter) {
         v-for="filter in filters"
         :title="filter.config.label"
         :conditions="(filter as IOntologyFilter | IRefArrayFilter).conditions ? (filter as IOntologyFilter | IRefArrayFilter).conditions : []"
-        @update:conditions="(value) => {(filter as IOntologyFilter).conditions = value; handleFilerUpdate(filter)}"
+        @update:conditions="(value: IFilterCondition[]) => {(filter as IOntologyFilter).conditions = value; handleFilerUpdate(filter)}"
         :search="filter.search"
         @update:search="
-          (value) => {
+          (value: string | undefined) => {
             filter.search = value;
             handleFilerUpdate(filter);
           }
@@ -58,7 +59,7 @@ function handleFilerUpdate(filter: IFilter) {
           :mobileDisplay="mobileDisplay"
           :model-value="filter.search || ''"
           @update:model-value="
-            (value) => {
+            (value: string | undefined) => {
               filter.search = value;
               handleFilerUpdate(filter);
             }
@@ -71,7 +72,7 @@ function handleFilerUpdate(filter: IFilter) {
           :mobileDisplay="mobileDisplay"
           :filterLabel="filter.config.label"
           :model-value="(filter as IOntologyFilter).conditions "
-          @update:model-value="(value) => {(filter as IOntologyFilter).conditions = value; handleFilerUpdate(filter)}"
+          @update:model-value="(value: IFilterCondition[]) => {(filter as IOntologyFilter).conditions = value; handleFilerUpdate(filter)}"
         />
         <FilterList
           v-else-if="filter.config.type === 'REF_ARRAY'"
@@ -81,7 +82,7 @@ function handleFilerUpdate(filter: IFilter) {
           :descriptionField="filter.config.refFields?.description"
           :options="(filter as IRefArrayFilter).options"
           :model-value="(filter as IRefArrayFilter).conditions"
-          @update:model-value="(value) => {(filter as IRefArrayFilter).conditions = value; handleFilerUpdate(filter)}"
+          @update:model-value="(value: IFilterCondition[]) => {(filter as IRefArrayFilter).conditions = value; handleFilerUpdate(filter)}"
         />
       </FilterContainer>
     </template>
