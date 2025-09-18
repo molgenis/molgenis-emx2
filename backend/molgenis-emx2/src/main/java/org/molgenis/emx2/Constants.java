@@ -42,6 +42,7 @@ public class Constants {
   public static final String MG_INSERTEDON = "mg_insertedOn";
   public static final String MG_UPDATEDBY = "mg_updatedBy";
   public static final String MG_UPDATEDON = "mg_updatedOn";
+  public static final String MG_GROUP = "mg_group";
 
   public static final String TEXT_SEARCH_COLUMN_NAME = "_TEXT_SEARCH_COLUMN";
   public static final String SETTINGS_TABLE = "molgenis_settings";
@@ -49,6 +50,8 @@ public class Constants {
   public static final String SETTINGS_NAME = "key";
   public static final String SETTINGS_VALUE = "value";
   public static final String SETTINGS_USER = "user";
+
+  public static final String PERMISSIONS = "permissions";
 
   public static final String MOLGENIS_POSTGRES_URI = "MOLGENIS_POSTGRES_URI";
   public static final String MOLGENIS_POSTGRES_USER = "MOLGENIS_POSTGRES_USER";
