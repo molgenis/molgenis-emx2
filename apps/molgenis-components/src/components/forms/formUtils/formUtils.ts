@@ -364,7 +364,7 @@ export function splitColumnIdsByHeadings(columns: IColumn[]): string[][] {
       if (accum.length === 0) {
         accum.push([] as string[]);
       }
-      accum[accum.length - 1].push(column.id);
+      accum[accum.length - 1]?.push(column.id);
     }
     return accum;
   }, [] as string[][]);
