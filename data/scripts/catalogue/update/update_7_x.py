@@ -252,15 +252,6 @@ class Transform:
         df_subpopulations.to_csv(self.path + 'Subpopulations.csv', index=False)
 
 
-def get_ror_name(pid, dict_ror):
-    if not pd.isna(pid):
-        try:
-            organisation_name = dict_ror[pid]
-            return organisation_name
-        except KeyError:
-            return None
-
-
 def get_other_name(row):
     if pd.isna(row['pid']):
         return row['name']
