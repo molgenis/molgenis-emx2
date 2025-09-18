@@ -173,7 +173,8 @@ public class ApplicationCachePerUser {
         k -> {
           logger.info(
               "create graphqlSchemaApi '{}' cache for user {}", schemaName, getUserKey(ctx));
-          return graphqlApiFactory.createGraphqlForSchema(getSchemaForUser(schemaName, ctx));
+          return graphqlApiFactory.createGraphqlForSchema(
+              getSchemaForUser(schemaName, ctx), TaskApi.taskService);
         });
   }
 

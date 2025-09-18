@@ -37,10 +37,16 @@ export function useGqlFetch<T, E>(
     key: `gql-${url}-${queryString}`,
     body,
     onResponseError(_ctx) {
+      let errorDetail = "";
+      try {
+        errorDetail = JSON.stringify(_ctx.response._data);
+      } catch (e) {
+        errorDetail = "Unknown error";
+      }
       logError({
         message: "onResponseError fetching data from GraphQL endpoint",
         statusCode: _ctx.response.status,
-        data: _ctx.response._data,
+        data: { errors: [{ message: errorDetail }] },
       });
     },
   };
