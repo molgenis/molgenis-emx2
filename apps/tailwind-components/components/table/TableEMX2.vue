@@ -8,8 +8,6 @@
       id="search-input"
     />
 
-    <span>Selected: {{ selectedRows.length }}</span>
-
     <div class="flex gap-[10px]">
       <AddModal
         v-if="props.isEditable && data?.tableMetadata"
@@ -37,13 +35,6 @@
       <table ref="table" class="text-left w-full table-fixed">
         <thead>
           <tr>
-            <TableHeadCell
-              v-if="isEditable"
-              class="border-r-theme border-color-theme w-[45px] h-[45px] absolute bg-table justify-right flex justify-center items-center"
-            >
-              <input type="checkbox" @change="handleSelectAll" />
-            </TableHeadCell>
-            <td v-if="isEditable" class="w-[45px]"></td>
             <TableHeadCell
               v-if="isEditable"
               class="absolute left-0 w-[1px] !p-0 m-0 border-none"
@@ -95,21 +86,13 @@
         >
           <tr
             v-if="rows"
-            v-for="(row, index) in rows"
+            v-for="row in rows"
             class="group"
             :class="{
               'hover:cursor-pointer': props.isEditable,
             }"
           >
             <TableBodyCell
-              v-if="isEditable"
-              class="text-table-row left-0 border-r-theme border-color-theme w-[45px] h-[45px] absolute bg-table justify-right flex justify-center items-center"
-            >
-              <span class="text-record-label"
-                ><input type="checkbox" @change="handleSelectRow(index)"
-              /></span>
-            </TableBodyCell>
-            <!-- <TableBodyCell
               v-if="isEditable"
               class="absolute left-0 h-10 w-[100px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none mt-1"
               :truncate="false"
@@ -151,8 +134,7 @@
                   {{ getRowId(row) }}
                 </Button>
               </div>
-            </TableBodyCell> -->
-            <td v-if="isEditable" class="w-[45px]"></td>
+            </TableBodyCell>
             <TableCellEMX2
               v-for="column in sortedVisibleColumns"
               class="text-table-row group-hover:bg-hover"
@@ -268,28 +250,6 @@ const refTableColumn = ref<IRefColumn>();
 // initially set to the current tableId
 const refSourceTableId = ref<string>(props.tableId);
 const columns = ref<IColumn[]>([]);
-
-const selectedRows = ref<number[]>([]);
-
-function handleSelectAll(event: Event) {
-  const target = event.target as HTMLInputElement;
-  if (target.checked) {
-    selectedRows.value = rows.value.map((_, index) => index);
-  } else {
-    selectedRows.value = [];
-  }
-}
-
-function handleSelectRow(rowIndex: number) {
-  console.log("Row index:", rowIndex);
-  const index = selectedRows.value.indexOf(rowIndex);
-  if (index > -1) {
-    selectedRows.value = selectedRows.value.filter((i) => i !== rowIndex);
-  } else {
-    selectedRows.value.push(rowIndex);
-  }
-  console.log("Selected rows:", selectedRows.value);
-}
 
 const settings = defineModel<ITableSettings>("settings", {
   required: false,
