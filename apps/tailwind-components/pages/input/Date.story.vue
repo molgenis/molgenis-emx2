@@ -18,7 +18,7 @@ const date = ref<DateValue>(new Date().toISOString().split("T")[0]);
       :valid="valid"
       :invalid="invalid"
       :disabled="disabled"
-      @update:model-value="(value) => (date = value)"
+      @update:model-value="(value: DateValue) => (date = value)"
     />
     <h3 class="mt-10 mb-2 text-title">Component output</h3>
     <StoryComponentOutput>
