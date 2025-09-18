@@ -38,8 +38,8 @@
       </header>
     </template>
 
-    <section class="grid grid-cols-4 gap-1">
-      <div class="col-span-1 bg-form-legend">
+    <section class="grid grid-cols-4 gap-1 min-h-0">
+      <div class="col-span-1 bg-form-legend overflow-y-auto h-full min-h-0">
         <FormLegend
           v-if="visible && sections"
           class="sticky top-0"
@@ -52,6 +52,17 @@
         id="fields-container"
         class="col-span-3 px-4 py-50px overflow-y-auto"
       >
+        <Button
+          v-if="previousSection"
+          type="text"
+          size="small"
+          icon="arrow-left"
+          icon-position="left"
+          class="pb-4"
+          @click="gotoSection(previousSection.id)"
+        >
+          previous section '{{ previousSection.label }}'
+        </Button>
         <FormFields
           v-if="visible"
           ref="formFields"
@@ -64,6 +75,17 @@
           @blur="onBlurColumn"
           @view="onViewColumn"
         />
+        <Button
+          v-if="nextSection"
+          type="text"
+          size="small"
+          iconPosition="right"
+          icon="arrow-right"
+          class="pb-4 justify-self-end"
+          @click="gotoSection(nextSection.id)"
+        >
+          next section '{{ nextSection.label }}'
+        </Button>
       </div>
     </section>
     <Transition name="slide-up">
@@ -127,6 +149,7 @@ import { errorToMessage } from "../../utils/errorToMessage";
 import FormFields from "./Fields.vue";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
 import { useSession } from "../../composables/useSession";
+import Button from "~/components/Button.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -218,15 +241,6 @@ async function onSave() {
 
 const formValues = ref<Record<string, columnValue>>({});
 
-function scrollToElementInside(containerId: string, elementId: string) {
-  const container = document.getElementById(containerId);
-  const element = document.getElementById(elementId);
-  if (container && element) {
-    container.scrollTop = element.offsetTop - container.offsetTop;
-    element.scrollIntoView();
-  }
-}
-
 function resetState() {
   formValues.value = {};
   errorMap.value = {};
@@ -250,6 +264,8 @@ const {
   gotoNextError,
   gotoPreviousError,
   gotoSection,
+  previousSection,
+  nextSection,
   insertInto,
   errorMap,
   onUpdateColumn,
@@ -259,9 +275,7 @@ const {
   rowKey,
   sections,
   visibleColumns,
-} = useForm(props.metadata, formValues, (fieldId) => {
-  scrollToElementInside("fields-container", fieldId);
-});
+} = useForm(props.metadata, formValues, "fields-container");
 
 function reAuthenticate() {
   session.reAuthenticate(

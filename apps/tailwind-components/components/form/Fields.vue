@@ -66,7 +66,7 @@ onMounted(() => {
         v-intersection-observer="[onIntersectionObserver, { root: container }]"
       >
         <h2
-          class="first:pt-0 pt-10 font-display text-form-header pb-8"
+          class="first:pt-0 pt-10 font-display text-form-header pb-8 scroll-mt-4"
           :class="
             column.columnType === 'HEADING'
               ? 'md:text-heading-4xl text-heading-4xl'

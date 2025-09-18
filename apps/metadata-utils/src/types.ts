@@ -114,6 +114,7 @@ export interface IFormLegendSection {
   id: string;
   isActive?: boolean;
   type: HeadingType;
+  section?: string;
   errorCount: number;
 }
 

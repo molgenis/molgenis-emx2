@@ -29,7 +29,7 @@ import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
   formValuesRef: MaybeRef<Record<columnId, columnValue>>,
-  scrollTo: (id: string) => void = () => {}
+  scrollContainerId: string = ""
 ) {
   const metadata = ref(unref(tableMetadata));
   if (isRef(tableMetadata)) {
@@ -50,6 +50,7 @@ export default function useForm(
   const errorMap = ref<Record<columnId, string>>({});
   const currentSection = ref<columnId>();
   const currentHeading = ref<columnId>();
+  const lastScrollTo = ref<columnId>();
 
   const sections = computed(() => {
     const sectionList: IFormLegendSection[] = [];
@@ -69,6 +70,7 @@ export default function useForm(
           label: column.label,
           id: column.id,
           isActive,
+          section: column.section,
           errorCount: metadata.value.columns.filter(
             (subcol) =>
               (subcol.heading === column.id || subcol.section === column.id) &&
@@ -87,12 +89,12 @@ export default function useForm(
   });
 
   const gotoSection = (id: string) => {
-    metadata.value.columns.forEach((col) => {
+    sections.value.forEach((section) => {
       //apply to the right id
-      if (col.id === id) {
-        if (col.columnType === "HEADING") {
-          currentSection.value = col.section;
-          currentHeading.value = col.id;
+      if (section.id === id) {
+        if (section.type === "HEADING") {
+          currentSection.value = section.section;
+          currentHeading.value = section.id;
         } else {
           currentSection.value = id;
           currentHeading.value = undefined;
@@ -360,9 +362,6 @@ export default function useForm(
   };
 
   const visibleColumns = computed(() => {
-    if (!currentSection.value) {
-      currentSection.value = metadata.value?.columns[0]?.id;
-    }
     return metadata.value?.columns.filter(
       (column) =>
         visibleMap[column.id] && currentSection.value === column.section
@@ -371,6 +370,28 @@ export default function useForm(
 
   const invisibleColumns = computed(() => {
     return metadata.value?.columns.filter((column) => !visibleMap[column.id]);
+  });
+
+  const nextSection = computed<IFormLegendSection | null>(() => {
+    const sectionList = sections.value.filter((s) => s.type === "SECTION");
+    const currentIndex = sectionList.findIndex(
+      (s) => s.id === currentSection.value
+    );
+    if (currentIndex >= 0 && currentIndex < sectionList.length - 1) {
+      return sectionList[currentIndex + 1];
+    }
+    return null;
+  });
+
+  const previousSection = computed<IFormLegendSection | null>(() => {
+    const sectionList = sections.value.filter((s) => s.type === "SECTION");
+    const currentIndex = sectionList.findIndex(
+      (s) => s.id === currentSection.value
+    );
+    if (currentIndex > 0) {
+      return sectionList[currentIndex - 1];
+    }
+    return null;
   });
 
   async function handleFetchError(error: any, message: string) {
@@ -401,9 +422,34 @@ export default function useForm(
     );
   }
 
+  function scrollTo(elementId: string) {
+    lastScrollTo.value = elementId;
+    const container = document.getElementById(scrollContainerId);
+
+    //lazy scroll, might need to wait for elements to be mounted first
+    function attemptScroll() {
+      const target = document.getElementById(elementId);
+      if (container && target) {
+        const offset = target.offsetTop - container.offsetTop;
+        console.log("container clientHeight:", container.clientHeight);
+        console.log("container scrollHeight:", container.scrollHeight);
+        console.log("container scrollTop:", container.scrollTop);
+        container.scrollTo({ top: offset, behavior: "smooth" });
+      } else {
+        // try again on the next frame until the element exists
+        requestAnimationFrame(attemptScroll);
+      }
+    }
+
+    attemptScroll();
+  }
+
   watch(
     () => metadata?.value,
     () => {
+      if (!currentSection.value) {
+        currentSection.value = metadata.value?.columns[0]?.id;
+      }
       //update visible expressions
       updateVisibility();
     },
@@ -426,6 +472,8 @@ export default function useForm(
     requiredMessage,
     errorMessage,
     gotoSection,
+    nextSection,
+    previousSection,
     gotoNextRequiredField,
     gotoPreviousRequiredField,
     gotoNextError,
@@ -443,5 +491,6 @@ export default function useForm(
     errorMap,
     validateAllColumns,
     rowKey,
+    lastScrollTo, //for debug
   };
 }

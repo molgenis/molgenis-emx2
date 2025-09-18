@@ -5,6 +5,7 @@ import type {
 } from "../../metadata-utils/src/types";
 import { useRoute, useRouter } from "#app/composables/router";
 import Legend from "../components/form/Legend.vue";
+import Button from "../components/Button.vue";
 import { useFetch, useAsyncData } from "#app";
 import { fetchMetadata, fetchTableData } from "#imports";
 import { ref, computed, watch } from "vue";
@@ -145,31 +146,11 @@ watch(
   },
   { immediate: true }
 );
-const containerId = "forms-story-fields-container";
-function scrollToElementInside(elementId: string) {
-  const container = document.getElementById(containerId);
-  const element = document.getElementById(elementId);
-
-  if (!container || !element) return;
-
-  const containerRect = container.getBoundingClientRect();
-  const elementRect = element.getBoundingClientRect();
-
-  const style = getComputedStyle(container);
-  const paddingTop = parseFloat(style.paddingTop);
-  const borderTop = container.clientTop; // usually same as clientTop
-
-  // Calculate how much to scroll so element's top aligns with container's inner top
-  const offset = elementRect.top - containerRect.top - paddingTop - borderTop;
-  container.scrollTo({
-    //just 1 pixel more, otherwise menu shows previous
-    top: container.scrollTop + offset + 1,
-  });
-}
 
 const {
   sections,
-  currentSection,
+  previousSection,
+  nextSection,
   visibleColumns,
   errorMap,
   gotoSection,
@@ -178,7 +159,7 @@ const {
   onBlurColumn,
   onViewColumn,
   rowKey,
-} = useForm(metadata, formValues, scrollToElementInside);
+} = useForm(metadata, formValues, "forms-story-fields-container");
 
 const numberOfFieldsWithErrors = computed(
   () => Object.values(errorMap.value).filter((error) => error.length > 0).length
@@ -200,6 +181,17 @@ const numberOfFieldsWithErrors = computed(
           class="overflow-y-auto max-h-[calc(95vh-232px)] min-w-1000px"
           :class="sections.length > 0 ? 'col-span-3' : 'col-span-4'"
         >
+          <Button
+            v-if="previousSection"
+            type="text"
+            size="small"
+            icon="arrow-left"
+            icon-position="left"
+            class="pb-4"
+            @click="gotoSection(previousSection.id)"
+          >
+            previous section '{{ previousSection.label }}'
+          </Button>
           <FormFields
             class="grow"
             :columns="visibleColumns"
@@ -210,6 +202,17 @@ const numberOfFieldsWithErrors = computed(
             @blur="onBlurColumn"
             @view="onViewColumn"
           />
+          <Button
+            v-if="nextSection"
+            type="text"
+            size="small"
+            iconPosition="right"
+            icon="arrow-right"
+            class="pb-4 justify-self-end"
+            @click="gotoSection(nextSection.id)"
+          >
+            next section '{{ nextSection.label }}'
+          </Button>
         </div>
       </div>
       <div class="ml-2 h-screen max-w-[325px]">
