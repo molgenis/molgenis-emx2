@@ -346,6 +346,7 @@ export default function useForm(
     if (errorMap.value[column.id]) {
       validateColumn(column);
     }
+    updateVisibility();
   };
 
   const onViewColumn = (column: IColumn) => {
@@ -367,7 +368,9 @@ export default function useForm(
     }
     return metadata.value?.columns.filter(
       (column) =>
-        visibleMap[column.id] && currentSection.value === column.section
+        !column.id.startsWith("mg_") &&
+        visibleMap[column.id] &&
+        currentSection.value === column.section
     );
   });
 
