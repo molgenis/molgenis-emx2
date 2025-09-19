@@ -98,7 +98,7 @@ const schema = ref<string>("");
 
 retrieveUsers();
 schemas.value = await getSchemas();
-schema.value = schemas.value.length ? schemas.value[0].id : "";
+schema.value = schemas.value.length ? schemas.value[0]?.id ?? "" : "";
 roles.value = await getRoles(schemas.value);
 
 const usernames = computed(() => {
