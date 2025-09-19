@@ -7,7 +7,8 @@
     :data-valid="valid"
     :data-invalid="invalid"
     type="Date"
-    v-model="modelValue"
+    v-model:="internalValue"
+    @update:modelValue="handleUpdate"
     model-type="format"
     month-name-format="long"
     :format="inputDateFormat"
@@ -20,8 +21,7 @@
       selectOnFocus: true,
       escClose: true,
     }"
-    @focus="$emit('focus')"
-    @blur="$emit('blur')"
+    @blur="handleBlur"
   />
 </template>
 
@@ -30,7 +30,7 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import type { IInputProps } from "../../types/types";
 import type { DateValue } from "../../../metadata-utils/src/types";
-import { watch, ref, onBeforeMount } from "vue";
+import { watch, ref, onMounted } from "vue";
 
 const props = defineProps<
   IInputProps & {
@@ -40,7 +40,8 @@ const props = defineProps<
 
 const inputDateFormat: string = "yyyy-MM-dd HH:mm:ss";
 const datePlaceholder = ref<string>(inputDateFormat);
-const modelValue = defineModel<DateValue>();
+//vue-date-picker emitted to many events so we need a filter
+const internalValue = ref<DateValue>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
 
 function setPlaceholder(value?: DateValue) {
@@ -51,12 +52,21 @@ function setPlaceholder(value?: DateValue) {
   }
 }
 
-function setModelValue(value: DateValue) {
-  modelValue.value = value ? (value as string).split("T").join(" ") : value;
+function handleUpdate(newValue: string) {
+  if (newValue !== props.modelValue) {
+    emit("update:modelValue", newValue);
+  }
 }
 
-onBeforeMount(() => {
-  setModelValue(props.modelValue);
+function handleBlur() {
+  //check that actually something relevant happened
+  if (internalValue.value !== props.modelValue) {
+    emit("blur");
+  }
+}
+
+onMounted(() => {
+  internalValue.value = props.modelValue;
   setPlaceholder(props.modelValue);
 });
 
@@ -68,9 +78,9 @@ watch(
 );
 
 watch(
-  () => modelValue.value,
+  () => props.modelValue,
   () => {
-    emit("update:modelValue", modelValue.value);
+    internalValue.value = props.modelValue;
   }
 );
 </script>

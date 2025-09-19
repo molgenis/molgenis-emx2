@@ -1,30 +1,109 @@
-import { type MaybeRef, type Ref, computed, toRef, ref } from "vue";
+import {
+  computed,
+  ref,
+  reactive,
+  watch,
+  type MaybeRef,
+  unref,
+  isRef,
+} from "vue";
 import type {
   columnValue,
   ITableMetaData,
   IColumn,
   columnId,
+  IFormLegendSection,
 } from "../../metadata-utils/src/types";
 import { toFormData } from "../utils/toFormData";
 import { getPrimaryKey } from "../utils/getPrimaryKey";
+import logger from "../utils/logger";
+import {
+  getColumnError,
+  isColumnVisible,
+} from "../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { useSession } from "#imports";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
+import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
 
 export default function useForm(
-  metadata: MaybeRef<ITableMetaData>,
-  formValues: MaybeRef<Record<columnId, columnValue>>,
-  errorMap: Ref<Record<columnId, string>>,
-  scrollTo: (id: string) => void
+  tableMetadata: MaybeRef<ITableMetaData>,
+  formValuesRef: MaybeRef<Record<columnId, columnValue>>,
+  scrollTo: (id: string) => void = () => {}
 ) {
+  const metadata = ref(unref(tableMetadata));
+  if (isRef(tableMetadata)) {
+    watch(tableMetadata, (val) => (metadata.value = val), {
+      immediate: true,
+      deep: true,
+    });
+  }
+  const formValues = ref(unref(formValuesRef));
+  if (isRef(formValuesRef)) {
+    watch(formValuesRef, (val) => (formValues.value = val), {
+      immediate: true,
+      deep: true,
+    });
+  }
+
+  const visibleMap = reactive<Record<columnId, boolean>>({});
+  const errorMap = ref<Record<columnId, string>>({});
+  const currentHeading = ref<columnId>();
+
+  const sections = computed(() => {
+    const sectionList: IFormLegendSection[] = [];
+    if (!metadata.value) return sectionList;
+    for (const column of visibleColumns.value) {
+      let isActive = false;
+      if (column.id === currentHeading.value) {
+        isActive = true;
+      }
+      if (["HEADING"].includes(column.columnType)) {
+        const heading = {
+          label: column.label,
+          id: column.id,
+          isActive,
+          errorCount: metadata.value.columns.filter(
+            (subcol) =>
+              subcol.heading === column.id && errorMap.value[subcol.id]
+          ).length,
+        };
+        sectionList.push(heading);
+      }
+    }
+    if (!sectionList.some((section) => section.label)) {
+      //no real sections included, then empty list so no section menu will be shown
+      return [];
+    }
+    return sectionList;
+  });
+
+  const gotoSection = (id: string) => {
+    metadata.value.columns.forEach((col) => {
+      //apply to the right id
+      if (col.id === id) {
+        if (col.columnType === "HEADING") {
+          currentHeading.value = col.id;
+        } else {
+          currentHeading.value = undefined;
+        }
+        scrollTo(id + "-form-field");
+      }
+    });
+  };
+
+  /** return required, visible fields across all sections */
   const requiredFields = computed(() => {
-    return toRef(metadata).value.columns.filter(
-      (column: IColumn) => column.required
+    return metadata.value?.columns.filter(
+      (column: IColumn) => visibleMap[column.id] && column.required
     );
   });
 
+  /** return required and empty, visible fields across all sections */
   const emptyRequiredFields = computed(() => {
-    return requiredFields.value.filter(
-      (column: IColumn) => !toRef(formValues).value[column.id]
+    return (
+      requiredFields.value?.filter(
+        (column: IColumn) => !formValues.value[column.id]
+      ) || []
     );
   });
 
@@ -47,53 +126,81 @@ export default function useForm(
       : "";
   });
 
-  const currentRequiredFieldId = ref<columnId | null>(null);
-
+  const currentRequiredField = ref<IColumn | null>(null);
   const gotoNextRequiredField = () => {
     if (!emptyRequiredFields.value || emptyRequiredFields.value.length === 0) {
       return;
     }
-    if (currentRequiredFieldId.value === null) {
-      currentRequiredFieldId.value = emptyRequiredFields.value[0].id;
+    if (currentRequiredField.value === null) {
+      currentRequiredField.value = emptyRequiredFields.value[0];
     } else {
       const currentIndex = emptyRequiredFields.value
         .map((column) => column.id)
-        .indexOf(currentRequiredFieldId.value);
+        .indexOf(currentRequiredField.value.id);
       const nextIndex = currentIndex + 1;
-      currentRequiredFieldId.value =
+      currentRequiredField.value =
         emptyRequiredFields.value[
           nextIndex >= emptyRequiredFields.value.length ? 0 : nextIndex
-        ].id;
+        ];
     }
-
-    scrollTo(`${currentRequiredFieldId.value}-form-field`);
+    scrollTo(`${currentRequiredField.value.id}-form-field`);
   };
-
   const gotoPreviousRequiredField = () => {
     if (!emptyRequiredFields.value) {
       return;
     }
-    if (currentRequiredFieldId.value === null) {
-      currentRequiredFieldId.value = emptyRequiredFields.value[0].id;
+    if (currentRequiredField.value === null) {
+      currentRequiredField.value = emptyRequiredFields.value[0];
     } else {
       const currentIndex = emptyRequiredFields.value
         .map((column) => column.id)
-        .indexOf(currentRequiredFieldId.value);
+        .indexOf(currentRequiredField.value.id);
       const prevIndex = currentIndex - 1;
-      currentRequiredFieldId.value =
+      currentRequiredField.value =
         emptyRequiredFields.value[
           prevIndex < 0 ? emptyRequiredFields.value.length - 1 : prevIndex
-        ].id;
+        ];
     }
-
-    scrollTo(`${currentRequiredFieldId.value}-form-field`);
+    scrollTo(`${currentRequiredField.value.id}-form-field`);
   };
 
-  const currentErrorFieldId = ref<columnId | null>(null);
+  const validateAllColumns = () => {
+    metadata.value.columns.forEach((column) => {
+      validateColumn(column);
+    });
+  };
+
+  const validateColumn = (column: IColumn) => {
+    const error = getColumnError(column, formValues.value, metadata.value);
+
+    if (error) {
+      errorMap.value[column.id] = error;
+    } else {
+      errorMap.value[column.id] = metadata.value.columns
+        .filter((c) => c.validation?.includes(column.id))
+        .map((c) => {
+          const result = getColumnError(c, formValues.value, metadata.value);
+          return result;
+        })
+        .join("");
+    }
+
+    // remove empty entries from the map
+    Object.entries(errorMap.value).forEach(([key, value]) => {
+      if (value == "" || value == undefined || value == null) {
+        delete errorMap.value[key];
+      }
+    });
+  };
+
+  const currentErrorField = ref<IColumn | null>(null);
 
   const gotoPreviousError = () => {
     const keys = Object.keys(errorMap.value);
-    const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
+    if (keys.length === null) {
+      return;
+    }
+    const currentIndex = keys.indexOf(currentErrorField.value?.id ?? "");
     const prevIndex = currentIndex - 1;
     const previousErrorColumnId =
       keys[prevIndex < 0 ? keys.length - 1 : prevIndex];
@@ -103,7 +210,10 @@ export default function useForm(
 
   const gotoNextError = () => {
     const keys = Object.keys(errorMap.value);
-    const currentIndex = keys.indexOf(currentErrorFieldId.value ?? "");
+    if (keys.length === null) {
+      return;
+    }
+    const currentIndex = keys.indexOf(currentErrorField.value?.id ?? "");
     const nextIndex = currentIndex + 1;
     const nextErrorColumnId = keys[nextIndex >= keys.length ? 0 : nextIndex];
 
@@ -111,7 +221,7 @@ export default function useForm(
   };
 
   const insertInto = (schemaId: string, tableId: string) => {
-    const formData = toFormData(toRef(formValues).value);
+    const formData = toFormData(formValues.value);
     const query = `mutation insert($value:[${tableId}Input]){insert(${tableId}:$value){message}}`;
     formData.append("query", query);
 
@@ -124,7 +234,7 @@ export default function useForm(
   };
 
   const updateInto = (schemaId: string, tableId: string) => {
-    const formData = toFormData(toRef(formValues).value);
+    const formData = toFormData(formValues.value);
     const query = `mutation update($value:[${tableId}Input]){update(${tableId}:$value){message}}`;
     formData.append("query", query);
 
@@ -135,7 +245,7 @@ export default function useForm(
   };
 
   const deleteRecord = async (schemaId: string, tableId: string) => {
-    const key = await getPrimaryKey(toRef(formValues).value, tableId, schemaId);
+    const key = await getPrimaryKey(formValues.value, tableId, schemaId);
     const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
     const variables = { pkey: [key] };
 
@@ -149,6 +259,73 @@ export default function useForm(
       handleFetchError(error, "Error on delete form database")
     );
   };
+
+  const updateVisibility = () => {
+    logger.debug("updateVisibility");
+    let currentHeading: IColumn | undefined = undefined;
+    let headingColumns: string[] = [];
+    metadata.value.columns.forEach((c) => {
+      if (c.columnType === "HEADING") {
+        if (currentHeading) {
+          //heading is only visible if some columns are also visible
+          visibleMap[currentHeading.id] =
+            visibleMap[currentHeading.id] &&
+            headingColumns.some((columnId) => visibleMap[columnId]);
+        }
+        headingColumns = [];
+        currentHeading = c;
+      } else {
+        headingColumns.push(c.id);
+      }
+      //column is shown if heading is visible and the column is visible
+      visibleMap[c.id] =
+        (c.columnType === "HEADING" ||
+          !currentHeading ||
+          visibleMap[currentHeading.id]) &&
+        isColumnVisible(c, formValues.value, metadata.value)
+          ? true
+          : false;
+      //empty invisible columns
+      // (tricky business, users might be hurt, and we require visible expressions to point 'backwards' never 'forwards')
+      if (!visibleMap[c.id]) {
+        formValues.value[c.id] = undefined;
+      }
+    });
+    //check visibility of last heading
+    if (currentHeading) {
+      visibleMap[(currentHeading as IColumn).id] =
+        visibleMap[(currentHeading as IColumn).id] &&
+        headingColumns.some((columnId) => visibleMap[columnId]);
+    }
+  };
+
+  const onBlurColumn = (column: IColumn) => {
+    validateColumn(column);
+    updateVisibility();
+  };
+
+  const onUpdateColumn = (column: IColumn) => {
+    //only update error map if error already shown so it is removed
+    if (errorMap.value[column.id]) {
+      validateColumn(column);
+    }
+  };
+
+  const onViewColumn = (column: IColumn) => {
+    if (column.columnType === "HEADING") {
+      currentHeading.value = column.id;
+    } else {
+      currentHeading.value = column.heading;
+    }
+  };
+
+  const visibleColumns = computed(() => {
+    return metadata.value?.columns.filter((column) => visibleMap[column.id]);
+  });
+
+  const invisibleColumns = computed(() => {
+    return metadata.value?.columns.filter((column) => !visibleMap[column.id]);
+  });
 
   async function handleFetchError(error: any, message: string) {
     if (error.statusCode && error.statusCode >= 400) {
@@ -164,11 +341,45 @@ export default function useForm(
     }
   }
 
+  const rowKey = ref<columnValue>();
+  //todo, find another way to produce rowkey
+  //if we refactor backend to give each row an internal molgenis_id we don't need this magic anymore
+  async function updateRowKey() {
+    console.log(
+      "update row key, is expensive should only fire when creating an update form"
+    );
+    rowKey.value = await fetchRowPrimaryKey(
+      formValues.value,
+      metadata.value.id,
+      metadata.value.schemaId as string
+    );
+  }
+
+  watch(
+    () => metadata?.value,
+    () => {
+      //update visible expressions
+      updateVisibility();
+    },
+    { immediate: true }
+  );
+  watch(
+    () => formValues.value,
+    async () => {
+      if (formValues.value) {
+        //should watch only pkey fields
+        //we could make this a prop
+        await updateRowKey();
+      }
+    }
+  );
+
   return {
     requiredFields,
     emptyRequiredFields,
     requiredMessage,
     errorMessage,
+    gotoSection,
     gotoNextRequiredField,
     gotoPreviousRequiredField,
     gotoNextError,
@@ -176,5 +387,14 @@ export default function useForm(
     insertInto,
     updateInto,
     deleteRecord,
+    onUpdateColumn,
+    onBlurColumn,
+    onViewColumn,
+    sections,
+    visibleColumns,
+    invisibleColumns,
+    errorMap,
+    validateAllColumns,
+    rowKey,
   };
 }
