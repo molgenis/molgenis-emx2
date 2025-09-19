@@ -252,6 +252,7 @@ const gqlFilter = computed(() => {
 });
 
 const { data } = await useFetch<any, IMgError>(`/${schema}/graphql`, {
+  key: `${query}-${JSON.stringify(gqlFilter.value)}-${currentPage.value}`,
   method: "POST",
   body: {
     query: query,
