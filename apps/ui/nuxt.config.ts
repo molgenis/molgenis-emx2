@@ -9,23 +9,12 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     logLevel: 4,
-    // public: {
-    //   apiBase: "https://emx2.dev.molgenis.org/"
-    // apiBase: "http://localhost:8080/"
-    // }
   },
 
   tailwindcss: {
     cssPath: "../tailwind-components/assets/css/main.css",
     configPath: "../tailwind-components/tailwind.config.js",
   },
-
-  // runtimeConfig: {
-  //   public: {
-  //     apiBase: "https://emx2.dev.molgenis.org/"
-  //     apiBase: "http://localhost:8080/"
-  //   }
-  // },
 
   vite: {
     base: ".",
