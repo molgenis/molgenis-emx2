@@ -41,7 +41,7 @@ const error = ref<string>();
 
 async function fetchShacls(): Promise<string> {
   const { data, error, status } = await useFetch<Resp<string>>(
-    `/${schema}/api/rdf?shacls`
+    `/api/rdf?shacls`
   );
 
   if (!data.value || error.value || status.value === "error") {
