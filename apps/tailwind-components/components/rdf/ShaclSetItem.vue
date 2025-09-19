@@ -26,7 +26,7 @@ type Resp<T> = {
   data: Record<string, T>;
 };
 
-type ShaclStatus = "ERROR" | "INVALID" | "RUNNING" | "UNKNOWN" | "VALID";
+type ShaclStatus = "UNKNOWN" | "RUNNING" | "VALID" | "INVALID" | "ERROR";
 
 const shaclStatus = ref<ShaclStatus>("UNKNOWN");
 const shaclOutput = ref<string>("Validate schema to view output");
@@ -36,17 +36,12 @@ const isDisabled = ref<boolean>(false);
 const showModal = ref<boolean>(false);
 
 function validateShaclOutput(output: string): boolean {
-  const outputSubstring = output.substring(0, 100);
-  const match1 = outputSubstring.match(
-    /(\[\] a sh:ValidationReport)/
-  ) as string[];
-  const match2 = outputSubstring.match(/(sh:conforms true\.)/) as string[];
-  return match1.length > 0 && match2.length > 0;
+  return  output.substring(0, 100).includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
 }
 
 async function runShacl() {
   isDisabled.value = true;
-  shaclOutput.value = "";
+  shaclOutput.value = "Running validation. Please wait.";
   shaclStatus.value = "RUNNING";
   shaclError.value = "";
 
@@ -135,7 +130,7 @@ async function runShacl() {
       >
         <span>{{ shaclError }}</span>
       </Message>
-      <DisplayOutput>
+      <DisplayOutput class="max-h-60 overflow-x-hidden">
         <pre>{{ shaclOutput }}</pre>
       </DisplayOutput>
     </div>
@@ -144,6 +139,7 @@ async function runShacl() {
     v-model:visible="showModal"
     :title="shaclSetTitle"
     subtitle="Validation Report"
+    maxWidth="max-w-7xl"
   >
     <DisplayOutput class="px-8 my-8">
       <pre>{{ shaclOutput }}</pre>
