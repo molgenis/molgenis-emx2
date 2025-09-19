@@ -172,7 +172,7 @@ const wrapperComponent = props.wrapperComponent ? ContentBlock : ContentAdded;
           </TableCell>
 
           <SideModal
-            :show="!!activeSideModal"
+            :show="activeSideModal === row[headers[0]?.id!]"
             :fullScreen="false"
             :slideInRight="true"
             @close="setActiveSideModal('')"
