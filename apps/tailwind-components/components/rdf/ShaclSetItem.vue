@@ -158,7 +158,7 @@ const isDownloadDisabled = computed(() => {
     subtitle="Validation Report"
     maxWidth="max-w-7xl"
   >
-    <DisplayOutput class="px-8 my-8 w-max">
+    <DisplayOutput class="px-8 my-8 w-max min-w-full">
       <pre>{{ shaclOutput }}</pre>
     </DisplayOutput>
   </Modal>
