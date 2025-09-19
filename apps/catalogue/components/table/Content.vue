@@ -32,7 +32,7 @@ const props = withDefaults(
 const pageSize = 10;
 let pageNumber: Ref = ref(1);
 let offset = computed(() => (pageNumber.value - 1) * pageSize);
-let orderByColumn = ref(props.headers[0].id);
+let orderByColumn = ref(props.headers[0]?.id ?? "");
 let orderby = {
   [orderByColumn.value]: "ASC",
 };
@@ -146,10 +146,10 @@ const wrapperComponent = props.wrapperComponent ? ContentBlock : ContentAdded;
         <TableRow
           v-else
           v-for="row in rows"
-          @click="setActiveSideModal(row[headers[0].id])"
+          @click="setActiveSideModal(row[headers[0]?.id!])"
         >
           <TableCell>
-            <span>{{ row[headers[0].id] }}</span>
+            <span>{{ headers[0]?.id ? row[headers[0].id] : "" }}</span>
             <dl class="font-normal sm:hidden text-gray-900">
               <template v-for="header in headers.slice(1)">
                 <dt class="font-bold mt-2.5">{{ header.label }}</dt>
@@ -172,7 +172,9 @@ const wrapperComponent = props.wrapperComponent ? ContentBlock : ContentAdded;
           </TableCell>
 
           <SideModal
-            :show="activeSideModal === row[headers[0].id]"
+            :show="
+              activeSideModal === row[headers[0]?.id && row[headers[0]?.id]]
+            "
             :fullScreen="false"
             :slideInRight="true"
             @close="setActiveSideModal('')"

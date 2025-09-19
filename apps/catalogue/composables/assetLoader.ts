@@ -4,6 +4,10 @@ export default {
       query: "?raw",
     });
     const match = logos[`../assets/logos/${assetName}.svg`];
-    return match();
+    if (typeof match === "function") {
+      return match();
+    } else {
+      throw new Error(`Asset not found: ${assetName}`);
+    }
   },
 };
