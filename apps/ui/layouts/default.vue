@@ -112,6 +112,9 @@ const navigation = computed(() => {
     { label: "About", link: "#" },
     { label: "Contact", link: "#" },
   ];
+  if (schema.value) {
+    items.push({ label: "RDF", link: `/${schema.value}/rdf` });
+  }
   if (schema.value && isAdmin.value) {
     items.push({ label: "Analytics", link: `/${schema.value}/analytics` });
   }
