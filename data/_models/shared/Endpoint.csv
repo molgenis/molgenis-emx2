@@ -4,7 +4,7 @@ Endpoint,,id,string,1,TRUE,,,,,,schema:identifier,"A unique proper name or chara
 Endpoint,,type,hyperlink_array,,TRUE,,,,,,rdf:type,This row is an instance of one or more of these class(es) other than the Endpoint table.,"FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,name,string_array,,TRUE,,,,,,dcterms:title,A name given to the resource.,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,version,text,,,,,,,,dcterms:hasVersion,An account of the resource version.,DataCatalogueFlat
-Endpoint,,description,text,,,,,,,,dcterms:description,An account of the resource.,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
+Endpoint,,description,text,,,,,,,,"dcat:endpointDescription,dcterms:description",An account of the resource.,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,publisher,ref_array,,TRUE,,Agents,,,,dcterms:publisher,An entity responsible for making the resource available.,"Beacon v2,FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,language,hyperlink_array,,,,,,,,dcterms:language,A language of the resource.,"FAIRDataPoint,DataCatalogueFlat"
 Endpoint,,license,hyperlink,,TRUE,,,,,,dcterms:license,A legal document giving official permission to do something with the resource.,"FAIRDataPoint,DataCatalogueFlat"
