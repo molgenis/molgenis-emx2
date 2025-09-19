@@ -105,11 +105,6 @@ const defaultSchemaMenuItems: MenuItem[] = [
     submenu: [],
   },
   {
-    label: "RDF",
-    href: "rdf/",
-    role: "Viewer",
-  },
-  {
     label: "Settings",
     href: "settings",
     role: "Manager",
