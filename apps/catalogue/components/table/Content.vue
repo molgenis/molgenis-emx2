@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { fetchGql } from "#imports";
 import type { DocumentNode } from "graphql";
-import { type Ref, ref, computed, watch, VueElement } from "vue";
+import { type Ref, ref, computed, watch } from "vue";
 import ContentBlock from "../../../tailwind-components/components/content/ContentBlock.vue";
 import ContentAdded from "../../../tailwind-components/components/content/ContentAdded.vue";
 
@@ -83,7 +83,7 @@ function setCurrentPage(newPageNumber: number) {
   fetchRows();
 }
 
-let activeSideModal = ref("");
+const activeSideModal = ref("");
 function setActiveSideModal(value: string) {
   activeSideModal.value = value;
 }
@@ -172,9 +172,7 @@ const wrapperComponent = props.wrapperComponent ? ContentBlock : ContentAdded;
           </TableCell>
 
           <SideModal
-            :show="
-              activeSideModal === row[headers[0]?.id && row[headers[0]?.id]]
-            "
+            :show="!!activeSideModal"
             :fullScreen="false"
             :slideInRight="true"
             @close="setActiveSideModal('')"
