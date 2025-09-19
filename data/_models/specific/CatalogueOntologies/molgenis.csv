@@ -3,7 +3,7 @@ Organisations,,,,,,,,,,,,"Metadata on an organisation (e.g., university, hospita
 Organisations,,name,string,1,TRUE,,,,,,,
 Organisations,,label,string,,,,,,,,,
 Organisations,,acronym,string,,,,,,,,,
-Organisations,,parent,ref,,,,Organisations,,,,,
+Organisations,,parent,select,,,,Organisations,,,,,
 Organisations,,codesystem,string,,,,,,,,,
 Organisations,,code,string,,,,,,,,,
 Organisations,,ontologyTermURI,hyperlink,,,,,,,,,
