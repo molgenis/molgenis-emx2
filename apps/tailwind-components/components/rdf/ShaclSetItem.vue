@@ -120,7 +120,7 @@ const isDownloadDisabled = computed(() => {
       <div class="p-2 flex justify-start items-center">
         <p class="w-full">Validation Report</p>
         <ButtonDownloadBlob
-            class="mr-1"
+          class="mr-1"
           type="outline"
           icon-only="true"
           size="tiny"
