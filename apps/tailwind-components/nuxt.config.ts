@@ -72,7 +72,8 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.MOLGENIS_APP_HOST || "https://emx2.dev.molgenis.org/",
+      apiBase:
+        process.env.MOLGENIS_APP_HOST || "https://emx2.dev.molgenis.org/",
       sourceCodeMap: sourceCodeMap,
     },
   },

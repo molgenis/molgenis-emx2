@@ -36,7 +36,9 @@ const isDisabled = ref<boolean>(false);
 const showModal = ref<boolean>(false);
 
 function validateShaclOutput(output: string): boolean {
-  return  output.substring(0, 100).includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
+  return output
+    .substring(0, 100)
+    .includes("[] a sh:ValidationReport;\n" + "  sh:conforms true.");
 }
 
 async function runShacl() {
