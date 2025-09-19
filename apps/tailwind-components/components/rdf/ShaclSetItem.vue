@@ -64,6 +64,10 @@ async function runShacl() {
 
   isDisabled.value = false;
 }
+
+const isDownloadDisabled = computed(() => {
+  return shaclStatus.value !== "VALID" && shaclStatus.value !== "INVALID";
+});
 </script>
 
 <template>
@@ -115,6 +119,17 @@ async function runShacl() {
     >
       <div class="p-2 flex justify-start items-center">
         <p class="w-full">Validation Report</p>
+        <ButtonDownloadBlob
+            class="mr-1"
+          type="outline"
+          icon-only="true"
+          size="tiny"
+          label="Download output"
+          :disabled="isDownloadDisabled"
+          :data="shaclOutput"
+          mediaType="text/turtle"
+          :fileName="`${schema} - shacl - ${props.shaclSet.name}.ttl`"
+        />
         <Button
           type="outline"
           :icon-only="true"
