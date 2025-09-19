@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { IValueLabel } from "~/types/types";
 
 const stackLegend = ref<boolean>(false);
 const legendMarkerShape = ref<"circle" | "square">("circle");
@@ -8,7 +7,7 @@ const legendEnableMultiselect = ref<boolean>(true);
 const legendItemHovered = ref<string>();
 const legendItemClicked = ref<string | string[]>();
 
-const legendEventsOptions: IValueLabel[] = [
+const legendEventsOptions = [
   { value: "hover", label: "Hovering" },
   { value: "click", label: "Clicking" },
 ];
