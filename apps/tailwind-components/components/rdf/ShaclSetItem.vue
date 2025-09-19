@@ -136,7 +136,7 @@ const isDownloadDisabled = computed(() => {
           icon="plus"
           size="tiny"
           label="View in full screen"
-          @click="showModal = !showModal"
+          @click.prevent="showModal = !showModal"
         />
       </div>
       <Message
