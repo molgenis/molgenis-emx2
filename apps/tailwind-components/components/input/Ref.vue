@@ -105,7 +105,10 @@ watch(
   () => modelValue.value,
   () => {
     if (props.isArray === false) {
-      delete selectionMap.value[Object.keys(selectionMap.value)[0]];
+      const key = Object.keys(selectionMap.value)[0];
+      if (key !== undefined) {
+        delete selectionMap.value[key];
+      }
       if (modelValue.value) {
         selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
           modelValue.value;

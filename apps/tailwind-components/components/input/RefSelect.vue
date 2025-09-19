@@ -265,7 +265,10 @@ function applyModelValueToSelection() {
     modelValue.value = [];
   }
   if (!props.multiselect) {
-    delete selectionMap.value[Object.keys(selectionMap.value)[0]];
+    const firstKey = Object.keys(selectionMap.value)[0];
+    if (firstKey !== undefined) {
+      delete selectionMap.value[firstKey];
+    }
     if (modelValue.value) {
       selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
         modelValue.value;

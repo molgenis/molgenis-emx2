@@ -86,7 +86,7 @@ const isRequired = (value: string | boolean): boolean =>
         :ref-table-id="column.refTableId"
         :ref-label="column.refLabel || column.refLabelDefault"
         :ref-back-id="column.refBackId"
-        :invalid="errorMap[column.id]?.length > 0"
+        :invalid="(errorMap[column.id] || '').length > 0"
         @update:modelValue="emit('update', column)"
         @blur="emit('blur', column)"
       />
