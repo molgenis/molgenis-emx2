@@ -12,6 +12,7 @@ import type {
   ITableMetaData,
   IColumn,
   columnId,
+  HeadingType,
   IFormLegendSection,
 } from "../../metadata-utils/src/types";
 import { toFormData } from "../utils/toFormData";
@@ -28,7 +29,7 @@ import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
   formValuesRef: MaybeRef<Record<columnId, columnValue>>,
-  scrollTo: (id: string) => void = () => {}
+  scrollContainerId: string = ""
 ) {
   const metadata = ref(unref(tableMetadata));
   if (isRef(tableMetadata)) {
@@ -47,25 +48,35 @@ export default function useForm(
 
   const visibleMap = reactive<Record<columnId, boolean>>({});
   const errorMap = ref<Record<columnId, string>>({});
+  const currentSection = ref<columnId>();
   const currentHeading = ref<columnId>();
+  const lastScrollTo = ref<columnId>();
 
   const sections = computed(() => {
     const sectionList: IFormLegendSection[] = [];
     if (!metadata.value) return sectionList;
-    for (const column of visibleColumns.value) {
+    for (const column of metadata.value?.columns.filter(
+      (c) => visibleMap[c.id]
+    )) {
       let isActive = false;
-      if (column.id === currentHeading.value) {
+      if (
+        column.id === currentSection.value ||
+        column.id === currentHeading.value
+      ) {
         isActive = true;
       }
-      if (["HEADING"].includes(column.columnType)) {
+      if (["HEADING", "SECTION"].includes(column.columnType)) {
         const heading = {
           label: column.label,
           id: column.id,
           isActive,
+          section: column.section,
           errorCount: metadata.value.columns.filter(
             (subcol) =>
-              subcol.heading === column.id && errorMap.value[subcol.id]
+              (subcol.heading === column.id || subcol.section === column.id) &&
+              errorMap.value[subcol.id]
           ).length,
+          type: column.columnType as HeadingType,
         };
         sectionList.push(heading);
       }
@@ -74,16 +85,21 @@ export default function useForm(
       //no real sections included, then empty list so no section menu will be shown
       return [];
     }
+    if (!currentSection.value) {
+      currentSection.value = sectionList[0].id;
+    }
     return sectionList;
   });
 
   const gotoSection = (id: string) => {
-    metadata.value.columns.forEach((col) => {
+    sections.value.forEach((section) => {
       //apply to the right id
-      if (col.id === id) {
-        if (col.columnType === "HEADING") {
-          currentHeading.value = col.id;
+      if (section.id === id) {
+        if (section.type === "HEADING") {
+          currentSection.value = section.section;
+          currentHeading.value = section.id;
         } else {
+          currentSection.value = id;
           currentHeading.value = undefined;
         }
         scrollTo(id + "-form-field");
@@ -143,6 +159,7 @@ export default function useForm(
           nextIndex >= emptyRequiredFields.value.length ? 0 : nextIndex
         ];
     }
+    currentSection.value = currentRequiredField.value.section;
     scrollTo(`${currentRequiredField.value.id}-form-field`);
   };
   const gotoPreviousRequiredField = () => {
@@ -161,6 +178,7 @@ export default function useForm(
           prevIndex < 0 ? emptyRequiredFields.value.length - 1 : prevIndex
         ];
     }
+    currentSection.value = currentRequiredField.value.section;
     scrollTo(`${currentRequiredField.value.id}-form-field`);
   };
 
@@ -205,6 +223,7 @@ export default function useForm(
     const previousErrorColumnId =
       keys[prevIndex < 0 ? keys.length - 1 : prevIndex];
 
+    currentSection.value = currentErrorField.value?.section;
     scrollTo(`${previousErrorColumnId}-form-field`);
   };
 
@@ -217,6 +236,7 @@ export default function useForm(
     const nextIndex = currentIndex + 1;
     const nextErrorColumnId = keys[nextIndex >= keys.length ? 0 : nextIndex];
 
+    currentSection.value = currentErrorField.value?.section;
     scrollTo(`${nextErrorColumnId}-form-field`);
   };
 
@@ -262,40 +282,57 @@ export default function useForm(
 
   const updateVisibility = () => {
     logger.debug("updateVisibility");
-    let currentHeading: IColumn | undefined = undefined;
+    let previousSection: IColumn | undefined = undefined;
+    let sectionColumns: string[] = [];
+    let previousHeading: IColumn | undefined = undefined;
     let headingColumns: string[] = [];
     metadata.value.columns.forEach((c) => {
       if (c.columnType === "HEADING") {
-        if (currentHeading) {
+        if (previousHeading) {
           //heading is only visible if some columns are also visible
-          visibleMap[currentHeading.id] =
-            visibleMap[currentHeading.id] &&
+          visibleMap[previousHeading.id] =
+            visibleMap[previousHeading.id] &&
             headingColumns.some((columnId) => visibleMap[columnId]);
         }
         headingColumns = [];
-        currentHeading = c;
+        previousHeading = c;
+        sectionColumns.push(c.id);
+      } else if (c.columnType === "SECTION") {
+        if (previousSection) {
+          //section is only visible if some columns are also visible
+          visibleMap[previousSection.id] =
+            visibleMap[previousSection.id] &&
+            sectionColumns.some((columnId) => visibleMap[columnId]);
+        }
+        sectionColumns = [];
+        headingColumns = []; //section also resets heading
+        previousSection = c;
+        previousHeading = undefined;
       } else {
         headingColumns.push(c.id);
+        sectionColumns.push(c.id);
       }
-      //column is shown if heading is visible and the column is visible
-      visibleMap[c.id] =
-        (c.columnType === "HEADING" ||
-          !currentHeading ||
-          visibleMap[currentHeading.id]) &&
-        isColumnVisible(c, formValues.value, metadata.value)
-          ? true
-          : false;
-      //empty invisible columns
+      //column is shown if section is visible AND heading is visible AND the column is visible
+      visibleMap[c.id] = isColumnVisible(c, formValues.value, metadata.value)
+        ? true
+        : false;
+      // empty invisible columns
       // (tricky business, users might be hurt, and we require visible expressions to point 'backwards' never 'forwards')
       if (!visibleMap[c.id]) {
         formValues.value[c.id] = undefined;
       }
     });
     //check visibility of last heading
-    if (currentHeading) {
-      visibleMap[(currentHeading as IColumn).id] =
-        visibleMap[(currentHeading as IColumn).id] &&
+    if (previousHeading) {
+      visibleMap[(previousHeading as IColumn).id] =
+        visibleMap[(previousHeading as IColumn).id] &&
         headingColumns.some((columnId) => visibleMap[columnId]);
+    }
+    //check visibility of last section
+    if (previousSection) {
+      visibleMap[(previousSection as IColumn).id] =
+        visibleMap[(previousSection as IColumn).id] &&
+        sectionColumns.some((columnId) => visibleMap[columnId]);
     }
   };
 
@@ -309,22 +346,58 @@ export default function useForm(
     if (errorMap.value[column.id]) {
       validateColumn(column);
     }
+    updateVisibility();
   };
 
   const onViewColumn = (column: IColumn) => {
-    if (column.columnType === "HEADING") {
+    if (column.columnType === "SECTION") {
+      currentSection.value = column.id;
+      currentHeading.value = undefined;
+    } else if (column.columnType === "HEADING") {
+      currentSection.value = column.section;
       currentHeading.value = column.id;
     } else {
+      currentSection.value = column.section;
       currentHeading.value = column.heading;
     }
   };
 
   const visibleColumns = computed(() => {
-    return metadata.value?.columns.filter((column) => visibleMap[column.id]);
+    if (!currentSection.value) {
+      currentSection.value = sections.value[0]?.id;
+    }
+    return metadata.value?.columns.filter(
+      (column) =>
+        !column.id.startsWith("mg_") &&
+        visibleMap[column.id] &&
+        currentSection.value === column.section
+    );
   });
 
   const invisibleColumns = computed(() => {
     return metadata.value?.columns.filter((column) => !visibleMap[column.id]);
+  });
+
+  const nextSection = computed<IFormLegendSection | null>(() => {
+    const sectionList = sections.value.filter((s) => s.type === "SECTION");
+    const currentIndex = sectionList.findIndex(
+      (s) => s.id === currentSection.value
+    );
+    if (currentIndex >= 0 && currentIndex < sectionList.length - 1) {
+      return sectionList[currentIndex + 1];
+    }
+    return null;
+  });
+
+  const previousSection = computed<IFormLegendSection | null>(() => {
+    const sectionList = sections.value.filter((s) => s.type === "SECTION");
+    const currentIndex = sectionList.findIndex(
+      (s) => s.id === currentSection.value
+    );
+    if (currentIndex > 0) {
+      return sectionList[currentIndex - 1];
+    }
+    return null;
   });
 
   async function handleFetchError(error: any, message: string) {
@@ -355,6 +428,25 @@ export default function useForm(
     );
   }
 
+  function scrollTo(elementId: string) {
+    lastScrollTo.value = elementId;
+    const container = document.getElementById(scrollContainerId);
+
+    //lazy scroll, might need to wait for elements to be mounted first
+    function attemptScroll() {
+      const target = document.getElementById(elementId);
+      if (container && target) {
+        const offset = target.offsetTop - container.offsetTop;
+        container.scrollTo({ top: offset, behavior: "smooth" });
+      } else {
+        // try again on the next frame until the element exists
+        requestAnimationFrame(attemptScroll);
+      }
+    }
+
+    attemptScroll();
+  }
+
   watch(
     () => metadata?.value,
     () => {
@@ -380,6 +472,8 @@ export default function useForm(
     requiredMessage,
     errorMessage,
     gotoSection,
+    nextSection,
+    previousSection,
     gotoNextRequiredField,
     gotoPreviousRequiredField,
     gotoNextError,
@@ -391,10 +485,13 @@ export default function useForm(
     onBlurColumn,
     onViewColumn,
     sections,
+    currentSection,
     visibleColumns,
     invisibleColumns,
     errorMap,
     validateAllColumns,
+    visibleMap,
     rowKey,
+    lastScrollTo, //for debug
   };
 }

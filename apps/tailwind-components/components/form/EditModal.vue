@@ -13,7 +13,7 @@
   </template>
   <Modal v-model:visible="visible" max-width="max-w-9/10">
     <template #header>
-      <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
+      <header class="pt-[36px] px-8 border-b border-divider">
         <div class="mb-5 relative flex items-center">
           <h2
             class="uppercase text-heading-4xl font-display text-title-contrast"
@@ -38,7 +38,7 @@
       </header>
     </template>
 
-    <section class="grid grid-cols-4 gap-1">
+    <section class="grid grid-cols-4 gap-1 flex-1 min-h-0">
       <div class="col-span-1 bg-form-legend">
         <FormLegend
           v-if="sections"
@@ -50,8 +50,19 @@
 
       <div
         id="fields-container"
-        class="col-span-3 px-4 py-50px overflow-y-auto"
+        class="col-span-3 px-4 py-50px overflow-y-auto h-full min-h-0"
       >
+        <Button
+          v-if="previousSection"
+          type="text"
+          size="small"
+          icon="arrow-left"
+          icon-position="left"
+          class="pb-4"
+          @click="gotoSection(previousSection.id)"
+        >
+          previous section '{{ previousSection.label }}'
+        </Button>
         <FormFields
           ref="formFields"
           :columns="visibleColumns"
@@ -62,6 +73,17 @@
           @blur="onBlurColumn"
           @view="onViewColumn"
         />
+        <Button
+          v-if="nextSection"
+          type="text"
+          size="small"
+          iconPosition="right"
+          icon="arrow-right"
+          class="pb-4 justify-self-end"
+          @click="gotoSection(nextSection.id)"
+        >
+          next section '{{ nextSection.label }}'
+        </Button>
       </div>
     </section>
     <Transition name="slide-up">
@@ -125,6 +147,7 @@ import { errorToMessage } from "../../utils/errorToMessage";
 import FormFields from "./Fields.vue";
 import { useSession } from "../../composables/useSession";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
+import Button from "~/components/Button.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -222,15 +245,6 @@ async function onUpdate() {
   emit("update:updated", resp);
 }
 
-function scrollToElementInside(containerId: string, elementId: string) {
-  const container = document.getElementById(containerId);
-  const element = document.getElementById(elementId);
-  if (container && element) {
-    container.scrollTop = element.offsetTop - container.offsetTop;
-    element.scrollIntoView();
-  }
-}
-
 const {
   requiredMessage,
   errorMessage,
@@ -243,14 +257,14 @@ const {
   errorMap,
   rowKey,
   sections,
+  previousSection,
+  nextSection,
   visibleColumns,
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
   validateAllColumns,
-} = useForm(props.metadata, editFormValues, (fieldId: string) => {
-  scrollToElementInside("fields-container", fieldId);
-});
+} = useForm(props.metadata, editFormValues, "fields-container");
 
 function reAuthenticate() {
   session.reAuthenticate(

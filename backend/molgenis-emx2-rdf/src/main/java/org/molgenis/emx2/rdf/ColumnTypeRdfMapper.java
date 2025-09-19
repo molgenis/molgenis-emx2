@@ -69,6 +69,7 @@ public abstract class ColumnTypeRdfMapper {
 
           // LAYOUT and other constants
           entry(ColumnType.HEADING, RdfColumnType.SKIP), // Should not be in RDF output.
+          entry(ColumnType.SECTION, RdfColumnType.SKIP), // Should not be in RDF output.
 
           // format flavors that extend a baseType
           entry(ColumnType.AUTO_ID, RdfColumnType.STRING),

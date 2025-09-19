@@ -40,6 +40,7 @@ import InputRefList from "./InputRefList.vue";
 const typeToInputMap = {
   AUTO_ID: InputString,
   HEADING: InputHeading,
+  SECTION: InputHeading,
   EMAIL: InputEmail,
   HYPERLINK: InputHyperlink,
   STRING: InputString,
