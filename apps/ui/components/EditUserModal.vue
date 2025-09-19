@@ -107,7 +107,9 @@ const visible = defineModel("visible", {
 });
 
 const role = ref<string>("Viewer");
-const schema = ref<string>(props.schemas.length ? props.schemas[0].id : "");
+const schema = ref<string>(
+  props.schemas.length ? props.schemas[0]?.id ?? "" : ""
+);
 
 const userName = ref<string>(props.user.email);
 const isEnabled = ref<boolean>(props.user.enabled);

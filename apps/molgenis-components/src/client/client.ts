@@ -10,7 +10,7 @@ import type { IRow } from "../Interfaces/IRow";
 import { deepClone, getKeyValue } from "../components/utils";
 import type { AggFunction } from "./IClient";
 import type { IClient, INewClient } from "./IClient";
-import type { IQueryMetaData } from "./IQueryMetaData";
+import type { IQueryMetaData } from "../../../tailwind-components/types/IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
 import { toFormData } from "../../../tailwind-components/utils/toFormData";
 

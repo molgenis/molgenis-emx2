@@ -33,7 +33,9 @@ if (error.value) {
   showError(error.value);
 }
 
-const variable = computed(() => data.value?.data?.Variables[0] as IVariables);
+const variable = computed(
+  () => (data.value?.data?.Variables?.[0] as IVariables) || {}
+);
 
 const items = computed(() => {
   const defaultItems = [

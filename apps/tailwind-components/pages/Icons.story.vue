@@ -50,7 +50,8 @@ const modules: Record<string, any> = import.meta.glob(
 );
 
 const icons = Object.keys(modules).map((key: string) => {
-  return key.split("/").reverse()[0].replace(".vue", "");
+  const fileName = key.split("/").reverse()[0] ?? "";
+  return fileName.replace(".vue", "");
 });
 
 const selectedAnimationClass = ref<string | null>(null);

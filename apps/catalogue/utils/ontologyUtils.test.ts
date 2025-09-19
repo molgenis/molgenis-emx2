@@ -50,10 +50,10 @@ describe("buildTree", () => {
   it("should return a list of trees ", () => {
     const trees = buildTree([itemA, itemB, itemC]);
     expect(trees.length).toEqual(2);
-    expect(trees[0].name).toEqual("A");
+    expect(trees[0]?.name).toEqual("A");
     //@ts-ignore
     expect(trees[0].children[0].name).toEqual("C");
-    expect(trees[1].name).toEqual("B");
+    expect(trees[1]?.name).toEqual("B");
   });
 
   it("should return a tree ", () => {
@@ -61,7 +61,7 @@ describe("buildTree", () => {
       { name: "A", parent: { name: "B", parent: { name: "C" } } },
     ]);
     expect(trees.length).toEqual(1);
-    expect(trees[0].name).toEqual("C");
+    expect(trees[0]?.name).toEqual("C");
     //@ts-ignore
     expect(trees[0].children[0].name).toEqual("B");
     //@ts-ignore

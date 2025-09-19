@@ -4,8 +4,8 @@ import type { DateValue } from "../../../metadata-utils/src/types";
 
 function currentDateTime(): string {
   const now: string = new Date().toISOString();
-  const date: string = now.split("T")[0];
-  const time: string = now.split("T")[1].split(".")[0];
+  const date: string = now.split("T")[0] ?? "";
+  const time: string = now.split("T")[1]?.split(".")[0] ?? "";
   return [date, time].join(" ");
 }
 

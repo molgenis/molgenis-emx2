@@ -164,7 +164,10 @@ const sections = computed(() => {
           acc.push({ heading: "", fields: [] });
         }
         // Add the item to the last section
-        acc[acc.length - 1].fields.push(item);
+        const lastSection = acc[acc.length - 1];
+        if (lastSection) {
+          lastSection.fields.push(item);
+        }
       }
       return acc;
     }, [] as { heading: string; fields: { key: string; value: columnValue; metadata: IColumn }[] }[])

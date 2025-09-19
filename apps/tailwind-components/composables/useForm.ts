@@ -37,7 +37,9 @@ export default function useForm(
       deep: true,
     });
   }
+
   const formValues = ref(unref(formValuesRef));
+
   if (isRef(formValuesRef)) {
     watch(formValuesRef, (val) => (formValues.value = val), {
       immediate: true,
@@ -132,7 +134,7 @@ export default function useForm(
       return;
     }
     if (currentRequiredField.value === null) {
-      currentRequiredField.value = emptyRequiredFields.value[0];
+      currentRequiredField.value = emptyRequiredFields.value[0] ?? null;
     } else {
       const currentIndex = emptyRequiredFields.value
         .map((column) => column.id)
@@ -141,27 +143,35 @@ export default function useForm(
       currentRequiredField.value =
         emptyRequiredFields.value[
           nextIndex >= emptyRequiredFields.value.length ? 0 : nextIndex
-        ];
+        ] ?? null;
     }
-    scrollTo(`${currentRequiredField.value.id}-form-field`);
+    if (currentRequiredField.value) {
+      scrollTo(`${currentRequiredField.value.id}-form-field`);
+    }
   };
   const gotoPreviousRequiredField = () => {
     if (!emptyRequiredFields.value) {
       return;
     }
     if (currentRequiredField.value === null) {
-      currentRequiredField.value = emptyRequiredFields.value[0];
+      if (emptyRequiredFields.value.length > 0) {
+        currentRequiredField.value = emptyRequiredFields.value[0] ?? null;
+      } else {
+        currentRequiredField.value = null;
+      }
     } else {
       const currentIndex = emptyRequiredFields.value
         .map((column) => column.id)
-        .indexOf(currentRequiredField.value.id);
+        .indexOf(currentRequiredField.value?.id ?? "");
       const prevIndex = currentIndex - 1;
       currentRequiredField.value =
         emptyRequiredFields.value[
           prevIndex < 0 ? emptyRequiredFields.value.length - 1 : prevIndex
-        ];
+        ] ?? null;
     }
-    scrollTo(`${currentRequiredField.value.id}-form-field`);
+    if (currentRequiredField.value) {
+      scrollTo(`${currentRequiredField.value.id}-form-field`);
+    }
   };
 
   const validateAllColumns = () => {
@@ -269,7 +279,7 @@ export default function useForm(
         if (currentHeading) {
           //heading is only visible if some columns are also visible
           visibleMap[currentHeading.id] =
-            visibleMap[currentHeading.id] &&
+            !!visibleMap[currentHeading.id] &&
             headingColumns.some((columnId) => visibleMap[columnId]);
         }
         headingColumns = [];
@@ -294,8 +304,8 @@ export default function useForm(
     //check visibility of last heading
     if (currentHeading) {
       visibleMap[(currentHeading as IColumn).id] =
-        visibleMap[(currentHeading as IColumn).id] &&
-        headingColumns.some((columnId) => visibleMap[columnId]);
+        !!visibleMap[(currentHeading as IColumn).id] &&
+        headingColumns.some((columnId) => !!visibleMap[columnId]);
     }
   };
 

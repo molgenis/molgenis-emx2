@@ -15,7 +15,7 @@ export const toSectionsMap = (tableMetaData: ITableMetaData) => {
       currentSectionName = column.id;
       sections[currentSectionName] = [];
     } else {
-      sections[currentSectionName].push(column);
+      (sections[currentSectionName] ??= []).push(column);
     }
   }
 

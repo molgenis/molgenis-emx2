@@ -14,6 +14,7 @@ const emit = defineEmits<{
 }>();
 
 const handleRefBackCellClicked = () => {
+  if (!props.data[0]) return;
   emit("refBackCellClicked", {
     metadata: props.metadata,
     data: props.data[0], // todo think about how to handle multiple rows, separate for each row or joined as one?

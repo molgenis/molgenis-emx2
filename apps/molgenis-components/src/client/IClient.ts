@@ -4,7 +4,7 @@ import type {
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import type { IRow } from "../Interfaces/IRow";
-import type { IQueryMetaData } from "./IQueryMetaData";
+import type { IQueryMetaData } from "../../../tailwind-components/types/IQueryMetaData";
 
 export interface IClient {
   newClient: (schemaId?: string, externalAxios?: Axios) => INewClient;
