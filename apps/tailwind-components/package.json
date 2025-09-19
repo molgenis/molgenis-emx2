@@ -50,6 +50,7 @@
     "playwright-core": "1.55.0",
     "prettier": "2.8.8",
     "svgo": "2.8.0",
+    "tailwindcss": "3.4.17",
     "typescript": "5.6.2",
     "vitest": "3.0.8",
     "vue-tsc": "2.2.0"
