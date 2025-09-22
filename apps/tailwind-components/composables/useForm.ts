@@ -226,7 +226,7 @@ export default function useForm(
     });
   };
 
-  const currentErrorField = ref<IColumn | null>(null);
+  const currentErrorField = ref<IColumn | undefined>(undefined);
 
   const gotoPreviousError = () => {
     console.log("goto prev");
