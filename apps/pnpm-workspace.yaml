@@ -8,7 +8,7 @@ packages:
 - catalogue
 - central
 - cranio-provider
-- cranio-public
+  imdhub-public
 - directory
 - emx2-analytics
 - ern-genturis
@@ -18,7 +18,6 @@ packages:
 - gportal
 - graphql-playground
 - helloworld
-- imdhub-public
 - molgenis-viz
 - nestor-public
 - pages
