@@ -8,6 +8,7 @@ packages:
 - catalogue
 - central
 - cranio-provider
+- cranio-public
 - directory
 - emx2-analytics
 - ern-genturis
