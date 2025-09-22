@@ -3,7 +3,6 @@ import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
   extends: ["../tailwind-components"],
-  packageManager: 'pnpm',
   devtools: { enabled: true },
   experimental: {
     watcher: 'parcel'

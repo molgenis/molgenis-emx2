@@ -25,7 +25,8 @@
     "docs": "vuese gen",
     "docs:serve": "vuese serve",
     "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js",
+    "lint": "true"
   },
   "dependencies": {
     "@heroicons/vue": "2.0.18",

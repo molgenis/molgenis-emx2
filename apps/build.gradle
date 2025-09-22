@@ -103,11 +103,7 @@ subprojects { subproject ->
 
     //todo if (packageJson.contains("lint")) {
     task lint(type: PnpmTask, dependsOn: buildJavascript) {
-        if (
-                packageJson.contains("\"name\": \"tailwind-components\"") ||
-                        packageJson.contains("\"name\": \"ui\"") ||
-                        packageJson.contains("\"name\": \"catalogue\"")
-        ) {
+       {
             args = ['run', 'lint']
             inputs.files fileTree(projectDir).matching {
                 with excludeDef
