@@ -6,7 +6,7 @@
     icon-position="left"
     class="mb-4"
   >
-    <slot />
+    go back to section '<slot />'
   </Button>
 </template>
 <script setup lang="ts">

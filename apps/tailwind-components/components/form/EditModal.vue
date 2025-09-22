@@ -56,7 +56,7 @@
           v-if="previousSection"
           @click="gotoSection(previousSection.id)"
         >
-          previous section '{{ previousSection.label }}'
+          {{ previousSection.label }}
         </PreviousSectionNav>
         <FormFields
           ref="formFields"
@@ -69,7 +69,7 @@
           @view="onViewColumn"
         />
         <NextSectionNav v-if="nextSection" @click="gotoSection(nextSection.id)">
-          next section '{{ nextSection.label }}'
+          {{ nextSection.label }}
         </NextSectionNav>
       </div>
     </div>

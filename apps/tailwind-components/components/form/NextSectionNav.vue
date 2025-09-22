@@ -6,7 +6,7 @@
     icon-position="right"
     class="mb-4 justify-self-end"
   >
-    <slot />
+    go forward to section '<slot />'
   </Button>
 </template>
 <script setup lang="ts">
