@@ -343,20 +343,23 @@ describe("useForm", () => {
     //simulate update on col1
     formValues.value["col1"] = true;
 
-    onBlurColumn(tableMetadata.value.columns[1]);
+    if (tableMetadata.value.columns[1])
+      onBlurColumn(tableMetadata.value.columns[1]);
     expect(sections.value.length).toEqual(3);
     expect(visibleColumns.value.length).toEqual(5);
 
     //simulate update on col2
     formValues.value["col2"] = true;
-    onBlurColumn(tableMetadata.value.columns[3]);
+    if (tableMetadata.value.columns[3])
+      onBlurColumn(tableMetadata.value.columns[3]);
     expect(sections.value.length).toEqual(4);
     expect(visibleColumns.value.length).toEqual(7);
 
     //simulate update on col1
     //should invisible fields be emptied ???
     formValues.value["col1"] = false;
-    onBlurColumn(tableMetadata.value.columns[1]);
+    if (tableMetadata.value.columns[1])
+      onBlurColumn(tableMetadata.value.columns[1]);
     expect(sections.value.length).toEqual(2);
     expect(visibleColumns.value.length).toEqual(3);
   });

@@ -6,7 +6,6 @@ import {
   type MaybeRef,
   unref,
   isRef,
-  type Ref,
 } from "vue";
 import type {
   columnValue,
@@ -49,9 +48,9 @@ export default function useForm(
     });
   }
 
-  const visibleMap = reactive<Record<columnId, boolean>>({});
+  const visibleMap = reactive<Record<columnId, boolean | undefined>>({});
   const errorMap = ref<Record<columnId, string>>({});
-  const currentSection: Ref<String | undefined> = ref<columnId>();
+  const currentSection = ref<columnId | undefined>();
   const currentHeading = ref<columnId>();
   const lastScrollTo = ref<columnId>();
 
@@ -89,7 +88,7 @@ export default function useForm(
       return [];
     }
     if (!currentSection.value) {
-      currentSection.value = sectionList[0].id;
+      currentSection.value = sectionList[0]?.id;
     }
     return sectionList;
   });
@@ -163,10 +162,9 @@ export default function useForm(
         ] ?? null;
     }
     if (currentRequiredField.value) {
+      currentSection.value = currentRequiredField.value.section;
       scrollTo(`${currentRequiredField.value.id}-form-field`);
     }
-    currentSection.value = currentRequiredField.value.section;
-    scrollTo(`${currentRequiredField.value.id}-form-field`);
   };
   const gotoPreviousRequiredField = () => {
     if (!emptyRequiredFields.value) {
@@ -395,7 +393,7 @@ export default function useForm(
     return metadata.value?.columns.filter((column) => !visibleMap[column.id]);
   });
 
-  const nextSection = computed<IFormLegendSection | null>(() => {
+  const nextSection = computed(() => {
     const sectionList = sections.value.filter((s) => s.type === "SECTION");
     const currentIndex = sectionList.findIndex(
       (s) => s.id === currentSection.value
@@ -406,7 +404,7 @@ export default function useForm(
     return null;
   });
 
-  const previousSection = computed<IFormLegendSection | null>(() => {
+  const previousSection = computed(() => {
     const sectionList = sections.value.filter((s) => s.type === "SECTION");
     const currentIndex = sectionList.findIndex(
       (s) => s.id === currentSection.value
