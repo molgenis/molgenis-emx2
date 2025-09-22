@@ -58,26 +58,9 @@ subprojects { subproject ->
     npmSetup.dependsOn parent.npmSetup
     pnpmSetup.dependsOn parent.pnpmSetup
 
-    task format(type: PnpmTask, dependsOn: parent.installJavascript) {
-        if (!isCI) {
-            args = ['run', 'format']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-            outputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        } else {
-            args = ['run', 'checkFormat']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        }
-    }
-
     def packageJson = file("${subproject.projectDir}/package.json").text
 
-    task buildJavascript(type: PnpmTask, dependsOn: format) {
+    task buildJavascript(type: PnpmTask, dependsOn: parent.installJavascript) {
         environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
 
         //automatically get the internal dependencies
@@ -98,6 +81,23 @@ subprojects { subproject ->
 //        for caching
         inputs.files fileTree(projectDir).matching {
             with excludeDef
+        }
+    }
+
+    task format(type: PnpmTask, dependsOn: installJavascript) {
+        if (!isCI) {
+            args = ['run', 'format']
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+            outputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+        } else {
+            args = ['run', 'checkFormat']
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
         }
     }
 
