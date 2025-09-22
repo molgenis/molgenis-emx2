@@ -60,7 +60,17 @@ subprojects { subproject ->
 
     def packageJson = file("${subproject.projectDir}/package.json").text
 
-    task buildJavascript(type: PnpmTask, dependsOn: parent.installJavascript) {
+    task installJavascript(type: PnpmTask, dependsOn: pnpmSetup) {
+        inputs.files(
+                fileTree("${projectDir}/**/package.json"),
+                file("${projectDir}/pnpm-lock.yaml"),
+                file("${projectDir}/pnpm-workspace.yaml")
+        );
+        outputs.files(file("${projectDir}/pnpm-lock.yaml"))
+        args = ['install']
+    }
+
+    task buildJavascript(type: PnpmTask, dependsOn:installJavascript) {
         environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
 
         //automatically get the internal dependencies
