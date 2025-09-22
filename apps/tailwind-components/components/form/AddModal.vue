@@ -52,12 +52,12 @@
         id="fields-container"
         class="col-span-3 px-4 py-50px overflow-y-auto"
       >
-        <FormSectionNav
+        <PreviousSectionNav
           v-if="previousSection"
           @click="gotoSection(previousSection.id)"
         >
           previous section '{{ previousSection.label }}'
-        </FormSectionNav>
+        </PreviousSectionNav>
         <FormFields
           v-if="visible"
           ref="formFields"
@@ -70,9 +70,9 @@
           @blur="onBlurColumn"
           @view="onViewColumn"
         />
-        <FormSectionNav v-if="nextSection" @click="gotoSection(nextSection.id)">
+        <NextSectionNav v-if="nextSection" @click="gotoSection(nextSection.id)">
           next section '{{ nextSection.label }}'
-        </FormSectionNav>
+        </NextSectionNav>
       </div>
     </div>
     <Transition name="slide-up">
@@ -136,7 +136,8 @@ import { errorToMessage } from "../../utils/errorToMessage";
 import FormFields from "./Fields.vue";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
 import { useSession } from "../../composables/useSession";
-import FormSectionNav from "./SectionNav.vue";
+import PreviousSectionNav from "./PreviousSectionNav.vue";
+import NextSectionNav from "./NextSectionNav.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -262,8 +263,6 @@ const {
   rowKey,
   sections,
   visibleColumns,
-  currentSection,
-  visibleMap,
 } = useForm(props.metadata, formValues, "fields-container");
 
 function reAuthenticate() {
