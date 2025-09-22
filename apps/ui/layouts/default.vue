@@ -36,7 +36,7 @@ useHead({
 const isSignedIn = computed(
   () => !!session.value?.email && session.value?.email !== "anonymous"
 );
-const isAdmin = computed(() => session.value?.email === "admin");
+const isAdmin = computed(() => session.value?.admin);
 
 const schema = computed(() => route.params.schema as string);
 

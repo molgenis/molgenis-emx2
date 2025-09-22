@@ -6,7 +6,7 @@
       @cancel="showSigninForm = false"
     />
     <Spinner v-if="loading" />
-    <MessageError v-else-if="session.email !== 'admin'">
+    <MessageError v-else-if="!session.admin">
       Permission denied, please log in as an administrator to view this page.
     </MessageError>
     <MessageError v-else-if="error">{{ error }}</MessageError>

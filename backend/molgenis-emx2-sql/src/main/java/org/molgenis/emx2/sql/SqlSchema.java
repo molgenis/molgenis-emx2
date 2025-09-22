@@ -95,7 +95,7 @@ public class SqlSchema implements Schema {
     if (user.equals(ADMIN_USER) || user == null) {
       return getRoles();
     } else {
-      return getMetadata().getIneritedRolesForUser(user);
+      return getMetadata().getInheritedRolesForUser(user);
     }
   }
 

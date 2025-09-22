@@ -26,13 +26,7 @@
     <template #main>
       <ContentBlocks>
         <ContentBlock id="intro" title="Introduction">
-          Developed by the MOLGENIS team of Genomics Coordination Center (GCC)
-          at the University Medical Center Groningen (UMCG), the European Health
-          Research Data and Sample Catalogue is a joint metadata catalogue
-          initiative designed to bring together catalogues from various EU
-          research projects and networks. It promotes data sharing and reuse,
-          and supports advancements in public health. The catalogue contains
-          only metadata—information about data, not the data itself.
+          {{ introText }}
         </ContentBlock>
 
         <ContentBlock id="use" title="Use">
@@ -170,5 +164,16 @@
 <script setup lang="ts">
 import { useHead } from "#app";
 
-useHead({ title: "About" });
+const introText = `Developed by the MOLGENIS team of Genomics Coordination Center (GCC)
+          at the University Medical Center Groningen (UMCG), the European Health
+          Research Data and Sample Catalogue is a joint metadata catalogue
+          initiative designed to bring together catalogues from various EU
+          research projects and networks. It promotes data sharing and reuse,
+          and supports advancements in public health. The catalogue contains
+          only metadata—information about data, not the data itself.`;
+
+useHead({
+  title: "About",
+  meta: [{ name: "description", content: introText }],
+});
 </script>

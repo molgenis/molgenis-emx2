@@ -86,10 +86,9 @@ async function getRowData(
   const client = Client.newClient(activeSchema);
   const metadata = await client.fetchTableMetaData(tableId);
   for (const row of rowKeys) {
-    const externalSchemaClient = Client.newClient(metadata.schemaId);
     const expandLevel = 2;
     const rowKey = await convertRowToPrimaryKey(row, tableId, activeSchema);
-    let queryResult = await externalSchemaClient
+    let queryResult = await client
       .fetchRowData(tableId, rowKey, expandLevel)
       .catch(errorHandler);
     queryResult.metadata = metadata;

@@ -100,7 +100,7 @@ function toggleExpand(node: ITreeNodeState) {
             v-if="node.selectable"
             :indeterminate="node.selected === 'intermediate'"
             :checked="node.selected === 'selected'"
-            class="ml-[-6px]"
+            class="ml-[-6px] min-w-[20px]"
             :class="{
               '[&>rect]:stroke-gray-400': inverted,
             }"

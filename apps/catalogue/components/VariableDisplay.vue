@@ -35,29 +35,47 @@ if (error.value) {
 
 const variable = computed(() => data.value?.data?.Variables[0] as IVariables);
 
-const items = computed(() => [
-  {
-    label: "Unit",
-    content: variable.value?.unit?.name || "-",
-  },
-  {
-    label: "Formats",
-    content: variable.value?.format?.name || "-",
-  },
-  {
-    label: "Repeated for",
-    content:
-      variable.value?.repeatUnit?.name ||
-      variable.value?.repeatMin ||
-      variable.value?.repeatMax
-        ? variable.value?.repeatUnit?.name +
-          " " +
-          variable.value?.repeatMin +
-          "-" +
-          variable.value?.repeatMax
-        : undefined,
-  },
-]);
+const items = computed(() => {
+  const defaultItems = [
+    {
+      label: "Label",
+      content: variable.value.label || "-",
+    },
+    {
+      label: "Format",
+      content: variable.value?.format?.name || "-",
+    },
+    {
+      label: "Repeated for",
+      content:
+        variable.value?.repeatUnit?.name ||
+        variable.value?.repeatMin ||
+        variable.value?.repeatMax
+          ? variable.value?.repeatUnit?.name +
+            " " +
+            variable.value?.repeatMin +
+            "-" +
+            variable.value?.repeatMax
+          : undefined,
+    },
+    {
+      label: "Unit",
+      content: variable.value?.unit?.name || "-",
+    },
+  ];
+
+  if (variable.value.dataset) {
+    defaultItems.push({
+      label: "Dataset",
+      content:
+        variable.value.dataset.resource.id +
+        " - " +
+        variable.value.dataset.name,
+    });
+  }
+
+  return defaultItems;
+});
 </script>
 
 <template>

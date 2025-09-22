@@ -44,7 +44,7 @@ export default {
   },
   computed: {
     menuItems() {
-      if (this.session && this.session.email == "admin") {
+      if (this.session && this.session.admin) {
         return [
           ...this.menu,
           { label: "Admin", href: "/apps/central/#/admin", role: "Admin" },

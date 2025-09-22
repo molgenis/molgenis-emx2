@@ -12,6 +12,8 @@ For instance, if your MOLGENIS runs at `https://emx2.test.molgenis.org` and it h
 The RDF API can be fine-tuned on a schema-based level by adding advanced settings.
 If combining multiple schemas having overlapping/conflicting data, this will be processed in a way that will result in a valid RDF output (details are described below for each advanced setting individually).
 
+To learn more about how to configure the output on a column-specific level, see the documentation regarding the [semantics field](./semantics.md).
+
 ### Generic triples
 
 Advanced setting key: `custom_rdf`

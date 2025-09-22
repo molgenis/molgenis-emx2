@@ -91,7 +91,15 @@ if (resourcesWithMapping.value.length > 0) {
 
 const titlePrefix =
   route.params.catalogue === "all" ? "" : route.params.catalogue + " ";
-useHead({ title: titlePrefix + variable.value.name });
+useHead({
+  title: titlePrefix + variable.value.name,
+  meta: [
+    {
+      name: "description",
+      content: variable.value.description,
+    },
+  ],
+});
 </script>
 
 <template>

@@ -101,6 +101,7 @@ public class MetadataUtils {
   public static final Field<String> USER_NAME = field(name("username"), VARCHAR);
   private static final Field<String> USER_PASS = field(name("password"), VARCHAR);
   public static final Field<Boolean> USER_ENABLED = field(name("enabled"), BOOLEAN.nullable(false));
+  public static final Field<Boolean> USER_ADMIN = field(name("admin"), BOOLEAN);
 
   // settings field, reused by all other metadata
   static final org.jooq.Field SETTINGS = field(name(org.molgenis.emx2.Constants.SETTINGS), JSON);
@@ -392,7 +393,7 @@ public class MetadataUtils {
       List<User> users = new ArrayList<>();
       for (org.jooq.Record user :
           db.getJooq()
-              .select(USER_NAME, USER_ENABLED, SETTINGS)
+              .select(USER_NAME, USER_ENABLED, USER_ADMIN, SETTINGS)
               .from(USERS_METADATA)
               .orderBy(USER_NAME)
               .limit(limit)
@@ -400,6 +401,7 @@ public class MetadataUtils {
               .fetchArray()) {
         User newUser = new User(db, user.get(USER_NAME), user.get(SETTINGS, Map.class));
         newUser.setEnabled(user.get(USER_ENABLED));
+        newUser.setAdmin(user.get(USER_ADMIN));
         users.add(newUser);
       }
       return users;
@@ -710,6 +712,7 @@ public class MetadataUtils {
       User result = new User(db, userName);
       result.setEnabled(userRecord.get(USER_ENABLED));
       result.setSettings(userRecord.get(SETTINGS, Map.class));
+      result.setAdmin(userRecord.get(USER_ADMIN));
       return result;
     }
     return null;

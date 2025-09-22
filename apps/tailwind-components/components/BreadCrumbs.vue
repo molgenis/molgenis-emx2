@@ -39,7 +39,7 @@ withDefaults(
           </NuxtLink>
           <span
             class="text-breadcrumb-arrow"
-            v-if="index < Object.keys(crumbs).length - 1 || current"
+            v-if="index < Object.keys(crumbs).length - 1"
           >
             <BaseIcon name="caret-right" :width="12" />
           </span>

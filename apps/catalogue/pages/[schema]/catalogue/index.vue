@@ -10,8 +10,19 @@ import { definePageMeta } from "#imports";
 import { computed } from "vue";
 import type { IResources, IResources_agg } from "~/interfaces/catalogue";
 
+const pageDescription =
+  "A collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens health.";
+
 const route = useRoute();
-useHead({ title: "Health Data and Samples Catalogue" });
+useHead({
+  title: "Health Data and Samples Catalogue",
+  meta: [
+    {
+      name: "description",
+      content: pageDescription,
+    },
+  ],
+});
 
 //add redirect middleware for cohortOnly to skip this page
 definePageMeta({
@@ -92,7 +103,7 @@ const projectCatalogues = computed(() => {
   <LayoutsLandingPage>
     <PageHeader
       title="European Health Research Data and Sample Catalogue"
-      description="A collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens health."
+      :description="pageDescription"
       :truncate="false"
     >
       <template #suffix>
