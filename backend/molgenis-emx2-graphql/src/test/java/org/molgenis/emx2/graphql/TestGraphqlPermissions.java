@@ -54,7 +54,7 @@ public class TestGraphqlPermissions {
             mutation {
               change(permissions: [
                 {
-                  groupName: "TestGraphqlPermissions/specialEditor",
+                  groupName: "TestGraphqlPermissions/editorSpecial",
                   tableId: "Order",
                   isRowLevel: true,
                   hasSelect: true, hasInsert: true, hasUpdate:true, hasDelete:true, hasAdmin:false,
@@ -99,7 +99,7 @@ public class TestGraphqlPermissions {
     JsonNode specialPermission =
         StreamSupport.stream(list.spliterator(), false)
             .filter(
-                n -> "TestGraphqlPermissions/specialEditor".equals(n.path("groupName").asText()))
+                n -> "TestGraphqlPermissions/editorSpecial".equals(n.path("groupName").asText()))
             .findFirst()
             .orElse(null);
 
@@ -120,16 +120,15 @@ public class TestGraphqlPermissions {
                   }
                   """);
 
-    JsonNode order = executeSchema("query { Order { orderId } }").get("data").get("Order").get(0);
-
-    JsonNode message =
-        executeSchema(
-            """
+    JsonNode orderEditorSpecial =
+        executeSchema("query { Order { orderId } }").get("data").get("Order").get(0);
+    executeSchema(
+        """
                 mutation {
                   update(
                     Order: [
                       {
-                        mg_group: ["TestGraphqlPermissions/specialEditor"],
+                        mg_group: ["TestGraphqlPermissions/editorSpecial"],
                         orderId: "%s"
                       }
                     ]
@@ -138,7 +137,7 @@ public class TestGraphqlPermissions {
                   }
                 }
                 """
-                .formatted(order.get("orderId").asText()));
+            .formatted(orderEditorSpecial.get("orderId").asText()));
 
     executeDb("mutation{signin(email:\"testViewer\",password:\"test123456\"){message}}");
     assertThrows(
@@ -150,7 +149,48 @@ public class TestGraphqlPermissions {
     assertEquals("testViewer", database.getActiveUser());
     executeDb("mutation{signin(email:\"testEditor\",password:\"test123456\"){message}}");
     assertEquals("testEditor", database.getActiveUser());
-    executeSchema("mutation {insert(Order: {pet: {name: \"pooky\"}, quantity: 5 }) { message }}");
+    executeSchema("mutation {insert(Order: {pet: {name: \"pooky\"}, quantity: 99 }) { message }}");
+    JsonNode orderEditor =
+        executeSchema("query { Order(filter: {quantity: { equals: 99 }}) { orderId } }")
+            .get("data")
+            .get("Order")
+            .get(0);
+
+    executeDb("mutation{signin(email:\"testEditorSpecial\",password:\"test123456\"){message}}");
+    executeSchema(
+        """
+                mutation {
+                  update(
+                    Order: [
+                      {
+                        orderId: "%s",
+                        quantity: 77
+                      }
+                    ]
+                  ) {
+                    message
+                  }
+                }
+                """
+            .formatted(orderEditorSpecial.get("orderId").asText()));
+
+    JsonNode result =
+        executeSchema(
+            """
+                mutation {
+                  update(
+                    Order: [
+                      {
+                        orderId: "%s",
+                        quantity: 77
+                      }
+                    ]
+                  ) {
+                    message
+                  }
+                }
+                """
+                .formatted(orderEditor.get("orderId").asText()));
   }
 
   private JsonNode executeSchema(String query) throws IOException {
