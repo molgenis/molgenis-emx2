@@ -11,7 +11,7 @@ const legendEventsOptions = [
   { value: "hover", label: "Hovering" },
   { value: "click", label: "Clicking" },
 ];
-const legendEnableEvent = ref<string>(legendEventsOptions[0].value);
+const legendEnableEvent = ref<string>(legendEventsOptions[0]?.value ?? "hover");
 
 const legendData: Record<string, string> = {
   "Group A": "#f6eff7",
