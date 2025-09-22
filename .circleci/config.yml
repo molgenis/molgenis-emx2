@@ -125,7 +125,7 @@ jobs:
 
     - run:
         name: build and push emx2 java docker images for the preview
-        command: ./gradlew -s --no-daemon shadowJar dockerPush ci -x test
+        command: ./gradlew -s --no-daemon shadowJar dockerPush ci -x test --rerun-tasks
 
     - run:
         name: push ssr-catalogue docker images
@@ -201,7 +201,7 @@ jobs:
     - run:
         name: lint the code
         command: |
-          ./gradlew lint ci --no-daemon \
+          ./gradlew lint ci --no-daemon --rerun-tasks \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
 
 
@@ -233,7 +233,7 @@ jobs:
     - run:
         name: lint the code
         command: |
-          ./gradlew lint ci --no-daemon \
+          ./gradlew lint ci --rerun-tasks --no-daemon \
           -Dorg.ajoberstar.grgit.auth.username=${GITHUB_TOKEN} -Dorg.ajoberstar.grgit.auth.password 
 
       # we might be optimistic and skip tests here
