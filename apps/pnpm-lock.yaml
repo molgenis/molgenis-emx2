@@ -213,6 +213,40 @@ importers:
         specifier: 1.6.1
         version: 1.6.1(@types/node@22.15.21)(happy-dom@15.10.2)(jsdom@22.1.0)(sass@1.70.0)(terser@5.39.2)
 
+  cranio-public:
+    dependencies:
+      '@heroicons/vue':
+        specifier: ^2.0.18
+        version: 2.0.18(vue@3.5.13(typescript@5.8.2))
+      graphql-request:
+        specifier: 5.2.0
+        version: 5.2.0(encoding@0.1.13)(graphql@15.10.1)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@15.10.1)
+      molgenis-components:
+        specifier: workspace:*
+        version: link:../molgenis-components
+      molgenis-viz:
+        specifier: workspace:*
+        version: link:../molgenis-viz
+      vue:
+        specifier: 3.5.13
+        version: 3.5.13(typescript@5.8.2)
+      vue-router:
+        specifier: 4.4.3
+        version: 4.4.3(vue@3.5.13(typescript@5.8.2))
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: 4.6.2
+        version: 4.6.2(vite@5.4.16(@types/node@22.15.21)(sass@1.70.0)(terser@5.39.2))(vue@3.5.13(typescript@5.8.2))
+      prettier:
+        specifier: 2.8.8
+        version: 2.8.8
+      vite:
+        specifier: 5.4.16
+        version: 5.4.16(@types/node@22.15.21)(sass@1.70.0)(terser@5.39.2)
+
   directory:
     dependencies:
       '@fortawesome/fontawesome-free':
