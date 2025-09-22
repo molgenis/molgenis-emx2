@@ -229,6 +229,8 @@ export default function useForm(
   const currentErrorField = ref<IColumn | null>(null);
 
   const gotoPreviousError = () => {
+    console.log("goto prev");
+
     const keys = Object.keys(errorMap.value);
     if (keys.length === null) {
       return;
@@ -238,11 +240,17 @@ export default function useForm(
     const previousErrorColumnId =
       keys[prevIndex < 0 ? keys.length - 1 : prevIndex];
 
-    currentSection.value = currentErrorField.value?.section;
-    scrollTo(`${previousErrorColumnId}-form-field`);
+    if (previousErrorColumnId) {
+      currentErrorField.value = metadata.value.columns.find(
+        (col) => col.id === previousErrorColumnId
+      );
+      currentSection.value = currentErrorField.value?.section;
+      scrollTo(`${previousErrorColumnId}-form-field`);
+    }
   };
 
   const gotoNextError = () => {
+    console.log("goto next");
     const keys = Object.keys(errorMap.value);
     if (keys.length === null) {
       return;
@@ -251,8 +259,13 @@ export default function useForm(
     const nextIndex = currentIndex + 1;
     const nextErrorColumnId = keys[nextIndex >= keys.length ? 0 : nextIndex];
 
-    currentSection.value = currentErrorField.value?.section;
-    scrollTo(`${nextErrorColumnId}-form-field`);
+    if (nextErrorColumnId) {
+      currentErrorField.value = metadata.value.columns.find(
+        (col) => col.id === nextErrorColumnId
+      );
+      currentSection.value = currentErrorField.value?.section;
+      scrollTo(`${nextErrorColumnId}-form-field`);
+    }
   };
 
   const insertInto = (schemaId: string, tableId: string) => {
