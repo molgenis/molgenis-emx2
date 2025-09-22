@@ -191,6 +191,11 @@ public class TestGraphqlPermissions {
                 }
                 """
                 .formatted(orderEditor.get("orderId").asText()));
+
+    executeSchema(
+        """
+        mutation {insert(Order: {pet: {name: "pooky"}, quantity: 55, mg_group: "TestGraphqlPermissions/editorSpecial" }) { message }}
+        """);
   }
 
   private JsonNode executeSchema(String query) throws IOException {
