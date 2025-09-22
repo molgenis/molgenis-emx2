@@ -10,6 +10,7 @@ public enum DefaultNamespace {
   AFRL("afrl", "http://purl.allotrope.org/ontologies/role#"),
   DC("dc", "http://purl.org/dc/elements/1.1/"),
   DCAT("dcat", "http://www.w3.org/ns/dcat#"),
+  DCATAP("dcatap", "http://data.europa.eu/r5r/"),
   DCTERMS("dcterms", "http://purl.org/dc/terms/"),
   EDAM("edam", "http://edamontology.org/"),
   EFO("efo", "http://www.ebi.ac.uk/efo/"),
@@ -42,12 +43,12 @@ public enum DefaultNamespace {
 
   private final Namespace namespace;
 
-  public Namespace getNamespace() {
-    return namespace;
-  }
-
   DefaultNamespace(String prefix, String namespace) {
     this.namespace = new SimpleNamespace(prefix, namespace);
+  }
+
+  public Namespace getNamespace() {
+    return namespace;
   }
 
   public static Stream<Namespace> streamAll() {

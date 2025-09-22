@@ -4,8 +4,6 @@
       <TreeBranchComponent
         :option="option"
         :facetIdentifier="facetIdentifier"
-        @indeterminate-update="signalParentOurIndeterminateStatus"
-        :parentSelected="parentSelected"
         :filter="filter"
       />
     </div>
@@ -31,16 +29,13 @@ const props = withDefaults(
   defineProps<{
     facetIdentifier: string;
     options: any[];
-    parentSelected?: boolean;
     filter?: string;
   }>(),
   { filter: "" }
 );
 
 const { facetIdentifier } = props;
-const { filter, options, parentSelected } = toRefs(props);
-
-const emit = defineEmits(["indeterminate-update"]);
+const { filter, options } = toRefs(props);
 
 const filteredOptions = computed(() => {
   const sortedOptions = sortOptions(options.value);
@@ -78,10 +73,6 @@ function getTopPaginatedOptions() {
 
     return missingOptions.concat(topItems);
   }
-}
-
-function signalParentOurIndeterminateStatus(status: boolean) {
-  emit("indeterminate-update", status);
 }
 
 function sortOptions(options: any[] | undefined) {

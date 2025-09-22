@@ -35,8 +35,8 @@ export type CellValueType =
   | "REF"
   | "REF_ARRAY"
   | "REFBACK"
-  | "CHECKBOX" //planned future extensions are CHECKBOX and RADIO
   | "RADIO"
+  | "SELECT"
   | "HEADING"
   | "AUTO_ID"
   | "ONTOLOGY"
@@ -45,13 +45,15 @@ export type CellValueType =
   | "EMAIL_ARRAY"
   | "HYPERLINK"
   | "HYPERLINK_ARRAY"
-  | "CHECKBOX";
+  | "CHECKBOX"
+  | "MULTISELECT";
 
 export type ColumnType = CellValueType | HeadingType;
 export interface IColumn {
   columnType: ColumnType;
   id: columnId;
   label: string;
+  heading?: string;
   computed?: string;
   conditions?: string[];
   description?: string;
@@ -62,7 +64,7 @@ export interface IColumn {
   refLabel?: string;
   refLabelDefault?: string;
   refLinkId?: string;
-  refSchemaId?: string;
+  refSchemaId?: string; //should always be provided when refTableId is set even if in same schema
   refTableId?: string;
   required?: string | boolean;
   semantics?: string[];
@@ -74,8 +76,17 @@ export interface IColumn {
   defaultValue?: string;
 }
 
+export interface IRefColumn extends IColumn {
+  refTableId: string;
+  refSchemaId: string;
+  refLabel: string;
+  refLabelDefault: string;
+  refLinkId: string;
+}
+
 export interface ITableMetaData {
   id: string;
+  schemaId?: string;
   name?: string;
   label: string;
   description?: string;
@@ -111,13 +122,22 @@ export type columnValue =
   | null
   | undefined
   | columnValueObject
-  | columnValue[];
+  | columnValue[]
+  | fileValue;
 
 export type recordValue = Record<string, columnValue>;
 
 export interface columnValueObject {
   [x: string]: columnValue;
 }
+
+export type fileValue = {
+  id: string;
+  size: number;
+  filename: string;
+  extension: string;
+  url: string;
+};
 
 export type IInputValue = string | number | boolean;
 
@@ -127,3 +147,5 @@ export type IInputValueLabel = {
 };
 
 export type IRow = Record<columnId, columnValue>;
+
+export type DateValue = Date | string | undefined | null;

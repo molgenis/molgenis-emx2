@@ -10,8 +10,8 @@
         type="checkbox"
         :ref="`${option.name}-checkbox`"
         class="mr-1"
-        :checked="selected"
-        :indeterminate.prop="isIndeterminate && !selected"
+        :checked="isSelected"
+        :indeterminate.prop="!isSelected && isIndeterminate"
       />
       <label>
         <span class="code">{{ option.code }}</span> {{ option.label }}
@@ -21,12 +21,10 @@
       v-if="option.children"
       class="border border-right-0 border-bottom-0 border-top-0 indent"
     >
-      <tree-component
+      <TreeComponent
         v-if="open"
         :options="option.children"
         :facetIdentifier="facetIdentifier"
-        :parentSelected="selected"
-        @indeterminate-update="handleChildIndeterminateUpdate"
         :filter="filter"
       />
     </li>
@@ -34,86 +32,62 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, ref, toRefs, watch } from "vue";
+import { computed, ref, toRefs, watch } from "vue";
+import { IOntologyItem } from "../../../interfaces/interfaces";
 import { useFiltersStore } from "../../../stores/filtersStore";
-
-/** need to lazy load because it gets too large quickly. Over 9000! */
-const TreeComponent = defineAsyncComponent(() => import("./TreeComponent.vue"));
+import TreeComponent from "./TreeComponent.vue";
 
 const filtersStore = useFiltersStore();
-const emit = defineEmits(["indeterminate-update"]);
 
 const props = withDefaults(
   defineProps<{
     facetIdentifier: string;
-    option: Record<string, any>;
+    option: IOntologyItem;
     parentSelected?: boolean;
     filter?: string;
   }>(),
-  { parentSelected: false, filter: "" }
+  { filter: "" }
 );
 
-const { facetIdentifier, option, parentSelected, filter } = toRefs(props);
+const { facetIdentifier, option, filter } = toRefs(props);
 
 const open = ref<boolean>(!!filter.value);
-const childIsIndeterminate = ref<boolean>(false);
 
-const selectedFilters = computed<any[]>(() => {
-  return filtersStore.getFilterValue(facetIdentifier.value) || [];
+const selectedDiseases = computed(() => filtersStore.selectedDiseases);
+const numberOfSelectedChildren = computed(getNumberOfSelectedChildren);
+
+const isSelected = computed<boolean>(
+  () => selectedDiseases.value[option.value.name]
+);
+
+const isIndeterminate = computed<boolean>(() => {
+  return filtersStore.isIndeterminate(option.value.name);
 });
 
-const selected = computed(() => {
-  if (parentSelected.value) {
-    return true;
-  } else if (selectedChildren.value.length === option.value.children?.length) {
-    return true;
-  } else if (!selectedFilters.value?.length) {
-    return false;
-  } else {
-    return selectedFilters.value.some(
-      (selectedValue: Record<string, any>) =>
-        selectedValue.name === option.value.name
-    );
+watch(filter, (newFilter: string) => (open.value = !!newFilter));
+watch(numberOfSelectedChildren, (newValue) => {
+  if (!isSelected.value && newValue === option.value.children?.length) {
+    selectOption(true, option.value);
+  }
+  if (
+    isSelected.value &&
+    option.value.children?.length &&
+    newValue < option.value.children?.length
+  ) {
+    filtersStore.deselectDiseaseLeavingChildren(option.value.name);
   }
 });
 
-const selectedChildren = computed(() => {
-  const childNames =
-    option.value.children?.map(
-      (childOption: Record<string, any>) => childOption.name
-    ) || [];
-  return selectedFilters.value.filter((selectedFilter: Record<string, any>) =>
-    childNames.includes(selectedFilter.name)
-  );
-});
-
-const isIndeterminate = computed<boolean>(() => {
-  if (parentSelected.value) return false;
-  if (childIsIndeterminate.value) return true;
-  if (!option.value.children) return false;
-
-  return (
-    selectedChildren.value.length > 0 &&
-    selectedChildren.value.length <= option.value.children.length
-  );
-});
-
-watch(isIndeterminate, signalParentOurIndeterminateStatus);
-
-watch(filter, (newFilter: string) => {
-  open.value = !!newFilter;
-});
-
-function selectOption(checked: boolean, option: Record<string, any>) {
+function selectOption(checked: boolean, option: IOntologyItem) {
   filtersStore.updateOntologyFilter(facetIdentifier.value, option, checked);
 }
 
-function handleChildIndeterminateUpdate(newStatus: boolean) {
-  childIsIndeterminate.value = newStatus;
-}
-
-function signalParentOurIndeterminateStatus() {
-  emit("indeterminate-update", isIndeterminate.value);
+function getNumberOfSelectedChildren(): number {
+  return (
+    option.value.children?.filter(
+      (child: IOntologyItem) => selectedDiseases.value[child.name]
+    ).length || 0
+  );
 }
 </script>
 

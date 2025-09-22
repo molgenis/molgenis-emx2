@@ -1,13 +1,51 @@
+<script lang="ts" setup>
+import type { columnValue } from "../../../metadata-utils/src/types";
+import type { IInputProps, IValueLabel } from "../../types/types";
+
+withDefaults(
+  defineProps<
+    IInputProps & {
+      options: IValueLabel[];
+      showClearButton?: boolean;
+      align?: "horizontal" | "vertical";
+    }
+  >(),
+  {
+    align: "vertical",
+  }
+);
+const modelValue = defineModel<columnValue>();
+const emit = defineEmits([
+  "update:modelValue",
+  "select",
+  "deselect",
+  "blur",
+  "focus",
+]);
+
+function toggleSelect(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target.checked) {
+    emit("select", target.value);
+  } else {
+    emit("deselect", target.value);
+  }
+  emit("focus");
+}
+
+function resetModelValue() {
+  modelValue.value = undefined;
+}
+</script>
+
 <template>
   <InputGroupContainer
     :id="`${id}-radio-group`"
     :aria-describedby="describedBy"
-    class="flex gap-1 border-l-2 border-transparent"
+    class="flex gap-1"
     :class="{
       'flex-row': align === 'horizontal',
       'flex-col': align === 'vertical',
-      'border-l-invalid': invalid,
-      'border-l-valid': valid,
     }"
     @focus="emit('focus')"
     @blur="emit('blur')"
@@ -61,43 +99,3 @@
     </ButtonText>
   </InputGroupContainer>
 </template>
-
-<script lang="ts" setup>
-import type { columnValue } from "../../../metadata-utils/src/types";
-import type { IInputProps, IValueLabel } from "../../types/types";
-
-withDefaults(
-  defineProps<
-    IInputProps & {
-      options: IValueLabel[];
-      showClearButton?: boolean;
-      align?: "horizontal" | "vertical";
-    }
-  >(),
-  {
-    align: "vertical",
-  }
-);
-const modelValue = defineModel<columnValue>();
-const emit = defineEmits([
-  "update:modelValue",
-  "select",
-  "deselect",
-  "blur",
-  "focus",
-]);
-
-function toggleSelect(event: Event) {
-  const target = event.target as HTMLInputElement;
-  if (target.checked) {
-    emit("select", target.value);
-  } else {
-    emit("deselect", target.value);
-  }
-  emit("focus");
-}
-
-function resetModelValue() {
-  modelValue.value = undefined;
-}
-</script>

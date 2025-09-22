@@ -98,6 +98,7 @@
     :describedBy="describedBy"
     :trueLabel="trueLabel"
     :falseLabel="falseLabel"
+    :align="align"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -114,7 +115,7 @@
     @blur="emit('blur')"
   />
   <InputRadioGroup
-    v-else-if="['RADIO'].includes(typeUpperCase)"
+    v-else-if="['RADIO'].includes(typeUpperCase) && options"
     v-model="modelValue as columnValue"
     :id="id"
     :valid="valid"
@@ -125,9 +126,10 @@
     :options="options as IValueLabel[]"
     @focus="emit('focus')"
     @blur="emit('blur')"
+    :align="align"
   />
   <InputCheckboxGroup
-    v-else-if="['CHECKBOX'].includes(typeUpperCase)"
+    v-else-if="['CHECKBOX'].includes(typeUpperCase) && options"
     v-model="modelValue as columnValue[]"
     :id="id"
     :valid="valid"
@@ -140,8 +142,9 @@
     @blur="emit('blur')"
   />
   <InputRef
-    v-else-if="['REF'].includes(typeUpperCase)"
+    v-else-if="['REF', 'RADIO'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject"
+    :limit="50"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -156,8 +159,9 @@
     :is-array="false"
   />
   <InputRef
-    v-else-if="['REF_ARRAY'].includes(typeUpperCase)"
+    v-else-if="['REF_ARRAY', 'CHECKBOX'].includes(typeUpperCase)"
     v-model="modelValue as columnValueObject[]"
+    :limit="50"
     :id="id"
     :valid="valid"
     :invalid="invalid"
@@ -171,6 +175,50 @@
     @blur="emit('blur')"
     :is-array="true"
   />
+  <InputRefSelect
+    v-else-if="'SELECT' === typeUpperCase"
+    v-model="modelValue as columnValueObject"
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    :refSchemaId="refSchemaId as string"
+    :refTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+    :align="align"
+  />
+  <InputRefSelect
+    v-else-if="'MULTISELECT' === typeUpperCase"
+    v-model="modelValue as columnValueObject[]"
+    :multiselect="true"
+    :id="id"
+    :valid="valid"
+    :invalid="invalid"
+    :disabled="disabled"
+    :describedBy="describedBy"
+    :placeholder="placeholder"
+    :refSchemaId="refSchemaId as string"
+    :refTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    @focus="emit('focus')"
+    @blur="emit('blur')"
+    :align="align"
+  />
+  <InputRefBack
+    v-else-if="['REFBACK'].includes(typeUpperCase)"
+    v-model="modelValue as columnValueObject[]"
+    :id="id"
+    :refSchemaId="refSchemaId as string"
+    :refTableId="refTableId as string"
+    :refLabel="refLabel as string"
+    :refBackColumn="refBackId as string"
+    :refBackPrimaryKey="rowKey"
+  />
+
   <InputOntology
     v-else-if="['ONTOLOGY'].includes(typeUpperCase)"
     :modelValue="modelValue as columnValueObject ? (modelValue as columnValueObject)['name'] as string : undefined"
@@ -210,6 +258,7 @@
     :ontologySchemaId="refSchemaId as string"
     :ontologyTableId="refTableId as string"
     :refLabel="refLabel as string"
+    :limit="limit"
     @focus="emit('focus')"
     @blur="emit('blur')"
   />
@@ -261,19 +310,45 @@ import type {
   columnValueObject,
 } from "../../metadata-utils/src/types";
 import { computed } from "vue";
+import InputString from "./input/String.vue";
+import InputArray from "./input/Array.vue";
+import InputDecimal from "./input/Decimal.vue";
+import InputInt from "./input/Int.vue";
+import InputLong from "./input/Long.vue";
+import InputBoolean from "./input/Boolean.vue";
+import InputTextArea from "./input/TextArea.vue";
+import InputRadioGroup from "./input/RadioGroup.vue";
+import InputCheckboxGroup from "./input/CheckboxGroup.vue";
+import InputRef from "./input/Ref.vue";
+import InputRefBack from "./input/RefBack.vue";
+import InputOntology from "./input/Ontology.vue";
+import InputFile from "./input/File.vue";
+import InputDate from "./input/Date.vue";
+import InputDateTime from "./input/DateTime.vue";
+import InputPlaceHolder from "./input/PlaceHolder.vue";
+
 const modelValue = defineModel<columnValue | columnValue[]>();
-const props = defineProps<
-  IInputProps & {
-    type: CellValueType;
-    describedBy?: string;
-    refSchemaId?: string;
-    refTableId?: string;
-    refLabel?: string;
-    options?: IValueLabel[];
-    trueLabel?: string;
-    falseLabel?: string;
+const props = withDefaults(
+  defineProps<
+    IInputProps & {
+      type: CellValueType;
+      describedBy?: string;
+      refSchemaId?: string;
+      refTableId?: string;
+      refLabel?: string;
+      refBackId?: string;
+      rowKey?: any;
+      options?: IValueLabel[];
+      trueLabel?: string;
+      falseLabel?: string;
+      align?: "horizontal" | "vertical";
+      limit?: number;
+    }
+  >(),
+  {
+    limit: 25,
   }
->();
+);
 const emit = defineEmits(["focus", "blur"]);
 const typeUpperCase = computed(() => props.type.toUpperCase());
 

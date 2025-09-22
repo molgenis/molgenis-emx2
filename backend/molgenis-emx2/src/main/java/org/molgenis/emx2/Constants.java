@@ -37,6 +37,7 @@ public class Constants {
 
   public static final String MG_TABLECLASS = "mg_tableclass";
   public static final String MG_DRAFT = "mg_draft";
+  public static final String MG_DELETE = "mg_delete";
   public static final String MG_INSERTEDBY = "mg_insertedBy";
   public static final String MG_INSERTEDON = "mg_insertedOn";
   public static final String MG_UPDATEDBY = "mg_updatedBy";
@@ -72,12 +73,24 @@ public class Constants {
 
   public static final String MOLGENIS_JWT_SHARED_SECRET = "MOLGENIS_JWT_SHARED_SECRET";
 
+  public static final String CV_CLIENT_ID = "CV_CLIENT_ID";
+  public static final String CV_CLIENT_SECRET = "CV_CLIENT_SECRET";
+  public static final String CV_INTROSPECT_URI = "CV_INTROSPECT_URI";
+
   public static final String OIDC_LOGIN_PATH = "_login";
   public static final String OIDC_CALLBACK_PATH = "_callback";
   public static final String ASYNC = "async";
   public static final String ANONYMOUS = "anonymous";
   public static final String LOCALES = "locales";
   public static final String LOCALES_DEFAULT = "[\"en\"]";
+  public static final String MOLGENIS_METRICS_ENABLED = "MOLGENIS_METRICS_ENABLED";
+  public static final String MOLGENIS_METRICS_PATH = "MOLGENIS_METRICS_PATH";
+  public static final String MOLGENIS_APP_CACHE_DURATION = "MOLGENIS_INCLUDE_APP_CACHE_DURATION";
+  public static final String MOLGENIS_APP_DB_CACHE_SIZE = "MOLGENIS_APP_DB_CACHE_SIZE";
+  public static final String MOLGENIS_APP_SCHEMA_CACHE_SIZE = "MOLGENIS_APP_SCHEMA_CACHE_SIZE";
+  public static final String MOLGENIS_APP_GQL_DB_CACHE_SIZE = "MOLGENIS_APP_GQL_DB_CACHE_SIZE";
+  public static final String MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE =
+      "MOLGENIS_APP_GQL_SCHEMA_CACHE_SIZE";
 
   protected static final Operator[] EXISTS_OPERATIONS = {EQUALS};
 
@@ -117,7 +130,7 @@ public class Constants {
   // thank you to
   // https://www.geeksforgeeks.org/check-if-an-url-is-valid-or-not-using-regular-expression/
   // updated to also allow localhost / localhost:8080 as valid hyperlink, needed to testing
-  protected static final String HYPERLINK_REGEX =
+  public static final String HYPERLINK_REGEX =
       "((https?)://)((www.)?[a-zA-Z0-9@:%._\\+~#?&//=-]{2,256}\\.[a-z]{2,6}|localhost)(:[0-9]+)?([-a-zA-Z0-9@:%._\\+~#?!&//=(\\)]*)$";
 
   public static final String PRIVACY_POLICY_LEVEL = "PrivacyPolicyLevel";
@@ -135,6 +148,7 @@ public class Constants {
   public static final String API_TTL = "/api/ttl";
   public static final String API_JSONLD = "/api/jsonld";
   public static final String API_FILE = "/api/file";
+  public static final String MG_TOP_OF_FORM = "_mg_top_of_form";
 
   private Constants() {
     // hide constructor

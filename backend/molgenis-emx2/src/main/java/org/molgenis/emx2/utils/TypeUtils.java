@@ -139,10 +139,10 @@ public class TypeUtils {
       if (value == null) {
         return null; // NOSONAR
       }
-      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value)) {
+      if ("true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || value.equals("1")) {
         return true;
       }
-      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value)) {
+      if ("false".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value) || value.equals("0")) {
         return false;
       }
     }
@@ -306,6 +306,7 @@ public class TypeUtils {
   }
 
   public static ColumnType getArrayType(ColumnType columnType) {
+    if (columnType.isArray()) return columnType;
     return switch (columnType.getBaseType()) {
       case UUID -> ColumnType.UUID_ARRAY;
       case STRING -> ColumnType.STRING_ARRAY;

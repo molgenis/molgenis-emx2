@@ -128,7 +128,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
                       new SqlTableMetadata(
                           sm,
                           getOntologyTableDefinition(
-                              table.getTableName(), table.getDescriptions()));
+                              table.getTableName(), table.getLabels(), table.getDescriptions()));
                 } else {
                   result = new SqlTableMetadata(sm, table);
                 }

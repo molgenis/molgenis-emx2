@@ -1,9 +1,10 @@
-import { useRoute } from "#imports";
 import type { IContactFormData } from "~/interfaces/types";
+import { useRuntimeConfig } from "#app";
 
 export const sendContactForm = (formData: IContactFormData) => {
-  const route = useRoute();
-  return $fetch(`/${route.params.schema}/api/message/`, {
+  const config = useRuntimeConfig();
+  const schema = config.public.schema;
+  return $fetch(`/${schema}/api/message/`, {
     method: "POST",
     body: formData,
   });

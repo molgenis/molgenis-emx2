@@ -345,9 +345,9 @@ export function isColumnVisible(
   tableMetadata: ITableMetaData
 ): boolean {
   const expression = column.visible;
-  if (expression) {
+  if (expression !== undefined) {
     try {
-      return executeExpression(expression, values, tableMetadata);
+      return executeExpression(expression, values || {}, tableMetadata);
     } catch (error) {
       throw `Invalid visibility expression, reason: ${error}`;
     }
@@ -364,7 +364,7 @@ export function splitColumnIdsByHeadings(columns: IColumn[]): string[][] {
       if (accum.length === 0) {
         accum.push([] as string[]);
       }
-      accum[accum.length - 1].push(column.id);
+      accum[accum.length - 1]?.push(column.id);
     }
     return accum;
   }, [] as string[][]);
@@ -389,4 +389,62 @@ export function getSaveDisabledMessage(
   return numberOfErrors > 0
     ? `There are ${numberOfErrors} error(s) preventing saving`
     : "";
+}
+export function buildGraphqlFilter(
+  defaultFilter: any,
+  columns: IColumn[],
+  errorCallback: (error: string) => void
+) {
+  let filter = deepClone(defaultFilter);
+  if (columns) {
+    columns.forEach((col) => {
+      const conditions = col.conditions
+        ? col.conditions.filter(
+            (condition: string) => condition !== "" && condition !== undefined
+          )
+        : [];
+      if (conditions.length) {
+        if (
+          col.columnType.startsWith("STRING") ||
+          col.columnType.startsWith("TEXT") ||
+          col.columnType.startsWith("JSON")
+        ) {
+          filter[col.id] = { like: conditions };
+        } else if (col.columnType.startsWith("BOOL")) {
+          filter[col.id] = { equals: conditions };
+        } else if (
+          col.columnType.startsWith("REF") ||
+          col.columnType.startsWith("ONTOLOGY")
+        ) {
+          filter[col.id] = { equals: conditions };
+        } else if (
+          ["DECIMAL", "DECIMAL_ARRAY", "INT", "INT_ARRAY"].includes(
+            col.columnType
+          )
+        ) {
+          filter[col.id] = {
+            between: conditions.flat().map((value) => parseFloat(value)),
+          };
+        } else if (
+          [
+            "LONG",
+            "LONG_ARRAY",
+            "DATE",
+            "DATE_ARRAY",
+            "DATETIME",
+            "DATETIME_ARRAY",
+          ].includes(col.columnType)
+        ) {
+          filter[col.id] = {
+            between: conditions.flat(),
+          };
+        } else {
+          errorCallback(
+            `filter unsupported for column type ${col.columnType} (please report a bug)`
+          );
+        }
+      }
+    });
+  }
+  return filter;
 }

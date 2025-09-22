@@ -29,10 +29,10 @@ public class CatalogueSiteMapTest {
     <?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" >
       <url>
-        <loc>https://my/base/url/catalogue/all/collections/my-id</loc>
+        <loc>https://my/base/url/all/collections/my-id</loc>
       </url>
       <url>
-        <loc>https://my/base/url/catalogue/all/networks/my-second-id</loc>
+        <loc>https://my/base/url/all/networks/my-second-id</loc>
       </url>
     </urlset>""";
     assertEquals(expected, catalogueSiteMap.buildSiteMap());
@@ -68,13 +68,13 @@ public class CatalogueSiteMapTest {
     <?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" >
       <url>
-        <loc>https://my/base/url/catalogue/all/collections/my-id</loc>
+        <loc>https://my/base/url/all/collections/my-id</loc>
       </url>
       <url>
-        <loc>https://my/base/url/catalogue/all/networks/my-second-id</loc>
+        <loc>https://my/base/url/all/networks/my-second-id</loc>
       </url>
       <url>
-        <loc>https://my/base/url/catalogue/all/variables/Var+name-lifetime-core-lifetime?keys={&quot;name&quot;:&quot;Var+name&quot;,&quot;resource&quot;:{&quot;id&quot;:&quot;lifetime&quot;},&quot;dataset&quot;:{&quot;name&quot;:&quot;core&quot;,&quot;resource&quot;:{&quot;id&quot;:&quot;lifetime&quot;}}}</loc>
+        <loc>https://my/base/url/all/variables/Var%20name-lifetime-core-lifetime?keys=%7B%22name%22%3A%22Var+name%22%2C%22resource%22%3A%7B%22id%22%3A%22lifetime%22%7D%2C%22dataset%22%3A%7B%22name%22%3A%22core%22%2C%22resource%22%3A%7B%22id%22%3A%22lifetime%22%7D%7D%7D</loc>
       </url>
     </urlset>""";
     assertEquals(expected, catalogueSiteMap.buildSiteMap());

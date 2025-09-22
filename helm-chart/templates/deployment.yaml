@@ -53,6 +53,8 @@ spec:
               value: {{ .Values.catalogue.includeCatalogueDemo | quote }}
             - name: MOLGENIS_INCLUDE_DIRECTORY_DEMO
               value: {{ .Values.directory.includeDirectoryDemo | quote }}
+            - name: MOLGENIS_METRICS_ENABLED
+              value: {{ .Values.metrics.enabled | quote }}
 {{- if .Values.oidc.enabled  }}
             - name: MOLGENIS_OIDC_CLIENT_ID
               value: {{ .Values.oidc.client_id }}
@@ -122,6 +124,8 @@ spec:
               value: {{ .Values.ssrCatalogue.environment.siteTitle | quote }}
             - name: NUXT_PUBLIC_ANALYTICS_KEY
               value: {{ .Values.ssrCatalogue.environment.analyticsKey | quote }}
+            - name: NUXT_PUBLIC_SCHEMA
+              value: {{ .Values.ssrCatalogue.environment.schema | quote }}
       volumes:
         - name: postgres-initdb
           configMap:

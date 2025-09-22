@@ -20,11 +20,12 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.afterEach(async ({ page }) => {
-  await expect(page.getByText("e2e")).toBeVisible();
-  await page.getByText("e2edelete Delete PetDraftgo").hover();
-  await page.waitForTimeout(1000);
-
-  await page.getByRole("button", { name: "delete" }).click();
+  const targetCell = await page.getByRole("cell", { name: "e2e", exact: true });
+  await expect(targetCell).toBeVisible();
+  await page
+    .getByText("deletee2e", { exact: true })
+    .filter({ visible: false })
+    .dispatchEvent("click");
   await page.getByRole("button", { name: "Delete", exact: true }).click();
 });
 
@@ -45,5 +46,8 @@ test("add new row", async ({ page }) => {
   await page.getByRole("textbox", { name: "weight Required" }).click();
   await page.getByRole("textbox", { name: "weight Required" }).fill("23");
   await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page.getByText("e2e")).toBeVisible();
+
+  await expect(
+    page.getByRole("cell", { name: "e2e", exact: true })
+  ).toBeVisible();
 });

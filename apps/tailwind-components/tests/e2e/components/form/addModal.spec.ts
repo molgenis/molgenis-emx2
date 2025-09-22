@@ -28,3 +28,13 @@ test("should show the add modal", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByText("name Required the name")).toBeVisible();
 });
+
+test("should validate form before saving", async ({ page }) => {
+  await page.getByRole("button", { name: "Add Pet" }).click();
+  await expect(
+    page.getByRole("textbox", { name: "name Required" })
+  ).toBeEmpty();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByText("3 fields require attention")).toBeVisible();
+  await expect(page.getByText("errorname is required")).toBeVisible();
+});

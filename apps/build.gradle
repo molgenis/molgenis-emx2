@@ -13,8 +13,8 @@ java {
 def isCI = System.getenv('CI') ? true : false
 
 def nodeSpec = {
-    version = '20.11.0'
-    pnpmVersion = "10.10.0"
+    version = '22.17.0'
+    yarnVersion = '1.22.19'
     npmVersion = "9.5.1"
     download = !isCI
 }

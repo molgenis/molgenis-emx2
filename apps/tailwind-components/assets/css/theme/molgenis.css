@@ -96,7 +96,10 @@
   --text-color-pagination-inverted: var(--color-gray-400);
   --text-color-pagination-input: var(--color-blue-800);
   --text-color-pagination-hover: var(--color-white);
+  --text-color-pagination-button: var(--color-white);
+  --text-color-pagination-button-hover: var(--color-blue-800);
   --text-color-link: var(--color-yellow-500);
+  --text-color-link-inverted: var(--color-blue-500);
   --text-color-table-column-header: var(--color-gray-600);
 
   --text-color-invalid: var(--color-red-700);
@@ -142,4 +145,6 @@
   --border-radius-form-required: var(--border-radius-theme);
   --background-color-form-required-btn-hover: var(--color-blue-300);
   --border-color-form-required: var(--color-blue-300);
+
+  --padding-table-body-last-row-cell: 1.5rem;
 }

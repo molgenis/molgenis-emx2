@@ -66,14 +66,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private DatabaseListener listener =
       new DatabaseListener() {
         @Override
-        public void userChanged() {
+        public void onUserChange() {
           clearCache();
         }
 
         @Override
-        public void afterCommit() {
+        public void onSchemaChange() {
           clearCache();
-          super.afterCommit();
+          super.onSchemaChange();
           logger.info("cleared caches after commit that includes changes on schema(s)");
         }
       };
@@ -436,13 +436,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     super.setSettings(settings);
     MetadataUtils.saveDatabaseSettings(jooq, getSettings());
     // force all sessions to reload
-    this.listener.afterCommit();
+    this.listener.onSchemaChange();
     return this;
   }
 
   @Override
   public User addUser(String userName) {
-    if (!hasUser(userName)) {
+    String userNameTrimmed = userName.trim();
+    if (!hasUser(userNameTrimmed)) {
       long start = System.currentTimeMillis();
       // need elevated privileges, so clear user and run as root
       // this is not thread safe therefore must be in a transaction
@@ -451,14 +452,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
             String currentUser = db.getActiveUser();
             try {
               db.becomeAdmin();
-              executeCreateUser((SqlDatabase) db, userName);
+              executeCreateUser((SqlDatabase) db, userNameTrimmed);
             } finally {
               db.setActiveUser(currentUser);
             }
           });
-      log(start, "created user " + userName);
+      log(start, "created user " + userNameTrimmed);
     }
-    return getUser(userName);
+    return getUser(userNameTrimmed);
   }
 
   @Override
@@ -609,7 +610,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
     } else {
       if (!Objects.equals(username, connectionProvider.getActiveUser())) {
-        listener.userChanged();
+        listener.onUserChange();
       }
     }
     this.connectionProvider.setActiveUser(username);
@@ -657,10 +658,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
         if (!Objects.equals(db.getActiveUser(), getActiveUser())) {
-          this.getListener().userChanged();
+          this.getListener().onUserChange();
         }
         if (db.getListener().isDirty()) {
-          this.getListener().afterCommit();
+          this.getListener().onSchemaChange();
         }
       } catch (Exception e) {
         throw new SqlMolgenisException("Transaction failed", e);

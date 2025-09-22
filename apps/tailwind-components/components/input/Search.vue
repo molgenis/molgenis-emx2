@@ -1,11 +1,23 @@
 <script setup lang="ts">
-import type { IInputProps } from "../../types/types";
+import { useTemplateRef } from "vue";
+import type { IInputProps, ButtonSize } from "../../types/types";
+
 const modelValue = defineModel<string | number>();
-defineProps<
-  IInputProps & {
-    type?: string;
+const search = useTemplateRef<HTMLInputElement>("search");
+
+withDefaults(
+  defineProps<
+    IInputProps & {
+      type?: string;
+      size?: ButtonSize;
+    }
+  >(),
+  {
+    size: "medium",
   }
->();
+);
+
+defineExpose({ search });
 
 const emit = defineEmits(["update:modelValue", "focus", "blur"]);
 
@@ -19,7 +31,7 @@ function handleInput(input: string) {
 </script>
 <template>
   <div
-    class="relative flex items-center w-full h-[56px] border outline-none rounded-input"
+    class="relative flex items-center border outline-none rounded-input"
     :class="{
       'bg-input border-valid text-valid': valid && !disabled,
       'bg-input border-invalid text-invalid': invalid && !disabled,
@@ -30,22 +42,30 @@ function handleInput(input: string) {
         invalid && disabled,
       'bg-input text-input hover:border-input-hover focus-within:border-input-focused':
         !disabled && !invalid && !valid,
+      'h-input-tiny pl-5 pr-5 text-heading-sm gap-2': size === 'tiny',
+      'h-input-small pl-5 pr-5 text-heading-sm gap-3': size === 'small',
+      'h-input pl-5 pr-7.5 text-heading-md gap-4': size === 'medium',
+      'h-input-large pl-5 pr-8.75 text-heading-lg gap-5': size === 'large',
     }"
   >
-    <div class="w-[44px] ps-3 text-center pointer-events-none">
+    <div class="w-auto text-center pointer-events-none">
       <BaseIcon
         name="search"
-        :width="21"
-        class="text-input"
         :class="{
           'text-valid': valid,
           'text-invalid': invalid,
           'text-disabled': disabled,
+          'text-input': !disabled,
+          'w-[12px]': size === 'tiny',
+          'w-[16px]': size === 'small',
+          'w-[21px]': size === 'medium',
+          'w-[26px]': size === 'large',
         }"
       />
     </div>
     <input
       :id="id"
+      ref="search"
       type="search"
       :value="modelValue"
       :placeholder="placeholder"

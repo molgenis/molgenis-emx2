@@ -60,6 +60,10 @@ public abstract class ColumnTypeRdfMapper {
 
           // RELATIONSHIP
           entry(ColumnType.REF, RdfColumnType.REFERENCE),
+          entry(ColumnType.SELECT, RdfColumnType.REFERENCE),
+          entry(ColumnType.RADIO, RdfColumnType.REFERENCE),
+          entry(ColumnType.MULTISELECT, RdfColumnType.REFERENCE),
+          entry(ColumnType.CHECKBOX, RdfColumnType.REFERENCE),
           entry(ColumnType.REF_ARRAY, RdfColumnType.REFERENCE),
           entry(ColumnType.REFBACK, RdfColumnType.REFERENCE),
 
@@ -154,7 +158,7 @@ public abstract class ColumnTypeRdfMapper {
         return basicRetrieval(row.getLongArray(column.getName()), Values::literal);
       }
     },
-    DECIMAL(CoreDatatype.XSD.DECIMAL) {
+    DECIMAL(CoreDatatype.XSD.DOUBLE) { // ColumnType.Decimal is stored as Double in PostgreSQL!
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
         return basicRetrieval(row.getDecimalArray(column.getName()), Values::literal);

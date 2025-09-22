@@ -5,7 +5,7 @@
     :aria-describedby="describedBy"
     :options="yesNoOption"
     :showClearButton="true"
-    align="horizontal"
+    :align="align"
     :invalid="invalid"
     :valid="valid"
     :disabled="disabled"
@@ -22,6 +22,7 @@ const props = withDefaults(
     IInputProps & {
       trueLabel?: string;
       falseLabel?: string;
+      align?: "horizontal" | "vertical";
     }
   >(),
   {

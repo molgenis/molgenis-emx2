@@ -26,7 +26,7 @@ public class SiteMapService {
       return;
     }
 
-    final String baseUrl = "https://" + ctx.host() + "/" + schema.getName();
+    final String baseUrl = "https://" + ctx.host();
 
     String siteMap = new CatalogueSiteMap(schema, baseUrl).buildSiteMap();
     ctx.result(siteMap);

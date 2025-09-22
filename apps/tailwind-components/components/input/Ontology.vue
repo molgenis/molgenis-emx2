@@ -1,17 +1,33 @@
 <script setup lang="ts">
 import type { IInputProps, ITreeNodeState } from "../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
-import { onMounted, ref, watch, type Ref } from "vue";
+import {
+  onMounted,
+  onBeforeUnmount,
+  ref,
+  watch,
+  type Ref,
+  computed,
+  useTemplateRef,
+  nextTick,
+} from "vue";
 import { fetchGraphql } from "#imports";
 
-const props = defineProps<
-  IInputProps & {
-    isArray?: boolean;
-    //todo: do we need to change to radio button instead of checkboxes when !isArray?
-    ontologySchemaId: string;
-    ontologyTableId: string;
+const props = withDefaults(
+  defineProps<
+    IInputProps & {
+      isArray?: boolean;
+      //todo: do we need to change to radio button instead of checkboxes when !isArray?
+      ontologySchemaId: string;
+      ontologyTableId: string;
+      limit?: number;
+    }
+  >(),
+  {
+    limit: 25,
   }
->();
+);
+
 const emit = defineEmits(["focus", "blur"]);
 //the selected values
 const modelValue = defineModel<string[] | string>();
@@ -28,13 +44,46 @@ const searchTerms: Ref<string> = ref("");
 //initial loading state
 const initLoading = ref(true);
 
+const counterOffset = ref<number>(0);
+const maxTableRows = ref<number>(0);
+const maxOntologyNodes = ref<number>(0);
+
+const noTreeInputsFound = ref<boolean>(false);
+const treeContainer = useTemplateRef<HTMLUListElement>("treeContainer");
+const treeInputs = ref();
+
+function setTreeInputs() {
+  treeInputs.value = treeContainer.value?.querySelectorAll("ul li");
+}
+
 onMounted(() => {
-  init();
-  initLoading.value = false;
+  init()
+    .then(async () => {
+      await getMaxParentNodes();
+      await nextTick();
+      setTreeInputs();
+    })
+    .catch((err) => {
+      throw new Error(err);
+    })
+    .finally(() => {
+      initLoading.value = false;
+    });
 });
+
 watch(() => props.ontologySchemaId, init);
 watch(() => props.ontologyTableId, init);
 watch(() => modelValue.value, applySelectedStates);
+watch(
+  () => treeContainer.value,
+  async () => {
+    await nextTick();
+    setTreeInputs();
+    if (!treeInputs.value) {
+      noTreeInputsFound.value = true;
+    }
+  }
+);
 
 /* retrieves terms, optionally as children to a parent */
 async function retrieveTerms(
@@ -54,34 +103,37 @@ async function retrieveTerms(
 
   let query = searchTerms.value
     ? `query myquery($termFilter:${props.ontologyTableId}Filter, $searchFilter:${props.ontologyTableId}Filter) {
-        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:1000, orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
-        searchMatch: ${props.ontologyTableId}(filter:$searchFilter, limit:1000, orderby:{order:ASC,name:ASC}){name}
+        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:${props.limit}, offset:${counterOffset.value} orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
+        searchMatch: ${props.ontologyTableId}(filter:$searchFilter, limit:${props.limit}, orderby:{order:ASC,name:ASC}){name}
        }`
     : `query myquery($termFilter:${props.ontologyTableId}Filter) {
-        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:1000, orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
+        retrieveTerms: ${props.ontologyTableId}(filter:$termFilter, limit:${props.limit},offset:${counterOffset.value}, orderby:{order:ASC,name:ASC}){name,label,definition,code,codesystem,ontologyTermURI,children(limit:1){name}}
        }`;
 
   const data = await fetchGraphql(props.ontologySchemaId, query, variables);
+  await getMaxParentNodes(variables);
 
-  return data.retrieveTerms?.map((row: any) => {
-    return {
-      name: row.name,
-      parentNode: parentNode,
-      label: row.label,
-      description: row.definition,
-      code: row.code,
-      codeSystem: row.codeSystem,
-      uri: row.ontologyTermURI,
-      selectable: true,
-      children: row.children,
-      //visibility is used for search hiding
-      visible: searchTerms.value
-        ? data.searchMatch?.some(
-            (match: boolean) => (match as any).name === row.name
-          ) || false
-        : true,
-    };
-  });
+  return (
+    data.retrieveTerms?.map((row: any) => {
+      return {
+        name: row.name,
+        parentNode: parentNode,
+        label: row.label,
+        description: row.definition,
+        code: row.code,
+        codeSystem: row.codeSystem,
+        uri: row.ontologyTermURI,
+        selectable: true,
+        children: row.children,
+        //visibility is used for search hiding
+        visible: searchTerms.value
+          ? data.searchMatch?.some(
+              (match: boolean) => (match as any).name === row.name
+            ) || false
+          : true,
+      };
+    }) || []
+  );
 }
 
 async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<void> {
@@ -114,14 +166,15 @@ async function retrieveSelectedPathsAndLabelsForModelValue(): Promise<void> {
 
 /** initial load */
 async function init() {
-  ontologyTree.value = await retrieveTerms();
+  ontologyTree.value = [...ontologyTree.value, ...(await retrieveTerms())];
   await applySelectedStates();
+  await getMaxTableRows();
 }
 
 /** apply selection UI state on selection changes */
 async function applySelectedStates() {
   await retrieveSelectedPathsAndLabelsForModelValue();
-  ontologyTree.value.forEach((term) => {
+  ontologyTree.value?.forEach((term) => {
     applyStateToNode(term);
   });
 }
@@ -179,7 +232,6 @@ function toggleSelect(node: ITreeNodeState) {
         modelValue.value?.includes(parent.name)
       )
     ) {
-      console.log("here");
       const itemsToBeRemoved = [
         node.name,
         ...getAllParents(node).map((parent) => parent.name),
@@ -220,6 +272,7 @@ function toggleSelect(node: ITreeNodeState) {
       ];
     }
   }
+  if (searchTerms.value) toggleSearch();
   emit("focus");
 }
 
@@ -261,6 +314,7 @@ function deselect(name: string) {
   } else {
     modelValue.value = undefined;
   }
+  if (searchTerms.value) toggleSearch();
 }
 
 function clearSelection() {
@@ -270,79 +324,151 @@ function clearSelection() {
 
 function toggleSearch() {
   showSearch.value = !showSearch.value;
+  searchTerms.value = "";
   if (!showSearch.value) init();
 }
 
 async function updateSearch(value: string) {
   searchTerms.value = value;
+  counterOffset.value = 0;
+  ontologyTree.value = [];
   await init();
+}
+
+const hasChildren = computed(() =>
+  ontologyTree.value?.some((node) => node.children?.length)
+);
+
+async function getMaxTableRows() {
+  const data = await fetchGraphql(
+    props.ontologySchemaId,
+    `query {${props.ontologyTableId}_agg(search: "${
+      searchTerms.value || ""
+    }") { count }} `,
+    {}
+  );
+  maxTableRows.value = data[`${props.ontologyTableId}_agg`].count;
+}
+
+async function getMaxParentNodes(variables?: any) {
+  const gqlVariables = {
+    filter: { parent: { _is_null: true } },
+    search: variables?.searchTerms || "",
+  };
+
+  const query = `query GetNodes ($filter: ${props.ontologyTableId}Filter, $search: String) {
+    ${props.ontologyTableId}_agg (filter:$filter, search:$search) {
+      count
+    }
+  }`;
+  const data = await fetchGraphql(props.ontologySchemaId, query, gqlVariables);
+  maxOntologyNodes.value = data[`${props.ontologyTableId}_agg`].count;
+}
+
+async function loadMoreTerms() {
+  counterOffset.value += props.limit;
+  if (counterOffset.value < maxTableRows.value) {
+    treeInputs.value = [];
+    await init();
+    await nextTick();
+    setTreeInputs();
+
+    if (treeInputs.value) {
+      const itemToFocus = treeInputs.value[
+        counterOffset.value - 1
+      ] as HTMLLIElement;
+      itemToFocus.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      });
+      itemToFocus.querySelector("input")?.focus();
+    }
+  }
 }
 </script>
 
 <template>
-  <div v-if="initLoading">
-    <BaseIcon name="progress-activity" />
+  <div v-if="initLoading" class="h-20 flex justify-start items-center">
+    <BaseIcon name="progress-activity" class="animate-spin text-input" />
   </div>
-  <div v-else>
+  <div v-else-if="!initLoading && ontologyTree.length">
     <InputGroupContainer
-      :id="`${id}-checkbox-group`"
+      :id="`${id}-ontology`"
       class="border-l-4 border-transparent"
-      @blur="emit('blur')"
       @focus="emit('focus')"
+      @blur="emit('blur')"
     >
-      <div
-        class="flex flex-wrap gap-2 mb-2 max-h-[300px] overflow-y-auto"
-        v-if="Object.keys(valueLabels).length > 0"
+      <ButtonFilterWellContainer
+        ref="selectionContainer"
+        :id="`${id}-ontology-selections`"
+        @clear="clearSelection"
       >
-        <Button
-          v-for="name in Array.isArray(modelValue)
-            ? (modelValue as string[]).sort()
-            : modelValue ? [modelValue] : []"
-          icon="cross"
-          iconPosition="right"
-          type="filterWell"
-          size="tiny"
-          @click="deselect(name as string)"
-        >
-          {{ valueLabels[name] }}
-        </Button>
-      </div>
-      <div class="flex flex-wrap gap-2 mb-2">
-        <InputLabel :for="`search-for-${id}`" class="sr-only">
+        <template v-if="Object.keys(valueLabels).length > 0">
+          <Button
+            v-for="name in Array.isArray(modelValue)
+              ? (modelValue as string[]).sort()
+              : modelValue ? [modelValue] : []"
+            icon="cross"
+            iconPosition="right"
+            type="filterWell"
+            size="tiny"
+            @click="deselect(name as string)"
+          >
+            {{ valueLabels[name] }}
+          </Button>
+        </template>
+      </ButtonFilterWellContainer>
+      <div class="my-4" v-if="hasChildren || ontologyTree.length > limit">
+        <label :for="`search-for-${id}`" class="sr-only">
           search in ontology
-        </InputLabel>
-        <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
-          Search
-        </ButtonText>
-        <ButtonText @click="clearSelection"> Clear all </ButtonText>
+        </label>
         <InputSearch
-          v-if="showSearch"
           :id="`search-for-${id}`"
           :modelValue="searchTerms"
           @update:modelValue="updateSearch"
-          class="mb-2"
+          size="small"
           placeholder="Search in terms"
           :aria-hidden="!showSearch"
         />
       </div>
-      <fieldset>
+      <fieldset ref="treeContainer">
         <legend class="sr-only">select ontology terms</legend>
         <TreeNode
           :id="id"
+          ref="tree"
           :nodes="ontologyTree"
           :isRoot="true"
           :valid="valid"
           :invalid="invalid"
           :disabled="disabled"
+          :multiselect="isArray"
           @toggleExpand="toggleExpand"
           @toggleSelect="toggleSelect"
-          class="border-l-2 border-transparent pl-4 pb-2 max-h-[500px] overflow-y-auto"
-          :class="{
-            'border-l-invalid': invalid,
-            'border-l-valid': valid,
-          }"
+          @show-outside-results="noTreeInputsFound = false"
+          class="pb-2"
+          :class="{ 'pl-4': hasChildren }"
+          aria-live="polite"
+          aria-atomic="true"
         />
+        <ButtonText
+          :id="`${id}-ontology-tree-load-more`"
+          @click="loadMoreTerms"
+          v-if="
+            !noTreeInputsFound && ontologyTree.length < maxOntologyNodes - 1
+          "
+        >
+          Load more
+        </ButtonText>
       </fieldset>
     </InputGroupContainer>
+  </div>
+  <div
+    v-else
+    class="py-4 flex justify-start items-center text-input-description"
+  >
+    <TextNoResultsMessage
+      :label="`Ontology '${props.ontologyTableId}' in schema '${props.ontologySchemaId}' is empty`"
+    />
   </div>
 </template>

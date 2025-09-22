@@ -45,9 +45,8 @@ public class AnalyticsApi {
   private static void deleteTrigger(Context ctx) {
     ctx.contentType("application/json");
     var action = new DeleteTriggerAction(sanitize(ctx.pathParam(TRIGGER_PARAM)));
-    MolgenisSession session = sessionManager.getSession(ctx.req());
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
-    Database database = session.getDatabase();
+    Database database = applicationCache.getDatabaseForUser(ctx);
     Schema schema = database.getSchema(schemaName);
 
     TriggerRepositoryImpl triggerRepository = new TriggerRepositoryImpl(database);
@@ -59,9 +58,8 @@ public class AnalyticsApi {
 
   private static void listSchemaTriggers(Context ctx) {
     ctx.contentType("application/json");
-    MolgenisSession session = sessionManager.getSession(ctx.req());
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
-    Database database = session.getDatabase();
+    Database database = applicationCache.getDatabaseForUser(ctx);
     Schema schema = database.getSchema(schemaName);
 
     TriggerRepositoryImpl triggerRepository = new TriggerRepositoryImpl(database);
@@ -71,10 +69,10 @@ public class AnalyticsApi {
 
   private static void addTrigger(Context ctx) {
     ctx.contentType("application/json");
-    var createTriggerAction = actionTransformer.transform(ctx.body(), CreateTriggerAction.class);
-    MolgenisSession session = sessionManager.getSession(ctx.req());
+    CreateTriggerAction createTriggerAction =
+        actionTransformer.transform(ctx.body(), CreateTriggerAction.class);
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
-    Database database = session.getDatabase();
+    Database database = applicationCache.getDatabaseForUser(ctx);
     Schema schema = database.getSchema(schemaName);
 
     TriggerRepositoryImpl triggerRepository = new TriggerRepositoryImpl(database);
@@ -86,10 +84,9 @@ public class AnalyticsApi {
 
   private static void updateTrigger(Context ctx) {
     ctx.contentType("application/json");
-    var action = actionTransformer.transform(ctx.body(), UpdateTriggerAction.class);
-    MolgenisSession session = sessionManager.getSession(ctx.req());
+    UpdateTriggerAction action = actionTransformer.transform(ctx.body(), UpdateTriggerAction.class);
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
-    Database database = session.getDatabase();
+    Database database = applicationCache.getDatabaseForUser(ctx);
     Schema schema = database.getSchema(schemaName);
 
     TriggerRepositoryImpl triggerRepository = new TriggerRepositoryImpl(database);

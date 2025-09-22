@@ -1,4 +1,4 @@
-import { useRoute } from "#app";
+import { useRuntimeConfig } from "#app";
 import { moduleToString } from "#imports";
 import type { DocumentNode } from "graphql";
 import type { GqlResp } from "~/interfaces/types";
@@ -17,8 +17,8 @@ export function fetchGql<T>(
     body.variables = variables;
   }
 
-  const route = useRoute();
-  const schema = schemaId ? schemaId : route.params.schema;
+  const config = useRuntimeConfig();
+  const schema = schemaId ? schemaId : config.public.schema;
   return $fetch<GqlResp<T>>(`/${schema}/graphql`, {
     method: "POST",
     body,

@@ -14,7 +14,7 @@
         class="form-control"
         :aria-describedby="id"
         :placeholder
-        @keyup.enter="search"
+        @keyup="onKeyup"
       />
       <template v-slot:append>
         <button
@@ -36,24 +36,31 @@
 <script setup lang="ts">
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
-import { defineEmits, ref } from "vue";
+import { ref } from "vue";
 
 const props = withDefaults(
   defineProps<{
     modelValue: string;
     isClearBtnShown?: boolean;
-    id?: string;
+    isEmitOnType?: boolean;
+    id: string;
     label?: string;
     description?: string;
     errorMessage?: string;
     placeholder?: string;
   }>(),
-  { isClearBtnShown: false, placeholder: "Search" }
+  { isClearBtnShown: false, isEmitOnType: false, placeholder: "Search" }
 );
 
 const input = ref<string>(props.modelValue || "");
 
 const emit = defineEmits(["update:modelValue"]);
+
+function onKeyup(event: KeyboardEvent) {
+  if (event.key === "Enter" || props.isEmitOnType) {
+    search();
+  }
+}
 
 function search() {
   emit("update:modelValue", input.value);

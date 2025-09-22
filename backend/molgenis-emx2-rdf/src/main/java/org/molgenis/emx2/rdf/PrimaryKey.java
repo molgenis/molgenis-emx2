@@ -24,11 +24,24 @@ import org.molgenis.emx2.TableMetadata;
  * @see <a
  *     href=https://github.com/molgenis/molgenis-emx2/issues/4944>https://github.com/molgenis/molgenis-emx2/issues/4944</a>
  */
-class PrimaryKey {
+public class PrimaryKey {
   public static final String NAME_VALUE_SEPARATOR = "=";
   public static final String KEY_PARTS_SEPARATOR = "&";
   // "column name", "column value" (non-escaped due to getFilter() functionality)
   private final SortedMap<String, String> keys;
+
+  PrimaryKey(SortedMap<String, String> keys) {
+    if (keys.isEmpty()) {
+      throw new IllegalArgumentException("There must be at least one key.");
+    } else if (keys.containsValue(null)) {
+      throw new IllegalArgumentException("Values are not allowed to be null.");
+    }
+    this.keys = keys;
+  }
+
+  PrimaryKey(Map<String, String> keys) {
+    this(new TreeMap<>(keys));
+  }
 
   /**
    * A table should always have a key=1 column (and it must have a value), so validating on empty
@@ -108,21 +121,8 @@ class PrimaryKey {
     return currentColumn.getName();
   }
 
-  static PrimaryKey fromEncodedString(Table table, String encodedValue) {
+  public static PrimaryKey fromEncodedString(Table table, String encodedValue) {
     return fromEncodedString(table.getMetadata(), encodedValue);
-  }
-
-  PrimaryKey(SortedMap<String, String> keys) {
-    if (keys.isEmpty()) {
-      throw new IllegalArgumentException("There must be at least one key.");
-    } else if (keys.containsValue(null)) {
-      throw new IllegalArgumentException("Values are not allowed to be null.");
-    }
-    this.keys = keys;
-  }
-
-  PrimaryKey(Map<String, String> keys) {
-    this(new TreeMap<>(keys));
   }
 
   String getEncodedString() {
@@ -139,7 +139,7 @@ class PrimaryKey {
     }
   }
 
-  Filter getFilter() {
+  public Filter getFilter() {
     final List<Filter> filters =
         keys.entrySet().stream().map(param -> f(param.getKey(), EQUALS, param.getValue())).toList();
     return and(filters);

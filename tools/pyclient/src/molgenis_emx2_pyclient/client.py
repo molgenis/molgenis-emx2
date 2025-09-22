@@ -464,7 +464,7 @@ class Client:
         bool_columns = [c for (c, t) in dtypes.items() if t == 'boolean']
         date_columns = [c.name for c in table_meta.columns
                         if c.get('columnType') in (DATE, DATETIME) and c.name in response_columns]
-        response_data = pd.read_csv(BytesIO(response.content),  keep_default_na=True, dtype=dtypes, parse_dates=date_columns)
+        response_data = pd.read_csv(BytesIO(response.content), keep_default_na=False, na_values=[''], dtype=dtypes, parse_dates=date_columns)
 
         response_data[bool_columns] = response_data[bool_columns].replace({'true': True, 'false': False})
         response_data = response_data.astype(dtypes)
@@ -1215,10 +1215,10 @@ class Client:
                         parsed_row[col] = value['name']
                     case "ONTOLOGY_ARRAY":
                         parsed_row[col] = [val['name'] for val in value]
-                    case "REF":
+                    case "REF", "SELECT", "RADIO":
                         _schema = column_meta.get('refSchemaName', schema)
                         parsed_row[col] = self._parse_ontology([value], column_meta.get('refTableId'), _schema)[0]
-                    case "REF_ARRAY":
+                    case "REF_ARRAY", "MULTISELECT", "CHECKBOX":
                         _schema = column_meta.get('refSchemaName', schema)
                         parsed_row[col] = self._parse_ontology(value, column_meta.get('refTableId'), _schema)
                     case "REFBACK":

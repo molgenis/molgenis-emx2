@@ -3,10 +3,13 @@ import variableQuery from "../gql/variable";
 import type { KeyObject } from "../../metadata-utils/src/types";
 import type { IVariables } from "../interfaces/catalogue";
 import type { Resp } from "../../tailwind-components/types/types";
-import { useRoute, useFetch, showError } from "#app";
+import { useRoute, useFetch, showError, useRuntimeConfig } from "#app";
 import { moduleToString } from "#imports";
 import { computed } from "vue";
 import { buildFilterFromKeysObject } from "../../metadata-utils/src";
+
+const config = useRuntimeConfig();
+const schema = config.public.schema as string;
 
 const query = moduleToString(variableQuery);
 
@@ -16,24 +19,23 @@ const props = defineProps<{
 
 const route = useRoute();
 
-const { data, error } = await useFetch<Resp<IVariables>>(
-  `/${route.params.schema}/graphql`,
-  {
-    method: "POST",
-    body: {
-      query: query,
-      variables: {
-        variableFilter: buildFilterFromKeysObject(props.variableKey),
-      },
+const { data, error } = await useFetch<Resp<IVariables>>(`/${schema}/graphql`, {
+  method: "POST",
+  body: {
+    query: query,
+    variables: {
+      variableFilter: buildFilterFromKeysObject(props.variableKey),
     },
-  }
-);
+  },
+});
 
 if (error.value) {
   showError(error.value);
 }
 
-const variable = computed(() => data.value?.data?.Variables[0] as IVariables);
+const variable = computed(
+  () => (data.value?.data?.Variables?.[0] as IVariables) || {}
+);
 
 const items = computed(() => {
   const defaultItems = [

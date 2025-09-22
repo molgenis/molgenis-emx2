@@ -3,6 +3,7 @@
 MOLGENIS EMX2 Python tooling for a BBMRI Biobank Directory
 
 ## Description
+
 This library contains tools for the MOLGENIS EMX2 BBMRI Biobank Directory that help with
 staging and publishing the data of the national nodes. **Staging** is the process of copying
 data from a national node's external server (for example [BBMRI-NL](https://catalogue.bbmri.nl/menu/main/home)) to
@@ -57,52 +58,62 @@ if __name__ == "__main__":
     asyncio.run(get_data())
 ```
 
-
 ## For developers
+
 Clone the `molgenis-emx2` repository from GitHub
+
 ```console
 git clone git@github.com:molgenis/molgenis-emx2.git
 ```
 
 Change the working directory to `.../tools/directory`
 
-This project uses [pre-commit](https://pre-commit.com/) and [pipenv](https://pypi.org/project/pipenv/) for the development workflow.
+This project uses [pre-commit](https://pre-commit.com/) and
+[pipenv](https://pypi.org/project/pipenv/) for the development workflow.
 Install pre-commit and pipenv if you haven't already:
-```
+
+```console
 pip install pre-commit
 pip install pipenv
 ```
 
 Install the git commit hooks:
-```
+
+```console
 pre-commit install
 ```
 
 Create an environment and install the package including all (dev) dependencies:
-```
+
+```console
 pipenv install --dev
 ```
 
 Enter the environment:
-```
+
+```console
 pipenv shell
 ```
 
 Build and run the tests:
-```
+
+```console
 tox
 ```
 
 ## Build
+
 Before building the source, the package `bumpversion` needs to be installed.
+
 ```console
 (venv) $ pip install bumpversion
 ```
 
-Bump the source version. This will update setup.py and __init__.py. NB! Make sure that
+Bump the source version. This will update setup.py and **init**.py. NB! Make sure that
 the version numbers in these file have single quotes.
 Always start with creating a new -dev0 version with major, minor or patch parameter
 depending on the release scope
+
 ```console
 (venv) $ ./bump-version.sh major
 OR
@@ -112,36 +123,45 @@ OR
 ```
 
 Then either create a new dev-version in case any changes have been made
+
 ```console
 (venv) $ ./bump-version.sh build
 ```
 
 Or if all is fine, create a new release version
+
 ```console
 (venv) $ ./bump-version.sh release
 ```
 
 After bumping the version, the source can be build
+
 ```console
 (venv) $ tox -e build
 ```
 
 Then dev (and release) versions of the source can be uploaded to testpypi
+
 ```console
 (venv) $ tox -e publish -- --skip-existing --repository testpypi
 ```
 
 And release versions of the source can be uploaded to pypi
+
 ```console
 (venv) $ tox -e publish -- --skip-existing --repository pypi
 ```
 
 Or install locally
+
 ```console
 (venv) $ pip install dist/molgenis_emx2_pyclient*.whl
 ```
 
+When releasing a new version, don't forget to update CHANGELOG.md and,
+if applicable, README.md and AUTHORS.md.
+
 ## Note
 
 This project has been set up using PyScaffold 4.0.2. For details and usage
-information on PyScaffold see https://pyscaffold.org/.
+information on PyScaffold see <https://pyscaffold.org/>.

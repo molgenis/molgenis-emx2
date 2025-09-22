@@ -7,10 +7,10 @@ import type {
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import type { IRow } from "../Interfaces/IRow";
-import { deepClone } from "../components/utils";
-import type { aggFunction } from "./IClient";
+import { deepClone, getKeyValue } from "../components/utils";
+import type { AggFunction } from "./IClient";
 import type { IClient, INewClient } from "./IClient";
-import type { IQueryMetaData } from "./IQueryMetaData";
+import type { IQueryMetaData } from "../../../tailwind-components/types/IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
 import { toFormData } from "../../../tailwind-components/utils/toFormData";
 
@@ -94,7 +94,7 @@ const client: IClient = {
         selectedColumn: { id: string; column: string }, //should these be id?
         selectedRow: { id: string; column: string }, //should these be id?
         filter: Object,
-        aggFunction?: aggFunction,
+        aggFunction?: AggFunction,
         aggField?: string
       ) => {
         const aggregateQuery = `
@@ -380,23 +380,5 @@ async function convertRowToPrimaryKey(
       },
       Promise.resolve({})
     );
-  }
-
-  async function getKeyValue(
-    cellValue: any,
-    column: IColumn,
-    schemaId: string
-  ) {
-    if (typeof cellValue === "string") {
-      return cellValue;
-    } else {
-      if (column.refTableId) {
-        return await convertRowToPrimaryKey(
-          cellValue,
-          column.refTableId,
-          schemaId
-        );
-      }
-    }
   }
 }

@@ -1,6 +1,6 @@
-name,code,order,definition,comments,parent,ontologyTermURI
-EUPAS number,,,,,,
-METc number,,,,,,
-Clinical Trials.gov,,,,,,
-NCT number,,,,,,
-EUDRACT number,,,,,,
+name,code,order,definition,parent,ontologyTermURI
+EUPAS number,,,,,
+METc number,,,,,
+Clinical Trials.gov,,,,,
+NCT number,,,,,
+EUDRACT number,,,,,

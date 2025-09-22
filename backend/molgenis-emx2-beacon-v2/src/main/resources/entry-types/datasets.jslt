@@ -11,9 +11,9 @@ let host = .requestBody.meta.host
         [for (.resultSets[0].results) {
             "createDateTime": .mg_insertedOn,
             "description": .description,
-            "externalUrl": $host + "/api/fdp/dataset/" + $schemaId + "/" + .id,
-            "id": .id,
-            "name": .title,
+            "externalUrl": $host + "/api/fdp/dataset/" + $schemaId + "/" + .resource.id,
+            "id": .resource.id,
+            "name": .name,
             "updateDateTime": .mg_updatedOn,
             "version": .mg_updatedOn
         }]

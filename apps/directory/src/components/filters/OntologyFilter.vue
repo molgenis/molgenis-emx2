@@ -89,6 +89,9 @@ const selectedOntology = ref(ontologyIdentifiers[0]);
 options()
   .then((response: any) => {
     resolvedOptions.value = response || {};
+    filtersStore.setDiseases(
+      resolvedOptions.value![selectedOntology.value] || []
+    );
   })
   .catch((error: any) => {
     console.log(`Error resolving ontology facet options: ${error}`);
@@ -134,6 +137,7 @@ const handleSearchFieldChanged = _.debounce((event: any) => {
 
 function setSelectedOntology(ontologyId: string) {
   selectedOntology.value = ontologyId;
+  filtersStore.setDiseases(resolvedOptions.value![ontologyId] || []);
 }
 </script>
 
