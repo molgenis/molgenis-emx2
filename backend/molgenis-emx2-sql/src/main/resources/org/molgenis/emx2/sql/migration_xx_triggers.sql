@@ -254,8 +254,7 @@ BEGIN
             SELECT ARRAY_AGG(table_name)
             INTO table_ids
             FROM "MOLGENIS".table_metadata
-            WHERE table_schema = NEW.table_schema
-              AND table_type = 'BASE TABLE';
+            WHERE table_schema = NEW.table_schema;
 
             IF table_ids IS NOT NULL THEN
                 FOREACH table_id IN ARRAY table_ids
