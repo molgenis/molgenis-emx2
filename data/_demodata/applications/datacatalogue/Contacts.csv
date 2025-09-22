@@ -1,5 +1,6 @@
 resource,role,role description,first name,last name,display name,prefix,initials,title,organisation,email,orcid,homepage,photo,photo_filename,expertise,mg_draft
 MOLGENIS,,,Morris,Swertz,Morris Swertz,,,,,test@email.org,,,,,,false
+testCohort1,Data manager,test description for data manager role,datamgr first name,datamgr last name,datamgr first name datamgr last name,datamgr surname prefix,D.M.,dr.,Test lead organisation 1,test@email.nl,test orcid,https://kanariepiet.com,742c473e39e64ba397f07d0e9a6d84da,ac8e9674448a42fdb12f49eb0cf329da.jpg,test expertise for data manager role,false
 FORCE-NEN,Principal Investigator,,Bob,Ross,Bob Ross,,BR,dr.,UMCU,bob.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Painting,
 NFBC1966,,,Bob,Ross,Bob Ross,,BR,dr.,,bob.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Painting,
 FORCE-NEN,Principal Investigator,,Jack,Ross,Jack Ross,,JR,prof.,UMCG,jack.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Carpenting,
@@ -31,8 +32,6 @@ SYSDIMET,,,Bob,Ross,Bob Ross,,BR,dr.,,bob.ross@paintings.eu,0000-0033-1119-366,h
 WDC,Project manager,,Bob,Ross,Bob Ross,,BR,dr.,TUNI,bob.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Painting,
 WDC,Principal Investigator,,Jack,Ross,Jack Ross,,JR,prof.,UOULU,jack.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Carpenting,
 WDC,Principal Investigator,,Ollie,Ross,Ollie Ross,,OR,ir.,TUNI,ollie.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Waiting,
-testCohort1,"Principal Investigator,Project manager",Test description of PI/PM role,PIPM,last name PIPM,PIPM last name PIPM,surname prefix,P.I.P.M.,dr. ir.,Test lead organisation 1,pipm@testdomain.nl,test orcid,https://kanariepiet.com,cebaef17ed504a31aa00fcf38b19f743,TEST photo for PI-PL.jpg,test expertise,
-testCohort1,Data manager,test description for data manager role,datamgr first name,datamgr last name,datamgr first name datamgr last name,datamgr surname prefix,D.M.,dr.,Test lead organisation 1,test@email.nl,test orcid,https://kanariepiet.com,05367aaa353f42f898a5b62b3675d7c4,test photo of data manager.jpg,test expertise for data manager role,
 testCohort2,Alternative contact,test alternative contact for cohort 2,cohort2alternativefirst,cohort2alternativelast,cohort2alternativefirst cohort2alternativelast,surname prefix,A.L.T.E.R.,dr.,test lead organisation 2,testemailalternative@testdomain.nl,testorcid,https://kanariepiet.com,,,test expertise for alternative contact,
 mtFIT study,Primary contact,,Bob,Ross,Bob Ross,,,,,bob.ross@paintings.eu,,,,,,
 DFBC,Primary contact,,Bob,Ross,Bob Ross,,,,,bob.ross@paintings.eu,,,,,,
@@ -41,6 +40,7 @@ testCohort3,Primary contact,,Bob,Ross,Bob Ross,,,,,bob.ross@paintings.eu,,,,,,
 ABCD,Primary contact,,Bob,Ross,Bob Ross,,BR,dr.,,bob.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Painting,
 ALSPAC,Principal Investigator,,Bob,Ross,Bob Ross,,BR,dr.,,bob.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Painting,
 ALSPAC,Primary contact,,Jack,Ross,Jack Ross,,JR,prof.,,jack.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Carpenting,
+testCohort1,"Principal Investigator,Project manager",Test description of PI/PM role,PIPM,last name PIPM,PIPM last name PIPM,surname prefix,P.I.P.M.,dr. ir.,Test lead organisation 1,pipm@testdomain.nl,test orcid,https://kanariepiet.com,d11622fcde214ade936ce9ef80e8914d,29a0c789813341a39adf09022577c44c.jpg,test expertise,false
 ALSPAC,Data manager,,Ollie,Ross,Ollie Ross,,OR,ir.,,ollie.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Waiting,
 BIB,Data manager,,Bob,Ross,Bob Ross,,BR,dr.,BRI,bob.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Painting,
 CELSPAC-TNG,Data manager,,Bob,Ross,Bob Ross,,BR,dr.,,bob.ross@paintings.eu,0000-0033-1119-366,https://en.wikipedia.org/wiki/Bob_Ross,,,Painting,
