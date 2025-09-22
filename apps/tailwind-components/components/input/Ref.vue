@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ITableDataResponse } from "../../composables/fetchTableData";
-import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQueryMetaData.ts";
+import type { IQueryMetaData } from "../../types/IQueryMetaData";
 import type {
   ITableMetaData,
   columnValueObject,
@@ -105,7 +105,10 @@ watch(
   () => modelValue.value,
   () => {
     if (props.isArray === false) {
-      delete selectionMap.value[Object.keys(selectionMap.value)[0]];
+      const key = Object.keys(selectionMap.value)[0];
+      if (key !== undefined) {
+        delete selectionMap.value[key];
+      }
       if (modelValue.value) {
         selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
           modelValue.value;

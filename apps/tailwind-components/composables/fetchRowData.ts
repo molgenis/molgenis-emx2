@@ -33,5 +33,5 @@ export default async (
   }
 
   const row = resp.rows[0];
-  return row;
+  return row ?? {};
 };
