@@ -39,11 +39,10 @@ const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
   body: { query: `{ _schemas { id,label,description } }` },
 });
 
-const schemaIds = computed(
-  () =>
-    schemas.value?.data?._schemas
-      .sort((a, b) => a.label.localeCompare(b.label))
-      .map((s) => s.id) ?? []
+const schemaIds = computed(() =>
+  (schemas.value?.data?._schemas ?? [])
+    .sort((a, b) => a.label.localeCompare(b.label))
+    .map((s) => s.id)
 );
 
 const { data: schemaMeta, refresh } = await useAsyncData(
@@ -71,7 +70,7 @@ async function fetchRow(rowNumber: number) {
     offset: rowNumber,
   });
 
-  formValues.value = resp.rows[0];
+  formValues.value = resp.rows[0] ?? {};
 }
 
 const schemaTablesIds = computed(() =>
@@ -95,7 +94,7 @@ watch(
   async () => {
     if (schemaMeta.value) {
       await refresh();
-      tableId.value = schemaMeta.value.tables[0].id;
+      tableId.value = schemaMeta.value?.tables?.[0]?.id ?? "";
       router.push({
         query: {
           schema: schemaId.value,

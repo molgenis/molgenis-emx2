@@ -46,13 +46,7 @@ function onCancel() {
 }
 
 async function onDeleteConfirm() {
-  const { deleteRecord } = useForm(
-    props.metadata,
-    props.formValues,
-    (fieldId: string) => {
-      return fieldId;
-    }
-  );
+  const { deleteRecord } = useForm(props.metadata, props.formValues);
   const resp = await deleteRecord(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error deleting data", err);

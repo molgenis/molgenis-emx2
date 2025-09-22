@@ -6,6 +6,7 @@ import {
   type MaybeRef,
   unref,
   isRef,
+  type Ref,
 } from "vue";
 import type {
   columnValue,
@@ -38,7 +39,9 @@ export default function useForm(
       deep: true,
     });
   }
+
   const formValues = ref(unref(formValuesRef));
+
   if (isRef(formValuesRef)) {
     watch(formValuesRef, (val) => (formValues.value = val), {
       immediate: true,
@@ -48,7 +51,7 @@ export default function useForm(
 
   const visibleMap = reactive<Record<columnId, boolean>>({});
   const errorMap = ref<Record<columnId, string>>({});
-  const currentSection = ref<columnId>();
+  const currentSection: Ref<String | undefined> = ref<columnId>();
   const currentHeading = ref<columnId>();
   const lastScrollTo = ref<columnId>();
 
@@ -148,7 +151,7 @@ export default function useForm(
       return;
     }
     if (currentRequiredField.value === null) {
-      currentRequiredField.value = emptyRequiredFields.value[0];
+      currentRequiredField.value = emptyRequiredFields.value[0] ?? null;
     } else {
       const currentIndex = emptyRequiredFields.value
         .map((column) => column.id)
@@ -157,7 +160,10 @@ export default function useForm(
       currentRequiredField.value =
         emptyRequiredFields.value[
           nextIndex >= emptyRequiredFields.value.length ? 0 : nextIndex
-        ];
+        ] ?? null;
+    }
+    if (currentRequiredField.value) {
+      scrollTo(`${currentRequiredField.value.id}-form-field`);
     }
     currentSection.value = currentRequiredField.value.section;
     scrollTo(`${currentRequiredField.value.id}-form-field`);
@@ -167,19 +173,30 @@ export default function useForm(
       return;
     }
     if (currentRequiredField.value === null) {
-      currentRequiredField.value = emptyRequiredFields.value[0];
+      if (emptyRequiredFields.value.length > 0) {
+        currentRequiredField.value = emptyRequiredFields.value[0] ?? null;
+      } else {
+        currentRequiredField.value = null;
+      }
     } else {
       const currentIndex = emptyRequiredFields.value
         .map((column) => column.id)
-        .indexOf(currentRequiredField.value.id);
+        .indexOf(currentRequiredField.value?.id ?? "");
       const prevIndex = currentIndex - 1;
       currentRequiredField.value =
         emptyRequiredFields.value[
           prevIndex < 0 ? emptyRequiredFields.value.length - 1 : prevIndex
-        ];
+        ] ?? null;
     }
-    currentSection.value = currentRequiredField.value.section;
-    scrollTo(`${currentRequiredField.value.id}-form-field`);
+    if (currentRequiredField.value) {
+      scrollTo(`${currentRequiredField.value.id}-form-field`);
+    }
+    currentSection.value = currentRequiredField.value
+      ? currentRequiredField.value.section
+      : undefined;
+    if (currentRequiredField.value) {
+      scrollTo(`${currentRequiredField.value.id}-form-field`);
+    }
   };
 
   const validateAllColumns = () => {

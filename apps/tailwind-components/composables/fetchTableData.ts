@@ -1,7 +1,7 @@
 import { createError } from "#app";
 import { fetchMetadata } from "#imports";
 import type { columnValue } from "../../metadata-utils/src/types";
-import { type IQueryMetaData } from "../../molgenis-components/src/client/IQueryMetaData";
+import { type IQueryMetaData } from "../types/IQueryMetaData";
 
 export interface ITableDataResponse {
   rows: Record<string, columnValue>[];

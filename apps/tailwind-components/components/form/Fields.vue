@@ -6,10 +6,6 @@ import type {
   IColumn,
   IRow,
 } from "../../../metadata-utils/src/types";
-import {
-  //todo: can we have required calculation done in useForm?
-  isRequired,
-} from "../../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { vIntersectionObserver } from "@vueuse/components";
 
 const props = defineProps<{
@@ -53,6 +49,10 @@ watch(
 onMounted(() => {
   copyConstantValuesToModelValue();
 });
+
+const isRequired = (value: string | boolean): boolean =>
+  (typeof value === "string" && value.toLowerCase() === "true") ||
+  value === true;
 </script>
 
 <template>
@@ -93,7 +93,7 @@ onMounted(() => {
         :ref-table-id="column.refTableId"
         :ref-label="column.refLabel || column.refLabelDefault"
         :ref-back-id="column.refBackId"
-        :invalid="errorMap[column.id]?.length > 0"
+        :invalid="(errorMap[column.id] || '').length > 0"
         @update:modelValue="emit('update', column)"
         @blur="emit('blur', column)"
       />

@@ -149,7 +149,7 @@ import { errorToMessage } from "../../utils/errorToMessage";
 import FormFields from "./Fields.vue";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
 import { useSession } from "../../composables/useSession";
-import Button from "~/components/Button.vue";
+import Button from "../Button.vue";
 
 const props = withDefaults(
   defineProps<{

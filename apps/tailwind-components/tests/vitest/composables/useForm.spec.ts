@@ -342,6 +342,7 @@ describe("useForm", () => {
 
     //simulate update on col1
     formValues.value["col1"] = true;
+
     onBlurColumn(tableMetadata.value.columns[1]);
     expect(sections.value.length).toEqual(3);
     expect(visibleColumns.value.length).toEqual(5);
