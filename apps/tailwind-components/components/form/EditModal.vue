@@ -38,7 +38,7 @@
       </header>
     </template>
 
-    <section class="grid grid-cols-4 gap-1 flex-1 min-h-0">
+    <div class="grid grid-cols-4 gap-1 flex-1 min-h-0">
       <div class="col-span-1 bg-form-legend">
         <FormLegend
           v-if="sections"
@@ -52,17 +52,12 @@
         id="fields-container"
         class="col-span-3 px-4 py-50px overflow-y-auto h-full min-h-0"
       >
-        <Button
+        <FormSectionNav
           v-if="previousSection"
-          type="text"
-          size="small"
-          icon="arrow-left"
-          icon-position="left"
-          class="pb-4"
           @click="gotoSection(previousSection.id)"
         >
           previous section '{{ previousSection.label }}'
-        </Button>
+        </FormSectionNav>
         <FormFields
           ref="formFields"
           :columns="visibleColumns"
@@ -73,19 +68,11 @@
           @blur="onBlurColumn"
           @view="onViewColumn"
         />
-        <Button
-          v-if="nextSection"
-          type="text"
-          size="small"
-          iconPosition="right"
-          icon="arrow-right"
-          class="pb-4 justify-self-end"
-          @click="gotoSection(nextSection.id)"
-        >
+        <FormSectionNav v-if="nextSection" @click="gotoSection(nextSection.id)">
           next section '{{ nextSection.label }}'
-        </Button>
+        </FormSectionNav>
       </div>
-    </section>
+    </div>
     <Transition name="slide-up">
       <FormError
         v-show="errorMessage"
@@ -147,7 +134,7 @@ import { errorToMessage } from "../../utils/errorToMessage";
 import FormFields from "./Fields.vue";
 import { useSession } from "../../composables/useSession";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
-import Button from "../Button.vue";
+import FormSectionNav from "./SectionNav.vue";
 
 const props = withDefaults(
   defineProps<{
