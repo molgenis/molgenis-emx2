@@ -2,7 +2,7 @@
 -- Tables
 -- ========================================
 ALTER TABLE "MOLGENIS".table_metadata
-    ADD row_level_security BOOLEAN DEFAULT FALSE;
+    ADD COLUMN IF NOT EXISTS row_level_security BOOLEAN DEFAULT FALSE;
 
 -- Create groups metadata table, which will also trigger group creation, update, drop
 CREATE TABLE IF NOT EXISTS "MOLGENIS".group_metadata
@@ -317,6 +317,8 @@ BEGIN
         END IF;
     END IF;
 
+    REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
+
     RETURN COALESCE(NEW, OLD);
 END;
 $$ LANGUAGE plpgsql;
@@ -326,22 +328,6 @@ CREATE OR REPLACE TRIGGER group_permissions_trigger
     ON "MOLGENIS".group_permissions
     FOR EACH ROW
 EXECUTE FUNCTION "MOLGENIS".group_permissions_trigger_function();
-
--- Trigger for updating materialized view
-CREATE OR REPLACE FUNCTION "MOLGENIS".user_permissions_mv_trigger_function()
-    RETURNS TRIGGER AS
-$$
-BEGIN
-    -- Refresh the materialized view whenever the group_permissions table changes
-    REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
-    RETURN NEW; -- Continue with the operation
-END;
-$$ LANGUAGE plpgsql;
-CREATE OR REPLACE TRIGGER user_permissions_mv_trigger
-    AFTER INSERT OR UPDATE OR DELETE
-    ON "MOLGENIS".group_permissions
-    FOR EACH STATEMENT
-EXECUTE FUNCTION "MOLGENIS".user_permissions_mv_trigger_function();
 
 -- ========================================
 -- Helper functions
