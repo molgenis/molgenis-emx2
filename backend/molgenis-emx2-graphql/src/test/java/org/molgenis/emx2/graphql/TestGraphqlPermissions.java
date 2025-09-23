@@ -8,8 +8,10 @@ import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResult
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import graphql.ExecutionInput;
 import graphql.GraphQL;
 import java.io.IOException;
+import java.util.Map;
 import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -29,6 +31,7 @@ public class TestGraphqlPermissions {
   private static GraphQL graphQLSchema;
   private static GraphQL graphQLDatabase;
   private static Database database;
+  private static GraphqlSessionHandlerInterface sessionManager;
   private static final String schemaName = "TestGraphqlPermissions";
 
   // Carries row IDs across ordered tests that depend on prior state.
@@ -43,6 +46,26 @@ public class TestGraphqlPermissions {
     PET_STORE.getImportTask(schema, true).run();
     graphQLDatabase = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
     graphQLSchema = new GraphqlApiFactory().createGraphqlForSchema(schema);
+
+    sessionManager =
+        new GraphqlSessionHandlerInterface() {
+          private String user;
+
+          @Override
+          public void createSession(String username) {
+            this.user = username;
+          }
+
+          @Override
+          public void destroySession() {
+            this.user = null;
+          }
+
+          @Override
+          public String getCurrentUser() {
+            return user;
+          }
+        };
 
     if (database.hasUser("testViewer")) database.removeUser("testViewer");
     if (database.hasUser("testEditorSpecial")) database.removeUser("testEditorSpecial");
@@ -173,19 +196,22 @@ public class TestGraphqlPermissions {
   @Test
   @Order(4)
   public void viewerCannotInsert() throws IOException {
-    executeDb("mutation{signin(email:\"testViewer\",password:\"test123456\"){message}}");
+    JsonNode result =
+        executeDb("mutation{signin(email:\"testViewer\",password:\"test123456\"){message}}");
+    database.setActiveUser("testViewer");
+    assertEquals("testViewer", database.getActiveUser());
     assertThrows(
         MolgenisException.class,
         () ->
             executeSchema(
                 "mutation {insert(Order: {pet: {name: \"pooky\"}, quantity: 5 }) { message }}"));
-    assertEquals("testViewer", database.getActiveUser());
   }
 
   @Test
   @Order(5)
   public void editorCanInsertAndOwnRow() throws IOException {
     executeDb("mutation{signin(email:\"testEditor\",password:\"test123456\"){message}}");
+    database.setActiveUser("testEditor");
     assertEquals("testEditor", database.getActiveUser());
 
     executeSchema("mutation {insert(Order: {pet: {name: \"pooky\"}, quantity: 99 }) { message }}");
@@ -203,7 +229,7 @@ public class TestGraphqlPermissions {
   @Order(6)
   public void specialEditorCanUpdateOwnRow() throws IOException {
     executeDb("mutation{signin(email:\"testEditorSpecial\",password:\"test123456\"){message}}");
-
+    database.setActiveUser("testEditorSpecial");
     JsonNode result =
         executeSchema(
             """
@@ -308,6 +334,7 @@ public class TestGraphqlPermissions {
             }
           }""");
     executeDb("mutation{signin(email:\"testEditorSpecial\",password:\"test123456\"){message}}");
+    database.setActiveUser("testEditorSpecial");
 
     JsonNode result =
         executeSchema(
@@ -337,18 +364,38 @@ public class TestGraphqlPermissions {
                 "mutation {insert(Order: {pet: {name: \"pooky\"}, quantity: 55 }) { message }}"));
   }
 
-  private JsonNode executeSchema(String query) throws IOException {
+  private JsonNode executeDb(String query) throws IOException {
+    Map graphQLContext =
+        sessionManager != null
+            ? Map.of(GraphqlSessionHandlerInterface.class, sessionManager)
+            : Map.of();
     JsonNode result =
-        new ObjectMapper().readTree(convertExecutionResultToJson(graphQLSchema.execute(query)));
+        new ObjectMapper()
+            .readTree(
+                convertExecutionResultToJson(
+                    graphQLDatabase.execute(
+                        ExecutionInput.newExecutionInput(query)
+                            .graphQLContext(graphQLContext)
+                            .build())));
     if (result.get("errors") != null) {
       throw new MolgenisException(result.get("errors").toString());
     }
     return result;
   }
 
-  private JsonNode executeDb(String query) throws IOException {
+  private JsonNode executeSchema(String query) throws IOException {
+    Map graphQLContext =
+        sessionManager != null
+            ? Map.of(GraphqlSessionHandlerInterface.class, sessionManager)
+            : Map.of();
     JsonNode result =
-        new ObjectMapper().readTree(convertExecutionResultToJson(graphQLDatabase.execute(query)));
+        new ObjectMapper()
+            .readTree(
+                convertExecutionResultToJson(
+                    graphQLSchema.execute(
+                        ExecutionInput.newExecutionInput(query)
+                            .graphQLContext(graphQLContext)
+                            .build())));
     if (result.get("errors") != null) {
       throw new MolgenisException(result.get("errors").toString());
     }
