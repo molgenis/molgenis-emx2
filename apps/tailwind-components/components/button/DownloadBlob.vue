@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { ButtonIconPosition, ButtonSize, ButtonType } from "~/types/types";
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     type?: ButtonType;
     size?: ButtonSize;
@@ -24,6 +24,8 @@ withDefaults(
 );
 
 function startDownload(data: string, mediaType: string, fileName: string) {
+  if(props.disabled) return;
+
   const blob = new Blob([data], { type: mediaType });
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
