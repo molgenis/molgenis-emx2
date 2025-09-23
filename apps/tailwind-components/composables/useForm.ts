@@ -322,6 +322,9 @@ export default function useForm(
             visibleMap[previousHeading.id] &&
             headingColumns.some((columnId) => visibleMap[columnId]);
         }
+        visibleMap[c.id] = isColumnVisible(c, formValues.value, metadata.value)
+          ? true
+          : false;
         headingColumns = [];
         previousHeading = c;
         sectionColumns.push(c.id);
@@ -332,18 +335,27 @@ export default function useForm(
             visibleMap[previousSection.id] &&
             sectionColumns.some((columnId) => visibleMap[columnId]);
         }
+        //visible if section is visible and self is visible
+        visibleMap[c.id] =
+          (!previousSection || visibleMap[previousSection.id]) &&
+          isColumnVisible(c, formValues.value, metadata.value)
+            ? true
+            : false;
         sectionColumns = [];
         headingColumns = []; //section also resets heading
         previousSection = c;
         previousHeading = undefined;
       } else {
+        //visible if section is visible and heading is visible and self is visible
+        visibleMap[c.id] =
+          (!previousSection || visibleMap[previousSection.id]) &&
+          (!previousHeading || visibleMap[previousHeading.id]) &&
+          isColumnVisible(c, formValues.value, metadata.value)
+            ? true
+            : false;
         headingColumns.push(c.id);
         sectionColumns.push(c.id);
       }
-      //column is shown if section is visible AND heading is visible AND the column is visible
-      visibleMap[c.id] = isColumnVisible(c, formValues.value, metadata.value)
-        ? true
-        : false;
       // empty invisible columns
       // (tricky business, users might be hurt, and we require visible expressions to point 'backwards' never 'forwards')
       if (!visibleMap[c.id]) {
