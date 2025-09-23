@@ -613,26 +613,49 @@ BEGIN
     END IF;
 
     -- INSERT policy
-    IF NOT EXISTS (SELECT 1
-                   FROM pg_policies
-                   WHERE schemaname = schema_id
-                     AND tablename = table_id
-                     AND policyname = 'insert_policy_' || safe_schema_id || '_' || safe_table_id) THEN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_policies
+        WHERE schemaname = schema_id
+          AND tablename = table_id
+          AND policyname = 'insert_policy_' || safe_schema_id || '_' || safe_table_id
+    ) THEN
         EXECUTE format(
-                'CREATE POLICY insert_policy_%s_%s ON %I.%I FOR INSERT WITH CHECK (
-                    EXISTS (
-                        SELECT 1
-                        FROM "MOLGENIS".user_permissions_mv u
-                        WHERE u.user_name = current_user
-                          AND u.table_schema = %L
-                          AND (u.table_name = %L OR u.table_name IS NULL)
-                          AND u.has_insert
-                    )
-                )',
-                safe_schema_id, safe_table_id, schema_id, table_id, schema_id, table_id
+                'CREATE POLICY insert_policy_%s_%s ON %I.%I FOR INSERT
+                 WITH CHECK (
+                   EXISTS (
+                     SELECT 1
+                     FROM "MOLGENIS".user_permissions_mv u
+                     LEFT JOIN unnest(%I.%I.%I) AS g(val)
+                       ON (
+                         -- match als user row-level toegang heeft
+                         u.is_row_level
+                         AND u.group_name = g.val
+                       )
+                     WHERE u.user_name = current_user
+                       AND u.table_schema = %L
+                       AND (u.table_name = %L OR u.table_name IS NULL)
+                       AND u.has_insert
+                     GROUP BY u.is_row_level
+                     HAVING
+                       -- niet row-level: moet global permissie zijn
+                       (bool_or(NOT u.is_row_level))
+                       -- row-level: alle waarden in de array moeten gematcht zijn
+                       OR (bool_and(u.is_row_level) AND count(g.val) = cardinality(%I.%I.%I))
+                   )
+                 )',
+            -- placeholders:
+                safe_schema_id, safe_table_id,       -- policy-naam
+                schema_id, table_id,                 -- doel %I.%I
+                schema_id, table_id, 'mg_group',     -- voor unnest
+                schema_id, table_id,                 -- %L %L literals schema/tabel
+                schema_id, table_id, 'mg_group'      -- nogmaals voor cardinality
                 );
         RAISE NOTICE 'Insert policy created on %.%', schema_id, table_id;
     END IF;
+
+
+
 
     -- UPDATE policy
     IF NOT EXISTS (SELECT 1
