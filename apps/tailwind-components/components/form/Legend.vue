@@ -19,7 +19,6 @@
           @click.prevent="emit('goToSection', section.id)"
         >
           <span
-            v-if="section.id != '_mg_top_of_form'"
             class="text-title-contrast capitalize"
             :class="{
               'font-bold': section.isActive,
