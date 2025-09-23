@@ -69,13 +69,13 @@ crumbs["Pages"] = "";
                 {{ page }}
               </NuxtLink>
             </TableBodyCell>
-            <TableBodyCell>
+            <TableBodyCell class="flex justify-start items-center gap-4">
               <NuxtLink :to="`./pages/${page}`">
                 View
               </NuxtLink>
-              <!-- <NuxtLink :to="`./pages/${page}`">
+              <NuxtLink :to="`./pages/${page}/edit`">
                 Edit
-              </NuxtLink> -->
+              </NuxtLink>
             </TableBodyCell>
           </tr>
         </template>

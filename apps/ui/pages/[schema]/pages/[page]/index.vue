@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useFetch } from "#app";
-import { ref, computed, useTemplateRef, onMounted, nextTick } from "vue";
+import { ref, useTemplateRef, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import { generateHtmlPreview, type PageBuilderContent } from "../../../../util/pages";

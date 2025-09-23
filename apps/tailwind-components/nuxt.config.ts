@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     "@nuxt/test-utils/module",
     "floating-vue/nuxt",
     "@nuxtjs/tailwindcss",
+    "nuxt-monaco-editor",
   ],
   ignore: [
     ".gradle/**",
@@ -79,4 +80,13 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: "2024-08-23",
+
+  monacoEditor: {
+    // These are default values:
+    locale: "en",
+    componentName: {
+      codeEditor: "MonacoEditor",
+      diffEditor: "MonacoDiffEditor",
+    },
+  },
 });
