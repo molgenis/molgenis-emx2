@@ -42,22 +42,27 @@ ALTER TABLE "MOLGENIS".group_permissions
     OWNER TO molgenis;
 GRANT DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON "MOLGENIS".group_permissions TO PUBLIC;
 
--- Materialized view for fast lookups user - permission mappings
+
 CREATE MATERIALIZED VIEW IF NOT EXISTS "MOLGENIS".user_permissions_mv AS
-SELECT gp.group_name,
-       gp.table_schema,
-       gp.table_name,
-       gp.is_row_level,
-       gp.has_select,
-       gp.has_insert,
-       gp.has_update,
-       gp.has_delete,
-       gp.has_admin,
-       r.rolname AS user_name
+SELECT
+    gp.group_name,
+    gp.table_schema,
+    gp.table_name,
+    gp.is_row_level,
+    gp.has_select,
+    gp.has_insert,
+    gp.has_update,
+    gp.has_delete,
+    gp.has_admin,
+    u.rolname AS user_name
 FROM "MOLGENIS".group_permissions gp
-         JOIN pg_roles r
-              ON pg_has_role(r.rolname, 'MG_ROLE_' || gp.group_name, 'MEMBER')
-WHERE r.rolname LIKE 'MG_USER_%'
+         JOIN pg_roles g
+              ON g.rolname = 'MG_ROLE_' || gp.group_name
+         JOIN pg_auth_members am
+              ON am.roleid = g.oid
+         JOIN pg_roles u
+              ON u.oid = am.member
+                  AND u.rolname LIKE 'MG_USER_%'
 WITH NO DATA;
 ALTER MATERIALIZED VIEW "MOLGENIS".user_permissions_mv
     OWNER TO molgenis;
