@@ -229,8 +229,6 @@ export default function useForm(
   const currentErrorField = ref<IColumn | undefined>(undefined);
 
   const gotoPreviousError = () => {
-    console.log("goto prev");
-
     const keys = Object.keys(errorMap.value);
     if (keys.length === null) {
       return;
@@ -250,7 +248,6 @@ export default function useForm(
   };
 
   const gotoNextError = () => {
-    console.log("goto next");
     const keys = Object.keys(errorMap.value);
     if (keys.length === null) {
       return;
@@ -315,36 +312,36 @@ export default function useForm(
     let previousHeading: IColumn | undefined = undefined;
     let headingColumns: string[] = [];
     metadata.value.columns.forEach((c) => {
-      if (c.columnType === "HEADING") {
-        if (previousHeading) {
-          //heading is only visible if some columns are also visible
-          visibleMap[previousHeading.id] =
-            visibleMap[previousHeading.id] &&
-            headingColumns.some((columnId) => visibleMap[columnId]);
-        }
-        visibleMap[c.id] = isColumnVisible(c, formValues.value, metadata.value)
-          ? true
-          : false;
-        headingColumns = [];
-        previousHeading = c;
-        sectionColumns.push(c.id);
-      } else if (c.columnType === "SECTION") {
+      if (c.columnType === "SECTION") {
         if (previousSection) {
           //section is only visible if some columns are also visible
           visibleMap[previousSection.id] =
             visibleMap[previousSection.id] &&
             sectionColumns.some((columnId) => visibleMap[columnId]);
         }
-        //visible if section is visible and self is visible
+        visibleMap[c.id] = isColumnVisible(c, formValues.value, metadata.value)
+          ? true
+          : false;
+        sectionColumns = [];
+        headingColumns = []; //section also resets heading
+        previousSection = c;
+        previousHeading = undefined;
+      } else if (c.columnType === "HEADING") {
+        if (previousHeading) {
+          //heading is only visible if some columns are also visible
+          visibleMap[previousHeading.id] =
+            visibleMap[previousHeading.id] &&
+            headingColumns.some((columnId) => visibleMap[columnId]);
+        }
+        //visible if section visible and self visible
         visibleMap[c.id] =
           (!previousSection || visibleMap[previousSection.id]) &&
           isColumnVisible(c, formValues.value, metadata.value)
             ? true
             : false;
-        sectionColumns = [];
-        headingColumns = []; //section also resets heading
-        previousSection = c;
-        previousHeading = undefined;
+        headingColumns = [];
+        previousHeading = c;
+        sectionColumns.push(c.id);
       } else {
         //visible if section is visible and heading is visible and self is visible
         visibleMap[c.id] =
