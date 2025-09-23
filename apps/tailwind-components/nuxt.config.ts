@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import fs from "fs";
+import { defineNuxtConfig } from "nuxt/config";
+import * as fs from "fs";
 import { resolve } from "path";
 
 const sourceCodeMapPath = resolve("./sourceCodeMap.json");

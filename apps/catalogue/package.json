@@ -18,7 +18,7 @@
     "typecheck": "nuxi typecheck"
   },
   "devDependencies": {
-    "@nuxt/image": "1.7.0",
+    "@nuxt/image": "1.11.0",
     "@nuxt/test-utils": "3.14.4",
     "@pinia/nuxt": "0.11.1",
     "@playwright/test": "1.55.0",
@@ -32,7 +32,7 @@
     "if-env": "^1.0.4",
     "jsdom": "22.1.0",
     "metadata-utils": "*",
-    "nuxt": "3.19.0",
+    "nuxt": "4.1.2",
     "playwright-core": "1.55.0",
     "postcss": "8.4.39",
     "postcss-custom-properties": "13.3.11",

@@ -56,7 +56,7 @@ function listToTree(list: IOntologyRespItem[]): ITreeNode[] {
   return Object.values(allNodes).filter((n) => !n.parent);
 }
 
-const rootNodes = computed(() => listToTree(data));
+const rootNodes = computed(() => listToTree(data ?? []));
 
 const selectedNodesNames = computed({
   get() {
