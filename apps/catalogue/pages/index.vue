@@ -63,8 +63,9 @@ interface Resp<T, U> {
   data_agg: Record<string, U>;
 }
 
-console.log("Loading catalogues...");
-let graphqlURL = computed(() => `/${useRuntimeConfig().public.schema}/graphql`);
+const graphqlURL = computed(
+  () => `/${useRuntimeConfig().public.schema}/graphql`
+);
 const { data } = await useFetch<Resp<IResources, IResources_agg>>(
   graphqlURL.value,
   {
@@ -72,25 +73,13 @@ const { data } = await useFetch<Resp<IResources, IResources_agg>>(
     body: { query },
   }
 );
-console.log("Catalogues loaded", data);
 
-const thematicCatalogues = computed(() => {
-  let result = data?.value?.data?.Resources
-    ? data.value?.data?.Resources?.filter(
-        (c) => c.catalogueType?.name !== "project"
-      )
-    : [];
-  result.sort((a, b) => a.id.localeCompare(b.id));
-  return result;
-});
-const projectCatalogues = computed(() => {
-  let result = data?.value?.data?.Resources
-    ? data.value?.data?.Resources?.filter(
-        (c) => c.catalogueType?.name === "project"
-      )
-    : [];
-  result.sort((a, b) => a.id.localeCompare(b.id));
-  return result;
+const catalogues = data.value?.data?.Resources;
+const groupedCatalogues = catalogues
+  ? Object.groupBy(catalogues, (c) => c.catalogueType?.name ?? "theme")
+  : { theme: [], project: [], organisation: [] };
+Object.keys(groupedCatalogues).forEach((key) => {
+  groupedCatalogues[key]?.sort((a, b) => a.id.localeCompare(b.id));
 });
 </script>
 
@@ -111,9 +100,7 @@ const projectCatalogues = computed(() => {
             </NuxtLink>
             <p
               class="mt-1 mb-0 text-center lg:mt-10 text-body-lg"
-              v-if="
-                thematicCatalogues.length > 0 || projectCatalogues.length > 0
-              "
+              v-if="catalogues?.length"
             >
               or select a specific catalogue below:
             </p>
@@ -122,19 +109,25 @@ const projectCatalogues = computed(() => {
       </template>
     </PageHeader>
     <ContentBlockCatalogues
-      v-if="thematicCatalogues?.length > 0"
+      v-if="groupedCatalogues?.theme?.length"
       title="Thematic catalogues"
       description="Catalogues focused on a particular theme, developed by a collaboration of projects, networks and/or organisations:"
-      :catalogues="thematicCatalogues"
+      :catalogues="groupedCatalogues?.theme ?? []"
     />
     <ContentBlockCatalogues
-      v-if="projectCatalogues?.length > 0"
+      v-if="groupedCatalogues?.project?.length"
       title="Project catalogues"
       description="Catalogues maintained by individual research projects or consortia:"
-      :catalogues="projectCatalogues"
+      :catalogues="groupedCatalogues?.project"
+    />
+    <ContentBlockCatalogues
+      v-if="groupedCatalogues?.organisation?.length"
+      title="Organisation catalogues"
+      description="Catalogues maintained by organisations:"
+      :catalogues="groupedCatalogues?.organisation"
     />
     <ContentBlock
-      v-if="projectCatalogues.length === 0 && thematicCatalogues.length === 0"
+      v-if="!catalogues?.length"
       title="No Catalogues found"
       description="Please add catalogues via admin user interface"
     />

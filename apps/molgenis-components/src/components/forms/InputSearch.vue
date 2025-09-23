@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import FormGroup from "./FormGroup.vue";
 import InputGroup from "./InputGroup.vue";
-import { defineEmits, ref } from "vue";
+import { ref } from "vue";
 
 const props = withDefaults(
   defineProps<{

@@ -5,6 +5,7 @@ import static org.molgenis.emx2.TableMetadata.table;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.molgenis.emx2.Constants;
 import org.molgenis.emx2.SchemaMetadata;
 import org.molgenis.emx2.TableMetadata;
 
@@ -66,7 +67,9 @@ public class Schema {
               .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
       tm.setRowLevelSecurity(t.hasRowLevelSecurity());
       for (Column c : t.getColumns()) {
-        if (!c.isInherited()) {
+        if (c.getName().equals(Constants.MG_TOP_OF_FORM)) {
+          // skip
+        } else if (!c.isInherited()) {
           // we remove clearly inherited columns here
           org.molgenis.emx2.Column cm = c.getColumnMetadata(tm);
           tm.add(cm);

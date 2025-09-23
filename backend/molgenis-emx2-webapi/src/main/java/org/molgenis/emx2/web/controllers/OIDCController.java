@@ -1,6 +1,6 @@
 package org.molgenis.emx2.web.controllers;
 
-import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
+import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 import static org.molgenis.emx2.web.SecurityConfigFactory.OIDC_CLIENT_NAME;
 
 import io.javalin.http.Context;
@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.MolgenisException;
+import org.molgenis.emx2.web.MolgenisSessionHandler;
 import org.molgenis.emx2.web.SecurityConfigFactory;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.CallContext;
@@ -96,12 +97,12 @@ public class OIDCController {
       return;
     }
 
-    Database database = sessionManager.getSession(ctx.req()).getDatabase();
+    Database database = applicationCache.getDatabaseForUser(ctx);
     if (!database.hasUser(user)) {
       logger.info("Add new OIDC user({}) to database", user);
       database.addUser(user);
     }
-    database.setActiveUser(user);
+    new MolgenisSessionHandler(ctx.req()).createSession(user);
     logger.info("OIDC sign in for user: {}", user);
 
     ctx.status(302);

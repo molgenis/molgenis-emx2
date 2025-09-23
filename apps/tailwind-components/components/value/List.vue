@@ -24,7 +24,7 @@ const elementType = computed(() => props.metadata.columnType.split("_")[0]);
       :data="listElement as string"
     />
     <ValueString
-      v-if="elementType === 'TEXT'"
+      v-else-if="elementType === 'TEXT'"
       :metadata="metadata"
       :data="listElement as string"
     />
@@ -72,7 +72,16 @@ const elementType = computed(() => props.metadata.columnType.split("_")[0]);
       :metadata="metadata"
       :data="listElement"
     />
-
+    <ValueDate
+      v-else-if="elementType === 'DATE'"
+      :metadata="metadata"
+      :data="listElement"
+    />
+    <ValueDateTime
+      v-else-if="elementType === 'DATETIME'"
+      :metadata="metadata"
+      :data="listElement"
+    />
     <span v-else>{{ elementType }}</span>
     <span
       v-if="Number(data.length) - 1 !== Number(index) && !hideListSeparator"

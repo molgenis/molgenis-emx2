@@ -5,7 +5,7 @@
   </div>
   <LayoutModal v-else title="Sign in" :show="true" @close="onCancel">
     <template v-slot:body>
-      <LayoutForm id="signin-form" @submit="signin">
+      <LayoutForm id="signin-form" @submit.prevent="signin">
         <MessageError v-if="error">{{ error }}</MessageError>
         <InputString
           id="signInFormEmail"
