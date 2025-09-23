@@ -113,7 +113,8 @@ export default {
     shownColumnsWithoutMeta() {
       const columnsWithoutMeta = this?.tableMetaData?.columns
         ? this.tableMetaData.columns.filter(
-            (column: IColumn) => !column.id?.startsWith("mg_")
+            (column: IColumn) =>
+              !column.id?.startsWith("mg_") && !column.id === "_mg_top_of_form"
           )
         : [];
       return columnsWithoutMeta.filter(this.showColumn);
