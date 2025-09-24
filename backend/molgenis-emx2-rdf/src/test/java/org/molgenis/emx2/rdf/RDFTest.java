@@ -44,7 +44,6 @@ import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandler;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.datamodels.DataModels;
@@ -427,7 +426,6 @@ public class RDFTest {
   }
 
   // Full RDF output tests.
-  @Disabled // TODO : why is this failing
   @Test
   void testPetStoreRdfEmx2SchemaModel() throws IOException, NoSuchMethodException {
     compareToValidationFile(
@@ -438,7 +436,6 @@ public class RDFTest {
         petStore_nr1);
   }
 
-  @Disabled // TODO: why is this failing?
   @Test
   void testPetStoreRdfEmx2SchemaStream() throws IOException, NoSuchMethodException {
     compareToValidationFile(

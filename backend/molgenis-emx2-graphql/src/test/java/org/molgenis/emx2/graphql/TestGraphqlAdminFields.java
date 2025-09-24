@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
-public class TestGraphqlAdminFields {
+class TestGraphqlAdminFields {
 
   private static GraphQL grapql;
   private static Database database;

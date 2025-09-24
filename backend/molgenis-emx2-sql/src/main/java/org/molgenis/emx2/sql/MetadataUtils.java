@@ -748,7 +748,7 @@ public class MetadataUtils {
   }
 
   public static void setRowLevelSecurity(SqlSchemaMetadata schema, TableMetadata table) {
-    if (table.hasRowLevelSecurity()) {
+    if (Boolean.TRUE.equals(table.hasRowLevelSecurity())) {
       Field<Object> rlsFunction =
           function(
               "\"MOLGENIS\".enable_RLS_on_table",

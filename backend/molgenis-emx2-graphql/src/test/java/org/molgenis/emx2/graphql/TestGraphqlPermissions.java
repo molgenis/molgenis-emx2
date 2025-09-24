@@ -32,17 +32,17 @@ public class TestGraphqlPermissions {
   private static GraphQL graphQLDatabase;
   private static Database database;
   private static GraphqlSessionHandlerInterface sessionManager;
-  private static final String schemaName = "TestGraphqlPermissions";
+  private static final String SCHEMA_NAME = "TestGraphqlPermissions";
 
   // Carries row IDs across ordered tests that depend on prior state.
   private static String orderIdOwnedBySpecial;
   private static String orderIdOwnedByEditor;
 
   @BeforeAll
-  public static void setup() {
+  static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     TaskService taskService = new TaskServiceInMemory();
-    Schema schema = database.dropCreateSchema(schemaName);
+    Schema schema = database.dropCreateSchema(SCHEMA_NAME);
     PET_STORE.getImportTask(schema, true).run();
     graphQLDatabase = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
     graphQLSchema = new GraphqlApiFactory().createGraphqlForSchema(schema);
@@ -74,7 +74,7 @@ public class TestGraphqlPermissions {
 
   @Test
   @Order(1)
-  public void createPermissionGroups() throws IOException {
+  void createPermissionGroups() throws IOException {
     executeDb("mutation{signup(email:\"testViewer\",password:\"test123456\"){message}}");
     executeDb("mutation{signup(email:\"testEditorSpecial\",password:\"test123456\"){message}}");
     executeDb("mutation{signup(email:\"testEditor\",password:\"test123456\"){message}}");
@@ -127,7 +127,7 @@ public class TestGraphqlPermissions {
 
   @Test
   @Order(2)
-  public void verifyEditorSpecialHasTwoUsers() throws IOException {
+  void verifyEditorSpecialHasTwoUsers() throws IOException {
     JsonNode permissions =
         executeDb(
             """
@@ -156,7 +156,7 @@ public class TestGraphqlPermissions {
 
   @Test
   @Order(3)
-  public void enableRowLevelSecurityAndAssignRowToEditorSpecial() throws IOException {
+  void enableRowLevelSecurityAndAssignRowToEditorSpecial() throws IOException {
     executeSchema(
         """
         mutation {
@@ -195,9 +195,8 @@ public class TestGraphqlPermissions {
 
   @Test
   @Order(4)
-  public void viewerCannotInsert() throws IOException {
-    JsonNode result =
-        executeDb("mutation{signin(email:\"testViewer\",password:\"test123456\"){message}}");
+  void viewerCannotInsert() throws IOException {
+    executeDb("mutation{signin(email:\"testViewer\",password:\"test123456\"){message}}");
     database.setActiveUser("testViewer");
     assertEquals("testViewer", database.getActiveUser());
     assertThrows(
@@ -209,7 +208,7 @@ public class TestGraphqlPermissions {
 
   @Test
   @Order(5)
-  public void editorCanInsertAndOwnRow() throws IOException {
+  void editorCanInsertAndOwnRow() throws IOException {
     executeDb("mutation{signin(email:\"testEditor\",password:\"test123456\"){message}}");
     database.setActiveUser("testEditor");
     assertEquals("testEditor", database.getActiveUser());
@@ -227,7 +226,7 @@ public class TestGraphqlPermissions {
 
   @Test
   @Order(6)
-  public void specialEditorCanUpdateOwnRow() throws IOException {
+  void specialEditorCanUpdateOwnRow() throws IOException {
     executeDb("mutation{signin(email:\"testEditorSpecial\",password:\"test123456\"){message}}");
     database.setActiveUser("testEditorSpecial");
     JsonNode result =
@@ -254,7 +253,7 @@ public class TestGraphqlPermissions {
 
   @Test
   @Order(7)
-  public void specialEditorCannotUpdateEditorsRow() throws IOException {
+  void specialEditorCannotUpdateEditorsRow() throws IOException {
     JsonNode result =
         executeSchema(
             """
@@ -278,7 +277,7 @@ public class TestGraphqlPermissions {
 
   @Test
   @Order(8)
-  public void specialEditorInsertWithOwnGroupAllowed() throws IOException {
+  void specialEditorInsertWithOwnGroupAllowed() throws IOException {
     JsonNode result =
         executeSchema(
             """
@@ -296,7 +295,7 @@ public class TestGraphqlPermissions {
 
   @Test
   @Order(9)
-  public void specialEditorInsertWithOtherGroupShouldThrow() {
+  void specialEditorInsertWithOtherGroupShouldThrow() {
     assertThrows(
         MolgenisException.class,
         () ->
@@ -316,7 +315,7 @@ public class TestGraphqlPermissions {
 
   @Test
   @Order(10)
-  public void specialEditorAddToGroupAndInsert_shouldSucceed() throws IOException {
+  void specialEditorAddToGroupAndInsert_shouldSucceed() throws IOException {
     database.becomeAdmin();
     executeSchema(
         """
@@ -356,7 +355,7 @@ public class TestGraphqlPermissions {
 
   @Test
   @Order(11)
-  public void specialEditorInsertGlobalShouldThrow() {
+  void specialEditorInsertGlobalShouldThrow() {
     assertThrows(
         MolgenisException.class,
         () ->
