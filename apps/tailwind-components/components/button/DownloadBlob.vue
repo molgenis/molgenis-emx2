@@ -24,7 +24,7 @@ const props = withDefaults(
 );
 
 function startDownload(data: string, mediaType: string, fileName: string) {
-  if(props.disabled) return;
+  if (props.disabled) return;
 
   const blob = new Blob([data], { type: mediaType });
   const url = window.URL.createObjectURL(blob);
