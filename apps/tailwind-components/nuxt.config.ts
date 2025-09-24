@@ -82,11 +82,6 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-08-23",
 
   monacoEditor: {
-    // These are default values:
     locale: "en",
-    componentName: {
-      codeEditor: "MonacoEditor",
-      diffEditor: "MonacoDiffEditor",
-    },
   },
 });

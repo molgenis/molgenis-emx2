@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { ref, useTemplateRef, onMounted, watch } from "vue";
-
+import { ref, useTemplateRef, watchEffect } from "vue";
+import { MonacoEditor } from "#components";
 const props = withDefaults(
   defineProps<{
     lang: "html" | "css" | "javascript";
@@ -11,45 +11,33 @@ const props = withDefaults(
   }
 );
 
+const emits = defineEmits<{
+  (e: "update:modelValue", value: string): void;
+}>();
+
+const code = defineModel<string>("");
 const isExpanded = ref<boolean>(true);
-const code = ref<string>(
-  "<div><h1>hello, world!</h1><p>test</p><p>test 1</p></div>"
-);
-const editor = useTemplateRef<HTMLDivElement>("editor");
+const editor = useTemplateRef<InstanceType<typeof MonacoEditor>>("editor");
 
-const options = {
-  automaticLayout: true,
-  value: code.value,
-  language: props.lang,
-  theme: "vs-dark",
-  formatOnPaste: true,
-  formatOnType: true,
-  autoIndent: "brackets",
-  autoClosingBrackets: "always",
-  wordWrap: "on",
-  dimension: {
-    height: 310,
-    width: 100,
-  },
-  suggest: {
-    insertMode: "insert",
-  },
-};
-
-onMounted(() => {
-  // monacoEditor.value = monaco.editor.create(editor.value as HTMLElement, {
-  // });
+watchEffect(() => {
+  if (editor.value?.$editor) {
+    const action = editor.value.$editor?.getAction(
+      "editor.action.formatDocument"
+    );
+    if (action) {
+      action.run();
+    }
+  }
 });
 
-// watch(() => monacoEditor.value, () => {
-//   monacoEditor.value.getModel().onDidChangeContent(() => {
-//     code.value = toRaw(monacoEditor.value).getValue()
-//   })
-// });
+watchEffect(() => {
+  if (props.modelValue) {
+    code.value = props.modelValue;
+  }
+});
 </script>
 
 <template>
-  {{ code }}
   <div :id="`${lang}-editor`" class="border">
     <div class="border pl-4 flex justify-start items-center">
       <button
@@ -62,33 +50,33 @@ onMounted(() => {
         <BaseIcon name="CaretDown" :width="24" />
         <span>{{ lang }}</span>
       </button>
-      <!-- <Button
-        type="secondary"
-        icon="UploadFile"
-        :icon-only="true"
-        label="Format code"
-        size="small"
-        class="mx-2"
-        @click="formatEditor"
-      /> -->
     </div>
     <div
+      ref="container"
       :id="`${lang}-editor-content`"
       :class="{
-        block: isExpanded,
+        static: isExpanded,
         hidden: !isExpanded,
       }"
     >
       <MonacoEditor
+        ref="editor"
         v-model="code"
+        @update:model-value="emits('update:modelValue', code as string)"
         :lang="lang"
         :options="{
           theme: 'vs-dark',
-          dimension: {
-            height: 350,
-            width: 100,
+          formatOnPaste: true,
+          formatOnType: true,
+          autoIndent: 'brackets',
+          autoClosingBrackets: 'always',
+          autoClosingComments: 'always',
+          wordWrap: 'on',
+          suggest: {
+            insertMode: 'insert',
           },
         }"
+        :style="{ width: '100%', height: '350px' }"
       />
     </div>
   </div>

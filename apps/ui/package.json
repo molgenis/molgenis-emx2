@@ -15,6 +15,7 @@
     "e2e": "playwright test"
   },
   "dependencies": {
+    "monaco-editor": "^0.53.0",
     "vue": "3.5.13",
     "vue-router": "4.4.3"
   },
@@ -26,7 +27,9 @@
     "@vitest/coverage-v8": "3.0.8",
     "@vue/test-utils": "2.4.6",
     "cross-env": "7.0.3",
+    "monaco-editor": "*",
     "nuxt": "4.1.2",
+    "nuxt-monaco-editor": "1.4.0",
     "pinia": "3.0.3",
     "tailwind-components": "*",
     "vitest": "3.0.8",
