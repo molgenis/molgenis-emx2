@@ -247,18 +247,19 @@ async function getPrimaryKeyColumn(column: IColumn) {
       props.schemaId,
       props.tableId
     );
-    return `${column.refBackId} { ${keys[0]} }`;
+    return `${column.refBackId} { ${keys.join(",")} }`;
   }
 
   const schemaId = column.refSchemaId || props.schemaId;
   const tableId = column.refTableId || props.tableId;
   const keys = await client.value.getPrimaryKeyFields(schemaId, tableId);
 
-  if (keys.length === 1) {
-    return keys[0];
+  if (keys.length) {
+    return keys.join(",");
   } else {
-    console.warn("Composite primary keys not supported in AggregateTable");
-    return "name";
+    throw new Error(
+      `Could not determine primary key for column ${column.id} in table ${tableId}`
+    );
   }
 }
 
