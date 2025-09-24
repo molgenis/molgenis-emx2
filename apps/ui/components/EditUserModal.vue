@@ -158,9 +158,9 @@ function removeRole(role: IRole) {
   delete userRoles.value[role.schemaId];
 }
 
-// function removeToken(token: string) {
-//   userTokens.value = _.reject(userTokens.value, (tok) => tok === token);
-// }
+function removeToken(token: string) {
+  userTokens.value = _.reject(userTokens.value, (tok) => tok === token);
+}
 
 function getRoles(roles: IRole[]): Record<string, IRole> {
   return roles.reduce((accum, role) => {

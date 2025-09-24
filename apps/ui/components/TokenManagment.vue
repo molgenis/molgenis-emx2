@@ -3,7 +3,7 @@
     <Table>
       <template #head>
         <TableHeadRow>
-            <TableHead></TableHead>
+            <TableHead class="w-0"></TableHead>
             <TableHead>Name</TableHead>
         </TableHeadRow>
       </template>
@@ -16,7 +16,7 @@
                   type="secondary"
                   size="small"
                   label="Remove token"
-                  @click="console.error('not implemented')"
+                  @click="removeToken(token)"
                 />
           </TableCell>
 
@@ -30,9 +30,13 @@
 </template>
 
 <script setup lang="ts">
+import { updateUser } from "~/util/adminUtils";
 import type { Modal } from "#build/components";
 import { computed, ref } from "vue";
 import type { IUser } from "~/util/adminUtils";
+import _ from "lodash";
+
+const emit = defineEmits(["userUpdated"]);
 
 const props = defineProps<{
   user: IUser;
@@ -46,4 +50,12 @@ function closeModal() {
 
 const userName = ref<string>(props.user.email);
 const userTokens = ref<string[]>(props.user.tokens || ([] as string[]));
+
+async function removeToken(token: string) {
+  let editedUser:IUser = _.cloneDeep(props.user);
+  editedUser.tokens = _.reject(userTokens.value, (tok) => tok === token);
+  await updateUser(editedUser);
+  emit("userUpdated");
+}
+
 </script>
