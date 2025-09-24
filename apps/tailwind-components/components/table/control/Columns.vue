@@ -76,7 +76,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import draggable from "vuedraggable";
+// @ts-ignore
+import draggable from "vuedraggable/src/vuedraggable";
 import type { IColumn } from "../../../../metadata-utils/src/types";
 import { sortColumns } from "../../../utils/sortColumns";
 

@@ -1,35 +1,53 @@
 packages:
-# big shared libs should build first
-- metadata-utils
-- tailwind-components
-- molgenis-components
-# then the apps
-- aggregates
-- catalogue
-- central
-- cranio-provider
-- cranio-public
-- directory
-- emx2-analytics
-- ern-genturis
-- ern-ithaca
-- ern-reconnet
-- ern-skin
-- gportal
-- graphql-playground
-- helloworld
-- molgenis-viz
-- nestor-public
-- pages
-- projectmanager
-- reports
-- schema
-- settings
-- tables
-- tasks
-- ui
-- updownload
+  - metadata-utils
+  - tailwind-components
+  - molgenis-components
+  - aggregates
+  - catalogue
+  - central
+  - cranio-provider
+  - cranio-public
+  - directory
+  - emx2-analytics
+  - ern-genturis
+  - ern-ithaca
+  - ern-reconnet
+  - ern-skin
+  - gportal
+  - graphql-playground
+  - helloworld
+  - molgenis-viz
+  - nestor-public
+  - pages
+  - projectmanager
+  - reports
+  - schema
+  - settings
+  - tables
+  - tasks
+  - ui
+  - updownload
 
-# pnpm nx run-many --target=build --all --parallel
+onlyBuiltDependencies:
+  - '@fortawesome/fontawesome-free'
+  - '@parcel/watcher'
+  - core-js
+  - ejs
+  - esbuild
+  - fsevents
+  - puppeteer
+  - sharp
+  - styled-components
+  - vue-demi
 
-# pnpm nx run-many --target=build --all --skip-nx-cache --parallel
+packageExtensions:
+  '**':
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+      'react':
+        optional: true
+      'react-dom':
+        optional: true

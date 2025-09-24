@@ -94,7 +94,22 @@ subprojects { subproject ->
         }
     }
 
-    task format(type: PnpmTask, dependsOn: installJavascript) {
+
+    task generateTypes(type: PnpmTask, dependsOn: installJavascript) {
+        if (packageJson.contains("nuxt prepare")) {
+            args = ['run', 'npx', 'nuxt', 'prepare']
+            inputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+            outputs.files fileTree(projectDir).matching {
+                with excludeDef
+            }
+        } else {
+            enabled = false
+        }
+    }
+
+    task format(type: PnpmTask, dependsOn: generateTypes) {
         if (!isCI) {
             args = ['run', 'format']
             inputs.files fileTree(projectDir).matching {
@@ -112,7 +127,7 @@ subprojects { subproject ->
     }
 
     //todo if (packageJson.contains("lint")) {
-    task lint(type: PnpmTask, dependsOn: buildJavascript) {
+    task lint(type: PnpmTask, dependsOn: format) {
        {
             args = ['run', 'lint']
             inputs.files fileTree(projectDir).matching {

@@ -55,7 +55,7 @@ function scrollToTop() {
   <div
     class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden"
   >
-    <PlaygroundNavBar @menu-is-open="(value) => (menuIsOpen = value)" />
+    <PlaygroundNavBar @menu-is-open="(value: any) => (menuIsOpen = value)" />
     <div
       class="absolute top-0 left-0 z-10 w-screen h-screen overflow-hidden opacity-background-gradient"
     >
