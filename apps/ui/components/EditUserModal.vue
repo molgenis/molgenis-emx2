@@ -38,7 +38,7 @@
       <Table>
         <template #head>
           <TableHeadRow>
-            <TableHead></TableHead>
+            <TableHead class="w-0"></TableHead>
             <TableHead>Schema</TableHead>
             <TableHead>Role</TableHead>
           </TableHeadRow>
@@ -63,31 +63,31 @@
       </Table>
     </div>
 
-    <div class="p-5 pt-0 flex">
+    <div class="p-5 pt-0 flex gap-2">
       <InputSelect id="select-schema" v-model="schema" :options="SchemaIds" />
       <InputSelect id="select-role" v-model="role" :options="roles" />
       <Button size="small" icon="plus" @click="addRole" class="whitespace-nowrap">Add role</Button>
     </div>
 
-    <!-- <div v-if="userTokens.length">
+    <div v-if="userTokens.length" class="p-5">
       <b>Tokens</b>
       <Table>
         <template #head>
           <TableHeadRow>
-            <TableHead></TableHead>
+            <TableHead class="w-0"></TableHead>
             <TableHead>Token</TableHead>
           </TableHeadRow>
         </template>
         <template #body>
           <TableRow v-for="token in userTokens">
             <TableCell>
-              <Button size="tiny" icon="trash" @click="removeToken(token)" />
+              <Button iconOnly size="tiny" icon="trash" label="remove" @click="removeToken(token)" />
             </TableCell>
             <TableCell>{{ token }}</TableCell>
           </TableRow>
         </template>
       </Table>
-    </div> -->
+    </div>
 
     <template #footer>
       <div class="m-1">
