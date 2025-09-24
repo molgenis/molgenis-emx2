@@ -9,11 +9,6 @@
         <Logger name="org.pac4j" level="debug" additivity="false">
             <Appender-ref ref="Console" level="debug"/>
         </Logger>
-
-        <Logger name="org.jooq" level="debug" additivity="false">
-            <AppenderRef ref="Console"/>
-        </Logger>
-
         <Root level="info">
             <AppenderRef ref="Console"/>
         </Root>
