@@ -67,9 +67,11 @@ WITH NO DATA;
 ALTER MATERIALIZED VIEW "MOLGENIS".user_permissions_mv
     OWNER TO molgenis;
 GRANT SELECT ON "MOLGENIS".user_permissions_mv TO PUBLIC;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_user_permissions_mv
+    ON "MOLGENIS".user_permissions_mv
+        (user_name, group_name, table_schema, table_name);
 REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
-CREATE INDEX IF NOT EXISTS idx_user_permissions_user_schema
-    ON "MOLGENIS".user_permissions_mv (user_name, table_schema, table_name);
+
 
 -- ========================================
 -- Triggers
@@ -322,7 +324,7 @@ BEGIN
         END IF;
     END IF;
 
-    REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
+    REFRESH MATERIALIZED VIEW CONCURRENTLY "MOLGENIS".user_permissions_mv;
 
     RETURN COALESCE(NEW, OLD);
 END;
