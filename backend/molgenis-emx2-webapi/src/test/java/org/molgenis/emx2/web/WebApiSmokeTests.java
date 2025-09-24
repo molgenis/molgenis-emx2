@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.Assert;
 import io.restassured.RestAssured;
+import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSender;
 import java.io.File;
@@ -729,13 +730,12 @@ public class WebApiSmokeTests {
   public void testGraphqlApi() {
     String path = "/api/graphql";
 
-    // create a new session, separate from the session shared in these tests
-    String sessionId =
-        given().body("{\"query\":\"{_session{email}}\"}").when().post(path).sessionId();
+    // session filter will take care of sessions if applicable
+    SessionFilter sessionFilter = new SessionFilter();
 
     String result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"{_session{email}}\"}")
             .when()
             .post(path)
@@ -745,7 +745,7 @@ public class WebApiSmokeTests {
     // if anonymous then should not be able to see users
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"{_admin{userCount}}\"}")
             .when()
             .post(path)
@@ -760,7 +760,7 @@ public class WebApiSmokeTests {
 
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
                     + db.getAdminUserName()
@@ -774,7 +774,7 @@ public class WebApiSmokeTests {
 
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"{_session{email}}\"}")
             .when()
             .post(path)
@@ -784,7 +784,7 @@ public class WebApiSmokeTests {
     // if admin then should  be able to see users
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"{_admin{userCount}}\"}")
             .when()
             .post(path)
@@ -794,7 +794,7 @@ public class WebApiSmokeTests {
     String schemaPath = "/pet store/api/graphql";
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"{Pet{name}}\"}")
             .when()
             .post(schemaPath)
@@ -803,7 +803,7 @@ public class WebApiSmokeTests {
 
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .contentType("multipart/form-data")
             .multiPart(
                 "query", "mutation insert($value:[OrderInput]){insert(Order:$value){message}}")
@@ -817,7 +817,7 @@ public class WebApiSmokeTests {
 
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"mutation{signout{message}}\"}")
             .when()
             .post(path)
@@ -827,7 +827,7 @@ public class WebApiSmokeTests {
     // if anonymous then should not be able to see users
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"{_admin{userCount}}\"}")
             .when()
             .post(path)
@@ -1001,7 +1001,9 @@ public class WebApiSmokeTests {
     final String defaultContentType = "text/turtle";
     final String jsonldContentType = "application/ld+json";
     final String ttlContentType = "text/turtle";
-    final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8"; // charset is ignored
+    final String n3ContentType = "text/n3";
+    final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8";
+    final String defaultContentTypeWithInvalidCharset = "text/turtle; charset=utf-16";
 
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
@@ -1017,6 +1019,8 @@ public class WebApiSmokeTests {
 
     // Validate API point with charset
     rdfApiContentTypeRequest(200, defaultContentTypeWithCharset, defaultContentType)
+        .get(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(406, defaultContentTypeWithInvalidCharset, EXCEPTION_CONTENT_TYPE)
         .get(urlPrefix + "/pet store/api/rdf");
 
     // Validate convenience API points
@@ -1066,6 +1070,13 @@ public class WebApiSmokeTests {
     rdfApiRequest(200, ACCEPT_YAML).head(urlPrefix + "/api/rdf?shacls");
     rdfApiContentTypeRequest(200, defaultContentType, ACCEPT_YAML)
         .head(urlPrefix + "/api/rdf?shacls");
+
+    // Validate multi-content type negotiation
+    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, application/ld+json", jsonldContentType);
+    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, text/*", n3ContentType)
+        .head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(406, "image/jpeg", EXCEPTION_CONTENT_TYPE)
+        .head(urlPrefix + "/pet store/api/rdf");
   }
 
   @Test

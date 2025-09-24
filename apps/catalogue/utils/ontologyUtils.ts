@@ -31,16 +31,14 @@ export const buildTree = (
     const parent = item.parent as IOntologyItem;
     const parentIndex = uniqueItems.findIndex((i) => equals(i, parent));
 
-    if (!uniqueItems[parentIndex].children) {
-      uniqueItems[parentIndex].children = [];
-    }
-
-    if (
-      !(uniqueItems[parentIndex].children as IOntologyItem[]).find((i) =>
-        equals(i, item)
-      )
-    ) {
-      (uniqueItems[parentIndex].children as IOntologyItem[]).push(item);
+    if (parentIndex !== -1 && uniqueItems[parentIndex]) {
+      if (!uniqueItems[parentIndex].children) {
+        uniqueItems[parentIndex].children = [];
+      }
+      const children = uniqueItems[parentIndex].children;
+      if (!(children as IOntologyItem[]).find((i) => equals(i, item))) {
+        (children as IOntologyItem[]).push(item);
+      }
     }
   }
 
