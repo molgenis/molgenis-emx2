@@ -62,23 +62,32 @@ public class RDFApi {
     // ideally, we estimate/calculate the content length and inform the client using
     // response.raw().setContentLengthLong(x) but since the output is streaming and the triples
     // created on-the-fly, there is no way of knowing (or is there?)
-    defineApiRoutes(app, API_RDF, null);
-    defineApiRoutes(app, API_TTL, RDFFormat.TURTLE);
-    defineApiRoutes(app, API_JSONLD, RDFFormat.JSONLD);
+    defineApiRoutePerPrefix(app, "");
+    defineApiRoutePerPrefix(app, "/apps/{app}/");
   }
 
-  private static void defineApiRoutes(Javalin app, String apiLocation, RDFFormat format) {
-    app.get(apiLocation, (ctx) -> databaseGet(ctx, format));
-    app.head(apiLocation, (ctx) -> databaseHead(ctx, format));
-    app.get("{schema}" + apiLocation, (ctx) -> schemaGet(ctx, format));
-    app.head("{schema}" + apiLocation, (ctx) -> rdfHead(ctx, format));
-    app.get("{schema}" + apiLocation + "/{table}", (ctx) -> rdfForTable(ctx, format));
-    app.head("{schema}" + apiLocation + "/{table}", (ctx) -> rdfHead(ctx, format));
-    app.get("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfForRow(ctx, format));
-    app.head("{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfHead(ctx, format));
+  private static void defineApiRoutePerPrefix(Javalin app, String prefix) {
+    defineApiRoutes(app, prefix, API_RDF, null);
+    defineApiRoutes(app, prefix, API_TTL, RDFFormat.TURTLE);
+    defineApiRoutes(app, prefix, API_JSONLD, RDFFormat.JSONLD);
+  }
+
+  private static void defineApiRoutes(
+      Javalin app, String prefix, String apiLocation, RDFFormat format) {
+    app.get(prefix + apiLocation, (ctx) -> databaseGet(ctx, format));
+    app.head(prefix + apiLocation, (ctx) -> databaseHead(ctx, format));
+    app.get(prefix + "{schema}" + apiLocation, (ctx) -> schemaGet(ctx, format));
+    app.head(prefix + "{schema}" + apiLocation, (ctx) -> rdfHead(ctx, format));
+    app.get(prefix + "{schema}" + apiLocation + "/{table}", (ctx) -> rdfForTable(ctx, format));
+    app.head(prefix + "{schema}" + apiLocation + "/{table}", (ctx) -> rdfHead(ctx, format));
+    app.get(prefix + "{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfForRow(ctx, format));
+    app.head(prefix + "{schema}" + apiLocation + "/{table}/{row}", (ctx) -> rdfHead(ctx, format));
     app.get(
-        "{schema}" + apiLocation + "/{table}/column/{column}", (ctx) -> rdfForColumn(ctx, format));
-    app.head("{schema}" + apiLocation + "/{table}/column/{column}", (ctx) -> rdfHead(ctx, format));
+        prefix + "{schema}" + apiLocation + "/{table}/column/{column}",
+        (ctx) -> rdfForColumn(ctx, format));
+    app.head(
+        prefix + "{schema}" + apiLocation + "/{table}/column/{column}",
+        (ctx) -> rdfHead(ctx, format));
   }
 
   private static void rdfHead(Context ctx, RDFFormat format) {
