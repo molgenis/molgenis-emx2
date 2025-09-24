@@ -1,65 +1,107 @@
 <template>
-  <ContentBlock class="w-full mt-3" title="User management">
-    <Button icon="plus" @click="showNewUserModal = true">
-      Create User
-    </Button>
+  <Container class="flex flex-col items-center">
+    <ContentBlock
+      class="w-full mt-3"
+      title="User management"
+      :description="`${userCount} users found`"
+    >
+      <Button icon="plus" @click="showNewUserModal = true">
+        Create User
+      </Button>
 
-    <h2>User List ({{ userCount }})</h2>
+      <Table>
+        <template #head>
+          <TableHeadRow>
+            <TableHead></TableHead>
+            <TableHead>Enabled</TableHead>
+            <TableHead>Name / Email</TableHead>
+            <TableHead>Roles</TableHead>
+            <TableHead>Tokens</TableHead>
+          </TableHeadRow>
+        </template>
+        <template #body>
+          <TableRow v-for="user in users">
+            <TableCell>
+              <div class="flex gap-1">
+                <Button
+                  iconOnly
+                  icon="user"
+                  type="secondary"
+                  size="small"
+                  label="Edit user"
+                  @click="editUser(user)"
+                />
+                <Button
+                  v-if="canDelete(user)"
+                  iconOnly
+                  class="hover:text-red-500"
+                  icon="trash"
+                  type="secondary"
+                  size="small"
+                  label="Delete user"
+                  @click="removeUser(user)"
+                />
+              </div>
+            </TableCell>
+            <TableCell>
+              <BaseIcon :class="user.enabled?'text-green-800':'text-red-500'" :name="user.enabled?'Check':'Cross'" />
+            </TableCell>
+            <TableCell>{{ user.email }}</TableCell>
+            <TableCell>
+              <div v-if="user.roles?.length>3">
+                <ShowMore>
+                  <template v-slot:button>
+                    <Button type="secondary" size="tiny">show all {{ user.roles?.length }} roles</Button>
+                  </template>
+                  <div v-for="role in user.roles">
+                    {{ role.schemaId }} ({{ role.role }})
+                  </div>
+                </ShowMore>
+              </div>
+              <div v-else v-for="role in user.roles">
+                {{ role.schemaId }} ({{ role.role }})
+              </div>
+            </TableCell>
+            <TableCell>
+              <div v-if="user.tokens?.length > 0" class="flex gap-1">
+                <Button type="secondary" size="tiny" @click="manageTokens(user)">
+                  {{ user.tokens?.length }} tokens
+                </Button>
+              </div>
+            </TableCell>
+          </TableRow>
+        </template>
+      </Table>
 
-    <Table>
-      <template #head>
-        <TableHeadRow>
-          <TableHead>Control</TableHead>
-          <TableHead>Name / Email</TableHead>
-          <TableHead>Enabled</TableHead>
-          <TableHead>Roles</TableHead>
-          <!-- <TableHead>Tokens</TableHead> -->
-        </TableHeadRow>
-      </template>
-      <template #body>
-        <!-- Why is the first cell blue/link like? -->
-        <TableRow v-for="user in users">
-          <TableCell>
-            <Button
-              v-if="canDelete(user)"
-              size="tiny"
-              icon="trash"
-              @click="removeUser(user)"
-            />
-            <Button size="tiny" icon="user" @click="editUser(user)" />
-          </TableCell>
-          <TableCell>{{ user.email }}</TableCell>
-          <TableCell>{{ user.enabled }}</TableCell>
-          <TableCell>
-            <div v-for="role in user.roles">
-              {{ role.schemaId }} ({{ role.role }})
-            </div>
-          </TableCell>
-          <!-- <TableCell> Tokens: {{ user.tokens?.length }} </TableCell> -->
-        </TableRow>
-      </template>
-    </Table>
+      <NewUserModal
+        v-model:visible="showNewUserModal"
+        :usernames="usernames"
+        @addUser="addUser"
+      />
 
-    <NewUserModal
-      v-model:visible="showNewUserModal"
-      :usernames="usernames"
-      @addUser="addUser"
-    />
+      <EditUserModal
+        v-if="selectedUser"
+        v-model:visible="showEditUserModal"
+        :schemas="schemas"
+        :roles="roles"
+        :user="selectedUser"
+        @userUpdated="retrieveUsers"
+      />
 
-    <EditUserModal
-      v-if="selectedUser"
-      v-model:visible="showEditUserModal"
-      :schemas="schemas"
-      :roles="roles"
-      :user="selectedUser"
-      @userUpdated="retrieveUsers"
-    />
-  </ContentBlock>
+      <TokenManagment
+        v-if="selectedUser"
+        v-model:visible="showTokenModal"
+        :user="selectedUser"
+        @addUser="addUser"
+      />
+    </ContentBlock>
+  </Container>
 </template>
 
 <script setup lang="ts">
 import { definePageMeta } from "#imports";
 import { computed, ref } from "vue";
+import TokenManagment from "~/components/TokenManagment.vue";
 import {
   createUser,
   deleteUser,
@@ -86,6 +128,7 @@ definePageMeta({
 const LIMIT = 100;
 const showEditUserModal = ref(false);
 const showNewUserModal = ref(false);
+const showTokenModal = ref(false);
 const selectedUser = ref<IUser | null>(null);
 
 const currentPage = ref(1);
@@ -98,7 +141,7 @@ const schema = ref<string>("");
 
 retrieveUsers();
 schemas.value = await getSchemas();
-schema.value = schemas.value.length ? schemas.value[0]?.id ?? "" : "";
+schema.value = schemas.value.length ? schemas.value[0].id : "";
 roles.value = await getRoles(schemas.value);
 
 const usernames = computed(() => {
@@ -134,11 +177,16 @@ function editUser(user: IUser) {
   showEditUserModal.value = true;
 }
 
+function manageTokens(user: IUser) {
+  selectedUser.value = user;
+  showTokenModal.value = true;
+}
+
 function canDelete(user: IUser) {
   return (
     user.email !== "anonymous" &&
     user.email !== "admin" &&
     user.email !== "user"
   );
-}
+} 
 </script>
