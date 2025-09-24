@@ -23,7 +23,7 @@ import {
 import { fetchGraphql } from "#imports";
 import fetchTableData from "../../composables/fetchTableData";
 
-import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQueryMetaData.ts";
+import type { IQueryMetaData } from "../../types/IQueryMetaData";
 import { fetchTableMetadata } from "#imports";
 import type { ITableDataResponse } from "../../composables/fetchTableData";
 import type { IInputProps } from "../../types/types";
@@ -265,7 +265,10 @@ function applyModelValueToSelection() {
     modelValue.value = [];
   }
   if (!props.multiselect) {
-    delete selectionMap.value[Object.keys(selectionMap.value)[0]];
+    const firstKey = Object.keys(selectionMap.value)[0];
+    if (firstKey !== undefined) {
+      delete selectionMap.value[firstKey];
+    }
     if (modelValue.value) {
       selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
         modelValue.value;

@@ -32,7 +32,7 @@ if (error.value) {
 }
 
 const subpopulation = computed(
-  () => data.value?.data?.Subpopulations[0] as ISubpopulations
+  () => data.value?.data?.Subpopulations?.[0] as ISubpopulations
 );
 
 function renderList(

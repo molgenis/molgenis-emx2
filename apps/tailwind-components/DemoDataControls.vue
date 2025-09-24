@@ -101,7 +101,7 @@ watch(
 const schemaIds = computed(
   () =>
     schemas.value?.data?._schemas
-      .sort((a, b) => a.label.localeCompare(b.label))
+      ?.sort((a, b) => a.label.localeCompare(b.label))
       .map((s) => s.id) ?? []
 );
 
@@ -114,7 +114,7 @@ watch(
   async () => {
     if (schemaMeta.value) {
       await refresh();
-      tableId.value = schemaMeta.value.tables[0].id;
+      tableId.value = schemaMeta.value.tables?.[0]?.id ?? "";
       router.push({
         query: {
           schema: schemaId.value,

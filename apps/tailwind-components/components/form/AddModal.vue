@@ -44,7 +44,7 @@
           v-if="visible && sections"
           class="sticky top-0"
           :sections="sections"
-          @goToSection="scrollToElementInside('fields-container', $event)"
+          @goToSection="gotoSection"
         />
       </div>
 
@@ -55,13 +55,14 @@
         <FormFields
           v-if="visible"
           ref="formFields"
-          :schemaId="schemaId"
-          :metadata="metadata"
-          :sections="sections"
+          :row-key="rowKey"
+          :columns="visibleColumns"
           :constantValues="constantValues"
-          v-model:errors="errorMap"
+          :errorMap="errorMap"
           v-model="formValues"
-          @update:active-chapter-id="activeChapterId = $event"
+          @update="onUpdateColumn"
+          @blur="onBlurColumn"
+          @view="onViewColumn"
         />
       </div>
     </section>
@@ -120,12 +121,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import type { ITableMetaData } from "../../../metadata-utils/src";
-import type {
-  columnId,
-  columnValue,
-  IRow,
-} from "../../../metadata-utils/src/types";
-import useSections from "../../composables/useSections";
+import type { columnValue, IRow } from "../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
 import FormFields from "./Fields.vue";
@@ -192,8 +188,8 @@ async function onSaveDraft() {
 }
 
 async function onSave() {
-  const isValid = formFields.value?.validate();
-  if (!isValid) {
+  validateAllColumns();
+  if (Object.keys(errorMap.value).length > 0) {
     return;
   }
   const resp = await insertInto(props.schemaId, props.metadata.id).catch(
@@ -221,10 +217,6 @@ async function onSave() {
 }
 
 const formValues = ref<Record<string, columnValue>>({});
-const errorMap = ref<Record<columnId, string>>({});
-
-const activeChapterId = ref<string>("_scroll_to_top");
-const sections = useSections(props.metadata, activeChapterId, errorMap);
 
 function scrollToElementInside(containerId: string, elementId: string) {
   const container = document.getElementById(containerId);
@@ -257,8 +249,17 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
+  gotoSection,
   insertInto,
-} = useForm(props.metadata, formValues, errorMap, (fieldId) => {
+  errorMap,
+  onUpdateColumn,
+  onBlurColumn,
+  onViewColumn,
+  validateAllColumns,
+  rowKey,
+  sections,
+  visibleColumns,
+} = useForm(props.metadata, formValues, (fieldId) => {
   scrollToElementInside("fields-container", fieldId);
 });
 

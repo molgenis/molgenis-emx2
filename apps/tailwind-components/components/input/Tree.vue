@@ -84,8 +84,10 @@ function applyModelValueChangeToSelection(selection: string[]) {
   );
   selection.forEach((name) => {
     const node = nodeMap.value[name];
-    node.selected = "selected";
-    processSelectionChangeToParentAndChildNodes(node);
+    if (node) {
+      node.selected = "selected";
+      processSelectionChangeToParentAndChildNodes(node);
+    }
   });
 }
 
@@ -119,9 +121,10 @@ function getAllChildren(node: ITreeNodeState): ITreeNodeState[] {
 }
 
 function getAllParents(node: ITreeNodeState): ITreeNodeState[] {
-  return node.parent
-    ? [nodeMap.value[node.parent], ...getAllParents(nodeMap.value[node.parent])]
-    : [];
+  if (!node.parent) return [];
+  const parentNode = nodeMap.value[node.parent];
+  if (!parentNode) return [];
+  return [parentNode, ...getAllParents(parentNode)];
 }
 
 function toggleSelect(node: ITreeNodeState) {
@@ -156,7 +159,7 @@ function emitSelection() {
           node.selected === "selected" &&
           (props.emitSelectedChildren ||
             !node.parent ||
-            nodeMap.value[node.parent].selected !== "selected")
+            nodeMap.value[node.parent]?.selected !== "selected")
       )
       .map((node) => node.name)
   );
@@ -164,8 +167,10 @@ function emitSelection() {
 
 /* manage expand */
 function toggleExpand(node: ITreeNodeState) {
-  nodeMap.value[node.name].expanded =
-    nodeMap.value[node.name].expanded !== true;
+  const targetNode = nodeMap.value[node.name];
+  if (targetNode) {
+    targetNode.expanded = targetNode.expanded !== true;
+  }
 }
 
 /* manage search */
