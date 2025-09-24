@@ -67,11 +67,9 @@ WITH NO DATA;
 ALTER MATERIALIZED VIEW "MOLGENIS".user_permissions_mv
     OWNER TO molgenis;
 GRANT SELECT ON "MOLGENIS".user_permissions_mv TO PUBLIC;
-CREATE UNIQUE INDEX IF NOT EXISTS uq_user_permissions_mv
-    ON "MOLGENIS".user_permissions_mv
-        (user_name, group_name, table_schema, table_name);
 REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
-
+CREATE INDEX IF NOT EXISTS idx_user_permissions_user_schema
+    ON "MOLGENIS".user_permissions_mv (user_name, table_schema, table_name);
 
 -- ========================================
 -- Triggers
@@ -217,7 +215,7 @@ BEGIN
                     RAISE NOTICE 'Granting role % to user %', role_name, user_var;
                     EXECUTE format('GRANT %I TO %I', role_name, 'MG_USER_' || user_var);
                 ELSE
-                    RAISE NOTICE 'User % already existed in group %', user_var, NEW.group_name; -- TODO: remove me
+                    RAISE NOTICE 'User % already existed in group %', user_var, NEW.group_name;
                 END IF;
             END LOOP;
 
@@ -324,7 +322,7 @@ BEGIN
         END IF;
     END IF;
 
-    REFRESH MATERIALIZED VIEW CONCURRENTLY "MOLGENIS".user_permissions_mv;
+    REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
 
     RETURN COALESCE(NEW, OLD);
 END;
