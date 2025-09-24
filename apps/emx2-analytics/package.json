@@ -10,7 +10,8 @@
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "format": "prettier src  --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src  --check --config ../.prettierrc.js"
+    "checkFormat": "prettier src  --check --config ../.prettierrc.js",
+    "lint": "true"
   },
   "dependencies": {
     "vue":"3.5.13"
@@ -19,9 +20,9 @@
     "@vitejs/plugin-vue": "^5.0.5",
     "prettier": "2.8.8",
     "typescript": "^5.2.2",
-    "vite": "^5.4.16",
+    "vite": "5.4.16",
     "vite-plugin-dts": "^3.9.1",
-    "vue-tsc": "^2.0.21"
+    "vue-tsc": "2.2.0"
   },
   "publishConfig": {
     "access": "public"

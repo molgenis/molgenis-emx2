@@ -14,7 +14,8 @@
     "format": "prettier src tests  --write --config ../.prettierrc.js",
     "checkFormat": "prettier src tests  --check --config ../.prettierrc.js",
     "e2e": "playwright test",
-    "codegen": "playwright codegen"
+    "codegen": "playwright codegen",
+    "lint": "true"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "6.5.2",
@@ -23,7 +24,7 @@
     "bootstrap-icons": "1.11.3",
     "graphql-request": "5.2.0",
     "lodash": "4.17.21",
-    "molgenis-components": "*",
+    "molgenis-components": "workspace:*",
     "monaco-editor": "0.50.0",
     "pinia": "3.0.3",
     "vue": "3.5.13",

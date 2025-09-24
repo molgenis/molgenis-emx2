@@ -3,6 +3,7 @@ import { useHead, useRuntimeConfig, navigateTo, useFetch } from "#app";
 import { definePageMeta } from "#imports";
 import { computed } from "vue";
 import type { IResources, IResources_agg } from "../interfaces/catalogue";
+import type { RouteLocationNormalized } from "vue-router";
 
 const pageDescription =
   "A collaborative effort to integrate the catalogues of diverse EU research projects and networks to accelerate reuse and improve citizens health.";
@@ -20,7 +21,7 @@ useHead({
 //add redirect middleware for cohortOnly to skip this page
 definePageMeta({
   middleware: [
-    function (to) {
+    function (to: RouteLocationNormalized) {
       const cohortOnly =
         to.query["cohort-only"] === "true" ||
         useRuntimeConfig().public.cohortOnly;

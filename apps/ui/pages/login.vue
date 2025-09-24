@@ -4,12 +4,16 @@ import { ref } from "vue";
 import { useSession } from "../../tailwind-components/composables/useSession";
 import { useSettings } from "../../tailwind-components/composables/useSettings";
 import { definePageMeta } from "#imports";
+import type { RouteLocationNormalized } from "vue-router";
 
 const route = useRoute();
 
 definePageMeta({
   middleware: [
-    async function (to, from) {
+    async function (
+      to: RouteLocationNormalized,
+      from: RouteLocationNormalized
+    ) {
       const settings = await useSettings();
       const router = useRouter();
       if (settings.value?.isOidcEnabled) {

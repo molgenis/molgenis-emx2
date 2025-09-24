@@ -1,0 +1,53 @@
+packages:
+  - metadata-utils
+  - tailwind-components
+  - molgenis-components
+  - aggregates
+  - catalogue
+  - central
+  - cranio-provider
+  - cranio-public
+  - directory
+  - emx2-analytics
+  - ern-genturis
+  - ern-ithaca
+  - ern-reconnet
+  - ern-skin
+  - gportal
+  - graphql-playground
+  - helloworld
+  - molgenis-viz
+  - nestor-public
+  - pages
+  - projectmanager
+  - reports
+  - schema
+  - settings
+  - tables
+  - tasks
+  - ui
+  - updownload
+
+onlyBuiltDependencies:
+  - '@fortawesome/fontawesome-free'
+  - '@parcel/watcher'
+  - core-js
+  - ejs
+  - esbuild
+  - fsevents
+  - puppeteer
+  - sharp
+  - styled-components
+  - vue-demi
+
+packageExtensions:
+  '**':
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+      'react':
+        optional: true
+      'react-dom':
+        optional: true

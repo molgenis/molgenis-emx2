@@ -8,10 +8,11 @@
     "serve": "vite preview",
     "lint": "vite lint",
     "format": "prettier src --write --config ../.prettierrc.js",
-    "checkFormat": "prettier src --check --config ../.prettierrc.js"
+    "checkFormat": "prettier src --check --config ../.prettierrc.js",
+    "lint": "true"
   },
   "dependencies": {
-    "molgenis-components": "*",
+    "molgenis-components": "workspace:*",
     "core-js": "3.34.0",
     "graphql-request": "5.2.0",
     "vue":"3.5.13",

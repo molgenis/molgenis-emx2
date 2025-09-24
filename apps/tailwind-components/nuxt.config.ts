@@ -10,6 +10,7 @@ const sourceCodeMap = fs.existsSync(sourceCodeMapPath)
 
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  srcDir: ".",
   experimental: {
     watcher: "parcel",
   },
@@ -22,7 +23,7 @@ export default defineNuxtConfig({
   ignore: [
     ".gradle/**",
     ".git/**",
-    "node_modules/**",
+    "../node_modules/**",
     "dist/**",
     "coverage/**",
   ],
