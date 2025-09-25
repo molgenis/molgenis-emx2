@@ -43,22 +43,13 @@ class TableMeta:
     """Convenient wrapper for the output of the metadata API."""
 
     meta: dict
-    table_name: str = ''
+    table_name: str
     id_attribute: str = field(init=False)
 
     def __post_init__(self):
         for attribute in self.meta:
             if attribute.get("key") == 1:
                 object.__setattr__(self, "id_attribute", attribute.name)
-
-    # FIXME
-    @property
-    def id(self):
-        if self.table_name:
-            return self.table_name
-        # Get name from column metadata if no name provided
-        else:
-            return self.meta[0].get("table")
 
     @property
     def attributes(self):
@@ -97,7 +88,7 @@ class BaseTable(ABC):
 
     @property
     def full_name(self) -> str:
-        return self.meta.id
+        return self.meta.table_name
 
 
 @dataclass(frozen=True)
