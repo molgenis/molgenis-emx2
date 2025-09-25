@@ -31,6 +31,6 @@
     "tailwind-components": "workspace:*",
     "prettier": "2.8.8",
     "vitest": "3.0.8",
-    "vue-tsc": "2.1.6"
+    "vue-tsc": "2.0.7"
   }
 }

@@ -1,3 +1,6 @@
 {
-  "name": "molgenis-apps-monorepo"
+  "name": "molgenis-apps-monorepo",
+  "devDependencies": {
+    "cross-env": "7.0.3"
+  }
 }

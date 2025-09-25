@@ -14,8 +14,8 @@ def isCI = System.getenv('CI') ? true : false
 
 def nodeSpec = {
     version = '22.17.0'
-    yarnVersion = '1.22.19'
-    npmVersion = "9.5.1"
+    pnpmVersion = '10.17.1'
+    npmVersion = "11.6.1"
     download = !isCI
 }
 
@@ -37,7 +37,6 @@ node {
 }
 
 
-
 task installJavascript(type: PnpmTask, dependsOn: pnpmSetup) {
     inputs.files(
         fileTree("${projectDir}/**/package.json"),
@@ -45,7 +44,7 @@ task installJavascript(type: PnpmTask, dependsOn: pnpmSetup) {
         file("${projectDir}/pnpm-workspace.yaml")
     );
     outputs.files(file("${projectDir}/pnpm-lock.yaml"))
-    args = ['install']
+    args = ["install","--network-concurrency", "1", "--child-concurrency", "1"]
 }
 
 subprojects { subproject ->
@@ -60,17 +59,17 @@ subprojects { subproject ->
 
     def packageJson = file("${subproject.projectDir}/package.json").text
 
-    task installJavascript(type: PnpmTask, dependsOn: pnpmSetup) {
-        inputs.files(
-                fileTree("${projectDir}/**/package.json"),
-                file("${projectDir}/pnpm-lock.yaml"),
-                file("${projectDir}/pnpm-workspace.yaml")
-        );
-        outputs.files(file("${projectDir}/pnpm-lock.yaml"))
-        args = ['install']
-    }
+//    task installJavascript(type: PnpmTask, dependsOn: pnpmSetup) {
+//        inputs.files(
+//                fileTree("${projectDir}/**/package.json"),
+//                file("${projectDir}/pnpm-lock.yaml"),
+//                file("${projectDir}/pnpm-workspace.yaml")
+//        );
+//        outputs.files(file("${projectDir}/pnpm-lock.yaml"))
+//        args = ['install']
+//    }
 
-    task buildJavascript(type: PnpmTask, dependsOn:installJavascript) {
+    task buildJavascript(type: PnpmTask, dependsOn:parent.installJavascript) {
         environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
 
         //automatically get the internal dependencies
@@ -97,7 +96,7 @@ subprojects { subproject ->
 
     task generateTypes(type: PnpmTask, dependsOn: installJavascript) {
         if (packageJson.contains("nuxt prepare")) {
-            args = ['run', 'npx', 'nuxt', 'prepare']
+            args = ['run', 'nuxt', 'prepare']
             inputs.files fileTree(projectDir).matching {
                 with excludeDef
             }
