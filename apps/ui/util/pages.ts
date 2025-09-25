@@ -15,14 +15,26 @@ export type PageBuilderContent = {
     css: CssDependency[];
     javascript: JavaScriptDependency[];
   };
+  _meta?: {
+    pageType: "ui" | "advanced";
+    dateCreated?: string;
+    dateModified?: string;
+  };
+  _settings: Record<string, any>;
 };
 
-export function newPageContentObject(): PageBuilderContent {
+export function newPageContentObject(
+  pageType: "ui" | "advanced"
+): PageBuilderContent {
   return {
     css: "",
     html: "",
     javascript: "",
     dependencies: { css: [], javascript: [] },
+    _meta: {
+      pageType: pageType,
+    },
+    _settings: {},
   };
 }
 

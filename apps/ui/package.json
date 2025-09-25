@@ -15,7 +15,7 @@
     "e2e": "playwright test"
   },
   "dependencies": {
-    "monaco-editor": "^0.53.0",
+    "monaco-editor": "0.53.0",
     "vue": "3.5.13",
     "vue-router": "4.4.3"
   },
