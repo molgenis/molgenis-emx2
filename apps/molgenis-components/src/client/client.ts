@@ -159,10 +159,27 @@ const client: IClient = {
       fetchOntologyOptions: async (tableName: string) => {
         return fetchOntologyOptions(tableName, schemaId);
       },
+      getPrimaryKeyFields,
     };
   },
 };
 export default client;
+
+async function getPrimaryKeyFields(
+  schemaId: string,
+  tableId: string
+): Promise<string[]> {
+  return fetchSchemaMetaData(schemaId).then((schema) => {
+    const table = schema.tables.find((table) => table.id === tableId);
+    if (!table) {
+      throw new Error(`Table ${tableId} not found in schema ${schemaId}`);
+    }
+    const keyFields = table.columns
+      .filter((column) => column.key === 1)
+      .map((column) => column.id);
+    return keyFields;
+  });
+}
 
 const metadataQuery = `{
   _schema {
