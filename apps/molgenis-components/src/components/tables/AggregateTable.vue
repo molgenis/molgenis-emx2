@@ -8,84 +8,87 @@
     <div v-else class="border d-inline-block p-2 bg-white">
       <div class="aggregate-options">
         <table>
-          <tr>
-            <td>
-              <label
-                class="mx-2 col-form-label form-group mb-0 mr-3"
-                for="aggregate-column-select"
-              >
-                Column:
-              </label>
-            </td>
-            <td>
-              <InputSelect
-                class="mb-0"
-                id="aggregate-column-select"
-                v-model="selectedColumn"
-                @update:modelValue="fetchData"
-                :options="refColumns"
-                required
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <label
-                class="mx-2 col-form-label form-group mb-0"
-                for="aggregate-row-select"
-              >
-                Row:
-              </label>
-            </td>
-            <td>
-              <InputSelect
-                class="mb-2"
-                id="aggregate-row-select"
-                v-model="selectedRow"
-                @update:modelValue="fetchData"
-                :options="refColumns"
-                required
-              />
-            </td>
-          </tr>
-          <tr v-if="aggFieldOptions.length">
-            <td class="align-top">
-              <label
-                class="mx-2 col-form-label form-group mb-0 mr-3 pt-0"
-                for="aggregate-column-select"
-              >
-                Aggregate function:
-              </label>
-            </td>
-            <td>
-              <InputRadio
-                id="input-radio-2"
-                v-model="aggFunction"
-                :options="['count', 'sum']"
-                :isClearable="false"
-                @update:modelValue="fetchData"
-              />
-            </td>
-          </tr>
-          <tr v-if="aggFunction === '_sum'">
-            <td class="align-top">
-              <label
-                class="mx-2 col-form-label form-group mb-0 mr-3 pt-0"
-                for="aggregate-column-select"
-              >
-                Summation field:
-              </label>
-            </td>
-            <td>
-              <InputSelect
-                class="mb-2"
-                id="aggregate-row-select"
-                v-model="aggField"
-                @update:modelValue="fetchData"
-                :options="aggFieldOptions"
-              />
-            </td>
-          </tr>
+          <tbody>
+            <tr>
+              <td>
+                <label
+                  class="mx-2 col-form-label form-group mb-0 mr-3"
+                  for="aggregate-column-select"
+                >
+                  Column:
+                </label>
+              </td>
+              <td>
+                <InputSelect
+                  class="mb-0"
+                  id="aggregate-column-select"
+                  v-model="selectedColumn"
+                  @update:modelValue="fetchData"
+                  :options="refColumns"
+                  required
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label
+                  class="mx-2 col-form-label form-group mb-0"
+                  for="aggregate-row-select"
+                >
+                  Row:
+                </label>
+              </td>
+              <td>
+                <InputSelect
+                  class="mb-2"
+                  id="aggregate-row-select"
+                  v-model="selectedRow"
+                  @update:modelValue="fetchData"
+                  :options="refColumns"
+                  required
+                />
+              </td>
+            </tr>
+            <tr v-if="sumFieldOptions.length">
+              <td class="align-top">
+                <label
+                  class="mx-2 col-form-label form-group mb-0 mr-3 pt-0"
+                  for="aggregate-column-select"
+                >
+                  Aggregate function:
+                </label>
+              </td>
+              <td>
+                <InputRadio
+                  id="input-radio-2"
+                  v-model="aggFunction"
+                  :options="['count', 'sum']"
+                  :isClearable="false"
+                  @update:modelValue="fetchData"
+                />
+              </td>
+            </tr>
+            <tr v-if="aggFunction === 'sum'">
+              <td class="align-top">
+                <label
+                  class="mx-2 col-form-label form-group mb-0 mr-3 pt-0"
+                  for="aggregate-column-select"
+                >
+                  Summation field:
+                </label>
+              </td>
+              <td>
+                <InputSelect
+                  class="mb-2"
+                  id="aggregate-row-select"
+                  v-model="sumField"
+                  @update:modelValue="fetchData"
+                  :options="sumFieldOptions"
+                  required
+                />
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
 
@@ -127,9 +130,9 @@
 
 <script setup lang="ts">
 import type { IColumn } from "metadata-utils";
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import Client from "../../client/client";
-import { INewClient, type AggFunction } from "../../client/IClient";
+import { INewClient } from "../../client/IClient";
 import InputRadio from "../forms/InputRadio.vue";
 import InputSelect from "../forms/InputSelect.vue";
 import IAggregateData from "./IAggregateData";
@@ -155,8 +158,11 @@ const selectedColumn = ref("");
 const selectedRow = ref("");
 const refColumns = ref<string[]>([]);
 const loading = ref(false);
-const aggFunction = ref<AggFunction>("count");
-const aggField = ref("");
+const aggFunction = ref<"sum" | "count">("count");
+const sumField = ref<string>(
+  props.allColumns.find((col) => AGG_FIELD_TYPES.includes(col.columnType))
+    ?.id || ""
+);
 const rows = ref<string[]>([]);
 const columns = ref<string[]>([]);
 const aggregateData = ref<IAggregateData>({});
@@ -164,7 +170,7 @@ const noResults = ref(false);
 const errorMessage = ref<string | undefined>(undefined);
 const client = ref<INewClient>(Client.newClient(props.schemaId));
 
-const aggFieldOptions = computed(() => {
+const sumFieldOptions = computed(() => {
   return props.allColumns
     .filter((column: IColumn) => {
       return AGG_FIELD_TYPES.includes(column.columnType);
@@ -172,44 +178,52 @@ const aggFieldOptions = computed(() => {
     .map((column: IColumn) => column.id);
 });
 
+const optionsById = computed(() => {
+  return props.allColumns.reduce((accum: Record<string, IColumn>, column) => {
+    accum[column.id] = column;
+    return accum;
+  }, {});
+});
+
 initialize();
 
-watch(
-  () => props.allColumns,
-  () => {
-    initialize();
-  }
-);
-
-function fetchData() {
+async function fetchData() {
   loading.value = true;
   errorMessage.value = undefined;
   rows.value = [];
   columns.value = [];
   aggregateData.value = {};
-  if (aggFunction.value === "_sum" && !aggField.value) {
+  if (aggFunction.value === "sum" && !sumField.value) {
     loading.value = false;
     return;
   }
+
+  const rowColumn = await getPrimaryKeyColumn(
+    optionsById.value[selectedRow.value]
+  );
+  const columnColumn = await getPrimaryKeyColumn(
+    optionsById.value[selectedColumn.value]
+  );
+
   client.value
     .fetchAggregateData(
       props.tableId,
       {
         id: selectedColumn.value,
-        column: "name",
+        column: columnColumn,
       },
       {
         id: selectedRow.value,
-        column: "name",
+        column: rowColumn,
       },
       props.graphqlFilter,
-      aggFunction.value === "count" ? "count" : "_sum",
-      aggField.value
+      aggFunction.value === "sum" ? "_sum" : "count",
+      sumField.value
     )
     .then((responseData) => {
       if (responseData && responseData[props.tableId + "_groupBy"]) {
-        responseData[props.tableId + "_groupBy"].forEach((item: any) =>
-          addItem(item)
+        responseData[props.tableId + "_groupBy"].forEach(
+          (item: Record<string, any>) => addItem(item)
         );
         noResults.value = !columns.value.length;
       } else {
@@ -223,27 +237,66 @@ function fetchData() {
     });
 }
 
-function addItem(item: any) {
-  const column: string = item[selectedColumn.value]?.name || "not specified";
-  const row: string = item[selectedRow.value]?.name || "not specified";
+async function getPrimaryKeyColumn(column: IColumn) {
+  if (column.columnType.startsWith("ONTOLOGY")) {
+    return "name";
+  }
 
-  const aggRespField = aggFunction.value === "count" ? "count" : "_sum";
-  const aggColValue =
-    aggFunction.value === "count"
-      ? item[aggRespField]
-      : item[aggRespField][aggField.value];
+  if (column.columnType === "REFBACK") {
+    const keys = await client.value.getPrimaryKeyFields(
+      props.schemaId,
+      props.tableId
+    );
+    return `${column.refBackId} { ${keys.join(",")} }`;
+  }
 
-  if (!aggregateData.value[row]) {
-    aggregateData.value[row] = { [column]: aggColValue };
+  const schemaId = column.refSchemaId || props.schemaId;
+  const tableId = column.refTableId || props.tableId;
+  const keys = await client.value.getPrimaryKeyFields(schemaId, tableId);
+
+  if (keys.length) {
+    return keys.join(",");
   } else {
-    aggregateData.value[row][column] = aggColValue;
+    throw new Error(
+      `Could not determine primary key for column ${column.id} in table ${tableId}`
+    );
+  }
+}
+
+function addItem(item: Record<string, any>) {
+  const row = optionsById.value[selectedRow.value];
+  const column = optionsById.value[selectedColumn.value];
+
+  const columnLabel: string = getLabel(column, item);
+  const rowLabel: string = getLabel(row, item);
+
+  const aggColValue =
+    aggFunction.value === "sum"
+      ? item["_sum"][sumField.value]
+      : item[aggFunction.value];
+
+  if (!aggregateData.value[rowLabel]) {
+    aggregateData.value[rowLabel] = { [columnLabel]: aggColValue };
+  } else {
+    aggregateData.value[rowLabel][columnLabel] = aggColValue;
   }
 
-  if (!columns.value.includes(column)) {
-    columns.value.push(column);
+  if (!columns.value.includes(columnLabel)) {
+    columns.value.push(columnLabel);
   }
-  if (!rows.value.includes(row)) {
-    rows.value.push(row);
+  if (!rows.value.includes(rowLabel)) {
+    rows.value.push(rowLabel);
+  }
+}
+
+function getLabel(column: IColumn, item: Record<string, any>) {
+  const result = item[column.id];
+  if (!result) {
+    return "not specified";
+  } else if (column.columnType === "REFBACK") {
+    return result[column.refBackId!]?.name || "not specified";
+  } else {
+    return result?.name || "not specified";
   }
 }
 
@@ -257,9 +310,6 @@ function initialize() {
   if (refColumns.value?.length) {
     selectedColumn.value = refColumns.value[0];
     selectedRow.value = refColumns.value[1] || refColumns.value[0];
-    // if (aggFunction.value === "_sum" && aggFieldOptions.value.length) {
-    //   aggField.value = aggFieldOptions.value[0];
-    // }
     fetchData();
   }
 }
@@ -269,7 +319,8 @@ function getRefTypeColumns(columns: IColumn[], canView: boolean): string[] {
     .filter((column: IColumn) => {
       return (
         (column.columnType.startsWith("REF") && canView) ||
-        column.columnType.startsWith("ONTOLOGY")
+        column.columnType.startsWith("ONTOLOGY") ||
+        (column.columnType === "RADIO" && canView)
       );
     })
     .map((column: IColumn) => column.id);
@@ -327,7 +378,7 @@ export default {
         },
         {
           id: "category",
-          columnType: "REF",
+          columnType: "RADIO",
         },
         {
           id: "tags",
@@ -336,7 +387,8 @@ export default {
         {
           id: "orders",
           columnType: "REFBACK",
-        },
+          refBackId: "pet",
+        }
       ],
       graphqlFilter: { name: { like: ["pooky"] } },
       sumExampleCols: [
