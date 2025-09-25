@@ -56,6 +56,7 @@ class TableMeta:
     def id(self):
         if self.table_name:
             return self.table_name
+        # Get name from column metadata if no name provided
         else:
             return self.meta[0].get("table")
 
