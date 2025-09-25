@@ -358,10 +358,10 @@ class NodeData(DirectoryData):
         tables = dict()
         for table in self.import_order:
             metadata = deepcopy(table.meta.meta)
-            # metadata["id"] = self.node.get_staging_id(table.type)
+            table_name = self.node.get_staging_id(table.type)
             tables[table.type.value] = Table(
                 table.rows_by_id,
-                TableMeta(metadata, table_name=self.node.get_staging_id(table.type)),
+                TableMeta(metadata, table_name=table_name),
                 table.type,
             )
 
