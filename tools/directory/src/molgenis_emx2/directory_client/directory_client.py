@@ -35,6 +35,7 @@ from .utils import create_csv
 # Value is 1/4th of max. CSV line size in Molgenis
 csv.field_size_limit(2097152)
 
+
 @dataclass
 class AttributesRequest:
     persons: List[str]
@@ -169,7 +170,8 @@ class DirectorySession(Session):
         meta = TableMeta(
             meta=self.get_table_meta(
                 schema=self.ONTOLOGY_SCHEMA, table_name=entity_type_id
-            )
+            ),
+            table_name=entity_type_id,
         )
         return OntologyTable.of(meta, rows, parent_attr, matching_attrs)
 
@@ -347,7 +349,8 @@ class DirectorySession(Session):
         for table_type in TableType.get_import_order():
             id_ = node.get_staging_id(table_type)
             meta = TableMeta(
-                meta=self.get_table_meta(schema=node.get_schema_id(), table_name=id_)
+                meta=self.get_table_meta(schema=node.get_schema_id(), table_name=id_),
+                table_name=id_,
             )
 
             tables[table_type.value] = Table.of(
@@ -370,7 +373,8 @@ class DirectorySession(Session):
         for table_type in TableType.get_import_order():
             id_ = table_type.base_id
             meta = TableMeta(
-                self.get_table_meta(schema=self.directory_schema, table_name=id_)
+                self.get_table_meta(schema=self.directory_schema, table_name=id_),
+                table_name=id_,
             )
 
             tables[table_type.value] = Table.of(
@@ -404,7 +408,8 @@ class DirectorySession(Session):
         for table_type in TableType.get_import_order():
             id_ = table_type.base_id
             meta = TableMeta(
-                self.get_table_meta(schema=self.directory_schema, table_name=id_)
+                self.get_table_meta(schema=self.directory_schema, table_name=id_),
+                table_name=id_,
             )
             attrs = attributes[table_type.value]
             data = []
@@ -465,7 +470,8 @@ class ExternalServerSession(DirectorySession):
                 meta = TableMeta(
                     self.get_table_meta(
                         schema=self.node.get_schema_id(), table_name=id_
-                    )
+                    ),
+                    table_name=id_,
                 )
                 tables[table_type.value] = Table.of(
                     table_type=table_type,
