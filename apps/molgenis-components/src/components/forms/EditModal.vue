@@ -272,7 +272,7 @@ onMounted(async () => {
 });
 
 function isValidKeyValue(value: any) {
-  return value !== null && value !== undefined && value !== "" && !isNaN(value);
+  return value !== null && value !== undefined && value !== "";
 }
 
 function setCurrentPage(newPage: number) {
