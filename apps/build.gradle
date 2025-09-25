@@ -94,21 +94,21 @@ subprojects { subproject ->
     }
 
 
-    task generateTypes(type: PnpmTask, dependsOn: installJavascript) {
-        if (packageJson.contains("nuxt prepare")) {
-            args = ['run', 'nuxt', 'prepare']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-            outputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        } else {
-            enabled = false
-        }
-    }
+//    task generateTypes(type: PnpmTask, dependsOn: buildJavascript) {
+//        if (packageJson.contains("nuxt prepare")) {
+//            args = ['run', 'nuxt', 'prepare']
+//            inputs.files fileTree(projectDir).matching {
+//                with excludeDef
+//            }
+//            outputs.files fileTree(projectDir).matching {
+//                with excludeDef
+//            }
+//        } else {
+//            enabled = false
+//        }
+//    }
 
-    task format(type: PnpmTask, dependsOn: generateTypes) {
+    task format(type: PnpmTask, dependsOn: buildJavascript) {
         if (!isCI) {
             args = ['run', 'format']
             inputs.files fileTree(projectDir).matching {
