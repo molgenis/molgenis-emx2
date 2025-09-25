@@ -24,7 +24,7 @@ export default defineNuxtConfig({
     base: ".",
   },
 
-  modules: ["@pinia/nuxt"],
+  modules: ["@pinia/nuxt", "nuxt-monaco-editor"],
 
   components: [
     {
