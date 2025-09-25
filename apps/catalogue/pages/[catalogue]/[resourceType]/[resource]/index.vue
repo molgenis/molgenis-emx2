@@ -374,7 +374,25 @@ const tocItems = computed(() => {
     });
   }
 
-  if (resource.value.collectionEvents) {
+  const showAvailableDataAndSample = computed(() => {
+    if (!resource.value.collectionEvents) return false;
+    const dataCategories = resource.value.collectionEvents
+      ?.flatMap((c) => c.dataCategories)
+      .filter((e) => e !== undefined);
+    const sampleCategories = resource.value.collectionEvents
+      ?.flatMap((c) => c.sampleCategories)
+      .filter((e) => e !== undefined);
+    const areasOfInformation = resource.value.collectionEvents
+      ?.flatMap((c) => c.areasOfInformation)
+      .filter((e) => e !== undefined);
+    return (
+      (dataCategories?.length ||
+        sampleCategories?.length ||
+        areasOfInformation?.length) > 0
+    );
+  });
+
+  if (showAvailableDataAndSample.value) {
     tableOffContents.push({
       label: "Available data & samples",
       id: "AvailableData",
