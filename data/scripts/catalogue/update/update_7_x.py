@@ -79,6 +79,9 @@ class Transform:
         if self.schema_name == 'testCatalogue':
             self.collection_events()
             self.subpopulations()
+        if self.profile in ['CohortsStaging', 'DataCatalogueflat']:
+            self.variable_mappings()
+
 
     def agents(self):
         """ Transform data in Agents
@@ -211,7 +214,7 @@ class Transform:
         df_endpoint.to_csv(self.path + 'Endpoint.csv', index=False)
 
     def collection_events(self):
-        """ Transform data in Endpoint
+        """ Transform data in Collection events
         """
         df_col_event = pd.read_csv(self.path + 'Collection events.csv', dtype='object')
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
@@ -233,7 +236,7 @@ class Transform:
         df_col_event.to_csv(self.path + 'Collection events.csv', index=False)
 
     def subpopulations(self):
-        """ Transform data in Endpoint
+        """ Transform data in Subpopulations
         """
         df_subpopulations = pd.read_csv(self.path + 'Subpopulations.csv', dtype='object')
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
@@ -253,6 +256,16 @@ class Transform:
 
         # write table to file
         df_subpopulations.to_csv(self.path + 'Subpopulations.csv', index=False)
+
+    def variable_mappings(self):
+        """ Transform data in Variable mappings
+        """
+        df_mappings = pd.read_csv(self.path + 'Variable mappings.csv', dtype='object')
+        if not len(df_mappings) == 0:
+            df_mappings['repeats'] = df_mappings['repeats'].apply(clean_repeats)
+
+        # write table to file
+        df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
 
 
 def clean_pid(row):
@@ -289,3 +302,13 @@ def add_keywords(keywords):
 def get_keywords(resource, dict_keywords):
     keywords = dict_keywords[resource]
     return keywords
+
+
+def clean_repeats(repeats):
+    if pd.isna(repeats):
+        repeats = 'NA'
+    elif repeats in ['na', '<NA>', 'preg']:
+        repeats = 'NA'
+    elif repeats in ['t1', 't2', 't3']:
+        repeats = repeats[1:]
+    return repeats
