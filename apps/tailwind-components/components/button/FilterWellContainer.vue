@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+//@ts-ignore
 import { ref, useTemplateRef, watch, onMounted, onBeforeUnmount } from "vue";
 
 defineProps<{

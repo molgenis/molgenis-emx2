@@ -1,4 +1,5 @@
 <script setup lang="ts">
+//@ts-ignore
 import { useId } from "vue";
 import type { HarmonisationIconSize } from "../../interfaces/types";
 const ariaId = useId();

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { fetchGql } from "#imports";
+// @ts-ignore
 import type { DocumentNode } from "graphql";
 import { type Ref, ref, computed, watch } from "vue";
 import ContentBlock from "../../../tailwind-components/components/content/ContentBlock.vue";

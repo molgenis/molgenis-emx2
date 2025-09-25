@@ -4,6 +4,7 @@ import {
   computed,
   watch,
   onMounted,
+  //@ts-ignore
   useTemplateRef,
   shallowRef,
 } from "vue";

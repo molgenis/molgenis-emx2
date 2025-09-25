@@ -1,3 +1,4 @@
+// @ts-ignore
 import { joinURL } from "ufo";
 import { proxyRequest, defineEventHandler, readBody, getRouterParam } from "h3";
 import { useRuntimeConfig } from "#imports";

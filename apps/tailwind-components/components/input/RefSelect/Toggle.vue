@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+//@ts-ignore
 import { ref, useTemplateRef } from "vue";
 import { BaseIcon } from "#components";
 

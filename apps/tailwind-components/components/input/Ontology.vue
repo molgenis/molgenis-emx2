@@ -8,6 +8,7 @@ import {
   watch,
   type Ref,
   computed,
+  // @ts-ignore
   useTemplateRef,
   nextTick,
 } from "vue";

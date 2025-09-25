@@ -1,4 +1,5 @@
 <script setup lang="ts">
+//@ts-ignore
 import { onMounted, useTemplateRef, watch } from "vue";
 import type {
   columnId,

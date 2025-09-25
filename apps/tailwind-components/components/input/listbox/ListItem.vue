@@ -22,6 +22,7 @@
 </template>
 
 <script lang="ts" setup>
+//@ts-ignore
 import { useTemplateRef } from "vue";
 
 defineProps<{

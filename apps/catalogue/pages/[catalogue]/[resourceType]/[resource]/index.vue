@@ -1,4 +1,5 @@
 <script setup lang="ts">
+//@ts-ignore
 import { gql } from "graphql-request";
 import subpopulationsQuery from "../../../../gql/subpopulations";
 import collectionEventsQuery from "../../../../gql/collectionEvents";

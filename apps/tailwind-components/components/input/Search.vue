@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// @ts-ignore
 import { useTemplateRef } from "vue";
 import type { IInputProps, ButtonSize } from "../../types/types";
 

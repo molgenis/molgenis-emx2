@@ -64,6 +64,7 @@
 </template>
 
 <script lang="ts" setup>
+//@ts-ignore
 import { useTemplateRef } from "vue";
 import type { IInputProps, IFile } from "../../types/types";
 

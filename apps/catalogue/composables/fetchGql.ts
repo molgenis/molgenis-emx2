@@ -1,5 +1,6 @@
 import { useRuntimeConfig } from "#app";
 import { moduleToString } from "#imports";
+// @ts-ignore
 import type { DocumentNode } from "graphql";
 import type { GqlResp } from "~/interfaces/types";
 

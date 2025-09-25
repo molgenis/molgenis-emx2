@@ -1,4 +1,5 @@
 import { defu } from "defu";
+// @ts-ignore
 import type { DocumentNode } from "graphql";
 import { moduleToString, logError, useRuntimeConfig, useFetch } from "#imports";
 import { type Ref, isRef } from "vue";
@@ -20,6 +21,7 @@ export function useGqlFetch<T, E>(
     : query;
 
   let body: { query: string; variables?: object } = {
+    // @ts-ignore
     query: queryString,
   };
 

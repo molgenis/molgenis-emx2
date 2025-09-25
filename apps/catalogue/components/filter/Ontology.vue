@@ -6,6 +6,7 @@ import type {
   IFilterCondition,
   IOntologyRespItem,
 } from "../../interfaces/types";
+// @ts-ignore
 import { computed, useId } from "vue";
 
 const props = withDefaults(

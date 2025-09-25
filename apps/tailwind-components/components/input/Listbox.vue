@@ -72,6 +72,7 @@
 </template>
 
 <script lang="ts" setup>
+//@ts-ignore
 import { ref, useTemplateRef, nextTick, watch, onMounted, computed } from "vue";
 import type {
   IInputValue,
