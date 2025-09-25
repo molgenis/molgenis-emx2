@@ -63,9 +63,9 @@ import Breadcrumb from "./Breadcrumb.vue";
 import CookieWall from "./CookieWall.vue";
 import Client from "../../client/client";
 import { MenuItem } from "../../Interfaces/MenuItem";
-import { computed, ref, unref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { onMounted } from "vue";
-import { ISetting } from "metadata-utils/src";
+import { ISetting } from "metadata-utils";
 
 const defaultSchemaMenuItems: MenuItem[] = [
   {
