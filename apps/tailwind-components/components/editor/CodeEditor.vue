@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { ref, useTemplateRef, watchEffect } from "vue";
+import { ref, useTemplateRef, onMounted } from "vue";
 import { MonacoEditor } from "#components";
+
 const props = withDefaults(
   defineProps<{
     lang: "html" | "css" | "javascript";
@@ -15,31 +16,29 @@ const emits = defineEmits<{
   (e: "update:modelValue", value: string): void;
 }>();
 
-const code = defineModel<string>("");
+const code = ref<string>(props.modelValue as string);
 const isExpanded = ref<boolean>(true);
 const editor = useTemplateRef<InstanceType<typeof MonacoEditor>>("editor");
 
-watchEffect(() => {
-  if (editor.value?.$editor) {
-    const action = editor.value.$editor?.getAction(
-      "editor.action.formatDocument"
-    );
-    if (action) {
-      action.run();
-    }
-  }
-});
+function formatEditor() {
+  editor.value?.$editor?.getAction("editor.action.formatDocument")?.run();
+}
 
-watchEffect(() => {
-  if (props.modelValue) {
-    code.value = props.modelValue;
-  }
+function onUpdateModelValue() {
+  emits("update:modelValue", code.value);
+}
+
+onMounted(() => {
+  setTimeout(() => {
+    code.value = props?.modelValue as string;
+    formatEditor();
+  }, 125);
 });
 </script>
 
 <template>
   <div :id="`${lang}-editor`" class="border">
-    <div class="border pl-4 flex justify-start items-center">
+    <div class="px-4 flex justify-start items-center">
       <button
         :id="`${lang}-editor-toggle`"
         class="w-full pl-4 py-4 text-button-text flex justify-start items-center"
@@ -48,8 +47,16 @@ watchEffect(() => {
         :aria-controls="`${lang}-editor-content`"
       >
         <BaseIcon name="CaretDown" :width="24" />
-        <span>{{ lang }}</span>
+        <span>{{ lang.toUpperCase() }}</span>
       </button>
+      <Button
+        type="outline"
+        size="small"
+        :icon-only="true"
+        icon="UploadFile"
+        label="format document"
+        @click="formatEditor"
+      />
     </div>
     <div
       ref="container"
@@ -62,7 +69,7 @@ watchEffect(() => {
       <MonacoEditor
         ref="editor"
         v-model="code"
-        @update:model-value="emits('update:modelValue', code as string)"
+        @update:model-value="onUpdateModelValue"
         :lang="lang"
         :options="{
           theme: 'vs-dark',
@@ -76,7 +83,7 @@ watchEffect(() => {
             insertMode: 'insert',
           },
         }"
-        :style="{ width: '100%', height: '350px' }"
+        :style="{ width: '100%', height: '250px' }"
       />
     </div>
   </div>
