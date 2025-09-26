@@ -67,10 +67,18 @@ function percentageLongitudinal(
       <LandingCardPrimary
         v-if="!config.public.cohortOnly"
         image="checklist"
-        title="Variables"
-        description="A listing of all collected, harmonised and standard variables."
+        title="Harmonized Variables"
+        description="A listing of all harmonised variables."
         :count="data.data.Variables_agg.count"
         :link="`/all/variables`"
+      />
+      <LandingCardPrimary
+        v-if="!config.public.cohortOnly"
+        image="checklist"
+        title="Collected Variables"
+        description="A listing of all collected variables."
+        :count="999"
+        :link="`/all/collectedvariables`"
       />
     </LandingPrimary>
     <LandingSecondary>
@@ -115,7 +123,7 @@ function percentageLongitudinal(
         icon="harmonized-variables"
         title="Harmonised variables"
         :count="data.data.Organisations_agg.count"
-        :link="`/all/variables`"
+        :link="`/all/collectedvariables`"
       />
       <LandingCardSecondary
         icon="dataset-linked"
