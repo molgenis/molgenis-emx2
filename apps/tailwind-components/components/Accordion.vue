@@ -22,17 +22,20 @@ const elemId = computed<string>(() => {
   <div :id="elemId" class="border rounded">
     <button
       :id="`${elemId}-toggle`"
-      class="w-full flex justify-start items-center gap-5 p-5 text-title-contrast"
+      class="group w-full flex justify-start items-center gap-1.5 p-5 text-title-contrast"
       @click="isExpanded = !isExpanded"
       :aria-controls="`${elemId}-content`"
       :aria-expanded="isExpanded"
     >
-      <span class="w-full text-left capitalize font-bold text-clip">
+      <span
+        class="w-full group-hover:underline text-left capitalize font-bold text-clip"
+      >
         {{ label }}
       </span>
       <BaseIcon
         name="CaretDown"
-        class="origin-center"
+        :width="26"
+        class="group-hover:bg-button-secondary-hover group-hover:text-button-secondary-hover origin-center rounded-full"
         :class="{
           'rotate-180': isExpanded,
           'rotate-0': !isExpanded,
@@ -41,7 +44,7 @@ const elemId = computed<string>(() => {
     </button>
     <div
       :id="`${elemId}-content`"
-      class="p-5"
+      class="px-5 pb-5"
       :class="{
         static: isExpanded,
         hidden: !isExpanded,
