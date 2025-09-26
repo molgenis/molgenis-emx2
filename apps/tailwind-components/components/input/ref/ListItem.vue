@@ -58,7 +58,6 @@ function toLabel(row: columnValueObject) {
             icon="trash"
             type="inline"
             label="Remove"
-            size="small"
             @click.stop="$emit('remove', refData)"
           />
           <!-- <Button not yet implemented
@@ -77,7 +76,6 @@ function toLabel(row: columnValueObject) {
             icon="edit"
             type="inline"
             label="Edit"
-            size="small"
             @click.stop="$emit('edit', refData)"
           />
         </div>
