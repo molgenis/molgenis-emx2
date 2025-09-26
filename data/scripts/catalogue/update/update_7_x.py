@@ -82,7 +82,6 @@ class Transform:
         if self.profile in ['CohortsStaging', 'DataCatalogueflat']:
             self.variable_mappings()
 
-
     def agents(self):
         """ Transform data in Agents
         """
@@ -218,13 +217,24 @@ class Transform:
         """
         df_col_event = pd.read_csv(self.path + 'Collection events.csv', dtype='object')
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
-        df_resources = df_resources[['id', 'keywords']]
-        dict_resources = dict(zip(df_resources.id, df_resources.keywords))
 
         # transformations
         df_col_event['issued'] = ''
         df_col_event['modified'] = ''
-        df_col_event['keywords'] = df_col_event['resource'].apply(get_keywords, dict_keywords=dict_resources)
+        # concatenate name from resource and name columns
+        df_col_event['name'] = df_col_event.apply(concat_resource_name, axis=1)
+        # get keywords from Resources
+        dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
+        df_col_event['keywords'] = df_col_event['resource'].apply(get_keywords, dict_keywords=dict_keywords)
+        # get descriptions from Resources when missing
+        dict_descriptions = dict(zip(df_resources.id, df_resources.description))
+        df_col_event['description'] = df_col_event.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
+        # get publisher from Resources
+        dict_publisher = dict(zip(df_resources.id, df_resources.publisher))
+        df_col_event['publisher'] = df_col_event['resource'].apply(get_publisher, dict_publisher=dict_publisher)
+        # get creator from Resources
+        dict_creator = dict(zip(df_resources.id, df_resources.creator))
+        df_col_event['creator'] = df_col_event['resource'].apply(get_creator, dict_creator=dict_creator)
 
         # only for demo data:
         if self.schema_name == 'testCatalogue':
@@ -240,13 +250,24 @@ class Transform:
         """
         df_subpopulations = pd.read_csv(self.path + 'Subpopulations.csv', dtype='object')
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
-        df_resources = df_resources[['id', 'keywords']]
-        dict_resources = dict(zip(df_resources.id, df_resources.keywords))
 
         # transformations
         df_subpopulations['issued'] = ''
         df_subpopulations['modified'] = ''
-        df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_resources)
+        # concatenate name from resource and name columns
+        df_subpopulations['name'] = df_subpopulations.apply(concat_resource_name, axis=1)
+        # get keywords from Resources
+        dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
+        df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_keywords)
+        # get descriptions from Resources when missing
+        dict_descriptions = dict(zip(df_resources.id, df_resources.description))
+        df_subpopulations['description'] = df_subpopulations.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
+        # get publisher from Resources
+        dict_publisher = dict(zip(df_resources.id, df_resources.publisher))
+        df_subpopulations['publisher'] = df_subpopulations['resource'].apply(get_publisher, dict_publisher=dict_publisher)
+        # get creator from Resources
+        dict_creator = dict(zip(df_resources.id, df_resources.creator))
+        df_subpopulations['creator'] = df_subpopulations['resource'].apply(get_creator, dict_creator=dict_creator)
 
         # only for demo data:
         if self.schema_name == 'testCatalogue':
@@ -312,3 +333,25 @@ def clean_repeats(repeats):
     elif repeats in ['t1', 't2', 't3']:
         repeats = repeats[1:]
     return repeats
+
+
+def concat_resource_name(row):
+    if not row['resource'].lower() in row['name'].lower():
+        return row['resource'] + ' ' + row['name']
+    else:
+        return row['name']
+
+
+def get_description(row, dict_descriptions):
+    if pd.isna(row['description']):
+        return dict_descriptions[row['id']]
+    else:
+        return row['description']
+
+
+def get_publisher(resource, dict_publisher):
+    return dict_publisher[resource]
+
+
+def get_creator(resource, dict_creator):
+    return dict_creator[resource]
