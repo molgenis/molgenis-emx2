@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed } from "vue";
+import { useId, ref } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -12,9 +12,7 @@ const props = withDefaults(
 );
 
 const isExpanded = ref<boolean>(props.openByDefault);
-const elemId = computed<string>(() => {
-  return "accordion__" + props.label.toLowerCase().replaceAll(" ", "-");
-});
+const elemId = ref<string>(`accordion__${useId()}`);
 </script>
 
 <template>
