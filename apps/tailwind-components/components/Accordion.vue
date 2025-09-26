@@ -3,7 +3,6 @@ import { ref, computed } from "vue";
 
 const props = withDefaults(
   defineProps<{
-    id: string;
     label: string;
     openByDefault?: boolean;
   }>(),
@@ -14,7 +13,7 @@ const props = withDefaults(
 
 const isExpanded = ref<boolean>(props.openByDefault);
 const elemId = computed<string>(() => {
-  return "accordion__" + props.id.toLowerCase().replaceAll(" ", "-");
+  return "accordion__" + props.label.toLowerCase().replaceAll(" ", "-");
 });
 </script>
 
