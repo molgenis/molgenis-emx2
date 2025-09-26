@@ -1,11 +1,38 @@
 <template>
   <InputTestContainer show-label v-slot="{ label }">
-    <Accordion :label="label || 'Accordion component'" class="max-w-[500px]">
-      <p class="text-title-contrast">
-        This is an accordion component that can be used to hide and show
-        content. The label can be changed and the content can be hidden by
-        default.
-      </p>
-    </Accordion>
+    <div class="grid grid-rows-1 gap-4">
+      <Accordion :label="label || 'Accordion component'" class="max-w-[600px]">
+        <p class="text-title-contrast">
+          This is an accordion component that can be used to hide and show
+          content. The label can be changed and the content can be hidden by
+          default.
+        </p>
+      </Accordion>
+      <Accordion :label="label || 'Accordion component'" class="max-w-[600px]">
+        <template #toolbar>
+          <Button
+            class="hover:bg-button-secondary-hover"
+            :icon-only="true"
+            icon="edit"
+            type="inline"
+            label="Edit"
+            size="small"
+          />
+          <Button
+            class="hover:bg-button-secondary-hover"
+            :icon-only="true"
+            icon="trash"
+            type="inline"
+            label="Delete"
+            size="small"
+          />
+        </template>
+        <p class="text-title-contrast">
+          Using the slot <code>toolbar</code>, you can insert additional actions
+          in the accordion heading. This is useful for components such as
+          <code>InputRefBack</code>.
+        </p>
+      </Accordion>
+    </div>
   </InputTestContainer>
 </template>
