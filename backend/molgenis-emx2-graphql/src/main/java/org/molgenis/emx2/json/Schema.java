@@ -65,6 +65,7 @@ public class Schema {
           t.getDescriptions().stream()
               .filter(d -> d.value() != null)
               .collect(Collectors.toMap(LanguageValue::locale, LanguageValue::value)));
+      tm.setRowLevelSecurity(t.hasRowLevelSecurity());
       for (Column c : t.getColumns()) {
         if (c.getName().equals(Constants.MG_TOP_OF_FORM)) {
           // skip

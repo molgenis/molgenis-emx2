@@ -526,7 +526,7 @@ class SqlTableMetadata extends TableMetadata {
   private static void dropTransaction(Database db, String schemaName, String tableName) {
     DSLContext jooq = ((SqlDatabase) db).getJooq();
     TableMetadata tm = db.getSchema(schemaName).getTable(tableName).getMetadata();
-    executeDropTable(jooq, tm);
     MetadataUtils.deleteTable(jooq, tm);
+    executeDropTable(jooq, tm);
   }
 }
