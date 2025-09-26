@@ -128,15 +128,17 @@ crumbs["Edit"] = "";
       {{ error }}
     </Message>
     <template v-else>
-      <Message
-        :invalid="true"
-        :id="`page-${cleanPageName}`"
-        v-if="!isSaving && saveError"
+      <!-- v-if="!isSaving && saveError" -->
+      <SideModal
+        :show="true"
+        :slide-in-right="true"
+        type="error"
+        :full-screen="false"
       >
-        <p><strong>Unable to save schema</strong></p>
-        :
-        <p>{{ saveError }}</p>
-      </Message>
+        <template>
+          <p><strong>Unable to save schema</strong></p>
+        </template>
+      </SideModal>
       <Message
         :valid="true"
         :id="`page-${cleanPageName}`"
