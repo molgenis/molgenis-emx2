@@ -46,6 +46,7 @@ const elemId = computed<string>(() => {
     </button>
     <div
       :id="`${elemId}-content`"
+      :aria-labelledby="`${elemId}-toggle`"
       class="px-5 pb-5"
       :class="{
         block: isExpanded,
