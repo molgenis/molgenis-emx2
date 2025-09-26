@@ -11,17 +11,17 @@ const props = withDefaults(
   }
 );
 
+const id = useId();
 const isExpanded = ref<boolean>(props.openByDefault);
-const elemId = ref<string>(`accordion__${useId()}`);
 </script>
 
 <template>
-  <div :id="elemId" class="border rounded">
+  <div :id="`accordion__${id}`" class="border rounded">
     <button
-      :id="`${elemId}-toggle`"
+      :id="`accordion__${id}-toggle`"
       class="group w-full flex justify-start items-center gap-1.5 p-5 text-title-contrast cursor-pointer"
       @click="isExpanded = !isExpanded"
-      :aria-controls="`${elemId}-content`"
+      :aria-controls="`accordion__${id}-content`"
       :aria-expanded="isExpanded"
     >
       <span
@@ -43,8 +43,8 @@ const elemId = ref<string>(`accordion__${useId()}`);
       </div>
     </button>
     <div
-      :id="`${elemId}-content`"
-      :aria-labelledby="`${elemId}-toggle`"
+      :id="`accordion__${id}-content`"
+      :aria-labelledby="`accordion__${id}-toggle`"
       class="px-5 pb-5"
       :class="{
         block: isExpanded,
