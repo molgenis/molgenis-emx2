@@ -48,6 +48,7 @@ public enum ColumnType {
 
   // LAYOUT and other constants
   HEADING(String.class), // use for layout elements or constant values
+  SECTION(HEADING), // more coarse grained than heading to show large forms split in pages
 
   // format flavors that extend a baseType
   AUTO_ID(STRING),

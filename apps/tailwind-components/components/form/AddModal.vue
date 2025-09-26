@@ -38,8 +38,8 @@
       </header>
     </template>
 
-    <section class="grid grid-cols-4 gap-1">
-      <div class="col-span-1 bg-form-legend">
+    <div class="grid grid-cols-4 gap-1 min-h-0">
+      <div class="col-span-1 bg-form-legend overflow-y-auto h-full min-h-0">
         <FormLegend
           v-if="visible && sections"
           class="sticky top-0"
@@ -52,6 +52,12 @@
         id="fields-container"
         class="col-span-3 px-4 py-50px overflow-y-auto"
       >
+        <PreviousSectionNav
+          v-if="previousSection"
+          @click="gotoSection(previousSection.id)"
+        >
+          {{ previousSection.label }}
+        </PreviousSectionNav>
         <FormFields
           v-if="visible"
           ref="formFields"
@@ -64,8 +70,11 @@
           @blur="onBlurColumn"
           @view="onViewColumn"
         />
+        <NextSectionNav v-if="nextSection" @click="gotoSection(nextSection.id)">
+          {{ nextSection.label }}
+        </NextSectionNav>
       </div>
-    </section>
+    </div>
     <Transition name="slide-up">
       <FormError
         v-show="errorMessage"
@@ -127,6 +136,8 @@ import { errorToMessage } from "../../utils/errorToMessage";
 import FormFields from "./Fields.vue";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
 import { useSession } from "../../composables/useSession";
+import PreviousSectionNav from "./PreviousSectionNav.vue";
+import NextSectionNav from "./NextSectionNav.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -218,15 +229,6 @@ async function onSave() {
 
 const formValues = ref<Record<string, columnValue>>({});
 
-function scrollToElementInside(containerId: string, elementId: string) {
-  const container = document.getElementById(containerId);
-  const element = document.getElementById(elementId);
-  if (container && element) {
-    container.scrollTop = element.offsetTop - container.offsetTop;
-    element.scrollIntoView();
-  }
-}
-
 function resetState() {
   formValues.value = {};
   errorMap.value = {};
@@ -250,6 +252,8 @@ const {
   gotoNextError,
   gotoPreviousError,
   gotoSection,
+  previousSection,
+  nextSection,
   insertInto,
   errorMap,
   onUpdateColumn,
@@ -259,9 +263,7 @@ const {
   rowKey,
   sections,
   visibleColumns,
-} = useForm(props.metadata, formValues, (fieldId) => {
-  scrollToElementInside("fields-container", fieldId);
-});
+} = useForm(props.metadata, formValues, "fields-container");
 
 function reAuthenticate() {
   session.reAuthenticate(

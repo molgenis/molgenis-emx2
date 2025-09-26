@@ -19,6 +19,7 @@ export default {
   IS_CHAPTERS_ENABLED_FIELD_NAME: "isChaptersEnabled",
   AUTO_ID: "AUTO_ID",
   HEADING: "HEADING",
+  SECTION: "SECTION",
 };
 
 const LEVEL_1 = "Level 1";

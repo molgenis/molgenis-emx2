@@ -84,6 +84,7 @@ public class GraphqlConstants {
   public static final String REF_BACK_ID = "refBackId";
   public static final String TABLE_ID = "tableId";
   public static final String ASYNC = "async";
+  public static final String SECTION = "section";
   public static final String HEADING = "heading";
 
   private GraphqlConstants() {

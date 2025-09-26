@@ -29,7 +29,7 @@ export const buildRecordDetailsQueryFields = (
   const allColumns = tableMetaData?.columns;
   const dataColumns = allColumns
     ?.filter((c) => !c.id.startsWith("mg_"))
-    .filter((c) => c.columnType !== "HEADING");
+    .filter((c) => !["HEADING", "SECTION"].includes(c.columnType));
 
   const refTableQueryFields = (refColumn: IColumn): string => {
     const refSchema = schemas[refColumn.refSchemaId || schemaId];
@@ -48,7 +48,7 @@ export const buildRecordDetailsQueryFields = (
 
     const refTableDataColumns = allRefColumns
       ?.filter((c) => !c.id.startsWith("mg_"))
-      .filter((c) => c.columnType !== "HEADING");
+      .filter((c) => !["HEADING", "SECTION"].includes(c.columnType));
 
     const refFields = refTableDataColumns?.map((column) => {
       switch (column.columnType) {

@@ -1,8 +1,8 @@
 import type { ITableMetaData, IColumn } from "../../metadata-utils/dist";
 
 export const toHeadings = (tableMetaData: ITableMetaData) => {
-  return tableMetaData.columns.filter(
-    (column) => column.columnType === "HEADING"
+  return tableMetaData.columns.filter((column) =>
+    ["HEADING", "SECTION"].includes(column.columnType)
   );
 };
 

@@ -13,7 +13,7 @@
   </template>
   <Modal v-model:visible="visible" max-width="max-w-9/10">
     <template #header>
-      <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
+      <header class="pt-[36px] px-8 border-b border-divider">
         <div class="mb-5 relative flex items-center">
           <h2
             class="uppercase text-heading-4xl font-display text-title-contrast"
@@ -38,7 +38,7 @@
       </header>
     </template>
 
-    <section class="grid grid-cols-4 gap-1">
+    <div class="grid grid-cols-4 gap-1 flex-1 min-h-0">
       <div class="col-span-1 bg-form-legend">
         <FormLegend
           v-if="sections"
@@ -50,8 +50,14 @@
 
       <div
         id="fields-container"
-        class="col-span-3 px-4 py-50px overflow-y-auto"
+        class="col-span-3 px-4 py-50px overflow-y-auto h-full min-h-0"
       >
+        <PreviousSectionNav
+          v-if="previousSection"
+          @click="gotoSection(previousSection.id)"
+        >
+          {{ previousSection.label }}
+        </PreviousSectionNav>
         <FormFields
           ref="formFields"
           :columns="visibleColumns"
@@ -62,8 +68,11 @@
           @blur="onBlurColumn"
           @view="onViewColumn"
         />
+        <NextSectionNav v-if="nextSection" @click="gotoSection(nextSection.id)">
+          {{ nextSection.label }}
+        </NextSectionNav>
       </div>
-    </section>
+    </div>
     <Transition name="slide-up">
       <FormError
         v-show="errorMessage"
@@ -125,6 +134,8 @@ import { errorToMessage } from "../../utils/errorToMessage";
 import FormFields from "./Fields.vue";
 import { useSession } from "../../composables/useSession";
 import { SessionExpiredError } from "../../utils/sessionExpiredError";
+import PreviousSectionNav from "./PreviousSectionNav.vue";
+import NextSectionNav from "./NextSectionNav.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -222,15 +233,6 @@ async function onUpdate() {
   emit("update:updated", resp);
 }
 
-function scrollToElementInside(containerId: string, elementId: string) {
-  const container = document.getElementById(containerId);
-  const element = document.getElementById(elementId);
-  if (container && element) {
-    container.scrollTop = element.offsetTop - container.offsetTop;
-    element.scrollIntoView();
-  }
-}
-
 const {
   requiredMessage,
   errorMessage,
@@ -243,14 +245,14 @@ const {
   errorMap,
   rowKey,
   sections,
+  previousSection,
+  nextSection,
   visibleColumns,
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
   validateAllColumns,
-} = useForm(props.metadata, editFormValues, (fieldId: string) => {
-  scrollToElementInside("fields-container", fieldId);
-});
+} = useForm(props.metadata, editFormValues, "fields-container");
 
 function reAuthenticate() {
   session.reAuthenticate(

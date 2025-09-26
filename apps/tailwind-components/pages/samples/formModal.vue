@@ -157,7 +157,5 @@ const {
   onBlurColumn,
   onViewColumn,
   visibleColumns,
-} = useForm(metadata, formValues, (fieldId) => {
-  scrollToElementInside("fields-container", fieldId);
-});
+} = useForm(metadata, formValues, "fields-container");
 </script>
