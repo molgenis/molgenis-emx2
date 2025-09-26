@@ -53,9 +53,11 @@
         Table '{{ table.name }}' has the following subclasses/specializations:
         <table class="table table-bordered">
           <thead>
-            <th style="width: 16em">subclass table name</th>
-            <th style="width: 8em">extends</th>
-            <th>description</th>
+            <tr>
+              <th style="width: 16em">subclass table name</th>
+              <th style="width: 8em">extends</th>
+              <th>description</th>
+            </tr>
           </thead>
           <tbody>
             <tr>
@@ -76,11 +78,13 @@
           <h3>Column definitions:</h3>
           <table class="table table-bordered">
             <thead>
-              <th style="width: 16em">column name</th>
-              <th style="width: 8em">type</th>
-              <th style="width: 32em">description</th>
-              <th style="width: 16em" v-if="table.subclasses">domain</th>
-              <th>definition</th>
+              <tr>
+                <th style="width: 16em">column name</th>
+                <th style="width: 8em">type</th>
+                <th style="width: 32em">description</th>
+                <th style="width: 16em" v-if="table.subclasses">domain</th>
+                <th>definition</th>
+              </tr>
             </thead>
             <tbody>
               <tr v-for="column in table.columns" border>
