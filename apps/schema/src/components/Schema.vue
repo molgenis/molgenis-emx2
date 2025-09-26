@@ -184,10 +184,13 @@ export default {
       });
       //redistribute the columns to subclasses
       tables.forEach((table) => {
-        if (table.columns !== undefined) {
+        if (table.columns?.length) {
           table.columns.forEach((column) => {
             if (column.table !== table.oldName) {
-              if (tableMap[column.table].columns === undefined) {
+              if (!tableMap[column.table]) {
+                tableMap[column.table] = { columns: [] };
+              }
+              if (!tableMap[column.table].columns) {
                 tableMap[column.table].columns = [];
               }
               tableMap[column.table].columns.push(column);
