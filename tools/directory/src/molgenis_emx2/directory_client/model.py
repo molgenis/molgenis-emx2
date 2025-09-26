@@ -43,16 +43,13 @@ class TableMeta:
     """Convenient wrapper for the output of the metadata API."""
 
     meta: dict
+    table_name: str
     id_attribute: str = field(init=False)
 
     def __post_init__(self):
         for attribute in self.meta:
             if attribute.get("key") == 1:
                 object.__setattr__(self, "id_attribute", attribute.name)
-
-    @property
-    def id(self):
-        return self.meta[0].get("table")
 
     @property
     def attributes(self):
@@ -91,7 +88,7 @@ class BaseTable(ABC):
 
     @property
     def full_name(self) -> str:
-        return self.meta.id
+        return self.meta.table_name
 
 
 @dataclass(frozen=True)
@@ -124,7 +121,7 @@ class Table(BaseTable):
         }
         return Table.of_empty(
             table_type=table_type,
-            meta=TableMeta(meta=meta),
+            meta=TableMeta(meta=meta, table_name=table_type.base_id),
         )
 
 
@@ -352,9 +349,11 @@ class NodeData(DirectoryData):
         tables = dict()
         for table in self.import_order:
             metadata = deepcopy(table.meta.meta)
-            # metadata["id"] = self.node.get_staging_id(table.type)
+            table_name = self.node.get_staging_id(table.type)
             tables[table.type.value] = Table(
-                table.rows_by_id, TableMeta(metadata), table.type
+                table.rows_by_id,
+                TableMeta(metadata, table_name=table_name),
+                table.type,
             )
 
         return NodeData(node=self.node, source=Source.STAGING, **tables)

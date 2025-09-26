@@ -17,7 +17,7 @@ from tools.directory.src.molgenis_emx2.directory_client.pid_service import (
 )
 
 # Get credentials from .env
-load_dotenv()
+load_dotenv('./tools/directory/dev/.env')
 
 target = os.getenv("TARGET")
 username = os.getenv("USERNAME")
@@ -39,7 +39,7 @@ async def sync_directory():
         # Get the nodes you want to work with
         # When staging a node the .env file should include a "node"_user="token"
         # with view permissions on the external staging area
-        nodes_to_stage = session.get_external_nodes(["NL"])
+        nodes_to_stage = session.get_external_nodes()
         nodes_to_publish = session.get_nodes()
 
         # Create PidService
