@@ -6,6 +6,7 @@
         :invalid="invalid"
         :valid="valid"
         :disabled="disabled"
+        :label="label"
         :placeholder="placeholder"
         :required="required"
         :multiple="multiple"
@@ -16,6 +17,14 @@
     </div>
     <div class="w-1/3 p-4 sticky top-0">
       <FieldSet label="input prop settings">
+        <FormField
+          v-if="showLabel"
+          type="STRING"
+          id="test-label"
+          v-model="label"
+          label="Label"
+          description="Change the label of the component"
+        />
         <FormField
           v-if="showPlaceholder"
           type="STRING"
@@ -82,6 +91,7 @@ import { ref, computed } from "vue";
 
 defineProps<{
   showState?: boolean;
+  showLabel?: boolean;
   showPlaceholder?: boolean;
   showRequired?: boolean;
   showErrorMessage?: boolean;
@@ -95,6 +105,7 @@ const emits = defineEmits<{
   (e: "multiple", value: boolean): void;
 }>();
 
+const label = ref<string>("");
 const placeholder = ref("");
 const state = ref([] as string[]);
 const errorMessage = ref("");

@@ -54,7 +54,7 @@ const tableMetadataByHeadings = computed(() => {
 </script>
 
 <template>
-  <div v-for="(headingData, heading) in tableMetadataByHeadings" class="mt-5">
+  <div v-for="(headingData, heading) in tableMetadataByHeadings">
     <p v-if="heading !== '_base'" class="mb-1 text-record-heading font-bold">
       {{ heading }}
     </p>
