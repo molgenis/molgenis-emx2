@@ -112,6 +112,10 @@ export function convertToSubclassTables(rawSchema: any) {
         }
       });
     }
+    //filter
+    table.columns = table.columns.filter(
+      (column) => column.name !== "_mg_top_of_form"
+    );
     //sort
     table.columns.sort((a, b) => a.position - b.position);
   });
