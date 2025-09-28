@@ -65,7 +65,7 @@ import Client from "../../client/client";
 import { MenuItem } from "../../Interfaces/MenuItem";
 import { computed, ref, unref, watch } from "vue";
 import { onMounted } from "vue";
-import { ISetting } from "metadata-utils/src";
+import { ISetting } from "../../../../metadata-utils/src/types.ts";
 
 const defaultSchemaMenuItems: MenuItem[] = [
   {
