@@ -21,6 +21,7 @@
           :columns="columns"
           @update:columns="emitColumns"
           checkAttribute="showColumn"
+          :exclude="['HEADING', 'SECTION']"
           label="columns"
           icon="columns"
           id="showColumn"
