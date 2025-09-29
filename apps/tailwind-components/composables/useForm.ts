@@ -75,7 +75,8 @@ export default function useForm(
           section: column.section,
           errorCount: metadata.value.columns.filter(
             (subcol) =>
-              (subcol.heading === column.id || subcol.section === column.id) &&
+              (subcol.heading === column.id ||
+                (subcol.section === column.id && !subcol.heading)) &&
               errorMap.value[subcol.id]
           ).length,
           type: column.columnType as HeadingType,
