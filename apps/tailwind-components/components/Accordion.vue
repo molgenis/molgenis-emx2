@@ -6,7 +6,7 @@ const props = withDefaults(
     label: string;
     openByDefault?: boolean;
     contentIsFullWidth?: boolean;
-    toggleIconSize: "tiny" | "small" | "medium" | "large";
+    toggleIconSize?: "tiny" | "small" | "medium" | "large";
   }>(),
   {
     openByDefault: true,
@@ -21,23 +21,29 @@ const isExpanded = ref<boolean>(props.openByDefault);
 
 <template>
   <div :id="`accordion__${id}`" class="border">
-    <div class="group flex justify-between items-center text-button-text px-5">
-      <button
-        :id="`accordion__${id}-toggle`"
-        class="group flex justify-start items-center gap-1.5 p-5 pl-0 text-title-contrast cursor-pointer"
-        @click="isExpanded = !isExpanded"
-        :aria-controls="`accordion__${id}-content`"
-        :aria-expanded="isExpanded"
-        :aria-haspopup="true"
-      >
-        <span
-          class="hover:underline focus:underline text-left capitalize font-bold text-clip"
+    <div
+      class="group flex justify-between items-center gap-5 text-button-text px-5"
+    >
+      <div class="w-full">
+        <button
+          :id="`accordion__${id}-toggle`"
+          class="group flex justify-start items-center gap-1.5 p-5 pl-0 text-title-contrast cursor-pointer"
+          @click="isExpanded = !isExpanded"
+          :aria-controls="`accordion__${id}-content`"
+          :aria-expanded="isExpanded"
+          :aria-haspopup="true"
         >
-          {{ label }}
-        </span>
-      </button>
-      <div class="flex items-center gap-2">
+          <span
+            class="hover:underline focus:underline text-left capitalize font-bold text-clip"
+          >
+            {{ label }}
+          </span>
+        </button>
+      </div>
+      <div class="flex justify-start items-center">
         <slot name="toolbar"></slot>
+      </div>
+      <div class="flex justify-center items-center">
         <button
           :v-tooltip.bottom="isExpanded ? 'Hide details' : 'Show details'"
           :id="`accordion__${id}-toggle-icon-only`"

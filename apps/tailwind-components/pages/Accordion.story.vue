@@ -12,11 +12,7 @@
           default.
         </p>
       </Accordion>
-      <Accordion
-        :label="label || 'Accordion component'"
-        class="max-w-[600px]"
-        toggle-icon-size="small"
-      >
+      <Accordion :label="label || 'Accordion component'" class="max-w-[600px]">
         <template #toolbar>
           <Button
             class="hover:bg-button-secondary-hover"
@@ -24,7 +20,6 @@
             icon="edit"
             type="inline"
             label="Edit"
-            size="small"
           />
           <Button
             class="hover:bg-button-secondary-hover"
@@ -32,7 +27,6 @@
             icon="trash"
             type="inline"
             label="Delete"
-            size="small"
           />
         </template>
         <p class="text-title-contrast">
