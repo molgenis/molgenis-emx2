@@ -84,7 +84,7 @@ tasks.register('appsFormat', NpmTask) {
     })
 }
 
-tasks.register('appsLint', NpmTask) {
+tasks.register('lint', NpmTask) {
     dependsOn appsFormat
     args = ['run', 'lint', '--workspace=tailwind-components']
     // Inputs = all frontend sources
