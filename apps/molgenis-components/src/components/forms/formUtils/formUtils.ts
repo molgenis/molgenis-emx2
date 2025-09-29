@@ -190,7 +190,7 @@ export function isMissingValue(value: any): boolean {
   }
 }
 
-export function isRequired(value: string | boolean): boolean {
+export function isRequired(value: string | boolean | undefined): boolean {
   if (typeof value === "string") {
     if (value.toLowerCase() === "true") {
       return true;
@@ -198,7 +198,7 @@ export function isRequired(value: string | boolean): boolean {
       return false;
     }
   } else {
-    return value;
+    return value === true;
   }
 }
 
