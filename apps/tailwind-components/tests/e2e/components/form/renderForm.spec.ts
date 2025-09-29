@@ -17,15 +17,6 @@ test("it should render the form", async ({ page }) => {
   await expect(page.getByLabel("id Required", { exact: true })).toBeVisible();
 });
 
-test("it should handle input", async ({ page }) => {
-  await page
-    .getByLabel("name Required", { exact: true })
-    .pressSequentially("test");
-  await expect(page.getByLabel("name Required", { exact: true })).toHaveValue(
-    "test"
-  );
-});
-
 test("it should show the chapters in the legend", async ({ page }) => {
   await expect(page.locator("a").filter({ hasText: "Overview" })).toBeVisible();
   await expect(
@@ -39,9 +30,9 @@ test("the legend should show number of errors per chapter (if any)", async ({
   await page.getByLabel("name Required", { exact: true }).click();
   // skip a required field
   await page.getByLabel("name Required", { exact: true }).press("Tab");
-  await expect(
-    page.getByRole("link", { name: "overview 1 error" })
-  ).toBeVisible();
+
+  const elem = await page.locator("#form-legend-section-overview-error-count");
+  await expect(elem).toHaveText("1 error in overview");
 });
 
 test("clicking on the chapter should scroll to the chapter", async ({

@@ -15,6 +15,8 @@ const wrapper = mount(Error, {
 
 it("should show the message", async () => {
   expect(wrapper.html()).toContain("this is an error message");
-  expect(wrapper.findAll("button")[0].text()).toContain("go to previous error");
-  expect(wrapper.findAll("button")[1].text()).toContain("go to next error");
+  const buttons = wrapper.findAll("button");
+  expect(buttons[0]).toBeDefined();
+  expect(buttons[0]?.text()).toContain("go to previous error");
+  expect(wrapper.findAll("button")[1]?.text()).toContain("go to next error");
 });

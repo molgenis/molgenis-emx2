@@ -76,7 +76,7 @@ let activeVariablePath = computed(() =>
           <HarmonisationTableCellAvailableIcon
             :status="
               ['complete', 'partial'].includes(
-                statusMap[cell.value.rowIndex][cell.value.columnIndex]
+                statusMap?.[cell.value.rowIndex]?.[cell.value.columnIndex] ?? ''
               )
                 ? 'available'
                 : 'unmapped'

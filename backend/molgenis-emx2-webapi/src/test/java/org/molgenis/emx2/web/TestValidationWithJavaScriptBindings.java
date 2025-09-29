@@ -1,15 +1,21 @@
 package org.molgenis.emx2.web;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Row.row;
 import static org.molgenis.emx2.TableMetadata.table;
+import static org.molgenis.emx2.graphql.GraphqlConstants.ADMIN;
+import static org.pac4j.core.util.Pac4jConstants.USERNAME;
 
+import io.javalin.http.Context;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestValidationWithJavaScriptBindings {
@@ -25,8 +31,16 @@ public class TestValidationWithJavaScriptBindings {
   public static void setup() {
     database = TestDatabaseFactory.getTestDatabase();
     schema = database.dropCreateSchema(schemaName);
-    JavaScriptBindings.getBindingsForSession(
-        new MolgenisSession(database, new GraphqlApiFactory()));
+
+    Context ctx = mock(Context.class);
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    HttpSession session = mock(HttpSession.class);
+
+    when(ctx.req()).thenReturn(request);
+    when(request.getSession(false)).thenReturn(session);
+    when(session.getAttribute(USERNAME)).thenReturn(ADMIN);
+
+    database.setBindings(JavaScriptBindings.getBindingsForContext(ctx));
 
     // validation script that checks if the age inserted in the Test2 table is present in the Test1
     String validationScript =
