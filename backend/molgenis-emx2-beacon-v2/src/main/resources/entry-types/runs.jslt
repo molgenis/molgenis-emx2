@@ -17,10 +17,10 @@ import "range.jslt" as range
                 "info": range(.),
                 "results":
                 [for (.results) {
-                    "id": .identifier,
-                    "biosampleId": .inputBiosample[0].id,
-                    "individualId": .individual.id,
-                    "runDate": .date,
+                    "id": .id,
+                    "biosampleId": .sampleId,
+                    "individualId": .individuals[0].id,
+                    "runDate": .dateCreatedAtSource,
                     "librarySource": ontology(.librarySource),
                     "librarySelection": .librarySelection,
                     "libraryStrategy": .libraryStrategy.name,
