@@ -10493,7 +10493,7 @@ nuxt-gtag@3.0.1:
     pathe "^1.1.2"
     ufo "^1.5.4"
 
-nuxt-monaco-editor@1.4.0:
+nuxt-monaco-editor@1.4.0, nuxt-monaco-editor@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/nuxt-monaco-editor/-/nuxt-monaco-editor-1.4.0.tgz#4033e0d4dd94e4325b2a483a0e454400a89d1208"
   integrity sha512-uRvPr3FbuSFV4LIHNUJMTAJnrfggBVP+o8WsIJiN8iRK5u+ejN4Nhuz1u5bM90et30p0S3YYvvB/YNPsNKoD0g==

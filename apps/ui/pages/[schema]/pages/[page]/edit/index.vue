@@ -93,16 +93,13 @@ const metadata = ref({
   columns: [
     {
       columnType: 'HYPERLINK_ARRAY' as ColumnType,
-      id: 'javascript',
-      label: 'JavaScript dependencies'
-    },
-    {
-      columnType: 'HYPERLINK_ARRAY' as ColumnType,
       id: 'css',
       label: 'CSS dependencies'
-    }
+    },
   ]
-})
+});
+
+const test = ref();
 
 const { errorMap, onUpdateColumn, onBlurColumn } = useForm(metadata, code.value.dependencies);
 
@@ -114,75 +111,82 @@ crumbs["Edit"] = "";
 </script>
 
 <template>
-  <Container>
+  <Container class="relative">
     <PageHeader :title="`Edit ${page}`" align="left">
       <template #prefix>
         <BreadCrumbs :crumbs="crumbs" align="left" />
       </template>
     </PageHeader>
-    <Message
-      :id="`page-${cleanPageName}`"
-      :invalid="true"
-      v-if="!loading && error"
+    <div
+      class="sticky top-0 w-full flex justify-end items-center bg-content py-2 gap-5 px-7.5 z-10"
     >
-      {{ error }}
-    </Message>
-    <template v-else>
-      <!-- v-if="!isSaving && saveError" -->
-      <SideModal
-        :show="true"
-        :slide-in-right="true"
-        type="error"
-        :full-screen="false"
-      >
-        <template>
-          <p><strong>Unable to save schema</strong></p>
-        </template>
-      </SideModal>
+      <Button type="primary" size="small" @click="saveSetting">
+        Save Changes
+      </Button>
+    </div>
+    <ContentBlock>
       <Message
-        :valid="true"
         :id="`page-${cleanPageName}`"
-        v-if="!isSaving && saveSuccessStatus"
+        :invalid="true"
+        v-if="!loading && error"
       >
-        <p>Saved {{ page }} content</p>
+        {{ error }}
       </Message>
-      <div
-        class="sticky top-0 w-full flex justify-end items-center py-2 gap-2 bg-base-gradient z-10"
-      >
-        <Button type="primary" size="small" @click="saveSetting">
-          Save Changes
-        </Button>
-      </div>
-      <div class="grid grid-cols-2 gap-4">
-        <div class="flex flex-col gap-y-4">
-          <EditorCodeEditor
-            lang="html"
-            :model-value="code.html"
-            @update:model-value="code.html = $event"
-          />
-          <EditorCodeEditor
-            lang="css"
-            :modelValue="code.css"
-            @update:model-value="code.css = $event"
-          />
-          <EditorCodeEditor
-            lang="javascript"
-            :model-value="code.javascript"
-            @update:model-value="code.javascript = $event"
-          />
-          <FormFields
-            id="dependencies"
-            v-model="model"
-            :columns="metadata.columns"
-            :error-map="errorMap"
-            @update="onUpdateColumn"
-            @blur="onBlurColumn"
-          />
+      <template v-else>
+        <SideModal
+          v-if="!isSaving && saveError"
+          :show="true"
+          :slide-in-right="true"
+          type="error"
+          :full-screen="false"
+        >
+          <template>
+            <p><strong>Unable to save schema</strong></p>
+          </template>
+        </SideModal>
+        <Message
+          :valid="true"
+          :id="`page-${cleanPageName}`"
+          v-if="!isSaving && saveSuccessStatus"
+        >
+          <p>Saved {{ page }} content</p>
+        </Message>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex flex-col gap-y-4">
+            <EditorCodeEditor
+              lang="html"
+              :model-value="code.html"
+              @update:model-value="code.html = $event"
+            />
+            <EditorCodeEditor
+              lang="css"
+              :modelValue="code.css"
+              @update:model-value="code.css = $event"
+            />
+            <EditorCodeEditor
+              lang="javascript"
+              :model-value="code.javascript"
+              @update:model-value="code.javascript = $event"
+            />
+            <FormFields
+              id="dependencies"
+              v-model="model"
+              :columns="metadata.columns"
+              :error-map="errorMap"
+              @update="onUpdateColumn"
+              @blur="onBlurColumn"
+            />
+            {{ test }}
+            <EditorDependencyInput
+              :model-value="test"
+              @update:model-value="console.log(model)"
+            />
+          </div>
+          <div class="bg-white p-4">
+            <div ref="preview" />
+          </div>
         </div>
-        <div class="bg-white p-4">
-          <div ref="preview" />
-        </div>
-      </div>
-    </template>
+      </template>
+    </ContentBlock>
   </Container>
 </template>
