@@ -135,6 +135,19 @@ Labels and descriptive texts for the information cards on the landing page
 - `CATALOGUE_LANDING_SUBCOHORTS_LABEL`: "Subcohorts"
 - `CATALOGUE_LANDING_SUBCOHORTS_TEXT`: "The total number of subcohorts included"
 
+### All data page additional html content
+
+#### key
+`CATALOGUE_ALL_ADDITIONAL_HTML`
+
+#### description
+String containing html to be rendered on the all ( default subcatalogue) page
+
+(note: its up to the user to ensure the html is well formatted, styled and responsive)
+
+#### default
+None, no additional content is shown    
+
 ## Favicon
 
 A themed favicon is set by placing a [theme].ico file in the public/img folder.

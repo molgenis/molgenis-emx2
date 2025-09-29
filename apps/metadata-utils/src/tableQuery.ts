@@ -19,6 +19,9 @@ export const buildRecordDetailsQueryFields = (
   tableId: string
 ): string => {
   const schemaMetaData = schemas[schemaId];
+  if (!schemaMetaData) {
+    throw new Error(`Schema metadata is undefined for schemaId: ${schemaId}`);
+  }
   const tableMetaData = schemaMetaData.tables.find(
     (t: ITableMetaData) => t.id === tableId
   );
@@ -29,9 +32,17 @@ export const buildRecordDetailsQueryFields = (
     .filter((c) => c.columnType !== "HEADING");
 
   const refTableQueryFields = (refColumn: IColumn): string => {
-    const refTableMetaData = schemas[
-      refColumn.refSchemaId || schemaId
-    ].tables.find((t: ITableMetaData) => t.id === refColumn.refTableId);
+    const refSchema = schemas[refColumn.refSchemaId || schemaId];
+    if (!refSchema || !refSchema.tables) {
+      throw new Error(
+        `Schema or tables are undefined for schemaId: ${
+          refColumn.refSchemaId || schemaId
+        }`
+      );
+    }
+    const refTableMetaData = refSchema.tables.find(
+      (t: ITableMetaData) => t.id === refColumn.refTableId
+    );
 
     const allRefColumns = refTableMetaData?.columns;
 
@@ -99,7 +110,14 @@ export const buildRecordListQueryFields = (
   schemas: Record<string, ISchemaMetaData>
 ) => {
   const keyFields = buildKeyFields(tableId, schemaId, schemas);
-  const tableMetaData = getTableMetaData(schemas[schemaId], tableId);
+  const schemaMetaData = schemas[schemaId];
+  if (!schemaMetaData) {
+    throw new Error(
+      "buildRecordListQueryFields; schemaMetaData is undefined for schemaId " +
+        schemaId
+    );
+  }
+  const tableMetaData = getTableMetaData(schemaMetaData, tableId);
 
   if (tableMetaData === undefined) {
     throw new Error(
@@ -151,6 +169,12 @@ const buildKeyFields = (
   schemas: Record<string, ISchemaMetaData>
 ) => {
   const schemaMetaData = schemas[schemaId];
+  if (!schemaMetaData) {
+    throw new Error(
+      "extractKeyFromRecord; schemaMetaData is undefined for schemaId " +
+        schemaId
+    );
+  }
   const tableMetaData = getTableMetaData(schemaMetaData, tableId);
 
   const keyFields = tableMetaData.columns.reduce(
@@ -220,6 +244,12 @@ export const extractKeyFromRecord = (
   schemas: Record<string, ISchemaMetaData>
 ) => {
   const schemaMetaData = schemas[schemaId];
+  if (!schemaMetaData) {
+    throw new Error(
+      "extractKeyFromRecord; schemaMetaData is undefined for schemaId " +
+        schemaId
+    );
+  }
   const tableMetaData = getTableMetaData(schemaMetaData, tableId);
 
   const key = tableMetaData.columns.reduce((acc: any, column: IColumn) => {

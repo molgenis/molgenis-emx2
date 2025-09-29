@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed } from "vue";
 import { rowToString } from "../../../utils/rowToString";
 import { Button, DisplayRecord } from "#components";
 
@@ -33,38 +33,19 @@ const label = computed<string | undefined>(() => {
   }
 });
 
-const expanded = ref<boolean>(false);
-
 function toLabel(row: columnValueObject) {
   return rowToString(row, props.refLabel ?? "");
-}
-
-function expandRow() {
-  expanded.value = !expanded.value;
-  emits("expand", props.refData);
 }
 </script>
 
 <template>
-  <li
-    :id="`input-refback-item-${label}`"
-    class="py-5 px-[30px] transition-all duration-500 overflow-hidden"
-  >
-    <div
-      @click="expandRow"
-      class="flex items-center justify-between group hover:cursor-pointer"
+  <li :id="`input-refback-item-${label}`">
+    <Accordion
+      :label="(label as string)"
+      :open-by-default="false"
+      @click="emits('expand', props.refData)"
     >
-      <button
-        :id="`input-refback-item-${label}-btn-label-expand`"
-        :aria-controls="`input-refback-item-${label}-content-record`"
-        :aria-expanded="expanded"
-        :aria-haspopup="true"
-        class="text-title-contrast font-bold group-hover:underline"
-      >
-        {{ label }}
-      </button>
-
-      <div class="flex items-center gap-4">
+      <template #toolbar>
         <div
           class="flex items-center gap-2 text-button-text"
           v-if="props.canEdit"
@@ -73,8 +54,6 @@ function expandRow() {
             :id="`input-refback-item-${label}-btn-remove`"
             class="hover:bg-button-secondary-hover"
             :icon-only="true"
-            :aria-controls="`input-refback-item-${label}-content-record`"
-            :aria-expanded="expanded"
             :aria-haspopup="true"
             icon="trash"
             type="inline"
@@ -93,7 +72,6 @@ function expandRow() {
             class="hover:bg-button-secondary-hover"
             :icon-only="true"
             :aria-controls="`input-refback-item-${label}-content-record`"
-            :aria-expanded="expanded"
             :aria-haspopup="true"
             icon="edit"
             type="inline"
@@ -101,33 +79,13 @@ function expandRow() {
             @click.stop="$emit('edit', refData)"
           />
         </div>
-        <div class="flex items-center gap-2 text-button-text">
-          <Button
-            :id="`input-refback-item-${label}-btn-remove`"
-            class="hover:bg-button-secondary-hover"
-            :icon-only="true"
-            :aria-controls="`input-refback-item-${label}-content-record`"
-            :aria-expanded="expanded"
-            :aria-haspopup="true"
-            :icon="expanded ? 'caret-up' : 'caret-down'"
-            type="inline"
-            label="Details"
-            @click.stop="expandRow"
-          ></Button>
-        </div>
-      </div>
-    </div>
-    <div
-      :id="`input-refback-item-${label}-content-record`"
-      class="transition-all duration-500 overflow-hidden"
-      :class="expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'"
-    >
-      <div class="mt-1" @click="$event.stopPropagation()">
+      </template>
+      <div @click="$event.stopPropagation()">
         <DisplayRecord
           :table-metadata="refMetadata"
           :input-row-data="refData"
         />
       </div>
-    </div>
+    </Accordion>
   </li>
 </template>

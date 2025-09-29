@@ -8,9 +8,9 @@ import type {
 } from "../../../metadata-utils/src/types";
 import type { IRow } from "../Interfaces/IRow";
 import { deepClone, getKeyValue } from "../components/utils";
-import type { aggFunction } from "./IClient";
+import type { AggFunction } from "./IClient";
 import type { IClient, INewClient } from "./IClient";
-import type { IQueryMetaData } from "./IQueryMetaData";
+import type { IQueryMetaData } from "../../../tailwind-components/types/IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
 import { toFormData } from "../../../tailwind-components/utils/toFormData";
 
@@ -94,7 +94,7 @@ const client: IClient = {
         selectedColumn: { id: string; column: string }, //should these be id?
         selectedRow: { id: string; column: string }, //should these be id?
         filter: Object,
-        aggFunction?: aggFunction,
+        aggFunction?: AggFunction,
         aggField?: string
       ) => {
         const aggregateQuery = `
@@ -159,10 +159,27 @@ const client: IClient = {
       fetchOntologyOptions: async (tableName: string) => {
         return fetchOntologyOptions(tableName, schemaId);
       },
+      getPrimaryKeyFields,
     };
   },
 };
 export default client;
+
+async function getPrimaryKeyFields(
+  schemaId: string,
+  tableId: string
+): Promise<string[]> {
+  return fetchSchemaMetaData(schemaId).then((schema) => {
+    const table = schema.tables.find((table) => table.id === tableId);
+    if (!table) {
+      throw new Error(`Table ${tableId} not found in schema ${schemaId}`);
+    }
+    const keyFields = table.columns
+      .filter((column) => column.key === 1)
+      .map((column) => column.id);
+    return keyFields;
+  });
+}
 
 const metadataQuery = `{
   _schema {

@@ -66,14 +66,14 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
   private DatabaseListener listener =
       new DatabaseListener() {
         @Override
-        public void userChanged() {
+        public void onUserChange() {
           clearCache();
         }
 
         @Override
-        public void afterCommit() {
+        public void onSchemaChange() {
           clearCache();
-          super.afterCommit();
+          super.onSchemaChange();
           logger.info("cleared caches after commit that includes changes on schema(s)");
         }
       };
@@ -436,7 +436,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
     super.setSettings(settings);
     MetadataUtils.saveDatabaseSettings(jooq, getSettings());
     // force all sessions to reload
-    this.listener.afterCommit();
+    this.listener.onSchemaChange();
     return this;
   }
 
@@ -610,7 +610,7 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
       }
     } else {
       if (!Objects.equals(username, connectionProvider.getActiveUser())) {
-        listener.userChanged();
+        listener.onUserChange();
       }
     }
     this.connectionProvider.setActiveUser(username);
@@ -658,10 +658,10 @@ public class SqlDatabase extends HasSettings<Database> implements Database {
         // only when commit succeeds we copy state to 'this'
         this.sync(db);
         if (!Objects.equals(db.getActiveUser(), getActiveUser())) {
-          this.getListener().userChanged();
+          this.getListener().onUserChange();
         }
         if (db.getListener().isDirty()) {
-          this.getListener().afterCommit();
+          this.getListener().onSchemaChange();
         }
       } catch (Exception e) {
         throw new SqlMolgenisException("Transaction failed", e);

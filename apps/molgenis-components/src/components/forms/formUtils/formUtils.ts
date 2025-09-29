@@ -345,9 +345,9 @@ export function isColumnVisible(
   tableMetadata: ITableMetaData
 ): boolean {
   const expression = column.visible;
-  if (expression) {
+  if (expression !== undefined) {
     try {
-      return executeExpression(expression, values, tableMetadata);
+      return executeExpression(expression, values || {}, tableMetadata);
     } catch (error) {
       throw `Invalid visibility expression, reason: ${error}`;
     }
@@ -364,7 +364,7 @@ export function splitColumnIdsByHeadings(columns: IColumn[]): string[][] {
       if (accum.length === 0) {
         accum.push([] as string[]);
       }
-      accum[accum.length - 1].push(column.id);
+      accum[accum.length - 1]?.push(column.id);
     }
     return accum;
   }, [] as string[][]);
