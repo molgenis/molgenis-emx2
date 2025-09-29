@@ -22,7 +22,7 @@
             class="text-title-contrast capitalize"
             :class="{
               'font-bold': section.isActive,
-              'ml-2 italic': hasSections && section.type === 'HEADING',
+              'ml-4': hasSections && section.type === 'HEADING',
             }"
           >
             {{ section.label }}
