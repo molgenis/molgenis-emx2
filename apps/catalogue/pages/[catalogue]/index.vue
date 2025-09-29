@@ -69,6 +69,7 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
           "CATALOGUE_LANDING_DESIGN_TEXT"
           "CATALOGUE_LANDING_SUBPOPULATIONS_LABEL"
           "CATALOGUE_LANDING_SUBPOPULATIONS_TEXT"
+          "CATALOGUE_ALL_ADDITIONAL_HTML"
         ]){
           key
           value
@@ -302,6 +303,11 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
         :openLinkInNewTab="true"
       />
     </LandingPrimary>
+
+    <div
+      v-if="getSettingValue('CATALOGUE_ALL_ADDITIONAL_HTML', settings)"
+      v-html="getSettingValue('CATALOGUE_ALL_ADDITIONAL_HTML', settings)"
+    />
 
     <LandingSecondary>
       <LandingCardSecondary
