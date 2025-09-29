@@ -36,7 +36,7 @@ tasks.register('npm_build', NpmTask) {
     args = ['run', 'build', '--workspaces']
     // Inputs = all frontend sources
     inputs.files(fileTree(".") {
-        include("**/*")
+        include("*")
         exclude(excludePatterns)
     })
     inputs.file("package.json")
@@ -65,7 +65,7 @@ tasks.register("collectDist", Copy) {
     into("${buildDir}/generated/main/resources/public_html/apps")
 
     inputs.files(fileTree(".") {
-        include("**/dist/**")
+        include("*/dist/**")
     })
     outputs.dir("${buildDir}/generated/main/resources/public_html/apps")
 }
