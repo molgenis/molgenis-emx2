@@ -165,7 +165,6 @@ const addModalConstantValues = computed(() => {
         @expand="fetchRowDetails(index)"
         @remove="removeRefBackItem(index)"
         @edit="editRefBackItem(index)"
-        class="[&>div]:border-b-transparent [&>div]:last:border-b-input [&>div]:last:hover:border-b-input-focused [&>div]:last:focused:border-b-input-focused"
       />
     </ul>
 
