@@ -154,7 +154,7 @@ const addModalConstantValues = computed(() => {
     >
       Add {{ metadata.label }}
     </Button>
-    <ul class="border divide-y divide-gray-200">
+    <ul>
       <InputRefListItem
         v-for="(ref, index) in modelValue"
         :refData="ref"
@@ -165,7 +165,7 @@ const addModalConstantValues = computed(() => {
         @expand="fetchRowDetails(index)"
         @remove="removeRefBackItem(index)"
         @edit="editRefBackItem(index)"
-        class="[&>div]:border-none"
+        class="[&>div]:border-b-transparent [&>div]:last:border-b-input [&>div]:last:hover:border-b-input-focused [&>div]:last:focused:border-b-input-focused"
       />
     </ul>
 

@@ -41,7 +41,7 @@ function toLabel(row: columnValueObject) {
 <template>
   <li :id="`input-refback-item-${label}`">
     <Accordion
-      :label="label"
+      :label="(label as string)"
       :open-by-default="false"
       @click="emits('expand', props.refData)"
     >
