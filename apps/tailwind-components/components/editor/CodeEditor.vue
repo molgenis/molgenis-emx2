@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ref, useTemplateRef, onMounted } from "vue";
-import { MonacoEditor } from "#components";
 
 const props = withDefaults(
   defineProps<{
@@ -17,8 +16,7 @@ const emits = defineEmits<{
 }>();
 
 const code = ref<string>(props.modelValue as string);
-const isExpanded = ref<boolean>(true);
-const editor = useTemplateRef<InstanceType<typeof MonacoEditor>>("editor");
+const editor = useTemplateRef("editor");
 
 function formatEditor() {
   editor.value?.$editor?.getAction("editor.action.formatDocument")?.run();
@@ -37,54 +35,40 @@ onMounted(() => {
 </script>
 
 <template>
-  <div :id="`${lang}-editor`" class="border">
-    <div class="px-4 flex justify-start items-center">
-      <button
-        :id="`${lang}-editor-toggle`"
-        class="w-full pl-4 py-4 text-button-text flex justify-start items-center"
-        @click="isExpanded = !isExpanded"
-        :aria-expanded="isExpanded"
-        :aria-controls="`${lang}-editor-content`"
-      >
-        <BaseIcon name="CaretDown" :width="24" />
-        <span>{{ lang.toUpperCase() }}</span>
-      </button>
+  <Accordion
+    :label="lang.toUpperCase()"
+    :open-by-default="true"
+    :content-is-full-width="true"
+    class="text-title"
+  >
+    <template #toolbar>
       <Button
-        type="outline"
-        size="small"
+        type="inline"
+        class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
         :icon-only="true"
-        icon="UploadFile"
-        label="format document"
+        icon="FormatAlignLeft"
+        label="Format code"
         @click="formatEditor"
       />
-    </div>
-    <div
-      ref="container"
-      :id="`${lang}-editor-content`"
-      :class="{
-        static: isExpanded,
-        hidden: !isExpanded,
+    </template>
+    <MonacoEditor
+      ref="editor"
+      v-model="code"
+      @update:model-value="onUpdateModelValue"
+      :lang="lang"
+      :options="{
+        theme: 'vs-dark',
+        formatOnPaste: true,
+        formatOnType: true,
+        autoIndent: 'brackets',
+        autoClosingBrackets: 'always',
+        autoClosingComments: 'always',
+        wordWrap: 'on',
+        suggest: {
+          insertMode: 'insert',
+        },
       }"
-    >
-      <MonacoEditor
-        ref="editor"
-        v-model="code"
-        @update:model-value="onUpdateModelValue"
-        :lang="lang"
-        :options="{
-          theme: 'vs-dark',
-          formatOnPaste: true,
-          formatOnType: true,
-          autoIndent: 'brackets',
-          autoClosingBrackets: 'always',
-          autoClosingComments: 'always',
-          wordWrap: 'on',
-          suggest: {
-            insertMode: 'insert',
-          },
-        }"
-        :style="{ width: '100%', height: '250px' }"
-      />
-    </div>
-  </div>
+      :style="{ width: '100%', height: '250px' }"
+    />
+  </Accordion>
 </template>
