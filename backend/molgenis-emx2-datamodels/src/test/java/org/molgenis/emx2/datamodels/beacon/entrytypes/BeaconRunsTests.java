@@ -32,7 +32,7 @@ public class BeaconRunsTests extends TestLoaders {
 
     BeaconRequestBody requestBody = new BeaconRequestBody(request);
     QueryEntryType queryEntryType = new QueryEntryType(requestBody);
-    JsonNode json = queryEntryType.query(database);
+    JsonNode json = queryEntryType.query(patientRegistry);
 
     JsonNode results = json.get("response").get("resultSets").get(0).get("results");
     assertEquals(2, results.size());
