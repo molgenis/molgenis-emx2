@@ -20,7 +20,7 @@ import "range.jslt" as range
                     "id": .id,
                     "biosampleId": .sampleId,
                     "individualId": .individuals[0].id,
-                    "runDate": .dateCreatedAtSource,
+                    "runDate": .dateOfSequencing,
                     "librarySource": ontology(.librarySource),
                     "librarySelection": .librarySelection,
                     "libraryStrategy": .libraryStrategy.name,
