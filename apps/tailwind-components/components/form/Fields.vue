@@ -89,6 +89,10 @@ const isRequired = (value: string | boolean): boolean =>
         :invalid="(errorMap[column.id] || '').length > 0"
         @update:modelValue="emit('update', column)"
         @blur="emit('blur', column)"
+        :true-label="column.trueLabel"
+        :false-label="column.falseLabel"
+        :show-clear-button="column.showClearButton"
+        :align="column.align"
       />
     </template>
   </div>

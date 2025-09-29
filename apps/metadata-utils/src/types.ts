@@ -74,6 +74,10 @@ export interface IColumn {
   name?: string;
   inherited?: boolean;
   defaultValue?: string;
+  trueLabel?: string;
+  falseLabel?: string;
+  showClearButton?: boolean;
+  align?: "horizontal" | "vertical";
 }
 
 export interface IRefColumn extends IColumn {

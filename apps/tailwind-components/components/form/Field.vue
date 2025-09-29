@@ -7,24 +7,30 @@ import type {
 
 const modelValue = defineModel<columnValue>({ required: true });
 
-defineProps<
-  IInputProps & {
-    type: CellValueType;
-    label?: string;
-    description?: string | null;
-    required?: boolean;
-    errorMessage?: string | null;
-    refSchemaId?: string;
-    refTableId?: string;
-    refLabel?: string;
-    refBackId?: string;
-    rowKey?: any;
-    options?: IValueLabel[];
-    trueLabel?: string;
-    falseLabel?: string;
-    align?: "horizontal" | "vertical";
+withDefaults(
+  defineProps<
+    IInputProps & {
+      type: CellValueType;
+      label?: string;
+      description?: string | null;
+      required?: boolean;
+      errorMessage?: string | null;
+      refSchemaId?: string;
+      refTableId?: string;
+      refLabel?: string;
+      refBackId?: string;
+      rowKey?: any;
+      options?: IValueLabel[];
+      trueLabel?: string;
+      falseLabel?: string;
+      showClearButton?: boolean;
+      align?: "horizontal" | "vertical";
+    }
+  >(),
+  {
+    align: "horizontal",
   }
->();
+);
 const emit = defineEmits(["focus", "blur"]);
 </script>
 
@@ -63,6 +69,7 @@ const emit = defineEmits(["focus", "blur"]);
       @blur="emit('blur')"
       @focus="emit('focus')"
       :align="align"
+      :showClearButton="showClearButton"
     />
     <div :id="`${id}-input-error`">
       <Message v-if="errorMessage" invalid :id="`${id}-input-error`">
