@@ -199,9 +199,8 @@ export default {
         }
       });
       tables.forEach((table) => {
-        table.columns = table.columns
-          ? table.columns.filter((column) => column.table === table.name)
-          : [];
+        table.columns =
+          table.columns?.filter((column) => column.table === table.name) || [];
       });
       tables = Object.values(tableMap);
       //add ontologies
