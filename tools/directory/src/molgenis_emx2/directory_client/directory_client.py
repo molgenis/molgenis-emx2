@@ -139,7 +139,7 @@ class DirectorySession(Session):
         self,
         table_name: str,
         schema: str = None,
-    ):
+    ) -> TableMeta:
         schema_meta = self.get_schema_metadata(schema)
         for table in schema_meta.tables:
             if table.name == table_name:
