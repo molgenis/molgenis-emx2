@@ -20,15 +20,15 @@ public enum EntryType {
       "Person",
       List.of(BEACON_V2, BEACON_VP),
       List.of(SEX, DISEASE, PHENOTYPE, CAUSAL_GENE, AGE_THIS_YEAR, AGE_OF_ONSET, AGE_AT_DIAG)),
-  BIOSAMPLES(
-      "Samples",
-      "Biosamples",
-      "biosamples",
-      "Biosample",
-      "NCIT:C70699",
-      "Biospecimen",
-      List.of(BEACON_V2, BEACON_VP),
-      List.of(SEX, DISEASE, AGE_THIS_YEAR, AGE_AT_DIAG, BIOSAMPLE_TYPE)),
+  //  BIOSAMPLES(
+  //      "Samples",
+  //      "Biosamples",
+  //      "biosamples",
+  //      "Biosample",
+  //      "NCIT:C70699",
+  //      "Biospecimen",
+  //      List.of(BEACON_V2, BEACON_VP),
+  //      List.of(SEX, DISEASE, AGE_THIS_YEAR, AGE_AT_DIAG, BIOSAMPLE_TYPE)),
   CATALOGS(
       "Dataset",
       "Dataset",
@@ -58,13 +58,7 @@ public enum EntryType {
       List.of(BEACON_V2)),
   COHORTS("Cohorts", "Cohorts", "cohorts", "Cohort", "NCIT:C61512", "Cohort", List.of(BEACON_V2)),
   RUNS(
-      "SequencingRuns",
-      "Runs",
-      "runs",
-      "Run",
-      "NCIT:C148088",
-      "Sequencing run",
-      List.of(BEACON_V2));
+      "NGSSequencing", "Runs", "runs", "Run", "NCIT:C148088", "Sequencing run", List.of(BEACON_V2));
 
   EntryType(
       String id,
@@ -100,7 +94,7 @@ public enum EntryType {
     return Arrays.stream(values())
         .filter(entryType -> entryType.getName().equalsIgnoreCase(nameOther))
         .findFirst()
-        .orElseThrow(() -> new MolgenisException("Invalid entry type: " + nameOther));
+        .orElseThrow(() -> new MolgenisException("Unsupported entry type: " + nameOther));
   }
 
   private final String id;
