@@ -21,6 +21,7 @@ import logger from "../utils/logger";
 import {
   getColumnError,
   isColumnVisible,
+  isRequired,
 } from "../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { useSession } from "#imports";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
@@ -113,7 +114,7 @@ export default function useForm(
   /** return required, visible fields across all sections */
   const requiredFields = computed(() => {
     return metadata.value?.columns.filter(
-      (column: IColumn) => visibleMap[column.id] && column.required
+      (column: IColumn) => visibleMap[column.id] && isRequired(column.required)
     );
   });
 
