@@ -72,10 +72,10 @@ const isExpanded = ref<boolean>(props.openByDefault);
     <div
       :id="`accordion__${id}-content`"
       :aria-labelledby="`accordion__${id}-toggle`"
-      class="transition-all overflow-hidden motion-safe:duration-default motion-reduce:duration-0"
+      class="grid transition-all ease-in-out motion-safe:duration-default motion-reduce:duration-0"
       :class="{
-        'max-h-96 opacity-100': isExpanded,
-        'max-h-0 opacity-0': !isExpanded,
+        'grid-rows-[0]': !isExpanded,
+        'grid-rows-1': isExpanded,
       }"
     >
       <div class="overflow-hidden">
