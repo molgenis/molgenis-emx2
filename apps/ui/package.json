@@ -1,6 +1,5 @@
 {
   "name": "ui",
-  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -23,13 +22,11 @@
     "@nuxt/test-utils": "3.12.1",
     "@pinia/nuxt": "0.11.1",
     "@playwright/test": "1.55.1",
-    "@vitest/coverage-v8": "3.0.8",
     "@vue/test-utils": "2.4.6",
     "cross-env": "7.0.3",
     "nuxt": "4.1.2",
     "pinia": "3.0.3",
     "tailwind-components": "*",
-    "vitest": "3.0.8",
     "vue-tsc": "2.1.6"
   }
 }
