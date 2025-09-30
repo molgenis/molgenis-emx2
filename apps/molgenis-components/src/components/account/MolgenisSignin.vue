@@ -5,7 +5,7 @@
   </div>
   <LayoutModal v-else title="Sign in" :show="true" @close="onCancel">
     <template v-slot:body>
-      <LayoutForm id="signin-form" @submit.prevent="signin">
+      <FormMolgenis id="signin-form" @submit="signin">
         <MessageError v-if="error">{{ error }}</MessageError>
         <InputString
           id="signInFormEmail"
@@ -46,7 +46,7 @@
             v-model="userAgrees"
           />
         </div>
-      </LayoutForm>
+      </FormMolgenis>
     </template>
     <template v-slot:footer>
       <ButtonAlt @click="onCancel">Cancel</ButtonAlt>
@@ -61,7 +61,7 @@ import { request } from "../../client/client";
 import { privacyConstants } from "../constants.js";
 import ButtonAlt from "../forms/ButtonAlt.vue";
 import ButtonSubmit from "../forms/ButtonSubmit.vue";
-import LayoutForm from "../forms/FormMolgenis.vue";
+import FormMolgenis from "../forms/FormMolgenis.vue";
 import InputCheckbox from "../forms/InputCheckbox.vue";
 import InputPassword from "../forms/InputPassword.vue";
 import InputString from "../forms/InputString.vue";
@@ -80,15 +80,15 @@ export default defineComponent({
     InputString,
     MessageError,
     MessageSuccess,
-    LayoutForm,
+    FormMolgenis,
     LayoutModal,
     ButtonSubmit,
     InputCheckbox,
   },
   data: function () {
     return {
-      email: null as string | null,
-      password: null as string | null,
+      email: "",
+      password: "",
       error: null as string | null,
       success: null as string | null,
       loading: false,
