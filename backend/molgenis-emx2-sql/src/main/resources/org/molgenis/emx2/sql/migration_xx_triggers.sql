@@ -74,6 +74,14 @@ CREATE INDEX IF NOT EXISTS idx_user_permissions_user_schema
 -- ========================================
 -- Triggers
 -- ========================================
+CREATE OR REPLACE FUNCTION "MOLGENIS".refresh_user_permissions_mv()
+    RETURNS void
+    LANGUAGE sql
+    SECURITY DEFINER
+AS $$
+REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
+$$;
+GRANT EXECUTE ON FUNCTION "MOLGENIS".refresh_user_permissions_mv() TO PUBLIC;
 
 -- Create default group permissions when a schema is added
 CREATE OR REPLACE FUNCTION "MOLGENIS".schema_metadata_trigger_function()
