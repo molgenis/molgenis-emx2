@@ -20,7 +20,6 @@ const schemaCache = new Map<string, Promise<ISchemaMetaData>>();
 export { request, fetchSchemaMetaData, convertRowToPrimaryKey };
 const client: IClient = {
   newClient: (schemaId?: string): INewClient => {
-    console.log("new instance for schema " + schemaId);
     return {
       insertDataRow,
       updateDataRow,
