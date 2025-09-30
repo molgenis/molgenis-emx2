@@ -254,26 +254,25 @@ const deleteAllTableData = (tableId: string, schemaId?: string) => {
 const fetchSchemaMetaData = async (
   schemaId?: string
 ): Promise<ISchemaMetaData> => {
-  const key = schemaId ?? "CACHE_OF_CURRENT_SCHEMA";
-
-  // Return cached Promise if it exists
-  if (schemaCache.has(key)) {
-    return schemaCache.get(key)!;
+  const currentschemaId = schemaId ? schemaId : "CACHE_OF_CURRENT_SCHEMA";
+  if (schemaCache.has(currentschemaId)) {
+    return schemaCache.get(currentschemaId) as Promise<ISchemaMetaData>;
   }
 
   // Create new request and cache the Promise immediately
   const promise = axios
     .post(graphqlURL(schemaId), { query: metadataQuery })
-    .then((result) => {
+    .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
       return deepClone(schema);
     })
-    .catch((error) => {
-      schemaCache.delete(key); // remove failed promises to allow retry
+    .catch((error: AxiosError) => {
+      console.log(error);
+      schemaCache.delete(currentschemaId); // remove failed promises to allow retry
       throw error;
     });
 
-  schemaCache.set(key, promise);
+  schemaCache.set(currentschemaId, promise);
   return promise;
 };
 
