@@ -15,11 +15,12 @@ import { getColumnIds } from "./queryBuilder";
 import { toFormData } from "../../../tailwind-components/utils/toFormData";
 
 // application wide cache for schema meta data
-const schemaCache = new Map<string, ISchemaMetaData>();
+const schemaCache = new Map<string, Promise<ISchemaMetaData>>();
 
 export { request, fetchSchemaMetaData, convertRowToPrimaryKey };
 const client: IClient = {
   newClient: (schemaId?: string): INewClient => {
+    console.log("new instance for schema " + schemaId);
     return {
       insertDataRow,
       updateDataRow,
@@ -254,24 +255,27 @@ const deleteAllTableData = (tableId: string, schemaId?: string) => {
 const fetchSchemaMetaData = async (
   schemaId?: string
 ): Promise<ISchemaMetaData> => {
-  const currentschemaId = schemaId ? schemaId : "CACHE_OF_CURRENT_SCHEMA";
-  if (schemaCache.has(currentschemaId)) {
-    return schemaCache.get(currentschemaId) as ISchemaMetaData;
+  const key = schemaId ?? "CACHE_OF_CURRENT_SCHEMA";
+
+  // Return cached Promise if it exists
+  if (schemaCache.has(key)) {
+    return schemaCache.get(key)!;
   }
-  return await axios
+
+  // Create new request and cache the Promise immediately
+  const promise = axios
     .post(graphqlURL(schemaId), { query: metadataQuery })
-    .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
+    .then((result) => {
       const schema = result.data.data._schema;
-      if (schemaId == null) {
-        schemaCache.set(currentschemaId, schema);
-      }
-      schemaCache.set(schema.id, schema);
       return deepClone(schema);
     })
-    .catch((error: AxiosError) => {
-      console.log(error);
+    .catch((error) => {
+      schemaCache.delete(key); // remove failed promises to allow retry
       throw error;
     });
+
+  schemaCache.set(key, promise);
+  return promise;
 };
 
 const fetchTableData = async (
