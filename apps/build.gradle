@@ -97,9 +97,10 @@ tasks.register('lint', NpmTask) {
         exclude(excludePatterns)
     })
 }
-// ensure dist exists before processResources runs
+
 tasks.named("processResources") {
     dependsOn("collectDist")
+    inputs.dir("${buildDir}/generated/main/resources/public_html/apps")
 }
 
 sourceSets {
@@ -110,7 +111,7 @@ sourceSets {
     }
 }
 //
-tasks.jar.dependsOn collectDist
-tasks.processResources.dependsOn collectDist
+tasks.jar.dependsOn processResources
+parent.tasks.processResources.dependsOn collectDist
 
 apply plugin: 'com.github.node-gradle.node'
