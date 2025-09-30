@@ -240,8 +240,26 @@ mutation {
   }
 }
 ```
-
 This will assign users `test@test.com` and `test2@test.com` to the `pet_store/specialGroup`.
+
+To query all the permission groups use:
+```graphql
+query {
+  _permissions {
+    groupName
+    users
+    tableSchema
+    tableName
+    isRowLevel
+    hasSelect
+    hasInsert
+    hasUpdate
+    hasDelete
+    hasAdmin
+  }
+}
+```
+
 
 #### Row-level security
 
