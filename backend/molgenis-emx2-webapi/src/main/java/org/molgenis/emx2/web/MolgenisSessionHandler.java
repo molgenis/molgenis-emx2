@@ -32,6 +32,7 @@ public class MolgenisSessionHandler implements GraphqlSessionHandlerInterface {
   @Override
   public synchronized void createSession(String username) {
     HttpSession session = request.getSession(true);
+    session.setMaxInactiveInterval(30 * 60); // 30 minutes
     session.setAttribute(USERNAME, username);
 
     // register this session
