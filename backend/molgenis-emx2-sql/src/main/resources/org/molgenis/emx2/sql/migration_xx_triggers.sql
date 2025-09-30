@@ -322,8 +322,6 @@ BEGIN
         END IF;
     END IF;
 
-    REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
-
     RETURN COALESCE(NEW, OLD);
 END;
 $$ LANGUAGE plpgsql;
@@ -545,6 +543,8 @@ BEGIN
     -- Grant Owner to Admin
     EXECUTE format('GRANT %I TO %I', format('MG_ROLE_%s/%s', schema_id, 'Owner'),
                    format('MG_ROLE_%s/%s', schema_id, 'Admin'));
+
+    REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
 
 END;
 $$;

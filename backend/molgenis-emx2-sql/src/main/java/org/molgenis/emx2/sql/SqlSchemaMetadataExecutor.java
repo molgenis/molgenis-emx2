@@ -54,6 +54,7 @@ class SqlSchemaMetadataExecutor {
                 .otherwise(USERS))
         .where(GROUP_NAME.eq(groupName))
         .execute();
+    jooq.execute("REFRESH MATERIALIZED VIEW \"MOLGENIS\".user_permissions_mv");
   }
 
   static String getRolePrefix(String name) {
@@ -114,6 +115,7 @@ class SqlSchemaMetadataExecutor {
               .set(USERS, DSL.arrayRemove(USERS, m.getUser()))
               .where(GROUP_NAME.eq(groupName))
               .execute();
+          db.getJooq().execute("REFRESH MATERIALIZED VIEW \"MOLGENIS\".user_permissions_mv");
         }
       }
     } catch (DataAccessException dae) {

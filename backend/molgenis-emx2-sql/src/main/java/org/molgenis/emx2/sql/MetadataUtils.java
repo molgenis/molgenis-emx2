@@ -799,6 +799,7 @@ public class MetadataUtils {
         .set(HAS_DELETE, permission.hasDelete())
         .set(HAS_ADMIN, permission.hasAdmin())
         .execute();
+    jooq.execute("REFRESH MATERIALIZED VIEW \"MOLGENIS\".user_permissions_mv");
   }
 
   public static void saveGroupMetadata(DSLContext jooq, String groupName, List<String> users) {
