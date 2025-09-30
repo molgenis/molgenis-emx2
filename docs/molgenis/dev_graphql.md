@@ -1,6 +1,6 @@
 # GraphQL in MOLGENIS
 
-Each database in MOLGENIS has a GraphQL endpoint that exposes a GraphQL API for the data model of that database. 
+Each database in MOLGENIS has a GraphQL endpoint that exposes a GraphQL API for the data model of that database.
 In addition, at the root there is a generic API.
 
 For example:
@@ -19,9 +19,9 @@ These functionalities are available for both the 'root' API and the database API
 
 ### Sign in
 
-Sign in to an existing account. 
-When running in a website then a session will be created. 
-However, when you use a script you can retrieve a token to authenticate in other calls. 
+Sign in to an existing account.
+When running in a website then a session will be created.
+However, when you use a script you can retrieve a token to authenticate in other calls.
 Provide these in subsequent request headers as `x-molgenis-token`.
 
 ```graphql
@@ -216,6 +216,85 @@ mutation {
 }
 ```
 
+## Permissions
+
+#### Permission groups
+
+Permission groups can be edited via the change mutation.
+
+Create a new permission group. `tableId` is optional; leave it blank if the permissions are for the whole schema.  
+If `groupName` is an existing group name, the permission group will be updated.
+
+```graphql
+mutation {
+  change(permissions: [
+    { 
+      groupName: "pet_store/specialGroup",
+      tableId: "Order", 
+      isRowLevel: true,
+      hasSelect: true, hasInsert: true, hasUpdate: true, hasDelete: true, hasAdmin: false,
+      users: ["test@test.com", "test2@test.com"]
+    }
+  ]) {
+    message
+  }
+}
+```
+
+This will assign users `test@test.com` and `test2@test.com` to the `pet_store/specialGroup`.
+
+#### Row-level security
+
+To enable row-level security on a table, we need to use the change mutation on database/schema level. The following
+query will enable row-level security on the `Order` table:
+
+```graphql
+mutation {
+  change(
+    tables: [{ name: "Order", rowLevelSecurity: true }]
+  ) {
+    message
+  }
+}
+```
+
+To assign a row to a row-level permission group, we use the `mg_group` column. We can use the update mutation as
+follows:
+
+```graphql
+mutation {
+  update(
+    Order: [
+      {
+        mg_group: ["pet_store/specialGroup"],
+        orderId: "ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919"
+      }
+    ]
+  ) {
+    message
+  }
+}
+```
+
+This will give the `pet_store/specialGroup` we just created, with users `test@test.com` and `test2@test.com`, access to
+update and delete the row with orderId `ORDER:6fe7a528-2e97-48cc-91e6-a94c689b4919`.
+
+When logged in as `test@test.com`, we need to specify the `mg_group` when inserting a row into the `Order` table:
+
+```graphql
+mutation {
+  insert(
+    Order: {
+      pet: {name: "pooky"},
+      quantity: 55,
+      mg_group: "pet_store/specialGroup"
+  }) { message }
+}
+```
+
+If the `mg_group` is left empty, it will try to insert the row without the row-level security group. This will get
+rejected when user `test@test.com` doesn't have global insert privileges on the `Order` table.
+
 ## Functions available for each database
 
 ### query schema
@@ -406,9 +485,9 @@ wildcards to pass a json object in combintation with your query. Example:
 
 ```javascript
 //untested
-import { request } from "graphql-request";
+import {request} from "graphql-request";
 
-const row = { name: "mickey", category: { name: "cat" } };
+const row = {name: "mickey", category: {name: "cat"}};
 let query = `mutation insert($row: [PetInput]) {
   insert(Pet: $row) {
     message
@@ -416,9 +495,9 @@ let query = `mutation insert($row: [PetInput]) {
 }`;
 
 client
-  .request(query, { Pet: row })
-  .then((data) => console.log(data))
-  .catch((error) => console.log(error));
+    .request(query, {Pet: row})
+    .then((data) => console.log(data))
+    .catch((error) => console.log(error));
 ```
 
 ### Example querying the Pet Store
@@ -435,7 +514,8 @@ Get the name of all the pets
 }
 ```
 
-<small>Tip: if you use ctrl + space inside the curlybraces of, in this case, Pet, you get autocomplete on its properties.</small>
+<small>Tip: if you use ctrl + space inside the curlybraces of, in this case, Pet, you get autocomplete on its
+properties.</small>
 
 Get only the pet named Pooky
 
@@ -551,8 +631,10 @@ Will return:
 When you deploy an 'app' (see https://github.com/molgenis/molgenis-emx2/tree/master/apps)
 
 - You will find a 'graphql' endpoint automatically served within the root of your app so to easy program against it
-- In case of serving app in a schema, you will get 'schema' graphql endpoint, e.g. https://emx2.dev.molgenis.org/pet%20store/tables/
-- In case of serving the app in 'central' you will get 'database' graphql endpoint, e.g. https://emx2.dev.molgenis.org/apps/central/
+- In case of serving app in a schema, you will get 'schema' graphql endpoint,
+  e.g. https://emx2.dev.molgenis.org/pet%20store/tables/
+- In case of serving the app in 'central' you will get 'database' graphql endpoint,
+  e.g. https://emx2.dev.molgenis.org/apps/central/
 
 <br />
 <br />
@@ -582,7 +664,8 @@ add the following to the dependancies section
 
 Then open a terminal and type in `yarn`.
 
-> sometimes you may need to build molgenis-components locally. Go into the molgenis-components folder inside the apps directory. Open a terminal and type `yarn build`
+> sometimes you may need to build molgenis-components locally. Go into the molgenis-components folder inside the apps
+> directory. Open a terminal and type `yarn build`
 
 Now you can import the library as follows:
 
@@ -622,7 +705,8 @@ to get the results:
 
 When you specify a table using `.table("MyTable")` MyTable is in the case of QueryEMX2 seen as 'root' table.
 
-When you want to filter on the _root_ table you can use the `.where()` function for an _and_ clause and `orWhere()` function for a _or_ clause.
+When you want to filter on the _root_ table you can use the `.where()` function for an _and_ clause and `orWhere()`
+function for a _or_ clause.
 
 Then you combine that with an operator function that takes the filter value as an argument.
 
@@ -643,9 +727,12 @@ the following function are available:
 - _match_any(value)
 - _match_all(value)
 - _match_none(value)
-- _match_path(name) - use to filter ontology terms, = or(match_any_including_children(name),match_any_including_parents(name))
-- _match_any_including_children(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
-- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in children of 'name' term
+- _match_path(name) - use to filter ontology terms, = or(match_any_including_children(name),match_any_including_parents(
+  name))
+- _match_any_including_children(name) - use this to filter in ontology columns matching also when overlap exists in
+  children of 'name' term
+- _match_any_including_parents(name) - use this to filter in ontology columns matching also when overlap exists in
+  children of 'name' term
 
 If you want to filter a ref/mref/categorial or any other 'nested' table result, use:
 
