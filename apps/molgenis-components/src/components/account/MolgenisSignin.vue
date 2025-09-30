@@ -89,7 +89,7 @@ export default defineComponent({
     return {
       email: "",
       password: "",
-      error: null as string | null,
+      error: "",
       success: null as string | null,
       loading: false,
       userAgrees: [],
@@ -109,7 +109,7 @@ export default defineComponent({
       ) {
         this.error = this.privacyError;
       } else {
-        this.error = null;
+        this.error = "";
         this.loading = true;
         request(
           "/api/graphql",
@@ -139,7 +139,7 @@ export default defineComponent({
       this.$emit("signInFailed", this.email);
     },
     onCancel() {
-      this.error = null;
+      this.error = "";
       this.$emit("cancel");
     },
     async fetchPrivacyPolicy() {
