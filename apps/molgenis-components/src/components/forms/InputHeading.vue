@@ -4,7 +4,7 @@
       v-if="!focusLabel"
       class="d-flex form-group bg-white rounded pt-4 pb-1 mb-1"
     >
-      <h1 v-if="label !== '_top'">{{ label }}</h1>
+      <h1>{{ label }}</h1>
       <IconAction
         v-if="inplace || editMeta"
         class="hoverIcon align-top"

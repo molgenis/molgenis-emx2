@@ -65,7 +65,7 @@ const isRequired = (value: string | boolean): boolean =>
       >
         <h2
           class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
-          v-if="column.label !== '_top'"
+          v-if="column.label"
         >
           {{ column.label }}
         </h2>
