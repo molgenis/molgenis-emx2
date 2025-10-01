@@ -3,8 +3,6 @@ package org.molgenis.emx2.io.readers;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Row;
 import org.simpleflatmapper.csv.CsvParser;
@@ -36,7 +34,7 @@ public class CsvTableReader {
       String secondLine = bufferedReader.readLine();
 
       // if file is empty we return empty iterator
-      if (firstLine == null || firstLine.trim().isEmpty() || secondLine == null) {
+      if (firstLine == null || firstLine.trim().equals("") || secondLine == null) {
         return Collections.emptyList();
       }
       char separator = ',';
@@ -51,8 +49,6 @@ public class CsvTableReader {
       if (firstLine.contains(";")) {
         separator = ';';
       }
-
-      final String sep = String.valueOf(separator);
 
       // push back in
       bufferedReader.reset();
@@ -93,25 +89,7 @@ public class CsvTableReader {
                 next = (HashMap<String, Object>) it.next();
                 isEmpty = next.values().stream().allMatch(Objects::isNull);
               }
-
-              Map<String, Object> cleaned =
-                  next.entrySet().stream()
-                      .collect(
-                          Collectors.toMap(
-                              Map.Entry::getKey,
-                              e -> {
-                                Object v = e.getValue();
-                                if (v instanceof String s && s.contains(sep)) {
-                                  // normalize list-like fields
-                                  return Arrays.stream(s.split(Pattern.quote(sep)))
-                                      .map(String::trim)
-                                      .filter(str -> !str.isEmpty())
-                                      .toList();
-                                }
-                                return v;
-                              }));
-
-              return new Row(cleaned);
+              return new Row(next);
             }
 
             @Override
