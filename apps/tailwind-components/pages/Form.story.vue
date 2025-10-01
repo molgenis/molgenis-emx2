@@ -10,6 +10,7 @@ import { useFetch, useAsyncData } from "#app";
 import { fetchMetadata, fetchTableData } from "#imports";
 import { ref, computed, watch } from "vue";
 import useForm from "../composables/useForm";
+import fetchRowPrimaryKey from "../composables/fetchRowPrimaryKey";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -49,6 +50,8 @@ const { data: schemaMeta, refresh } = await useAsyncData(
   schemaId.value + " form data",
   () => fetchMetadata(schemaId.value)
 );
+
+const rowKey = ref<Record<string, columnValue>>();
 
 async function getNumberOfRows() {
   const resp = await $fetch(`/${schemaId.value}/graphql`, {
@@ -125,6 +128,14 @@ watch(
   { immediate: true }
 );
 
+async function updateRowKey() {
+  rowKey.value = await fetchRowPrimaryKey(
+    formValues.value,
+    tableId.value,
+    schemaId.value
+  );
+}
+
 watch(
   () => rowIndex.value,
   async () => {
@@ -140,7 +151,8 @@ watch(
     router.push({ query });
 
     if (rowIndex.value !== null) {
-      fetchRow(rowIndex.value - 1);
+      await fetchRow(rowIndex.value - 1);
+      updateRowKey();
     }
   },
   { immediate: true }
@@ -157,7 +169,6 @@ const {
   onUpdateColumn,
   onBlurColumn,
   onViewColumn,
-  rowKey,
 } = useForm(metadata, formValues, "forms-story-fields-container");
 
 const numberOfFieldsWithErrors = computed(

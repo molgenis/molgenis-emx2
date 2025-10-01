@@ -9,7 +9,7 @@
     />
 
     <div class="flex gap-[10px]">
-      <AddModal
+      <EditModal
         v-if="props.isEditable && data?.tableMetadata"
         :metadata="data.tableMetadata"
         :schemaId="props.schemaId"
@@ -19,7 +19,7 @@
         <Button type="primary" icon="add-circle" @click="setVisible"
           >Add {{ tableId }}</Button
         >
-      </AddModal>
+      </EditModal>
 
       <TableControlColumns
         :columns="columns"
@@ -225,7 +225,6 @@ import { fetchTableData, fetchTableMetadata } from "#imports";
 import TableCellEMX2 from "./CellEMX2.vue";
 import TableHeadCell from "./TableHeadCell.vue";
 
-import AddModal from "../form/AddModal.vue";
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import TableModalRef from "./modal/TableModalRef.vue";

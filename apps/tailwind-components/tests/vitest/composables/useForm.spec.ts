@@ -7,6 +7,8 @@ import { type Ref, ref } from "vue";
 describe("useForm", () => {
   const tableMetadata: Ref<ITableMetaData> = ref({
     id: "vi test table metadata",
+    name: "vi test table metadata",
+    schemaId: "vi test table metadata",
     label: "vi test table metadata",
     tableType: "some table type",
     columns: [
@@ -161,6 +163,8 @@ describe("useForm", () => {
     const formValues = ref<Record<string, columnValue>>({});
     const tableMetadata: Ref<ITableMetaData> = ref({
       id: "vi test table metadata",
+      name: "vi test table metadata",
+      schemaId: "vi test table metadata",
       label: "vi test table metadata",
       tableType: "some table type",
       columns: [],
@@ -173,6 +177,8 @@ describe("useForm", () => {
     const formValues = ref<Record<string, columnValue>>({});
     const tableMetadata: Ref<ITableMetaData> = ref({
       id: "vi test table metadata",
+      name: "vi test table metadata",
+      schemaId: "vi test table metadata",
       label: "vi test table metadata",
       tableType: "some table type",
       columns: [
@@ -233,6 +239,8 @@ describe("useForm", () => {
     const formValues = ref<Record<string, columnValue>>({});
     const tableMetadata: Ref<ITableMetaData> = ref({
       id: "vi test table metadata",
+      name: "vi test table metadata",
+      schemaId: "vi test table metadata",
       label: "vi test table metadata",
       tableType: "some table type",
       columns: [
@@ -272,6 +280,8 @@ describe("useForm", () => {
     const formValues = ref<Record<string, columnValue>>({});
     const tableMetadata: Ref<ITableMetaData> = ref({
       id: "vi test table metadata",
+      name: "vi test table metadata",
+      schemaId: "vi test table metadata",
       label: "vi test table metadata",
       tableType: "some table type",
       columns: [
@@ -368,6 +378,8 @@ describe("useForm", () => {
     const formValues = ref<Record<string, columnValue>>({});
     const tableMetadata: Ref<ITableMetaData> = ref({
       id: "vi test table metadata",
+      name: "vi test table metadata",
+      schemaId: "vi test table metadata",
       label: "vi test table metadata",
       tableType: "some table type",
       columns: [

@@ -267,36 +267,41 @@ export default function useForm(
     }
   };
 
-  const insertInto = (schemaId: string, tableId: string) => {
+  const insertInto = async () => {
     const formData = toFormData(formValues.value);
-    const query = `mutation insert($value:[${tableId}Input]){insert(${tableId}:$value){message}}`;
+    const query = `mutation insert($value:[${metadata.value.id}Input]){insert(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
-
-    return $fetch(`/${schemaId}/graphql`, {
-      method: "POST",
-      body: formData,
-    }).catch((error) =>
-      handleFetchError(error, "Error on inserting into database")
-    );
+    try {
+      return $fetch(`/${metadata.value.schemaId}/graphql`, {
+        method: "POST",
+        body: formData,
+      });
+    } catch (error) {
+      await handleFetchError(error, "Error on inserting into database");
+    }
   };
 
-  const updateInto = (schemaId: string, tableId: string) => {
+  const updateInto = () => {
     const formData = toFormData(formValues.value);
-    const query = `mutation update($value:[${tableId}Input]){update(${tableId}:$value){message}}`;
+    const query = `mutation update($value:[${metadata.value.id}Input]){update(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
 
-    return $fetch(`/${schemaId}/graphql`, {
+    return $fetch(`/${metadata.value.schemaId}/graphql`, {
       method: "POST",
       body: formData,
     }).catch((error) => handleFetchError(error, "Error on updating database"));
   };
 
-  const deleteRecord = async (schemaId: string, tableId: string) => {
-    const key = await getPrimaryKey(formValues.value, tableId, schemaId);
-    const query = `mutation delete($pkey:[${tableId}Input]){delete(${tableId}:$pkey){message}}`;
+  const deleteRecord = async () => {
+    const key = await getPrimaryKey(
+      formValues.value,
+      metadata.value.id,
+      metadata.value.schemaId as string
+    );
+    const query = `mutation delete($pkey:[${metadata.value.id}Input]){delete(${metadata.value.id}:$pkey){message}}`;
     const variables = { pkey: [key] };
 
-    return $fetch(`/${schemaId}/graphql`, {
+    return $fetch(`/${metadata.value.schemaId}/graphql`, {
       method: "POST",
       body: {
         query,
@@ -448,23 +453,8 @@ export default function useForm(
           "Session has expired, please log in again."
         );
       }
-    } else {
-      console.log(message, error);
     }
-  }
-
-  const rowKey = ref<columnValue>();
-  //todo, find another way to produce rowkey
-  //if we refactor backend to give each row an internal molgenis_id we don't need this magic anymore
-  async function updateRowKey() {
-    console.log(
-      "update row key, is expensive should only fire when creating an update form"
-    );
-    rowKey.value = await fetchRowPrimaryKey(
-      formValues.value,
-      metadata.value.id,
-      metadata.value.schemaId as string
-    );
+    throw new Error(message, error);
   }
 
   function scrollTo(elementId: string) {
@@ -494,16 +484,6 @@ export default function useForm(
     },
     { immediate: true }
   );
-  watch(
-    () => formValues.value,
-    async () => {
-      if (formValues.value) {
-        //should watch only pkey fields
-        //we could make this a prop
-        await updateRowKey();
-      }
-    }
-  );
 
   return {
     requiredFields,
@@ -530,7 +510,6 @@ export default function useForm(
     errorMap,
     validateAllColumns,
     visibleMap,
-    rowKey,
     lastScrollTo, //for debug
   };
 }

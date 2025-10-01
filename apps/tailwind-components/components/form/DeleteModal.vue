@@ -47,21 +47,19 @@ function onCancel() {
 
 async function onDeleteConfirm() {
   const { deleteRecord } = useForm(props.metadata, props.formValues);
-  const resp = await deleteRecord(props.schemaId, props.metadata.id).catch(
-    (err) => {
-      console.error("Error deleting data", err);
+  const resp = await deleteRecord().catch((err) => {
+    console.error("Error deleting data", err);
 
-      if (err instanceof SessionExpiredError) {
-        deleteErrorMessage.value =
-          "Your session has expired. Please re-authenticate to continue.";
-        showReAuthenticateButton.value = true;
-      } else {
-        deleteErrorMessage.value = errorToMessage(err, "Error deleting record");
-      }
-
-      return null;
+    if (err instanceof SessionExpiredError) {
+      deleteErrorMessage.value =
+        "Your session has expired. Please re-authenticate to continue.";
+      showReAuthenticateButton.value = true;
+    } else {
+      deleteErrorMessage.value = errorToMessage(err, "Error deleting record");
     }
-  );
+
+    return null;
+  });
 
   if (!resp) {
     return;
