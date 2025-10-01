@@ -25,7 +25,6 @@ import {
 } from "../../molgenis-components/src/components/forms/formUtils/formUtils";
 import { useSession } from "#imports";
 import { SessionExpiredError } from "../utils/sessionExpiredError";
-import fetchRowPrimaryKey from "./fetchRowPrimaryKey";
 
 export default function useForm(
   tableMetadata: MaybeRef<ITableMetaData>,
@@ -54,6 +53,16 @@ export default function useForm(
   const currentSection = ref<columnId | undefined>();
   const currentHeading = ref<columnId>();
   const lastScrollTo = ref<columnId>();
+  const currentErrorField = ref<IColumn | undefined>(undefined);
+
+  const reset = () => {
+    errorMap.value = {};
+    currentSection.value = undefined;
+    currentHeading.value = undefined;
+    lastScrollTo.value = undefined;
+    currentErrorField.value = undefined;
+    updateVisibility();
+  };
 
   const sections = computed(() => {
     const sectionList: IFormLegendSection[] = [];
@@ -228,8 +237,6 @@ export default function useForm(
     });
   };
 
-  const currentErrorField = ref<IColumn | undefined>(undefined);
-
   const gotoPreviousError = () => {
     const keys = Object.keys(errorMap.value);
     if (keys.length === null) {
@@ -313,7 +320,6 @@ export default function useForm(
   };
 
   const updateVisibility = () => {
-    logger.debug("updateVisibility");
     let previousSection: IColumn | undefined = undefined;
     let sectionColumns: string[] = [];
     let previousHeading: IColumn | undefined = undefined;
@@ -479,8 +485,7 @@ export default function useForm(
   watch(
     () => metadata?.value,
     () => {
-      //update visible expressions
-      updateVisibility();
+      reset();
     },
     { immediate: true }
   );
@@ -511,5 +516,6 @@ export default function useForm(
     validateAllColumns,
     visibleMap,
     lastScrollTo, //for debug
+    reset,
   };
 }

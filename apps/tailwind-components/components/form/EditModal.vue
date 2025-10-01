@@ -266,6 +266,7 @@ watch(visible, (newValue, oldValue) => {
 
 watch(editFormValues.value, () => {
   formMessage.value = "";
+  reset();
 });
 
 const {
@@ -287,6 +288,7 @@ const {
   validateAllColumns,
   sections,
   visibleColumns,
+  reset,
 } = useForm(props.metadata, editFormValues, "fields-container");
 
 function reAuthenticate() {
