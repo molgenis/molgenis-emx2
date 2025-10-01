@@ -939,7 +939,7 @@ public class GraphqlSchemaFieldFactory {
                   map -> {
                     Permission permission = mapper.convertValue(map, Permission.class);
 
-                    String tableId = permission.getTableName();
+                    String tableId = permission.getTableId();
                     if (tableId != null) {
                       Table table = schema.getTableById(tableId);
 

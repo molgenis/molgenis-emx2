@@ -781,7 +781,7 @@ public class MetadataUtils {
         .values(
             permission.getGroupName(),
             schemaName,
-            permission.getTableName(),
+            permission.getTableId(),
             permission.isRowLevel(),
             permission.hasSelect(),
             permission.hasInsert(),
@@ -791,7 +791,7 @@ public class MetadataUtils {
         .onConflict(GROUP_NAME)
         .doUpdate()
         .set(TABLE_SCHEMA, schemaName)
-        .set(TABLE_NAME, permission.getTableName())
+        .set(TABLE_NAME, permission.getTableId())
         .set(IS_ROW_LEVEL, permission.isRowLevel())
         .set(HAS_SELECT, permission.hasSelect())
         .set(HAS_INSERT, permission.hasInsert())
