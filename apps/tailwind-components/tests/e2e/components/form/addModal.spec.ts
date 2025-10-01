@@ -22,9 +22,11 @@ test("should show the add modal", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByText("3/3 required fields left")).toBeVisible();
   await expect(page.getByRole("button", { name: "Cancel" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Save draft" })).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Save", exact: true })
+    page.getByRole("button", { name: "Save as draft" })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Save Pet", exact: true })
   ).toBeVisible();
   await expect(page.getByText("name Required the name")).toBeVisible();
 });

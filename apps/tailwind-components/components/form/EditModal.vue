@@ -7,7 +7,7 @@
         size="small"
         icon="plus"
         @click="visible = true"
-        >{{ insertOrUpdateLabel }} {{ rowType }}</Button
+        >{{ isInsert ? "Add" : "Edit" }} {{ rowType }}</Button
       >
     </slot>
   </template>
@@ -18,7 +18,7 @@
           <h2
             class="uppercase text-heading-4xl font-display text-title-contrast"
           >
-            {{ insertOrUpdateLabel }} {{ rowType }}
+            {{ isInsert ? "Add" : "Edit" }} {{ rowType }}
             {{ editFormValues["mg_draft"] ? "(status=draft)" : "" }}
           </h2>
 
@@ -119,11 +119,9 @@
         <menu class="flex items-center justify-end h-[116px]">
           <div class="flex gap-4">
             <Button type="secondary" @click="onCancel">Cancel</Button>
-            <Button type="outline" @click="onSave(true)"
-              >{{ insertOrUpdateLabel }} as draft</Button
-            >
+            <Button type="outline" @click="onSave(true)">Save as draft</Button>
             <Button type="primary" @click="onSave(false)"
-              >{{ insertOrUpdateLabel }} {{ rowType }}</Button
+              >Save {{ rowType }}</Button
             >
           </div>
         </menu>
@@ -182,7 +180,8 @@ watch(
       updateRowKey();
       isInsert.value = false;
     }
-  }
+  },
+  { immediate: true }
 );
 
 const session = await useSession();
@@ -201,10 +200,6 @@ function onCancel() {
   visible.value = false;
   emit("update:cancelled");
 }
-
-const insertOrUpdateLabel = computed(() => {
-  return isInsert.value ? "Insert" : "Save";
-});
 
 function handleError(err: unknown, defaultMessage: string) {
   console.error("Error saving data", err);
