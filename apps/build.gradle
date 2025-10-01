@@ -49,21 +49,24 @@ tasks.register('npm_build', NpmTask) {
 }
 
 tasks.register("collectDist", Copy) {
-    dependsOn npm_build
-    // Look for all dist folders inside apps/*
-    file(".").eachDir { dir ->
-        def distDir = new File(dir, "dist")
-        if (distDir.exists()) {
-            from(distDir) {
-                // put it under the app name
-                into(dir.name)
+   dependsOn npm_build
+
+    // doFirst scan inputs  at execution time
+    doFirst {
+        file(".").eachDir { dir ->
+            def distDir = new File(dir, "dist")
+            if (distDir.exists()) {
+                from(distDir) {
+                    // put it under the app name
+                    into(dir.name)
+                }
             }
         }
     }
 
+
     // Final output folder
     into("${buildDir}/generated/main/resources/public_html/apps")
-    outputs.upToDateWhen { false }
 }
 
 tasks.register('appsFormat', NpmTask) {
