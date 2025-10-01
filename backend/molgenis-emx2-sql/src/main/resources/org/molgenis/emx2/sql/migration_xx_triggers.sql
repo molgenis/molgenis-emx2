@@ -44,17 +44,16 @@ GRANT DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON "MOLGENIS
 
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS "MOLGENIS".user_permissions_mv AS
-SELECT
-    gp.group_name,
-    gp.table_schema,
-    gp.table_name,
-    gp.is_row_level,
-    gp.has_select,
-    gp.has_insert,
-    gp.has_update,
-    gp.has_delete,
-    gp.has_admin,
-    u.rolname AS user_name
+SELECT gp.group_name,
+       gp.table_schema,
+       gp.table_name,
+       gp.is_row_level,
+       gp.has_select,
+       gp.has_insert,
+       gp.has_update,
+       gp.has_delete,
+       gp.has_admin,
+       u.rolname AS user_name
 FROM "MOLGENIS".group_permissions gp
          JOIN pg_roles g
               ON g.rolname = 'MG_ROLE_' || gp.group_name
@@ -74,11 +73,25 @@ CREATE INDEX IF NOT EXISTS idx_user_permissions_user_schema
 -- ========================================
 -- Triggers
 -- ========================================
+DROP POLICY IF EXISTS "schema_metadata_POLICY" ON "MOLGENIS".schema_metadata;
+CREATE POLICY "schema_metadata_POLICY"
+    ON "MOLGENIS".schema_metadata
+    AS PERMISSIVE
+    FOR ALL
+    USING (
+    exists (SELECT 1
+            FROM "MOLGENIS".user_permissions_mv up
+            WHERE up.user_name = current_user
+              AND up.table_schema = schema_metadata.table_schema)
+    );
+
+
 CREATE OR REPLACE FUNCTION "MOLGENIS".refresh_user_permissions_mv()
     RETURNS void
     LANGUAGE sql
     SECURITY DEFINER
-AS $$
+AS
+$$
 REFRESH MATERIALIZED VIEW "MOLGENIS".user_permissions_mv;
 $$;
 GRANT EXECUTE ON FUNCTION "MOLGENIS".refresh_user_permissions_mv() TO PUBLIC;
@@ -576,7 +589,8 @@ BEGIN
     -- TODO: Add this to back-end and remove here?
     INSERT INTO "MOLGENIS".column_metadata (table_schema, table_name, column_name, "columnType", key, position, cascade,
                                             readonly)
-    VALUES (schema_id, table_id, 'mg_group', 'STRING_ARRAY', 0, -5, false, false) ON CONFLICT DO NOTHING;
+    VALUES (schema_id, table_id, 'mg_group', 'STRING_ARRAY', 0, -5, false, false)
+    ON CONFLICT DO NOTHING;
     EXECUTE format(
             'ALTER TABLE %I.%I ADD COLUMN IF NOT EXISTS mg_group TEXT[] DEFAULT NULL',
             schema_id, table_id
@@ -612,13 +626,11 @@ BEGIN
     END IF;
 
     -- INSERT policy
-    IF NOT EXISTS (
-        SELECT 1
-        FROM pg_policies
-        WHERE schemaname = schema_id
-          AND tablename = table_id
-          AND policyname = 'insert_policy_' || safe_schema_id || '_' || safe_table_id
-    ) THEN
+    IF NOT EXISTS (SELECT 1
+                   FROM pg_policies
+                   WHERE schemaname = schema_id
+                     AND tablename = table_id
+                     AND policyname = 'insert_policy_' || safe_schema_id || '_' || safe_table_id) THEN
         EXECUTE format(
                 'CREATE POLICY insert_policy_%s_%s ON %I.%I FOR INSERT
                  WITH CHECK (
@@ -644,16 +656,14 @@ BEGIN
                    )
                  )',
             -- placeholders:
-                safe_schema_id, safe_table_id,       -- policy-naam
-                schema_id, table_id,                 -- doel %I.%I
-                schema_id, table_id, 'mg_group',     -- voor unnest
-                schema_id, table_id,                 -- %L %L literals schema/tabel
-                schema_id, table_id, 'mg_group'      -- nogmaals voor cardinality
+                safe_schema_id, safe_table_id, -- policy-naam
+                schema_id, table_id, -- doel %I.%I
+                schema_id, table_id, 'mg_group', -- voor unnest
+                schema_id, table_id, -- %L %L literals schema/tabel
+                schema_id, table_id, 'mg_group' -- nogmaals voor cardinality
                 );
         RAISE NOTICE 'Insert policy created on %.%', schema_id, table_id;
     END IF;
-
-
 
 
     -- UPDATE policy
