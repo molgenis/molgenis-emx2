@@ -110,8 +110,8 @@ sourceSets {
         }
     }
 }
-//
-tasks.jar.dependsOn processResources
-parent.tasks.processResources.dependsOn collectDist
+
+tasks.jar.dependsOn collectDist
+tasks.processResources.dependsOn collectDist
 
 apply plugin: 'com.github.node-gradle.node'
