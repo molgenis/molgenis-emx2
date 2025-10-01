@@ -259,7 +259,6 @@ const fetchSchemaMetaData = async (
     return schemaCache.get(currentschemaId) as Promise<ISchemaMetaData>;
   }
 
-  // Create new request and cache the Promise immediately
   const promise = axios
     .post(graphqlURL(schemaId), { query: metadataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
@@ -268,7 +267,7 @@ const fetchSchemaMetaData = async (
     })
     .catch((error: AxiosError) => {
       console.log(error);
-      schemaCache.delete(currentschemaId); // remove failed promises to allow retry
+      schemaCache.delete(currentschemaId);
       throw error;
     });
 
