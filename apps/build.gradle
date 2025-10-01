@@ -63,9 +63,7 @@ tasks.register("collectDist", Copy) {
 
     // Final output folder
     into("${buildDir}/generated/main/resources/public_html/apps")
-
-    inputs.files("*/dist/**")
-    outputs.dir("${buildDir}/generated/main/resources/public_html/apps")
+    outputs.upToDateWhen { false }
 }
 
 tasks.register('appsFormat', NpmTask) {
