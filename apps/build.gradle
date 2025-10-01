@@ -51,7 +51,7 @@ tasks.register('npm_build', NpmTask) {
 tasks.register("collectDist", Copy) {
     dependsOn npm_build
     // Look for all dist folders inside apps/*
-    file(projectDir).eachDir { dir ->
+    file(".").eachDir { dir ->
         def distDir = new File(dir, "dist")
         if (distDir.exists()) {
             from(distDir) {
@@ -62,23 +62,21 @@ tasks.register("collectDist", Copy) {
     }
 
     // Final output folder
-    into("${projectDir}/generated/main/resources/public_html/apps")
+    into("${buildDir}/generated/main/resources/public_html/apps")
 
-    inputs.files(fileTree(projectDir) {
-        include("*/dist/**")
-    })
-    outputs.dir("${projectDir}/generated/main/resources/public_html/apps")
+    inputs.files("*/dist/**")
+    outputs.dir("${buildDir}/generated/main/resources/public_html/apps")
 }
 
 tasks.register('appsFormat', NpmTask) {
     dependsOn npm_build
     args = ['run', 'format', '--workspaces']
     // Inputs = all frontend sources
-    inputs.files(fileTree(projectDir) {
+    inputs.files(fileTree(".") {
         include("**/*")
         exclude(excludePatterns)
     })
-    outputs.files(fileTree(projectDir) {
+    outputs.files(fileTree(".") {
         include("**/*")
         exclude(excludePatterns)
     })
@@ -88,11 +86,11 @@ tasks.register('lint', NpmTask) {
     dependsOn appsFormat
     args = ['run', 'lint', '--workspace=tailwind-components']
     // Inputs = all frontend sources
-    inputs.files(fileTree(projectDir) {
+    inputs.files(fileTree(".") {
         include("**/*")
         exclude(excludePatterns)
     })
-    outputs.files(fileTree(projectDir) {
+    outputs.files(fileTree(".") {
         include("**/*")
         exclude(excludePatterns)
     })
@@ -100,13 +98,13 @@ tasks.register('lint', NpmTask) {
 
 tasks.named("processResources") {
     dependsOn("collectDist")
-    inputs.dir("${projectDir}/generated/main/resources/public_html/apps")
+    inputs.dir("${buildDir}/generated/main/resources/public_html/apps")
 }
 
 sourceSets {
     main {
         resources {
-            srcDir "${projectDir}/generated/main/resources"
+            srcDir "${buildDir}/generated/main/resources"
         }
     }
 }
