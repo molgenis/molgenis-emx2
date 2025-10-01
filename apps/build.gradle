@@ -51,7 +51,7 @@ tasks.register('npm_build', NpmTask) {
 tasks.register("collectDist", Copy) {
     dependsOn npm_build
     // Look for all dist folders inside apps/*
-    file(".").eachDir { dir ->
+    file({buildDir}).eachDir { dir ->
         def distDir = new File(dir, "dist")
         if (distDir.exists()) {
             from(distDir) {
@@ -64,7 +64,7 @@ tasks.register("collectDist", Copy) {
     // Final output folder
     into("${buildDir}/generated/main/resources/public_html/apps")
 
-    inputs.files(fileTree(".") {
+    inputs.files(fileTree({buildDir}) {
         include("*/dist/**")
     })
     outputs.dir("${buildDir}/generated/main/resources/public_html/apps")
@@ -78,7 +78,7 @@ tasks.register('appsFormat', NpmTask) {
         include("**/*")
         exclude(excludePatterns)
     })
-    outputs.files(fileTree(".") {
+    outputs.files(fileTree(${buildDir}) {
         include("**/*")
         exclude(excludePatterns)
     })
@@ -88,11 +88,11 @@ tasks.register('lint', NpmTask) {
     dependsOn appsFormat
     args = ['run', 'lint', '--workspace=tailwind-components']
     // Inputs = all frontend sources
-    inputs.files(fileTree(".") {
+    inputs.files(fileTree({buildDir}) {
         include("**/*")
         exclude(excludePatterns)
     })
-    outputs.files(fileTree(".") {
+    outputs.files(fileTree({buildDir}) {
         include("**/*")
         exclude(excludePatterns)
     })
