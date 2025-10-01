@@ -48,25 +48,47 @@ tasks.register('npm_build', NpmTask) {
     })
 }
 
-tasks.register("collectDist", Copy) {
-   dependsOn npm_build
-
-    // doFirst scan inputs  at execution time
-    doFirst {
-        file(".").eachDir { dir ->
-            def distDir = new File(dir, "dist")
-            if (distDir.exists()) {
-                from(distDir) {
-                    // put it under the app name
-                    into(dir.name)
-                }
-            }
+// Util task to clean up all apps files created during build
+tasks.register("cleanApps", Delete) {
+    // clean up the resources directory
+    delete file("${project.layout.buildDirectory}")
+    // clean up all dist directories
+    file(".").eachDir { dir ->
+        def distDir = new File(dir, "dist")
+        if (distDir.exists()) {
+            delete distDir
         }
     }
+}
 
+// Custom task to collect all dist folders into the resources directory
+// Need because gradle cannot properly detect dynamic folders created by npm workspaces
+abstract class CollectDistTask extends DefaultTask {
+    @TaskAction
+    void collect() {
+        File targetDir = project.layout.buildDirectory
+                .dir("generated/resources/public_html/apps")
+                .get()
+                .asFile
 
-    // Final output folder
-    into("${buildDir}/generated/main/resources/public_html/apps")
+        project.copy { spec ->
+            project.file(".").eachDir { dir ->
+                def distDir = new File(dir, "dist")
+                if (distDir.exists()) {
+                    spec.from(distDir) {
+                        into(dir.name)
+                    }
+                }
+            }
+            spec.into(targetDir)
+        }
+
+        println "✅ Collected dist folders into $targetDir"
+    }
+}
+
+tasks.register("collectDist", CollectDistTask) {
+    dependsOn("npm_build")
 }
 
 tasks.register('appsFormat', NpmTask) {
@@ -97,20 +119,22 @@ tasks.register('lint', NpmTask) {
     })
 }
 
-tasks.named("processResources") {
-    dependsOn("collectDist")
-    inputs.dir("${buildDir}/generated/main/resources/public_html/apps")
-}
-
 sourceSets {
     main {
         resources {
-            srcDir "${buildDir}/generated/main/resources"
+            srcDir "${project.layout.buildDirectory}/generated/main/resources"
         }
     }
 }
 
-tasks.jar.dependsOn collectDist
-tasks.processResources.dependsOn collectDist
+// Link the app build to the java jar
+tasks.named("processResources") {
+
+    dependsOn("collectDist")
+
+    from(layout.buildDirectory.dir("generated/resources/public_html/apps")) {
+        into("public_html/apps")
+    }
+}
 
 apply plugin: 'com.github.node-gradle.node'
