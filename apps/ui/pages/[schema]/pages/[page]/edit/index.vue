@@ -2,15 +2,14 @@
 import { ref, onMounted, useTemplateRef, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
-import { useForm } from "#imports";
-import type { ColumnType } from "../../../../../../metadata-utils/src/types";
+import type { SideModal } from "#build/components";
 import {
   generateHtmlPreview,
+  newPageContentObject,
   type PageBuilderContent,
-  newPageContentObject
-
+  type CssDependency,
+  type JavaScriptDependency,
 } from "../../../../../util/pages";
-
 
 interface Setting {
   key: string;
@@ -24,8 +23,6 @@ const schema = Array.isArray(route.params.schema)
 const page = route.params.page as string;
 const cleanPageName = computed<string>(() => page?.replace(' ', '-').toLowerCase());
 
-useHead({ title: `Edit - ${page} - Pages - ${schema} - Molgenis` });
-
 const loading = ref<boolean>(true);
 const code = ref<PageBuilderContent>(newPageContentObject("advanced"));
 const error = ref<string>("");
@@ -33,6 +30,9 @@ const previewElem = useTemplateRef<HTMLDivElement>("preview");
 const isSaving = ref<boolean>(false);
 const saveError = ref<string>("");
 const saveSuccessStatus = ref<boolean | null>();
+const settingsModal = ref<InstanceType<typeof SideModal>>();
+
+useHead({ title: `Edit - ${page} - Pages - ${schema} - Molgenis` });
 
 async function getPageContent () {
   $fetch(`/${schema}/graphql`, {
@@ -85,23 +85,30 @@ async function saveSetting() {
   .finally(() => isSaving.value = false)
 }
 
-const model = ref({});
-const metadata = ref({
-  id: "page-dependencies",
-  label: 'External Dependencies',
-  tableType: "FORM",
-  columns: [
-    {
-      columnType: 'HYPERLINK_ARRAY' as ColumnType,
-      id: 'css',
-      label: 'CSS dependencies'
-    },
-  ]
-});
+function addCssDependency() {
+  code.value.dependencies.css.push({url: ""});
+}
 
-const test = ref();
+function addJsDependency () {
+  code.value.dependencies.javascript.push({url: "", defer: false});
+}
 
-const { errorMap, onUpdateColumn, onBlurColumn } = useForm(metadata, code.value.dependencies);
+function updateCssDependency(index: number, value: string) {
+  (code.value.dependencies.css[index] as CssDependency).url = value;
+}
+
+function updateJsDependency(dependency: JavaScriptDependency,index: number, key: string, value: string) {
+  const newDependency = Object.assign(dependency, { [key]: value});
+  (code.value.dependencies.css[index] as JavaScriptDependency) = newDependency;
+}
+
+function removeCssDependency (index: number) {
+  code.value.dependencies.css = code.value.dependencies.css.filter((_,rowNum) => (rowNum !== index));
+}
+
+function removeJsDependency(index: number) {
+  code.value.dependencies.javascript = code.value.dependencies.javascript.filter((_,rowNum) => rowNum !== index);
+}
 
 const crumbs: Record<string, string> = {};
 crumbs[schema as string] = `/${schema}`;
@@ -120,6 +127,9 @@ crumbs["Edit"] = "";
     <div
       class="sticky top-0 w-full flex justify-end items-center bg-content py-2 gap-5 px-7.5 z-10"
     >
+      <Button type="outline" size="small" @click="settingsModal?.showModal()">
+        Settings
+      </Button>
       <Button type="primary" size="small" @click="saveSetting">
         Save Changes
       </Button>
@@ -140,9 +150,9 @@ crumbs["Edit"] = "";
           type="error"
           :full-screen="false"
         >
-          <template>
-            <p><strong>Unable to save schema</strong></p>
-          </template>
+          <ContentBlockModal title="Failed to save page">
+            {{ saveError }}
+          </ContentBlockModal>
         </SideModal>
         <Message
           :valid="true"
@@ -168,25 +178,132 @@ crumbs["Edit"] = "";
               :model-value="code.javascript"
               @update:model-value="code.javascript = $event"
             />
-            <FormFields
-              id="dependencies"
-              v-model="model"
-              :columns="metadata.columns"
-              :error-map="errorMap"
-              @update="onUpdateColumn"
-              @blur="onBlurColumn"
-            />
-            {{ test }}
-            <EditorDependencyInput
-              :model-value="test"
-              @update:model-value="console.log(model)"
-            />
           </div>
-          <div class="bg-white p-4">
+          <div class="bg-white p-4 max-h-[100vh] overflow-y-scroll">
             <div ref="preview" />
           </div>
         </div>
       </template>
     </ContentBlock>
   </Container>
+  <SideModal
+    ref="settingsModal"
+    :slide-in-right="true"
+    :full-screen="false"
+    button-alignment="right"
+    :include-footer="true"
+  >
+    <ContentBlockModal title="Settings" class="text-title-contrast">
+      <form @submit.prevent>
+        <h3 class="text-heading-4xl text-title-contrast font-display mb-2.5">
+          Manage dependencies
+        </h3>
+        <p class="mb-2.5">Removing dependencies will require a page refresh.</p>
+        <fieldset class="my-5">
+          <legend class="text-title-contrast font-bold mb-2.5">
+            CSS Dependencies
+          </legend>
+          <div
+            v-if="code.dependencies.css"
+            v-for="(dependency, index) in code.dependencies.css"
+            class="flex justify-start items-center gap-5 mb-2.5"
+          >
+            <div class="w-full">
+              <label
+                class="sr-only"
+                :for="`form-editor-settings-dependency-css-${index}`"
+              >
+                Enter URL to dependency
+              </label>
+              <InputString
+                :id="`form-editor-settings-dependency-css-${index}`"
+                placeholder="https://path/to/css"
+                :model-value="dependency.url"
+                @update:model-value="updateCssDependency(index, ($event as string))"
+              />
+            </div>
+            <div>
+              <Button
+                type="inline"
+                :icon-only="true"
+                label="Delete"
+                icon="Trash"
+                size="small"
+                class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
+                @click="removeCssDependency(index)"
+              />
+            </div>
+          </div>
+          <Button
+            type="text"
+            icon="Plus"
+            @click="addCssDependency"
+            size="small"
+            class="my-2.5"
+          >
+            Add dependency
+          </Button>
+        </fieldset>
+        <fieldset class="my-5">
+          <legend class="text-title-contrast font-bold mb-2.5">
+            JavaScript dependencies
+          </legend>
+          <div
+            v-if="code.dependencies.javascript"
+            v-for="(dependency, index) in code.dependencies.javascript"
+            class="flex justify-between items-center gap-5 mb-2.5"
+          >
+            <div>
+              <label
+                class="sr-only"
+                :for="`form-editor-settings-dependency-js-${index}`"
+              >
+                Enter dependency URL
+              </label>
+              <InputString
+                :id="`form-editor-settings-dependency-js-${index}`"
+                placeholder="https://path/to/js"
+                :model-value="dependency.url"
+                @update:model-value="updateJsDependency(dependency, index, 'url', ($event as string))"
+              />
+            </div>
+            <div>
+              <label :for="`form-editor-settings-dependency-js-${index}-defer`">
+                Defer?
+              </label>
+              <InputBoolean
+                :id="`form-editor-settings-dependency-js-${index}-defer`"
+                class="[&_svg]:mt-0"
+                :model-value="dependency.defer"
+                true-label="Yes"
+                false-label="No"
+                :show-clear-button="false"
+                align="horizontal"
+              />
+            </div>
+            <div>
+              <Button
+                type="inline"
+                :icon-only="true"
+                icon="Trash"
+                label="Delete"
+                size="small"
+                class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
+                @click="removeJsDependency(index)"
+              />
+            </div>
+          </div>
+          <Button
+            type="text"
+            icon="Plus"
+            @click="addJsDependency"
+            size="small"
+            class="my-2.5"
+          >
+            Add dependency
+          </Button>
+        </fieldset>
+      </form>
+    </ContentBlockModal>
+  </SideModal>
 </template>
