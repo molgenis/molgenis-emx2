@@ -13,7 +13,7 @@ from requests import Response
 from . import graphql_queries as queries
 from . import utils
 from .constants import HEADING, DATE, DATETIME
-from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError,
+from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, SignoutError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
                          PermissionDeniedException, TokenSigninException, NonExistentTemplateException,
@@ -129,6 +129,8 @@ class Client:
 
     def signout(self):
         """Signs the client out of the EMX2 server."""
+        if self.signin_status != "success":
+            raise SignoutError("Could not sign out as user is not signed in.")
         response = self.session.post(
             url=self.api_graphql,
             json={'query': queries.signout()}
