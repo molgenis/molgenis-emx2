@@ -86,6 +86,7 @@ public class Table {
       firstHeading.setLabel("_top");
       firstHeading.setColumnType(ColumnType.SECTION);
       firstHeading.setSection(Constants.MG_TOP_OF_FORM);
+      firstHeading.setTable(this.name);
       this.columns.add(0, firstHeading);
     }
     this.tableType = tableMetadata.getTableType();

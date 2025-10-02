@@ -66,13 +66,13 @@ const isRequired = (value: string | boolean): boolean =>
         v-intersection-observer="[onIntersectionObserver, { root: container }]"
       >
         <h2
-          class="first:pt-0 pt-10 font-display text-form-header pb-8 scroll-mt-4"
+          class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
           :class="
             column.columnType === 'HEADING'
               ? 'md:text-heading-4xl text-heading-4xl'
               : 'md:text-heading-5xl text-heading-5xl'
           "
-          v-if="column.id != '_mg_top_of_form'"
+          v-if="column.id != 'mg_top_of_form'"
         >
           {{ column.label }}
         </h2>
