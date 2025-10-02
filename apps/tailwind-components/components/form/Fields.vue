@@ -86,6 +86,7 @@ const isRequired = (value: string | boolean): boolean =>
         :type="column.columnType"
         :label="column.label"
         :description="column.description"
+        :disabled="column.readonly || (rowKey && column.key === 1)"
         :rowKey="rowKey"
         :required="isRequired(column.required ?? false)"
         :error-message="errorMap[column.id]"
