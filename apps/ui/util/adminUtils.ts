@@ -1,6 +1,7 @@
 import type { ISetting } from "../../metadata-utils/dist";
 const GRAPHQL = "/graphql";
 const API_GRAPHQL = "/api/graphql";
+import { $fetch } from "ofetch";
 
 export async function deleteUser(user: IUser) {
   $fetch(API_GRAPHQL, {

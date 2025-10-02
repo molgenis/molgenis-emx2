@@ -1,6 +1,7 @@
 import { useRoute, useRuntimeConfig } from "#app";
 import { logError } from "#imports";
 import type { UIResource } from "~/interfaces/types";
+import { $fetch } from "ofetch";
 
 interface Resp<T> {
   data: T;

@@ -102,10 +102,13 @@ tasks.register("collectDist", CollectDistTask) {
     dependsOn("npm_build")
 }
 
-tasks.register('appsFormat', NpmTask) {
-    dependsOn npm_build
-    args = ['run', 'format', '--workspaces']
-    // Inputs = all frontend sources
+tasks.register('format', NpmTask) {
+    dependsOn npm_install
+    if (!isCI) {
+        args = ['run', 'format', '--workspaces']
+    } else {
+        args = ['run', 'checkFormat', '--workspaces']
+    }
     inputs.files(fileTree(".") {
         include("**/*")
         exclude(excludePatterns)
@@ -117,8 +120,8 @@ tasks.register('appsFormat', NpmTask) {
 }
 
 tasks.register('lint', NpmTask) {
-    dependsOn appsFormat
-    args = ['run', 'lint', '--workspace=tailwind-components']
+    dependsOn npm_build
+    args = ['run', 'lint', '--workspace=tailwind-components', '--workspace=catalogue', '--workspace=ui']
     // Inputs = all frontend sources
     inputs.files(fileTree(".") {
         include("**/*")

@@ -2,6 +2,7 @@ import { useRuntimeConfig } from "#app";
 import { moduleToString } from "#imports";
 import type { DocumentNode } from "graphql";
 import type { GqlResp } from "~/interfaces/types";
+import { $fetch } from "ofetch";
 
 export function fetchGql<T>(
   query: string | DocumentNode,
