@@ -283,17 +283,18 @@ jobs:
       - run: npm i -D @playwright/test
       - run:
           name: Install dependencies
-          command: npm install
-          working_directory: apps
+          command: |
+            npm install @playwright/test         
+            npx playwright install chrome
+            npx playwright install
       - run:
           name: Test tailwind components
           command: |
-            npm run playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            npm run e2e
-          working_directory: apps/tailwind-components
+            npm run e2e --workspace=tailwind-components
+          working_directory: apps
       - run:
           name: Wait for catalogue e2e test data to be loaded, poll every 10 seconds
           command: |
@@ -313,12 +314,11 @@ jobs:
       - run:
           name: Test nuxt ssr catalogue tests
           command: |
-            npm run playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-catalogue-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            npm run e2e
-          working_directory: apps/catalogue
+            npm run e2e --workspace=catalogue
+          working_directory: apps
       - run:
           name: Wait for directory e2e test data to be loaded, poll every 10 seconds
           command: |
@@ -338,25 +338,22 @@ jobs:
       - run:
           name: Directory e2e tests
           command: |
-            npm run e2e playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            npm run e2e e2e
-          working_directory: apps/directory
+            npm run e2e --workspace=directory
+          working_directory: apps/
       - run:
           name: UI tests
           command: |
-            npm run e2e playwright install chrome
             echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
             export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
             echo $E2E_BASE_URL
-            npm run e2e e2e
-          working_directory: apps/ui
+            npm run e2e --workspace=ui
+          working_directory: apps
       - run:
             name: Run non ssr e2e tests
             command: |
-              npx playwright install chrome
               echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
               export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
               echo $E2E_BASE_URL
