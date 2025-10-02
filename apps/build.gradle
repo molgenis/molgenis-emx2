@@ -122,7 +122,6 @@ tasks.register('format', NpmTask) {
 tasks.register('lint', NpmTask) {
     dependsOn npm_build
     args = ['run', 'lint', '--workspace=tailwind-components', '--workspace=catalogue', '--workspace=ui']
-    // Inputs = all frontend sources
     inputs.files(fileTree(".") {
         include("**/*")
         exclude(excludePatterns)
@@ -132,6 +131,18 @@ tasks.register('lint', NpmTask) {
         exclude(excludePatterns)
     })
 }
+
+task testJavaScript(type: NpmTask) {
+    dependsOn npm_build
+
+    args = ['run', 'test-ci', '--workspaces', '--if-present']
+    inputs.files(fileTree(".") {
+        include("**/*")
+        exclude(excludePatterns)
+    })
+
+}
+test.dependsOn testJavaScript
 
 sourceSets {
     main {
