@@ -4,7 +4,7 @@
       <div class="grid grid-cols-4 gap-4">
         <div
           v-for="icon in icons"
-          class="flex flex-col justify-center items-center"
+          class="flex flex-col justify-center items-center text-title"
         >
           <label class="">{{ icon }}</label>
           <div class="p-4">
@@ -50,7 +50,8 @@ const modules: Record<string, any> = import.meta.glob(
 );
 
 const icons = Object.keys(modules).map((key: string) => {
-  return key.split("/").reverse()[0].replace(".vue", "");
+  const fileName = key.split("/").reverse()[0] ?? "";
+  return fileName.replace(".vue", "");
 });
 
 const selectedAnimationClass = ref<string | null>(null);

@@ -9,7 +9,7 @@ For that make sure each Excel sheet or .tsv/.csv file is named in your molgenis 
 ## Example of a 'molgenis' schema
 
 | tableName | columName | type | key | required | description               |
-| --------- | --------- | ---- | --- | -------- | ------------------------- |
+|-----------|-----------|------|-----|----------|---------------------------|
 | Person    |           |      |     |          | my person table           |
 | Person    | id        | int  | 1   |          | id is part of primary key |
 | Person    | firstName |      | 2   |          |                           |
@@ -49,7 +49,7 @@ For example, `first name` would be defined as `firstName` when creating a valida
 Will be the type of column. Ignored if columnName is empty. See section on columnTypes below. Default value: string. MOLGENIS supports the following types (type
 names are case insensitive):
 
-Basic type:
+#### Basic types
 
 - string : default when no type is provided
 - bool
@@ -64,22 +64,35 @@ Basic type:
 - file
 - text : string that displays as text area
 
-Special types:
+#### Special types
 
 - auto_id: will be set to an automatically assigned value. Use in combination with key=1 for autommatic primary key. Use in combination with 'computed' to add
   pre/postfix to your auto_id.
 - email: string that displays as email link
 - hyperlink: string that displays as url link
 
-Relationships:
+#### Relationships
 
-- ref : foreign key (aka many to one)
-  - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
-- ref_array : multiple foreign key (aka many to many).
-  - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
-- refback : to describe link back to ref/ref_array (aka one_to_many/many_to_many)
+- radio: foreign key (many-to-one)
+    - values are shown as a radio group
+- checkbox: multiple foreign key (many-to-many)
+    - values are shown as a checkbox group
+- select: foreign key (many-to-one)
+    - values are shown in a dropdown menu as a radio group
+- multiselect: multiple foreign key (many-to-many)
+    - values are shown in a dropdown menu as a checkbox group
+- refback: to describe link back to ref/ref_array (aka one_to_many/many_to_many)
+    - values shown as an expandable card which displays the complete record when expanded. The foreign record can be edited or deleted if a user has permission to do so.
+- ref (deprecated) : foreign key (aka many-to-one)
+    - ontology: is a ref that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
+- ref_array (deprecated): multiple foreign key (aka many-to-many).
+    - ontology_array: is ref_array that is rendered as ontology tree (if refTable has 'parent'). In case of ontology, the refTable is automatically generated.
 
-Arrays (i.e. list of values)
+In the forms, checkbox and radio types will display a limited number of foreign keys. Additional values can be shown by clicking the _show more_ button. A search field will be shown for larger reference datasets. For select and multiselect types, a limited number of foreign keys will be displayed by default (e.g., the first ten values) when the dropdown menu is expanded, and additional values will be shown upon scroll. Users can further customise the display of the dropdown menu by searching for values and sorting by columns in the foreign table, as well as filtering for selected values or removing all selected foreign keys.
+
+NOTE: when using any of the above relationship types, the "refTable" must also be provided.
+
+#### Arrays (i.e. list of values)
 
 - string_array
 - bool_array
@@ -95,7 +108,7 @@ Arrays (i.e. list of values)
 - email_array
 - hyperlink_array
 
-Layout (static content, not an input):
+#### Layout (static content, not an input)
 
 - heading: will show the 'name' of your column as header, and optionally description below. Can be used to partition your forms/reports.
 
@@ -164,33 +177,29 @@ Text value that describes the column, or when columnName is empty, the table.
 
 ## Cross-references
 
-You can define cross-references from one table to another using columnType=ref (single reference) or columnType=ref_array (multiple references). In postgresql
-these translate to foreign keys, and array of foreign key with triggers protecting foreign key constraints respectively. You need to define refTable.
+You can define cross-references from one table to another by using the types listed in the [relationship types](#relationships) section. In postgresql, these cross-references translate, and array of foreign key with triggers protecting foreign key constraints respectively. When using cross-references, the name of the reference table (_refTable_) is required.
 
 ### refTable
 
-This metadata is used to define relationships between tables. When columnType is 'ref' or 'ref_array' then you must provide refTable. In simple cases, this is
-all you need. The value of refTable should a defined tableName. N.B. if your columnType is not of a 'ref' than having refTable will produce an error. Default value: empty
+This metadata is used to define relationships between tables. When columnType is radio/checkbox/select/multiselect, then you must provide refTable. In simple cases, this is all you need. The value of refTable is the name of the table (a _tableName_). You can also reference a table in another schema. To do so, provide the name of the schema in _refSchema_. N.B. if your columnType is not one of these types, then having refTable will produce an error. Default value: empty
 
 A simple reference:
 
-| tableName | columName | type | key | refTable | required | description               |
-| --------- | --------- | ---- | --- | -------- | -------- | ------------------------- |
-| Person    |           |      |     |          |          | my person table           |
-| Person    | id        | int  | 1   |          |          | id is part of primary key |
-| Person    | firstName |      | 2   |          | TRUE     |                           |
-| Person    | lastName  |      | 2   |          | TRUE     |                           |
-| Pet       | name      |      | 1   |          |          |                           |
-| Pet       | species   |      |     |          | TRUE     |                           |
-| Pet       | owner     | ref  |     | Person   | TRUE     | foreign key to Person     |
+| tableName | columName | type  | key | refTable | required | description               |
+|-----------|-----------|-------|-----|----------|----------|---------------------------|
+| Person    |           |       |     |          |          | my person table           |
+| Person    | id        | int   | 1   |          |          | id is part of primary key |
+| Person    | firstName |       | 2   |          | TRUE     |                           |
+| Person    | lastName  |       | 2   |          | TRUE     |                           |
+| Pet       | name      |       | 1   |          |          |                           |
+| Pet       | species   |       |     |          | TRUE     |                           |
+| Pet       | owner     | radio |     | Person   | TRUE     | foreign key to Person     |
 
 Note: when key=1 then automatically required=TRUE
 
 ### refBack
 
-If you want to create a two-directional relationship, you can use columnType=refback + refBack=aColumnName. The refBack should then refer to a column in
-refTable that is of columnType=ref or columnType=ref_array and refers to this table. A refback column behaves as a ref_array, but is in fact either many_to_many
-or many_to_one, depending on whether the refback is ref or ref_array. Refback columns are read-only (i.e. you cannot insert/update data in these columns). See
+If you want to create a two-directional relationship, you can use columnType=refback + refBack=aColumnName. The refBack should then refer to a column in refTable that is of columnType=ref or columnType=ref_array and refers to this table. A refback column behaves as a ref_array, but is in fact either many_to_many or many_to_one, depending on whether the refback is ref or ref_array. Refback columns are read-only (i.e. you cannot insert/update data in these columns). See
 the example below.
 
 ### refLink
@@ -202,6 +211,7 @@ one can use `refLink` to simplify the data processing. This way, complex duplica
 is unneeded and only the additional primary keys still need to be mentioned for the in-between tables.
 
 For example, imagine the following schema with 3 tables:
+
 ```mermaid
 ---
 config:
@@ -228,11 +238,8 @@ flowchart LR
   
   classDef default text-align:left;
 ```
-Here, we have table 1 that has a composite key that refers to both table 2 and table 3.
-As table 2 also has a composite key with a reference to table 3, table 1 indirectly refers to table 3 twice.
-Therefore, `p2` in table1 can set a `refLink(p1)` to indicate parts of table 2 are identical to `p1` from table 1.
-This way, only `id2` from table 2 needs to be specified during data processing.
-Note that table 2 requires a non-ref column for this to function properly.
+
+Here, we have table 1 that has a composite key that refers to both table 2 and table 3. As table 2 also has a composite key with a reference to table 3, table 1 indirectly refers to table 3 twice. Therefore, `p2` in table1 can set a `refLink(p1)` to indicate parts of table 2 are identical to `p1` from table 1. This way, only `id2` from table 2 needs to be specified during data processing. Note that table 2 requires a non-ref column for this to function properly.
 
 For a data export, table 2 and table 3 stay identical no matter if a `refLink` is used. However, table 1 will be simplified by using a `refLink`, as explained in the table below:
 
@@ -241,7 +248,6 @@ For a data export, table 2 and table 3 stay identical no matter if a `refLink` i
 | p1     | p1              | p1           | stays identical                                                              |
 | p2     | p2.id1          |              | refLink makes this unnecessary                                                |
 | p2     | p2.id2          | p2           | column name can be simplified as only 1 remaining column needs to be defined |
-
 
 ?> Want to try out the example above? Download it [here](https://github.com/molgenis/molgenis-emx2/raw/master/docs/resources/reflink_example1739203151994.zip) and upload it to a database without a schema.
 
@@ -263,7 +269,7 @@ A more advanced example
 | ------- | ------ | ----- | ------------------------------------- | ----------- |
 | term1   |        |       |                                       |             |
 | term1.a | term1  |       |                                       |             |
-| term1.b | term1  | b     | this will show 'b' instead of term1.b |
+| term1.b | term1  | b     | this will show 'b' instead of term1.b |             |
 
 Explanation:
 
@@ -282,7 +288,7 @@ Expressions can use a helper function `simplePostClient(query: string, variables
 
 Example usage of `simplePostClient` as a default value expression.
 
-```
+```js
 =(function () {
 
   let result = simplePostClient(
@@ -302,8 +308,7 @@ Example usage of `simplePostClient` as a default value expression.
 
 ### computed
 
-Enables you to compute a value. Computed values are computed before a record is inserted/updated. The computedColumn must contain valid javascript returning the
-value. All columns of the table are available as variable. Computed values are read-only in the user interface.
+Enables you to compute a value. Computed values are computed before a record is inserted/updated. The computedColumn must contain valid javascript returning the value. All columns of the table are available as variable. Computed values are read-only in the user interface.
 
 For example:
 
@@ -416,14 +421,12 @@ Will respectively
 - rename oldName to newName
 - rename columnA to columnB (even if it was in table oldTable)
 - drop columnC
-  - drop TableC
+- drop TableC
 
 ## Changelog
 
 You can track user-made data changes by enabling the changelog. When it’s turned on, the system logs all user edits in a dedicated changelog table. The changelog applies to the entire schema and can only be enabled or disabled at the schema level.
 
-Admins and Managers can view the changelog by visiting:
-[server]/[schema]/settings/#/changelog
-(Open the Settings app and click the Changelog tab.)
+Admins and Managers can view the changelog by visiting: [server]/[schema]/settings/#/changelog (Open the Settings app and click the Changelog tab.)
 
 To enable the changelog after creating a schema, add a setting with the key ```isChangelogEnabled``` and set it to ```true```. To disable it, change the value to ```false``` or remove the setting.

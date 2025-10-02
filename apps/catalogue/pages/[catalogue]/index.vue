@@ -3,6 +3,7 @@ import { useRoute, useRuntimeConfig, useHead, useFetch } from "#app";
 import { logError } from "#imports";
 import { computed } from "vue";
 import type { ISetting } from "../../../metadata-utils/src/types";
+import { createError } from "h3";
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -68,6 +69,7 @@ const query = `query CataloguePage($networksFilter:ResourcesFilter,$variablesFil
           "CATALOGUE_LANDING_DESIGN_TEXT"
           "CATALOGUE_LANDING_SUBPOPULATIONS_LABEL"
           "CATALOGUE_LANDING_SUBPOPULATIONS_TEXT"
+          "CATALOGUE_ALL_ADDITIONAL_HTML"
         ]){
           key
           value
@@ -188,6 +190,12 @@ const settings = computed(() => {
 });
 
 const network = computed(() => {
+  if (!data.value.data?.Resources) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Catalogue "' + catalogueRouteParam + '" Not Found.',
+    });
+  }
   return data.value.data?.Resources[0];
 });
 
@@ -290,10 +298,16 @@ const aboutLink = `/${catalogueRouteParam}/networks/${catalogueRouteParam}`;
         image="image-data-warehouse"
         title="Aggregates"
         callToAction="Aggregates"
-        :link="`/Aggregates/aggregates/#/`"
+        link="/Aggregates/aggregates/#/"
+        :isExternalLink="true"
         :openLinkInNewTab="true"
       />
     </LandingPrimary>
+
+    <div
+      v-if="getSettingValue('CATALOGUE_ALL_ADDITIONAL_HTML', settings)"
+      v-html="getSettingValue('CATALOGUE_ALL_ADDITIONAL_HTML', settings)"
+    />
 
     <LandingSecondary>
       <LandingCardSecondary

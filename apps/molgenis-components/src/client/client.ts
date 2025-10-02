@@ -7,15 +7,15 @@ import type {
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import type { IRow } from "../Interfaces/IRow";
-import { deepClone } from "../components/utils";
-import type { aggFunction } from "./IClient";
+import { deepClone, getKeyValue } from "../components/utils";
+import type { AggFunction } from "./IClient";
 import type { IClient, INewClient } from "./IClient";
-import type { IQueryMetaData } from "./IQueryMetaData";
+import type { IQueryMetaData } from "../../../tailwind-components/types/IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
 import { toFormData } from "../../../tailwind-components/utils/toFormData";
 
 // application wide cache for schema meta data
-const schemaCache = new Map<string, ISchemaMetaData>();
+const schemaCache = new Map<string, Promise<ISchemaMetaData>>();
 
 export { request, fetchSchemaMetaData, convertRowToPrimaryKey };
 const client: IClient = {
@@ -94,7 +94,7 @@ const client: IClient = {
         selectedColumn: { id: string; column: string }, //should these be id?
         selectedRow: { id: string; column: string }, //should these be id?
         filter: Object,
-        aggFunction?: aggFunction,
+        aggFunction?: AggFunction,
         aggField?: string
       ) => {
         const aggregateQuery = `
@@ -159,10 +159,27 @@ const client: IClient = {
       fetchOntologyOptions: async (tableName: string) => {
         return fetchOntologyOptions(tableName, schemaId);
       },
+      getPrimaryKeyFields,
     };
   },
 };
 export default client;
+
+async function getPrimaryKeyFields(
+  schemaId: string,
+  tableId: string
+): Promise<string[]> {
+  return fetchSchemaMetaData(schemaId).then((schema) => {
+    const table = schema.tables.find((table) => table.id === tableId);
+    if (!table) {
+      throw new Error(`Table ${tableId} not found in schema ${schemaId}`);
+    }
+    const keyFields = table.columns
+      .filter((column) => column.key === 1)
+      .map((column) => column.id);
+    return keyFields;
+  });
+}
 
 const metadataQuery = `{
   _schema {
@@ -239,22 +256,23 @@ const fetchSchemaMetaData = async (
 ): Promise<ISchemaMetaData> => {
   const currentschemaId = schemaId ? schemaId : "CACHE_OF_CURRENT_SCHEMA";
   if (schemaCache.has(currentschemaId)) {
-    return schemaCache.get(currentschemaId) as ISchemaMetaData;
+    return schemaCache.get(currentschemaId) as Promise<ISchemaMetaData>;
   }
-  return await axios
+
+  const promise = axios
     .post(graphqlURL(schemaId), { query: metadataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
-      if (schemaId == null) {
-        schemaCache.set(currentschemaId, schema);
-      }
-      schemaCache.set(schema.id, schema);
       return deepClone(schema);
     })
     .catch((error: AxiosError) => {
       console.log(error);
+      schemaCache.delete(currentschemaId);
       throw error;
     });
+
+  schemaCache.set(currentschemaId, promise);
+  return promise;
 };
 
 const fetchTableData = async (
@@ -380,23 +398,5 @@ async function convertRowToPrimaryKey(
       },
       Promise.resolve({})
     );
-  }
-
-  async function getKeyValue(
-    cellValue: any,
-    column: IColumn,
-    schemaId: string
-  ) {
-    if (typeof cellValue === "string") {
-      return cellValue;
-    } else {
-      if (column.refTableId) {
-        return await convertRowToPrimaryKey(
-          cellValue,
-          column.refTableId,
-          schemaId
-        );
-      }
-    }
   }
 }

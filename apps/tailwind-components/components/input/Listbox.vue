@@ -10,7 +10,7 @@
       :selected-element-id="selectedElementId"
       @keydown="onListboxButtonKeyDown"
     >
-      <span class="w-full">
+      <span class="w-full whitespace-nowrap">
         {{ displayText }}
       </span>
     </InputListboxToggle>
@@ -57,10 +57,14 @@
           @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
         />
         <li
-          v-if="listboxOptions.length === 1 && listboxOptions[0].value === null"
-          class="flex justify-center items-center h-[56px] pl-3 py-1 bg-input border-b-[1px] last:border-b-0 text-input italic"
+          v-if="
+            listboxOptions.length === 1 &&
+            listboxOptions[0] &&
+            listboxOptions[0].value === null
+          "
+          class="flex justify-center items-center h-[56px] pl-3 py-1 bg-input border-b-[1px] last:border-b-0"
         >
-          No options found
+          <TextNoResultsMessage />
         </li>
       </ul>
     </div>
@@ -78,7 +82,11 @@ import type {
   IListboxLiRef,
 } from "../../types/listbox";
 
-import { InputSearch, InputListboxToggle } from "#components";
+import {
+  InputSearch,
+  InputListboxToggle,
+  TextNoResultsMessage,
+} from "#components";
 import { type IInputProps } from "../../types/types";
 
 const props = withDefaults(
@@ -113,7 +121,7 @@ const searchElemRef = ref<InstanceType<typeof InputSearch>>();
 const displayText = ref<string>(props.placeholder);
 const startingCounter = ref<number>(0);
 const selectedElementId = ref<string>("");
-const searchTerm = defineModel<string>("");
+const searchTerm = defineModel<string>("search");
 
 const isExpanded = computed<boolean>(() => {
   return btnElemRef.value?.expanded as boolean;
@@ -129,7 +137,7 @@ onMounted(() => {
         );
       }
     );
-    if (initalValue) {
+    if (initalValue && initalValue[0]) {
       updateModelValue(initalValue[0], false);
     }
   }
@@ -150,10 +158,10 @@ function counterIsInRange(value: number) {
 }
 
 const listboxOptions = computed<IInternalListboxOption[]>(() => {
-  const testDataValue: IInputValue | IInputValueLabel = props.options[0];
+  const testDataValue = props.options[0] ?? {};
   if (
     typeof testDataValue === "object" &&
-    Object.hasOwn(testDataValue as IInputValueLabel, "value")
+    Object.hasOwn(testDataValue, "value")
   ) {
     sourceDataType.value = "ListboxOptions";
     sourceData.value = props.options as IInputValueLabel[];
@@ -200,9 +208,12 @@ function updateCounter(value: number) {
 function focusListOption() {
   nextTick(() => {
     if (liElemRefs.value) {
-      const targetElem = liElemRefs.value[focusCounter.value].li;
-      targetElem.setAttribute("tabindex", "0");
-      targetElem.focus();
+      const refItem = liElemRefs.value[focusCounter.value];
+      if (refItem && refItem.li) {
+        const targetElem = refItem.li;
+        targetElem.setAttribute("tabindex", "0");
+        targetElem.focus();
+      }
     }
   });
 }
@@ -210,9 +221,12 @@ function focusListOption() {
 function blurListOption(option: IInternalListboxOption) {
   nextTick(() => {
     if (liElemRefs.value) {
-      const targetElem = liElemRefs.value[option.index].li;
-      targetElem.setAttribute("tabindex", "-1");
-      targetElem.blur();
+      const refItem = liElemRefs.value[option.index];
+      if (refItem && refItem.li) {
+        const targetElem = refItem.li;
+        targetElem.setAttribute("tabindex", "-1");
+        targetElem.blur();
+      }
     }
   });
 }

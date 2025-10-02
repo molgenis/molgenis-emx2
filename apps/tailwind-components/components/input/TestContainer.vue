@@ -6,8 +6,10 @@
         :invalid="invalid"
         :valid="valid"
         :disabled="disabled"
+        :label="label"
         :placeholder="placeholder"
         :required="required"
+        :multiple="multiple"
         :errorMessage="errorMessage"
         :onFocus="handleFocus"
         :onBlur="handleBlur"
@@ -15,6 +17,14 @@
     </div>
     <div class="w-1/3 p-4 sticky top-0">
       <FieldSet label="input prop settings">
+        <FormField
+          v-if="showLabel"
+          type="STRING"
+          id="test-label"
+          v-model="label"
+          label="Label"
+          description="Change the label of the component"
+        />
         <FormField
           v-if="showPlaceholder"
           type="STRING"
@@ -53,6 +63,20 @@
           falseLabel="Required is false"
           id="test-container-required"
           description="set to true to show required tags"
+          align="vertical"
+          @required="emits('required', required)"
+        />
+        <FormField
+          v-if="showMultiple"
+          type="BOOL"
+          label="multiple"
+          v-model="multiple"
+          trueLabel="Multiple"
+          falseLabel="Singular"
+          id="test-container-multiple"
+          align="vertical"
+          description="set to true to enable multiple selection"
+          @change="emits('multiple', multiple)"
         />
         <slot name="settings"></slot>
         <p v-if="showBlurCount">focusCount = {{ focusCount }}</p>
@@ -67,18 +91,28 @@ import { ref, computed } from "vue";
 
 defineProps<{
   showState?: boolean;
+  showLabel?: boolean;
   showPlaceholder?: boolean;
   showRequired?: boolean;
   showErrorMessage?: boolean;
   showFocusCount?: boolean;
   showBlurCount?: boolean;
+  showMultiple?: boolean;
 }>();
+
+const emits = defineEmits<{
+  (e: "required", value: boolean): void;
+  (e: "multiple", value: boolean): void;
+}>();
+
+const label = ref<string>("");
 const placeholder = ref("");
 const state = ref([] as string[]);
 const errorMessage = ref("");
 const required = ref(false);
 const focusCount = ref(0);
 const blurCount = ref(0);
+const multiple = ref(false);
 const valid = computed(() => state.value.includes("valid"));
 const invalid = computed(() => state.value.includes("invalid"));
 const disabled = computed(() => state.value.includes("disabled"));

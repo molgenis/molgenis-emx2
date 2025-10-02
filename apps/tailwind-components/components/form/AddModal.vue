@@ -1,14 +1,16 @@
 <template>
-  <slot :setVisible="setVisible">
-    <Button
-      class="m-10"
-      type="primary"
-      size="small"
-      icon="plus"
-      @click="visible = true"
-      >Add {{ rowType }}</Button
-    >
-  </slot>
+  <template v-if="showButton">
+    <slot :setVisible="setVisible">
+      <Button
+        class="m-10"
+        type="primary"
+        size="small"
+        icon="plus"
+        @click="visible = true"
+        >Add {{ rowType }}</Button
+      >
+    </slot>
+  </template>
   <Modal v-model:visible="visible" max-width="max-w-9/10">
     <template #header>
       <header class="pt-[36px] px-8 overflow-y-auto border-b border-divider">
@@ -42,7 +44,7 @@
           v-if="visible && sections"
           class="sticky top-0"
           :sections="sections"
-          @goToSection="scrollToElementInside('fields-container', $event)"
+          @goToSection="gotoSection"
         />
       </div>
 
@@ -52,12 +54,15 @@
       >
         <FormFields
           v-if="visible"
-          :schemaId="schemaId"
-          :metadata="metadata"
-          :sections="sections"
-          v-model:errors="errorMap"
+          ref="formFields"
+          :row-key="rowKey"
+          :columns="visibleColumns"
+          :constantValues="constantValues"
+          :errorMap="errorMap"
           v-model="formValues"
-          @update:active-chapter-id="activeChapterId = $event"
+          @update="onUpdateColumn"
+          @blur="onBlurColumn"
+          @view="onViewColumn"
         />
       </div>
     </section>
@@ -65,7 +70,7 @@
       <FormError
         v-show="errorMessage"
         :message="errorMessage"
-        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
         @error-prev="gotoPreviousError"
         @error-next="gotoNextError"
       />
@@ -74,7 +79,23 @@
       <FormError
         v-show="saveErrorMessage"
         :message="saveErrorMessage"
-        class="sticky mx-4 h-[62px] bottom-0 ransition-all transition-discrete"
+        :show-prev-next-buttons="!showReAuthenticateButton"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
+      >
+        <Button
+          v-if="showReAuthenticateButton"
+          type="outline"
+          size="small"
+          @click="reAuthenticate"
+          >Re-authenticate</Button
+        >
+      </FormError>
+    </Transition>
+    <Transition name="slide-up">
+      <FormMessage
+        v-show="formMessage"
+        :message="formMessage"
+        class="sticky mx-4 h-[62px] bottom-0 transition-all transition-discrete"
       />
     </Transition>
 
@@ -100,24 +121,37 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import type { ITableMetaData } from "../../../metadata-utils/src";
-import type { columnId, columnValue } from "../../../metadata-utils/src/types";
-import useSections from "../../composables/useSections";
+import type { columnValue, IRow } from "../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
 import { errorToMessage } from "../../utils/errorToMessage";
+import FormFields from "./Fields.vue";
+import { SessionExpiredError } from "../../utils/sessionExpiredError";
+import { useSession } from "../../composables/useSession";
 
 const props = withDefaults(
   defineProps<{
     metadata: ITableMetaData;
     schemaId: string;
+    constantValues?: IRow;
+    showButton?: boolean;
   }>(),
-  {}
+  {
+    showButton: true,
+  }
 );
 
-const emit = defineEmits(["update:added"]);
+const emit = defineEmits(["update:added", "update:cancelled"]);
+const formFields = ref<InstanceType<typeof FormFields>>();
 
-const visible = ref(false);
+const visible = defineModel("visible", {
+  type: Boolean,
+  default: false,
+});
 
+const session = await useSession();
 const saveErrorMessage = ref<string>("");
+const formMessage = ref<string>("");
+const showReAuthenticateButton = ref<boolean>(false);
 
 function setVisible() {
   visible.value = true;
@@ -128,14 +162,20 @@ const isDraft = ref(false);
 
 function onCancel() {
   visible.value = false;
+  emit("update:cancelled");
 }
 
 async function onSaveDraft() {
   const resp = await insertInto(props.schemaId, props.metadata.id).catch(
     (err) => {
       console.error("Error saving data", err);
-      saveErrorMessage.value = errorToMessage(err, "Error saving draft");
-      return null;
+      if (err instanceof SessionExpiredError) {
+        saveErrorMessage.value =
+          "Your session has expired. Please re-authenticate to continue.";
+        showReAuthenticateButton.value = true;
+      } else {
+        saveErrorMessage.value = errorToMessage(err, "Error saving draft");
+      }
     }
   );
 
@@ -148,10 +188,20 @@ async function onSaveDraft() {
 }
 
 async function onSave() {
+  validateAllColumns();
+  if (Object.keys(errorMap.value).length > 0) {
+    return;
+  }
   const resp = await insertInto(props.schemaId, props.metadata.id).catch(
     (err) => {
-      console.error("Error saving data", err);
-      saveErrorMessage.value = errorToMessage(err, "Error saving data");
+      console.log("Error saving data", err);
+      if (err instanceof SessionExpiredError) {
+        saveErrorMessage.value =
+          "Your session has expired. Please re-authenticate to continue.";
+        showReAuthenticateButton.value = true;
+      } else {
+        saveErrorMessage.value = errorToMessage(err, "Error saving data");
+      }
 
       return null;
     }
@@ -167,10 +217,6 @@ async function onSave() {
 }
 
 const formValues = ref<Record<string, columnValue>>({});
-const errorMap = ref<Record<columnId, string>>({});
-
-const activeChapterId = ref<string>("_scroll_to_top");
-const sections = useSections(props.metadata, activeChapterId, errorMap);
 
 function scrollToElementInside(containerId: string, elementId: string) {
   const container = document.getElementById(containerId);
@@ -186,6 +232,8 @@ function resetState() {
   errorMap.value = {};
   saveErrorMessage.value = "";
   isDraft.value = false;
+  showReAuthenticateButton.value = false;
+  formMessage.value = "";
 }
 
 watch(visible, (newValue, oldValue) => {
@@ -201,8 +249,25 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
+  gotoSection,
   insertInto,
-} = useForm(props.metadata, formValues, errorMap, (fieldId) => {
+  errorMap,
+  onUpdateColumn,
+  onBlurColumn,
+  onViewColumn,
+  validateAllColumns,
+  rowKey,
+  sections,
+  visibleColumns,
+} = useForm(props.metadata, formValues, (fieldId) => {
   scrollToElementInside("fields-container", fieldId);
 });
+
+function reAuthenticate() {
+  session.reAuthenticate(
+    saveErrorMessage,
+    showReAuthenticateButton,
+    formMessage
+  );
+}
 </script>

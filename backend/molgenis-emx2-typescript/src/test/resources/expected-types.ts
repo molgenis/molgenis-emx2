@@ -30,7 +30,7 @@ export interface ICategory_agg {
 
 export interface IOrder {
     orderId: string;
-    pet?: IPet;
+    pet?: any;
     quantity?: string;
     price?: number;
     complete?: boolean;
@@ -43,7 +43,7 @@ export interface IOrder_agg {
 
 export interface IPet {
     name: string;
-    category: ICategory;
+    category: any;
     photoUrls?: string[];
     status?: string;
     tags?: IOntologyNode[];
@@ -81,7 +81,7 @@ export interface IUser {
     password?: string;
     phone?: string;
     userStatus?: number;
-    pets?: IPet[];
+    pets?: any;
 }
 
 export interface IUser_agg {
