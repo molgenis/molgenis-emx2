@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "lint": "vue-tsc --noEmit",
-    "build": "nuxt build",
+    "build": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
     "dev": "nuxt dev",
     "generate": "cross-env NUXT_APP_BASE_URL='/apps/ui/' nuxt generate",
     "preview": "nuxt preview",

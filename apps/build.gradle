@@ -51,7 +51,7 @@ tasks.register('npm_build', NpmTask) {
 // Util task to clean up all apps files created during build
 tasks.register("cleanApps", Delete) {
     // clean up the resources directory
-    delete file("${project.layout.buildDirectory}")
+    delete file(project.layout.buildDirectory)
     // clean up all dist directories
     file(".").eachDir { dir ->
         def distDir = new File(dir, "dist")
@@ -89,6 +89,7 @@ abstract class CollectDistTask extends DefaultTask {
                         into(dir.name)
                     }
                 }
+
             }
             spec.into(targetDir)
         }
