@@ -21,7 +21,7 @@
     "dev": "cross-env CLEAR_GEN_FOLDERS=on vite",
     "build:lib": "cross-env SHOW_CASE=off vite build",
     "build:showcase": "cross-env SHOW_CASE=on vite build",
-    "build": "npm-run-all --parallel build:lib build:showcase",
+    "build": "npm-run-all build:lib build:showcase",
     "preview": "vite preview",
     "test": "vitest",
     "test-ci": "vitest run",
