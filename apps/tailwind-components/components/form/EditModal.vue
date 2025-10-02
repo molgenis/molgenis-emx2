@@ -262,13 +262,12 @@ async function onSave(draft: boolean) {
 
 watch(visible, (newValue, oldValue) => {
   if (newValue && !oldValue) {
-    //
+    reset();
   }
 });
 
 watch(editFormValues.value, () => {
   formMessage.value = "";
-  reset();
 });
 
 const {

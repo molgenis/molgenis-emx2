@@ -56,6 +56,9 @@ export default function useForm(
   const currentErrorField = ref<IColumn | undefined>(undefined);
 
   const reset = () => {
+    for (const key in visibleMap) {
+      delete visibleMap[key];
+    }
     errorMap.value = {};
     currentSection.value = undefined;
     currentHeading.value = undefined;
