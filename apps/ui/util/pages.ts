@@ -7,6 +7,12 @@ export type JavaScriptDependency = {
   defer?: boolean;
 };
 
+export type PageBuilderContentMeta = {
+  type: "ui" | "editor";
+  dateCreated?: string;
+  dateModified?: string;
+};
+
 export type PageBuilderContent = {
   html: string;
   css: string;
@@ -15,16 +21,12 @@ export type PageBuilderContent = {
     css: CssDependency[];
     javascript: JavaScriptDependency[];
   };
-  _meta?: {
-    pageType: "ui" | "advanced";
-    dateCreated?: string;
-    dateModified?: string;
-  };
+  _meta?: PageBuilderContentMeta;
   _settings: Record<string, any>;
 };
 
 export function newPageContentObject(
-  pageType: "ui" | "advanced"
+  type: "ui" | "editor"
 ): PageBuilderContent {
   return {
     css: "",
@@ -32,10 +34,15 @@ export function newPageContentObject(
     javascript: "",
     dependencies: { css: [], javascript: [] },
     _meta: {
-      pageType: pageType,
+      type: type,
     },
     _settings: {},
   };
+}
+
+export function newPageDate() {
+  const date = new Date().toISOString();
+  return date.replace("T", " ").split(".")[0];
 }
 
 export function generateHtmlPreview(
