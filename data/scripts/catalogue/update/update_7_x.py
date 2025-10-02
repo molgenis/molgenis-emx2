@@ -70,10 +70,12 @@ class Transform:
         """Make changes per table
         """
         # transformations per table
-        self.agents()
+        if self.profile == 'DataCatalogueFlat':
+            self.agents()
+            self.endpoint()
         self.organisations()
         self.resources()
-        self.endpoint()
+
         if self.profile == 'UMCGCohortsStaging':
             self.contacts()
         if self.schema_name == 'testCatalogue':
@@ -89,6 +91,7 @@ class Transform:
         df_agents.rename(columns={'name': 'id',
                                   'url': 'website',
                                   'mbox': 'email'}, inplace=True)
+        # TODO: check!!!
         df_agents['resource'] = 'MOLGENIS'
 
         # write table to file
