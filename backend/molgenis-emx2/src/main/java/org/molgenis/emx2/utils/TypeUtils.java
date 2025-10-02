@@ -338,19 +338,26 @@ public class TypeUtils {
   }
 
   private static List<String> splitCsvString(String value) {
-    // thanks stackoverflow
     ArrayList<String> result = new ArrayList<>();
     boolean notInsideComma = true;
     int start = 0;
-    for (int i = 0; i < value.length() - 1; i++) {
+    for (int i = 0; i < value.length(); i++) {
       if (value.charAt(i) == ',' && notInsideComma) {
         String v = trimQuotes(value.substring(start, i));
-        if (!"".equals(v)) result.add(v != null ? v.trim() : null);
+        if (v != null && !v.trim().isEmpty()) {
+          result.add(v.trim());
+        }
         start = i + 1;
-      } else if (value.charAt(i) == '"') notInsideComma = !notInsideComma;
+      } else if (value.charAt(i) == '"') {
+        notInsideComma = !notInsideComma;
+      }
     }
-    String v = trimQuotes(value.substring(start));
-    if (v != null && !"".equals(v)) result.add(v.trim());
+    if (start < value.length()) {
+      String v = trimQuotes(value.substring(start));
+      if (v != null && !v.trim().isEmpty()) {
+        result.add(v.trim());
+      }
+    }
     return result;
   }
 
