@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GraphqlApiFactory {
-  private static Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
+  private static final Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
 
   public GraphqlApiFactory() {
     if (ParserOptions.getDefaultParserOptions().getMaxTokens() < 1000000) {
@@ -70,6 +70,7 @@ public class GraphqlApiFactory {
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
     queryBuilder.field(db.schemasQuery(database));
     queryBuilder.field(db.settingsQueryField(database));
+    queryBuilder.field(db.permissionsQuery(database));
     queryBuilder.field(db.tasksQueryField(taskService));
     // todo need to allow for owner ? ( need to filter the query to include only owned schema's)
     if (database.isAdmin()) {
@@ -119,6 +120,7 @@ public class GraphqlApiFactory {
     queryBuilder.field(schemaFields.schemaQuery(schema));
     queryBuilder.field(schemaFields.settingsQuery(schema));
     queryBuilder.field(schemaFields.schemaReportsField(schema));
+    queryBuilder.field(schemaFields.permissionsQuery(schema));
 
     // _tasks query
     GraphqlDatabaseFieldFactory db = new GraphqlDatabaseFieldFactory();
@@ -150,7 +152,7 @@ public class GraphqlApiFactory {
     // table
     GraphqlTableFieldFactory tableField = new GraphqlTableFieldFactory(schema);
     for (TableMetadata table : schema.getMetadata().getTables()) {
-      if (table.getColumns().size() > 0) {
+      if (!table.getColumns().isEmpty()) {
         if (table.getTableType().equals(TableType.ONTOLOGIES)
             || schema.getInheritedRolesForActiveUser().contains(VIEWER.toString())) {
           queryBuilder.field(tableField.tableQueryField(table));
