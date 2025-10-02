@@ -55,6 +55,10 @@ tasks.register("cleanApps", Delete) {
     // clean up all dist directories
     file(".").eachDir { dir ->
         def distDir = new File(dir, "dist")
+        def showCaseDir = new File(dir, "showCase")
+        if (showCaseDir.exists()) {
+            delete showCaseDir
+        }
         if (distDir.exists()) {
             delete distDir
         }
