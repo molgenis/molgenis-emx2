@@ -3,11 +3,11 @@ Main file executing tests.
 To be deleted upon finishing tests.
 """
 
-from test_client import test_signout
+from tools.pyclient.tests.test_client import test_status
 
 
 def main():
-    test_signout()
+    test_status()
 
 
 if __name__ == '__main__':

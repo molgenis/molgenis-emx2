@@ -38,9 +38,15 @@ def test_signout():
         client.signout()
         assert client.signin_status == "signed out"
 
+
 def test_status():
     """Tests the `status` property."""
-    ...
+    with Client(url=server_url) as client:
+        status: str = client.status
+    assert status.split("Host: ")[-1].startswith(server_url)
+    assert status.split("User: ")[-1].startswith("anonymous")
+    assert status.split("Status: ")[-1].startswith("signed out")
+    assert "pet store" in status.split("Schemas: ")[-1]
 
 def test_get_schemas():
     """Tests the `get_schemas` method."""
