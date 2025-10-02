@@ -73,8 +73,14 @@ abstract class CollectDistTask extends DefaultTask {
 
         project.copy { spec ->
             project.file(".").eachDir { dir ->
+                def showCaseDir = new File(dir, "showCase")
                 def distDir = new File(dir, "dist")
-                if (distDir.exists()) {
+                if (showCaseDir.exists()) {
+                    spec.from(showCaseDir) {
+                        into(dir.name)
+                    }
+                }
+                else if (distDir.exists()) {
                     spec.from(distDir) {
                         into(dir.name)
                     }
