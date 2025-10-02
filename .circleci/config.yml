@@ -360,7 +360,7 @@ jobs:
               echo "PR number: ${CIRCLE_PULL_REQUEST##*/}"
               export E2E_BASE_URL=https://preview-emx2-pr-${CIRCLE_PULL_REQUEST##*/}.dev.molgenis.org/
               echo $E2E_BASE_URL
-              npm install --workspace=e2e
+              npm install
               npx playwright test --config e2e e2e/tests
       - run:
             name: Save test results for stats
