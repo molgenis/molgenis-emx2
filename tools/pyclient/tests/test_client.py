@@ -1,19 +1,36 @@
 """
 Tests for the Pyclient.
 """
-
-from tools.pyclient.src.molgenis_emx2_pyclient import Client
+import os
 
 import pytest
+from dotenv import load_dotenv
 
+from tools.pyclient.src.molgenis_emx2_pyclient import Client
+from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import SigninError
+
+load_dotenv()
+server_url = os.environ.get("MG_SERVER")
+username = os.environ.get("MG_USERNAME")
+password = os.environ.get("MG_PASSWORD")
 
 def test_signin():
     """Tests the `signin` method."""
-    ...
+    with pytest.raises(SigninError) as excinfo:
+        with Client(url=server_url) as client:
+            client.signin(username+username, password)
+    assert excinfo.value.msg.endswith("Sign in as 'adminadmin' failed: user or password unknown")
+
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        assert client.signin_status == "success"
+
 
 def test_signout():
     """Tests the `signout` method."""
-    ...
+    with Client(url=server_url) as client:
+        client.signout()
 
 def test_status():
     """Tests the `status` property."""
