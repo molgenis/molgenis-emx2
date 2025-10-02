@@ -235,7 +235,14 @@ async function onSave(draft: boolean) {
     } else {
       editFormValues.value["mg_draft"] = false;
     }
-    const resp = isInsert.value ? await insertInto() : await updateInto();
+    let resp;
+    if (isInsert.value) {
+      console.log("insert");
+      await insertInto();
+    } else {
+      console.log("update");
+      await updateInto();
+    }
     if (!resp) {
       return;
     }

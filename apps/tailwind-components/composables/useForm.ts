@@ -279,24 +279,29 @@ export default function useForm(
     const query = `mutation insert($value:[${metadata.value.id}Input]){insert(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
     try {
-      return $fetch(`/${metadata.value.schemaId}/graphql`, {
+      const res = await $fetch(`/${metadata.value.schemaId}/graphql`, {
         method: "POST",
         body: formData,
       });
+      return res;
     } catch (error) {
-      await handleFetchError(error, "Error on inserting into database");
+      await handleFetchError(error, "Error on inserting");
     }
   };
 
-  const updateInto = () => {
+  const updateInto = async () => {
     const formData = toFormData(formValues.value);
     const query = `mutation update($value:[${metadata.value.id}Input]){update(${metadata.value.id}:$value){message}}`;
     formData.append("query", query);
-
-    return $fetch(`/${metadata.value.schemaId}/graphql`, {
-      method: "POST",
-      body: formData,
-    }).catch((error) => handleFetchError(error, "Error on updating database"));
+    try {
+      const res = await $fetch(`/${metadata.value.schemaId}/graphql`, {
+        method: "POST",
+        body: formData,
+      });
+      return res;
+    } catch (error) {
+      await handleFetchError(error, "Error on updating");
+    }
   };
 
   const deleteRecord = async () => {
