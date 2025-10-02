@@ -1,7 +1,6 @@
 import { useRoute, useRuntimeConfig } from "#app";
 import { logError } from "#imports";
 import type { UIResource } from "~/interfaces/types";
-import { $fetch } from "ofetch";
 
 interface Resp<T> {
   data: T;
@@ -22,7 +21,7 @@ export async function useHeaderData() {
   const scoped = route.params.catalogue !== "all";
   const catalogueRouteParam = route.params.catalogue;
 
-  const { data, error } = await $fetch<Resp<IHeaderQuery>>(
+  const { data, error } = await $fetch(
     `/${schema}/graphql`,
     {
       method: "POST",
