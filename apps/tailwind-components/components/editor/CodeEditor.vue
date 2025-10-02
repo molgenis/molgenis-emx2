@@ -30,7 +30,7 @@ onMounted(() => {
   setTimeout(() => {
     code.value = props?.modelValue as string;
     formatEditor();
-  }, 125);
+  }, 225);
 });
 </script>
 
