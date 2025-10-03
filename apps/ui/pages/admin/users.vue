@@ -1,8 +1,6 @@
 <template>
   <ContentBlock class="w-full mt-3" title="User management">
-    <Button icon="plus" @click="showNewUserModal = true">
-      Create User
-    </Button>
+    <Button icon="plus" @click="showNewUserModal = true"> Create User </Button>
 
     <h2>User List ({{ userCount }})</h2>
 

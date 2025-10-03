@@ -1,6 +1,7 @@
 import { useState } from "#app/composables/state";
 import { ref } from "vue";
 import type { Resp } from "../types/types";
+import { $fetch } from "ofetch";
 
 export interface Settings {
   isOidcEnabled: boolean;

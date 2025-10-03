@@ -1,3 +1,1 @@
-<template>
-  Settings
-</template>
+<template>Settings</template>

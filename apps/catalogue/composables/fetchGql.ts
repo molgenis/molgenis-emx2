@@ -19,7 +19,7 @@ export function fetchGql<T>(
 
   const config = useRuntimeConfig();
   const schema = schemaId ? schemaId : config.public.schema;
-  return $fetch<GqlResp<T>>(`/${schema}/graphql`, {
+  return $fetch(`/${schema}/graphql`, {
     method: "POST",
     body,
   });

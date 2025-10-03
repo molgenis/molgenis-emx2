@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   experimental: {
     watcher: 'parcel'
   },
-  modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag", "@pinia/nuxt", "floating-vue/nuxt"],
+  modules: ["@nuxt/image", "@nuxt/test-utils/module", "nuxt-gtag", "@pinia/nuxt", "floating-vue/nuxt", "@nuxtjs/tailwindcss"],
   ignore: ['.gradle/**', '.git/**', 'node_modules/**', 'dist/**', 'coverage/**'],
   tailwindcss: {
     cssPath: "../tailwind-components/assets/css/main.css",

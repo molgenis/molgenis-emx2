@@ -6,6 +6,7 @@ import type {
 } from "../../metadata-utils/src/types";
 import { moduleToString } from "../../tailwind-components/utils/moduleToString";
 import { createError } from "#app/composables/error";
+import { $fetch } from "ofetch";
 
 const query = moduleToString(metadataGql);
 
