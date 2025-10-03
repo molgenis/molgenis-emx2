@@ -21,12 +21,10 @@ export async function useHeaderData() {
   const scoped = route.params.catalogue !== "all";
   const catalogueRouteParam = route.params.catalogue;
 
-  const { data, error } = await $fetch(
-    `/${schema}/graphql`,
-    {
-      method: "POST",
-      body: {
-        query: `
+  const { data, error } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `
             query HeaderQuery($collectionsFilter:ResourcesFilter, $variablesFilter:VariablesFilter, $networksFilter:ResourcesFilter,$networkFilter:ResourcesFilter) {
               Resources(filter:$networksFilter) {
                 id,
@@ -42,57 +40,56 @@ export async function useHeaderData() {
                   count
               }
             }`,
-        variables: {
-          networksFilter: scoped
-            ? { id: { equals: catalogueRouteParam } }
-            : undefined,
-          collectionsFilter: scoped
-            ? {
-                type: { tags: { equals: "collection" } },
-                _or: [
-                  { partOfResources: { id: { equals: catalogueRouteParam } } },
-                  {
+      variables: {
+        networksFilter: scoped
+          ? { id: { equals: catalogueRouteParam } }
+          : undefined,
+        collectionsFilter: scoped
+          ? {
+              type: { tags: { equals: "collection" } },
+              _or: [
+                { partOfResources: { id: { equals: catalogueRouteParam } } },
+                {
+                  partOfResources: {
+                    partOfResources: { id: { equals: catalogueRouteParam } },
+                  },
+                },
+              ],
+            }
+          : { type: { tags: { equals: "collection" } } },
+        networkFilter: scoped
+          ? {
+              type: { tags: { equals: "network" } },
+              _or: [
+                { partOfResources: { id: { equals: catalogueRouteParam } } },
+                {
+                  partOfResources: {
+                    partOfResources: { id: { equals: catalogueRouteParam } },
+                  },
+                },
+              ],
+            }
+          : { type: { tags: { equals: "network" } } },
+        variablesFilter: scoped
+          ? {
+              _or: [
+                { resource: { id: { equals: catalogueRouteParam } } },
+                //also include network of networks
+                {
+                  resource: {
+                    type: { name: { equals: "Network" } },
                     partOfResources: {
-                      partOfResources: { id: { equals: catalogueRouteParam } },
+                      id: { equals: catalogueRouteParam },
                     },
                   },
-                ],
-              }
-            : { type: { tags: { equals: "collection" } } },
-          networkFilter: scoped
-            ? {
-                type: { tags: { equals: "network" } },
-                _or: [
-                  { partOfResources: { id: { equals: catalogueRouteParam } } },
-                  {
-                    partOfResources: {
-                      partOfResources: { id: { equals: catalogueRouteParam } },
-                    },
-                  },
-                ],
-              }
-            : { type: { tags: { equals: "network" } } },
-          variablesFilter: scoped
-            ? {
-                _or: [
-                  { resource: { id: { equals: catalogueRouteParam } } },
-                  //also include network of networks
-                  {
-                    resource: {
-                      type: { name: { equals: "Network" } },
-                      partOfResources: {
-                        id: { equals: catalogueRouteParam },
-                      },
-                    },
-                  },
-                ],
-              }
-            : //should only include harmonised variables
-              { resource: { type: { name: { equals: "Network" } } } },
-        },
+                },
+              ],
+            }
+          : //should only include harmonised variables
+            { resource: { type: { name: { equals: "Network" } } } },
       },
-    }
-  );
+    },
+  });
 
   if (error) {
     const contextMsg = "Error on fetching page header data";

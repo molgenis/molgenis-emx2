@@ -2,7 +2,6 @@ import { useRuntimeConfig } from "#app";
 import { moduleToString } from "#imports";
 import type { DocumentNode } from "graphql";
 import type { GqlResp } from "~/interfaces/types";
-import { $fetch } from "ofetch";
 
 export function fetchGql<T>(
   query: string | DocumentNode,
@@ -20,7 +19,7 @@ export function fetchGql<T>(
 
   const config = useRuntimeConfig();
   const schema = schemaId ? schemaId : config.public.schema;
-  return $fetch<GqlResp<T>>(`/${schema}/graphql`, {
+  return $fetch(`/${schema}/graphql`, {
     method: "POST",
     body,
   });
