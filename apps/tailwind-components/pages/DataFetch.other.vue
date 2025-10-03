@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { Schema } from "~/types/types";
+import { useFetch, useAsyncData } from "#app";
+import { fetchMetadata, fetchTableData } from "#imports";
+import { ref, computed, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import type { Schema } from "../types/types";
 
 type Resp<T> = {
   data: Record<string, T[]>;
@@ -18,7 +22,7 @@ const { data: schemas } = await useFetch<Resp<Schema>>("/graphql", {
 const schemaIds = computed(
   () =>
     schemas.value?.data?._schemas
-      .sort((a, b) => a.label.localeCompare(b.label))
+      ?.sort((a, b) => a.label.localeCompare(b.label))
       .map((s) => s.id) ?? []
 );
 
@@ -47,7 +51,7 @@ watch(
     if (metadata.value) {
       await refetchMetadata();
       if (metadata.value.tables.length > 0) {
-        tableId.value = metadata.value.tables[0].id;
+        tableId.value = metadata.value.tables?.[0]?.id ?? "";
       } else {
         useRouter().push({
           query: {

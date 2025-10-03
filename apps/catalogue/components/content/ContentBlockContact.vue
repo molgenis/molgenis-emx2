@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { IContacts } from "~/interfaces/catalogue";
 
 const props = defineProps<{
@@ -9,8 +10,10 @@ const props = defineProps<{
 
 const orderedRoles = computed(() => {
   return props.contributors?.sort((a, b) => {
-    const primaryRoleA = a?.role?.length ? a.role[0].order ?? -1 : -1;
-    const primaryRoleB = b?.role?.length ? b.role[0].order ?? -1 : -1;
+    const primaryRoleA =
+      a?.role?.length && a.role[0] ? a.role[0].order ?? -1 : -1;
+    const primaryRoleB =
+      b?.role?.length && b.role[0] ? b.role[0].order ?? -1 : -1;
     return primaryRoleA - primaryRoleB;
   });
 });

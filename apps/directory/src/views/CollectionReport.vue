@@ -6,9 +6,14 @@
     >
       <spinner />
     </div>
+    <div v-else-if="collection?.biobank?.withdrawn && !collection?.withdrawn">
+      <div class="alert alert-warning" role="alert">
+        {{ uiText["collection_biobank_withdrawn"] }}
+      </div>
+    </div>
 
     <div
-      v-if="loaded && collection?.biobank?.withdrawn"
+      v-else-if="collection?.withdrawn"
       class="alert alert-warning"
       role="alert"
     >
@@ -26,10 +31,10 @@
           <Breadcrumb
             class="directory-nav"
             :crumbs="{
-              [uiText['home']]: '../#/',
+              [uiText['home']]: '../',
               [collection?.biobank
                 ?.name]: `../biobank/${collection?.biobank?.id}`,
-              [collection?.name]: `../#/collection/${collection?.id}`,
+              [collection?.name]: `../collection/${collection?.id}`,
             }"
             useRouterLink
           />
@@ -92,7 +97,7 @@ const qualitiesStore = useQualitiesStore();
 const collection = ref();
 const facts = ref({});
 const route = useRoute();
-const { setError } = useErrorHandler();
+const { setError, clearError } = useErrorHandler();
 
 let loaded = ref(false);
 
@@ -120,6 +125,7 @@ const bioschemasJsonld = computed(() => {
 
 function loadCollectionReport(id) {
   loaded.value = false;
+  clearError();
   const collectionsPromise = collectionStore
     .getCollectionReport(id)
     .then((result) => {

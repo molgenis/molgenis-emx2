@@ -13,7 +13,7 @@ Steps:
     create user molgenis with login nosuperuser inherit createrole encrypted password 'molgenis';
     grant all privileges on database molgenis to molgenis;
     ```
-* Install java (we use adopt [OpenJDK 17](https://adoptium.net/))
+* Install java (we use adopt [OpenJDK 21](https://adoptium.net/))
 * Optionally, if you want to use [scripts](use_scripts_jobs.md) then also install python3
 * Download molgenis-emx2-version-all.jar from [releases](https://github.com/molgenis/molgenis-emx2/releases).
 * Start molgenis-emx2 using command below (will run on 8080)
@@ -35,6 +35,16 @@ For example:
 ```console
 java -DMOLGENIS_POSTGRES_URI=jdbc:postgresql:mydatabase -DMOLGENIS_HTTP_PORT=9090 -jar molgenis-emx2-<version>-all.jar
 ```
+
+# METRICS
+
+MOLGENIS enables metrics api for example to use with prometheus. By default this is disabled. Please on use configure carefully to avoid abuse.
+
+* `MOLGENIS_METRICS_ENABLED=true` enables the metrics on path /api/metrics
+* `MOLGENIS_METRICS_PATH=/api/metric` enables the metrics path to be customized
+
+For example:
+java -DMOLGENIS_METRICS_ENABLED=true -jar molgenis-emx2-<version>-all.jar
 
 # Tips
 

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { fetchSetting } from "#imports";
+import { ref } from "vue";
+
 const CATALOGUE_LANDING_TITLE = "CATALOGUE_BCC_MSG";
 const message = ref();
 

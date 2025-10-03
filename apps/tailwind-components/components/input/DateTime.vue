@@ -1,38 +1,86 @@
 <template>
-  <flat-pickr
-    :id="id"
+  <vue-date-picker
+    :uid="id"
+    :placeholder="datePlaceholder"
     :aria-describedby="describedBy"
-    :type="type || 'text'"
-    :placeholder="placeholder"
     :disabled="disabled"
-    class="w-full h-[56px] pr-4 pl-3 border outline-none rounded-input"
-    :class="{
-      'bg-input border-valid text-valid': valid && !disabled,
-      'bg-input border-invalid text-invalid': invalid && !disabled,
-      'border-disabled text-disabled bg-disabled cursor-not-allowed': disabled,
-      'bg-disabled border-valid text-valid cursor-not-allowed':
-        valid && disabled,
-      'bg-disabled border-invalid text-invalid cursor-not-allowed':
-        invalid && disabled,
-      'bg-input text-input hover:border-input-hover focus:border-input-focused':
-        !disabled && !invalid && !valid,
+    :data-valid="valid"
+    :data-invalid="invalid"
+    type="Date"
+    v-model:="internalValue"
+    @update:modelValue="handleUpdate"
+    model-type="format"
+    month-name-format="long"
+    :format="inputDateFormat"
+    :auto-apply="true"
+    :time-picker-inline="true"
+    :enable-seconds="true"
+    :text-input="{
+      enterSubmit: true,
+      tabSubmit: true,
+      selectOnFocus: true,
+      escClose: true,
     }"
-    v-model="modelValue"
-    @focus="$emit('focus')"
-    @blur="$emit('blur')"
-    :config="{ dateFormat: 'Y-m-dTH:i:S', enableTime: true }"
+    @blur="handleBlur"
   />
 </template>
 
 <script setup lang="ts">
-import flatPickr from "vue-flatpickr-component";
-import "flatpickr/dist/flatpickr.css";
-import type { IInputProps } from "~/types/types";
-const modelValue = defineModel<any>();
-defineProps<
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
+import type { IInputProps } from "../../types/types";
+import type { DateValue } from "../../../metadata-utils/src/types";
+import { watch, ref, onMounted } from "vue";
+
+const props = defineProps<
   IInputProps & {
-    type?: string;
+    modelValue: DateValue;
   }
 >();
+
+const inputDateFormat: string = "yyyy-MM-dd HH:mm:ss";
+const datePlaceholder = ref<string>(inputDateFormat);
+//vue-date-picker emitted to many events so we need a filter
+const internalValue = ref<DateValue>();
 const emit = defineEmits(["focus", "blur", "update:modelValue"]);
+
+function setPlaceholder(value?: DateValue) {
+  if (value) {
+    datePlaceholder.value = value as string;
+  } else {
+    datePlaceholder.value = inputDateFormat;
+  }
+}
+
+function handleUpdate(newValue: string) {
+  if (newValue !== props.modelValue) {
+    emit("update:modelValue", newValue);
+  }
+}
+
+function handleBlur() {
+  //check that actually something relevant happened
+  if (internalValue.value !== props.modelValue) {
+    emit("blur");
+  }
+}
+
+onMounted(() => {
+  internalValue.value = props.modelValue;
+  setPlaceholder(props.modelValue);
+});
+
+watch(
+  () => props.placeholder,
+  (value) => {
+    setPlaceholder(value);
+  }
+);
+
+watch(
+  () => props.modelValue,
+  () => {
+    internalValue.value = props.modelValue;
+  }
+);
 </script>

@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 import static org.molgenis.emx2.web.MolgenisWebservice.getSchema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,10 +16,7 @@ import org.molgenis.emx2.sql.SqlDatabase;
 
 public class BeaconApi {
 
-  private static MolgenisSessionManager sessionManager;
-
-  public static void create(Javalin app, MolgenisSessionManager sm) {
-    sessionManager = sm;
+  public static void create(Javalin app) {
     defineRoutes(app, "/{schema}/api/beacon");
     defineRoutes(app, "/{schema}/api/beacon_vp");
     defineRoutes(app, "/api/beacon");
@@ -32,15 +30,15 @@ public class BeaconApi {
   }
 
   private static void defineRoutes(Javalin app, String basePath) {
-    app.before(basePath + "/*", BeaconApi::processRequest);
+    app.before(basePath + "/*", BeaconApi::beforeRequest);
 
     app.get(basePath, BeaconApi::getInfo);
     app.get(basePath + "/", BeaconApi::getInfo);
     app.get(basePath + "/info", BeaconApi::getInfo);
     app.get(basePath + "/service-info", BeaconApi::getInfo);
-    app.get(basePath + "/configuration", new Configuration()::getResponse);
-    app.get(basePath + "/map", new Map()::getResponse);
-    app.get(basePath + "/entry_types", new EntryTypes()::getResponse);
+    app.get(basePath + "/configuration", BeaconApi::getConfiguration);
+    app.get(basePath + "/map", BeaconApi::getMap);
+    app.get(basePath + "/entry_types", BeaconApi::getEntryTypes);
     app.get(basePath + "/filtering_terms", BeaconApi::getFilteringTerms);
     app.get(basePath + "/{entry_type}", BeaconApi::getEntryType);
     app.get(basePath + "/{entry_type}/{id}", BeaconApi::getEntryType);
@@ -48,7 +46,7 @@ public class BeaconApi {
     app.post(basePath + "/{entry_type}", BeaconApi::postEntryType);
   }
 
-  private static void processRequest(Context ctx) {
+  private static void beforeRequest(Context ctx) {
     extractSpecification(ctx);
     ctx.contentType(Constants.ACCEPT_JSON);
   }
@@ -56,6 +54,31 @@ public class BeaconApi {
   private static void extractSpecification(Context ctx) {
     String specification = ctx.matchedPath().split("/api/")[1].split("/")[0];
     ctx.attribute("specification", specification);
+  }
+
+  private static void getInfo(Context ctx) {
+    ctx.contentType(Constants.ACCEPT_JSON);
+    Schema schema = getSchema(ctx);
+
+    Database database = applicationCache.getDatabaseForUser(ctx);
+    ctx.json(new Info(database).getResponse(schema));
+  }
+
+  private static void getConfiguration(Context ctx) {
+    ctx.json(new Configuration().getResponse(ctx));
+  }
+
+  private static void getMap(Context ctx) {
+    ctx.json(new Map().getResponse(ctx));
+  }
+
+  private static void getEntryTypes(Context ctx) {
+    ctx.json(new EntryTypes().getResponse(ctx));
+  }
+
+  private static void getFilteringTerms(Context ctx) {
+    Database database = applicationCache.getDatabaseForUser(ctx);
+    ctx.json(new FilteringTerms(database));
   }
 
   private static void getEntryType(Context ctx) {
@@ -76,21 +99,8 @@ public class BeaconApi {
     if (schema != null) {
       ctx.json(queryEntryType.query(schema));
     } else {
-      Database database = sessionManager.getSession(ctx.req()).getDatabase();
+      Database database = applicationCache.getDatabaseForUser(ctx);
       ctx.json(queryEntryType.query(database));
     }
-  }
-
-  private static void getFilteringTerms(Context ctx) {
-    Database database = sessionManager.getSession(ctx.req()).getDatabase();
-    ctx.json(new FilteringTerms(database));
-  }
-
-  private static void getInfo(Context ctx) {
-    ctx.contentType(Constants.ACCEPT_JSON);
-    Schema schema = getSchema(ctx);
-
-    Database database = sessionManager.getSession(ctx.req()).getDatabase();
-    ctx.json(new Info(database).getResponse(schema));
   }
 }

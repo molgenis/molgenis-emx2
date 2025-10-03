@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import dateUtils from "~/utils/dateUtils";
 import type { IResources } from "~/interfaces/catalogue";
+import { computed, ref, watch } from "vue";
+import { useRoute } from "#app";
+import { useDatasetStore } from "#imports";
 
 const datasetStore = useDatasetStore();
 
@@ -60,7 +63,7 @@ watch([datasetStore.datasets], () => {
       <div :class="titleContainerClasses" class="grow">
         <h2 class="min-w-[160px] mr-4 md:inline-block block">
           <NuxtLink
-            :to="`/${schema}/catalogue/${catalogue}/${route.params.resourceType}/${resource.id}`"
+            :to="`/${catalogue}/${route.params.resourceType}/${resource.id}`"
             class="text-body-base font-extrabold text-blue-500 hover:underline hover:bg-blue-50"
           >
             {{ resource?.acronym || resource?.name }}
@@ -91,9 +94,7 @@ watch([datasetStore.datasets], () => {
             @input="onInput"
           />
         </label>
-        <NuxtLink
-          :to="`/${schema}/catalogue/${catalogue}/resources/${resource.id}`"
-        >
+        <NuxtLink :to="`/${catalogue}/resources/${resource.id}`">
           <IconButton
             icon="arrow-right"
             class="text-blue-500 hidden xl:flex xl:justify-end"
@@ -121,12 +122,7 @@ watch([datasetStore.datasets], () => {
         <div>
           <dt class="flex-auto block text-gray-600">Duration</dt>
           <dd>
-            {{
-              startEndYear(
-                resource?.startYear?.toString(),
-                resource?.endYear?.toString()
-              )
-            }}
+            {{ startEndYear(resource?.startYear, resource?.endYear) }}
           </dd>
         </div>
       </dl>

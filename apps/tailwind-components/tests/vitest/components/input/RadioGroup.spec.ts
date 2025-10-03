@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { expect, it } from "vitest";
-import InputRadiogroup from "~/components/input/RadioGroup.vue";
+import InputRadiogroup from "../../../../components/input/RadioGroup.vue";
 
 const wrapper = mount(InputRadiogroup, {
   props: {

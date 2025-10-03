@@ -1,35 +1,32 @@
 <template>
-  <p>
-    The <code>Hyperlink Component</code> enables you to use the String component
-    with the added validation of the input being a hyperlink.
-  </p>
-  <FormFields
-    id="form-hyperlink"
-    schemaId="schema-hyperlink"
-    :metadata="metadata"
-    v-model="model"
-    v-model:errors="errorMap"
-    :sections="sections"
-  />
+  <div id="fields-container" class="col-span-3 py-50px overflow-y-auto">
+    <FormFields
+      id="form-hyperlink"
+      :columns="metadata.columns"
+      v-model="model"
+      :error-map="errorMap"
+      @update="onUpdateColumn"
+      @blur="onBlurColumn"
+    />
+  </div>
 </template>
 <script setup lang="ts">
+import { ref } from "vue";
 import type { ColumnType } from "../../../metadata-utils/src/types";
+import { useForm } from "#imports";
 
 const model = ref({});
 const metadata = {
   label: "Hyperlink",
-  id: "hyperlink",
+  id: "Types",
   tableType: "my kind of table",
   columns: [
     {
-      id: "input-hyperlink",
+      id: "hyperlinkType",
       columnType: "HYPERLINK" as ColumnType,
       label: "Input a hyperlink",
     },
   ],
 };
-
-const activeChapterId = ref<string>("_scroll_to_top");
-const errorMap = ref({});
-const sections = useSections(metadata, activeChapterId, errorMap);
+const { errorMap, onUpdateColumn, onBlurColumn } = useForm(metadata, model);
 </script>

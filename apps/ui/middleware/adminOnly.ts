@@ -1,6 +1,8 @@
+import { defineNuxtRouteMiddleware, navigateTo } from "#app";
+import { useSession } from "../../tailwind-components/composables/useSession";
+
 export default defineNuxtRouteMiddleware(async () => {
-  const { data: session } = await useSession();
-  const isAdmin = computed(() => session.value.email === "admin");
+  const { isAdmin } = await useSession();
   if (!isAdmin.value) {
     return navigateTo("/login");
   }

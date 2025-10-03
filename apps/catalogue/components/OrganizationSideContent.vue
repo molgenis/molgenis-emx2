@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { IOrganization } from "~/interfaces/types";
+import type { IOrganisations } from "../interfaces/catalogue";
 const props = defineProps<{
-  organisation: IOrganization;
+  organisation: IOrganisations;
 }>();
 </script>
 <template>
@@ -18,20 +18,12 @@ const props = defineProps<{
             : undefined,
         },
         {
-          label: 'description',
-          content: props.organisation?.description,
-        },
-        {
           label: 'website',
           content: props.organisation?.website,
         },
         {
           label: 'acronym',
           content: props.organisation?.acronym,
-        },
-        {
-          label: 'address',
-          content: props.organisation?.address,
         },
         {
           label: 'country',

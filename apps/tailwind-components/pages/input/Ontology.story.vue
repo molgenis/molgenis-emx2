@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 const ontologySchemaId = ref<string>("pet store");
 const ontologyTableId = ref<string>("Tag");
 const modelValue = ref("green");

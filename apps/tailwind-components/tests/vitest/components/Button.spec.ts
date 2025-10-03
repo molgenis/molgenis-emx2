@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { expect, it } from "vitest";
-import Button from "~/components/Button.vue";
+import Button from "../../../components/Button.vue";
 import FloatingVue from "floating-vue";
 import "floating-vue/dist/style.css"; // Ensure styles are loaded
 

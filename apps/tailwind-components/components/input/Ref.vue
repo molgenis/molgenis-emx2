@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import type { ITableDataResponse } from "~/composables/fetchTableData";
-import type { IQueryMetaData } from "../../../molgenis-components/src/client/IQueryMetaData.ts";
+import type { ITableDataResponse } from "../../composables/fetchTableData";
+import type { IQueryMetaData } from "../../types/IQueryMetaData";
 import type {
   ITableMetaData,
   columnValueObject,
   recordValue,
 } from "../../../metadata-utils/src/types";
 
-import { type IInputProps, type IValueLabel } from "~/types/types";
-import logger from "@/utils/logger";
+import { type IInputProps, type IValueLabel } from "../../types/types";
+import logger from "../../utils/logger";
+import { fetchTableMetadata } from "#imports";
+import { ref, type Ref, computed, watch } from "vue";
+import fetchTableData from "../../composables/fetchTableData";
 
 const props = withDefaults(
   defineProps<
@@ -23,7 +26,7 @@ const props = withDefaults(
   >(),
   {
     isArray: true,
-    limit: 10,
+    limit: 30,
   }
 );
 
@@ -102,7 +105,10 @@ watch(
   () => modelValue.value,
   () => {
     if (props.isArray === false) {
-      delete selectionMap.value[Object.keys(selectionMap.value)[0]];
+      const key = Object.keys(selectionMap.value)[0];
+      if (key !== undefined) {
+        delete selectionMap.value[key];
+      }
       if (modelValue.value) {
         selectionMap.value[applyTemplate(props.refLabel, modelValue.value)] =
           modelValue.value;
@@ -137,8 +143,6 @@ async function loadOptions(filter: IQueryMetaData) {
     filter
   );
 
-  optionMap.value = {};
-
   if (data.rows) {
     hasNoResults.value = false;
     data.rows.forEach(
@@ -153,7 +157,7 @@ async function loadOptions(filter: IQueryMetaData) {
 
 function toggleSearch() {
   showSearch.value = !showSearch.value;
-  if (!showSearch.value) updateSearch("");
+  if (searchTerms.value) updateSearch("");
 }
 
 function updateSearch(newSearchTerms: string) {
@@ -168,6 +172,7 @@ function select(label: string) {
     selectionMap.value = {};
   }
   selectionMap.value[label] = optionMap.value[label];
+  if (searchTerms.value) toggleSearch();
   emit(
     "update:modelValue",
     props.isArray
@@ -190,6 +195,7 @@ function extractPrimaryKey(value: any) {
 
 function deselect(label: string) {
   delete selectionMap.value[label];
+  if (searchTerms.value) toggleSearch();
   emit(
     "update:modelValue",
     props.isArray
@@ -220,66 +226,87 @@ prepareModel();
 
 <template>
   <InputGroupContainer @focus="emit('focus')" @blur="emit('blur')">
-    <div
-      class="flex flex-wrap gap-2 mb-2"
-      v-if="isArray ? selection.length : selection"
-    >
-      <Button
-        v-for="label in isArray ? selection : [selection]"
-        icon="cross"
-        iconPosition="right"
-        type="filterWell"
-        size="tiny"
-        @click="deselect(label as string)"
+    <template v-if="initialCount > limit">
+      <div
+        class="flex flex-wrap gap-2 mb-2"
+        v-if="isArray ? selection.length : selection"
       >
-        {{ label }}
-      </Button>
-    </div>
-    <div class="flex flex-wrap gap-2 mb-2">
-      <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
-        Search
-      </ButtonText>
-      <ButtonText @click="clearSelection"> Clear all </ButtonText>
-    </div>
-    <template v-if="showSearch && initialCount > limit">
-      <InputLabel :for="`search-for-${id}`" class="sr-only">
-        search in {{ columnName }}
-      </InputLabel>
-      <InputSearch
-        :id="`search-for-${id}`"
-        :modelValue="searchTerms"
-        @update:modelValue="updateSearch"
-        class="mb-2"
-        :placeholder="`Search in ${columnName}`"
-        :aria-hidden="!showSearch"
-      />
+        <Button
+          @click="clearSelection"
+          v-if="isArray && selection.length > 1"
+          type="filterWell"
+          size="tiny"
+          icon="cross"
+          iconPosition="right"
+          class="mr-2"
+          >Clear all</Button
+        >
+        <Button
+          v-for="label in isArray ? selection : [selection]"
+          icon="cross"
+          iconPosition="right"
+          type="filterWell"
+          size="tiny"
+          @click="deselect(label as string)"
+        >
+          {{ label }}
+        </Button>
+      </div>
+      <div v-if="initialCount > limit" class="flex flex-wrap gap-2 mb-2">
+        <InputLabel :for="`search-for-${id}`" class="sr-only">
+          search in {{ columnName }}
+        </InputLabel>
+        <ButtonText @click="toggleSearch" :aria-controls="`search-for-${id}`">
+          Search
+        </ButtonText>
+        <InputSearch
+          :class="showSearch ? 'visible' : 'invisible pointer-events-none'"
+          :id="`search-for-${id}`"
+          size="tiny"
+          :modelValue="searchTerms"
+          @update:modelValue="updateSearch"
+          class="mb-2"
+          :placeholder="`Search in ${columnName}`"
+          :aria-hidden="!showSearch"
+        />
+      </div>
     </template>
     <template v-if="!hasNoResults">
-      <InputCheckboxGroup
-        v-if="isArray"
-        :id="id"
-        :options="listOptions"
-        :modelValue="(selection as string[])"
-        @select="select"
-        @deselect="deselect"
-        :invalid="invalid"
-        :valid="valid"
-        :disabled="disabled"
-      />
-      <InputRadioGroup
-        v-else
-        :id="id"
-        :options="listOptions"
-        :modelValue="(selection as string)"
-        @select="select"
-        @deselect="deselect"
-        :invalid="invalid"
-        :valid="valid"
-        :disabled="disabled"
-      />
+      <fieldset>
+        <legend class="sr-only">select {{ columnName }} options</legend>
+        <InputCheckboxGroup
+          v-if="isArray"
+          :id="id"
+          :options="listOptions"
+          :modelValue="(selection as string[])"
+          @select="select"
+          @deselect="deselect"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
+        />
+        <InputRadioGroup
+          v-else
+          :id="id"
+          :options="listOptions"
+          :modelValue="(selection as string)"
+          @select="select"
+          @deselect="deselect"
+          :invalid="invalid"
+          :valid="valid"
+          :disabled="disabled"
+        />
+      </fieldset>
       <ButtonText @click="loadMore" v-if="offset + limit < count">
         load {{ entitiesLeftToLoad }} more
       </ButtonText>
+      <ButtonText
+        v-if="
+          initialCount <= limit && (isArray ? selection.length > 0 : selection)
+        "
+        @click="clearSelection"
+        >Clear</ButtonText
+      >
     </template>
     <ButtonText v-else>No results found</ButtonText>
   </InputGroupContainer>

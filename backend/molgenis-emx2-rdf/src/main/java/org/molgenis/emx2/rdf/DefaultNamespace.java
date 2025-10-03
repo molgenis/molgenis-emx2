@@ -10,6 +10,7 @@ public enum DefaultNamespace {
   AFRL("afrl", "http://purl.allotrope.org/ontologies/role#"),
   DC("dc", "http://purl.org/dc/elements/1.1/"),
   DCAT("dcat", "http://www.w3.org/ns/dcat#"),
+  DCATAP("dcatap", "http://data.europa.eu/r5r/"),
   DCTERMS("dcterms", "http://purl.org/dc/terms/"),
   EDAM("edam", "http://edamontology.org/"),
   EFO("efo", "http://www.ebi.ac.uk/efo/"),
@@ -18,7 +19,7 @@ public enum DefaultNamespace {
   FDP("fdp-o", "https://w3id.org/fdp/fdp-o#"),
   FG("fg", "https://w3id.org/fair-genomes/resource/"),
   FOAF("foaf", "http://xmlns.com/foaf/0.1/"),
-  HEALTHDCAT_AP("healthDCAT-AP", "urn:uuid:a7ef52b2-bd43-4294-a80f-3e7299af35e4#"),
+  HEALTHDCAT_AP("healthDCAT-AP", "http://healthdataportal.eu/ns/health#"),
   HL7("hl7", "http://purl.bioontology.org/ontology/HL7/"),
   LDP("ldp", "http://www.w3.org/ns/ldp#"),
   LNC("lnc", "http://purl.bioontology.org/ontology/LNC/"),
@@ -42,12 +43,12 @@ public enum DefaultNamespace {
 
   private final Namespace namespace;
 
-  public Namespace getNamespace() {
-    return namespace;
-  }
-
   DefaultNamespace(String prefix, String namespace) {
     this.namespace = new SimpleNamespace(prefix, namespace);
+  }
+
+  public Namespace getNamespace() {
+    return namespace;
   }
 
   public static Stream<Namespace> streamAll() {

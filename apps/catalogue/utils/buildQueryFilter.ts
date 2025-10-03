@@ -12,6 +12,7 @@ const buildFilterVariables = (filters: IConditionsFilter[]) => {
     Record<string, Record<string, any | string> | string>
   >((accum, filter) => {
     if (
+      // @ts-ignore
       (filter.config.columnId ||
         (filter.config as IRefArrayFilterCustomConfig).buildFilterFunction) &&
       filter?.conditions?.length
@@ -20,6 +21,7 @@ const buildFilterVariables = (filters: IConditionsFilter[]) => {
         if (!accum[filter.config.filterTable]) {
           accum[filter.config.filterTable] = {};
         }
+        // @ts-ignore
         accum[filter.config.filterTable][filter.config.columnId] = {
           equals: filter.conditions,
         };
@@ -33,6 +35,7 @@ const buildFilterVariables = (filters: IConditionsFilter[]) => {
           accum = buildFilterFunction(accum, filter.conditions);
         }
       } else {
+        // @ts-ignore
         accum[filter.config.columnId] = { equals: filter.conditions };
       }
     }
@@ -66,6 +69,7 @@ export const buildQueryFilter = (filters: IFilter[]) => {
 
     // expand the search to the sub tables
     (searchFilter as ISearchFilter).config.searchTables?.forEach((sub) => {
+      // @ts-ignore
       filterBuilder["_or"].push({ [sub]: { _search: searchFilter.search } });
     });
   }

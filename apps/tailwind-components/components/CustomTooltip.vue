@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useId, computed } from "vue";
 import BaseIcon from "./BaseIcon.vue";
 import "floating-vue/dist/style.css";
 const ariaId = useId();

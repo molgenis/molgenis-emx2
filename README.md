@@ -40,6 +40,13 @@ the data, and use VueJS to create your own 'apps'.
 
 Detailed changes for each release are documented in the [release notes](https://github.com/molgenis/molgenis-emx2/releases).
 
+Breaking changes:
+
+| Version | Description of issues one might encounter |
+|---------|-------------------------------------------|
+| 12.x    | Changes to the way pages are stored in settings. Migration for existing pages will be automatic. Frontend support is also available for legacy versions to allow pages to display in the browser, but parsing of JavaScript or style tags are not automatic. Users are recommended to manually move the content into the appropriate editors. |
+| 13.x    | Upgrade to Java 21. Please update your java version | 
+
 ## Licence
 
 ![lgplv3logo](https://www.gnu.org/graphics/lgplv3-with-text-154x68.png)

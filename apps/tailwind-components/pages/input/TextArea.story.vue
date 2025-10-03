@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 const id = "story-input-text-area-1";
 const fieldValue = ref<string>("");
 </script>

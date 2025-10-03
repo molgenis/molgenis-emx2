@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 import os
 import tempfile
 from collections import defaultdict
@@ -30,6 +31,9 @@ from .model import (
 )
 from .utils import create_csv
 
+# Increase max. field size to accommodate e.g. long lists of refbacks
+# Value is 1/4th of max. CSV line size in Molgenis
+csv.field_size_limit(2097152)
 
 @dataclass
 class AttributesRequest:
@@ -101,6 +105,10 @@ class DirectorySession(Session):
         table_id = schema_metadata.get_table(by="name", value=table).id
 
         filter_part = self._prepare_filter(query_filter, table, schema)
+        if filter_part:
+            filter_part = "?filter=" + json.dumps(filter_part)
+        else:
+            filter_part = ""
         query_url = f"{self.url}/{current_schema}/api/csv/{table_id}{filter_part}"
         response = self.session.get(url=query_url)
 

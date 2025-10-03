@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { getAppRoute } from "./getAppRoute";
 
-test("add/remove service from service detaill page", async ({ page }) => {
+test("add/remove service from service detail page", async ({ page }) => {
   await page.goto(getAppRoute());
   await page.getByRole("button", { name: "Services" }).first().click();
   await page.getByRole("link", { name: "Biobank Service" }).click();

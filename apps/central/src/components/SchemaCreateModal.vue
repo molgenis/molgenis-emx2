@@ -137,27 +137,20 @@ export default {
       template: null,
       templates: [
         "PET_STORE",
-        "FAIR_DATA_HUB",
         "DATA_CATALOGUE",
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
         "UMCG_COHORT_STAGING",
         "UMCU_COHORTS_STAGING",
         "INTEGRATE_COHORTS_STAGING",
-        "RD3",
-        "RD3_V2",
-        "JRC_COMMON_DATA_ELEMENTS",
+        "PATIENT_REGISTRY",
         "FAIR_GENOMES",
-        "DCAT",
-        "FAIR_DATA_POINT",
-        "BEACON_V2",
         "ERN_DASHBOARD",
         "UI_DASHBOARD",
         "BIOBANK_DIRECTORY",
         "BIOBANK_DIRECTORY_STAGING",
         "SHARED_STAGING",
         "PROJECTMANAGER",
-        "GDI",
         "DATA_CATALOGUE_AGGREGATES",
         "TYPE_TEST",
         "PATIENT_REGISTRY_DEMO",
@@ -186,7 +179,7 @@ export default {
       ) {
         return undefined;
       } else {
-        return "Table name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
+        return "Schema name must start with a letter, followed by zero or more letters, numbers, spaces, dashes or underscores. A space immediately before or after an underscore is not allowed. The character limit is 31.";
       }
     },
     executeCreateSchema() {

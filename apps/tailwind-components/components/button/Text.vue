@@ -9,7 +9,7 @@ defineProps<{
     class="group flex items-center text-button-text cursor-pointer disabled:cursor-not-allowed disabled:text-disabled"
   >
     <BaseIcon v-if="icon" :name="icon" :width="18" class="mr-2" />
-    <span class="text-body-sm group-enabled:hover:underline">
+    <span class="group-enabled:hover:underline">
       <slot />
     </span>
   </button>

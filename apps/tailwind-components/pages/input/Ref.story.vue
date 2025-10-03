@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
 const schemaId = ref<string>("pet store");
 const tableId = ref<string>("Pet");
 const labelTemplate = ref<string>("${name}");

@@ -3,7 +3,7 @@
 ###
 
 ## Base image to have a node runtime
-FROM node:20.11.0-alpine
+FROM node:22.17.0-alpine
 
 # Used to build theme
 # ENV EMX2_THEME=$EMX2_THEME
@@ -23,6 +23,9 @@ ENV NUXT_HOST=0.0.0.0
 
 # Set app port
 ENV NUXT_PORT=$PORT
+
+# Set the catalogue schema
+ENV NUXT_PUBLIC_SCHEMA=$NUXT_PUBLIC_SCHEMA
 
 # Set the base url
 ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE

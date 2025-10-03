@@ -54,7 +54,7 @@
       <p class="file-element file-size">
         {{ (file[fileColumn].size / Math.pow(1024, 2)).toFixed(2) }} MB
       </p>
-      <a class="file-element file-url" :href="file[fileColumn].url">
+      <a class="file-element file-url" :href="file[fileColumn].url" download>
         <span class="visually-hidden">
           Download {{ file[fileColumn].filename }}
         </span>

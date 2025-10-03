@@ -3,8 +3,9 @@
 - split the search out to a wrapping component
  */
 
-import type { ITreeNode, ITreeNodeState } from "~/types/types";
+import type { ITreeNode, ITreeNodeState } from "../../types/types";
 import TreeNode from "./TreeNode.vue";
+import { computed, ref, watch } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -83,8 +84,10 @@ function applyModelValueChangeToSelection(selection: string[]) {
   );
   selection.forEach((name) => {
     const node = nodeMap.value[name];
-    node.selected = "selected";
-    processSelectionChangeToParentAndChildNodes(node);
+    if (node) {
+      node.selected = "selected";
+      processSelectionChangeToParentAndChildNodes(node);
+    }
   });
 }
 
@@ -118,9 +121,10 @@ function getAllChildren(node: ITreeNodeState): ITreeNodeState[] {
 }
 
 function getAllParents(node: ITreeNodeState): ITreeNodeState[] {
-  return node.parent
-    ? [nodeMap.value[node.parent], ...getAllParents(nodeMap.value[node.parent])]
-    : [];
+  if (!node.parent) return [];
+  const parentNode = nodeMap.value[node.parent];
+  if (!parentNode) return [];
+  return [parentNode, ...getAllParents(parentNode)];
 }
 
 function toggleSelect(node: ITreeNodeState) {
@@ -155,7 +159,7 @@ function emitSelection() {
           node.selected === "selected" &&
           (props.emitSelectedChildren ||
             !node.parent ||
-            nodeMap.value[node.parent].selected !== "selected")
+            nodeMap.value[node.parent]?.selected !== "selected")
       )
       .map((node) => node.name)
   );
@@ -163,8 +167,10 @@ function emitSelection() {
 
 /* manage expand */
 function toggleExpand(node: ITreeNodeState) {
-  nodeMap.value[node.name].expanded =
-    nodeMap.value[node.name].expanded !== true;
+  const targetNode = nodeMap.value[node.name];
+  if (targetNode) {
+    targetNode.expanded = targetNode.expanded !== true;
+  }
 }
 
 /* manage search */
@@ -183,10 +189,12 @@ watch(optionsSearch, (newValue, oldValue) => {
       rootNodes.value.forEach((node) => {
         applySearch(searchValue, node);
         //expand unless too many hits
-        if (node.children.filter((child) => child.visible).length === 1)
+        if (node.children.filter((child: any) => child.visible).length === 1)
           node.expanded = true;
         getAllChildren(node).forEach((child) => {
-          if (child.children.filter((child2) => child2.visible).length === 1)
+          if (
+            child.children.filter((child2: any) => child2.visible).length === 1
+          )
             child.expanded = true;
         });
       });
@@ -215,12 +223,12 @@ function applySearch(searchValue: string, node: ITreeNodeState) {
     getAllParents(node).forEach((parent) => {
       parent.visible = true;
       //parents not selectable because might be incomplete, unless all children are visible
-      if (!parent.children.some((child) => !child.visible)) {
+      if (!parent.children.some((child: any) => !child.visible)) {
         parent.selectable = true;
       }
     });
   } else {
-    node.children.forEach((child) => applySearch(searchValue, child));
+    node.children.forEach((child: any) => applySearch(searchValue, child));
   }
 }
 
@@ -243,20 +251,29 @@ const rootNodes = computed(() => {
 </script>
 
 <template>
-  <ButtonText icon="Search" @click="toggleSearch">
+  <ButtonText
+    :id="`${id}-tree-search-button-toggle`"
+    icon="Search"
+    @click="toggleSearch"
+    :aria-controls="`${id}-tree-search-input-container`"
+    :aria-expanded="showOptionsSearch"
+  >
     <span>Search for options</span>
   </ButtonText>
-  <div v-if="showOptionsSearch">
-    <input
-      :value="optionsSearch"
-      @input="(event) => handleSearchInput((event.target as HTMLInputElement).value)"
-      type="search"
-      class="w-full pr-4 font-sans text-black text-gray-300 outline-none rounded-search-input h-10 ring-red-500 pl-3 shadow-search-input focus:shadow-search-input hover:shadow-search-input search-input-mobile border"
+  <div v-if="showOptionsSearch" :id="`${id}-tree-search-input-container`">
+    <label :for="`${id}-tree-search-input`" class="sr-only">search</label>
+    <InputSearch
+      :id="`${id}-tree-search-input`"
+      :modelValue="optionsSearch"
+      @update:modelValue="handleSearchInput"
       placeholder="Type to search in options..."
+      :describedby="`${id}-tree-search-input-message`"
     />
-    <span v-if="rootNodes.filter((node) => node.visible).length === 0">
-      no results found
-    </span>
+    <div :id="`${id}-tree-search-input-message`">
+      <span v-if="rootNodes.filter((node) => node.visible).length === 0">
+        no results found
+      </span>
+    </div>
   </div>
   <TreeNode
     :id="id"

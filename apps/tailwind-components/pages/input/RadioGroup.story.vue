@@ -36,6 +36,8 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from "vue";
+
 const selection = ref<string>("intervention");
 const inputState = ref<string>("inactive");
 </script>

@@ -1,4 +1,5 @@
 import type { GqlResp, IOntologyRespItem } from "~/interfaces/types";
+import { fetchGql } from "./fetchGql";
 
 const ONTOLOGIES_SCHEMA_NAME = "CatalogueOntologies";
 

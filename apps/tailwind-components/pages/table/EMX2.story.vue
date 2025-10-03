@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import type { ITableSettings, Resp, Schema } from "~/types/types";
+import { computed, ref, watch } from "vue";
+import type { ITableSettings, Resp, Schema } from "../../types/types";
+import DemoDataControls from "../../DemoDataControls.vue";
+import type { ITableMetaData } from "../../../metadata-utils/src/types";
 
 const tableSettings = ref<ITableSettings>({
   page: 1,
@@ -8,126 +11,35 @@ const tableSettings = ref<ITableSettings>({
   search: "",
 });
 
-const { data } = await useFetch<Resp<Schema>>("/graphql", {
-  key: "databases",
-  method: "POST",
-  body: { query: `{ _schemas { id,label,description } }` },
-});
+const isEditable = ref(false);
 
-const databases = computed(
-  () =>
-    data.value?.data?._schemas.sort((a, b) => a.label.localeCompare(b.label)) ??
-    []
-);
+const metadata = ref<ITableMetaData>();
+const schemaId = ref<string>("type test");
 
-const schemaId = ref(
-  databases.value.find(
-    (d) => d.label === "pet store" || d.id === "catalogue-demo"
-  )?.id || ""
-);
-
-const tableId = ref(
-  schemaId.value === "pet store"
-    ? "Pet"
-    : schemaId.value === "catalogue-demo"
-    ? "Resources"
-    : ""
-);
-
-const schemaOptions = computed(() =>
-  databases.value.map((schema) => schema.id)
-);
-
-const { data: metadata, refresh: refetchMetadata } = await useLazyAsyncData(
-  "my meta data",
-  () => fetchMetadata(schemaId.value)
-);
-
-if (metadata.value) {
-  tableId.value = metadata.value.tables[0].id;
-}
-
-const tableOptions = computed(() => {
+const tableId = computed(() => {
   if (metadata.value) {
-    return metadata.value.tables.map((table) => table.id);
-  } else {
-    return [];
+    return metadata.value.id;
   }
+  return "";
 });
-
-const {
-  data: tableData,
-  error,
-  refresh: refetchTableData,
-} = await useLazyAsyncData("my data", () =>
-  fetchTableData(schemaId.value, tableId.value)
-);
-
-watch(schemaId, async () => {
-  refetchMetadata().then(() => {
-    if (metadata.value) {
-      tableId.value = metadata.value.tables[0].id;
-      refetchTableData();
-    }
-  });
-});
-
-watch(tableId, async () => {
-  refetchTableData();
-});
-
-const tableColumns = computed(() => {
-  return (
-    metadata.value?.tables
-      .find((t) => t.id === tableId.value)
-      ?.columns.filter((column) => !column.id.startsWith("mg")) ?? []
-  );
-});
-
-const dataRows = computed(() => {
-  if (!tableData.value) return [];
-
-  return tableData.value.rows.map((row) => {
-    return Object.fromEntries(
-      Object.entries(row).filter(([key]) => !key.startsWith("mg"))
-    );
-  });
-});
-
-const numberOfRows = computed(() => tableData?.value?.count ?? 0);
 </script>
 
 <template>
-  <div class="mt-4 mb-16">
-    <h3 class="text-heading-lg">Params</h3>
-    <div class="m-2">
-      <label for="schema-id-input">schema id: </label>
-      <select id="schema-id-input" v-model="schemaId">
-        <option v-for="option in schemaOptions" :value="option">
-          {{ option }}
-        </option>
-      </select>
-    </div>
-    <div class="m-2">
-      <label for="table-id-select">table id: </label>
-      <select id="table-id-select" v-model="tableId">
-        <option v-for="option in tableOptions" :value="option">
-          {{ option }}
-        </option>
-      </select>
-    </div>
-  </div>
-
-  <div>
+  <div class="py-5 space-y-2">
+    <DemoDataControls
+      :include-row-select="false"
+      v-model:metadata="metadata"
+      v-model:schemaId="schemaId"
+    />
+    <label class="text-title font-bold" for="is-editable">Is Editable: </label>
+    <InputCheckbox id="is-editable" v-model="isEditable" name="is-editable" />
+    <div class="py-10" />
     <TableEMX2
-      v-if="tableId && schemaId"
-      :table-id="tableId"
-      :columns="tableColumns"
-      :rows="dataRows"
-      :count="numberOfRows"
-      @update:settings="(value: ITableSettings) => tableSettings = value"
-      :settings="tableSettings"
+      v-model:settings="tableSettings"
+      :key="`${schemaId}-${tableId}`"
+      :schema-id="schemaId"
+      :table-id="tableId ?? ''"
+      :is-editable="isEditable"
     />
   </div>
 </template>
-d

@@ -1,16 +1,16 @@
 module.exports = {
-    plugins: [
-      {
-        name: "convertColors",
-        params: {
-          currentColor: true,
-        },
+  plugins: [
+    {
+      name: "convertColors",
+      params: {
+        currentColor: true,
       },
-      {
-        name: "removeDimensions",
-        params: {
-          currentColor: true,
-        },
+    },
+    {
+      name: "removeDimensions",
+      params: {
+        currentColor: true,
       },
-    ],
-  };
+    },
+  ],
+};

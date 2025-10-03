@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { ISectionField } from "~/types/types";
+import { computed, resolveComponent } from "vue";
+import type { ISectionField } from "../../types/types";
 const String = resolveComponent("ContentTypeString");
 const Text = resolveComponent("ContentTypeText");
 const OntologyArray = resolveComponent("ContentTypeOntologyArray");

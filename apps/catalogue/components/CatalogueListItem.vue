@@ -68,6 +68,7 @@
 
 <script setup lang="ts">
 import type { IDefinitionListItem } from "~/interfaces/types";
+import { buildTree } from "../utils/ontologyUtils";
 
 withDefaults(
   defineProps<{

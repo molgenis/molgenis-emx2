@@ -10,8 +10,6 @@ type INonRepeatingVariableWithMapping = IVariableBase & IVariableWithMappings;
 /**
  * Returns a matrix of harmonisation status for each variable and source
  * In case of a repeated variable, the status for toplevel variable is based on the combined status of all its repeats
- * @param variables
- * @param resources
  */
 export const calcAggregatedHarmonisationStatus = (
   variables: IVariableWithMappings[],
@@ -37,18 +35,21 @@ export const calcIndividualVariableHarmonisationStatus = (
   variable: IVariableWithMappings,
   resources: { id: string }[]
 ) => {
-  return resources.map((c) => {
+  return resources.map((resource) => {
     if (!hasAnyMapping(variable)) {
       // no mapping
       return "unmapped";
     } else if (variable.repeats) {
       // handle repeats
       return [variable, ...variable.repeats].map((v) =>
-        calcStatusForSingleVariable(v, c)
+        calcStatusForSingleVariable(
+          variable as INonRepeatingVariableWithMapping,
+          resource
+        )
       );
     } else {
       // handle non repeating
-      return calcStatusForSingleVariable(variable, c);
+      return calcStatusForSingleVariable(variable, resource);
     }
   });
 };
@@ -68,8 +69,6 @@ const calcStatusForSingleVariable = (
   switch (resourceMapping?.match.name) {
     case undefined:
       return "unmapped";
-    case "na":
-      return "unmapped";
     case "partial":
       return "partial";
     case "complete":
@@ -85,7 +84,9 @@ const calcStatusForAggregatedRepeatingVariable = (
 ): HarmonisationStatus => {
   const statusList = !variable.repeats
     ? []
-    : variable.repeats.map((repeatedVariable) => {
+    : // @ts-ignore
+      variable.repeats.map((repeatedVariable) => {
+        // @ts-ignore
         const resourceMapping = repeatedVariable.mappings?.find((mapping) => {
           return (
             mapping.targetVariable &&

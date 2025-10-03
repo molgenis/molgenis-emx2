@@ -8,8 +8,8 @@ const initialStudyColumns = [
   {
     label: "Age:",
     type: "range",
-    min: "age_high",
-    max: "age_low",
+    min: "age_low",
+    max: "age_high",
     unit: "age_unit",
     unit_column: { age_unit: ["label"] },
   },

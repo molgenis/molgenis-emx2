@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useId } from "vue";
 import type {
   IFilter,
   IConditionsFilter,
   ISearchFilter,
+  IOntologyFilter,
 } from "~~/interfaces/types";
 
 const ariaId = useId();
@@ -68,7 +70,7 @@ function isAFilterSet(filters: IFilter[]) {
         <Button
           v-if="filter.config.type === 'SEARCH' && isFilterSet(filter)"
           @click="
-            (value) => {
+            () => {
               filter.search = '';
               handleFilerUpdate(filter);
             }
@@ -90,8 +92,10 @@ function isAFilterSet(filters: IFilter[]) {
           <Button
             v-if="filter.config.type !== 'SEARCH' && isFilterSet(filter)"
             @click="
-              (value) => {
-                filter.conditions = [];
+              () => {
+                if((filter as IOntologyFilter).conditions) {
+                  (filter as IOntologyFilter).conditions = [];
+                }
                 handleFilerUpdate(filter);
               }
             "

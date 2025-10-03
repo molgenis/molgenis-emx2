@@ -1,5 +1,3 @@
-
-
 export interface IFile {
     id?: string;
     size?: number;
@@ -27,14 +25,26 @@ export interface IComponent {
     parts?: IPart[];
 }
 
+export interface IComponent_agg {
+    count: number
+}
+
 export interface IPart {
     name: string;
     weight?: number;
 }
 
+export interface IPart_agg {
+    count: number
+}
+
 export interface IProduct {
     name: string;
     components?: IComponent[];
+}
+
+export interface IProduct_agg {
+    count: number
 }
 
 export interface ITypeTest {
@@ -59,6 +69,10 @@ export interface ITypeTest {
     testDatetimeNillable?: string;
     testPeriod: any;
     testPeriodNillable?: any;
+}
+
+export interface ITypeTest_agg {
+    count: number
 }
 
 

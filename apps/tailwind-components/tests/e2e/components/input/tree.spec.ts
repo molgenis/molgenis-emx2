@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import playwrightConfig from "~/playwright.config";
+import playwrightConfig from "../../../../playwright.config";
 
 const route = playwrightConfig?.use?.baseURL?.startsWith("http://localhost")
   ? ""
@@ -27,7 +27,7 @@ test("should expand the fist node when clicking in the icon", async ({
     .locator("label")
     .filter({ hasText: "Node 0" })
     .first()
-    .locator("rect")
+    .locator("svg")
     .click();
   await expect(page.getByText("Node 0.0", { exact: true })).toBeVisible();
   await expect(page.getByText("Node 0.1", { exact: true })).toBeVisible();

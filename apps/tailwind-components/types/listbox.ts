@@ -1,5 +1,4 @@
-
-import type { IInputValueLabel } from "../../metadata-utils/src/types"; 
+import type { IInputValueLabel } from "../../metadata-utils/src/types";
 
 export interface IInternalListboxOption extends IInputValueLabel {
   index: number;

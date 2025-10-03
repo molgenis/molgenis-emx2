@@ -71,10 +71,6 @@ public class StaticFileMapper {
   }
 
   private static void returnIndexFile(Context ctx) {
-    if (!ctx.path().endsWith("/")) {
-      ctx.redirect(ctx.path() + "/");
-      return;
-    }
     String path = "/public_html/apps/" + ctx.pathParam("app") + "/index.html";
     addFileToContext(ctx, path, "text/html");
   }

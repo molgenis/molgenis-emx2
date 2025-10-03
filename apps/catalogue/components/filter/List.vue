@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { fetchGql } from "../../composables/fetchGql";
 import type { INode } from "../../../tailwind-components/types/types";
-import type { IFilterCondition, optionsFetchFn } from "~/interfaces/types";
+import type { IFilterCondition, optionsFetchFn } from "../../interfaces/types";
+import { computed } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -35,7 +37,7 @@ const nodes = props.options
   ? typeof props.options === "function"
     ? await props.options()
     : props.options
-  : (await fetchGql<INode>(query)).data[props.tableId].map(dataToNode);
+  : (await fetchGql<INode>(query)).data?.[props.tableId]?.map(dataToNode) ?? [];
 
 function dataToNode(respObject: any): INode {
   return {
@@ -60,7 +62,7 @@ const selectedNodesNames = computed({
 <template>
   <InputList
     :nodes="nodes"
-    v-model="selectedNodesNames"
+    v-model="(selectedNodesNames as string[])"
     :inverted="mobileDisplay"
   >
   </InputList>

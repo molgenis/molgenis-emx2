@@ -1,6 +1,7 @@
 <template>
   <div class="relative">
     <HeaderButton
+      label="Selected items"
       icon="shopping-cart"
       class="xl:text-blue-500"
       @click="$emit('click')"
@@ -18,6 +19,9 @@
 </template>
 
 <script lang="ts" setup>
+import { useDatasetStore } from "#imports";
+import { ref, watch, computed } from "vue";
+
 const datasetStore = useDatasetStore();
 
 defineEmits<{ (e: "click"): void }>();
@@ -26,13 +30,13 @@ const storeHasDatasets = ref<boolean>(false);
 
 watch([datasetStore.datasets], () => {
   storeHasDatasets.value =
-    datasetStore.datasets.value &&
+    !!datasetStore.datasets.value &&
     Object.keys(datasetStore.datasets.value).length > 0;
 });
 
 const numberOfItemsInStore = computed<number | string>(() => {
   if (storeHasDatasets.value) {
-    const count = Object.keys(datasetStore.datasets.value).length;
+    const count = Object.keys(datasetStore.datasets.value || {}).length;
     if (count > 99) {
       return "99+";
     } else {

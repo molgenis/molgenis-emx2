@@ -1,7 +1,10 @@
-import { type IQueryMetaData } from "../../molgenis-components/src/client/IQueryMetaData";
+import { createError } from "#app";
+import { fetchMetadata } from "#imports";
+import type { columnValue } from "../../metadata-utils/src/types";
+import { type IQueryMetaData } from "../types/IQueryMetaData";
 
 export interface ITableDataResponse {
-  rows: Record<string, any>[];
+  rows: Record<string, columnValue>[];
   count: number;
 }
 
@@ -67,10 +70,10 @@ export const getColumnIds = async (
   //rootLevel
   rootLevel = true
 ) => {
-  const metaData = await fetchMetadata(schemaId);
+  const metadata = await fetchMetadata(schemaId);
 
   const columns =
-    metaData.tables.find((table) => table.id === tableId)?.columns || [];
+    metadata.tables.find((table) => table.id === tableId)?.columns || [];
 
   let gqlFields = "";
   for (const col of columns) {
@@ -78,10 +81,26 @@ export const getColumnIds = async (
     if (expandLevel > 0 || col.key) {
       if (
         !rootLevel &&
-        ["REF_ARRAY", "REFBACK", "ONTOLOGY_ARRAY"].includes(col.columnType)
+        [
+          "REF_ARRAY",
+          "REFBACK",
+          "ONTOLOGY_ARRAY",
+          "MULTISELECT",
+          "CHECKBOX",
+        ].includes(col.columnType)
       ) {
         //skip
-      } else if (["REF", "REF_ARRAY", "REFBACK"].includes(col.columnType)) {
+      } else if (
+        [
+          "REF",
+          "REF_ARRAY",
+          "REFBACK",
+          "MULTISELECT",
+          "CHECKBOX",
+          "SELECT",
+          "RADIO",
+        ].includes(col.columnType)
+      ) {
         gqlFields =
           gqlFields +
           " " +

@@ -10,6 +10,7 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from "vue";
 import type { IFormLegendSection } from "../../metadata-utils/src/types";
 
 function handleGoToRequest(id: string) {

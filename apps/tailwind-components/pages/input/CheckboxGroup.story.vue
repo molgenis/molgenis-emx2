@@ -51,6 +51,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+
 const selection = ref<string[]>(["tomatoes", "basil"]);
 const inputState = ref<string>("inactive");
 </script>

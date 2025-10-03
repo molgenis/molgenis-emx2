@@ -7,8 +7,9 @@ import java.util.*;
 public class User extends HasSettings<User> {
   private static final String TOKENS = "access-tokens";
   private String username;
-  private Boolean enabled = Boolean.TRUE;
+  private boolean enabled = true;
   private Database database;
+  private boolean isAdmin = false;
 
   User(String username) {
     // for testing protected
@@ -38,11 +39,11 @@ public class User extends HasSettings<User> {
     this.username = username;
   }
 
-  public Boolean getEnabled() {
+  public boolean getEnabled() {
     return enabled;
   }
 
-  public void setEnabled(Boolean enabled) {
+  public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 
@@ -79,5 +80,13 @@ public class User extends HasSettings<User> {
     }
     this.setSetting(TOKENS, tokensString);
     database.saveUser(this);
+  }
+
+  public void setAdmin(boolean admin) {
+    this.isAdmin = admin;
+  }
+
+  public boolean isAdmin() {
+    return isAdmin;
   }
 }

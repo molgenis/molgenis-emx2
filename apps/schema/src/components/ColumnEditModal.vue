@@ -56,6 +56,10 @@
                   column.columnType === 'REF' ||
                   column.columnType === 'REF_ARRAY' ||
                   column.columnType === 'REFBACK' ||
+                  column.columnType === 'RADIO' ||
+                  column.columnType === 'CHECKBOX' ||
+                  column.columnType === 'SELECT' ||
+                  column.columnType === 'MULTISELECT' ||
                   column.columnType === 'ONTOLOGY' ||
                   column.columnType === 'ONTOLOGY_ARRAY'
                 "
@@ -205,8 +209,9 @@
             </div>
             <div class="row">
               <div class="col-4">
-                <InputString
+                <ArrayInput
                   id="column_semantics"
+                  columnType="STRING_ARRAY"
                   v-model="column.semantics"
                   :list="true"
                   label="semantics"
@@ -286,6 +291,7 @@ import {
   InputRadio, //@ts-ignore
   InputSelect, //@ts-ignore
   InputString, //@ts-ignore
+  ArrayInput, //@ts-ignore
   InputText, //@ts-ignore
   InputTextLocalized, //@ts-ignore
   LayoutForm, //@ts-ignore
@@ -307,6 +313,7 @@ export default {
     LayoutForm,
     InputText,
     InputString,
+    ArrayInput,
     InputBoolean,
     InputSelect,
     InputRadio,
@@ -498,7 +505,12 @@ export default {
       return this.table.columns
         .filter(
           (c: Record<string, any>) =>
-            (c.columnType === "REF" || c.columnType === "REF_ARRAY") &&
+            (c.columnType === "REF" ||
+              c.columnType === "REF_ARRAY" ||
+              c.columnType === "RADIO" ||
+              c.columnType === "SELECT" ||
+              c.columnType === "MULTISELECT" ||
+              c.columnType === "CHECKBOX") &&
             c.name !== this.modelValue?.name
         )
         .map((c: Record<string, any>) => c.name);

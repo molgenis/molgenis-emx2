@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import type {
-  HarmonisationStatus,
-  IMapping,
-  IVariable,
-  IVariableDetails,
-  IVariableMappings,
-} from "~/interfaces/types";
+import { computed } from "vue";
+import type { IVariableDetails, IVariableMappings } from "~/interfaces/types";
 
 const props = defineProps<{
   variable: IVariableDetails & IVariableMappings;
@@ -66,7 +61,10 @@ const repeats = computed(() => {
               variable.mappings?.find(
                 (m) =>
                   m.source.id === cell.value.column &&
-                  m.repeats.split(',').includes('' + cell.value.row)
+                  m.repeats
+                    .split(',')
+                    .map((repeatIndex) => repeatIndex?.trim())
+                    .includes('' + cell.value.row)
               )?.match.name || 'unmapped'
             "
           />

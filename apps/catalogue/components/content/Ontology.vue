@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { IOntologyItem } from "~/interfaces/types";
 
 const props = withDefaults(
@@ -30,10 +31,10 @@ const isList = computed(() => {
   <span v-if="isList && tree.length === 1">
     <div class="flex items-center">
       <span class="flex justify-center items-start">
-        {{ tree[0].name }}
+        {{ tree[0]?.name }}
       </span>
       <div class="inline-flex items-center whitespace-nowrap">
-        <div v-if="tree[0].definition" class="inline-block ml-1">
+        <div v-if="tree[0]?.definition" class="inline-block ml-1">
           <CustomTooltip
             label="Read more"
             :hoverColor="inverted ? 'none' : 'white'"

@@ -1,6 +1,8 @@
-import type { UseFetchOptions } from "nuxt/app";
 import { defu } from "defu";
 import type { DocumentNode } from "graphql";
+import { moduleToString, logError, useRuntimeConfig, useFetch } from "#imports";
+import { type Ref, isRef } from "vue";
+import type { UseFetchOptions } from "#app";
 
 interface UseGqlFetchOptions<T> extends UseFetchOptions<T> {
   variables?: object;
@@ -27,23 +29,30 @@ export function useGqlFetch<T, E>(
       : options.variables;
     body.variables = variablesValue;
   }
-  const schema = options.schemaId ?? useRoute().params.schema;
+  const config = useRuntimeConfig();
+  const schema = options.schemaId ?? (config.public.schema as string);
   const url = `/${schema}/graphql`;
   const defaults: UseFetchOptions<T> = {
     method: "POST",
     key: `gql-${url}-${queryString}`,
     body,
     onResponseError(_ctx) {
+      let errorDetail = "";
+      try {
+        errorDetail = JSON.stringify(_ctx.response._data);
+      } catch (e) {
+        errorDetail = "Unknown error";
+      }
       logError({
         message: "onResponseError fetching data from GraphQL endpoint",
         statusCode: _ctx.response.status,
-        data: _ctx.response._data,
+        data: { errors: [{ message: errorDetail }] },
       });
     },
   };
 
   const params = defu(options, defaults);
 
-  // @ts-ignore it cant figure out the combined param types
+  // @ts-ignore
   return useFetch<T, E>(url, params);
 }

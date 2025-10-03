@@ -25,7 +25,6 @@
           :invalid="invalid"
           :disabled="disabled"
           :errorMessage="errorMessage || null"
-          :options="demoOptions"
           :label="'Demo input for type=' + type"
           :required="required"
           refSchemaId="pet store"
@@ -34,6 +33,7 @@
           description="here a demo description to see that that works too"
           @blur="blurCount++"
           @focus="focusCount++"
+          class="mb-3"
         />
       </template>
     </template>
@@ -46,19 +46,23 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import type { CellValueType } from "../../metadata-utils/src/types";
 
 const demoValue = ref<Record<string, any>>({
   string: "test string",
-  checkbox: [1],
-  radio: 1,
-  select: 1,
+  select: { name: "pooky" },
+  radio: { name: "pooky" },
+  checkbox: [{ name: "pooky" }, { name: "spike" }],
+  multiselect: [{ name: "pooky" }, { name: "spike" }],
   text: "some demo text",
   ref: null,
   bool: true,
   int: 42,
   decimal: -13.37,
   long: "37",
+  string_array: ["Hello", "World"],
+  decimal_array: [3.14159265],
   ontology: { name: "green" },
   ontology_array: [{ name: "green" }, { name: "mammals" }],
 });

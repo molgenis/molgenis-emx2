@@ -2,29 +2,35 @@
 import collectionEventGql from "~~/gql/collectionEvent";
 import type { IDefinitionListItem, IMgError } from "~~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
+import { useRoute, useFetch, useRuntimeConfig } from "#app";
+import {
+  moduleToString,
+  logError,
+  removeChildIfParentSelected,
+} from "#imports";
+import { computed } from "vue";
+
+const config = useRuntimeConfig();
+const schema = config.public.schema as string;
 
 const { id: collectionEventName } = defineProps<{
   id: string;
 }>();
 
-const config = useRuntimeConfig();
 const route = useRoute();
 const query = moduleToString(collectionEventGql);
 
-const { data, error } = await useFetch<any, IMgError>(
-  `/${route.params.schema}/graphql`,
-  {
-    key: `collection-event-${route.params.resource}-${collectionEventName}`,
-    method: "POST",
-    body: {
-      query,
-      variables: {
-        id: route.params.resource,
-        name: collectionEventName,
-      },
+const { data, error } = await useFetch<any, IMgError>(`/${schema}/graphql`, {
+  key: `collection-event-${route.params.resource}-${collectionEventName}`,
+  method: "POST",
+  body: {
+    query,
+    variables: {
+      id: route.params.resource,
+      name: collectionEventName,
     },
-  }
-);
+  },
+});
 
 if (error.value) {
   const contextMsg = "Error fetching data for collection-event preview fetch";
@@ -37,12 +43,12 @@ const collectionEvent: any = computed(
 );
 
 const pageCrumbs: any = {
-  Resource: `/${route.params.schema}/catalogue`,
+  Resource: `/${schema}/catalogue`,
 };
 
 pageCrumbs[
   route.params.resource as string
-] = `/${route.params.schema}/catalogue/resources/${route.params.resource}`;
+] = `/resources/${route.params.resource}`;
 
 function renderList(list: any[], itemMapper: (a: any) => string) {
   return list?.length === 1 ? itemMapper(list[0]) : list.map(itemMapper);

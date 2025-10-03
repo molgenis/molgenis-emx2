@@ -44,6 +44,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useDatasetStore } from "#imports";
+import { ref, onMounted } from "vue";
 import type { IResources, IDatasets } from "~/interfaces/catalogue";
 const datasetStore = useDatasetStore();
 const modelValue = ref<string[]>([]);

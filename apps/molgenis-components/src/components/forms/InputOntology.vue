@@ -14,12 +14,14 @@
     >
       <div
         class="border-0 text-left form-control"
-        style="height: auto"
+        style="height: auto; cursor: pointer"
         @click="toggleFocus"
       >
         <span
           class="btn btn-sm btn-primary text-white mr-1"
-          v-for="selectedTerm in selectionWithoutChildren"
+          v-for="selectedTerm in selectionWithoutChildren.sort(
+            (a, b) => a.order - b.order
+          )"
           :key="selectedTerm"
           @click.stop="deselect(selectedTerm.name)"
         >
@@ -55,12 +57,13 @@
           />
         </span>
         <span class="d-inline-block float-right">
-          <i
-            class="p-2 fa fa-times"
-            style="vertical-align: middle"
-            @click.stop="clearSelection"
-            v-if="!showExpanded && selectionWithoutChildren.length > 0"
-          />
+          <span @click.prevent.stop="clearSelection" style="cursor: pointer">
+            <i
+              class="p-2 fa fa-times"
+              style="vertical-align: middle"
+              v-if="!showExpanded && selectionWithoutChildren.length > 0"
+            ></i>
+          </span>
           <i
             class="p-2 fa fa-caret-down"
             style="vertical-align: middle"
@@ -283,6 +286,10 @@ export default {
       }
       this.emitValue();
       this.$refs.search.focus();
+      if (!this.isMultiSelect) {
+        //close on select
+        this.focus = false;
+      }
       this.key++;
     },
     deselect(item: string) {
@@ -335,7 +342,8 @@ export default {
       if (this.isMultiSelect) {
         this.$emit("update:modelValue", selectedTerms);
       } else {
-        this.$emit("update:modelValue", selectedTerms[0]);
+        //need explicit 'null' to ensure value is emitted in form
+        this.$emit("update:modelValue", selectedTerms[0] || null);
       }
     },
     applySelection(value: Record<string, any>) {
@@ -479,6 +487,7 @@ export default {
             terms[term.name].label = term.label;
             terms[term.name].code = term.code;
             terms[term.name].codesystem = term.codesystem;
+            terms[term.name].order = term.order;
           } else {
             //else simply add the record
             terms[term.name] = {
@@ -490,6 +499,7 @@ export default {
               code: term.code,
               codesystem: term.codesystem,
               label: term.label,
+              order: term.order,
             };
           }
           if (term.parent) {
@@ -614,7 +624,7 @@ function getSelectedChildNodes(term: Record<string, any>) {
           :showExpanded="true"
           description="please choose your options in tree below"
           :options="options"
-          :isMultiSelect="unselected"
+          :isMultiSelect="true"
       />
       <div>You selected: {{ value5 }}</div>
     </demo-item>

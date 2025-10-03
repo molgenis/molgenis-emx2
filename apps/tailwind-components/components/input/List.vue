@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { INode } from "~/types/types";
+import type { INode } from "../../types/types";
 import CustomTooltip from "../CustomTooltip.vue";
 
 const props = withDefaults(

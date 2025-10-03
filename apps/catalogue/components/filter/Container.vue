@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, watch } from "vue";
 import type { IFilterCondition } from "~/interfaces/types";
 
 const props = withDefaults(

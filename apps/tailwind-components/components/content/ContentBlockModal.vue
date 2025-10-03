@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { INotificationType } from "~/types/types";
+import { computed } from "vue";
+import type { INotificationType } from "../../types/types";
 
 const props = withDefaults(
   defineProps<{
@@ -32,11 +33,18 @@ const bgClass = computed(() => {
 </script>
 
 <template>
-  <section class="pb-18 pt-7 pr-16 pl-7 text-gray-900" :class="bgClass">
+  <section class="pb-[2.5rem] pt-[3.125rem] px-[2.5rem]" :class="bgClass">
     <div v-if="subTitle">{{ subTitle }}</div>
-    <h2 class="mb-5 uppercase text-heading-4xl font-display" v-if="title">
-      {{ title }}
-    </h2>
+    <div class="flex justify-between">
+      <div>
+        <h2 v-if="title" class="mb-5 uppercase text-heading-4xl font-display">
+          {{ title }}
+        </h2>
+      </div>
+      <div>
+        <slot name="title-button" />
+      </div>
+    </div>
     <div class="mb-5 prose max-w-none" v-if="description">
       <div v-html="description"></div>
     </div>

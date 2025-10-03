@@ -1,11 +1,4 @@
-<script setup lang="ts">
-import { computed } from "vue";
-import { useRoute } from "vue-router";
-const route = useRoute();
-const currentRouteName = computed(() => route.name);
-</script>
 <template>
-  <h1>Component: {{ currentRouteName }}</h1>
   <div
     class="overflow-x-clip min-h-screen bg-base-gradient relative after:bg-app-wrapper after:w-full after:h-[166px] after:top-0 after:absolute after:opacity-20 after:z-20 xl:after:hidden pt-15"
   >
@@ -15,6 +8,7 @@ const currentRouteName = computed(() => route.name);
       <BackgroundGradient class="z-10" />
     </div>
     <div class="z-30 relative min-h-screen flex flex-col">
+      <PlaygroundNavBar />
       <main class="mb-auto">
         <div id="header-place-holder"></div>
         <div class="xl:flex">
@@ -26,3 +20,7 @@ const currentRouteName = computed(() => route.name);
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import PlaygroundNavBar from "../PlaygroundNavBar.vue";
+</script>

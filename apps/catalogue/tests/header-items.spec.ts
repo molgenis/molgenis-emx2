@@ -15,7 +15,7 @@ test("should show variables in menu if there are variables", async ({
   page,
   goto,
 }) => {
-  await goto("/catalogue-demo/catalogue/all", { waitUntil: "hydration" });
+  await goto("/all", { waitUntil: "hydration" });
   await expect(page.getByRole("navigation")).toContainText("Collections");
   await expect(page.getByRole("navigation")).toContainText("Networks");
   await expect(page.getByRole("navigation")).toContainText("Variables");

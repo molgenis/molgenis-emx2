@@ -3,58 +3,60 @@
     <router-link v-if="canEdit" :to="'/' + page + '/edit'">
       edit page
     </router-link>
+    <MessageError v-if="graphqlError">{{ graphqlError }}</MessageError>
     <div ref="pageContents"></div>
   </div>
 </template>
 
 <script>
+import { MessageError } from "molgenis-components";
+import { getPageSetting } from "../utils/getPageSetting";
+import { generateHtmlPreview } from "../utils/generateHtmlPreview";
+import { newPageContentObject } from "../utils/newPageContentObject";
+
 export default {
   props: {
     page: String,
     session: Object,
   },
+  components: {
+    MessageError,
+  },
+  data() {
+    return {
+      graphqlError: null,
+    };
+  },
   computed: {
-    contents() {
-      if (
-        this.session &&
-        this.session.settings &&
-        this.session.settings["page." + this.page]
-      ) {
-        return this.session.settings["page." + this.page];
-      }
-      return "Page not found";
+    pageSettingKey() {
+      return "page." + this.page;
     },
     canEdit() {
       return (
         this.session &&
-        (this.session.email == "admin" ||
+        (this.session.admin ||
           (this.session.roles && this.session.roles.includes("Manager")))
       );
     },
   },
-  watch: {
-    contents(htmlString) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlString, "text/html");
-
-      /** Loop over the just parsed html items, and add them */
-      Array.from(doc.body.children).forEach((el) => {
-        if (el.tagName !== "SCRIPT") {
-          this.$refs.pageContents.appendChild(el);
+  mounted() {
+    Promise.resolve(getPageSetting(this.pageSettingKey))
+      .then((data) => {
+        if (
+          data &&
+          (Object.keys(data).includes("html") ||
+            Object.keys(data).includes("css") ||
+            Object.keys(data).includes("javascript"))
+        ) {
+          this.content = data;
+        } else if (data && typeof data === "string") {
+          this.content = data;
         } else {
-          /** Script tags need a special treatment, else they will not execute. **/
-          const scriptEl = document.createElement("script");
-          if (el.src) {
-            /** If we have an external script. */
-            scriptEl.src = el.src;
-          } else {
-            /** Regular inline script */
-            scriptEl.textContent = el.textContent;
-          }
-          this.$refs.pageContents.appendChild(scriptEl);
+          this.content = newPageContentObject();
         }
-      });
-    },
+      })
+      .then(() => generateHtmlPreview(this, this.content, "pageContents"))
+      .catch((err) => (this.graphqlError = err));
   },
 };
 </script>

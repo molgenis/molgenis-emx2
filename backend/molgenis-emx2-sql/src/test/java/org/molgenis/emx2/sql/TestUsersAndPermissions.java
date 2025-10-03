@@ -17,6 +17,8 @@ public class TestUsersAndPermissions {
   private static final String TEST_ENABLE_USERS = "TestEnableUser";
   private static final String TEST_INITIALLY_ENABLE_USERS = "TestInitiallyEnableUser";
   private static final String TEST_NONEXISTENT_USERS = "TestNonExistentUser";
+  private static final String TEST_ADMIN_USER = "TestAdminUser";
+  private static final String TEST_ADMIN_USER_2 = "TestAdminUser2";
 
   @BeforeAll
   public static void setup() {
@@ -28,10 +30,13 @@ public class TestUsersAndPermissions {
     if (database.hasUser(TEST_ENABLE_USERS)) {
       database.removeUser(TEST_ENABLE_USERS);
     }
+    if (database.hasUser(TEST_ADMIN_USER)) {
+      database.removeUser(TEST_ADMIN_USER);
+    }
   }
 
   @Test
-  public void getUsers() {
+  void getUsers() {
     List<User> users = database.getUsers(1000, 0);
     assertTrue(users.size() > 0);
 
@@ -42,7 +47,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testActiveUser() {
+  void testActiveUser() {
     try {
 
       assertTrue(database.isAdmin());
@@ -89,14 +94,55 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testDisableUser() {
+  void testDisableUser() {
     database.addUser(TEST_ENABLE_USERS);
     database.setEnabledUser(TEST_ENABLE_USERS, false);
     assertFalse(database.getUser(TEST_ENABLE_USERS).getEnabled());
   }
 
   @Test
-  public void testNonExistentDisableUser() {
+  void testGrantAdminStatus() {
+    database.addUser(TEST_ADMIN_USER);
+    database.setAdminUser(TEST_ENABLE_USERS, true);
+    assertTrue(database.getUser(TEST_ENABLE_USERS).isAdmin());
+    database.setAdminUser(TEST_ENABLE_USERS, false);
+    assertFalse(database.getUser(TEST_ENABLE_USERS).isAdmin());
+  }
+
+  @Test
+  void testGrantAdminStatusAnonymous_shouldThrow() {
+    assertThrows(MolgenisException.class, () -> database.setAdminUser(ANONYMOUS, true));
+  }
+
+  @Test
+  void testRevokeAdminStatusOfAdmin_shouldThrow() {
+    assertThrows(MolgenisException.class, () -> database.setAdminUser(ADMIN, false));
+  }
+
+  @Test
+  void testGrantAdminByNonRootAdmin_shouldThrow() {
+    database.becomeAdmin();
+    database.addUser(TEST_ADMIN_USER);
+    database.setAdminUser(TEST_ADMIN_USER, true);
+    // Become non-root admin user
+    database.setActiveUser(TEST_ADMIN_USER);
+    database.addUser(TEST_ADMIN_USER_2);
+    // Should throw only root admin can set admin
+    assertThrows(MolgenisException.class, () -> database.setAdminUser(TEST_ADMIN_USER_2, true));
+  }
+
+  @Test
+  void changeAdminPasswordByNonRootAdmin_shouldThrow() {
+    database.addUser(TEST_ADMIN_USER);
+    database.setAdminUser(TEST_ADMIN_USER, true);
+    // Become non-root admin user
+    database.setActiveUser(TEST_ADMIN_USER);
+    // Should throw only root admin can set admin password
+    assertThrows(MolgenisException.class, () -> database.setUserPassword(ADMIN, "somePassword"));
+  }
+
+  @Test
+  void testNonExistentDisableUser() {
     try {
       database.setEnabledUser(TEST_NONEXISTENT_USERS, false);
       fail("should have failed");
@@ -106,7 +152,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testDisableAdmin() {
+  void testDisableAdmin() {
     try {
       database.setEnabledUser(ADMIN, false);
       fail("should have failed");
@@ -116,7 +162,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testDisableAnonymous() {
+  void testDisableAnonymous() {
     try {
       database.setEnabledUser(ANONYMOUS, false);
       fail("should have failed");
@@ -126,7 +172,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testRemoveAdmin() {
+  void testRemoveAdmin() {
     try {
       database.removeUser(ADMIN);
       fail("should have failed");
@@ -136,7 +182,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testRemoveAnonymous() {
+  void testRemoveAnonymous() {
     try {
       database.removeUser(ANONYMOUS);
       fail("should have failed");
@@ -146,7 +192,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testRemoveUser() {
+  void testRemoveUser() {
     try {
       database.removeUser(USER);
       fail("should have failed");
@@ -156,7 +202,7 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testNonExistentRemoveUser() {
+  void testNonExistentRemoveUser() {
     try {
       database.removeUser(TEST_NONEXISTENT_USERS);
       fail("should have failed");
@@ -166,13 +212,13 @@ public class TestUsersAndPermissions {
   }
 
   @Test
-  public void testInitiallyEnabledUser() {
+  void testInitiallyEnabledUser() {
     database.addUser(TEST_INITIALLY_ENABLE_USERS);
     assertTrue(database.getUser(TEST_INITIALLY_ENABLE_USERS).getEnabled());
   }
 
   @Test
-  public void testPassword() {
+  void testPassword() {
     try {
       database.addUser("donald");
       database.setUserPassword("donald", "blaat");

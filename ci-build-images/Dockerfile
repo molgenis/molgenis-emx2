@@ -3,23 +3,25 @@
 # docker buildx build -t molgenis/ci-build:1.2.2 --platform linux/amd64 .
 # docker push molgenis/ci-build:1.2.2
 
-FROM gradle:jdk17-jammy
+FROM gradle:jdk21-noble
+RUN useradd -m molgenis
 
-RUN apt-get update && apt-get install python3 python3-venv -y
-RUN apt-get install python3 python3-venv python3-pip -y
-RUN python3 -m pip install --upgrade build twine
+RUN apt-get update && apt-get install vim python3 python3-venv python3-pip python3-setuptools python3-setuptools-whl -y
+RUN python3 -m pip config set global.break-system-packages true
 RUN python3 --version
 
-ENV NODE_VERSION=20.11.0
+ENV NODE_VERSION=22.17.0
 RUN apt install -y curl
+USER molgenis 
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-ENV NVM_DIR=/root/.nvm
+ENV NVM_DIR=/home/molgenis/.nvm
 RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
 RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
 RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
-ENV PATH="/root/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+ENV PATH="/home/molgenis/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
 RUN node --version
 RUN npm --version
+USER root 
 
 
 RUN apt update
@@ -28,6 +30,8 @@ RUN install -m 0755 -d /etc/apt/keyrings
 
 ##docker
 RUN curl -sSL https://get.docker.com/ | sh
+RUN mkdir ~/.docker
+RUN curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s 
 
 # kubectl
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
@@ -55,3 +59,4 @@ RUN apt-get install postgresql-client -y
 # GemTools & FPM For debian and redhat packages
 RUN apt-get install ruby-dev -y 
 RUN gem install fpm
+USER molgenis

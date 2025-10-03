@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { INode } from "~/types/types";
+import { type Ref, ref } from "vue";
+import type { INode } from "../../types/types";
 
 function generateListData(length: number) {
   const nodes = [];

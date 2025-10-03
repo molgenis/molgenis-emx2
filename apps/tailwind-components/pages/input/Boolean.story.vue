@@ -40,6 +40,8 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from "vue";
+
 const modelValue1 = ref<null>(null);
 const modelValue2 = ref<boolean>(true);
 const modelValue3 = ref<boolean>(false);

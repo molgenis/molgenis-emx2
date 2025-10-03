@@ -1,5 +1,6 @@
 package org.molgenis.emx2.web;
 
+import static org.molgenis.emx2.Constants.MG_DRAFT;
 import static org.molgenis.emx2.graphql.GraphqlTableFieldFactory.convertMapToFilterArray;
 import static org.molgenis.emx2.io.emx2.Emx2.getHeaders;
 import static org.molgenis.emx2.web.Constants.ACCEPT_CSV;
@@ -112,7 +113,7 @@ public class CsvApi {
     boolean includeSystem = includeSystemColumns(ctx);
     return table.getMetadata().getDownloadColumnNames().stream()
         .map(Column::getName)
-        .filter(name -> !name.startsWith("mg_") || includeSystem)
+        .filter(name -> name.equals(MG_DRAFT) || !name.startsWith("mg_") || includeSystem)
         .toList();
   }
 

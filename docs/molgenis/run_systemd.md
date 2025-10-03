@@ -5,7 +5,7 @@ We support Redhat and Ubuntu based installations.
 
 ## Java 
 
-MOLGENIS EMX2 runs on java > 17
+MOLGENIS EMX2 runs on java ≥ 21
 <!-- tabs:start -->
 
 #### **Ubuntu (apt)**
@@ -174,6 +174,16 @@ Optionally, you can change defaults using either java properties or using env va
 * MOLGENIS_POSTGRES_PASS
 * MOLGENIS_HTTP_PORT
 * MOLGENIS_ADMIN_PW
+
+### exposed cache settings ( uses [caffeine](https://github.com/ben-manes/caffeine/blob/master/README.md) under the hood )
+* ANONYMOUS_GQL_CACHE_MAX_SIZE
+max number of cached gql schema objects for an anonymous role, defaults to 100
+* ANONYMOUS_GQL_CACHE_EXPIRE_ACCESS_MIN 
+cache invalidation after access in minutes defaults to 1
+* ANONYMOUS_GQL_CACHE_EXPIRE_WRITE_MIN 
+cache invalidation after write in minutes defaults to 30
+
+changes require restart
 
 
 

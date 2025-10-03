@@ -11,7 +11,7 @@
         :logo="logoURLorDefault"
         active="My search"
         :items="menu"
-        :session="session"
+        :session="session ?? undefined"
       >
         <MolgenisSession
           v-model="session"
@@ -55,193 +55,245 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import MolgenisMenu from "./MolgenisMenu.vue";
 import MolgenisSession from "../account/MolgenisSession.vue";
 import MolgenisFooter from "./MolgenisFooter.vue";
 import Breadcrumb from "./Breadcrumb.vue";
 import CookieWall from "./CookieWall.vue";
-import { request, gql } from "graphql-request";
+import Client from "../../client/client";
+import { MenuItem } from "../../Interfaces/MenuItem";
+import { computed, ref, unref, watch } from "vue";
+import { onMounted } from "vue";
+import { ISetting } from "metadata-utils/src";
 
-const defaultSchemaMenuItems = [
-  { label: "Tables", href: "tables", role: "Viewer" },
+const defaultSchemaMenuItems: MenuItem[] = [
+  {
+    label: "Tables",
+    href: "tables",
+    role: "Viewer",
+    submenu: [],
+  },
   {
     label: "Schema",
     href: "schema",
     role: "Viewer",
+    submenu: [],
   },
   {
     label: "Up/Download",
     href: "updownload",
     role: "Viewer",
+    submenu: [],
   },
   {
     label: "Reports",
     href: "reports",
     role: "Viewer",
+    submenu: [],
   },
   {
     label: "Jobs & Scripts",
     href: "tasks",
     role: "Manager",
+    submenu: [],
   },
   {
     label: "Graphql",
     href: "graphql-playground",
     role: "Viewer",
+    submenu: [],
   },
   {
     label: "Settings",
     href: "settings",
     role: "Manager",
+    submenu: [],
   },
   {
     label: "Help",
     href: "docs",
     role: "Viewer",
+    submenu: [],
   },
 ];
 
-/**
- Provides wrapper for your apps, including a little bit of contextual state, most notably 'account' that can be reacted to using v-model.
- */
-export default {
-  components: {
-    MolgenisSession,
-    MolgenisMenu,
-    MolgenisFooter,
-    Breadcrumb,
-    CookieWall,
-  },
-  props: {
-    menuItems: {
-      type: Array,
-    },
-    title: String,
-    showCrumbs: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  data: function () {
-    return {
-      session: {} as Record<string, any>,
-      logoURL: null,
-      fullscreen: false,
-      timestamp: Date.now(),
-      analyticsId: null,
-      cookieWallContent: null,
-    };
-  },
-  computed: {
-    schemaUrlsForCrumbs() {
-      let result: Record<string, any> = {
-        "list all databases": "/apps/central/",
-      };
-      //all databases
-      if (this.session?.schemas) {
-        this.session.schemas.forEach((schema: string) => {
-          result[schema] = "../../" + schema; // all paths are of form /:schema/:app
-        });
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    menuItems?: MenuItem[];
+    showCrumbs?: boolean;
+  }>(),
+  { menuItems: () => [], showCrumbs: true }
+);
+
+const menu = ref<MenuItem[]>([]);
+
+if (props.menuItems.length) {
+  menu.value = toEmx2AppLocation(props.menuItems);
+} else {
+  menu.value = toEmx2AppLocation(defaultSchemaMenuItems);
+}
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: Record<string, any> | null): void;
+  (e: "error", error: any): void;
+}>();
+
+const session = ref<Record<string, any> | null>(null);
+const logoURL = ref<string | null>(null);
+const timestamp = ref(Date.now());
+const analyticsId = ref<string | null>(null);
+const cookieWallContent = ref<string | null>(null);
+
+const schemaUrlsForCrumbs = computed(() => {
+  let result: Record<string, any> = {
+    "list all databases": "/apps/central/",
+  };
+  //all databases
+  if (session.value?.schemas) {
+    session.value.schemas
+      .sort((a: string, b: string) =>
+        a.localeCompare(b, undefined, { sensitivity: "base" })
+      )
+      .forEach((schema: string) => {
+        result[schema] = "/" + schema + "/index"; // all paths are of form /:schema/:app, index will do routing to default app in schema
+      });
+  }
+  return result;
+});
+
+const crumbs = computed(() => {
+  let result: Record<string, any> = {};
+  if (window && location) {
+    let path = decodeURI(
+      window.location.pathname.replace(location.search, "")
+    ).split("/");
+    let url = "/";
+    if (window.location.pathname != "/apps/central/") {
+      let appPath = "index"; //use to get 'index' added to first breadcrumb
+      path.forEach((el) => {
+        if (el !== "") {
+          url += el + "/";
+          result[el] = url + appPath;
+          appPath = ""; //only on /schema/index after that nothing
+        }
+      });
+    }
+
+    path = decodeURI(location?.hash?.split("?")[0]).substr(1).split("/");
+    url += "#";
+    path.forEach((el) => {
+      if (el !== "") {
+        url += "/" + el;
+        result[el] = url;
       }
-      return result;
-    },
-    crumbs() {
-      let result: Record<string, any> = {};
-      if (window && location) {
-        let path = decodeURI(
-          window.location.pathname.replace(location.search, "")
-        ).split("/");
-        let url = "/";
-        if (window.location.pathname != "/apps/central/") {
-          path.forEach((el) => {
-            if (el !== "") {
-              url += el + "/";
-              result[el] = url;
-            }
-          });
-        }
-        if (this.$route) {
-          path = decodeURI(location.hash.split("?")[0]).substr(1).split("/");
-          url += "#";
-          path.forEach((el) => {
-            if (el !== "") {
-              url += "/" + el;
-              result[el] = url;
-            }
-          });
-        }
-      }
-      return result;
-    },
-    logoURLorDefault() {
-      return (
-        this.logoURL ||
-        "/apps/molgenis-components/assets/img/molgenis_logo_white.png"
-      );
-    },
-    menu() {
-      if (this.menuItems) {
-        return this.menuItems;
-      } else if (this.session?.settings?.menu) {
-        return this.session.settings.menu;
-      } else {
-        return defaultSchemaMenuItems;
-      }
-    },
-  },
-  watch: {
-    session: {
-      deep: true,
-      handler() {
-        if (this.session?.settings?.logoURL) {
-          this.logoURL = this.session.settings.logoURL;
-        }
-        const additionalJs: string = this.session?.settings?.additionalJs;
-        if (additionalJs) {
-          try {
-            ("use strict");
-            eval?.(`(function() {"use strict"; ${additionalJs}})()`);
-          } catch (error) {
-            console.log(error);
-          }
-        }
-        this.$emit("update:modelValue", this.session);
-      },
-    },
-  },
-  methods: {
-    toggle() {
-      this.fullscreen = !this.fullscreen;
-    },
-  },
-  emits: ["update:modelValue", "error"],
-  created() {
-    request(
-      "graphql",
-      gql`
-        {
-          _settings {
-            key
-            value
-          }
-        }
-      `
-    ).then((data: any) => {
-      const analyticsSetting = data._settings.find(
-        (setting: Record<string, any>) => setting.key === "ANALYTICS_ID"
-      );
-      this.analyticsId = analyticsSetting ? analyticsSetting.value : null;
-      const analyticsCookieWallContentSetting = data._settings.find(
-        (setting: Record<string, any>) =>
-          setting.key === "ANALYTICS_COOKIE_WALL_CONTENT"
-      );
-      this.cookieWallContent = analyticsCookieWallContentSetting
-        ? analyticsCookieWallContentSetting.value
-        : null;
     });
+  }
+  return result;
+});
+
+const logoURLorDefault = computed(() => {
+  return (
+    logoURL.value ??
+    "/apps/molgenis-components/assets/img/molgenis_logo_white.png"
+  );
+});
+
+watch(
+  session,
+  (newValue) => {
+    if (newValue?.settings?.logoURL) {
+      logoURL.value = newValue.settings.logoURL;
+    }
+    const additionalJs: string = newValue?.settings?.additionalJs;
+    if (additionalJs) {
+      try {
+        ("use strict");
+        eval?.(`(function() {"use strict"; ${additionalJs}})()`);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    if (!props.menuItems.length && newValue?.settings?.menu) {
+      menu.value = newValue.settings.menu;
+    }
+    emit("update:modelValue", newValue);
   },
-};
+  { deep: true }
+);
+
+watch(
+  () => props.menuItems,
+  (newValue) => {
+    if (newValue.length) {
+      menu.value = toEmx2AppLocation(newValue);
+    } else {
+      menu.value = toEmx2AppLocation(defaultSchemaMenuItems);
+    }
+  }
+);
+
+function toEmx2AppLocation(menuItems: MenuItem[]) {
+  const schemaName = window?.location?.pathname.split("/")?.filter(Boolean)[0];
+
+  if (!schemaName || schemaName === "apps") {
+    return menuItems;
+  }
+
+  function rewriteHref(href: string): string {
+    let location = `/${schemaName}/${href}`;
+    let hashLocation = location.indexOf("#");
+    if (hashLocation !== -1) {
+      const charBeforeHash = location.substring(hashLocation - 1, hashLocation);
+      if (charBeforeHash !== "/") {
+        location =
+          location.substring(0, hashLocation) +
+          "/" +
+          location.substring(hashLocation, location?.length);
+      }
+    }
+    hashLocation = location.indexOf("#");
+    if (hashLocation !== -1) {
+      return location;
+    }
+    if (!location.endsWith("/")) {
+      return location + "/";
+    }
+    return location;
+  }
+
+  const parsed = menuItems.map((menuItem: MenuItem) => {
+    menuItem.href = rewriteHref(menuItem.href);
+
+    menuItem.submenu = menuItem.submenu.map((subItem) => {
+      subItem.href = rewriteHref(subItem.href);
+      return subItem;
+    });
+    return menuItem;
+  });
+
+  return parsed;
+}
+
+onMounted(async () => {
+  const client = Client.newClient();
+  const settings = await client.fetchSettings();
+
+  const analyticsSetting = settings.find(
+    (setting: ISetting) => setting.key === "ANALYTICS_ID"
+  );
+
+  analyticsId.value = analyticsSetting ? analyticsSetting.value : null;
+  const analyticsCookieWallContentSetting = settings.find(
+    (setting: ISetting) => setting.key === "ANALYTICS_COOKIE_WALL_CONTENT"
+  );
+
+  cookieWallContent.value = analyticsCookieWallContentSetting
+    ? analyticsCookieWallContentSetting.value
+    : null;
+});
 </script>
 
 <docs>

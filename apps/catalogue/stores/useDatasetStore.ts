@@ -1,4 +1,6 @@
+import { fetchSetting } from "#imports";
 import { defineStore } from "pinia";
+import { reactive, ref } from "vue";
 import type { IResources } from "~/interfaces/catalogue";
 import type { IShoppingCart } from "~/interfaces/types";
 
@@ -26,7 +28,9 @@ export const useDatasetStore = defineStore("datasets", () => {
   }
 
   function removeFromCart(resourceId: string) {
-    delete datasets.value[resourceId as keyof IResources];
+    if (datasets.value) {
+      delete datasets.value[resourceId as keyof IResources];
+    }
   }
 
   function resourceIsInCart(resourceId: string) {
