@@ -1,6 +1,6 @@
 name: Bug Report
 description: Create a report to help us improve
-type: "Bug"
+type: "bug"
 labels: ["bug"]
 body:
   - type: checkboxes
