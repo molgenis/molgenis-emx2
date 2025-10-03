@@ -8,7 +8,6 @@ import {
   newPageContentObject,
   newPageDate,
   type PageBuilderContent,
-  type PageBuilderContentMeta,
   type CssDependency,
   type JavaScriptDependency,
 } from "../../../../../util/pages";
@@ -28,11 +27,9 @@ const schema = Array.isArray(route.params.schema)
   ? route.params.schema[0]
   : route.params.schema ?? "";
 const page = route.params.page as string;
-const cleanPageName = computed<string>(() => page?.replace(' ', '-').toLowerCase());
 
 const isLoading = ref<boolean>(true);
 const code = ref<PageBuilderContent>(newPageContentObject("editor"));
-const error = ref<string>("");
 const previewElem = useTemplateRef<HTMLDivElement>("preview");
 const isSaving = ref<boolean>(false);
 
@@ -83,16 +80,7 @@ async function saveSetting() {
   statusModalData.value.message = "";
   isSaving.value = true;
 
-  if (!code.value._meta) {
-    const newMeta: PageBuilderContentMeta = {
-      type: "editor",
-      dateCreated: newPageDate(),
-      dateModified: newPageDate(),
-    }
-    code.value._meta = newMeta as PageBuilderContentMeta;
-  } else {
-    code.value._meta.dateModified = newPageDate();
-  }
+  code.value.dateModified = newPageDate();
 
   return $fetch(`/${schema}/graphql`, {
     method: "POST",

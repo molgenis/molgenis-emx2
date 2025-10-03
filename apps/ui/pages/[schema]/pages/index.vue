@@ -40,6 +40,8 @@ const pages = ref<Page[]>([]);
 const showStatusModal = ref<boolean>(false);
 const statusModal = ref<InstanceType<typeof SideModal>>();
 const statusModalData = ref<ModelStatus>({type: "error", message: ""});
+const addPageModal = ref<InstanceType<typeof SideModal>>();
+const showAddPageModal = ref<boolean>(false);
 
 const disableSubmitButton = computed<boolean>(() => {
   return !/^[a-zA-Z]+$/g.exec(newPageName.value)
@@ -63,9 +65,9 @@ function fetchPages () {
           return Object.assign({}, {
             id: (setting.key.split("page.")[1] as string),
             name: setting.key.split("page.")[1],
-            type: json._meta?.type,
-            dateCreated: json._meta?.dateCreated,
-            dateModified: json._meta?.dateModified
+            type: json.type,
+            dateCreated: json.dateCreated,
+            dateModified: json.dateModified
           }) as Page;
         } catch (error) {
           console.warn('Unable to parse', setting.key, '\n\n',error);
@@ -96,9 +98,7 @@ function saveNewPage() {
 
     const newPageCode = newPageContentObject("editor");
     newPageCode.html = `<h1>${newPageName.value}</h1>`;
-    if (newPageCode._meta) {
-      newPageCode._meta.dateCreated = newPageDate();
-    }
+    newPageCode.dateCreated = newPageDate();
 
   $fetch(`/${schema}/graphql`, {
     method: "POST",
@@ -183,36 +183,56 @@ crumbs["Pages"] = "";
 </script>
 
 <template>
-  <Container>
+  <div class="mx-auto px-0 lg:px-7.5">
     <PageHeader title="Pages" align="left">
       <template #prefix>
         <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
     </PageHeader>
-    <ContentBlock v-if="pages" title="Manage pages" description="">
-      <Table class="mb-7.5">
-        <template #head>
-          <TableHeadRow>
+    <div class="flex justify-end gap-2.5 mb-7.5">
+      <Button
+        type="primary"
+        icon="add-circle"
+        @click="addPageModal?.showModal()"
+      >
+        Add page
+      </Button>
+    </div>
+    <div
+      v-if="pages"
+      class="rounded-b-theme border border-theme border-color-theme"
+    >
+      <table class="text-left w-full table-fixed">
+        <thead>
+          <TableHeadRow
+            class="[&_th]:text-table-column-header [&_th]:font-normal [&_th]:align-middle"
+          >
             <TableHeadCell>
-              Name
+              name
             </TableHeadCell>
             <TableHeadCell>
-              Type
+              type
             </TableHeadCell>
             <TableHeadCell>
-              Date Created
+              date created
             </TableHeadCell>
             <TableHeadCell>
-              Date Modified
+              date modified
             </TableHeadCell>
             <TableHeadCell>
-              <span class="sr-only">Page Options</span>
+              <span class="sr-only">page options</span>
             </TableHeadCell>
           </TableHeadRow>
-        </template>
-        <template #body>
-          <tr v-for="page in pages">
-            <TableBodyCell>
+        </thead>
+        <tbody
+          lass="mb-3 [&_tr:last-child_td]:border-none [&_tr:last-child_td]:pb-last-row-cell"
+        >
+          <tr
+            v-for="page in pages"
+            v-if="pages"
+            class="group hover:cursor-pointer"
+          >
+            <TableBodyCell class="text-table-row">
               <NuxtLink
                 :to="`./pages/${page.id}`"
                 class="hover:underline focus:underline"
@@ -220,16 +240,16 @@ crumbs["Pages"] = "";
                 {{ page.name }}
               </NuxtLink>
             </TableBodyCell>
-            <TableBodyCell>
+            <TableBodyCell class="text-table-row">
               {{ page.type }}
             </TableBodyCell>
-            <TableBodyCell>
+            <TableBodyCell class="text-table-row">
               {{ page?.dateCreated }}
             </TableBodyCell>
-            <TableBodyCell>
+            <TableBodyCell class="text-table-row">
               {{ page?.dateModified }}
             </TableBodyCell>
-            <TableBodyCell class="flex justify-end items-center">
+            <TableBodyCell class="flex justify-end items-center text-table-row">
               <NuxtLink
                 :to="`./pages/${page.id}/edit`"
                 class="flex items-center justify-center rounded-full p-[8px] h-14 w-14 hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
@@ -256,53 +276,66 @@ crumbs["Pages"] = "";
               </NuxtLink>
             </TableBodyCell>
           </tr>
-        </template>
-      </Table>
-      <form @click="$event.stopPropagation()" @submit.prevent>
-        <legend
-          class="text-heading-4xl text-title-contrast font-display mb-2.5"
-        >
-          Add a new page
-        </legend>
-        <div class="flex justify-start items-stretch gap-5 mb-2.5">
-          <div class="self-end">
-            <label class="text-title-contrast font-bold">
-              Page Name
-            </label>
-            <p>Name cannot contain and numbers, characters, or spaces</p>
-            <InputString
-              id="manage-pages-new-page-name"
-              placeholder="MyNewPage"
-              class="mt-2"
-              v-model="newPageName"
-            />
-          </div>
-          <Button
-            type="primary"
-            icon="Plus"
-            class="self-end"
-            aria-describedby="manage-pages-new-page-name"
-            :disabled="disableSubmitButton"
-            :class="{
-              'cursor-not-allowed': disableSubmitButton,
-            }"
-            @click="!disableSubmitButton ? saveNewPage() : null"
-          >
-            Create new page
-          </Button>
-          <div id="manage-pages-save-new-status" class="self-end">
-            <div class="my-4" v-if="isSaving">
-              <span class="sr-only">Loading</span>
-              <BaseIcon
-                name="ProgressActivity"
-                :width="24"
-                class="animate-spin"
-              />
+        </tbody>
+      </table>
+      <div
+        v-if="!pages.length"
+        id="page-manager-pages-no-results-message"
+        class="flex justify-center items-center py-5"
+        role="status"
+        aria-atomic="true"
+      >
+        <TextNoResultsMessage label="No pages found" />
+      </div>
+    </div>
+    <SideModal
+      ref="addPageModal"
+      :show="showAddPageModal"
+      :slide-in-right="true"
+      :include-footer="false"
+      :full-screen="false"
+    >
+      <ContentBlockModal title="Add page" class="text-title-contrast">
+        <form @click="$event.stopPropagation()" @submit.prevent>
+          <legend class="sr-only">Add a new page</legend>
+          <label class="font-bold">
+            Page Name
+          </label>
+          <p>Name cannot contain and numbers, characters, or spaces</p>
+          <InputString
+            id="manage-pages-new-page-name"
+            placeholder="MyNewPage"
+            class="mt-2"
+            v-model="newPageName"
+          />
+          <div class="flex justify-start items-center gap-2.5 mt-5">
+            <Button
+              type="primary"
+              icon="Plus"
+              class="self-end"
+              aria-describedby="manage-pages-new-page-name"
+              :disabled="disableSubmitButton"
+              :class="{
+                'cursor-not-allowed': disableSubmitButton,
+              }"
+              @click="!disableSubmitButton ? saveNewPage() : null"
+            >
+              Create new page
+            </Button>
+            <div id="manage-pages-save-new-status" class="self-end">
+              <div class="my-4" v-if="isSaving">
+                <span class="sr-only">Loading</span>
+                <BaseIcon
+                  name="ProgressActivity"
+                  :width="24"
+                  class="animate-spin"
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </form>
-    </ContentBlock>
+        </form>
+      </ContentBlockModal>
+    </SideModal>
     <SideModal
       ref="statusModal"
       :type="statusModalData.type"
@@ -323,5 +356,5 @@ crumbs["Pages"] = "";
         <p>{{ statusModalData.message }}</p>
       </ContentBlockModal>
     </SideModal>
-  </Container>
+  </div>
 </template>
