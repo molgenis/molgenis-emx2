@@ -7,6 +7,8 @@ describe("toHeadings", () => {
   it("should return only the heading columns", () => {
     const tableMetaData: ITableMetaData = {
       id: "test",
+      name: "test",
+      schemaId: "test",
       label: "test",
       tableType: "test",
       columns: [
@@ -23,6 +25,8 @@ describe("toHeadings", () => {
   it("should return empty list in case of no headings", () => {
     const tableMetaData: ITableMetaData = {
       id: "test",
+      name: "test",
+      schemaId: "test",
       label: "test",
       tableType: "test",
       columns: [],
@@ -35,6 +39,8 @@ describe("toHeadings", () => {
 describe("toSectionsMap", () => {
   const tableMetaData: ITableMetaData = {
     id: "test",
+    name: "test",
+    schemaId: "test",
     label: "test",
     tableType: "test",
     columns: [],

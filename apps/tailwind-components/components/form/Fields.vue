@@ -59,13 +59,20 @@ const isRequired = (value: string | boolean): boolean =>
   <div ref="container">
     <template v-for="column in columns">
       <div
-        v-if="column.columnType === 'HEADING'"
+        v-if="
+          column.columnType === 'HEADING' || column.columnType === 'SECTION'
+        "
         :id="`${column.id}-form-field`"
         v-intersection-observer="[onIntersectionObserver, { root: container }]"
       >
         <h2
           class="first:pt-0 pt-10 font-display md:text-heading-5xl text-heading-5xl text-form-header pb-8"
-          v-if="column.label !== '_top'"
+          :class="
+            column.columnType === 'HEADING'
+              ? 'md:text-heading-4xl text-heading-4xl'
+              : 'md:text-heading-5xl text-heading-5xl'
+          "
+          v-if="column.id != 'mg_top_of_form'"
         >
           {{ column.label }}
         </h2>
@@ -79,6 +86,9 @@ const isRequired = (value: string | boolean): boolean =>
         :type="column.columnType"
         :label="column.label"
         :description="column.description"
+        :disabled="
+          Boolean(column.readonly === 'true' || (rowKey && column.key === 1))
+        "
         :rowKey="rowKey"
         :required="isRequired(column.required ?? false)"
         :error-message="errorMap[column.id]"

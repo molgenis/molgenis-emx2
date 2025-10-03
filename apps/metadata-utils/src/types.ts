@@ -7,7 +7,7 @@ export interface ISetting {
   value: string;
 }
 
-type HeadingType = "HEADING";
+export type HeadingType = "HEADING" | "SECTION";
 
 export type CellValueType =
   | "BOOL"
@@ -38,6 +38,7 @@ export type CellValueType =
   | "RADIO"
   | "SELECT"
   | "HEADING"
+  | "SECTION"
   | "AUTO_ID"
   | "ONTOLOGY"
   | "ONTOLOGY_ARRAY"
@@ -53,6 +54,7 @@ export interface IColumn {
   columnType: ColumnType;
   id: columnId;
   label: string;
+  section?: string;
   heading?: string;
   computed?: string;
   conditions?: string[];
@@ -86,8 +88,8 @@ export interface IRefColumn extends IColumn {
 
 export interface ITableMetaData {
   id: string;
-  schemaId?: string;
-  name?: string;
+  schemaId: string;
+  name: string;
   label: string;
   description?: string;
   tableType: string;
@@ -111,6 +113,8 @@ export interface IFormLegendSection {
   label: string;
   id: string;
   isActive?: boolean;
+  type: HeadingType;
+  section?: string;
   errorCount: number;
 }
 
