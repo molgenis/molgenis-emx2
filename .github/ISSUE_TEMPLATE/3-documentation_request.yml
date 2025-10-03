@@ -1,6 +1,6 @@
 name: Documentation request
 description: Suggest a change to our documentation
-labels: ["documentation"]
+type: "docs"
 body:
   - type: textarea
     id: request
