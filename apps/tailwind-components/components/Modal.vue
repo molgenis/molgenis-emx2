@@ -78,12 +78,12 @@ function hide() {
     />
 
     <div
-      class="bg-modal w-3/4 relative m-auto rounded-t-none rounded-b-theme"
+      class="bg-modal w-3/4 relative m-auto rounded-t-none rounded-b-theme h-[95vh] flex flex-col"
       :class="maxWidth"
     >
       <slot name="header">
         <header
-          class="pt-[36px] px-[30px] overflow-y-auto border-b border-divider"
+          class="pt-[36px] px-[30px] flex-none overflow-y-auto border-b border-divider"
         >
           <div v-if="subtitle" class="text-title-contrast">{{ subtitle }}</div>
           <h2
@@ -103,12 +103,12 @@ function hide() {
         </header>
       </slot>
 
-      <div class="overflow-y-auto max-h-[calc(95vh-232px)]">
+      <div class="flex-1 flex flex-col min-h-0">
         <slot />
       </div>
 
       <footer
-        class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider"
+        class="bg-modal-footer px-[30px] rounded-b-theme border-t border-divider flex-none"
       >
         <slot name="footer" :hide="hide" />
       </footer>
