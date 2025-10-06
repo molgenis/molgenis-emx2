@@ -47,10 +47,6 @@ async def sync_directory():
         # Apply the 'signin' method with the username and password
         session.signin(username, password)
 
-        # Get the nodes you want to work with
-        nodes_to_stage = session.get_external_nodes()
-        nodes_to_publish = session.get_nodes()
-
         # Create PidService
         if pid_service_type == 'production':
             pid_service = PidService.from_credentials("pyhandle_creds.json")
@@ -62,12 +58,17 @@ async def sync_directory():
             # Use NoOpPidService if you want to turn off the PID features completely
             pid_service = NoOpPidService()
 
-        # Instantiate the Directory class and do some work
+        # Instantiate the Directory class
         directory = Directory(session, pid_service)
+
+        # Stage
+        nodes_to_stage = session.get_external_nodes()
         staging_report = await directory.stage_external_nodes(nodes_to_stage)
         if staging_report.has_errors():
             raise ValueError("Some nodes did not stage correctly")
 
+        # Publish
+        nodes_to_publish = session.get_nodes()
         publishing_report = await directory.publish_nodes(nodes_to_publish)
         if publishing_report.has_errors():
             raise ValueError("Some nodes did not publish correctly")
