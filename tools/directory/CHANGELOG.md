@@ -6,6 +6,10 @@
 - Use NationalNodes.data_refresh instead of NationalNodes.dns for determining file type
 - Separate staging and publishing steps, remove duplicate staging step
 
+## Version 1.3.1
+
+- Fix incompatibility with latest EMX2 version by providing table name directly to TableMeta object
+
 ## Version 1.3.0
 
 - Assign collection category 'Covid-19' to collections belonging to the COVID-19 network

@@ -52,7 +52,7 @@ const {
   onBlurColumn,
   onUpdateColumn,
   visibleColumns,
-} = useForm(metadata, formValues, scrollTo);
+} = useForm(metadata, formValues, "row-edit-field-container");
 
 function onSave() {
   alert("Do Save");

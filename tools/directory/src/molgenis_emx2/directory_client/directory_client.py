@@ -140,11 +140,11 @@ class DirectorySession(Session):
         self,
         table_name: str,
         schema: str = None,
-    ):
+    ) -> TableMeta:
         schema_meta = self.get_schema_metadata(schema)
         for table in schema_meta.tables:
             if table.name == table_name:
-                return table.columns
+                return TableMeta(meta=table.columns, table_name=table_name)
         raise MolgenisRequestError(f"Unknown table: {table_name}")
 
     def get_ontology(
@@ -168,10 +168,8 @@ class DirectorySession(Session):
             table=entity_type_id,
         )
 
-        meta = TableMeta(
-            meta=self.get_table_meta(
-                schema=self.ONTOLOGY_SCHEMA, table_name=entity_type_id
-            )
+        meta = self.get_table_meta(
+            schema=self.ONTOLOGY_SCHEMA, table_name=entity_type_id
         )
         return OntologyTable.of(meta, rows, parent_attr, matching_attrs)
 
@@ -371,9 +369,7 @@ class DirectorySession(Session):
         tables = dict()
         for table_type in TableType.get_import_order():
             id_ = node.get_staging_id(table_type)
-            meta = TableMeta(
-                meta=self.get_table_meta(schema=node.get_schema_id(), table_name=id_)
-            )
+            meta = self.get_table_meta(schema=node.get_schema_id(), table_name=id_)
 
             tables[table_type.value] = Table.of(
                 table_type=table_type,
@@ -394,9 +390,7 @@ class DirectorySession(Session):
         tables = dict()
         for table_type in TableType.get_import_order():
             id_ = table_type.base_id
-            meta = TableMeta(
-                self.get_table_meta(schema=self.directory_schema, table_name=id_)
-            )
+            meta = self.get_table_meta(schema=self.directory_schema, table_name=id_)
 
             tables[table_type.value] = Table.of(
                 table_type=table_type,
@@ -428,9 +422,7 @@ class DirectorySession(Session):
         tables = dict()
         for table_type in TableType.get_import_order():
             id_ = table_type.base_id
-            meta = TableMeta(
-                self.get_table_meta(schema=self.directory_schema, table_name=id_)
-            )
+            meta = self.get_table_meta(schema=self.directory_schema, table_name=id_)
             attrs = attributes[table_type.value]
             data = []
             for code in codes:
@@ -487,10 +479,8 @@ class ExternalServerSession(DirectorySession):
             schema_meta = self.get_schema_metadata(self.node.get_schema_id())
             try:
                 schema_meta.get_table(by="name", value=id_)
-                meta = TableMeta(
-                    self.get_table_meta(
-                        schema=self.node.get_schema_id(), table_name=id_
-                    )
+                meta = self.get_table_meta(
+                    schema=self.node.get_schema_id(), table_name=id_
                 )
                 tables[table_type.value] = Table.of(
                     table_type=table_type,
