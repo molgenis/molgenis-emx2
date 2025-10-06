@@ -84,7 +84,7 @@ function changeCurrentPage(event: Event) {
     <span :id="`${pageInputId}Label`" class="sr-only">
       pagination navigation
     </span>
-    <ul class="flex items-center justify-center list-none gap-[10px]">
+    <ul class="flex items-center justify-center list-none gap-2.5">
       <li v-if="jumpToEdge">
         <a
           href="#"
