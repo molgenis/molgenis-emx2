@@ -47,6 +47,20 @@ const disableSubmitButton = computed<boolean>(() => {
   return !/^[a-zA-Z]+$/g.exec(newPageName.value)
 });
 
+interface PageMetadata {
+  [key: string]: {
+    isSorted: boolean;
+  }
+}
+
+const metadata = ref<PageMetadata>({
+  'id': { isSorted: false },
+  'name': { isSorted: false },
+  'type': { isSorted: false },
+  'dateCreated': { isSorted: false },
+  'dateModified': { isSorted: false },
+});
+
 function fetchPages () {
   $fetch(`/${schema}/graphql`, {
     method: "POST",
@@ -63,7 +77,7 @@ function fetchPages () {
         try {
           const json = JSON.parse(setting?.value) as PageBuilderContent;
           return Object.assign({}, {
-            id: (setting.key.split("page.")[1] as string),
+            id: (setting.key.split("page.")[1] as string).replaceAll(" ", "-"),
             name: setting.key.split("page.")[1],
             type: json.type,
             dateCreated: json.dateCreated,
@@ -174,6 +188,36 @@ function deletePage (page: string) {
   });
 }
 
+function handleSort($event: Record<string,string>) {
+  Object.keys(metadata.value)
+    .forEach((key: string) => metadata.value[key] = { isSorted: false });
+  metadata.value[$event.column as string] = { isSorted: true }
+  sortData($event.column as string, $event.sort === 'ASC')
+}
+
+function sortData(column: string, isAscending: boolean) {
+  pages.value = pages.value.sort((a: Page,b: Page) => {
+    const aValue = a[column as keyof Page] as string;
+    const bValue = b[column as keyof Page] as string;
+    if (isAscending) {
+     if (aValue === "" || aValue === undefined) {
+      return 1;
+     } else if (bValue === "" || bValue === undefined) {
+      return -1;
+     } else {
+      return aValue?.localeCompare(bValue);
+     }
+    } else {
+      if (aValue === "" || aValue === undefined) {
+       return -1;
+      } else if (bValue === "" || bValue === undefined) {
+       return 1;
+      } else {
+       return bValue?.localeCompare(aValue);
+      }
+    }
+  });
+}
 
 const crumbs: Record<string, string> = {};
 if (schema) {
@@ -200,27 +244,22 @@ crumbs["Pages"] = "";
     </div>
     <div
       v-if="pages"
-      class="rounded-b-theme border border-theme border-color-theme"
+      class="relative rounded-b-theme border border-theme border-color-theme"
     >
       <table class="text-left w-full table-fixed">
         <thead>
           <TableHeadRow
             class="[&_th]:text-table-column-header [&_th]:font-normal [&_th]:align-middle"
           >
-            <TableHeadCell>
-              name
-            </TableHeadCell>
-            <TableHeadCell>
-              type
-            </TableHeadCell>
-            <TableHeadCell>
-              date created
-            </TableHeadCell>
-            <TableHeadCell>
-              date modified
-            </TableHeadCell>
-            <TableHeadCell>
+            <TableHeadCell class="absolute left-0 w-[1px] !p-0 m-0 border-none">
               <span class="sr-only">page options</span>
+            </TableHeadCell>
+            <TableHeadCell v-for="key in Object.keys(metadata)" class="w-full">
+              <TableTheadSortButton
+                :label="key"
+                :is-sorted="(metadata[key]?.isSorted as boolean)"
+                @sort="handleSort"
+              />
             </TableHeadCell>
           </TableHeadRow>
         </thead>
@@ -232,48 +271,51 @@ crumbs["Pages"] = "";
             v-if="pages"
             class="group hover:cursor-pointer"
           >
-            <TableBodyCell class="text-table-row">
+            <TableBodyCell
+              class="absolute left-0 h-10 w-[150px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none mt-1"
+            >
+              <div
+                class="flex flex-row items-center justify-start flex-nowrap gap-0 [&_button]:relative [&_button]:mt-[-11px]"
+              >
+                <NuxtLink
+                  :to="`./pages/${page.id}/edit`"
+                  class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover -mt-2.5"
+                  v-tooltip.bottom="`Edit`"
+                >
+                  <BaseIcon name="Edit" :width="18" />
+                  <span class="sr-only">Edit {{ page.name }} </span>
+                </NuxtLink>
+                <Button
+                  type="inline"
+                  :icon-only="true"
+                  icon="Trash"
+                  label="Delete"
+                  size="small"
+                  class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
+                  @click="deletePage(page.name)"
+                />
+                <NuxtLink
+                  :to="`./pages/${page.id}`"
+                  class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover -mt-2.5"
+                  v-tooltip.bottom="`Preview`"
+                >
+                  <BaseIcon name="Preview" :width="18" />
+                  <span class="sr-only">View {{ page.name }} </span>
+                </NuxtLink>
+              </div>
+            </TableBodyCell>
+            <TableBodyCell
+              v-for="key in Object.keys(metadata)"
+              class="text-table-row group-hover:bg-hover"
+            >
               <NuxtLink
-                :to="`./pages/${page.id}`"
-                class="hover:underline focus:underline"
+                v-if="key === 'name'"
+                :to="`./pages/${page.name}`"
+                class="hover:underline focus:underline group-hover:underline group-focus:underline"
               >
                 {{ page.name }}
               </NuxtLink>
-            </TableBodyCell>
-            <TableBodyCell class="text-table-row">
-              {{ page.type }}
-            </TableBodyCell>
-            <TableBodyCell class="text-table-row">
-              {{ page?.dateCreated }}
-            </TableBodyCell>
-            <TableBodyCell class="text-table-row">
-              {{ page?.dateModified }}
-            </TableBodyCell>
-            <TableBodyCell class="flex justify-end items-center text-table-row">
-              <NuxtLink
-                :to="`./pages/${page.id}/edit`"
-                class="flex items-center justify-center rounded-full p-[8px] h-14 w-14 hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
-                v-tooltip.bottom="`Edit`"
-              >
-                <BaseIcon name="Edit" :width="24" />
-                <span class="sr-only">Edit {{ page.name }} </span>
-              </NuxtLink>
-              <Button
-                type="inline"
-                :icon-only="true"
-                icon="Trash"
-                label="Delete"
-                class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
-                @click="deletePage(page.name)"
-              />
-              <NuxtLink
-                :to="`./pages/${page.id}`"
-                class="flex items-center justify-center rounded-full p-[8px] h-14 w-14 hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
-                v-tooltip.bottom="`View`"
-              >
-                <BaseIcon name="ArrowRight" :width="24" />
-                <span class="sr-only">View {{ page.name }} </span>
-              </NuxtLink>
+              <span v-else>{{ page[(key as keyof Page)] }}</span>
             </TableBodyCell>
           </tr>
         </tbody>
