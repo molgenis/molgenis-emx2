@@ -1,13 +1,8 @@
 <script lang="ts" setup>
-import { useFetch } from "#app";
 import { ref, useTemplateRef, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import { generateHtmlPreview, type PageBuilderContent } from "../../../../util/pages";
-
-type Resp<T> = {
-  data: Record<string, T>;
-};
 
 interface Setting {
   key: string;
@@ -24,27 +19,26 @@ const error = ref<string>("");
 
 useHead({ title: `${page} - Pages - ${schema} - Molgenis` });
 
-
-onMounted(async() => {
-  const { data } = await useFetch<Resp<Setting[]>>(`/${schema}/graphql`, {
-    key: "tables",
+function getPageContent () {
+  $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
       query: `{_settings(keys:["page.${page}"]){key value}}`,
     },
-  });
-
-  try {
-    const setting = data.value?.data._settings?.filter((setting: Setting) => {
-      return setting.key === `page.${page}`
-    })[0]
-
+  })
+  .then((data) => {
+    const setting = data?.data?._settings?.filter((setting: Setting) => {
+      return setting.key === `page.${page}`;
+    })[0];
     const json = JSON.parse(setting?.value as string) as unknown as PageBuilderContent;
-    generateHtmlPreview(json, htmlContainer.value as HTMLDivElement);
-  } catch (err) {
+    generateHtmlPreview(json, htmlContainer.value as HTMLDivElement)
+  })
+  .catch((err) => {
     error.value = `Cannot render HTML: ${err}`;
-  }
-});
+  })
+}
+
+onMounted(() => getPageContent());
 
 const crumbs: Record<string, string> = {};
 crumbs[schema as string] = `/${schema}`;

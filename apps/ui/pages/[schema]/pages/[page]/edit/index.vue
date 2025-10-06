@@ -32,8 +32,7 @@ const isLoading = ref<boolean>(true);
 const code = ref<PageBuilderContent>(newPageContentObject("editor"));
 const previewElem = useTemplateRef<HTMLDivElement>("preview");
 const isSaving = ref<boolean>(false);
-
-const settingsModal = ref<InstanceType<typeof SideModal>>();
+const showSettingsModal = ref<boolean>(false);
 const statusModal = ref<InstanceType<typeof SideModal>>();
 const statusModalData = ref<ModelStatus>({
   type: "success",
@@ -68,7 +67,6 @@ function getPageContent () {
   .finally(() => isLoading.value = false);
 }
 
-
 onMounted(() => getPageContent());
 
 watch(() => code, () => {
@@ -76,13 +74,13 @@ watch(() => code, () => {
 }, { deep: true })
 
 
-async function saveSetting() {
+function saveSetting() {
   statusModalData.value.message = "";
   isSaving.value = true;
 
   code.value.dateModified = newPageDate();
 
-  return $fetch(`/${schema}/graphql`, {
+  $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
      query: `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){status message}}`,
@@ -154,7 +152,15 @@ crumbs["Edit"] = "";
     <div
       class="sticky top-0 w-full flex justify-end items-center bg-content py-2 gap-5 px-7.5 z-10"
     >
-      <Button type="outline" size="small" @click="settingsModal?.showModal()">
+      <Button
+        :id="`page-${page}-editor-settings-button`"
+        :aria-controls="`page-${page}-editor-settings`"
+        :aria-expanded="showSettingsModal"
+        aria-haspopup="dialog"
+        type="outline"
+        size="small"
+        @click="showSettingsModal = true"
+      >
         Settings
       </Button>
       <Button type="primary" size="small" @click="saveSetting">
@@ -186,19 +192,22 @@ crumbs["Edit"] = "";
       </div>
     </ContentBlock>
   </Container>
-  <SideModal
-    ref="settingsModal"
-    :slide-in-right="true"
-    :full-screen="false"
-    button-alignment="right"
-    :include-footer="true"
+  <Modal
+    :id="`page-${page}-editor-settings`"
+    title="Settings"
+    :visible="showSettingsModal"
+    max-width="max-w-9/10"
+    @closed="showSettingsModal = false"
   >
-    <ContentBlockModal title="Settings" class="text-title-contrast">
+    <div class="text-title-contrast p-7.5 overflow-y-auto">
       <form @submit.prevent>
         <h3 class="text-heading-4xl text-title-contrast font-display mb-2.5">
           Manage dependencies
         </h3>
-        <p class="mb-2.5">Removing dependencies will require a page refresh.</p>
+        <p class="mb-2.5">
+          Dependencies will automatically be added to the page. To remove a
+          dependency, save changes and refresh the page.
+        </p>
         <fieldset class="my-5">
           <legend class="text-title-contrast font-bold mb-2.5">
             CSS Dependencies
@@ -304,8 +313,8 @@ crumbs["Edit"] = "";
           </Button>
         </fieldset>
       </form>
-    </ContentBlockModal>
-  </SideModal>
+    </div>
+  </Modal>
   <SideModal
     ref="statusModal"
     :type="statusModalData.type"

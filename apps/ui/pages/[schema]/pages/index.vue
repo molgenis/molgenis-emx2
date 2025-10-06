@@ -3,7 +3,6 @@ import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import { type PageBuilderContent, newPageContentObject, newPageDate } from "~/util/pages";
-import type { SideModal } from "#build/components";
 
 type Resp<T> = {
   data: Record<string, T>;
@@ -38,10 +37,10 @@ const newPageName = ref<string>("");
 const isSaving = ref<boolean>(false);
 const pages = ref<Page[]>([]);
 const showStatusModal = ref<boolean>(false);
-const statusModal = ref<InstanceType<typeof SideModal>>();
 const statusModalData = ref<ModelStatus>({type: "error", message: ""});
-const addPageModal = ref<InstanceType<typeof SideModal>>();
 const showAddPageModal = ref<boolean>(false);
+const showDeleteModal = ref<boolean>(false);
+const pageToDelete = ref<string>("");
 
 const disableSubmitButton = computed<boolean>(() => {
   return !/^[a-zA-Z]+$/g.exec(newPageName.value)
@@ -100,6 +99,7 @@ function fetchPages () {
 fetchPages();
 
 function saveNewPage() {
+  showAddPageModal.value = false;
   statusModalData.value.message = "";
   isSaving.value = true;
 
@@ -111,7 +111,7 @@ function saveNewPage() {
   } else {
 
     const newPageCode = newPageContentObject("editor");
-    newPageCode.html = `<h1>${newPageName.value}</h1>`;
+    newPageCode.html = `<h1 class="text-heading-4xl">${newPageName.value}</h1>`;
     newPageCode.dateCreated = newPageDate();
 
   $fetch(`/${schema}/graphql`, {
@@ -151,7 +151,17 @@ function saveNewPage() {
   }
 }
 
-function deletePage (page: string) {
+function onShowDeleteModal(page: string) {
+  showDeleteModal.value = true;
+  pageToDelete.value = page;
+}
+
+function onCancelDeleteModal() {
+  showDeleteModal.value = false;
+  pageToDelete.value = "";
+}
+
+function deletePage () {
   statusModalData.value.message = "";
 
   $fetch(`/${schema}/graphql`, {
@@ -160,30 +170,28 @@ function deletePage (page: string) {
     query: `mutation drop($settings:[DropSettingsInput]){drop(settings:$settings){status message}}`,
     variables: {
       settings: {
-        key: `page.${page}`,
+        key: `page.${pageToDelete.value}`,
       }
     }
     }
   })
   .then((response) => {
     if (response?.errors) {
-      throw new Error(`Unable to delete page '${page}': ${response.errors[0].message}`);
+      throw new Error(`Unable to delete page '${pageToDelete.value}': ${response.errors[0].message}`);
     }
 
     statusModalData.value = {
       type: "success",
-      message:`Deleted page '${newPageName.value}'`
+      message:`Deleted '${pageToDelete.value}'`
     };
 
     fetchPages();
   })
   .catch((err) => {
-    statusModalData.value = {
-      type: "error",
-      message: err
-    };
+    statusModalData.value = { type: "error", message: err };
   })
   .finally(() => {
+    showDeleteModal.value = false;
     showStatusModal.value = true;
   });
 }
@@ -234,13 +242,45 @@ crumbs["Pages"] = "";
       </template>
     </PageHeader>
     <div class="flex justify-end gap-2.5 mb-7.5">
-      <Button
-        type="primary"
-        icon="add-circle"
-        @click="addPageModal?.showModal()"
-      >
+      <Button type="primary" icon="add-circle" @click="showAddPageModal = true">
         Add page
       </Button>
+      <Modal
+        title="Add page"
+        v-model:visible="showAddPageModal"
+        max-width="max-w-9/10"
+      >
+        <div title="Add page" class="text-title-contrast p-7.5 overflow-y-auto">
+          <form @click="$event.stopPropagation()" @submit.prevent>
+            <legend class="sr-only">Add a new page</legend>
+            <label class="font-bold">
+              Name
+            </label>
+            <p>Name cannot contain and numbers, characters, or spaces</p>
+            <InputString
+              id="manage-pages-new-page-name"
+              placeholder="MyNewPage"
+              class="mt-2"
+              v-model="newPageName"
+            />
+          </form>
+        </div>
+        <template #footer>
+          <div class="w-full flex justify-end items-center gap-2.5 h-[116px]">
+            <Button
+              type="primary"
+              icon="Plus"
+              :disabled="disableSubmitButton"
+              :class="{
+                'cursor-not-allowed': disableSubmitButton,
+              }"
+              @click="!disableSubmitButton ? saveNewPage() : null"
+            >
+              Create new page
+            </Button>
+          </div>
+        </template>
+      </Modal>
     </div>
     <div
       v-if="pages"
@@ -277,26 +317,25 @@ crumbs["Pages"] = "";
               <div
                 class="flex flex-row items-center justify-start flex-nowrap gap-0 [&_button]:relative [&_button]:mt-[-11px]"
               >
-                <NuxtLink
-                  :to="`./pages/${page.id}/edit`"
-                  class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover -mt-2.5"
-                  v-tooltip.bottom="`Edit`"
-                >
-                  <BaseIcon name="Edit" :width="18" />
-                  <span class="sr-only">Edit {{ page.name }} </span>
-                </NuxtLink>
                 <Button
                   type="inline"
                   :icon-only="true"
                   icon="Trash"
                   label="Delete"
                   size="small"
-                  class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
-                  @click="deletePage(page.name)"
+                  @click="onShowDeleteModal(page.name)"
                 />
                 <NuxtLink
+                  :to="`./pages/${page.id}/edit`"
+                  class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover hover:bg-button-inline-hover focus:bg-button-inline-hover -mt-2.5"
+                  v-tooltip.bottom="`Edit`"
+                >
+                  <BaseIcon name="Edit" :width="18" />
+                  <span class="sr-only">Edit {{ page.name }} </span>
+                </NuxtLink>
+                <NuxtLink
                   :to="`./pages/${page.id}`"
-                  class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover -mt-2.5"
+                  class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover hover:bg-button-inline-hover focus:bg-button-inline-hover -mt-2.5"
                   v-tooltip.bottom="`Preview`"
                 >
                   <BaseIcon name="Preview" :width="18" />
@@ -330,56 +369,28 @@ crumbs["Pages"] = "";
         <TextNoResultsMessage label="No pages found" />
       </div>
     </div>
-    <SideModal
-      ref="addPageModal"
-      :show="showAddPageModal"
-      :slide-in-right="true"
-      :include-footer="false"
-      :full-screen="false"
+    <Modal
+      id="delete-page-modal"
+      title="Delete page"
+      :visible="showDeleteModal"
+      max-width="max-w-9/10"
+      @closed="showDeleteModal = false"
     >
-      <ContentBlockModal title="Add page" class="text-title-contrast">
-        <form @click="$event.stopPropagation()" @submit.prevent>
-          <legend class="sr-only">Add a new page</legend>
-          <label class="font-bold">
-            Page Name
-          </label>
-          <p>Name cannot contain and numbers, characters, or spaces</p>
-          <InputString
-            id="manage-pages-new-page-name"
-            placeholder="MyNewPage"
-            class="mt-2"
-            v-model="newPageName"
-          />
-          <div class="flex justify-start items-center gap-2.5 mt-5">
-            <Button
-              type="primary"
-              icon="Plus"
-              class="self-end"
-              aria-describedby="manage-pages-new-page-name"
-              :disabled="disableSubmitButton"
-              :class="{
-                'cursor-not-allowed': disableSubmitButton,
-              }"
-              @click="!disableSubmitButton ? saveNewPage() : null"
-            >
-              Create new page
-            </Button>
-            <div id="manage-pages-save-new-status" class="self-end">
-              <div class="my-4" v-if="isSaving">
-                <span class="sr-only">Loading</span>
-                <BaseIcon
-                  name="ProgressActivity"
-                  :width="24"
-                  class="animate-spin"
-                />
-              </div>
-            </div>
-          </div>
-        </form>
-      </ContentBlockModal>
-    </SideModal>
+      <div class="text-title-contrast p-7.5 overflow-y-auto">
+        <p>Are you sure you would like to delete {{ pageToDelete }}?</p>
+      </div>
+      <template #footer>
+        <div class="w-full flex justify-end items-center gap-2.5 h-[116px]">
+          <Button type="outline" @click="onCancelDeleteModal">
+            Cancel
+          </Button>
+          <Button type="primary" icon="Trash" @click="deletePage">
+            Delete page
+          </Button>
+        </div>
+      </template>
+    </Modal>
     <SideModal
-      ref="statusModal"
       :type="statusModalData.type"
       :show="showStatusModal"
       :slide-in-right="true"
