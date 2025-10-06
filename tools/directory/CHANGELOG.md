@@ -9,6 +9,7 @@
 ## Version 1.3.1
 
 - Fix incompatibility with latest EMX2 version by providing table name directly to TableMeta object
+- Remove network inheritance
 
 ## Version 1.3.0
 
