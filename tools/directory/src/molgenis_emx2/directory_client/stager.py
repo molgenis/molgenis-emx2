@@ -1,7 +1,9 @@
 """Defines the Stager class, which implements all staging-related functionality"""
 import csv
+import os
 from typing import List
 from urllib.error import ContentTooShortError, HTTPError, URLError
+from urllib.parse import urljoin
 from urllib.request import urlretrieve
 
 from molgenis_emx2_pyclient.metadata import Column
@@ -74,12 +76,12 @@ class Stager:
         tables = {}
         for table_type in TableType.get_import_order():
             file = self._download_file(node, table_type)
-            if not file:
-                # No file? Create dummy Table
+            if not file or os.path.getsize(file) == 0:
+                # No file or empty file? Create dummy Table
                 dummy_meta = [Column(name='id', key=1, table=table_type.base_id)]
                 table = Table.of_empty(
                     table_type,
-                    TableMeta(meta=dummy_meta),
+                    TableMeta(meta=dummy_meta, table_name=table_type.base_id),
                 )
             else:
                 table = self._file_to_table(file, table_type)
@@ -157,7 +159,7 @@ class Stager:
             metadata.append(column_meta)
         return Table.of(
             table_type=table_type,
-            meta=TableMeta(meta=metadata),
+            meta=TableMeta(meta=metadata, table_name=table_type.base_id),
             rows=rows,
         )
 
@@ -167,14 +169,14 @@ class Stager:
         """
         Download the .csv-file from the file ingest server
         """
-        file_path = f"{node.url}/{table_type.value}.csv"
+        file_path = urljoin(node.url, f"{table_type.base_id}.csv")
         try:
             filename, headers = urlretrieve(file_path)
         except (URLError, HTTPError, ContentTooShortError) as e:
             raise DirectoryError(f"Failed at retrieving {file_path}") from e
         if headers['Content-Type'] != 'text/csv; charset=utf-8':
             warning = DirectoryWarning(
-                f"Node {node.code} has no file {table_type.value}.csv "
+                f"Node {node.code} has no file at {file_path} "
                 f"for table {table_type.base_id}"
             )
             self.printer.print_warning(warning, indent=1)
