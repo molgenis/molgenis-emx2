@@ -7,6 +7,11 @@ export type JavaScriptDependency = {
   defer?: boolean;
 };
 
+export type PagePreviewSettings = {
+  enableBaseStyles: boolean;
+  enableButtonStyles: boolean;
+};
+
 export type PageBuilderContent = {
   type: "standard" | "editor";
   dateCreated: string;
@@ -18,6 +23,7 @@ export type PageBuilderContent = {
     css: CssDependency[];
     javascript: JavaScriptDependency[];
   };
+  settings: PagePreviewSettings;
 };
 
 export function newPageContentObject(
@@ -30,6 +36,10 @@ export function newPageContentObject(
     html: "",
     javascript: "",
     dependencies: { css: [], javascript: [] },
+    settings: {
+      enableBaseStyles: true,
+      enableButtonStyles: true,
+    },
   };
 }
 

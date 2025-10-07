@@ -114,7 +114,7 @@ function saveNewPage() {
   } else {
 
     const newPageCode = newPageContentObject("editor");
-    newPageCode.html = `<h1 class="text-heading-4xl">${newPageName.value}</h1>`;
+    newPageCode.html = `<h1>${newPageName.value}</h1>`;
     newPageCode.dateCreated = newPageDate();
 
   $fetch(`/${schema}/graphql`, {
@@ -331,7 +331,7 @@ crumbs["Pages"] = "";
                 />
                 <NuxtLink
                   v-if="isAdmin"
-                  :to="`./pages/${page.id}/edit`"
+                  :to="`/${schema}/pages/${page.id}/edit`"
                   class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover hover:bg-button-inline-hover focus:bg-button-inline-hover"
                   v-tooltip.bottom="`Edit`"
                 >
@@ -339,7 +339,7 @@ crumbs["Pages"] = "";
                   <span class="sr-only">Edit {{ page.name }} </span>
                 </NuxtLink>
                 <NuxtLink
-                  :to="`./pages/${page.id}`"
+                  :to="`/${schema}/pages/${page.id}`"
                   class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover hover:bg-button-inline-hover focus:bg-button-inline-hover"
                   v-tooltip.bottom="`Preview`"
                 >
@@ -354,7 +354,7 @@ crumbs["Pages"] = "";
             >
               <NuxtLink
                 v-if="key === 'name'"
-                :to="`./pages/${page.name}`"
+                :to="`/${schema}/pages/${page.name}`"
                 class="hover:underline focus:underline group-hover:underline group-focus:underline"
               >
                 {{ page.name }}

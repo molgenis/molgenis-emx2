@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { ref, useTemplateRef, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
-import { generateHtmlPreview, type PageBuilderContent } from "../../../../util/pages";
+import { type PageBuilderContent } from "../../../../util/pages";
 
 interface Setting {
   key: string;
@@ -14,8 +14,9 @@ const schema = Array.isArray(route.params.schema)
   ? route.params.schema[0]
   : route.params.schema ?? "";
 const page = route.params.page as string;
-const htmlContainer = useTemplateRef<HTMLDivElement>("htmlContainer");
 const error = ref<string>("");
+
+const code = ref<PageBuilderContent>();
 
 useHead({ title: `${page} - Pages - ${schema} - Molgenis` });
 
@@ -30,8 +31,7 @@ function getPageContent () {
     const setting = data?.data?._settings?.filter((setting: Setting) => {
       return setting.key === `page.${page}`;
     })[0];
-    const json = JSON.parse(setting?.value as string) as unknown as PageBuilderContent;
-    generateHtmlPreview(json, htmlContainer.value as HTMLDivElement)
+    code.value = JSON.parse(setting?.value as string) as unknown as PageBuilderContent;
   })
   .catch((err) => {
     error.value = `Cannot render HTML: ${err}`;
@@ -56,6 +56,6 @@ crumbs[page as string] = "";
     >
       {{ error }}
     </Message>
-    <div ref="htmlContainer" />
+    <EditorHtmlPreview :code="code" v-if="code" />
   </Container>
 </template>

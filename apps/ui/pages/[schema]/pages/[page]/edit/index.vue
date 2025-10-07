@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-import { ref, onMounted, useTemplateRef, watch } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import type { SideModal } from "#build/components";
 import {
-  generateHtmlPreview,
   newPageContentObject,
   newPageDate,
   type PageBuilderContent,
@@ -33,7 +32,6 @@ const page = route.params.page as string;
 
 const isLoading = ref<boolean>(true);
 const code = ref<PageBuilderContent>(newPageContentObject("editor"));
-const previewElem = useTemplateRef<HTMLDivElement>("preview");
 const isSaving = ref<boolean>(false);
 const showSettingsModal = ref<boolean>(false);
 const statusModal = ref<InstanceType<typeof SideModal>>();
@@ -71,11 +69,6 @@ function getPageContent () {
 }
 
 onMounted(() => getPageContent());
-
-watch(() => code, () => {
-  generateHtmlPreview(code.value, previewElem.value as HTMLDivElement)
-}, { deep: true })
-
 
 function saveSetting() {
   statusModalData.value.message = "";
@@ -159,7 +152,7 @@ crumbs["Edit"] = "";
     </div>
     <template v-else>
       <div
-        class="w-full flex justify-end items-center bg-content py-2 gap-5 px-7.5 z-10"
+        class="w-full flex justify-end items-center bg-content py-2 gap-5 px-7.5 z-10 mb-5"
       >
         <Button
           :id="`page-${page}-editor-settings-button`"
@@ -183,9 +176,9 @@ crumbs["Edit"] = "";
           @update:model-value="code.html = $event"
         />
         <div
-          class="bg-white border border-input rounded p-7.5 overflow-y-scroll"
+          class="bg-white border border-input rounded p-7.5 overflow-y-scroll max-h-80"
         >
-          <div ref="preview" />
+          <EditorHtmlPreview :code="code" />
         </div>
         <EditorCodeEditor
           lang="css"
@@ -209,117 +202,185 @@ crumbs["Edit"] = "";
   >
     <div class="text-title-contrast p-7.5 overflow-y-auto">
       <form @submit.prevent>
-        <h3 class="text-heading-4xl text-title-contrast font-display mb-2.5">
-          Manage dependencies
-        </h3>
-        <p class="mb-2.5">
-          Dependencies will automatically be added to the page. To remove a
-          dependency, save changes and refresh the page.
-        </p>
-        <fieldset class="my-5">
-          <legend class="text-title-contrast font-bold mb-2.5">
-            CSS Dependencies
-          </legend>
-          <div
-            v-if="code.dependencies.css"
-            v-for="(dependency, index) in code.dependencies.css"
-            class="flex justify-start items-center gap-5 mb-2.5"
+        <fieldset>
+          <legend
+            class="text-heading-3xl text-title-contrast font-display mb-2.5"
           >
-            <div class="w-full">
+            Page preview settings
+          </legend>
+          <div class="grid grid-cols-1 gap-2.5 mb-7.5">
+            <div class="grid grid-cols-3 gap-7.5 justify-start items-center">
               <label
-                class="sr-only"
-                :for="`form-editor-settings-dependency-css-${index}`"
+                :for="`page-${page}-preview-enable-base-styles`"
+                class="col-span-2 mb-2.5"
               >
-                Enter URL to dependency
+                <span class="block text-title-contrast font-bold"
+                  >Base styles</span
+                >
+                <span class="block text-input-description text-body-sm"
+                  >By default, custom pages include base styles (e.g., font
+                  sizes, spacing, margins, etc.).</span
+                >
               </label>
-              <InputString
-                :id="`form-editor-settings-dependency-css-${index}`"
-                placeholder="https://path/to/css"
-                :model-value="dependency.url"
-                @update:model-value="updateCssDependency(index, ($event as string))"
-              />
+              <div class="self-center">
+                <InputBoolean
+                  :id="`page-${page}-preview-enable-base-styles`"
+                  class="[&_svg]:mt-0"
+                  true-label="Enabled"
+                  false-label="Disabled"
+                  :model-value="code.settings.enableBaseStyles"
+                  @update:model-value="code.settings.enableBaseStyles = $event"
+                  align="horizontal"
+                  :show-clear-button="false"
+                />
+              </div>
             </div>
-            <div>
-              <Button
-                type="inline"
-                :icon-only="true"
-                label="Delete"
-                icon="Trash"
-                size="small"
-                class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
-                @click="removeCssDependency(index)"
-              />
+            <div class="grid grid-cols-3 gap-7.5 justify-start items-center">
+              <label
+                :for="`page-${page}-preview-enable-button-styles`"
+                class="col-span-2 mb-2.5"
+              >
+                <span class="block text-title-contrast font-bold"
+                  >Button styles</span
+                >
+                <span class="block text-input-description text-body-sm"
+                  >Enable default button styles or disable to define your
+                  own.</span
+                >
+              </label>
+              <div class="self-center">
+                <InputBoolean
+                  :id="`page-${page}-preview-enable-button-styles`"
+                  class="[&_svg]:mt-0"
+                  true-label="Enabled"
+                  false-label="Disabled"
+                  :disabled="!code.settings.enableBaseStyles"
+                  :model-value="code.settings.enableButtonStyles"
+                  @update:model-value="
+                    code.settings.enableButtonStyles = $event
+                  "
+                  align="horizontal"
+                  :show-clear-button="false"
+                />
+              </div>
             </div>
           </div>
-          <Button
-            type="text"
-            icon="Plus"
-            @click="addCssDependency"
-            size="small"
-            class="my-2.5"
-          >
-            Add dependency
-          </Button>
         </fieldset>
-        <fieldset class="my-5">
-          <legend class="text-title-contrast font-bold mb-2.5">
-            JavaScript dependencies
-          </legend>
-          <div
-            v-if="code.dependencies.javascript"
-            v-for="(dependency, index) in code.dependencies.javascript"
-            class="flex justify-between items-center gap-5 mb-2.5"
-          >
-            <div>
-              <label
-                class="sr-only"
-                :for="`form-editor-settings-dependency-js-${index}`"
-              >
-                Enter dependency URL
-              </label>
-              <InputString
-                :id="`form-editor-settings-dependency-js-${index}`"
-                placeholder="https://path/to/js"
-                :model-value="dependency.url"
-                @update:model-value="updateJsDependency(dependency, index, 'url', ($event as string))"
-              />
+        <div>
+          <h3 class="text-heading-3xl text-title-contrast font-display mb-2.5">
+            Manage dependencies
+          </h3>
+          <p class="text-input-description text-body-sm">
+            Dependencies will automatically be added to the page. To remove a
+            dependency, save changes and refresh the page.
+          </p>
+          <fieldset class="my-5">
+            <legend class="text-title-contrast font-bold mb-2.5">
+              CSS Dependencies
+            </legend>
+            <div
+              v-if="code.dependencies.css"
+              v-for="(dependency, index) in code.dependencies.css"
+              class="flex justify-start items-center gap-5 mb-2.5"
+            >
+              <div class="w-full">
+                <label
+                  class="sr-only"
+                  :for="`form-editor-settings-dependency-css-${index}`"
+                >
+                  Enter URL to dependency
+                </label>
+                <InputString
+                  :id="`form-editor-settings-dependency-css-${index}`"
+                  placeholder="https://path/to/css"
+                  :model-value="dependency.url"
+                  @update:model-value="updateCssDependency(index, ($event as string))"
+                />
+              </div>
+              <div>
+                <Button
+                  type="inline"
+                  :icon-only="true"
+                  label="Delete"
+                  icon="Trash"
+                  size="small"
+                  class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
+                  @click="removeCssDependency(index)"
+                />
+              </div>
             </div>
-            <div>
-              <label :for="`form-editor-settings-dependency-js-${index}-defer`">
-                Defer?
-              </label>
-              <InputBoolean
-                :id="`form-editor-settings-dependency-js-${index}-defer`"
-                class="[&_svg]:mt-0"
-                :model-value="dependency.defer"
-                true-label="Yes"
-                false-label="No"
-                :show-clear-button="false"
-                align="horizontal"
-              />
+            <Button
+              type="text"
+              icon="Plus"
+              @click="addCssDependency"
+              size="small"
+              class="my-2.5"
+            >
+              Add dependency
+            </Button>
+          </fieldset>
+          <fieldset class="my-5">
+            <legend class="text-title-contrast font-bold mb-2.5">
+              JavaScript dependencies
+            </legend>
+            <div
+              v-if="code.dependencies.javascript"
+              v-for="(dependency, index) in code.dependencies.javascript"
+              class="flex justify-between items-center gap-5 mb-2.5"
+            >
+              <div>
+                <label
+                  class="sr-only"
+                  :for="`form-editor-settings-dependency-js-${index}`"
+                >
+                  Enter dependency URL
+                </label>
+                <InputString
+                  :id="`form-editor-settings-dependency-js-${index}`"
+                  placeholder="https://path/to/js"
+                  :model-value="dependency.url"
+                  @update:model-value="updateJsDependency(dependency, index, 'url', ($event as string))"
+                />
+              </div>
+              <div>
+                <label
+                  :for="`form-editor-settings-dependency-js-${index}-defer`"
+                >
+                  Defer?
+                </label>
+                <InputBoolean
+                  :id="`form-editor-settings-dependency-js-${index}-defer`"
+                  class="[&_svg]:mt-0"
+                  :model-value="dependency.defer"
+                  true-label="Yes"
+                  false-label="No"
+                  :show-clear-button="false"
+                  align="horizontal"
+                />
+              </div>
+              <div>
+                <Button
+                  type="inline"
+                  :icon-only="true"
+                  icon="Trash"
+                  label="Delete"
+                  size="small"
+                  class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
+                  @click="removeJsDependency(index)"
+                />
+              </div>
             </div>
-            <div>
-              <Button
-                type="inline"
-                :icon-only="true"
-                icon="Trash"
-                label="Delete"
-                size="small"
-                class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
-                @click="removeJsDependency(index)"
-              />
-            </div>
-          </div>
-          <Button
-            type="text"
-            icon="Plus"
-            @click="addJsDependency"
-            size="small"
-            class="my-2.5"
-          >
-            Add dependency
-          </Button>
-        </fieldset>
+            <Button
+              type="text"
+              icon="Plus"
+              @click="addJsDependency"
+              size="small"
+              class="my-2.5"
+            >
+              Add dependency
+            </Button>
+          </fieldset>
+        </div>
       </form>
     </div>
   </Modal>
