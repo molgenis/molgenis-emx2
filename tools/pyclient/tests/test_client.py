@@ -48,9 +48,13 @@ def test_status():
     assert status.split("Status: ")[-1].startswith("signed out")
     assert "pet store" in status.split("Schemas: ")[-1]
 
+
 def test_get_schemas():
     """Tests the `get_schemas` method."""
-    ...
+    with Client(url=server_url) as client:
+        schemas = client.get_schemas()
+    assert "pet store" in map(lambda schema: schema.id, schemas)
+
 
 def test_set_token():
     """Tests the `set_token` method."""
