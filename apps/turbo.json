@@ -15,11 +15,7 @@
     "lint": {
       "dependsOn": [],
       "outputs": [],
-      "cache": true,
-      "inputs": [
-        "tsconfig.json",
-        "package.json"
-      ]
+      "cache": true
     },
     "format": {
       "dependsOn": [],
@@ -33,7 +29,7 @@
     },
     "test-ci": {
       "dependsOn": ["build"],
-      "outputs": ["coverage/**", "reports/**"],
+      "outputs": [],
       "cache": true
     }
   }
