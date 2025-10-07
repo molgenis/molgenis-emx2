@@ -4,7 +4,6 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", "public/_nuxt-styles/**", "showCase/**","gen-docs/**"],
-
       "cache": true
     },
     "test": {

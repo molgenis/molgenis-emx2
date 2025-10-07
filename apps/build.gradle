@@ -24,10 +24,6 @@ npm_install {
         include('**/package.json','**/package-lock.json')
         exclude("**/node_modules/**")
     })
-    outputs.file("${project.layout.buildDirectory}/.npm_installed")
-    doLast {
-        file("${project.layout.buildDirectory}/.npm_installed").createNewFile()
-    }
 }
 
 def excludePatterns = [
