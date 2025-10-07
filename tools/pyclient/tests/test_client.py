@@ -58,7 +58,12 @@ def test_get_schemas():
 
 def test_set_token():
     """Tests the `set_token` method."""
-    ...
+    token = "SAMPLE TOKEN"
+    with Client(url=server_url) as client:
+        client.set_token(token)
+
+        assert client._token == token
+
 
 def test_save_schema():
     """Tests the `save_schema` method."""
