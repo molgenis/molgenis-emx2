@@ -21,22 +21,28 @@ node {
 
 npm_install {
     args = ['--workspaces']
-    inputs.file('package.json')
-    inputs.file('package-lock.json')
-    outputs.dir "dist"
+    inputs.files(fileTree('.') {
+        include('**/package.json','**/package-lock.json')
+        exclude("**/node_modules/**")
+    })
+    outputs.file("${project.layout.buildDirectory}/.npm_installed")
+    doLast {
+        file("${project.layout.buildDirectory}/.npm_installed").createNewFile()
+    }
 }
 
 def excludePatterns = [
         "node_modules/**", "**/node_modules/**", "**/dist/**", "**/.git/**", "**/.gradle/**", "**/build/**", "**/.nuxt/**",
-        "**/public/_nuxt-styles/**", "**/.output/**", "**/showCase/**"
+        "**/public/_nuxt-styles/**", "**/.output/**", "**/showCase/**", ".turbo/**"
 ]
 
 tasks.register('npm_build', NpmTask) {
     dependsOn npm_install
-    args = ['run', 'build', '--workspaces']
+    args = ['run', 'build',  '--summary'] //uses the turbo in package.json
+
     // Inputs = all frontend sources
     inputs.files(fileTree(".") {
-        include("*")
+        include("**/*")
         exclude(excludePatterns)
     })
     inputs.file("package.json")
@@ -105,9 +111,9 @@ tasks.register("collectDist", CollectDistTask) {
 tasks.register('format', NpmTask) {
     dependsOn npm_install
     if (!isCI) {
-        args = ['run', 'format', '--workspaces']
+        args = ['run', 'format']
     } else {
-        args = ['run', 'checkFormat', '--workspaces']
+        args = ['run', 'checkFormat']
     }
     inputs.files(fileTree(".") {
         include("**/*")
@@ -121,7 +127,7 @@ tasks.register('format', NpmTask) {
 
 tasks.register('lint', NpmTask) {
     dependsOn npm_build
-    args = ['run', 'lint', '--workspace=tailwind-components', '--workspace=catalogue', '--workspace=ui']
+    args = ['run', 'lint']
     inputs.files(fileTree(".") {
         include("**/*")
         exclude(excludePatterns)
@@ -135,7 +141,7 @@ tasks.register('lint', NpmTask) {
 task testJavaScript(type: NpmTask) {
     dependsOn npm_build
 
-    args = ['run', 'test-ci', '--workspaces', '--if-present']
+    args = ['run', 'test-ci']
     inputs.files(fileTree(".") {
         include("**/*")
         exclude(excludePatterns)

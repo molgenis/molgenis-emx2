@@ -1,0 +1,40 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "public/_nuxt-styles/**", "showCase/**","gen-docs/**"],
+
+      "cache": true
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": true
+    },
+    "lint": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": true,
+      "inputs": [
+        "tsconfig.json",
+        "package.json"
+      ]
+    },
+    "format": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": true
+    },
+    "checkFormat": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": true
+    },
+    "test-ci": {
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**", "reports/**"],
+      "cache": true
+    }
+  }
+}
