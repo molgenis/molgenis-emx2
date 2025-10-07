@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { expect, it } from "vitest";
-import Pagination from "~/components/Pagination.vue";
+import Pagination from "../../../components/Pagination.vue";
 
 const wrapper = mount(Pagination, {
   props: {
