@@ -31,7 +31,7 @@ def node_data() -> NodeData:
     returns NodeData to test with.
     """
     persons_meta = MagicMock()
-    persons_meta.id = "Persons"
+    persons_meta.table_name = "Persons"
     persons_meta.id_attribute = "id"
     persons = Table.of(
         TableType.PERSONS,
@@ -40,7 +40,7 @@ def node_data() -> NodeData:
     )
 
     networks_meta = MagicMock()
-    networks_meta.id = "Networks"
+    networks_meta.table_name = "Networks"
     networks_meta.id_attribute = "id"
     networks = Table.of(
         TableType.NETWORKS,
@@ -49,7 +49,7 @@ def node_data() -> NodeData:
     )
 
     also_known_meta = MagicMock()
-    also_known_meta.id = "AlsoKnownIn"
+    also_known_meta.table_name = "AlsoKnownIn"
     also_known_meta.id_attribute = "id"
     also_known = Table.of(
         TableType.ALSO_KNOWN,
@@ -58,7 +58,7 @@ def node_data() -> NodeData:
     )
 
     biobanks_meta = MagicMock()
-    biobanks_meta.id = "Biobanks"
+    biobanks_meta.table_name = "Biobanks"
     biobanks_meta.id_attribute = "id"
     biobanks_meta.hyperlinks = ["url"]
     biobanks = Table.of(
@@ -68,7 +68,7 @@ def node_data() -> NodeData:
     )
 
     services_meta = MagicMock()
-    services_meta.id = "Services"
+    services_meta.table_name = "Services"
     services_meta.id_attribute = "id"
     services_meta.hyperlinks = ["url"]
     services = Table.of(
@@ -78,7 +78,7 @@ def node_data() -> NodeData:
     )
 
     studies_meta = MagicMock()
-    studies_meta.id = "Studies"
+    studies_meta.table_name = "Studies"
     studies_meta.id_attribute = "id"
     studies_meta.hyperlinks = ["url"]
     studies = Table.of(
@@ -88,7 +88,7 @@ def node_data() -> NodeData:
     )
 
     collection_meta = MagicMock()
-    collection_meta.id = "Collections"
+    collection_meta.table_name = "Collections"
     collection_meta.id_attribute = "id"
     collections = Table.of(
         TableType.COLLECTIONS,
@@ -97,7 +97,7 @@ def node_data() -> NodeData:
     )
 
     facts_meta = MagicMock()
-    facts_meta.id = "CollectionFacts"
+    facts_meta.table_name = "CollectionFacts"
     facts_meta.id_attribute = "id"
     facts = Table.of(
         TableType.FACTS,

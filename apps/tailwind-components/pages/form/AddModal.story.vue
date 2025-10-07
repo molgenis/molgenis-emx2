@@ -1,10 +1,10 @@
 <template>
-  <FormAddModal
+  <FormEditModal
     v-if="metadata"
     :metadata="metadata"
     :schemaId="schemaId"
     :key="metadata.id"
-  ></FormAddModal>
+  ></FormEditModal>
 
   <div>
     <DemoDataControls

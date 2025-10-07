@@ -56,16 +56,15 @@
 </template>
 
 <script setup lang="ts">
-import MolgenisMenu from "./MolgenisMenu.vue";
-import MolgenisSession from "../account/MolgenisSession.vue";
-import MolgenisFooter from "./MolgenisFooter.vue";
-import Breadcrumb from "./Breadcrumb.vue";
-import CookieWall from "./CookieWall.vue";
+import { ISetting } from "metadata-utils";
+import { computed, onMounted, ref, watch } from "vue";
 import Client from "../../client/client";
 import { MenuItem } from "../../Interfaces/MenuItem";
-import { computed, ref, unref, watch } from "vue";
-import { onMounted } from "vue";
-import { ISetting } from "metadata-utils/src";
+import MolgenisSession from "../account/MolgenisSession.vue";
+import Breadcrumb from "./Breadcrumb.vue";
+import CookieWall from "./CookieWall.vue";
+import MolgenisFooter from "./MolgenisFooter.vue";
+import MolgenisMenu from "./MolgenisMenu.vue";
 
 const defaultSchemaMenuItems: MenuItem[] = [
   {

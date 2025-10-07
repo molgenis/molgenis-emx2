@@ -21,6 +21,8 @@ const metadata = ref({
   id: "Types",
   label: "Email Form",
   tableType: "FORM",
+  name: "Types",
+  schemaId: "Types",
   columns: [
     {
       id: "emailType",

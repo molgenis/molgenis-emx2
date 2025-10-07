@@ -15,6 +15,7 @@ export const fieldTypes = () => {
     "EMAIL_ARRAY",
     "FILE",
     "HEADING",
+    "SECTION",
     "HYPERLINK",
     "HYPERLINK_ARRAY",
     "INT",
