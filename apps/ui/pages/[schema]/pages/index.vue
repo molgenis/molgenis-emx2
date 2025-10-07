@@ -4,6 +4,9 @@ import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import { type PageBuilderContent, newPageContentObject, newPageDate } from "~/util/pages";
 
+import { useSession } from "../../../../tailwind-components/composables/useSession";
+const { isAdmin } = await useSession();
+
 type Resp<T> = {
   data: Record<string, T>;
 };
@@ -241,7 +244,7 @@ crumbs["Pages"] = "";
         <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
     </PageHeader>
-    <div class="flex justify-end gap-2.5 mb-7.5">
+    <div class="flex justify-end gap-2.5 mb-7.5" v-if="isAdmin">
       <Button type="primary" icon="add-circle" @click="showAddPageModal = true">
         Add page
       </Button>
@@ -312,12 +315,13 @@ crumbs["Pages"] = "";
             class="group hover:cursor-pointer"
           >
             <TableBodyCell
-              class="absolute left-0 h-10 w-[150px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none mt-1"
+              class="absolute left-0 w-fit h-10 z-10 text-table-row bg-hover invisible group-hover:visible border-none mt-1"
             >
               <div
                 class="flex flex-row items-center justify-start flex-nowrap gap-0 [&_button]:relative [&_button]:-mt-2.5 [&_a]:-mt-2.5"
               >
                 <Button
+                  v-if="isAdmin"
                   type="inline"
                   :icon-only="true"
                   icon="Trash"
@@ -326,6 +330,7 @@ crumbs["Pages"] = "";
                   @click="onShowDeleteModal(page.name)"
                 />
                 <NuxtLink
+                  v-if="isAdmin"
                   :to="`./pages/${page.id}/edit`"
                   class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover hover:bg-button-inline-hover focus:bg-button-inline-hover"
                   v-tooltip.bottom="`Edit`"

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, onMounted, useTemplateRef, computed, watch } from "vue";
+import { ref, onMounted, useTemplateRef, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import type { SideModal } from "#build/components";
@@ -11,6 +11,9 @@ import {
   type CssDependency,
   type JavaScriptDependency,
 } from "../../../../../util/pages";
+
+import { useSession } from "../../../../../../tailwind-components/composables/useSession";
+const { isAdmin } = await useSession();
 
 interface Setting {
   key: string;
@@ -149,44 +152,53 @@ crumbs["Edit"] = "";
         <BreadCrumbs :crumbs="crumbs" align="left" />
       </template>
     </PageHeader>
-    <div
-      class="w-full flex justify-end items-center bg-content py-2 gap-5 px-7.5 z-10"
-    >
-      <Button
-        :id="`page-${page}-editor-settings-button`"
-        :aria-controls="`page-${page}-editor-settings`"
-        :aria-expanded="showSettingsModal"
-        aria-haspopup="dialog"
-        type="outline"
-        size="small"
-        @click="showSettingsModal = true"
+    <div v-if="!isAdmin">
+      <Message id="page-editor-error" :invalid="true">
+        <p>Please sign in as "admin" to modify page content.</p>
+      </Message>
+    </div>
+    <template v-else>
+      <div
+        class="w-full flex justify-end items-center bg-content py-2 gap-5 px-7.5 z-10"
       >
-        Settings
-      </Button>
-      <Button type="primary" size="small" @click="saveSetting">
-        Save Changes
-      </Button>
-    </div>
-    <div class="grid grid-cols-2 gap-7.5 max-h-lvh overflow-y-hidden">
-      <EditorCodeEditor
-        lang="html"
-        :model-value="code.html"
-        @update:model-value="code.html = $event"
-      />
-      <div class="bg-white border border-input rounded p-7.5 overflow-y-scroll">
-        <div ref="preview" />
+        <Button
+          :id="`page-${page}-editor-settings-button`"
+          :aria-controls="`page-${page}-editor-settings`"
+          :aria-expanded="showSettingsModal"
+          aria-haspopup="dialog"
+          type="outline"
+          size="small"
+          @click="showSettingsModal = true"
+        >
+          Settings
+        </Button>
+        <Button type="primary" size="small" @click="saveSetting">
+          Save Changes
+        </Button>
       </div>
-      <EditorCodeEditor
-        lang="css"
-        :modelValue="code.css"
-        @update:model-value="code.css = $event"
-      />
-      <EditorCodeEditor
-        lang="javascript"
-        :model-value="code.javascript"
-        @update:model-value="code.javascript = $event"
-      />
-    </div>
+      <div class="grid grid-cols-2 gap-7.5 max-h-lvh">
+        <EditorCodeEditor
+          lang="html"
+          :model-value="code.html"
+          @update:model-value="code.html = $event"
+        />
+        <div
+          class="bg-white border border-input rounded p-7.5 overflow-y-scroll"
+        >
+          <div ref="preview" />
+        </div>
+        <EditorCodeEditor
+          lang="css"
+          :modelValue="code.css"
+          @update:model-value="code.css = $event"
+        />
+        <EditorCodeEditor
+          lang="javascript"
+          :model-value="code.javascript"
+          @update:model-value="code.javascript = $event"
+        />
+      </div>
+    </template>
   </Container>
   <Modal
     :id="`page-${page}-editor-settings`"
