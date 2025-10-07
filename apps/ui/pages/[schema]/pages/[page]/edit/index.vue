@@ -150,7 +150,7 @@ crumbs["Edit"] = "";
       </template>
     </PageHeader>
     <div
-      class="sticky top-0 w-full flex justify-end items-center bg-content py-2 gap-5 px-7.5 z-10"
+      class="w-full flex justify-end items-center bg-content py-2 gap-5 px-7.5 z-10"
     >
       <Button
         :id="`page-${page}-editor-settings-button`"
@@ -167,30 +167,26 @@ crumbs["Edit"] = "";
         Save Changes
       </Button>
     </div>
-    <ContentBlock>
-      <div class="grid grid-cols-2 gap-4">
-        <div class="flex flex-col gap-y-4">
-          <EditorCodeEditor
-            lang="html"
-            :model-value="code.html"
-            @update:model-value="code.html = $event"
-          />
-          <EditorCodeEditor
-            lang="css"
-            :modelValue="code.css"
-            @update:model-value="code.css = $event"
-          />
-          <EditorCodeEditor
-            lang="javascript"
-            :model-value="code.javascript"
-            @update:model-value="code.javascript = $event"
-          />
-        </div>
-        <div class="bg-white p-4 max-h-[100vh] overflow-y-scroll">
-          <div ref="preview" />
-        </div>
+    <div class="grid grid-cols-2 gap-7.5 max-h-lvh overflow-y-hidden">
+      <EditorCodeEditor
+        lang="html"
+        :model-value="code.html"
+        @update:model-value="code.html = $event"
+      />
+      <div class="bg-white border border-input rounded p-7.5 overflow-y-scroll">
+        <div ref="preview" />
       </div>
-    </ContentBlock>
+      <EditorCodeEditor
+        lang="css"
+        :modelValue="code.css"
+        @update:model-value="code.css = $event"
+      />
+      <EditorCodeEditor
+        lang="javascript"
+        :model-value="code.javascript"
+        @update:model-value="code.javascript = $event"
+      />
+    </div>
   </Container>
   <Modal
     :id="`page-${page}-editor-settings`"

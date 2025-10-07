@@ -68,7 +68,7 @@ onMounted(() => {
           insertMode: 'insert',
         },
       }"
-      :style="{ width: '100%', height: '250px' }"
+      :style="{ width: '100%', height: '215px' }"
     />
   </Accordion>
 </template>

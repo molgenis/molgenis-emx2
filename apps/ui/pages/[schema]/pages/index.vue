@@ -266,7 +266,7 @@ crumbs["Pages"] = "";
           </form>
         </div>
         <template #footer>
-          <div class="w-full flex justify-end items-center gap-2.5 h-[116px]">
+          <div class="w-full flex justify-end items-center gap-2.5 h-24 py-5">
             <Button
               type="primary"
               icon="Plus"
@@ -291,7 +291,7 @@ crumbs["Pages"] = "";
           <TableHeadRow
             class="[&_th]:text-table-column-header [&_th]:font-normal [&_th]:align-middle"
           >
-            <TableHeadCell class="absolute left-0 w-[1px] !p-0 m-0 border-none">
+            <TableHeadCell class="absolute left-0 w-0.25 !p-0 m-0 border-none">
               <span class="sr-only">page options</span>
             </TableHeadCell>
             <TableHeadCell v-for="key in Object.keys(metadata)" class="w-full">
@@ -315,7 +315,7 @@ crumbs["Pages"] = "";
               class="absolute left-0 h-10 w-[150px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none mt-1"
             >
               <div
-                class="flex flex-row items-center justify-start flex-nowrap gap-0 [&_button]:relative [&_button]:mt-[-11px]"
+                class="flex flex-row items-center justify-start flex-nowrap gap-0 [&_button]:relative [&_button]:-mt-2.5 [&_a]:-mt-2.5"
               >
                 <Button
                   type="inline"
@@ -327,7 +327,7 @@ crumbs["Pages"] = "";
                 />
                 <NuxtLink
                   :to="`./pages/${page.id}/edit`"
-                  class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover hover:bg-button-inline-hover focus:bg-button-inline-hover -mt-2.5"
+                  class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover hover:bg-button-inline-hover focus:bg-button-inline-hover"
                   v-tooltip.bottom="`Edit`"
                 >
                   <BaseIcon name="Edit" :width="18" />
@@ -335,7 +335,7 @@ crumbs["Pages"] = "";
                 </NuxtLink>
                 <NuxtLink
                   :to="`./pages/${page.id}`"
-                  class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover hover:bg-button-inline-hover focus:bg-button-inline-hover -mt-2.5"
+                  class="block flex items-center justify-center rounded-full h-10 w-10 hover:text-button-secondary-hover focus:text-button-secondary-hover hover:bg-button-inline-hover focus:bg-button-inline-hover"
                   v-tooltip.bottom="`Preview`"
                 >
                   <BaseIcon name="Preview" :width="18" />
@@ -380,7 +380,7 @@ crumbs["Pages"] = "";
         <p>Are you sure you would like to delete {{ pageToDelete }}?</p>
       </div>
       <template #footer>
-        <div class="w-full flex justify-end items-center gap-2.5 h-[116px]">
+        <div class="w-full flex justify-end items-center gap-2.5 h-24 py-5">
           <Button type="outline" @click="onCancelDeleteModal">
             Cancel
           </Button>
