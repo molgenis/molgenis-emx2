@@ -20,7 +20,6 @@ node {
 }
 
 npm_install {
-    args = ['--workspaces']
     inputs.files(fileTree('.') {
         include('**/package.json','**/package-lock.json')
         exclude("**/node_modules/**")
@@ -38,7 +37,7 @@ def excludePatterns = [
 
 tasks.register('npm_build', NpmTask) {
     dependsOn npm_install
-    args = ['run', 'build',  '--summary'] //uses the turbo in package.json
+    args = ['run', 'build'] //uses the turbo in package.json
 
     // Inputs = all frontend sources
     inputs.files(fileTree(".") {

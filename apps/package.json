@@ -39,7 +39,7 @@
     "checkFormat": "turbo run checkFormat",
     "test-ci": "turbo run test-ci"
   },
-  "devDependencies": {
+  "dependencies": {
     "turbo": "2.5.8"
   }
 }
