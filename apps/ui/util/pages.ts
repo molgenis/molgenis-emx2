@@ -10,6 +10,7 @@ export type JavaScriptDependency = {
 export type PagePreviewSettings = {
   enableBaseStyles: boolean;
   enableButtonStyles: boolean;
+  enableFullScreen: boolean;
 };
 
 export type PageBuilderContent = {
@@ -39,6 +40,7 @@ export function newPageContentObject(
     settings: {
       enableBaseStyles: true,
       enableButtonStyles: true,
+      enableFullScreen: false,
     },
   };
 }

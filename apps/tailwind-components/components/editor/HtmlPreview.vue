@@ -30,8 +30,10 @@ watch(
   <div
     class="emx2__page_preview"
     :class="{
-      enabled: code.settings?.enableBaseStyles,
+      enabled: code.settings.enableBaseStyles,
       enabled__button_styles: code.settings.enableButtonStyles,
+      enabled__full_screen: code.settings.enableFullScreen,
+      disabled__full_screen: !code.settings.enableFullScreen,
     }"
   >
     <div ref="preview" />
@@ -41,6 +43,14 @@ watch(
 <style lang="scss">
 .emx2__page_preview {
   &.enabled {
+    &.enabled__full_screen {
+      @apply w-full;
+    }
+
+    &.disabled__full_screen {
+      @apply max-w-lg mx-auto lg:px-7.5;
+    }
+
     h1 {
       @apply text-heading-6xl;
     }

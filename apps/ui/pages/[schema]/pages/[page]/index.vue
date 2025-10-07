@@ -56,6 +56,6 @@ crumbs[page as string] = "";
     >
       {{ error }}
     </Message>
-    <EditorHtmlPreview :code="code" v-if="code" />
   </Container>
+  <EditorHtmlPreview :code="code" v-if="code" />
 </template>

@@ -237,6 +237,32 @@ crumbs["Edit"] = "";
             </div>
             <div class="grid grid-cols-3 gap-7.5 justify-start items-center">
               <label
+                :for="`page-${page}-preview-enable-full-screen`"
+                class="col-span-2 mb-2.5"
+              >
+                <span class="block text-title-contrast font-bold"
+                  >Full screen</span
+                >
+                <span class="block text-input-description text-body-sm"
+                  >By default, pages have a fixed with. Disable to allow pages
+                  to fit the width of the screen.</span
+                >
+              </label>
+              <div class="self-center">
+                <InputBoolean
+                  :id="`page-${page}-preview-enable-full-screen`"
+                  class="[&_svg]:mt-0"
+                  true-label="Enabled"
+                  false-label="Disabled"
+                  :model-value="code.settings.enableFullScreen"
+                  @update:model-value="code.settings.enableFullScreen = $event"
+                  align="horizontal"
+                  :show-clear-button="false"
+                />
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-7.5 justify-start items-center">
+              <label
                 :for="`page-${page}-preview-enable-button-styles`"
                 class="col-span-2 mb-2.5"
               >
