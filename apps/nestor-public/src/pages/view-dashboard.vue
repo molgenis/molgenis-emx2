@@ -1,12 +1,5 @@
 <template>
-  <Page>
-    <PageHeader
-      title="NESTOR Registry"
-      subtitle="Dashboard"
-      titlePositionX="center"
-      titlePositionY="center"
-      height="medium"
-    />
+  <Page id="page-dashboard">
     <LoadingScreen v-if="loading" />
     <div class="page-section padding-h-2" v-else-if="!loading && error">
       <MessageBox type="error">
@@ -14,54 +7,55 @@
       </MessageBox>
     </div>
     <Dashboard
-      v-else-if="!loading && !error"
-      id="public-dashboard"
+      id="genturisPublicDashboard"
       :verticalPadding="0"
       :horizontalPadding="2"
+      v-else
     >
+      <DashboardRow id="registryHighlights" :columns="1">
+        <DataValueHighlights
+          title="ern genturis registry at a glance"
+          :data="registryHighlights"
+        />
+      </DashboardRow>
       <DashboardRow :columns="2">
         <DashboardChart>
           <GeoMercator
-            :chartId="OrganisationsChart?.chartId"
-            :title="OrganisationsChart?.chartTitle"
-            :chartData="OrganisationsChartData"
+            chartId="registryInstitutionsMap"
+            title="Status of data by healthcare provider"
+            :chartData="organisations"
             rowId="code"
             longitude="longitude"
             latitude="latitude"
+            :geojson="WorldGeoJson"
             group="hasSubmittedData"
-            :legendData="OrganisationsChartPalette"
-            :groupColorMappings="OrganisationsChartPalette"
-            :geojson="geojson"
+            :groupColorMappings="orgGroupMapping"
+            :legendData="orgGroupMapping"
             :chartSize="114"
-            :chartHeight="350"
+            :chartHeight="190"
             :mapCenter="{
-              // centroid of the Netherlands
-              latitude: 5.291266,
-              longitude: 52.132633,
+              latitude: 5,
+              longitude: 51,
             }"
-            :pointRadius="6"
-            :tooltipTemplate="(row: IOrganisations) => {
-              return `
+            :pointRadius="4"
+            :tooltipTemplate="
+              (row: IOrganisations) => {
+                return `
                 <p class='title'>${row.name}</p>
                 <p class='location'>${row.city}, ${row.country}</p>
-                `;
-            }"
-            :mapColors="{
-              water: 'hsl(177, 63%, 90%)',
-              land: 'hsl(177, 63%, 35%)',
-              border: 'hsl(177, 63%, 90%)',
-            }"
-            :chartScale="10"
-            :zoomLimits="[0, 10]"
+            `;
+              }
+            "
+            :zoomLimits="[0.3, 10]"
             :enableLegendClicks="true"
           />
         </DashboardChart>
         <DashboardChart>
           <DataTable
-            :tableId="enrollmentChart?.chartId"
-            :caption="enrollmentChart?.chartTitle"
-            :columnOrder="['name', 'value']"
-            :data="enrollmentChartData"
+            tableId="diseaseGroupEnrollment"
+            caption="Summary of patients enrolled by thematic disease group"
+            :data="enrollmentData"
+            :columnOrder="['Thematic Disease Group', 'Number of Patients']"
             :enableRowHighlighting="true"
           />
         </DashboardChart>
@@ -69,39 +63,29 @@
       <DashboardRow :columns="2">
         <DashboardChart>
           <PieChart2
-            :chartId="genderChart?.chartId"
-            :title="genderChart?.chartTitle"
-            :chartData="genderChartData"
-            :chartColors="genderChartPalette"
+            chartId="sexAtBirthChart"
+            title="Sex at birth"
+            :chartData="sexAtBirth"
+            legendPosition="bottom"
+            :chartHeight="150"
             :asDonutChart="true"
             :enableLegendHovering="true"
-            :legendPosition="genderChart?.legendPosition?.name"
             :chartMargins="10"
-            :chartHeight="215"
-            :chartScale="0.85"
           />
         </DashboardChart>
         <DashboardChart>
           <ColumnChart
-            :chartId="ageChart?.chartId"
-            :title="ageChart?.chartTitle"
-            :chartData="ageChartData"
-            xvar="name"
+            chartId="registry-age-at-inclusion"
+            title="Age at last follow-up"
+            :chartData="ageAtInclusion"
+            xvar="label"
             yvar="value"
-            :xAxisLabel="ageChart?.xAxisLabel"
-            :yAxisLabel="ageChart?.yAxisLabel"
-            :yTickValues="ageChart?.yAxisTicks"
-            columnFill="hsl(177,63%,37%)"
-            columnHoverFill="hsl(177,63%,67%)"
-            :yMin="ageChart?.yAxisMinValue"
-            :yMax="ageChart?.yAxisMaxValue"
-            :chartHeight="275"
-            :chartMargins="{
-              top: ageChart?.topMargin,
-              right: ageChart?.rightMargin,
-              bottom: ageChart?.bottomMargin,
-              left: ageChart?.leftMargin,
-            }"
+            :yTickValues="ageAtInclusionTicks"
+            xAxisLabel="Age groups"
+            yAxisLabel="Number of patients"
+            :chartHeight="225"
+            :chartMargins="{ top: 10, right: 0, bottom: 60, left: 60 }"
+            :columnPaddingInner="0.2"
           />
         </DashboardChart>
       </DashboardRow>
@@ -113,172 +97,101 @@
 import { ref, onMounted } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
+// @ts-ignore
 import {
   Page,
-  PageHeader,
   Dashboard,
   DashboardRow,
   DashboardChart,
   LoadingScreen,
   MessageBox,
   GeoMercator,
-  DataTable,
+  WorldGeoJson,
   PieChart2,
   ColumnChart,
+  DataTable,
+  DataValueHighlights,
   // @ts-ignore
 } from "molgenis-viz";
 
-import { asKeyValuePairs } from "../../../cranio-provider/src/utils/index";
-import { generateAxisTickData } from "../utils/generateAxisTicks";
-import type {
-  ICharts,
-  IChartData,
-  IOrganisations,
-  IOrganisationsResponse,
-  IDashboardPagesResponse,
-} from "../types/schema";
-import type { IKeyValuePair } from "../types";
+import { seqAlongBy } from "../utils/utils";
+import { max } from "d3";
+const d3 = { max };
 
-import * as geojson from "../data/nl.geo.json";
+interface IProviderInformation {
+  providerIdentifier: string;
+  hasSubmittedData: boolean;
+}
+
+interface IOrganisations {
+  name: string;
+  code: string;
+  city: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+  providerInformation: IProviderInformation[];
+}
+
+interface IStatistics {
+  id: string;
+  name: string;
+  label: string;
+  value: number;
+  valueOrder: number;
+}
+
+interface IComponent {
+  name: string;
+  statistics: IStatistics[];
+}
+
+interface IKeyValuePairs {
+  [key: string]: number;
+}
+
+interface IOrganisationsResponse {
+  Organisations: IOrganisations[];
+}
+
+interface IComponentsResponse {
+  Components: IComponent[];
+}
 
 const loading = ref<boolean>(true);
 const error = ref<Error | null>(null);
+const registryHighlights = ref<IKeyValuePairs>({});
+const sexAtBirth = ref<IKeyValuePairs>({});
+const ageAtInclusion = ref<IStatistics[]>([]);
+const ageAtInclusionTicks = ref<string[]>([]);
+const enrollmentData = ref<IStatistics[]>([]);
+const organisations = ref<IOrganisations[]>([]);
 
-const OrganisationsChart = ref<ICharts>();
-const OrganisationsChartData = ref<IOrganisations[]>([]);
-const OrganisationsChartPalette = ref<IKeyValuePair>({});
-const enrollmentChart = ref<ICharts>();
-const enrollmentChartData = ref<IChartData[]>();
-const ageChart = ref<ICharts>();
-const ageChartData = ref<IChartData[]>();
-const genderChart = ref<ICharts>();
-const genderChartData = ref<IKeyValuePair>();
-const genderChartPalette = ref<IKeyValuePair>({});
-
-async function getPageCharts() {
-  const response: IDashboardPagesResponse = await request(
-    "../api/graphql",
-    gql`
-      {
-        DashboardPages {
-          name
-          charts {
-            chartId
-            chartType {
-              name
-            }
-            chartTitle
-            chartSubtitle
-            xAxisLabel
-            xAxisMinValue
-            xAxisMaxValue
-            xAxisTicks
-            yAxisLabel
-            yAxisMinValue
-            yAxisMaxValue
-            yAxisTicks
-            colorPalette {
-              key
-              color
-            }
-            topMargin
-            rightMargin
-            bottomMargin
-            leftMargin
-            legendPosition {
-              name
-            }
-            dataPoints {
-              id
-              name
-              value
-              valueLabel
-              primaryCategory
-              secondaryCategory
-              primaryCategoryLabel
-              secondaryCategoryLabel
-              sortOrder
-            }
-          }
-        }
-      }
-    `
-  );
-
-  const charts = response.DashboardPages[0].charts as ICharts[];
-
-  OrganisationsChart.value = charts.filter(
-    (chart: ICharts) => chart.chartId === "organisation-map"
-  )[0];
-  OrganisationsChartPalette.value = asKeyValuePairs(
-    OrganisationsChart.value.colorPalette,
-    "key",
-    "color"
-  );
-
-  enrollmentChart.value = charts.filter(
-    (chart: ICharts) => chart.chartId === "enrollment-by-disease-group"
-  )[0];
-  enrollmentChartData.value = enrollmentChart.value.dataPoints?.sort(
-    (current: IChartData, next: IChartData) => {
-      return (current.sortOrder as number) - (next.sortOrder as number);
-    }
-  );
-
-  genderChart.value = charts.filter(
-    (chart: ICharts) => chart.chartId === "sex-at-birth"
-  )[0];
-
-  const genderData = genderChart.value.dataPoints?.sort(
-    (current: IChartData, next: IChartData) => {
-      return (next.value as number) - (current.value as number);
-    }
-  );
-
-  genderChartData.value = asKeyValuePairs(genderData, "name", "value");
-  genderChartPalette.value = asKeyValuePairs(
-    genderChart.value.colorPalette,
-    "key",
-    "color"
-  );
-
-  ageChart.value = charts.filter(
-    (chart: ICharts) => chart.chartId === "age-at-last-visit"
-  )[0];
-
-  ageChartData.value = ageChart.value.dataPoints?.sort(
-    (current: IChartData, next: IChartData) => {
-      return (current.sortOrder as number) - (next.sortOrder as number);
-    }
-  );
-
-  if (ageChartData.value) {
-    const ageChartTickData = generateAxisTickData(ageChartData.value, "value");
-    ageChart.value.yAxisMaxValue = ageChartTickData.limit;
-    ageChart.value.yAxisTicks = ageChartTickData.ticks;
-  }
-}
+const orgGroupMapping = {
+  "Data Submitted": "#E9724C",
+  "No Data": "#F0F0F0",
+};
 
 async function getOrganisations() {
-  const response: IOrganisationsResponse = await request(
-    "../api/graphql",
-    gql`
-      {
-        Organisations {
-          name
-          label
-          code
-          city
-          country
-          latitude
-          longitude
-          providerInformation {
-            providerIdentifier
-            hasSubmittedData
-          }
+  const query = gql`
+    {
+      Organisations {
+        name
+        code
+        city
+        country
+        latitude
+        longitude
+        providerInformation {
+          providerIdentifier
+          hasSubmittedData
         }
       }
-    `
+    }
+  `;
+  const response: IOrganisationsResponse = await request(
+    "../api/graphql",
+    query
   );
   const data: IOrganisations[] = response.Organisations.map(
     (row: IOrganisations) => {
@@ -288,12 +201,77 @@ async function getOrganisations() {
       return { ...row, hasSubmittedData: status };
     }
   );
-  OrganisationsChartData.value = data;
+  organisations.value = data;
+}
+
+async function getStats() {
+  const query = gql`
+    {
+      Components {
+        name
+        statistics {
+          id
+          label
+          value
+          valueOrder
+        }
+      }
+    }
+  `;
+  const response: IComponentsResponse = await request("../api/graphql", query);
+  const data: IComponent[] = response.Components;
+
+  const highlights = data.filter(
+    (row: IComponent) => row.name === "data-highlights"
+  );
+  registryHighlights.value = Object.fromEntries(
+    highlights[0]["statistics"].map((row: IStatistics) => [
+      row.label,
+      row.value,
+    ])
+  );
+
+  const sexData = data.filter(
+    (row: IComponent) => row.name === "pie-sex-at-birth"
+  );
+  sexAtBirth.value = Object.fromEntries(
+    sexData[0]["statistics"]
+      .map((row: IStatistics) => [row.label, row.value])
+      .sort((current: any[], next: any[]) => (current[1] < next[1] ? 1 : -1))
+  );
+
+  const age = data.filter((row: IComponent) => row.name === "barchart-age");
+  ageAtInclusion.value = age[0]["statistics"];
+
+  const maxValue: number = d3.max(
+    ageAtInclusion.value,
+    (row: IStatistics) => row.value
+  ) as number;
+  const ymax: number = Math.round(maxValue / 10) * 10;
+  ageAtInclusionTicks.value = seqAlongBy(0, ymax, 25);
+
+  enrollmentData.value = data
+    .filter(
+      (row: IComponent) => row.name === "table-enrollment-disease-group"
+    )[0]
+    ["statistics"].filter(
+      (row: IStatistics) => row.label !== "Undetermined" && row.value !== 0
+    )
+    .sort((current: IStatistics, next: IStatistics) => {
+      return current.valueOrder < next.valueOrder ? -1 : 1;
+    })
+    .map((row: IStatistics) => {
+      return {
+        ...row,
+        "Thematic Disease Group": row.label,
+        "Number of Patients": row.value,
+      };
+    });
 }
 
 async function loadData() {
-  await getPageCharts();
   await getOrganisations();
+  await getStats();
 }
 
 onMounted(() => {
@@ -302,3 +280,91 @@ onMounted(() => {
     .finally(() => (loading.value = false));
 });
 </script>
+
+<style lang="scss">
+.d3-viz {
+  &.d3-pie,
+  &.d3-geo-mercator {
+    .chart-context {
+      text-align: center;
+      .chart-title {
+        @include setChartTitle;
+      }
+    }
+  }
+
+  &.d3-column-chart {
+    .chart-title {
+      @include setChartTitle;
+    }
+  }
+}
+
+#sexAtBirthChart {
+  .chart-area {
+    .pie-labels {
+      .pie-label-text {
+        font-size: 0.7rem !important;
+      }
+    }
+  }
+}
+
+#registryInstitutionsMap + .d3-viz-legend {
+  padding: 0.6em 0.8em;
+  label {
+    margin-bottom: 0;
+  }
+}
+
+#diseaseGroupEnrollment {
+  caption {
+    @include setChartTitle;
+  }
+  thead {
+    th {
+      font-size: 0.8rem;
+    }
+  }
+  tbody {
+    td {
+      font-size: 0.9rem;
+      padding: 0.6em 0.2em;
+
+      &[data-value="Undetermined"],
+      &[data-value="Undetermined"] + td {
+        background-color: $gray-000;
+        span {
+          color: $gray-400;
+        }
+      }
+    }
+  }
+}
+
+#registryHighlights {
+  .data-highlights {
+    .data-highlight {
+      padding: 0.8em 1em;
+      .data-label {
+        margin-bottom: 0.15em;
+        font-size: 0.75rem;
+      }
+
+      .data-value {
+        &::after {
+          font-size: 1.8rem;
+        }
+      }
+    }
+  }
+}
+
+#genturisPublicDashboard {
+  .dashboard-content {
+    @media (min-width: 1800px) {
+      max-width: 60vw;
+    }
+  }
+}
+</style>
