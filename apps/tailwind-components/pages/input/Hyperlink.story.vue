@@ -19,6 +19,8 @@ const model = ref({});
 const metadata = {
   label: "Hyperlink",
   id: "Types",
+  name: "Types",
+  schemaId: "Types",
   tableType: "my kind of table",
   columns: [
     {

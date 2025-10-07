@@ -12,6 +12,7 @@ public class Column {
   private String id;
   private String name;
   private String label;
+  private String section;
   private String heading;
   private String description;
   private List<LanguageValue> labels = new ArrayList<>();
@@ -412,6 +413,14 @@ public class Column {
 
   public void setProfiles(String[] profiles) {
     this.profiles = profiles;
+  }
+
+  public String getSection() {
+    return section;
+  }
+
+  public void setSection(String section) {
+    this.section = section;
   }
 
   public String getHeading() {
