@@ -91,10 +91,10 @@ for schema_name in schema_names:
             profile = 'CohortsStaging'
         # else:
         #     profile = 'INTEGRATE'
+        # else:
+        #     profile = 'UMCUCohorts'
         else:
-            profile = 'UMCUCohorts'
-        #else:
-            #profile = 'UMCGCohorts'
+            profile = 'UMCGCohorts'
         print(schema_name, profile)
 
         # transform schema data:

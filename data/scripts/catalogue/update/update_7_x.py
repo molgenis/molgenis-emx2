@@ -78,10 +78,10 @@ class Transform:
 
         if self.profile == 'UMCGCohortsStaging':
             self.contacts()
-        if self.schema_name == 'testCatalogue':
+        if self.schema_name in ['testCatalogue', 'DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging']:
             self.collection_events()
             self.subpopulations()
-        if self.profile in ['CohortsStaging', 'DataCatalogueflat']:
+        if self.profile in ['CohortsStaging', 'DataCatalogueFlat']:
             self.variable_mappings()
 
     def agents(self):
@@ -293,7 +293,7 @@ class Transform:
 
 
 def clean_pid(row):
-    if pd.isna('organisation'):
+    if pd.isna(row['organisation']):
         return None
     else:
         return row['organisation pid']
