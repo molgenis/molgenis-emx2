@@ -2,17 +2,21 @@
 Tests for the Pyclient.
 """
 import os
+from pathlib import Path
 
 import pytest
 from dotenv import load_dotenv
 
 from tools.pyclient.src.molgenis_emx2_pyclient import Client
-from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import SigninError, SignoutError
+from tools.pyclient.src.molgenis_emx2_pyclient.exceptions import SigninError, SignoutError, NoSuchSchemaException, \
+    NoSuchTableException
 
 load_dotenv()
 server_url = os.environ.get("MG_SERVER")
 username = os.environ.get("MG_USERNAME")
 password = os.environ.get("MG_PASSWORD")
+
+RESOURCES_DIR = Path(__file__).parent / "resources"
 
 def test_signin():
     """Tests the `signin` method."""
@@ -67,7 +71,52 @@ def test_set_token():
 
 def test_save_schema():
     """Tests the `save_schema` method."""
-    ...
+    # Test failing table name
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Test failing schema name
+        with pytest.raises(NoSuchSchemaException) as excinfo:
+            client.save_schema(name="pat store", table="Pet",
+                               file=str(RESOURCES_DIR / "Pet.csv"))
+        assert excinfo.value.msg == "Schema 'pat store' not available."
+
+        # Test failing table name
+        with pytest.raises(NoSuchTableException) as excinfo:
+            client.save_schema(name="pyt store", table="Pat",
+                               file=str(RESOURCES_DIR / "Pet.csv"))
+        assert excinfo.value.msg == "Table 'Pat' not found in schema 'pyt store'."
+
+        # Test missing file and data
+        with pytest.raises(FileNotFoundError) as excinfo:
+            client.save_schema(name="pyt store", table="Pet")
+
+        assert str(excinfo.value) == "No data to import. Specify a file location or a dataset."
+
+        # Test file upload incorrect name
+        with pytest.raises(FileNotFoundError) as excinfo:
+            client.save_schema(name="pyt store", table="Pet",
+                               file=str(RESOURCES_DIR / "Pat.csv"))
+
+        assert excinfo.value.args[1] == "No such file or directory"
+        assert str(excinfo.value.filename).endswith(str(RESOURCES_DIR / "Pat.csv"))
+
+        # Test file upload
+        client.save_schema(name="pyt store", table="Tag",
+                           file=str(RESOURCES_DIR / "Tag.csv"))
+        client.save_schema(name="pyt store", table="Pet",
+                           file=str(RESOURCES_DIR / "Pet.csv"))
+
+        client.save_schema(name="pyt store", table="Pet",
+                           file=str(RESOURCES_DIR / "Pet_delete.csv"))
+        client.save_schema(name="pyt store", table="Tag",
+                           file=str(RESOURCES_DIR / "Tag_delete.csv"))
+        assert 3 < 2
+
+        # Test data upload as list
+
+        # Test data upload as DataFrame
+
 
 def test_upload_file():
     """Tests the `upload_file` method."""
