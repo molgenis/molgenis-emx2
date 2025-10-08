@@ -65,11 +65,6 @@
             Genetic Deafness
           </router-link>
         </li>
-        <li>
-          <router-link :to="{ name: 'provider-larnyxcleft' }">
-            Larynxcleft
-          </router-link>
-        </li>
       </ul>
     </nav>
     <a id="btnSubmitPatient" href="../tables/#/Subject">

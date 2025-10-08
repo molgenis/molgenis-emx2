@@ -13,7 +13,6 @@ import ProviderClpYourCenter from "../views/clp-your-center.vue";
 import ProviderClpAllCenters from "../views/clp-all-centers.vue";
 
 import ProviderGeneticDeafness from "../views/provider-genetic-deafness.vue";
-import ProviderLarnyxcleft from "../views/provider-larnyxcleft.vue";
 
 import ErrorPage from "../views/view-404.vue";
 
@@ -107,16 +106,6 @@ const router = createRouter({
       component: ProviderGeneticDeafness,
       meta: {
         title: "Genetic Deafness",
-      },
-    },
-
-    // Placeholder for larnyxcleft
-    {
-      name: "provider-larnyxcleft",
-      path: "/larnyxcleft",
-      component: ProviderLarnyxcleft,
-      meta: {
-        title: "Larnyxcleft",
       },
     },
 
