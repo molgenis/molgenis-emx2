@@ -12,7 +12,9 @@ import ProvidersCsCenterSurgical from "../views/cs-center-surgical.vue";
 import ProviderClpYourCenter from "../views/clp-your-center.vue";
 import ProviderClpAllCenters from "../views/clp-all-centers.vue";
 
-import ProviderGeneticDeafness from "../views/provider-genetic-deafness.vue";
+// genetic hearing loss
+import ProviderGhlYourCenter from "../views/genetic_hearing_loss/YourCenter.vue";
+import ProviderGhlAllCenters from "../views/genetic_hearing_loss/AllCenters.vue";
 
 import ErrorPage from "../views/view-404.vue";
 
@@ -103,10 +105,27 @@ const router = createRouter({
     {
       name: "provider-genetic-deafness",
       path: "/genetic-deafness",
-      component: ProviderGeneticDeafness,
-      meta: {
-        title: "Genetic Deafness",
+      redirect: {
+        name: "provider-ghl-your-center",
       },
+      children: [
+        {
+          name: "provider-ghl-your-center",
+          path: "center",
+          component: ProviderGhlYourCenter,
+          meta: {
+            title: "Your center | Genetic hearing loss | ",
+          },
+        },
+        {
+          name: "provider-ghl-all-centers",
+          path: "all-centers",
+          component: ProviderGhlAllCenters,
+          meta: {
+            title: "All centers | Genetic hearing loss | ",
+          },
+        },
+      ],
     },
 
     // error

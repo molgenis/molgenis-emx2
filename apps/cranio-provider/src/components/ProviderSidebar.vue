@@ -61,9 +61,24 @@
           </Accordion>
         </li>
         <li>
-          <router-link :to="{ name: 'provider-genetic-deafness' }">
-            Genetic Deafness
-          </router-link>
+          <Accordion
+            id="ghl-nav"
+            title="Genetic hearing loss"
+            :isOpenByDefault="true"
+          >
+            <ul>
+              <li>
+                <router-link :to="{ name: 'provider-ghl-your-center' }">
+                  Your center's overview
+                </router-link>
+              </li>
+              <li>
+                <router-link :to="{ name: 'provider-ghl-all-centers' }">
+                  All centers
+                </router-link>
+              </li>
+            </ul>
+          </Accordion>
         </li>
       </ul>
     </nav>
