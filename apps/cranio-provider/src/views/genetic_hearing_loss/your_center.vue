@@ -1,13 +1,358 @@
-<script lang="ts">
-// @ts-expect-error
-import { DashboardRow } from "molgenis-viz";
+<script lang="ts" setup>
+import { ref, onMounted } from "vue";
+import {
+  DashboardRow,
+  DashboardChart,
+  ColumnChart,
+  GroupedColumnChart,
+  BarChart,
+  LoadingScreen,
+  // @ts-expect-error
+} from "molgenis-viz";
+
 import ProviderDashboard from "../../components/ProviderDashboard.vue";
+
+import { generateAxisTickData } from "../../utils/generateAxisTicks";
+import { asKeyValuePairs, sum, uniqueValues } from "../../utils";
+import { generateColorPalette } from "../../utils/generateColorPalette";
+import { getDashboardChart } from "../../utils/getDashboardData";
+
+import type { ICharts, IChartData } from "../../types/schema";
+import type { IAppPage } from "../../types/app";
+import type { IKeyValuePair } from "../../types/index";
+
+const props = defineProps<IAppPage>();
+const loading = ref<boolean>(true);
+
+const hearingLossTypeChart = ref<ICharts>();
+const hearingLossSeverityChart = ref<ICharts>();
+const hearingLossOnsetChart = ref<ICharts>();
+const geneticDiagnosisTypeChart = ref<ICharts>();
+const geneticDiagnosisGenesChart = ref<ICharts>();
+const etiologyChart = ref<ICharts>();
+const syndromicClassifcationChart = ref<ICharts>();
+
+async function getPageData() {
+  hearingLossTypeChart.value = (
+    (await getDashboardChart(
+      props.api.graphql.current,
+      "type-of-hearing-loss"
+    )) as ICharts[]
+  )[0] as ICharts;
+
+  hearingLossSeverityChart.value = (
+    (await getDashboardChart(
+      props.api.graphql.current,
+      "severity-of-hearing-loss-by-ear"
+    )) as ICharts[]
+  )[0] as ICharts;
+
+  hearingLossOnsetChart.value = (
+    (await getDashboardChart(
+      props.api.graphql.current,
+      "age-of-hearing-loss-onset"
+    )) as ICharts[]
+  )[0] as ICharts;
+
+  geneticDiagnosisTypeChart.value = (
+    (await getDashboardChart(
+      props.api.graphql.current,
+      "genetic-diagnosis-type"
+    )) as ICharts[]
+  )[0] as ICharts;
+
+  geneticDiagnosisGenesChart.value = (
+    (await getDashboardChart(props.api.graphql.current, "genes")) as ICharts[]
+  )[0] as ICharts;
+
+  etiologyChart.value = (
+    (await getDashboardChart(
+      props.api.graphql.current,
+      "etiology"
+    )) as ICharts[]
+  )[0] as ICharts;
+
+  syndromicClassifcationChart.value = (
+    (await getDashboardChart(
+      props.api.graphql.current,
+      "syndromic-classification"
+    )) as ICharts[]
+  )[0] as ICharts;
+}
+
+onMounted(() => {
+  getPageData()
+    .then(() => {
+      // create data for type of hearing loss chart
+      const hearingAxis = generateAxisTickData(
+        hearingLossTypeChart.value?.dataPoints as IChartData[],
+        "dataPointValue"
+      );
+
+      if (hearingLossTypeChart.value) {
+        hearingLossTypeChart.value.yAxisMaxValue = hearingAxis.limit;
+        hearingLossTypeChart.value.yAxisTicks = hearingAxis.ticks;
+      }
+
+      // prep chart for severity of hearing loss
+      const serverityAxis = generateAxisTickData(
+        hearingLossSeverityChart.value?.dataPoints as IChartData[],
+        "dataPointValue"
+      );
+
+      if (hearingLossSeverityChart.value) {
+        hearingLossSeverityChart.value.yAxisMaxValue = serverityAxis.limit;
+        hearingLossSeverityChart.value.yAxisTicks = serverityAxis.ticks;
+      }
+
+      // age of onset prep
+      const onsetAxis = generateAxisTickData(
+        hearingLossOnsetChart.value?.dataPoints as IChartData[],
+        "dataPointValue"
+      );
+      if (hearingLossOnsetChart.value) {
+        hearingLossOnsetChart.value.yAxisMaxValue = onsetAxis.limit;
+        hearingLossOnsetChart.value.yAxisTicks = onsetAxis.ticks;
+      }
+
+      // prep genetic diagnosis gene
+      const geneAxis = generateAxisTickData(
+        geneticDiagnosisGenesChart.value?.dataPoints as IChartData[],
+        "dataPointValue"
+      );
+      if (geneticDiagnosisGenesChart.value) {
+        geneticDiagnosisGenesChart.value.xAxisMaxValue = geneAxis.limit;
+        geneticDiagnosisGenesChart.value.xAxisTicks = geneAxis.ticks;
+
+        geneticDiagnosisGenesChart.value.dataPoints =
+          geneticDiagnosisGenesChart.value.dataPoints?.sort((a, b) =>
+            (a.dataPointName as string).localeCompare(b.dataPointName as string)
+          );
+      }
+
+      // prep genetic diagnosis type
+      const dxTypeAxis = generateAxisTickData(
+        geneticDiagnosisTypeChart.value?.dataPoints as IChartData[],
+        "dataPointValue"
+      );
+
+      if (geneticDiagnosisTypeChart.value) {
+        geneticDiagnosisTypeChart.value.yAxisMaxValue = dxTypeAxis.limit;
+        geneticDiagnosisTypeChart.value.yAxisTicks = dxTypeAxis.ticks;
+      }
+
+      // prep etiology chart
+      const etiologyAxis = generateAxisTickData(
+        etiologyChart.value?.dataPoints as IChartData[],
+        "dataPointValue"
+      );
+      if (etiologyChart.value) {
+        etiologyChart.value.yAxisMaxValue = etiologyAxis.limit;
+        etiologyChart.value.yAxisTicks = etiologyAxis.ticks;
+      }
+
+      // prep syndromic classification chart
+      const syndomicAxis = generateAxisTickData(
+        syndromicClassifcationChart.value?.dataPoints as IChartData[],
+        "dataPointValue"
+      );
+      if (syndromicClassifcationChart.value) {
+        syndromicClassifcationChart.value.yAxisMaxValue = syndomicAxis.limit;
+        syndromicClassifcationChart.value.yAxisTicks = syndomicAxis.ticks;
+      }
+    })
+    .catch((err) => {
+      throw new Error(err);
+    })
+    .finally(() => (loading.value = false));
+});
 </script>
 
 <template>
   <ProviderDashboard>
-    <DashboardRow>
-      <h2>Dashboard for your center is under contstruction</h2>
+    <h2 class="dashboard-h2">General overview for your center</h2>
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <ColumnChart
+          v-else
+          :chartId="hearingLossTypeChart?.chartId"
+          :title="hearingLossTypeChart?.chartTitle"
+          :description="hearingLossTypeChart?.chartSubtitle"
+          :chartData="hearingLossTypeChart?.dataPoints"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="hearingLossTypeChart?.xAxisLabel"
+          :yAxisLabel="hearingLossTypeChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="hearingLossTypeChart?.yAxisMaxValue"
+          :yTickValues="hearingLossTypeChart?.yAxisTicks"
+          columnHoverFill="#708fb4"
+          :chartHeight="250"
+          :chartMargins="{
+            top: hearingLossTypeChart?.topMargin,
+            right: hearingLossTypeChart?.rightMargin,
+            bottom: hearingLossTypeChart?.bottomMargin,
+            left: hearingLossTypeChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <GroupedColumnChart
+          v-else
+          :chartId="hearingLossSeverityChart?.chartId"
+          :title="hearingLossSeverityChart?.chartTitle"
+          :description="hearingLossSeverityChart?.chartSubtitle"
+          :chartData="hearingLossSeverityChart?.dataPoints"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          group="dataPointPrimaryCategory"
+          :xAxisLabel="hearingLossSeverityChart?.xAxisLabel"
+          :yAxisLabel="hearingLossSeverityChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="hearingLossSeverityChart?.yAxisMaxValue"
+          :yTickValues="hearingLossSeverityChart?.yAxisTicks"
+          :chartHeight="300"
+          :chartMargins="{
+            top: hearingLossSeverityChart?.topMargin,
+            right: hearingLossSeverityChart?.rightMargin,
+            bottom: hearingLossSeverityChart?.bottomMargin,
+            left: hearingLossSeverityChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <ColumnChart
+          v-else
+          :chartId="hearingLossOnsetChart?.chartId"
+          :title="hearingLossOnsetChart?.chartTitle"
+          :description="hearingLossOnsetChart?.chartSubtitle"
+          :chartData="hearingLossOnsetChart?.dataPoints"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="hearingLossOnsetChart?.xAxisLabel"
+          :yAxisLabel="hearingLossOnsetChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="hearingLossOnsetChart?.yAxisMaxValue"
+          :yTickValues="hearingLossOnsetChart?.yAxisTicks"
+          :chartHeight="250"
+          :chartMargins="{
+            top: hearingLossOnsetChart?.topMargin,
+            right: hearingLossOnsetChart?.rightMargin,
+            bottom: hearingLossOnsetChart?.bottomMargin,
+            left: hearingLossOnsetChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+    </DashboardRow>
+    <h3 class="dashboard-h3">Genetic diagnosis</h3>
+    <DashboardRow :columns="2">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <BarChart
+          v-else
+          :chartId="geneticDiagnosisGenesChart?.chartId"
+          :title="geneticDiagnosisGenesChart?.chartTitle"
+          :description="geneticDiagnosisGenesChart?.chartSubtitle"
+          :chartData="geneticDiagnosisGenesChart?.dataPoints"
+          xvar="dataPointValue"
+          yvar="dataPointName"
+          :xAxisLabel="geneticDiagnosisGenesChart?.xAxisLabel"
+          :yAxisLabel="geneticDiagnosisGenesChart?.yAxisLabel"
+          :xMin="0"
+          :xMax="geneticDiagnosisGenesChart?.xAxisMaxValue"
+          :xTickValues="geneticDiagnosisGenesChart?.xAxisTicks"
+          :chartHeight="250"
+          :chartMargins="{
+            top: geneticDiagnosisGenesChart?.topMargin,
+            right: geneticDiagnosisGenesChart?.rightMargin,
+            bottom: geneticDiagnosisGenesChart?.bottomMargin,
+            left: geneticDiagnosisGenesChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <ColumnChart
+          v-else
+          class="chart-axis-x-angled-text"
+          :chartId="geneticDiagnosisTypeChart?.chartId"
+          :title="geneticDiagnosisTypeChart?.chartTitle"
+          :description="geneticDiagnosisTypeChart?.chartSubtitle"
+          :chartData="geneticDiagnosisTypeChart?.dataPoints"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="geneticDiagnosisTypeChart?.xAxisLabel"
+          :yAxisLabel="geneticDiagnosisTypeChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="geneticDiagnosisTypeChart?.yAxisMaxValue"
+          :yTickValues="geneticDiagnosisTypeChart?.yAxisTicks"
+          :chartHeight="250"
+          :chartMargins="{
+            top: geneticDiagnosisTypeChart?.topMargin,
+            right: geneticDiagnosisTypeChart?.rightMargin,
+            bottom: geneticDiagnosisTypeChart?.bottomMargin,
+            left: geneticDiagnosisTypeChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+    </DashboardRow>
+    <DashboardRow :columns="2">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <ColumnChart
+          v-else
+          :chartId="etiologyChart?.chartId"
+          :title="etiologyChart?.chartTitle"
+          :description="etiologyChart?.chartSubtitle"
+          :chartData="etiologyChart?.dataPoints"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="etiologyChart?.xAxisLabel"
+          :yAxisLabel="etiologyChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="etiologyChart?.yAxisMaxValue"
+          :yTickValues="etiologyChart?.yAxisTicks"
+          :chartHeight="250"
+          :chartMargins="{
+            top: etiologyChart?.topMargin,
+            right: etiologyChart?.rightMargin,
+            bottom: etiologyChart?.bottomMargin,
+            left: etiologyChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+      <DashboardChart>
+        <LoadingScreen v-if="loading" style="height: 250px" />
+        <ColumnChart
+          v-else
+          class="chart-axis-x-angled-text"
+          :chartId="syndromicClassifcationChart?.chartId"
+          :title="syndromicClassifcationChart?.chartTitle"
+          :description="syndromicClassifcationChart?.chartSubtitle"
+          :chartData="syndromicClassifcationChart?.dataPoints"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="syndromicClassifcationChart?.xAxisLabel"
+          :yAxisLabel="syndromicClassifcationChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="syndromicClassifcationChart?.yAxisMaxValue"
+          :yTickValues="syndromicClassifcationChart?.yAxisTicks"
+          :chartHeight="250"
+          :chartMargins="{
+            top: syndromicClassifcationChart?.topMargin,
+            right: syndromicClassifcationChart?.rightMargin,
+            bottom: syndromicClassifcationChart?.bottomMargin,
+            left: syndromicClassifcationChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
     </DashboardRow>
   </ProviderDashboard>
 </template>
