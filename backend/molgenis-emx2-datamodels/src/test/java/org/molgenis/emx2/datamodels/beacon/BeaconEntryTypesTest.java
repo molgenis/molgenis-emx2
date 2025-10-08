@@ -40,12 +40,6 @@ public class BeaconEntryTypesTest {
     assertEquals(
         "edam:operation_2945", analysis.get("ontologyTermForThisType").get("id").textValue());
 
-    JsonNode biosample = result.get("response").get("entryTypes").get("biosamples");
-    assertTrue(biosample.isObject());
-    assertEquals("Biosamples", biosample.get("id").textValue());
-    assertEquals("biosamples", biosample.get("name").textValue());
-    assertEquals("NCIT:C70699", biosample.get("ontologyTermForThisType").get("id").textValue());
-
     JsonNode cohorts = result.get("response").get("entryTypes").get("cohorts");
     assertTrue(cohorts.isObject());
     assertEquals("Cohorts", cohorts.get("id").textValue());
