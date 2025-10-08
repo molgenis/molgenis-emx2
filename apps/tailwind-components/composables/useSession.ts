@@ -3,17 +3,18 @@ import { computed, onUnmounted, ref, type Ref } from "vue";
 import { useRoute, useRouter } from "#app/composables/router";
 import type { ISession } from "../types/types";
 import { openReAuthenticationWindow } from "../utils/openReAuthenticationWindow";
-
-const session = ref<ISession | null>();
+import { useState } from "#app";
 
 export const useSession = async () => {
   const route = useRoute();
   const router = useRouter();
   const schemaId = route.params.schema as string | null;
+  const session = useState("session", () => null as ISession | null);
+
   let messageHandler: ((event: MessageEvent) => void) | null = null;
 
   async function fetchSessionDetails() {
-    return await $fetch("/api/graphql", {
+    return $fetch("/api/graphql", {
       method: "POST",
       body: JSON.stringify({
         query: `{_session { email, admin, token }}`,
@@ -22,7 +23,7 @@ export const useSession = async () => {
   }
 
   async function fetchSchemaRoles(schemaId: string) {
-    return await $fetch(`/${schemaId}/graphql`, {
+    return $fetch(`/${schemaId}/graphql`, {
       method: "POST",
       body: JSON.stringify({
         query: `{_session { roles }}`,
@@ -58,7 +59,22 @@ export const useSession = async () => {
 
   async function reload() {
     session.value = null;
-    await loadSession();
+
+    // parallel requests
+    const [schemaRolesResult, sessionResult] = await Promise.all([
+      schemaId ? fetchSchemaRoles(schemaId) : Promise.resolve(null),
+      fetchSessionDetails(),
+    ]);
+
+    if (!sessionResult) {
+      console.error("Error reloading session");
+    }
+
+    session.value = sessionResult.data._session;
+
+    if (session.value && schemaId && schemaRolesResult) {
+      session.value.roles = schemaRolesResult.data._session.roles;
+    }
   }
 
   async function hasSessionTimeout() {
