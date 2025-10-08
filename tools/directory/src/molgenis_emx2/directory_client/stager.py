@@ -140,7 +140,7 @@ class Stager:
                     data=ids,
                 )
 
-    def _file_to_table(self, filename: str, table_type: List[TableType]) -> Table:
+    def _file_to_table(self, filename: str, table_type: TableType) -> Table:
         """
         Get csv file, transform into Table object
         """
@@ -163,9 +163,7 @@ class Stager:
             rows=rows,
         )
 
-    def _download_file(
-        self, node: FileIngestNode, table_type: List[TableType]
-    ) -> str | None:
+    def _download_file(self, node: FileIngestNode, table_type: TableType) -> str | None:
         """
         Download the .csv-file from the file ingest server
         """
