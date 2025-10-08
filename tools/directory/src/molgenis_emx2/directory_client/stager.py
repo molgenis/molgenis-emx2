@@ -140,7 +140,8 @@ class Stager:
                     data=ids,
                 )
 
-    def _file_to_table(self, filename: str, table_type: TableType) -> Table:
+    @staticmethod
+    def _file_to_table(filename: str, table_type: TableType) -> Table:
         """
         Get csv file, transform into Table object
         """
