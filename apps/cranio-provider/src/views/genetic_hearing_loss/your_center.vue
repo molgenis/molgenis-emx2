@@ -15,7 +15,8 @@ import ProviderDashboard from "../../components/ProviderDashboard.vue";
 import { generateAxisTickData } from "../../utils/generateAxisTicks";
 import { asKeyValuePairs, sum, uniqueValues } from "../../utils";
 import { generateColorPalette } from "../../utils/generateColorPalette";
-import { getDashboardChart } from "../../utils/getDashboardData";
+
+import { getGeneticLossData } from "../../utils/getGeneticHearingLossData";
 
 import type { ICharts, IChartData } from "../../types/schema";
 import type { IAppPage } from "../../types/app";
@@ -32,139 +33,99 @@ const geneticDiagnosisGenesChart = ref<ICharts>();
 const etiologyChart = ref<ICharts>();
 const syndromicClassifcationChart = ref<ICharts>();
 
-async function getPageData() {
-  hearingLossTypeChart.value = (
-    (await getDashboardChart(
-      props.api.graphql.current,
-      "type-of-hearing-loss"
-    )) as ICharts[]
-  )[0] as ICharts;
+onMounted(async () => {
+  const yourCenter = await getGeneticLossData(
+    props.api.graphql.current,
+    "Your center"
+  );
 
-  hearingLossSeverityChart.value = (
-    (await getDashboardChart(
-      props.api.graphql.current,
-      "severity-of-hearing-loss-by-ear"
-    )) as ICharts[]
-  )[0] as ICharts;
+  hearingLossTypeChart.value = yourCenter.hearingLossTypes;
+  hearingLossSeverityChart.value = yourCenter.severity;
+  hearingLossOnsetChart.value = yourCenter.ageOfOnset;
+  geneticDiagnosisGenesChart.value = yourCenter.diagnosisGenes;
+  geneticDiagnosisTypeChart.value = yourCenter.diagnosisTypes;
+  etiologyChart.value = yourCenter.etiology;
+  syndromicClassifcationChart.value = yourCenter.syndromicClassification;
 
-  hearingLossOnsetChart.value = (
-    (await getDashboardChart(
-      props.api.graphql.current,
-      "age-of-hearing-loss-onset"
-    )) as ICharts[]
-  )[0] as ICharts;
+  // create data for type of hearing loss chart
+  const hearingAxis = generateAxisTickData(
+    hearingLossTypeChart.value?.dataPoints as IChartData[],
+    "dataPointValue"
+  );
 
-  geneticDiagnosisTypeChart.value = (
-    (await getDashboardChart(
-      props.api.graphql.current,
-      "genetic-diagnosis-type"
-    )) as ICharts[]
-  )[0] as ICharts;
+  if (hearingLossTypeChart.value) {
+    hearingLossTypeChart.value.yAxisMaxValue = hearingAxis.limit;
+    hearingLossTypeChart.value.yAxisTicks = hearingAxis.ticks;
+  }
 
-  geneticDiagnosisGenesChart.value = (
-    (await getDashboardChart(props.api.graphql.current, "genes")) as ICharts[]
-  )[0] as ICharts;
+  // prep chart for severity of hearing loss
+  const serverityAxis = generateAxisTickData(
+    hearingLossSeverityChart.value?.dataPoints as IChartData[],
+    "dataPointValue"
+  );
 
-  etiologyChart.value = (
-    (await getDashboardChart(
-      props.api.graphql.current,
-      "etiology"
-    )) as ICharts[]
-  )[0] as ICharts;
+  if (hearingLossSeverityChart.value) {
+    hearingLossSeverityChart.value.yAxisMaxValue = serverityAxis.limit;
+    hearingLossSeverityChart.value.yAxisTicks = serverityAxis.ticks;
+  }
 
-  syndromicClassifcationChart.value = (
-    (await getDashboardChart(
-      props.api.graphql.current,
-      "syndromic-classification"
-    )) as ICharts[]
-  )[0] as ICharts;
-}
+  // age of onset prep
+  const onsetAxis = generateAxisTickData(
+    hearingLossOnsetChart.value?.dataPoints as IChartData[],
+    "dataPointValue"
+  );
+  if (hearingLossOnsetChart.value) {
+    hearingLossOnsetChart.value.yAxisMaxValue = onsetAxis.limit;
+    hearingLossOnsetChart.value.yAxisTicks = onsetAxis.ticks;
+  }
 
-onMounted(() => {
-  getPageData()
-    .then(() => {
-      // create data for type of hearing loss chart
-      const hearingAxis = generateAxisTickData(
-        hearingLossTypeChart.value?.dataPoints as IChartData[],
-        "dataPointValue"
+  // prep genetic diagnosis gene
+  const geneAxis = generateAxisTickData(
+    geneticDiagnosisGenesChart.value?.dataPoints as IChartData[],
+    "dataPointValue"
+  );
+  if (geneticDiagnosisGenesChart.value) {
+    geneticDiagnosisGenesChart.value.xAxisMaxValue = geneAxis.limit;
+    geneticDiagnosisGenesChart.value.xAxisTicks = geneAxis.ticks;
+
+    geneticDiagnosisGenesChart.value.dataPoints =
+      geneticDiagnosisGenesChart.value.dataPoints?.sort((a, b) =>
+        (a.dataPointName as string).localeCompare(b.dataPointName as string)
       );
+  }
 
-      if (hearingLossTypeChart.value) {
-        hearingLossTypeChart.value.yAxisMaxValue = hearingAxis.limit;
-        hearingLossTypeChart.value.yAxisTicks = hearingAxis.ticks;
-      }
+  // prep genetic diagnosis type
+  const dxTypeAxis = generateAxisTickData(
+    geneticDiagnosisTypeChart.value?.dataPoints as IChartData[],
+    "dataPointValue"
+  );
 
-      // prep chart for severity of hearing loss
-      const serverityAxis = generateAxisTickData(
-        hearingLossSeverityChart.value?.dataPoints as IChartData[],
-        "dataPointValue"
-      );
+  if (geneticDiagnosisTypeChart.value) {
+    geneticDiagnosisTypeChart.value.yAxisMaxValue = dxTypeAxis.limit;
+    geneticDiagnosisTypeChart.value.yAxisTicks = dxTypeAxis.ticks;
+  }
 
-      if (hearingLossSeverityChart.value) {
-        hearingLossSeverityChart.value.yAxisMaxValue = serverityAxis.limit;
-        hearingLossSeverityChart.value.yAxisTicks = serverityAxis.ticks;
-      }
+  // prep etiology chart
+  const etiologyAxis = generateAxisTickData(
+    etiologyChart.value?.dataPoints as IChartData[],
+    "dataPointValue"
+  );
+  if (etiologyChart.value) {
+    etiologyChart.value.yAxisMaxValue = etiologyAxis.limit;
+    etiologyChart.value.yAxisTicks = etiologyAxis.ticks;
+  }
 
-      // age of onset prep
-      const onsetAxis = generateAxisTickData(
-        hearingLossOnsetChart.value?.dataPoints as IChartData[],
-        "dataPointValue"
-      );
-      if (hearingLossOnsetChart.value) {
-        hearingLossOnsetChart.value.yAxisMaxValue = onsetAxis.limit;
-        hearingLossOnsetChart.value.yAxisTicks = onsetAxis.ticks;
-      }
+  // prep syndromic classification chart
+  const syndomicAxis = generateAxisTickData(
+    syndromicClassifcationChart.value?.dataPoints as IChartData[],
+    "dataPointValue"
+  );
+  if (syndromicClassifcationChart.value) {
+    syndromicClassifcationChart.value.yAxisMaxValue = syndomicAxis.limit;
+    syndromicClassifcationChart.value.yAxisTicks = syndomicAxis.ticks;
+  }
 
-      // prep genetic diagnosis gene
-      const geneAxis = generateAxisTickData(
-        geneticDiagnosisGenesChart.value?.dataPoints as IChartData[],
-        "dataPointValue"
-      );
-      if (geneticDiagnosisGenesChart.value) {
-        geneticDiagnosisGenesChart.value.xAxisMaxValue = geneAxis.limit;
-        geneticDiagnosisGenesChart.value.xAxisTicks = geneAxis.ticks;
-
-        geneticDiagnosisGenesChart.value.dataPoints =
-          geneticDiagnosisGenesChart.value.dataPoints?.sort((a, b) =>
-            (a.dataPointName as string).localeCompare(b.dataPointName as string)
-          );
-      }
-
-      // prep genetic diagnosis type
-      const dxTypeAxis = generateAxisTickData(
-        geneticDiagnosisTypeChart.value?.dataPoints as IChartData[],
-        "dataPointValue"
-      );
-
-      if (geneticDiagnosisTypeChart.value) {
-        geneticDiagnosisTypeChart.value.yAxisMaxValue = dxTypeAxis.limit;
-        geneticDiagnosisTypeChart.value.yAxisTicks = dxTypeAxis.ticks;
-      }
-
-      // prep etiology chart
-      const etiologyAxis = generateAxisTickData(
-        etiologyChart.value?.dataPoints as IChartData[],
-        "dataPointValue"
-      );
-      if (etiologyChart.value) {
-        etiologyChart.value.yAxisMaxValue = etiologyAxis.limit;
-        etiologyChart.value.yAxisTicks = etiologyAxis.ticks;
-      }
-
-      // prep syndromic classification chart
-      const syndomicAxis = generateAxisTickData(
-        syndromicClassifcationChart.value?.dataPoints as IChartData[],
-        "dataPointValue"
-      );
-      if (syndromicClassifcationChart.value) {
-        syndromicClassifcationChart.value.yAxisMaxValue = syndomicAxis.limit;
-        syndromicClassifcationChart.value.yAxisTicks = syndomicAxis.ticks;
-      }
-    })
-    .catch((err) => {
-      throw new Error(err);
-    })
-    .finally(() => (loading.value = false));
+  loading.value = false;
 });
 </script>
 
