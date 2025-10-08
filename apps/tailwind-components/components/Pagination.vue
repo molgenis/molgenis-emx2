@@ -9,10 +9,12 @@ const props = withDefaults(
     totalPages: number;
     preventDefault?: boolean;
     inverted?: boolean;
+    jumpToEdge?: boolean;
   }>(),
   {
     preventDefault: false,
     inverted: false,
+    jumpToEdge: false,
   }
 );
 const emit = defineEmits(["update"]);
@@ -25,6 +27,24 @@ onMounted(() => {
     });
   }
 });
+
+function onFirstClick($event: Event) {
+  if (props.preventDefault) {
+    $event.preventDefault();
+  }
+  if (props.currentPage > 1) {
+    emit("update", 1);
+  }
+}
+
+function onLastClick($event: Event) {
+  if (props.preventDefault) {
+    $event.preventDefault();
+  }
+  if (props.currentPage < props.totalPages) {
+    emit("update", props.totalPages);
+  }
+}
 
 function onPrevClick($event: Event) {
   if (props.preventDefault) {
@@ -64,12 +84,26 @@ function changeCurrentPage(event: Event) {
     <span :id="`${pageInputId}Label`" class="sr-only">
       pagination navigation
     </span>
-    <ul class="flex items-center justify-center list-none">
+    <ul class="flex items-center justify-center list-none gap-2.5">
+      <li v-if="jumpToEdge">
+        <a
+          href="#"
+          @click.prevent="onFirstClick"
+          class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15 cursor-default"
+          :class="{
+            'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
+              currentPage > 1,
+          }"
+        >
+          <span class="sr-only">Go to page first</span>
+          <BaseIcon name="double-arrow-left" :width="24" />
+        </a>
+      </li>
       <li>
         <a
           href="#"
           @click.prevent="onPrevClick"
-          class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15"
+          class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15 cursor-default"
           :class="{
             'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
               currentPage > 1,
@@ -112,7 +146,7 @@ function changeCurrentPage(event: Event) {
         <a
           href="#"
           @click.prevent="onNextClick"
-          class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15"
+          class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15 cursor-default"
           :class="{
             'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
               currentPage < totalPages,
@@ -120,6 +154,20 @@ function changeCurrentPage(event: Event) {
         >
           <span class="sr-only">Go to page {{ currentPage + 1 }}</span>
           <BaseIcon name="caret-right" :width="24" />
+        </a>
+      </li>
+      <li v-if="jumpToEdge">
+        <a
+          href="#"
+          @click.prevent="onLastClick"
+          class="flex justify-center border border-pagination rounded-theme bg-pagination text-pagination-button h-15 w-15 cursor-default"
+          :class="{
+            'cursor-pointer hover:bg-pagination-hover hover:text-pagination-hover hover:border-pagination-hover focus:bg-pagination-hover focus:text-pagination-hover':
+              currentPage < totalPages,
+          }"
+        >
+          <span class="sr-only">Go to last page</span>
+          <BaseIcon name="double-arrow-right" :width="24" />
         </a>
       </li>
     </ul>
