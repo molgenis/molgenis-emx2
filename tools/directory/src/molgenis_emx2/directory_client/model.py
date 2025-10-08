@@ -1,4 +1,5 @@
 """Classes for modelling Directory information, e.g. tables, nodes."""
+
 import os
 import typing
 from abc import ABC
@@ -7,6 +8,8 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Set
+
+from molgenis_emx2_pyclient.metadata import Column
 
 from .utils import to_ordered_dict
 
@@ -45,7 +48,7 @@ class TableType(Enum):
 class TableMeta:
     """Convenient wrapper for the output of the metadata API."""
 
-    meta: dict
+    meta: dict | list[Column]
     table_name: str
     id_attribute: str = field(init=False)
 
@@ -95,6 +98,7 @@ class BaseTable(ABC):
 
     @property
     def full_name(self) -> str:
+        """Return full name of table"""
         return self.meta.table_name
 
 
