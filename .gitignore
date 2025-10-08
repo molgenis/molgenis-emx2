@@ -81,4 +81,4 @@ apps/tailwind-components/test-results/.last-run.json
 apps/**/test-results/
 apps/tailwind-components/playwright/.auth/user.json
 
-.robot
+.turbo
