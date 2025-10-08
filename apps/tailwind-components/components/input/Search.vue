@@ -8,12 +8,13 @@ const search = useTemplateRef<HTMLInputElement>("search");
 withDefaults(
   defineProps<
     IInputProps & {
-      type?: string;
       size?: ButtonSize;
+      actionBarItem?: boolean;
     }
   >(),
   {
     size: "medium",
+    actionBarItem: false,
   }
 );
 
@@ -42,10 +43,11 @@ function handleInput(input: string) {
         invalid && disabled,
       'bg-input text-input hover:border-input-hover focus-within:border-input-focused':
         !disabled && !invalid && !valid,
-      'h-input-tiny pl-5 pr-5 text-heading-sm gap-2': size === 'tiny',
-      'h-input-small pl-5 pr-5 text-heading-sm gap-3': size === 'small',
-      'h-input pl-5 pr-7.5 text-heading-md gap-4': size === 'medium',
-      'h-input-large pl-5 pr-8.75 text-heading-lg gap-5': size === 'large',
+      'h-input-tiny pl-5 pr-5 text-heading-sm gap-2': size === 'tiny' && !actionBarItem,
+      'h-input-small pl-5 pr-5 text-heading-sm gap-3': size === 'small' && !actionBarItem,
+      'h-input pl-5 pr-7.5 text-heading-md gap-4': size === 'medium' && !actionBarItem,
+      'h-input-large pl-5 pr-8.75 text-heading-lg gap-5': size === 'large' && !actionBarItem,
+      'h-[50px] pl-5 pr-7.5 text-heading-lg gap-5': actionBarItem,
     }"
   >
     <div class="w-auto text-center pointer-events-none">
