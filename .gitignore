@@ -80,3 +80,5 @@ apps/tailwind-components/test-results/.last-run.json
 *.code-workspace
 apps/**/test-results/
 apps/tailwind-components/playwright/.auth/user.json
+
+.robot
