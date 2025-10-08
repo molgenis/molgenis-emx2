@@ -113,18 +113,18 @@ import {
   LoadingScreen,
   // @ts-expect-error
 } from "molgenis-viz";
-import LoadingBlock from "../components/LoadingBlock.vue";
-import ProviderDashboard from "../components/ProviderDashboard.vue";
+import LoadingBlock from "../../components/LoadingBlock.vue";
+import ProviderDashboard from "../../components/ProviderDashboard.vue";
 
-import { generateAxisTickData } from "../utils/generateAxisTicks";
-import { asKeyValuePairs, sum, uniqueValues } from "../utils";
-import { generateColorPalette } from "../utils/generateColorPalette";
-import { getDashboardChart } from "../utils/getDashboardData";
-import { getUniqueAgeRanges } from "../utils/clpUtils";
+import { generateAxisTickData } from "../../utils/generateAxisTicks";
+import { asKeyValuePairs, sum, uniqueValues } from "../../utils";
+import { generateColorPalette } from "../../utils/generateColorPalette";
+import { getDashboardChart } from "../../utils/getDashboardData";
+import { getUniqueAgeRanges } from "../../utils/clpUtils";
 
-import type { ICharts, IChartData } from "../types/schema";
-import type { IAppPage } from "../types/app";
-import type { IKeyValuePair, clpChartTypes } from "../types/index";
+import type { ICharts, IChartData } from "../../types/schema";
+import type { IAppPage } from "../../types/app";
+import type { IKeyValuePair, clpChartTypes } from "../../types/index";
 const props = defineProps<IAppPage>();
 
 const loading = ref<boolean>(true);
