@@ -169,7 +169,7 @@ class Stager:
         """
         Download the .csv-file from the file ingest server
         """
-        file_path = urljoin(node.url, f"{table_type.base_id}.csv")
+        file_path = urljoin(f"{node.url}/", f"{table_type.base_id}.csv")
         try:
             filename, headers = urlretrieve(file_path)
         except (URLError, HTTPError, ContentTooShortError) as e:
