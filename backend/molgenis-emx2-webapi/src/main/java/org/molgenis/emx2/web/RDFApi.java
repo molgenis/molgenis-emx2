@@ -68,7 +68,7 @@ public class RDFApi {
   }
 
   private static void defineApiRoutePerPrefix(Javalin app, String prefix) {
-    defineApiRoutes(app, prefix, API_RDF, RDFApi::selectFormat);
+    defineApiRoutes(app, prefix, API_RDF, RDFApi::selectRdfFormat);
     defineApiRoutes(app, prefix, API_TTL, (ctx) -> RDFFormat.TURTLE);
     defineApiRoutes(app, prefix, API_JSONLD, (ctx) -> RDFFormat.JSONLD);
   }
@@ -78,8 +78,8 @@ public class RDFApi {
     defineApiCallMethods(
         app,
         prefix + apiLocation,
-        (ctx) -> databaseGet(ctx, formatFunction.apply(ctx)),
-        (ctx) -> databaseHead(ctx, formatFunction.apply(ctx)),
+        (ctx) -> databaseGet(ctx, formatFunction),
+        (ctx) -> databaseHead(ctx, formatFunction),
         RDFApi::defaultOptions);
 
     defineApiCallMethods(
@@ -122,19 +122,21 @@ public class RDFApi {
     ctx.header("Allow", "GET, HEAD, OPTIONS");
   }
 
-  private static void databaseHead(Context ctx, RDFFormat format) {
+  private static void databaseHead(Context ctx, Function<Context, RDFFormat> formatFunction) {
     if (ctx.queryParam("shacls") != null) {
+      validateShaclSetFormat(ctx);
       headerShaclSets(ctx);
     } else {
-      headerRdfAndValidation(ctx, format);
+      headerRdfAndValidation(ctx, formatFunction.apply(ctx));
     }
   }
 
-  private static void databaseGet(Context ctx, RDFFormat format) throws IOException {
+  private static void databaseGet(Context ctx, Function<Context, RDFFormat> formatFunction) throws IOException {
     if (ctx.queryParam("shacls") != null) {
+      validateShaclSetFormat(ctx);
       databaseShaclSetsGet(ctx);
     } else {
-      databaseRdfGet(ctx, format);
+      databaseRdfGet(ctx, formatFunction.apply(ctx));
     }
   }
 
@@ -317,13 +319,21 @@ public class RDFApi {
     ctx.contentType(ACCEPT_YAML);
   }
 
-  public static RDFFormat selectFormat(Context ctx) {
-    MediaType mediaType = getContentType(ctx, acceptedMediaTypes);
+  public static void validateShaclSetFormat(Context ctx) {
+    retrieveAcceptedFormat(ctx, List.of(MediaType.parse(ACCEPT_YAML)));
+  }
+
+  public static RDFFormat selectRdfFormat(Context ctx) {
+    return mediaTypeRdfFormatMap.get(retrieveAcceptedFormat(ctx, acceptedMediaTypes));
+  }
+
+  private static MediaType retrieveAcceptedFormat(Context ctx, List<MediaType> allowedMediaTypes) {
+    MediaType mediaType = getContentType(ctx, allowedMediaTypes);
     if (mediaType == null) {
       throw new NotAcceptableResponse(
-          "Only the following accept-header values are supported: "
-              + acceptedMediaTypes.stream().map(MediaType::toString).toList());
+        "Only the following accept-header values are supported: "
+          + allowedMediaTypes.stream().map(MediaType::toString).toList());
     }
-    return mediaTypeRdfFormatMap.get(mediaType);
+    return mediaType;
   }
 }
