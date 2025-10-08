@@ -46,7 +46,7 @@ const router = createRouter({
           path: "all-centers-general",
           component: CraniosynostosisAllGeneral,
           meta: {
-            title: "All Center General Overview | Craniosynostosis | ",
+            title: "All Center General Overview | Craniosynostosis",
           },
         },
         {
@@ -54,7 +54,7 @@ const router = createRouter({
           path: "all-centers-surgical",
           component: CraniosynostosisAllSurgical,
           meta: {
-            title: "All Center Surgical Overview | Craniosynostosis | ",
+            title: "All Center Surgical Overview | Craniosynostosis",
           },
         },
         {
@@ -62,7 +62,7 @@ const router = createRouter({
           path: "center-general",
           component: CraniosynostosisCenterGeneral,
           meta: {
-            title: "Your Center General Overview | Craniosynostosis | ",
+            title: "Your Center General Overview | Craniosynostosis",
           },
         },
         {
@@ -87,7 +87,7 @@ const router = createRouter({
           path: "center",
           component: CleftLipPalateYourCenter,
           meta: {
-            title: "Your Center | Cleft Lip and Palate | ",
+            title: "Your Center | Cleft Lip and Palate",
           },
         },
         {
@@ -95,7 +95,7 @@ const router = createRouter({
           path: "all-centers",
           component: CleftLipPalateAllCenters,
           meta: {
-            title: "All Centers | Cleft Lip and Palate | ",
+            title: "All Centers | Cleft Lip and Palate",
           },
         },
       ],
@@ -114,7 +114,7 @@ const router = createRouter({
           path: "center",
           component: GeneticHearingLossYourCenter,
           meta: {
-            title: "Your center | Genetic hearing loss | ",
+            title: "Your center | Genetic hearing loss",
           },
         },
         {
@@ -122,7 +122,7 @@ const router = createRouter({
           path: "all-centers",
           component: GeneticHearingLossAllCenters,
           meta: {
-            title: "All centers | Genetic hearing loss | ",
+            title: "All centers | Genetic hearing loss",
           },
         },
       ],
