@@ -16,10 +16,7 @@ const props = withDefaults(
   }>(),
   {
     type: "outline",
-    size: "small",
-    label: "Download",
-    disabled: false,
-    iconOnly: false,
+    label: "download",
   }
 );
 
