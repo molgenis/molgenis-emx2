@@ -1188,9 +1188,7 @@ public class SqlQuery extends QueryBean {
       case MATCH_ANY, EQUALS: // equals to be deprecated for ref columns,
         return whereContainsAnyOrEquals(tableAlias, columnName, column, values);
       case MATCH_NONE, NOT_EQUALS: // non_equals to be deprecated for ref columns,
-        return or(
-            whereColumnIsNullOrNotNull(tableAlias, columnName, column, new Boolean[] {true}),
-            not(whereContainsAnyOrEquals(tableAlias, columnName, column, values)));
+        return whereMatchNone(tableAlias, columnName, column, values);
       case MATCH_ALL:
         return whereColumnContainsAll(tableAlias, columnName, column, values);
       case IS_NULL:
@@ -1220,6 +1218,17 @@ public class SqlQuery extends QueryBean {
       default:
         throw new MolgenisException("Unknown operator: " + operator);
     }
+  }
+
+  private Condition whereMatchNone(
+      String tableAlias, Name columnName, Column column, Object[] values) {
+    Table<Record> table =
+        table(name(column.getTable().getSchemaName(), column.getTableName(), column.getName()));
+    Field<Object> nameField = field(columnName);
+    String[] stringValues = toStringArray(values);
+    Field<Object> field = DSL.select(arrayAgg(nameField)).from(table).asField();
+    Condition overlap = condition("? && ?", DSL.val(stringValues), field);
+    return DSL.not(overlap);
   }
 
   private Condition whereColumnMatchAnyIncludingChilderen(Column column, Object[] values) {
