@@ -147,7 +147,7 @@ test.dependsOn testJavaScript
 sourceSets {
     main {
         resources {
-            srcDir "${project.layout.buildDirectory}/generated/main/resources"
+            srcDir "${buildDir}/generated/main/resources"
         }
     }
 }
