@@ -7,14 +7,14 @@
       </MessageBox>
     </div>
     <Dashboard
-      id="genturisPublicDashboard"
+      id="nestorPublicDashboard"
       :verticalPadding="0"
       :horizontalPadding="2"
       v-else
     >
       <DashboardRow id="registryHighlights" :columns="1">
         <DataValueHighlights
-          title="ern genturis registry at a glance"
+          title="NESTOR Registry at a glance"
           :data="registryHighlights"
         />
       </DashboardRow>
@@ -27,17 +27,18 @@
             rowId="code"
             longitude="longitude"
             latitude="latitude"
-            :geojson="WorldGeoJson"
+            :geojson="NlGeoJson"
             group="hasSubmittedData"
             :groupColorMappings="orgGroupMapping"
             :legendData="orgGroupMapping"
             :chartSize="114"
-            :chartHeight="190"
+            :chartHeight="350"
             :mapCenter="{
-              latitude: 5,
-              longitude: 51,
+              // centroid of the Netherlands
+              latitude: 5.291266,
+              longitude: 52.132633,
             }"
-            :pointRadius="4"
+            :pointRadius="6"
             :tooltipTemplate="
               (row: IOrganisations) => {
                 return `
@@ -46,7 +47,8 @@
             `;
               }
             "
-            :zoomLimits="[0.3, 10]"
+            :chartScale="10"
+            :zoomLimits="[0, 10]"
             :enableLegendClicks="true"
           />
         </DashboardChart>
@@ -80,7 +82,9 @@
             :chartData="ageAtInclusion"
             xvar="label"
             yvar="value"
-            :yTickValues="ageAtInclusionTicks"
+            :yMin="0"
+            :yMax="ageAtInclusion.yAxisMaxValue"
+            :yTickValues="ageAtInclusion.yAxisTicks"
             xAxisLabel="Age groups"
             yAxisLabel="Number of patients"
             :chartHeight="225"
@@ -114,7 +118,9 @@ import {
   // @ts-ignore
 } from "molgenis-viz";
 
-import { seqAlongBy } from "../utils/utils";
+import { uniqueValues } from "../utils/utils";
+import { generateAxisTickData } from "../utils/generateAxisTicks";
+import NlGeoJson from "../data/nl.geo.json";
 import { max } from "d3";
 const d3 = { max };
 
@@ -243,12 +249,10 @@ async function getStats() {
   const age = data.filter((row: IComponent) => row.name === "barchart-age");
   ageAtInclusion.value = age[0]["statistics"];
 
-  const maxValue: number = d3.max(
-    ageAtInclusion.value,
-    (row: IStatistics) => row.value
-  ) as number;
-  const ymax: number = Math.round(maxValue / 10) * 10;
-  ageAtInclusionTicks.value = seqAlongBy(0, ymax, 25);
+  const ages = uniqueValues(ageAtInclusion.value, "label");
+  const chartTicks = generateAxisTickData(ageAtInclusion.value!, "value");
+  ageAtInclusion.value!.yAxisMaxValue = chartTicks.limit;
+  ageAtInclusion.value!.yAxisTicks = chartTicks.ticks;
 
   enrollmentData.value = data
     .filter(
@@ -360,7 +364,7 @@ onMounted(() => {
   }
 }
 
-#genturisPublicDashboard {
+#nestorPublicDashboard {
   .dashboard-content {
     @media (min-width: 1800px) {
       max-width: 60vw;
