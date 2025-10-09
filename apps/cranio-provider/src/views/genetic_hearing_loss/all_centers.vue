@@ -28,8 +28,8 @@ const etiologyChart = ref<ICharts>();
 const syndromicClassifcationChart = ref<ICharts>();
 
 const colorPalette = {
-  ERN: "#9f6491",
-  "Your center": "#66c2a4",
+  ERN: "#B98DAF", // "#9f6491",
+  "Your center": "#A7DCCB", //"#66c2a4",
 };
 
 onMounted(async () => {
@@ -192,7 +192,7 @@ onMounted(async () => {
           :yMax="hearingLossTypeChart?.yAxisMaxValue"
           :yTickValues="hearingLossTypeChart?.yAxisTicks"
           :columnColorPalette="colorPalette"
-          columnHoverFill="#708fb4"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: hearingLossTypeChart?.topMargin,
@@ -219,6 +219,7 @@ onMounted(async () => {
           :yMax="hearingLossSeverityChart?.yAxisMaxValue"
           :yTickValues="hearingLossSeverityChart?.yAxisTicks"
           :columnColorPalette="colorPalette"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: hearingLossSeverityChart?.topMargin,
@@ -243,6 +244,7 @@ onMounted(async () => {
           :yMax="hearingLossSeverityChart?.yAxisMaxValue"
           :yTickValues="hearingLossSeverityChart?.yAxisTicks"
           :columnColorPalette="colorPalette"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: hearingLossSeverityChart?.topMargin,
@@ -271,6 +273,7 @@ onMounted(async () => {
           :yMax="hearingLossOnsetChart?.yAxisMaxValue"
           :yTickValues="hearingLossOnsetChart?.yAxisTicks"
           :columnColorPalette="colorPalette"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: hearingLossOnsetChart?.topMargin,
@@ -300,6 +303,7 @@ onMounted(async () => {
           :yMax="geneticDiagnosisGenesChart?.yAxisMaxValue"
           :yTickValues="geneticDiagnosisGenesChart?.yAxisTicks"
           :columnColorPalette="colorPalette"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: geneticDiagnosisGenesChart?.topMargin,
@@ -328,6 +332,7 @@ onMounted(async () => {
           :yMax="geneticDiagnosisTypeChart?.yAxisMaxValue"
           :yTickValues="geneticDiagnosisTypeChart?.yAxisTicks"
           :columnColorPalette="colorPalette"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: geneticDiagnosisTypeChart?.topMargin,
@@ -356,6 +361,7 @@ onMounted(async () => {
           :yMax="etiologyChart?.yAxisMaxValue"
           :yTickValues="etiologyChart?.yAxisTicks"
           :columnColorPalette="colorPalette"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: etiologyChart?.topMargin,
@@ -384,6 +390,7 @@ onMounted(async () => {
           :yMax="syndromicClassifcationChart?.yAxisMaxValue"
           :yTickValues="syndromicClassifcationChart?.yAxisTicks"
           :columnColorPalette="colorPalette"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: syndromicClassifcationChart?.topMargin,

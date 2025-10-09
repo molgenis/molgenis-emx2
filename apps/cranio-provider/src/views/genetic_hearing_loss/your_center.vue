@@ -13,14 +13,9 @@ import {
 import ProviderDashboard from "../../components/ProviderDashboard.vue";
 
 import { generateAxisTickData } from "../../utils/generateAxisTicks";
-import { asKeyValuePairs, sum, uniqueValues } from "../../utils";
-import { generateColorPalette } from "../../utils/generateColorPalette";
-
 import { getGeneticLossData } from "../../utils/getGeneticHearingLossData";
-
 import type { ICharts, IChartData } from "../../types/schema";
 import type { IAppPage } from "../../types/app";
-import type { IKeyValuePair } from "../../types/index";
 
 const props = defineProps<IAppPage>();
 const loading = ref<boolean>(true);
@@ -67,6 +62,15 @@ onMounted(async () => {
   if (hearingLossSeverityChart.value) {
     hearingLossSeverityChart.value.yAxisMaxValue = serverityAxis.limit;
     hearingLossSeverityChart.value.yAxisTicks = serverityAxis.ticks;
+    hearingLossSeverityChart.value.dataPoints =
+      hearingLossSeverityChart.value.dataPoints?.sort((a, b) => {
+        return (
+          (a.dataPointOrder as number) - (b.dataPointOrder as number) ||
+          (b.dataPointPrimaryCategory as string).localeCompare(
+            a.dataPointPrimaryCategory as string
+          )
+        );
+      });
   }
 
   // age of onset prep
@@ -148,7 +152,8 @@ onMounted(async () => {
           :yMin="0"
           :yMax="hearingLossTypeChart?.yAxisMaxValue"
           :yTickValues="hearingLossTypeChart?.yAxisTicks"
-          columnHoverFill="#708fb4"
+          columnFill="#A7DCCB"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: hearingLossTypeChart?.topMargin,
@@ -176,6 +181,13 @@ onMounted(async () => {
           :yMin="0"
           :yMax="hearingLossSeverityChart?.yAxisMaxValue"
           :yTickValues="hearingLossSeverityChart?.yAxisTicks"
+          columnHoverFill="#EE7032"
+          :columnColorPalette="{
+            Mild: '#A7DCCB',
+            Moderate: '#00a896',
+            Severe: '#028090',
+            Profound: '#05668d',
+          }"
           :chartHeight="300"
           :chartMargins="{
             top: hearingLossSeverityChart?.topMargin,
@@ -202,6 +214,8 @@ onMounted(async () => {
           :yMin="0"
           :yMax="hearingLossOnsetChart?.yAxisMaxValue"
           :yTickValues="hearingLossOnsetChart?.yAxisTicks"
+          columnFill="#A7DCCB"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: hearingLossOnsetChart?.topMargin,
@@ -229,6 +243,8 @@ onMounted(async () => {
           :xMin="0"
           :xMax="geneticDiagnosisGenesChart?.xAxisMaxValue"
           :xTickValues="geneticDiagnosisGenesChart?.xAxisTicks"
+          barFill="#A7DCCB"
+          barHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: geneticDiagnosisGenesChart?.topMargin,
@@ -254,6 +270,8 @@ onMounted(async () => {
           :yMin="0"
           :yMax="geneticDiagnosisTypeChart?.yAxisMaxValue"
           :yTickValues="geneticDiagnosisTypeChart?.yAxisTicks"
+          columnFill="#A7DCCB"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: geneticDiagnosisTypeChart?.topMargin,
@@ -280,6 +298,8 @@ onMounted(async () => {
           :yMin="0"
           :yMax="etiologyChart?.yAxisMaxValue"
           :yTickValues="etiologyChart?.yAxisTicks"
+          columnFill="#A7DCCB"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: etiologyChart?.topMargin,
@@ -305,6 +325,8 @@ onMounted(async () => {
           :yMin="0"
           :yMax="syndromicClassifcationChart?.yAxisMaxValue"
           :yTickValues="syndromicClassifcationChart?.yAxisTicks"
+          columnFill="#A7DCCB"
+          columnHoverFill="#EE7032"
           :chartHeight="250"
           :chartMargins="{
             top: syndromicClassifcationChart?.topMargin,
