@@ -23,7 +23,6 @@ npm_install {
     args = ['--workspaces']
     inputs.file('package.json')
     inputs.file('package-lock.json')
-    outputs.dir "dist"
 }
 
 def excludePatterns = [

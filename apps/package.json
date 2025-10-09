@@ -12,6 +12,24 @@
     "tables",
     "updownload",
     "pages",
-    "graphql-playground"
+    "graphql-playground",
+    "graphql-playground",
+    "tailwind-components",
+    "catalogue",
+    "molgenis-viz",
+    "cranio-public",
+    "cranio-provider",
+    "ern-genturis",
+    "ern-ithaca",
+    "ern-reconnet",
+    "ern-skin",
+    "nestor-public",
+    "reports",
+    "tasks",
+    "gportal",
+    "projectmanager",
+    "aggregates",
+    "directory",
+    "ui"
   ]
 }
