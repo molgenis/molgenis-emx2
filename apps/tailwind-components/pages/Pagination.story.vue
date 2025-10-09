@@ -8,6 +8,14 @@
     @update="updatePage"
   />
 
+  <Pagination
+    :currentPage="24"
+    :totalPages="999"
+    :preventDefault="true"
+    :jumpToEdge="true"
+    @update="updatePage"
+  />
+
   <hr class="my-3" />
 
   <span>inverted = true:</span>
