@@ -38,6 +38,11 @@
               latitude: 5.291266,
               longitude: 52.132633,
             }"
+            :mapColors="{
+              land: '#185f5b',
+              border: '#08211F',
+              water: '#D8DDE9',
+            }"
             :pointRadius="6"
             :tooltipTemplate="
               (row: IOrganisations) => {
@@ -83,8 +88,8 @@
             xvar="label"
             yvar="value"
             :yMin="0"
-            :yMax="ageAtInclusion.yAxisMaxValue"
-            :yTickValues="ageAtInclusion.yAxisTicks"
+            :yMax="ageAtInclusionYAxis.limit"
+            :yTickValues="ageAtInclusionYAxis.ticks"
             xAxisLabel="Age groups"
             yAxisLabel="Number of patients"
             :chartHeight="225"
@@ -98,10 +103,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import gql from "graphql-tag";
 import { request } from "graphql-request";
-// @ts-ignore
+
 import {
   Page,
   Dashboard,
@@ -110,7 +115,6 @@ import {
   LoadingScreen,
   MessageBox,
   GeoMercator,
-  WorldGeoJson,
   PieChart2,
   ColumnChart,
   DataTable,
@@ -118,11 +122,8 @@ import {
   // @ts-ignore
 } from "molgenis-viz";
 
-import { uniqueValues } from "../utils/utils";
 import { generateAxisTickData } from "../utils/generateAxisTicks";
-import NlGeoJson from "../data/nl.geo.json";
-import { max } from "d3";
-const d3 = { max };
+import * as NlGeoJson from "../data/nl.geo.json";
 
 interface IProviderInformation {
   providerIdentifier: string;
@@ -169,7 +170,7 @@ const error = ref<Error | null>(null);
 const registryHighlights = ref<IKeyValuePairs>({});
 const sexAtBirth = ref<IKeyValuePairs>({});
 const ageAtInclusion = ref<IStatistics[]>([]);
-const ageAtInclusionTicks = ref<string[]>([]);
+const ageAtInclusionYAxis = ref<IKeyValuePairs>({});
 const enrollmentData = ref<IStatistics[]>([]);
 const organisations = ref<IOrganisations[]>([]);
 
@@ -227,6 +228,7 @@ async function getStats() {
   const response: IComponentsResponse = await request("../api/graphql", query);
   const data: IComponent[] = response.Components;
 
+  // get data highlights
   const highlights = data.filter(
     (row: IComponent) => row.name === "data-highlights"
   );
@@ -237,6 +239,7 @@ async function getStats() {
     ])
   );
 
+  // prepare data for pie chart
   const sexData = data.filter(
     (row: IComponent) => row.name === "pie-sex-at-birth"
   );
@@ -246,14 +249,15 @@ async function getStats() {
       .sort((current: any[], next: any[]) => (current[1] < next[1] ? 1 : -1))
   );
 
+  // prepare data for age at last follow up chart
   const age = data.filter((row: IComponent) => row.name === "barchart-age");
   ageAtInclusion.value = age[0]["statistics"];
+  ageAtInclusionYAxis.value = generateAxisTickData(
+    ageAtInclusion.value!,
+    "value"
+  );
 
-  const ages = uniqueValues(ageAtInclusion.value, "label");
-  const chartTicks = generateAxisTickData(ageAtInclusion.value!, "value");
-  ageAtInclusion.value!.yAxisMaxValue = chartTicks.limit;
-  ageAtInclusion.value!.yAxisTicks = chartTicks.ticks;
-
+  // prepare enrollment data by thematic disease group
   enrollmentData.value = data
     .filter(
       (row: IComponent) => row.name === "table-enrollment-disease-group"
@@ -274,15 +278,16 @@ async function getStats() {
 }
 
 async function loadData() {
-  await getOrganisations();
-  await getStats();
+  try {
+    await getOrganisations();
+    await getStats();
+  } catch (err) {
+    error.value = err as Error;
+  }
+  loading.value = false;
 }
 
-onMounted(() => {
-  loadData()
-    .catch((err) => (error.value = err))
-    .finally(() => (loading.value = false));
-});
+loadData();
 </script>
 
 <style lang="scss">
