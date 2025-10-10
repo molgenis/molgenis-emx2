@@ -18,7 +18,7 @@ and the network-specific explorer
 | 1 | Go to <https://data-catalogue-acc.molgeniscloud.org/all/variables> | The user goes to overview of all harmonised variables across all networks: 2249 variables | | |
 | 2 | Type ‘adhd’ in search bar | 14 variables are listed | | |
 | 3 | Click on Harmonisations button | Harmonisation matrix is opened | | |
-| 4 | Scroll to the right to see Pelagie, testCohort1, testCohort2…| Pelagie has mappings for the first 7 variables, testCohort1, testCohort3 and testCohort4 have mappings on the ‘testVar…’ variables. | | |
+| 4 | Under sources, select PELAGIE, testCohort1, testCohort2, testCohort3 and testCohort | Pelagie has mappings for the first 7 variables, testCohort1, testCohort3 and testCohort4 have mappings on the ‘testVar…’ variables. | | |
 | | | TestCohort2 has no mappings but is still displayed. | | |
 | 5 | Delete ‘adhd’ in the search bar and instead type ‘asthma’| See that 15 variables are displayed. | | |
 | 6 | Add the word ‘maternal’ after the word ‘asthma’ in the search bar --> ‘asthma maternal’| See that 3 variables are displayed | | |
