@@ -24,13 +24,12 @@ and the network-specific explorer
 | 6 | Add the word ‘maternal’ after the word ‘asthma’ in the search bar --> ‘asthma maternal’| See that 3 variables are displayed | | |
 | 7 | Change the search text to ‘maternal asthma’ | See that the list of variables  remains the same. | | |
 | 8 | Change the search text back to ‘asthma’| See that 23 variables are displayed. | | |
-| 10 | Under sources, select all 4 testCohorts. | See that the message 'No variables found with current filters' is displayed. | | |
-| 11 | Remove the filter on all 4 cohorts. | The list of variables remains at 23, and now all sources in the catalogue are displayed again, with their mappings. Sources without mappings are displayed. | | |
-| 12 | Click on the first variable, ‘asthma_’| The overview page for the individual variable asthma_ is displayed. | | |
-| | | Harmonisation information is given for cohort Pelagie alone. | | |
-| | | The repeated variables are displayed in the correct numerical order. | | |
+| 9 | Under sources, select all 4 testCohorts. | See that the message 'No variables found with current filters' is displayed. | | |
+| 10 | Remove the filter on all 4 cohorts. | The list of variables remains at 23, and now all sources in the catalogue are displayed again, with their mappings. Sources without mappings are displayed. | | |
+| 11 | Click on the variable ‘asthma_’| A pop up appears with details on the variable 'asthma_' | | |
+| 12 | Click on `MORE DETAILS` | The overview page for the individual variable asthma_ is displayed. Harmonisation information is displayed only for sources with at least one mapping. The repeats are displayed in the correct numerical order. | | |
 | 13 | Go back using the browser’s back button. | Asthma filter is still in place in the overview, and no sources have been selected. | | |
-| 14 | Remove ‘asthma’ from the search bar at the top. | The original list of 2249 variables is displayed. | | |
+| 14 | Remove ‘asthma’ from the search bar at the top. | The original list of 2946 variables is displayed. | | |
 | 15 | On the left hand side, expand Topics, press Search for options | Drop-down with topics is displayed | | |
 | 16 | Type ‘lang’ in the search bar in the drop-down | List of topics is reduced to those highest-level topics including the letters ‘lang’ either in their name or in the hover text (whether in subtopics or highest-level topic itself)| | |
 | 17 | Find ‘Language’ under ‘Socio-demographic and economic characteristics’ and select that. | Subtopic Language is selected and topic Socio-demographic and economic characteristics is half-selected. 12 variables are displayed  (8 existing vars + 4 test vars with keyword Language) | | |
