@@ -81,7 +81,6 @@ and the network-specific explorer
 | | | testVarLang3Vir, | | |
 | | | testVarNoRepeats. | | |
 | | | All 8 sources in the network are shown because no source filter has been applied. | | |
-| 37 | On the left hand side, expand Sources | List of all 8 sources in the network is displayed on the left hand side | | |
 | 38 | Select testCohort2. | See that the list of variables is empty. testCohort2 has no mappings to a “Language” variable, so the message 'No variables found with current filters' is displayed. | | |
 | 39 | Select the other 3 test cohorts alongside testCohort2. | 3 variables are displayed in the harmonisation matrix: | | |
 | | | testVarLang mapped to cohorts1 and 4, | | |
