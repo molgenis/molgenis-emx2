@@ -31,17 +31,17 @@ and the network-specific explorer
 | 13 | Go back using the browser’s back button. | Asthma filter is still in place in the overview, and no sources have been selected. | | |
 | 14 | Remove ‘asthma’ from the search bar at the top. | The original list of 2946 variables is displayed. | | |
 | 15 | On the left hand side, expand Topics, press Search for options | Drop-down with topics is displayed | | |
-| 16 | Type ‘lang’ in the search bar in the drop-down | List of topics is reduced to those highest-level topics including the letters ‘lang’ either in their name or in the hover text (whether in subtopics or highest-level topic itself)| | |
-| 17 | Find ‘Language’ under ‘Socio-demographic and economic characteristics’ and select that. | Subtopic Language is selected and topic Socio-demographic and economic characteristics is half-selected. 12 variables are displayed  (8 existing vars + 4 test vars with keyword Language) | | |
-| 18 | Toggle back to ‘List of Variables’| The same variables are displayed in a list. | | |
-| 19 | Add ‘adhd’ in the search bar | 1 variable is displayed (only variables which match both criteria, i.e. testVarNoRepeats)| | |
+| 16 | Type ‘lang’ in the search bar in the drop-down | List of topics is reduced to those topics including the letters ‘lang’ either in their name or in the hover text, with their parent topics. | | |
+| 17 | Find ‘Language’ under ‘Socio-demographic and economic characteristics’ and select that. | Subtopic Language is selected. 12 variables are displayed  (8 existing variables + 4 test variables with keyword Language) | | |
+| 18 | Click the `LIST OF VARIABLES` toggle | The same variables are displayed in a list. | | |
+| 19 | Add ‘adhd’ in the search bar | 1 variable is displayed (only that variable which match both criteria, i.e. testVarNoRepeats)| | |
 | 20 | Delete ‘adhd’ in the search bar | List returns to 12 variables (just language now – 8 + 4 test vars)| | |
 | 21 | | On the left hand side, a long list of all the sources in the catalogue is displayed on the left hand side | | |
 | 22 | Select all 4 testCohorts. | See that the list of variables is reduced to: | | |
 | | | testVarLang, | | |
 | | | testVarLang3Vir, | | |
 | | | testVarNoRepeats | | |
-| | |(just the test vars with keyword Language AND with a mapping to one of the cohorts, so not testVarCategorical)| | |
+| | |(just the test variables with keyword Language AND with a mapping to one of the cohorts, so not testVarCategorical)| | |
 | 23 | Click on Harmonisations | Harmonisation matrix is displayed. The following variables are listed, with the following mappings: | | |
 | | | testVarLang mapped to cohorts 1 and 4, | | |
 | | | testVarLang3Vir mapped to cohorts 3 and 4, | | |
@@ -50,21 +50,16 @@ and the network-specific explorer
 | | | See that variables testVarCategorical is NOT shown. | | |
 | 24 | Add the topic filter ‘Virology’ on the left hand side (under Laboratory measures)| See that 4 variables are displayed. | | |
 | | | Variable testVarVir mapped to cohorts 3 and 4 is added to the list. No other changes to the list. | | |
-| 25 | Remove the source filters | 13 variables are displayed. The following mappings to the test variables are shown (scroll to the right): | | |
-| | | testVarCategorical with no mappings. | | |
-| | | testVarLang mapped to cohorts 1 and 4. | | |
-| | | testVarLang3Vir mapped to cohorts 3 and 4. | | |
-| | | testVarNoRepeats mapped to cohorts 1,3 and 4. | | |
-| | | testVarVir mapped to cohorts 3 and 4. | | |
+| 25 | Remove the source filters | 13 variables are displayed. The following mappings to the test variables are shown: | | |
 | | | See that variables with no mappings ARE displayed, and that cohorts with no mappings are also displayed. | | |
 | | | See that testVarRepeats_ is NOT shown (keyword adhd not selected). | | |
 | 26 | Remove the ‘Language’ filter by typing in 'lang' in the search bar | 2 variables are displayed and all the sources are displayed. The following mappings are shown: | | |
 | | | testVarLang3Vir mapped to cohorts 3 and 4. | | |
 | | | testVarVir mapped to cohorts 3 and 4 | | |
 | | NETWORK-SPECIFIC VARIABLE EXPLORER | | | |
-| 27 | Go to More --> Other Catalogues | The user goes to <https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue> | | |
-| 28 | Click on TestNetwork1 | The user goes to <https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/testNetwork1> | | |
-| 29 | Choose Variables | The user goes to <https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/testNetwork1/variables>. 7 variables are displayed: | | |
+| 27 | Go to Other Catalogues | The user goes to <https://data-catalogue-acc.molgeniscloud.org> | | |
+| 28 | Click on TestNetwork1 | The user goes to <https://data-catalogue-acc.molgeniscloud.org/testNetwork1> | | |
+| 29 | Choose Variables | The user goes to <https://data-catalogue-acc.molgeniscloud.org/testNetwork1/variables>. 7 variables are displayed: | | |
 | | | testVarCategorical_(repeated for year 0-21), | | |
 | | | testVarLang, | | |
 | | | testVarLang3Vir, | | |
@@ -77,7 +72,7 @@ and the network-specific explorer
 | | | testVarRepeats_(repeated for year 0-10)| | |
 | 31 | Click on Harmonisations button | Harmonisation matrix is opened. See that 2 variables are displayed and all 8 sources in the network are displayed, regardless of whether or not they have mappings. | | |
 | 32 | On the left hand side, expand Topics, press Search for options | Drop-down with topics is displayed | | |
-| 33 | Type ‘bio’ in the search bar | List of topics is reduced to those including the letters ‘bio’ either in their name or in the hover text (whether in subtopics or highest-level topic itself)| | |
+| 33 | Type ‘bio’ in the search bar | List of topics is reduced to those topics including the letters ‘lang’ either in their name or in the hover text, with their parent topics. | | |
 | 34 | Having found ‘Laboratory measures’, expand that to find ‘Biochemistry’ and click on that. | See that no variables at all are displayed because there are no variables in testNetwork1 which match both criteria (search bar ‘adhd’ and topic ‘biochemistry’). | | |
 | 35 | Remove the ‘biochemistry’ filter and type in ‘lang’ to add ‘Language’ as a filter (under ‘Socio-demographic and economic characteristics’)| 1 variable is displayed: only testVarNoRepeats because that is the only variable with both keywords ‘adhd’ and ‘language’. All 8 sources in the network are shown. | | |
 | 36 | Delete ‘adhd’ in the search bar | List returns to 4 variables (just the filter on language now). | | |
