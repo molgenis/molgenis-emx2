@@ -135,10 +135,11 @@ class Transform:
         """
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
 
-        # split resources ref_array in data resources and child networks
-        dict_types = dict(zip(df_resources.id, df_resources.type))
-        df_resources['data resources'] = df_resources['resources'].apply(get_data_resources, dict_types=dict_types)
-        df_resources['child networks'] = df_resources['resources'].apply(get_child_networks, dict_types=dict_types)
+        # for catalogue and network schemas split resources ref_array in data resources and child networks
+        if self.profile in ['DataCatalogueFlat', 'NetworksStaging']:
+            dict_types = dict(zip(df_resources.id, df_resources.type))
+            df_resources['data resources'] = df_resources['resources'].apply(get_data_resources, dict_types=dict_types)
+            df_resources['child networks'] = df_resources['resources'].apply(get_child_networks, dict_types=dict_types)
 
         # for demo data only
         if self.schema_name == 'testCatalogue':
