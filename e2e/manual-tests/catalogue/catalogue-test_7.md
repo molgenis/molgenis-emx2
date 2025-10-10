@@ -19,14 +19,13 @@ and the network-specific explorer
 | 2 | Type ‘adhd’ in search bar | 16 variables are listed | | |
 | 3 | Click on Harmonisations button | Harmonisation matrix is opened | | |
 | 4 | Under sources, select PELAGIE, testCohort1, testCohort2, testCohort3 and testCohort | Pelagie has mappings for the first 7 variables, testCohort1, testCohort3 and testCohort4 have mappings on the ‘testVar…’ variables. | | |
-| | | TestCohort2 has no mappings but is still displayed. | | |
-| 5 | Delete ‘adhd’ in the search bar and instead type ‘asthma’| See that 15 variables are displayed. | | |
+| | | See that testCohort2 has no mappings but is still displayed. | | |
+| 5 | Press the 'Remove all'-filters-button and instead type ‘asthma’| See that 23 variables are displayed. | | |
 | 6 | Add the word ‘maternal’ after the word ‘asthma’ in the search bar --> ‘asthma maternal’| See that 3 variables are displayed | | |
 | 7 | Change the search text to ‘maternal asthma’ | See that the list of variables  remains the same. | | |
-| 8 | Change the search text back to ‘asthma’| See that 15 variables are displayed. | | |
-| 9 | | On the left hand side, a long list of all the sources in the catalogue is displayed on the left hand side | | |
-| 10 | Select all 4 testCohorts. | See that the message 'No variables found with current filters' is displayed. | | |
-| 11 | Remove the filter on all 4 cohorts. | The list of variables remains at 15, and now all sources in the catalogue are displayed again, with their mappings. Sources without mappings are displayed. | | |
+| 8 | Change the search text back to ‘asthma’| See that 23 variables are displayed. | | |
+| 10 | Under sources, select all 4 testCohorts. | See that the message 'No variables found with current filters' is displayed. | | |
+| 11 | Remove the filter on all 4 cohorts. | The list of variables remains at 23, and now all sources in the catalogue are displayed again, with their mappings. Sources without mappings are displayed. | | |
 | 12 | Click on the first variable, ‘asthma_’| The overview page for the individual variable asthma_ is displayed. | | |
 | | | Harmonisation information is given for cohort Pelagie alone. | | |
 | | | The repeated variables are displayed in the correct numerical order. | | |
