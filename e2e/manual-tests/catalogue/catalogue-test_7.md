@@ -15,8 +15,8 @@ and the network-specific explorer
 | ---- | ------ | --------------- | ---------------- | --------------- |
 | | 'ALL VARIABLES' VARIABLE EXPLORER | | | |
 | 0 | NB: Assumptions | This test plan assumes a 'clean' set of test data, otherwise counts for variables etc. might be off. Make sure to upload a fresh set of test data to the catalogue schema on the acceptance server before you start testing. | | |
-| 1 | Go to <https://data-catalogue-acc.molgeniscloud.org/all/variables> | The user goes to overview of all harmonised variables across all networks: 2249 variables | | |
-| 2 | Type ‘adhd’ in search bar | 14 variables are listed | | |
+| 1 | Go to <https://data-catalogue-acc.molgeniscloud.org/all/variables> | The user goes to overview of all harmonised variables across all networks: 2946 variables | | |
+| 2 | Type ‘adhd’ in search bar | 16 variables are listed | | |
 | 3 | Click on Harmonisations button | Harmonisation matrix is opened | | |
 | 4 | Under sources, select PELAGIE, testCohort1, testCohort2, testCohort3 and testCohort | Pelagie has mappings for the first 7 variables, testCohort1, testCohort3 and testCohort4 have mappings on the ‘testVar…’ variables. | | |
 | | | TestCohort2 has no mappings but is still displayed. | | |
