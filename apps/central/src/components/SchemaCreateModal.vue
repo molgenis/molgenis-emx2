@@ -137,6 +137,7 @@ export default {
       template: null,
       templates: [
         "PET_STORE",
+        "PAGES",
         "DATA_CATALOGUE",
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",
@@ -154,7 +155,6 @@ export default {
         "DATA_CATALOGUE_AGGREGATES",
         "TYPE_TEST",
         "PATIENT_REGISTRY_DEMO",
-        "PAGES",
       ],
       includeDemoData: false,
     };
