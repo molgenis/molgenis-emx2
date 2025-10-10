@@ -22,7 +22,9 @@ node {
 npm_install {
     args = ['--workspaces']
     inputs.file('package.json')
-    inputs.file('package-lock.json')
+    outputs.file('package-lock.json')
+    // do not declare node_modules as output, as it is huge, and to big for gradle to handle
+    // outputs.dir('node_modules')
 }
 
 def excludePatterns = [
@@ -49,17 +51,27 @@ tasks.register('npm_build', NpmTask) {
 
 // Util task to clean up all apps files created during build
 tasks.register("cleanApps", Delete) {
-    // clean up the resources directory
     delete file(project.layout.buildDirectory)
-    // clean up all dist directories
     file(".").eachDir { dir ->
         def distDir = new File(dir, "dist")
         def showCaseDir = new File(dir, "showCase")
+        def nodeModulesDir = new File(dir, "node_modules")
+        def DotNuxtDir = new File(dir, ".nuxt")
+        def DotOutDir = new File(dir, ".output")
+        if (nodeModulesDir.exists()) {
+            delete nodeModulesDir
+        }
         if (showCaseDir.exists()) {
             delete showCaseDir
         }
         if (distDir.exists()) {
             delete distDir
+        }
+        if (DotNuxtDir.exists()) {
+            delete DotNuxtDir
+        }
+        if (DotOutDir.exists()) {
+            delete DotOutDir
         }
     }
 }

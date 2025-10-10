@@ -1,4 +1,4 @@
-import { rowToString } from "../../../utils/rowToString";
+import { rowToString } from "../../../app/utils/rowToString";
 import { describe, expect, test } from "vitest";
 
 describe("rowToString", () => {
