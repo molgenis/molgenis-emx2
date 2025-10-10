@@ -51,11 +51,16 @@ if (props.networkCount > 0 && !cohortOnly.value) {
   });
 }
 
-if (props.variableCount > 0 && !cohortOnly.value)
+if (props.variableCount > 0 && !cohortOnly.value) {
   menu.push({
-    label: "Variables",
+    label: "Harmonized Variables",
     link: `/${catalogueRouteParam}/variables`,
   });
+  menu.push({
+    label: "Collected Variables",
+    link: `/${catalogueRouteParam}/collectedvariables`,
+  });
+}
 
 if (cohortOnly.value) {
   menu.push({
