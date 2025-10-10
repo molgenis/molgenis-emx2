@@ -24,7 +24,8 @@ public class DataModels {
     SHARED_STAGING("_profiles/SharedStaging.yaml"),
     IMAGE_TEST("_profiles/ImageTest.yaml"),
     PET_STORE("_profiles/PetStore.yaml"),
-    TYPE_TEST("_profiles/TypeTest.yaml");
+    TYPE_TEST("_profiles/TypeTest.yaml"),
+    PAGES("_profiles/Pages.yaml");
 
     public static boolean hasProfile(String nameOther) {
       return Arrays.stream(values()).anyMatch(profile -> profile.name().equals(nameOther));
