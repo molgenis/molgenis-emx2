@@ -24,11 +24,10 @@ function filterDatabases(database: Schema) {
   );
 }
 
-const databases = computed(
-  () =>
-    data.value?.data?._schemas
-      .filter(filterDatabases)
-      .sort((a, b) => a.label.localeCompare(b.label)) ?? []
+const databases = computed(() =>
+  (data.value?.data?._schemas ?? [])
+    .filter(filterDatabases)
+    .sort((a, b) => a.label.localeCompare(b.label))
 );
 const handleSearchRequest = (search: string) => {
   filter.value = search;

@@ -9,7 +9,6 @@ import type {
   ITableMetaData,
 } from "../../../metadata-utils/src/types";
 import useForm from "../../composables/useForm";
-import useSections from "../../composables/useSections";
 import cohortTableMetadata from "./data/cohort-table-metadata";
 
 definePageMeta({
@@ -30,13 +29,7 @@ const crumbs = computed(() => {
   return crumb;
 });
 const formValues = ref<Record<string, columnValue>>({});
-
 const metadata = cohortTableMetadata as ITableMetaData;
-const errorMap = ref<Record<columnId, string>>({});
-
-const activeChapterId = ref<string>("_scroll_to_top");
-const sections = useSections(metadata, activeChapterId, errorMap);
-
 const PAGE_OFF_SET = 200;
 
 function scrollTo(elementId: string) {
@@ -53,7 +46,13 @@ const {
   gotoNextRequiredField,
   gotoNextError,
   gotoPreviousError,
-} = useForm(metadata, formValues, errorMap, scrollTo);
+  errorMap,
+  sections,
+  onViewColumn,
+  onBlurColumn,
+  onUpdateColumn,
+  visibleColumns,
+} = useForm(metadata, formValues, "row-edit-field-container");
 
 function onSave() {
   alert("Do Save");
@@ -127,11 +126,12 @@ function onCancel() {
         <FormFields
           class="px-32 bg-form"
           schemaId="catalogue-demo"
-          :metadata="metadata"
-          :sections="sections"
-          v-model:errors="errorMap"
+          :columns="visibleColumns"
+          :errorMap="errorMap"
           v-model="formValues"
-          @update:active-chapter-id="activeChapterId = $event"
+          @update="onUpdateColumn"
+          @blur="onBlurColumn"
+          @view="onViewColumn"
         />
       </div>
     </section>

@@ -37,7 +37,7 @@ const nodes = props.options
   ? typeof props.options === "function"
     ? await props.options()
     : props.options
-  : (await fetchGql<INode>(query)).data[props.tableId].map(dataToNode);
+  : (await fetchGql<INode>(query)).data?.[props.tableId]?.map(dataToNode) ?? [];
 
 function dataToNode(respObject: any): INode {
   return {

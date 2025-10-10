@@ -12,7 +12,6 @@ import fetchTableMetadata from "../../composables/fetchTableMetadata";
 import fetchRowPrimaryKey from "../../composables/fetchRowPrimaryKey";
 import DeleteModal from "../form/DeleteModal.vue";
 import EditModal from "../form/EditModal.vue";
-import AddModal from "../form/AddModal.vue";
 import { computed, ref, watch } from "vue";
 
 const props = withDefaults(
@@ -154,7 +153,7 @@ const addModalConstantValues = computed(() => {
     >
       Add {{ metadata.label }}
     </Button>
-    <ul class="border divide-y divide-gray-200">
+    <ul>
       <InputRefListItem
         v-for="(ref, index) in modelValue"
         :refData="ref"
@@ -168,7 +167,7 @@ const addModalConstantValues = computed(() => {
       />
     </ul>
 
-    <AddModal
+    <EditModal
       v-if="showAddModal"
       :schemaId="props.refSchemaId"
       :metadata="metadata"

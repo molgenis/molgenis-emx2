@@ -1,7 +1,7 @@
 import { createError } from "#app";
 import { fetchMetadata } from "#imports";
 import type { columnValue } from "../../metadata-utils/src/types";
-import { type IQueryMetaData } from "../../molgenis-components/src/client/IQueryMetaData";
+import { type IQueryMetaData } from "../types/IQueryMetaData";
 
 export interface ITableDataResponse {
   rows: Record<string, columnValue>[];
@@ -118,7 +118,7 @@ export const getColumnIds = async (
         gqlFields = gqlFields + " " + col.id + " {name, label}";
       } else if (col.columnType === "FILE") {
         gqlFields += ` ${col.id} { id, size, filename, extension, url }`;
-      } else if (col.columnType !== "HEADING") {
+      } else if (!["HEADING", "SECTION"].includes(col.columnType)) {
         gqlFields += ` ${col.id}`;
       }
     }

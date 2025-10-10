@@ -6,6 +6,7 @@ export default gql`
       label
       tables {
         id
+        schemaId
         label
         tableType
         description
@@ -13,6 +14,8 @@ export default gql`
         columns {
           id
           label
+          section
+          heading
           columnType
           key
           refTableId
