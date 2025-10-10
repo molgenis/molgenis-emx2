@@ -91,8 +91,8 @@ class Transform:
         df_agents.rename(columns={'name': 'id',
                                   'url': 'website',
                                   'mbox': 'email'}, inplace=True)
-        # TODO: check!!!
-        df_agents['resource'] = 'MOLGENIS'
+        # # TODO: check!!!
+        # df_agents['resource'] = 'MOLGENIS'
 
         # write table to file
         df_agents.to_csv(self.path + 'Agents.csv', index=False)
@@ -134,7 +134,11 @@ class Transform:
         """ Transform data in Resources
         """
         df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
-        df_resources.rename(columns={'resources': 'data resources'}, inplace=True)
+
+        # split resources ref_array in data resources and child networks
+        dict_types = dict(zip(df_resources.id, df_resources.type))
+        df_resources['data resources'] = df_resources['resources'].apply(get_data_resources, dict_types=dict_types)
+        df_resources['child networks'] = df_resources['resources'].apply(get_child_networks, dict_types=dict_types)
 
         # for demo data only
         if self.schema_name == 'testCatalogue':
@@ -358,3 +362,25 @@ def get_publisher(resource, dict_publisher):
 
 def get_creator(resource, dict_creator):
     return dict_creator[resource]
+
+
+def get_data_resources(resources, dict_types):
+    if not pd.isna(resources):
+        resources = resources.split(',')
+        data_resources = []
+        for r in resources:
+            if not dict_types[r] in ['Catalogue', 'Network', 'Catalogue,Network']:
+                data_resources.append(r)
+
+        return data_resources
+
+
+def get_child_networks(resources, dict_types):
+    if not pd.isna(resources):
+        resources = resources.split(',')
+        child_networks = []
+        for r in resources:
+            if dict_types[r] in ['Catalogue', 'Network', 'Catalogue,Network']:
+                child_networks.append(r)
+
+        return child_networks

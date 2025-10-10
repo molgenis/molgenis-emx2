@@ -61,7 +61,7 @@ update.transform_data()
 zip_handling.zip_data()
 
 # instantiate Client for target server:
-target = Client(TARGET_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
+# target = Client(TARGET_SERVER_URL, schema=CATALOGUE_SCHEMA_NAME, token=TARGET_SERVER_TOKEN)
 
 # upload catalogue data to target server
 
