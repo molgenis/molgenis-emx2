@@ -81,14 +81,14 @@ and the network-specific explorer
 | | | testVarLang3Vir, | | |
 | | | testVarNoRepeats. | | |
 | | | All 8 sources in the network are shown because no source filter has been applied. | | |
-| 38 | Select testCohort2. | See that the list of variables is empty. testCohort2 has no mappings to a “Language” variable, so the message 'No variables found with current filters' is displayed. | | |
-| 39 | Select the other 3 test cohorts alongside testCohort2. | 3 variables are displayed in the harmonisation matrix: | | |
+| 38 | Select testCohort2 | See that the list of variables is empty. testCohort2 has no mappings to a “Language” variable, so the message 'No variables found with current filters' is displayed. | | |
+| 39 | Select the other 3 test cohorts alongside testCohort2 | 3 variables are displayed in the harmonisation matrix: | | |
 | | | testVarLang mapped to cohorts1 and 4, | | |
 | | | testVarLang3Vir mapped to cohorts 3 and 4, | | |
 | | | testVarNoRepeats mapped to cohorts 1, 3 and 4. | | |
 | | | See that testVarCategorical_ and testVarLang2 are not shown (because they have no mappings to the cohorts selected). | | |
 | | | TestCohort2 is shown despite having no mappings to these variables, because it has been selected in the source filter. | | |
-| 40 | Type in ‘Virology’ in the search field and add the filter ‘Virology’ in the topics on the left hand side (under ‘Laboratory measures’)| See that 4 variables are displayed, with the following mappings: | | |
+| 40 | Add the filter ‘Virology’ in the topics on the left hand side (under ‘Laboratory measures’)| See that 4 variables are displayed, with the following mappings: | | |
 | | | testVarLang with mappings to cohorts 1 and 4. | | |
 | | | testVarLang3Vir with mappings to cohorts 3 and 4. | | |
 | | | testVarNoRepeats with mappings to cohorts 1,3,4. | | |
@@ -99,22 +99,22 @@ and the network-specific explorer
 | | | testVarLang3Vir with mappings to cohorts 3 and 4. | | |
 | | | testVarVir with mappings to cohorts 3 and 4. | | |
 | | | See that testcohort1 and testcohort2 are shown, despite having no mappings, because they have been actively selected. | | |
-| 42 | Remove the filters for testcohort2 and testcohort3 so that only testcohort1 and testcohort4 are selected. | Testcohort1 and testcohort4 are shown and the list of variables remains the same. | | |
+| 42 | Remove the filters for testcohort2 and testcohort3 so that only testcohort1 and testcohort4 are selected | Testcohort1 and testcohort4 are shown and the list of variables remains the same. | | |
 | | | testVarLang3Vir with mapping to cohort 4. | | |
 | | | testVarVir with mapping to cohort 4. | | |
 | | | Testcohort1 is shown, with no mappings. | | |
 | | | See that testcohort 2 and 3 are NOT shown. | | |
-| 43 | Remove all filters in the topics and remove all source filters by clicking on the rubbish bins at the top of the list of variables. | 7 variables are displayed (full list for testnetwork1) | | |
+| 43 | Remove all filters in the topics and remove all source filters by clicking on the rubbish bins at the top of the list of variables | 7 variables are displayed (full list for testnetwork1) | | |
 | | | testVarCategorical with no mappings. | | |
 | | | testVarLang with mappings to cohorts 1 and 4. | | |
 | | | testVarLang3Vir with mappings to cohorts 3 and 4. | | |
 | | | testVarNoRepeats with mappings to cohorts 1,3,4. | | |
-| | | testVarRepeats-with-a-very-looong-name_ with no mappings. | | |
+| | | testVarRepeats-with-looong-name_ with no mappings. | | |
 | | | testVarRepeats_ with mappings to cohorts 1,3,4. | | |
 | | | testVarVir with mappings to cohorts 3 and 4. | | |
 | | | All 8 sources are displayed. | | |
-| 44 | Select testcohort2. | Message 'No variables found with current filters' is displayed. | | |
-| 45 | Remove all the source filters. | 7 variables are displayed (full list for testnetwork1)| | |
+| 44 | Select testcohort2 | Message 'No variables found with current filters' is displayed. | | |
+| 45 | Remove all the source filters | 7 variables are displayed (full list for testnetwork1)| | |
 | 46 | Click on testVarRepeats_ | Pop-up with short information about the variable appears | | |
 | 47 | Click on More Details | Individual page for variable testVarRepeats_ is displayed. | | |
 | | | Under the ‘harmonisation status’ block only testcohort1, 3 and 4 are shown. | | |
