@@ -57,7 +57,11 @@
           @keydown="(event: KeyboardEvent) => onListboxOptionKeyDown(event, option)"
         />
         <li
-          v-if="listboxOptions.length === 1 && listboxOptions[0].value === null"
+          v-if="
+            listboxOptions.length === 1 &&
+            listboxOptions[0] &&
+            listboxOptions[0].value === null
+          "
           class="flex justify-center items-center h-[56px] pl-3 py-1 bg-input border-b-[1px] last:border-b-0"
         >
           <TextNoResultsMessage />
@@ -133,7 +137,7 @@ onMounted(() => {
         );
       }
     );
-    if (initalValue) {
+    if (initalValue && initalValue[0]) {
       updateModelValue(initalValue[0], false);
     }
   }
@@ -154,10 +158,10 @@ function counterIsInRange(value: number) {
 }
 
 const listboxOptions = computed<IInternalListboxOption[]>(() => {
-  const testDataValue: IInputValue | IInputValueLabel = props.options[0];
+  const testDataValue = props.options[0] ?? {};
   if (
     typeof testDataValue === "object" &&
-    Object.hasOwn(testDataValue as IInputValueLabel, "value")
+    Object.hasOwn(testDataValue, "value")
   ) {
     sourceDataType.value = "ListboxOptions";
     sourceData.value = props.options as IInputValueLabel[];
@@ -204,9 +208,12 @@ function updateCounter(value: number) {
 function focusListOption() {
   nextTick(() => {
     if (liElemRefs.value) {
-      const targetElem = liElemRefs.value[focusCounter.value].li;
-      targetElem.setAttribute("tabindex", "0");
-      targetElem.focus();
+      const refItem = liElemRefs.value[focusCounter.value];
+      if (refItem && refItem.li) {
+        const targetElem = refItem.li;
+        targetElem.setAttribute("tabindex", "0");
+        targetElem.focus();
+      }
     }
   });
 }
@@ -214,9 +221,12 @@ function focusListOption() {
 function blurListOption(option: IInternalListboxOption) {
   nextTick(() => {
     if (liElemRefs.value) {
-      const targetElem = liElemRefs.value[option.index].li;
-      targetElem.setAttribute("tabindex", "-1");
-      targetElem.blur();
+      const refItem = liElemRefs.value[option.index];
+      if (refItem && refItem.li) {
+        const targetElem = refItem.li;
+        targetElem.setAttribute("tabindex", "-1");
+        targetElem.blur();
+      }
     }
   });
 }

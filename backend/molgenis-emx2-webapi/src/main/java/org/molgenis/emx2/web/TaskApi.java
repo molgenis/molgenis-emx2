@@ -4,8 +4,8 @@ import static org.molgenis.emx2.Constants.SYSTEM_SCHEMA;
 import static org.molgenis.emx2.FilterBean.f;
 import static org.molgenis.emx2.SelectColumn.s;
 import static org.molgenis.emx2.web.FileApi.addFileColumnToResponse;
+import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 import static org.molgenis.emx2.web.MolgenisWebservice.hostUrl;
-import static org.molgenis.emx2.web.MolgenisWebservice.sessionManager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -75,8 +75,8 @@ public class TaskApi {
   }
 
   private static void postScript(Context ctx) {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
-    if (!session.getDatabase().isAdmin()) {
+    Database database = applicationCache.getDatabaseForUser(ctx);
+    if (!database.isAdmin()) {
       throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
     }
     String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
@@ -87,8 +87,8 @@ public class TaskApi {
   }
 
   private static void getScript(Context ctx) throws InterruptedException {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
-    if (!session.getDatabase().isAdmin()) {
+    Database database = applicationCache.getDatabaseForUser(ctx);
+    if (!database.isAdmin()) {
       throw new MolgenisException("Submit task failed: for now can only be done by 'admin");
     }
     String name = URLDecoder.decode(ctx.pathParam("name"), StandardCharsets.UTF_8);
@@ -123,8 +123,8 @@ public class TaskApi {
   }
 
   private static void getTaskOutput(Context ctx) {
-    MolgenisSession session = sessionManager.getSession(ctx.req());
-    Schema adminSchema = session.getDatabase().getSchema(SYSTEM_SCHEMA);
+    Database database = applicationCache.getDatabaseForUser(ctx);
+    Schema adminSchema = database.getSchema(SYSTEM_SCHEMA);
     String jobId = ctx.pathParam("id");
     Row jobMetadata =
         adminSchema

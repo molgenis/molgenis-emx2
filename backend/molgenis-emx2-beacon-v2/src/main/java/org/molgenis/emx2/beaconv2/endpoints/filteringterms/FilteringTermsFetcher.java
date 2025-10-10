@@ -13,7 +13,7 @@ public class FilteringTermsFetcher {
   public static final List<String> BEACON_TABLES =
       Arrays.asList(
           EntryType.ANALYSES.getId(),
-          EntryType.BIOSAMPLES.getId(),
+          // EntryType.BIOSAMPLES.getId(),
           EntryType.COHORTS.getId(),
           // EntryType.DATASETS.getId(),
           EntryType.GENOMIC_VARIANT.getId(),

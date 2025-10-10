@@ -374,6 +374,31 @@ const tocItems = computed(() => {
     });
   }
 
+  const showAvailableDataAndSample = computed(() => {
+    if (!resource.value.collectionEvents) return false;
+    const dataCategories = resource.value.collectionEvents
+      ?.flatMap((c) => c.dataCategories)
+      .filter((e) => e !== undefined);
+    const sampleCategories = resource.value.collectionEvents
+      ?.flatMap((c) => c.sampleCategories)
+      .filter((e) => e !== undefined);
+    const areasOfInformation = resource.value.collectionEvents
+      ?.flatMap((c) => c.areasOfInformation)
+      .filter((e) => e !== undefined);
+    return (
+      (dataCategories?.length ||
+        sampleCategories?.length ||
+        areasOfInformation?.length) > 0
+    );
+  });
+
+  if (showAvailableDataAndSample.value) {
+    tableOffContents.push({
+      label: "Available data & samples",
+      id: "AvailableData",
+    });
+  }
+
   if (variableCount.value ?? 0 > 0) {
     tableOffContents.push({ label: "Dataset variables", id: "DataVariables" });
   } else if (resource.value.datasets?.length) {
@@ -697,6 +722,13 @@ const showPopulation = computed(
           :contributors="peopleInvolvedSortedByRoleAndName"
         >
         </ContentBlockContact>
+
+        <ContentBlockData
+          v-if="resource?.collectionEvents"
+          id="AvailableData"
+          title="Available Data &amp; Samples"
+          :collectionEvents="resource?.collectionEvents"
+        />
 
         <TableContent
           v-if="resource.datasets && !variableCount"

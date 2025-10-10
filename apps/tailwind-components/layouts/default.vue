@@ -13,9 +13,9 @@ const modules = import.meta.glob("../**/*.story.vue", {
 
 const stories = Object.keys(modules)
   .map((module: string) => {
-    const name: string = module.split("/").reverse()[0];
-    const path: string = module.replace("../pages/", "/");
-    const dir: string = path
+    const name = module.split("/").reverse()[0] ?? "";
+    const path = module.replace("../pages/", "/");
+    const dir = path
       .split("/")
       .filter((path: string) => path !== "" && path !== name)[0];
     const nameCleaned: string = name.replace(".story.vue", "");
