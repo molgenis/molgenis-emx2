@@ -37,7 +37,10 @@ onMounted(async () => {
     props.api.graphql.current,
     "Your center"
   );
-  const allCenters = await getGeneticLossData(props.api.graphql.current, "ERN");
+  const allCenters = await getGeneticLossData(
+    props.api.graphql.providers,
+    "ERN"
+  );
 
   hearingLossTypeChart.value = yourCenter.hearingLossTypes;
   hearingLossSeverityChart.value = yourCenter.severity;
