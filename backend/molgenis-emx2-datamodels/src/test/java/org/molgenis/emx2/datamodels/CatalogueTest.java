@@ -22,7 +22,7 @@ public class CatalogueTest extends TestLoaders {
 
   @Test
   public void test07DataCatalogueCohortStagingLoader() {
-    assertEquals(18, cohortStaging.getTableNames().size());
+    assertEquals(20, cohortStaging.getTableNames().size());
   }
 
   @Disabled
