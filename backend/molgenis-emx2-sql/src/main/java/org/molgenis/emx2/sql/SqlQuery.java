@@ -326,14 +326,14 @@ public class SqlQuery extends QueryBean {
       Filter filters,
       String[] searchTerms) {
     checkHasViewPermission(table);
-    String subAlias = getLateralJoinAlias(parentColumn, tableAlias);
+    String subAlias = getLateralJoinAlias(select, tableAlias);
     Collection<Field<?>> selection = jsonSubselectFields(table, subAlias, select);
     return jsonField(
         table, parentColumn, tableAlias, select, filters, searchTerms, subAlias, selection);
   }
 
-  private static @NotNull String getLateralJoinAlias(Column parentColumn, String tableAlias) {
-    return tableAlias + (parentColumn != null ? "-" + parentColumn.getName() : "");
+  private static @NotNull String getLateralJoinAlias(SelectColumn select, String tableAlias) {
+    return tableAlias + (select != null ? "-" + select.getColumn() : "");
   }
 
   private Field<?> jsonField(
@@ -579,32 +579,10 @@ public class SqlQuery extends QueryBean {
       // add the fields, using subselects for references
       if (column.isFile()) {
         fields.add(jsonFileField((SqlTableMetadata) table, tableAlias, select, column));
-      } else if (column.isReference() && select.getColumn().endsWith("_agg")) {
-        // aggregation subselect
-        fields.add(
-            jsonAggregateSelect(
-                    (SqlTableMetadata) column.getRefTable(),
-                    column,
-                    tableAlias,
-                    select,
-                    select.getFilter(),
-                    new String[0])
-                .as(convertToCamelCase(select.getColumn())));
-      } else if (column.isReference() && select.getColumn().endsWith("_groupBy")) {
-        // aggregation subselect
-        fields.add(
-            jsonGroupBySelect(
-                    (SqlTableMetadata) column.getRefTable(),
-                    column,
-                    tableAlias,
-                    select,
-                    select.getFilter(),
-                    new String[0])
-                .as(convertToCamelCase(select.getColumn())));
       } else if (column.isReference()) {
         // normal subselect
-        String leftJoinTableName = getLateralJoinAlias(column, tableAlias);
-        fields.add(field(name(alias(leftJoinTableName), column.getIdentifier())));
+        String leftJoinTableName = getLateralJoinAlias(select, tableAlias);
+        fields.add(field(name(alias(leftJoinTableName), convertToCamelCase(select.getColumn()))));
       } else if (column.isHeading()) {
         /**
          * Ignore headings, not part of rows. Fixme: must ignore to allow JSON subqueries, but
@@ -622,11 +600,9 @@ public class SqlQuery extends QueryBean {
   }
 
   private static Column getColumnForGraphqlField(TableMetadata table, SelectColumn select) {
-    Column column =
-        select.getColumn().endsWith("_agg") || select.getColumn().endsWith("_groupBy")
-            ? getColumnByName(table, select.getColumn().replace("_agg", "").replace("_groupBy", ""))
-            : getColumnByName(table, select.getColumn());
-    return column;
+    return select.getColumn().endsWith("_agg") || select.getColumn().endsWith("_groupBy")
+        ? getColumnByName(table, select.getColumn().replace("_agg", "").replace("_groupBy", ""))
+        : getColumnByName(table, select.getColumn());
   }
 
   private Field<Object> jsonFileField(
@@ -909,27 +885,50 @@ public class SqlQuery extends QueryBean {
 
     result = result.as(alias(tableAlias));
 
-    // lateral join the selected refs
+    // lateral join the selected refs/refs_agg/refs_groupBy
     for (SelectColumn subSelect : select.getSubselect()) {
       if (!subSelect.getColumn().equals("count")) {
         Column subColumn = getColumnForGraphqlField(table, subSelect);
-        // todo understand how this works for _agg and _groupBy
         if (subColumn.isReference()) {
-          String joinAlias = getLateralJoinAlias(subColumn, tableAlias);
-          Field<?> subField =
-              jsonSubselect(
-                      (SqlTableMetadata) subColumn.getRefTable(),
-                      subColumn,
-                      tableAlias,
-                      subSelect,
-                      subSelect.getFilter(),
-                      new String[0])
-                  .as(subColumn.getIdentifier());
+          String joinAlias = getLateralJoinAlias(subSelect, tableAlias);
+          Field<?> subField;
+          if (subSelect.getColumn().endsWith("_agg")) {
+            // aggregation subselect
+            subField =
+                jsonAggregateSelect(
+                        (SqlTableMetadata) subColumn.getRefTable(),
+                        subColumn,
+                        tableAlias,
+                        subSelect,
+                        subSelect.getFilter(),
+                        new String[0])
+                    .as(convertToCamelCase(subSelect.getColumn()));
+          } else if (subSelect.getColumn().endsWith("_groupBy")) {
+            // aggregation subselect
+            subField =
+                jsonGroupBySelect(
+                        (SqlTableMetadata) subColumn.getRefTable(),
+                        subColumn,
+                        tableAlias,
+                        subSelect,
+                        subSelect.getFilter(),
+                        new String[0])
+                    .as(convertToCamelCase(subSelect.getColumn()));
+          } else {
+            subField =
+                jsonSubselect(
+                        (SqlTableMetadata) subColumn.getRefTable(),
+                        subColumn,
+                        tableAlias,
+                        subSelect,
+                        subSelect.getFilter(),
+                        new String[0])
+                    .as(subColumn.getIdentifier());
+          }
           result = result.leftJoin(lateral(DSL.select(subField).asTable(alias(joinAlias)))).on();
         }
       }
     }
-
     return result;
   }
 
