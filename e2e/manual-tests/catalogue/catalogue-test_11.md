@@ -37,8 +37,8 @@ A naïve visitor to the data catalogue can click around the 'browse all catalogu
 | 21 | Click the "Search in networks"-input and enter 'acronym' | There should be 3 networks shown | | |
 | 22 | Click the `Search in networks: acronym 🗑️` button | The filter should be removed and 130 results should be shown again. | | |
 | 23 | Click the `COMPACT` button | The list of networks should reduce in size and just show the name and description. | | |
-| 24 | Click the title of the first network "acronym for test network of networks" | End up at [the overview page of the network](https://data-catalogue-acc.molgeniscloud.org/all/networks/testNetworkofNetworks) | | |
-| 25 | Check the breadcrumb | It should be "ALL > NETWORKS" | | |
+| 24 | Click the title of the network "acronym for test network of networks" | End up at [the overview page of the network](https://data-catalogue-acc.molgeniscloud.org/all/networks/testNetworkofNetworks) | | |
+| 25 | Check the breadcrumb | It should be "ALL > NETWORKS > TESTNETWORKOFNETWORKS" | | |
 | 26 | Click `NETWORKS` in the breadcrumb | End up at [the networks screen](https://data-catalogue-acc.molgeniscloud.org/all/networks) again | | |
 | 27 | Look at the first network "acronym for test network of networks" | It should list its name, description, `Type` Network, `Design`, `Participants`, and `Duration` 1975 until 2010. | | |
 | | | | | |
