@@ -52,7 +52,7 @@ const descriptionMap: Record<string, string> = {
 
 const imageMap: Record<string, string> = {
   collections: "image-diagram",
-  networks: "image-network",
+  networks: "image-diagram2",
 };
 
 const title = route.params.resourceType as string;
