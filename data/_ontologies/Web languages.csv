@@ -1,4 +1,4 @@
 name,definition,codesystem,code,ontologyTermURI
 html,HyperText Markup Language,EDAM,EDAM:2331,http://edamontology.org/format_2331
 css,Cascading Style Sheets,,,
-js,JavaScript,,,
+javascript,JavaScript,,,http://www.ebi.ac.uk/swo/SWO_0000108
