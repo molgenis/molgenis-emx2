@@ -16,7 +16,7 @@ Developer page,,enable full screen,bool,,,,,,,false,,"If true, custom pages will
 Dependencies,,,,,,,,,,,,External dependencies used in the developer pages,pages
 Dependencies,,name,string,1,,,,,,,http://semanticscience.org/resource/SIO_000116,A name is a label used to identify an entity.,pages
 Dependencies,,url,hyperlink,,,,,,,,http://semanticscience.org/resource/SIO_000811,URL to the dependency,pages
-Dependencies,,fetch priority,ontology,,,Web fetch priority,,,,,,"If defined, a setting higher priority level will indicate that a dependency should be retrieved ahead of other dependency",
+Dependencies,,fetch priority,ontology,,,Web fetch priority,,,,,,"If defined, a setting higher priority level will indicate that a dependency should be retrieved ahead of other dependency",pages
 Dependencies CSS,Dependencies,,,,,,,,,,,External CSS dependencies used in custom pages,pages
 Dependencies CSS,,type,ontology,,,Web languages,,false,,"={name: ""css""}",http://purl.obolibrary.org/obo/IAO_0000025,,pages
 Dependencies JS,Dependencies,,,,,,,,,,,External JavaScript dependencies used in custom pages,pages
