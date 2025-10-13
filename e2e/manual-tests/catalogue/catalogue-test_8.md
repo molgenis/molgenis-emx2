@@ -77,7 +77,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 63 | Hover over the `VARIABLES` button | `VARIABLES` underlined | | |
 | 64 | Click on the `VARIABLES` button | The user goes to [/all/variables](https://data-catalogue-acc.molgeniscloud.org/all/variables) | | |
 | 65 | Use the browser's ⬅️ button | The user goes back to [/all/collections](https://data-catalogue-acc.molgeniscloud.org/all/collections) | | |
-| 66 | Hover over `MORE` | A drop-down menu is presented with `Other catalogues` and `Upload data` as options | | |
+| 66 | Hover over `MORE` | A drop-down menu is presented with `Other catalogues`, `Upload data` and `Manuals` as options | | |
 | 67 | Click on `Other catalogues` | The user goes to [home](https://data-catalogue-acc.molgeniscloud.org/) | | |
 | 68 | Use the browser's ⬅️ button | The user goes back to [/all/collections](https://data-catalogue-acc.molgeniscloud.org/all/collections) | | |
 | 69 | Click on `More` --> `Upload data` | Should be directed to the 'old' interface apps/central for the user to be able to sign in and upload data | | |
@@ -111,10 +111,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 99 | Hover on `MORE` and then click `Other catalogues` | The user goes to [home](https://data-catalogue-acc.molgeniscloud.org/) | | |
 | 99a | See that `Upload data` is a menu item under `MORE`. Click on it. | The user is directed to the 'old' interface apps/central to be able to sign in and upload data | | |
 | 99b | Use the browser's ⬅️ button | The user goes back to [home](https://data-catalogue-acc.molgeniscloud.org/) | | |
-| 100a | Click on **OOM** under *Project Catalogues* | The user goes to [/OOM](https://data-catalogue-acc.molgeniscloud.org/OOM). | | |
-| 100b | | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `ABOUT`, `MORE` | | |
-| 101 | Hover on `MORE` | 2 options are provided: `Other catalogues`, `Upload data`,'Manuals' | | |
+| 100a | Click on **LongITools** under *Project Catalogues* | The user goes to [/LongITools](https://data-catalogue-acc.molgeniscloud.org/LongITools). | | |
+| 100b | | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `VARIABLES`, `ABOUT`, `OTHER CATALOGUES`, `MORE`. | | |
+| 101 | Hover on `MORE` | 3 options are provided: `Other catalogues`, `Upload data` and`Manuals` | | |
 | 102 | Click on `Other Catalogues` | The user goes to [home](https://data-catalogue-acc.molgeniscloud.org/) | | |
-| | [THIS EXTRA TEST STEP CAN BE RENDERED INVALID BY PRODUCTION DATA FOR LONGITOOLS BEING COPIED INTO ACC - SEE IT AS A BONUS STEP!] | | | |
-| 103a | Click on **LongITools** under *Project Catalogues* | The user goes to [/LongITools](https://data-catalogue-acc.molgeniscloud.org/LongITools). | | |
-| 103b | | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `VARIABLES`, `ABOUT`, `OTHER CATALOGUES`, `MORE`. | | |
