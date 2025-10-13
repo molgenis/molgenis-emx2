@@ -137,7 +137,7 @@ export default {
       template: null,
       templates: [
         "PET_STORE",
-        "PAGES",
+        "MG_CMS",
         "DATA_CATALOGUE",
         "DATA_CATALOGUE_COHORT_STAGING",
         "DATA_CATALOGUE_NETWORK_STAGING",

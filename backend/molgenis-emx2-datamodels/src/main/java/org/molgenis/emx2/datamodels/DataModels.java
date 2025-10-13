@@ -25,7 +25,7 @@ public class DataModels {
     IMAGE_TEST("_profiles/ImageTest.yaml"),
     PET_STORE("_profiles/PetStore.yaml"),
     TYPE_TEST("_profiles/TypeTest.yaml"),
-    PAGES("_profiles/Pages.yaml");
+    MG_CMS("_profiles/Pages.yaml");
 
     public static boolean hasProfile(String nameOther) {
       return Arrays.stream(values()).anyMatch(profile -> profile.name().equals(nameOther));

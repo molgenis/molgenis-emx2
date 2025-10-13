@@ -83,7 +83,7 @@ public class TestLoaders {
       patientRegistryDemo = database.dropCreateSchema(PATIENT_REGISTRY_DEMO);
       DataModels.Regular.PATIENT_REGISTRY_DEMO.getImportTask(patientRegistryDemo, true).run();
       pagesSchema = database.dropCreateSchema(PAGES_SCHEMA);
-      DataModels.Profile.PAGES.getImportTask(pagesSchema, true).run();
+      DataModels.Profile.MG_CMS.getImportTask(pagesSchema, true).run();
       // This profile is broken
       //      FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
       //      DataModels.Profile.FAIR_GENOMES.getImportTask(FAIRGenomesSchema, true).run();
