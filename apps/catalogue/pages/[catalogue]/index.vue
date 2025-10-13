@@ -86,10 +86,10 @@ const collectionsFilter = scoped
         { type: { tags: { equals: "collection" } } },
         {
           _or: [
-            { partOfResources: { id: { equals: catalogueRouteParam } } },
+            { partOfNetworks: { id: { equals: catalogueRouteParam } } },
             {
-              partOfResources: {
-                partOfResources: { id: { equals: catalogueRouteParam } },
+              partOfNetworks: {
+                parentNetworks: { id: { equals: catalogueRouteParam } },
               },
             },
           ],
@@ -104,10 +104,10 @@ const networkFilter = scoped
         { type: { tags: { equals: "network" } } },
         {
           _or: [
-            { partOfResources: { id: { equals: catalogueRouteParam } } },
+            { parentNetworks: { id: { equals: catalogueRouteParam } } },
             {
-              partOfResources: {
-                partOfResources: { id: { equals: catalogueRouteParam } },
+              parentNetworks: {
+                parentNetworks: { id: { equals: catalogueRouteParam } },
               },
             },
           ],
@@ -133,7 +133,7 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
               {
                 resource: {
                   type: { name: { equals: "Network" } },
-                  partOfResources: { id: { equals: catalogueRouteParam } },
+                  parentNetworks: { id: { equals: catalogueRouteParam } },
                 },
               },
               {
@@ -142,7 +142,7 @@ const { data, error } = await useFetch(`/${schema}/graphql`, {
                     { resource: { id: { equals: catalogueRouteParam } } },
                     {
                       resource: {
-                        partOfResources: {
+                        parentNetworks: {
                           id: { equals: catalogueRouteParam },
                         },
                       },

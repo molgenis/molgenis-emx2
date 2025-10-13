@@ -50,10 +50,10 @@ export async function useHeaderData() {
             ? {
                 type: { tags: { equals: "collection" } },
                 _or: [
-                  { partOfResources: { id: { equals: catalogueRouteParam } } },
+                  { partOfNetworks: { id: { equals: catalogueRouteParam } } },
                   {
-                    partOfResources: {
-                      partOfResources: { id: { equals: catalogueRouteParam } },
+                    partOfNetworks: {
+                      partOfNetworks: { id: { equals: catalogueRouteParam } },
                     },
                   },
                 ],
@@ -63,10 +63,10 @@ export async function useHeaderData() {
             ? {
                 type: { tags: { equals: "network" } },
                 _or: [
-                  { partOfResources: { id: { equals: catalogueRouteParam } } },
+                  { parentNetworks: { id: { equals: catalogueRouteParam } } },
                   {
-                    partOfResources: {
-                      partOfResources: { id: { equals: catalogueRouteParam } },
+                    parentNetworks: {
+                      parentNetworks: { id: { equals: catalogueRouteParam } },
                     },
                   },
                 ],
@@ -80,7 +80,7 @@ export async function useHeaderData() {
                   {
                     resource: {
                       type: { name: { equals: "Network" } },
-                      partOfResources: {
+                      partOfNetworks: {
                         id: { equals: catalogueRouteParam },
                       },
                     },
