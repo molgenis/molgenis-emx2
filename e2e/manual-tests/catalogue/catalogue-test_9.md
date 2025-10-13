@@ -71,18 +71,27 @@ Not all fields on the page are tested (see test plan 5 for full test of this pag
 | | Hover over 'ⓘ' | Details about each data category appears | | |
 | | Sample categories | Blood, Genetic material | | |
 | | Areas of information | Health and community care services utilization, Laboratory measures | | |
-| 26 | SUBPOPULATIONS | List of subpopulations for this resource | | |
-| | | table with the following columns: Name, Description, Number of participants | | |
-| | | test subcohort 1A, description for test subcohort 1A, 956 --> | | |
-| | | test subcohort 1B, description for test subcohort 1B, 23487 --> | | |
-| 27 | COLLECTION EVENTS | List of collection events defined for this resource | | |
-| | | table with the following columns: Name, Description, Participants, Start end year | | |
-| | | test collection event 1A, test description for test collection event 1A, 3500, 1958-04-01 until 1994-04-30 --> | | |
-| | | test collection event 1B, description for test collection event 1B, 286, 1992-03-01 until 2000-08-31 --> | | |
-| 28 | DATASETS | List of datasets for this resource | | |
+| 26 | DATASETS | List of datasets for this resource | | |
 | | | Table with the following columns: Name, Description | | |
 | | | test dataset for testCohort1, test description for dataset 1 --> | | |
 | | | name of test dataset 2 for test cohort 1, description for test dataset 2 for test cohort 1 --> | | |
+| 26 | DATASET VARIABLES | Datasets, Datasets and their description | | |
+|    | | Name, Description | | |
+|    | | name of test dataset 2 for test cohort 1, description for test dataset 2 for test cohort 1, -> | | |
+|    | | test dataset for testCohort1, test description for dataset 1, -> | | |
+|    | | Dataset variables, Dataset variables and their description | | |
+|    | | Filter by dataset, All datasets, Filter by variable, Sort by, variable | | |
+|    | | variable, Dataset | | |
+|    | | 10 rows of variables: 'var...', 'test dataset for testCohort1', '-->' | | |
+|    | | < Page 1 of 2 > | | |
+| 27 | SUBPOPULATIONS | List of subpopulations for this resource | | |
+| | | table with the following columns: Name, Description, Number of participants | | |
+| | | test subcohort 1A, description for test subcohort 1A, 956 --> | | |
+| | | test subcohort 1B, description for test subcohort 1B, 23487 --> | | |
+| 28 | COLLECTION EVENTS | List of collection events defined for this resource | | |
+| | | table with the following columns: Name, Description, Participants, Start end year | | |
+| | | test collection event 1A, test description for test collection event 1A, 3500, 1958-04-01 until 1994-04-30 --> | | |
+| | | test collection event 1B, description for test collection event 1B, 286, 1992-03-01 until 2000-08-31 --> | | |
 | 29 | NETWORKS | Part of networks | | |
 | | | logo, Name of network, > Website > Network details (> Catalogue), --> to navigate to details | | |
 | | | name for test network2, > Website > Network details, --> | | |
