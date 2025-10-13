@@ -12,7 +12,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- |----------------- | --------------- |
-| 1 | Go to `https://data-catalogue-acc.molgeniscloud.org/` | Landing page: European health research data and sample catalogue. The ribbon reads: `MOLGENIS` logo, `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS`, `MORE` | | |
+| 1 | Go to `https://data-catalogue-acc.molgeniscloud.org` | Landing page: European health research data and sample catalogue. The ribbon reads: `MOLGENIS` logo, `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS`, `MORE` | | |
 | 2a | Hover over the `MOLGENIS` logo in the top left | The logo slightly increases in size | | |
 | 2b | Click on the `MOLGENIS` logo in the top left | The page does not reload and the user stays on the same page | | |
 | 3 | Hover over the `HOME` button | `HOME` is underlined | | |
@@ -23,7 +23,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 8 | Hover over the `ALL VARIABLES` button | `ALL VARIABLES` is underlined | | |
 | 9 | Click on the `ALL VARIABLES` button | The user goes to [/all/variables](https://data-catalogue-acc.molgeniscloud.org/all/variables) | | |
 | 10 | Use the browser's ⬅️ button | The user goes back to [home](https://data-catalogue-acc.molgeniscloud.org/) | | |
-| 11 | Navigate to [all](https://data-catalogue-acc.molgeniscloud.org/all) | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `OTHER CATALOGUES`, `MORE` | | |
+| 11 | Navigate to [/all](https://data-catalogue-acc.molgeniscloud.org/all) | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `OTHER CATALOGUES`, `MORE` | | |
 | 12 | Hover over the `MOLGENIS` logo in the top left | The logo slightly increases in size | | |
 | 13 | Click on the `MOLGENIS` logo in the top left | The page does not reload and the user stays on the same page | | |
 | 14 | Hover over the `COLLECTIONS` button | `COLLECTIONS` is underlined | | |
@@ -38,7 +38,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 23 | Hover over the `OTHER CATALOGUES` button | `OTHER CATALOGUES` is underlined | | |
 | 24 | Click on the `OTHER CATALOGUES` button | The user goes to [home](https://data-catalogue-acc.molgeniscloud.org/) | | |
 | 25 | Use the browser's ⬅️ button | The user goes back to [/all](https://data-catalogue-acc.molgeniscloud.org/all) | | |
-| 26 | Hover over the `MORE` button | A drop-down menu is presented with `Upload data` as the single option | | |
+| 26 | Hover over the `MORE` button | A drop-down menu is presented with `Upload data` and `Manuals` as the only options | | |
 | | | | | |
 | 31 | Navigate to [/all/variables](https://data-catalogue-acc.molgeniscloud.org/all/variables) | The ribbon reads: `MOLGENIS` logo, `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `MORE` | | |
 | 32 | Hover over the `MOLGENIS` logo in the top left | The logo slightly increases in size | | |
@@ -55,7 +55,7 @@ A naïve visitor to the data catalogue can click around through items in the men
 | 43 | Use the browser's ⬅️ button | The user goes back to [/all/variables](https://data-catalogue-acc.molgeniscloud.org/all/variables) | | |
 | 44 | Hover over the `VARIABLES` button | `VARIABLES` underlined | | |
 | 45 | Click on the `VARIABLES` button | The page is reloaded | | |
-| 46 | Hover over `MORE` | A drop-down menu with `Other catalogues` and `Upload data` presented as options | | |
+| 46 | Hover over `MORE` | A drop-down menu with `Other catalogues`, `Upload data` and `Manuals` as options is presented  | | |
 | 47 | Click on `Networks` | The user goes to [/all/networks](https://data-catalogue-acc.molgeniscloud.org/all/networks) | | |
 | 48 | Use the browser's ⬅️ button | The user goes back to [/all/variables](https://data-catalogue-acc.molgeniscloud.org/all/variables) | | |
 | 48b | Hover over `MORE` | A drop-down menu is presented with `Other catalogues` and `Upload data` as options | | |
