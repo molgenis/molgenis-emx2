@@ -22,7 +22,7 @@ A naïve visitor to the data catalogue can click around the 'browse all catalogu
 | 7 | Go back by clicking the `ALL` breadcrumb | End up at [the all catalogue contents screen](https://data-catalogue-acc.molgeniscloud.org/all) | | |
 | 8 | Check the CTA-buttons | There should be 3, names: `COLLECTIONS`, `NETWORKS`, and `VARIABLES` | | |
 | 9 | Check the title above each CTA | They should match the text on their respective CTA's | | |
-| 10 | Check the description of the `COLLECTIONS` CTA | It should read "Data and sample collections" | | |
+| 10 | Check the description of the `COLLECTIONS` CTA | It should read "Data & sample collections" | | |
 | 11 | Check the description of the `NETWORKS` CTA | It should read "Networks & Consortia" | | |
 | 12 | Check the description of the `VARIABLES` CTA | It should read "Harmonised variables" | | |
 | 13 | Check the ribbon at the top of the screen | It should contain the options: `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `OTHER CATALOGUES` and `MORE` | | |
