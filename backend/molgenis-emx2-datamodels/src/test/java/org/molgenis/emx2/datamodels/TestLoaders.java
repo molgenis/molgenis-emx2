@@ -24,6 +24,7 @@ public class TestLoaders {
   public static final String DASHBOARD_TEST = "UiDashboardTest";
   public static final String PATIENT_REGISTRY_DEMO = "patientRegistryDemo";
   public static final String PATIENT_REGISTRY = "patientRegistry";
+  public static final String PAGES_SCHEMA = "pagesSchema";
 
   protected static Database database;
 
@@ -37,6 +38,7 @@ public class TestLoaders {
   protected static Schema dashboard;
   protected static Schema patientRegistryDemo;
   protected static Schema patientRegistry;
+  protected static Schema pagesSchema;
 
   @BeforeAll
   public void setup() {
@@ -57,6 +59,8 @@ public class TestLoaders {
       database.dropSchemaIfExists(DASHBOARD_TEST);
       database.dropSchemaIfExists(PATIENT_REGISTRY_DEMO);
       database.dropSchemaIfExists(PATIENT_REGISTRY);
+      database.dropSchemaIfExists(PAGES_SCHEMA);
+
       // delete ontologies last
       database.dropSchemaIfExists(CATALOGUE_ONTOLOGIES);
 
@@ -78,6 +82,8 @@ public class TestLoaders {
       DataModels.Profile.PATIENT_REGISTRY.getImportTask(patientRegistry, true).run();
       patientRegistryDemo = database.dropCreateSchema(PATIENT_REGISTRY_DEMO);
       DataModels.Regular.PATIENT_REGISTRY_DEMO.getImportTask(patientRegistryDemo, true).run();
+      pagesSchema = database.dropCreateSchema(PAGES_SCHEMA);
+      DataModels.Profile.PAGES.getImportTask(pagesSchema, true).run();
       // This profile is broken
       //      FAIRGenomesSchema = database.createSchema(FAIR_GENOMES);
       //      DataModels.Profile.FAIR_GENOMES.getImportTask(FAIRGenomesSchema, true).run();
