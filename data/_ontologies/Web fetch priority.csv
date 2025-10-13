@@ -1,4 +1,4 @@
-name,definition,codesystem,code,ontologyTermURI
-high,
-low,
-auto,
+order,name,definition,codesystem,code,ontologyTermURI
+1,high,,,,https://developer.mozilla.org/en-US/docs/Web/API/HTMLScriptElement/fetchPriority#high
+2,low,,,,https://developer.mozilla.org/en-US/docs/Web/API/HTMLScriptElement/fetchPriority#low
+3,auto,,,,https://developer.mozilla.org/en-US/docs/Web/API/HTMLScriptElement/fetchPriority#auto
