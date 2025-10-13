@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Button from "../../../../tailwind-components/app/components/Button.vue";
-import IconButton from "../IconButton.vue";
+import IconButton from "../../../../tailwind-components/app/components/button/IconButton.vue";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
 
 interface Props {

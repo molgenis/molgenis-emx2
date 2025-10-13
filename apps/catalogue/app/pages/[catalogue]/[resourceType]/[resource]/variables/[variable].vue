@@ -45,7 +45,7 @@ const resourceFilter = scoped
     }
   : {};
 
-type VariableDetailsWithMapping = IVariables &
+type VariableDetailsWithMappingAndRepeats = IVariables &
   IVariableMappings & { nRepeats: number };
 
 const { data } = await useFetch(`/${schema}/graphql`, {
@@ -54,7 +54,7 @@ const { data } = await useFetch(`/${schema}/graphql`, {
 });
 
 const variable = computed(
-  () => data.value.data.Variables[0] as VariableDetailsWithMapping
+  () => data.value.data.Variables[0] as VariableDetailsWithMappingAndRepeats
 );
 const resources = computed(() => data.value.data.Resources as { id: string }[]);
 const isRepeating = computed(() => variable.value.repeatUnit?.name);

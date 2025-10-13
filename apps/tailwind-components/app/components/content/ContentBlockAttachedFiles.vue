@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import type { IDocumentation } from "../../../types/types";
+import ContentBlock from "./ContentBlock.vue";
+import FileImageCard from "./FileImageCard.vue";
+import FileDocumentCard from "./FileDocumentCard.vue";
+import FileList from "./FileList.vue";
 
 const { documents } = defineProps<{
   title: string;

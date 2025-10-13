@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import IconButton from "./IconButton.vue";
+import IconButton from "../button/IconButton.vue";
 withDefaults(
   defineProps<{
     title: string;

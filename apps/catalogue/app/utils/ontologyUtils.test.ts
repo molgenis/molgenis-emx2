@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { IOntologyParentTreeItem } from "../interfaces/types";
+import type { IOntologyParentTreeItem } from "../../interfaces/types";
 import { buildTree, flattenTree, sortTree } from "./ontologyUtils";
 
 describe("flattenTree", () => {

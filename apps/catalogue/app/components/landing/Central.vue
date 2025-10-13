@@ -3,7 +3,7 @@ import { useRuntimeConfig, useFetch } from "#app";
 import LayoutsLandingPage from "../layouts/LandingPage.vue";
 import PageHeader from "../../../../tailwind-components/app/components/PageHeader.vue";
 import LandingPrimary from "../layouts/LandingPage.vue";
-import LandingSecondary from "../landing/CardSecondary.vue";
+import LandingSecondary from "../landing/Secondary.vue";
 import LandingCardPrimary from "../landing/CardPrimary.vue";
 import LandingCardSecondary from "../landing/CardSecondary.vue";
 

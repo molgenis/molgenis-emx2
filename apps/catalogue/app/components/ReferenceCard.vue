@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { linkTarget } from "../../interfaces/types";
-import IconButton from "./IconButton.vue";
+import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
 import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
 import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
 

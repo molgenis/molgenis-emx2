@@ -2,7 +2,7 @@ import type {
   HarmonisationStatus,
   IVariableWithMappings,
   IVariableBase,
-} from "~/interfaces/types";
+} from "../../interfaces/types";
 
 type IRepeatingVariableWithMapping = IVariableWithMappings;
 type INonRepeatingVariableWithMapping = IVariableBase & IVariableWithMappings;

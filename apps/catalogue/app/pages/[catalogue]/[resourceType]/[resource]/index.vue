@@ -18,11 +18,8 @@ import type {
 import dateUtils from "../../../../utils/dateUtils";
 import type { IResources } from "../../../../../interfaces/catalogue";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import {
-  moduleToString,
-  logError,
-  removeChildIfParentSelected,
-} from "#imports";
+import { logError, removeChildIfParentSelected } from "#imports";
+import { moduleToString } from "#imports";
 import { computed, ref } from "vue";
 import ContentBlockIntro from "../../../../components/content/ContentBlockIntro.vue";
 import ContentBlockDescription from "../../../../../../tailwind-components/app/components/content/ContentBlockDescription.vue";
@@ -46,13 +43,12 @@ import VariableDisplay from "../../../../components/VariableDisplay.vue";
 import ContentBlock from "../../../../../../tailwind-components/app/components/content/ContentBlock.vue";
 import ContentBlockData from "../../../../components/content/ContentBlockData.vue";
 import ContentBlockAttachedFiles from "../../../../../../tailwind-components/app/components/content/ContentBlockAttachedFiles.vue";
-import { gql } from "graphql-tag";
 
 const config = useRuntimeConfig();
 const route = useRoute();
 const schema = config.public.schema as string;
 
-const query = gql`
+const query = `
   query Resources($id: String) {
     Resources(filter: { id: { equals: [$id] } }) {
       id

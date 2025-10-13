@@ -13,7 +13,7 @@ import Pagination from "../../../../tailwind-components/app/components/Paginatio
 import ButtonGroup from "../ButtonGroup.vue";
 import Button from "../../../../tailwind-components/app/components/Button.vue";
 import BaseIcon from "../../../../tailwind-components/app/components/BaseIcon.vue";
-import IconButton from "../IconButton.vue";
+import IconButton from "../../../../tailwind-components/app/components/button/IconButton.vue";
 import SideModal from "../../../../tailwind-components/app/components/SideModal.vue";
 
 const props = withDefaults(

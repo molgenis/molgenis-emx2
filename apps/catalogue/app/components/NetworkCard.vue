@@ -3,7 +3,7 @@ const route = useRoute();
 import type { INetwork } from "../../interfaces/types";
 import { computed } from "vue";
 import { useRoute } from "#app/composables/router";
-import IconButton from "./IconButton.vue";
+import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
 import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
 import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
 

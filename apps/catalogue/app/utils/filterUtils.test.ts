@@ -9,7 +9,7 @@ import type {
   IFilter,
   IOntologyFilter,
   ISearchFilter,
-} from "~/interfaces/types";
+} from "../../interfaces/types";
 
 describe("isConditionFilter", () => {
   it("should return true if the filter is a condition filter", () => {

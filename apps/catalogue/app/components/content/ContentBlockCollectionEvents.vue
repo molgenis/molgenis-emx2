@@ -7,7 +7,7 @@ import TableHead from "../../../../tailwind-components/app/components/TableHead.
 import TableHeadRow from "../../../../tailwind-components/app/components/TableHeadRow.vue";
 import TableRow from "../../../../tailwind-components/app/components/TableRow.vue";
 import TableCell from "../../../../tailwind-components/app/components/TableCell.vue";
-import IconButton from "../IconButton.vue";
+import IconButton from "../../../../tailwind-components/app/components/button/IconButton.vue";
 import Pagination from "../../../../tailwind-components/app/components/Pagination.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 defineProps({

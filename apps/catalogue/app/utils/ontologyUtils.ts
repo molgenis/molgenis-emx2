@@ -1,7 +1,7 @@
 import type {
   IOntologyItem,
   IOntologyParentTreeItem,
-} from "~/interfaces/types";
+} from "../../interfaces/types";
 
 /*
  * Takes a list of ontology items linked via parents and returns a list of trees ( root nodes , each with their children)

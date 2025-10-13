@@ -49,7 +49,7 @@ import { ref, onMounted } from "vue";
 import type { IResources, IDatasets } from "../../../interfaces/catalogue";
 import InputLabel from "../../../../tailwind-components/app/components/input/Label.vue";
 import InputCheckboxIcon from "../../../../tailwind-components/app/components/input/CheckboxIcon.vue";
-import IconButton from "../IconButton.vue";
+import IconButton from "../../../../tailwind-components/app/components/button/IconButton.vue";
 
 const datasetStore = useDatasetStore();
 const modelValue = ref<string[]>([]);

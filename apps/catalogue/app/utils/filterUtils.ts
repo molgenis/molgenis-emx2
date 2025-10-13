@@ -2,7 +2,7 @@ import type {
   IConditionsFilter,
   IFilter,
   IPathCondition,
-} from "~/interfaces/types";
+} from "../../interfaces/types";
 
 export function isConditionFilter(
   filter: IConditionsFilter | IFilter

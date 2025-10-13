@@ -4,7 +4,7 @@ import type { IResources } from "../../interfaces/catalogue";
 import { computed, ref, watch } from "vue";
 import { useRoute } from "#app";
 import { useDatasetStore } from "#imports";
-import IconButton from "./IconButton.vue";
+import IconButton from "../../../tailwind-components/app/components/button/IconButton.vue";
 import ContentReadMore from "../../../tailwind-components/app/components/ContentReadMore.vue";
 import BaseIcon from "../../../tailwind-components/app/components/BaseIcon.vue";
 

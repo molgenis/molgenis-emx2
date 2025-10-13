@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { IPublications } from "../../../interfaces/catalogue";
-import FileDocumentCard from "../FileDocumentCard.vue";
-import FileList from "../FileList.vue";
+import FileDocumentCard from "../../../../tailwind-components/app/components/content/FileDocumentCard.vue";
+import FileList from "../../../../tailwind-components/app/components/content/FileList.vue";
 import ContentBlock from "../../../../tailwind-components/app/components/content/ContentBlock.vue";
 
 defineProps<{

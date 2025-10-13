@@ -3,7 +3,7 @@ import type {
   ISearchFilter,
   IConditionsFilter,
   IRefArrayFilterCustomConfig,
-} from "~/interfaces/types";
+} from "../../interfaces/types";
 
 import { isConditionFilter } from "./filterUtils";
 
