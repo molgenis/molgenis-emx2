@@ -99,4 +99,4 @@ Not all fields on the page are tested (see test plan 5 for full test of this pag
 | | Linkage options | Linkage options cohort 1 | | |
 | 32 | FUNDING & ACKNOWLEDGEMENTS | lorem ipsum text, check that "until now" is shown at the end of both fields so that you know the full text has been displayed | | |
 | 33 | DOCUMENTATION | Card per document, clickable so that you open the document: test doc 2 for test cohort 1 & test documentation for cohort 1 | | |
-| 34 | Click on test documentation for cohort 1 | test documentation for cohort 1 is downloaded locally | | |
+| 34 | Click on test documentation for cohort 1 | test documentation for cohort 1 is opened in a new tab | | |
