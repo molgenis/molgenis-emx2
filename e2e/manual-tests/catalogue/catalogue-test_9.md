@@ -88,7 +88,7 @@ Not all fields on the page are tested (see test plan 5 for full test of this pag
 | | | name for test network2, > Website > Network details, --> | | |
 | | | name for test network of networks, > Website > Network details > Catalogue, --> | | |
 | | | name for test network1, > Website > Network details > Catalogue, --> | | |
-| 30 | PUBLICATIONS | Three publications: 'Birth of a cohort--..Raine study.',  'Cohort Profile: The French...birth to 5 years', Effevtiveness of AS04-adjuvanted...community randomised trial' | | |
+| 30 | PUBLICATIONS | Three publications: 'Birth of a cohort--..Raine study.',  'Cohort Profile: The French...birth to 5 years', Effectiveness of AS04-adjuvanted...community randomised trial' | | |
 | 31 | ACCESS CONDITIONS | Data access conditions description text cohort 1 - yes fee | | |
 | | Data access conditions | general research use, health or medical or biomedical research | | |
 | | Data use conditions | genetic studies only, publication required, ethics approval required | | |
