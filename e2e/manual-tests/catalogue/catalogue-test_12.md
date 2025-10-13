@@ -26,10 +26,10 @@ when viewed in 'small-screen' mode.
 | 8 | | The ribbon reads: `MENU` and `MOLGENIS` logo at the top, Below: `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES` | | |
 | 9 | Click on 'Filters' and a pop-up opens. | A search field is disaplyed at the top and filters below | | |
 | 10 | Close the pop-up | | | |
-| 11 | Click on the 'View' button | List of collections changes to compact view and the URL changes to [/view=compact](https://data-catalogue-acc.molgeniscloud.org/all/collections?view=compact) | | |
-| 12 | Click on the 'View' button again | List of collections goes back to detailed view and the URL changes to [/view=detailed](https://data-catalogue-acc.molgeniscloud.org/all/collections?view=detailed) | | |
+| 11 | Click on the 'View' button | List of collections changes to compact view and the URL changes to [/all/collections?view=compact](https://data-catalogue-acc.molgeniscloud.org/all/collections?view=compact) | | |
+| 12 | Click on the 'View' button again | List of collections goes back to detailed view and the URL changes to [/all/collections?view=detailed](https://data-catalogue-acc.molgeniscloud.org/all/collections?view=detailed) | | |
 | 13 | Click on 'acronym for test cohort 1' | The user goes to overview page for this collection and the ribbon reads :`MENU` and `MOLGENIS` logo at the top, Below: `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES` | | |
-| 14 | See that the fields are filled as follows: | <https://www.molgenis.org/>, 'Contact' button, Description, General design, Population, Organisations, Contributors, Available Data & Samples, Subpopulations, Collection Events, Datasets, Networks, Publications, Access Conditions, Funding and acknowledgements, and Documentation | | |
+| 14 | See that the following blocks are shown: | logo, <https://www.molgenis.org/>, `CONTACT` button, Description, General Design, Population, Organisations, Contributors, Available Data & Samples, Dataset Variables, Subpopulations, Collection Events, Networks, Publications, Access Conditions, Funding & Acknowledgements, and Documentation | | |
 | 15 | Click on the back arrow on the page| The user goes to  [/all/collections](https://data-catalogue-acc.molgeniscloud.org/all/collections) | | |
 | 16 | Click the back arrow on the page again | The user returns to [/all](https://data-catalogue-acc.molgeniscloud.org/all) | | |
 | 17 | Click on 'Networks'| The user goes to [/all/networks](https://data-catalogue-acc.molgeniscloud.org/all/networks) | | |
