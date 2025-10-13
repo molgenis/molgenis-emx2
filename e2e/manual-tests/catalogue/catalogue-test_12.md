@@ -16,9 +16,9 @@ when viewed in 'small-screen' mode.
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- |----------------- | --------------- |
 | 0 | NB: Assumptions | This test plan assumes the user is viewing the catalogue on a small screen. | | |
-| 1 | Navigate to [catalogue/](https://data-catalogue-acc.molgeniscloud.org/) | Landing page: European health research data and sample catalogue. The ribbon reads: `MENU` and `MOLGENIS` logo at the top and `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS` below | | |
-| 2 | Hover over the `MENU` button | It stays the same size| | |
-| 3 | Click on the `MENU` button | A pop-up opens listing `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS`, `UPLOAD DATA`, and `MANUALS`| | |
+| 1 | Navigate to `https://data-catalogue-acc.molgeniscloud.org` | Landing page: European health research data and sample catalogue. The ribbon reads: `MENU` and `MOLGENIS` logo at the top and `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS` below | | |
+| 2 | Hover over the `MENU` button | It stays the same size | | |
+| 3 | Click on the `MENU` button | A pop-up opens listing `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS`, `UPLOAD DATA`, `MANUALS` and `ABOUT` | | |
 | 4 | Close the pop-up | | | |
 | 5 | Click on the 'Search all' button | The user goes to [/catalogue/all](https://data-catalogue-acc.molgeniscloud.org/all) | | |
 | 6 | | The ribbon reads: `MENU` and `MOLGENIS` logo at the top, Below: `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `OTHER CATALOGUES` | | |
