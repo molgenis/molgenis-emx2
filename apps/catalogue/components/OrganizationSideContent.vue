@@ -6,7 +6,7 @@ const props = defineProps<{
 </script>
 <template>
   <ContentBlockModal
-    :title="props.organisation.organisationName.name ?? ''"
+    :title="props.organisation.organisation.name ?? ''"
     description="Lead organisation"
   >
     <CatalogueItemList
@@ -19,7 +19,7 @@ const props = defineProps<{
         },
         {
           label: 'website',
-          content: props.organisation?.website,
+          content: props.organisation?.organisationWebsite,
         },
         {
           label: 'acronym',
