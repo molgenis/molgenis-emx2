@@ -15,7 +15,7 @@ when viewed in 'small-screen' mode.
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- |----------------- | --------------- |
-| 0 | NB: Assumptions | This test plan assumes the user is viewing the catalogue on a small screen. Open the link on Google chrome and press the 'Restore' button to view it on a smaller screen | | |
+| 0 | NB: Assumptions | This test plan assumes the user is viewing the catalogue on a small screen. | | |
 | 1 | Navigate to [catalogue/](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue/) | Landing page: European health research data and sample catalogue. The ribbon reads: `MENU` and `MOLGENIS` logo at the top and `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS` below | | |
 | 2 | Hover over the `MENU` button | It stays the same size| | |
 | 3 | Click on the `MENU` button | A pop-up opens listing `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS`, `UPLOAD DATA`, and `MANUALS`| | |
