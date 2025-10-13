@@ -40,15 +40,15 @@ A naïve visitor to the data catalogue can click around the 'browse all catalogu
 | 24 | Click the title of the network "acronym for test network of networks" | End up at [the overview page of the network](https://data-catalogue-acc.molgeniscloud.org/all/networks/testNetworkofNetworks) | | |
 | 25 | Check the breadcrumb | It should be "ALL > NETWORKS > TESTNETWORKOFNETWORKS" | | |
 | 26 | Click `NETWORKS` in the breadcrumb | End up at [the networks screen](https://data-catalogue-acc.molgeniscloud.org/all/networks) again | | |
-| 27 | Look at the first network "acronym for test network of networks" | It should list its name, description, `Type` Network, `Design`, `Participants`, and `Duration` 1975 until 2010. | | |
+| 27 | Look at the network "acronym for test network of networks" | It should list its name, description, `Type` Network, `Design`, `Participants`, and `Duration` 1975 until 2010. | | |
 | | | | | |
 | 28 | Click on `COLLECTIONS` in the ribbon | End up at [the collections screen](https://data-catalogue-acc.molgeniscloud.org/all/collections) | | |
 | 29 | Check the breadcrumb | It should be `ALL > COLLECTIONS`. | | |
-| 30 | Check the number of collections | There should be 96 collections. | | |
+| 30 | Check the number of collections | There should be 938 collections. | | |
 | 31 | Check the "Collection type"-filter | It should be expanded. | | |
-| 32 | Click the `Cohort study` "Collection type"-filter | The list of collections should now contain 57 results. | | |
-| 33 | Click the `Data source` "Collection type"-filter | The list of collections should now contain 61 results. | | |
-| 34 | Click the `Collection type - 2 🗑️` button in the "Active filters"-"bar | All 96 collections should be displayed again. | | |
+| 32 | Click the `Cohort study` "Collection type"-filter | The list of collections should now contain 212 results. | | |
+| 33 | Click the `Data source` "Collection type"-filter | The list of collections should now contain 224 results. | | |
+| 34 | Click the `Collection type - 2 🗑️` button in the "Active filters"-"bar | All 938 collections should be displayed again. | | |
 | 35 | Mouse over the ⓘ-icon after "Biobank" in the "Collection type"-filter | A tooltip should appear, reading: "Repositories of biological samples." | | |
 | 36 | Click on the "Collection type"-filters | It should collapse, hiding its options. | | |
 | 37 | Click the "Areas of information"-filter | It should expand its options. | | |
