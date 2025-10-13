@@ -52,7 +52,4 @@ A naïve visitor to the data catalogue can click around the 'browse all catalogu
 | 35 | Mouse over the ⓘ-icon after "Biobank" in the "Collection type"-filter | A tooltip should appear, reading: "Repositories of biological samples." | | |
 | 36 | Click on the "Collection type"-filters | It should collapse, hiding its options. | | |
 | 37 | Click the "Areas of information"-filter | It should expand its options. | | |
-| 38 | Click the "Search for options"-button in the "Areas of information"-filter. | It should open a modal window with a list of all filter options. | | |
-| 39 | Scroll the list all the way down using the scroll wheel on the mouse. Note: if the list is not long enough to scroll, expand some of its list structure to make it larger. | After it reaches the bottom of the list, nothing should happen. | <https://github.com/molgenis/molgenis-emx2/issues/4443> | |
-| 40 | Scroll the list back up using the mouse wheel. | The list should scroll back up. | <https://github.com/molgenis/molgenis-emx2/issues/4443> | |
-| 41 | Check the ribbon at the top of the screen. | It should contain the options: `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, and `MORE`. | | |
+| 38 | Check the ribbon at the top of the screen. | It should contain the options: `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, and `MORE`. | | |
