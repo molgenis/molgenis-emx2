@@ -26,16 +26,16 @@ A naïve visitor to the data catalogue can click around the 'browse all catalogu
 | 11 | Check the description of the `NETWORKS` CTA | It should read "Networks & Consortia" | | |
 | 12 | Check the description of the `VARIABLES` CTA | It should read "Harmonised variables" | | |
 | 13 | Check the ribbon at the top of the screen | It should contain the options: `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `OTHER CATALOGUES` and `MORE` | | |
-| 14 | Mouse over `MORE` | It should reveal the options "Upload data" and "Manuals"| | |
+| 14 | Mouse over `MORE` | It should reveal the options `Upload data` and `Manuals` | | |
 | 15 | Check the texts below the CTAs | It should contain the number of participants, the number of samples, the percentage of longitudinal collections, and the number of subpopulations. | | |
 | 16 | Each card containing a CTA should be lined out consistently | Each should take up the same amount of space and the room between them should be consistent. | | |
 | | | | | |
 | 17 | Click on the `NETWORKS` CTA-button | End up at [the networks screen](https://data-catalogue-acc.molgeniscloud.org/all/networks) | | |
 | 18 | Check the breadcrumb | It should be `ALL > NETWORKS` | | |
-| 19 | Check that it shows the correct number of networks | There should be 9 | | |
+| 19 | Check that it shows the correct number of networks | There should be 130 | | |
 | 20 | Check the "Search in networks"-filter | It should be expanded | | |
 | 21 | Click the "Search in networks"-input and enter 'acronym' | There should be 3 networks shown | | |
-| 22 | Click the `Search in networks: acronym 🗑️` button | The filter should be removed and 9 results should be shown again. | | |
+| 22 | Click the `Search in networks: acronym 🗑️` button | The filter should be removed and 130 results should be shown again. | | |
 | 23 | Click the `COMPACT` button | The list of networks should reduce in size and just show the name and description. | | |
 | 24 | Click the title of the first network "acronym for test network of networks" | End up at [the overview page of the network](https://data-catalogue-acc.molgeniscloud.org/all/networks/testNetworkofNetworks) | | |
 | 25 | Check the breadcrumb | It should be "ALL > NETWORKS" | | |
