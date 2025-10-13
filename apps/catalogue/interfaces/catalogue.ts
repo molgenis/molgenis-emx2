@@ -1,4 +1,4 @@
-// Generated (on: 2025-04-23T20:59:57.584101) from Generator.java for schema: catalogue
+// Generated (on: 2025-10-13T14:40:23.691321) from Generator.java for schema: catalogue-demo
 
 export interface IFile {
   id?: string;
@@ -227,7 +227,6 @@ export interface IContacts {
   organisation?: IOrganisations;
   email?: string;
   orcid?: string;
-  orcidUrl?: string;
   homepage?: string;
   photo?: IFile;
   expertise?: string;
@@ -793,7 +792,7 @@ export interface IOrganisations {
   resource: IResources;
   id: string;
   pid?: string;
-  organisationName: IOntologyNode;
+  name: string;
   acronym?: string;
   logo?: IFile;
   country?: IOntologyNode[];
@@ -971,7 +970,7 @@ export interface IResourceTypes_agg {
 
 export interface IResources {
   rdfType?: string;
-  fdpEndpoint?: string;
+  fdpEndpoint?: IEndpoint;
   ldpMembershipRelation?: string;
   id: string;
   pid?: string;
