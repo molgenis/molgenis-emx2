@@ -15,13 +15,13 @@ import {
   useAsyncData,
   useRuntimeConfig,
 } from "#app";
+import { moduleToString } from "../../../../tailwind-components/utils/moduleToString";
 import {
   conditionsFromPathQuery,
   mergeWithPageDefaults,
-  moduleToString,
-  buildQueryFilter,
   toPathQueryConditions,
-} from "#imports";
+} from "../../../utils/filterUtils";
+import { buildQueryFilter } from "../../../utils/buildQueryFilter";
 import { computed } from "vue";
 
 const config = useRuntimeConfig();

@@ -7,13 +7,16 @@ import {
   useFetch,
   navigateTo,
 } from "#app";
+
 import {
   conditionsFromPathQuery,
   mergeWithPageDefaults,
-  buildQueryFilter,
-  logError,
   toPathQueryConditions,
-} from "#imports";
+} from "../../../utils/filterUtils";
+
+import { buildQueryFilter } from "../../../utils/buildQueryFilter";
+import { logError } from "../../../utils/errorLogger";
+
 import { computed, ref } from "vue";
 import type { IFilter, IMgError, activeTabType } from "~/interfaces/types";
 

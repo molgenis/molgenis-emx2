@@ -3,11 +3,9 @@ import variableQuery from "~~/gql/variable";
 import type { IVariable, IVariableMappings } from "../../../interfaces/types";
 import { buildFilterFromKeysObject } from "metadata-utils";
 import { useRoute, useFetch, useHead, useRuntimeConfig } from "#app";
-import {
-  moduleToString,
-  useQueryParams,
-  calcIndividualVariableHarmonisationStatus,
-} from "#imports";
+import { moduleToString } from "../../../../tailwind-components/utils/moduleToString";
+import { useQueryParams } from "../../../composables/useQueryParams";
+import { calcIndividualVariableHarmonisationStatus } from "../../../utils/harmonisation";
 import { computed, reactive } from "vue";
 const route = useRoute();
 const config = useRuntimeConfig();

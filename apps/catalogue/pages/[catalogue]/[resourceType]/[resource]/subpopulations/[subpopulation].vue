@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import { moduleToString, buildTree } from "#imports";
+import { buildTree } from "#imports";
+import { moduleToString } from "../../../../../../tailwind-components/utils/moduleToString";
 import { computed, reactive } from "vue";
 import type { ISubpopulations } from "../../../../../interfaces/catalogue";
 import type { IMgError } from "../../../../../interfaces/types";
