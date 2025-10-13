@@ -3,12 +3,9 @@ import collectionEventGql from "~~/gql/collectionEvent";
 import type { IDefinitionListItem, IMgError } from "~~/interfaces/types";
 import dateUtils from "~/utils/dateUtils";
 import { useRoute, useFetch, useRuntimeConfig } from "#app";
-import {
-  moduleToString,
-  logError,
-  removeChildIfParentSelected,
-} from "#imports";
+import { logError, removeChildIfParentSelected } from "#imports";
 import { computed } from "vue";
+import { moduleToString } from "../../tailwind-components/utils/moduleToString";
 
 const config = useRuntimeConfig();
 const schema = config.public.schema as string;

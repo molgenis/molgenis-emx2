@@ -1,6 +1,7 @@
 import { defu } from "defu";
 import type { DocumentNode } from "graphql";
-import { moduleToString, logError, useRuntimeConfig, useFetch } from "#imports";
+import { logError, useRuntimeConfig, useFetch } from "#imports";
+import { moduleToString } from "../../tailwind-components/utils/moduleToString";
 import { type Ref, isRef } from "vue";
 import type { UseFetchOptions } from "#app";
 

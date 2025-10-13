@@ -19,11 +19,8 @@ import type {
 import dateUtils from "../../../../utils/dateUtils";
 import type { IResources } from "../../../../interfaces/catalogue";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import {
-  moduleToString,
-  logError,
-  removeChildIfParentSelected,
-} from "#imports";
+import { logError, removeChildIfParentSelected } from "#imports";
+import { moduleToString } from "../../../../../tailwind-components/utils/moduleToString";
 import { computed, ref } from "vue";
 const config = useRuntimeConfig();
 const route = useRoute();

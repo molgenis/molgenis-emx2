@@ -3,7 +3,7 @@ import { StorageSerializers, useSessionStorage } from "@vueuse/core";
 import metadataGql from "~~/gql/metadata";
 import type { ISchemaMetaData } from "../../metadata-utils/src/types";
 import { createError } from "#app";
-import { moduleToString } from "#imports";
+import { moduleToString } from "../../tailwind-components/utils/moduleToString";
 
 const query = moduleToString(metadataGql);
 

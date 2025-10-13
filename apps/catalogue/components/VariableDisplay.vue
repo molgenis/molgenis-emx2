@@ -4,7 +4,7 @@ import type { KeyObject } from "../../metadata-utils/src/types";
 import type { IVariables } from "../interfaces/catalogue";
 import type { Resp } from "../../tailwind-components/types/types";
 import { useRoute, useFetch, showError, useRuntimeConfig } from "#app";
-import { moduleToString } from "#imports";
+import { moduleToString } from "../../tailwind-components/utils/moduleToString";
 import { computed } from "vue";
 import { buildFilterFromKeysObject } from "../../metadata-utils/src";
 

@@ -7,7 +7,8 @@ import type {
   IOntologyItem,
 } from "../../../../../interfaces/types";
 import { useRuntimeConfig, useRoute, useFetch, useHead } from "#app";
-import { moduleToString, logError, buildTree } from "#imports";
+import { logError, buildTree } from "#imports";
+import { moduleToString } from "../../../../../../tailwind-components/utils/moduleToString";
 import { computed, reactive } from "vue";
 import { removeChildIfParentSelected } from "../../../../../utils/treeHelpers";
 
