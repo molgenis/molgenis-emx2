@@ -11,7 +11,7 @@
           :columns="columns"
           @update:columns="emitFilters"
           checkAttribute="showFilter"
-          :exclude="['HEADING', 'FILE']"
+          :exclude="['HEADING', 'FILE', 'SECTION']"
           label="filters"
           icon="filter"
         />
@@ -21,6 +21,7 @@
           :columns="columns"
           @update:columns="emitColumns"
           checkAttribute="showColumn"
+          :exclude="['HEADING', 'SECTION']"
           label="columns"
           icon="columns"
           id="showColumn"
@@ -829,7 +830,12 @@ function getColumnIds(
   return (
     columns
       //@ts-ignore TODO: remove column input modification in TableMolgenis
-      .filter((column) => column[property] && column.columnType !== "HEADING")
+      .filter(
+        (column) =>
+          column[property] &&
+          column.columnType !== "HEADING" &&
+          column.columnType !== "SECTION"
+      )
       .map((column) => column.id)
   );
 }

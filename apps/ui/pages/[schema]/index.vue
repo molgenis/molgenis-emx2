@@ -7,7 +7,7 @@ import { computed } from "vue";
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
   ? route.params.schema[0]
-  : route.params.schema;
+  : route.params.schema ?? "";
 
 useHead({ title: `${schema}  - Molgenis` });
 
@@ -41,20 +41,22 @@ const { data } = await useFetch<Resp<Schema>>(`/${schema}/graphql`, {
 
 const tables = computed(
   () =>
-    data.value?.data?._schema.tables
-      .filter((t) => t.tableType === "DATA")
+    data.value?.data?._schema?.tables
+      ?.filter((t) => t.tableType === "DATA")
       .sort((a, b) => a.label.localeCompare(b.label)) ?? []
 );
 
 const ontologies = computed(
   () =>
-    data.value?.data?._schema.tables
-      .filter((t) => t.tableType === "ONTOLOGIES")
+    data.value?.data?._schema?.tables
+      ?.filter((t) => t.tableType === "ONTOLOGIES")
       .sort((a, b) => a.label.localeCompare(b.label)) ?? []
 );
 
 const crumbs: Record<string, string> = {};
-crumbs[schema] = `/${schema}`;
+if (schema) {
+  crumbs[schema] = `/${schema}`;
+}
 crumbs["tables"] = "";
 </script>
 <template>

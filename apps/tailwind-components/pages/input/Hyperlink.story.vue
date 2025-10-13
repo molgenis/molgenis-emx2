@@ -2,23 +2,25 @@
   <div id="fields-container" class="col-span-3 py-50px overflow-y-auto">
     <FormFields
       id="form-hyperlink"
-      schemaId="type test"
-      :metadata="metadata"
+      :columns="metadata.columns"
       v-model="model"
-      v-model:errors="errorMap"
-      :sections="sections"
+      :error-map="errorMap"
+      @update="onUpdateColumn"
+      @blur="onBlurColumn"
     />
   </div>
 </template>
 <script setup lang="ts">
-import { useSections } from "#imports";
 import { ref } from "vue";
 import type { ColumnType } from "../../../metadata-utils/src/types";
+import { useForm } from "#imports";
 
 const model = ref({});
 const metadata = {
   label: "Hyperlink",
   id: "Types",
+  name: "Types",
+  schemaId: "Types",
   tableType: "my kind of table",
   columns: [
     {
@@ -28,8 +30,5 @@ const metadata = {
     },
   ],
 };
-
-const activeChapterId = ref<string>("_scroll_to_top");
-const errorMap = ref({});
-const sections = useSections(metadata, activeChapterId, errorMap);
+const { errorMap, onUpdateColumn, onBlurColumn } = useForm(metadata, model);
 </script>

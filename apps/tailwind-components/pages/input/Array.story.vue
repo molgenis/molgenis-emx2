@@ -24,11 +24,21 @@
       :invalid="invalid"
       :disabled="disabled"
     />
+    <div class="my-4">Date array</div>
+    <InputArray
+      id="input-array-date"
+      type="DATE_ARRAY"
+      v-model="dateValue"
+      :placeholder="placeholder"
+      :valid="valid"
+      :invalid="invalid"
+      :disabled="disabled"
+    />
     <div class="my-4">Datetime array</div>
     <InputArray
       id="input-array-datetime"
       type="DATETIME_ARRAY"
-      v-model="timeValue"
+      v-model="datetimeValue"
       :placeholder="placeholder"
       :valid="valid"
       :invalid="invalid"
@@ -119,9 +129,13 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-
 const stringValue = ref(["string 1", "string 2"]);
 const boolValue = ref([true, false]);
-const timeValue = ref([Date.now(), Date.now()]);
 const numberValue = ref([1, 2]);
+const dateValue = ref<string[]>(["2025-06-01", "2025-07-01", "2025-08-01"]);
+const datetimeValue = ref<string[]>([
+  "2025-06-01 09:15:00",
+  "2025-07-01 10:30:00",
+  "2025-08-01 11:45:00",
+]);
 </script>

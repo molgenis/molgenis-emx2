@@ -39,11 +39,11 @@ public class User extends HasSettings<User> {
     this.username = username;
   }
 
-  public Boolean getEnabled() {
+  public boolean getEnabled() {
     return enabled;
   }
 
-  public void setEnabled(Boolean enabled) {
+  public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 

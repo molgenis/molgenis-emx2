@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.ColumnType.STRING;
@@ -19,8 +20,10 @@ import static org.molgenis.emx2.web.Constants.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import graphql.Assert;
 import io.restassured.RestAssured;
+import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSender;
 import java.io.File;
@@ -35,6 +38,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.Order;
 import org.molgenis.emx2.io.tablestore.TableStore;
@@ -42,12 +46,16 @@ import org.molgenis.emx2.io.tablestore.TableStoreForCsvInZipFile;
 import org.molgenis.emx2.io.tablestore.TableStoreForXlsxFile;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 import org.molgenis.emx2.utils.EnvironmentProperty;
+import org.molgenis.emx2.web.controllers.MetricsController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 /* this is a smoke test for the integration of web api with the database layer. So not complete coverage of all services but only a few essential requests to pass most endpoints */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("slow")
+@ExtendWith(SystemStubsExtension.class)
 public class WebApiSmokeTests {
 
   static final Logger logger = LoggerFactory.getLogger(WebApiSmokeTests.class);
@@ -74,7 +82,12 @@ public class WebApiSmokeTests {
     db = TestDatabaseFactory.getTestDatabase();
 
     // start web service for testing, including env variables
-    RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
+    new EnvironmentVariables(
+            org.molgenis.emx2.Constants.MOLGENIS_METRICS_ENABLED, Boolean.TRUE.toString())
+        .execute(
+            () -> {
+              RunMolgenisEmx2.main(new String[] {String.valueOf(PORT)});
+            });
 
     // set default rest assured settings
     RestAssured.port = PORT;
@@ -717,13 +730,12 @@ public class WebApiSmokeTests {
   public void testGraphqlApi() {
     String path = "/api/graphql";
 
-    // create a new session, separate from the session shared in these tests
-    String sessionId =
-        given().body("{\"query\":\"{_session{email}}\"}").when().post(path).sessionId();
+    // session filter will take care of sessions if applicable
+    SessionFilter sessionFilter = new SessionFilter();
 
     String result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"{_session{email}}\"}")
             .when()
             .post(path)
@@ -733,7 +745,7 @@ public class WebApiSmokeTests {
     // if anonymous then should not be able to see users
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"{_admin{userCount}}\"}")
             .when()
             .post(path)
@@ -748,7 +760,7 @@ public class WebApiSmokeTests {
 
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body(
                 "{\"query\":\"mutation{signin(email:\\\""
                     + db.getAdminUserName()
@@ -762,7 +774,7 @@ public class WebApiSmokeTests {
 
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"{_session{email}}\"}")
             .when()
             .post(path)
@@ -772,7 +784,7 @@ public class WebApiSmokeTests {
     // if admin then should  be able to see users
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"{_admin{userCount}}\"}")
             .when()
             .post(path)
@@ -782,7 +794,7 @@ public class WebApiSmokeTests {
     String schemaPath = "/pet store/api/graphql";
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"{Pet{name}}\"}")
             .when()
             .post(schemaPath)
@@ -791,7 +803,7 @@ public class WebApiSmokeTests {
 
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .contentType("multipart/form-data")
             .multiPart(
                 "query", "mutation insert($value:[OrderInput]){insert(Order:$value){message}}")
@@ -805,7 +817,7 @@ public class WebApiSmokeTests {
 
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"mutation{signout{message}}\"}")
             .when()
             .post(path)
@@ -815,7 +827,7 @@ public class WebApiSmokeTests {
     // if anonymous then should not be able to see users
     result =
         given()
-            .sessionId(sessionId)
+            .filter(sessionFilter)
             .body("{\"query\":\"{_admin{userCount}}\"}")
             .when()
             .post(path)
@@ -989,7 +1001,9 @@ public class WebApiSmokeTests {
     final String defaultContentType = "text/turtle";
     final String jsonldContentType = "application/ld+json";
     final String ttlContentType = "text/turtle";
-    final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8"; // charset is ignored
+    final String n3ContentType = "text/n3";
+    final String defaultContentTypeWithCharset = "text/turtle; charset=utf-8";
+    final String defaultContentTypeWithInvalidCharset = "text/turtle; charset=utf-16";
 
     // skip 'all schemas' test because data is way to big (i.e.
     // get("http://localhost:PORT/api/rdf");)
@@ -1005,6 +1019,8 @@ public class WebApiSmokeTests {
 
     // Validate API point with charset
     rdfApiContentTypeRequest(200, defaultContentTypeWithCharset, defaultContentType)
+        .get(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(406, defaultContentTypeWithInvalidCharset, EXCEPTION_CONTENT_TYPE)
         .get(urlPrefix + "/pet store/api/rdf");
 
     // Validate convenience API points
@@ -1054,6 +1070,13 @@ public class WebApiSmokeTests {
     rdfApiRequest(200, ACCEPT_YAML).head(urlPrefix + "/api/rdf?shacls");
     rdfApiContentTypeRequest(200, defaultContentType, ACCEPT_YAML)
         .head(urlPrefix + "/api/rdf?shacls");
+
+    // Validate multi-content type negotiation
+    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, application/ld+json", jsonldContentType);
+    rdfApiContentTypeRequest(200, "text/turtle; q=0.5, text/*", n3ContentType)
+        .head(urlPrefix + "/pet store/api/rdf");
+    rdfApiContentTypeRequest(406, "image/jpeg", EXCEPTION_CONTENT_TYPE)
+        .head(urlPrefix + "/pet store/api/rdf");
   }
 
   @Test
@@ -1590,61 +1613,40 @@ public class WebApiSmokeTests {
   }
 
   @Test
-  public void testBeaconApiSmokeTests() {
-    String result = given().get("/api/beacon/configuration").getBody().asString();
-    assertTrue(result.contains("productionStatus"));
+  void testBeaconConfiguration() {
+    getAndAssertContains("/api/beacon/configuration", "productionStatus");
+  }
 
-    result = given().get("/api/beacon/map").getBody().asString();
-    assertTrue(result.contains("endpointSets"));
+  @Test
+  void testBeaconMap() {
+    getAndAssertContains("/api/beacon/map", "endpointSets");
+  }
 
-    result = given().get("/pet store/api/beacon/info").getBody().asString();
-    assertTrue(result.contains("beaconInfoResponse"));
+  @Test
+  void testBeaconInfo() {
+    getAndAssertContains("/pet store/api/beacon/info", "beaconInfoResponse");
+  }
 
-    result = given().get("/api/beacon/filtering_terms").getBody().asString();
-    assertTrue(result.contains("filteringTerms"));
+  @Test
+  void testBeaconEntryTypes() {
+    getAndAssertContains("/api/beacon/entry_types", "entry");
+  }
 
-    result = given().get("/api/beacon/entry_types").getBody().asString();
-    assertTrue(result.contains("entry"));
-
-    result = given().get("/api/beacon/datasets").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/g_variants").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/analyses").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/biosamples").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/cohorts").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/individuals").getBody().asString();
-    assertTrue(result.contains("datasets"));
-
-    result =
-        given()
-            .body(
-                """
-                    {
-                      "query": {
-                      "filters": [
-                        {
-                        "id": "NCIT:C28421",
-                        "value": "GSSO_000123",
-                        "operator": "="
-                        }
-                      ]
-                      }
-                    }""")
-            .post("/api/beacon/individuals")
-            .asString();
-    assertTrue(result.contains("datasets"));
-
-    result = given().get("/api/beacon/runs").getBody().asString();
-    assertTrue(result.contains("datasets"));
+  private void getAndAssertContains(String path, String expectedSubstring) {
+    db.clearCache();
+    String result = given().get(path).getBody().asString();
+    ObjectMapper mapper = new ObjectMapper();
+    String prettyJson;
+    try {
+      Object json = mapper.readValue(result, Object.class);
+      ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+      prettyJson = writer.writeValueAsString(json);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+    assertTrue(
+        result.contains(expectedSubstring),
+        "expecting:\n" + expectedSubstring + "\nin:\n" + prettyJson);
   }
 
   @Test
@@ -1773,5 +1775,15 @@ public class WebApiSmokeTests {
   void unknownSchemaShouldNotResultInRedirect() {
     given().expect().statusCode(404).when().get("/malicious");
     given().expect().statusCode(404).when().get("/malicious/");
+  }
+
+  @Test
+  void testMetricsEndpoint() {
+    given()
+        .expect()
+        .statusCode(200)
+        .body(containsString("jvm_memory_used_bytes"))
+        .when()
+        .get(MetricsController.METRICS_PATH);
   }
 }

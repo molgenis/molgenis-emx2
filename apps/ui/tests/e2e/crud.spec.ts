@@ -19,16 +19,15 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole("button", { name: "Account" })).toBeVisible();
 });
 
-// TO DO: this test is unstable due to non-existent elements this should be reactivated after fixing markup in table row buttons
-// test.afterEach(async ({ page }) => {
-//   // await expect(page.getByRole("cell", {name: "e2e"})).toBeVisible({ timeout: 1000 });
-//   // await page.getByText("e2edelete Delete PetDraftgo").hover();
-//   // await page.locator(`td:text("span"): + button:text("Delete")`).hover();
-//   // await page.waitForTimeout(1000);
-
-//   await page.getByRole("button", { name: "delete" }).click();
-//   await page.getByRole("button", { name: "Delete", exact: true }).click();
-// });
+test.afterEach(async ({ page }) => {
+  const targetCell = await page.getByRole("cell", { name: "e2e", exact: true });
+  await expect(targetCell).toBeVisible();
+  await page
+    .getByText("deletee2e", { exact: true })
+    .filter({ visible: false })
+    .dispatchEvent("click");
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+});
 
 test("add new row", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Pet");
@@ -46,9 +45,10 @@ test("add new row", async ({ page }) => {
 
   await page.getByRole("textbox", { name: "weight Required" }).click();
   await page.getByRole("textbox", { name: "weight Required" }).fill("23");
-  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page.getByRole("button", { name: "Save Pet", exact: true }).click();
+  await page.getByRole("button", { name: "Close modal", exact: true }).click();
 
-  await expect(page.getByRole("cell", { name: "e2e" })).toBeVisible({
-    timeout: 1000,
-  });
+  await expect(
+    page.getByRole("cell", { name: "e2e", exact: true })
+  ).toBeVisible();
 });
