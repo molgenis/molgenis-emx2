@@ -8,15 +8,15 @@ Technical tester
 
 This test plan checks various specific, unrelated elements of the catalogue making use of
 a dataset copied from production (e.g. ATHLETE project, or LIFECYCLE project),
-which is larger than the test dataset we currently have in ACC.
-With the large dataset a technical tester can check, for example, that pagination is working correctly
-or that long variable names are correctly displayed.
+which is larger than the regular demo data.
+With the large dataset a technical tester can check, for example,
+that pagination is working correctly or that long variable names are correctly displayed.
 
 ## Steps
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | ---- | ------ | --------------- | ---------------- | --------------- |
-| 1 | Navigate to [MOLGENIS ACC catalogue](https://data-catalogue-acc.molgeniscloud.org/catalogue/catalogue) | Landing page: European health research data and sample catalogue | | |
+| 1 | Navigate to `https://data-catalogue-acc.molgeniscloud.org` | Landing page: European health research data and sample catalogue | | |
 | 2 | Click on "Thematic Catalogue" EUChildNetwork|EUChildNetwork. Following message is displayed: "Welcome to the catalogue of EUChildNetwork: The EU Child Cohort Network. Select one of the content categories listed below." | | |
 | 3 | Click on "Variables"|Go to EUChildNetwork overview of variables. The page takes no longer than 1 second to open. | | |
 | 4 | Scroll down to the bottom of the page and click page right|Page "2" is displayed at the bottom and the list of variables changes to reflect page 2 of the variables. The page takes no longer than 1 second to update. The user is returned to the top of the page. | | |
