@@ -84,16 +84,15 @@ function stripUrlSchema(url: string) {
 <template>
   <tr>
     <TableCell>
-      <div>
         <BaseIcon
           name="progress-activity"
-          class="animate-spin"
+          class="animate-spin m-auto"
+          width="32"
           v-if="shaclStatus === 'RUNNING'"
         />
-        <BaseIcon name="check" v-else-if="shaclStatus === 'VALID'" />
-        <BaseIcon name="cross" v-else-if="shaclStatus === 'INVALID'" />
-        <BaseIcon name="exclamation" v-else-if="shaclStatus === 'ERROR'" />
-      </div>
+        <BaseIcon name="check" class="m-auto" width="32" v-else-if="shaclStatus === 'VALID'" />
+        <BaseIcon name="cross" class="m-auto" width="32" v-else-if="shaclStatus === 'INVALID'" />
+        <BaseIcon name="exclamation" class="m-auto" width="32" v-else-if="shaclStatus === 'ERROR'" />
     </TableCell>
     <TableCell>
       <div class="flex flex-col gap-2.5 md:flex-row md:gap-5">
