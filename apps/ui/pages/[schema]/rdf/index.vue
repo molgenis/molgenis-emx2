@@ -58,13 +58,6 @@ crumbs["rdf"] = "";
               standards</TableCell
             >
           </TableRow>
-          <TableRow
-            v-for="table in tables"
-            @click="navigateTo(`${schema}/${table.id}`)"
-          >
-            <TableCell>{{ table.label }}</TableCell>
-            <TableCell>{{ table.description }}</TableCell>
-          </TableRow>
         </template>
       </Table>
       <p>
