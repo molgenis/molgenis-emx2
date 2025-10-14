@@ -83,7 +83,7 @@ function stripUrlSchema(url: string) {
 
 <template>
   <tr>
-    <TableCell class="text-right">
+    <TableCell>
       <div>
         <BaseIcon
           name="progress-activity"
