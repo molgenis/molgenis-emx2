@@ -130,7 +130,6 @@ public class ApplicationCachePerUser {
           database.setActiveUser(userKey.userName);
           database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
           database.setBindings(JavaScriptBindings.getBindingsForUser(userKey.userName()));
-          database.clearCache();
           database.setListener(
               new DatabaseListener() {
 
