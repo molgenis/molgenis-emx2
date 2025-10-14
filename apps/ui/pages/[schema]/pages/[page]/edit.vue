@@ -9,9 +9,9 @@ import {
   type PageBuilderContent,
   type CssDependency,
   type JavaScriptDependency,
-} from "../../../../../util/pages";
+} from "../../../../util/pages";
 
-import { useSession } from "../../../../../../tailwind-components/composables/useSession";
+import { useSession } from "../../../../../tailwind-components/composables/useSession";
 const { isAdmin } = await useSession();
 
 interface Setting {
