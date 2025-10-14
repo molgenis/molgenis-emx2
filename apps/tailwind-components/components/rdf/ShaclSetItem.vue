@@ -51,9 +51,7 @@ async function runShacl() {
   if (res.status !== 200) {
     shaclStatus.value = "ERROR";
     shaclError.value = `Error (status code: ${res.status})`;
-  } else if (
-      validateShaclOutput(shaclOutput.value)
-  ) {
+  } else if (validateShaclOutput(shaclOutput.value)) {
     shaclStatus.value = "VALID";
   } else {
     shaclStatus.value = "INVALID";
@@ -79,7 +77,7 @@ const isDownloadDisabled = computed(() => {
 
 function stripUrlSchema(url: string) {
   const text = url.split("://", 2)[1];
-  if(text.startsWith("www.")) text = text.substring(4);
+  if (text.startsWith("www.")) text = text.substring(4);
   return text;
 }
 </script>
@@ -87,15 +85,30 @@ function stripUrlSchema(url: string) {
 <template>
   <tr>
     <TableCell>
-        <BaseIcon
-          name="progress-activity"
-          class="animate-spin m-auto"
-          width.number="32"
-          v-if="shaclStatus === 'RUNNING'"
-        />
-        <BaseIcon name="check" class="m-auto" width.number="32" v-else-if="shaclStatus === 'VALID'" />
-        <BaseIcon name="cross" class="m-auto" width.number="32" v-else-if="shaclStatus === 'INVALID'" />
-        <BaseIcon name="exclamation" class="m-auto" width.number="32" v-else-if="shaclStatus === 'ERROR'" />
+      <BaseIcon
+        name="progress-activity"
+        class="animate-spin m-auto"
+        width.number="32"
+        v-if="shaclStatus === 'RUNNING'"
+      />
+      <BaseIcon
+        name="check"
+        class="m-auto"
+        width.number="32"
+        v-else-if="shaclStatus === 'VALID'"
+      />
+      <BaseIcon
+        name="cross"
+        class="m-auto"
+        width.number="32"
+        v-else-if="shaclStatus === 'INVALID'"
+      />
+      <BaseIcon
+        name="exclamation"
+        class="m-auto"
+        width.number="32"
+        v-else-if="shaclStatus === 'ERROR'"
+      />
     </TableCell>
     <TableCell>
       <div class="flex flex-col gap-2.5 md:flex-row md:gap-5">
@@ -116,16 +129,16 @@ function stripUrlSchema(url: string) {
           @click.prevent="showModal"
         />
         <Modal
-            v-model:visible="modalVisible"
-            :title="shaclSetTitle"
-            subtitle="Validation Report"
-            maxWidth="max-w-7xl"
+          v-model:visible="modalVisible"
+          :title="shaclSetTitle"
+          subtitle="Validation Report"
+          maxWidth="max-w-7xl"
         >
           <Message
-              id="`shacl-run-${props.shaclSet.name}-error`}`"
-              class="my-2"
-              :invalid="true"
-              v-if="shaclError"
+            id="`shacl-run-${props.shaclSet.name}-error`}`"
+            class="my-2"
+            :invalid="true"
+            v-if="shaclError"
           >
             <span>{{ shaclError }}</span>
           </Message>
@@ -148,8 +161,10 @@ function stripUrlSchema(url: string) {
     <TableCell>
       <ol>
         <li v-for="source in shaclSet.sources" class="mb-2.5 last:mb-0">
-          <a class="line-clamp-1" :href="source" target="_blank">{{ stripUrlSchema(source) }}</a></li
-        >
+          <a class="line-clamp-1" :href="source" target="_blank">{{
+            stripUrlSchema(source)
+          }}</a>
+        </li>
       </ol>
     </TableCell>
   </tr>
