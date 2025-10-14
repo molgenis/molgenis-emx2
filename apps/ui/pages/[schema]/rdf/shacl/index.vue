@@ -72,14 +72,14 @@ onMounted(async () => {
 <template>
   <Container>
     <PageHeader
-      :title="`RDF dashboard for ${data?.data?._schema?.label}`"
+      :title="`SHACL dashboard for ${data?.data?._schema?.label}`"
       align="left"
     >
       <template #prefix>
         <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
     </PageHeader>
-    <ContentBlock class="mt-1" title="SHACL validation" description="">
+    <div>
       <p class="flex justify-start">
         Validate the RDF API output for the complete schema.
         <CustomTooltip
@@ -112,6 +112,6 @@ onMounted(async () => {
           :shacl-set="shaclSet"
         />
       </div>
-    </ContentBlock>
+    </div>
   </Container>
 </template>

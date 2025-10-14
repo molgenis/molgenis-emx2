@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useFetch } from "#app/composables/fetch";
-import { useRoute } from "#app/composables/router";
+import {navigateTo, useRoute} from "#app/composables/router";
 import { useHead } from "#app";
 
 const route = useRoute();
@@ -35,45 +35,53 @@ crumbs["rdf"] = "";
 <template>
   <Container>
     <PageHeader
-      :title="`RDF dashboard for ${data?.data?._schema?.label}`"
+      :title="`RDF services for ${data?.data?._schema?.label}`"
       align="left"
     >
       <template #prefix>
         <BreadCrumbs align="left" :crumbs="crumbs" />
       </template>
     </PageHeader>
-    <ContentBlock class="mt-1" title="RDF" description="">
+    <div>
+      <Table class="mb-2.5">
+        <template #head>
+          <TableHeadRow>
+            <TableHead>name</TableHead>
+            <TableHead>description</TableHead>
+          </TableHeadRow>
+        </template>
+        <template #body>
+          <TableRow @click="navigateTo(`/${schema}/rdf/shacl`)">
+            <TableCell>
+              SHACL Validation</TableCell>
+            <TableCell>Validate a schema as a whole to see if it adheres to existing standards</TableCell>
+          </TableRow>
+          <TableRow
+              v-for="table in tables"
+              @click="navigateTo(`${schema}/${table.id}`)"
+          >
+            <TableCell>{{ table.label }}</TableCell>
+            <TableCell>{{ table.description }}</TableCell>
+          </TableRow>
+        </template>
+      </Table>
       <p>
         For information about RDF in EMX2, please view the docs about the
         <a
-          href="https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_rdf"
-          target="_blank"
-          class="underline"
+            href="https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_rdf"
+            target="_blank"
+            class="underline"
         >
           RDF API
         </a>
         and the
         <a
-          href="https://molgenis.github.io/molgenis-emx2/#/molgenis/semantics"
-          target="_blank"
-          class="underline"
+            href="https://molgenis.github.io/molgenis-emx2/#/molgenis/semantics"
+            target="_blank"
+            class="underline"
         >
-          semantics
-        </a>
-        field.
+          semantics field</a>.
       </p>
-      <nav class="mt-2">
-        <h3 class="uppercase text-heading-2xl font-display">
-          Available tools
-        </h3>
-        <ol class="list-disc ml-8">
-          <li>
-            <NuxtLink :to="`/${schema}/rdf/shacl`" class="underline">
-              SHACL Validation
-            </NuxtLink>
-          </li>
-        </ol>
-      </nav>
-    </ContentBlock>
+    </div>
   </Container>
 </template>

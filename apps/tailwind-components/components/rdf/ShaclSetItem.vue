@@ -76,8 +76,8 @@ const isOutputDisabled = computed(() => {
 </script>
 
 <template>
-  <div :id="shaclSet.name" class="justify-start items-center mb-5">
-    <div class="flex justify-start items-center mb-2 space-x-1">
+  <div :id="shaclSet.name" class="justify-start items-center py-5">
+    <div class="flex justify-start items-center mb-2.5 gap-5">
       <div>
         <BaseIcon
           name="progress-activity"
@@ -88,13 +88,13 @@ const isOutputDisabled = computed(() => {
         <BaseIcon name="cross" v-else-if="shaclStatus === 'INVALID'" />
         <BaseIcon name="exclamation" v-else-if="shaclStatus === 'ERROR'" />
       </div>
-      <h3 class="uppercase text-heading-3xl font-display">
+      <h3 class="uppercase text-heading-4xl font-display">
         {{ shaclSetTitle }}
       </h3>
     </div>
-    <div class="flex space-x-5">
+    <div class="flex gap-5">
       <Button
-        type="outline"
+        type="primary"
         :id="`shacl-set-${shaclSet.name}-validate`"
         :disabled="isRunning"
         @click.prevent="runShacl"
