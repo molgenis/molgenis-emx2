@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useFetch } from "#app/composables/fetch";
-import {navigateTo, useRoute} from "#app/composables/router";
+import { navigateTo, useRoute } from "#app/composables/router";
 import { useHead } from "#app";
 
 const route = useRoute();
@@ -52,13 +52,15 @@ crumbs["rdf"] = "";
         </template>
         <template #body>
           <TableRow @click="navigateTo(`/${schema}/rdf/shacl`)">
-            <TableCell>
-              SHACL Validation</TableCell>
-            <TableCell>Validate a schema as a whole to see if it adheres to existing standards</TableCell>
+            <TableCell> SHACL Validation</TableCell>
+            <TableCell
+              >Validate a schema as a whole to see if it adheres to existing
+              standards</TableCell
+            >
           </TableRow>
           <TableRow
-              v-for="table in tables"
-              @click="navigateTo(`${schema}/${table.id}`)"
+            v-for="table in tables"
+            @click="navigateTo(`${schema}/${table.id}`)"
           >
             <TableCell>{{ table.label }}</TableCell>
             <TableCell>{{ table.description }}</TableCell>
@@ -68,19 +70,20 @@ crumbs["rdf"] = "";
       <p>
         For information about RDF in EMX2, please view the docs about the
         <a
-            href="https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_rdf"
-            target="_blank"
-            class="underline"
+          href="https://molgenis.github.io/molgenis-emx2/#/molgenis/dev_rdf"
+          target="_blank"
+          class="underline"
         >
           RDF API
         </a>
         and the
         <a
-            href="https://molgenis.github.io/molgenis-emx2/#/molgenis/semantics"
-            target="_blank"
-            class="underline"
+          href="https://molgenis.github.io/molgenis-emx2/#/molgenis/semantics"
+          target="_blank"
+          class="underline"
         >
-          semantics field</a>.
+          semantics field</a
+        >.
       </p>
     </div>
   </Container>

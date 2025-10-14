@@ -73,11 +73,17 @@ const isRunning = computed(() => {
 const isOutputDisabled = computed(() => {
   return shaclStatus.value !== "VALID" && shaclStatus.value !== "INVALID";
 });
+
+function stripUrlSchema(url: string) {
+  let text = url.split("://", 2)[1];
+  if(text.startsWith("www.")) text = text.substring(4);
+  return text;
+}
 </script>
 
 <template>
-  <div :id="shaclSet.name" class="justify-start items-center py-5">
-    <div class="flex justify-start items-center mb-2.5 gap-5">
+  <tr>
+    <TableCell class="text-right">
       <div>
         <BaseIcon
           name="progress-activity"
@@ -88,53 +94,53 @@ const isOutputDisabled = computed(() => {
         <BaseIcon name="cross" v-else-if="shaclStatus === 'INVALID'" />
         <BaseIcon name="exclamation" v-else-if="shaclStatus === 'ERROR'" />
       </div>
-      <h3 class="uppercase text-heading-4xl font-display">
-        {{ shaclSetTitle }}
-      </h3>
-    </div>
-    <div class="flex gap-5">
-      <Button
-        type="primary"
-        :id="`shacl-set-${shaclSet.name}-validate`"
-        :disabled="isRunning"
-        @click.prevent="runShacl"
-        >validate</Button
-      >
+    </TableCell>
+    <TableCell>
+      <div class="flex flex-col gap-2.5 md:flex-row md:gap-5">
+        <Button
+          type="primary"
+          size="tiny"
+          :id="`shacl-set-${shaclSet.name}-validate`"
+          :disabled="isRunning"
+          @click.prevent="runShacl"
+          >validate</Button
+        >
+        <Button
+          type="outline"
+          size="tiny"
+          icon="plus"
+          label="view"
+          :disabled="isOutputDisabled"
+          @click.prevent="showModal"
+        />
+        <Modal
+            v-model:visible="modalVisible"
+            :title="shaclSetTitle"
+            subtitle="Validation Report"
+            maxWidth="max-w-7xl"
+        >
+          <DisplayOutput class="px-8 my-8 min-w-full overflow-scroll">
+            <pre>{{ shaclOutput }}</pre>
+          </DisplayOutput>
+        </Modal>
 
-      <Button
-        type="outline"
-        icon="plus"
-        label="view"
-        :disabled="isOutputDisabled"
-        @click.prevent="showModal"
-      />
-      <ButtonDownloadBlob
-        :disabled="isOutputDisabled"
-        :data="shaclOutput"
-        mediaType="text/turtle"
-        :fileName="`${schema} - shacl - ${props.shaclSet.name}.ttl`"
-      />
-      <ButtonDropdown class="w-full" label="Sources">
-        <div class="border-2 border-black bg-cover bg-white">
-          <DisplayList class="container" type="link">
-            <DisplayListItem class="truncate" v-for="source in shaclSet.sources"
-              ><a :href="source" target="_blank">{{
-                source
-              }}</a></DisplayListItem
-            >
-          </DisplayList>
-        </div>
-      </ButtonDropdown>
-    </div>
-  </div>
-  <Modal
-    v-model:visible="modalVisible"
-    :title="shaclSetTitle"
-    subtitle="Validation Report"
-    maxWidth="max-w-7xl"
-  >
-    <DisplayOutput class="px-8 my-8 min-w-full overflow-scroll">
-      <pre>{{ shaclOutput }}</pre>
-    </DisplayOutput>
-  </Modal>
+        <ButtonDownloadBlob
+          size="tiny"
+          :disabled="isOutputDisabled"
+          :data="shaclOutput"
+          mediaType="text/turtle"
+          :fileName="`${schema} - shacl - ${props.shaclSet.name}.ttl`"
+        />
+      </div>
+    </TableCell>
+    <TableCell>{{ shaclSet.description }}</TableCell>
+    <TableCell class="text-right">{{ shaclSet.version }}</TableCell>
+    <TableCell>
+      <DisplayList type="link">
+        <DisplayListItem type="link" v-for="source in shaclSet.sources"
+          ><a class="line-clamp-1" :href="source" target="_blank">{{ stripUrlSchema(source) }}</a></DisplayListItem
+        >
+      </DisplayList>
+    </TableCell>
+  </tr>
 </template>

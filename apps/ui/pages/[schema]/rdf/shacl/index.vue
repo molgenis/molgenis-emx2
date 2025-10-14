@@ -106,11 +106,23 @@ onMounted(async () => {
         >
           <span>{{ error }}</span>
         </Message>
-        <RdfShaclSetItem
-          v-else
-          v-for="shaclSet in shaclSets"
-          :shacl-set="shaclSet"
-        />
+        <Table v-else>
+          <template #head>
+            <TableHeadRow>
+              <TableHead>status</TableHead>
+              <TableHead>controls</TableHead>
+              <TableHead>name</TableHead>
+              <TableHead>version</TableHead>
+              <TableHead>sources</TableHead>
+            </TableHeadRow>
+          </template>
+          <template #body>
+            <RdfShaclSetItem
+              v-for="shaclSet in shaclSets"
+              :shacl-set="shaclSet"
+            />
+          </template>
+        </Table>
       </div>
     </div>
   </Container>
