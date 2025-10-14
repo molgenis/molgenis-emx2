@@ -2,7 +2,8 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
-import { type PageBuilderContent } from "../../../../util/pages";
+// import { type PageBuilderContent } from "../../../../util/pages";
+import type { DeveloperPage } from "~/util/PageTypes";
 
 interface Setting {
   key: string;
@@ -16,26 +17,45 @@ const schema = Array.isArray(route.params.schema)
 const page = route.params.page as string;
 const error = ref<string>("");
 
-const code = ref<PageBuilderContent>();
+const developerPage = ref<DeveloperPage>();
 
 useHead({ title: `${page} - Pages - ${schema} - Molgenis` });
 
-function getPageContent () {
-  $fetch(`/${schema}/graphql`, {
+async function getPageContent() {
+  const response = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-      query: `{_settings(keys:["page.${page}"]){key value}}`,
+      query: `query getDeveloperPage($filter:DeveloperPageFilter) {
+        DeveloperPage(filter:$filter) {
+          name
+          description
+          html
+          css
+          javascript
+          dependencies {
+            mg_tableclass
+            name
+            url
+            defer
+            async
+            fetchPriority {
+              name
+            }
+          }
+          enableBaseStyles
+          enableButtonStyles
+          enableFullScreen
+        }
+      }`,
+      variables: { filter: { name: { equals: page } } },
     },
-  })
-  .then((data) => {
-    const setting = data?.data?._settings?.filter((setting: Setting) => {
-      return setting.key === `page.${page}`;
-    })[0];
-    code.value = JSON.parse(setting?.value as string) as unknown as PageBuilderContent;
-  })
-  .catch((err) => {
+  }).catch((err) => {
     error.value = `Cannot render HTML: ${err}`;
-  })
+  });
+
+  if (response) {
+    developerPage.value = response.data.DeveloperPage[0];
+  }
 }
 
 onMounted(() => getPageContent());
@@ -56,6 +76,7 @@ crumbs[page as string] = "";
     >
       {{ error }}
     </Message>
+    {{ developerPage }}
   </Container>
-  <EditorHtmlPreview :code="code" v-if="code" />
+  <!-- <EditorHtmlPreview :code="code" v-if="code" /> -->
 </template>
