@@ -87,7 +87,7 @@ public class SqlTypeUtils extends TypeUtils {
     Map<String, Object> graph = convertRowToMap(columns, row);
     addJavaScriptBindings(columns, graph);
     for (Column column : columns) {
-      if (column.getComputed() != null) {
+      if (!AUTO_ID.equals(column.getColumnType()) && column.getComputed() != null) {
         Object computedValue = executeJavascriptOnMap(column.getComputed(), graph);
         TypeUtils.addFieldObjectToRow(column, computedValue, row);
       }
