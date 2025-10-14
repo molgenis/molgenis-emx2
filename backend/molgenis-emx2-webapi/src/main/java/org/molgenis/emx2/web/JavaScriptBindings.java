@@ -4,7 +4,6 @@ import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 
 import graphql.ExecutionInput;
 import graphql.GraphQL;
-import io.javalin.http.Context;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -20,18 +19,18 @@ public class JavaScriptBindings {
     Object execute(String query, Map<String, Object> variables, String schemaId);
   }
 
-  private static SimplePostClient createSimplePostClient(Context ctx) {
+  private static SimplePostClient createSimplePostClient(String username) {
     return (query, variables, schemaId) -> {
-      GraphQL graphQL = applicationCache.getSchemaGraphqlForUser(schemaId, ctx);
+      GraphQL graphQL = applicationCache.getSchemaGraphqlForUser(schemaId, username);
       return graphQL
           .execute(ExecutionInput.newExecutionInput(query).variables(variables))
           .getData();
     };
   }
 
-  public static Map<String, Supplier<Object>> getBindingsForContext(Context ctx) {
+  public static Map<String, Supplier<Object>> getBindingsForUser(String username) {
     Map<String, Supplier<Object>> bindings = new HashMap<>();
-    bindings.put(SIMPLE_POST_CLIENT, () -> createSimplePostClient(ctx));
+    bindings.put(SIMPLE_POST_CLIENT, () -> createSimplePostClient(username));
     // Add more bindings here in a similar way if needed
 
     return bindings;

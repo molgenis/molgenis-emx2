@@ -112,10 +112,15 @@ public class ApplicationCachePerUser {
   }
 
   public Database getDatabaseForUser(Context ctx) {
+    UserKey key = getUserKey(ctx);
+    return getDatabaseForUser(key);
+  }
+
+  public Database getDatabaseForUser(UserKey key) {
     return databaseCache.get(
-        getUserKey(ctx),
+        key,
         userKey -> {
-          logger.info("create database cache for user {}", getUserKey(ctx));
+          logger.info("create database cache for user {}", key);
           SqlDatabase database = new SqlDatabase(false);
           if (!database.hasUser(userKey.userName)
               || !database.getUser(userKey.userName).getEnabled()) {
@@ -124,7 +129,8 @@ public class ApplicationCachePerUser {
           }
           database.setActiveUser(userKey.userName);
           database.addTableListener(new ScriptTableListener(TaskApi.taskSchedulerService));
-          database.setBindings(JavaScriptBindings.getBindingsForContext(ctx));
+          database.setBindings(JavaScriptBindings.getBindingsForUser(userKey.userName()));
+          database.clearCache();
           database.setListener(
               new DatabaseListener() {
 
@@ -148,13 +154,19 @@ public class ApplicationCachePerUser {
         });
   }
 
-  public Schema getSchemaForUser(String schemaName, Context ctx) {
+  public Schema getSchemaForUser(String schemaName, UserKey userKey) {
+    UserSchemaKey key = new UserSchemaKey(userKey, schemaName);
     return schemaCache.get(
-        new UserSchemaKey(getUserKey(ctx), schemaName),
+        key,
         k -> {
-          logger.info("create schema '{}' cache for user {}", schemaName, getUserKey(ctx));
-          return getDatabaseForUser(ctx).getSchema(schemaName);
+          logger.info("create schema '{}' cache for user {}", schemaName, userKey.userName());
+          return getDatabaseForUser(userKey).getSchema(schemaName);
         });
+  }
+
+  public Schema getSchemaForUser(String schemaName, Context ctx) {
+    UserKey userKey = getUserKey(ctx);
+    return getSchemaForUser(schemaName, userKey);
   }
 
   public GraphQL getDatabaseGraphqlForUser(Context ctx) {
@@ -167,14 +179,23 @@ public class ApplicationCachePerUser {
         });
   }
 
+  public GraphQL getSchemaGraphqlForUser(String schemaName, String username) {
+    UserKey userKey = new UserKey(username);
+    return getSchemaGraphqlForUser(schemaName, userKey);
+  }
+
   public GraphQL getSchemaGraphqlForUser(String schemaName, Context ctx) {
+    UserKey userKey = getUserKey(ctx);
+    return getSchemaGraphqlForUser(schemaName, userKey);
+  }
+
+  public GraphQL getSchemaGraphqlForUser(String schemaName, UserKey userKey) {
     return graphqlSchemaCache.get(
-        new UserSchemaKey(getUserKey(ctx), schemaName),
+        new UserSchemaKey(userKey, schemaName),
         k -> {
-          logger.info(
-              "create graphqlSchemaApi '{}' cache for user {}", schemaName, getUserKey(ctx));
-          return graphqlApiFactory.createGraphqlForSchema(
-              getSchemaForUser(schemaName, ctx), TaskApi.taskService);
+          logger.info("create graphqlSchemaApi '{}' cache for user {}", schemaName, userKey);
+          Schema schema = getSchemaForUser(schemaName, userKey);
+          return graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService);
         });
   }
 
