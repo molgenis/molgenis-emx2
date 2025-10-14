@@ -26,7 +26,7 @@ const props = withDefaults(
   >(),
   {
     isArray: true,
-    limit: 25,
+    limit: 30,
   }
 );
 
