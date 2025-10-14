@@ -98,7 +98,7 @@ export function getColumnError(
   if (type === "HYPERLINK_ARRAY" && containsInvalidHyperlink(value)) {
     return "Invalid hyperlink";
   }
-  if (type === "PERIOD" && !isInvalidPeriod(value)) {
+  if (type === "PERIOD" && isInvalidPeriod(value)) {
     return "Invalid Period: should start with a P and should contain at least a Y(year), M(month) or D(day): e.g. 'P1Y3M14D'";
   }
   if (type === "PERIOD_ARRAY" && containsInvalidPeriod(value)) {
