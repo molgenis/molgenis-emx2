@@ -9,5 +9,6 @@ demoData: _demodata/applications/patient_registry
 
 # special options
 setViewPermission: anonymous
-
 ontologiesToFixedSchema: CatalogueOntologies
+setFixedSchemaViewPermission: anonymous
+additionalFixedSchemaModel: _models/specific/CatalogueOntologies

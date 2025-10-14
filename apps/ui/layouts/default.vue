@@ -107,11 +107,7 @@ const isSignedIn = computed(
 const isAdmin = computed(() => session.value?.admin);
 
 const navigation = computed(() => {
-  const items = [
-    { label: "Home", link: "#" },
-    { label: "About", link: "#" },
-    { label: "Contact", link: "#" },
-  ];
+  const items = [];
   if (schema.value) {
     items.push({ label: "RDF", link: `/${schema.value}/rdf` });
   }
