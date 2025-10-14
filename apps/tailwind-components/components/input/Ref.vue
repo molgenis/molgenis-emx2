@@ -26,7 +26,7 @@ const props = withDefaults(
   >(),
   {
     isArray: true,
-    limit: 30,
+    limit: 25,
   }
 );
 
@@ -43,7 +43,7 @@ const showSearch = ref<boolean>(false);
 const searchTerms: Ref<string> = ref("");
 const hasNoResults = ref<boolean>(true);
 const columnName = computed<string>(() => {
-  return props.refLabel.replace(/[\{\}\$]/g, "");
+  return props.refLabel.replace(/[\{\}\$]/g, "").split(".")[0] as string;
 });
 
 const entitiesLeftToLoad = computed<number>(() => {
