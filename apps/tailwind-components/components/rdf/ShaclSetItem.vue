@@ -136,11 +136,11 @@ function stripUrlSchema(url: string) {
     <TableCell>{{ shaclSet.description }}</TableCell>
     <TableCell class="text-right">{{ shaclSet.version }}</TableCell>
     <TableCell>
-      <DisplayList type="link">
-        <DisplayListItem type="link" v-for="source in shaclSet.sources"
-          ><a class="line-clamp-1" :href="source" target="_blank">{{ stripUrlSchema(source) }}</a></DisplayListItem
+      <ol>
+        <li v-for="source in shaclSet.sources" class="mb-2.5 last:mb-0">
+          <a class="line-clamp-1" :href="source" target="_blank">{{ stripUrlSchema(source) }}</a></li
         >
-      </DisplayList>
+      </ol>
     </TableCell>
   </tr>
 </template>
