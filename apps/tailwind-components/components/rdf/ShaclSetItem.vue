@@ -76,7 +76,7 @@ const isDownloadDisabled = computed(() => {
 });
 
 function stripUrlSchema(url: string) {
-  const text = url.split("://", 2)[1];
+  let text = url.split("://", 2)[1];
   if (text.startsWith("www.")) text = text.substring(4);
   return text;
 }
