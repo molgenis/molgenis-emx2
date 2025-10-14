@@ -45,16 +45,15 @@ async function runShacl() {
   shaclError.value = "";
   modalVisible.value = false;
 
-  const { data, error, status } = await useFetch<Resp<string>>(
-    `/${schema}/api/rdf?validate=${props.shaclSet.name}`
-  );
+  const res = await fetch(`/${schema}/api/rdf?validate=${props.shaclSet.name}`);
+  shaclOutput.value = await res.text();
 
-  shaclOutput.value = data.value as unknown as string;
-
-  if (!data.value || error.value || status.value === "error") {
-    shaclError.value = `ERROR: ${error.value}`;
+  if (res.status !== 200) {
     shaclStatus.value = "ERROR";
-  } else if (validateShaclOutput(shaclOutput.value)) {
+    shaclError.value = `Error (status code: ${res.status})`;
+  } else if (
+      validateShaclOutput(shaclOutput.value)
+  ) {
     shaclStatus.value = "VALID";
   } else {
     shaclStatus.value = "INVALID";
@@ -62,7 +61,7 @@ async function runShacl() {
 }
 
 function showModal() {
-  if (isOutputDisabled.value) return;
+  if (isViewDisabled.value) return;
   modalVisible.value = !modalVisible.value;
 }
 
@@ -70,12 +69,16 @@ const isRunning = computed(() => {
   return shaclStatus.value === "RUNNING";
 });
 
-const isOutputDisabled = computed(() => {
+const isViewDisabled = computed(() => {
+  return shaclStatus.value === "RUNNING" || shaclStatus.value === "UNKNOWN";
+});
+
+const isDownloadDisabled = computed(() => {
   return shaclStatus.value !== "VALID" && shaclStatus.value !== "INVALID";
 });
 
 function stripUrlSchema(url: string) {
-  let text = url.split("://", 2)[1];
+  const text = url.split("://", 2)[1];
   if(text.startsWith("www.")) text = text.substring(4);
   return text;
 }
@@ -109,7 +112,7 @@ function stripUrlSchema(url: string) {
           size="tiny"
           icon="plus"
           label="view"
-          :disabled="isOutputDisabled"
+          :disabled="isViewDisabled"
           @click.prevent="showModal"
         />
         <Modal
@@ -118,6 +121,14 @@ function stripUrlSchema(url: string) {
             subtitle="Validation Report"
             maxWidth="max-w-7xl"
         >
+          <Message
+              id="`shacl-run-${props.shaclSet.name}-error`}`"
+              class="my-2"
+              :invalid="true"
+              v-if="shaclError"
+          >
+            <span>{{ shaclError }}</span>
+          </Message>
           <DisplayOutput class="px-8 my-8 min-w-full overflow-scroll">
             <pre>{{ shaclOutput }}</pre>
           </DisplayOutput>
@@ -125,7 +136,7 @@ function stripUrlSchema(url: string) {
 
         <ButtonDownloadBlob
           size="tiny"
-          :disabled="isOutputDisabled"
+          :disabled="isDownloadDisabled"
           :data="shaclOutput"
           mediaType="text/turtle"
           :fileName="`${schema} - shacl - ${props.shaclSet.name}.ttl`"
