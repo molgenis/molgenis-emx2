@@ -27,7 +27,6 @@ function startDownload(data: string, mediaType: string, fileName: string) {
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
 
-  a.style = "display: none";
   a.href = url;
   a.download = fileName;
   a.click();
