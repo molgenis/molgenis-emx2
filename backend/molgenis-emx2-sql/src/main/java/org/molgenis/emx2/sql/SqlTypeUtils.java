@@ -77,6 +77,23 @@ public class SqlTypeUtils extends TypeUtils {
     }
   }
 
+  public static void applyComputed(List<Column> columns, List<Row> rows) {
+    for (Row row : rows) {
+      applyComputed(columns, row);
+    }
+  }
+
+  public static void applyComputed(List<Column> columns, Row row) {
+    Map<String, Object> graph = convertRowToMap(columns, row);
+    addJavaScriptBindings(columns, graph);
+    for (Column column : columns) {
+      if (column.getComputed() != null) {
+        Object computedValue = executeJavascriptOnMap(column.getComputed(), graph);
+        TypeUtils.addFieldObjectToRow(column, computedValue, row);
+      }
+    }
+  }
+
   private static void applyAutoId(Column c, Row row) {
     if (row.isNull(c.getName(), c.getPrimitiveColumnType())) {
       String id = SnowflakeIdGenerator.getInstance().generateId();
