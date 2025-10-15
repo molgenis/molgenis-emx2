@@ -41,7 +41,7 @@ Alternatively, you can import the icons directly. Please note that the default i
 Before adding a new icon to the component library, make sure there isn't a similar icon in `/global/icons` folder. If an appropriate icon isn't available, download the svg from [https://fonts.google.com/icons](https://fonts.google.com/icons) and [https://www.flaticon.com/authors/special/lineal](https://www.flaticon.com/authors/special/lineal). Place the file in the `assets/icons` folder and run the parse icons command.
 
 ```bash
-npm parse-icons
+npm run parse-icons
 ```
 
 This script uses the [sgvo](https://github.com/svg/svgo) module to clean the icons and transform them into vue components. These files are then saved in the `global/icons/` folder.
@@ -66,7 +66,7 @@ npm
 If you would like to add one or more libraries, install them using the `npm add` method.
 
 ```bash
-npm add <package-name> # add the -D flag if needed
+npm install <package-name> # add the -D flag if needed
 ```
 
 ### Development Server
@@ -83,7 +83,7 @@ You can also build the application for production and preview it locally before 
 
 ```bash
 npm run build
-npm preview
+npm run preview
 ```
 
 ### Running tests
@@ -94,7 +94,7 @@ npm preview
 
 1. Start the development server for the tailwind components: `npm run dev`
 2. In a separate terminal window, run the accessibility tests: `npm wcag:test`. This will not only test the stories located in `pages` but will regenerate the site map from the `sourceCodeMap.json` file.
-3. When the tests are complete, view the report: `npm wcag:serve` (the report will be served at `http://localhost:1234`)
+3. When the tests are complete, view the report: `npm run wcag:serve` (the report will be served at `http://localhost:1234`)
 
 It is recommended to address all errors and warnings identified by this tool. In addition, it is also recommended to install the [WAVE Browser extension](https://wave.webaim.org/extension/) for in-browser accessibility testing as this can help identify issues earlier in the development process. If errors unrelated to the component are detected, please note this in a new issue.
 
@@ -104,9 +104,9 @@ We warmly welcome PRs to the molgenis-emx2 repository. To get started, please se
 
 1. Make sure all typescript issues are resolved
 2. If applicable, write tests and make sure all tests pass. In the `tailwind-components` directory, run `npm run test`
-3. Run the end-to-end tests. Navigate to the `e2e` folder and run `npm e2e`
+3. Run the end-to-end tests. Navigate to the `e2e` folder and run `npm run e2e`
 4. If you are adding a new feature, please provide documentation on how to use it.
-5. Run prettier in the `tailwind-components` folder: `npm format`
+5. Run prettier in the `tailwind-components` folder: `npm run format`
 
 When you are ready, create a new draft PR.
 

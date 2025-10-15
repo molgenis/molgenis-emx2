@@ -139,7 +139,7 @@ const hasChildren = computed(() =>
             :disabled="disabled"
           />
           <span class="block text-body-sm leading-normal pl-1"
-            >{{ node.label || node.name }}
+            >{{ node.label || node.name }} {{ JSON.stringify(node) }}
             <template
               v-if="node.code || (node.label && node.label !== node.name)"
               >(<a

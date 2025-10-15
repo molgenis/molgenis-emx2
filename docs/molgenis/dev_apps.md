@@ -39,7 +39,7 @@ The component libraries are also apps. They create a 'showCase' app that is serv
 
 ```bash
 cd apps
-npm molgenis-components
+npm run build --workspace=molgenis-components
 ```
 
 **Note**: The `molgenis-viz` library requires a database as the charts require a dataset to generate. You can use `npm run dev` in the molgenis-viz folder, but you may get an error that the data is missing.
@@ -67,7 +67,7 @@ If you would like to create a new vue app. There are few ways to get started. Yo
 
 1. Copy the `hello-world` demo: a demo application that can be used as a starting for new applications.
 2. Copy an existing app and delete any unecessary files
-3. Create a new vue app using `npm create vue@latest`
+3. Create a new vue app using `npm init vue@latest`
 4. Manually create folder and required files. `mkdir my-app`
 
 The first three options allow you to create apps fairly quickly, but it also requires you to delete files and adjust the configurations. If you would like to create an app manually, follow the [manually creating a frontend application](#manually-creating-a-frontend-application) guide at the end of this page. Before you get started, have a look at the other applications to see how they are structured and configured.
@@ -261,7 +261,7 @@ npm add -D @vitejs/plugin-vue prettier vite
 If you would like to interact with the MOLGENIS GraphQL API, install the following dependency:
 
 ```bash
-npm add graphql-request
+npm install graphql-request
 ```
 
 #### Add vite.config.js file
