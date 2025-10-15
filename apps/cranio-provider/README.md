@@ -54,8 +54,8 @@ cd erns/cranio/imports
 zip -r ../ern_cranio.zip *
 ```
 
-In the terminal, change directories to `apps/cranio-provider` and run the `yarn dev` command. This will serve the vue app at `localhost:5173`
+In the terminal, change directories to `apps/cranio-provider` and run the `npm run dev` command. This will serve the vue app at `localhost:5173`
 
 ## Troubleshooting
 
-1. **Error importing components**: If you get an error importing components from `molgenis-viz` or `molgenis-components`, these may need to be built and installed locally. In each folder, run `yarn build`
+1. **Error importing components**: If you get an error importing components from `molgenis-viz` or `molgenis-components`, these may need to be built and installed locally. In each folder, run `npm build`

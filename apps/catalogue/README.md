@@ -59,7 +59,7 @@ A non default emx2 theme is loaded by passing the `EMX2_THEME` environment varia
 For example during development
 
 ```sh
-EMX2_THEME=umcg yarn dev
+EMX2_THEME=umcg npm run dev
 ```
 
 ##### feature flags

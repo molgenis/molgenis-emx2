@@ -15,7 +15,7 @@ First, start the development server.
 cd apps/<your-app>
 
 # start the dev server
-yarn dev
+npm run dev
 ```
 
 Once started, the app is served at [http://localhost:5173](http://localhost:5173). If the server is running and the app cannot be found, check the `vite.config.js` file to see if the port has changed.
@@ -31,7 +31,7 @@ If you continue to have issues, make sure your app has been merged with the main
 It is likely that the component libraries need to built or rebuilt. In the `apps/` folder, run the following command.
 
 ```bash
-yarn build:libs
+npm build:libs
 ```
 
 If that does not resolve the issue, consider deleting the `node_modules` folder, and then reinstalling dependencies and rebuilding the component libraries.
@@ -43,10 +43,10 @@ cd apps/
 rm -rf node_modules
 
 # reinstall dependencies
-yarn
+npm
 
 # rebuild component libraries
-yarn build:libs
+npm build:libs
 ```
 
 ### How do I use the molgenis-viz library? I imported the components, but the layouts and styles aren't working.
