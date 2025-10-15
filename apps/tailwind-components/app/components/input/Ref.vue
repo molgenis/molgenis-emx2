@@ -51,8 +51,7 @@ const showSearch = ref<boolean>(false);
 const searchTerms: Ref<string> = ref("");
 const hasNoResults = ref<boolean>(true);
 const columnName = computed<string>(() => {
-  const label = tableMetadata.value?.label || tableMetadata.value?.id;
-  return label as string;
+  return (tableMetadata.value?.label || tableMetadata.value?.id) as string;
 });
 
 const entitiesLeftToLoad = computed<number>(() => {
