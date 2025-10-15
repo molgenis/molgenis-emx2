@@ -69,6 +69,7 @@
       <Button size="small" icon="plus" @click="addRole" class="whitespace-nowrap">Add role</Button>
     </div>
 
+<!--
     <div v-if="userTokens.length" class="p-5">
       <b>Tokens</b>
       <Table>
@@ -88,6 +89,7 @@
         </template>
       </Table>
     </div>
+-->
 
     <template #footer>
       <div class="m-1">

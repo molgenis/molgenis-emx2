@@ -92,7 +92,7 @@
         v-if="selectedUser"
         v-model:visible="showTokenModal"
         :user="selectedUser"
-        @addUser="addUser"
+        @userUpdated="retrieveUsers"
       />
     </ContentBlock>
   </Container>

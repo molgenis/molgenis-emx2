@@ -10,6 +10,7 @@
       <template #body>
         <TableRow v-for="token in userTokens">
           <TableCell>
+<!--
             <Button
                   iconOnly
                   icon="trash"
@@ -18,8 +19,8 @@
                   label="Remove token"
                   @click="removeToken(token)"
                 />
+-->
           </TableCell>
-
           <TableCell>
             {{ token }}
           </TableCell>
