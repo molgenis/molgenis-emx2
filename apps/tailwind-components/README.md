@@ -93,7 +93,7 @@ npm run preview
 [pa11y-ci](https://github.com/pa11y/pa11y-ci) is used for local accessibility testing. We have configured the tests to evaluate components individually against the WCAG2AA standard. To run the tests, follow these steps.
 
 1. Start the development server for the tailwind components: `npm run dev`
-2. In a separate terminal window, run the accessibility tests: `npm wcag:test`. This will not only test the stories located in `pages` but will regenerate the site map from the `sourceCodeMap.json` file.
+2. In a separate terminal window, run the accessibility tests: `npm run wcag:test`. This will not only test the stories located in `pages` but will regenerate the site map from the `sourceCodeMap.json` file.
 3. When the tests are complete, view the report: `npm run wcag:serve` (the report will be served at `http://localhost:1234`)
 
 It is recommended to address all errors and warnings identified by this tool. In addition, it is also recommended to install the [WAVE Browser extension](https://wave.webaim.org/extension/) for in-browser accessibility testing as this can help identify issues earlier in the development process. If errors unrelated to the component are detected, please note this in a new issue.
