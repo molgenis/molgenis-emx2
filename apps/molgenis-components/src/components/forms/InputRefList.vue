@@ -110,7 +110,7 @@ import {
 } from "../../../../metadata-utils/src/types";
 import { IRow } from "../../Interfaces/IRow";
 import { INewClient } from "../../client/IClient";
-import { IQueryMetaData } from "../../../../tailwind-components/types/IQueryMetaData";
+import type { IQueryMetaData } from "../../../../metadata-utils/src/IQueryMetaData";
 import Client from "../../client/client";
 import FilterWell from "../filters/FilterWell.vue";
 import LayoutModal from "../layout/LayoutModal.vue";

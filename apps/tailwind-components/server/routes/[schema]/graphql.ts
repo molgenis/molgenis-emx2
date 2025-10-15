@@ -7,7 +7,7 @@ export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event);
   const logger = createConsola({ level: (config.logLevel as number) ?? 3 });
   logger.info("proxy schema gql request : ", event.path);
-  if (event.method === "POST") {
+  if (event.req.method === "POST") {
     readBody(event).then((body) => {
       if (body.query) {
         logger.debug(body.query);

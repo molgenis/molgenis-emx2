@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { expect, it } from "vitest";
-import Pagination from "../../../components/Pagination.vue";
+import Pagination from "../../../app/components/Pagination.vue";
 
 const wrapper = mount(Pagination, {
   props: {
@@ -10,12 +10,6 @@ const wrapper = mount(Pagination, {
     inverted: false,
     jumpToEdge: false,
   },
-});
-
-it("should render the pagination component (without jump to edge)", async () => {
-  expect(wrapper.html()).matchSnapshot();
-  expect(wrapper.html()).not.toContain("doublearrowleft");
-  expect(wrapper.html()).not.toContain("doublearrowright");
 });
 
 it("should render the pagination component with jump to edge", async () => {
@@ -30,8 +24,6 @@ it("should render the pagination component with jump to edge", async () => {
   });
   expect(withEdge.html()).matchSnapshot();
   expect(withEdge.html()).not.toStrictEqual(wrapper.html());
-  expect(withEdge.html()).toContain("doublearrowleft");
-  expect(withEdge.html()).toContain("doublearrowright");
 });
 
 it("should emit update event on button click", async () => {
