@@ -103,7 +103,7 @@ It is recommended to address all errors and warnings identified by this tool. In
 We warmly welcome PRs to the molgenis-emx2 repository. To get started, please see our Contributing Guidelines (tbd). Before you create a new PR, please complete the following steps.
 
 1. Make sure all typescript issues are resolved
-2. If applicable, write tests and make sure all tests pass. In the `tailwind-components` directory, run `npm test`
+2. If applicable, write tests and make sure all tests pass. In the `tailwind-components` directory, run `npm run test`
 3. Run the end-to-end tests. Navigate to the `e2e` folder and run `npm e2e`
 4. If you are adding a new feature, please provide documentation on how to use it.
 5. Run prettier in the `tailwind-components` folder: `npm format`
