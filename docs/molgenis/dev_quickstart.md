@@ -67,7 +67,7 @@ Alternatively you can run inside [IntelliJ IDEA](https://www.jetbrains.com/idea/
 ## Build one 'app'
 Usefull for app development without need to rebuild all apps all the time.
 
-Requires postgresql, gradle and [npm 1.x](https://npmpkg.com/)
+Requires postgresql, gradle and [https://npmpkg.com/](https://www.npmjs.com)
 
 * Build the app workspace as a whole (once)
   ```console
