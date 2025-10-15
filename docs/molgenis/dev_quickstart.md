@@ -67,12 +67,12 @@ Alternatively you can run inside [IntelliJ IDEA](https://www.jetbrains.com/idea/
 ## Build one 'app'
 Usefull for app development without need to rebuild all apps all the time.
 
-Requires postgresql, gradle and [yarn 1.x](https://yarnpkg.com/)
+Requires postgresql, gradle and [https://npmpkg.com/](https://www.npmjs.com)
 
 * Build the app workspace as a whole (once)
   ```console
   cd molgenis-emx2/apps
-  yarn install
+  npm install
   ```
 * Start molgenis 'headless' (i.e. without apps) using gradle (restart on java changes)
   ```console
@@ -83,7 +83,7 @@ Requires postgresql, gradle and [yarn 1.x](https://yarnpkg.com/)
 * Serve only the app you want to look at
   ```console
   cd molgenis-emx2/apps/<yourapp>
-  yarn dev
+  npm run dev
   ```
   Typically the app is then served at http://localhost:9090 (look at the console to see actual port number)
 
