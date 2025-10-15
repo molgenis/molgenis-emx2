@@ -64,6 +64,19 @@ commands:
     - checkout
     - run: git fetch --all --tags
     - run:
+        name: Security Audit (per workspace)
+        command: |
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+            corepack enable
+            corepack prepare yarn1.22.19 --activate
+            for workspace in apps/*; do
+              echo "Auditing $workspace"
+              (cd $workspace && npx audit-ci@^7 -p yarn --yarn-lock ../yarn.lock --critical)
+            done
+          else
+            echo "Skipping audit on master branch"
+          fi
+    - run:
         name: Setup git, todo, move to molgenisci user
         command: |
           git config --global --add safe.directory '*'
