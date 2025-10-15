@@ -28,6 +28,8 @@
     </div>
   </div>
 
+  {{ showDraftColumn }}
+
   <div
     class="relative overflow-auto rounded-b-theme border border-theme border-color-theme"
   >
@@ -41,6 +43,15 @@
             >
               <span class="sr-only">manage records</span>
             </TableHeadCell>
+            <TableHeadCell v-if="showDraftColumn" class="w-24 lg:w-28">
+              <TableHeaderAction
+                :column="{ id: 'mg_draft', label: 'Draft' }"
+                :schemaId="schemaId"
+                :tableId="tableId"
+                :settings="settings"
+                @sort-requested="handleSortRequest"
+              />
+            </TableHeadCell>
             <TableHeadCell
               v-for="column in sortedVisibleColumns"
               :class="{
@@ -48,36 +59,13 @@
                 'w-60': columns.length > 5,
               }"
             >
-              <div class="flex justify-start items-center gap-1">
-                <button
-                  :id="`table-emx2-${schemaId}-${tableId}-${column.label}-sort-btn`"
-                  @click="handleSortRequest(column.id)"
-                  class="overflow-ellipsis whitespace-nowrap max-w-56 overflow-hidden inline-block text-left text-table-column-header font-normal align-middle"
-                  :ariaSort="
-                    settings.orderby.column === column.id
-                      ? mgAriaSortMappings[settings.orderby.direction]
-                      : 'none'
-                  "
-                >
-                  <span>{{ column.label }}</span>
-                </button>
-                <ArrowUp
-                  v-if="
-                    column.id === settings.orderby.column &&
-                    settings.orderby.direction === 'ASC'
-                  "
-                  aria-hidden="true"
-                  class="h-4 w-4 text-table-column-header font-normal"
-                />
-                <ArrowDown
-                  v-if="
-                    column.id === settings.orderby.column &&
-                    settings.orderby.direction === 'DESC'
-                  "
-                  aria-hidden="true"
-                  class="h-4 w-4 text-table-column-header font-normal"
-                />
-              </div>
+              <TableHeaderAction
+                :column="column"
+                :schemaId="schemaId"
+                :tableId="tableId"
+                :settings="settings"
+                @sort-requested="handleSortRequest"
+              />
             </TableHeadCell>
           </tr>
         </thead>
@@ -133,6 +121,14 @@
                 >
                   {{ getRowId(row) }}
                 </Button>
+              </div>
+            </TableBodyCell>
+            <TableBodyCell v-if="showDraftColumn" class="w-24 lg:w-28">
+              <div
+                v-if="row?.mg_draft === true"
+                class="p-1 text-body-sm rounded bg-gray-400 text-white inline-block"
+              >
+                Draft
               </div>
             </TableBodyCell>
             <TableCellEMX2
@@ -234,9 +230,8 @@ import InputSearch from "../input/Search.vue";
 import Button from "../Button.vue";
 import Pagination from "../Pagination.vue";
 import TableControlColumns from "./control/Columns.vue";
-import ArrowUp from "../global/icons/ArrowUp.vue";
-import ArrowDown from "../global/icons/ArrowDown.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
+import TableHeaderAction from "./TableHeaderAction.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -269,11 +264,6 @@ const settings = defineModel<ITableSettings>("settings", {
   }),
 });
 
-const mgAriaSortMappings = {
-  ASC: "ascending",
-  DESC: "descending",
-};
-
 const { data, refresh } = useAsyncData(
   `tableEMX2-${props.schemaId}-${props.tableId}`,
   async () => {
@@ -303,6 +293,10 @@ const rows = computed(() => {
 
   return data.value.tableData.rows;
 });
+
+const showDraftColumn = computed(() =>
+  rows.value.some((row) => row?.mg_draft === true)
+);
 
 const count = computed(() => data.value?.tableData?.count ?? 0);
 
