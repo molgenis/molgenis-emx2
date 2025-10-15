@@ -23,11 +23,11 @@ This module helps developers create and share vue components for use with the mo
 
 ### Build component library
 
-```npm build ```
+```npm run build ```
 
 ### Build component library show case app
 
-```npm build-showcase ```
+```npm run build-showcase ```
 
 ### Adding a new component
 

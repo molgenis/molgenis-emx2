@@ -32,7 +32,7 @@ These libraries need to be built as it creates a library that can be used in oth
 cd apps
 
 # build both component libraries
-npm build:libs
+npm run build:libs
 ```
 
 The component libraries are also apps. They create a 'showCase' app that is served as the app code. To view this run:
@@ -139,7 +139,7 @@ If you continue to have issues, make sure your app has been merged with the main
 It is likely that the component libraries need to built or rebuilt. In the `apps/` folder, run the following command.
 
 ```bash
-npm build:libs
+npm run build:libs
 ```
 
 If that does not resolve the issue, consider deleting the `node_modules` folder, and then reinstalling dependencies and rebuilding the component libraries.
@@ -154,7 +154,7 @@ rm -rf node_modules
 npm
 
 # rebuild component libraries
-npm build:libs
+npm run build:libs
 ```
 
 ### I would like to use the molgenis-viz library, but the styles aren't loading

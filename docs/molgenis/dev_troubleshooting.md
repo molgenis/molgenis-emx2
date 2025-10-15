@@ -31,7 +31,7 @@ If you continue to have issues, make sure your app has been merged with the main
 It is likely that the component libraries need to built or rebuilt. In the `apps/` folder, run the following command.
 
 ```bash
-npm build:libs
+npm run build:libs
 ```
 
 If that does not resolve the issue, consider deleting the `node_modules` folder, and then reinstalling dependencies and rebuilding the component libraries.
@@ -46,7 +46,7 @@ rm -rf node_modules
 npm
 
 # rebuild component libraries
-npm build:libs
+npm run build:libs
 ```
 
 ### How do I use the molgenis-viz library? I imported the components, but the layouts and styles aren't working.

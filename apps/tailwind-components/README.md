@@ -82,7 +82,7 @@ npm run dev
 You can also build the application for production and preview it locally before creating a PR. To do so, run the following commands.
 
 ```bash
-npm build
+npm run build
 npm preview
 ```
 

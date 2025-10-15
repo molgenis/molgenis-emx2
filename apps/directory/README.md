@@ -65,7 +65,7 @@ npm run dev
 ### Compile and Minify for Production
 
 ```sh
-npm build
+npm run build
 ```
 
 ### Run Unit Tests with [Vitest](https://vitest.dev/)

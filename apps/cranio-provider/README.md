@@ -58,4 +58,4 @@ In the terminal, change directories to `apps/cranio-provider` and run the `npm r
 
 ## Troubleshooting
 
-1. **Error importing components**: If you get an error importing components from `molgenis-viz` or `molgenis-components`, these may need to be built and installed locally. In each folder, run `npm build`
+1. **Error importing components**: If you get an error importing components from `molgenis-viz` or `molgenis-components`, these may need to be built and installed locally. In each folder, run `npm run build`
