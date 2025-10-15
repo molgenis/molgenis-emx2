@@ -1,5 +1,6 @@
 package org.molgenis.emx2.rdf.generators;
 
+import static org.molgenis.emx2.Constants.MG_GROUP;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.getCoreDataType;
 import static org.molgenis.emx2.rdf.ColumnTypeRdfMapper.retrieveValues;
 import static org.molgenis.emx2.rdf.IriGenerator.columnIRI;
@@ -153,7 +154,7 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
     if (table.getMetadata().getTableType() == TableType.DATA) {
       for (final Column column : table.getMetadata().getNonInheritedColumns()) {
         // Exclude the system columns that refer to specific users
-        if (column.isSystemAddUpdateByUserColumn()) {
+        if (column.isSystemAddUpdateByUserColumn() || column.getName().equals(MG_GROUP)) {
           continue;
         }
         if (columnName == null || columnName.equals(column.getName())) {
