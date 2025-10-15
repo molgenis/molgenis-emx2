@@ -1,8 +1,15 @@
 <script lang="ts" setup>
 import { useRoute } from "#app/composables/router";
 import { computed, ref } from "vue";
-import { useFetch } from "#app";
-import type { ShaclSetItem } from "../../../metadata-utils/src/rdf";
+import type { ShaclSetItem } from "../../../../metadata-utils/src/rdf";
+import BaseIcon from "../BaseIcon.vue";
+import TableCell from "../TableCell.vue";
+import Button from "../Button.vue";
+import Modal from "../Modal.vue";
+import ButtonDownloadBlob from "../button/DownloadBlob.vue";
+import DisplayOutput from "../display/Output.vue";
+import Message from "../Message.vue";
+
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)

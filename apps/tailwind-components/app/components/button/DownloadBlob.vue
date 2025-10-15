@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { ButtonIconPosition, ButtonSize, ButtonType } from "~/types/types";
+import Button from "../Button.vue";
 
 const props = withDefaults(
   defineProps<{

@@ -1,10 +1,20 @@
 <script lang="ts" setup>
 import { useFetch } from "#app/composables/fetch";
-import { useRoute } from "#app/composables/router";
+import { useRoute } from "vue-router";
 import { useHead } from "#app";
 import { ref, onMounted } from "vue";
 import { parse } from "yaml";
-import type { ShaclSetItem } from "../../../../../metadata-utils/src/rdf";
+import type { ShaclSetItem } from "../../../../../../metadata-utils/src/rdf";
+import Container from "../../../../../../tailwind-components/app/components/Container.vue"
+import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue"
+import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue"
+import CustomTooltip from "../../../../../../tailwind-components/app/components/CustomTooltip.vue"
+import BaseIcon from "../../../../../../tailwind-components/app/components/BaseIcon.vue"
+import Message from "../../../../../../tailwind-components/app/components/Message.vue"
+import Table from "../../../../../../tailwind-components/app/components/Table.vue";
+import TableHead from "../../../../../../tailwind-components/app/components/TableHead.vue";
+import TableHeadRow from "../../../../../../tailwind-components/app/components/TableHeadRow.vue";
+import RdfShaclSetItem from "../../../../../../tailwind-components/app/components/rdf/ShaclSetItem.vue"
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
