@@ -57,7 +57,7 @@ git switch -c <my-branch>
 
 ### Setup
 
-We use [npm workspaces](https://npmpkg.com/features/workspaces) to manage dependencies across all applications. On the first time, install the dependencies.
+We use [npm workspaces](https://docs.npmjs.com/cli/v8/using-npm/workspaces) to manage dependencies across all applications. On the first time, install the dependencies.
 
 ```bash
 npm
