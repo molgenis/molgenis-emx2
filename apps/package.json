@@ -1,8 +1,11 @@
 {
   "private": true,
+  "name": "emx2-frontend",
   "workspaces": [
     "metadata-utils",
-    "directory",
+    "molgenis-components",
+    "emx2-analytics",
+    "helloworld",
     "settings",
     "central",
     "schema",
@@ -10,9 +13,9 @@
     "updownload",
     "pages",
     "graphql-playground",
+    "graphql-playground",
     "tailwind-components",
     "catalogue",
-    "molgenis-components",
     "molgenis-viz",
     "cranio-public",
     "cranio-provider",
@@ -20,26 +23,13 @@
     "ern-ithaca",
     "ern-reconnet",
     "ern-skin",
-    "helloworld",
+    "nestor-public",
     "reports",
     "tasks",
     "gportal",
     "projectmanager",
     "aggregates",
-    "emx2-analytics",
-    "ui",
-    "nestor-public"
-  ],
-  "scripts": {
-    "build:libs": "yarn workspace molgenis-components run build && yarn workspace molgenis-viz run build"
-  },
-  "resolutions": {
-    "chalk": "5.3.0",
-    "strip-ansi": "7.1.0",
-    "color-convert": "2.0.1",
-    "color-name": "1.1.4",
-    "is-core-module": "2.13.1",
-    "error-ex": "1.3.2",
-    "has-ansi": "5.0.1"
-  }
+    "directory",
+    "ui"
+  ]
 }
