@@ -20,24 +20,25 @@ node {
 }
 
 npm_install {
-    args = ['--workspaces']
-    inputs.file('package.json')
-    outputs.file('package-lock.json')
-    // do not declare node_modules as output, as it is huge, and to big for gradle to handle
-    // outputs.dir('node_modules')
+    inputs.files(fileTree('.') {
+        include('**/package.json','**/package-lock.json')
+        exclude("**/node_modules/**")
+    })
+    outputs.file("package-lock.json")
 }
 
 def excludePatterns = [
         "node_modules/**", "**/node_modules/**", "**/dist/**", "**/.git/**", "**/.gradle/**", "**/build/**", "**/.nuxt/**",
-        "**/public/_nuxt-styles/**", "**/.output/**", "**/showCase/**"
+        "**/public/_nuxt-styles/**", "**/.output/**", "**/showCase/**", ".turbo/**"
 ]
 
 tasks.register('npm_build', NpmTask) {
     dependsOn npm_install
-    args = ['run', 'build', '--workspaces']
+    args = ['run', 'build']
+
     // Inputs = all frontend sources
     inputs.files(fileTree(".") {
-        include("*")
+        include("**/*")
         exclude(excludePatterns)
     })
     inputs.file("package.json")
@@ -110,15 +111,20 @@ abstract class CollectDistTask extends DefaultTask {
 }
 
 tasks.register("collectDist", CollectDistTask) {
+    inputs.files(fileTree(".") {
+        include("**/dist/**")
+        exclude(excludePatterns)
+    })
+    outputs.dir(layout.buildDirectory.dir("generated/resources/public_html/apps"))
     dependsOn("npm_build")
 }
 
 tasks.register('format', NpmTask) {
     dependsOn npm_install
     if (!isCI) {
-        args = ['run', 'format', '--workspaces']
+        args = ['run', 'format']
     } else {
-        args = ['run', 'checkFormat', '--workspaces']
+        args = ['run', 'checkFormat']
     }
     inputs.files(fileTree(".") {
         include("**/*")
@@ -132,7 +138,7 @@ tasks.register('format', NpmTask) {
 
 tasks.register('lint', NpmTask) {
     dependsOn npm_build
-    args = ['run', 'lint', '--workspace=tailwind-components', '--workspace=catalogue', '--workspace=ui']
+    args = ['run', 'lint']
     inputs.files(fileTree(".") {
         include("**/*")
         exclude(excludePatterns)
@@ -146,7 +152,7 @@ tasks.register('lint', NpmTask) {
 task testJavaScript(type: NpmTask) {
     dependsOn npm_build
 
-    args = ['run', 'test-ci', '--workspaces', '--if-present']
+    args = ['run', 'test-ci']
     inputs.files(fileTree(".") {
         include("**/*")
         exclude(excludePatterns)
@@ -165,7 +171,7 @@ sourceSets {
 
 // Link the app build to the java jar
 tasks.named("processResources") {
-
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn("collectDist")
 
     from(layout.buildDirectory.dir("generated/resources/public_html/apps")) {

@@ -1,6 +1,7 @@
 {
   "private": true,
   "name": "emx2-frontend",
+  "packageManager": "npm@10.9.2",
   "workspaces": [
     "metadata-utils",
     "molgenis-components",
@@ -31,5 +32,18 @@
     "aggregates",
     "directory",
     "ui"
-  ]
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "lint": "turbo run lint --filter=tailwind-components --filter=catalogue --filter=ui",
+    "format": "turbo run format",
+    "checkFormat": "turbo run checkFormat",
+    "test-ci": "turbo run test-ci"
+  },
+  "dependencies": {
+    "turbo": "2.5.8"
+  },
+  "resolutions": {
+    "prettier": "2.8.8"
+  }
 }
