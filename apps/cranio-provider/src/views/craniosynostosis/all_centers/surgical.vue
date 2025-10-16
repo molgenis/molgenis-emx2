@@ -149,20 +149,20 @@ import {
   MessageBox,
   // @ts-expect-error
 } from "molgenis-viz";
-import ProviderDashboard from "../components/ProviderDashboard.vue";
+import ProviderDashboard from "../../../components/ProviderDashboard.vue";
 
-import { generateAxisTickData } from "../utils/generateAxisTicks";
-import { asKeyValuePairs, sum, sumObjectValues } from "../utils";
-import { getDashboardChart } from "../utils/getDashboardData";
-import { generateColorPalette } from "../utils/generateColorPalette";
+import { generateAxisTickData } from "../../../utils/generateAxisTicks";
+import { asKeyValuePairs, sum, sumObjectValues } from "../../../utils";
+import { getDashboardChart } from "../../../utils/getDashboardData";
+import { generateColorPalette } from "../../../utils/generateColorPalette";
 import {
   filterAgeAtSurgeryData,
   prepareDiagnosisFilters,
-} from "../utils/csSurgicalUtils";
+} from "../../../utils/csSurgicalUtils";
 
-import type { ICharts, IChartData } from "../types/schema";
-import type { IAppPage } from "../types/app";
-import type { IKeyValuePair, IValueLabel } from "../types/index";
+import type { ICharts, IChartData } from "../../../types/schema";
+import type { IAppPage } from "../../../types/app";
+import type { IKeyValuePair, IValueLabel } from "../../../types/index";
 const props = defineProps<IAppPage>();
 
 const loading = ref<boolean>(true);
