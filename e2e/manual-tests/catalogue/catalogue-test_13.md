@@ -30,7 +30,7 @@ The catalogue (menu ribbon, blocks of information displayed, filters, etc) is di
 | 13 | | The ribbon reads: `MOLGENIS` logo, `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES` and `MORE` | | |
 | 14 | Scroll down the filters on the left | A search field is displayed at the top and filters below | | |
 | 15 | Click on 'acronym for test network1' | The user goes to overview page for this network and the ribbon reads :`MOLGENIS` logo, `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES` and `MORE` | | |
-| 16 | See that the fields are filled as follows: | Test logo for test network, (<https://www.molgenis.org/>), Description, General design, Population, Organisations, Datasets, Networks, Publications, Funding and acknowledgements | | |
+| 16 | See that the fields are filled as follows: | logo, (<https://www.molgenis.org/>), Description, General Design, Population, Organisations, Contributors, Dataset Variables, Networks, Publications, Funding & Acknowledgements | | |
 | 17 | Click on `OVERVIEW` | The user goes to [/all](https://data-catalogue-acc.molgeniscloud.org/all) | | |
 | 18 | Click on `VARIABLES` | The user goes to [/all/variables](https://data-catalogue-acc.molgeniscloud.org/all/variables) | | |
 | 19 | | The ribbon reads: `MOLGENIS` logo, `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES` and `MORE` | | |
