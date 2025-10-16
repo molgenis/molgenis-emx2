@@ -38,7 +38,7 @@ The catalogue (menu ribbon, blocks of information displayed, filters, etc) is di
 | 21 | Click on `HARMONISATIONS` | Harmonisations matrix of all the variables are displayed | | |
 | 22 | Press the back button on the browser | The user goes to [/all/variables](https://data-catalogue-acc.molgeniscloud.org/all/variables) | | |
 | 23 | Click on `VARIABLES` again | A list of all variables is displayed | | |
-| 24 | Click on the first variable 'abd_circum_sdsWHO_t' | The user goes to [/variables/abd_circum_sdsWHO_t](https://data-catalogue-acc.molgeniscloud.org/all/variables/abd_circum_sdsWHO_t-ATHLETE-outcome_ath-ATHLETE?keys={%22name%22:%22abd_circum_sdsWHO_t%22,%22resource%22:{%22id%22:%22ATHLETE%22},%22dataset%22:{%22name%22:%22outcome_ath%22,%22resource%22:{%22id%22:%22ATHLETE%22}}}) | | |
+| 24 | Click on the first variable 'abd_circum_sdsWHO_t' | The user goes to [/all/variables/abd_circum_sdsWHO_t...](https://data-catalogue-acc.molgeniscloud.org/all/variables/abd_circum_sdsWHO_t-ATHLETE-outcome_ath-ATHLETE?keys={%22name%22:%22abd_circum_sdsWHO_t%22,%22resource%22:{%22id%22:%22ATHLETE%22},%22dataset%22:{%22name%22:%22outcome_ath%22,%22resource%22:{%22id%22:%22ATHLETE%22}}}) | | |
 | 25 | See that the fields are filled as follows: | Definition, Harmonisation status per source and Harmonisation details per source | | |
 | 26 | Click on `OTHER CATALOGUES` | | | |
 | 27 | Click on **OOM** under *Project Catalogues* | The user goes to [/OOM](https://data-catalogue-acc.molgeniscloud.org/OOM). | | |
