@@ -16,7 +16,7 @@ The catalogue (menu ribbon, blocks of information displayed, filters, etc) is di
 | ---- | ------ | --------------- |----------------- | --------------- |
 | 0 | NB: Assumptions | This test plan assumes the user is viewing the catalogue on Mozilla Firefox. | | |
 | 1 | Navigate to `https://data-catalogue-acc.molgeniscloud.org` | Landing page: European health research data and sample catalogue. The ribbon reads: `MOLGENIS` logo, `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS` and `MORE` | | |
-| 2 | Hover over the `MORE` button | It shows a dropdown with `UPLOAD DATA`, and `MANUALS` | | |
+| 2 | Hover over the `MORE` button | It shows a dropdown with `UPLOAD DATA`, `MANUALS` and `ABOUT` | | |
 | 3 | Click on the `SEARCH ALL` button | The user goes to [/all](https://data-catalogue-acc.molgeniscloud.org/all) | | |
 | 4 | | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `OTHER CATALOGUES` and `MORE`| | |
 | 5 | Click on `COLLECTIONS` | The user goes to  [/all/collections](https://data-catalogue-acc.molgeniscloud.org/all/collections) | | |
@@ -24,7 +24,7 @@ The catalogue (menu ribbon, blocks of information displayed, filters, etc) is di
 | 7 | Scroll down the filters on the left | A search field is displayed at the top and filters below | | |
 | 8 | Click on the `COMPACT` button | List of collections changes to compact view and the URL changes to [?view=compact](https://data-catalogue-acc.molgeniscloud.org/all/collections?view=compact) | | |
 | 9 | Click on 'acronym for test cohort 1' | The user goes to overview page for this collection and the ribbon reads : `MOLGENIS` logo, `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES` and `MORE` | | |
-| 10 | See that the fields are filled as follows: | <https://www.molgenis.org/>, `CONTACT` button, Description, General design, Population, Organisations, Contributors, Available Data & Samples, Subpopulations, Collection Events, Datasets, Networks, Publications, Access Conditions, Funding and acknowledgements, and Documentation | | |
+| 10 | See that the fields are filled as follows: | logo, <https://www.molgenis.org/>, `CONTACT` button, Description, General Design, Population, Organisations, Contributors, Available Data & Samples, Dataset Variables, Subpopulations, Collection Events, Networks, Publications, Access Conditions, Funding & Acknowledgements, Documentation | | |
 | 11 | Click on `OVERVIEW` | The user returns to [/all](https://data-catalogue-acc.molgeniscloud.org/all) | | |
 | 12 | Click on `NETWORKS`| The user goes to [/all/networks](https://data-catalogue-acc.molgeniscloud.org/all/networks) | | |
 | 13 | | The ribbon reads: `MOLGENIS` logo, `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES` and `MORE` | | |
