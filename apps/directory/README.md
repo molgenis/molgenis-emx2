@@ -39,7 +39,7 @@ If you want to use Matomo to track how users use the app, you can in the setting
 When you do
 
 ```sh
-yarn dev
+npm run dev
 ```
 
 open http://127.0.0.1:5173/apps/central/#/ and login
@@ -53,29 +53,29 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 ## Project Setup
 
 ```sh
-yarn
+npm install
 ```
 
 ### Compile and Hot-Reload for Development
 
 ```sh
-yarn dev
+npm run dev
 ```
 
 ### Compile and Minify for Production
 
 ```sh
-yarn build
+npm run build
 ```
 
 ### Run Unit Tests with [Vitest](https://vitest.dev/)
 
 ```sh
-yarn test:unit
+npm run test:unit
 ```
 
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
-yarn lint
+npm lint
 ```

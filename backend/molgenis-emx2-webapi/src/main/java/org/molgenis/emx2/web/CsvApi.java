@@ -137,10 +137,14 @@ public class CsvApi {
   }
 
   private static void tableUpdate(Context ctx) {
-    int count = MolgenisWebservice.getTableByIdOrName(ctx).save(getRowList(ctx));
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+    TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
+    tableStore.setCsvString(table.getName(), ctx.body());
+    Task task = new ImportTableTask(tableStore, table, false);
+    task.run();
     ctx.status(200);
     ctx.contentType(ACCEPT_CSV);
-    ctx.result(String.valueOf(count));
+    ctx.result(String.valueOf(task.getProgress()));
   }
 
   private static Iterable<Row> getRowList(Context ctx) {

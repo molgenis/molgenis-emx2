@@ -1,5 +1,6 @@
 <template>
-  <TableBodyCell>
+  <td class="p-2.5 border-b border-gray-200 min-h-8 text-left truncate">
+    <slot name="row-actions"></slot>
     <template v-if="data == null || data === undefined"></template>
     <ValueList
       v-else-if="
@@ -95,13 +96,12 @@
 
     <template v-else> {{ metadata.columnType }} </template>
     <slot></slot>
-  </TableBodyCell>
+  </td>
 </template>
 
 <script setup lang="ts">
 import type { IColumn, IRefColumn } from "../../../../metadata-utils/src/types";
 import type { RefPayload } from "../../../types/types";
-import TableBodyCell from "./TableBodyCell.vue";
 import ValueList from "../value/List.vue";
 import ValueString from "../value/String.vue";
 import ValueText from "../value/Text.vue";
