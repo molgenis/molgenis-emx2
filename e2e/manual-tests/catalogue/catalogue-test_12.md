@@ -47,7 +47,7 @@ when viewed in 'small-screen' mode.
 | 29 | Press the back button on the page | The user goes to [/all](https://data-catalogue-acc.molgeniscloud.org/all) | | |
 | 30 | Click on 'Variables' again | A list of all variables is displayed | | |
 | 31 | | The ribbon reads: `MENU` and `MOLGENIS` logo at the top, Below: `OVERVIEW`, `COLLECTIONS`, `NETWORKS`,  and `VARIABLES` | | |
-| 32 | Click on the first variable 'abd_circum_sdsWHO_t' | The user goes to [/variables/abd_circum_sdsWHO_t](https://data-catalogue-acc.molgeniscloud.org/all/variables/abd_circum_sdsWHO_t-ATHLETE-outcome_ath-ATHLETE?keys={%22name%22:%22abd_circum_sdsWHO_t%22,%22resource%22:{%22id%22:%22ATHLETE%22},%22dataset%22:{%22name%22:%22outcome_ath%22,%22resource%22:{%22id%22:%22ATHLETE%22}}}) | | |
+| 32 | Click on the first variable 'abd_circum_sdsWHO_t' | The user goes to [/all/variables/abd_circum_sdsWHO_t...](https://data-catalogue-acc.molgeniscloud.org/all/variables/abd_circum_sdsWHO_t-ATHLETE-outcome_ath-ATHLETE?keys={%22name%22:%22abd_circum_sdsWHO_t%22,%22resource%22:{%22id%22:%22ATHLETE%22},%22dataset%22:{%22name%22:%22outcome_ath%22,%22resource%22:{%22id%22:%22ATHLETE%22}}}) | | |
 | 33 | See that the fields are filled as follows: | Definition, Harmonisation status per source and Harmonisation details per source | | |
 | 34 | Click on `OTHER CATALOGUES` again | | | |
 | 35 | Click on **OOM** under *Project Catalogues* | The user goes to [/OOM](https://data-catalogue-acc.molgeniscloud.org/OOM). | | |
