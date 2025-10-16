@@ -15,11 +15,11 @@ Not all fields on the page are tested (see test plan 5 for full test of this pag
 
 | Step | Action | Expected result | Github bug/issue | Playwright test |
 | -----| -------| ----------------| -----------------| ----------------|
-| 1 | Navigate to [testCatalogue on the acceptance server](https://data-catalogue-acc.molgeniscloud.org/testCatalogue/catalogue)| Landing page: European health research data and sample catalogue | | |
+| 1 | Navigate to `https://data-catalogue-acc.molgeniscloud.org/` | Landing page: European health research data and sample catalogue | | |
 | 2 | Click the `SEARCH ALL` button | `COLLECTIONS`, `NETWORKS` and `VARIABLES` buttons are with the number of each under the button | | |
 | 3 | Click on the `COLLECTIONS` button | Collections overview page with a list of all collections in the system | | |
 | 4 | Type "Name for test cohort" in the Search field top left | See that two cohorts are presented in the list: "acronym for test cohort 1" and "acronym for test cohort 2" | | |
-| 5 | Click on "acronym for test cohort 1" | See that the resource information page for test cohort 1 is presented: "All > Collections", acronym for test cohort 1, Name for test cohort 1 | | |
+| 5 | Click on "acronym for test cohort 1" | See that the resource information page for test cohort 1 is presented: "All > Collections > TestCohort1", acronym for test cohort 1, Name for test cohort 1 | | |
 | 6 | See that the fields are filled as follows:| <https://www.molgenis.org/> and 'Contact' button | | |
 | 7 | DESCRIPTION | This is the Test cohort 1. It has multiple entries where possible. Design paper and publications are random DOIs from the EUCAN project. Yes to data access fee. The population age group is all adult options, so the population age group should be shown as "Adult 18+ years". Cohort type has both 'normal' and 'other' fields filled in --> see which is displayed | | |
 | | Click on the three dots next to the description text | the text is displayed fully, and clicking on 'read less' reduces the text again | | |
@@ -71,24 +71,33 @@ Not all fields on the page are tested (see test plan 5 for full test of this pag
 | | Hover over 'ⓘ' | Details about each data category appears | | |
 | | Sample categories | Blood, Genetic material | | |
 | | Areas of information | Health and community care services utilization, Laboratory measures | | |
-| 26 | SUBPOPULATIONS | List of subpopulations for this resource | | |
-| | | table with the following columns: Name, Description, Number of participants | | |
-| | | test subcohort 1A, description for test subcohort 1A, 956 --> | | |
-| | | test subcohort 1B, description for test subcohort 1B, 23487 --> | | |
-| 27 | COLLECTION EVENTS | List of collection events defined for this resource | | |
-| | | table with the following columns: Name, Description, Participants, Start end year | | |
-| | | test collection event 1A, test description for test collection event 1A, 3500, 1958-04-01 until 1994-04-30 --> | | |
-| | | test collection event 1B, description for test collection event 1B, 286, 1992-03-01 until 2000-08-31 --> | | |
-| 28 | DATASETS | List of datasets for this resource | | |
+| 26 | DATASETS | List of datasets for this resource | | |
 | | | Table with the following columns: Name, Description | | |
 | | | test dataset for testCohort1, test description for dataset 1 --> | | |
 | | | name of test dataset 2 for test cohort 1, description for test dataset 2 for test cohort 1 --> | | |
+| 26 | DATASET VARIABLES | Datasets, Datasets and their description | | |
+|    | | Name, Description | | |
+|    | | name of test dataset 2 for test cohort 1, description for test dataset 2 for test cohort 1, -> | | |
+|    | | test dataset for testCohort1, test description for dataset 1, -> | | |
+|    | | Dataset variables, Dataset variables and their description | | |
+|    | | Filter by dataset, All datasets, Filter by variable, Sort by, variable | | |
+|    | | variable, Dataset | | |
+|    | | 10 rows of variables: 'var...', 'test dataset for testCohort1', '-->' | | |
+|    | | < Page 1 of 2 > | | |
+| 27 | SUBPOPULATIONS | List of subpopulations for this resource | | |
+| | | table with the following columns: Name, Description, Number of participants | | |
+| | | test subcohort 1A, description for test subcohort 1A, 956 --> | | |
+| | | test subcohort 1B, description for test subcohort 1B, 23487 --> | | |
+| 28 | COLLECTION EVENTS | List of collection events defined for this resource | | |
+| | | table with the following columns: Name, Description, Participants, Start end year | | |
+| | | test collection event 1A, test description for test collection event 1A, 3500, 1958-04-01 until 1994-04-30 --> | | |
+| | | test collection event 1B, description for test collection event 1B, 286, 1992-03-01 until 2000-08-31 --> | | |
 | 29 | NETWORKS | Part of networks | | |
 | | | logo, Name of network, > Website > Network details (> Catalogue), --> to navigate to details | | |
 | | | name for test network2, > Website > Network details, --> | | |
 | | | name for test network of networks, > Website > Network details > Catalogue, --> | | |
 | | | name for test network1, > Website > Network details > Catalogue, --> | | |
-| 30 | PUBLICATIONS | Three publications: 'Birth of a cohort--..Raine study.',  'Cohort Profile: The French...birth to 5 years', Effevtiveness of AS04-adjuvanted...community randomised trial' | | |
+| 30 | PUBLICATIONS | Three publications: 'Birth of a cohort--..Raine study.',  'Cohort Profile: The French...birth to 5 years', Effectiveness of AS04-adjuvanted...community randomised trial' | | |
 | 31 | ACCESS CONDITIONS | Data access conditions description text cohort 1 - yes fee | | |
 | | Data access conditions | general research use, health or medical or biomedical research | | |
 | | Data use conditions | genetic studies only, publication required, ethics approval required | | |
@@ -99,4 +108,4 @@ Not all fields on the page are tested (see test plan 5 for full test of this pag
 | | Linkage options | Linkage options cohort 1 | | |
 | 32 | FUNDING & ACKNOWLEDGEMENTS | lorem ipsum text, check that "until now" is shown at the end of both fields so that you know the full text has been displayed | | |
 | 33 | DOCUMENTATION | Card per document, clickable so that you open the document: test doc 2 for test cohort 1 & test documentation for cohort 1 | | |
-| 34 | Click on test documentation for cohort 1 | test documentation for cohort 1 is downloaded locally | | |
+| 34 | Click on test documentation for cohort 1 | test documentation for cohort 1 is opened in a new tab | | |
