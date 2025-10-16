@@ -29,6 +29,6 @@ understand what they are seeing when viewing a network of networks.
 | 9 | Click on the 'Networks' button at the top | Should be directed to the list of networks with which testNetworkofNetworks is associated (testNetwork1, testNetwork2) | | true |
 | 10 | Click on 'acronym for test network 1' | Should be directed to the testNetwork1 detailed network page with information about the network organised into tiles with a matching menu on the left hand side | | true |
 | 11 | Click on the 'Overview' button at the top | Should be directed back to the home page for testNetworkofNetworks | | true |
-| 12 | Click on About | Should be directed to the detailed network page for testNetworkofNetworks (THIS IS NOT THE SAME AS THE HOME PAGE!) with website, description, general design, population, organisations, contributors, publications, funding & acknowledgements, list of cohorts and link to view the network's variables | | true |
+| 12 | Click on About | Should be directed to the detailed network page for testNetworkofNetworks (THIS IS NOT THE SAME AS THE HOME PAGE!) with website, description, general design, population, organisations, contributors, publications, funding & acknowledgements | | true |
 | 13 | Click on More --> Other catalogues | Should be directed to the landing page showing all thematic and project catalogues, entitled "European Health Research Data and Sample Catalogue" | | true |
 | 14 | Click on More --> Upload data | Should be directed to the 'old' interface apps/central for the user to be able to sign in and upload data | | |
