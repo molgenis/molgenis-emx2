@@ -1,11 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
-    "install": {
-      "cache": true,
-      "outputs": ["node_modules/**"],
-      "inputs": ["package.json", "**/package.json", "package-lock.json"]
-    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": [
