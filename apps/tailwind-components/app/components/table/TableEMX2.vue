@@ -101,12 +101,10 @@
             >
               <template #row-actions v-if="colIndex === 0 && props.isEditable">
                 <div
-                  class="absolute left-0 h-10 -mt-2 w-[100px] z-10 text-table-row bg-hover group-hover:bg-hover hidden group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
+                  class="absolute left-0 h-10 -mt-2 w-[100px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
                 >
                   <Button
-                    :id="`table-emx2-${encodeURI(schemaId)}-${encodeURI(
-                      tableId
-                    )}-${getRowId(row)}-edit-row-button`"
+                    :id="useId()"
                     :icon-only="true"
                     type="inline"
                     icon="trash"
@@ -120,9 +118,7 @@
                     {{ getRowId(row) }}
                   </Button>
                   <Button
-                    :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
-                      row
-                    )}-delete-row-button`"
+                    :id="useId()"
                     :icon-only="true"
                     type="inline"
                     icon="edit"
@@ -195,7 +191,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, useId, watch } from "vue";
 import type {
   IRow,
   IColumn,
