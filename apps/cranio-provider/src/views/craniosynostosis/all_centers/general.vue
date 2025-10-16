@@ -1,9 +1,12 @@
 <template>
   <ProviderDashboard>
-    <h2 class="dashboard-h2">General overview for your center</h2>
+    <h2 class="dashboard-h2">General overview for all centers</h2>
     <DashboardRow :columns="1">
       <DashboardChart>
-        <InputLabel id="yearOfBirthFilter" label="Filter data by age group" />
+        <InputLabel
+          id="yearOfBirthFilter"
+          label="Filter data by year of birth"
+        />
         <select
           class="inputs select"
           id="yearOfBirthFilter"
@@ -17,7 +20,7 @@
       </DashboardChart>
     </DashboardRow>
     <DashboardRow :columns="1">
-      <DashboardChart>
+      <DashboardChart id="type-of-craniosynostosis">
         <LoadingScreen v-if="loading" />
         <ColumnChart
           v-else
@@ -97,28 +100,56 @@
         />
       </DashboardChart>
     </DashboardRow>
+    <h3 class="dashboard-h3">Patients Overview</h3>
+    <DashboardRow :columns="1">
+      <DashboardChart>
+        <LoadingScreen v-if="loading" />
+        <ColumnChart
+          v-else
+          :chartId="patientsByCountryChart?.chartId"
+          :title="patientsByCountryChart?.chartTitle"
+          :description="patientsByCountryChart?.chartSubtitle"
+          :chartData="patientsByCountryChartData"
+          xvar="dataPointName"
+          yvar="dataPointValue"
+          :xAxisLabel="patientsByCountryChart?.xAxisLabel"
+          :yAxisLabel="patientsByCountryChart?.yAxisLabel"
+          :yMin="0"
+          :yMax="patientsByCountryChart?.yAxisMaxValue"
+          :columnColorPalette="patientsByCountryPalette"
+          :chartHeight="275"
+          :chartMargins="{
+            top: patientsByCountryChart?.topMargin,
+            right: patientsByCountryChart?.rightMargin,
+            bottom: patientsByCountryChart?.bottomMargin,
+            left: patientsByCountryChart?.leftMargin,
+          }"
+        />
+      </DashboardChart>
+    </DashboardRow>
   </ProviderDashboard>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import ProviderDashboard from "../components/ProviderDashboard.vue";
 import {
   DashboardRow,
   DashboardChart,
   ColumnChart,
   InputLabel,
   LoadingScreen,
-  //@ts-ignore
+  // @ts-expect-error
 } from "molgenis-viz";
-import { generateAxisTickData } from "../utils/generateAxisTicks";
-import { getDashboardChart } from "../utils/getDashboardData";
-import { generateColorPalette } from "../utils/generateColorPalette";
-import { uniqueValues, uniqueAgeGroups } from "../utils";
+import ProviderDashboard from "../../../components/ProviderDashboard.vue";
 
-import type { ICharts, IChartData } from "../types/schema";
-import type { IKeyValuePair } from "../types/index";
-import type { IAppPage } from "../types/app";
+import { generateAxisTickData } from "../../../utils/generateAxisTicks";
+import { getDashboardChart } from "../../../utils/getDashboardData";
+import { generateColorPalette } from "../../../utils/generateColorPalette";
+import { uniqueValues, uniqueAgeGroups } from "../../../utils";
+
+import type { ICharts, IChartData } from "../../../types/schema";
+import type { IKeyValuePair } from "../../../types";
+import type { IAppPage } from "../../../types/app";
 const props = defineProps<IAppPage>();
 
 const loading = ref<boolean>(true);
@@ -133,29 +164,38 @@ const affectedSutureChartPalette = ref<IKeyValuePair>();
 const multipleSutureChart = ref<ICharts>();
 const multipleSutureChartData = ref<IChartData[]>();
 const multipleSuturePalette = ref<IKeyValuePair>();
+const patientsByCountryChart = ref<ICharts>();
+const patientsByCountryChartData = ref<IChartData[]>();
+const patientsByCountryPalette = ref<IKeyValuePair>();
 
 async function getPageData() {
   const csTypes = await getDashboardChart(
-    props.api.graphql.current,
-    "cs-provider-type-of-craniosynostosis"
+    props.api.graphql.providers,
+    "cs-all-centers-type-of-craniosynostosis"
   );
 
   const affectedSutures = await getDashboardChart(
-    props.api.graphql.current,
-    "cs-provider-affected-suture"
+    props.api.graphql.providers,
+    "cs-all-centers-affected-sutures"
   );
 
   const multiSutures = await getDashboardChart(
-    props.api.graphql.current,
-    "cs-provider-multiple-suture-synostosis"
+    props.api.graphql.providers,
+    "cs-all-centers-mutiple-suture-synostosis"
+  );
+
+  const patientCountry = await getDashboardChart(
+    props.api.graphql.providers,
+    "cs-all-centers-patients-by-country"
   );
 
   cranioTypeChart.value = csTypes[0];
   affectedSutureChart.value = affectedSutures[0];
   multipleSutureChart.value = multiSutures[0];
+  patientsByCountryChart.value = patientCountry[0];
 
   cranioTypeChartPalette.value = generateColorPalette(
-    uniqueValues(cranioTypeChart.value?.dataPoints, "dataPointName")
+    uniqueValues(cranioTypeChart.value.dataPoints, "dataPointName")
   );
 
   affectedSutureChartPalette.value = generateColorPalette(
@@ -164,6 +204,10 @@ async function getPageData() {
 
   multipleSuturePalette.value = generateColorPalette(
     uniqueValues(multipleSutureChart.value?.dataPoints, "dataPointName")
+  );
+
+  patientsByCountryPalette.value = generateColorPalette(
+    uniqueValues(patientsByCountryChart.value.dataPoints, "dataPointName")
   );
 }
 
@@ -226,6 +270,22 @@ function updateMultipeSuturesChart() {
   }
 }
 
+function updatePatientsByCountryChart() {
+  patientsByCountryChartData.value =
+    patientsByCountryChart.value?.dataPoints?.sort((current, next) => {
+      return current.dataPointName?.localeCompare(
+        next.dataPointName as string
+      ) as number;
+    });
+
+  const countries: string[] = uniqueValues(
+    patientsByCountryChartData.value,
+    "dataPointName"
+  );
+  const colors = countries.map((key: string) => [key, "#3f6597"]);
+  patientsByCountryPalette.value = Object.fromEntries(colors);
+}
+
 function setAgeGroupFilter() {
   ageGroups.value = uniqueAgeGroups(
     cranioTypeChart.value?.dataPoints,
@@ -247,6 +307,7 @@ onMounted(() => {
       updateCranioTypesChart();
       updateAffectedSutureChart();
       updateMultipeSuturesChart();
+      updatePatientsByCountryChart();
     })
     .catch((err) => {
       throw new Error(err);
