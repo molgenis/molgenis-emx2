@@ -11,7 +11,7 @@ import {
   type JavaScriptDependency,
 } from "../../../../util/pages";
 
-import { useSession } from "../../../../../tailwind-components/composables/useSession";
+import { useSession } from "../../../../../../tailwind-components/app/composables/useSession";
 const { isAdmin } = await useSession();
 
 interface Setting {
@@ -20,7 +20,7 @@ interface Setting {
 }
 
 interface ModelStatus {
-  type: "error" | "success",
+  type: "error" | "success";
   message: string;
 }
 
@@ -38,12 +38,12 @@ const statusModal = ref<InstanceType<typeof SideModal>>();
 const statusModalData = ref<ModelStatus>({
   type: "success",
   message: "",
-})
+});
 const showStatusModal = ref<boolean>(false);
 
 useHead({ title: `Edit - ${page} - Pages - ${schema} - Molgenis` });
 
-function getPageContent () {
+function getPageContent() {
   statusModalData.value.message = "";
 
   $fetch(`/${schema}/graphql`, {
@@ -52,20 +52,22 @@ function getPageContent () {
       query: `{_settings(keys:["page.${page}"]){key value}}`,
     },
   })
-  .then((data) => {
-    const setting = data?.data?._settings?.filter((setting: Setting) => {
-      return setting.key === `page.${page}`;
-    })[0];
-    code.value = JSON.parse(setting?.value as string) as unknown as PageBuilderContent;
-  })
-  .catch((err) => {
-    statusModalData.value = {
-      type: "error",
-      message: err
-    };
-    showStatusModal.value = true;
-  })
-  .finally(() => isLoading.value = false);
+    .then((data) => {
+      const setting = data?.data?._settings?.filter((setting: Setting) => {
+        return setting.key === `page.${page}`;
+      })[0];
+      code.value = JSON.parse(
+        setting?.value as string
+      ) as unknown as PageBuilderContent;
+    })
+    .catch((err) => {
+      statusModalData.value = {
+        type: "error",
+        message: err,
+      };
+      showStatusModal.value = true;
+    })
+    .finally(() => (isLoading.value = false));
 }
 
 onMounted(() => getPageContent());
@@ -79,56 +81,64 @@ function saveSetting() {
   $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-     query: `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){status message}}`,
-     variables: {
-       settings: {
-        key: `page.${page}`,
-        value: JSON.stringify(code.value)
-       }
-     }
-    }
+      query: `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){status message}}`,
+      variables: {
+        settings: {
+          key: `page.${page}`,
+          value: JSON.stringify(code.value),
+        },
+      },
+    },
   })
-  .then(response => {
-    if (response?.error) {
-      throw new Error(response.error[0].message);
-    }
-    statusModalData.value = {
-      type: "success",
-      message: "Page saved"
-    };
-  })
-  .catch((err) => {
-    statusModalData.value = {
-      type: "error",
-      message: err
-    };
-  })
-  .finally(() => showStatusModal.value = true);
+    .then((response) => {
+      if (response?.error) {
+        throw new Error(response.error[0].message);
+      }
+      statusModalData.value = {
+        type: "success",
+        message: "Page saved",
+      };
+    })
+    .catch((err) => {
+      statusModalData.value = {
+        type: "error",
+        message: err,
+      };
+    })
+    .finally(() => (showStatusModal.value = true));
 }
 
 function addCssDependency() {
-  code.value.dependencies.css.push({url: ""});
+  code.value.dependencies.css.push({ url: "" });
 }
 
-function addJsDependency () {
-  code.value.dependencies.javascript.push({url: "", defer: false});
+function addJsDependency() {
+  code.value.dependencies.javascript.push({ url: "", defer: false });
 }
 
 function updateCssDependency(index: number, value: string) {
   (code.value.dependencies.css[index] as CssDependency).url = value;
 }
 
-function updateJsDependency(dependency: JavaScriptDependency,index: number, key: string, value: string) {
-  const newDependency = Object.assign(dependency, { [key]: value});
+function updateJsDependency(
+  dependency: JavaScriptDependency,
+  index: number,
+  key: string,
+  value: string
+) {
+  const newDependency = Object.assign(dependency, { [key]: value });
   (code.value.dependencies.css[index] as JavaScriptDependency) = newDependency;
 }
 
-function removeCssDependency (index: number) {
-  code.value.dependencies.css = code.value.dependencies.css.filter((_,rowNum) => (rowNum !== index));
+function removeCssDependency(index: number) {
+  code.value.dependencies.css = code.value.dependencies.css.filter(
+    (_, rowNum) => rowNum !== index
+  );
 }
 
 function removeJsDependency(index: number) {
-  code.value.dependencies.javascript = code.value.dependencies.javascript.filter((_,rowNum) => rowNum !== index);
+  code.value.dependencies.javascript =
+    code.value.dependencies.javascript.filter((_, rowNum) => rowNum !== index);
 }
 
 const crumbs: Record<string, string> = {};
@@ -320,7 +330,9 @@ crumbs["Edit"] = "";
                   :id="`form-editor-settings-dependency-css-${index}`"
                   placeholder="https://path/to/css"
                   :model-value="dependency.url"
-                  @update:model-value="updateCssDependency(index, ($event as string))"
+                  @update:model-value="
+                    updateCssDependency(index, $event as string)
+                  "
                 />
               </div>
               <div>
@@ -365,7 +377,14 @@ crumbs["Edit"] = "";
                   :id="`form-editor-settings-dependency-js-${index}`"
                   placeholder="https://path/to/js"
                   :model-value="dependency.url"
-                  @update:model-value="updateJsDependency(dependency, index, 'url', ($event as string))"
+                  @update:model-value="
+                    updateJsDependency(
+                      dependency,
+                      index,
+                      'url',
+                      $event as string
+                    )
+                  "
                 />
               </div>
               <div>

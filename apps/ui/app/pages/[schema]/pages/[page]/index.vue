@@ -1,14 +1,13 @@
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
-// import { type PageBuilderContent } from "../../../../util/pages";
-import type { DeveloperPage } from "~/util/PageTypes";
 
-interface Setting {
-  key: string;
-  value: string;
-}
+import Container from "../../../../../../tailwind-components/app/components/Container.vue";
+import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import Message from "../../../../../../tailwind-components/app/components/Message.vue";
+import HtmlPreview from "../../../../../../tailwind-components/app/components/editor/HtmlPreview.vue";
+import type { DeveloperPage } from "../../../../../../tailwind-components/app/utils/Pages";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
@@ -41,6 +40,8 @@ async function getPageContent() {
             fetchPriority {
               name
             }
+            async
+            defer
           }
           enableBaseStyles
           enableButtonStyles
@@ -58,7 +59,7 @@ async function getPageContent() {
   }
 }
 
-onMounted(() => getPageContent());
+getPageContent();
 
 const crumbs: Record<string, string> = {};
 crumbs[schema as string] = `/${schema}`;
@@ -76,7 +77,6 @@ crumbs[page as string] = "";
     >
       {{ error }}
     </Message>
-    {{ developerPage }}
   </Container>
-  <!-- <EditorHtmlPreview :code="code" v-if="code" /> -->
+  <HtmlPreview :content="developerPage" v-if="developerPage" />
 </template>

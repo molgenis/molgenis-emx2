@@ -1,27 +1,27 @@
 <script lang="ts" setup>
-import { useTemplateRef, watch, onMounted } from "vue";
-import type { PageBuilderContent } from "../../../ui/util/pages";
-import { generateHtmlPreview } from "../../../ui/util/pages";
+import { useTemplateRef, watch } from "vue";
+import { type DeveloperPage, generateHtmlPreview } from "../../utils/Pages";
 
 const props = defineProps<{
-  code: PageBuilderContent;
+  content: DeveloperPage;
 }>();
 
 const previewElem = useTemplateRef<HTMLDivElement>("preview");
 
 function renderPreview() {
-  generateHtmlPreview(props.code, previewElem.value as HTMLDivElement);
+  generateHtmlPreview(props.content, previewElem.value as HTMLDivElement);
 }
 
-onMounted(() => {
-  renderPreview();
-});
-
 watch(
-  () => props.code,
+  () => previewElem.value,
   () => {
     renderPreview();
-  },
+  }
+);
+
+watch(
+  () => props.content,
+  () => renderPreview(),
   { deep: true }
 );
 </script>
@@ -30,10 +30,10 @@ watch(
   <div
     class="emx2__page_preview"
     :class="{
-      enabled: code.settings.enableBaseStyles,
-      enabled__button_styles: code.settings.enableButtonStyles,
-      enabled__full_screen: code.settings.enableFullScreen,
-      disabled__full_screen: !code.settings.enableFullScreen,
+      enabled: content.enableBaseStyles,
+      enabled__button_styles: content.enableButtonStyles,
+      enabled__full_screen: content.enableFullScreen,
+      disabled__full_screen: !content.enableFullScreen,
     }"
   >
     <div ref="preview" />
