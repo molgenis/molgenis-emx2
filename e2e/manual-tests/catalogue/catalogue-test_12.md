@@ -37,7 +37,7 @@ when viewed in 'small-screen' mode.
 | 19 | Click on 'Filters' and a pop-up opens. | A search field is displayed at the top and filters below | | |
 | 20 | Close the pop-up | | | |
 | 21 | Click on 'acronym for test network1' | The user goes to overview page for this network and the ribbon reads :`MENU` and `MOLGENIS` logo at the top, Below: `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES` | | |
-| 22 | See that the fields are filled as follows: | Test logo for test network, <https://www.molgenis.org/>, Description, General design, Population, Organisations, Datasets, Networks, Publications, Funding and acknowledgements | | |
+| 22 | See that the fields are filled as follows: | Test logo for test network, <https://www.molgenis.org/>, Description, General design, Population, Organisations, Contributors Dataset variables, Networks, Publications, Funding & acknowledgements | | |
 | 23 | Press the back button on the page | The user goes to [/all/networks](https://data-catalogue-acc.molgeniscloud.org/all/networks) | | |
 | 24 | Press the back button again | The user goes to [/all](https://data-catalogue-acc.molgeniscloud.org/all) | | |
 | 25 | Click on 'Variables` | The user goes to [/all/variables](https://data-catalogue-acc.molgeniscloud.org/all/variables) | | |
