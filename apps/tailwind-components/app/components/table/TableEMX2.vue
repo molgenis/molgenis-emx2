@@ -28,8 +28,6 @@
     </div>
   </div>
 
-  {{ showDraftColumn }}
-
   <div
     class="relative overflow-auto rounded-b-theme border border-theme border-color-theme"
   >
