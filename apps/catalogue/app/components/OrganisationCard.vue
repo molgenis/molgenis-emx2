@@ -13,15 +13,9 @@ defineProps<{
   >
     <div class="flex items-start flex-col h-full">
       <span class="block">
-        <span class="font-bold" v-if="organisation?.organisationName.name">
-          {{ organisation?.organisationName.name }}&nbsp;<template
-            v-if="organisation.acronym"
-            >({{ organisation.acronym }})</template
-          >
+        <span class="font-bold" v-if="organisation.organisation">
+          {{ organisation.organisation?.name }}
         </span>
-        <div v-if="organisation.country">
-          {{ organisation.country.map((r) => r.name).join(", ") }}
-        </div>
       </span>
       <a
         class="text-blue-500 block hover:underline"
