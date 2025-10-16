@@ -41,13 +41,10 @@ The catalogue (menu ribbon, blocks of information displayed, filters, etc) is di
 | 24 | Click on the first variable 'abd_circum_sdsWHO_t' | The user goes to [/all/variables/abd_circum_sdsWHO_t...](https://data-catalogue-acc.molgeniscloud.org/all/variables/abd_circum_sdsWHO_t-ATHLETE-outcome_ath-ATHLETE?keys={%22name%22:%22abd_circum_sdsWHO_t%22,%22resource%22:{%22id%22:%22ATHLETE%22},%22dataset%22:{%22name%22:%22outcome_ath%22,%22resource%22:{%22id%22:%22ATHLETE%22}}}) | | |
 | 25 | See that the fields are filled as follows: | Definition, Harmonisation status per source and Harmonisation details per source | | |
 | 26 | Click on `OTHER CATALOGUES` | | | |
-| 27 | Click on **OOM** under *Project Catalogues* | The user goes to [/OOM](https://data-catalogue-acc.molgeniscloud.org/OOM). | | |
-| 28 | | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `ABOUT` and `MORE` | | |
-| 29 | Click on `MORE`->`Other Catalogues` | The user goes to [/](https://data-catalogue-acc.molgeniscloud.org/) | | |
-| | [THIS EXTRA TEST STEP CAN BE RENDERED INVALID BY PRODUCTION DATA FOR LONGITOOLS BEING COPIED INTO ACC - SEE IT AS A BONUS STEP!] | | | |
-| 30a | Click on **LongITools** under *Project Catalogues* | The user goes to [/LongITools](https://data-catalogue-acc.molgeniscloud.org/LongITools). | | |
-| 30b | | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `VARIABLES`, `ABOUT`, `OTHER CATALOGUES` and `MORE` | | |
-| 31 | Navigate to [catalogue/](https://data-catalogue-acc.molgeniscloud.org/) using Safari | Landing page: European health research data and sample catalogue. The ribbon reads: `MOLGENIS` logo, `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS` and `MORE` | | |
-| 32 | Repeat steps from 2 to 30b | | | |
-| 31 | Navigate to [catalogue/](https://data-catalogue-acc.molgeniscloud.org/) using Microsoft Edge | Landing page: European health research data and sample catalogue. The ribbon reads: `MOLGENIS` logo, `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS` and `MORE` | | |
-| 32 | Repeat steps from 2 to 30b | | | |
+| 27 | Click on **LongITools** under *Project Catalogues* | The user goes to [/LongITools](https://data-catalogue-acc.molgeniscloud.org/LongITools). | | |
+| 28 | | The ribbon reads: `MOLGENIS` logo, `COLLECTIONS`, `VARIABLES`, `ABOUT`, `OTHER CATALOGUES` and `MORE` | | |
+| 29 | Click on `OTHER CATALOGUES` | The user goes to [home](https://data-catalogue-acc.molgeniscloud.org/) | | |
+| 30 | Navigate to `https://data-catalogue-acc.molgeniscloud.org/` using Safari | Landing page: European health research data and sample catalogue. The ribbon reads: `MOLGENIS` logo, `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS` and `MORE` | | |
+| 31 | Repeat steps 2 to 28 | | | |
+| 32 | Navigate to `https://data-catalogue-acc.molgeniscloud.org/` using Microsoft Edge | Landing page: European health research data and sample catalogue. The ribbon reads: `MOLGENIS` logo, `HOME`, `ALL COLLECTIONS`, `ALL VARIABLES`, `ALL NETWORKS` and `MORE` | | |
+| 33 | Repeat steps 2 to 28 | | | |
