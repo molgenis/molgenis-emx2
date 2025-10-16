@@ -51,7 +51,7 @@ const showSearch = ref<boolean>(false);
 const searchTerms: Ref<string> = ref("");
 const hasNoResults = ref<boolean>(true);
 const columnName = computed<string>(() => {
-  return props.refLabel.replace(/[\{\}\$]/g, "");
+  return (tableMetadata.value?.label || tableMetadata.value?.id) as string;
 });
 
 const entitiesLeftToLoad = computed<number>(() => {
