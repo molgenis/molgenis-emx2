@@ -14,9 +14,9 @@ export default defineConfig((command) => {
       preprocessorOptions: {
         scss: {
           additionalData: `
-            @import "../../molgenis-viz/src/styles/palettes.scss";
-            @import "../../molgenis-viz/src/styles/mixins.scss";
-            @import "./src/styles/index.scss";
+            @import "../molgenis-viz/src/styles/palettes.scss";
+            @import "../molgenis-viz/src/styles/mixins.scss";
+            @import "src/styles/index.scss";
           `
         }
       }
