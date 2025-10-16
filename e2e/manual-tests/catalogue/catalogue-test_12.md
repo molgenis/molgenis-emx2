@@ -24,7 +24,7 @@ when viewed in 'small-screen' mode.
 | 6 | | The ribbon reads: `MENU` and `MOLGENIS` logo at the top, Below: `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `OTHER CATALOGUES` | | |
 | 7 | Click on 'Collections' | The user goes to  [/all/collections](https://data-catalogue-acc.molgeniscloud.org/all/collections) | | |
 | 8 | | The ribbon reads: `MENU` and `MOLGENIS` logo at the top, Below: `OVERVIEW`, `COLLECTIONS`, `NETWORKS`, `VARIABLES` | | |
-| 9 | Click on 'Filters' and a pop-up opens. | A search field is disaplyed at the top and filters below | | |
+| 9 | Click on 'Filters' and a pop-up opens. | A search field is displayed at the top and filters below | | |
 | 10 | Close the pop-up | | | |
 | 11 | Click on the 'View' button | List of collections changes to compact view and the URL changes to [/all/collections?view=compact](https://data-catalogue-acc.molgeniscloud.org/all/collections?view=compact) | | |
 | 12 | Click on the 'View' button again | List of collections goes back to detailed view and the URL changes to [/all/collections?view=detailed](https://data-catalogue-acc.molgeniscloud.org/all/collections?view=detailed) | | |
