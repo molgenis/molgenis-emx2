@@ -25,6 +25,7 @@ import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
+import org.molgenis.emx2.sql.SqlTypeUtils;
 import org.molgenis.emx2.tasks.Task;
 
 public class CsvApi {
@@ -129,7 +130,10 @@ public class CsvApi {
               new ObjectMapper()
                   .readValue(ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT), Map.class)));
     }
-    return q.retrieveRows();
+    List<Row> rows = q.retrieveRows();
+    SqlTypeUtils.applyComputed(table.getMetadata().getColumns(), rows);
+
+    return rows;
   }
 
   private static void tableUpdate(Context ctx) {
