@@ -141,7 +141,7 @@ public class SqlQuery extends QueryBean {
         table
             .getJooq()
             .select(rowSelectFields(table, tableAlias, select))
-            .from(tableWithInheritanceJoin(table, select, tableAlias));
+            .from(tableWithInheritanceJoin(table, null, tableAlias)); // we will join ourselves
 
     // joins, only filtered tables
     from = refJoins(table, tableAlias, from, filter, select, new ArrayList<>());
@@ -432,13 +432,13 @@ public class SqlQuery extends QueryBean {
                   jsonFilterQuery(
                       (SqlTableMetadata) c.getRefTable(),
                       c.getRefTable().getPrimaryKeyFields(),
-                      select,
+                      null,
                       column,
                       tableAlias,
                       subAlias,
                       f,
                       new String[0]);
-          conditions.add(whereColumnInSubquery(c, subQuery));
+          conditions.add(whereColumnInSubquery(tableAlias, c, subQuery));
         }
       }
     }
@@ -748,7 +748,7 @@ public class SqlQuery extends QueryBean {
               field(name(alias(leftJoinTableName), convertToCamelCase(field.getColumn()))));
         } else {
           groupByFields.add(
-              field(name(subQueryAlias, col.getIdentifier()))
+              field(name(tableAlias, col.getIdentifier()))
                   .as(convertToCamelCase(field.getColumn())));
         }
 
@@ -845,73 +845,75 @@ public class SqlQuery extends QueryBean {
     result = result.as(alias(tableAlias));
 
     // lateral join the selected refs/refs_agg/refs_groupBy
-    List<String> aggregateFields = List.of("count", "_sum");
-    for (SelectColumn subSelect : select.getSubselect()) {
-      boolean requiresCrossJoin = false;
-      // skip the aggregation only look at selected/group by columns
-      if (!aggregateFields.contains(subSelect.getColumn())) {
-        Column subColumn = getColumnForGraphqlField(table, subSelect);
-        if (subColumn.isReference()) {
-          Field<?> subField;
-          if (subSelect.getColumn().endsWith("_agg")) {
-            // aggregation subselect
-            subField =
-                jsonAggregateSelect(
-                        (SqlTableMetadata) subColumn.getRefTable(),
-                        subColumn,
-                        tableAlias,
-                        subSelect,
-                        subSelect.getFilter(),
-                        new String[0])
-                    .as(convertToCamelCase(subSelect.getColumn()));
-          } else if (subSelect.getColumn().endsWith("_groupBy")) {
-            subField =
-                jsonGroupBySelect(
-                        (SqlTableMetadata) subColumn.getRefTable(),
-                        subColumn,
-                        tableAlias,
-                        subSelect,
-                        subSelect.getFilter(),
-                        new String[0])
-                    .as(convertToCamelCase(subSelect.getColumn()));
-          } else {
-            // if aggregate we need to cross join result
-            requiresCrossJoin =
-                (subColumn.isRefArray() || subColumn.isRefback())
-                    && select.getSubselect().stream()
-                        .anyMatch(field -> aggregateFields.contains(field.getColumn()));
-            subField =
-                jsonSubselect(
-                        (SqlTableMetadata) subColumn.getRefTable(),
-                        subColumn,
-                        tableAlias,
-                        subSelect,
-                        subSelect.getFilter(),
-                        new String[0])
-                    .as(subColumn.getIdentifier());
-          }
-          String joinAlias =
-              getLateralJoinAlias(subSelect, tableAlias) + (requiresCrossJoin ? "pre" : "");
-          result = result.leftJoin(lateral(DSL.select(subField).asTable(alias(joinAlias)))).on();
-          if (requiresCrossJoin) {
-            String crossJoinAlias = getLateralJoinAlias(subSelect, tableAlias);
+    List<String> aggregateFields = List.of("count", "_sum", "max", "min");
+    if (select != null) {
+      for (SelectColumn subSelect : select.getSubselect()) {
+        boolean requiresCrossJoin = false;
+        // skip the aggregation only look at selected/group by columns
+        if (!aggregateFields.contains(subSelect.getColumn())) {
+          Column subColumn = getColumnForGraphqlField(table, subSelect);
+          if (subColumn.isReference()) {
+            Field<?> subField;
+            if (subSelect.getColumn().endsWith("_agg")) {
+              // aggregation subselect
+              subField =
+                  jsonAggregateSelect(
+                          (SqlTableMetadata) subColumn.getRefTable(),
+                          subColumn,
+                          tableAlias,
+                          subSelect,
+                          subSelect.getFilter(),
+                          new String[0])
+                      .as(convertToCamelCase(subSelect.getColumn()));
+            } else if (subSelect.getColumn().endsWith("_groupBy")) {
+              subField =
+                  jsonGroupBySelect(
+                          (SqlTableMetadata) subColumn.getRefTable(),
+                          subColumn,
+                          tableAlias,
+                          subSelect,
+                          subSelect.getFilter(),
+                          new String[0])
+                      .as(convertToCamelCase(subSelect.getColumn()));
+            } else {
+              // if aggregate we need to cross join result
+              requiresCrossJoin =
+                  (subColumn.isRefArray() || subColumn.isRefback())
+                      && select.getSubselect().stream()
+                          .anyMatch(field -> aggregateFields.contains(field.getColumn()));
+              subField =
+                  jsonSubselect(
+                          (SqlTableMetadata) subColumn.getRefTable(),
+                          subColumn,
+                          tableAlias,
+                          subSelect,
+                          subSelect.getFilter(),
+                          new String[0])
+                      .as(subColumn.getIdentifier());
+            }
+            String joinAlias =
+                getLateralJoinAlias(subSelect, tableAlias) + (requiresCrossJoin ? "pre" : "");
+            result = result.leftJoin(lateral(DSL.select(subField).asTable(alias(joinAlias)))).on();
+            if (requiresCrossJoin) {
+              String crossJoinAlias = getLateralJoinAlias(subSelect, tableAlias);
 
-            Table<?> lateralJoin =
-                lateral(
-                        DSL.select(field(name("elem")).as(subSelect.getColumn()))
-                            .from(
-                                table(
-                                        "jsonb_array_elements({0})",
-                                        name(alias(joinAlias), subField.getName()))
-                                    .asTable("elem"))
-                            .unionAll(
-                                DSL.select(inline((Object) null).as(subSelect.getColumn()))
-                                    .where(
-                                        field(name(alias(joinAlias), subField.getName()))
-                                            .isNull())))
-                    .asTable(alias(crossJoinAlias));
+              Table<?> lateralJoin =
+                  lateral(
+                          DSL.select(field(name("elem")).as(subSelect.getColumn()))
+                              .from(
+                                  table(
+                                          "jsonb_array_elements({0})",
+                                          name(alias(joinAlias), subField.getName()))
+                                      .asTable("elem"))
+                              .unionAll(
+                                  DSL.select(inline((Object) null).as(subSelect.getColumn()))
+                                      .where(
+                                          field(name(alias(joinAlias), subField.getName()))
+                                              .isNull())))
+                      .asTable(alias(crossJoinAlias));
 
-            result = result.leftJoin(lateralJoin).on(trueCondition());
+              result = result.leftJoin(lateralJoin).on(trueCondition());
+            }
           }
         }
       }
@@ -940,7 +942,7 @@ public class SqlQuery extends QueryBean {
               // to ensure only join once
               aliasList.add(subAlias);
               // the join
-              join.leftJoin(tableWithInheritanceJoin(column.getRefTable(), selection, subAlias))
+              join.leftJoin(tableWithInheritanceJoin(column.getRefTable(), null, subAlias))
                   .on(refJoinCondition(column, tableAlias, subAlias));
               // recurse
               join =
@@ -1222,23 +1224,25 @@ public class SqlQuery extends QueryBean {
       case BETWEEN:
         return whereColumnBetween(columnName, values);
       case MATCH_ANY_INCLUDING_PARENTS:
-        return whereColumnMatchAnyIncludingParents(column, values);
+        return whereColumnMatchAnyIncludingParents(tableAlias, column, values);
       case SEARCH_INCLUDING_PARENTS:
-        return whereColumnSearchIncludingParents(column, values);
+        return whereColumnSearchIncludingParents(tableAlias, column, values);
       case MATCH_ANY_INCLUDING_CHILDREN:
-        return whereColumnMatchAnyIncludingChilderen(column, values);
+        return whereColumnMatchAnyIncludingChilderen(tableAlias, column, values);
       case MATCH_PATH:
         return or(
-            whereColumnMatchAnyIncludingParents(column, values),
-            whereColumnMatchAnyIncludingChilderen(column, values));
+            whereColumnMatchAnyIncludingParents(tableAlias, column, values),
+            whereColumnMatchAnyIncludingChilderen(tableAlias, column, values));
       default:
         throw new MolgenisException("Unknown operator: " + operator);
     }
   }
 
-  private Condition whereColumnMatchAnyIncludingChilderen(Column column, Object[] values) {
+  private Condition whereColumnMatchAnyIncludingChilderen(
+      String tableAlias, Column column, Object[] values) {
     if (column.isArray()) {
       return whereColumnInSubquery(
+          tableAlias,
           column,
           DSL.select(
               field(
@@ -1249,7 +1253,7 @@ public class SqlQuery extends QueryBean {
     } else {
       return condition(
           "{0} = ANY(ARRAY({1}))",
-          name(column.getName()),
+          name(alias(tableAlias), column.getName()),
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_children({0},{1},{2})",
@@ -1259,9 +1263,11 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private Condition whereColumnMatchAnyIncludingParents(Column column, Object[] values) {
+  private Condition whereColumnMatchAnyIncludingParents(
+      String tableAlias, Column column, Object[] values) {
     if (column.isArray()) {
       return whereColumnInSubquery(
+          tableAlias,
           column,
           DSL.select(
               field(
@@ -1272,7 +1278,7 @@ public class SqlQuery extends QueryBean {
     } else {
       return condition(
           "{0} = ANY(ARRAY({1}))",
-          name(column.getName()),
+          name(alias(tableAlias), column.getName()),
           DSL.select(
               field(
                   "\"MOLGENIS\".get_terms_including_parents({0},{1},{2})",
@@ -1282,9 +1288,11 @@ public class SqlQuery extends QueryBean {
     }
   }
 
-  private Condition whereColumnSearchIncludingParents(Column column, Object[] values) {
+  private Condition whereColumnSearchIncludingParents(
+      String tableAlias, Column column, Object[] values) {
     if (column.isArray()) {
       return whereColumnInSubquery(
+          tableAlias,
           column,
           DSL.select(
               field(
@@ -1295,7 +1303,7 @@ public class SqlQuery extends QueryBean {
     } else {
       return condition(
           "{0} = ANY(ARRAY({1}))",
-          name(column.getName()),
+          name(alias(tableAlias), column.getName()),
           DSL.select(
               field(
                   "\"MOLGENIS\".search_terms_including_parents({0},{1},{2})",
@@ -1437,7 +1445,10 @@ public class SqlQuery extends QueryBean {
                     .where(
                         condition(
                             ANY_SQL,
-                            field(name(columnDefinition.getRefTable().getPrimaryKeys().get(0))),
+                            field(
+                                name(
+                                    alias(tableAlias),
+                                    columnDefinition.getRefTable().getPrimaryKeys().get(0))),
                             getTypedValue(values, columnDefinition.getPrimitiveColumnType()))));
       } else {
         return row(columnDefinition.getTable().getPrimaryKeyFields())
@@ -1591,11 +1602,11 @@ public class SqlQuery extends QueryBean {
     return searchConditions.isEmpty() ? null : and(searchConditions);
   }
 
-  private Condition whereColumnInSubquery(Column c, SelectSelectStep subQuery) {
+  private Condition whereColumnInSubquery(String tableAlias, Column c, SelectSelectStep subQuery) {
     if (c.isRefArray()) {
       // if not composite it is simple array overlap
       if (c.getReferences().size() == 1) {
-        return condition("{0} && ARRAY({1})", name(c.getName()), subQuery);
+        return condition("{0} && ARRAY({1})", name(alias(tableAlias), c.getName()), subQuery);
       } else {
         // otherwise exists(unnest(ref_array) natural join (filterQuery))
         List<Field<?>> unnest =
