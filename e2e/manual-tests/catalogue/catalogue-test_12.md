@@ -50,10 +50,7 @@ when viewed in 'small-screen' mode.
 | 32 | Click on the first variable 'abd_circum_sdsWHO_t' | The user goes to [/all/variables/abd_circum_sdsWHO_t...](https://data-catalogue-acc.molgeniscloud.org/all/variables/abd_circum_sdsWHO_t-ATHLETE-outcome_ath-ATHLETE?keys={%22name%22:%22abd_circum_sdsWHO_t%22,%22resource%22:{%22id%22:%22ATHLETE%22},%22dataset%22:{%22name%22:%22outcome_ath%22,%22resource%22:{%22id%22:%22ATHLETE%22}}}) | | |
 | 33 | See that the fields are filled as follows: | Definition, Harmonisation status per source and Harmonisation details per source | | |
 | 34 | Click on `OTHER CATALOGUES` again | | | |
-| 35 | Click on **OOM** under *Project Catalogues* | The user goes to [/OOM](https://data-catalogue-acc.molgeniscloud.org/OOM). | | |
-| 36 | | The ribbon reads: `MENU`, test logo at the top (or Molgenis logo if no test logo is available) and below `COLLECTIONS`, `NETWORKS`, `VARIABLES`, and `ABOUT` | | |
-| 37 | Click on `MENU` | A pop-up opens with options: `COLLECTIONS`, `NETWORKS`, `VARIABLES`, `ABOUT`, `OTHER CATALOGUES`, `UPLOAD DATA`, `MANUALS` | | |
-| 38 | Click on `Other Catalogues` | The user goes to [/](https://data-catalogue-acc.molgeniscloud.org/) | | |
-| | [THIS EXTRA TEST STEP CAN BE RENDERED INVALID BY PRODUCTION DATA FOR LONGITOOLS BEING COPIED INTO ACC - SEE IT AS A BONUS STEP!] | | | |
-| 39a | Click on **LongITools** under *Project Catalogues* | The user goes to [/LongITools](https://data-catalogue-acc.molgeniscloud.org/LongITools). | | |
-| 39b | | The ribbon reads: `MENU`, Molegenis logo at the top and below `COLLECTIONS`, `VARIABLES`, `ABOUT`, `OTHER CATALOGUES` | | |
+| 35 | Click on **LongITools** under *Project Catalogues* | The user goes to [/LongITools](https://data-catalogue-acc.molgeniscloud.org/LongITools). | | |
+| 36 | | The ribbon reads: `MENU`, Molgenis logo at the top and below `COLLECTIONS`, `VARIABLES`, `ABOUT`, `OTHER CATALOGUES` | | |
+| 37 | Click on `MENU` | A pop-up opens with options: `COLLECTIONS`, `VARIABLES`, `ABOUT`, `OTHER CATALOGUES`, `UPLOAD DATA`, `MANUALS` | | |
+| 38 | Click on `Other Catalogues` | The user goes to [home](https://data-catalogue-acc.molgeniscloud.org/) | | |
