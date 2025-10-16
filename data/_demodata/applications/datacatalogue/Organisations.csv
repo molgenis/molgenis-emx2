@@ -181,3 +181,5 @@ testNetwork2,CYN,Organisation,,,Cynexo ,,,test@email.com,,,,Cynexo ,https://pl
 testNetworkofNetworks,CYN,Organisation,,,Cynexo ,,,test@email.com,,,,Cynexo ,https://placeholderpid,https://test-website.org,false,false
 testNetwork1,CYN,Organisation,,,Cynexo ,,,test@email.com,,,,Cynexo ,https://placeholderpid,https://test-website.org,false,false
 OOM,MLT.I,Organisation,,,Malta Congenital Anomalies Registry Directorate for Health Information and Research,,,test@email.com,,,,Malta Congenital Anomalies Registry Directorate for Health Information and Research,https://placeholderpid,https://test-website.org,false,false
+UMCG,UMCG,Organisation,,University Medical Center Groningen,,,,test@email.com,,,Data originator,University Medical Center Groningen,https://ror.org/03cv38k47,https://www.umcg.nl,true,
+testUMC,TUMC,Organisation,,,testUMC,,,test@email.com,,,Data holder,testUMC,https://placeholderpid,https://test-umc@example.org,false,
