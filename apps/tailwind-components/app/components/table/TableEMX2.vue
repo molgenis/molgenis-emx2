@@ -76,12 +76,7 @@
               v-if="showDraftColumn"
               class="text-table-row group-hover:bg-hover"
             >
-              <div
-                v-if="row?.mg_draft === true"
-                class="px-1 h-6 text-body-sm rounded bg-gray-400 text-white inline-block align-middle"
-              >
-                Draft
-              </div>
+              <DraftLabel v-if="row?.mg_draft === true" type="inline" />
             </TableCellEMX2>
 
             <TableCellEMX2
@@ -219,6 +214,7 @@ import Pagination from "../Pagination.vue";
 import TableControlColumns from "./control/Columns.vue";
 import TextNoResultsMessage from "../text/NoResultsMessage.vue";
 import TableHeaderAction from "./TableHeaderAction.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 
 const props = withDefaults(
   defineProps<{

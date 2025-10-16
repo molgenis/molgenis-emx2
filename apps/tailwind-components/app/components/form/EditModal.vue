@@ -22,11 +22,7 @@
             {{ editFormValues["mg_draft"] ? "(status=draft)" : "" }}
           </h2>
 
-          <span
-            v-show="isDraft"
-            class="ml-3 bg-gray-400 px-2 py-1 rounded text-white font-bold -mt-1"
-            >Draft</span
-          >
+          <DraftLabel v-if="isDraft" />
         </div>
 
         <button
@@ -153,6 +149,7 @@ import FormLegend from "./Legend.vue";
 import FormError from "./Error.vue";
 import FormMessage from "./Message.vue";
 import FormRequiredInfoSection from "./RequiredInfoSection.vue";
+import DraftLabel from "../label/DraftLabel.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -201,7 +198,7 @@ function setVisible() {
 }
 
 const rowType = computed(() => props.metadata.id);
-const isDraft = ref(false);
+const isDraft = ref(true);
 
 function onCancel() {
   visible.value = false;
