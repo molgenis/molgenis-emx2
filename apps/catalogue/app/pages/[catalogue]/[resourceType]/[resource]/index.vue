@@ -88,7 +88,6 @@ const query = `
       dateLastRefresh
       startYear
       endYear
-      license
       countries {
         name order
       }
@@ -155,12 +154,19 @@ const query = `
       }
       organisationsInvolved(orderby: {name: ASC})  {
         id
-        organisationsName ${moduleToString(ontologyFragment)}
+        name
         website
-        acronym
         isLeadOrganisation
         role ${moduleToString(ontologyFragment)}
-        country ${moduleToString(ontologyFragment)}
+        organisation {
+          name
+          acronym
+          website
+          country {
+            name
+            order
+          }
+        } 
       }
       subpopulations {
           name
@@ -184,17 +190,6 @@ const query = `
       }
       datasets {
         name
-      }
-      partOfResources {
-        id
-        name
-        type {
-            name
-        }
-        website
-        logo {
-          url
-        }
       }
       publications_agg {
         count
