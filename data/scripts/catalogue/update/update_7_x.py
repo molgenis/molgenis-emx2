@@ -81,6 +81,7 @@ class Transform:
         if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts', 'INTEGRATE']:
             self.collection_events()
             self.subpopulations()
+            self.subpopulation_counts()
         if self.profile in ['CohortsStaging', 'DataCatalogueFlat']:
             self.variable_mappings()
 
@@ -293,6 +294,18 @@ class Transform:
         # write table to file
         df_subpopulations.to_csv(self.path + 'Subpopulations.csv', index=False)
 
+    def subpopulation_counts(self):
+        """ Transform data in Subpopulation counts
+        """
+        df_subpop_counts = pd.read_csv(self.path + 'Subpopulation counts.csv', dtype='object')
+        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+
+        # concatenate subpopulation name from resource and subpopulation name
+        df_subpop_counts['subpopulation'] = df_subpop_counts.apply(concat_resource_subpop_name, axis=1)
+
+        # write table to file
+        df_subpop_counts.to_csv(self.path + 'Subpopulation counts.csv', index=False)
+
     def variable_mappings(self):
         """ Transform data in Variable mappings
         """
@@ -355,6 +368,13 @@ def concat_resource_name(row):
         return row['resource'] + ' ' + row['name']
     else:
         return row['name']
+
+
+def concat_resource_subpop_name(row):
+    if not row['resource'].lower() in row['subpopulation'].lower():
+        return row['resource'] + ' ' + row['subpopulation']
+    else:
+        return row['subpopulation']
 
 
 def get_description(row, dict_descriptions):
