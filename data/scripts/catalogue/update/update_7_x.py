@@ -78,7 +78,7 @@ class Transform:
 
         if self.profile == 'UMCGCohortsStaging':
             self.contacts()
-        if self.schema_name in ['testCatalogue', 'DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging']:
+        if self.profile in ['DataCatalogueFlat', 'CohortsStaging', 'UMCGCohortsStaging', 'UMCUCohorts', 'INTEGRATE']:
             self.collection_events()
             self.subpopulations()
         if self.profile in ['CohortsStaging', 'DataCatalogueFlat']:
@@ -91,8 +91,8 @@ class Transform:
         df_agents.rename(columns={'name': 'id',
                                   'url': 'website',
                                   'mbox': 'email'}, inplace=True)
-        # # TODO: check!!!
-        # df_agents['resource'] = 'MOLGENIS'
+        # TODO: change dependent on server
+        df_agents['resource'] = 'UMCG'
 
         # write table to file
         df_agents.to_csv(self.path + 'Agents.csv', index=False)
@@ -215,7 +215,7 @@ class Transform:
         df_endpoint = pd.read_csv(self.path + 'Endpoint.csv', dtype='object')
 
         df_endpoint.rename(columns={'publisher': 'publisher.id'}, inplace=True)
-        df_endpoint['publisher.resource'] = 'MOLGENIS'  # change dependent on server
+        df_endpoint['publisher.resource'] = 'UMCG'  # TODO: change dependent on server
 
         # write table to file
         df_endpoint.to_csv(self.path + 'Endpoint.csv', index=False)
@@ -231,17 +231,20 @@ class Transform:
         df_col_event['modified'] = ''
         # concatenate name from resource and name columns
         df_col_event['name'] = df_col_event.apply(concat_resource_name, axis=1)
+
         # get keywords from Resources
         dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
         df_col_event['keywords'] = df_col_event['resource'].apply(get_keywords, dict_keywords=dict_keywords)
+
         # get descriptions from Resources when missing
         dict_descriptions = dict(zip(df_resources.id, df_resources.description))
         df_col_event['description'] = df_col_event.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
+
         # get publisher from Resources
-        dict_publisher = dict(zip(df_resources.id, df_resources.publisher))
+        dict_publisher = dict(zip(df_resources.id, df_resources['publisher.id']))
         df_col_event['publisher'] = df_col_event['resource'].apply(get_publisher, dict_publisher=dict_publisher)
         # get creator from Resources
-        dict_creator = dict(zip(df_resources.id, df_resources.creator))
+        dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
         df_col_event['creator'] = df_col_event['resource'].apply(get_creator, dict_creator=dict_creator)
 
         # only for demo data:
@@ -264,17 +267,21 @@ class Transform:
         df_subpopulations['modified'] = ''
         # concatenate name from resource and name columns
         df_subpopulations['name'] = df_subpopulations.apply(concat_resource_name, axis=1)
+
         # get keywords from Resources
         dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
         df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_keywords)
+
         # get descriptions from Resources when missing
         dict_descriptions = dict(zip(df_resources.id, df_resources.description))
         df_subpopulations['description'] = df_subpopulations.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
+
         # get publisher from Resources
-        dict_publisher = dict(zip(df_resources.id, df_resources.publisher))
+        dict_publisher = dict(zip(df_resources.id, df_resources['publisher.id']))
         df_subpopulations['publisher'] = df_subpopulations['resource'].apply(get_publisher, dict_publisher=dict_publisher)
+
         # get creator from Resources
-        dict_creator = dict(zip(df_resources.id, df_resources.creator))
+        dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
         df_subpopulations['creator'] = df_subpopulations['resource'].apply(get_creator, dict_creator=dict_creator)
 
         # only for demo data:
@@ -352,7 +359,7 @@ def concat_resource_name(row):
 
 def get_description(row, dict_descriptions):
     if pd.isna(row['description']):
-        return dict_descriptions[row['id']]
+        return dict_descriptions[row['resource']]
     else:
         return row['description']
 
@@ -368,20 +375,20 @@ def get_creator(resource, dict_creator):
 def get_data_resources(resources, dict_types):
     if not pd.isna(resources):
         resources = resources.split(',')
-        data_resources = []
+        data_resources = ''
         for r in resources:
             if not dict_types[r] in ['Catalogue', 'Network', 'Catalogue,Network']:
-                data_resources.append(r)
+                data_resources = data_resources + ',' + r
 
-        return data_resources
+        return data_resources.strip(',')
 
 
 def get_child_networks(resources, dict_types):
     if not pd.isna(resources):
         resources = resources.split(',')
-        child_networks = []
+        child_networks = ''
         for r in resources:
             if dict_types[r] in ['Catalogue', 'Network', 'Catalogue,Network']:
-                child_networks.append(r)
+                child_networks = child_networks + ',' + r
 
-        return child_networks
+        return child_networks.strip(',')
