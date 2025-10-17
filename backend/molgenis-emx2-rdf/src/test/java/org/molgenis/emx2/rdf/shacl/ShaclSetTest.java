@@ -8,13 +8,11 @@ class ShaclSetTest {
   @Test
   void testShaclSetEquality() {
     ShaclSet shacl1 =
-        new ShaclSet(
-            "my name", "a description", "1.0", new String[] {"a", "b"}, new String[] {"1", "2"});
+        new ShaclSet("my id", "a name", "1.0", new String[] {"a", "b"}, new String[] {"1", "2"});
     ShaclSet shacl2 =
-        new ShaclSet(
-            "my name", "a description", "1.0", new String[] {"a", "b"}, new String[] {"1", "2"});
+        new ShaclSet("my id", "a name", "1.0", new String[] {"a", "b"}, new String[] {"1", "2"});
     ShaclSet shacl3 =
-        new ShaclSet("my name", "a description", "1.0", new String[] {"a"}, new String[] {"1"});
+        new ShaclSet("my id", "a name", "1.0", new String[] {"a"}, new String[] {"1"});
 
     assertEquals(shacl1, shacl2);
     assertNotEquals(shacl1, shacl3);
