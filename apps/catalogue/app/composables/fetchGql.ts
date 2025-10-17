@@ -1,5 +1,5 @@
 import { useRuntimeConfig } from "#app";
-import { moduleToString } from "#imports";
+import { moduleToString } from "../../../tailwind-components/app/utils/moduleToString";
 import type { DocumentNode } from "graphql";
 import type { GqlResp } from "../../interfaces/types";
 

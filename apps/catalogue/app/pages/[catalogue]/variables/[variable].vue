@@ -6,11 +6,9 @@ import type {
 } from "../../../../interfaces/types";
 import { buildFilterFromKeysObject } from "metadata-utils";
 import { useRoute, useFetch, useHead, useRuntimeConfig } from "#app";
-import {
-  moduleToString,
-  useQueryParams,
-  calcIndividualVariableHarmonisationStatus,
-} from "#imports";
+import { moduleToString } from "../../../../../tailwind-components/app/utils/moduleToString";
+import { useQueryParams } from "../../../composables/useQueryParams";
+import { calcIndividualVariableHarmonisationStatus } from "../../../utils/harmonisation";
 import { computed, reactive } from "vue";
 import LayoutsDetailPage from "../../../components/layouts/DetailPage.vue";
 import PageHeader from "../../../../../tailwind-components/app/components/PageHeader.vue";
