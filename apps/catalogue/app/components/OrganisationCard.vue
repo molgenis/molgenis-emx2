@@ -13,16 +13,22 @@ defineProps<{
   >
     <div class="flex items-start flex-col h-full">
       <span class="block">
-        <span class="font-bold" v-if="organisation.organisation">
-          {{ organisation.organisation?.name }}
+        <span class="font-bold" v-if="organisation.organisation?.name">
+          {{ organisation.organisation.name
+          }}<template v-if="organisation?.organisation?.acronym">
+            ({{ organisation.organisation.acronym }})</template
+          >
         </span>
+        <div v-if="organisation?.organisation?.country">
+          {{ organisation?.organisation?.country.name }}
+        </div>
       </span>
       <a
         class="text-blue-500 block hover:underline"
-        v-if="organisation.website"
-        :href="organisation.website"
+        v-if="organisation.organisation?.website"
+        :href="organisation.organisation?.website"
       >
-        {{ organisation.website }}
+        {{ organisation.organisation?.website }}
       </a>
 
       <div v-if="organisation.role" class="mt-3">

@@ -835,12 +835,22 @@ export interface IOrganisationRoles_agg {
   count: number;
 }
 
+export interface IOntologyOrganisations extends IOntologyNode {
+  name: string;
+  acronym?: string;
+  country?: IOntologyNode;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  website?: string;
+}
+
 export interface IOrganisations {
   resource: IResources;
   id: string;
   type: IOntologyNode;
   name?: string;
-  organisation?: IOrganisations;
+  organisation?: IOntologyOrganisations;
   otherOrganisation?: string;
   department?: string;
   website?: string;
