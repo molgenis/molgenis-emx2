@@ -6,6 +6,6 @@ test("test 2 level deep schema page being available", async ({ page }) => {
   await page.goto("/apps/ui/pet%20store/rdf/shacl");
   await Promise.all([
     expect(page.locator("html")).not.toContainText("File not found:"),
-    expect(page.locator("h2")).toContainText("SHACL validation"),
+    expect(page.locator("h1")).toContainText("SHACL dashboard for pet store"),
   ]);
 });
