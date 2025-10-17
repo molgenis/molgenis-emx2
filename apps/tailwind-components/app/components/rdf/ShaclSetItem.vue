@@ -25,7 +25,7 @@ const props = withDefaults(
 
 const shaclSetTitle = computed<string>(() => {
   return (
-    props.shaclSet.description + " (version: " + props.shaclSet.version + ")"
+    props.shaclSet.name + " (version: " + props.shaclSet.version + ")"
   );
 });
 
@@ -52,7 +52,7 @@ async function runShacl() {
   shaclError.value = "";
   modalVisible.value = false;
 
-  const res = await fetch(`/${schema}/api/rdf?validate=${props.shaclSet.name}`);
+  const res = await fetch(`/${schema}/api/rdf?validate=${props.shaclSet.id}`);
   shaclOutput.value = await res.text();
 
   if (res.status !== 200) {
@@ -122,7 +122,7 @@ function stripUrlSchema(url: string) {
         <Button
           type="primary"
           size="tiny"
-          :id="`shacl-set-${shaclSet.name}-validate`"
+          :id="`shacl-set-${shaclSet.id}-validate`"
           :disabled="isRunning"
           @click.prevent="runShacl"
           >validate</Button
@@ -142,7 +142,7 @@ function stripUrlSchema(url: string) {
           maxWidth="max-w-7xl"
         >
           <Message
-            id="`shacl-run-${props.shaclSet.name}-error`}`"
+            id="`shacl-run-${props.shaclSet.id}-error`}`"
             class="my-2"
             :invalid="true"
             v-if="shaclError"
@@ -159,11 +159,11 @@ function stripUrlSchema(url: string) {
           :disabled="isDownloadDisabled"
           :data="shaclOutput"
           mediaType="text/turtle"
-          :fileName="`${schema} - shacl - ${props.shaclSet.name}.ttl`"
+          :fileName="`${schema} - shacl - ${props.shaclSet.id}.ttl`"
         />
       </div>
     </TableCell>
-    <TableCell>{{ shaclSet.description }}</TableCell>
+    <TableCell>{{ shaclSet.name }}</TableCell>
     <TableCell class="text-right">{{ shaclSet.version }}</TableCell>
     <TableCell>
       <ol>

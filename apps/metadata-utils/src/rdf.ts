@@ -1,6 +1,6 @@
 export interface ShaclSetItem {
+  id: string;
   name: string;
-  description: string;
   version: string;
   sources: string[];
 }
