@@ -168,8 +168,16 @@ async function fetchResourceOptions(): Promise<INode[]> {
                   partOfNetworks: { equals: [{ id: catalogueRouteParam }] },
                 },
                 {
+                  parentNetworks: { equals: [{ id: catalogueRouteParam }] },
+                },
+                {
                   partOfNetworks: {
                     childNetworks: { equals: [{ id: catalogueRouteParam }] },
+                  },
+                },
+                {
+                  partOfNetworks: {
+                    parentNetworks: { equals: [{ id: catalogueRouteParam }] },
                   },
                 },
               ],
@@ -258,9 +266,15 @@ const fetchData = async () => {
         },
         {
           partOfNetworks: {
-            childNetworks: {
-              equals: [{ id: catalogueRouteParam }],
-            },
+            _or: [
+              { equals: [{ id: catalogueRouteParam }] },
+              {
+                childNetworks: { equals: [{ id: catalogueRouteParam }] },
+              },
+              {
+                parentNetworks: { equals: [{ id: catalogueRouteParam }] },
+              },
+            ],
           },
         },
       ],
