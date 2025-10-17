@@ -165,7 +165,7 @@ async function fetchResourceOptions(): Promise<INode[]> {
             resourcesFilter: {
               _or: [
                 {
-                  partOfNetworks: { equals: [{ id: catalogueRouteParam }] },
+                  parentNetworks: { equals: [{ id: catalogueRouteParam }] },
                 },
                 {
                   partOfNetworks: {
@@ -253,10 +253,18 @@ const filter = computed(() => {
 const fetchData = async () => {
   let resourcesFilter: any = {};
   if (scoped) {
-    resourcesFilter.partOfNetworks = {
+    resourcesFilter = {
       _or: [
-        { equals: [{ id: catalogueRouteParam }] },
-        { partOfNetworks: { equals: [{ id: catalogueRouteParam }] } },
+        {
+          parentNetworks: { equals: [{ id: catalogueRouteParam }] },
+        },
+        {
+          partOfNetworks: {
+            parentNetworks: {
+              equals: [{ id: catalogueRouteParam }],
+            },
+          },
+        },
       ],
     };
   }
