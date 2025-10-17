@@ -36,7 +36,7 @@ export interface DeveloperPage {
   html?: string;
   css?: string;
   javascript?: string;
-  dependencies?: Dependency[];
+  dependencies?: DependencyCSS[] | DependencyJS[];
   enableBaseStyles?: boolean;
   enableButtonStyles?: boolean;
   enableFullScreen?: boolean;
@@ -47,9 +47,60 @@ export interface Pages {
   description?: string;
 }
 
+export function newDeveloperPage(): DeveloperPage {
+  return {
+    name: "",
+    description: "",
+    html: "",
+    css: "",
+    javascript: "",
+    dependencies: [],
+    enableBaseStyles: true,
+    enableButtonStyles: true,
+    enableFullScreen: false,
+  };
+}
+
 export function newPageDate(): string {
   const date = new Date().toISOString();
   return date.replace("T", " ").split(".")[0] as string;
+}
+
+export async function getPage(
+  schema: string,
+  page: string
+): Promise<DeveloperPage> {
+  const { data } = await $fetch(`/${schema}/graphql`, {
+    method: "POST",
+    body: {
+      query: `query getDeveloperPage($filter:DeveloperPageFilter) {
+        DeveloperPage(filter:$filter) {
+          name
+          description
+          html
+          css
+          javascript
+          dependencies {
+            mg_tableclass
+            name
+            url
+            defer
+            async
+            fetchPriority {
+              name
+            }
+            async
+            defer
+          }
+          enableBaseStyles
+          enableButtonStyles
+          enableFullScreen
+        }
+      }`,
+      variables: { filter: { name: { equals: page } } },
+    },
+  });
+  return data.DeveloperPage[0];
 }
 
 export function generateHtmlPreview(
@@ -107,7 +158,7 @@ export function generateHtmlPreview(
     if (content.css) {
       const styleElement = document.createElement("style");
       styleElement.textContent = content.css;
-      ref.appendChild(styleElement);
+      documentHead.appendChild(styleElement);
     }
 
     if (content.javascript) {
