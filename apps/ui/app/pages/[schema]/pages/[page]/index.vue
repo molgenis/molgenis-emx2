@@ -1,65 +1,21 @@
 <script lang="ts" setup>
-import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
 
 import Container from "../../../../../../tailwind-components/app/components/Container.vue";
 import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
-import Message from "../../../../../../tailwind-components/app/components/Message.vue";
 import HtmlPreview from "../../../../../../tailwind-components/app/components/editor/HtmlPreview.vue";
-import type { DeveloperPage } from "../../../../../../tailwind-components/app/utils/Pages";
+import { getPage } from "../../../../../../tailwind-components/app/utils/Pages";
 
 const route = useRoute();
 const schema = Array.isArray(route.params.schema)
   ? route.params.schema[0]
   : route.params.schema ?? "";
 const page = route.params.page as string;
-const error = ref<string>("");
-
-const developerPage = ref<DeveloperPage>();
 
 useHead({ title: `${page} - Pages - ${schema} - Molgenis` });
 
-async function getPageContent() {
-  const response = await $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `query getDeveloperPage($filter:DeveloperPageFilter) {
-        DeveloperPage(filter:$filter) {
-          name
-          description
-          html
-          css
-          javascript
-          dependencies {
-            mg_tableclass
-            name
-            url
-            defer
-            async
-            fetchPriority {
-              name
-            }
-            async
-            defer
-          }
-          enableBaseStyles
-          enableButtonStyles
-          enableFullScreen
-        }
-      }`,
-      variables: { filter: { name: { equals: page } } },
-    },
-  }).catch((err) => {
-    error.value = `Cannot render HTML: ${err}`;
-  });
-
-  if (response) {
-    developerPage.value = response.data.DeveloperPage[0];
-  }
-}
-
-getPageContent();
+const developerPage = await getPage(schema as string, page);
 
 const crumbs: Record<string, string> = {};
 crumbs[schema as string] = `/${schema}`;
@@ -70,13 +26,6 @@ crumbs[page as string] = "";
 <template>
   <Container>
     <bread-crumbs align="left" :crumbs="crumbs" class="my-5" />
-    <Message
-      :id="`page-${page?.replace(' ', '-')}`"
-      :invalid="true"
-      v-if="error"
-    >
-      {{ error }}
-    </Message>
   </Container>
-  <HtmlPreview :content="developerPage" v-if="developerPage" />
+  <HtmlPreview :content="developerPage" />
 </template>
