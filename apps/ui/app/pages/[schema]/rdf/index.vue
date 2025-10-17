@@ -13,9 +13,9 @@ import TableRow from "../../../../../tailwind-components/app/components/TableRow
 import TableCell from "../../../../../tailwind-components/app/components/TableCell.vue";
 
 const route = useRoute();
-const schema = Array.isArray(route.params.schema)
+const schema = (Array.isArray(route.params.schema)
   ? route.params.schema[0]
-  : route.params.schema;
+  : route.params.schema) as string;
 
 useHead({ title: `RDF - ${schema} - Molgenis` });
 

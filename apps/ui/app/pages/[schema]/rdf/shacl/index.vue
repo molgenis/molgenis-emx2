@@ -17,9 +17,9 @@ import TableHeadRow from "../../../../../../tailwind-components/app/components/T
 import RdfShaclSetItem from "../../../../../../tailwind-components/app/components/rdf/ShaclSetItem.vue"
 
 const route = useRoute();
-const schema = Array.isArray(route.params.schema)
-  ? route.params.schema[0]
-  : route.params.schema;
+const schema = (Array.isArray(route.params.schema)
+    ? route.params.schema[0]
+    : route.params.schema) as string;
 
 useHead({ title: `SHACL - RDF - ${schema}  - Molgenis` });
 
@@ -61,8 +61,7 @@ async function fetchShacls(): Promise<string> {
   }
 
   const output = (data.value as unknown) as string;
-  const yaml = parse(output);
-  return yaml;
+  return parse(output);
 }
 
 onMounted(async () => {

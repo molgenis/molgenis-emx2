@@ -29,10 +29,6 @@ const shaclSetTitle = computed<string>(() => {
   );
 });
 
-type Resp<T> = {
-  data: Record<string, T>;
-};
-
 type ShaclStatus = "UNKNOWN" | "RUNNING" | "VALID" | "INVALID" | "ERROR";
 
 const shaclStatus = ref<ShaclStatus>("UNKNOWN");
@@ -81,12 +77,6 @@ const isViewDisabled = computed(() => {
 const isDownloadDisabled = computed(() => {
   return shaclStatus.value !== "VALID" && shaclStatus.value !== "INVALID";
 });
-
-function stripUrlSchema(url: string) {
-  let text = url.split("://", 2)[1];
-  if (text.startsWith("www.")) text = text.substring(4);
-  return text;
-}
 </script>
 
 <template>
@@ -169,7 +159,7 @@ function stripUrlSchema(url: string) {
       <ol>
         <li v-for="source in shaclSet.sources" class="mb-2.5 last:mb-0">
           <a class="line-clamp-1" :href="source" target="_blank">{{
-            stripUrlSchema(source)
+            source
           }}</a>
         </li>
       </ol>
