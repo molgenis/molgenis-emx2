@@ -1,26 +1,29 @@
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import { ref, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useHead } from "#app";
-import type { SideModal } from "#build/components";
+
+import type { INotificationType } from "../../../../../../tailwind-components/types/types";
+import Container from "../../../../../../tailwind-components/app/components/Container.vue";
+import ContentBlockModal from "../../../../../../tailwind-components/app/components/content/ContentBlockModal.vue";
+import SideModal from "../../../../../../tailwind-components/app/components/SideModal.vue";
+import PageHeader from "../../../../../../tailwind-components/app/components/PageHeader.vue";
+import BreadCrumbs from "../../../../../../tailwind-components/app/components/BreadCrumbs.vue";
+import Button from "../../../../../../tailwind-components/app/components/Button.vue";
+import Message from "../../../../../../tailwind-components/app/components/Message.vue";
+import CodeEditor from "../../../../../../tailwind-components/app/components/editor/CodeEditor.vue";
+import HtmlPreview from "../../../../../../tailwind-components/app/components/editor/HtmlPreview.vue";
 import {
-  newPageContentObject,
-  newPageDate,
-  type PageBuilderContent,
-  type CssDependency,
-  type JavaScriptDependency,
-} from "../../../../util/pages";
+  type DeveloperPage,
+  getPage,
+  newDeveloperPage,
+} from "../../../../../../tailwind-components/app/utils/Pages";
 
 import { useSession } from "../../../../../../tailwind-components/app/composables/useSession";
 const { isAdmin } = await useSession();
 
-interface Setting {
-  key: string;
-  value: string;
-}
-
 interface ModelStatus {
-  type: "error" | "success";
+  type: INotificationType;
   message: string;
 }
 
@@ -30,116 +33,102 @@ const schema = Array.isArray(route.params.schema)
   : route.params.schema ?? "";
 const page = route.params.page as string;
 
-const isLoading = ref<boolean>(true);
-const code = ref<PageBuilderContent>(newPageContentObject("editor"));
+useHead({ title: `Edit - ${page} - Pages - ${schema} - Molgenis` });
+
+const pageData = ref<DeveloperPage>(newDeveloperPage());
+const originalPageData = ref<DeveloperPage>(newDeveloperPage());
+
+pageData.value = await getPage(schema as string, page);
+originalPageData.value = { ...pageData.value };
+
+const hasUnsavedHtml = ref<boolean>(false);
+const hasUnsavedCss = ref<boolean>(false);
+const hasUnsavedJs = ref<boolean>(false);
+
 const isSaving = ref<boolean>(false);
-const showSettingsModal = ref<boolean>(false);
 const statusModal = ref<InstanceType<typeof SideModal>>();
 const statusModalData = ref<ModelStatus>({
-  type: "success",
+  type: "info",
   message: "",
 });
 const showStatusModal = ref<boolean>(false);
 
-useHead({ title: `Edit - ${page} - Pages - ${schema} - Molgenis` });
-
-function getPageContent() {
-  statusModalData.value.message = "";
-
-  $fetch(`/${schema}/graphql`, {
-    method: "POST",
-    body: {
-      query: `{_settings(keys:["page.${page}"]){key value}}`,
-    },
-  })
-    .then((data) => {
-      const setting = data?.data?._settings?.filter((setting: Setting) => {
-        return setting.key === `page.${page}`;
-      })[0];
-      code.value = JSON.parse(
-        setting?.value as string
-      ) as unknown as PageBuilderContent;
-    })
-    .catch((err) => {
-      statusModalData.value = {
-        type: "error",
-        message: err,
-      };
-      showStatusModal.value = true;
-    })
-    .finally(() => (isLoading.value = false));
-}
-
-onMounted(() => getPageContent());
-
-function saveSetting() {
+async function saveSetting() {
   statusModalData.value.message = "";
   isSaving.value = true;
 
-  code.value.dateModified = newPageDate();
-
-  $fetch(`/${schema}/graphql`, {
+  const response = await $fetch(`/${schema}/graphql`, {
     method: "POST",
     body: {
-      query: `mutation change($settings:[MolgenisSettingsInput]){change(settings:$settings){status message}}`,
-      variables: {
-        settings: {
-          key: `page.${page}`,
-          value: JSON.stringify(code.value),
-        },
-      },
+      query: `mutation save($page:[DeveloperPageInput]){save(DeveloperPage:$page){status message}}`,
+      variables: { page: pageData.value },
     },
-  })
-    .then((response) => {
-      if (response?.error) {
-        throw new Error(response.error[0].message);
-      }
-      statusModalData.value = {
-        type: "success",
-        message: "Page saved",
-      };
-    })
-    .catch((err) => {
-      statusModalData.value = {
-        type: "error",
-        message: err,
-      };
-    })
-    .finally(() => (showStatusModal.value = true));
+  }).catch((err) => {
+    statusModalData.value = {
+      type: "error",
+      message: err.error ? err.error[0].message : err,
+    };
+    console.log(statusModalData.value.message);
+  });
+
+  if (response.data?.save) {
+    statusModalData.value = {
+      type: "success",
+      message: `Updated "${page}"`,
+    };
+  }
+  showStatusModal.value = true;
 }
 
-function addCssDependency() {
-  code.value.dependencies.css.push({ url: "" });
-}
+const enableSaveButton = computed<boolean>(
+  () => hasUnsavedHtml.value || hasUnsavedCss.value || hasUnsavedJs.value
+);
 
-function addJsDependency() {
-  code.value.dependencies.javascript.push({ url: "", defer: false });
-}
-
-function updateCssDependency(index: number, value: string) {
-  (code.value.dependencies.css[index] as CssDependency).url = value;
-}
-
-function updateJsDependency(
-  dependency: JavaScriptDependency,
-  index: number,
-  key: string,
-  value: string
-) {
-  const newDependency = Object.assign(dependency, { [key]: value });
-  (code.value.dependencies.css[index] as JavaScriptDependency) = newDependency;
-}
-
-function removeCssDependency(index: number) {
-  code.value.dependencies.css = code.value.dependencies.css.filter(
-    (_, rowNum) => rowNum !== index
+function hasUnsavedChanges(
+  type: string,
+  newValue: string,
+  oldValue: string
+): boolean {
+  const newValueStr = JSON.stringify(newValue);
+  const oldValueStr = JSON.stringify(oldValue);
+  const originalValueStr = JSON.stringify(
+    originalPageData.value[type as keyof DeveloperPage]
   );
+  return newValueStr !== oldValueStr && newValueStr !== originalValueStr;
 }
 
-function removeJsDependency(index: number) {
-  code.value.dependencies.javascript =
-    code.value.dependencies.javascript.filter((_, rowNum) => rowNum !== index);
-}
+watch(
+  () => pageData.value.html,
+  (newValue, oldValue) => {
+    hasUnsavedHtml.value = hasUnsavedChanges(
+      "html",
+      newValue as string,
+      oldValue as string
+    );
+  }
+);
+
+watch(
+  () => pageData.value.css,
+  (newValue, oldValue) => {
+    hasUnsavedCss.value = hasUnsavedChanges(
+      "css",
+      newValue as string,
+      oldValue as string
+    );
+  }
+);
+
+watch(
+  () => pageData.value.javascript,
+  (newValue, oldValue) => {
+    hasUnsavedJs.value = hasUnsavedChanges(
+      "javascript",
+      newValue as string,
+      oldValue as string
+    );
+  }
+);
 
 const crumbs: Record<string, string> = {};
 crumbs[schema as string] = `/${schema}`;
@@ -162,273 +151,51 @@ crumbs["Edit"] = "";
     </div>
     <template v-else>
       <div
-        class="w-full flex justify-end items-center bg-content py-2 gap-5 px-7.5 z-10 mb-5"
+        class="sticky top-0 w-full flex justify-end items-center bg-navigation py-2 gap-5 px-7.5 z-10 mb-5"
       >
-        <Button
-          :id="`page-${page}-editor-settings-button`"
-          :aria-controls="`page-${page}-editor-settings`"
-          :aria-expanded="showSettingsModal"
-          aria-haspopup="dialog"
-          type="outline"
-          size="small"
-          @click="showSettingsModal = true"
+        <NuxtLink
+          :to="`/${schema}/pages/${page}`"
+          class="font-display tracking-widest uppercase text-button-text text-heading-lg hover:underline"
         >
-          Settings
-        </Button>
-        <Button type="primary" size="small" @click="saveSetting">
+          View page
+        </NuxtLink>
+        <Button
+          type="primary"
+          size="small"
+          :disabled="!enableSaveButton"
+          :class="{
+            'animate-pulse': enableSaveButton,
+            'cursor-not-allowed': !enableSaveButton,
+          }"
+          @click="saveSetting"
+        >
           Save Changes
         </Button>
       </div>
       <div class="grid grid-cols-2 gap-7.5 max-h-lvh">
-        <EditorCodeEditor
+        <CodeEditor
           lang="html"
-          :model-value="code.html"
-          @update:model-value="code.html = $event"
+          :model-value="pageData.html"
+          @update:model-value="pageData.html = $event"
         />
         <div
           class="bg-white border border-input rounded p-7.5 overflow-y-scroll max-h-80"
         >
-          <EditorHtmlPreview :code="code" />
+          <HtmlPreview :content="pageData" />
         </div>
-        <EditorCodeEditor
+        <CodeEditor
           lang="css"
-          :modelValue="code.css"
-          @update:model-value="code.css = $event"
+          :modelValue="pageData.css"
+          @update:model-value="pageData.css = $event"
         />
-        <EditorCodeEditor
+        <CodeEditor
           lang="javascript"
-          :model-value="code.javascript"
-          @update:model-value="code.javascript = $event"
+          :model-value="pageData.javascript"
+          @update:model-value="pageData.javascript = $event"
         />
       </div>
     </template>
   </Container>
-  <Modal
-    :id="`page-${page}-editor-settings`"
-    title="Settings"
-    :visible="showSettingsModal"
-    max-width="max-w-9/10"
-    @closed="showSettingsModal = false"
-  >
-    <div class="text-title-contrast p-7.5 overflow-y-auto">
-      <form @submit.prevent>
-        <fieldset>
-          <legend
-            class="text-heading-3xl text-title-contrast font-display mb-2.5"
-          >
-            Page preview settings
-          </legend>
-          <div class="grid grid-cols-1 gap-2.5 mb-7.5">
-            <div class="grid grid-cols-3 gap-7.5 justify-start items-center">
-              <label
-                :for="`page-${page}-preview-enable-base-styles`"
-                class="col-span-2 mb-2.5"
-              >
-                <span class="block text-title-contrast font-bold"
-                  >Base styles</span
-                >
-                <span class="block text-input-description text-body-sm"
-                  >By default, custom pages include base styles (e.g., font
-                  sizes, spacing, margins, etc.).</span
-                >
-              </label>
-              <div class="self-center">
-                <InputBoolean
-                  :id="`page-${page}-preview-enable-base-styles`"
-                  class="[&_svg]:mt-0"
-                  true-label="Enabled"
-                  false-label="Disabled"
-                  :model-value="code.settings.enableBaseStyles"
-                  @update:model-value="code.settings.enableBaseStyles = $event"
-                  align="horizontal"
-                  :show-clear-button="false"
-                />
-              </div>
-            </div>
-            <div class="grid grid-cols-3 gap-7.5 justify-start items-center">
-              <label
-                :for="`page-${page}-preview-enable-full-screen`"
-                class="col-span-2 mb-2.5"
-              >
-                <span class="block text-title-contrast font-bold"
-                  >Full screen</span
-                >
-                <span class="block text-input-description text-body-sm"
-                  >By default, pages have a fixed with. Disable to allow pages
-                  to fit the width of the screen.</span
-                >
-              </label>
-              <div class="self-center">
-                <InputBoolean
-                  :id="`page-${page}-preview-enable-full-screen`"
-                  class="[&_svg]:mt-0"
-                  true-label="Enabled"
-                  false-label="Disabled"
-                  :model-value="code.settings.enableFullScreen"
-                  @update:model-value="code.settings.enableFullScreen = $event"
-                  align="horizontal"
-                  :show-clear-button="false"
-                />
-              </div>
-            </div>
-            <div class="grid grid-cols-3 gap-7.5 justify-start items-center">
-              <label
-                :for="`page-${page}-preview-enable-button-styles`"
-                class="col-span-2 mb-2.5"
-              >
-                <span class="block text-title-contrast font-bold"
-                  >Button styles</span
-                >
-                <span class="block text-input-description text-body-sm"
-                  >Enable default button styles or disable to define your
-                  own.</span
-                >
-              </label>
-              <div class="self-center">
-                <InputBoolean
-                  :id="`page-${page}-preview-enable-button-styles`"
-                  class="[&_svg]:mt-0"
-                  true-label="Enabled"
-                  false-label="Disabled"
-                  :disabled="!code.settings.enableBaseStyles"
-                  :model-value="code.settings.enableButtonStyles"
-                  @update:model-value="
-                    code.settings.enableButtonStyles = $event
-                  "
-                  align="horizontal"
-                  :show-clear-button="false"
-                />
-              </div>
-            </div>
-          </div>
-        </fieldset>
-        <div>
-          <h3 class="text-heading-3xl text-title-contrast font-display mb-2.5">
-            Manage dependencies
-          </h3>
-          <p class="text-input-description text-body-sm">
-            Dependencies will automatically be added to the page. To remove a
-            dependency, save changes and refresh the page.
-          </p>
-          <fieldset class="my-5">
-            <legend class="text-title-contrast font-bold mb-2.5">
-              CSS Dependencies
-            </legend>
-            <div
-              v-if="code.dependencies.css"
-              v-for="(dependency, index) in code.dependencies.css"
-              class="flex justify-start items-center gap-5 mb-2.5"
-            >
-              <div class="w-full">
-                <label
-                  class="sr-only"
-                  :for="`form-editor-settings-dependency-css-${index}`"
-                >
-                  Enter URL to dependency
-                </label>
-                <InputString
-                  :id="`form-editor-settings-dependency-css-${index}`"
-                  placeholder="https://path/to/css"
-                  :model-value="dependency.url"
-                  @update:model-value="
-                    updateCssDependency(index, $event as string)
-                  "
-                />
-              </div>
-              <div>
-                <Button
-                  type="inline"
-                  :icon-only="true"
-                  label="Delete"
-                  icon="Trash"
-                  size="small"
-                  class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
-                  @click="removeCssDependency(index)"
-                />
-              </div>
-            </div>
-            <Button
-              type="text"
-              icon="Plus"
-              @click="addCssDependency"
-              size="small"
-              class="my-2.5"
-            >
-              Add dependency
-            </Button>
-          </fieldset>
-          <fieldset class="my-5">
-            <legend class="text-title-contrast font-bold mb-2.5">
-              JavaScript dependencies
-            </legend>
-            <div
-              v-if="code.dependencies.javascript"
-              v-for="(dependency, index) in code.dependencies.javascript"
-              class="flex justify-between items-center gap-5 mb-2.5"
-            >
-              <div>
-                <label
-                  class="sr-only"
-                  :for="`form-editor-settings-dependency-js-${index}`"
-                >
-                  Enter dependency URL
-                </label>
-                <InputString
-                  :id="`form-editor-settings-dependency-js-${index}`"
-                  placeholder="https://path/to/js"
-                  :model-value="dependency.url"
-                  @update:model-value="
-                    updateJsDependency(
-                      dependency,
-                      index,
-                      'url',
-                      $event as string
-                    )
-                  "
-                />
-              </div>
-              <div>
-                <label
-                  :for="`form-editor-settings-dependency-js-${index}-defer`"
-                >
-                  Defer?
-                </label>
-                <InputBoolean
-                  :id="`form-editor-settings-dependency-js-${index}-defer`"
-                  class="[&_svg]:mt-0"
-                  :model-value="dependency.defer"
-                  true-label="Yes"
-                  false-label="No"
-                  :show-clear-button="false"
-                  align="horizontal"
-                />
-              </div>
-              <div>
-                <Button
-                  type="inline"
-                  :icon-only="true"
-                  icon="Trash"
-                  label="Delete"
-                  size="small"
-                  class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
-                  @click="removeJsDependency(index)"
-                />
-              </div>
-            </div>
-            <Button
-              type="text"
-              icon="Plus"
-              @click="addJsDependency"
-              size="small"
-              class="my-2.5"
-            >
-              Add dependency
-            </Button>
-          </fieldset>
-        </div>
-      </form>
-    </div>
-  </Modal>
   <SideModal
     ref="statusModal"
     :type="statusModalData.type"
