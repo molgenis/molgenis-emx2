@@ -44,14 +44,19 @@
               </div>
             </TableCell>
             <TableCell>
-              <BaseIcon :class="user.enabled?'text-green-800':'text-red-500'" :name="user.enabled?'Check':'Cross'" />
+              <BaseIcon
+                :class="user.enabled ? 'text-green-800' : 'text-red-500'"
+                :name="user.enabled ? 'Check' : 'Cross'"
+              />
             </TableCell>
             <TableCell>{{ user.email }}</TableCell>
             <TableCell>
-              <div v-if="user.roles?.length>3">
+              <div v-if="user.roles?.length > 3">
                 <ShowMore>
                   <template v-slot:button>
-                    <Button type="secondary" size="tiny">show all {{ user.roles?.length }} roles</Button>
+                    <Button type="secondary" size="tiny"
+                      >show all {{ user.roles?.length }} roles</Button
+                    >
                   </template>
                   <div v-for="role in user.roles">
                     {{ role.schemaId }} ({{ role.role }})
@@ -64,7 +69,11 @@
             </TableCell>
             <TableCell>
               <div v-if="user.tokens?.length > 0" class="flex gap-1">
-                <Button type="secondary" size="tiny" @click="manageTokens(user)">
+                <Button
+                  type="secondary"
+                  size="tiny"
+                  @click="manageTokens(user)"
+                >
                   {{ user.tokens?.length }} tokens
                 </Button>
               </div>
@@ -188,5 +197,5 @@ function canDelete(user: IUser) {
     user.email !== "admin" &&
     user.email !== "user"
   );
-} 
+}
 </script>

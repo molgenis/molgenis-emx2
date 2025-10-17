@@ -54,7 +54,13 @@
 
           <TableRow v-else v-for="role in userRoles">
             <TableCell>
-              <Button iconOnly size="tiny" icon="trash" label="remove" @click="removeRole(role)" />
+              <Button
+                iconOnly
+                size="tiny"
+                icon="trash"
+                label="remove"
+                @click="removeRole(role)"
+              />
             </TableCell>
             <TableCell>{{ role.schemaId }}</TableCell>
             <TableCell>{{ role.role }}</TableCell>
@@ -66,10 +72,16 @@
     <div class="p-5 pt-0 flex gap-2">
       <InputSelect id="select-schema" v-model="schema" :options="SchemaIds" />
       <InputSelect id="select-role" v-model="role" :options="roles" />
-      <Button size="small" icon="plus" @click="addRole" class="whitespace-nowrap">Add role</Button>
+      <Button
+        size="small"
+        icon="plus"
+        @click="addRole"
+        class="whitespace-nowrap"
+        >Add role</Button
+      >
     </div>
 
-<!--
+    <!--
     <div v-if="userTokens.length" class="p-5">
       <b>Tokens</b>
       <Table>
@@ -97,12 +109,20 @@
         <div v-if="password.length < 8 && password.length > 0">
           Password must be at least 8 characters
         </div>
-      <div class="flex gap-1">
-        <Button icon="Plus" size="small" @click="saveUser()" :disabled="!isValidUser()">Save</Button>
-        <Button icon="Cross" size="small" @click="closeEditUserModal">Close</Button>
+        <div class="flex gap-1">
+          <Button
+            icon="Plus"
+            size="small"
+            @click="saveUser()"
+            :disabled="!isValidUser()"
+            >Save</Button
+          >
+          <Button icon="Cross" size="small" @click="closeEditUserModal"
+            >Close</Button
+          >
+        </div>
       </div>
-    </div>
-  </template>
+    </template>
   </Modal>
 </template>
 

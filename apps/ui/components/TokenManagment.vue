@@ -3,14 +3,14 @@
     <Table>
       <template #head>
         <TableHeadRow>
-            <TableHead class="w-0"></TableHead>
-            <TableHead>Name</TableHead>
+          <TableHead class="w-0"></TableHead>
+          <TableHead>Name</TableHead>
         </TableHeadRow>
       </template>
       <template #body>
         <TableRow v-for="token in userTokens">
           <TableCell>
-<!--
+            <!--
             <Button
                   iconOnly
                   icon="trash"
@@ -53,10 +53,9 @@ const userName = ref<string>(props.user.email);
 const userTokens = ref<string[]>(props.user.tokens || ([] as string[]));
 
 async function removeToken(token: string) {
-  let editedUser:IUser = _.cloneDeep(props.user);
+  let editedUser: IUser = _.cloneDeep(props.user);
   editedUser.tokens = _.reject(userTokens.value, (tok) => tok === token);
   await updateUser(editedUser);
   emit("userUpdated");
 }
-
 </script>
