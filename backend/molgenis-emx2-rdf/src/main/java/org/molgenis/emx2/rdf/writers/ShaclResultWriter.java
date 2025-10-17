@@ -53,7 +53,7 @@ public class ShaclResultWriter extends RdfWriter {
     addRules(shaclSet);
 
     // Connection beginning for adding triples through a generator
-    connection.begin();
+    connection.begin(ShaclSail.TransactionSettings.ValidationApproach.Bulk);
   }
 
   private void addRules(ShaclSet shaclSet) throws IOException {
