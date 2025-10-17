@@ -52,30 +52,14 @@ tasks.register('npm_build', NpmTask) {
 
 // Util task to clean up all apps files created during build
 tasks.register("cleanApps", Delete) {
-    delete file(project.layout.buildDirectory)
-    file(".").eachDir { dir ->
-        def distDir = new File(dir, "dist")
-        def showCaseDir = new File(dir, "showCase")
-        def nodeModulesDir = new File(dir, "node_modules")
-        def DotNuxtDir = new File(dir, ".nuxt")
-        def DotOutDir = new File(dir, ".output")
-        if (nodeModulesDir.exists()) {
-            delete nodeModulesDir
-        }
-        if (showCaseDir.exists()) {
-            delete showCaseDir
-        }
-        if (distDir.exists()) {
-            delete distDir
-        }
-        if (DotNuxtDir.exists()) {
-            delete DotNuxtDir
-        }
-        if (DotOutDir.exists()) {
-            delete DotOutDir
-        }
+    delete(project.layout.buildDirectory)
+    def dirsToClean = ["**/dist", "**/showCase", "**/node_modules", "**/.nuxt", "**/.output", "**/.turbo","**/build","**/.gradle"]
+    dirsToClean.each { pattern ->
+        delete fileTree(dir: project.rootDir, includes: [pattern])
     }
+    outputs.upToDateWhen { false }
 }
+clean.dependsOn cleanApps;
 
 // Custom task to collect all dist folders into the resources directory
 // Need because gradle cannot properly detect dynamic folders created by npm workspaces
