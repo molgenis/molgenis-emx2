@@ -17,7 +17,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.Rio;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.eclipse.rdf4j.sail.shacl.ShaclSail;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.rdf.shacl.ShaclSet;
@@ -45,7 +45,7 @@ public class ShaclResultWriter extends RdfWriter {
   public ShaclResultWriter(OutputStream outputStream, RDFFormat format, ShaclSet shaclSet)
       throws IOException {
     super(outputStream, format);
-    ShaclSail shaclSail = new ShaclSail(new MemoryStore());
+    ShaclSail shaclSail = new ShaclSail(new NativeStore());
     repository = new SailRepository(shaclSail);
     repository.init();
     connection = repository.getConnection();
