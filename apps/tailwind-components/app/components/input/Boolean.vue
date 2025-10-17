@@ -4,7 +4,7 @@
     v-model="modelValue"
     :aria-describedby="describedBy"
     :options="yesNoOption"
-    :showClearButton="true"
+    :showClearButton="showClearButton"
     :align="align"
     :invalid="invalid"
     :valid="valid"
@@ -23,11 +23,13 @@ const props = withDefaults(
       trueLabel?: string;
       falseLabel?: string;
       align?: "horizontal" | "vertical";
+      showClearButton?: boolean;
     }
   >(),
   {
     trueLabel: "True",
     falseLabel: "False",
+    showClearButton: true,
   }
 );
 const modelValue = defineModel<true | false | null>();
