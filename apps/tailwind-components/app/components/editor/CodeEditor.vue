@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref, useTemplateRef, onMounted } from "vue";
+import Button from "../Button.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -35,13 +36,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <Accordion
-    :label="lang.toUpperCase()"
-    :open-by-default="true"
-    :content-is-full-width="true"
-    class="text-title"
-  >
-    <template #toolbar>
+  <div class="border border-input">
+    <div
+      class="flex justify-between items-center gap-5 text-title p-2.5 px-7.5"
+    >
+      <div>
+        <span class="text-left capitalize font-bold text-clip">{{
+          lang.toUpperCase()
+        }}</span>
+      </div>
       <Button
         type="inline"
         class="hover:bg-button-secondary-hover focus:bg-button-secondary-hover"
@@ -50,7 +53,7 @@ onMounted(() => {
         label="Format code"
         @click="formatEditor"
       />
-    </template>
+    </div>
     <MonacoEditor
       ref="editor"
       v-model="code"
@@ -68,7 +71,7 @@ onMounted(() => {
           insertMode: 'insert',
         },
       }"
-      :style="{ width: '100%', height: '222px' }"
+      :style="{ width: '100%', height: '235px' }"
     />
-  </Accordion>
+  </div>
 </template>
