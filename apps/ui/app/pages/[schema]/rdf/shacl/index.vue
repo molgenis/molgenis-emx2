@@ -56,7 +56,7 @@ async function fetchShacls(): Promise<string> {
 
   if (!data.value || error.value || status.value === "error") {
     throw new Error(
-      `Could not load available SHACL sets. Please check if you have access to any schema's to validate. ${status.value}`
+      "Could not load available SHACL sets. Please check if you have access to any schema's to validate."
     );
   }
 
