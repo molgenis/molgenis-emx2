@@ -2,7 +2,7 @@ package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.molgenis.emx2.ColumnType.STRING;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlApi.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ADMIN_PW_DEFAULT;
 import static org.molgenis.emx2.tasks.TaskStatus.COMPLETED;
 import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
@@ -10,8 +10,6 @@ import static org.molgenis.emx2.tasks.TaskStatus.ERROR;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import graphql.ExecutionInput;
-import graphql.GraphQL;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,7 +25,7 @@ import org.molgenis.emx2.utils.EnvironmentProperty;
 
 public class TestGraphqlDatabaseFields {
 
-  private static GraphQL graphql;
+  private static GraphqlApi graphql;
   private static Database database;
   private static TaskService taskService;
   private static final String SCHEMA_NAME = TestGraphqlDatabaseFields.class.getSimpleName();
@@ -37,7 +35,7 @@ public class TestGraphqlDatabaseFields {
     database = TestDatabaseFactory.getTestDatabase();
     database.dropSchemaIfExists(SCHEMA_NAME);
     taskService = new TaskServiceInMemory();
-    graphql = new GraphqlApiFactory().createGraphqlForDatabase(database, taskService);
+    graphql = new GraphqlApi(database, taskService);
   }
 
   @Test
@@ -281,11 +279,7 @@ public class TestGraphqlDatabaseFields {
     JsonNode result =
         new ObjectMapper()
             .readTree(
-                convertExecutionResultToJson(
-                    graphql.execute(
-                        ExecutionInput.newExecutionInput(query)
-                            .graphQLContext(graphQLContext)
-                            .build())));
+                convertExecutionResultToJson(graphql.execute(query, Map.of(), sessionManager)));
     if (result.get("errors") != null) {
       throw new MolgenisException(result.get("errors").toString());
     }

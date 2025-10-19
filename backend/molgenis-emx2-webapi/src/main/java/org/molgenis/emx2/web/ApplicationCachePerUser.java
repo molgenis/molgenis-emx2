@@ -7,7 +7,6 @@ import static org.pac4j.core.util.Pac4jConstants.USERNAME;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import graphql.GraphQL;
 import io.javalin.http.Context;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -16,7 +15,7 @@ import org.molgenis.emx2.Database;
 import org.molgenis.emx2.DatabaseListener;
 import org.molgenis.emx2.MolgenisException;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.GraphqlApi;
 import org.molgenis.emx2.sql.JWTgenerator;
 import org.molgenis.emx2.sql.SqlDatabase;
 import org.molgenis.emx2.tasks.ScriptTableListener;
@@ -77,10 +76,10 @@ public class ApplicationCachePerUser {
 
   private final Cache<UserKey, Database> databaseCache;
   private final Cache<UserSchemaKey, Schema> schemaCache;
-  private final Cache<UserKey, GraphQL> graphqlDatabaseCache;
-  private final Cache<UserSchemaKey, GraphQL> graphqlSchemaCache;
+  private final Cache<UserKey, GraphqlApi> graphqlDatabaseCache;
+  private final Cache<UserSchemaKey, GraphqlApi> graphqlSchemaCache;
 
-  GraphqlApiFactory graphqlApiFactory = new GraphqlApiFactory();
+  GraphqlApi graphqlApiFactory = new GraphqlApi();
 
   private static final ApplicationCachePerUser INSTANCE = new ApplicationCachePerUser();
 
@@ -168,7 +167,7 @@ public class ApplicationCachePerUser {
     return getSchemaForUser(schemaName, userKey);
   }
 
-  public GraphQL getDatabaseGraphqlForUser(Context ctx) {
+  public GraphqlApi getDatabaseGraphqlForUser(Context ctx) {
     return graphqlDatabaseCache.get(
         getUserKey(ctx),
         k -> {
@@ -178,17 +177,17 @@ public class ApplicationCachePerUser {
         });
   }
 
-  public GraphQL getSchemaGraphqlForUser(String schemaName, String username) {
+  public GraphqlApi getSchemaGraphqlForUser(String schemaName, String username) {
     UserKey userKey = new UserKey(username);
     return getSchemaGraphqlForUser(schemaName, userKey);
   }
 
-  public GraphQL getSchemaGraphqlForUser(String schemaName, Context ctx) {
+  public GraphqlApi getSchemaGraphqlForUser(String schemaName, Context ctx) {
     UserKey userKey = getUserKey(ctx);
     return getSchemaGraphqlForUser(schemaName, userKey);
   }
 
-  public GraphQL getSchemaGraphqlForUser(String schemaName, UserKey userKey) {
+  public GraphqlApi getSchemaGraphqlForUser(String schemaName, UserKey userKey) {
     return graphqlSchemaCache.get(
         new UserSchemaKey(userKey, schemaName),
         k -> {

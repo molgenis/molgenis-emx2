@@ -4,24 +4,32 @@ import static org.molgenis.emx2.Privileges.VIEWER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
+import graphql.GraphQLError;
 import graphql.execution.AsyncExecutionStrategy;
 import graphql.parser.ParserOptions;
 import graphql.schema.GraphQLObjectType;
 import graphql.schema.GraphQLSchema;
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.jetbrains.annotations.NotNull;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.json.JsonUtil;
 import org.molgenis.emx2.tasks.TaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GraphqlApiFactory {
-  private static Logger logger = LoggerFactory.getLogger(GraphqlApiFactory.class);
+public class GraphqlApi {
+  private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
+  private GraphQL g;
+  private Map<String, String> graphqlQueryFragments = new LinkedHashMap<>();
 
-  public GraphqlApiFactory() {
+  private GraphqlApi() {
     if (ParserOptions.getDefaultParserOptions().getMaxTokens() < 1000000) {
       ParserOptions.setDefaultParserOptions(
           ParserOptions.newParserOptions().maxTokens(1000000).build());
@@ -49,7 +57,25 @@ public class GraphqlApiFactory {
     }
   }
 
-  public GraphQL createGraphqlForDatabase(Database database, TaskService taskService) {
+  public GraphqlApi(Database database, TaskService taskService) {
+    this();
+    createGraphqlForDatabase(database, taskService);
+  }
+
+  public GraphqlApi(Database database) {
+    this(database, null);
+  }
+
+  public GraphqlApi(Schema schema, TaskService taskService) {
+    this();
+    createGraphqlForSchema(schema, taskService);
+  }
+
+  public GraphqlApi(Schema schema) {
+    this(schema, null);
+  }
+
+  private void createGraphqlForDatabase(Database database, TaskService taskService) {
 
     GraphQLObjectType.Builder queryBuilder = GraphQLObjectType.newObject().name("Query");
     GraphQLObjectType.Builder mutationBuilder = GraphQLObjectType.newObject().name("Save");
@@ -94,17 +120,15 @@ public class GraphqlApiFactory {
     }
 
     // notice we here add custom exception handler for mutations
-    return GraphQL.newGraphQL(
-            GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
-        .mutationExecutionStrategy(new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
-        .build();
+    this.g =
+        GraphQL.newGraphQL(
+                GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
+            .mutationExecutionStrategy(
+                new AsyncExecutionStrategy(new GraphqlCustomExceptionHandler()))
+            .build();
   }
 
-  public GraphQL createGraphqlForSchema(Schema schema) {
-    return createGraphqlForSchema(schema, null);
-  }
-
-  public GraphQL createGraphqlForSchema(Schema schema, TaskService taskService) {
+  private void createGraphqlForSchema(Schema schema, TaskService taskService) {
     long start = System.currentTimeMillis();
     logger.info("creating graphql for schema: {}", schema.getMetadata().getName());
 
@@ -159,6 +183,8 @@ public class GraphqlApiFactory {
         queryBuilder.field(tableField.tableAggField(table));
         queryBuilder.field(tableField.tableGroupByField(table));
       }
+      this.graphqlQueryFragments.put(
+          "All" + table.getIdentifier() + "Fields", tableField.getGraphqlFragments(table));
     }
     mutationBuilder.field(tableField.insertMutation(schema));
     mutationBuilder.field(tableField.updateMutation(schema));
@@ -166,7 +192,7 @@ public class GraphqlApiFactory {
     mutationBuilder.field(tableField.deleteMutation(schema));
 
     // assemble and return
-    GraphQL result =
+    this.g =
         GraphQL.newGraphQL(
                 GraphQLSchema.newSchema().query(queryBuilder).mutation(mutationBuilder).build())
             .mutationExecutionStrategy(
@@ -179,7 +205,83 @@ public class GraphqlApiFactory {
           schema.getMetadata().getName(),
           (System.currentTimeMillis() - start));
     }
+  }
 
-    return result;
+  // for testing only
+  public @NotNull ExecutionResult execute(String query) {
+    return execute(query, Map.of(), new DummySessionHandler());
+  }
+
+  public @NotNull ExecutionResult execute(String query, Map<String, Object> variables) {
+    return execute(query, variables, new DummySessionHandler());
+  }
+
+  public @NotNull ExecutionResult execute(
+      String query, Map<String, Object> variables, GraphqlSessionHandlerInterface sessionManager) {
+    long start = System.currentTimeMillis();
+    Map<?, Object> graphQLContext = Map.of(GraphqlSessionHandlerInterface.class, sessionManager);
+
+    // we don't log password calls
+    if (logger.isInfoEnabled()) {
+      if (query.contains("password")) {
+        logger.info("query: obfuscated because contains parameter with name 'password'");
+      } else {
+        logger.info("query: {}", query.replaceAll("[\n|\r|\t]", "").replaceAll(" +", " "));
+      }
+    }
+
+    // we add fragments if containst "..."
+    if (query.contains("...")) {
+      Pattern fragmentPattern = Pattern.compile("\\.\\.\\.\\s*([A-Za-z_][A-Za-z0-9_]*)");
+      Matcher matcher = fragmentPattern.matcher(query);
+      while (matcher.find()) {
+        String name = matcher.group(1);
+        if (graphqlQueryFragments.get(name) == null) {
+          throw new MolgenisException("Graphql fragment not found: " + name);
+        }
+        query = graphqlQueryFragments.get(name) + "\n" + query;
+      }
+    }
+
+    // tests show overhead of this step is about 20ms (jooq takes the rest)
+    ExecutionResult executionResult = null;
+    if (variables != null) {
+      executionResult =
+          g.execute(
+              ExecutionInput.newExecutionInput(query)
+                  .graphQLContext(graphQLContext)
+                  .variables(variables)
+                  .build());
+    } else {
+      executionResult =
+          g.execute(ExecutionInput.newExecutionInput(query).graphQLContext(graphQLContext).build());
+    }
+
+    for (GraphQLError err : executionResult.getErrors()) {
+      if (logger.isErrorEnabled()) {
+        logger.error(err.getMessage());
+      }
+    }
+    if (executionResult.getErrors().size() > 0) {
+      throw new MolgenisException(executionResult.getErrors().get(0).getMessage());
+    }
+
+    if (logger.isInfoEnabled())
+      logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
+
+    return executionResult;
+  }
+
+  public static class DummySessionHandler implements GraphqlSessionHandlerInterface {
+    @Override
+    public void createSession(String username) {}
+
+    @Override
+    public void destroySession() {}
+
+    @Override
+    public String getCurrentUser() {
+      return "";
+    }
   }
 }
