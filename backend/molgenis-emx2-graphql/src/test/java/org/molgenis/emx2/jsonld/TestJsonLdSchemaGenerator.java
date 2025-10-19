@@ -11,7 +11,6 @@ import static org.molgenis.emx2.jsonld.JsonLdSchemaGenerator.generateJsonLdSchem
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import graphql.ExecutionResult;
-import graphql.GraphQL;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -24,7 +23,7 @@ import org.eclipse.rdf4j.rio.RDFParseException;
 import org.eclipse.rdf4j.rio.Rio;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.GraphqlApi;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestJsonLdSchemaGenerator {
@@ -57,8 +56,8 @@ public class TestJsonLdSchemaGenerator {
     Database database = TestDatabaseFactory.getTestDatabase();
     Schema schema = database.dropCreateSchema(TestJsonLdSchemaGenerator.class.getSimpleName());
     PET_STORE.getImportTask(schema, true).run();
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(schema);
-    ExecutionResult result = graphQL.execute("{Pet{mg_id,name}}");
+    GraphqlApi graphQL = new GraphqlApi(schema);
+    ExecutionResult result = graphQL.execute("{Pet{...AllPetFields}}");
     String schemaUrl = "http://localhost:8080";
     Map jsonLdSchema = generateJsonLdSchemaAsMap(schema.getMetadata(), schemaUrl);
     Map data = result.getData();

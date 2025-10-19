@@ -112,11 +112,7 @@ public class SqlSchemaMetadata extends SchemaMetadata {
   public SchemaMetadata create(TableMetadata... tables) {
     // enhance tables with computed id
     for (TableMetadata table : tables) {
-      Column idColumn = table.getColumn(MG_ID) != null ? table.getColumn(MG_ID) : new Column(MG_ID);
-      idColumn.setType(ColumnType.AUTO_ID);
-      idColumn.setKey(0); // index, future is to make this primary key?
-      idColumn.setReadonly(true); // should prevent this to be user provided somehow.
-      table.add(idColumn);
+      addMgIdColumn(table);
     }
     getDatabase()
         .tx(
@@ -148,6 +144,14 @@ public class SqlSchemaMetadata extends SchemaMetadata {
             });
     getDatabase().getListener().schemaChanged(getName());
     return this;
+  }
+
+  static void addMgIdColumn(TableMetadata table) {
+    Column idColumn = table.getColumn(MG_ID) != null ? table.getColumn(MG_ID) : new Column(MG_ID);
+    idColumn.setType(ColumnType.AUTO_ID);
+    idColumn.setKey(0); // index, future is to make this primary key?
+    idColumn.setReadonly(true); // should prevent this to be user provided somehow.
+    table.add(idColumn);
   }
 
   static void validateTableIdentifierIsUnique(SqlSchemaMetadata sm, TableMetadata table) {

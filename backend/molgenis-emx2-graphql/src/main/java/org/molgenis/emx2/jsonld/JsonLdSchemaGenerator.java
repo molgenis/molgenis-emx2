@@ -68,17 +68,15 @@ public class JsonLdSchemaGenerator {
           table.getColumns().stream().filter(column -> !column.getName().equals(MG_ID)).toList()) {
         Map<String, Object> columnContext = new HashMap<>();
         // todo, we will ensure each graphql output will get generated id
+        columnContext.put("@id", PREFIX + table.getIdentifier() + "#" + column.getIdentifier());
         if (column.isReference()) {
           columnContext.put("@type", "@id");
-          columnContext.put("@id", PREFIX + column.getRefTableIdentifier());
           if (column.getSemantics() != null && column.getSemantics().length > 0)
             columnContext.put(
                 "@type",
                 column.getSemantics().length == 1
                     ? column.getSemantics()[0]
                     : column.getSemantics());
-        } else {
-          columnContext.put("@id", PREFIX + table.getIdentifier() + "_" + column.getIdentifier());
         }
         tableContext.put(column.getIdentifier(), columnContext);
         tableContext.put(MG_ID, "@id");

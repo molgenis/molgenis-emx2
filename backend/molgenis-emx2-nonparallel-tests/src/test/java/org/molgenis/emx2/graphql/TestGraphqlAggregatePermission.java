@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.molgenis.emx2.Constants.ANONYMOUS;
 import static org.molgenis.emx2.Privileges.AGGREGATOR;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlApi.convertExecutionResultToJson;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,8 +37,7 @@ public class TestGraphqlAggregatePermission {
     schema.addMember("AGGREGATE_TEST_USER", AGGREGATOR.toString());
     database.setActiveUser("AGGREGATE_TEST_USER");
     taskService = new TaskServiceInMemory();
-    grapql =
-        new GraphqlApiFactory().createGraphqlForSchema(database.getSchema(schemaName), taskService);
+    grapql = new GraphqlApi().createGraphqlForSchema(database.getSchema(schemaName), taskService);
   }
 
   @Test
