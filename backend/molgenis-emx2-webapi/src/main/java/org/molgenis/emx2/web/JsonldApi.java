@@ -3,9 +3,9 @@ package org.molgenis.emx2.web;
 import static org.molgenis.emx2.web.MolgenisWebservice.*;
 import static org.molgenis.emx2.web.MolgenisWebservice.SCHEMA;
 
-import graphql.GraphQL;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import org.molgenis.emx2.graphql.GraphqlApi;
 
 public class JsonldApi {
   private JsonldApi() {
@@ -19,6 +19,6 @@ public class JsonldApi {
 
   private static void getJsonLdForSchema(Context ctx) {
     String schemaName = sanitize(ctx.pathParam(SCHEMA));
-    GraphQL graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
+    GraphqlApi graphqlForSchema = applicationCache.getSchemaGraphqlForUser(schemaName, ctx);
   }
 }
