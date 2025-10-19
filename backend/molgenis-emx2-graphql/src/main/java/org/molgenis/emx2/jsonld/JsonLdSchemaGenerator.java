@@ -4,7 +4,11 @@ import static org.molgenis.emx2.Constants.MG_ID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.*;
+import org.jooq.JSONB;
 import org.molgenis.emx2.*;
 
 public class JsonLdSchemaGenerator {
@@ -27,8 +31,7 @@ public class JsonLdSchemaGenerator {
         Map.ofEntries(
             //            Map.entry("adms", "http://www.w3.org/ns/adms#"),
             //            Map.entry("csvw", "http://www.w3.org/ns/csvw#"),
-            Map.entry("dcat", "http://www.w3.org/ns/dcat#")
-            // ,
+            Map.entry("dcat", "http://www.w3.org/ns/dcat#"),
             //            Map.entry("dcatap", "http://data.europa.eu/r5r/"),
             //            Map.entry("dct", "http://purl.org/dc/terms/"),
             //            Map.entry("dctype", "http://purl.org/dc/dcmitype/"),
@@ -46,8 +49,7 @@ public class JsonLdSchemaGenerator {
             //            Map.entry("spdx", "http://spdx.org/rdf/terms#"),
             //            Map.entry("time", "http://www.w3.org/2006/time#"),
             //            Map.entry("vcard", "http://www.w3.org/2006/vcard/ns#"),
-            //            Map.entry("xsd", "http://www.w3.org/2001/XMLSchema#")
-            );
+            Map.entry("xsd", "http://www.w3.org/2001/XMLSchema#"));
 
     Map<String, Object> context = new LinkedHashMap<>();
     context.put(PREFIX.replace(":", ""), schemaUrl);
@@ -70,13 +72,15 @@ public class JsonLdSchemaGenerator {
         // todo, we will ensure each graphql output will get generated id
         columnContext.put("@id", PREFIX + table.getIdentifier() + "#" + column.getIdentifier());
         if (column.isReference()) {
-          columnContext.put("@type", "@id");
+          columnContext.put("@type", PREFIX + table.getIdentifier());
           if (column.getSemantics() != null && column.getSemantics().length > 0)
             columnContext.put(
                 "@type",
                 column.getSemantics().length == 1
                     ? column.getSemantics()[0]
                     : column.getSemantics());
+        } else {
+          columnContext.put("@type", getXsdType(column.getColumnType()));
         }
         tableContext.put(column.getIdentifier(), columnContext);
         tableContext.put(MG_ID, "@id");
@@ -94,5 +98,28 @@ public class JsonLdSchemaGenerator {
     Map<String, Object> root = new HashMap<>();
     root.put("@context", context);
     return root;
+  }
+
+  private static final Map<Class<?>, String> XSD_TYPE_MAP =
+      Map.ofEntries(
+          Map.entry(String.class, "xsd:string"),
+          Map.entry(Integer.class, "xsd:integer"),
+          Map.entry(Long.class, "xsd:long"),
+          Map.entry(Double.class, "xsd:double"),
+          Map.entry(Boolean.class, "xsd:boolean"),
+          Map.entry(LocalDate.class, "xsd:date"),
+          Map.entry(LocalDateTime.class, "xsd:dateTime"),
+          Map.entry(JSONB.class, "xsd:string"),
+          Map.entry(UUID.class, "xsd:string"),
+          Map.entry(Period.class, "xsd:duration"),
+          Map.entry(byte[].class, "xsd:base64Binary"));
+
+  private static Object getXsdType(ColumnType columnType) {
+    Class<?> type = columnType.getNonArrayType();
+    String result = XSD_TYPE_MAP.get(type);
+    if (result == null) {
+      throw new MolgenisException("XSD type missing for type " + type.getName());
+    }
+    return result;
   }
 }

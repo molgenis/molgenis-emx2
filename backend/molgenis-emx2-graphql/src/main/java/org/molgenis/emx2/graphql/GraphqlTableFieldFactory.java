@@ -128,7 +128,17 @@ public class GraphqlTableFieldFactory {
 
     columns.forEach(
         column -> {
-          if (column.isReference()) {
+          if (column.isFile()) {
+            List<Selection<?>> file = new ArrayList<>();
+            file.add(Field.newField("size").build());
+            file.add(Field.newField("id").build());
+            file.add(Field.newField("filename").build());
+            file.add(Field.newField("extension").build());
+            selections.add(
+                Field.newField(column.getIdentifier())
+                    .selectionSet(SelectionSet.newSelectionSet(file).build())
+                    .build());
+          } else if (column.isReference()) {
             // recursion on keys
             selections.add(
                 Field.newField(column.getIdentifier())

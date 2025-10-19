@@ -224,8 +224,9 @@ public class SqlTypeUtils extends TypeUtils {
       case DECIMAL_ARRAY -> "decimal[]";
       case DATE -> "date";
       case DATE_ARRAY -> "date[]";
-      case DATETIME -> "timestamp without time zone";
-      case DATETIME_ARRAY -> "timestamp without time zone[]";
+      case DATETIME -> "timestamp(3) without time zone"; // 3 digits to comply with xsd:datetime
+      case DATETIME_ARRAY ->
+          "timestamp(3) without time zone[]"; // 3 digits to comply with xsd:datetime
       case JSON -> "jsonb";
       default ->
           throw new MolgenisException(

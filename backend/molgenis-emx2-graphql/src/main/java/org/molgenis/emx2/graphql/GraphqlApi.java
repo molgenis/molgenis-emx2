@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
 public class GraphqlApi {
   private static Logger logger = LoggerFactory.getLogger(GraphqlApi.class);
   private GraphQL g;
+  private Schema schema;
+  private Database database;
   private Map<String, String> graphqlQueryFragments = new LinkedHashMap<>();
 
   private GraphqlApi() {
@@ -59,6 +61,7 @@ public class GraphqlApi {
 
   public GraphqlApi(Database database, TaskService taskService) {
     this();
+    this.database = database;
     createGraphqlForDatabase(database, taskService);
   }
 
@@ -68,6 +71,7 @@ public class GraphqlApi {
 
   public GraphqlApi(Schema schema, TaskService taskService) {
     this();
+    this.schema = schema;
     createGraphqlForSchema(schema, taskService);
   }
 
@@ -269,6 +273,28 @@ public class GraphqlApi {
       logger.info("graphql request completed in {}ms", +(System.currentTimeMillis() - start));
 
     return executionResult;
+  }
+
+  public Schema getSchema() {
+    return this.schema;
+  }
+
+  public String queryAsString(String query, Map<String, Object> variables) {
+    try {
+      ExecutionResult result = execute(query, variables);
+      return convertExecutionResultToJson(result);
+    } catch (Exception e) {
+      throw new MolgenisException(e.getMessage(), e);
+    }
+  }
+
+  public Map queryAsMap(String query, Map<String, Object> variables) {
+    try {
+      ExecutionResult result = execute(query, variables);
+      return result.getData();
+    } catch (Exception e) {
+      throw new MolgenisException(e.getMessage(), e);
+    }
   }
 
   public static class DummySessionHandler implements GraphqlSessionHandlerInterface {
