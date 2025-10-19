@@ -20,7 +20,7 @@ import org.molgenis.emx2.beaconv2.filter.FilterParser;
 import org.molgenis.emx2.beaconv2.filter.FilterParserFactory;
 import org.molgenis.emx2.beaconv2.requests.BeaconQuery;
 import org.molgenis.emx2.beaconv2.requests.BeaconRequestBody;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.GraphqlApi;
 
 public class QueryEntryType {
 
@@ -199,7 +199,7 @@ public class QueryEntryType {
   }
 
   private ArrayNode doGraphQlQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphQL graphQL = new GraphqlApi().createGraphqlForSchema(table.getSchema());
 
     String graphQlQuery =
         new QueryBuilder(table)
@@ -218,7 +218,7 @@ public class QueryEntryType {
   }
 
   public static int doCountQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphQL graphQL = new GraphqlApi().createGraphqlForSchema(table.getSchema());
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getCountQuery();
 
     ExecutionResult result = graphQL.execute(graphQlQuery);
@@ -228,7 +228,7 @@ public class QueryEntryType {
   }
 
   public static boolean doExistsQuery(Table table, List<String> filters) {
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(table.getSchema());
+    GraphQL graphQL = new GraphqlApi().createGraphqlForSchema(table.getSchema());
     String graphQlQuery = new QueryBuilder(table).addFilters(filters).getExistsQuery();
 
     ExecutionResult result = graphQL.execute(graphQlQuery);

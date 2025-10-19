@@ -11,14 +11,14 @@ import java.util.HashMap;
 import java.util.Map;
 import org.molgenis.emx2.Database;
 import org.molgenis.emx2.Schema;
-import org.molgenis.emx2.graphql.GraphqlApiFactory;
+import org.molgenis.emx2.graphql.GraphqlApi;
 
 public class Templates {
 
   public static void addTemplatesToDb(Database database) {
     database.becomeAdmin();
     Schema schema = database.getSchema("_SYSTEM_");
-    GraphQL graphQL = new GraphqlApiFactory().createGraphqlForSchema(schema);
+    GraphQL graphQL = new GraphqlApi().createGraphqlForSchema(schema);
 
     for (EntryType entryType : EntryType.values()) {
       String query =

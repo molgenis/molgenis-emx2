@@ -1,13 +1,11 @@
 package org.molgenis.emx2.graphql;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.molgenis.emx2.graphql.GraphqlApiFactory.convertExecutionResultToJson;
+import static org.molgenis.emx2.graphql.GraphqlApi.convertExecutionResultToJson;
 import static org.molgenis.emx2.sql.SqlDatabase.ANONYMOUS;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import graphql.ExecutionInput;
-import graphql.GraphQL;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +19,7 @@ import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 public class TestGraphqlAdminFields {
 
-  private static GraphQL grapql;
+  private static GraphqlApi grapql;
   private static Database database;
   private static final String schemaName = TestGraphqlAdminFields.class.getSimpleName();
   private static final String TEST_PERSOON = "testPersoon";
@@ -40,7 +38,7 @@ public class TestGraphqlAdminFields {
         tdb -> {
           tdb.becomeAdmin();
           Schema schema = tdb.dropCreateSchema(schemaName);
-          grapql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
+          grapql = new GraphqlApi(tdb, null);
 
           try {
             JsonNode result = execute("{_admin{users{email} userCount}}");
@@ -50,7 +48,7 @@ public class TestGraphqlAdminFields {
           }
           // test that only admin can do this
           tdb.setActiveUser(ANONYMOUS);
-          grapql = new GraphqlApiFactory().createGraphqlForDatabase(tdb, null);
+          grapql = new GraphqlApi(tdb, null);
 
           try {
             assertEquals(null, execute("{_admin{userCount}}").textValue());
@@ -66,7 +64,7 @@ public class TestGraphqlAdminFields {
     database.tx(
         testDatabase -> {
           testDatabase.becomeAdmin();
-          GraphQL graphql = new GraphqlApiFactory().createGraphqlForDatabase(testDatabase, null);
+          GraphqlApi graphql = new GraphqlApi(testDatabase, null);
 
           try {
             // setup
@@ -81,9 +79,7 @@ public class TestGraphqlAdminFields {
             String query =
                 "mutation updateUser($updateUser:InputUpdateUser) {updateUser(updateUser:$updateUser){status, message}}";
             Map<String, Object> variables = createUpdateUserVar();
-            ExecutionInput build =
-                ExecutionInput.newExecutionInput().query(query).variables(variables).build();
-            String queryResult = convertExecutionResultToJson(graphql.execute(build));
+            String queryResult = convertExecutionResultToJson(graphql.execute(query, variables));
             JsonNode node = new ObjectMapper().readTree(queryResult);
             if (node.get("errors") != null) {
               throw new MolgenisException(node.get("errors").get(0).get("message").asText());
