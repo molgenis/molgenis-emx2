@@ -78,9 +78,6 @@ public class ApplicationCachePerUser {
   private final Cache<UserSchemaKey, Schema> schemaCache;
   private final Cache<UserKey, GraphqlApi> graphqlDatabaseCache;
   private final Cache<UserSchemaKey, GraphqlApi> graphqlSchemaCache;
-
-  GraphqlApi graphqlApiFactory = new GraphqlApi();
-
   private static final ApplicationCachePerUser INSTANCE = new ApplicationCachePerUser();
 
   private ApplicationCachePerUser() {
@@ -172,8 +169,7 @@ public class ApplicationCachePerUser {
         getUserKey(ctx),
         k -> {
           logger.info("create graphqlDatabaseApi cache for user {}", getUserKey(ctx));
-          return graphqlApiFactory.createGraphqlForDatabase(
-              getDatabaseForUser(ctx), TaskApi.taskService);
+          return new GraphqlApi(getDatabaseForUser(ctx), TaskApi.taskService);
         });
   }
 
@@ -193,7 +189,7 @@ public class ApplicationCachePerUser {
         k -> {
           logger.info("create graphqlSchemaApi '{}' cache for user {}", schemaName, userKey);
           Schema schema = getSchemaForUser(schemaName, userKey);
-          return graphqlApiFactory.createGraphqlForSchema(schema, TaskApi.taskService);
+          return new GraphqlApi(schema, TaskApi.taskService);
         });
   }
 

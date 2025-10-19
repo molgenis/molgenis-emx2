@@ -39,8 +39,9 @@ public class SqlQuery extends QueryBean {
 
   private static final String QUERY_FAILED = "Query failed: ";
   private static final String ANY_SQL = "{0} = ANY ({1})";
-  private static final String JSON_AGG_SQL = "jsonb_agg(item)";
-  private static final String ROW_TO_JSON_SQL = "to_jsonb(item)";
+  private static final String JSON_AGG_SQL =
+      "COALESCE(jsonb_agg(item), '[]'::jsonb)"; // jsonld doesn't accept null
+  private static final String ROW_TO_JSON_SQL = "COALESCE(to_jsonb(item), '{}'::jsonb)";
   private static final String ITEM = "item";
   private static final String BETWEEN_ERROR_MESSAGE =
       "Operator BETWEEEN a AND b expects even number of parameters to define each pair of a,b. Found: %s";
