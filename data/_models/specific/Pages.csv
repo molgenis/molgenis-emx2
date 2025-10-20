@@ -1,7 +1,7 @@
 tableName,tableExtends,columnName,columnType,key,required,refTable,refBack,visible,validation,defaultValue,semantics,description,profiles
 Pages,,,,,,,,,,,http://semanticscience.org/resource/SIO_000302,"Overview of ""editable"" pages and ""developer"" pages.",pages
 Pages,,Page information,heading,,,,,,,,,,pages
-Pages,,name,string,1,TRUE,,,,"if (!/^[a-zA-Z]+$/g.exec(name)) ""Name cannot contain spaces, letters, or characters""",,http://semanticscience.org/resource/SIO_000116,"A unique name for the page. The name cannot contain spaces, characters or numbers.",pages
+Pages,,name,string,1,TRUE,,,,"if (!/^[a-zA-Z\-]+$/g.exec(name)) ""Name may only contain letters or hypens.""",,http://semanticscience.org/resource/SIO_000116,"A unique name for the page. e.g., ""MyNewPage"", ""my-new-page"", etc.",pages
 Pages,,description,text,,,,,,,,http://semanticscience.org/resource/SIO_000136,,pages
 Developer page,Pages,,,,,,,,,,,"Pages built with the html, css, and javascript.",pages
 Developer page,,Code,section,,,,,,,,,,pages

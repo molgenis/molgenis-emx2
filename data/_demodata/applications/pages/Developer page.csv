@@ -1,2 +1,3 @@
 name,description,html,css,javascript,dependencies,enable base styles,enable button styles, enable full screen
-myTestPage,An example page,"<h1>My test page</h1><div class="msg"><strong>Note!</strong>This page is still in development</div>",,,min.css,true,true,false,
+myTestPage,An example page,"<h1>My test page</h1><div class=""msg""><strong>Note!</strong>This page is still in development</div>",,,min.css,true,true,false
+my-custom-page,,"<h1>My Custom Page</h1><p>Welcome to my page!</p>",,,,true,true,true
