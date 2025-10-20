@@ -3,11 +3,11 @@ Main file executing tests.
 To be deleted upon finishing tests.
 """
 
-from tests.test_client import test_save_schema
+from tests.test_save_schema import save_upload_list_data
 
 
 def main():
-    test_save_schema()
+    save_upload_list_data()
 
 
 if __name__ == '__main__':

@@ -5,13 +5,13 @@ Tests the Pyclient `save_schema` method.
 import os
 from pathlib import Path
 
+import pandas as pd
 import pytest
 from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
-from src.molgenis_emx2_pyclient.exceptions import SigninError, SignoutError, NoSuchSchemaException, \
+from src.molgenis_emx2_pyclient.exceptions import NoSuchSchemaException, \
     NoSuchTableException
-
 
 load_dotenv()
 server_url = os.environ.get("MG_SERVER")
@@ -41,26 +41,21 @@ def test_table_fail():
                                file=str(RESOURCES_DIR / "insert" / "Pet.csv"))
         assert excinfo.value.msg == "Table 'Pets' not found in schema 'pet store'."
 
-
-
-def test_save_schema():
-    """Tests the `save_schema` method."""
-    # Test failing table name
+def test_missing_file():
+    """Tests failing upload by not supplying file or data."""
     with Client(url=server_url) as client:
         client.signin(username, password)
-
-
-        # Test failing table name
-        with pytest.raises(NoSuchTableException) as excinfo:
-            client.save_schema(name="pet store", table="Pat",
-                               file=str(RESOURCES_DIR / "insert" / "Pet.csv"))
-        assert excinfo.value.msg == "Table 'Pat' not found in schema 'pet store'."
 
         # Test missing file and data
         with pytest.raises(FileNotFoundError) as excinfo:
             client.save_schema(name="pet store", table="Pet")
 
         assert str(excinfo.value) == "No data to import. Specify a file location or a dataset."
+
+def test_incorrect_file_name():
+    """Tests failing upload by giving incorrect file name."""
+    with Client(url=server_url) as client:
+        client.signin(username, password)
 
         # Test file upload incorrect name
         with pytest.raises(FileNotFoundError) as excinfo:
@@ -70,7 +65,11 @@ def test_save_schema():
         assert excinfo.value.args[1] == "No such file or directory"
         assert str(excinfo.value.filename).endswith(str(RESOURCES_DIR / "insert" / "Pat.csv"))
 
-        # Test file upload
+def test_upload_file():
+    """Tests uploading files."""
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
         # Get the number of records before
         pet_before = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
         tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
@@ -99,8 +98,80 @@ def test_save_schema():
         assert pet_after == pet_before
         assert tag_after == tag_before
 
-        assert 3 < 2
+def test_save_upload_list_data():
+    """Tests uploading data in list format."""
+    with Client(url=server_url) as client:
+        client.signin(username, password)
 
-        # Test data upload as list
+        # Get the number of records before
+        pet_before = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
+        tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
 
-        # Test data upload as DataFrame
+        tag_insert = pd.read_csv(RESOURCES_DIR / "insert" / "Tag.csv").to_dict(orient='index').values()
+        pet_insert = pd.read_csv(RESOURCES_DIR / "insert" / "Pet.csv", keep_default_na=False).to_dict(orient='index').values()
+
+        client.save_schema(name="pet store", table="Tag",
+                           data=list(tag_insert))
+        client.save_schema(name="pet store", table="Pet",
+                           data=list(pet_insert))
+
+        # Number of records between
+        pet_between = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
+        tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+
+        assert pet_between == pet_before + 2
+        assert tag_between == tag_before + 2
+
+        tag_delete = pd.read_csv(RESOURCES_DIR / "delete" / "Tag.csv").to_dict(orient='index').values()
+        pet_delete = pd.read_csv(RESOURCES_DIR / "delete" / "Pet.csv", keep_default_na=False).to_dict(orient='index').values()
+
+        client.save_schema(name="pet store", table="Pet",
+                           data=list(pet_delete))
+        client.save_schema(name="pet store", table="Tag",
+                           data=list(tag_delete))
+
+        # Number of records after
+        pet_after = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
+        tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+
+        assert pet_after == pet_before
+        assert tag_after == tag_before
+
+def test_save_upload_pandas():
+    """Tests uploading data as pandas DataFrame."""
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        # Get the number of records before
+        pet_before = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
+        tag_before = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+
+        tag_insert = pd.read_csv(RESOURCES_DIR / "insert" / "Tag.csv")
+        pet_insert = pd.read_csv(RESOURCES_DIR / "insert" / "Pet.csv", keep_default_na=False)
+
+        client.save_schema(name="pet store", table="Tag",
+                           data=tag_insert)
+        client.save_schema(name="pet store", table="Pet",
+                           data=pet_insert)
+
+        # Number of records between
+        pet_between = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
+        tag_between = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+
+        assert pet_between == pet_before + 2
+        assert tag_between == tag_before + 2
+
+        tag_delete = pd.read_csv(RESOURCES_DIR / "delete" / "Tag.csv")
+        pet_delete = pd.read_csv(RESOURCES_DIR / "delete" / "Pet.csv", keep_default_na=False)
+
+        client.save_schema(name="pet store", table="Pet",
+                           data=pet_delete)
+        client.save_schema(name="pet store", table="Tag",
+                           data=tag_delete)
+
+        # Number of records after
+        pet_after = len(client.get_graphql(schema="pet store", table="Pet", columns=["name"]))
+        tag_after = len(client.get_graphql(schema="pet store", table="Tag", columns=["name"]))
+
+        assert pet_after == pet_before
+        assert tag_after == tag_before
