@@ -246,9 +246,9 @@ export default {
 };
 
 function getBooleanDefaultValue(value: any): boolean | undefined {
-  if (value === "true" || value === "TRUE" || value === true) {
+  if (value === "TRUE" || value === "true" || value === true) {
     return true;
-  } else if (value === "false" || value === "FALSE" || value === false) {
+  } else if (value === "FALSE" || value === "false" || value === false) {
     return false;
   } else {
     return undefined;
