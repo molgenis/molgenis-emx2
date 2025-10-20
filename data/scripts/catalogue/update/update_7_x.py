@@ -230,8 +230,11 @@ class Transform:
         # transformations
         df_col_event['issued'] = ''
         df_col_event['modified'] = ''
-        # concatenate name from resource and name columns
-        df_col_event['name'] = df_col_event.apply(concat_resource_name, axis=1)
+
+        # concatenate name and subpopulations from resource and name or subpopulations columns
+        df_col_event['name'] = df_col_event.apply(concat_resource_name, column_name='name', axis=1)
+        df_col_event['subpopulations'] = df_col_event['subpopulations'].apply(nan_to_string)
+        df_col_event['subpopulations'] = df_col_event.apply(concat_resource_subpopulations, axis=1)
 
         # get keywords from Resources
         dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
@@ -267,7 +270,7 @@ class Transform:
         df_subpopulations['issued'] = ''
         df_subpopulations['modified'] = ''
         # concatenate name from resource and name columns
-        df_subpopulations['name'] = df_subpopulations.apply(concat_resource_name, axis=1)
+        df_subpopulations['name'] = df_subpopulations.apply(concat_resource_name, column_name='name', axis=1)
 
         # get keywords from Resources
         dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
@@ -298,10 +301,9 @@ class Transform:
         """ Transform data in Subpopulation counts
         """
         df_subpop_counts = pd.read_csv(self.path + 'Subpopulation counts.csv', dtype='object')
-        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
 
         # concatenate subpopulation name from resource and subpopulation name
-        df_subpop_counts['subpopulation'] = df_subpop_counts.apply(concat_resource_subpop_name, axis=1)
+        df_subpop_counts['subpopulation'] = df_subpop_counts.apply(concat_resource_name, column_name='subpopulation', axis=1)
 
         # write table to file
         df_subpop_counts.to_csv(self.path + 'Subpopulation counts.csv', index=False)
@@ -363,18 +365,23 @@ def clean_repeats(repeats):
     return repeats
 
 
-def concat_resource_name(row):
-    if not row['resource'].lower() in row['name'].lower():
-        return row['resource'] + ' ' + row['name']
-    else:
-        return row['name']
+def concat_resource_name(row, column_name):
+        if not row['resource'].lower() in row[column_name].lower():
+            return row['resource'] + ' ' + row[column_name]
+        else:
+            return row[column_name]
 
 
-def concat_resource_subpop_name(row):
-    if not row['resource'].lower() in row['subpopulation'].lower():
-        return row['resource'] + ' ' + row['subpopulation']
-    else:
-        return row['subpopulation']
+def concat_resource_subpopulations(row):
+    if not row['subpopulations'] == '':
+        subpopulations_list = row['subpopulations'].split(',')
+        subpopulations = ''
+        for s in subpopulations_list:
+            if not row['resource'].lower() in s.lower():
+                subpopulations += ',' + row['resource'] + ' ' + s
+            else:
+                subpopulations += ',' + s
+        return subpopulations.strip(',')
 
 
 def get_description(row, dict_descriptions):
@@ -398,7 +405,7 @@ def get_data_resources(resources, dict_types):
         data_resources = ''
         for r in resources:
             if not dict_types[r] in ['Catalogue', 'Network', 'Catalogue,Network']:
-                data_resources = data_resources + ',' + r
+                data_resources += ',' + r
 
         return data_resources.strip(',')
 
@@ -409,6 +416,12 @@ def get_child_networks(resources, dict_types):
         child_networks = ''
         for r in resources:
             if dict_types[r] in ['Catalogue', 'Network', 'Catalogue,Network']:
-                child_networks = child_networks + ',' + r
+                child_networks += ',' + r
 
         return child_networks.strip(',')
+
+
+def nan_to_string(x):
+    if pd.isna(x):
+        x = ''
+    return x
