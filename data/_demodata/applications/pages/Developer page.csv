@@ -1,0 +1,2 @@
+name,description,html,css,javascript,dependencies,enable base styles,enable button styles, enable full screen
+my test page,An example page,"<h1>My test page</h1><div class="msg"><strong>Note!</strong>This page is still in development</div>",,,min.css,true,true,false,

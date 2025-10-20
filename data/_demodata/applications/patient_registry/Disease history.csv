@@ -1,4 +1,4 @@
-part of clinical observation,disease,age group at onset,age of onset,age group at diagnosis,age at diagnosis,has family history,disease severity,disease stage
+part of clinical observation,disease,age group at onset,age at onset,age group at diagnosis,age at diagnosis,has family history,disease severity,disease stage
 Case1C,Central core disease,,,,P8Y3M26D,,,
 Case1C,Congenital myopathy,,,,P8Y3M26D,,,
 Case5C,Hereditary breast and ovarian cancer syndrome,,,,P39Y4M28D,TRUE,,
