@@ -13,19 +13,18 @@ const route = useRoute();
 const schema = Array.isArray(route.params.schema)
   ? route.params.schema[0]
   : route.params.schema ?? "";
-const page = route.params.page as string;
 
 useHead({ title: `Pages - ${schema} - Molgenis` });
 
 interface PagesResponse {
-  data: { Pages: Pages[] };
+  data: { Page: Pages[] };
 }
 
 const { data } = await useFetch<PagesResponse>(`/${schema}/graphql`, {
   key: "tables",
   method: "POST",
   body: {
-    query: `{ Pages { name mg_tableclass } }`,
+    query: `{ Page { name mg_tableclass } }`,
   },
 });
 
@@ -43,19 +42,19 @@ crumbs["Pages"] = "";
     </PageHeader>
     <div
       class="flex flew-wrap justify-start items-center gap-7.5"
-      v-if="data?.data.Pages"
+      v-if="data?.data.Page"
     >
       <div
-        v-for="customPage in data.data.Pages"
-        class="relative group border rounded-3px w-56 h-36 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center"
+        v-for="customPage in data.data.Page"
+        class="relative group border rounded-3px w-1/3 h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend"
       >
         <div
           class="absolute top-2.5 right-2.5 p-[5px] h-10 w-10 flex justify-center items-center border border-transparent rounded-full text-button-text hover:bg-button-primary-hover hover:text-button-primary-hover hover:border-button-primary-hover"
+          v-tooltip.bottom="`Edit`"
         >
           <NuxtLink
             :to="`/${schema}/pages/${customPage.name}/edit`"
             class="font-display tracking-widest uppercase text-heading-lg hover:underline cursor-pointer"
-            v-tooltip.bottom="`Edit`"
           >
             <BaseIcon name="Edit" :width="18" />
             <span class="sr-only">edit page</span>
