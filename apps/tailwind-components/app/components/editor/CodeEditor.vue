@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, useTemplateRef, onMounted } from "vue";
+import { ref, useTemplateRef, watchEffect } from "vue";
 import Button from "../Button.vue";
 
 const props = withDefaults(
@@ -12,12 +12,19 @@ const props = withDefaults(
   }
 );
 
+const code = ref<string>("");
+const editor = useTemplateRef("editor");
 const emits = defineEmits<{
   (e: "update:modelValue", value: string): void;
 }>();
 
-const code = ref<string>(props.modelValue as string);
-const editor = useTemplateRef("editor");
+watchEffect(() => {
+  code.value = props.modelValue as string;
+
+  if (editor.value && Object.hasOwn(editor.value, "$editor")) {
+    formatEditor();
+  }
+});
 
 function formatEditor() {
   editor.value?.$editor?.getAction("editor.action.formatDocument")?.run();
@@ -26,13 +33,6 @@ function formatEditor() {
 function onUpdateModelValue() {
   emits("update:modelValue", code.value);
 }
-
-onMounted(() => {
-  setTimeout(() => {
-    code.value = props?.modelValue as string;
-    formatEditor();
-  }, 225);
-});
 </script>
 
 <template>

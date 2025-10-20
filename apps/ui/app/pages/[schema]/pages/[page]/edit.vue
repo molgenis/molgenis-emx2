@@ -172,14 +172,14 @@ crumbs["Edit"] = "";
           Save Changes
         </Button>
       </div>
-      <div class="grid grid-cols-2 gap-7.5 max-h-lvh">
+      <div class="grid grid-cols-2 gap-7.5">
         <CodeEditor
           lang="html"
           :model-value="pageData.html"
           @update:model-value="pageData.html = $event"
         />
         <div
-          class="bg-white border border-input rounded p-7.5 overflow-y-scroll max-h-80"
+          class="bg-white border border-input rounded overflow-y-scroll max-h-80"
         >
           <HtmlPreview :content="pageData" />
         </div>
