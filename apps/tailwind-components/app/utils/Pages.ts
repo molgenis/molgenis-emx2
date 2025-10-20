@@ -45,6 +45,7 @@ export interface DeveloperPage {
 export interface Pages {
   name: string;
   description?: string;
+  mg_tableclass: string;
 }
 
 export function newDeveloperPage(): DeveloperPage {
