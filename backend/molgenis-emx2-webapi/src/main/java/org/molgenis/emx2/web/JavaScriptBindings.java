@@ -2,11 +2,10 @@ package org.molgenis.emx2.web;
 
 import static org.molgenis.emx2.web.MolgenisWebservice.applicationCache;
 
-import graphql.ExecutionInput;
-import graphql.GraphQL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.molgenis.emx2.graphql.GraphqlApi;
 
 public class JavaScriptBindings {
 
@@ -21,10 +20,8 @@ public class JavaScriptBindings {
 
   private static SimplePostClient createSimplePostClient(String username) {
     return (query, variables, schemaId) -> {
-      GraphQL graphQL = applicationCache.getSchemaGraphqlForUser(schemaId, username);
-      return graphQL
-          .execute(ExecutionInput.newExecutionInput(query).variables(variables))
-          .getData();
+      GraphqlApi graphQL = applicationCache.getSchemaGraphqlForUser(schemaId, username);
+      return graphQL.execute(query, variables).getData();
     };
   }
 

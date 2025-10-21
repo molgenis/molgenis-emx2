@@ -73,6 +73,12 @@
               <a :href="`/${schema}/api/zip`">csv.zip</a> /
               <a :href="`/${schema}/api/ttl`">ttl</a> /
               <a :href="`/${schema}/api/jsonld`">jsonld</a>
+              <a :href="`/${schema}/api/ttl2`"
+                >ttl filtered by graphql query (experimental)</a
+              >
+              <a :href="`/${schema}/api/ttl2/_schema`"
+                >json-ld schema @context file</a
+              >
             </p>
             <div v-if="visibleTables?.length" :key="tablesHash">
               Export specific tables:
