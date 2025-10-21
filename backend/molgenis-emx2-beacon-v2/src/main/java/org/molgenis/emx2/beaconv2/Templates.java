@@ -20,8 +20,8 @@ public class Templates {
 
     for (EntryType entryType : EntryType.values()) {
       String query =
-          "mutation insert($endpoint:String, $schema:String, $template:String) {"
-              + " insert (Templates: { endpoint: $endpoint, schema: $schema, template: $template }) { message } }";
+          "mutation save($endpoint:String, $schema:String, $template:String) {"
+              + " save (Templates: { endpoint: $endpoint, schema: $schema, template: $template }) { message } }";
       Map<String, Object> variables = new HashMap<>();
       variables.put("endpoint", "beacon_" + entryType.getName());
       variables.put("schema", "default");

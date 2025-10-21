@@ -1,27 +1,19 @@
 package org.molgenis.emx2.jsonld;
 
-import static graphql.Assert.assertTrue;
 import static org.molgenis.emx2.Column.column;
 import static org.molgenis.emx2.Constants.MG_ID;
 import static org.molgenis.emx2.TableMetadata.table;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.PET_STORE;
 import static org.molgenis.emx2.datamodels.DataModels.Profile.TYPE_TEST;
-import static org.molgenis.emx2.jsonld.JsonLdSchemaGenerator.generateJsonLdSchema;
 import static org.molgenis.emx2.jsonld.JsonLdSchemaGenerator.generateJsonLdSchemaAsMap;
-import static org.molgenis.emx2.jsonld.RestOverGraphql.convertToTurtle;
-import static org.molgenis.emx2.jsonld.RestOverGraphql.getTableAsTtl;
+import static org.molgenis.emx2.jsonld.RestOverGraphql.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import graphql.ExecutionResult;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
-import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.RDFParseException;
-import org.eclipse.rdf4j.rio.Rio;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.graphql.GraphqlApi;
@@ -43,12 +35,11 @@ public class TestJsonLdSchemaGenerator {
     TableMetadata datasets = table("Datasets", column("id").setPkey());
     catalogues.setSemantics("dcat:Dataset");
     schema.create(catalogues, datasets);
-    String result = generateJsonLdSchema(schema, "http://localhost/pet%20store");
+    Map result = generateJsonLdSchemaAsMap(schema, "http://localhost/pet%20store");
     System.out.println(result);
 
     Map<String, Object> data =
         Map.of("@id", "my:data", "Catalogues", List.of(Map.of("id", 1, "@id", "my:Catalogues/1")));
-    assertTrue(validateJsonLdSchema(result, data));
     System.out.println(convertToTurtle(mapper.convertValue(result, Map.class), data));
   }
 
@@ -74,41 +65,10 @@ public class TestJsonLdSchemaGenerator {
     TYPE_TEST.getImportTask(schema, true).run();
     schema.getTable("Types").insert(createTypeTestRow());
     GraphqlApi graphQL = new GraphqlApi(schema);
-    // ExecutionResult result = graphQL.execute("{Types{...AllTypesFields}}");
-    // String schemaUrl = "http://localhost:8080";
-    // Map jsonLdSchema = generateJsonLdSchemaAsMap(schema.getMetadata(), schemaUrl);
-    // Map data = result.getData();
-    // String ttl = convertToTurtle(jsonLdSchema, data);
-    String ttl = getTableAsTtl(graphQL, "Types");
+    String ttl = getTableAsTurtle(graphQL, "Types");
     System.out.println(ttl);
-  }
-
-  public static boolean validateJsonLdSchema(String jsonLdSchema, Map<String, ?> graphqlLikeData)
-      throws Exception {
-    Map<String, Object> wrapper = mapper.readValue(jsonLdSchema, Map.class);
-    wrapper.put("data", graphqlLikeData);
-    try {
-      String json = mapper.writeValueAsString(wrapper);
-      try (StringReader reader = new StringReader(json)) {
-        Model model = Rio.parse(reader, "", RDFFormat.JSONLD);
-        System.out.println("RDF4J parsed " + model.size() + " triples from context.");
-      }
-    } catch (RDFParseException e) {
-      System.err.println(
-          "RDFParseException: "
-              + e.getMessage()
-              + " (line "
-              + e.getLineNumber()
-              + ", col "
-              + e.getColumnNumber()
-              + ")");
-      return false;
-    } catch (Exception e) {
-      System.err.println("Other error parsing JSON-LD: " + e.getMessage());
-      return false;
-    }
-
-    return true;
+    ttl = getAllAsTurtle(graphQL, "http://localhost");
+    System.out.println(ttl);
   }
 
   public Row createTypeTestRow() {

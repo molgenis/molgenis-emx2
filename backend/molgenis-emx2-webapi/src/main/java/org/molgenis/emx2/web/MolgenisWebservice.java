@@ -120,6 +120,7 @@ public class MolgenisWebservice {
     JsonApi.create(app);
     FileApi.create(app);
     JsonYamlApi.create(app);
+    JsonldApi.create(app);
     TaskApi.create(app);
     GraphqlApiService.createGraphQLservice(app);
     RDFApi.create(app);
