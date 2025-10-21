@@ -2,12 +2,13 @@
 Main file executing tests.
 To be deleted upon finishing tests.
 """
+import asyncio
 
-from tests.test_save_schema import save_upload_list_data
+from tests.test_client import test_upload_file
 
 
 def main():
-    save_upload_list_data()
+    asyncio.run(test_upload_file())
 
 
 if __name__ == '__main__':

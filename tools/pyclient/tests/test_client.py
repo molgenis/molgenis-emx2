@@ -4,7 +4,9 @@ Tests for the Pyclient.
 import os
 from pathlib import Path
 
+import asyncio
 import pytest
+import pytest_asyncio
 from dotenv import load_dotenv
 
 from src.molgenis_emx2_pyclient import Client
@@ -70,10 +72,25 @@ def test_set_token():
         assert client._token == token
 
 
-
-def test_upload_file():
+@pytest.mark.asyncio
+async def test_upload_file():
     """Tests the `upload_file` method."""
-    ...
+    with Client(url=server_url) as client:
+        client.signin(username, password)
+
+        with pytest.raises(NoSuchSchemaException) as excinfo:
+            await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Pet.csv")
+        assert excinfo.value.msg == f"Specify the schema where the file should be uploaded."
+
+        with pytest.raises(FileNotFoundError) as excinfo:
+            await client.upload_file("Pet.csv", schema="pet store")
+        assert str(excinfo.value) == "No file found at PosixPath('Pet.csv')."
+
+        await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Tag.csv", schema="pet store")
+        await client.upload_file(file_path=RESOURCES_DIR / "insert" / "Pet.csv", schema="pet store")
+        await client.upload_file(file_path=RESOURCES_DIR / "delete" / "Pet.csv", schema="pet store")
+        await client.upload_file(file_path=RESOURCES_DIR / "delete" / "Tag.csv", schema="pet store")
+
 
 def test_truncate():
     """Tests the `truncate` method."""
