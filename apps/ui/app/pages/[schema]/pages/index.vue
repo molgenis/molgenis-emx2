@@ -1,6 +1,7 @@
 <script lang="ts" setup>
+import { ref } from "vue";
 import { useRoute } from "vue-router";
-import { useHead, useFetch } from "#app";
+import { useHead } from "#app";
 
 import Container from "../../../../../tailwind-components/app/components/Container.vue";
 import BreadCrumbs from "../../../../../tailwind-components/app/components/BreadCrumbs.vue";
@@ -18,14 +19,18 @@ useHead({ title: `Pages - ${schema} - Molgenis` });
 
 interface PagesResponse {
   data: { Page: Pages[] };
+  error: Record<string, any>[];
 }
 
-const { data } = await useFetch<PagesResponse>(`/${schema}/graphql`, {
-  key: "tables",
+const error = ref<string>("");
+const { data } = await $fetch<PagesResponse>(`/${schema}/graphql`, {
   method: "POST",
   body: {
     query: `{ Page { name mg_tableclass } }`,
   },
+}).catch((err) => {
+  error.value = err;
+  throw new Error(err);
 });
 
 const crumbs: Record<string, string> = {};
@@ -40,12 +45,9 @@ crumbs["Pages"] = "";
         <BreadCrumbs :crumbs="crumbs" align="left" />
       </template>
     </PageHeader>
-    <div
-      class="flex flew-wrap justify-start items-center gap-7.5"
-      v-if="data?.data.Page"
-    >
+    <div class="flex flew-wrap justify-start items-center gap-7.5" v-if="data">
       <div
-        v-for="customPage in data.data.Page"
+        v-for="customPage in data.Page"
         class="relative group border rounded-3px w-1/3 h-48 p-7.5 hover:shadow-md transition-shadow flex justify-center items-center bg-form-legend"
       >
         <div
@@ -69,8 +71,8 @@ crumbs["Pages"] = "";
       </div>
     </div>
     <div v-else>
-      <Message id="page-index-message" :invalid="true">
-        <span>No pages found.</span>
+      <Message id="page-index-error" :invalid="true">
+        <span>{{ error }}</span>
       </Message>
     </div>
   </Container>
