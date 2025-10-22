@@ -5,7 +5,7 @@
   </MessageBox>
   <MessageBox
     type="error"
-    v-else-if="!data.length && !error"
+    v-else-if="!data && !error"
     class="publication-list-error"
   >
     <div class="p-2">
@@ -80,14 +80,12 @@ async function getPublications() {
   data.value = response[props.table];
 }
 
-onMounted(() => {
-  getPublications().catch((err) => {
-    if (!err.response.errors.length) {
-      error.value = err;
-    } else {
-      error.value = err.response.errors[0].message;
-    }
-  });
+getPublications().catch((err) => {
+if (!err.response.errors.length) {
+  error.value = err;
+} else {
+  error.value = err.response.errors[0].message;
+}
 });
 </script>
 

@@ -24,7 +24,7 @@
           "
           @click="toggleStudies"
         >
-          {{ studiesOpen ? "Studies" : "Studies" }}
+          Studies
         </button>
         <ul v-if="studiesOpen">
           <Studies table="Studies" labelsColumn="title" />
@@ -39,7 +39,7 @@
           "
           @click="toggleAccess"
         >
-          {{ accessOpen ? "Access Requests" : "Access Requests" }}
+          Access Requests
         </button>
         <ul v-if="accessOpen">
           <FileList table="Files" labelsColumn="name" fileColumn="file" />
@@ -54,7 +54,7 @@
           "
           @click="togglePatient"
         >
-          {{ patientOpen ? "Are you a patient?" : "Are you a patient?" }}
+          Are you a patient?
         </button>
         <ul v-if="patientOpen">
           <li>
@@ -78,7 +78,7 @@
           "
           @click="toggleGeneral"
         >
-          {{ generalOpen ? "General Documents" : "General Documents" }}
+          General Documents
         </button>
         <ul v-if="generalOpen">
           <big><strong>Publications</strong></big>

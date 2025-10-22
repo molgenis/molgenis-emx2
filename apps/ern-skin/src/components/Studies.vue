@@ -5,7 +5,7 @@
   </MessageBox>
   <MessageBox
     type="error"
-    v-else-if="!data.length && !error"
+    v-else-if="!data && !error"
     class="study-list-error"
   >
     <div class="p-2">
@@ -78,14 +78,12 @@ async function getStudies() {
   data.value = response[props.table];
 }
 
-onMounted(() => {
-  getStudies().catch((err) => {
-    if (!err.response.errors.length) {
-      error.value = err;
-    } else {
-      error.value = err.response.errors[0].message;
-    }
-  });
+getStudies().catch((err) => {
+if (!err.response.errors.length) {
+  error.value = err;
+} else {
+  error.value = err.response.errors[0].message;
+}
 });
 </script>
 

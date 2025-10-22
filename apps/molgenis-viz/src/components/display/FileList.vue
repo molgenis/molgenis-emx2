@@ -5,7 +5,7 @@
   </MessageBox>
   <MessageBox
     type="error"
-    v-else-if="!data.length && !error"
+    v-else-if="!data && !error"
     class="file-list-error"
   >
     <div class="p-2">
