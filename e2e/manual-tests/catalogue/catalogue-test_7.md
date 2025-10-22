@@ -72,7 +72,7 @@ and the network-specific explorer
 | | | testVarRepeats_(repeated for year 0-10)| | |
 | 31 | Click on Harmonisations button | Harmonisation matrix is opened. See that 2 variables are displayed and all 8 sources in the network are displayed, regardless of whether or not they have mappings. | | |
 | 32 | On the left hand side, expand Topics, press Search for options | Drop-down with topics is displayed | | |
-| 33 | Type ‘bio’ in the search bar | List of topics is reduced to those topics including the letters ‘lang’ either in their name or in the hover text, with their parent topics. | | |
+| 33 | Type ‘bio’ in the search bar | List of topics is reduced to those topics including the letters 'bio' either in their name or in the hover text, with their parent topics. | | |
 | 34 | Having found ‘Laboratory measures’, expand that to find ‘Biochemistry’ and click on that. | See that no variables at all are displayed because there are no variables in testNetwork1 which match both criteria (search bar ‘adhd’ and topic ‘biochemistry’). | | |
 | 35 | Remove the ‘biochemistry’ filter and type in ‘lang’ to add ‘Language’ as a filter (under ‘Socio-demographic and economic characteristics’)| 1 variable is displayed: only testVarNoRepeats because that is the only variable with both keywords ‘adhd’ and ‘language’. All 8 sources in the network are shown. | | |
 | 36 | Delete ‘adhd’ in the search bar | List returns to 4 variables (just the filter on language now). | | |
