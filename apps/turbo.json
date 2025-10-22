@@ -1,0 +1,47 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "**",
+        "!node_modules/**",
+        "!dist/**",
+        "!*.log",
+        "!README.md",
+        "!.gradle",
+        "!build",
+        "!.nuxt",
+        "!.output",
+        "!.turbo"
+      ],
+      "outputs": ["dist/**", "public/_nuxt-styles/**", "showCase/**","gen-docs/**"],
+      "cache": true
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": true
+    },
+    "lint": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": true
+    },
+    "format": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": true
+    },
+    "checkFormat": {
+      "dependsOn": [],
+      "outputs": [],
+      "cache": true
+    },
+    "test-ci": {
+      "dependsOn": ["build"],
+      "outputs": [],
+      "cache": true
+    }
+  }
+}
