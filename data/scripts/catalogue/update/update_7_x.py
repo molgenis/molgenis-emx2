@@ -102,14 +102,13 @@ class Transform:
         """ Transform data in Organisations
         """
         df_organisations = pd.read_csv(self.path + 'Organisations.csv', dtype='object')
-
-        # transformations
-        df_organisations['type'] = 'Organisation'
-        # get demo email for demo data only
-        if self.schema_name == 'testCatalogue':
-            df_organisations['email'] = 'test@email.com'
-
         if len(df_organisations) != 0:
+            # transformations
+            df_organisations['type'] = 'Organisation'
+            # get demo email for demo data only
+            if self.schema_name == 'testCatalogue':
+                df_organisations['email'] = 'test@email.com'
+
             # load organisations ontology
             ontology_path = str(Path().cwd().joinpath('..', '..', '..', '_ontologies'))
             df_ror = pd.read_csv(ontology_path + '/Organisations.csv')
@@ -127,9 +126,9 @@ class Transform:
             # get other organisation name or pid not found in ror
             df_organisations['other organisation'] = df_organisations.apply(get_other_name, axis=1)
 
-        # drop columns and write table to file
-        df_organisations.drop(labels='name', axis=1, inplace=True)
-        df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
+            # drop columns and write table to file
+            df_organisations.drop(labels='name', axis=1, inplace=True)
+            df_organisations.to_csv(self.path + 'Organisations.csv', index=False)
 
     def resources(self):
         """ Transform data in Resources
@@ -165,12 +164,12 @@ class Transform:
             df_resources.loc[i, 'creator.id'] = ','.join(df_organisations_c['id'])
             df_organisations_p = df_organisations_c[df_organisations_c['is lead organisation'] == 'true'].reset_index()
             # get publisher from lead organisation
-            if not len(df_organisations_p) == 0:
+            if len(df_organisations_p) != 0:
                 df_resources.loc[i, 'publisher.resource'] = df_organisations_p['resource'][0]
                 df_resources.loc[i, 'publisher.id'] = df_organisations_p['id'][0]
             # for demo data only: otherwise get first organisation in list as publisher
             if self.schema_name == 'testCatalogue':
-                if not len(df_organisations_c) == 0:
+                if len(df_organisations_c) != 0:
                     df_resources.loc[i, 'publisher.resource'] = df_organisations_c['resource'][0]
                     df_resources.loc[i, 'publisher.id'] = df_organisations_c['id'][0]
             i += 1
@@ -187,12 +186,12 @@ class Transform:
                 df_contacts_r = df_contacts[df_contacts['resource'] == r].reset_index()
                 df_contacts_p = df_contacts_r[df_contacts_r['role'] == 'Primary contact'].reset_index()
                 # get contact point from primary contact
-                if not len(df_contacts_p) == 0:
+                if len(df_contacts_p) != 0:
                     df_resources.loc[i, 'contact point.resource'] = df_contacts_p['resource'][0]
                     df_resources.loc[i, 'contact point.first name'] = df_contacts_p['first name'][0]
                     df_resources.loc[i, 'contact point.last name'] = df_contacts_p['last name'][0]
                 # otherwise get first contact as contact point
-                elif not len(df_contacts_r) == 0:
+                elif len(df_contacts_r) != 0:
                     df_resources.loc[i, 'contact point.resource'] = df_contacts_r['resource'][0]
                     df_resources.loc[i, 'contact point.first name'] = df_contacts_r['first name'][0]
                     df_resources.loc[i, 'contact point.last name'] = df_contacts_r['last name'][0]
@@ -205,10 +204,11 @@ class Transform:
         """ Transform data in Contacts
         """
         df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
-        df_contacts['statement of consent personal data'] = df_contacts.apply(calculate_consent, axis=1)
+        if len(df_contacts) != 0:
+            df_contacts['statement of consent personal data'] = df_contacts.apply(calculate_consent, axis=1)
 
-        # write table to file
-        df_contacts.to_csv(self.path + 'Contacts.csv', index=False)
+            # write table to file
+            df_contacts.to_csv(self.path + 'Contacts.csv', index=False)
 
     def endpoint(self):
         """ Transform data in Endpoint
@@ -225,98 +225,100 @@ class Transform:
         """ Transform data in Collection events
         """
         df_col_event = pd.read_csv(self.path + 'Collection events.csv', dtype='object')
-        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+        if len(df_col_event) != 0:
+            df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
 
-        # transformations
-        df_col_event['issued'] = ''
-        df_col_event['modified'] = ''
+            # transformations
+            df_col_event['issued'] = ''
+            df_col_event['modified'] = ''
 
-        # concatenate name and subpopulations from resource and name or subpopulations columns
-        df_col_event['name'] = df_col_event.apply(concat_resource_name, column_name='name', axis=1)
-        df_col_event['subpopulations'] = df_col_event['subpopulations'].apply(nan_to_string)
-        df_col_event['subpopulations'] = df_col_event.apply(concat_resource_subpopulations, axis=1)
+            # concatenate name and subpopulations from resource and name or subpopulations columns
+            df_col_event['name'] = df_col_event.apply(concat_resource_name, column_name='name', axis=1)
+            df_col_event['subpopulations'] = df_col_event['subpopulations'].apply(nan_to_string)
+            df_col_event['subpopulations'] = df_col_event.apply(concat_resource_subpopulations, axis=1)
 
-        # get keywords from Resources
-        dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
-        df_col_event['keywords'] = df_col_event['resource'].apply(get_keywords, dict_keywords=dict_keywords)
+            # get keywords from Resources
+            dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
+            df_col_event['keywords'] = df_col_event['resource'].apply(get_keywords, dict_keywords=dict_keywords)
 
-        # get descriptions from Resources when missing
-        dict_descriptions = dict(zip(df_resources.id, df_resources.description))
-        df_col_event['description'] = df_col_event.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
+            # get descriptions from Resources when missing
+            dict_descriptions = dict(zip(df_resources.id, df_resources.description))
+            df_col_event['description'] = df_col_event.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
 
-        # get publisher from Resources
-        dict_publisher = dict(zip(df_resources.id, df_resources['publisher.id']))
-        df_col_event['publisher'] = df_col_event['resource'].apply(get_publisher, dict_publisher=dict_publisher)
-        # get creator from Resources
-        dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
-        df_col_event['creator'] = df_col_event['resource'].apply(get_creator, dict_creator=dict_creator)
+            # get publisher from Resources
+            dict_publisher = dict(zip(df_resources.id, df_resources['publisher.id']))
+            df_col_event['publisher'] = df_col_event['resource'].apply(get_publisher, dict_publisher=dict_publisher)
+            # get creator from Resources
+            dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
+            df_col_event['creator'] = df_col_event['resource'].apply(get_creator, dict_creator=dict_creator)
 
-        # only for demo data:
-        if self.schema_name == 'testCatalogue':
-            df_col_event['pid'] = 'https://placeholder-pid/' + df_col_event['resource'].str.lower() + '/' + \
-                                       df_col_event['name'].str.lower() + '.org'
-            df_col_event['pid'] = df_col_event['pid'].str.replace(' ', '').str.replace('(', '').str.replace(')', '').str.replace("'", "")
+            # only for demo data:
+            if self.schema_name == 'testCatalogue':
+                df_col_event['pid'] = 'https://placeholder-pid/' + df_col_event['resource'].str.lower() + '/' + \
+                                           df_col_event['name'].str.lower() + '.org'
+                df_col_event['pid'] = df_col_event['pid'].str.replace(' ', '').str.replace('(', '').str.replace(')', '').str.replace("'", "")
 
-        # write table to file
-        df_col_event.to_csv(self.path + 'Collection events.csv', index=False)
+            # write table to file
+            df_col_event.to_csv(self.path + 'Collection events.csv', index=False)
 
     def subpopulations(self):
         """ Transform data in Subpopulations
         """
         df_subpopulations = pd.read_csv(self.path + 'Subpopulations.csv', dtype='object')
-        df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
+        if len(df_subpopulations) != 0:
+            df_resources = pd.read_csv(self.path + 'Resources.csv', dtype='object')
 
-        # transformations
-        df_subpopulations['issued'] = ''
-        df_subpopulations['modified'] = ''
-        # concatenate name from resource and name columns
-        df_subpopulations['name'] = df_subpopulations.apply(concat_resource_name, column_name='name', axis=1)
+            # transformations
+            df_subpopulations['issued'] = ''
+            df_subpopulations['modified'] = ''
+            # concatenate name from resource and name columns
+            df_subpopulations['name'] = df_subpopulations.apply(concat_resource_name, column_name='name', axis=1)
 
-        # get keywords from Resources
-        dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
-        df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_keywords)
+            # get keywords from Resources
+            dict_keywords = dict(zip(df_resources.id, df_resources.keywords))
+            df_subpopulations['keywords'] = df_subpopulations['resource'].apply(get_keywords, dict_keywords=dict_keywords)
 
-        # get descriptions from Resources when missing
-        dict_descriptions = dict(zip(df_resources.id, df_resources.description))
-        df_subpopulations['description'] = df_subpopulations.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
+            # get descriptions from Resources when missing
+            dict_descriptions = dict(zip(df_resources.id, df_resources.description))
+            df_subpopulations['description'] = df_subpopulations.apply(get_description, dict_descriptions=dict_descriptions, axis=1)
 
-        # get publisher from Resources
-        dict_publisher = dict(zip(df_resources.id, df_resources['publisher.id']))
-        df_subpopulations['publisher'] = df_subpopulations['resource'].apply(get_publisher, dict_publisher=dict_publisher)
+            # get publisher from Resources
+            dict_publisher = dict(zip(df_resources.id, df_resources['publisher.id']))
+            df_subpopulations['publisher'] = df_subpopulations['resource'].apply(get_publisher, dict_publisher=dict_publisher)
 
-        # get creator from Resources
-        dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
-        df_subpopulations['creator'] = df_subpopulations['resource'].apply(get_creator, dict_creator=dict_creator)
+            # get creator from Resources
+            dict_creator = dict(zip(df_resources.id, df_resources['creator.id']))
+            df_subpopulations['creator'] = df_subpopulations['resource'].apply(get_creator, dict_creator=dict_creator)
 
-        # only for demo data:
-        if self.schema_name == 'testCatalogue':
-            df_subpopulations['pid'] = 'https://placeholder-pid/' + df_subpopulations['resource'].str.lower() + '/' + \
-                                       df_subpopulations['name'].str.lower() + '.org'
-            df_subpopulations['pid'] = df_subpopulations['pid'].str.replace(' ', '').str.replace('(', '').str.replace(')', '')
+            # only for demo data:
+            if self.schema_name == 'testCatalogue':
+                df_subpopulations['pid'] = 'https://placeholder-pid/' + df_subpopulations['resource'].str.lower() + '/' + \
+                                           df_subpopulations['name'].str.lower() + '.org'
+                df_subpopulations['pid'] = df_subpopulations['pid'].str.replace(' ', '').str.replace('(', '').str.replace(')', '')
 
-        # write table to file
-        df_subpopulations.to_csv(self.path + 'Subpopulations.csv', index=False)
+            # write table to file
+            df_subpopulations.to_csv(self.path + 'Subpopulations.csv', index=False)
 
     def subpopulation_counts(self):
         """ Transform data in Subpopulation counts
         """
         df_subpop_counts = pd.read_csv(self.path + 'Subpopulation counts.csv', dtype='object')
+        if len(df_subpop_counts) != 0:
+            # concatenate subpopulation name from resource and subpopulation name
+            df_subpop_counts['subpopulation'] = df_subpop_counts.apply(concat_resource_name, column_name='subpopulation', axis=1)
 
-        # concatenate subpopulation name from resource and subpopulation name
-        df_subpop_counts['subpopulation'] = df_subpop_counts.apply(concat_resource_name, column_name='subpopulation', axis=1)
-
-        # write table to file
-        df_subpop_counts.to_csv(self.path + 'Subpopulation counts.csv', index=False)
+            # write table to file
+            df_subpop_counts.to_csv(self.path + 'Subpopulation counts.csv', index=False)
 
     def variable_mappings(self):
         """ Transform data in Variable mappings
         """
         df_mappings = pd.read_csv(self.path + 'Variable mappings.csv', dtype='object')
-        if not len(df_mappings) == 0:
+        if len(df_mappings) != 0:
             df_mappings['repeats'] = df_mappings['repeats'].apply(clean_repeats)
 
-        # write table to file
-        df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
+            # write table to file
+            df_mappings.to_csv(self.path + 'Variable mappings.csv', index=False)
 
 
 def clean_pid(row):
