@@ -205,7 +205,7 @@ class Transform:
         """ Transform data in Contacts
         """
         df_contacts = pd.read_csv(self.path + 'Contacts.csv', dtype='object')
-        df_contacts['statement of consent personal data'] = df_contacts.apply(calculate_consent)
+        df_contacts['statement of consent personal data'] = df_contacts.apply(calculate_consent, axis=1)
 
         # write table to file
         df_contacts.to_csv(self.path + 'Contacts.csv', index=False)
@@ -336,12 +336,12 @@ def get_other_name(row):
 
 
 def calculate_consent(row):
-    if row['statement of consent personal data'] is True and row['statement of consent email'] is True:
-        return True
-    elif row['statement of consent personal data'] is False:
-        return False
-    elif row['statement of consent email'] is False:
-        return False
+    if row['statement of consent personal data'] == 'true' and row['statement of consent email'] == 'true':
+        return 'true'
+    elif row['statement of consent personal data'] == 'false':
+        return 'false'
+    elif row['statement of consent email'] == 'false':
+        return 'false'
 
 
 def add_keywords(keywords):
