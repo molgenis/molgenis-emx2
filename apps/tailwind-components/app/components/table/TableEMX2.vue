@@ -36,12 +36,6 @@
         <thead>
           <tr>
             <TableHeadCell
-              v-if="isEditable"
-              class="absolute left-0 w-[1px] !p-0 m-0 border-none"
-            >
-              <span class="sr-only">manage records</span>
-            </TableHeadCell>
-            <TableHeadCell
               v-for="column in sortedVisibleColumns"
               :class="{
                 'w-60 lg:w-full': columns.length <= 5,
@@ -92,51 +86,8 @@
               'hover:cursor-pointer': props.isEditable,
             }"
           >
-            <TableBodyCell
-              v-if="isEditable"
-              class="absolute left-0 h-10 w-[100px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none mt-1"
-              :truncate="false"
-            >
-              <div
-                class="flex flex-row items-center justify-start flex-nowrap gap-1 [&_button]:relative [&_button]:mt-[-11px]"
-              >
-                <Button
-                  :id="`table-emx2-${encodeURI(schemaId)}-${encodeURI(
-                    tableId
-                  )}-${getRowId(row)}-edit-row-button`"
-                  :icon-only="true"
-                  type="inline"
-                  icon="trash"
-                  size="small"
-                  label="delete"
-                  @click="onShowDeleteModal(row)"
-                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
-                  aria-haspopup="dialog"
-                  :aria-expanded="showDeleteModal"
-                >
-                  {{ getRowId(row) }}
-                </Button>
-
-                <Button
-                  :id="`table-emx2-${schemaId}-${tableId}-${getRowId(
-                    row
-                  )}-delete-row-button`"
-                  :icon-only="true"
-                  type="inline"
-                  icon="edit"
-                  size="small"
-                  label="edit"
-                  @click="onShowEditModal(row)"
-                  :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
-                  aria-haspopup="dialog"
-                  :aria-expanded="showEditModal"
-                >
-                  {{ getRowId(row) }}
-                </Button>
-              </div>
-            </TableBodyCell>
             <TableCellEMX2
-              v-for="column in sortedVisibleColumns"
+              v-for="(column, colIndex) in sortedVisibleColumns"
               class="text-table-row group-hover:bg-hover"
               :class="{
                 'w-60 lg:w-full': columns.length <= 5,
@@ -147,7 +98,42 @@
               :metadata="column"
               :data="row[column.id]"
               @cellClicked="handleCellClick($event, column, row)"
-            />
+            >
+              <template #row-actions v-if="colIndex === 0 && props.isEditable">
+                <div
+                  class="absolute left-0 h-10 -mt-2 w-[100px] z-10 text-table-row bg-hover group-hover:bg-hover invisible group-hover:visible border-none group-hover:flex flex-row items-center justify-start flex-nowrap gap-1"
+                >
+                  <Button
+                    :id="useId()"
+                    :icon-only="true"
+                    type="inline"
+                    icon="trash"
+                    size="small"
+                    label="delete"
+                    @click="onShowDeleteModal(row)"
+                    :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-delete`"
+                    aria-haspopup="dialog"
+                    :aria-expanded="showDeleteModal"
+                  >
+                    {{ getRowId(row) }}
+                  </Button>
+                  <Button
+                    :id="useId()"
+                    :icon-only="true"
+                    type="inline"
+                    icon="edit"
+                    size="small"
+                    label="edit"
+                    @click="onShowEditModal(row)"
+                    :aria-controls="`table-emx2-${schemaId}-${tableId}-modal-edit`"
+                    aria-haspopup="dialog"
+                    :aria-expanded="showEditModal"
+                  >
+                    {{ getRowId(row) }}
+                  </Button>
+                </div>
+              </template>
+            </TableCellEMX2>
           </tr>
         </tbody>
       </table>
@@ -205,7 +191,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, useId, watch } from "vue";
 import type {
   IRow,
   IColumn,
@@ -228,7 +214,6 @@ import TableHeadCell from "./TableHeadCell.vue";
 import EditModal from "../form/EditModal.vue";
 import DeleteModal from "../form/DeleteModal.vue";
 import TableModalRef from "./modal/TableModalRef.vue";
-import TableBodyCell from "./TableBodyCell.vue";
 import InputSearch from "../input/Search.vue";
 
 import Button from "../Button.vue";
