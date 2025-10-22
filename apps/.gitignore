@@ -23,3 +23,5 @@ yarn-error.log*
 /nuxt-ssr/.nuxt/
 
 .env
+/metadata-utils/package-lock.json
+/tailwind-components/package-lock.json

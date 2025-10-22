@@ -25,6 +25,7 @@ import org.molgenis.emx2.io.emx2.Emx2;
 import org.molgenis.emx2.io.readers.CsvTableReader;
 import org.molgenis.emx2.io.readers.CsvTableWriter;
 import org.molgenis.emx2.io.tablestore.TableStoreForCsvInMemory;
+import org.molgenis.emx2.sql.SqlTypeUtils;
 import org.molgenis.emx2.tasks.Task;
 
 public class CsvApi {
@@ -129,14 +130,21 @@ public class CsvApi {
               new ObjectMapper()
                   .readValue(ctx.queryParam(GraphqlConstants.FILTER_ARGUMENT), Map.class)));
     }
-    return q.retrieveRows();
+    List<Row> rows = q.retrieveRows();
+    SqlTypeUtils.applyComputed(table.getMetadata().getColumns(), rows);
+
+    return rows;
   }
 
   private static void tableUpdate(Context ctx) {
-    int count = MolgenisWebservice.getTableByIdOrName(ctx).save(getRowList(ctx));
+    Table table = MolgenisWebservice.getTableByIdOrName(ctx);
+    TableStoreForCsvInMemory tableStore = new TableStoreForCsvInMemory();
+    tableStore.setCsvString(table.getName(), ctx.body());
+    Task task = new ImportTableTask(tableStore, table, false);
+    task.run();
     ctx.status(200);
     ctx.contentType(ACCEPT_CSV);
-    ctx.result(String.valueOf(count));
+    ctx.result(String.valueOf(task.getProgress()));
   }
 
   private static Iterable<Row> getRowList(Context ctx) {
