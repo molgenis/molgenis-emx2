@@ -17,7 +17,7 @@
       />
       <label>Repeat password</label>
       <InputString
-        id="New user password"
+        id="New user password second time"
         v-model="password2"
         :valid="password === password2 && password2 !== ''"
         :hasError="password !== password2"
@@ -40,7 +40,7 @@
           >
             Add user
           </Button>
-          <Button icon="Close" size="small" @click="closeModal">Close</Button>
+          <Button icon="Cross" size="small" @click="closeModal">Close</Button>
         </div>
       </div>
     </template>

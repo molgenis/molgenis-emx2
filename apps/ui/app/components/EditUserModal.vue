@@ -12,7 +12,7 @@
       />
       <b>Repeat new password</b>
       <InputString
-        id="New password"
+        id="New password second time"
         v-model="password2"
         :valid="password === password2 && password2 !== ''"
         :hasError="password !== password2"
@@ -136,6 +136,11 @@ import InputString from "../../../tailwind-components/app/components/input/Strin
 import InputRadioGroup from "../../../tailwind-components/app/components/input/RadioGroup.vue";
 import InputSelect from "../../../tailwind-components/app/components/input/Select.vue";
 import Button from "../../../tailwind-components/app/components/Button.vue";
+import Table from "../../../tailwind-components/app/components/Table.vue";
+import TableHead from "../../../tailwind-components/app/components/TableHead.vue";
+import TableRow from "../../../tailwind-components/app/components/TableRow.vue";
+import TableCell from "../../../tailwind-components/app/components/TableCell.vue";
+import TableHeadRow from "../../../tailwind-components/app/components/TableHeadRow.vue";
 
 const props = defineProps<{
   user: IUser;
