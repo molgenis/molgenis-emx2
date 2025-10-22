@@ -1,8 +1,15 @@
 # Changelog
 
+## Version 1.4.0
+
+- Add functionality to retrieve external data via file ingest
+- Use NationalNodes.data_refresh instead of NationalNodes.dns for determining file type
+- Separate staging and publishing steps, remove duplicate staging step
+
 ## Version 1.3.1
 
 - Fix incompatibility with latest EMX2 version by providing table name directly to TableMeta object
+- Remove network inheritance
 
 ## Version 1.3.0
 

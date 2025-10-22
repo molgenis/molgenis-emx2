@@ -2,7 +2,7 @@
 
 plugins {
     id "java"
-    id "com.github.node-gradle.node" version "7.0.2"
+    id "com.github.node-gradle.node" version "7.1.0"
 }
 
 java {
@@ -12,124 +12,148 @@ java {
 
 def isCI = System.getenv('CI') ? true : false
 
-def nodeSpec = {
+
+node {
     version = '22.17.0'
-    yarnVersion = '1.22.19'
-    npmVersion = "9.5.1"
+    npmVersion = "10.9.2"
     download = !isCI
 }
 
-def excludeDef = {
-    // Exclude 'build', 'dist', and 'showCase' directories from inputs
-    exclude ".gradle"
-    exclude "dist"
-    exclude "node_modules"
-    exclude "showCase"
-    exclude ".output"
-    exclude ".fingerprint.js"
-    exclude ".nuxt"
-    exclude "public/_nuxt-styles"
-    exclude "build"
+npm_install {
+    args = ['--workspaces']
+    inputs.file('package.json')
+    outputs.file('package-lock.json')
+    // do not declare node_modules as output, as it is huge, and to big for gradle to handle
+    // outputs.dir('node_modules')
 }
 
-node {
-    with nodeSpec
+def excludePatterns = [
+        "node_modules/**", "**/node_modules/**", "**/dist/**", "**/.git/**", "**/.gradle/**", "**/build/**", "**/.nuxt/**",
+        "**/public/_nuxt-styles/**", "**/.output/**", "**/showCase/**"
+]
+
+tasks.register('npm_build', NpmTask) {
+    dependsOn npm_install
+    args = ['run', 'build', '--workspaces']
+    // Inputs = all frontend sources
+    inputs.files(fileTree(".") {
+        include("*")
+        exclude(excludePatterns)
+    })
+    inputs.file("package.json")
+    inputs.file("package-lock.json")
+
+    // Outputs = dist directory
+    outputs.files(fileTree(".") {
+        include("*/dist/**")
+    })
 }
 
-subprojects { subproject ->
-    apply plugin: 'com.github.node-gradle.node'
-
-    node {
-        with nodeSpec
-    }
-
-    task format(type: YarnTask, dependsOn: parent.yarn_install) {
-        if (!isCI) {
-            args = ['run', 'format']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-            outputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        } else {
-            args = ['run', 'checkFormat']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
+// Util task to clean up all apps files created during build
+tasks.register("cleanApps", Delete) {
+    delete file(project.layout.buildDirectory)
+    file(".").eachDir { dir ->
+        def distDir = new File(dir, "dist")
+        def showCaseDir = new File(dir, "showCase")
+        def nodeModulesDir = new File(dir, "node_modules")
+        def DotNuxtDir = new File(dir, ".nuxt")
+        def DotOutDir = new File(dir, ".output")
+        if (nodeModulesDir.exists()) {
+            delete nodeModulesDir
+        }
+        if (showCaseDir.exists()) {
+            delete showCaseDir
+        }
+        if (distDir.exists()) {
+            delete distDir
+        }
+        if (DotNuxtDir.exists()) {
+            delete DotNuxtDir
+        }
+        if (DotOutDir.exists()) {
+            delete DotOutDir
         }
     }
+}
 
-    def packageJson = file("package.json").text
+// Custom task to collect all dist folders into the resources directory
+// Need because gradle cannot properly detect dynamic folders created by npm workspaces
+abstract class CollectDistTask extends DefaultTask {
+    @TaskAction
+    void collect() {
+        File targetDir = project.layout.buildDirectory
+                .dir("generated/resources/public_html/apps")
+                .get()
+                .asFile
 
-    task buildJavascript(type: YarnTask, dependsOn: format) {
-        environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
-
-        //automatically get the internal dependencies
-        (packageJson =~ /"([^"]+)":\s*"\*"/).each { match ->
-            dependsOn ":apps:${match[1]}:buildJavascript";
-        }
-
-        //run the build
-        def command =   packageJson.contains("\"name\": \"ui\"") ? "generate" : "build"
-        args = ['run', command]
-        doLast {
-            copy {
-                from packageJson.contains("\"name\": \"ui\"") ? ".output/public" : "dist"
-                into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
-            }
-        }
-        outputs.dir "dist"
-//        for caching
-        inputs.files fileTree(projectDir).matching {
-            with excludeDef
-        }
-    }
-
-    task lint(type: YarnTask, dependsOn: buildJavascript) {
-        if (
-                packageJson.contains("\"name\": \"tailwind-components\"") ||
-                        packageJson.contains("\"name\": \"ui\"") ||
-                        packageJson.contains("\"name\": \"catalogue\"")
-        ) {
-            args = ['run', 'lint']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        }
-    }
-
-    parent.tasks.processResources.dependsOn buildJavascript
-
-    task testJavaScript(type: YarnTask, dependsOn: buildJavascript) {
-        if (packageJson.contains("test-ci")) {
-            args = ['run', 'test-ci']
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
-        }
-    }
-    test.dependsOn testJavaScript
-
-    if (packageJson.contains("build-showcase")) {
-        task buildShowcase(type: YarnTask, dependsOn: buildJavascript) {
-            environment = ["NODE_OPTIONS": "--max-old-space-size=4096"]
-            args = ['run', 'build-showcase']
-            doLast {
-                copy {
-                    from packageJson.contains("\"name\": \"tailwind-components\"") ? ".output/public" : "showCase"
-                    into "${parent.buildDir}/generated/main/resources/public_html/apps/" + project.name
+        project.copy { spec ->
+            project.file(".").eachDir { dir ->
+                def showCaseDir = new File(dir, "showCase")
+                def distDir = new File(dir, "dist")
+                if (showCaseDir.exists()) {
+                    spec.from(showCaseDir) {
+                        into(dir.name)
+                    }
                 }
+                else if (distDir.exists()) {
+                    spec.from(distDir) {
+                        into(dir.name)
+                    }
+                }
+
             }
-            outputs.dir packageJson.contains("\"name\": \"tailwind-components\"") ? ".output/public" : "showCase"
-            //for caching
-            inputs.files fileTree(projectDir).matching {
-                with excludeDef
-            }
+            spec.into(targetDir)
         }
-        parent.tasks.processResources.dependsOn buildShowcase
+
+        println "✅ Collected dist folders into $targetDir"
     }
 }
+
+tasks.register("collectDist", CollectDistTask) {
+    dependsOn("npm_build")
+}
+
+tasks.register('format', NpmTask) {
+    dependsOn npm_install
+    if (!isCI) {
+        args = ['run', 'format', '--workspaces']
+    } else {
+        args = ['run', 'checkFormat', '--workspaces']
+    }
+    inputs.files(fileTree(".") {
+        include("**/*")
+        exclude(excludePatterns)
+    })
+    outputs.files(fileTree(".") {
+        include("**/*")
+        exclude(excludePatterns)
+    })
+}
+
+tasks.register('lint', NpmTask) {
+    dependsOn npm_build
+    args = ['run', 'lint', '--workspace=tailwind-components', '--workspace=catalogue', '--workspace=ui']
+    inputs.files(fileTree(".") {
+        include("**/*")
+        exclude(excludePatterns)
+    })
+    outputs.files(fileTree(".") {
+        include("**/*")
+        exclude(excludePatterns)
+    })
+}
+
+task testJavaScript(type: NpmTask) {
+    dependsOn npm_build
+
+    args = ['run', 'test-ci', '--workspaces', '--if-present']
+    inputs.files(fileTree(".") {
+        include("**/*")
+        exclude(excludePatterns)
+    })
+
+}
+test.dependsOn testJavaScript
 
 sourceSets {
     main {
@@ -138,3 +162,15 @@ sourceSets {
         }
     }
 }
+
+// Link the app build to the java jar
+tasks.named("processResources") {
+
+    dependsOn("collectDist")
+
+    from(layout.buildDirectory.dir("generated/resources/public_html/apps")) {
+        into("public_html/apps")
+    }
+}
+
+apply plugin: 'com.github.node-gradle.node'
