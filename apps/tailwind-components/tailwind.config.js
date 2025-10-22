@@ -221,6 +221,7 @@ module.exports = {
         "button-switch-selected":
           "var(--background-color-button-switch-selected)",
         "button-switch-hover": "var(--background-color-button-switch-hover)",
+        "label-draft": "var(--background-color-label-draft)",
       }),
       textColor: () => ({
         "button-primary": "var(--text-color-button-primary)",
@@ -327,6 +328,7 @@ module.exports = {
         "button-switch": "var(--text-color-button-switch)",
         "button-switch-selected": "var(--text-color-button-switch-selected)",
         "button-switch-hover": "var(--text-color-button-switch-hover)",
+        "label-draft": "var(--text-color-label-draft)",
       }),
       borderColor: () => ({
         theme: "var(--border-color-theme)",
