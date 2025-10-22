@@ -68,7 +68,7 @@ zip_handling.zip_data()
 # ETL for other schemas:
 schema_names = source.schema_names
 for schema_name in schema_names:
-    if schema_name not in ['CatalogueOntologies', CATALOGUE_SCHEMA_NAME, '_SYSTEM_', 'Pet store']:
+    if schema_name not in ['CatalogueOntologies', CATALOGUE_SCHEMA_NAME, '_SYSTEM_', 'pet store']:
         # instantiate Client for source schema:
         source = Client(SOURCE_SERVER_URL, schema=schema_name, token=SOURCE_SERVER_TOKEN)
 
