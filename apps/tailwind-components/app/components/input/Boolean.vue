@@ -14,9 +14,11 @@
   />
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import type { IInputProps, IRadioOptionsData } from "../../../types/types";
+import InputRadioGroup from "./RadioGroup.vue";
+
 const props = withDefaults(
   defineProps<
     IInputProps & {

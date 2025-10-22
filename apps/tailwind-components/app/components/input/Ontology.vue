@@ -1,25 +1,27 @@
 <script setup lang="ts">
+import { fetchGraphql } from "#imports";
+import {
+  computed,
+  defineEmits,
+  defineModel,
+  defineProps,
+  nextTick,
+  onMounted,
+  ref,
+  useTemplateRef,
+  watch,
+  withDefaults,
+  type Ref,
+} from "vue";
 import type { IInputProps, ITreeNodeState } from "../../../types/types";
 import TreeNode from "../../components/input/TreeNode.vue";
-import {
-  onMounted,
-  onBeforeUnmount,
-  ref,
-  watch,
-  type Ref,
-  computed,
-  useTemplateRef,
-  nextTick,
-} from "vue";
-import { fetchGraphql } from "#imports";
 import BaseIcon from "../BaseIcon.vue";
-import InputSearch from "./Search.vue";
-import InputGroupContainer from "../input/InputGroupContainer.vue";
-import ButtonFilterWellContainer from "../button/FilterWellContainer.vue";
 import Button from "../Button.vue";
-import TextNoResultsMessage from "../text/NoResultsMessage.vue";
+import ButtonFilterWellContainer from "../button/FilterWellContainer.vue";
 import ButtonText from "../button/Text.vue";
-import { defineEmits, defineModel, defineProps, withDefaults } from "vue";
+import InputGroupContainer from "../input/InputGroupContainer.vue";
+import TextNoResultsMessage from "../text/NoResultsMessage.vue";
+import InputSearch from "./Search.vue";
 
 const props = withDefaults(
   defineProps<
