@@ -12,7 +12,7 @@ from requests import Response
 
 from . import graphql_queries as queries
 from . import utils
-from .constants import HEADING, DATE, DATETIME
+from .constants import HEADING, DATE, DATETIME, SECTION
 from .exceptions import (NoSuchSchemaException, ServiceUnavailableError, SigninError, SignoutError,
                          ServerNotFoundError, PyclientException, NoSuchTableException,
                          NoContextManagerException, GraphQLException, InvalidTokenException,
@@ -1181,7 +1181,7 @@ class Client:
         for col in table_metadata.columns:
             if columns is not None and (col.id not in columns and col.name not in columns):
                 continue
-            if col.get('columnType') in [HEADING]:
+            if col.get('columnType') in [HEADING, SECTION]:
                 continue
             elif col.get('columnType').startswith('ONTOLOGY'):
                 query += f"    {col.get('id')} {{name}}\n"
