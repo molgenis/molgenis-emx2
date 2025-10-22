@@ -35,7 +35,9 @@ test("Re-authentication flow", async ({ page }) => {
   await pageTwo.getByRole("button", { name: "Sign out" }).click();
 
   await page.getByRole("textbox", { name: "name Required" }).click();
-  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Save Category", exact: true })
+    .click();
   await expect(page.getByText("Your session has expired.")).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Re-authenticate" })
@@ -55,6 +57,9 @@ test("Re-authentication flow", async ({ page }) => {
     .fill("admin");
   await reAuthenticatePage.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByText("Re-authenticated, please")).toBeVisible();
-  await page.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(page.getByText("reauth")).toBeVisible();
+  await page
+    .getByRole("button", { name: "Save Category", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Close modal", exact: true }).click();
+  await expect(page.getByText("reauth", { exact: true })).toBeVisible();
 });

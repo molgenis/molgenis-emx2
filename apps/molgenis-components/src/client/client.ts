@@ -10,12 +10,12 @@ import type { IRow } from "../Interfaces/IRow";
 import { deepClone, getKeyValue } from "../components/utils";
 import type { AggFunction } from "./IClient";
 import type { IClient, INewClient } from "./IClient";
-import type { IQueryMetaData } from "../../../tailwind-components/types/IQueryMetaData";
+import type { IQueryMetaData } from "../../../metadata-utils/src/IQueryMetaData";
 import { getColumnIds } from "./queryBuilder";
-import { toFormData } from "../../../tailwind-components/utils/toFormData";
+import { toFormData } from "../../../metadata-utils/src/toFormData";
 
 // application wide cache for schema meta data
-const schemaCache = new Map<string, ISchemaMetaData>();
+const schemaCache = new Map<string, Promise<ISchemaMetaData>>();
 
 export { request, fetchSchemaMetaData, convertRowToPrimaryKey };
 const client: IClient = {
@@ -159,10 +159,27 @@ const client: IClient = {
       fetchOntologyOptions: async (tableName: string) => {
         return fetchOntologyOptions(tableName, schemaId);
       },
+      getPrimaryKeyFields,
     };
   },
 };
 export default client;
+
+async function getPrimaryKeyFields(
+  schemaId: string,
+  tableId: string
+): Promise<string[]> {
+  return fetchSchemaMetaData(schemaId).then((schema) => {
+    const table = schema.tables.find((table) => table.id === tableId);
+    if (!table) {
+      throw new Error(`Table ${tableId} not found in schema ${schemaId}`);
+    }
+    const keyFields = table.columns
+      .filter((column) => column.key === 1)
+      .map((column) => column.id);
+    return keyFields;
+  });
+}
 
 const metadataQuery = `{
   _schema {
@@ -239,22 +256,23 @@ const fetchSchemaMetaData = async (
 ): Promise<ISchemaMetaData> => {
   const currentschemaId = schemaId ? schemaId : "CACHE_OF_CURRENT_SCHEMA";
   if (schemaCache.has(currentschemaId)) {
-    return schemaCache.get(currentschemaId) as ISchemaMetaData;
+    return schemaCache.get(currentschemaId) as Promise<ISchemaMetaData>;
   }
-  return await axios
+
+  const promise = axios
     .post(graphqlURL(schemaId), { query: metadataQuery })
     .then((result: AxiosResponse<{ data: { _schema: ISchemaMetaData } }>) => {
       const schema = result.data.data._schema;
-      if (schemaId == null) {
-        schemaCache.set(currentschemaId, schema);
-      }
-      schemaCache.set(schema.id, schema);
       return deepClone(schema);
     })
     .catch((error: AxiosError) => {
       console.log(error);
+      schemaCache.delete(currentschemaId);
       throw error;
     });
+
+  schemaCache.set(currentschemaId, promise);
+  return promise;
 };
 
 const fetchTableData = async (
@@ -369,7 +387,7 @@ async function convertRowToPrimaryKey(
       async (accumPromise: Promise<IRow>, column: IColumn): Promise<IRow> => {
         let accum: IRow = await accumPromise;
         const cellValue = row[column.id];
-        if (column.key === 1 && cellValue) {
+        if (column.key === 1 && (cellValue || cellValue === 0)) {
           accum[column.id] = await getKeyValue(
             cellValue,
             column,

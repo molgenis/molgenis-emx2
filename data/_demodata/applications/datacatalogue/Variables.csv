@@ -132,7 +132,7 @@ LifeCycle,core,ln_c_preg,categorized night level at pregnancy,,,1.0.0,,categoric
 ATHLETE,outcome_ath,mets_idefics_,Repeated classification of pediatric MetS based on the IDEFICS definition (pediatric MetS at a monitoring level when the values of at least three of the components of MetS exceed the 90th percentile),,,,,categorical,,,,,,,,,,,False,,,,,
 LifeCycle,core,cohab_,Cohabitation status of the mother (age ≥0 year and <1 year),,,1.0.0,,binary,,,,,"Cohabitation status of the mother: are her and her partner living together as a couple?
 
-""Mother's partner"" can be the biological partner, a new patner or a partner of the same gender. 
+""Mother's partner"" can be the biological partner, a new patner or a partner of the same gender.
 
 cohab_0: at birth or as near to birth as possible and within one year of birth.",,,Maternal cohabitation status,,,True,Trimester,0,3,,
 LifeCycle,core,cohort_id,Unique identifier number for the cohort,,,1.0.0,,categorical,,,,,,,,Cohort id,,,False,,,,,
@@ -145,7 +145,7 @@ LifeCycle,core,connind300_,connectivity density within a buffer of 300 m at birt
 LifeCycle,core,connind300_preg,connectivity density within a buffer of 300 m at pregnancy,,,1.0.0,,continuous,number_per_square_kilometer,,,,using the same source for all the cohorts (NAVTEQ),,,connectivity_density300,,,False,,,,,
 LifeCycle,core,height_f,"Paternal height, primary father",,,1.0.0,,continuous,cm,,,,"Primary/main father figure´s height reported in first paternal questionnaire
 
-Use measured height if available. 
+Use measured height if available.
 Note in the catalogue when it was recorded, i.e., which follow-up",,,Paternal height,,,False,,,,,
 LifeCycle,core,connind300_t,connectivity density within a buffer of 300 m at first trimester,,,1.0.0,,continuous,number_per_square_kilometer,,,,using the same source for all the cohorts (NAVTEQ),,,connectivity_density300,,,False,,,,,
 LifeCycle,core,dairy_pgn,Milk and milk products during pregnancy,,,1.0.0,,continuous,servings_per_day,,,,Based on Eurocode 2 Food Coding System,,,Food groups (M),,,False,,,,,
@@ -191,7 +191,7 @@ High: Short cycle tertiary, Bachelor, Masters, Doctoral  or equivalent (ISCED-20
 
 Medium: Upper secondary, Post-secondary non-tertiary (ISCED-2011: 3-4, ISCED-97: 3-4)
 
-Low: No education; early childhood; pre-primary; primary; lower secondary or second stage of basic education.   (ISCED-2011: 0-2, ISCED-97: 0-2) 
+Low: No education; early childhood; pre-primary; primary; lower secondary or second stage of basic education.   (ISCED-2011: 0-2, ISCED-97: 0-2)
 
 Mapping tools for specific countries can be found here: http://uis.unesco.org/en/isced-mappings",,,Paternal education (core),,,True,Year,0,21,,
 ATHLETE,outcome_ath,mets_score_idefics_,Continuous pediatric MetS score combining all components based on the IDEFICS z-scores,,,,,continuous,,,,,,,,,,,False,,,,,
@@ -205,7 +205,7 @@ High: Short cycle tertiary, Bachelor, Masters, Doctoral  or equivalent (ISCED-20
 
 Medium: Upper secondary, Post-secondary non-tertiary (ISCED-2011: 3-4, ISCED-97: 3-4)
 
-Low: No education; early childhood; pre-Secondary; Secondary; lower secondary or second stage of basic education.   (ISCED-2011: 0-2, ISCED-97: 0-2) 
+Low: No education; early childhood; pre-Secondary; Secondary; lower secondary or second stage of basic education.   (ISCED-2011: 0-2, ISCED-97: 0-2)
 
 Mapping tools for specific countries can be found here: http://uis.unesco.org/en/isced-mappings",,,Paternal education (core),,,False,,,,,
 LifeCycle,core,edu_f2_fath,"Type of father, edu_f2_0",,,1.0.0,,categorical,,,,,"Variable indicating whether the education level recorded in variable edu_f2_0 is for the biological father, the social father/mother or whether this is unknown",,,Paternal education (core),,,False,,,,,
@@ -217,7 +217,7 @@ High: Short cycle tertiary, Bachelor, Masters, Doctoral  or equivalent (ISCED-20
 
 Medium: Upper secondary, Post-secondary non-tertiary (ISCED-2011: 3-4, ISCED-97: 3-4)
 
-Low: No education; early childhood; pre-primary; primary; lower secondary or second stage of basic education.   (ISCED-2011: 0-2, ISCED-97: 0-2) 
+Low: No education; early childhood; pre-primary; primary; lower secondary or second stage of basic education.   (ISCED-2011: 0-2, ISCED-97: 0-2)
 
 Mapping tools for specific countries can be found here: http://uis.unesco.org/en/isced-mappings",,,Maternal education (core),,,True,Year,0,21,,
 LifeCycle,core,egg_pgn,Egg and egg products  during pregnancy,,,1.0.0,,continuous,servings_per_day,,,,Based on Eurocode 2 Food Coding System,,,Food groups (M),,,False,,,,,
@@ -235,7 +235,7 @@ LifeCycle,core,fam_splitup,Parent split up (age ≥0 to <1 year),,,1.0.0,,binary
 LifeCycle,core,famdinner_psc,Family dinner or dinner with at least one adult (2-4 years),,,1.0.0,,continuous,times_per_week,,,,,,,Dietary behavior (Preschool),,,False,,,,,
 LifeCycle,core,famdinner_sch,Family dinner or dinner with at least one adult (5-8 years),,,1.0.0,,continuous,times_per_week,,,,,,,Dietary behavior (School),,,False,,,,,
 LifeCycle,core,famsize_adult,"Family size, adults (≥0 to <1 year)",,,1.0.0,,integer,unit,,,,"Total numbers of adults in the same household in 1st year of life (≥0 to <1 year), preferably from same time point as when hh income recorded",,,Family size,,,True,Trimester,0,3,,
-LifeCycle,core,famsize_child,"Family size, children (≥0 to <1 year)",,,1.0.0,,integer,unit,,,,"Total number of children in the household under 18 years old including index child (all children: biological, half-siblings, adopted, fostered etc.); maximum recorded number of children in 1st year of life (≥0 to <1 year) 
+LifeCycle,core,famsize_child,"Family size, children (≥0 to <1 year)",,,1.0.0,,integer,unit,,,,"Total number of children in the household under 18 years old including index child (all children: biological, half-siblings, adopted, fostered etc.); maximum recorded number of children in 1st year of life (≥0 to <1 year)
 
 If the cohort has a different definition for child (e.g. <14 years), harmonisation is still possible, the variable will be a partial match (this should be detailed under the match in the catalogue)
 Household where the child lives the majority of the time",,,Family size,,,True,Trimester,0,3,,
@@ -268,25 +268,25 @@ LifeCycle,core,fruit_sch,Fruits in school-age children (5-8 years),,,1.0.0,,cont
 ATHLETE,outcome_ath,homa_ir_,Repeated HOMA-IR values,,,,,continuous,,,,,,,,,,,False,,,,,
 LifeCycle,core,ga_bj,Gestational age (best judgement),,,1.0.0,,integer,day,,,,"Best clinical judgement decided by cohorts estimating the most accurately measure of GA obtained within the cohort
 
-Priority: (ref: CHICOS) 
-1) Use LMP if difference from US is less than 7 days or if US is not available 
-2) Difference between LMP and US more than 7 days --> use US 
-3) If LMP is not available use US 
+Priority: (ref: CHICOS)
+1) Use LMP if difference from US is less than 7 days or if US is not available
+2) Difference between LMP and US more than 7 days --> use US
+3) If LMP is not available use US
 4) Non of them available - use maternal report.",,,Gestational age,,,False,,,,,
 LifeCycle,core,ga_lmp,Gestational age (last menstrual period),,,1.0.0,,integer,day,,,,"Gestational age based on last menstrual period in days
 
-If GA is reported in weeks then recalculate: 
-floor(n (weeks) x 7 + 3.5) 
+If GA is reported in weeks then recalculate:
+floor(n (weeks) x 7 + 3.5)
 Example: floor((40 weeks x 7) + 3.5) = 283",,,Gestational age,,,False,,,,,
 LifeCycle,core,ga_mr,Gestational age (maternal report),,,1.0.0,,integer,day,,,,"Gestational age based on maternal report
 
-If GA is reported in weeks then recalculate: 
-floor(n (weeks) x 7 + 3.5) 
+If GA is reported in weeks then recalculate:
+floor(n (weeks) x 7 + 3.5)
 Example: floor((40 weeks x 7) + 3.5) = 283",,,Gestational age,,,False,,,,,
 LifeCycle,core,ga_us,Gestational age (ultrasound),,,1.0.0,,integer,day,,,,"Gestational age based on ultrasound
 
-If GA is reported in weeks then recalculate: 
-floor(n (weeks) x 7 + 3.5) 
+If GA is reported in weeks then recalculate:
+floor(n (weeks) x 7 + 3.5)
 Example: floor((40 weeks x 7) + 3.5) = 283",,,Gestational age,,,False,,,,,
 LifeCycle,core,grain_pgn,Grains and grain products  during pregnancy,,,1.0.0,,continuous,servings_per_day,,,,Based on Eurocode 2 Food Coding System,,,Food groups (M),,,False,,,,,
 LifeCycle,core,grain_psc,Grains and grain products in  preschool age (2-4 years),,,1.0.0,,continuous,percent_total_food,,,,,,,Food groups (Preschool),,,False,,,,,
@@ -309,7 +309,7 @@ LifeCycle,core,height_mes_f,"Height measurement, primary father",,,1.0.0,,catego
 LifeCycle,core,height_mes_m,"Height measurement, mother",,,1.0.0,,binary,,,,,Reported vs. measured maternal height,,,Maternal height,,,False,,,,,
 LifeCycle,core,hhincome_,Total yearly income of the household (age >-1 year and <1 year),,,1.0.0,,categorical,,,,,"Total yearly income of the household,  within one year of birth (child aged between >-1 year and <1 year). Categorised into quartiles of low, medium-low, medium-high and high income levels based on national distribution of household yearly income
 
-If more than household income is recorded within the defined time frame, use highest recorded household income. 
+If more than household income is recorded within the defined time frame, use highest recorded household income.
 
 Income will be categorised into quartiles (low, medium-low, medium-high, high) based on national  distribution of household incomes in the year of follow-up.",,,Household income,,,False,,,,,
 LifeCycle,core,hmax_,average of maximum relative humidity during first year (>0 year and <=1 year),,,1.0.0,,continuous,percent,,,,using local meteorologic stations,,,maximum_relative_humidity,,,False,,,,,
@@ -334,7 +334,7 @@ LifeCycle,core,kcal_sch,Daily Kcal intake in school-age children (5-8 years),,,1
 LifeCycle,core,landuseshan300_,landuse Shannon's Evenness Index within a buffer of 300 m at birth,,,1.0.0,,continuous,,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,land_use_mix,,,False,,,,,
 LifeCycle,core,landuseshan300_preg,landuse Shannon's Evenness Index within a buffer of 300 m at pregnancy,,,1.0.0,,continuous,,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,land_use_mix,,,False,,,,,
 LifeCycle,core,landuseshan300_t,landuse Shannon's Evenness Index within a buffer of 300 m at first trimester,,,1.0.0,,continuous,,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,land_use_mix,,,False,,,,,
-LifeCycle,core,latepreg_weight,Late pregnancy weight,,,1.0.0,,continuous,kg,,,,"Latest measurement of weight before delivery. Use measured weight if available 
+LifeCycle,core,latepreg_weight,Late pregnancy weight,,,1.0.0,,continuous,kg,,,,"Latest measurement of weight before delivery. Use measured weight if available
 
 If a pregnancy weight within one  week of delivery is not available, a late pregnancy weight, closest to delivery from 32 weeks gestation is acceptable. This will be partial harmonisation.",,,Maternal weight,,,False,,,,,
 LifeCycle,core,latepreg_weight_ga,Late pregnancy weight gestational age,,,1.0.0,,integer,day,,,,Gestational age when late-pregnancy weight measured,,,Maternal weight,,,False,,,,,
@@ -408,20 +408,20 @@ LifeCycle,core,nox_preg,nox average value (extrapolated back in time using ratio
 LifeCycle,core,nox_t,nox average value (extrapolated back in time using ratio method) during first trimester,,,1.0.0,,continuous,micrograms_per_cubic_meter,,,,using the same source for all the cohorts (ESCAPE LUR MODELS),,,nox,,,False,,,,,
 LifeCycle,core,occup_f1_,"Paternal occupational status, primary father (>-1 year and <1 year)",,,1.0.0,,categorical,,,,,"Occupational status of primary/main father-figure within one year of birth (>-1 year and <1 year)
 
-If a cohort does not have data specifying whether the father is employed or self-employed, categorise the father as employed; the variable will be partially harmonised. 
+If a cohort does not have data specifying whether the father is employed or self-employed, categorise the father as employed; the variable will be partially harmonised.
 
  If more than one status is recorded within the defined time frame, use the highest reported level",,,Paternal occupational status,,,True,Trimester,0,3,,
 LifeCycle,core,occup_f1_fath,"Father type, occup_f1_0",,,1.0.0,,categorical,,,,,"Variable indicating whether the occupational status recorded in occup_f1_0 is for the biological father, the social father/mother or whether this is unknown",,,Paternal occupational status,,,True,Trimester,0,3,,
 LifeCycle,core,occup_f2_,"Paternal occupational status, secondary father (>-1 year and <1 year)",,,1.0.0,,categorical,,,,,"Occupational status of secondary father-figure within one year of birth (>-1 year and <1 year)
 
-If a cohort does not have data specifying whether the father is employed or self-employed, categorise the father as employed; the variable will be partially harmonised 
+If a cohort does not have data specifying whether the father is employed or self-employed, categorise the father as employed; the variable will be partially harmonised
 
  If more than one status is recorded within the defined time frame, use the highest reported level",,,Paternal occupational status,,,False,,,,,
 LifeCycle,core,occup_f2_fath,"Father type, occup_f2_0",,,1.0.0,,categorical,,,,,"Variable indicating whether the occupational status recorded in occup_f2_0, is for the biological father, the social father/mother or whether this is unknown",,,Paternal occupational status,,,False,,,,,
 LifeCycle,core,pm10cu_preg,pm10cu value (extrapolated back in time using ratio method) at pregnancy,,,1.0.0,,continuous,nanograms_per_cubic_meter,,,,using the same source for all the cohorts (ESCAPE LUR MODELS),,,pm10cu,,,False,,,,,
 LifeCycle,core,occup_m_,Maternal occupational status (>-1 year and <1 year),,,1.0.0,,categorical,,,,,"Occupational status of the mother when the chld was within one year of birth (≥-1 year and <1 year)
 
-Employed/self-employed  includes maternity leave if she was employed before commencing maternity leave. 
+Employed/self-employed  includes maternity leave if she was employed before commencing maternity leave.
  If more than one status is recorded within the defined time frame use the highest reported level.
 
 If a cohort does not have data specifying whether the mother is employed or self-employed, categorise the mother as employed; the variable will be partially harmonised.",,,Maternal occupational status,,,True,Trimester,0,3,,
@@ -429,31 +429,31 @@ LifeCycle,core,occupcode_f1_,Primary father's occupational code (>-1 year and <1
 
 If more than one occupation is recorded within the defined time frame use the highest reported level.
 
-Classified according to ISCO-88 (International Standard Classification of Occupations 1988)  1 digit codes 
+Classified according to ISCO-88 (International Standard Classification of Occupations 1988)  1 digit codes
 http://www.ilo.org/public/english/bureau/stat/isco/isco08/index.htm",,,Paternal occupational code,,,False,,,,,
 LifeCycle,core,occupcode_f1_fath,"Father type, occupcode_f1_0",,,1.0.0,,categorical,,,,,"Variables indicating whether the occupation codes recorded in occupcode_f1_0 are for the biological father, the social father/mother or whether this is unknown",,,Paternal occupational code,,,False,,,,,
 LifeCycle,core,occupcode_f2_,Secondary father's occupational code (>-1 year and <1 year),,,1.0.0,,categorical,,,,,"Occupation of the secondary father figure classified according to ISCO-88 1 digit codes within one year of birth (child aged between >-1 year and <1 year)
 
 If more than one occupation is recorded within the defined time frame use the highest reported level.
 
-Classified according to ISCO-88 (International Standard Classification of Occupations 1988)  1 digit codes 
+Classified according to ISCO-88 (International Standard Classification of Occupations 1988)  1 digit codes
 http://www.ilo.org/public/english/bureau/stat/isco/isco08/index.htm",,,Paternal occupational code,,,False,,,,,
 LifeCycle,core,occupcode_f2_fath,"Father type, occupcode_f2_0",,,1.0.0,,categorical,,,,,"Variables indicating whether the occupation codes recorded in occupcode_f2_0 are for the biological father, the social father/mother or whether this is unknown",,,Paternal occupational code,,,False,,,,,
 LifeCycle,core,occupcode_m_,Maternal occupational code (>-1 year and <1 year),,,1.0.0,,categorical,,,,,"Occupation of the mother classified according to ISCO-88 1 digit codes within one year of birth (child aged between >-1 year and <1 year)
 
 If more than one occupation is recorded within the defined time frame use the highest reported level.
 
-Classified according to ISCO-88 (International Standard Classification of Occupations 1988)  1 digit codes 
+Classified according to ISCO-88 (International Standard Classification of Occupations 1988)  1 digit codes
 http://www.ilo.org/public/english/bureau/stat/isco/isco08/index.htm",,,Maternal occupational code,,,False,,,,,
 LifeCycle,core,other_,"percentage of other (mineral extraction and dump sites, construction sites, land without current use) land use within a buffer of 300 m at birth",,,1.0.0,,continuous,percent,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,main_land_use_other,,,False,,,,,
 LifeCycle,core,other_preg,"percentage of other (mineral extraction and dump sites, construction sites, land without current use) land use within a buffer of 300 m at pregnancy",,,1.0.0,,continuous,percent,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,main_land_use_forests,,,False,,,,,
 LifeCycle,core,other_t,"percentage of other (mineral extraction and dump sites, construction sites, land without current use) land use within a buffer of 300 m at first trimester",,,1.0.0,,continuous,percent,,,,using URBANATLAS except for INMA GUIPUZCOA (EUNIS) and MOBA (local layer),,,main_land_use_other,,,False,,,,,
 LifeCycle,core,outcome,Birth outcome,,,1.0.0,,categorical,,,,,"A complete match is achieved when data on all categories (live born, still born, spontaneous abortion etc.) are available. When detailing the match of the variable in the catalogue it is important to include the date of recruitment; in many cases this will explain a partial match. Where the match is only partial, also indicate whether there are complete data on live-born vs. stillborn.
 Stillborn defined as 22 completed weeks",,,Birth outcome,,,False,,,,,
-LifeCycle,core,parity_m,Mother's parity,,,1.0.0,,categorical,,,,,"Mother's parity based on previous born children (previous stillbirths included, abortions excluded). Stillbirth is defined as the death of a fetus at or after 22 completed weeks of gestation. 
+LifeCycle,core,parity_m,Mother's parity,,,1.0.0,,categorical,,,,,"Mother's parity based on previous born children (previous stillbirths included, abortions excluded). Stillbirth is defined as the death of a fetus at or after 22 completed weeks of gestation.
 
-If both Birth medical registry data and self-reported data are available, prioritisation is as follows: 
-1) Medical Birth registry data 
+If both Birth medical registry data and self-reported data are available, prioritisation is as follows:
+1) Medical Birth registry data
 2) Self-reported",,,Maternal parity,,,False,,,,,
 LifeCycle,core,patternA_snackscreen_psc,"Child’s score on the 'snack - screen' pattern, at preschool age.",,,1.0.0,,continuous,,,,,"Children with higher score show relatively more sweet beverages and processed foods intake, higher screen times and lower fruit and vegetables intake than other children from the same cohort. The score is derived from PCA loadings.
 The patterns are data driven, and therefore aren’t strictly equivalent between the cohorts, however, the interpretation of this pattern is coherent accross the cohorts.",,,Preschool multibehavioral profiles,,,False,,,,,
@@ -540,18 +540,18 @@ LifeCycle,core,port_t,percentage of port (port areas) land use within a buffer o
 LifeCycle,core,potat_pgn,Potatoes during pregnancy,,,1.0.0,,continuous,servings_per_day,,,,Based on Eurocode 2 Food Coding System,,,Food groups (M),,,False,,,,,
 LifeCycle,core,potat_psc,Potatoes in preschool age (2-4 years),,,1.0.0,,continuous,percent_total_food,,,,,,,Food groups (Preschool),,,False,,,,,
 LifeCycle,core,potat_sch,Potatoes in school-age children (5-8 years),,,1.0.0,,continuous,servings_per_day,,,,,,,Food groups (School),,,False,,,,,
-LifeCycle,core,ppd,Postpartum depression,,,1.0.0,,binary,,,,,"Complete harmonisation: ppd is identified using a defined scale (for e.g. the Edinburgh postnatal depression scale) or is clinically diagnosed. 
+LifeCycle,core,ppd,Postpartum depression,,,1.0.0,,binary,,,,,"Complete harmonisation: ppd is identified using a defined scale (for e.g. the Edinburgh postnatal depression scale) or is clinically diagnosed.
 Partial harmonisation: reported depression or psychiatric disorder around the time of birth",,,Depression,,,False,,,,,
 LifeCycle,core,preeclam,Preeclampsia/HELLP syndrome,,,1.0.0,,binary,,,,,"Preeclampsia or HELLP syndrome during pregnancy
 
 Preeclampsia is defined as :
-i) elevated blood pressure after 20 weeks of gestation (≥ 140 mm Hg systolic or ≥ 90 mm Hg diastolic) 
-ii) proteinuria (> 0.3 g/24 hours). 
+i) elevated blood pressure after 20 weeks of gestation (≥ 140 mm Hg systolic or ≥ 90 mm Hg diastolic)
+ii) proteinuria (> 0.3 g/24 hours).
 HELLP syndrome (haemolysis, elevated liver enzymes, and low platelets) is a manifestation or complication of preeclampsia",,,Preeclampsia/gestational hypertension,,,False,,,,,
 LifeCycle,core,preg_alc,Maternal alcohol intake in pregnancy (any),,,1.0.0,,binary,,,,,,,,Maternal alcohol intake,,,False,,,,,
 LifeCycle,core,preg_alc_unit,Maternal alcohol intake in pregnancy (units),,,1.0.0,,categorical,week,,,,"Units of alcohol mother drank on average per week during pregnancy
 
-For converting from days to weeks apply the following rule: one drink per day corresponds to 7–13 drinks weekly, two drinks per day to 14–20 drinks weekly, etc. 
+For converting from days to weeks apply the following rule: one drink per day corresponds to 7–13 drinks weekly, two drinks per day to 14–20 drinks weekly, etc.
 
 Non-drinkers categorised under 0 - not drinking alcohol",,,Maternal alcohol intake,,,False,,,,,
 LifeCycle,core,preg_an,Maternal anorexia nervosa active during the index pregnancy,,,1.0.0,,binary,,,,,"Maternal anorexia nervosa (AN) should be active during the index pregnancy and should include registry-based diagnoses or maternally-reported doctor-diagnosed AN active during the index pregnancy. If both sources of information are available, consider registry-based AN. If multiple assessments during pregnancy were performed, consider the earliest one.
@@ -584,7 +584,7 @@ LifeCycle,core,preg_fever,Fever in pregnancy,,,1.0.0,,binary,,,,,"Any fever duri
 
 The variable is fully harmonised if data cover the whole pregnancy.",,,Fever during pregnancy,,,False,,,,,
 LifeCycle,core,preg_gain,Gestational weight gain,,,1.0.0,,continuous,kg,,,,"Maternal weight gain from conception to delivery. Use measured weight if available
-Negative values for weight loss: positive values for weight gain. 0 for no change. 
+Negative values for weight loss: positive values for weight gain. 0 for no change.
 Where gestational weight gain is calculated: take the measures perceived to be the best measurements.",,,Maternal weight,,,False,,,,,
 LifeCycle,core,preg_gain_mes,Gestational weight gain measurement,,,1.0.0,,categorical,,,,,Reported vs. measured gestational weight gain,,,Maternal weight,,,False,,,,,
 LifeCycle,core,preg_ht,Gestational hypertension,,,1.0.0,,binary,,,,,"Gestational hypertension (hypertension during pregnancy) is the new onset of hypertension after 20 weeks of gestation. The diagnosis requires that the patient have:
@@ -613,26 +613,26 @@ The variable is fully harmonised if data cover the whole pregnancy",,,Maternal t
 LifeCycle,core,prepreg_alc,Maternal pre-pregnancy alcohol intake (any),,,1.0.0,,binary,,,,,Did the mother drink alcohol before pregnancy (ever)?,,,Maternal alcohol intake,,,False,,,,,
 LifeCycle,core,prepreg_alc_unit,Maternal pre-pregnancy alcohol intake (units),,,1.0.0,,categorical,,,,,"Units of alcohol mother drank on average per week before pregnancy
 
-Alcohol consumption before pregnancy includes ≥ 14 units per week. During pregnancy this category is not included. 
+Alcohol consumption before pregnancy includes ≥ 14 units per week. During pregnancy this category is not included.
 
 See Strandberg-Larsen et al 2017 Eur J Epidemiol (https://doi.org/10.1007/s10654-017-0323-2) for conversion from days to weeks.
 
 Non-drinkers categorised as 0 - never drinking alcohol",,,Maternal alcohol intake,,,False,,,,,
 LifeCycle,core,prepreg_an,Maternal history of anorexia nervosa,,,1.0.0,,binary,,,,,"Ideally AN should be present/ diagnosed before the index pregnancy, independently of whether it is active or not during the index pregnancy, and should include registry-based diagnoses or maternally-reported doctor-diagnosed AN. If both sources of information are available, consider registry-based AN.
 Partial harmonization includes:
-- Standardized questionnaires/criteria that refer to the pre-pregnancy period; 
+- Standardized questionnaires/criteria that refer to the pre-pregnancy period;
 - Maternal report of the history of AN with no specification on whether it is doctor-diagnosed or not;
 - Maternal report of the history of AN if no data on the period of the onset is available.
 Please specify how this variable was created, and whether AN was assessed through medical records or self-reported.",,,Anorexia nervosa,,,False,,,,,
 LifeCycle,core,prepreg_anx,Maternal history of anxiety disorders,,,1.0.0,,binary,,,,,"Anxiety disorder should be present/ diagnosed before the index pregnancy, independently of whether it is active or not during the index pregnancy, and should include registry-based diagnoses or maternally-reported doctor-diagnosed disorders. If both sources of information are available, consider registry-based disorders.
 Partial harmonization includes:
-- Standardized questionnaires/criteria that refer to the pre-pregnancy period; 
+- Standardized questionnaires/criteria that refer to the pre-pregnancy period;
 - Maternal report of the history of anxiety disorders with no specification on whether it is doctor-diagnosed or not;
 - Maternal report of the history of anxiety disorders if no data on the exact period of the onset is available.
 Please specify how this variable was created, and whether the disorder was assessed through medical records or self-reported.",,,Anxiety,,,False,,,,,
 LifeCycle,core,prepreg_bn,Maternal history of bulimia nervosa,,,1.0.0,,binary,,,,,"Ideally BN should be present/ diagnosed before the index pregnancy, independently of whether it is active or not during the index pregnancy, and should include registry-based diagnoses or maternally-reported doctor-diagnosed BN. If both sources of information are available, consider registry-based BN.
 Partial harmonization includes:
-- Standardized questionnaires/criteria that refer to the pre-pregnancy period; 
+- Standardized questionnaires/criteria that refer to the pre-pregnancy period;
 - Maternal report of the history of BN with no specification on whether it is doctor-diagnosed or not;
 - Maternal report of the history of BN if no data on the period of the onset is available.
 Please specify how this variable was created, and whether BN was assessed through medical records or self-reported.",,,Bulimia nervosa,,,False,,,,,
@@ -643,14 +643,14 @@ Cigars, pipes, cheroots should be converted into number of cigarettes (1:3). 1 c
 Non-smokers categorised as 0 - none",,,Maternal smoking,,,False,,,,,
 LifeCycle,core,prepreg_dep,Maternal history of depressive disorders,,,1.0.0,,binary,,,,,"Depressive disorder should be present/ diagnosed before the index pregnancy, independently of whether it is active or not during the index pregnancy, and should include registry-based diagnoses or maternally-reported doctor-diagnosed disorders. If both sources of information are available, consider registry-based disorders.
 Partial harmonization includes:
-- Standardized questionnaires/criteria that refer to the pre-pregnancy period; 
+- Standardized questionnaires/criteria that refer to the pre-pregnancy period;
 - Maternal report of the history of depressive disorders with no specification on whether it is doctor-diagnosed or not;
 - Maternal report of the history of depressive disorders if no data on the exact period of the onset is available.
 Please specify how this variable was created, and whether the disorder was assessed through medical records or self-reported.",,,Depression,,,False,,,,,
 LifeCycle,core,prepreg_dia,History of diabetes,,,1.0.0,,categorical,,,,,Diagnosis of mother with diabetes before index pregnancy,,,Maternal diabetes,,,False,,,,,
 LifeCycle,core,prepreg_ed,Maternal history of any eating disorder,,,1.0.0,,binary,,,,,"Ideally a disorder should be present/ diagnosed before the index pregnancy, independently of whether it is active or not during the index pregnancy, and should include registry-based diagnoses or maternally-reported doctor-diagnosed disorders. If both sources of information are available, consider registry-based disorders.
 Partial harmonization includes:
-- Standardized questionnaires/criteria that refer to the pre-pregnancy period; 
+- Standardized questionnaires/criteria that refer to the pre-pregnancy period;
 - Maternal report of the history of eating disorders with no specification on whether it is doctor-diagnosed or not;
 - Maternal report of the history of eating disorders if no data on the period of the onset is available.
 - If “any eating disorder” is not available, but only for example, anorexia nervosa and bulimia nervosa, these can be included as “any” eating disorder, and labelled as “partial harmonization”.
@@ -787,7 +787,7 @@ LifeCycle,core,water_t,percentage of water land use within a buffer of 300 m at 
 LifeCycle,core,weight_,Child's weight (0 and <1 month,,,1.0.0,,continuous,kg,,,,Child's weight measured between the ages of 0 and <1 month. This does not include the child’s birth weight,,,Child's weight,,,True,Week,0,42,,
 LifeCycle,core,weight_age,"Exact age, weight_0",,,1.0.0,,integer,day,,,,Exact age of the child (in days) when child's weight was recorded for weight_0,,,Child's weight,,,True,Week,0,42,,
 LifeCycle,core,weight_f,"Paternal weight, primary father",,,1.0.0,,continuous,kg,,,,"Primary/main father figure´s weight reported in first paternal questionnaire
-Use measured weight if available. 
+Use measured weight if available.
 Note in the catalogue when it was recorded, i.e., which follow-up",,,Paternal weight,,,False,,,,,
 LifeCycle,core,weight_f1_fath,"Father type, weight_f1_fath",,,1.0.0,,categorical,,,,,"Variable indicating whether the weight recorded in weight_f1 is for the biological father, the social father, or whether this is unknown",,,Paternal weight,,,False,,,,,
 LifeCycle,core,weight_mes_f,Paternal weight measurement,,,1.0.0,,categorical,,,,,Reported vs. measured weight,,,Paternal weight,,,False,,,,,
@@ -871,11 +871,11 @@ LifeCycle,outcome,asthma_current_ISAAC_,Diagnosis of asthma according to ISAAC d
 1. Doctor diagnosed asthma
 2. Wheezing in the past 12 months
 3. Use of asthma medication in the past 12 months",,,ISAAC,,,True,Year,0,21,,
-LifeCycle,outcome,asthma_current_MeDALL,Current asthma (MeDALL),,,1.0.0,,binary,,,,,"2 out of 3 of: 
+LifeCycle,outcome,asthma_current_MeDALL,Current asthma (MeDALL),,,1.0.0,,binary,,,,,"2 out of 3 of:
 1. Doctor diagnosed asthma
 2. Wheezing in the past 12 months
 3. Use of asthma medication in the past 12 months",,,,,,False,,,,,
-LifeCycle,outcome,asthma_current_MeDALL_,Diagnosis of asthma according to MeDALL definition,,,1.0.0,,binary,,,,,"2 out of 3 of: 
+LifeCycle,outcome,asthma_current_MeDALL_,Diagnosis of asthma according to MeDALL definition,,,1.0.0,,binary,,,,,"2 out of 3 of:
 1. Doctor diagnosed asthma
 2. Wheezing in the past 12 months
 3. Use of asthma medication in the past 12 months",,,MeDALL,,,True,Year,0,21,,
@@ -1067,12 +1067,12 @@ LifeCycle,outcome,nvi_avg_,average of available items comprising the total raw s
 LifeCycle,outcome,nvi_eval_,who the test for measuring non-verbal intelligence was administered/answered by for nvi_raw_0,,,1.0.0,,categorical,,,,,“computerized” (value label 4) only applies if the child perform the test with automatic results. Any computerized rating scale or questionnaire does not apply.,,,Non-verbal intelligence,,,True,Year,0,21,,
 LifeCycle,outcome,nvi_instr_,Cohort-specific instrument used to measure the non-verbal intelligence for nvi_raw_0,,,1.0.0,,categorical,,,,,"Use the following specified scales:
 Problem solving for ASQ;
-Cognitive for BSID and HELP; 
+Cognitive for BSID and HELP;
 Perceptual-performance for MSCA;
-Performance IQ for WPPSI; 
-Fluid reasoning index for WISC; 
-Perceptual reasoning for WAIS; 
-Practical reasoning for GMDS; 
+Performance IQ for WPPSI;
+Fluid reasoning index for WISC;
+Perceptual reasoning for WAIS;
+Practical reasoning for GMDS;
 Visual/spatial for GDO-R",,,Non-verbal intelligence,,,True,Year,0,21,,
 LifeCycle,outcome,nvi_pc_,"non-verbal intelligence, percentiles of nvi_pro_0",,,1.0.0,,continuous,,,,,,,,Non-verbal intelligence,,,True,Year,0,21,,
 LifeCycle,outcome,nvi_pro_,total non-verbal intelligence score after prorating nvi_raw_0,,,1.0.0,,continuous,,,,,"If non-verbal intelligence is measured using “computerized” test, create prorated scores equals to raw scores: nvi_pro_0=nvi_raw_0",,,Non-verbal intelligence,,,True,Year,0,21,,
@@ -2226,8 +2226,8 @@ For syndromes and single gene disorders, a genetic test may have confirmed the c
 
 Whilst GENETIC TEST is a new variable in Guide 1.4 (for cases born from 2013 onwards) if any registry has this information for previous cases, EUROCAT is interested in collecting this information from 2005 onwards
 
-If the test is performed but the result not yet known, please wait for the result before reporting",,"1 = specific genetic test positive 
-2 = specific genetic test negative 
+If the test is performed but the result not yet known, please wait for the result before reporting",,"1 = specific genetic test positive
+2 = specific genetic test negative
 3 = Specific genetic test not Performed
 9 = Not Known if genetic test is performed or result not known,Table reference: EUROCAT/EUROmediCAT.",,,,False,,,,,
 OOM,EUROCAT,hba1c,,,,2.2,,,,,,False,"GLYCATED HAEMOGLOBIN (HbA1c) VALUE
@@ -2235,17 +2235,17 @@ Give the first HbA1c value measured in the first trimester (in mmol/mol units)
 Normal values for non-diabetic individuals <48mmol/mol",,"Table reference: EUROCAT/EUROmediCAT. 999 = Not known
 3 digits",,,,False,,,,,
 MBRN,MBRN,SPINAB,Spina bifida,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN_child,KJONN,Child’s gender,,,1.0,,,,,,,,,,,,"0 = Not specified 
- 1 = Male 
- 2 = Female 
- 3 = Uncertain 
+MBRN,MBRN_child,KJONN,Child’s gender,,,1.0,,,,,,,,,,,,"0 = Not specified
+ 1 = Male
+ 2 = Female
+ 3 = Uncertain
  9 = Missing",False,,,,,
 PHT,PHT,DOCE,Dose,,,1.0,,,,,,,,,,,,,False,,,,,
 OOM,EUROCAT,person_id_mother,,,,2.2,,,,,,False,"If the datasource contains other tables beyond EUROCAT, indicate here the identifier of the mother that is used in the other tables",,"Table reference: EUROCAT/EUROmediCAT. If the datasource contains other tables beyond EUROCAT,the proportion of rows that have a valid value in this field is a quality indicator",,,,False,,,,,
 GenR,core,p07_01_05,HORSE,,,1.0.0,,continuous,gram_per_day,,,,Intake of horse,,,,,,False,,,,,
 DHL,CPA1,aborti,Number of spontaneous abortions prior to delivery.,,,1.0,,,,,,,,,,,,"If  the field concep= ""2"", only allowed value ""0"". ""99"" = not detected.",False,,,,,
 DHL,CPA1,accr_fet,Fetal growth defect,,,1.0,,,,,,,By fetal growth defect we mean the slowed intrauterine growth (values ​​below the 10th percentile) diagnosed in the pre-natal phase.,,,,,"""1"" = slowing down intrauterine growth
- ""2"" = no slowing down intrauterine growth 
+ ""2"" = no slowing down intrauterine growth
  ""9"" = not detected or incorrect",False,,,,,
 DHL,CPA1,altezza,Height of new mother in cm.,,,1.0,,,,,,,,,,,,"""999"" = not detected or incorrect",False,,,,,
 DHL,CPA1,amnio,Amniocentesis,,,1.0,,,,,,,,,,,,"""1"" = yes, ""2"" = no,""9""= not detected or incorrect",False,,,,,
@@ -2305,15 +2305,15 @@ For code 7 = other specified test, give information in text field (variable 22).
 If test performed and result negative, then the “When discovered” variable cannot be coded 6 (prenatal diagnosis).
 
 This field is to record what DID happen, not any possible plans or intentions. Ultrasound < 14 weeks means only ultrasound performed which may include a nuchal measurement. The serum/combined screening must involve a biochemical test",,"1 = Ultrasound at GA < 14 weeks
-2 = Ultrasound at GA 14-21 weeks 
+2 = Ultrasound at GA 14-21 weeks
 3 = Ultrasound at GA ≥ 22 weeks
 4 = Ultrasound GA not known
-5 = Serum/ combined screening 
+5 = Serum/ combined screening
 6 = CVS or
-amniocentesis 
+amniocentesis
 7 = Other test positive
 8 = Test(s) performed,result negative
-9 = Not known 
+9 = Not known
 10 = No test
 performed,Table reference: EUROCAT",,,,False,,,,,
 LongITools,wave_01,study_country,Country of study,,,1.0.0,,categorical,,,,,Country of the study,,,,,,False,,,,,
@@ -2669,14 +2669,14 @@ Conjoined twins have a specific ICD/BPA code, to be coded under “syndrome” (
 
 Any other malformations are coded in variables 29-44.
 
-Notes. If code 8 is used, please specify in variable sp_twin the gestational age at which last known to be a multiple pregnancy and/or first known to be a singleton. The purpose of this coding system is to allow us to distinguish malformed cases which would have civil registration as singleton births from malformed cases which would have civil registration as multiple births. Please specify the sex and outcome (live, still) of the malformed/non-malformed co-twin and zygosity.",,"1 = Singleton 
+Notes. If code 8 is used, please specify in variable sp_twin the gestational age at which last known to be a multiple pregnancy and/or first known to be a singleton. The purpose of this coding system is to allow us to distinguish malformed cases which would have civil registration as singleton births from malformed cases which would have civil registration as multiple births. Please specify the sex and outcome (live, still) of the malformed/non-malformed co-twin and zygosity.",,"1 = Singleton
 2 = Twins
-3 = Triplets 
-4 = Quadruplets 
-5 = Quintuplets 
-6 = Sextuplets or more 
+3 = Triplets
+4 = Quadruplets
+5 = Quintuplets
+6 = Sextuplets or more
 7 = Multiple birth,number of babies not known
-8 = Singleton at time of delivery/termination,but known to have been a multiple pregnancy at an earlier stage in pregnancy 
+8 = Singleton at time of delivery/termination,but known to have been a multiple pregnancy at an earlier stage in pregnancy
 9 = Not known,Table reference: EUROCAT/EUROmediCAT.",,,,False,,,,,
 NFBC1966,wave_01,C6646Q2_5_11_1,Occupational status in 2011 (asked in 46yr questionnaire): Student,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 2011 (asked in 46yr questionnaire): Student,,"1,NA",,,,False,,,,,
 PELAGIE,harmonized,AGEBIRTH_P_Y,,,,1.0.0,,integer,year,,,,,,,,,,False,,,,,
@@ -2784,7 +2784,7 @@ NFBC1966,wave_01,C6646Q2_5_92_7,Occupational status in 1992 (asked in 46yr quest
 NFBC1966,wave_01,C6646Q2_5_93_1,Occupational status in 1993 (asked in 46yr questionnaire): Student,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1993 (asked in 46yr questionnaire): Student,,"1,NA",,,,False,,,,,
 OOM,EUROCAT,nbrmalf,,,,2.2,,,,,,True,"NUMBER OF MALFORMED IN MULTIPLE SET
 To be completed for multiple delivery only.
-Complete one form for each malformed baby in a multiple set. 
+Complete one form for each malformed baby in a multiple set.
 
 Remember to give local ID of co-twin in SIB1 field (variable 69) if more than one malformed.",,"1 = One
 2 = Two
@@ -2831,7 +2831,7 @@ NFBC1966,wave_01,C6646Q2_5_97_4,Occupational status in 1997 (asked in 46yr quest
 NFBC1966,wave_01,C6646Q2_5_97_5,Occupational status in 1997 (asked in 46yr questionnaire): Unemployed,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1997 (asked in 46yr questionnaire): Unemployed,,"5,NA",,,,False,,,,,
 NFBC1966,wave_01,C6646Q2_5_97_6,"Occupational status in 1997 (asked in 46yr questionnaire): Maternity/parental leave, child care leave",NFBC1966,46yr,1.0.0,,categorical,,,,,"Occupational status in 1997 (asked in 46yr questionnaire): Maternity/parental leave, child care leave",,"6,NA",,,,False,,,,,
 NFBC1966,wave_01,C6646Q2_5_97_7,Occupational status in 1997 (asked in 46yr questionnaire): Job alternation leave or other,NFBC1966,46yr,1.0.0,,categorical,,,,,Occupational status in 1997 (asked in 46yr questionnaire): Job alternation leave or other,,"7,NA",,,,False,,,,,
-OOM,EUROCAT,numloc,,,,2.2,,,,,,True,"LOCAL ID 
+OOM,EUROCAT,numloc,,,,2.2,,,,,,True,"LOCAL ID
 Each case has a unique identification. This number is a maximum of 11 characters long, consisting of either numbers, letters or both.
 ID numbers should not repeat themselves in different years.",,Table reference: EUROCAT/EUROmediCAT. Up to 11 digits,,,,False,,,,,
 PELAGIE,harmonized,ADHD_PRO_6,,,,1.0.0,,integer,,,,,,,,,,,False,,,,,
@@ -3424,8 +3424,8 @@ PELAGIE,pelagie_q0,m23,Type d'accouchement,,,1.0.0,,categorical,,,,,,,,,,,False,
 PELAGIE,pelagie_q0,PCSM1CL,Quelle est (ou était) votre profession ?,,,1.0.0,,string,,,,,,,,,,,False,,,,,
 PELAGIE,pelagie_q0,PCSM1cl,Quelle est (ou était) votre profession ?,,,1.0.0,,string,,,,,,,,,,,False,,,,,
 PELAGIE,pelagie_q0,PCSPCL,Quelle profession ?,,,1.0.0,,string,,,,,,,,,,,False,,,,,
-PELAGIE,pelagie_q0,RECRUIT_AGE,"Age of the child 
-Indicative of time of enrolment",,,1.0.0,,integer,day,,,,"Age of the child 
+PELAGIE,pelagie_q0,RECRUIT_AGE,"Age of the child
+Indicative of time of enrolment",,,1.0.0,,integer,day,,,,"Age of the child
 Indicative of time of enrolment",,,,,,False,,,,,
 PELAGIE,pelagie_q0,SGINCLUSIONF,Gestational age at inclusion,,,1.0.0,,integer,week,,,,,,,,,,False,,,,,
 PELAGIE,pelagie_q0,SGURINES,How many weeks ago the urine sample was taken,,,1.0.0,,integer,week,,,,,,,,,,False,,,,,
@@ -3520,7 +3520,7 @@ PELAGIE,pelagie_q0,m9,Pathologies de la grossesse : Diabète gestationel,,,1.0.0
 PELAGIE,pelagie_q0,malfo,Malformation congénitale codée,,,1.0.0,,categorical,,,,,,,,,,,False,,,,,
 PELAGIE,pelagie_q0,p6,Incidents de la période néonatale,,,1.0.0,,categorical,,,,,,,,,,,False,,,,,
 PELAGIE,pelagie_q0,p7,Hospitalisation néonatale,,,1.0.0,,categorical,,,,,,,,,,,False,,,,,
-PELAGIE,pelagie_q0,recruit_age,"Age of the child 
+PELAGIE,pelagie_q0,recruit_age,"Age of the child
 Indicative of time of enrolment",,,1.0.0,,integer,day,,,,"Age of the child
 Indicative of time of enrolment",,,,,,False,,,,,
 PELAGIE,pelagie_q0,v10,"Pour devenir enceinte de cet enfant, avez-vous arrêté volontairement votre contraception ?",,,1.0.0,,categorical,,,,,,,,,,,False,,,,,
@@ -3667,8 +3667,8 @@ PELAGIE,pelagie_q2,B121,"Since birth, has your child ever had bronchiolitis or b
 PELAGIE,pelagie_q2,B126,"Since birth, has your child ever had sneezing, a runny nose or a blocked nose without having a respiratory infection (neither a cold, nor rhinopharyngitis, nor flu...)?",,,1.0.0,,categorical,,,,,,,,,,,False,,,,,
 PELAGIE,pelagie_q2,B127,"If yes (B126), were these nose problems accompanied by watery (tears) and itchy (scratching) eyes in the last 12 months?",,,1.0.0,,categorical,,,,,,,,,,,False,,,,,
 PELAGIE,pelagie_q2,B128,"Since birth, has your child ever had wheezing at any time in their life?",,,1.0.0,,categorical,,,,,,,,,,,False,,,,,
-RMR,RMR,luogoacc,Place violent cause,,,1.0,,,,,,,"Non trovo MEV_GD 
- MEV_TI",,,,,"Place where the accident, work accident, suicide or murder occurred. Codes: 
+RMR,RMR,luogoacc,Place violent cause,,,1.0,,,,,,,"Non trovo MEV_GD
+ MEV_TI",,,,,"Place where the accident, work accident, suicide or murder occurred. Codes:
  ""1"" = House
  ""2"" = Factory
  ""3"" = Building site
@@ -3678,7 +3678,7 @@ RMR,RMR,luogoacc,Place violent cause,,,1.0,,,,,,,"Non trovo MEV_GD
  ""7"" = Quarry or mine
  ""8"" = Other or unspecified workplace
   ""9"" = Public building
- ""10"" = Collective institution 
+ ""10"" = Collective institution
  ""11"" = Other specified place
  ""12"" = Place not specified.",False,,,,,
 PELAGIE,pelagie_q2,B129,"If yes (B128), how many times had your child had wheezing episodes since birth and until the age of 1 year?",,,1.0.0,,categorical,,,,,,,,,,,False,,,,,
@@ -3941,13 +3941,13 @@ PELAGIE,pelagie_q6,QE6_Nb_Domicile,Combien de domiciles renseignés ?,,,1.00,,in
 PELAGIE,pelagie_q6,QS6_B1_DATE_4_MOIS,Date de la mesure du poids et de la taille de l'enfant,,,1.0.0,,date,,,,,,,,,,,True,,,,,
 PELAGIE,pelagie_q6,QS6_B1_PERIMETRE_4_MOIS,Périmètre cranien de l'enfant,,,1.0.0,,integer,cm,,,,,,,,,,True,,,,,
 PELAGIE,pelagie_q6,QS6_B1_POIDS_4_MOIS,Poids de l'enfant,,,1.0.0,,integer,kg,,,,,,,,,,True,,,,,
-OOM,EUROCAT,migrant,,,,2.2,,,,,,False,"MIGRANT STATUS 
-This variable is included to allow assessment of the extent to which services such as prenatal screening are reaching migrants. It does not ask for ethnicity. 
+OOM,EUROCAT,migrant,,,,2.2,,,,,,False,"MIGRANT STATUS
+This variable is included to allow assessment of the extent to which services such as prenatal screening are reaching migrants. It does not ask for ethnicity.
 
-If code 4, give text details in the general comments section (variable 79).",,"1 = Mother migrated from outside EU during pregnancy 
-2 = Mother migrated from outside EU during adult life (from age 18) 
-3 = Mother not a migrant as defined in 1 or 2 
-4 = Other (specify in text) 
+If code 4, give text details in the general comments section (variable 79).",,"1 = Mother migrated from outside EU during pregnancy
+2 = Mother migrated from outside EU during adult life (from age 18)
+3 = Mother not a migrant as defined in 1 or 2
+4 = Other (specify in text)
 9 = Not known,Table reference: EUROCAT/EUROmediCAT.",,,,False,,,,,
 PELAGIE,pelagie_q6,QS6_C15_SI_OUI,Has your child's asthma been confirmed by a doctor?,,,1.0.0,,categorical,,,,,,,,,,,False,,,,,
 PELAGIE,pelagie_q6,QS6_C16,"Has your child ever had sneezing, a runny nose or a blocked nose without having a respiratory infection (neither a cold, nor rhinopharyngitis, nor flu...)?",,,1.0.0,,categorical,,,,,,,,,,,False,,,,,
@@ -4234,8 +4234,8 @@ If performed record the malformation(s) discovered in the “malformation” sec
 
 “Results not known” means that the autopsy record was not available to the registry.
 
-“Macerated fetus” means that although a post mortem was performed, maceration of the fetus prevented a full protocol from being followed.",,"1 = Performed,results known 
-2 = Performed,results not known 
+“Macerated fetus” means that although a post mortem was performed, maceration of the fetus prevented a full protocol from being followed.",,"1 = Performed,results known
+2 = Performed,results not known
 3 = Not performed
 4 = Macerated fetus
 9 = Not known,Table reference: EUROCAT/EUROmediCAT.""",,,,False,,,,,
@@ -4501,16 +4501,16 @@ Use the link and enter the name of the condition. if more than one code/disease 
 https://www.orpha.net/consor/cgi-bin/Disease.php?lng=EN",,Table reference: EUROCAT,,,,False,,,,,
 ARS_PS,PS,data_inizio_trattamento,treatment start date,,,1.0,,,,,,,,,,,,,False,,,,,
 OOM,EUROCAT,sib2,,,,2.2,,,,,,False,AS SIB1,,Table reference: EUROCAT/EUROmediCAT. Local ID,,,,False,,,,,
-OOM,EUROCAT,malfo1,,,,2.2,,,,,,True,"MALFORMATION 
-A baby/fetus with ONLY minor anomalies (see exclusion list, chapter 7) should not be transmitted to Central Registry. 
+OOM,EUROCAT,malfo1,,,,2.2,,,,,,True,"MALFORMATION
+A baby/fetus with ONLY minor anomalies (see exclusion list, chapter 7) should not be transmitted to Central Registry.
 
-When a major anomaly is present, code both major and minor anomalies. 
+When a major anomaly is present, code both major and minor anomalies.
 
-In case of conjoined twins, give full description in text in variable 33 
+In case of conjoined twins, give full description in text in variable 33
 
-Up to 8 malformations can be coded – if more than 8 are present, specify additional anomalies in the text variable for the 8th anomaly (text variable 47 SP_MALFO8). 
+Up to 8 malformations can be coded – if more than 8 are present, specify additional anomalies in the text variable for the 8th anomaly (text variable 47 SP_MALFO8).
 
-Include in the 8 specified codes the most important ones, or those tabulated in EUROCAT Reports. 
+Include in the 8 specified codes the most important ones, or those tabulated in EUROCAT Reports.
 
 Give written description of the malformations available in malformation text variables 33, 35, 37, 39, 41, 43, 45 and 47.",,"Table reference: EUROCAT/EUROmediCAT. ICD 10
 First 4 digits are ICD
@@ -4561,8 +4561,8 @@ ARS_PS,PS,prognosi_testo,,,,1.0,,,,,,,,,,,,,False,,,,,
 MBRN,MBRN,APGAR5_MANGLER,Apgar score after 5 minutes is missing,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 DIAGNOSTIC,DIAGNOSTIC,DIAGNOSTIC_ID,ID of DIAGNOSTIC,,,1.0,,,,,,,,,,,,,False,,,,,
 DIAGNOSTIC,DIAGNOSTIC,PROCEDURE_ID,ID of procedure,,,1.0,,,,,,,,,,,,,False,,,,,
-MBRN,MBRN,YRKE_KODE,Employed,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration. See next variable.,,,,,"1 = Not employed 
- 2 = Employed, full-time 
+MBRN,MBRN,YRKE_KODE,Employed,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration. See next variable.,,,,,"1 = Not employed
+ 2 = Employed, full-time
  3 = Employed, part-time",False,,,,,
 OOM,EUROCAT,illdur2,,,,2.2,,,,,,False,"ILLNESS DURING PREGNANCY
 AS FOR ILLDUR1",,Table reference: EUROCAT/EUROmediCAT.,,,,False,,,,,
@@ -4596,8 +4596,8 @@ If performed and results known, please specify (according to the latest ISCN edi
 “Probe test performed” refers to FISH, PCR, or other analyses restricted to specific chromosomal regions .
 
 “Failed” refers to a technical failure where a repeat examination could not be done and the karyotype is therefore unknown.",,"1 = Performed,result known
-2 = Performed,results not known 
-3 = Not performed 
+2 = Performed,results not known
+3 = Not performed
 4 = Probe test performed
 8 = Failed
 9 = Not known,Table reference: EUROCAT/EUROmediCAT.",,,,False,,,,,
@@ -4642,44 +4642,44 @@ AVOHILMO,palvelutapahtuma,"KAYNTI_ALKOI
 AVOHILMO,palvelutapahtuma,"KAYNTI_LOPPUI
  (palvelutapahtuma)",Time of visit end,,,1.0,,,,,,,,,,,,,False,,,,,
 AVOHILMO,palvelutapahtuma,"PALVELUMUOTO
- (palvelutapahtuma)",Service type,,,1.0,,,,,,,,,,,,"T11 General medicine 
- T21 Maternity health 
- T22 Child health 
- T23 Family planning 
- T24 Other guidance 
- T25 Family guidance 
+ (palvelutapahtuma)",Service type,,,1.0,,,,,,,,,,,,"T11 General medicine
+ T21 Maternity health
+ T22 Child health
+ T23 Family planning
+ T24 Other guidance
+ T25 Family guidance
  T26 School healthcare T27 Student healthcare
  T28 Mass screening
  T29 Other healthcare T30 Occupational healthcare, compulsory
  T31 Occupational healthcare, voluntary
- T35 Sailors health care 
- T40 Home assistance 
+ T35 Sailors health care
+ T40 Home assistance
  T41 Medical care at home
- T42 Home supporting services 
- T43 Hospital at home 
- T51 Physiotherapy 
+ T42 Home supporting services
+ T43 Hospital at home
+ T51 Physiotherapy
  T52 Disability aid
  T53 Speech therapy
- T54 Functional therapy 
+ T54 Functional therapy
  T55 Foot therapy
- T56 Nutritional therapy 
+ T56 Nutritional therapy
  T58 Social work at healthcare
- T59 Other rehabiliation or therapy 
- T60 Oral healthcare 
- T71 Mental health 
- T73 Substance abuse 
- T80 Day activity 
- T81 Day hospital 
+ T59 Other rehabiliation or therapy
+ T60 Oral healthcare
+ T71 Mental health
+ T73 Substance abuse
+ T80 Day activity
+ T81 Day hospital
  T90 Other service",False,,,,,
 AVOHILMO,palvelutapahtuma,"YHTEYSTAPA
- (palvelutapahtuma)",Contact type,,,1.0,,,,,,,"Extract only if R10, R20, R30 or R40.",,,,,"R10 Primary care visit 
- R20 Primary care visit at home 
- R30 Occupational health visit 
- R40 Hospital visit 
- R50 Phone 
+ (palvelutapahtuma)",Contact type,,,1.0,,,,,,,"Extract only if R10, R20, R30 or R40.",,,,,"R10 Primary care visit
+ R20 Primary care visit at home
+ R30 Occupational health visit
+ R40 Hospital visit
+ R50 Phone
  R51 Electronic communication
- R55 Letter 
- R60 Consultation 
+ R55 Letter
+ R60 Consultation
  R70 Patient record without contact
   R90 Other",False,,,,,
 COD_FARMACI_SPF,COD_FARMACI_SPF,cod_atc5,ATC code 5th level,,,1.0,,,,,,,,,,,,,False,,,,,
@@ -4696,7 +4696,7 @@ DIAGNOSTIC,DIAGNOSTIC,DATE_DIAG_DEB,Date of start (hospital stay / chronic disea
 DIAGNOSTIC,DIAGNOSTIC,DATE_DIAG_FIN,Date of end (hospital stay / chronic disease or invalidity),,,1.0,,,,,,,,,,,,,False,,,,,
 DIAGNOSTIC,DIAGNOSTIC,DATE_PRESCRI_PROCEDURE,Date of procedure prescription,,,1.0,,,,,,,,,,,,,False,,,,,
 DIAGNOSTIC,DIAGNOSTIC,SOURCE_DIAG,Source of DIAGNOSTIC,,,1.0,,,,,,,,,,,,"IMB = Medical repository of beneficiaries (long term diseases, work accident or occupational diseases)
- MCO = Medicine, surgery and obstetrics hospitalizations 
+ MCO = Medicine, surgery and obstetrics hospitalizations
  HAD = at home hospitalizations
  SSR = rehabilitation centers hospitalizations
  RIP = psychiatric hospitalizations
@@ -4711,7 +4711,7 @@ DIAGNOSTIC,DIAGNOSTIC,SOURCE_DIAG,Source of DIAGNOSTIC,,,1.0,,,,,,,,,,,,"IMB = M
  ETLAFF = Diagnosis - etiological condition (cause of main morbid manifestation, for SSR only)
  FPPEC = Diagnosis - main purpose (for SSR only: specifies the objective of care during the week of observation)
  MORPRP = Diagnosis - main morbid manifestation (for SSR only: alteration or functional/organic problem mainly taken care of during the week of observation)
-  
+
   See table Thesaurus (Vocabulaire SOURCE_DIAG)",False,,,,,
 DIAGNOSTIC,DIAGNOSTIC,SOURCE_PROCEDURE,Source of the procedure,,,1.0,,,,,,,,,,,,"DCIR = Outpatient (not hospital)
  DCIR_HOSP = private hospital (in outpatient data)
@@ -4741,14 +4741,14 @@ FARMACEUTICA,FARMACEUTICA,AIC,Codice prodotto (AIC),,,1.0,,,,,,,,,,,,National dr
 FARMACEUTICA,FARMACEUTICA,ATC,codice ATC,,,1.0,,,,,,,,,,,,ATC code,False,,,,,
 FARMACEUTICA,FARMACEUTICA,DATADISPENSAZIONE,Data dispensazione,,,1.0,,,,,,,,,,,,Dispensing date,False,,,,,
 FARMACEUTICA,FARMACEUTICA,DATAPRESCRIZIONE,Data prescrizione,,,1.0,,,,,,,,,,,,Prescription date,False,,,,,
-FARMACEUTICA,FARMACEUTICA,FLUSSO,Distribuzione diretta o Territoriale o DPC (Distribuzione Per Conto),,,1.0,,,,,,,,,,,,"Source of data: 
+FARMACEUTICA,FARMACEUTICA,FLUSSO,Distribuzione diretta o Territoriale o DPC (Distribuzione Per Conto),,,1.0,,,,,,,,,,,,"Source of data:
  -community pharmacies
  -hospital pharmacies
  -community pharmacies for hospital pharmacies",False,,,,,
 MBRN,MBRN,PERINAT_DOD_1000_WHO,Death during the perinatal period ≥ 1000 gram according to WHOs secondary definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,PERINAT_DOD_22_EP,Death during the perinatal period ≥ 22 weeks according to Euro-Peristat definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 FARMACEUTICA,FARMACEUTICA,ICD9,ICD9,,,1.0,,,,,,,"Up to 2015 there was a project with all the GPs of the LHU Caserta, so for all adults up to that date there is an indication for about 53% of all prescriptions
-  
+
  After 2015 there is a different way of capturing the same information, from GPs and paediatricians and specialists: 70% of all prescriptions",,,,,"Indication of use, obtained from GP records up to 2015 and from electronic prescriptions from 2015 to present",False,,,,,
 FARMACEUTICA,FARMACEUTICA,MEDICO,Codice medico,,,1.0,,,,,,,,,,,,Prescribing GP,False,,,,,
 FARMACEUTICA,FARMACEUTICA,PATID,Codice identificativo paziente criptato,,,1.0,,,,,,,,,,,,Patient ID code,False,,,,,
@@ -4759,53 +4759,53 @@ MBRN,MBRN,ANESTESI_ANALGESI,Anaesthesia/analgesia,,,1.0,,,,,,,HCP,,,,,1 = Yes,Fa
 MBRN,MBRN,ANNEN_FRACTUR,Other fracture,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,APGAR1,Apgar score after 1 minute,,,1.0,,,,,,,,,,,,0 – 10,False,,,,,
 MBRN,MBRN,APGAR10,Apgar score after 10 minutes,,,1.0,,,,,,,,,,,,0 – 10,False,,,,,
-MBRN,MBRN,ART,"Assisted Reproductive Technology treatment (IVF, ICSI or other ART treatments. See ARTMETODE)",,,1.0,,,,,,,,,,,,"1 = Reported on ART notification form 
- 2 = Art info from birth notification form (mother’s health) 
- 3 = ART info from method of estimating delivery date (embryo transfer) 
+MBRN,MBRN,ART,"Assisted Reproductive Technology treatment (IVF, ICSI or other ART treatments. See ARTMETODE)",,,1.0,,,,,,,,,,,,"1 = Reported on ART notification form
+ 2 = Art info from birth notification form (mother’s health)
+ 3 = ART info from method of estimating delivery date (embryo transfer)
  9 = Other ART info",False,,,,,
 MBRN,MBRN,ASTMA,Asthma,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN,BLODNING_0500,Hemorrhage more than 500 ml during delivery,,,1.0,,,,,,,HCP,,,,,"1 = 500-1500 ml 
- 2 = >1500 ml, transfusion 
+MBRN,MBRN,BLODNING_0500,Hemorrhage more than 500 ml during delivery,,,1.0,,,,,,,HCP,,,,,"1 = 500-1500 ml
+ 2 = >1500 ml, transfusion
  3 = >500 ml, unspecified amount",False,,,,,
 MBRN,MBRN,BLODN_13_28,Vaginal bleeding: Week 13-28.,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,BLODN_E28,Vaginal bleeding: After week 28,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,BLODN_F13,Vaginal bleeding: Before week 13,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN,BOHELSEREGION_DAGENS,Mother’s health region with current regions,,,1.0,,,,,,,HCP/automated,,,,,"1 = South-East 
- 2 = West 
- 3 = Middle 
- 4 = North 
+MBRN,MBRN,BOHELSEREGION_DAGENS,Mother’s health region with current regions,,,1.0,,,,,,,HCP/automated,,,,,"1 = South-East
+ 2 = West
+ 3 = Middle
+ 4 = North
  9 = Unknown/Other",False,,,,,
 MBRN,MBRN,CPAP,CPAP-treatment,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,DAAR,Child’s year of death,,,1.0,,,,,,,,,,,,Year,False,,,,,
-MBRN,MBRN,DIABETES_MELLITUS,Diabetes,,,1.0,,,,,,,,,,,,"1 = Pregestational diabetes – Type 1 
- 2 = Pregestational diabetes – Type 2 
- 3 = Pregestational diabetes – 
- Unspecified / other 
+MBRN,MBRN,DIABETES_MELLITUS,Diabetes,,,1.0,,,,,,,,,,,,"1 = Pregestational diabetes – Type 1
+ 2 = Pregestational diabetes – Type 2
+ 3 = Pregestational diabetes –
+ Unspecified / other
  4 = Gestational diabetes
  5 = Antidiabetic medication during pregnancy registered without further information",False,,,,,
-MBRN,MBRN,DODFODTE_5,Previous stillbirths (from 24 weeks and later) categorized,,,1.0,,,,,,,,,,,,"0 = 0 
- 1 = 1 
- 2 = 2 
- 3 = 3 
+MBRN,MBRN,DODFODTE_5,Previous stillbirths (from 24 weeks and later) categorized,,,1.0,,,,,,,,,,,,"0 = 0
+ 1 = 1
+ 2 = 2
+ 3 = 3
  4 = 4 or more",False,,,,,
-MBRN,MBRN,DODKAT,"Time of death, categorized",,,1.0,,,,,,,,,,,,"0 = Live born, still alive 
- 1 = Live born, died within 24 hours 
- 2 = Live born, died 2.-6. day 
- 3 = Live born, died 7.-27. day 
- 4 = Live born, died 28. day – 1 year of age 
- 5 = Live born, died 1-2 years of age 
- 6 = Live born, died > 2 years of age 
- 7 = Stillborn, died before delivery 
- 8 = Stillborn, died during delivery 
- 9 = Stillborn, unknown time of death 
- 10 = Abortion requiring approval (§2.3c) 
- 11 = Live born, unknown follow-up status 
- 12 = Live born, emigrated 
+MBRN,MBRN,DODKAT,"Time of death, categorized",,,1.0,,,,,,,,,,,,"0 = Live born, still alive
+ 1 = Live born, died within 24 hours
+ 2 = Live born, died 2.-6. day
+ 3 = Live born, died 7.-27. day
+ 4 = Live born, died 28. day – 1 year of age
+ 5 = Live born, died 1-2 years of age
+ 6 = Live born, died > 2 years of age
+ 7 = Stillborn, died before delivery
+ 8 = Stillborn, died during delivery
+ 9 = Stillborn, unknown time of death
+ 10 = Abortion requiring approval (§2.3c)
+ 11 = Live born, unknown follow-up status
+ 12 = Live born, emigrated
  13 = Live born, registered birth certificate",False,,,,,
 MBRN,MBRN,DOWNS,Down’s syndrome,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN,EKLAMPSI,"Eclampsia, total: 
- - Eclampsia during pregnancy 
- - Eclampsia during birth and/or post partum 
+MBRN,MBRN,EKLAMPSI,"Eclampsia, total:
+ - Eclampsia during pregnancy
+ - Eclampsia during birth and/or post partum
  - Unspecified eclampsia",,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,ENCEPH,Encephalocele,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,ENHETER_BLOD,Units of blood given to the mother during delivery,,,1.0,,,,,,,HCP,,,,,Integer,False,,,,,
@@ -4814,38 +4814,38 @@ MBRN,MBRN,EPILEPSI,Epilepsy,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,EPISIOTOMI,Episiotomy,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,FAAR,Year of delivery,,,1.0,,,,,,,,,,,,Year (1967- ),False,,,,,
 MBRN,MBRN,FACIALISPARESE,Facial paresis,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN,FARS_ALDER_K11,Father’s age categorized,,,1.0,,,,,,,HCP/automated based on the personal ID number which always contains the persons birth date.,,,,,"1 = 17 years and younger 
- 2 = 18 - 19 years 
- 3 = 20 - 24 years 
- 4 = 25 - 29 years 
- 5 = 30 - 34 years 
- 6 = 35 - 39 years 
- 7 = 40 - 44 years 
- 8 = 45 - 49 years 
- 9 = 50 - 54 years 
- 10 = 55 - 59 years 
+MBRN,MBRN,FARS_ALDER_K11,Father’s age categorized,,,1.0,,,,,,,HCP/automated based on the personal ID number which always contains the persons birth date.,,,,,"1 = 17 years and younger
+ 2 = 18 - 19 years
+ 3 = 20 - 24 years
+ 4 = 25 - 29 years
+ 5 = 30 - 34 years
+ 6 = 35 - 39 years
+ 7 = 40 - 44 years
+ 8 = 45 - 49 years
+ 9 = 50 - 54 years
+ 10 = 55 - 59 years
  11 = 60 years and older",False,,,,,
 MBRN,MBRN,FAR_FAAR,Father’s year of birth,,,1.0,,,,,,,HCP/automated based on the personal ID number which always contains the persons birth date.,,,,,Year,False,,,,,
 MBRN,MBRN,FDATO,Date of delivery,,,1.0,,,,,,,Difference date variable. Renamed “diff_fdato” in dataset.,,,,,,False,,,,,
 MBRN,MBRN,FLERFODSEL,"The birth is a plural birth (twins, triplet etc.)",,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN,FODELAND_KAT_NOR_GBD,"Mother’s country of birth in 8 categories: 
- - Norway 
- - The 7 Global Burden of Disease (GBD) super regions",,,1.0,,,,,,,,,,,,"0201 = Norway 
- 0202 = High Income 
- 0203 = Central Europe, Eastern Europe and Central Asia 
- 0204 = Sub-Saharan Africa 
- 0205 = North Africa and Middle East 
- 0206 = South Asia 
- 0207 = South East Asia, East Asia and Oceania 
+MBRN,MBRN,FODELAND_KAT_NOR_GBD,"Mother’s country of birth in 8 categories:
+ - Norway
+ - The 7 Global Burden of Disease (GBD) super regions",,,1.0,,,,,,,,,,,,"0201 = Norway
+ 0202 = High Income
+ 0203 = Central Europe, Eastern Europe and Central Asia
+ 0204 = Sub-Saharan Africa
+ 0205 = North Africa and Middle East
+ 0206 = South Asia
+ 0207 = South East Asia, East Asia and Oceania
  0208 = Latin America and Caribbean",False,,,,,
-MBRN,MBRN,FODESTED_KAT_5,"Place of delivery categorized by: 
- - Size of maternity clinic (deliveries per year) 
- - Deliveries outside of institution",,,1.0,,,,,,,HCP/automated,,,,,"1 = 1-499 
- 2 = 500-1499 
- 3 = 1500-2999 
- 4 = 3000+ 
+MBRN,MBRN,FODESTED_KAT_5,"Place of delivery categorized by:
+ - Size of maternity clinic (deliveries per year)
+ - Deliveries outside of institution",,,1.0,,,,,,,HCP/automated,,,,,"1 = 1-499
+ 2 = 500-1499
+ 3 = 1500-2999
+ 4 = 3000+
  5 = Outside of institution /Other",False,,,,,
-MBRN,MBRN,FODT_MFR,Defined as a birth according to MBRN’s definitions,,,1.0,,,,,,,,,,,,"1 = VEKT >= 500g or SVLEN >= 22 
+MBRN,MBRN,FODT_MFR,Defined as a birth according to MBRN’s definitions,,,1.0,,,,,,,,,,,,"1 = VEKT >= 500g or SVLEN >= 22
  2 = Live born in the national registry in Norway and not in category 1",False,,,,,
 MBRN,MBRN,FOLATF,Folate supplements prior to pregnancy,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,FOLATU,Folate supplements during pregnancy,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
@@ -4854,16 +4854,16 @@ MBRN,MBRN,FOSTERV_OLIGOHYDRAMNION,Amniotic fluid: Oligohydramnios,,,1.0,,,,,,,HC
 MBRN,MBRN,FOSTERV_POLYHYDRAMNION,Amniotic fluid: Polyhydramnios,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,FRACT_CLAVICULAE,Fractura claviculae – fracture of clavicle,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,FRAMHJELP,Assisted delivery of breech / partial extraction,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
-MBRN,MBRN,FSTART,Initiation of delivery,,,1.0,,,,,,,HCP,,,,,"1 = Spontaneous 
- 2 = Induction 
+MBRN,MBRN,FSTART,Initiation of delivery,,,1.0,,,,,,,HCP,,,,,"1 = Spontaneous
+ 2 = Induction
  3 = Cesarean section",False,,,,,
 MBRN,MBRN,GANESPALTE,Cleft palate without cleft lip,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,GASTROS,Gastroschisis,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,HELLP,HELLP,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
-MBRN,MBRN,HELSEREGION,Health region,,,1.0,,,,,,,HCP/automated,,,,,"1 = South-East 
- 2 = West 
- 3 = Middle 
- 4 = North 
+MBRN,MBRN,HELSEREGION,Health region,,,1.0,,,,,,,HCP/automated,,,,,"1 = South-East
+ 2 = West
+ 3 = Middle
+ 4 = North
  9 = Unknown/Other",False,,,,,
 MBRN,MBRN,HODE,Child’s head circumference,,,1.0,,,,,,,,,,,,Centimeter,False,,,,,
 MBRN,MBRN,HODE_MANGLER,Child’s head circumference is missing,,,1.0,,,,,,,Variable called “hodeom_mangler” in dataset,,,,,1 = Yes,False,,,,,
@@ -4881,10 +4881,10 @@ MBRN,MBRN,INDUKSJON_PROSTAGLANDIN,Induction of labor: Prostaglandine,,,1.0,,,,,,
 MBRN,MBRN,INTRAKRANIELL_BLODN,Intracranial hemorrhage,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,KJENT_FAR,Father is known,,,1.0,,,,,,,,,,,,"1= Yes
  2= No",False,,,,,
-MBRN,MBRN,KJONN,Child’s gender,,,1.0,,,,,,,,,,,,"0 = Not specified 
- 1 = Male 
- 2 = Female 
- 3 = Uncertain 
+MBRN,MBRN,KJONN,Child’s gender,,,1.0,,,,,,,,,,,,"0 = Not specified
+ 1 = Male
+ 2 = Female
+ 3 = Uncertain
  9 = Missing",False,,,,,
 MBRN,MBRN,KLUMPFOT,Pes equinovarus (Clubfoot),,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,KMI_FOER,Mother’s body mass index before the start of the pregnancy (BMI),,,1.0,,,,,,,Based on variables MORS_HOYDE and MORS_VEKT_FOER,,,,,Decimal,False,,,,,
@@ -4892,7 +4892,7 @@ MBRN,MBRN,KMI_SLUTT,Mother’s body mass index at end of pregnancy (BMI),,,1.0,,
 MBRN,MBRN,PERINAT_DOD_500_WHO,Death during the perinatal period ≥ 500 gram according to WHOs primary definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,PERINAT_DOD_MFR,Death during the perinatal period according to MBRNs definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,PERINAT_DOD_TID_22_EP,Death during the early perinatal period ≥ 22 weeks according to Euro-Peristat definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN,KOSTNEI,No regular supplements,,,1.0,,,,,,,,,,,,"1 = Checked “Regular supplements: No” and no other information about supplements is registered 
+MBRN,MBRN,KOSTNEI,No regular supplements,,,1.0,,,,,,,,,,,,"1 = Checked “Regular supplements: No” and no other information about supplements is registered
  2 = Checked “Regular supplements: No”, but also gave information about other supplements",False,,,,,
 MBRN,MBRN,KROMOSOMFEIL,Chromosomal abnormality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,KSNITT,Cesarean section,,,1.0,,,,,,,HCP,,,,,1 = Planned C-section 2 = Emergency C-section 9 = Unspecified C-section,False,,,,,
@@ -4900,40 +4900,40 @@ MBRN,MBRN,KSNITT_PLANLAGT,Cesarean section was planned,,,1.0,,,,,,,HCP,,,,,1 = N
 MBRN,MBRN,KSNITT_TIDLIGERE,Mother has delivered by cesarean section in a previous pregnancy,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,KSNITT_TIDLIGERE_MFR,Mother has previous cesarean section registered in MBRN,,,1.0,,,,,,,HCP/registry,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,LEGEMIDLER_UNDER,Medication during pregnancy,,,1.0,,,,,,,See explanation  of code-strings below variable list,,,,,Code-string variable.,False,,,,,
-MBRN,MBRN,LEIE,Child’s presentation/position at birth,,,1.0,,,,,,,HCP,,,,,"1 = Normal cephalic 
- 2 = Breech 
- 3 = Transverse 
- 4 = Cephalic, abnormal 
+MBRN,MBRN,LEIE,Child’s presentation/position at birth,,,1.0,,,,,,,HCP,,,,,"1 = Normal cephalic
+ 2 = Breech
+ 3 = Transverse
+ 4 = Cephalic, abnormal
  5 = Other",False,,,,,
-MBRN,MBRN,LENGDE,"Child’s full length 
+MBRN,MBRN,LENGDE,"Child’s full length
  For some cases with MELDINGSTYPEID=10 crown-rump length is used.",,,1.0,,,,,,,,,,,,Centimeter,False,,,,,
 MBRN,MBRN,LENGDE_MANGLER,Child’s length is missing,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,SETE_ISSE,Child’s crown-rump length,,,1.0,,,,,,,,,,,,Centimeter,False,,,,,
 MBRN,MBRN,LEPPE_LEPPEGANESPALTE,Cleft lip with or without cleft palate,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN,LEVENDEFODTE_5,Previous live births categorized,,,1.0,,,,,,,,,,,,"0 = 0 
- 1 = 1 
- 2 = 2 
- 3 = 3 
+MBRN,MBRN,LEVENDEFODTE_5,Previous live births categorized,,,1.0,,,,,,,,,,,,"0 = 0
+ 1 = 1
+ 2 = 2
+ 3 = 3
  4 = 4 or more",False,,,,,
 MBRN,MBRN,LIGGEDOGN_MOR,"Days in hospital, mother",,,1.0,,,,,,,,,,,,Integer,False,,,,,
 MBRN,MBRN,MANUELL_PLACENTA,Placenta: Manual extraction,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,MISD,Congenital malformations,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,MORS_ALDER,Mother’s age at time of delivery,,,1.0,,,,,,,HCP/automated Based on the personal ID number which always contains the persons birth date.,,,,,Integer,False,,,,,
-MBRN,MBRN,MORS_ALDER_K8,Mother’s age categorized,,,1.0,,,,,,,HCP/automated Based on the personal ID number which always contains the persons birth date.,,,,,"1 = 17 years and younger 
+MBRN,MBRN,MORS_ALDER_K8,Mother’s age categorized,,,1.0,,,,,,,HCP/automated Based on the personal ID number which always contains the persons birth date.,,,,,"1 = 17 years and younger
  2 = 18 – 19 years
- 3 = 20 – 24 years 
- 4 = 25 – 29 years 
- 5 = 30 – 34 years 
- 6 = 35 – 39 years 
- 7 = 40 – 44 years 
+ 3 = 20 – 24 years
+ 4 = 25 – 29 years
+ 5 = 30 – 34 years
+ 6 = 35 – 39 years
+ 7 = 40 – 44 years
  8 = 45 years and older",False,,,,,
 MBRN,MBRN,MORS_HELSE_FOER,Mother’s health prior to pregnancy,,,1.0,,,,,,,See explanation  of code-strings below variable list,,,,,Code-string variable.,False,,,,,
 MBRN,MBRN,MORS_HELSE_UNDER,Mother’s health during pregnancy,,,1.0,,,,,,,See explanation  of code-strings below variable list,,,,,Code-string variable.,False,,,,,
 MBRN,MBRN,MORS_HOYDE,Mother’s height,,,1.0,,,,,,,"Could be either measured or patient-reported, recorded by HCP",,,,,Centimeter,False,,,,,
 MBRN,MBRN,MORS_VEKT_FOER,Mother’s weight before pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,Kg,False,,,,,
 MBRN,MBRN,MORS_VEKT_SLUTT,Mother’s weight at end of pregnancy,,,1.0,,,,,,,"Could be either measured or patient-reported, recorded by HCP. Reporting to the registry is not mandatory. Missing values represent women who opt out of registration",,,,,Kg,False,,,,,
-MBRN,MBRN,MOR_BOSATT_NO,Mother reside in Norway at time of delivery,,,1.0,,,,,,,,,,,,"1 = Yes 
- 2 = No 
+MBRN,MBRN,MOR_BOSATT_NO,Mother reside in Norway at time of delivery,,,1.0,,,,,,,,,,,,"1 = Yes
+ 2 = No
  3 = Unknown",False,,,,,
 MBRN,MBRN,MOR_FAAR,Mother’s year of birth,,,1.0,,,,,,,HCP/automated,,,,,Year,False,,,,,
 MBRN,MBRN,MULTIVITF,Multivitamin supplements prior to pregnancy,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
@@ -4945,10 +4945,10 @@ MBRN,MBRN,NEVRALRORSDEFEKTER,"Anencephaly, Encephalocele or Spina bifida",,,1.0,
 MBRN,MBRN,NYRESYKDOM_KRONISK,Chronic renal disease,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,OMPHALO,Omphalocele,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,OVERFLYTTET,Child was transfered to neonatal ward,,,1.0,,,,,,,,,,,,1 = Yes 2 = No,False,,,,,
-MBRN,MBRN,PARITET_5,Parity categorized,,,1.0,,,,,,,,,,,,"0 = 0 (primiparous) 
- 1 = 1 
- 2 = 2 
- 3 = 3 
+MBRN,MBRN,PARITET_5,Parity categorized,,,1.0,,,,,,,,,,,,"0 = 0 (primiparous)
+ 1 = 1
+ 2 = 2
+ 3 = 3
  4 = 4 or more",False,,,,,
 MBRN,MBRN,PCO2_NAVLESNORARTERIE,PCO2 umbilical cord artery,,,1.0,,,,,,,HCP,,,,,PCO2-value,False,,,,,
 MBRN,MBRN,PCO2_NAVLESNORVENE,PCO2 umbilical cord vein,,,1.0,,,,,,,HCP,,,,,PCO2-value,False,,,,,
@@ -4970,8 +4970,8 @@ MBRN,MBRN,PLACENTAVEKT,Weight of placenta,,,1.0,,,,,,,HCP,,,,,Gram,False,,,,,
 MBRN,MBRN,PLEXUSSKADE,Plexus injury,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,PLURAL,Plurality: Number of children born,,,1.0,,,,,,,,,,,,Integer,False,,,,,
 MBRN,MBRN,PLUREK,"Child’s birth order in the present delivery (the variable is set in all children, but is mainly relevant in multiple births)",,,1.0,,,,,,,,,,,,Integer,False,,,,,
-MBRN,MBRN,PREEKL,Preeclampsia,,,1.0,,,,,,,HCP,,,,,"1 = Light 
- 2 = Serious 
+MBRN,MBRN,PREEKL,Preeclampsia,,,1.0,,,,,,,HCP,,,,,"1 = Light
+ 2 = Serious
  3 = Unspecified",False,,,,,
 MBRN,MBRN,PREEKLTIDL,Early preeclampsia,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,PRENAT_DIAGNOSTIKK_UTF,Prenatal diagnostics performed,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
@@ -4980,72 +4980,72 @@ MBRN,MBRN,RESPIRATOR,Respiratory treatment,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,RESPIRATORISK_DISTR,Respiratory distress syndrome,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,REUM_ARTRITT,Rheumatoid arthritis,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,ROBSON_10,Birth classification according to the Robson 10-group classification system,,,1.0,,,,,,,HCP. See table Robson-10 p. 23. See also: WHO | Robson Classification: Implementation Manual,,,,,,False,,,,,
-MBRN,MBRN,ROYK_AVSL,Smoking at end of pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No 
- 2 = Sometimes 
+MBRN,MBRN,ROYK_AVSL,Smoking at end of pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No
+ 2 = Sometimes
  3 = Daily",False,,,,,
 MBRN,MBRN,ROYK_AVSL_ANT,Number of cigarettes per day at end of pregnancy,,,1.0,,,,,,,,,,,,0 – 99,False,,,,,
-MBRN,MBRN,ROYK_BEG,Smoking at start of pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No 
- 2 = Sometimes 
+MBRN,MBRN,ROYK_BEG,Smoking at start of pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No
+ 2 = Sometimes
  3 = Daily",False,,,,,
 MBRN,MBRN,ROYK_BEG_ANT,Number of cigarettes per day at start of pregnancy,,,1.0,,,,,,,,,,,,0 – 99,False,,,,,
-MBRN,MBRN,ROYK_FOER,Smoking before pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No 
- 2 = Sometimes 
+MBRN,MBRN,ROYK_FOER,Smoking before pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No
+ 2 = Sometimes
  3 = Daily",False,,,,,
 MBRN,MBRN,ROYK_FOER_ANT,Number of cigarettes per day before pregnancy,,,1.0,,,,,,,,,,,,0-99,False,,,,,
 MBRN,MBRN,ROYK_MOTSETTER_SEG,Refuses registration of smoking habits,,,1.0,,,,,,,,,,,,1 = Yes 2 = No,False,,,,,
 MBRN,MBRN,ROYK_OPPL,Smoking information available,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,ROYK_SKRIFT_ORIENT,Written information on smoking registration is given (see ROYK_MOTSETTER SEG),,,1.0,,,,,,,,,,,,1 = Yes 2 = No,False,,,,,
 MBRN,MBRN,RUPTUR34,"Perineal rupture, 3.-4. degree",,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
-MBRN,MBRN,SIVST,Mother’s marital status at time of delivery,,,1.0,,,,,,,,,,,,"1 = Married / Registered partner 
- 2 = Co-habitant 
- 3 = Unmarried / Single 
- 4 = Divorced / Separated / Widow 
+MBRN,MBRN,SIVST,Mother’s marital status at time of delivery,,,1.0,,,,,,,,,,,,"1 = Married / Registered partner
+ 2 = Co-habitant
+ 3 = Unmarried / Single
+ 4 = Divorced / Separated / Widow
  9 = Other / Missing",False,,,,,
-MBRN,MBRN,SLEKTF,Familial relations between parents,,,1.0,,,,,,,,,,,,"1 = Not related 
- 2 = Closer than first cousins 
- 3 = First cousins 
- 4 = Second cousins 
- 5 = Other 
+MBRN,MBRN,SLEKTF,Familial relations between parents,,,1.0,,,,,,,,,,,,"1 = Not related
+ 2 = Closer than first cousins
+ 3 = First cousins
+ 4 = Second cousins
+ 5 = Other
  6 = Unknown",False,,,,,
 MBRN,MBRN,SMENSD,1st day of last menstrual period,,,1.0,,,,,,,Difference date variable. Renamed “diff_smensd” in dataset,,,,,Date,False,,,,,
-MBRN,MBRN,SMENSD_KODE,Reliability of 1st day of last menstrual period,,,1.0,,,,,,,,,,,,"1 = Certain 
- 2 = Uncertain 
- 3 = Irregular 
+MBRN,MBRN,SMENSD_KODE,Reliability of 1st day of last menstrual period,,,1.0,,,,,,,,,,,,"1 = Certain
+ 2 = Uncertain
+ 3 = Irregular
  4 = Unknown",False,,,,,
-MBRN,MBRN,SPABORT_12_5,Previous miscarriages before 12 weeks of gestation categorized,,,1.0,,,,,,,,,,,,"0 = 0 
- 1 = 1 
- 2 = 2 
- 3 = 3 
+MBRN,MBRN,SPABORT_12_5,Previous miscarriages before 12 weeks of gestation categorized,,,1.0,,,,,,,,,,,,"0 = 0
+ 1 = 1
+ 2 = 2
+ 3 = 3
  4 = 4 or more",False,,,,,
-MBRN,MBRN,SPABORT_23_5,Previous miscarriages/stillbirths 12-23 weeks of gestation categorized,,,1.0,,,,,,,,,,,,"0 = 0 
- 1 = 1 
- 2 = 2 
- 3 = 3 
+MBRN,MBRN,SPABORT_23_5,Previous miscarriages/stillbirths 12-23 weeks of gestation categorized,,,1.0,,,,,,,,,,,,"0 = 0
+ 1 = 1
+ 2 = 2
+ 3 = 3
  4 = 4 or more",False,,,,,
 MBRN,MBRN,SPINAL,Spinal anaesthesia,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,SVLEN,"Length of gestation based on ultrasound estimation. If ultrasound is not available, the gestational length is calculated from the last menstrual period",,,1.0,,,,,,,HCP/automated,,,,,Number of completed weeks,False,,,,,
 MBRN,MBRN,SVLEN_ART,Length of gestation calculated from date of embryo transfer,,,1.0,,,,,,,HCP/automated,,,,,Number of completed weeks,False,,,,,
 MBRN,MBRN,SVLEN_ART_DG,Length of gestation calculated from date of embryo transfer,,,1.0,,,,,,,HCP/automated,,,,,Days,False,,,,,
-MBRN,MBRN,SVLEN_DG,"Length of gestation in days. 
+MBRN,MBRN,SVLEN_DG,"Length of gestation in days.
  See SVLEN for details",,,1.0,,,,,,,HCP/automated,,,,,Days,False,,,,,
 MBRN,MBRN,SVLEN_SM_DG,Length of gestation calculated from the last menstrual period,,,1.0,,,,,,,Automated based on patient reported 1st day of last menstrual period,,,,,Days,False,,,,,
 MBRN,MBRN,SVLEN_UL_DG,Length of gestation based on ultrasound estimations,,,1.0,,,,,,,HCP/automated,,,,,Days,False,,,,,
 MBRN,MBRN,SYSTEMISKANTIBIOTIKA,Treated with systemic antibiotics,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN,TERMINMETODE,Method for estimating expected date of delivery,,,1.0,,,,,,,HCP,,,,,"1 = Ultrasound – “Terminhjulet” 
- 2 = Ultrasound – “eSnurra” 
- 3 = Ultrasound – Other 
+MBRN,MBRN,TERMINMETODE,Method for estimating expected date of delivery,,,1.0,,,,,,,HCP,,,,,"1 = Ultrasound – “Terminhjulet”
+ 2 = Ultrasound – “eSnurra”
+ 3 = Ultrasound – Other
  4 = Embryo transfer
- 5 = Naegels rule 
- 6 = Ultrasound upspecified 
- 7 = Ultrasound is not performed 
+ 5 = Naegels rule
+ 6 = Ultrasound upspecified
+ 7 = Ultrasound is not performed
  99 = Other",False,,,,,
 MBRN,MBRN,UL_TERMIN,Ultrasound estimated date of delivery,,,1.0,,,,,,,HCP. Difference date variable. Renamed diff_ul_termin in dataset.,,,,,Date,False,,,,,
 MBRN,MBRN,UTSKRAPING,Placenta: Curettage,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,UTTREKKING,Total breech extraction,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,VAGINAL,Vaginal delivery,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN,VAKUUM,Vacuum extraction,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
-MBRN,MBRN,VANNAVGANG,Premature rupture of membranes,,,1.0,,,,,,,"If the rupture of the membranes take place in the woman’s home, the variable will rely on patient report, if during hospitalisation, exact time is noted by HCP",,,,,"1 = 12-24 hours before delivery 
- 2 = More than 24 hours before delivery 
+MBRN,MBRN,VANNAVGANG,Premature rupture of membranes,,,1.0,,,,,,,"If the rupture of the membranes take place in the woman’s home, the variable will rely on patient report, if during hospitalisation, exact time is noted by HCP",,,,,"1 = 12-24 hours before delivery
+ 2 = More than 24 hours before delivery
  3 = Unspecified time before delivery",False,,,,,
 MBRN,MBRN,VEKT,Child’s weight,,,1.0,,,,,,,,,,,,Gram,False,,,,,
 MBRN,MBRN,VEKT_MANGLER,Child’s weight is missing,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
@@ -5058,25 +5058,25 @@ MBRN,MBRN_child,APGAR1,Apgar score after 1 minute,,,1.0,,,,,,,,,,,,0 – 10,Fals
 MBRN,MBRN_child,APGAR10,Apgar score after 10 minutes,,,1.0,,,,,,,,,,,,0 – 10,False,,,,,
 MBRN,MBRN_child,APGAR1_MANGLER,Apgar score after 1 minute is missing,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_child,APGAR5_MANGLER,Apgar score after 5 minutes is missing,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN_child,ART,"Assisted Reproductive Technology treatment (IVF, ICSI or other ART treatments. See ARTMETODE)",,,1.0,,,,,,,,,,,,"1 = Reported on ART notification form 
- 2 = Art info from birth notification form (mother’s health) 
- 3 = ART info from method of estimating delivery date (embryo transfer) 
+MBRN,MBRN_child,ART,"Assisted Reproductive Technology treatment (IVF, ICSI or other ART treatments. See ARTMETODE)",,,1.0,,,,,,,,,,,,"1 = Reported on ART notification form
+ 2 = Art info from birth notification form (mother’s health)
+ 3 = ART info from method of estimating delivery date (embryo transfer)
  9 = Other ART info",False,,,,,
 MBRN,MBRN_child,CPAP,CPAP-treatment,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_child,DAAR,Child’s year of death,,,1.0,,,,,,,,,,,,Year,False,,,,,
-MBRN,MBRN_child,DODKAT,"Time of death, categorized",,,1.0,,,,,,,,,,,,"0 = Live born, still alive 
- 1 = Live born, died within 24 hours 
- 2 = Live born, died 2.-6. day 
- 3 = Live born, died 7.-27. day 
- 4 = Live born, died 28. day – 1 year of age 
- 5 = Live born, died 1-2 years of age 
- 6 = Live born, died > 2 years of age 
- 7 = Stillborn, died before delivery 
- 8 = Stillborn, died during delivery 
- 9 = Stillborn, unknown time of death 
- 10 = Abortion requiring approval (§2.3c) 
- 11 = Live born, unknown follow-up status 
- 12 = Live born, emigrated 
+MBRN,MBRN_child,DODKAT,"Time of death, categorized",,,1.0,,,,,,,,,,,,"0 = Live born, still alive
+ 1 = Live born, died within 24 hours
+ 2 = Live born, died 2.-6. day
+ 3 = Live born, died 7.-27. day
+ 4 = Live born, died 28. day – 1 year of age
+ 5 = Live born, died 1-2 years of age
+ 6 = Live born, died > 2 years of age
+ 7 = Stillborn, died before delivery
+ 8 = Stillborn, died during delivery
+ 9 = Stillborn, unknown time of death
+ 10 = Abortion requiring approval (§2.3c)
+ 11 = Live born, unknown follow-up status
+ 12 = Live born, emigrated
  13 = Live born, registered birth certificate",False,,,,,
 MBRN,MBRN_child,DOWNS,Down’s syndrome,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_child,ENCEPH,Encephalocele,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
@@ -5088,7 +5088,7 @@ MBRN,MBRN_child,FDATO_FAR,Fictional birthdate of the father,,,1.0,,,,,,,,,,,,,Fa
 MBRN,MBRN_child,FDATO_MOR,Fictional birthdate of the mother,,,1.0,,,,,,,,,,,,,False,,,,,
 MBRN,MBRN_child,FLERFODSEL,"The birth is a plural birth (twins, triplet etc.)",,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,PLACENTA _PREVIA,Placenta previa,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
-MBRN,MBRN_child,FODT_MFR,Defined as a birth according to MBRN’s definitions,,,1.0,,,,,,,,,,,,"1 = VEKT >= 500g or SVLEN >= 22 
+MBRN,MBRN_child,FODT_MFR,Defined as a birth according to MBRN’s definitions,,,1.0,,,,,,,,,,,,"1 = VEKT >= 500g or SVLEN >= 22
  2 = Live born in the national registry in Norway and not in category 1",False,,,,,
 MBRN,MBRN_child,FRACT_CLAVICULAE,Fractura claviculae – fracture of clavicle,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_child,GANESPALTE,Cleft palate without cleft lip,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
@@ -5099,7 +5099,7 @@ MBRN,MBRN_child,HYPOSPADIA,Hypospadias,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_child,ICTERUS,"Icterus, treated",,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_child,INTRAKRANIELL_BLODN,Intracranial hemorrhage,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_child,KLUMPFOT,Pes equinovarus (Clubfoot),,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN_child,LENGDE,"Child’s full length 
+MBRN,MBRN_child,LENGDE,"Child’s full length
  For some cases with MELDINGSTYPEID=10 crown-rump length is used.",,,1.0,,,,,,,,,,,,Centimeter,False,,,,,
 MBRN,MBRN_child,LENGDE_MANGLER,Child’s length is missing,,,1.0,,,,,,,,,,,,"0= No
  1 = Yes",False,,,,,
@@ -5118,9 +5118,9 @@ MBRN,MBRN_child,PERINAT_DOD_1000_WHO,Death during the perinatal period ≥ 1000 
 MBRN,MBRN_child,PERINAT_DOD_22_EP,Death during the perinatal period ≥ 22 weeks according to Euro-Peristat definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_child,PERINAT_DOD_500_WHO,Death during the perinatal period ≥ 500 gram according to WHOs primary definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_child,PERINAT_DOD_MFR,Death during the perinatal period according to MBRNs definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN_mother,BOHELSEREGION_DAGENS,Mother’s health region with current regions,,,1.0,,,,,,,HCP/automated,,,,,"1 = South-East 
- 2 = West 
- 3 = Middle 
+MBRN,MBRN_mother,BOHELSEREGION_DAGENS,Mother’s health region with current regions,,,1.0,,,,,,,HCP/automated,,,,,"1 = South-East
+ 2 = West
+ 3 = Middle
  4 = North",False,,,,,
 MBRN,MBRN_child,PERINAT_DOD_TID_22_EP,Death during the early perinatal period ≥ 22 weeks according to Euro-Peristat definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_child,PERINAT_DOD_TID_MFR,Death during the early perinatal period according to MBRNs definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
@@ -5135,7 +5135,7 @@ Indicate indeterminate sex in case of ambiguous genitalia with unknown or abnorm
 
 If sex could not be determined at autopsy due to maceration or other problems, indicate as “not known”.",,"1 = Male
 2 = Female
-3 = Indeterminate 
+3 = Indeterminate
 9 = Not known,Table reference: EUROCAT/EUROmediCAT.",,,,False,,,,,
 MBRN,MBRN_child,PERINAT_DOD_TI_500_WHO,Death during the early perinatal period ≥ 500 gram according to WHOs primary definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_child,PERINAT_FODT_1000_WHO,Perinatal born ≥ 1000 gram according to WHOs secondary definition. See also: Abbreviations and definitions: Perinatal mortality,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
@@ -5155,62 +5155,62 @@ MBRN,MBRN_child,VEKT_MANGLER,Child’s weight is missing,,,1.0,,,,,,,,,,,,1 = Ye
 MBRN,MBRN_mother,ABRUPTIOP,Abruptio placentae,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,ANESTESI_ANALGESI,Anaesthesia/analgesia,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,ASTMA,Asthma,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN_mother,BLODNING_0500,Hemorrhage more than 500 ml during delivery,,,1.0,,,,,,,HCP,,,,,"1 = 500-1500 ml 
- 2 = >1500 ml, transfusion 
+MBRN,MBRN_mother,BLODNING_0500,Hemorrhage more than 500 ml during delivery,,,1.0,,,,,,,HCP,,,,,"1 = 500-1500 ml
+ 2 = >1500 ml, transfusion
  3 = >500 ml, unspecified amount",False,,,,,
-MBRN,MBRN_mother,HELSEREGION,Health region,,,1.0,,,,,,,HCP/automated,,,,,"1 = South-East 
- 2 = West 
- 3 = Middle 
- 4 = North 
+MBRN,MBRN_mother,HELSEREGION,Health region,,,1.0,,,,,,,HCP/automated,,,,,"1 = South-East
+ 2 = West
+ 3 = Middle
+ 4 = North
  9 = Unknown/Other",False,,,,,
 MBRN,MBRN_mother,BLODN_13_28,Vaginal bleeding: Week 13-28.,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,BLODN_E28,Vaginal bleeding: After week 28,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,BLODN_F13,Vaginal bleeding: Before week 13,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN_mother,DIABETES_MELLITUS,Diabetes,,,1.0,,,,,,,,,,,,"1 = Pregestational diabetes – Type 1 
- 2 = Pregestational diabetes – Type 2 
- 3 = Pregestational diabetes – 
- Unspecified / other 
+MBRN,MBRN_mother,DIABETES_MELLITUS,Diabetes,,,1.0,,,,,,,,,,,,"1 = Pregestational diabetes – Type 1
+ 2 = Pregestational diabetes – Type 2
+ 3 = Pregestational diabetes –
+ Unspecified / other
  4 = Gestational diabetes
  5 = Antidiabetic medication during pregnancy registered without further information",False,,,,,
-MBRN,MBRN_mother,DODFODTE_5,Previous stillbirths (from 24 weeks and later) categorized,,,1.0,,,,,,,,,,,,"0 = 0 
- 1 = 1 
- 2 = 2 
- 3 = 3 
+MBRN,MBRN_mother,DODFODTE_5,Previous stillbirths (from 24 weeks and later) categorized,,,1.0,,,,,,,,,,,,"0 = 0
+ 1 = 1
+ 2 = 2
+ 3 = 3
  4 = 4 or more",False,,,,,
-MBRN,MBRN_mother,EKLAMPSI,"Eclampsia, total: 
- - Eclampsia during pregnancy 
- - Eclampsia during birth and/or post partum 
+MBRN,MBRN_mother,EKLAMPSI,"Eclampsia, total:
+ - Eclampsia during pregnancy
+ - Eclampsia during birth and/or post partum
  - Unspecified eclampsia",,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,ENHETER_BLOD,Units of blood given to the mother during delivery,,,1.0,,,,,,,HCP,,,,,Integer,False,,,,,
 MBRN,MBRN_mother,EPIDURAL,Epidural anaesthesia,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
-MBRN,MBRN_mother,FARS_ALDER_K11,Father’s age categorized,,,1.0,,,,,,,HCP/automated based on the personal ID number which always contains the persons birth date.,,,,,"1 = 17 years and younger 
- 2 = 18 - 19 years 
- 3 = 20 - 24 years 
- 4 = 25 - 29 years 
- 5 = 30 - 34 years 
- 6 = 35 - 39 years 
- 7 = 40 - 44 years 
- 8 = 45 - 49 years 
- 9 = 50 - 54 years 
- 10 = 55 - 59 years 
+MBRN,MBRN_mother,FARS_ALDER_K11,Father’s age categorized,,,1.0,,,,,,,HCP/automated based on the personal ID number which always contains the persons birth date.,,,,,"1 = 17 years and younger
+ 2 = 18 - 19 years
+ 3 = 20 - 24 years
+ 4 = 25 - 29 years
+ 5 = 30 - 34 years
+ 6 = 35 - 39 years
+ 7 = 40 - 44 years
+ 8 = 45 - 49 years
+ 9 = 50 - 54 years
+ 10 = 55 - 59 years
  11 = 60 years and older",False,,,,,
 MBRN,MBRN_mother,FAR_FAAR,Father’s year of birth,,,1.0,,,,,,,HCP/automated based on the personal ID number which always contains the persons birth date.,,,,,Year,False,,,,,
-MBRN,MBRN_mother,FODELAND_KAT_NOR_GBD,"Mother’s country of birth in 8 categories: 
- - Norway 
- - The 7 Global Burden of Disease (GBD) super regions",,,1.0,,,,,,,,,,,,"0201 = Norway 
- 0202 = High Income 
- 0203 = Central Europe, Eastern Europe and Central Asia 
- 0204 = Sub-Saharan Africa 
- 0205 = North Africa and Middle East 
- 0206 = South Asia 
- 0207 = South East Asia, East Asia and Oceania 
+MBRN,MBRN_mother,FODELAND_KAT_NOR_GBD,"Mother’s country of birth in 8 categories:
+ - Norway
+ - The 7 Global Burden of Disease (GBD) super regions",,,1.0,,,,,,,,,,,,"0201 = Norway
+ 0202 = High Income
+ 0203 = Central Europe, Eastern Europe and Central Asia
+ 0204 = Sub-Saharan Africa
+ 0205 = North Africa and Middle East
+ 0206 = South Asia
+ 0207 = South East Asia, East Asia and Oceania
  0208 = Latin America and Caribbean",False,,,,,
-MBRN,MBRN_mother,FODESTED_KAT_5,"Place of delivery categorized by: 
- - Size of maternity clinic (deliveries per year) 
- - Deliveries outside of institution",,,1.0,,,,,,,HCP/automated,,,,,"1 = 1-499 
- 2 = 500-1499 
- 3 = 1500-2999 
- 4 = 3000+ 
+MBRN,MBRN_mother,FODESTED_KAT_5,"Place of delivery categorized by:
+ - Size of maternity clinic (deliveries per year)
+ - Deliveries outside of institution",,,1.0,,,,,,,HCP/automated,,,,,"1 = 1-499
+ 2 = 500-1499
+ 3 = 1500-2999
+ 4 = 3000+
  5 = Outside of institution /Other",False,,,,,
 MBRN,MBRN_mother,FOLATF,Folate supplements prior to pregnancy,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,FOLATU,Folate supplements during pregnancy,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
@@ -5218,8 +5218,8 @@ MBRN,MBRN_mother,FOSTERV_MISF_STINK_INFI,"Amniotic fluid: Discoloured,malodorous
 MBRN,MBRN_mother,FOSTERV_OLIGOHYDRAMNION,Amniotic fluid: Oligohydramnios,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,FOSTERV_POLYHYDRAMNION,Amniotic fluid: Polyhydramnios,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,FRAMHJELP,Assisted delivery of breech / partial extraction,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
-MBRN,MBRN_mother,FSTART,Initiation of delivery,,,1.0,,,,,,,HCP,,,,,"1 = Spontaneous 
- 2 = Induction 
+MBRN,MBRN_mother,FSTART,Initiation of delivery,,,1.0,,,,,,,HCP,,,,,"1 = Spontaneous
+ 2 = Induction
  3 = Cesarean section",False,,,,,
 MBRN,MBRN_mother,HELLP,HELLP,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,HYPERTENSJON_ALENE,«Hypertension only» occured during pregnancy,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
@@ -5233,26 +5233,26 @@ MBRN,MBRN_mother,KJENT_FAR,Father is known,,,1.0,,,,,,,,,,,,1= Yes,False,,,,,
 MBRN,MBRN_mother,KMI_FOER,Mother’s body mass index before the start of the pregnancy (BMI),,,1.0,,,,,,,Based on variables MORS_HOYDE and MORS_VEKT_FOER,,,,,Decimal,False,,,,,
 MBRN,MBRN_mother,PLACENTAVEKT,Weight of placenta,,,1.0,,,,,,,HCP,,,,,Gram,False,,,,,
 MBRN,MBRN_mother,KMI_SLUTT,Mother’s body mass index at end of pregnancy (BMI),,,1.0,,,,,,,Based on variables MORS_HOYDE and MORS_VEKT_SLUTT,,,,,Decimal,False,,,,,
-MBRN,MBRN_mother,KOSTNEI,No regular supplements,,,1.0,,,,,,,,,,,,"1 = Checked “Regular supplements: No” and no other information about supplements is registered 
+MBRN,MBRN_mother,KOSTNEI,No regular supplements,,,1.0,,,,,,,,,,,,"1 = Checked “Regular supplements: No” and no other information about supplements is registered
  2 = Checked “Regular supplements: No”, but also gave information about other supplements",False,,,,,
 MBRN,MBRN_mother,KSNITT,Cesarean section,,,1.0,,,,,,,HCP,,,,,1 = Planned C-section 2 = Emergency C-section 9 = Unspecified C-section,False,,,,,
 MBRN,MBRN_mother,KSNITT_PLANLAGT,Cesarean section was planned,,,1.0,,,,,,,HCP,,,,,1 = No 2 = Yes,False,,,,,
 MBRN,MBRN_mother,KSNITT_TIDLIGERE,Mother has delivered by cesarean section in a previous pregnancy,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,KSNITT_TIDLIGERE_MFR,Mother has previous cesarean section registered in MBRN,,,1.0,,,,,,,HCP/registry,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,LEGEMIDLER_UNDER,Medication during pregnancy,,,1.0,,,,,,,See explanation  of code-strings below variable list,,,,,Code-string variable.,False,,,,,
-MBRN,MBRN_mother,LEIE,Child’s presentation/position at birth,,,1.0,,,,,,,HCP,,,,,"1 = Normal cephalic 
- 2 = Breech 
- 3 = Transverse 
- 4 = Cephalic, abnormal 
+MBRN,MBRN_mother,LEIE,Child’s presentation/position at birth,,,1.0,,,,,,,HCP,,,,,"1 = Normal cephalic
+ 2 = Breech
+ 3 = Transverse
+ 4 = Cephalic, abnormal
  5 = Other",False,,,,,
 OOM,EUROCAT,sib1,,,,2.2,,,,,,False,"SIB LOCAL ID NUMBER NOTIFIED TO THE CENTRAL REGISTRY
 Enter here also the code numbers of co-twins or siblings from the same pregnancy, irrespective of birth order within multiple sets.
 
 Leave blank if no previous siblings notified to EUROCAT.",,Table reference: EUROCAT/EUROmediCAT. Local ID,,,,False,,,,,
-MBRN,MBRN_mother,LEVENDEFODTE_5,Previous live births categorized,,,1.0,,,,,,,,,,,,"0 = 0 
- 1 = 1 
- 2 = 2 
- 3 = 3 
+MBRN,MBRN_mother,LEVENDEFODTE_5,Previous live births categorized,,,1.0,,,,,,,,,,,,"0 = 0
+ 1 = 1
+ 2 = 2
+ 3 = 3
  4 = 4 or more",False,,,,,
 MBRN,MBRN_mother,MANUELL_PLACENTA,Placenta: Manual extraction,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,MELDINGSTYPEID,Primary data source,,,1.0,,,,,,,,,,,,"1 = Digital birth notification form v. 1.0
@@ -5262,21 +5262,21 @@ MBRN,MBRN_mother,MELDINGSTYPEID,Primary data source,,,1.0,,,,,,,,,,,,"1 = Digita
  10 = Birth notification form 1967-1998, white paper
  199 = Termination of pregnancy registered according to §2.3c, unknown notification form",False,,,,,
 MBRN,MBRN_mother,MORS_ALDER,Mother’s age at time of delivery,,,1.0,,,,,,,HCP/automated Based on the personal ID number which always contains the persons birth date.,,,,,Integer,False,,,,,
-MBRN,MBRN_mother,MORS_ALDER_K8,Mother’s age categorized,,,1.0,,,,,,,HCP/automated Based on the personal ID number which always contains the persons birth date.,,,,,"1 = 17 years and younger 
+MBRN,MBRN_mother,MORS_ALDER_K8,Mother’s age categorized,,,1.0,,,,,,,HCP/automated Based on the personal ID number which always contains the persons birth date.,,,,,"1 = 17 years and younger
  2 = 18 – 19 years
- 3 = 20 – 24 years 
- 4 = 25 – 29 years 
- 5 = 30 – 34 years 
- 6 = 35 – 39 years 
- 7 = 40 – 44 years 
+ 3 = 20 – 24 years
+ 4 = 25 – 29 years
+ 5 = 30 – 34 years
+ 6 = 35 – 39 years
+ 7 = 40 – 44 years
  8 = 45 years and older",False,,,,,
 MBRN,MBRN_mother,MORS_HELSE_FOER,Mother’s health prior to pregnancy,,,1.0,,,,,,,See explanation  of code-strings below variable list,,,,,Code-string variable.,False,,,,,
 MBRN,MBRN_mother,MORS_HELSE_UNDER,Mother’s health during pregnancy,,,1.0,,,,,,,See explanation  of code-strings below variable list,,,,,Code-string variable.,False,,,,,
 MBRN,MBRN_mother,MORS_HOYDE,Mother’s height,,,1.0,,,,,,,"Could be either measured or patient-reported, recorded by HCP",,,,,Centimeter,False,,,,,
 MBRN,MBRN_mother,MORS_VEKT_FOER,Mother’s weight before pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,Kg,False,,,,,
 MBRN,MBRN_mother,MORS_VEKT_SLUTT,Mother’s weight at end of pregnancy,,,1.0,,,,,,,"Could be either measured or patient-reported, recorded by HCP. Reporting to the registry is not mandatory. Missing values represent women who opt out of registration",,,,,Kg,False,,,,,
-MBRN,MBRN_mother,MOR_BOSATT_NO,Mother reside in Norway at time of delivery,,,1.0,,,,,,,,,,,,"1 = Yes 
- 2 = No 
+MBRN,MBRN_mother,MOR_BOSATT_NO,Mother reside in Norway at time of delivery,,,1.0,,,,,,,,,,,,"1 = Yes
+ 2 = No
  3 = Unknown",False,,,,,
 MBRN,MBRN_mother,MOR_FAAR,Mother’s year of birth,,,1.0,,,,,,,HCP/automated,,,,,Year,False,,,,,
 MBRN,MBRN_mother,MULTIVITF,Multivitamin supplements prior to pregnancy,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
@@ -5285,29 +5285,29 @@ MBRN,MBRN_mother,NARKOSE,General anaesthesia,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,
 MBRN,MBRN_mother,NAVLESNORLENGDE,Length of the umbilical cord,,,1.0,,,,,,,HCP,,,,,Centimeter,False,,,,,
 MBRN,MBRN_mother,NAVLESNOR_KOMPL,Umbilical cord: Complications,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,NYRESYKDOM_KRONISK,Chronic renal disease,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
-MBRN,MBRN_mother,PARITET_5,Parity categorized,,,1.0,,,,,,,,,,,,"0 = 0 (primiparous) 
- 1 = 1 
- 2 = 2 
- 3 = 3 
+MBRN,MBRN_mother,PARITET_5,Parity categorized,,,1.0,,,,,,,,,,,,"0 = 0 (primiparous)
+ 1 = 1
+ 2 = 2
+ 3 = 3
  4 = 4 or more",False,,,,,
 MBRN,MBRN_mother,PCO2_NAVLESNORARTERIE,PCO2 umbilical cord artery,,,1.0,,,,,,,HCP,,,,,PCO2-value,False,,,,,
 MBRN,MBRN_mother,PCO2_NAVLESNORVENE,PCO2 umbilical cord vein,,,1.0,,,,,,,HCP,,,,,PCO2-value,False,,,,,
 MBRN,MBRN_mother,PH_NAVLESNORARTERIE,PH umbilical cord artery,,,1.0,,,,,,,HCP,,,,,PH-value,False,,,,,
 MBRN,MBRN_mother,PH_NAVLESNORVENE,PH umbilical cord vein,,,1.0,,,,,,,HCP,,,,,PH-value,False,,,,,
-MBRN,MBRN_mother,PREEKL,Preeclampsia,,,1.0,,,,,,,HCP,,,,,"1 = Light 
- 2 = Serious 
+MBRN,MBRN_mother,PREEKL,Preeclampsia,,,1.0,,,,,,,HCP,,,,,"1 = Light
+ 2 = Serious
  3 = Unspecified",False,,,,,
 MBRN,MBRN_mother,PREEKLTIDL,Early preeclampsia,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,PRENAT_DIAGNOSTIKK_UTF,Prenatal diagnostics performed,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,PRENAT_DIAG_TYPE,Prenatal diagnostics: Type,,,1.0,,,,,,,See explanation  of code-strings below variable list,,,,,Code-string variable.,False,,,,,
 MBRN,MBRN_mother,REUM_ARTRITT,Rheumatoid arthritis,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,ROBSON_10,Birth classification according to the Robson 10-group classification system,,,1.0,,,,,,,HCP. See table Robson-10 p. 23. See also: WHO | Robson Classification: Implementation Manual,,,,,Integer (from 1 to 10),False,,,,,
-MBRN,MBRN_mother,ROYK_AVSL,Smoking at end of pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No 
- 2 = Sometimes 
+MBRN,MBRN_mother,ROYK_AVSL,Smoking at end of pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No
+ 2 = Sometimes
  3 = Daily",False,,,,,
 MBRN,MBRN_mother,ROYK_AVSL_ANT,Number of cigarettes per day at end of pregnancy,,,1.0,,,,,,,,,,,,0 – 99,False,,,,,
-MBRN,MBRN_mother,ROYK_BEG,Smoking at start of pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No 
- 2 = Sometimes 
+MBRN,MBRN_mother,ROYK_BEG,Smoking at start of pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No
+ 2 = Sometimes
  3 = Daily",False,,,,,
 OOM,EUROCAT,sibanom,,,,2.2,,,,,,False,"SIBS WITH ANOMALIES
 If the sibling (including twin) was notified to EUROCAT fill in variables 68-71 below. Make sure that the local identification numbers given correspond to those in the central database; otherwise give more information in text here.
@@ -5322,77 +5322,77 @@ Always give details in text variable 66 SP_SIBANOM",,"1 = Same
 4 = No
 9 = Not known,Table reference: EUROCAT/EUROmediCAT.",,,,False,,,,,
 MBRN,MBRN_mother,ROYK_BEG_ANT,Number of cigarettes per day at start of pregnancy,,,1.0,,,,,,,,,,,,0 – 99,False,,,,,
-MBRN,MBRN_mother,ROYK_FOER,Smoking before pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No 
- 2 = Sometimes 
+MBRN,MBRN_mother,ROYK_FOER,Smoking before pregnancy,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration,,,,,"1 = No
+ 2 = Sometimes
  3 = Daily",False,,,,,
 MBRN,MBRN_mother,ROYK_FOER_ANT,Number of cigarettes per day before pregnancy,,,1.0,,,,,,,,,,,,0-99,False,,,,,
 MBRN,MBRN_mother,ROYK_MOTSETTER_SEG,Refuses registration of smoking habits,,,1.0,,,,,,,,,,,,1 = Yes 2 = No,False,,,,,
 MBRN,MBRN_mother,ROYK_OPPL,Smoking information available,,,1.0,,,,,,,,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,ROYK_SKRIFT_ORIENT,Written information on smoking registration is given (see ROYK_MOTSETTER SEG),,,1.0,,,,,,,,,,,,1 = Yes 2 = No,False,,,,,
 MBRN,MBRN_mother,RUPTUR34,"Perineal rupture, 3.-4. degree",,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
-MBRN,MBRN_mother,SIVST,Mother’s marital status at time of delivery,,,1.0,,,,,,,,,,,,"1 = Married / Registered partner 
- 2 = Co-habitant 
- 3 = Unmarried / Single 
- 4 = Divorced / Separated / Widow 
+MBRN,MBRN_mother,SIVST,Mother’s marital status at time of delivery,,,1.0,,,,,,,,,,,,"1 = Married / Registered partner
+ 2 = Co-habitant
+ 3 = Unmarried / Single
+ 4 = Divorced / Separated / Widow
  9 = Other / Missing",False,,,,,
-MBRN,MBRN_mother,SLEKTF,Familial relations between parents,,,1.0,,,,,,,,,,,,"1 = Not related 
- 2 = Closer than first cousins 
- 3 = First cousins 
- 4 = Second cousins 
- 5 = Other 
+MBRN,MBRN_mother,SLEKTF,Familial relations between parents,,,1.0,,,,,,,,,,,,"1 = Not related
+ 2 = Closer than first cousins
+ 3 = First cousins
+ 4 = Second cousins
+ 5 = Other
  6 = Unknown",False,,,,,
 MBRN,MBRN_mother,SMENSD_DATO,Fictive date for the 1st day of last menstrual period,,,1.0,,,,,,,,,,,,Date,False,,,,,
-MBRN,MBRN_mother,SMENSD_KODE,Reliability of 1st day of last menstrual period,,,1.0,,,,,,,,,,,,"1 = Certain 
- 2 = Uncertain 
- 3 = Irregular 
+MBRN,MBRN_mother,SMENSD_KODE,Reliability of 1st day of last menstrual period,,,1.0,,,,,,,,,,,,"1 = Certain
+ 2 = Uncertain
+ 3 = Irregular
  4 = Unknown",False,,,,,
-MBRN,MBRN_mother,SPABORT_12_5,Previous miscarriages before 12 weeks of gestation categorized,,,1.0,,,,,,,,,,,,"0 = 0 
- 1 = 1 
- 2 = 2 
- 3 = 3 
+MBRN,MBRN_mother,SPABORT_12_5,Previous miscarriages before 12 weeks of gestation categorized,,,1.0,,,,,,,,,,,,"0 = 0
+ 1 = 1
+ 2 = 2
+ 3 = 3
  4 = 4 or more",False,,,,,
 RMR,RMR,luogo,Place of death,,,1.0,,,,,,,,,,,,"""1"" = Home
  ""2"" = public care institution
   ""3"" = private care institution
- ""4"" = Social welfare structure 
+ ""4"" = Social welfare structure
  ""5"" = Other
  ""9"" = not detected.",False,,,,,
-MBRN,MBRN_mother,SPABORT_23_5,Previous miscarriages/stillbirths 12-23 weeks of gestation categorized,,,1.0,,,,,,,,,,,,"0 = 0 
- 1 = 1 
- 2 = 2 
- 3 = 3 
+MBRN,MBRN_mother,SPABORT_23_5,Previous miscarriages/stillbirths 12-23 weeks of gestation categorized,,,1.0,,,,,,,,,,,,"0 = 0
+ 1 = 1
+ 2 = 2
+ 3 = 3
  4 = 4 or more",False,,,,,
 MBRN,MBRN_mother,SPINAL,Spinal anaesthesia,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,SVLEN,"Length of gestation based on ultrasound estimation. If ultrasound is not available, the gestational length is calculated from the last menstrual period",,,1.0,,,,,,,HCP/automated,,,,,Number of completed weeks,False,,,,,
 MBRN,MBRN_mother,SVLEN_ART,Length of gestation calculated from date of embryo transfer,,,1.0,,,,,,,HCP/automated,,,,,Number of completed weeks,False,,,,,
 MBRN,MBRN_mother,SVLEN_ART_DG,Length of gestation calculated from date of embryo transfer,,,1.0,,,,,,,HCP/automated,,,,,Days,False,,,,,
-MBRN,MBRN_mother,SVLEN_DG,"Length of gestation in days. 
+MBRN,MBRN_mother,SVLEN_DG,"Length of gestation in days.
  See SVLEN for details",,,1.0,,,,,,,HCP/automated,,,,,Days,False,,,,,
 MBRN,MBRN_mother,SVLEN_SM_DG,Length of gestation calculated from the last menstrual period,,,1.0,,,,,,,Automated based on patient reported 1st day of last menstrual period,,,,,Days,False,,,,,
 MBRN,MBRN_mother,SVLEN_UL_DG,Length of gestation based on ultrasound estimations,,,1.0,,,,,,,HCP/automated,,,,,Days,False,,,,,
 MBRN,MBRN_mother,TANG,Forceps,,,1.0,,,,,,,HCP,,,,,"1 = Forceps, breech delivery
  2 = Outlet forceps, vertex delivery
  3 = Other forceps, vertex delivery",False,,,,,
-MBRN,MBRN_mother,TERMINMETODE,Method for estimating expected date of delivery,,,1.0,,,,,,,HCP,,,,,"1 = Ultrasound – “Terminhjulet” 
- 2 = Ultrasound – “eSnurra” 
- 3 = Ultrasound – Other 
+MBRN,MBRN_mother,TERMINMETODE,Method for estimating expected date of delivery,,,1.0,,,,,,,HCP,,,,,"1 = Ultrasound – “Terminhjulet”
+ 2 = Ultrasound – “eSnurra”
+ 3 = Ultrasound – Other
  4 = Embryo transfer
- 5 = Naegels rule 
- 6 = Ultrasound upspecified 
- 7 = Ultrasound is not performed 
+ 5 = Naegels rule
+ 6 = Ultrasound upspecified
+ 7 = Ultrasound is not performed
  99 = Other",False,,,,,
 MBRN,MBRN_mother,UL_TERMIN,Ultrasound estimated date of delivery,,,1.0,,,,,,,HCP. Difference date variable. Renamed diff_ul_termin in dataset.,,,,,Date,False,,,,,
 MBRN,MBRN_mother,UTSKRAPING,Placenta: Curettage,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,UTTREKKING,Total breech extraction,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,VAGINAL,Vaginal delivery,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
 MBRN,MBRN_mother,VAKUUM,Vacuum extraction,,,1.0,,,,,,,HCP,,,,,1 = Yes,False,,,,,
-MBRN,MBRN_mother,VANNAVGANG,Premature rupture of membranes,,,1.0,,,,,,,"If the rupture of the membranes take place in the woman’s home, the variable will rely on patient report, if during hospitalisation, exact time is noted by HCP",,,,,"1 = 12-24 hours before delivery 
- 2 = More than 24 hours before delivery 
+MBRN,MBRN_mother,VANNAVGANG,Premature rupture of membranes,,,1.0,,,,,,,"If the rupture of the membranes take place in the woman’s home, the variable will rely on patient report, if during hospitalisation, exact time is noted by HCP",,,,,"1 = 12-24 hours before delivery
+ 2 = More than 24 hours before delivery
  3 = Unspecified time before delivery",False,,,,,
 MBRN,MBRN_mother,VERSJON_DATABASE,Complete database version number,,,1.0,,,,,,,,,,,,2020Q1,False,,,,,
 MBRN,MBRN_mother,VERSJON_RECORD,MBRN record version number,,,1.0,,,,,,,,,,,,0.21319444444444444,False,,,,,
-MBRN,MBRN_mother,YRKE_KODE,Employed,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration. See next variable.,,,,,"1 = Not employed 
- 2 = Employed, full-time 
+MBRN,MBRN_mother,YRKE_KODE,Employed,,,1.0,,,,,,,Reporting to the registry is not mandatory. Missing values represent women who opt out of registration. See next variable.,,,,,"1 = Not employed
+ 2 = Employed, full-time
  3 = Employed, part-time",False,,,,,
 MBRN,MBRN_mother,YRKE_MOTSETTER_SEG,Does not consent to provide information about occupation,,,1.0,,,,,,,,,,,,1 = Yes 2 = No,False,,,,,
 MBRN,MBRN_mother,ZSCORE_BW_GA,"Raw z_score based on child’s weight, length of gestation and gender",,,1.0,,,,,,,HCP/automated,,,,,Decimal,False,,,,,
@@ -5409,7 +5409,7 @@ PHT,PHT,PROG_PRESCRIZIONE,Numero prescrizione,,,1.0,,,,,,,,,,,,Prescription numb
 RMR,RMR,causamorte,Main cause of death.,,,1.0,,,,,,,Non c’è causa morte_icdx,,,,,"It is compiled with the ICD 9 CM ´0 2 code.
  For decoding refer to table U_COD_ICD9CM02. In case of violent death this field is filled in with the injury code.",False,,,,,
 RMR,RMR,causaviolenta,Violent death.,,,1.0,,,,,,,Non c’è CAUSAVIOLENTA_ICDX,,,,,"ICD code 9 CM ´0 2 indicating the cause of violent death.
- For decoding refer to the table 
+ For decoding refer to the table
  U_COD_CAUSE_VIOLENTE.",False,,,,,
 RMR,RMR,iduni,Universal identifier,,,1.0,,,,,,,Unique subject identifier,,,,,,False,,,,,
 SALM,SALM,data,date of the evaluation / revaluation,,,1.0,,,,,,,,,,,,,False,,,,,
@@ -5492,8 +5492,8 @@ ICSI = Intracytoplasmic sperm injection",,"0 = No
 8 = Other
 9 = Not known
 10 = Assisted conception,type unknown,Table reference: EUROCAT",,,,False,,,,,
-OOM,EUROCAT,birthdate,,,,2.2,,,,,,True,"DATE OF BIRTH 
-Please enter dates as a numeric string, not in date format (eg. do not use 28/02/89 or 28-02-89, instead use 280289).",,"Table reference: EUROCAT/EUROmediCAT. Day,month,year 99 = Not known for day and month 
+OOM,EUROCAT,birthdate,,,,2.2,,,,,,True,"DATE OF BIRTH
+Please enter dates as a numeric string, not in date format (eg. do not use 28/02/89 or 28-02-89, instead use 280289).",,"Table reference: EUROCAT/EUROmediCAT. Day,month,year 99 = Not known for day and month
 
 DO NOT TRANSMIT RECORDS IF YEAR OF BIRTH IS NOT KNOWN",,,,False,,,,,
 OOM,EUROCAT,bmi,,,,2.2,,,,,,False,"MATERNAL BODY MASS INDEX
@@ -5509,7 +5509,7 @@ OOM,EUROCAT,civreg,,,,2.2,,,,,,True,"CIVIL REGISTRATION STATUS
 Livebirths and stillbirths are civilly registered leading to either a birth or stillbirth certificate and appear in official birth statistics for your region.
 
 Code here whether this case fulfilled the conditions for live or stillbirth registration in your country.",,"1 = Livebirth
-2 = Stillbirth 
+2 = Stillbirth
 3 = No civil registration
 9 = Not known,Table reference: EUROCAT",,,,False,,,,,
 OOM,EUROCAT,premal1,,,,2.2,,,,,,False,"PRENATAL DIAGNOSIS FOR MALFORMATION
@@ -5603,7 +5603,7 @@ Impaired Glucose Intolerance is a state of higher than normal blood (or plasma) 
 5 = No,but impaired glucose intolerance
 6 = No pregestational diabetes
 9 = Not known,Table reference: EUROCAT",,,,False,,,,,
-OOM,EUROCAT,sp-syndrome,,,,2.2,,,,,,True,"SPECIFY SYNDROME 
+OOM,EUROCAT,sp-syndrome,,,,2.2,,,,,,True,"SPECIFY SYNDROME
 
 Written text description of the ICD10 code in variable 30",,Table reference: EUROCAT/EUROmediCAT.,,,,False,,,,,
 OOM,EUROCAT,sp_consang,,,,2.2,,,,,,False,SPECIFY TEXT INFORMATION ON CONSANGUINITY,,Table reference: EUROCAT Free text,,,,False,,,,,
@@ -5677,7 +5677,7 @@ The definition of first week of life varies between countries. Follow your count
 
 Not known = Not known if child has died during first week.",,"1 = Yes
 2 = No
-3 = Alive at discharge <1 week 
+3 = Alive at discharge <1 week
 9 = Not known,Table reference: EUROCAT/EUROmediCAT.",,,,False,,,,,
 OOM,EUROCAT,syndrome,,,,2.2,,,,,,True,"SYNDROME OR ASSOCIATION
 Refer to EUROCAT Guide on syndromes. Give name of syndrome or association in text variable 28. All the anomalies observed by the local clinician should be coded in the remaining boxes for malformations.
@@ -5689,8 +5689,8 @@ Ensure karyotype information is given in variables 23 and 24, and that autopsy a
 
 In case of conjoined twins, give full description in syndrome text variable 28.
 
-Local registries are advised to keep photographs and x-ray images of all syndrome cases, as the diagnosis is predominantly established on the basis of specific facial 
-dysmorphism.",,"Table reference: EUROCAT/EUROmediCAT. 
+Local registries are advised to keep photographs and x-ray images of all syndrome cases, as the diagnosis is predominantly established on the basis of specific facial
+dysmorphism.",,"Table reference: EUROCAT/EUROmediCAT.
 ICD 10
 First 4 digits are ICD10
 5th digit = BPA supplement or leave blank",,,,False,,,,,
@@ -5700,7 +5700,7 @@ NOTE – The current reported pregnancy is NOT included.
 Include all previous abortions whether spontaneous or induced. Multiple pregnancies count as 1 in the total",,"00 = None
 01 = One
 02 = Two
-03 = Three etc 
+03 = Three etc
 20 = Twenty or more
 99 = Not known,Table reference: EUROCAT/EUROmediCAT.",,,,False,,,,,
 OOM,EUROCAT,type,,,,2.2,,,,,,True,"TYPE OF BIRTH
@@ -5716,7 +5716,7 @@ Terminations of pregnancy refer to cases where prenatal diagnosis was made of ma
 Stillbirths or perinatal deaths resulting from termination of pregnancy following prenatal diagnosis must be coded as terminations (value = 4), irrespective of civil registration status.
 
 For a non-natural fetal reduction in a multiple pregnancy where one fetus is malformed, code 4 (in that case gestlength = gestational age at reduction; date of birth = date of reduction; and code carefully all multiple birth
-variables).",,"1 = Live birth 
+variables).",,"1 = Live birth
 2 = Stillbirth
 3 = Spontaneous abortion
 4 = Termination of Pregnancy
@@ -5745,8 +5745,8 @@ Please also complete variables 12 “SURVIVAL”, 13 “DEATH- DATE”, 19 “CO
 4 = 1-12 months
 5 = Over 12 months
 6 = Prenatal diagnosis in live fetus
-7 = At abortion (spontaneous) 
-9 = Not known 
+7 = At abortion (spontaneous)
+9 = Not known
 10 = Postnatal
 diagnosis,age not
 known,Table reference: EUROCAT/EUROmediCAT.",,,,False,,,,,
@@ -6642,6 +6642,7 @@ GenR,core,smk1_original,smoking 1st trimester complete,,,1.0.0,,categorical,,,,,
 GenR,core,smk2_original,smoking 2nd trimester complete,,,1.0.0,,categorical,,,,,Indicates the number of cigarettes the mother smoked per day during the second trimester,,,,,,False,,,,,
 GenR,core,smk3_original,smoking 3rd trimester complete,,,1.0.0,,categorical,,,,,Indicates the number of cigarettes the mother smoked per day during the third trimester,,,,,,False,,,,,
 GenR,core,srs_weighted,srs weighted total score 25% missings allowed,,,1.0.0,,continuous,,,,,this is the same as the average item scale,,,,,,False,,,,,
+testCohort1,test dataset for testCohort1,var0,variable 0,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort1,test dataset for testCohort1,var1,variable 1,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort1,test dataset for testCohort1,var10,variable 10,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort1,test dataset for testCohort1,var11,variable 11,,,,,integer,,,,,,,,,,,False,,,,,
@@ -6653,6 +6654,7 @@ testCohort1,test dataset for testCohort1,var6,variable 6,,,,,continuous,pmol/L,,
 testCohort1,test dataset for testCohort1,var7,variable 7,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort1,test dataset for testCohort1,var8,variable 8,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort1,test dataset for testCohort1,var9,variable 9,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
+testCohort2,test dataset for testCohort2,var0,variable 0,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort2,test dataset for testCohort2,var1,variable 1,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort2,test dataset for testCohort2,var10,variable 10,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort2,test dataset for testCohort2,var11,variable 11,,,,,integer,,,,,,,,,,,False,,,,,
@@ -6664,6 +6666,7 @@ testCohort2,test dataset for testCohort2,var6,variable 6,,,,,continuous,pmol/L,,
 testCohort2,test dataset for testCohort2,var7,variable 7,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort2,test dataset for testCohort2,var8,variable 8,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort2,test dataset for testCohort2,var9,variable 9,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
+testCohort3,test dataset for testCohort3,var0,variable 0,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort3,test dataset for testCohort3,var1,variable 1,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort3,test dataset for testCohort3,var10,variable 10,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort3,test dataset for testCohort3,var11,variable 11,,,,,integer,,,,,,,,,,,False,,,,,
@@ -6675,6 +6678,7 @@ testCohort3,test dataset for testCohort3,var6,variable 6,,,,,continuous,pmol/L,,
 testCohort3,test dataset for testCohort3,var7,variable 7,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort3,test dataset for testCohort3,var8,variable 8,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort3,test dataset for testCohort3,var9,variable 9,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
+testCohort4,test dataset for testCohort4,var0,variable 0,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort4,test dataset for testCohort4,var1,variable 1,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort4,test dataset for testCohort4,var10,variable 10,,,,,continuous,pmol/L,,,,,,,,,,False,,,,,
 testCohort4,test dataset for testCohort4,var11,variable 11,,,,,integer,,,,,,,,,,,False,,,,,
